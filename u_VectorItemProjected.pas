@@ -206,10 +206,9 @@ function TProjectedPath.IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
 var
   i: Integer;
   VLine: IProjectedPathLine;
-  VIntersectRect: TDoubleRect;
 begin
   Result := False;
-  if IntersecProjectedRect(VIntersectRect, ARect, FBounds) then begin
+  if IsIntersecProjectedRect(ARect, FBounds) then begin
     for i := 0 to FList.Count - 1 do begin
       VLine := GetItem(i);
       if VLine.IsRectIntersectPath(ARect) then begin
@@ -285,10 +284,9 @@ function TProjectedPolygon.IsRectIntersectBorder(
 var
   i: Integer;
   VLine: IProjectedPolygonLine;
-  VIntersectRect: TDoubleRect;
 begin
   Result := False;
-  if IntersecProjectedRect(VIntersectRect, ARect, FBounds) then begin
+  if IsIntersecProjectedRect(ARect, FBounds) then begin
     for i := 0 to FList.Count - 1 do begin
       VLine := GetItem(i);
       if VLine.IsRectIntersectBorder(ARect) then begin
@@ -305,10 +303,9 @@ function TProjectedPolygon.IsRectIntersectPolygon(
 var
   i: Integer;
   VLine: IProjectedPolygonLine;
-  VIntersectRect: TDoubleRect;
 begin
   Result := False;
-  if IntersecProjectedRect(VIntersectRect, ARect, FBounds) then begin
+  if IsIntersecProjectedRect(ARect, FBounds) then begin
     for i := 0 to FList.Count - 1 do begin
       VLine := GetItem(i);
       if VLine.IsRectIntersectPolygon(ARect) then begin

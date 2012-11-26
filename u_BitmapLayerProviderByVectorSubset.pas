@@ -192,7 +192,6 @@ var
   VEnum: IEnumLocalPoint;
   VPolygon: TPolygon32;
   VMapRect: TDoubleRect;
-  VIntersectRect: TDoubleRect;
   VLocalRect: TDoubleRect;
   VRectWithDelta: TDoubleRect;
   VPointsProcessedCount: Integer;
@@ -203,7 +202,7 @@ begin
     VProjected := GetProjectedPath(AData, ALocalConverter.ProjectionInfo, FPreparedPointsAggreagtor);
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      if IntersecProjectedRect(VIntersectRect, VMapRect, VProjected.Bounds) then begin
+      if IsIntersecProjectedRect(VMapRect, VProjected.Bounds) then begin
         VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
         VRectWithDelta.Left := VLocalRect.Left - 10;
         VRectWithDelta.Top := VLocalRect.Top - 10;
@@ -213,7 +212,7 @@ begin
         try
           for VLineIndex := 0 to VProjected.Count - 1 do begin
             VLine := VProjected.Item[VLineIndex];
-            if IntersecProjectedRect(VIntersectRect, VMapRect, VLine.Bounds) then begin
+            if IsIntersecProjectedRect(VMapRect, VLine.Bounds) then begin
               FPreparedPointsAggreagtor.Clear;
               VEnum :=
                 TEnumDoublePointMapPixelToLocalPixel.Create(
@@ -340,7 +339,6 @@ var
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
   VProjected: IProjectedPolygon;
-  VIntersectRect: TDoubleRect;
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
   VLine: IProjectedPolygonLine;
@@ -350,7 +348,7 @@ begin
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      if IntersecProjectedRect(VIntersectRect, VMapRect, VProjected.Bounds) then begin
+      if IsIntersecProjectedRect(VMapRect, VProjected.Bounds) then begin
         VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
         VRectWithDelta.Left := VLocalRect.Left - 10;
         VRectWithDelta.Top := VLocalRect.Top - 10;
@@ -360,7 +358,7 @@ begin
         try
           for VLineIndex := 0 to VProjected.Count - 1 do begin
             VLine := VProjected.Item[VLineIndex];
-            if IntersecProjectedRect(VIntersectRect, VMapRect, VLine.Bounds) then begin
+            if IsIntersecProjectedRect(VMapRect, VLine.Bounds) then begin
               FPreparedPointsAggreagtor.Clear;
               VEnum :=
                 TEnumDoublePointMapPixelToLocalPixel.Create(

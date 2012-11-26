@@ -212,7 +212,6 @@ end;
 function TProjectedPathLine.IsRectIntersectPath(
   const ARect: TDoubleRect): Boolean;
 var
-  VIntersectRect: TDoubleRect;
   VEnum: IEnumProjectedPoint;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
@@ -220,7 +219,7 @@ var
   VDelta: TDoublePoint;
 begin
   Result := False;
-  if IntersecProjectedRect(VIntersectRect, FBounds, ARect) then begin
+  if IsIntersecProjectedRect(FBounds, ARect) then begin
     VEnum := GetEnum;
     // »щем есть ли пересечени€ пр€моугольника с линией
     if VEnum.Next(VPrevPoint) then begin
@@ -396,14 +395,13 @@ end;
 function TProjectedPolygonLine.IsRectIntersectBorder(
   const ARect: TDoubleRect): Boolean;
 var
-  VIntersectRect: TDoubleRect;
   VEnum: IEnumProjectedPoint;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
   VIntersect: Double;
   VDelta: TDoublePoint;
 begin
-  if not IntersecProjectedRect(VIntersectRect, FBounds, ARect) then begin
+  if not IsIntersecProjectedRect(FBounds, ARect) then begin
     Result := False;
   end else begin
     Result := False;
@@ -487,7 +485,6 @@ function TProjectedPolygonLine.IsRectIntersectPolygon(
   const ARect: TDoubleRect
 ): Boolean;
 var
-  VIntersectRect: TDoubleRect;
   VEnum: IEnumProjectedPoint;
   VPrevPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
@@ -495,7 +492,7 @@ var
   VDelta: TDoublePoint;
   VRectIn: Boolean;
 begin
-  if not IntersecProjectedRect(VIntersectRect, FBounds, ARect) then begin
+  if not IsIntersecProjectedRect(FBounds, ARect) then begin
     Result := False;
   end else begin
     if PixelPointInRect(FPoints[0], ARect) then begin
