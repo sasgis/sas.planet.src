@@ -22,28 +22,6 @@ unit i_ExternalTerrainsProvider;
 
 interface
 
-uses
-  t_ExternalTerrainAPI,
-  i_ProjConverter,
-  i_TerrainProvider;
-
-type
-  IExternalTerrainsProvider = interface
-    ['{395494F8-5793-4261-8AF8-259B1CAD2365}']
-    function Available: Boolean;
-    function Enum(
-      const AHostPointer: Pointer;
-      const AHostCallback: TExternalTerrainsEnumCallback
-    ): Boolean;
-  end;
-
-  IExternalTerrainsProviderInternal = interface(IExternalTerrainsProvider)
-    ['{F6DB1BA7-7EA7-4E5E-95C3-EB63A1782A11}']
-    function OpenFunc: Pointer;
-    function CloseFunc: Pointer;
-    function ElevFunc: Pointer;
-  end;
-
 implementation
 
 end.

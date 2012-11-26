@@ -30,6 +30,7 @@ uses
   i_TerrainProviderList,
   i_TerrainProviderListElement,
   i_ExternalTerrainsProvider,
+  i_PathConfig,
   i_ProjConverter,
   u_GlobalCahceConfig;
 
@@ -53,10 +54,13 @@ type
   TTerrainProviderListSimple = class(TTerrainProviderListBase)
   private
     FProjConverterFactory: IProjConverterFactory;
-    FExternalTerrainsProvider: IExternalTerrainsProvider;
+    FTerrainDataPath: IPathConfig;
+  private
+    procedure LoadFromIni;
   public
     constructor Create(
       const AProjConverterFactory: IProjConverterFactory;
+      const ATerrainDataPath: IPathConfig;
       const ACacheConfig: TGlobalCahceConfig
     );
     destructor Destroy; override;
@@ -65,6 +69,8 @@ type
 implementation
 
 uses
+  IniFiles,
+  Classes,
   c_TerrainProviderGUID,
   u_TerrainProviderListElement,
   u_TerrainProviderByGE,
@@ -73,55 +79,18 @@ uses
   u_Synchronizer,
   u_GUIDInterfaceSet;
 
-function ExternalTerrainsEnumCallbackFunc(
-  const AHostPointer: Pointer; // list
-  const ACallPointer: Pointer; // enumerator
-  const AProviderGUID: TGUID;
-  const AProviderName: PWideChar;
-  const AProviderProj: PAnsiChar;
-  const AOptions: LongWord // reserved
-): Boolean; cdecl;
-var
-  VCaption: WideString;
-  VProjInitString: AnsiString;
-  VProjConverter: IProjConverter;
-  VItem: ITerrainProviderListElement;
-begin
-  try
-    VCaption := AProviderName;
-
-    if (AProviderProj<>nil) then begin
-      VProjInitString := AProviderProj;
-      VProjConverter := TTerrainProviderListSimple(AHostPointer).FProjConverterFactory.GetByInitString(VProjInitString);
-    end else begin
-      // no proj converter
-      VProjConverter := nil;
-    end;
-
-    VItem := TTerrainProviderListElement.Create(
-      AProviderGUID,
-      VCaption,
-      TExternalTerrainsProvider(ACallPointer).CreateProvider(VProjConverter, AProviderGUID)
-    );
-
-    TTerrainProviderListSimple(AHostPointer).Add(VItem);
-
-    Result := TRUE;
-  except
-    Result := FALSE;
-  end;
-end;
-
 { TTerrainProviderListSimple }
 
 constructor TTerrainProviderListSimple.Create(
   const AProjConverterFactory: IProjConverterFactory;
+  const ATerrainDataPath: IPathConfig;
   const ACacheConfig: TGlobalCahceConfig
 );
 var
   VItem: ITerrainProviderListElement;
 begin
   inherited Create;
+  FTerrainDataPath := ATerrainDataPath;
 
   FProjConverterFactory := AProjConverterFactory;
 
@@ -142,17 +111,88 @@ begin
   Add(VItem);
 
   // make external items
-  FExternalTerrainsProvider := TExternalTerrainsProvider.Create;
-  if FExternalTerrainsProvider.Available then begin
-    FExternalTerrainsProvider.Enum(Pointer(Self), @ExternalTerrainsEnumCallbackFunc);
-  end;
+  LoadFromIni;
 end;
 
 destructor TTerrainProviderListSimple.Destroy;
 begin
-  FExternalTerrainsProvider := nil;
   FProjConverterFactory := nil;
+  FTerrainDataPath := nil;
   inherited;
+end;
+
+procedure TTerrainProviderListSimple.LoadFromIni;
+var
+  VFileName: String;
+  VIniFile: TIniFile;
+  VSections, VOptions: TStringList;
+  VSection, VCaption: String;
+  VGuid: TGUID;
+  VItem: ITerrainProviderListElement;
+  VProjInitString: AnsiString;
+  VProjConverter: IProjConverter;
+  i: Integer;
+begin
+  // check
+  if (nil=FTerrainDataPath) then
+    Exit;
+  VFileName := FTerrainDataPath.FullPath + '\SASTerrain.ini';
+  if (not FileExists(VFileName)) then
+    Exit;
+
+  // load
+  VSections := nil;
+  VOptions := nil;
+  VIniFile := TIniFile.Create(VFileName);
+  try
+    VSections := TStringList.Create;
+    VOptions := TStringList.Create;
+    VIniFile.ReadSections(VSections);
+    if (0<VSections.Count) then
+    for i := 0 to VSections.Count-1 do
+    try
+      // loop through terrains
+      VSection := VSections[i];
+
+      // get guid
+      VCaption := VIniFile.ReadString(VSection, 'GUID', '');
+      VGuid := StringToGUID(VCaption);
+
+      // get caption
+      VCaption := VIniFile.ReadString(VSection, 'Caption', VSection);
+
+      // get all options
+      VIniFile.ReadSectionValues(VSection, VOptions);
+
+      // get proj4 converter
+      VProjInitString := VIniFile.ReadString(VSection, 'Proj', '');
+      if (0<Length(VProjInitString)) then begin
+        VProjConverter := FProjConverterFactory.GetByInitString(VProjInitString);
+      end else begin
+        // no proj converter
+        VProjConverter := nil;
+      end;
+
+      // make item
+      VItem := TTerrainProviderListElement.Create(
+        VGuid,
+        VCaption,
+        TTerrainProviderByExternal.Create(
+          FTerrainDataPath.FullPath,
+          VProjConverter,
+          VOptions
+        )
+      );
+
+      // append to list
+      Add(VItem);
+    except
+    end;
+  finally
+    VIniFile.Free;
+    VOptions.Free;
+    VSections.Free;
+  end;
 end;
 
 { TTerrainProviderListBase }

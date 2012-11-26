@@ -107,6 +107,7 @@ type
     FMarksDbPath: IPathConfig;
     FMarksIconsPath: IPathConfig;
     FMediaDataPath: IPathConfig;
+    FTerrainDataPath: IPathConfig;
     FLastSelectionFileName: IPathConfig;
 
     FMainConfigProvider: IConfigDataWriteProvider;
@@ -207,6 +208,7 @@ type
     property AppStartedNotifier: INotifierOneOperation read FAppStartedNotifier;
     property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
     property MediaDataPath: IPathConfig read FMediaDataPath;
+    property TerrainDataPath: IPathConfig read FTerrainDataPath;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
@@ -386,6 +388,7 @@ begin
   FMarksDbPath := TPathConfig.Create('PrimaryPath', '.', FBaseDataPath);
   FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
+  FTerrainDataPath := TPathConfig.Create('PrimaryPath', '.\TerrainData', FBaseDataPath);
   FLastSelectionFileName := TPathConfig.Create('FileName', '.\LastSelection.hlg', FBaseDataPath);
 
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create;
@@ -407,6 +410,7 @@ begin
   FTrackPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTRACKS'));
   FMarksDbPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMARKS'));
   FMediaDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMediaData'));
+  FTerrainDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTerrainData'));
   FLastSelectionFileName.ReadConfig(FMainConfigProvider.GetSubItem('LastSelection'));
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
@@ -447,7 +451,7 @@ begin
     FPerfCounterList := TInternalPerformanceCounterFake.Create;
   end;
 
-  FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FCacheConfig);
+  FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FTerrainDataPath, FCacheConfig);
   FTerrainConfig := TTerrainConfig.Create;
 
   FDownloadConfig := TGlobalDownloadConfig.Create;
@@ -936,6 +940,7 @@ begin
   FTrackPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoTRACKS'));
   FMarksDbPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMARKS'));
   FMediaDataPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMediaData'));
+  FTerrainDataPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoTerrainData'));
   FLastSelectionFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('LastSelection'));
 end;
 

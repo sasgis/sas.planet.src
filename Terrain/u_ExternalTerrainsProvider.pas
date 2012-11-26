@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   Types,
+  Classes,
   t_GeoTypes,
   t_ExternalTerrainAPI,
   i_Notifier,
@@ -33,50 +34,29 @@ uses
   i_TerrainProvider;
 
 type
-  TExternalTerrainsProvider = class(TInterfacedObject, IExternalTerrainsProvider, IExternalTerrainsProviderInternal)
-  private
-    FDLLHandle: THandle;
-    FLibAvail: Boolean;
-    FEnumFunc: Pointer;
-    FOpenFunc: Pointer;
-    FCloseFunc: Pointer;
-    FElevFunc: Pointer;
-  private
-    { IExternalTerrainsProvider }
-    function Available: Boolean;
-    function Enum(
-      const AHostPointer: Pointer;
-      const AHostCallback: TExternalTerrainsEnumCallback
-    ): Boolean;
-  private
-    { IExternalTerrainsProviderInternal }
-    function OpenFunc: Pointer;
-    function CloseFunc: Pointer;
-    function ElevFunc: Pointer;
-  public
-    constructor Create;
-    destructor Destroy; override;
-  public
-    function CreateProvider(
-      const AProjConverter: IProjConverter;
-      const AProviderGUID: TGUID
-    ): ITerrainProvider;
-  end;
-
-implementation
-
-uses
-  c_TerrainProvider,
-  SysUtils;
-
-type
   TTerrainProviderByExternal = class(TInterfacedObject, ITerrainProvider)
   private
-    FExternalTerrainsProviderInternal: IExternalTerrainsProviderInternal;
+    FDefaultPath: String;
     FProjConverter: IProjConverter;
-    FProviderGUID: TGUID;
+    // opened file
+    FFileHandle: THandle;
+    FFileName: String;
+    FBaseFolder: String;
+    // options
+    FAvailable: Boolean;
+    FSamplesCount: Integer;
+    FLinesCount: Integer;
+    FVoidValue: Integer;
+    FByteOrder: Integer;
+    FPrefix, FSuffix: String;
   private
-    FProvHandle: TExternalTerrainsHandle;
+    procedure InternalClose;
+  private
+    function GetFilenamePart(
+      const AValue: Integer;
+      const APrefIfPlus, APrefIfMinus: Char;
+      const AWidth: Byte
+    ): String;
   protected
     { ITerrainProvider }
     function GetPointElevation(const ALonLat: TDoublePoint; const AZoom: Byte): Single;
@@ -84,131 +64,215 @@ type
     function GetStateChangeNotifier: INotifier;
   public
     constructor Create(
-      const AExternalTerrainsProviderInternal: IExternalTerrainsProviderInternal;
+      const ADefaultPath: String;
       const AProjConverter: IProjConverter;
-      const AProviderGUID: TGUID
+      const AOptions: TStrings
     );
     destructor Destroy; override;
   end;
 
-{ TExternalTerrainsProvider }
+implementation
 
-function TExternalTerrainsProvider.Available: Boolean;
-begin
-  Result := FLibAvail;
-end;
-
-function TExternalTerrainsProvider.CloseFunc: Pointer;
-begin
-  Result := FCloseFunc;
-end;
-
-constructor TExternalTerrainsProvider.Create;
-begin
-  inherited Create;
-  FDLLHandle := LoadLibrary('ExternalTerrains.dll');
-  if (FDLLHandle<>0) then begin
-    // ok
-    FEnumFunc  := GetProcAddress(FDLLHandle, 'ExternalTerrainsEnum');
-    FOpenFunc  := GetProcAddress(FDLLHandle, 'ExternalTerrainsOpen');
-    FCloseFunc := GetProcAddress(FDLLHandle, 'ExternalTerrainsClose');
-    FElevFunc  := GetProcAddress(FDLLHandle, 'ExternalTerrainsGetElevation');
-    // check available
-    FLibAvail := (FEnumFunc<>nil) and (FOpenFunc<>nil) and (FCloseFunc<>nil) and (FElevFunc<>nil);
-  end else begin
-    // failed
-    FLibAvail := FALSE;
-  end;
-end;
-
-function TExternalTerrainsProvider.CreateProvider(
-  const AProjConverter: IProjConverter;
-  const AProviderGUID: TGUID
-): ITerrainProvider;
-begin
-  Result := TTerrainProviderByExternal.Create(
-    Self,
-    AProjConverter,
-    AProviderGUID
-  );
-end;
-
-destructor TExternalTerrainsProvider.Destroy;
-begin
-  if (FDLLHandle<>0) then begin
-    FreeLibrary(FDLLHandle);
-    FDLLHandle:=0;
-  end;
-  inherited;
-end;
-
-function TExternalTerrainsProvider.ElevFunc: Pointer;
-begin
-  Result := FElevFunc;
-end;
-
-function TExternalTerrainsProvider.Enum(const AHostPointer: Pointer; const AHostCallback: TExternalTerrainsEnumCallback): Boolean;
-begin
-  Result := TExternalTerrainsEnum(FEnumFunc)(AHostPointer, Pointer(Self), AHostCallback);
-end;
-
-function TExternalTerrainsProvider.OpenFunc: Pointer;
-begin
-  Result := FOpenFunc;
-end;
-
+uses
+  c_TerrainProvider,
+  Math,
+  SysUtils;
+  
 { TTerrainProviderByExternal }
 
 constructor TTerrainProviderByExternal.Create(
-  const AExternalTerrainsProviderInternal: IExternalTerrainsProviderInternal;
+  const ADefaultPath: String;
   const AProjConverter: IProjConverter;
-  const AProviderGUID: TGUID
+  const AOptions: TStrings
 );
 begin
   inherited Create;
-  FExternalTerrainsProviderInternal := AExternalTerrainsProviderInternal;
-  FProjConverter := AProjConverter;
-  FProviderGUID := AProviderGUID;
-  FProvHandle := nil;
 
-  // open
-  TExternalTerrainsOpen(FExternalTerrainsProviderInternal.OpenFunc)(@FProvHandle, nil, AProviderGUID, (FProjConverter<>nil));
+  FProjConverter := AProjConverter;
+  FDefaultPath := ADefaultPath;
+
+  // read options
+  // if failed - create object but disable it
+  FFileHandle := 0;
+  FFileName := '';
+  FBaseFolder := '';
+  FAvailable := (AOptions.Values['Enabled']='1');
+
+  if (not FAvailable) then
+    Exit;
+
+  // folder - terrain file(s) storage
+  FBaseFolder := AOptions.Values['Folder'];
+  if (0=Length(FBaseFolder)) then begin
+    FBaseFolder := FDefaultPath+'\';
+  end;
+  if (0=Length(FBaseFolder)) then begin
+    FAvailable := FALSE;
+    Exit;
+  end;
+
+  // samples count in single file (mandatory)
+  if not TryStrToInt(AOptions.Values['SamplesCount'], FSamplesCount) then begin
+    FAvailable := FALSE;
+    Exit;
+  end;
+  if (FSamplesCount<=0) then begin
+    FAvailable := FALSE;
+    Exit;
+  end;
+
+  // lines count in single file (check if defined)
+  if not TryStrToInt(AOptions.Values['LinesCount'], FLinesCount) then begin
+    FLinesCount := 0;
+  end;
+
+  // some optional values
+  
+  if not TryStrToInt(AOptions.Values['VoidValue'], FVoidValue) then begin
+    FVoidValue := cUndefinedElevationValue;
+  end;
+
+  if not TryStrToInt(AOptions.Values['ByteOrder'], FByteOrder) then begin
+    FByteOrder := 0;
+  end;
+
+  FPrefix := Trim(AOptions.Values['Prefix']);
+  FSuffix := Trim(AOptions.Values['Suffix']);
 end;
 
 destructor TTerrainProviderByExternal.Destroy;
 begin
-  if (FProvHandle <> nil) then begin
-    TExternalTerrainsClose(FExternalTerrainsProviderInternal.CloseFunc)(@FProvHandle);
-    FProvHandle := nil;
-  end;
+  InternalClose;
+
   FProjConverter := nil;
-  FExternalTerrainsProviderInternal := nil;
+
   inherited;
 end;
 
 function TTerrainProviderByExternal.GetAvailable: Boolean;
 begin
-  Result := (FProvHandle<>nil) and FExternalTerrainsProviderInternal.Available;
+  Result := FAvailable;
+end;
+
+function TTerrainProviderByExternal.GetFilenamePart(
+  const AValue: Integer;
+  const APrefIfPlus, APrefIfMinus: Char;
+  const AWidth: Byte
+): String;
+begin
+  // 'N60'
+  // 'E056'
+  Result := IntToStr(AValue);
+
+  while (Length(Result)<AWidth) do begin
+    Result := '0' + Result;
+  end;
+
+  if (AValue<0) then
+    Result := APrefIfMinus + Result
+  else
+    Result := APrefIfPlus + Result;
 end;
 
 function TTerrainProviderByExternal.GetPointElevation(
   const ALonLat: TDoublePoint;
   const AZoom: Byte
 ): Single;
+var
+  VFilePoint: TPoint;
+  VIndexInLines, VIndexInSamples: LongInt;
+  VCustomRowCount: Integer;
+  VFilenameForPoint: String;
+  VDone: Boolean;
+  VElevationData: SmallInt; // signed 16bit
 begin
   if (FProjConverter<>nil) then begin
     // TODO: convert to WGS84/EGM96 geoid
     Result := cUndefinedElevationValue;
   end else begin
     // without conversion
-    if not TExternalTerrainsGetElevation(FExternalTerrainsProviderInternal.ElevFunc)(@FProvHandle, ALonLat.X, ALonLat.Y, Result) then
-      Result := cUndefinedElevationValue;
+    Result := cUndefinedElevationValue;
+
+    // get filename for given point
+    // use common 1x1 distribution (GDEM, STRM, viewfinderpanoramas)
+    // TODO: see 'file' implementation for ETOPO1 in ExternalTerrains.dll source
+    // TODO: see 'a-p,50' implementation for GLOBE in ExternalTerrains.dll source
+    VCustomRowCount := FLinesCount;
+
+    VFilePoint.X := Floor(ALonLat.X);
+    VFilePoint.Y := Floor(ALonLat.Y);
+
+    // StripIndex
+    VIndexInLines  := Round((1-(ALonLat.Y-VFilePoint.Y))*(FLinesCount-1));
+    // ColumnIndex
+    VIndexInSamples := Round((ALonLat.X-VFilePoint.X)*(FSamplesCount-1));
+
+    // make filename
+    VFilenameForPoint := FBaseFolder + FPrefix + GetFilenamePart(VFilePoint.Y, 'N', 'S', 2) + GetFilenamePart(VFilePoint.X, 'E', 'W', 3) + FSuffix;
+
+    // if file not opened or opened another file - open this
+    if (FFileName<>VFilenameForPoint) or (0=FFileHandle) then begin
+      InternalClose;
+      FFileName := VFilenameForPoint;
+      // open file
+      FFileHandle := CreateFile(PChar(FFileName), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING, 0, 0);
+      if (INVALID_HANDLE_VALUE = FFileHandle) then
+        FFileHandle := 0;
+    end;
+
+    // if file opened
+    if (FFileHandle<>0) then begin
+      // check format
+      if SameText(ExtractFileExt(FFileName),'.tif') then begin
+        // with tiff header
+        VDone := FindElevationInTiff(
+          FFileHandle,
+          VIndexInLines,
+          VIndexInSamples,
+          VCustomRowCount,
+          FSamplesCount,
+          VElevationData
+        );
+      end else begin
+        // without header
+        VDone := FindElevationInPlain(
+          FFileHandle,
+          VIndexInLines,
+          VIndexInSamples,
+          VCustomRowCount,
+          FSamplesCount,
+          VElevationData
+        );
+      end;
+
+      // check byte inversion
+      if VDone and (FByteOrder<>0) then begin
+        SwapInWord(@VElevationData);
+      end;
+
+      // check voids and result
+      if (not VDone) or ((FVoidValue<>0) and (FVoidValue=VElevationData)) then begin
+        // void or failed
+        Result := cUndefinedElevationValue;
+      end else begin
+        // ok
+        Result := VElevationData;
+      end;
+    end;
   end;
 end;
 
 function TTerrainProviderByExternal.GetStateChangeNotifier: INotifier;
 begin
   Result := nil;
+end;
+
+procedure TTerrainProviderByExternal.InternalClose;
+begin
+  if (FFileHandle <> 0) then begin
+    CloseHandle(FFileHandle);
+    FFileHandle := 0;
+  end;
 end;
 
 end.
