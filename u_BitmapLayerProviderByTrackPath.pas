@@ -238,7 +238,6 @@ var
   VConverter: ICoordConverter;
   VZoom: Byte;
   VBitmap: TCustomBitmap32;
-  VIntersectRect: TDoubleRect;
 begin
   Result := nil;
   if not FRectIsEmpty then begin
@@ -247,7 +246,7 @@ begin
     VTargetRect := ALocalConverter.GetRectInMapPixel;
     VConverter.CheckPixelRect(VTargetRect, VZoom);
     VLonLatRect := VConverter.PixelRect2LonLatRect(VTargetRect, VZoom);
-    if IntersecLonLatRect(VIntersectRect, FLonLatRect, VLonLatRect) then begin
+    if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
       VBitmap := TCustomBitmap32.Create;
       try
         if
