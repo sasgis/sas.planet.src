@@ -28,6 +28,7 @@ uses
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
   i_Listener in 'i_Listener.pas',
   i_Notifier in 'i_Notifier.pas',
+  i_NotifierFactory in 'i_NotifierFactory.pas',
   u_Notifier in 'u_Notifier.pas',
   i_ListenerNotifierLinksList in 'i_ListenerNotifierLinksList.pas',
   u_ListenerNotifierLinksList in 'u_ListenerNotifierLinksList.pas',

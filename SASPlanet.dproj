@@ -360,6 +360,7 @@
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
     <DCCReference Include="i_Notifier.pas" />
+    <DCCReference Include="i_NotifierFactory.pas" />
     <DCCReference Include="i_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="i_NotifierOperation.pas" />
     <DCCReference Include="i_NotifierTileRectUpdate.pas" />
