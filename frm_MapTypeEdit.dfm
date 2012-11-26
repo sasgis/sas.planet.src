@@ -6,7 +6,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
   ClientWidth = 450
   Color = clBtnFace
   Constraints.MinHeight = 300
-  Constraints.MinWidth = 460
+  Constraints.MinWidth = 458
   ParentFont = True
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -124,6 +124,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alLeft
       Caption = 'Cache type'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object CBCacheType: TComboBox
       AlignWithMargins = True
@@ -141,7 +142,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         'SAS.Planet'
         'EarthSlicer 1.95'
         'GlobalMapper Tiles'
-        'BerkeleyDB')
+        'BerkeleyDB'
+        'DBMS')
     end
     object btnResetCacheType: TButton
       AlignWithMargins = True
@@ -176,6 +178,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alLeft
       Caption = 'Parent submenu'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object EditParSubMenu: TEdit
       AlignWithMargins = True
@@ -219,6 +222,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alLeft
       Caption = 'Cache folder'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object EditNameinCache: TEdit
       AlignWithMargins = True
@@ -261,6 +265,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Height = 52
       Align = alLeft
       Caption = 'URL'
+      ExplicitHeight = 13
     end
     object pnlUrlRight: TPanel
       Left = 420
@@ -502,6 +507,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Height = 14
       Align = alLeft
       Caption = 'Zmp'
+      ExplicitHeight = 13
     end
     object edtZmp: TEdit
       AlignWithMargins = True
@@ -536,6 +542,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alLeft
       Caption = 'Version'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object btnResetVersion: TButton
       AlignWithMargins = True
@@ -578,6 +585,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Height = 46
       Align = alLeft
       Caption = 'Header'
+      ExplicitHeight = 13
     end
     object pnlHeaderReset: TPanel
       Left = 420
@@ -631,6 +639,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
       Align = alLeft
       Caption = 'Download state'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object mmoDownloadState: TMemo
       Left = 84

@@ -473,8 +473,8 @@ end;
 
 function TMapType.AllowListOfTileVersions: Boolean;
 begin
-  // only for GE and GC
-  Result := (FStorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]);
+  // only for GE and GC and DBMS
+  Result := (FStorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC, c_File_Cache_Id_DBMS]);
 end;
 
 function TMapType.TileExists(

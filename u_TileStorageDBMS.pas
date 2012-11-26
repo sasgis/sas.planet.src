@@ -82,6 +82,8 @@ type
     procedure DoTTLSync(Sender: TObject);
     // sync provider routine
     procedure DoProviderSync(Sender: TObject);
+    // internal sync prov caller
+    function InternalProviderSync(const AExclusiveFlag: LongWord): Byte;
   private
     function InternalLib_CleanupProc: Boolean; virtual;
     function InternalLib_Initialize: Boolean; virtual;
@@ -92,7 +94,7 @@ type
     function InternalLib_Complete: Boolean;
 
     // sync routines
-    procedure DoBeginWork(const AExclusively: Boolean);
+    procedure DoBeginWork(const AExclusiveFlag: LongWord; out AExclusively: Boolean);
     procedure DoEndWork(const AExclusively: Boolean);
 
     // helpers
@@ -119,6 +121,8 @@ type
 
   private
     // service helpers routines
+
+    function GetInitialExclusiveFlag(const AForQuery: Boolean): LongWord;
 
     procedure InternalSaveTileOrTNE(
       const AXY: TPoint;
@@ -235,21 +239,18 @@ uses
   u_TileRectInfoShort,
   u_TileInfoBasic;
 
+procedure SetUpExclusiveFlag(var AExclusiveFlag: LongWord); inline;
+begin
+  AExclusiveFlag := (AExclusiveFlag or ETS_ROI_EXCLUSIVELY)
+end;
+
+function ExclusiveFlagWasSetUp(const AExclusiveFlag: LongWord): Boolean; inline;
+begin
+  Result := ((AExclusiveFlag and ETS_ROI_EXCLUSIVELY) <> 0)
+end;
+
 type
   PTileInfo = ^TTileInfo;
-
-function TileInRectToIndex(const ATileRect: PRect; const ATile: TPoint): Integer;
-begin
-  if (ATile.X < ATileRect^.Left) or (ATile.X >= ATileRect^.Right) then begin
-    Result := -1;
-  end else if (ATile.Y < ATileRect^.Top) or (ATile.Y >= ATileRect^.Bottom) then begin
-    Result := -1;
-  end else begin
-    Result :=
-      (ATile.X - ATileRect^.Left) +
-      (ATile.Y - ATileRect^.Top) * (ATileRect^.Right - ATileRect^.Left);
-  end;
-end;
 
 type
   TEnumTileInfoByETS = class(TInterfacedObject, IEnumTileInfo)
@@ -294,7 +295,7 @@ type
 
   TGetTileRectCallbackInfo = packed record
     TileCount: TPoint;
-    InfoCount: Integer;
+    // InfoCount: Integer;
     InfoArray: TArrayOfTileInfoShortInternal;
   end;
   PGetTileRectCallbackInfo = ^TGetTileRectCallbackInfo;
@@ -392,7 +393,7 @@ begin
 
   // ACallbackPointer is PEnumTileVersionsCallbackInfo
   with PEnumTileVersionsCallbackInfo(ACallbackPointer)^ do
-  if (nil<>TileVersionsList) then begin
+  if (nil=TileVersionsList) then begin
     // make list
     TileVersionsList := TInterfaceList.Create;
   end;
@@ -417,19 +418,8 @@ var
   VIndex: Integer;
 begin
   // ACallbackPointer is PGetTileRectCallbackInfo
-  with PGetTileRectCallbackInfo(ACallbackPointer)^ do begin
-    if (0=InfoCount) then begin
-      with ATileRectInfoInp^.ptTileRect^ do begin
-        TileCount.X := Right - Left;
-        TileCount.Y := Bottom - Top;
-      end;
-      InfoCount := TileCount.X * TileCount.Y;
-      SetLength(InfoArray, InfoCount);
-    end;
-  end;
-
   // add info from tile
-  VIndex := TileInRectToIndex(ATileRectInfoInp^.ptTileRect, ATileRectInfoOut^.TilePos);
+  VIndex := TTileRectInfoShort.TileInRectToIndex(ATileRectInfoOut^.TilePos, ATileRectInfoInp^.ptTileRect^);
   // write info to TTileInfoShortInternal
   if (VIndex>=0) then begin
     with PGetTileRectCallbackInfo(ACallbackPointer)^.InfoArray[VIndex] do begin
@@ -521,12 +511,24 @@ constructor TTileStorageETS.Create(
 const
   CETSSync = 300000; // 5 min
   CETSSyncCheckInterval = 60000; // 60 sec
+var
+  VCorrectPath: String;
+  VPos: Integer;
 begin
+  VCorrectPath := AStoragePath;
+  VPos := System.Pos(AGlobalStorageIdentifier, VCorrectPath);
+  if (VPos>0) then begin
+    System.Delete(VCorrectPath, 1, VPos+Length(AGlobalStorageIdentifier));
+  end;
+  while (0<Length(VCorrectPath)) and (VCorrectPath[Length(VCorrectPath)]=PathDelim) do begin
+    SetLength(VCorrectPath, Length(VCorrectPath)-1);
+  end;
+
   inherited Create(
     TTileStorageTypeAbilitiesDBMS.Create,
     AMapVersionFactory,
     AGeoConverter,
-    AStoragePath
+    VCorrectPath
   );
 
   FETS_SERVICE_STORAGE_OPTIONS.Clear;
@@ -576,7 +578,7 @@ function TTileStorageETS.DeleteTile(
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
-  VStep: Byte;
+  VLockedExclusively: Boolean;
   VResult: Byte;
   VTileID: TTILE_ID_XYZ;
   VBufferIn: TETS_DELETE_TILE_IN;
@@ -587,20 +589,19 @@ begin
   if (nil=FETS_DeleteTile) then
     Exit;
 
+  VTileID.z := 0; // check for first time
   VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
-  VStep := 0;
+  VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(FALSE);
   repeat
     // let us go
-    DoBeginWork((VStep>0));
+    DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
       if StorageStateInternal.DeleteAccess <> asDisabled then begin
         // allow delete - initialize buffers
-        if (0=VStep) then begin
+        if (0=VTileID.z) then begin
           VTileID.xy := AXY;
-          VTileID.z := AZoom;
+          VTileID.z := AZoom+1; // zoom from 1
           VBufferIn.XYZ := @VTileID;
-          // make flags
-          VBufferIn.dwOptionsIn := 0;
           // make version
           VVersionString := AVersionInfo.StoreString;
           VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
@@ -608,9 +609,6 @@ begin
             // AnsiString
             VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN);
           end;
-        end else begin
-          // exclusively
-          VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_EXCLUSIVELY);
         end;
 
         // request to storage
@@ -622,14 +620,20 @@ begin
         Exit;
       end;
     finally
-      DoEndWork((VStep>0));
+      DoEndWork(VLockedExclusively);
     end;
 
     // check response
     case VResult of
+      ETS_RESULT_DISCONNECTED: begin
+        // repeat exclusively
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
+      end;
       ETS_RESULT_NEED_EXCLUSIVE: begin
         // repeat exclusively
-        Inc(VStep);
+        if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then
+          Exit;
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_OK: begin
         // success
@@ -654,10 +658,11 @@ begin
 end;
 
 destructor TTileStorageETS.Destroy;
+var VDummyLocked: Boolean;
 begin
   StorageStateInternal.ReadAccess := asDisabled;
 
-  DoBeginWork(TRUE);
+  DoBeginWork(ETS_ROI_EXCLUSIVELY, VDummyLocked);
   try
     InternalLib_Unload;
 
@@ -677,7 +682,7 @@ begin
     FTileNotExistsTileInfo := nil;
     FEmptyVersion := nil;
   finally
-    DoEndWork(TRUE);
+    DoEndWork(VDummyLocked);
   end;
 
   inherited;
@@ -685,8 +690,9 @@ begin
   FDLLSync := nil;
 end;
 
-procedure TTileStorageETS.DoBeginWork(const AExclusively: Boolean);
+procedure TTileStorageETS.DoBeginWork(const AExclusiveFlag: LongWord; out AExclusively: Boolean);
 begin
+  AExclusively := ExclusiveFlagWasSetUp(AExclusiveFlag);
   if AExclusively then
     FDLLSync.BeginWrite
   else
@@ -702,34 +708,34 @@ begin
 end;
 
 procedure TTileStorageETS.DoProviderSync(Sender: TObject);
-var
-  VResult: Byte;
 begin
   if (nil=FETS_Sync) then
     Exit;
 
-  DoBeginWork(FALSE);
-  try
-    // call
-    VResult := TETS_Sync(FETS_Sync)(@FDLLProvHandle, 0);
-  finally
-    DoEndWork(FALSE);
-  end;
-
-  if (ETS_RESULT_NEED_EXCLUSIVE=VResult) then begin
-    DoBeginWork(TRUE);
-    try
-      // call
-      TETS_Sync(FETS_Sync)(@FDLLProvHandle, ETS_ROI_EXCLUSIVELY);
-    finally
-      DoEndWork(TRUE);
-    end;
-  end;
+  if ETS_RESULT_NEED_EXCLUSIVE = InternalProviderSync(0) then
+    InternalProviderSync(ETS_ROI_EXCLUSIVELY);
 end;
 
 procedure TTileStorageETS.DoTTLSync(Sender: TObject);
 begin
   FTileInfoMemCache.ClearByTTL;
+end;
+
+function TTileStorageETS.GetInitialExclusiveFlag(const AForQuery: Boolean): LongWord;
+begin
+  Result := 0;
+
+  case FETS_SERVICE_STORAGE_OPTIONS.exclusive_mode of
+    ETS_HEM_EXCLISUVE: begin
+      // all exclusive - start from 1
+      SetUpExclusiveFlag(Result);
+    end;
+    ETS_HEM_QUERY_ONLY: begin
+      // synchronize query only
+      if AForQuery then
+        SetUpExclusiveFlag(Result);
+    end;
+  end;
 end;
 
 function TTileStorageETS.GetIsFileCache: Boolean;
@@ -743,7 +749,7 @@ function TTileStorageETS.GetListOfTileVersions(
   const AVersionInfo: IMapVersionInfo
 ): IMapVersionListStatic;
 var
-  VStep: Byte;
+  VLockedExclusively: Boolean;
   VResult: Byte;
   VVersionString: String;
   VObj: TEnumTileVersionsCallbackInfo;
@@ -752,22 +758,23 @@ var
 begin
   VResult := ETS_RESULT_OK;
   FillChar(VObj, SizeOf(VObj), 0);
-  VStep := 0;
+  VTileID.z := 0; // initial flag
+  VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(TRUE);
   if (nil<>FETS_EnumTileVersions) then
   repeat
     // let us go
-    DoBeginWork((VStep>0));
+    DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
       if StorageStateInternal.ReadAccess <> asDisabled then begin
         // has access
 
         // initialize buffers
-        if (0=VStep) then begin
+        if (0=VTileID.z) then begin
           VTileID.xy := AXY;
-          VTileID.z := AZoom;
+          VTileID.z := AZoom+1; // zoom from 1
           VBufferIn.XYZ := @VTileID;
           // make flags
-          VBufferIn.dwOptionsIn := (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
+          VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
           // make version
           VVersionString := AVersionInfo.StoreString;
           VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
@@ -775,9 +782,6 @@ begin
             // AnsiString
             VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN or ETS_ROI_ANSI_VERSION_OUT);
           end;
-        end else begin
-          // exclusively
-          VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_EXCLUSIVELY);
         end;
 
         // request to storage
@@ -790,14 +794,20 @@ begin
         break;
       end;
     finally
-      DoEndWork((VStep>0));
+      DoEndWork(VLockedExclusively);
     end;
 
     // check response
     case VResult of
+      ETS_RESULT_DISCONNECTED: begin
+        // repeat exclusively
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
+      end;
       ETS_RESULT_NEED_EXCLUSIVE: begin
         // repeat exclusively
-        Inc(VStep);
+        if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then
+          break;
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_OK: begin
         // success - output result object after break
@@ -830,7 +840,7 @@ function TTileStorageETS.GetTileInfo(
   const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 var
-  VStep: Byte;
+  VLockedExclusively: Boolean;
   VResult: Byte;
   VVersionString: String;
   VObj: TSelectTileCallbackInfo;
@@ -849,21 +859,22 @@ begin
 
   VResult := ETS_RESULT_OK;
   FillChar(VObj, SizeOf(VObj), 0);
-  VStep := 0;
+  VTileID.z := 0;
+  VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(TRUE);
   repeat
     // let us go
-    DoBeginWork((VStep>0));
+    DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
       if StorageStateInternal.ReadAccess <> asDisabled then begin
         // has access
 
         // initialize buffers
-        if (0=VStep) then begin
+        if (0=VTileID.z) then begin
           VTileID.xy := AXY;
-          VTileID.z := AZoom;
+          VTileID.z := AZoom+1; // zoom from 1
           VBufferIn.XYZ := @VTileID;
           // make flags (all except ETS_STI_CHECK_EXISTS, ContentType is AnsiString)
-          VBufferIn.dwOptionsIn := (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
+          VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
           if (AMode<>gtimWithoutData) then begin
             VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SELECT_TILE_BODY);
           end;
@@ -874,9 +885,6 @@ begin
             // AnsiString
             VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN or ETS_ROI_ANSI_VERSION_OUT);
           end;
-        end else begin
-          // exclusively
-          VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_EXCLUSIVELY);
         end;
 
         // request to storage
@@ -889,18 +897,26 @@ begin
         Exit;
       end;
     finally
-      DoEndWork((VStep>0));
+      DoEndWork(VLockedExclusively);
     end;
 
     // check response
     case VResult of
+      ETS_RESULT_DISCONNECTED: begin
+        // repeat exclusively
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
+      end;
       ETS_RESULT_NEED_EXCLUSIVE: begin
         // repeat exclusively
-        Inc(VStep);
+        if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then
+          Exit;
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_OK: begin
         // success - output result object
-        Result := VObj.TileResult;
+        if (VObj.TileResult<>nil) then begin
+          Result := VObj.TileResult;
+        end;
         // break to exit loop and write to cache
         break;
       end;
@@ -923,7 +939,7 @@ function TTileStorageETS.GetTileRectInfo(
   const AVersionInfo: IMapVersionInfo
 ): ITileRectInfo;
 var
-  VStep: Byte;
+  VLockedExclusively: Boolean;
   VResult: Byte;
   VVersionString: String;
   VObj: TGetTileRectCallbackInfo;
@@ -931,22 +947,32 @@ var
 begin
   VResult := ETS_RESULT_OK;
   FillChar(VObj, SizeOf(VObj), 0);
-  VStep := 0;
+  VBufferIn.btTileZoom := 0;
+  VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(TRUE);
+
+  // allocate
+  with ARect do begin
+    SetLength(
+      VObj.InfoArray,
+      (Right - Left) * (Bottom - Top)
+    );
+  end;
+
   if (nil<>FETS_GetTileRectInfo) then
   repeat
     // let us go
-    DoBeginWork((VStep>0));
+    DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
       if StorageStateInternal.ReadAccess <> asDisabled then begin
         // has access
 
         // initialize buffers
-        if (0=VStep) then begin
+        if (0=VBufferIn.btTileZoom) then begin
           VBufferIn.ptTileRect := @ARect;
-          VBufferIn.btTileZoom := AZoom;
+          VBufferIn.btTileZoom := AZoom+1; // zoom from 1
           VBufferIn.dwInfoMode := 0;
           // make flags
-          VBufferIn.dwOptionsIn := (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
+          VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
           // make version
           VVersionString := AVersionInfo.StoreString;
           VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
@@ -954,9 +980,6 @@ begin
             // AnsiString
             VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN or ETS_ROI_ANSI_VERSION_OUT);
           end;
-        end else begin
-          // exclusively
-          VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_EXCLUSIVELY);
         end;
 
         // request to storage
@@ -969,14 +992,20 @@ begin
         break;
       end;
     finally
-      DoEndWork((VStep>0));
+      DoEndWork(VLockedExclusively);
     end;
 
     // check response
     case VResult of
+      ETS_RESULT_DISCONNECTED: begin
+        // repeat exclusively
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
+      end;
       ETS_RESULT_NEED_EXCLUSIVE: begin
         // repeat exclusively
-        Inc(VStep);
+        if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then
+          break;
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_OK: begin
         // success - output result object after break
@@ -1279,6 +1308,17 @@ begin
   end;
 end;
 
+function TTileStorageETS.InternalProviderSync(const AExclusiveFlag: LongWord): Byte;
+var VLockedExclusively: Boolean;
+begin
+  DoBeginWork(AExclusiveFlag, VLockedExclusively);
+  try
+    Result := TETS_Sync(FETS_Sync)(@FDLLProvHandle, 0);
+  finally
+    DoEndWork(VLockedExclusively);
+  end;
+end;
+
 procedure TTileStorageETS.InternalSaveTileOrTNE(
   const AXY: TPoint;
   const AZoom: byte;
@@ -1289,7 +1329,7 @@ procedure TTileStorageETS.InternalSaveTileOrTNE(
   const ACallForTNE: Boolean
 );
 var
-  VStep: Byte;
+  VLockedExclusively: Boolean;
   VResult: Byte;
   VTileID: TTILE_ID_XYZ;
   VBufferIn: TETS_INSERT_TILE_IN;
@@ -1301,20 +1341,20 @@ begin
     Exit;
 
   VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
-
-  VStep := 0;
+  VTileID.z := 0; // initiali flag
+  VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(FALSE);
   repeat
     // let us go
-    DoBeginWork((VStep>0));
+    DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
     try
       if StorageStateInternal.WriteAccess <> asDisabled then begin
         // allow insert\update - initialize buffers
-        if (0=VStep) then begin
+        if (0=VTileID.z) then begin
           VTileID.xy := AXY;
-          VTileID.z := AZoom;
+          VTileID.z := AZoom+1; // zoom from 1
           VBufferIn.XYZ := @VTileID;
           // make flags
-          VBufferIn.dwOptionsIn := ETS_ROI_ANSI_CONTENTTYPE_IN;
+          VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or ETS_ROI_ANSI_CONTENTTYPE_IN;
           // make version
           VVersionString := AVersionInfo.StoreString;
           VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
@@ -1333,9 +1373,6 @@ begin
             VBufferIn.dwTileSize := 0;
             VBufferIn.ptTileBuffer := nil;
           end;
-        end else begin
-          // exclusively
-          VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_EXCLUSIVELY);
         end;
 
         // request to storage
@@ -1347,14 +1384,19 @@ begin
         Exit;
       end;
     finally
-      DoEndWork((VStep>0));
+      DoEndWork(VLockedExclusively);
     end;
 
     // check response
     case VResult of
+      ETS_RESULT_DISCONNECTED: begin
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
+      end;
       ETS_RESULT_NEED_EXCLUSIVE: begin
         // repeat exclusively
-        Inc(VStep);
+        if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then
+          Exit;
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_OK: begin
         // success
@@ -1420,7 +1462,10 @@ end;
 
 function TTileStorageETS.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo;
 begin
-  if (FETS_MakeTileEnum<>nil) and (FETS_NextTileEnum<>nil) and (FETS_KillTileEnum<>nil) then begin
+  if (FETS_MakeTileEnum<>nil) and
+     (FETS_NextTileEnum<>nil) and
+     (FETS_KillTileEnum<>nil) and
+     (FETS_SERVICE_STORAGE_OPTIONS.scan_tiles_mode<>ETS_STM_NOT) then begin
     // allow to create enumerator in storage provider
     Result := TEnumTileInfoByETS.Create(
       AIgnoreTNE,
@@ -1496,6 +1541,7 @@ constructor TEnumTileInfoByETS.Create(
   const AIgnoreTNE: Boolean;
   const AStorage: TTileStorageETS
 );
+var VLockedExclusively: Boolean;
 begin
   inherited Create;
   FIgnoreTNE := AIgnoreTNE;
@@ -1505,8 +1551,11 @@ begin
   FETSEnumTilesHandle := nil;
   FillChar(FETSAllEnumInfo, sizeof(FETSAllEnumInfo), 0);
 
+  // init options
+  FETSAllEnumInfo.dwOptionsIn := FStorage.GetInitialExclusiveFlag(TRUE);
+
   // set options
-  FETSAllEnumInfo.dwOptionsIn := (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
+  FETSAllEnumInfo.dwOptionsIn := FETSAllEnumInfo.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
 
   if (sizeof(Char)=sizeof(AnsiChar)) then begin
     FETSAllEnumInfo.dwOptionsIn := (FETSAllEnumInfo.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN or ETS_ROI_ANSI_VERSION_OUT);
@@ -1517,21 +1566,22 @@ begin
   end;
 
   // make
-  FStorage.DoBeginWork(TRUE);
+  FStorage.DoBeginWork(FETSAllEnumInfo.dwOptionsIn, VLockedExclusively);
   try
     FETSResult := InternalMake;
   finally
-    FStorage.DoEndWork(TRUE);
+    FStorage.DoEndWork(VLockedExclusively);
   end;
 end;
 
 destructor TEnumTileInfoByETS.Destroy;
+var VDummyLocked: Boolean;
 begin
-  FStorage.DoBeginWork(TRUE);
+  FStorage.DoBeginWork(ETS_ROI_EXCLUSIVELY, VDummyLocked);
   try
     InternalKill;
   finally
-    FStorage.DoEndWork(TRUE);
+    FStorage.DoEndWork(VDummyLocked);
   end;
   FStorage := nil;
   inherited;
@@ -1556,6 +1606,8 @@ begin
 end;
 
 function TEnumTileInfoByETS.Next(var ATileInfo: TTileInfo): Boolean;
+var
+  VLockedExclusively: Boolean;
 begin
   Result := FALSE;
 
@@ -1564,7 +1616,7 @@ begin
     Exit;
 
   // call provider
-  FStorage.DoBeginWork(FALSE);
+  FStorage.DoBeginWork(FETSAllEnumInfo.dwOptionsIn, VLockedExclusively);
   try
     FETSResult := TETS_NextTileEnum(FStorage.FETS_NextTileEnum)(
       @FETSEnumTilesHandle,
@@ -1572,7 +1624,7 @@ begin
       @FETSAllEnumInfo
     );
   finally
-    FStorage.DoEndWork(FALSE);
+    FStorage.DoEndWork(VLockedExclusively);
   end;
 
   // check result

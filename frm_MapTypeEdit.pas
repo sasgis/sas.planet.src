@@ -145,8 +145,8 @@ begin
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
       // common cache types
       if CBCacheType.ItemIndex > 0 then begin
-        if CBCacheType.ItemIndex = 5 then begin
-          // BDB
+        if CBCacheType.ItemIndex in [5,6] then begin
+          // BDB and DBMS
           FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex + 1;
         end else begin
           FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex;
@@ -184,8 +184,8 @@ begin
   EditHotKey.HotKey:=FMapType.Zmp.GUI.HotKey;
 
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
-    if FMapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB then begin
-      // BDB
+    if FMapType.Zmp.StorageConfig.CacheTypeCode in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS] then begin
+      // BDB and DBMS
       CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 1;
     end else begin
       CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
@@ -226,8 +226,8 @@ end;
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
-    if (FMapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB) then begin
-      // BDB
+    if (FMapType.Zmp.StorageConfig.CacheTypeCode in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS]) then begin
+      // BDB and DBMS
       CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 1;
     end else begin
       CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
@@ -263,7 +263,8 @@ begin
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
-      if (FMapType.StorageConfig.CacheTypeCode = c_File_Cache_Id_BDB) then begin
+      if (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS]) then begin
+        // BDB and DBMS
         CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode - 1;
       end else begin
         CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode;

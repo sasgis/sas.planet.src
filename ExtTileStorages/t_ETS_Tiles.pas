@@ -55,7 +55,7 @@ const
   ETS_RESULT_INCOMPLETE     = 18; // should call Complete routine
   ETS_RESULT_CANNOT_CONNECT = 19; // failed to create or initialize connection object
   ETS_RESULT_NOT_CONNECTED  = 20;
-  ETS_RESULT_DISCONNECTED   = 21;
+  ETS_RESULT_DISCONNECTED   = 21; // disconnected by server - exclusively reconnect
   // abstract host exception in provider
   ETS_RESULT_PROVIDER_EXCEPTION = 30;
   // abstract host exception in callback
@@ -92,13 +92,18 @@ const
   ETS_RESULT_POINTER2_NIL = 62;
 
   // unknown value (64-127)
-  ETS_RESULT_UNKNOWN_SERVICE     = 65;
-  ETS_RESULT_UNKNOWN_VERSION     = 66;
-  ETS_RESULT_UNKNOWN_VER_COMP    = 67;
-  ETS_RESULT_UNKNOWN_DIV_MODE    = 68;
-  ETS_RESULT_UNKNOWN_CONTENTTYPE = 69;
-  ETS_RESULT_UNKNOWN_INFOCLASS   = 70;
-
+  ETS_RESULT_UNKNOWN_DBMS          = 64; // unsupported DBMS type
+  ETS_RESULT_UNKNOWN_SERVICE       = 65;
+  ETS_RESULT_UNKNOWN_VERSION       = 66;
+  ETS_RESULT_UNKNOWN_VER_COMP      = 67;
+  ETS_RESULT_UNKNOWN_DIV_MODE      = 68;
+  ETS_RESULT_UNKNOWN_CONTENTTYPE   = 69;
+  ETS_RESULT_UNKNOWN_INFOCLASS     = 70;
+  ETS_RESULT_TILE_TABLE_NOT_FOUND  = 71; // table not found (for tiles)
+  ETS_RESULT_NO_TEMPLATE_RECORDS   = 72; // no records in template table
+  ETS_RESULT_INI_FILE_NOT_FOUND    = 73; // ini file not found
+  ETS_RESULT_INI_SECTION_NOT_FOUND = 74; // ini section not found
+  ETS_RESULT_UNKNOWN_ODBC_DSN      = 75; // unknown ODBC source (not registered as System DSN)
 
 const
   TILE_VERSION_COMPARE_NONE   = '0'; // tile version non-comparable
@@ -108,22 +113,23 @@ const
   TILE_VERSION_COMPARE_NUMBER = 'N'; // compare using version number (int)
 
   // how to divide tiles between tables (mask width)
-  TILE_DIV_NONE  = 'Z'; // all-in-one       (0) - reserved!
-  TILE_DIV_1024  = 'F'; // div by mod 1024 (10) - internal only
-  TILE_DIV_2048  = 'G'; // div by mod 2048 (11) - internal only
-  TILE_DIV_4096  = 'H'; // div by mod 4096 (12) - internal only
-  TILE_DIV_8192  = 'I'; // div by mod 8192 (13) - internal only
-  TILE_DIV_16384 = 'J'; // div by mod 16384 (14) - internal only
-  TILE_DIV_32768 = 'K'; // div by mod 32768 (15) - internal only
-  TILE_DIV_ERROR = '0'; // unknown value
+  // do not intersect with '0'-'9' and 'A'-'F'
+  TILE_DIV_NONE  = 'Z'; // all-in-one        (0) - reserved!
+  TILE_DIV_1024  = 'I'; // div by mod  1024 (10) - internal only
+  TILE_DIV_2048  = 'J'; // div by mod  2048 (11) - internal only
+  TILE_DIV_4096  = 'K'; // div by mod  4096 (12) - internal only
+  TILE_DIV_8192  = 'L'; // div by mod  8192 (13) - internal only
+  TILE_DIV_16384 = 'M'; // div by mod 16384 (14) - internal only
+  TILE_DIV_32768 = 'N'; // div by mod 32768 (15) - internal only
+  TILE_DIV_ERROR = ';'; // unknown value (failed to create table with this char)
 
   // how to load tiles with another version or without version
-  ETS_TLM_WITHOUT_VERSION = $00000001; // allow (without version) if (request with version) and (no tiles with any prev version)
-  ETS_TLM_PREV_VERSION    = $00000002; // allow (prev version) if (request with version) and (tile not found)
-  ETS_TLM_LAST_VERSION    = $00000004; // allow (last version) if (request without version) and (tile without version not found)
+  ETS_TLM_WITHOUT_VERSION = $01; // allow (without version) if (request with version) and (no tiles with any prev version)
+  ETS_TLM_PREV_VERSION    = $02; // allow (prev version) if (request with version) and (tile not found)
+  ETS_TLM_LAST_VERSION    = $04; // allow (last version) if (request without version) and (tile without version not found)
 
   // how to save tiles
-  ETS_TSM_MAKE_VERSIONS   = $00000001; // allow to create new version on saving tile with unknown version
+  ETS_TSM_MAKE_VERSIONS   = $01; // allow to create new version on saving tile with unknown version
 
   // how to work with service
   ETS_SWM_DEFAULT   = '0'; // default mode
@@ -134,11 +140,32 @@ const
   ETS_UCT_YES = '1';
   ETS_UCT_NO  = '0';
 
+  // host exclusive mode
+  ETS_HEM_DEFAULT     = '0';
+  ETS_HEM_EXCLISUVE   = 'E';
+  ETS_HEM_QUERY_ONLY  = 'Q';
+
+  // scan tiles mode
+  ETS_STM_DEFAULT     = '0'; // unknown or default value
+  ETS_STM_NOT         = 'N'; // not supported (depends on underlaying driver)
+  ETS_STM_YES         = 'Y'; // supported (depends on underlaying driver)
+
+  // provider malfunction mode
+  ETS_PMM_DEFAULT         = '0'; // default mode (success)
+  ETS_PMM_UNKNOWN         = 'U'; // unknown critical error
+  ETS_PMM_AUTH_FAILED     = 'A'; // failed to authenticate
+  ETS_PMM_NET_ERROR       = 'N'; // network error
+  ETS_PMM_NOT_COMPLETED   = 'C'; // settings not completed
+
   // flags for Initialize
   ETS_INIT_ISOLATE_ENV = $00000001; // make single isolated environment and connection
 
+  // value for empty item in path (server\database\table or server\$\table or database\$\table)
+  ETS_EMPTY_SOURCE_FIELD = '$';
+  
 type
   // only numeric xyz
+  // z from 1 to 26
   TTILE_ID_XYZ = packed record
     xy: TPoint;
     z: Byte;
@@ -162,6 +189,7 @@ const
   ETS_ROO_TILE_EXISTS  = $00000001; // tile found
   ETS_ROO_TNE_EXISTS   = $00000002; // TNE found
   ETS_ROO_COMMON       = $00000004; // common tile (just flag)
+  ETS_ROO_SAME_VERSION = $00000008; // returns same version
 
   // ETS_STO_HASH         = $00000008; // actual HASH (if provider stores HASH)
   // MD5             - 128 bit = 16 byte
@@ -325,13 +353,19 @@ type
     wSize: SmallInt;
     wReserved: SmallInt;  // use 0
     // from host to storage
-    tile_load_mode: LongWord; // ETS_TLM_* constants
-    tile_save_mode: LongWord; // ETS_TSM_* constants
+    tile_load_mode: Byte; // ETS_TLM_* constants
+    tile_save_mode: Byte; // ETS_TSM_* constants
+    host_reserved_4: Word;
+    host_reserved_5: LongWord; // for alignment
     // from storage to host
     id_div_mode: AnsiChar; // how to divide tiles into tables
     id_ver_comp: AnsiChar; // type of version numbers comparator
     work_mode: AnsiChar; //  ETS_SWM_* constants
     use_common_tiles: AnsiChar; //  ETS_UCT_* constants
+    exclusive_mode: AnsiChar; // ETS_HEM_* constants
+    scan_tiles_mode: AnsiChar; // ETS_STM_* constants
+    mailfunction_mode: AnsiChar; // ETS_PMM_* constants
+    host_reserved_3: AnsiChar;
   public
     procedure Clear;
   end;
@@ -345,10 +379,13 @@ procedure TETS_SERVICE_STORAGE_OPTIONS.Clear;
 begin
   FillChar(Self, sizeof(Self), 0);
   wSize := sizeof(Self);
-  id_div_mode := TILE_DIV_NONE;
+  id_div_mode := TILE_DIV_ERROR;
   id_ver_comp := TILE_VERSION_COMPARE_NONE;
   work_mode := ETS_SWM_DEFAULT;
   use_common_tiles := ETS_UCT_NO;
+  exclusive_mode := ETS_HEM_DEFAULT;
+  scan_tiles_mode := ETS_STM_DEFAULT;
+  mailfunction_mode := ETS_PMM_DEFAULT;
 end;
 
 end.
