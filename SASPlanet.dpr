@@ -30,6 +30,7 @@ uses
   i_Notifier in 'i_Notifier.pas',
   i_NotifierFactory in 'i_NotifierFactory.pas',
   u_Notifier in 'u_Notifier.pas',
+  u_NotifierFactorySimple in 'u_NotifierFactorySimple.pas',
   i_ListenerNotifierLinksList in 'i_ListenerNotifierLinksList.pas',
   u_ListenerNotifierLinksList in 'u_ListenerNotifierLinksList.pas',
   c_SasVersion in 'c_SasVersion.pas',

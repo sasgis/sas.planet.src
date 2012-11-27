@@ -981,6 +981,7 @@
     <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_Notifier.pas" />
+    <DCCReference Include="u_NotifierFactorySimple.pas" />
     <DCCReference Include="u_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="u_NotifierOperation.pas" />
     <DCCReference Include="u_NotifierTileRectUpdate.pas" />
