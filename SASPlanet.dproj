@@ -605,6 +605,7 @@
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToJNX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToOgf2.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportToStorage.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV3.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV4.pas" />
     <DCCReference Include="RegionProcess\u_ThreadGenPrevZoom.pas" />
