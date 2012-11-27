@@ -178,6 +178,7 @@ uses
   u_ThreadMapCombinePNG in 'RegionProcess\u_ThreadMapCombinePNG.pas',
   u_ThreadRegionProcessAbstract in 'RegionProcess\u_ThreadRegionProcessAbstract.pas',
   u_ThreadExportAbstract in 'RegionProcess\u_ThreadExportAbstract.pas',
+  u_ThreadExportToStorage in 'RegionProcess\u_ThreadExportToStorage.pas',
   u_ThreadExportToArchive in 'RegionProcess\u_ThreadExportToArchive.pas',
   u_ThreadExportToFileSystem in 'RegionProcess\u_ThreadExportToFileSystem.pas',
   u_ThreadExportToBDB in 'RegionProcess\u_ThreadExportToBDB.pas',

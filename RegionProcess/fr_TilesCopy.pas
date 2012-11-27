@@ -33,6 +33,12 @@ type
 
     function GetMapTypeList: IMapTypeListStatic;
     property MapTypeList: IMapTypeListStatic read GetMapTypeList;
+
+    function GetSetTargetVersionEnabled: Boolean;
+    property SetTargetVersionEnabled: Boolean read GetSetTargetVersionEnabled;
+
+    function GetSetTargetVersionValue: String;
+    property SetTargetVersionValue: String read GetSetTargetVersionValue;
   end;
 
 type
@@ -60,10 +66,15 @@ type
     chkAllMaps: TCheckBox;
     chklstMaps: TCheckListBox;
     Panel1: TPanel;
+    chkSetTargetVersionTo: TCheckBox;
+    edSetTargetVersionValue: TEdit;
+    pnSetTargetVersionOptions: TPanel;
     procedure btnSelectTargetPathClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure chkAllMapsClick(Sender: TObject);
     procedure chklstZoomsDblClick(Sender: TObject);
+    procedure cbbNamesTypeChange(Sender: TObject);
+    procedure chkSetTargetVersionToClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -73,14 +84,18 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    procedure UpdateSetTargetVersionState;
   private
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
   private
+    { IRegionProcessParamsFrameTilesCopy }
     function GetReplaseTarget: Boolean;
     function GetDeleteSource: Boolean;
     function GetTargetCacheType: Byte;
     function GetMapTypeList: IMapTypeListStatic;
+    function GetSetTargetVersionEnabled: Boolean;
+    function GetSetTargetVersionValue: String;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -97,6 +112,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
+  c_CacheTypeCodes, // for cache types
   i_GUIDListStatic,
   u_MapTypeListStatic,
   u_MapType;
@@ -110,6 +126,15 @@ begin
   if SelectDirectory('', '', TempPath) then begin
     edtTargetPath.Text := IncludeTrailingPathDelimiter(TempPath);
   end;
+end;
+
+procedure TfrTilesCopy.cbbNamesTypeChange(Sender: TObject);
+var
+  VAllowSetVersion: Boolean;
+begin
+  VAllowSetVersion := (c_File_Cache_Id_DBMS = GetTargetCacheType);
+  chkSetTargetVersionTo.Enabled := VAllowSetVersion;
+  UpdateSetTargetVersionState;
 end;
 
 procedure TfrTilesCopy.chkAllMapsClick(Sender: TObject);
@@ -138,6 +163,11 @@ begin
   for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i]:=true;
   if chklstZooms.ItemIndex<chklstZooms.count-1 then for i := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i]:=false;
   if chklstZooms.ItemIndex=chklstZooms.count-1 then chkAllZooms.state:=cbChecked else chkAllZooms.state:=cbGrayed;
+end;
+
+procedure TfrTilesCopy.chkSetTargetVersionToClick(Sender: TObject);
+begin
+  UpdateSetTargetVersionState;
 end;
 
 constructor TfrTilesCopy.Create(
@@ -192,9 +222,22 @@ begin
   Result := chkReplaseTarget.Checked;
 end;
 
+function TfrTilesCopy.GetSetTargetVersionEnabled: Boolean;
+begin
+  Result := chkSetTargetVersionTo.Enabled and chkSetTargetVersionTo.Checked;
+end;
+
+function TfrTilesCopy.GetSetTargetVersionValue: String;
+begin
+  Result := Trim(edSetTargetVersionValue.Text);
+end;
+
 function TfrTilesCopy.GetTargetCacheType: Byte;
 begin
-  if cbbNamesType.ItemIndex >= 0 then begin
+  if cbbNamesType.ItemIndex >= 4 then begin
+    // BDB and DBMS
+    Result := cbbNamesType.ItemIndex + 2;
+  end else if cbbNamesType.ItemIndex >= 0 then begin
     Result := cbbNamesType.ItemIndex + 1
   end else begin
     Result := 1;
@@ -254,6 +297,11 @@ begin
   i := cbbNamesType.ItemIndex;
   inherited;
   cbbNamesType.ItemIndex := i;
+end;
+
+procedure TfrTilesCopy.UpdateSetTargetVersionState;
+begin
+  edSetTargetVersionValue.Enabled := chkSetTargetVersionTo.Enabled and chkSetTargetVersionTo.Checked;
 end;
 
 end.

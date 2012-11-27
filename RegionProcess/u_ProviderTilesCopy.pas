@@ -49,11 +49,13 @@ implementation
 uses
   Types,
   SysUtils,
+  c_CacheTypeCodes, // for cache types
   i_RegionProcessParamsFrame,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,
   u_ThreadExportToBDB,
+  u_ThreadExportToStorage,
   u_ResStrings,
   frm_ProgressSimple;
 
@@ -113,6 +115,8 @@ var
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfo;
   VCacheType: Byte;
+  VSetTargetVersionEnabled: Boolean;
+  VSetTargetVersionValue: String;
   VMaps: IMapTypeListStatic;
 begin
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -121,7 +125,6 @@ begin
   VReplace := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ReplaseTarget;
   VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
   VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
-
 
   VCancelNotifierInternal := TNotifierOperation.Create;
   VOperationID := VCancelNotifierInternal.CurrentOperation;
@@ -135,7 +138,31 @@ begin
     VProgressInfo
   );
 
-  if VCacheType = 5 then begin
+  if VCacheType = c_File_Cache_Id_DBMS then begin
+    // set version options
+    VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
+    if VSetTargetVersionEnabled then
+      VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue
+    else
+      VSetTargetVersionValue := '';
+
+    TThreadExportToDBMS.Create(
+      VCancelNotifierInternal,
+      VOperationID,
+      VProgressInfo,
+      '', // allow empty value here (if path completely defined)
+      VPath,
+      FProjectionFactory,
+      FVectorItmesFactory,
+      APolygon,
+      VZoomArr,
+      VMaps,
+      VSetTargetVersionEnabled,
+      VSetTargetVersionValue,
+      VDeleteSource,
+      VReplace
+    );
+  end else if VCacheType = c_File_Cache_Id_BDB then begin
     TThreadExportToBDB.Create(
       VCancelNotifierInternal,
       VOperationID,

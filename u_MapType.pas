@@ -223,6 +223,7 @@ type
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
     property TileNotifier: INotifierTileRectUpdate read GetTileNotifier;
+    property ContentTypeManager: IContentTypeManager read FContentTypeManager;
 
     constructor Create(
       const ALanguageManager: ILanguageManager;

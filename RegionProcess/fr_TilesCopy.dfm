@@ -95,12 +95,14 @@ object frTilesCopy: TfrTilesCopy
         ItemIndex = 1
         TabOrder = 0
         Text = 'SAS.Planet'
+        OnChange = cbbNamesTypeChange
         Items.Strings = (
           'GoogleMV'
           'SAS.Planet'
           'ES1.95'
           'GMT (GlobalMapper >=10.02)'
-          'BerkeleyDB')
+          'BerkeleyDB'
+          'DBMS')
       end
       object chkDeleteSource: TCheckBox
         AlignWithMargins = True
@@ -144,12 +146,55 @@ object frTilesCopy: TfrTilesCopy
       end
       object chklstMaps: TCheckListBox
         Left = 3
-        Top = 81
+        Top = 125
         Width = 370
-        Height = 151
+        Height = 107
         Align = alClient
         ItemHeight = 13
         TabOrder = 4
+        ExplicitTop = 81
+        ExplicitHeight = 151
+      end
+      object pnSetTargetVersionOptions: TPanel
+        Left = 3
+        Top = 81
+        Width = 370
+        Height = 44
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alTop
+        AutoSize = True
+        BevelOuter = bvNone
+        TabOrder = 5
+        ExplicitLeft = 0
+        object chkSetTargetVersionTo: TCheckBox
+          Left = 0
+          Top = 0
+          Width = 370
+          Height = 17
+          Margins.Left = 0
+          Margins.Top = 0
+          Margins.Right = 0
+          Align = alTop
+          Caption = 'Set Version to'
+          Enabled = False
+          TabOrder = 0
+          OnClick = chkSetTargetVersionToClick
+          ExplicitLeft = 3
+        end
+        object edSetTargetVersionValue: TEdit
+          AlignWithMargins = True
+          Left = 3
+          Top = 20
+          Width = 364
+          Height = 21
+          Align = alTop
+          Enabled = False
+          TabOrder = 1
+          ExplicitTop = 17
+        end
       end
     end
   end
@@ -173,6 +218,7 @@ object frTilesCopy: TfrTilesCopy
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
       Left = 47

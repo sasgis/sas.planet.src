@@ -513,13 +513,8 @@ const
   CETSSyncCheckInterval = 60000; // 60 sec
 var
   VCorrectPath: String;
-  VPos: Integer;
 begin
   VCorrectPath := AStoragePath;
-  VPos := System.Pos(AGlobalStorageIdentifier, VCorrectPath);
-  if (VPos>0) then begin
-    System.Delete(VCorrectPath, 1, VPos+Length(AGlobalStorageIdentifier));
-  end;
   while (0<Length(VCorrectPath)) and (VCorrectPath[Length(VCorrectPath)]=PathDelim) do begin
     SetLength(VCorrectPath, Length(VCorrectPath)-1);
   end;
@@ -556,9 +551,11 @@ begin
   );
 
   FGCList := AGCList;
-  FGCList.Add(FETSTTLListener);
-  FGCList.Add(FMemCacheTTLListener);
-
+  if Assigned(FGCList) then begin
+    FGCList.Add(FETSTTLListener);
+    FGCList.Add(FMemCacheTTLListener);
+  end;
+  
   FTileInfoMemCache := TTileInfoBasicMemCache.Create(100, 30000);
 
   FDLLHandle := 0;
