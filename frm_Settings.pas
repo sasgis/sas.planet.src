@@ -154,8 +154,6 @@ type
     CBLastSuccess: TCheckBox;
     Label36: TLabel;
     SEWaitingAnswer: TSpinEdit;
-    Label37: TLabel;
-    CBCacheType: TComboBox;
     pnlBottomButtons: TPanel;
     flwpnlMemCache: TFlowPanel;
     grdpnlCache: TGridPanel;
@@ -229,6 +227,12 @@ type
     seGPSMarkerRingsCount: TSpinEdit;
     lblGPSMarkerRingRadius: TLabel;
     seGPSMarkerRingRadius: TSpinEdit;
+    Label37: TLabel;
+    CBCacheType: TComboBox;
+    lbDBMSCachePath: TLabel;
+    edtDBMSCachePath: TEdit;
+    btnSetDefDBMSCachePath: TButton;
+    btnSetDBMSCachePath: TButton;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -271,6 +275,7 @@ type
 implementation
 
 uses
+  c_CacheTypeCodes, // for default path
   t_CommonTypes,
   i_ProxySettings,
   i_InetConfig,
@@ -436,9 +441,9 @@ begin
   end;
 
  if CBCacheType.ItemIndex >= 0 then begin
-  if CBCacheType.ItemIndex = 4 then begin
-    // BDB
-    GState.CacheConfig.DefCache := 6;
+  if CBCacheType.ItemIndex + 2 in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS] then begin
+    // BDB or DBMS
+    GState.CacheConfig.DefCache := CBCacheType.ItemIndex + 2;
   end else begin
     // other starting items
     GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
@@ -517,6 +522,7 @@ begin
  GState.CacheConfig.GMTilesPath.Path:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
  GState.CacheConfig.GECachePath.Path:=IncludeTrailingPathDelimiter(GECachePath.Text);
  GState.CacheConfig.BDBCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
+ GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
  GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
 
   GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
@@ -557,18 +563,24 @@ end;
 
 procedure TfrmSettings.Button4Click(Sender: TObject);
 begin
- if (Sender as TButton).Tag=1 then OldCPath.Text:='cache_old' + PathDelim;
- if (Sender as TButton).Tag=2 then NewCpath.Text:='cache' + PathDelim;
- if (Sender as TButton).Tag=3 then ESCPath.Text:='cache_es' + PathDelim;
- if (Sender as TButton).Tag=4 then GMTilesPath.Text:='cache_gmt' + PathDelim;
- if (Sender as TButton).Tag=5 then GECachePath.Text:='cache_ge' + PathDelim;
- if (Sender as TButton).Tag=6 then edtBDBCachePath.Text:='cache_db' + PathDelim;
- if (Sender as TButton).Tag=7 then edtGCCachePath.Text:='cache_gc' + PathDelim;
+ if (Sender as TButton).Tag=1 then OldCPath.Text         := c_File_Cache_Default_GMV + PathDelim;
+ if (Sender as TButton).Tag=2 then NewCpath.Text         := c_File_Cache_Default_SAS + PathDelim;
+ if (Sender as TButton).Tag=3 then ESCPath.Text          := c_File_Cache_Default_ES + PathDelim;
+ if (Sender as TButton).Tag=4 then GMTilesPath.Text      := c_File_Cache_Default_GM + PathDelim;
+ if (Sender as TButton).Tag=5 then GECachePath.Text      := c_File_Cache_Default_GE + PathDelim;
+ if (Sender as TButton).Tag=6 then edtBDBCachePath.Text  := c_File_Cache_Default_BDB + PathDelim;
+ if (Sender as TButton).Tag=7 then edtDBMSCachePath.Text := c_File_Cache_Default_DBMS; // without deliiter(s)
+ if (Sender as TButton).Tag=8 then edtGCCachePath.Text   := c_File_Cache_Default_GC + PathDelim;
 end;
 
 procedure TfrmSettings.Button5Click(Sender: TObject);
 var  TempPath: string;
 begin
+  if (Sender as TButton).Tag=7 then begin
+    // DBMS - select source - not implemented yet
+    Exit;
+  end;
+
   if SelectDirectory('', '', TempPath) then
   begin
     if (Sender as TButton).Tag=1 then OldCPath.Text:= IncludeTrailingPathDelimiter(TempPath);
@@ -577,7 +589,8 @@ begin
     if (Sender as TButton).Tag=4 then GMTilesPath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=5 then GECachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=6 then edtBDBCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=7 then edtGCCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (Sender as TButton).Tag=7 then ;
+    if (Sender as TButton).Tag=8 then edtGCCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
   end;
 end;
 
@@ -745,9 +758,9 @@ begin
     GState.MainFormConfig.MainConfig.UnlockRead;
   end;
 
- if GState.CacheConfig.DefCache = 6 then begin
-   // DBD by default
-   CBCacheType.ItemIndex := 4;
+ if GState.CacheConfig.DefCache in [c_File_Cache_Id_BDB, c_File_Cache_Id_DBMS] then begin
+   // BDB  or DBMS by default
+   CBCacheType.ItemIndex := GState.CacheConfig.DefCache-2;
  end else if GState.CacheConfig.DefCache > 4 then begin
    // no GE and GC by default
    CBCacheType.ItemIndex := 1;
@@ -762,6 +775,7 @@ begin
  GMTilesPath.text:=GState.CacheConfig.GMTilesPath.Path;
  GECachePath.text:=GState.CacheConfig.GECachePath.Path;
  edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath.Path;
+ edtDBMSCachePath.text:=GState.CacheConfig.DBMSCachePath.Path;
  edtGCCachePath.text:=GState.CacheConfig.GCCachePath.Path;
 
   GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;

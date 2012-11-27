@@ -5,7 +5,7 @@ object frmSettings: TfrmSettings
   ClientHeight = 441
   ClientWidth = 652
   Color = clBtnFace
-  Constraints.MinHeight = 473
+  Constraints.MinHeight = 468
   Constraints.MinWidth = 660
   ParentFont = True
   OldCreateOrder = False
@@ -21,7 +21,7 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 652
     Height = 410
-    ActivePage = tsGPS
+    ActivePage = tsCache
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
@@ -35,12 +35,13 @@ object frmSettings: TfrmSettings
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
-        Top = 220
+        Top = 247
         Width = 638
         Height = 25
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitTop = 220
         object Label30: TLabel
           AlignWithMargins = True
           Left = 3
@@ -66,7 +67,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 644
-        Height = 217
+        Height = 244
         Align = alTop
         BevelOuter = bvNone
         ColumnCollection = <
@@ -208,35 +209,59 @@ object frmSettings: TfrmSettings
           end
           item
             Column = 0
-            Control = Label37
-            Row = 7
-          end
-          item
-            Column = 1
-            Control = CBCacheType
-            Row = 7
-          end
-          item
-            Column = 0
             Control = lbGCCachePath
-            Row = 6
+            Row = 7
           end
           item
             Column = 1
             Control = edtGCCachePath
-            Row = 6
+            Row = 7
           end
           item
             Column = 2
             Control = btnSetDefGCCachePath
-            Row = 6
+            Row = 7
           end
           item
             Column = 3
             Control = btnSetGCCachePath
+            Row = 7
+          end
+          item
+            Column = 0
+            Control = Label37
+            Row = 8
+          end
+          item
+            Column = 1
+            Control = CBCacheType
+            Row = 8
+          end
+          item
+            Column = 0
+            Control = lbDBMSCachePath
+            Row = 6
+          end
+          item
+            Column = 1
+            Control = edtDBMSCachePath
+            Row = 6
+          end
+          item
+            Column = 2
+            Control = btnSetDefDBMSCachePath
+            Row = 6
+          end
+          item
+            Column = 3
+            Control = btnSetDBMSCachePath
             Row = 6
           end>
         RowCollection = <
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
           item
             SizeStyle = ssAbsolute
             Value = 27.000000000000000000
@@ -271,16 +296,18 @@ object frmSettings: TfrmSettings
         TabOrder = 1
         DesignSize = (
           644
-          217)
+          244)
         object Label15: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'Native cache folder:'
           Layout = tlCenter
+          ExplicitWidth = 97
+          ExplicitHeight = 13
         end
         object NewCpath: TEdit
           AlignWithMargins = True
@@ -318,10 +345,12 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 30
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'GoogleMV cache folder:'
           Layout = tlCenter
+          ExplicitWidth = 113
+          ExplicitHeight = 13
         end
         object OldCpath: TEdit
           AlignWithMargins = True
@@ -359,10 +388,12 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 57
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'EarthSlicer cache folder:'
           Layout = tlCenter
+          ExplicitWidth = 117
+          ExplicitHeight = 13
         end
         object EScPath: TEdit
           AlignWithMargins = True
@@ -400,10 +431,12 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 84
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'GlobalMapper Tiles (GMT) cache folder:'
           Layout = tlCenter
+          ExplicitWidth = 187
+          ExplicitHeight = 13
         end
         object GMTilesPath: TEdit
           AlignWithMargins = True
@@ -441,10 +474,12 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 111
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'GoogleEarth cache folder:'
           Layout = tlCenter
+          ExplicitWidth = 125
+          ExplicitHeight = 13
         end
         object GECachePath: TEdit
           AlignWithMargins = True
@@ -482,10 +517,12 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 138
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
           Caption = 'BerkeleyDB cache folder:'
           Layout = tlCenter
+          ExplicitWidth = 120
+          ExplicitHeight = 13
         end
         object edtBDBCachePath: TEdit
           AlignWithMargins = True
@@ -518,20 +555,72 @@ object frmSettings: TfrmSettings
           TabOrder = 17
           OnClick = Button5Click
         end
-        object Label37: TLabel
+        object lbGCCachePath: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 192
           Width = 194
+          Height = 21
+          Align = alClient
+          Caption = 'GeoCacher root folder:'
+          Layout = tlCenter
+          ExplicitTop = 165
+          ExplicitWidth = 111
+          ExplicitHeight = 13
+        end
+        object edtGCCachePath: TEdit
+          AlignWithMargins = True
+          Left = 203
+          Top = 192
+          Width = 398
+          Height = 21
+          Align = alClient
+          TabOrder = 18
+          ExplicitTop = 165
+        end
+        object btnSetDefGCCachePath: TButton
+          Tag = 8
+          Left = 604
+          Top = 190
+          Width = 20
           Height = 25
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 19
+          OnClick = Button4Click
+          ExplicitLeft = 607
+          ExplicitTop = 189
+        end
+        object btnSetGCCachePath: TButton
+          Tag = 8
+          Left = 624
+          Top = 190
+          Width = 20
+          Height = 25
+          Anchors = []
+          Caption = '...'
+          TabOrder = 20
+          OnClick = Button5Click
+          ExplicitLeft = 630
+          ExplicitTop = 189
+        end
+        object Label37: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 219
+          Width = 194
+          Height = 22
           Align = alClient
           Caption = 'Default cache type'
           Layout = tlCenter
+          ExplicitLeft = 5
+          ExplicitTop = 233
+          ExplicitHeight = 21
         end
         object CBCacheType: TComboBox
           AlignWithMargins = True
           Left = 203
-          Top = 192
+          Top = 219
           Width = 398
           Height = 21
           Align = alClient
@@ -545,28 +634,38 @@ object frmSettings: TfrmSettings
             'SAS.Planet'
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
-            'BerkeleyDB')
+            'BerkeleyDB'
+            'DBMS')
+          ExplicitLeft = 329
+          ExplicitTop = 192
+          ExplicitWidth = 145
         end
-        object lbGCCachePath: TLabel
+        object lbDBMSCachePath: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 165
           Width = 194
-          Height = 24
+          Height = 21
           Align = alClient
-          Caption = 'GeoCacher root folder:'
+          Caption = 'DBMS root:'
           Layout = tlCenter
+          ExplicitTop = 192
+          ExplicitWidth = 54
+          ExplicitHeight = 13
         end
-        object edtGCCachePath: TEdit
+        object edtDBMSCachePath: TEdit
           AlignWithMargins = True
           Left = 203
           Top = 165
           Width = 398
           Height = 21
           Align = alClient
-          TabOrder = 18
+          TabOrder = 22
+          ExplicitLeft = 341
+          ExplicitTop = 192
+          ExplicitWidth = 121
         end
-        object btnSetDefGCCachePath: TButton
+        object btnSetDefDBMSCachePath: TButton
           Tag = 7
           Left = 604
           Top = 163
@@ -574,10 +673,12 @@ object frmSettings: TfrmSettings
           Height = 25
           Anchors = []
           Caption = '<>'
-          TabOrder = 19
+          TabOrder = 23
           OnClick = Button4Click
+          ExplicitLeft = 607
+          ExplicitTop = 189
         end
-        object btnSetGCCachePath: TButton
+        object btnSetDBMSCachePath: TButton
           Tag = 7
           Left = 624
           Top = 163
@@ -585,7 +686,7 @@ object frmSettings: TfrmSettings
           Height = 25
           Anchors = []
           Caption = '...'
-          TabOrder = 20
+          TabOrder = 24
           OnClick = Button5Click
         end
       end
@@ -693,10 +794,11 @@ object frmSettings: TfrmSettings
               Left = 24
               Top = 3
               Width = 94
-              Height = 20
+              Height = 17
               Align = alLeft
               Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CBProxyused: TCheckBox
               AlignWithMargins = True
@@ -715,6 +817,7 @@ object frmSettings: TfrmSettings
               Height = 23
               Align = alClient
               TabOrder = 1
+              ExplicitHeight = 21
             end
           end
           object flwpnlProxyAuth: TFlowPanel
@@ -885,6 +988,7 @@ object frmSettings: TfrmSettings
               Alignment = taRightJustify
               Caption = 'Distance representation'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object ComboBox1: TComboBox
               AlignWithMargins = True
@@ -921,6 +1025,7 @@ object frmSettings: TfrmSettings
               Alignment = taRightJustify
               Caption = 'Coordinates representation'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CB_llstrType: TComboBox
               AlignWithMargins = True
@@ -958,11 +1063,12 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 26
+              Height = 23
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object CBoxLocal: TComboBox
               AlignWithMargins = True
@@ -1080,6 +1186,7 @@ object frmSettings: TfrmSettings
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 3
@@ -1088,6 +1195,7 @@ object frmSettings: TfrmSettings
               Height = 13
               Align = alTop
               Caption = '_'
+              ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 3
@@ -1145,6 +1253,7 @@ object frmSettings: TfrmSettings
                 Height = 20
                 Align = alLeft
                 Caption = 'Image postprocessing'
+                ExplicitHeight = 13
               end
               object btnImageProcessReset: TButton
                 Left = 289
@@ -1177,6 +1286,7 @@ object frmSettings: TfrmSettings
               Alignment = taRightJustify
               Caption = 'Area representation'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object cbbAreaFormat: TComboBox
               AlignWithMargins = True
@@ -1217,10 +1327,11 @@ object frmSettings: TfrmSettings
             Height = 13
             Align = alTop
             Caption = 'Resize Algorithm:'
+            ExplicitWidth = 83
           end
           object flwpnlMiniMapAlfa: TFlowPanel
             Left = 3
-            Top = 217
+            Top = 220
             Width = 314
             Height = 30
             Align = alTop
@@ -1252,7 +1363,7 @@ object frmSettings: TfrmSettings
           end
           object pnlFillMap: TPanel
             Left = 3
-            Top = 283
+            Top = 286
             Width = 314
             Height = 51
             Align = alTop
@@ -1270,12 +1381,13 @@ object frmSettings: TfrmSettings
               Height = 13
               Align = alTop
               Caption = 'Cached tiles map:'
+              ExplicitWidth = 85
             end
             object flwpnlFillMap: TFlowPanel
               Left = 3
-              Top = 19
+              Top = 22
               Width = 308
-              Height = 27
+              Height = 24
               Align = alClient
               BevelOuter = bvNone
               TabOrder = 0
@@ -1319,7 +1431,7 @@ object frmSettings: TfrmSettings
           end
           object pnlBgColor: TPanel
             Left = 3
-            Top = 247
+            Top = 250
             Width = 314
             Height = 36
             Align = alTop
@@ -1334,10 +1446,11 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 82
-              Height = 25
+              Height = 22
               Align = alLeft
               Caption = 'Background color'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object ColorBoxBackGround: TColorBox
               AlignWithMargins = True
@@ -1353,7 +1466,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResize: TPanel
             Left = 3
-            Top = 184
+            Top = 187
             Width = 314
             Height = 33
             Align = alTop
@@ -1366,11 +1479,12 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 28
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Other'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object cbbResizeMethod: TComboBox
               AlignWithMargins = True
@@ -1388,7 +1502,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeOnload: TPanel
             Left = 3
-            Top = 19
+            Top = 22
             Width = 314
             Height = 33
             Align = alTop
@@ -1401,11 +1515,12 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 93
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On load from cache'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object cbbResizeOnLoad: TComboBox
               AlignWithMargins = True
@@ -1423,7 +1538,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeGetPre: TPanel
             Left = 3
-            Top = 52
+            Top = 55
             Width = 314
             Height = 33
             Align = alTop
@@ -1436,11 +1551,12 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 115
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On get from lower zoom'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object cbbResizeGetPre: TComboBox
               AlignWithMargins = True
@@ -1458,7 +1574,7 @@ object frmSettings: TfrmSettings
           end
           object pnlProjectionChange: TPanel
             Left = 3
-            Top = 85
+            Top = 88
             Width = 314
             Height = 33
             Align = alTop
@@ -1471,11 +1587,12 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 103
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On projection change'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object cbbProjectionChange: TComboBox
               AlignWithMargins = True
@@ -1493,7 +1610,7 @@ object frmSettings: TfrmSettings
           end
           object pnlDownloadResize: TPanel
             Left = 3
-            Top = 118
+            Top = 121
             Width = 314
             Height = 33
             Align = alTop
@@ -1506,11 +1623,12 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 63
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On download'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object cbbDownloadResize: TComboBox
               AlignWithMargins = True
@@ -1528,7 +1646,7 @@ object frmSettings: TfrmSettings
           end
           object pnlResizeTileMatrixDraft: TPanel
             Left = 3
-            Top = 151
+            Top = 154
             Width = 314
             Height = 33
             Align = alTop
@@ -1541,11 +1659,12 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 107
-              Height = 24
+              Height = 21
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'On change zoom draft'
               Layout = tlCenter
+              ExplicitHeight = 13
             end
             object cbbResizeTileMatrixDraft: TComboBox
               AlignWithMargins = True
@@ -1586,6 +1705,7 @@ object frmSettings: TfrmSettings
           Height = 13
           Align = alTop
           Caption = 'Tile borders:'
+          ExplicitWidth = 60
         end
         object flwpnlTileBorders: TFlowPanel
           Left = 3
@@ -1664,6 +1784,7 @@ object frmSettings: TfrmSettings
           Height = 13
           Align = alTop
           Caption = 'Genshtab Map boundaries:'
+          ExplicitWidth = 129
         end
         object flwpnlGenshtabBorders: TFlowPanel
           Left = 3
@@ -1742,6 +1863,7 @@ object frmSettings: TfrmSettings
           Height = 13
           Align = alTop
           Caption = 'Lat/Lon grid:'
+          ExplicitWidth = 61
         end
         object flwpnlDegreeBorders: TFlowPanel
           Left = 3

@@ -93,14 +93,14 @@ begin
   FCacheChangeNotifierInternal := TNotifierBase.Create;
   FCacheChangeNotifier := FCacheChangeNotifierInternal;
 
-  FOldCPath := TPathConfig.Create('GMVC', 'cache_old', FCacheGlobalPath);
-  FNewCPath := TPathConfig.Create('SASC', 'cache', FCacheGlobalPath);
-  FESCPath := TPathConfig.Create('ESC', 'cache_ES', FCacheGlobalPath);
-  FGMTilesPath := TPathConfig.Create('GMTiles', 'cache_gmt', FCacheGlobalPath);
-  FGECachePath := TPathConfig.Create('GECache', 'cache_GE', FCacheGlobalPath);
-  FGCCachePath := TPathConfig.Create('GCCache', 'cache_GC', FCacheGlobalPath);
-  FBDBCachePath := TPathConfig.Create('BDBCache', 'cache_db', FCacheGlobalPath);
-  FDBMSCachePath := TPathConfig.Create('DBMSCache', 'cache_dbms', FCacheGlobalPath);
+  FOldCPath      := TPathConfig.Create('GMVC',      c_File_Cache_Default_GMV,  FCacheGlobalPath);
+  FNewCPath      := TPathConfig.Create('SASC',      c_File_Cache_Default_SAS,  FCacheGlobalPath);
+  FESCPath       := TPathConfig.Create('ESC',       c_File_Cache_Default_ES,   FCacheGlobalPath);
+  FGMTilesPath   := TPathConfig.Create('GMTiles',   c_File_Cache_Default_GM,   FCacheGlobalPath);
+  FGECachePath   := TPathConfig.Create('GECache',   c_File_Cache_Default_GE,   FCacheGlobalPath);
+  FGCCachePath   := TPathConfig.Create('GCCache',   c_File_Cache_Default_GC,   FCacheGlobalPath);
+  FBDBCachePath  := TPathConfig.Create('BDBCache',  c_File_Cache_Default_BDB,  FCacheGlobalPath);
+  FDBMSCachePath := TPathConfig.Create('DBMSCache', c_File_Cache_Default_DBMS, FCacheGlobalPath);
 end;
 
 destructor TGlobalCahceConfig.Destroy;

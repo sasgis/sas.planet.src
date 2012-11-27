@@ -359,7 +359,12 @@ begin
     if VTypeCode = c_File_Cache_Id_DEFAULT then begin
       VTypeCode := FGlobalCacheConfig.DefCache;
     end;
-    VPath := IncludeTrailingPathDelimiter(FActualPath.FullPath);
+    // for DBMS use only defined Path
+    if (c_File_Cache_Id_DBMS=VTypeCode) then
+      VPath := FActualPath.Path
+    else
+      VPath := IncludeTrailingPathDelimiter(FActualPath.FullPath);
+    // build
     if (FCurrentTypeCode <> VTypeCode) or (FCurrentPath <> VPath) then begin
       BuildStorage(VConfig, VTypeCode, VPath);
     end;
