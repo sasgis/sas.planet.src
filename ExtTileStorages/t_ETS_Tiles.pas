@@ -191,6 +191,14 @@ const
   ETS_ROO_COMMON       = $00000004; // common tile (just flag)
   ETS_ROO_SAME_VERSION = $00000008; // returns same version
 
+  // execute option(s)
+  ETS_EOI_ANSI_VALUES     = $00000001;
+  ETS_EOO_ANSI_VALUES     = $00000001;
+  ETS_EOO_HTML_DECORATED  = $00000002;
+  ETS_EOO_CLEAR_MEMCACHE  = $00000004;
+  ETS_EOO_NEED_REFRESH    = $00000008;
+  ETS_EOO_NEED_RESTART    = $00000010;
+
   // ETS_STO_HASH         = $00000008; // actual HASH (if provider stores HASH)
   // MD5             - 128 bit = 16 byte
   // SHA-1           - 160 bit = 20 byte
@@ -346,6 +354,18 @@ type
   end;
   PETS_DIV_MODE_A = ^TETS_DIV_MODE_A;
 
+
+  PETS_EXEC_OPTION_IN = ^TETS_EXEC_OPTION_IN;
+  TETS_EXEC_OPTION_IN = packed record
+    dwOptionsIn: LongWord;   // ETS_EOI_* constants
+    dwOptionsOut: LongWord;  // ETS_EOO_* constants
+    // input
+    szFullPrefix: Pointer;
+    szRequest: Pointer;
+    // output
+    szResponse: Pointer;
+    dwLength: LongInt;
+  end;
 
   // buffer to set service options to storage
   TETS_SERVICE_STORAGE_OPTIONS = packed record

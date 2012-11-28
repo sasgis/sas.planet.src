@@ -179,6 +179,17 @@ type
   ): Byte; stdcall;
 
 
+  TETS_FreeMem = function(
+    const ABuffer: Pointer
+  ): Byte; stdcall;
+
+  // get and set option(s)
+  TETS_ExecOption = function(
+    const AProvider_Handle: PETS_Provider_Handle;
+    const ACallbackPointer: Pointer; // reserved - use NULL
+    const AExecOptionIn: PETS_EXEC_OPTION_IN
+  ): Byte; stdcall;
+
   // AInfoClass values for TETS_SetInformation
 const
   ETS_INFOCLASS_SetStorageIdentifier  = $00; // set GlobalStorageIdentifier and ServiceName
