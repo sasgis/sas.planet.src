@@ -127,6 +127,8 @@ type
     function ScanTiles(
       const AIgnoreTNE: Boolean
     ): IEnumTileInfo;
+  protected
+    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
   public
     constructor Create(
       const AGlobalCacheConfig: TGlobalCahceConfig;
@@ -413,6 +415,13 @@ begin
   finally
     StorageUnlock;
   end;
+end;
+
+function TTileStorageOfMapType.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  Result := inherited QueryInterface(IID, Obj);
+  if (E_NOINTERFACE=Result) and Assigned(FStorage) then
+    Result := FStorage.QueryInterface(IID, Obj);
 end;
 
 procedure TTileStorageOfMapType.UpdateActualPath;
