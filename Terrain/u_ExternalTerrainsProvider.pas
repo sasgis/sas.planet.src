@@ -162,7 +162,7 @@ function TTerrainProviderByExternal.GetFilenamePart(
 begin
   // 'N60'
   // 'E056'
-  Result := IntToStr(AValue);
+  Result := IntToStr(Abs(AValue));
 
   while (Length(Result)<AWidth) do begin
     Result := '0' + Result;
