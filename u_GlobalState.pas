@@ -344,6 +344,7 @@ uses
   u_InternalDomainInfoProviderByMarksSystem,
   u_InternalDomainInfoProviderByMapData,
   u_InternalDomainInfoProviderByLastSearchResults,
+  u_InternalDomainInfoProviderByTileStorageOptions,
   u_GpsSystem,
   u_LastSelectionInfoSaver,
   u_GlobalInternetState,
@@ -755,6 +756,17 @@ begin
     CMapDataInternalDomain,
     VInternalDomainInfoProvider
   );
+
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByTileStorageOptions.Create(
+      FMainMapsList.FullMapsSetChangeable
+    );
+
+  VInternalDomainInfoProviderList.Add(
+    CTileStorageOptionsInternalDomain,
+    VInternalDomainInfoProvider
+  );
+
   FProtocol :=
     TIeEmbeddedProtocolRegistration.Create(
       CSASProtocolName,

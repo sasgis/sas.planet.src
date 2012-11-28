@@ -32,6 +32,7 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_TileStorage,
+  i_InternalDomainOptions,
   i_CoordConverter,
   i_ContentTypeManager,
   i_NotifierTTLCheck,
@@ -42,7 +43,7 @@ uses
   t_ETS_Provider;
 
 type
-  TTileStorageETS = class(TTileStorageAbstract)
+  TTileStorageETS = class(TTileStorageAbstract, IInternalDomainOptions)
   // base interface
   private
     FMainContentType: IContentTypeInfoBasic;
@@ -74,6 +75,8 @@ type
     FETS_MakeTileEnum: Pointer;     // TETS_MakeTileEnum (OPTIONAL)
     FETS_NextTileEnum: Pointer;     // TETS_NextTileEnum (OPTIONAL)
     FETS_KillTileEnum: Pointer;     // TETS_KillTileEnum (OPTIONAL)
+    FETS_ExecOption: Pointer;       // TETS_ExecOption (OPTIONAL)
+    FETS_FreeMem: Pointer;          // TETS_FreeMem (OPTIONAL)
 
     // shared buffer
     FETS_SERVICE_STORAGE_OPTIONS: TETS_SERVICE_STORAGE_OPTIONS;
@@ -153,6 +156,13 @@ type
       const ATileRectInfoOut: PETS_GET_TILE_RECT_OUT
     ): Byte;
 
+  private
+    { IInternalDomainOptions }
+    function DomainHtmlOptions(
+      const AFullPrefix, ARequest: String;
+      out AResponse: String;
+      out AFlags: TDomainOptionsResponseFlags
+    ): Boolean;
 
   protected
     // base storage interface
@@ -718,6 +728,85 @@ begin
   FTileInfoMemCache.ClearByTTL;
 end;
 
+function TTileStorageETS.DomainHtmlOptions(
+  const AFullPrefix, ARequest: String;
+  out AResponse: String;
+  out AFlags: TDomainOptionsResponseFlags
+): Boolean;
+var
+  VResponseW: WideString;
+  VOptionIn: TETS_EXEC_OPTION_IN;
+begin
+  AResponse := '';
+  AFlags := [];
+  if (0<Length(AFullPrefix)) and Assigned(FETS_ExecOption) and Assigned(FETS_FreeMem) then begin
+    // supported
+    FillChar(VOptionIn, sizeof(VOptionIn), 0);
+
+    if SizeOf(Char)=SizeOf(AnsiChar) then begin
+      VOptionIn.dwOptionsIn := VOptionIn.dwOptionsIn or ETS_EOI_ANSI_VALUES;
+    end;
+    VOptionIn.szFullPrefix := PChar(AFullPrefix);
+    VOptionIn.szRequest    := PChar(ARequest);
+    
+    // call
+    TETS_ExecOption(FETS_ExecOption)(
+      @FDLLProvHandle,
+      nil,
+      @VOptionIn
+    );
+
+    // do not check result from DLL because it can return errorcode from DBMS
+    // check response only
+    Result := (nil<>VOptionIn.szResponse);
+
+    try
+      if Result then begin
+        // set response to output
+        if ((VOptionIn.dwOptionsOut and ETS_EOO_ANSI_VALUES) <> 0) then begin
+          // as AnsiString
+          AResponse := PAnsiChar(VOptionIn.szResponse);
+        end else begin
+          // as WideString
+          VResponseW := PWideChar(VOptionIn.szResponse);
+          AResponse := VResponseW;
+        end;
+
+        if ((VOptionIn.dwOptionsOut and ETS_EOO_HTML_DECORATED) <> 0) then begin
+          Include(AFlags, dorf_HtmlDecorated);
+        end;
+
+        if ((VOptionIn.dwOptionsOut and ETS_EOO_CLEAR_MEMCACHE) <> 0) then begin
+          Include(AFlags, dorf_ClearMemCache);
+          if Assigned(FTileInfoMemCache) then
+            FTileInfoMemCache.Clear;
+        end;
+
+        if ((VOptionIn.dwOptionsOut and ETS_EOO_NEED_REFRESH) <> 0) then begin
+          Include(AFlags, dorf_Refresh);
+        end;
+
+        if ((VOptionIn.dwOptionsOut and ETS_EOO_NEED_RESTART) <> 0) then begin
+          Include(AFlags, dorf_Restart);
+        end;
+
+      end;
+    finally
+      if (VOptionIn.szResponse<>nil) then begin
+        // second call
+        VOptionIn.szFullPrefix:=nil;
+        VOptionIn.szRequest:=nil;
+        TETS_FreeMem(FETS_FreeMem)(
+          VOptionIn.szResponse
+        );
+      end;
+    end;
+  end else begin
+    // not supported
+    Result := FALSE;
+  end;
+end;
+
 function TTileStorageETS.GetInitialExclusiveFlag(const AForQuery: Boolean): LongWord;
 begin
   Result := 0;
@@ -1154,6 +1243,9 @@ begin
   FETS_MakeTileEnum := nil;
   FETS_NextTileEnum := nil;
   FETS_KillTileEnum := nil;
+
+  FETS_ExecOption := nil;
+  FETS_FreeMem    := nil;
 end;
 
 function TTileStorageETS.InternalLib_Complete: Boolean;
@@ -1228,6 +1320,9 @@ begin
       FETS_MakeTileEnum := GetProcAddress(FDLLHandle, 'ETS_MakeTileEnum');
       FETS_NextTileEnum := GetProcAddress(FDLLHandle, 'ETS_NextTileEnum');
       FETS_KillTileEnum := GetProcAddress(FDLLHandle, 'ETS_KillTileEnum');
+      // execoption(s)
+      FETS_ExecOption   := GetProcAddress(FDLLHandle, 'ETS_ExecOption');
+      FETS_FreeMem      := GetProcAddress(FDLLHandle, 'ETS_FreeMem');
     end;
   end;
 end;

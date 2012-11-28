@@ -10,11 +10,13 @@ const
   CMediaDataInternalDomain = 'MediaData';
   CLastSearchResultsInternalDomain = 'SearchResults';
   CMarksSystemInternalDomain = 'Placemarks';
+  CTileStorageOptionsInternalDomain = 'TileStorageOptions';
   CZmpInfoInternalURL = CSASInternalURLPrefix + CZmpInfoInternalDomain + '/';
   CMapDataInternalURL = CSASInternalURLPrefix + CMapDataInternalDomain + '/';
   CMediaDataInternalURL = CSASInternalURLPrefix + CMediaDataInternalDomain + '/';
   CLastSearchResultsInternalURL = CSASInternalURLPrefix + CLastSearchResultsInternalDomain + '/';
   CMarksSystemInternalURL = CSASInternalURLPrefix + CMarksSystemInternalDomain + '/';
+  CTileStorageOptionsInternalURL = CSASInternalURLPrefix + CTileStorageOptionsInternalDomain + '/';
   CVectorItemDescriptionSuffix = 'Description';
   CVectorItemInfoSuffix = 'Info';
 
