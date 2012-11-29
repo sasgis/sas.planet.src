@@ -175,14 +175,14 @@ begin
             VDate[5] := DateSeparator;
             VDate[8] := DateSeparator;
 
+            VposList := SubNode.GetAttribute('uid');
+            VParams.Values['uid'] := VposList;
+
             VposList := SubNode.GetAttribute('acq_date');
             VParams.Values['acq_date'] := VposList;
 
             VcatalogID := SubNode.GetAttribute('name');
             VParams.Values['CatalogID'] := VcatalogID;
-
-            VposList := SubNode.GetAttribute('uid');
-            VParams.Values['uid'] := VposList;
 
             VposList := SubNode.GetAttribute('incidence_angle');
             VParams.Values['incidence_angle'] := VposList;

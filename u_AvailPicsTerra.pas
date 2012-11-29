@@ -168,8 +168,8 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     else
       AParams.Clear;
     // add
-    AParams.Values['date'] := VDate;
     AParams.Values['layer'] := VLayer;
+    AParams.Values['date'] := VDate;
     AParams.Values['provider'] := VValue;
     AParams.Values['METADATA_URL'] := 'http://www.terraserver.com/view.asp?' +
           'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +

@@ -126,8 +126,8 @@ begin
             VParams:=TStringList.Create;
             VParams.Values['FeatureId'] := VfeatureId;
             VParams.Values['Date'] := VDate1;
-            VParams.Values['Resolution'] := vSampleDistance;
             VParams.Values['LegacyId'] := VlegacyId;
+            VParams.Values['Resolution'] := vSampleDistance;
             VParams.Values['Color'] := VproductType;
             VParams.Values['DataLayer'] := VdataLayer;
             VParams.Values['Source'] := Vsource;
