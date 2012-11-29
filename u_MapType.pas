@@ -143,6 +143,7 @@ type
   public
     function AllowListOfTileVersions: Boolean;
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
+    procedure ClearMemCache;
     function GetTileFileName(
       const AXY: TPoint;
       AZoom: byte
@@ -257,6 +258,7 @@ uses
   Types,
   c_CacheTypeCodes,
   c_InternalBrowser,
+  i_BasicMemCache,
   i_BinaryData,
   i_TileInfoBasic,
   i_TileIterator,
@@ -279,6 +281,23 @@ uses
   u_BitmapFunc,
   u_TileStorageOfMapType,
   u_ListenerByEvent;
+
+procedure TMapType.ClearMemCache;
+var
+  VBasicMemCache: IBasicMemCache;
+begin
+  if FCacheBitmap <> nil then begin
+    FCacheBitmap.Clear;
+  end;
+  if FCacheVector <> nil then begin
+    FCacheVector.Clear;
+  end;
+  // clear internal MemCache
+  if Assigned(FStorage) then
+  if Supports(FStorage, IBasicMemCache, VBasicMemCache) then begin
+    VBasicMemCache.Clear;
+  end;
+end;
 
 constructor TMapType.Create(
   const ALanguageManager: ILanguageManager;
@@ -777,12 +796,7 @@ end;
 
 procedure TMapType.OnVersionChange;
 begin
-  if FCacheBitmap <> nil then begin
-    FCacheBitmap.Clear;
-  end;
-  if FCacheVector <> nil then begin
-    FCacheVector.Clear;
-  end;
+  ClearMemCache;
 end;
 
 function TMapType.LoadTileFromPreZ(

@@ -136,6 +136,10 @@ begin
     DecorateHtml(VRequest, VResponse);
   end;
 
+  if (dorf_ClearMemCache in VResponseFlags) then begin
+    VMapType.MapType.ClearMemCache;
+  end;
+
   Result := BuildBinaryDataByText(VResponse);
 end;
 

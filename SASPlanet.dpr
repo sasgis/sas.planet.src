@@ -699,6 +699,7 @@ uses
   u_ImageResamplerConfig in 'u_ImageResamplerConfig.pas',
   i_MainMemCacheConfig in 'i_MainMemCacheConfig.pas',
   u_MainMemCacheConfig in 'u_MainMemCacheConfig.pas',
+  i_BasicMemCache in 'i_BasicMemCache.pas',
   i_GeoCoderList in 'i_GeoCoderList.pas',
   u_GeoCoderListEntity in 'u_GeoCoderListEntity.pas',
   u_GeoCoderListBase in 'u_GeoCoderListBase.pas',

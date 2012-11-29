@@ -29,6 +29,7 @@ uses
   i_BinaryData,
   i_MapVersionInfo,
   i_MapVersionConfig,
+  i_BasicMemCache,
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_TileStorage,
@@ -43,7 +44,9 @@ uses
   t_ETS_Provider;
 
 type
-  TTileStorageETS = class(TTileStorageAbstract, IInternalDomainOptions)
+  TTileStorageETS = class(TTileStorageAbstract
+                        , IInternalDomainOptions
+                        , IBasicMemCache)
   // base interface
   private
     FMainContentType: IContentTypeInfoBasic;
@@ -163,7 +166,10 @@ type
       out AResponse: String;
       out AFlags: TDomainOptionsResponseFlags
     ): Boolean;
-
+  private
+    { IBasicMemCache }
+    procedure ClearMemCache;
+    procedure IBasicMemCache.Clear = ClearMemCache;
   protected
     // base storage interface
     function GetIsFileCache: Boolean; override;
@@ -508,6 +514,12 @@ begin
     // neither tile nor TNE
     PSelectTileCallbackInfo(ACallbackPointer)^.TileResult := nil;
   end;
+end;
+
+procedure TTileStorageETS.ClearMemCache;
+begin
+  if Assigned(FTileInfoMemCache) then
+    FTileInfoMemCache.Clear;
 end;
 
 constructor TTileStorageETS.Create(

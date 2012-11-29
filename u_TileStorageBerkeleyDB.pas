@@ -29,6 +29,7 @@ uses
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_TileInfoBasic,
+  i_BasicMemCache,
   i_ContentTypeManager,
   i_CoordConverter,
   i_TileStorage,
@@ -41,7 +42,7 @@ uses
   u_TileStorageAbstract;
 
 type
-  TTileStorageBerkeleyDB = class(TTileStorageAbstract)
+  TTileStorageBerkeleyDB = class(TTileStorageAbstract, IBasicMemCache)
   private
     FHelper: TTileStorageBerkeleyDBHelper;
     FMainContentType: IContentTypeInfoBasic;
@@ -55,6 +56,10 @@ type
     FFileNameGenerator: ITileFileNameGenerator;
 
     procedure OnTTLSync(Sender: TObject);
+  private
+    { IBasicMemCache }
+    procedure ClearMemCache;
+    procedure IBasicMemCache.Clear = ClearMemCache;
   protected
     function GetIsFileCache: Boolean; override;
     function GetTileFileName(
@@ -133,6 +138,12 @@ uses
   u_TileInfoBasic;
 
 { TTileStorageBerkeleyDB }
+
+procedure TTileStorageBerkeleyDB.ClearMemCache;
+begin
+  if Assigned(FTileInfoMemCache) then
+    FTileInfoMemCache.Clear;
+end;
 
 constructor TTileStorageBerkeleyDB.Create(
   const AGeoConverter: ICoordConverter;
