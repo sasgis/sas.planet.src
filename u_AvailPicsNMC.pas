@@ -53,7 +53,7 @@ type
   end;
 
   TAvailPicsNMCZoom = (nmcz15=15, nmcz16=16, nmcz18=18, nmcz20=20);
-
+  // treat boolean as FALSE = Recency,TRUE = ColorOnly
   TAvailPicsNMCs = array [TAvailPicsNMCZoom, Boolean] of TAvailPicsNMC;
 
 procedure GenerateAvailPicsNMC(var ADGs: TAvailPicsNMCs;
@@ -385,12 +385,12 @@ begin
     if (nil=ADGs[j,FALSE]) then begin
       ADGs[j,FALSE] := TAvailPicsNMC.Create(ATileInfoPtr);
       ADGs[j,FALSE].WorkingZoom := Ord(j);
-      ADGs[j,FALSE].FProfile := 'ColorOnly';
+      ADGs[j,FALSE].FProfile := 'Recency';
     end;
     if (nil=ADGs[j,TRUE]) then begin
       ADGs[j,TRUE] := TAvailPicsNMC.Create(ATileInfoPtr);
       ADGs[j,TRUE].WorkingZoom := Ord(j);
-      ADGs[j,TRUE].FProfile := 'Recency';
+      ADGs[j,TRUE].FProfile := 'ColorOnly';
     end;
   end;
 end;

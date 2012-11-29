@@ -96,7 +96,7 @@ type
     LabelDatadoors: TLabel;
     Up: TPanel;
     chkGeoFuse: TCheckBox;
-    chkMNCasRecency: TCheckBox;
+    chkMNCasColorOnly: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -520,7 +520,7 @@ begin
     VComp := FindComponent('chkNMC' + IntToStr(Ord(j)));
     if Assigned(VComp) then
     if (VComp is TCheckBox) then begin
-      RunImageThread(TCheckBox(VComp), FNMCs[j, chkMNCasRecency.Checked]);
+      RunImageThread(TCheckBox(VComp), FNMCs[j, chkMNCasColorOnly.Checked]);
     end;
   end;
 
@@ -760,6 +760,10 @@ begin
           VDate := Values['GSD'];
         _AddWithBR(VDesc, 'Resolution', VDate);
 
+        // add dataLayer
+        VDate := Values['dataLayer'];
+        _AddWithBR(VDesc, 'DataLayer', VDate);
+
         // add Source
         VDate := Values['Source'];
         _AddWithBR(VDesc, 'Source', VDate);
@@ -947,7 +951,7 @@ function TfrmDGAvailablePic.IsCommonServiceCheckbox(const ABox: TControl): Boole
 begin
   Result := (ABox <> chkALLServices) and
             (ABox <> chkLowResolutionToo) and
-            (ABox <> chkMNCasRecency) and
+            (ABox <> chkMNCasColorOnly) and
             (ABox is TCheckBox);
 end;
 
