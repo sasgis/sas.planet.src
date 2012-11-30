@@ -45,6 +45,7 @@ implementation
 uses
   SysUtils,
   i_RegionProcessParamsFrame,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   i_VectorItemProjected,
@@ -119,7 +120,7 @@ begin
       APolygon
     );
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

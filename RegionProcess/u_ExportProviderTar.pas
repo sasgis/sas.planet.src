@@ -51,10 +51,11 @@ implementation
 uses
   Types,
   SysUtils,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   i_RegionProcessParamsFrame,
   i_TileFileNameGenerator,
+  u_Notifier,
+  u_NotifierOperation,
+  u_RegionProcessProgressInfo,
   u_ThreadExportToArchive,
   u_ResStrings,
   u_MapType,
@@ -128,7 +129,7 @@ begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VNameGenerator := (ParamsFrame as IRegionProcessParamsFrameExportToFileCont).NameGenerator;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

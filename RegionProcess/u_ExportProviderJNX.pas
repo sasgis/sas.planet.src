@@ -52,6 +52,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
@@ -143,10 +144,9 @@ begin
   VMapList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapList;
   VLayerList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LayerList;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
-
 
   TfrmProgressSimple.Create(
     Application,

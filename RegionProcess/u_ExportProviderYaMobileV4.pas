@@ -56,6 +56,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportYaMobileV4,
@@ -133,7 +134,7 @@ begin
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

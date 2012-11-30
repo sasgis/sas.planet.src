@@ -86,6 +86,7 @@ uses
   u_ThreadDownloadTiles,
   u_ConfigProviderHelpers,
   u_RegionProcessProgressInfoDownload,
+  u_Notifier,
   u_NotifierOperation,
   u_DownloadInfoSimple,
   frm_ProgressDownload,
@@ -177,7 +178,7 @@ begin
   VLog := TLogSimpleProvider.Create(5000, 0);
   VLogSimple := VLog;
   VLogProvider := VLog;
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
 
   VReplaceExistTiles := False;
@@ -314,7 +315,7 @@ begin
   VLog := TLogSimpleProvider.Create(5000, 0);
   VLogSimple := VLog;
   VLogProvider := VLog;
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
 
   VProgressInfo :=

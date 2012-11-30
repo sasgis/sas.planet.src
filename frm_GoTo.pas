@@ -99,6 +99,7 @@ uses
   i_MarksSimple,
   i_LocalCoordConverter,
   i_NotifierOperation,
+  u_Notifier,
   u_NotifierOperation,
   u_GeoCodeResult,
   u_GeoCodePlacemark;
@@ -210,7 +211,7 @@ begin
       VGeoCoderItem := IGeoCoderListEntity(Pointer(cbbSearcherType.Items.Objects[VIndex]));
     end;
     if VGeoCoderItem <> nil then begin
-      VNotifier := TNotifierOperation.Create;
+      VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
       FResult := VGeoCoderItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, textsrch, VLocalConverter);
       FMainGeoCoderConfig.SearchHistory.AddItem(textsrch);
       FMainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;

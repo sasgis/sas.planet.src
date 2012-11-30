@@ -117,6 +117,7 @@ uses
   u_BitmapLayerProviderSimpleForCombine,
   u_BitmapLayerProviderInPolygon,
   u_BitmapLayerProviderWithBGColor,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ResStrings,
@@ -328,7 +329,7 @@ var
   VCancelNotifierInternal: INotifierOperationInternal;
   VProgressInfo: TRegionProcessProgressInfo;
 begin
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   ACancelNotifier := VCancelNotifierInternal;
   AOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;

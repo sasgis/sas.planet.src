@@ -47,6 +47,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportKML,
@@ -117,7 +118,7 @@ begin
   RelativePath := (ParamsFrame as IRegionProcessParamsFrameKmlExport).RelativePath;
   NotSaveNotExists := (ParamsFrame as IRegionProcessParamsFrameKmlExport).NotSaveNotExists;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

@@ -34,7 +34,6 @@ uses
   i_NotifierOperation,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
-  u_NotifierOperation,
   u_MapType;
 
 type
@@ -80,6 +79,8 @@ uses
   SysUtils,
   i_TileRequestTask,
   i_DownloadResult,
+  u_Notifier,
+  u_NotifierOperation,
   u_ReadableThreadNames,
   u_ListenerByEvent,
   u_TileErrorInfo;
@@ -108,7 +109,7 @@ begin
   Priority := AThreadConfig.Priority;
   FreeOnTerminate := True;
 
-  VOperationNotifier := TNotifierOperation.Create;
+  VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;
   FFinishEvent := TEvent.Create;

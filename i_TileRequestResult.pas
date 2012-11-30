@@ -28,6 +28,10 @@ type
     property ErrorText: string read GetErrorText;
   end;
 
+  ITileRequestResultStorageError = interface(ITileRequestResultError)
+    ['{6B5D1AA4-E81B-4C3D-8EEE-AB0B371D29CC}']
+  end;
+
   ITileRequestResultWithDownloadRequest = interface
     ['{296E1F57-68EA-4C78-AFC8-7A62BB2D2F78}']
     function GetDownloadRequest: ITileDownloadRequest;

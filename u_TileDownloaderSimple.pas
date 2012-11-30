@@ -16,8 +16,7 @@ uses
   i_TileDownloadResultSaver,
   i_TileDownloaderConfig,
   i_TileDownloader,
-  i_TileDownloadRequestBuilder,
-  u_NotifierOperation;
+  i_TileDownloadRequestBuilder;
 
 type
   TTileDownloaderSimple = class(TInterfacedObject, ITileDownloader)
@@ -73,6 +72,8 @@ uses
   i_InetConfig,
   i_DownloadResult,
   i_TileDownloadRequest,
+  u_Notifier,
+  u_NotifierOperation,
   u_ListenerByEvent,
   u_TileRequestResult;
 
@@ -98,7 +99,7 @@ begin
   FLastResponseInfo := ALastResponseInfo;
   Assert(FResultSaver <> nil);
 
-  VOperationNotifier := TNotifierOperation.Create;
+  VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   FDestroyNotifierInternal := VOperationNotifier;
   FDestroyNotifier := VOperationNotifier;
   FDestroyOperationID := FDestroyNotifier.CurrentOperation;

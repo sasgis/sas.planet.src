@@ -122,6 +122,7 @@ uses
   i_TileFileNameGenerator,
   i_TileFileNameParser,
   i_CacheConverterProgressInfo,
+  u_Notifier,
   u_NotifierOperation,
   u_ThreadCacheConverter,
   u_MapVersionFactorySimpleString,
@@ -282,7 +283,7 @@ var
 begin
   VProgressInfo := TCacheConverterProgressInfo.Create;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
 
   VCoordConverter := FCoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);

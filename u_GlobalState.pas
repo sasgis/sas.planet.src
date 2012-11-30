@@ -395,9 +395,9 @@ begin
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create;
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
 
-  FAppStartedNotifierInternal := TNotifierOneOperation.Create;
+  FAppStartedNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);
   FAppStartedNotifier := FAppStartedNotifierInternal;
-  FAppClosingNotifierInternal := TNotifierOneOperation.Create;
+  FAppClosingNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);
   FAppClosingNotifier := FAppClosingNotifierInternal;
   FMainConfigProvider :=
     TSASMainConfigProvider.Create(

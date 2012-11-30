@@ -55,6 +55,7 @@ uses
   GR32,
   i_ImageResamplerFactory,
   i_RegionProcessParamsFrame,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadGenPrevZoom,
@@ -131,7 +132,7 @@ begin
     VBgColor := Color32(FViewConfig.BackGroundColor);
   end;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

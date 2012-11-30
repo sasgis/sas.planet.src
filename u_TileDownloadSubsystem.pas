@@ -36,8 +36,7 @@ uses
   i_InvisibleBrowser,
   i_ProjConverter,
   i_TileStorage,
-  i_TileDownloadSubsystem,
-  u_NotifierOperation;
+  i_TileDownloadSubsystem;
 
 type
   TTileDownloadSubsystem = class(TInterfacedObject, ITileDownloadSubsystem)
@@ -117,6 +116,8 @@ uses
   i_TileDownloaderList,
   i_PredicateByBinaryData,
   i_DownloadChecker,
+  u_Notifier,
+  u_NotifierOperation,
   u_ListenerByEvent,
   u_TileRequest,
   u_TileRequestTask,
@@ -178,7 +179,7 @@ begin
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
   FAppClosingNotifier := AAppClosingNotifier;
 
-  VOperationNotifier := TNotifierOperation.Create;
+  VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   FDestroyNotifierInternal := VOperationNotifier;
   FDestroyNotifier := VOperationNotifier;
   FDestroyOperationID := FDestroyNotifier.CurrentOperation;

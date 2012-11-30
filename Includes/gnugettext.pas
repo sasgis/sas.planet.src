@@ -149,7 +149,7 @@ type
 function _(const szMsgId: MsgIdString): TranslatedUnicodeString;
 function gettext(const szMsgId: MsgIdString): TranslatedUnicodeString;
 function gettext_NoExtract(const szMsgId: MsgIdString): TranslatedUnicodeString;
-function gettext_NoOp(const szMsgId: MsgIdString): TranslatedUnicodeString;
+function gettext_NoOp(const szMsgId: MsgIdString): TranslatedUnicodeString; inline;
 function dgettext(const szDomain: DomainString; const szMsgId: MsgIdString): TranslatedUnicodeString;
 function dgettext_NoExtract(const szDomain: DomainString; const szMsgId: MsgIdString): TranslatedUnicodeString;
 function dngettext(const szDomain: DomainString; const singular,plural: MsgIdString; Number:longint): TranslatedUnicodeString;
@@ -674,7 +674,7 @@ begin
   //    see gettext manual
   //      4.7 - Special Cases of Translatable Strings
   //      http://www.gnu.org/software/hello/manual/gettext/Special-cases.html#Special-cases
-  Result := DefaultInstance.gettext_NoOp(szMsgId);
+  Result := TranslatedUnicodeString(szMsgId);
 end;
 
 {*------------------------------------------------------------------------------

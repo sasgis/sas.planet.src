@@ -53,6 +53,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
@@ -129,7 +130,7 @@ begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VNameGenerator := (ParamsFrame as IRegionProcessParamsFrameExportToFileCont).NameGenerator;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

@@ -58,6 +58,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportIPhone,
@@ -161,7 +162,7 @@ begin
   comprHyb := FFrame.seHybrCompress.Value;
   Replace := FFrame.chkAppendTilse.Checked;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

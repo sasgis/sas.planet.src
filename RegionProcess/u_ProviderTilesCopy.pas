@@ -51,6 +51,7 @@ uses
   SysUtils,
   c_CacheTypeCodes, // for cache types
   i_RegionProcessParamsFrame,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,
@@ -126,7 +127,7 @@ begin
   VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
   VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 

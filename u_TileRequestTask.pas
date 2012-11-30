@@ -39,6 +39,7 @@ type
 implementation
 
 uses
+  u_Notifier,
   u_NotifierOperation;
 
 { TTileRequestTask }
@@ -55,7 +56,7 @@ begin
   FCancelNotifier := ACancelNotifier;
 
   FResult := nil;
-  FFinishNotifierInternal := TNotifierOneOperation.Create;
+  FFinishNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);
   FFinishNotifier := FFinishNotifierInternal;
 end;
 

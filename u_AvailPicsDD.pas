@@ -70,6 +70,7 @@ uses
   u_GeoToStr,
   u_GlobalState,
   u_DownloaderHttp,
+  u_Notifier,
   u_NotifierOperation,
   u_DownloadResultFactory,
   u_TileRequestBuilderHelpers;
@@ -293,7 +294,7 @@ begin
                   );
   VResultFactory := TDownloadResultFactory.Create;
   VDownloader:=TDownloaderHttp.Create(VResultFactory);
-  VCancelNotifier := TNotifierOperation.Create;
+  VCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   VResult := VDownloader.DoRequest(
               VPostRequest,
               VCancelNotifier,

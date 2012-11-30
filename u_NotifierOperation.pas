@@ -43,7 +43,7 @@ type
     procedure AddListener(const AListener: IListener);
     procedure RemoveListener(const AListener: IListener);
   public
-    constructor Create;
+    constructor Create(const ANotifier: INotifierInternal);
   end;
 
   TNotifierOneOperation = class(TInterfacedObject, INotifier, INotifierOneOperation, INotifierOneOperationInternal)
@@ -59,7 +59,7 @@ type
     procedure Add(const AListener: IListener);
     procedure Remove(const AListener: IListener);
   public
-    constructor Create;
+    constructor Create(const ANotifier: INotifierInternal);
   end;
 
   TNotifierOneOperationByNotifier = class(TInterfacedObject, INotifier, INotifierOneOperation)
@@ -81,15 +81,15 @@ type
 implementation
 
 uses
-  u_Synchronizer,
-  u_Notifier;
+  u_Synchronizer;
 
 { TNotifierOperation }
 
-constructor TNotifierOperation.Create;
+constructor TNotifierOperation.Create(const ANotifier: INotifierInternal);
 begin
+  Assert(ANotifier <> nil);
   inherited Create;
-  FNotifier := TNotifierBase.Create;
+  FNotifier := ANotifier;
   FCurrentOperationID := 0;
 end;
 
@@ -121,11 +121,12 @@ end;
 
 { TNotifierOneOperation }
 
-constructor TNotifierOneOperation.Create;
+constructor TNotifierOneOperation.Create(const ANotifier: INotifierInternal);
 begin
+  Assert(ANotifier <> nil);
   inherited Create;
-  FCS := MakeSyncRW_Std(Self, TRUE);
-  FNotifier := TNotifierBase.Create;
+  FNotifier := ANotifier;
+  FCS := MakeSyncRW_Var(Self, False);
   FExecutedCount := 0;
 end;
 

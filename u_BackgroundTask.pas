@@ -67,6 +67,7 @@ type
 implementation
 
 uses
+  u_Notifier,
   u_NotifierOperation,
   u_ListenerByEvent;
 
@@ -87,7 +88,7 @@ begin
   Assert(Assigned(FOnExecute));
   FStopThreadHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FAllowExecuteHandle := CreateEvent(nil, TRUE, FALSE, nil);
-  VOperationNotifier := TNotifierOperation.Create;
+  VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;
 

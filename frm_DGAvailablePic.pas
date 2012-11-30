@@ -46,7 +46,6 @@ uses
   u_AvailPicsDD,
   u_AvailPicsGeoFuse,
   i_NotifierOperation,
-  u_NotifierOperation,
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
@@ -198,6 +197,8 @@ uses
   i_VectorItmesFactory,
   i_VectorItemLonLat,
   i_DoublePointsAggregator,
+  u_Notifier,
+  u_NotifierOperation,
   u_InetFunc,
   u_DoublePointsAggregator,
   u_VectorItmesFactorySimple,
@@ -320,7 +321,7 @@ begin
    Result:=FALSE;
    try
      VRequest:=FAvailPicsSrc.GetRequest(FInetConfig);
-     VCancelNotifier:=TNotifierOperation.Create;
+     VCancelNotifier:=TNotifierOperation.Create(TNotifierBase.Create);
      VResult:=FDownloaderHttp.DoRequest(
                   VRequest,
                   VCancelNotifier,

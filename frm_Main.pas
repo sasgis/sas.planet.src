@@ -790,6 +790,7 @@ uses
   u_MapTypeListChangeableActiveBitmapLayers,
   u_MapTypeSetChangeableBySourceSetWithFilter,
   u_ActiveMapsLicenseList,
+  u_Notifier,
   u_NotifierOperation,
   u_MainFormState,
   u_PosFromGSM,
@@ -5682,7 +5683,7 @@ begin
   VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
   VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
   VText := Trim(NewText);
-  VNotifier := TNotifierOperation.Create;
+  VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
   FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
   FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
@@ -5703,7 +5704,7 @@ begin
     if VItem <> nil then begin
       VLocalConverter := FConfig.ViewPortState.Position.GetStatic;
       VText := Trim(NewText);
-      VNotifier := TNotifierOperation.Create;
+      VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
       VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
       FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
       FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
@@ -6041,7 +6042,7 @@ begin
       VProvider := VEntity.GetProvider;
       VIsError := True;
       try
-        VOperationNotifier := TNotifierOperation.Create;
+        VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
         VResult :=
           VProvider.GetPath(
             VOperationNotifier,

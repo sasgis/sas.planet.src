@@ -56,6 +56,7 @@ uses
   i_RegionProcessParamsFrame,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
+  u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToOgf2,
@@ -137,7 +138,7 @@ begin
   VSaver := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).Saver;
   VTileSize := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).TileSize;
 
-  VCancelNotifierInternal := TNotifierOperation.Create;
+  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create;
 
