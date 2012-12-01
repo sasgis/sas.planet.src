@@ -280,6 +280,8 @@ var
   VSouurce: ITileStorage;
   VTarget: ITileStorage;
   VDestPath: string;
+  VDefExtention: string;
+  VDotPos: Integer;
 begin
   VProgressInfo := TCacheConverterProgressInfo.Create;
 
@@ -287,10 +289,21 @@ begin
   VOperationID := VCancelNotifierInternal.CurrentOperation;
 
   VCoordConverter := FCoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+
+  VDefExtention := Trim(edtDefExtention.Text);
+  VDotPos := Pos('.', VDefExtention);
+  if VDotPos > 0 then begin
+    VDefExtention := Copy(VDefExtention, VDotPos, Length(VDefExtention) - VDotPos + 1);
+  end else begin
+    VDefExtention := '.' + VDefExtention;
+  end;
+
+  VDefExtention := LowerCase(VDefExtention);
+
   VSouurce :=
     CreateSimpleTileStorage(
       IncludeTrailingPathDelimiter(Trim(edtPath.Text)),
-      Trim(edtDefExtention.Text),
+      VDefExtention,
       VCoordConverter,
       GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex)
     );
@@ -300,7 +313,7 @@ begin
   VTarget :=
     CreateSimpleTileStorage(
       VDestPath,
-      Trim(edtDefExtention.Text),
+      VDefExtention,
       VCoordConverter,
       GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex)
     );
