@@ -19,6 +19,7 @@ uses
   u_ReadWriteSyncSRW in 'Synchronize\u_ReadWriteSyncSRW.pas',
   u_SynchronizerBase in 'Synchronize\u_SynchronizerBase.pas',
   u_SynchronizerSimple in 'Synchronize\u_SynchronizerSimple.pas',
+  u_BaseInterfacedObject in 'u_BaseInterfacedObject.pas',
   i_ArchiveReadWrite in 'ArchiveReadWrite\i_ArchiveReadWrite.pas',
   u_ArchiveReadWriteKaZip in 'ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas',
   u_ArchiveWriteLibTar in 'ArchiveReadWrite\u_ArchiveWriteLibTar.pas',
