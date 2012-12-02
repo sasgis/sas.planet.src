@@ -280,7 +280,6 @@
     <DCCReference Include="i_InternalBrowser.pas" />
     <DCCReference Include="i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="i_InternalDomainOptions.pas" />
-    <DCCReference Include="i_InternalPerformanceCounter.pas" />
     <DCCReference Include="i_InvisibleBrowser.pas" />
     <DCCReference Include="i_ITileRequestProcessorPool.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
@@ -508,6 +507,9 @@
     <DCCReference Include="MapLayers\u_TiledLayerWithThreadBase.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
+    <DCCReference Include="Performance\i_InternalPerformanceCounter.pas" />
+    <DCCReference Include="Performance\u_InternalPerformanceCounter.pas" />
+    <DCCReference Include="Performance\u_InternalPerformanceCounterList.pas" />
     <DCCReference Include="RegionProcess\fr_Combine.pas">
       <Form>frCombine</Form>
       <DesignClass>TFrame</DesignClass>
@@ -848,8 +850,6 @@
     <DCCReference Include="u_InternalDomainInfoProviderByMarksSystem.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByTileStorageOptions.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderList.pas" />
-    <DCCReference Include="u_InternalPerformanceCounter.pas" />
-    <DCCReference Include="u_InternalPerformanceCounterList.pas" />
     <DCCReference Include="u_InvisibleBrowserByFormSynchronize.pas" />
     <DCCReference Include="u_KeyMovingConfig.pas" />
     <DCCReference Include="u_KeyMovingHandler.pas" />
