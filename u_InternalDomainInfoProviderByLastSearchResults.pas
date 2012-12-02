@@ -28,10 +28,11 @@ uses
   i_VectorDataItemSimple,
   i_LastSearchResultConfig,
   i_TextByVectorItem,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TInternalDomainInfoProviderByLastSearchResults = class(TInterfacedObject, IInternalDomainInfoProvider)
+  TInternalDomainInfoProviderByLastSearchResults = class(TBaseInterfacedObject, IInternalDomainInfoProvider)
   private
     FLastSearchResults: ILastSearchResultConfig;
     FTextProviders: TStringList;

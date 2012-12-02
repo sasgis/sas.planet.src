@@ -25,10 +25,11 @@ interface
 uses
   Classes,
   i_Bitmap32Static,
-  i_MapTypeGUIConfig;
+  i_MapTypeGUIConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMapTypeGUIConfigStatic = class(TInterfacedObject, IMapTypeGUIConfigStatic)
+  TMapTypeGUIConfigStatic = class(TBaseInterfacedObject, IMapTypeGUIConfigStatic)
   private
     FName: string;
     FSortIndex: Integer;

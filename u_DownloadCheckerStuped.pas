@@ -32,10 +32,11 @@ uses
   i_TileDownloaderConfig,
   i_AntiBan,
   i_TileInfoBasic,
-  i_TileStorage;
+  i_TileStorage,
+  u_BaseInterfacedObject;
 
 type
-  TDownloadCheckerStuped = class(TInterfacedObject, IDownloadChecker)
+  TDownloadCheckerStuped = class(TBaseInterfacedObject, IDownloadChecker)
   private
     FTileDownloaderConfig: ITileDownloaderConfig;
     FStorage: ITileStorage;

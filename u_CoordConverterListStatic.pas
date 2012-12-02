@@ -6,10 +6,11 @@ uses
   SysUtils,
   Classes,
   i_CoordConverter,
-  i_CoordConverterList;
+  i_CoordConverterList,
+  u_BaseInterfacedObject;
 
 type
-  TCoordConverterListStatic = class(TInterfacedObject, ICoordConverterList)
+  TCoordConverterListStatic = class(TBaseInterfacedObject, ICoordConverterList)
   private
     FList: TStringList;
     FCS: IReadWriteSync;

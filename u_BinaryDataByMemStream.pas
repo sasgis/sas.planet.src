@@ -4,10 +4,11 @@ interface
 
 uses
   Classes,
-  i_BinaryData;
+  i_BinaryData,
+  u_BaseInterfacedObject;
 
 type
-  TBinaryDataByMemStream = class(TInterfacedObject, IBinaryData)
+  TBinaryDataByMemStream = class(TBaseInterfacedObject, IBinaryData)
   private
     FMemStream: TMemoryStream;
   private

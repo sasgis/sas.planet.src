@@ -10,7 +10,8 @@ uses
   i_TileKey,
   i_TileRect,
   i_CoordConverter,
-  i_NotifierTileRectUpdate;
+  i_NotifierTileRectUpdate,
+  u_BaseInterfacedObject;
 
 type
   TListenerRecord = record
@@ -43,7 +44,7 @@ type
     destructor Destroy; override;
   end;
 
-  TNotifierTileRectUpdate = class(TInterfacedObject, INotifierTileRectUpdate, INotifierTileRectUpdateInternal)
+  TNotifierTileRectUpdate = class(TBaseInterfacedObject, INotifierTileRectUpdate, INotifierTileRectUpdateInternal)
   private
     FGeoCoder: ICoordConverter;
     FMinValidZoom: Byte;

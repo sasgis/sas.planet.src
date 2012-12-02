@@ -27,10 +27,11 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_PointCaptionsLayerConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementBase,
+  u_BaseInterfacedObject;
 
 type
-  TPointCaptionsLayerConfigStatic = class(TInterfacedObject, IPointCaptionsLayerConfigStatic)
+  TPointCaptionsLayerConfigStatic = class(TBaseInterfacedObject, IPointCaptionsLayerConfigStatic)
   private
     FVisible: Boolean;
     FShowAzimuth: Boolean;

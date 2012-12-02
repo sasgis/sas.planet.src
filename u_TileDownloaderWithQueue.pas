@@ -10,10 +10,11 @@ uses
   i_TileDownloaderList,
   i_TileDownloader,
   i_ITileRequestProcessorPool,
-  i_NotifierTTLCheck;
+  i_NotifierTTLCheck,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloaderWithQueue = class(TInterfacedObject, ITileDownloaderAsync)
+  TTileDownloaderWithQueue = class(TBaseInterfacedObject, ITileDownloaderAsync)
   private
     FQueue: IInterfaceQueue;
     FSyncTileRequestProcessorPull: ITileRequestProcessorPool;

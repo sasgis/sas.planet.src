@@ -26,10 +26,11 @@ uses
   SysUtils,
   i_Notifier,
   i_TileError,
-  i_TileErrorLogProviedrStuped;
+  i_TileErrorLogProviedrStuped,
+  u_BaseInterfacedObject;
 
 type
-  TTileErrorLogProviedrStuped = class(TInterfacedObject, ITileErrorLogProviedrStuped, ITileErrorLogger)
+  TTileErrorLogProviedrStuped = class(TBaseInterfacedObject, ITileErrorLogProviedrStuped, ITileErrorLogger)
   private
     FLastErrorInfo: ITileErrorInfo;
     FNotifier: INotifierInternal;

@@ -25,11 +25,13 @@ interface
 uses
   Classes,
   SysUtils,
-  i_Notifier, i_Listener,
-  i_ListenerNotifierLinksList;
+  i_Notifier,
+  i_Listener,
+  i_ListenerNotifierLinksList,
+  u_BaseInterfacedObject;
 
 type
-  TListenerNotifierLinksList = class(TInterfacedObject, IListenerNotifierLinksList)
+  TListenerNotifierLinksList = class(TBaseInterfacedObject, IListenerNotifierLinksList)
   private
     FCS: IReadWriteSync;
     FLinksActive: Boolean;

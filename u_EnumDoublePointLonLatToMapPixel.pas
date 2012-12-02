@@ -6,10 +6,11 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_DoublePointFilter,
-  i_EnumDoublePoint;
+  i_EnumDoublePoint,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointLonLatToMapPixel = class(TInterfacedObject, IEnumProjectedPoint)
+  TEnumDoublePointLonLatToMapPixel = class(TBaseInterfacedObject, IEnumProjectedPoint)
   private
     FSourceEnum: IEnumLonLatPoint;
     FZoom: Byte;
@@ -26,7 +27,7 @@ type
   end;
 
 type
-  TLonLatPointConverter = class(TInterfacedObject, ILonLatPointConverter)
+  TLonLatPointConverter = class(TBaseInterfacedObject, ILonLatPointConverter)
   private
     FZoom: Byte;
     FConverter: ICoordConverter;

@@ -25,10 +25,11 @@ interface
 uses
   Types,
   i_CoordConverter,
-  i_MapCalibration;
+  i_MapCalibration,
+  u_BaseInterfacedObject;
 
 type
-  TMapCalibrationWorldFiles = class(TInterfacedObject, IMapCalibration)
+  TMapCalibrationWorldFiles = class(TBaseInterfacedObject, IMapCalibration)
   private
     procedure SavePrjFile(
       const AFileName: WideString;

@@ -24,10 +24,11 @@ interface
 
 uses
   Classes,
-  i_VectorDataItemSimple;
+  i_VectorDataItemSimple,
+  u_BaseInterfacedObject;
 
 type
-  TVectorDataItemList = class(TInterfacedObject, IVectorDataItemList)
+  TVectorDataItemList = class(TBaseInterfacedObject, IVectorDataItemList)
   private
     FList: IInterfaceList;
   private

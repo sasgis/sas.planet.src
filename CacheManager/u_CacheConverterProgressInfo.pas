@@ -24,10 +24,11 @@ interface
 
 uses
   SysUtils,
-  i_CacheConverterProgressInfo;
+  i_CacheConverterProgressInfo,
+  u_BaseInterfacedObject;
 
 type
-  TCacheConverterProgressInfo = class(TInterfacedObject, ICacheConverterProgressInfo)
+  TCacheConverterProgressInfo = class(TBaseInterfacedObject, ICacheConverterProgressInfo)
   private
     FTilesProcessed: Int64;
     FTilesSkipped: Int64;

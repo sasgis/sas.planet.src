@@ -4,10 +4,11 @@ interface
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint;
+  i_EnumDoublePoint,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointsByArray = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointsByArray = class(TBaseInterfacedObject, IEnumDoublePoint)
   private
     FPoints: PDoublePointArray;
     FCount: Integer;

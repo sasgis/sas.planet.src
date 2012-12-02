@@ -28,10 +28,11 @@ uses
   i_InetConfig,
   i_TileRequest,
   i_DownloadChecker,
-  i_TileDownloadRequest;
+  i_TileDownloadRequest,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloadRequest = class(TInterfacedObject, IDownloadRequest, ITileDownloadRequest, IRequestWithChecker)
+  TTileDownloadRequest = class(TBaseInterfacedObject, IDownloadRequest, ITileDownloadRequest, IRequestWithChecker)
   private
     FUrl: AnsiString;
     FRequestHeader: AnsiString;

@@ -32,10 +32,11 @@ uses
   i_ValueToStringConverter,
   i_LanguageManager,
   i_SensorList,
-  i_SensorViewListGenerator;
+  i_SensorViewListGenerator,
+  u_BaseInterfacedObject;
 
 type
-  TSensorViewListGeneratorStuped = class(TInterfacedObject, ISensorViewListGenerator)
+  TSensorViewListGeneratorStuped = class(TBaseInterfacedObject, ISensorViewListGenerator)
   private
     FTimerNoifier: INotifier;
     FValueConverterConfig: IValueToStringConverterConfig;

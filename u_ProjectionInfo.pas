@@ -4,10 +4,11 @@ interface
 
 uses
   i_CoordConverter,
-  i_ProjectionInfo;
+  i_ProjectionInfo,
+  u_BaseInterfacedObject;
 
 type
-  TProjectionInfo = class(TInterfacedObject, IProjectionInfo)
+  TProjectionInfo = class(TBaseInterfacedObject, IProjectionInfo)
   private
     FGeoConverter: ICoordConverter;
     FZoom: Byte;

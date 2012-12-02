@@ -25,10 +25,11 @@ interface
 uses
   i_MarkTemplate,
   i_ImportConfig,
-  i_MarksDb;
+  i_MarksDb,
+  u_BaseInterfacedObject;
 
 type
-  TImportConfig = class(TInterfacedObject, IImportConfig)
+  TImportConfig = class(TBaseInterfacedObject, IImportConfig)
   private
     FMarkDB: IMarksDb;
     FTemplateNewPoint: IMarkTemplatePoint;

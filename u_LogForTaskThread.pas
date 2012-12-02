@@ -26,10 +26,11 @@ uses
   SysUtils,
   WideStrings,
   i_LogSimple,
-  i_LogSimpleProvider;
+  i_LogSimpleProvider,
+  u_BaseInterfacedObject;
 
 type
-  TLogSimpleProvider = class(TInterfacedObject, ILogSimpleProvider, ILogSimple)
+  TLogSimpleProvider = class(TBaseInterfacedObject, ILogSimpleProvider, ILogSimple)
   private
     FMinLogLevel: Integer;
     FNextId: Cardinal;

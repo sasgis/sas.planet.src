@@ -3,10 +3,11 @@ unit u_TileDownloaderStateStatic;
 interface
 
 uses
-  i_TileDownloaderState;
+  i_TileDownloaderState,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloaderStateStatic = class(TInterfacedObject, ITileDownloaderStateStatic)
+  TTileDownloaderStateStatic = class(TBaseInterfacedObject, ITileDownloaderStateStatic)
   private
     FEnabled: Boolean;
     FReason: string;

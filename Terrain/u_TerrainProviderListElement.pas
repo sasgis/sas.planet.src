@@ -24,10 +24,11 @@ interface
 
 uses
   i_TerrainProvider,
-  i_TerrainProviderListElement;
+  i_TerrainProviderListElement,
+  u_BaseInterfacedObject;
 
 type
-  TTerrainProviderListElement = class(TInterfacedObject, ITerrainProviderListElement)
+  TTerrainProviderListElement = class(TBaseInterfacedObject, ITerrainProviderListElement)
   private
     FGUID: TGUID;
     FCaption: WideString;

@@ -24,10 +24,11 @@ interface
 
 uses
   i_CoordConverter,
-  i_SimpleTileStorageConfig;
+  i_SimpleTileStorageConfig,
+  u_BaseInterfacedObject;
 
 type
-  TSimpleTileStorageConfigStatic = class(TInterfacedObject, ISimpleTileStorageConfigStatic)
+  TSimpleTileStorageConfigStatic = class(TBaseInterfacedObject, ISimpleTileStorageConfigStatic)
   private
     FCoordConverter: ICoordConverter;
     FCacheTypeCode: Integer;

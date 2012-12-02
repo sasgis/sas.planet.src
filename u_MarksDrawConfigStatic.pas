@@ -24,10 +24,11 @@ interface
 
 uses
   Types,
-  i_MarksDrawConfig;
+  i_MarksDrawConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMarksDrawConfigStatic = class(TInterfacedObject, IMarksDrawConfigStatic)
+  TMarksDrawConfigStatic = class(TBaseInterfacedObject, IMarksDrawConfigStatic)
   private
     FShowPointCaption: Boolean;
     FUseSolidCaptionBackground: Boolean;

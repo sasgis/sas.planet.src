@@ -8,10 +8,11 @@ uses
   i_Bitmap32Static,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
-  i_BitmapPostProcessingConfig;
+  i_BitmapPostProcessingConfig,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderSimpleForCombine = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderSimpleForCombine = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FRecolorConfig: IBitmapPostProcessing;
     FSourceProvider: IBitmapLayerProvider;

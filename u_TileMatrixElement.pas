@@ -7,10 +7,11 @@ uses
   SysUtils,
   i_Bitmap32Static,
   i_LocalCoordConverter,
-  i_TileMatrix;
+  i_TileMatrix,
+  u_BaseInterfacedObject;
 
 type
-  TTileMatrixElement = class(TInterfacedObject, ITileMatrixElement)
+  TTileMatrixElement = class(TBaseInterfacedObject, ITileMatrixElement)
   private
     FSync: IReadWriteSync;
 

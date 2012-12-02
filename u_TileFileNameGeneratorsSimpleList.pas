@@ -27,10 +27,11 @@ interface
 
 uses
   i_TileFileNameGenerator,
-  i_TileFileNameGeneratorsList;
+  i_TileFileNameGeneratorsList,
+  u_BaseInterfacedObject;
 
 type
-  TTileFileNameGeneratorsSimpleList = class(TInterfacedObject, ITileFileNameGeneratorsList)
+  TTileFileNameGeneratorsSimpleList = class(TBaseInterfacedObject, ITileFileNameGeneratorsList)
   private
     FItems: array of ITileFileNameGenerator;
   public

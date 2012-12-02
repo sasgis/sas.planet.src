@@ -25,10 +25,11 @@ interface
 uses
   Types,
   i_InetConfig,
-  i_TileDownloaderConfig;
+  i_TileDownloaderConfig,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloaderConfigStatic = class(TInterfacedObject, ITileDownloaderConfigStatic)
+  TTileDownloaderConfigStatic = class(TBaseInterfacedObject, ITileDownloaderConfigStatic)
   private
     FInetConfigStatic: IInetConfigStatic;
     FEnabled: Boolean;

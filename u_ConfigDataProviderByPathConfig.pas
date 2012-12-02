@@ -27,10 +27,11 @@ uses
   i_StringListStatic,
   i_BinaryData,
   i_PathConfig,
-  i_ConfigDataProvider;
+  i_ConfigDataProvider,
+  u_BaseInterfacedObject;
 
 type
-  TConfigDataProviderByPathConfig = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderByPathConfig = class(TBaseInterfacedObject, IConfigDataProvider)
   private
     FSourcePath: IPathConfig;
   private

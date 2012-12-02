@@ -29,10 +29,11 @@ uses
   i_BinaryData,
   i_BitmapMarker,
   i_BitmapTileSaveLoad,
-  i_MarkPicture;
+  i_MarkPicture,
+  u_BaseInterfacedObject;
 
 type
-  TMarkPictureSimple = class(TInterfacedObject, IMarkPicture)
+  TMarkPictureSimple = class(TBaseInterfacedObject, IMarkPicture)
   private
     FFullFileName: string;
     FName: string;

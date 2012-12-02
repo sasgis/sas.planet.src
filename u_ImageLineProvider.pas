@@ -11,10 +11,11 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageLineProvider,
-  i_BitmapLayerProvider;
+  i_BitmapLayerProvider,
+  u_BaseInterfacedObject;
 
 type
-  TImageLineProviderAbstract = class(TInterfacedObject, IImageLineProvider)
+  TImageLineProviderAbstract = class(TBaseInterfacedObject, IImageLineProvider)
   private
     FImageProvider: IBitmapLayerProvider;
     FConverterFactory: ILocalCoordConverterFactorySimpe;

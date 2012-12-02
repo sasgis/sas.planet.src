@@ -24,10 +24,11 @@ interface
 
 uses
   u_MapType,
-  i_MapTypes;
+  i_MapTypes,
+  u_BaseInterfacedObject;
 
 type
-  TMapTypeBasic = class(TInterfacedObject, IMapType)
+  TMapTypeBasic = class(TBaseInterfacedObject, IMapType)
   private
     FMapType: TMapType;
   private

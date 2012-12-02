@@ -4,10 +4,11 @@ interface
 
 uses
   Types,
-  i_TileKey;
+  i_TileKey,
+  u_BaseInterfacedObject;
 
 type
-  TTileKey = class(TInterfacedObject, ITileKey)
+  TTileKey = class(TBaseInterfacedObject, ITileKey)
   private
     FTile: TPoint;
     FZoom: Byte;

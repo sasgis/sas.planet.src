@@ -21,10 +21,11 @@ uses
   i_LocalCoordConverterChangeable,
   i_ListenerNotifierLinksList,
   i_ActiveMapsConfig,
-  i_LocalCoordConverter;
+  i_LocalCoordConverter,
+  u_BaseInterfacedObject;
 
 type
-  TUiTileDownload = class(TInterfacedObject)
+  TUiTileDownload = class(TBaseInterfacedObject)
   private
     FConfig: IDownloadUIConfig;
     FGCList: INotifierTTLCheck;

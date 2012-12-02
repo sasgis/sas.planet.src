@@ -5,10 +5,11 @@ interface
 uses
   t_GeoTypes,
   i_DoublePointFilter,
-  i_EnumDoublePoint;
+  i_EnumDoublePoint,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointClosePoly = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointClosePoly = class(TBaseInterfacedObject, IEnumDoublePoint)
   private
     FSourceEnum: IEnumDoublePoint;
     FFirstPoint: TDoublePoint;
@@ -45,22 +46,22 @@ type
     );
   end;
 
-  TDoublePointFilterPolygonClose = class(TInterfacedObject, IDoublePointFilter)
+  TDoublePointFilterPolygonClose = class(TBaseInterfacedObject, IDoublePointFilter)
   private
     function CreateFilteredEnum(const ASource: IEnumDoublePoint): IEnumDoublePoint;
   end;
 
-  TLonLatPointFilterPolygonClose = class(TInterfacedObject, ILonLatPointFilter)
+  TLonLatPointFilterPolygonClose = class(TBaseInterfacedObject, ILonLatPointFilter)
   private
     function CreateFilteredEnum(const ASource: IEnumLonLatPoint): IEnumLonLatPoint;
   end;
 
-  TProjectedPointFilterPolygonClose = class(TInterfacedObject, IProjectedPointFilter)
+  TProjectedPointFilterPolygonClose = class(TBaseInterfacedObject, IProjectedPointFilter)
   private
     function CreateFilteredEnum(const ASource: IEnumProjectedPoint): IEnumProjectedPoint;
   end;
 
-  TLocalPointFilterPolygonClose = class(TInterfacedObject, ILocalPointFilter)
+  TLocalPointFilterPolygonClose = class(TBaseInterfacedObject, ILocalPointFilter)
   private
     function CreateFilteredEnum(const ASource: IEnumLocalPoint): IEnumLocalPoint;
   end;

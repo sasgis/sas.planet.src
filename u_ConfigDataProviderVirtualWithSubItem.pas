@@ -26,10 +26,11 @@ uses
   Classes,
   i_StringListStatic,
   i_BinaryData,
-  i_ConfigDataProvider;
+  i_ConfigDataProvider,
+  u_BaseInterfacedObject;
 
 type
-  TConfigDataProviderVirtualWithSubItem = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderVirtualWithSubItem = class(TBaseInterfacedObject, IConfigDataProvider)
   private
     FSubItemName: string;
     FSubItem: IConfigDataProvider;

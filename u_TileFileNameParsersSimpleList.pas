@@ -28,11 +28,12 @@ interface
 
 uses
   i_TileFileNameParser,
-  i_TileFileNameParsersList;
+  i_TileFileNameParsersList,
+  u_BaseInterfacedObject;
 
 type
   TTileFileNameParsersSimpleList = class(
-    TInterfacedObject,
+    TBaseInterfacedObject,
     ITileFileNameParsersList
   )
   private

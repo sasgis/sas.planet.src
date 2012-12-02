@@ -5,10 +5,11 @@ interface
 uses
   i_VectorItmesFactory,
   i_ImportFile,
-  i_ImportConfig;
+  i_ImportConfig,
+  u_BaseInterfacedObject;
 
 type
-  TImportSLS = class(TInterfacedObject, IImportFile)
+  TImportSLS = class(TBaseInterfacedObject, IImportFile)
   private
     FFactory: IVectorItmesFactory;
   private

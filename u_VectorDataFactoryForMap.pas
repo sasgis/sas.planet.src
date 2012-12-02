@@ -9,7 +9,8 @@ uses
   i_HtmlToHintTextConverter,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
-  i_VectorDataFactory;
+  i_VectorDataFactory,
+  u_BaseInterfacedObject;
 
 type
   PIdData = ^TIdData;
@@ -18,7 +19,7 @@ type
     NextIndex: Integer;
   end;
 
-  TVectorDataFactoryForMap = class(TInterfacedObject, IVectorDataFactory)
+  TVectorDataFactoryForMap = class(TBaseInterfacedObject, IVectorDataFactory)
   private
     FHintConverter: IHtmlToHintTextConverter;
   private

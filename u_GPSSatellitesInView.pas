@@ -28,10 +28,11 @@ uses
   Classes,
   SysUtils,
   i_GPS,
-  vsagps_public_base;
+  vsagps_public_base,
+  u_BaseInterfacedObject;
 
 type
-  TGPSSatellitesInView = class(TInterfacedObject, IGPSSatellitesInView)
+  TGPSSatellitesInView = class(TBaseInterfacedObject, IGPSSatellitesInView)
   private
     FItemsGP: IInterfaceList;
     FItemsGL: IInterfaceList;

@@ -3,7 +3,8 @@ unit u_HashCacheWithQueuesAbstract;
 interface
 
 uses
-  SysUtils;
+  SysUtils,
+  u_BaseInterfacedObject;
 
 type
   TQueueType = (qtEmpty = 0, qtMulti = 1, qtFirstIn = 2, qtFirstOut = 3, qtUnknown = 4);
@@ -119,7 +120,7 @@ type
     );
   end;
 
-  THashCacheWithQueuesAbstract = class(TInterfacedObject)
+  THashCacheWithQueuesAbstract = class(TBaseInterfacedObject)
   private
     FCS: IReadWriteSync;
     FItems: TItemsArray;

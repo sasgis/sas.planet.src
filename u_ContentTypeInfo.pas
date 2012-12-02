@@ -25,10 +25,11 @@ interface
 uses
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
-  i_ContentTypeInfo;
+  i_ContentTypeInfo,
+  u_BaseInterfacedObject;
 
 type
-  TContentTypeInfoBase = class(TInterfacedObject, IContentTypeInfoBasic)
+  TContentTypeInfoBase = class(TBaseInterfacedObject, IContentTypeInfoBasic)
   private
     FContentType: AnsiString;
     FDefaultExt: AnsiString;

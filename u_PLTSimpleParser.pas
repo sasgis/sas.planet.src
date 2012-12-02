@@ -31,10 +31,11 @@ uses
   i_VectorDataLoader,
   i_DoublePointsAggregator,
   i_InternalPerformanceCounter,
-  i_VectorDataItemSimple;
+  i_VectorDataItemSimple,
+  u_BaseInterfacedObject;
 
 type
-  TPLTSimpleParser = class(TInterfacedObject, IVectorDataLoader)
+  TPLTSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FFactory: IVectorItmesFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;

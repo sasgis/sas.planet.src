@@ -13,11 +13,12 @@ uses
   i_BitmapLayerProvider,
   i_FillingMapColorer,
   i_BitmapLayerProviderWithListener,
-  u_MapType;
+  u_MapType,
+  u_BaseInterfacedObject;
 
 type
   TBitmapLayerProviderFillingMap = class(
-    TInterfacedObject,
+    TBaseInterfacedObject,
     IBitmapLayerProvider,
     IBitmapLayerProviderWithListener
     )

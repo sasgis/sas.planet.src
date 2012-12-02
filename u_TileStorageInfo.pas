@@ -26,10 +26,11 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_StorageTypeAbilities,
-  i_TileStorageInfo;
+  i_TileStorageInfo,
+  u_BaseInterfacedObject;
 
 type
-  TTileStorageInfo = class(TInterfacedObject, ITileStorageInfo)
+  TTileStorageInfo = class(TBaseInterfacedObject, ITileStorageInfo)
   private
     FTypeInfo: IStorageTypeAbilities;
     FMainContentType: IContentTypeInfoBasic;

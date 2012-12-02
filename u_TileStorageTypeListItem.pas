@@ -24,10 +24,11 @@ interface
 
 uses
   i_TileStorageType,
-  i_TileStorageTypeListItem;
+  i_TileStorageTypeListItem,
+  u_BaseInterfacedObject;
 
 type
-  TTileStorageTypeListItem = class(TInterfacedObject, ITileStorageTypeListItem)
+  TTileStorageTypeListItem = class(TBaseInterfacedObject, ITileStorageTypeListItem)
   private
     FGUID: TGUID;
     FCaption: string;

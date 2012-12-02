@@ -6,10 +6,11 @@ uses
   Types,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
-  i_TileMatrix;
+  i_TileMatrix,
+  u_BaseInterfacedObject;
 
 type
-  TTileMatrix = class(TInterfacedObject, ITileMatrix)
+  TTileMatrix = class(TBaseInterfacedObject, ITileMatrix)
   private
     FLocalConverter: ILocalCoordConverter;
     FTileRect: TRect;

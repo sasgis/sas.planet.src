@@ -35,11 +35,12 @@ uses
   i_MarkTemplate,
   i_HtmlToHintTextConverter,
   i_MarkFactory,
-  i_MarkFactorySmlInternal;
+  i_MarkFactorySmlInternal,
+  u_BaseInterfacedObject;
 
 type
 
-  TMarkFactory = class(TInterfacedObject, IMarkFactory, IMarkFactorySmlInternal)
+  TMarkFactory = class(TBaseInterfacedObject, IMarkFactory, IMarkFactorySmlInternal)
   private
     FConfig: IMarksFactoryConfig;
     FFactory: IVectorItmesFactory;

@@ -25,10 +25,11 @@ interface
 uses
   Classes,
   i_ArchiveReadWrite,
-  i_ArchiveReadWriteFactory;
+  i_ArchiveReadWriteFactory,
+  u_BaseInterfacedObject;
 
 type
-  TArchiveReadWriteFactory = class(TInterfacedObject, IArchiveReadWriteFactory)
+  TArchiveReadWriteFactory = class(TBaseInterfacedObject, IArchiveReadWriteFactory)
   private
     // Zip reader
     function CreateZipReaderByName(const AFileName: string): IArchiveReader;

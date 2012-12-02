@@ -7,10 +7,11 @@ uses
   i_EnumDoublePoint,
   i_VectorItemLonLat,
   i_VectorItemProjected,
-  i_VectorItemLocal;
+  i_VectorItemLocal,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointByLineSetBase = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointByLineSetBase = class(TBaseInterfacedObject, IEnumDoublePoint)
   private
     FSourceLineSet: IInterface;
     FClosed: Boolean;

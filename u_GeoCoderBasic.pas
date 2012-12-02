@@ -33,10 +33,11 @@ uses
   i_DownloadResult,
   i_Downloader,
   i_GeoCoder,
-  i_LocalCoordConverter;
+  i_LocalCoordConverter,
+  u_BaseInterfacedObject;
 
 type
-  TGeoCoderBasic = class(TInterfacedObject, IGeoCoder)
+  TGeoCoderBasic = class(TBaseInterfacedObject, IGeoCoder)
   private
     FDownloader: IDownloader;
     FInetSettings: IInetConfig;

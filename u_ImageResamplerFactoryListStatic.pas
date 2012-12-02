@@ -25,10 +25,11 @@ interface
 uses
   SysUtils,
   Classes,
-  i_ImageResamplerFactory;
+  i_ImageResamplerFactory,
+  u_BaseInterfacedObject;
 
 type
-  TImageResamplerFactoryListStatic = class(TInterfacedObject, IImageResamplerFactoryList)
+  TImageResamplerFactoryListStatic = class(TBaseInterfacedObject, IImageResamplerFactoryList)
   private
     FList: TStringList;
     FCS: IReadWriteSync;

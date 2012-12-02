@@ -5,10 +5,11 @@ interface
 uses
   t_GeoTypes,
   i_DoublePointFilter,
-  i_EnumDoublePoint;
+  i_EnumDoublePoint,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointFilterEqual = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointFilterEqual = class(TBaseInterfacedObject, IEnumDoublePoint)
   private
     FSourceEnum: IEnumDoublePoint;
     FPrevEmpty: Boolean;
@@ -36,17 +37,17 @@ type
     );
   end;
 
-  TDoublePointFilterRemoveEqual = class(TInterfacedObject, IDoublePointFilter)
+  TDoublePointFilterRemoveEqual = class(TBaseInterfacedObject, IDoublePointFilter)
   private
     function CreateFilteredEnum(const ASource: IEnumDoublePoint): IEnumDoublePoint;
   end;
 
-  TProjectedPointFilterRemoveEqual = class(TInterfacedObject, IProjectedPointFilter)
+  TProjectedPointFilterRemoveEqual = class(TBaseInterfacedObject, IProjectedPointFilter)
   private
     function CreateFilteredEnum(const ASource: IEnumProjectedPoint): IEnumProjectedPoint;
   end;
 
-  TLocalPointFilterRemoveEqual = class(TInterfacedObject, ILocalPointFilter)
+  TLocalPointFilterRemoveEqual = class(TBaseInterfacedObject, ILocalPointFilter)
   private
     function CreateFilteredEnum(const ASource: IEnumLocalPoint): IEnumLocalPoint;
   end;

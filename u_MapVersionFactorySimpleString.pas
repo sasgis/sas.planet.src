@@ -4,10 +4,11 @@ interface
 
 uses
   i_MapVersionInfo,
-  i_MapVersionConfig;
+  i_MapVersionConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMapVersionFactorySimpleString = class(TInterfacedObject, IMapVersionFactory)
+  TMapVersionFactorySimpleString = class(TBaseInterfacedObject, IMapVersionFactory)
   private
     function CreateByStoreString(const AValue: string): IMapVersionInfo;
     function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;

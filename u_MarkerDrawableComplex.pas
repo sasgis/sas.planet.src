@@ -5,10 +5,11 @@ interface
 uses
   GR32,
   t_GeoTypes,
-  i_MarkerDrawable;
+  i_MarkerDrawable,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerDrawableComplex = class(TInterfacedObject, IMarkerDrawable)
+  TMarkerDrawableComplex = class(TBaseInterfacedObject, IMarkerDrawable)
   private
     FMarkerFirst: IMarkerDrawable;
     FMarkerSecond: IMarkerDrawable;

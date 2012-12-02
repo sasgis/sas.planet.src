@@ -7,10 +7,11 @@ uses
   i_Bitmap32Static,
   i_LocalCoordConverter,
   i_VectorItemProjected,
-  i_BitmapLayerProvider;
+  i_BitmapLayerProvider,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderInPolygon = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderInPolygon = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FSourceProvider: IBitmapLayerProvider;
     FPolyProjected: IProjectedPolygon;

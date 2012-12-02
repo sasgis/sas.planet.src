@@ -4,10 +4,11 @@ interface
 
 uses
   i_Notifier,
-  i_Bitmap32Static;
+  i_Bitmap32Static,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapChangeableFaked = class(TInterfacedObject, IBitmapChangeable)
+  TBitmapChangeableFaked = class(TBaseInterfacedObject, IBitmapChangeable)
   private
     FBitmap: IBitmap32Static;
     FChangeNotifier: INotifier;

@@ -25,11 +25,12 @@ interface
 uses
   Types,
   i_TileFileNameParser,
-  i_TileFileNameGenerator;
+  i_TileFileNameGenerator,
+  u_BaseInterfacedObject;
 
 type
   TTileFileNameBDB = class(
-    TInterfacedObject,
+    TBaseInterfacedObject,
     ITileFileNameParser,
     ITileFileNameGenerator
   )

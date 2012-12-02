@@ -6,10 +6,11 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_LocalCoordConverter,
-  i_VectorItemLocal;
+  i_VectorItemLocal,
+  u_BaseInterfacedObject;
 
 type
-  TLocalLineBase = class(TInterfacedObject)
+  TLocalLineBase = class(TBaseInterfacedObject)
   private
     FCount: Integer;
     FPoints: array of TDoublePoint;

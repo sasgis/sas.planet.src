@@ -16,10 +16,11 @@ uses
   i_TileDownloadResultSaver,
   i_TileDownloaderConfig,
   i_TileDownloader,
-  i_TileDownloadRequestBuilder;
+  i_TileDownloadRequestBuilder,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloaderSimple = class(TInterfacedObject, ITileDownloader)
+  TTileDownloaderSimple = class(TBaseInterfacedObject, ITileDownloader)
   private
     FTileDownloadRequestBuilder: ITileDownloadRequestBuilder;
     FTileDownloaderConfig: ITileDownloaderConfig;

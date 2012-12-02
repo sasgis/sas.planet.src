@@ -37,10 +37,11 @@ uses
   i_VectorItemProjected,
   i_VectorItmesFactory,
   i_DoublePointsAggregator,
-  i_BitmapLayerProvider;
+  i_BitmapLayerProvider,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderByMarksSubset = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderByMarksSubset = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FConfig: IMarksDrawConfigStatic;
     FVectorItmesFactory: IVectorItmesFactory;

@@ -4,10 +4,11 @@ interface
 
 uses
   Types,
-  i_TileRect;
+  i_TileRect,
+  u_BaseInterfacedObject;
 
 type
-  TTileRect = class(TInterfacedObject, ITileRect)
+  TTileRect = class(TBaseInterfacedObject, ITileRect)
   private
     FRect: TRect;
     FZoom: Byte;

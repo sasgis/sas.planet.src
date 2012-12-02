@@ -6,10 +6,11 @@ uses
   i_InternalPerformanceCounter,
   i_ReadWriteSyncFactory,
   i_Notifier,
-  i_NotifierFactory;
+  i_NotifierFactory,
+  u_BaseInterfacedObject;
 
 type
-  TNotifierFactorySimple = class(TInterfacedObject, INotifierFactory)
+  TNotifierFactorySimple = class(TBaseInterfacedObject, INotifierFactory)
   private
     FSyncFactory: IReadWriteSyncFactory;
   private
@@ -20,7 +21,7 @@ type
     );
   end;
 
-  TNotifierFactoryWrapperWithCounter = class(TInterfacedObject, INotifierFactory)
+  TNotifierFactoryWrapperWithCounter = class(TBaseInterfacedObject, INotifierFactory)
   private
     FSource: INotifierFactory;
     FCounter: IInternalPerformanceCounter;

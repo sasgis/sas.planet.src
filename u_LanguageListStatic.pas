@@ -24,10 +24,11 @@ interface
 
 uses
   Classes,
-  i_LanguageListStatic;
+  i_LanguageListStatic,
+  u_BaseInterfacedObject;
 
 type
-  TLanguageListStatic = class(TInterfacedObject, ILanguageListStatic)
+  TLanguageListStatic = class(TBaseInterfacedObject, ILanguageListStatic)
   private
     FSortedByCode: TStringList;
     FList: TStringList;

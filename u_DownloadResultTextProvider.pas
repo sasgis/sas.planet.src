@@ -26,10 +26,11 @@ uses
   i_Notifier,
   i_Listener,
   i_LanguageManager,
-  i_DownloadResultTextProvider;
+  i_DownloadResultTextProvider,
+  u_BaseInterfacedObject;
 
 type
-  TDownloadResultTextProvider = class(TInterfacedObject, IDownloadResultTextProvider)
+  TDownloadResultTextProvider = class(TBaseInterfacedObject, IDownloadResultTextProvider)
   private
     FLangManager: ILanguageManager;
     FLangListener: IListener;

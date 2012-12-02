@@ -26,12 +26,13 @@ uses
   Classes,
   SevenZip,
   i_BinaryData,
-  i_ArchiveReadWrite;
+  i_ArchiveReadWrite,
+  u_BaseInterfacedObject;
 
 type
   TArchiveType = (atTar = 0, atZip = 1, atRar = 2, at7Zip = 3);
 
-  TArchiveReadBy7Zip = class(TInterfacedObject, IArchiveReader)
+  TArchiveReadBy7Zip = class(TBaseInterfacedObject, IArchiveReader)
   private
     FArch: I7zInArchive;
     FOwnStream: Boolean;
@@ -58,7 +59,7 @@ type
     destructor Destroy; override;
   end;
 
-  TArchiveWriteBy7Zip = class(TInterfacedObject, IArchiveWriter)
+  TArchiveWriteBy7Zip = class(TBaseInterfacedObject, IArchiveWriter)
   private
     FArch: I7zOutArchive;
     FOwnStream: Boolean;

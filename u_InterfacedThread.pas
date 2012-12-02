@@ -28,10 +28,11 @@ uses
   i_Notifier,
   i_Listener,
   i_ThreadConfig,
-  i_Thread;
+  i_Thread,
+  u_BaseInterfacedObject;
 
 type
-  TInterfacedThread = class(TInterfacedObject, IThread)
+  TInterfacedThread = class(TBaseInterfacedObject, IThread)
   private
     FConfig: IThreadConfig;
     FThread: TThread;

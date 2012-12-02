@@ -7,10 +7,11 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_LocalCoordConverter,
-  i_VectorItemLocal;
+  i_VectorItemLocal,
+  u_BaseInterfacedObject;
 
 type
-  TLocalLineSet = class(TInterfacedObject)
+  TLocalLineSet = class(TBaseInterfacedObject)
   private
     FList: IInterfaceList;
     FLocalConverter: ILocalCoordConverter;
@@ -36,7 +37,7 @@ type
     function GetItem(AIndex: Integer): ILocalPolygonLine;
   end;
 
-  TLocalPathOneLine = class(TInterfacedObject, ILocalPath)
+  TLocalPathOneLine = class(TBaseInterfacedObject, ILocalPath)
   private
     FLine: ILocalPathLine;
   private
@@ -50,7 +51,7 @@ type
     );
   end;
 
-  TLocalPolygonOneLine = class(TInterfacedObject, ILocalPolygon)
+  TLocalPolygonOneLine = class(TBaseInterfacedObject, ILocalPolygon)
   private
     FLine: ILocalPolygonLine;
   private
@@ -64,7 +65,7 @@ type
     );
   end;
 
-  TLocalLineSetEmpty = class(TInterfacedObject, IEnumDoublePoint, IEnumLocalPoint)
+  TLocalLineSetEmpty = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumLocalPoint)
   private
     FLocalConverter: ILocalCoordConverter;
   private

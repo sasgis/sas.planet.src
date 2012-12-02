@@ -6,10 +6,11 @@ uses
   Classes,
   SysUtils,
   i_Notifier,
-  i_Listener;
+  i_Listener,
+  u_BaseInterfacedObject;
 
 type
-  TNotifierBase = class (TInterfacedObject, INotifier, INotifierInternal)
+  TNotifierBase = class (TBaseInterfacedObject, INotifier, INotifierInternal)
   private
     FListeners: TList;
     FSynchronizer: IReadWriteSync;
@@ -23,7 +24,7 @@ type
     destructor Destroy; override;
   end;
 
-  TNotifierFaked = class (TInterfacedObject, INotifier, INotifierInternal)
+  TNotifierFaked = class (TBaseInterfacedObject, INotifier, INotifierInternal)
   private
     procedure Add(const AListener: IListener);
     procedure Remove(const AListener: IListener);

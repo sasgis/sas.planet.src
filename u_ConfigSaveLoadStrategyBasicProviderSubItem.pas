@@ -26,10 +26,11 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
-  i_ConfigSaveLoadStrategy;
+  i_ConfigSaveLoadStrategy,
+  u_BaseInterfacedObject;
 
 type
-  TConfigSaveLoadStrategyBasicProviderSubItem = class(TInterfacedObject, IConfigSaveLoadStrategy)
+  TConfigSaveLoadStrategyBasicProviderSubItem = class(TBaseInterfacedObject, IConfigSaveLoadStrategy)
   private
     FSubItemName: string;
   private

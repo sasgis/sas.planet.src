@@ -6,10 +6,11 @@ uses
   i_BinaryData,
   i_ConfigDataProvider,
   i_ContentTypeManager,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TInternalDomainInfoProviderByDataProvider = class(TInterfacedObject, IInternalDomainInfoProvider)
+  TInternalDomainInfoProviderByDataProvider = class(TBaseInterfacedObject, IInternalDomainInfoProvider)
   private
     FContentTypeManager: IContentTypeManager;
     FProvider: IConfigDataProvider;

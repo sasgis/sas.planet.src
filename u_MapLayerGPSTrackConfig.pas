@@ -30,10 +30,11 @@ uses
   i_ThreadConfig,
   i_MapLayerGPSTrackConfig,
   u_ConfigDataElementBase,
-  u_ConfigDataElementComplexBase;
+  u_ConfigDataElementComplexBase,
+  u_BaseInterfacedObject;
 
 type
-  TSpeedRangeItem = class(TInterfacedObject, ISpeedRangeItem)
+  TSpeedRangeItem = class(TBaseInterfacedObject, ISpeedRangeItem)
   private
     FSpeed: Double;
     FMinSpeedColor: TColor32;
@@ -49,7 +50,7 @@ type
     );
   end;
 
-  TTrackColorerStatic = class(TInterfacedObject, ITrackColorerStatic)
+  TTrackColorerStatic = class(TBaseInterfacedObject, ITrackColorerStatic)
   private
     FCount: Integer;
     FSpeedArray: array of Double;

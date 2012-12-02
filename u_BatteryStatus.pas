@@ -27,10 +27,11 @@ type
 implementation
 
 uses
-  u_Synchronizer;
+  u_Synchronizer,
+  u_BaseInterfacedObject;
 
 type
-  TBatteryStatusStatic = class(TInterfacedObject, IBatteryStatusStatic)
+  TBatteryStatusStatic = class(TBaseInterfacedObject, IBatteryStatusStatic)
   private
     FACLineStatus: Byte;
     FBatteryFlag: Byte;

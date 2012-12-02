@@ -25,10 +25,11 @@ interface
 uses
   Windows,
   ActiveX,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TIeEmbeddedProtocolFactory = class(TInterfacedObject, IClassFactory)
+  TIeEmbeddedProtocolFactory = class(TBaseInterfacedObject, IClassFactory)
   private
     FDomainList: IInternalDomainInfoProviderList;
   private

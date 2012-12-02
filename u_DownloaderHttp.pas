@@ -38,7 +38,8 @@ uses
   i_DownloadResult,
   i_DownloadRequest,
   i_DownloadResultFactory,
-  i_DownloadChecker;
+  i_DownloadChecker,
+  u_BaseInterfacedObject;
 
 type
   THttpClientConfigRec = record
@@ -53,7 +54,7 @@ type
     ProxyPassword: AnsiString;
   end;
 
-  TDownloaderHttp = class(TInterfacedObject, IDownloader)
+  TDownloaderHttp = class(TBaseInterfacedObject, IDownloader)
   private
     FCS: IReadWriteSync;
     FCancelListener: IListener;

@@ -24,10 +24,11 @@ interface
 
 uses
   SysUtils,
-  i_DownloadInfoSimple;
+  i_DownloadInfoSimple,
+  u_BaseInterfacedObject;
 
 type
-  TDownloadInfoSimple = class(TInterfacedObject, IDownloadInfoSimple)
+  TDownloadInfoSimple = class(TBaseInterfacedObject, IDownloadInfoSimple)
   private
     FParentInfo: IDownloadInfoSimple;
     FCS: IReadWriteSync;

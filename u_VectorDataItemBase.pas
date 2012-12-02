@@ -25,10 +25,11 @@ interface
 uses
   i_LonLatRect,
   i_HtmlToHintTextConverter,
-  i_VectorDataItemSimple;
+  i_VectorDataItemSimple,
+  u_BaseInterfacedObject;
 
 type
-  TVectorDataItemBase = class(TInterfacedObject, IVectorDataItemSimple)
+  TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItemSimple)
   private
     FHintConverter: IHtmlToHintTextConverter;
     FName: string;

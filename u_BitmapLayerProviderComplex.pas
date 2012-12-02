@@ -6,10 +6,11 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_LocalCoordConverter,
-  i_BitmapLayerProvider;
+  i_BitmapLayerProvider,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderComplex = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderComplex = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FProviderFrist: IBitmapLayerProvider;
     FProviderSecond: IBitmapLayerProvider;

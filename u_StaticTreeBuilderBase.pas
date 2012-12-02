@@ -25,10 +25,11 @@ interface
 uses
   Classes,
   i_StaticTreeItem,
-  i_StaticTreeBuilder;
+  i_StaticTreeBuilder,
+  u_BaseInterfacedObject;
 
 type
-  TStaticTreeBuilderBase = class(TInterfacedObject, IStaticTreeBuilder)
+  TStaticTreeBuilderBase = class(TBaseInterfacedObject, IStaticTreeBuilder)
   protected
     procedure ProcessItems(
       const ASource: IInterface;

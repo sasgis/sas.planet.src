@@ -7,10 +7,11 @@ uses
   GR32,
   t_GeoTypes,
   i_MarkerDrawable,
-  i_BitmapMarker;
+  i_BitmapMarker,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerDrawableWithDirectionByBitmapMarker = class(TInterfacedObject, IMarkerDrawableWithDirection)
+  TMarkerDrawableWithDirectionByBitmapMarker = class(TBaseInterfacedObject, IMarkerDrawableWithDirection)
   private
     FMarker: IBitmapMarkerWithDirection;
     FCachedMarkerCS: IReadWriteSync;

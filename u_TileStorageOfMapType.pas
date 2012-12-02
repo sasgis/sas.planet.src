@@ -24,10 +24,11 @@ uses
   i_BinaryData,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
-  u_GlobalCahceConfig;
+  u_GlobalCahceConfig,
+  u_BaseInterfacedObject;
 
 type
-  TTileStorageOfMapType = class(TInterfacedObject, ITileStorage)
+  TTileStorageOfMapType = class(TBaseInterfacedObject, ITileStorage)
   private
     FGlobalCacheConfig: TGlobalCahceConfig;
     FConfig: ISimpleTileStorageConfig;

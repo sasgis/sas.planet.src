@@ -25,10 +25,11 @@ interface
 uses
   ALStringList,
   i_ConfigDataProvider,
-  i_ContentTypeSubst;
+  i_ContentTypeSubst,
+  u_BaseInterfacedObject;
 
 type
-  TContentTypeSubstByList = class(TInterfacedObject, IContentTypeSubst)
+  TContentTypeSubstByList = class(TBaseInterfacedObject, IContentTypeSubst)
   private
     FSource: TALStringList;
     FTarget: TALStringList;

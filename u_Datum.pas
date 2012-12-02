@@ -24,10 +24,11 @@ interface
 
 uses
   t_GeoTypes,
-  i_Datum;
+  i_Datum,
+  u_BaseInterfacedObject;
 
 type
-  TDatum = class(TInterfacedObject, IDatum)
+  TDatum = class(TBaseInterfacedObject, IDatum)
   private
     FEPSG: Integer;
     FRadiusA: Double;

@@ -23,10 +23,11 @@ unit u_HtmlToHintTextConverterStuped;
 interface
 
 uses
-  i_HtmlToHintTextConverter;
+  i_HtmlToHintTextConverter,
+  u_BaseInterfacedObject;
 
 type
-  THtmlToHintTextConverterStuped = class(TInterfacedObject, IHtmlToHintTextConverter)
+  THtmlToHintTextConverterStuped = class(TBaseInterfacedObject, IHtmlToHintTextConverter)
   private
     function HTML2Txt(OrigHTML: String): String;
   private

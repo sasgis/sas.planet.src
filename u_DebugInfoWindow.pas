@@ -6,10 +6,11 @@ uses
   i_DebugInfoWindow,
   i_InternalPerformanceCounter,
   i_GlobalAppConfig,
+  u_BaseInterfacedObject,
   frm_DebugInfo;
 
 type
-  TDebugInfoWindow = class(TInterfacedObject, IDebugInfoWindow)
+  TDebugInfoWindow = class(TBaseInterfacedObject, IDebugInfoWindow)
   private
     FPerfCounterList: IInternalPerformanceCounterList;
     FAppConfig: IGlobalAppConfig;

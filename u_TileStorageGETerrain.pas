@@ -30,10 +30,11 @@ uses
   t_DLLCache,
   i_Notifier,
   i_TerrainStorage,
-  i_TileInfoBasic;
+  i_TileInfoBasic,
+  u_BaseInterfacedObject;
 
 type
-  TTileStorageDLLTerrain = class(TInterfacedObject, ITerrainStorage)
+  TTileStorageDLLTerrain = class(TBaseInterfacedObject, ITerrainStorage)
   private
     FReadAccess: TAccesState;
     FStoragePath: string;

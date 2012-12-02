@@ -25,10 +25,11 @@ interface
 uses
   i_MarksSimple,
   i_MarkCategory,
-  i_MarksDbSmlInternal;
+  i_MarksDbSmlInternal,
+  u_BaseInterfacedObject;
 
 type
-  TMarkId = class(TInterfacedObject, IMarkId, IMarkSMLInternal)
+  TMarkId = class(TBaseInterfacedObject, IMarkId, IMarkSMLInternal)
   private
     FName: string;
     FId: Integer;

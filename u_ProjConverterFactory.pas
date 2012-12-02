@@ -5,10 +5,11 @@ interface
 uses
   Windows,
   SysUtils,
-  i_ProjConverter;
+  i_ProjConverter,
+  u_BaseInterfacedObject;
 
 type
-  TProjConverterFactory = class(TInterfacedObject, IProjConverterFactory)
+  TProjConverterFactory = class(TBaseInterfacedObject, IProjConverterFactory)
   private
     FSync: IReadWriteSync;
     FDllFailed: Boolean;
@@ -79,7 +80,7 @@ type
   ): Integer; cdecl;
 
 type
-  TProjDLLHolder = class(TInterfacedObject, IProjDLLHolder)
+  TProjDLLHolder = class(TBaseInterfacedObject, IProjDLLHolder)
   private
     FDLLHandle: THandle;
     F_pj_init_plus: T_pj_init_plus;
@@ -175,7 +176,7 @@ begin
 end;
 
 type
-  TProjConverterByDll = class(TInterfacedObject, IProjConverter)
+  TProjConverterByDll = class(TBaseInterfacedObject, IProjConverter)
   private
     FDllHolder: IProjDLLHolder;
     FprojPJ: PProjPJ;

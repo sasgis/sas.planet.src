@@ -11,10 +11,11 @@ uses
   i_DownloadResult,
   i_DownloadResultFactory,
   i_Downloader,
-  u_DownloaderHttp;
+  u_DownloaderHttp,
+  u_BaseInterfacedObject;
 
 type
-  TDownloaderHttpWithTTL = class(TInterfacedObject, IDownloader)
+  TDownloaderHttpWithTTL = class(TBaseInterfacedObject, IDownloader)
   private
     FResultFactory: IDownloadResultFactory;
     FGCList: INotifierTTLCheck;

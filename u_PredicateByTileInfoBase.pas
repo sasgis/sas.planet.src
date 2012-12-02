@@ -5,10 +5,11 @@ interface
 uses
   Types,
   i_TileInfoBasic,
-  i_PredicateByTileInfo;
+  i_PredicateByTileInfo,
+  u_BaseInterfacedObject;
 
 type
-  TPredicateByTileInfoAbstract = class(TInterfacedObject, IPredicateByTileInfo)
+  TPredicateByTileInfoAbstract = class(TBaseInterfacedObject, IPredicateByTileInfo)
   protected
     function Check(const ATileInfo: ITileInfoBasic; AZoom: Byte; const ATile: TPoint): Boolean; overload;
     function Check(const ATileInfo: TTileInfo): Boolean; overload; virtual; abstract;

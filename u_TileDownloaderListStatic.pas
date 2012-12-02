@@ -4,10 +4,11 @@ interface
 
 uses
   i_TileDownloader,
-  i_TileDownloaderList;
+  i_TileDownloaderList,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloaderListStatic = class(TInterfacedObject, ITileDownloaderListStatic)
+  TTileDownloaderListStatic = class(TBaseInterfacedObject, ITileDownloaderListStatic)
   private
     FList: array of ITileDownloader;
     FCount: Integer;

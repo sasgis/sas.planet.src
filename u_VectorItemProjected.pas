@@ -7,10 +7,11 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_ProjectionInfo,
-  i_VectorItemProjected;
+  i_VectorItemProjected,
+  u_BaseInterfacedObject;
 
 type
-  TProjectedLineSet = class(TInterfacedObject)
+  TProjectedLineSet = class(TBaseInterfacedObject)
   private
     FList: IInterfaceList;
     FProjection: IProjectionInfo;
@@ -52,7 +53,7 @@ type
     function GetItem(AIndex: Integer): IProjectedPolygonLine;
   end;
 
-  TProjectedPathOneLine = class(TInterfacedObject, IProjectedPath)
+  TProjectedPathOneLine = class(TBaseInterfacedObject, IProjectedPath)
   private
     FLine: IProjectedPathLine;
   private
@@ -72,7 +73,7 @@ type
     );
   end;
 
-  TProjectedPolygonOneLine = class(TInterfacedObject, IProjectedPolygon)
+  TProjectedPolygonOneLine = class(TBaseInterfacedObject, IProjectedPolygon)
   private
     FLine: IProjectedPolygonLine;
   private
@@ -95,7 +96,7 @@ type
     );
   end;
 
-  TProjectedLineSetEmpty = class(TInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint)
+  TProjectedLineSetEmpty = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint)
   private
     FProjection: IProjectionInfo;
   private

@@ -26,10 +26,11 @@ uses
   Classes,
   i_NotifierOperation,
   i_GeoCoder,
-  i_LocalCoordConverter;
+  i_LocalCoordConverter,
+  u_BaseInterfacedObject;
 
 type
-  TGeoCoderLocalBasic = class(TInterfacedObject, IGeoCoder)
+  TGeoCoderLocalBasic = class(TBaseInterfacedObject, IGeoCoder)
   protected
     function DoSearch(
       const ACancelNotifier: INotifierOperation;

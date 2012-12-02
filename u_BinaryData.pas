@@ -23,10 +23,11 @@ unit u_BinaryData;
 interface
 
 uses
-  i_BinaryData;
+  i_BinaryData,
+  u_BaseInterfacedObject;
 
 type
-  TBinaryData = class(TInterfacedObject, IBinaryData)
+  TBinaryData = class(TBaseInterfacedObject, IBinaryData)
   private
     FBuffer: Pointer;
     FSize: Integer;

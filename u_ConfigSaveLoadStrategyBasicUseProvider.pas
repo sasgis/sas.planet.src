@@ -26,10 +26,11 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
-  i_ConfigSaveLoadStrategy;
+  i_ConfigSaveLoadStrategy,
+  u_BaseInterfacedObject;
 
 type
-  TConfigSaveLoadStrategyBasicUseProvider = class(TInterfacedObject, IConfigSaveLoadStrategy)
+  TConfigSaveLoadStrategyBasicUseProvider = class(TBaseInterfacedObject, IConfigSaveLoadStrategy)
   private
     procedure WriteConfig(
       const AProvider: IConfigDataWriteProvider;

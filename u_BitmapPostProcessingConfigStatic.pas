@@ -25,10 +25,11 @@ interface
 uses
   GR32,
   i_Bitmap32Static,
-  i_BitmapPostProcessingConfig;
+  i_BitmapPostProcessingConfig,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapPostProcessingConfigStatic = class(TInterfacedObject, IBitmapPostProcessing)
+  TBitmapPostProcessingConfigStatic = class(TBaseInterfacedObject, IBitmapPostProcessing)
   private
     FInvertColor: boolean;
     FGammaN: Integer;

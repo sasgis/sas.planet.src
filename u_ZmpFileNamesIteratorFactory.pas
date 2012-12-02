@@ -24,10 +24,11 @@ interface
 
 uses
   WideStrings,
-  i_FileNameIterator;
+  i_FileNameIterator,
+  u_BaseInterfacedObject;
 
 type
-  TZmpFileNamesIteratorFactory = class(TInterfacedObject, IFileNameIteratorFactory)
+  TZmpFileNamesIteratorFactory = class(TBaseInterfacedObject, IFileNameIteratorFactory)
   private
     FFactory: IFileNameIteratorFactory;
   private

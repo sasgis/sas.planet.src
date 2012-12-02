@@ -7,10 +7,11 @@ uses
   i_EnumDoublePoint,
   i_DoublePointFilter,
   i_ProjectionInfo,
-  i_DoublePointsAggregator;
+  i_DoublePointsAggregator,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointLine2Poly = class(TInterfacedObject, IEnumLonLatPoint)
+  TEnumDoublePointLine2Poly = class(TBaseInterfacedObject, IEnumLonLatPoint)
   private
     FSourceEnum: IEnumLonLatPoint;
     FRadius: Double;
@@ -36,7 +37,7 @@ type
     );
   end;
 
-  TLonLatPointFilterLine2Poly = class(TInterfacedObject, ILonLatPointFilter)
+  TLonLatPointFilterLine2Poly = class(TBaseInterfacedObject, ILonLatPointFilter)
   private
     FRadius: Double;
     FProjection: IProjectionInfo;

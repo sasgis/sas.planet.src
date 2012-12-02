@@ -24,10 +24,11 @@ interface
 
 uses
   Types,
-  i_TilePostDownloadCropConfig;
+  i_TilePostDownloadCropConfig,
+  u_BaseInterfacedObject;
 
 type
-  TTilePostDownloadCropConfigStatic = class(TInterfacedObject, ITilePostDownloadCropConfigStatic)
+  TTilePostDownloadCropConfigStatic = class(TBaseInterfacedObject, ITilePostDownloadCropConfigStatic)
   private
     // crop params
     FIsCropOnDownload: Boolean;

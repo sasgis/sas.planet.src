@@ -24,10 +24,11 @@ interface
 
 uses
   i_GeoCoder,
-  i_GeoCoderList;
+  i_GeoCoderList,
+  u_BaseInterfacedObject;
 
 type
-  TGeoCoderListEntity = class(TInterfacedObject, IGeoCoderListEntity)
+  TGeoCoderListEntity = class(TBaseInterfacedObject, IGeoCoderListEntity)
   private
     FGUID: TGUID;
     FCaption: WideString;

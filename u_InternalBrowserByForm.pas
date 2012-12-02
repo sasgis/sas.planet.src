@@ -8,10 +8,11 @@ uses
   i_LanguageManager,
   i_WindowPositionConfig,
   i_ContentTypeManager,
+  u_BaseInterfacedObject,
   frm_IntrnalBrowser;
 
 type
-  TInternalBrowserByForm = class(TInterfacedObject, IInternalBrowser)
+  TInternalBrowserByForm = class(TBaseInterfacedObject, IInternalBrowser)
   private
     FLanguageManager: ILanguageManager;
     FProxyConfig: IProxyConfig;

@@ -44,10 +44,11 @@ uses
   i_MarksSystem,
   i_MarksDbSmlInternal,
   i_StaticTreeItem,
-  i_StaticTreeBuilder;
+  i_StaticTreeBuilder,
+  u_BaseInterfacedObject;
 
 type
-  TMarksSystem = class(TInterfacedObject, IMarksSystem)
+  TMarksSystem = class(TBaseInterfacedObject, IMarksSystem)
   private
     FBasePath: IPathConfig;
     FMarksFactoryConfig: IMarksFactoryConfig;

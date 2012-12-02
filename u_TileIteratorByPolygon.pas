@@ -27,10 +27,11 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_TileIterator,
-  i_VectorItemProjected;
+  i_VectorItemProjected,
+  u_BaseInterfacedObject;
 
 type
-  TTileIteratorByPolygon = class(TInterfacedObject, ITileIterator)
+  TTileIteratorByPolygon = class(TBaseInterfacedObject, ITileIterator)
   private
     FProjected: IProjectedPolygon;
     FCurrent: TPoint;

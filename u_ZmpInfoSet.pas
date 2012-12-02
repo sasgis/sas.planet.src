@@ -32,10 +32,11 @@ uses
   i_ContentTypeManager,
   i_FileNameIterator,
   i_ZmpConfig,
-  i_ZmpInfoSet;
+  i_ZmpInfoSet,
+  u_BaseInterfacedObject;
 
 type
-  TZmpInfoSet = class(TInterfacedObject, IZmpInfoSet)
+  TZmpInfoSet = class(TBaseInterfacedObject, IZmpInfoSet)
   private
     FList: IGUIDInterfaceSet;
   private

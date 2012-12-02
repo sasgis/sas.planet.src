@@ -27,10 +27,11 @@ uses
   ActiveX,
   t_GeoTypes,
   i_MarkCategory,
-  i_MarksSimple;
+  i_MarksSimple,
+  u_BaseInterfacedObject;
 
 type
-  TMarksSubset = class(TInterfacedObject, IMarksSubset)
+  TMarksSubset = class(TBaseInterfacedObject, IMarksSubset)
   private
     FList: IInterfaceList;
   private

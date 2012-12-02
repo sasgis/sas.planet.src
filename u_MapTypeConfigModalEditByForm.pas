@@ -27,10 +27,11 @@ uses
   i_LanguageManager,
   i_MapTypeConfigModalEdit,
   u_MapType,
+  u_BaseInterfacedObject,
   frm_MapTypeEdit;
 
 type
-  TMapTypeConfigModalEditByForm = class(TInterfacedObject, IMapTypeConfigModalEdit)
+  TMapTypeConfigModalEditByForm = class(TBaseInterfacedObject, IMapTypeConfigModalEdit)
   private
     FLanguageManager: ILanguageManager;
     FEditCounter: Longint;

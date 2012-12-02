@@ -15,10 +15,11 @@ uses
   i_VectorDataLoader,
   i_ImageResamplerConfig,
   i_VectorDataFactory,
-  i_TileStorage;
+  i_TileStorage,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapTileProviderByStorage = class(TInterfacedObject, IBitmapTileProvider)
+  TBitmapTileProviderByStorage = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
     FGeoConverter: ICoordConverter;
     FVersionConfig: IMapVersionConfig;
@@ -43,7 +44,7 @@ type
     );
   end;
 
-  TVectorTileProviderByStorage = class(TInterfacedObject, IVectorTileProvider)
+  TVectorTileProviderByStorage = class(TBaseInterfacedObject, IVectorTileProvider)
   private
     FGeoConverter: ICoordConverter;
     FVersionConfig: IMapVersionConfig;

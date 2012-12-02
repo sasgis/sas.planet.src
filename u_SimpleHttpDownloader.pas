@@ -6,10 +6,11 @@ uses
   i_NotifierOperation,
   i_Downloader,
   i_InetConfig,
-  i_SimpleHttpDownloader;
+  i_SimpleHttpDownloader,
+  u_BaseInterfacedObject;
 
 type
-  TSimpleHttpDownloader = class(TInterfacedObject, ISimpleHttpDownloader)
+  TSimpleHttpDownloader = class(TBaseInterfacedObject, ISimpleHttpDownloader)
   private
     FDownloader: IDownloader;
     FInetConfig: IInetConfigStatic;

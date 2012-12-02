@@ -24,10 +24,11 @@ interface
 
 uses
   i_GPS,
-  vsagps_public_base;
+  vsagps_public_base,
+  u_BaseInterfacedObject;
 
 type
-  TGPSSatelliteInfo = class(TInterfacedObject, IGPSSatelliteInfo)
+  TGPSSatelliteInfo = class(TBaseInterfacedObject, IGPSSatelliteInfo)
   private
     FSingleSatFixibilityData: TSingleSatFixibilityData;
     FSingleSatSkyData: TSingleSatSkyData;

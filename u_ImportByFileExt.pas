@@ -27,12 +27,13 @@ uses
   i_VectorItmesFactory,
   i_VectorDataFactory,
   i_VectorDataLoader,
-  i_ImportConfig;
+  i_ImportConfig,
+  u_BaseInterfacedObject;
 
 {$I vsagps_defines.inc}
 
 type
-  TImportByFileExt = class(TInterfacedObject, IImportFile)
+  TImportByFileExt = class(TBaseInterfacedObject, IImportFile)
   private
     FImportXML: IImportFile;
     FImportXMLZ: IImportFile;

@@ -25,10 +25,11 @@ interface
 uses
   Classes,
   SysUtils,
-  i_MapAttachmentsInfo;
+  i_MapAttachmentsInfo,
+  u_BaseInterfacedObject;
 
 type
-  TMapAttachmentsInfo = class(TInterfacedObject, IMapAttachmentsInfo)
+  TMapAttachmentsInfo = class(TBaseInterfacedObject, IMapAttachmentsInfo)
   private
     FMaxSubIndex: Integer;
     FParseNumberAfter: String;

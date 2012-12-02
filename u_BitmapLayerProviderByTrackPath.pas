@@ -12,10 +12,11 @@ uses
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_GPSRecorder,
-  i_MapLayerGPSTrackConfig;
+  i_MapLayerGPSTrackConfig,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderByTrackPath = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderByTrackPath = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FLineWidth: Double;
     FTrackColorer: ITrackColorerStatic;

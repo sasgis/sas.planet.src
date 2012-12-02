@@ -27,10 +27,11 @@ uses
   i_StringListStatic,
   i_BinaryData,
   i_ArchiveReadWrite,
-  i_ConfigDataProvider;
+  i_ConfigDataProvider,
+  u_BaseInterfacedObject;
 
 type
-  TConfigDataProviderByArchive = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderByArchive = class(TBaseInterfacedObject, IConfigDataProvider)
   private
     FSourceFileName: string;
     FArchive: IArchiveReader;

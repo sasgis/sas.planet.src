@@ -24,10 +24,11 @@ interface
 
 uses
   Windows,
-  i_GPSModuleByCOMPortSettings;
+  i_GPSModuleByCOMPortSettings,
+  u_BaseInterfacedObject;
 
 type
-  TGPSModuleByCOMPortSettings = class(TInterfacedObject, IGPSModuleByCOMPortSettings)
+  TGPSModuleByCOMPortSettings = class(TBaseInterfacedObject, IGPSModuleByCOMPortSettings)
   private
     FPort: DWORD;
     FBaudRate: DWORD;

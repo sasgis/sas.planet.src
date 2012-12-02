@@ -26,10 +26,11 @@ uses
   Classes,
   i_StringListStatic,
   i_BinaryData,
-  i_ConfigDataProvider;
+  i_ConfigDataProvider,
+  u_BaseInterfacedObject;
 
 type
-  TConfigDataProviderByFolder = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderByFolder = class(TBaseInterfacedObject, IConfigDataProvider)
   private
     FSourceFolderName: string;
   private

@@ -10,10 +10,11 @@ uses
   i_VectorItemLonLat,
   i_ConfigDataWriteProvider,
   i_RegionProcessProgressInfo,
-  i_RegionProcessProgressInfoDownload;
+  i_RegionProcessProgressInfoDownload,
+  u_BaseInterfacedObject;
 
 type
-  TRegionProcessProgressInfoDownload = class(TInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfoDownload, IRegionProcessProgressInfoDownloadInternal)
+  TRegionProcessProgressInfoDownload = class(TBaseInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfoDownload, IRegionProcessProgressInfoDownloadInternal)
   private
     FGUID: TGUID;
     FZoom: Byte;

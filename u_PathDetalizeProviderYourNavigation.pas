@@ -31,10 +31,11 @@ uses
   i_VectorItemLonLat,
   i_VectorItmesFactory,
   i_VectorDataFactory,
-  i_PathDetalizeProvider;
+  i_PathDetalizeProvider,
+  u_BaseInterfacedObject;
 
 type
-  TPathDetalizeProviderYourNavigation = class(TInterfacedObject, IPathDetalizeProvider)
+  TPathDetalizeProviderYourNavigation = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
     FFactory: IVectorItmesFactory;
     FVectorDataFactory: IVectorDataFactory;

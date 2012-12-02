@@ -43,10 +43,11 @@ uses
   i_MapAttachmentsInfo,
   i_SimpleTileStorageConfig,
   i_ZmpConfig,
-  i_ZmpInfo;
+  i_ZmpInfo,
+  u_BaseInterfacedObject;
 
 type
-  TZmpInfoGUI = class(TInterfacedObject, IZmpInfoGUI)
+  TZmpInfoGUI = class(TBaseInterfacedObject, IZmpInfoGUI)
   private
     FGUID: TGUID;
     FName: IStringByLanguage;
@@ -109,7 +110,7 @@ type
     );
   end;
 
-  TZmpInfo = class(TInterfacedObject, IZmpInfo)
+  TZmpInfo = class(TBaseInterfacedObject, IZmpInfo)
   private
     FGUID: TGUID;
     FLayerZOrder: Integer;

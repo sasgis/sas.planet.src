@@ -7,10 +7,11 @@ uses
   i_LonLatRect,
   i_EnumDoublePoint,
   i_VectorItemLonLat,
-  i_Datum;
+  i_Datum,
+  u_BaseInterfacedObject;
 
 type
-  TLineSetEmpty = class(TInterfacedObject, ILonLatPath, ILonLatPolygon)
+  TLineSetEmpty = class(TBaseInterfacedObject, ILonLatPath, ILonLatPolygon)
   private
     FEnumLonLat: IEnumLonLatPoint;
   private
@@ -49,7 +50,7 @@ uses
 { TEnumDoublePointEmpty }
 
 type
-  TEnumDoublePointEmpty = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
+  TEnumDoublePointEmpty = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
   private
     function Next(out APoint: TDoublePoint): Boolean;
   end;

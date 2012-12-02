@@ -8,7 +8,8 @@ uses
   i_TileIterator,
   i_MapVersionInfo,
   i_ContentTypeInfo,
-  i_TileInfoBasic;
+  i_TileInfoBasic,
+  u_BaseInterfacedObject;
 
 type
   TTileInfoInternal = record
@@ -23,7 +24,7 @@ type
   PTileInfoInternalArray = ^TTileInfoInternalArray;
   TTileInfoInternalArray = array [0..0] of TTileInfoInternal;
 
-  TTileRectInfo = class(TInterfacedObject, ITileRectInfo)
+  TTileRectInfo = class(TBaseInterfacedObject, ITileRectInfo)
   private
     FTileRect: TRect;
     FTileCount: TPoint;
@@ -49,7 +50,7 @@ implementation
 { TEnumTileInfo }
 
 type
-  TEnumTileInfo = class(TInterfacedObject, IEnumTileInfo)
+  TEnumTileInfo = class(TBaseInterfacedObject, IEnumTileInfo)
   private
     FRef: IInterface;
     FZoom: Byte;

@@ -27,10 +27,11 @@ uses
   Classes,
   i_StringListStatic,
   i_BinaryData,
-  i_ConfigDataProvider;
+  i_ConfigDataProvider,
+  u_BaseInterfacedObject;
 
 type
-  TConfigDataProviderByResources = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderByResources = class(TBaseInterfacedObject, IConfigDataProvider)
   private
     FInstance: THandle;
   private

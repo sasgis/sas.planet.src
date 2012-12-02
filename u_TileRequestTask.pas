@@ -7,10 +7,11 @@ uses
   i_NotifierOperation,
   i_TileRequest,
   i_TileRequestResult,
-  i_TileRequestTask;
+  i_TileRequestTask,
+  u_BaseInterfacedObject;
 
 type
-  TTileRequestTask = class(TInterfacedObject, ITileRequestTask, ITileRequestTaskInternal)
+  TTileRequestTask = class(TBaseInterfacedObject, ITileRequestTask, ITileRequestTaskInternal)
   private
     FSync: IReadWriteSync;
     FTileRequest: ITileRequest;

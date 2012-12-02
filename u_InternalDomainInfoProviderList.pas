@@ -24,10 +24,11 @@ interface
 
 uses
   Classes,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TInternalDomainInfoProviderList = class(TInterfacedObject, IInternalDomainInfoProviderList)
+  TInternalDomainInfoProviderList = class(TBaseInterfacedObject, IInternalDomainInfoProviderList)
   private
     FList: TStringList;
   private

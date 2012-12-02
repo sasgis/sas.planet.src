@@ -9,10 +9,11 @@ uses
   i_MarksDrawConfig,
   i_Bitmap32Static,
   i_BitmapMarker,
-  i_MarkerProviderForVectorItem;
+  i_MarkerProviderForVectorItem,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerProviderForVectorItemForMarkPoints = class(TInterfacedObject, IMarkerProviderForVectorItem)
+  TMarkerProviderForVectorItemForMarkPoints = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
     FConfig: IMarksDrawConfigStatic;
     FMarkerDefault: IMarkerDrawableChangeable;

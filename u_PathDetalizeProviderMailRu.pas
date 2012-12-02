@@ -29,10 +29,11 @@ uses
   i_Downloader,
   i_VectorItemLonLat,
   i_VectorItmesFactory,
-  i_PathDetalizeProvider;
+  i_PathDetalizeProvider,
+  u_BaseInterfacedObject;
 
 type
-  TPathDetalizeProviderMailRu = class(TInterfacedObject, IPathDetalizeProvider)
+  TPathDetalizeProviderMailRu = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
     FFactory: IVectorItmesFactory;
     FBaseUrl: string;

@@ -4,10 +4,11 @@ interface
 
 uses
   t_GeoTypes,
-  i_LonLatRect;
+  i_LonLatRect,
+  u_BaseInterfacedObject;
 
 type
-  TLonLatRectByPoint = class(TInterfacedObject, ILonLatRect)
+  TLonLatRectByPoint = class(TBaseInterfacedObject, ILonLatRect)
   private
     FPoint: TDoublePoint;
   private

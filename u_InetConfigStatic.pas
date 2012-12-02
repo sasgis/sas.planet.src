@@ -24,10 +24,11 @@ interface
 
 uses
   i_ProxySettings,
-  i_InetConfig;
+  i_InetConfig,
+  u_BaseInterfacedObject;
 
 type
-  TInetConfigStatic = class(TInterfacedObject, IInetConfigStatic)
+  TInetConfigStatic = class(TBaseInterfacedObject, IInetConfigStatic)
   private
     FProxyConfigStatic: IProxyConfigStatic;
     FUserAgentString: AnsiString;

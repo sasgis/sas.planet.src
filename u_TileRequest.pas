@@ -5,10 +5,11 @@ interface
 uses
   Types,
   i_TileRequest,
-  i_MapVersionInfo;
+  i_MapVersionInfo,
+  u_BaseInterfacedObject;
 
 type
-  TTileRequest = class(TInterfacedObject, ITileRequest)
+  TTileRequest = class(TBaseInterfacedObject, ITileRequest)
   private
     FTile: TPoint;
     FZoom: Byte;

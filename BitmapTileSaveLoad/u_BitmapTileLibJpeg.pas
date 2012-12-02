@@ -29,10 +29,11 @@ uses
   i_InternalPerformanceCounter,
   i_BinaryData,
   i_Bitmap32Static,
-  i_BitmapTileSaveLoad;
+  i_BitmapTileSaveLoad,
+  u_BaseInterfacedObject;
 
 type
-  TLibJpegTileLoader = class(TInterfacedObject, IBitmapTileLoader)
+  TLibJpegTileLoader = class(TBaseInterfacedObject, IBitmapTileLoader)
   private
     FLoadStreamCounter: IInternalPerformanceCounter;
     function ReadLine(
@@ -49,7 +50,7 @@ type
     destructor Destroy; override;
   end;
 
-  TLibJpegTileSaver = class(TInterfacedObject, IBitmapTileSaver)
+  TLibJpegTileSaver = class(TBaseInterfacedObject, IBitmapTileSaver)
   private
     FSaveCounter: IInternalPerformanceCounter;
     FCompressionQuality: Byte;

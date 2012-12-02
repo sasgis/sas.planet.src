@@ -23,10 +23,11 @@ unit u_TileStorageTypeAbilities;
 interface
 
 uses
-  i_StorageTypeAbilities;
+  i_StorageTypeAbilities,
+  u_BaseInterfacedObject;
 
 type
-  TTileStorageTypeAbilitiesFileFolder = class(TInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesFileFolder = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;
@@ -34,7 +35,7 @@ type
     function GetAllowReplace: boolean;
   end;
 
-  TTileStorageTypeAbilitiesGE = class(TInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesGE = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;
@@ -42,7 +43,7 @@ type
     function GetAllowReplace: boolean;
   end;
 
-  TTileStorageTypeAbilitiesBerkeleyDB = class(TInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesBerkeleyDB = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;
@@ -50,7 +51,7 @@ type
     function GetAllowReplace: boolean;
   end;
 
-  TTileStorageTypeAbilitiesDBMS = class(TInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesDBMS = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
     function GetIsReadOnly: boolean;
     function GetAllowAdd: Boolean;

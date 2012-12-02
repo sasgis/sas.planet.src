@@ -8,10 +8,11 @@ uses
   i_Bitmap32Static,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
-  u_MapType;
+  u_MapType,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderMapWithLayer = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FMapTypeMain: TMapType;
     FMapTypeHybr: TMapType;

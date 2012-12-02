@@ -7,7 +7,8 @@ uses
   t_GeoTypes,
   i_Listener,
   i_LonLatRect,
-  i_NotifierLonLatRectUpdate;
+  i_NotifierLonLatRectUpdate,
+  u_BaseInterfacedObject;
 
 type
   TListenerRecord = record
@@ -15,7 +16,7 @@ type
     Rect: ILonLatRect;
   end;
 
-  TNotifierLonLatRectUpdate = class(TInterfacedObject, INotifierLonLatRectUpdate, INotifierLonLatRectUpdateInternal)
+  TNotifierLonLatRectUpdate = class(TBaseInterfacedObject, INotifierLonLatRectUpdate, INotifierLonLatRectUpdateInternal)
   private
     FSynchronizer: IReadWriteSync;
     FCount: Integer;

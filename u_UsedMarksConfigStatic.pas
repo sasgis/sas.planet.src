@@ -23,10 +23,11 @@ unit u_UsedMarksConfigStatic;
 interface
 
 uses
-  i_UsedMarksConfig;
+  i_UsedMarksConfig,
+  u_BaseInterfacedObject;
 
 type
-  TUsedMarksConfigStatic = class(TInterfacedObject, IUsedMarksConfigStatic)
+  TUsedMarksConfigStatic = class(TBaseInterfacedObject, IUsedMarksConfigStatic)
   private
     FIsUseMarks: Boolean;
     FIgnoreMarksVisible: Boolean;

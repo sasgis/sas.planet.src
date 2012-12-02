@@ -4,10 +4,11 @@ interface
 
 uses
   t_CommonTypes,
-  i_StorageState;
+  i_StorageState,
+  u_BaseInterfacedObject;
 
 type
-  TStorageStateStatic = class(TInterfacedObject, IStorageStateStatic)
+  TStorageStateStatic = class(TBaseInterfacedObject, IStorageStateStatic)
   private
     FReadAccess: TAccesState;
     FWriteAccess: TAccesState;

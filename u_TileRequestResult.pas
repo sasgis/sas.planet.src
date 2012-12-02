@@ -6,10 +6,11 @@ uses
   i_TileRequest,
   i_DownloadResult,
   i_TileDownloadRequest,
-  i_TileRequestResult;
+  i_TileRequestResult,
+  u_BaseInterfacedObject;
 
 type
-  TTileRequestResult = class(TInterfacedObject, ITileRequestResult)
+  TTileRequestResult = class(TBaseInterfacedObject, ITileRequestResult)
   private
     FRequest: ITileRequest;
   protected

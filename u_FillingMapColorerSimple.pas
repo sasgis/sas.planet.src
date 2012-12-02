@@ -6,12 +6,13 @@ uses
   GR32,
   t_FillingMapModes,
   i_TileInfoBasic,
-  i_FillingMapColorer;
+  i_FillingMapColorer,
+  u_BaseInterfacedObject;
 
 type
   PTileInfo = ^TTileInfo;
 
-  TFillingMapColorerSimple = class(TInterfacedObject, IFillingMapColorer)
+  TFillingMapColorerSimple = class(TBaseInterfacedObject, IFillingMapColorer)
   private
     FNoTileColor: TColor32;
     FShowTNE: Boolean;

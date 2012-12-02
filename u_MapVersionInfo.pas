@@ -23,10 +23,11 @@ unit u_MapVersionInfo;
 interface
 
 uses
-  i_MapVersionInfo;
+  i_MapVersionInfo,
+  u_BaseInterfacedObject;
 
 type
-  TMapVersionInfo = class(TInterfacedObject, IMapVersionInfo)
+  TMapVersionInfo = class(TBaseInterfacedObject, IMapVersionInfo)
   private
     FVersion: string;
   private

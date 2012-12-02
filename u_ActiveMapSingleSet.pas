@@ -4,10 +4,11 @@ interface
 
 uses
   i_GUIDSet,
-  i_ActiveMapsConfig;
+  i_ActiveMapsConfig,
+  u_BaseInterfacedObject;
 
 type
-  TActiveMapSingleSet = class(TInterfacedObject, IActiveMapSingleSet)
+  TActiveMapSingleSet = class(TBaseInterfacedObject, IActiveMapSingleSet)
   private
     FSet: IGUIDInterfaceSet;
   private

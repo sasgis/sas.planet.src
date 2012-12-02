@@ -7,10 +7,11 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_LocalCoordConverter,
-  i_BitmapLayerProvider;
+  i_BitmapLayerProvider,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderWithBGColor = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderWithBGColor = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FSourceProvider: IBitmapLayerProvider;
     FBackGroundColor: TColor32;

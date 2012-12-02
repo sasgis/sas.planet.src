@@ -16,11 +16,12 @@ uses
   i_BitmapPostProcessingConfig,
   i_BitmapLayerProviderWithListener,
   i_TileError,
-  u_MapType;
+  u_MapType,
+  u_BaseInterfacedObject;
 
 type
   TBitmapLayerProviderForViewMaps = class(
-    TInterfacedObject,
+    TBaseInterfacedObject,
     IBitmapLayerProvider,
     IBitmapLayerProviderWithListener
     )

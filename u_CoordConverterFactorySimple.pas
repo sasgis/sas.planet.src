@@ -27,10 +27,11 @@ uses
   i_CoordConverter,
   i_ProjectionInfo,
   i_ConfigDataProvider,
-  i_CoordConverterFactory;
+  i_CoordConverterFactory,
+  u_BaseInterfacedObject;
 
 type
-  TCoordConverterFactorySimple = class(TInterfacedObject, IDatumFactory, ICoordConverterFactory, IProjectionInfoFactory)
+  TCoordConverterFactorySimple = class(TBaseInterfacedObject, IDatumFactory, ICoordConverterFactory, IProjectionInfoFactory)
   private
     FDatumGoogle: IDatum;
     FDatumYandex: IDatum;

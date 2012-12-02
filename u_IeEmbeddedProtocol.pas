@@ -26,10 +26,11 @@ uses
   Windows,
   Classes,
   UrlMon,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TIeEmbeddedProtocol = class(TInterfacedObject, IInternetProtocolRoot, IInternetProtocol)
+  TIeEmbeddedProtocol = class(TBaseInterfacedObject, IInternetProtocolRoot, IInternetProtocol)
   private
     FDomainList: IInternalDomainInfoProviderList;
     FStream: TMemoryStream;

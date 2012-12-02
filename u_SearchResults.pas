@@ -34,10 +34,11 @@ uses
   i_GeoCoder,
   i_InternalBrowser,
   i_SearchResultPresenter,
+  u_BaseInterfacedObject,
   fr_SearchResultsItem;
 
 type
-  TSearchResultPresenterOnPanel = class(TInterfacedObject, ISearchResultPresenter)
+  TSearchResultPresenterOnPanel = class(TBaseInterfacedObject, ISearchResultPresenter)
   private
     FMapGoto: IMapViewGoto;
     FViewPortState: ILocalCoordConverterChangeable;

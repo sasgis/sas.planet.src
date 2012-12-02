@@ -29,10 +29,11 @@ uses
   t_GeoTypes,
   i_ViewPortState,
   i_KeyMovingConfig,
-  i_MessageHandler;
+  i_MessageHandler,
+  u_BaseInterfacedObject;
 
 type
-  TKeyMovingHandler = class(TInterfacedObject, IMessageHandler)
+  TKeyMovingHandler = class(TBaseInterfacedObject, IMessageHandler)
   private
     FConfig: IKeyMovingConfig;
     FViewPortState: IViewPortState;

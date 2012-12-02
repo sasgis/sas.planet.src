@@ -26,10 +26,11 @@ uses
   i_MarkCategory,
   i_MarkCategoryFactoryConfig,
   i_MarkCategoryFactory,
-  i_MarkCategoryFactoryDbInternal;
+  i_MarkCategoryFactoryDbInternal,
+  u_BaseInterfacedObject;
 
 type
-  TMarkCategoryFactory = class(TInterfacedObject, IMarkCategoryFactory, IMarkCategoryFactoryDbInternal)
+  TMarkCategoryFactory = class(TBaseInterfacedObject, IMarkCategoryFactory, IMarkCategoryFactoryDbInternal)
   private
     FConfig: IMarkCategoryFactoryConfig;
   private

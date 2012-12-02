@@ -4,10 +4,11 @@ interface
 
 uses
   i_BinaryData,
-  i_BinaryDataListStatic;
+  i_BinaryDataListStatic,
+  u_BaseInterfacedObject;
 
 type
-  TBinaryDataListStatic = class(TInterfacedObject, IBinaryDataListStatic)
+  TBinaryDataListStatic = class(TBaseInterfacedObject, IBinaryDataListStatic)
   private
     FCount: Integer;
     FItems: array of IBinaryData;

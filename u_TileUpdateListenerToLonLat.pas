@@ -6,10 +6,11 @@ uses
   i_Listener,
   i_SimpleFlag,
   i_CoordConverter,
-  u_ListenerByEvent;
+  u_ListenerByEvent,
+  u_BaseInterfacedObject;
 
 type
-  TTileUpdateListenerToLonLat = class(TInterfacedObject, IListener, IListenerDisconnectable)
+  TTileUpdateListenerToLonLat = class(TBaseInterfacedObject, IListener, IListenerDisconnectable)
   private
     FDisconnectFlag: ISimpleFlag;
     FEvent: TNotifyListenerEvent;

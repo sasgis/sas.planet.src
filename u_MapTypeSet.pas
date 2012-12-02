@@ -25,10 +25,11 @@ interface
 uses
   ActiveX,
   i_GUIDSet,
-  i_MapTypes;
+  i_MapTypes,
+  u_BaseInterfacedObject;
 
 type
-  TMapTypeSet = class(TInterfacedObject, IMapTypeSet)
+  TMapTypeSet = class(TBaseInterfacedObject, IMapTypeSet)
   private
     FList: IGUIDInterfaceSet;
     function IsEqual(const AValue: IMapTypeSet): Boolean;

@@ -26,10 +26,11 @@ uses
   i_Notifier,
   i_StaticTreeItem,
   i_MapTypes,
-  i_TreeChangeable;
+  i_TreeChangeable,
+  u_BaseInterfacedObject;
 
 type
-  TTreeByMapActiveMapsSet = class(TInterfacedObject, ITreeChangeable)
+  TTreeByMapActiveMapsSet = class(TBaseInterfacedObject, ITreeChangeable)
   private
     FMapsSet: IMapTypeSet;
     FStaticTree: IStaticTreeItem;

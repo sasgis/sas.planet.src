@@ -23,10 +23,11 @@ unit u_EnumUnknownEmpty;
 interface
 
 uses
-  ActiveX;
+  ActiveX,
+  u_BaseInterfacedObject;
 
 type
-  TEmptyEnum = class(TInterfacedObject, IEnumUnknown)
+  TEmptyEnum = class(TBaseInterfacedObject, IEnumUnknown)
     function Next(
       celt: Longint;
       out elt;

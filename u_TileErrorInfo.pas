@@ -24,11 +24,12 @@ interface
 
 uses
   Types,
+  i_TileError,
   u_MapType,
-  i_TileError;
+  u_BaseInterfacedObject;
 
 type
-  TTileErrorInfo = class(TInterfacedObject, ITileErrorInfo)
+  TTileErrorInfo = class(TBaseInterfacedObject, ITileErrorInfo)
   private
     FMapType: TMapType;
     FZoom: Byte;

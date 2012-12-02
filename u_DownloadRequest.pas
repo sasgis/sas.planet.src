@@ -5,10 +5,11 @@ interface
 uses
   i_InetConfig,
   i_BinaryData,
-  i_DownloadRequest;
+  i_DownloadRequest,
+  u_BaseInterfacedObject;
 
 type
-  TDownloadRequest = class(TInterfacedObject, IDownloadRequest)
+  TDownloadRequest = class(TBaseInterfacedObject, IDownloadRequest)
   private
     FUrl: AnsiString;
     FRequestHeader: AnsiString;

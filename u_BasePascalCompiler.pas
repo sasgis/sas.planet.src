@@ -28,7 +28,8 @@ uses
   uPSR_dll,
   uPSRuntime,
   uPSCompiler,
-  uPSUtils;
+  uPSUtils,
+  u_BaseInterfacedObject;
 
 type
   EPascalScriptEmptyScript = class(Exception);
@@ -58,7 +59,7 @@ type
     property OnAuxUses: TOnBasePascalCompilerUsesProc read FOnAuxUses write FOnAuxUses;
   end;
 
-  TBaseFactoryPascalScript = class(TInterfacedObject)
+  TBaseFactoryPascalScript = class(TBaseInterfacedObject)
   private
     FScriptText: AnsiString;
     FCompiledData: TbtString;
@@ -73,7 +74,7 @@ type
     constructor Create(const AScriptText: AnsiString);
   end;
 
-  TBasePascalScriptCompiled = class(TInterfacedObject)
+  TBasePascalScriptCompiled = class(TBaseInterfacedObject)
   protected
     FExec: TBasePascalScriptExec;
   protected

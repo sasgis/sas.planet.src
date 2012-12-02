@@ -4,10 +4,11 @@ interface
 
 uses
   Classes,
-  i_StringListStatic;
+  i_StringListStatic,
+  u_BaseInterfacedObject;
 
 type
-  TStringListStatic = class(TInterfacedObject, IStringListStatic)
+  TStringListStatic = class(TBaseInterfacedObject, IStringListStatic)
   private
     FList: TStringList;
   private

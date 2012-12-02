@@ -26,10 +26,11 @@ uses
   Classes,
   i_MapTypes,
   i_MapTypeHotKeyListStatic,
-  i_IDList;
+  i_IDList,
+  u_BaseInterfacedObject;
 
 type
-  TMapTypeHotKeyListStatic = class(TInterfacedObject, IMapTypeHotKeyListStatic)
+  TMapTypeHotKeyListStatic = class(TBaseInterfacedObject, IMapTypeHotKeyListStatic)
   private
     FList: IIDInterfaceList;
   private

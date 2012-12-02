@@ -4,10 +4,11 @@ interface
 
 uses
   i_Notifier,
-  i_Changeable;
+  i_Changeable,
+  u_BaseInterfacedObject;
 
 type
-  TChangeableBase = class(TInterfacedObject, IChangeable)
+  TChangeableBase = class(TBaseInterfacedObject, IChangeable)
   private
     FBeforeChangeNotifier: INotifierInternal;
     FChangeNotifier: INotifierInternal;

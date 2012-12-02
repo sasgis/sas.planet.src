@@ -25,10 +25,11 @@ interface
 uses
   Types,
   i_CoordConverter,
-  i_MapCalibration;
+  i_MapCalibration,
+  u_BaseInterfacedObject;
 
 type
-  TMapCalibrationOzi = class(TInterfacedObject, IMapCalibration)
+  TMapCalibrationOzi = class(TBaseInterfacedObject, IMapCalibration)
   private
     // Имя для вывода в листбоксе для выбора при экспорте.
     function GetName: WideString; safecall;

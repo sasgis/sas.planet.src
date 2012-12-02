@@ -27,10 +27,11 @@ uses
   i_BinaryData,
   i_MarksSystem,
   i_TextByVectorItem,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TInternalDomainInfoProviderByMarksSystem = class(TInterfacedObject, IInternalDomainInfoProvider)
+  TInternalDomainInfoProviderByMarksSystem = class(TBaseInterfacedObject, IInternalDomainInfoProvider)
   private
     FMarksSystem: IMarksSystem;
     FTextProviders: TStringList;

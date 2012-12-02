@@ -10,10 +10,11 @@ uses
   i_LastResponseInfo,
   i_TileDownloadRequest,
   i_TileDownloadRequestBuilder,
-  i_TileDownloadRequestBuilderFactory;
+  i_TileDownloadRequestBuilderFactory,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloadRequestBuilderLazy = class(TInterfacedObject, ITileDownloadRequestBuilder)
+  TTileDownloadRequestBuilderLazy = class(TBaseInterfacedObject, ITileDownloadRequestBuilder)
   private
     FFactory: ITileDownloadRequestBuilderFactory;
     FDownloader: IDownloader;

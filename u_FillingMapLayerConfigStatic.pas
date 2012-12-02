@@ -28,10 +28,11 @@ uses
   i_LocalCoordConverter,
   i_FillingMapColorer,
   i_MapTypes,
-  i_FillingMapLayerConfig;
+  i_FillingMapLayerConfig,
+  u_BaseInterfacedObject;
 
 type
-  TFillingMapLayerConfigStatic = class(TInterfacedObject, IFillingMapLayerConfigStatic)
+  TFillingMapLayerConfigStatic = class(TBaseInterfacedObject, IFillingMapLayerConfigStatic)
   private
     FVisible: Boolean;
     FSourceMap: IMapType;

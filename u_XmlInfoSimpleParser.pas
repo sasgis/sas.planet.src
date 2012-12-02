@@ -35,6 +35,7 @@ uses
   i_ArchiveReadWrite,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
+  u_BaseInterfacedObject,
   vsagps_public_sysutils,
   vsagps_public_print,
   vsagps_public_parser,
@@ -43,7 +44,7 @@ uses
   vsagps_public_xml_parser;
 
 type
-  TXmlInfoSimpleParser = class(TInterfacedObject, IVectorDataLoader)
+  TXmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FFactory: IVectorItmesFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;

@@ -24,10 +24,11 @@ interface
 
 uses
   Types,
-  i_TileIterator;
+  i_TileIterator,
+  u_BaseInterfacedObject;
 
 type
-  TTileIteratorByRectBase = class(TInterfacedObject)
+  TTileIteratorByRectBase = class(TBaseInterfacedObject)
   private
     FTilesTotal: Int64;
     FTilesRect: TRect;

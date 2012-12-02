@@ -253,7 +253,8 @@ uses
   u_ListenerTTLCheck,
   u_TileStorageTypeAbilities,
   u_TileRectInfoShort,
-  u_TileInfoBasic;
+  u_TileInfoBasic,
+  u_BaseInterfacedObject;
 
 procedure SetUpExclusiveFlag(var AExclusiveFlag: LongWord); inline;
 begin
@@ -269,7 +270,7 @@ type
   PTileInfo = ^TTileInfo;
 
 type
-  TEnumTileInfoByETS = class(TInterfacedObject, IEnumTileInfo)
+  TEnumTileInfoByETS = class(TBaseInterfacedObject, IEnumTileInfo)
   private
     // from origin
     FIgnoreTNE: Boolean;

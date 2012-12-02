@@ -28,10 +28,11 @@ uses
   i_GPS,
   vsagps_public_base,
   vsagps_public_position,
-  vsagps_public_events;
+  vsagps_public_events,
+  u_BaseInterfacedObject;
 
 type
-  TGPSPositionFactory = class(TInterfacedObject, IGPSPositionFactory)
+  TGPSPositionFactory = class(TBaseInterfacedObject, IGPSPositionFactory)
   private
     FSatellitesInViewEmpty: IGPSSatellitesInView;
     FPositionEmpty: IGPSPosition;

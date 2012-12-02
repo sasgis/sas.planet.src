@@ -7,10 +7,11 @@ uses
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
-  i_Downloader;
+  i_Downloader,
+  u_BaseInterfacedObject;
 
 type
-  TDownloaderFaked = class(TInterfacedObject, IDownloader)
+  TDownloaderFaked = class(TBaseInterfacedObject, IDownloader)
   private
     FResultFactory: IDownloadResultFactory;
   private

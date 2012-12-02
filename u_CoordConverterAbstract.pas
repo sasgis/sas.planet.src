@@ -26,10 +26,11 @@ uses
   Types,
   t_GeoTypes,
   i_Datum,
-  i_CoordConverter;
+  i_CoordConverter,
+  u_BaseInterfacedObject;
 
 type
-  TCoordConverterAbstract = class(TInterfacedObject, ICoordConverter)
+  TCoordConverterAbstract = class(TBaseInterfacedObject, ICoordConverter)
   private
     FDatum: IDatum;
     FProjEPSG: integer;

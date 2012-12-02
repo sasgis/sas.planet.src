@@ -3,11 +3,12 @@ unit u_HashFunctionCRC64;
 interface
 
 uses
-  i_HashFunction;
+  i_HashFunction,
+  u_BaseInterfacedObject;
 
 // взято отсюда http://www.delphisources.ru/pages/faq/base/hash_crc64.html
 type
-  THashFunctionCRC64 = class(TInterfacedObject, IHashFunction)
+  THashFunctionCRC64 = class(TBaseInterfacedObject, IHashFunction)
   private
     T: array[Byte] of UInt64;
   private

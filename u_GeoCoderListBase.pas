@@ -27,10 +27,11 @@ uses
   ActiveX,
   i_Notifier,
   i_GeoCoderList,
-  i_GUIDSet;
+  i_GUIDSet,
+  u_BaseInterfacedObject;
 
 type
-  TGeoCoderListBase = class(TInterfacedObject, IGeoCoderList)
+  TGeoCoderListBase = class(TBaseInterfacedObject, IGeoCoderList)
   private
     FList: IGUIDInterfaceSet;
     FCS: IReadWriteSync;

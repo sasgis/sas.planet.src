@@ -24,7 +24,8 @@ interface
 
 uses
   i_Notifier,
-  i_Listener;
+  i_Listener,
+  u_BaseInterfacedObject;
 
 type
   TNotifyWithGUIDEvent = procedure(const AGUID: TGUID) of object;
@@ -36,7 +37,7 @@ type
   end;
 
 type
-  TNotificationMessageWithGUID = class(TInterfacedObject, INotificationMessageWithGUID)
+  TNotificationMessageWithGUID = class(TBaseInterfacedObject, INotificationMessageWithGUID)
   private
     FGUID: TGUID;
   private
@@ -46,7 +47,7 @@ type
   end;
 
 type
-  TNotifyWithGUIDEventListener = class(TInterfacedObject, IListener)
+  TNotifyWithGUIDEventListener = class(TBaseInterfacedObject, IListener)
   private
     FEvent: TNotifyWithGUIDEvent;
   private
@@ -62,7 +63,7 @@ type
   end;
 
 type
-  TNotifierWithGUID = class(TInterfacedObject, INotifier, INotifierWithGUID)
+  TNotifierWithGUID = class(TBaseInterfacedObject, INotifier, INotifierWithGUID)
   private
     FNotifier: INotifierInternal;
   private

@@ -125,7 +125,8 @@ uses
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
   u_Synchronizer,
-  u_TileInfoBasic;
+  u_TileInfoBasic,
+  u_BaseInterfacedObject;
 
 const
   CTneFileExt = '.tne';
@@ -572,7 +573,7 @@ end;
 { TEnumTileInfoByFileIterator }
 
 type
-  TEnumTileInfoByFileIterator = class(TInterfacedObject, IEnumTileInfo)
+  TEnumTileInfoByFileIterator = class(TBaseInterfacedObject, IEnumTileInfo)
   private
     FFilesIterator: IFileNameIterator;
     FTileFileNameParser: ITileFileNameParser;

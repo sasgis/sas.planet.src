@@ -26,10 +26,11 @@ uses
   Classes,
   KAZip,
   i_BinaryData,
-  i_ArchiveReadWrite;
+  i_ArchiveReadWrite,
+  u_BaseInterfacedObject;
 
 type
-  TArchiveReadByKaZip = class(TInterfacedObject, IArchiveReader)
+  TArchiveReadByKaZip = class(TBaseInterfacedObject, IArchiveReader)
   private
     FZip: TKAZip;
   private
@@ -46,7 +47,7 @@ type
     destructor Destroy; override;
   end;
 
-  TArchiveWriteByKaZip = class(TInterfacedObject, IArchiveWriter)
+  TArchiveWriteByKaZip = class(TBaseInterfacedObject, IArchiveWriter)
   private
     FZip: TKAZip;
     FIsFromFileName: Boolean;

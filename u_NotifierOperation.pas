@@ -27,10 +27,11 @@ uses
   SysUtils,
   i_Notifier,
   i_Listener,
-  i_NotifierOperation;
+  i_NotifierOperation,
+  u_BaseInterfacedObject;
 
 type
-  TNotifierOperation = class(TInterfacedObject, INotifierOperation, INotifierOperationInternal)
+  TNotifierOperation = class(TBaseInterfacedObject, INotifierOperation, INotifierOperationInternal)
   private
     FNotifier: INotifierInternal;
     FCurrentOperationID: Integer;
@@ -46,7 +47,7 @@ type
     constructor Create(const ANotifier: INotifierInternal);
   end;
 
-  TNotifierOneOperation = class(TInterfacedObject, INotifier, INotifierOneOperation, INotifierOneOperationInternal)
+  TNotifierOneOperation = class(TBaseInterfacedObject, INotifier, INotifierOneOperation, INotifierOneOperationInternal)
   private
     FExecutedCount: Integer;
     FNotifier: INotifierInternal;
@@ -62,7 +63,7 @@ type
     constructor Create(const ANotifier: INotifierInternal);
   end;
 
-  TNotifierOneOperationByNotifier = class(TInterfacedObject, INotifier, INotifierOneOperation)
+  TNotifierOneOperationByNotifier = class(TBaseInterfacedObject, INotifier, INotifierOneOperation)
   private
     FSourceNotifier: INotifierOperation;
     FSourceID: Integer;

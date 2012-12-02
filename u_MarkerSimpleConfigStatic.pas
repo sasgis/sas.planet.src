@@ -24,10 +24,11 @@ interface
 
 uses
   GR32,
-  i_MarkerSimpleConfig;
+  i_MarkerSimpleConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerSimpleConfigStatic = class(TInterfacedObject, IMarkerSimpleConfigStatic)
+  TMarkerSimpleConfigStatic = class(TBaseInterfacedObject, IMarkerSimpleConfigStatic)
   private
     FMarkerSize: Integer;
     FMarkerColor: TColor32;

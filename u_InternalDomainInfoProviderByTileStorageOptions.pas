@@ -6,10 +6,11 @@ uses
   Types,
   i_BinaryData,
   i_MapTypes,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TInternalDomainInfoProviderByTileStorageOptions = class(TInterfacedObject, IInternalDomainInfoProvider)
+  TInternalDomainInfoProviderByTileStorageOptions = class(TBaseInterfacedObject, IInternalDomainInfoProvider)
   private
     FMaps: IMapTypeSetChangeable;
 

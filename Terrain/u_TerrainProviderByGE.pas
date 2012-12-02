@@ -33,10 +33,11 @@ uses
   i_TerrainProvider,
   u_GlobalCahceConfig,
   u_GoogleEarthTerrainParser,
-  u_TerrainProviderByGEMemCache;
+  u_TerrainProviderByGEMemCache,
+  u_BaseInterfacedObject;
 
 type
-  TTerrainProviderByDLL = class(TInterfacedObject, ITerrainProvider)
+  TTerrainProviderByDLL = class(TBaseInterfacedObject, ITerrainProvider)
   private
     FAvailable: Boolean;
     FStorage: ITerrainStorage;

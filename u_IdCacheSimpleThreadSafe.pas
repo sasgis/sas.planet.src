@@ -5,10 +5,11 @@ interface
 uses
   SysUtils,
   i_IDList,
-  i_IdCacheSimple;
+  i_IdCacheSimple,
+  u_BaseInterfacedObject;
 
 type
-  TIdCacheSimpleThreadSafe = class(TInterfacedObject, IIdCacheSimple)
+  TIdCacheSimpleThreadSafe = class(TBaseInterfacedObject, IIdCacheSimple)
   private
     FCS: IReadWriteSync;
     FIdList: IIDInterfaceList;

@@ -30,10 +30,11 @@ uses
   i_VectorItmesFactory,
   i_ArchiveReadWriteFactory,
   i_InternalPerformanceCounter,
-  i_VectorDataLoader;
+  i_VectorDataLoader,
+  u_BaseInterfacedObject;
 
 type
-  TKmzInfoSimpleParser = class(TInterfacedObject, IVectorDataLoader)
+  TKmzInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FKmlParser: IVectorDataLoader;
     FLoadKmzStreamCounter: IInternalPerformanceCounter;

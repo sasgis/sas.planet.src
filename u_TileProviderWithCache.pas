@@ -9,10 +9,11 @@ uses
   i_VectorDataItemSimple,
   i_CoordConverter,
   i_TileProvider,
-  i_TileObjCache;
+  i_TileObjCache,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapTileProviderWithCache = class(TInterfacedObject, IBitmapTileProvider)
+  TBitmapTileProviderWithCache = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
     FSource: IBitmapTileProvider;
     FCache: ITileObjCacheBitmap;
@@ -30,7 +31,7 @@ type
     );
   end;
 
-  TVectorTileProviderWithCache = class(TInterfacedObject, IVectorTileProvider)
+  TVectorTileProviderWithCache = class(TBaseInterfacedObject, IVectorTileProvider)
   private
     FSource: IVectorTileProvider;
     FCache: ITileObjCacheVector;

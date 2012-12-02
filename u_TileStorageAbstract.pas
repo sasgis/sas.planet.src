@@ -34,10 +34,11 @@ uses
   i_StorageStateInternal,
   i_TileInfoBasic,
   i_TileStorage,
-  i_NotifierTileRectUpdate;
+  i_NotifierTileRectUpdate,
+  u_BaseInterfacedObject;
 
 type
-  TTileStorageAbstract = class(TInterfacedObject, ITileStorage)
+  TTileStorageAbstract = class(TBaseInterfacedObject, ITileStorage)
   private
     FGeoConverter: ICoordConverter;
     FMapVersionFactory: IMapVersionFactory;

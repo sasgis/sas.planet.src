@@ -7,10 +7,11 @@ uses
   i_InvisibleBrowser,
   i_LanguageManager,
   i_ProxySettings,
+  u_BaseInterfacedObject,
   frm_InvisibleBrowser;
 
 type
-  TInvisibleBrowserByFormSynchronize = class(TInterfacedObject, IInvisibleBrowser)
+  TInvisibleBrowserByFormSynchronize = class(TBaseInterfacedObject, IInvisibleBrowser)
   private
     FCS: IReadWriteSync;
     FProxyConfig: IProxyConfig;

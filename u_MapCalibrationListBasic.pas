@@ -24,10 +24,11 @@ interface
 
 uses
   Classes,
-  i_MapCalibration;
+  i_MapCalibration,
+  u_BaseInterfacedObject;
 
 type
-  TMapCalibrationListByInterfaceList = class(TInterfacedObject, IMapCalibrationList)
+  TMapCalibrationListByInterfaceList = class(TBaseInterfacedObject, IMapCalibrationList)
   private
     FList: IInterfaceList;
   private

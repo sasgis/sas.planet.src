@@ -33,10 +33,11 @@ uses
   i_DoublePointsAggregator,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
-  BMSEARCH;
+  BMSEARCH,
+  u_BaseInterfacedObject;
 
 type
-  TKmlInfoSimpleParser = class(TInterfacedObject, IVectorDataLoader)
+  TKmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
     FFactory: IVectorItmesFactory;

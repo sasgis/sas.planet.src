@@ -11,10 +11,11 @@ uses
   i_LocalCoordConverter,
   i_Bitmap32Static,
   i_ValueToStringConverter,
-  i_BitmapLayerProvider;
+  i_BitmapLayerProvider,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderGridDegree = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderGridDegree = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FColor: TColor32;
     FShowText: Boolean;

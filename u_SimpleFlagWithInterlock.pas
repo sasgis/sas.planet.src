@@ -4,10 +4,11 @@ interface
 
 uses
   Windows,
-  i_SimpleFlag;
+  i_SimpleFlag,
+  u_BaseInterfacedObject;
 
 type
-  TSimpleFlagWithInterlock = class(TInterfacedObject, ISimpleFlag)
+  TSimpleFlagWithInterlock = class(TBaseInterfacedObject, ISimpleFlag)
   private
     FSetCount: Integer;
   private
@@ -18,7 +19,7 @@ type
     constructor Create;
   end;
 
-  TSimpleFlagWithParent = class(TInterfacedObject, ISimpleFlag)
+  TSimpleFlagWithParent = class(TBaseInterfacedObject, ISimpleFlag)
   private
     FParent: ISimpleFlag;
     FSetCount: Integer;
@@ -30,7 +31,7 @@ type
     constructor Create(const AParent: ISimpleFlag);
   end;
 
-  TCounterInterlock = class(TInterfacedObject, ICounter)
+  TCounterInterlock = class(TBaseInterfacedObject, ICounter)
   private
     FCount: Integer;
   private

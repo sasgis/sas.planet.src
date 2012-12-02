@@ -7,10 +7,11 @@ uses
   i_HtmlToHintTextConverter,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
-  i_VectorDataFactory;
+  i_VectorDataFactory,
+  u_BaseInterfacedObject;
 
 type
-  TVectorDataFactorySimple = class(TInterfacedObject, IVectorDataFactory)
+  TVectorDataFactorySimple = class(TBaseInterfacedObject, IVectorDataFactory)
   private
     FHintConverter: IHtmlToHintTextConverter;
   private

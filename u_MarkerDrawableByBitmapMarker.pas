@@ -7,10 +7,11 @@ uses
   GR32,
   t_GeoTypes,
   i_MarkerDrawable,
-  i_BitmapMarker;
+  i_BitmapMarker,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerDrawableByBitmapMarker = class(TInterfacedObject, IMarkerDrawable)
+  TMarkerDrawableByBitmapMarker = class(TBaseInterfacedObject, IMarkerDrawable)
   private
     FMarker: IBitmapMarker;
   private

@@ -24,10 +24,11 @@ interface
 
 uses
   Classes,
-  i_StaticTreeItem;
+  i_StaticTreeItem,
+  u_BaseInterfacedObject;
 
 type
-  TStaticTreeItem = class(TInterfacedObject, IStaticTreeItem)
+  TStaticTreeItem = class(TBaseInterfacedObject, IStaticTreeItem)
   private
     FData: IInterface;
     FName: string;

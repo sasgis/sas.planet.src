@@ -6,10 +6,11 @@ uses
   t_GeoTypes,
   i_LocalCoordConverter,
   i_DoublePointFilter,
-  i_EnumDoublePoint;
+  i_EnumDoublePoint,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointMapPixelToLocalPixel = class(TInterfacedObject, IEnumLocalPoint)
+  TEnumDoublePointMapPixelToLocalPixel = class(TBaseInterfacedObject, IEnumLocalPoint)
   private
     FSourceEnum: IEnumProjectedPoint;
     FLocalConverter: ILocalCoordConverter;
@@ -23,7 +24,7 @@ type
     );
   end;
 
-  TProjectedPointConverter = class(TInterfacedObject, IProjectedPointConverter)
+  TProjectedPointConverter = class(TBaseInterfacedObject, IProjectedPointConverter)
   private
     FLocalConverter: ILocalCoordConverter;
   private

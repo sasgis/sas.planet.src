@@ -26,10 +26,11 @@ uses
   Windows,
   GR32,
   i_GPS,
-  i_SatellitesInViewMapDraw;
+  i_SatellitesInViewMapDraw,
+  u_BaseInterfacedObject;
 
 type
-  TSatellitesInViewMapDrawSimple = class(TInterfacedObject, ISatellitesInViewMapDraw)
+  TSatellitesInViewMapDrawSimple = class(TBaseInterfacedObject, ISatellitesInViewMapDraw)
   private
     FSatFixedColor: TColor32;
     FSatNotFixedColor: TColor32;

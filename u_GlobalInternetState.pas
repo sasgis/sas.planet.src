@@ -24,10 +24,11 @@ interface
 
 uses
   SysUtils,
-  i_GlobalInternetState;
+  i_GlobalInternetState,
+  u_BaseInterfacedObject;
 
 type
-  TGlobalInternetState = class(TInterfacedObject, IGlobalInternetState)
+  TGlobalInternetState = class(TBaseInterfacedObject, IGlobalInternetState)
   private
     FCS: IReadWriteSync;
     FQueueCount: Integer;

@@ -7,10 +7,11 @@ uses
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_SimpleFlag,
-  i_ListenerNotifierLinksList;
+  i_ListenerNotifierLinksList,
+  u_BaseInterfacedObject;
 
 type
-  TWindowLayerAbstract = class(TInterfacedObject)
+  TWindowLayerAbstract = class(TBaseInterfacedObject)
   private
     FPerfList: IInternalPerformanceCounterList;
     FAppStartedNotifier: INotifierOneOperation;

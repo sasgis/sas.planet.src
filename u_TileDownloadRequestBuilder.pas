@@ -29,10 +29,11 @@ uses
   i_TileDownloadRequestBuilder,
   i_LastResponseInfo,
   i_TileDownloadRequest,
-  i_TileDownloadRequestBuilderConfig;
+  i_TileDownloadRequestBuilderConfig,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloadRequestBuilder = class(TInterfacedObject, ITileDownloadRequestBuilder)
+  TTileDownloadRequestBuilder = class(TBaseInterfacedObject, ITileDownloadRequestBuilder)
   private
     FCS: IReadWriteSync;
     FConfig: ITileDownloadRequestBuilderConfig;

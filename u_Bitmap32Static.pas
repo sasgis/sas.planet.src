@@ -4,10 +4,11 @@ interface
 
 uses
   GR32,
-  i_Bitmap32Static;
+  i_Bitmap32Static,
+  u_BaseInterfacedObject;
 
 type
-  TBitmap32Static = class(TInterfacedObject, IBitmap32Static)
+  TBitmap32Static = class(TBaseInterfacedObject, IBitmap32Static)
   private
     FSize: TPoint;
     FBitmap: TCustomBitmap32;

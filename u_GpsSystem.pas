@@ -35,7 +35,8 @@ uses
   i_GPS,
   i_GPSModule,
   i_GPSModuleByCOMFactory,
-  i_GPSModuleByCOM;
+  i_GPSModuleByCOM,
+  u_BaseInterfacedObject;
 
 type
   TModuleState = (msDisconnected, msConnecting, msConnected, msDisconnecting);
@@ -43,7 +44,7 @@ type
   TInternalState = (isDisconnected, isConnecting, isConnected, isDisconnecting, isTimeOut, isConnectError);
 
 type
-  TGpsSystem = class(TInterfacedObject, IGPSModule)
+  TGpsSystem = class(TBaseInterfacedObject, IGPSModule)
   private
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;

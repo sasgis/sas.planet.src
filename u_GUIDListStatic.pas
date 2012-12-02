@@ -23,10 +23,11 @@ unit u_GUIDListStatic;
 interface
 
 uses
-  i_GUIDListStatic;
+  i_GUIDListStatic,
+  u_BaseInterfacedObject;
 
 type
-  TGUIDListStatic = class(TInterfacedObject, IGUIDListStatic)
+  TGUIDListStatic = class(TBaseInterfacedObject, IGUIDListStatic)
   private
     FList: array of TGUID;
   private

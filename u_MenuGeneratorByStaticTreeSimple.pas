@@ -26,10 +26,11 @@ uses
   Classes,
   TB2Item,
   i_StaticTreeItem,
-  i_MenuGeneratorByTree;
+  i_MenuGeneratorByTree,
+  u_BaseInterfacedObject;
 
 type
-  TMenuGeneratorByStaticTreeSimple = class(TInterfacedObject, IMenuGeneratorByTree)
+  TMenuGeneratorByStaticTreeSimple = class(TBaseInterfacedObject, IMenuGeneratorByTree)
   private
     FOnClick: TNotifyEvent;
   protected

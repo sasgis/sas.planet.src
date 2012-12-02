@@ -31,10 +31,11 @@ uses
   i_Notifier,
   i_ExternalTerrainsProvider,
   i_ProjConverter,
-  i_TerrainProvider;
+  i_TerrainProvider,
+  u_BaseInterfacedObject;
 
 type
-  TTerrainProviderByExternal = class(TInterfacedObject, ITerrainProvider)
+  TTerrainProviderByExternal = class(TBaseInterfacedObject, ITerrainProvider)
   private
     FDefaultPath: String;
     FProjConverter: IProjConverter;

@@ -26,10 +26,11 @@ uses
   Classes,
   i_StringListStatic,
   i_BinaryData,
-  i_ConfigDataProvider;
+  i_ConfigDataProvider,
+  u_BaseInterfacedObject;
 
 type
-  TConfigDataProviderWithUseDepreciated = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderWithUseDepreciated = class(TBaseInterfacedObject, IConfigDataProvider)
   private
     FSource: IConfigDataProvider;
     FIdentRenamesList: TStringList;

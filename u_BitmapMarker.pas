@@ -26,10 +26,11 @@ uses
   GR32,
   t_GeoTypes,
   i_Bitmap32Static,
-  i_BitmapMarker;
+  i_BitmapMarker,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapMarker = class(TInterfacedObject, IBitmapMarker, IBitmap32Static)
+  TBitmapMarker = class(TBaseInterfacedObject, IBitmapMarker, IBitmap32Static)
   private
     FBitmap: IBitmap32Static;
     FAnchorPoint: TDoublePoint;

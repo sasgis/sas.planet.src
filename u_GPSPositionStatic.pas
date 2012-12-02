@@ -25,10 +25,11 @@ interface
 uses
   vsagps_public_base,
   vsagps_public_position,
-  i_GPS;
+  i_GPS,
+  u_BaseInterfacedObject;
 
 type
-  TGPSPositionStatic = class(TInterfacedObject, IGPSPosition)
+  TGPSPositionStatic = class(TBaseInterfacedObject, IGPSPosition)
   private
     FSingleGPSData: TSingleGPSData;
     FSatellites: IGPSSatellitesInView;

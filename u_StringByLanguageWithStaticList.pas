@@ -24,10 +24,11 @@ interface
 
 uses
   Classes,
-  i_StringByLanguage;
+  i_StringByLanguage,
+  u_BaseInterfacedObject;
 
 type
-  TStringByLanguageWithStaticList = class(TInterfacedObject, IStringByLanguage)
+  TStringByLanguageWithStaticList = class(TBaseInterfacedObject, IStringByLanguage)
   private
     FValueList: TStringList;
   private

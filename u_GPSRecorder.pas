@@ -146,12 +146,13 @@ implementation
 uses
   Math,
   i_EnumDoublePoint,
-  u_GeoFun;
+  u_GeoFun,
+  u_BaseInterfacedObject;
 
 { TTrackPoitnsBlock }
 
 type
-  TTrackPoitnsBlock = class(TInterfacedObject, ITrackPoitnsBlock)
+  TTrackPoitnsBlock = class(TBaseInterfacedObject, ITrackPoitnsBlock)
   private
     FPoints: array of TGPSTrackPoint;
     FCount: Integer;
@@ -185,7 +186,7 @@ end;
 { TTrackPointsBlocksListStatic }
 
 type
-  TTrackPointsBlocksListStatic = class(TInterfacedObject, ITrackPointsBlocksListStatic)
+  TTrackPointsBlocksListStatic = class(TBaseInterfacedObject, ITrackPointsBlocksListStatic)
   private
     FCount: Integer;
     FBlocks: array of ITrackPoitnsBlock;
@@ -292,7 +293,7 @@ end;
 { TEnumGPSTrackPointEmpty }
 
 type
-  TEnumGPSTrackPointEmpty = class(TInterfacedObject, IEnumGPSTrackPoint)
+  TEnumGPSTrackPointEmpty = class(TBaseInterfacedObject, IEnumGPSTrackPoint)
   private
     function Next(out APoint: TGPSTrackPoint): Boolean;
   end;
@@ -308,7 +309,7 @@ end;
 { TEnumGPSTrackPointByBlocksListBase }
 
 type
-  TEnumGPSTrackPointByBlocksListBase = class(TInterfacedObject, IEnumGPSTrackPoint)
+  TEnumGPSTrackPointByBlocksListBase = class(TBaseInterfacedObject, IEnumGPSTrackPoint)
   private
     FList: ITrackPointsBlocksListStatic;
     FValidPointsInLastBlock: Integer;
@@ -463,7 +464,7 @@ end;
 { TEnumDoublePointsByEnumGPSTrackPoint }
 
 type
-  TEnumTrackPointsByEnumGPSTrackPoint = class(TInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
+  TEnumTrackPointsByEnumGPSTrackPoint = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumLonLatPoint)
   private
     FSource: IEnumGPSTrackPoint;
   private

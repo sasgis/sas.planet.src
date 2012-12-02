@@ -25,13 +25,14 @@ interface
 uses
   i_Notifier,
   i_Listener,
-  i_SimpleFlag;
+  i_SimpleFlag,
+  u_BaseInterfacedObject;
 
 type
   TNotifyListenerNoMmgEvent = procedure of object;
   TNotifyListenerEvent = procedure(const AMsg: IInterface) of object;
 
-  TNotifyEventListener = class(TInterfacedObject, IListener, IListenerDisconnectable)
+  TNotifyEventListener = class(TBaseInterfacedObject, IListener, IListenerDisconnectable)
   private
     FDisconnectFlag: ISimpleFlag;
     FEvent: TNotifyListenerEvent;
@@ -43,7 +44,7 @@ type
     constructor Create(AEvent: TNotifyListenerEvent);
   end;
 
-  TNotifyNoMmgEventListener = class(TInterfacedObject, IListener)
+  TNotifyNoMmgEventListener = class(TBaseInterfacedObject, IListener)
   private
     FEvent: TNotifyListenerNoMmgEvent;
   private
@@ -52,7 +53,7 @@ type
     constructor Create(AEvent: TNotifyListenerNoMmgEvent);
   end;
 
-  TNotifyEventListenerSync = class(TInterfacedObject, IListener)
+  TNotifyEventListenerSync = class(TBaseInterfacedObject, IListener)
   private
     FTimerNoifier: INotifier;
     FTimerListener: IListener;

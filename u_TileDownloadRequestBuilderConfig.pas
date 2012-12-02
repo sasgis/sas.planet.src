@@ -27,10 +27,11 @@ uses
   i_ConfigDataWriteProvider,
   i_CoordConverter,
   i_TileDownloadRequestBuilderConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementBase,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloadRequestBuilderConfigStatic = class(TInterfacedObject, ITileDownloadRequestBuilderConfigStatic)
+  TTileDownloadRequestBuilderConfigStatic = class(TBaseInterfacedObject, ITileDownloadRequestBuilderConfigStatic)
   private
     FUrlBase: AnsiString;
     FRequestHeader: AnsiString;

@@ -4,10 +4,11 @@ interface
 
 uses
   i_VectorDataItemSimple,
-  i_TextByVectorItem;
+  i_TextByVectorItem,
+  u_BaseInterfacedObject;
 
 type
-  TTextByVectorItemHTMLByDescription = class(TInterfacedObject, ITextByVectorItem)
+  TTextByVectorItemHTMLByDescription = class(TBaseInterfacedObject, ITextByVectorItem)
   private
     function GetText(const AItem: IVectorDataItemSimple): string;
   end;

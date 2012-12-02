@@ -4,10 +4,11 @@ interface
 
 uses
   t_GeoTypes,
-  i_DoublePointsAggregator;
+  i_DoublePointsAggregator,
+  u_BaseInterfacedObject;
 
 type
-  TDoublePointsAggregator = class(TInterfacedObject, IDoublePointsAggregator)
+  TDoublePointsAggregator = class(TBaseInterfacedObject, IDoublePointsAggregator)
   private
     FPoints: array of TDoublePoint;
     FCount: Integer;

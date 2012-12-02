@@ -25,11 +25,12 @@ interface
 uses
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
-  i_InternalPerformanceCounter;
+  i_InternalPerformanceCounter,
+  u_BaseInterfacedObject;
 
 type
   TBitmapTileSaveLoadFactory = class(
-    TInterfacedObject,
+    TBaseInterfacedObject,
     IBitmapTileSaveLoadFactory
   )
   private

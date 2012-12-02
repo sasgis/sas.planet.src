@@ -32,10 +32,11 @@ uses
   i_ExternalTerrainsProvider,
   i_PathConfig,
   i_ProjConverter,
-  u_GlobalCahceConfig;
+  u_GlobalCahceConfig,
+  u_BaseInterfacedObject;
 
 type
-  TTerrainProviderListBase = class(TInterfacedObject, ITerrainProviderList)
+  TTerrainProviderListBase = class(TBaseInterfacedObject, ITerrainProviderList)
   private
     FList: IGUIDInterfaceSet;
     FCS: IReadWriteSync;

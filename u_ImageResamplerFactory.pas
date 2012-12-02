@@ -25,20 +25,21 @@ interface
 uses
   GR32,
   GR32_Resamplers,
-  i_ImageResamplerFactory;
+  i_ImageResamplerFactory,
+  u_BaseInterfacedObject;
 
 type
-  TImageResamplerFactoryLinear = class(TInterfacedObject, IImageResamplerFactory)
+  TImageResamplerFactoryLinear = class(TBaseInterfacedObject, IImageResamplerFactory)
   private
     function CreateResampler: TCustomResampler;
   end;
 
-  TImageResamplerFactoryNearest = class(TInterfacedObject, IImageResamplerFactory)
+  TImageResamplerFactoryNearest = class(TBaseInterfacedObject, IImageResamplerFactory)
   private
     function CreateResampler: TCustomResampler;
   end;
 
-  TImageResamplerFactoryKernel = class(TInterfacedObject, IImageResamplerFactory)
+  TImageResamplerFactoryKernel = class(TBaseInterfacedObject, IImageResamplerFactory)
   private
     FKernelClass: TCustomKernelClass;
   private

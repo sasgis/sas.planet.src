@@ -22,11 +22,12 @@ uses
   i_TileDownloaderState,
   i_TileDownloadResultSaver,
   i_SimpleTileStorageConfig,
+  i_TileStorage,
   u_TileDownloaderStateInternal,
-  i_TileStorage;
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloadResultSaverStuped = class(TInterfacedObject, ITileDownloadResultSaver)
+  TTileDownloadResultSaverStuped = class(TBaseInterfacedObject, ITileDownloadResultSaver)
   private
     FDownloadConfig: IGlobalDownloadConfig;
     FImageResamplerConfig: IImageResamplerConfig;

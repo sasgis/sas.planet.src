@@ -27,10 +27,11 @@ uses
   i_BinaryData,
   i_Bitmap32Static,
   i_BitmapTileSaveLoad,
-  i_InternalPerformanceCounter;
+  i_InternalPerformanceCounter,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapTileFreeImageLoader = class (TInterfacedObject, IBitmapTileLoader)
+  TBitmapTileFreeImageLoader = class (TBaseInterfacedObject, IBitmapTileLoader)
   private
     FCounter: IInternalPerformanceCounter;
   private
@@ -68,7 +69,7 @@ type
     );
   end;
 
-  TBitmapTileFreeImageSaver = class (TInterfacedObject, IBitmapTileSaver)
+  TBitmapTileFreeImageSaver = class (TBaseInterfacedObject, IBitmapTileSaver)
   private
     FFormat: FREE_IMAGE_FORMAT;
     FBitPerPixel: Byte;

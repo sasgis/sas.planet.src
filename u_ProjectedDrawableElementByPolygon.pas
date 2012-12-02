@@ -8,10 +8,11 @@ uses
   i_ProjectionInfo,
   i_LocalCoordConverter,
   i_VectorItemProjected,
-  i_ProjectedDrawableElement;
+  i_ProjectedDrawableElement,
+  u_BaseInterfacedObject;
 
 type
-  TProjectedDrawableElementByPolygonSimpleEdge = class(TInterfacedObject, IProjectedDrawableElement)
+  TProjectedDrawableElementByPolygonSimpleEdge = class(TBaseInterfacedObject, IProjectedDrawableElement)
   private
     FSource: IProjectedPolygon;
     FColor: TColor32;

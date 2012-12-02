@@ -3,10 +3,11 @@ unit u_MarkerRingsConfigStatic;
 interface
 
 uses
-  i_MarkerRingsConfig;
+  i_MarkerRingsConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerRingsConfigStatic = class(TInterfacedObject, IMarkerRingsConfigStatic)
+  TMarkerRingsConfigStatic = class(TBaseInterfacedObject, IMarkerRingsConfigStatic)
   private
     FCount: Integer;
     FStepDistance: Double;

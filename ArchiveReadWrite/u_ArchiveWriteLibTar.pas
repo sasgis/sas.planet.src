@@ -26,10 +26,11 @@ uses
   Classes,
   LibTar,
   i_BinaryData,
-  i_ArchiveReadWrite;
+  i_ArchiveReadWrite,
+  u_BaseInterfacedObject;
 
 type
-  TArchiveWriteByLibTar = class(TInterfacedObject, IArchiveWriter)
+  TArchiveWriteByLibTar = class(TBaseInterfacedObject, IArchiveWriter)
   private
     FTar: TTarWriter;
     FFilesCount: Integer;

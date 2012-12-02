@@ -29,10 +29,11 @@ uses
   i_MarkPicture,
   i_MarksDbSmlInternal,
   i_MarkCategoryDBSmlInternal,
-  i_MarkNameGenerator;
+  i_MarkNameGenerator,
+  u_BaseInterfacedObject;
 
 type
-  TMarkTemplateBase = class(TInterfacedObject, IMarkTemplate, IMarkTemplateSMLInternal)
+  TMarkTemplateBase = class(TBaseInterfacedObject, IMarkTemplate, IMarkTemplateSMLInternal)
   private
     FCategoryDb: IMarkCategoryDBSmlInternal;
     FNameGenerator: IMarkNameGenerator;

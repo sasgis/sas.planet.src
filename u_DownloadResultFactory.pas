@@ -27,10 +27,11 @@ uses
   i_BinaryData,
   i_DownloadResult,
   i_DownloadRequest,
-  i_DownloadResultFactory;
+  i_DownloadResultFactory,
+  u_BaseInterfacedObject;
 
 type
-  TDownloadResultFactory = class(TInterfacedObject, IDownloadResultFactory)
+  TDownloadResultFactory = class(TBaseInterfacedObject, IDownloadResultFactory)
   private
     function BuildCanceled(
       const ARequest: IDownloadRequest

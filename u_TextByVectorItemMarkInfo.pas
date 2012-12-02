@@ -7,10 +7,11 @@ uses
   i_MarksSimple,
   i_ValueToStringConverter,
   i_Datum,
-  i_TextByVectorItem;
+  i_TextByVectorItem,
+  u_BaseInterfacedObject;
 
 type
-  TTextByVectorItemMarkInfo = class(TInterfacedObject, ITextByVectorItem)
+  TTextByVectorItemMarkInfo = class(TBaseInterfacedObject, ITextByVectorItem)
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;

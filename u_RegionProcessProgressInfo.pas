@@ -3,10 +3,11 @@ unit u_RegionProcessProgressInfo;
 interface
 
 uses
-  i_RegionProcessProgressInfo;
+  i_RegionProcessProgressInfo,
+  u_BaseInterfacedObject;
 
 type
-  TRegionProcessProgressInfo = class(TInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfo, IRegionProcessProgressInfoInternal)
+  TRegionProcessProgressInfo = class(TBaseInterfacedObject, IProgressInfoBase, IRegionProcessProgressInfo, IRegionProcessProgressInfoInternal)
   private
     FProcessedRatio: Double;
     FFinished: Boolean;

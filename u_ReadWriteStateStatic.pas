@@ -4,10 +4,11 @@ interface
 
 uses
   t_CommonTypes,
-  i_ReadWriteState;
+  i_ReadWriteState,
+  u_BaseInterfacedObject;
 
 type
-  TReadWriteStateStatic = class(TInterfacedObject, IReadWriteStateStatic)
+  TReadWriteStateStatic = class(TBaseInterfacedObject, IReadWriteStateStatic)
   private
     FReadAccess: TAccesState;
     FWriteAccess: TAccesState;

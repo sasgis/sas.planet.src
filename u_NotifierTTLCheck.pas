@@ -27,10 +27,11 @@ uses
   Classes,
   SysUtils,
   i_ListenerTTLCheck,
-  i_NotifierTTLCheck;
+  i_NotifierTTLCheck,
+  u_BaseInterfacedObject;
 
 type
-  TNotifierTTLCheck = class(TInterfacedObject, INotifierTTLCheck, INotifierTTLCheckInternal)
+  TNotifierTTLCheck = class(TBaseInterfacedObject, INotifierTTLCheck, INotifierTTLCheckInternal)
   private
     FList: TList;
     FSync: IReadWriteSync;

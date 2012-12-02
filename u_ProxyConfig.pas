@@ -26,10 +26,11 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ProxySettings,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementBase,
+  u_BaseInterfacedObject;
 
 type
-  TProxyConfigStatic = class(TInterfacedObject, IProxyConfigStatic)
+  TProxyConfigStatic = class(TBaseInterfacedObject, IProxyConfigStatic)
   private
     FUseIESettings: Boolean;
     FUseProxy: Boolean;

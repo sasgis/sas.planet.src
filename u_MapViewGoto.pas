@@ -27,10 +27,11 @@ uses
   t_GeoTypes,
   i_Notifier,
   i_ViewPortState,
-  i_MapViewGoto;
+  i_MapViewGoto,
+  u_BaseInterfacedObject;
 
 type
-  TGotoPosStatic = class(TInterfacedObject, IGotoPosStatic)
+  TGotoPosStatic = class(TBaseInterfacedObject, IGotoPosStatic)
   private
     FLonLat: TDoublePoint;
     FZoom: Byte;
@@ -47,7 +48,7 @@ type
     );
   end;
 
-  TMapViewGoto = class(TInterfacedObject, IMapViewGoto)
+  TMapViewGoto = class(TBaseInterfacedObject, IMapViewGoto)
   private
     FViewPortState: IViewPortState;
     FLastGotoPos: IGotoPosStatic;

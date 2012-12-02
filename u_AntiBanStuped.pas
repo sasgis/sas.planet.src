@@ -31,10 +31,11 @@ uses
   i_DownloadRequest,
   i_DownloadResult,
   i_DownloadResultFactory,
-  i_InvisibleBrowser;
+  i_InvisibleBrowser,
+  u_BaseInterfacedObject;
 
 type
-  TAntiBanStuped = class(TInterfacedObject, IAntiBan)
+  TAntiBanStuped = class(TBaseInterfacedObject, IAntiBan)
   private
     FInvisibleBrowser: IInvisibleBrowser;
     FUsePreloadPage: integer;

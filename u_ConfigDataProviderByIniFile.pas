@@ -27,10 +27,11 @@ uses
   IniFiles,
   i_StringListStatic,
   i_BinaryData,
-  i_ConfigDataProvider;
+  i_ConfigDataProvider,
+  u_BaseInterfacedObject;
 
 type
-  TConfigDataProviderByIniFile = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderByIniFile = class(TBaseInterfacedObject, IConfigDataProvider)
   private
     FIniFile: TCustomIniFile;
   protected

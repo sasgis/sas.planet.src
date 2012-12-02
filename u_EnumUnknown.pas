@@ -24,10 +24,11 @@ interface
 
 uses
   Classes,
-  ActiveX;
+  ActiveX,
+  u_BaseInterfacedObject;
 
 type
-  TEnumUnknown = class(TInterfacedObject, IEnumUnknown)
+  TEnumUnknown = class(TBaseInterfacedObject, IEnumUnknown)
   private
     FList: IInterfaceList;
     FCurrent: Longint;

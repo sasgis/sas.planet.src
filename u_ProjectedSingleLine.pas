@@ -6,10 +6,11 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_ProjectionInfo,
-  i_VectorItemProjected;
+  i_VectorItemProjected,
+  u_BaseInterfacedObject;
 
 type
-  TProjectedLineBase = class(TInterfacedObject)
+  TProjectedLineBase = class(TBaseInterfacedObject)
   private
     FCount: Integer;
     FBounds: TDoubleRect;

@@ -4,10 +4,11 @@ interface
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint;
+  i_EnumDoublePoint,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointClipByLineAbstract = class(TInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint, IEnumLocalPoint)
+  TEnumDoublePointClipByLineAbstract = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint, IEnumLocalPoint)
   private
     FSourceEnum: IEnumDoublePoint;
     FFinished: Boolean;

@@ -20,10 +20,11 @@ uses
   i_VectorItemProjected,
   i_VectorItmesFactory,
   i_DoublePointsAggregator,
-  i_BitmapLayerProvider;
+  i_BitmapLayerProvider,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderByVectorSubset = class(TInterfacedObject, IBitmapLayerProvider, IBitmapLayerProviderWithListener)
+  TBitmapLayerProviderByVectorSubset = class(TBaseInterfacedObject, IBitmapLayerProvider, IBitmapLayerProviderWithListener)
   private
     FVectorMapsSet: IMapTypeSet;
     FColorMain: TColor32;

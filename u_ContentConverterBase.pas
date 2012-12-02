@@ -25,10 +25,11 @@ interface
 uses
   i_BinaryData,
   i_ContentTypeInfo,
-  i_ContentConverter;
+  i_ContentConverter,
+  u_BaseInterfacedObject;
 
 type
-  TContentConverterAbstract = class(TInterfacedObject, IContentConverter)
+  TContentConverterAbstract = class(TBaseInterfacedObject, IContentConverter)
   private
     FSource: IContentTypeInfoBasic;
     FTarget: IContentTypeInfoBasic;

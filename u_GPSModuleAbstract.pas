@@ -33,7 +33,8 @@ uses
   i_GPSPositionFactory,
   i_GPSModule,
   vsagps_public_base,
-  vsagps_public_position;
+  vsagps_public_position,
+  u_BaseInterfacedObject;
 
 type
   TSatellitesInternalList = class
@@ -58,7 +59,7 @@ type
     property List: PUnknownList read GetList;
   end;
 
-  TGPSModuleAbstract = class(TInterfacedObject, IGPSModule)
+  TGPSModuleAbstract = class(TBaseInterfacedObject, IGPSModule)
   private
     FGPSPositionFactory: IGPSPositionFactory;
     FLastStaticPosition: IGPSPosition;

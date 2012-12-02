@@ -25,10 +25,11 @@ interface
 uses
   ActiveX,
   Classes,
-  i_GeoCoder;
+  i_GeoCoder,
+  u_BaseInterfacedObject;
 
 type
-  TGeoCodeResult = class(TInterfacedObject, IGeoCodeResult)
+  TGeoCodeResult = class(TBaseInterfacedObject, IGeoCodeResult)
   private
     FSearchText: WideString;
     FMessage: WideString;

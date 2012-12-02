@@ -5,10 +5,11 @@ interface
 uses
   i_MarkerDrawable,
   i_VectorDataItemSimple,
-  i_MarkerProviderForVectorItem;
+  i_MarkerProviderForVectorItem,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerProviderForVectorItemFixedMarker = class(TInterfacedObject, IMarkerProviderForVectorItem)
+  TMarkerProviderForVectorItemFixedMarker = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
     FMarker: IMarkerDrawableChangeable;
   private

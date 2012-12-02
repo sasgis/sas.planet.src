@@ -7,10 +7,11 @@ uses
   i_LanguageManager,
   i_ShortCutSingleConfig,
   i_ShortCutModalEdit,
+  u_BaseInterfacedObject,
   frm_ShortCutEdit;
 
 type
-  TShortCutModalEditByForm = class(TInterfacedObject, IShortCutModalEdit)
+  TShortCutModalEditByForm = class(TBaseInterfacedObject, IShortCutModalEdit)
   private
     FLanguageManager: ILanguageManager;
     FEditCounter: Longint;

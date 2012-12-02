@@ -25,10 +25,11 @@ interface
 uses
   t_GeoTypes,
   i_LonLatRect,
-  i_GeoCoder;
+  i_GeoCoder,
+  u_BaseInterfacedObject;
 
 type
-  TGeoCodePlacemark = class(TInterfacedObject, IGeoCodePlacemark)
+  TGeoCodePlacemark = class(TBaseInterfacedObject, IGeoCodePlacemark)
   private
     FLLRect: ILonLatRect;
     FAddress: WideString;

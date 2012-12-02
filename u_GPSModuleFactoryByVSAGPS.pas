@@ -25,10 +25,11 @@ interface
 uses
   i_GPSPositionFactory,
   i_GPSModuleByCOM,
-  i_GPSModuleByCOMFactory;
+  i_GPSModuleByCOMFactory,
+  u_BaseInterfacedObject;
 
 type
-  TGPSModuleFactoryByVSAGPS = class(TInterfacedObject, IGPSModuleByCOMFactory)
+  TGPSModuleFactoryByVSAGPS = class(TBaseInterfacedObject, IGPSModuleByCOMFactory)
   private
     FGPSPositionFactory: IGPSPositionFactory;
   private

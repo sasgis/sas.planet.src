@@ -135,7 +135,8 @@ uses
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
-  u_TileInfoBasic;
+  u_TileInfoBasic,
+  u_BaseInterfacedObject;
 
 { TTileStorageBerkeleyDB }
 
@@ -640,7 +641,7 @@ end;
 { TEnumTileInfoByBDB }
 
 type
-  TEnumTileInfoByBDB = class(TInterfacedObject, IEnumTileInfo)
+  TEnumTileInfoByBDB = class(TBaseInterfacedObject, IEnumTileInfo)
   private
     FFilesIterator: IFileNameIterator;
     FTileFileNameParser: ITileFileNameParser;

@@ -29,10 +29,11 @@ uses
   GR32,
   i_Bitmap32Static,
   i_GUIDSet,
-  i_MapTypeIconsList;
+  i_MapTypeIconsList,
+  u_BaseInterfacedObject;
 
 type
-  TMapTypeIconsList = class(TInterfacedObject, IMapTypeIconsList)
+  TMapTypeIconsList = class(TBaseInterfacedObject, IMapTypeIconsList)
   private
     FList: IGUIDObjectSet;
     FImageList: TTBXImageList;

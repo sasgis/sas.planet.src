@@ -23,10 +23,11 @@ unit u_MapAbilitiesConfigStatic;
 interface
 
 uses
-  i_MapAbilitiesConfig;
+  i_MapAbilitiesConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMapAbilitiesConfigStatic = class(TInterfacedObject, IMapAbilitiesConfigStatic)
+  TMapAbilitiesConfigStatic = class(TBaseInterfacedObject, IMapAbilitiesConfigStatic)
   private
     FIsLayer: Boolean;
     FIsShowOnSmMap: Boolean;

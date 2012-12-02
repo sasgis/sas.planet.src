@@ -25,10 +25,11 @@ interface
 uses
   i_VectorItmesFactory,
   i_ImportFile,
-  i_ImportConfig;
+  i_ImportConfig,
+  u_BaseInterfacedObject;
 
 type
-  TImportHLG = class(TInterfacedObject, IImportFile)
+  TImportHLG = class(TBaseInterfacedObject, IImportFile)
   private
     FFactory: IVectorItmesFactory;
   private

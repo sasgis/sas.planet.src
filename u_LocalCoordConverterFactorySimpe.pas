@@ -28,10 +28,11 @@ uses
   i_CoordConverter,
   i_CoordConverterFactory,
   i_LocalCoordConverter,
-  i_LocalCoordConverterFactorySimpe;
+  i_LocalCoordConverterFactorySimpe,
+  u_BaseInterfacedObject;
 
 type
-  TLocalCoordConverterFactorySimpe = class(TInterfacedObject, ILocalCoordConverterFactorySimpe)
+  TLocalCoordConverterFactorySimpe = class(TBaseInterfacedObject, ILocalCoordConverterFactorySimpe)
   private
     FProjectionFactory: IProjectionInfoFactory;
   private

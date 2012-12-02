@@ -3,10 +3,11 @@ unit u_MapTypeListStatic;
 interface
 
 uses
-  i_MapTypes;
+  i_MapTypes,
+  u_BaseInterfacedObject;
 
 type
-  TMapTypeListStatic = class(TInterfacedObject, IMapTypeListStatic)
+  TMapTypeListStatic = class(TBaseInterfacedObject, IMapTypeListStatic)
   private
     FCount: Integer;
     FItems: array of IMapType;

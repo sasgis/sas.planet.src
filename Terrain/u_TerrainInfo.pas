@@ -29,10 +29,11 @@ uses
   i_TerrainInfo,
   i_TerrainConfig,
   i_TerrainProvider,
-  i_TerrainProviderList;
+  i_TerrainProviderList,
+  u_BaseInterfacedObject;
 
 type
-  TTerrainInfo = class(TInterfacedObject, ITerrainInfo)
+  TTerrainInfo = class(TBaseInterfacedObject, ITerrainInfo)
   private
     FTerrainConfig: ITerrainConfig;
     FPrimaryTerrainProviderGUID: TGUID;

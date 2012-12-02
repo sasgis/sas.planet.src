@@ -6,10 +6,11 @@ uses
   i_IdCacheSimple,
   i_VectorDataItemSimple,
   i_MarkerDrawable,
-  i_MarkerProviderForVectorItem;
+  i_MarkerProviderForVectorItem,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerProviderForVectorItemWithCache = class(TInterfacedObject, IMarkerProviderForVectorItem)
+  TMarkerProviderForVectorItemWithCache = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
     FCache: IIdCacheSimple;
     FProvider: IMarkerProviderForVectorItem;

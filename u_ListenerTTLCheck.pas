@@ -5,10 +5,11 @@ interface
 uses
   Classes,
   i_SimpleFlag,
-  i_ListenerTTLCheck;
+  i_ListenerTTLCheck,
+  u_BaseInterfacedObject;
 
 type
-  TListenerTTLCheck = class(TInterfacedObject, IListenerTTLCheck)
+  TListenerTTLCheck = class(TBaseInterfacedObject, IListenerTTLCheck)
   private
     FOnTrimByTTL: TNotifyEvent;
     FUseFlag: ISimpleFlag;

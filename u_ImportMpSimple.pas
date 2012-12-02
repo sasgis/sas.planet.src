@@ -27,10 +27,11 @@ uses
   i_VectorItmesFactory,
   i_DoublePointsAggregator,
   i_ImportFile,
-  i_ImportConfig;
+  i_ImportConfig,
+  u_BaseInterfacedObject;
 
 type
-  TImportMpSimple = class(TInterfacedObject, IImportFile)
+  TImportMpSimple = class(TBaseInterfacedObject, IImportFile)
   private
     FFactory: IVectorItmesFactory;
     procedure ParseCoordinates(

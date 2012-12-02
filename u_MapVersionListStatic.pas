@@ -4,10 +4,11 @@ interface
 
 uses
   Classes,
-  i_MapVersionInfo;
+  i_MapVersionInfo,
+  u_BaseInterfacedObject;
 
 type
-  TMapVersionListStatic = class(TInterfacedObject, IMapVersionListStatic)
+  TMapVersionListStatic = class(TBaseInterfacedObject, IMapVersionListStatic)
   private
     FList: IInterfaceList;
   private

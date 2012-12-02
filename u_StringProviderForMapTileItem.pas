@@ -4,10 +4,11 @@ interface
 
 uses
   Types,
-  i_StringProvider;
+  i_StringProvider,
+  u_BaseInterfacedObject;
 
 type
-  TStringProviderForMapTileItem = class(TInterfacedObject, IStringProvider)
+  TStringProviderForMapTileItem = class(TBaseInterfacedObject, IStringProvider)
   private
     FURLPrefix: string;
     FTile: TPoint;

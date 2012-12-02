@@ -7,10 +7,11 @@ uses
   i_LonLatRect,
   i_EnumDoublePoint,
   i_Datum,
-  i_VectorItemLonLat;
+  i_VectorItemLonLat,
+  u_BaseInterfacedObject;
 
 type
-  TLonLatLineSet = class(TInterfacedObject)
+  TLonLatLineSet = class(TBaseInterfacedObject)
   private
     FList: IInterfaceList;
     FBounds: ILonLatRect;
@@ -41,7 +42,7 @@ type
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   end;
 
-  TLonLatPathOneLine = class(TInterfacedObject, ILonLatPath)
+  TLonLatPathOneLine = class(TBaseInterfacedObject, ILonLatPath)
   private
     FLine: ILonLatPathLine;
   private
@@ -57,7 +58,7 @@ type
     );
   end;
 
-  TLonLatPolygonOneLine = class(TInterfacedObject, ILonLatPolygon)
+  TLonLatPolygonOneLine = class(TBaseInterfacedObject, ILonLatPolygon)
   private
     FLine: ILonLatPolygonLine;
   private

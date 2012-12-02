@@ -7,10 +7,11 @@ uses
   SysUtils,
   i_NotifierOperation,
   i_Listener,
-  i_InterfaceQueue;
+  i_InterfaceQueue,
+  u_BaseInterfacedObject;
 
 type
-  TInterfaceQueue = class(TInterfacedObject, IInterfaceQueue)
+  TInterfaceQueue = class(TBaseInterfacedObject, IInterfaceQueue)
   private
     FCapacity: Integer;
     FAppClosingNotifier: INotifierOneOperation;

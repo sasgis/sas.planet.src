@@ -9,10 +9,11 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_LocalCoordConverterChangeable,
-  i_MiniMapLayerConfig;
+  i_MiniMapLayerConfig,
+  u_BaseInterfacedObject;
 
 type
-  TLocalConverterChangeableOfMiniMap = class(TInterfacedObject, ILocalCoordConverterChangeable)
+  TLocalConverterChangeableOfMiniMap = class(TBaseInterfacedObject, ILocalCoordConverterChangeable)
   private
     FInternal: ILocalCoordConverterChangeableInternal;
     FSoruce: ILocalCoordConverterChangeable;

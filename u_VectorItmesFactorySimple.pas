@@ -12,10 +12,11 @@ uses
   i_VectorItemLonLat,
   i_VectorItemProjected,
   i_VectorItemLocal,
-  i_VectorItmesFactory;
+  i_VectorItmesFactory,
+  u_BaseInterfacedObject;
 
 type
-  TVectorItmesFactorySimple = class(TInterfacedObject, IVectorItmesFactory)
+  TVectorItmesFactorySimple = class(TBaseInterfacedObject, IVectorItmesFactory)
   private
     FEmptyLonLatPath: ILonLatPath;
     FEmptyLonLatPolygon: ILonLatPolygon;

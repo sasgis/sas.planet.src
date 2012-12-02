@@ -6,10 +6,11 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_VectorDataItemSimple,
-  i_GeoCoder;
+  i_GeoCoder,
+  u_BaseInterfacedObject;
 
 type
-  TGeoCodePlacemarkWithUrlDecorator = class(TInterfacedObject, IGeoCodePlacemark, IVectorDataItemPoint, IVectorDataItemSimple)
+  TGeoCodePlacemarkWithUrlDecorator = class(TBaseInterfacedObject, IGeoCodePlacemark, IVectorDataItemPoint, IVectorDataItemSimple)
   private
     FSource: IGeoCodePlacemark;
     FUrl: string;

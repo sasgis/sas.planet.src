@@ -26,10 +26,11 @@ uses
   i_BinaryData,
   i_ContentTypeInfo,
   i_MapVersionInfo,
-  i_TileInfoBasic;
+  i_TileInfoBasic,
+  u_BaseInterfacedObject;
 
 type
-  TTileInfoBasicBase = class(TInterfacedObject)
+  TTileInfoBasicBase = class(TBaseInterfacedObject)
   private
     FDate: TDateTime;
     FVersionInfo: IMapVersionInfo;

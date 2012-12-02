@@ -24,10 +24,11 @@ interface
 
 uses
   t_GeoTypes,
-  i_MarkerFromFileConfig;
+  i_MarkerFromFileConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerFromFileConfigStatic = class(TInterfacedObject, IMarkerFromFileConfigStatic)
+  TMarkerFromFileConfigStatic = class(TBaseInterfacedObject, IMarkerFromFileConfigStatic)
   private
     FFileName: string;
     FAnchorType: TAnchorType;

@@ -32,8 +32,11 @@ type
 
 implementation
 
+uses
+  u_BaseInterfacedObject;
+  
 type
-  TUseTilePrevZoomTileConfigStatic = class(TInterfacedObject, IUseTilePrevZoomTileConfigStatic)
+  TUseTilePrevZoomTileConfigStatic = class(TBaseInterfacedObject, IUseTilePrevZoomTileConfigStatic)
   private
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;

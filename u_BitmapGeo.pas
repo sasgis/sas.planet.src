@@ -6,10 +6,11 @@ uses
   Types,
   i_Bitmap32Static,
   i_LocalCoordConverter,
-  i_BitmapGeo;
+  i_BitmapGeo,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapGeo = class(TInterfacedObject, IBitmapGeo)
+  TBitmapGeo = class(TBaseInterfacedObject, IBitmapGeo)
   private
     FBitmap: IBitmap32Static;
     FConverter: ILocalCoordConverter;

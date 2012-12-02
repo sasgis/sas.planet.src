@@ -28,10 +28,11 @@ uses
   i_ZmpInfo,
   i_ZmpInfoSet,
   i_ContentTypeManager,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TInternalDomainInfoProviderByMapTypeList = class(TInterfacedObject, IInternalDomainInfoProvider)
+  TInternalDomainInfoProviderByMapTypeList = class(TBaseInterfacedObject, IInternalDomainInfoProvider)
   private
     FZmpInfoSet: IZmpInfoSet;
     FContentTypeManager: IContentTypeManager;

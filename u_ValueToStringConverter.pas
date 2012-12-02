@@ -25,10 +25,11 @@ interface
 uses
   t_GeoTypes,
   t_CommonTypes,
-  i_ValueToStringConverter;
+  i_ValueToStringConverter,
+  u_BaseInterfacedObject;
 
 type
-  TValueToStringConverter = class(TInterfacedObject, IValueToStringConverter)
+  TValueToStringConverter = class(TBaseInterfacedObject, IValueToStringConverter)
   private
     FDistStrFormat: TDistStrFormat;
     FIsLatitudeFirst: Boolean;

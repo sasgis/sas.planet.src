@@ -38,10 +38,11 @@ uses
   i_SatellitesInViewMapDraw,
   i_ValueToStringConverter,
   i_SensorList,
-  i_Sensor;
+  i_Sensor,
+  u_BaseInterfacedObject;
 
 type
-  TSensorViewTBXPanelBase = class(TInterfacedObject, ISensorView)
+  TSensorViewTBXPanelBase = class(TBaseInterfacedObject, ISensorView)
   private
     FListEntity: ISensorListEntity;
     FSensor: ISensor;

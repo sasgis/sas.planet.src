@@ -36,10 +36,11 @@ uses
   i_InvisibleBrowser,
   i_ProjConverter,
   i_TileStorage,
-  i_TileDownloadSubsystem;
+  i_TileDownloadSubsystem,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloadSubsystem = class(TInterfacedObject, ITileDownloadSubsystem)
+  TTileDownloadSubsystem = class(TBaseInterfacedObject, ITileDownloadSubsystem)
   private
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;

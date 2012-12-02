@@ -36,10 +36,11 @@ uses
   i_NotifierTTLCheck,
   i_TileObjCache,
   i_CoordConverter,
-  i_TileStorage;
+  i_TileStorage,
+  u_BaseInterfacedObject;
 
 type
-  TMemTileCacheBase = class(TInterfacedObject)
+  TMemTileCacheBase = class(TBaseInterfacedObject)
   private
     FConfig: IMainMemCacheConfig;
     FGCList: INotifierTTLCheck;

@@ -27,10 +27,11 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_ProjectionInfo,
-  i_LocalCoordConverter;
+  i_LocalCoordConverter,
+  u_BaseInterfacedObject;
 
 type
-  TLocalCoordConverterBase = class(TInterfacedObject, ILocalCoordConverter)
+  TLocalCoordConverterBase = class(TBaseInterfacedObject, ILocalCoordConverter)
   private
     FLocalRect: TRect;
     FLocalSize: TPoint;

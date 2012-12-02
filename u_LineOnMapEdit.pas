@@ -93,10 +93,11 @@ implementation
 uses
   i_Datum,
   i_LonLatRect,
-  u_GeoFun;
+  u_GeoFun,
+  u_BaseInterfacedObject;
 
 type
-  TLonLatLineWithSelectedBase = class(TInterfacedObject)
+  TLonLatLineWithSelectedBase = class(TBaseInterfacedObject)
   private
     FSelectedPoint: TDoublePoint;
     FSelectedSegmentIndex: Integer;

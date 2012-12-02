@@ -7,10 +7,11 @@ uses
   i_BinaryData,
   i_MapTypes,
   i_TextByVectorItem,
-  i_InternalDomainInfoProvider;
+  i_InternalDomainInfoProvider,
+  u_BaseInterfacedObject;
 
 type
-  TInternalDomainInfoProviderByMapData = class(TInterfacedObject, IInternalDomainInfoProvider)
+  TInternalDomainInfoProviderByMapData = class(TBaseInterfacedObject, IInternalDomainInfoProvider)
   private
     FMaps: IMapTypeSetChangeable;
     FVectorDescriptionProvider: ITextByVectorItem;

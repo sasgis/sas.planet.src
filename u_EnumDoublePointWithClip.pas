@@ -5,10 +5,11 @@ interface
 uses
   t_GeoTypes,
   i_DoublePointFilter,
-  i_EnumDoublePoint;
+  i_EnumDoublePoint,
+  u_BaseInterfacedObject;
 
 type
-  TEnumDoublePointClipByRect = class(TInterfacedObject, IEnumDoublePoint)
+  TEnumDoublePointClipByRect = class(TBaseInterfacedObject, IEnumDoublePoint)
   private
     FEnum: IEnumDoublePoint;
   private
@@ -39,7 +40,7 @@ type
     );
   end;
 
-  TDoublePointFilterClipByRect = class(TInterfacedObject, IDoublePointFilter)
+  TDoublePointFilterClipByRect = class(TBaseInterfacedObject, IDoublePointFilter)
   private
     FClosed: Boolean;
     FRect: TDoubleRect;
@@ -52,7 +53,7 @@ type
     );
   end;
 
-  TProjectedPointFilterClipByRect = class(TInterfacedObject, IProjectedPointFilter)
+  TProjectedPointFilterClipByRect = class(TBaseInterfacedObject, IProjectedPointFilter)
   private
     FClosed: Boolean;
     FRect: TDoubleRect;

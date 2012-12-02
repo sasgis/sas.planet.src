@@ -7,10 +7,11 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_VectorItemDrawConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementBase,
+  u_BaseInterfacedObject;
 
 type
-  TVectorItemDrawConfigStatic = class(TInterfacedObject, IVectorItemDrawConfigStatic)
+  TVectorItemDrawConfigStatic = class(TBaseInterfacedObject, IVectorItemDrawConfigStatic)
   private
     FMainColor: TColor32;
     FPointColor: TColor32;

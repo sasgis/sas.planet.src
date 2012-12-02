@@ -6,10 +6,11 @@ uses
   GR32,
   t_GeoTypes,
   i_MarkerDrawable,
-  i_MarkerSimpleConfig;
+  i_MarkerSimpleConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerDrawableSimpleBaseAbstract = class(TInterfacedObject)
+  TMarkerDrawableSimpleBaseAbstract = class(TBaseInterfacedObject)
   private
     FConfig: IMarkerSimpleConfigStatic;
   protected

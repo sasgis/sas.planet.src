@@ -13,10 +13,11 @@ uses
   i_NotifierTTLCheck,
   i_InterfaceQueue,
   i_TileDownloaderList,
-  i_ITileRequestProcessorPool;
+  i_ITileRequestProcessorPool,
+  u_BaseInterfacedObject;
 
 type
-  TTileRequestProcessorPool = class(TInterfacedObject, ITileRequestProcessorPool)
+  TTileRequestProcessorPool = class(TBaseInterfacedObject, ITileRequestProcessorPool)
   private
     type
     TArrayOfThread = array of IThread;

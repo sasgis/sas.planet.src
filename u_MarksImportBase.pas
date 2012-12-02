@@ -26,10 +26,11 @@ uses
   Classes,
   i_VectorDataFactory,
   i_ImportFile,
-  i_ImportConfig;
+  i_ImportConfig,
+  u_BaseInterfacedObject;
 
 type
-  TMarksImportBase = class(TInterfacedObject, IImportFile)
+  TMarksImportBase = class(TBaseInterfacedObject, IImportFile)
   private
     FVectorDataFactory: IVectorDataFactory;
   protected

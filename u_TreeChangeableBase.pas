@@ -28,10 +28,11 @@ uses
   i_Listener,
   i_StaticTreeItem,
   i_StaticTreeBuilder,
-  i_TreeChangeable;
+  i_TreeChangeable,
+  u_BaseInterfacedObject;
 
 type
-  TTreeChangeableBase = class(TInterfacedObject, ITreeChangeable)
+  TTreeChangeableBase = class(TBaseInterfacedObject, ITreeChangeable)
   private
     FStaticTreeBuilder: IStaticTreeBuilder;
     FConfigChangeListener: IListener;

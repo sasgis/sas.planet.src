@@ -7,10 +7,11 @@ uses
   i_EnumDoublePoint,
   i_LonLatRect,
   i_Datum,
-  i_VectorItemLonLat;
+  i_VectorItemLonLat,
+  u_BaseInterfacedObject;
 
 type
-  TLonLatLineBase = class(TInterfacedObject)
+  TLonLatLineBase = class(TBaseInterfacedObject)
   private
     FCount: Integer;
     FBounds: ILonLatRect;

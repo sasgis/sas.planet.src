@@ -10,10 +10,11 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_Bitmap32Static,
-  i_BitmapLayerProvider;
+  i_BitmapLayerProvider,
+  u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderGridTiles = class(TInterfacedObject, IBitmapLayerProvider)
+  TBitmapLayerProviderGridTiles = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FColor: TColor32;
     FUseRelativeZoom: Boolean;

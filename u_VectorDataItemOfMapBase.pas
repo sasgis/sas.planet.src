@@ -26,10 +26,11 @@ uses
   i_LonLatRect,
   i_StringProvider,
   i_HtmlToHintTextConverter,
-  i_VectorDataItemSimple;
+  i_VectorDataItemSimple,
+  u_BaseInterfacedObject;
 
 type
-  TVectorDataItemOfMapBase = class(TInterfacedObject, IVectorDataItemSimple)
+  TVectorDataItemOfMapBase = class(TBaseInterfacedObject, IVectorDataItemSimple)
   private
     FUrlPrefix: IStringProvider;
     FIndex: Integer;

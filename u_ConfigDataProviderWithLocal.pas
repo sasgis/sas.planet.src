@@ -26,10 +26,11 @@ uses
   Classes,
   i_StringListStatic,
   i_BinaryData,
-  i_ConfigDataProvider;
+  i_ConfigDataProvider,
+  u_BaseInterfacedObject;
 
 type
-  TConfigDataProviderWithLocal = class(TInterfacedObject, IConfigDataProvider)
+  TConfigDataProviderWithLocal = class(TBaseInterfacedObject, IConfigDataProvider)
   private
     FProviderMain: IConfigDataProvider;
     FProviderLocal: IConfigDataProvider;

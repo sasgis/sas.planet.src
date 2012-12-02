@@ -27,10 +27,11 @@ uses
   i_ContentConverter,
   i_ContentTypeManager,
   u_ContentTypeListByKey,
-  u_ContentConverterMatrix;
+  u_ContentConverterMatrix,
+  u_BaseInterfacedObject;
 
 type
-  TContentTypeManagerBase = class(TInterfacedObject, IContentTypeManager)
+  TContentTypeManagerBase = class(TBaseInterfacedObject, IContentTypeManager)
   private
     FExtList: TContentTypeListByKey;
     FTypeList: TContentTypeListByKey;

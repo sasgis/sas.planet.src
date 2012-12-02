@@ -13,10 +13,11 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
-  i_TileError;
+  i_TileError,
+  u_BaseInterfacedObject;
 
 type
-  TUITileDownloadList = class(TInterfacedObject)
+  TUITileDownloadList = class(TBaseInterfacedObject)
   private
     FList: IInterfaceList;
   public

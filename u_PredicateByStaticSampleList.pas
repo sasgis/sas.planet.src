@@ -6,10 +6,11 @@ uses
   i_IDList,
   i_BinaryData,
   i_BinaryDataListStatic,
-  i_PredicateByBinaryData;
+  i_PredicateByBinaryData,
+  u_BaseInterfacedObject;
 
 type
-  TPredicateByStaticSampleList = class(TInterfacedObject, IPredicateByBinaryData)
+  TPredicateByStaticSampleList = class(TBaseInterfacedObject, IPredicateByBinaryData)
   private
     FListBySize: IIDInterfaceList;
     function CalcHash(const AData: IBinaryData): Integer;

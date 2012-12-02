@@ -7,10 +7,11 @@ uses
   GR32,
   t_GeoTypes,
   i_Bitmap32Static,
-  i_MarkerDrawable;
+  i_MarkerDrawable,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerDrawableByBitmap32Static = class(TInterfacedObject, IMarkerDrawable)
+  TMarkerDrawableByBitmap32Static = class(TBaseInterfacedObject, IMarkerDrawable)
   private
     FBitmap: IBitmap32Static;
     FAnchorPoint: TDoublePoint;

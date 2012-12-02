@@ -26,10 +26,11 @@ uses
   Types,
   i_BinaryData,
   i_DownloadRequest,
-  i_DownloadResult;
+  i_DownloadResult,
+  u_BaseInterfacedObject;
 
 type
-  TDownloadResult = class(TInterfacedObject, IDownloadResult)
+  TDownloadResult = class(TBaseInterfacedObject, IDownloadResult)
   private
     FRequest: IDownloadRequest;
   protected

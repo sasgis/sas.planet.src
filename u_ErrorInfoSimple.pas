@@ -3,10 +3,11 @@ unit u_ErrorInfoSimple;
 interface
 
 uses
-  i_ErrorInfo;
+  i_ErrorInfo,
+  u_BaseInterfacedObject;
 
 type
-  TErrorInfoSimple = class(TInterfacedObject, IErrorInfoSimple)
+  TErrorInfoSimple = class(TBaseInterfacedObject, IErrorInfoSimple)
   private
     FText: string;
   private

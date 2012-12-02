@@ -4,7 +4,8 @@ interface
 
 uses
   i_MapVersionInfo,
-  i_MapVersionConfig;
+  i_MapVersionConfig,
+  u_BaseInterfacedObject;
 
 type
   IMapVersionFactoryGEInternal = interface(IMapVersionFactory)
@@ -16,7 +17,7 @@ type
     ): IMapVersionInfo;
   end;
 
-  TMapVersionFactoryGE = class(TInterfacedObject, IMapVersionFactory, IMapVersionFactoryGEInternal)
+  TMapVersionFactoryGE = class(TBaseInterfacedObject, IMapVersionFactory, IMapVersionFactoryGEInternal)
   private
     function CreateByStoreString(const AValue: string): IMapVersionInfo;
     function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
@@ -34,7 +35,7 @@ uses
   i_MapVersionInfoGE;
 
 type
-  TMapVersionInfoGE = class(TInterfacedObject, IMapVersionInfo, IMapVersionInfoGE)
+  TMapVersionInfoGE = class(TBaseInterfacedObject, IMapVersionInfo, IMapVersionInfoGE)
   private
     FVer: Word;
     FGEServer: String;

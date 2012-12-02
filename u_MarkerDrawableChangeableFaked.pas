@@ -4,10 +4,11 @@ interface
 
 uses
   i_Notifier,
-  i_MarkerDrawable;
+  i_MarkerDrawable,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerDrawableChangeableFaked = class(TInterfacedObject, IMarkerDrawableChangeable)
+  TMarkerDrawableChangeableFaked = class(TBaseInterfacedObject, IMarkerDrawableChangeable)
   private
     FMarker: IMarkerDrawable;
     FChangeNotifier: INotifier;
@@ -21,7 +22,7 @@ type
   end;
 
 type
-  TMarkerDrawableWithDirectionChangeableFaked = class(TInterfacedObject, IMarkerDrawableWithDirectionChangeable)
+  TMarkerDrawableWithDirectionChangeableFaked = class(TBaseInterfacedObject, IMarkerDrawableWithDirectionChangeable)
   private
     FMarker: IMarkerDrawableWithDirection;
     FChangeNotifier: INotifier;

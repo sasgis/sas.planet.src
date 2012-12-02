@@ -15,10 +15,11 @@ uses
   i_TileDownloaderState,
   i_NotifierTTLCheck,
   i_TileDownloadRequestBuilderFactory,
-  i_TileDownloaderList;
+  i_TileDownloaderList,
+  u_BaseInterfacedObject;
 
 type
-  TTileDownloaderList = class(TInterfacedObject, ITileDownloaderList)
+  TTileDownloaderList = class(TBaseInterfacedObject, ITileDownloaderList)
   private
     FGCList: INotifierTTLCheck;
     FAppClosingNotifier: INotifierOneOperation;

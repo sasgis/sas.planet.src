@@ -29,10 +29,11 @@ uses
   i_MapVersionConfig,
   i_TileStorageTypeConfig,
   i_TileStorage,
-  i_TileStorageType;
+  i_TileStorageType,
+  u_BaseInterfacedObject;
 
 type
-  TTileStorageTypeBase = class(TInterfacedObject, ITileStorageType)
+  TTileStorageTypeBase = class(TBaseInterfacedObject, ITileStorageType)
   private
     FInfo: IStorageTypeAbilities;
     FMapVersionFactory: IMapVersionFactory;

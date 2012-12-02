@@ -8,10 +8,11 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageResamplerConfig,
-  i_TileMatrix;
+  i_TileMatrix,
+  u_BaseInterfacedObject;
 
 type
-  TTileMatrixFactory = class(TInterfacedObject, ITileMatrixFactory)
+  TTileMatrixFactory = class(TBaseInterfacedObject, ITileMatrixFactory)
   private
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FImageResamplerConfig: IImageResamplerConfig;

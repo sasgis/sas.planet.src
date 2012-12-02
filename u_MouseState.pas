@@ -30,13 +30,14 @@ uses
   Controls,
   t_GeoTypes,
   i_MouseState,
-  i_MouseHandler;
+  i_MouseHandler,
+  u_BaseInterfacedObject;
 
 const
   CPrevSpeedCount = 8;
 
 type
-  TMouseState = class(TInterfacedObject, IMouseState, IMouseHandler)
+  TMouseState = class(TBaseInterfacedObject, IMouseState, IMouseHandler)
   private
     FCS: IReadWriteSync;
     FNtQPC: Pointer;
