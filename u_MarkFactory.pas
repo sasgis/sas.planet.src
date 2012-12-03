@@ -43,7 +43,7 @@ type
   TMarkFactory = class(TBaseInterfacedObject, IMarkFactory, IMarkFactorySmlInternal)
   private
     FConfig: IMarksFactoryConfig;
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
     FCategoryDB: IMarkCategoryDBSmlInternal;
     FHintConverter: IHtmlToHintTextConverter;
 
@@ -173,7 +173,7 @@ type
   public
     constructor Create(
       const AConfig: IMarksFactoryConfig;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const AHintConverter: IHtmlToHintTextConverter;
       const ACategoryDB: IMarkCategoryDBSmlInternal
     );
@@ -194,7 +194,7 @@ uses
 
 constructor TMarkFactory.Create(
   const AConfig: IMarksFactoryConfig;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const AHintConverter: IHtmlToHintTextConverter;
   const ACategoryDB: IMarkCategoryDBSmlInternal
 );

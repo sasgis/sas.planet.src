@@ -48,7 +48,7 @@ type
       const ATimerNoifier: INotifier;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMarksShowConfig: IUsedMarksConfig;
@@ -83,7 +83,7 @@ constructor TProviderMapCombineKMZ.Create(
   const ATimerNoifier: INotifier;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMarksShowConfig: IUsedMarksConfig;

@@ -25,7 +25,7 @@ type
     FArchive: IArchiveWriter;
     FTileNameGen: ITileFileNameGenerator;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
   protected
     procedure ProcessRegion; override;
   public
@@ -35,7 +35,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AArchiveWriter: IArchiveWriter;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       const AMapType: TMapType;
@@ -60,7 +60,7 @@ constructor TThreadExportToArchive.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AArchiveWriter: IArchiveWriter;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   const AMapType: TMapType;

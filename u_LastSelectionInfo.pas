@@ -33,7 +33,7 @@ uses
 type
   TLastSelectionInfo = class(TConfigDataElementBase, ILastSelectionInfo)
   private
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     // Полигон последнего выделения при операциях с областью.
     FPolygon: ILonLatPolygon;
     // Масштаб, на котором было последнее выделение
@@ -49,7 +49,7 @@ type
       AZoom: Byte
     );
   public
-    constructor Create(const AVectorItmesFactory: IVectorItmesFactory);
+    constructor Create(const AVectorItmesFactory: IVectorItemsFactory);
   end;
 
 implementation
@@ -59,7 +59,7 @@ uses
 
 { TLastSelectionInfo }
 
-constructor TLastSelectionInfo.Create(const AVectorItmesFactory: IVectorItmesFactory);
+constructor TLastSelectionInfo.Create(const AVectorItmesFactory: IVectorItemsFactory);
 begin
   inherited Create;
   FVectorItmesFactory := AVectorItmesFactory;

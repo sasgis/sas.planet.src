@@ -46,7 +46,7 @@ type
     FTimerNoifier: INotifier;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FMarksDB: IMarksSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
@@ -85,7 +85,7 @@ type
       const ATimerNoifier: INotifier;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarksSystem;
@@ -136,7 +136,7 @@ constructor TProviderMapCombineBase.Create(
   const ATimerNoifier: INotifier;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarksSystem;

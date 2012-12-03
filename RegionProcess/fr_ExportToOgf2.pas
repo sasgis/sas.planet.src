@@ -70,7 +70,7 @@ type
     procedure cbbZoomChange(Sender: TObject);
     procedure cbbTileResChange(Sender: TObject);
   private
-    FVectorFactory: IVectorItmesFactory;
+    FVectorFactory: IVectorItemsFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FMainMapsConfig: IMainMapsConfig;
@@ -93,7 +93,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorFactory: IVectorItmesFactory;
+      const AVectorFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -193,7 +193,7 @@ end;
 constructor TfrExportToOgf2.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorFactory: IVectorItmesFactory;
+  const AVectorFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;

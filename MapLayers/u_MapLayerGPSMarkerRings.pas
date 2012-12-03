@@ -28,7 +28,7 @@ type
   private
     FConfig: IMarkerRingsConfig;
     FGPSRecorder: IGPSRecorder;
-    FVectorItemsFactory: IVectorItmesFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
 
     FGpsPosChangeFlag: ISimpleFlag;
 
@@ -62,7 +62,7 @@ type
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
       const ATimerNoifier: INotifier;
-      const AVectorItemsFactory: IVectorItmesFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AConfig: IMarkerRingsConfig;
       const AGPSRecorder: IGPSRecorder
     );
@@ -90,7 +90,7 @@ constructor TMapLayerGPSMarkerRings.Create(
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
   const ATimerNoifier: INotifier;
-  const AVectorItemsFactory: IVectorItmesFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AConfig: IMarkerRingsConfig;
   const AGPSRecorder: IGPSRecorder
 );

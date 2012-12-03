@@ -17,7 +17,7 @@ type
   private
     FLastSelection: ILastSelectionInfo;
     FFileName: IPathConfig;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
 
     FListener: IListener;
     FNeedReadFlag: ISimpleFlag;
@@ -30,7 +30,7 @@ type
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ALastSelection: ILastSelectionInfo;
       const AFileName: IPathConfig
     );
@@ -57,7 +57,7 @@ uses
 
 constructor TLastSelectionInfoSaver.Create(
   const AAppClosingNotifier: INotifierOneOperation;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ALastSelection: ILastSelectionInfo;
   const AFileName: IPathConfig
 );

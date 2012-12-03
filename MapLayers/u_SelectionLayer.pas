@@ -35,7 +35,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const AConfig: ILastSelectionLayerConfig;
       const ALastSelectionInfo: ILastSelectionInfo
     );
@@ -55,7 +55,7 @@ constructor TSelectionLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const AConfig: ILastSelectionLayerConfig;
   const ALastSelectionInfo: ILastSelectionInfo
 );

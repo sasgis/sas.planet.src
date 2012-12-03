@@ -22,7 +22,7 @@ type
   TExportProviderTar = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FAppClosingNotifier: INotifierOneOperation;
@@ -38,7 +38,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
@@ -71,7 +71,7 @@ constructor TExportProviderTar.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );

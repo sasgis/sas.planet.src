@@ -108,7 +108,7 @@ type
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
-    FVectorFactory: IVectorItmesFactory;
+    FVectorFactory: IVectorItemsFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
     FMainMapsConfig: IMainMapsConfig;
@@ -146,7 +146,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorFactory: IVectorItmesFactory;
+      const AVectorFactory: IVectorItemsFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -183,7 +183,7 @@ constructor TfrMapCombine.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorFactory: IVectorItmesFactory;
+  const AVectorFactory: IVectorItemsFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;

@@ -30,7 +30,7 @@ type
   TMapMarksLayerNew = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
     FConfig: IMarksLayerConfig;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FMarkDB: IMarksSystem;
     FMarkIconDefault: IMarkerDrawableChangeable;
 
@@ -71,7 +71,7 @@ type
       const AViewPortState: IViewPortState;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const AMarkIconDefault: IMarkerDrawableChangeable;
       const ATimerNoifier: INotifier;
       const AConfig: IMarksLayerConfig;
@@ -106,7 +106,7 @@ constructor TMapMarksLayerNew.Create(
   const AViewPortState: IViewPortState;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const AMarkIconDefault: IMarkerDrawableChangeable;
   const ATimerNoifier: INotifier;
   const AConfig: IMarksLayerConfig;

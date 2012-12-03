@@ -27,7 +27,7 @@ uses
 type
   TLineLayerBase = class(TMapLayerBasicNoBitmap)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
     FConfig: ILineLayerConfig;
 
     FLineVisible: Boolean;
@@ -37,7 +37,7 @@ type
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
   protected
-    property Factory: IVectorItmesFactory read FFactory;
+    property Factory: IVectorItemsFactory read FFactory;
     property PreparedPointsAggreagtor: IDoublePointsAggregator read FPreparedPointsAggreagtor;
     procedure OnConfigChange;
     procedure DoConfigChange; virtual;
@@ -49,7 +49,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const AConfig: ILineLayerConfig
     );
   end;
@@ -122,7 +122,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const AConfig: IPolygonLayerConfig
     );
   end;
@@ -141,7 +141,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ILineLayerConfig
     );
@@ -161,7 +161,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPolygonOnMapEdit;
       const AConfig: IPolygonLayerConfig
     );
@@ -198,7 +198,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const AFirstPointMarker: IMarkerDrawableChangeable;
       const AActivePointMarker: IMarkerDrawableChangeable;
       const ANormalPointMarker: IMarkerDrawableChangeable
@@ -223,7 +223,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AFirstPointMarker: IMarkerDrawableChangeable;
       const AActivePointMarker: IMarkerDrawableChangeable;
@@ -249,7 +249,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPolygonOnMapEdit;
       const AFirstPointMarker: IMarkerDrawableChangeable;
       const AActivePointMarker: IMarkerDrawableChangeable;
@@ -277,7 +277,7 @@ constructor TLineLayerBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const AConfig: ILineLayerConfig
 );
 begin
@@ -491,7 +491,7 @@ constructor TPolygonLayerBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const AConfig: IPolygonLayerConfig
 );
 begin
@@ -680,7 +680,7 @@ constructor TPathEditLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ILineLayerConfig
 );
@@ -734,7 +734,7 @@ constructor TPolygonEditLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPolygonOnMapEdit;
   const AConfig: IPolygonLayerConfig
 );
@@ -793,7 +793,7 @@ constructor TPointsSetLayerBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const AFirstPointMarker: IMarkerDrawableChangeable;
   const AActivePointMarker: IMarkerDrawableChangeable;
   const ANormalPointMarker: IMarkerDrawableChangeable
@@ -923,7 +923,7 @@ constructor TPathEditPointsSetLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AFirstPointMarker: IMarkerDrawableChangeable;
   const AActivePointMarker: IMarkerDrawableChangeable;
@@ -1033,7 +1033,7 @@ constructor TPolygonEditPointsSetLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPolygonOnMapEdit;
   const AFirstPointMarker: IMarkerDrawableChangeable;
   const AActivePointMarker: IMarkerDrawableChangeable;

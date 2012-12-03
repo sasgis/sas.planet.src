@@ -37,7 +37,7 @@ uses
 type
   TPLTSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
     procedure ParseStringList(
       AStringList: TStringList;
@@ -61,7 +61,7 @@ type
     ): IVectorDataItemList;
   public
     constructor Create(
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -76,7 +76,7 @@ uses
   u_GeoToStr;
 
 constructor TPLTSimpleParser.Create(
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin

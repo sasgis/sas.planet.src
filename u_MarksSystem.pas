@@ -82,7 +82,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ABasePath: IPathConfig;
       const AMarkPictureList: IMarkPictureList;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AHintConverter: IHtmlToHintTextConverter;
       const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
@@ -194,7 +194,7 @@ constructor TMarksSystem.Create(
   const ALanguageManager: ILanguageManager;
   const ABasePath: IPathConfig;
   const AMarkPictureList: IMarkPictureList;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AHintConverter: IHtmlToHintTextConverter;
   const ACategoryFactoryConfig: IMarkCategoryFactoryConfig

@@ -20,7 +20,7 @@ type
   private
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
   protected
@@ -34,7 +34,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
@@ -66,7 +66,7 @@ constructor TExportProviderCE.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin

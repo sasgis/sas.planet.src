@@ -135,7 +135,7 @@ type
       const ABasePath: IPathConfig;
       const ACategoryDB: IMarkCategoryDBSmlInternal;
       const APerfCounterList: IInternalPerformanceCounterList;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const AHintConverter: IHtmlToHintTextConverter;
       const AFactoryConfig: IMarksFactoryConfig
     );
@@ -313,7 +313,7 @@ constructor TMarksDb.Create(
   const ABasePath: IPathConfig;
   const ACategoryDB: IMarkCategoryDBSmlInternal;
   const APerfCounterList: IInternalPerformanceCounterList;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const AHintConverter: IHtmlToHintTextConverter;
   const AFactoryConfig: IMarksFactoryConfig
 );

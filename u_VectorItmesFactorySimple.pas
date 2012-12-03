@@ -16,7 +16,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorItmesFactorySimple = class(TBaseInterfacedObject, IVectorItmesFactory)
+  TVectorItmesFactorySimple = class(TBaseInterfacedObject, IVectorItemsFactory)
   private
     FEmptyLonLatPath: ILonLatPath;
     FEmptyLonLatPolygon: ILonLatPolygon;

@@ -33,7 +33,7 @@ uses
 type
   TImportMpSimple = class(TBaseInterfacedObject, IImportFile)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
     procedure ParseCoordinates(
       const AData: string;
       const APointsAggregator: IDoublePointsAggregator
@@ -45,7 +45,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const AFactory: IVectorItmesFactory
+      const AFactory: IVectorItemsFactory
     );
   end;
 
@@ -65,7 +65,7 @@ const
 
 { TImportMpSimple }
 
-constructor TImportMpSimple.Create(const AFactory: IVectorItmesFactory);
+constructor TImportMpSimple.Create(const AFactory: IVectorItemsFactory);
 begin
   inherited Create;
   FFactory := AFactory;

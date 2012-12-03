@@ -34,7 +34,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ISelectionPolylineShadowLayerConfig
     );
@@ -55,7 +55,7 @@ constructor TSelectionPolylineShadowLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ISelectionPolylineShadowLayerConfig
 );

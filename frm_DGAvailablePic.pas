@@ -682,7 +682,7 @@ var
   VXCommaY, VCommaAsDelimiter: Boolean;
   VName, VDesc, VGeometry, VDate: String;
   VImportConfig: IImportConfig;
-  VVectorItmesFactory: IVectorItmesFactory;
+  VVectorItmesFactory: IVectorItemsFactory;
   VPointsAggregator: IDoublePointsAggregator;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;

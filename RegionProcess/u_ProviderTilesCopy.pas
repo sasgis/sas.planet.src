@@ -21,7 +21,7 @@ type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
@@ -36,7 +36,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
@@ -70,7 +70,7 @@ constructor TProviderTilesCopy.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin

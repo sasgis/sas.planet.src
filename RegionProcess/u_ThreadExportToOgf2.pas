@@ -31,7 +31,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     function GetMapPreview(
       const ABitmapSaver: IBitmapTileSaver;
       out AMapPreviewWidth: Integer;
@@ -56,7 +56,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
       const AImageProvider: IBitmapLayerProvider;
@@ -95,7 +95,7 @@ constructor TThreadExportToOgf2.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
   const AImageProvider: IBitmapLayerProvider;

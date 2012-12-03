@@ -44,7 +44,7 @@ type
       const ATimerNoifier: INotifier;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarksSystem;
@@ -75,7 +75,7 @@ constructor TProviderMapCombineJPG.Create(
   const ATimerNoifier: INotifier;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;

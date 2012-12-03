@@ -26,7 +26,7 @@ type
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FProductName: string; // копирайт
     FMapName: string;  // имя карты
@@ -49,7 +49,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
@@ -85,7 +85,7 @@ constructor TThreadExportToJnx.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;

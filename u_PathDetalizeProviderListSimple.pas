@@ -41,7 +41,7 @@ type
       const AGCList: INotifierTTLCheck;
       const AResultFactory: IDownloadResultFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const AKmlLoader: IVectorDataLoader
     );
   end;
@@ -70,7 +70,7 @@ constructor TPathDetalizeProviderListSimple.Create(
   const AGCList: INotifierTTLCheck;
   const AResultFactory: IDownloadResultFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const AKmlLoader: IVectorDataLoader
 );
 var

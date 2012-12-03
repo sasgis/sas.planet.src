@@ -19,7 +19,7 @@ type
   TExportProviderAUX = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
   protected
@@ -33,7 +33,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory
+      const AVectorItmesFactory: IVectorItemsFactory
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
@@ -65,7 +65,7 @@ constructor TExportProviderAUX.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory
+  const AVectorItmesFactory: IVectorItemsFactory
 );
 begin
   inherited Create(

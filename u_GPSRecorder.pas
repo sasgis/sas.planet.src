@@ -61,7 +61,7 @@ type
   TGPSRecorder = class(TConfigDataElementBase, IGPSRecorder)
   private
     FGPSPositionFactory: IGPSPositionFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FDatum: IDatum;
 
     FTrack: ITrackPointsBlocksListStatic;
@@ -134,7 +134,7 @@ type
     function GetGPSUnitInfo: String;
   public
     constructor Create(
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ADatum: IDatum;
       const AGPSPositionFactory: IGPSPositionFactory
     );
@@ -497,7 +497,7 @@ end;
 { TGPSRecorderStuped }
 
 constructor TGPSRecorder.Create(
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ADatum: IDatum;
   const AGPSPositionFactory: IGPSPositionFactory
 );

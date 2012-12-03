@@ -75,7 +75,7 @@ type
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
   private
-    FVectorFactory: IVectorItmesFactory;
+    FVectorFactory: IVectorItemsFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FPolygLL: ILonLatPolygon;
     FMainMapsConfig: IMainMapsConfig;
@@ -100,7 +100,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorFactory: IVectorItmesFactory;
+      const AVectorFactory: IVectorItemsFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
@@ -184,7 +184,7 @@ end;
 constructor TfrTilesDownload.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorFactory: IVectorItmesFactory;
+  const AVectorFactory: IVectorItemsFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList

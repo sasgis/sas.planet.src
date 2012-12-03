@@ -25,7 +25,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
@@ -40,7 +40,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ACoordConverterFactory: ICoordConverterFactory
@@ -74,7 +74,7 @@ constructor TExportProviderYaMobileV3.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ACoordConverterFactory: ICoordConverterFactory

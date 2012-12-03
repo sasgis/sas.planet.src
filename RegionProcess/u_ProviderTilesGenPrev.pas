@@ -23,7 +23,7 @@ type
   TProviderTilesGenPrev = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FViewConfig: IGlobalViewMainConfig;
     FAppClosingNotifier: INotifierOneOperation;
@@ -40,7 +40,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const AImageResamplerConfig: IImageResamplerConfig
     );
     function GetCaption: string; override;
@@ -74,7 +74,7 @@ constructor TProviderTilesGenPrev.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const AImageResamplerConfig: IImageResamplerConfig
 );
 begin

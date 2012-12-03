@@ -172,7 +172,7 @@ type
     FAppStartedNotifierInternal: INotifierOneOperationInternal;
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
     FTerrainConfig: ITerrainConfig;
@@ -241,7 +241,7 @@ type
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
-    property VectorItmesFactory: IVectorItmesFactory read FVectorItmesFactory;
+    property VectorItmesFactory: IVectorItemsFactory read FVectorItmesFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;

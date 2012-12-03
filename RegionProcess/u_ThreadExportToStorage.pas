@@ -24,7 +24,7 @@ type
   private
     FMapTypeArr: IMapTypeListStatic;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FConfigPath, FExportPath: string;
     
     FIsMove: boolean;
@@ -45,7 +45,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AConfigPath, AExportPath: string;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
@@ -77,7 +77,7 @@ constructor TThreadExportToStorage.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AConfigPath, AExportPath: string;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;

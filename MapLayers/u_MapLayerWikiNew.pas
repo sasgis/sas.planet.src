@@ -29,7 +29,7 @@ type
   TWikiLayerNew = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
     FConfig: IKmlLayerConfig;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
 
@@ -90,7 +90,7 @@ type
       const AViewPortState: IViewPortState;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ATimerNoifier: INotifier;
       const AErrorLogger: ITileErrorLogger;
       const AConfig: IKmlLayerConfig;
@@ -131,7 +131,7 @@ constructor TWikiLayerNew.Create(
   const AViewPortState: IViewPortState;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ATimerNoifier: INotifier;
   const AErrorLogger: ITileErrorLogger;
   const AConfig: IKmlLayerConfig;

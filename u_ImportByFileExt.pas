@@ -52,7 +52,7 @@ type
   public
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const AXmlLoader: IVectorDataLoader;
       const APltLoader: IVectorDataLoader;
       const AKmlLoader: IVectorDataLoader;
@@ -75,7 +75,7 @@ uses
 
 constructor TImportByFileExt.Create(
   const AVectorDataFactory: IVectorDataFactory;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const AXmlLoader: IVectorDataLoader;
   const APltLoader: IVectorDataLoader;
   const AKmlLoader: IVectorDataLoader;

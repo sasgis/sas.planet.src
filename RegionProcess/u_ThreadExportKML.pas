@@ -22,7 +22,7 @@ type
   private
     FMapType: TMapType;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FNotSaveNotExists: boolean;
     FPathExport: string;
     FRelativePath: boolean;
@@ -42,7 +42,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       AMapType: TMapType;
@@ -67,7 +67,7 @@ constructor TThreadExportKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   AMapType: TMapType;

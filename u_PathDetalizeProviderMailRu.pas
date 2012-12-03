@@ -35,7 +35,7 @@ uses
 type
   TPathDetalizeProviderMailRu = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
     FBaseUrl: string;
     FDownloader: IDownloader;
     FInetConfig: IInetConfig;
@@ -52,7 +52,7 @@ type
     constructor Create(
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const ABaseUrl: string
     );
   end;
@@ -78,7 +78,7 @@ uses
 constructor TPathDetalizeProviderMailRu.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const ABaseUrl: string
 );
 begin

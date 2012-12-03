@@ -31,7 +31,7 @@ uses
 type
   TImportHLG = class(TBaseInterfacedObject, IImportFile)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
   private
     function ProcessImport(
       const AFileName: string;
@@ -39,7 +39,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const AFactory: IVectorItmesFactory
+      const AFactory: IVectorItemsFactory
     );
   end;
 
@@ -56,7 +56,7 @@ uses
 
 { TImportHLG }
 
-constructor TImportHLG.Create(const AFactory: IVectorItmesFactory);
+constructor TImportHLG.Create(const AFactory: IVectorItemsFactory);
 begin
   inherited Create;
   FFactory := AFactory;

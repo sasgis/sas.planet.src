@@ -33,7 +33,7 @@ uses
 type
   TLineOnMapEdit = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEdit)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
     FPoints: array of TDoublePoint;
     FPointsCount: Integer;
     FSelectedPointIndex: Integer;
@@ -56,7 +56,7 @@ type
     procedure InsertPoint(const APoint: TDoublePoint);
     procedure MoveActivePoint(const APoint: TDoublePoint);
   public
-    constructor Create(const AFactory: IVectorItmesFactory);
+    constructor Create(const AFactory: IVectorItemsFactory);
     procedure AfterConstruction; override;
   end;
 
@@ -151,7 +151,7 @@ type
 
 { TLineOnMapEdit }
 
-constructor TLineOnMapEdit.Create(const AFactory: IVectorItmesFactory);
+constructor TLineOnMapEdit.Create(const AFactory: IVectorItemsFactory);
 begin
   inherited Create;
   FFactory := AFactory;

@@ -34,7 +34,7 @@ uses
 type
   TImportCSV = class(TBaseInterfacedObject, IImportFile)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
   private
     function ProcessImport(
       const AFileName: string;
@@ -42,7 +42,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const AFactory: IVectorItmesFactory
+      const AFactory: IVectorItemsFactory
     );
   end;
 
@@ -59,7 +59,7 @@ uses
 
 { TImportCSV }
 
-constructor TImportCSV.Create(const AFactory: IVectorItmesFactory);
+constructor TImportCSV.Create(const AFactory: IVectorItemsFactory);
 begin
   inherited Create;
   FFactory := AFactory;

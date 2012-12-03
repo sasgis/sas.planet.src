@@ -40,7 +40,7 @@ type
   TKmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
 
     FFormat: TFormatSettings;
     FBMSrchPlacemark: TSearchBM;
@@ -98,7 +98,7 @@ type
     ): IVectorDataItemList;
   public
     constructor Create(
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -153,7 +153,7 @@ begin
 end;
 
 constructor TKmlInfoSimpleParser.Create(
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin

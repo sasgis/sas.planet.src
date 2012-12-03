@@ -46,7 +46,7 @@ uses
 type
   TXmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FFormat: TFormatSettings;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -74,7 +74,7 @@ type
     ): IVectorDataItemList;
   public
     constructor Create(
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -164,7 +164,7 @@ procedure ParseXML_Aux_AddTrackSegmentToList(
   AParseXML_Aux: PParseXML_Aux;
   const AForceObjectType: TForceObjectType;
   const AWideStrName, AWideStrDesc: WideString;
-  const AItemsFactory: IVectorItmesFactory
+  const AItemsFactory: IVectorItemsFactory
 );
 var
   trk_obj: IVectorDataItemSimple;
@@ -224,7 +224,7 @@ end;
 { TXmlInfoSimpleParser }
 
 constructor TXmlInfoSimpleParser.Create(
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );

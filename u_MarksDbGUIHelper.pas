@@ -52,7 +52,7 @@ type
   TMarksDbGUIHelper = class
   private
     FMarksDb: IMarksSystem;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
@@ -130,7 +130,7 @@ type
       const AMediaPath: IPathConfig;
       const AMarksDB: IMarksSystem;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       AFormRegionProcess: TfrmRegionProcess
@@ -158,7 +158,7 @@ constructor TMarksDbGUIHelper.Create(
   const AMediaPath: IPathConfig;
   const AMarksDB: IMarksSystem;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   AFormRegionProcess: TfrmRegionProcess

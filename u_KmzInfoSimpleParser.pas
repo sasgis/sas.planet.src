@@ -52,7 +52,7 @@ type
     ): IVectorDataItemList;
   public
     constructor Create(
-      const AFactory: IVectorItmesFactory;
+      const AFactory: IVectorItemsFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -69,7 +69,7 @@ uses
 { TKmzInfoSimpleParser }
 
 constructor TKmzInfoSimpleParser.Create(
-  const AFactory: IVectorItmesFactory;
+  const AFactory: IVectorItemsFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );

@@ -44,14 +44,14 @@ type
     function FindConverterWithSynonyms(const ASourceType, ATargetType: AnsiString): IContentConverter;
     procedure UpdateConverterMatrix;
     procedure InitLists(
-      const AVectorItemsFactory: IVectorItmesFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALoadPerfCounterList: IInternalPerformanceCounterList;
       const ASavePerfCounterList: IInternalPerformanceCounterList
     );
   public
     constructor Create(
-      const AVectorItemsFactory: IVectorItmesFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -74,7 +74,7 @@ uses
 { TContentTypeManagerSimple }
 
 constructor TContentTypeManagerSimple.Create(
-  const AVectorItemsFactory: IVectorItmesFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -91,7 +91,7 @@ begin
 end;
 
 procedure TContentTypeManagerSimple.InitLists(
-  const AVectorItemsFactory: IVectorItmesFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALoadPerfCounterList: IInternalPerformanceCounterList;
   const ASavePerfCounterList: IInternalPerformanceCounterList

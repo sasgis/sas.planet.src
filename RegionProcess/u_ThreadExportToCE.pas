@@ -22,7 +22,7 @@ type
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItmesFactory;
+    FVectorItmesFactory: IVectorItemsFactory;
     FMaxSize: Integer;
     FComment: string;
     FRecoverInfo: Boolean;
@@ -35,7 +35,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItmesFactory;
+      const AVectorItmesFactory: IVectorItemsFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
@@ -66,7 +66,7 @@ constructor TThreadExportToCE.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItmesFactory;
+  const AVectorItmesFactory: IVectorItemsFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
