@@ -682,7 +682,7 @@ var
   VXCommaY, VCommaAsDelimiter: Boolean;
   VName, VDesc, VGeometry, VDate: String;
   VImportConfig: IImportConfig;
-  VVectorItmesFactory: IVectorItemsFactory;
+  VVectorItemsFactory: IVectorItemsFactory;
   VPointsAggregator: IDoublePointsAggregator;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
@@ -813,12 +813,12 @@ begin
       if (nil=VImportConfig) then begin
         // single time only!
         VImportConfig := FMarkDBGUI.EditModalImportConfig;
-        VVectorItmesFactory := TVectorItmesFactorySimple.Create;
+        VVectorItemsFactory := TVectorItemsFactorySimple.Create;
         VPointsAggregator := TDoublePointsAggregator.Create;
         // check for crazy errors
         if (nil=VPointsAggregator) then
           Exit;
-        if (nil=VVectorItmesFactory) then
+        if (nil=VVectorItemsFactory) then
           Exit;
         if (nil=VImportConfig) then
           Exit;
@@ -845,7 +845,7 @@ begin
 
       if (VPointsAggregator.Count>0) then begin
         // create lonlats
-        VPolygon := VVectorItmesFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+        VPolygon := VVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
           VMark := VImportConfig.MarkDB.Factory.CreateNewPoly(

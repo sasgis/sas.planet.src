@@ -417,7 +417,7 @@ begin
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
-  FVectorItemsFactory := TVectorItmesFactorySimple.Create;
+  FVectorItemsFactory := TVectorItemsFactorySimple.Create;
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 200);
