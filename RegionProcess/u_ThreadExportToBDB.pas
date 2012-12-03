@@ -32,7 +32,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_TileFileNameGenerator,
   i_MapTypes,
   u_MapType,

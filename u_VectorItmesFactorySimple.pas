@@ -12,7 +12,7 @@ uses
   i_VectorItemLonLat,
   i_VectorItemProjected,
   i_VectorItemLocal,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   u_BaseInterfacedObject;
 
 type

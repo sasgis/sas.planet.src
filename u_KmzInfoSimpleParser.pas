@@ -27,7 +27,7 @@ uses
   i_BinaryData,
   i_VectorDataFactory,
   i_VectorDataItemSimple,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_ArchiveReadWriteFactory,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,

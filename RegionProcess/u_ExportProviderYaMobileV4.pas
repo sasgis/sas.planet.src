@@ -11,7 +11,7 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_CoordConverterFactory,
   i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,

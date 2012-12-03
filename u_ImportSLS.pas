@@ -3,7 +3,7 @@ unit u_ImportSLS;
 interface
 
 uses
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_ImportFile,
   i_ImportConfig,
   u_BaseInterfacedObject;

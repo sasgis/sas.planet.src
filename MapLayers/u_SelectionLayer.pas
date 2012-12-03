@@ -11,7 +11,7 @@ uses
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   u_PolyLineLayerBase;
 
 type

@@ -85,7 +85,7 @@ uses
   i_SensorList,
   i_TerrainProviderList,
   i_TerrainConfig,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_InvisibleBrowser,
   i_InternalBrowser,
   i_DebugInfoWindow,

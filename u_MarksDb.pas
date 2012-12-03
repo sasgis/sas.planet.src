@@ -32,7 +32,7 @@ uses
   i_SimpleFlag,
   i_InternalPerformanceCounter,
   i_PathConfig,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_MarksFactoryConfig,
   i_HtmlToHintTextConverter,
   i_MarkCategoryDBSmlInternal,

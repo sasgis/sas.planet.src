@@ -18,7 +18,7 @@ uses
   i_NotifierOperation,
   i_BitmapLayerProviderWithListener,
   i_VectorItemProjected,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;

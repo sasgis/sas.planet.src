@@ -27,7 +27,7 @@ uses
   i_ConfigDataWriteProvider,
   i_LastSelectionInfo,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   u_ConfigDataElementBase;
 
 type

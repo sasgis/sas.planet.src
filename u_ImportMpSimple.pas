@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_DoublePointsAggregator,
   i_ImportFile,
   i_ImportConfig,

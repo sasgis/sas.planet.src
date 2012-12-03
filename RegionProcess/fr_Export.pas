@@ -14,7 +14,7 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,

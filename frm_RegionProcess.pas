@@ -43,7 +43,7 @@ uses
   i_CoordConverterList,
   i_GlobalViewMainConfig,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_ImageResamplerConfig,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,

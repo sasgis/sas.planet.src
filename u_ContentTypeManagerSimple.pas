@@ -23,7 +23,7 @@ unit u_ContentTypeManagerSimple;
 interface
 
 uses
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_ContentTypeInfo,
   i_ContentConverter,
   i_InternalPerformanceCounter,

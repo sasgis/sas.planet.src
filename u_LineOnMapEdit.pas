@@ -25,7 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_EnumDoublePoint,
   u_ConfigDataElementBase,
   i_LineOnMapEdit;

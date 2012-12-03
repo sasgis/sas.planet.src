@@ -23,7 +23,7 @@ unit u_ImportHLG;
 interface
 
 uses
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_ImportFile,
   i_ImportConfig,
   u_BaseInterfacedObject;

@@ -143,7 +143,7 @@ uses
   i_TileObjCache in 'i_TileObjCache.pas',
   u_MemTileCache in 'u_MemTileCache.pas',
   i_VectorItemLonLat in 'i_VectorItemLonLat.pas',
-  i_VectorItmesFactory in 'i_VectorItmesFactory.pas',
+  i_VectorItemsFactory in 'i_VectorItemsFactory.pas',
   i_VectorDataFactory in 'i_VectorDataFactory.pas',
   u_VectorDataFactorySimple in 'u_VectorDataFactorySimple.pas',
   u_VectorDataFactoryForMap in 'u_VectorDataFactoryForMap.pas',

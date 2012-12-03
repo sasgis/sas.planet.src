@@ -29,7 +29,7 @@ uses
   i_LanguageManager,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_InternalPerformanceCounter,
   i_ReadWriteState,
   i_MarksSimple,

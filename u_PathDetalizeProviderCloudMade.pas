@@ -31,7 +31,7 @@ uses
   i_InetConfig,
   i_Downloader,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_PathDetalizeProvider,
   u_BaseInterfacedObject;
 

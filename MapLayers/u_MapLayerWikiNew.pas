@@ -18,7 +18,7 @@ uses
   i_KmlLayerConfig,
   i_TileError,
   i_VectorDataItemSimple,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_ImageResamplerConfig,
   i_IdCacheSimple,
   i_FindVectorItems,

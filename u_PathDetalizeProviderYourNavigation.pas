@@ -29,7 +29,7 @@ uses
   i_Downloader,
   i_VectorDataLoader,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorDataFactory,
   i_PathDetalizeProvider,
   u_BaseInterfacedObject;

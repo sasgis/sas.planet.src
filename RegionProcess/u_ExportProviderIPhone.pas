@@ -12,7 +12,7 @@ uses
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,

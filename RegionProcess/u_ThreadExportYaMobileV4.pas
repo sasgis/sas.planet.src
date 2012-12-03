@@ -17,7 +17,7 @@ uses
   i_BitmapLayerProvider,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_BitmapTileSaveLoadFactory,
   u_MapType,
   u_ResStrings,

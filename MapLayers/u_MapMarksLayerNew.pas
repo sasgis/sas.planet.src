@@ -17,7 +17,7 @@ uses
   i_MarksDrawConfig,
   i_MarksLayerConfig,
   i_VectorDataItemSimple,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_ImageResamplerConfig,
   i_IdCacheSimple,
   i_FindVectorItems,

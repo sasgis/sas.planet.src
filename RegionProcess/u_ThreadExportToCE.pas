@@ -10,7 +10,7 @@ uses
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;

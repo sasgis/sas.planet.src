@@ -7,7 +7,7 @@ uses
   i_Notifier,
   i_NotifierOperation,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,

@@ -11,7 +11,7 @@ interface
 uses
   TestFramework,
   t_GeoTypes,
-  i_VectorItmesFactory;
+  i_VectorItemsFactory;
 
 type
   TestTVectorItmesFactorySimple = class(TTestCase)

@@ -24,7 +24,7 @@ uses
   i_MarksDrawConfig,
   i_MarksSystem,
   i_MapCalibration,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
   u_ProviderMapCombine;

@@ -29,7 +29,7 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_VectorDataFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorDataItemSimple,
   i_ArchiveReadWriteFactory,
   i_ArchiveReadWrite,

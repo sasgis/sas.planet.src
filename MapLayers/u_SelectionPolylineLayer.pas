@@ -9,7 +9,7 @@ uses
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
   u_PolyLineLayerBase,

@@ -464,7 +464,7 @@
     <DCCReference Include="i_VectorItemLocal.pas" />
     <DCCReference Include="i_VectorItemLonLat.pas" />
     <DCCReference Include="i_VectorItemProjected.pas" />
-    <DCCReference Include="i_VectorItmesFactory.pas" />
+    <DCCReference Include="i_VectorItemsFactory.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_WindowPositionConfig.pas" />
     <DCCReference Include="i_ZmpConfig.pas" />

@@ -18,7 +18,7 @@ uses
   i_MarkerRingsConfig,
   i_VectorItemLonLat,
   i_VectorItemProjected,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_GPSRecorder,
   i_ViewPortState,
   u_MapLayerBasic;

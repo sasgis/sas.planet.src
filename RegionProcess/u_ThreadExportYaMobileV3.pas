@@ -18,7 +18,7 @@ uses
   i_CoordConverterFactory,
   i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorItemLonLat,
   u_ThreadExportAbstract;
 

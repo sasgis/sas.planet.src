@@ -13,7 +13,7 @@ uses
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_BitmapTileSaveLoadFactory,
   i_StringListStatic,
   u_MapType,

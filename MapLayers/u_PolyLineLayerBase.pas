@@ -16,7 +16,7 @@ uses
   i_ProjectionInfo,
   i_MarkerDrawable,
   i_DoublePointsAggregator,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorItemLonLat,
   i_VectorItemProjected,
   i_VectorItemLocal,

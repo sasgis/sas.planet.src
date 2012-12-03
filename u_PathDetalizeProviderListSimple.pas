@@ -28,7 +28,7 @@ uses
   i_NotifierTTLCheck,
   i_DownloadResultFactory,
   i_VectorDataFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorDataLoader,
   u_PathDetalizeProviderListBase;
 

@@ -8,7 +8,7 @@ uses
   i_NotifierOperation,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_StringListStatic,
   i_LanguageManager,
   i_MapTypes,

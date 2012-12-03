@@ -15,7 +15,7 @@ uses
   i_CoordConverter,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   u_ResStrings,
   u_ThreadRegionProcessAbstract;
 

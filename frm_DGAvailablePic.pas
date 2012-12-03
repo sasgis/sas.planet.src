@@ -194,7 +194,7 @@ uses
   u_Synchronizer,
   i_ImportConfig,
   i_MarksSimple,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorItemLonLat,
   i_DoublePointsAggregator,
   u_Notifier,

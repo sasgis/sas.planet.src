@@ -10,7 +10,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorItemLonLat,
   u_MapType,
   u_ResStrings,

@@ -9,7 +9,7 @@ uses
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_BitmapTileSaveLoadFactory,
   i_LanguageManager,
   i_MapTypes,

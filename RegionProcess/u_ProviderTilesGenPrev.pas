@@ -14,7 +14,7 @@ uses
   i_MapTypeGUIConfigList,
   i_ImageResamplerConfig,
   i_CoordConverterFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
   fr_TilesGenPrev;

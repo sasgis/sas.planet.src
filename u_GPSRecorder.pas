@@ -28,7 +28,7 @@ uses
   i_ConfigDataWriteProvider,
   i_Datum,
   i_VectorItemLonLat,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_GPS,
   i_GPSPositionFactory,
   i_GPSRecorder,

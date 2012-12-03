@@ -27,7 +27,7 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_VectorDataFactory,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorDataLoader,
   i_DoublePointsAggregator,
   i_InternalPerformanceCounter,

@@ -1,4 +1,4 @@
-unit i_VectorItmesFactory;
+unit i_VectorItemsFactory;
 
 interface
 

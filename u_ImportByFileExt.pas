@@ -24,7 +24,7 @@ interface
 
 uses
   i_ImportFile,
-  i_VectorItmesFactory,
+  i_VectorItemsFactory,
   i_VectorDataFactory,
   i_VectorDataLoader,
   i_ImportConfig,
