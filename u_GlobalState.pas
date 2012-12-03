@@ -334,7 +334,7 @@ uses
   u_DebugInfoWindow,
   u_InternalPerformanceCounterList,
   u_IeEmbeddedProtocolFactory,
-  u_VectorItmesFactorySimple,
+  u_VectorItemsFactorySimple,
   u_VectorDataFactorySimple,
   u_DownloadResultFactory,
   u_PathDetalizeProviderListSimple,

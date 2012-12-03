@@ -201,7 +201,7 @@ uses
   u_NotifierOperation,
   u_InetFunc,
   u_DoublePointsAggregator,
-  u_VectorItmesFactorySimple,
+  u_VectorItemsFactorySimple,
   u_GeoFun,
   u_GeoToStr,
   i_CoordConverter;

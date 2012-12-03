@@ -46,7 +46,7 @@ uses
   i_VectorItemProjected,
   i_EnumDoublePoint,
   u_GeoFun,
-  u_VectorItmesFactorySimple;
+  u_VectorItemsFactorySimple;
 
 { TestTVectorItmesFactorySimple }
 

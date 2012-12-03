@@ -1,4 +1,4 @@
-unit u_VectorItmesFactorySimple;
+unit u_VectorItemsFactorySimple;
 
 interface
 

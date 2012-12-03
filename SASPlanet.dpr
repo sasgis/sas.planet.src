@@ -246,7 +246,7 @@ uses
   u_VectorItemEmpty in 'u_VectorItemEmpty.pas',
   u_VectorItemLonLat in 'u_VectorItemLonLat.pas',
   u_VectorItemProjected in 'u_VectorItemProjected.pas',
-  u_VectorItmesFactorySimple in 'u_VectorItmesFactorySimple.pas',
+  u_VectorItemsFactorySimple in 'u_VectorItemsFactorySimple.pas',
   i_VectorDataItemSimple in 'i_VectorDataItemSimple.pas',
   u_VectorDataItemBase in 'u_VectorDataItemBase.pas',
   u_VectorDataItemPoint in 'u_VectorDataItemPoint.pas',
