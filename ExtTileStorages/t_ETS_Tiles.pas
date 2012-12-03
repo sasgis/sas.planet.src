@@ -80,6 +80,8 @@ const
   ETS_RESULT_INVALID_STRUCTURE = 45;
   // if code of service is invalid
   ETS_RESULT_INVALID_SERVICE_CODE = 46;
+  // if version is mandatory
+  ETS_RESULT_EMPTY_VERSION_DENIED = 47;
 
   // length of Nst string parameter too big
   ETS_RESULT_STRING1_LEN = 51;
