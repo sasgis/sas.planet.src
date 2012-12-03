@@ -241,7 +241,7 @@ type
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
-    property VectorItmesFactory: IVectorItemsFactory read FVectorItemsFactory;
+    property VectorItemsFactory: IVectorItemsFactory read FVectorItemsFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;

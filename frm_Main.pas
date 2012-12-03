@@ -858,7 +858,7 @@ begin
       GState.BitmapPostProcessingConfig,
       GState.ProjectionFactory,
       GState.CoordConverterList,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       GState.BitmapTileSaveLoadFactory,
       GState.ArchiveReadWriteFactory,
       GState.MapCalibrationList,
@@ -949,11 +949,11 @@ begin
   FLineOnMapByOperation[ao_movemap] := nil;
   FLineOnMapByOperation[ao_edit_point] := nil;
   FLineOnMapByOperation[ao_select_rect] := nil;
-  FLineOnMapByOperation[ao_edit_line] := TPathOnMapEdit.Create(GState.VectorItmesFactory);
-  FLineOnMapByOperation[ao_edit_poly] := TPolygonOnMapEdit.Create(GState.VectorItmesFactory);
-  FLineOnMapByOperation[ao_calc_line] := TPathOnMapEdit.Create(GState.VectorItmesFactory);
-  FLineOnMapByOperation[ao_select_poly] := TPolygonOnMapEdit.Create(GState.VectorItmesFactory);
-  FLineOnMapByOperation[ao_select_line] := TPathOnMapEdit.Create(GState.VectorItmesFactory);
+  FLineOnMapByOperation[ao_edit_line] := TPathOnMapEdit.Create(GState.VectorItemsFactory);
+  FLineOnMapByOperation[ao_edit_poly] := TPolygonOnMapEdit.Create(GState.VectorItemsFactory);
+  FLineOnMapByOperation[ao_calc_line] := TPathOnMapEdit.Create(GState.VectorItemsFactory);
+  FLineOnMapByOperation[ao_select_poly] := TPolygonOnMapEdit.Create(GState.VectorItemsFactory);
+  FLineOnMapByOperation[ao_select_line] := TPathOnMapEdit.Create(GState.VectorItemsFactory);
 
   FPointOnMapEdit := TPointOnMapEdit.Create;
 
@@ -1040,7 +1040,7 @@ begin
       GState.MediaDataPath,
       GState.MarksDb,
       FConfig.ViewPortState.Position,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       GState.ArchiveReadWriteFactory,
       GState.ValueToStringConverterConfig,
       FFormRegionProcess
@@ -1386,7 +1386,7 @@ begin
       FConfig.ViewPortState,
       GState.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       GState.GUISyncronizedTimerNotifier,
       FTileErrorLogger,
       FConfig.LayersConfig.KmlLayerConfig,
@@ -1429,7 +1429,7 @@ begin
       FConfig.ViewPortState,
       GState.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       VMarkerChangeable,
       GState.GUISyncronizedTimerNotifier,
       FConfig.LayersConfig.MarksLayerConfig,
@@ -1482,7 +1482,7 @@ begin
       map,
       FConfig.ViewPortState,
       GState.GUISyncronizedTimerNotifier,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FConfig.LayersConfig.GPSMarker.MarkerRingsConfig,
       GState.GPSRecorder
     )
@@ -1494,7 +1494,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FConfig.LayersConfig.LastSelectionLayerConfig,
       GState.LastSelectionInfo
     )
@@ -1506,7 +1506,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
       FConfig.LayersConfig.CalcLineLayerConfig.LineConfig
     )
@@ -1518,7 +1518,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.ActivePointMarker),
@@ -1544,7 +1544,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
       FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig
     )
@@ -1556,7 +1556,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.ActivePointMarker),
@@ -1582,7 +1582,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
       FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig
     )
@@ -1594,7 +1594,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.ActivePointMarker),
@@ -1608,7 +1608,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
       FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig
     )
@@ -1620,7 +1620,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolygonLayerConfig.PointsConfig.ActivePointMarker),
@@ -1635,7 +1635,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
     )
@@ -1647,7 +1647,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig
     )
@@ -1659,7 +1659,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
-      GState.VectorItmesFactory,
+      GState.VectorItemsFactory,
       FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.FirstPointMarker),
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.SelectionPolylineLayerConfig.PointsConfig.ActivePointMarker),
@@ -4151,7 +4151,7 @@ begin
       VLonLatRect.BottomRight := VLonLatRect.TopLeft;
     end;
     if VSelLonLat.Execute(VLonLatRect) Then Begin
-      Poly := GState.VectorItmesFactory.CreateLonLatPolygonByRect(VLonLatRect);
+      Poly := GState.VectorItemsFactory.CreateLonLatPolygonByRect(VLonLatRect);
       FState.State := ao_movemap;
       FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
       Poly := nil;
@@ -4829,7 +4829,7 @@ begin
         FSelectionRect.UnlockWrite;
       end;
       if VSelectionFinished then begin
-        VPoly := GState.VectorItmesFactory.CreateLonLatPolygonByRect(VSelectionRect);
+        VPoly := GState.VectorItemsFactory.CreateLonLatPolygonByRect(VSelectionRect);
         FState.State := ao_movemap;
         FFormRegionProcess.Show_(VZoomCurr, VPoly);
         VPoly := nil;
@@ -5412,7 +5412,7 @@ begin
                 FConfig.ViewPortState.Position.GetStatic.ProjectionInfo
               );
             VPoly :=
-              GState.VectorItmesFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+              GState.VectorItemsFactory.CreateLonLatPolygonByLonLatPathAndFilter(
                 VPath,
                 VFilter
               );
@@ -5628,7 +5628,7 @@ begin
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
-  VPolygon := GState.VectorItmesFactory.CreateLonLatPolygonByRect(VLonLatRect);
+  VPolygon := GState.VectorItemsFactory.CreateLonLatPolygonByRect(VLonLatRect);
   FState.State := ao_movemap;
   FFormRegionProcess.Show_(VZoom, VPolygon);
 end;
