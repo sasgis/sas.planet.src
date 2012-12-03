@@ -33,7 +33,7 @@ type
   private
     FTasks: array of TExportTaskYaMobileV3;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FIsReplace: boolean;
     FExportPath: string;
@@ -66,7 +66,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
@@ -103,7 +103,7 @@ constructor TThreadExportYaMobileV3.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
@@ -126,7 +126,7 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := APath;
   FIsReplace := AReplace;
@@ -344,7 +344,7 @@ begin
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
       VProjectedPolygon :=
-        FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );

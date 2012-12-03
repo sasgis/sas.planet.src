@@ -44,7 +44,7 @@ type
   TBitmapLayerProviderByMarksSubset = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FConfig: IMarksDrawConfigStatic;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IMarksSubset;
     FProjectionInfo: IProjectionInfo;
@@ -100,7 +100,7 @@ type
   public
     constructor Create(
       const AConfig: IMarksDrawConfigStatic;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IIdCacheSimple;
       const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
@@ -133,7 +133,7 @@ const
 
 constructor TBitmapLayerProviderByMarksSubset.Create(
   const AConfig: IMarksDrawConfigStatic;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IIdCacheSimple;
   const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
@@ -143,7 +143,7 @@ constructor TBitmapLayerProviderByMarksSubset.Create(
 begin
   inherited Create;
   FConfig := AConfig;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FProjectionInfo := AProjectionInfo;
   FMarksSubset := AMarksSubset;
   FProjectedCache := AProjectedCache;
@@ -523,7 +523,7 @@ begin
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VLineWidth + 2)
     then begin
       Result :=
-        FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
+        FVectorItemsFactory.CreateProjectedPathWithClipByLonLatPath(
           AProjectionInfo,
           AMarkPath.Line,
           FLinesClipRect,
@@ -531,7 +531,7 @@ begin
         );
     end else begin
       Result :=
-        FVectorItmesFactory.CreateProjectedPath(
+        FVectorItemsFactory.CreateProjectedPath(
           AProjectionInfo,
           nil,
           0
@@ -564,7 +564,7 @@ begin
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VLineWidth + 2)
     then begin
       Result :=
-        FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
+        FVectorItemsFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
           AProjectionInfo,
           AMarkPoly.Line,
           FLinesClipRect,
@@ -572,7 +572,7 @@ begin
         );
     end else begin
       Result :=
-        FVectorItmesFactory.CreateProjectedPolygon(
+        FVectorItemsFactory.CreateProjectedPolygon(
           AProjectionInfo,
           nil,
           0

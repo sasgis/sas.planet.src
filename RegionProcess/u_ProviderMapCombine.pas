@@ -46,7 +46,7 @@ type
     FTimerNoifier: INotifier;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FMarksDB: IMarksSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
@@ -85,7 +85,7 @@ type
       const ATimerNoifier: INotifier;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarksSystem;
@@ -136,7 +136,7 @@ constructor TProviderMapCombineBase.Create(
   const ATimerNoifier: INotifier;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarksSystem;
@@ -167,7 +167,7 @@ begin
   FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FUseQuality := AUseQuality;
   FUseAlfa := AUseAlfa;
   FDefaultExt := ADefaultExt;
@@ -181,7 +181,7 @@ begin
       Self.LanguageManager,
       FProjectionFactory,
       FCoordConverterList,
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
@@ -274,7 +274,7 @@ begin
     VMarksImageProvider :=
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
-        FVectorItmesFactory,
+        FVectorItemsFactory,
         AProjectedPolygon.Projection,
         TIdCacheSimpleThreadSafe.Create,
         VMarkerProvider,
@@ -314,7 +314,7 @@ begin
   VProjection := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
 
   Result :=
-    FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+    FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
       VProjection,
       APolygon
     );
@@ -381,3 +381,5 @@ begin
 end;
 
 end.
+
+

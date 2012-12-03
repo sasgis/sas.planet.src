@@ -22,7 +22,7 @@ type
   TExportProviderZip = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FAppClosingNotifier: INotifierOneOperation;
@@ -38,7 +38,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
@@ -72,7 +72,7 @@ constructor TExportProviderZip.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
@@ -84,7 +84,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FTileNameGenerator := ATileNameGenerator;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -148,7 +148,7 @@ begin
     VProgressInfo,
     FArchiveReadWriteFactory.CreateZipWriterByName(VPath),
     FProjectionFactory,
-    FVectorItmesFactory,
+    FVectorItemsFactory,
     APolygon,
     Zoomarr,
     VMapType,
@@ -157,3 +157,5 @@ begin
 end;
 
 end.
+
+

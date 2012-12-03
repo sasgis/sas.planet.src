@@ -30,7 +30,7 @@ type
   TMapMarksLayerNew = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
     FConfig: IMarksLayerConfig;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FMarkDB: IMarksSystem;
     FMarkIconDefault: IMarkerDrawableChangeable;
 
@@ -71,7 +71,7 @@ type
       const AViewPortState: IViewPortState;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AMarkIconDefault: IMarkerDrawableChangeable;
       const ATimerNoifier: INotifier;
       const AConfig: IMarksLayerConfig;
@@ -106,7 +106,7 @@ constructor TMapMarksLayerNew.Create(
   const AViewPortState: IViewPortState;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AMarkIconDefault: IMarkerDrawableChangeable;
   const ATimerNoifier: INotifier;
   const AConfig: IMarksLayerConfig;
@@ -134,7 +134,7 @@ begin
   );
   FConfig := AConfig;
   FMarkDB := AMarkDB;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FMarkIconDefault := AMarkIconDefault;
 
 
@@ -206,7 +206,7 @@ begin
     Result :=
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
-        FVectorItmesFactory,
+        FVectorItemsFactory,
         ALayerConverter.ProjectionInfo,
         FProjectedCache,
         VMarkerProvider,

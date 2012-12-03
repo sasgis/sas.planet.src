@@ -53,7 +53,7 @@ type
       const ATimerNoifier: INotifier;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMarksShowConfig: IUsedMarksConfig;
@@ -100,7 +100,7 @@ constructor TfrCombine.Create(
   const ATimerNoifier: INotifier;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMarksShowConfig: IUsedMarksConfig;
@@ -128,7 +128,7 @@ begin
       ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -150,7 +150,7 @@ begin
       ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -172,7 +172,7 @@ begin
       ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -194,7 +194,7 @@ begin
       ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -216,7 +216,7 @@ begin
       ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -238,7 +238,7 @@ begin
       ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
       AMarksShowConfig,

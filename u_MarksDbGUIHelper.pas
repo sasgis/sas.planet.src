@@ -52,7 +52,7 @@ type
   TMarksDbGUIHelper = class
   private
     FMarksDb: IMarksSystem;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FFormRegionProcess: TfrmRegionProcess;
@@ -130,7 +130,7 @@ type
       const AMediaPath: IPathConfig;
       const AMarksDB: IMarksSystem;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       AFormRegionProcess: TfrmRegionProcess
@@ -158,7 +158,7 @@ constructor TMarksDbGUIHelper.Create(
   const AMediaPath: IPathConfig;
   const AMarksDB: IMarksSystem;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   AFormRegionProcess: TfrmRegionProcess
@@ -166,7 +166,7 @@ constructor TMarksDbGUIHelper.Create(
 begin
   inherited Create;
   FMarksDb := AMarksDB;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FFormRegionProcess := AFormRegionProcess;
@@ -533,7 +533,7 @@ begin
         end;
         VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
         VPolygon :=
-          FVectorItmesFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+          FVectorItemsFactory.CreateLonLatPolygonByLonLatPathAndFilter(
             VMarkLine.Line,
             VFilter
           );
@@ -637,3 +637,5 @@ begin
 end;
 
 end.
+
+

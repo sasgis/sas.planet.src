@@ -135,7 +135,7 @@ type
       const ABasePath: IPathConfig;
       const ACategoryDB: IMarkCategoryDBSmlInternal;
       const APerfCounterList: IInternalPerformanceCounterList;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AHintConverter: IHtmlToHintTextConverter;
       const AFactoryConfig: IMarksFactoryConfig
     );
@@ -313,7 +313,7 @@ constructor TMarksDb.Create(
   const ABasePath: IPathConfig;
   const ACategoryDB: IMarkCategoryDBSmlInternal;
   const APerfCounterList: IInternalPerformanceCounterList;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AHintConverter: IHtmlToHintTextConverter;
   const AFactoryConfig: IMarksFactoryConfig
 );
@@ -327,7 +327,7 @@ begin
   VFactory :=
     TMarkFactory.Create(
       AFactoryConfig,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       AHintConverter,
       ACategoryDB
     );

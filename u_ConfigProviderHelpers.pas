@@ -51,7 +51,7 @@ function ReadBitmapByFileRef(
 
 function ReadPolygon(
   const AConfigProvider: IConfigDataProvider;
-  const AVectorItmesFactory: IVectorItemsFactory
+  const AVectorItemsFactory: IVectorItemsFactory
 ): ILonLatPolygon;
 
 procedure WritePolygon(
@@ -158,7 +158,7 @@ end;
 
 function ReadPolygon(
   const AConfigProvider: IConfigDataProvider;
-  const AVectorItmesFactory: IVectorItemsFactory
+  const AVectorItemsFactory: IVectorItemsFactory
 ): ILonLatPolygon;
   function CheckIsValidPoint(
     const AConfigProvider: IConfigDataProvider;
@@ -200,7 +200,7 @@ begin
           if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
             i := 1;
             if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
-              Result := AVectorItmesFactory.CreateLonLatPolygon(nil, 0);
+              Result := AVectorItemsFactory.CreateLonLatPolygon(nil, 0);
               Exit;
             end;
           end;
@@ -219,7 +219,7 @@ begin
       Inc(i);
     end;
   until not VValidPoint;
-  Result := AVectorItmesFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+  Result := AVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
 end;
 
 procedure WritePolygon(
@@ -241,3 +241,4 @@ begin
 end;
 
 end.
+

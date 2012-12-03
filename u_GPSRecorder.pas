@@ -61,7 +61,7 @@ type
   TGPSRecorder = class(TConfigDataElementBase, IGPSRecorder)
   private
     FGPSPositionFactory: IGPSPositionFactory;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FDatum: IDatum;
 
     FTrack: ITrackPointsBlocksListStatic;
@@ -134,7 +134,7 @@ type
     function GetGPSUnitInfo: String;
   public
     constructor Create(
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const ADatum: IDatum;
       const AGPSPositionFactory: IGPSPositionFactory
     );
@@ -497,13 +497,13 @@ end;
 { TGPSRecorderStuped }
 
 constructor TGPSRecorder.Create(
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const ADatum: IDatum;
   const AGPSPositionFactory: IGPSPositionFactory
 );
 begin
   inherited Create;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FGPSUnitInfo := '';
   FGPSPositionFactory := AGPSPositionFactory;
   FDatum := ADatum;
@@ -740,7 +740,7 @@ begin
       );
     VPointsEnum :=
       TEnumTrackPointsByEnumGPSTrackPoint.Create(VTrackPointsEnum);
-    Result := FVectorItmesFactory.CreateLonLatPathByEnum(VPointsEnum);
+    Result := FVectorItemsFactory.CreateLonLatPathByEnum(VPointsEnum);
   finally
     UnlockRead;
   end;

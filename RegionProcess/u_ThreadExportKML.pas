@@ -22,7 +22,7 @@ type
   private
     FMapType: TMapType;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FNotSaveNotExists: boolean;
     FPathExport: string;
     FRelativePath: boolean;
@@ -42,7 +42,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       AMapType: TMapType;
@@ -67,7 +67,7 @@ constructor TThreadExportKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   AMapType: TMapType;
@@ -84,7 +84,7 @@ begin
     AnsiString(Self.ClassName)
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FPathExport := APath;
   FNotSaveNotExists := ANotSaveNotExists;
   FRelativePath := ARelativePath;
@@ -187,7 +187,7 @@ begin
   if Length(FZooms) > 0 then begin
     VZoom := FZooms[0];
     VProjectedPolygon :=
-      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
         PolygLL
       );
@@ -196,7 +196,7 @@ begin
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
       VProjectedPolygon :=
-        FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
           PolygLL
         );

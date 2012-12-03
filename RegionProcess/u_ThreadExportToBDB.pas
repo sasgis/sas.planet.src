@@ -45,7 +45,7 @@ type
   private
     FMapTypeArr: IMapTypeListStatic;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FTileNameGen: ITileFileNameGenerator;
     FIsMove: boolean;
     FIsReplace: boolean;
@@ -68,7 +68,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
@@ -95,7 +95,7 @@ constructor TThreadExportToBDB.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;
@@ -111,7 +111,7 @@ begin
     AnsiString(Self.ClassName)
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FPathExport := GetFullPathName(APath);
   if FPathExport = '' then begin
     raise Exception.Create('Can''t ExpandFileName: ' + APath);
@@ -208,7 +208,7 @@ begin
       VZoom := FZooms[j];
       VGeoConvert := FMapTypeArr.Items[i].MapType.GeoConvert;
       VProjectedPolygon :=
-        FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );

@@ -25,7 +25,7 @@ type
     FArchive: IArchiveWriter;
     FTileNameGen: ITileFileNameGenerator;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
   protected
     procedure ProcessRegion; override;
   public
@@ -35,7 +35,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AArchiveWriter: IArchiveWriter;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       const AMapType: TMapType;
@@ -60,7 +60,7 @@ constructor TThreadExportToArchive.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AArchiveWriter: IArchiveWriter;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   const AMapType: TMapType;
@@ -76,7 +76,7 @@ begin
     AnsiString(Self.ClassName)
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FTileNameGen := ATileNameGen;
   FMapType := AMapType;
   FArchive := AArchiveWriter;
@@ -102,7 +102,7 @@ begin
   for I := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[I];
     VProjectedPolygon :=
-      FVectorItmesFactory.CreateProjectedPolygonByLonLatPolygon(
+      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
         PolygLL
       );

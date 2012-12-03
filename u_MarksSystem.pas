@@ -82,7 +82,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ABasePath: IPathConfig;
       const AMarkPictureList: IMarkPictureList;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AHintConverter: IHtmlToHintTextConverter;
       const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
@@ -194,7 +194,7 @@ constructor TMarksSystem.Create(
   const ALanguageManager: ILanguageManager;
   const ABasePath: IPathConfig;
   const AMarkPictureList: IMarkPictureList;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AHintConverter: IHtmlToHintTextConverter;
   const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
@@ -223,7 +223,7 @@ begin
       ABasePath,
       FCategoryDBInternal,
       APerfCounterList.CreateAndAddNewSubList('MarksDb'),
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       AHintConverter,
       FMarksFactoryConfig
     );

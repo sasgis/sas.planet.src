@@ -23,7 +23,7 @@ type
   TProviderTilesGenPrev = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FViewConfig: IGlobalViewMainConfig;
     FAppClosingNotifier: INotifierOneOperation;
@@ -40,7 +40,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AImageResamplerConfig: IImageResamplerConfig
     );
     function GetCaption: string; override;
@@ -74,7 +74,7 @@ constructor TProviderTilesGenPrev.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AImageResamplerConfig: IImageResamplerConfig
 );
 begin
@@ -85,7 +85,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FViewConfig := AViewConfig;
   FImageResamplerConfig := AImageResamplerConfig;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -149,7 +149,7 @@ begin
     VOperationID,
     VProgressInfo,
     FProjectionFactory,
-    FVectorItmesFactory,
+    FVectorItemsFactory,
     VInZooms,
     APolygon,
     VMapType,
@@ -163,3 +163,5 @@ begin
 end;
 
 end.
+
+

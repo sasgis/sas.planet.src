@@ -30,7 +30,7 @@ type
     FColorMain: TColor32;
     FColorBG: TColor32;
     FPointColor: TColor32;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FVectorItems: IVectorDataItemList;
     FProjectionInfo: IProjectionInfo;
     FProjectedCache: IIdCacheSimple;
@@ -116,7 +116,7 @@ type
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IIdCacheSimple;
       const ALinesClipRect: TDoubleRect;
@@ -149,7 +149,7 @@ uses
 constructor TBitmapLayerProviderByVectorSubset.Create(
   const AVectorMapsSet: IMapTypeSet;
   AColorMain, AColorBG, APointColor: TColor32;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IIdCacheSimple;
   const ALinesClipRect: TDoubleRect;
@@ -161,7 +161,7 @@ begin
   FColorMain := AColorMain;
   FColorBG := AColorBG;
   FPointColor := APointColor;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FProjectionInfo := AProjectionInfo;
   FProjectedCache := AProjectedCache;
   FLinesClipRect := ALinesClipRect;
@@ -507,7 +507,7 @@ begin
   VID := Integer(AData);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
     Result :=
-      FVectorItmesFactory.CreateProjectedPathWithClipByLonLatPath(
+      FVectorItemsFactory.CreateProjectedPathWithClipByLonLatPath(
         AProjectionInfo,
         AData.Line,
         FLinesClipRect,
@@ -528,7 +528,7 @@ begin
   VID := Integer(AData);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
     Result :=
-      FVectorItmesFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
+      FVectorItemsFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
         AProjectionInfo,
         AData.Line,
         FLinesClipRect,

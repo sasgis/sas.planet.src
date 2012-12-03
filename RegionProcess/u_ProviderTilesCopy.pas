@@ -21,7 +21,7 @@ type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
@@ -36,7 +36,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
@@ -70,7 +70,7 @@ constructor TProviderTilesCopy.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
@@ -81,7 +81,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FTileNameGenerator := ATileNameGenerator;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
@@ -154,7 +154,7 @@ begin
       '', // allow empty value here (if path completely defined)
       VPath,
       FProjectionFactory,
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       APolygon,
       VZoomArr,
       VMaps,
@@ -170,7 +170,7 @@ begin
       VProgressInfo,
       VPath,
       FProjectionFactory,
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       APolygon,
       VZoomArr,
       VMaps,
@@ -184,7 +184,7 @@ begin
       VProgressInfo,
       VPath,
       FProjectionFactory,
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       APolygon,
       VZoomArr,
       VMaps,
@@ -196,3 +196,5 @@ begin
 end;
 
 end.
+
+

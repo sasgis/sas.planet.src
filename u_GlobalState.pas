@@ -172,7 +172,7 @@ type
     FAppStartedNotifierInternal: INotifierOneOperationInternal;
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
     FTerrainConfig: ITerrainConfig;
@@ -241,7 +241,7 @@ type
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
-    property VectorItmesFactory: IVectorItemsFactory read FVectorItmesFactory;
+    property VectorItmesFactory: IVectorItemsFactory read FVectorItemsFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
@@ -417,7 +417,7 @@ begin
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
-  FVectorItmesFactory := TVectorItmesFactorySimple.Create;
+  FVectorItemsFactory := TVectorItmesFactorySimple.Create;
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 200);
@@ -466,7 +466,7 @@ begin
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorder :=
     TGPSRecorder.Create(
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       TDatum.Create(3395, 6378137, 6356752),
       FGPSPositionFactory
     );
@@ -479,7 +479,7 @@ begin
 
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
       FPerfCounterList
@@ -498,34 +498,34 @@ begin
   // xml loaders
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       nil,
       VMarksKmlLoadCounterList
     );
   VXmlZLoader :=
     TXmlInfoSimpleParser.Create(
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       VMarksKmlLoadCounterList
     );
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
 
   FImportFileByExt := TImportByFileExt.Create(
     TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
-    FVectorItmesFactory,
+    FVectorItemsFactory,
     VXmlLoader,
     TPLTSimpleParser.Create(
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       VMarksKmlLoadCounterList
     ),
     VKmlLoader,
@@ -546,7 +546,7 @@ begin
       GUISyncronizedTimerNotifier,
       FPerfCounterList
     );
-  FLastSelectionInfo := TLastSelectionInfo.Create(FVectorItmesFactory);
+  FLastSelectionInfo := TLastSelectionInfo.Create(FVectorItemsFactory);
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FInetConfig,
@@ -561,7 +561,7 @@ begin
       FLanguageManager,
       FMarksDbPath,
       FMarkPictureList,
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       THtmlToHintTextConverterStuped.Create,
       FMarksCategoryFactoryConfig
@@ -602,7 +602,7 @@ begin
       FGCThread.List,
       TDownloadResultFactory.Create,
       TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       VKmlLoader
     );
   FLastSearchResultConfig := TLastSearchResultConfig.Create;
@@ -630,7 +630,7 @@ begin
   FLastSelectionSaver :=
     TLastSelectionInfoSaver.Create(
       FAppClosingNotifier,
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       FLastSelectionInfo,
       FLastSelectionFileName
     );
@@ -964,3 +964,4 @@ begin
 end;
 
 end.
+

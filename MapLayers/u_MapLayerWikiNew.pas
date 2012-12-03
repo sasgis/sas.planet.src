@@ -29,7 +29,7 @@ type
   TWikiLayerNew = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
     FConfig: IKmlLayerConfig;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
 
@@ -90,7 +90,7 @@ type
       const AViewPortState: IViewPortState;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const ATimerNoifier: INotifier;
       const AErrorLogger: ITileErrorLogger;
       const AConfig: IKmlLayerConfig;
@@ -131,7 +131,7 @@ constructor TWikiLayerNew.Create(
   const AViewPortState: IViewPortState;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const ATimerNoifier: INotifier;
   const AErrorLogger: ITileErrorLogger;
   const AConfig: IKmlLayerConfig;
@@ -158,7 +158,7 @@ begin
     AConfig.ThreadConfig
   );
   FConfig := AConfig;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
 
@@ -218,7 +218,7 @@ begin
       VConfig.MainColor,
       VConfig.ShadowColor,
       VConfig.PointColor,
-      FVectorItmesFactory,
+      FVectorItemsFactory,
       ALayerConverter.ProjectionInfo,
       FProjectedCache,
       VLinesClipRect,

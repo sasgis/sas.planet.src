@@ -33,7 +33,7 @@ uses
 type
   TLastSelectionInfo = class(TConfigDataElementBase, ILastSelectionInfo)
   private
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     // Полигон последнего выделения при операциях с областью.
     FPolygon: ILonLatPolygon;
     // Масштаб, на котором было последнее выделение
@@ -49,7 +49,7 @@ type
       AZoom: Byte
     );
   public
-    constructor Create(const AVectorItmesFactory: IVectorItemsFactory);
+    constructor Create(const AVectorItemsFactory: IVectorItemsFactory);
   end;
 
 implementation
@@ -59,11 +59,11 @@ uses
 
 { TLastSelectionInfo }
 
-constructor TLastSelectionInfo.Create(const AVectorItmesFactory: IVectorItemsFactory);
+constructor TLastSelectionInfo.Create(const AVectorItemsFactory: IVectorItemsFactory);
 begin
   inherited Create;
-  FVectorItmesFactory := AVectorItmesFactory;
-  FPolygon := AVectorItmesFactory.CreateLonLatPolygon(nil, 0);
+  FVectorItemsFactory := AVectorItemsFactory;
+  FPolygon := AVectorItemsFactory.CreateLonLatPolygon(nil, 0);
   FZoom := 0;
 end;
 
@@ -74,7 +74,7 @@ var
 begin
   inherited;
   if AConfigData <> nil then begin
-    VPolygon := ReadPolygon(AConfigData, FVectorItmesFactory);
+    VPolygon := ReadPolygon(AConfigData, FVectorItemsFactory);
     if VPolygon.Count > 0 then begin
       VZoom := AConfigData.Readinteger('Zoom', FZoom);
       SetPolygon(VPolygon, VZoom);

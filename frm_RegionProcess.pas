@@ -88,7 +88,7 @@ type
   private
     FfrExport: TfrExport;
     FfrCombine: TfrCombine;
-    FVectorItmesFactory: IVectorItemsFactory;
+    FVectorItemsFactory: IVectorItemsFactory;
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
     FPolygonLL: ILonLatPolygon;
@@ -123,7 +123,7 @@ type
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItmesFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMapCalibrationList: IMapCalibrationList;
@@ -171,7 +171,7 @@ constructor TfrmRegionProcess.Create(
   const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItmesFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMapCalibrationList: IMapCalibrationList;
@@ -182,7 +182,7 @@ constructor TfrmRegionProcess.Create(
 begin
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
-  FVectorItmesFactory := AVectorItmesFactory;
+  FVectorItemsFactory := AVectorItemsFactory;
   FfrExport :=
     TfrExport.Create(
       ALanguageManager,
@@ -194,7 +194,7 @@ begin
       ACoordConverterFactory,
       ALocalConverterFactory,
       AProjectionFactory,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
       ATileNameGenerator
@@ -209,7 +209,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItmesFactory
+      AVectorItemsFactory
     );
   FProviderTilesGenPrev :=
     TProviderTilesGenPrev.Create(
@@ -221,7 +221,7 @@ begin
       AGUIConfigList,
       AViewConfig,
       AProjectionFactory,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       AImageResamplerConfig
     );
   FProviderTilesCopy :=
@@ -233,7 +233,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       ATileNameGenerator
     );
   FProviderTilesDownload :=
@@ -245,7 +245,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       ADownloadConfig,
       ADownloadInfo
     );
@@ -261,7 +261,7 @@ begin
       ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItmesFactory,
+      AVectorItemsFactory,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
       AMarksShowConfig,
@@ -302,7 +302,7 @@ begin
     end;
     VPolygonSection := VHLGData.GetSubItem('HIGHLIGHTING');
     if VPolygonSection <> nil then begin
-      VPolygon := ReadPolygon(VPolygonSection, FVectorItmesFactory);
+      VPolygon := ReadPolygon(VPolygonSection, FVectorItemsFactory);
       if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
         VZoom := VPolygonSection.ReadInteger('zoom', 1) - 1;
         Self.Show_(VZoom, VPolygon);
