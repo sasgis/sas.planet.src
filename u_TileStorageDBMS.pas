@@ -243,6 +243,12 @@ type
     function InternalLib_Initialize: Boolean; override;
   end;
 
+type
+  ETileStorageETSError = class(Exception);
+  ETileStorageETSNoRoutine = class(ETileStorageETSError);
+  ETileStorageETSFailed = class(ETileStorageETSError);
+  ETileStorageETSExclusive = class(ETileStorageETSError);
+  
 implementation
 
 uses
@@ -265,6 +271,11 @@ function ExclusiveFlagWasSetUp(const AExclusiveFlag: LongWord): Boolean; inline;
 begin
   Result := ((AExclusiveFlag and ETS_ROI_EXCLUSIVELY) <> 0)
 end;
+
+const
+  c_ETSNoRoutine_Msg = 'Interface to DB not implemented';
+  c_ETSExclusive_Msg = 'Critical DB storage error';
+  c_ETSFailed_Msg    = 'Failed to save to DB: error ';
 
 type
   PTileInfo = ^TTileInfo;
@@ -1443,7 +1454,7 @@ var
 begin
   // check if no routine
   if (nil=ARoutinePtr) then
-    Exit;
+    raise ETileStorageETSNoRoutine.Create(c_ETSNoRoutine_Msg);
 
   VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
   VTileID.z := 0; // initiali flag
@@ -1500,7 +1511,7 @@ begin
       ETS_RESULT_NEED_EXCLUSIVE: begin
         // repeat exclusively
         if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then
-          Exit;
+          raise ETileStorageETSExclusive.Create(c_ETSExclusive_Msg);
         SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_OK: begin
@@ -1510,7 +1521,7 @@ begin
       end;
       else begin
         // failed
-        Exit;
+        raise ETileStorageETSFailed.Create(c_ETSFailed_Msg + IntToStr(VResult));
       end;
     end;
   until FALSE;
