@@ -205,6 +205,7 @@ uses
   i_InternalPerformanceCounter in 'Performance\i_InternalPerformanceCounter.pas',
   u_InternalPerformanceCounterStaticData in 'Performance\u_InternalPerformanceCounterStaticData.pas',
   u_InternalPerformanceCounter in 'Performance\u_InternalPerformanceCounter.pas',
+  u_InternalPerformanceCounterFake in 'Performance\u_InternalPerformanceCounterFake.pas',
   u_InternalPerformanceCounterList in 'Performance\u_InternalPerformanceCounterList.pas',
   i_DownloadRequest in 'i_DownloadRequest.pas',
   u_DownloadRequest in 'u_DownloadRequest.pas',

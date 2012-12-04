@@ -333,6 +333,7 @@ uses
   u_InternalBrowserByForm,
   u_DebugInfoWindow,
   u_InternalPerformanceCounterList,
+  u_InternalPerformanceCounterFake,
   u_IeEmbeddedProtocolFactory,
   u_VectorItemsFactorySimple,
   u_VectorDataFactorySimple,

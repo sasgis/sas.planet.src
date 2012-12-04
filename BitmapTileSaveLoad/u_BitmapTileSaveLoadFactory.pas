@@ -79,7 +79,7 @@ implementation
 uses
   u_BitmapTileLibJpeg,
   u_BitmapTileFreeImage,
-  u_InternalPerformanceCounterList;
+  u_InternalPerformanceCounterFake;
 
 function GetValidPerfCounterList(
   const APerfCounterList: IInternalPerformanceCounterList

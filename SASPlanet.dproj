@@ -509,6 +509,7 @@
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
     <DCCReference Include="Performance\i_InternalPerformanceCounter.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounter.pas" />
+    <DCCReference Include="Performance\u_InternalPerformanceCounterFake.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterList.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterStaticData.pas" />
     <DCCReference Include="RegionProcess\fr_Combine.pas">
