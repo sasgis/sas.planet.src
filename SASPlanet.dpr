@@ -203,6 +203,7 @@ uses
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
   i_InternalPerformanceCounter in 'Performance\i_InternalPerformanceCounter.pas',
+  u_InternalPerformanceCounterStaticData in 'Performance\u_InternalPerformanceCounterStaticData.pas',
   u_InternalPerformanceCounter in 'Performance\u_InternalPerformanceCounter.pas',
   u_InternalPerformanceCounterList in 'Performance\u_InternalPerformanceCounterList.pas',
   i_DownloadRequest in 'i_DownloadRequest.pas',

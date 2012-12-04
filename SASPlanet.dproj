@@ -510,6 +510,7 @@
     <DCCReference Include="Performance\i_InternalPerformanceCounter.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounter.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterList.pas" />
+    <DCCReference Include="Performance\u_InternalPerformanceCounterStaticData.pas" />
     <DCCReference Include="RegionProcess\fr_Combine.pas">
       <Form>frCombine</Form>
       <DesignClass>TFrame</DesignClass>
