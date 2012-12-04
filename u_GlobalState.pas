@@ -332,6 +332,7 @@ uses
   u_InvisibleBrowserByFormSynchronize,
   u_InternalBrowserByForm,
   u_DebugInfoWindow,
+  u_InternalPerformanceCounter,
   u_InternalPerformanceCounterList,
   u_InternalPerformanceCounterFake,
   u_IeEmbeddedProtocolFactory,
@@ -448,7 +449,7 @@ begin
   end;
 
   if FGlobalAppConfig.IsShowDebugInfo then begin
-    FPerfCounterList := TInternalPerformanceCounterList.Create('Main');
+    FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
   end else begin
     FPerfCounterList := TInternalPerformanceCounterFake.Create;
   end;

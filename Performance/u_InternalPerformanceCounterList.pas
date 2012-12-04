@@ -32,9 +32,9 @@ uses
 type
   TInternalPerformanceCounterList = class(TInterfacedObject, IInternalPerformanceCounterList)
   private
-    FList: IInterfaceList;
-    FNtQPC: Pointer;
     FName: string;
+    FFactory: IInternalPerformanceCounterFactory;
+    FList: IInterfaceList;
     procedure AppendStaticListByCounterList(
       const AResultList: IIDInterfaceList;
       const ACounterList: IInternalPerformanceCounterList
@@ -48,17 +48,18 @@ type
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
     procedure AddSubList(const ASubList: IInternalPerformanceCounterList);
   public
-    constructor Create(const AName: string);
+    constructor Create(
+      const AName: string;
+      const AFactory: IInternalPerformanceCounterFactory
+    );
   end;
 
 implementation
 
 uses
   SysUtils,
-  u_QueryPerfCounter,
   u_EnumUnknown,
-  u_IDInterfaceList,
-  u_InternalPerformanceCounter;
+  u_IDInterfaceList;
 
 { TInternalPerformanceCounterList }
 
@@ -83,25 +84,28 @@ begin
   end;
 end;
 
-constructor TInternalPerformanceCounterList.Create(const AName: string);
+constructor TInternalPerformanceCounterList.Create(
+  const AName: string;
+  const AFactory: IInternalPerformanceCounterFactory
+);
 begin
   inherited Create;
-  FList := TInterfaceList.Create;
   FName := AName;
-  FNtQPC := NtQueryPerformanceCounterPtr;
+  FFactory := AFactory;
+  FList := TInterfaceList.Create;
 end;
 
 function TInternalPerformanceCounterList.CreateAndAddNewCounter(
   const AName: string): IInternalPerformanceCounter;
 begin
-  Result := TInternalPerformanceCounter.Create(AName, FNtQPC);
+  Result := FFactory.Build(AName);
   FList.Add(Result);
 end;
 
 function TInternalPerformanceCounterList.CreateAndAddNewSubList(
   const AName: string): IInternalPerformanceCounterList;
 begin
-  Result := TInternalPerformanceCounterList.Create(AName);
+  Result := TInternalPerformanceCounterList.Create(AName, FFactory);
   FList.Add(Result);
 end;
 
