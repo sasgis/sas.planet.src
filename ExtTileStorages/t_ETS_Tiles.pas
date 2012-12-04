@@ -82,6 +82,8 @@ const
   ETS_RESULT_INVALID_SERVICE_CODE = 46;
   // if version is mandatory
   ETS_RESULT_EMPTY_VERSION_DENIED = 47;
+  // if exif in tile not found or invalid
+  ETS_RESULT_INVALID_EXIF         = 48;
 
   // length of Nst string parameter too big
   ETS_RESULT_STRING1_LEN = 51;
@@ -106,6 +108,8 @@ const
   ETS_RESULT_INI_FILE_NOT_FOUND    = 73; // ini file not found
   ETS_RESULT_INI_SECTION_NOT_FOUND = 74; // ini section not found
   ETS_RESULT_UNKNOWN_ODBC_DSN      = 75; // unknown ODBC source (not registered as System DSN)
+  ETS_RESULT_UNKNOWN_VERBYTILE     = 76; // unknown VERbyTILE mode
+  ETS_RESULT_UNKNOWN_EXIF_VERSION  = 77; // unknown version in exif
 
 const
   TILE_VERSION_COMPARE_NONE   = '0'; // tile version non-comparable
@@ -132,6 +136,10 @@ const
 
   // how to save tiles
   ETS_TSM_MAKE_VERSIONS   = $01; // allow to create new version on saving tile with unknown version
+  ETS_TSM_PARSE_EMPTY     = $02; // parse tile for empty version
+  ETS_TSM_PARSE_UNKNOWN   = $04; // parse tile for unknown (nonempty!) version
+  ETS_TSM_PARSE_KNOWN     = $08; // parse tile for known (nonempty!) version
+  ETS_TSM_ALLOW_NO_EXIF   = $10; // can skip version autodetection if tile without version info (allows another zoom generation)
 
   // how to work with service
   ETS_SWM_DEFAULT   = '0'; // default mode
@@ -377,7 +385,7 @@ type
     // from host to storage
     tile_load_mode: Byte; // ETS_TLM_* constants
     tile_save_mode: Byte; // ETS_TSM_* constants
-    host_reserved_4: Word;
+    new_ver_by_tile: SmallInt;
     host_reserved_5: LongWord; // for alignment
     // from storage to host
     id_div_mode: AnsiChar; // how to divide tiles into tables
