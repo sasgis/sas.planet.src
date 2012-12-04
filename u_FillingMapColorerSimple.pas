@@ -10,8 +10,6 @@ uses
   u_BaseInterfacedObject;
 
 type
-  PTileInfo = ^TTileInfo;
-
   TFillingMapColorerSimple = class(TBaseInterfacedObject, IFillingMapColorer)
   private
     FNoTileColor: TColor32;
@@ -22,10 +20,6 @@ type
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
     FGradientDays: integer;
-  private
-    function InternalGetColor(
-      const ATileInfoOptional: PTileInfo
-    ): TColor32;
   private
     function GetColor(const ATileInfo: ITileInfoBasic): TColor32; overload;
     function GetColor(const ATileInfo: TTileInfo): TColor32; overload;
@@ -106,13 +100,6 @@ end;
 function TFillingMapColorerSimple.GetColor(
   const ATileInfo: TTileInfo
 ): TColor32;
-begin
-  Result := InternalGetColor(@ATileInfo);
-end;
-
-function TFillingMapColorerSimple.InternalGetColor(
-  const ATileInfoOptional: PTileInfo
-): TColor32;
 var
   VFileExists: Boolean;
   VFileDate: TDateTime;
@@ -120,11 +107,11 @@ var
   VC1, VC2: Double;
 begin
   Result := 0;
-  VFileExists := ATileInfoOptional.FInfoType = titExists;
+  VFileExists := ATileInfo.FInfoType = titExists;
   if VFileExists then begin
     if FFillMode = fmExisting then begin
       if FFilterMode then begin
-        VFileDate := ATileInfoOptional.FLoadDate;
+        VFileDate := ATileInfo.FLoadDate;
         VDateCompare := CompareDate(VFileDate, FFillLastDay);
         if (VDateCompare < GreaterThanValue) then begin
           VDateCompare := CompareDate(VFileDate, FFillFirstDay);
@@ -136,7 +123,7 @@ begin
         Result := FNoTileColor;
       end;
     end else if FFillMode = fmGradient then begin
-      VFileDate := ATileInfoOptional.FLoadDate;
+      VFileDate := ATileInfo.FLoadDate;
       VDateCompare := CompareDate(VFileDate, FFillLastDay);
       if (VDateCompare <> GreaterThanValue) then begin
         VDateCompare := CompareDate(VFileDate, FFillFirstDay);
@@ -165,7 +152,7 @@ begin
       Result := FNoTileColor;
     end;
     if FShowTNE then begin
-      if ATileInfoOptional.FInfoType = titTneExists then begin
+      if ATileInfo.FInfoType = titTneExists then begin
         Result := FTNEColor;
       end;
     end;
