@@ -76,6 +76,11 @@ type
     function GetStaticData: IInternalPerformanceCounterStaticData;
   end;
 
+  IInternalPerformanceCounterFactory = interface
+    ['{D87A5792-5568-4A46-A693-160FB95945E4}']
+    function Build(const AName: string): IInternalPerformanceCounter;
+  end;
+
   IInternalPerformanceCounterList = interface
     ['{75567269-AD8D-443F-AA45-9336C9890719}']
     function GetName: string;

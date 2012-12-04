@@ -56,6 +56,15 @@ type
     );
   end;
 
+  TInternalPerformanceCounterFactory = class(TInterfacedObject, IInternalPerformanceCounterFactory)
+  private
+    FNtQPC: Pointer;
+  private
+    function Build(const AName: string): IInternalPerformanceCounter;
+  public
+    constructor Create;
+  end;
+
 implementation
 
 uses
@@ -169,6 +178,22 @@ begin
   if (nil = FQueryPerfCntrFunc) or (0 <> TNtQueryPerformanceCounter(FQueryPerfCntrFunc)(@Result, nil)) then begin
     Result := 0;
   end;
+end;
+
+{ TInternalPerformanceCounterFactory }
+
+constructor TInternalPerformanceCounterFactory.Create;
+begin
+  inherited Create;
+
+  FNtQPC := NtQueryPerformanceCounterPtr;
+end;
+
+function TInternalPerformanceCounterFactory.Build(
+  const AName: string
+): IInternalPerformanceCounter;
+begin
+  Result := TInternalPerformanceCounter.Create(AName, FNtQPC);
 end;
 
 end.
