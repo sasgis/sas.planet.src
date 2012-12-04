@@ -244,11 +244,13 @@ type
   end;
 
 type
-  ETileStorageETSError = class(Exception);
-  ETileStorageETSNoRoutine = class(ETileStorageETSError);
-  ETileStorageETSFailed = class(ETileStorageETSError);
-  ETileStorageETSExclusive = class(ETileStorageETSError);
-  
+  EETSBaseError           = class(Exception);
+  EETSNoRoutine           = class(EETSBaseError);
+  EETSFailed              = class(EETSBaseError);
+  EETSCriticalError       = class(EETSBaseError);
+  EETSCannotConnect       = class(EETSBaseError);
+  EETSCannotParseTile     = class(EETSBaseError);
+
 implementation
 
 uses
@@ -260,6 +262,7 @@ uses
   u_TileStorageTypeAbilities,
   u_TileRectInfoShort,
   u_TileInfoBasic,
+  u_ResStrings,
   u_BaseInterfacedObject;
 
 procedure SetUpExclusiveFlag(var AExclusiveFlag: LongWord); inline;
@@ -271,11 +274,6 @@ function ExclusiveFlagWasSetUp(const AExclusiveFlag: LongWord): Boolean; inline;
 begin
   Result := ((AExclusiveFlag and ETS_ROI_EXCLUSIVELY) <> 0)
 end;
-
-const
-  c_ETSNoRoutine_Msg = 'Interface to DB not implemented';
-  c_ETSExclusive_Msg = 'Critical DB storage error';
-  c_ETSFailed_Msg    = 'Failed to save to DB: error ';
 
 type
   PTileInfo = ^TTileInfo;
@@ -1454,7 +1452,7 @@ var
 begin
   // check if no routine
   if (nil=ARoutinePtr) then
-    raise ETileStorageETSNoRoutine.Create(c_ETSNoRoutine_Msg);
+    raise EETSNoRoutine.Create(SAS_ERR_ETS_NotImplemented);
 
   VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
   VTileID.z := 0; // initiali flag
@@ -1511,7 +1509,7 @@ begin
       ETS_RESULT_NEED_EXCLUSIVE: begin
         // repeat exclusively
         if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then
-          raise ETileStorageETSExclusive.Create(c_ETSExclusive_Msg);
+          raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
         SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_OK: begin
@@ -1519,9 +1517,18 @@ begin
         // break to exit loop and write to cache
         break;
       end;
+      // FAILED:
+      ETS_RESULT_NOT_CONNECTED: begin
+        // cannot connect to server
+        raise EETSCannotConnect.Create(SAS_ERR_ETS_CannotConnect);
+      end;
+      ETS_RESULT_INVALID_EXIF: begin
+        // cannot parse exif or another source for tile version
+        raise EETSCannotParseTile.Create(SAS_ERR_ETS_CannotParseTile);
+      end;
       else begin
-        // failed
-        raise ETileStorageETSFailed.Create(c_ETSFailed_Msg + IntToStr(VResult));
+        // some unusual
+        raise EETSFailed.Create(SAS_ERR_ETS_FailToSaveTile + IntToStr(VResult));
       end;
     end;
   until FALSE;

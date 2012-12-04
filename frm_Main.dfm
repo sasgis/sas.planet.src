@@ -3556,6 +3556,12 @@ object frmMain: TfrmMain
       Caption = 'Map Info'
       Hint = ''
     end
+    object NMapStorageInfo: TTBXItem
+      ImageIndex = 27
+      OnClick = NMapStorageInfoClick
+      Caption = 'Map Storage Info'
+      Hint = ''
+    end
     object TBLayerInfo: TTBXSubmenuItem
       ImageIndex = 27
       Caption = 'Layer Info'

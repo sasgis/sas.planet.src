@@ -384,6 +384,7 @@ type
     tbitmMarkInfo: TTBXItem;
     tbitmCopyToClipboardGenshtabName: TTBXItem;
     NoaaForecastMeteorology1: TTBXItem;
+    NMapStorageInfo: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -533,6 +534,7 @@ type
     procedure tbitmMarkInfoClick(Sender: TObject);
     procedure tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
     procedure NoaaForecastMeteorology1Click(Sender: TObject);
+    procedure NMapStorageInfoClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -720,6 +722,7 @@ uses
   i_ConfigDataProvider,
   i_PointCaptionsLayerConfig,
   i_MapVersionInfo,
+  i_InternalDomainOptions,
   i_GPS,
   i_GeoCoder,
   i_GPSRecorder,
@@ -4545,6 +4548,22 @@ begin
   FMapTypeEditor.EditMap(VMapType);
 end;
 
+procedure TfrmMain.NMapStorageInfoClick(Sender: TObject);
+var
+  VMapType: TMapType;
+  VInternalDomainOptions: IInternalDomainOptions;
+  VUrl: string;
+begin
+  // show storage options
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  if Assigned(VMapType) then
+  if Assigned(VMapType.TileStorage) then
+  if Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions) then begin
+    VUrl := CTileStorageOptionsInternalURL + GUIDToString(VMapType.Zmp.GUID);
+    GState.InternalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
+  end;
+end;
+
 function GetPolygonNearesPoint(
   const AMarkPoly: IMarkPoly;
   const AProjection: IProjectionInfo;
@@ -5924,6 +5943,7 @@ var
   VGUID: TGUID;
   VGUIDList: IGUIDListStatic;
   VMark: IMark;
+  VInternalDomainOptions: IInternalDomainOptions;
 begin
   VMark := FSelectedMark;
   NMarkEdit.Visible := VMark <> nil;
@@ -5984,6 +6004,9 @@ begin
   // allow to clear or select versions
   tbpmiClearVersion.Visible := (0<Length(VMapType.VersionConfig.Version.StoreString));
   tbpmiVersions.Visible := VMapType.AllowListOfTileVersions or tbpmiClearVersion.Visible;
+  // allow to show Map Storage Info
+  NMapStorageInfo.Visible := Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions);
+  NMapStorageInfo.Enabled := NMapStorageInfo.Visible;
 end;
 
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);

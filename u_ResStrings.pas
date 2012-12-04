@@ -96,6 +96,12 @@ ResourceString
   SAS_ERR_EmptyServerResponse = 'Empty server response';
   SAS_ERR_CoordParseError = 'Error parsing coordinates: Lat=%s Lon=%s';
 
+  SAS_ERR_ETS_NotImplemented  = 'Interface to external tile storage not implemented';
+  SAS_ERR_ETS_CriticalError   = 'Unknown critical error at external tile storage';
+  SAS_ERR_ETS_CannotConnect   = 'Cannot connect to external tile storage';
+  SAS_ERR_ETS_CannotParseTile = 'Cannot parse tile to get its version';
+  SAS_ERR_ETS_FailToSaveTile  = 'Failed to save to external tile storage: error ';
+
   SAS_ERR_ImageIsTooBig = 'Selected resolution is too big for %s format!'#13#10 +
     'Widht = %d (max = %d)'#13#10 + 'Height = %d (max = %d)'#13#10 +
     'Try select smaller region to stitch in %s or select other output format (ECW is the best).';
