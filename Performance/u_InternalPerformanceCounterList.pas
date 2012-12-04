@@ -63,6 +63,17 @@ uses
 
 { TInternalPerformanceCounterList }
 
+constructor TInternalPerformanceCounterList.Create(
+  const AName: string;
+  const AFactory: IInternalPerformanceCounterFactory
+);
+begin
+  inherited Create;
+  FName := AName;
+  FFactory := AFactory;
+  FList := TInterfaceList.Create;
+end;
+
 procedure TInternalPerformanceCounterList.AppendStaticListByCounterList(
   const AResultList: IIDInterfaceList;
   const ACounterList: IInternalPerformanceCounterList
@@ -82,17 +93,6 @@ begin
       AppendStaticListByCounterList(AResultList, VList);
     end;
   end;
-end;
-
-constructor TInternalPerformanceCounterList.Create(
-  const AName: string;
-  const AFactory: IInternalPerformanceCounterFactory
-);
-begin
-  inherited Create;
-  FName := AName;
-  FFactory := AFactory;
-  FList := TInterfaceList.Create;
 end;
 
 function TInternalPerformanceCounterList.CreateAndAddNewCounter(
