@@ -85,6 +85,7 @@ type
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
+    procedure AddSubList(const ASubList: IInternalPerformanceCounterList);
   end;
 
 implementation

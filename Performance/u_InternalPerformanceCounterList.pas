@@ -46,6 +46,7 @@ type
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
+    procedure AddSubList(const ASubList: IInternalPerformanceCounterList);
   public
     constructor Create(const AName: string);
   end;
@@ -58,6 +59,7 @@ type
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
+    procedure AddSubList(const ASubList: IInternalPerformanceCounterList);
   private
     { IInternalPerformanceCounter }
     function GetId: Integer;
@@ -124,6 +126,12 @@ begin
   FList.Add(Result);
 end;
 
+procedure TInternalPerformanceCounterList.AddSubList(const ASubList: IInternalPerformanceCounterList);
+begin
+  Assert(ASubList <> nil);
+  FList.Add(ASubList);
+end;
+
 function TInternalPerformanceCounterList.GetEunm: IEnumUnknown;
 begin
   Result := TEnumUnknown.Create(FList);
@@ -150,6 +158,13 @@ end;
 function TInternalPerformanceCounterFake.CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
 begin
   Result := Self;
+end;
+
+procedure TInternalPerformanceCounterFake.AddSubList(
+  const ASubList: IInternalPerformanceCounterList
+);
+begin
+  // empty
 end;
 
 procedure TInternalPerformanceCounterFake.FinishOperation(const AContext: TInternalPerformanceCounterContext);
