@@ -1010,6 +1010,9 @@ uses
 
 begin
   SetCurrentThreadName('ApplicationMainThread');
+  if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
+    TBaseInterfacedObjectDebug.InitCounters;
+  end;
   GState := TGlobalState.Create;
   try
     Application.Initialize;

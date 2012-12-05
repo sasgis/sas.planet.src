@@ -332,6 +332,8 @@ uses
   u_InvisibleBrowserByFormSynchronize,
   u_InternalBrowserByForm,
   u_DebugInfoWindow,
+  u_BaseInterfacedObject,
+  u_BaseInterfacedObjectDebug,
   u_InternalPerformanceCounter,
   u_InternalPerformanceCounterList,
   u_InternalPerformanceCounterFake,
@@ -450,6 +452,9 @@ begin
 
   if FGlobalAppConfig.IsShowDebugInfo then begin
     FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
+    if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
+      FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
+    end;
   end else begin
     FPerfCounterList := TInternalPerformanceCounterFake.Create;
   end;
