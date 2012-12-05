@@ -24,12 +24,7 @@ type
     ): Boolean; virtual;
     function CompareId(const I1, I2: Integer): Integer; virtual;
     procedure Sort(); virtual; abstract;
-  public
-    constructor Create; overload;
-    constructor Create(AAllowNil: Boolean); overload;
-
-    destructor Destroy; override;
-
+  protected
     class procedure Error(
       const Msg: string;
       Data: Integer
@@ -52,6 +47,10 @@ type
     function GetIDEnum(): IEnumID; virtual;
     property Capacity: Integer read FCapacity write SetCapacity;
     property Count: Integer read GetCount write SetCount;
+  public
+    constructor Create(AAllowNil: Boolean = False); overload;
+
+    destructor Destroy; override;
   end;
 
 resourcestring
@@ -67,11 +66,10 @@ uses
 
 type
   TIDListEnum = class(TInterfacedObject, IEnumID)
-  protected
+  private
     FIDList: TIDListBase;
     FCurrentIndex: integer;
-  public
-    constructor Create(AGUIDList: TIDListBase);
+  private
     function Next(
       celt: LongWord;
       out rgelt: Integer;
@@ -80,6 +78,8 @@ type
     function Skip(celt: LongWord): HResult; stdcall;
     function Reset: HResult; stdcall;
     function Clone(out ppenum: IEnumID): HResult; stdcall;
+  public
+    constructor Create(AGUIDList: TIDListBase);
   end;
 
 { TIDListEnum }
@@ -160,11 +160,6 @@ begin
       Result := 0;
     end;
   end;
-end;
-
-constructor TIdListBase.Create;
-begin
-  Create(False);
 end;
 
 constructor TIdListBase.Create(AAllowNil: Boolean);
