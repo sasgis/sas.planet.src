@@ -24,6 +24,7 @@ unit i_IDList;
 interface
 
 uses
+  ActiveX,
   i_EnumID;
 
 type
@@ -56,6 +57,7 @@ type
 
     // Получение итератора ID
     function GetIDEnum(): IEnumID;
+    function GetEnumUnknown: IEnumUnknown;
 
     procedure SetCount(NewCount: Integer);
     function GetCount: Integer;

@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  ActiveX,
   i_IDList,
   u_IdListBase;
 
@@ -46,6 +47,7 @@ type
       AID: Integer;
       AInterface: IInterface
     ); virtual;
+    function GetEnumUnknown: IEnumUnknown;
   end;
 
 resourcestring
@@ -54,7 +56,98 @@ resourcestring
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Math;
+
+type
+  TIDListEnumUnknown = class(TInterfacedObject, IEnumUnknown)
+  private
+    FRef: IInterface;
+    FList: PInterfaceWithIdList;
+    FCount: Integer;
+    FCurrentIndex: integer;
+  private
+    function Next(
+      celt: Longint;
+      out elt;
+      pceltFetched: PLongint
+    ): HResult; stdcall;
+    function Skip(celt: Longint): HResult; stdcall;
+    function Reset: HResult; stdcall;
+    function Clone(out ppenum: IEnumUnknown): HResult; stdcall;
+  public
+    constructor Create(
+      const ARef: IInterface;
+      AList: PInterfaceWithIdList;
+      ACount: Integer
+    );
+  end;
+
+{ TIDListEnum }
+
+constructor TIDListEnumUnknown.Create(
+  const ARef: IInterface;
+  AList: PInterfaceWithIdList;
+  ACount: Integer
+);
+begin
+  inherited Create;
+  FRef := ARef;
+  FList := AList;
+  FCount := ACount;
+  FCurrentIndex := 0;
+end;
+
+function TIDListEnumUnknown.Clone(out ppenum: IEnumUnknown): HResult;
+var
+  VListEnum: TIDListEnumUnknown;
+begin
+  VListEnum := TIDListEnumUnknown.Create(FRef, FList, FCount);
+  ppenum := VListEnum;
+  VListEnum.FCurrentIndex := FCurrentIndex;
+  Result := S_OK;
+end;
+
+function TIDListEnumUnknown.Next(
+  celt: Longint;
+  out elt;
+  pceltFetched: PLongint
+): HResult;
+var
+  i: integer;
+  Vp: ^IInterface;
+begin
+  pceltFetched^ := min(celt, FCount - FCurrentIndex);
+  Vp := @elt;
+  if pceltFetched^ > 0 then begin
+    for i := 0 to pceltFetched^ - 1 do begin
+      Vp^ := FList^[FCurrentIndex + I].Obj;
+      Inc(Vp);
+    end;
+    Inc(FCurrentIndex, pceltFetched^);
+  end;
+  if pceltFetched^ <> celt then begin
+    Result := S_FALSE;
+  end else begin
+    Result := S_OK;
+  end;
+end;
+
+function TIDListEnumUnknown.Reset: HResult;
+begin
+  FCurrentIndex := 0;
+  Result := S_OK;
+end;
+
+function TIDListEnumUnknown.Skip(celt: Longint): HResult;
+begin
+  Inc(FCurrentIndex, celt);
+  if FCurrentIndex > FCount then begin
+    Result := S_FALSE;
+  end else begin
+    Result := S_OK;
+  end;
+end;
 
 { TIDInterfaceList }
 
@@ -98,6 +191,11 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+function TIDInterfaceList.GetEnumUnknown: IEnumUnknown;
+begin
+  Result := TIDListEnumUnknown.Create(Self, FList, FCount);
 end;
 
 function TIDInterfaceList.GetItemID(Index: Integer): Integer;
