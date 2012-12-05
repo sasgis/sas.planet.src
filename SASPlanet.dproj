@@ -508,9 +508,12 @@
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
     <DCCReference Include="Performance\i_InternalPerformanceCounter.pas" />
+    <DCCReference Include="Performance\i_InternalPerformanceCounterListForDebug.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounter.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterFake.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterList.pas" />
+    <DCCReference Include="Performance\u_InternalPerformanceCounterListForDebug.pas" />
+    <DCCReference Include="Performance\u_InternalPerformanceCounterListForDebugOneClass.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterStaticData.pas" />
     <DCCReference Include="RegionProcess\fr_Combine.pas">
       <Form>frCombine</Form>
@@ -672,6 +675,7 @@
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BaseInterfacedObject.pas" />
+    <DCCReference Include="u_BaseInterfacedObjectDebug.pas" />
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BatteryStatus.pas" />
     <DCCReference Include="u_BinaryData.pas" />
