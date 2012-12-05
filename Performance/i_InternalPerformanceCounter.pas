@@ -87,6 +87,7 @@ type
     property Name: string read GetName;
 
     function GetStaticDataList: IIDInterfaceList;
+    procedure AppendStaticDataToList(const ADataList: IIDInterfaceList);
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;

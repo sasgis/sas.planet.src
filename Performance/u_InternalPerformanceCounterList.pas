@@ -35,14 +35,11 @@ type
     FName: string;
     FFactory: IInternalPerformanceCounterFactory;
     FList: IInterfaceList;
-    procedure AppendStaticListByCounterList(
-      const AResultList: IIDInterfaceList;
-      const ACounterList: IInternalPerformanceCounterList
-    );
   private
     function GetName: string;
 
     function GetStaticDataList: IIDInterfaceList;
+    procedure AppendStaticDataToList(const ADataList: IIDInterfaceList);
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
@@ -72,27 +69,6 @@ begin
   FName := AName;
   FFactory := AFactory;
   FList := TInterfaceList.Create;
-end;
-
-procedure TInternalPerformanceCounterList.AppendStaticListByCounterList(
-  const AResultList: IIDInterfaceList;
-  const ACounterList: IInternalPerformanceCounterList
-);
-var
-  VEnum: IEnumUnknown;
-  Vcnt: Integer;
-  VUnknown: IInterface;
-  VCounter: IInternalPerformanceCounter;
-  VList: IInternalPerformanceCounterList;
-begin
-  VEnum := ACounterList.GetEunm;
-  while VEnum.Next(1, VUnknown, @Vcnt) = S_OK do begin
-    if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
-      AResultList.Add(VCounter.Id, VCounter.GetStaticData);
-    end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
-      AppendStaticListByCounterList(AResultList, VList);
-    end;
-  end;
 end;
 
 function TInternalPerformanceCounterList.CreateAndAddNewCounter(
@@ -125,10 +101,33 @@ begin
   Result := FName;
 end;
 
+procedure TInternalPerformanceCounterList.AppendStaticDataToList(
+  const ADataList: IIDInterfaceList);
+var
+  i: Integer;
+  VUnknown: IInterface;
+  VCounter: IInternalPerformanceCounter;
+  VList: IInternalPerformanceCounterList;
+begin
+  FList.Lock;
+  try
+    for i := 0 to FList.Count - 1 do begin
+      VUnknown := FList.Items[i];
+      if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
+        ADataList.Add(VCounter.Id, VCounter.GetStaticData);
+      end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
+        VList.AppendStaticDataToList(ADataList);
+      end;
+    end;
+  finally
+    FList.Unlock;
+  end;
+end;
+
 function TInternalPerformanceCounterList.GetStaticDataList: IIDInterfaceList;
 begin
   Result := TIDInterfaceList.Create;
-  AppendStaticListByCounterList(Result, Self);
+  AppendStaticDataToList(Result);
 end;
 
 end.

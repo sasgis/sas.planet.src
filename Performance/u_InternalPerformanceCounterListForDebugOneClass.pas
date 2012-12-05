@@ -18,6 +18,7 @@ type
     function GetName: string;
 
     function GetStaticDataList: IIDInterfaceList;
+    procedure AppendStaticDataToList(const ADataList: IIDInterfaceList);
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
@@ -89,11 +90,17 @@ begin
   Result := FClass.ClassName;
 end;
 
+procedure TInternalPerformanceCounterListForDebugOneClass.AppendStaticDataToList(
+  const ADataList: IIDInterfaceList);
+begin
+  ADataList.Add(FCounterCreate.Id, FCounterCreate.GetStaticData);
+  ADataList.Add(FCounterDestroy.Id, FCounterDestroy.GetStaticData);
+end;
+
 function TInternalPerformanceCounterListForDebugOneClass.GetStaticDataList: IIDInterfaceList;
 begin
   Result := TIDInterfaceList.Create;
-  Result.Add(FCounterCreate.Id, FCounterCreate.GetStaticData);
-  Result.Add(FCounterDestroy.Id, FCounterDestroy.GetStaticData);
+  AppendStaticDataToList(Result);
 end;
 
 end.

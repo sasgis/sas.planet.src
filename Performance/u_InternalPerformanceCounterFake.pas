@@ -13,6 +13,7 @@ type
     { IInternalPerformanceCounterList }
     function GetName: string;
     function GetStaticDataList: IIDInterfaceList;
+    procedure AppendStaticDataToList(const ADataList: IIDInterfaceList);
     function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
@@ -32,6 +33,12 @@ type
 implementation
 
 { TInternalPerformanceCounterFake }
+
+procedure TInternalPerformanceCounterFake.AppendStaticDataToList(
+  const ADataList: IIDInterfaceList);
+begin
+  // empty
+end;
 
 function TInternalPerformanceCounterFake.CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
 begin
