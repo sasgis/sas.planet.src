@@ -101,6 +101,9 @@ ResourceString
   SAS_ERR_ETS_CannotConnect   = 'Cannot connect to external tile storage';
   SAS_ERR_ETS_CannotParseTile = 'Cannot parse tile to get its version';
   SAS_ERR_ETS_FailToSaveTile  = 'Failed to save to external tile storage: error ';
+  SAS_ERR_ETS_NoSpaceAvailable  = 'No space available at external tile storage';
+  SAS_ERR_ETS_UnknownError      = 'Unknown error at external tile storage';
+  SAS_ERR_ETS_ConnectionIsDead  = 'Connection to external tile storage is dead';
 
   SAS_ERR_ImageIsTooBig = 'Selected resolution is too big for %s format!'#13#10 +
     'Widht = %d (max = %d)'#13#10 + 'Height = %d (max = %d)'#13#10 +

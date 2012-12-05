@@ -249,6 +249,9 @@ type
   EETSFailed              = class(EETSBaseError);
   EETSCriticalError       = class(EETSBaseError);
   EETSCannotConnect       = class(EETSBaseError);
+  EETSDeadConnection      = class(EETSBaseError);
+  EETSNoSpaceAvailable    = class(EETSBaseError);
+  EETSUnknownError        = class(EETSBaseError);
   EETSCannotParseTile     = class(EETSBaseError);
 
 implementation
@@ -983,7 +986,7 @@ begin
           VBufferIn.XYZ := @VTileID;
           // make flags (all except ETS_STI_CHECK_EXISTS, ContentType is AnsiString)
           VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
-          if (AMode<>gtimWithoutData) then begin
+          if (AMode=gtimWithData) then begin
             VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SELECT_TILE_BODY);
           end;
           // make version
@@ -1449,11 +1452,13 @@ var
   VBufferIn: TETS_INSERT_TILE_IN;
   VVersionString: String;
   VTileInfo: ITileInfoBasic;
+  VDeadConnectionFound: Boolean;
 begin
   // check if no routine
   if (nil=ARoutinePtr) then
     raise EETSNoRoutine.Create(SAS_ERR_ETS_NotImplemented);
 
+  VDeadConnectionFound := FALSE;
   VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
   VTileID.z := 0; // initiali flag
   VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(FALSE);
@@ -1504,6 +1509,12 @@ begin
     // check response
     case VResult of
       ETS_RESULT_DISCONNECTED: begin
+        // соединение разорвано - попробуем переподключиться
+        if (VDeadConnectionFound) then begin
+          // уже пробовали ((
+          raise EETSDeadConnection.Create(SAS_ERR_ETS_ConnectionIsDead);
+        end;
+        VDeadConnectionFound := TRUE;
         SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_NEED_EXCLUSIVE: begin
@@ -1525,6 +1536,14 @@ begin
       ETS_RESULT_INVALID_EXIF: begin
         // cannot parse exif or another source for tile version
         raise EETSCannotParseTile.Create(SAS_ERR_ETS_CannotParseTile);
+      end;
+      ETS_RESULT_NO_SPACE_AVAILABLE: begin
+        // no space available
+        raise EETSNoSpaceAvailable.Create(SAS_ERR_ETS_NoSpaceAvailable);
+      end;
+      ETS_RESULT_UNKNOWN_EXEPTION: begin
+        // very unknown exception
+        raise EETSUnknownError.Create(SAS_ERR_ETS_UnknownError);
       end;
       else begin
         // some unusual

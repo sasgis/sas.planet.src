@@ -38,6 +38,7 @@ const
 
   
   // access to storage is restricted (4-7)
+  ETS_RESULT_NO_SPACE_AVAILABLE = 4;
   // access to storage is disabled (at host!)
   ETS_RESULT_NO_ACCESS = 5;
   // service storage is suspended (treat as TNE for SHOW and ABORT for EXPORT)
@@ -110,6 +111,7 @@ const
   ETS_RESULT_UNKNOWN_ODBC_DSN      = 75; // unknown ODBC source (not registered as System DSN)
   ETS_RESULT_UNKNOWN_VERBYTILE     = 76; // unknown VERbyTILE mode
   ETS_RESULT_UNKNOWN_EXIF_VERSION  = 77; // unknown version in exif
+  ETS_RESULT_UNKNOWN_EXEPTION      = 78; // unknown DBMS exception
 
 const
   TILE_VERSION_COMPARE_NONE   = '0'; // tile version non-comparable
