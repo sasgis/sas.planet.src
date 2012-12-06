@@ -57,6 +57,9 @@ const
   ETS_RESULT_CANNOT_CONNECT = 19; // failed to create or initialize connection object
   ETS_RESULT_NOT_CONNECTED  = 20;
   ETS_RESULT_DISCONNECTED   = 21; // disconnected by server - exclusively reconnect
+
+  // data trunncation occured
+  ETS_RESULT_DATA_TRUNCATION    = 22;
   // abstract host exception in provider
   ETS_RESULT_PROVIDER_EXCEPTION = 30;
   // abstract host exception in callback

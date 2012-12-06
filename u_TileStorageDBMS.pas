@@ -251,6 +251,8 @@ type
   EETSCannotConnect       = class(EETSBaseError);
   EETSDeadConnection      = class(EETSBaseError);
   EETSNoSpaceAvailable    = class(EETSBaseError);
+  EETSDataTruncation      = class(EETSBaseError);
+  EETSCantCreateTable     = class(EETSBaseError);
   EETSUnknownError        = class(EETSBaseError);
   EETSCannotParseTile     = class(EETSBaseError);
 
@@ -1540,6 +1542,13 @@ begin
       ETS_RESULT_NO_SPACE_AVAILABLE: begin
         // no space available
         raise EETSNoSpaceAvailable.Create(SAS_ERR_ETS_NoSpaceAvailable);
+      end;
+      ETS_RESULT_DATA_TRUNCATION: begin
+        // data truncation on insert/update
+        raise EETSDataTruncation.Create(SAS_ERR_ETS_DataTruncation);
+      end;
+      ETS_RESULT_TILE_TABLE_NOT_FOUND: begin
+        raise EETSCantCreateTable.Create(SAS_ERR_ETS_CannotCreateTable);
       end;
       ETS_RESULT_UNKNOWN_EXEPTION: begin
         // very unknown exception
