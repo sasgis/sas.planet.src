@@ -160,6 +160,7 @@ begin
     c_File_Cache_Id_ES,
     c_File_Cache_Id_GM,
     c_File_Cache_Id_GM_Aux,
+    c_File_Cache_Id_DBMS,
     c_File_Cache_Id_BDB] then begin
     if FDefCache <> Value then begin
       FDefCache := Value;
