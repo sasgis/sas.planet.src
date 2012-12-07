@@ -96,11 +96,11 @@ begin
     t3pos.Get3Parts(AServiceName, c_ETS_Path_Items_Count, TRUE);
 
     // add very first (2 delimiters - 3 parts)
-    if (0<t3pos.count_found) then begin
+    //if (0<=t3pos.count_found) then begin
       // add first text
       t3pos.pos_found[t3pos.count_found]:=0;
       Inc(t3pos.count_found);
-    end;
+    //end;
 
     // loop through found parts
     if (0<t3pos.count_found) then
