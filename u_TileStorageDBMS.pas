@@ -127,7 +127,8 @@ type
 
   private
     // service helpers routines
-
+    procedure CheckMalfunction;
+    function MalfunctionDetected: Boolean; inline;
     function GetInitialExclusiveFlag(const AForQuery: Boolean): LongWord;
 
     procedure InternalSaveTileOrTNE(
@@ -253,6 +254,7 @@ type
   EETSNoSpaceAvailable    = class(EETSBaseError);
   EETSDataTruncation      = class(EETSBaseError);
   EETSCantCreateTable     = class(EETSBaseError);
+  EETSReadOnlyConnection  = class(EETSBaseError);
   EETSUnknownError        = class(EETSBaseError);
   EETSCannotParseTile     = class(EETSBaseError);
 
@@ -316,6 +318,8 @@ type
 
   TSelectTileCallbackInfo = packed record
     TileResult: ITileInfoBasic;
+    AllowSaveToMemCache: Boolean;
+    //UseGetTileInfoMode: TGetTileInfoMode;
   end;
   PSelectTileCallbackInfo = ^TSelectTileCallbackInfo;
 
@@ -518,6 +522,8 @@ begin
         VTileVersion,
         VTileContentType
       );
+      // не сохраняем в MemCache
+      PSelectTileCallbackInfo(ACallbackPointer)^.AllowSaveToMemCache := FALSE;
     end;
   end else if ((ASelectBufferOut^.dwOptionsOut and ETS_ROO_TNE_EXISTS) <> 0) then begin
     // TNE exists
@@ -528,6 +534,25 @@ begin
   end else begin
     // neither tile nor TNE
     PSelectTileCallbackInfo(ACallbackPointer)^.TileResult := nil;
+  end;
+end;
+
+procedure TTileStorageETS.CheckMalfunction;
+begin
+  // проверяем только перечисленное тут
+  case FETS_SERVICE_STORAGE_OPTIONS.malfunction_mode of
+    ETS_PMM_INITIAL_MODE, ETS_PMM_NOT_COMPLETED: begin
+      // ошибка протокола связи с хранилищем
+      raise EETSNoRoutine.Create(SAS_ERR_ETS_NotImplemented);
+    end;
+    ETS_PMM_CONNECT_DEAD: begin
+      // соединение было, но оно разорвано и не восстанавливается
+      raise EETSDeadConnection.Create(SAS_ERR_ETS_ConnectionIsDead);
+    end;
+    ETS_PMM_FAILED_CONNECT: begin
+      // никак не получается подключиться
+      raise EETSCannotConnect.Create(SAS_ERR_ETS_CannotConnect);
+    end;
   end;
 end;
 
@@ -571,6 +596,7 @@ begin
   FMainContentType := AMainContentType;
 
   FUseMemCache := AUseMemCache;
+  //FUseMemCache := FALSE;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FEmptyVersion := MapVersionFactory.CreateByStoreString('');
@@ -621,6 +647,8 @@ begin
   Result := FALSE;
   // check if no routine
   if (nil=FETS_DeleteTile) then
+    Exit;
+  if MalfunctionDetected then
     Exit;
 
   VTileID.z := 0; // check for first time
@@ -838,6 +866,12 @@ function TTileStorageETS.GetInitialExclusiveFlag(const AForQuery: Boolean): Long
 begin
   Result := 0;
 
+  if (ETS_PMM_ESTABLISHED<>FETS_SERVICE_STORAGE_OPTIONS.malfunction_mode) then begin
+    // если нет подключения - запросы пускаем по очереди
+    SetUpExclusiveFlag(Result);
+    Exit;
+  end;
+
   case FETS_SERVICE_STORAGE_OPTIONS.exclusive_mode of
     ETS_HEM_EXCLISUVE: begin
       // all exclusive - start from 1
@@ -874,6 +908,7 @@ begin
   VTileID.z := 0; // initial flag
   VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(TRUE);
   if (nil<>FETS_EnumTileVersions) then
+  if (not MalfunctionDetected) then
   repeat
     // let us go
     DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
@@ -970,8 +1005,15 @@ begin
 
   Result := FTileNotExistsTileInfo;
 
+  if MalfunctionDetected then
+    Exit;
+
   VResult := ETS_RESULT_OK;
+
   FillChar(VObj, SizeOf(VObj), 0);
+  VObj.AllowSaveToMemCache := FUseMemCache;
+  //VObj.UseGetTileInfoMode := AMode;
+
   VTileID.z := 0;
   VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(TRUE);
   repeat
@@ -1021,8 +1063,10 @@ begin
       end;
       ETS_RESULT_NEED_EXCLUSIVE: begin
         // repeat exclusively
-        if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then
-          Exit;
+        if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then begin
+          raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
+          //Exit;
+        end;
         SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
       end;
       ETS_RESULT_OK: begin
@@ -1035,13 +1079,14 @@ begin
       end;
       else begin
         // failed
+        raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
         Exit;
       end;
     end;
   until FALSE;
 
   // write to cache
-  if FUseMemCache then begin
+  if VObj.AllowSaveToMemCache then begin
     FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
   end;
 end;
@@ -1072,6 +1117,7 @@ begin
   end;
 
   if (nil<>FETS_GetTileRectInfo) then
+  if (not MalfunctionDetected) then
   repeat
     // let us go
     DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
@@ -1459,6 +1505,8 @@ begin
   // check if no routine
   if (nil=ARoutinePtr) then
     raise EETSNoRoutine.Create(SAS_ERR_ETS_NotImplemented);
+  // raise if error detected
+  CheckMalfunction;
 
   VDeadConnectionFound := FALSE;
   VResult := ETS_RESULT_NEED_EXCLUSIVE; // any value <> ETS_RESULT_OK
@@ -1531,6 +1579,8 @@ begin
         break;
       end;
       // FAILED:
+      ETS_RESULT_INI_SECTION_NOT_FOUND,
+      ETS_RESULT_INI_FILE_NOT_FOUND,
       ETS_RESULT_NOT_CONNECTED: begin
         // cannot connect to server
         raise EETSCannotConnect.Create(SAS_ERR_ETS_CannotConnect);
@@ -1549,6 +1599,9 @@ begin
       end;
       ETS_RESULT_TILE_TABLE_NOT_FOUND: begin
         raise EETSCantCreateTable.Create(SAS_ERR_ETS_CannotCreateTable);
+      end;
+      ETS_RESULT_READ_ONLY: begin
+        raise EETSReadOnlyConnection.Create(SAS_ERR_ETS_ReadOnlyConnect);
       end;
       ETS_RESULT_UNKNOWN_EXEPTION: begin
         // very unknown exception
@@ -1589,6 +1642,11 @@ begin
   end;
 end;
 
+function TTileStorageETS.MalfunctionDetected: Boolean;
+begin
+  Result := not (FETS_SERVICE_STORAGE_OPTIONS.malfunction_mode in [ETS_PMM_HAS_COMPLETED,ETS_PMM_ESTABLISHED]);
+end;
+
 procedure TTileStorageETS.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
@@ -1616,6 +1674,7 @@ begin
   if (FETS_MakeTileEnum<>nil) and
      (FETS_NextTileEnum<>nil) and
      (FETS_KillTileEnum<>nil) and
+     (not MalfunctionDetected) and
      (FETS_SERVICE_STORAGE_OPTIONS.scan_tiles_mode<>ETS_STM_NOT) then begin
     // allow to create enumerator in storage provider
     Result := TEnumTileInfoByETS.Create(

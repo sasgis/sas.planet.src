@@ -102,6 +102,7 @@ ResourceString
   SAS_ERR_ETS_CannotParseTile = 'Cannot parse tile to get its version';
   SAS_ERR_ETS_FailToSaveTile  = 'Failed to save to external tile storage: error ';
   SAS_ERR_ETS_NoSpaceAvailable  = 'No space available at external tile storage';
+  SAS_ERR_ETS_ReadOnlyConnect   = 'External tile storage is readonly';
   SAS_ERR_ETS_DataTruncation    = 'Data truncation occured because of external tile storage misconfiguration';
   SAS_ERR_ETS_CannotCreateTable = 'Table not found and cannot be created (possibly due to insufficient privileges or readonly external tile storage)';
   SAS_ERR_ETS_UnknownError      = 'Unknown error at external tile storage, see Storage Options for more information';

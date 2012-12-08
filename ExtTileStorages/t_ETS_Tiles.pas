@@ -166,11 +166,12 @@ const
   ETS_STM_YES         = 'Y'; // supported (depends on underlaying driver)
 
   // provider malfunction mode
-  ETS_PMM_DEFAULT         = '0'; // default mode (success)
-  ETS_PMM_UNKNOWN         = 'U'; // unknown critical error
-  ETS_PMM_AUTH_FAILED     = 'A'; // failed to authenticate
-  ETS_PMM_NET_ERROR       = 'N'; // network error
-  ETS_PMM_NOT_COMPLETED   = 'C'; // settings not completed
+  ETS_PMM_INITIAL_MODE    = 'I'; // initial (not connected or unknown)
+  ETS_PMM_ESTABLISHED     = 'E'; // established connection
+  ETS_PMM_CONNECT_DEAD    = 'D'; // connection is dead
+  ETS_PMM_FAILED_CONNECT  = 'F'; // failed to connect
+  ETS_PMM_NOT_COMPLETED   = 'N'; // cannot connect due to imcomplete settings
+  ETS_PMM_HAS_COMPLETED   = 'C'; // complete settings (can connect)
 
   // flags for Initialize
   ETS_INIT_ISOLATE_ENV = $00000001; // make single isolated environment and connection
@@ -387,19 +388,20 @@ type
     // service fields
     wSize: SmallInt;
     wReserved: SmallInt;  // use 0
-    // from host to storage
     tile_load_mode: Byte; // ETS_TLM_* constants
     tile_save_mode: Byte; // ETS_TSM_* constants
     new_ver_by_tile: SmallInt;
-    host_reserved_5: LongWord; // for alignment
-    // from storage to host
+    host_reserved_1: Byte; // for alignment
+    host_reserved_2: Byte; // for alignment
+    host_reserved_4: Byte; // for alignment
+    host_reserved_5: Byte; // for alignment
     id_div_mode: AnsiChar; // how to divide tiles into tables
     id_ver_comp: AnsiChar; // type of version numbers comparator
     work_mode: AnsiChar; //  ETS_SWM_* constants
     use_common_tiles: AnsiChar; //  ETS_UCT_* constants
     exclusive_mode: AnsiChar; // ETS_HEM_* constants
     scan_tiles_mode: AnsiChar; // ETS_STM_* constants
-    mailfunction_mode: AnsiChar; // ETS_PMM_* constants
+    malfunction_mode: AnsiChar; // ETS_PMM_* constants
     host_reserved_3: AnsiChar;
   public
     procedure Clear;
@@ -420,7 +422,7 @@ begin
   use_common_tiles := ETS_UCT_NO;
   exclusive_mode := ETS_HEM_DEFAULT;
   scan_tiles_mode := ETS_STM_DEFAULT;
-  mailfunction_mode := ETS_PMM_DEFAULT;
+  malfunction_mode := ETS_PMM_INITIAL_MODE;
 end;
 
 end.
