@@ -655,6 +655,7 @@
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBEnv.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBErrorHandler.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBPool.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_EnumTileInfoByBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileFileNameBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBHelper.pas" />

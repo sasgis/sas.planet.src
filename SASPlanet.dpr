@@ -20,6 +20,7 @@ uses
   u_TileStorageBerkeleyDBHelper in 'TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBHelper.pas',
   u_TileStorageBerkeleyDBRecParser in 'TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBRecParser.pas',
   u_TileStorageTypeBerkeleyDB in 'TileStorage\BerkeleyDB\u_TileStorageTypeBerkeleyDB.pas',
+  u_EnumTileInfoByBerkeleyDB in 'TileStorage\BerkeleyDB\u_EnumTileInfoByBerkeleyDB.pas',
   i_Synchronizer in 'Synchronize\i_Synchronizer.pas',
   i_ReadWriteSyncFactory in 'Synchronize\i_ReadWriteSyncFactory.pas',
   u_ReadWriteSyncAbstract in 'Synchronize\u_ReadWriteSyncAbstract.pas',

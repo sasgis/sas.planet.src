@@ -56,12 +56,9 @@ type
     FFileNameGenerator: ITileFileNameGenerator;
 
     procedure OnTTLSync(Sender: TObject);
-  private
-    { IBasicMemCache }
-    procedure ClearMemCache;
-    procedure IBasicMemCache.Clear = ClearMemCache;
   protected
     function GetIsFileCache: Boolean; override;
+
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -106,6 +103,10 @@ type
     function ScanTiles(
       const AIgnoreTNE: Boolean
     ): IEnumTileInfo; override;
+  private
+    { IBasicMemCache }
+    procedure ClearMemCache;
+    procedure IBasicMemCache.Clear = ClearMemCache;
   public
     constructor Create(
       const AGeoConverter: ICoordConverter;
@@ -136,15 +137,9 @@ uses
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
   u_TileInfoBasic,
-  u_BaseInterfacedObject;
+  u_EnumTileInfoByBerkeleyDB;
 
 { TTileStorageBerkeleyDB }
-
-procedure TTileStorageBerkeleyDB.ClearMemCache;
-begin
-  if Assigned(FTileInfoMemCache) then
-    FTileInfoMemCache.Clear;
-end;
 
 constructor TTileStorageBerkeleyDB.Create(
   const AGeoConverter: ICoordConverter;
@@ -619,96 +614,9 @@ begin
   end;
 end;
 
-{ TEnumTileInfoByBDB }
-
-type
-  TEnumTileInfoByBDB = class(TBaseInterfacedObject, IEnumTileInfo)
-  private
-    FFilesIterator: IFileNameIterator;
-    FTileFileNameParser: ITileFileNameParser;
-    FStorage: TTileStorageBerkeleyDB;
-
-    FCurFileTilesArray: TPointArray;
-    FCurFileIndex: Integer;
-    FCurFileZoom: Byte;
-  private
-    function Next(var ATileInfo: TTileInfo): Boolean;
-  public
-    constructor Create(
-      const AFilesIterator: IFileNameIterator;
-      const ATileFileNameParser: ITileFileNameParser;
-      AStorage: TTileStorageBerkeleyDB
-    );
-  end;
-
-constructor TEnumTileInfoByBDB.Create(
-  const AFilesIterator: IFileNameIterator;
-  const ATileFileNameParser: ITileFileNameParser;
-  AStorage: TTileStorageBerkeleyDB
-);
-begin
-  inherited Create;
-  FFilesIterator := AFilesIterator;
-  FTileFileNameParser := ATileFileNameParser;
-  FStorage := AStorage;
-  FCurFileIndex := 0;
-  SetLength(FCurFileTilesArray, 0);
-end;
-
-function TEnumTileInfoByBDB.Next(var ATileInfo: TTileInfo): Boolean;
-var
-  VTileFileName: string;
-  VTileFileNameW: WideString;
-  VTileInfo: ITileInfoBasic;
-  VTileInfoWithData: ITileInfoWithData;
-  VData: IBinaryData;
-  VTileXY: TPoint;
-begin
-  Result := False;
-  while FCurFileIndex >= 0 do begin
-    if FCurFileIndex < Length(FCurFileTilesArray) then begin
-      ATileInfo.FZoom := FCurFileZoom;
-      ATileInfo.FTile := FCurFileTilesArray[FCurFileIndex];
-      Inc(FCurFileIndex);
-      VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, nil, gtimWithData);
-      VData := nil;
-      if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
-        VData := VTileInfoWithData.TileData;
-      end;
-      ATileInfo.FLoadDate := VTileInfo.LoadDate;
-      ATileInfo.FVersionInfo := VTileInfo.VersionInfo;
-      ATileInfo.FContentType := VTileInfo.ContentType;
-      ATileInfo.FData := VData;
-      ATileInfo.FSize := VTileInfo.Size;
-      if VTileInfo.IsExists then begin
-        ATileInfo.FInfoType := titExists;
-        Result := True;
-        Break;
-      end else if VTileInfo.IsExistsTNE then begin
-        ATileInfo.FInfoType := titTneExists;
-        Result := True;
-        Break;
-      end else begin
-        ATileInfo.FInfoType := titNotExists;
-        Continue;
-      end;
-    end;
-    if FFilesIterator.Next(VTileFileNameW) then begin
-      VTileFileName := VTileFileNameW;
-      if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom) and
-        FStorage.FHelper.GetTileExistsArray(FStorage.StoragePath + VTileFileName, FCurFileZoom, nil, FCurFileTilesArray) then begin
-        FCurFileIndex := 0;
-      end else begin
-        FCurFileIndex := Length(FCurFileTilesArray);
-      end;
-    end else begin
-      FCurFileIndex := -1;
-    end;
-  end;
-end;
-
 function TTileStorageBerkeleyDB.ScanTiles(
-  const AIgnoreTNE: Boolean): IEnumTileInfo;
+  const AIgnoreTNE: Boolean
+): IEnumTileInfo;
 const
   cMaxFolderDepth = 10;
 var
@@ -740,15 +648,21 @@ begin
 
     VFileNameParser := TTileFileNameBerkeleyDB.Create as ITileFileNameParser;
     Result :=
-      TEnumTileInfoByBDB.Create(
+      TEnumTileInfoByBerkeleyDB.Create(
         VFilesIterator,
         VFileNameParser,
-        Self
+        (Self as ITileStorage),
+        FHelper
       );
   finally
     VProcessFileMasks.Free;
   end;
+end;
 
+procedure TTileStorageBerkeleyDB.ClearMemCache;
+begin
+  if Assigned(FTileInfoMemCache) then
+    FTileInfoMemCache.Clear;
 end;
 
 end.
