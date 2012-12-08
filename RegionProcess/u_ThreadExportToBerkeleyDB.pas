@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_ThreadExportToBDB;
+unit u_ThreadExportToBerkeleyDB;
 
 interface
 
@@ -41,7 +41,7 @@ uses
   u_ThreadExportAbstract;
 
 type
-  TThreadExportToBDB = class(TThreadExportAbstract)
+  TThreadExportToBerkeleyDB = class(TThreadExportAbstract)
   private
     FMapTypeArr: IMapTypeListStatic;
     FProjectionFactory: IProjectionInfoFactory;
@@ -86,10 +86,12 @@ uses
   i_TileIterator,
   i_TileInfoBasic,
   i_TileStorage,
-  u_TileFileNameBDB,
+  u_TileFileNameBerkeleyDB,
   u_TileIteratorByPolygon;
 
-constructor TThreadExportToBDB.Create(
+{ TThreadExportToBerkeleyDB }
+
+constructor TThreadExportToBerkeleyDB.Create(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
@@ -117,19 +119,19 @@ begin
     raise Exception.Create('Can''t ExpandFileName: ' + APath);
   end;
   FIsMove := AMove;
-  FTileNameGen := TTileFileNameBDB.Create;
+  FTileNameGen := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
   FIsReplace := AReplace;
   FMapTypeArr := AMapTypeArr;
 end;
 
-function TThreadExportToBDB.GetFullPathName(const ARelativePathName: string): string;
+function TThreadExportToBerkeleyDB.GetFullPathName(const ARelativePathName: string): string;
 begin
   SetLength(Result, MAX_PATH);
   PathCombine(@Result[1], PChar(ExtractFilePath(ParamStr(0))), PChar(ARelativePathName));
   SetLength(Result, StrLen(PChar(Result)));
 end;
 
-function TThreadExportToBDB.TileExportToRemoteBDB(
+function TThreadExportToBerkeleyDB.TileExportToRemoteBDB(
   AHelper: TTileStorageBerkeleyDBHelper;
   AMapType: TMapType;
   const AXY: TPoint;
@@ -184,7 +186,7 @@ begin
   end;
 end;
 
-procedure TThreadExportToBDB.ProcessRegion;
+procedure TThreadExportToBerkeleyDB.ProcessRegion;
 var
   i, j: integer;
   VZoom: Byte;

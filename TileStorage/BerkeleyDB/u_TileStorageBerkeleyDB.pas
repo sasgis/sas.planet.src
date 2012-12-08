@@ -129,7 +129,7 @@ uses
   i_TileFileNameParser,
   u_ListenerTTLCheck,
   u_TileRectInfoShort,
-  u_TileFileNameBDB,
+  u_TileFileNameBerkeleyDB,
   u_TileIteratorByRect,
   u_TileStorageTypeAbilities,
   u_FileNameIteratorFolderWithSubfolders,
@@ -171,7 +171,7 @@ begin
   FUseMemCache := AUseMemCache;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
-  FFileNameGenerator := TTileFileNameBDB.Create;
+  FFileNameGenerator := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
   FHelper := TTileStorageBerkeleyDBHelper.Create(
     StoragePath,
     AGeoConverter.ProjectionEPSG
@@ -757,7 +757,7 @@ begin
       VFilesInFolderIteratorFactory
     );
 
-    VFileNameParser := TTileFileNameBDB.Create;
+    VFileNameParser := TTileFileNameBerkeleyDB.Create as ITileFileNameParser;
     Result :=
       TEnumTileInfoByBDB.Create(
         VFilesIterator,

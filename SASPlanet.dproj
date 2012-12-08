@@ -609,7 +609,7 @@
     <DCCReference Include="RegionProcess\u_ThreadExportKML.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToArchive.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToAUX.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToBDB.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportToBerkeleyDB.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToCE.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToJNX.pas" />
@@ -655,7 +655,7 @@
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBEnv.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBErrorHandler.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBPool.pas" />
-    <DCCReference Include="TileStorage\BerkeleyDB\u_TileFileNameBDB.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_TileFileNameBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBRecParser.pas" />

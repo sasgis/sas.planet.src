@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileFileNameBDB;
+unit u_TileFileNameBerkeleyDB;
 
 interface
 
@@ -29,7 +29,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TTileFileNameBDB = class(
+  TTileFileNameBerkeleyDB = class(
     TBaseInterfacedObject,
     ITileFileNameParser,
     ITileFileNameGenerator
@@ -54,11 +54,11 @@ uses
   SysUtils;
 
 const
-  c_BDB_Expr  = '^(.+\\)?[zZ](\d\d?)\\\d+\\\d+\\(\d+)\.(\d+)(\..+)?$';
+  cBerkeleyDBRegExpr  = '^(.+\\)?[zZ](\d\d?)\\\d+\\\d+\\(\d+)\.(\d+)(\..+)?$';
 
-{ TTileFileNameBDB }
+{ TTileFileNameBerkeleyDB }
 
-function TTileFileNameBDB.GetTileFileName(
+function TTileFileNameBerkeleyDB.GetTileFileName(
   AXY: TPoint;
   AZoom: Byte
 ): string;
@@ -78,7 +78,7 @@ begin
   );
 end;
 
-function TTileFileNameBDB.GetTilePoint(
+function TTileFileNameBerkeleyDB.GetTilePoint(
   const ATileFileName: string;
   out ATileXY: TPoint;
   out ATileZoom: Byte
@@ -88,7 +88,7 @@ var
 begin
   VRegExpr := TRegExpr.Create;
   try
-    VRegExpr.Expression := c_BDB_Expr;
+    VRegExpr.Expression := cBerkeleyDBRegExpr;
     if VRegExpr.Exec(ATileFileName) then begin
       ATileZoom := StrToInt(VRegExpr.Match[2]) - 1;
       ATileXY.X := StrToInt(VRegExpr.Match[3]) shl 8;

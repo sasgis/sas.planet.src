@@ -55,12 +55,12 @@ uses
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,
-  u_ThreadExportToBDB,
+  u_ThreadExportToBerkeleyDB,
   u_ThreadExportToStorage,
   u_ResStrings,
   frm_ProgressSimple;
 
-{ TProviderTilesDelete }
+{ TProviderTilesCopy }
 
 constructor TProviderTilesCopy.Create(
   const ALanguageManager: ILanguageManager;
@@ -164,7 +164,7 @@ begin
       VReplace
     );
   end else if VCacheType = c_File_Cache_Id_BDB then begin
-    TThreadExportToBDB.Create(
+    TThreadExportToBerkeleyDB.Create(
       VCancelNotifierInternal,
       VOperationID,
       VProgressInfo,
