@@ -651,6 +651,15 @@
     <DCCReference Include="Terrain\u_TerrainProviderByGEMemCache.pas" />
     <DCCReference Include="Terrain\u_TerrainProviderList.pas" />
     <DCCReference Include="Terrain\u_TerrainProviderListElement.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDB.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBEnv.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBErrorHandler.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBPool.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_TileFileNameBDB.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDB.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBHelper.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBRecParser.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageTypeBerkeleyDB.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
@@ -1089,7 +1098,6 @@
     <DCCReference Include="u_TileDownloadSubsystemState.pas" />
     <DCCReference Include="u_TileErrorInfo.pas" />
     <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
-    <DCCReference Include="u_TileFileNameBDB.pas" />
     <DCCReference Include="u_TileFileNameES.pas" />
     <DCCReference Include="u_TileFileNameGeneratorsSimpleList.pas" />
     <DCCReference Include="u_TileFileNameGM1.pas" />
@@ -1121,9 +1129,6 @@
     <DCCReference Include="u_TileRequestResult.pas" />
     <DCCReference Include="u_TileRequestTask.pas" />
     <DCCReference Include="u_TileStorageAbstract.pas" />
-    <DCCReference Include="u_TileStorageBerkeleyDB.pas" />
-    <DCCReference Include="u_TileStorageBerkeleyDBHelper.pas" />
-    <DCCReference Include="u_TileStorageBerkeleyDBRecParser.pas" />
     <DCCReference Include="u_TileStorageDBMS.pas" />
     <DCCReference Include="u_TileStorageFileSystem.pas" />
     <DCCReference Include="u_TileStorageGE.pas" />
@@ -1132,7 +1137,6 @@
     <DCCReference Include="u_TileStorageOfMapType.pas" />
     <DCCReference Include="u_TileStorageTypeAbilities.pas" />
     <DCCReference Include="u_TileStorageTypeBase.pas" />
-    <DCCReference Include="u_TileStorageTypeBerkeleyDB.pas" />
     <DCCReference Include="u_TileStorageTypeConfig.pas" />
     <DCCReference Include="u_TileStorageTypeDBMS.pas" />
     <DCCReference Include="u_TileStorageTypeFileSystemSimple.pas" />
