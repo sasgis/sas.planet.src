@@ -28,6 +28,7 @@ uses
   SyncObjs,
   i_MapVersionInfo,
   i_BinaryData,
+  i_GlobalBerkeleyDBHelper,
   u_BerkeleyDB,
   u_BerkeleyDBEnv,
   u_BerkeleyDBPool,
@@ -40,7 +41,7 @@ type
   private
     FEnv: TBerkeleyDBEnv;
     FPool: TBerkeleyDBPool;
-    FSingleMode: Boolean;
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FStorageRootPath: string;
     FStorageEPSG: Integer;
     FEvent: TEvent;
@@ -52,8 +53,9 @@ type
     procedure CreateEnvironment(const APath: string);
   public
     constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AStorageRootPath: string;
-      AStorageEPSG: Integer
+      const AStorageEPSG: Integer
     ); 
     destructor Destroy; override;
 
@@ -121,8 +123,7 @@ implementation
 uses
   Windows,
   SysUtils,  
-  u_BinaryData,
-  u_BerkeleyDBErrorHandler;
+  u_BinaryData;
 
 const
   CPageSize = 1024; // 1k
@@ -131,11 +132,13 @@ const
 { TTileStorageBerkeleyDBHelper }
 
 constructor TTileStorageBerkeleyDBHelper.Create(
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AStorageRootPath: string;
-  AStorageEPSG: Integer
+  const AStorageEPSG: Integer
 );
 begin
   inherited Create;
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FStorageRootPath := AStorageRootPath;
   FStorageEPSG := AStorageEPSG;
   FEvent := TEvent.Create;
@@ -146,22 +149,20 @@ end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
-  GlobalFreeAndNilEnvironment(FEnv);
+  FGlobalBerkeleyDBHelper.FreeEnvironment(@FEnv);
+  FEnv := nil;
   FEvent.Free;
   inherited Destroy;
 end;
 
 procedure TTileStorageBerkeleyDBHelper.CreateEnvironment(const APath: string);
 begin
-  // create in-memory environment (for single process access only)
-  FSingleMode := False;
-
-  FEnv := GlobalAllocateEnvironment(APath, FSingleMode);
+  FEnv := TBerkeleyDBEnv(FGlobalBerkeleyDBHelper.AllocateEnvironment(APath)^);
   if Assigned(FEnv) then begin
     FPool := FEnv.Pool;
     FPool.OnObjCreate := Self.OnBDBObjCreate;
   end else begin
-    BDBRaiseException(
+    FGlobalBerkeleyDBHelper.RaiseException(
       'Error [BerkeleyDB]: Can''t allocate environment: ' + AnsiString(APath)
     );
   end;
@@ -175,7 +176,8 @@ begin
     FEvent.ResetEvent;
     try
       if Assigned(FEnv) then begin
-        GlobalFreeAndNilEnvironment(FEnv);
+        FGlobalBerkeleyDBHelper.FreeEnvironment(@FEnv);
+        FEnv := nil;
       end;
       FStorageRootPath := AStorageNewRootPath;
       CreateEnvironment(AStorageNewRootPath);
@@ -194,10 +196,7 @@ var
 begin
   New(VMeta);
   try
-    if FSingleMode then begin
-      TBerkeleyDBEnv.LsnReset(AFileName);
-    end;
-    VBDB := TBerkeleyDB.Create;
+    VBDB := TBerkeleyDB.Create(FGlobalBerkeleyDBHelper);
     VBDB.OnCreate := Self.OnBDBFileCreate;
     VBDB.OnOpen := Self.OnBDBFileFirstOpen;
     VBDB.OnCheckPoint := FEnv.CheckPoint;
@@ -210,7 +209,7 @@ begin
       Result := VBDB;
     end else begin
       Result := nil;
-      BDBRaiseException(
+      FGlobalBerkeleyDBHelper.RaiseException(
         'Error [BerkeleyDB]: Can''t open file: ' + AnsiString(AFileName)
       );
     end;

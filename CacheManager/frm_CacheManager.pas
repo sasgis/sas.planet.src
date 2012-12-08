@@ -46,6 +46,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_ValueToStringConverter,
+  i_GlobalBerkeleyDBHelper,
   u_CommonFormAndFrameParents;
 
 type
@@ -82,6 +83,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
     FGCList: INotifierTTLCheck;
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
     FCoordConverterFactory: ICoordConverterFactory;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -100,6 +102,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const AGCList: INotifierTTLCheck;
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -141,6 +144,7 @@ constructor TfrmCacheManager.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const AGCList: INotifierTTLCheck;
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -153,6 +157,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
   FGCList := AGCList;
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
   FContentTypeManager := AContentTypeManager;
@@ -177,6 +182,7 @@ begin
     VMapVersionFactory := TMapVersionFactorySimpleString.Create;
     Result :=
       TTileStorageBerkeleyDB.Create(
+        FGlobalBerkeleyDBHelper,
         ACoordConverter,
         ARootPath,
         FGCList,

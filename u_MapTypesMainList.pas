@@ -45,6 +45,7 @@ uses
   i_MainMemCacheConfig,
   i_MapTypeGUIConfigList,
   i_MapTypes,
+  i_GlobalBerkeleyDBHelper,
   u_MapTypeSetChangeableSimple,
   u_GlobalCahceConfig,
   u_MapType;
@@ -92,6 +93,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: TGlobalCahceConfig;
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
       const AGCList: INotifierTTLCheck;
@@ -215,6 +217,7 @@ procedure TMapTypesMainList.LoadMaps(
   const ALanguageManager: ILanguageManager;
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: TGlobalCahceConfig;
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;
   const AGCList: INotifierTTLCheck;
@@ -272,6 +275,7 @@ begin
           VZmp,
           AMainMemCacheConfig,
           AGlobalCacheConfig,
+          AGlobalBerkeleyDBHelper,
           ATileNameGeneratorList,
           ATileNameParserList,
           AGCList,

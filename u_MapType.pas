@@ -67,6 +67,7 @@ uses
   i_ProjConverter,
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
+  i_GlobalBerkeleyDBHelper,
   u_GlobalCahceConfig,
   i_TileStorage;
 
@@ -231,6 +232,7 @@ type
       const AZmp: IZmpInfo;
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: TGlobalCahceConfig;
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
       const AGCList: INotifierTTLCheck;
@@ -304,6 +306,7 @@ constructor TMapType.Create(
   const AZmp: IZmpInfo;
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: TGlobalCahceConfig;
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;
   const AGCList: INotifierTTLCheck;
@@ -371,6 +374,7 @@ begin
   FStorage :=
     TTileStorageOfMapType.Create(
       AGlobalCacheConfig,
+      AGlobalBerkeleyDBHelper,
       FStorageConfig,
       FVersionConfig,
       AGCList,

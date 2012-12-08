@@ -27,6 +27,7 @@ uses
   Classes,
   SysUtils,
   SyncObjs,
+  i_GlobalBerkeleyDBHelper,
   u_BerkeleyDB;
 
 type
@@ -42,6 +43,7 @@ type
 
   TBerkeleyDBPool = class(TObject)
   private
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FCS: TCriticalSection;
     FObjList: TList;
     FPoolSize: Integer;
@@ -54,7 +56,10 @@ type
     procedure SetPoolSize(AValue: Integer);
     procedure Abort;
   public
-    constructor Create(const APoolSize: Cardinal = 12);
+    constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const APoolSize: Cardinal
+    );
     destructor Destroy; override;
     procedure Sync;
     function Acquire(const AFileName: string): TBerkeleyDB;
@@ -65,14 +70,15 @@ type
 
 implementation
 
-uses
-  libdb51,
-  u_BerkeleyDBErrorHandler;
-
 { TBerkeleyDBPool }
 
-constructor TBerkeleyDBPool.Create(const APoolSize: Cardinal = 12);
+constructor TBerkeleyDBPool.Create(
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const APoolSize: Cardinal
+);
 begin
+  inherited Create;
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FCS := TCriticalSection.Create;
   FObjList := TList.Create;
   FCrashList := TStringList.Create;
@@ -117,8 +123,8 @@ begin
         end;
       end;
       if not VFound then begin
-        BDBRaiseException(
-          'Error [BerkeleyDB]: Can''t release an object that is not in the pool!'
+        FGlobalBerkeleyDBHelper.RaiseException(
+          'Error [BerkeleyDB Pool]: Can''t release an object that is not in the pool!'
         );
       end;
       if not FActive and (FUsageCount <= 0) then begin
@@ -141,7 +147,7 @@ function TBerkeleyDBPool.Acquire(const AFileName: string): TBerkeleyDB;
     if Addr(FOnObjCreate) <> nil then begin
       VObj := FOnObjCreate(AFileName);
     end else begin
-      VObj := TBerkeleyDB.Create;
+      VObj := TBerkeleyDB.Create(FGlobalBerkeleyDBHelper);
     end;
     if Assigned(VObj) then begin
       New(PRec);
@@ -205,16 +211,16 @@ begin
               Result := CreateNewObj();
             end;
           end else begin
-            BDBRaiseException(
-              'Error [BerkeleyDB]: There are no available objects in the pool!'
+            FGlobalBerkeleyDBHelper.RaiseException(
+              'Error [BerkeleyDB Pool]: There are no available objects in the pool!'
             );
           end;
         end;
         if Result <> nil then begin
           Inc(FUsageCount);
         end else begin
-          BDBRaiseException(
-            'Error [BerkeleyDB]: Can''t acquire db: ' + AnsiString(AFileName)
+          FGlobalBerkeleyDBHelper.RaiseException(
+            'Error [BerkeleyDB Pool]: Can''t acquire db: ' + AnsiString(AFileName)
           );
         end;
       except
@@ -310,8 +316,8 @@ begin
     if AValue > FPoolSize then begin
       FPoolSize := AValue;
     end else begin
-      BDBRaiseException(
-        'Error [BerkeleyDB]: Can''t decrease pool size!'
+      FGlobalBerkeleyDBHelper.RaiseException(
+        'Error [BerkeleyDB Pool]: Can''t decrease pool size!'
       );
     end;
   finally

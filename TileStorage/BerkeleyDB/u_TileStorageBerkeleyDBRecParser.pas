@@ -85,9 +85,9 @@ function PRawMetaToPBDBMetaInfo(
 implementation
 
 uses
+  SysUtils,
   libdb51,
-  CRC32,
-  u_BerkeleyDBErrorHandler;
+  CRC32;
 
 const
   CBDBMetaVersion = #01;
@@ -260,7 +260,8 @@ begin
         Result := True;
       end;
     end else begin
-      BDBRaiseException(
+      //ToDo: BDBRaiseException(
+      raise Exception.Create(
         AnsiString('Error [BerkeleyDB]: Bad magic value (') +
         AData.RecMagic[0] +
         AData.RecMagic[1] +

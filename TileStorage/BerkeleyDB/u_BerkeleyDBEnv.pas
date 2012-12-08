@@ -25,11 +25,13 @@ interface
 uses
   SyncObjs,
   libdb51,
+  i_GlobalBerkeleyDBHelper,
   u_BerkeleyDBPool;
 
 type
   TBerkeleyDBEnv = class(TObject)
   private
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FEnv: PDB_ENV;
     FPool: TBerkeleyDBPool;
     FActive: Boolean;
@@ -38,12 +40,14 @@ type
     FEnvRootPath: string;
     FCS: TCriticalSection;
     FClientsCount: Integer;
-    FSingleMode: Boolean;
 
     function Open: Boolean;
     function GetEnv: PDB_ENV;
   public
-    constructor Create(const AEnvRootPath: string; ASingleMode: Boolean);
+    constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const AEnvRootPath: string
+    );
     destructor Destroy; override;
     procedure RemoveUnUsedLogs;
     procedure CheckPoint(Sender: TObject);
@@ -55,9 +59,6 @@ type
     property ClientsCount: Integer read FClientsCount write FClientsCount;
   end;
 
-function GlobalAllocateEnvironment(const AEnvRootPath: string; ASingleMode: Boolean): TBerkeleyDBEnv;
-function GlobalFreeAndNilEnvironment(var AEnv: TBerkeleyDBEnv): Boolean;
-
 const
   CEnvSubDir = 'env';
   CBerkeleyDBEnvErrPfx = 'BerkeleyDB (Env)';
@@ -65,104 +66,25 @@ const
 implementation
 
 uses
-  Windows,
-  Contnrs,
+  Windows,  
   SysUtils,
-  ShLwApi,
-  u_BerkeleyDBErrorHandler;
-
-var
-  GEnvList: TObjectList = nil;
-  GCS: TCriticalSection = nil;
-
-function GetFullPathName(const ARelativePathName: string): string;
-begin
-  SetLength(Result, MAX_PATH);
-  PathCombine(@Result[1], PChar(ExtractFilePath(ParamStr(0))), PChar(ARelativePathName));
-  SetLength(Result, StrLen(PChar(Result)));
-  Result := LowerCase(IncludeTrailingPathDelimiter(Result));
-end;
-
-function GlobalAllocateEnvironment(
-  const AEnvRootPath: string;
-  ASingleMode: Boolean
-): TBerkeleyDBEnv;
-var
-  I: Integer;
-  VPath: string;
-  VEnv: TBerkeleyDBEnv;
-begin
-  Result := nil;
-  GCS.Acquire;
-  try
-    VPath := GetFullPathName(AEnvRootPath);
-    for I := 0 to GEnvList.Count - 1 do begin
-      VEnv := TBerkeleyDBEnv(GEnvList.Items[I]);
-      if Assigned(VEnv) then begin
-        if VEnv.EnvRootPath = VPath then begin
-          Result := VEnv;
-          Break;
-        end;
-      end;
-    end;
-    if not Assigned(Result) then begin
-      VEnv := TBerkeleyDBEnv.Create(VPath, ASingleMode);
-      GEnvList.Add(VEnv);
-      Result := VEnv;
-    end;
-    if Assigned(Result) then begin
-      Result.ClientsCount := Result.ClientsCount + 1;
-    end;
-  finally
-    GCS.Release;
-  end;
-end;
-
-function GlobalFreeAndNilEnvironment(var AEnv: TBerkeleyDBEnv): Boolean;
-var
-  I: Integer;
-  VEnv: TBerkeleyDBEnv;
-begin
-  Result := False;
-  GCS.Acquire;
-  try
-    if Assigned(AEnv) then begin
-      for I := 0 to GEnvList.Count - 1 do begin
-        VEnv := TBerkeleyDBEnv(GEnvList.Items[I]);
-        if Assigned(VEnv) then begin
-          if VEnv = AEnv then begin
-            VEnv.ClientsCount := VEnv.ClientsCount - 1;
-            if VEnv.ClientsCount <= 0 then begin
-              GEnvList.Remove(VEnv);
-              GEnvList.Pack;
-              AEnv := nil;
-              Result := True;
-            end;
-            Break;
-          end;
-        end;
-      end;
-    end;
-  finally
-    GCS.Release;
-  end;
-end;
+  u_GlobalBerkeleyDBHelper;
 
 { TBerkeleyDBEnv }
 
 constructor TBerkeleyDBEnv.Create(
-  const AEnvRootPath: string;
-  ASingleMode: Boolean
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const AEnvRootPath: string
 );
 begin
   inherited Create;
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
   FEnvRootPath := AEnvRootPath;
-  FSingleMode := ASingleMode;
   FClientsCount := 1;
-  FPool := TBerkeleyDBPool.Create;
+  FPool := TBerkeleyDBPool.Create(FGlobalBerkeleyDBHelper, 12);
   FLibInitOk := InitBerkeleyDB;
 end;
 
@@ -172,6 +94,10 @@ begin
   if FEnv <> nil then begin
     CheckPoint(Self);
     RemoveUnUsedLogs;
+
+    FEnv.app_private := nil;
+    FGlobalBerkeleyDBHelper._Release;
+
     CheckBDBandNil(FEnv.close(FEnv, 0), FEnv);
   end;
   FCS.Free;
@@ -181,37 +107,33 @@ end;
 function TBerkeleyDBEnv.Open: Boolean;
 var
   I: Integer;
-  VPath: string;
-  VSingleModFlag: Cardinal;
+  VPath: AnsiString;
 begin
   if not FActive and FLibInitOk then begin
     CheckBDB(db_env_create(FEnv, 0));
+
+    FEnv.app_private := @FGlobalBerkeleyDBHelper;
+    FGlobalBerkeleyDBHelper._AddRef;
+
     FEnv.set_errpfx(FEnv, CBerkeleyDBEnvErrPfx);
-    FEnv.set_errcall(FEnv, BDBErrCall);
+    FEnv.set_errcall(FEnv, BerkeleyDBErrCall);
     CheckBDB(FEnv.set_alloc(FEnv, @GetMemory, @ReallocMemory, @FreeMemory));
     CheckBDB(FEnv.set_flags(FEnv, DB_TXN_NOSYNC, 1));
     CheckBDB(FEnv.set_flags(FEnv, DB_TXN_WRITE_NOSYNC, 1));
     CheckBDB(FEnv.set_verbose(FEnv, DB_VERB_RECOVERY, 1));
-    if FSingleMode then begin
-      VPath := '';
-      VSingleModFlag := DB_PRIVATE or DB_SYSTEM_MEM;
-      CheckBDB(FEnv.log_set_config(FEnv, DB_LOG_IN_MEMORY, 1));
-      CheckBDB(FEnv.set_lg_bsize(FEnv, 10*1024*1024));
+
+    if CEnvSubDir <> '' then begin
+      VPath := FEnvRootPath + CEnvSubDir + PathDelim;
+      I := LastDelimiter(PathDelim, VPath);
+      VPath := copy(VPath, 1, I);
+      CheckBDB(FEnv.set_data_dir(FEnv, '..'));
     end else begin
-      if CEnvSubDir <> '' then begin
-        VPath := FEnvRootPath + CEnvSubDir + PathDelim;
-        I := LastDelimiter(PathDelim, VPath);
-        VPath := copy(VPath, 1, I);
-        CheckBDB(FEnv.set_data_dir(FEnv, '..'));
-      end else begin
-        VPath := FEnvRootPath;
-      end;
-      if not DirectoryExists(VPath) then begin
-        ForceDirectories(VPath);
-      end;
-      VSingleModFlag := DB_REGISTER;
-      CheckBDB(FEnv.log_set_config(FEnv, DB_LOG_AUTO_REMOVE, 1));
+      VPath := FEnvRootPath;
     end;
+    if not DirectoryExists(VPath) then begin
+      ForceDirectories(VPath);
+    end;
+    CheckBDB(FEnv.log_set_config(FEnv, DB_LOG_AUTO_REMOVE, 1));
 
     CheckBDB(
       FEnv.open(
@@ -223,7 +145,7 @@ begin
         DB_INIT_LOG or
         DB_INIT_MPOOL or
         DB_INIT_TXN or
-        VSingleModFlag or
+        DB_REGISTER or
         DB_THREAD,
         0
       )
@@ -289,17 +211,9 @@ begin
     end;
     Result := True;
   end else begin
-    Assert(False, 'Warning [BerkeleyDB]: LsnReset - invalid arguments!');
+    Assert(False, 'Warning [BerkeleyDB Env]: LsnReset - invalid arguments!');
   end;
 end;
-
-initialization
-  GCS := TCriticalSection.Create;
-  GEnvList := TObjectList.Create(True);
-
-finalization
-  FreeAndNil(GEnvList);
-  FreeAndNil(GCS);
 
 end.
 

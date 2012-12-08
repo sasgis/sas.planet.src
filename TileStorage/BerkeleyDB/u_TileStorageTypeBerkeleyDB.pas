@@ -9,6 +9,7 @@ uses
   i_NotifierTTLCheck,
   i_TileStorage,
   i_TileStorageTypeConfig,
+  i_GlobalBerkeleyDBHelper,
   u_TileStorageTypeBase;
 
 type
@@ -16,6 +17,7 @@ type
   private
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   protected
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
@@ -24,6 +26,7 @@ type
     ): ITileStorage; override;
   public
     constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig
@@ -40,6 +43,7 @@ uses
 { TTileStorageTypeBerkeleyDB }
 
 constructor TTileStorageTypeBerkeleyDB.Create(
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig
@@ -52,6 +56,7 @@ begin
   );
   FGCList := AGCList;
   FContentTypeManager := AContentTypeManager;
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 end;
 
 function TTileStorageTypeBerkeleyDB.BuildStorage(
@@ -62,6 +67,7 @@ function TTileStorageTypeBerkeleyDB.BuildStorage(
 begin
   Result :=
     TTileStorageBerkeleyDB.Create(
+      FGlobalBerkeleyDBHelper,
       AGeoConverter,
       APath,
       FGCList,

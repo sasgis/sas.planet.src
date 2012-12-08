@@ -34,6 +34,7 @@ uses
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_TileFileNameGenerator,
+  i_GlobalBerkeleyDBHelper,
   i_MapTypes,
   u_MapType,
   u_ResStrings,
@@ -43,6 +44,7 @@ uses
 type
   TThreadExportToBerkeleyDB = class(TThreadExportAbstract)
   private
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FMapTypeArr: IMapTypeListStatic;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
@@ -63,6 +65,7 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
@@ -92,6 +95,7 @@ uses
 { TThreadExportToBerkeleyDB }
 
 constructor TThreadExportToBerkeleyDB.Create(
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
@@ -112,6 +116,7 @@ begin
     AZoomArr,
     AnsiString(Self.ClassName)
   );
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FPathExport := GetFullPathName(APath);
@@ -230,7 +235,12 @@ begin
       VVersionInfo := VMapType.VersionConfig.Version;
       VGeoConvert := VMapType.GeoConvert;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-      VHelper := TTileStorageBerkeleyDBHelper.Create(VPath, VMapType.GeoConvert.ProjectionEPSG);
+      VHelper :=
+        TTileStorageBerkeleyDBHelper.Create(
+          FGlobalBerkeleyDBHelper,
+          VPath,
+          VMapType.GeoConvert.ProjectionEPSG
+        );
       try
         for j := 0 to Length(FZooms) - 1 do begin
           VZoom := FZooms[j];

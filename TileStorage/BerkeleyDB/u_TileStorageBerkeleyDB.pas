@@ -37,6 +37,7 @@ uses
   i_NotifierTTLCheck,
   i_ListenerTTLCheck,
   i_TileFileNameGenerator,
+  i_GlobalBerkeleyDBHelper,
   u_TileStorageBerkeleyDBHelper,
   u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
@@ -44,7 +45,7 @@ uses
 type
   TTileStorageBerkeleyDB = class(TTileStorageAbstract, IBasicMemCache)
   private
-    FHelper: TTileStorageBerkeleyDBHelper;
+    FStorageHelper: TTileStorageBerkeleyDBHelper;
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
@@ -109,6 +110,7 @@ type
     procedure IBasicMemCache.Clear = ClearMemCache;
   public
     constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
       const AGCList: INotifierTTLCheck;
@@ -142,6 +144,7 @@ uses
 { TTileStorageBerkeleyDB }
 
 constructor TTileStorageBerkeleyDB.Create(
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
   const AGCList: INotifierTTLCheck;
@@ -167,13 +170,14 @@ begin
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FFileNameGenerator := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
-  FHelper := TTileStorageBerkeleyDBHelper.Create(
+  FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
+    AGlobalBerkeleyDBHelper,
     StoragePath,
     AGeoConverter.ProjectionEPSG
   );
 
   FBDBTTLListener := TListenerTTLCheck.Create(
-    FHelper.Sync,
+    FStorageHelper.Sync,
     CBDBSync,
     CBDBSyncCheckInterval
   );
@@ -201,7 +205,7 @@ begin
   FBDBTTLListener := nil;
   FMemCacheTTLListener := nil;
   FTileInfoMemCache.Free;
-  FreeAndNil(FHelper);
+  FreeAndNil(FStorageHelper);
   FMainContentType := nil;
   FContentTypeManager := nil;
   FTileNotExistsTileInfo := nil;
@@ -262,7 +266,7 @@ begin
 
     if FileExists(VPath) then begin
 
-      VResult := FHelper.LoadTile(
+      VResult := FStorageHelper.LoadTile(
         VPath,
         AXY,
         AZoom,
@@ -295,7 +299,7 @@ begin
     if not VResult then begin
       VPath := ChangeFileExt(VPath, '.tne');
       if FileExists(VPath) then begin
-        VResult := FHelper.IsTNEFound(
+        VResult := FStorageHelper.IsTNEFound(
           VPath,
           AXY,
           AZoom,
@@ -406,7 +410,7 @@ begin
           end;
 
           if (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists)) then begin
-            VTileExists := FHelper.LoadTile(
+            VTileExists := FStorageHelper.LoadTile(
               VFileInfo.Name,
               VTile,
               VZoom,
@@ -422,7 +426,7 @@ begin
               VItems[VIndex].FSize := VTileBinaryData.Size;
               VItems[VIndex].FInfoType := titExists;
             end else begin
-              VTileExists := FHelper.IsTNEFound(
+              VTileExists := FStorageHelper.IsTNEFound(
                 VTneFileInfo.Name,
                 VTile,
                 VZoom,
@@ -484,9 +488,9 @@ begin
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       '.sdb';
-    if FHelper.CreateDirIfNotExists(VPath) then begin
+    if FStorageHelper.CreateDirIfNotExists(VPath) then begin
       VContenetTypeStr := AContentType.GetContentType;
-      VResult := FHelper.SaveTile(
+      VResult := FStorageHelper.SaveTile(
         VPath,
         AXY,
         AZoom,
@@ -534,9 +538,9 @@ begin
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       '.tne';
-    if FHelper.CreateDirIfNotExists(VPath) then begin
+    if FStorageHelper.CreateDirIfNotExists(VPath) then begin
       VContenetTypeStr := FMainContentType.GetContentType;
-      VResult := FHelper.SaveTile(
+      VResult := FStorageHelper.SaveTile(
         VPath,
         AXY,
         AZoom,
@@ -576,7 +580,7 @@ begin
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +
         '.sdb';
       if FileExists(VPath) then begin
-        Result := FHelper.DeleteTile(
+        Result := FStorageHelper.DeleteTile(
           VPath,
           AXY,
           AZoom,
@@ -589,7 +593,7 @@ begin
           FFileNameGenerator.GetTileFileName(AXY, AZoom) +
           '.tne';
         if FileExists(VPath) then begin
-          Result := FHelper.DeleteTile(
+          Result := FStorageHelper.DeleteTile(
             VPath,
             AXY,
             AZoom,
@@ -652,7 +656,7 @@ begin
         VFilesIterator,
         VFileNameParser,
         (Self as ITileStorage),
-        FHelper
+        FStorageHelper
       );
   finally
     VProcessFileMasks.Free;

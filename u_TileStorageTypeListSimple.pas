@@ -26,6 +26,7 @@ uses
   i_PathConfig,
   i_NotifierTTLCheck,
   i_ContentTypeManager,
+  i_GlobalBerkeleyDBHelper,
   i_TileStorageTypeConfig,
   i_TileStorageType,
   i_TileStorageTypeListItem,
@@ -36,6 +37,7 @@ type
   public
     constructor Create(
       const AContentTypeManager: IContentTypeManager;
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGCList: INotifierTTLCheck;
       const ABasePath: IPathConfig
     );
@@ -72,6 +74,7 @@ const
 
 constructor TTileStorageTypeListSimple.Create(
   const AContentTypeManager: IContentTypeManager;
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGCList: INotifierTTLCheck;
   const ABasePath: IPathConfig
 );
@@ -180,6 +183,7 @@ begin
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_BDB);
   VStorageType := TTileStorageTypeBerkeleyDB.Create(
+    AGlobalBerkeleyDBHelper,
     AGCList,
     AContentTypeManager,
     VStorageTypeConfig

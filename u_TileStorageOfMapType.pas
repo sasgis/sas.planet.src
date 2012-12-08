@@ -24,6 +24,7 @@ uses
   i_BinaryData,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
+  i_GlobalBerkeleyDBHelper,
   u_GlobalCahceConfig,
   u_BaseInterfacedObject;
 
@@ -31,6 +32,7 @@ type
   TTileStorageOfMapType = class(TBaseInterfacedObject, ITileStorage)
   private
     FGlobalCacheConfig: TGlobalCahceConfig;
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FConfig: ISimpleTileStorageConfig;
     FVersionConfig: IMapVersionConfig;
     FGCList: INotifierTTLCheck;
@@ -133,6 +135,7 @@ type
   public
     constructor Create(
       const AGlobalCacheConfig: TGlobalCahceConfig;
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AConfig: ISimpleTileStorageConfig;
       const AVersionConfig: IMapVersionConfig;
       const AGCList: INotifierTTLCheck;
@@ -167,6 +170,7 @@ uses
 
 constructor TTileStorageOfMapType.Create(
   const AGlobalCacheConfig: TGlobalCahceConfig;
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AConfig: ISimpleTileStorageConfig;
   const AVersionConfig: IMapVersionConfig;
   const AGCList: INotifierTTLCheck;
@@ -180,6 +184,7 @@ var
 begin
   inherited Create;
   FGlobalCacheConfig := AGlobalCacheConfig;
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FConfig := AConfig;
   FVersionConfig := AVersionConfig;
   FGCList := AGCList;
@@ -263,6 +268,7 @@ begin
         VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageBerkeleyDB.Create(
+            FGlobalBerkeleyDBHelper,
             VCoordConverter,
             FCurrentPath,
             FGCList,

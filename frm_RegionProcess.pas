@@ -61,6 +61,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
+  i_GlobalBerkeleyDBHelper,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
   fr_Combine,
@@ -109,6 +110,7 @@ type
       const ATimerNoifier: INotifier;
       const ALastSelectionInfo: ILastSelectionInfo;
       const AMainMapsConfig: IMainMapsConfig;
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -157,6 +159,7 @@ constructor TfrmRegionProcess.Create(
   const ATimerNoifier: INotifier;
   const ALastSelectionInfo: ILastSelectionInfo;
   const AMainMapsConfig: IMainMapsConfig;
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const ACoordConverterFactory: ICoordConverterFactory;
@@ -230,6 +233,7 @@ begin
       AAppClosingNotifier,
       ATimerNoifier,
       AMainMapsConfig,
+      AGlobalBerkeleyDBHelper,
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,

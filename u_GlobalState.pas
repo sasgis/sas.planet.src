@@ -90,6 +90,7 @@ uses
   i_InternalBrowser,
   i_DebugInfoWindow,
   i_GlobalInternetState,
+  i_GlobalBerkeleyDBHelper,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   u_IeEmbeddedProtocolRegistration,
@@ -142,6 +143,7 @@ type
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloaderThreadConfig: IThreadConfig;
     FGlobalInternetState: IGlobalInternetState;
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FImageResamplerConfig: IImageResamplerConfig;
     FTileMatrixDraftResamplerConfig: IImageResamplerConfig;
     FTileLoadResamplerConfig: IImageResamplerConfig;
@@ -246,6 +248,7 @@ type
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
     property TerrainConfig: ITerrainConfig read FTerrainConfig;
+    property GlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper read FGlobalBerkeleyDBHelper;
 
     constructor Create;
     destructor Destroy; override;
@@ -310,6 +313,7 @@ uses
   u_ImportByFileExt,
   u_GlobalViewMainConfig,
   u_GlobalDownloadConfig,
+  u_GlobalBerkeleyDBHelper,
   u_GPSRecorder,
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByVSAGPS,
@@ -458,6 +462,8 @@ begin
   end else begin
     FPerfCounterList := TInternalPerformanceCounterFake.Create;
   end;
+
+  FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FCacheConfig.BDBCachePath);
 
   FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FTerrainDataPath, FCacheConfig);
   FTerrainConfig := TTerrainConfig.Create;
@@ -681,6 +687,7 @@ begin
   FTerrainProviderList := nil;
   FTerrainConfig := nil;
   FProjConverterFactory := nil;
+  FGlobalBerkeleyDBHelper := nil;
   FreeAndNil(FCacheConfig);
   inherited;
 end;
@@ -848,6 +855,7 @@ begin
     FLanguageManager,
     FMainMemCacheConfig,
     FCacheConfig,
+    FGlobalBerkeleyDBHelper,
     FTileNameGenerator,
     FTileNameParser,
     FGCThread.List,

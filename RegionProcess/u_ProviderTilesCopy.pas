@@ -14,12 +14,14 @@ uses
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_TileFileNameGeneratorsList,
+  i_GlobalBerkeleyDBHelper,
   u_ExportProviderAbstract,
   fr_TilesCopy;
 
 type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
@@ -33,6 +35,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
       const AMainMapsConfig: IMainMapsConfig;
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -67,6 +70,7 @@ constructor TProviderTilesCopy.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
   const AMainMapsConfig: IMainMapsConfig;
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -80,6 +84,7 @@ begin
     AFullMapsSet,
     AGUIConfigList
   );
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FTileNameGenerator := ATileNameGenerator;
@@ -165,6 +170,7 @@ begin
     );
   end else if VCacheType = c_File_Cache_Id_BDB then begin
     TThreadExportToBerkeleyDB.Create(
+      FGlobalBerkeleyDBHelper,
       VCancelNotifierInternal,
       VOperationID,
       VProgressInfo,

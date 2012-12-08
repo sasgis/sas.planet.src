@@ -26,7 +26,8 @@ uses
   Classes,
   SysUtils,
   SyncObjs,
-  libdb51;
+  libdb51,
+  i_GlobalBerkeleyDBHelper;
 
 const
   BDB_MIN_PAGE_SIZE : Cardinal  = $200;  //512 b
@@ -44,6 +45,7 @@ type
 
   TBerkeleyDB = class(TObject)
   private
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FDB: PDB;
     FENV: PDB_ENV;
     FTXN: PDB_TXN;
@@ -62,7 +64,7 @@ type
     function GetTransaction: PDB_TXN;
     procedure CommitTransaction;
   public
-    constructor Create;
+    constructor Create(const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper);
 
     destructor Destroy; override;
 
@@ -119,8 +121,7 @@ type
 implementation
 
 uses
-  u_BerkeleyDBEnv,
-  u_BerkeleyDBErrorHandler;
+  u_BerkeleyDBEnv;
 
 const
   cBerkeleyDBErrPfx = 'BerkeleyDB';
@@ -129,9 +130,10 @@ const
 
 { TBerkeleyDB }
 
-constructor TBerkeleyDB.Create;
+constructor TBerkeleyDB.Create(const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper);
 begin
   inherited Create;
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FCS := TCriticalSection.Create;
   FFileName := '';
   FDB := nil;
@@ -167,10 +169,10 @@ function TBerkeleyDB.Open(
   var
     VEnvHome: string;
     VEnvHomePtr: PAnsiChar;
-    VRelativeFileName: string;
+    VRelativeFileName: AnsiString;
   begin
     if FENV = nil then begin
-      BDBRaiseException(cBerkeleyDBErrPfx + ': Environment not assigned.');
+      FGlobalBerkeleyDBHelper.RaiseException(cBerkeleyDBErrPfx + ': Environment not assigned.');
     end;
 
     VEnvHomePtr := '';
