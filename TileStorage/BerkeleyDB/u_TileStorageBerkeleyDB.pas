@@ -349,7 +349,6 @@ var
   VRect: TRect;
   VZoom: Byte;
   VCount: TPoint;
-  //VItems: PTileInfoInternalArray;
   VItems: TArrayOfTileInfoShortInternal;
   VIndex: Integer;
   VTile: TPoint;
@@ -425,9 +424,6 @@ begin
             if VTileExists then begin
               // tile exists
               VItems[VIndex].FLoadDate := VTileDate;
-              //VItems[VIndex].FVersionInfo := MapVersionFactory.CreateByStoreString(VTileVersion);
-              //VItems[VIndex].FContentType := FContentTypeManager.GetInfo(VTileContentType);
-              //VItems[VIndex].FData := VTileBinaryData;
               VItems[VIndex].FSize := VTileBinaryData.Size;
               VItems[VIndex].FInfoType := titExists;
             end else begin
@@ -441,17 +437,11 @@ begin
               if VTileExists then begin
                 // tne exists
                 VItems[VIndex].FLoadDate := VTileDate;
-                //VItems[VIndex].FVersionInfo := AVersionInfo;
-                //VItems[VIndex].FContentType := nil;
-                //VItems[VIndex].FData := nil;
                 VItems[VIndex].FSize := 0;
                 VItems[VIndex].FInfoType := titTneExists;
               end else begin
                 // neither tile nor tne
                 VItems[VIndex].FLoadDate := 0;
-                //VItems[VIndex].FVersionInfo := nil;
-                //VItems[VIndex].FContentType := nil;
-                //VItems[VIndex].FData := nil;
                 VItems[VIndex].FSize := 0;
                 VItems[VIndex].FInfoType := titNotExists;
               end;
@@ -459,20 +449,11 @@ begin
           end else begin
             // neither tile nor tne
             VItems[VIndex].FLoadDate := 0;
-            //VItems[VIndex].FVersionInfo := nil;
-            //VItems[VIndex].FContentType := nil;
-            //VItems[VIndex].FData := nil;
             VItems[VIndex].FSize := 0;
             VItems[VIndex].FInfoType := titNotExists;
           end;
         end;
       end;
-      //Result :=
-      //  TTileRectInfo.CreateWithOwn(
-      //    VRect,
-      //    VZoom,
-      //    VItems
-      //  );
       Result :=
         TTileRectInfoShort.CreateWithOwn(
           VRect,
