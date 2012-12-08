@@ -92,6 +92,7 @@ begin
   FEnvList := TObjectList.Create(True); // TObjectList is owner of objects and it auto-free them on destroy
   FEnvCS := TCriticalSection.Create;
   FLogCS := TCriticalSection.Create;
+  FLogFileStream := nil;
   FSaveErrorsToLog := {$IFDEF DEBUG} True {$ELSE} False {$ENDIF};
   FDebugLogPath := FPathConfig.FullPath;
   FCacheConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnCacheConfigChange);
@@ -107,6 +108,7 @@ begin
   end;
   FEnvList.Free;
   FEnvCS.Free;
+  FreeAndNil(FLogFileStream);
   FLogCS.Free;
   inherited Destroy;
 end;
