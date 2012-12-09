@@ -27,13 +27,6 @@ uses
   Classes;
 
 type
-  PBDBKey = ^TBDBKey;
-
-  TBDBKey = packed record
-    TileX: Cardinal;
-    TileY: Cardinal;
-  end;
-
   PBDBData = ^TBDBData;
 
   TBDBData = record
@@ -53,14 +46,6 @@ type
     MetaCRC32: Cardinal;
     StorageEPSG: Integer;
   end;
-
-const
-  CBDBMetaKeyX: Cardinal = $FFFFFFFF;
-  CBDBMetaKeyY: Cardinal = $FFFFFFFF;
-
-function PointToKey(APoint: TPoint): TBDBKey;
-
-function KeyToPoint(const AKey: TBDBKey): TPoint;
 
 function PBDBDataToMemStream(
     AData: PBDBData;
@@ -95,81 +80,6 @@ const
 
   CBDBRecVersion = #03;
   CBDBRecMagic: array [0..3] of AnsiChar = ('T', 'L', 'D', CBDBRecVersion);      //TiLe Data
-
-procedure SetBit(
-  var ADest: Cardinal;
-  const ABit: Integer
-); inline;
-begin
-  ADest := ADest or (Cardinal(1) shl ABit);
-end;
-
-function Swap32(Value: Cardinal): Cardinal; assembler;
-asm
-  bswap eax
-end;
-
-function PointToKey(APoint: TPoint): TBDBKey;
-var
-  I: Integer;
-  VSetX, VSetY: Boolean;
-begin
-  Result.TileX := 0;
-  Result.TileY := 0;
-  for I := 0 to 31 do begin
-    VSetX := ((APoint.X shr I) and 1) = 1;
-    VSetY := ((APoint.Y shr I) and 1) = 1;
-    if I <= 15 then begin
-      if VSetX then begin
-        SetBit(Result.TileY, I * 2);
-      end;
-      if VSetY then begin
-        SetBit(Result.TileY, I * 2 + 1);
-      end;
-    end else begin
-      if VSetX then begin
-        SetBit(Result.TileX, (I - 16) * 2);
-      end;
-      if VSetY then begin
-        SetBit(Result.TileX, (I - 16) * 2 + 1);
-      end;
-    end;
-  end;
-  Result.TileX := Swap32(Result.TileX);
-  Result.TileY := Swap32(Result.TileY);
-end;
-
-function KeyToPoint(const AKey: TBDBKey): TPoint;
-
-  procedure ValueToPoint(
-  const AValue: Cardinal;
-    AOffset: Integer;
-    out APoint: TPoint
-  );
-  var
-    I: Integer;
-    VPoint: TBDBKey;
-  begin
-    VPoint.TileX := APoint.X;
-    VPoint.TileY := APoint.Y;
-    for I := 0 to 31 do begin
-      if ((AValue shr I) and 1) = 1 then begin
-        if (I mod 2 = 0) then begin
-          SetBit(VPoint.TileX, (I + AOffset) div 2);
-        end else begin
-          SetBit(VPoint.TileY, (I + AOffset - 1) div 2);
-        end;
-      end;
-    end;
-    APoint.X := VPoint.TileX;
-    APoint.Y := VPoint.TileY;
-  end;
-
-begin
-  Result := Point(0, 0);
-  ValueToPoint(Swap32(AKey.TileY), 0, Result);
-  ValueToPoint(Swap32(AKey.TileX), 32, Result);
-end;
 
 function PBDBDataToMemStream(
   AData: PBDBData;

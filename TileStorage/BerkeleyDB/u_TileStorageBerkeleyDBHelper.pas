@@ -32,6 +32,7 @@ uses
   u_BerkeleyDB,
   u_BerkeleyDBEnv,
   u_BerkeleyDBPool,
+  u_BerkeleyDBKey,
   u_TileStorageBerkeleyDBRecParser;
 
 type
@@ -222,7 +223,7 @@ end;
 
 procedure TTileStorageBerkeleyDBHelper.OnBDBFileCreate(Sender: TObject);
 var
-  VKey: TBDBKey;
+  VKey: IBerkeleyDBKey;
   VMeta: TBDBStorageMetaInfo;
   VMemStream: TMemoryStream;
   VBDB: TBerkeleyDB;
@@ -232,11 +233,11 @@ begin
     if Assigned(VBDB) then begin
       VMemStream := TMemoryStream.Create;
       try
-        VKey := PointToKey(Point(CBDBMetaKeyX, CBDBMetaKeyY));
+        VKey := TBerkeleyDBKey.Create(Point(cBerkeleyDBMetaKeyX, cBerkeleyDBMetaKeyY));
         VMeta.StorageEPSG := FStorageEPSG;
         if PBDBMetaInfoToMemStream(@VMeta, VMemStream) then begin
           VMemStream.Position := 0;
-          VBDB.Write(@VKey, SizeOf(TBDBKey), VMemStream.Memory, VMemStream.Size);
+          VBDB.Write(VKey.Data, VKey.Size, VMemStream.Memory, VMemStream.Size);
         end;
       finally
         VMemStream.Free;
@@ -247,7 +248,7 @@ end;
 
 procedure TTileStorageBerkeleyDBHelper.OnBDBFileFirstOpen(Sender: TObject);
 var
-  VKey: TBDBKey;
+  VKey: IBerkeleyDBKey;
   VBDB: TBerkeleyDB;
   VRawMetaData: Pointer;
   VRawMetaDataSize: Cardinal;
@@ -256,8 +257,8 @@ begin
   if Sender is TBerkeleyDB then begin
     VBDB := Sender as TBerkeleyDB;
     if Assigned(VBDB) then begin
-      VKey := PointToKey(Point(CBDBMetaKeyX, CBDBMetaKeyY));
-      if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawMetaData, VRawMetaDataSize) then
+       VKey := TBerkeleyDBKey.Create(Point(cBerkeleyDBMetaKeyX, cBerkeleyDBMetaKeyY));
+      if VBDB.Read(VKey.Data, VKey.Size, VRawMetaData, VRawMetaDataSize) then
       try
         VMeta := VBDB.AppData;
         if VMeta <> nil then begin
@@ -311,7 +312,7 @@ function TTileStorageBerkeleyDBHelper.SaveTile(
   const AData: IBinaryData
 ): Boolean;
 var
-  VKey: TBDBKey;
+  VKey: IBerkeleyDBKey;
   VData: TBDBData;
   VBDB: TBerkeleyDB;
   VMemStream: TMemoryStream;
@@ -323,7 +324,7 @@ begin
   try
     if Assigned(VBDB) then begin
 
-      VKey := PointToKey(ATileXY);
+      VKey := TBerkeleyDBKey.Create(ATileXY);
 
       VMemStream := TMemoryStream.Create;
       try
@@ -349,8 +350,8 @@ begin
         VMemStream.Position := 0;
 
         Result := VBDB.Write(
-          @VKey,
-          SizeOf(TBDBKey),
+          VKey.Data,
+          VKey.Size,
           VMemStream.Memory,
           VMemStream.Size
         );
@@ -371,7 +372,7 @@ function TTileStorageBerkeleyDBHelper.DeleteTile(
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
-  VKey: TBDBKey;
+  VKey: IBerkeleyDBKey;
   VBDB: TBerkeleyDB;
 begin
   Result := False;
@@ -379,9 +380,9 @@ begin
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
-      VKey := PointToKey(ATileXY);
+      VKey := TBerkeleyDBKey.Create(ATileXY);
       // TODO: Del tile with ATileVersion
-      Result := VBDB.Del(@VKey, SizeOf(TBDBKey));
+      Result := VBDB.Del(VKey.Data, VKey.Size);
     end;
   finally
     FPool.Release(VBDB);
@@ -399,7 +400,7 @@ function TTileStorageBerkeleyDBHelper.LoadTile(
   out ATileDate: TDateTime
 ): Boolean;
 var
-  VKey: TBDBKey;
+  VKey: IBerkeleyDBKey;
   VBDB: TBerkeleyDB;
   VRawData: Pointer;
   VRawDataSize: Cardinal;
@@ -410,9 +411,9 @@ begin
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
-      VKey := PointToKey(ATileXY);
+      VKey := TBerkeleyDBKey.Create(ATileXY);
       // TODO: Load tile with ATileVersion
-      if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
+      if VBDB.Read(VKey.Data, VKey.Size, VRawData, VRawDataSize) then begin
         if (VRawData <> nil) and (VRawDataSize > 0) then
         try
           if PRawDataToPBDBData(VRawData, VRawDataSize, @VBDBData) then begin
@@ -446,7 +447,7 @@ function TTileStorageBerkeleyDBHelper.TileExists(
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
-  VKey: TBDBKey;
+  VKey: IBerkeleyDBKey;
   VBDB: TBerkeleyDB;
 begin
   Result := False;
@@ -454,9 +455,9 @@ begin
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
-      VKey := PointToKey(ATileXY);
+      VKey := TBerkeleyDBKey.Create(ATileXY);
       // TODO: Exists tile with ATileVersion
-      Result := VBDB.Exists(@VKey, SizeOf(TBDBKey));
+      Result := VBDB.Exists(VKey.Data, VKey.Size);
     end;
   finally
     FPool.Release(VBDB);
@@ -471,7 +472,7 @@ function TTileStorageBerkeleyDBHelper.IsTNEFound(
   out ATileDate: TDateTime
 ): Boolean;
 var
-  VKey: TBDBKey;
+  VKey: IBerkeleyDBKey;
   VBDB: TBerkeleyDB;
   VRawData: Pointer;
   VRawDataSize: Cardinal;
@@ -482,9 +483,9 @@ begin
   VBDB := FPool.Acquire(ADataBase);
   try
     if Assigned(VBDB) then begin
-      VKey := PointToKey(ATileXY);
+      VKey := TBerkeleyDBKey.Create(ATileXY);
       // TODO: Load tile with ATileVersion
-      if VBDB.Read(@VKey, SizeOf(TBDBKey), VRawData, VRawDataSize) then begin
+      if VBDB.Read(VKey.Data, VKey.Size, VRawData, VRawDataSize) then begin
         if (VRawData <> nil) and (VRawDataSize > 0) then
         try
           if PRawDataToPBDBData(VRawData, VRawDataSize, @VBDBData) then begin
@@ -519,8 +520,9 @@ function TTileStorageBerkeleyDBHelper.GetTileExistsArray(
   out ATileExistsArray: TPointArray
 ): Boolean;
 var
-  VKey: TBDBKey;
-  VRawKey: Pointer;
+  VKey: IBerkeleyDBKey;
+  VKeySize: Integer;
+  VPoint: TPoint;
   VValidKeyCount: Integer;
   VBDB: TBerkeleyDB;
   VList: TList;
@@ -533,19 +535,20 @@ begin
     if Assigned(VBDB) then begin
       VList := TList.Create;
       try
-        if VBDB.GetKeyExistsList(SizeOf(TBDBKey), VList) then begin
+        VKey := TBerkeleyDBKey.Create(Point(0, 0));
+        VKeySize := VKey.Size;
+        if VBDB.GetKeyExistsList(VKeySize, VList) then begin
           SetLength(ATileExistsArray, VList.Count);
           VValidKeyCount := 0;
           for I := 0 to VList.Count - 1 do begin
-            VRawKey := VList.Items[I];
-            try
-              VKey := TBDBKey(VRawKey^);
-              if (VKey.TileX <> CBDBMetaKeyX) and (VKey.TileY <> CBDBMetaKeyY) then begin
-                ATileExistsArray[VValidKeyCount] := KeyToPoint(VKey);
-                Inc(VValidKeyCount);
-              end;
-            finally
-              FreeMemory(VRawKey);
+            VKey.Assign(VList.Items[I], VKeySize, True);
+            VPoint := VKey.Point;
+            if
+              (Cardinal(VPoint.X) <> cBerkeleyDBMetaKeyX) and
+              (Cardinal(VPoint.Y) <> cBerkeleyDBMetaKeyY)
+            then begin
+              ATileExistsArray[VValidKeyCount] := VPoint;
+              Inc(VValidKeyCount);
             end;
           end;
           SetLength(ATileExistsArray, VValidKeyCount);
