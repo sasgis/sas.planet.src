@@ -478,7 +478,6 @@ var
   VPath: string;
   VResult: Boolean;
   VTileInfo: ITileInfoBasic;
-  VContenetTypeStr: WideString;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
@@ -488,15 +487,14 @@ begin
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       '.sdb';
-    if FStorageHelper.CreateDirIfNotExists(VPath) then begin
-      VContenetTypeStr := AContentType.GetContentType;
+    if FStorageHelper.CreateDirIfNotExists(VPath) then begin 
       VResult := FStorageHelper.SaveTile(
         VPath,
         AXY,
         AZoom,
         ALoadDate,
         AVersionInfo,
-        PWideChar(VContenetTypeStr),
+        AContentType,
         AData
       );
       if VResult then begin
@@ -530,7 +528,6 @@ procedure TTileStorageBerkeleyDB.SaveTNE(
 var
   VPath: String;
   VResult: Boolean;
-  VContenetTypeStr: WideString;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     DeleteTile(AXY, AZoom, AVersionInfo); // del old tile if exists
@@ -539,14 +536,13 @@ begin
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       '.tne';
     if FStorageHelper.CreateDirIfNotExists(VPath) then begin
-      VContenetTypeStr := FMainContentType.GetContentType;
       VResult := FStorageHelper.SaveTile(
         VPath,
         AXY,
         AZoom,
         ALoadDate,
         AVersionInfo,
-        PWideChar(VContenetTypeStr),
+        nil,
         nil
       );
       if VResult then begin

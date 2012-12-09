@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_BerkeleyDBKeyValue,
   u_BaseInterfacedObject;
 
 const
@@ -31,20 +32,6 @@ const
   cBerkeleyDBMetaKeyY: Cardinal = $FFFFFFFF;
 
 type
-  IBerkeleyDBKey = interface
-    ['{FD32450C-AC56-4B80-89C8-293C778A37C1}']
-    procedure Assign(const AData: Pointer; const ASize: Integer; const AOwnMem: Boolean);
-
-    function GetPoint: TPoint;
-    property Point: TPoint read GetPoint;
-
-    function GetData: Pointer;
-    property Data: Pointer read GetData;
-
-    function GetSize: Integer;
-    property Size: Integer read GetSize;
-  end;
-
   TBerkeleyDBKey = class(TBaseInterfacedObject, IBerkeleyDBKey)
   private
     type

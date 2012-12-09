@@ -85,6 +85,7 @@ implementation
 uses
   ShLwApi,
   i_CoordConverter,
+  i_ContentTypeInfo,
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
@@ -150,7 +151,7 @@ var
   VTileExists: Boolean;
   VSDBFileExists: Boolean;
   VLoadDate: TDateTime;
-  VContenetTypeStr: WideString;
+  VContenetType: IContentTypeInfoBasic;
 begin
   Result := False;
   VExportSDBFile :=
@@ -172,10 +173,10 @@ begin
         end else begin
           VLoadDate := Now;
         end;
-        if (VTileInfo <> nil) and (VTileInfo.ContentType <> nil) then begin
-          VContenetTypeStr := VTileInfo.ContentType.GetContentType;
+        if (VTileInfo <> nil) then begin
+          VContenetType := VTileInfo.ContentType;
         end else begin
-          VContenetTypeStr := AMapType.ContentType.GetContentType;
+          VContenetType := AMapType.ContentType;
         end;
         Result := AHelper.SaveTile(
           VExportSDBFile,
@@ -183,7 +184,7 @@ begin
           AZoom,
           VLoadDate,
           VTileInfo.VersionInfo,
-          PWideChar(VContenetTypeStr),
+          VContenetType,
           VTileInfo.TileData
         );
       end;
