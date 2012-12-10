@@ -120,7 +120,7 @@ uses
   Windows,
   SysUtils,
   i_BerkeleyDBKeyValue,
-  u_BinaryData,
+  u_BinaryDataByBerkeleyDBValue,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue;
 
@@ -328,12 +328,7 @@ begin
         if (VRawData <> nil) and (VRawDataSize > 0) then begin
           VValue := TBerkeleyDBValue.Create(VRawData, VRawDataSize, True);
           if (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
-            ATileBinaryData :=
-              TBinaryData.Create(
-                VValue.TileSize,
-                VValue.TileBody,
-                False
-              );
+            ATileBinaryData := TBinaryDataByBerkeleyDBValue.Create(VValue);
             ATileVersion := VValue.TileVersionInfo;
             ATileContentType := VValue.TileContentType;
             ATileDate := VValue.TileDate;
