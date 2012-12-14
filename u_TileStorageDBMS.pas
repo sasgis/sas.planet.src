@@ -1145,6 +1145,10 @@ begin
         // break to exit loop and write to cache
         break;
       end;
+      ETS_RESULT_UNKNOWN_VERSION: begin
+        // version not found - i.e. no tile
+        break;
+      end
       else begin
         // failed
         raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
