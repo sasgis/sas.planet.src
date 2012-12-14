@@ -44,6 +44,11 @@ type
     property Version: IMapVersionInfo read GetVersion write SetVersion;
   end;
 
+  IMapVersionChanger = interface
+    ['{B819DAB9-9EBB-434C-B107-E12F95F952A5}']
+    procedure SetMapVersionConfig(const AMapVersionConfig: IMapVersionConfig);
+  end;
+  
 implementation
 
 end.
