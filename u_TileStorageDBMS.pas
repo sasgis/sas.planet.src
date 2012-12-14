@@ -46,11 +46,13 @@ uses
 type
   TTileStorageETS = class(TTileStorageAbstract
                         , IInternalDomainOptions
+                        , IMapVersionChanger
                         , IBasicMemCache)
   // base interface
   private
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
+    FMapVersionConfig: IMapVersionConfig;
     FGCList: INotifierTTLCheck;
     FETSTTLListener: IListenerTTLCheck;
     FMemCacheTTLListener: IListenerTTLCheck;
@@ -160,12 +162,21 @@ type
       const ATileRectInfoOut: PETS_GET_TILE_RECT_OUT
     ): Byte;
 
+    function CallbackLib_SetVersionNotifier(
+      const ACallbackPointer: Pointer;
+      const ASetVersionOption: PETS_SET_VERSION_OPTION
+    ): Byte;
+
+  private
+    { IMapVersionChanger }
+    procedure SetMapVersionConfig(const AMapVersionConfig: IMapVersionConfig);
   private
     { IInternalDomainOptions }
     function DomainHtmlOptions(
       const AFullPrefix, ARequest: String;
       out AResponse: String;
-      out AFlags: TDomainOptionsResponseFlags
+      out AFlags: TDomainOptionsResponseFlags;
+      const ARequestType: LongWord = c_IDO_RT_None
     ): Boolean;
   private
     { IBasicMemCache }
@@ -411,7 +422,23 @@ begin
   end;
 end;
 
-
+function Host_SetVersion_Notifier(
+  const AHostPointer: Pointer;
+  const ACallbackPointer: Pointer;
+  const ASetVersionOption: PETS_SET_VERSION_OPTION
+): Byte; stdcall;
+begin
+  try
+    if (nil=AHostPointer) then
+      Result := ETS_RESULT_INVALID_HOST_PTR
+    else if (nil=ACallbackPointer) then
+      Result := ETS_RESULT_INVALID_CALLBACK_PTR
+    else
+      Result := TTileStorageETS(AHostPointer).CallbackLib_SetVersionNotifier(ACallbackPointer, ASetVersionOption);
+  except
+    Result := ETS_RESULT_CALLBACK_EXCEPTION;
+  end;
+end;
 
 
 { TTileStorageETS }
@@ -537,6 +564,39 @@ begin
   end;
 end;
 
+function TTileStorageETS.CallbackLib_SetVersionNotifier(
+  const ACallbackPointer: Pointer;
+  const ASetVersionOption: PETS_SET_VERSION_OPTION
+): Byte;
+var
+  VStringVersion: String;
+  VMapVersionInfo: IMapVersionInfo;
+begin
+  Result := ETS_RESULT_OK;
+  if (ASetVersionOption<>nil) and (FMapVersionConfig<>nil) then begin
+    // make version by pointer and flag
+    if (nil=ASetVersionOption^.szVersion) then begin
+      // no version
+      VMapVersionInfo := FEmptyVersion;
+    end else begin
+      // has version
+      if ((ASetVersionOption^.dwOptions and ETS_SVO_ANSI_VALUES)<>0) then begin
+        // version is AnsiString
+        VStringVersion := (AnsiString(PAnsiChar(ASetVersionOption^.szVersion)));
+      end else begin
+        // version is WideString
+        VStringVersion := (WideString(PWideChar(ASetVersionOption^.szVersion)));
+      end;
+      VMapVersionInfo := MapVersionFactory.CreateByStoreString(VStringVersion);
+    end;
+
+    // switch to version
+    if (nil<>VMapVersionInfo) then begin
+      FMapVersionConfig.Version := VMapVersionInfo;
+    end;
+  end;
+end;
+
 procedure TTileStorageETS.CheckMalfunction;
 begin
   // проверяем только перечисленное тут
@@ -594,6 +654,7 @@ begin
 
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
+  FMapVersionConfig := nil;
 
   FUseMemCache := AUseMemCache;
   //FUseMemCache := FALSE;
@@ -739,6 +800,7 @@ begin
 
     FreeAndNil(FTileInfoMemCache);
 
+    FMapVersionConfig := nil;
     FMainContentType := nil;
     FContentTypeManager := nil;
     FTileNotExistsTileInfo := nil;
@@ -786,7 +848,8 @@ end;
 function TTileStorageETS.DomainHtmlOptions(
   const AFullPrefix, ARequest: String;
   out AResponse: String;
-  out AFlags: TDomainOptionsResponseFlags
+  out AFlags: TDomainOptionsResponseFlags;
+  const ARequestType: LongWord
 ): Boolean;
 var
   VResponseW: WideString;
@@ -803,6 +866,11 @@ begin
     end;
     VOptionIn.szFullPrefix := PChar(AFullPrefix);
     VOptionIn.szRequest    := PChar(ARequest);
+
+    if (0<>ARequestType) then begin
+      VOptionIn.dwRequestType := ARequestType;
+      VOptionIn.dwOptionsIn := VOptionIn.dwOptionsIn or ETS_EOI_REQUEST_TYPE;
+    end;
     
     // call
     TETS_ExecOption(FETS_ExecOption)(
@@ -1371,7 +1439,7 @@ begin
         TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, Ord(ETS_INFOCLASS_EnumTileVersions_Callback), 0, @Host_EnumTileVersions_Callback, nil);
         TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, Ord(ETS_INFOCLASS_GetTileRectInfo_Callback), 0, @Host_GetTileRectInfo_Callback, nil);
         TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, Ord(ETS_INFOCLASS_NextTileEnum_Callback), 0, @Host_NextTileEnum_Callback, nil);
-        // TODO: ETS_INFOCLASS_Disconnect_Notifier
+        TETS_SetInformation(FETS_SetInformation)(@FDLLProvHandle, Ord(ETS_INFOCLASS_SetVersion_Notifier), 0, @Host_SetVersion_Notifier, nil);
         // TODO: ETS_INFOCLASS_Reconnect_Notifier
         // TODO: ETS_INFOCLASS_Messages_Notifier
       end else begin
@@ -1685,6 +1753,11 @@ begin
     // not available
     Result := nil;
   end;
+end;
+
+procedure TTileStorageETS.SetMapVersionConfig(const AMapVersionConfig: IMapVersionConfig);
+begin
+  FMapVersionConfig := AMapVersionConfig;
 end;
 
 { TTileStorageDBMS }

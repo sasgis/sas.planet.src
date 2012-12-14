@@ -88,6 +88,10 @@ const
   ETS_RESULT_EMPTY_VERSION_DENIED = 47;
   // if exif in tile not found or invalid
   ETS_RESULT_INVALID_EXIF         = 48;
+  // skip existing (version,...)
+  ETS_RESULT_SKIP_EXISTING        = 49;
+  // cannot change default (version,...)
+  ETS_RESULT_DEFAULT_UNCHANGEABLE = 50;
 
   // length of Nst string parameter too big
   ETS_RESULT_STRING1_LEN = 51;
@@ -208,12 +212,16 @@ const
   ETS_ROO_SAME_VERSION = $00000008; // returns same version
 
   // execute option(s)
-  ETS_EOI_ANSI_VALUES     = $00000001;
+  ETS_EOI_ANSI_VALUES     = $00000001; // PAnsiChar for input strings
+  ETS_EOI_REQUEST_TYPE    = $00000002; // use RequestType field
   ETS_EOO_ANSI_VALUES     = $00000001;
   ETS_EOO_HTML_DECORATED  = $00000002;
   ETS_EOO_CLEAR_MEMCACHE  = $00000004;
   ETS_EOO_NEED_REFRESH    = $00000008;
   ETS_EOO_NEED_RESTART    = $00000010;
+
+  // SetVersion options
+  ETS_SVO_ANSI_VALUES     = $00000001; // PAnsiChar for input strings
 
   // ETS_STO_HASH         = $00000008; // actual HASH (if provider stores HASH)
   // MD5             - 128 bit = 16 byte
@@ -380,7 +388,15 @@ type
     szRequest: Pointer;
     // output
     szResponse: Pointer;
-    dwLength: LongInt;
+    // some info
+    dwRequestType: LongWord;
+  end;
+
+  PETS_SET_VERSION_OPTION = ^TETS_SET_VERSION_OPTION;
+  TETS_SET_VERSION_OPTION = packed record
+    dwOptions: LongWord;    // ETS_SVO_* constants
+    szVersion: Pointer;     // Mandatory version (PAnsiChar or PWideChar)
+    dwInfoMode: LongWord;   // reserved (use 0)
   end;
 
   // buffer to set service options to storage

@@ -22,6 +22,12 @@ unit i_InternalDomainOptions;
 
 interface
 
+const
+  // internal domain options - request types:
+  c_IDO_RT_None                        = 0;
+  c_IDO_RT_MakeVersionByDescriptionURL = 1;
+  c_IDO_RT_SelectVersionByDescription  = 2;
+
 type
   TDomainOptionsResponseFlag = (
     dorf_HtmlDecorated,
@@ -36,7 +42,8 @@ type
     function DomainHtmlOptions(
       const AFullPrefix, ARequest: String;
       out AResponse: String;
-      out AFlags: TDomainOptionsResponseFlags
+      out AFlags: TDomainOptionsResponseFlags;
+      const ARequestType: LongWord = c_IDO_RT_None
     ): Boolean;
   end;
 

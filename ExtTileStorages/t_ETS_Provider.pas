@@ -190,6 +190,13 @@ type
     const AExecOptionIn: PETS_EXEC_OPTION_IN
   ): Byte; stdcall;
 
+  // notifier for SetVersion
+  TETS_SetVersion_Notifier = function(
+    const AProvider_Handle: PETS_Provider_Handle;
+    const ACallbackPointer: Pointer;
+    const ASetVersionOption: PETS_SET_VERSION_OPTION
+  ): Byte; stdcall;
+
   // AInfoClass values for TETS_SetInformation
 const
   ETS_INFOCLASS_SetStorageIdentifier  = $00; // set GlobalStorageIdentifier and ServiceName
@@ -205,7 +212,7 @@ type
     ,
     ETS_INFOCLASS_NextTileEnum_Callback           // set callback for ETS_NextTileEnum (pointer)
     ,
-    ETS_INFOCLASS_Disconnect_Notifier             // set lost connection notifier (pointer)
+    ETS_INFOCLASS_SetVersion_Notifier             // set version notifier (pointer)
     ,
     ETS_INFOCLASS_Reconnect_Notifier              // set restore connection notifier (pointer)
     ,
