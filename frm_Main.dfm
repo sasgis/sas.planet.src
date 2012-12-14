@@ -3514,6 +3514,16 @@ object frmMain: TfrmMain
       OnPopup = tbpmiVersionsPopup
       Caption = 'Version'
       Hint = ''
+      object tbitmSelectVersionByMark: TTBXItem
+        OnClick = tbitmSelectVersionByMarkClick
+        Caption = 'Select by Placemark'
+        Hint = ''
+      end
+      object tbitmMakeVersionByMark: TTBXItem
+        OnClick = tbitmMakeVersionByMarkClick
+        Caption = 'Make by Placemark'
+        Hint = ''
+      end
       object tbpmiClearVersion: TTBXItem
         OnClick = tbpmiClearVersionClick
         Caption = 'Reset'

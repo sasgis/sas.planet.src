@@ -385,6 +385,8 @@ type
     tbitmCopyToClipboardGenshtabName: TTBXItem;
     NoaaForecastMeteorology1: TTBXItem;
     NMapStorageInfo: TTBXItem;
+    tbitmMakeVersionByMark: TTBXItem;
+    tbitmSelectVersionByMark: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -535,6 +537,8 @@ type
     procedure tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
     procedure NoaaForecastMeteorology1Click(Sender: TObject);
     procedure NMapStorageInfoClick(Sender: TObject);
+    procedure tbitmMakeVersionByMarkClick(Sender: TObject);
+    procedure tbitmSelectVersionByMarkClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3093,12 +3097,14 @@ var
   VList: IMapVersionListStatic;
   VVersion: IMapVersionInfo;
   VNewIndex: Integer;
+  VStartingNewIndex: Integer;
 begin
   // remove all versions
-  while (tbpmiVersions.Count>1) do begin
-    tbpmiVersions.Delete(1);
+  for i := (tbpmiVersions.Count-1) downto 0 do begin
+    if (tbpmiVersions.Items[i] is TTBXItemSelectMapVersion) then
+      tbpmiVersions.Delete(i);
   end;
-  //FMapVersionList := nil;
+  VStartingNewIndex := tbpmiVersions.Count;
 
   // and add view items
   VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
@@ -3134,7 +3140,7 @@ begin
       VMenuItem.OnClick := DoSelectSpecialVersion;
       VMenuItem.Tag := Integer(VVersion);
       // get index (for sorting)
-      VNewIndex := 1;
+      VNewIndex := VStartingNewIndex;
       repeat
         if (VNewIndex>=tbpmiVersions.Count) then
           Break;
@@ -5285,6 +5291,36 @@ begin
   end;
 end;
 
+procedure TfrmMain.tbitmSelectVersionByMarkClick(Sender: TObject);
+var
+  VMark: IMark;
+  VMapType: TMapType;
+  VInternalDomainOptions: IInternalDomainOptions;
+  VBase, VDesc, VVersionStr: String;
+  VFlags: TDomainOptionsResponseFlags;
+begin
+  // select version by selected placemark description
+  VMark := FSelectedMark;
+  if VMark <> nil then begin
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    if Assigned(VMapType) then
+    if Assigned(VMapType.TileStorage) then
+    if Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions) then begin
+      VBase := CTileStorageOptionsInternalURL + GUIDToString(VMapType.Zmp.GUID);
+      VDesc := VMark.Desc;
+      // get version to open
+      if (0<Length(VDesc)) then
+      if VInternalDomainOptions.DomainHtmlOptions(VBase, VDesc, VVersionStr, VFlags, c_IDO_RT_SelectVersionByDescription) then
+      if (0<Length(VVersionStr)) then begin
+        // switch to given VVersionStr
+        with VMapType.VersionConfig do begin
+          Version := VersionFactory.CreateByStoreString(VVersionStr);
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmMain.TBEditMagnetDrawClick(Sender: TObject);
 begin
   FConfig.MainConfig.MagnetDraw := TBEditMagnetDraw.Checked;
@@ -6004,12 +6040,18 @@ begin
   VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   // allow to view map info
   NMapInfo.Enabled:=VMapType.GUIConfig.InfoUrl.Value<>'';
-  // allow to clear or select versions
-  tbpmiClearVersion.Visible := (0<Length(VMapType.VersionConfig.Version.StoreString));
-  tbpmiVersions.Visible := VMapType.AllowListOfTileVersions or tbpmiClearVersion.Visible;
+
   // allow to show Map Storage Info
   NMapStorageInfo.Visible := Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions);
   NMapStorageInfo.Enabled := NMapStorageInfo.Visible;
+
+  // allow to clear or select versions
+  tbpmiClearVersion.Visible := (0<Length(VMapType.VersionConfig.Version.StoreString));
+  // make and select version by placemark
+  tbitmMakeVersionByMark.Visible := (VMark <> nil) and (VInternalDomainOptions <> nil);
+  tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;
+  // versions submenu
+  tbpmiVersions.Visible := VMapType.AllowListOfTileVersions or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
 end;
 
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);
@@ -6261,6 +6303,34 @@ begin
       VLineOnMapEdit := FLineOnMapEdit;
       if Supports(VLineOnMapEdit, IPolygonOnMapEdit,  VPolygonOnMapEdit) then begin
         VPolygonOnMapEdit.SetPolygon(VPolygon);
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.tbitmMakeVersionByMarkClick(Sender: TObject);
+var
+  VMark: IMark;
+  VMapType: TMapType;
+  VInternalDomainOptions: IInternalDomainOptions;
+  VBase, VDesc, VUrl: String;
+  VFlags: TDomainOptionsResponseFlags;
+begin
+  // make version by selected placemark description
+  VMark := FSelectedMark;
+  if VMark <> nil then begin
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    if Assigned(VMapType) then
+    if Assigned(VMapType.TileStorage) then
+    if Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions) then begin
+      VBase := CTileStorageOptionsInternalURL + GUIDToString(VMapType.Zmp.GUID);
+      VDesc := VMark.Desc;
+      // get URL to open
+      if (0<Length(VDesc)) then
+      if VInternalDomainOptions.DomainHtmlOptions(VBase, VDesc, VUrl, VFlags, c_IDO_RT_MakeVersionByDescriptionURL) then
+      if (0<Length(VUrl)) then begin
+        // open given URL
+        GState.InternalBrowser.Navigate(VMapType.Zmp.FileName, VUrl);
       end;
     end;
   end;
