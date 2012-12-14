@@ -328,6 +328,7 @@ constructor TMapType.Create(
 var
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
+  VMapVersionChanger: IMapVersionChanger;
 begin
   inherited Create;
   FZmp := AZmp;
@@ -409,6 +410,10 @@ begin
       TVectorDataFactoryForMap.Create(
         THtmlToHintTextConverterStuped.Create
       );
+  end;
+
+  if Supports(FStorage, IMapVersionChanger, VMapVersionChanger) then begin
+    VMapVersionChanger.SetMapVersionConfig(FVersionConfig);
   end;
 
   FTileDownloadSubsystem :=
