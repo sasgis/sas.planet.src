@@ -2935,6 +2935,8 @@ var
   VLastTime: Double;
   VMaxTime: Double;
   VUseAnimation: Boolean;
+  VScaleFinish: Double;
+  VScaleStart: Double;
 begin
   if (FMapZoomAnimtion)or(FMapMoving)or(ANewZoom>23) then exit;
   FMapZoomAnimtion:=True;
@@ -2948,34 +2950,21 @@ begin
         (VMaxTime > 0);
 
       if VUseAnimation then begin
-        FConfig.ViewPortState.LockWrite;
-        try
-          FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AFreezePos);
-          if VZoom>ANewZoom then begin
-            Scale := 2;
-          end else begin
-            Scale := 0.5;
-          end;
-          FConfig.ViewPortState.ScaleTo(Scale, AFreezePos);
-        finally
-          FConfig.ViewPortState.UnlockWrite;
-        end;
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPointWithScale(ANewZoom, AFreezePos);
       end else begin
         FConfig.ViewPortState.ChangeZoomWithFreezeAtVisualPoint(ANewZoom, AFreezePos);
       end;
 
       if VUseAnimation then begin
+        VScaleStart := FConfig.ViewPortState.View.GetStatic.GetScale;
+        VScaleFinish := 1;
         VTime := 0;
         VLastTime := 0;
         QueryPerformanceCounter(ts1);
         ts3 := ts1;
         while (VTime + VLastTime < VMaxTime) do begin
           VAlfa := VTime/VMaxTime;
-          if VZoom>ANewZoom then begin
-            Scale := 2 - VAlfa;
-          end else begin
-            Scale := (1 + VAlfa)/2;
-          end;
+          Scale := VScaleStart + (VScaleFinish - VScaleStart) * VAlfa;
           FConfig.ViewPortState.ScaleTo(Scale, AFreezePos);
           application.ProcessMessages;
           QueryPerformanceCounter(ts2);
@@ -2984,7 +2973,7 @@ begin
           VTime := (ts2-ts1)/(fr/1000);
           ts3 := ts2;
         end;
-        Scale := 1;
+        Scale := VScaleFinish;
         FConfig.ViewPortState.ScaleTo(Scale, AFreezePos);
       end;
     end;

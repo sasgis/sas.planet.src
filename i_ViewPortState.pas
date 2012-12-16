@@ -52,6 +52,10 @@ type
       const AZoom: Byte;
       const AFreezePoint: TPoint
     );
+    procedure ChangeZoomWithFreezeAtVisualPointWithScale(
+      const AZoom: Byte;
+      const AFreezePoint: TPoint
+    );
     procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
 
     procedure ChangeLonLat(const ALonLat: TDoublePoint);
