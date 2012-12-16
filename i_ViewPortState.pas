@@ -56,7 +56,6 @@ type
 
     procedure ChangeLonLat(const ALonLat: TDoublePoint);
 
-    procedure MoveTo(const Pnt: TPoint);
     procedure ScaleTo(
       const AScale: Double;
       const ACenterPoint: TPoint

@@ -58,7 +58,6 @@ type
     function CreateVisibleCoordConverter(
       const AActiveCoordConverter: ICoordConverter;
       AViewSize: TPoint;
-      AVisibleMove: TDoublePoint;
       AMapScale: Double;
       ACenterPos: TDoublePoint;
       AZoom: Byte
@@ -92,7 +91,6 @@ type
 
     procedure ChangeLonLat(const ALonLat: TDoublePoint);
 
-    procedure MoveTo(const Pnt: TPoint);
     procedure ScaleTo(
       const AScale: Double;
       const ACenterPoint: TPoint
@@ -151,7 +149,6 @@ begin
     CreateVisibleCoordConverter(
       VGeoConverter,
       Point(1024, 768),
-      DoublePoint(0, 0),
       FBaseScale,
       VCenterPoint,
       VZoom
@@ -273,7 +270,6 @@ begin
         CreateVisibleCoordConverter(
           VGeoConverter,
           ANewSize,
-          DoublePoint(0, 0),
           FBaseScale,
           VLocalConverter.GetCenterMapPixelFloat,
           VLocalConverter.Zoom
@@ -333,7 +329,6 @@ end;
 function TMapViewPortState.CreateVisibleCoordConverter(
   const AActiveCoordConverter: ICoordConverter;
   AViewSize: TPoint;
-  AVisibleMove: TDoublePoint;
   AMapScale: Double;
   ACenterPos: TDoublePoint;
   AZoom: Byte
@@ -343,8 +338,8 @@ var
   VLocalTopLeftAtMap: TDoublePoint;
 begin
   VViewCenter := Point(AViewSize.X div 2, AViewSize.Y div 2);
-  VLocalTopLeftAtMap.X := (-VViewCenter.X + AVisibleMove.X) / AMapScale + ACenterPos.X;
-  VLocalTopLeftAtMap.Y := (-VViewCenter.Y + AVisibleMove.Y) / AMapScale + ACenterPos.Y;
+  VLocalTopLeftAtMap.X := (-VViewCenter.X) / AMapScale + ACenterPos.X;
+  VLocalTopLeftAtMap.Y := (-VViewCenter.Y) / AMapScale + ACenterPos.Y;
 
   Result := FVisibleCoordConverterFactory.CreateConverter(
     Rect(0, 0, AViewSize.X, AViewSize.Y),
@@ -462,31 +457,6 @@ begin
   Result := FView;
 end;
 
-procedure TMapViewPortState.MoveTo(const Pnt: TPoint);
-var
-  VVisibleMove: TDoublePoint;
-  VLocalConverter: ILocalCoordConverter;
-  VLocalConverterNew: ILocalCoordConverter;
-begin
-  LockWrite;
-  try
-    VLocalConverter := FPosition.GetStatic;
-    VVisibleMove := DoublePoint(Pnt);
-    VLocalConverterNew :=
-      CreateVisibleCoordConverter(
-        VLocalConverter.GeoConverter,
-        VLocalConverter.GetLocalRectSize,
-        VVisibleMove,
-        FBaseScale,
-        VLocalConverter.GetCenterMapPixelFloat,
-        VLocalConverter.Zoom
-      );
-    FView.SetConverter(VLocalConverterNew);
-  finally
-    UnlockWrite;
-  end;
-end;
-
 procedure TMapViewPortState.OnMainMapChange;
 begin
   LockWrite;
@@ -537,7 +507,6 @@ begin
         CreateVisibleCoordConverter(
           VGeoConverter,
           VLocalConverter.GetLocalRectSize,
-          DoublePoint(0, 0),
           VNewMapScale,
           VCenterPosNew,
           VZoom

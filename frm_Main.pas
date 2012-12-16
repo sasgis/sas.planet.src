@@ -548,6 +548,7 @@ type
     FKeyMovingHandler: IMessageHandler;
     FMouseHandler: IMouseHandler;
     FMouseState: IMouseState;
+    FMoveByMouseStartPoint: TPoint;
     FMarshrutComment: string;
     movepoint: boolean;
 
@@ -652,7 +653,7 @@ type
     Procedure WMSysCommand(Var Msg: TMessage); Message WM_SYSCOMMAND;
 
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
-    procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; const ALastTime:double; AZoom:byte; const AMousePos:TPoint);
+    procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; AZoom:byte; const AMousePos:TPoint);
     procedure ProcessPosChangeMessage;
     procedure CopyBtmToClipboard(btm: TBitmap);
     function GetIgnoredMenuItemsList: TList;
@@ -2992,7 +2993,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; const ALastTime:double; AZoom:byte; const AMousePos:TPoint);
+procedure TfrmMain.MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; AZoom:byte; const AMousePos:TPoint);
 var
   ts1,ts2,fr:int64;
   VTime: Double;
@@ -3018,7 +3019,7 @@ begin
       if VMousePPS>FConfig.MapMovingConfig.AnimateMaxStartSpeed then begin
         VMousePPS:=FConfig.MapMovingConfig.AnimateMaxStartSpeed;
       end;
-      VLastTime := ALastTime;
+      VLastTime := 0.1;
 
       repeat
         Vk:=VMousePPS * VMaxTime; //расстояние в пикселах, которое мы пройдем со скоростью AMousePPS за время VMaxTime
@@ -4743,6 +4744,7 @@ begin
   end else begin
     FMapMoving:=true;
     FMapMovingButton := Button;
+    FMoveByMouseStartPoint := Point(X, Y);
     FSelectedMark := nil;
     map.PopupMenu:=nil;
   end;
@@ -4766,11 +4768,9 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseDownPos: TPoint;
   VMouseMoveDelta: TPoint;
-  VMouseMoveSpeed: TDoublePoint;
   VMarkS: Double;
   VWikiItem: IVectorDataItemSimple;
   VFoundItem: IVectorDataItemSimple;
-  VPrevTick, VCurrTick, VFr: int64;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
@@ -4866,7 +4866,7 @@ begin
   end;
 
   movepoint:=false;
-  
+
   if (((FState.State<>ao_movemap)and(Button=mbLeft))or
      ((FState.State=ao_movemap)and(Button=mbRight))) then exit;
 
@@ -4877,13 +4877,11 @@ begin
   VMouseMoveDelta := Point(VMouseDownPos.x-X, VMouseDownPos.y-y);
 
   if (VMapMoving)and((VMouseMoveDelta.X<>0)or(VMouseMoveDelta.Y<>0)) then begin
-    VMouseMoveSpeed := FMouseState.CurentSpeed;
-    QueryPerformanceCounter(VPrevTick);
-    FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
-    QueryPerformanceCounter(VCurrTick);
-    QueryPerformanceFrequency(VFr);
-    MapMoveAnimate(VMouseMoveSpeed,(VCurrTick-VPrevTick)/VFr,
-                   FConfig.ViewPortState.GetCurrentZoom, FMouseState.GetLastUpPos(Button));
+    MapMoveAnimate(
+      FMouseState.CurentSpeed,
+      FConfig.ViewPortState.GetCurrentZoom,
+      FMouseState.GetLastUpPos(Button)
+    );
   end;
 
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
@@ -4940,7 +4938,6 @@ var
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseMoveDelta: TPoint;
-  VMouseDownPos: TPoint;
   VLastMouseMove: TPoint;
   VMousePos: TPoint;
   VMarkS: Double;
@@ -5073,9 +5070,9 @@ begin
   if FMapZoomAnimtion then exit;
 
   if FMapMoving then begin
-    VMouseDownPos := FMouseState.GetLastDownPos(FMapMovingButton);
-    VMouseMoveDelta := Point(VMouseDownPos.X-VMousePos.X, VMouseDownPos.Y-VMousePos.Y);
-    FConfig.ViewPortState.MoveTo(VMouseMoveDelta);
+    VMouseMoveDelta := Point(FMoveByMouseStartPoint.X-VMousePos.X, FMoveByMouseStartPoint.Y-VMousePos.Y);
+    FMoveByMouseStartPoint := VMousePos;
+    FConfig.ViewPortState.ChangeMapPixelByDelta(DoublePoint(VMouseMoveDelta));
   end;
 
   if (not FShowActivHint) then begin
