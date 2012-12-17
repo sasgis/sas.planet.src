@@ -478,9 +478,16 @@ begin
       // find existing node or create new one
       if GetImagesNode(VDateNode, AId, VItemNode) then begin
         if (VItemNode.Data<>nil) then begin
+        // check for 2 images on 1 day 
+          if TStrings(VItemNode.Data).Values['Date'] <> TStrings(AParams).Values['Date'] then begin
+            VItemNode := tvFound.Items.AddChild(VDateNode, AID+' ('+copy(TStrings(AParams).Values['Date'],12,8)+')');
+            VItemNode.Data := AParams;
+            AParams := nil; // own object
+          end else begin
           // add new lines
-          _CopyNewLines(TStrings(VItemNode.Data), AParams);
-          FreeAndNil(AParams);
+            _CopyNewLines(TStrings(VItemNode.Data), AParams);
+            FreeAndNil(AParams);
+          end
         end else begin
           // set params
           VItemNode.Data := AParams;
