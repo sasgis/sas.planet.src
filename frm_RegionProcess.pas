@@ -66,7 +66,6 @@ uses
   u_ProviderTilesDownload,
   i_MapViewGoto,
   fr_Combine,
-  u_MapViewGoto,
   fr_Export;
 
 type
@@ -428,13 +427,8 @@ procedure TfrmRegionProcess.SpeedButton_fitClick(Sender: TObject);
 var
   VPolygon: ILonLatPolygon;
 begin
-  FLastSelectionInfo.LockRead;
-  try
-    VPolygon := FLastSelectionInfo.Polygon;
-  finally
-    FLastSelectionInfo.UnlockRead;
-  end;
-  if (nil<>VPolygon)  then begin
+  VPolygon := FLastSelectionInfo.Polygon;
+  if (VPolygon <> nil)  then begin
     FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
   end;
 end;
