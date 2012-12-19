@@ -64,7 +64,9 @@ uses
   i_GlobalBerkeleyDBHelper,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
+  i_MapViewGoto,
   fr_Combine,
+  u_MapViewGoto,
   fr_Export;
 
 type
@@ -82,10 +84,12 @@ type
     CBCloseWithStart: TCheckBox;
     TabSheet6: TTabSheet;
     pnlBottomButtons: TPanel;
+    SpeedButton_fit: TSpeedButton;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure SpeedButton_fitClick(Sender: TObject);
   private
     FfrExport: TfrExport;
     FfrCombine: TfrCombine;
@@ -97,6 +101,7 @@ type
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TProviderTilesDownload;
+    FMapGoto: IMapViewGoto;
     procedure LoadRegion(const APolyLL: ILonLatPolygon);
     procedure DelRegion(const APolyLL: ILonLatPolygon);
     procedure genbacksatREG(const APolyLL: ILonLatPolygon);
@@ -131,7 +136,8 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AMapGoto: IMapViewGoto
     ); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(const FileName:string);
@@ -180,12 +186,14 @@ constructor TfrmRegionProcess.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AMapGoto: IMapViewGoto
 );
 begin
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
   FVectorItemsFactory := AVectorItemsFactory;
+  FMapGoto := AMapGoto;
   FfrExport :=
     TfrExport.Create(
       ALanguageManager,
@@ -413,6 +421,21 @@ begin
     VPolygonSection := VHLGData.GetOrCreateSubItem('HIGHLIGHTING');
     VPolygonSection.WriteInteger('zoom',VZoom + 1);
     WritePolygon(VPolygonSection, VPolygon);
+  end;
+end;
+
+procedure TfrmRegionProcess.SpeedButton_fitClick(Sender: TObject);
+var
+  VPolygon: ILonLatPolygon;
+begin
+  FLastSelectionInfo.LockRead;
+  try
+    VPolygon := FLastSelectionInfo.Polygon;
+  finally
+    FLastSelectionInfo.UnlockRead;
+  end;
+  if (nil<>VPolygon)  then begin
+    FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
   end;
 end;
 

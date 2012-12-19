@@ -838,13 +838,13 @@ begin
   FMapZoomAnimtion:=False;
   FMapMoving := False;
   FfrmDGAvailablePic := nil;
-
   FLinksList := TListenerNotifierLinksList.Create;
   FState := TMainFormState.Create;
   VMouseState := TMouseState.Create;
   FMouseHandler := VMouseState;
   FMouseState := VMouseState;
   FConfig := GState.MainFormConfig;
+  FMapGoto := TMapViewGoto.Create(FConfig.ViewPortState);
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
       GState.LanguageManager,
@@ -873,7 +873,8 @@ begin
       GState.MapCalibrationList,
       GState.DownloadConfig,
       GState.DownloadInfo,
-      GState.ValueToStringConverterConfig
+      GState.ValueToStringConverterConfig,
+      FMapGoto
     );
   FFormRegionProcess.PopupParent := Self;
   FfrmGoTo :=
@@ -1056,7 +1057,6 @@ begin
       FFormRegionProcess
     );
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
-  FMapGoto := TMapViewGoto.Create(FConfig.ViewPortState);
   InitLayers;
   ProgramStart:=true;
 end;
