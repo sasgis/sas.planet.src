@@ -37,6 +37,7 @@ type
     FList: ILanguageListStatic;
     FDefaultLangCode: string;
     FNames: TStringList;
+    FLangRootPath: string;
     procedure LoadLangs;
     procedure SetTranslateIgnore;
   protected
@@ -53,7 +54,7 @@ type
     function GetLanguageList: ILanguageListStatic;
     function GetLangNameByIndex(AIndex: Integer): string;
   public
-    constructor Create;
+    constructor Create(const ALangRootPath: string);
     destructor Destroy; override;
   end;
 
@@ -69,17 +70,24 @@ uses
   GR32,
   EmbeddedWB,
   gnugettext,
+  i_FileNameIterator,
+  u_FileNameIteratorInFolderByMask,
   u_LanguagesEx,
   u_CommonFormAndFrameParents,
   u_LanguageListStatic;
 
+const
+  cDefLangCode = 'en';
+  cLangFileExt = '.mo';
+
 { TLanguageManager }
 
-constructor TLanguageManager.Create;
+constructor TLanguageManager.Create(const ALangRootPath: string);
 begin
   inherited Create;
+  FLangRootPath := IncludeTrailingPathDelimiter(ALangRootPath);
   FNames := TStringList.Create;
-  FDefaultLangCode := 'en';
+  FDefaultLangCode := cDefLangCode;
   SetTranslateIgnore;
   LoadLangs;
 end;
@@ -157,10 +165,22 @@ var
     VCodes.Add(ACode);
   end;
 
+  procedure GetListOfLanguages(AList: TStringList);
+  var
+    VIterator: IFileNameIterator;
+    VFileNameW: WideString;
+  begin
+    VIterator := TFileNameIteratorInFolderByMask.Create(FLangRootPath, '', '*' + cLangFileExt, True);
+    while VIterator.Next(VFileNameW) do begin
+      AList.Add(StringReplace(ExtractFileName(VFileNameW), cLangFileExt, '', [rfReplaceAll, rfIgnoreCase]));
+    end;
+  end;
+
 var
-  VinstalledLanguages: TStringList;
-  i: Integer;
-  id: LCID;
+  VInstalledLanguages: TStringList;
+  I: Integer;
+  VLangCodeID: LCID;
+  VLangFile: string;
   VCurrentCode: string;
   VCurrentIndex: Integer;
 begin
@@ -168,37 +188,36 @@ begin
   try
     VLanguagesEx := TLanguagesEx.Create;
     try
-      id := VLanguagesEx.GNUGetTextID[FDefaultLangCode];
-      Add(VLanguagesEx.EngNameFromLocaleID[id], FDefaultLangCode);
+      VLangCodeID := VLanguagesEx.GNUGetTextID[FDefaultLangCode];
+      Add(VLanguagesEx.EngNameFromLocaleID[VLangCodeID], FDefaultLangCode);
 
-      VinstalledLanguages := TStringList.Create;
+      VInstalledLanguages := TStringList.Create;
       try
-        // get languages as a list of codes
-        DefaultInstance.GetListOfLanguages('default', VinstalledLanguages);
-
-        // add them into the list
-        for i := 0 to VinstalledLanguages.Count - 1 do begin
-          if (VinstalledLanguages[i] <> FDefaultLangCode) then begin
-            id := VLanguagesEx.GNUGetTextID[VinstalledLanguages[i]];
-            Add(VLanguagesEx.EngNameFromLocaleID[id], VinstalledLanguages[i]);
+        GetListOfLanguages(VInstalledLanguages);
+        for I := 0 to VInstalledLanguages.Count - 1 do begin
+          VLangCodeID := VLanguagesEx.GNUGetTextID[VInstalledLanguages[I]];
+          if VLangCodeID <> 0 then begin
+            Add(VLanguagesEx.EngNameFromLocaleID[VLangCodeID], VInstalledLanguages[I]);
           end;
         end;
       finally
-        VinstalledLanguages.Free;
+        VInstalledLanguages.Free;
       end;
       FList := TLanguageListStatic.Create(VCodes);
 
       VCurrentCode := DefaultInstance.GetCurrentLanguage;
       if not FList.FindCode(GetCurrentLanguage, VCurrentIndex) then begin
-        id := VLanguagesEx.GNUGetTextID[VCurrentCode];
-        VCurrentCode := VLanguagesEx.GNUGetTextName[id];
+        VLangCodeID := VLanguagesEx.GNUGetTextID[VCurrentCode];
+        VCurrentCode := VLanguagesEx.GNUGetTextName[VLangCodeID];
         DefaultInstance.UseLanguage(VCurrentCode);
+        VLangFile := FLangRootPath + VCurrentCode + cLangFileExt;
+        DefaultInstance.bindtextdomainToFile(DefaultTextDomain, VLangFile);
       end;
     finally
       VLanguagesEx.Free;
     end;
   finally
-VCodes.Free;
+    VCodes.Free;
   end;
 end;
 
@@ -206,17 +225,20 @@ procedure TLanguageManager.SetCurrentLanguageIndex(AValue: Integer);
 var
   VLastUsedCode: string;
   VCurrCode: string;
+  VLangFile: string;
 begin
   LockWrite;
   try
-    VLastUsedCode := GetCurrentLanguage;
+    VLastUsedCode := DefaultInstance.GetCurrentLanguage;
     if AValue >= 0 then begin
-      UseLanguage(FList.Code[AValue]);
+      DefaultInstance.UseLanguage(FList.Code[AValue]);
     end else begin
-      UseLanguage(FDefaultLangCode);
+      DefaultInstance.UseLanguage(FDefaultLangCode);
     end;
     VCurrCode := GetCurrentLanguage;
     if VLastUsedCode <> VCurrCode then begin
+      VLangFile := FLangRootPath + VCurrCode + cLangFileExt;
+      DefaultInstance.bindtextdomainToFile(DefaultTextDomain, VLangFile);
       SetChanged;
     end;
   finally
@@ -243,8 +265,7 @@ begin
   TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'UserAgent');
   TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'About');
   TP_GlobalIgnoreClassProperty(TOpenDialog, 'DefaultExt');
-  TP_GlobalIgnoreClassProperty(TCustomBitmap32, 'ResamplerClassName');
-
+  TP_GlobalIgnoreClassProperty(TCustomBitmap32, 'ResamplerClassName');  
 end;
 
 end.

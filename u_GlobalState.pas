@@ -448,7 +448,7 @@ begin
   FCacheConfig := TGlobalCahceConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
-  FLanguageManager := TLanguageManager.Create;
+  FLanguageManager := TLanguageManager.Create(VProgramPath + 'lang');
   FLanguageManager.ReadConfig(VViewCnonfig);
   if VViewCnonfig <> nil then begin
     FGlobalAppConfig.ReadConfig(VViewCnonfig);
