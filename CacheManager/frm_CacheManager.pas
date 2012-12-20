@@ -283,8 +283,9 @@ var
   VOperationID: Integer;
   VConverterThread: TThreadCacheConverter;
   VCoordConverter: ICoordConverter;
-  VSouurce: ITileStorage;
+  VSource: ITileStorage;
   VTarget: ITileStorage;
+  VSourcePath: string;
   VDestPath: string;
   VDefExtention: string;
   VDotPos: Integer;
@@ -302,19 +303,19 @@ begin
     VDefExtention := Copy(VDefExtention, VDotPos, Length(VDefExtention) - VDotPos + 1);
   end else begin
     VDefExtention := '.' + VDefExtention;
-  end;
-
+  end; 
   VDefExtention := LowerCase(VDefExtention);
 
-  VSouurce :=
+  VSourcePath := IncludeTrailingPathDelimiter(Trim(edtPath.Text));
+  VSource :=
     CreateSimpleTileStorage(
-      IncludeTrailingPathDelimiter(Trim(edtPath.Text)),
+      VSourcePath,
       VDefExtention,
       VCoordConverter,
       GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex)
     );
-  VDestPath := IncludeTrailingPathDelimiter(Trim(edtDestPath.Text));
 
+  VDestPath := IncludeTrailingPathDelimiter(Trim(edtDestPath.Text));
   ForceDirectories(VDestPath);
   VTarget :=
     CreateSimpleTileStorage(
@@ -327,7 +328,8 @@ begin
   VConverterThread := TThreadCacheConverter.Create(
     VCancelNotifierInternal,
     VOperationID,
-    VSouurce,
+    VSource,
+    VSourcePath,
     VTarget,
     chkIgnoreTNE.Checked,
     chkRemove.Checked,

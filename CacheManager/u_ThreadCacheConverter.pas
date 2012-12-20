@@ -36,6 +36,7 @@ type
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
     FSourceTileStorage: ITileStorage;
+    FSourceStorageRootPath: string;
     FDestTileStorage: ITileStorage;
     FSourceIgnoreTne: Boolean;
     FSourceRemoveTiles: Boolean;
@@ -52,6 +53,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ASourceStorage: ITileStorage;
+      const ASourceStorageRootPath: string;
       const ATargetStorage: ITileStorage;
       const ASourceIgnoreTne: Boolean;
       const ASourceRemoveTiles: Boolean;
@@ -62,12 +64,16 @@ type
 
 implementation
 
+uses
+  SysUtils;
+
 { TThreadCacheConverter }
 
 constructor TThreadCacheConverter.Create(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const ASourceStorage: ITileStorage;
+  const ASourceStorageRootPath: string;
   const ATargetStorage: ITileStorage;
   const ASourceIgnoreTne: Boolean;
   const ASourceRemoveTiles: Boolean;
@@ -82,6 +88,7 @@ begin
   FDestOverwriteTiles := ADestOverwriteTiles;
   FProgressInfo := AProgressInfo;
   FSourceTileStorage := ASourceStorage;
+  FSourceStorageRootPath := ASourceStorageRootPath;
   FDestTileStorage := ATargetStorage;
 
   inherited Create(FCancelNotifier, FOperationID, AnsiString(Self.ClassName));
@@ -170,7 +177,8 @@ begin
         ATileInfo.FVersionInfo
       );
 
-    FProgressInfo.LastTileName := VTileFullPath;
+    FProgressInfo.LastTileName :=
+      StringReplace(VTileFullPath, FSourceStorageRootPath, '', [rfIgnoreCase]);
   end;
 end;
 
