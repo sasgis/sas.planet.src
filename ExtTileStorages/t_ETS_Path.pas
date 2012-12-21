@@ -40,6 +40,9 @@ type
     // get servername\databasename as endpoint
     function AsEndpoint: WideString;
     function AsWideString: WideString;
+    // parts
+    function ServerName: WideString; inline;
+    function ServiceName: WideString; inline;
   end;
 
 implementation
@@ -174,6 +177,16 @@ begin
   
   for i := 0 to c_ETS_Path_Items_Count-1 do
     Path_Items[i]:=ASrc^.Path_Items[i];
+end;
+
+function TETS_Path_Divided_W.ServerName: WideString;
+begin
+  Result := Path_Items[0]
+end;
+
+function TETS_Path_Divided_W.ServiceName: WideString;
+begin
+  Result := Path_Items[2]
 end;
 
 { TETS_Path_DelimPos }
