@@ -890,6 +890,7 @@
     <DCCReference Include="u_ListenerByEvent.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
     <DCCReference Include="u_ListenerTTLCheck.pas" />
+    <DCCReference Include="u_LocalConverterChangeableFixedTileRectNoScale.pas" />
     <DCCReference Include="u_LocalConverterChangeableOfMiniMap.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterChangeable.pas" />

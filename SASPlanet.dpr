@@ -354,6 +354,7 @@ uses
   u_LocalCoordConverter in 'u_LocalCoordConverter.pas',
   i_LocalCoordConverterChangeable in 'i_LocalCoordConverterChangeable.pas',
   u_LocalCoordConverterChangeable in 'u_LocalCoordConverterChangeable.pas',
+  u_LocalConverterChangeableFixedTileRectNoScale in 'u_LocalConverterChangeableFixedTileRectNoScale.pas',
   u_LocalConverterChangeableOfMiniMap in 'u_LocalConverterChangeableOfMiniMap.pas',
   i_LocalCoordConverterFactorySimpe in 'i_LocalCoordConverterFactorySimpe.pas',
   u_LocalCoordConverterFactorySimpe in 'u_LocalCoordConverterFactorySimpe.pas',
