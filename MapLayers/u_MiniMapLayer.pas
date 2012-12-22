@@ -1,4 +1,4 @@
-unit u_MiniMapLayerNew;
+unit u_MiniMapLayer;
 
 interface
 

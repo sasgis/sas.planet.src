@@ -493,9 +493,9 @@
     <DCCReference Include="MapLayers\u_MapLayerWikiNew.pas" />
     <DCCReference Include="MapLayers\u_MapMainLayerNew.pas" />
     <DCCReference Include="MapLayers\u_MapMarksLayerNew.pas" />
+    <DCCReference Include="MapLayers\u_MiniMapLayer.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerLeftBorder.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerMinusButton.pas" />
-    <DCCReference Include="MapLayers\u_MiniMapLayerNew.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerPlusButton.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerTopBorder.pas" />
     <DCCReference Include="MapLayers\u_MiniMapLayerViewRect.pas" />

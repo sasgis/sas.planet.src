@@ -738,7 +738,7 @@ uses
   u_GeoToStr,
   u_MapType,
   u_MapLayerWikiNew,
-  u_MiniMapLayerNew,
+  u_MiniMapLayer,
   u_MiniMapLayerViewRect,
   u_MiniMapLayerTopBorder,
   u_MiniMapLayerLeftBorder,
