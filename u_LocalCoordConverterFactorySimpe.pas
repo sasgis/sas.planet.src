@@ -482,7 +482,7 @@ begin
 
   VTileRect := VConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
   VResultMapPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
-  if EqualRect(VSourcePixelRect, VResultMapPixelRect) then begin
+  if EqualRect(VSourcePixelRect, VResultMapPixelRect) and (Abs(ASource.GetScale - 1) < 0.001) then begin
     Result := ASource;
   end else begin
     VResultLocalPixelRect :=
