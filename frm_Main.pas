@@ -1882,7 +1882,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     );
   FLayersList.Add(
-    TMiniMapLayerNew.Create(
+    TMiniMapLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

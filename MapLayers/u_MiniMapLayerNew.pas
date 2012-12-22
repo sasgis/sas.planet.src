@@ -22,7 +22,7 @@ uses
   u_TiledLayerWithThreadBase;
 
 type
-  TMiniMapLayerNew = class(TTiledLayerWithThreadBase)
+  TMiniMapLayer = class(TTiledLayerWithThreadBase)
   private
     FConfig: IMiniMapLayerConfig;
     FErrorLogger: ITileErrorLogger;
@@ -70,9 +70,9 @@ uses
   u_ListenerByEvent,
   u_BitmapLayerProviderForViewMaps;
 
-{ TMapMainLayerNew }
+{ TMapMainLayer }
 
-constructor TMiniMapLayerNew.Create(
+constructor TMiniMapLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -143,7 +143,7 @@ begin
   );
 end;
 
-function TMiniMapLayerNew.CreateLayerProvider(
+function TMiniMapLayer.CreateLayerProvider(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter
@@ -171,7 +171,7 @@ begin
     );
 end;
 
-procedure TMiniMapLayerNew.OnConfigChange;
+procedure TMiniMapLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -182,7 +182,7 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerNew.OnLayerListChange;
+procedure TMiniMapLayer.OnLayerListChange;
 begin
   ViewUpdateLock;
   try
@@ -192,7 +192,7 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerNew.OnMainMapChange;
+procedure TMiniMapLayer.OnMainMapChange;
 begin
   ViewUpdateLock;
   try
@@ -202,7 +202,7 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerNew.StartThreads;
+procedure TMiniMapLayer.StartThreads;
 begin
   OnConfigChange;
   inherited;
