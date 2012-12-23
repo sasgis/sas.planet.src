@@ -156,53 +156,16 @@ type
     );
   end;
 
-  TWindowLayerWithPosBase = class(TWindowLayerAbstract)
+  TWindowLayerBasic = class(TWindowLayerAbstract)
   private
-    FViewPortState: IViewPortState;
-
-    FViewCoordConverter: ILocalCoordConverter;
-    FViewCoordConverterCS: IReadWriteSync;
-
-    FLayerCoordConverter: ILocalCoordConverter;
-    FLayerCoordConverterCS: IReadWriteSync;
-
-    procedure OnViewPortPosChange;
-    procedure OnViewPortScaleChange;
-    function GetLayerCoordConverter: ILocalCoordConverter;
-    function GetViewCoordConverter: ILocalCoordConverter;
-
-    procedure ScaleChange(const ANewVisualCoordConverter: ILocalCoordConverter);
-  protected
-    procedure StartThreads; override;
-  protected
-    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); virtual;
-    procedure SetLayerCoordConverter(const AValue: ILocalCoordConverter); virtual;
-
-    function GetLayerCoordConverterByViewConverter(const ANewViewCoordConverter: ILocalCoordConverter): ILocalCoordConverter; virtual;
-
-    procedure PosChange(const ANewVisualCoordConverter: ILocalCoordConverter);
-
-    property ViewCoordConverter: ILocalCoordConverter read GetViewCoordConverter;
-    property LayerCoordConverter: ILocalCoordConverter read GetLayerCoordConverter;
-  public
-    constructor Create(
-      const APerfList: IInternalPerformanceCounterList;
-      const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const AViewPortState: IViewPortState;
-      AListenScaleChange: Boolean
-    );
-    destructor Destroy; override;
-  end;
-
-  TWindowLayerBasic = class(TWindowLayerWithPosBase)
-  private
+    FView: ILocalCoordConverterChangeable;
     FVisible: Boolean;
     FLayer: TCustomLayer;
 
     FNeedRedrawFlag: ISimpleFlag;
     FRedrawCounter: IInternalPerformanceCounter;
   protected
+    property View: ILocalCoordConverterChangeable read FView;
     function GetVisible: Boolean; virtual;
     procedure SetVisible(const Value: Boolean);
 
@@ -226,8 +189,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       ALayer: TCustomLayer;
-      const AViewPortState: IViewPortState;
-      AListenScaleChange: Boolean
+      const AView: ILocalCoordConverterChangeable
     );
     destructor Destroy; override;
   end;
@@ -239,136 +201,6 @@ uses
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent;
 
-{ TWindowLayerWithPosBase }
-
-constructor TWindowLayerWithPosBase.Create(
-  const APerfList: IInternalPerformanceCounterList;
-  const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const AViewPortState: IViewPortState;
-  AListenScaleChange: Boolean
-);
-begin
-  inherited Create(APerfList, AAppStartedNotifier, AAppClosingNotifier);
-  FViewPortState := AViewPortState;
-
-  FViewCoordConverterCS := MakeSyncRW_Var(Self);
-  FLayerCoordConverterCS := MakeSyncRW_Var(Self);
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnViewPortPosChange),
-    FViewPortState.Position.ChangeNotifier
-  );
-  if AListenScaleChange then begin
-    LinksList.Add(
-      TNotifyNoMmgEventListener.Create(Self.OnViewPortScaleChange),
-      FViewPortState.View.ChangeNotifier
-    );
-  end;
-end;
-
-destructor TWindowLayerWithPosBase.Destroy;
-begin
-  FViewCoordConverterCS := nil;
-  FLayerCoordConverterCS := nil;
-  FViewCoordConverter := nil;
-  FLayerCoordConverter := nil;
-  FViewPortState := nil;
-  inherited;
-end;
-
-procedure TWindowLayerWithPosBase.OnViewPortPosChange;
-begin
-  PosChange(FViewPortState.Position.GetStatic);
-end;
-
-procedure TWindowLayerWithPosBase.PosChange(
-  const ANewVisualCoordConverter: ILocalCoordConverter
-);
-begin
-  ViewUpdateLock;
-  try
-    SetViewCoordConverter(ANewVisualCoordConverter);
-    SetLayerCoordConverter(GetLayerCoordConverterByViewConverter(ANewVisualCoordConverter));
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TWindowLayerWithPosBase.OnViewPortScaleChange;
-begin
-  ScaleChange(FViewPortState.View.GetStatic);
-end;
-
-procedure TWindowLayerWithPosBase.ScaleChange(
-  const ANewVisualCoordConverter: ILocalCoordConverter
-);
-begin
-  ViewUpdateLock;
-  try
-    SetViewCoordConverter(ANewVisualCoordConverter);
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-function TWindowLayerWithPosBase.GetLayerCoordConverter: ILocalCoordConverter;
-begin
-  FLayerCoordConverterCS.BeginRead;
-  try
-    Result := FLayerCoordConverter;
-  finally
-    FLayerCoordConverterCS.EndRead;
-  end;
-end;
-
-function TWindowLayerWithPosBase.GetLayerCoordConverterByViewConverter(
-  const ANewViewCoordConverter: ILocalCoordConverter
-): ILocalCoordConverter;
-begin
-  Result := ANewViewCoordConverter;
-end;
-
-function TWindowLayerWithPosBase.GetViewCoordConverter: ILocalCoordConverter;
-begin
-  FViewCoordConverterCS.BeginRead;
-  try
-    Result := FViewCoordConverter;
-  finally
-    FViewCoordConverterCS.EndRead;
-  end;
-end;
-
-procedure TWindowLayerWithPosBase.SetLayerCoordConverter(
-  const AValue: ILocalCoordConverter
-);
-begin
-  FLayerCoordConverterCS.BeginWrite;
-  try
-    FLayerCoordConverter := AValue;
-  finally
-    FLayerCoordConverterCS.EndWrite;
-  end;
-end;
-
-procedure TWindowLayerWithPosBase.SetViewCoordConverter(
-  const AValue: ILocalCoordConverter
-);
-begin
-  FViewCoordConverterCS.BeginWrite;
-  try
-    FViewCoordConverter := AValue;
-  finally
-    FViewCoordConverterCS.EndWrite;
-  end;
-end;
-
-procedure TWindowLayerWithPosBase.StartThreads;
-begin
-  inherited;
-  OnViewPortPosChange;
-end;
-
 { TWindowLayerBasic }
 
 constructor TWindowLayerBasic.Create(
@@ -376,17 +208,16 @@ constructor TWindowLayerBasic.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   ALayer: TCustomLayer;
-  const AViewPortState: IViewPortState;
-  AListenScaleChange: Boolean
+  const AView: ILocalCoordConverterChangeable
 );
 begin
   inherited Create(
     APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier,
-    AViewPortState,
-    AListenScaleChange
+    AAppClosingNotifier
   );
+
+  FView := AView;
   FLayer := ALayer;
   FRedrawCounter := PerfList.CreateAndAddNewCounter('Redraw');
 

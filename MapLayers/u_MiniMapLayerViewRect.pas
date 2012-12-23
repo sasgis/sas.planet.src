@@ -462,7 +462,7 @@ var
   VViewConverter: ILocalCoordConverter;
 begin
   VMiniMapConverter := FPosition.GetStatic;
-  VViewConverter := FViewPortState.Position.GetStatic;
+  VViewConverter := FViewPortState.View.GetStatic;
   if (VMiniMapConverter <> nil) and (VViewConverter <> nil) then begin
     DrawMainViewRect(ABuffer, VMiniMapConverter, VViewConverter);
   end;

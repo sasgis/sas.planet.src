@@ -79,7 +79,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState
+    AViewPortState.View
   );
   FLastSearchResults := ALastSearchResults;
   FMarker := AMarker;

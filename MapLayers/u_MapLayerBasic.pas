@@ -8,6 +8,7 @@ uses
   GR32_Image,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_ViewPortState,
   i_InternalPerformanceCounter,
   u_WindowLayerWithPos;
@@ -20,6 +21,7 @@ type
       Sender: TObject;
       Buffer: TBitmap32
     );
+    procedure OnViewChange;
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -27,7 +29,6 @@ type
     ); virtual; abstract;
   protected
     procedure DoRedraw; override;
-    procedure SetViewCoordConverter(const AValue: ILocalCoordConverter); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -35,11 +36,14 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState
+      const AView: ILocalCoordConverterChangeable
     );
   end;
 
 implementation
+
+uses
+  u_ListenerByEvent;
 
 { TMapLayerBasicNoBitmap }
 
@@ -48,7 +52,7 @@ constructor TMapLayerBasicNoBitmap.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState
+  const AView: ILocalCoordConverterChangeable
 );
 begin
   inherited Create(
@@ -56,10 +60,13 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     TCustomLayer.Create(AParentMap.Layers),
-    AViewPortState,
-    True
+    AView
   );
   FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnViewChange),
+    View.ChangeNotifier
+  );
 end;
 
 procedure TMapLayerBasicNoBitmap.DoRedraw;
@@ -76,7 +83,7 @@ var
   VLocalConverter: ILocalCoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VLocalConverter := ViewCoordConverter;
+  VLocalConverter := View.GetStatic;
   if VLocalConverter <> nil then begin
     VCounterContext := FOnPaintCounter.StartOperation;
     try
@@ -87,17 +94,9 @@ begin
   end;
 end;
 
-procedure TMapLayerBasicNoBitmap.SetViewCoordConverter(
-  const AValue: ILocalCoordConverter
-);
-var
-  VLocalConverter: ILocalCoordConverter;
+procedure TMapLayerBasicNoBitmap.OnViewChange;
 begin
-  VLocalConverter := ViewCoordConverter;
-  if (VLocalConverter = nil) or (not VLocalConverter.GetIsSameConverter(AValue)) then begin
-    SetNeedRedraw;
-  end;
-  inherited;
+  SetNeedRedraw;
 end;
 
 procedure TMapLayerBasicNoBitmap.StartThreads;

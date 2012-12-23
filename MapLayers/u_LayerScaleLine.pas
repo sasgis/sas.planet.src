@@ -237,7 +237,7 @@ begin
     TBitmapLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
-  FPosition := AViewPortState.Position;
+  FPosition := AViewPortState.View;
 
   FPopupMenu := TLayerScaleLinePopupMenu.Create(
     ALanguageManager,
@@ -714,24 +714,20 @@ procedure TLayerScaleLine.GetMetersPerVerticalLine(
 );
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
-  VCenterPixelXY, VFinishPixelXY: TPoint;
+  VCenterPixelXY, VFinishPixelXY: TDoublePoint;
   VConverter: ICoordConverter;
   VZoom: Byte;
 begin
   VZoom := AVisualCoordConverter.GetZoom;
   VConverter := AVisualCoordConverter.GetGeoConverter;
 
-  VCenterPixelXY := AVisualCoordConverter.LocalPixel2MapPixel(
-    AVisualCoordConverter.LonLat2LocalPixel(
-      AVisualCoordConverter.GetCenterLonLat
-    )
-  );
+  VCenterPixelXY := RectCenter(AVisualCoordConverter.GetRectInMapPixel);
 
-  VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);
+  VStartLonLat := VConverter.PixelPosFloat2LonLat(VCenterPixelXY, VZoom);
 
-  VFinishPixelXY := Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y - (ALineHeight div 2));
-  if VConverter.CheckPixelPosStrict(VFinishPixelXY, VZoom, True) then begin
-    VFinishLonLat := VConverter.PixelPos2LonLat(
+  VFinishPixelXY := DoublePoint(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight / 2);
+  if VConverter.CheckPixelPosFloatStrict(VFinishPixelXY, VZoom, False) then begin
+    VFinishLonLat := VConverter.PixelPosFloat2LonLat(
       VFinishPixelXY,
       VZoom
     );
@@ -740,9 +736,9 @@ begin
     AHalfLen := -1;
   end;
 
-  VFinishPixelXY := Types.Point(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight);
-  if VConverter.CheckPixelPosStrict(VFinishPixelXY, VZoom, True) then begin
-    VFinishLonLat := VConverter.PixelPos2LonLat(
+  VFinishPixelXY := DoublePoint(VCenterPixelXY.X, VCenterPixelXY.Y - ALineHeight);
+  if VConverter.CheckPixelPosFloatStrict(VFinishPixelXY, VZoom, False) then begin
+    VFinishLonLat := VConverter.PixelPosFloat2LonLat(
       VFinishPixelXY,
       VZoom
     );

@@ -273,7 +273,7 @@ function TTiledLayerWithThreadBase.GetNewLayerLocation: TFloatRect;
 var
   VLocalConverter: ILocalCoordConverter;
 begin
-  VLocalConverter := FPosition.GetStatic;
+  VLocalConverter := FView.GetStatic;
   if Visible and (VLocalConverter <> nil) then begin
     Result := FloatRect(VLocalConverter.GetLocalRect);
   end else begin
@@ -405,6 +405,7 @@ procedure TTiledLayerWithThreadBase.OnScaleChange;
 begin
   ViewUpdateLock;
   try
+    SetNeedUpdateLayerLocation;
     SetNeedFullRepaintLayer;
   finally
     ViewUpdateUnlock;

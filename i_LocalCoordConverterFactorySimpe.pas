@@ -54,7 +54,7 @@ type
       AZoom: Byte;
       const ALonLat: TDoublePoint
     ): ILocalCoordConverter;
-    function ChangeByMapPixelDelta(
+    function ChangeByLocalDelta(
       const ASource: ILocalCoordConverter;
       const ADelta: TDoublePoint
     ): ILocalCoordConverter;
@@ -74,10 +74,6 @@ type
     function ChangeConverter(
       const ASource: ILocalCoordConverter;
       const AConverter: ICoordConverter
-    ): ILocalCoordConverter;
-    function ChangeZoomAndScaleSaveRelativeRect(
-      const ASource: ILocalCoordConverter;
-      const AZoom: Byte
     ): ILocalCoordConverter;
 
     function CreateForTile(

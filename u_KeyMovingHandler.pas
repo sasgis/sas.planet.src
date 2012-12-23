@@ -177,7 +177,7 @@ begin
         VPointDelta.x := FMoveVector.x * VStep;
         VPointDelta.y := FMoveVector.y * VStep;
 
-        FViewPortState.ChangeMapPixelByDelta(VPointDelta);
+        FViewPortState.ChangeMapPixelByLocalDelta(VPointDelta);
 
         application.ProcessMessages;
         QueryPerformanceCounter(VCurrTick);

@@ -100,7 +100,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState
+    AViewPortState.View
   );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;

@@ -286,7 +286,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState
+    AViewPortState.View
   );
   FConfig := AConfig;
   FFactory := AFactory;
@@ -806,7 +806,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState
+    AViewPortState.View
   );
   FFirstPointMarker := AFirstPointMarker;
   FActivePointMarker := AActivePointMarker;

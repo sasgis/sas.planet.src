@@ -62,7 +62,6 @@ type
     FTerrainInfo: ITerrainInfo;
     FTerrainConfig: ITerrainConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
-    FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeable;
     FPopupMenu: TLayerStatBarPopupMenu;
     FLastUpdateTick: DWORD;
@@ -164,7 +163,6 @@ begin
 
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
-  FPosition := AViewPortState.Position;
   FView := AViewPortState.View;
 
   FPopupMenu := TLayerStatBarPopupMenu.Create(
@@ -188,7 +186,7 @@ begin
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
-    FPosition.ChangeNotifier
+    FView.ChangeNotifier
   );
   FMainMap := AMainMap;
   FLastUpdateTick := 0;
@@ -203,7 +201,7 @@ end;
 
 function TLayerStatBar.GetNewBitmapSize: TPoint;
 begin
-  Result.X := FPosition.GetStatic.GetLocalRectSize.X;
+  Result.X := FView.GetStatic.GetLocalRectSize.X;
   Result.Y := FConfig.Height;
 end;
 
@@ -211,7 +209,7 @@ function TLayerStatBar.GetNewLayerLocation: TFloatRect;
 var
   VLocalCoordConverter: ILocalCoordConverter;
 begin
-  VLocalCoordConverter := FPosition.GetStatic;
+  VLocalCoordConverter := FView.GetStatic;
   if VLocalCoordConverter <> nil then begin
     Result.Left := 0;
     Result.Bottom := VLocalCoordConverter.GetLocalRectSize.Y;

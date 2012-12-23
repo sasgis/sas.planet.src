@@ -46,7 +46,7 @@ type
     property View: ILocalCoordConverterChangeable read GetView;
 
     procedure ChangeViewSize(const ANewSize: TPoint);
-    procedure ChangeMapPixelByDelta(const ADelta: TDoublePoint);
+    procedure ChangeMapPixelByLocalDelta(const ADelta: TDoublePoint);
     procedure ChangeMapPixelToVisualPoint(const AVisualPoint: TPoint);
     procedure ChangeZoomWithFreezeAtVisualPoint(
       const AZoom: Byte;

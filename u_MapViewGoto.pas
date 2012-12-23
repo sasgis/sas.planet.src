@@ -109,7 +109,7 @@ begin
   VLLRect := ALonLatRect;
   FViewPortState.LockWrite;
   try
-    VLocalConverter := FViewPortState.Position.GetStatic;
+    VLocalConverter := FViewPortState.View.GetStatic;
     VGeoConverter := VLocalConverter.GeoConverter;
     VScreenSize := VLocalConverter.GetLocalRectSize;
 

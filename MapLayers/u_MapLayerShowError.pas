@@ -84,7 +84,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState
+    AViewPortState.View
   );
   FLogProvider := ALogProvider;
   FTimerNoifier := ATimerNoifier;

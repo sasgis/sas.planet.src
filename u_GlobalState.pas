@@ -884,7 +884,7 @@ begin
   FSensorList :=
     TSensorListStuped.Create(
       FLanguageManager,
-      FMainFormConfig.ViewPortState.Position,
+      FMainFormConfig.ViewPortState.View,
       FMainFormConfig.NavToPoint,
       FGPSRecorder,
       FBatteryStatus,

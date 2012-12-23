@@ -73,7 +73,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState
+    AViewPortState.View
   );
   FNavToPoint := ANavToPoint;
   FArrowMarkerChangeable := AArrowMarkerChangeable;

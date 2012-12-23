@@ -55,6 +55,9 @@ constructor TLocalConverterChangeableFixedTileRectNoScale.Create(
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ASoruce: ILocalCoordConverterChangeable);
 begin
+  Assert(AChangeCounter <> nil);
+  Assert(AConverterFactory <> nil);
+  Assert(ASoruce <> nil);
   inherited Create;
   FSoruce := ASoruce;
   FConverterFactory := AConverterFactory;
