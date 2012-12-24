@@ -25,7 +25,8 @@ interface
 uses
   Types,
   Classes,
-  SysUtils;
+  SysUtils,
+  i_GoogleEarthTerrain;
 
 type
   PTerrainTile = ^TTerrainTile;
@@ -35,40 +36,30 @@ type
     Zoom: Byte;
     Exists: Boolean;
     LastAccess: Cardinal;
-    ParserContext: Pointer;
+    Parser: IGoogleEarthTerrain;
   end;
-
-  TOnCloseTerrainTile = procedure(const ATile: PTerrainTile) of object;
 
   TTerrainProviderByGEMemCache = class(TObject)
   private
     FList: TList;
     FCapacity: Integer;
-    FOnCloseTile: TOnCloseTerrainTile;
     FCS: IReadWriteSync;
   public
-    constructor Create(
-      const ACapacity: Integer;
-      const AOnCloseTile: TOnCloseTerrainTile
-    );
+    constructor Create(const ACapacity: Integer);
     destructor Destroy; override;
-
     procedure Add(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AContext: Pointer
+      const AParser: IGoogleEarthTerrain
     );
-
     procedure AddTne(
       const AXY: TPoint;
       const AZoom: Byte
     );
-
     function Get(
       const AXY: TPoint;
       const AZoom: Byte
     ): PTerrainTile;
-
     procedure Clear;
   end;
 
@@ -78,16 +69,12 @@ uses
   Windows,
   u_Synchronizer;
 
-constructor TTerrainProviderByGEMemCache.Create(
-  const ACapacity: Integer;
-  const AOnCloseTile: TOnCloseTerrainTile
-);
+constructor TTerrainProviderByGEMemCache.Create(const ACapacity: Integer);
 begin
   inherited Create;
   FCS := MakeSyncRW_Var(Self, False);
   FList := TList.Create;
   FCapacity := ACapacity;
-  FOnCloseTile := AOnCloseTile;
 end;
 
 destructor TTerrainProviderByGEMemCache.Destroy;
@@ -100,7 +87,7 @@ end;
 procedure TTerrainProviderByGEMemCache.Add(
   const AXY: TPoint;
   const AZoom: Byte;
-  const AContext: Pointer
+  const AParser: IGoogleEarthTerrain
 );
 var
   I: Integer;
@@ -125,8 +112,8 @@ begin
           raise Exception.CreateFmt(
             'Tile alredy in mem! X=%d Y=%d Z=%d', [AXY.X, AXY.Y, AZoom]
           );
-        end else if (AContext <> nil) then begin
-          VTile.ParserContext := AContext;
+        end else if Assigned(AParser) then begin
+          VTile.Parser := AParser;
           VTile.LastAccess := GetTickCount;
           Exit;
         end else begin
@@ -143,9 +130,7 @@ begin
     if VReplaceOld then begin
       if (FList.Count > 0) and (FList.Count > VOldestItem) then begin
         VTile := PTerrainTile(FList.Items[VOldestItem]);
-        if Assigned(FOnCloseTile) then begin
-          FOnCloseTile(VTile);
-        end;
+        VTile.Parser := nil;
         Dispose(VTile);
         FList.Delete(VOldestItem);
       end;
@@ -156,9 +141,9 @@ begin
     VTile.X := AXY.X;
     VTile.Y := AXY.Y;
     VTile.Zoom := AZoom;
-    VTile.Exists := AContext <> nil;
+    VTile.Exists := Assigned(AParser);
     VTile.LastAccess := GetTickCount;
-    VTile.ParserContext := AContext;
+    VTile.Parser := AParser;
 
     FList.Add(VTile);
   finally
@@ -210,9 +195,7 @@ begin
   try
     for I := 0 to FList.Count - 1 do begin
       VTile := PTerrainTile(FList.Items[I]);
-      if Assigned(FOnCloseTile) then begin
-        FOnCloseTile(VTile);
-      end;
+      VTile.Parser := nil;
       Dispose(VTile);
     end;
     FList.Clear;

@@ -32,7 +32,7 @@ uses
   i_TerrainStorage,
   i_TerrainProvider,
   u_GlobalCahceConfig,
-  u_GoogleEarthTerrainParser,
+  u_GoogleEarthLibrary,
   u_TerrainProviderByGEMemCache,
   u_BaseInterfacedObject;
 
@@ -42,7 +42,7 @@ type
     FAvailable: Boolean;
     FStorage: ITerrainStorage;
     FCoordConverter: ICoordConverter;
-    FTerrainParser: TGoogleEarthTerrainParser;
+    FGoogleEarthLib: TGoogleEarthLibrary;
     FMemCache: TTerrainProviderByGEMemCache;
     FCacheStateChangeListner: IListener;
     FCacheConfigChangeListener: IListener;
@@ -51,7 +51,6 @@ type
     FStateChangeNotifierInternal: INotifierInternal;
     procedure TryLoadTileToMemCache(const ATile: TPoint; const AZoom: Byte);
     procedure CheckTileZoom(var AZoom: Byte);
-    procedure OnCloseTerrainTile(const ATile: PTerrainTile);
   protected
     function GetPointElevation(const ALonLat: TDoublePoint; const AZoom: Byte): Single;
     procedure OnCacheConfigChange;
@@ -85,6 +84,7 @@ uses
   c_TerrainProvider,
   i_TileInfoBasic,
   i_CoordConverterFactory,
+  i_GoogleEarthTerrain,
   u_GeoFun,
   u_Notifier,
   u_ListenerByEvent,
@@ -107,10 +107,10 @@ begin
   FStorage := AStorage;
   FCoordConverter := ACoordConverter;
 
-  FTerrainParser := TGoogleEarthTerrainParser.Create;
-  FMemCache := TTerrainProviderByGEMemCache.Create(cMemCacheCapacity, Self.OnCloseTerrainTile);
+  FGoogleEarthLib := TGoogleEarthLibrary.Create;
+  FMemCache := TTerrainProviderByGEMemCache.Create(cMemCacheCapacity);
 
-  FAvailable := FStorage.Available and FTerrainParser.Available;
+  FAvailable := FStorage.Available and FGoogleEarthLib.Available;
 
   FStateChangeNotifierInternal := TNotifierBase.Create;
   FStateChangeNotifier := FStateChangeNotifierInternal;
@@ -137,7 +137,7 @@ begin
   FStateChangeNotifier := nil;
   FStateChangeNotifierInternal := nil;
   FMemCache.Free;
-  FTerrainParser.Free;
+  FGoogleEarthLib.Free;
   inherited Destroy;
 end;
 
@@ -149,19 +149,19 @@ end;
 procedure TTerrainProviderByDLL.OnCacheConfigChange;
 begin
   FStorage.SetPath(FPathConfig.Path);
-  FAvailable := (FStorage.Available and FTerrainParser.Available);
+  FAvailable := (FStorage.Available and FGoogleEarthLib.Available);
   FStateChangeNotifierInternal.Notify(nil);
 end;
 
 procedure TTerrainProviderByDLL.OnCacheStateChange;
 begin
-  FAvailable := (FStorage.Available and FTerrainParser.Available);
+  FAvailable := (FStorage.Available and FGoogleEarthLib.Available);
   FStateChangeNotifierInternal.Notify(nil);
 end;
 
 function TTerrainProviderByDLL.GetAvailable: Boolean;
 begin
-  FAvailable := FStorage.Available and FTerrainParser.Available;
+  FAvailable := FStorage.Available and FGoogleEarthLib.Available;
   Result := FAvailable;
 end;
 
@@ -175,13 +175,6 @@ begin
   end;
 end;
 
-procedure TTerrainProviderByDLL.OnCloseTerrainTile(const ATile: PTerrainTile);
-begin
-  if (ATile <> nil) then begin
-    FTerrainParser.Close(@ATile.ParserContext);
-  end;
-end;
-
 procedure TTerrainProviderByDLL.TryLoadTileToMemCache(
   const ATile: TPoint;
   const AZoom: Byte
@@ -189,7 +182,7 @@ procedure TTerrainProviderByDLL.TryLoadTileToMemCache(
 var
   VTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
-  VContext: Pointer;
+  VGoogleEarthTerrain: IGoogleEarthTerrain;
   VTneFound: Boolean;
 begin
   VTileInfo := FStorage.GetTileInfo(ATile, AZoom);
@@ -198,10 +191,10 @@ begin
     VTneFound := (not VTileInfo.IsExists or VTileInfo.IsExistsTNE);
 
     if (not VTneFound and Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData)) then begin
-      if FTerrainParser.Open(@VContext, VTileInfoWithData.TileData) then begin
-        FMemCache.Add(ATile, AZoom, VContext);
-      end else begin
-        VTneFound := True;
+      VGoogleEarthTerrain := FGoogleEarthLib.CreateObject(cGoogleEarthTerrainGUID) as IGoogleEarthTerrain;
+      if Assigned(VGoogleEarthTerrain) then begin
+        VGoogleEarthTerrain.Open(VTileInfoWithData.TileData.Buffer, VTileInfoWithData.TileData.Size);
+        FMemCache.Add(ATile, AZoom, VGoogleEarthTerrain);
       end;
     end else begin
       VTneFound := True;
@@ -248,13 +241,11 @@ begin
         VTerrain := FMemCache.Get(VTilePoint, VZoom);
       end;
 
-      if (VTerrain <> nil) and (VTerrain.Exists) then begin
-        VFound :=
-          FTerrainParser.GetElevation(
-            @VTerrain.ParserContext,
-            VLonLat,
-            VElevation
-          );
+      if (VTerrain <> nil) and (VTerrain.Exists) and Assigned(VTerrain.Parser) then begin
+
+        VElevation := VTerrain.Parser.Elevation(VLonLat.X, VLonLat.Y);
+        VFound := Round(VElevation) <> cUndefinedElevationValue;
+
         if VFound then begin
           Result := VElevation;
         end;

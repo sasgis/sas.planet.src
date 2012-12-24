@@ -636,6 +636,7 @@
     <DCCReference Include="Terrain\c_TerrainProvider.pas" />
     <DCCReference Include="Terrain\c_TerrainProviderGUID.pas" />
     <DCCReference Include="Terrain\i_ExternalTerrainsProvider.pas" />
+    <DCCReference Include="Terrain\i_GoogleEarthTerrain.pas" />
     <DCCReference Include="Terrain\i_TerrainConfig.pas" />
     <DCCReference Include="Terrain\i_TerrainInfo.pas" />
     <DCCReference Include="Terrain\i_TerrainProvider.pas" />
@@ -644,7 +645,7 @@
     <DCCReference Include="Terrain\i_TerrainStorage.pas" />
     <DCCReference Include="Terrain\t_ExternalTerrainAPI.pas" />
     <DCCReference Include="Terrain\u_ExternalTerrainsProvider.pas" />
-    <DCCReference Include="Terrain\u_GoogleEarthTerrainParser.pas" />
+    <DCCReference Include="Terrain\u_GoogleEarthLibrary.pas" />
     <DCCReference Include="Terrain\u_TerrainConfig.pas" />
     <DCCReference Include="Terrain\u_TerrainInfo.pas" />
     <DCCReference Include="Terrain\u_TerrainProviderByGE.pas" />
