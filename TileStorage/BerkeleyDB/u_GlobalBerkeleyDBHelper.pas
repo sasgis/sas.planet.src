@@ -70,11 +70,11 @@ uses
 procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 var
   VMsg: AnsiString;
-  VEnvHome: PAnsiChar;
+  //VEnvHome: PAnsiChar;
   VGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
 begin
-  dbenv.get_home(dbenv, @VEnvHome);
-  VMsg := errpfx + AnsiString(': ') + msg + ' (' + VEnvHome + ')';
+  //dbenv.get_home(dbenv, @VEnvHome);
+  VMsg := errpfx + AnsiString(': ') + msg;// + ' (' + VEnvHome + ')';
   VGlobalBerkeleyDBHelper := IGlobalBerkeleyDBHelper(dbenv.app_private^);
   if Assigned(VGlobalBerkeleyDBHelper) then begin
     VGlobalBerkeleyDBHelper.RaiseException(VMsg);
