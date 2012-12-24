@@ -12,9 +12,12 @@ type
     FCounters: IInternalPerformanceCounterListForDebug;
   private
     class function GetCounter: IInternalPerformanceCounterListForDebugOneClass; virtual;
+    function GetRefCount: Integer;
   private
     FContext: TInternalPerformanceCounterContext;
     FCounter: IInternalPerformanceCounter;
+  protected
+    function _AddRef: Integer; stdcall;
   public
     class function GetCounters: IInternalPerformanceCounterList;
     class procedure InitCounters;
@@ -23,13 +26,23 @@ type
     procedure BeforeDestruction; override;
     class function NewInstance: TObject; override;
     procedure FreeInstance; override;
+    property RefCount: Integer read GetRefCount;
   end;
 
 implementation
 
 uses
+  SysUtils,
   u_InternalPerformanceCounter,
   u_InternalPerformanceCounterListForDebug;
+
+resourcestring
+  rsDoubleFree = 'Double Free: Object is olready deleted!';
+  rsInvalidDelete = 'Invalid Delete: Object is still have active interface ref''s! (Ref count: %d)';
+  rsUseDeleted = 'Use Deleted: Object is not exists!';
+
+const
+  cUndefRefCount = -1;
 
 { TBaseInterfacedObjectDebug }
 
@@ -46,12 +59,36 @@ procedure TBaseInterfacedObjectDebug.BeforeDestruction;
 var
   VList: IInternalPerformanceCounterListForDebugOneClass;
 begin
-  inherited;
+  if FRefCount < 0 then begin
+    raise Exception.Create(rsDoubleFree);
+  end else if FRefCount <> 0 then begin
+    raise Exception.CreateFmt(rsInvalidDelete, [FRefCount]);
+  end;
+  inherited BeforeDestruction;
+  FRefCount := cUndefRefCount;
+
   VList := GetCounter;
   if VList <> nil then begin
     FCounter := VList.CounterDestroy;
     FContext := FCounter.StartOperation;
   end;
+end;
+
+function TBaseInterfacedObjectDebug.GetRefCount: Integer;
+begin
+  if FRefCount < 0 then begin
+    Result := 0;
+  end else begin
+    Result := FRefCount;
+  end;
+end;
+
+function TBaseInterfacedObjectDebug._AddRef: Integer; stdcall;
+begin
+  if FRefCount < 0 then begin
+    raise Exception.Create(rsUseDeleted);
+  end;
+  Result := inherited _AddRef;
 end;
 
 procedure TBaseInterfacedObjectDebug.FreeInstance;
