@@ -1,4 +1,4 @@
-unit u_MapLayerGridsNew;
+unit u_MapLayerGrids;
 
 interface
 

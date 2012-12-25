@@ -1,4 +1,4 @@
-unit u_MapGPSLayerNew;
+unit u_MapLayerGPSTrack;
 
 interface
 

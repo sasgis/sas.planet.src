@@ -1,4 +1,4 @@
-unit u_MapLayerWikiNew;
+unit u_MapLayerVectorMaps;
 
 interface
 
