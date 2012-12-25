@@ -27,7 +27,7 @@ uses
   u_TiledLayerWithThreadBase;
 
 type
-  TMapMarksLayerNew = class(TTiledLayerWithThreadBase, IFindVectorItems)
+  TMapLayerMarks = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
     FConfig: IMarksLayerConfig;
     FVectorItemsFactory: IVectorItemsFactory;
@@ -99,7 +99,7 @@ uses
 
 { TMapMarksLayerNew }
 
-constructor TMapMarksLayerNew.Create(
+constructor TMapLayerMarks.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
@@ -163,7 +163,7 @@ begin
   );
 end;
 
-function TMapMarksLayerNew.CreateLayerProvider(
+function TMapLayerMarks.CreateLayerProvider(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter
@@ -216,7 +216,7 @@ begin
   end;
 end;
 
-function TMapMarksLayerNew.FindItem(
+function TMapLayerMarks.FindItem(
   const AVisualConverter: ILocalCoordConverter; const ALocalPoint: TPoint;
   out AMarkS: Double): IVectorDataItemSimple;
 var
@@ -301,7 +301,7 @@ begin
   end;
 end;
 
-function TMapMarksLayerNew.GetMarksSubset(
+function TMapLayerMarks.GetMarksSubset(
   const AConfig: IUsedMarksConfigStatic;
   const ALocalConverter: ILocalCoordConverter
 ): IMarksSubset;
@@ -335,7 +335,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayerNew.OnConfigChange;
+procedure TMapLayerMarks.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -346,7 +346,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayerNew.OnMarksDbChange;
+procedure TMapLayerMarks.OnMarksDbChange;
 begin
   if Visible then begin
     ViewUpdateLock;
@@ -358,7 +358,7 @@ begin
   end;
 end;
 
-procedure TMapMarksLayerNew.StartThreads;
+procedure TMapLayerMarks.StartThreads;
 begin
   inherited;
   OnConfigChange;

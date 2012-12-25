@@ -16,7 +16,7 @@ uses
   u_TiledLayerWithThreadBase;
 
 type
-  TMapLayerFillingMapNew = class(TTiledLayerWithThreadBase)
+  TMapLayerFillingMap = class(TTiledLayerWithThreadBase)
   private
     FConfig: IFillingMapLayerConfig;
     procedure OnConfigChange;
@@ -51,7 +51,7 @@ uses
 
 { TMapLayerFillingMapNew }
 
-constructor TMapLayerFillingMapNew.Create(
+constructor TMapLayerFillingMap.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -90,7 +90,7 @@ begin
   );
 end;
 
-function TMapLayerFillingMapNew.CreateLayerProvider(
+function TMapLayerFillingMap.CreateLayerProvider(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter
@@ -110,7 +110,7 @@ begin
   end;
 end;
 
-procedure TMapLayerFillingMapNew.OnConfigChange;
+procedure TMapLayerFillingMap.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -121,7 +121,7 @@ begin
   end;
 end;
 
-procedure TMapLayerFillingMapNew.StartThreads;
+procedure TMapLayerFillingMap.StartThreads;
 begin
   inherited;
   OnConfigChange;

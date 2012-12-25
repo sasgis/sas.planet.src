@@ -17,7 +17,7 @@ uses
   u_TiledLayerWithThreadBase;
 
 type
-  TMapLayerGridsNew = class(TTiledLayerWithThreadBase)
+  TMapLayerGrids = class(TTiledLayerWithThreadBase)
   private
     FConfig: IMapLayerGridsConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -58,7 +58,7 @@ uses
 
 { TMapLayerGridsNew }
 
-constructor TMapLayerGridsNew.Create(
+constructor TMapLayerGrids.Create(
   const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
   AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
   const AViewPortState: IViewPortState;
@@ -100,7 +100,7 @@ begin
   );
 end;
 
-function TMapLayerGridsNew.CreateLayerProvider(
+function TMapLayerGrids.CreateLayerProvider(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter): IBitmapLayerProvider;
@@ -189,7 +189,7 @@ begin
   end;
 end;
 
-procedure TMapLayerGridsNew.OnConfigChange;
+procedure TMapLayerGrids.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -200,7 +200,7 @@ begin
   end;
 end;
 
-procedure TMapLayerGridsNew.StartThreads;
+procedure TMapLayerGrids.StartThreads;
 begin
   inherited;
   OnConfigChange;

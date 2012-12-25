@@ -1355,7 +1355,7 @@ var
 begin
   FLayersList := TInterfaceList.Create;
   FLayersList.Add(
-    TMapMainLayerNew.Create(
+    TMapLayerBitmapMaps.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1374,7 +1374,7 @@ begin
     )
   );
   FLayersList.Add(
-    TMapLayerGridsNew.Create(
+    TMapLayerGrids.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1388,7 +1388,7 @@ begin
     )
   );
   FWikiLayer :=
-    TWikiLayerNew.Create(
+    TMapLayerVectorMaps.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1404,7 +1404,7 @@ begin
     );
   FLayersList.Add(FWikiLayer);
   FLayersList.Add(
-    TMapLayerFillingMapNew.Create(
+    TMapLayerFillingMap.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1431,7 +1431,7 @@ begin
       );
   end;
   FLayerMapMarks:=
-    TMapMarksLayerNew.Create(
+    TMapLayerMarks.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1447,7 +1447,7 @@ begin
     );
   FLayersList.Add(FLayerMapMarks);
   FLayersList.Add(
-    TMapGPSLayerNew.Create(
+    TMapLayerGPSTrack.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,

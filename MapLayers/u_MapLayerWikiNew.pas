@@ -26,7 +26,7 @@ uses
   u_TiledLayerWithThreadBase;
 
 type
-  TWikiLayerNew = class(TTiledLayerWithThreadBase, IFindVectorItems)
+  TMapLayerVectorMaps = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
     FConfig: IKmlLayerConfig;
     FVectorItemsFactory: IVectorItemsFactory;
@@ -124,7 +124,7 @@ uses
 
 { TWikiLayerNew }
 
-constructor TWikiLayerNew.Create(
+constructor TMapLayerVectorMaps.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
@@ -177,7 +177,7 @@ begin
   );
 end;
 
-function TWikiLayerNew.CreateLayerProvider(
+function TMapLayerVectorMaps.CreateLayerProvider(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter
@@ -226,13 +226,13 @@ begin
     );
 end;
 
-procedure TWikiLayerNew.DelicateRedrawWithFullUpdate;
+procedure TMapLayerVectorMaps.DelicateRedrawWithFullUpdate;
 begin
   UpdateLayerProviderFlag.SetFlag;
   inherited;
 end;
 
-function TWikiLayerNew.FindItem(
+function TMapLayerVectorMaps.FindItem(
   const AVisualConverter: ILocalCoordConverter;
   const ALocalPoint: TPoint;
   out AMarkS: Double
@@ -255,7 +255,7 @@ begin
   end;
 end;
 
-function TWikiLayerNew.MouseOnElements(
+function TMapLayerVectorMaps.MouseOnElements(
   const AVisualConverter: ILocalCoordConverter;
   const ACopiedElements: IVectorDataItemList;
   const xy: TPoint;
@@ -323,7 +323,7 @@ begin
   end;
 end;
 
-procedure TWikiLayerNew.OnConfigChange;
+procedure TMapLayerVectorMaps.OnConfigChange;
 var
   VVectorMapsSet: IMapTypeSet;
 begin
@@ -342,7 +342,7 @@ begin
   end;
 end;
 
-procedure TWikiLayerNew.OnLayerSetChange;
+procedure TMapLayerVectorMaps.OnLayerSetChange;
 var
   VNewLayersSet: IMapTypeSet;
 begin
@@ -362,7 +362,7 @@ begin
   end;
 end;
 
-procedure TWikiLayerNew.AddElementsFromMap(AOperationID: Integer;
+procedure TMapLayerVectorMaps.AddElementsFromMap(AOperationID: Integer;
   const ACancelNotifier: INotifierOperation; const AElments: IInterfaceList;
   Alayer: TMapType; const ALocalConverter: ILocalCoordConverter);
 var
@@ -428,7 +428,7 @@ begin
   end;
 end;
 
-procedure TWikiLayerNew.AddWikiElement(const AElments: IInterfaceList;
+procedure TMapLayerVectorMaps.AddWikiElement(const AElments: IInterfaceList;
   const AData: IVectorDataItemSimple;
   const ALocalConverter: ILocalCoordConverter);
 var
@@ -455,7 +455,7 @@ begin
   end;
 end;
 
-function TWikiLayerNew.PrepareWikiElements(AOperationID: Integer;
+function TMapLayerVectorMaps.PrepareWikiElements(AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter): IVectorDataItemList;
 var
@@ -495,7 +495,7 @@ begin
   Result := TVectorDataItemList.Create(VElements);
 end;
 
-procedure TWikiLayerNew.StartThreads;
+procedure TMapLayerVectorMaps.StartThreads;
 begin
   inherited;
   OnLayerSetChange;

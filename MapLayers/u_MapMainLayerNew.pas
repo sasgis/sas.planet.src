@@ -21,7 +21,7 @@ uses
   u_TiledLayerWithThreadBase;
 
 type
-  TMapMainLayerNew = class(TTiledLayerWithThreadBase)
+  TMapLayerBitmapMaps = class(TTiledLayerWithThreadBase)
   private
     FErrorLogger: ITileErrorLogger;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
@@ -69,7 +69,7 @@ uses
 
 { TMapMainLayerNew }
 
-constructor TMapMainLayerNew.Create(
+constructor TMapLayerBitmapMaps.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -134,7 +134,7 @@ begin
   Visible := True;
 end;
 
-function TMapMainLayerNew.CreateLayerProvider(
+function TMapLayerBitmapMaps.CreateLayerProvider(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter
@@ -162,7 +162,7 @@ begin
     );
 end;
 
-procedure TMapMainLayerNew.OnConfigChange;
+procedure TMapLayerBitmapMaps.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -172,7 +172,7 @@ begin
   end;
 end;
 
-procedure TMapMainLayerNew.OnLayerListChange;
+procedure TMapLayerBitmapMaps.OnLayerListChange;
 begin
   ViewUpdateLock;
   try
@@ -182,7 +182,7 @@ begin
   end;
 end;
 
-procedure TMapMainLayerNew.OnMainMapChange;
+procedure TMapLayerBitmapMaps.OnMainMapChange;
 begin
   ViewUpdateLock;
   try
@@ -192,7 +192,7 @@ begin
   end;
 end;
 
-procedure TMapMainLayerNew.StartThreads;
+procedure TMapLayerBitmapMaps.StartThreads;
 begin
   OnConfigChange;
   inherited;

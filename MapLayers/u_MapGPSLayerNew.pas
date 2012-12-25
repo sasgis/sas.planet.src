@@ -18,7 +18,7 @@ uses
   u_TiledLayerWithThreadBase;
 
 type
-  TMapGPSLayerNew = class(TTiledLayerWithThreadBase)
+  TMapLayerGPSTrack = class(TTiledLayerWithThreadBase)
   private
     FConfig: IMapLayerGPSTrackConfig;
     FGPSRecorder: IGPSRecorder;
@@ -61,7 +61,7 @@ uses
 
 { TMapGPSLayerNew }
 
-constructor TMapGPSLayerNew.Create(
+constructor TMapLayerGPSTrack.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -112,7 +112,7 @@ begin
   );
 end;
 
-function TMapGPSLayerNew.CreateLayerProvider(
+function TMapLayerGPSTrack.CreateLayerProvider(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALayerConverter: ILocalCoordConverter
@@ -152,7 +152,7 @@ begin
   end;
 end;
 
-procedure TMapGPSLayerNew.OnConfigChange;
+procedure TMapLayerGPSTrack.OnConfigChange;
 begin
   ViewUpdateLock;
   try
@@ -163,12 +163,12 @@ begin
   end;
 end;
 
-procedure TMapGPSLayerNew.OnGPSRecorderChange;
+procedure TMapLayerGPSTrack.OnGPSRecorderChange;
 begin
   FGpsPosChangeFlag.SetFlag;
 end;
 
-procedure TMapGPSLayerNew.OnTimer;
+procedure TMapLayerGPSTrack.OnTimer;
 begin
   if FGpsPosChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
@@ -180,7 +180,7 @@ begin
   end;
 end;
 
-procedure TMapGPSLayerNew.StartThreads;
+procedure TMapLayerGPSTrack.StartThreads;
 begin
   inherited;
   OnConfigChange;
