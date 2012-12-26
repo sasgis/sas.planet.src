@@ -26,7 +26,7 @@ type
   TGoogleEarthLibrary = class(TObject)
   private
     type
-      PCreateObjectProc = function(const AObjectID: TGUID): IInterface; stdcall;
+      PCreateObjectProc = function(const IID: TGUID): IInterface; safecall;
   private
     FAvailable: Boolean;
     FLibHandle: THandle;
@@ -35,7 +35,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function CreateObject(const AObjectID: TGUID): IInterface;
+    function CreateObject(const IID: TGUID): IInterface;
     property Available: Boolean read FAvailable;
   end;
 
@@ -77,10 +77,10 @@ begin
   Result := (FLibHandle > 0) and (Addr(FCreateObject) <> nil);
 end;
 
-function TGoogleEarthLibrary.CreateObject(const AObjectID: TGUID): IInterface;
+function TGoogleEarthLibrary.CreateObject(const IID: TGUID): IInterface;
 begin
   if FAvailable then begin
-    Result := FCreateObject(AObjectID);
+    Result := FCreateObject(IID);
   end else begin
     Result := nil;
   end;

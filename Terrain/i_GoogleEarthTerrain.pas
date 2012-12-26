@@ -3,7 +3,7 @@ unit i_GoogleEarthTerrain;
 interface
 
 const
-  cGoogleEarthTerrainGUID: TGUID = '{A045855E-05DD-4BFD-9775-39567DD68444}';
+  IID_IGoogleEarthTerrain: TGUID = '{A045855E-05DD-4BFD-9775-39567DD68444}';
 
 type
   IGoogleEarthTerrain = interface (IInterface)

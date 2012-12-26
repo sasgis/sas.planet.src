@@ -191,7 +191,7 @@ begin
     VTneFound := (not VTileInfo.IsExists or VTileInfo.IsExistsTNE);
 
     if (not VTneFound and Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData)) then begin
-      VGoogleEarthTerrain := FGoogleEarthLib.CreateObject(cGoogleEarthTerrainGUID) as IGoogleEarthTerrain;
+      VGoogleEarthTerrain := FGoogleEarthLib.CreateObject(IID_IGoogleEarthTerrain) as IGoogleEarthTerrain;
       if Assigned(VGoogleEarthTerrain) then begin
         VGoogleEarthTerrain.Open(VTileInfoWithData.TileData.Buffer, VTileInfoWithData.TileData.Size);
         FMemCache.Add(ATile, AZoom, VGoogleEarthTerrain);
