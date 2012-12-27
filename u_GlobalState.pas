@@ -162,6 +162,7 @@ type
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifierInternal: INotifierInternal;
     FGUISyncronizedTimerNotifier: INotifier;
+    FGUISyncronizedTimerCounter: IInternalPerformanceCounter;
     FSensorList: ISensorList;
     FPerfCounterList: IInternalPerformanceCounterList;
     FProtocol: TIeEmbeddedProtocolRegistration;
@@ -426,13 +427,6 @@ begin
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FVectorItemsFactory := TVectorItemsFactorySimple.Create;
-  FGUISyncronizedTimer := TTimer.Create(nil);
-  FGUISyncronizedTimer.Enabled := False;
-  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 200);
-  FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
-
-  FGUISyncronizedTimerNotifierInternal := TNotifierBase.Create;
-  FGUISyncronizedTimerNotifier := FGUISyncronizedTimerNotifierInternal;
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
   FGlobalInternetState := TGlobalInternetState.Create;
@@ -462,6 +456,15 @@ begin
   end else begin
     FPerfCounterList := TInternalPerformanceCounterFake.Create;
   end;
+
+  FGUISyncronizedTimer := TTimer.Create(nil);
+  FGUISyncronizedTimer.Enabled := False;
+  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 200);
+  FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
+
+  FGUISyncronizedTimerNotifierInternal := TNotifierBase.Create;
+  FGUISyncronizedTimerNotifier := FGUISyncronizedTimerNotifierInternal;
+  FGUISyncronizedTimerCounter := FPerfCounterList.CreateAndAddNewCounter('GUITimer');
 
   FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FCacheConfig.BDBCachePath);
 
@@ -917,8 +920,15 @@ begin
 end;
 
 procedure TGlobalState.OnGUISyncronizedTimer(Sender: TObject);
+var
+  VContext: TInternalPerformanceCounterContext;
 begin
-  FGUISyncronizedTimerNotifierInternal.Notify(nil);
+  VContext := FGUISyncronizedTimerCounter.StartOperation;
+  try
+    FGUISyncronizedTimerNotifierInternal.Notify(nil);
+  finally
+    FGUISyncronizedTimerCounter.FinishOperation(VContext);
+  end;
 end;
 
 procedure TGlobalState.SaveMainParams;
