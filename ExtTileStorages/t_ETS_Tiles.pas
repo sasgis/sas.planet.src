@@ -35,7 +35,8 @@ const
   // not implemented
   ETS_RESULT_NOT_IMPLEMENTED = 2;
 
-
+  // operation completed successfully (end of enumerator,...)
+  ETS_RESULT_COMPLETED_SUCCESSFULLY = 3;
   
   // access to storage is restricted (4-7)
   ETS_RESULT_NO_SPACE_AVAILABLE = 4;
