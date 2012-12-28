@@ -74,7 +74,8 @@ object frmCacheManager: TfrmCacheManager
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
             'GlobalMapper Aux'
-            'BerkeleyDB')
+            'BerkeleyDB'
+            'DBMS')
         end
         object chkIgnoreTNE: TCheckBox
           Left = 279
@@ -158,7 +159,8 @@ object frmCacheManager: TfrmCacheManager
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
             'GlobalMapper Aux'
-            'BerkeleyDB')
+            'BerkeleyDB'
+            'DBMS')
         end
         object chkOverwrite: TCheckBox
           Left = 175

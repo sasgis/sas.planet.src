@@ -131,6 +131,7 @@ uses
   u_MapVersionFactorySimpleString,
   u_TileStorageFileSystem,
   u_TileStorageBerkeleyDB,
+  u_TileStorageDBMS,
   u_TileStorageGE,
   u_CacheConverterProgressInfo,
   frm_ProgressCacheConvrter;
@@ -187,6 +188,19 @@ begin
         ARootPath,
         FGCList,
         False,
+        FContentTypeManager,
+        VMapVersionFactory,
+        VContentType
+      );
+  end else if AFormatID = c_File_Cache_Id_DBMS then begin
+    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
+    Result :=
+      TTileStorageDBMS.Create(
+        ACoordConverter,
+        '', // TODO: add global DBMS Root here
+        ARootPath,
+        FGCList,
+        FALSE,
         FContentTypeManager,
         VMapVersionFactory,
         VContentType
@@ -273,6 +287,7 @@ procedure TfrmCacheManager.ProcessCacheConverter;
       3: Result := c_File_Cache_Id_GM;
       4: Result := c_File_Cache_Id_GM_Aux;
       5: Result := c_File_Cache_Id_BDB;
+      6: Result := c_File_Cache_Id_DBMS;
     else
       Result := c_File_Cache_Id_SAS;
     end;
@@ -316,7 +331,12 @@ begin
     );
 
   VDestPath := IncludeTrailingPathDelimiter(Trim(edtDestPath.Text));
-  ForceDirectories(VDestPath);
+
+  if (cbbDestCacheTypes.ItemIndex <> 6) then begin
+    // кроме СУБД - создадим папку в целевом хранилище
+    ForceDirectories(VDestPath);
+  end;
+  
   VTarget :=
     CreateSimpleTileStorage(
       VDestPath,

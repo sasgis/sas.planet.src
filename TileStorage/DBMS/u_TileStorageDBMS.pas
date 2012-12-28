@@ -1910,12 +1910,17 @@ begin
       @ATileInfo,
       @FETSAllEnumInfo
     );
+
+    // check result
+    Result := (ETS_RESULT_OK = FETSResult);
+
+    if Result then begin
+      // в сасе зум на 1 меньше
+      Dec(ATileInfo.FZoom);
+    end;
   finally
     FStorage.DoEndWork(VLockedExclusively);
   end;
-
-  // check result
-  Result := (ETS_RESULT_OK = FETSResult);
 end;
 
 end.
