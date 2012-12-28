@@ -78,13 +78,6 @@
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
-    <DCCReference Include="ExtTileStorages\t_ETS_AuthFunc.pas" />
-    <DCCReference Include="ExtTileStorages\t_ETS_AuthKind.pas" />
-    <DCCReference Include="ExtTileStorages\t_ETS_Path.pas" />
-    <DCCReference Include="ExtTileStorages\t_ETS_Provider.pas" />
-    <DCCReference Include="ExtTileStorages\t_ETS_Tiles.pas" />
-    <DCCReference Include="ExtTileStorages\u_ETS_Path.pas" />
-    <DCCReference Include="ExtTileStorages\u_ETS_Tiles.pas" />
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
     </DCCReference>
@@ -655,6 +648,19 @@
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageTypeBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\c_CacheTypeCodes.pas" />
+    <DCCReference Include="TileStorage\DBMS\ExtTileStorages\t_ETS_AuthFunc.pas" />
+    <DCCReference Include="TileStorage\DBMS\ExtTileStorages\t_ETS_AuthKind.pas" />
+    <DCCReference Include="TileStorage\DBMS\ExtTileStorages\t_ETS_Path.pas" />
+    <DCCReference Include="TileStorage\DBMS\ExtTileStorages\t_ETS_Provider.pas" />
+    <DCCReference Include="TileStorage\DBMS\ExtTileStorages\t_ETS_Tiles.pas" />
+    <DCCReference Include="TileStorage\DBMS\ExtTileStorages\u_ETS_Path.pas" />
+    <DCCReference Include="TileStorage\DBMS\ExtTileStorages\u_ETS_Tiles.pas" />
+    <DCCReference Include="TileStorage\DBMS\u_TileStorageDBMS.pas" />
+    <DCCReference Include="TileStorage\DBMS\u_TileStorageTypeDBMS.pas" />
+    <DCCReference Include="TileStorage\DLL\t_DLLCache.pas" />
+    <DCCReference Include="TileStorage\DLL\u_TileStorageGE.pas" />
+    <DCCReference Include="TileStorage\DLL\u_TileStorageGETerrain.pas" />
+    <DCCReference Include="TileStorage\DLL\u_TileStorageTypeGE.pas" />
     <DCCReference Include="TileStorage\FileSystem\u_TileFileNameES.pas" />
     <DCCReference Include="TileStorage\FileSystem\u_TileFileNameGM1.pas" />
     <DCCReference Include="TileStorage\FileSystem\u_TileFileNameGM2.pas" />
@@ -1146,11 +1152,6 @@
     <DCCReference Include="u_TileRequestQueueProcessorThread.pas" />
     <DCCReference Include="u_TileRequestResult.pas" />
     <DCCReference Include="u_TileRequestTask.pas" />
-    <DCCReference Include="u_TileStorageDBMS.pas" />
-    <DCCReference Include="u_TileStorageGE.pas" />
-    <DCCReference Include="u_TileStorageGETerrain.pas" />
-    <DCCReference Include="u_TileStorageTypeDBMS.pas" />
-    <DCCReference Include="u_TileStorageTypeGE.pas" />
     <DCCReference Include="u_TileUpdateListenerToLonLat.pas" />
     <DCCReference Include="u_TimeZoneInfo.pas" />
     <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
