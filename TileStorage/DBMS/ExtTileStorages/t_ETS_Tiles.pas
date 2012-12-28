@@ -48,10 +48,13 @@ const
   ETS_RESULT_READ_ONLY = 7;
   
 
-  // auth errors (8-15)
-  ETS_RESULT_AUTH_REQUIRED  = 10; // no auth info but required
-  ETS_RESULT_AUTH_CANCELLED = 11; // user cancels auth
-  ETS_RESULT_AUTH_FAILED    = 12; // auth error
+  // enumerator errors (8-15)
+  ETS_RESULT_ENUM_TABLE_STRUCT        = 10; // failed to fetch from tile table because of incorrect structure
+  ETS_RESULT_ENUM_NOT_SUPPORTED       = 11; // enumerator not supported
+  ETS_RESULT_ENUM_ANOTHER_DIV_MODE    = 12; // multiple id_div_mode in tables
+  ETS_RESULT_ENUM_INCORRECT_ZOOM      = 13; // incorrect zoom defined by table
+  ETS_RESULT_ENUM_UNKNOWN_VERSION     = 14; // unknown version in enumerator
+  ETS_RESULT_ENUM_UNKNOWN_CONTENTTYPE = 15; // unknown contenttype in enumerator
 
   // connectivity and transport errors (16-31)
   ETS_RESULT_INCOMPLETE     = 18; // should call Complete routine
