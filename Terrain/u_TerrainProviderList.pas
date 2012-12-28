@@ -32,7 +32,7 @@ uses
   i_ExternalTerrainsProvider,
   i_PathConfig,
   i_ProjConverter,
-  u_GlobalCahceConfig,
+  u_GlobalCacheConfig,
   u_BaseInterfacedObject;
 
 type
@@ -62,7 +62,7 @@ type
     constructor Create(
       const AProjConverterFactory: IProjConverterFactory;
       const ATerrainDataPath: IPathConfig;
-      const ACacheConfig: TGlobalCahceConfig
+      const ACacheConfig: TGlobalCacheConfig
     );
     destructor Destroy; override;
   end;
@@ -85,7 +85,7 @@ uses
 constructor TTerrainProviderListSimple.Create(
   const AProjConverterFactory: IProjConverterFactory;
   const ATerrainDataPath: IPathConfig;
-  const ACacheConfig: TGlobalCahceConfig
+  const ACacheConfig: TGlobalCacheConfig
 );
 var
   VItem: ITerrainProviderListElement;

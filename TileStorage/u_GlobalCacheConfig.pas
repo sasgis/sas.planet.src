@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_GlobalCahceConfig;
+unit u_GlobalCacheConfig;
 
 interface
 
@@ -29,7 +29,7 @@ uses
   i_ConfigDataWriteProvider;
 
 type
-  TGlobalCahceConfig = class
+  TGlobalCacheConfig = class
   private
     FCacheGlobalPath: IPathConfig;
 
@@ -81,9 +81,9 @@ uses
   u_PathConfig,
   u_Notifier;
 
-{ TGlobalCahceConfig }
+{ TGlobalCacheConfig }
 
-constructor TGlobalCahceConfig.Create(
+constructor TGlobalCacheConfig.Create(
   const ACacheGlobalPath: IPathConfig
 );
 begin
@@ -103,13 +103,13 @@ begin
   FDBMSCachePath := TPathConfig.Create('DBMSCache', c_File_Cache_Default_DBMS, FCacheGlobalPath);
 end;
 
-destructor TGlobalCahceConfig.Destroy;
+destructor TGlobalCacheConfig.Destroy;
 begin
   FCacheChangeNotifier := nil;
   inherited;
 end;
 
-procedure TGlobalCahceConfig.LoadConfig(const AConfigProvider: IConfigDataProvider);
+procedure TGlobalCacheConfig.LoadConfig(const AConfigProvider: IConfigDataProvider);
 var
   VViewConfig: IConfigDataProvider;
   VPathConfig: IConfigDataProvider;
@@ -132,7 +132,7 @@ begin
   end;
 end;
 
-procedure TGlobalCahceConfig.SaveConfig(
+procedure TGlobalCacheConfig.SaveConfig(
   const AConfigProvider: IConfigDataWriteProvider
 );
 var
@@ -153,7 +153,7 @@ begin
   DBMSCachePath.WriteConfig(VPathConfig);
 end;
 
-procedure TGlobalCahceConfig.SetDefCache(const Value: byte);
+procedure TGlobalCacheConfig.SetDefCache(const Value: byte);
 begin
   if Value in [c_File_Cache_Id_GMV,
     c_File_Cache_Id_SAS,

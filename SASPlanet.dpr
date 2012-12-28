@@ -586,7 +586,7 @@ uses
   i_TileStorageTypeConfig in 'TileStorage\i_TileStorageTypeConfig.pas',
   i_TileStorageTypeList in 'TileStorage\i_TileStorageTypeList.pas',
   i_TileStorageTypeListItem in 'TileStorage\i_TileStorageTypeListItem.pas',
-  u_GlobalCahceConfig in 'TileStorage\u_GlobalCahceConfig.pas',
+  u_GlobalCacheConfig in 'TileStorage\u_GlobalCacheConfig.pas',
   u_TileFileNameGeneratorsSimpleList in 'TileStorage\u_TileFileNameGeneratorsSimpleList.pas',
   u_TileFileNameParsersSimpleList in 'TileStorage\u_TileFileNameParsersSimpleList.pas',
   u_TileStorageAbstract in 'TileStorage\u_TileStorageAbstract.pas',

@@ -68,7 +68,7 @@ uses
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
   i_GlobalBerkeleyDBHelper,
-  u_GlobalCahceConfig,
+  u_GlobalCacheConfig,
   i_TileStorage;
 
 type
@@ -231,7 +231,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AZmp: IZmpInfo;
       const AMainMemCacheConfig: IMainMemCacheConfig;
-      const AGlobalCacheConfig: TGlobalCahceConfig;
+      const AGlobalCacheConfig: TGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
@@ -305,7 +305,7 @@ constructor TMapType.Create(
   const ALanguageManager: ILanguageManager;
   const AZmp: IZmpInfo;
   const AMainMemCacheConfig: IMainMemCacheConfig;
-  const AGlobalCacheConfig: TGlobalCahceConfig;
+  const AGlobalCacheConfig: TGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;

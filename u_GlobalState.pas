@@ -94,7 +94,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   u_IeEmbeddedProtocolRegistration,
-  u_GlobalCahceConfig;
+  u_GlobalCacheConfig;
 
 type
   TGlobalState = class
@@ -122,7 +122,7 @@ type
     FGCThread: TGarbageCollectorThread;
     FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IMapCalibrationList;
-    FCacheConfig: TGlobalCahceConfig;
+    FCacheConfig: TGlobalCacheConfig;
     FLanguageManager: ILanguageManager;
     FLastSelectionInfo: ILastSelectionInfo;
     FMarksDb: IMarksSystem;
@@ -194,7 +194,7 @@ type
     {$ENDIF SasDebugWithJcl}
   public
     property MapType: TMapTypesMainList read FMainMapsList;
-    property CacheConfig: TGlobalCahceConfig read FCacheConfig;
+    property CacheConfig: TGlobalCacheConfig read FCacheConfig;
     property GCThread: TGarbageCollectorThread read FGCThread;
     property MarksDb: IMarksSystem read FMarksDb;
     property GpsSystem: IGPSModule read FGpsSystem;
@@ -439,7 +439,7 @@ begin
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);
 
-  FCacheConfig := TGlobalCahceConfig.Create(FBaseCahcePath);
+  FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
   FLanguageManager := TLanguageManager.Create(VProgramPath + 'lang');

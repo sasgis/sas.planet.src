@@ -25,13 +25,13 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_GlobalBerkeleyDBHelper,
-  u_GlobalCahceConfig,
+  u_GlobalCacheConfig,
   u_BaseInterfacedObject;
 
 type
   TTileStorageOfMapType = class(TBaseInterfacedObject, ITileStorage)
   private
-    FGlobalCacheConfig: TGlobalCahceConfig;
+    FGlobalCacheConfig: TGlobalCacheConfig;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FConfig: ISimpleTileStorageConfig;
     FVersionConfig: IMapVersionConfig;
@@ -134,7 +134,7 @@ type
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
   public
     constructor Create(
-      const AGlobalCacheConfig: TGlobalCahceConfig;
+      const AGlobalCacheConfig: TGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AConfig: ISimpleTileStorageConfig;
       const AVersionConfig: IMapVersionConfig;
@@ -169,7 +169,7 @@ uses
 { TTileStorageOfMapType }
 
 constructor TTileStorageOfMapType.Create(
-  const AGlobalCacheConfig: TGlobalCahceConfig;
+  const AGlobalCacheConfig: TGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AConfig: ISimpleTileStorageConfig;
   const AVersionConfig: IMapVersionConfig;
