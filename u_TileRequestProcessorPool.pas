@@ -13,7 +13,7 @@ uses
   i_NotifierTTLCheck,
   i_InterfaceQueue,
   i_TileDownloaderList,
-  i_ITileRequestProcessorPool,
+  i_TileRequestProcessorPool,
   u_BaseInterfacedObject;
 
 type

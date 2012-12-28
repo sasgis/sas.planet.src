@@ -290,7 +290,7 @@
     <DCCReference Include="i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="i_InternalDomainOptions.pas" />
     <DCCReference Include="i_InvisibleBrowser.pas" />
-    <DCCReference Include="i_ITileRequestProcessorPool.pas" />
+    <DCCReference Include="i_TileRequestProcessorPool.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
     <DCCReference Include="i_KmlLayerConfig.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />

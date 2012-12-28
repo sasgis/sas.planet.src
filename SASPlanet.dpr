@@ -362,7 +362,7 @@ uses
   i_InterfaceQueue in 'i_InterfaceQueue.pas',
   u_InterfaceQueue in 'u_InterfaceQueue.pas',
   u_TileDownloaderWithQueue in 'u_TileDownloaderWithQueue.pas',
-  i_ITileRequestProcessorPool in 'i_ITileRequestProcessorPool.pas',
+  i_TileRequestProcessorPool in 'i_TileRequestProcessorPool.pas',
   u_TileRequestProcessorPool in 'u_TileRequestProcessorPool.pas',
   i_TileDownloaderList in 'i_TileDownloaderList.pas',
   u_TileDownloaderListStatic in 'u_TileDownloaderListStatic.pas',

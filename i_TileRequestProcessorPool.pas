@@ -1,4 +1,4 @@
-unit i_ITileRequestProcessorPool;
+unit i_TileRequestProcessorPool;
 
 interface
 
