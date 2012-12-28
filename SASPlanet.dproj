@@ -73,7 +73,6 @@
     <DCCReference Include="CacheManager\u_ThreadCacheConverter.pas" />
     <DCCReference Include="CacheManager\u_ThreadCacheManagerAbstract.pas" />
     <DCCReference Include="c_CoordConverter.pas" />
-    <DCCReference Include="c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="c_InternalBrowser.pas" />
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SasVersion.pas" />
@@ -194,6 +193,26 @@
       <Form>frShortCutList</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="GeoCoder\c_GeoCoderGUIDSimple.pas" />
+    <DCCReference Include="GeoCoder\i_GeoCoder.pas" />
+    <DCCReference Include="GeoCoder\i_GeoCoderList.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderBasic.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderBy2GIS.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByCoord.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByGoogle.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByNavitel.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByOSM.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByPolishMap.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByRosreestr.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByTXT.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByURL.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByWikimapia.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByYandex.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCodeResult.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderListBase.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderListEntity.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderListSimple.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderLocalBasic.pas" />
     <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_AntiBan.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />
@@ -241,8 +260,6 @@
     <DCCReference Include="i_FillingMapLayerConfig.pas" />
     <DCCReference Include="i_FindVectorItems.pas" />
     <DCCReference Include="i_FullMapMouseCursorLayerConfig.pas" />
-    <DCCReference Include="i_GeoCoder.pas" />
-    <DCCReference Include="i_GeoCoderList.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
     <DCCReference Include="i_GlobalDownloadConfig.pas" />
     <DCCReference Include="i_GlobalInternetState.pas" />
@@ -825,23 +842,6 @@
     <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoCodePlacemarkWithUrlDecorator.pas" />
-    <DCCReference Include="u_GeoCoderBasic.pas" />
-    <DCCReference Include="u_GeoCoderBy2GIS.pas" />
-    <DCCReference Include="u_GeoCoderByCoord.pas" />
-    <DCCReference Include="u_GeoCoderByGoogle.pas" />
-    <DCCReference Include="u_GeoCoderByNavitel.pas" />
-    <DCCReference Include="u_GeoCoderByOSM.pas" />
-    <DCCReference Include="u_GeoCoderByPolishMap.pas" />
-    <DCCReference Include="u_GeoCoderByRosreestr.pas" />
-    <DCCReference Include="u_GeoCoderByTXT.pas" />
-    <DCCReference Include="u_GeoCoderByURL.pas" />
-    <DCCReference Include="u_GeoCoderByWikimapia.pas" />
-    <DCCReference Include="u_GeoCoderByYandex.pas" />
-    <DCCReference Include="u_GeoCodeResult.pas" />
-    <DCCReference Include="u_GeoCoderListBase.pas" />
-    <DCCReference Include="u_GeoCoderListEntity.pas" />
-    <DCCReference Include="u_GeoCoderListSimple.pas" />
-    <DCCReference Include="u_GeoCoderLocalBasic.pas" />
     <DCCReference Include="u_GeoFun.pas" />
     <DCCReference Include="u_GeoToStr.pas" />
     <DCCReference Include="u_GlobalAppConfig.pas" />
