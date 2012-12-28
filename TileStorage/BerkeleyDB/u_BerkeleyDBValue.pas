@@ -23,6 +23,7 @@ unit u_BerkeleyDBValue;
 interface
 
 uses
+  i_BinaryData,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_BerkeleyDBKeyValue,
@@ -73,7 +74,7 @@ type
     destructor Destroy; override;
   end;
 
-  TBerkeleyDBValue = class(TBerkeleyDBValueBase, IBerkeleyDBValue)
+  TBerkeleyDBValue = class(TBerkeleyDBValueBase, IBerkeleyDBValue, IBinaryData)
   private
     type
       TValue = record
@@ -107,6 +108,9 @@ type
     function GetTileDate: TDateTime;
     function GetTileVersionInfo: WideString;
     function GetTileContentType: WideString;
+    { IBinaryData }
+    function IBinaryData.GetBuffer = GetTileBody;
+    function IBinaryData.GetSize = GetTileSize;
   public
     constructor Create(
       const ATileBody: Pointer;
