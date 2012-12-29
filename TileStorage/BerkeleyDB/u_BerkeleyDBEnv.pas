@@ -83,7 +83,7 @@ begin
   FActive := False;
   FLastRemoveLogTime := 0;
   FEnvRootPath := AEnvRootPath;
-  FClientsCount := 1;
+  FClientsCount := 0;
   FPool := TBerkeleyDBPool.Create(FGlobalBerkeleyDBHelper, 12);
   FLibInitOk := InitBerkeleyDB;
 end;
