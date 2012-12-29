@@ -8,6 +8,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageResamplerConfig,
+  i_Bitmap32StaticFactory,
   i_TileMatrix,
   u_BaseInterfacedObject;
 
@@ -15,6 +16,7 @@ type
   TTileMatrixFactory = class(TBaseInterfacedObject, ITileMatrixFactory)
   private
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
+    FBitmapFactory: IBitmap32StaticFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     function BuildEmpty(
       const ATileRect: TRect;
@@ -39,6 +41,7 @@ type
       const ASource: ITileMatrix;
       const ATile: TPoint;
       AZoom: Byte;
+      var ABitmap: TCustomBitmap32;
       var AResampler: TCustomResampler
     ): ITileMatrixElement;
   private
@@ -49,6 +52,7 @@ type
   public
     constructor Create(
       const AImageResamplerConfig: IImageResamplerConfig;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
     );
   end;
@@ -70,12 +74,14 @@ uses
 
 constructor TTileMatrixFactory.Create(
   const AImageResamplerConfig: IImageResamplerConfig;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   inherited Create;
   FImageResamplerConfig := AImageResamplerConfig;
   FLocalConverterFactory := ALocalConverterFactory;
+  FBitmapFactory := ABitmapFactory;
 end;
 
 procedure TTileMatrixFactory.PrepareCopyRects(
@@ -139,6 +145,7 @@ function TTileMatrixFactory.PrepareElementFromSource(
   const ASource: ITileMatrix;
   const ATile: TPoint;
   AZoom: Byte;
+  var ABitmap: TCustomBitmap32;
   var AResampler: TCustomResampler
 ): ITileMatrixElement;
 var
@@ -146,7 +153,6 @@ var
   VRelativeRectTargetTile: TDoubleRect;
   VSourceZoom: Byte;
   VTileRectSource: TRect;
-  VBitmap: TCustomBitmap32;
   VBitmapStatic: IBitmap32Static;
   VX, VY: Integer;
   VSourceTile: TPoint;
@@ -162,10 +168,8 @@ begin
   VConverter := ASource.LocalConverter.GeoConverter;
   VRelativeRectTargetTile := VConverter.TilePos2RelativeRect(ATile, AZoom);
   VTileRectSource := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRectTargetTile, VSourceZoom), rrOutside);
-  VBitmap := nil;
   VBitmapStatic := nil;
   VTargetTileCoordConverter := nil;
-  try
     for VX := VTileRectSource.Left to VTileRectSource.Right - 1 do begin
       VSourceTile.X := VX;
       for VY := VTileRectSource.Top to VTileRectSource.Bottom - 1 do begin
@@ -175,11 +179,13 @@ begin
           VSourceBitmap := VSourceElement.GetBitmap;
           if VSourceBitmap <> nil then begin
             if VTargetTileCoordConverter = nil then begin
-              VBitmap := TCustomBitmap32.Create;
+              if ABitmap = nil then begin
+                ABitmap := TCustomBitmap32.Create;
+              end;
               VTargetTileCoordConverter := FLocalConverterFactory.CreateForTile(ATile, AZoom, VConverter);
               VTargetTileSize := VTargetTileCoordConverter.GetLocalRectSize;
-              VBitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
-              VBitmap.Clear(0);
+              ABitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
+              ABitmap.Clear(0);
             end;
             PrepareCopyRects(
               VSourceElement.LocalConverter,
@@ -193,7 +199,7 @@ begin
             Assert(AResampler <> nil);
 
             StretchTransfer(
-              VBitmap,
+              ABitmap,
               VDstCopyRect,
               VSourceBitmap,
               VSrcCopyRect,
@@ -204,16 +210,16 @@ begin
         end;
       end;
     end;
-    if VBitmap <> nil then begin
-      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-      VBitmap := nil;
+    if VTargetTileCoordConverter <> nil then begin
+      VBitmapStatic :=
+        FBitmapFactory.Build(
+          VTargetTileCoordConverter.GetLocalRectSize,
+          ABitmap.Bits
+        );
     end;
     if VBitmapStatic <> nil then begin
       Result := TTileMatrixElement.Create(ATile, VTargetTileCoordConverter, VBitmapStatic);
     end;
-  finally
-    VBitmap.Free;
-  end;
 end;
 
 function TTileMatrixFactory.BuildNewMatrix(
@@ -334,6 +340,7 @@ var
   VIndex: Integer;
   VX, VY: Integer;
   VResampler: TCustomResampler;
+  VBitmap: TCustomBitmap32;
 begin
   VConverter := ANewConverter.GeoConverter;
   VZoom := ANewConverter.Zoom;
@@ -351,6 +358,7 @@ begin
     SetLength(VElements, VTileCount.X * VTileCount.Y);
     try
       VResampler := nil;
+      VBitmap := nil;
       try
         for VX := VIntersectRect.Left to VIntersectRect.Right - 1 do begin
           VTile.X := VX;
@@ -358,11 +366,12 @@ begin
             VTile.Y := VY;
             VIndex := (VTile.Y - ATileRect.Top) * VTileCount.X + (VTile.X - ATileRect.Left);
 
-            VElements[VIndex] := PrepareElementFromSource(ASource, VTile, VZoom, VResampler);
+            VElements[VIndex] := PrepareElementFromSource(ASource, VTile, VZoom, VBitmap, VResampler);
           end;
         end;
       finally
         VResampler.Free;
+        VBitmap.Free;
       end;
 
       Result :=

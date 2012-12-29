@@ -10,6 +10,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
+  i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
   i_ViewPortState,
   i_FillingMapLayerConfig,
@@ -37,6 +38,7 @@ type
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifier;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IFillingMapLayerConfig
     );
   end;
@@ -60,6 +62,7 @@ constructor TMapLayerFillingMap.Create(
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifier;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IFillingMapLayerConfig
 );
 var
@@ -68,6 +71,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
+      ABitmapFactory,
       AConverterFactory
     );
   inherited Create(

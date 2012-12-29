@@ -1369,6 +1369,7 @@ begin
       GState.BitmapPostProcessingConfig,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
+      GState.BitmapFactory,
       FTileErrorLogger,
       GState.GUISyncronizedTimerNotifier
     )
@@ -1400,6 +1401,7 @@ begin
       GState.VectorItemsFactory,
       GState.GUISyncronizedTimerNotifier,
       FTileErrorLogger,
+      GState.BitmapFactory,
       FConfig.LayersConfig.KmlLayerConfig,
       FConfig.MainMapsConfig.GetActiveKmlLayersSet
     );
@@ -1414,6 +1416,7 @@ begin
       GState.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
+      GState.BitmapFactory,
       FConfig.LayersConfig.FillingMapLayerConfig
     )
   );
@@ -1443,6 +1446,7 @@ begin
       GState.VectorItemsFactory,
       VMarkerChangeable,
       GState.GUISyncronizedTimerNotifier,
+      GState.BitmapFactory,
       FConfig.LayersConfig.MarksLayerConfig,
       FMarkDBGUI.MarksDb
     );
@@ -1457,6 +1461,7 @@ begin
       GState.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
+      GState.BitmapFactory,
       FConfig.LayersConfig.GPSTrackConfig,
       GState.GPSRecorder
     )
@@ -1898,6 +1903,7 @@ begin
       GState.BitmapPostProcessingConfig,
       FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
       FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
+      GState.BitmapFactory,
       FTileErrorLogger,
       GState.GUISyncronizedTimerNotifier
     )

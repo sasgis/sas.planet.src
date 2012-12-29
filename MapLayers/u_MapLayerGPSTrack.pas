@@ -13,6 +13,7 @@ uses
   i_ViewPortState,
   i_SimpleFlag,
   i_MapLayerGPSTrackConfig,
+  i_Bitmap32StaticFactory,
   i_GPSRecorder,
   i_ImageResamplerConfig,
   u_TiledLayerWithThreadBase;
@@ -45,6 +46,7 @@ type
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifier;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IMapLayerGPSTrackConfig;
       const AGPSRecorder: IGPSRecorder
     );
@@ -69,7 +71,9 @@ constructor TMapLayerGPSTrack.Create(
   const AViewPortState: IViewPortState;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ATimerNoifier: INotifier; const AConfig: IMapLayerGPSTrackConfig;
+  const ATimerNoifier: INotifier;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const AConfig: IMapLayerGPSTrackConfig;
   const AGPSRecorder: IGPSRecorder
 );
 var
@@ -78,6 +82,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
+      ABitmapFactory,
       AConverterFactory
     );
   inherited Create(

@@ -13,6 +13,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
   i_UseTilePrevZoomConfig,
+  i_Bitmap32StaticFactory,
   i_ThreadConfig,
   i_MapTypes,
   i_MapTypeListChangeable,
@@ -54,6 +55,7 @@ type
       const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AThreadConfig: IThreadConfig;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: INotifier
     );
@@ -83,6 +85,7 @@ constructor TMapLayerBitmapMaps.Create(
   const APostProcessingConfig: IBitmapPostProcessingConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AThreadConfig: IThreadConfig;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AErrorLogger: ITileErrorLogger;
   const ATimerNoifier: INotifier
 );
@@ -92,6 +95,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
+      ABitmapFactory,
       AConverterFactory
     );
   inherited Create(

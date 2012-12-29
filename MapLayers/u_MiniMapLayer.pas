@@ -16,6 +16,7 @@ uses
   i_ThreadConfig,
   i_MapTypes,
   i_MapTypeListChangeable,
+  i_Bitmap32StaticFactory,
   i_InternalPerformanceCounter,
   i_MiniMapLayerConfig,
   i_ImageResamplerConfig,
@@ -57,6 +58,7 @@ type
       const APostProcessingConfig: IBitmapPostProcessingConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AThreadConfig: IThreadConfig;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: INotifier
     );
@@ -87,6 +89,7 @@ constructor TMiniMapLayer.Create(
   const APostProcessingConfig: IBitmapPostProcessingConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AThreadConfig: IThreadConfig;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AErrorLogger: ITileErrorLogger;
   const ATimerNoifier: INotifier
 );
@@ -96,6 +99,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
+      ABitmapFactory,
       AConverterFactory
     );
   inherited Create(

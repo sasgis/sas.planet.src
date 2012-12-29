@@ -77,6 +77,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
+      ABitmapFactory,
       AConverterFactory
     );
   inherited Create(

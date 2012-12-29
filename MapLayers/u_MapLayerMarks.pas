@@ -18,6 +18,7 @@ uses
   i_MarksLayerConfig,
   i_VectorDataItemSimple,
   i_VectorItemsFactory,
+  i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
   i_IdCacheSimple,
   i_FindVectorItems,
@@ -74,6 +75,7 @@ type
       const AVectorItemsFactory: IVectorItemsFactory;
       const AMarkIconDefault: IMarkerDrawableChangeable;
       const ATimerNoifier: INotifier;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IMarksLayerConfig;
       const AMarkDB: IMarksSystem
     );
@@ -109,6 +111,7 @@ constructor TMapLayerMarks.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const AMarkIconDefault: IMarkerDrawableChangeable;
   const ATimerNoifier: INotifier;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IMarksLayerConfig;
   const AMarkDB: IMarksSystem
 );
@@ -118,6 +121,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
+      ABitmapFactory,
       AConverterFactory
     );
   inherited Create(

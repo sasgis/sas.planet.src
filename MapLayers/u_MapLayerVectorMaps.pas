@@ -16,6 +16,7 @@ uses
   i_ViewPortState,
   i_MapTypes,
   i_KmlLayerConfig,
+  i_Bitmap32StaticFactory,
   i_TileError,
   i_VectorDataItemSimple,
   i_VectorItemsFactory,
@@ -93,6 +94,7 @@ type
       const AVectorItemsFactory: IVectorItemsFactory;
       const ATimerNoifier: INotifier;
       const AErrorLogger: ITileErrorLogger;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IKmlLayerConfig;
       const ALayersSet: IMapTypeSetChangeable
     );
@@ -134,6 +136,7 @@ constructor TMapLayerVectorMaps.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const ATimerNoifier: INotifier;
   const AErrorLogger: ITileErrorLogger;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IKmlLayerConfig;
   const ALayersSet: IMapTypeSetChangeable
 );
@@ -143,6 +146,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
+      ABitmapFactory,
       AConverterFactory
     );
   inherited Create(
