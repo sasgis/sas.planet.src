@@ -10,6 +10,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_ValueToStringConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
@@ -21,6 +22,7 @@ type
     FShowText: Boolean;
     FShowLines: Boolean;
     FScale: Double;
+    FBitmapFactory: IBitmap32StaticFactory;
     FValueConverter: IValueToStringConverter;
 
     FCS: IReadWriteSync;
@@ -44,6 +46,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       AColor: TColor32;
       AScale: Double;
       AShowText: Boolean;
@@ -67,6 +70,7 @@ uses
 { TBitmapLayerProviderGridGenshtab }
 
 constructor TBitmapLayerProviderGridDegree.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
   AColor: TColor32;
   AScale: Double;
   AShowText, AShowLines: Boolean;
@@ -78,6 +82,7 @@ begin
   FScale := AScale;
   FShowText := AShowText;
   FShowLines := AShowLines;
+  FBitmapFactory := ABitmapFactory;
   FValueConverter := AValueConverter;
 
   FCS := MakeSyncRW_Var(Self, False);
@@ -297,7 +302,7 @@ begin
       DrawCaptions(AOperationID, ACancelNotifier, ALocalConverter);
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin
-      Result := TBitmap32Static.CreateWithCopy(FBitmap);
+      Result := FBitmapFactory.Build(Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
     end;
   finally
     FCS.EndWrite;

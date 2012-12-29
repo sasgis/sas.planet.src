@@ -10,6 +10,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 
@@ -20,6 +21,7 @@ type
     FShowText: Boolean;
     FShowLines: Boolean;
     FScale: Integer;
+    FBitmapFactory: IBitmap32StaticFactory;
 
     FCS: IReadWriteSync;
     FBitmap: TBitmap32;
@@ -42,6 +44,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       AColor: TColor32;
       AScale: Integer;
       AShowText: Boolean;
@@ -64,14 +67,19 @@ uses
 
 { TBitmapLayerProviderGridGenshtab }
 
-constructor TBitmapLayerProviderGridGenshtab.Create(AColor: TColor32;
-  AScale: Integer; AShowText, AShowLines: Boolean);
+constructor TBitmapLayerProviderGridGenshtab.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
+  AColor: TColor32;
+  AScale: Integer;
+  AShowText, AShowLines: Boolean
+);
 begin
   inherited Create;
   FColor := AColor;
   FScale := AScale;
   FShowText := AShowText;
   FShowLines := AShowLines;
+  FBitmapFactory := ABitmapFactory;
 
   FCS := MakeSyncRW_Var(Self, False);
   FBitmapChangeFlag := TSimpleFlagWithInterlock.Create;
@@ -285,7 +293,7 @@ begin
       DrawCaptions(AOperationID, ACancelNotifier, ALocalConverter);
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin
-      Result := TBitmap32Static.CreateWithCopy(FBitmap);
+      Result := FBitmapFactory.Build(Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
     end;
   finally
     FCS.EndWrite;

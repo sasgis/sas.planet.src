@@ -10,6 +10,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 
@@ -21,6 +22,7 @@ type
     FZoom: Integer;
     FShowText: Boolean;
     FShowLines: Boolean;
+    FBitmapFactory: IBitmap32StaticFactory;
     FCS: IReadWriteSync;
     FBitmap: TBitmap32;
     FBitmapChangeFlag: ISimpleFlag;
@@ -44,6 +46,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       AColor: TColor32;
       AUseRelativeZoom: Boolean;
       AZoom: Integer;
@@ -65,10 +68,16 @@ uses
 
 { TBitmapLayerProviderGridTiles }
 
-constructor TBitmapLayerProviderGridTiles.Create(AColor: TColor32;
-  AUseRelativeZoom: Boolean; AZoom: Integer; AShowText, AShowLines: Boolean);
+constructor TBitmapLayerProviderGridTiles.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
+  AColor: TColor32;
+  AUseRelativeZoom: Boolean;
+  AZoom: Integer;
+  AShowText, AShowLines: Boolean
+);
 begin
   inherited Create;
+  FBitmapFactory := ABitmapFactory;
   FColor := AColor;
   FUseRelativeZoom := AUseRelativeZoom;
   FZoom := AZoom;
@@ -267,7 +276,7 @@ begin
       end;
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin
-      Result := TBitmap32Static.CreateWithCopy(FBitmap);
+      Result := FBitmapFactory.Build(Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
     end;
   finally
     FCS.EndWrite;

@@ -1383,6 +1383,7 @@ begin
       GState.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
+      GState.BitmapFactory,
       GState.ValueToStringConverterConfig,
       FConfig.LayersConfig.MapLayerGridsConfig
     )

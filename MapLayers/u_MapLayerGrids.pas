@@ -13,12 +13,14 @@ uses
   i_ImageResamplerConfig,
   i_ValueToStringConverter,
   i_ViewPortState,
+  i_Bitmap32StaticFactory,
   i_MapLayerGridsConfig,
   u_TiledLayerWithThreadBase;
 
 type
   TMapLayerGrids = class(TTiledLayerWithThreadBase)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FConfig: IMapLayerGridsConfig;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     procedure OnConfigChange;
@@ -39,6 +41,7 @@ type
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifier;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AConfig: IMapLayerGridsConfig
     );
@@ -65,6 +68,7 @@ constructor TMapLayerGrids.Create(
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifier;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AConfig: IMapLayerGridsConfig);
 var
@@ -87,6 +91,7 @@ begin
     True,
     AConfig.ThreadConfig
   );
+  FBitmapFactory := ABitmapFactory;
   FConfig := AConfig;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
@@ -130,6 +135,7 @@ begin
   if VVisible then begin
     Result :=
       TBitmapLayerProviderGridTiles.Create(
+        FBitmapFactory,
         VColor,
         VUseRelativeZoom,
         VZoom,
@@ -150,6 +156,7 @@ begin
   if VVisible then begin
     VProvider :=
       TBitmapLayerProviderGridGenshtab.Create(
+        FBitmapFactory,
         VColor,
         VScale,
         VShowText,
@@ -175,6 +182,7 @@ begin
   if VVisible then begin
     VProvider :=
       TBitmapLayerProviderGridDegree.Create(
+        FBitmapFactory,
         VColor,
         VScaleDegree,
         VShowText,

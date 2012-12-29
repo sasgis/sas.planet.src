@@ -73,6 +73,7 @@ uses
   i_ZmpInfoSet,
   i_GPSConfig,
   i_PathConfig,
+  i_Bitmap32StaticFactory,
   i_MapCalibration,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
@@ -176,6 +177,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
     FVectorItemsFactory: IVectorItemsFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
     FTerrainConfig: ITerrainConfig;
@@ -245,6 +247,7 @@ type
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorItemsFactory: IVectorItemsFactory read FVectorItemsFactory;
+    property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
@@ -354,6 +357,7 @@ uses
   u_InternalDomainInfoProviderByMapData,
   u_InternalDomainInfoProviderByLastSearchResults,
   u_InternalDomainInfoProviderByTileStorageOptions,
+  u_Bitmap32StaticFactory,
   u_GpsSystem,
   u_LastSelectionInfoSaver,
   u_GlobalInternetState,
@@ -389,6 +393,7 @@ begin
     // run as EXE
     VProgramPath := ExtractFilePath(ParamStr(0));
   end;
+  FBitmapFactory := TBitmap32StaticFactory.Create;
   FBaseApplicationPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
