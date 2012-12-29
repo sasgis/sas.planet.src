@@ -2786,6 +2786,10 @@ begin
     filelist.Objects[0].Free;
     filelist.Delete (0);
   end;
+  while MoFiles.count<>0 do begin
+    MoFiles.Objects[0].Free;
+    MoFiles.Delete (0);
+  end;
   FreeAndNil (filelist);
   FreeAndNil (MoFiles);
   FreeAndNil (MoFilesCS);
