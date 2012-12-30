@@ -29,20 +29,26 @@ uses
   u_BerkeleyDBPool;
 
 type
+  TBerkeleyDBEnvAppPrivate = record
+    EnvRootPath: string;
+    Helper: IGlobalBerkeleyDBHelper;
+  end;
+  PBerkeleyDBEnvAppPrivate = ^TBerkeleyDBEnvAppPrivate;
+
   TBerkeleyDBEnv = class(TObject)
   private
-    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FEnv: PDB_ENV;
     FPool: TBerkeleyDBPool;
+    FAppPrivate: PBerkeleyDBEnvAppPrivate;
     FActive: Boolean;
     FLibInitOk: Boolean;
     FLastRemoveLogTime: Cardinal;
-    FEnvRootPath: string;
     FCS: TCriticalSection;
     FClientsCount: Integer;
 
     function Open: Boolean;
     function GetEnv: PDB_ENV;
+    function GetEnvRootPath: string;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -54,7 +60,7 @@ type
     class function LsnReset(const AFileName: string): Boolean;
 
     property EnvPtr: PDB_ENV read GetEnv;
-    property EnvRootPath: string read FEnvRootPath;
+    property EnvRootPath: string read GetEnvRootPath;
     property Pool: TBerkeleyDBPool read FPool;
     property ClientsCount: Integer read FClientsCount write FClientsCount;
   end;
@@ -78,30 +84,41 @@ constructor TBerkeleyDBEnv.Create(
 );
 begin
   inherited Create;
-  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
+  New(FAppPrivate);
+  FAppPrivate.EnvRootPath := AEnvRootPath;
+  FAppPrivate.Helper := AGlobalBerkeleyDBHelper;
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
-  FEnvRootPath := AEnvRootPath;
   FClientsCount := 0;
-  FPool := TBerkeleyDBPool.Create(FGlobalBerkeleyDBHelper, 12);
+  FPool := TBerkeleyDBPool.Create(FAppPrivate.Helper, 12);
   FLibInitOk := InitBerkeleyDB;
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
 begin
-  FPool.Free;
-  if FEnv <> nil then begin
-    CheckPoint(Self);
-    RemoveUnUsedLogs;
-
-    FEnv.app_private := nil;
-    FGlobalBerkeleyDBHelper._Release;
-
-    CheckBDBandNil(FEnv.close(FEnv, 0), FEnv);
+  try
+    FPool.Free;
+    if FEnv <> nil then begin
+      CheckPoint(Self);
+      RemoveUnUsedLogs;
+      CheckBDBandNil(FEnv.close(FEnv, 0), FEnv);
+    end;
+    FCS.Free;
+  finally
+    FAppPrivate.Helper := nil;
+    Dispose(FAppPrivate);
+    inherited Destroy;
   end;
-  FCS.Free;
-  inherited Destroy;
+end;
+
+function TBerkeleyDBEnv.GetEnvRootPath: string;
+begin
+  if Assigned(FAppPrivate) then begin
+    Result := FAppPrivate.EnvRootPath;
+  end else begin
+    Result := '';
+  end;
 end;
 
 function TBerkeleyDBEnv.Open: Boolean;
@@ -112,9 +129,7 @@ begin
   if not FActive and FLibInitOk then begin
     CheckBDB(db_env_create(FEnv, 0));
 
-    FEnv.app_private := @FGlobalBerkeleyDBHelper;
-    FGlobalBerkeleyDBHelper._AddRef;
-
+    FEnv.app_private := FAppPrivate;
     FEnv.set_errpfx(FEnv, CBerkeleyDBEnvErrPfx);
     FEnv.set_errcall(FEnv, BerkeleyDBErrCall);
     CheckBDB(FEnv.set_alloc(FEnv, @GetMemory, @ReallocMemory, @FreeMemory));
@@ -123,12 +138,12 @@ begin
     CheckBDB(FEnv.set_verbose(FEnv, DB_VERB_RECOVERY, 1));
 
     if CEnvSubDir <> '' then begin
-      VPath := FEnvRootPath + CEnvSubDir + PathDelim;
+      VPath := FAppPrivate.EnvRootPath + CEnvSubDir + PathDelim;
       I := LastDelimiter(PathDelim, VPath);
       VPath := copy(VPath, 1, I);
       CheckBDB(FEnv.set_data_dir(FEnv, '..'));
     end else begin
-      VPath := FEnvRootPath;
+      VPath := FAppPrivate.EnvRootPath;
     end;
     if not DirectoryExists(VPath) then begin
       ForceDirectories(VPath);

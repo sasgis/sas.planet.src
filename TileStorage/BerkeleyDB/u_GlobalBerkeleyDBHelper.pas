@@ -70,14 +70,15 @@ uses
 procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 var
   VMsg: AnsiString;
-  //VEnvHome: PAnsiChar;
-  VGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  VEnvPrivate: PBerkeleyDBEnvAppPrivate;
 begin
-  //dbenv.get_home(dbenv, @VEnvHome);
-  VMsg := errpfx + AnsiString(': ') + msg;// + ' (' + VEnvHome + ')';
-  VGlobalBerkeleyDBHelper := IGlobalBerkeleyDBHelper(dbenv.app_private^);
-  if Assigned(VGlobalBerkeleyDBHelper) then begin
-    VGlobalBerkeleyDBHelper.RaiseException(VMsg);
+  VMsg := errpfx + AnsiString(': ') + msg;
+  VEnvPrivate := dbenv.app_private;
+  if Assigned(VEnvPrivate) then begin
+    VMsg := VMsg + ' (' + VEnvPrivate.EnvRootPath + ')';
+  end;
+  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.Helper) then begin
+    VEnvPrivate.Helper.RaiseException(VMsg);
   end else begin
     raise EBerkeleyDBExeption.Create(string(VMsg));
   end;
