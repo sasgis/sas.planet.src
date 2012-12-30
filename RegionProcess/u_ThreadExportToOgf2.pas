@@ -10,6 +10,7 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_BinaryData,
+  i_Bitmap32StaticFactory,
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
   i_CoordConverter,
@@ -31,6 +32,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     function GetMapPreview(
       const ABitmapSaver: IBitmapTileSaver;
@@ -56,6 +58,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
@@ -95,6 +98,7 @@ constructor TThreadExportToOgf2.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
@@ -117,6 +121,7 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
+  FBitmapFactory := ABitmapFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FTileSaver := ATileSaver;
   FOgf2TileWidth := ATileSize.X;
@@ -314,7 +319,11 @@ begin
                       dmOpaque
                     );
 
-                    VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(VBitmap);
+                    VStaticBitmapCrop :=
+                      FBitmapFactory.Build(
+                        Point(FOgf2TileWidth, FOgf2TileHeight),
+                        VBitmap.Bits
+                      );
                     VDataToSave := VSaver.Save(VStaticBitmapCrop);
 
                     VWriter.Add(

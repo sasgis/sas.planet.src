@@ -253,6 +253,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItemsFactory,
+      ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory
