@@ -16,7 +16,6 @@ type
     function GetSize: TPoint;
     function GetData: PColor32Array;
   public
-    constructor CreateWithCopy(ABitmap: TCustomBitmap32);
     constructor CreateWithOwn(ABitmap: TCustomBitmap32);
     destructor Destroy; override;
   end;
@@ -28,20 +27,6 @@ uses
   SysUtils;
 
 { TBitmap32Static }
-
-constructor TBitmap32Static.CreateWithCopy(ABitmap: TCustomBitmap32);
-var
-  VBitmap: TCustomBitmap32;
-begin
-  VBitmap := TCustomBitmap32.Create;
-  try
-    VBitmap.Assign(ABitmap);
-    CreateWithOwn(VBitmap);
-    VBitmap := nil;
-  finally
-    VBitmap.Free;
-  end;
-end;
 
 constructor TBitmap32Static.CreateWithOwn(ABitmap: TCustomBitmap32);
 begin
