@@ -12,6 +12,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BinaryData,
+  i_Bitmap32StaticFactory,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_CoordConverterFactory,
@@ -34,6 +35,7 @@ type
 
   TThreadExportIPhone = class(TThreadExportAbstract)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FTasks: array of TExportTaskIPhone;
     FActiveMapIndex: integer;
     FNewFormat: Boolean;
@@ -66,6 +68,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
@@ -104,6 +107,7 @@ constructor TThreadExportIPhone.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
@@ -128,6 +132,7 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
+  FBitmapFactory := ABitmapFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := IncludeTrailingPathDelimiter(APath);
@@ -451,7 +456,11 @@ begin
                             bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
                             dmOpaque
                           );
-                          VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(Vbmp32crop);
+                          VStaticBitmapCrop :=
+                            FBitmapFactory.Build(
+                              Point(sizeim, sizeim),
+                              Vbmp32crop.Bits
+                            );
                           VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
                           WriteTileToSQLite3(
                             Point(VTile.X * hxyi + xi, VTile.Y * hxyi + yi),

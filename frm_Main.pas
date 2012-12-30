@@ -868,6 +868,7 @@ begin
       GState.ProjectionFactory,
       GState.CoordConverterList,
       GState.VectorItemsFactory,
+      GState.BitmapFactory,
       GState.BitmapTileSaveLoadFactory,
       GState.ArchiveReadWriteFactory,
       GState.MapCalibrationList,

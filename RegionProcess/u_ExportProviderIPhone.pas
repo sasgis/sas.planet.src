@@ -10,6 +10,7 @@ uses
   i_VectorItemLonLat,
   i_MapTypes,
   i_ActiveMapsConfig,
+  i_Bitmap32StaticFactory,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_VectorItemsFactory,
@@ -25,6 +26,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FNewFormat: Boolean;
@@ -44,6 +46,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       ANewFormat: Boolean
     );
@@ -79,6 +82,7 @@ constructor TExportProviderIPhone.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   ANewFormat: Boolean
 );
@@ -94,6 +98,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FBitmapFactory := ABitmapFactory;
   FNewFormat := ANewFormat;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
@@ -182,6 +187,7 @@ begin
     FLocalConverterFactory,
     FProjectionFactory,
     FVectorItemsFactory,
+    FBitmapFactory,
     FBitmapTileSaveLoadFactory,
     VPath,
     APolygon,

@@ -10,6 +10,7 @@ uses
   GR32,
   YaMobileCache,
   i_BinaryData,
+  i_Bitmap32StaticFactory,
   i_VectorItemLonLat,
   i_NotifierOperation,
   i_BitmapTileSaveLoad,
@@ -39,6 +40,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FCacheFile: array [0..7] of TYaMobileCacheFile;
@@ -66,6 +68,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
@@ -101,6 +104,7 @@ constructor TThreadExportYaMobileV4.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
@@ -124,6 +128,7 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
+  FBitmapFactory := ABitmapFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := APath;
@@ -376,7 +381,11 @@ begin
                       bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
                       dmOpaque
                     );
-                    VStaticBitmapCrop := TBitmap32Static.CreateWithCopy(bmp32crop);
+                    VStaticBitmapCrop :=
+                      FBitmapFactory.Build(
+                        Point(sizeim, sizeim),
+                        bmp32crop.Bits
+                      );
                     VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
                     AddTileToCache(
                       VDataToSave,

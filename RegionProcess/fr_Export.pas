@@ -18,6 +18,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
+  i_Bitmap32StaticFactory,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_TileFileNameGeneratorsList,
@@ -46,6 +47,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -90,6 +92,7 @@ constructor TfrExport.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -111,6 +114,7 @@ begin
       ALocalConverterFactory,
       AProjectionFactory,
       AVectorItemsFactory,
+      ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       True
     );
@@ -128,6 +132,7 @@ begin
       ALocalConverterFactory,
       AProjectionFactory,
       AVectorItemsFactory,
+      ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       False
     );
@@ -156,6 +161,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItemsFactory,
+      ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory
@@ -172,6 +178,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorItemsFactory,
+      ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory

@@ -12,6 +12,7 @@ uses
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
+  i_Bitmap32StaticFactory,
   i_VectorItemsFactory,
   i_VectorItemLonLat,
   i_BitmapTileSaveLoadFactory,
@@ -26,6 +27,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
@@ -41,6 +43,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ACoordConverterFactory: ICoordConverterFactory
@@ -75,6 +78,7 @@ constructor TExportProviderYaMobileV3.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ACoordConverterFactory: ICoordConverterFactory
@@ -88,6 +92,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
+  FBitmapFactory := ABitmapFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
@@ -157,6 +162,7 @@ begin
     FLocalConverterFactory,
     FProjectionFactory,
     FVectorItemsFactory,
+    FBitmapFactory,
     FBitmapTileSaveLoadFactory,
     VPath,
     APolygon,

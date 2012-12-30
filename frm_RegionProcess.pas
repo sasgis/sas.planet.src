@@ -45,6 +45,7 @@ uses
   i_VectorItemLonLat,
   i_VectorItemsFactory,
   i_ImageResamplerConfig,
+  i_Bitmap32StaticFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
@@ -130,6 +131,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMapCalibrationList: IMapCalibrationList;
@@ -180,6 +182,7 @@ constructor TfrmRegionProcess.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMapCalibrationList: IMapCalibrationList;
@@ -205,6 +208,7 @@ begin
       ALocalConverterFactory,
       AProjectionFactory,
       AVectorItemsFactory,
+      ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
       ATileNameGenerator
