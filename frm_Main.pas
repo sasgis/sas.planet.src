@@ -1088,6 +1088,7 @@ begin
 
     FShortCutManager :=
       TShortcutManager.Create(
+        GState.BitmapFactory,
         TBXMainMenu.Items,
         GetIgnoredMenuItemsList
       );

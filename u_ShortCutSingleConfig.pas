@@ -26,6 +26,7 @@ uses
   Classes,
   TB2Item,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ShortCutSingleConfig,
@@ -38,7 +39,10 @@ type
     FMenuItem: TTBCustomItem;
     FDefShortCut: TShortCut;
     FShortCut: TShortCut;
-    function GetBitmap(AMenu: TTBCustomItem): IBitmap32Static;
+    function GetBitmap(
+      const ABitmapFactory: IBitmap32StaticFactory;
+      AMenu: TTBCustomItem
+    ): IBitmap32Static;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -51,25 +55,32 @@ type
     procedure ResetShortCut;
     procedure ApplyShortCut;
   public
-    constructor Create(AMenuItem: TTBCustomItem);
+    constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
+      AMenuItem: TTBCustomItem
+    );
   end;
 
 implementation
 
 uses
+  Types,
   Graphics,
   GR32,
   u_Bitmap32Static;
 
 { TShortCutSingleConfig }
 
-constructor TShortCutSingleConfig.Create(AMenuItem: TTBCustomItem);
+constructor TShortCutSingleConfig.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
+  AMenuItem: TTBCustomItem
+);
 begin
   inherited Create;
   FMenuItem := AMenuItem;
   FDefShortCut := AMenuItem.ShortCut;
   FShortCut := FDefShortCut;
-  FIconBitmap := GetBitmap(AMenuItem);
+  FIconBitmap := GetBitmap(ABitmapFactory, AMenuItem);
 end;
 
 procedure TShortCutSingleConfig.DoReadConfig(
@@ -101,7 +112,10 @@ begin
   end;
 end;
 
-function TShortCutSingleConfig.GetBitmap(AMenu: TTBCustomItem): IBitmap32Static;
+function TShortCutSingleConfig.GetBitmap(
+  const ABitmapFactory: IBitmap32StaticFactory;
+  AMenu: TTBCustomItem
+): IBitmap32Static;
 var
   VBitmap: TBitmap32;
   VBmp: TBitmap;
@@ -117,7 +131,11 @@ begin
       finally
         VBmp.Free;
       end;
-      Result := TBitmap32Static.CreateWithCopy(VBitmap);
+      Result :=
+        ABitmapFactory.Build(
+          Point(VBitmap.Width, VBitmap.Height),
+          VBitmap.Bits
+        );
     finally
       VBitmap.Free;
     end;

@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   TB2Item,
+  i_Bitmap32StaticFactory,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ShortCutSingleConfig;
@@ -34,9 +35,13 @@ type
   private
     FIgnoredItems: TList;
     FItemsList: IInterfaceList;
-    procedure LoadItems(Menu: TTBCustomItem);
+    procedure LoadItems(
+      const ABitmapFactory: IBitmap32StaticFactory;
+      Menu: TTBCustomItem
+    );
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       AMainMenu: TTBCustomItem;
       AIgnoredItems: TList
     );
@@ -59,6 +64,7 @@ uses
 { TShortcutManager }
 
 constructor TShortcutManager.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
   AMainMenu: TTBCustomItem;
   AIgnoredItems: TList
 );
@@ -66,7 +72,7 @@ begin
   inherited Create;
   FIgnoredItems := AIgnoredItems;
   FItemsList := TInterfaceList.Create;
-  LoadItems(AMainMenu);
+  LoadItems(ABitmapFactory, AMainMenu);
 end;
 
 destructor TShortcutManager.Destroy;
@@ -140,7 +146,10 @@ begin
   end;
 end;
 
-procedure TShortcutManager.LoadItems(Menu: TTBCustomItem);
+procedure TShortcutManager.LoadItems(
+  const ABitmapFactory: IBitmap32StaticFactory;
+  Menu: TTBCustomItem
+);
 var
   i: Integer;
   VShortCutInfo: IShortCutSingleConfig;
@@ -151,11 +160,11 @@ begin
     if not (VMenuItem is TTBSeparatorItem) then begin
       if (FIgnoredItems = nil) or (FIgnoredItems.IndexOf(VMenuItem) < 0) then begin
         if Assigned(VMenuItem.OnClick) then begin
-          VShortCutInfo := TShortCutSingleConfig.Create(VMenuItem);
+          VShortCutInfo := TShortCutSingleConfig.Create(ABitmapFactory, VMenuItem);
           FItemsList.Add(VShortCutInfo);
         end;
         if VMenuItem.Count > 0 then begin
-          LoadItems(VMenuItem);
+          LoadItems(ABitmapFactory, VMenuItem);
         end;
       end;
     end;
