@@ -29,6 +29,7 @@ uses
   i_InternalPerformanceCounter,
   i_BinaryData,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_BitmapTileSaveLoad,
   u_BaseInterfacedObject;
 
@@ -36,6 +37,8 @@ type
   TLibJpegTileLoader = class(TBaseInterfacedObject, IBitmapTileLoader)
   private
     FLoadStreamCounter: IInternalPerformanceCounter;
+    FBitmapFactory: IBitmap32StaticFactory;
+
     function ReadLine(
       Sender: TObject;
       ALine: PByte;
@@ -46,8 +49,10 @@ type
   private
     function Load(const AData: IBinaryData): IBitmap32Static;
   public
-    constructor Create(const APerfCounterList: IInternalPerformanceCounterList);
-    destructor Destroy; override;
+    constructor Create(
+      const APerfCounterList: IInternalPerformanceCounterList;
+      const ABitmapFactory: IBitmap32StaticFactory
+    );
   end;
 
   TLibJpegTileSaver = class(TBaseInterfacedObject, IBitmapTileSaver)
@@ -99,16 +104,13 @@ const
 { TLibJpegTileLoader }
 
 constructor TLibJpegTileLoader.Create(
-  const APerfCounterList: IInternalPerformanceCounterList
+  const APerfCounterList: IInternalPerformanceCounterList;
+  const ABitmapFactory: IBitmap32StaticFactory
 );
 begin
   inherited Create;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LibJPEG/LoadStream');
-end;
-
-destructor TLibJpegTileLoader.Destroy;
-begin
-  inherited;
+  FBitmapFactory := ABitmapFactory;
 end;
 
 function TLibJpegTileLoader.Load(const AData: IBinaryData): IBitmap32Static;
@@ -127,18 +129,15 @@ begin
       VJpeg := TJpegReader.Create(VStream, cUseBGRAColorSpace, cUseLibJpeg8);
       try
         if VJpeg.ReadHeader() then begin
-          VBitmap := TCustomBitmap32.Create;
-          try
-            VBitmap.Width := VJpeg.Width;
-            VBitmap.Height := VJpeg.Height;
-            VJpeg.AppData := @VBitmap;
+          Result :=
+            FBitmapFactory.BuildEmpty(
+              Point(VJpeg.Width, VJpeg.Height)
+            );
+          if Result <> nil then begin
+            VJpeg.AppData := Result.Data;
             if not VJpeg.Decompress(Self.ReadLine) then begin
               raise Exception.Create('Jpeg decompress error!');
             end;
-            Result := TBitmap32Static.CreateWithOwn(VBitmap);
-            VBitmap := nil;
-          finally
-            VBitmap.Free;
           end;
         end else begin
           raise Exception.Create('Jpeg open error!');
@@ -163,20 +162,20 @@ function TLibJpegTileLoader.ReadLine(
 ): Boolean;
 var
   VJpeg: TJpegReader;
-  VBtm: TCustomBitmap32;
+  VData: PColor32Array;
   VColor: TColor32Rec;
   I: Integer;
 begin
   VJpeg := Sender as TJpegReader;
-  VBtm := TCustomBitmap32(VJpeg.AppData^);
+  VData := PColor32Array(VJpeg.AppData);
   if ABGRAColorSpace then begin
     Move(
       ALine^,
-      VBtm.ScanLine[ALineNumber]^,
+      VData[ALineNumber * VJpeg.Width],
       ALineSize
     );
   end else begin
-    for I := 0 to VBtm.Width - 1 do begin
+    for I := 0 to VJpeg.Width - 1 do begin
       VColor.R := ALine^;
       Inc(ALine, 1);
       VColor.G := ALine^;
@@ -184,7 +183,7 @@ begin
       VColor.B := ALine^;
       Inc(ALine, 1);
       VColor.A := $FF;
-      VBtm.Pixel[I, ALineNumber] := TColor32(VColor);
+      VData[ALineNumber * VJpeg.Width + I] := TColor32(VColor);
     end;
   end;
   Result := True;

@@ -406,7 +406,7 @@ begin
   FTerrainDataPath := TPathConfig.Create('PrimaryPath', '.\TerrainData', FBaseDataPath);
   FLastSelectionFileName := TPathConfig.Create('FileName', '.\LastSelection.hlg', FBaseDataPath);
 
-  FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create;
+  FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create(FBitmapFactory);
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
 
   FAppStartedNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);

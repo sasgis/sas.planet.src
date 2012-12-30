@@ -25,6 +25,7 @@ interface
 uses
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
+  i_Bitmap32StaticFactory,
   i_InternalPerformanceCounter,
   u_BaseInterfacedObject;
 
@@ -33,6 +34,8 @@ type
     TBaseInterfacedObject,
     IBitmapTileSaveLoadFactory
   )
+  private
+    FBitmapFactory: IBitmap32StaticFactory;
   private
      // BMP
     function CreateBmpLoader(
@@ -72,6 +75,8 @@ type
       const ACompressionQuality: Byte = 75;
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
+  public
+    constructor Create(const ABitmapFactory: IBitmap32StaticFactory);
   end;
 
 implementation
@@ -93,12 +98,20 @@ end;
 
 { TBitmapTileSaveLoadFactory }
 
+constructor TBitmapTileSaveLoadFactory.Create(
+  const ABitmapFactory: IBitmap32StaticFactory);
+begin
+  inherited Create;
+  FBitmapFactory := ABitmapFactory;
+end;
+
 function TBitmapTileSaveLoadFactory.CreateBmpLoader(
   const APerfCounterList: IInternalPerformanceCounterList = nil
 ): IBitmapTileLoader;
 begin
   Result := TBitmapTileFreeImageLoaderBmp.Create(
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FBitmapFactory
   );
 end;
 
@@ -116,7 +129,8 @@ function TBitmapTileSaveLoadFactory.CreateGifLoader(
 ): IBitmapTileLoader;
 begin
   Result := TBitmapTileFreeImageLoaderGif.Create(
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FBitmapFactory
   );
 end;
 
@@ -134,7 +148,8 @@ function TBitmapTileSaveLoadFactory.CreatePngLoader(
 ): IBitmapTileLoader;
 begin
   Result := TBitmapTileFreeImageLoaderPng.Create(
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FBitmapFactory
   );
 end;
 
@@ -179,7 +194,8 @@ function TBitmapTileSaveLoadFactory.CreateJpegLoader(
 ): IBitmapTileLoader;
 begin
   Result := TLibJpegTileLoader.Create(
-    GetValidPerfCounterList(APerfCounterList)
+    GetValidPerfCounterList(APerfCounterList),
+    FBitmapFactory
   );
 end;
 
