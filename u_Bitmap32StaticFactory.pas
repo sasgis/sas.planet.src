@@ -15,6 +15,11 @@ type
       const ASize: TPoint;
       const AData: PColor32Array
     ): IBitmap32Static;
+    function BuildEmpty(const ASize: TPoint): IBitmap32Static;
+    function BuildEmptyClear(
+      const ASize: TPoint;
+      const AColor: TColor32
+    ): IBitmap32Static;
   end;
 
 implementation
@@ -52,16 +57,17 @@ begin
   Assert(ASize.X < 1 shl 16);
   Assert(ASize.Y < 1 shl 16);
   Assert(ASize.X * ASize.Y < 1 shl 28);
-  Assert(AData <> nil);
 
   if
     (ASize.X > 0) and (ASize.Y > 0) and
     (ASize.X < 1 shl 16) and (ASize.Y < 1 shl 16) and
-    (ASize.X * ASize.Y < 1 shl 28) and (AData <> nil)
+    (ASize.X * ASize.Y < 1 shl 28)
   then begin
     GetMem(FBits, ASize.X * ASize.Y * 4);
     FSize := ASize;
-    MoveLongWord(AData^, FBits^, ASize.X * ASize.Y);
+    if AData <> nil then begin
+      MoveLongWord(AData^, FBits^, ASize.X * ASize.Y);
+    end;
   end;
 end;
 
@@ -103,7 +109,6 @@ type
 
 constructor TBitmap32StaticStandartSize.Create(const AData: PColor32Array);
 begin
-  Assert(AData <> nil);
   if (AData <> nil) then begin
     MoveLongWord(AData^, FBits[0], CStandartSize * CStandartSize);
   end;
@@ -131,7 +136,6 @@ begin
   Assert(ASize.X * ASize.Y < 1 shl 28);
   Assert(AData <> nil);
 
-
   if
     (ASize.X = CStandartSize) and (ASize.Y = CStandartSize) and
     (AData <> nil)
@@ -145,6 +149,41 @@ begin
     Result := TBitmap32StaticSimple.Create(ASize, AData);
   end else begin
     Result := nil;
+  end;
+end;
+
+function TBitmap32StaticFactory.BuildEmpty(
+  const ASize: TPoint
+): IBitmap32Static;
+begin
+  Assert(ASize.X > 0);
+  Assert(ASize.Y > 0);
+  Assert(ASize.X < 1 shl 16);
+  Assert(ASize.Y < 1 shl 16);
+  Assert(ASize.X * ASize.Y < 1 shl 28);
+  if
+    (ASize.X = CStandartSize) and (ASize.Y = CStandartSize)
+  then begin
+    Result := TBitmap32StaticStandartSize.Create(nil);
+  end else if
+    (ASize.X > 0) and (ASize.Y > 0) and
+    (ASize.X < 1 shl 16) and (ASize.Y < 1 shl 16) and
+    (ASize.X * ASize.Y < 1 shl 28)
+  then begin
+    Result := TBitmap32StaticSimple.Create(ASize, nil);
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TBitmap32StaticFactory.BuildEmptyClear(
+  const ASize: TPoint;
+  const AColor: TColor32
+): IBitmap32Static;
+begin
+  Result := BuildEmpty(ASize);
+  if Result <> nil then begin
+    FillLongword(Result.Data^, ASize.X * ASize.Y, AColor);
   end;
 end;
 

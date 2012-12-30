@@ -13,6 +13,11 @@ type
       const ASize: TPoint;
       const AData: PColor32Array
     ): IBitmap32Static;
+    function BuildEmpty(const ASize: TPoint): IBitmap32Static;
+    function BuildEmptyClear(
+      const ASize: TPoint;
+      const AColor: TColor32
+    ): IBitmap32Static;
   end;
 
 implementation
