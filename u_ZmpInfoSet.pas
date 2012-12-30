@@ -29,6 +29,7 @@ uses
   i_CoordConverterFactory,
   i_ArchiveReadWriteFactory,
   i_LanguageManager,
+  i_Bitmap32StaticFactory,
   i_ContentTypeManager,
   i_FileNameIterator,
   i_ZmpConfig,
@@ -48,6 +49,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AContentTypeManager: IContentTypeManager;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ALanguageManager: ILanguageManager;
       const AFilesIterator: IFileNameIterator
     );
@@ -72,6 +74,7 @@ constructor TZmpInfoSet.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AContentTypeManager: IContentTypeManager;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ALanguageManager: ILanguageManager;
   const AFilesIterator: IFileNameIterator
 );
@@ -103,6 +106,7 @@ begin
           ALanguageManager,
           ACoordConverterFactory,
           AContentTypeManager,
+          ABitmapFactory,
           VFileName,
           VZmpMapConfig,
           VMapTypeCount

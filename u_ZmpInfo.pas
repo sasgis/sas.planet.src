@@ -31,6 +31,7 @@ uses
   i_LanguageListStatic,
   i_MapVersionInfo,
   i_BinaryDataListStatic,
+  i_Bitmap32StaticFactory,
   i_ContentTypeSubst,
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloaderConfig,
@@ -68,15 +69,18 @@ type
       const AConfig: IConfigDataProvider;
       const AConfigIni: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
+      const ABitmapFactory: IBitmap32StaticFactory;
       Apnum: Integer
     );
     function CreateDefaultIcon(
+      const ABitmapFactory: IBitmap32StaticFactory;
       Apnum: Integer
     ): IBitmap32Static;
     procedure LoadIcons(
       const AContentTypeManager: IContentTypeManager;
       const AConfig: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
+      const ABitmapFactory: IBitmap32StaticFactory;
       Apnum: Integer
     );
     procedure LoadUIParams(
@@ -103,6 +107,7 @@ type
       const AGUID: TGUID;
       const ALanguageManager: ILanguageManager;
       const AContentTypeManager: IContentTypeManager;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IConfigDataProvider;
       const AConfigIni: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
@@ -185,6 +190,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AContentTypeManager: IContentTypeManager;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AFileName: string;
       const AConfig: IConfigDataProvider;
       Apnum: Integer
@@ -272,6 +278,7 @@ constructor TZmpInfoGUI.Create(
   const AGUID: TGUID;
   const ALanguageManager: ILanguageManager;
   const AContentTypeManager: IContentTypeManager;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IConfigDataProvider;
   const AConfigIni: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
@@ -289,11 +296,15 @@ begin
     AConfig,
     AConfigIni,
     AConfigIniParams,
+    ABitmapFactory,
     Apnum
   );
 end;
 
-function TZmpInfoGUI.CreateDefaultIcon(Apnum: Integer): IBitmap32Static;
+function TZmpInfoGUI.CreateDefaultIcon(
+  const ABitmapFactory: IBitmap32StaticFactory;
+  Apnum: Integer
+): IBitmap32Static;
 var
   VBitmap: TBitmap32;
   VNameDef: string;
@@ -309,7 +320,11 @@ begin
     VPos.X := (VBitmap.Width - VTextSize.cx) div 2;
     VPos.Y := (VBitmap.Height - VTextSize.cy) div 2;
     VBitmap.RenderText(VPos.X, VPos.Y, VNameDef, 2, clBlack32);
-    Result := TBitmap32Static.CreateWithCopy(VBitmap);
+    Result :=
+      ABitmapFactory.Build(
+        Point(VBitmap.Width, VBitmap.Height),
+        VBitmap.Bits
+      )
   finally
     VBitmap.Free;
   end;
@@ -366,11 +381,12 @@ procedure TZmpInfoGUI.LoadConfig(
   const AConfig: IConfigDataProvider;
   const AConfigIni: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
+  const ABitmapFactory: IBitmap32StaticFactory;
   Apnum: Integer
 );
 begin
   LoadUIParams(ALangList, AConfigIniParams, Apnum);
-  LoadIcons(AContentTypeManager, AConfig, AConfigIniParams, Apnum);
+  LoadIcons(AContentTypeManager, AConfig, AConfigIniParams, ABitmapFactory, Apnum);
   LoadInfo(ALangList, AConfig);
 end;
 
@@ -448,6 +464,7 @@ procedure TZmpInfoGUI.LoadIcons(
   const AContentTypeManager: IContentTypeManager;
   const AConfig: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
+  const ABitmapFactory: IBitmap32StaticFactory;
   Apnum: Integer
 );
 begin
@@ -464,7 +481,7 @@ begin
     FBmp24 := nil;
   end;
   if FBmp24 = nil then begin
-    FBmp24 := CreateDefaultIcon(Apnum);
+    FBmp24 := CreateDefaultIcon(ABitmapFactory, Apnum);
   end;
 
   try
@@ -550,6 +567,7 @@ constructor TZmpInfo.Create(
   const ALanguageManager: ILanguageManager;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AContentTypeManager: IContentTypeManager;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AFileName: string;
   const AConfig: IConfigDataProvider;
   Apnum: Integer
@@ -568,7 +586,17 @@ begin
     raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
   end;
   LoadConfig(ACoordConverterFactory, ALanguageManager);
-  FGUI := TZmpInfoGUI.Create(FGUID, ALanguageManager, AContentTypeManager, FConfig, FConfigIni, FConfigIniParams, Apnum);
+  FGUI :=
+    TZmpInfoGUI.Create(
+      FGUID,
+      ALanguageManager,
+      AContentTypeManager,
+      ABitmapFactory,
+      FConfig,
+      FConfigIni,
+      FConfigIniParams,
+      Apnum
+    );
   FLicense := InternalMakeStringByLanguage(ALanguageManager.LanguageList, FConfigIniParams, 'License', '');
   FLayerZOrder := FConfigIniParams.ReadInteger('LayerZOrder', 0);
 end;

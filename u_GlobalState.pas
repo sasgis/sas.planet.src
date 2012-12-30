@@ -597,6 +597,7 @@ begin
       FCoordConverterFactory,
       FArchiveReadWriteFactory,
       FContentTypeManager,
+      FBitmapFactory,
       FLanguageManager,
       VFilesIterator
     );
