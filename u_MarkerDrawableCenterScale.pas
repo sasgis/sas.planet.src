@@ -4,14 +4,17 @@ interface
 
 uses
   i_BitmapMarker,
+  i_Bitmap32StaticFactory,
   u_MarkerDrawableByBitmapMarker;
 
 type
   TMarkerDrawableCenterScale = class(TMarkerDrawableByBitmapMarker)
   private
-    function CreateBitmapMarker: IBitmapMarker;
+    function CreateBitmapMarker(
+      const ABitmapFactory: IBitmap32StaticFactory
+    ): IBitmapMarker;
   public
-    constructor Create;
+    constructor Create(const ABitmapFactory: IBitmap32StaticFactory);
   end;
 
 implementation
@@ -27,12 +30,16 @@ uses
 
 { TMarkerDrawableCenterScale }
 
-constructor TMarkerDrawableCenterScale.Create;
+constructor TMarkerDrawableCenterScale.Create(
+  const ABitmapFactory: IBitmap32StaticFactory
+);
 begin
-  inherited Create(CreateBitmapMarker);
+  inherited Create(CreateBitmapMarker(ABitmapFactory));
 end;
 
-function TMarkerDrawableCenterScale.CreateBitmapMarker: IBitmapMarker;
+function TMarkerDrawableCenterScale.CreateBitmapMarker(
+  const ABitmapFactory: IBitmap32StaticFactory
+): IBitmapMarker;
 var
   VBitmap: TBitmap32;
   VHalfSize: TPoint;
@@ -85,7 +92,7 @@ begin
       end;
       inc(i, 5);
     end;
-    VBitmapStatic := TBitmap32Static.CreateWithCopy(VBitmap);
+    VBitmapStatic := ABitmapFactory.Build(VSize, VBitmap.Bits);
     Result := TBitmapMarker.Create(VBitmapStatic, DoublePoint(VHalfSize));
   finally
     VBitmap.Free;

@@ -1821,7 +1821,7 @@ begin
   );
   VMarkerChangeable :=
     TMarkerDrawableChangeableFaked.Create(
-      TMarkerDrawableCenterScale.Create
+      TMarkerDrawableCenterScale.Create(GState.BitmapFactory)
     );
   FLayersList.Add(
     TLayerCenterScale.Create(
