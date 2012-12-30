@@ -23,6 +23,7 @@ unit u_BitmapTileLibJpeg;
 interface
 
 uses
+  Types,
   Classes,
   SysUtils,
   GR32,
@@ -79,8 +80,7 @@ implementation
 
 uses
   LibJpegRead,
-  LibJpegWrite,
-  u_Bitmap32Static,
+  LibJpegWrite,   
   u_StreamReadOnlyByBinaryData,
   u_BinaryDataByMemStream;
 
@@ -118,7 +118,6 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VJpeg: TJpegReader;
   VStream: TStream;
-  VBitmap: TCustomBitmap32;
 begin
   Result := nil;
   VCounterContext := FLoadStreamCounter.StartOperation;
