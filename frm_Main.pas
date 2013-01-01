@@ -1779,6 +1779,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState,
+      GState.BitmapFactory,
       FTileErrorLogProvider,
       GState.GUISyncronizedTimerNotifier
     )

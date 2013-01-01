@@ -12,6 +12,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
+  i_Bitmap32StaticFactory,
   i_ViewPortState,
   i_TileError,
   i_SimpleFlag,
@@ -24,6 +25,7 @@ type
   TTileErrorInfoLayer = class(TMapLayerBasicNoBitmap)
   private
     FLogProvider: ITileErrorLogProviedrStuped;
+    FBitmapFactory: IBitmap32StaticFactory;
     FTimerNoifier: INotifier;
     FNeedUpdateFlag: ISimpleFlag;
 
@@ -48,6 +50,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ALogProvider: ITileErrorLogProviedrStuped;
       const ATimerNoifier: INotifier
     );
@@ -75,6 +78,7 @@ constructor TTileErrorInfoLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ALogProvider: ITileErrorLogProviedrStuped;
   const ATimerNoifier: INotifier
 );
@@ -87,6 +91,7 @@ begin
     AViewPortState.View
   );
   FLogProvider := ALogProvider;
+  FBitmapFactory := ABitmapFactory;
   FTimerNoifier := ATimerNoifier;
   FErrorInfo := nil;
   FNeedUpdateFlag := TSimpleFlagWithInterlock.Create;
@@ -145,8 +150,7 @@ begin
 
         VBitmap.RenderText((VSize.X - VMessageSize.cx) div 2, 10, AErrorInfo.ErrorText, 0, clBlack32);
       end;
-      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-      VBitmap := nil;
+      VBitmapStatic := FBitmapFactory.Build(VSize, VBitmap.Bits);
     finally
       VBitmap.Free;
     end;
