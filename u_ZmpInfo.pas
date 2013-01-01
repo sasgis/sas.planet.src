@@ -391,6 +391,7 @@ begin
 end;
 
 function UpdateBMPTransp(
+  const ABitmapFactory: IBitmap32StaticFactory;
   AMaskColor: TColor32;
   const ABitmap: IBitmap32Static
 ): IBitmap32Static;
@@ -398,17 +399,15 @@ var
   VSourceLine: PColor32Array;
   VTargetLine: PColor32Array;
   i: Integer;
-  VBitmap: TCustomBitmap32;
   VSize: TPoint;
 begin
   Result := nil;
   if ABitmap <> nil then begin
-    VBitmap := TCustomBitmap32.Create;
-    try
-      VSize := ABitmap.Size;
-      VBitmap.SetSize(VSize.X, VSize.Y);
+    VSize := ABitmap.Size;
+    Result := ABitmapFactory.BuildEmpty(VSize);
+    if Result <> nil then begin
       VSourceLine := ABitmap.Data;
-      VTargetLine := VBitmap.Bits;
+      VTargetLine := Result.Data;
       for i := 0 to VSize.X * VSize.Y - 1 do begin
         if VSourceLine[i] = AMaskColor then begin
           VTargetLine[i] := 0;
@@ -416,10 +415,6 @@ begin
           VTargetLine[i] := VSourceLine[i];
         end;
       end;
-      Result := TBitmap32Static.CreateWithOwn(VBitmap);
-      VBitmap := nil;
-    finally
-      VBitmap.Free;
     end;
   end;
 end;
@@ -428,6 +423,7 @@ function GetBitmap(
   const AContentTypeManager: IContentTypeManager;
   const AConfig: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ADefName: string;
   const AIdent: string
 ): IBitmap32Static;
@@ -452,7 +448,7 @@ begin
         Result := VLoader.Load(VData);
         if Result <> nil then begin
           if VExt = '.bmp' then begin
-            Result := UpdateBMPTransp(Color32(255, 0, 255, 255), Result);
+            Result := UpdateBMPTransp(ABitmapFactory, Color32(255, 0, 255, 255), Result);
           end;
         end;
       end;
@@ -474,6 +470,7 @@ begin
         AContentTypeManager,
         AConfig,
         AConfigIniParams,
+        ABitmapFactory,
         '24.bmp',
         'BigIconName'
       );
@@ -490,6 +487,7 @@ begin
         AContentTypeManager,
         AConfig,
         AConfigIniParams,
+        ABitmapFactory,
         '18.bmp',
         'SmallIconName'
       );
