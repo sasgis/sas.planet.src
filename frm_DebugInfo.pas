@@ -57,15 +57,25 @@ type
     procedure chkAutoRefreshClick(Sender: TObject);
     procedure chkAlphaBlendClick(Sender: TObject);
   private
+    FCounterNamesCache: TStringList;
     FPerfCounterList: IInternalPerformanceCounterList;
     FPrevStateList: IIDInterfaceList;
-    function AddRowFromCounter(const AName: string; ARow: Integer; const ACounter: IInternalPerformanceCounter): Boolean;
-    function AddRowsFromList(const AParentName: string; AStartRaw: Integer; const AList: IInternalPerformanceCounterList): Integer;
+    procedure UpdateNamesCache;
+    procedure UpdateNamesFromList(const AParentName: string; const AList: IInternalPerformanceCounterList);
+    procedure UpdateNamesFromCounter(const AName: string; const ACounter: IInternalPerformanceCounter);
+    procedure UpdateGrid;
+    function UpdateGridRow(
+      ARow: Integer;
+      const AName: string;
+      const APrevData: IInternalPerformanceCounterStaticData;
+      const ACurrData: IInternalPerformanceCounterStaticData
+    ): Boolean;
+
     procedure PrepareGridHeader;
-    procedure RefreshData;
     function GetGridLinesText(const ATop, ABottom: Integer): String;
   public
     constructor Create(AOwner: TComponent; const APerfCounterList: IInternalPerformanceCounterList); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -77,87 +87,20 @@ uses
 
 {$R *.dfm}
 
-function TfrmDebugInfo.AddRowFromCounter(
-  const AName: string;
-  ARow: Integer;
-  const ACounter: IInternalPerformanceCounter
-): Boolean;
-var
-  VCount: Cardinal;
-  VTime: TDateTime;
-  VMax: TDateTime;
-  VMin: TDateTime;
-  VId: Integer;
-  VPrevData: IInternalPerformanceCounterStaticData;
-  VAvgTime: Extended;
+constructor TfrmDebugInfo.Create(
+  AOwner: TComponent;
+  const APerfCounterList: IInternalPerformanceCounterList
+);
 begin
-  VId := ACounter.Id;
-  VCount := ACounter.Counter;
-  VTime := ACounter.TotalTime;
-  VMax := ACounter.MaxTime;
-  VMin := ACounter.MinTime;
-
-  VPrevData := nil;
-  if FPrevStateList <> nil then begin
-    VPrevData := IInternalPerformanceCounterStaticData(FPrevStateList.GetByID(VId));
-  end;
-  if VPrevData <> nil then begin
-    VCount := VCount - VPrevData.Counter;
-    VTime := VTime - VPrevData.TotalTime;
-  end;
-
-  if chkHideEmtyRows.Checked and (VCount = 0) then begin
-    Result := False;
-  end else begin
-    if sgrdDebugInfo.RowCount <= ARow then begin
-      sgrdDebugInfo.RowCount := ARow + 1;
-    end;
-    sgrdDebugInfo.Cells[0, ARow] := AName;
-    if VCount > 0 then begin
-      sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
-      VAvgTime := VTime/VCount*24*60*60;
-      sgrdDebugInfo.Cells[2, ARow] := FloatToStrF(VMax*24*60*60, ffFixed, 20, 8);
-      sgrdDebugInfo.Cells[3, ARow] := FloatToStrF(VAvgTime, ffFixed, 20, 8);
-      sgrdDebugInfo.Cells[4, ARow] := FloatToStrF(VMin*24*60*60, ffFixed, 20, 8);
-      sgrdDebugInfo.Cells[5, ARow] := FormatDateTime('nn:ss.zzz', VTime);
-    end else begin
-      sgrdDebugInfo.Cells[1, ARow] := '';
-      sgrdDebugInfo.Cells[2, ARow] := '';
-      sgrdDebugInfo.Cells[3, ARow] := '';
-      sgrdDebugInfo.Cells[4, ARow] := '';
-      sgrdDebugInfo.Cells[5, ARow] := '';
-    end;
-    Result := True;
-  end;
+  inherited Create(AOwner);
+  FPerfCounterList := APerfCounterList;
+  FCounterNamesCache := TStringList.Create;
 end;
 
-function TfrmDebugInfo.AddRowsFromList(
-  const AParentName: string;
-  AStartRaw: Integer;
-  const AList: IInternalPerformanceCounterList
-): Integer;
-var
-  VEnum: IEnumUnknown;
-  VUnknown: IUnknown;
-  VCounter: IInternalPerformanceCounter;
-  VList: IInternalPerformanceCounterList;
-  Vcnt: Integer;
-  VName: string;
+destructor TfrmDebugInfo.Destroy;
 begin
-  Result := AStartRaw;
-  VEnum := AList.GetEunm;
-  if VEnum <> nil then begin
-    VName := AParentName + '/';
-    while VEnum.Next(1, VUnknown, Addr(Vcnt)) = S_OK do begin
-      if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
-        if AddRowFromCounter(VName + VCounter.Name, Result, VCounter) then begin
-          Inc(Result);
-        end;
-      end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
-        Result := AddRowsFromList(VName + VList.Name, Result, VList);
-      end;
-    end;
-  end;
+  FreeAndNil(FCounterNamesCache);
+  inherited;
 end;
 
 procedure TfrmDebugInfo.btnCopyToClipboardClick(Sender: TObject);
@@ -170,14 +113,14 @@ end;
 
 procedure TfrmDebugInfo.btnRefreshClick(Sender: TObject);
 begin
-  RefreshData;
+  UpdateGrid;
 end;
 
 procedure TfrmDebugInfo.btnResetClick(Sender: TObject);
 begin
   sgrdDebugInfo.RowCount := 2;
   FPrevStateList := FPerfCounterList.GetStaticDataList;
-  RefreshData;
+  UpdateGrid;
 end;
 
 procedure TfrmDebugInfo.btnSaveToFileClick(Sender: TObject);
@@ -204,7 +147,7 @@ begin
     finally
       VSL.Free;
     end;
-  end;  
+  end;
 end;
 
 procedure TfrmDebugInfo.chkAlphaBlendClick(Sender: TObject);
@@ -217,15 +160,6 @@ begin
   tmrRefresh.Enabled := chkAutoRefresh.Checked;
 end;
 
-constructor TfrmDebugInfo.Create(
-  AOwner: TComponent;
-  const APerfCounterList: IInternalPerformanceCounterList
-);
-begin
-  inherited Create(AOwner);
-  FPerfCounterList := APerfCounterList;
-end;
-
 procedure TfrmDebugInfo.FormCreate(Sender: TObject);
 begin
   sgrdDebugInfo.ColWidths[0] := 360;
@@ -235,7 +169,7 @@ end;
 
 procedure TfrmDebugInfo.FormShow(Sender: TObject);
 begin
-  RefreshData;;
+  UpdateGrid;
 end;
 
 function TfrmDebugInfo.GetGridLinesText(const ATop, ABottom: Integer): String;
@@ -281,26 +215,149 @@ begin
   sgrdDebugInfo.Cells[5, 0] := 'Time total';
 end;
 
-procedure TfrmDebugInfo.RefreshData;
+procedure TfrmDebugInfo.tmrRefreshTimer(Sender: TObject);
+begin
+  UpdateGrid;
+end;
+
+procedure TfrmDebugInfo.UpdateGrid;
 var
+  VCurrStaticData: IIDInterfaceList;
+  i: Integer;
   VLastRow: Integer;
-  i, j: Integer;
+  VName: string;
+  VPrevData, VCurrData: IInternalPerformanceCounterStaticData;
+  VId: Integer;
+  VUsedDataCount: Integer;
 begin
   PrepareGridHeader;
-  VLastRow := sgrdDebugInfo.FixedRows;
-  if FPerfCounterList <> nil then begin
-    VLastRow := AddRowsFromList('', VLastRow, FPerfCounterList);
+  if FPerfCounterList = nil then begin
+    Exit;
   end;
-  for i := VLastRow to sgrdDebugInfo.RowCount - 1 do begin
-    for j := 0 to sgrdDebugInfo.ColCount - 1 do begin
-      sgrdDebugInfo.Cells[j, i] := '';
+
+  VCurrStaticData := FPerfCounterList.GetStaticDataList;
+  if VCurrStaticData.Count > FCounterNamesCache.Count then begin
+    UpdateNamesCache;
+  end;
+  VUsedDataCount := 0;
+  VLastRow := sgrdDebugInfo.FixedRows;
+  for i := 0 to FCounterNamesCache.Count - 1 do begin
+    VName := FCounterNamesCache.Strings[i];
+    VId := Integer(FCounterNamesCache.Objects[i]);
+    if FPrevStateList <> nil then begin
+      VPrevData := IInternalPerformanceCounterStaticData(FPrevStateList.GetByID(VId));
+    end else begin
+      VPrevData := nil;
     end;
+    VCurrData := IInternalPerformanceCounterStaticData(VCurrStaticData.GetByID(VId));
+    if VCurrData <> nil then begin
+      inc(VUsedDataCount);
+    end;
+    if UpdateGridRow(VLastRow, VName, VPrevData, VCurrData) then begin
+      Inc(VLastRow);
+    end;
+  end;
+  if VLastRow < sgrdDebugInfo.RowCount then begin
+    sgrdDebugInfo.RowCount := VLastRow;
+  end;
+  if VUsedDataCount < VCurrStaticData.Count then begin
+    UpdateNamesCache;
   end;
 end;
 
-procedure TfrmDebugInfo.tmrRefreshTimer(Sender: TObject);
+function TfrmDebugInfo.UpdateGridRow(
+  ARow: Integer;
+  const AName: string;
+  const APrevData, ACurrData: IInternalPerformanceCounterStaticData
+): Boolean;
+var
+  VCount: Cardinal;
+  VTime: TDateTime;
+  VMax: TDateTime;
+  VMin: TDateTime;
+  VPrevData: IInternalPerformanceCounterStaticData;
+  VAvgTime: Extended;
 begin
-  RefreshData;
+  Result := False;
+  if ACurrData <> nil then begin
+    VCount := ACurrData.Counter;
+    VTime := ACurrData.TotalTime;
+    VMax := ACurrData.MaxTime;
+    VMin := ACurrData.MinTime;
+  end else begin
+    VCount := 0;
+    VTime := 0;
+    VMax := 0;
+    VMin := 0;
+  end;
+
+  if VPrevData <> nil then begin
+    VCount := VCount - VPrevData.Counter;
+    VTime := VTime - VPrevData.TotalTime;
+  end;
+
+  if not chkHideEmtyRows.Checked or (VCount > 0) then begin
+    if sgrdDebugInfo.RowCount <= ARow then begin
+      sgrdDebugInfo.RowCount := ARow + 1;
+    end;
+    sgrdDebugInfo.Cells[0, ARow] := AName;
+    if VCount > 0 then begin
+      sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
+      VAvgTime := VTime/VCount*24*60*60;
+      sgrdDebugInfo.Cells[2, ARow] := FloatToStrF(VMax*24*60*60, ffFixed, 20, 8);
+      sgrdDebugInfo.Cells[3, ARow] := FloatToStrF(VAvgTime, ffFixed, 20, 8);
+      sgrdDebugInfo.Cells[4, ARow] := FloatToStrF(VMin*24*60*60, ffFixed, 20, 8);
+      sgrdDebugInfo.Cells[5, ARow] := FormatDateTime('nn:ss.zzz', VTime);
+    end else begin
+      sgrdDebugInfo.Cells[1, ARow] := '';
+      sgrdDebugInfo.Cells[2, ARow] := '';
+      sgrdDebugInfo.Cells[3, ARow] := '';
+      sgrdDebugInfo.Cells[4, ARow] := '';
+      sgrdDebugInfo.Cells[5, ARow] := '';
+    end;
+    Result := True;
+  end;
+end;
+
+procedure TfrmDebugInfo.UpdateNamesCache;
+begin
+  FCounterNamesCache.Clear;
+  FCounterNamesCache.Duplicates := dupAccept;
+  UpdateNamesFromList('', FPerfCounterList);
+  FCounterNamesCache.Sort;
+end;
+
+procedure TfrmDebugInfo.UpdateNamesFromCounter(
+  const AName: string;
+  const ACounter: IInternalPerformanceCounter
+);
+begin
+  FCounterNamesCache.AddObject(AName, TObject(ACounter.Id));
+end;
+
+procedure TfrmDebugInfo.UpdateNamesFromList(
+  const AParentName: string;
+  const AList: IInternalPerformanceCounterList
+);
+var
+  VEnum: IEnumUnknown;
+  VUnknown: IUnknown;
+  VCounter: IInternalPerformanceCounter;
+  VList: IInternalPerformanceCounterList;
+  Vcnt: Integer;
+  VName: string;
+begin
+  VEnum := AList.GetEunm;
+  if VEnum <> nil then begin
+    VName := AParentName + '/';
+    while VEnum.Next(1, VUnknown, Addr(Vcnt)) = S_OK do begin
+      if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
+        UpdateNamesFromCounter(VName + VCounter.Name, VCounter);
+      end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
+        UpdateNamesFromList(VName + VList.Name, VList);
+      end;
+    end;
+  end;
 end;
 
 end.
