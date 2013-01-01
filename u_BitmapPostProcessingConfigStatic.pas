@@ -25,12 +25,14 @@ interface
 uses
   GR32,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_BitmapPostProcessingConfig,
   u_BaseInterfacedObject;
 
 type
   TBitmapPostProcessingConfigStatic = class(TBaseInterfacedObject, IBitmapPostProcessing)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FInvertColor: boolean;
     FGammaN: Integer;
     FContrastN: Integer;
@@ -39,6 +41,7 @@ type
     function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       AInvertColor: boolean;
       AGammaN: Integer;
       AContrastN: Integer
@@ -55,11 +58,13 @@ uses
 { TBitmapPostProcessingConfigStatic }
 
 constructor TBitmapPostProcessingConfigStatic.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
   AInvertColor: boolean;
   AGammaN, AContrastN: Integer
 );
 begin
   inherited Create;
+  FBitmapFactory := ABitmapFactory;
   FInvertColor := AInvertColor;
   FContrastN := AContrastN;
   FGammaN := AGammaN;

@@ -25,12 +25,14 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_Bitmap32StaticFactory,
   i_BitmapPostProcessingConfig,
   u_ConfigDataElementBase;
 
 type
   TBitmapPostProcessingConfig = class(TConfigDataElementWithStaticBase, IBitmapPostProcessingConfig)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FInvertColor: boolean;
     FGammaN: Integer;
     FContrastN: Integer;
@@ -51,7 +53,7 @@ type
 
     function GetStatic: IBitmapPostProcessing;
   public
-    constructor Create;
+    constructor Create(const ABitmapFactory: IBitmap32StaticFactory);
   end;
 
 implementation
@@ -61,9 +63,10 @@ uses
 
 { TBitmapPostProcessingConfig }
 
-constructor TBitmapPostProcessingConfig.Create;
+constructor TBitmapPostProcessingConfig.Create(const ABitmapFactory: IBitmap32StaticFactory);
 begin
   inherited Create;
+  FBitmapFactory := ABitmapFactory;
   FInvertColor := False;
   FContrastN := 0;
   FGammaN := 50;
@@ -75,6 +78,7 @@ var
 begin
   VStatic :=
     TBitmapPostProcessingConfigStatic.Create(
+      FBitmapFactory,
       FInvertColor,
       FGammaN,
       FContrastN
