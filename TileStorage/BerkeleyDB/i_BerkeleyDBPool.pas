@@ -18,19 +18,19 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_GlobalBerkeleyDBHelper;
+unit i_BerkeleyDBPool;
 
 interface
 
 uses
-  i_BerkeleyDBEnv;
+  i_BerkeleyDB;
 
 type
-  IGlobalBerkeleyDBHelper = interface
-    ['{01EDEF03-9DCE-42A9-AB26-40A6C1C7104D}']
-    function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
-    procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
-    procedure RaiseException(const EMsg: AnsiString);
+  IBerkeleyDBPool = interface
+    ['{BAC521DC-676E-48F2-BEE2-9E7AFC82F9CA}']
+    function Acquire(const ADatabaseFileName: string): IBerkeleyDB;
+    procedure Release(const ADatabase: IBerkeleyDB);
+    procedure Sync;
   end;
 
 implementation

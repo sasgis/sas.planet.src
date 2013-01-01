@@ -18,19 +18,17 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_GlobalBerkeleyDBHelper;
+unit i_BerkeleyDBFactory;
 
 interface
 
 uses
-  i_BerkeleyDBEnv;
+  i_BerkeleyDB;
 
 type
-  IGlobalBerkeleyDBHelper = interface
-    ['{01EDEF03-9DCE-42A9-AB26-40A6C1C7104D}']
-    function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
-    procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
-    procedure RaiseException(const EMsg: AnsiString);
+  IBerkeleyDBFactory = interface
+    ['{288B5F70-F0AB-433B-8267-EB6D3205A16A}']
+    function CreateDatabase(const ADatabaseFileName: string): IBerkeleyDB;
   end;
 
 implementation

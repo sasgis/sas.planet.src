@@ -50,13 +50,11 @@ type
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: INotifierTTLCheck;
-    FBDBTTLListener: IListenerTTLCheck;
-    FMemCacheTTLListener: IListenerTTLCheck;
+    FSyncCallListner: IListenerTTLCheck;
     FTileInfoMemCache: TTileInfoBasicMemCache;
     FUseMemCache: Boolean;
     FFileNameGenerator: ITileFileNameGenerator;
-
-    procedure OnTTLSync(Sender: TObject);
+    procedure OnSyncCall(Sender: TObject);
   protected
     function GetIsFileCache: Boolean; override;
 
@@ -141,6 +139,14 @@ uses
   u_TileInfoBasic,
   u_EnumTileInfoByBerkeleyDB;
 
+const
+  cStorageFileExt = '.sdb';
+  cTneStorageFileExt = '.tne';
+  cStorageMemCacheCapacity = 100;
+  cStorageMemCacheUnusedObjectTTL = 60000; // 60 sec
+  cStorageSyncInterval = 300000; // 5 min
+  cStorageSyncCheckInterval = 60000; // 60 sec
+
 { TTileStorageBerkeleyDB }
 
 constructor TTileStorageBerkeleyDB.Create(
@@ -153,9 +159,6 @@ constructor TTileStorageBerkeleyDB.Create(
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic
 );
-const
-  CBDBSync = 300000; // 5 min
-  CBDBSyncCheckInterval = 60000; // 60 sec
 begin
   inherited Create(
     TTileStorageTypeAbilitiesBerkeleyDB.Create,
@@ -165,56 +168,52 @@ begin
   );
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
-
   FUseMemCache := AUseMemCache;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
+
   FFileNameGenerator := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
+
   FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
     AGlobalBerkeleyDBHelper,
     StoragePath,
     AGeoConverter.ProjectionEPSG
   );
 
-  FBDBTTLListener := TListenerTTLCheck.Create(
-    FStorageHelper.Sync,
-    CBDBSync,
-    CBDBSyncCheckInterval
-  );
-
-  FMemCacheTTLListener := TListenerTTLCheck.Create(
-    Self.OnTTLSync,
-    CBDBSync,
-    CBDBSyncCheckInterval
+  FSyncCallListner := TListenerTTLCheck.Create(
+    Self.OnSyncCall,
+    cStorageSyncInterval,
+    cStorageSyncCheckInterval
   );
 
   FGCList := AGCList;
-  FGCList.Add(FBDBTTLListener);
-  FGCList.Add(FMemCacheTTLListener);
+  FGCList.Add(FSyncCallListner);
 
-  FTileInfoMemCache := TTileInfoBasicMemCache.Create(100, 30000);
+  FTileInfoMemCache := TTileInfoBasicMemCache.Create(
+    cStorageMemCacheCapacity,
+    cStorageMemCacheUnusedObjectTTL
+  );
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
   if Assigned(FGCList) then begin
-    FGCList.Remove(FMemCacheTTLListener);
-    FGCList.Remove(FBDBTTLListener);
+    FGCList.Remove(FSyncCallListner);
     FGCList := nil;
   end;
-  FBDBTTLListener := nil;
-  FMemCacheTTLListener := nil;
+  FSyncCallListner := nil;
   FTileInfoMemCache.Free;
   FreeAndNil(FStorageHelper);
   FMainContentType := nil;
   FContentTypeManager := nil;
   FTileNotExistsTileInfo := nil;
-  inherited;
+  inherited Destroy;
 end;
 
-procedure TTileStorageBerkeleyDB.OnTTLSync(Sender: TObject);
+procedure TTileStorageBerkeleyDB.OnSyncCall(Sender: TObject);
 begin
   FTileInfoMemCache.ClearByTTL;
+  FStorageHelper.Sync;
 end;
 
 function TTileStorageBerkeleyDB.GetIsFileCache: Boolean;
@@ -231,7 +230,7 @@ begin
   Result :=
     StoragePath +
     FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-    '.sdb';
+    cStorageFileExt;
 end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(
@@ -260,7 +259,7 @@ begin
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      '.sdb';
+      cStorageFileExt;
 
     VResult := False;
 
@@ -297,7 +296,7 @@ begin
     end;
 
     if not VResult then begin
-      VPath := ChangeFileExt(VPath, '.tne');
+      VPath := ChangeFileExt(VPath, cTneStorageFileExt);
       if FileExists(VPath) then begin
         VResult := FStorageHelper.IsTNEFound(
           VPath,
@@ -381,8 +380,8 @@ begin
           VFileInfo.Name :=
             StoragePath +
             FFileNameGenerator.GetTileFileName(VTile, VZoom) +
-            '.sdb';
-          VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, '.tne');
+            cStorageFileExt;
+          VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, cTneStorageFileExt);
           VFolderInfo.Name := ExtractFilePath(VFileInfo.Name);
 
           if VFolderInfo.Name = VFolderInfo.PrevName then begin
@@ -486,7 +485,7 @@ begin
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      '.sdb';
+      cStorageFileExt;
     if FStorageHelper.CreateDirIfNotExists(VPath) then begin 
       VResult := FStorageHelper.SaveTile(
         VPath,
@@ -534,7 +533,7 @@ begin
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      '.tne';
+      cTneStorageFileExt;
     if FStorageHelper.CreateDirIfNotExists(VPath) then begin
       VResult := FStorageHelper.SaveTile(
         VPath,
@@ -574,7 +573,7 @@ begin
       VPath :=
         StoragePath +
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        '.sdb';
+        cStorageFileExt;
       if FileExists(VPath) then begin
         Result := FStorageHelper.DeleteTile(
           VPath,
@@ -587,7 +586,7 @@ begin
         VPath :=
           StoragePath +
           FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-          '.tne';
+          cTneStorageFileExt;
         if FileExists(VPath) then begin
           Result := FStorageHelper.DeleteTile(
             VPath,
@@ -628,9 +627,9 @@ var
 begin
   VProcessFileMasks := TWideStringList.Create;
   try
-    VProcessFileMasks.Add('*.sdb');
+    VProcessFileMasks.Add('*' + cStorageFileExt);
     if not AIgnoreTNE then begin
-      VProcessFileMasks.Add('*.tne');
+      VProcessFileMasks.Add('*' + cTneStorageFileExt);
     end;
 
     VFoldersIteratorFactory :=
@@ -661,8 +660,9 @@ end;
 
 procedure TTileStorageBerkeleyDB.ClearMemCache;
 begin
-  if Assigned(FTileInfoMemCache) then
+  if Assigned(FTileInfoMemCache) then begin
     FTileInfoMemCache.Clear;
+  end;
 end;
 
 end.

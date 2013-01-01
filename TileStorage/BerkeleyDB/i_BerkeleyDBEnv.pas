@@ -18,19 +18,31 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_GlobalBerkeleyDBHelper;
+unit i_BerkeleyDBEnv;
 
 interface
 
 uses
-  i_BerkeleyDBEnv;
+  i_Listener;
 
 type
-  IGlobalBerkeleyDBHelper = interface
-    ['{01EDEF03-9DCE-42A9-AB26-40A6C1C7104D}']
-    function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
-    procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
-    procedure RaiseException(const EMsg: AnsiString);
+  IBerkeleyDBEnvironment = interface
+    ['{0D73208B-3729-43F3-9AAE-DF1616107648}']
+    function GetEnvironmentPointerForApi: Pointer;
+    property dbenv: Pointer read GetEnvironmentPointerForApi;
+
+    function GetRootPath: string;
+    property RootPath: string read GetRootPath;
+
+    function GetClientsCount: Integer;
+    procedure SetClientsCount(const AValue: Integer);
+    property ClientsCount: Integer read GetClientsCount write SetClientsCount;
+
+    function GetSyncCallListener: IListener;
+    property SyncCallListener: IListener read GetSyncCallListener;
+
+    procedure RemoveUnUsedLogs;
+    procedure TransactionCheckPoint;
   end;
 
 implementation

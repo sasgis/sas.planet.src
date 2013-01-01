@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  i_BinaryData,
   i_BerkeleyDBKeyValue,
   u_BaseInterfacedObject;
 
@@ -32,7 +33,7 @@ const
   cBerkeleyDBMetaKeyY: Cardinal = $FFFFFFFF;
 
 type
-  TBerkeleyDBKey = class(TBaseInterfacedObject, IBerkeleyDBKey)
+  TBerkeleyDBKey = class(TBaseInterfacedObject, IBerkeleyDBKey, IBinaryData)
   private
     type
       TKey = packed record
@@ -53,6 +54,9 @@ type
     function GetData: Pointer;
     function GetSize: Integer;
     procedure Assign(const AData: Pointer; const ASize: Integer; const AOwnMem: Boolean);
+    { IBinaryData }
+    function IBinaryData.GetBuffer = GetData;
+    function IBinaryData.GetSize = GetSize;
   public
     constructor Create(
       const APoint: TPoint

@@ -651,10 +651,15 @@
     <DCCReference Include="Terrain\u_TerrainProviderByGEMemCache.pas" />
     <DCCReference Include="Terrain\u_TerrainProviderList.pas" />
     <DCCReference Include="Terrain\u_TerrainProviderListElement.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDB.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBEnv.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBFactory.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBKeyValue.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBPool.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_GlobalBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBEnv.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBFactory.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBKey.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBPool.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBValue.pas" />

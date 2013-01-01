@@ -24,14 +24,13 @@ interface
 
 uses
   Windows,
-  Contnrs,
   Classes,
   SyncObjs,
   libdb51,
   i_Listener,
   i_PathConfig,
   i_GlobalBerkeleyDBHelper,
-  u_BerkeleyDBEnv,
+  i_BerkeleyDBEnv,
   u_BaseInterfacedObject;
 
 type
@@ -42,7 +41,7 @@ type
     FDebugLogPath: string;
     FCacheConfigChangeListener: IListener;
     FPathConfig: IPathConfig;
-    FEnvList: TObjectList;
+    FEnvList: IInterfaceList;
     FEnvCS: TCriticalSection;
     FLogCS: TCriticalSection;
     function GetFullPathName(const ARelativePathName: string): string;
@@ -50,8 +49,8 @@ type
     procedure OnCacheConfigChange;
   private
     { IGlobalBerkeleyDBHelper }
-    function AllocateEnvironment(const AEnvRootPath: string): Pointer;
-    procedure FreeEnvironment(const AEnv: Pointer);
+    function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
+    procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
     procedure RaiseException(const EMsg: AnsiString);
   public
     constructor Create(const APathConfig: IPathConfig);
@@ -65,7 +64,8 @@ implementation
 uses
   SysUtils,
   ShLwApi,
-  u_ListenerByEvent;
+  u_ListenerByEvent,
+  u_BerkeleyDBEnv;
 
 procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 var
@@ -90,7 +90,7 @@ constructor TGlobalBerkeleyDBHelper.Create(const APathConfig: IPathConfig);
 begin
   inherited Create;
   FPathConfig := APathConfig;
-  FEnvList := TObjectList.Create(True); // TObjectList is owner of objects and it auto-free them on destroy
+  FEnvList := TInterfaceList.Create;
   FEnvCS := TCriticalSection.Create;
   FLogCS := TCriticalSection.Create;
   FLogFileStream := nil;
@@ -107,7 +107,7 @@ begin
     FPathConfig := nil;
     FCacheConfigChangeListener := nil;
   end;
-  FEnvList.Free;
+  FEnvList := nil;
   FEnvCS.Free;
   FreeAndNil(FLogFileStream);
   FLogCS.Free;
@@ -134,21 +134,21 @@ end;
 
 function TGlobalBerkeleyDBHelper.AllocateEnvironment(
   const AEnvRootPath: string
-): Pointer;
+): IBerkeleyDBEnvironment;
 var
   I: Integer;
   VPath: string;
-  VEnv: TBerkeleyDBEnv;
+  VEnv: IBerkeleyDBEnvironment;
 begin
   Result := nil;
   FEnvCS.Acquire;
   try
     VPath := GetFullPathName(AEnvRootPath);
     for I := 0 to FEnvList.Count - 1 do begin
-      VEnv := TBerkeleyDBEnv(FEnvList.Items[I]);
+      VEnv := FEnvList.Items[I] as IBerkeleyDBEnvironment;
       if Assigned(VEnv) then begin
-        if VEnv.EnvRootPath = VPath then begin
-          Result := @VEnv;
+        if VEnv.RootPath = VPath then begin
+          Result := VEnv;
           Break;
         end;
       end;
@@ -156,33 +156,28 @@ begin
     if not Assigned(Result) then begin
       VEnv := TBerkeleyDBEnv.Create(Self, VPath);
       FEnvList.Add(VEnv);
-      Result := @VEnv;
-    end;
-    if Assigned(Result) then begin
-      VEnv := TBerkeleyDBEnv(Result^);
-      VEnv.ClientsCount := VEnv.ClientsCount + 1;
+      Result := VEnv;
     end;
   finally
     FEnvCS.Release;
   end;
 end;
 
-procedure TGlobalBerkeleyDBHelper.FreeEnvironment(const AEnv: Pointer);
+procedure TGlobalBerkeleyDBHelper.FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
 var
   I: Integer;
-  VEnv: TBerkeleyDBEnv;
+  VEnv: IBerkeleyDBEnvironment;
 begin
   FEnvCS.Acquire;
   try
     if Assigned(AEnv) then begin
       for I := 0 to FEnvList.Count - 1 do begin
-        VEnv := TBerkeleyDBEnv(FEnvList.Items[I]);
+        VEnv := FEnvList.Items[I] as IBerkeleyDBEnvironment;
         if Assigned(VEnv) then begin
-          if VEnv = TBerkeleyDBEnv(AEnv^) then begin
+          if (VEnv as IInterface) = (AEnv as IInterface) then begin
             VEnv.ClientsCount := VEnv.ClientsCount - 1;
             if VEnv.ClientsCount <= 0 then begin
               FEnvList.Remove(VEnv);
-              FEnvList.Pack;
             end;
             Break;
           end;

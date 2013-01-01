@@ -25,7 +25,10 @@ interface
 uses
   SyncObjs,
   libdb51,
+  i_Listener,
+  i_BerkeleyDBEnv,
   i_GlobalBerkeleyDBHelper,
+  u_BaseInterfacedObject,
   u_BerkeleyDBPool;
 
 type
@@ -35,46 +38,47 @@ type
   end;
   PBerkeleyDBEnvAppPrivate = ^TBerkeleyDBEnvAppPrivate;
 
-  TBerkeleyDBEnv = class(TObject)
+  TBerkeleyDBEnv = class(TBaseInterfacedObject, IBerkeleyDBEnvironment)
   private
-    FEnv: PDB_ENV;
-    FPool: TBerkeleyDBPool;
+    dbenv: PDB_ENV;
+  private
     FAppPrivate: PBerkeleyDBEnvAppPrivate;
     FActive: Boolean;
     FLibInitOk: Boolean;
     FLastRemoveLogTime: Cardinal;
     FCS: TCriticalSection;
     FClientsCount: Integer;
-
+    FListener: IListener;
     function Open: Boolean;
-    function GetEnv: PDB_ENV;
-    function GetEnvRootPath: string;
+    procedure Sync;
+  private
+    { IBerkeleyDBEnvironment }
+    function GetEnvironmentPointerForApi: Pointer;
+    function GetRootPath: string;
+    function GetClientsCount: Integer;
+    procedure SetClientsCount(const AValue: Integer);
+    procedure RemoveUnUsedLogs;
+    procedure TransactionCheckPoint;
+    function GetSyncCallListener: IListener;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AEnvRootPath: string
     );
     destructor Destroy; override;
-    procedure RemoveUnUsedLogs;
-    procedure CheckPoint(Sender: TObject);
-    class function LsnReset(const AFileName: string): Boolean;
-
-    property EnvPtr: PDB_ENV read GetEnv;
-    property EnvRootPath: string read GetEnvRootPath;
-    property Pool: TBerkeleyDBPool read FPool;
-    property ClientsCount: Integer read FClientsCount write FClientsCount;
   end;
-
-const
-  CEnvSubDir = 'env';
-  CBerkeleyDBEnvErrPfx = 'BerkeleyDB (Env)';
 
 implementation
 
 uses
-  Windows,  
+  Windows,
   SysUtils,
+  u_ListenerByEvent,
   u_GlobalBerkeleyDBHelper;
+
+const
+  cBerkeleyDBEnvSubDir = 'env';
+  cBerkeleyDBEnvErrPfx = 'BerkeleyDB Env';
 
 { TBerkeleyDBEnv }
 
@@ -84,25 +88,26 @@ constructor TBerkeleyDBEnv.Create(
 );
 begin
   inherited Create;
+  dbenv := nil;
   New(FAppPrivate);
   FAppPrivate.EnvRootPath := AEnvRootPath;
   FAppPrivate.Helper := AGlobalBerkeleyDBHelper;
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
-  FClientsCount := 0;
-  FPool := TBerkeleyDBPool.Create(FAppPrivate.Helper, 12);
+  FClientsCount := 1;
   FLibInitOk := InitBerkeleyDB;
+  FListener := TNotifyNoMmgEventListener.Create(Self.Sync);
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
 begin
   try
-    FPool.Free;
-    if FEnv <> nil then begin
-      CheckPoint(Self);
+    FListener := nil;
+    if dbenv <> nil then begin
+      TransactionCheckPoint;
       RemoveUnUsedLogs;
-      CheckBDBandNil(FEnv.close(FEnv, 0), FEnv);
+      CheckBDBandNil(dbenv.close(dbenv, 0), dbenv);
     end;
     FCS.Free;
   finally
@@ -112,7 +117,7 @@ begin
   end;
 end;
 
-function TBerkeleyDBEnv.GetEnvRootPath: string;
+function TBerkeleyDBEnv.GetRootPath: string;
 begin
   if Assigned(FAppPrivate) then begin
     Result := FAppPrivate.EnvRootPath;
@@ -127,32 +132,29 @@ var
   VPath: AnsiString;
 begin
   if not FActive and FLibInitOk then begin
-    CheckBDB(db_env_create(FEnv, 0));
+    CheckBDB(db_env_create(dbenv, 0));
 
-    FEnv.app_private := FAppPrivate;
-    FEnv.set_errpfx(FEnv, CBerkeleyDBEnvErrPfx);
-    FEnv.set_errcall(FEnv, BerkeleyDBErrCall);
-    CheckBDB(FEnv.set_alloc(FEnv, @GetMemory, @ReallocMemory, @FreeMemory));
-    CheckBDB(FEnv.set_flags(FEnv, DB_TXN_NOSYNC, 1));
-    CheckBDB(FEnv.set_flags(FEnv, DB_TXN_WRITE_NOSYNC, 1));
-    CheckBDB(FEnv.set_verbose(FEnv, DB_VERB_RECOVERY, 1));
+    dbenv.app_private := FAppPrivate;
+    dbenv.set_errpfx(dbenv, CBerkeleyDBEnvErrPfx);
+    dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
+    CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));
+    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_NOSYNC, 1));
+    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 1));
+    CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_RECOVERY, 1));
 
-    if CEnvSubDir <> '' then begin
-      VPath := FAppPrivate.EnvRootPath + CEnvSubDir + PathDelim;
-      I := LastDelimiter(PathDelim, VPath);
-      VPath := copy(VPath, 1, I);
-      CheckBDB(FEnv.set_data_dir(FEnv, '..'));
-    end else begin
-      VPath := FAppPrivate.EnvRootPath;
-    end;
+    VPath := FAppPrivate.EnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
+    I := LastDelimiter(PathDelim, VPath);
+    VPath := copy(VPath, 1, I);
+    CheckBDB(dbenv.set_data_dir(dbenv, '..'));
+
     if not DirectoryExists(VPath) then begin
       ForceDirectories(VPath);
     end;
-    CheckBDB(FEnv.log_set_config(FEnv, DB_LOG_AUTO_REMOVE, 1));
+    CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
 
     CheckBDB(
-      FEnv.open(
-        FEnv,
+      dbenv.open(
+        dbenv,
         Pointer(AnsiToUtf8(VPath)),
         DB_CREATE_ or
         DB_RECOVER or
@@ -176,31 +178,37 @@ begin
   try
     if FActive and FLibInitOk and (GetTickCount - FLastRemoveLogTime > 30000) then begin
       FLastRemoveLogTime := GetTickCount;
-      CheckBDB(FEnv.log_archive(FEnv, nil, DB_ARCH_REMOVE));
+      CheckBDB(dbenv.log_archive(dbenv, nil, DB_ARCH_REMOVE));
     end;
   finally
     FCS.Release;
   end;
 end;
 
-procedure TBerkeleyDBEnv.CheckPoint(Sender: TObject);
+procedure TBerkeleyDBEnv.TransactionCheckPoint;
 begin
   FCS.Acquire;
   try
     if FActive and FLibInitOk then begin
-      CheckBDB(FEnv.txn_checkpoint(FEnv, 0, 0, DB_FORCE));
+      CheckBDB(dbenv.txn_checkpoint(dbenv, 0, 0, DB_FORCE));
     end;
   finally
     FCS.Release;
   end;
 end;
 
-function TBerkeleyDBEnv.GetEnv: PDB_ENV;
+procedure TBerkeleyDBEnv.Sync;
+begin
+  RemoveUnUsedLogs;
+  //TransactionCheckPoint;
+end;
+
+function TBerkeleyDBEnv.GetEnvironmentPointerForApi: Pointer;
 begin
   FCS.Acquire;
   try
     if Open then begin
-      Result := FEnv;
+      Result := dbenv;
     end else begin
       Result := nil;
     end;
@@ -209,25 +217,29 @@ begin
   end;
 end;
 
-class function TBerkeleyDBEnv.LsnReset(const AFileName: string): Boolean;
-var
-  env: PDB_ENV;
+function TBerkeleyDBEnv.GetClientsCount: Integer;
 begin
-  Result := False;
-  if (AFileName <> '') and FileExists(AFileName) then begin
-    CheckBDB(db_env_create(env, 0));
-    try
-      CheckBDB(env.open(env, '', DB_CREATE_ or DB_PRIVATE or DB_INIT_MPOOL, 0));
-      CheckBDB(env.lsn_reset(env, PAnsiChar(AFileName), 0));
-    finally
-      if env <> nil then begin
-        CheckBDB(env.close(env, 0));
-      end;
-    end;
-    Result := True;
-  end else begin
-    Assert(False, 'Warning [BerkeleyDB Env]: LsnReset - invalid arguments!');
+  FCS.Acquire;
+  try
+    Result := FClientsCount;
+  finally
+    FCS.Release;
   end;
+end;
+
+procedure TBerkeleyDBEnv.SetClientsCount(const AValue: Integer);
+begin
+  FCS.Acquire;
+  try
+    FClientsCount := AValue;
+  finally
+    FCS.Release;
+  end;
+end;
+
+function TBerkeleyDBEnv.GetSyncCallListener: IListener;
+begin
+  Result := FListener;
 end;
 
 end.

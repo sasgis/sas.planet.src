@@ -39,6 +39,7 @@ type
     function Dec: Integer;
     function GetValue: Integer;
     function CheckEqual(AValue: Integer): Boolean;
+    procedure Reset;
   public
     constructor Create;
   end;
@@ -94,6 +95,11 @@ end;
 function TCounterInterlock.Inc: Integer;
 begin
   Result := InterlockedIncrement(FCount);
+end;
+
+procedure TCounterInterlock.Reset;
+begin
+  InterlockedExchange(FCount, 0)
 end;
 
 { TSimpleFlagWithParent }

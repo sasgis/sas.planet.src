@@ -30,7 +30,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBerkeleyDBValueBase = class(TBaseInterfacedObject, IBerkeleyDBKeyValueBase)
+  TBerkeleyDBValueBase = class(TBaseInterfacedObject, IBerkeleyDBKeyValueBase, IBinaryData)
   protected
     FData: PByte;
     FSize: Integer;
@@ -44,6 +44,9 @@ type
       const ASize: Integer;
       const AOwnMem: Boolean
     ); virtual; abstract;
+    { IBinaryData }
+    function IBinaryData.GetBuffer = GetData;
+    function IBinaryData.GetSize = GetSize;
   public
     constructor Create;
     destructor Destroy; override;
@@ -74,7 +77,7 @@ type
     destructor Destroy; override;
   end;
 
-  TBerkeleyDBValue = class(TBerkeleyDBValueBase, IBerkeleyDBValue, IBinaryData)
+  TBerkeleyDBValue = class(TBerkeleyDBValueBase, IBerkeleyDBValue)
   private
     type
       TValue = record
@@ -89,6 +92,7 @@ type
       PValue = ^TValue;
   private
     FValue: PValue;
+    FBinData: IBinaryData;
     procedure TileToValue(
       const ATileBody: Pointer;
       const ATileSize: Integer;
@@ -108,9 +112,6 @@ type
     function GetTileDate: TDateTime;
     function GetTileVersionInfo: WideString;
     function GetTileContentType: WideString;
-    { IBinaryData }
-    function IBinaryData.GetBuffer = GetTileBody;
-    function IBinaryData.GetSize = GetTileSize;
   public
     constructor Create(
       const ATileBody: Pointer;
@@ -124,6 +125,7 @@ type
       const ASize: Integer;
       const AOwnMem: Boolean
     ); overload;
+    constructor Create(const AData: IBinaryData); overload;
     destructor Destroy; override;
   end;
 
@@ -275,6 +277,7 @@ constructor TBerkeleyDBValue.Create(
 begin
   inherited Create;
   FValue := nil;
+  FBinData := nil;
   TileToValue(
     ATileBody,
     ATileSize,
@@ -293,7 +296,17 @@ constructor TBerkeleyDBValue.Create(
 begin
   inherited Create;
   FValue := nil;
+  FBinData := nil;
   Assign(AData, ASize, AOwnMem);
+end;
+
+constructor TBerkeleyDBValue.Create(
+  const AData: IBinaryData
+);
+begin
+  inherited Create;
+  Assign(AData.Buffer, AData.Size, False);
+  FBinData := AData;
 end;
 
 destructor TBerkeleyDBValue.Destroy;
@@ -301,6 +314,7 @@ begin
   if Assigned(FValue) then begin
     Dispose(FValue);
   end;
+  FBinData := nil;
   inherited Destroy;
 end;
 

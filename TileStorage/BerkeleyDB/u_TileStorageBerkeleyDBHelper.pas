@@ -24,31 +24,25 @@ interface
 
 uses
   Types,
-  Classes,
-  SyncObjs,
+  Classes,  
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_BinaryData,
+  i_BerkeleyDBKeyValue,
+  i_BerkeleyDBFactory,
   i_GlobalBerkeleyDBHelper,
-  u_BerkeleyDB,
-  u_BerkeleyDBEnv,
-  u_BerkeleyDBPool;
+  i_BerkeleyDB,
+  i_BerkeleyDBEnv,
+  i_BerkeleyDBPool;
 
 type
   TPointArray = array of TPoint;
 
   TTileStorageBerkeleyDBHelper = class(TObject)
   private
-    FEnv: TBerkeleyDBEnv;
-    FPool: TBerkeleyDBPool;
+    FPool: IBerkeleyDBPool;
+    FEnvironment: IBerkeleyDBEnvironment;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FStorageRootPath: string;
-    FStorageEPSG: Integer;
-    FEvent: TEvent;
-
-    function OnBDBObjCreate(const AFileName: string): TBerkeleyDB;
-    procedure OnBDBFileCreate(Sender: TObject);
-    procedure CreateEnvironment(const APath: string);
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -56,13 +50,10 @@ type
       const AStorageEPSG: Integer
     );
     destructor Destroy; override;
-
-    procedure ChangeRootPath(const AStorageNewRootPath: string);
-
     function CreateDirIfNotExists(APath: string): Boolean;
 
     function SaveTile(
-      const ADataBase: string;
+      const ADatabaseFileName: string;
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const ATileDate: TDateTime;
@@ -72,14 +63,14 @@ type
     ): Boolean;
 
     function DeleteTile(
-      const ADataBase: string;
+      const ADatabaseFileName: string;
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean;
 
     function LoadTile(
-      const ADataBase: string;
+      const ADatabaseFileName: string;
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
@@ -90,24 +81,24 @@ type
     ): Boolean;
 
     function TileExists(
-      const ADataBase: string;
+      const ADatabaseFileName: string;
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean;
 
     function IsTNEFound(
-      const ADataBase: string;
+      const ADatabaseFileName: string;
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       out ATileDate: TDateTime
     ): Boolean;
 
-    procedure Sync(Sender: TObject);
+    procedure Sync;
 
     function GetTileExistsArray(
-      const ADataBase: string;
+      const ADatabaseFileName: string;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       out ATileExistsArray: TPointArray
@@ -119,13 +110,15 @@ implementation
 uses
   Windows,
   SysUtils,
-  i_BerkeleyDBKeyValue,
   u_BerkeleyDBKey,
-  u_BerkeleyDBValue;
+  u_BerkeleyDBValue,
+  u_BerkeleyDBPool,
+  u_BerkeleyDBFactory,
+  u_BinaryDataByBerkeleyDBValue;
 
 const
-  CPageSize = 1024; // 1k
-  CCacheSize = BDB_DEF_CACHE_SIZE; //256k
+  cBerkeleyDBPoolSize = 32;
+  cBerkeleyDBUnusedPoolObjectsTTL = 60000; // 60 sec
 
 { TTileStorageBerkeleyDBHelper }
 
@@ -134,96 +127,41 @@ constructor TTileStorageBerkeleyDBHelper.Create(
   const AStorageRootPath: string;
   const AStorageEPSG: Integer
 );
+var
+  VMetaKey: IBinaryData;
+  VMetaValue: IBinaryData;
+  VDatabaseFactory: IBerkeleyDBFactory;
 begin
   inherited Create;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
-  FStorageRootPath := AStorageRootPath;
-  FStorageEPSG := AStorageEPSG;
-  FEvent := TEvent.Create;
-  FEvent.SetEvent;
 
-  CreateEnvironment(AStorageRootPath);
+  FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(AStorageRootPath);
+
+  VMetaKey := TBerkeleyDBKey.Create(Point(cBerkeleyDBMetaKeyX, cBerkeleyDBMetaKeyY));
+  VMetaValue := TBerkeleyDBMetaValue.Create(AStorageEPSG);
+
+  VDatabaseFactory := TBerkeleyDBFactory.Create(
+    FGlobalBerkeleyDBHelper,
+    FEnvironment,
+    VMetaKey,
+    VMetaValue
+  );
+
+  FPool := TBerkeleyDBPool.Create(
+    FGlobalBerkeleyDBHelper,
+    VDatabaseFactory,
+    cBerkeleyDBPoolSize,
+    cBerkeleyDBUnusedPoolObjectsTTL
+  );
 end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
-  FGlobalBerkeleyDBHelper.FreeEnvironment(@FEnv);
-  FEnv := nil;
-  FEvent.Free;
+  FGlobalBerkeleyDBHelper.FreeEnvironment(FEnvironment);
+  FPool := nil;
+  FEnvironment := nil;
+  FGlobalBerkeleyDBHelper := nil;
   inherited Destroy;
-end;
-
-procedure TTileStorageBerkeleyDBHelper.CreateEnvironment(const APath: string);
-begin
-  FEnv := TBerkeleyDBEnv(FGlobalBerkeleyDBHelper.AllocateEnvironment(APath)^);
-  if Assigned(FEnv) then begin
-    FPool := FEnv.Pool;
-    FPool.OnObjCreate := Self.OnBDBObjCreate;
-  end else begin
-    FGlobalBerkeleyDBHelper.RaiseException(
-      'Error [BerkeleyDB]: Can''t allocate environment: ' + AnsiString(APath)
-    );
-  end;
-end;
-
-procedure TTileStorageBerkeleyDBHelper.ChangeRootPath(
-  const AStorageNewRootPath: string
-);
-begin
-  if FStorageRootPath <> AStorageNewRootPath then begin
-    FEvent.ResetEvent;
-    try
-      if Assigned(FEnv) then begin
-        FGlobalBerkeleyDBHelper.FreeEnvironment(@FEnv);
-        FEnv := nil;
-      end;
-      FStorageRootPath := AStorageNewRootPath;
-      CreateEnvironment(AStorageNewRootPath);
-    finally
-      FEvent.SetEvent;
-    end;
-  end;
-end;
-
-function TTileStorageBerkeleyDBHelper.OnBDBObjCreate(
-  const AFileName: string
-): TBerkeleyDB;
-var
-  VDatabase: TBerkeleyDB;
-begin
-  try
-    VDatabase := TBerkeleyDB.Create(FGlobalBerkeleyDBHelper);
-    VDatabase.OnCreate := Self.OnBDBFileCreate;
-    VDatabase.OnCheckPoint := FEnv.CheckPoint;
-
-    if VDatabase.Open(FEnv.EnvPtr, AFileName, CPageSize, CCacheSize) then begin
-      Result := VDatabase;
-    end else begin
-      Result := nil;
-      FGlobalBerkeleyDBHelper.RaiseException(
-        'Error [BerkeleyDB]: Can''t open file: ' + AnsiString(AFileName)
-      );
-    end;
-  except
-    FreeAndNil(VDatabase);
-    raise;
-  end;
-end;
-
-procedure TTileStorageBerkeleyDBHelper.OnBDBFileCreate(Sender: TObject);
-var
-  VKey: IBerkeleyDBKey;
-  VMetaValue: IBerkeleyDBMetaValue;
-  VDatabase: TBerkeleyDB;
-begin
-  if Sender is TBerkeleyDB then begin
-    VDatabase := Sender as TBerkeleyDB;
-    if Assigned(VDatabase) then begin
-      VKey := TBerkeleyDBKey.Create(Point(cBerkeleyDBMetaKeyX, cBerkeleyDBMetaKeyY));
-      VMetaValue := TBerkeleyDBMetaValue.Create(FStorageEPSG);
-      VDatabase.Write(VKey.Data, VKey.Size, VMetaValue.Data, VMetaValue.Size);
-    end;
-  end;
 end;
 
 function TTileStorageBerkeleyDBHelper.CreateDirIfNotExists(APath: string): Boolean;
@@ -239,7 +177,7 @@ begin
 end;
 
 function TTileStorageBerkeleyDBHelper.SaveTile(
-  const ADataBase: string;
+  const ADatabaseFileName: string;
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const ATileDate: TDateTime;
@@ -248,59 +186,50 @@ function TTileStorageBerkeleyDBHelper.SaveTile(
   const AData: IBinaryData
 ): Boolean;
 var
-  VKey: IBerkeleyDBKey;
-  VValue: IBerkeleyDBValue;
-  VDatabase: TBerkeleyDB;
+  VKey: IBinaryData;
+  VValue: IBinaryData;
+  VDatabase: IBerkeleyDB;
   VTile: Pointer;
   VSize: Integer;
 begin
-  Result := False;
-  FEvent.WaitFor(INFINITE);
-  VDatabase := FPool.Acquire(ADataBase);
+  VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    if Assigned(VDatabase) then begin
-      if Assigned(AData) then begin
-        VTile := AData.Buffer;
-        VSize := AData.Size;
-      end else begin
-        VTile := nil;
-        VSize := 0;
-      end;
-      VKey := TBerkeleyDBKey.Create(ATileXY);
-      VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, AVersionInfo, ATileContetType);
-      Result := VDatabase.Write(VKey.Data, VKey.Size, VValue.Data, VValue.Size);
+    if Assigned(AData) then begin
+      VTile := AData.Buffer;
+      VSize := AData.Size;
+    end else begin
+      VTile := nil;
+      VSize := 0;
     end;
+    VKey := TBerkeleyDBKey.Create(ATileXY);
+    VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, AVersionInfo, ATileContetType);
+    Result := VDatabase.Write(VKey, VValue);
   finally
     FPool.Release(VDatabase);
   end;
 end;
 
 function TTileStorageBerkeleyDBHelper.DeleteTile(
-  const ADataBase: string;
+  const ADatabaseFileName: string;
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
-  VKey: IBerkeleyDBKey;
-  VBDB: TBerkeleyDB;
+  VKey: IBinaryData;
+  VDatabase: IBerkeleyDB;
 begin
-  Result := False;
-  FEvent.WaitFor(INFINITE);
-  VBDB := FPool.Acquire(ADataBase);
+  VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    if Assigned(VBDB) then begin
-      VKey := TBerkeleyDBKey.Create(ATileXY);
-      // TODO: Del tile with ATileVersion
-      Result := VBDB.Del(VKey.Data, VKey.Size);
-    end;
+    VKey := TBerkeleyDBKey.Create(ATileXY);
+    Result := VDatabase.Del(VKey);
   finally
-    FPool.Release(VBDB);
+    FPool.Release(VDatabase);
   end;
 end;
 
 function TTileStorageBerkeleyDBHelper.LoadTile(
-  const ADataBase: string;
+  const ADatabaseFileName: string;
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
@@ -310,30 +239,24 @@ function TTileStorageBerkeleyDBHelper.LoadTile(
   out ATileDate: TDateTime
 ): Boolean;
 var
-  VKey: IBerkeleyDBKey;
+  VKey: IBinaryData;
+  VBinValue: IBinaryData;
   VValue: IBerkeleyDBValue;
-  VDatabase: TBerkeleyDB;
-  VRawData: Pointer;
-  VRawDataSize: Cardinal;
+  VDatabase: IBerkeleyDB;
 begin
   Result := False;
-  FEvent.WaitFor(INFINITE);
-  VDatabase := FPool.Acquire(ADataBase);
+  VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    if Assigned(VDatabase) then begin
-      VKey := TBerkeleyDBKey.Create(ATileXY);
-      // TODO: Load tile with ATileVersion
-      if VDatabase.Read(VKey.Data, VKey.Size, VRawData, VRawDataSize) then begin
-        if (VRawData <> nil) and (VRawDataSize > 0) then begin
-          VValue := TBerkeleyDBValue.Create(VRawData, VRawDataSize, True);
-          if (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
-            ATileBinaryData := VValue as IBinaryData;
-            ATileVersion := VValue.TileVersionInfo;
-            ATileContentType := VValue.TileContentType;
-            ATileDate := VValue.TileDate;
-            Result := True;
-          end;
-        end;
+    VKey := TBerkeleyDBKey.Create(ATileXY);
+    VBinValue := VDatabase.Read(VKey);
+    if Assigned(VBinValue) then begin
+      VValue := TBerkeleyDBValue.Create(VBinValue);
+      if (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
+        ATileBinaryData := TBinaryDataByBerkeleyDBValue.Create(VValue);
+        ATileVersion := VValue.TileVersionInfo;
+        ATileContentType := VValue.TileContentType;
+        ATileDate := VValue.TileDate;
+        Result := True;
       end;
     end;
   finally
@@ -342,122 +265,104 @@ begin
 end;
 
 function TTileStorageBerkeleyDBHelper.TileExists(
-  const ADataBase: string;
+  const ADatabaseFileName: string;
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
-  VKey: IBerkeleyDBKey;
-  VBDB: TBerkeleyDB;
+  VKey: IBinaryData;
+  VDatabase: IBerkeleyDB;
 begin
-  Result := False;
-  FEvent.WaitFor(INFINITE);
-  VBDB := FPool.Acquire(ADataBase);
+  VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    if Assigned(VBDB) then begin
-      VKey := TBerkeleyDBKey.Create(ATileXY);
-      // TODO: Exists tile with ATileVersion
-      Result := VBDB.Exists(VKey.Data, VKey.Size);
-    end;
+    VKey := TBerkeleyDBKey.Create(ATileXY);
+    Result := VDatabase.Exists(VKey);
   finally
-    FPool.Release(VBDB);
+    FPool.Release(VDatabase);
   end;
 end;
 
 function TTileStorageBerkeleyDBHelper.IsTNEFound(
-  const ADataBase: string;
+  const ADatabaseFileName: string;
   const ATileXY: TPoint;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   out ATileDate: TDateTime
 ): Boolean;
 var
-  VKey: IBerkeleyDBKey;
+  VKey: IBinaryData;
+  VBinValue: IBinaryData;
   VValue: IBerkeleyDBValue;
-  VDatabase: TBerkeleyDB;
-  VRawData: Pointer;
-  VRawDataSize: Cardinal;
+  VDatabase: IBerkeleyDB;
 begin
   Result := False;
-  FEvent.WaitFor(INFINITE);
-  VDatabase := FPool.Acquire(ADataBase);
+  VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    if Assigned(VDatabase) then begin
-      VKey := TBerkeleyDBKey.Create(ATileXY);
-      // TODO: Load tile with ATileVersion
-      if VDatabase.Read(VKey.Data, VKey.Size, VRawData, VRawDataSize) then begin
-        if (VRawData <> nil) and (VRawDataSize > 0) then begin
-          VValue := TBerkeleyDBValue.Create(VRawData, VRawDataSize, True);
-          ATileDate := VValue.TileDate;
-          Result := True;
-        end;
-      end;
+    VKey := TBerkeleyDBKey.Create(ATileXY);
+    VBinValue := VDatabase.Read(VKey);
+    if Assigned(VBinValue) then begin
+      VValue := TBerkeleyDBValue.Create(VBinValue);
+      ATileDate := VValue.TileDate;
+      Result := True;
     end;
   finally
     FPool.Release(VDatabase);
   end;
 end;
 
-procedure TTileStorageBerkeleyDBHelper.Sync(Sender: TObject);
+procedure TTileStorageBerkeleyDBHelper.Sync;
 begin
-  FEvent.WaitFor(INFINITE);
-  if Assigned(FEnv) then begin
-    if Assigned(FPool) then begin
-      FPool.Sync();
-    end;
-    FEnv.CheckPoint(nil);
+  if Assigned(FPool) then begin
+    FPool.Sync;
+  end;
+  if Assigned(FEnvironment) then begin
+    FEnvironment.TransactionCheckPoint;
+    FEnvironment.RemoveUnUsedLogs;
   end;
 end;
 
 function TTileStorageBerkeleyDBHelper.GetTileExistsArray(
-  const ADataBase: string;
+  const ADatabaseFileName: string;
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   out ATileExistsArray: TPointArray
 ): Boolean;
 var
   VKey: IBerkeleyDBKey;
-  VKeySize: Integer;
+  VBinKey: IBinaryData;
   VPoint: TPoint;
   VValidKeyCount: Integer;
-  VBDB: TBerkeleyDB;
-  VList: TList;
+  VDatabase: IBerkeleyDB;
+  VList: IInterfaceList;
   I: Integer;
 begin
   Result := False;
-  FEvent.WaitFor(INFINITE);
-  VBDB := FPool.Acquire(ADataBase);
+  VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    if Assigned(VBDB) then begin
-      VList := TList.Create;
-      try
-        VKey := TBerkeleyDBKey.Create(Point(0, 0));
-        VKeySize := VKey.Size;
-        if VBDB.GetKeyExistsList(VKeySize, VList) then begin
-          SetLength(ATileExistsArray, VList.Count);
-          VValidKeyCount := 0;
-          for I := 0 to VList.Count - 1 do begin
-            VKey.Assign(VList.Items[I], VKeySize, True);
-            VPoint := VKey.Point;
-            if
-              (Cardinal(VPoint.X) <> cBerkeleyDBMetaKeyX) and
-              (Cardinal(VPoint.Y) <> cBerkeleyDBMetaKeyY)
-            then begin
-              ATileExistsArray[VValidKeyCount] := VPoint;
-              Inc(VValidKeyCount);
-            end;
-          end;
-          SetLength(ATileExistsArray, VValidKeyCount);
-          Result := VValidKeyCount > 0;
+    VList := VDatabase.ExistsList;
+    if Assigned(VList) then begin
+      SetLength(ATileExistsArray, VList.Count);
+      VValidKeyCount := 0;
+      VKey := TBerkeleyDBKey.Create(Point(0, 0));
+      for I := 0 to VList.Count - 1 do begin
+        VBinKey := VList.Items[I] as IBinaryData;
+        VKey.Assign(VBinKey.Buffer, VBinKey.Size, False);
+        VPoint := VKey.Point;
+        if
+          (Cardinal(VPoint.X) <> cBerkeleyDBMetaKeyX) and
+          (Cardinal(VPoint.Y) <> cBerkeleyDBMetaKeyY)
+        then begin
+          ATileExistsArray[VValidKeyCount] := VPoint;
+          Inc(VValidKeyCount);
         end;
-      finally
-        VList.Free;
       end;
+      SetLength(ATileExistsArray, VValidKeyCount);
+      Result := VValidKeyCount > 0;
     end;
   finally
-    FPool.Release(VBDB);
-  end; 
+    FPool.Release(VDatabase);
+  end;
 end;
 
 end.

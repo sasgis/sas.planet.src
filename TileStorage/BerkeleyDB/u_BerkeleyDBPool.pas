@@ -27,66 +27,82 @@ uses
   Classes,
   SysUtils,
   SyncObjs,
+  i_BerkeleyDBFactory,
   i_GlobalBerkeleyDBHelper,
-  u_BerkeleyDB;
+  i_BerkeleyDB,
+  i_BerkeleyDBPool,
+  u_BaseInterfacedObject;
 
 type
-  PBDBPoolRec = ^TBDBPoolRec;
-  TBDBPoolRec = record
-    Obj: TBerkeleyDB;
-    AcquireTime: Cardinal;
-    ReleaseTime: Cardinal;
-    ActiveCount: Integer;
-  end;
-
-  TOnObjCreate = function(const AFileName: string): TBerkeleyDB of object;
-
-  TBerkeleyDBPool = class(TObject)
+  TBerkeleyDBPool = class(TBaseInterfacedObject, IBerkeleyDBPool)
   private
-    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+    type
+      TPoolRec = record
+        Database: IBerkeleyDB;
+        AcquireTime: Cardinal;
+        ReleaseTime: Cardinal;
+        ActiveCount: Integer;
+      end;
+      PPoolRec = ^TPoolRec;
+  private
+    FHelper: IGlobalBerkeleyDBHelper;
+    FDatabaseFactory: IBerkeleyDBFactory;
     FCS: TCriticalSection;
     FObjList: TList;
     FPoolSize: Integer;
+    FUnusedObjectTTL: Cardinal;
     FActive: Boolean;
     FUsageCount: Integer;
     FFinishEvent: TEvent;
-    FOnObjCreate: TOnObjCreate;
     FCrashList: TStringList;
-    function GetPoolSize: Integer;
-    procedure SetPoolSize(AValue: Integer);
     procedure Abort;
+  private
+    { IBerkeleyDBPool }
+    function Acquire(const ADatabaseFileName: string): IBerkeleyDB;
+    procedure Release(const ADatabase: IBerkeleyDB);
+    procedure Sync;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-      const APoolSize: Cardinal
+      const ADatabaseFactory: IBerkeleyDBFactory;
+      const APoolSize: Cardinal;
+      const AUnusedObjectTTL: Cardinal
     );
     destructor Destroy; override;
-    procedure Sync;
-    function Acquire(const AFileName: string): TBerkeleyDB;
-    procedure Release(AObj: TBerkeleyDB);
-    property Size: Integer read GetPoolSize write SetPoolSize;
-    property OnObjCreate: TOnObjCreate read FOnObjCreate write FOnObjCreate;
   end;
 
 implementation
+
+type
+  EBerkeleyDBPool = class(Exception);
+
+resourcestring
+  rsObjectNotInPool = 'Can''t release an object that is not in the pool!';
+  rsNoAvailableObjects = 'There are no available objects in the pool!';
+  rsCantAcquireDB = 'Can''t acquire db: %s';
+  rsPoolIsDesabled = 'Pool Disabled - Can''t acquire db: %s';
+  rsCantUseOldPoolRecord = 'Can''t use old pool record!';
 
 { TBerkeleyDBPool }
 
 constructor TBerkeleyDBPool.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-  const APoolSize: Cardinal
+  const ADatabaseFactory: IBerkeleyDBFactory;
+  const APoolSize: Cardinal;
+  const AUnusedObjectTTL: Cardinal
 );
 begin
   inherited Create;
-  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
+  FHelper := AGlobalBerkeleyDBHelper;
+  FDatabaseFactory := ADatabaseFactory;
   FCS := TCriticalSection.Create;
   FObjList := TList.Create;
   FCrashList := TStringList.Create;
   FCrashList.CaseSensitive := False;
   FFinishEvent := TEvent.Create;
   FPoolSize := APoolSize;
+  FUnusedObjectTTL := AUnusedObjectTTL;
   FUsageCount := 0;
-  FOnObjCreate := nil;
   FActive := True;
 end;
 
@@ -97,136 +113,155 @@ begin
   FCrashList.Free;
   FCS.Free;
   FreeAndNil(FFinishEvent);
-  inherited;
+  FDatabaseFactory := nil;
+  FHelper := nil;
+  inherited Destroy;
 end;
 
-procedure TBerkeleyDBPool.Release(AObj: TBerkeleyDB);
+procedure TBerkeleyDBPool.Release(const ADatabase: IBerkeleyDB);
 var
   I: Integer;
-  PRec: PBDBPoolRec;
+  PRec: PPoolRec;
   VFound: Boolean;
 begin
-  if Assigned(AObj) then begin
-    FCS.Acquire;
-    try
-      VFound := False;
-      for I := 0 to FObjList.Count - 1 do begin
-        PRec := FObjList.Items[I];
-        if PRec <> nil then begin
-          VFound := (PRec.Obj = AObj);
-          if VFound then begin
-            Dec(FUsageCount);
-            PRec.ReleaseTime := GetTickCount;
-            Dec(PRec.ActiveCount);
-            Break;
+  try
+    if Assigned(ADatabase) then begin
+      FCS.Acquire;
+      try
+        VFound := False;
+        for I := 0 to FObjList.Count - 1 do begin
+          PRec := FObjList.Items[I];
+          if PRec <> nil then begin
+            VFound := ((PRec.Database as IInterface) = (ADatabase as IInterface));
+            if VFound then begin
+              Dec(FUsageCount);
+              PRec.ReleaseTime := GetTickCount;
+              Dec(PRec.ActiveCount);
+              Break;
+            end;
           end;
         end;
+        if not VFound then begin
+          raise EBerkeleyDBPool.Create(rsObjectNotInPool);
+        end;
+        if not FActive and (FUsageCount <= 0) then begin
+          FFinishEvent.SetEvent;
+        end;
+      finally
+        FCS.Release;
       end;
-      if not VFound then begin
-        FGlobalBerkeleyDBHelper.RaiseException(
-          'Error [BerkeleyDB Pool]: Can''t release an object that is not in the pool!'
-        );
-      end;
-      if not FActive and (FUsageCount <= 0) then begin
-        FFinishEvent.SetEvent;
+    end;
+  except
+    on E: Exception do
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+  end;
+end;
+
+function TBerkeleyDBPool.Acquire(const ADatabaseFileName: string): IBerkeleyDB;
+var
+  I: Integer;
+  PRec: PPoolRec;
+  VFound: Boolean;
+  VRecIndex: Integer;
+  VRecIndexOldest: Integer;
+  VReleaseOldest: Cardinal;
+begin
+  try
+    Result := nil;
+    FCS.Acquire;
+    try
+      if FActive then begin
+        if not FCrashList.Find(ADatabaseFileName, I) then begin
+          VRecIndexOldest := -1;
+          VReleaseOldest := $FFFFFFFF;
+          VFound := False;
+          // Ищем среди открытых
+          for I := 0 to FObjList.Count - 1 do begin
+            PRec := FObjList.Items[I];
+            if PRec <> nil then begin
+              VFound := (PRec.Database.FileName = ADatabaseFileName);
+              if VFound then begin
+                PRec.AcquireTime := GetTickCount;
+                Inc(PRec.ActiveCount);
+                Result := PRec.Database;
+                Break;
+              end else if PRec.ActiveCount <= 0 then begin
+                // попутно находим наистарейшую неиспользующуюся БД
+                if PRec.ReleaseTime < VReleaseOldest then begin
+                  VReleaseOldest := PRec.ReleaseTime;
+                  VRecIndexOldest := I;
+                end;
+              end;
+            end;
+          end;
+          // Среди открытых не нашли
+          if not VFound then begin
+             if FObjList.Count < FPoolSize then begin
+              New(PRec); // если не достигли пределов пула, создаём новую запись
+              VRecIndex := FObjList.Add(PRec);
+            end else if VRecIndexOldest <> -1 then begin
+              // иначе, используем старую
+              PRec := FObjList.Items[VRecIndexOldest];
+              if (PRec <> nil) and (PRec.ActiveCount <= 0) then begin
+                VRecIndex := VRecIndexOldest;
+                PRec.Database := nil;
+              end else begin
+                raise EBerkeleyDBPool.Create(rsCantUseOldPoolRecord);
+              end;
+            end else begin
+              // fail - пул заполнен и нету неиспользующихся старых записей
+              raise EBerkeleyDBPool.Create(rsNoAvailableObjects);
+            end;
+            PRec := FObjList.Items[VRecIndex];
+            PRec.Database := FDatabaseFactory.CreateDatabase(ADatabaseFileName);
+            PRec.AcquireTime := GetTickCount;
+            PRec.ReleaseTime := 0;
+            PRec.ActiveCount := 1;               
+            Result := PRec.Database;
+          end;
+
+          if Result <> nil then begin
+            Inc(FUsageCount);
+          end else begin
+            raise EBerkeleyDBPool.CreateFmt(rsCantAcquireDB, [ADatabaseFileName]);
+          end;
+        end;
+      end else begin
+        raise EBerkeleyDBPool.CreateFmt(rsPoolIsDesabled, [ADatabaseFileName]);
       end;
     finally
       FCS.Release;
     end;
+  except
+    on E: Exception do begin
+      FCrashList.Add(ADatabaseFileName);
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+    end;
   end;
 end;
 
-function TBerkeleyDBPool.Acquire(const AFileName: string): TBerkeleyDB;
-
-  function CreateNewObj(): TBerkeleyDB;
-  var
-    PRec: PBDBPoolRec;
-    VObj: TBerkeleyDB;
-  begin
-    Result := nil;
-    if Addr(FOnObjCreate) <> nil then begin
-      VObj := FOnObjCreate(AFileName);
-    end else begin
-      VObj := TBerkeleyDB.Create(FGlobalBerkeleyDBHelper);
-    end;
-    if Assigned(VObj) then begin
-      New(PRec);
-      PRec.Obj := VObj;
-      PRec.AcquireTime := GetTickCount;
-      PRec.ReleaseTime := 0;
-      PRec.ActiveCount := 1;
-      FObjList.Add(PRec);
-      Result := VObj;
-    end;
-  end;
-
+procedure TBerkeleyDBPool.Sync;
 var
   I: Integer;
-  PRec: PBDBPoolRec;
-  VFound: Boolean;
-  VRecIndexOldest: Integer;
-  VReleaseOldest: Cardinal;
+  PRec: PPoolRec;
 begin
-  Result := nil;
   FCS.Acquire;
   try
-    if FActive then begin
-      if not FCrashList.Find(AFileName, I) then
-      try
-        VRecIndexOldest := -1;
-        VReleaseOldest := $FFFFFFFF;
-        VFound := False;
-        // Ищем среди открытых
-        for I := 0 to FObjList.Count - 1 do begin
-          PRec := FObjList.Items[I];
-          if PRec <> nil then begin
-            VFound := (PRec.Obj.FileName = AFileName);
-            if VFound then begin
-              PRec.AcquireTime := GetTickCount;
-              Inc(PRec.ActiveCount);
-              Result := PRec.Obj;
-              Break;
-            end else if PRec.ActiveCount <= 0 then begin
-              // попутно находим наистарейшую неиспользующуюся БД
-              if PRec.ReleaseTime < VReleaseOldest then begin
-                VReleaseOldest := PRec.ReleaseTime;
-                VRecIndexOldest := I;
-              end;
-            end;
-          end;
-        end;
-        // Среди открытых не нашли
-        if not VFound then begin
-          if FObjList.Count < FPoolSize then begin
-            // если не достигли пределов пула, создаём новый объект
-            Result := CreateNewObj();
-          end else if VRecIndexOldest <> -1 then begin
-            // иначе, пытаемся закрыть старую неиспользующуюся БД
-            PRec := FObjList.Items[VRecIndexOldest];
-            if (PRec <> nil) and (PRec.ActiveCount <= 0) then begin
-              FreeAndNil(PRec.Obj);
-              Dispose(PRec);
-              FObjList.Delete(VRecIndexOldest);
-              FObjList.Pack;
-              Result := CreateNewObj();
-            end;
+    try
+      for I := 0 to FObjList.Count - 1 do begin
+        PRec := FObjList.Items[i];
+        if (PRec <> nil) then begin
+          if (PRec.ActiveCount <= 0) and ((GetTickCount - PRec.ReleaseTime) > FUnusedObjectTTL) then begin
+            PRec.Database := nil;
+            Dispose(PRec);
+            FObjList.Items[i] := nil;
           end else begin
-            FGlobalBerkeleyDBHelper.RaiseException(
-              'Error [BerkeleyDB Pool]: There are no available objects in the pool!'
-            );
+            PRec.Database.Sync;
           end;
         end;
-        if Result <> nil then begin
-          Inc(FUsageCount);
-        end else begin
-          FGlobalBerkeleyDBHelper.RaiseException(
-            'Error [BerkeleyDB Pool]: Can''t acquire db: ' + AnsiString(AFileName)
-          );
-        end;
-      except
-        FCrashList.Add(AFileName);
-        raise;
       end;
+    finally
+      FObjList.Pack;
     end;
   finally
     FCS.Release;
@@ -236,7 +271,7 @@ end;
 procedure TBerkeleyDBPool.Abort;
 var
   I: Integer;
-  PRec: PBDBPoolRec;
+  PRec: PPoolRec;
 begin
   FCS.Acquire;
   try
@@ -255,71 +290,11 @@ begin
     for I := 0 to FObjList.Count - 1 do begin
       PRec := FObjList.Items[i];
       if PRec <> nil then begin
-        if Assigned(PRec.Obj) then begin
-          FreeAndNil(PRec.Obj);
-        end;
+        PRec.Database := nil;
         Dispose(PRec);
       end;
     end;
     FObjList.Clear;
-  finally
-    FCS.Release;
-  end;
-end;
-
-procedure TBerkeleyDBPool.Sync;
-const
-  CMaxReleaseTimeToCloseByTTL = 30000; // 30 sec
-var
-  I: Integer;
-  PRec: PBDBPoolRec;
-begin
-  FCS.Acquire;
-  try
-    try
-      for I := 0 to FObjList.Count - 1 do begin
-        PRec := FObjList.Items[i];
-        if (PRec <> nil) and Assigned(PRec.Obj) then begin
-          if (PRec.ActiveCount <= 0) then begin
-            if GetTickCount - PRec.ReleaseTime > CMaxReleaseTimeToCloseByTTL then begin
-              FreeAndNil(PRec.Obj);
-              Dispose(PRec);
-              FObjList.Items[i] := nil;
-            end else begin
-              PRec.Obj.Sync;
-            end;
-          end;
-        end;
-      end;
-    finally
-      FObjList.Pack;
-    end;
-  finally
-    FCS.Release;
-  end;
-end;
-
-function TBerkeleyDBPool.GetPoolSize: Integer;
-begin
-  FCS.Acquire;
-  try
-    Result := FPoolSize;
-  finally
-    FCS.Release;
-  end;
-end;
-
-procedure TBerkeleyDBPool.SetPoolSize(AValue: Integer);
-begin
-  FCS.Acquire;
-  try
-    if AValue > FPoolSize then begin
-      FPoolSize := AValue;
-    end else begin
-      FGlobalBerkeleyDBHelper.RaiseException(
-        'Error [BerkeleyDB Pool]: Can''t decrease pool size!'
-      );
-    end;
   finally
     FCS.Release;
   end;

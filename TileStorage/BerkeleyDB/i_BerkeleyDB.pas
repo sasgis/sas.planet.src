@@ -18,19 +18,27 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_GlobalBerkeleyDBHelper;
+unit i_BerkeleyDB;
 
 interface
 
 uses
-  i_BerkeleyDBEnv;
+  Classes,
+  i_BinaryData;
 
 type
-  IGlobalBerkeleyDBHelper = interface
-    ['{01EDEF03-9DCE-42A9-AB26-40A6C1C7104D}']
-    function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
-    procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
-    procedure RaiseException(const EMsg: AnsiString);
+  IBerkeleyDB = interface
+    ['{7B7EFD37-ADAF-4A83-A3D8-CA3AAD6A300E}']
+    procedure Open(const ADatabaseFileName: string);
+    procedure Close;
+    function Read(const AKey: IBinaryData): IBinaryData;
+    function Write(const AKey, AValue: IBinaryData): Boolean;
+    function Exists(const AKey: IBinaryData): Boolean;
+    function ExistsList: IInterfaceList;
+    function Del(const AKey: IBinaryData): Boolean;
+    procedure Sync;
+    function GetFileName: string;
+    property FileName: string read GetFileName;
   end;
 
 implementation

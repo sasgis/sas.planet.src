@@ -25,461 +25,335 @@ interface
 uses
   Classes,
   SysUtils,
-  SyncObjs,
   libdb51,
-  i_GlobalBerkeleyDBHelper;
-
-const
-  BDB_MIN_PAGE_SIZE : Cardinal  = $200;  //512 b
-  BDB_MAX_PAGE_SIZE : Cardinal  = $10000;  //64 Kb
-
-  BDB_MIN_CACHE_SIZE : Cardinal = $5000;  //20k
-  BDB_MAX_CACHE_SIZE : Cardinal = $FFFFFFFF;  //4G for 32-bit OS
-
-  BDB_DEF_CACHE_SIZE = $40000; //256k
-  BDB_DEF_PAGE_SIZE  = 0;      //auto-selected based on the underlying
-                               //filesystem I/O block size (512b - 16k)
+  i_Notifier,
+  i_Listener,
+  i_BinaryData,
+  i_SimpleFlag,
+  i_BerkeleyDB,
+  i_BerkeleyDBEnv,
+  i_GlobalBerkeleyDBHelper,
+  u_BaseInterfacedObject;
 
 type
-  TBDBOnEvent = procedure(Sender: TObject) of object;
-
-  TBerkeleyDB = class(TObject)
+  TBerkeleyDB = class(TBaseInterfacedObject, IBerkeleyDB)
   private
-    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FDB: PDB;
-    FENV: PDB_ENV;
-    FTXN: PDB_TXN;
-    FTXNCommitCount: Integer;
-    FAppData: Pointer;
+    db: PDB;
+    dbenv: PDB_ENV;
+  private
+    FHelper: IGlobalBerkeleyDBHelper;
+    FEnvRootPath: string;
+    FPageSize: Cardinal;
     FFileName: string;
-    FDBEnabled: Boolean;
-    FSyncAllow: Boolean;
-    FOperationsCountToCheckPoint: Integer;
-    FCS: TCriticalSection;
-    FOnCreate: TBDBOnEvent;
-    FOnOpen: TBDBOnEvent;
-    FOnClose: TBDBOnEvent;
-    FOnCheckPoint: TBDBOnEvent;
-
-    function GetTransaction: PDB_TXN;
-    procedure CommitTransaction;
-  public
-    constructor Create(const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper);
-
-    destructor Destroy; override;
-
-    function Open(
-      AENV: PDB_ENV;
-      const AFileName: string;
-      APageSize: Cardinal = BDB_DEF_PAGE_SIZE;
-      AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
-      ADBType: DBTYPE = DB_BTREE
-    ): Boolean;
-
+    FSyncAllow: ISimpleFlag;
+    FOperationsCount: ICounter;
+    FLock: IReadWriteSync;
+    FSyncCallListener: IListener;
+    FSyncCallNotifier: INotifierInternal;
+    function IsNeedDoSync: Boolean;
+  private
+    { IBerkeleyDB }
+    procedure Open(const ADatabaseFileName: string);
     procedure Close;
-
-    function Write(
-      AKey: Pointer;
-      AKeySize: Cardinal;
-      AData: Pointer;
-      ADataSize: Cardinal
-    ): Boolean;
-
-    function Read(
-      AKey: Pointer;
-      AKeySize: Cardinal;
-      out AData: Pointer;
-      out ADataSize: Cardinal
-    ): Boolean;
-
-    function Exists(
-      AKey: Pointer;
-      AKeySize: Cardinal
-    ): Boolean;
-
-    function Del(
-      AKey: Pointer;
-      AKeySize: Cardinal
-    ): Boolean;
-
-    function Sync(): Boolean;
-
-    function GetKeyExistsList(
-      const AKeySize: Cardinal;
-      out AKeyList: TList
-    ): Boolean;
-
-    property FileName: string read FFileName write FFileName;
-    property AppData: Pointer read FAppData write FAppData;
-
-    property OnCreate: TBDBOnEvent read FOnCreate write FOnCreate;
-    property OnOpen: TBDBOnEvent read FOnOpen write FOnOpen;
-    property OnClose: TBDBOnEvent read FOnClose write FOnClose;
-    property OnCheckPoint: TBDBOnEvent read FOnCheckPoint write FOnCheckPoint;
+    function Read(const AKey: IBinaryData): IBinaryData;
+    function Write(const AKey, AValue: IBinaryData): Boolean;
+    function Exists(const AKey: IBinaryData): Boolean;
+    function ExistsList: IInterfaceList;
+    function Del(const AKey: IBinaryData): Boolean;
+    procedure Sync;
+    function GetFileName: string;
+  public
+    constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const AEnvironment: IBerkeleyDBEnvironment;
+      const ASyncCallListener: IListener;
+      const APageSize: Cardinal
+    );
+    destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  u_BerkeleyDBEnv;
+  u_Notifier,
+  u_BinaryData,
+  u_Synchronizer,
+  u_SimpleFlagWithInterlock;
+
+type
+  EBerkeleyDB = class(Exception);
 
 const
   cBerkeleyDBErrPfx = 'BerkeleyDB';
-  cMaxTxnCommitCount = 32;
-  cMaxOperationsCountToCheckPoint = 1024;
+  cMaxOperationsCountToSync = 1024;
 
 { TBerkeleyDB }
 
-constructor TBerkeleyDB.Create(const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper);
+constructor TBerkeleyDB.Create(
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const AEnvironment: IBerkeleyDBEnvironment;
+  const ASyncCallListener: IListener;
+  const APageSize: Cardinal
+);
 begin
   inherited Create;
-  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
-  FCS := TCriticalSection.Create;
-  FFileName := '';
-  FDB := nil;
-  FENV := nil;
-  FTXN := nil;
-  FTXNCommitCount := 0;
-  FAppData := nil;
-  FOnCreate := nil;
-  FOnOpen := nil;
-  FOnClose := nil;
-  FOnCheckPoint := nil;
-  FDBEnabled := False;
-  FSyncAllow := False;
-  FOperationsCountToCheckPoint := 0;
+  FHelper := AGlobalBerkeleyDBHelper;
+  FPageSize := APageSize;
+  db := nil;
+  dbenv := AEnvironment.dbenv;
+  FEnvRootPath := AEnvironment.RootPath;
+  FFileName := '';                      
+  FLock := MakeSyncRW_Std(Self, False);
+  FSyncAllow := TSimpleFlagWithInterlock.Create;
+  FOperationsCount := TCounterInterlock.Create;
+  FSyncCallListener := ASyncCallListener;
+  if Assigned(FSyncCallListener) then begin
+    FSyncCallNotifier := TNotifierBase.Create;
+    FSyncCallNotifier.Add(FSyncCallListener);
+  end;
 end;
 
 destructor TBerkeleyDB.Destroy;
 begin
-  Close;
-  FCS.Free;
-  inherited Destroy;
+  try
+    Sync;
+    Close;
+  finally
+    if Assigned(FSyncCallNotifier) then begin
+      FSyncCallNotifier.Remove(FSyncCallListener);
+      FSyncCallListener := nil;
+      FSyncCallNotifier := nil;
+    end;
+    FLock := nil;
+    FHelper := nil;
+    inherited Destroy;
+  end;
 end;
 
-function TBerkeleyDB.Open(
-  AENV: PDB_ENV;
-  const AFileName: string;
-  APageSize: Cardinal = BDB_DEF_PAGE_SIZE;
-  AMemCacheSize: Cardinal = BDB_DEF_CACHE_SIZE;
-  ADBType: DBTYPE = DB_BTREE
-): Boolean;
-
-  function TryOpen(AFileExists: Boolean): Boolean;
-  var
-    VEnvHome: string;
-    VEnvHomePtr: PAnsiChar;
-    VRelativeFileName: AnsiString;
-  begin
-    if FENV = nil then begin
-      FGlobalBerkeleyDBHelper.RaiseException(cBerkeleyDBErrPfx + ': Environment not assigned.');
-    end;
-
-    VEnvHomePtr := '';
-    CheckBDB((FENV.get_home(FENV, @VEnvHomePtr)));
-    VEnvHome := StringReplace(
-      VEnvHomePtr,
-      IncludeTrailingPathDelimiter(CEnvSubDir),
-      '',
-      [rfIgnoreCase]
-    );
-    VRelativeFileName := StringReplace(FFileName, VEnvHome, '', [rfIgnoreCase]);
-
-    CheckBDB(db_create(FDB, FENV, 0));
-    try
-      FDB.set_errpfx(FDB, cBerkeleyDBErrPfx);
-
-      if not AFileExists then begin
-        CheckBDB(FDB.set_pagesize(FDB, APageSize));
-      end;
-
-      CheckBDB(
-        FDB.open(
-          FDB,
-          nil,
-          Pointer(AnsiToUtf8(VRelativeFileName)),
-          '',
-          ADBType,
-          DB_CREATE_ or
-          DB_AUTO_COMMIT or
-          DB_THREAD,
-          0
-        )
-      );
-
-      Result := True;
-    except
-      FDB.close(FDB, 0);
-      FDB := nil;
-      raise;
-    end;             
-  end;
-
+procedure TBerkeleyDB.Open(const ADatabaseFileName: string);
 var
-  VOnCreateAllow: Boolean;
-  VOnOpenAllow: Boolean;
-  VFileExists: Boolean;
+  VErrorMsg: string;
+  VRelativeFileName: AnsiString;
 begin
-  Result := False;
-  VOnCreateAllow := False;
-  VOnOpenAllow := False;
-  FCS.Acquire;
+  FLock.BeginWrite;
   try
-    if (FDB <> nil) then begin
-      if (FFileName <> '') and (AFileName = FFileName) then begin
-        Result := FDBEnabled;
+    if db = nil then
+    try
+      FFileName := ADatabaseFileName;
+      VRelativeFileName :=
+        StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]);
+      CheckBDB(db_create(db, dbenv, 0));
+      db.set_errpfx(db, cBerkeleyDBErrPfx);
+      if not FileExists(FFileName) then begin
+        CheckBDB(db.set_pagesize(db, FPageSize));
       end;
-    end else begin
-      FDB := nil;
-      FENV := AENV;
-      FFileName := AFileName;
-      FDBEnabled := False;
-      VFileExists := FileExists(FFileName);
-      Result := TryOpen(VFileExists);
-      FDBEnabled := Result;
-      VOnCreateAllow := not VFileExists;
-      VOnOpenAllow := Result;
+      CheckBDB(db.open(db, nil, Pointer(AnsiToUtf8(VRelativeFileName)), '',
+        DB_BTREE, (DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD), 0));
+    except
+      on E: Exception do begin
+        VErrorMsg := '';
+        if db <> nil then
+        try
+          CheckBDBandNil(db.close(db, 0), db);
+        except
+          on EClose: Exception do
+            VErrorMsg := EClose.ClassName + ': ' + EClose.Message + #13#10;
+        end;
+        VErrorMsg := VErrorMsg + E.ClassName + ': ' + E.Message;
+        FHelper.RaiseException(VErrorMsg);
+      end;
     end;
   finally
-    FCS.Release;
-  end;
-  if VOnCreateAllow and (Addr(FOnCreate) <> nil) then begin
-    FOnCreate(Self);
-  end;
-  if VOnOpenAllow and (Addr(FOnOpen) <> nil) then begin
-    FOnOpen(Self);
+    FLock.EndWrite;
   end;
 end;
 
 procedure TBerkeleyDB.Close;
-var
-  VOnCloseAllow: Boolean;
 begin
-  VOnCloseAllow := False;
-  FCS.Acquire;
   try
-    if Assigned(FDB) then begin
-      VOnCloseAllow := True;
-      CommitTransaction;
-      CheckBDBandNil(FDB.close(FDB, 0), FDB);
+    FLock.BeginWrite;
+    try
+      CheckBDBandNil(db.close(db, 0), db);
+    finally
+      FLock.EndWrite;
     end;
-  finally
-    FCS.Release;
-  end;
-  if VOnCloseAllow and (Addr(FOnClose) <> nil) then begin
-    FOnClose(Self);
-  end;
+  except
+    on E: Exception do
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+  end;  
 end;
 
-function TBerkeleyDB.GetTransaction: PDB_TXN;
-begin
-  if FTXNCommitCount > cMaxTxnCommitCount then begin
-    CommitTransaction;
-  end;
-  if FTXN = nil then begin
-    (*
-       Отключено до победы над эксепшеном при построении карты заполнения или
-       конвертировании кэша
-
-       Exception class EBerkeleyDBExeption with message
-       'BerkeleyDB: Lock table is out of available object entries'.
-
-       CheckBDB(FENV.txn_begin(FENV, nil, @FTXN, 0));
-    *)
-  end;
-  Inc(FTXNCommitCount);
-  Result := FTXN;
-end;
-
-procedure TBerkeleyDB.CommitTransaction;
-begin
-  if FTXN <> nil then begin
-    CheckBDB(FTXN.commit(FTXN, 0));
-    FTXNCommitCount := 0;
-    FTXN := nil;
-  end;
-end;
-
-function TBerkeleyDB.Read(
-  AKey: Pointer;
-  AKeySize: Cardinal;
-  out AData: Pointer;
-  out ADataSize: Cardinal
-): Boolean;
+function TBerkeleyDB.Read(const AKey: IBinaryData): IBinaryData;
 var
   dbtKey, dbtData: DBT;
-  txn: PDB_TXN;
+  VFound: Boolean;
 begin
-  FCS.Acquire;
   try
-    Result := False;
-    if FDBEnabled then begin
-      FillChar(dbtKey, Sizeof(DBT), 0);
-      FillChar(dbtData, Sizeof(DBT), 0);
-      dbtKey.data := AKey;
-      dbtKey.size := AKeySize;
-      dbtData.flags := DB_DBT_MALLOC;
-      txn := GetTransaction;
-      Result := CheckAndFoundBDB(FDB.get(FDB, txn, @dbtKey, @dbtData, 0));
-      if Result and (dbtData.data <> nil) and (dbtData.size > 0) then begin
-        AData := dbtData.data;
-        ADataSize := dbtData.size;
-        dbtData.data := nil;
-        dbtData.size := 0;
-      end;
+    FillChar(dbtKey, Sizeof(DBT), 0);
+    FillChar(dbtData, Sizeof(DBT), 0);
+
+    dbtKey.data := AKey.Buffer;
+    dbtKey.size := AKey.Size;
+
+    dbtData.flags := DB_DBT_MALLOC; // -> память должен освобождать юзер
+
+    FLock.BeginWrite;
+    try
+      VFound := CheckAndFoundBDB(db.get(db, nil, @dbtKey, @dbtData, 0));
+    finally
+      FLock.EndWrite;
     end;
-  finally
-    FCS.Release;
+
+    if VFound then begin
+      if (dbtData.data <> nil) and (dbtData.size > 0) then begin
+        Result := TBinaryData.Create(dbtData.size, dbtData.data, True);
+      end else begin
+        raise EBerkeleyDB.Create('Value not assigned!');
+      end;
+    end else begin
+      Result := nil;
+    end;
+  except
+    on E: Exception do
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
-function TBerkeleyDB.Write(
-  AKey: Pointer;
-  AKeySize: Cardinal;
-  AData: Pointer;
-  ADataSize: Cardinal
-): Boolean;
+function TBerkeleyDB.Write(const AKey, AValue: IBinaryData): Boolean;
 var
   dbtKey, dbtData: DBT;
-  txn: PDB_TXN;
-  VOnCheckPointAllow: Boolean;
 begin
-  VOnCheckPointAllow := False;
-  FCS.Acquire;
+  Result := False;
   try
-    Result := False;
-    if FDBEnabled then begin
-      FSyncAllow := True;
-      FillChar(dbtKey, Sizeof(DBT), 0);
-      FillChar(dbtData, Sizeof(DBT), 0);
-      dbtKey.data := AKey;
-      dbtKey.size := AKeySize;
-      dbtData.data := AData;
-      dbtData.size := ADataSize;
-      txn := GetTransaction;
-      Result := CheckAndNotExistsBDB(FDB.put(FDB, txn, @dbtKey, @dbtData, 0));
-      if Result then begin
-        Inc(FOperationsCountToCheckPoint);
-        VOnCheckPointAllow := FOperationsCountToCheckPoint >= cMaxOperationsCountToCheckPoint;
-        if VOnCheckPointAllow then begin
-          FOperationsCountToCheckPoint := 0;
-        end;
-      end;
+    FillChar(dbtKey, Sizeof(DBT), 0);
+    FillChar(dbtData, Sizeof(DBT), 0);
+
+    dbtKey.data := AKey.Buffer;
+    dbtKey.size := AKey.Size;
+
+    dbtData.data := AValue.Buffer;
+    dbtData.size := AValue.Size;
+
+    FLock.BeginWrite;
+    try
+      Result := CheckAndNotExistsBDB(db.put(db, nil, @dbtKey, @dbtData, 0));
+    finally
+      FLock.EndWrite;
     end;
-  finally
-    FCS.Release;
-  end;
-  if VOnCheckPointAllow and (Addr(FOnCheckPoint) <> nil) then begin
-    FOnCheckPoint(Self);
+
+    if Result then begin
+      if IsNeedDoSync then begin
+        Sync;
+      end;
+    end else begin
+      // key exists
+    end;
+  except
+    on E: Exception do
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
-function TBerkeleyDB.Exists(
-  AKey: Pointer;
-  AKeySize: Cardinal
-): Boolean;
+function TBerkeleyDB.Exists(const AKey: IBinaryData): Boolean;
 var
   dbtKey: DBT;
-  txn: PDB_TXN;
 begin
-  FCS.Acquire;
+  Result := False;
   try
-    Result := False;
-    if FDBEnabled then begin
-      FillChar(dbtKey, Sizeof(DBT), 0);
-      dbtKey.data := AKey;
-      dbtKey.size := AKeySize;
-      txn := GetTransaction;
-      Result := CheckAndFoundBDB(FDB.exists(FDB, txn, @dbtKey, 0));
+    FillChar(dbtKey, Sizeof(DBT), 0);
+
+    dbtKey.data := AKey.Buffer;
+    dbtKey.size := AKey.Size;
+
+    FLock.BeginWrite;
+    try
+      Result := CheckAndFoundBDB(db.exists(db, nil, @dbtKey, 0));
+    finally
+      FLock.EndWrite;
     end;
-  finally
-    FCS.Release;
+  except
+    on E: Exception do
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
-function TBerkeleyDB.Del(
-  AKey: Pointer;
-  AKeySize: Cardinal
-): Boolean;
+function TBerkeleyDB.Del(const AKey: IBinaryData): Boolean;
 var
   dbtKey: DBT;
-  txn: PDB_TXN;
-  VOnCheckPointAllow: Boolean;
 begin
-  VOnCheckPointAllow := False;
-  FCS.Acquire;
+  Result := False;
   try
-    Result := False;
-    if FDBEnabled then begin
-      FillChar(dbtKey, Sizeof(DBT), 0);
-      dbtKey.data := AKey;
-      dbtKey.size := AKeySize;
-      txn := GetTransaction;
-      Result := CheckAndFoundBDB(FDB.del(FDB, txn, @dbtKey, 0));
-      if Result then begin
-        Inc(FOperationsCountToCheckPoint);
-        VOnCheckPointAllow := FOperationsCountToCheckPoint >= cMaxOperationsCountToCheckPoint;
-        if VOnCheckPointAllow then begin
-          FOperationsCountToCheckPoint := 0;
-        end;
+    FillChar(dbtKey, Sizeof(DBT), 0);
+
+    dbtKey.data := AKey.Buffer;
+    dbtKey.size := AKey.Size;
+
+    FLock.BeginWrite;
+    try
+      Result := CheckAndFoundBDB(db.del(db, nil, @dbtKey, 0));
+    finally
+      FLock.EndWrite;
+    end;
+
+    if Result then begin
+      if IsNeedDoSync then begin
+        Sync;
       end;
+    end else begin
+      // key not found
     end;
-  finally
-    FCS.Release;
-  end;
-  if VOnCheckPointAllow and (Addr(FOnCheckPoint) <> nil) then begin
-    FOnCheckPoint(Self);
+  except
+    on E: Exception do
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
-function TBerkeleyDB.Sync(): Boolean;
+procedure TBerkeleyDB.Sync;
 begin
-  FCS.Acquire;
   try
-    Result := False;
-    if FDBEnabled and FSyncAllow then begin
-      FSyncAllow := False;
-      CommitTransaction;
-      CheckBDB(FDB.sync(FDB, 0));
-      Result := True; 
-    end;
-  finally
-    FCS.Release;
+    if FSyncAllow.CheckFlagAndReset then begin
+      FLock.BeginWrite;
+      try
+        CheckBDB(db.sync(db, 0));
+      finally
+        FLock.EndWrite;
+      end;
+      if Assigned(FSyncCallNotifier) then begin
+        FSyncCallNotifier.Notify(nil);
+      end;
+    end
+  except
+    on E: Exception do
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
-function TBerkeleyDB.GetKeyExistsList(
-  const AKeySize: Cardinal;
-  out AKeyList: TList
-): Boolean;
+function TBerkeleyDB.ExistsList: IInterfaceList;
 var
   dbtKey, dbtData: DBT;
-  txn: PDB_TXN;
   dbc: PDBC;
+  VKey: IBinaryData;
 begin
-  FCS.Acquire;
   try
-    Result := False;
-    AKeyList.Clear;
-    if FDBEnabled then begin
-      txn := GetTransaction;
-      CheckBDB(FDB.cursor(FDB, txn, @dbc, 0));
+    Result := TInterfaceList.Create;
+    FLock.BeginWrite;
+    try
+      CheckBDB(db.cursor(db, nil, @dbc, 0));
       try
         repeat
           FillChar(dbtKey, Sizeof(DBT), 0);
           FillChar(dbtData, Sizeof(DBT), 0);
 
-          dbtKey.flags := DB_DBT_MALLOC;
+          dbtKey.flags := DB_DBT_MALLOC;   // -> память должен освобождать юзер
 
           dbtData.dlen := 0;
           dbtData.doff := 0;
-          dbtData.flags := DB_DBT_PARTIAL;
+          dbtData.flags := DB_DBT_PARTIAL; // -> не считывать value
 
           if CheckAndFoundBDB(dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT)) then begin
-            if (dbtKey.data <> nil) and (dbtKey.size = AKeySize) then begin
-              AKeyList.Add(dbtKey.data);
-            end else begin
-              Break;
+            if (dbtKey.data <> nil) and (dbtKey.size > 0) then begin
+              VKey := TBinaryData.Create(dbtKey.size, dbtKey.data, True);
+              Result.Add(VKey);
             end;
           end else begin
             Break;
@@ -488,10 +362,29 @@ begin
       finally
         CheckBDBandNil(dbc.close(dbc), dbc);
       end;
-      Result := AKeyList.Count > 0;
+    finally
+      FLock.EndWrite;
     end;
-  finally
-    FCS.Release;
+  except
+    on E: Exception do
+      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+  end;
+end;
+
+function TBerkeleyDB.GetFileName: string;
+begin
+  Result := FFileName;
+end;
+
+function TBerkeleyDB.IsNeedDoSync: Boolean;
+var
+  VCount: Integer;
+begin
+  FSyncAllow.SetFlag;
+  VCount := FOperationsCount.Inc;
+  Result := (VCount >= cMaxOperationsCountToSync);
+  if Result then begin
+    FOperationsCount.Reset;
   end;
 end;
 

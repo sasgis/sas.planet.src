@@ -16,6 +16,7 @@ type
     function Dec: Integer;
     function GetValue: Integer;
     function CheckEqual(AValue: Integer): Boolean;
+    procedure Reset;
   end;
 
 implementation
