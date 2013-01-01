@@ -153,44 +153,31 @@ function TThreadExportToOgf2.GetMapPreview(
   out AMapPreviewHeight: Integer
 ): IBinaryData;
 var
-  VBitmap: TCustomBitmap32;
   VBitmapStatic: IBitmap32Static;
 begin
-  VBitmap := TCustomBitmap32.Create;
-  try
-    //TODO: generate some preview and make it sizeble
-
-    AMapPreviewWidth := 256;
-    AMapPreviewHeight := 256;
-
-    VBitmap.SetSize(AMapPreviewWidth, AMapPreviewHeight);
-    VBitmap.Clear(cBackGroundColor);
-
-    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-    VBitmap := nil;
-    Result := ABitmapSaver.Save(VBitmapStatic);
-  finally
-    VBitmap.Free;
-  end;
+  AMapPreviewWidth := 256;
+  AMapPreviewHeight := 256;
+  VBitmapStatic :=
+    FBitmapFactory.BuildEmptyClear(
+      Point(AMapPreviewWidth, AMapPreviewHeight),
+      cBackGroundColor
+    );
+  //TODO: generate some preview and make it sizeble
+  Result := ABitmapSaver.Save(VBitmapStatic);
 end;
 
 function TThreadExportToOgf2.GetEmptyTile(
   const ABitmapSaver: IBitmapTileSaver
 ): IBinaryData;
 var
-  VBitmap: TCustomBitmap32;
   VBitmapStatic: IBitmap32Static;
 begin
-  VBitmap := TCustomBitmap32.Create;
-  try
-    VBitmap.SetSize(FOgf2TileWidth, FOgf2TileHeight);
-    VBitmap.Clear(cBackGroundColor);
-    VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-    VBitmap := nil;
-    Result := ABitmapSaver.Save(VBitmapStatic);
-  finally
-    VBitmap.Free;
-  end;
+  VBitmapStatic :=
+    FBitmapFactory.BuildEmptyClear(
+      Point(FOgf2TileWidth, FOgf2TileHeight),
+      cBackGroundColor
+    );
+  Result := ABitmapSaver.Save(VBitmapStatic);
 end;
 
 procedure TThreadExportToOgf2.ProcessRegion;
