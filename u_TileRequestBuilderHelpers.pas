@@ -22,7 +22,11 @@ unit u_TileRequestBuilderHelpers;
 
 interface
 
-function Rand(X: Integer): Integer;
+function RandomInt(const X: Integer): Integer;
+function MaxInt(const A, B: Integer): Integer;
+function MaxExt(const A, B: Extended): Extended;
+function MinInt(const A, B: Integer): Integer;
+function MinExt(const A, B: Extended): Extended;
 function GetUnixTime: Int64;
 function StrLength (const Str: AnsiString): Integer;
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
@@ -40,12 +44,33 @@ implementation
 uses
   SysUtils,
   Classes,
+  Math,
   DateUtils,
   RegExpr;
 
-function Rand(X: Integer): Integer;
+function RandomInt(const X: Integer): Integer;
 begin
   Result := Random(X);
+end;
+
+function MaxInt(const A, B: Integer): Integer;
+begin
+  Result := Max(A, B);
+end;
+
+function MaxExt(const A, B: Extended): Extended;
+begin
+  Result := Max(A, B);
+end;
+
+function MinInt(const A, B: Integer): Integer;
+begin
+  Result := Min(A, B);
+end;
+
+function MinExt(const A, B: Extended): Extended;
+begin
+  Result := Min(A, B);
 end;
 
 function GetUnixTime: Int64;
@@ -53,7 +78,7 @@ begin
   Result := DateTimeToUnix(now);
 end;
 
-function StrLength (const Str: AnsiString): Integer;
+function StrLength(const Str: AnsiString): Integer;
 begin
   Result := Length(Str);
 end;
