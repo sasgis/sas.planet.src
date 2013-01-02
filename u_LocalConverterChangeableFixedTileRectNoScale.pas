@@ -41,7 +41,6 @@ implementation
 
 uses
   Types,
-  t_GeoTypes,
   i_CoordConverter,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,

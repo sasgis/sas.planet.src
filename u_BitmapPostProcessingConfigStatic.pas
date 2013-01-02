@@ -52,11 +52,6 @@ type
 
 implementation
 
-uses
-  GR32_Filters,
-  u_BitmapFunc,
-  u_Bitmap32Static;
-
 { TBitmapPostProcessingSimple }
 
 function TBitmapPostProcessingSimple.Process(

@@ -212,7 +212,6 @@ uses
   c_ZeroGUID,
   i_BinaryData,
   i_StringListStatic,
-  u_Bitmap32Static,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   u_BinaryDataListStatic,

@@ -28,9 +28,7 @@ uses
   GR32,
   GR32_Layers,
   i_NotifierOperation,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
-  i_ViewPortState,
   i_SimpleFlag,
   i_InternalPerformanceCounter,
   u_WindowLayerBasic;
@@ -197,7 +195,6 @@ type
 implementation
 
 uses
-  u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent;
 

@@ -127,7 +127,6 @@ uses
   SysUtils,
   GR32,
   FreeBitmap,
-  u_Bitmap32Static,
   u_BinaryDataByMemStream;
 
 type

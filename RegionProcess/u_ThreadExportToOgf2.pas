@@ -80,7 +80,6 @@ uses
   i_Bitmap32Static,
   i_TileIterator,
   i_VectorItemProjected,
-  u_Bitmap32Static,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
   u_BitmapFunc,

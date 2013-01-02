@@ -65,7 +65,6 @@ uses
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_MarkerDrawableByBitmap32Static,
-  u_Bitmap32Static,
   u_Synchronizer,
   u_GeoFun;
 

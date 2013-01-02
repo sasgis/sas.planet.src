@@ -91,7 +91,6 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_LocalCoordConverter,
-  u_Bitmap32Static,
   u_BitmapFunc,
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer;

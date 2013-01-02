@@ -63,7 +63,6 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   u_SimpleFlagWithInterlock,
-  u_Bitmap32Static,
   u_GeoFun,
   u_Synchronizer;
 

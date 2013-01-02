@@ -24,7 +24,6 @@ uses
   SysUtils,
   GR32,
   i_Bitmap32Static,
-  u_Bitmap32Static,
   u_BitmapMarker,
   u_GeoFun;
 

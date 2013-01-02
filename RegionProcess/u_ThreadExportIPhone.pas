@@ -94,7 +94,6 @@ uses
   u_ResStrings,
   i_VectorItemProjected,
   i_TileIterator,
-  u_Bitmap32Static,
   u_BitmapFunc,
   u_TileIteratorByPolygon,
   u_BitmapLayerProviderMapWithLayer;

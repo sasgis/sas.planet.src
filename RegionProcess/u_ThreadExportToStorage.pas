@@ -66,7 +66,6 @@ uses
   i_VectorItemProjected,
   i_CoordConverter,
   i_MapVersionInfo,
-  i_BinaryData,
   i_TileIterator,
   u_TileStorageDBMS,
   u_TileIteratorByPolygon;

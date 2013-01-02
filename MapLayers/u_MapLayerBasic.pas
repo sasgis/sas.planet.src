@@ -9,7 +9,6 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
-  i_ViewPortState,
   i_InternalPerformanceCounter,
   u_WindowLayerWithPos;
 
