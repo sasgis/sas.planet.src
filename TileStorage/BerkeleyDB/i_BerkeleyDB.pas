@@ -36,7 +36,7 @@ type
     function Exists(const AKey: IBinaryData): Boolean;
     function ExistsList: IInterfaceList;
     function Del(const AKey: IBinaryData): Boolean;
-    procedure Sync;
+    procedure Sync(const ASyncWithNotifier: Boolean);
     function GetFileName: string;
     property FileName: string read GetFileName;
   end;

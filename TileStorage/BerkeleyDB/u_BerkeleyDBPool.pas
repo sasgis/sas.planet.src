@@ -256,7 +256,7 @@ begin
             Dispose(PRec);
             FObjList.Items[i] := nil;
           end else begin
-            PRec.Database.Sync;
+            PRec.Database.Sync(False);
           end;
         end;
       end;

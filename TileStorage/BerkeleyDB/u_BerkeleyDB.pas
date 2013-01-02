@@ -60,7 +60,7 @@ type
     function Exists(const AKey: IBinaryData): Boolean;
     function ExistsList: IInterfaceList;
     function Del(const AKey: IBinaryData): Boolean;
-    procedure Sync;
+    procedure Sync(const ASyncWithNotifier: Boolean);
     function GetFileName: string;
   public
     constructor Create(
@@ -116,7 +116,7 @@ end;
 destructor TBerkeleyDB.Destroy;
 begin
   try
-    Sync;
+    Sync(False);
     Close;
   finally
     if Assigned(FSyncCallNotifier) then begin
@@ -243,7 +243,7 @@ begin
 
     if Result then begin
       if IsNeedDoSync then begin
-        Sync;
+        Sync(True);
       end;
     end else begin
       // key exists
@@ -297,7 +297,7 @@ begin
 
     if Result then begin
       if IsNeedDoSync then begin
-        Sync;
+        Sync(True);
       end;
     end else begin
       // key not found
@@ -308,7 +308,7 @@ begin
   end;
 end;
 
-procedure TBerkeleyDB.Sync;
+procedure TBerkeleyDB.Sync(const ASyncWithNotifier: Boolean);
 begin
   try
     if FSyncAllow.CheckFlagAndReset then begin
@@ -318,7 +318,7 @@ begin
       finally
         FLock.EndWrite;
       end;
-      if Assigned(FSyncCallNotifier) then begin
+      if ASyncWithNotifier and Assigned(FSyncCallNotifier) then begin
         FSyncCallNotifier.Notify(nil);
       end;
     end

@@ -24,7 +24,8 @@ interface
 
 uses
   Types,
-  Classes,  
+  Classes,
+  i_Listener,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_BinaryData,
@@ -43,6 +44,7 @@ type
     FPool: IBerkeleyDBPool;
     FEnvironment: IBerkeleyDBEnvironment;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+    FSyncCallListener: IListener;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -110,6 +112,7 @@ implementation
 uses
   Windows,
   SysUtils,
+  u_ListenerByEvent,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
   u_BerkeleyDBPool,
@@ -140,9 +143,12 @@ begin
   VMetaKey := TBerkeleyDBKey.Create(Point(cBerkeleyDBMetaKeyX, cBerkeleyDBMetaKeyY));
   VMetaValue := TBerkeleyDBMetaValue.Create(AStorageEPSG);
 
+  FSyncCallListener := TNotifyNoMmgEventListener.Create(Self.Sync);
+
   VDatabaseFactory := TBerkeleyDBFactory.Create(
     FGlobalBerkeleyDBHelper,
     FEnvironment,
+    FSyncCallListener,
     VMetaKey,
     VMetaValue
   );
@@ -157,6 +163,7 @@ end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
+  FSyncCallListener := nil;
   FGlobalBerkeleyDBHelper.FreeEnvironment(FEnvironment);
   FPool := nil;
   FEnvironment := nil;

@@ -132,8 +132,7 @@ var
   VPath: AnsiString;
 begin
   if not FActive and FLibInitOk then begin
-    CheckBDB(db_env_create(dbenv, 0));
-
+    CheckBDB(db_env_create(dbenv, 0)); 
     dbenv.app_private := FAppPrivate;
     dbenv.set_errpfx(dbenv, CBerkeleyDBEnvErrPfx);
     dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
@@ -141,16 +140,15 @@ begin
     CheckBDB(dbenv.set_flags(dbenv, DB_TXN_NOSYNC, 1));
     CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 1));
     CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_RECOVERY, 1));
+    CheckBDB(dbenv.set_data_dir(dbenv, '..'));
+    CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
 
     VPath := FAppPrivate.EnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
     I := LastDelimiter(PathDelim, VPath);
     VPath := copy(VPath, 1, I);
-    CheckBDB(dbenv.set_data_dir(dbenv, '..'));
-
     if not DirectoryExists(VPath) then begin
       ForceDirectories(VPath);
     end;
-    CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
 
     CheckBDB(
       dbenv.open(
@@ -199,8 +197,8 @@ end;
 
 procedure TBerkeleyDBEnv.Sync;
 begin
+  TransactionCheckPoint;
   RemoveUnUsedLogs;
-  //TransactionCheckPoint;
 end;
 
 function TBerkeleyDBEnv.GetEnvironmentPointerForApi: Pointer;

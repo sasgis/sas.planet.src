@@ -5,6 +5,7 @@ interface
 uses
   Types,
   SysUtils,
+  i_Listener,
   i_BinaryData,
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
@@ -18,6 +19,7 @@ type
   private
     FHelper: IGlobalBerkeleyDBHelper;
     FEnvironment: IBerkeleyDBEnvironment;
+    FSyncCallListener: IListener;
     FMetaKey: IBinaryData;
     FMetaValue: IBinaryData;
   private
@@ -27,6 +29,7 @@ type
     constructor Create(
       const AHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
+      const ASyncCallListener: IListener;
       const AMetaKey: IBinaryData;
       const AMetaValue: IBinaryData
     );
@@ -46,6 +49,7 @@ const
 constructor TBerkeleyDBFactory.Create(
   const AHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
+  const ASyncCallListener: IListener;
   const AMetaKey: IBinaryData;
   const AMetaValue: IBinaryData
 );
@@ -55,6 +59,7 @@ begin
   inherited Create;
   FHelper := AHelper;
   FEnvironment := AEnvironment;
+  FSyncCallListener := ASyncCallListener;
   FMetaKey := AMetaKey;
   FMetaValue := AMetaValue;
 end;
@@ -75,7 +80,7 @@ begin
   VDatabase := TBerkeleyDB.Create(
     FHelper,
     FEnvironment,
-    FEnvironment.SyncCallListener,
+    FSyncCallListener,
     cBerkeleyDBPageSize
   );
   VDatabase.Open(ADatabaseFileName);
