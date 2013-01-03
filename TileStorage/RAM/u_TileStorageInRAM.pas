@@ -36,9 +36,6 @@ uses
   i_MapVersionConfig,
   i_NotifierTTLCheck,
   i_ListenerTTLCheck,
-  i_TileFileNameGenerator,
-  i_GlobalBerkeleyDBHelper,
-  u_TileStorageBerkeleyDBHelper,
   u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 
@@ -113,21 +110,13 @@ type
 implementation
 
 uses
-  WideStrings,
   t_CommonTypes,
   i_TileIterator,
-  i_FileNameIterator,
-  i_TileFileNameParser,
   u_ListenerTTLCheck,
   u_TileRectInfoShort,
-  u_TileFileNameBerkeleyDB,
   u_TileIteratorByRect,
   u_TileStorageTypeAbilities,
-  u_FileNameIteratorFolderWithSubfolders,
-  u_FoldersIteratorRecursiveByLevels,
-  u_FileNameIteratorInFolderByMaskList,
-  u_TileInfoBasic,
-  u_EnumTileInfoByBerkeleyDB;
+  u_TileInfoBasic;
 
 const
   cStorageMemCacheCapacity = 100;

@@ -148,7 +148,7 @@ begin
         if CBCacheType.ItemIndex in [5,6] then begin
           // BDB and DBMS
           FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex + 1;
-        end else if CBCacheType.ItemIndex = 7 then begin
+        end else if CBCacheType.ItemIndex in [7] then begin
           // RAM
           FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex + 2;
         end else begin
@@ -190,7 +190,7 @@ begin
     if FMapType.Zmp.StorageConfig.CacheTypeCode in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS] then begin
       // BDB and DBMS
       CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 1;
-    end else if FMapType.Zmp.StorageConfig.CacheTypeCode = c_File_Cache_Id_RAM then begin
+    end else if FMapType.Zmp.StorageConfig.CacheTypeCode in [c_File_Cache_Id_RAM] then begin
       // RAM
       CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 2;
     end else begin
