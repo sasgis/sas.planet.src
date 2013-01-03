@@ -14,7 +14,7 @@ const
   c_File_Cache_Id_BDB = 6;
   c_File_Cache_Id_DBMS = 7;
   c_File_Cache_Id_GC = 8;  // GeoCacher.LOCAL direct access
-
+  c_File_Cache_Id_RAM = 9; // only in-memory cache    
 
   c_File_Cache_Default_GMV  = 'cache_old';     // for 1
   c_File_Cache_Default_SAS  = 'cache';         // for 2
@@ -24,6 +24,8 @@ const
   c_File_Cache_Default_BDB  = 'cache_db';      // for 6
   c_File_Cache_Default_DBMS = 'SASGIS_DBMS\$'; // for 7
   c_File_Cache_Default_GC   = 'cache_GC';      // for 8
+  c_File_Cache_Default_RAM  = '';              // for 9
+
 implementation
 
 end.

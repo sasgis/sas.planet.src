@@ -441,16 +441,19 @@ begin
   end;
 
  if CBCacheType.ItemIndex >= 0 then begin
-  if CBCacheType.ItemIndex + 2 in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS] then begin
-    // BDB or DBMS
-    GState.CacheConfig.DefCache := CBCacheType.ItemIndex + 2;
-  end else begin
-    // other starting items
-    GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
-  end;
+   if CBCacheType.ItemIndex + 3 in [c_File_Cache_Id_RAM] then begin
+     // RAM
+     GState.CacheConfig.DefCache := CBCacheType.ItemIndex + 3;
+   end else if CBCacheType.ItemIndex + 2 in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS] then begin
+     // BDB or DBMS
+     GState.CacheConfig.DefCache := CBCacheType.ItemIndex + 2;
+   end else begin
+     // other starting items
+     GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
+   end;
  end else begin
-  // no selection
-  GState.CacheConfig.DefCache := 2;
+   // no selection
+   GState.CacheConfig.DefCache := 2;
  end;
  
   GState.ValueToStringConverterConfig.LockWrite;
@@ -758,16 +761,19 @@ begin
     GState.MainFormConfig.MainConfig.UnlockRead;
   end;
 
- if GState.CacheConfig.DefCache in [c_File_Cache_Id_BDB, c_File_Cache_Id_DBMS] then begin
-   // BDB  or DBMS by default
-   CBCacheType.ItemIndex := GState.CacheConfig.DefCache-2;
- end else if GState.CacheConfig.DefCache > 4 then begin
-   // no GE and GC by default
-   CBCacheType.ItemIndex := 1;
- end else begin
-   // starting items
-   CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
- end;
+  if GState.CacheConfig.DefCache in [c_File_Cache_Id_RAM] then begin
+    // RAM
+    CBCacheType.ItemIndex := GState.CacheConfig.DefCache - 3;
+  end else if GState.CacheConfig.DefCache in [c_File_Cache_Id_BDB, c_File_Cache_Id_DBMS] then begin
+    // BDB or DBMS by default
+    CBCacheType.ItemIndex := GState.CacheConfig.DefCache - 2;
+  end else if GState.CacheConfig.DefCache > 4 then begin
+    // no GE and GC by default
+    CBCacheType.ItemIndex := 1;
+  end else begin
+    // starting items
+    CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
+  end;
 
  OldCPath.text:=GState.CacheConfig.OldCPath.Path;
  NewCpath.text:=GState.CacheConfig.NewCpath.Path;

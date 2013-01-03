@@ -143,7 +143,8 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         'EarthSlicer 1.95'
         'GlobalMapper Tiles'
         'BerkeleyDB'
-        'DBMS')
+        'DBMS'
+        'RAM')
     end
     object btnResetCacheType: TButton
       AlignWithMargins = True

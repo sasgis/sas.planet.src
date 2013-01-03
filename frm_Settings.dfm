@@ -635,7 +635,8 @@ object frmSettings: TfrmSettings
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
             'BerkeleyDB'
-            'DBMS')
+            'DBMS'
+            'RAM')
           ExplicitLeft = 329
           ExplicitTop = 192
           ExplicitWidth = 145

@@ -703,6 +703,7 @@
     <DCCReference Include="TileStorage\i_TileStorageTypeConfig.pas" />
     <DCCReference Include="TileStorage\i_TileStorageTypeList.pas" />
     <DCCReference Include="TileStorage\i_TileStorageTypeListItem.pas" />
+    <DCCReference Include="TileStorage\RAM\u_TileStorageInRAM.pas" />
     <DCCReference Include="TileStorage\u_GlobalCacheConfig.pas" />
     <DCCReference Include="TileStorage\u_TileFileNameGeneratorsSimpleList.pas" />
     <DCCReference Include="TileStorage\u_TileFileNameParsersSimpleList.pas" />

@@ -162,6 +162,7 @@ uses
   u_TileStorageFileSystem,
   u_TileStorageGE,
   u_TileStorageDBMS,
+  u_TileStorageInRAM,
   u_MapVersionFactoryGE,
   u_MapVersionFactorySimpleString,
   u_Synchronizer;
@@ -336,6 +337,19 @@ begin
             VMapVersionFactory,
             VFileNameGenerator,
             VFileNameParser
+          );
+      end;
+    end else if ATypeCode = c_File_Cache_Id_RAM then begin
+      VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
+      if VMainContentType <> nil then begin
+        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
+        FStorage :=
+          TTileStorageInRAM.Create(
+            VCoordConverter,
+            FGCList,
+            FContentTypeManager,
+            VMapVersionFactory,
+            VMainContentType
           );
       end;
     end;
