@@ -57,7 +57,8 @@ type
 
     function Get(
       const AXY: TPoint;
-      const AZoom: Byte
+      const AZoom: Byte;
+      const AUpdateTTL: Boolean = True
     ): ITileInfoBasic;
 
     procedure Clear;
@@ -193,7 +194,8 @@ end;
 
 function TTileInfoBasicMemCache.Get(
   const AXY: TPoint;
-  const AZoom: Byte
+  const AZoom: Byte;
+  const AUpdateTTL: Boolean = True
 ): ITileInfoBasic;
 var
   I: Integer;
@@ -215,7 +217,9 @@ begin
           Dispose(VTile);
           FList.Delete(I);
         end else begin
-          VTile.TileTTL := GetTickCount + FTileInfoTTL;
+          if AUpdateTTL then begin
+            VTile.TileTTL := GetTickCount + FTileInfoTTL;
+          end;
           Result := VTile.TileInfoBasic;
         end;
         Break;
