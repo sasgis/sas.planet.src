@@ -35,6 +35,7 @@ uses
   i_ZmpInfoSet,
   i_NotifierTTLCheck,
   i_InetConfig,
+  i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
   i_GlobalDownloadConfig,
   i_ContentTypeManager,
@@ -101,6 +102,7 @@ type
       const AInetConfig: IInetConfig;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
@@ -225,6 +227,7 @@ procedure TMapTypesMainList.LoadMaps(
   const AInetConfig: IInetConfig;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
@@ -285,6 +288,7 @@ begin
           FTileGetPrevResamplerConfig,
           FTileReprojectResamplerConfig,
           FTileDownloadResamplerConfig,
+          ABitmapFactory,
           ADownloadConfig,
           ADownloaderThreadConfig,
           AContentTypeManager,

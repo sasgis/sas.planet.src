@@ -27,6 +27,7 @@ uses
   GR32,
   t_GeoTypes,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_FillingMapColorer,
   i_ThreadConfig,
   i_ContentTypeInfo,
@@ -96,6 +97,7 @@ type
     FResamplerConfigLoad: IImageResamplerConfig;
     FResamplerConfigGetPrev: IImageResamplerConfig;
     FResamplerConfigChangeProjection: IImageResamplerConfig;
+    FBitmapFactory: IBitmap32StaticFactory;
     FContentTypeManager: IContentTypeManager;
     FGlobalDownloadConfig: IGlobalDownloadConfig;
     FGUIConfig: IMapTypeGUIConfig;
@@ -242,6 +244,7 @@ type
       const AResamplerConfigGetPrev: IImageResamplerConfig;
       const AResamplerConfigChangeProjection: IImageResamplerConfig;
       const AResamplerConfigDownload: IImageResamplerConfig;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
       const AContentTypeManager: IContentTypeManager;
@@ -279,6 +282,7 @@ uses
   u_MapTypeGUIConfig,
   u_MapVersionConfig,
   u_TileDownloadSubsystem,
+  u_Bitmap32ByStaticBitmap,
   u_GeoFun,
   u_BitmapFunc,
   u_TileStorageOfMapType,
@@ -316,6 +320,7 @@ constructor TMapType.Create(
   const AResamplerConfigGetPrev: IImageResamplerConfig;
   const AResamplerConfigChangeProjection: IImageResamplerConfig;
   const AResamplerConfigDownload: IImageResamplerConfig;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
   const AContentTypeManager: IContentTypeManager;
@@ -345,6 +350,7 @@ begin
   FResamplerConfigGetPrev := AResamplerConfigGetPrev;
   FResamplerConfigChangeProjection := AResamplerConfigChangeProjection;
   FGlobalDownloadConfig := ADownloadConfig;
+  FBitmapFactory := ABitmapFactory;
   FContentTypeManager := AContentTypeManager;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
@@ -428,6 +434,7 @@ begin
       FDownloadResultFactory,
       FZmp.TileDownloaderConfig,
       AResamplerConfigDownload,
+      ABitmapFactory,
       FVersionConfig,
       FTileDownloaderConfig,
       ADownloaderThreadConfig,
@@ -614,7 +621,7 @@ function TMapType.GetFillingMapBitmap(
   const AColorer: IFillingMapColorer
 ): IBitmap32Static;
 var
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
   VSize: TPoint;
   VTargetMapPixelRect: TDoubleRect;
   VSourceTileRect: TRect;
@@ -635,7 +642,7 @@ var
   VLocalPixelRectOfTile: TRect;
   VTileColor: TColor32;
 begin
-  VBitmap := TCustomBitmap32.Create;
+  VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
   try
     VSize := ALocalConverter.GetLocalRectSize;
     VBitmap.SetSize(VSize.X, VSize.Y);
@@ -688,8 +695,7 @@ begin
         end;
       end;
     end;
-    Result := TBitmap32Static.CreateWithOwn(VBitmap);
-    VBitmap := nil;
+    Result := VBitmap.BitmapStatic;
   finally
     VBitmap.Free;
   end;
@@ -720,7 +726,7 @@ var
   VVersionInfo: IMapVersionInfo;
   VRect: TRect;
   VSize: TPoint;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
   VResampler: TCustomResampler;
 begin
   try
@@ -744,7 +750,7 @@ begin
         (Result.Size.Y <> VSize.Y) then begin
         VResampler := FResamplerConfigLoad.GetActiveFactory.CreateResampler;
         try
-          VBitmap := TCustomBitmap32.Create;
+          VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
           try
             VBitmap.SetSize(VSize.X, VSize.Y);
             StretchTransferFull(
@@ -754,8 +760,7 @@ begin
               VResampler,
               dmOpaque
             );
-            Result := TBitmap32Static.CreateWithOwn(VBitmap);
-            VBitmap := nil;
+            Result := VBitmap.BitmapStatic;
           finally
             VBitmap.Free;
           end;
@@ -826,7 +831,7 @@ var
   VRelativeRect: TDoubleRect;
   VParentZoom: Byte;
   VMinZoom: Integer;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
   VResampler: TCustomResampler;
 begin
   Result := nil;
@@ -861,7 +866,7 @@ begin
         VResampler := FResamplerConfigGetPrev.GetActiveFactory.CreateResampler;
         try
           try
-            VBitmap := TCustomBitmap32.Create;
+            VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
             try
               VBitmap.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
               StretchTransfer(
@@ -872,8 +877,7 @@ begin
                 VResampler,
                 dmOpaque
               );
-              Result := TBitmap32Static.CreateWithOwn(VBitmap);
-              VBitmap := nil;
+              Result := VBitmap.BitmapStatic;
             finally
               VBitmap.Free;
             end;
@@ -924,7 +928,7 @@ var
   VSpr: IBitmap32Static;
   VSourceBounds: TRect;
   VTargetBounds: TRect;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
 begin
   Result := nil;
 
@@ -946,7 +950,7 @@ begin
       exit;
     end;
   end;
-  VBitmap := TCustomBitmap32.Create;
+  VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
   try
     VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
     VBitmap.Clear(0);
@@ -1022,8 +1026,7 @@ begin
         end;
       end;
     end;
-    Result := TBitmap32Static.CreateWithOwn(VBitmap);
-    VBitmap := nil;
+    Result := VBitmap.BitmapStatic;
   finally
     VBitmap.Free;
   end;
@@ -1045,7 +1048,7 @@ var
   VSpr: IBitmap32Static;
   VTargetImageSize: TPoint;
   VResampler: TCustomResampler;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
 begin
   Result := nil;
 
@@ -1070,7 +1073,7 @@ begin
     if VSpr <> nil then begin
       VResampler := FResamplerConfigChangeProjection.GetActiveFactory.CreateResampler;
       try
-        VBitmap := TCustomBitmap32.Create;
+        VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
         try
           VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
           VBitmap.Clear(0);
@@ -1081,8 +1084,7 @@ begin
             VResampler,
             dmOpaque
           );
-          Result := TBitmap32Static.CreateWithOwn(VBitmap);
-          VBitmap := nil;
+          Result := VBitmap.BitmapStatic;
         finally
           VBitmap.Free;
         end;

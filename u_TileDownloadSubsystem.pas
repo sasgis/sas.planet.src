@@ -33,6 +33,7 @@ uses
   i_MapAbilitiesConfig,
   i_ImageResamplerConfig,
   i_MapVersionConfig,
+  i_Bitmap32StaticFactory,
   i_InvisibleBrowser,
   i_ProjConverter,
   i_TileStorage,
@@ -91,6 +92,7 @@ type
       const ADownloadResultFactory: IDownloadResultFactory;
       const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
       const AImageResamplerConfig: IImageResamplerConfig;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AVersionConfig: IMapVersionConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const AThreadConfig: IThreadConfig;
@@ -150,6 +152,7 @@ constructor TTileDownloadSubsystem.Create(
   const ADownloadResultFactory: IDownloadResultFactory;
   const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
   const AImageResamplerConfig: IImageResamplerConfig;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AVersionConfig: IMapVersionConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const AThreadConfig: IThreadConfig;
@@ -222,6 +225,7 @@ begin
       TTileDownloadResultSaverStuped.Create(
         AGlobalDownloadConfig,
         AImageResamplerConfig,
+        ABitmapFactory,
         AContentTypeManager,
         AContentTypeSubst,
         ASaveContentType,
