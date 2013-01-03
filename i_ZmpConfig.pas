@@ -29,8 +29,24 @@ type
   IZmpConfig = interface(IConfigDataElement)
     ['{57185941-5902-4843-9E24-54CBEA4A67FD}']
     function GetMaxConnectToServerCount: Cardinal;
-    procedure SetMaxConnectToServerCount(AValue: Cardinal);
+    procedure SetMaxConnectToServerCount(const AValue: Cardinal);
     property MaxConnectToServerCount: Cardinal read GetMaxConnectToServerCount write SetMaxConnectToServerCount;
+
+    function GetUseMemCache: Boolean;
+    procedure SetUseMemCache(const AValue: Boolean);
+    property UseMemCache: Boolean read GetUseMemCache write SetUseMemCache;
+
+    function GetMemCacheCapacity: Integer;
+    procedure SetMemCacheCapacity(const AValue: Integer);
+    property MemCacheCapacity: Integer read GetMemCacheCapacity write SetMemCacheCapacity;
+
+    function GetMemCacheTTL: Cardinal;
+    procedure SetMemCacheTTL(const AValue: Cardinal);
+    property MemCacheTTL: Cardinal read GetMemCacheTTL write SetMemCacheTTL;
+
+    function GetMemCacheClearStrategy: Integer;
+    procedure SetMemCacheClearStrategy(const AValue: Integer);
+    property MemCacheClearStrategy: Integer read GetMemCacheClearStrategy write SetMemCacheClearStrategy;
   end;
 
 implementation
