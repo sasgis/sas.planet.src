@@ -32,6 +32,7 @@ type
   private
     FConfig: IMarksLayerConfig;
     FVectorItemsFactory: IVectorItemsFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FMarkDB: IMarksSystem;
     FMarkIconDefault: IMarkerDrawableChangeable;
 
@@ -140,6 +141,7 @@ begin
   FMarkDB := AMarkDB;
   FVectorItemsFactory := AVectorItemsFactory;
   FMarkIconDefault := AMarkIconDefault;
+  FBitmapFactory := ABitmapFactory;
 
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
@@ -211,6 +213,7 @@ begin
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
         FVectorItemsFactory,
+        FBitmapFactory,
         ALayerConverter.ProjectionInfo,
         FProjectedCache,
         VMarkerProvider,

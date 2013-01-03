@@ -283,6 +283,7 @@ begin
       AMarksDrawConfig,
       AMarksDB,
       ALocalConverterFactory,
+      ABitmapFactory,
       ABitmapPostProcessingConfig,
       AMapCalibrationList
     );

@@ -31,6 +31,7 @@ type
   private
     FConfig: IKmlLayerConfig;
     FVectorItemsFactory: IVectorItemsFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
 
@@ -163,6 +164,7 @@ begin
   );
   FConfig := AConfig;
   FVectorItemsFactory := AVectorItemsFactory;
+  FBitmapFactory := ABitmapFactory;
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
 
@@ -223,6 +225,7 @@ begin
       VConfig.ShadowColor,
       VConfig.PointColor,
       FVectorItemsFactory,
+      FBitmapFactory,
       ALayerConverter.ProjectionInfo,
       FProjectedCache,
       VLinesClipRect,

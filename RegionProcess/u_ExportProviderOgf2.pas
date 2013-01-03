@@ -107,6 +107,7 @@ begin
       FProjectionFactory,
       FVectorItemsFactory,
       FBitmapTileSaveLoadFactory,
+      FBitmapFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,

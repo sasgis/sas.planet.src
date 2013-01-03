@@ -7,6 +7,7 @@ uses
   SysUtils,
   i_NotifierTileRectUpdate,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_MapVersionConfig,
   i_BitmapTileSaveLoad,
   i_VectorDataItemSimple,
@@ -24,6 +25,7 @@ type
     FGeoConverter: ICoordConverter;
     FVersionConfig: IMapVersionConfig;
     FLoaderFromStorage: IBitmapTileLoader;
+    FBitmapFactory: IBitmap32StaticFactory;
     FStorage: ITileStorage;
     FIsIgnoreError: Boolean;
     FImageResamplerConfig: IImageResamplerConfig;
@@ -38,6 +40,7 @@ type
     constructor Create(
       const AIsIgnoreError: Boolean;
       const AImageResamplerConfig: IImageResamplerConfig;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IBitmapTileLoader;
       const AStorage: ITileStorage
@@ -75,6 +78,7 @@ uses
   GR32,
   i_TileInfoBasic,
   u_BitmapFunc,
+  u_Bitmap32ByStaticBitmap,
   u_Bitmap32Static;
 
 { TBitmapTileProviderByStorage }
@@ -82,6 +86,7 @@ uses
 constructor TBitmapTileProviderByStorage.Create(
   const AIsIgnoreError: Boolean;
   const AImageResamplerConfig: IImageResamplerConfig;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IBitmapTileLoader;
   const AStorage: ITileStorage
@@ -95,6 +100,7 @@ begin
   FIsIgnoreError := AIsIgnoreError;
   FImageResamplerConfig := AImageResamplerConfig;
   FStorage := AStorage;
+  FBitmapFactory := ABitmapFactory;
   FGeoConverter := FStorage.CoordConverter;
   FVersionConfig := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
@@ -118,7 +124,7 @@ var
   VTileInfo: ITileInfoWithData;
   VRect: TRect;
   VSize: TPoint;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
   VResampler: TCustomResampler;
 begin
   Result := nil;
@@ -133,7 +139,7 @@ begin
         (Result.Size.Y <> VSize.Y) then begin
         VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
         try
-          VBitmap := TCustomBitmap32.Create;
+          VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
           try
             VBitmap.SetSize(VSize.X, VSize.Y);
             StretchTransferFull(
@@ -143,8 +149,7 @@ begin
               VResampler,
               dmOpaque
             );
-            Result := TBitmap32Static.CreateWithOwn(VBitmap);
-            VBitmap := nil;
+            Result := VBitmap.BitmapStatic;
           finally
             VBitmap.Free;
           end;

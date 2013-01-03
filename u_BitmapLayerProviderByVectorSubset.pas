@@ -12,6 +12,7 @@ uses
   i_CoordConverter,
   i_ProjectionInfo,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_VectorDataItemSimple,
   i_IdCacheSimple,
   i_LocalCoordConverter,
@@ -31,6 +32,7 @@ type
     FColorBG: TColor32;
     FPointColor: TColor32;
     FVectorItemsFactory: IVectorItemsFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FVectorItems: IVectorDataItemList;
     FProjectionInfo: IProjectionInfo;
     FProjectedCache: IIdCacheSimple;
@@ -117,6 +119,7 @@ type
       AColorBG: TColor32;
       APointColor: TColor32;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IIdCacheSimple;
       const ALinesClipRect: TDoubleRect;
@@ -150,6 +153,7 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   const AVectorMapsSet: IMapTypeSet;
   AColorMain, AColorBG, APointColor: TColor32;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IIdCacheSimple;
   const ALinesClipRect: TDoubleRect;
@@ -162,6 +166,7 @@ begin
   FColorBG := AColorBG;
   FPointColor := APointColor;
   FVectorItemsFactory := AVectorItemsFactory;
+  FBitmapFactory := ABitmapFactory;
   FProjectionInfo := AProjectionInfo;
   FProjectedCache := AProjectedCache;
   FLinesClipRect := ALinesClipRect;

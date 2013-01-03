@@ -9,6 +9,7 @@ uses
   i_NotifierOperation,
   i_ProjectionInfo,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_GPSRecorder,
@@ -20,6 +21,7 @@ type
   private
     FLineWidth: Double;
     FTrackColorer: ITrackColorerStatic;
+    FBitmapFactory: IBitmap32StaticFactory;
 
     FRectIsEmpty: Boolean;
     FLonLatRect: TDoubleRect;
@@ -62,6 +64,7 @@ type
       AMaxPointsCount: Integer;
       const ALineWidth: Double;
       const ATrackColorer: ITrackColorerStatic;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AProjection: IProjectionInfo;
       const AEnum: IEnumGPSTrackPoint
     );
@@ -82,6 +85,7 @@ constructor TBitmapLayerProviderByTrackPath.Create(
   AMaxPointsCount: Integer;
   const ALineWidth: Double;
   const ATrackColorer: ITrackColorerStatic;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AProjection: IProjectionInfo;
   const AEnum: IEnumGPSTrackPoint
 );
@@ -89,6 +93,7 @@ begin
   inherited Create;
   FLineWidth := ALineWidth;
   FTrackColorer := ATrackColorer;
+  FBitmapFactory := ABitmapFactory;
   Assert(FLineWidth >= 0);
   Assert(FTrackColorer <> nil);
   PrepareProjectedPointsByEnum(AMaxPointsCount, AProjection, AEnum);
