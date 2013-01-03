@@ -38,6 +38,8 @@ uses
   i_ListenerTTLCheck,
   i_TileFileNameGenerator,
   i_GlobalBerkeleyDBHelper,
+  i_SimpleTileStorageConfig,
+  i_TileInfoBasicMemCache,
   u_TileStorageBerkeleyDBHelper,
   u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
@@ -51,8 +53,7 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: INotifierTTLCheck;
     FSyncCallListner: IListenerTTLCheck;
-    FTileInfoMemCache: TTileInfoBasicMemCache;
-    FUseMemCache: Boolean;
+    FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
     procedure OnSyncCall(Sender: TObject);
   protected
@@ -112,7 +113,7 @@ type
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
       const AGCList: INotifierTTLCheck;
-      const AUseMemCache: Boolean;
+      const AStorageConfig: ISimpleTileStorageConfigStatic;
       const AContentTypeManager: IContentTypeManager;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic
@@ -142,8 +143,6 @@ uses
 const
   cStorageFileExt = '.sdb';
   cTneStorageFileExt = '.tne';
-  cStorageMemCacheCapacity = 100;
-  cStorageMemCacheUnusedObjectTTL = 60000; // 60 sec
   cStorageSyncInterval = 300000; // 5 min
   cStorageSyncCheckInterval = 60000; // 60 sec
 
@@ -154,7 +153,7 @@ constructor TTileStorageBerkeleyDB.Create(
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
   const AGCList: INotifierTTLCheck;
-  const AUseMemCache: Boolean;
+  const AStorageConfig: ISimpleTileStorageConfigStatic;
   const AContentTypeManager: IContentTypeManager;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic
@@ -168,7 +167,16 @@ begin
   );
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
-  FUseMemCache := AUseMemCache;
+
+  if Assigned(AStorageConfig) and (AStorageConfig.UseMemCache) then begin
+    FTileInfoMemCache := TTileInfoBasicMemCache.Create(
+      AStorageConfig.MemCacheCapacity,
+      AStorageConfig.MemCacheTTL,
+      TClearByTTLStrategy(AStorageConfig.MemCacheClearStrategy)
+    );
+  end else begin
+    FTileInfoMemCache := nil;
+  end;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
@@ -188,11 +196,6 @@ begin
 
   FGCList := AGCList;
   FGCList.Add(FSyncCallListner);
-
-  FTileInfoMemCache := TTileInfoBasicMemCache.Create(
-    cStorageMemCacheCapacity,
-    cStorageMemCacheUnusedObjectTTL
-  );
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
@@ -202,7 +205,7 @@ begin
     FGCList := nil;
   end;
   FSyncCallListner := nil;
-  FTileInfoMemCache.Free;
+  FTileInfoMemCache := nil;
   FreeAndNil(FStorageHelper);
   FMainContentType := nil;
   FContentTypeManager := nil;
@@ -212,7 +215,9 @@ end;
 
 procedure TTileStorageBerkeleyDB.OnSyncCall(Sender: TObject);
 begin
-  FTileInfoMemCache.ClearByTTL;
+  if Assigned(FTileInfoMemCache) then begin
+    FTileInfoMemCache.ClearByTTL;
+  end;
   FStorageHelper.Sync;
 end;
 
@@ -247,8 +252,8 @@ var
   VTileContentType: WideString;
   VTileDate: TDateTime;
 begin
-  if FUseMemCache then begin
-    Result := FTileInfoMemCache.Get(AXY, AZoom);
+  if Assigned(FTileInfoMemCache) then begin
+    Result := FTileInfoMemCache.Get(AXY, AZoom, True);
     if Result <> nil then begin
       Exit;
     end;
@@ -316,7 +321,7 @@ begin
     end;
   end;
 
-  if FUseMemCache then begin
+  if Assigned(FTileInfoMemCache) then begin
     FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
   end;
 end;
@@ -504,7 +509,7 @@ begin
             AVersionInfo,
             FMainContentType
           );
-        if FUseMemCache then begin
+        if Assigned(FTileInfoMemCache) then begin
           FTileInfoMemCache.Add(
             AXY,
             AZoom,
@@ -545,7 +550,7 @@ begin
         nil
       );
       if VResult then begin
-        if FUseMemCache then begin
+        if Assigned(FTileInfoMemCache) then begin
           FTileInfoMemCache.Add(
             AXY,
             AZoom,
@@ -600,7 +605,7 @@ begin
       Result := False;
     end;
     if Result then begin
-      if FUseMemCache then begin
+      if Assigned(FTileInfoMemCache) then begin
         FTileInfoMemCache.Add(
           AXY,
           AZoom,

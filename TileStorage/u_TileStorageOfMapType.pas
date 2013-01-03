@@ -273,7 +273,7 @@ begin
             VCoordConverter,
             FCurrentPath,
             FGCList,
-            True,
+            AConfig,
             FContentTypeManager,
             VMapVersionFactory,
             VMainContentType
@@ -289,7 +289,7 @@ begin
             FGlobalCacheConfig.DBMSCachePath.Path,
             FCurrentPath,
             FGCList,
-            True,
+            AConfig,
             FContentTypeManager,
             VMapVersionFactory,
             VMainContentType
@@ -345,6 +345,7 @@ begin
         VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageInRAM.Create(
+            AConfig,
             VCoordConverter,
             FGCList,
             FContentTypeManager,

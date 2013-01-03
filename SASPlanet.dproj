@@ -439,6 +439,7 @@
     <DCCReference Include="i_TileError.pas" />
     <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="i_TileInfoBasic.pas" />
+    <DCCReference Include="i_TileInfoBasicMemCache.pas" />
     <DCCReference Include="i_TileIterator.pas" />
     <DCCReference Include="i_TileKey.pas" />
     <DCCReference Include="i_TileMatrix.pas" />

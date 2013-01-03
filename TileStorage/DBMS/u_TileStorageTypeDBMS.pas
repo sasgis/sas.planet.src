@@ -9,11 +9,13 @@ uses
   i_NotifierTTLCheck,
   i_TileStorage,
   i_TileStorageTypeConfig,
+  i_SimpleTileStorageConfig,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeDBMS = class(TTileStorageTypeBase)
   private
+    FStorageConfig: ISimpleTileStorageConfigStatic;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
   protected
@@ -26,7 +28,8 @@ type
     constructor Create(
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
-      const AConfig: ITileStorageTypeConfig
+      const AConfig: ITileStorageTypeConfig;
+      const AStorageConfig: ISimpleTileStorageConfigStatic
     );
   end;
 
@@ -43,7 +46,8 @@ uses
 constructor TTileStorageTypeDBMS.Create(
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
-  const AConfig: ITileStorageTypeConfig
+  const AConfig: ITileStorageTypeConfig;
+  const AStorageConfig: ISimpleTileStorageConfigStatic
 );
 begin
   inherited Create(
@@ -51,6 +55,7 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
+  FStorageConfig := AStorageConfig;
   FGCList := AGCList;
   FContentTypeManager := AContentTypeManager;
 end;
@@ -67,7 +72,7 @@ begin
       GetConfig.BasePath.Path,
       APath,
       FGCList,
-      True,
+      FStorageConfig,
       FContentTypeManager,
       GetMapVersionFactory,
       AMainContentType

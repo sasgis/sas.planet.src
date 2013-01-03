@@ -27,6 +27,7 @@ uses
   i_NotifierTTLCheck,
   i_ContentTypeManager,
   i_GlobalBerkeleyDBHelper,
+  i_SimpleTileStorageConfig,
   i_TileStorageTypeConfig,
   i_TileStorageType,
   i_TileStorageTypeListItem,
@@ -36,6 +37,7 @@ type
   TTileStorageTypeListSimple = class(TTileStorageTypeList)
   public
     constructor Create(
+      const AConfig: ISimpleTileStorageConfigStatic;
       const AContentTypeManager: IContentTypeManager;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGCList: INotifierTTLCheck;
@@ -63,6 +65,7 @@ const
   CTileStorageTypeGE: TGUID = '{71C83BAA-EEA0-45E1-833E-8CCC3A8D1A1A}';
   CTileStorageTypeGC: TGUID = '{F3163512-A190-426B-9D18-881AAD9DE61C}';
   CTileStorageTypeBerkeleyDB: TGUID = '{3DBF81CD-9356-40EB-9778-DE4D98E5BE61}';
+  CTileStorageTypeDBMS: TGUID = '{5F9E2D54-A433-4853-B7EB-3EE218160263}';
   CTileStorageTypeFileSystemSAS: TGUID = '{BE87ACAB-7031-4F57-9C1D-FA62C709818F}';
   CTileStorageTypeFileSystemGMV: TGUID = '{CB20D66C-FC79-4D1C-93A9-1C41A8D6B002}';
   CTileStorageTypeFileSystemES: TGUID = '{F6056405-C25C-4573-AFAC-BC4F8DF52283}';
@@ -73,6 +76,7 @@ const
 { TTileStorageTypeListSimple }
 
 constructor TTileStorageTypeListSimple.Create(
+  const AConfig: ISimpleTileStorageConfigStatic;
   const AContentTypeManager: IContentTypeManager;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGCList: INotifierTTLCheck;
@@ -186,7 +190,8 @@ begin
     AGlobalBerkeleyDBHelper,
     AGCList,
     AContentTypeManager,
-    VStorageTypeConfig
+    VStorageTypeConfig,
+    AConfig
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeBerkeleyDB,
@@ -200,10 +205,11 @@ begin
   VStorageType := TTileStorageTypeDBMS.Create(
     AGCList,
     AContentTypeManager,
-    VStorageTypeConfig
+    VStorageTypeConfig,
+    AConfig
   );
   VItem := TTileStorageTypeListItem.Create(
-    CTileStorageTypeBerkeleyDB,
+    CTileStorageTypeDBMS,
     'DBMS',
     VStorageType,
     False

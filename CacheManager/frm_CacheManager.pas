@@ -187,7 +187,7 @@ begin
         ACoordConverter,
         ARootPath,
         FGCList,
-        False,
+        nil,
         FContentTypeManager,
         VMapVersionFactory,
         VContentType
@@ -200,7 +200,7 @@ begin
         '', // TODO: add global DBMS Root here
         ARootPath,
         FGCList,
-        FALSE,
+        nil,
         FContentTypeManager,
         VMapVersionFactory,
         VContentType

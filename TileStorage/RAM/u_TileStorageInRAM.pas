@@ -36,6 +36,8 @@ uses
   i_MapVersionConfig,
   i_NotifierTTLCheck,
   i_ListenerTTLCheck,
+  i_SimpleTileStorageConfig,
+  i_TileInfoBasicMemCache,
   u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 
@@ -47,7 +49,7 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: INotifierTTLCheck;
     FTTLCheckListener: IListenerTTLCheck;
-    FTileInfoMemCache: TTileInfoBasicMemCache;
+    FTileInfoMemCache: ITileInfoBasicMemCache;
     procedure OnTTLCheckCall(Sender: TObject);
   protected
     function GetIsFileCache: Boolean; override;
@@ -98,6 +100,7 @@ type
     procedure IBasicMemCache.Clear = ClearMemCache;
   public
     constructor Create(
+      const AStorageConfig: ISimpleTileStorageConfigStatic;
       const AGeoConverter: ICoordConverter;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
@@ -119,13 +122,15 @@ uses
   u_TileInfoBasic;
 
 const
-  cStorageMemCacheCapacity = 100;
-  cStorageMemCacheUnusedObjectTTL = 60000; // 60 sec
   cStorageTTLCheckInterval = 30000; // 30 sec
+
+type
+  ETileStorageInRAM = class(Exception);
 
 { TTileStorageInRAM }
 
 constructor TTileStorageInRAM.Create(
+  const AStorageConfig: ISimpleTileStorageConfigStatic;
   const AGeoConverter: ICoordConverter;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
@@ -142,21 +147,28 @@ begin
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
 
+  if Assigned(AStorageConfig) and (AStorageConfig.UseMemCache) then begin
+    FTileInfoMemCache := TTileInfoBasicMemCache.Create(
+      AStorageConfig.MemCacheCapacity,
+      AStorageConfig.MemCacheTTL,
+      TClearByTTLStrategy(AStorageConfig.MemCacheClearStrategy)
+    );
+  end else begin
+    raise ETileStorageInRAM.Create(
+      'Can''t initialize in-memory tile storage. Check you config!'
+    ); 
+  end;
+
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
   FTTLCheckListener := TListenerTTLCheck.Create(
     Self.OnTTLCheckCall,
-    cStorageMemCacheUnusedObjectTTL,
+    AStorageConfig.MemCacheTTL,
     cStorageTTLCheckInterval
   );
 
   FGCList := AGCList;
   FGCList.Add(FTTLCheckListener);
-
-  FTileInfoMemCache := TTileInfoBasicMemCache.Create(
-    cStorageMemCacheCapacity,
-    cStorageMemCacheUnusedObjectTTL
-  );
 end;
 
 destructor TTileStorageInRAM.Destroy;
@@ -166,7 +178,7 @@ begin
     FGCList := nil;
   end;
   FTTLCheckListener := nil;
-  FTileInfoMemCache.Free;
+  FTileInfoMemCache := nil;
   FMainContentType := nil;
   FContentTypeManager := nil;
   FTileNotExistsTileInfo := nil;

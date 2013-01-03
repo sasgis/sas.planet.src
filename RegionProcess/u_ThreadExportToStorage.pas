@@ -225,7 +225,7 @@ begin
     FConfigPath,
     FExportPath,
     nil,
-    FALSE,
+    nil,
     ASourceMapType.ContentTypeManager,
     ASourceMapType.VersionConfig.VersionFactory,
     ASourceMapType.ContentType

@@ -31,6 +31,7 @@ uses
   i_BerkeleyDB in 'TileStorage\BerkeleyDB\i_BerkeleyDB.pas',
   i_BerkeleyDBPool in 'TileStorage\BerkeleyDB\i_BerkeleyDBPool.pas',
   u_TileStorageInRAM in 'TileStorage\RAM\u_TileStorageInRAM.pas',
+  i_TileInfoBasicMemCache in 'i_TileInfoBasicMemCache.pas',
   i_Synchronizer in 'Synchronize\i_Synchronizer.pas',
   i_ReadWriteSyncFactory in 'Synchronize\i_ReadWriteSyncFactory.pas',
   u_ReadWriteSyncAbstract in 'Synchronize\u_ReadWriteSyncAbstract.pas',

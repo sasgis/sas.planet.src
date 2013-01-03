@@ -9,12 +9,14 @@ uses
   i_NotifierTTLCheck,
   i_TileStorage,
   i_TileStorageTypeConfig,
+  i_SimpleTileStorageConfig,
   i_GlobalBerkeleyDBHelper,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeBerkeleyDB = class(TTileStorageTypeBase)
   private
+    FStorageConfig: ISimpleTileStorageConfigStatic;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -29,7 +31,8 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
-      const AConfig: ITileStorageTypeConfig
+      const AConfig: ITileStorageTypeConfig;
+      const AStorageConfig: ISimpleTileStorageConfigStatic
     );
   end;
 
@@ -46,7 +49,8 @@ constructor TTileStorageTypeBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
-  const AConfig: ITileStorageTypeConfig
+  const AConfig: ITileStorageTypeConfig;
+  const AStorageConfig: ISimpleTileStorageConfigStatic
 );
 begin
   inherited Create(
@@ -54,6 +58,7 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
+  FStorageConfig := AStorageConfig;
   FGCList := AGCList;
   FContentTypeManager := AContentTypeManager;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
@@ -71,7 +76,7 @@ begin
       AGeoConverter,
       APath,
       FGCList,
-      True,
+      FStorageConfig,
       FContentTypeManager,
       GetMapVersionFactory,
       AMainContentType

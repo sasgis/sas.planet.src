@@ -52,6 +52,18 @@ type
 
     function GetAllowReplace: boolean;
     property AllowReplace: Boolean read GetAllowReplace;
+
+    function GetUseMemCache: Boolean;
+    property UseMemCache: Boolean read GetUseMemCache;
+
+    function GetMemCacheCapacity: Integer;
+    property MemCacheCapacity: Integer read GetMemCacheCapacity;
+
+    function GetMemCacheTTL: Cardinal;
+    property MemCacheTTL: Cardinal read GetMemCacheTTL;
+
+    function GetMemCacheClearStrategy: Integer;
+    property MemCacheClearStrategy: Integer read GetMemCacheClearStrategy;
   end;
 
   ISimpleTileStorageConfig = interface(IConfigDataElement)
@@ -85,6 +97,22 @@ type
     function GetAllowReplace: boolean;
     procedure SetAllowReplace(AValue: Boolean);
     property AllowReplace: Boolean read GetAllowReplace write SetAllowReplace;
+
+    function GetUseMemCache: Boolean;
+    procedure SetUseMemCache(const AValue: Boolean);
+    property UseMemCache: Boolean read GetUseMemCache write SetUseMemCache;
+
+    function GetMemCacheCapacity: Integer;
+    procedure SetMemCacheCapacity(const AValue: Integer);
+    property MemCacheCapacity: Integer read GetMemCacheCapacity write SetMemCacheCapacity;
+
+    function GetMemCacheTTL: Cardinal;
+    procedure SetMemCacheTTL(const AValue: Cardinal);
+    property MemCacheTTL: Cardinal read GetMemCacheTTL write SetMemCacheTTL;
+
+    function GetMemCacheClearStrategy: Integer;
+    procedure SetMemCacheClearStrategy(const AValue: Integer);
+    property MemCacheClearStrategy: Integer read GetMemCacheClearStrategy write SetMemCacheClearStrategy;
 
     function GetStatic: ISimpleTileStorageConfigStatic;
   end;

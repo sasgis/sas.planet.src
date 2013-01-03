@@ -38,6 +38,8 @@ uses
   i_ContentTypeManager,
   i_NotifierTTLCheck,
   i_ListenerTTLCheck,
+  i_SimpleTileStorageConfig,
+  i_TileInfoBasicMemCache,
   u_TileStorageAbstract,
   u_TileInfoBasicMemCache,
   t_ETS_Tiles,
@@ -56,8 +58,7 @@ type
     FGCList: INotifierTTLCheck;
     FETSTTLListener: IListenerTTLCheck;
     FMemCacheTTLListener: IListenerTTLCheck;
-    FTileInfoMemCache: TTileInfoBasicMemCache;
-    FUseMemCache: Boolean;
+    FTileInfoMemCache: ITileInfoBasicMemCache;
 
     // some special values
     FTileNotExistsTileInfo: ITileInfoBasic;
@@ -241,7 +242,7 @@ type
       const AGeoConverter: ICoordConverter;
       const AGlobalStorageIdentifier, AStoragePath: String;
       const AGCList: INotifierTTLCheck;
-      const AUseMemCache: Boolean;
+      const AStorageConfig: ISimpleTileStorageConfigStatic;
       const AContentTypeManager: IContentTypeManager;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic
@@ -626,7 +627,7 @@ constructor TTileStorageETS.Create(
   const AGeoConverter: ICoordConverter;
   const AGlobalStorageIdentifier, AStoragePath: String;
   const AGCList: INotifierTTLCheck;
-  const AUseMemCache: Boolean;
+  const AStorageConfig: ISimpleTileStorageConfigStatic;
   const AContentTypeManager: IContentTypeManager;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic);
@@ -656,8 +657,15 @@ begin
   FMainContentType := AMainContentType;
   FMapVersionConfig := nil;
 
-  FUseMemCache := AUseMemCache;
-  //FUseMemCache := FALSE;
+  if Assigned(AStorageConfig) and (AStorageConfig.UseMemCache) then begin
+    FTileInfoMemCache := TTileInfoBasicMemCache.Create(
+      AStorageConfig.MemCacheCapacity,
+      AStorageConfig.MemCacheTTL,
+      TClearByTTLStrategy(AStorageConfig.MemCacheClearStrategy)
+    );
+  end else begin
+    FTileInfoMemCache := nil;
+  end;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FEmptyVersion := MapVersionFactory.CreateByStoreString('');
@@ -679,8 +687,6 @@ begin
     FGCList.Add(FETSTTLListener);
     FGCList.Add(FMemCacheTTLListener);
   end;
-  
-  FTileInfoMemCache := TTileInfoBasicMemCache.Create(100, 30000);
 
   FDLLHandle := 0;
   FDLLProvHandle := nil;
@@ -772,7 +778,7 @@ begin
   until FALSE;
 
   if Result then begin
-    if FUseMemCache then begin
+    if Assigned(FTileInfoMemCache) then begin
       // delete both tile and TNE
       FTileInfoMemCache.Remove(AXY, AZoom);
     end;
@@ -797,9 +803,7 @@ begin
 
     FETSTTLListener := nil;
     FMemCacheTTLListener := nil;
-
-    FreeAndNil(FTileInfoMemCache);
-
+    FTileInfoMemCache := nil;   
     FMapVersionConfig := nil;
     FMainContentType := nil;
     FContentTypeManager := nil;
@@ -842,7 +846,9 @@ end;
 
 procedure TTileStorageETS.DoTTLSync(Sender: TObject);
 begin
-  FTileInfoMemCache.ClearByTTL;
+  if Assigned(FTileInfoMemCache) then begin
+    FTileInfoMemCache.ClearByTTL;
+  end;
 end;
 
 function TTileStorageETS.DomainHtmlOptions(
@@ -1064,8 +1070,8 @@ var
   VBufferIn: TETS_SELECT_TILE_IN;
 begin
   // try to read from cache
-  if FUseMemCache then begin
-    Result := FTileInfoMemCache.Get(AXY, AZoom);
+  if Assigned(FTileInfoMemCache) then begin
+    Result := FTileInfoMemCache.Get(AXY, AZoom, True);
     if Result <> nil then begin
       Exit;
     end;
@@ -1079,7 +1085,7 @@ begin
   VResult := ETS_RESULT_OK;
 
   FillChar(VObj, SizeOf(VObj), 0);
-  VObj.AllowSaveToMemCache := FUseMemCache;
+  VObj.AllowSaveToMemCache := Assigned(FTileInfoMemCache);
   //VObj.UseGetTileInfoMode := AMode;
 
   VTileID.z := 0;
@@ -1158,7 +1164,7 @@ begin
   until FALSE;
 
   // write to cache
-  if VObj.AllowSaveToMemCache then begin
+  if VObj.AllowSaveToMemCache and Assigned(FTileInfoMemCache) then begin
     FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
   end;
 end;
@@ -1687,7 +1693,7 @@ begin
   until FALSE;
 
   if (ETS_RESULT_OK=VResult) then begin
-    if FUseMemCache then begin
+    if Assigned(FTileInfoMemCache) then begin
       if ACallForTNE then begin
         // write TNE to cache
         VTileInfo := TTileInfoBasicTNE.Create(
