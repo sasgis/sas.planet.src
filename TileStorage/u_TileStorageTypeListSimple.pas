@@ -58,6 +58,7 @@ uses
   u_TileStorageTypeGE,
   u_TileStorageTypeBerkeleyDB,
   u_TileStorageTypeDBMS,
+  u_TileStorageTypeInRAM,
   u_TileStorageTypeFileSystemSimple,
   u_TileStorageTypeListItem;
 
@@ -71,7 +72,7 @@ const
   CTileStorageTypeFileSystemES: TGUID = '{F6056405-C25C-4573-AFAC-BC4F8DF52283}';
   CTileStorageTypeFileSystemGM1: TGUID = '{E6F98BC5-8684-42C9-92DE-3D994DA8C925}';
   CTileStorageTypeFileSystemGM2: TGUID = '{4EF99AD6-D05E-4175-805C-DBBE08AC43B3}';
-
+  CTileStorageTypeInRAM: TGUID = '{717034B7-B49E-4C89-BC75-002D0523E548}';
 
 { TTileStorageTypeListSimple }
 
@@ -213,6 +214,21 @@ begin
     'DBMS',
     VStorageType,
     False
+  );
+  Add(VItem);
+
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_RAM);
+  VStorageType := TTileStorageTypeInRAM.Create(
+    AGCList,
+    AContentTypeManager,
+    VStorageTypeConfig,
+    AConfig
+  );
+  VItem := TTileStorageTypeListItem.Create(
+    CTileStorageTypeInRAM,
+    'RAM',
+    VStorageType,
+    True
   );
   Add(VItem);
 end;
