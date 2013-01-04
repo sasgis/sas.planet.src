@@ -207,7 +207,7 @@ begin
     VMarkerProvider :=
       TMarkerProviderForVectorItemWithCache.Create(
         FMarkerCache,
-        TMarkerProviderForVectorItemForMarkPoints.Create(FMarkIconDefault, VMarksDrawConfig)
+        TMarkerProviderForVectorItemForMarkPoints.Create(FBitmapFactory, FMarkIconDefault, VMarksDrawConfig)
       );
     Result :=
       TBitmapLayerProviderByMarksSubset.Create(

@@ -8,6 +8,7 @@ uses
   i_VectorDataItemSimple,
   i_MarksDrawConfig,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_BitmapMarker,
   i_MarkerProviderForVectorItem,
   u_BaseInterfacedObject;
@@ -15,6 +16,7 @@ uses
 type
   TMarkerProviderForVectorItemForMarkPoints = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FConfig: IMarksDrawConfigStatic;
     FMarkerDefault: IMarkerDrawableChangeable;
 
@@ -49,6 +51,7 @@ type
     function GetMarker(const AItem: IVectorDataItemSimple): IMarkerDrawable;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AMarkerDefault: IMarkerDrawableChangeable;
       const AConfig: IMarksDrawConfigStatic
     );
@@ -64,6 +67,7 @@ uses
   t_GeoTypes,
   i_MarksSimple,
   u_Bitmap32Static,
+  u_Bitmap32ByStaticBitmap,
   u_BitmapMarker,
   u_BitmapFunc,
   u_MarkerDrawableByBitmapMarker,
@@ -74,11 +78,13 @@ uses
 { TMarkerProviderForVectorItemForMarkPoints }
 
 constructor TMarkerProviderForVectorItemForMarkPoints.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AMarkerDefault: IMarkerDrawableChangeable;
   const AConfig: IMarksDrawConfigStatic
 );
 begin
   inherited Create;
+  FBitmapFactory := ABitmapFactory;
   FConfig := AConfig;
   FMarkerDefault := AMarkerDefault;
 
@@ -101,7 +107,7 @@ function TMarkerProviderForVectorItemForMarkPoints.GetCaptionBitmap(
   ASolidBgDraw: Boolean): IBitmap32Static;
 var
   VTextSize: TSize;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
 begin
   Result := nil;
   if (AFontSize > 0) and (ACaption <> '') then begin
@@ -119,13 +125,12 @@ begin
       FBitmapWithText.RenderText(2, 2, ACaption, 1, SetAlpha(ATextBgColor,255));
       FBitmapWithText.RenderText(1, 1, ACaption, 1, SetAlpha(ATextColor,255));
     end;
-    VBitmap := TCustomBitmap32.Create;
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       VBitmap.SetSizeFrom(FBitmapWithText);
       VBitmap.Clear(0);
       VBitmap.Draw(0, 0, FBitmapWithText);
-      Result := TBitmap32Static.CreateWithOwn(VBitmap);
-      VBitmap := nil;
+      Result := VBitmap.BitmapStatic;
     finally
       VBitmap.Free;
     end;
@@ -218,7 +223,7 @@ function TMarkerProviderForVectorItemForMarkPoints.ModifyMarkerWithResize(
 var
   VSizeSource: TPoint;
   VSizeTarget: TPoint;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
   VFixedOnBitmap: TDoublePoint;
   VScale: Double;
   VSampler: TCustomResampler;
@@ -230,7 +235,7 @@ begin
     VScale := ASize / VSizeSource.X;
     VSizeTarget.X := Trunc(VSizeSource.X * VScale + 0.5);
     VSizeTarget.Y := Trunc(VSizeSource.Y * VScale + 0.5);
-    VBitmap := TCustomBitmap32.Create;
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
       VSampler := TLinearResampler.Create;
@@ -245,8 +250,7 @@ begin
       finally
         VSampler.Free;
       end;
-      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-      VBitmap := nil;
+      VBitmapStatic := VBitmap.BitmapStatic;
     finally
       VBitmap.Free;
     end;

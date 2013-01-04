@@ -274,6 +274,7 @@ begin
     VMarksDrawConfig := FMarksDrawConfig.GetStatic;
     VMarkerProvider :=
       TMarkerProviderForVectorItemForMarkPoints.Create(
+        FBitmapFactory,
         nil,
         VMarksDrawConfig
       );

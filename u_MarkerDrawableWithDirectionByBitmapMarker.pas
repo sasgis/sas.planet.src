@@ -7,12 +7,14 @@ uses
   GR32,
   t_GeoTypes,
   i_MarkerDrawable,
+  i_Bitmap32StaticFactory,
   i_BitmapMarker,
   u_BaseInterfacedObject;
 
 type
   TMarkerDrawableWithDirectionByBitmapMarker = class(TBaseInterfacedObject, IMarkerDrawableWithDirection)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FMarker: IBitmapMarkerWithDirection;
     FCachedMarkerCS: IReadWriteSync;
     FCachedMarker: IBitmapMarkerWithDirection;
@@ -34,6 +36,7 @@ type
     ): Boolean;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AMarker: IBitmapMarkerWithDirection
     );
   end;
@@ -50,6 +53,7 @@ uses
   u_GeoFun,
   u_BitmapFunc,
   u_Bitmap32Static,
+  u_Bitmap32ByStaticBitmap,
   u_BitmapMarker,
   u_Synchronizer;
 
@@ -60,9 +64,12 @@ const
 { TMarkerDrawableWithDirectionByBitmapMarker }
 
 constructor TMarkerDrawableWithDirectionByBitmapMarker.Create(
-  const AMarker: IBitmapMarkerWithDirection);
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const AMarker: IBitmapMarkerWithDirection
+);
 begin
   inherited Create;
+  FBitmapFactory := ABitmapFactory;
   FMarker := AMarker;
   FCachedMarkerCS := MakeSyncRW_Var(Self, False);
 end;
@@ -171,7 +178,7 @@ var
   VSizeSource: TPoint;
   VTargetRect: TFloatRect;
   VSizeTarget: TPoint;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
   VBitmapSource: TCustomBitmap32;
   VFixedOnBitmap: TFloatPoint;
   VRasterizer: TRasterizer;
@@ -189,7 +196,7 @@ begin
     VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
     VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;
     VTransform.Translate(-VTargetRect.Left, -VTargetRect.Top);
-    VBitmap := TCustomBitmap32.Create;
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
       VBitmap.Clear(0);
@@ -222,8 +229,7 @@ begin
         VRasterizer.Free;
       end;
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-      VBitmapStatic := TBitmap32Static.CreateWithOwn(VBitmap);
-      VBitmap := nil;
+      VBitmapStatic := VBitmap.BitmapStatic;
     finally
       VBitmap.Free;
     end;
