@@ -15,6 +15,7 @@ uses
   i_ImageResamplerConfig,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
+  i_Bitmap32StaticFactory,
   i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
   fr_TilesGenPrev;
@@ -24,6 +25,7 @@ type
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FViewConfig: IGlobalViewMainConfig;
     FAppClosingNotifier: INotifierOneOperation;
@@ -41,6 +43,7 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AImageResamplerConfig: IImageResamplerConfig
     );
     function GetCaption: string; override;
@@ -75,6 +78,7 @@ constructor TProviderTilesGenPrev.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AImageResamplerConfig: IImageResamplerConfig
 );
 begin
@@ -86,6 +90,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
+  FBitmapFactory := ABitmapFactory;
   FViewConfig := AViewConfig;
   FImageResamplerConfig := AImageResamplerConfig;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -150,6 +155,7 @@ begin
     VProgressInfo,
     FProjectionFactory,
     FVectorItemsFactory,
+    FBitmapFactory,
     VInZooms,
     APolygon,
     VMapType,

@@ -236,6 +236,7 @@ begin
       AViewConfig,
       AProjectionFactory,
       AVectorItemsFactory,
+      ABitmapFactory,
       AImageResamplerConfig
     );
   FProviderTilesCopy :=

@@ -10,6 +10,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
+  i_Bitmap32StaticFactory,
   i_VectorItemsFactory,
   i_VectorItemLonLat,
   u_MapType,
@@ -29,6 +30,7 @@ type
     FMapType: TMapType;
     FResamplerFactory: IImageResamplerFactory;
     FProjectionFactory: IProjectionInfoFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FVectorItemsFactory: IVectorItemsFactory;
 
     FTileInProc: integer;
@@ -43,6 +45,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AZooms: TByteDynArray;
       const APolygLL: ILonLatPolygon;
       AMapType: TMapType;
@@ -74,6 +77,7 @@ constructor TThreadGenPrevZoom.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AZooms: TByteDynArray;
   const APolygLL: ILonLatPolygon;
   AMapType: TMapType;
@@ -97,6 +101,7 @@ begin
   end;
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
+  FBitmapFactory := ABitmapFactory;
   FIsReplace := AReplace;
   FIsSaveFullOnly := Asavefull;
   FGenFormFirstZoom := AGenFormFirstZoom;
@@ -160,6 +165,7 @@ begin
       SAS_STR_ProcessedNoMore + ': ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files
     );
 
+    bmp_ex := TCustomBitmap32.Create;
     VResampler := FResamplerFactory.CreateResampler;
     try
       FTileInProc := 0;
@@ -186,8 +192,6 @@ begin
           if FUsePrevTiles then begin
             VBitmapSourceTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, True, True, True);
           end;
-          bmp_ex := TCustomBitmap32.Create;
-          try
             if VBitmapSourceTile = nil then begin
               bmp_ex.SetSize(
                 VCurrentTilePixelRect.Right - VCurrentTilePixelRect.Left,
@@ -246,12 +250,12 @@ begin
             end;
             VBitmap := nil;
             if ((not FIsSaveFullOnly) or (VSubTilesSavedCount = VSubTileCount)) and (VSubTilesSavedCount > 0) then begin
-              VBitmap := TBitmap32Static.CreateWithOwn(bmp_ex);
-              bmp_ex := nil;
+              VBitmap :=
+                FBitmapFactory.Build(
+                  Point(bmp_ex.Width, bmp_ex.Height),
+                  bmp_ex.Bits
+              );
             end;
-          finally
-            bmp_ex.Free;
-          end;
           if VBitmap <> nil then begin
             FMapType.SaveTileSimple(VTile, VZoom, VBitmap);
             inc(FTileInProc);
@@ -261,6 +265,7 @@ begin
       end;
     finally
       VResampler.Free;
+      bmp_ex.Free;
     end;
   finally
     for i := 0 to Length(VTileIterators) - 1 do begin
