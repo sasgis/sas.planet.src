@@ -275,7 +275,6 @@ var
   VTime: TDateTime;
   VMax: TDateTime;
   VMin: TDateTime;
-  VPrevData: IInternalPerformanceCounterStaticData;
   VAvgTime: Extended;
 begin
   Result := False;
@@ -291,9 +290,9 @@ begin
     VMin := 0;
   end;
 
-  if VPrevData <> nil then begin
-    VCount := VCount - VPrevData.Counter;
-    VTime := VTime - VPrevData.TotalTime;
+  if APrevData <> nil then begin
+    VCount := VCount - APrevData.Counter;
+    VTime := VTime - APrevData.TotalTime;
   end;
 
   if not chkHideEmtyRows.Checked or (VCount > 0) then begin
