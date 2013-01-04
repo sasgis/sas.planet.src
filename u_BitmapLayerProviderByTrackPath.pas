@@ -76,7 +76,6 @@ implementation
 uses
   SysUtils,
   i_CoordConverter,
-  u_Bitmap32Static,
   u_Bitmap32ByStaticBitmap,
   u_GeoFun;
 

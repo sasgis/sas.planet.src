@@ -89,7 +89,6 @@ uses
   i_TileDownloadRequest,
   u_ListenerByEvent,
   u_TileRequestResult,
-  u_Bitmap32Static,
   u_Bitmap32ByStaticBitmap,
   u_BitmapFunc,
   u_ResStrings;

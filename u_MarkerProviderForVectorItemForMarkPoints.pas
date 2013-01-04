@@ -66,7 +66,6 @@ uses
   GR32_Resamplers,
   t_GeoTypes,
   i_MarksSimple,
-  u_Bitmap32Static,
   u_Bitmap32ByStaticBitmap,
   u_BitmapMarker,
   u_BitmapFunc,

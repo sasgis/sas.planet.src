@@ -89,7 +89,6 @@ uses
   i_LonLatRect,
   i_TileObjCache,
   i_NotifierTileRectUpdate,
-  u_Bitmap32Static,
   u_Bitmap32ByStaticBitmap,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,

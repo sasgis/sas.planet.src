@@ -66,8 +66,7 @@ implementation
 uses
   Types,
   Graphics,
-  GR32,
-  u_Bitmap32Static;
+  GR32;
 
 { TShortCutSingleConfig }
 

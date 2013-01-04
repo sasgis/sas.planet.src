@@ -38,8 +38,7 @@ implementation
 
 uses
   u_BitmapFunc,
-  u_Bitmap32ByStaticBitmap,
-  u_Bitmap32Static;
+  u_Bitmap32ByStaticBitmap;
 
 { TBitmapLayerProviderSimpleForCombine }
 

@@ -78,8 +78,7 @@ uses
   GR32,
   i_TileInfoBasic,
   u_BitmapFunc,
-  u_Bitmap32ByStaticBitmap,
-  u_Bitmap32Static;
+  u_Bitmap32ByStaticBitmap;
 
 { TBitmapTileProviderByStorage }
 

@@ -52,7 +52,6 @@ uses
   i_Bitmap32Static,
   u_GeoFun,
   u_BitmapFunc,
-  u_Bitmap32Static,
   u_Bitmap32ByStaticBitmap,
   u_BitmapMarker,
   u_Synchronizer;

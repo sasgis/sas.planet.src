@@ -268,7 +268,6 @@ uses
   i_TileInfoBasic,
   i_TileIterator,
   u_StringProviderForMapTileItem,
-  u_Bitmap32Static,
   u_LayerDrawConfig,
   u_TileDownloaderConfig,
   u_TileDownloadRequestBuilderConfig,

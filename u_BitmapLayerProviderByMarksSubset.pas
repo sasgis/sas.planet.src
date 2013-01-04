@@ -121,7 +121,6 @@ uses
   i_MarkerDrawable,
   i_CoordConverter,
   i_EnumDoublePoint,
-  u_Bitmap32Static,
   u_Bitmap32ByStaticBitmap,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,

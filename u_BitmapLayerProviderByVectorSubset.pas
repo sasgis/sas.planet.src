@@ -136,7 +136,6 @@ uses
   i_EnumDoublePoint,
   i_LonLatRect,
   i_NotifierTileRectUpdate,
-  u_Bitmap32Static,
   u_Bitmap32ByStaticBitmap,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,
