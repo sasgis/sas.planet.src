@@ -151,6 +151,7 @@ begin
     FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Acsat);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
+        FBitmapFactory,
         AMapTypeArr[0],
         AMapTypeArr[2],
         False,
@@ -164,6 +165,7 @@ begin
     FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, Acmap);
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
+        FBitmapFactory,
         AMapTypeArr[1],
         nil,
         False,

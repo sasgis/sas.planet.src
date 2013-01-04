@@ -872,6 +872,7 @@ begin
     FInetConfig,
     FDownloadConfig,
     FDownloaderThreadConfig,
+    FBitmapFactory,
     FContentTypeManager,
     FCoordConverterFactory,
     FInvisibleBrowser,

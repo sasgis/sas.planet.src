@@ -27,6 +27,7 @@ uses
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   i_BitmapLayerProvider,
+  i_Bitmap32StaticFactory,
   u_CommonFormAndFrameParents;
 
 type
@@ -109,6 +110,7 @@ type
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
     FVectorFactory: IVectorItemsFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
     FMainMapsConfig: IMainMapsConfig;
@@ -147,6 +149,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -184,6 +187,7 @@ constructor TfrMapCombine.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -200,6 +204,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
   FVectorFactory := AVectorFactory;
+  FBitmapFactory := ABitmapFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
@@ -379,6 +384,7 @@ begin
 
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
+      FBitmapFactory,
       VMap,
       VLayer,
       FUseTilePrevZoomConfig.UsePrevZoomAtMap,

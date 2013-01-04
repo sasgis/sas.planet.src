@@ -6,6 +6,7 @@ uses
   GR32,
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
@@ -13,6 +14,7 @@ uses
 type
   TBitmapLayerProviderWithBGColor = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FSourceProvider: IBitmapLayerProvider;
     FBackGroundColor: TColor32;
   private
@@ -24,6 +26,7 @@ type
   public
     constructor Create(
       ABackGroundColor: TColor32;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ASourceProvider: IBitmapLayerProvider
     );
   end;
@@ -39,6 +42,7 @@ uses
 
 constructor TBitmapLayerProviderWithBGColor.Create(
   ABackGroundColor: TColor32;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ASourceProvider: IBitmapLayerProvider
 );
 begin

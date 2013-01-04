@@ -25,6 +25,7 @@ type
   TMapLayerBitmapMaps = class(TTiledLayerWithThreadBase)
   private
     FErrorLogger: ITileErrorLogger;
+    FBitmapFactory: IBitmap32StaticFactory;
     FPostProcessingConfig: IBitmapPostProcessingConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FMainMap: IMapTypeChangeable;
@@ -113,6 +114,7 @@ begin
   FMainMap := AMainMap;
   FLayesList := ALayesList;
   FErrorLogger := AErrorLogger;
+  FBitmapFactory := ABitmapFactory;
   FPostProcessingConfig := APostProcessingConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
 
@@ -156,6 +158,7 @@ begin
 
   Result :=
     TBitmapLayerProviderForViewMaps.Create(
+      FBitmapFactory,
       VMainMap,
       VLayersList,
       VUsePrevConfig.UsePrevZoomAtMap,

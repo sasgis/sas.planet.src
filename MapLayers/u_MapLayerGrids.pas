@@ -165,7 +165,7 @@ begin
       );
 
     if Result <> nil then begin
-      Result := TBitmapLayerProviderComplex.Create(Result, VProvider);
+      Result := TBitmapLayerProviderComplex.Create(FBitmapFactory, Result, VProvider);
     end else begin
       Result := VProvider;
     end;
@@ -191,7 +191,7 @@ begin
         FValueToStringConverterConfig.GetStatic
       );
     if Result <> nil then begin
-      Result := TBitmapLayerProviderComplex.Create(Result, VProvider);
+      Result := TBitmapLayerProviderComplex.Create(FBitmapFactory, Result, VProvider);
     end else begin
       Result := VProvider;
     end;

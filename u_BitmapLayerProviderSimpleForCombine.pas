@@ -6,6 +6,7 @@ uses
   GR32,
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_BitmapPostProcessingConfig,
@@ -17,6 +18,7 @@ type
     FRecolorConfig: IBitmapPostProcessing;
     FSourceProvider: IBitmapLayerProvider;
     FMarksImageProvider: IBitmapLayerProvider;
+    FBitmapFactory: IBitmap32StaticFactory;
   private
     function GetBitmapRect(
       AOperationID: Integer;
@@ -25,6 +27,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ARecolorConfig: IBitmapPostProcessing;
       const ASourceProvider: IBitmapLayerProvider;
       const AMarksImageProvider: IBitmapLayerProvider
@@ -40,12 +43,14 @@ uses
 { TBitmapLayerProviderSimpleForCombine }
 
 constructor TBitmapLayerProviderSimpleForCombine.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ARecolorConfig: IBitmapPostProcessing;
   const ASourceProvider: IBitmapLayerProvider;
   const AMarksImageProvider: IBitmapLayerProvider
 );
 begin
   inherited Create;
+  FBitmapFactory := ABitmapFactory;
   FSourceProvider := ASourceProvider;
   FMarksImageProvider := AMarksImageProvider;
   FRecolorConfig := ARecolorConfig;

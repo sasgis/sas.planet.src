@@ -32,6 +32,7 @@ uses
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_MarksDrawConfig,
   i_MarksSimple,
   i_VectorItemProjected,
@@ -44,6 +45,7 @@ type
   TBitmapLayerProviderByMarksSubset = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FConfig: IMarksDrawConfigStatic;
+    FBitmapFactory: IBitmap32StaticFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IMarksSubset;
@@ -101,6 +103,7 @@ type
     constructor Create(
       const AConfig: IMarksDrawConfigStatic;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IIdCacheSimple;
       const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
@@ -134,6 +137,7 @@ const
 constructor TBitmapLayerProviderByMarksSubset.Create(
   const AConfig: IMarksDrawConfigStatic;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IIdCacheSimple;
   const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
@@ -144,6 +148,7 @@ begin
   inherited Create;
   FConfig := AConfig;
   FVectorItemsFactory := AVectorItemsFactory;
+  FBitmapFactory := ABitmapFactory;
   FProjectionInfo := AProjectionInfo;
   FMarksSubset := AMarksSubset;
   FProjectedCache := AProjectedCache;

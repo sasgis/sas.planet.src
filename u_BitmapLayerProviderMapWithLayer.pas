@@ -6,6 +6,7 @@ uses
   GR32,
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   u_MapType,
@@ -14,6 +15,7 @@ uses
 type
   TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FMapTypeMain: TMapType;
     FMapTypeHybr: TMapType;
     FUsePrevZoomAtMap: Boolean;
@@ -26,6 +28,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       AMapTypeMain: TMapType;
       AMapTypeHybr: TMapType;
       AUsePrevZoomAtMap: Boolean;
@@ -42,12 +45,13 @@ uses
 { TBitmapLayerProviderMapWithLayer }
 
 constructor TBitmapLayerProviderMapWithLayer.Create(
-  AMapTypeMain,
-  AMapTypeHybr: TMapType;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  AMapTypeMain, AMapTypeHybr: TMapType;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
 );
 begin
   inherited Create;
+  FBitmapFactory := ABitmapFactory;
   FMapTypeMain := AMapTypeMain;
   FMapTypeHybr := AMapTypeHybr;
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;

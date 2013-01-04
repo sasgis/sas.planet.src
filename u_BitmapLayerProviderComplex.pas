@@ -5,6 +5,7 @@ interface
 uses
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
@@ -12,6 +13,7 @@ uses
 type
   TBitmapLayerProviderComplex = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
+    FBitmapFactory: IBitmap32StaticFactory;
     FProviderFrist: IBitmapLayerProvider;
     FProviderSecond: IBitmapLayerProvider;
   private
@@ -22,6 +24,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AProviderFrist: IBitmapLayerProvider;
       const AProviderSecond: IBitmapLayerProvider
     );
@@ -36,12 +39,16 @@ uses
 
 { TBitmapLayerProviderComplex }
 
-constructor TBitmapLayerProviderComplex.Create(const AProviderFrist,
-  AProviderSecond: IBitmapLayerProvider);
+constructor TBitmapLayerProviderComplex.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const AProviderFrist, AProviderSecond: IBitmapLayerProvider
+);
 begin
+  Assert(ABitmapFactory <> nil);
   Assert(AProviderFrist <> nil);
   Assert(AProviderSecond <> nil);
   inherited Create;
+  FBitmapFactory := ABitmapFactory;
   FProviderFrist := AProviderFrist;
   FProviderSecond := AProviderSecond;
 end;

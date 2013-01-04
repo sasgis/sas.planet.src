@@ -19,6 +19,7 @@ uses
   i_VectorItemLonLat,
   i_VectorItemsFactory,
   i_ActiveMapsConfig,
+  i_Bitmap32StaticFactory,
   i_MapTypeGUIConfigList,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoadFactory,
@@ -71,6 +72,7 @@ type
     procedure cbbTileResChange(Sender: TObject);
   private
     FVectorFactory: IVectorItemsFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FMainMapsConfig: IMainMapsConfig;
@@ -95,6 +97,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorFactory: IVectorItemsFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -195,6 +198,7 @@ constructor TfrExportToOgf2.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorFactory: IVectorItemsFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -206,6 +210,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorFactory := AVectorFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FBitmapFactory := ABitmapFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
@@ -237,6 +242,7 @@ begin
 
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
+      FBitmapFactory,
       VMap,
       VLayer,
       VUsePrevZoom,

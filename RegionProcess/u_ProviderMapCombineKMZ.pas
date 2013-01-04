@@ -22,6 +22,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessingConfig,
+  i_Bitmap32StaticFactory,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarksSystem,
@@ -55,6 +56,7 @@ type
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       const AMapCalibrationList: IMapCalibrationList
     );
@@ -89,6 +91,7 @@ constructor TProviderMapCombineKMZ.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   const AMapCalibrationList: IMapCalibrationList);
 begin
@@ -108,6 +111,7 @@ begin
       AMarksDrawConfig,
       AMarksDB,
       ALocalConverterFactory,
+      ABitmapFactory,
       ABitmapPostProcessingConfig,
       AMapCalibrationList,
       True,

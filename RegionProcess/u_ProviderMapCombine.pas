@@ -20,6 +20,7 @@ uses
   i_RegionProcessProgressInfo,
   i_MapTypes,
   i_UseTilePrevZoomConfig,
+  i_Bitmap32StaticFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_LocalCoordConverterFactorySimpe,
@@ -42,6 +43,7 @@ type
     FUseAlfa: Boolean;
     FViewConfig: IGlobalViewMainConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+    FBitmapFactory: IBitmap32StaticFactory;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
     FProjectionFactory: IProjectionInfoFactory;
@@ -90,6 +92,7 @@ type
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
       const AMapCalibrationList: IMapCalibrationList;
       const AUseQuality: Boolean;
@@ -141,6 +144,7 @@ constructor TProviderMapCombineBase.Create(
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
   const AMapCalibrationList: IMapCalibrationList;
   const AUseQuality: Boolean;
@@ -165,6 +169,7 @@ begin
   FMarksDB := AMarksDB;
   FLocalConverterFactory := ALocalConverterFactory;
   FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
+  FBitmapFactory := ABitmapFactory;
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
   FVectorItemsFactory := AVectorItemsFactory;
@@ -182,6 +187,7 @@ begin
       FProjectionFactory,
       FCoordConverterList,
       FVectorItemsFactory,
+      FBitmapFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
@@ -275,6 +281,7 @@ begin
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
         FVectorItemsFactory,
+        FBitmapFactory,
         AProjectedPolygon.Projection,
         TIdCacheSimpleThreadSafe.Create,
         VMarkerProvider,
@@ -289,6 +296,7 @@ begin
   end;
   Result :=
     TBitmapLayerProviderSimpleForCombine.Create(
+      FBitmapFactory,
       VRecolorConfig,
       VSourceProvider,
       VMarksImageProvider
@@ -301,6 +309,7 @@ begin
   Result :=
     TBitmapLayerProviderWithBGColor.Create(
       (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor,
+      FBitmapFactory,
       Result
     );
 end;

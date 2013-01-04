@@ -4,7 +4,7 @@ interface
 
 uses
   GR32_Image,
-  i_Notifier, 
+  i_Notifier,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -22,6 +22,7 @@ type
   TMapLayerGPSTrack = class(TTiledLayerWithThreadBase)
   private
     FConfig: IMapLayerGPSTrackConfig;
+    FBitmapFactory: IBitmap32StaticFactory;
     FGPSRecorder: IGPSRecorder;
 
     FGetTrackCounter: IInternalPerformanceCounter;
@@ -99,6 +100,7 @@ begin
   );
   FGPSRecorder := AGPSRecorder;
   FConfig := AConfig;
+  FBitmapFactory := ABitmapFactory;
 
   FGetTrackCounter := PerfList.CreateAndAddNewCounter('GetTrack');
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
@@ -151,6 +153,7 @@ begin
         VPointsCount,
         VLineWidth,
         VTrackColorer,
+        FBitmapFactory,
         ALayerConverter.ProjectionInfo,
         VEnum
       );
