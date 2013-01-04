@@ -90,6 +90,7 @@ uses
   i_TileObjCache,
   i_NotifierTileRectUpdate,
   u_Bitmap32Static,
+  u_Bitmap32ByStaticBitmap,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
   u_Synchronizer,
@@ -139,7 +140,7 @@ function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
 var
   VCache: ITileObjCacheBitmap;
   VLayer: IBitmap32Static;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
   VError: ITileErrorInfo;
 begin
   Result := ASource;
@@ -192,7 +193,7 @@ begin
     if Result = nil then begin
       Result := VLayer;
     end else begin
-      VBitmap := TCustomBitmap32.Create;
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
       try
         AssignStaticToBitmap32(VBitmap, Result);
         BlockTransferFull(
@@ -201,8 +202,7 @@ begin
           VLayer,
           dmBlend
         );
-        Result := TBitmap32Static.CreateWithOwn(VBitmap);
-        VBitmap := nil;
+        Result := VBitmap.BitmapStatic;
       finally
         VBitmap.Free;
       end;

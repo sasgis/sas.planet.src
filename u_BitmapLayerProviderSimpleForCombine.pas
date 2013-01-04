@@ -38,6 +38,7 @@ implementation
 
 uses
   u_BitmapFunc,
+  u_Bitmap32ByStaticBitmap,
   u_Bitmap32Static;
 
 { TBitmapLayerProviderSimpleForCombine }
@@ -63,7 +64,7 @@ function TBitmapLayerProviderSimpleForCombine.GetBitmapRect(
 ): IBitmap32Static;
 var
   VLayer: IBitmap32Static;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
 begin
   Result := FSourceProvider.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
   if Result <> nil then begin
@@ -76,7 +77,7 @@ begin
   end;
   if Result <> nil then begin
     if VLayer <> nil then begin
-      VBitmap := TCustomBitmap32.Create;
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
       try
         AssignStaticToBitmap32(VBitmap, Result);
         BlockTransferFull(
@@ -85,8 +86,7 @@ begin
           VLayer,
           dmBlend
         );
-        Result := TBitmap32Static.CreateWithOwn(VBitmap);
-        VBitmap := nil;
+        Result := VBitmap.BitmapStatic;
       finally
         VBitmap.Free;
       end;

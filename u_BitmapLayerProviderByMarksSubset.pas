@@ -122,6 +122,7 @@ uses
   i_CoordConverter,
   i_EnumDoublePoint,
   u_Bitmap32Static,
+  u_Bitmap32ByStaticBitmap,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,
   u_EnumDoublePointMapPixelToLocalPixel,
@@ -477,7 +478,7 @@ var
   VZoom: Byte;
   VMarksSubset: IMarksSubset;
   VDeltaSizeInPixel: TRect;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
 begin
   VLocalRect := ALocalConverter.GetLocalRect;
   VDeltaSizeInPixel := FConfig.OverSizeRect;
@@ -493,11 +494,10 @@ begin
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
   Result := nil;
   if not VMarksSubset.IsEmpty then begin
-    VBitmap := TCustomBitmap32.Create;
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter) then begin
-        Result := TBitmap32Static.CreateWithOwn(VBitmap);
-        VBitmap := nil;
+        Result := VBitmap.BitmapStatic;
       end;
     finally
       VBitmap.Free;

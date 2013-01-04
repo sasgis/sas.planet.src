@@ -36,6 +36,7 @@ implementation
 uses
   Types,
   u_BitmapFunc,
+  u_Bitmap32ByStaticBitmap,
   u_Bitmap32Static;
 
 { TBitmapLayerProviderWithBGColor }
@@ -59,7 +60,7 @@ function TBitmapLayerProviderWithBGColor.GetBitmapRect(
 ): IBitmap32Static;
 var
   VTileSize: TPoint;
-  VTargetBmp: TCustomBitmap32;
+  VTargetBmp: TBitmap32ByStaticBitmap;
 begin
   Result :=
     FSourceProvider.GetBitmapRect(
@@ -68,7 +69,7 @@ begin
       ALocalConverter
     );
   if Result <> nil then begin
-    VTargetBmp := TCustomBitmap32.Create;
+    VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       VTileSize := ALocalConverter.GetLocalRectSize;
       VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);
@@ -80,8 +81,7 @@ begin
         Result,
         dmBlend
       );
-      Result := TBitmap32Static.CreateWithOwn(VTargetBmp);
-      VTargetBmp := nil;
+      Result := VTargetBmp.BitmapStatic;
     finally
       VTargetBmp.Free;
     end;

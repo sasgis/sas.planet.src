@@ -77,6 +77,7 @@ uses
   SysUtils,
   i_CoordConverter,
   u_Bitmap32Static,
+  u_Bitmap32ByStaticBitmap,
   u_GeoFun;
 
 { TBitmapLayerProviderByTrackPath }
@@ -243,7 +244,7 @@ var
   VLonLatRect: TDoubleRect;
   VConverter: ICoordConverter;
   VZoom: Byte;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
 begin
   Result := nil;
   if not FRectIsEmpty then begin
@@ -253,7 +254,7 @@ begin
     VConverter.CheckPixelRect(VTargetRect, VZoom);
     VLonLatRect := VConverter.PixelRect2LonLatRect(VTargetRect, VZoom);
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
-      VBitmap := TCustomBitmap32.Create;
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
       try
         if
           DrawPath(
@@ -266,8 +267,7 @@ begin
             FPointsCount
           )
         then begin
-          Result := TBitmap32Static.CreateWithOwn(VBitmap);
-          VBitmap := nil;
+          Result := VBitmap.BitmapStatic;
         end;
       finally
         VBitmap.Free;

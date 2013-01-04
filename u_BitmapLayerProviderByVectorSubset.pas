@@ -137,6 +137,7 @@ uses
   i_LonLatRect,
   i_NotifierTileRectUpdate,
   u_Bitmap32Static,
+  u_Bitmap32ByStaticBitmap,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,
   u_EnumDoublePointMapPixelToLocalPixel,
@@ -465,7 +466,7 @@ var
   VMapPixelRect: TDoubleRect;
   VLLRect: TDoubleRect;
   VBitmapInited: Boolean;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
   VIsEmpty: Boolean;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
@@ -477,7 +478,7 @@ begin
   VBitmapInited := False;
   Result := nil;
   if FVectorItems.Count > 0 then begin
-    VBitmap := TCustomBitmap32.Create;
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       VIsEmpty := True;
       for i := 0 to FVectorItems.Count - 1 do begin
@@ -492,8 +493,7 @@ begin
         end;
       end;
       if not VIsEmpty then begin
-        Result := TBitmap32Static.CreateWithOwn(VBitmap);
-        VBitmap := nil;
+        Result := VBitmap.BitmapStatic;
       end;
     finally
       VBitmap.Free;

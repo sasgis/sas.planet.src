@@ -35,6 +35,7 @@ implementation
 uses
   GR32,
   u_BitmapFunc,
+  u_Bitmap32ByStaticBitmap,
   u_Bitmap32Static;
 
 { TBitmapLayerProviderComplex }
@@ -61,7 +62,7 @@ function TBitmapLayerProviderComplex.GetBitmapRect(
 var
   VResultFirst: IBitmap32Static;
   VResultSecond: IBitmap32Static;
-  VBitmap: TCustomBitmap32;
+  VBitmap: TBitmap32ByStaticBitmap;
 begin
   VResultFirst := FProviderFrist.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
   VResultSecond := FProviderSecond.GetBitmapRect(AOperationID, ACancelNotifier, ALocalConverter);
@@ -71,7 +72,7 @@ begin
     if VResultSecond = nil then begin
       Result := VResultFirst;
     end else begin
-      VBitmap := TCustomBitmap32.Create;
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
       try
         AssignStaticToBitmap32(VBitmap, VResultFirst);
         BlockTransferFull(
@@ -81,8 +82,7 @@ begin
           dmBlend,
           cmMerge
         );
-        Result := TBitmap32Static.CreateWithOwn(VBitmap);
-        VBitmap := nil;
+        Result := VBitmap.BitmapStatic;
       finally
         VBitmap.Free;
       end;
