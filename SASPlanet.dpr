@@ -858,7 +858,6 @@ uses
   i_SimpleHttpDownloader in 'i_SimpleHttpDownloader.pas',
   u_SimpleHttpDownloader in 'u_SimpleHttpDownloader.pas',
   i_Bitmap32Static in 'i_Bitmap32Static.pas',
-  u_Bitmap32Static in 'u_Bitmap32Static.pas',
   i_Bitmap32StaticFactory in 'i_Bitmap32StaticFactory.pas',
   u_Bitmap32StaticFactory in 'u_Bitmap32StaticFactory.pas',
   u_Bitmap32ByStaticBitmap in 'u_Bitmap32ByStaticBitmap.pas',
