@@ -623,7 +623,7 @@ begin
     TPathDetalizeProviderListSimple.Create(
       FLanguageManager,
       FInetConfig,
-      FGCThread.List,
+      FBGTimerNotifier,
       TDownloadResultFactory.Create,
       TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
       FVectorItemsFactory,
@@ -869,7 +869,7 @@ begin
     FGlobalBerkeleyDBHelper,
     FTileNameGenerator,
     FTileNameParser,
-    FGCThread.List,
+    FBGTimerNotifier,
     FAppClosingNotifier,
     FInetConfig,
     FDownloadConfig,

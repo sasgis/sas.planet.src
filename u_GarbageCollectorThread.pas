@@ -41,7 +41,6 @@ type
       ASleepTime: Cardinal
     );
     destructor Destroy; override;
-    property List: INotifierTTLCheck read FList;
   end;
 
 implementation
