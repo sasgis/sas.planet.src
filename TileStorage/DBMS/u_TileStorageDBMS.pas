@@ -628,7 +628,6 @@ constructor TTileStorageETS.Create(
   const AMainContentType: IContentTypeInfoBasic);
 const
   CETSSync = 300000; // 5 min
-  CETSSyncCheckInterval = 60000; // 60 sec
 var
   VCorrectPath: String;
 begin
@@ -757,6 +756,7 @@ begin
       // delete both tile and TNE
       FTileInfoMemCache.Remove(AXY, AZoom);
     end;
+    FETSTTLListener.UpdateUseTime;
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
 end;
@@ -1682,6 +1682,7 @@ begin
         VTileInfo
       );
     end;
+    FETSTTLListener.UpdateUseTime;
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
 end;

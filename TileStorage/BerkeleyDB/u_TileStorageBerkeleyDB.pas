@@ -142,7 +142,6 @@ const
   cStorageFileExt = '.sdb';
   cTneStorageFileExt = '.tne';
   cStorageSyncInterval = 300000; // 5 min
-  cStorageSyncCheckInterval = 60000; // 60 sec
 
 { TTileStorageBerkeleyDB }
 
@@ -501,6 +500,7 @@ begin
             VTileInfo
           );
         end;
+        FSyncCallListner.UpdateUseTime;
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
@@ -542,6 +542,7 @@ begin
             TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
           );
         end;
+        FSyncCallListner.UpdateUseTime;
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
@@ -597,6 +598,7 @@ begin
           TTileInfoBasicNotExists.Create(0, AVersionInfo)
         );
       end;
+      FSyncCallListner.UpdateUseTime;
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   end;
