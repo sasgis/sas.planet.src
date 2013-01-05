@@ -26,16 +26,16 @@ uses
   i_ListenerTTLCheck;
 
 type
-  INotifierTTLCheck = interface
-    ['{25465366-07F9-459A-9D54-1597E4BD6306}']
-    procedure Add(const AListener: IListenerTTLCheck);
-    procedure Remove(const AListener: IListenerTTLCheck);
+  INotifierTime = interface
+    ['{91D40422-C434-43B0-8C5A-D7F774C51773}']
+    procedure Add(const AListener: IListenerTime);
+    procedure Remove(const AListener: IListenerTime);
   end;
 
-  INotifierTTLCheckInternal = interface(INotifierTTLCheck)
-    function ProcessCheckAndGetNextTime: Cardinal;
+  INotifierTimeInternal = interface(INotifierTime)
+    procedure Notify(const ANow: Cardinal);
   end;
-  
+
 implementation
 
 end.

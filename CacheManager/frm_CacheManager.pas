@@ -82,7 +82,7 @@ type
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifier;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
     FCoordConverterFactory: ICoordConverterFactory;
@@ -101,7 +101,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifier;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -144,7 +144,7 @@ constructor TfrmCacheManager.Create(
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifier;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
@@ -157,7 +157,7 @@ begin
   FLanguageManager := ALanguageManager;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
@@ -186,7 +186,7 @@ begin
         FGlobalBerkeleyDBHelper,
         ACoordConverter,
         ARootPath,
-        FGCList,
+        FGCNotifier,
         nil,
         FContentTypeManager,
         VMapVersionFactory,
@@ -199,7 +199,7 @@ begin
         ACoordConverter,
         '', // TODO: add global DBMS Root here
         ARootPath,
-        FGCList,
+        FGCNotifier,
         nil,
         FContentTypeManager,
         VMapVersionFactory,

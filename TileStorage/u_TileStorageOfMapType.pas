@@ -36,7 +36,7 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FConfig: ISimpleTileStorageConfig;
     FVersionConfig: IMapVersionConfig;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FContentTypeManager: IContentTypeManager;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
@@ -140,7 +140,7 @@ type
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
       const AVersionConfig: IMapVersionConfig;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
       const AFileNameParsersList: ITileFileNameParsersList;
@@ -177,7 +177,7 @@ constructor TTileStorageOfMapType.Create(
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
   const AVersionConfig: IMapVersionConfig;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
   const AFileNameParsersList: ITileFileNameParsersList;
@@ -192,7 +192,7 @@ begin
   FConfig := AConfig;
   FCacheTileInfo := ACacheTileInfo;
   FVersionConfig := AVersionConfig;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FContentTypeManager := AContentTypeManager;
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
@@ -276,7 +276,7 @@ begin
             FGlobalBerkeleyDBHelper,
             VCoordConverter,
             FCurrentPath,
-            FGCList,
+            FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
             VMapVersionFactory,
@@ -292,7 +292,7 @@ begin
             VCoordConverter,
             FGlobalCacheConfig.DBMSCachePath.Path,
             FCurrentPath,
-            FGCList,
+            FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
             VMapVersionFactory,

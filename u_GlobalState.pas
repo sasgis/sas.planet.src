@@ -73,6 +73,7 @@ uses
   i_ZmpInfoSet,
   i_GPSConfig,
   i_PathConfig,
+  i_NotifierTTLCheck,
   i_Bitmap32StaticFactory,
   i_MapCalibration,
   i_MarkCategoryFactoryConfig,
@@ -160,6 +161,7 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
     FSkyMapDraw: ISatellitesInViewMapDraw;
+    FBGTimerNotifier: INotifierTime;
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifierInternal: INotifierInternal;
     FGUISyncronizedTimerNotifier: INotifier;
@@ -197,7 +199,6 @@ type
   public
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCacheConfig read FCacheConfig;
-    property GCThread: TGarbageCollectorThread read FGCThread;
     property MarksDb: IMarksSystem read FMarksDb;
     property GpsSystem: IGPSModule read FGpsSystem;
 
@@ -222,6 +223,7 @@ type
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: INotifier read FGUISyncronizedTimerNotifier;
+    property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
     property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
@@ -286,7 +288,6 @@ uses
   i_TextByVectorItem,
   u_TextByVectorItemHTMLByDescription,
   u_TextByVectorItemMarkInfo,
-  i_NotifierTTLCheck,
   u_NotifierTTLCheck,
   i_FileNameIterator,
   u_ContentTypeManagerSimple,
@@ -370,7 +371,7 @@ uses
 
 constructor TGlobalState.Create;
 var
-  VList: INotifierTTLCheckInternal;
+  VList: INotifierTimeInternal;
   VViewCnonfig: IConfigDataProvider;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
   VXmlLoader: IVectorDataLoader;
@@ -553,8 +554,14 @@ begin
     VKmzLoader,
     VXmlZLoader
   );
-  VList := TNotifierTTLCheck.Create;
-  FGCThread := TGarbageCollectorThread.Create(VList, VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000));
+  VList := TNotifierTime.Create;
+  FBGTimerNotifier := VList;
+  FGCThread :=
+    TGarbageCollectorThread.Create(
+      FAppClosingNotifier,
+      VList,
+      VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000)
+    );
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create(FBitmapFactory);
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   FGpsSystem :=
@@ -571,7 +578,7 @@ begin
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FInetConfig,
-      FGCThread.List,
+      BGTimerNotifier,
       TDownloadResultFactory.Create,
       FValueToStringConverterConfig
     );
@@ -621,7 +628,7 @@ begin
     TPathDetalizeProviderListSimple.Create(
       FLanguageManager,
       FInetConfig,
-      FGCThread.List,
+      FBGTimerNotifier,
       TDownloadResultFactory.Create,
       TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
       FVectorItemsFactory,
@@ -867,7 +874,7 @@ begin
     FGlobalBerkeleyDBHelper,
     FTileNameGenerator,
     FTileNameParser,
-    FGCThread.List,
+    FBGTimerNotifier,
     FAppClosingNotifier,
     FInetConfig,
     FDownloadConfig,

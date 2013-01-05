@@ -67,7 +67,7 @@ type
   public
     constructor Create(
       const AInetSettings: IInetConfig;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AResultFactory: IDownloadResultFactory
     );
   end;
@@ -86,13 +86,13 @@ uses
 
 constructor TGeoCoderBasic.Create(
   const AInetSettings: IInetConfig;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AResultFactory: IDownloadResultFactory
 );
 begin
   inherited Create;
   FInetSettings := AInetSettings;
-  FDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
 end;
 
 function TGeoCoderBasic.GetLocations(

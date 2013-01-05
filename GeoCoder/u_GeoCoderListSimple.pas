@@ -34,7 +34,7 @@ type
   public
     constructor Create(
       const AInetConfig: IInetConfig;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -62,7 +62,7 @@ uses
 
 constructor TGeoCoderListSimple.Create(
   const AInetConfig: IInetConfig;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
@@ -74,7 +74,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderGoogleGUID,
       'Google',
-      TGeoCoderByGoogle.Create(AInetConfig, AGCList, AResultFactory)
+      TGeoCoderByGoogle.Create(AInetConfig, AGCNotifier, AResultFactory)
     );
   Add(VItem);
 
@@ -82,7 +82,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderYandexGUID,
       'Yandex',
-      TGeoCoderByYandex.Create(AInetConfig, AGCList, AResultFactory)
+      TGeoCoderByYandex.Create(AInetConfig, AGCNotifier, AResultFactory)
     );
   Add(VItem);
 
@@ -90,7 +90,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoder2GISGUID,
       '2GIS',
-      TGeoCoderBy2GIS.Create(AInetConfig, AGCList, AResultFactory)
+      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AResultFactory)
     );
   Add(VItem);
 
@@ -98,7 +98,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderOSMGUID,
       'OSM',
-      TGeoCoderByOSM.Create(AInetConfig, AGCList, AResultFactory)
+      TGeoCoderByOSM.Create(AInetConfig, AGCNotifier, AResultFactory)
     );
   Add(VItem);
 
@@ -106,7 +106,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderWikiMapiaGUID,
       'WikiMapia',
-      TGeoCoderByWikiMapia.Create(AInetConfig, AGCList, AResultFactory)
+      TGeoCoderByWikiMapia.Create(AInetConfig, AGCNotifier, AResultFactory)
     );
   Add(VItem);
 
@@ -114,7 +114,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
       'Rosreestr',
-      TGeoCoderByRosreestr.Create(AInetConfig, AGCList, AResultFactory, AValueToStringConverterConfig)
+      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AResultFactory, AValueToStringConverterConfig)
     );
   Add(VItem);
 
@@ -122,7 +122,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderNavitelGUID,
       'Navitel',
-      TGeoCoderByNavitel.Create(AInetConfig, AGCList, AResultFactory)
+      TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, AResultFactory)
     );
   Add(VItem);
 
@@ -130,7 +130,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
       'URL',
-      TGeoCoderByURL.Create(AInetConfig, AGCList, AResultFactory, AValueToStringConverterConfig)
+      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AResultFactory, AValueToStringConverterConfig)
     );
   Add(VItem);
 

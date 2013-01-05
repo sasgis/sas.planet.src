@@ -54,8 +54,8 @@ type
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
     FMapVersionConfig: IMapVersionConfig;
-    FGCList: INotifierTTLCheck;
-    FETSTTLListener: IListenerTTLCheck;
+    FGCNotifier: INotifierTime;
+    FETSTTLListener: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
 
     // some special values
@@ -237,7 +237,7 @@ type
     constructor Create(
       const AGeoConverter: ICoordConverter;
       const AGlobalStorageIdentifier, AStoragePath: String;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const ACacheTileInfo: ITileInfoBasicMemCache;
       const AContentTypeManager: IContentTypeManager;
       const AMapVersionFactory: IMapVersionFactory;
@@ -622,7 +622,7 @@ end;
 constructor TTileStorageETS.Create(
   const AGeoConverter: ICoordConverter;
   const AGlobalStorageIdentifier, AStoragePath: String;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const ACacheTileInfo: ITileInfoBasicMemCache;
   const AContentTypeManager: IContentTypeManager;
   const AMapVersionFactory: IMapVersionFactory;
@@ -663,15 +663,15 @@ begin
     CETSSyncCheckInterval
   );
 
-  FGCList := AGCList;
-  if Assigned(FGCList) then begin
-    FGCList.Add(FETSTTLListener);
+  FGCNotifier := AGCNotifier;
+  if Assigned(FGCNotifier) then begin
+    FGCNotifier.Add(FETSTTLListener);
   end;
 
   FDLLHandle := 0;
   FDLLProvHandle := nil;
   InternalLib_CleanupProc;
-  
+
   if not InternalLib_SetPath(AGlobalStorageIdentifier, StoragePath) then begin
     StorageStateInternal.ReadAccess := asEnabled;
   end;
@@ -775,9 +775,9 @@ begin
   try
     InternalLib_Unload;
 
-    if Assigned(FGCList) then begin
-      FGCList.Remove(FETSTTLListener);
-      FGCList := nil;
+    if Assigned(FGCNotifier) then begin
+      FGCNotifier.Remove(FETSTTLListener);
+      FGCNotifier := nil;
     end;
 
     FETSTTLListener := nil;

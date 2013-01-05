@@ -15,7 +15,7 @@ uses
 type
   TTileStorageTypeDBMS = class(TTileStorageTypeBase)
   private
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorage(
@@ -26,7 +26,7 @@ type
     ): ITileStorage; override;
   public
     constructor Create(
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig
     );
@@ -42,7 +42,7 @@ uses
 { TTileStorageTypeDBMS }
 
 constructor TTileStorageTypeDBMS.Create(
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig
 );
@@ -52,7 +52,7 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FContentTypeManager := AContentTypeManager;
 end;
 
@@ -68,7 +68,7 @@ begin
       AGeoConverter,
       GetConfig.BasePath.Path,
       APath,
-      FGCList,
+      FGCNotifier,
       ACacheTileInfo,
       FContentTypeManager,
       GetMapVersionFactory,

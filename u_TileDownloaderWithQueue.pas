@@ -25,7 +25,7 @@ type
   public
     constructor Create(
       const ATileDownloaderList: ITileDownloaderList;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AThreadConfig: IThreadConfig;
       const AAppClosingNotifier: INotifierOneOperation;
       AQueueCapacity: Integer
@@ -42,7 +42,7 @@ uses
 
 constructor TTileDownloaderWithQueue.Create(
   const ATileDownloaderList: ITileDownloaderList;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AThreadConfig: IThreadConfig;
   const AAppClosingNotifier: INotifierOneOperation;
   AQueueCapacity: Integer
@@ -56,7 +56,7 @@ begin
     );
   FSyncTileRequestProcessorPull :=
     TTileRequestProcessorPool.Create(
-      AGCList,
+      AGCNotifier,
       AThreadConfig,
       AAppClosingNotifier,
       FQueue,

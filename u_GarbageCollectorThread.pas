@@ -25,63 +25,96 @@ interface
 uses
   Windows,
   Classes,
+  SyncObjs,
+  i_Listener,
+  i_NotifierOperation,
   i_NotifierTTLCheck;
 
 type
   TGarbageCollectorThread = class(TThread)
   private
-    FList: INotifierTTLCheck;
-    FListInternal: INotifierTTLCheckInternal;
+    FAppClosingNotifier: INotifierOneOperation;
+    FNotifier: INotifierTimeInternal;
+
+    FAppClosingListener: IListener;
+    FCancelEvent: TEvent;
     FSleepTime: Cardinal;
+    procedure SleepCancelable(ATime: Cardinal);
+    procedure OnAppClosing;
   protected
     procedure Execute; override;
   public
     constructor Create(
-      const AList: INotifierTTLCheckInternal;
+      const AAppClosingNotifier: INotifierOneOperation;
+      const ANotifier: INotifierTimeInternal;
       ASleepTime: Cardinal
     );
     destructor Destroy; override;
-    property List: INotifierTTLCheck read FList;
   end;
 
 implementation
 
 uses
+  SysUtils,
+  u_ListenerByEvent,
   u_ReadableThreadNames;
 
 constructor TGarbageCollectorThread.Create(
-  const AList: INotifierTTLCheckInternal;
+  const AAppClosingNotifier: INotifierOneOperation;
+  const ANotifier: INotifierTimeInternal;
   ASleepTime: Cardinal
 );
 begin
   inherited Create(false);
-  FListInternal := AList;
-  FList := FListInternal;
+  FAppClosingNotifier := AAppClosingNotifier;
+  FNotifier := ANotifier;
   FSleepTime := ASleepTime;
+
+  FCancelEvent := TEvent.Create;
+
+  FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
+  FAppClosingNotifier.Add(FAppClosingListener);
+  if FAppClosingNotifier.IsExecuted then begin
+    OnAppClosing;
+  end;
 end;
 
 destructor TGarbageCollectorThread.Destroy;
 begin
-  FList := nil;
+  FCancelEvent.SetEvent;
+
+  if FAppClosingNotifier <> nil then begin
+    FAppClosingNotifier.Remove(FAppClosingListener);
+    FAppClosingListener := nil;
+    FAppClosingNotifier := nil;
+  end;
+
+  FreeAndNil(FCancelEvent);
   inherited;
 end;
 
 procedure TGarbageCollectorThread.Execute;
 var
-  VNextCheck: Cardinal;
   VNow: Cardinal;
 begin
   SetCurrentThreadName(AnsiString(Self.ClassName));
-  VNextCheck := 0;
   while not Terminated do begin
     VNow := GetTickCount;
-    if (VNextCheck = 0) or (VNextCheck <= VNow) or ((VNextCheck > (1 shl 30)) and (VNow < (1 shl 29))) then begin
-      VNextCheck := FListInternal.ProcessCheckAndGetNextTime;
-      if Terminated then begin
-        Break;
-      end;
-    end;
-    Sleep(FSleepTime);
+    FNotifier.Notify(VNow);
+    SleepCancelable(FSleepTime);
+  end;
+end;
+
+procedure TGarbageCollectorThread.OnAppClosing;
+begin
+  FCancelEvent.SetEvent;
+  Terminate;
+end;
+
+procedure TGarbageCollectorThread.SleepCancelable(ATime: Cardinal);
+begin
+  if ATime > 0 then begin
+    FCancelEvent.WaitFor(ATime);
   end;
 end;
 

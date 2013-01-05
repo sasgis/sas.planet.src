@@ -38,7 +38,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AInetConfig: IInetConfig;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AResultFactory: IDownloadResultFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AFactory: IVectorItemsFactory;
@@ -67,7 +67,7 @@ uses
 constructor TPathDetalizeProviderListSimple.Create(
   const ALanguageManager: ILanguageManager;
   const AInetConfig: IInetConfig;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AResultFactory: IDownloadResultFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItemsFactory;
@@ -97,7 +97,7 @@ begin
       ALanguageManager,
       _('Maps@mail.ru') + '|0020~\' + _('By Car (Shortest)') + '|0010'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
       AInetConfig,
@@ -130,7 +130,7 @@ begin
       ALanguageManager,
       _('Maps@mail.ru') + '|0020~\' + _('By Car (Fastest)') + '|0020'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
       AInetConfig,
@@ -166,7 +166,7 @@ begin
       False,
       _('Maps@mail.ru') + '|0020~\' + _('By Car (Fastest with traffic)') + '|0030'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderMailRu.Create(
       AInetConfig,
@@ -199,7 +199,7 @@ begin
       ALanguageManager,
       _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Fastest)') + '|0010'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
@@ -234,7 +234,7 @@ begin
       ALanguageManager,
       _('yournavigation.org (OSM)') + '|0030~\' + _('By Car (Shortest)') + '|0020'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
@@ -269,7 +269,7 @@ begin
       ALanguageManager,
       _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Fastest)') + '|0030'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
@@ -304,7 +304,7 @@ begin
       ALanguageManager,
       _('yournavigation.org (OSM)') + '|0030~\' + _('By Bicycle (Shortest)') + '|0040'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
@@ -339,7 +339,7 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Fastest)') + '|0010'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
@@ -373,7 +373,7 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Fastest)') + '|0020'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
@@ -407,7 +407,7 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Fastest)') + '|0030'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
@@ -441,7 +441,7 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Car (Shortest)') + '|0040'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
@@ -475,7 +475,7 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Foot (Shortest)') + '|0050'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
@@ -509,7 +509,7 @@ begin
       ALanguageManager,
       _('maps.cloudmade.com (OSM)') + '|0010~\' + _('By Bicycle (Shortest)') + '|0060'
     );
-  VDownloader := TDownloaderHttpWithTTL.Create(AGCList, AResultFactory);
+  VDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
   VProvider :=
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,

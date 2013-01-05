@@ -47,8 +47,8 @@ type
   private
     FMainContentType: IContentTypeInfoBasic;
     FTileNotExistsTileInfo: ITileInfoBasic;
-    FGCList: INotifierTTLCheck;
-    FTTLCheckListener: IListenerTTLCheck;
+    FGCNotifier: INotifierTime;
+    FTTLCheckListener: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
   protected
     function GetIsFileCache: Boolean; override;
@@ -152,9 +152,9 @@ end;
 
 destructor TTileStorageInRAM.Destroy;
 begin
-  if Assigned(FGCList) then begin
-    FGCList.Remove(FTTLCheckListener);
-    FGCList := nil;
+  if Assigned(FGCNotifier) then begin
+    FGCNotifier.Remove(FTTLCheckListener);
+    FGCNotifier := nil;
   end;
   FTTLCheckListener := nil;
   FTileInfoMemCache := nil;

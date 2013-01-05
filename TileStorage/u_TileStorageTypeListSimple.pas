@@ -40,7 +40,7 @@ type
       const AConfig: ISimpleTileStorageConfigStatic;
       const AContentTypeManager: IContentTypeManager;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const ABasePath: IPathConfig
     );
   end;
@@ -80,7 +80,7 @@ constructor TTileStorageTypeListSimple.Create(
   const AConfig: ISimpleTileStorageConfigStatic;
   const AContentTypeManager: IContentTypeManager;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const ABasePath: IPathConfig
 );
 var
@@ -189,7 +189,7 @@ begin
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_BDB);
   VStorageType := TTileStorageTypeBerkeleyDB.Create(
     AGlobalBerkeleyDBHelper,
-    AGCList,
+    AGCNotifier,
     AContentTypeManager,
     VStorageTypeConfig
   );
@@ -203,7 +203,7 @@ begin
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_DBMS);
   VStorageType := TTileStorageTypeDBMS.Create(
-    AGCList,
+    AGCNotifier,
     AContentTypeManager,
     VStorageTypeConfig
   );

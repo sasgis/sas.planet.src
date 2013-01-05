@@ -28,7 +28,7 @@ type
   TUiTileDownload = class(TBaseInterfacedObject)
   private
     FConfig: IDownloadUIConfig;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FAppClosingNotifier: INotifierOneOperation;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FViewPortState: ILocalCoordConverterChangeable;
@@ -40,7 +40,7 @@ type
     FCS: IReadWriteSync;
     FLinksList: IListenerNotifierLinksList;
     FDownloadTask: IBackgroundTask;
-    FTTLListener: IListenerTTLCheck;
+    FTTLListener: IListenerTimeWithUsedFlag;
     FTileDownloadFinishListener: IListenerDisconnectable;
     FDownloadState: ITileDownloaderStateChangeble;
 
@@ -71,7 +71,7 @@ type
   public
     constructor Create(
       const AConfig: IDownloadUIConfig;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -109,7 +109,7 @@ uses
 
 constructor TUiTileDownload.Create(
   const AConfig: IDownloadUIConfig;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -121,7 +121,7 @@ constructor TUiTileDownload.Create(
 begin
   inherited Create;
   FConfig := AConfig;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
   FConverterFactory := ACoordConverterFactory;
   FViewPortState := AViewPortState;
@@ -167,7 +167,7 @@ begin
   );
 
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 30000, 1000);
-  FGCList.Add(FTTLListener);
+  FGCNotifier.Add(FTTLListener);
 
   FLinksList.ActivateLinks;
   OnConfigChange;
@@ -180,9 +180,9 @@ destructor TUiTileDownload.Destroy;
 begin
   FTileDownloadFinishListener.Disconnect;
 
-  FGCList.Remove(FTTLListener);
+  FGCNotifier.Remove(FTTLListener);
   FTTLListener := nil;
-  FGCList := nil;
+  FGCNotifier := nil;
 
   FLinksList.DeactivateLinks;
 

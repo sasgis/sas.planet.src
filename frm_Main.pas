@@ -892,7 +892,7 @@ begin
       GState.LanguageManager,
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
-      GState.GCThread.List,
+      GState.BGTimerNotifier,
       GState.GlobalBerkeleyDBHelper,
       GState.ContentTypeManager,
       GState.CoordConverterFactory,
@@ -1271,7 +1271,7 @@ begin
     
     FUIDownload :=
       TUITileDownloadList.Create(
-        GState.GCThread.List,
+        GState.BGTimerNotifier,
         GState.AppClosingNotifier,
         FConfig.DownloadUIConfig,
         GState.LocalConverterFactory,
