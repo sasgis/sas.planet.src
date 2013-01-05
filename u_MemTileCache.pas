@@ -43,12 +43,12 @@ type
   TMemTileCacheBase = class(TBaseInterfacedObject)
   private
     FConfig: IMainMemCacheConfig;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FConfigListener: IListener;
     FTileStorage: ITileStorage;
     FCoordConverter: ICoordConverter;
     FStorageChangeListener: IListener;
-    FTTLListener: IListenerTTLCheck;
+    FTTLListener: IListenerTimeWithUsedFlag;
 
     FCacheList: TStringList;
     FSync: IReadWriteSync;
@@ -91,7 +91,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const ATileStorage: ITileStorage;
       const ACoordConverter: ICoordConverter;
       const AConfig: IMainMemCacheConfig;
@@ -139,7 +139,7 @@ uses
 { TTileCacheBase }
 
 constructor TMemTileCacheBase.Create(
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const ATileStorage: ITileStorage;
   const ACoordConverter: ICoordConverter;
   const AConfig: IMainMemCacheConfig;
@@ -150,7 +150,7 @@ var
 begin
   inherited Create;
   FConfig := AConfig;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnChangeConfig);
   FConfig.GetChangeNotifier.Add(FConfigListener);
 
@@ -167,7 +167,7 @@ begin
   FCacheList.Capacity := FConfig.MaxSize;
   FSync := MakeSyncRW_Big(Self, False);
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 40000, 1000);
-  FGCList.Add(FTTLListener);
+  FGCNotifier.Add(FTTLListener);
 
   FAddItemCounter := APerfList.CreateAndAddNewCounter('Add');
   FDeleteItemCounter := APerfList.CreateAndAddNewCounter('Delete');
@@ -184,9 +184,9 @@ begin
   FConfigListener := nil;
   FConfig := nil;
 
-  FGCList.Remove(FTTLListener);
+  FGCNotifier.Remove(FTTLListener);
   FTTLListener := nil;
-  FGCList := nil;
+  FGCNotifier := nil;
 
   if FTileStorage <> nil then begin
     VNotifier := FTileStorage.TileNotifier;

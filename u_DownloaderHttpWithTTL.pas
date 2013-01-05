@@ -18,9 +18,9 @@ type
   TDownloaderHttpWithTTL = class(TBaseInterfacedObject, IDownloader)
   private
     FResultFactory: IDownloadResultFactory;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
 
-    FTTLListener: IListenerTTLCheck;
+    FTTLListener: IListenerTimeWithUsedFlag;
     FCS: IReadWriteSync;
     FDownloader: IDownloader;
     procedure OnTTLTrim(Sender: TObject);
@@ -32,7 +32,7 @@ type
     ): IDownloadResult;
   public
     constructor Create(
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AResultFactory: IDownloadResultFactory
     );
     destructor Destroy; override;
@@ -47,7 +47,7 @@ uses
 { TDownloaderHttpWithTTL }
 
 constructor TDownloaderHttpWithTTL.Create(
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AResultFactory: IDownloadResultFactory
 );
 const
@@ -56,21 +56,21 @@ const
 begin
   inherited Create;
   FResultFactory := AResultFactory;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FCS := MakeSyncRW_Std(Self, FALSE);
   FTTLListener := TListenerTTLCheck.Create(
     Self.OnTTLTrim,
     CHttpClientTTL,
     CHttpClientTTLCheckInterval
   );
-  FGCList.Add(FTTLListener);
+  FGCNotifier.Add(FTTLListener);
 end;
 
 destructor TDownloaderHttpWithTTL.Destroy;
 begin
-  FGCList.Remove(FTTLListener);
+  FGCNotifier.Remove(FTTLListener);
   FTTLListener := nil;
-  FGCList := nil;
+  FGCNotifier := nil;
   FCS := nil;
   inherited;
 end;

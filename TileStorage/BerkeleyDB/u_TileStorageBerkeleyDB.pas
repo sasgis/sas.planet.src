@@ -51,8 +51,8 @@ type
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
-    FGCList: INotifierTTLCheck;
-    FSyncCallListner: IListenerTTLCheck;
+    FGCNotifier: INotifierTime;
+    FSyncCallListner: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
     procedure OnSyncCall(Sender: TObject);
@@ -112,7 +112,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AStorageConfig: ISimpleTileStorageConfigStatic;
       const AContentTypeManager: IContentTypeManager;
       const AMapVersionFactory: IMapVersionFactory;
@@ -152,7 +152,7 @@ constructor TTileStorageBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AStorageConfig: ISimpleTileStorageConfigStatic;
   const AContentTypeManager: IContentTypeManager;
   const AMapVersionFactory: IMapVersionFactory;
@@ -167,6 +167,7 @@ begin
   );
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
+  FGCNotifier := AGCNotifier;
 
   if Assigned(AStorageConfig) and (AStorageConfig.UseMemCache) then begin
     FTileInfoMemCache := TTileInfoBasicMemCache.Create(
@@ -194,15 +195,14 @@ begin
     cStorageSyncCheckInterval
   );
 
-  FGCList := AGCList;
-  FGCList.Add(FSyncCallListner);
+  FGCNotifier.Add(FSyncCallListner);
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
-  if Assigned(FGCList) then begin
-    FGCList.Remove(FSyncCallListner);
-    FGCList := nil;
+  if Assigned(FGCNotifier) then begin
+    FGCNotifier.Remove(FSyncCallListner);
+    FGCNotifier := nil;
   end;
   FSyncCallListner := nil;
   FTileInfoMemCache := nil;

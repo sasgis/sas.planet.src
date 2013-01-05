@@ -35,7 +35,7 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FConfig: ISimpleTileStorageConfig;
     FVersionConfig: IMapVersionConfig;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FContentTypeManager: IContentTypeManager;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
@@ -138,7 +138,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AConfig: ISimpleTileStorageConfig;
       const AVersionConfig: IMapVersionConfig;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
       const AFileNameParsersList: ITileFileNameParsersList;
@@ -174,7 +174,7 @@ constructor TTileStorageOfMapType.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AConfig: ISimpleTileStorageConfig;
   const AVersionConfig: IMapVersionConfig;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
   const AFileNameParsersList: ITileFileNameParsersList;
@@ -188,7 +188,7 @@ begin
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FConfig := AConfig;
   FVersionConfig := AVersionConfig;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FContentTypeManager := AContentTypeManager;
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
@@ -272,7 +272,7 @@ begin
             FGlobalBerkeleyDBHelper,
             VCoordConverter,
             FCurrentPath,
-            FGCList,
+            FGCNotifier,
             AConfig,
             FContentTypeManager,
             VMapVersionFactory,
@@ -288,7 +288,7 @@ begin
             VCoordConverter,
             FGlobalCacheConfig.DBMSCachePath.Path,
             FCurrentPath,
-            FGCList,
+            FGCNotifier,
             AConfig,
             FContentTypeManager,
             VMapVersionFactory,
@@ -347,7 +347,7 @@ begin
           TTileStorageInRAM.Create(
             AConfig,
             VCoordConverter,
-            FGCList,
+            FGCNotifier,
             FContentTypeManager,
             VMapVersionFactory,
             VMainContentType

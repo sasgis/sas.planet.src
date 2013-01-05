@@ -237,7 +237,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const AInetConfig: IInetConfig;
       const AResamplerConfigLoad: IImageResamplerConfig;
@@ -312,7 +312,7 @@ constructor TMapType.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const AInetConfig: IInetConfig;
   const AResamplerConfigLoad: IImageResamplerConfig;
@@ -383,7 +383,7 @@ begin
       AGlobalBerkeleyDBHelper,
       FStorageConfig,
       FVersionConfig,
-      AGCList,
+      AGCNotifier,
       AContentTypeManager,
       ATileNameGeneratorList,
       ATileNameParserList,
@@ -394,7 +394,7 @@ begin
     FBitmapSaverToStorage := VContentTypeBitmap.GetSaver;
     FCacheBitmap :=
       TMemTileCacheBitmap.Create(
-        AGCList,
+        AGCNotifier,
         FStorage,
         FStorageConfig.CoordConverter,
         AMainMemCacheConfig,
@@ -404,7 +404,7 @@ begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
     FCacheVector :=
       TMemTileCacheVector.Create(
-        AGCList,
+        AGCNotifier,
         FStorage,
         FStorageConfig.CoordConverter,
         AMainMemCacheConfig,
@@ -423,7 +423,7 @@ begin
 
   FTileDownloadSubsystem :=
     TTileDownloadSubsystem.Create(
-      AGCList,
+      AGCNotifier,
       AAppClosingNotifier,
       FCoordConverter,
       ACoordConverterFactory,

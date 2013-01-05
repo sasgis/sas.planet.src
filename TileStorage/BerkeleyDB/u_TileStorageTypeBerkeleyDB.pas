@@ -17,7 +17,7 @@ type
   TTileStorageTypeBerkeleyDB = class(TTileStorageTypeBase)
   private
     FStorageConfig: ISimpleTileStorageConfigStatic;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FContentTypeManager: IContentTypeManager;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   protected
@@ -29,7 +29,7 @@ type
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig;
       const AStorageConfig: ISimpleTileStorageConfigStatic
@@ -47,7 +47,7 @@ uses
 
 constructor TTileStorageTypeBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig;
   const AStorageConfig: ISimpleTileStorageConfigStatic
@@ -59,7 +59,7 @@ begin
     AConfig
   );
   FStorageConfig := AStorageConfig;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FContentTypeManager := AContentTypeManager;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 end;
@@ -75,7 +75,7 @@ begin
       FGlobalBerkeleyDBHelper,
       AGeoConverter,
       APath,
-      FGCList,
+      FGCNotifier,
       FStorageConfig,
       FContentTypeManager,
       GetMapVersionFactory,

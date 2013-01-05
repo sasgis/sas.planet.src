@@ -24,11 +24,11 @@ type
   private
     FThreadConfig: IThreadConfig;
     FDownloaderList: ITileDownloaderList;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FAppClosingNotifier: INotifierOneOperation;
     FTileRequestQueue: IInterfaceQueue;
 
-    FTTLListener: IListenerTTLCheck;
+    FTTLListener: IListenerTimeWithUsedFlag;
     FDownloadersListListener: IListener;
 
     FThreadArray: TArrayOfThread;
@@ -40,7 +40,7 @@ type
     procedure InitThreadsIfNeed;
   public
     constructor Create(
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AThreadConfig: IThreadConfig;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATileRequestQueue: IInterfaceQueue;
@@ -61,7 +61,7 @@ uses
 { TTileRequestProcessorPool }
 
 constructor TTileRequestProcessorPool.Create(
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AThreadConfig: IThreadConfig;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATileRequestQueue: IInterfaceQueue;
@@ -69,7 +69,7 @@ constructor TTileRequestProcessorPool.Create(
 );
 begin
   inherited Create;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FThreadConfig := AThreadConfig;
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
@@ -82,7 +82,7 @@ begin
   FDownloaderList.ChangeNotifier.Add(FDownloadersListListener);
 
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 60000, 1000);
-  FGCList.Add(FTTLListener);
+  FGCNotifier.Add(FTTLListener);
 
   OnDownloadersListChange;
 end;
@@ -91,9 +91,9 @@ destructor TTileRequestProcessorPool.Destroy;
 begin
   OnTTLTrim(nil);
   FDownloaderList.ChangeNotifier.Remove(FDownloadersListListener);
-  FGCList.Remove(FTTLListener);
+  FGCNotifier.Remove(FTTLListener);
   FTTLListener := nil;
-  FGCList := nil;
+  FGCNotifier := nil;
   FDownloadersListListener := nil;
   FDownloaderList := nil;
 

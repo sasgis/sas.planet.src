@@ -34,7 +34,7 @@ type
   TGarbageCollectorThread = class(TThread)
   private
     FAppClosingNotifier: INotifierOneOperation;
-    FNotifier: INotifierTTLCheckInternal;
+    FNotifier: INotifierTimeInternal;
 
     FAppClosingListener: IListener;
     FCancelEvent: TEvent;
@@ -46,7 +46,7 @@ type
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
-      const ANotifier: INotifierTTLCheckInternal;
+      const ANotifier: INotifierTimeInternal;
       ASleepTime: Cardinal
     );
     destructor Destroy; override;
@@ -61,7 +61,7 @@ uses
 
 constructor TGarbageCollectorThread.Create(
   const AAppClosingNotifier: INotifierOneOperation;
-  const ANotifier: INotifierTTLCheckInternal;
+  const ANotifier: INotifierTimeInternal;
   ASleepTime: Cardinal
 );
 begin
@@ -100,7 +100,7 @@ begin
   SetCurrentThreadName(AnsiString(Self.ClassName));
   while not Terminated do begin
     VNow := GetTickCount;
-    FNotifier.ProcessCheckAndGetNextTime;
+    FNotifier.Notify(VNow);
     SleepCancelable(FSleepTime);
   end;
 end;

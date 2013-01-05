@@ -97,7 +97,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const AInetConfig: IInetConfig;
       const ADownloadConfig: IGlobalDownloadConfig;
@@ -222,7 +222,7 @@ procedure TMapTypesMainList.LoadMaps(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const AInetConfig: IInetConfig;
   const ADownloadConfig: IGlobalDownloadConfig;
@@ -281,7 +281,7 @@ begin
           AGlobalBerkeleyDBHelper,
           ATileNameGeneratorList,
           ATileNameParserList,
-          AGCList,
+          AGCNotifier,
           AAppClosingNotifier,
           AInetConfig,
           FTileLoadResamplerConfig,

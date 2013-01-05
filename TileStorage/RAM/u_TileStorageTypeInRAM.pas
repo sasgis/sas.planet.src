@@ -36,7 +36,7 @@ type
   TTileStorageTypeInRAM = class(TTileStorageTypeBase)
   private
     FStorageConfig: ISimpleTileStorageConfigStatic;
-    FGCList: INotifierTTLCheck;
+    FGCNotifier: INotifierTime;
     FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorage(
@@ -46,7 +46,7 @@ type
     ): ITileStorage; override;
   public
     constructor Create(
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
       const AConfig: ITileStorageTypeConfig;
       const AStorageConfig: ISimpleTileStorageConfigStatic
@@ -63,7 +63,7 @@ uses
 { TTileStorageTypeInRAM }
 
 constructor TTileStorageTypeInRAM.Create(
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
   const AConfig: ITileStorageTypeConfig;
   const AStorageConfig: ISimpleTileStorageConfigStatic
@@ -75,7 +75,7 @@ begin
     AConfig
   );
   FStorageConfig := AStorageConfig;
-  FGCList := AGCList;
+  FGCNotifier := AGCNotifier;
   FContentTypeManager := AContentTypeManager;
 end;
 
@@ -89,7 +89,7 @@ begin
     TTileStorageInRAM.Create(
       FStorageConfig,
       AGeoConverter,
-      FGCList,
+      FGCNotifier,
       FContentTypeManager,
       GetMapVersionFactory,
       AMainContentType

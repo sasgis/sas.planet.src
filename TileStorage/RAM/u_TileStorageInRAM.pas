@@ -47,8 +47,8 @@ type
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
-    FGCList: INotifierTTLCheck;
-    FTTLCheckListener: IListenerTTLCheck;
+    FGCNotifier: INotifierTime;
+    FTTLCheckListener: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     procedure OnTTLCheckCall(Sender: TObject);
   protected
@@ -102,7 +102,7 @@ type
     constructor Create(
       const AStorageConfig: ISimpleTileStorageConfigStatic;
       const AGeoConverter: ICoordConverter;
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic
@@ -132,7 +132,7 @@ type
 constructor TTileStorageInRAM.Create(
   const AStorageConfig: ISimpleTileStorageConfigStatic;
   const AGeoConverter: ICoordConverter;
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic
@@ -167,15 +167,15 @@ begin
     cStorageTTLCheckInterval
   );
 
-  FGCList := AGCList;
-  FGCList.Add(FTTLCheckListener);
+  FGCNotifier := AGCNotifier;
+  FGCNotifier.Add(FTTLCheckListener);
 end;
 
 destructor TTileStorageInRAM.Destroy;
 begin
-  if Assigned(FGCList) then begin
-    FGCList.Remove(FTTLCheckListener);
-    FGCList := nil;
+  if Assigned(FGCNotifier) then begin
+    FGCNotifier.Remove(FTTLCheckListener);
+    FGCNotifier := nil;
   end;
   FTTLCheckListener := nil;
   FTileInfoMemCache := nil;

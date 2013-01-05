@@ -161,7 +161,7 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
     FSkyMapDraw: ISatellitesInViewMapDraw;
-    FBGTimerNotifier: INotifierTTLCheck;
+    FBGTimerNotifier: INotifierTime;
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifierInternal: INotifierInternal;
     FGUISyncronizedTimerNotifier: INotifier;
@@ -223,7 +223,7 @@ type
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: INotifier read FGUISyncronizedTimerNotifier;
-    property BGTimerNotifier: INotifierTTLCheck read FBGTimerNotifier;
+    property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
     property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
@@ -371,7 +371,7 @@ uses
 
 constructor TGlobalState.Create;
 var
-  VList: INotifierTTLCheckInternal;
+  VList: INotifierTimeInternal;
   VViewCnonfig: IConfigDataProvider;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
   VXmlLoader: IVectorDataLoader;
@@ -554,7 +554,7 @@ begin
     VKmzLoader,
     VXmlZLoader
   );
-  VList := TNotifierTTLCheck.Create;
+  VList := TNotifierTime.Create;
   FBGTimerNotifier := VList;
   FGCThread :=
     TGarbageCollectorThread.Create(

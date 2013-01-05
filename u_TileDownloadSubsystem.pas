@@ -82,7 +82,7 @@ type
     function GetState: ITileDownloaderStateChangeble;
   public
     constructor Create(
-      const AGCList: INotifierTTLCheck;
+      const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const ACoordConverter: ICoordConverter;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -142,7 +142,7 @@ const
 { TTileDownloadSubsystem }
 
 constructor TTileDownloadSubsystem.Create(
-  const AGCList: INotifierTTLCheck;
+  const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const ACoordConverter: ICoordConverter;
   const ACoordConverterFactory: ICoordConverterFactory;
@@ -244,7 +244,7 @@ begin
 
     VDownloaderList :=
       TTileDownloaderList.Create(
-        AGCList,
+        AGCNotifier,
         AAppClosingNotifier,
         ADownloadResultFactory,
         FState,
@@ -252,13 +252,14 @@ begin
         FDownloadResultSaver,
         FTileDownloadRequestBuilderFactory
       );
-    FTileDownloader := TTileDownloaderWithQueue.Create(
-      VDownloaderList,
-      AGCList,
-      AThreadConfig,
-      AAppClosingNotifier,
-      256
-    );
+    FTileDownloader :=
+      TTileDownloaderWithQueue.Create(
+        VDownloaderList,
+        AGCNotifier,
+        AThreadConfig,
+        AAppClosingNotifier,
+        256
+      );
     FTileRequestTaskSync := MakeSyncRW_Var(Self, False);
   end else begin
     FState :=
