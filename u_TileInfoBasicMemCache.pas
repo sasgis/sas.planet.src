@@ -66,6 +66,7 @@ type
     FGetCounter: IInternalPerformanceCounter;
     FHitCounter: IInternalPerformanceCounter;
     FMissCounter: IInternalPerformanceCounter;
+    FClearByTTLCounter: IInternalPerformanceCounter;
     procedure MakeItClean(const ATileRec: PTileInfoCacheRec); inline;
   private
     { ITileInfoBasicMemCache }
@@ -129,6 +130,7 @@ begin
   FGetCounter := APerfCounterList.CreateAndAddNewCounter('Get');
   FHitCounter := APerfCounterList.CreateAndAddNewCounter('Hit');
   FMissCounter := APerfCounterList.CreateAndAddNewCounter('Miss');
+  FClearByTTLCounter := APerfCounterList.CreateAndAddNewCounter('ClearByTTL');
 
   FTTLCheckNotifier := ATTLCheckNotifier;
   if Assigned(FTTLCheckNotifier) then begin
@@ -320,6 +322,8 @@ var
   VTile: PTileInfoCacheRec;
   VMinTTL: Cardinal;
   VMaxTTL: Cardinal;
+  VCleanerCalled: Boolean;
+  VCounterContext: TInternalPerformanceCounterContext;
 begin
   FCS.BeginWrite;
   try
@@ -340,16 +344,27 @@ begin
       if ((FClearStrategy = csByOldest) and (VMinTTL < GetTickCount)) or
          ((FClearStrategy = csByYoungest) and (VMaxTTL < GetTickCount)) then
       begin // clear all records
-        for I := 0 to FList.Count - 1 do begin
-          MakeItClean(PTileInfoCacheRec(FList.Items[I]));
+        VCounterContext := FClearByTTLCounter.StartOperation;
+        try
+          for I := 0 to FList.Count - 1 do begin
+            MakeItClean(PTileInfoCacheRec(FList.Items[I]));
+          end;
+        finally
+          FClearByTTLCounter.FinishOperation(VCounterContext);
         end;
       end;
     end else begin // csOneByOne
+      VCleanerCalled := False;
       for I := 0 to FList.Count - 1 do begin
         VTile := PTileInfoCacheRec(FList.Items[I]);
         if not VTile.IsEmptyCacheRec and (VTile.TileTTL < GetTickCount) then begin
+          VCleanerCalled := True;
           MakeItClean(VTile);
         end;
+      end;
+      if VCleanerCalled then begin
+        VCounterContext := FClearByTTLCounter.StartOperation;
+        FClearByTTLCounter.FinishOperation(VCounterContext);
       end;
     end;
   finally
