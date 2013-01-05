@@ -62,10 +62,10 @@ uses
     const AConverter: ICoordConverter;
     var CellIncrementX,CellIncrementY,OriginX,OriginY:Double
   );
-  function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
+  function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
   function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
   function PointIsEmpty(const APoint: TDoublePoint): Boolean;
-
+  function GetActualGshSCale(AScale: Integer; AZoom:Byte): Integer;
 const
   CEmptyDoublePoint: TDoublePoint = (X: NAN; Y: NAN);
 
@@ -200,9 +200,27 @@ begin
     (ARect1.Bottom = ARect2.Bottom);
 end;
 
-function GetGhBordersStepByScale(AScale: Integer): TDoublePoint;
+function GetActualGshSCale(AScale: Integer; AZoom:Byte): Integer;
 begin
-  case AScale of
+  if AScale < 0 then begin
+    if Azoom <=7 then Result :=  1000000
+    else
+    case AZoom of
+      8: Result :=  500000;
+      9: Result :=  200000;
+      10: Result :=  100000;
+      11: Result :=  50000;
+      12: Result :=  25000;
+    else
+      Result :=  10000;
+    end;
+  end else
+  Result := AScale;
+end;
+
+function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
+begin
+  case GetActualGshSCale(AScale,AZoom) of
     1000000: begin Result.X:=6; Result.Y:=4; end;
      500000: begin Result.X:=3; Result.Y:=2; end;
      200000: begin Result.X:=1; Result.Y:=0.66666666666666666666666666666667; end;

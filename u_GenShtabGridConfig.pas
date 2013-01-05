@@ -102,7 +102,7 @@ begin
   end;
   Result := ASourceLonLat;
   if VVisible and (VScale > 0) then begin
-    z := GetGhBordersStepByScale(VScale);
+    z := GetGhBordersStepByScale(VScale, ALocalConverter.Getzoom);
 
     Result.X := Result.X - (round(Result.X * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
     if Result.X < 0 then begin
@@ -134,7 +134,7 @@ begin
   end;
   Result := ASourceRect;
   if VVisible and (VScale > 0) then begin
-    z := GetGhBordersStepByScale(VScale);
+    z := GetGhBordersStepByScale(VScale, ALocalConverter.Getzoom);
 
     Result.Left := Result.Left - (round(Result.Left * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
     if Result.Left < 0 then begin
@@ -188,7 +188,7 @@ begin
   end else if VScale >= 10000 then begin
     VScale := 10000;
   end else begin
-    VScale := 0;
+    VScale := AValue;
   end;
   LockWrite;
   try

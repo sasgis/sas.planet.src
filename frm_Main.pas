@@ -387,6 +387,8 @@ type
     NMapStorageInfo: TTBXItem;
     tbitmMakeVersionByMark: TTBXItem;
     tbitmSelectVersionByMark: TTBXItem;
+    TBSeparatorItem3: TTBSeparatorItem;
+    NGShauto: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -1321,6 +1323,8 @@ begin
     NGShScale500000.Checked := VScale = 500000;
     NGShScale1000000.Checked := VScale = 1000000;
     NGShScale0.Checked := VScale = 0;
+    NGShAuto.Checked := VScale < 0;
+
   end else begin
     NGShScale0.Checked := True;
   end;
@@ -3436,7 +3440,7 @@ begin
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   VMapType.GeoConvert.CheckLonLatPos(VMouseLonLat);
   if GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then
-    VListName := LonLat2GShListName(VMouseLonLat, GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale, 100000000)
+    VListName := LonLat2GShListName(VMouseLonLat, GetActualGshSCale(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale,VZoomCurr ), 100000000)
     else VListName := '';
   CopyStringToClipboard(VListName);
 end;
@@ -5196,7 +5200,7 @@ begin
   try
     if VTag = 0 then begin
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := False;
-      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag; // всёравно записываем Scale=0 - признак того что сетка отключена  
+      FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag; // всёравно записываем Scale=0 - признак того что сетка отключена
     end else begin
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible := True;
       FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale := VTag;

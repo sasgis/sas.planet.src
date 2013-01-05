@@ -115,9 +115,9 @@ var
   VLocalCellCenter: TDoublePoint;
   VOutPoint: TPoint;
 begin
-  z := GetGhBordersStepByScale(FScale);
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
+  z := GetGhBordersStepByScale(FScale, VZoom);
   VLocalRect := ALocalConverter.GetLocalRect;
   VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
 
@@ -158,7 +158,7 @@ begin
       VGeoConvert.CheckLonLatRect(VLonLatRectOfCell);
 
       VLonLatCenter := RectCenter(VLonLatRectOfCell);
-      VListName := LonLat2GShListName(VLonLatCenter, FScale, 100000000);
+      VListName := LonLat2GShListName(VLonLatCenter, GetActualGshSCale(FScale,ALocalConverter.getzoom), 100000000);
 
       VTextSize := FBitmap.TextExtent(VListName);
 
@@ -186,9 +186,9 @@ var
   VGridRect: TRect;
   i: Integer;
 begin
-  z := GetGhBordersStepByScale(FScale);
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
+  z := GetGhBordersStepByScale(FScale, VZoom);
   VLocalRect := ALocalConverter.GetLocalRect;
   VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
 
