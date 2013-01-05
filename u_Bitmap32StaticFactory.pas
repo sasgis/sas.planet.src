@@ -3,13 +3,17 @@ unit u_Bitmap32StaticFactory;
 interface
 
 uses
+  SysUtils,
   GR32,
+  i_NotifierTTLCheck,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
   u_BaseInterfacedObject;
 
 type
   TBitmap32StaticFactory = class(TBaseInterfacedObject, IBitmap32StaticFactory)
+  private
+    FStandartSizePool: IObjectPoolBitmap32Standart;
   private
     function Build(
       const ASize: TPoint;
@@ -20,13 +24,19 @@ type
       const ASize: TPoint;
       const AColor: TColor32
     ): IBitmap32Static;
+  public
+    constructor Create(
+      const ATTLNotifier: INotifierTime;
+      const ASync: IReadWriteSync
+    );
   end;
 
 implementation
 
 uses
   Types,
-  GR32_LowLevel;
+  GR32_LowLevel,
+  u_ObjectPoolBitmap32Standart;
 
 type
   TBitmap32StaticSimple = class(TBaseInterfacedObject, IBitmap32Static)
@@ -38,8 +48,7 @@ type
     function GetData: PColor32Array;
   public
     constructor Create(
-      const ASize: TPoint;
-      const AData: PColor32Array
+      const ASize: TPoint
     );
     destructor Destroy; override;
   end;
@@ -48,8 +57,7 @@ type
 
 
 constructor TBitmap32StaticSimple.Create(
-  const ASize: TPoint;
-  const AData: PColor32Array
+  const ASize: TPoint
 );
 begin
   Assert(ASize.X > 0);
@@ -65,9 +73,6 @@ begin
   then begin
     GetMem(FBits, ASize.X * ASize.Y * 4);
     FSize := ASize;
-    if AData <> nil then begin
-      MoveLongWord(AData^, FBits^, ASize.X * ASize.Y);
-    end;
   end;
 end;
 
@@ -91,40 +96,22 @@ begin
   Result := FSize;
 end;
 
-const
-  CStandartSize = 256;
-
-type
-  TBitmap32StaticStandartSize = class(TBaseInterfacedObject, IBitmap32Static)
-  private
-    FBits: array [0..(CStandartSize * CStandartSize - 1)] of TColor32;
-  private
-    function GetSize: TPoint;
-    function GetData: PColor32Array;
-  public
-    constructor Create(const AData: PColor32Array);
-  end;
-
-{ TBitmap32StaticStandartSize }
-
-constructor TBitmap32StaticStandartSize.Create(const AData: PColor32Array);
-begin
-  if (AData <> nil) then begin
-    MoveLongWord(AData^, FBits[0], CStandartSize * CStandartSize);
-  end;
-end;
-
-function TBitmap32StaticStandartSize.GetData: PColor32Array;
-begin
-  Result := PColor32Array(@FBits[0]);
-end;
-
-function TBitmap32StaticStandartSize.GetSize: TPoint;
-begin
-  Result := Point(CStandartSize, CStandartSize);
-end;
-
 { TBitmap32StaticFactory }
+
+constructor TBitmap32StaticFactory.Create(
+  const ATTLNotifier: INotifierTime;
+  const ASync: IReadWriteSync
+);
+begin
+  inherited Create;
+  FStandartSizePool :=
+    TObjectPoolBitmap32Standart.Create(
+      ATTLNotifier,
+      ASync,
+      10,
+      100
+    );
+end;
 
 function TBitmap32StaticFactory.Build(const ASize: TPoint;
   const AData: PColor32Array): IBitmap32Static;
@@ -136,41 +123,35 @@ begin
   Assert(ASize.X * ASize.Y < 1 shl 28);
   Assert(AData <> nil);
 
-  if
-    (ASize.X = CStandartSize) and (ASize.Y = CStandartSize) and
-    (AData <> nil)
-  then begin
-    Result := TBitmap32StaticStandartSize.Create(AData);
-  end else if
-    (ASize.X > 0) and (ASize.Y > 0) and
-    (ASize.X < 1 shl 16) and (ASize.Y < 1 shl 16) and
-    (ASize.X * ASize.Y < 1 shl 28) and (AData <> nil)
-  then begin
-    Result := TBitmap32StaticSimple.Create(ASize, AData);
-  end else begin
-    Result := nil;
+  Result := BuildEmpty(ASize);
+  if (Result <> nil) and (AData <> nil) then begin
+    if AData <> nil then begin
+      MoveLongWord(AData^, Result.Data^, ASize.X * ASize.Y);
+    end;
   end;
 end;
 
 function TBitmap32StaticFactory.BuildEmpty(
   const ASize: TPoint
 ): IBitmap32Static;
+var
+  VStandartSize: TPoint;
 begin
   Assert(ASize.X > 0);
   Assert(ASize.Y > 0);
   Assert(ASize.X < 1 shl 16);
   Assert(ASize.Y < 1 shl 16);
   Assert(ASize.X * ASize.Y < 1 shl 28);
-  if
-    (ASize.X = CStandartSize) and (ASize.Y = CStandartSize)
-  then begin
-    Result := TBitmap32StaticStandartSize.Create(nil);
+
+  VStandartSize := FStandartSizePool.Size;
+  if (ASize.X = VStandartSize.X) and (ASize.Y = VStandartSize.Y) then begin
+    Result := FStandartSizePool.Build;
   end else if
     (ASize.X > 0) and (ASize.Y > 0) and
     (ASize.X < 1 shl 16) and (ASize.Y < 1 shl 16) and
     (ASize.X * ASize.Y < 1 shl 28)
   then begin
-    Result := TBitmap32StaticSimple.Create(ASize, nil);
+    Result := TBitmap32StaticSimple.Create(ASize);
   end else begin
     Result := nil;
   end;

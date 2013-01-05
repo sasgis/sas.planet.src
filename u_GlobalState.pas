@@ -162,6 +162,7 @@ type
     FGPSRecorder: IGPSRecorder;
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FBGTimerNotifier: INotifierTime;
+    FBGTimerNotifierInternal: INotifierTimeInternal;
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifierInternal: INotifierInternal;
     FGUISyncronizedTimerNotifier: INotifier;
@@ -361,6 +362,7 @@ uses
   u_Bitmap32StaticFactory,
   u_GpsSystem,
   u_LastSelectionInfoSaver,
+  u_Synchronizer,
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
@@ -371,7 +373,6 @@ uses
 
 constructor TGlobalState.Create;
 var
-  VList: INotifierTimeInternal;
   VViewCnonfig: IConfigDataProvider;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
   VXmlLoader: IVectorDataLoader;
@@ -394,7 +395,13 @@ begin
     // run as EXE
     VProgramPath := ExtractFilePath(ParamStr(0));
   end;
-  FBitmapFactory := TBitmap32StaticFactory.Create;
+  FBGTimerNotifierInternal := TNotifierTime.Create;
+  FBGTimerNotifier := FBGTimerNotifierInternal;
+  FBitmapFactory :=
+    TBitmap32StaticFactory.Create(
+      FBGTimerNotifier,
+      MakeSyncRW_Var(Self, false)
+    );
   FBaseApplicationPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
@@ -554,12 +561,10 @@ begin
     VKmzLoader,
     VXmlZLoader
   );
-  VList := TNotifierTime.Create;
-  FBGTimerNotifier := VList;
   FGCThread :=
     TGarbageCollectorThread.Create(
       FAppClosingNotifier,
-      VList,
+      FBGTimerNotifierInternal,
       VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000)
     );
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create(FBitmapFactory);

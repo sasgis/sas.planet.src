@@ -1053,6 +1053,10 @@
     <DCCReference Include="u_NotifierTileRectUpdate.pas" />
     <DCCReference Include="u_NotifierTTLCheck.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
+    <DCCReference Include="u_ObjectFromPoolAbstract.pas" />
+    <DCCReference Include="u_ObjectFromPoolBase.pas" />
+    <DCCReference Include="u_ObjectPoolBase.pas" />
+    <DCCReference Include="u_ObjectPoolBitmap32Standart.pas" />
     <DCCReference Include="u_PathConfig.pas" />
     <DCCReference Include="u_PathDetalizeProviderCloudMade.pas" />
     <DCCReference Include="u_PathDetalizeProviderListBase.pas" />
