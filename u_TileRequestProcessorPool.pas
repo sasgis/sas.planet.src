@@ -34,7 +34,7 @@ type
     FThreadArray: TArrayOfThread;
     FThreadArrayCS: IReadWriteSync;
 
-    procedure OnTTLTrim(Sender: TObject);
+    procedure OnTTLTrim;
     procedure OnDownloadersListChange;
   private
     procedure InitThreadsIfNeed;
@@ -81,7 +81,7 @@ begin
   FDownloadersListListener := TNotifyNoMmgEventListener.Create(Self.OnDownloadersListChange);
   FDownloaderList.ChangeNotifier.Add(FDownloadersListListener);
 
-  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 60000, 1000);
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 60000);
   FGCNotifier.Add(FTTLListener);
 
   OnDownloadersListChange;
@@ -89,7 +89,7 @@ end;
 
 destructor TTileRequestProcessorPool.Destroy;
 begin
-  OnTTLTrim(nil);
+  OnTTLTrim;
   FDownloaderList.ChangeNotifier.Remove(FDownloadersListListener);
   FGCNotifier.Remove(FTTLListener);
   FTTLListener := nil;
@@ -153,10 +153,10 @@ end;
 
 procedure TTileRequestProcessorPool.OnDownloadersListChange;
 begin
-  OnTTLTrim(nil);
+  OnTTLTrim;
 end;
 
-procedure TTileRequestProcessorPool.OnTTLTrim(Sender: TObject);
+procedure TTileRequestProcessorPool.OnTTLTrim;
 var
   VThreadArray: TArrayOfThread;
   i: Integer;

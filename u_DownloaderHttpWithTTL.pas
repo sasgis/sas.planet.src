@@ -23,7 +23,7 @@ type
     FTTLListener: IListenerTimeWithUsedFlag;
     FCS: IReadWriteSync;
     FDownloader: IDownloader;
-    procedure OnTTLTrim(Sender: TObject);
+    procedure OnTTLTrim;
   private
     function DoRequest(
       const ARequest: IDownloadRequest;
@@ -58,11 +58,7 @@ begin
   FResultFactory := AResultFactory;
   FGCNotifier := AGCNotifier;
   FCS := MakeSyncRW_Std(Self, FALSE);
-  FTTLListener := TListenerTTLCheck.Create(
-    Self.OnTTLTrim,
-    CHttpClientTTL,
-    CHttpClientTTLCheckInterval
-  );
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, CHttpClientTTL);
   FGCNotifier.Add(FTTLListener);
 end;
 
@@ -98,7 +94,7 @@ begin
   end;
 end;
 
-procedure TDownloaderHttpWithTTL.OnTTLTrim(Sender: TObject);
+procedure TDownloaderHttpWithTTL.OnTTLTrim;
 begin
   FCS.BeginWrite;
   try

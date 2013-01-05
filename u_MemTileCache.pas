@@ -64,7 +64,7 @@ type
       const AXY: TPoint;
       const AZoom: byte
     ): string;
-    procedure OnTTLTrim(Sender: TObject);
+    procedure OnTTLTrim;
   protected
     procedure ItemFree(AIndex: Integer);
     procedure IncUpdateCounter;
@@ -166,7 +166,7 @@ begin
   FCacheList := TStringList.Create;
   FCacheList.Capacity := FConfig.MaxSize;
   FSync := MakeSyncRW_Big(Self, False);
-  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 40000, 1000);
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 40000);
   FGCNotifier.Add(FTTLListener);
 
   FAddItemCounter := APerfList.CreateAndAddNewCounter('Add');
@@ -376,7 +376,7 @@ begin
   end;
 end;
 
-procedure TMemTileCacheBase.OnTTLTrim(Sender: TObject);
+procedure TMemTileCacheBase.OnTTLTrim;
 begin
   Clear;
 end;

@@ -12,19 +12,17 @@ uses
 type
   TListenerTTLCheck = class(TBaseInterfacedObject, IListenerTimeWithUsedFlag, IListenerTime)
   private
-    FOnTrimByTTL: TNotifyEvent;
+    FOnTrimByTTL: TNotifyListenerNoMmgEvent;
     FUseFlag: ISimpleFlag;
     FLastUseTime: Cardinal;
     FTTL: Cardinal;
-    FCheckInterval: Cardinal;
   private
     procedure Notification(const ANow: Cardinal);
     procedure UpdateUseTime;
   public
     constructor Create(
-      AOnTrimByTTL: TNotifyEvent;
-      ATTL: Cardinal;
-      ACheckInterval: Cardinal
+      AOnTrimByTTL: TNotifyListenerNoMmgEvent;
+      ATTL: Cardinal
     );
   end;
 
@@ -51,14 +49,13 @@ uses
 { TListenerTTLCheck }
 
 constructor TListenerTTLCheck.Create(
-  AOnTrimByTTL: TNotifyEvent;
-  ATTL, ACheckInterval: Cardinal
+  AOnTrimByTTL: TNotifyListenerNoMmgEvent;
+  ATTL: Cardinal
 );
 begin
   inherited Create;
   FOnTrimByTTL := AOnTrimByTTL;
   FTTL := ATTL;
-  FCheckInterval := ACheckInterval;
 
   FUseFlag := TSimpleFlagWithInterlock.Create;
   FLastUseTime := 0;
@@ -76,7 +73,7 @@ begin
     if VLastUseTime <> 0 then begin
       VCleanTime := VLastUseTime + FTTL;
       if (VCleanTime <= ANow) or ((ANow < 1 shl 29) and (VCleanTime > 1 shl 30)) then begin
-        FOnTrimByTTL(nil);
+        FOnTrimByTTL;
         FLastUseTime := 0;
       end;
     end;

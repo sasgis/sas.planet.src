@@ -86,7 +86,7 @@ type
     FETS_SERVICE_STORAGE_OPTIONS: TETS_SERVICE_STORAGE_OPTIONS;
 
     // sync provider routine
-    procedure DoProviderSync(Sender: TObject);
+    procedure DoProviderSync;
     // internal sync prov caller
     function InternalProviderSync(const AExclusiveFlag: LongWord): Byte;
   private
@@ -657,11 +657,7 @@ begin
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FEmptyVersion := MapVersionFactory.CreateByStoreString('');
 
-  FETSTTLListener := TListenerTTLCheck.Create(
-    DoProviderSync,
-    CETSSync,
-    CETSSyncCheckInterval
-  );
+  FETSTTLListener := TListenerTTLCheck.Create(DoProviderSync, CETSSync);
 
   FGCNotifier := AGCNotifier;
   if Assigned(FGCNotifier) then begin
@@ -813,7 +809,7 @@ begin
     FDLLSync.EndRead;
 end;
 
-procedure TTileStorageETS.DoProviderSync(Sender: TObject);
+procedure TTileStorageETS.DoProviderSync;
 begin
   if (nil=FETS_Sync) then
     Exit;

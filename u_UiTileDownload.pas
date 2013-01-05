@@ -56,7 +56,7 @@ type
     FVisualCoordConverter: ILocalCoordConverter;
     FVisualCoordConverterCS: IReadWriteSync;
 
-    procedure OnTTLTrim(Sender: TObject);
+    procedure OnTTLTrim;
     procedure OnPosChange;
     procedure OnMapTypeActiveChange;
     procedure OnConfigChange;
@@ -166,7 +166,7 @@ begin
     FAppClosingNotifier
   );
 
-  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 30000, 1000);
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 30000);
   FGCNotifier.Add(FTTLListener);
 
   FLinksList.ActivateLinks;
@@ -208,7 +208,7 @@ end;
 
 procedure TUiTileDownload.OnAppClosing;
 begin
-  OnTTLTrim(nil);
+  OnTTLTrim;
 end;
 
 procedure TUiTileDownload.OnCancel;
@@ -418,7 +418,7 @@ begin
   end;
 end;
 
-procedure TUiTileDownload.OnTTLTrim(Sender: TObject);
+procedure TUiTileDownload.OnTTLTrim;
 var
   VDownloadTask: IBackgroundTask;
 begin

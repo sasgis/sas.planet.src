@@ -86,7 +86,7 @@ type
       const AUpdateTTL: Boolean
     ): ITileInfoBasic;
     procedure Clear;
-    procedure ClearByTTL(Sender: TObject);
+    procedure ClearByTTL;
     function GetTTL: Cardinal;
   public
     constructor Create(
@@ -134,7 +134,7 @@ begin
 
   FTTLCheckNotifier := ATTLCheckNotifier;
   if Assigned(FTTLCheckNotifier) then begin
-    FTTLCheckListener := TListenerTTLCheck.Create(ClearByTTL, FTTL, 1000);
+    FTTLCheckListener := TListenerTTLCheck.Create(ClearByTTL, FTTL);
     FTTLCheckNotifier.Add(FTTLCheckListener);
   end;
 end;

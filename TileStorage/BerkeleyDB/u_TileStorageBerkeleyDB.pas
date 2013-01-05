@@ -55,7 +55,7 @@ type
     FSyncCallListner: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
-    procedure OnSyncCall(Sender: TObject);
+    procedure OnSyncCall;
   protected
     function GetIsFileCache: Boolean; override;
 
@@ -181,8 +181,7 @@ begin
 
   FSyncCallListner := TListenerTTLCheck.Create(
     Self.OnSyncCall,
-    cStorageSyncInterval,
-    cStorageSyncCheckInterval
+    cStorageSyncInterval
   );
 
   FGCNotifier.Add(FSyncCallListner);
@@ -203,7 +202,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TTileStorageBerkeleyDB.OnSyncCall(Sender: TObject);
+procedure TTileStorageBerkeleyDB.OnSyncCall;
 begin
   FStorageHelper.Sync;
 end;

@@ -50,8 +50,6 @@ type
 
     procedure Clear;
 
-    procedure ClearByTTL(Sender: TObject);
-
     function GetTTL: Cardinal;
     property TTL: Cardinal read GetTTL;
   end;
