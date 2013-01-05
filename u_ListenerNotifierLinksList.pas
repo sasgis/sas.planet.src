@@ -27,6 +27,8 @@ uses
   SysUtils,
   i_Notifier,
   i_Listener,
+  i_ListenerTTLCheck,
+  i_NotifierTTLCheck,
   i_ListenerNotifierLinksList,
   u_BaseInterfacedObject;
 
@@ -46,7 +48,11 @@ type
     procedure Add(
       const AListener: IListener;
       const ANotifier: INotifier
-    );
+    );overload;
+    procedure Add(
+      const AListener: IListenerTime;
+      const ANotifier: INotifierTime
+    );overload;
     procedure ActivateLinks;
     procedure DeactivateLinks;
   public
@@ -109,13 +115,25 @@ end;
 
 procedure TListenerNotifierLinksList.ActivateLink(AIndex: Integer);
 var
-  VListener: IListener;
-  VNotifier: INotifier;
+  VListener: IInterface;
+  VNotifier: IInterface;
+  VListenerBasic: IListener;
+  VNotifierBasic: INotifier;
+  VListenerTime: IListenerTime;
+  VNotifierTime: INotifierTime;
 begin
-  VListener := IListener(FListenerList.Items[AIndex]);
-  VNotifier := INotifier(FNotifierList.Items[AIndex]);
+  VListener := FListenerList.Items[AIndex];
+  VNotifier := FNotifierList.Items[AIndex];
   if (VListener <> nil) and (VNotifier <> nil) then begin
-    VNotifier.Add(VListener);
+    if Supports(VListener, IListener, VListenerBasic) then begin
+      if Supports(VNotifier, INotifier, VNotifierBasic) then begin
+        VNotifierBasic.Add(VListenerBasic);
+      end;
+    end else if Supports(VListener, IListenerTime, VListenerTime) then begin
+      if Supports(VNotifier, INotifierTime, VNotifierTime) then begin
+        VNotifierTime.Add(VListenerTime);
+      end;
+    end;
   end;
 end;
 
@@ -124,9 +142,30 @@ procedure TListenerNotifierLinksList.ActivateLinks;
 begin
   FCS.BeginRead;
   try
-    DoActivateLinks;
+    if not FLinksActive then begin
+      DoActivateLinks;
+    end;
   finally
     FCS.EndRead;
+  end;
+end;
+
+procedure TListenerNotifierLinksList.Add(const AListener: IListenerTime;
+  const ANotifier: INotifierTime);
+var
+  VListenerIndex: Integer;
+  VNotifierIndex: Integer;
+begin
+  FCS.BeginWrite;
+  try
+    VListenerIndex := FListenerList.Add(AListener);
+    VNotifierIndex := FNotifierList.Add(ANotifier);
+    Assert(VListenerIndex = VNotifierIndex);
+    if FLinksActive then begin
+      ActivateLink(VListenerIndex);
+    end;
+  finally
+    FCS.EndWrite;
   end;
 end;
 
@@ -153,13 +192,25 @@ end;
 
 procedure TListenerNotifierLinksList.DeactivateLink(AIndex: Integer);
 var
-  VListener: IListener;
-  VNotifier: INotifier;
+  VListener: IInterface;
+  VNotifier: IInterface;
+  VListenerBasic: IListener;
+  VNotifierBasic: INotifier;
+  VListenerTime: IListenerTime;
+  VNotifierTime: INotifierTime;
 begin
-  VListener := IListener(FListenerList.Items[AIndex]);
-  VNotifier := INotifier(FNotifierList.Items[AIndex]);
+  VListener := FListenerList.Items[AIndex];
+  VNotifier := FNotifierList.Items[AIndex];
   if (VListener <> nil) and (VNotifier <> nil) then begin
-    VNotifier.Remove(VListener);
+    if Supports(VListener, IListener, VListenerBasic) then begin
+      if Supports(VNotifier, INotifier, VNotifierBasic) then begin
+        VNotifierBasic.Remove(VListenerBasic);
+      end;
+    end else if Supports(VListener, IListenerTime, VListenerTime) then begin
+      if Supports(VNotifier, INotifierTime, VNotifierTime) then begin
+        VNotifierTime.Remove(VListenerTime);
+      end;
+    end;
   end;
 end;
 
@@ -167,7 +218,9 @@ procedure TListenerNotifierLinksList.DeactivateLinks;
 begin
   FCS.BeginRead;
   try
-    DoDeactivateLinks;
+    if FLinksActive then begin
+      DoDeactivateLinks;
+    end;
   finally
     FCS.EndRead;
   end;

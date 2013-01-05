@@ -23,7 +23,10 @@ unit i_ListenerNotifierLinksList;
 interface
 
 uses
-  i_Notifier, i_Listener;
+  i_Listener,
+  i_Notifier,
+  i_ListenerTTLCheck,
+  i_NotifierTTLCheck;
 
 type
   IListenerNotifierLinksList = interface
@@ -31,7 +34,11 @@ type
     procedure Add(
       const AListener: IListener;
       const ANotifier: INotifier
-    );
+    ); overload;
+    procedure Add(
+      const AListener: IListenerTime;
+      const ANotifier: INotifierTime
+    );overload;
     procedure ActivateLinks;
     procedure DeactivateLinks;
   end;
