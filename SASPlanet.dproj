@@ -930,7 +930,7 @@
     <DCCReference Include="u_LineOnMapEdit.pas" />
     <DCCReference Include="u_ListenerByEvent.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
-    <DCCReference Include="u_ListenerTTLCheck.pas" />
+    <DCCReference Include="u_ListenerTime.pas" />
     <DCCReference Include="u_LocalConverterChangeableFixedTileRectNoScale.pas" />
     <DCCReference Include="u_LocalConverterChangeableOfMiniMap.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
@@ -1051,7 +1051,7 @@
     <DCCReference Include="u_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="u_NotifierOperation.pas" />
     <DCCReference Include="u_NotifierTileRectUpdate.pas" />
-    <DCCReference Include="u_NotifierTTLCheck.pas" />
+    <DCCReference Include="u_NotifierTime.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_ObjectFromPoolAbstract.pas" />
     <DCCReference Include="u_ObjectFromPoolBase.pas" />

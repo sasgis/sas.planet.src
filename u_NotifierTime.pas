@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_NotifierTTLCheck;
+unit u_NotifierTime;
 
 interface
 

@@ -55,7 +55,7 @@ uses
   u_Synchronizer,
   i_TileDownloader,
   u_ListenerByEvent,
-  u_ListenerTTLCheck,
+  u_ListenerTime,
   u_TileRequestQueueProcessorThread;
 
 { TTileRequestProcessorPool }

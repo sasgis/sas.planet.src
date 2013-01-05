@@ -42,7 +42,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_ListenerTTLCheck;
+  u_ListenerTime;
 
 { TDownloaderHttpWithTTL }
 
