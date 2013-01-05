@@ -59,8 +59,8 @@ type
     FTTL: Cardinal;
     FCS: IReadWriteSync;
     FClearStrategy: TClearByTTLStrategy;
-    FTTLCheckNotifier: INotifierTTLCheck;
-    FTTLCheckListener: IListenerTTLCheck;
+    FTTLCheckNotifier: INotifierTime;
+    FTTLCheckListener: IListenerTimeWithUsedFlag;
     FAddCounter: IInternalPerformanceCounter;
     FRemoveCounter: IInternalPerformanceCounter;
     FGetCounter: IInternalPerformanceCounter;
@@ -92,7 +92,7 @@ type
       const ACapacity: Integer;
       const ATTL: Cardinal;
       const AClearStrategy: Integer;
-      const ATTLCheckNotifier: INotifierTTLCheck;
+      const ATTLCheckNotifier: INotifierTime;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -113,7 +113,7 @@ constructor TTileInfoBasicMemCache.Create(
   const ACapacity: Integer;
   const ATTL: Cardinal;
   const AClearStrategy: Integer;
-  const ATTLCheckNotifier: INotifierTTLCheck;
+  const ATTLCheckNotifier: INotifierTime;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin

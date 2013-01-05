@@ -389,7 +389,7 @@ begin
         FStorageConfig.MemCacheCapacity,
         FStorageConfig.MemCacheTTL,
         FStorageConfig.MemCacheClearStrategy,
-        AGCList,
+        AGCNotifier,
         FPerfCounterList.CreateAndAddNewSubList('TileInfoInMem')
       );
   end else begin
