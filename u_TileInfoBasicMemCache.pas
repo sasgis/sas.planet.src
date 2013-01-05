@@ -33,9 +33,9 @@ uses
 
 type
   TClearByTTLStrategy = (
-    csByOldest  = 0, // удалять ВСЕ тайлы из кэша, если истёк TTL у самого СТАРОГО тайла
-    csByYongest = 1, // удалять ВСЕ тайлы из кэша, если истёк TTL у самого МОЛОДОГО тайла
-    csOneByOne  = 2  // удалять только те тайлы, у которых истёк TTL 
+    csByOldest   = 0, // удалять ВСЕ тайлы из кэша, если истёк TTL у самого СТАРОГО тайла
+    csByYoungest = 1, // удалять ВСЕ тайлы из кэша, если истёк TTL у самого МОЛОДОГО тайла
+    csOneByOne   = 2  // удалять только те тайлы, у которых истёк TTL
   );
 
   TTileInfoBasicMemCache = class(TBaseInterfacedObject, ITileInfoBasicMemCache)
@@ -113,6 +113,7 @@ destructor TTileInfoBasicMemCache.Destroy;
 begin
   Self.Clear;
   FreeAndNil(FList);
+  FCS := nil;
   inherited Destroy;
 end;
 
@@ -223,7 +224,7 @@ begin
          (not VTile.IsEmptyCacheRec)
       then begin
         if (VTile.TileTTL < GetTickCount) then begin
-          MakeItClean(VTile);
+          //MakeItClean(VTile);
         end else begin
           if AUpdateTTL then begin
             VTile.TileTTL := GetTickCount + FTTL;
@@ -265,7 +266,7 @@ var
 begin
   FCS.BeginWrite;
   try
-    if FClearStrategy in [csByOldest, csByYongest] then begin
+    if FClearStrategy in [csByOldest, csByYoungest] then begin
       VMinTTL := $FFFFFFFF;
       VMaxTTL := 0;
       for I := 0 to FList.Count - 1 do begin
@@ -275,12 +276,12 @@ begin
             VMinTTL := VTile.TileTTL; // oldest item
           end;
           if VTile.TileTTL > VMaxTTL then begin
-            VMaxTTL := VTile.TileTTL; // yongest item
+            VMaxTTL := VTile.TileTTL; // youngest item
           end;
         end;
       end;
       if ((FClearStrategy = csByOldest) and (VMinTTL < GetTickCount)) or
-         ((FClearStrategy = csByYongest) and (VMaxTTL < GetTickCount)) then
+         ((FClearStrategy = csByYoungest) and (VMaxTTL < GetTickCount)) then
       begin // clear all records
         for I := 0 to FList.Count - 1 do begin
           MakeItClean(PTileInfoCacheRec(FList.Items[I]));

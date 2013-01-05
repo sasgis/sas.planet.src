@@ -120,6 +120,7 @@ procedure TfrmDebugInfo.btnResetClick(Sender: TObject);
 begin
   sgrdDebugInfo.RowCount := 2;
   FPrevStateList := FPerfCounterList.GetStaticDataList;
+  UpdateNamesCache;
   UpdateGrid;
 end;
 
