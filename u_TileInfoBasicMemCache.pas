@@ -127,9 +127,9 @@ begin
 
   FAddCounter := APerfCounterList.CreateAndAddNewCounter('Add');
   FRemoveCounter := APerfCounterList.CreateAndAddNewCounter('Remove');
-  FGetCounter := APerfCounterList.CreateAndAddNewCounter('Get');
-  FHitCounter := APerfCounterList.CreateAndAddNewCounter('Hit');
-  FMissCounter := APerfCounterList.CreateAndAddNewCounter('Miss');
+  FGetCounter := APerfCounterList.CreateAndAddNewCounter('Get/Total');
+  FHitCounter := APerfCounterList.CreateAndAddNewCounter('Get/Hit');
+  FMissCounter := APerfCounterList.CreateAndAddNewCounter('Get/Miss');
   FClearByTTLCounter := APerfCounterList.CreateAndAddNewCounter('ClearByTTL');
 
   FTTLCheckNotifier := ATTLCheckNotifier;
@@ -211,6 +211,7 @@ begin
       VTile.TileVersionInfo := AVersionInfo;
       VTile.TileInfoBasic := ATileInfoBasic;
       VTile.IsEmptyCacheRec := False;
+      FTTLCheckListener.UpdateUseTime;
     finally
       FCS.EndWrite;
     end;
