@@ -73,6 +73,7 @@ uses
   i_ZmpInfoSet,
   i_GPSConfig,
   i_PathConfig,
+  i_NotifierTTLCheck,
   i_Bitmap32StaticFactory,
   i_MapCalibration,
   i_MarkCategoryFactoryConfig,
@@ -160,6 +161,7 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
     FSkyMapDraw: ISatellitesInViewMapDraw;
+    FBGTimerNotifier: INotifierTTLCheck;
     FGUISyncronizedTimer: TTimer;
     FGUISyncronizedTimerNotifierInternal: INotifierInternal;
     FGUISyncronizedTimerNotifier: INotifier;
@@ -197,7 +199,6 @@ type
   public
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCacheConfig read FCacheConfig;
-    property GCThread: TGarbageCollectorThread read FGCThread;
     property MarksDb: IMarksSystem read FMarksDb;
     property GpsSystem: IGPSModule read FGpsSystem;
 
@@ -222,6 +223,7 @@ type
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: INotifier read FGUISyncronizedTimerNotifier;
+    property BGTimerNotifier: INotifierTTLCheck read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
     property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
@@ -286,7 +288,6 @@ uses
   i_TextByVectorItem,
   u_TextByVectorItemHTMLByDescription,
   u_TextByVectorItemMarkInfo,
-  i_NotifierTTLCheck,
   u_NotifierTTLCheck,
   i_FileNameIterator,
   u_ContentTypeManagerSimple,
@@ -554,6 +555,7 @@ begin
     VXmlZLoader
   );
   VList := TNotifierTTLCheck.Create;
+  FBGTimerNotifier := VList;
   FGCThread := TGarbageCollectorThread.Create(VList, VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000));
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create(FBitmapFactory);
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
@@ -571,7 +573,7 @@ begin
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FInetConfig,
-      FGCThread.List,
+      BGTimerNotifier,
       TDownloadResultFactory.Create,
       FValueToStringConverterConfig
     );
