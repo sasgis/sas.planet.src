@@ -44,92 +44,10 @@ type
     destructor Destroy; override;
   end;
 
-  TNotifierTTLCheck = class(TBaseInterfacedObject, INotifierTTLCheck, INotifierTTLCheckInternal)
-  private
-    FList: TList;
-    FSync: IReadWriteSync;
-  private
-    procedure Add(const AListener: IListenerTTLCheck);
-    procedure Remove(const AListener: IListenerTTLCheck);
-    function ProcessCheckAndGetNextTime: Cardinal;
-  public
-    constructor Create;
-    destructor Destroy; override;
-  end;
-
 implementation
 
 uses
   u_Synchronizer;
-
-{ TNotifierTTLCheck }
-
-constructor TNotifierTTLCheck.Create;
-begin
-  inherited Create;
-  FSync := MakeSyncRW_Big(Self, False);
-  FList := TList.Create;
-end;
-
-destructor TNotifierTTLCheck.Destroy;
-var
-  i: integer;
-begin
-  for i := 0 to FList.Count - 1 do begin
-    IListenerTTLCheck(FList.Items[i])._Release;
-  end;
-  FreeAndNil(FList);
-  inherited;
-end;
-
-procedure TNotifierTTLCheck.Add(const AListener: IListenerTTLCheck);
-begin
-  FSync.BeginWrite;
-  try
-    AListener._AddRef;
-    FList.Add(Pointer(AListener));
-  finally
-    FSync.EndWrite;
-  end;
-end;
-function TNotifierTTLCheck.ProcessCheckAndGetNextTime: Cardinal;
-var
-  i: integer;
-  VNow: Cardinal;
-  VObjNextCheck: Cardinal;
-  VList: array of IListenerTTLCheck;
-begin
-  Result := 0;
-  VNow := GetTickCount;
-  FSync.BeginRead;
-  try
-    SetLength(VList, FList.Count);
-    for i := 0 to FList.Count - 1 do begin
-      VList[i] := IListenerTTLCheck(Pointer(FList[i]));
-
-    end;
-  finally
-    FSync.EndRead;
-  end;
-  for i := 0 to Length(VList) - 1 do begin
-    VObjNextCheck := VList[i].CheckTTLAndGetNextCheckTime(VNow);
-    if (Result <= 0) or (Result > VObjNextCheck) then begin
-      Result := VObjNextCheck;
-    end;
-  end;
-end;
-
-procedure TNotifierTTLCheck.Remove(const AListener: IListenerTTLCheck);
-begin
-  FSync.BeginWrite;
-  try
-    if FList.Remove(Pointer(AListener)) >= 0 then begin
-      AListener._Release;
-    end;
-  finally
-    FSync.EndWrite;
-  end;
-end;
 
 { TNotifierTime }
 
@@ -145,7 +63,7 @@ var
   i: integer;
 begin
   for i := 0 to FList.Count - 1 do begin
-    IListenerTTLCheck(FList.Items[i])._Release;
+    IInterface(FList.Items[i])._Release;
   end;
   FreeAndNil(FList);
   inherited;

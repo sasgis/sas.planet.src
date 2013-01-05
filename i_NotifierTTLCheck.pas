@@ -36,16 +36,6 @@ type
     procedure Notify(const ANow: Cardinal);
   end;
 
-  INotifierTTLCheck = interface
-    ['{25465366-07F9-459A-9D54-1597E4BD6306}']
-    procedure Add(const AListener: IListenerTTLCheck);
-    procedure Remove(const AListener: IListenerTTLCheck);
-  end;
-
-  INotifierTTLCheckInternal = interface(INotifierTTLCheck)
-    function ProcessCheckAndGetNextTime: Cardinal;
-  end;
-
 implementation
 
 end.

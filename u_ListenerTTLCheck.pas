@@ -10,7 +10,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TListenerTTLCheck = class(TBaseInterfacedObject, IListenerTTLCheck, IListenerTimeWithUsedFlag, IListenerTime)
+  TListenerTTLCheck = class(TBaseInterfacedObject, IListenerTimeWithUsedFlag, IListenerTime)
   private
     FOnTrimByTTL: TNotifyEvent;
     FUseFlag: ISimpleFlag;
@@ -19,7 +19,6 @@ type
     FCheckInterval: Cardinal;
   private
     procedure Notification(const ANow: Cardinal);
-    function CheckTTLAndGetNextCheckTime(ANow: Cardinal): Cardinal;
     procedure UpdateUseTime;
   public
     constructor Create(
@@ -82,25 +81,6 @@ begin
       end;
     end;
   end;
-end;
-
-function TListenerTTLCheck.CheckTTLAndGetNextCheckTime(
-  ANow: Cardinal): Cardinal;
-var
-  VCleanTime: Cardinal;
-begin
-  if FUseFlag.CheckFlagAndReset then begin
-    FLastUseTime := ANow;
-  end else begin
-    if FLastUseTime <> 0 then begin
-      VCleanTime := FLastUseTime + FTTL;
-      if (VCleanTime <= ANow) or ((ANow < 1 shl 29) and (VCleanTime > 1 shl 30)) then begin
-        FOnTrimByTTL(nil);
-        FLastUseTime := 0;
-      end;
-    end;
-  end;
-  Result := ANow + FCheckInterval;
 end;
 
 procedure TListenerTTLCheck.UpdateUseTime;
