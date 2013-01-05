@@ -23,6 +23,16 @@ unit i_ListenerTTLCheck;
 interface
 
 type
+  IListenerTime = interface
+    ['{3254D366-AC68-4216-9961-CB23DB82940A}']
+    procedure Notification(const ANow: Cardinal);
+  end;
+
+  IListenerTimeWithUsedFlag = interface
+    ['{4AF0E406-00E3-44D2-8BC6-29A2EA9B8530}']
+    procedure UpdateUseTime;
+  end;
+
   IListenerTTLCheck = interface
     ['{1DA8EB6F-499D-4FB7-9E3F-5AC865E7D044}']
     function CheckTTLAndGetNextCheckTime(ANow: Cardinal): Cardinal;

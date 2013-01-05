@@ -31,6 +31,19 @@ uses
   u_BaseInterfacedObject;
 
 type
+  TNotifierTime = class(TBaseInterfacedObject, INotifierTime, INotifierTimeInternal)
+  private
+    FList: TList;
+    FSync: IReadWriteSync;
+  private
+    procedure Add(const AListener: IListenerTime);
+    procedure Remove(const AListener: IListenerTime);
+    procedure Notify(const ANow: Cardinal);
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
   TNotifierTTLCheck = class(TBaseInterfacedObject, INotifierTTLCheck, INotifierTTLCheckInternal)
   private
     FList: TList;
@@ -107,6 +120,69 @@ begin
 end;
 
 procedure TNotifierTTLCheck.Remove(const AListener: IListenerTTLCheck);
+begin
+  FSync.BeginWrite;
+  try
+    if FList.Remove(Pointer(AListener)) >= 0 then begin
+      AListener._Release;
+    end;
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+{ TNotifierTime }
+
+constructor TNotifierTime.Create;
+begin
+  inherited Create;
+  FSync := MakeSyncRW_Big(Self, False);
+  FList := TList.Create;
+end;
+
+destructor TNotifierTime.Destroy;
+var
+  i: integer;
+begin
+  for i := 0 to FList.Count - 1 do begin
+    IListenerTTLCheck(FList.Items[i])._Release;
+  end;
+  FreeAndNil(FList);
+  inherited;
+end;
+
+procedure TNotifierTime.Add(const AListener: IListenerTime);
+begin
+  FSync.BeginWrite;
+  try
+    AListener._AddRef;
+    FList.Add(Pointer(AListener));
+  finally
+    FSync.EndWrite;
+  end;
+end;
+
+procedure TNotifierTime.Notify(const ANow: Cardinal);
+var
+  i: integer;
+  VList: array of IListenerTime;
+begin
+  FSync.BeginRead;
+  try
+    SetLength(VList, FList.Count);
+    for i := 0 to FList.Count - 1 do begin
+      VList[i] := IListenerTime(Pointer(FList[i]));
+
+    end;
+  finally
+    FSync.EndRead;
+  end;
+  for i := 0 to Length(VList) - 1 do begin
+    VList[i].Notification(ANow);
+  end;
+end;
+
+procedure TNotifierTime.Remove(const AListener: IListenerTime);
 begin
   FSync.BeginWrite;
   try
