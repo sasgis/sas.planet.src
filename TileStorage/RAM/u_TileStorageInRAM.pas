@@ -38,6 +38,7 @@ uses
   i_ListenerTTLCheck,
   i_SimpleTileStorageConfig,
   i_TileInfoBasicMemCache,
+  i_InternalPerformanceCounter,
   u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 
@@ -45,12 +46,10 @@ type
   TTileStorageInRAM = class(TTileStorageAbstract, IBasicMemCache)
   private
     FMainContentType: IContentTypeInfoBasic;
-    FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCList: INotifierTTLCheck;
     FTTLCheckListener: IListenerTTLCheck;
     FTileInfoMemCache: ITileInfoBasicMemCache;
-    procedure OnTTLCheckCall(Sender: TObject);
   protected
     function GetIsFileCache: Boolean; override;
 
@@ -100,10 +99,8 @@ type
     procedure IBasicMemCache.Clear = ClearMemCache;
   public
     constructor Create(
-      const AStorageConfig: ISimpleTileStorageConfigStatic;
+      const ATileInfoMemCache: ITileInfoBasicMemCache;
       const AGeoConverter: ICoordConverter;
-      const AGCList: INotifierTTLCheck;
-      const AContentTypeManager: IContentTypeManager;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic
     );
@@ -121,54 +118,36 @@ uses
   u_TileStorageTypeAbilities,
   u_TileInfoBasic;
 
-const
-  cStorageTTLCheckInterval = 30000; // 30 sec
-
 type
   ETileStorageInRAM = class(Exception);
+
+resourcestring
+  rsMemCacheNotAssigned =
+    'Can''t initialize in-memory tile storage. Check your config!';
 
 { TTileStorageInRAM }
 
 constructor TTileStorageInRAM.Create(
-  const AStorageConfig: ISimpleTileStorageConfigStatic;
+  const ATileInfoMemCache: ITileInfoBasicMemCache;
   const AGeoConverter: ICoordConverter;
-  const AGCList: INotifierTTLCheck;
-  const AContentTypeManager: IContentTypeManager;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic
 );
 begin
+  if not Assigned(ATileInfoMemCache) then begin
+    raise ETileStorageInRAM.Create(rsMemCacheNotAssigned);
+  end;
+
   inherited Create(
     TTileStorageTypeAbilitiesBerkeleyDB.Create,
     AMapVersionFactory,
     AGeoConverter,
     ''
   );
-  FContentTypeManager := AContentTypeManager;
+  FTileInfoMemCache := ATileInfoMemCache;
   FMainContentType := AMainContentType;
 
-  if Assigned(AStorageConfig) and (AStorageConfig.UseMemCache) then begin
-    FTileInfoMemCache := TTileInfoBasicMemCache.Create(
-      AStorageConfig.MemCacheCapacity,
-      AStorageConfig.MemCacheTTL,
-      TClearByTTLStrategy(AStorageConfig.MemCacheClearStrategy)
-    );
-  end else begin
-    raise ETileStorageInRAM.Create(
-      'Can''t initialize in-memory tile storage. Check you config!'
-    ); 
-  end;
-
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
-
-  FTTLCheckListener := TListenerTTLCheck.Create(
-    Self.OnTTLCheckCall,
-    AStorageConfig.MemCacheTTL,
-    cStorageTTLCheckInterval
-  );
-
-  FGCList := AGCList;
-  FGCList.Add(FTTLCheckListener);
 end;
 
 destructor TTileStorageInRAM.Destroy;
@@ -180,14 +159,8 @@ begin
   FTTLCheckListener := nil;
   FTileInfoMemCache := nil;
   FMainContentType := nil;
-  FContentTypeManager := nil;
   FTileNotExistsTileInfo := nil;
   inherited Destroy;
-end;
-
-procedure TTileStorageInRAM.OnTTLCheckCall(Sender: TObject);
-begin
-  FTileInfoMemCache.ClearByTTL;
 end;
 
 function TTileStorageInRAM.GetIsFileCache: Boolean;

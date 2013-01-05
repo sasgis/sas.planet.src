@@ -191,8 +191,7 @@ begin
     AGlobalBerkeleyDBHelper,
     AGCList,
     AContentTypeManager,
-    VStorageTypeConfig,
-    AConfig
+    VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeBerkeleyDB,
@@ -206,8 +205,7 @@ begin
   VStorageType := TTileStorageTypeDBMS.Create(
     AGCList,
     AContentTypeManager,
-    VStorageTypeConfig,
-    AConfig
+    VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeDBMS,
@@ -218,12 +216,7 @@ begin
   Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_RAM);
-  VStorageType := TTileStorageTypeInRAM.Create(
-    AGCList,
-    AContentTypeManager,
-    VStorageTypeConfig,
-    AConfig
-  );
+  VStorageType := TTileStorageTypeInRAM.Create(VStorageTypeConfig);
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeInRAM,
     'RAM',

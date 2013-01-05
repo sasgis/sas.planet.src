@@ -69,6 +69,7 @@ uses
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
   i_GlobalBerkeleyDBHelper,
+  i_TileInfoBasicMemCache,
   u_GlobalCacheConfig,
   i_TileStorage;
 
@@ -77,7 +78,7 @@ type
   private
     FZmp: IZmpInfo;
     FMapDataUrlPrefix: string;
-
+    FCacheTileInfo: ITileInfoBasicMemCache;
     FCacheBitmap: ITileObjCacheBitmap;
     FCacheVector: ITileObjCacheVector;
     FStorage: ITileStorage;
@@ -226,6 +227,7 @@ type
     property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read FTileDownloadRequestBuilderConfig;
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
+    property CacheTileInfo: ITileInfoBasicMemCache read FCacheTileInfo;
     property TileNotifier: INotifierTileRectUpdate read GetTileNotifier;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
 
@@ -285,12 +287,16 @@ uses
   u_GeoFun,
   u_BitmapFunc,
   u_TileStorageOfMapType,
+  u_TileInfoBasicMemCache,
   u_ListenerByEvent;
 
 procedure TMapType.ClearMemCache;
 var
   VBasicMemCache: IBasicMemCache;
 begin
+  if FCacheTileInfo <> nil then begin
+    FCacheTileInfo.Clear;
+  end;
   if FCacheBitmap <> nil then begin
     FCacheBitmap.Clear;
   end;
@@ -377,11 +383,25 @@ begin
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := FZmp.ViewGeoConvert;
 
+  if FStorageConfig.UseMemCache then begin
+    FCacheTileInfo :=
+      TTileInfoBasicMemCache.Create(
+        FStorageConfig.MemCacheCapacity,
+        FStorageConfig.MemCacheTTL,
+        FStorageConfig.MemCacheClearStrategy,
+        AGCList,
+        FPerfCounterList.CreateAndAddNewSubList('TileInfoInMem')
+      );
+  end else begin
+    FCacheTileInfo := nil;
+  end;
+
   FStorage :=
     TTileStorageOfMapType.Create(
       AGlobalCacheConfig,
       AGlobalBerkeleyDBHelper,
       FStorageConfig,
+      FCacheTileInfo,
       FVersionConfig,
       AGCList,
       AContentTypeManager,
@@ -469,7 +489,7 @@ begin
   FCoordConverter := nil;
   FCacheBitmap := nil;
   FCacheVector := nil;
-
+  FCacheTileInfo := nil;
   FTileDownloadSubsystem := nil;
   FBitmapLoaderFromStorage := nil;
   FBitmapSaverToStorage := nil;

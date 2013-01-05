@@ -9,27 +9,26 @@ uses
   i_NotifierTTLCheck,
   i_TileStorage,
   i_TileStorageTypeConfig,
-  i_SimpleTileStorageConfig,
+  i_TileInfoBasicMemCache,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeDBMS = class(TTileStorageTypeBase)
   private
-    FStorageConfig: ISimpleTileStorageConfigStatic;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
-      const APath: string
+      const APath: string;
+      const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
   public
     constructor Create(
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
-      const AConfig: ITileStorageTypeConfig;
-      const AStorageConfig: ISimpleTileStorageConfigStatic
+      const AConfig: ITileStorageTypeConfig
     );
   end;
 
@@ -40,14 +39,12 @@ uses
   u_MapVersionFactorySimpleString,
   u_TileStorageDBMS;
 
-
 { TTileStorageTypeDBMS }
 
 constructor TTileStorageTypeDBMS.Create(
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
-  const AConfig: ITileStorageTypeConfig;
-  const AStorageConfig: ISimpleTileStorageConfigStatic
+  const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
@@ -55,7 +52,6 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
-  FStorageConfig := AStorageConfig;
   FGCList := AGCList;
   FContentTypeManager := AContentTypeManager;
 end;
@@ -63,7 +59,8 @@ end;
 function TTileStorageTypeDBMS.BuildStorage(
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
-  const APath: string
+  const APath: string;
+  const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
 begin
   Result :=
@@ -72,7 +69,7 @@ begin
       GetConfig.BasePath.Path,
       APath,
       FGCList,
-      FStorageConfig,
+      ACacheTileInfo,
       FContentTypeManager,
       GetMapVersionFactory,
       AMainContentType

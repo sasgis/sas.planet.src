@@ -7,6 +7,7 @@ uses
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_TileStorage,
+  i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
 
@@ -18,7 +19,8 @@ type
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
-      const APath: string
+      const APath: string;
+      const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
   public
     constructor Create(
@@ -34,7 +36,8 @@ type
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
-      const APath: string
+      const APath: string;
+      const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
   public
     constructor Create(
@@ -68,7 +71,8 @@ end;
 function TTileStorageTypeGE.BuildStorage(
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
-  const APath: string
+  const APath: string;
+  const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
 begin
   Result :=
@@ -84,7 +88,8 @@ end;
 
 constructor TTileStorageTypeGC.Create(
   const AContentTypeManager: IContentTypeManager;
-  const AConfig: ITileStorageTypeConfig);
+  const AConfig: ITileStorageTypeConfig
+);
 begin
   inherited Create(
     TTileStorageTypeAbilitiesGE.Create,
@@ -97,7 +102,8 @@ end;
 function TTileStorageTypeGC.BuildStorage(
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
-  const APath: string
+  const APath: string;
+  const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
 begin
   Result :=

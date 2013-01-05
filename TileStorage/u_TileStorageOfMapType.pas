@@ -25,6 +25,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_GlobalBerkeleyDBHelper,
+  i_TileInfoBasicMemCache,
   u_GlobalCacheConfig,
   u_BaseInterfacedObject;
 
@@ -39,7 +40,7 @@ type
     FContentTypeManager: IContentTypeManager;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
-
+    FCacheTileInfo: ITileInfoBasicMemCache;
     FActualPath: IPathConfig;
     FStorageState: IStorageStateChangeble;
     FStorageStateProxy: IStorageStateProxy;
@@ -137,6 +138,7 @@ type
       const AGlobalCacheConfig: TGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AConfig: ISimpleTileStorageConfig;
+      const ACacheTileInfo: ITileInfoBasicMemCache;
       const AVersionConfig: IMapVersionConfig;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
@@ -173,6 +175,7 @@ constructor TTileStorageOfMapType.Create(
   const AGlobalCacheConfig: TGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AConfig: ISimpleTileStorageConfig;
+  const ACacheTileInfo: ITileInfoBasicMemCache;
   const AVersionConfig: IMapVersionConfig;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
@@ -187,6 +190,7 @@ begin
   FGlobalCacheConfig := AGlobalCacheConfig;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FConfig := AConfig;
+  FCacheTileInfo := ACacheTileInfo;
   FVersionConfig := AVersionConfig;
   FGCList := AGCList;
   FContentTypeManager := AContentTypeManager;
@@ -273,7 +277,7 @@ begin
             VCoordConverter,
             FCurrentPath,
             FGCList,
-            AConfig,
+            FCacheTileInfo,
             FContentTypeManager,
             VMapVersionFactory,
             VMainContentType
@@ -289,7 +293,7 @@ begin
             FGlobalCacheConfig.DBMSCachePath.Path,
             FCurrentPath,
             FGCList,
-            AConfig,
+            FCacheTileInfo,
             FContentTypeManager,
             VMapVersionFactory,
             VMainContentType
@@ -345,10 +349,8 @@ begin
         VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageInRAM.Create(
-            AConfig,
+            FCacheTileInfo,
             VCoordConverter,
-            FGCList,
-            FContentTypeManager,
             VMapVersionFactory,
             VMainContentType
           );

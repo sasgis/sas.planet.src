@@ -113,7 +113,7 @@ type
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
       const AGCList: INotifierTTLCheck;
-      const AStorageConfig: ISimpleTileStorageConfigStatic;
+      const ATileInfoMemCache: ITileInfoBasicMemCache;
       const AContentTypeManager: IContentTypeManager;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic
@@ -153,7 +153,7 @@ constructor TTileStorageBerkeleyDB.Create(
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
   const AGCList: INotifierTTLCheck;
-  const AStorageConfig: ISimpleTileStorageConfigStatic;
+  const ATileInfoMemCache: ITileInfoBasicMemCache;
   const AContentTypeManager: IContentTypeManager;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic
@@ -167,16 +167,7 @@ begin
   );
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
-
-  if Assigned(AStorageConfig) and (AStorageConfig.UseMemCache) then begin
-    FTileInfoMemCache := TTileInfoBasicMemCache.Create(
-      AStorageConfig.MemCacheCapacity,
-      AStorageConfig.MemCacheTTL,
-      TClearByTTLStrategy(AStorageConfig.MemCacheClearStrategy)
-    );
-  end else begin
-    FTileInfoMemCache := nil;
-  end;
+  FTileInfoMemCache := ATileInfoMemCache;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
@@ -215,9 +206,6 @@ end;
 
 procedure TTileStorageBerkeleyDB.OnSyncCall(Sender: TObject);
 begin
-  if Assigned(FTileInfoMemCache) then begin
-    FTileInfoMemCache.ClearByTTL;
-  end;
   FStorageHelper.Sync;
 end;
 

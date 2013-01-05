@@ -9,14 +9,13 @@ uses
   i_NotifierTTLCheck,
   i_TileStorage,
   i_TileStorageTypeConfig,
-  i_SimpleTileStorageConfig,
+  i_TileInfoBasicMemCache,
   i_GlobalBerkeleyDBHelper,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeBerkeleyDB = class(TTileStorageTypeBase)
   private
-    FStorageConfig: ISimpleTileStorageConfigStatic;
     FGCList: INotifierTTLCheck;
     FContentTypeManager: IContentTypeManager;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -24,15 +23,15 @@ type
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
-      const APath: string
+      const APath: string;
+      const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGCList: INotifierTTLCheck;
       const AContentTypeManager: IContentTypeManager;
-      const AConfig: ITileStorageTypeConfig;
-      const AStorageConfig: ISimpleTileStorageConfigStatic
+      const AConfig: ITileStorageTypeConfig
     );
   end;
 
@@ -49,8 +48,7 @@ constructor TTileStorageTypeBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGCList: INotifierTTLCheck;
   const AContentTypeManager: IContentTypeManager;
-  const AConfig: ITileStorageTypeConfig;
-  const AStorageConfig: ISimpleTileStorageConfigStatic
+  const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
@@ -58,7 +56,6 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
-  FStorageConfig := AStorageConfig;
   FGCList := AGCList;
   FContentTypeManager := AContentTypeManager;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
@@ -67,7 +64,8 @@ end;
 function TTileStorageTypeBerkeleyDB.BuildStorage(
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
-  const APath: string
+  const APath: string;
+  const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
 begin
   Result :=
@@ -76,7 +74,7 @@ begin
       AGeoConverter,
       APath,
       FGCList,
-      FStorageConfig,
+      ACacheTileInfo,
       FContentTypeManager,
       GetMapVersionFactory,
       AMainContentType

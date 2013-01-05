@@ -8,6 +8,7 @@ uses
   i_TileFileNameGenerator,
   i_TileFileNameParser,
   i_TileStorage,
+  i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
 
@@ -20,7 +21,8 @@ type
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
-      const APath: string
+      const APath: string;
+      const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
   public
     constructor Create(
@@ -57,7 +59,8 @@ end;
 function TTileStorageTypeFileSystemSimple.BuildStorage(
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
-  const APath: string
+  const APath: string;
+  const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
 begin
   Result :=

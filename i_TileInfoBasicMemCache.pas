@@ -50,7 +50,10 @@ type
 
     procedure Clear;
 
-    procedure ClearByTTL;
+    procedure ClearByTTL(Sender: TObject);
+
+    function GetTTL: Cardinal;
+    property TTL: Cardinal read GetTTL;
   end;
 
 implementation

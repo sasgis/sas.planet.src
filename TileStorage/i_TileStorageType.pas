@@ -27,6 +27,7 @@ uses
   i_ContentTypeInfo,
   i_StorageTypeAbilities,
   i_MapVersionConfig,
+  i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
   i_TileStorage;
 
@@ -45,7 +46,8 @@ type
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
-      const APath: string
+      const APath: string;
+      const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage;
   end;
 

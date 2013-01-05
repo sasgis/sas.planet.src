@@ -27,35 +27,29 @@ uses
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_NotifierTTLCheck,
-  i_SimpleTileStorageConfig,
+  i_TileInfoBasicMemCache,
   i_TileStorage,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeInRAM = class(TTileStorageTypeBase)
-  private
-    FStorageConfig: ISimpleTileStorageConfigStatic;
-    FGCList: INotifierTTLCheck;
-    FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorage(
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
-      const APath: string
+      const APath: string;
+      const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; override;
   public
     constructor Create(
-      const AGCList: INotifierTTLCheck;
-      const AContentTypeManager: IContentTypeManager;
-      const AConfig: ITileStorageTypeConfig;
-      const AStorageConfig: ISimpleTileStorageConfigStatic
+      const AConfig: ITileStorageTypeConfig
     );
   end;
 
 implementation
 
-uses
+uses      
   u_TileStorageTypeAbilities,
   u_TileStorageInRAM,
   u_MapVersionFactorySimpleString;
@@ -63,10 +57,7 @@ uses
 { TTileStorageTypeInRAM }
 
 constructor TTileStorageTypeInRAM.Create(
-  const AGCList: INotifierTTLCheck;
-  const AContentTypeManager: IContentTypeManager;
-  const AConfig: ITileStorageTypeConfig;
-  const AStorageConfig: ISimpleTileStorageConfigStatic
+  const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
@@ -74,23 +65,19 @@ begin
     TMapVersionFactorySimpleString.Create,
     AConfig
   );
-  FStorageConfig := AStorageConfig;
-  FGCList := AGCList;
-  FContentTypeManager := AContentTypeManager;
 end;
 
 function TTileStorageTypeInRAM.BuildStorage(
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
-  const APath: string
+  const APath: string;
+  const ACacheTileInfo: ITileInfoBasicMemCache
 ): ITileStorage;
 begin
   Result :=
     TTileStorageInRAM.Create(
-      FStorageConfig,
+      ACacheTileInfo,
       AGeoConverter,
-      FGCList,
-      FContentTypeManager,
       GetMapVersionFactory,
       AMainContentType
     );

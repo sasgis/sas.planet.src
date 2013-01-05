@@ -38,7 +38,6 @@ uses
   i_ContentTypeManager,
   i_NotifierTTLCheck,
   i_ListenerTTLCheck,
-  i_SimpleTileStorageConfig,
   i_TileInfoBasicMemCache,
   u_TileStorageAbstract,
   u_TileInfoBasicMemCache,
@@ -57,7 +56,6 @@ type
     FMapVersionConfig: IMapVersionConfig;
     FGCList: INotifierTTLCheck;
     FETSTTLListener: IListenerTTLCheck;
-    FMemCacheTTLListener: IListenerTTLCheck;
     FTileInfoMemCache: ITileInfoBasicMemCache;
 
     // some special values
@@ -87,8 +85,6 @@ type
     // shared buffer
     FETS_SERVICE_STORAGE_OPTIONS: TETS_SERVICE_STORAGE_OPTIONS;
 
-    // sync mem cache routine
-    procedure DoTTLSync(Sender: TObject);
     // sync provider routine
     procedure DoProviderSync(Sender: TObject);
     // internal sync prov caller
@@ -242,7 +238,7 @@ type
       const AGeoConverter: ICoordConverter;
       const AGlobalStorageIdentifier, AStoragePath: String;
       const AGCList: INotifierTTLCheck;
-      const AStorageConfig: ISimpleTileStorageConfigStatic;
+      const ACacheTileInfo: ITileInfoBasicMemCache;
       const AContentTypeManager: IContentTypeManager;
       const AMapVersionFactory: IMapVersionFactory;
       const AMainContentType: IContentTypeInfoBasic
@@ -627,7 +623,7 @@ constructor TTileStorageETS.Create(
   const AGeoConverter: ICoordConverter;
   const AGlobalStorageIdentifier, AStoragePath: String;
   const AGCList: INotifierTTLCheck;
-  const AStorageConfig: ISimpleTileStorageConfigStatic;
+  const ACacheTileInfo: ITileInfoBasicMemCache;
   const AContentTypeManager: IContentTypeManager;
   const AMapVersionFactory: IMapVersionFactory;
   const AMainContentType: IContentTypeInfoBasic);
@@ -656,16 +652,7 @@ begin
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
   FMapVersionConfig := nil;
-
-  if Assigned(AStorageConfig) and (AStorageConfig.UseMemCache) then begin
-    FTileInfoMemCache := TTileInfoBasicMemCache.Create(
-      AStorageConfig.MemCacheCapacity,
-      AStorageConfig.MemCacheTTL,
-      TClearByTTLStrategy(AStorageConfig.MemCacheClearStrategy)
-    );
-  end else begin
-    FTileInfoMemCache := nil;
-  end;
+  FTileInfoMemCache := ACacheTileInfo;
 
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FEmptyVersion := MapVersionFactory.CreateByStoreString('');
@@ -676,16 +663,9 @@ begin
     CETSSyncCheckInterval
   );
 
-  FMemCacheTTLListener := TListenerTTLCheck.Create(
-    Self.DoTTLSync,
-    CETSSync,
-    CETSSyncCheckInterval
-  );
-
   FGCList := AGCList;
   if Assigned(FGCList) then begin
     FGCList.Add(FETSTTLListener);
-    FGCList.Add(FMemCacheTTLListener);
   end;
 
   FDLLHandle := 0;
@@ -796,13 +776,11 @@ begin
     InternalLib_Unload;
 
     if Assigned(FGCList) then begin
-      FGCList.Remove(FMemCacheTTLListener);
       FGCList.Remove(FETSTTLListener);
       FGCList := nil;
     end;
 
     FETSTTLListener := nil;
-    FMemCacheTTLListener := nil;
     FTileInfoMemCache := nil;   
     FMapVersionConfig := nil;
     FMainContentType := nil;
@@ -842,13 +820,6 @@ begin
 
   if ETS_RESULT_NEED_EXCLUSIVE = InternalProviderSync(0) then
     InternalProviderSync(ETS_ROI_EXCLUSIVELY);
-end;
-
-procedure TTileStorageETS.DoTTLSync(Sender: TObject);
-begin
-  if Assigned(FTileInfoMemCache) then begin
-    FTileInfoMemCache.ClearByTTL;
-  end;
 end;
 
 function TTileStorageETS.DomainHtmlOptions(
