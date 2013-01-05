@@ -303,7 +303,7 @@
     <DCCReference Include="i_LineOnMapEdit.pas" />
     <DCCReference Include="i_Listener.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
-    <DCCReference Include="i_ListenerTTLCheck.pas" />
+    <DCCReference Include="i_ListenerTime.pas" />
     <DCCReference Include="i_LocalCoordConverter.pas" />
     <DCCReference Include="i_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="i_LocalCoordConverterFactorySimpe.pas" />
@@ -374,7 +374,7 @@
     <DCCReference Include="i_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="i_NotifierOperation.pas" />
     <DCCReference Include="i_NotifierTileRectUpdate.pas" />
-    <DCCReference Include="i_NotifierTTLCheck.pas" />
+    <DCCReference Include="i_NotifierTime.pas" />
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />

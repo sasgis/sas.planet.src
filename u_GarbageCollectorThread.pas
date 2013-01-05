@@ -28,7 +28,7 @@ uses
   SyncObjs,
   i_Listener,
   i_NotifierOperation,
-  i_NotifierTTLCheck;
+  i_NotifierTime;
 
 type
   TGarbageCollectorThread = class(TThread)

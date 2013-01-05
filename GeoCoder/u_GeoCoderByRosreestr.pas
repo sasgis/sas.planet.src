@@ -27,7 +27,7 @@ uses
   i_InetConfig,
   i_DownloadResult,
   i_DownloadRequest,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_DownloadResultFactory,  

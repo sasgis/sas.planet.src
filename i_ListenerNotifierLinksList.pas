@@ -25,8 +25,8 @@ interface
 uses
   i_Listener,
   i_Notifier,
-  i_ListenerTTLCheck,
-  i_NotifierTTLCheck;
+  i_ListenerTime,
+  i_NotifierTime;
 
 type
   IListenerNotifierLinksList = interface

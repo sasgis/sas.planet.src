@@ -23,7 +23,7 @@ unit u_GeoCoderListSimple;
 interface
 
 uses
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_InetConfig,
   i_DownloadResultFactory,
   i_ValueToStringConverter,

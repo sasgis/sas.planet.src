@@ -41,7 +41,7 @@ uses
   i_CoordConverterFactory,
   i_TileStorage,
   i_LanguageManager,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_ContentTypeManager,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,

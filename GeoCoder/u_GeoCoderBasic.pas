@@ -27,7 +27,7 @@ uses
   Classes,
   i_NotifierOperation,
   i_InetConfig,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_DownloadResultFactory,
   i_DownloadRequest,
   i_DownloadResult,

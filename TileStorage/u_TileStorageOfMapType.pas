@@ -7,7 +7,7 @@ uses
   SysUtils,
   i_SimpleTileStorageConfig,
   i_TileStorage,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_ContentTypeManager,
   i_InternalPerformanceCounter,
   i_NotifierTileRectUpdate,

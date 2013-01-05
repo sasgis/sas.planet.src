@@ -8,7 +8,7 @@ uses
   i_DownloadUIConfig,
   i_LocalCoordConverterChangeable,
   i_ActiveMapsConfig,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_MapTypes,
   i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,

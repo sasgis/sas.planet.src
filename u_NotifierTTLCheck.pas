@@ -25,8 +25,8 @@ interface
 uses
   Classes,
   SysUtils,
-  i_ListenerTTLCheck,
-  i_NotifierTTLCheck,
+  i_ListenerTime,
+  i_NotifierTime,
   u_BaseInterfacedObject;
 
 type

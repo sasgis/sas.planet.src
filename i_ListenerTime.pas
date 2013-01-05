@@ -18,22 +18,19 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_NotifierTTLCheck;
+unit i_ListenerTime;
 
 interface
 
-uses
-  i_ListenerTTLCheck;
-
 type
-  INotifierTime = interface
-    ['{91D40422-C434-43B0-8C5A-D7F774C51773}']
-    procedure Add(const AListener: IListenerTime);
-    procedure Remove(const AListener: IListenerTime);
+  IListenerTime = interface
+    ['{3254D366-AC68-4216-9961-CB23DB82940A}']
+    procedure Notification(const ANow: Cardinal);
   end;
 
-  INotifierTimeInternal = interface(INotifierTime)
-    procedure Notify(const ANow: Cardinal);
+  IListenerTimeWithUsedFlag = interface(IListenerTime)
+    ['{4AF0E406-00E3-44D2-8BC6-29A2EA9B8530}']
+    procedure UpdateUseTime;
   end;
 
 implementation

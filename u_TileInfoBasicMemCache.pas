@@ -29,8 +29,8 @@ uses
   i_MapVersionInfo,
   i_TileInfoBasic,
   i_TileInfoBasicMemCache,
-  i_NotifierTTLCheck,
-  i_ListenerTTLCheck,
+  i_NotifierTime,
+  i_ListenerTime,
   i_InternalPerformanceCounter,
   u_BaseInterfacedObject;
 

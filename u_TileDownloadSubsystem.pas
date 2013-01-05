@@ -11,7 +11,7 @@ uses
   i_CoordConverterFactory,
   i_CoordConverter,
   i_ThreadConfig,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_ConfigDataProvider,
   i_ContentTypeManager,
   i_ContentTypeSubst,

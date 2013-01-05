@@ -29,7 +29,7 @@ uses
   i_DownloadRequest,
   i_DownloadResult,
   i_InetConfig,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_DownloadResultFactory,
   i_ValueToStringConverter,
   i_GeoCoder,

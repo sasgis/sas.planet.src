@@ -27,8 +27,8 @@ uses
   SysUtils,
   i_Notifier,
   i_Listener,
-  i_ListenerTTLCheck,
-  i_NotifierTTLCheck,
+  i_ListenerTime,
+  i_NotifierTime,
   i_ListenerNotifierLinksList,
   u_BaseInterfacedObject;
 

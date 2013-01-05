@@ -10,7 +10,7 @@ uses
   i_TileDownloaderList,
   i_TileDownloader,
   i_TileRequestProcessorPool,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   u_BaseInterfacedObject;
 
 type

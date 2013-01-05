@@ -6,7 +6,7 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_ContentTypeManager,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_TileStorage,
   i_TileStorageTypeConfig,
   i_TileInfoBasicMemCache,

@@ -33,7 +33,7 @@ uses
   i_ThreadConfig,
   i_CoordConverterFactory,
   i_ZmpInfoSet,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_InetConfig,
   i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,

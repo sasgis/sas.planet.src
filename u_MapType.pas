@@ -44,7 +44,7 @@ uses
   i_TileDownloadRequestBuilderConfig,
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_DownloadResultFactory,
   i_InetConfig,
   i_ImageResamplerConfig,

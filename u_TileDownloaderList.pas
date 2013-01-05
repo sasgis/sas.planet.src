@@ -13,7 +13,7 @@ uses
   i_DownloadResultFactory,
   i_TileDownloadResultSaver,
   i_TileDownloaderState,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_TileDownloadRequestBuilderFactory,
   i_TileDownloaderList,
   u_BaseInterfacedObject;

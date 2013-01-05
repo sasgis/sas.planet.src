@@ -24,7 +24,7 @@ interface
 
 uses
   i_PathConfig,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_ContentTypeManager,
   i_GlobalBerkeleyDBHelper,
   i_SimpleTileStorageConfig,

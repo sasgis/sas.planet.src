@@ -5,7 +5,7 @@ interface
 uses
   SysUtils,
   GR32,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
   u_BaseInterfacedObject;

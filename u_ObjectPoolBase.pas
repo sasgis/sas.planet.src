@@ -4,8 +4,8 @@ interface
 
 uses
   SysUtils,
-  i_NotifierTTLCheck,
-  i_ListenerTTLCheck,
+  i_NotifierTime,
+  i_ListenerTime,
   u_BaseInterfacedObject,
   u_ObjectFromPoolAbstract;
 

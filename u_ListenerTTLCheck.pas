@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   i_SimpleFlag,
-  i_ListenerTTLCheck,
+  i_ListenerTime,
   u_ListenerByEvent,
   u_BaseInterfacedObject;
 

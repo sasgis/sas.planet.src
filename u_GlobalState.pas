@@ -73,7 +73,7 @@ uses
   i_ZmpInfoSet,
   i_GPSConfig,
   i_PathConfig,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_Bitmap32StaticFactory,
   i_MapCalibration,
   i_MarkCategoryFactoryConfig,

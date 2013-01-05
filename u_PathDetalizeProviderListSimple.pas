@@ -25,7 +25,7 @@ interface
 uses
   i_LanguageManager,
   i_InetConfig,
-  i_NotifierTTLCheck,
+  i_NotifierTime,
   i_DownloadResultFactory,
   i_VectorDataFactory,
   i_VectorItemsFactory,
