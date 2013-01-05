@@ -10,7 +10,6 @@ uses
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
   i_BerkeleyDBFactory,
-  i_BerkeleyDBKeyValue,
   i_GlobalBerkeleyDBHelper,
   u_BaseInterfacedObject;
 

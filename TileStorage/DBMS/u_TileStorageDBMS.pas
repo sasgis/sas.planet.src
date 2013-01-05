@@ -40,7 +40,6 @@ uses
   i_ListenerTime,
   i_TileInfoBasicMemCache,
   u_TileStorageAbstract,
-  u_TileInfoBasicMemCache,
   t_ETS_Tiles,
   t_ETS_Provider;
 

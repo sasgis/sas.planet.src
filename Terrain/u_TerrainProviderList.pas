@@ -29,7 +29,6 @@ uses
   i_Notifier,
   i_TerrainProviderList,
   i_TerrainProviderListElement,
-  i_ExternalTerrainsProvider,
   i_PathConfig,
   i_ProjConverter,
   u_GlobalCacheConfig,

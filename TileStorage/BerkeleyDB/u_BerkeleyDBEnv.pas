@@ -28,8 +28,7 @@ uses
   i_Listener,
   i_BerkeleyDBEnv,
   i_GlobalBerkeleyDBHelper,
-  u_BaseInterfacedObject,
-  u_BerkeleyDBPool;
+  u_BaseInterfacedObject;
 
 type
   TBerkeleyDBEnvAppPrivate = record

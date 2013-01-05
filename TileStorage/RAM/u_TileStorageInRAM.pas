@@ -30,16 +30,10 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_BasicMemCache,
-  i_ContentTypeManager,
   i_CoordConverter,
   i_TileStorage,
   i_MapVersionConfig,
-  i_NotifierTime,
-  i_ListenerTime,
-  i_SimpleTileStorageConfig,
   i_TileInfoBasicMemCache,
-  i_InternalPerformanceCounter,
-  u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 
 type
@@ -109,8 +103,7 @@ implementation
 
 uses
   t_CommonTypes,
-  i_TileIterator,
-  u_ListenerTime,
+  i_TileIterator,   
   u_TileRectInfoShort,
   u_TileIteratorByRect,
   u_TileStorageTypeAbilities,

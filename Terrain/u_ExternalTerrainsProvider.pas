@@ -29,7 +29,6 @@ uses
   t_GeoTypes,
   t_ExternalTerrainAPI,
   i_Notifier,
-  i_ExternalTerrainsProvider,
   i_ProjConverter,
   i_TerrainProvider,
   u_BaseInterfacedObject;

@@ -37,11 +37,9 @@ uses
   i_NotifierTime,
   i_ListenerTime,
   i_TileFileNameGenerator,
-  i_GlobalBerkeleyDBHelper,
-  i_SimpleTileStorageConfig,
+  i_GlobalBerkeleyDBHelper,  
   i_TileInfoBasicMemCache,
   u_TileStorageBerkeleyDBHelper,
-  u_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 
 type

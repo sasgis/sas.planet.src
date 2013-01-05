@@ -72,8 +72,7 @@ const
 implementation
 
 uses
-  Windows,
-  Math;
+  Windows;
 
 const
   cTimeZoneInfoUpdateInterval = 200; // ms

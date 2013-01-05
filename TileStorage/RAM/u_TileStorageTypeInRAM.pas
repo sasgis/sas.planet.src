@@ -25,8 +25,6 @@ interface
 uses
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_ContentTypeManager,
-  i_NotifierTime,
   i_TileInfoBasicMemCache,
   i_TileStorage,
   i_TileStorageTypeConfig,
