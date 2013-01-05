@@ -21,7 +21,6 @@ type
 implementation
 
 uses
-  SysUtils,
   GR32,
   u_ObjectFromPoolBase;
 

@@ -195,8 +195,7 @@ type
 implementation
 
 uses
-  u_SimpleFlagWithInterlock,
-  u_ListenerByEvent;
+  u_SimpleFlagWithInterlock;
 
 { TWindowLayerBasic }
 

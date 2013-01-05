@@ -44,8 +44,7 @@ uses
   i_CoordConverter,
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
-  u_LocalCoordConverterChangeable,
-  u_GeoFun;
+  u_LocalCoordConverterChangeable;
 
 { TLocalConverterChangeableFixedTileRectNoScale }
 

@@ -23,7 +23,6 @@ unit u_NotifierTTLCheck;
 interface
 
 uses
-  Windows,
   Classes,
   SysUtils,
   i_ListenerTTLCheck,

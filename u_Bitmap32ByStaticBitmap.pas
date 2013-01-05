@@ -36,8 +36,7 @@ type
 implementation
 
 uses
-  Types,
-  GR32_LowLevel;
+  Types;
 
 { TStaticBitmapBackend }
 
