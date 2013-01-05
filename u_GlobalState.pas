@@ -556,7 +556,12 @@ begin
   );
   VList := TNotifierTTLCheck.Create;
   FBGTimerNotifier := VList;
-  FGCThread := TGarbageCollectorThread.Create(VList, VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000));
+  FGCThread :=
+    TGarbageCollectorThread.Create(
+      FAppClosingNotifier,
+      VList,
+      VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000)
+    );
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create(FBitmapFactory);
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   FGpsSystem :=
