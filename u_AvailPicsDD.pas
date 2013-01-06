@@ -68,7 +68,6 @@ uses
   i_NotifierOperation,
   i_DownloadResultFactory,
   u_GeoToStr,
-  u_GlobalState,
   u_DownloaderHttp,
   u_Notifier,
   u_NotifierOperation,
@@ -290,7 +289,7 @@ begin
                    Vlink,
                    VHeader,
                    VPostData,
-                   GState.InetConfig.GetStatic
+                   AInetConfig.GetStatic
                   );
   VResultFactory := TDownloadResultFactory.Create;
   VDownloader:=TDownloaderHttp.Create(VResultFactory);
@@ -336,7 +335,7 @@ begin
                     Vlink,
                     VHeader,
                     VPostData,
-                    GState.InetConfig.GetStatic
+                    AInetConfig.GetStatic
                   );
   VResult := VDownloader.DoRequest(
               VPostRequest,
