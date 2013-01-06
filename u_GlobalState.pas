@@ -564,6 +564,7 @@ begin
   FGCThread :=
     TGarbageCollectorThread.Create(
       FAppClosingNotifier,
+      FPerfCounterList.CreateAndAddNewCounter('GCTimer'),
       FBGTimerNotifierInternal,
       VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000)
     );

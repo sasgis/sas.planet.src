@@ -26,6 +26,7 @@ uses
   Windows,
   Classes,
   SyncObjs,
+  i_InternalPerformanceCounter,
   i_Listener,
   i_NotifierOperation,
   i_NotifierTime;
@@ -35,6 +36,7 @@ type
   private
     FAppClosingNotifier: INotifierOneOperation;
     FNotifier: INotifierTimeInternal;
+    FCounter: IInternalPerformanceCounter;
 
     FAppClosingListener: IListener;
     FCancelEvent: TEvent;
@@ -46,6 +48,7 @@ type
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
+      const ACounter: IInternalPerformanceCounter;
       const ANotifier: INotifierTimeInternal;
       ASleepTime: Cardinal
     );
@@ -61,12 +64,14 @@ uses
 
 constructor TGarbageCollectorThread.Create(
   const AAppClosingNotifier: INotifierOneOperation;
+  const ACounter: IInternalPerformanceCounter;
   const ANotifier: INotifierTimeInternal;
   ASleepTime: Cardinal
 );
 begin
   inherited Create(false);
   FAppClosingNotifier := AAppClosingNotifier;
+  FCounter := ACounter;
   FNotifier := ANotifier;
   FSleepTime := ASleepTime;
 
@@ -96,11 +101,17 @@ end;
 procedure TGarbageCollectorThread.Execute;
 var
   VNow: Cardinal;
+  VContext: TInternalPerformanceCounterContext;
 begin
   SetCurrentThreadName(AnsiString(Self.ClassName));
   while not Terminated do begin
-    VNow := GetTickCount;
-    FNotifier.Notify(VNow);
+    VContext := FCounter.StartOperation;
+    try
+      VNow := GetTickCount;
+      FNotifier.Notify(VNow);
+    finally
+      FCounter.FinishOperation(VContext);
+    end;
     SleepCancelable(FSleepTime);
   end;
 end;
