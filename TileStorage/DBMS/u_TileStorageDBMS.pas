@@ -756,7 +756,7 @@ begin
       // delete both tile and TNE
       FTileInfoMemCache.Remove(AXY, AZoom);
     end;
-    FETSTTLListener.UpdateUseTime;
+    FETSTTLListener.CheckUseTimeUpdated;
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
 end;
@@ -1682,7 +1682,7 @@ begin
         VTileInfo
       );
     end;
-    FETSTTLListener.UpdateUseTime;
+    FETSTTLListener.CheckUseTimeUpdated;
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
 end;
