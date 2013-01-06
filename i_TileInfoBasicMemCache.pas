@@ -49,9 +49,6 @@ type
     ): ITileInfoBasic;
 
     procedure Clear;
-
-    function GetTTL: Cardinal;
-    property TTL: Cardinal read GetTTL;
   end;
 
 implementation

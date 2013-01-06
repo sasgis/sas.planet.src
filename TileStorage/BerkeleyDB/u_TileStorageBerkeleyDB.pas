@@ -500,7 +500,7 @@ begin
             VTileInfo
           );
         end;
-        FSyncCallListner.UpdateUseTime;
+        FSyncCallListner.CheckUseTimeUpdated;
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
@@ -542,7 +542,7 @@ begin
             TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
           );
         end;
-        FSyncCallListner.UpdateUseTime;
+        FSyncCallListner.CheckUseTimeUpdated;
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);
       end;
     end;
@@ -598,7 +598,7 @@ begin
           TTileInfoBasicNotExists.Create(0, AVersionInfo)
         );
       end;
-      FSyncCallListner.UpdateUseTime;
+      FSyncCallListner.CheckUseTimeUpdated;
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   end;

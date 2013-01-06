@@ -68,6 +68,7 @@ type
     FMissCounter: IInternalPerformanceCounter;
     FClearByTTLCounter: IInternalPerformanceCounter;
     procedure MakeItClean(const ATileRec: PTileInfoCacheRec); inline;
+    procedure ClearByTTL;
   private
     { ITileInfoBasicMemCache }
     procedure Add(
@@ -86,8 +87,6 @@ type
       const AUpdateTTL: Boolean
     ): ITileInfoBasic;
     procedure Clear;
-    procedure ClearByTTL;
-    function GetTTL: Cardinal;
   public
     constructor Create(
       const ACapacity: Integer;
@@ -243,6 +242,7 @@ begin
           Break;
         end;
       end;
+      FTTLCheckListener.CheckUseTimeUpdated;
     finally
       FCS.EndWrite;
     end;
@@ -387,11 +387,6 @@ begin
     ATileRec.TileInfoBasic := nil;
     ATileRec.IsEmptyCacheRec := True;
   end;
-end;
-
-function TTileInfoBasicMemCache.GetTTL: Cardinal;
-begin
-  Result := FTTL;
 end;
 
 end.

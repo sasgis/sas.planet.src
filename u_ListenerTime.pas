@@ -14,11 +14,13 @@ type
   private
     FOnTrimByTTL: TNotifyListenerNoMmgEvent;
     FUseFlag: ISimpleFlag;
+    FUpdateFlag: ISimpleFlag;
     FLastUseTime: Cardinal;
     FTTL: Cardinal;
   private
     procedure Notification(const ANow: Cardinal);
     procedure UpdateUseTime;
+    procedure CheckUseTimeUpdated;
   public
     constructor Create(
       AOnTrimByTTL: TNotifyListenerNoMmgEvent;
@@ -56,7 +58,7 @@ begin
   inherited Create;
   FOnTrimByTTL := AOnTrimByTTL;
   FTTL := ATTL;
-
+  FUpdateFlag := TSimpleFlagWithInterlock.Create;
   FUseFlag := TSimpleFlagWithInterlock.Create;
   FLastUseTime := 0;
 end;
@@ -76,6 +78,7 @@ begin
         FUpdateFlag.CheckFlagAndReset;
         FOnTrimByTTL;
         FLastUseTime := 0;            
+        FUpdateFlag.CheckFlagAndReset;
       end;
     end;
   end;
@@ -84,6 +87,14 @@ end;
 procedure TListenerTTLCheck.UpdateUseTime;
 begin
   FUseFlag.SetFlag;
+end;
+
+procedure TListenerTTLCheck.CheckUseTimeUpdated;
+begin
+  if not FUpdateFlag.CheckFlag then begin
+    FUpdateFlag.SetFlag;
+    UpdateUseTime;
+  end;
 end;
 
 { TListenerTimeCheck }
