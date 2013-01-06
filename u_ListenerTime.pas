@@ -77,8 +77,7 @@ begin
       if (VCleanTime <= ANow) or ((ANow < 1 shl 29) and (VCleanTime > 1 shl 30)) then begin
         FUpdateFlag.CheckFlagAndReset;
         FOnTrimByTTL;
-        FLastUseTime := 0;            
-        FUpdateFlag.CheckFlagAndReset;
+        FLastUseTime := 0;
       end;
     end;
   end;
