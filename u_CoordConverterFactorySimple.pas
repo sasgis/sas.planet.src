@@ -25,7 +25,6 @@ interface
 uses
   i_Datum,
   i_CoordConverter,
-  i_ProjectionInfo,
   i_ConfigDataProvider,
   i_CoordConverterFactory,
   u_BaseInterfacedObject;
@@ -64,7 +63,6 @@ uses
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,
   u_CoordConverterSimpleLonLat,
-  u_ProjectionInfo,
   u_ResStrings;
 
 { TCoordConverterFactorySimple }
