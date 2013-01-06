@@ -32,7 +32,7 @@ uses
 type
   TNotifierTime = class(TBaseInterfacedObject, INotifierTime, INotifierTimeInternal)
   private
-    FList: TList;
+    FListeners: TList;
     FSync: IReadWriteSync;
   private
     procedure Add(const AListener: IListenerTime);
@@ -54,17 +54,17 @@ constructor TNotifierTime.Create;
 begin
   inherited Create;
   FSync := MakeSyncRW_Big(Self, False);
-  FList := TList.Create;
+  FListeners := TList.Create;
 end;
 
 destructor TNotifierTime.Destroy;
 var
   i: integer;
 begin
-  for i := 0 to FList.Count - 1 do begin
-    IInterface(FList.Items[i])._Release;
+  for i := 0 to FListeners.Count - 1 do begin
+    IInterface(FListeners.Items[i])._Release;
   end;
-  FreeAndNil(FList);
+  FreeAndNil(FListeners);
   inherited;
 end;
 
@@ -73,7 +73,7 @@ begin
   FSync.BeginWrite;
   try
     AListener._AddRef;
-    FList.Add(Pointer(AListener));
+    FListeners.Add(Pointer(AListener));
   finally
     FSync.EndWrite;
   end;
@@ -86,9 +86,9 @@ var
 begin
   FSync.BeginRead;
   try
-    SetLength(VList, FList.Count);
-    for i := 0 to FList.Count - 1 do begin
-      VList[i] := IListenerTime(Pointer(FList[i]));
+    SetLength(VList, FListeners.Count);
+    for i := 0 to FListeners.Count - 1 do begin
+      VList[i] := IListenerTime(Pointer(FListeners[i]));
 
     end;
   finally
@@ -106,13 +106,13 @@ var
 begin
   FSync.BeginWrite;
   try
-    idx := FList.IndexOf(Pointer(AListener));
+    idx := FListeners.IndexOf(Pointer(AListener));
     if idx >= 0 then begin
-      VLastIndex := FList.Count - 1;
+      VLastIndex := FListeners.Count - 1;
       if idx < VLastIndex then begin
-        FList[idx] :=  FList[VLastIndex];
+        FListeners[idx] :=  FListeners[VLastIndex];
       end;
-      FList.Delete(VLastIndex);
+      FListeners.Delete(VLastIndex);
       AListener._Release;
     end;
   finally

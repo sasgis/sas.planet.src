@@ -13,7 +13,7 @@ type
   TNotifierBase = class (TBaseInterfacedObject, INotifier, INotifierInternal)
   private
     FListeners: TList;
-    FSynchronizer: IReadWriteSync;
+    FSync: IReadWriteSync;
   private
     procedure Add(const AListener: IListener);
     procedure Remove(const AListener: IListener);
@@ -43,7 +43,7 @@ constructor TNotifierBase.Create;
 begin
   inherited Create;
   FListeners := TList.Create;
-  FSynchronizer := MakeSyncRW_Std(Self, False);
+  FSync := MakeSyncRW_Std(Self, False);
 end;
 
 destructor TNotifierBase.Destroy;
@@ -59,12 +59,12 @@ end;
 
 procedure TNotifierBase.Add(const AListener: IListener);
 begin
-  FSynchronizer.BeginWrite;
+  FSync.BeginWrite;
   try
     AListener._AddRef;
     FListeners.Add(Pointer(AListener));
   finally
-    FSynchronizer.EndWrite;
+    FSync.EndWrite;
   end;
 end;
 
@@ -73,13 +73,13 @@ var
   idx: Integer;
   VList: array of IListener;
 begin
-  FSynchronizer.BeginRead;
+  FSync.BeginRead;
   try
     SetLength(VList, FListeners.Count);
     for idx := 0 to FListeners.Count - 1 do
       VList[idx] := IListener(Pointer(FListeners[idx]));
   finally
-    FSynchronizer.EndRead;
+    FSync.EndRead;
   end;
   for idx := 0 to Length(VList) - 1 do begin
     VList[idx].Notification(AMsg);
@@ -93,7 +93,7 @@ var
   idx: Integer;
   VLastIndex: Integer;
 begin
-  FSynchronizer.BeginWrite;
+  FSync.BeginWrite;
   try
     idx := FListeners.IndexOf(Pointer(AListener));
     if idx >= 0 then begin
@@ -105,7 +105,7 @@ begin
       AListener._Release;
     end;
   finally
-    FSynchronizer.EndWrite;
+    FSync.EndWrite;
   end;
 end;
 
