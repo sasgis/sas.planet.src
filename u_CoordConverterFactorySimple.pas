@@ -31,7 +31,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TCoordConverterFactorySimple = class(TBaseInterfacedObject, IDatumFactory, ICoordConverterFactory, IProjectionInfoFactory)
+  TCoordConverterFactorySimple = class(TBaseInterfacedObject, IDatumFactory, ICoordConverterFactory)
   private
     FDatumGoogle: IDatum;
     FDatumYandex: IDatum;
@@ -50,11 +50,6 @@ type
       AProjectionEPSG: Integer;
       ATileSplitCode: Integer
     ): ICoordConverter;
-  private
-    function GetByConverterAndZoom(
-      const AGeoConverter: ICoordConverter;
-      AZoom: Byte
-    ): IProjectionInfo;
   public
     constructor Create;
   end;
@@ -134,14 +129,6 @@ begin
   end else begin
     Result := TDatum.Create(0, ARadiusA, ARadiusB);
   end;
-end;
-
-function TCoordConverterFactorySimple.GetByConverterAndZoom(
-  const AGeoConverter: ICoordConverter;
-  AZoom: Byte
-): IProjectionInfo;
-begin
-  Result := TProjectionInfo.Create(AGeoConverter, AZoom);
 end;
 
 function TCoordConverterFactorySimple.GetCoordConverterByCode(

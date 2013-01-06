@@ -1077,6 +1077,7 @@
     <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
     <DCCReference Include="u_ProjectedSingleLine.pas" />
     <DCCReference Include="u_ProjectionInfo.pas" />
+    <DCCReference Include="u_ProjectionInfoFactory.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
     <DCCReference Include="u_ReadWriteStateInternal.pas" />
     <DCCReference Include="u_ReadWriteStateStatic.pas" />

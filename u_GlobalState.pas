@@ -324,6 +324,7 @@ uses
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByVSAGPS,
   u_GPSPositionFactory,
+  u_ProjectionInfoFactory,
   u_LocalCoordConverterFactorySimpe,
   u_TerrainProviderList,
   u_TerrainConfig,
@@ -381,7 +382,6 @@ var
   VKmzLoader: IVectorDataLoader;
   VFilesIteratorFactory: IFileNameIteratorFactory;
   VFilesIterator: IFileNameIterator;
-  VCoordConverterFactorySimple: TCoordConverterFactorySimple;
   VProgramPath: string;
   VSleepByClass: IConfigDataProvider;
   VResamplerFactoryList: IImageResamplerFactoryList;
@@ -446,9 +446,8 @@ begin
 
   FProjConverterFactory := TProjConverterFactory.Create;
 
-  VCoordConverterFactorySimple := TCoordConverterFactorySimple.Create;
-  FCoordConverterFactory := VCoordConverterFactorySimple;
-  FProjectionFactory := VCoordConverterFactorySimple;
+  FCoordConverterFactory := TCoordConverterFactorySimple.Create;
+  FProjectionFactory := TProjectionInfoFactory.Create(MakeSyncRW_Var(Self, False));
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);
 

@@ -404,6 +404,7 @@ uses
   u_CoordConverterSimpleLonLat in 'u_CoordConverterSimpleLonLat.pas',
   i_CoordConverterFactory in 'i_CoordConverterFactory.pas',
   u_CoordConverterFactorySimple in 'u_CoordConverterFactorySimple.pas',
+  u_ProjectionInfoFactory in 'u_ProjectionInfoFactory.pas',
   i_ContentTypeInfo in 'i_ContentTypeInfo.pas',
   i_ContentTypeManager in 'i_ContentTypeManager.pas',
   i_ContentConverter in 'i_ContentConverter.pas',
