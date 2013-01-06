@@ -100,10 +100,19 @@ begin
 end;
 
 procedure TNotifierTime.Remove(const AListener: IListenerTime);
+var
+  idx: Integer;
+  VLastIndex: Integer;
 begin
   FSync.BeginWrite;
   try
-    if FList.Remove(Pointer(AListener)) >= 0 then begin
+    idx := FList.IndexOf(Pointer(AListener));
+    if idx >= 0 then begin
+      VLastIndex := FList.Count - 1;
+      if idx < VLastIndex then begin
+        FList[idx] :=  FList[VLastIndex];
+      end;
+      FList.Delete(VLastIndex);
       AListener._Release;
     end;
   finally

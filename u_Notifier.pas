@@ -58,16 +58,11 @@ begin
 end;
 
 procedure TNotifierBase.Add(const AListener: IListener);
-var
-  idx: Integer;
 begin
   FSynchronizer.BeginWrite;
   try
-    idx := FListeners.IndexOf(Pointer(AListener));
-    if idx < 0 then begin
-      FListeners.Add(Pointer(AListener));
-      AListener._AddRef;
-    end;
+    AListener._AddRef;
+    FListeners.Add(Pointer(AListener));
   finally
     FSynchronizer.EndWrite;
   end;
