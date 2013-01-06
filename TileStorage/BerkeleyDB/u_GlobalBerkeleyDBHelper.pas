@@ -57,8 +57,6 @@ type
     destructor Destroy; override;
   end;
 
-procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
-
 implementation
 
 uses
@@ -66,23 +64,6 @@ uses
   ShLwApi,
   u_ListenerByEvent,
   u_BerkeleyDBEnv;
-
-procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
-var
-  VMsg: AnsiString;
-  VEnvPrivate: PBerkeleyDBEnvAppPrivate;
-begin
-  VMsg := errpfx + AnsiString(': ') + msg;
-  VEnvPrivate := dbenv.app_private;
-  if Assigned(VEnvPrivate) then begin
-    VMsg := VMsg + ' (' + VEnvPrivate.EnvRootPath + ')';
-  end;
-  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.Helper) then begin
-    VEnvPrivate.Helper.RaiseException(VMsg);
-  end else begin
-    raise EBerkeleyDBExeption.Create(string(VMsg));
-  end;
-end;
 
 { TGlobalBerkeleyDBHelper }
 
