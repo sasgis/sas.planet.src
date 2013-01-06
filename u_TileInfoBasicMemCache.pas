@@ -274,7 +274,9 @@ begin
            (not VTile.IsEmptyCacheRec)
         then begin
           if (VTile.TileTTL < GetTickCount) then begin
-            MakeItClean(VTile);
+            if FClearStrategy = csOneByOne then begin
+              MakeItClean(VTile);
+            end;
           end else begin
             if AUpdateTTL then begin
               VTile.TileTTL := GetTickCount + FTTL;
