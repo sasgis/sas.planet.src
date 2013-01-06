@@ -81,7 +81,7 @@ type
   private
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifier;
+    FTimerNoifier: INotifierTime;
     FGCNotifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
@@ -100,7 +100,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AGCNotifier: INotifierTime;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AContentTypeManager: IContentTypeManager;
@@ -143,7 +143,7 @@ uses
 constructor TfrmCacheManager.Create(
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AGCNotifier: INotifierTime;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AContentTypeManager: IContentTypeManager;

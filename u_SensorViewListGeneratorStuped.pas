@@ -28,6 +28,7 @@ uses
   TB2Item,
   TB2Dock,
   i_Notifier,
+  i_NotifierTime,
   i_GUIDSet,
   i_ValueToStringConverter,
   i_LanguageManager,
@@ -38,7 +39,7 @@ uses
 type
   TSensorViewListGeneratorStuped = class(TBaseInterfacedObject, ISensorViewListGenerator)
   private
-    FTimerNoifier: INotifier;
+    FTimerNoifier: INotifierTime;
     FValueConverterConfig: IValueToStringConverterConfig;
     FLanguageManager: ILanguageManager;
     FOwner: TComponent;
@@ -58,7 +59,7 @@ type
     function CreateSensorViewList(const ASensorList: ISensorList): IGUIDInterfaceSet;
   public
     constructor Create(
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AValueConverterConfig: IValueToStringConverterConfig;
       const ALanguageManager: ILanguageManager;
       AOwner: TComponent;
@@ -299,7 +300,7 @@ begin
 end;
 
 constructor TSensorViewListGeneratorStuped.Create(
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AValueConverterConfig: IValueToStringConverterConfig;
   const ALanguageManager: ILanguageManager;
   AOwner: TComponent;

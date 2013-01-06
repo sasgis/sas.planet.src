@@ -8,6 +8,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
@@ -49,7 +50,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AConfig: IMapLayerGPSMarkerConfig;
       const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
       const AStopedMarkerChangeable: IMarkerDrawableChangeable;
@@ -66,6 +67,7 @@ uses
   u_GeoFun,
   u_Synchronizer,
   u_SimpleFlagWithInterlock,
+  u_ListenerTime,
   u_ListenerByEvent;
 
 { TMapLayerGPSMarker }
@@ -76,7 +78,7 @@ constructor TMapLayerGPSMarker.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AConfig: IMapLayerGPSMarkerConfig;
   const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
   const AStopedMarkerChangeable: IMarkerDrawableChangeable;
@@ -99,7 +101,7 @@ begin
   FPositionCS := MakeSyncRW_Var(Self, False);
 
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimer),
+    TListenerTimeCheck.Create(Self.OnTimer, 200),
     ATimerNoifier
   );
   LinksList.Add(

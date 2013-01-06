@@ -6,6 +6,7 @@ uses
   GR32,
   GR32_Image,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
@@ -39,7 +40,7 @@ type
       AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AMainFormState: IMainFormState;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AMouseState: IMouseState;
       const AConfig: IFullMapMouseCursorLayerConfig
     );
@@ -49,6 +50,7 @@ implementation
 
 uses
   GR32_Layers,
+  u_ListenerTime,
   u_ListenerByEvent;
 
 { TFullMapMouseCursorLayer }
@@ -60,7 +62,7 @@ constructor TFullMapMouseCursorLayer.Create(
   AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AMainFormState: IMainFormState;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AMouseState: IMouseState;
   const AConfig: IFullMapMouseCursorLayerConfig
 );
@@ -85,7 +87,7 @@ begin
     FMainFormState.ChangeNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimerEvent),
+    TListenerTimeCheck.Create(Self.OnTimerEvent, 100),
     ATimerNoifier
   );
 end;

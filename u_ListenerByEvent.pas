@@ -24,7 +24,9 @@ interface
 
 uses
   i_Notifier,
+  i_NotifierTime,
   i_Listener,
+  i_ListenerTime,
   i_SimpleFlag,
   u_BaseInterfacedObject;
 
@@ -55,8 +57,8 @@ type
 
   TNotifyEventListenerSync = class(TBaseInterfacedObject, IListener)
   private
-    FTimerNoifier: INotifier;
-    FTimerListener: IListener;
+    FTimerNoifier: INotifierTime;
+    FTimerListener: IListenerTime;
 
     FNeedNotifyFlag: ISimpleFlag;
     FEvent: TNotifyListenerNoMmgEvent;
@@ -65,7 +67,8 @@ type
     procedure Notification(const AMsg: IInterface);
   public
     constructor Create(
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
+      const ACheckTime: Cardinal;
       AEvent: TNotifyListenerNoMmgEvent
     );
     destructor Destroy; override;
@@ -74,6 +77,7 @@ type
 implementation
 
 uses
+  u_ListenerTime,
   u_SimpleFlagWithInterlock;
 
 { TSimpleEventListener }
@@ -102,7 +106,8 @@ end;
 { TNotifyEventListenerSync }
 
 constructor TNotifyEventListenerSync.Create(
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
+  const ACheckTime: Cardinal;
   AEvent: TNotifyListenerNoMmgEvent
 );
 begin
@@ -112,7 +117,7 @@ begin
   Assert(Assigned(FEvent));
   Assert(Assigned(FTimerNoifier));
   FNeedNotifyFlag := TSimpleFlagWithInterlock.Create;
-  FTimerListener := TNotifyNoMmgEventListener.Create(Self.OnTimer);
+  FTimerListener := TListenerTimeCheck.Create(Self.OnTimer, ACheckTime);
   FTimerNoifier.Add(FTimerListener);
 end;
 

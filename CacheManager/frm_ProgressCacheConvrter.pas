@@ -35,7 +35,9 @@ uses
   StdCtrls,
   ExtCtrls,
   i_Notifier,
-  i_Listener,  
+  i_NotifierTime,
+  i_Listener,
+  i_ListenerTime,
   i_CacheConverterProgressInfo,
   i_LanguageManager,
   i_ValueToStringConverter,
@@ -67,8 +69,8 @@ type
     FConverterThread: TThreadCacheConverter;
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingListener: IListener;
-    FTimerNoifier: INotifier;
-    FTimerListener: IListener;
+    FTimerNoifier: INotifierTime;
+    FTimerListener: IListenerTime;
     FCancelNotifierInternal: INotifierOperationInternal;
     FProgressInfo: ICacheConverterProgressInfo;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -82,7 +84,7 @@ type
       const AConverterThread: TThreadCacheConverter;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const ACancelNotifierInternal: INotifierOperationInternal;
       const AProgressInfo: ICacheConverterProgressInfo;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -94,6 +96,7 @@ implementation
 
 uses
   u_ListenerByEvent,
+  u_ListenerTime,
   u_ResStrings;
 
 {$R *.dfm}
@@ -104,7 +107,7 @@ constructor TfrmProgressCacheConverter.Create(
   const AConverterThread: TThreadCacheConverter;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const ACancelNotifierInternal: INotifierOperationInternal;
   const AProgressInfo: ICacheConverterProgressInfo;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -118,7 +121,7 @@ begin
   FProgressInfo := AProgressInfo;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 
-  FTimerListener := TNotifyNoMmgEventListener.Create(Self.OnTimerTick);
+  FTimerListener := TListenerTimeCheck.Create(Self.OnTimerTick, 1000);
   FTimerNoifier.Add(FTimerListener);
 
   FThreadPaused := False;

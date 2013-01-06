@@ -8,6 +8,7 @@ uses
   SysUtils,
   GR32_Image,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -93,7 +94,7 @@ type
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItemsFactory: IVectorItemsFactory;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AErrorLogger: ITileErrorLogger;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IKmlLayerConfig;
@@ -135,7 +136,7 @@ constructor TMapLayerVectorMaps.Create(
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItemsFactory: IVectorItemsFactory;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AErrorLogger: ITileErrorLogger;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IKmlLayerConfig;

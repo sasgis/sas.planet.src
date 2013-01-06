@@ -9,6 +9,7 @@ uses
   ExtCtrls,
   StdCtrls,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
@@ -39,7 +40,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -84,7 +85,7 @@ uses
 constructor TfrExport.Create(
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;

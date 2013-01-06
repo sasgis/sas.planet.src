@@ -5,6 +5,7 @@ interface
 uses
   GR32_Image,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_TileError,
   i_BitmapPostProcessingConfig,
@@ -58,7 +59,7 @@ type
       const AThreadConfig: IThreadConfig;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AErrorLogger: ITileErrorLogger;
-      const ATimerNoifier: INotifier
+      const ATimerNoifier: INotifierTime
     );
   end;
 
@@ -88,7 +89,7 @@ constructor TMapLayerBitmapMaps.Create(
   const AThreadConfig: IThreadConfig;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AErrorLogger: ITileErrorLogger;
-  const ATimerNoifier: INotifier
+  const ATimerNoifier: INotifierTime
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;

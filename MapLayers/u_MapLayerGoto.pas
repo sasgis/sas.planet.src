@@ -7,6 +7,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
@@ -37,7 +38,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const ALocalConverter: ILocalCoordConverterChangeable;
       const AMarkerChangeable: IMarkerDrawableChangeable;
       const AMapGoto: IMapViewGoto;
@@ -53,6 +54,7 @@ uses
   GR32_Layers,
   i_Listener,
   i_CoordConverter,
+  u_ListenerTime,
   u_ListenerByEvent,
   u_GeoFun;
 
@@ -63,7 +65,7 @@ constructor TGotoLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const ALocalConverter: ILocalCoordConverterChangeable;
   const AMarkerChangeable: IMarkerDrawableChangeable;
   const AMapGoto: IMapViewGoto;
@@ -100,7 +102,7 @@ begin
   );
 
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimer),
+    TListenerTimeCheck.Create(Self.OnTimer, 1000),
     ATimerNoifier
   );
   LinksList.Add(

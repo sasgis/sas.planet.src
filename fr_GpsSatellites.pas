@@ -17,6 +17,7 @@ uses
   GR32_Image,
   i_SimpleFlag,
   i_Notifier,
+  i_NotifierTime,
   i_ListenerNotifierLinksList,
   i_LanguageManager,
   i_Sensor,
@@ -52,7 +53,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AGpsSatellitesSensor: ISensorGPSSatellites;
       const AMapDraw: ISatellitesInViewMapDraw;
       AShowLegend: Boolean
@@ -65,13 +66,14 @@ uses
   i_GPS,
   u_SimpleFlagWithInterlock,
   u_ListenerNotifierLinksList,
+  u_ListenerTime,
   u_ListenerByEvent;
 
 {$R *.dfm}
 
 constructor TfrGpsSatellites.Create(
   const ALanguageManager: ILanguageManager;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AGpsSatellitesSensor: ISensorGPSSatellites;
   const AMapDraw: ISatellitesInViewMapDraw;
   AShowLegend: Boolean
@@ -92,7 +94,7 @@ begin
   );
 
   FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimer),
+    TListenerTimeCheck.Create(Self.OnTimer, 1000),
     ATimerNoifier
   );
 

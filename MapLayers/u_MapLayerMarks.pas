@@ -7,6 +7,7 @@ uses
   SysUtils,
   GR32_Image,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -75,7 +76,7 @@ type
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AMarkIconDefault: IMarkerDrawableChangeable;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IMarksLayerConfig;
       const AMarkDB: IMarksSystem
@@ -111,7 +112,7 @@ constructor TMapLayerMarks.Create(
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AMarkIconDefault: IMarkerDrawableChangeable;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IMarksLayerConfig;
   const AMarkDB: IMarksSystem

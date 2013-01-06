@@ -5,6 +5,7 @@ interface
 uses
   GR32,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LanguageManager,
   i_LocalCoordConverter,
@@ -42,7 +43,7 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -74,7 +75,7 @@ constructor TProviderMapCombineBMP.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;

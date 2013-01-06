@@ -32,7 +32,9 @@ uses
   ExtCtrls,
   RarProgress,
   i_Notifier,
+  i_NotifierTime,
   i_Listener,
+  i_ListenerTime,
   i_RegionProcessProgressInfo,
   i_NotifierOperation,
   u_CommonFormAndFrameParents;
@@ -49,11 +51,11 @@ type
     FCancelNotifier: INotifierOperationInternal;
     FProgressInfo: IRegionProcessProgressInfo;
     FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifier;
+    FTimerNoifier: INotifierTime;
 
     FRarProgress: TRarProgress;
     FAppClosingListener: IListener;
-    FTimerListener: IListener;
+    FTimerListener: IListenerTime;
     procedure OnTimer;
     procedure OnClose;
     procedure CancelOperation;
@@ -61,7 +63,7 @@ type
     constructor Create(
       AOwner : TComponent;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const ACancelNotifier: INotifierOperationInternal;
       const AProgressInfo: IRegionProcessProgressInfo
     ); reintroduce;
@@ -71,6 +73,7 @@ type
 implementation
 
 uses
+  u_ListenerTime,
   u_ListenerByEvent;
 
 {$R *.dfm}
@@ -78,7 +81,7 @@ uses
 constructor TfrmProgressSimple.Create(
   AOwner : TComponent;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const ACancelNotifier: INotifierOperationInternal;
   const AProgressInfo: IRegionProcessProgressInfo
 );
@@ -119,7 +122,7 @@ begin
   FTimerNoifier := ATimerNoifier;
   FProgressInfo := AProgressInfo;
 
-  FTimerListener := TNotifyNoMmgEventListener.Create(Self.OnTimer);
+  FTimerListener := TListenerTimeCheck.Create(Self.OnTimer, 1000);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnClose);
 
   FTimerNoifier.Add(FTimerListener);
@@ -136,18 +139,15 @@ begin
 end;
 
 destructor TfrmProgressSimple.Destroy;
-var
-  VNotifier: INotifier;
 begin
-  VNotifier := FAppClosingNotifier;
-  if VNotifier <> nil then begin
-    VNotifier.Remove(FAppClosingListener);
+  if FAppClosingNotifier <> nil then begin
+    FAppClosingNotifier.Remove(FAppClosingListener);
     FAppClosingNotifier := nil;
     FAppClosingListener := nil;
   end;
-  VNotifier := FTimerNoifier;
-  if VNotifier <> nil then begin
-    VNotifier.Remove(FTimerListener);
+
+  if FTimerNoifier <> nil then begin
+    FTimerNoifier.Remove(FTimerListener);
     FTimerNoifier := nil;
     FTimerListener := nil;
   end;

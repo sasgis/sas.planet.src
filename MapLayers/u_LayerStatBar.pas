@@ -30,6 +30,7 @@ uses
   GR32,
   GR32_Image,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   t_GeoTypes,
   i_LocalCoordConverter,
@@ -95,7 +96,7 @@ type
       const AConfig: IStatBarConfig;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AMouseState: IMouseState;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const ATerrainProviderList: ITerrainProviderList;
       const ATerrainConfig: ITerrainConfig;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -114,6 +115,7 @@ uses
   Graphics,
   GR32_Layers,
   i_CoordConverter,
+  u_ListenerTime,
   u_ListenerByEvent,
   u_ResStrings,
   u_GeoFun,
@@ -136,7 +138,7 @@ constructor TLayerStatBar.Create(
   const AConfig: IStatBarConfig;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AMouseState: IMouseState;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const ATerrainProviderList: ITerrainProviderList;
   const ATerrainConfig: ITerrainConfig;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -181,7 +183,7 @@ begin
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimerEvent),
+    TListenerTimeCheck.Create(Self.OnTimerEvent, FConfig.MinUpdateTickCount),
     ATimerNoifier
   );
   LinksList.Add(

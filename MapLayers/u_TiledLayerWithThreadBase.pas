@@ -9,6 +9,7 @@ uses
   GR32_Layers,
   SysUtils,
   i_Notifier,
+  i_NotifierTime,
   i_Listener,
   i_ThreadConfig,
   i_NotifierOperation,
@@ -114,7 +115,7 @@ type
       const APosition: ILocalCoordConverterChangeable;
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrixFactory: ITileMatrixFactory;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       AUpdateLayerProviderOnPosChange: Boolean;
       const AThreadConfig: IThreadConfig
     );
@@ -132,6 +133,7 @@ uses
   i_Bitmap32Static,
   u_Synchronizer,
   u_ListenerByEvent,
+  u_ListenerTime,
   u_TileIteratorSpiralByRect,
   i_BitmapLayerProviderWithListener,
   u_TileIteratorByRect,
@@ -150,7 +152,7 @@ constructor TTiledLayerWithThreadBase.Create(
   const APosition: ILocalCoordConverterChangeable;
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixFactory: ITileMatrixFactory;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   AUpdateLayerProviderOnPosChange: Boolean;
   const AThreadConfig: IThreadConfig
 );
@@ -190,7 +192,7 @@ begin
   );
 
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimer),
+    TListenerTimeCheck.Create(Self.OnTimer, 100),
     ATimerNoifier
   );
   LinksList.Add(

@@ -9,6 +9,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_InternalPerformanceCounter,
@@ -26,7 +27,6 @@ type
   private
     FLogProvider: ITileErrorLogProviedrStuped;
     FBitmapFactory: IBitmap32StaticFactory;
-    FTimerNoifier: INotifier;
     FNeedUpdateFlag: ISimpleFlag;
 
     FErrorInfo: ITileErrorInfo;
@@ -52,7 +52,7 @@ type
       const AViewPortState: IViewPortState;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ALogProvider: ITileErrorLogProviedrStuped;
-      const ATimerNoifier: INotifier
+      const ATimerNoifier: INotifierTime
     );
   end;
 
@@ -63,6 +63,7 @@ uses
   i_CoordConverter,
   i_Bitmap32Static,
   u_ListenerByEvent,
+  u_ListenerTime,
   u_SimpleFlagWithInterlock,
   u_MarkerDrawableByBitmap32Static,
   u_Synchronizer,
@@ -79,7 +80,7 @@ constructor TTileErrorInfoLayer.Create(
   const AViewPortState: IViewPortState;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ALogProvider: ITileErrorLogProviedrStuped;
-  const ATimerNoifier: INotifier
+  const ATimerNoifier: INotifierTime
 );
 begin
   inherited Create(
@@ -91,7 +92,6 @@ begin
   );
   FLogProvider := ALogProvider;
   FBitmapFactory := ABitmapFactory;
-  FTimerNoifier := ATimerNoifier;
   FErrorInfo := nil;
   FNeedUpdateFlag := TSimpleFlagWithInterlock.Create;
   FErrorInfoCS := MakeSyncRW_Var(Self, False);
@@ -101,8 +101,8 @@ begin
     FLogProvider.GetNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimer),
-    FTimerNoifier
+    TListenerTimeCheck.Create(Self.OnTimer, 1000),
+    ATimerNoifier
   );
 end;
 

@@ -5,6 +5,7 @@ interface
 uses
   GR32_Image,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
@@ -46,7 +47,7 @@ type
       const AViewPortState: IViewPortState;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IMapLayerGPSTrackConfig;
       const AGPSRecorder: IGPSRecorder
@@ -59,6 +60,7 @@ uses
   i_TileMatrix,
   u_TileMatrixFactory,
   u_ListenerByEvent,
+  u_ListenerTime,
   u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderByTrackPath;
 
@@ -72,7 +74,7 @@ constructor TMapLayerGPSTrack.Create(
   const AViewPortState: IViewPortState;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IMapLayerGPSTrackConfig;
   const AGPSRecorder: IGPSRecorder
@@ -110,7 +112,7 @@ begin
     FConfig.GetChangeNotifier
   );
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimer),
+    TListenerTimeCheck.Create(Self.OnTimer, 1000),
     ATimerNoifier
   );
   LinksList.Add(

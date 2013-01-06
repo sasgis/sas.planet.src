@@ -23,8 +23,8 @@ unit u_GlobalState;
 interface
 
 uses
-  {$IFDEF SasDebugWithJcl}
   Windows,
+  {$IFDEF SasDebugWithJcl}
   JclDebug,
   {$ENDIF SasDebugWithJcl}
   ExtCtrls,
@@ -164,8 +164,8 @@ type
     FBGTimerNotifier: INotifierTime;
     FBGTimerNotifierInternal: INotifierTimeInternal;
     FGUISyncronizedTimer: TTimer;
-    FGUISyncronizedTimerNotifierInternal: INotifierInternal;
-    FGUISyncronizedTimerNotifier: INotifier;
+    FGUISyncronizedTimerNotifierInternal: INotifierTimeInternal;
+    FGUISyncronizedTimerNotifier: INotifierTime;
     FGUISyncronizedTimerCounter: IInternalPerformanceCounter;
     FSensorList: ISensorList;
     FPerfCounterList: IInternalPerformanceCounterList;
@@ -223,7 +223,7 @@ type
     property GlobalInternetState: IGlobalInternetState read FGlobalInternetState;
     property ImportFileByExt: IImportFile read FImportFileByExt;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
-    property GUISyncronizedTimerNotifier: INotifier read FGUISyncronizedTimerNotifier;
+    property GUISyncronizedTimerNotifier: INotifierTime read FGUISyncronizedTimerNotifier;
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
@@ -474,7 +474,7 @@ begin
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 200);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
-  FGUISyncronizedTimerNotifierInternal := TNotifierBase.Create;
+  FGUISyncronizedTimerNotifierInternal := TNotifierTime.Create;
   FGUISyncronizedTimerNotifier := FGUISyncronizedTimerNotifierInternal;
   FGUISyncronizedTimerCounter := FPerfCounterList.CreateAndAddNewCounter('GUITimer');
 
@@ -941,10 +941,12 @@ end;
 procedure TGlobalState.OnGUISyncronizedTimer(Sender: TObject);
 var
   VContext: TInternalPerformanceCounterContext;
+  VNow: Cardinal;
 begin
   VContext := FGUISyncronizedTimerCounter.StartOperation;
   try
-    FGUISyncronizedTimerNotifierInternal.Notify(nil);
+    VNow := GetTickCount;
+    FGUISyncronizedTimerNotifierInternal.Notify(VNow);
   finally
     FGUISyncronizedTimerCounter.FinishOperation(VContext);
   end;

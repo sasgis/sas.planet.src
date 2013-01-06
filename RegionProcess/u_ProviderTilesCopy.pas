@@ -5,6 +5,7 @@ interface
 uses
   Forms,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LanguageManager,
   i_VectorItemLonLat,
@@ -26,14 +27,14 @@ type
     FVectorItemsFactory: IVectorItemsFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifier;
+    FTimerNoifier: INotifierTime;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AFullMapsSet: IMapTypeSet;
@@ -68,7 +69,7 @@ uses
 constructor TProviderTilesCopy.Create(
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AFullMapsSet: IMapTypeSet;

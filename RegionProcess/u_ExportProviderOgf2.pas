@@ -5,6 +5,7 @@ interface
 uses
   Forms,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
@@ -29,14 +30,14 @@ type
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifier;
+    FTimerNoifier: INotifierTime;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -71,7 +72,7 @@ uses
 constructor TExportProviderOgf2.Create(
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;

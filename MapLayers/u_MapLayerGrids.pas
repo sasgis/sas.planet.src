@@ -5,6 +5,7 @@ interface
 uses
   GR32_Image,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
@@ -40,7 +41,7 @@ type
       const AViewPortState: IViewPortState;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AConfig: IMapLayerGridsConfig
@@ -67,7 +68,7 @@ constructor TMapLayerGrids.Create(
   const AViewPortState: IViewPortState;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AConfig: IMapLayerGridsConfig);

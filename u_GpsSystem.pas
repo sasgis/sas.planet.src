@@ -27,6 +27,7 @@ uses
   SysUtils,
   i_Listener,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_ListenerNotifierLinksList,
   i_GPSRecorder,
@@ -108,7 +109,7 @@ type
       const AGPSModuleFactory: IGPSModuleByCOMFactory;
       const AConfig: IGPSConfig;
       const AGPSRecorder: IGPSRecorder;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -120,6 +121,7 @@ uses
   u_Notifier,
   u_ListenerNotifierLinksList,
   u_Synchronizer,
+  u_ListenerTime,
   u_ListenerByEvent;
 
 procedure TGpsSystem.AfterConstruction;
@@ -141,7 +143,7 @@ constructor TGpsSystem.Create(
   const AGPSModuleFactory: IGPSModuleByCOMFactory;
   const AConfig: IGPSConfig;
   const AGPSRecorder: IGPSRecorder;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
@@ -178,7 +180,7 @@ begin
   );
 
   FLinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimer),
+    TListenerTimeCheck.Create(Self.OnTimer, 500),
     ATimerNoifier
   );
 

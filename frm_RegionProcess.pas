@@ -35,6 +35,7 @@ uses
   inifiles,
   ComCtrls,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
@@ -112,7 +113,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const ALastSelectionInfo: ILastSelectionInfo;
       const AMainMapsConfig: IMainMapsConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -163,7 +164,7 @@ uses
 constructor TfrmRegionProcess.Create(
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const ALastSelectionInfo: ILastSelectionInfo;
   const AMainMapsConfig: IMainMapsConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;

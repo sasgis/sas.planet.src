@@ -8,6 +8,7 @@ uses
   GR32,
   t_GeoTypes,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LanguageManager,
   i_CoordConverter,
@@ -45,7 +46,7 @@ type
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FBitmapFactory: IBitmap32StaticFactory;
     FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifier;
+    FTimerNoifier: INotifierTime;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
     FVectorItemsFactory: IVectorItemsFactory;
@@ -84,7 +85,7 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -136,7 +137,7 @@ constructor TProviderMapCombineBase.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;

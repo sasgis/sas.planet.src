@@ -8,6 +8,7 @@ uses
   GR32_Image,
   t_GeoTypes,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_Datum,
   i_ProjectionInfo,
@@ -61,7 +62,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AConfig: IMarkerRingsConfig;
       const AGPSRecorder: IGPSRecorder
@@ -79,6 +80,7 @@ uses
   u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_DoublePointsAggregator,
+  u_ListenerTime,
   u_ListenerByEvent,
   u_ProjectedDrawableElementByPolygon;
 
@@ -89,7 +91,7 @@ constructor TMapLayerGPSMarkerRings.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AConfig: IMarkerRingsConfig;
   const AGPSRecorder: IGPSRecorder
@@ -110,7 +112,7 @@ begin
   FGPSPosCS := MakeSyncRW_Var(Self, False);
 
   LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnTimer),
+    TListenerTimeCheck.Create(Self.OnTimer, 500),
     ATimerNoifier
   );
   LinksList.Add(

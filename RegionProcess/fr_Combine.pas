@@ -9,6 +9,7 @@ uses
   StdCtrls,
   ExtCtrls,
   i_Notifier,
+  i_NotifierTime,
   i_NotifierOperation,
   i_LanguageManager,
   i_CoordConverterFactory,
@@ -51,7 +52,7 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifier;
+      const ATimerNoifier: INotifierTime;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -99,7 +100,7 @@ constructor TfrCombine.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifier;
+  const ATimerNoifier: INotifierTime;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;

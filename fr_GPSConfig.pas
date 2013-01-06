@@ -13,6 +13,7 @@ uses
   ExtCtrls,
   i_Listener,
   i_Notifier,
+  i_NotifierTime,
   i_LanguageManager,
   i_GPSModule,
   i_GPSConfig,
@@ -79,7 +80,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AGpsSystem: IGPSModule;
       const ASensorList: ISensorList;
-      const AGUISyncronizedTimerNotifier: INotifier;
+      const AGUISyncronizedTimerNotifier: INotifierTime;
       const ASkyMapDraw: ISatellitesInViewMapDraw;
       const AGPSBehaviour: IMainFormBehaviourByGPSConfig;
       const AGPSTrackConfig: IMapLayerGPSTrackConfig;
@@ -112,7 +113,7 @@ constructor TfrGPSConfig.Create(
   const ALanguageManager: ILanguageManager;
   const AGpsSystem: IGPSModule;
   const ASensorList: ISensorList;
-  const AGUISyncronizedTimerNotifier: INotifier;
+  const AGUISyncronizedTimerNotifier: INotifierTime;
   const ASkyMapDraw: ISatellitesInViewMapDraw;
   const AGPSBehaviour: IMainFormBehaviourByGPSConfig;
   const AGPSTrackConfig: IMapLayerGPSTrackConfig;
@@ -137,8 +138,8 @@ begin
   FGPSBehaviour := AGPSBehaviour;
 
   FAutodetecting:=FALSE;
-  FConnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, Self.OnConnecting);
-  FDisconnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, Self.OnDisconnect);
+  FConnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, 1000, Self.OnConnecting);
+  FDisconnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, 1000, Self.OnDisconnect);
 
   VSensorListEntity := ASensorList.Get(CSensorGPSSatellitesGUID);
   if VSensorListEntity <> nil then begin
