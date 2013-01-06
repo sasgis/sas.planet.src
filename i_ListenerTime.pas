@@ -31,6 +31,7 @@ type
   IListenerTimeWithUsedFlag = interface(IListenerTime)
     ['{4AF0E406-00E3-44D2-8BC6-29A2EA9B8530}']
     procedure UpdateUseTime;
+    procedure CheckUseTimeUpdated;
   end;
 
 implementation
