@@ -436,6 +436,7 @@ uses
   u_GeoCodePlacemark in 'u_GeoCodePlacemark.pas',
   u_GeoCodePlacemarkWithUrlDecorator in 'u_GeoCodePlacemarkWithUrlDecorator.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',
+  u_EnumUnknownTwoItems in 'u_EnumUnknownTwoItems.pas',
   i_ProxySettings in 'i_ProxySettings.pas',
   i_FindVectorItems in 'i_FindVectorItems.pas',
   i_MapViewGoto in 'i_MapViewGoto.pas',

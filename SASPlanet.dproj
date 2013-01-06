@@ -846,6 +846,7 @@
     <DCCReference Include="u_EnumDoublePointWithClip.pas" />
     <DCCReference Include="u_EnumUnknown.pas" />
     <DCCReference Include="u_EnumUnknownEmpty.pas" />
+    <DCCReference Include="u_EnumUnknownTwoItems.pas" />
     <DCCReference Include="u_ErrorInfoSimple.pas" />
     <DCCReference Include="u_ExportMarks2KML.pas" />
     <DCCReference Include="u_FillingMapColorerSimple.pas" />

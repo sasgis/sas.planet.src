@@ -36,7 +36,7 @@ type
 implementation
 
 uses
-  u_EnumUnknown,
+  u_EnumUnknownTwoItems,
   u_IDInterfaceList;
 
 { TInternalPerformanceCounterListForDebugOneClass }
