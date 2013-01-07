@@ -59,7 +59,6 @@ type
   TfrmMarksExplorer = class(TFormWitghLanguageManager)
     grpMarks: TGroupBox;
     grpCategory: TGroupBox;
-    CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
     OpenDialog1: TOpenDialog;
     CategoryTreeView: TTreeView;
@@ -110,6 +109,9 @@ type
     lblReadOnly: TLabel;
     MarksListBox: TTreeView;
     tbitmMarkInfo: TTBXItem;
+    Panel1: TPanel;
+    CheckBox2: TCheckBox;
+    CheckBox3: TCheckBox;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -173,6 +175,7 @@ type
     procedure OnConfigChange;
     procedure OnMarkSystemStateChanged;
     procedure UpdateCategoryTree;
+    procedure CategoryTreeViewVisible(Node: TTreeNode);
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
@@ -666,6 +669,55 @@ begin
   UpdateMarksList;
 end;
 
+procedure TfrmMarksExplorer.CategoryTreeViewVisible(Node: TTreeNode);
+var
+  VCategoryOld: IMarkCategory;
+  VCategoryNew: IMarkCategory;
+  VTreeNode: TTreeNode;
+  VVisible: Boolean;
+  VIndex,VLevel,VNum: Integer;
+begin
+  VCategoryOld := IMarkCategory(Node.Data);
+  if VCategoryOld <> nil then begin
+    //  VVisible, VIndex - для визуализации узлов.
+    if Node.StateIndex=1 then begin
+      VVisible := False;
+      VIndex:=2;
+    end else begin
+      VVisible := True;
+      VIndex:=1;
+    end;
+    //  Изменение значения Visible текущего узла категории меток
+    VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, VVisible);
+    Node.StateIndex:=VIndex;
+    if not VCategoryOld.IsEqual(VCategoryNew) then begin
+      FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
+    end;
+    //  Изменение значения Visible дочерних узла категории меток
+    //  CheckBox3 включает/выклучает функцию каскадной визуализации.
+    if CheckBox3.Checked then begin
+      //  VLevel - уровень глубины узла. VNum - номер узла изменения видимости.
+      CategoryTreeView.Visible := False;
+      VLevel:=Node.Level;
+      //  Цикл продолжается пока не перейдём на новую ветвь (пока уровень глубины узлов не станет как наша)
+      //  Или до конца ветвей
+      for VNum:=Node.AbsoluteIndex+1 to CategoryTreeView.Items.Count - 1 do
+        if CategoryTreeView.Items[VNum].Level>VLevel then begin
+          VTreeNode := CategoryTreeView.Items[VNum];
+          VCategoryOld := IMarkCategory(VTreeNode.Data);
+          if VCategoryOld <> nil then begin
+            VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, VVisible);
+            VTreeNode.StateIndex:=VIndex;
+            if not VCategoryOld.IsEqual(VCategoryNew) then begin
+              FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
+            end;
+          end;
+        end else break;  //  Прерываем цикл так, как уровень глубины узлов стал как наш или выше.
+      CategoryTreeView.Visible := True;
+    end;
+  end;
+end;
+
 procedure TfrmMarksExplorer.CategoryTreeViewKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
@@ -679,21 +731,8 @@ begin
     end;
   end;
 
-  if Key=VK_SPACE then begin
-    VCategoryOld := GetSelectedCategory;
-    if VCategoryOld <> nil then begin
-      if CategoryTreeView.Selected.StateIndex = 1 then begin
-        VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, False);
-        CategoryTreeView.Selected.StateIndex:=2;
-      end else begin
-        VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, True);
-        CategoryTreeView.Selected.StateIndex:=1;
-      end;
-      if not VCategoryOld.IsEqual(VCategoryNew) then begin
-        FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
-      end;
-    end;
-  end;
+  if Key=VK_SPACE then
+    CategoryTreeViewVisible(CategoryTreeView.Selected);
 end;
 
 procedure TfrmMarksExplorer.CategoryTreeViewMouseUp(Sender: TObject;
@@ -703,23 +742,9 @@ var
   VCategoryNew: IMarkCategory;
   VTreeNode: TTreeNode;
 begin
-  if htOnStateIcon in CategoryTreeView.GetHitTestInfoAt(X,Y) then begin
-    VTreeNode := CategoryTreeView.GetNodeAt(X,Y);
-    VCategoryOld := IMarkCategory(VTreeNode.Data);
-    if VCategoryOld <> nil then begin
-      if VTreeNode.StateIndex=1 then begin
-        VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, False);
-        VTreeNode.StateIndex:=2;
-      end else begin
-        VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, True);
-        VTreeNode.StateIndex:=1;
-      end;
-      if not VCategoryOld.IsEqual(VCategoryNew) then begin
-        FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VCategoryOld, VCategoryNew);
-      end;
-    end;
-  end;
-end;
+  if htOnStateIcon in CategoryTreeView.GetHitTestInfoAt(X,Y) then
+    CategoryTreeViewVisible(CategoryTreeView.GetNodeAt(X,Y));
+ end;
 
 procedure TfrmMarksExplorer.BtnEditCategoryClick(Sender: TObject);
 var
@@ -1067,4 +1092,3 @@ begin
 end;
 
 end.
-

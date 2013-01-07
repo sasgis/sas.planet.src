@@ -183,34 +183,26 @@ object frmMarksExplorer: TfrmMarksExplorer
         Align = alLeft
         Caption = 'Placemark Categories'
         TabOrder = 1
-        object CheckBox2: TCheckBox
-          AlignWithMargins = True
-          Left = 5
-          Top = 386
-          Width = 168
-          Height = 17
-          Align = alBottom
-          Caption = 'All'
-          TabOrder = 0
-          OnClick = CheckBox2Click
-        end
         object CategoryTreeView: TTreeView
           AlignWithMargins = True
           Left = 5
           Top = 46
           Width = 168
-          Height = 334
+          Height = 337
           Align = alClient
           HideSelection = False
           Indent = 19
           PopupMenu = tbpmnCategories
           ReadOnly = True
           StateImages = imlStates
-          TabOrder = 1
+          TabOrder = 0
           OnChange = CategoryTreeViewChange
           OnContextPopup = CategoryTreeViewContextPopup
           OnKeyUp = CategoryTreeViewKeyUp
           OnMouseUp = CategoryTreeViewMouseUp
+          ExplicitLeft = 4
+          ExplicitTop = 49
+          ExplicitHeight = 334
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -260,6 +252,41 @@ object frmMarksExplorer: TfrmMarksExplorer
               Caption = ''
               Hint = 'Export placemarks from selected category'
             end
+          end
+        end
+        object Panel1: TPanel
+          Left = 2
+          Top = 386
+          Width = 174
+          Height = 20
+          Align = alBottom
+          BevelOuter = bvNone
+          TabOrder = 2
+          object CheckBox2: TCheckBox
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 80
+            Height = 14
+            Align = alLeft
+            Caption = 'All'
+            TabOrder = 0
+            OnClick = CheckBox2Click
+          end
+          object CheckBox3: TCheckBox
+            AlignWithMargins = True
+            Left = 89
+            Top = 3
+            Width = 82
+            Height = 14
+            Align = alClient
+            Caption = 'Cascade'
+            Checked = True
+            State = cbChecked
+            TabOrder = 1
+            ExplicitLeft = 81
+            ExplicitWidth = 168
+            ExplicitHeight = 17
           end
         end
       end
@@ -365,7 +392,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C01010300800080000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300050080000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
