@@ -49,6 +49,7 @@ begin
   inherited Create;
   FSourceProvider := ASourceProvider;
   FBackGroundColor := ABackGroundColor;
+  FBitmapFactory := ABitmapFactory;
   Assert(FSourceProvider <> nil);
 end;
 
