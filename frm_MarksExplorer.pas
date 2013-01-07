@@ -722,7 +722,6 @@ procedure TfrmMarksExplorer.CategoryTreeViewKeyUp(Sender: TObject; var Key: Word
   Shift: TShiftState);
 var
   VCategoryOld: IMarkCategory;
-  VCategoryNew: IMarkCategory;
 begin
   If key=VK_DELETE then begin
     VCategoryOld := GetSelectedCategory;
@@ -737,10 +736,6 @@ end;
 
 procedure TfrmMarksExplorer.CategoryTreeViewMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  VCategoryOld: IMarkCategory;
-  VCategoryNew: IMarkCategory;
-  VTreeNode: TTreeNode;
 begin
   if htOnStateIcon in CategoryTreeView.GetHitTestInfoAt(X,Y) then
     CategoryTreeViewVisible(CategoryTreeView.GetNodeAt(X,Y));
