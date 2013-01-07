@@ -142,6 +142,7 @@ function TTileDownloaderSimple.Download(
 var
   VDownloadRequest: ITileDownloadRequest;
   VDownloadResult: IDownloadResult;
+  VDownloadResultError: IDownloadResultError;
   VCount: Integer;
   VTryCount: Integer;
   VResultWithRespond: IDownloadResultWithServerRespond;
@@ -212,13 +213,23 @@ begin
                 end;
                 try
                   Result := FResultSaver.SaveDownloadResult(VDownloadResult);
-                  //TTileRequestResultOk.Create(VDownloadResult);
                 except
                   on E: Exception do begin
                     Result := TTileRequestResultErrorAfterDownloadRequest.Create(
                       VDownloadResult,
                       E.Message
                     );
+                  end;
+                end;
+                if Result = nil then begin
+                  if Supports(VDownloadResult, IDownloadResultError, VDownloadResultError) then begin
+                    Result := TTileRequestResultDownloadError.Create(VDownloadResultError)
+                  end else begin
+                    Result :=
+                      TTileRequestResultErrorAfterDownloadRequest.Create(
+                        VDownloadResult,
+                        'Unknown error'
+                      );
                   end;
                 end;
               end else begin

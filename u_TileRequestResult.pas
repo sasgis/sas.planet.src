@@ -84,6 +84,17 @@ type
     );
   end;
 
+  TTileRequestResultDownloadError = class(TTileRequestResultErrorAfterBuildDownloadRequest, ITileRequestResultWithDownloadResult)
+  private
+    FDownloadResultError: IDownloadResultError;
+  protected
+    function GetDownloadResult: IDownloadResult;
+  public
+    constructor Create(
+      const ADownloadResultError: IDownloadResultError
+    );
+  end;
+
   TTileRequestResultErrorAfterDownloadRequest = class(TTileRequestResultErrorAfterBuildDownloadRequest, ITileRequestResultWithDownloadResult)
   private
     FDownloadResult: IDownloadResult;
@@ -212,6 +223,23 @@ end;
 function TTileRequestResultErrorBeforBuildDownloadRequest.GetErrorText: string;
 begin
   Result := FErrorText;
+end;
+
+{ TTileRequestResultDownloadError }
+
+constructor TTileRequestResultDownloadError.Create(
+  const ADownloadResultError: IDownloadResultError);
+var
+  VRequest: ITileDownloadRequest;
+begin
+  FDownloadResultError := ADownloadResultError;
+  VRequest := FDownloadResultError.Request as ITileDownloadRequest;
+  inherited Create(VRequest, 'Download error: ' + FDownloadResultError.ErrorText);
+end;
+
+function TTileRequestResultDownloadError.GetDownloadResult: IDownloadResult;
+begin
+  Result := FDownloadResultError;
 end;
 
 end.
