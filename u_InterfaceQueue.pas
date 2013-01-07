@@ -84,7 +84,10 @@ var
   i: Integer;
 begin
   for i := 0 to Length(FRequestArray) - 1 do begin
-    FRequestArray[i] := nil;
+    if FRequestArray[i] <> nil then begin
+      IInterface(FRequestArray[i])._Release;
+      FRequestArray[i] := nil;
+    end;
   end;
   FRequestArray := nil;
 
