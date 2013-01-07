@@ -44,6 +44,7 @@ constructor TStaticBitmapBackend.Create(Owner: TCustomBitmap32;
   const ABitmapFactory: IBitmap32StaticFactory
 );
 begin
+  Assert(ABitmapFactory <> nil);
   inherited Create(Owner);
   FBitmapFactory := ABitmapFactory;
 end;
@@ -76,6 +77,7 @@ constructor TBitmap32ByStaticBitmap.Create(
   const ABitmapFactory: IBitmap32StaticFactory
 );
 begin
+  Assert(ABitmapFactory <> nil);
   FBitmapFactory := ABitmapFactory;
   inherited Create;
 end;
