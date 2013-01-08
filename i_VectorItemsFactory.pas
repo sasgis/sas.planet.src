@@ -62,13 +62,11 @@ type
       const AProjection: IProjectionInfo;
       const ARect: TDoubleRect
     ): IProjectedPolygon;
-
     function CreateLonLatPolygonCircleByPoint(
       const AProjection: IProjectionInfo;
       const APos: TDoublePoint;
       const ARadius: double
     ): ILonLatPolygon;
-
     function CreateLonLatPolygonByLonLatPathAndFilter(
       const ASource: ILonLatPath;
       const AFilter: ILonLatPointFilter

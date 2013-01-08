@@ -515,19 +515,35 @@ function TMarksDbGUIHelper.PolygonForOperation(
   const AMark: IMark;
   const AProjection: IProjectionInfo
   ): ILonLatPolygon;
-  var
+var
   VMarkPoly: IMarkPoly;
   VMarkLine: IMarkLine;
   VMarkPoint: IMarkPoint;
   VDefRadius: String;
   VRadius: double;
   VFilter: ILonLatPointFilter;
-
-  begin
+begin
   if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     Result := VMarkPoly.Line;
   end else begin
-    if Supports(AMark, IMarkLine, VMarkLine) then begin
+  if Supports(AMark, IMarkLine, VMarkLine) then begin
+    VDefRadius := '100';
+    if InputQuery('', 'Radius , m', VDefRadius) then begin
+      try
+        VRadius := str2r(VDefRadius);
+      except
+        ShowMessage(SAS_ERR_ParamsInput);
+        Exit;
+      end;
+      VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
+      Result :=
+        FVectorItemsFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+          VMarkLine.Line,
+          VFilter
+          );
+    end;
+  end else begin
+    if Supports(AMark, IMarkPoint, VMarkPoint) then begin
       VDefRadius := '100';
       if InputQuery('', 'Radius , m', VDefRadius) then begin
         try
@@ -536,35 +552,17 @@ function TMarksDbGUIHelper.PolygonForOperation(
           ShowMessage(SAS_ERR_ParamsInput);
           Exit;
         end;
-        VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
         Result :=
-          FVectorItemsFactory.CreateLonLatPolygonByLonLatPathAndFilter(
-            VMarkLine.Line,
-            VFilter
+          FVectorItemsFactory.CreateLonLatPolygonCircleByPoint(
+            AProjection,
+            VMarkPoint.GetPoint,
+            VRadius
           );
-      end;
-    end else begin
-      if Supports(AMark, IMarkPoint, VMarkPoint) then begin
-         VDefRadius := '100';
-         if InputQuery('', 'Radius , m', VDefRadius) then begin
-          try
-            VRadius := str2r(VDefRadius);
-          except
-            ShowMessage(SAS_ERR_ParamsInput);
-            Exit;
-          end;
-          Result :=
-           FVectorItemsFactory.CreateLonLatPolygonCircleByPoint(
-             AProjection,
-             VMarkPoint.GetPoint,
-             VRadius
-          );
-         end;
+        end;
       end;
     end;
   end;
-
-  end;
+end;
 
 function TMarksDbGUIHelper.OperationMark(
   const AMark: IMark;

@@ -205,10 +205,10 @@ begin
 end;
 
 function TVectorItemsFactorySimple.CreateLonLatPolygonCircleByPoint(
-      const AProjection: IProjectionInfo;
-      const APos: TDoublePoint;
-      const ARadius: double
-    ): ILonLatPolygon;
+  const AProjection: IProjectionInfo;
+  const APos: TDoublePoint;
+  const ARadius: double
+): ILonLatPolygon;
 var
   VAggreagator: IDoublePointsAggregator;
   j: Integer;
@@ -219,9 +219,9 @@ begin
   VAggreagator := TDoublePointsAggregator.Create;
   VDatum :=  AProjection.GeoConverter.Datum;
   for j := 0 to 64 do begin
-      VAngle := j * 360 / 64;
-      VPoint := VDatum.CalcFinishPosition(APos, VAngle, ARadius);
-      VAggreagator.Add(VPoint);
+    VAngle := j * 360 / 64;
+    VPoint := VDatum.CalcFinishPosition(APos, VAngle, ARadius);
+    VAggreagator.Add(VPoint);
   end;
   Result := CreateLonLatPolygon(VAggreagator.Points, VAggreagator.Count);
 end;
