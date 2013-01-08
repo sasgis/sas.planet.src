@@ -130,7 +130,7 @@ begin
   end;
 
   inherited Create(
-    TTileStorageTypeAbilitiesBerkeleyDB.Create,
+    TTileStorageTypeAbilitiesRAM.Create,
     AMapVersionFactory,
     AGeoConverter,
     ''
@@ -173,6 +173,7 @@ begin
   Result := FTileInfoMemCache.Get(AXY, AZoom, False);
   if Result = nil then begin
     Result := FTileNotExistsTileInfo;
+    FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, FTileNotExistsTileInfo);
   end;
 end;
 
@@ -256,7 +257,7 @@ var
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
-      raise Exception.Create('Bad content type for this tile storage');
+      raise ETileStorageInRAM.Create('Bad content type for this tile storage');
     end;
     VTileInfo :=
       TTileInfoBasicExistsWithTile.Create(

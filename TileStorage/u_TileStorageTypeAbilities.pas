@@ -29,34 +29,42 @@ uses
 type
   TTileStorageTypeAbilitiesFileFolder = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
-    function GetIsReadOnly: boolean;
+    function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
-    function GetAllowDelete: boolean;
-    function GetAllowReplace: boolean;
+    function GetAllowDelete: Boolean;
+    function GetAllowReplace: Boolean;
   end;
 
   TTileStorageTypeAbilitiesGE = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
-    function GetIsReadOnly: boolean;
+    function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
-    function GetAllowDelete: boolean;
-    function GetAllowReplace: boolean;
+    function GetAllowDelete: Boolean;
+    function GetAllowReplace: Boolean;
   end;
 
   TTileStorageTypeAbilitiesBerkeleyDB = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
-    function GetIsReadOnly: boolean;
+    function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
-    function GetAllowDelete: boolean;
-    function GetAllowReplace: boolean;
+    function GetAllowDelete: Boolean;
+    function GetAllowReplace: Boolean;
   end;
 
   TTileStorageTypeAbilitiesDBMS = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
-    function GetIsReadOnly: boolean;
+    function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
-    function GetAllowDelete: boolean;
-    function GetAllowReplace: boolean;
+    function GetAllowDelete: Boolean;
+    function GetAllowReplace: Boolean;
+  end;
+
+  TTileStorageTypeAbilitiesRAM = class(TBaseInterfacedObject, IStorageTypeAbilities)
+  private
+    function GetIsReadOnly: Boolean;
+    function GetAllowAdd: Boolean;
+    function GetAllowDelete: Boolean;
+    function GetAllowReplace: Boolean;
   end;
 
 implementation
@@ -69,17 +77,17 @@ begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesFileFolder.GetAllowDelete: boolean;
+function TTileStorageTypeAbilitiesFileFolder.GetAllowDelete: Boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesFileFolder.GetAllowReplace: boolean;
+function TTileStorageTypeAbilitiesFileFolder.GetAllowReplace: Boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesFileFolder.GetIsReadOnly: boolean;
+function TTileStorageTypeAbilitiesFileFolder.GetIsReadOnly: Boolean;
 begin
   Result := False;
 end;
@@ -91,17 +99,17 @@ begin
   Result := False;
 end;
 
-function TTileStorageTypeAbilitiesGE.GetAllowDelete: boolean;
+function TTileStorageTypeAbilitiesGE.GetAllowDelete: Boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageTypeAbilitiesGE.GetAllowReplace: boolean;
+function TTileStorageTypeAbilitiesGE.GetAllowReplace: Boolean;
 begin
   Result := False;
 end;
 
-function TTileStorageTypeAbilitiesGE.GetIsReadOnly: boolean;
+function TTileStorageTypeAbilitiesGE.GetIsReadOnly: Boolean;
 begin
   Result := True;
 end;
@@ -113,17 +121,17 @@ begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowDelete: boolean;
+function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowDelete: Boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowReplace: boolean;
+function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowReplace: Boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesBerkeleyDB.GetIsReadOnly: boolean;
+function TTileStorageTypeAbilitiesBerkeleyDB.GetIsReadOnly: Boolean;
 begin
   Result := False;
 end;
@@ -135,17 +143,39 @@ begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesDBMS.GetAllowDelete: boolean;
+function TTileStorageTypeAbilitiesDBMS.GetAllowDelete: Boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesDBMS.GetAllowReplace: boolean;
+function TTileStorageTypeAbilitiesDBMS.GetAllowReplace: Boolean;
 begin
   Result := True;
 end;
 
-function TTileStorageTypeAbilitiesDBMS.GetIsReadOnly: boolean;
+function TTileStorageTypeAbilitiesDBMS.GetIsReadOnly: Boolean;
+begin
+  Result := False;
+end;
+
+{ TTileStorageTypeAbilitiesRAM }
+
+function TTileStorageTypeAbilitiesRAM.GetAllowAdd: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesRAM.GetAllowDelete: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesRAM.GetAllowReplace: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageTypeAbilitiesRAM.GetIsReadOnly: Boolean;
 begin
   Result := False;
 end;
