@@ -74,6 +74,12 @@ type
       const ARect: TDoubleRect
     ): IProjectedPolygon;
 
+    function CreateLonLatPolygonCircleByPoint(
+      const AProjection: IProjectionInfo;
+      const APos: TDoublePoint;
+      const ARadius: double
+    ): ILonLatPolygon;
+
     function CreateLonLatPolygonByLonLatPathAndFilter(
       const ASource: ILonLatPath;
       const AFilter: ILonLatPointFilter
@@ -160,6 +166,7 @@ type
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
+
   public
     constructor Create;
   end;
@@ -169,6 +176,7 @@ implementation
 uses
   Classes,
   i_LonLatRect,
+  i_Datum,
   u_GeoFun,
   u_DoublePointsAggregator,
   u_LonLatSingleLine,
@@ -194,6 +202,28 @@ begin
   VEmpty := TLineSetEmpty.Create;
   FEmptyLonLatPath := VEmpty;
   FEmptyLonLatPolygon := VEmpty;
+end;
+
+function TVectorItemsFactorySimple.CreateLonLatPolygonCircleByPoint(
+      const AProjection: IProjectionInfo;
+      const APos: TDoublePoint;
+      const ARadius: double
+    ): ILonLatPolygon;
+var
+  VAggreagator: IDoublePointsAggregator;
+  j: Integer;
+  VDatum : IDatum;
+  VAngle: Double;
+  VPoint: TDoublePoint;
+begin
+  VAggreagator := TDoublePointsAggregator.Create;
+  VDatum :=  AProjection.GeoConverter.Datum;
+  for j := 0 to 64 do begin
+      VAngle := j * 360 / 64;
+      VPoint := VDatum.CalcFinishPosition(APos, VAngle, ARadius);
+      VAggreagator.Add(VPoint);
+  end;
+  Result := CreateLonLatPolygon(VAggreagator.Points, VAggreagator.Count);
 end;
 
 function TVectorItemsFactorySimple.CreateLocalPath(
