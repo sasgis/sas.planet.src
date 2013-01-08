@@ -60,6 +60,7 @@ constructor TBitmap32StaticSimple.Create(
   const ASize: TPoint
 );
 begin
+  inherited Create;
   Assert(ASize.X > 0);
   Assert(ASize.Y > 0);
   Assert(ASize.X < 1 shl 16);
