@@ -32,8 +32,8 @@ uses
 
 type
   TBerkeleyDBEnvAppPrivate = record
-    EnvRootPath: string;
-    Helper: IGlobalBerkeleyDBHelper;
+    FEnvRootPath: string;
+    FHelper: IGlobalBerkeleyDBHelper;
   end;
   PBerkeleyDBEnvAppPrivate = ^TBerkeleyDBEnvAppPrivate;
 
@@ -86,10 +86,10 @@ begin
   VMsg := errpfx + AnsiString(': ') + msg;
   VEnvPrivate := dbenv.app_private;
   if Assigned(VEnvPrivate) then begin
-    VMsg := VMsg + ' (' + VEnvPrivate.EnvRootPath + ')';
+    VMsg := VMsg + ' (' + VEnvPrivate.FEnvRootPath + ')';
   end;
-  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.Helper) then begin
-    VEnvPrivate.Helper.RaiseException(VMsg);
+  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FHelper) then begin
+    VEnvPrivate.FHelper.RaiseException(VMsg);
   end else begin
     raise EBerkeleyDBExeption.Create(string(VMsg));
   end;
@@ -105,8 +105,8 @@ begin
   inherited Create;
   dbenv := nil;
   New(FAppPrivate);
-  FAppPrivate.EnvRootPath := AEnvRootPath;
-  FAppPrivate.Helper := AGlobalBerkeleyDBHelper;
+  FAppPrivate.FEnvRootPath := AEnvRootPath;
+  FAppPrivate.FHelper := AGlobalBerkeleyDBHelper;
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
@@ -126,7 +126,7 @@ begin
     end;
     FCS.Free;
   finally
-    FAppPrivate.Helper := nil;
+    FAppPrivate.FHelper := nil;
     Dispose(FAppPrivate);
     inherited Destroy;
   end;
@@ -135,7 +135,7 @@ end;
 function TBerkeleyDBEnv.GetRootPath: string;
 begin
   if Assigned(FAppPrivate) then begin
-    Result := FAppPrivate.EnvRootPath;
+    Result := FAppPrivate.FEnvRootPath;
   end else begin
     Result := '';
   end;
@@ -158,7 +158,7 @@ begin
     CheckBDB(dbenv.set_data_dir(dbenv, '..'));
     CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
 
-    VPath := FAppPrivate.EnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
+    VPath := FAppPrivate.FEnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
     I := LastDelimiter(PathDelim, VPath);
     VPath := copy(VPath, 1, I);
     if not DirectoryExists(VPath) then begin
