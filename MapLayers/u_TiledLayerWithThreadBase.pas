@@ -408,7 +408,6 @@ begin
   ViewUpdateLock;
   try
     SetNeedUpdateLayerLocation;
-    SetNeedFullRepaintLayer;
   finally
     ViewUpdateUnlock;
   end;
