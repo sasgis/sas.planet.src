@@ -506,8 +506,8 @@ begin
   VLocalCenter := RectCenter(ALocalRect);
   if Abs(AMapScale - 1) < 0.0001 then begin
     VTopLeftMapPixel := PointFromDoublePoint(AMapPixelAtLocalZero, prClosest);
-    if (Abs(VTopLeftMapPixelFloat.X - VTopLeftMapPixel.X) < 0.001) and
-      (Abs(VTopLeftMapPixelFloat.Y - VTopLeftMapPixel.Y) < 0.001)
+    if (Abs(AMapPixelAtLocalZero.X - VTopLeftMapPixel.X) < 0.001) and
+      (Abs(AMapPixelAtLocalZero.Y - VTopLeftMapPixel.Y) < 0.001)
     then begin
       VLocalCenterMapPixelFloat.X := AMapPixelAtLocalZero.X + VLocalCenter.X;
       VLocalCenterMapPixelFloat.Y := AMapPixelAtLocalZero.Y + VLocalCenter.Y;
