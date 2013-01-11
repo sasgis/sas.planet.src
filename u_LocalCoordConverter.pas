@@ -509,8 +509,11 @@ function TLocalCoordConverterNoScale.LocalPixel2MapPixel(
   ARounding: TPointRounding
 ): TPoint;
 begin
-  Result.X := Trunc(APoint.X + FMapPixelAtLocalZero.X);
-  Result.Y := Trunc(APoint.Y + FMapPixelAtLocalZero.Y);
+  Result :=
+    PointFromDoublePoint(
+      DoublePoint(APoint.X + FMapPixelAtLocalZero.X, APoint.Y + FMapPixelAtLocalZero.Y),
+      ARounding
+    );
 end;
 
 function TLocalCoordConverterNoScale.LocalPixel2MapPixelFloat(
@@ -532,8 +535,11 @@ function TLocalCoordConverterNoScale.MapPixel2LocalPixel(
   ARounding: TPointRounding
 ): TPoint;
 begin
-  Result.X := APoint.X - Trunc(FMapPixelAtLocalZero.X);
-  Result.Y := APoint.Y - Trunc(FMapPixelAtLocalZero.Y);
+  Result :=
+    PointFromDoublePoint(
+      DoublePoint(APoint.X - FMapPixelAtLocalZero.X, APoint.Y - FMapPixelAtLocalZero.Y),
+      ARounding
+    );
 end;
 
 function TLocalCoordConverterNoScale.MapPixel2LocalPixelFloat(
