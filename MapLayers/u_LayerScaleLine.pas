@@ -769,8 +769,10 @@ begin
 
   VCenterPixelXY := AVisualCoordConverter.LocalPixel2MapPixel(
     AVisualCoordConverter.LonLat2LocalPixel(
-      AVisualCoordConverter.GetCenterLonLat
-    )
+      AVisualCoordConverter.GetCenterLonLat,
+      prToTopLeft
+    ),
+    prToTopLeft
   );
 
   VStartLonLat := VConverter.PixelPos2LonLat(VCenterPixelXY, VZoom);

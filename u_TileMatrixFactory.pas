@@ -136,8 +136,8 @@ begin
       VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VTargetZoom),
       rrToTopLeft
     );
-  ASourceRect := ASourceConverter.MapRect2LocalRect(VResultSourceMapPixelRect);
-  ATargetRect := ATargetConverter.MapRect2LocalRect(VResultTargetMapPixelRect);
+  ASourceRect := ASourceConverter.MapRect2LocalRect(VResultSourceMapPixelRect, rrToTopLeft);
+  ATargetRect := ATargetConverter.MapRect2LocalRect(VResultTargetMapPixelRect, rrToTopLeft);
 end;
 
 function TTileMatrixFactory.PrepareElementFromSource(

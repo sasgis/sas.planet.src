@@ -124,6 +124,9 @@ type
 
 implementation
 
+uses
+  t_GeoTypes;
+
 { TImageLineProviderAbstract }
 
 constructor TImageLineProviderAbstract.Create(
@@ -176,8 +179,8 @@ begin
   if VBitmapRect.Right > VPreparedMapRect.Right then begin
     VBitmapRect.Right := VPreparedMapRect.Right;
   end;
-  VIntersectionAtPrepared := FPreparedConverter.MapRect2LocalRect(VBitmapRect);
-  VIntersectionAtBitmap := AConverter.MapRect2LocalRect(VBitmapRect);
+  VIntersectionAtPrepared := FPreparedConverter.MapRect2LocalRect(VBitmapRect, rrToTopLeft);
+  VIntersectionAtBitmap := AConverter.MapRect2LocalRect(VBitmapRect, rrToTopLeft);
   for i := 0 to (VBitmapRect.Bottom - VBitmapRect.Top - 1) do begin
     if ATargetBitmap <> nil then begin
       VSourceLine := @ATargetBitmap.Data[VIntersectionAtBitmap.Left + i * ATargetBitmap.Size.X];
@@ -305,7 +308,8 @@ begin
   VCurrentPieceRect := FLocalConverter.GetLocalRect;
   VPixel :=
     FLocalConverter.LocalPixel2MapPixel(
-      Types.Point(VCurrentPieceRect.Left, ALine)
+      Types.Point(VCurrentPieceRect.Left, ALine),
+      prToTopLeft
     );
   VTile := FMainGeoConverter.PixelPos2TilePos(VPixel, FZoom);
   VPixelRect := FMainGeoConverter.TilePos2PixelRect(VTile, FZoom);
@@ -318,7 +322,7 @@ begin
       VPixelRect.Bottom
     );
 
-  VPreparedLocalRect := FLocalConverter.MapRect2LocalRect(VPreparedMapRect);
+  VPreparedLocalRect := FLocalConverter.MapRect2LocalRect(VPreparedMapRect, rrToTopLeft);
   Result :=
     FConverterFactory.CreateConverterNoScale(
       VPreparedLocalRect,

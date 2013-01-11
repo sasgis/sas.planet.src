@@ -308,7 +308,7 @@ begin
   VConverter := ALocalConverter.GetGeoConverter;
   VPointLL := AData.Point;
   VConverter.CheckLonLatPos(VPointLL);
-  VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL);
+  VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL, prToTopLeft);
   VRect.BottomRight := VRect.TopLeft;
   if Types.PtInRect(ALocalConverter.GetLocalRect, VRect.TopLeft) then begin
     if not ABitmapInited then begin
