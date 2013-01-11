@@ -100,7 +100,8 @@ type
 
     function PixelPos2TilePosInternal(
       const XY: TPoint;
-      AZoom: byte
+      AZoom: byte;
+      ARounding: TPointRounding
     ): TPoint; virtual; stdcall; abstract;
     function PixelPos2TilePosFloatInternal(
       const XY: TPoint;
@@ -289,7 +290,8 @@ type
     ): TDoublePoint; stdcall;
     function PixelPos2TilePos(
       const AXY: TPoint;
-      const AZoom: byte
+      const AZoom: byte;
+      ARounding: TPointRounding
     ): TPoint; stdcall;
     function PixelPos2Relative(
       const AXY: TPoint;
@@ -851,7 +853,8 @@ end;
 
 function TCoordConverterAbstract.PixelPos2TilePos(
   const AXY: TPoint;
-  const AZoom: byte
+  const AZoom: byte;
+  ARounding: TPointRounding
 ): TPoint;
 var
   VXY: TPoint;
@@ -860,7 +863,7 @@ begin
   VXY := AXY;
   VZoom := AZoom;
   CheckPixelPosInternal(VXY, VZoom);
-  Result := PixelPos2TilePosInternal(VXY, VZoom);
+  Result := PixelPos2TilePosInternal(VXY, VZoom, ARounding);
 end;
 
 function TCoordConverterAbstract.PixelPos2TilePosFloat(

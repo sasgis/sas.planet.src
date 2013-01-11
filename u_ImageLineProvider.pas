@@ -311,7 +311,7 @@ begin
       Types.Point(VCurrentPieceRect.Left, ALine),
       prToTopLeft
     );
-  VTile := FMainGeoConverter.PixelPos2TilePos(VPixel, FZoom);
+  VTile := FMainGeoConverter.PixelPos2TilePos(VPixel, FZoom, prToTopLeft);
   VPixelRect := FMainGeoConverter.TilePos2PixelRect(VTile, FZoom);
   VCurrentPieceMapRect := FLocalConverter.GetRectInMapPixel;
   VPreparedMapRect :=

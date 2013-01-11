@@ -96,7 +96,8 @@ type
 
     function PixelPos2TilePosInternal(
       const XY: TPoint;
-      AZoom: byte
+      AZoom: byte;
+      ARounding: TPointRounding
     ): TPoint; override;
     function PixelPos2TilePosFloatInternal(
       const XY: TPoint;
@@ -1031,11 +1032,24 @@ end;
 
 function TCoordConverterBasic.PixelPos2TilePosInternal(
   const XY: TPoint;
-  AZoom: byte
+  AZoom: byte;
+  ARounding: TPointRounding
 ): TPoint;
 begin
-  Result.X := XY.X shr 8;
-  Result.Y := XY.Y shr 8;
+  case ARounding of
+    prClosest: begin
+      Result.X := (XY.X + 127) shr 8;
+      Result.Y := (XY.Y + 127) shr 8;
+    end;
+    prToTopLeft: begin
+      Result.X := XY.X shr 8;
+      Result.Y := XY.Y shr 8;
+    end;
+    prToBottomRight: begin
+      Result.X := (XY.X + 255) shr 8;
+      Result.Y := (XY.Y + 255) shr 8;
+    end;
+  end;
 end;
 
 //------------------------------------------------------------------------------

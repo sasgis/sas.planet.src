@@ -86,7 +86,8 @@ type
     // ѕреобразует координаты пиксела в  координаты тайда cодержащего пиксель
     function PixelPos2TilePos(
       const XY: TPoint;
-      const AZoom: byte
+      const AZoom: byte;
+      ARounding: TPointRounding
     ): TPoint; stdcall;
     // ѕреобразует координаты пиксела в относительные координаты на карте (x/PixelsAtZoom)
     function PixelPos2Relative(
