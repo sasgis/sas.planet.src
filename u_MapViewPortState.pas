@@ -46,8 +46,6 @@ type
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapConfig: IMainActiveMap;
 
-    FChangedFlag: ISimpleFlag;
-    FStopNotifyCounter: ICounter;
     FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeableInternal;
 
@@ -58,11 +56,8 @@ type
     procedure _SetActiveCoordConverter;
     procedure OnMainMapChange;
   protected
-    procedure DoInChangeNotify; override;
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-    procedure StopNotify; override;
-    procedure StartNotify; override;
   private
     function GetMainCoordConverter: ICoordConverter;
     procedure SetMainCoordConverter(const AValue: ICoordConverter);
@@ -128,9 +123,7 @@ var
   VZoom: Byte;
   VViewChangedFlag: ISimpleFlag;
 begin
-  FChangedFlag := TSimpleFlagWithInterlock.Create;
-  FStopNotifyCounter := TCounterInterlock.Create;
-  inherited Create(FChangedFlag, FStopNotifyCounter);
+  inherited Create;
 
   FVisibleCoordConverterFactory := ACoordConverterFactory;
   FMainMapConfig := AMainMapConfig;
@@ -154,7 +147,7 @@ begin
       FBaseScale,
       DoublePoint(VCenterPoint.X - VLocalCenter.X / FBaseScale, VCenterPoint.Y - VLocalCenter.Y / FBaseScale)
     );
-  VViewChangedFlag := TSimpleFlagWithParent.Create(FChangedFlag);
+  VViewChangedFlag := TSimpleFlagWithInterlock.Create;
   FView :=
     TLocalCoordConverterChangeable.Create(
       VViewChangedFlag,
@@ -391,12 +384,6 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.DoInChangeNotify;
-begin
-  FView.StartNotify;
-  inherited;
-end;
-
 procedure TMapViewPortState.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VLonLat: TDoublePoint;
@@ -582,25 +569,6 @@ begin
   finally
     UnlockWrite;
   end;
-end;
-
-procedure TMapViewPortState.StartNotify;
-begin
-  if FStopNotifyCounter.Dec = 0 then begin
-    if FChangedFlag.CheckFlagAndReset then begin
-      DoChangeNotify;
-    end else begin
-      FView.StartNotify;
-    end;
-  end else begin
-    FView.StartNotify;
-  end;
-end;
-
-procedure TMapViewPortState.StopNotify;
-begin
-  inherited;
-  FView.StopNotify;
 end;
 
 end.
