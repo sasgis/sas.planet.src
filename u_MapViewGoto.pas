@@ -107,32 +107,27 @@ begin
   VCenterLonLat.X := (ALonLatRect.Left + ALonLatRect.Right) / 2;
   VCenterLonLat.Y := (ALonLatRect.Top + ALonLatRect.Bottom) / 2;
   VLLRect := ALonLatRect;
-  FViewPortState.LockWrite;
-  try
-    VLocalConverter := FViewPortState.View.GetStatic;
-    VGeoConverter := VLocalConverter.GeoConverter;
-    VScreenSize := VLocalConverter.GetLocalRectSize;
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VGeoConverter := VLocalConverter.GeoConverter;
+  VScreenSize := VLocalConverter.GetLocalRectSize;
 
-    VGeoConverter.CheckLonLatRect(VLLRect);
-    VRelativeRect := VGeoConverter.LonLatRect2RelativeRect(VLLRect);
+  VGeoConverter.CheckLonLatRect(VLLRect);
+  VRelativeRect := VGeoConverter.LonLatRect2RelativeRect(VLLRect);
 
-    VTargetZoom := 23;
-    for VZoom := 1 to 23 do begin
-      VMarkMapRect := VGeoConverter.RelativeRect2PixelRectFloat(VRelativeRect, VZoom);
-      VMarkMapSize.X := VMarkMapRect.Right - VMarkMapRect.Left;
-      VMarkMapSize.Y := VMarkMapRect.Bottom - VMarkMapRect.Top;
-      if (VMarkMapSize.X > VScreenSize.X) or (VMarkMapSize.Y > VScreenSize.Y) then begin
-        VTargetZoom := VZoom - 1;
-        Break;
-      end;
+  VTargetZoom := 23;
+  for VZoom := 1 to 23 do begin
+    VMarkMapRect := VGeoConverter.RelativeRect2PixelRectFloat(VRelativeRect, VZoom);
+    VMarkMapSize.X := VMarkMapRect.Right - VMarkMapRect.Left;
+    VMarkMapSize.Y := VMarkMapRect.Bottom - VMarkMapRect.Top;
+    if (VMarkMapSize.X > VScreenSize.X) or (VMarkMapSize.Y > VScreenSize.Y) then begin
+      VTargetZoom := VZoom - 1;
+      Break;
     end;
-    VGeoConverter.CheckZoom(VTargetZoom);
-    VGeoConverter.CheckLonLatPos(VCenterLonLat);
-    FViewPortState.ChangeZoomWithFreezeAtCenter(VTargetZoom);
-    FViewPortState.ChangeLonLat(VCenterLonLat);
-  finally
-    FViewPortState.UnlockWrite;
   end;
+  VGeoConverter.CheckZoom(VTargetZoom);
+  VGeoConverter.CheckLonLatPos(VCenterLonLat);
+  FViewPortState.ChangeZoomWithFreezeAtCenter(VTargetZoom);
+  FViewPortState.ChangeLonLat(VCenterLonLat);
 end;
 
 function TMapViewGoto.GetChangeNotifier: INotifier;
@@ -150,14 +145,9 @@ procedure TMapViewGoto.GotoPos(
   const AZoom: Byte
 );
 begin
-  FViewPortState.LockWrite;
-  try
-    FLastGotoPos := TGotoPosStatic.Create(ALonLat, AZoom, Now);
-    FViewPortState.ChangeZoomWithFreezeAtCenter(AZoom);
-    FViewPortState.ChangeLonLat(ALonLat);
-  finally
-    FViewPortState.UnlockWrite;
-  end;
+  FLastGotoPos := TGotoPosStatic.Create(ALonLat, AZoom, Now);
+  FViewPortState.ChangeZoomWithFreezeAtCenter(AZoom);
+  FViewPortState.ChangeLonLat(ALonLat);
   FChangeNotifier.Notify(nil);
 end;
 

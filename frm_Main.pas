@@ -1109,11 +1109,11 @@ begin
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnBeforeViewChange),
-      FConfig.ViewPortState.BeforeChangeNotifier
+      FConfig.ViewPortState.View.BeforeChangeNotifier
     );
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnAfterViewChange),
-      FConfig.ViewPortState.AfterChangeNotifier
+      FConfig.ViewPortState.View.AfterChangeNotifier
     );
 
     FLinksList.Add(
