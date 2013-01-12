@@ -27,7 +27,6 @@ uses
   ImgList,
   TB2Item,
   TB2Dock,
-  i_Notifier,
   i_NotifierTime,
   i_GUIDSet,
   i_ValueToStringConverter,

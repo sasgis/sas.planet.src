@@ -35,7 +35,6 @@ uses
   StdCtrls,
   ExtCtrls,
   ComCtrls,
-  i_Notifier,
   i_NotifierOperation,
   i_CoordConverter,
   i_CoordConverterFactory,

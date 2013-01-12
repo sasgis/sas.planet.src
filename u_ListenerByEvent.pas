@@ -23,7 +23,6 @@ unit u_ListenerByEvent;
 interface
 
 uses
-  i_Notifier,
   i_NotifierTime,
   i_Listener,
   i_ListenerTime,

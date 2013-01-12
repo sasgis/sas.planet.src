@@ -3,7 +3,6 @@ unit u_EnumUnknownTwoItems;
 interface
 
 uses
-  Classes,
   ActiveX;
 
 type

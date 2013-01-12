@@ -4,7 +4,6 @@ interface
 
 uses
   GR32_Image,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   i_InternalPerformanceCounter,

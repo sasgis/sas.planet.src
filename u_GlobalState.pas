@@ -31,7 +31,6 @@ uses
   Classes,
   IniFiles,
   SysUtils,
-  i_Notifier,
   i_NotifierOperation,
   i_GPSPositionFactory,
   i_LanguageManager,

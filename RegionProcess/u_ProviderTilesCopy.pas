@@ -4,7 +4,6 @@ interface
 
 uses
   Forms,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   i_LanguageManager,

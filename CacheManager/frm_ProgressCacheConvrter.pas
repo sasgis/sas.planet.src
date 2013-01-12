@@ -34,7 +34,6 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
-  i_Notifier,
   i_NotifierTime,
   i_Listener,
   i_ListenerTime,

@@ -8,7 +8,6 @@ uses
   Forms,
   ExtCtrls,
   StdCtrls,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   u_CommonFormAndFrameParents,

@@ -31,7 +31,6 @@ uses
   StdCtrls,
   ExtCtrls,
   RarProgress,
-  i_Notifier,
   i_NotifierTime,
   i_Listener,
   i_ListenerTime,

@@ -16,7 +16,6 @@ uses
   StdCtrls,
   GR32_Image,
   i_SimpleFlag,
-  i_Notifier,
   i_NotifierTime,
   i_ListenerNotifierLinksList,
   i_LanguageManager,

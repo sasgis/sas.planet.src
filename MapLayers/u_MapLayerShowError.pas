@@ -8,7 +8,6 @@ uses
   GR32,
   GR32_Image,
   t_GeoTypes,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
