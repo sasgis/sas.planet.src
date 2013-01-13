@@ -126,8 +126,7 @@ begin
   end;
   VGeoConverter.CheckZoom(VTargetZoom);
   VGeoConverter.CheckLonLatPos(VCenterLonLat);
-  FViewPortState.ChangeZoomWithFreezeAtCenter(VTargetZoom);
-  FViewPortState.ChangeLonLat(VCenterLonLat);
+  FViewPortState.ChangeLonLatAndZoom(VTargetZoom, VCenterLonLat);
 end;
 
 function TMapViewGoto.GetChangeNotifier: INotifier;
@@ -146,8 +145,7 @@ procedure TMapViewGoto.GotoPos(
 );
 begin
   FLastGotoPos := TGotoPosStatic.Create(ALonLat, AZoom, Now);
-  FViewPortState.ChangeZoomWithFreezeAtCenter(AZoom);
-  FViewPortState.ChangeLonLat(ALonLat);
+  FViewPortState.ChangeLonLatAndZoom(AZoom, ALonLat);
   FChangeNotifier.Notify(nil);
 end;
 

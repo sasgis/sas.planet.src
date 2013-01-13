@@ -76,6 +76,10 @@ type
       const AFreezePoint: TPoint
     );
     procedure ChangeLonLat(const ALonLat: TDoublePoint);
+    procedure ChangeLonLatAndZoom(
+      const AZoom: Byte;
+      const ALonLat: TDoublePoint
+    );
 
     procedure ChangeZoomWithFreezeAtCenter(const AZoom: Byte);
     procedure ChangeZoomWithFreezeAtVisualPointWithScale(
@@ -186,6 +190,46 @@ begin
       FVisibleCoordConverterFactory.ChangeCenterLonLat(
         VLocalConverter,
         ALonLat
+      );
+    FView.SetConverter(VLocalConverterNew);
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapViewPortState.ChangeLonLatAndZoom(const AZoom: Byte;
+  const ALonLat: TDoublePoint);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VLocalConverterNew: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VLonLat: TDoublePoint;
+  VMapPixelCenter: TDoublePoint;
+  VMapTopLeft: TDoublePoint;
+  VLocalRect: TRect;
+  VLocalCenter: TDoublePoint;
+begin
+  LockWrite;
+  try
+    VLocalConverter := FView.GetStatic;
+    VConverter := VLocalConverter.GeoConverter;
+    VZoom := AZoom;
+    VConverter.CheckZoom(VZoom);
+    VLonLat := ALonLat;
+    VConverter.CheckLonLatPos(VLonLat);
+    VMapPixelCenter := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
+    VLocalRect := VLocalConverter.GetLocalRect;
+    VLocalCenter := RectCenter(VLocalRect);
+    VMapTopLeft.X := VMapPixelCenter.X - VLocalCenter.X;
+    VMapTopLeft.Y := VMapPixelCenter.Y - VLocalCenter.Y;
+    VLocalConverterNew :=
+      FVisibleCoordConverterFactory.CreateConverter(
+        VLocalConverter.GetLocalRect,
+        VZoom,
+        VConverter,
+        FBaseScale,
+        VMapTopLeft
       );
     FView.SetConverter(VLocalConverterNew);
   finally

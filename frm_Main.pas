@@ -5959,10 +5959,9 @@ begin
       end;
       if  (paramstr(2)<>'') and (paramstr(3)<>'')and(paramstr(4)<>'') then begin
         VZoom := strtoint(paramstr(2)) - 1;
-        FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
         VLonLat.X := str2r(paramstr(3));
         VLonLat.Y := str2r(paramstr(4));
-        FConfig.ViewPortState.ChangeLonLat(VLonLat);
+        FConfig.ViewPortState.ChangeLonLatAndZoom(VZoom, VLonLat);
       end else if paramstr(2)<>'' then begin
         VZoom := strtoint(paramstr(2)) - 1;
         FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
