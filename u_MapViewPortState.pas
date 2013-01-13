@@ -62,7 +62,6 @@ type
     function GetMainCoordConverter: ICoordConverter;
     procedure SetMainCoordConverter(const AValue: ICoordConverter);
 
-    function GetCurrentCoordConverter: ICoordConverter;
     function GetCurrentZoom: Byte;
 
     function GetPosition: ILocalCoordConverterChangeable;
@@ -484,16 +483,6 @@ begin
     if VMap <> nil then begin
       Result := VMap.MapType.ViewGeoConvert;
     end;
-  end;
-end;
-
-function TMapViewPortState.GetCurrentCoordConverter: ICoordConverter;
-begin
-  LockRead;
-  try
-    Result := FView.GetStatic.GeoConverter;
-  finally
-    UnlockRead;
   end;
 end;
 

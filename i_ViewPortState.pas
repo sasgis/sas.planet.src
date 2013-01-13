@@ -36,7 +36,6 @@ type
     procedure SetMainCoordConverter(const AValue: ICoordConverter);
     property MainCoordConverter: ICoordConverter read GetMainCoordConverter write SetMainCoordConverter;
 
-    function GetCurrentCoordConverter: ICoordConverter;
     function GetCurrentZoom: Byte;
 
     function GetPosition: ILocalCoordConverterChangeable;
