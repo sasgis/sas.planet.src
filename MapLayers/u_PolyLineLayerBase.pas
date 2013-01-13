@@ -11,6 +11,7 @@ uses
   i_NotifierOperation,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_LineOnMapEdit,
   i_ProjectionInfo,
@@ -48,7 +49,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AFactory: IVectorItemsFactory;
       const AConfig: ILineLayerConfig
     );
@@ -121,7 +122,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AFactory: IVectorItemsFactory;
       const AConfig: IPolygonLayerConfig
     );
@@ -140,7 +141,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ILineLayerConfig
@@ -160,7 +161,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPolygonOnMapEdit;
       const AConfig: IPolygonLayerConfig
@@ -197,7 +198,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AFactory: IVectorItemsFactory;
       const AFirstPointMarker: IMarkerDrawableChangeable;
       const AActivePointMarker: IMarkerDrawableChangeable;
@@ -222,7 +223,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AFirstPointMarker: IMarkerDrawableChangeable;
@@ -248,7 +249,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AFactory: IVectorItemsFactory;
       const ALineOnMapEdit: IPolygonOnMapEdit;
       const AFirstPointMarker: IMarkerDrawableChangeable;
@@ -276,7 +277,7 @@ constructor TLineLayerBase.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AFactory: IVectorItemsFactory;
   const AConfig: ILineLayerConfig
 );
@@ -286,7 +287,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FConfig := AConfig;
   FFactory := AFactory;
@@ -490,7 +491,7 @@ constructor TPolygonLayerBase.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AFactory: IVectorItemsFactory;
   const AConfig: IPolygonLayerConfig
 );
@@ -500,7 +501,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState,
+    AView,
     AFactory,
     AConfig
   );
@@ -679,7 +680,7 @@ constructor TPathEditLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ILineLayerConfig
@@ -690,7 +691,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState,
+    AView,
     AFactory,
     AConfig
   );
@@ -733,7 +734,7 @@ constructor TPolygonEditLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPolygonOnMapEdit;
   const AConfig: IPolygonLayerConfig
@@ -744,7 +745,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState,
+    AView,
     AFactory,
     AConfig
   );
@@ -792,7 +793,7 @@ constructor TPointsSetLayerBase.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AFactory: IVectorItemsFactory;
   const AFirstPointMarker: IMarkerDrawableChangeable;
   const AActivePointMarker: IMarkerDrawableChangeable;
@@ -806,7 +807,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FFirstPointMarker := AFirstPointMarker;
   FActivePointMarker := AActivePointMarker;
@@ -922,7 +923,7 @@ constructor TPathEditPointsSetLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AFirstPointMarker: IMarkerDrawableChangeable;
@@ -935,7 +936,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState,
+    AView,
     AFactory,
     AFirstPointMarker,
     AActivePointMarker,
@@ -1032,7 +1033,7 @@ constructor TPolygonEditPointsSetLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AFactory: IVectorItemsFactory;
   const ALineOnMapEdit: IPolygonOnMapEdit;
   const AFirstPointMarker: IMarkerDrawableChangeable;
@@ -1045,7 +1046,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState,
+    AView,
     AFactory,
     AFirstPointMarker,
     AActivePointMarker,

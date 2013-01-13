@@ -42,7 +42,7 @@ type
   TLayerScaleLine = class(TWindowLayerWithBitmapBase)
   private
     FConfig: IScaleLineConfig;
-    FPosition: ILocalCoordConverterChangeable;
+    FView: ILocalCoordConverterChangeable;
     FTmpBitmap: TBitmap32;
     FPopupMenu: TLayerScaleLinePopupMenu;
     procedure OnConfigChange;
@@ -127,7 +127,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AOnOptionsClick: TNotifyEvent;
       const AConfig: IScaleLineConfig
     );
@@ -225,7 +225,7 @@ constructor TLayerScaleLine.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AOnOptionsClick: TNotifyEvent;
   const AConfig: IScaleLineConfig
 );
@@ -237,7 +237,7 @@ begin
     TBitmapLayer.Create(AParentMap.Layers)
   );
   FConfig := AConfig;
-  FPosition := AViewPortState.View;
+  FView := AView;
 
   FPopupMenu := TLayerScaleLinePopupMenu.Create(
     ALanguageManager,
@@ -248,7 +248,7 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
-    FPosition.GetChangeNotifier
+    FView.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -369,7 +369,7 @@ var
 begin
   inherited;
   Layer.Bitmap.Clear(0);
-  VVisualCoordConverter := FPosition.GetStatic;
+  VVisualCoordConverter := FView.GetStatic;
   if VVisualCoordConverter <> nil then begin
     RedrawGorizontalScaleLegend(VVisualCoordConverter);
     if FConfig.Extended then begin
@@ -802,7 +802,7 @@ var
 begin
   VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   Result.Left := 6;
-  Result.Bottom := FPosition.GetStatic.GetLocalRect.Bottom - 6 - FConfig.BottomMargin;
+  Result.Bottom := FView.GetStatic.GetLocalRect.Bottom - 6 - FConfig.BottomMargin;
   Result.Right := Result.Left + VSize.X;
   Result.Top := Result.Bottom - VSize.Y;
 end;

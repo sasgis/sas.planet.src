@@ -8,6 +8,7 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_ViewPortState,
   i_SelectionRect,
@@ -40,7 +41,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const ASelection: ISelectionRect;
       const AConfig: ISelectionRectLayerConfig
     );
@@ -62,7 +63,7 @@ constructor TSelectionRectLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const ASelection: ISelectionRect;
   const AConfig: ISelectionRectLayerConfig
 );
@@ -72,7 +73,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FConfig := AConfig;
   FSelection := ASelection;

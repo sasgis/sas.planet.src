@@ -9,6 +9,7 @@ uses
   i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
   i_InternalPerformanceCounter,
@@ -70,7 +71,8 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const APosition: ILocalCoordConverterChangeable;
+      const AView: ILocalCoordConverterChangeable;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -106,7 +108,8 @@ constructor TMapLayerMarks.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const APosition: ILocalCoordConverterChangeable;
+  const AView: ILocalCoordConverterChangeable;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItemsFactory: IVectorItemsFactory;
@@ -130,8 +133,8 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.Position,
-    AViewPortState.View,
+    APosition,
+    AView,
     VTileMatrixFactory,
     ATimerNoifier,
     True,

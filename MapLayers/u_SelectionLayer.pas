@@ -7,6 +7,7 @@ uses
   i_NotifierOperation,
   i_ViewPortState,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,
@@ -34,7 +35,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AConfig: ILastSelectionLayerConfig;
       const ALastSelectionInfo: ILastSelectionInfo
@@ -54,7 +55,7 @@ constructor TSelectionLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AConfig: ILastSelectionLayerConfig;
   const ALastSelectionInfo: ILastSelectionInfo
@@ -65,7 +66,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState,
+    AView,
     AVectorItemsFactory,
     AConfig
   );

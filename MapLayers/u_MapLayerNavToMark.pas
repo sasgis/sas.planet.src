@@ -9,6 +9,7 @@ uses
   t_GeoTypes,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
@@ -39,7 +40,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const ANavToPoint: INavigationToPoint;
       const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
       const AReachedMarkerChangeable: IMarkerDrawableChangeable;
@@ -61,7 +62,7 @@ constructor TNavToMarkLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const ANavToPoint: INavigationToPoint;
   const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
   const AReachedMarkerChangeable: IMarkerDrawableChangeable;
@@ -73,7 +74,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FNavToPoint := ANavToPoint;
   FArrowMarkerChangeable := AArrowMarkerChangeable;

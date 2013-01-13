@@ -13,6 +13,7 @@ uses
   i_Datum,
   i_ProjectionInfo,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_SimpleFlag,
   i_ProjectedDrawableElement,
@@ -61,7 +62,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const ATimerNoifier: INotifierTime;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AConfig: IMarkerRingsConfig;
@@ -90,7 +91,7 @@ constructor TMapLayerGPSMarkerRings.Create(
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const ATimerNoifier: INotifierTime;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AConfig: IMarkerRingsConfig;
@@ -102,7 +103,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;

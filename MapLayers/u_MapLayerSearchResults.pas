@@ -11,6 +11,7 @@ uses
   i_Notifier,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_LastSearchResultConfig,
   i_MarkerDrawable,
@@ -45,7 +46,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const ALastSearchResults: ILastSearchResultConfig;
       const AMarker: IMarkerDrawableChangeable
     );
@@ -69,7 +70,7 @@ constructor TSearchResultsLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const ALastSearchResults: ILastSearchResultConfig;
   const AMarker: IMarkerDrawableChangeable
 );
@@ -79,7 +80,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FLastSearchResults := ALastSearchResults;
   FMarker := AMarker;

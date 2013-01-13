@@ -11,6 +11,7 @@ uses
   i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_SimpleFlag,
   i_MarkerDrawable,
@@ -49,7 +50,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const ATimerNoifier: INotifierTime;
       const AConfig: IMapLayerGPSMarkerConfig;
       const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
@@ -77,7 +78,7 @@ constructor TMapLayerGPSMarker.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const ATimerNoifier: INotifierTime;
   const AConfig: IMapLayerGPSMarkerConfig;
   const AArrowMarkerChangeable: IMarkerDrawableWithDirectionChangeable;
@@ -90,7 +91,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;

@@ -12,6 +12,7 @@ uses
   i_ViewPortState,
   i_InternalPerformanceCounter,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_LineOnMapEdit,
   i_ProjectionInfo,
   i_DoublePointsAggregator,
@@ -68,7 +69,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: IPointCaptionsLayerConfig;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -95,7 +96,7 @@ constructor TCalcLineLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: IPointCaptionsLayerConfig;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -106,7 +107,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FConfig := AConfig;
   FValueToStringConverterConfig := AValueToStringConverterConfig;

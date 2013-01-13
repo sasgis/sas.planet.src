@@ -92,7 +92,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const AConfig: IStatBarConfig;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AMouseState: IMouseState;
@@ -134,7 +134,7 @@ constructor TLayerStatBar.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const AConfig: IStatBarConfig;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AMouseState: IMouseState;
@@ -165,7 +165,7 @@ begin
 
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
-  FView := AViewPortState.View;
+  FView := AView;
 
   FPopupMenu := TLayerStatBarPopupMenu.Create(
     ALanguageManager,

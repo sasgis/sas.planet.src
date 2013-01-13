@@ -11,6 +11,7 @@ uses
   i_NotifierTime,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_Bitmap32StaticFactory,
   i_ViewPortState,
@@ -48,7 +49,7 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
-      const AViewPortState: IViewPortState;
+      const AView: ILocalCoordConverterChangeable;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ALogProvider: ITileErrorLogProviedrStuped;
       const ATimerNoifier: INotifierTime
@@ -76,7 +77,7 @@ constructor TTileErrorInfoLayer.Create(
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
-  const AViewPortState: IViewPortState;
+  const AView: ILocalCoordConverterChangeable;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ALogProvider: ITileErrorLogProviedrStuped;
   const ATimerNoifier: INotifierTime
@@ -87,7 +88,7 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier,
     AParentMap,
-    AViewPortState.View
+    AView
   );
   FLogProvider := ALogProvider;
   FBitmapFactory := ABitmapFactory;
