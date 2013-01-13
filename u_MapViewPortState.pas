@@ -42,16 +42,16 @@ uses
 type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
-    FMainCoordConverter: ICoordConverter;
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapConfig: IMainActiveMap;
+    FBaseScale: Double;
 
     FPosition: ILocalCoordConverterChangeable;
     FView: ILocalCoordConverterChangeableInternal;
-
-    FBaseScale: Double;
-
     FMainMapChangeListener: IListener;
+
+    FMainCoordConverter: ICoordConverter;
+
     function _GetActiveCoordConverter: ICoordConverter;
     procedure _SetActiveCoordConverter;
     procedure OnMainMapChange;
