@@ -15,7 +15,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
   i_InternalPerformanceCounter,
-  i_ViewPortState,
   i_MapTypes,
   i_KmlLayerConfig,
   i_Bitmap32StaticFactory,

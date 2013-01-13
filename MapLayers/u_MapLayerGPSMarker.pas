@@ -17,7 +17,6 @@ uses
   i_MarkerDrawable,
   i_MapLayerGPSMarkerConfig,
   i_GPSRecorder,
-  i_ViewPortState,
   u_MapLayerBasic;
 
 type

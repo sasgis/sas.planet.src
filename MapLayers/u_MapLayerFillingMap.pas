@@ -13,7 +13,6 @@ uses
   i_BitmapLayerProvider,
   i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
-  i_ViewPortState,
   i_FillingMapLayerConfig,
   u_TiledLayerWithThreadBase;
 

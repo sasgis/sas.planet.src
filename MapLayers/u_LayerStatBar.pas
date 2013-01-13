@@ -37,7 +37,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_StatBarConfig,
-  i_ViewPortState,
   i_MouseState,
   i_MapTypes,
   i_ValueToStringConverter,

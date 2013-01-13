@@ -15,7 +15,6 @@ uses
   i_InternalPerformanceCounter,
   i_LastSearchResultConfig,
   i_MarkerDrawable,
-  i_ViewPortState,
   i_VectorDataItemSimple,
   i_FindVectorItems,
   i_GeoCoder,

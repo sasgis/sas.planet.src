@@ -22,7 +22,6 @@ uses
   i_VectorItemProjected,
   i_VectorItemsFactory,
   i_GPSRecorder,
-  i_ViewPortState,
   u_MapLayerBasic;
 
 type

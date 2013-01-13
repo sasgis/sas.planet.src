@@ -8,7 +8,6 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_ViewPortState,
   i_VectorItemLonLat,
   i_VectorItemsFactory,
   i_LineOnMapEdit,

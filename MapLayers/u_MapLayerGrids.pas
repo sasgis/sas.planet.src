@@ -14,7 +14,6 @@ uses
   i_BitmapLayerProvider,
   i_ImageResamplerConfig,
   i_ValueToStringConverter,
-  i_ViewPortState,
   i_Bitmap32StaticFactory,
   i_MapLayerGridsConfig,
   u_TiledLayerWithThreadBase;

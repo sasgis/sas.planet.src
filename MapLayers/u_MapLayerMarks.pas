@@ -13,7 +13,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
   i_InternalPerformanceCounter,
-  i_ViewPortState,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarksLayerConfig,

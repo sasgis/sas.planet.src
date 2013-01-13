@@ -14,7 +14,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_Bitmap32StaticFactory,
-  i_ViewPortState,
   i_TileError,
   i_SimpleFlag,
   i_MarkerDrawable,

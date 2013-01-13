@@ -14,7 +14,6 @@ uses
   i_NavigationToPoint,
   i_MapLayerNavToPointMarkerConfig,
   i_MarkerDrawable,
-  i_ViewPortState,
   u_MapLayerBasic;
 
 type

@@ -32,7 +32,6 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_ViewPortState,
   i_ScaleLineConfig,
   i_LanguageManager,
   u_LayerScaleLinePopupMenu,

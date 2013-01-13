@@ -10,7 +10,6 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_ViewPortState,
   i_SelectionRect,
   i_SelectionRectLayerConfig,
   u_MapLayerBasic;
