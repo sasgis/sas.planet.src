@@ -389,6 +389,8 @@ type
     tbitmSelectVersionByMark: TTBXItem;
     TBSeparatorItem3: TTBSeparatorItem;
     NGShauto: TTBXItem;
+    NGShScale5000: TTBXItem;
+    NGShScale2500: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -1316,12 +1318,14 @@ var
 begin
   VScale := FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale;
   if FConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then begin
-    NGShScale10000.Checked := VScale = 10000;
-    NGShScale25000.Checked := VScale = 25000;
-    NGShScale50000.Checked := VScale = 50000;
-    NGShScale100000.Checked := VScale = 100000;
-    NGShScale200000.Checked := VScale = 200000;
-    NGShScale500000.Checked := VScale = 500000;
+    NGShScale2500.Checked    := VScale = 2500;
+    NGShScale5000.Checked    := VScale = 5000;
+    NGShScale10000.Checked   := VScale = 10000;
+    NGShScale25000.Checked   := VScale = 25000;
+    NGShScale50000.Checked   := VScale = 50000;
+    NGShScale100000.Checked  := VScale = 100000;
+    NGShScale200000.Checked  := VScale = 200000;
+    NGShScale500000.Checked  := VScale = 500000;
     NGShScale1000000.Checked := VScale = 1000000;
     NGShScale0.Checked := VScale = 0;
     NGShAuto.Checked := VScale < 0;

@@ -115,7 +115,7 @@ object frmMain: TfrmMain
       end
     end
     object SrcToolbar: TTBXToolbar
-      Left = 230
+      Left = 238
       Top = 25
       DockPos = 224
       DockRow = 1
@@ -147,7 +147,7 @@ object frmMain: TfrmMain
       end
     end
     object TBMarksToolbar: TTBXToolbar
-      Left = 363
+      Left = 365
       Top = 25
       DockPos = 363
       DockRow = 1
@@ -158,7 +158,7 @@ object frmMain: TfrmMain
       Caption = 'Placemarks'
     end
     object GPSToolbar: TTBXToolbar
-      Left = 534
+      Left = 536
       Top = 25
       DockPos = 504
       DockRow = 1
@@ -785,6 +785,26 @@ object frmMain: TfrmMain
             Caption = '1:10 000 (100 m)'
             Hint = ''
           end
+          object NGShScale5000: TTBXItem
+            Tag = 5000
+            AutoCheck = True
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NGShScale01Click
+            Caption = '1:5 000 (50 m)'
+            Hint = ''
+          end
+          object NGShScale2500: TTBXItem
+            Tag = 2500
+            AutoCheck = True
+            GroupIndex = 1
+            Images = MenusImageList
+            RadioItem = True
+            OnClick = NGShScale01Click
+            Caption = '1:2 500 (25 m)'
+            Hint = ''
+          end
           object TBSeparatorItem3: TTBSeparatorItem
             Caption = ''
             Hint = ''
@@ -1276,7 +1296,7 @@ object frmMain: TfrmMain
       end
     end
     object TBXToolBarSearch: TTBXToolbar
-      Left = 429
+      Left = 399
       Top = 0
       DockPos = 413
       Options = [tboNoRotation]
@@ -1302,7 +1322,7 @@ object frmMain: TfrmMain
       end
     end
     object FillDates: TTBXToolbar
-      Left = 629
+      Left = 610
       Top = 0
       DefaultDock = TBDock
       DockPos = 643
@@ -1354,8 +1374,8 @@ object frmMain: TfrmMain
         OnChange = DateTimePicker1Change
       end
       object DateTimePicker2: TDateTimePicker
-        Left = 203
-        Top = 21
+        Left = 141
+        Top = 0
         Width = 81
         Height = 21
         Date = 40830.496065717590000000
@@ -1435,7 +1455,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 8
+        Left = 24
         Top = 221
         Width = 14
         Height = 13
@@ -1455,7 +1475,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 2
+        Left = 18
         Top = 32
         Width = 25
         Height = 153
@@ -1592,7 +1612,7 @@ object frmMain: TfrmMain
       end
       object TBEditSelectPolylineRadius: TSpinEdit
         Left = 0
-        Top = 138
+        Top = 136
         Width = 61
         Height = 22
         MaxValue = 100000

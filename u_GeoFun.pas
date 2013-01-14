@@ -211,8 +211,10 @@ begin
       10: Result :=  100000;
       11: Result :=  50000;
       12: Result :=  25000;
+      13: Result :=  10000;
+      14: Result :=  5000;
     else
-      Result :=  10000;
+      Result :=  2500;
     end;
   end else
   Result := AScale;
@@ -228,6 +230,8 @@ begin
       50000: begin Result.X:=0.25; Result.Y:=0.1666666666666666666666666666665; end;
       25000: begin Result.X:=0.125; Result.Y:=0.08333333333333333333333333333325; end;
       10000: begin Result.X:=0.0625; Result.Y:=0.041666666666666666666666666666625; end;
+       5000: begin Result.X:=0.03125; Result.Y:=0.020833333333333333333333333333325; end;
+       2500: begin Result.X:=0.015625; Result.Y:=0.010416666666666666666666666666625; end;
     else begin Result.X:=360; Result.Y:=180; end;
   end;
 end;
