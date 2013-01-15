@@ -103,8 +103,8 @@ begin
  if Scale<=50000  then result:=result+'-'+chr(192+GetNameAtom(24,2));
  if Scale<=25000  then result:=result+'-'+chr(224+GetNameAtom(48,2));
  if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
- if Scale=5000    then result:=chr(65+(Lat div (4*prec)))+'-'+inttostr(1+(Lon div (6*prec)))+'-('+inttostr(1+GetNameAtom(192,16))+')';
- if Scale=2500    then result:=chr(65+(Lat div (4*prec)))+'-'+inttostr(1+(Lon div (6*prec)))+'-('+inttostr(1+GetNameAtom(192,16))+'-'+chr(224+GetNameAtom(384,2))+')';
+ if Scale=5000    then result:=chr(65+(Lat div (4*prec)))+'-'+inttostr(1+(Lon div (6*prec)))+'-'+inttostr(1+GetNameAtom(12,12))+'-('+inttostr(1+GetNameAtom(192,16))+')';
+ if Scale=2500    then result:=chr(65+(Lat div (4*prec)))+'-'+inttostr(1+(Lon div (6*prec)))+'-'+inttostr(1+GetNameAtom(12,12))+'-('+inttostr(1+GetNameAtom(192,16))+'-'+chr(224+GetNameAtom(384,2))+')';
 end;
 
 initialization

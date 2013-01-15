@@ -480,6 +480,8 @@ begin
        // C-II-III-C-C-I  char/integer
        // C-II-CCCCCC-C-C-C
        // K-37-XXXVI - 2х километровка - отдельная история RomanToDig()
+       // C-II-II-(III)
+       // C-II-II-(III-C)
        V2Search := AStr;
        VcoordError := false;
        VDLon := 1;
@@ -589,8 +591,27 @@ begin
          'C','3' : begin VDLat := VDLat -1/8; VDLon := VDLon -1/12 end;
          'D','4' : begin VDLat := VDLat +1/8; VDLon := VDLon -1/12 end;
          end;
+        end else if temp_string[1]='(' then begin // масштабы 50м и 25м
+          if temp_string[length(temp_string)]=')'then j := strtoint(copy(temp_string,2,length(temp_string)-2))
+            else j:= strtoint(copy(temp_string,2,length(temp_string)-1));
+          if (j<=256) and (j>=1) then begin
+              VDLon := VDLon - (((j-1) div 16)*2-16+1)/16/6;;  //Y
+              VDLat := VDLat + (((j-1) mod 16)*2-16+1)/16/4;;  //X
+              end;
+          sname := sname +'-'+ temp_string;
+          V2Search := copy(V2Search,i,length(V2Search)-i+1);
+          if V2Search <> '' then begin
+            temp_string := copy(V2Search,2,length(V2Search)-1);
+            if ((temp_string[1]>='A') and (temp_string[1]<='D'))or((temp_string[1]>='1') and (temp_string[1]<='3')) then
+              case temp_string[1] of
+                'A','1' : begin VDLat := VDLat -1/128; VDLon := VDLon + 1/192 end;
+                'B','2' : begin VDLat := VDLat +1/128; VDLon := VDLon + 1/192 end;
+                'C','3' : begin VDLat := VDLat -1/128; VDLon := VDLon - 1/192 end;
+                'D','4' : begin VDLat := VDLat +1/128; VDLon := VDLon - 1/192 end;
+              end;
+              V2Search := '';
+          end;
         end;
-
         sname := sname +'-'+ temp_string;
         V2Search := copy(V2Search,i,length(V2Search)-i+1);
         if length(V2Search)>0 then
