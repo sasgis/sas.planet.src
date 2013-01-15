@@ -50,8 +50,6 @@ type
     function GetMapList: IMapTypeListStatic;
     property MapList: IMapTypeListStatic read GetMapList;
 
-    function GetLayerList: IMapTypeListStatic;
-    property LayerList: IMapTypeListStatic read GetLayerList;
 
   end;
 
@@ -100,32 +98,18 @@ type
     cbbscale3: TComboBox;
     cbbscale4: TComboBox;
     cbbscale5: TComboBox;
-    Layer: TTabSheet;
     cbbMap4: TComboBox;
     cbbMap3: TComboBox;
     cbbMap2: TComboBox;
     cbbMap: TComboBox;
     cbbMap5: TComboBox;
-    cbbHyb: TComboBox;
-    cbbHyb2: TComboBox;
-    cbbHyb3: TComboBox;
-    cbbHyb4: TComboBox;
-    cbbHyb5: TComboBox;
-    chbLayer: TCheckBox;
-    chbLayer4: TCheckBox;
-    chbLayer2: TCheckBox;
-    chbLayer5: TCheckBox;
-    chbLayer3: TCheckBox;
     lblMap: TLabel;
-    Label_Map: TLabel;
-    Llayer: TLabel;
     ChMap5: TCheckBox;
     ChMap4: TCheckBox;
     ChMap3: TCheckBox;
     ChMap2: TCheckBox;
     ChMap1: TCheckBox;
     MapsPanel: TPanel;
-    PnlLayer: TPanel;
     PnlInfo: TPanel;
     cbbVersion: TComboBox;
     chkUseRecolor: TCheckBox;
@@ -138,11 +122,6 @@ type
     procedure ChMap3Click(Sender: TObject);
     procedure ChMap4Click(Sender: TObject);
     procedure ChMap5Click(Sender: TObject);
-    procedure chbLayerClick(Sender: TObject);
-    procedure chbLayer2Click(Sender: TObject);
-    procedure chbLayer3Click(Sender: TObject);
-    procedure chbLayer4Click(Sender: TObject);
-    procedure chbLayer5Click(Sender: TObject);
     procedure cbbMap2Change(Sender: TObject);
     procedure cbbMap3Change(Sender: TObject);
     procedure cbbMap4Change(Sender: TObject);
@@ -175,7 +154,6 @@ type
     function GetZOrder: Integer;
     function GetProductID: Integer;
     function GetMapList: IMapTypeListStatic;
-    function GetLayerList: IMapTypeListStatic;
 
   public
     constructor Create(
@@ -302,36 +280,7 @@ begin
   cbbscale.ItemIndex := ZoomIndexToScaleIndex[CbbZoom.itemindex];
 end;
 
-procedure TfrExportToJNX.chbLayer2Click(Sender: TObject);
-begin
-if chbLayer2.Checked then
-  cbbHyb2.Enabled := true else cbbHyb2.Enabled := false;
-end;
 
-procedure TfrExportToJNX.chbLayer3Click(Sender: TObject);
-begin
-if chbLayer3.Checked then
-  cbbHyb3.Enabled := true else cbbHyb3.Enabled := false;
-
-end;
-
-procedure TfrExportToJNX.chbLayer4Click(Sender: TObject);
-begin
-if chbLayer4.Checked then
-  cbbHyb4.Enabled := true else cbbHyb4.Enabled := false;
-end;
-
-procedure TfrExportToJNX.chbLayer5Click(Sender: TObject);
-begin
-if chbLayer5.Checked then
-  cbbHyb5.Enabled := true else cbbHyb5.Enabled := false;
-end;
-
-procedure TfrExportToJNX.chbLayerClick(Sender: TObject);
-begin
-if chbLayer.Checked then
-  cbbHyb.Enabled := true else cbbHyb.Enabled := false;
-end;
 
 
 constructor TfrExportToJNX.Create(
@@ -388,12 +337,6 @@ begin
     cbbMap4.items.Clear;
     cbbMap5.items.Clear;
 
-    cbbHyb.items.Clear;
-    cbbHyb2.items.Clear;
-    cbbHyb3.items.Clear;
-    cbbHyb4.items.Clear;
-    cbbHyb5.items.Clear;
-
     CbbZoom.ItemIndex := AZoom;
     CbbZoom2.ItemIndex := AZoom;
     CbbZoom3.ItemIndex := AZoom;
@@ -416,14 +359,6 @@ begin
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         cbbMap.ItemIndex:=VAddedIndex;
       end;
-      end else
-      if(VMapType.IsHybridLayer) then begin
-        VAddedIndex := cbbHyb.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if (cbbHyb.ItemIndex=-1) then begin
-          if VActiveLayers.GetMapTypeByGUID(VGUID) <> nil then begin
-            cbbHyb.ItemIndex:=VAddedIndex;
-          end;
-        end;
      end;
     end;
   end;
@@ -431,7 +366,6 @@ begin
     cbbMap.ItemIndex := 0;
   end;
   if cbbMap.ItemIndex=-1 then cbbMap.ItemIndex:=0;
-  if cbbHyb.ItemIndex=-1 then cbbHyb.ItemIndex:=0;
 
 
   cbbMap2.Items := cbbMap.Items;
@@ -443,17 +377,6 @@ begin
   If cbbMap3.ItemIndex=-1 then cbbMap3.ItemIndex := cbbMap.ItemIndex;
   If cbbMap4.ItemIndex=-1 then cbbMap4.ItemIndex := cbbMap.ItemIndex;
   If cbbMap5.ItemIndex=-1 then cbbMap5.ItemIndex := cbbMap.ItemIndex;
-
-  cbbHyb2.Items := cbbHyb.Items;
-  cbbHyb3.Items := cbbHyb.Items;
-  cbbHyb4.Items := cbbHyb.Items;
-  cbbHyb5.Items := cbbHyb.Items;
-
-  If cbbHyb2.ItemIndex=-1 then cbbHyb2.ItemIndex := cbbHyb.ItemIndex;
-  If cbbHyb3.ItemIndex=-1 then cbbHyb3.ItemIndex := cbbHyb.ItemIndex;
-  If cbbHyb4.ItemIndex=-1 then cbbHyb4.ItemIndex := cbbHyb.ItemIndex;
-  If cbbHyb5.ItemIndex=-1 then cbbHyb5.ItemIndex := cbbHyb.ItemIndex;
-
   end;
 
   EMapName.text := cbbMap.text;
@@ -482,15 +405,12 @@ if  ChMap1.Checked then begin
     EJpgQuality.Enabled := true;
     CbbZoom.Enabled := true;
     cbbscale.Enabled := true;
-    chbLayer.Enabled := true;
     ChMap2.Enabled := true;
   end else begin
     cbbMap.Enabled := false;
     EJpgQuality.Enabled := false;
     CbbZoom.Enabled := false;
     cbbscale.Enabled := false;
-    chbLayer.Enabled := false;
-    chbLayer.Checked := false;
     VItemNode := TreeView1.Items[0];
     TreeView1.Items.delete(VItemNode);
 
@@ -520,15 +440,12 @@ if ChMap2.Checked then begin
     EJpgQuality2.Enabled := true;
     CbbZoom2.Enabled := true;
     cbbscale2.Enabled := true;
-    chbLayer2.Enabled := true;
     ChMap3.Enabled := true;
   end else begin
     cbbMap2.Enabled := false;
     EJpgQuality2.Enabled := false;
     CbbZoom2.Enabled := false;
     cbbscale2.Enabled := false;
-    chbLayer2.Enabled := false;
-    chbLayer2.Checked := false;
     VItemNode := TreeView1.Items[cnt*3];
     TreeView1.Items.delete(VItemNode);
 
@@ -559,16 +476,12 @@ if ChMap3.Checked then begin
     EJpgQuality3.Enabled := true;
     CbbZoom3.Enabled := true;
     cbbscale3.Enabled := true;
-    chbLayer3.Enabled := true;
-    chbLayer3.Checked := false;
     ChMap4.Enabled := true;
   end else begin
     cbbMap3.Enabled := false;
     EJpgQuality3.Enabled := false;
     CbbZoom3.Enabled := false;
     cbbscale3.Enabled := false;
-    chbLayer3.Enabled := false;
-    chbLayer3.Checked := false;
     VItemNode := TreeView1.Items[cnt*3];
     TreeView1.Items.delete(VItemNode);
 
@@ -599,16 +512,12 @@ if ChMap4.Checked then begin
     cbbMap4.Enabled := true;
     EJpgQuality4.Enabled := true;
     CbbZoom4.Enabled := true;
-    cbbscale4.Enabled := true;
-    chbLayer4.Enabled := true;
     ChMap5.Enabled := true;
   end else begin
     cbbMap4.Enabled := false;
     EJpgQuality4.Enabled := false;
     CbbZoom4.Enabled := false;
     cbbscale4.Enabled := false;
-    chbLayer4.Enabled := false;
-    chbLayer4.Checked := false;
     VItemNode := TreeView1.Items[cnt*3];
     TreeView1.Items.delete(VItemNode);
 
@@ -641,14 +550,11 @@ if ChMap5.Checked then begin
     EJpgQuality5.Enabled := true;
     CbbZoom5.Enabled := true;
     cbbscale5.Enabled := true;
-    chbLayer5.Enabled := true;
-    chbLayer5.Checked := false;
   end else begin
     cbbMap5.Enabled := false;
     EJpgQuality5.Enabled := false;
     CbbZoom5.Enabled := false;
     cbbscale5.Enabled := false;
-    chbLayer5.Enabled := false;
     VItemNode := TreeView1.Items[cnt*3];
     TreeView1.Items.delete(VItemNode);
   end;
@@ -776,55 +682,6 @@ begin
   end;
   Result := TMapTypeListStatic.Create(VMaps);
 end;
-
-function TfrExportToJNX.GetLayerList: IMapTypeListStatic;
-var
-  VLayers: array of IMapType;
-  j: integer;
-begin
-  j := 0;
-  if ChMap1.Checked then  begin
-    SetLength(VLayers, j+1);
-    if (chbLayer.Checked) and (cbbHyb.ItemIndex <> -1)then
-      VLayers[j] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbHyb.Items.Objects[cbbHyb.ItemIndex]).Zmp.GUID)
-    else
-      VLayers[j] := nil;
-    inc(j);
-  end;
-  if ChMap2.Checked then  begin
-    SetLength(VLayers, j+1);
-    if (chbLayer2.Checked) and (cbbHyb2.ItemIndex <> -1)then
-      VLayers[j] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbHyb2.Items.Objects[cbbHyb2.ItemIndex]).Zmp.GUID)
-    else
-      VLayers[j] := nil;
-    inc(j);
-  end;
-  if ChMap3.Checked then  begin
-    SetLength(VLayers, j+1);
-    if (chbLayer3.Checked) and (cbbHyb3.ItemIndex <> -1)then
-      VLayers[j] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbHyb3.Items.Objects[cbbHyb3.ItemIndex]).Zmp.GUID)
-    else
-      VLayers[j] := nil;
-    inc(j);
-  end;
-  if ChMap4.Checked then  begin
-    SetLength(VLayers, j+1);
-    if (chbLayer4.Checked) and (cbbHyb4.ItemIndex <> -1)then
-      VLayers[j] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbHyb4.Items.Objects[cbbHyb4.ItemIndex]).Zmp.GUID)
-    else
-      VLayers[j] := nil;
-    inc(j);
-  end;
-  if ChMap5.Checked then  begin
-    SetLength(VLayers, j+1);
-    if (chbLayer5.Checked) and (cbbHyb5.ItemIndex <> -1)then
-      VLayers[j] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbHyb5.Items.Objects[cbbHyb5.ItemIndex]).Zmp.GUID)
-    else
-      VLayers[j] := nil;
-  end;
-  Result := TMapTypeListStatic.Create(VLayers);
-end;
-
 
 function TfrExportToJNX.GetScaleArray: TByteDynArray;
 var

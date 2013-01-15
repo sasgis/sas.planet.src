@@ -9,9 +9,6 @@ object frExportToJNX: TfrExportToJNX
   ShowHint = True
   TabOrder = 0
   Visible = False
-  DesignSize = (
-    451
-    304)
   object pnlTop: TPanel
     Left = 0
     Top = 0
@@ -26,7 +23,7 @@ object frExportToJNX: TfrExportToJNX
       Left = 3
       Top = 3
       Width = 41
-      Height = 13
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
@@ -34,6 +31,7 @@ object frExportToJNX: TfrExportToJNX
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
@@ -65,6 +63,9 @@ object frExportToJNX: TfrExportToJNX
     OnChange = PageControl1Change
     object Map: TTabSheet
       Caption = 'Map'
+      DesignSize = (
+        443
+        249)
       object pnlCenter: TPanel
         Left = 0
         Top = 0
@@ -124,8 +125,8 @@ object frExportToJNX: TfrExportToJNX
             Caption = 'Scale'
           end
           object EJpgQuality: TSpinEdit
-            Left = 145
-            Top = 18
+            Left = 147
+            Top = 19
             Width = 65
             Height = 22
             Anchors = [akTop, akRight]
@@ -135,20 +136,20 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom: TComboBox
-            Left = 1
-            Top = 18
+            Left = 3
+            Top = 19
             Width = 57
             Height = 21
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 1
             OnChange = CbbZoomChange
           end
           object EJpgQuality2: TSpinEdit
-            Left = 145
-            Top = 47
+            Left = 147
+            Top = 48
             Width = 65
             Height = 22
             Anchors = [akTop, akRight]
@@ -159,21 +160,21 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom2: TComboBox
-            Left = 1
-            Top = 45
+            Left = 3
+            Top = 46
             Width = 57
             Height = 21
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 3
             OnChange = CbbZoom2Change
           end
           object EJpgQuality4: TSpinEdit
-            Left = 145
-            Top = 99
+            Left = 147
+            Top = 100
             Width = 65
             Height = 22
             Anchors = [akTop, akRight]
@@ -184,21 +185,21 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom4: TComboBox
-            Left = 0
-            Top = 97
+            Left = 2
+            Top = 98
             Width = 57
             Height = 21
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 5
             OnChange = CbbZoom4Change
           end
           object EJpgQuality5: TSpinEdit
-            Left = 145
-            Top = 125
+            Left = 147
+            Top = 126
             Width = 65
             Height = 22
             Anchors = [akTop, akRight]
@@ -209,21 +210,21 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom5: TComboBox
-            Left = 1
-            Top = 124
+            Left = 3
+            Top = 125
             Width = 57
             Height = 21
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 7
             OnChange = CbbZoom5Change
           end
           object EJpgQuality3: TSpinEdit
-            Left = 145
-            Top = 75
+            Left = 147
+            Top = 76
             Width = 65
             Height = 22
             Anchors = [akTop, akRight]
@@ -234,32 +235,7 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom3: TComboBox
-            Left = 1
-            Top = 74
-            Width = 57
-            Height = 21
-            Align = alCustom
-            Style = csDropDownList
-            Anchors = [akTop, akRight]
-            Enabled = False
-            ItemHeight = 0
-            TabOrder = 9
-            OnChange = CbbZoom3Change
-          end
-          object cbbscale2: TComboBox
-            Left = 75
-            Top = 46
-            Width = 57
-            Height = 21
-            Align = alCustom
-            Style = csDropDownList
-            Anchors = [akTop, akRight]
-            Enabled = False
-            ItemHeight = 0
-            TabOrder = 10
-          end
-          object cbbscale3: TComboBox
-            Left = 75
+            Left = 3
             Top = 75
             Width = 57
             Height = 21
@@ -267,36 +243,61 @@ object frExportToJNX: TfrExportToJNX
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 0
+            ItemHeight = 13
+            TabOrder = 9
+            OnChange = CbbZoom3Change
+          end
+          object cbbscale2: TComboBox
+            Left = 77
+            Top = 47
+            Width = 57
+            Height = 21
+            Align = alCustom
+            Style = csDropDownList
+            Anchors = [akTop, akRight]
+            Enabled = False
+            ItemHeight = 13
+            TabOrder = 10
+          end
+          object cbbscale3: TComboBox
+            Left = 77
+            Top = 76
+            Width = 57
+            Height = 21
+            Align = alCustom
+            Style = csDropDownList
+            Anchors = [akTop, akRight]
+            Enabled = False
+            ItemHeight = 13
             TabOrder = 11
           end
           object cbbscale4: TComboBox
-            Left = 75
-            Top = 98
+            Left = 77
+            Top = 99
             Width = 57
             Height = 21
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 12
           end
           object cbbscale5: TComboBox
-            Left = 75
-            Top = 125
+            Left = 77
+            Top = 126
             Width = 57
             Height = 21
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
             Enabled = False
-            ItemHeight = 0
+            ItemHeight = 13
             TabOrder = 13
           end
           object cbbscale: TComboBox
-            Left = 75
-            Top = 19
+            Left = 77
+            Top = 20
             Width = 57
             Height = 21
             Align = alCustom
@@ -341,147 +342,126 @@ object frExportToJNX: TfrExportToJNX
           end
         end
       end
-    end
-    object Layer: TTabSheet
-      Caption = 'Overlay layer:'
-      ImageIndex = 2
-      DesignSize = (
-        443
-        249)
-      object Label_Map: TLabel
-        AlignWithMargins = True
-        Left = 27
-        Top = 0
-        Width = 20
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alCustom
-        Caption = 'Map'
-      end
-      object PnlLayer: TPanel
-        Left = 226
-        Top = 0
-        Width = 216
-        Height = 242
-        Anchors = [akTop, akRight, akBottom]
+      object MapsPanel: TPanel
+        Left = 3
+        Top = 18
+        Width = 225
+        Height = 231
+        Anchors = [akLeft, akTop, akRight, akBottom]
         BevelOuter = bvNone
-        TabOrder = 0
-        DesignSize = (
-          216
-          242)
-        object Llayer: TLabel
-          Left = 33
-          Top = 1
-          Width = 69
-          Height = 13
-          Anchors = [akTop, akRight]
-          Caption = 'Overlay layer:'
-        end
-        object chbLayer3: TCheckBox
-          Left = 10
-          Top = 72
-          Width = 17
+        TabOrder = 1
+        object ChMap1: TCheckBox
+          Left = 3
+          Top = 5
+          Width = 20
           Height = 17
-          Anchors = [akTop, akRight]
-          Enabled = False
           TabOrder = 0
-          OnClick = chbLayer3Click
+          OnClick = ChMap1Click
         end
-        object chbLayer5: TCheckBox
-          Left = 10
-          Top = 126
-          Width = 17
-          Height = 17
-          Anchors = [akTop, akRight]
-          Enabled = False
+        object cbbMap: TComboBox
+          Left = 23
+          Top = 1
+          Width = 197
+          Height = 21
+          Align = alCustom
+          Style = csDropDownList
+          Anchors = [akLeft, akTop, akRight]
+          DropDownCount = 16
+          ItemHeight = 13
           TabOrder = 1
-          OnClick = chbLayer5Click
+          OnChange = cbbMapChange
         end
-        object cbbHyb5: TComboBox
-          Left = 33
-          Top = 126
-          Width = 180
+        object cbbMap2: TComboBox
+          Left = 23
+          Top = 28
+          Width = 197
           Height = 21
+          Align = alCustom
           Style = csDropDownList
-          Anchors = [akTop, akRight]
+          Anchors = [akLeft, akTop, akRight]
+          DropDownCount = 16
           Enabled = False
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 2
+          OnChange = cbbMap2Change
         end
-        object chbLayer4: TCheckBox
-          Left = 10
-          Top = 99
-          Width = 17
-          Height = 17
-          Anchors = [akTop, akRight]
+        object cbbMap3: TComboBox
+          Left = 23
+          Top = 55
+          Width = 197
+          Height = 21
+          Align = alCustom
+          Style = csDropDownList
+          Anchors = [akLeft, akTop, akRight]
+          DropDownCount = 16
           Enabled = False
+          ItemHeight = 13
           TabOrder = 3
-          OnClick = chbLayer4Click
+          OnChange = cbbMap3Change
         end
-        object chbLayer: TCheckBox
-          Left = 10
-          Top = 20
-          Width = 17
-          Height = 17
-          Anchors = [akTop, akRight]
+        object cbbMap4: TComboBox
+          Left = 23
+          Top = 82
+          Width = 197
+          Height = 21
+          Align = alCustom
+          Style = csDropDownList
+          Anchors = [akLeft, akTop, akRight]
+          DropDownCount = 16
+          Enabled = False
+          ItemHeight = 13
           TabOrder = 4
-          OnClick = chbLayerClick
+          OnChange = cbbMap4Change
         end
-        object chbLayer2: TCheckBox
-          Left = 10
-          Top = 44
-          Width = 17
-          Height = 17
-          Anchors = [akTop, akRight]
+        object cbbMap5: TComboBox
+          Left = 23
+          Top = 109
+          Width = 197
+          Height = 21
+          Align = alCustom
+          Style = csDropDownList
+          Anchors = [akLeft, akTop, akRight]
+          DropDownCount = 16
           Enabled = False
+          ItemHeight = 13
           TabOrder = 5
-          OnClick = chbLayer2Click
+          OnChange = cbbMap5Change
         end
-        object cbbHyb2: TComboBox
-          Left = 33
-          Top = 43
-          Width = 180
-          Height = 21
-          Style = csDropDownList
-          Anchors = [akTop, akRight]
+        object ChMap2: TCheckBox
+          Left = 3
+          Top = 32
+          Width = 20
+          Height = 17
           Enabled = False
-          ItemHeight = 0
           TabOrder = 6
+          OnClick = ChMap2Click
         end
-        object cbbHyb: TComboBox
-          Left = 33
-          Top = 16
-          Width = 180
-          Height = 21
-          Style = csDropDownList
-          Anchors = [akTop, akRight]
+        object ChMap3: TCheckBox
+          Left = 3
+          Top = 57
+          Width = 20
+          Height = 17
           Enabled = False
-          ItemHeight = 0
           TabOrder = 7
+          OnClick = ChMap3Click
         end
-        object cbbHyb4: TComboBox
-          Left = 33
-          Top = 99
-          Width = 180
-          Height = 21
-          Style = csDropDownList
-          Anchors = [akTop, akRight]
+        object ChMap4: TCheckBox
+          Left = 3
+          Top = 84
+          Width = 20
+          Height = 17
           Enabled = False
-          ItemHeight = 0
           TabOrder = 8
+          OnClick = ChMap4Click
         end
-        object cbbHyb3: TComboBox
-          Left = 33
-          Top = 70
-          Width = 180
-          Height = 21
-          Style = csDropDownList
-          Anchors = [akTop, akRight]
+        object ChMap5: TCheckBox
+          Left = 3
+          Top = 111
+          Width = 20
+          Height = 17
           Enabled = False
-          ItemHeight = 0
           TabOrder = 9
+          OnClick = ChMap5Click
         end
       end
     end
@@ -628,128 +608,6 @@ object frExportToJNX: TfrExportToJNX
           TabOrder = 7
         end
       end
-    end
-  end
-  object MapsPanel: TPanel
-    Left = 3
-    Top = 66
-    Width = 225
-    Height = 231
-    Anchors = [akLeft, akTop, akRight, akBottom]
-    BevelOuter = bvNone
-    TabOrder = 2
-    object ChMap1: TCheckBox
-      Left = 3
-      Top = 5
-      Width = 20
-      Height = 17
-      TabOrder = 0
-      OnClick = ChMap1Click
-    end
-    object cbbMap: TComboBox
-      Left = 23
-      Top = 1
-      Width = 197
-      Height = 21
-      Align = alCustom
-      Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
-      DropDownCount = 16
-      ItemHeight = 0
-      TabOrder = 1
-      OnChange = cbbMapChange
-    end
-    object cbbMap2: TComboBox
-      Left = 23
-      Top = 28
-      Width = 197
-      Height = 21
-      Align = alCustom
-      Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
-      DropDownCount = 16
-      Enabled = False
-      ItemHeight = 0
-      TabOrder = 2
-      OnChange = cbbMap2Change
-    end
-    object cbbMap3: TComboBox
-      Left = 23
-      Top = 55
-      Width = 197
-      Height = 21
-      Align = alCustom
-      Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
-      DropDownCount = 16
-      Enabled = False
-      ItemHeight = 0
-      TabOrder = 3
-      OnChange = cbbMap3Change
-    end
-    object cbbMap4: TComboBox
-      Left = 23
-      Top = 82
-      Width = 197
-      Height = 21
-      Align = alCustom
-      Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
-      DropDownCount = 16
-      Enabled = False
-      ItemHeight = 0
-      TabOrder = 4
-      OnChange = cbbMap4Change
-    end
-    object cbbMap5: TComboBox
-      Left = 23
-      Top = 109
-      Width = 197
-      Height = 21
-      Align = alCustom
-      Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
-      DropDownCount = 16
-      Enabled = False
-      ItemHeight = 0
-      TabOrder = 5
-      OnChange = cbbMap5Change
-    end
-    object ChMap2: TCheckBox
-      Left = 3
-      Top = 32
-      Width = 20
-      Height = 17
-      Enabled = False
-      TabOrder = 6
-      OnClick = ChMap2Click
-    end
-    object ChMap3: TCheckBox
-      Left = 3
-      Top = 57
-      Width = 20
-      Height = 17
-      Enabled = False
-      TabOrder = 7
-      OnClick = ChMap3Click
-    end
-    object ChMap4: TCheckBox
-      Left = 3
-      Top = 84
-      Width = 20
-      Height = 17
-      Enabled = False
-      TabOrder = 8
-      OnClick = ChMap4Click
-    end
-    object ChMap5: TCheckBox
-      Left = 3
-      Top = 111
-      Width = 20
-      Height = 17
-      Enabled = False
-      TabOrder = 9
-      OnClick = ChMap5Click
     end
   end
   object dlgSaveTargetFile: TSaveDialog

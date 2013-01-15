@@ -142,7 +142,6 @@ begin
   VProductID := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductID;
   VScaleArr := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ScaleArray;
   VMapList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapList;
-  VLayerList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LayerList;
 
   VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
