@@ -7,7 +7,7 @@ uses
   i_NotifierTileRectUpdate,
   i_Bitmap32Static,
   i_VectorDataItemSimple,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_TileProvider,
   i_TileObjCache,
   u_BaseInterfacedObject;
@@ -15,36 +15,30 @@ uses
 type
   TBitmapTileProviderWithCache = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
-    FSource: IBitmapTileProvider;
+    FSource: IBitmapTileProviderWithNotifier;
     FCache: ITileObjCacheBitmap;
   private
-    function GetGeoConverter: ICoordConverter;
-    function GetTile(
-      const ATile: TPoint;
-      const AZoom: Byte
-    ): IBitmap32Static;
+    function GetProjectionInfo: IProjectionInfo;
+    function GetTile(const ATile: TPoint): IBitmap32Static;
     function GetChangeNotifier: INotifierTileRectUpdate;
   public
     constructor Create(
-      const ASource: IBitmapTileProvider;
+      const ASource: IBitmapTileProviderWithNotifier;
       const ACache: ITileObjCacheBitmap
     );
   end;
 
   TVectorTileProviderWithCache = class(TBaseInterfacedObject, IVectorTileProvider)
   private
-    FSource: IVectorTileProvider;
+    FSource: IVectorTileProviderWithNotifier;
     FCache: ITileObjCacheVector;
   private
-    function GetGeoConverter: ICoordConverter;
-    function GetTile(
-      const ATile: TPoint;
-      const AZoom: Byte
-    ): IVectorDataItemList;
+    function GetProjectionInfo: IProjectionInfo;
+    function GetTile(const ATile: TPoint): IVectorDataItemList;
     function GetChangeNotifier: INotifierTileRectUpdate;
   public
     constructor Create(
-      const ASource: IVectorTileProvider;
+      const ASource: IVectorTileProviderWithNotifier;
       const ACache: ITileObjCacheVector
     );
   end;
@@ -54,7 +48,9 @@ implementation
 { TBitmapTileProviderWithCache }
 
 constructor TBitmapTileProviderWithCache.Create(
-  const ASource: IBitmapTileProvider; const ACache: ITileObjCacheBitmap);
+  const ASource: IBitmapTileProviderWithNotifier;
+  const ACache: ITileObjCacheBitmap
+);
 begin
   Assert(ASource <> nil);
   Assert(ACache <> nil);
@@ -68,21 +64,23 @@ begin
   Result := FSource.ChangeNotifier;
 end;
 
-function TBitmapTileProviderWithCache.GetGeoConverter: ICoordConverter;
+function TBitmapTileProviderWithCache.GetProjectionInfo: IProjectionInfo;
 begin
-  Result := FSource.GeoConverter;
+  Result := FSource.ProjectionInfo;
 end;
 
 function TBitmapTileProviderWithCache.GetTile(
-  const ATile: TPoint;
-  const AZoom: Byte
+  const ATile: TPoint
 ): IBitmap32Static;
+var
+  VZoom: Byte;
 begin
-  Result := FCache.TryLoadTileFromCache(ATile, AZoom);
+  VZoom := FSource.ProjectionInfo.Zoom;
+  Result := FCache.TryLoadTileFromCache(ATile, VZoom);
   if Result = nil then begin
-    Result := FSource.GetTile(ATile, AZoom);
+    Result := FSource.GetTile(ATile);
     if Result <> nil then begin
-      FCache.AddTileToCache(Result, ATile, AZoom);
+      FCache.AddTileToCache(Result, ATile, VZoom);
     end;
   end;
 end;
@@ -90,7 +88,9 @@ end;
 { TVectorTileProviderWithCache }
 
 constructor TVectorTileProviderWithCache.Create(
-  const ASource: IVectorTileProvider; const ACache: ITileObjCacheVector);
+  const ASource: IVectorTileProviderWithNotifier;
+  const ACache: ITileObjCacheVector
+);
 begin
   Assert(ASource <> nil);
   Assert(ACache <> nil);
@@ -104,21 +104,23 @@ begin
   Result := FSource.ChangeNotifier;
 end;
 
-function TVectorTileProviderWithCache.GetGeoConverter: ICoordConverter;
+function TVectorTileProviderWithCache.GetProjectionInfo: IProjectionInfo;
 begin
-  Result := FSource.GeoConverter;
+  Result := FSource.ProjectionInfo;
 end;
 
 function TVectorTileProviderWithCache.GetTile(
-  const ATile: TPoint;
-  const AZoom: Byte
+  const ATile: TPoint
 ): IVectorDataItemList;
+var
+  VZoom: Byte;
 begin
-  Result := FCache.TryLoadTileFromCache(ATile, AZoom);
+  VZoom := FSource.ProjectionInfo.Zoom;
+  Result := FCache.TryLoadTileFromCache(ATile, VZoom);
   if Result = nil then begin
-    Result := FSource.GetTile(ATile, AZoom);
+    Result := FSource.GetTile(ATile);
     if Result <> nil then begin
-      FCache.AddTileToCache(Result, ATile, AZoom);
+      FCache.AddTileToCache(Result, ATile, VZoom);
     end;
   end;
 end;

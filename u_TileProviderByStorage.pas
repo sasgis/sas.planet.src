@@ -11,7 +11,7 @@ uses
   i_MapVersionConfig,
   i_BitmapTileSaveLoad,
   i_VectorDataItemSimple,
-  i_CoordConverter,
+  i_ProjectionInfo,
   i_TileProvider,
   i_VectorDataLoader,
   i_ImageResamplerConfig,
@@ -20,9 +20,9 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapTileProviderByStorage = class(TBaseInterfacedObject, IBitmapTileProvider)
+  TBitmapTileProviderByStorage = class(TBaseInterfacedObject, IBitmapTileProviderWithNotifier)
   private
-    FGeoConverter: ICoordConverter;
+    FProjectionInfo: IProjectionInfo;
     FVersionConfig: IMapVersionConfig;
     FLoaderFromStorage: IBitmapTileLoader;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -30,11 +30,8 @@ type
     FIsIgnoreError: Boolean;
     FImageResamplerConfig: IImageResamplerConfig;
   private
-    function GetGeoConverter: ICoordConverter;
-    function GetTile(
-      const ATile: TPoint;
-      const AZoom: Byte
-    ): IBitmap32Static;
+    function GetProjectionInfo: IProjectionInfo;
+    function GetTile(const ATile: TPoint): IBitmap32Static;
     function GetChangeNotifier: INotifierTileRectUpdate;
   public
     constructor Create(
@@ -43,24 +40,22 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IBitmapTileLoader;
+      const AProjectionInfo: IProjectionInfo;
       const AStorage: ITileStorage
     );
   end;
 
-  TVectorTileProviderByStorage = class(TBaseInterfacedObject, IVectorTileProvider)
+  TVectorTileProviderByStorage = class(TBaseInterfacedObject, IVectorTileProviderWithNotifier)
   private
-    FGeoConverter: ICoordConverter;
+    FProjectionInfo: IProjectionInfo;
     FVersionConfig: IMapVersionConfig;
     FLoaderFromStorage: IVectorDataLoader;
     FStorage: ITileStorage;
     FVectorDataFactory: IVectorDataFactory;
     FIsIgnoreError: Boolean;
   private
-    function GetGeoConverter: ICoordConverter;
-    function GetTile(
-      const ATile: TPoint;
-      const AZoom: Byte
-    ): IVectorDataItemList;
+    function GetProjectionInfo: IProjectionInfo;
+    function GetTile(const ATile: TPoint): IVectorDataItemList;
     function GetChangeNotifier: INotifierTileRectUpdate;
   public
     constructor Create(
@@ -68,6 +63,7 @@ type
       const AVectorDataFactory: IVectorDataFactory;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IVectorDataLoader;
+      const AProjectionInfo: IProjectionInfo;
       const AStorage: ITileStorage
     );
   end;
@@ -88,6 +84,7 @@ constructor TBitmapTileProviderByStorage.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IBitmapTileLoader;
+  const AProjectionInfo: IProjectionInfo;
   const AStorage: ITileStorage
 );
 begin
@@ -95,12 +92,14 @@ begin
   Assert(AVersionConfig <> nil);
   Assert(ALoaderFromStorage <> nil);
   Assert(AStorage <> nil);
+  Assert(AProjectionInfo <> nil);
+  Assert(AStorage.CoordConverter.IsSameConverter(AProjectionInfo.GeoConverter));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FImageResamplerConfig := AImageResamplerConfig;
   FStorage := AStorage;
   FBitmapFactory := ABitmapFactory;
-  FGeoConverter := FStorage.CoordConverter;
+  FProjectionInfo := AProjectionInfo;
   FVersionConfig := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
 end;
@@ -110,29 +109,28 @@ begin
   Result := FStorage.TileNotifier;
 end;
 
-function TBitmapTileProviderByStorage.GetGeoConverter: ICoordConverter;
+function TBitmapTileProviderByStorage.GetProjectionInfo: IProjectionInfo;
 begin
-  Result := FGeoConverter;
+  Result := FProjectionInfo;
 end;
 
-function TBitmapTileProviderByStorage.GetTile(
-  const ATile: TPoint;
-  const AZoom: Byte
-): IBitmap32Static;
+function TBitmapTileProviderByStorage.GetTile(const ATile: TPoint): IBitmap32Static;
 var
   VTileInfo: ITileInfoWithData;
   VRect: TRect;
   VSize: TPoint;
   VBitmap: TBitmap32ByStaticBitmap;
   VResampler: TCustomResampler;
+  VZoom: Byte;
 begin
   Result := nil;
   try
-    if Supports(FStorage.GetTileInfo(ATile, AZoom, FVersionConfig.Version, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+    VZoom := FProjectionInfo.Zoom;
+    if Supports(FStorage.GetTileInfo(ATile, VZoom, FVersionConfig.Version, gtimWithData), ITileInfoWithData, VTileInfo) then begin
       Result := FLoaderFromStorage.Load(VTileInfo.TileData);
     end;
     if Result <> nil then begin
-      VRect := FGeoConverter.TilePos2PixelRect(ATile, AZoom);
+      VRect := FProjectionInfo.GeoConverter.TilePos2PixelRect(ATile, VZoom);
       VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if (Result.Size.X <> VSize.X) or
         (Result.Size.Y <> VSize.Y) then begin
@@ -173,17 +171,20 @@ constructor TVectorTileProviderByStorage.Create(
   const AVectorDataFactory: IVectorDataFactory;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IVectorDataLoader;
+  const AProjectionInfo: IProjectionInfo;
   const AStorage: ITileStorage);
 begin
   Assert(AVectorDataFactory <> nil);
   Assert(AVersionConfig <> nil);
   Assert(ALoaderFromStorage <> nil);
   Assert(AStorage <> nil);
+  Assert(AProjectionInfo <> nil);
+  Assert(AStorage.CoordConverter.IsSameConverter(AProjectionInfo.GeoConverter));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FVectorDataFactory := AVectorDataFactory;
   FStorage := AStorage;
-  FGeoConverter := FStorage.CoordConverter;
+  FProjectionInfo := AProjectionInfo;
   FVersionConfig := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
 end;
@@ -193,21 +194,20 @@ begin
   Result := FStorage.TileNotifier;
 end;
 
-function TVectorTileProviderByStorage.GetGeoConverter: ICoordConverter;
+function TVectorTileProviderByStorage.GetProjectionInfo: IProjectionInfo;
 begin
-  Result := FGeoConverter;
+  Result := FProjectionInfo;
 end;
 
-function TVectorTileProviderByStorage.GetTile(
-  const ATile: TPoint;
-  const AZoom: Byte
-): IVectorDataItemList;
+function TVectorTileProviderByStorage.GetTile(const ATile: TPoint): IVectorDataItemList;
 var
   VTileInfo: ITileInfoWithData;
+  VZoom: Byte;
 begin
   Result := nil;
   try
-    if Supports(FStorage.GetTileInfo(ATile, AZoom, FVersionConfig.Version, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+    VZoom := FProjectionInfo.Zoom;
+    if Supports(FStorage.GetTileInfo(ATile, VZoom, FVersionConfig.Version, gtimWithData), ITileInfoWithData, VTileInfo) then begin
       Result := FLoaderFromStorage.Load(VTileInfo.TileData, nil, FVectorDataFactory);
     end;
   except
