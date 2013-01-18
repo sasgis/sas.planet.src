@@ -95,6 +95,10 @@ type
       const AOldMarkList: IInterfaceList;
       const ANewMarkList: IInterfaceList
     ): IInterfaceList;
+    function ImportMarksList(
+      const ANewMarkList: IInterfaceList;
+      const AMarksImportOptions: TMarksImportOptions
+    ): IInterfaceList;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
     procedure SetMarkVisibleByID(
@@ -111,8 +115,8 @@ type
     function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(const AMark: IMark): Boolean; overload;
     function GetFactory: IMarkFactory;
-    function GetAllMarskIdList: IInterfaceList;
-    function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
+    function GetAllMarksIdList: IInterfaceList;
+    function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
     procedure SetAllMarksInCategoryVisible(
       const ACategory: ICategory;
@@ -905,7 +909,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetAllMarskIdList: IInterfaceList;
+function TMarksDb.GetAllMarksIdList: IInterfaceList;
 var
   VEnumId: IEnumID;
   AId: Integer;
@@ -957,7 +961,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
+function TMarksDb.GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
 var
   VMarkId: IMarkId;
   VCategoryId: Integer;
@@ -976,6 +980,15 @@ begin
       end;
     end;
   end;
+end;
+
+function TMarksDb.ImportMarksList(
+  const ANewMarkList: IInterfaceList;
+  const AMarksImportOptions: TMarksImportOptions
+): IInterfaceList;
+begin
+  // не совсем корректно, но прокатит (вставка меток как раньше)
+  Result := UpdateMarksList(nil, ANewMarkList);
 end;
 
 procedure TMarksDb.InitEmptyDS(ACdsMarks: TClientDataSet);
