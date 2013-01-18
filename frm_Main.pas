@@ -1059,7 +1059,6 @@ begin
       GState.VectorItemsFactory,
       GState.ArchiveReadWriteFactory,
       GState.ValueToStringConverterConfig,
-      FFormRegionProcess
     );
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
   InitLayers;

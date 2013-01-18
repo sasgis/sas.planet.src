@@ -43,7 +43,6 @@ uses
   frm_MarkEditPoint,
   frm_MarkEditPath,
   frm_MarkEditPoly,
-  frm_RegionProcess,
   frm_MarkInfo,
   frm_ImportConfigEdit,
   frm_MarksMultiEdit;
@@ -55,7 +54,6 @@ type
     FVectorItemsFactory: IVectorItemsFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
-    FFormRegionProcess: TfrmRegionProcess;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
     FfrmMarkEditPath: TfrmMarkEditPath;
     FfrmMarkEditPoly: TfrmMarkEditPoly;
@@ -83,10 +81,6 @@ type
       const AMark: IMark;
       const AProjection: IProjectionInfo
     ): ILonLatPolygon;
-    function OperationMark(
-      const AMark: IMark;
-      const AProjection: IProjectionInfo
-    ): boolean;
     function AddKategory(const Name: string): IMarkCategory;
     procedure ShowMarkInfo(
       const AMark: IMark
@@ -136,8 +130,7 @@ type
       const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
-      AFormRegionProcess: TfrmRegionProcess
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
     destructor Destroy; override;
   end;
@@ -165,8 +158,7 @@ constructor TMarksDbGUIHelper.Create(
   const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
-  AFormRegionProcess: TfrmRegionProcess
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create;
@@ -174,7 +166,6 @@ begin
   FVectorItemsFactory := AVectorItemsFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
-  FFormRegionProcess := AFormRegionProcess;
   FfrmMarkEditPoint :=
     TfrmMarkEditPoint.Create(
       ALanguageManager,
@@ -559,65 +550,6 @@ begin
             VRadius
           );
         end;
-      end;
-    end;
-  end;
-end;
-
-function TMarksDbGUIHelper.OperationMark(
-  const AMark: IMark;
-  const AProjection: IProjectionInfo
-): boolean;
-var
-  VMarkPoly: IMarkPoly;
-  VMarkLine: IMarkLine;
-  VRadius: double;
-  VDefRadius: String;
-  VPolygon: ILonLatPolygon;
-  VMarkPoint: IMarkPoint;  
-  VFilter: ILonLatPointFilter;
-begin
-  Result := false;
-  if Supports(AMark, IMarkPoly, VMarkPoly) then begin
-    FFormRegionProcess.Show_(AProjection.Zoom, VMarkPoly.Line);
-    Result := true;
-  end else begin
-    if Supports(AMark, IMarkLine, VMarkLine) then begin
-      VDefRadius := '100';
-      if InputQuery('', 'Radius , m', VDefRadius) then begin
-        try
-          VRadius := str2r(VDefRadius);
-        except
-          ShowMessage(SAS_ERR_ParamsInput);
-          Exit;
-        end;
-        VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
-        VPolygon :=
-          FVectorItemsFactory.CreateLonLatPolygonByLonLatPathAndFilter(
-            VMarkLine.Line,
-            VFilter
-          );
-        FFormRegionProcess.Show_(AProjection.Zoom, VPolygon);
-        Result := true;
-      end;
-    end else begin
-      if Supports(AMark, IMarkPoint, VMarkPoint) then begin
-         VDefRadius := '100';
-         if InputQuery('', 'Radius , m', VDefRadius) then begin
-          try
-            VRadius := str2r(VDefRadius);
-          except
-            ShowMessage(SAS_ERR_ParamsInput);
-            Exit;
-          end;
-          VPolygon :=
-            FVectorItemsFactory.CreateLonLatPolygonCircleByPoint(
-              AProjection,
-              VMarkPoint.GetPoint,
-              VRadius
-            );
-          FFormRegionProcess.Show_(AProjection.Zoom, VPolygon);
-         end;
       end;
     end;
   end;
