@@ -254,7 +254,7 @@ procedure TMarksSystem.DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 var
   VMarkIdList: IInterfaceList;
 begin
-  VMarkIdList := FMarksDb.GetMarskIdListByCategory(ACategory);
+  VMarkIdList := FMarksDb.GetMarksIdListByCategory(ACategory);
   FMarksDb.UpdateMarksList(VMarkIdList, nil);
   FCategoryDB.UpdateCategory(ACategory, nil);
 end;

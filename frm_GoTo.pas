@@ -257,7 +257,7 @@ end;
 procedure TfrmGoTo.cbbAllMarksDropDown(Sender: TObject);
 begin
   if cbbAllMarks.Items.Count=0 then begin
-    FMarksList := FMarksDb.GetAllMarskIdList;
+    FMarksList := FMarksDb.GetAllMarksIdList;
     MarksListToStrings(FMarksList, cbbAllMarks.Items);
   end;
 end;

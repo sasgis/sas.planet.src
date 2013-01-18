@@ -44,8 +44,8 @@ type
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
 
-    function GetAllMarskIdList: IInterfaceList;
-    function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
+    function GetAllMarksIdList: IInterfaceList;
+    function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
     procedure SetMarkVisibleByID(
       const AMark: IMarkId;

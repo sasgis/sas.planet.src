@@ -111,8 +111,8 @@ type
     function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
     function GetMarkVisible(const AMark: IMark): Boolean; overload;
     function GetFactory: IMarkFactory;
-    function GetAllMarskIdList: IInterfaceList;
-    function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
+    function GetAllMarksIdList: IInterfaceList;
+    function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
     procedure SetAllMarksInCategoryVisible(
       const ACategory: ICategory;
@@ -905,7 +905,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetAllMarskIdList: IInterfaceList;
+function TMarksDb.GetAllMarksIdList: IInterfaceList;
 var
   VEnumId: IEnumID;
   AId: Integer;
@@ -957,7 +957,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
+function TMarksDb.GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
 var
   VMarkId: IMarkId;
   VCategoryId: Integer;
