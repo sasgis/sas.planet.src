@@ -407,7 +407,7 @@ begin
   FBaseCahcePath := TPathConfig.Create('PrimaryPath', VProgramPath, nil);
   FMapsPath := TPathConfig.Create('PrimaryPath', '.\Maps', FBaseConfigPath);
   FTrackPath := TPathConfig.Create('PrimaryPath', '.\TrackLog', FBaseDataPath);
-  FMarksDbPath := TPathConfig.Create('PrimaryPath', '.', FBaseDataPath);
+  FMarksDbPath := TPathConfig.Create('PrimaryPath', '.\MarksSQLite', FBaseDataPath);
   FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
   FTerrainDataPath := TPathConfig.Create('PrimaryPath', '.\TerrainData', FBaseDataPath);
