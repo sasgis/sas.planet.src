@@ -33,7 +33,7 @@ uses
 
 type
   TMarkFullBase = class(TMarkId, IVectorDataItemSimple, IMark)
-  private
+  protected
     FHintConverter: IHtmlToHintTextConverter;
     FDesc: string;
   protected

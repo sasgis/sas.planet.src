@@ -40,11 +40,12 @@ type
     FLineColor: TColor32;
     FLineWidth: Integer;
   protected
-    function GetMarkType: TGUID; override;
+    function GetMarkType: TMarkType; override;
   protected
     function GetLLRect: ILonLatRect; override;
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IMark): Boolean; override;
+    function CloneWithNewId(const ANewId: Integer): IInterface; override;
   private
     function GetLine: ILonLatPath;
     function GetLineColor: TColor32;
@@ -69,6 +70,24 @@ uses
   SysUtils;
 
 { TMarkFull }
+
+function TMarkLine.CloneWithNewId(const ANewId: Integer): IInterface;
+begin
+  if (ANewId=Self.GetId) then
+    Result := Self
+  else
+    Result := TMarkLine.Create(
+      Self.FHintConverter,
+      Self.GetName,
+      ANewId,
+      Self.GetVisible,
+      Self.GetCategory,
+      Self.FDesc,
+      Self.FLine,
+      Self.FLineColor,
+      Self.FLineWidth
+    );
+end;
 
 constructor TMarkLine.Create(
   const AHintConverter: IHtmlToHintTextConverter;
@@ -103,9 +122,9 @@ begin
   Result := FLine.Bounds;
 end;
 
-function TMarkLine.GetMarkType: TGUID;
+function TMarkLine.GetMarkType: TMarkType;
 begin
-  Result := IMarkLine;
+  Result := mt_Polyline;
 end;
 
 function TMarkLine.IsEqual(const AMark: IMark): Boolean;

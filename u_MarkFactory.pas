@@ -168,7 +168,8 @@ type
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
-      AScale2: Integer
+      AScale2: Integer;
+      const ANewMarkType: TMarkType = mt_Unknown
     ): IMark;
   public
     constructor Create(
@@ -464,15 +465,76 @@ function TMarkFactory.CreateMark(
   const APoints: PDoublePointArray;
   APointCount: Integer;
   AColor1, AColor2: TColor32;
-  AScale1, AScale2: Integer
+  AScale1, AScale2: Integer;
+  const ANewMarkType: TMarkType
 ): IMark;
 var
   VPolygon: ILonLatPolygon;
   VPath: ILonLatPath;
 begin
   Result := nil;
+
+  // прямо сказано, какой тип метки
+  case ANewMarkType of
+    mt_Point: begin
+      Result := CreatePoint(
+        AId,
+        AName,
+        AVisible,
+        APicName,
+        nil,
+        ACategoryId,
+        nil,
+        ADesc,
+        APoints[0],
+        AColor1,
+        AColor2,
+        AScale1,
+        AScale2
+      );
+      Exit;
+    end;
+    mt_Polyline: begin
+      VPath := FFactory.CreateLonLatPath(APoints, APointCount);
+      if VPath.Count <> 0 then begin
+        Result := CreateLine(
+          AId,
+          AName,
+          AVisible,
+          ACategoryId,
+          nil,
+          ADesc,
+          VPath,
+          AColor1,
+          AScale1
+        );
+      end;
+      Exit;
+    end;
+    mt_Polygon: begin
+      VPolygon := FFactory.CreateLonLatPolygon(APoints, APointCount);
+      if VPolygon.Count <> 0 then begin
+        Result := CreatePoly(
+          AId,
+          AName,
+          AVisible,
+          ACategoryId,
+          nil,
+          ADesc,
+          VPolygon,
+          AColor1,
+          AColor2,
+          AScale1
+        );
+      end;
+      Exit;
+    end;
+  end;
+
+  // определяем тип метки по координатам
   if APointCount > 0 then begin
     if APointCount = 1 then begin
+      // создаём точку
       if not PointIsEmpty(APoints[0]) then begin
         Result :=
           CreatePoint(

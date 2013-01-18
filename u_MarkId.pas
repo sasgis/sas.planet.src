@@ -41,7 +41,7 @@ type
   protected
     function GetStringID: string;
     function GetName: string;
-    function GetMarkType: TGUID; virtual; abstract;
+    function GetMarkType: TMarkType; virtual;
   protected
     function GetId: Integer;
     function GetCategory: ICategory;
@@ -49,6 +49,7 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     function IsSameId(const AMarkId: IMarkId): Boolean;
+    function CloneWithNewId(const ANewId: Integer): IInterface; virtual; abstract;
   public
     constructor Create(
       const AName: string;
@@ -101,6 +102,11 @@ end;
 function TMarkId.GetId: Integer;
 begin
   Result := FId;
+end;
+
+function TMarkId.GetMarkType: TMarkType;
+begin
+  Result := mt_Unknown;
 end;
 
 function TMarkId.GetName: string;
