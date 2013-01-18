@@ -32,6 +32,7 @@ uses
   i_VectorItemsFactory,
   i_InternalPerformanceCounter,
   i_ReadWriteState,
+  i_Listener,
   i_MarksSimple,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
@@ -53,13 +54,24 @@ type
     FBasePath: IPathConfig;
     FMarksFactoryConfig: IMarksFactoryConfig;
     FState: IReadWriteStateChangeble;
-
+    FCategoryFactoryConfig: IMarkCategoryFactoryConfig;
+    FFactoryConfigListener: IListener;
+    FLanguageManager: ILanguageManager;
+    FMarkPictureList: IMarkPictureList;
+    FVectorItemsFactory: IVectorItemsFactory;
+    FPerfCounterList: IInternalPerformanceCounterList;
+    FHintConverter: IHtmlToHintTextConverter;
+    FDBFilename: String;
     FMarksDb: IMarksDb;
     FMarksDbInternal: IMarksDbSmlInternal;
     FCategoryDB: IMarkCategoryDB;
     FCategoryDBInternal: IMarkCategoryDBSmlInternal;
     FCategoryTreeBuilder: IStaticTreeBuilder;
     FMarksSubsetTreeBuilder: IStaticTreeBuilder;
+  private
+    procedure InternalCloseMarksDBs;
+    procedure InternalOpenMarksDBs(const ADBFileName: String);
+    procedure OnFactoryConfigChange;
   private
     function GetState: IReadWriteStateChangeble;
     function GetMarksDb: IMarksDb;
@@ -96,8 +108,11 @@ implementation
 uses
   SysUtils,
   ActiveX,
+  SQLite3Handler,
   u_StaticTreeBuilderBase,
   u_ReadWriteStateInternal,
+  u_ListenerByEvent,
+  u_MarksSQLDb,
   u_MarksDb,
   u_MarkCategoryDB,
   u_MarksFactoryConfig;
@@ -199,47 +214,44 @@ constructor TMarksSystem.Create(
   const AHintConverter: IHtmlToHintTextConverter;
   const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
-var
-  VCategoryDb: TMarkCategoryDB;
-  VMarksDb: TMarksDb;
-  VState: TReadWriteStateInternal;
 begin
   inherited Create;
   FBasePath := ABasePath;
-  VState := TReadWriteStateInternal.Create;
-  FState := VState;
-  VCategoryDb := TMarkCategoryDB.Create(VState, FBasePath, ACategoryFactoryConfig);
-  FCategoryDB := VCategoryDb;
-  FCategoryDBInternal := VCategoryDb;
-  FMarksFactoryConfig :=
-    TMarksFactoryConfig.Create(
-      ALanguageManager,
-      FCategoryDBInternal,
-      AMarkPictureList
-    );
-  VMarksDb :=
-    TMarksDb.Create(
-      VState,
-      ABasePath,
-      FCategoryDBInternal,
-      APerfCounterList.CreateAndAddNewSubList('MarksDb'),
-      AVectorItemsFactory,
-      AHintConverter,
-      FMarksFactoryConfig
-    );
-  FMarksDb := VMarksDb;
-  FMarksDbInternal := VMarksDb;
+  FDBFilename := '';
+  
+  FCategoryFactoryConfig := ACategoryFactoryConfig;
+  FFactoryConfigListener := TNotifyNoMmgEventListener.Create(Self.OnFactoryConfigChange);
+  FCategoryFactoryConfig.ChangeNotifier.Add(FFactoryConfigListener);
+
+  FLanguageManager := ALanguageManager;
+  FMarkPictureList := AMarkPictureList;
+  FVectorItemsFactory := AVectorItemsFactory;
+  FPerfCounterList := APerfCounterList;
+  FHintConverter := AHintConverter;
+  
+  InternalOpenMarksDBs('');
+
   FCategoryTreeBuilder := TStaticTreeByCategoryListBuilder.Create('\', '');
   FMarksSubsetTreeBuilder := TStaticTreeByMarksSubsetBuilder.Create('\', '');
 end;
 
 destructor TMarksSystem.Destroy;
 begin
-  FMarksDb := nil;
-  FMarksDbInternal := nil;
-  FCategoryDB := nil;
-  FCategoryDBInternal := nil;
-  FMarksFactoryConfig := nil;
+  InternalCloseMarksDBs;
+
+  FHintConverter := nil;
+  FPerfCounterList := nil;
+  FVectorItemsFactory := nil;
+  FMarkPictureList := nil;
+  FLanguageManager := nil;
+
+  if (FFactoryConfigListener <> nil) then begin
+    FCategoryFactoryConfig.ChangeNotifier.Remove(FFactoryConfigListener);
+    FFactoryConfigListener := nil;
+  end;
+
+  FCategoryFactoryConfig := nil;
+
   inherited;
 end;
 
@@ -253,10 +265,18 @@ end;
 procedure TMarksSystem.DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 var
   VMarkIdList: IInterfaceList;
+  VCategoryDB: IMarkCategoryDB;
 begin
-  VMarkIdList := FMarksDb.GetMarskIdListByCategory(ACategory);
-  FMarksDb.UpdateMarksList(VMarkIdList, nil);
-  FCategoryDB.UpdateCategory(ACategory, nil);
+  // если БД категорий и БД меток - это один объект, то зовём его сразу,
+  // а внутри он сам знает, удаляются каскадно метки в категории, или нет
+  if Supports(FMarksDb, IMarkCategoryDB, VCategoryDB) and (VCategoryDB=FCategoryDB) then begin
+    FCategoryDB.UpdateCategory(ACategory, nil);
+  end else begin
+    // БД категорий и меток разные - нет выхода
+    VMarkIdList := FMarksDb.GetMarksIdListByCategory(ACategory);
+    FMarksDb.UpdateMarksList(VMarkIdList, nil);
+    FCategoryDB.UpdateCategory(ACategory, nil);
+  end;
 end;
 
 function TMarksSystem.GetCategoryDB: IMarkCategoryDB;
@@ -327,11 +347,159 @@ begin
   end;
 end;
 
+procedure TMarksSystem.InternalCloseMarksDBs;
+begin
+  FMarksDb := nil;
+  FMarksDbInternal := nil;
+  FCategoryDB := nil;
+  FCategoryDBInternal := nil;
+  FMarksFactoryConfig := nil;
+  FState := nil;
+end;
+
+procedure TMarksSystem.InternalOpenMarksDBs(const ADBFileName: String);
+var
+  VCategoryDb: TMarkCategoryDB;
+  VMarksDb: TMarksDb;
+  VState: TReadWriteStateInternal;
+  VMarksSQLDb: TMarksSQLDb;
+begin
+  VState := TReadWriteStateInternal.Create;
+  FState := VState;
+
+  // имя файла БД
+  FDBFilename := ADBFileName;
+  if SameText(ExtractFileExt(FDBFilename), c_SQLite_Ext) then begin
+    // метки в БД SQLite3
+    VMarksSQLDb := TMarksSQLDb.Create(
+      VState,
+      FBasePath,
+      FDBFilename,
+      FLanguageManager,
+      FMarkPictureList,
+      FPerfCounterList.CreateAndAddNewSubList('MarksSQLite'),
+      FVectorItemsFactory,
+      FHintConverter,
+      FCategoryFactoryConfig
+    );
+
+    FCategoryDB := VMarksSQLDb;
+    FCategoryDBInternal := VMarksSQLDb;
+
+    FMarksFactoryConfig := VMarksSQLDb.MarksFactoryConfig;
+
+    FMarksDb := VMarksSQLDb;
+    FMarksDbInternal := VMarksSQLDb;
+  end else begin
+    // метки по умолчанию в паре файлов SML
+    VCategoryDb := TMarkCategoryDB.Create(VState, FBasePath, FCategoryFactoryConfig);
+    FCategoryDB := VCategoryDb;
+    FCategoryDBInternal := VCategoryDb;
+
+    FMarksFactoryConfig :=
+      TMarksFactoryConfig.Create(
+        FLanguageManager,
+        FCategoryDBInternal,
+        FMarkPictureList
+      );
+
+    VMarksDb :=
+      TMarksDb.Create(
+        VState,
+        FBasePath,
+        FCategoryDBInternal,
+        FPerfCounterList.CreateAndAddNewSubList('MarksDb'),
+        FVectorItemsFactory,
+        FHintConverter,
+        FMarksFactoryConfig
+      );
+    FMarksDb := VMarksDb;
+    FMarksDbInternal := VMarksDb;
+  end;
+end;
+
 function TMarksSystem.MarksSubsetToStaticTree(
   const ASubset: IMarksSubset
 ): IStaticTreeItem;
 begin
   Result := FMarksSubsetTreeBuilder.BuildStatic(ASubset);
+end;
+
+procedure TMarksSystem.OnFactoryConfigChange;
+var
+  VDBFileName: String;
+  VCopyMarks: Boolean;
+  // ссылки, чтобы реализовать жизнь после смерти
+  VMarksDb: IMarksDb;
+  VMarksDbInternal: IMarksDbSmlInternal;
+  VCategoryDB: IMarkCategoryDB;
+  VCategoryDBInternal: IMarkCategoryDBSmlInternal;
+  VMarksFactoryConfig: IMarksFactoryConfig;
+  VState: IReadWriteStateChangeble;
+  // данные
+  VOldCategoryList: IInterfaceList;
+  VOldMarksList: IInterfaceList;
+begin
+  // настройка имени файла БД
+  VDBFileName := FCategoryFactoryConfig.DBFileName;
+  // тупенько, просто и без лишних полей в ini-шке
+  // импорт из старой БД запускаем, если в начале символ потокового копирования
+  VCopyMarks := (0<Length(VDBFileName)) and (VDBFileName[1]='>');
+  if VCopyMarks then begin
+    System.Delete(VDBFileName,1,1);
+  end;
+
+  if (nil=FCategoryDB) then begin
+    // если по какой-то причине БД меток не открыта - всегда её (пере)открываем
+    // обычно сюда не должно попадать - так что подчищаем все хвосты
+    InternalCloseMarksDBs;
+    InternalOpenMarksDBs(VDBFileName);
+    Exit;
+  end;
+
+  // БД меток уже открыта
+
+  // если то же самое имя файла - ничего не делаем совсем
+  if SameText(FDBFilename,VDBFileName) then
+    Exit;
+
+  // тут будем, если требуется закрыть старую БД и открыть новую другую БД
+  if (not VCopyMarks) then begin
+    // однако импорт старья не разрешён
+    InternalCloseMarksDBs;
+    InternalOpenMarksDBs(VDBFileName);
+    Exit;
+  end;
+
+  // а тут окажемся, если надо импортировать данные из старой БД
+
+  // сохраним все ссылки локально
+  VMarksDb := FMarksDb;
+  VMarksDbInternal := FMarksDbInternal;
+  VCategoryDB := FCategoryDB;
+  VCategoryDBInternal := FCategoryDBInternal;
+  VMarksFactoryConfig := FMarksFactoryConfig;
+  VState := FState;
+
+  // читаем все категории и метки
+  VCategoryDBInternal.LoadCategoriesFromFile;
+  VOldCategoryList := VCategoryDB.GetCategoriesList;
+  VMarksDbInternal.LoadMarksFromFile;
+  VOldMarksList := VMarksDb.GetAllMarksIdList;
+
+  // переключаем БД меток на новое хранилище
+  InternalCloseMarksDBs;
+  InternalOpenMarksDBs(VDBFileName);
+
+  // импортируем все категории в новое хранилище
+  FCategoryDB.ImportCategoriesList(VOldCategoryList);
+
+  // импортируем все метки в новое хранилище
+  FMarksDb.ImportMarksList(VOldMarksList, []);
+
+  // успешно импортировались - умирают локальные интерфейсы
+  // заодно попробуем предотвратить ошибку повторного импорта
+  FCategoryFactoryConfig.DBFileName := VDBFileName;
 end;
 
 procedure TMarksSystem.ReadConfig(const AConfigData: IConfigDataProvider);
