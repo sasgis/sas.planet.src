@@ -40,11 +40,6 @@ type
     procedure StartNotify;
   end;
 
-  IExtConfigDataElement = interface(IConfigDataElement)
-    ['{FFFEE855-6BD5-4207-A76D-294F26E6E32F}']
-    procedure SetChanged;
-  end;
-  
 implementation
 
 end.

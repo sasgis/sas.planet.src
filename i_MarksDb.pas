@@ -41,15 +41,11 @@ type
       const AOldMarkList: IInterfaceList;
       const ANewMarkList: IInterfaceList
     ): IInterfaceList;
-    function ImportMarksList(
-      const ANewMarkList: IInterfaceList;
-      const AMarksImportOptions: TMarksImportOptions
-    ): IInterfaceList;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
 
-    function GetAllMarksIdList: IInterfaceList;
-    function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
+    function GetAllMarskIdList: IInterfaceList;
+    function GetMarskIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
     procedure SetMarkVisibleByID(
       const AMark: IMarkId;

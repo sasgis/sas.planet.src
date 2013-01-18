@@ -38,7 +38,7 @@ type
         Right, Bottom: Double);
       1: (TopLeft, BottomRight: TDoublePoint);
   end;
-  PDoubleRect = ^TDoubleRect;
+
 
   PPointArray = ^TPointArray;
   TPointArray = array [0..0] of TPoint;

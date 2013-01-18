@@ -45,12 +45,11 @@ type
     FFontSize: Integer;
     FMarkerSize: Integer;
   protected
-    function GetMarkType: TMarkType; override;
+    function GetMarkType: TGUID; override;
   protected
     function GetLLRect: ILonLatRect; override;
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IMark): Boolean; override;
-    function CloneWithNewId(const ANewId: Integer): IInterface; override;
   private
     function GetPoint: TDoublePoint;
     function GetTextColor: TColor32;
@@ -84,28 +83,6 @@ uses
   u_LonLatRectByPoint;
 
 { TMarkPoint }
-
-function TMarkPoint.CloneWithNewId(const ANewId: Integer): IInterface;
-begin
-  if (ANewId=Self.GetId) then
-    Result := Self
-  else
-    Result := TMarkPoint.Create(
-      Self.FHintConverter,
-      Self.GetName,
-      ANewId,
-      Self.GetVisible,
-      Self.FPicName,
-      Self.FPic,
-      Self.GetCategory,
-      Self.FDesc,
-      Self.GetPoint,
-      Self.FTextColor,
-      Self.FTextBgColor,
-      Self.FFontSize,
-      Self.FMarkerSize
-    );
-end;
 
 constructor TMarkPoint.Create(
   const AHintConverter: IHtmlToHintTextConverter;
@@ -219,9 +196,9 @@ begin
   Result := FMarkerSize;
 end;
 
-function TMarkPoint.GetMarkType: TMarkType;
+function TMarkPoint.GetMarkType: TGUID;
 begin
-  Result := mt_Point;
+  Result := IMarkPoint;
 end;
 
 end.

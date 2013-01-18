@@ -727,7 +727,6 @@
     <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="t_MapAttachments.pas" />
-    <DCCReference Include="t_MarksSQLDb.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapSingleSet.pas" />
@@ -997,7 +996,6 @@
     <DCCReference Include="u_MarkCategoryDB.pas" />
     <DCCReference Include="u_MarkCategoryFactory.pas" />
     <DCCReference Include="u_MarkCategoryFactoryConfig.pas" />
-    <DCCReference Include="u_MarkCategoryList.pas" />
     <DCCReference Include="u_MarkerDrawableByBitmap32Static.pas" />
     <DCCReference Include="u_MarkerDrawableByBitmapMarker.pas" />
     <DCCReference Include="u_MarkerDrawableCenterScale.pas" />
@@ -1039,7 +1037,6 @@
     <DCCReference Include="u_MarksFactoryConfig.pas" />
     <DCCReference Include="u_MarksImportBase.pas" />
     <DCCReference Include="u_MarksLayerConfig.pas" />
-    <DCCReference Include="u_MarksSQLDb.pas" />
     <DCCReference Include="u_MarksSubset.pas" />
     <DCCReference Include="u_MarksSystem.pas" />
     <DCCReference Include="u_MarkTemplateConfigBase.pas" />

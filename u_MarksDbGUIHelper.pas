@@ -475,17 +475,16 @@ begin
   if VName = '' then begin
     VName := '(NoName)';
   end;
-  case AMarkId.MarkType of
-  mt_Point:
+  if IsEqualGUID(AMarkId.MarkType, IMarkPoint) then begin
     VFormat := VPointCaptionFormat;
-  mt_Polyline:
+  end else if IsEqualGUID(AMarkId.MarkType, IMarkLine) then begin
     VFormat := VPathCaptionFormat;
-  mt_Polygon:
+  end else if IsEqualGUID(AMarkId.MarkType, IMarkPoly) then begin
     VFormat := VPolygonCaptionFormat;
-  else
+  end else begin
     VFormat := '%0:s';
   end;
-  Result := Format(VFormat, [VName]);
+  Result := Format(VFormat, [AMarkId.Name]);
 end;
 
 function TMarksDbGUIHelper.MarksMultiEditModal(const ACategory: ICategory): IImportConfig;

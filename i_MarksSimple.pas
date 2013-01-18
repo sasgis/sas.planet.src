@@ -32,9 +32,6 @@ uses
   i_MarkPicture;
 
 type
-  // for simple loops and cases
-  TMarkType = (mt_Unknown, mt_Point, mt_Polyline, mt_Polygon);
-
   IMarkId = interface
     ['{A3FE0170-8D32-4777-A3EA-53D678875B7B}']
     function GetStringID: string;
@@ -46,8 +43,8 @@ type
     function GetName: string;
     property Name: string read GetName;
 
-    function GetMarkType: TMarkType;
-    property MarkType: TMarkType read GetMarkType;
+    function GetMarkType: TGUID;
+    property MarkType: TGUID read GetMarkType;
   end;
 
   IMark = interface(IVectorDataItemSimple)
@@ -119,12 +116,6 @@ type
     function IsEmpty: Boolean;
   end;
 
-  // возможные опции процедуры импорта меток
-  TMarksImportOption = (
-    mio_DontCreateIfNameExists
-  );
-  TMarksImportOptions = set of TMarksImportOption;
-  
 implementation
 
 end.

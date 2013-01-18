@@ -377,7 +377,7 @@ begin
   FMarksList := nil;
   VCategory := GetSelectedCategory;
   if (VCategory <> nil) then begin
-    FMarksList := FMarkDBGUI.MarksDb.MarksDb.GetMarksIdListByCategory(VCategory);
+    FMarksList := FMarkDBGUI.MarksDb.MarksDb.GetMarskIdListByCategory(VCategory);
     VSortedMarksList := TStringList.Create;
     try
       VSortedMarksList.Sorted := True;

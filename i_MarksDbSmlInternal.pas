@@ -37,8 +37,6 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     property Visible: Boolean read GetVisible write SetVisible;
-
-    function CloneWithNewId(const ANewId: Integer): IInterface;
   end;
 
   IMarkPointSMLInternal = interface(IMarkSMLInternal)

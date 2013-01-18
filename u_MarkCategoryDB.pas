@@ -63,9 +63,6 @@ type
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
-    function ImportCategoriesList(
-      const ACategoriesList: IInterfaceList
-    ): IInterfaceList;
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
@@ -228,13 +225,6 @@ begin
   finally
     UnlockWrite;
   end;
-end;
-
-function TMarkCategoryDB.ImportCategoriesList(const ACategoriesList: IInterfaceList): IInterfaceList;
-begin
-  // не используется
-  Assert(FALSE);
-  Result := nil;
 end;
 
 procedure TMarkCategoryDB.InitEmptyDS;
