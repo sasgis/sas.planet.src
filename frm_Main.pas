@@ -4367,10 +4367,12 @@ end;
 procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IMark;
+  Vpolygon: ILonLatPolygon;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    FMarkDBGUI.OperationMark(VMark, FConfig.ViewPortState.View.GetStatic.ProjectionInfo);
+    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark, FConfig.ViewPortState.View.GetStatic.ProjectionInfo);
+    if Vpolygon <> nil then FFormRegionProcess.Show_(FConfig.ViewPortState.View.GetStatic.ProjectionInfo.Zoom, Vpolygon);
   end;
 end;
 
