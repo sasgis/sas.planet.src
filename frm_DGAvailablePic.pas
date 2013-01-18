@@ -96,6 +96,7 @@ type
     Up: TPanel;
     chkGeoFuse: TCheckBox;
     chkMNCasColorOnly: TCheckBox;
+    chkSkipExistingPolygons: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -696,6 +697,7 @@ var
   VPolygon: ILonLatPolygon;
   VMark: IMark;
   VAllNewMarks: IInterfaceList;
+  VMarksImportOptions: TMarksImportOptions;
 begin
   if (nil=FMarkDBGUI) then
     Exit;
@@ -877,8 +879,12 @@ begin
 
   if Assigned(VAllNewMarks) then
   if (nil<>VImportConfig) then
-  if (nil<>VImportConfig.MarkDB) then
-    VImportConfig.MarkDB.UpdateMarksList(nil, VAllNewMarks);
+  if (nil<>VImportConfig.MarkDB) then begin
+    VMarksImportOptions := [];
+    if chkSkipExistingPolygons.Checked then
+      Include(VMarksImportOptions, mio_DontCreateIfNameExists);
+    VImportConfig.MarkDB.ImportMarksList(VAllNewMarks, VMarksImportOptions);
+  end;
 end;
 
 function TfrmDGAvailablePic.GetImageParamsValue(const ACol, ARow: Integer): String;

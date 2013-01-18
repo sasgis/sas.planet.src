@@ -170,6 +170,19 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           TabOrder = 5
           OnClick = chkALLImagesClick
         end
+        object chkSkipExistingPolygons: TCheckBox
+          AlignWithMargins = True
+          Left = 3
+          Top = 163
+          Width = 89
+          Height = 17
+          Align = alBottom
+          Caption = 'Skip existing'
+          Checked = True
+          State = cbChecked
+          TabOrder = 6
+          ExplicitTop = 186
+        end
       end
     end
     object PnlSearch: TGroupBox
