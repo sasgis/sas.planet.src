@@ -1267,7 +1267,8 @@ begin
         FConfig.MarksExplorerWindowConfig,
         FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
         FMarkDBGUI,
-        FMapGoto
+        FMapGoto,
+        FFormRegionProcess
       );
     FfrmMarksExplorer.PopupParent := Self;
 
