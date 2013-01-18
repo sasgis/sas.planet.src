@@ -108,6 +108,9 @@ ResourceString
   SAS_ERR_ETS_UnknownError      = 'Unknown error at external tile storage, see Storage Options for more information';
   SAS_ERR_ETS_ConnectionIsDead  = 'Connection to external tile storage is dead and cannot be reestablished';
 
+  SAS_ERR_MarksSQLite_OldExeVersion  = 'Program is too old to work with Marks DB version %d';
+  SAS_ERR_MarksSQLite_ScriptNotFound = 'Cannot upgrade Marks DB from version %d (file %s not found)';
+
   SAS_ERR_ImageIsTooBig = 'Selected resolution is too big for %s format!'#13#10 +
     'Widht = %d (max = %d)'#13#10 + 'Height = %d (max = %d)'#13#10 +
     'Try select smaller region to stitch in %s or select other output format (ECW is the best).';
