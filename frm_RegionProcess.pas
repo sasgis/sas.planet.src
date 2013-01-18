@@ -67,7 +67,8 @@ uses
   u_ProviderTilesDownload,
   i_MapViewGoto,
   fr_Combine,
-  fr_Export;
+  fr_Export,
+  u_MarksDbGUIHelper;
 
 type
   TfrmRegionProcess = class(TFormWitghLanguageManager)
@@ -85,11 +86,13 @@ type
     TabSheet6: TTabSheet;
     pnlBottomButtons: TPanel;
     SpeedButton_fit: TSpeedButton;
+    SpeedButton_mkMark: TSpeedButton;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SpeedButton_fitClick(Sender: TObject);
+    procedure SpeedButton_mkMarkClick(Sender: TObject);
   private
     FfrExport: TfrExport;
     FfrCombine: TfrCombine;
@@ -102,6 +105,7 @@ type
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TProviderTilesDownload;
     FMapGoto: IMapViewGoto;
+    FMarkDBGUI: TMarksDbGUIHelper;
     procedure LoadRegion(const APolyLL: ILonLatPolygon);
     procedure DelRegion(const APolyLL: ILonLatPolygon);
     procedure genbacksatREG(const APolyLL: ILonLatPolygon);
@@ -138,7 +142,8 @@ type
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
-      const AMapGoto: IMapViewGoto
+      const AMapGoto: IMapViewGoto;
+      const AMarkDBGUI: TMarksDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(const FileName:string);
@@ -189,13 +194,15 @@ constructor TfrmRegionProcess.Create(
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
-  const AMapGoto: IMapViewGoto
+  const AMapGoto: IMapViewGoto;
+  const AMarkDBGUI: TMarksDbGUIHelper
 );
 begin
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
   FVectorItemsFactory := AVectorItemsFactory;
   FMapGoto := AMapGoto;
+  FMarkDBGUI:=AMarkDBGUI;
   FfrExport :=
     TfrExport.Create(
       ALanguageManager,
@@ -437,6 +444,11 @@ begin
   if (VPolygon <> nil)  then begin
     FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
   end;
+end;
+
+procedure TfrmRegionProcess.SpeedButton_mkMarkClick(Sender: TObject);
+begin
+  if (FLastSelectionInfo.Polygon <> nil) then FMarkDBGUI.SavePolyModal(nil, FLastSelectionInfo.Polygon);
 end;
 
 procedure TfrmRegionProcess.StartSlsFromFile(const AFileName: string);

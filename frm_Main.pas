@@ -849,6 +849,16 @@ begin
   FMouseState := VMouseState;
   FConfig := GState.MainFormConfig;
   FMapGoto := TMapViewGoto.Create(FConfig.ViewPortState);
+  FMarkDBGUI :=
+    TMarksDbGUIHelper.Create(
+      GState.LanguageManager,
+      GState.MediaDataPath,
+      GState.MarksDb,
+      FConfig.ViewPortState.View,
+      GState.VectorItemsFactory,
+      GState.ArchiveReadWriteFactory,
+      GState.ValueToStringConverterConfig,
+    );
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
       GState.LanguageManager,
@@ -879,7 +889,8 @@ begin
       GState.DownloadConfig,
       GState.DownloadInfo,
       GState.ValueToStringConverterConfig,
-      FMapGoto
+      FMapGoto,
+      FMarkDBGUI
     );
   FFormRegionProcess.PopupParent := Self;
   FfrmGoTo :=
@@ -1050,16 +1061,6 @@ begin
   TBConfigProviderLoadPositions(Self, VProvider);
   OnToolbarsLockChange;
   TBEditPath.Visible:=false;
-  FMarkDBGUI :=
-    TMarksDbGUIHelper.Create(
-      GState.LanguageManager,
-      GState.MediaDataPath,
-      GState.MarksDb,
-      FConfig.ViewPortState.View,
-      GState.VectorItemsFactory,
-      GState.ArchiveReadWriteFactory,
-      GState.ValueToStringConverterConfig,
-    );
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
   InitLayers;
   ProgramStart:=true;
