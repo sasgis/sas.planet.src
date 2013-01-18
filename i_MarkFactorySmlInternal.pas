@@ -42,7 +42,8 @@ type
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
-      AScale2: Integer
+      AScale2: Integer;
+      const ANewMarkType: TMarkType = mt_Unknown
     ): IMark;
   end;
 
