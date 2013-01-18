@@ -63,12 +63,12 @@ uses
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
+  i_MapViewGoto,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
-  i_MapViewGoto,
+  u_MarksDbGUIHelper,
   fr_Combine,
-  fr_Export,
-  u_MarksDbGUIHelper;
+  fr_Export;
 
 type
   TfrmRegionProcess = class(TFormWitghLanguageManager)
