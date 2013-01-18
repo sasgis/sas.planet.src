@@ -13,7 +13,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapTileProviderWithCache = class(TBaseInterfacedObject, IBitmapTileProvider)
+  TBitmapTileProviderWithCache = class(TBaseInterfacedObject, IBitmapTileProviderWithNotifier)
   private
     FSource: IBitmapTileProviderWithNotifier;
     FCache: ITileObjCacheBitmap;
@@ -28,7 +28,7 @@ type
     );
   end;
 
-  TVectorTileProviderWithCache = class(TBaseInterfacedObject, IVectorTileProvider)
+  TVectorTileProviderWithCache = class(TBaseInterfacedObject, IVectorTileProviderWithNotifier)
   private
     FSource: IVectorTileProviderWithNotifier;
     FCache: ITileObjCacheVector;
