@@ -258,7 +258,6 @@ uses
   i_MapAbilitiesConfig in 'i_MapAbilitiesConfig.pas',
   u_MapAbilitiesConfigStatic in 'u_MapAbilitiesConfigStatic.pas',
   u_MapAbilitiesConfig in 'u_MapAbilitiesConfig.pas',
-  t_MapAttachments in 't_MapAttachments.pas',
   i_MapAttachmentsInfo in 'i_MapAttachmentsInfo.pas',
   u_MapAttachmentsInfo in 'u_MapAttachmentsInfo.pas',
   i_MapAttachmentsFactory in 'i_MapAttachmentsFactory.pas',
