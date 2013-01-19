@@ -21,7 +21,6 @@ type
     FLastSelectionInfo: ILastSelectionInfo;
 
     FLine: ILonLatPolygon;
-    FVisible: Boolean;
 
     procedure OnChangeSelection;
   protected
@@ -82,15 +81,14 @@ procedure TSelectionLayer.DoConfigChange;
 begin
   inherited;
   SetNeedRedraw;
-  FVisible := FConfig.Visible;
-  SetVisible(FVisible);
+  Visible := FConfig.Visible;
 end;
 
 function TSelectionLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
 ): ILonLatPolygon;
 begin
-  if FVisible then begin
+  if Visible then begin
     Result := FLine;
   end else begin
     Result := nil;

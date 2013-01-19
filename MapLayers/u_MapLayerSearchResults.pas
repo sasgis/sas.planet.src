@@ -109,7 +109,7 @@ begin
   ViewUpdateLock;
   try
     SetNeedRedraw;
-    SetVisible(FLastSearchResults.IsActive);
+    Visible := FLastSearchResults.IsActive;
   finally
     ViewUpdateUnlock;
   end;

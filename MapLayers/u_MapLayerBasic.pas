@@ -28,31 +28,28 @@ type
       Buffer: TBitmap32
     );
     procedure OnViewChange;
-  protected
-    property View: ILocalCoordConverterChangeable read FView;
-    function GetVisible: Boolean; virtual;
-    procedure SetVisible(const Value: Boolean);
+    procedure RedrawIfNeed;
 
-    procedure SetNeedRedraw; virtual;
+    function GetVisible: Boolean;
+    procedure SetVisible(const Value: Boolean);
+  protected
+    procedure SetNeedRedraw;
 
     procedure Show;
     procedure DoShow; virtual;
     procedure Hide;
     procedure DoHide; virtual;
-    procedure DoRedraw; virtual;
-    procedure RedrawIfNeed;
 
     procedure PaintLayer(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter
     ); virtual; abstract;
 
-    property Layer: TCustomLayer read FLayer;
     property Visible: Boolean read GetVisible write SetVisible;
+    property View: ILocalCoordConverterChangeable read FView;
   protected
     procedure StartThreads; override;
     procedure DoViewUpdate; override;
-    procedure Redraw;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -101,12 +98,6 @@ begin
   );
 end;
 
-procedure TMapLayerBasicNoBitmap.DoRedraw;
-begin
-  inherited;
-  Layer.Changed;
-end;
-
 procedure TMapLayerBasicNoBitmap.DoViewUpdate;
 begin
   inherited;
@@ -140,7 +131,7 @@ end;
 procedure TMapLayerBasicNoBitmap.StartThreads;
 begin
   inherited;
-  Layer.OnPaint := OnPaintLayer;
+  FLayer.OnPaint := OnPaintLayer;
 end;
 
 procedure TMapLayerBasicNoBitmap.Hide;
@@ -192,25 +183,20 @@ begin
   Result := FVisible;
 end;
 
-procedure TMapLayerBasicNoBitmap.Redraw;
+procedure TMapLayerBasicNoBitmap.RedrawIfNeed;
 var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  if FVisible then begin
-    FNeedRedrawFlag.CheckFlagAndReset;
-    VCounterContext := FRedrawCounter.StartOperation;
-    try
-      DoRedraw;
-    finally
-      FRedrawCounter.FinishOperation(VCounterContext);
-    end;
-  end;
-end;
-
-procedure TMapLayerBasicNoBitmap.RedrawIfNeed;
-begin
   if FNeedRedrawFlag.CheckFlagAndReset then begin
-    Redraw;
+    if FVisible then begin
+      FNeedRedrawFlag.CheckFlagAndReset;
+      VCounterContext := FRedrawCounter.StartOperation;
+      try
+        FLayer.Changed;
+      finally
+        FRedrawCounter.FinishOperation(VCounterContext);
+      end;
+    end;
   end;
 end;
 

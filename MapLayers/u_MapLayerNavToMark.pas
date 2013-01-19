@@ -114,7 +114,7 @@ begin
   try
     SetNeedRedraw;
     FMarkPoint := FNavToPoint.LonLat;
-    SetVisible(FNavToPoint.IsActive);
+    Visible := FNavToPoint.IsActive;
   finally
     ViewUpdateUnlock;
   end;
