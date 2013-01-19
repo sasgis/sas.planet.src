@@ -27,7 +27,7 @@ uses
   Types,
   Classes,
   t_GeoTypes,
-  t_ExternalTerrainAPI,
+  u_ExternalTerrainAPI,
   i_Notifier,
   i_ProjConverter,
   i_TerrainProvider,

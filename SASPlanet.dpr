@@ -555,7 +555,7 @@ uses
   u_TerrainProviderList in 'Terrain\u_TerrainProviderList.pas',
   i_TerrainConfig in 'Terrain\i_TerrainConfig.pas',
   u_TerrainConfig in 'Terrain\u_TerrainConfig.pas',
-  t_ExternalTerrainAPI in 'Terrain\t_ExternalTerrainAPI.pas',
+  u_ExternalTerrainAPI in 'Terrain\u_ExternalTerrainAPI.pas',
   i_ExternalTerrainsProvider in 'Terrain\i_ExternalTerrainsProvider.pas',
   u_ExternalTerrainsProvider in 'Terrain\u_ExternalTerrainsProvider.pas',
   i_Thread in 'i_Thread.pas',
