@@ -36,7 +36,6 @@ type
     FDefaultName: IStringConfigDataElement;
     FAfterScale: Integer;
     FBeforeScale: Integer;
-    FDBFileName: String;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -48,9 +47,6 @@ type
 
     function GetBeforeScale: Integer;
     procedure SetBeforeScale(AValue: Integer);
-
-    function GetDBFileName: String;
-    procedure SetDBFileName(AValue: String);
   public
     constructor Create(const ALanguageManager: ILanguageManager);
   end;
@@ -78,7 +74,6 @@ begin
   Add(FDefaultName, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FAfterScale := 3;
   FBeforeScale := 23;
-  FDBFileName := '';
 end;
 
 procedure TMarkCategoryFactoryConfig.DoReadConfig(
@@ -89,7 +84,6 @@ begin
   if AConfigData <> nil then begin
     FAfterScale := AConfigData.ReadInteger('AfterScale', FAfterScale);
     FBeforeScale := AConfigData.ReadInteger('BeforeScale', FBeforeScale);
-    FDBFileName := AConfigData.ReadString('DBFileName', FDBFileName);
     SetChanged;
   end;
 end;
@@ -101,7 +95,6 @@ begin
   inherited;
   AConfigData.WriteInteger('AfterScale', FAfterScale);
   AConfigData.WriteInteger('BeforeScale', FBeforeScale);
-  AConfigData.WriteString('DBFileName', FDBFileName);
 end;
 
 function TMarkCategoryFactoryConfig.GetAfterScale: Integer;
@@ -119,16 +112,6 @@ begin
   LockRead;
   try
     Result := FBeforeScale;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMarkCategoryFactoryConfig.GetDBFileName: String;
-begin
-  LockRead;
-  try
-    Result := FDBFileName;
   finally
     UnlockRead;
   end;
@@ -158,19 +141,6 @@ begin
   try
     if FBeforeScale <> AValue then begin
       FBeforeScale := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMarkCategoryFactoryConfig.SetDBFileName(AValue: String);
-begin
-  LockWrite;
-  try
-    if FDBFileName <> AValue then begin
-      FDBFileName := AValue;
       SetChanged;
     end;
   finally

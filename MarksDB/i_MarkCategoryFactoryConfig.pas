@@ -39,10 +39,6 @@ type
     function GetBeforeScale: Integer;
     procedure SetBeforeScale(AValue: Integer);
     property BeforeScale: Integer read GetBeforeScale write SetBeforeScale;
-
-    function GetDBFileName: String;
-    procedure SetDBFileName(AValue: String);
-    property DBFileName: String read GetDBFileName write SetDBFileName;
   end;
 
 implementation
