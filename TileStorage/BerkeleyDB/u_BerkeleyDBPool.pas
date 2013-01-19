@@ -36,15 +36,6 @@ uses
 type
   TBerkeleyDBPool = class(TBaseInterfacedObject, IBerkeleyDBPool)
   private
-    type
-      TPoolRec = record
-        Database: IBerkeleyDB;
-        AcquireTime: Cardinal;
-        ReleaseTime: Cardinal;
-        ActiveCount: Integer;
-      end;
-      PPoolRec = ^TPoolRec;
-  private
     FHelper: IGlobalBerkeleyDBHelper;
     FDatabaseFactory: IBerkeleyDBFactory;
     FCS: TCriticalSection;
@@ -72,6 +63,15 @@ type
   end;
 
 implementation
+
+type
+  TPoolRec = record
+    Database: IBerkeleyDB;
+    AcquireTime: Cardinal;
+    ReleaseTime: Cardinal;
+    ActiveCount: Integer;
+  end;
+  PPoolRec = ^TPoolRec;
 
 type
   EBerkeleyDBPool = class(Exception);
