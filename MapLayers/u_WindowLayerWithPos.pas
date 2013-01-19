@@ -28,7 +28,6 @@ uses
   GR32,
   GR32_Layers,
   i_NotifierOperation,
-  i_LocalCoordConverterChangeable,
   i_SimpleFlag,
   i_InternalPerformanceCounter,
   u_WindowLayerBasic;
