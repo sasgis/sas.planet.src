@@ -27,8 +27,8 @@ uses
 
 function RoundEx(chislo: Double; Precision: Integer): string;
 function R2StrPoint(r: Double): string;
-function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer):string;
-function str2r(inp:string):Double;
+function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: integer): string;
+function str2r(AStrValue: string): Double;
 
 // forced with point
 function StrPointToFloat(const S: String): Double;
@@ -51,19 +51,24 @@ begin
     Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
 end;
 
-function str2r(inp:string):Double;
-var p:integer;
+function str2r(AStrValue: string): Double;
+var
+  VPos: integer;
 begin
- if length(inp)=0 then result := 0 else
- begin
- p:=System.pos(DecimalSeparator,inp);
- if p=0 then begin
-              if DecimalSeparator='.' then p:=System.pos(',',inp)
-                                      else p:=System.pos('.',inp);
-              inp[p]:=DecimalSeparator;
-             end;
- result:=strtofloat(inp);
- end;
+  if Length(AStrValue) = 0 then begin
+    Result := 0
+  end else begin
+    VPos := System.Pos(DecimalSeparator, AStrValue);
+    if VPos = 0 then begin
+      if DecimalSeparator = '.' then begin
+        VPos := System.pos(',', AStrValue)
+      end else begin
+        VPos := System.pos('.', AStrValue);
+      end;
+      AStrValue[VPos] := DecimalSeparator;
+    end;
+    Result := StrToFloat(AStrValue);
+  end;
 end;
 
 function StrPointToFloat(const S: String): Double;
@@ -81,30 +86,32 @@ begin
   Result := FloatToStr(r, GFormatSettings);
 end;
 
-function LonLat2GShListName(LL: TDoublePoint; Scale: integer; Prec: integer): string;
+function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: Integer): string;
 const
-  Roman: array[1..36] of string = ('I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
+  CRomans: array[1..36] of string = ('I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
              'XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV','XXV',
              'XXVI','XXVII','XXVIII','XXIX','XXX','XXXI','XXXII','XXXIII','XXXIV','XXXV','XXXVI');
 var
-  Lon,Lat:int64;
- function GetNameAtom(divr,modl:integer):integer;
- begin
-  result:=((Lon div round(6/divr*prec))mod modl)+(abs(integer(LL.Y>0)*(modl-1)-((Lat div round(4/divr*prec))mod modl)))*modl;
- end;
+  VLon, VLat: Int64;
+  function GetNameAtom(divr, modl: Integer): Integer;
+  begin
+    Result :=
+      ((VLon div round(6/divr*prec))mod modl)+
+      (abs(integer(ALonLat.Y>0)*(modl-1)-((VLat div round(4/divr*prec))mod modl)))*modl;
+  end;
 begin
- Lon:=round((LL.X+180)*prec);
- Lat:=round(abs(LL.Y*prec));
- result:=chr(65+(Lat div (4*prec)))+'-'+inttostr(1+(Lon div (6*prec)));
- if LL.Y<0 then result:='x'+result;
- if Scale=500000  then result:=result+'-'+chr(192+GetNameAtom(2,2));
- if Scale=200000  then result:=result+'-'+Roman[1+GetNameAtom(6,6)];
- if Scale<=100000 then result:=result+'-'+inttostr(1+GetNameAtom(12,12));
- if Scale<=50000  then result:=result+'-'+chr(192+GetNameAtom(24,2));
- if Scale<=25000  then result:=result+'-'+chr(224+GetNameAtom(48,2));
- if Scale=10000   then result:=result+'-'+inttostr(1+GetNameAtom(96,2));
- if Scale=5000    then result:=chr(65+(Lat div (4*prec)))+'-'+inttostr(1+(Lon div (6*prec)))+'-'+inttostr(1+GetNameAtom(12,12))+'-('+inttostr(1+GetNameAtom(192,16))+')';
- if Scale=2500    then result:=chr(65+(Lat div (4*prec)))+'-'+inttostr(1+(Lon div (6*prec)))+'-'+inttostr(1+GetNameAtom(12,12))+'-('+inttostr(1+GetNameAtom(192,16))+'-'+chr(224+GetNameAtom(384,2))+')';
+  VLon := Round((ALonLat.X+180)*prec);
+  VLat := Round(abs(ALonLat.Y*prec));
+  Result := chr(65+(VLat div (4*prec)))+'-'+inttostr(1+(VLon div (6*prec)));
+  if ALonLat.Y < 0 then Result := 'x'+ Result;
+  if AScale = 500000  then Result := Result +'-'+chr(192+GetNameAtom(2,2));
+  if AScale = 200000  then Result := Result +'-'+CRomans[1+GetNameAtom(6,6)];
+  if AScale <= 100000 then Result := Result +'-'+inttostr(1+GetNameAtom(12,12));
+  if AScale <= 50000  then Result := Result +'-'+chr(192+GetNameAtom(24,2));
+  if AScale <= 25000  then Result := Result +'-'+chr(224+GetNameAtom(48,2));
+  if AScale = 10000   then Result := Result+'-'+inttostr(1+GetNameAtom(96,2));
+  if AScale = 5000    then Result := chr(65+(VLat div (4*prec)))+'-'+inttostr(1+(VLon div (6*prec)))+'-'+inttostr(1+GetNameAtom(12,12))+'-('+inttostr(1+GetNameAtom(192,16))+')';
+  if AScale = 2500    then Result := chr(65+(VLat div (4*prec)))+'-'+inttostr(1+(VLon div (6*prec)))+'-'+inttostr(1+GetNameAtom(12,12))+'-('+inttostr(1+GetNameAtom(192,16))+'-'+chr(224+GetNameAtom(384,2))+')';
 end;
 
 initialization
