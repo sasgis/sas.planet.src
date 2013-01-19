@@ -13,7 +13,7 @@ type
     FPoint: TDoublePoint;
   private
     function GetPoint: TDoublePoint;
-    procedure SetPoint(AValue: TDoublePoint);
+    procedure SetPoint(const AValue: TDoublePoint);
 
     procedure Clear;
   public
@@ -48,7 +48,7 @@ begin
   end;
 end;
 
-procedure TPointOnMapEdit.SetPoint(AValue: TDoublePoint);
+procedure TPointOnMapEdit.SetPoint(const AValue: TDoublePoint);
 begin
   LockWrite;
   try

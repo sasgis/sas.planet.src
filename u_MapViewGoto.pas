@@ -42,9 +42,9 @@ type
     function GetGotoTime: TDateTime;
   public
     constructor Create(
-      ALonLat: TDoublePoint;
-      AZoom: Byte;
-      AGotoTime: TDateTime
+      const ALonLat: TDoublePoint;
+      const AZoom: Byte;
+      const AGotoTime: TDateTime
     );
   end;
 
@@ -62,7 +62,7 @@ type
       const ALonLatRect: TDoubleRect
     );
     procedure ShowMarker(
-      ALonLat: TDoublePoint
+      const ALonLat: TDoublePoint
     );
     function GetLastGotoPos: IGotoPosStatic;
     function GetChangeNotifier: INotifier;
@@ -134,7 +134,7 @@ begin
   FViewPortState.ChangeLonLatAndZoom(VTargetZoom, VCenterLonLat);
 end;
 
-procedure TMapViewGoto.ShowMarker(ALonLat: TDoublePoint);
+procedure TMapViewGoto.ShowMarker(const ALonLat: TDoublePoint);
 begin
   FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.GetCurrentZoom, Now);
   FChangeNotifier.Notify(nil);
@@ -163,9 +163,9 @@ end;
 { TGotoPosStatic }
 
 constructor TGotoPosStatic.Create(
-  ALonLat: TDoublePoint;
-  AZoom: Byte;
-  AGotoTime: TDateTime
+  const ALonLat: TDoublePoint;
+  const AZoom: Byte;
+  const AGotoTime: TDateTime
 );
 begin
   inherited Create;

@@ -166,12 +166,12 @@ function TDatum.CalcPoligonArea(
     result := -s / 2;
   end;
 
-  function Det(point1, point2, point3: TDoublePoint): Extended;
+  function Det(const point1, point2, point3: TDoublePoint): Extended;
   begin
     Result := ((point2.X - point1.X) * (point3.Y - point1.Y) - (point2.Y - point1.Y) * (point3.X - point1.X)) / 2;
   end;
 
-  function InTriangle(point, point1, point2, point3: TDoublePoint): Boolean;
+  function InTriangle(const point, point1, point2, point3: TDoublePoint): Boolean;
   var
     a, b, c: double;
   begin

@@ -49,7 +49,7 @@ type
       const ALonLatRect: TDoubleRect
     );
     procedure ShowMarker(
-      ALonLat: TDoublePoint
+      const ALonLat: TDoublePoint
     );
     function GetLastGotoPos: IGotoPosStatic;
     property LastGotoPos: IGotoPosStatic read GetLastGotoPos;

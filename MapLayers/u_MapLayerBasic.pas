@@ -98,6 +98,12 @@ begin
   );
 end;
 
+destructor TMapLayerBasicNoBitmap.Destroy;
+begin
+  FLayer := nil;
+  inherited;
+end;
+
 procedure TMapLayerBasicNoBitmap.DoViewUpdate;
 begin
   inherited;
@@ -144,12 +150,6 @@ begin
   finally
     ViewUpdateUnlock;
   end;
-end;
-
-destructor TMapLayerBasicNoBitmap.Destroy;
-begin
-  FLayer := nil;
-  inherited;
 end;
 
 procedure TMapLayerBasicNoBitmap.DoHide;

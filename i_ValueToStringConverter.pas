@@ -30,19 +30,19 @@ uses
 type
   IValueToStringConverter = interface
     ['{9EC20437-48BD-4D18-BF95-D2390C6F26F5}']
-    function DataSizeConvert(ASizeInKb: Double): string;
-    function DistConvert(ADistInMeters: Double): string;
-    function DistPerPixelConvert(ADistPerPixelInMeters: Double): string;
-    function AreaConvert(AAreaInSqm: Double): string;
-    function SpeedConvert(AKmph: Double): string;
-    function AltitudeConvert(AMeters: Double): string;
-    function LonLatConvert(ALonLat: TDoublePoint): string;
+    function DataSizeConvert(const ASizeInKb: Double): string;
+    function DistConvert(const ADistInMeters: Double): string;
+    function DistPerPixelConvert(const ADistPerPixelInMeters: Double): string;
+    function AreaConvert(const AAreaInSqm: Double): string;
+    function SpeedConvert(const AKmph: Double): string;
+    function AltitudeConvert(const AMeters: Double): string;
+    function LonLatConvert(const ALonLat: TDoublePoint): string;
     function LonConvert(
-      ALon: Double;
+      const ALon: Double;
       ACutZero: boolean
     ): string;
     function LatConvert(
-      ALat: Double;
+      const ALat: Double;
       ACutZero: boolean
     ): string;
   end;

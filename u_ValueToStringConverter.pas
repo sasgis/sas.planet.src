@@ -50,25 +50,25 @@ type
     FSouthMarker: string;
   private
     function DegrToStr(
-      ADegr: Double;
+      const ADegr: Double;
       ACutZero: boolean
     ): string;
-    function GetLatitudeMarker(ADegr: Double): string;
-    function GetLongitudeMarker(ADegr: Double): string;
+    function GetLatitudeMarker(const ADegr: Double): string;
+    function GetLongitudeMarker(const ADegr: Double): string;
   private
-    function DataSizeConvert(ASizeInKb: Double): string;
-    function DistConvert(ADistInMeters: Double): string;
-    function DistPerPixelConvert(ADistPerPixelInMeters: Double): string;
-    function AreaConvert(AAreaInSqm: Double): string;
-    function SpeedConvert(AKmph: Double): string;
-    function AltitudeConvert(AMeters: Double): string;
-    function LonLatConvert(ALonLat: TDoublePoint): string;
+    function DataSizeConvert(const ASizeInKb: Double): string;
+    function DistConvert(const ADistInMeters: Double): string;
+    function DistPerPixelConvert(const ADistPerPixelInMeters: Double): string;
+    function AreaConvert(const AAreaInSqm: Double): string;
+    function SpeedConvert(const AKmph: Double): string;
+    function AltitudeConvert(const AMeters: Double): string;
+    function LonLatConvert(const ALonLat: TDoublePoint): string;
     function LonConvert(
-      ALon: Double;
+      const ALon: Double;
       ACutZero: boolean
     ): string;
     function LatConvert(
-      ALat: Double;
+      const ALat: Double;
       ACutZero: boolean
     ): string;
   public
@@ -117,7 +117,7 @@ begin
   FSouthMarker := 'S';
 end;
 
-function TValueToStringConverter.AltitudeConvert(AMeters: Double): string;
+function TValueToStringConverter.AltitudeConvert(const AMeters: Double): string;
 begin
   if IsNan(AMeters) then begin
     Result := 'NAN';
@@ -127,7 +127,7 @@ begin
   Result := FormatFloat('0.0', AMeters) + ' ' + FUnitsMeters;
 end;
 
-function TValueToStringConverter.AreaConvert(AAreaInSqm: Double): string;
+function TValueToStringConverter.AreaConvert(const AAreaInSqm: Double): string;
 begin
   if IsNan(AAreaInSqm) then begin
     Result := 'NAN';
@@ -166,7 +166,7 @@ begin
   end;
 end;
 
-function TValueToStringConverter.DataSizeConvert(ASizeInKb: Double): string;
+function TValueToStringConverter.DataSizeConvert(const ASizeInKb: Double): string;
 begin
   if ASizeInKb > 1048576 then begin
     result := FormatFloat('0.0', ASizeInKb / 1048576) + ' ' + FUnitsGb;
@@ -180,7 +180,7 @@ begin
 end;
 
 function TValueToStringConverter.DegrToStr(
-  ADegr: Double;
+  const ADegr: Double;
   ACutZero: boolean
 ): string;
 var
@@ -253,7 +253,7 @@ begin
   Result :=res;
 end;
 
-function TValueToStringConverter.DistConvert(ADistInMeters: Double): string;
+function TValueToStringConverter.DistConvert(const ADistInMeters: Double): string;
 var
   VKmDist: Double;
 begin
@@ -284,12 +284,13 @@ begin
 end;
 
 function TValueToStringConverter.DistPerPixelConvert(
-  ADistPerPixelInMeters: Double): string;
+  const ADistPerPixelInMeters: Double
+): string;
 begin
   Result := DistConvert(ADistPerPixelInMeters) + SAS_UNITS_mperp;
 end;
 
-function TValueToStringConverter.GetLatitudeMarker(ADegr: Double): string;
+function TValueToStringConverter.GetLatitudeMarker(const ADegr: Double): string;
 begin
   case FDegrShowFormat of
     dshCharDegrMinSec, dshCharDegrMin, dshCharDegr: begin
@@ -311,7 +312,7 @@ begin
   end;
 end;
 
-function TValueToStringConverter.GetLongitudeMarker(ADegr: Double): string;
+function TValueToStringConverter.GetLongitudeMarker(const ADegr: Double): string;
 begin
   case FDegrShowFormat of
     dshCharDegrMinSec, dshCharDegrMin, dshCharDegr: begin
@@ -333,7 +334,7 @@ begin
   end;
 end;
 
-function TValueToStringConverter.LonLatConvert(ALonLat: TDoublePoint): string;
+function TValueToStringConverter.LonLatConvert(const ALonLat: TDoublePoint): string;
 var
   VLatStr: string;
   VLonStr: string;
@@ -348,7 +349,7 @@ begin
 end;
 
 function TValueToStringConverter.LonConvert(
-  ALon: Double;
+  const ALon: Double;
   ACutZero: boolean
 ): string;
 begin
@@ -356,14 +357,14 @@ begin
 end;
 
 function TValueToStringConverter.LatConvert(
-  ALat: Double;
+  const ALat: Double;
   ACutZero: boolean
 ): string;
 begin
   result := GetLatitudeMarker(ALat) + DegrToStr(ALat, ACutZero);
 end;
 
-function TValueToStringConverter.SpeedConvert(AKmph: Double): string;
+function TValueToStringConverter.SpeedConvert(const AKmph: Double): string;
 begin
   if IsNan(AKmph) then begin
     Result := 'NAN';
