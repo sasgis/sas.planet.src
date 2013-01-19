@@ -58,7 +58,7 @@ type
       const ALonLat: TDoublePoint;
       const AZoom: Byte
     );
-    procedure FitRectToScreen(const ALonLatRect: TDoubleRect);
+    procedure FitRectToScreen(const ALonLatRect: TDoubleRect; AShowMarker: boolean);
     function GetLastGotoPos: IGotoPosStatic;
     function GetChangeNotifier: INotifier;
   public
@@ -85,7 +85,7 @@ begin
   FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, 0, NaN);
 end;
 
-procedure TMapViewGoto.FitRectToScreen(const ALonLatRect: TDoubleRect);
+procedure TMapViewGoto.FitRectToScreen(const ALonLatRect: TDoubleRect; AShowMarker: boolean);
 var
   VCenterLonLat: TDoublePoint;
   VLLRect: TDoubleRect;
@@ -127,6 +127,10 @@ begin
   VGeoConverter.CheckZoom(VTargetZoom);
   VGeoConverter.CheckLonLatPos(VCenterLonLat);
   FViewPortState.ChangeLonLatAndZoom(VTargetZoom, VCenterLonLat);
+  if AShowMarker then begin
+    FLastGotoPos := TGotoPosStatic.Create(VCenterLonLat, VTargetZoom, Now);
+    FChangeNotifier.Notify(nil);
+  end;
 end;
 
 function TMapViewGoto.GetChangeNotifier: INotifier;

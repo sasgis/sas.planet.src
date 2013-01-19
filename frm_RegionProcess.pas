@@ -442,7 +442,7 @@ var
 begin
   VPolygon := FLastSelectionInfo.Polygon;
   if (VPolygon <> nil)  then begin
-    FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
+    FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect, False);
   end;
 end;
 
