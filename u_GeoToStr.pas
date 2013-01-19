@@ -28,7 +28,7 @@ uses
 function RoundEx(chislo: Double; Precision: Integer): string;
 function R2StrPoint(r: Double): string;
 function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: integer): string;
-function str2r(AStrValue: string): Double;
+function str2r(const AStrValue: string): Double;
 
 // forced with point
 function StrPointToFloat(const S: String): Double;
@@ -51,23 +51,26 @@ begin
     Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
 end;
 
-function str2r(AStrValue: string): Double;
+function str2r(const AStrValue: string): Double;
 var
   VPos: integer;
+  VFormatSettings : TFormatSettings;
 begin
   if Length(AStrValue) = 0 then begin
     Result := 0
   end else begin
-    VPos := System.Pos(DecimalSeparator, AStrValue);
-    if VPos = 0 then begin
-      if DecimalSeparator = '.' then begin
-        VPos := System.pos(',', AStrValue)
+    VPos := System.Pos(',', AStrValue);
+    if VPos > 0 then begin
+      VFormatSettings.DecimalSeparator := ',';
+    end else begin
+      VPos := System.pos('.', AStrValue);
+      if VPos > 0 then begin
+        VFormatSettings.DecimalSeparator := '.';
       end else begin
-        VPos := System.pos('.', AStrValue);
+        VFormatSettings.DecimalSeparator := DecimalSeparator;
       end;
-      AStrValue[VPos] := DecimalSeparator;
     end;
-    Result := StrToFloat(AStrValue);
+    Result := StrToFloatDef(AStrValue, 0, VFormatSettings);
   end;
 end;
 
