@@ -4662,7 +4662,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VClickMapRect: TDoubleRect;
   VIsClickInMap: Boolean;
-  VWikiItem: IVectorDataItemSimple;
+  VVectorItem: IVectorDataItemSimple;
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
@@ -4706,20 +4706,20 @@ begin
         VConverter.CheckPixelRectFloat(VClickMapRect, VZoom);
         VClickLonLatRect := VConverter.PixelRectFloat2LonLatRect(VClickMapRect, VZoom);
         if not FLineOnMapEdit.SelectPointInLonLatRect(VClickLonLatRect) then begin
-          VWikiItem := nil;
+          VVectorItem := nil;
           VMagnetPoint := CEmptyDoublePoint;
           if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
              (FConfig.MainConfig.MagnetDraw) then begin
-            VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
+            VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
           end;
-          if VWikiItem <> nil then begin
-            if Supports(VWikiItem, IMarkPoint, VMarkPoint) then begin
+          if VVectorItem <> nil then begin
+            if Supports(VVectorItem, IMarkPoint, VMarkPoint) then begin
               VMagnetPoint := VMarkPoint.Point;
             end;
-            if Supports(VWikiItem, IMarkPoly, VMarkPoly) then begin
+            if Supports(VVectorItem, IMarkPoly, VMarkPoly) then begin
               VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VClickLonLat);
             end;
-            if Supports(VWikiItem, IMarkLine, VMarkLine) then begin
+            if Supports(VVectorItem, IMarkLine, VMarkLine) then begin
               VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VClickLonLat);
             end;
           end;
@@ -4749,11 +4749,11 @@ begin
   if FMapMoving then exit;
 
   if (VIsClickInMap)and (Button=mbright)and(FState.State=ao_movemap) then begin
-    VWikiItem := nil;
+    VVectorItem := nil;
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-      VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
+      VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
     end;
-    if not Supports(VWikiItem, IMark, FSelectedMark) then begin
+    if not Supports(VVectorItem, IMark, FSelectedMark) then begin
       FSelectedMark := nil;
     end;
     map.PopupMenu:=MainPopupMenu;
@@ -4785,8 +4785,8 @@ var
   VMouseDownPos: TPoint;
   VMouseMoveDelta: TPoint;
   VMarkS: Double;
-  VWikiItem: IVectorDataItemSimple;
-  VFoundItem: IVectorDataItemSimple;
+  VVectorItem: IVectorDataItemSimple;
+  VVectorItemFound: IVectorDataItemSimple;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
@@ -4904,36 +4904,36 @@ begin
     if (FState.State=ao_movemap)and(Button=mbLeft) then begin
       VItemArea := 0;
 
-      VWikiItem := nil;
-      VWikiItem := FWikiLayer.FindItem(VLocalConverter, Point(x,y), VMarkS);
-      if VWikiItem <> nil then begin
-        VFoundItem := VWikiItem;
+      VVectorItem := nil;
+      VVectorItem := FWikiLayer.FindItem(VLocalConverter, Point(x,y), VMarkS);
+      if VVectorItem <> nil then begin
+        VVectorItemFound := VVectorItem;
         VItemArea := VMarkS;
       end;
 
-      VWikiItem := FLayerSearchResults.FindItem(VLocalConverter, Point(x,y), VMarkS);
-      if VWikiItem <> nil then begin
-        VFoundItem := VWikiItem;
+      VVectorItem := FLayerSearchResults.FindItem(VLocalConverter, Point(x,y), VMarkS);
+      if VVectorItem <> nil then begin
+        VVectorItemFound := VVectorItem;
         VItemArea := VMarkS;
       end;
 
-      VWikiItem := nil;
+      VVectorItem := nil;
       if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
-        VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x,y), VMarkS);
+        VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x,y), VMarkS);
       end;
 
-      if VWikiItem <> nil then begin
-        if (VFoundItem = nil) or (not Supports(VWikiItem, IMarkPoly)) or (VItemArea >= VMarkS) then begin
-         VFoundItem := VWikiItem;
+      if VVectorItem <> nil then begin
+        if (VVectorItemFound = nil) or (not Supports(VVectorItem, IMarkPoly)) or (VItemArea >= VMarkS) then begin
+         VVectorItemFound := VVectorItem;
         end;
       end;
 
-      if VFoundItem <> nil  then begin
-        if VFoundItem.Desc <> '' then begin
-          if VFoundItem.GetInfoUrl <> '' then begin
-            GState.InternalBrowser.Navigate(VFoundItem.GetInfoCaption, VFoundItem.GetInfoUrl + CVectorItemDescriptionSuffix);
+      if VVectorItemFound <> nil  then begin
+        if VVectorItemFound.Desc <> '' then begin
+          if VVectorItemFound.GetInfoUrl <> '' then begin
+            GState.InternalBrowser.Navigate(VVectorItemFound.GetInfoCaption, VVectorItemFound.GetInfoUrl + CVectorItemDescriptionSuffix);
           end else begin
-            GState.InternalBrowser.ShowMessage(VFoundItem.GetInfoCaption, VFoundItem.Desc);
+            GState.InternalBrowser.ShowMessage(VVectorItemFound.GetInfoCaption, VVectorItemFound.Desc);
           end;
         end;
       end;
@@ -4957,7 +4957,7 @@ var
   VLastMouseMove: TPoint;
   VMousePos: TPoint;
   VMarkS: Double;
-  VWikiItem: IVectorDataItemSimple;
+  VVectorItem: IVectorDataItemSimple;
   VMarkPoint: IMarkPoint;
   VMarkPoly: IMarkPoly;
   VMarkLine: IMarkLine;
@@ -5016,13 +5016,13 @@ begin
       end;
 
       if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-        VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
-        if VWikiItem <> nil then begin
-          if Supports(VWikiItem, IMarkPoint, VMarkPoint) then begin
+        VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
+        if VVectorItem <> nil then begin
+          if Supports(VVectorItem, IMarkPoint, VMarkPoint) then begin
             VMagnetPoint := VMarkPoint.Point;
-          end else if Supports(VWikiItem, IMarkPoly, VMarkPoly) then begin
+          end else if Supports(VVectorItem, IMarkPoly, VMarkPoly) then begin
             VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VLonLat);
-          end else if Supports(VWikiItem, IMarkLine, VMarkLine) then begin
+          end else if Supports(VVectorItem, IMarkLine, VMarkLine) then begin
             VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VLonLat);
           end;
         end;
@@ -5049,38 +5049,34 @@ begin
   end;
 
   if FWinPosition.GetIsFullScreen then begin
-                       if VMousePos.y<10 then begin
-                                     TBDock.Parent:=map;
-                                     TBDock.Visible:=true;
-                                    end
-                               else begin
-                                     TBDock.Visible:=false;
-                                     TBDock.Parent:=Self;
-                                    end;
-                       if VMousePos.x<10 then begin
-                                     TBDockLeft.Parent:=map;
-                                     TBDockLeft.Visible:=true;
-                                    end
-                               else begin
-                                     TBDockLeft.Visible:=false;
-                                     TBDockLeft.Parent:=Self;
-                                    end;
-                       if VMousePos.y>Map.Height-10 then begin
-                                     TBDockBottom.Parent:=map;
-                                     TBDockBottom.Visible:=true;
-                                    end
-                               else begin
-                                     TBDockBottom.Visible:=false;
-                                     TBDockBottom.Parent:=Self;
-                                    end;
-                       if VMousePos.x>Map.Width-10 then begin
-                                     TBDockRight.Parent:=map;
-                                     TBDockRight.Visible:=true;
-                                    end
-                               else begin
-                                     TBDockRight.Visible:=false;
-                                     TBDockRight.Parent:=Self;
-                                    end;
+    if VMousePos.y<10 then begin
+      TBDock.Parent:=map;
+      TBDock.Visible:=true;
+    end else begin
+      TBDock.Visible:=false;
+      TBDock.Parent:=Self;
+    end;
+    if VMousePos.x<10 then begin
+      TBDockLeft.Parent:=map;
+      TBDockLeft.Visible:=true;
+    end else begin
+      TBDockLeft.Visible:=false;
+      TBDockLeft.Parent:=Self;
+    end;
+    if VMousePos.y>Map.Height-10 then begin
+      TBDockBottom.Parent:=map;
+      TBDockBottom.Visible:=true;
+    end else begin
+      TBDockBottom.Visible:=false;
+      TBDockBottom.Parent:=Self;
+    end;
+    if VMousePos.x>Map.Width-10 then begin
+      TBDockRight.Parent:=map;
+      TBDockRight.Visible:=true;
+    end else begin
+      TBDockRight.Visible:=false;
+      TBDockRight.Parent:=Self;
+    end;
   end;
 
   if FMapZoomAnimtion then exit;
@@ -5107,25 +5103,25 @@ begin
     // show hint
     VItemFound := nil;
     VItemS := 0;
-    VWikiItem := FWikiLayer.FindItem(VLocalConverter, VMousePos, VMarkS);
-    if VWikiItem <> nil then begin
-      VItemFound := VWikiItem;
+    VVectorItem := FWikiLayer.FindItem(VLocalConverter, VMousePos, VMarkS);
+    if VVectorItem <> nil then begin
+      VItemFound := VVectorItem;
       VItemS := VMarkS;
     end;
 
-    VWikiItem := FLayerSearchResults.FindItem(VLocalConverter, VMousePos, VMarkS);
-    if VWikiItem <> nil then begin
-      VItemFound := VWikiItem;
+    VVectorItem := FLayerSearchResults.FindItem(VLocalConverter, VMousePos, VMarkS);
+    if VVectorItem <> nil then begin
+      VItemFound := VVectorItem;
       VItemS := VMarkS;
     end;
 
-    VWikiItem := nil;
+    VVectorItem := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
-      VWikiItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
+      VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
     end;
-    if VWikiItem <> nil then begin
-      if (VItemFound = nil) or (not Supports(VWikiItem, IMarkPoly)) or (VItemS >= VMarkS) then begin
-        VItemFound := VWikiItem;
+    if VVectorItem <> nil then begin
+      if (VItemFound = nil) or (not Supports(VVectorItem, IMarkPoly)) or (VItemS >= VMarkS) then begin
+        VItemFound := VVectorItem;
       end;
     end;
 
@@ -6356,7 +6352,6 @@ begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
     GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemInfoSuffix);
-//    FMarkDBGUI.ShowMarkInfo(VMark);
   end;
 end;
 
