@@ -23,14 +23,15 @@ unit t_GeoTypes;
 interface
 
 uses
-  vsagps_public_point,
   Types;
 
 type
   TPointRounding = (prClosest, prToTopLeft, prToBottomRight);
   TRectRounding = (rrClosest, rrOutside, rrInside, rrToTopLeft);
 
-  TDoublePoint = vsagps_public_point.TDoublePoint;
+  TDoublePoint = packed record
+    X, Y: Double;
+  end;
 
   TDoubleRect = packed record
     case Integer of
