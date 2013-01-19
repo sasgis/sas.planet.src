@@ -450,7 +450,6 @@
     <DCCReference Include="i_ZmpConfig.pas" />
     <DCCReference Include="i_ZmpInfo.pas" />
     <DCCReference Include="i_ZmpInfoSet.pas" />
-    <DCCReference Include="MapLayers\i_MapElementsGuidedList.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
     <DCCReference Include="MapLayers\u_FullMapMouseCursorLayer.pas" />
@@ -459,7 +458,6 @@
     <DCCReference Include="MapLayers\u_LayerScaleLinePopupMenu.pas" />
     <DCCReference Include="MapLayers\u_LayerStatBar.pas" />
     <DCCReference Include="MapLayers\u_LayerStatBarPopupMenu.pas" />
-    <DCCReference Include="MapLayers\u_MapElementsGuidedList.pas" />
     <DCCReference Include="MapLayers\u_MapLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_MapLayerBitmapMaps.pas" />
     <DCCReference Include="MapLayers\u_MapLayerFillingMap.pas" />

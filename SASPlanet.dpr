@@ -297,8 +297,6 @@ uses
   u_VectorItemDrawConfig in 'u_VectorItemDrawConfig.pas',
   i_KmlLayerConfig in 'i_KmlLayerConfig.pas',
   u_KmlLayerConfig in 'u_KmlLayerConfig.pas',
-  i_MapElementsGuidedList in 'MapLayers\i_MapElementsGuidedList.pas',
-  u_MapElementsGuidedList in 'MapLayers\u_MapElementsGuidedList.pas',
   u_MapLayerVectorMaps in 'MapLayers\u_MapLayerVectorMaps.pas',
   i_MiniMapLayerConfig in 'i_MiniMapLayerConfig.pas',
   u_MiniMapMapsConfig in 'u_MiniMapMapsConfig.pas',
