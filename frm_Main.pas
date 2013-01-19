@@ -3556,7 +3556,7 @@ begin
     VLLRect := VPolyEdit.Polygon.Bounds.Rect;
   end;
   if not DoublePointsEqual(VLLRect.TopLeft, VLLRect.BottomRight) then begin
-    FMapGoto.FitRectToScreen(VLLRect, False);
+    FMapGoto.FitRectToScreen(VLLRect);
   end;
 end;
 
@@ -3569,7 +3569,7 @@ begin
   if VMark <> nil then begin
     VLLRect := VMark.LLRect.Rect;
     if not DoublePointsEqual(VLLRect.TopLeft, VLLRect.BottomRight) then begin
-      FMapGoto.FitRectToScreen(VLLRect, False);
+      FMapGoto.FitRectToScreen(VLLRect);
     end else begin
       FConfig.ViewPortState.ChangeLonLat(VLLRect.TopLeft);
     end;
