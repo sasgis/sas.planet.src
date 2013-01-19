@@ -15,7 +15,7 @@ uses
   GR32,
   i_MarkCategory,
   i_ImportConfig,
-  i_MarksDB,
+  i_MarksDb,
   i_MarkCategoryDB,
   i_LanguageManager,
   u_CommonFormAndFrameParents,

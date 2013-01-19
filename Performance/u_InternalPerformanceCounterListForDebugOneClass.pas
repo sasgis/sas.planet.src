@@ -62,12 +62,14 @@ function TInternalPerformanceCounterListForDebugOneClass.CreateAndAddNewCounter(
   const AName: string): IInternalPerformanceCounter;
 begin
   Assert(False);
+  Result := nil;
 end;
 
 function TInternalPerformanceCounterListForDebugOneClass.CreateAndAddNewSubList(
   const AName: string): IInternalPerformanceCounterList;
 begin
   Assert(False);
+  Result := nil;
 end;
 
 function TInternalPerformanceCounterListForDebugOneClass.GetCounterCreate: IInternalPerformanceCounter;

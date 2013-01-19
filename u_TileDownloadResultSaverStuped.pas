@@ -196,6 +196,7 @@ var
   VTileRequest: ITileRequest;
 begin
   Assert(AResult <> nil);
+  Result := nil;
   if Assigned(AResult) then begin
     if Supports(AResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
       VTileRequest := VTileDownloadRequest.Source;

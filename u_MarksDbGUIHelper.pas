@@ -514,10 +514,10 @@ var
   VRadius: double;
   VFilter: ILonLatPointFilter;
 begin
+  Result := nil;
   if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     Result := VMarkPoly.Line;
-  end else begin
-  if Supports(AMark, IMarkLine, VMarkLine) then begin
+  end else if Supports(AMark, IMarkLine, VMarkLine) then begin
     VDefRadius := '100';
     if InputQuery('', 'Radius , m', VDefRadius) then begin
       try
@@ -549,7 +549,6 @@ begin
             VMarkPoint.GetPoint,
             VRadius
           );
-        end;
       end;
     end;
   end;

@@ -188,6 +188,7 @@ var
   dbtKey, dbtData: DBT;
   VFound: Boolean;
 begin
+  Result := nil;
   try
     FillChar(dbtKey, Sizeof(DBT), 0);
     FillChar(dbtData, Sizeof(DBT), 0);

@@ -177,6 +177,7 @@ var
   VFileNameGenerator: ITileFileNameGenerator;
   VFileNameParser: ITileFileNameParser;
 begin
+  Result := nil;
   VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
   if AFormatID = c_File_Cache_Id_BDB then begin
     VMapVersionFactory := TMapVersionFactorySimpleString.Create;
