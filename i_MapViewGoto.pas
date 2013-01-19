@@ -24,7 +24,8 @@ interface
 
 uses
   t_GeoTypes,
-  i_Notifier;
+  i_Notifier,
+  i_MarksSimple;
 
 type
   IGotoPosStatic = interface
@@ -45,8 +46,14 @@ type
       const ALonLat: TDoublePoint;
       const AZoom: Byte
     );
-    procedure FitRectToScreen(const ALonLatRect: TDoubleRect; AShowMarker: boolean);
-
+    procedure FitRectToScreen(
+      const ALonLatRect: TDoubleRect;
+      AShowMarker: boolean
+    );
+    procedure FitLineToScreen(
+      const ALonLatPath: IMarkLine;
+      AShowMarker: boolean
+    );
     function GetLastGotoPos: IGotoPosStatic;
     property LastGotoPos: IGotoPosStatic read GetLastGotoPos;
 

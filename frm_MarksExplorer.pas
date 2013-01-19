@@ -635,11 +635,10 @@ begin
       FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FViewPortState.GetStatic.Zoom);
     end;
     if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-      FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect,True);
+      FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect, True);
     end;
     if Supports(VMark, IMarkLine, VMarkLine) then begin
-      FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect,False) ;
-      FMapGoto.GotoPos(VMarkLine.GetGoToLonLat,FViewPortState.GetStatic.Zoom);
+      FMapGoto.FitLineToScreen(VMarkLine, True) ;
     end;
   end;
 end;
@@ -1024,8 +1023,7 @@ begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
       FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetStatic.Zoom);
     end else if Supports(VMark, IMarkLine, VMarkLine) then begin
-      FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect,False);
-      FMapGoto.GotoPos(VMarkLine.GetGoToLonLat,FViewPortState.GetStatic.Zoom);
+      FMapGoto.FitLineToScreen(VMarkLine, True);
     end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
       FMapGoto.FitRectToScreen(VMarkPoly.LLRect.Rect, True);
     end;
