@@ -36,6 +36,10 @@ type
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
+    function UpdateCategoryList(
+      const AOldCategory: IInterfaceList;
+      const ANewCategory: IInterfaceList
+    ): IInterfaceList;
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);

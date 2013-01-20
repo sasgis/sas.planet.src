@@ -57,12 +57,20 @@ type
     function GetMarksCategoryBackUpFileName: string;
     function GetMarksCategoryFileName: string;
     procedure InitEmptyDS;
+    function _UpdateCategory(
+      const AOldCategory: IInterface;
+      const ANewCategory: IInterface
+    ): IMarkCategory;
   private
     function GetCategoryByName(const AName: string): IMarkCategory;
     function UpdateCategory(
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
+    function UpdateCategoryList(
+      const AOldCategoryList: IInterfaceList;
+      const ANewCategoryList: IInterfaceList
+    ): IInterfaceList;
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
@@ -147,57 +155,56 @@ begin
   FCdsKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
-function TMarkCategoryDB.UpdateCategory(
-  const AOldCategory: IMarkCategory;
-  const ANewCategory: IMarkCategory
+function TMarkCategoryDB._UpdateCategory(
+  const AOldCategory, ANewCategory: IInterface
 ): IMarkCategory;
 var
   VIdOld: Integer;
   VIdNew: Integer;
-  VLocated: Boolean;
   VCategoryInternal: IMarkCategorySMLInternal;
+  VCategory: IMarkCategory;
   VOldCategory: IMarkCategory;
+  VLocated: Boolean;
 begin
   Result := nil;
-  Assert((AOldCategory <> nil) or (ANewCategory <> nil));
   VIdOld := CNotExistCategoryID;
   if Supports(AOldCategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
     VIdOld := VCategoryInternal.Id;
   end;
   VIdNew := CNotExistCategoryID;
-  LockWrite;
-  try
-    VOldCategory := nil;
-    VLocated := False;
-    if VIdOld >= 0 then begin
-      VOldCategory := IMarkCategory(FList.GetByID(VIdOld));
-      if VOldCategory <> nil then begin
-        if VOldCategory.IsEqual(ANewCategory) then begin
+  VLocated := False;
+  if VIdOld >= 0 then begin
+    VOldCategory := IMarkCategory(FList.GetByID(VIdOld));
+    if VOldCategory <> nil then begin
+      if Supports(ANewCategory, IMarkCategory, VCategory) then begin
+        if VOldCategory.IsEqual(VCategory) then begin
           Result := VOldCategory;
           Exit;
         end;
       end;
-      VLocated := FCdsKategory.Locate('id', VIdOld, []);
     end;
-    if VLocated then begin
-      if ANewCategory <> nil then begin
-        FCdsKategory.Edit;
-        WriteCurrentCategory(ANewCategory);
-        FCdsKategory.post;
-        SetChanged;
-        FNeedSaveFlag.SetFlag;
-        Result := ReadCurrentCategory(VIdNew);
-        Assert(Result <> nil);
-        Assert(VIdNew >= 0);
-        Assert(VIdNew = VIdOld);
-      end else begin
-        FCdsKategory.Delete;
-        SetChanged;
-        FNeedSaveFlag.SetFlag;
-      end;
+    VLocated := FCdsKategory.Locate('id', VIdOld, []);
+  end;
+  if VLocated then begin
+    if Supports(ANewCategory, IMarkCategory, VCategory) then begin
+      FCdsKategory.Edit;
+      WriteCurrentCategory(VCategory);
+      FCdsKategory.post;
+      SetChanged;
+      FNeedSaveFlag.SetFlag;
+      Result := ReadCurrentCategory(VIdNew);
+      Assert(Result <> nil);
+      Assert(VIdNew >= 0);
+      Assert(VIdNew = VIdOld);
     end else begin
+      FCdsKategory.Delete;
+      SetChanged;
+      FNeedSaveFlag.SetFlag;
+    end;
+  end else begin
+    if Supports(ANewCategory, IMarkCategory, VCategory) then begin
       FCdsKategory.Insert;
-      WriteCurrentCategory(ANewCategory);
+      WriteCurrentCategory(VCategory);
       FCdsKategory.post;
       Result := ReadCurrentCategory(VIdNew);
       SetChanged;
@@ -205,25 +212,103 @@ begin
       Assert(Result <> nil);
       Assert(VIdNew >= 0);
     end;
-    if VIdOld >= 0 then begin
-      if VIdNew >= 0 then begin
-        if VIdNew <> VIdOld then begin
-          FList.Remove(VIdOld);
-          FList.Add(VIdNew, Result);
-        end else begin
-          FList.Replace(VIdOld, Result);
-        end;
-      end else begin
+  end;
+  if VIdOld >= 0 then begin
+    if VIdNew >= 0 then begin
+      if VIdNew <> VIdOld then begin
         FList.Remove(VIdOld);
+        FList.Add(VIdNew, Result);
+      end else begin
+        FList.Replace(VIdOld, Result);
       end;
     end else begin
-      if VIdNew >= 0 then begin
-        FList.Add(VIdNew, Result);
-      end;
+      FList.Remove(VIdOld);
     end;
+  end else begin
+    if VIdNew >= 0 then begin
+      FList.Add(VIdNew, Result);
+    end;
+  end;
+end;
+
+function TMarkCategoryDB.UpdateCategory(
+  const AOldCategory: IMarkCategory;
+  const ANewCategory: IMarkCategory
+): IMarkCategory;
+begin
+  Assert((AOldCategory <> nil) or (ANewCategory <> nil));
+  LockWrite;
+  try
+    Result := _UpdateCategory(AOldCategory, ANewCategory);
     SaveCategory2File;
   finally
     UnlockWrite;
+  end;
+end;
+
+function TMarkCategoryDB.UpdateCategoryList(const AOldCategoryList,
+  ANewCategoryList: IInterfaceList): IInterfaceList;
+var
+  i: Integer;
+  VNew: IInterface;
+  VOld: IInterface;
+  VResult: ICategory;
+  VMinCount: Integer;
+  VMaxCount: Integer;
+begin
+  Result := nil;
+  if ANewCategoryList <> nil then begin
+    Result := TInterfaceList.Create;
+    Result.Capacity := ANewCategoryList.Count;
+
+    LockWrite;
+    try
+      if (AOldCategoryList <> nil) then begin
+        if AOldCategoryList.Count < ANewCategoryList.Count then begin
+          VMinCount := AOldCategoryList.Count;
+          VMaxCount := ANewCategoryList.Count;
+        end else begin
+          VMinCount := ANewCategoryList.Count;
+          VMaxCount := AOldCategoryList.Count;
+        end;
+      end else begin
+        VMinCount := 0;
+        VMaxCount := ANewCategoryList.Count;
+      end;
+      for i := 0 to VMinCount - 1 do begin
+        VOld := AOldCategoryList[i];
+        VNew := ANewCategoryList[i];
+        VResult := _UpdateCategory(VOld, VNew);
+        Result.Add(VResult);
+      end;
+      for i := VMinCount to VMaxCount - 1 do begin
+        VOld := nil;
+        if (AOldCategoryList <> nil) and (i < AOldCategoryList.Count) then begin
+          VOld := AOldCategoryList[i];
+        end;
+        VNew := nil;
+        if (i < ANewCategoryList.Count) then begin
+          VNew := ANewCategoryList[i];
+        end;
+        VResult := _UpdateCategory(VOld, VNew);
+        if i < Result.Capacity then begin
+          Result.Add(VResult);
+        end;
+      end;
+    finally
+      UnlockWrite;
+    end;
+    SaveCategory2File;
+  end else begin
+    LockWrite;
+    try
+      for i := 0 to AOldCategoryList.Count - 1 do begin
+        _UpdateCategory(AOldCategoryList[i], nil);
+      end;
+    finally
+      UnlockWrite;
+    end;
+    SaveCategory2File;
   end;
 end;
 
