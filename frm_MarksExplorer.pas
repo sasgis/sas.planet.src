@@ -488,17 +488,19 @@ begin
       VList := FMarkDBGUI.ImportFile(OpenDialog1.FileName, VImportConfig);
     end;
   end;
-  VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
-  if VMark <> nil then begin
-    if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-      FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FViewPortState.GetStatic.Zoom, False);
-    end;
-    if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-      FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
-    end;
-    if Supports(VMark, IMarkLine, VMarkLine) then begin
-      FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-    end;
+  if Vlist <> nil then begin  
+    VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
+   if VMark <> nil then begin
+     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+       FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FViewPortState.GetStatic.Zoom, False);
+      end;
+      if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+       FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
+     end;
+     if Supports(VMark, IMarkLine, VMarkLine) then begin
+       FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
+     end;
+   end;
   end;
 end;
 
