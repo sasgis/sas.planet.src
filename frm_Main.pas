@@ -5653,6 +5653,11 @@ procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
 var
   VFileName: string;
   VImportConfig: IImportConfig;
+  VList: IInterfaceList;
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
+  VMark: IMark;
 begin
   if (OpenSessionDialog.Execute) then begin
     FState.State := ao_movemap;
@@ -5664,7 +5669,19 @@ begin
         FFormRegionProcess.LoadSelFromFile(VFileName);
       end else begin
         VImportConfig := nil;
-        FMarkDBGUI.ImportFile(VFileName, VImportConfig);
+        VList := FMarkDBGUI.ImportFile(VFileName, VImportConfig);
+        VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
+        if VMark <> nil then begin
+          if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+            FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
+          end;
+          if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+            FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
+          end;
+          if Supports(VMark, IMarkLine, VMarkLine) then begin
+            FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
+          end;
+        end;
       end;
     end;
   end;

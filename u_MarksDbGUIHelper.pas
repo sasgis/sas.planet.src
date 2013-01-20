@@ -122,7 +122,10 @@ type
       ACategoryList: IInterfaceList;
       AIgnoreMarksVisible: Boolean
     );
-    function ImportFile(const AFileNameToImport: String; var AImportConfig: IImportConfig): IInterfaceList;
+    function ImportFile(
+      const AFileNameToImport: String;
+      var AImportConfig: IImportConfig
+    ): IInterfaceList;
 
     property MarksDb: IMarksSystem read FMarksDb;
     property ImportFileByExt: IImportFile read FImportFileByExt;
@@ -405,6 +408,7 @@ begin
     end;
   end;
 end;
+
 
 procedure TMarksDbGUIHelper.ExportCategoryList(
   ACategoryList: IInterfaceList;

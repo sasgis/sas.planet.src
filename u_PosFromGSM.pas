@@ -216,7 +216,7 @@ begin
   CommPortDriver.SendString('AT+CREG=1' + #13);
   CommPortDriver.Disconnect;
   if GetCoordFromGoogle(LL) then begin
-    FMapGoto.GotoPos(LL, FZoom);
+    FMapGoto.GotoPos(LL, FZoom, True);
   end;
   free;
 end;
@@ -296,7 +296,7 @@ begin
         LAC := IntToHex(strtoint(GetWord(paramss, ',', 3)), 4);
         CellID := IntToHex(strtoint(GetWord(paramss, ',', 4)), 4);
         if GetCoordFromGoogle(LL) then begin
-          FMapGoto.GotoPos(LL, FZoom);
+          FMapGoto.GotoPos(LL, FZoom, True);
           Result := true;
         end else begin
           Result := false;

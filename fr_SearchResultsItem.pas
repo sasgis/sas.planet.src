@@ -116,12 +116,12 @@ end;
 
 procedure TfrSearchResultsItem.LabelCaptionClick(Sender: TObject);
 begin
-  FMapGoto.GotoPos(FPlacemark.GetPoint, FViewPortState.GetStatic.Zoom);
+  FMapGoto.GotoPos(FPlacemark.GetPoint, FViewPortState.GetStatic.Zoom, True);
 end;
 
 procedure TfrSearchResultsItem.LabelDescDblClick(Sender: TObject);
 begin
-  FMapGoto.GotoPos(FPlacemark.GetPoint, FViewPortState.GetStatic.Zoom);
+  FMapGoto.GotoPos(FPlacemark.GetPoint, FViewPortState.GetStatic.Zoom, True);
 end;
 
 procedure TfrSearchResultsItem.LabelFullDescMouseUp(Sender: TObject;

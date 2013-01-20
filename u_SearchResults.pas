@@ -168,7 +168,7 @@ begin
     if VItemForGoTo = nil then begin
       ShowMessage(SAS_STR_notfound);
     end else begin
-      FMapGoto.GotoPos(VItemForGoTo.GetPoint, AZoom);
+      FMapGoto.GotoPos(VItemForGoTo.GetPoint, AZoom, True);
     end;
   end else begin
     case ASearchResult.GetResultCode of

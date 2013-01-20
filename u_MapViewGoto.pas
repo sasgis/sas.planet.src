@@ -56,7 +56,8 @@ type
   private
     procedure GotoPos(
       const ALonLat: TDoublePoint;
-      const AZoom: Byte
+      const AZoom: Byte;
+      const AshowMarker: Boolean
     );
     procedure FitRectToScreen(
       const ALonLatRect: TDoubleRect
@@ -152,12 +153,13 @@ end;
 
 procedure TMapViewGoto.GotoPos(
   const ALonLat: TDoublePoint;
-  const AZoom: Byte
+  const AZoom: Byte;
+  const AshowMarker: Boolean
 );
 begin
   FLastGotoPos := TGotoPosStatic.Create(ALonLat, AZoom, Now);
   FViewPortState.ChangeLonLatAndZoom(AZoom, ALonLat);
-  FChangeNotifier.Notify(nil);
+  if AShowmarker then FChangeNotifier.Notify(nil);
 end;
 
 { TGotoPosStatic }

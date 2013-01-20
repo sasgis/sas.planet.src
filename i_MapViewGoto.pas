@@ -43,7 +43,8 @@ type
     ['{33FDD537-B089-4ED6-8AB4-720E47B3C8B8}']
     procedure GotoPos(
       const ALonLat: TDoublePoint;
-      const AZoom: Byte
+      const AZoom: Byte;
+      const AshowMarker: Boolean
     );
     procedure FitRectToScreen(
       const ALonLatRect: TDoubleRect

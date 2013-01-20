@@ -471,16 +471,33 @@ procedure TfrmMarksExplorer.btnImportClick(Sender: TObject);
 var
   VImportConfig: IImportConfig;
   i: Integer;
+  VList: IInterfaceList;
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
+  VMark: IMark;
 begin
   VImportConfig := nil;
   if (OpenDialog1.Execute(Self.Handle)) then begin
     if Assigned(OpenDialog1.Files) and (OpenDialog1.Files.Count>0) then begin
       // multiple files
       for i := 0 to OpenDialog1.Files.Count-1 do
-        FMarkDBGUI.ImportFile(OpenDialog1.Files[i], VImportConfig);
+        VList := FMarkDBGUI.ImportFile(OpenDialog1.Files[i], VImportConfig);
     end else begin
       // single file
-      FMarkDBGUI.ImportFile(OpenDialog1.FileName, VImportConfig);
+      VList := FMarkDBGUI.ImportFile(OpenDialog1.FileName, VImportConfig);
+    end;
+  end;
+  VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
+  if VMark <> nil then begin
+    if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+      FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FViewPortState.GetStatic.Zoom, False);
+    end;
+    if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+      FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
+    end;
+    if Supports(VMark, IMarkLine, VMarkLine) then begin
+      FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
     end;
   end;
 end;
@@ -614,7 +631,7 @@ begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-      FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FViewPortState.GetStatic.Zoom);
+      FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
     end;
     if Supports(VMark, IMarkPoly, VMarkPoly) then begin
       FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
@@ -1005,7 +1022,7 @@ begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
     if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-      FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetStatic.Zoom);
+      FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
     end else if Supports(VMark, IMarkLine, VMarkLine) then begin
       FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
       FMapGoto.ShowMarker(VMarkLine.GetGoToLonLat);
