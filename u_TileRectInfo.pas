@@ -21,8 +21,6 @@ type
     FInfoType: TTileInfoType;
   end;
   TArrayOfTileInfoInternal = array of TTileInfoInternal;
-  PTileInfoInternalArray = ^TTileInfoInternalArray;
-  TTileInfoInternalArray = array [0..0] of TTileInfoInternal;
 
   TTileRectInfo = class(TBaseInterfacedObject, ITileRectInfo)
   private
@@ -50,6 +48,9 @@ implementation
 { TEnumTileInfo }
 
 type
+  PTileInfoInternalArray = ^TTileInfoInternalArray;
+  TTileInfoInternalArray = array [0..0] of TTileInfoInternal;
+
   TEnumTileInfo = class(TBaseInterfacedObject, IEnumTileInfo)
   private
     FRef: IInterface;
