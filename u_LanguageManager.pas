@@ -155,14 +155,10 @@ begin
 end;
 
 procedure TLanguageManager.LoadLangs;
-var
-  VCodes: TStringList;
-  VLanguagesEx: TLanguagesEx;
-
-  procedure Add(const AName, ACode: string);
+  procedure Add(ACodes: TStringList; const AName, ACode: string);
   begin
     FNames.Add(AName);
-    VCodes.Add(ACode);
+    ACodes.Add(ACode);
   end;
 
   procedure GetListOfLanguages(AList: TStringList);
@@ -177,6 +173,8 @@ var
   end;
 
 var
+  VCodes: TStringList;
+  VLanguagesEx: TLanguagesEx;
   VInstalledLanguages: TStringList;
   I: Integer;
   VLangCodeID: LCID;
@@ -189,7 +187,7 @@ begin
     VLanguagesEx := TLanguagesEx.Create;
     try
       VLangCodeID := VLanguagesEx.GNUGetTextID[FDefaultLangCode];
-      Add(VLanguagesEx.EngNameFromLocaleID[VLangCodeID], FDefaultLangCode);
+      Add(VCodes, VLanguagesEx.EngNameFromLocaleID[VLangCodeID], FDefaultLangCode);
 
       VInstalledLanguages := TStringList.Create;
       try
@@ -197,7 +195,7 @@ begin
         for I := 0 to VInstalledLanguages.Count - 1 do begin
           VLangCodeID := VLanguagesEx.GNUGetTextID[VInstalledLanguages[I]];
           if VLangCodeID <> 0 then begin
-            Add(VLanguagesEx.EngNameFromLocaleID[VLangCodeID], VInstalledLanguages[I]);
+            Add(VCodes, VLanguagesEx.EngNameFromLocaleID[VLangCodeID], VInstalledLanguages[I]);
           end;
         end;
       finally
