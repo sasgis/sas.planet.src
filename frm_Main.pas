@@ -5670,7 +5670,7 @@ begin
       end else begin
         VImportConfig := nil;
         VList := FMarkDBGUI.ImportFile(VFileName, VImportConfig);
-        if VList <> nil then begin
+        if (VList <> nil) and (VList.Count > 0) then begin
           VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
           if VMark <> nil then begin
             if Supports(VMark, IMarkPoint, VMarkPoint) then begin
