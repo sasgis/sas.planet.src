@@ -23,6 +23,7 @@ unit u_ImportHLG;
 interface
 
 uses
+  Classes,
   i_VectorItemsFactory,
   i_ImportFile,
   i_ImportConfig,
@@ -36,7 +37,7 @@ type
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig
-    ): Boolean;
+    ): IInterfaceList;
   public
     constructor Create(
       const AFactory: IVectorItemsFactory
@@ -65,7 +66,7 @@ end;
 function TImportHLG.ProcessImport(
   const AFileName: string;
   const AConfig: IImportConfig
-): Boolean;
+): IInterfaceList;
 var
   VIni: TMemIniFile;
   VHLGData: IConfigDataProvider;
@@ -73,7 +74,7 @@ var
   VPolygon: ILonLatPolygon;
   VMark: IMark;
 begin
-  Result := False;
+  Result := nil;
   if AConfig.TemplateNewPoly <> nil then begin
     VIni := TMemIniFile.Create(AFileName);
     try
@@ -95,8 +96,11 @@ begin
           AConfig.TemplateNewPoly
         );
       if VMark <> nil then begin
-        AConfig.MarkDB.UpdateMark(nil, VMark);
-        Result := True;
+        VMark := AConfig.MarkDB.UpdateMark(nil, VMark);
+        if VMark <> nil then begin
+          Result := TInterfaceList.Create;
+          Result.Add(VMark);
+        end;
       end;
     end;
   end;

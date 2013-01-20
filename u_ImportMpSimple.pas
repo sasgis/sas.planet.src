@@ -23,6 +23,7 @@ unit u_ImportMpSimple;
 interface
 
 uses
+  Classes,
   t_GeoTypes,
   i_VectorItemsFactory,
   i_DoublePointsAggregator,
@@ -42,7 +43,7 @@ type
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig
-    ): Boolean;
+    ): IInterfaceList;
   public
     constructor Create(
       const AFactory: IVectorItemsFactory
@@ -52,7 +53,6 @@ type
 implementation
 
 uses
-  Classes,
   SysUtils,
   StrUtils,
   i_MarksSimple,
@@ -118,7 +118,7 @@ end;
 function TImportMpSimple.ProcessImport(
   const AFileName: string;
   const AConfig: IImportConfig
-): Boolean;
+): IInterfaceList;
 var
   VFile: TStringList;
   i: integer;
@@ -128,7 +128,7 @@ var
   VPoligonLine: Integer;
   VDataLine: Integer;
 begin
-  Result := False;
+  Result := nil;
   if AConfig.TemplateNewPoly <> nil then begin
     VPointsAggregator := TDoublePointsAggregator.Create;
     VFile := TStringList.Create;
@@ -169,8 +169,11 @@ begin
         AConfig.TemplateNewPoly
       );
       if VMark <> nil then begin
-        AConfig.MarkDB.UpdateMark(nil, VMark);
-        Result := True;
+        VMark := AConfig.MarkDB.UpdateMark(nil, VMark);
+        if VMark <> nil then begin
+          Result := TInterfaceList.Create;
+          Result.Add(VMark);
+        end;
       end;
     end;
   end;

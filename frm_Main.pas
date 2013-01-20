@@ -854,6 +854,7 @@ begin
       GState.LanguageManager,
       GState.MediaDataPath,
       GState.MarksDb,
+      GState.ImportFileByExt,
       FConfig.ViewPortState.View,
       GState.VectorItemsFactory,
       GState.ArchiveReadWriteFactory,
@@ -1261,7 +1262,6 @@ begin
       TfrmMarksExplorer.Create(
         False,
         GState.LanguageManager,
-        GState.ImportFileByExt,
         FConfig.ViewPortState.View,
         FConfig.NavToPoint,
         FConfig.MarksExplorerWindowConfig,
@@ -5663,14 +5663,11 @@ begin
       end else if ExtractFileExt(VFileName)='.hlg' then begin
         FFormRegionProcess.LoadSelFromFile(VFileName);
       end else begin
-        VImportConfig := FMarkDBGUI.EditModalImportConfig;
-        if VImportConfig <> nil then begin
-          GState.ImportFileByExt.ProcessImport(VFileName, VImportConfig);
-        end;
+        VImportConfig := nil;
+        FMarkDBGUI.ImportFile(VFileName, VImportConfig);
       end;
     end;
   end;
-
 end;
 
 procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);

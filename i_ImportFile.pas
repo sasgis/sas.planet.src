@@ -23,6 +23,7 @@ unit i_ImportFile;
 interface
 
 uses
+  Classes,
   i_ImportConfig;
 
 type
@@ -31,7 +32,7 @@ type
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig
-    ): Boolean;
+    ): IInterfaceList;
   end;
 
 implementation

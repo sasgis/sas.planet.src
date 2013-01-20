@@ -158,7 +158,6 @@ type
     FCategoryList: IInterfaceList;
     FMarksList: IInterfaceList;
     FMarkDBGUI: TMarksDbGUIHelper;
-    FImportFileByExt: IImportFile;
     FMarksShowConfig: IUsedMarksConfig;
     FWindowConfig: IWindowPositionConfig;
     FViewPortState: ILocalCoordConverterChangeable;
@@ -190,7 +189,6 @@ type
     constructor Create(
       AUseAsIndepentWindow: Boolean;
       const ALanguageManager: ILanguageManager;
-      const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
       const ANavToPoint: INavigationToPoint;
       const AWindowConfig: IWindowPositionConfig;
@@ -220,7 +218,6 @@ uses
 constructor TfrmMarksExplorer.Create(
   AUseAsIndepentWindow: Boolean;
   const ALanguageManager: ILanguageManager;
-  const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
   const ANavToPoint: INavigationToPoint;
   const AWindowConfig: IWindowPositionConfig;
@@ -234,7 +231,6 @@ begin
   FUseAsIndepentWindow := AUseAsIndepentWindow;
   FMarkDBGUI := AMarkDBGUI;
   FMapGoto := AMapGoto;
-  FImportFileByExt := AImportFileByExt;
   FWindowConfig := AWindowConfig;
   FMarksShowConfig := AMarksShowConfig;
   FViewPortState := AViewPortState;
@@ -474,31 +470,17 @@ end;
 procedure TfrmMarksExplorer.btnImportClick(Sender: TObject);
 var
   VImportConfig: IImportConfig;
-
-  procedure _RunForFile(const AFileNameToImport: String);
-  begin
-    if (FileExists(AFileNameToImport)) then begin
-      if not Assigned(VImportConfig) then
-        VImportConfig := FMarkDBGUI.EditModalImportConfig;
-      if Assigned(VImportConfig) then begin
-        FImportFileByExt.ProcessImport(AFileNameToImport, VImportConfig);
-      end;
-    end;
-  end;
-
-var
   i: Integer;
 begin
   VImportConfig := nil;
-
   if (OpenDialog1.Execute(Self.Handle)) then begin
     if Assigned(OpenDialog1.Files) and (OpenDialog1.Files.Count>0) then begin
       // multiple files
       for i := 0 to OpenDialog1.Files.Count-1 do
-        _RunForFile(OpenDialog1.Files[i]);
+        FMarkDBGUI.ImportFile(OpenDialog1.Files[i], VImportConfig);
     end else begin
       // single file
-      _RunForFile(OpenDialog1.FileName);
+      FMarkDBGUI.ImportFile(OpenDialog1.FileName, VImportConfig);
     end;
   end;
 end;

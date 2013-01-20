@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  Classes,
   t_GeoTypes,
   i_VectorItemsFactory,
   i_DoublePointsAggregator,
@@ -39,7 +40,7 @@ type
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig
-    ): Boolean;
+    ): IInterfaceList;
   public
     constructor Create(
       const AFactory: IVectorItemsFactory
@@ -49,7 +50,6 @@ type
 implementation
 
 uses
-  Classes,
   SysUtils,
   StrUtils,
   i_MarksSimple,
@@ -68,7 +68,7 @@ end;
 function TImportCSV.ProcessImport(
   const AFileName: string;
   const AConfig: IImportConfig
-): Boolean;
+): IInterfaceList;
 
   type
     TCSVPointFieldType = (
@@ -446,7 +446,7 @@ var
   // to collect all new marks
   VAllNewMarks: IInterfaceList;
 begin
-  Result := FALSE;
+  Result := nil;
 
   if (nil=AConfig) then
     Exit;
@@ -602,8 +602,7 @@ begin
   if Assigned(VAllNewMarks) then
   if (VAllNewMarks.Count>0) then
   if (nil<>AConfig.MarkDB) then begin
-    Result := TRUE;
-    AConfig.MarkDB.UpdateMarksList(nil, VAllNewMarks);
+    Result := AConfig.MarkDB.UpdateMarksList(nil, VAllNewMarks);
   end;
 end;
 

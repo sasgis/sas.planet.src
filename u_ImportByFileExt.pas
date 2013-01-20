@@ -23,6 +23,7 @@ unit u_ImportByFileExt;
 interface
 
 uses
+  Classes,
   i_ImportFile,
   i_VectorItemsFactory,
   i_VectorDataFactory,
@@ -48,7 +49,7 @@ type
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig
-    ): Boolean;
+    ): IInterfaceList;
   public
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory;
@@ -98,11 +99,11 @@ end;
 function TImportByFileExt.ProcessImport(
   const AFileName: string;
   const AConfig: IImportConfig
-): Boolean;
+): IInterfaceList;
 var
   VExtLwr: String;
 begin
-  Result := False;
+  Result := nil;
   VExtLwr := LowerCase(ExtractFileExt(AFileName));
   if ('.gpx' = VExtLwr) then begin
     Result := FImportXML.ProcessImport(AFileName, AConfig);

@@ -39,6 +39,7 @@ uses
   i_MarkCategory,
   i_MarksSystem,
   i_ImportConfig,
+  i_ImportFile,
   frm_MarkCategoryEdit,
   frm_MarkEditPoint,
   frm_MarkEditPath,
@@ -62,6 +63,7 @@ type
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
     FfrmMarkInfo: TfrmMarkInfo;
     FExportDialog: TSaveDialog;
+    FImportFileByExt: IImportFile;
   public
     function GetMarkIdCaption(const AMarkId: IMarkId): string;
 
@@ -120,13 +122,16 @@ type
       ACategoryList: IInterfaceList;
       AIgnoreMarksVisible: Boolean
     );
+    function ImportFile(const AFileNameToImport: String; var AImportConfig: IImportConfig): IInterfaceList;
 
     property MarksDb: IMarksSystem read FMarksDb;
+    property ImportFileByExt: IImportFile read FImportFileByExt;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
       const AMarksDB: IMarksSystem;
+      const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -155,6 +160,7 @@ constructor TMarksDbGUIHelper.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
   const AMarksDB: IMarksSystem;
+  const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -163,6 +169,7 @@ constructor TMarksDbGUIHelper.Create(
 begin
   inherited Create;
   FMarksDb := AMarksDB;
+  FImportFileByExt := AImportFileByExt;
   FVectorItemsFactory := AVectorItemsFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
@@ -485,6 +492,21 @@ begin
     VFormat := '%0:s';
   end;
   Result := Format(VFormat, [AMarkId.Name]);
+end;
+
+function TMarksDbGUIHelper.ImportFile(
+  const AFileNameToImport: String;
+  var AImportConfig: IImportConfig
+): IInterfaceList;
+begin
+  Result := nil;
+  if (FileExists(AFileNameToImport)) then begin
+    if not Assigned(AImportConfig) then
+      AImportConfig := EditModalImportConfig;
+    if Assigned(AImportConfig) then begin
+      Result:= FImportFileByExt.ProcessImport(AFileNameToImport, AImportConfig);
+    end;
+  end;
 end;
 
 function TMarksDbGUIHelper.MarksMultiEditModal(const ACategory: ICategory): IImportConfig;

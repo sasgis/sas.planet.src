@@ -43,7 +43,7 @@ type
     function ProcessImport(
       const AFileName: string;
       const AConfig: IImportConfig
-    ): Boolean;
+    ): IInterfaceList;
   public
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory
@@ -63,16 +63,15 @@ end;
 function TMarksImportBase.ProcessImport(
   const AFileName: string;
   const AConfig: IImportConfig
-): Boolean;
+): IInterfaceList;
 var
   VList: IInterfaceList;
 begin
-  Result := False;
+  Result := nil;
   VList := DoImport(AFileName, AConfig);
   if VList <> nil then begin
     if VList.Count > 0 then begin
-      AConfig.MarkDB.UpdateMarksList(nil, VList);
-      Result := True;
+      Result := AConfig.MarkDB.UpdateMarksList(nil, VList);
     end;
   end;
 end;
