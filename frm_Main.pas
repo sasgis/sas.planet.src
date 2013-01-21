@@ -391,6 +391,7 @@ type
     NGShauto: TTBXItem;
     NGShScale5000: TTBXItem;
     NGShScale2500: TTBXItem;
+    Rosreestr: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -543,6 +544,7 @@ type
     procedure NMapStorageInfoClick(Sender: TObject);
     procedure tbitmMakeVersionByMarkClick(Sender: TObject);
     procedure tbitmSelectVersionByMarkClick(Sender: TObject);
+    procedure RosreestrClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2361,6 +2363,31 @@ begin
   end;
   PaintZSlider(VZoomCurr);
   labZoom.caption:= 'z' + inttostr(VZoomCurr + 1);
+end;
+
+procedure TfrmMain.RosreestrClick(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat: TDoublePoint;
+
+begin
+  VLocalConverter := FConfig.ViewPortState.View.GetStatic;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  VLonLat:=VConverter.LonLat2Metr(VLonLat);
+  CopyStringToClipboard(
+    'http://maps.rosreestr.ru/PortalOnline/?' +
+    'l=' + IntToStr(VZoom) +
+    '&x=' + RoundEx(VLonLat.x, 4) +
+    '&y=' + RoundEx(VLonLat.y, 4) +
+    '&mls=map|anno&cls=cadastre'
+  );
 end;
 
 procedure TfrmMain.CopyBtmToClipboard(btm: TBitmap);
