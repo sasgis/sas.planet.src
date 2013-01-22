@@ -28,6 +28,9 @@ type
     function GetName: string; stdcall;
     property Name: string read GetName;
 
+    function GetStringId: string;
+    property StringId: string read GetStringId;
+
     function IsSame(const ACategory: ICategory): Boolean;
     function IsEqual(const ACategory: ICategory): Boolean;
   end;

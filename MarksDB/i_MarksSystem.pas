@@ -30,6 +30,7 @@ type
     property MarksFactoryConfig: IMarksFactoryConfig read GetMarksFactoryConfig;
 
     function GetMarkByStringId(const AId: string): IMark;
+    function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;

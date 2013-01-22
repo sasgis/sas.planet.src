@@ -51,12 +51,6 @@ type
     property Id: integer read GetId;
   end;
 
-  IMarkTemplateSMLInternal = interface
-    ['{17BBDDCD-3CBC-4872-91C4-E58AEBCF595E}']
-    function GetCategoryId: Integer;
-    property CategoryId: Integer read GetCategoryId;
-  end;
-
   IMarksDbSmlInternal = interface
     ['{54D17191-A56C-4951-8838-7E492906213A}']
     function GetById(AId: Integer): IMarkSMLInternal;

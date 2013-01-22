@@ -214,8 +214,8 @@ function TMarkFactory.CreateNewLine(
 ): IMarkLine;
 var
   VTemplate: IMarkTemplateLine;
-  VTemplateSML: IMarkTemplateSMLInternal;
   VCategoryId: Integer;
+  VCategoryStringId: string;
   VName: string;
 begin
   VTemplate := ATemplate;
@@ -229,8 +229,9 @@ begin
   end;
 
   VCategoryId := CNotExistCategoryID;
-  if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
-    VCategoryId := VTemplateSML.CategoryId;
+  VCategoryStringId := VTemplate.CategoryStringID;
+  if VCategoryStringId <> '' then begin
+    VCategoryId := StrToIntDef(VCategoryStringID, VCategoryId);
   end;
 
   Result :=
@@ -254,7 +255,7 @@ function TMarkFactory.CreateNewPoint(
 ): IMarkPoint;
 var
   VTemplate: IMarkTemplatePoint;
-  VTemplateSML: IMarkTemplateSMLInternal;
+  VCategoryStringId: string;
   VName: string;
   VCategoryId: Integer;
 begin
@@ -269,8 +270,9 @@ begin
   end;
 
   VCategoryId := CNotExistCategoryID;
-  if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
-    VCategoryId := VTemplateSML.CategoryId;
+  VCategoryStringId := VTemplate.CategoryStringID;
+  if VCategoryStringId <> '' then begin
+    VCategoryId := StrToIntDef(VCategoryStringID, VCategoryId);
   end;
 
   Result :=
@@ -298,7 +300,7 @@ function TMarkFactory.CreateNewPoly(
 ): IMarkPoly;
 var
   VTemplate: IMarkTemplatePoly;
-  VTemplateSML: IMarkTemplateSMLInternal;
+  VCategoryStringId: string;
   VName: string;
   VCategoryId: Integer;
 begin
@@ -313,8 +315,9 @@ begin
   end;
 
   VCategoryId := CNotExistCategoryID;
-  if Supports(VTemplate, IMarkTemplateSMLInternal, VTemplateSML) then begin
-    VCategoryId := VTemplateSML.CategoryId;
+  VCategoryStringId := VTemplate.CategoryStringID;
+  if VCategoryStringId <> '' then begin
+    VCategoryId := StrToIntDef(VCategoryStringID, VCategoryId);
   end;
 
   Result :=

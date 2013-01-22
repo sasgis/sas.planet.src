@@ -549,6 +549,9 @@ var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
+  VCategoryPoint: ICategory;
+  VCategoryLine: ICategory;
+  VCategoryPoly: ICategory;
   VMarkId: IMarkId;
   i:integer;
 begin
@@ -564,6 +567,24 @@ begin
       VImportConfig := FMarkDBGUI.MarksMultiEditModal(GetSelectedCategory);
       if (VImportConfig <> nil) then begin
         VMarksList:=TInterfaceList.Create;
+        if VImportConfig.TemplateNewPoint <> nil then begin
+          VCategoryPoint :=
+            FMarkDBGUI.MarksDb.GetMarkCategoryByStringId(
+              VImportConfig.TemplateNewPoint.CategoryStringID
+            );
+        end;
+        if VImportConfig.TemplateNewLine <> nil then begin
+          VCategoryLine :=
+            FMarkDBGUI.MarksDb.GetMarkCategoryByStringId(
+              VImportConfig.TemplateNewLine.CategoryStringID
+            );
+        end;
+        if VImportConfig.TemplateNewPoly <> nil then begin
+          VCategoryPoly :=
+            FMarkDBGUI.MarksDb.GetMarkCategoryByStringId(
+              VImportConfig.TemplateNewPoly.CategoryStringID
+            );
+        end;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMarkId := IMarkId(VMarkIdList[i]);
           VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(VMarkId);
@@ -574,7 +595,7 @@ begin
                 VMarkPoint.Name,
                 FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
                 VImportConfig.TemplateNewPoint.Pic,
-                VImportConfig.TemplateNewPoint.Category,
+                VCategoryPoint,
                 VMarkPoint.Desc,
                 VMarkPoint.Point,
                 VImportConfig.TemplateNewPoint.TextColor,
@@ -589,7 +610,7 @@ begin
                 VMarkLine,
                 VMarkLine.Name,
                 FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
-                VImportConfig.TemplateNewLine.Category,
+                VCategoryLine,
                 VMarkLine.Desc,
                 VMarkLine.Line,
                 VImportConfig.TemplateNewLine.LineColor,
@@ -602,7 +623,7 @@ begin
                 VMarkPoly,
                 VMarkPoly.Name,
                 FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
-                VImportConfig.TemplateNewPoly.Category,
+                VCategoryPoly,
                 VMarkPoly.Desc,
                 VMarkPoly.Line,
                 VImportConfig.TemplateNewPoly.BorderColor,

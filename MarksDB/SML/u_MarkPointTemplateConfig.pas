@@ -120,20 +120,16 @@ function TMarkPointTemplateConfig.CreateTemplate(
   AFontSize, AMarkerSize: Integer
 ): IMarkTemplatePoint;
 var
-  VCategoryId: Integer;
-  VCategoryInternal: IMarkCategorySMLInternal;
+  VCategoryStringId: string;
 begin
-  VCategoryId := CNotExistCategoryID;
+  VCategoryStringId := '';
   if ACategory <> nil then begin
-    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-      VCategoryId := VCategoryInternal.Id;
-    end;
+    VCategoryStringId := ACategory.StringId;
   end;
   Result :=
     TMarkTemplatePoint.Create(
-      CategoryDb,
       NameGenerator,
-      VCategoryId,
+      VCategoryStringId,
       ATextColor,
       ATextBgColor,
       AFontSize,
@@ -149,17 +145,13 @@ var
   VPicName: string;
   VPic: IMarkPicture;
   VPicIndex: Integer;
-  VCategoryId: Integer;
+  VCategoryId: string;
   VTextColor, VTextBgColor: TColor32;
   VFontSize, VMarkerSize: Integer;
-  VTemplateInternal: IMarkTemplateSMLInternal;
   VTemplate: IMarkTemplatePoint;
 begin
   inherited;
-  VCategoryId := CNotExistCategoryID;
-  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
-    VCategoryId := VTemplateInternal.CategoryId;
-  end;
+  VCategoryId := FDefaultTemplate.CategoryStringID;
   VTextColor := FDefaultTemplate.TextColor;
   VTextBgColor := FDefaultTemplate.TextBgColor;
   VFontSize := FDefaultTemplate.FontSize;
@@ -183,7 +175,7 @@ begin
         VPic := FMarkPictureList.Get(VPicIndex);
       end;
     end;
-    VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
+    VCategoryId := AConfigData.ReadString('CategoryId', VCategoryId);
     VTextColor := ReadColor32(AConfigData, 'TextColor', VTextColor);
     VTextBgColor := ReadColor32(AConfigData, 'ShadowColor', VTextBgColor);
     VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
@@ -191,7 +183,6 @@ begin
   end;
   VTemplate :=
     TMarkTemplatePoint.Create(
-      CategoryDb,
       NameGenerator,
       VCategoryId,
       VTextColor,
@@ -207,23 +198,17 @@ procedure TMarkPointTemplateConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
 var
-  VCategoryId: Integer;
   VPicName: string;
-  VTemplateInternal: IMarkTemplateSMLInternal;
   VPic: IMarkPicture;
 begin
   inherited;
-  VCategoryId := CNotExistCategoryID;
-  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
-    VCategoryId := VTemplateInternal.CategoryId;
-  end;
   VPicName := '';
   VPic := FDefaultTemplate.Pic;
   if VPic <> nil then begin
     VPicName := VPic.GetName;
   end;
   AConfigData.WriteString('IconName', VPicName);
-  AConfigData.WriteInteger('CategoryId', VCategoryId);
+  AConfigData.WriteString('CategoryId', FDefaultTemplate.CategoryStringID);
   WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.TextColor);
   WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.TextBgColor);
   AConfigData.WriteInteger('FontSize', FDefaultTemplate.FontSize);

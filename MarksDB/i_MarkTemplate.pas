@@ -32,8 +32,8 @@ type
     ['{2D6A0C13-754C-4BC1-9003-361CA28D311E}']
     function GetNewName: string;
 
-    function GetCategory: ICategory;
-    property Category: ICategory read GetCategory;
+    function GetCategoryStringID: string;
+    property CategoryStringID: string read GetCategoryStringID;
   end;
 
   IMarkTemplatePoint = interface(IMarkTemplate)

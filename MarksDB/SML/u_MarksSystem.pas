@@ -67,6 +67,7 @@ type
     function GetMarksFactoryConfig: IMarksFactoryConfig;
 
     function GetMarkByStringId(const AId: string): IMark;
+    function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
@@ -272,6 +273,21 @@ begin
   if AId <> '' then begin
     if TryStrToInt(AId, VId) then begin
       if not Supports(FMarksDbInternal.GetById(VId), IMark, Result) then begin
+        Result := nil;
+      end;
+    end;
+  end;
+end;
+
+function TMarksSystem.GetMarkCategoryByStringId(
+  const AId: string): IMarkCategory;
+var
+  VId: Integer;
+begin
+  Result := nil;
+  if AId <> '' then begin
+    if TryStrToInt(AId, VId) then begin
+      if not Supports(FCategoryDBInternal.GetCategoryByID(VId), IMarkCategory, Result) then begin
         Result := nil;
       end;
     end;

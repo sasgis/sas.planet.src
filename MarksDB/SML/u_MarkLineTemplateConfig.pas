@@ -101,18 +101,14 @@ function TMarkLineTemplateConfig.CreateTemplate(
   ALineWidth: Integer
 ): IMarkTemplateLine;
 var
-  VCategoryId: Integer;
-  VCategoryInternal: IMarkCategorySMLInternal;
+  VCategoryId: string;
 begin
-  VCategoryId := CNotExistCategoryID;
+  VCategoryId := '';
   if ACategory <> nil then begin
-    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-      VCategoryId := VCategoryInternal.Id;
-    end;
+    VCategoryId := ACategory.StringId;
   end;
   Result :=
     TMarkTemplateLine.Create(
-      CategoryDb,
       NameGenerator,
       VCategoryId,
       ALineColor,
@@ -124,27 +120,22 @@ procedure TMarkLineTemplateConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
 var
-  VCategoryId: Integer;
+  VCategoryId: string;
   VLineColor: TColor32;
   VLineWidth: Integer;
-  VTemplateInternal: IMarkTemplateSMLInternal;
   VTemplate: IMarkTemplateLine;
 begin
   inherited;
-  VCategoryId := CNotExistCategoryID;
-  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
-    VCategoryId := VTemplateInternal.CategoryId;
-  end;
+  VCategoryId := FDefaultTemplate.CategoryStringID;
   VLineColor := FDefaultTemplate.LineColor;
   VLineWidth := FDefaultTemplate.LineWidth;
   if AConfigData <> nil then begin
-    VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
+    VCategoryId := AConfigData.ReadString('CategoryId', VCategoryId);
     VLineColor := ReadColor32(AConfigData, 'LineColor', VLineColor);
     VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
   end;
   VTemplate :=
     TMarkTemplateLine.Create(
-      CategoryDb,
       NameGenerator,
       VCategoryId,
       VLineColor,
@@ -157,16 +148,9 @@ end;
 procedure TMarkLineTemplateConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
-var
-  VCategoryId: Integer;
-  VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
-  VCategoryId := CNotExistCategoryID;
-  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
-    VCategoryId := VTemplateInternal.CategoryId;
-  end;
-  AConfigData.WriteInteger('CategoryId', VCategoryId);
+  AConfigData.WriteString('CategoryId', FDefaultTemplate.CategoryStringID);
   WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.LineColor);
   AConfigData.WriteInteger('LineWidth', FDefaultTemplate.LineWidth);
 end;

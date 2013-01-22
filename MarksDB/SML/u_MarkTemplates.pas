@@ -33,21 +33,18 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TMarkTemplateBase = class(TBaseInterfacedObject, IMarkTemplate, IMarkTemplateSMLInternal)
+  TMarkTemplateBase = class(TBaseInterfacedObject, IMarkTemplate)
   private
-    FCategoryDb: IMarkCategoryDBSmlInternal;
     FNameGenerator: IMarkNameGenerator;
-    FCategoryId: Integer;
+    FCategoryStringID: string;
     function IsSameInternal(const ATemplate: IMarkTemplate): Boolean;
   protected
     function GetNewName: string;
-    function GetCategory: ICategory;
-    function GetCategoryId: Integer;
+    function GetCategoryStringID: string;
   public
     constructor Create(
-      const ACategoryDb: IMarkCategoryDBSmlInternal;
       const ANameGenerator: IMarkNameGenerator;
-      ACategoryId: Integer
+      const ACategoryStringID: string
     );
   end;
 
@@ -67,9 +64,8 @@ type
     function IsSame(const ATemplate: IMarkTemplatePoint): Boolean;
   public
     constructor Create(
-      const ACategoryDb: IMarkCategoryDBSmlInternal;
       const ANameGenerator: IMarkNameGenerator;
-      ACategoryId: Integer;
+      const ACategoryStringID: string;
       ATextColor: TColor32;
       ATextBgColor: TColor32;
       AFontSize: Integer;
@@ -88,9 +84,8 @@ type
     function IsSame(const ATemplate: IMarkTemplateLine): Boolean;
   public
     constructor Create(
-      const ACategoryDb: IMarkCategoryDBSmlInternal;
       const ANameGenerator: IMarkNameGenerator;
-      ACategoryId: Integer;
+      const ACategoryStringID: string;
       ALineColor: TColor32;
       ALineWidth: Integer
     );
@@ -108,9 +103,8 @@ type
     function IsSame(const ATemplate: IMarkTemplatePoly): Boolean;
   public
     constructor Create(
-      const ACategoryDb: IMarkCategoryDBSmlInternal;
       const ANameGenerator: IMarkNameGenerator;
-      ACategoryId: Integer;
+      const ACategoryStringID: string;
       ABorderColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
@@ -125,25 +119,18 @@ uses
 { FMarkTemplateBase }
 
 constructor TMarkTemplateBase.Create(
-  const ACategoryDb: IMarkCategoryDBSmlInternal;
   const ANameGenerator: IMarkNameGenerator;
-  ACategoryId: Integer
+  const ACategoryStringID: string
 );
 begin
   inherited Create;
   FNameGenerator := ANameGenerator;
-  FCategoryDb := ACategoryDb;
-  FCategoryId := ACategoryId;
+  FCategoryStringID := ACategoryStringID;
 end;
 
-function TMarkTemplateBase.GetCategory: ICategory;
+function TMarkTemplateBase.GetCategoryStringId: string;
 begin
-  Result := FCategoryDb.GetCategoryByID(FCategoryId);
-end;
-
-function TMarkTemplateBase.GetCategoryId: Integer;
-begin
-  Result := FCategoryId;
+  Result := FCategoryStringID;
 end;
 
 function TMarkTemplateBase.GetNewName: string;
@@ -154,29 +141,24 @@ end;
 function TMarkTemplateBase.IsSameInternal(
   const ATemplate: IMarkTemplate
 ): Boolean;
-var
-  VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   Result := False;
   if ATemplate <> nil then begin
-    if Supports(ATemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
-      Result := VTemplateInternal.CategoryId = FCategoryId;
-    end;
+    Result := ATemplate.CategoryStringID = FCategoryStringID;
   end;
 end;
 
 { TMarkTemplatePoint }
 
 constructor TMarkTemplatePoint.Create(
-  const ACategoryDb: IMarkCategoryDBSmlInternal;
   const ANameGenerator: IMarkNameGenerator;
-  ACategoryId: Integer;
+  const ACategoryStringID: string;
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer;
   const APic: IMarkPicture
 );
 begin
-  inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
+  inherited Create(ANameGenerator, ACategoryStringID);
   FTextColor := ATextColor;
   FTextBgColor := ATextBgColor;
   FFontSize := AFontSize;
@@ -225,14 +207,13 @@ end;
 { TMarkTemplateLine }
 
 constructor TMarkTemplateLine.Create(
-  const ACategoryDb: IMarkCategoryDBSmlInternal;
   const ANameGenerator: IMarkNameGenerator;
-  ACategoryId: Integer;
+  const ACategoryStringID: string;
   ALineColor: TColor32;
   ALineWidth: Integer
 );
 begin
-  inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
+  inherited Create(ANameGenerator, ACategoryStringID);
   FLineColor := ALineColor;
   FLineWidth := ALineWidth;
 end;
@@ -260,14 +241,13 @@ end;
 { TMarkTemplatePoly }
 
 constructor TMarkTemplatePoly.Create(
-  const ACategoryDb: IMarkCategoryDBSmlInternal;
   const ANameGenerator: IMarkNameGenerator;
-  ACategoryId: Integer;
+  const ACategoryStringID: string;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 );
 begin
-  inherited Create(ACategoryDb, ANameGenerator, ACategoryId);
+  inherited Create(ANameGenerator, ACategoryStringID);
   FBorderColor := ABorderColor;
   FFillColor := AFillColor;
   FLineWidth := ALineWidth;

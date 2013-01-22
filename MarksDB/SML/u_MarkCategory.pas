@@ -39,6 +39,7 @@ type
     function GetId: integer; stdcall;
   private
     function GetName: string; stdcall;
+    function GetStringId: string;
     function IsSame(const ACategory: ICategory): Boolean;
     function IsEqual(const ACategory: ICategory): Boolean;
   private
@@ -58,7 +59,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  i_MarkCategoryFactoryDbInternal;
 
 { TMarkCategory }
 
@@ -95,6 +97,15 @@ end;
 function TMarkCategory.GetName: string;
 begin
   Result := FName;
+end;
+
+function TMarkCategory.GetStringId: string;
+begin
+  if FId = CNotExistCategoryID then begin
+    Result := '';
+  end else begin
+    Result := IntToStr(FId);
+  end;
 end;
 
 function TMarkCategory.GetVisible: boolean;

@@ -104,18 +104,14 @@ function TMarkPolyTemplateConfig.CreateTemplate(
   ALineWidth: Integer
 ): IMarkTemplatePoly;
 var
-  VCategoryId: Integer;
-  VCategoryInternal: IMarkCategorySMLInternal;
+  VCategoryId: string;
 begin
-  VCategoryId := CNotExistCategoryID;
+  VCategoryId := '';
   if ACategory <> nil then begin
-    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-      VCategoryId := VCategoryInternal.Id;
-    end;
+    VCategoryId := ACategory.StringId;
   end;
   Result :=
     TMarkTemplatePoly.Create(
-      CategoryDb,
       NameGenerator,
       VCategoryId,
       ABorderColor,
@@ -128,31 +124,26 @@ procedure TMarkPolyTemplateConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
 var
-  VCategoryId: Integer;
   VBorderColor, VFillColor: TColor32;
   VLineWidth: Integer;
-  VTemplateInternal: IMarkTemplateSMLInternal;
+  VCategoryID: string;
   VTemplate: IMarkTemplatePoly;
 begin
   inherited;
-  VCategoryId := CNotExistCategoryID;
-  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
-    VCategoryId := VTemplateInternal.CategoryId;
-  end;
+  VCategoryID := FDefaultTemplate.CategoryStringID;
   VBorderColor := FDefaultTemplate.BorderColor;
   VFillColor := FDefaultTemplate.FillColor;
   VLineWidth := FDefaultTemplate.LineWidth;
   if AConfigData <> nil then begin
-    VCategoryId := AConfigData.ReadInteger('CategoryId', VCategoryId);
+    VCategoryID := AConfigData.ReadString('CategoryId', VCategoryID);
     VBorderColor := ReadColor32(AConfigData, 'LineColor', VBorderColor);
     VFillColor := ReadColor32(AConfigData, 'FillColor', VFillColor);
     VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
   end;
   VTemplate :=
     TMarkTemplatePoly.Create(
-      CategoryDb,
       NameGenerator,
-      VCategoryId,
+      VCategoryID,
       VBorderColor,
       VFillColor,
       VLineWidth
@@ -163,16 +154,9 @@ end;
 procedure TMarkPolyTemplateConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
-var
-  VCategoryId: Integer;
-  VTemplateInternal: IMarkTemplateSMLInternal;
 begin
   inherited;
-  VCategoryId := CNotExistCategoryID;
-  if Supports(FDefaultTemplate, IMarkTemplateSMLInternal, VTemplateInternal) then begin
-    VCategoryId := VTemplateInternal.CategoryId;
-  end;
-  AConfigData.WriteInteger('CategoryId', VCategoryId);
+  AConfigData.WriteString('CategoryId', FDefaultTemplate.CategoryStringID);
   WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.BorderColor);
   WriteColor32(AConfigData, 'FillColor', FDefaultTemplate.FillColor);
   AConfigData.WriteInteger('LineWidth', FDefaultTemplate.LineWidth);
