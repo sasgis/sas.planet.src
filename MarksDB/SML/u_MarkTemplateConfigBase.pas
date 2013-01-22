@@ -25,22 +25,18 @@ interface
 uses
   i_MarkNameGenerator,
   i_StringConfigDataElement,
-  i_MarkCategoryDBSmlInternal,
   u_ConfigDataElementComplexBase;
 
 type
   TMarkTemplateConfigBase = class(TConfigDataElementComplexBase)
   private
-    FCategoryDb: IMarkCategoryDBSmlInternal;
     FNameGenerator: IMarkNameGenerator;
   protected
-    property CategoryDb: IMarkCategoryDBSmlInternal read FCategoryDb;
     property NameGenerator: IMarkNameGenerator read FNameGenerator;
   protected
     function GetNameGenerator: IMarkNameGenerator;
   public
     constructor Create(
-      const ACategoryDb: IMarkCategoryDBSmlInternal;
       const AFormatString: IStringConfigDataElement
     );
   end;
@@ -54,12 +50,10 @@ uses
 { TMarkTemplateConfigBase }
 
 constructor TMarkTemplateConfigBase.Create(
-  const ACategoryDb: IMarkCategoryDBSmlInternal;
   const AFormatString: IStringConfigDataElement
 );
 begin
   inherited Create;
-  FCategoryDb := ACategoryDb;
 
   FNameGenerator := TMarkNameGenerator.Create(AFormatString);
   Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);

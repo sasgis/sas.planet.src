@@ -25,10 +25,7 @@ interface
 uses
   GR32,
   i_MarkTemplate,
-  i_MarkCategory,
   i_MarkPicture,
-  i_MarksDbSmlInternal,
-  i_MarkCategoryDBSmlInternal,
   i_MarkNameGenerator,
   u_BaseInterfacedObject;
 
@@ -112,9 +109,6 @@ type
   end;
 
 implementation
-
-uses
-  SysUtils;
 
 { FMarkTemplateBase }
 

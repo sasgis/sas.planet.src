@@ -215,7 +215,6 @@ begin
   FMarksFactoryConfig :=
     TMarksFactoryConfig.Create(
       ALanguageManager,
-      FCategoryDBInternal,
       AMarkPictureList
     );
   VMarksDb :=

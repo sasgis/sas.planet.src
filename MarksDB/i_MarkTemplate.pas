@@ -24,7 +24,6 @@ interface
 
 uses
   GR32,
-  i_MarkCategory,
   i_MarkPicture;
 
 type

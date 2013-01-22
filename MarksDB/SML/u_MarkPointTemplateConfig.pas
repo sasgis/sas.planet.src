@@ -31,7 +31,6 @@ uses
   i_MarkTemplate,
   i_MarkCategory,
   i_MarksFactoryConfig,
-  i_MarkCategoryDBSmlInternal,
   u_MarkTemplateConfigBase;
 
 type
@@ -57,7 +56,6 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const ACategoryDb: IMarkCategoryDBSmlInternal;
       const AMarkPictureList: IMarkPictureList
     );
   end;
@@ -65,10 +63,7 @@ type
 implementation
 
 uses
-  SysUtils,
   i_StringConfigDataElement,
-  i_MarksDbSmlInternal,
-  i_MarkCategoryFactoryDbInternal,
   u_ConfigProviderHelpers,
   u_StringConfigDataElementWithDefByStringRec,
   u_ResStrings,
@@ -78,7 +73,6 @@ uses
 
 constructor TMarkPointTemplateConfig.Create(
   const ALanguageManager: ILanguageManager;
-  const ACategoryDb: IMarkCategoryDBSmlInternal;
   const AMarkPictureList: IMarkPictureList
 );
 var
@@ -93,7 +87,7 @@ begin
       True,
       @SAS_STR_NewMark
     );
-  inherited Create(ACategoryDb, VFormatString);
+  inherited Create(VFormatString);
 
   FMarkPictureList := AMarkPictureList;
   if FMarkPictureList.Count > 0 then begin

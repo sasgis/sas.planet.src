@@ -30,7 +30,6 @@ uses
   i_MarkTemplate,
   i_MarkCategory,
   i_MarksFactoryConfig,
-  i_MarkCategoryDBSmlInternal,
   u_MarkTemplateConfigBase;
 
 type
@@ -51,18 +50,14 @@ type
     procedure SetDefaultTemplate(const AValue: IMarkTemplateLine);
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const ACategoryDb: IMarkCategoryDBSmlInternal
+      const ALanguageManager: ILanguageManager
     );
   end;
 
 implementation
 
 uses
-  SysUtils,
   i_StringConfigDataElement,
-  i_MarksDbSmlInternal,
-  i_MarkCategoryFactoryDbInternal,
   u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,
   u_ResStrings,
@@ -71,8 +66,7 @@ uses
 { TMarkLineTemplateConfig }
 
 constructor TMarkLineTemplateConfig.Create(
-  const ALanguageManager: ILanguageManager;
-  const ACategoryDb: IMarkCategoryDBSmlInternal
+  const ALanguageManager: ILanguageManager
 );
 var
   VFormatString: IStringConfigDataElement;
@@ -85,7 +79,7 @@ begin
       True,
       @SAS_STR_NewPath
     );
-  inherited Create(ACategoryDb, VFormatString);
+  inherited Create(VFormatString);
 
   FDefaultTemplate :=
     CreateTemplate(
