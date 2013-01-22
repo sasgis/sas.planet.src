@@ -86,6 +86,7 @@ type
       const AVectorItemsFactory: IVectorItemsFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AHintConverter: IHtmlToHintTextConverter;
+      const AFactoryConfig: IMarksFactoryConfig;
       const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
@@ -198,6 +199,7 @@ constructor TMarksSystem.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AHintConverter: IHtmlToHintTextConverter;
+  const AFactoryConfig: IMarksFactoryConfig;
   const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
 var
@@ -212,11 +214,7 @@ begin
   VCategoryDb := TMarkCategoryDB.Create(VState, FBasePath, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
-  FMarksFactoryConfig :=
-    TMarksFactoryConfig.Create(
-      ALanguageManager,
-      AMarkPictureList
-    );
+  FMarksFactoryConfig := AFactoryConfig;
   VMarksDb :=
     TMarksDb.Create(
       VState,

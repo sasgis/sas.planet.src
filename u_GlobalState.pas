@@ -76,6 +76,7 @@ uses
   i_NotifierTime,
   i_Bitmap32StaticFactory,
   i_MapCalibration,
+  i_MarksFactoryConfig,
   i_MarkCategoryFactoryConfig,
   i_GlobalViewMainConfig,
   i_GlobalDownloadConfig,
@@ -156,6 +157,7 @@ type
     FGeoCoderList: IGeoCoderList;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
+    FMarksFactoryConfig: IMarksFactoryConfig;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     FGpsSystem: IGPSModule;
     FImportFileByExt: IImportFile;
@@ -317,6 +319,7 @@ uses
   u_GlobalAppConfig,
   u_MainMemCacheConfig,
   u_MarkPictureListSimple,
+  u_MarksFactoryConfig,
   u_ImageResamplerConfig,
   u_ImageResamplerFactoryListStaticSimple,
   u_ImportByFileExt,
@@ -598,7 +601,13 @@ begin
       FValueToStringConverterConfig
     );
   FMarkPictureList := TMarkPictureListSimple.Create(FMarksIconsPath, FContentTypeManager);
+  FMarksFactoryConfig :=
+    TMarksFactoryConfig.Create(
+      FLanguageManager,
+      FMarkPictureList
+    );
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
+
   FMarksDb :=
     TMarksSystem.Create(
       FLanguageManager,
@@ -607,6 +616,7 @@ begin
       FVectorItemsFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       THtmlToHintTextConverterStuped.Create,
+      FMarksFactoryConfig,
       FMarksCategoryFactoryConfig
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
