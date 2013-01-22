@@ -82,6 +82,9 @@ begin
   inherited;
   SetNeedRedraw;
   Visible := FConfig.Visible;
+  if Visible then begin
+    OnChangeSelection;
+  end;
 end;
 
 function TSelectionLayer.GetLine(
@@ -99,14 +102,16 @@ procedure TSelectionLayer.OnChangeSelection;
 begin
   ViewUpdateLock;
   try
-    FLine := FLastSelectionInfo.Polygon;
-    if FLine.Count > 0 then begin
-      SetNeedRedraw;
-      Show;
-    end else begin
-      Hide;
+    if FConfig.Visible then begin
+      FLine := FLastSelectionInfo.Polygon;
+      if FLine.Count > 0 then begin
+        SetNeedRedraw;
+        Show;
+      end else begin
+        Hide;
+      end;
+      ChangedSource;
     end;
-    ChangedSource;
   finally
     ViewUpdateUnlock;
   end;
