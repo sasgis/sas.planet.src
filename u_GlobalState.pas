@@ -954,6 +954,7 @@ begin
     FTileDownloadResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Download'));
     FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
     FMarkPictureList.ReadConfig(MainConfigProvider);
+    FMarksFactoryConfig.ReadConfig(MainConfigProvider);
     FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
     FMarksDb.ReadConfig(MainConfigProvider);
   end;
@@ -1022,6 +1023,7 @@ begin
   FTileDownloadResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Download'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);
+  FMarksFactoryConfig.WriteConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
   FTerrainConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Terrain'));

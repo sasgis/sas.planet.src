@@ -349,14 +349,12 @@ end;
 
 procedure TMarksSystem.ReadConfig(const AConfigData: IConfigDataProvider);
 begin
-  FMarksFactoryConfig.ReadConfig(AConfigData);
   FCategoryDBInternal.LoadCategoriesFromFile;
   FMarksDbInternal.LoadMarksFromFile;
 end;
 
 procedure TMarksSystem.WriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
-  FMarksFactoryConfig.WriteConfig(AConfigData);
   FCategoryDBInternal.SaveCategory2File;
   FMarksDbInternal.SaveMarks2File;
 end;
