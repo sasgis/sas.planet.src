@@ -113,6 +113,7 @@ type
     FMediaDataPath: IPathConfig;
     FTerrainDataPath: IPathConfig;
     FLastSelectionFileName: IPathConfig;
+    FGpsRecorderFileName: IPathConfig;
 
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpConfig: IZmpConfig;
@@ -421,6 +422,7 @@ begin
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
   FTerrainDataPath := TPathConfig.Create('PrimaryPath', '.\TerrainData', FBaseDataPath);
   FLastSelectionFileName := TPathConfig.Create('FileName', '.\LastSelection.hlg', FBaseDataPath);
+  FGpsRecorderFileName := TPathConfig.Create('FileName', '.\LastPoints.ini', FBaseDataPath);
 
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create(FBitmapFactory);
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
@@ -443,6 +445,7 @@ begin
   FMediaDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMediaData'));
   FTerrainDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTerrainData'));
   FLastSelectionFileName.ReadConfig(FMainConfigProvider.GetSubItem('LastSelection'));
+  FGpsRecorderFileName.ReadConfig(FMainConfigProvider.GetSubItem('GpsData'));
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
@@ -509,6 +512,7 @@ begin
     TGPSRecorder.Create(
       FVectorItemsFactory,
       TDatum.Create(3395, 6378137, 6356752),
+      FGpsRecorderFileName,
       FGPSPositionFactory
     );
   FGSMpar := TGSMGeoCodeConfig.Create;
@@ -1034,6 +1038,7 @@ begin
   FMediaDataPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMediaData'));
   FTerrainDataPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoTerrainData'));
   FLastSelectionFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('LastSelection'));
+  FGpsRecorderFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('GpsData'));
 end;
 
 procedure TGlobalState.SendTerminateToThreads;

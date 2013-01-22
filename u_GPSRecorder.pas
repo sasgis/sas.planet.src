@@ -29,6 +29,7 @@ uses
   i_Datum,
   i_VectorItemLonLat,
   i_VectorItemsFactory,
+  i_PathConfig,
   i_GPS,
   i_GPSPositionFactory,
   i_GPSRecorder,
@@ -60,6 +61,7 @@ type
 type
   TGPSRecorder = class(TConfigDataElementBase, IGPSRecorder)
   private
+    FDataFile: IPathConfig;
     FGPSPositionFactory: IGPSPositionFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FDatum: IDatum;
@@ -136,6 +138,7 @@ type
     constructor Create(
       const AVectorItemsFactory: IVectorItemsFactory;
       const ADatum: IDatum;
+      const ADataFile: IPathConfig;
       const AGPSPositionFactory: IGPSPositionFactory
     );
     destructor Destroy; override;
@@ -145,8 +148,13 @@ implementation
 
 uses
   Math,
+  SysUtils,
+  IniFiles,
   i_EnumDoublePoint,
+  i_BinaryData,
   u_GeoFun,
+  u_ConfigDataProviderByIniFile,
+  u_ConfigDataWriteProviderByIniFile,
   u_BaseInterfacedObject;
 
 { TTrackPoitnsBlock }
@@ -499,11 +507,13 @@ end;
 constructor TGPSRecorder.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const ADatum: IDatum;
+  const ADataFile: IPathConfig;
   const AGPSPositionFactory: IGPSPositionFactory
 );
 begin
   inherited Create;
   FVectorItemsFactory := AVectorItemsFactory;
+  FDataFile := ADataFile;
   FGPSUnitInfo := '';
   FGPSPositionFactory := AGPSPositionFactory;
   FDatum := ADatum;
@@ -548,22 +558,74 @@ begin
 end;
 
 procedure TGPSRecorder.DoReadConfig(const AConfigData: IConfigDataProvider);
+var
+  VFileName: string;
+  VIniFile: TMemIniFile;
+  VData: IConfigDataProvider;
+  VSensorsData: IConfigDataProvider;
+  VTrackData: IConfigDataProvider;
+  VTrackBinData: IBinaryData;
 begin
   inherited;
-  if AConfigData <> nil then begin
-    FOdometer1 := AConfigData.ReadFloat('Odometer1', FOdometer1);
-    FOdometer2 := AConfigData.ReadFloat('Odometer2', FOdometer2);
-    SetChanged;
+  VFileName := FDataFile.FullPath;
+  if FileExists(VFileName) then begin
+    try
+      VIniFile := TMemIniFile.Create(VFileName);
+      try
+        VData := TConfigDataProviderByIniFile.Create(VIniFile);
+        VIniFile := nil;
+        VSensorsData := VData.GetSubItem('GPS');
+        if VSensorsData <> nil then begin
+          FOdometer1 := VSensorsData.ReadFloat('Odometer1', FOdometer1);
+          FOdometer2 := VSensorsData.ReadFloat('Odometer2', FOdometer2);
+          SetChanged;
+        end;
+
+        VTrackData := VData.GetSubItem('Track');
+        if VTrackData <> nil then begin
+          VTrackBinData := VTrackData.ReadBinary('Data');
+          if VTrackData <> nil then begin
+            // Todo: add track loading
+          end;
+        end;
+      finally
+        VIniFile.Free;
+      end;
+    except
+      // do nothing
+    end;
   end;
 end;
 
 procedure TGPSRecorder.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
+var
+  VFileName: string;
+  VIniFile: TMemIniFile;
+  VData: IConfigDataWriteProvider;
+  VSensorsData: IConfigDataWriteProvider;
+  VTrackData: IConfigDataWriteProvider;
 begin
   inherited;
-  AConfigData.WriteFloat('Odometer1', FOdometer1);
-  AConfigData.WriteFloat('Odometer2', FOdometer2);
+  VFileName := FDataFile.FullPath;
+  try
+    VIniFile := TMemIniFile.Create(VFileName);
+    try
+      VData := TConfigDataWriteProviderByIniFile.Create(VIniFile);
+      VIniFile := nil;
+      VSensorsData := VData.GetOrCreateSubItem('GPS');
+      VSensorsData.WriteFloat('Odometer1', FOdometer1);
+      VSensorsData.WriteFloat('Odometer2', FOdometer2);
+
+      VTrackData := VData.GetOrCreateSubItem('Track');
+      // Todo: add track saveing
+    finally
+      VIniFile.Free;
+    end;
+  except
+    // do nothing
+  end;
 end;
 
 procedure TGPSRecorder.ExecuteGPSCommand(
