@@ -149,10 +149,13 @@ implementation
 uses
   Math,
   SysUtils,
+  Classes,
   IniFiles,
   i_EnumDoublePoint,
   i_BinaryData,
   u_GeoFun,
+  u_BinaryDataByMemStream,
+  u_StreamReadOnlyByBinaryData,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_BaseInterfacedObject;
@@ -501,6 +504,8 @@ begin
   end;
 end;
 
+const
+  CVersionMagicID = 20130123;
 
 { TGPSRecorderStuped }
 
@@ -565,6 +570,8 @@ var
   VSensorsData: IConfigDataProvider;
   VTrackData: IConfigDataProvider;
   VTrackBinData: IBinaryData;
+  VStream: TCustomMemoryStream;
+  VPoint: TGPSTrackPoint;
 begin
   inherited;
   VFileName := FDataFile.FullPath;
@@ -583,16 +590,46 @@ begin
 
         VTrackData := VData.GetSubItem('Track');
         if VTrackData <> nil then begin
-          VTrackBinData := VTrackData.ReadBinary('Data');
-          if VTrackData <> nil then begin
-            // Todo: add track loading
+          if VTrackData.ReadInteger('Version', 0) = CVersionMagicID then begin
+            VTrackBinData := VTrackData.ReadBinary('Data');
+            if VTrackBinData <> nil then begin
+              VStream := TStreamReadOnlyByBinaryData.Create(VTrackBinData);
+              try
+                while True do begin
+                  if VStream.Read(VPoint.Point.X, SizeOf(VPoint.Point.X)) <> SizeOf(VPoint.Point.X) then begin
+                    AddEmptyPoint;
+                    Break;
+                  end;
+                  if VStream.Read(VPoint.Point.Y, SizeOf(VPoint.Point.Y)) <> SizeOf(VPoint.Point.Y) then begin
+                    AddEmptyPoint;
+                    Break;
+                  end;
+                  if VStream.Read(VPoint.Speed, SizeOf(VPoint.Speed)) <> SizeOf(VPoint.Speed) then begin
+                    AddEmptyPoint;
+                    Break;
+                  end;
+                  if VStream.Read(VPoint.Time, SizeOf(VPoint.Time)) <> SizeOf(VPoint.Time) then begin
+                    AddEmptyPoint;
+                    Break;
+                  end;
+                  if PointIsEmpty(VPoint.Point) then begin
+                    AddEmptyPoint;
+                  end else begin
+                    AddPointInternal(VPoint);
+                    FLastPositionOK := True;
+                  end;
+                end;
+              finally
+                VStream.Free;
+              end;
+            end;
           end;
         end;
       finally
         VIniFile.Free;
       end;
     except
-      // do nothing
+      Assert(False, 'Exception on GPSRecorder read');
     end;
   end;
 end;
@@ -606,6 +643,10 @@ var
   VData: IConfigDataWriteProvider;
   VSensorsData: IConfigDataWriteProvider;
   VTrackData: IConfigDataWriteProvider;
+  VEnum: IEnumGPSTrackPoint;
+  VMemStream: TMemoryStream;
+  VPoint: TGPSTrackPoint;
+  VBinaryData: IBinaryData;
 begin
   inherited;
   VFileName := FDataFile.FullPath;
@@ -619,12 +660,34 @@ begin
       VSensorsData.WriteFloat('Odometer2', FOdometer2);
 
       VTrackData := VData.GetOrCreateSubItem('Track');
-      // Todo: add track saveing
+      VTrackData.WriteInteger('Version', CVersionMagicID);
+      VEnum := LastPoints(10000);
+      VBinaryData := nil;
+      VMemStream := TMemoryStream.Create;
+      try
+        while VEnum.Next(VPoint) do begin
+          VMemStream.WriteBuffer(VPoint.Point.X, SizeOf(VPoint.Point.X));
+          VMemStream.WriteBuffer(VPoint.Point.Y, SizeOf(VPoint.Point.Y));
+          VMemStream.WriteBuffer(VPoint.Speed, SizeOf(VPoint.Speed));
+          VMemStream.WriteBuffer(VPoint.Time, SizeOf(VPoint.Time));
+        end;
+        if VMemStream.Size > 0 then begin
+          VBinaryData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+          VMemStream := nil;
+        end;
+      finally
+        VMemStream.Free;
+      end;
+      if VBinaryData <> nil then begin
+        VTrackData.WriteBinary('Data', VBinaryData);
+      end else begin
+        VTrackData.DeleteValue('Data');
+      end;
     finally
       VIniFile.Free;
     end;
   except
-    // do nothing
+    Assert(False, 'Exception on GPSRecorder write');
   end;
 end;
 
