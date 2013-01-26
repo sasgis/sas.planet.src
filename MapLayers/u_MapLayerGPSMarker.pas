@@ -151,11 +151,15 @@ begin
         FPositionCS.BeginWrite;
         try
           FPositionLonLat := VGPSPosition.LonLat;
-          FStopped := VGPSPosition.SpeedOK;
+          FStopped := not VGPSPosition.SpeedOK;
           if not FStopped then begin
             FStopped := VGPSPosition.Speed_KMH <= FConfig.MinMoveSpeed;
           end;
-          FDirectionAngle := VGPSPosition.Heading;
+          if not FStopped then begin
+            FDirectionAngle := VGPSPosition.Heading;
+          end else begin
+            FDirectionAngle := 0;
+          end;
         finally
           FPositionCS.EndWrite;
         end;
