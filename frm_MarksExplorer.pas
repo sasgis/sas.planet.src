@@ -50,7 +50,6 @@ uses
   i_UsedMarksConfig,
   i_MapViewGoto,
   i_WindowPositionConfig,
-  i_ImportFile,
   i_MarksSimple,
   i_MarkCategory,
   frm_RegionProcess,

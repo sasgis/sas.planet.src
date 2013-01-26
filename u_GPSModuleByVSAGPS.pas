@@ -41,13 +41,11 @@ uses
 {$ifend}
   vsagps_public_base,
   vsagps_public_types,
-  vsagps_public_events,
   vsagps_public_tracks,
   vsagps_public_device,
   vsagps_public_position,
   vsagps_public_trackpoint,
   vsagps_public_sysutils,
-  vsagps_public_debugstring,
   vsagps_public_unit_info;
 
 type

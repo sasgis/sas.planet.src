@@ -26,7 +26,6 @@ uses
   ActiveX,
   vsagps_public_base,
   vsagps_public_position,
-  vsagps_public_events,
   i_GPS;
 
 type

@@ -31,11 +31,7 @@ uses
   i_VectorItemsFactory,
   i_PathConfig,
   i_GPS,
-  i_GPSPositionFactory,
   i_GPSRecorder,
-  vsagps_public_base,
-  vsagps_public_position,
-  vsagps_public_unit_info,
   u_ConfigDataElementBase;
 
 type
@@ -133,6 +129,8 @@ uses
   SysUtils,
   Classes,
   IniFiles,
+  vsagps_public_base,
+  vsagps_public_position,
   i_EnumDoublePoint,
   i_BinaryData,
   u_GeoFun,
