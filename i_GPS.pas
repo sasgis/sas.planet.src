@@ -23,8 +23,8 @@ unit i_GPS;
 interface
 
 uses
-  vsagps_public_base,
-  vsagps_public_position;
+  t_GeoTypes,
+  vsagps_public_base;
 
 type
   IGPSSatelliteInfo = interface
@@ -63,12 +63,44 @@ type
 
   IGPSPosition = interface
     ['{B2422759-9B8B-4CC5-AAA5-46A7240759D0}']
-    function GetPosParams: PSingleGPSData; stdcall;
+    function GetLonLat: TDoublePoint;
+    property LonLat: TDoublePoint read GetLonLat;
 
-    function GetTracksParams(
-      var pPos: PSingleGPSData;
-      var pSatFixAll: PVSAGPS_FIX_ALL
-    ): Boolean; stdcall;
+    function GetAltitude: Double;
+    property Altitude: Double read GetAltitude;
+
+    function GetGeoidHeight: Double;
+    property GeoidHeight: Double read GetGeoidHeight;
+
+    function GetSpeed_KMH: Double;   // in km/h
+    property Speed_KMH: Double read GetSpeed_KMH;   // in km/h
+
+    function GetHeading: Double;     // true
+    property Heading: Double read GetHeading;     // true
+
+    function GetUTCTime: TDateTime;
+    property UTCTime: TDateTime read GetUTCTime;
+
+    function GetHDOP: Double;
+    property HDOP: Double read GetHDOP;
+
+    function GetVDOP: Double;
+    property VDOP: Double read GetVDOP;
+
+    function GetPDOP: Double;
+    property PDOP: Double read GetPDOP;
+
+    function GetDGPS: string;
+    property DGPS: string read GetDGPS;
+
+    function GetPositionOK: Boolean;
+    property PositionOK: Boolean read GetPositionOK;
+
+    function GetUTCTimeOK: Boolean;
+    property UTCTimeOK: Boolean read GetUTCTimeOK;
+
+    function GetSpeedOK: Boolean;
+    property SpeedOK: Boolean read GetSpeedOK;
 
     function GetSatellites: IGPSSatellitesInView; stdcall;
     property Satellites: IGPSSatellitesInView read GetSatellites;

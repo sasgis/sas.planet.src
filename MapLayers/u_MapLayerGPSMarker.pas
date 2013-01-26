@@ -61,8 +61,6 @@ type
 implementation
 
 uses
-  vsagps_public_base,
-  vsagps_public_position,
   i_GPS,
   u_GeoFun,
   u_Synchronizer,
@@ -140,27 +138,24 @@ end;
 procedure TMapLayerGPSMarker.OnTimer;
 var
   VGPSPosition: IGPSPosition;
-  VpPos: PSingleGPSData;
 begin
   if FGpsPosChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
     try
       VGPSPosition := FGPSRecorder.CurrentPosition;
-      VpPos := VGPSPosition.GetPosParams;
-      if (not VpPos^.PositionOK) then begin
+      if (not VGPSPosition.PositionOK) then begin
         // no position
         Hide;
       end else begin
         // ok
         FPositionCS.BeginWrite;
         try
-          FPositionLonLat.X := VpPos^.PositionLon;
-          FPositionLonLat.Y := VpPos^.PositionLat;
-          FStopped := ((not VpPos^.AllowCalcStats) or NoData_Float64(VpPos^.Speed_KMH) or NoData_Float64(VpPos^.Heading));
+          FPositionLonLat := VGPSPosition.LonLat;
+          FStopped := VGPSPosition.SpeedOK;
           if not FStopped then begin
-            FStopped := VpPos^.Speed_KMH <= FConfig.MinMoveSpeed;
+            FStopped := VGPSPosition.Speed_KMH <= FConfig.MinMoveSpeed;
           end;
-          FDirectionAngle := VpPos^.Heading;
+          FDirectionAngle := VGPSPosition.Heading;
         finally
           FPositionCS.EndWrite;
         end;

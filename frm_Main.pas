@@ -704,7 +704,6 @@ implementation
 uses
   StrUtils,
   vsagps_public_base,
-  vsagps_public_position,
   vsagps_public_time,
   t_CommonTypes,
   t_FillingMapModes,
@@ -2331,20 +2330,17 @@ var
   VCenterMapPoint: TDoublePoint;
   VConverter: ILocalCoordConverter;
   VPosition: IGPSPosition;
-  VpPos: PSingleGPSData;
 begin
   VConverter := FConfig.ViewPortState.View.GetStatic;
   VZoomCurr := VConverter.GetZoom;
 
   VPosition := GState.GPSRecorder.CurrentPosition;
-  VpPos := VPosition.GetPosParams;
-  if (not VpPos^.PositionOK) then begin
+  if (not VPosition.PositionOK) then begin
     // no position
     FCenterToGPSDelta := CEmptyDoublePoint;
   end else begin
     // ok
-    VGPSLonLat.X := VpPos^.PositionLon;
-    VGPSLonLat.Y := VpPos^.PositionLat;
+    VGPSLonLat := VPosition.LonLat;
 
     VGPSMapPoint := VConverter.GetGeoConverter.LonLat2PixelPosFloat(VGPSLonLat, VZoomCurr);
 
@@ -4497,7 +4493,6 @@ var
   VCenterMapPoint: TDoublePoint;
   VGPSMapPoint: TDoublePoint;
   VPosition: IGPSPosition;
-  VpPos: PSingleGPSData;
   VConverter: ILocalCoordConverter;
   VMapMove: Boolean;
   VMapMoveCentred: Boolean;
@@ -4506,10 +4501,9 @@ var
   VDelta: Double;
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
-  VpPos := VPosition.GetPosParams;
 
   // no position?
-  if (not VpPos^.PositionOK) then
+  if (not VPosition.PositionOK) then
     Exit;
 
   if not((FMapMoving)or(FMapZoomAnimtion)) then begin
@@ -4524,8 +4518,7 @@ begin
     end;
     if (not VProcessGPSIfActive) or (Screen.ActiveForm=Self) then begin
       if (VMapMove) then begin
-        VGPSNewPos.X := VpPos^.PositionLon;
-        VGPSNewPos.Y := VpPos^.PositionLat;
+        VGPSNewPos := VPosition.LonLat;
         if VMapMoveCentred then begin
           VConverter := FConfig.ViewPortState.View.GetStatic;
           VCenterMapPoint := VConverter.GetCenterMapPixelFloat;
@@ -5597,15 +5590,12 @@ end;
 procedure TfrmMain.tbitmSaveCurrentPositionClick(Sender: TObject);
 var
   VPosition: IGPSPosition;
-  VpPos: PSingleGPSData;
   VLonLat: TDoublePoint;
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
-  VpPos := VPosition.GetPosParams;
 
-  if (VpPos^.PositionOK) then begin
-    VLonLat.X := VpPos^.PositionLon;
-    VLonLat.Y := VpPos^.PositionLat;
+  if (VPosition.PositionOK) then begin
+    VLonLat := VPosition.LonLat;
   end else begin
     VLonLat := FConfig.ViewPortState.View.GetStatic.GetCenterLonLat;
   end;

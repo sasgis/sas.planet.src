@@ -73,7 +73,6 @@ implementation
 
 uses
   GR32_Polygons,
-  vsagps_public_position,
   i_GPS,
   i_DoublePointsAggregator,
   u_GeoFun,
@@ -182,21 +181,18 @@ end;
 procedure TMapLayerGPSMarkerRings.OnTimer;
 var
   VGPSPosition: IGPSPosition;
-  VpPos: PSingleGPSData;
   VLonLat: TDoublePoint;
 begin
   if FGpsPosChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
     try
       VGPSPosition := FGPSRecorder.CurrentPosition;
-      VpPos := VGPSPosition.GetPosParams;
-      if (not VpPos^.PositionOK) then begin
+      if (not VGPSPosition.PositionOK) then begin
         // no position
         Hide;
       end else begin
         // ok
-        VLonLat.X := VpPos^.PositionLon;
-        VLonLat.Y := VpPos^.PositionLat;
+        VLonLat := VGPSPosition.LonLat;
         FGPSPosCS.BeginWrite;
         try
           if not DoublePointsEqual(FGPSPosLonLat, VLonLat) then begin

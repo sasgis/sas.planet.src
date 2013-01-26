@@ -155,7 +155,6 @@ uses
   SysUtils,
   u_GeoToStr,
   vsagps_public_base,
-  vsagps_public_position,
   vsagps_public_time;
 
 { TSensorFromGPSRecorderLastSpeed }
@@ -291,7 +290,10 @@ var
   VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
-  Result := VPosition.GetPosParams^.HDOP;
+  Result := 0;
+  if VPosition <> nil then begin
+    Result := VPosition.HDOP;
+  end;
 end;
 
 function TSensorFromGPSRecorderHDOP.GetSensorTypeIID: TGUID;
@@ -306,7 +308,10 @@ var
   VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
-  Result := VPosition.GetPosParams^.VDOP;
+  Result := 0;
+  if VPosition <> nil then begin
+    Result := VPosition.VDOP;
+  end;
 end;
 
 function TSensorFromGPSRecorderVDOP.GetSensorTypeIID: TGUID;
@@ -321,8 +326,9 @@ var
   VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
-  with VPosition.GetPosParams^ do begin
-    Result := (UTCDate + UTCTime);
+  Result := 0;
+  if VPosition <> nil then begin
+    Result := VPosition.UTCTime;
   end;
 end;
 
@@ -347,8 +353,9 @@ var
   VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
-  with VPosition.GetPosParams^ do begin
-    Result := (UTCDate + UTCTime);
+  Result := 0;
+  if VPosition <> nil then begin
+    Result := VPosition.UTCTime;
   end;
   if (0 <> Result) then begin
     Result := SystemTimeToLocalTime(Result);
@@ -380,40 +387,9 @@ var
   VPosition: IGPSPosition;
 begin
   VPosition := GPSRecorder.CurrentPosition;
-  with VPosition.GetPosParams^.DGPS do begin
-    case Nmea23_Mode of
-      'A': begin
-        Result := 'A';
-      end; //'Autonomous';
-      'D': begin
-        Result := 'DGPS';
-      end; //'DGPS';
-      'E': begin
-        Result := 'DR';
-      end; //'Dead Reckoning';
-      'R': begin
-        Result := 'CP';
-      end; //'Coarse Position';
-      'P': begin
-        Result := 'PPS';
-      end; //'PPS';
-    else begin
-      Result := 'N';
-    end; //#0 if no data or 'N' = Not Valid
-    end;
-
-    if (Dimentions > 1) then begin
-      Result := Result + ' (' + IntToStr(Dimentions) + 'D)';
-    end;
-
-    if (not NoData_Float32(DGPS_Age_Second)) then begin
-      if (DGPS_Age_Second > 0) then begin
-        Result := Result + ': ' + RoundEx(DGPS_Age_Second, 2);
-      end;
-      if (DGPS_Station_ID > 0) then begin
-        Result := Result + ' #' + IntToStr(DGPS_Station_ID);
-      end;
-    end;
+  Result := '';
+  if VPosition <> nil then begin
+    Result := VPosition.DGPS;
   end;
 end;
 

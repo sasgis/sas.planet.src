@@ -38,14 +38,14 @@ implementation
 
 uses
   SysUtils,
-  vsagps_public_base;
+  Math;
 
 var
   GFormatSettings : TFormatSettings;
 
 function RoundEx(chislo: Double; Precision: Integer): string;
 begin
-  if NoData_Float64(chislo) then
+  if IsNan(chislo) then
     Result := '-'
   else
     Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);

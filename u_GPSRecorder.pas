@@ -130,7 +130,6 @@ uses
   Classes,
   IniFiles,
   vsagps_public_base,
-  vsagps_public_position,
   i_EnumDoublePoint,
   i_BinaryData,
   u_GeoFun,
@@ -683,83 +682,75 @@ end;
 
 procedure TGPSRecorder.AddPoint(const APosition: IGPSPosition);
 var
-  pPos: PSingleGPSData;
-  pSatFixAll: PVSAGPS_FIX_ALL;
   VAlfa: Double;
   VBeta: Double;
   VDistToPrev: Double;
   VPointPrev: TDoublePoint;
   VPoint: TGPSTrackPoint;
 begin
-  if APosition.GetTracksParams(pPos, pSatFixAll) then begin
-    if pPos^.PositionOK then begin
-      VPoint.Point.X := pPos^.PositionLon;
-      VPoint.Point.Y := pPos^.PositionLat;
+    if APosition.PositionOK then begin
+      VPoint.Point := APosition.LonLat;
     end else begin
       VPoint.Point := CEmptyDoublePoint;
     end;
 
-    if pPos^.UTCDateOK and pPos^.UTCTimeOK then begin
-      VPoint.Time := (pPos^.UTCDate + pPos^.UTCTime);
+    if APosition.UTCTimeOK then begin
+      VPoint.Time := APosition.UTCTime;
     end else begin
       VPoint.Time := NaN;
     end;
 
-    if (not pPos^.PositionOK) or NoData_Float64(pPos^.Speed_KMH) then begin
+    if (not APosition.PositionOK) or (not APosition.SpeedOK) then begin
       VPoint.Speed := 0;
     end else begin
-      VPoint.Speed := pPos^.Speed_KMH;
+      VPoint.Speed := APosition.Speed_KMH;
     end;
 
     LockWrite;
     try
-      if FLastPositionOK or pPos^.PositionOK then begin
+      if FLastPositionOK or APosition.PositionOK then begin
         VPointPrev := AddPointInternal(VPoint);
 
         // check new values
-        if pPos^.PositionOK then begin
-          FLastPosition.X := pPos^.PositionLon;
-          FLastPosition.Y := pPos^.PositionLat;
-          FLastAltitude := pPos^.Altitude;
-          FLastHeading := pPos^.Heading;
-          FLastSpeed := pPos^.Speed_KMH;
+        if APosition.PositionOK then begin
+          FLastPosition := APosition.LonLat;
+          FLastAltitude := APosition.Altitude;
+          FLastHeading := APosition.Heading;
+          FLastSpeed := APosition.Speed_KMH;
 
           // allow calc max and avg speed even if no stats
           // check AllowCalcStats only for permanent (overall) stats
 
           // speed may be unavailable
-          if (not NoData_Float64(pPos^.Speed_KMH)) then begin
+          if APosition.SpeedOK then begin
             // max speen
-            if (pPos^.Speed_KMH > FMaxSpeed) then begin
-              FMaxSpeed := pPos^.Speed_KMH;
+            if (APosition.Speed_KMH > FMaxSpeed) then begin
+              FMaxSpeed := APosition.Speed_KMH;
             end;
             // avg speed
             FAvgSpeedTickCount := FAvgSpeedTickCount + 1;
             VAlfa := 1 / FAvgSpeedTickCount;
             VBeta := 1 - VAlfa;
-            FAvgSpeed := VAlfa * pPos^.Speed_KMH + VBeta * FAvgSpeed;
+            FAvgSpeed := VAlfa * APosition.Speed_KMH + VBeta * FAvgSpeed;
           end;
 
           // if prev position available too - calc distance
           // no recalc if AllowCalcStats disabled
-          if pPos^.AllowCalcStats then begin
-            if not PointIsEmpty(VPointPrev) then begin
-              VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
-              FDist := FDist + VDistToPrev;
-              FOdometer1 := FOdometer1 + VDistToPrev;
-              FOdometer2 := FOdometer2 + VDistToPrev;
-            end;
+          if not PointIsEmpty(VPointPrev) then begin
+            VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
+            FDist := FDist + VDistToPrev;
+            FOdometer1 := FOdometer1 + VDistToPrev;
+            FOdometer2 := FOdometer2 + VDistToPrev;
           end;
         end;
 
-        FLastPositionOK := pPos^.PositionOK;
+        FLastPositionOK := APosition.PositionOK;
         SetChanged;
       end;
       FCurrentPosition := APosition;
     finally
       UnlockWrite;
     end;
-  end;
 end;
 
 procedure TGPSRecorder.ClearTrack;
