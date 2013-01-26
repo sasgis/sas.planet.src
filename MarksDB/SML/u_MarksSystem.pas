@@ -101,8 +101,7 @@ uses
   u_StaticTreeBuilderBase,
   u_ReadWriteStateInternal,
   u_MarksDb,
-  u_MarkCategoryDB,
-  u_MarksFactoryConfig;
+  u_MarkCategoryDB;
 
 type
   TStaticTreeByCategoryListBuilder = class(TStaticTreeBuilderBaseBySlash)
