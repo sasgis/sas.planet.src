@@ -50,7 +50,7 @@ type
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
     FConfig: IGPSConfig;
-    FGPSRecorder: IGPSRecorder;
+    FGPSRecorder: IGPSRecorderInternal;
     FGPSModuleFactory: IGPSModuleByCOMFactory;
     FGPSModuleByCOM: IGPSModuleByCOM;
 
@@ -117,7 +117,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AGPSModuleFactory: IGPSModuleByCOMFactory;
       const AConfig: IGPSConfig;
-      const AGPSRecorder: IGPSRecorder;
+      const AGPSRecorder: IGPSRecorderInternal;
       const ATimerNoifier: INotifierTime;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -157,7 +157,7 @@ constructor TGpsSystem.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AGPSModuleFactory: IGPSModuleByCOMFactory;
   const AConfig: IGPSConfig;
-  const AGPSRecorder: IGPSRecorder;
+  const AGPSRecorder: IGPSRecorderInternal;
   const ATimerNoifier: INotifierTime;
   const APerfCounterList: IInternalPerformanceCounterList
 );
@@ -332,13 +332,6 @@ end;
 procedure TGpsSystem.OnGpsConnected;
 begin
   FConfig.GPSEnabled := True;
-  FGPSRecorder.LockWrite;
-  try
-    FGPSRecorder.ResetMaxSpeed;
-    FGPSRecorder.ResetAvgSpeed;
-  finally
-    FGPSRecorder.UnlockWrite;
-  end;
   FCS.BeginWrite;
   try
     FModuleState := msConnected;

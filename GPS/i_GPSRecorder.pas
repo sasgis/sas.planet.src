@@ -26,7 +26,7 @@ uses
   t_GeoTypes,
   i_GPS,
   i_VectorItemLonLat,
-  i_ConfigDataElement;
+  i_Changeable;
 
 type
   TGPSTrackPoint = record
@@ -42,10 +42,8 @@ type
     function Next(out APoint: TGPSTrackPoint): Boolean;
   end;
 
-  IGPSRecorder = interface(IConfigDataElement)
+  IGPSRecorder = interface(IChangeable)
     ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
-    procedure AddPoint(const APosition: IGPSPosition);
-    procedure AddEmptyPoint;
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function LastPoints(const AMaxCount: Integer): IEnumGPSTrackPoint;
@@ -86,6 +84,14 @@ type
     function GetCurrentPosition: IGPSPosition;
     property CurrentPosition: IGPSPosition read GetCurrentPosition;
   end;
+
+  IGPSRecorderInternal = interface(IGPSRecorder)
+    procedure AddPoint(const APosition: IGPSPosition);
+    procedure AddEmptyPoint;
+    procedure Save;
+    procedure Load;
+  end;
+
 
 implementation
 

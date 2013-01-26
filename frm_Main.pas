@@ -5210,13 +5210,7 @@ end;
 
 procedure TfrmMain.TBItemDelTrackClick(Sender: TObject);
 begin
-  GState.GPSRecorder.LockWrite;
-  try
-    GState.GPSRecorder.ClearTrack;
-    GState.GPSRecorder.ResetMaxSpeed;
-  finally
-    GState.GPSRecorder.UnlockWrite;
-  end;
+  GState.GPSRecorder.ClearTrack;
 end;
 
 procedure TfrmMain.NGShScale01Click(Sender: TObject);

@@ -55,7 +55,7 @@ type
   end;
 
 type
-  TGPSRecorder = class(TConfigDataElementBase, IGPSRecorder)
+  TGPSRecorder = class(TConfigDataElementBaseEmptySaveLoad, IGPSRecorder, IGPSRecorderInternal)
   private
     FDataFile: IPathConfig;
     FVectorItemsFactory: IVectorItemsFactory;
@@ -82,9 +82,9 @@ type
     FLastPositionOK: Boolean;
 
     function AddPointInternal(const APoint: TGPSTrackPoint): TDoublePoint;
-  protected
-    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
+  private
+    procedure Load;
+    procedure Save;
   private
     procedure AddPoint(const APosition: IGPSPosition);
     procedure AddEmptyPoint;
@@ -512,7 +512,7 @@ begin
   inherited;
 end;
 
-procedure TGPSRecorder.DoReadConfig(const AConfigData: IConfigDataProvider);
+procedure TGPSRecorder.Load;
 var
   VFileName: string;
   VIniFile: TMemIniFile;
@@ -584,9 +584,7 @@ begin
   end;
 end;
 
-procedure TGPSRecorder.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider
-);
+procedure TGPSRecorder.Save;
 var
   VFileName: string;
   VIniFile: TMemIniFile;

@@ -164,6 +164,7 @@ type
     FImportFileByExt: IImportFile;
     FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
+    FGPSRecorderInternal: IGPSRecorderInternal;
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FBGTimerNotifier: INotifierTime;
     FBGTimerNotifierInternal: INotifierTimeInternal;
@@ -508,13 +509,14 @@ begin
   FInetConfig := TInetConfig.Create;
   FGPSConfig := TGPSConfig.Create(FTrackPath);
   FGPSPositionFactory := TGPSPositionFactory.Create;
-  FGPSRecorder :=
+  FGPSRecorderInternal :=
     TGPSRecorder.Create(
       FVectorItemsFactory,
       TDatum.Create(3395, 6378137, 6356752),
       FGpsRecorderFileName,
       FGPSPositionFactory.BuildPositionEmpty
     );
+  FGPSRecorder := FGPSRecorderInternal;
   FGSMpar := TGSMGeoCodeConfig.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
@@ -592,7 +594,7 @@ begin
       FAppClosingNotifier,
       TGPSModuleFactoryByVSAGPS.Create(FGPSPositionFactory),
       FGPSConfig,
-      FGPSRecorder,
+      FGPSRecorderInternal,
       GUISyncronizedTimerNotifier,
       FPerfCounterList
     );
@@ -939,7 +941,7 @@ begin
     );
   FInternalBrowserConfig.ReadConfig(MainConfigProvider.GetSubItem('InternalBrowser'));
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
-  FGPSRecorder.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
+  FGPSRecorderInternal.Load;
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
@@ -1003,7 +1005,7 @@ begin
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
 
-  FGPSRecorder.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
+  FGPSRecorderInternal.Save;
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
