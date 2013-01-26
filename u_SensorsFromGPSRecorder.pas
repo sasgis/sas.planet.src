@@ -154,7 +154,6 @@ implementation
 uses
   SysUtils,
   u_GeoToStr,
-  vsagps_public_base,
   vsagps_public_time;
 
 { TSensorFromGPSRecorderLastSpeed }
@@ -370,7 +369,7 @@ end;
 procedure TSensorFromGPSRecorderLocalTime.Reset;
 begin
   inherited;
-  FGPSModule.ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Apply_UTCDateTime, nil);
+  FGPSModule.ApplyUTCDateTime;
 end;
 
 { TSensorFromGPSRecorderDGPS }
@@ -401,7 +400,7 @@ end;
 procedure TSensorFromGPSRecorderDGPS.Reset;
 begin
   inherited;
-  FGPSModule.ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Reset_DGPS, nil);
+  FGPSModule.ResetDGPS;
 end;
 
 { TSensorFromGPSRecorderGPSUnitInfo }
@@ -426,7 +425,7 @@ end;
 procedure TSensorFromGPSRecorderGPSUnitInfo.Reset;
 begin
   inherited;
-  FGPSModule.ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Refresh_GPSUnitInfo, nil);
+  FGPSModule.ResetUnitInfo;
 end;
 
 { TSensorFromGPSRecorderGPSSatellites }

@@ -101,6 +101,9 @@ type
     function GetDisconnectingNotifier: INotifier; safecall;
     function GetTimeOutNotifier: INotifier; safecall;
     function GetGPSUnitInfo: String;
+    procedure ApplyUTCDateTime;
+    procedure ResetDGPS;
+    procedure ResetUnitInfo;
     function ExecuteGPSCommand(
       const AUnitIndex: Byte;
       const ACommand: LongInt;
@@ -141,6 +144,12 @@ begin
   if FAppClosingNotifier.IsExecuted then begin
     SendTerminateToThreads;
   end;
+end;
+
+procedure TGpsSystem.ApplyUTCDateTime;
+begin
+  inherited;
+  FGPSModuleByCOM.ApplyUTCDateTime;
 end;
 
 constructor TGpsSystem.Create(
@@ -575,6 +584,18 @@ begin
       FDataReciveNotifier.Notify(nil);
     end;
   until not VNeedNotify;
+end;
+
+procedure TGpsSystem.ResetDGPS;
+begin
+  inherited;
+  FGPSModuleByCOM.ResetDGPS;
+end;
+
+procedure TGpsSystem.ResetUnitInfo;
+begin
+  inherited;
+  FGPSModuleByCOM.ResetUnitInfo;
 end;
 
 procedure TGpsSystem.SendTerminateToThreads;

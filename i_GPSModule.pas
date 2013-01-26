@@ -56,6 +56,10 @@ type
     function GetGPSUnitInfo: String;
     property GPSUnitInfo: String read GetGPSUnitInfo;
 
+    procedure ApplyUTCDateTime;
+    procedure ResetDGPS;
+    procedure ResetUnitInfo;
+
     function ExecuteGPSCommand(
       const AUnitIndex: Byte;
       const ACommand: LongInt;

@@ -210,6 +210,11 @@ type
     function GetConnectErrorNotifier: INotifier; safecall;
     function GetTimeOutNotifier: INotifier; safecall;
     function GetGPSUnitInfo: String; virtual; abstract;
+
+    procedure ApplyUTCDateTime; virtual; abstract;
+    procedure ResetDGPS; virtual; abstract;
+    procedure ResetUnitInfo; virtual; abstract;
+
     function ExecuteGPSCommand(
       const AUnitIndex: Byte;
       const ACommand: LongInt;

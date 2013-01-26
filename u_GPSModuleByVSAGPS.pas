@@ -140,6 +140,10 @@ type
     procedure Disconnect; safecall;
     function GetIsReadyToConnect: Boolean; safecall;
     function GetGPSUnitInfo: String; override;
+    procedure ApplyUTCDateTime; override;
+    procedure ResetDGPS; override;
+    procedure ResetUnitInfo; override;
+
     function ExecuteGPSCommand(
       const AUnitIndex: Byte;
       const ACommand: LongInt;
@@ -442,6 +446,12 @@ begin
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
   VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: end');
 {$ifend}
+end;
+
+procedure TGPSModuleByVSAGPS.ApplyUTCDateTime;
+begin
+  inherited;
+  ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Apply_UTCDateTime, nil);
 end;
 
 procedure TGPSModuleByVSAGPS.Connect(const AConfig: IGPSModuleByCOMPortSettings;
@@ -1220,6 +1230,18 @@ begin
   finally
     UnlockUnitInfo(AUnitIndex);
   end;
+end;
+
+procedure TGPSModuleByVSAGPS.ResetDGPS;
+begin
+  inherited;
+  ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Reset_DGPS, nil);
+end;
+
+procedure TGPSModuleByVSAGPS.ResetUnitInfo;
+begin
+  inherited;
+  ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Refresh_GPSUnitInfo, nil);
 end;
 
 procedure TGPSModuleByVSAGPS.UnlockConnect;
