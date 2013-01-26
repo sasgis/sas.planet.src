@@ -52,6 +52,15 @@ type
 
     function GetConnectErrorNotifier: INotifier; safecall;
     property ConnectErrorNotifier: INotifier read GetConnectErrorNotifier;
+
+    function GetGPSUnitInfo: String;
+    property GPSUnitInfo: String read GetGPSUnitInfo;
+
+    function ExecuteGPSCommand(
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    ): AnsiString;
   end;
 
 implementation

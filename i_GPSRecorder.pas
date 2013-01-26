@@ -85,16 +85,6 @@ type
 
     function GetCurrentPosition: IGPSPosition;
     property CurrentPosition: IGPSPosition read GetCurrentPosition;
-
-    procedure ExecuteGPSCommand(
-      Sender: TObject;
-      const AUnitIndex: Byte;
-      const ACommand: LongInt;
-      const APointer: Pointer
-    );
-
-    function GetGPSUnitInfo: String;
-    property GPSUnitInfo: String read GetGPSUnitInfo;
   end;
 
 implementation

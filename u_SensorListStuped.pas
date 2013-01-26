@@ -26,6 +26,7 @@ uses
   i_NavigationToPoint,
   i_LocalCoordConverterChangeable,
   i_GPSRecorder,
+  i_GPSModule,
   i_ValueToStringConverter,
   i_BatteryStatus,
   i_LanguageManager,
@@ -39,6 +40,7 @@ type
       const AViewPortState: ILocalCoordConverterChangeable;
       const ANavigationToPoint: INavigationToPoint;
       const AGPSRecorder: IGPSRecorder;
+      const AGPSModule: IGPSModule;
       const ABatteryStatus: IBatteryStatus;
       const AValueConverterConfig: IValueToStringConverterConfig
     );
@@ -66,6 +68,7 @@ constructor TSensorListStuped.Create(
   const AViewPortState: ILocalCoordConverterChangeable;
   const ANavigationToPoint: INavigationToPoint;
   const AGPSRecorder: IGPSRecorder;
+  const AGPSModule: IGPSModule;
   const ABatteryStatus: IBatteryStatus;
   const AValueConverterConfig: IValueToStringConverterConfig
 );
@@ -390,7 +393,7 @@ begin
     );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderLocalTime.Create(AGPSRecorder);
+  VSensor := TSensorFromGPSRecorderLocalTime.Create(AGPSRecorder, AGPSModule);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager, @SAS_STR_SensorGPSRecorderLocalTimeCaption
@@ -414,7 +417,7 @@ begin
     );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderDGPS.Create(AGPSRecorder);
+  VSensor := TSensorFromGPSRecorderDGPS.Create(AGPSRecorder, AGPSModule);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager, @SAS_STR_SensorGPSRecorderDGPSCaption
@@ -438,7 +441,7 @@ begin
     );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderGPSUnitInfo.Create(AGPSRecorder);
+  VSensor := TSensorFromGPSRecorderGPSUnitInfo.Create(AGPSRecorder, AGPSModule);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager, @SAS_STR_SensorGPSRecorderGPSUnitInfoCaption

@@ -24,6 +24,7 @@ interface
 
 uses
   i_GPS,
+  i_GPSModule,
   i_GPSRecorder,
   i_Sensor,
   u_SensorFromGPSRecorderBase;
@@ -101,24 +102,45 @@ type
   end;
 
   TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime, ISensorResetable)
+  private
+    FGPSModule: IGPSModule;
   protected
     function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: TDateTime; override;
     procedure Reset;
+  public
+    constructor Create(
+      const AGPSRecorder: IGPSRecorder;
+      const AGPSModule: IGPSModule
+    );
   end;
 
   TSensorFromGPSRecorderDGPS = class(TSensorTextValueFromGPSRecorder, ISensorText, ISensorResetable)
+  private
+    FGPSModule: IGPSModule;
   protected
     function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: string; override;
     procedure Reset;
+  public
+    constructor Create(
+      const AGPSRecorder: IGPSRecorder;
+      const AGPSModule: IGPSModule
+    );
   end;
 
   TSensorFromGPSRecorderGPSUnitInfo = class(TSensorTextValueFromGPSRecorder, ISensorText, ISensorResetable)
+  private
+    FGPSModule: IGPSModule;
   protected
     function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: string; override;
     procedure Reset;
+  public
+    constructor Create(
+      const AGPSRecorder: IGPSRecorder;
+      const AGPSModule: IGPSModule
+    );
   end;
 
   TSensorFromGPSRecorderGPSSatellites = class(TSensorGPSSatellitesValueFromGPSRecorder, ISensorGPSSatellites)
@@ -311,6 +333,15 @@ end;
 
 { TSensorFromGPSRecorderLocalTime }
 
+constructor TSensorFromGPSRecorderLocalTime.Create(
+  const AGPSRecorder: IGPSRecorder;
+  const AGPSModule: IGPSModule
+);
+begin
+  inherited Create(AGPSRecorder);
+  FGPSModule := AGPSModule;
+end;
+
 function TSensorFromGPSRecorderLocalTime.GetCurrentValue: TDateTime;
 var
   VPosition: IGPSPosition;
@@ -332,10 +363,17 @@ end;
 procedure TSensorFromGPSRecorderLocalTime.Reset;
 begin
   inherited;
-  GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Apply_UTCDateTime, nil);
+  FGPSModule.ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Apply_UTCDateTime, nil);
 end;
 
 { TSensorFromGPSRecorderDGPS }
+
+constructor TSensorFromGPSRecorderDGPS.Create(const AGPSRecorder: IGPSRecorder;
+  const AGPSModule: IGPSModule);
+begin
+  inherited Create(AGPSRecorder);
+  FGPSModule := AGPSModule;
+end;
 
 function TSensorFromGPSRecorderDGPS.GetCurrentValue: string;
 var
@@ -387,14 +425,21 @@ end;
 procedure TSensorFromGPSRecorderDGPS.Reset;
 begin
   inherited;
-  GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Reset_DGPS, nil);
+  FGPSModule.ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Reset_DGPS, nil);
 end;
 
 { TSensorFromGPSRecorderGPSUnitInfo }
 
+constructor TSensorFromGPSRecorderGPSUnitInfo.Create(
+  const AGPSRecorder: IGPSRecorder; const AGPSModule: IGPSModule);
+begin
+  inherited Create(AGPSRecorder);
+  FGPSModule := AGPSModule;
+end;
+
 function TSensorFromGPSRecorderGPSUnitInfo.GetCurrentValue: string;
 begin
-  Result := GPSRecorder.GPSUnitInfo;
+  Result := FGPSModule.GPSUnitInfo;
 end;
 
 function TSensorFromGPSRecorderGPSUnitInfo.GetSensorTypeIID: TGUID;
@@ -405,7 +450,7 @@ end;
 procedure TSensorFromGPSRecorderGPSUnitInfo.Reset;
 begin
   inherited;
-  GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_ALL, gpsc_Refresh_GPSUnitInfo, nil);
+  FGPSModule.ExecuteGPSCommand(cUnitIndex_ALL, gpsc_Refresh_GPSUnitInfo, nil);
 end;
 
 { TSensorFromGPSRecorderGPSSatellites }

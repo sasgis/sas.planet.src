@@ -62,9 +62,9 @@ type
   TGPSRecorder = class(TConfigDataElementBase, IGPSRecorder)
   private
     FDataFile: IPathConfig;
-    FGPSPositionFactory: IGPSPositionFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FDatum: IDatum;
+    FEmptyPosition: IGPSPosition;
 
     FTrack: ITrackPointsBlocksListStatic;
     FLastBlock: ITrackPoitnsBlock;
@@ -85,19 +85,10 @@ type
     FCurrentPosition: IGPSPosition;
     FLastPositionOK: Boolean;
 
-    FGPSUnitInfo: AnsiString;
     function AddPointInternal(const APoint: TGPSTrackPoint): TDoublePoint;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
-  private
-    function GenerateGPSUnitInfo(const AUnitIndex: Byte): AnsiString;
-    procedure ReGenerateGPSUnitInfo;
-    procedure DoGPSUnitInfoChanged(
-      Sender: TObject;
-      const AUnitIndex: Byte;
-      const AKind: TVSAGPS_UNIT_INFO_Kind
-    );
   private
     procedure AddPoint(const APosition: IGPSPosition);
     procedure AddEmptyPoint;
@@ -125,21 +116,12 @@ type
     function GetLastHeading: Double;
     function GetLastPosition: TDoublePoint;
     function GetCurrentPosition: IGPSPosition;
-
-    procedure ExecuteGPSCommand(
-      Sender: TObject;
-      const AUnitIndex: Byte;
-      const ACommand: LongInt;
-      const APointer: Pointer
-    );
-
-    function GetGPSUnitInfo: String;
   public
     constructor Create(
       const AVectorItemsFactory: IVectorItemsFactory;
       const ADatum: IDatum;
       const ADataFile: IPathConfig;
-      const AGPSPositionFactory: IGPSPositionFactory
+      const AEmptyPosition: IGPSPosition
     );
     destructor Destroy; override;
   end;
@@ -513,18 +495,16 @@ constructor TGPSRecorder.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const ADatum: IDatum;
   const ADataFile: IPathConfig;
-  const AGPSPositionFactory: IGPSPositionFactory
+  const AEmptyPosition: IGPSPosition
 );
 begin
   inherited Create;
   FVectorItemsFactory := AVectorItemsFactory;
   FDataFile := ADataFile;
-  FGPSUnitInfo := '';
-  FGPSPositionFactory := AGPSPositionFactory;
+  FEmptyPosition := AEmptyPosition;
   FDatum := ADatum;
   FLastPositionOK := FALSE;
-  FCurrentPosition := FGPSPositionFactory.BuildPositionEmpty;
-  FGPSPositionFactory.GPSUnitInfoChangedHandler := DoGPSUnitInfoChanged;
+  FCurrentPosition := FEmptyPosition;
   FTrack := TTrackPointsBlocksListStatic.Create;
 end;
 
@@ -533,33 +513,6 @@ begin
   FTrack := nil;
   FLastBlock := nil;
   inherited;
-end;
-
-procedure TGPSRecorder.DoGPSUnitInfoChanged(
-  Sender: TObject;
-  const AUnitIndex: Byte;
-  const AKind: TVSAGPS_UNIT_INFO_Kind
-);
-var
-  VNewFullInfo: String;
-begin
-  if (guik_ClearALL = AKind) then begin
-    // clear all info
-    VNewFullInfo := '';
-  end else begin
-    // other parameters
-    if not VSAGPS_ChangedFor_GPSUnitInfo(AKind) then begin
-      Exit;
-    end;
-    VNewFullInfo := GenerateGPSUnitInfo(AUnitIndex);
-  end;
-
-  LockWrite;
-  try
-    FGPSUnitInfo := VNewFullInfo;
-  finally
-    UnlockWrite;
-  end;
 end;
 
 procedure TGPSRecorder.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -691,21 +644,6 @@ begin
   end;
 end;
 
-procedure TGPSRecorder.ExecuteGPSCommand(
-  Sender: TObject;
-  const AUnitIndex: Byte;
-  const ACommand: LongInt;
-  const APointer: Pointer
-);
-begin
-  if (gpsc_Refresh_GPSUnitInfo = ACommand) then begin
-    // refresh info
-    ReGenerateGPSUnitInfo;
-  end else if Assigned(FGPSPositionFactory) then begin
-    FGPSPositionFactory.ExecuteGPSCommand(Sender, AUnitIndex, ACommand, APointer);
-  end;
-end;
-
 function TGPSRecorder.AddPointInternal(const APoint: TGPSTrackPoint): TDoublePoint;
 begin
   if FLastBlock = nil then begin
@@ -739,7 +677,7 @@ begin
       FLastPositionOK := False;
       SetChanged;
     end;
-    FCurrentPosition := FGPSPositionFactory.BuildPositionEmpty;
+    FCurrentPosition := FEmptyPosition;
   finally
     UnlockWrite;
   end;
@@ -842,15 +780,6 @@ begin
   end;
 end;
 
-function TGPSRecorder.GenerateGPSUnitInfo(const AUnitIndex: Byte): AnsiString;
-begin
-  if Assigned(FGPSPositionFactory) then begin
-    Result := FGPSPositionFactory.ExecuteGPSCommand(Self, AUnitIndex, gpsc_Refresh_GPSUnitInfo, nil);
-  end else begin
-    Result := '';
-  end;
-end;
-
 function TGPSRecorder.GetAllPoints: ILonLatPath;
 var
   VTrackPointsEnum: IEnumGPSTrackPoint;
@@ -896,16 +825,6 @@ begin
   LockRead;
   try
     Result := FDist;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TGPSRecorder.GetGPSUnitInfo: String;
-begin
-  LockRead;
-  try
-    Result := FGPSUnitInfo;
   finally
     UnlockRead;
   end;
@@ -1033,16 +952,6 @@ begin
     end;
   finally
     UnlockRead;
-  end;
-end;
-
-procedure TGPSRecorder.ReGenerateGPSUnitInfo;
-begin
-  LockWrite;
-  try
-    FGPSUnitInfo := GenerateGPSUnitInfo(cUnitIndex_Reserved);
-  finally
-    UnlockWrite;
   end;
 end;
 

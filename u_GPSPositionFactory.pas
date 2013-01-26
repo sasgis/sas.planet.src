@@ -36,8 +36,6 @@ type
   private
     FSatellitesInViewEmpty: IGPSSatellitesInView;
     FPositionEmpty: IGPSPosition;
-    FExecuteGPSCommandEvent: TExecuteGPSCommandEvent;
-    FGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event;
   private
     function BuildSatelliteInfo(
       const AData: PSingleSatFixibilityData;
@@ -57,18 +55,6 @@ type
       const ASingleGPSData: PSingleGPSData;
       const ASatellites: IGPSSatellitesInView
     ): IGPSPosition;
-
-    function ExecuteGPSCommand(
-      Sender: TObject;
-      const AUnitIndex: Byte;
-      const ACommand: LongInt;
-      const APointer: Pointer
-    ): AnsiString;
-
-    procedure SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
-
-    procedure SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);
-    function GetGPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event;
   public
     constructor Create;
   end;
@@ -85,40 +71,9 @@ uses
 constructor TGPSPositionFactory.Create;
 begin
   inherited Create;
-  FExecuteGPSCommandEvent := nil;
-  FGPSUnitInfoChangedEvent := nil;
   FSatellitesInViewEmpty := TGPSSatellitesInView.Create(0, nil, 0, nil);
   FPositionEmpty :=
     TGPSPositionStatic.Create(nil, FSatellitesInViewEmpty);
-end;
-
-function TGPSPositionFactory.ExecuteGPSCommand(
-  Sender: TObject;
-  const AUnitIndex: Byte;
-  const ACommand: Integer;
-  const APointer: Pointer
-): AnsiString;
-begin
-  if Assigned(FExecuteGPSCommandEvent) then begin
-    Result := FExecuteGPSCommandEvent(Sender, AUnitIndex, ACommand, APointer);
-  end else begin
-    Result := '';
-  end;
-end;
-
-function TGPSPositionFactory.GetGPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event;
-begin
-  Result := FGPSUnitInfoChangedEvent;
-end;
-
-procedure TGPSPositionFactory.SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
-begin
-  FExecuteGPSCommandEvent := AExecuteGPSCommandEvent;
-end;
-
-procedure TGPSPositionFactory.SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);
-begin
-  FGPSUnitInfoChangedEvent := AGPSUnitInfoChangedEvent;
 end;
 
 function TGPSPositionFactory.BuildPosition(

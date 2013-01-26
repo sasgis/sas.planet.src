@@ -513,7 +513,7 @@ begin
       FVectorItemsFactory,
       TDatum.Create(3395, 6378137, 6356752),
       FGpsRecorderFileName,
-      FGPSPositionFactory
+      FGPSPositionFactory.BuildPositionEmpty
     );
   FGSMpar := TGSMGeoCodeConfig.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
@@ -933,6 +933,7 @@ begin
       FMainFormConfig.ViewPortState.View,
       FMainFormConfig.NavToPoint,
       FGPSRecorder,
+      FGpsSystem,
       FBatteryStatus,
       FValueToStringConverterConfig
     );

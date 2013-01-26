@@ -67,8 +67,7 @@ type
 
     // unit info (TODO: array of )
     FVSAGPS_UNIT_INFO: TVSAGPS_UNIT_INFO;
-    FVSAGPS_UNIT_INFO_Changed: TVSAGPS_UNIT_INFO_Changed_Event;
-    
+
     FLoggerCS: TRTLCriticalSection;
     FConnectCS: TRTLCriticalSection;
     FUnitInfoCS: TRTLCriticalSection;
@@ -80,6 +79,7 @@ type
     FNotify_on_GLL: Boolean;
     FNotify_on_GSA: Boolean;
     FNotify_on_RMC: Boolean;
+    FGPSUnitInfo: AnsiString;
   private
     procedure GPSRecv_NMEA_GGA(const AUnitIndex: Byte; const pGGA: PNMEA_GGA);
     procedure GPSRecv_NMEA_GLL(const AUnitIndex: Byte; const pGLL: PNMEA_GLL);
@@ -100,9 +100,10 @@ type
                                  const ADevType: DWORD;
                                  const pData: PSingleTrackPointData);
   private
+    procedure ReGenerateGPSUnitInfo(const AUnitIndex: Byte);
     procedure InternalApplyCalcStatsFlag(const AUnitIndex: Byte; const AAllowCalc: Boolean);
     procedure InternalPrepareLoggerParams;
-    
+
     procedure InternalStopLogger;
     procedure InternalResumeLogger;
     procedure InternalStartLogger(const AConfig: IGPSModuleByCOMPortSettings;
@@ -123,7 +124,7 @@ type
     procedure InternalSetUnitInfo(const AUnitIndex: Byte;
                                   const AKind: TVSAGPS_UNIT_INFO_Kind;
                                   const AValue: AnsiString);
-                                  
+
     procedure LockUnitInfo(const AUnitIndex: Byte);
     procedure UnlockUnitInfo(const AUnitIndex: Byte);
   private
@@ -131,12 +132,6 @@ type
                                 const ANewState: Tvsagps_GPSState);
     procedure GPSDoTimeout(const AUnitIndex: Byte);
 
-    // call by EXE
-    function DoExecuteGPSCommand(Sender: TObject;
-                                 const AUnitIndex: Byte;
-                                 const ACommand: LongInt;
-                                 const APointer: Pointer): AnsiString;
-                                  
     // called by device object when unit info changed
     procedure DoGPSUnitInfoChanged(const AUnitIndex: Byte;
                                    const AKind: TVSAGPS_UNIT_INFO_Kind;
@@ -146,6 +141,12 @@ type
                       const ALogConfig: IGPSConfig); safecall;
     procedure Disconnect; safecall;
     function GetIsReadyToConnect: Boolean; safecall;
+    function GetGPSUnitInfo: String; override;
+    function ExecuteGPSCommand(
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    ): AnsiString; override;
   protected
     procedure LockLogger;
     procedure UnlockLogger;
@@ -356,10 +357,7 @@ begin
   InitializeCriticalSection(FLoggerCS);
   InitializeCriticalSection(FUnitInfoCS);
 
-  AGPSPositionFactory.SetExecuteGPSCommandHandler(DoExecuteGPSCommand);
-
   Clear_TVSAGPS_UNIT_INFO(@FVSAGPS_UNIT_INFO);
-  FVSAGPS_UNIT_INFO_Changed := AGPSPositionFactory.GPSUnitInfoChangedHandler;
 
   FConnectedUnitindex:=0;
   FRecvTimeoutOccured:=FALSE;
@@ -723,17 +721,19 @@ begin
   end;
 end;
 
-function TGPSModuleByVSAGPS.DoExecuteGPSCommand(Sender: TObject;
-                                                const AUnitIndex: Byte;
-                                                const ACommand: LongInt;
-                                                const APointer: Pointer): AnsiString;
+function TGPSModuleByVSAGPS.ExecuteGPSCommand(
+  const AUnitIndex: Byte;
+  const ACommand: LongInt;
+  const APointer: Pointer
+): AnsiString;
 begin
   // some special commands
 
   if (gpsc_Refresh_GPSUnitInfo=ACommand) then begin
     LockUnitInfo(AUnitIndex);
     try
-      Result := VSAGPS_Generate_GPSUnitInfo(@FVSAGPS_UNIT_INFO);
+      FGPSUnitInfo := VSAGPS_Generate_GPSUnitInfo(@FVSAGPS_UNIT_INFO);
+      Result := FGPSUnitInfo;
     finally
       UnlockUnitInfo(AUnitIndex);
     end;
@@ -797,10 +797,16 @@ begin
     SafeSetStringP(s, AValue);
     InternalSetUnitInfo(AUnitIndex, AKind, s);
   end;
-  
-  // call
-  if Assigned(FVSAGPS_UNIT_INFO_Changed) then begin
-    FVSAGPS_UNIT_INFO_Changed(Self, AUnitIndex, AKind);
+  ReGenerateGPSUnitInfo(AUnitIndex);
+end;
+
+function TGPSModuleByVSAGPS.GetGPSUnitInfo: String;
+begin
+  LockUnitInfo(cUnitIndex_Reserved);
+  try
+    Result := FGPSUnitInfo;
+  finally
+    UnlockUnitInfo(cUnitIndex_Reserved);
   end;
 end;
 
@@ -1206,6 +1212,16 @@ begin
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
   VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.LockUnitInfo: ok');
 {$ifend}
+end;
+
+procedure TGPSModuleByVSAGPS.ReGenerateGPSUnitInfo(const AUnitIndex: Byte);
+begin
+  LockUnitInfo(AUnitIndex);
+  try
+    ExecuteGPSCommand(AUnitIndex, gpsc_Refresh_GPSUnitInfo, nil);
+  finally
+    UnlockUnitInfo(AUnitIndex);
+  end;
 end;
 
 procedure TGPSModuleByVSAGPS.UnlockConnect;

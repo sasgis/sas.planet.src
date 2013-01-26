@@ -51,18 +51,6 @@ type
       const FSingleGPSData: PSingleGPSData;
       const ASatellites: IGPSSatellitesInView
     ): IGPSPosition;
-
-    function ExecuteGPSCommand(
-      Sender: TObject;
-      const AUnitIndex: Byte;
-      const ACommand: LongInt;
-      const APointer: Pointer
-    ): AnsiString;
-    procedure SetExecuteGPSCommandHandler(AExecuteGPSCommandEvent: TExecuteGPSCommandEvent);
-
-    procedure SetGPSUnitInfoChangedHandler(AGPSUnitInfoChangedEvent: TVSAGPS_UNIT_INFO_Changed_Event);
-    function GetGPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event;
-    property GPSUnitInfoChangedHandler: TVSAGPS_UNIT_INFO_Changed_Event read GetGPSUnitInfoChangedHandler write SetGPSUnitInfoChangedHandler;
   end;
 
 implementation

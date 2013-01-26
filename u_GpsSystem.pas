@@ -100,6 +100,12 @@ type
     function GetDisconnectedNotifier: INotifier; safecall;
     function GetDisconnectingNotifier: INotifier; safecall;
     function GetTimeOutNotifier: INotifier; safecall;
+    function GetGPSUnitInfo: String;
+    function ExecuteGPSCommand(
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    ): AnsiString;
   public
     procedure AfterConstruction; override;
   public
@@ -204,6 +210,12 @@ begin
   inherited;
 end;
 
+function TGpsSystem.ExecuteGPSCommand(const AUnitIndex: Byte;
+  const ACommand: Integer; const APointer: Pointer): AnsiString;
+begin
+  FGPSModuleByCOM.ExecuteGPSCommand(AUnitIndex, ACommand, APointer);
+end;
+
 function TGpsSystem.GetConnectedNotifier: INotifier;
 begin
   Result := FConnectedNotifier;
@@ -232,6 +244,11 @@ end;
 function TGpsSystem.GetDisconnectingNotifier: INotifier;
 begin
   Result := FDisconnectingNotifier;
+end;
+
+function TGpsSystem.GetGPSUnitInfo: String;
+begin
+  Result := FGPSModuleByCOM.GPSUnitInfo;
 end;
 
 function TGpsSystem.GetPosition: IGPSPosition;

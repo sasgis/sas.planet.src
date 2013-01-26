@@ -3296,8 +3296,8 @@ begin
   SystemTimeChanged;
   // notify track writer
   try
-    if Assigned(GState.GPSRecorder) then
-      GState.GPSRecorder.ExecuteGPSCommand(Self, cUnitIndex_Reserved, gpsc_LocalTimeChanged, nil);
+    if Assigned(GState.GpsSystem) then
+      GState.GpsSystem.ExecuteGPSCommand(cUnitIndex_Reserved, gpsc_LocalTimeChanged, nil);
   except
   end;
 end;

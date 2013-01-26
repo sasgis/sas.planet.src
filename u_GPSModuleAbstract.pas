@@ -209,6 +209,12 @@ type
 
     function GetConnectErrorNotifier: INotifier; safecall;
     function GetTimeOutNotifier: INotifier; safecall;
+    function GetGPSUnitInfo: String; virtual; abstract;
+    function ExecuteGPSCommand(
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    ): AnsiString; virtual; abstract;
   public
     constructor Create(const APositionFactory: IGPSPositionFactory);
     destructor Destroy; override;
