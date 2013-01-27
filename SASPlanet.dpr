@@ -900,6 +900,7 @@ uses
   u_MouseState in 'u_MouseState.pas',
   i_GPSRecorder in 'GPS\i_GPSRecorder.pas',
   u_GPSRecorder in 'GPS\u_GPSRecorder.pas',
+  u_GpsTrackRecorder in 'GPS\u_GpsTrackRecorder.pas',
   i_GPS in 'GPS\i_GPS.pas',
   i_GPSPositionFactory in 'GPS\i_GPSPositionFactory.pas',
   i_GPSModule in 'GPS\i_GPSModule.pas',

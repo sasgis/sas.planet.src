@@ -24,7 +24,7 @@ type
   private
     FConfig: IMapLayerGPSTrackConfig;
     FBitmapFactory: IBitmap32StaticFactory;
-    FGPSRecorder: IGPSRecorder;
+    FGPSRecorder: IGpsTrackRecorder;
 
     FGetTrackCounter: IInternalPerformanceCounter;
     FGpsPosChangeFlag: ISimpleFlag;
@@ -51,7 +51,7 @@ type
       const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IMapLayerGPSTrackConfig;
-      const AGPSRecorder: IGPSRecorder
+      const AGpsTrackRecorder: IGpsTrackRecorder
     );
   end;
 
@@ -79,7 +79,7 @@ constructor TMapLayerGPSTrack.Create(
   const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IMapLayerGPSTrackConfig;
-  const AGPSRecorder: IGPSRecorder
+  const AGpsTrackRecorder: IGpsTrackRecorder
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;
@@ -102,7 +102,7 @@ begin
     False,
     AConfig.ThreadConfig
   );
-  FGPSRecorder := AGPSRecorder;
+  FGPSRecorder := AGpsTrackRecorder;
   FConfig := AConfig;
   FBitmapFactory := ABitmapFactory;
 

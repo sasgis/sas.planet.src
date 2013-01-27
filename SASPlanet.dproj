@@ -234,6 +234,7 @@
     <DCCReference Include="GPS\u_GPSSatelliteInfo.pas" />
     <DCCReference Include="GPS\u_GPSSatellitesInView.pas" />
     <DCCReference Include="GPS\u_GpsSystem.pas" />
+    <DCCReference Include="GPS\u_GpsTrackRecorder.pas" />
     <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_AntiBan.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />

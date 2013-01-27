@@ -1481,7 +1481,7 @@ begin
       GState.GUISyncronizedTimerNotifier,
       GState.BitmapFactory,
       FConfig.LayersConfig.GPSTrackConfig,
-      GState.GPSRecorder
+      GState.GpsTrackRecorder
     )
   );
   VMarkerChangeable :=
@@ -4241,7 +4241,7 @@ procedure TfrmMain.tbitmGPSTrackSaveToMarksClick(Sender: TObject);
 var
   VAllPoints: ILonLatPath;
 begin
-  VAllPoints := GState.GPSRecorder.GetAllPoints;
+  VAllPoints := GState.GpsTrackRecorder.GetAllPoints;
   if VAllPoints.Count > 0 then begin
     if FMarkDBGUI.SaveLineModal(nil, VAllPoints, '') then begin
       FState.State := ao_movemap;
@@ -5210,7 +5210,7 @@ end;
 
 procedure TfrmMain.TBItemDelTrackClick(Sender: TObject);
 begin
-  GState.GPSRecorder.ClearTrack;
+  GState.GpsTrackRecorder.ClearTrack;
 end;
 
 procedure TfrmMain.NGShScale01Click(Sender: TObject);

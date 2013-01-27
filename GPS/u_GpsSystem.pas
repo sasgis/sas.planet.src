@@ -51,6 +51,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FConfig: IGPSConfig;
     FGPSRecorder: IGPSRecorderInternal;
+    FGpsTrackRecorder: IGpsTrackRecorderInternal;
     FGPSModuleFactory: IGPSModuleByCOMFactory;
     FGPSModuleByCOM: IGPSModuleByCOM;
 
@@ -118,6 +119,7 @@ type
       const AGPSModuleFactory: IGPSModuleByCOMFactory;
       const AConfig: IGPSConfig;
       const AGPSRecorder: IGPSRecorderInternal;
+      const AGpsTrackRecorder: IGpsTrackRecorderInternal;
       const ATimerNoifier: INotifierTime;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -158,6 +160,7 @@ constructor TGpsSystem.Create(
   const AGPSModuleFactory: IGPSModuleByCOMFactory;
   const AConfig: IGPSConfig;
   const AGPSRecorder: IGPSRecorderInternal;
+  const AGpsTrackRecorder: IGpsTrackRecorderInternal;
   const ATimerNoifier: INotifierTime;
   const APerfCounterList: IInternalPerformanceCounterList
 );
@@ -167,6 +170,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
+  FGpsTrackRecorder := AGpsTrackRecorder;
   FGPSModuleFactory := AGPSModuleFactory;
 
   FDataReceiveCounter := APerfCounterList.CreateAndAddNewCounter('GPS_Process');
@@ -214,6 +218,7 @@ begin
   end;
   FLinksList := nil;
   FGPSRecorder := nil;
+  FGpsTrackRecorder := nil;
   FGPSModuleByCOM := nil;
   FCS := nil;
   inherited;
@@ -370,6 +375,7 @@ begin
   try
     VPosition := FGPSModuleByCOM.Position;
     FGPSRecorder.AddPoint(VPosition);
+    FGpsTrackRecorder.AddPoint(VPosition);
     FCS.BeginWrite;
     try
       FDataRecived := True;
@@ -383,9 +389,13 @@ begin
 end;
 
 procedure TGpsSystem.OnGpsDisconnected;
+var
+  VPosition: IGPSPosition;
 begin
   FConfig.GPSEnabled := False;
-  FGPSRecorder.AddPoint(FGPSModuleByCOM.Position);
+  VPosition := FGPSModuleByCOM.Position;
+  FGPSRecorder.AddPoint(VPosition);
+  FGpsTrackRecorder.AddPoint(VPosition);
   FCS.BeginWrite;
   try
     FModuleState := msDisconnected;
@@ -539,6 +549,7 @@ begin
               VTickDelta := VCurrTick - FLastDataReceiveTick;
               if VTickDelta > VNotDataTimeout then begin
                 FGPSRecorder.AddEmptyPoint;
+                FGpsTrackRecorder.AddEmptyPoint;
                 VDataRecived := True;
               end;
             end;

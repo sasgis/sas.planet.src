@@ -114,6 +114,7 @@ type
     FTerrainDataPath: IPathConfig;
     FLastSelectionFileName: IPathConfig;
     FGpsRecorderFileName: IPathConfig;
+    FGpsTrackRecorderFileName: IPathConfig;
 
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpConfig: IZmpConfig;
@@ -165,6 +166,8 @@ type
     FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
     FGPSRecorderInternal: IGPSRecorderInternal;
+    FGpsTrackRecorder: IGpsTrackRecorder;
+    FGpsTrackRecorderInternal: IGpsTrackRecorderInternal;
     FSkyMapDraw: ISatellitesInViewMapDraw;
     FBGTimerNotifier: INotifierTime;
     FBGTimerNotifierInternal: INotifierTimeInternal;
@@ -249,6 +252,7 @@ type
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
+    property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
     property SensorList: ISensorList read FSensorList;
     property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
@@ -329,6 +333,7 @@ uses
   u_GlobalDownloadConfig,
   u_GlobalBerkeleyDBHelper,
   u_GPSRecorder,
+  u_GpsTrackRecorder,
   u_SatellitesInViewMapDrawSimple,
   u_GPSModuleFactoryByVSAGPS,
   u_GPSPositionFactory,
@@ -423,7 +428,8 @@ begin
   FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
   FTerrainDataPath := TPathConfig.Create('PrimaryPath', '.\TerrainData', FBaseDataPath);
   FLastSelectionFileName := TPathConfig.Create('FileName', '.\LastSelection.hlg', FBaseDataPath);
-  FGpsRecorderFileName := TPathConfig.Create('FileName', '.\LastPoints.ini', FBaseDataPath);
+  FGpsRecorderFileName := TPathConfig.Create('InfoFileName', '.\GpsInfo.ini', FBaseDataPath);
+  FGpsTrackRecorderFileName := TPathConfig.Create('TrackFileName', '.\LastPoints.dat', FBaseDataPath);
 
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create(FBitmapFactory);
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
@@ -447,6 +453,7 @@ begin
   FTerrainDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTerrainData'));
   FLastSelectionFileName.ReadConfig(FMainConfigProvider.GetSubItem('LastSelection'));
   FGpsRecorderFileName.ReadConfig(FMainConfigProvider.GetSubItem('GpsData'));
+  FGpsTrackRecorderFileName.ReadConfig(FMainConfigProvider.GetSubItem('GpsData'));
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
@@ -511,12 +518,18 @@ begin
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorderInternal :=
     TGPSRecorder.Create(
-      FVectorItemsFactory,
       TDatum.Create(3395, 6378137, 6356752),
       FGpsRecorderFileName,
       FGPSPositionFactory.BuildPositionEmpty
     );
   FGPSRecorder := FGPSRecorderInternal;
+
+  FGpsTrackRecorderInternal :=
+    TGpsTrackRecorder.Create(
+      FVectorItemsFactory,
+      FGpsTrackRecorderFileName
+    );
+  FGpsTrackRecorder := FGpsTrackRecorderInternal;
   FGSMpar := TGSMGeoCodeConfig.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
@@ -595,6 +608,7 @@ begin
       TGPSModuleFactoryByVSAGPS.Create(FGPSPositionFactory),
       FGPSConfig,
       FGPSRecorderInternal,
+      FGpsTrackRecorderInternal,
       GUISyncronizedTimerNotifier,
       FPerfCounterList
     );
@@ -942,6 +956,7 @@ begin
   FInternalBrowserConfig.ReadConfig(MainConfigProvider.GetSubItem('InternalBrowser'));
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorderInternal.Load;
+  FGpsTrackRecorderInternal.Load;
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
@@ -1006,6 +1021,7 @@ begin
   FMainMapsList.SaveMaps(VLocalMapsConfig);
 
   FGPSRecorderInternal.Save;
+  FGpsTrackRecorderInternal.Save;
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
@@ -1042,6 +1058,7 @@ begin
   FTerrainDataPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoTerrainData'));
   FLastSelectionFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('LastSelection'));
   FGpsRecorderFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('GpsData'));
+  FGpsTrackRecorderFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('GpsData'));
 end;
 
 procedure TGlobalState.SendTerminateToThreads;

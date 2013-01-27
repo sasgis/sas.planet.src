@@ -42,13 +42,23 @@ type
     function Next(out APoint: TGPSTrackPoint): Boolean;
   end;
 
-  IGPSRecorder = interface(IChangeable)
-    ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
+  IGpsTrackRecorder = interface(IChangeable)
+    ['{DB8E0A07-EF6B-40A5-AF00-5A5028025CEE}']
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function LastPoints(const AMaxCount: Integer): IEnumGPSTrackPoint;
     function GetAllPoints: ILonLatPath;
+  end;
 
+  IGpsTrackRecorderInternal = interface(IGpsTrackRecorder)
+    procedure AddPoint(const APosition: IGPSPosition);
+    procedure AddEmptyPoint;
+    procedure Save;
+    procedure Load;
+  end;
+
+  IGPSRecorder = interface(IChangeable)
+    ['{E8525CFD-243B-4454-82AA-C66108A74B8F}']
     function GetOdometer1: Double;
     property Odometer1: Double read GetOdometer1;
     procedure ResetOdometer1;
