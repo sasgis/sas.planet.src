@@ -179,13 +179,13 @@ type
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    function LoadBtimap(
+    function LoadBitmap(
       const APixelRectTarget: TRect;
       const AZoom: byte;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    function LoadBtimapUni(
+    function LoadBitmapUni(
       const APixelRectTarget: TRect;
       const AZoom: byte;
       const ACoordConverterTarget: ICoordConverter;
@@ -930,7 +930,7 @@ begin
   end;
 end;
 
-function TMapType.LoadBtimap(
+function TMapType.LoadBitmap(
   const APixelRectTarget: TRect;
   const AZoom: byte;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
@@ -961,12 +961,9 @@ begin
   if (VTileRect.Left = VTileRect.Right - 1) and
     (VTileRect.Top = VTileRect.Bottom - 1) then begin
     VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTileRect.TopLeft, VZoom);
-    if (VPixelRectCurrTile.Left = APixelRectTarget.Left) and
-      (VPixelRectCurrTile.Top = APixelRectTarget.Top) and
-      (VPixelRectCurrTile.Right = APixelRectTarget.Right) and
-      (VPixelRectCurrTile.Bottom = APixelRectTarget.Bottom) then begin
+    if EqualRect(VPixelRectCurrTile, APixelRectTarget) then begin
       Result := LoadTileOrPreZ(VTileRect.TopLeft, VZoom, IgnoreError, AUsePre, ACache);
-      exit;
+      Exit;
     end;
   end;
   VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
@@ -1051,7 +1048,7 @@ begin
   end;
 end;
 
-function TMapType.LoadBtimapUni(
+function TMapType.LoadBitmapUni(
   const APixelRectTarget: TRect;
   const AZoom: byte;
   const ACoordConverterTarget: ICoordConverter;
@@ -1072,7 +1069,7 @@ begin
   Result := nil;
 
   if FCoordConverter.IsSameConverter(ACoordConverterTarget) then begin
-    Result := LoadBtimap(APixelRectTarget, AZoom, AUsePre, AAllowPartial, IgnoreError, ACache);
+    Result := LoadBitmap(APixelRectTarget, AZoom, AUsePre, AAllowPartial, IgnoreError, ACache);
   end else begin
     VZoom := AZoom;
     VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
@@ -1088,7 +1085,7 @@ begin
         rrToTopLeft
       );
     VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, VZoom);
-    VSpr := LoadBtimap(VPixelRectOfTargetPixelRectInSource, VZoom, AUsePre, AAllowPartial, IgnoreError, ACache);
+    VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VZoom, AUsePre, AAllowPartial, IgnoreError, ACache);
     if VSpr <> nil then begin
       VResampler := FResamplerConfigChangeProjection.GetActiveFactory.CreateResampler;
       try
@@ -1125,7 +1122,7 @@ var
   VPixelRect: TRect;
 begin
   VPixelRect := ACoordConverterTarget.TilePos2PixelRect(AXY, AZoom);
-  Result := LoadBtimapUni(VPixelRect, AZoom, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
+  Result := LoadBitmapUni(VPixelRect, AZoom, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
 end;
 
 end.

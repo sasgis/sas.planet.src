@@ -70,11 +70,11 @@ begin
   Result := nil;
   VLayer := nil;
   if FMapTypeMain <> nil then begin
-    Result := FMapTypeMain.LoadBtimapUni(ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+    Result := FMapTypeMain.LoadBitmapUni(ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
   end;
 
   if FMapTypeHybr <> nil then begin
-    VLayer := FMapTypeHybr.LoadBtimapUni(ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
+    VLayer := FMapTypeHybr.LoadBitmapUni(ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
   end;
 
   if Result <> nil then begin
