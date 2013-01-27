@@ -16,6 +16,7 @@ object frmInvisibleBrowser: TfrmInvisibleBrowser
     Height = 509
     Align = alClient
     TabOrder = 0
+    Silent = False
     DisableCtrlShortcuts = 'N'
     DownloadOptions = [DownloadImages, DownloadVideos]
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]

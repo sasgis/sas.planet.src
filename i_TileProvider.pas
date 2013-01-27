@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   i_ProjectionInfo,
   i_VectorDataItemSimple,
   i_Bitmap32Static;
@@ -22,8 +22,8 @@ type
 
   IBitmapTileProviderWithNotifier = interface(IBitmapTileProvider)
     ['{DB94FB95-B32E-434C-8DF9-0647BE84052D}']
-    function GetChangeNotifier: INotifierTileRectUpdate;
-    property ChangeNotifier: INotifierTileRectUpdate read GetChangeNotifier;
+    function GetChangeNotifier: INotifierTilePyramidUpdate;
+    property ChangeNotifier: INotifierTilePyramidUpdate read GetChangeNotifier;
   end;
 
   IVectorTileProvider = interface
@@ -38,8 +38,8 @@ type
 
   IVectorTileProviderWithNotifier = interface(IVectorTileProvider)
     ['{3C1CF0A0-02F2-4F41-85FA-1F108BB0F120}']
-    function GetChangeNotifier: INotifierTileRectUpdate;
-    property ChangeNotifier: INotifierTileRectUpdate read GetChangeNotifier;
+    function GetChangeNotifier: INotifierTilePyramidUpdate;
+    property ChangeNotifier: INotifierTilePyramidUpdate read GetChangeNotifier;
   end;
 
 implementation

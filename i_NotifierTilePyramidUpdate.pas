@@ -1,4 +1,4 @@
-unit i_NotifierTileRectUpdate;
+unit i_NotifierTilePyramidUpdate;
 
 interface
 
@@ -10,7 +10,7 @@ uses
   i_CoordConverter;
 
 type
-  INotifierTileRectUpdate = interface
+  INotifierTilePyramidUpdate = interface
     ['{67415555-955C-4BC7-BC8F-2F9BCDD0F065}']
     function GetGeoCoder: ICoordConverter;
     property GeoCoder: ICoordConverter read GetGeoCoder;
@@ -30,7 +30,7 @@ type
     procedure Remove(const AListener: IListener);
   end;
 
-  INotifierTileRectUpdateInternal = interface
+  INotifierTilePyramidUpdateInternal = interface
     procedure TileFullUpdateNotify;
     procedure TileUpdateNotify(const ATileKey: ITileKey); overload;
     procedure TileUpdateNotify(const ATile: TPoint; const AZoom: Byte); overload;

@@ -61,7 +61,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_LonLatRect,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
   u_GeoFun,
@@ -148,7 +148,7 @@ end;
 
 procedure TBitmapLayerProviderFillingMap.RemoveListener;
 var
-  VNotifier: INotifierTileRectUpdate;
+  VNotifier: INotifierTilePyramidUpdate;
 begin
   FListenerCS.BeginWrite;
   try
@@ -171,7 +171,7 @@ procedure TBitmapLayerProviderFillingMap.SetListener(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  VNotifier: INotifierTileRectUpdate;
+  VNotifier: INotifierTilePyramidUpdate;
   VZoom: Byte;
   VConverter: ICoordConverter;
   VMapRect: TDoubleRect;

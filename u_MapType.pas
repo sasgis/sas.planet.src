@@ -62,7 +62,7 @@ uses
   i_MainMemCacheConfig,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   i_VectorDataItemSimple,
   i_VectorDataFactory,
   i_ProjConverter,
@@ -143,7 +143,7 @@ type
       AUsePre: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    function GetTileNotifier: INotifierTileRectUpdate;
+    function GetTileNotifier: INotifierTilePyramidUpdate;
   public
     function AllowListOfTileVersions: Boolean;
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
@@ -228,7 +228,7 @@ type
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
     property CacheTileInfo: ITileInfoBasicMemCache read FCacheTileInfo;
-    property TileNotifier: INotifierTileRectUpdate read GetTileNotifier;
+    property TileNotifier: INotifierTilePyramidUpdate read GetTileNotifier;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
 
     constructor Create(
@@ -513,7 +513,7 @@ begin
   inherited;
 end;
 
-function TMapType.GetTileNotifier: INotifierTileRectUpdate;
+function TMapType.GetTileNotifier: INotifierTilePyramidUpdate;
 begin
   Result := FStorage.TileNotifier;
 end;

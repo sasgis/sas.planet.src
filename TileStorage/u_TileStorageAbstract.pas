@@ -34,7 +34,7 @@ uses
   i_StorageStateInternal,
   i_TileInfoBasic,
   i_TileStorage,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   u_BaseInterfacedObject;
 
 type
@@ -42,11 +42,11 @@ type
   private
     FGeoConverter: ICoordConverter;
     FMapVersionFactory: IMapVersionFactory;
-    FTileNotifier: INotifierTileRectUpdate;
+    FTileNotifier: INotifierTilePyramidUpdate;
     FStoragePath: string;
     FStorageState: IStorageStateChangeble;
     FStorageStateInternal: IStorageStateInternal;
-    FTileNotifierInternal: INotifierTileRectUpdateInternal;
+    FTileNotifierInternal: INotifierTilePyramidUpdateInternal;
   protected
     procedure NotifyTileUpdate(
       const ATile: TPoint;
@@ -58,7 +58,7 @@ type
     property GeoConverter: ICoordConverter read FGeoConverter;
     property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
   protected
-    function GetTileNotifier: INotifierTileRectUpdate;
+    function GetTileNotifier: INotifierTilePyramidUpdate;
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean; virtual; abstract;
@@ -120,7 +120,7 @@ type
 implementation
 
 uses
-  u_NotifierTileRectUpdate,
+  u_NotifierTilePyramidUpdate,
   u_StorageStateInternal;
 
 { TTileStorageAbstract }
@@ -132,7 +132,7 @@ constructor TTileStorageAbstract.Create(
   const AStoragePath: string
 );
 var
-  VNotifier: TNotifierTileRectUpdate;
+  VNotifier: TNotifierTilePyramidUpdate;
   VState: TStorageStateInternal;
 begin
   inherited Create;
@@ -144,7 +144,7 @@ begin
   FStorageStateInternal := VState;
   FStorageState := VState;
 
-  VNotifier := TNotifierTileRectUpdate.Create(AGeoConverter);
+  VNotifier := TNotifierTilePyramidUpdate.Create(AGeoConverter);
   FTileNotifier := VNotifier;
   FTileNotifierInternal := VNotifier;
 end;
@@ -163,7 +163,7 @@ begin
   Result := nil;
 end;
 
-function TTileStorageAbstract.GetTileNotifier: INotifierTileRectUpdate;
+function TTileStorageAbstract.GetTileNotifier: INotifierTilePyramidUpdate;
 begin
   Result := FTileNotifier;
 end;

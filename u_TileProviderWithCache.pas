@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   i_Bitmap32Static,
   i_VectorDataItemSimple,
   i_ProjectionInfo,
@@ -20,7 +20,7 @@ type
   private
     function GetProjectionInfo: IProjectionInfo;
     function GetTile(const ATile: TPoint): IBitmap32Static;
-    function GetChangeNotifier: INotifierTileRectUpdate;
+    function GetChangeNotifier: INotifierTilePyramidUpdate;
   public
     constructor Create(
       const ASource: IBitmapTileProviderWithNotifier;
@@ -35,7 +35,7 @@ type
   private
     function GetProjectionInfo: IProjectionInfo;
     function GetTile(const ATile: TPoint): IVectorDataItemList;
-    function GetChangeNotifier: INotifierTileRectUpdate;
+    function GetChangeNotifier: INotifierTilePyramidUpdate;
   public
     constructor Create(
       const ASource: IVectorTileProviderWithNotifier;
@@ -59,7 +59,7 @@ begin
   FCache := ACache;
 end;
 
-function TBitmapTileProviderWithCache.GetChangeNotifier: INotifierTileRectUpdate;
+function TBitmapTileProviderWithCache.GetChangeNotifier: INotifierTilePyramidUpdate;
 begin
   Result := FSource.ChangeNotifier;
 end;
@@ -99,7 +99,7 @@ begin
   FCache := ACache;
 end;
 
-function TVectorTileProviderWithCache.GetChangeNotifier: INotifierTileRectUpdate;
+function TVectorTileProviderWithCache.GetChangeNotifier: INotifierTilePyramidUpdate;
 begin
   Result := FSource.ChangeNotifier;
 end;

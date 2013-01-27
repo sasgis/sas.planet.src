@@ -5,7 +5,7 @@ interface
 uses
   Types,
   SysUtils,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
   i_MapVersionConfig,
@@ -32,7 +32,7 @@ type
   private
     function GetProjectionInfo: IProjectionInfo;
     function GetTile(const ATile: TPoint): IBitmap32Static;
-    function GetChangeNotifier: INotifierTileRectUpdate;
+    function GetChangeNotifier: INotifierTilePyramidUpdate;
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
@@ -56,7 +56,7 @@ type
   private
     function GetProjectionInfo: IProjectionInfo;
     function GetTile(const ATile: TPoint): IVectorDataItemList;
-    function GetChangeNotifier: INotifierTileRectUpdate;
+    function GetChangeNotifier: INotifierTilePyramidUpdate;
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
@@ -104,7 +104,7 @@ begin
   FLoaderFromStorage := ALoaderFromStorage;
 end;
 
-function TBitmapTileProviderByStorage.GetChangeNotifier: INotifierTileRectUpdate;
+function TBitmapTileProviderByStorage.GetChangeNotifier: INotifierTilePyramidUpdate;
 begin
   Result := FStorage.TileNotifier;
 end;
@@ -189,7 +189,7 @@ begin
   FLoaderFromStorage := ALoaderFromStorage;
 end;
 
-function TVectorTileProviderByStorage.GetChangeNotifier: INotifierTileRectUpdate;
+function TVectorTileProviderByStorage.GetChangeNotifier: INotifierTilePyramidUpdate;
 begin
   Result := FStorage.TileNotifier;
 end;

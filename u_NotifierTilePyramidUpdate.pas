@@ -1,4 +1,4 @@
-unit u_NotifierTileRectUpdate;
+unit u_NotifierTilePyramidUpdate;
 
 interface
 
@@ -10,7 +10,7 @@ uses
   i_TileKey,
   i_TileRect,
   i_CoordConverter,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   u_BaseInterfacedObject;
 
 type
@@ -44,7 +44,7 @@ type
     destructor Destroy; override;
   end;
 
-  TNotifierTileRectUpdate = class(TBaseInterfacedObject, INotifierTileRectUpdate, INotifierTileRectUpdateInternal)
+  TNotifierTilePyramidUpdate = class(TBaseInterfacedObject, INotifierTilePyramidUpdate, INotifierTilePyramidUpdateInternal)
   private
     FGeoCoder: ICoordConverter;
     FMinValidZoom: Byte;
@@ -272,7 +272,7 @@ end;
 
 { TNotifierTileRectUpdate }
 
-constructor TNotifierTileRectUpdate.Create(const AGeoCoder: ICoordConverter);
+constructor TNotifierTilePyramidUpdate.Create(const AGeoCoder: ICoordConverter);
 var
   VCount: Integer;
   i: Integer;
@@ -291,7 +291,7 @@ begin
   end;
 end;
 
-destructor TNotifierTileRectUpdate.Destroy;
+destructor TNotifierTilePyramidUpdate.Destroy;
 var
   i: Integer;
 begin
@@ -308,7 +308,7 @@ begin
   inherited;
 end;
 
-procedure TNotifierTileRectUpdate.AddListener(const AListener: IListener);
+procedure TNotifierTilePyramidUpdate.AddListener(const AListener: IListener);
 var
   i: Integer;
   VIndex: Integer;
@@ -329,7 +329,7 @@ begin
   end;
 end;
 
-procedure TNotifierTileRectUpdate.AddListenerByRect(
+procedure TNotifierTilePyramidUpdate.AddListenerByRect(
   const AListener: IListener;
   const AZoom: Byte;
   const ATileRect: TRect
@@ -360,7 +360,7 @@ begin
   end;
 end;
 
-procedure TNotifierTileRectUpdate.AddListenerByZoom(
+procedure TNotifierTilePyramidUpdate.AddListenerByZoom(
   const AListener: IListener;
   const AZoom: Byte
 );
@@ -390,12 +390,12 @@ begin
   end;
 end;
 
-function TNotifierTileRectUpdate.GetGeoCoder: ICoordConverter;
+function TNotifierTilePyramidUpdate.GetGeoCoder: ICoordConverter;
 begin
   Result := FGeoCoder;
 end;
 
-procedure TNotifierTileRectUpdate.Remove(const AListener: IListener);
+procedure TNotifierTilePyramidUpdate.Remove(const AListener: IListener);
 var
   i: Integer;
   VIndex: Integer;
@@ -416,7 +416,7 @@ begin
   end;
 end;
 
-procedure TNotifierTileRectUpdate.TileRectUpdateNotify(
+procedure TNotifierTilePyramidUpdate.TileRectUpdateNotify(
   const ATileRect: ITileRect);
 var
   i: Integer;
@@ -460,7 +460,7 @@ begin
   end;
 end;
 
-procedure TNotifierTileRectUpdate.TileUpdateNotify(const ATileKey: ITileKey);
+procedure TNotifierTilePyramidUpdate.TileUpdateNotify(const ATileKey: ITileKey);
 var
   i: Integer;
   VList: TList;
@@ -503,7 +503,7 @@ begin
   end;
 end;
 
-procedure TNotifierTileRectUpdate.TileFullUpdateNotify;
+procedure TNotifierTilePyramidUpdate.TileFullUpdateNotify;
 var
   i: Integer;
   VList: TList;
@@ -538,7 +538,7 @@ begin
   end;
 end;
 
-procedure TNotifierTileRectUpdate.TileRectUpdateNotify(const ATileRect: TRect;
+procedure TNotifierTilePyramidUpdate.TileRectUpdateNotify(const ATileRect: TRect;
   const AZoom: Byte);
 var
   i: Integer;
@@ -578,7 +578,7 @@ begin
   end;
 end;
 
-procedure TNotifierTileRectUpdate.TileUpdateNotify(const ATile: TPoint;
+procedure TNotifierTilePyramidUpdate.TileUpdateNotify(const ATile: TPoint;
   const AZoom: Byte);
 var
   i: Integer;

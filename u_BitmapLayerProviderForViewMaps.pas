@@ -88,7 +88,7 @@ uses
   t_GeoTypes,
   i_LonLatRect,
   i_TileObjCache,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   u_Bitmap32ByStaticBitmap,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
@@ -295,7 +295,7 @@ end;
 
 procedure TBitmapLayerProviderForViewMaps.RemoveListener;
 var
-  VNotifier: INotifierTileRectUpdate;
+  VNotifier: INotifierTilePyramidUpdate;
   i: Integer;
   VMap: IMapType;
 begin
@@ -335,7 +335,7 @@ procedure TBitmapLayerProviderForViewMaps.SetListener(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  VNotifier: INotifierTileRectUpdate;
+  VNotifier: INotifierTilePyramidUpdate;
   i: Integer;
   VMap: IMapType;
   VZoom: Byte;

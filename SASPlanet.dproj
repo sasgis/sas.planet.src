@@ -371,7 +371,7 @@
     <DCCReference Include="i_NotifierFactory.pas" />
     <DCCReference Include="i_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="i_NotifierOperation.pas" />
-    <DCCReference Include="i_NotifierTileRectUpdate.pas" />
+    <DCCReference Include="i_NotifierTilePyramidUpdate.pas" />
     <DCCReference Include="i_NotifierTime.pas" />
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
@@ -1049,7 +1049,7 @@
     <DCCReference Include="u_NotifierFactorySimple.pas" />
     <DCCReference Include="u_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="u_NotifierOperation.pas" />
-    <DCCReference Include="u_NotifierTileRectUpdate.pas" />
+    <DCCReference Include="u_NotifierTilePyramidUpdate.pas" />
     <DCCReference Include="u_NotifierTime.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_ObjectFromPoolAbstract.pas" />

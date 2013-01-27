@@ -131,7 +131,7 @@ implementation
 uses
   i_TileKey,
   i_TileRect,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   u_ListenerTime,
   u_Synchronizer,
   u_ListenerByEvent;
@@ -146,7 +146,7 @@ constructor TMemTileCacheBase.Create(
   const APerfList: IInternalPerformanceCounterList
 );
 var
-  VNotifier: INotifierTileRectUpdate;
+  VNotifier: INotifierTilePyramidUpdate;
 begin
   inherited Create;
   FConfig := AConfig;
@@ -178,7 +178,7 @@ end;
 
 destructor TMemTileCacheBase.Destroy;
 var
-  VNotifier: INotifierTileRectUpdate;
+  VNotifier: INotifierTilePyramidUpdate;
 begin
   FConfig.GetChangeNotifier.Remove(FConfigListener);
   FConfigListener := nil;

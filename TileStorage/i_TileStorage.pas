@@ -26,7 +26,7 @@ uses
   Types,
   i_BinaryData,
   i_CoordConverter,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   i_ContentTypeInfo,
   i_MapVersionInfo,
   i_StorageState,
@@ -37,8 +37,8 @@ type
 
   ITileStorage = interface
     ['{80A0246E-68E0-4EA0-9B0F-3338472FDB3C}']
-    function GetTileNotifier: INotifierTileRectUpdate;
-    property TileNotifier: INotifierTileRectUpdate read GetTileNotifier;
+    function GetTileNotifier: INotifierTilePyramidUpdate;
+    property TileNotifier: INotifierTilePyramidUpdate read GetTileNotifier;
 
     function GetState: IStorageStateChangeble;
     property State: IStorageStateChangeble read GetState;

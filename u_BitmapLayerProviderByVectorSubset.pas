@@ -135,7 +135,7 @@ uses
   GR32_Polygons,
   i_EnumDoublePoint,
   i_LonLatRect,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   u_Bitmap32ByStaticBitmap,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,
@@ -597,7 +597,7 @@ end;
 
 procedure TBitmapLayerProviderByVectorSubset.RemoveListener;
 var
-  VNotifier: INotifierTileRectUpdate;
+  VNotifier: INotifierTilePyramidUpdate;
   i: Integer;
   VMap: IMapType;
   VEnum: IEnumGUID;
@@ -633,7 +633,7 @@ end;
 procedure TBitmapLayerProviderByVectorSubset.SetListener(
   const AListener: IListener; const ALocalConverter: ILocalCoordConverter);
 var
-  VNotifier: INotifierTileRectUpdate;
+  VNotifier: INotifierTilePyramidUpdate;
   i: Integer;
   VMap: IMapType;
   VZoom: Byte;

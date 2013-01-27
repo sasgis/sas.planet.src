@@ -10,7 +10,7 @@ uses
   i_NotifierTime,
   i_ContentTypeManager,
   i_InternalPerformanceCounter,
-  i_NotifierTileRectUpdate,
+  i_NotifierTilePyramidUpdate,
   i_StorageState,
   i_CoordConverter,
   i_ContentTypeInfo,
@@ -81,7 +81,7 @@ type
       const APath: string
     );
   private
-    function GetTileNotifier: INotifierTileRectUpdate;
+    function GetTileNotifier: INotifierTilePyramidUpdate;
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean;
@@ -570,7 +570,7 @@ begin
   end;
 end;
 
-function TTileStorageOfMapType.GetTileNotifier: INotifierTileRectUpdate;
+function TTileStorageOfMapType.GetTileNotifier: INotifierTilePyramidUpdate;
 var
   VStorage: ITileStorage;
 begin
