@@ -29,7 +29,7 @@ type
   end;
 
 type
-  TMapTypeSetChangeableBySourceSetWithFilterBtimap = class(TMapTypeSetChangeableBySourceSetWithFilter)
+  TMapTypeSetChangeableBySourceSetWithFilterBitmap = class(TMapTypeSetChangeableBySourceSetWithFilter)
   protected
     function IsValidMapType(const AMapType: IMapType): Boolean; override;
   end;
@@ -163,9 +163,9 @@ begin
   end;
 end;
 
-{ TMapTypeSetChangeableBySourceSetWithFilterBtimap }
+{ TMapTypeSetChangeableBySourceSetWithFilterBitmap }
 
-function TMapTypeSetChangeableBySourceSetWithFilterBtimap.IsValidMapType(
+function TMapTypeSetChangeableBySourceSetWithFilterBitmap.IsValidMapType(
   const AMapType: IMapType
 ): Boolean;
 begin
