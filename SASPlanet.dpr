@@ -940,7 +940,6 @@ uses
   u_GPSModuleAbstract in 'GPS\u_GPSModuleAbstract.pas',
   u_GPSModuleByVSAGPS in 'GPS\u_GPSModuleByVSAGPS.pas',
   u_GPSModuleFactoryByVSAGPS in 'GPS\u_GPSModuleFactoryByVSAGPS.pas',
-  i_TrackWriter in 'i_TrackWriter.pas',
   i_MapTypeConfigModalEdit in 'i_MapTypeConfigModalEdit.pas',
   u_MapTypeConfigModalEditByForm in 'u_MapTypeConfigModalEditByForm.pas',
   i_ShortCutModalEdit in 'i_ShortCutModalEdit.pas',

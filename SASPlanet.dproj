@@ -447,7 +447,6 @@
     <DCCReference Include="i_TileRequestProcessorPool.pas" />
     <DCCReference Include="i_TileRequestResult.pas" />
     <DCCReference Include="i_TileRequestTask.pas" />
-    <DCCReference Include="i_TrackWriter.pas" />
     <DCCReference Include="i_TreeChangeable.pas" />
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
