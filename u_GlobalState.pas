@@ -99,6 +99,8 @@ uses
   u_IeEmbeddedProtocolRegistration,
   u_GlobalCacheConfig;
 
+{$I vsagps_defines.inc}
+
 type
   TGlobalState = class
   private
@@ -391,7 +393,6 @@ var
   VViewCnonfig: IConfigDataProvider;
   VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
   VXmlLoader: IVectorDataLoader;
-  VXmlZLoader: IVectorDataLoader;
   VKmlLoader: IVectorDataLoader;
   VKmzLoader: IVectorDataLoader;
   VFilesIteratorFactory: IFileNameIteratorFactory;
@@ -562,12 +563,15 @@ begin
       nil,
       VMarksKmlLoadCounterList
     );
-  VXmlZLoader :=
+{$if defined(VSAGPS_ALLOW_IMPORT_KML)}
+  VKmlLoader := VXmlLoader;
+  VKmzLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorItemsFactory,
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
+{$else}
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
       FVectorItemsFactory,
@@ -579,6 +583,7 @@ begin
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
+{$ifend}
 
   FImportFileByExt := TImportByFileExt.Create(
     TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
@@ -589,8 +594,7 @@ begin
       VMarksKmlLoadCounterList
     ),
     VKmlLoader,
-    VKmzLoader,
-    VXmlZLoader
+    VKmzLoader
   );
   FGCThread :=
     TGarbageCollectorThread.Create(

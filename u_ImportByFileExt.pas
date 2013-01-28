@@ -31,13 +31,10 @@ uses
   i_ImportConfig,
   u_BaseInterfacedObject;
 
-{$I vsagps_defines.inc}
-
 type
   TImportByFileExt = class(TBaseInterfacedObject, IImportFile)
   private
-    FImportXML: IImportFile;
-    FImportXMLZ: IImportFile;
+    FImportGPX: IImportFile;
     FImportPLT: IImportFile;
     FImportCSV: IImportFile;
     FImportKML: IImportFile;
@@ -54,11 +51,10 @@ type
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory;
       const AFactory: IVectorItemsFactory;
-      const AXmlLoader: IVectorDataLoader;
+      const AGpxLoader: IVectorDataLoader;
       const APltLoader: IVectorDataLoader;
       const AKmlLoader: IVectorDataLoader;
-      const AKmzLoader: IVectorDataLoader;
-      const AXmlZLoader: IVectorDataLoader
+      const AKmzLoader: IVectorDataLoader
     );
   end;
 
@@ -77,22 +73,20 @@ uses
 constructor TImportByFileExt.Create(
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItemsFactory;
-  const AXmlLoader: IVectorDataLoader;
+  const AGpxLoader: IVectorDataLoader;
   const APltLoader: IVectorDataLoader;
   const AKmlLoader: IVectorDataLoader;
-  const AKmzLoader: IVectorDataLoader;
-  const AXmlZLoader: IVectorDataLoader
+  const AKmzLoader: IVectorDataLoader
 );
 begin
   inherited Create;
-  FImportXML := TImportKML.Create(AVectorDataFactory, AXmlLoader);
-  FImportXMLZ := TImportKML.Create(AVectorDataFactory, AXmlZLoader);
+  FImportGPX := TImportKML.Create(AVectorDataFactory, AGpxLoader);
+  FImportKML := TImportKML.Create(AVectorDataFactory, AKmlLoader);
+  FImportKMZ := TImportKML.Create(AVectorDataFactory, AKmzLoader);
   FImportPLT := TImportKML.Create(AVectorDataFactory, APltLoader);
   FImportCSV := TImportCSV.Create(AFactory);
   FImportHLG := TImportHLG.Create(AFactory);
   FImportMP := TImportMpSimple.Create(AFactory);
-  FImportKML := TImportKML.Create(AVectorDataFactory, AKmlLoader);
-  FImportKMZ := TImportKML.Create(AVectorDataFactory, AKmzLoader);
   FImportSLS := TImportSLS.Create(AFactory);
 end;
 
@@ -106,19 +100,11 @@ begin
   Result := nil;
   VExtLwr := LowerCase(ExtractFileExt(AFileName));
   if ('.gpx' = VExtLwr) then begin
-    Result := FImportXML.ProcessImport(AFileName, AConfig);
+    Result := FImportGPX.ProcessImport(AFileName, AConfig);
   end else if ('.kml' = VExtLwr) then begin
-{$if defined(VSAGPS_ALLOW_IMPORT_KML)}
-    Result := FImportXML.ProcessImport(AFileName, AConfig);
-{$else}
     Result := FImportKML.ProcessImport(AFileName, AConfig);
-{$ifend}
   end else if ('.kmz' = VExtLwr) then begin
-{$if defined(VSAGPS_ALLOW_IMPORT_KML)}
-    Result := FImportXMLZ.ProcessImport(AFileName, AConfig);
-{$else}
     Result := FImportKMZ.ProcessImport(AFileName, AConfig);
-{$ifend}
   end else if ('.plt' = VExtLwr) then begin
     Result := FImportPLT.ProcessImport(AFileName, AConfig);
   end else if ('.csv' = VExtLwr) then begin
