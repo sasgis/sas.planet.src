@@ -5539,6 +5539,7 @@ begin
     FfrmDGAvailablePic:=TfrmDGAvailablePic.Create(
       FMarkDBGUI,
       GState.LanguageManager,
+      GState.VectorItemsFactory,
       GState.InetConfig);
   // link to position    
   FfrmDGAvailablePic.ShowInfo(AVisualPoint, FConfig.ViewPortState.View.GetStatic);

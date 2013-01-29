@@ -32,10 +32,17 @@ uses
   ComCtrls,
   CommCtrl,
   ExtCtrls,
-  u_CommonFormAndFrameParents,
   i_LanguageManager,
+  i_VectorItemsFactory,
   i_InetConfig,
   i_LocalCoordConverter,
+  i_NotifierOperation,
+  i_DownloadRequest,
+  i_DownloadResult,
+  i_DownloadResultFactory,
+  i_Downloader,
+  t_GeoTypes,
+  u_CommonFormAndFrameParents,
   u_AvailPicsAbstract,
   u_AvailPicsDG,
   u_AvailPicsDG2,
@@ -45,14 +52,8 @@ uses
   u_AvailPicsESRI,
   u_AvailPicsDD,
   u_AvailPicsGeoFuse,
-  i_NotifierOperation,
-  i_DownloadRequest,
-  i_DownloadResult,
-  i_DownloadResultFactory,
   u_DownloadResultFactory,
-  i_Downloader,
   u_DownloaderHttp,
-  t_GeoTypes,
   u_MarksDbGUIHelper,
   Grids,
   ValEdit;
@@ -131,6 +132,7 @@ type
     FALLClicking: Boolean;
     // object from main form
     FMarkDBGUI: TMarksDbGUIHelper;
+    FVectorItemsFactory: IVectorItemsFactory;
 
   private
     procedure MakePicsVendors;
@@ -179,6 +181,7 @@ type
     constructor Create(
       const AMarkDBGUI: TMarksDbGUIHelper;
       const ALanguageManager: ILanguageManager;
+      const AVectorItemsFactory: IVectorItemsFactory;
       const AInetConfig: IInetConfig
     ); reintroduce;
     destructor Destroy; override;
@@ -194,14 +197,12 @@ uses
   u_Synchronizer,
   i_ImportConfig,
   i_MarksSimple,
-  i_VectorItemsFactory,
   i_VectorItemLonLat,
   i_DoublePointsAggregator,
   u_Notifier,
   u_NotifierOperation,
   u_InetFunc,
   u_DoublePointsAggregator,
-  u_VectorItemsFactorySimple,
   u_GeoFun,
   u_GeoToStr,
   i_CoordConverter;
@@ -689,7 +690,6 @@ var
   VXCommaY, VCommaAsDelimiter: Boolean;
   VName, VDesc, VGeometry, VDate: String;
   VImportConfig: IImportConfig;
-  VVectorItemsFactory: IVectorItemsFactory;
   VPointsAggregator: IDoublePointsAggregator;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
@@ -820,15 +820,7 @@ begin
       if (nil=VImportConfig) then begin
         // single time only!
         VImportConfig := FMarkDBGUI.EditModalImportConfig;
-        VVectorItemsFactory := TVectorItemsFactorySimple.Create;
         VPointsAggregator := TDoublePointsAggregator.Create;
-        // check for crazy errors
-        if (nil=VPointsAggregator) then
-          Exit;
-        if (nil=VVectorItemsFactory) then
-          Exit;
-        if (nil=VImportConfig) then
-          Exit;
         if (nil=VImportConfig.TemplateNewPoly) then
           Exit;
       end;
@@ -852,7 +844,7 @@ begin
 
       if (VPointsAggregator.Count>0) then begin
         // create lonlats
-        VPolygon := VVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+        VPolygon := FVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
           VMark := VImportConfig.MarkDB.Factory.CreateNewPoly(
@@ -1270,6 +1262,7 @@ end;
 constructor TfrmDGAvailablePic.Create(
   const AMarkDBGUI: TMarksDbGUIHelper;
   const ALanguageManager: ILanguageManager;
+  const AVectorItemsFactory: IVectorItemsFactory;
   const AInetConfig: IInetConfig
 );
 begin
@@ -1294,6 +1287,7 @@ begin
   FCSAddNode := MakeSync_Tiny(Self, FALSE);
 
   FLocalConverter := nil;
+  FVectorItemsFactory := AVectorItemsFactory;
   FInetConfig := AInetConfig;
   FResultFactory := TDownloadResultFactory.Create;
 
@@ -1306,6 +1300,7 @@ begin
   KillPicsVendors;
   // interfaces
   FResultFactory:=nil;
+  FVectorItemsFactory:=nil;
   FInetConfig:=nil;
   FLocalConverter:=nil;
   FCSAddNode:=nil;
