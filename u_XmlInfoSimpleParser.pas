@@ -89,126 +89,53 @@ uses
   u_GeoFun;
 
 type
+  TForceObjectType = (fotUnknown, fotPolygon, fotPolyLine);
+
   TParseXML_Aux = record
+  strict private
+    FAllowMultiParts: Boolean;
+    FInMultiObject: Boolean;
+    FCurrentFOT: TForceObjectType;
+    FSegmentCounter: Integer;
+    FArrayCount: Integer;
+    (*
+    FArrayRect: TDoubleRect;
+    *)
+  private
     opt: Tvsagps_XML_ParserOptions;
     IdData: Pointer;
     Factory: IVectorDataFactory;
     list: IInterfaceList;
-    segment_counter: Integer;
-    array_count: Integer;
     array_capacity: Integer;
-    array_rect: TDoubleRect;
     array_points: array of TDoublePoint;
+  public
+    procedure Init(
+      const AAllowMultiParts: Boolean
+    );
+    procedure Uninit;
+    // сбрасывает массив точек
+    procedure Cleanup_Array;
+    // проверка замкнутости массива
+    function IsClosed_Array: Boolean;
+    // добавляет точку в массив
+    procedure AddPointTo_Array(const Awpt_point: TDoublePoint);
+    // добавляет объект в список
+    procedure AddCoordsToList(
+      const AWideStrName, AWideStrDesc: WideString;
+      const AItemsFactory: IVectorItemsFactory
+    );
+    // определение типа объекта по тэгу при открытии тэга
+    procedure ApplyKmlTag(const Atag: Tvsagps_KML_main_tag);
+
+    // если можно начать мультисегментный объект - начинает (и закрывает) его
+    procedure SafeStartMultiObject;
+    procedure SafeCloseMultiObject;
+    // проверка что в мультисегментном объекте
+    property InMultiObject: Boolean read FInMultiObject;
+    // начинает сегмент (для мультика - добавляет разделитель)
+    procedure SafeStartSegment;
   end;
   PParseXML_Aux = ^TParseXML_Aux;
-
-  TForceObjectType = (fotNone, fotPolyLine, fotPolygon);
-
-procedure ParseXML_Aux_Cleanup_Array(p: PParseXML_Aux);
-begin
-  with p^ do begin
-    array_count := 0;
-    array_capacity := 0;
-    SetLength(array_points, 0);
-  end;
-end;
-
-procedure ParseXML_Aux_AddPointTo_Array(
-  AParseXML_Aux: PParseXML_Aux;
-  const Awpt_point: TDoublePoint
-);
-begin
-  // calc rect
-  with AParseXML_Aux^ do begin
-    if (0 = array_count) then begin
-      // very first point of segment
-      array_rect.TopLeft := Awpt_point;
-      array_rect.BottomRight := Awpt_point;
-    end else begin
-      // compare bounds
-      if array_rect.Left > Awpt_point.X then begin
-        array_rect.Left := Awpt_point.X;
-      end;
-      if array_rect.Right < Awpt_point.X then begin
-        array_rect.Right := Awpt_point.X;
-      end;
-      if array_rect.Top < Awpt_point.y then begin
-        array_rect.Top := Awpt_point.y;
-      end;
-      if array_rect.Bottom > Awpt_point.y then begin
-        array_rect.Bottom := Awpt_point.y;
-      end;
-    end;
-  end;
-
-  // allocate more array
-  with AParseXML_Aux^ do begin
-    if (array_count >= array_capacity) then begin
-      if (0 = array_capacity) then begin
-        array_capacity := 32;
-      end else begin
-        array_capacity := array_capacity * 2;
-      end;
-      SetLength(array_points, array_capacity);
-    end;
-  end;
-
-  // add
-  with AParseXML_Aux^ do begin
-    array_points[array_count] := Awpt_point;
-    Inc(array_count);
-  end;
-end;
-
-procedure ParseXML_Aux_AddTrackSegmentToList(
-  AParseXML_Aux: PParseXML_Aux;
-  const AForceObjectType: TForceObjectType;
-  const AWideStrName, AWideStrDesc: WideString;
-  const AItemsFactory: IVectorItemsFactory
-);
-var
-  trk_obj: IVectorDataItemSimple;
-begin
-  // make list object
-  if not Assigned(AParseXML_Aux^.list) then begin
-    AParseXML_Aux^.list := TInterfaceList.Create;
-  end;
-  // trim points to count
-  with AParseXML_Aux^ do begin
-    if (array_capacity > array_count) then begin
-      array_capacity := array_count;
-      SetLength(array_points, array_count);
-    end;
-  end;
-  // make object and add it to list
-  with AParseXML_Aux^ do begin
-    if (0 < array_count) then begin
-      if (1 = array_count) then begin
-        // single point in track segment - make as point
-        trk_obj := AParseXML_Aux^.Factory.BuildPoint(AParseXML_Aux^.IdData, AWideStrName, AWideStrDesc, array_points[0]);
-      end else if (AForceObjectType = fotPolygon) or ((AForceObjectType = fotNone) and DoublePointsEqual(array_points[0], array_points[array_count - 1])) then begin
-        // polygon
-        trk_obj :=
-          AParseXML_Aux^.Factory.BuildPoly(
-            AParseXML_Aux^.IdData,
-            AWideStrName,
-            AWideStrDesc,
-            AItemsFactory.CreateLonLatPolygon(@array_points[0], array_count)
-          );
-      end else begin
-        // polyline
-        trk_obj :=
-          AParseXML_Aux^.Factory.BuildPath(
-            AParseXML_Aux.IdData,
-            AWideStrName,
-            AWideStrDesc,
-            AItemsFactory.CreateLonLatPath(@array_points[0], array_count)
-          );
-      end;
-      list.Add(trk_obj);
-    end;
-  end;
-end;
 
 procedure rTVSAGPS_ParseXML_UserProc(
   const pUserObjPointer: Pointer;
@@ -260,7 +187,10 @@ var
   tAux: TParseXML_Aux;
 begin
   // init
-  ZeroMemory(@tAux, sizeof(tAux));
+  tAux.Init(
+    // делаем или нет многосегментные объекты (если нет - создаём их как отдельные)
+    Self.FFactory.VectorItemsFactoryConfig.AllowMultiParts
+  );
   // for wpt and trk
   Inc(tAux.opt.gpx_options.bParse_trk);
   Inc(tAux.opt.gpx_options.bParse_wpt);
@@ -275,8 +205,7 @@ begin
       tAux.list := nil;
     end;
   finally
-    tAux.Factory := nil;
-    tAux.list := nil;
+    tAux.Uninit;
   end;
 end;
 
@@ -289,6 +218,20 @@ procedure TXmlInfoSimpleParser.Internal_ParseXML_UserProc(
 var
   VWSName, VWSDesc: WideString;
   wpt_point: TDoublePoint;
+
+  procedure _SetFromTagValue(
+    const ABuffer: PWideChar;
+    const a_to_description: Boolean
+  );
+  begin
+    SafeSetWideStringP(VWSName, ABuffer);
+    if a_to_description and (0 < Length(VWSName)) then begin
+      if (0 < Length(VWSDesc)) then begin
+        VWSDesc := VWSDesc + #13#10;
+      end;
+      VWSDesc := VWSDesc + VWSName;
+    end;
+  end;
 
   procedure _SetFromParentPlacemark(
   const a_type: Tvsagps_KML_str;
@@ -313,13 +256,7 @@ var
         // Placemark found
         if (a_type in VPX_Result^.kml_data.fAvail_strs) then begin
           // has string
-          SafeSetWideStringP(VWSName, VPX_Result^.kml_data.fParamsStrs[a_type]);
-          if a_to_description and (0 < Length(VWSName)) then begin
-            if (0 < Length(VWSDesc)) then begin
-              VWSDesc := VWSDesc + #13#10;
-            end;
-            VWSDesc := VWSDesc + VWSName;
-          end;
+          _SetFromTagValue(VPX_Result^.kml_data.fParamsStrs[a_type], a_to_description);
         end;
 
         // done
@@ -339,54 +276,44 @@ var
     end;
   end;
 
-  procedure _SetFromParentTrk(
-  const a_type: Tvsagps_GPX_trk_str;
-  const a_to_description: Boolean
+  procedure _SetFromTrk(
+    const a_type: Tvsagps_GPX_trk_str;
+    const a_to_description: Boolean
   );
   begin
-    if (nil <> pPX_Result^.prev_data) then begin
-      with pPX_Result^.prev_data^.gpx_data.trk_data do begin
-        if (a_type in fAvail_trk_strs) then begin
-          SafeSetWideStringP(VWSName, fStrs[a_type]);
-          if a_to_description and (0 < Length(VWSName)) then begin
-            if (0 < Length(VWSDesc)) then begin
-              VWSDesc := VWSDesc + #13#10;
-            end;
-            VWSDesc := VWSDesc + VWSName;
-          end;
-        end;
-      end;
+    with pPX_Result^.gpx_data.trk_data do
+    if (a_type in fAvail_trk_strs) then begin
+      _SetFromTagValue(fStrs[a_type], a_to_description);
+    end;
+  end;
+
+  procedure _SetFromParentTrk(
+    const a_type: Tvsagps_GPX_trk_str;
+    const a_to_description: Boolean
+  );
+  begin
+    if (nil <> pPX_Result^.prev_data) then
+    with pPX_Result^.prev_data^.gpx_data.trk_data do
+    if (a_type in fAvail_trk_strs) then begin
+      _SetFromTagValue(fStrs[a_type], a_to_description);
     end;
   end;
 
   procedure _SetFromWpt(
-  const a_type: Tvsagps_GPX_wpt_str;
-  const a_to_description: Boolean
+    const a_type: Tvsagps_GPX_wpt_str;
+    const a_to_description: Boolean
   );
   begin
-    with pPX_Result^.gpx_data.wpt_data do begin
-      if (a_type in fAvail_wpt_strs) then begin
-        SafeSetWideStringP(VWSName, fStrs[a_type]);
-        if a_to_description and (0 < Length(VWSName)) then begin
-          if (0 < Length(VWSDesc)) then begin
-            VWSDesc := VWSDesc + #13#10;
-          end;
-          VWSDesc := VWSDesc + VWSName;
-        end;
-      end;
+    with pPX_Result^.gpx_data.wpt_data do
+    if (a_type in fAvail_wpt_strs) then begin
+      _SetFromTagValue(fStrs[a_type], a_to_description);
     end;
   end;
 
   procedure _AddSasxFile;
   begin
     if (sasx_file_name in pPX_Result^.gpx_data.extensions_data.fAvail_strs) then begin
-      SafeSetWideStringP(VWSName, pPX_Result^.gpx_data.extensions_data.sasx_strs[sasx_file_name]);
-      if (0 < Length(VWSName)) then begin
-        if (0 < Length(VWSDesc)) then begin
-          VWSDesc := VWSDesc + #13#10;
-        end;
-        VWSDesc := VWSDesc + VWSName;
-      end;
+      _SetFromTagValue(pPX_Result^.gpx_data.extensions_data.sasx_strs[sasx_file_name], TRUE);
     end;
   end;
 
@@ -478,30 +405,14 @@ var
           if parse_kml_coordinate(VCoordLine, @VData, FFormat) then begin
             wpt_point.X := VData.lon1;
             wpt_point.Y := VData.lat0;
-            ParseXML_Aux_AddPointTo_Array(PParseXML_Aux(pUserAuxPointer), wpt_point);
+            // добавляем точку в массив
+            PParseXML_Aux(pUserAuxPointer)^.AddPointTo_Array(wpt_point);
             Inc(VPointsAdded);
           end;
         end;
       until FALSE;
       // check
       Result := (VPointsAdded > 0);
-    end;
-  end;
-
-  function _GetKmlForceObjectTypeMode(const Atag: Tvsagps_KML_main_tag): TForceObjectType;
-  begin
-    case Atag of
-      kml_LinearRing:
-      begin
-        Result := fotPolygon;
-      end;
-      kml_LineString:
-      begin
-        Result := fotPolyLine;
-      end;
-    else begin
-      Result := fotNone;
-    end;
     end;
   end;
 
@@ -521,29 +432,60 @@ begin
       end;
     end;
 
+    // некоторые тэги обрабатываем при открытии
+    if (xtd_Open = pPX_State^.tag_disposition) then begin
+      PParseXML_Aux(pUserAuxPointer)^.ApplyKmlTag(pPX_Result^.kml_data.current_tag);
+    end;
+
     // check some tags with coordinates on Closing
     if (xtd_Close = pPX_State^.tag_disposition) then begin
       case pPX_Result^.kml_data.current_tag of
         kml_LinearRing, kml_LineString: begin
           // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
+          // <Placemark><MultiGeometry><LineString></LineString><LineString>...
           // <Placemark><LineString><coordinates>
-          // make description
-          _SetFromParentPlacemark(kml_description, TRUE);
-          // make name
-          _SetFromParentPlacemark(kml_name, FALSE);
+          // создаём тут объект, только если он не многосегментный
+          // если многосегментный - только лишь пропихнём координаты
+          if PParseXML_Aux(pUserAuxPointer)^.InMultiObject then begin
+            // только лишь распарсим и добавим координаты в массив
+            _ParseCoordinatesForKML(pPX_Result^.kml_data);
+          end else begin
+            // make description
+            _SetFromParentPlacemark(kml_description, TRUE);
+            // make name
+            _SetFromParentPlacemark(kml_name, FALSE);
 
-          // make polyline (path) object
-          // if LineString - force PolyLine mode
-          if _ParseCoordinatesForKML(pPX_Result^.kml_data) then begin
-            ParseXML_Aux_AddTrackSegmentToList(
-              PParseXML_Aux(pUserAuxPointer),
-              _GetKmlForceObjectTypeMode(pPX_Result^.kml_data.current_tag),
-              VWSName, VWSDesc,
-              FFactory);
+            // make polyline (path) object
+            // if LineString - force PolyLine mode
+            if _ParseCoordinatesForKML(pPX_Result^.kml_data) then
+            with PParseXML_Aux(pUserAuxPointer)^ do begin
+              AddCoordsToList(
+                VWSName, VWSDesc,
+                FFactory);
+            end;
+
+            // clear points
+            PParseXML_Aux(pUserAuxPointer)^.Cleanup_Array;
           end;
+        end;
+        kml_MultiGeometry: begin
+          // создаём тут объект, только если он был многосегментный
+          if PParseXML_Aux(pUserAuxPointer)^.InMultiObject then begin
+            // get params from parent (Placemark)
+            _SetFromParentPlacemark(kml_description, TRUE);
+            _SetFromParentPlacemark(kml_name, FALSE);
 
-          // clear points
-          ParseXML_Aux_Cleanup_Array(pUserAuxPointer);
+            with PParseXML_Aux(pUserAuxPointer)^ do begin
+              // make track segment object
+              AddCoordsToList(
+                VWSName, VWSDesc,
+                FFactory);
+
+              // clear points (no segment counter)
+              Cleanup_Array;
+            end;
+          end;
+          PParseXML_Aux(pUserAuxPointer)^.SafeCloseMultiObject;
         end;
         kml_Point: begin
           // <Placemark><Point><coordinates>
@@ -569,28 +511,51 @@ begin
             wpt_point.X := pPX_Result^.kml_data.fValues.longitude;
             wpt_point.Y := pPX_Result^.kml_data.fValues.latitude;
             // add to array of points
-            ParseXML_Aux_AddPointTo_Array(PParseXML_Aux(pUserAuxPointer), wpt_point);
+            PParseXML_Aux(pUserAuxPointer)^.AddPointTo_Array(wpt_point);
           end;
+        end;
+        kml_gx_MultiTrack: begin
+          // https://developers.google.com/kml/documentation/kmlreference?hl=en#gxmultitrack
+          // <gx:MultiTrack id="ID">
+          // <gx:interpolate>0<gx:interpolate> // boolean
+          // <gx:Track>...</gx:Track>          // one or more gx:Track elements
+          // в конце мультитрека создаём объект, только если создавали многосегментный
+          if PParseXML_Aux(pUserAuxPointer)^.InMultiObject then begin
+            // get params from parent (Placemark)
+            _SetFromParentPlacemark(kml_description, TRUE);
+            _SetFromParentPlacemark(kml_name, FALSE);
+
+            with PParseXML_Aux(pUserAuxPointer)^ do begin
+              // make track segment object
+              AddCoordsToList(
+                VWSName, VWSDesc,
+                FFactory);
+
+              // clear points (no segment counter)
+              Cleanup_Array;
+            end;
+          end;
+          PParseXML_Aux(pUserAuxPointer)^.SafeCloseMultiObject;
         end;
         kml_gx_Track: begin
           // <Placemark><gx:Track>
           // <gx:coord>60.798387 56.748476 230.85376</gx:coord><gx:coord>60.798634 56.748772 247.196045</gx:coord>
           // </gx:Track></Placemark>
-          // make polyline on closing tag
-          if (0 < PParseXML_Aux(pUserAuxPointer)^.array_count) then begin
+          // создаём тут объект, только если он не многосегментный
+          if (not PParseXML_Aux(pUserAuxPointer)^.InMultiObject) then begin
             // get params from parent (Placemark)
             _SetFromParentPlacemark(kml_description, TRUE);
             _SetFromParentPlacemark(kml_name, FALSE);
 
-            // make track segment object
-            ParseXML_Aux_AddTrackSegmentToList(
-              PParseXML_Aux(pUserAuxPointer),
-              fotPolyLine,
-              VWSName, VWSDesc,
-              FFactory);
+            with PParseXML_Aux(pUserAuxPointer)^ do begin
+              // make track segment object
+              AddCoordsToList(
+                VWSName, VWSDesc,
+                FFactory);
 
-            // clear points (no segment counter)
-            ParseXML_Aux_Cleanup_Array(pUserAuxPointer);
+              // clear points (no segment counter)
+              Cleanup_Array;
+            end;
           end;
         end;
       end;
@@ -613,65 +578,94 @@ begin
     end;
   end;
 
-  // switch by tag
+  // обработка открытия тэгов
+  if (xtd_Open = pPX_State^.tag_disposition) then
   case pPX_Result^.gpx_data.current_tag of
     gpx_trk: begin
-      // start new track - reset segment counter
-      if (xtd_Open = pPX_State^.tag_disposition) then begin
-        with PParseXML_Aux(pUserAuxPointer)^ do begin
-          segment_counter := 0;
-        end;
-      end;
+      // возможно надо начать многосегментный объект
+      PParseXML_Aux(pUserAuxPointer)^.SafeStartMultiObject;
     end;
     gpx_trkseg: begin
-      // track segment header - create path or polygon when completed
-      if (xtd_Close = pPX_State^.tag_disposition) then begin
-        if (0 < PParseXML_Aux(pUserAuxPointer)^.array_count) then begin
-          // make track name and desc (get data from parent)
-          _SetFromParentTrk(trk_desc, TRUE);
-          _SetFromParentTrk(trk_cmt, TRUE);
-          _SetFromParentTrk(trk_src, TRUE);
-          _SetFromParentTrk(trk_name, FALSE);
-
-          // make track segment object
-          ParseXML_Aux_AddTrackSegmentToList(
-            PParseXML_Aux(pUserAuxPointer),
-            fotNone,
-            VWSName, VWSDesc,
-            FFactory);
-
-          // clear points and increment segment counter
-          ParseXML_Aux_Cleanup_Array(pUserAuxPointer);
-          Inc(PParseXML_Aux(pUserAuxPointer)^.segment_counter);
-        end;
-      end;
+      // может быть как одиночный тэг внутри trk
+      // а может быть первый или очередной из многих внутри trk
+      // во втором случае надо добавить разделитель
+      PParseXML_Aux(pUserAuxPointer)^.SafeStartSegment;
     end;
+  end;
+
+  if (xtd_ReadAttributes = pPX_State^.tag_disposition) then
+  case pPX_Result^.gpx_data.current_tag of
     gpx_trkpt: begin
       // track point - lon/lat as attributes
-      if (xtd_ReadAttributes = pPX_State^.tag_disposition) then begin
-        // add to current track object and jump to end of track
-        pPX_State^.skip_current := TRUE;
-        if _GetPointForGPX(pPX_Result^.gpx_data.wpt_data) then begin
-          // add to array of points
-          ParseXML_Aux_AddPointTo_Array(PParseXML_Aux(pUserAuxPointer), wpt_point);
+      // add to current track object and jump to end of track
+      pPX_State^.skip_current := TRUE;
+      if _GetPointForGPX(pPX_Result^.gpx_data.wpt_data) then begin
+        // add to array of points
+        PParseXML_Aux(pUserAuxPointer)^.AddPointTo_Array(wpt_point);
+      end;
+    end;
+  end;
+
+  // switch by tag on closing
+  if (xtd_Close = pPX_State^.tag_disposition) then
+  case pPX_Result^.gpx_data.current_tag of
+    gpx_trk: begin
+      // если создаём многосегментные - создание объекта выполняется в самом конце
+      if PParseXML_Aux(pUserAuxPointer)^.InMultiObject then begin
+        // make track name and desc (get data from trk)
+        _SetFromTrk(trk_desc, TRUE);
+        _SetFromTrk(trk_cmt, TRUE);
+        _SetFromTrk(trk_src, TRUE);
+        _SetFromTrk(trk_name, FALSE);
+
+        with PParseXML_Aux(pUserAuxPointer)^ do begin
+          // make track object
+          AddCoordsToList(
+            VWSName, VWSDesc,
+            FFactory
+          );
+
+          // clear points and segment counter
+          Cleanup_Array;
+        end;
+      end;
+      PParseXML_Aux(pUserAuxPointer)^.SafeCloseMultiObject;
+    end;
+    gpx_trkseg: begin
+      // на событие закрытия сегмента создаём объект, только если запрещены многосегментные объекты
+      // в этом случае признак многосегментности фактически не установится
+      if (not PParseXML_Aux(pUserAuxPointer)^.InMultiObject) then begin
+        // make track name and desc (get data from parent)
+        _SetFromParentTrk(trk_desc, TRUE);
+        _SetFromParentTrk(trk_cmt, TRUE);
+        _SetFromParentTrk(trk_src, TRUE);
+        _SetFromParentTrk(trk_name, FALSE);
+
+        with PParseXML_Aux(pUserAuxPointer)^ do begin
+          // make track segment object
+          AddCoordsToList(
+            VWSName, VWSDesc,
+            FFactory
+          );
+
+          // clear points and increment segment counter
+          Cleanup_Array;
         end;
       end;
     end;
     gpx_wpt: begin
       // waypoint - single item
-      if (xtd_Close = pPX_State^.tag_disposition) then begin
-        // make description
-        _SetFromWpt(wpt_desc, TRUE);
-        _SetFromWpt(wpt_cmt, TRUE);
-        _SetFromWpt(wpt_src, TRUE);
-        // add file from sasx
-        _AddSasxFile;
-        // make name
-        _SetFromWpt(wpt_name, FALSE);
-        // make point object
-        if _GetPointForGPX(pPX_Result^.gpx_data.wpt_data) then begin
-          _AddWptToList;
-        end;
+      // make description
+      _SetFromWpt(wpt_desc, TRUE);
+      _SetFromWpt(wpt_cmt, TRUE);
+      _SetFromWpt(wpt_src, TRUE);
+      // add file from sasx
+      _AddSasxFile;
+      // make name
+      _SetFromWpt(wpt_name, FALSE);
+      // make point object
+      if _GetPointForGPX(pPX_Result^.gpx_data.wpt_data) then begin
+        _AddWptToList;
       end;
     end;
   end;
@@ -751,6 +745,201 @@ begin
     end;
   finally
     FLoadXmlStreamCounter.FinishOperation(VCounterContext);
+  end;
+end;
+
+{ TParseXML_Aux }
+
+procedure TParseXML_Aux.AddPointTo_Array(const Awpt_point: TDoublePoint);
+begin
+  // calc rect
+  (*
+  if (0 = FArrayCount) then begin
+    // very first point of segment
+    FArrayRect.TopLeft := Awpt_point;
+    FArrayRect.BottomRight := Awpt_point;
+  end else begin
+    // compare bounds
+    if FArrayRect.Left > Awpt_point.X then begin
+      FArrayRect.Left := Awpt_point.X;
+    end;
+    if FArrayRect.Right < Awpt_point.X then begin
+      FArrayRect.Right := Awpt_point.X;
+    end;
+    if FArrayRect.Top < Awpt_point.y then begin
+      FArrayRect.Top := Awpt_point.y;
+    end;
+    if FArrayRect.Bottom > Awpt_point.y then begin
+      FArrayRect.Bottom := Awpt_point.y;
+    end;
+  end;
+  *)
+
+  // allocate more array
+  if (FArrayCount >= array_capacity) then begin
+    if (0 = array_capacity) then begin
+      array_capacity := 32;
+    end else begin
+      array_capacity := array_capacity * 2;
+    end;
+    SetLength(array_points, array_capacity);
+  end;
+
+  // add
+  array_points[FArrayCount] := Awpt_point;
+  Inc(FArrayCount);
+end;
+
+procedure TParseXML_Aux.AddCoordsToList(
+  const AWideStrName, AWideStrDesc: WideString;
+  const AItemsFactory: IVectorItemsFactory
+);
+var
+  trk_obj: IVectorDataItemSimple;
+begin
+  // make list object
+  if (nil=list) then begin
+    list := TInterfaceList.Create;
+  end;
+
+  // make object and add it to list
+  if (0 < FArrayCount) then begin
+    if (1 = FArrayCount) then begin
+      // single point in track segment - make as point
+      trk_obj := Factory.BuildPoint(IdData, AWideStrName, AWideStrDesc, array_points[0]);
+    end else if ((FCurrentFOT = fotPolygon))
+                OR
+                ((FCurrentFOT = fotUnknown) and
+                  IsClosed_Array) then begin
+      // polygon
+      trk_obj := Factory.BuildPoly(
+          IdData,
+          AWideStrName,
+          AWideStrDesc,
+          AItemsFactory.CreateLonLatPolygon(@array_points[0], FArrayCount)
+        );
+    end else begin
+      // polyline
+      trk_obj := Factory.BuildPath(
+          IdData,
+          AWideStrName,
+          AWideStrDesc,
+          AItemsFactory.CreateLonLatPath(@array_points[0], FArrayCount)
+        );
+    end;
+    list.Add(trk_obj);
+  end;
+end;
+
+procedure TParseXML_Aux.ApplyKmlTag(const Atag: Tvsagps_KML_main_tag);
+var
+  VForceObjectType: TForceObjectType;
+begin
+  case Atag of
+    kml_gx_MultiTrack: begin
+      // только трек
+      SafeStartMultiObject;
+      VForceObjectType := fotPolyLine;
+    end;
+    kml_gx_Track: begin
+      // только трек
+      SafeStartSegment;
+      VForceObjectType := fotPolyLine;
+    end;
+    kml_LinearRing: begin
+      // только полигон
+      SafeStartSegment;
+      VForceObjectType := fotPolygon;
+    end;
+    kml_LineString: begin
+      // только трек
+      SafeStartSegment;
+      VForceObjectType := fotPolyLine;
+    end;
+    kml_MultiGeometry: begin
+      // тип тут пока неизвестен
+      SafeStartMultiObject;
+      Exit;
+    end;
+    kml_outerBoundaryIs: begin
+      // только полигон
+      VForceObjectType := fotPolygon;
+    end;
+    else begin
+      Exit;
+    end;
+  end;
+
+  // тип не понижаем
+  if FCurrentFOT<VForceObjectType then
+    FCurrentFOT:=VForceObjectType;
+end;
+
+procedure TParseXML_Aux.Cleanup_Array;
+begin
+  FArrayCount := 0;
+end;
+
+procedure TParseXML_Aux.Init(const AAllowMultiParts: Boolean);
+begin
+  FillChar(Self, SizeOf(Self) ,0);
+  FAllowMultiParts := AAllowMultiParts;
+end;
+
+function TParseXML_Aux.IsClosed_Array: Boolean;
+begin
+  Result := DoublePointsEqual(array_points[0], array_points[FArrayCount-1]);
+end;
+
+procedure TParseXML_Aux.SafeCloseMultiObject;
+begin
+  FInMultiObject := FALSE;
+  FSegmentCounter := 0;
+end;
+
+procedure TParseXML_Aux.SafeStartMultiObject;
+begin
+  // вложения не допускаются
+  Assert(not FInMultiObject);
+  // только если разрешено
+  if FAllowMultiParts then begin
+    FInMultiObject := TRUE;
+  end;
+  FSegmentCounter := 0;
+  FCurrentFOT := fotUnknown;
+end;
+
+procedure TParseXML_Aux.SafeStartSegment;
+begin
+  // если создаём многосегментный объект, и уже есть хотя бы одна точка
+  if FInMultiObject and (FArrayCount>0) then begin
+    // для многосегментного надо определить его тип (иначе будет всегда полилиния)
+    // но только если ещё не определено
+    if (fotUnknown=FCurrentFOT) then begin
+      if IsClosed_Array then
+        FCurrentFOT := fotPolygon
+      else
+        FCurrentFOT := fotPolyLine;
+    end;
+    // разделитель как начало нового сегмента
+    AddPointTo_Array(CEmptyDoublePoint);
+  end;
+  Inc(FSegmentCounter);
+end;
+
+procedure TParseXML_Aux.Uninit;
+begin
+  Cleanup_Array;
+
+  array_capacity := 0;
+  SetLength(array_points, 0);
+  array_points:=nil;
+
+  Factory := nil;
+
+  if (list<>nil) then begin
+    list.Clear;
+    list := nil;
   end;
 end;
 
