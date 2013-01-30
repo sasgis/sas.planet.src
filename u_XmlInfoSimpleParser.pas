@@ -48,6 +48,7 @@ type
   private
     FFactory: IVectorItemsFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
+    FAllowMultiParts: Boolean;
     FFormat: TFormatSettings;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   private
@@ -75,6 +76,7 @@ type
   public
     constructor Create(
       const AFactory: IVectorItemsFactory;
+      const AAllowMultiParts: Boolean;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -152,6 +154,7 @@ end;
 
 constructor TXmlInfoSimpleParser.Create(
   const AFactory: IVectorItemsFactory;
+  const AAllowMultiParts: Boolean;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
@@ -160,6 +163,7 @@ var
 begin
   inherited Create;
   FFactory := AFactory;
+  FAllowMultiParts := AAllowMultiParts;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 
   if Assigned(FArchiveReadWriteFactory) then begin
@@ -189,7 +193,7 @@ begin
   // init
   tAux.Init(
     // делаем или нет многосегментные объекты (если нет - создаём их как отдельные)
-    Self.FFactory.VectorItemsFactoryConfig.AllowMultiParts
+    FAllowMultiParts
   );
   // for wpt and trk
   Inc(tAux.opt.gpx_options.bParse_trk);

@@ -560,6 +560,7 @@ begin
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorItemsFactory,
+      False,
       nil,
       VMarksKmlLoadCounterList
     );
@@ -568,6 +569,7 @@ begin
   VKmzLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorItemsFactory,
+      False,
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
