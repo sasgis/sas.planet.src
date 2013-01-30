@@ -512,6 +512,7 @@ if ChMap4.Checked then begin
     cbbMap4.Enabled := true;
     EJpgQuality4.Enabled := true;
     CbbZoom4.Enabled := true;
+    cbbscale4.Enabled := true;
     ChMap5.Enabled := true;
   end else begin
     cbbMap4.Enabled := false;
