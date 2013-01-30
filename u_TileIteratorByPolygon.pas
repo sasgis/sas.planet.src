@@ -37,7 +37,10 @@ type
     FCurrent: TPoint;
     FTilesRect: TRect;
     FTilesTotal: Int64;
-    FLine: IProjectedPolygonLine;
+    // устанавливается только если один кусок (для скорости)
+    FSingleLine: IProjectedPolygonLine;
+    // кэш куска
+    FLastUsedLine: IProjectedPolygonLine;
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
   private
@@ -45,6 +48,8 @@ type
     function GetTilesRect: TRect;
     function Next(out ATile: TPoint): Boolean;
     procedure Reset;
+  private
+    function InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
   public
     constructor Create(
       const AProjected: IProjectedPolygon
@@ -67,11 +72,26 @@ var
 begin
   inherited Create;
   FProjected := AProjected;
+  FLastUsedLine := nil;
   if FProjected.Count > 0 then begin
-    FLine := FProjected.Item[0];
-    VBounds := FLine.Bounds;
-    FZoom := FLine.Projection.Zoom;
-    FGeoConverter := FLine.Projection.GeoConverter;
+    // в зависимости от числа сегментов...
+    if (FProjected.Count=1) then begin
+      // ...ходим только по одной области
+      FSingleLine := FProjected.Item[0];
+    end else begin
+      // ...будем ходить в цикле
+      FSingleLine := nil;
+    end;
+
+    // общее ограничение и прочие параметры
+    with FProjected do begin
+      VBounds := Bounds;
+      with Projection do begin
+        FZoom := Zoom;
+        FGeoConverter := GeoConverter;
+      end;
+    end;
+    
     FTilesRect :=
       RectFromDoubleRect(
         FGeoConverter.PixelRectFloat2TileRectFloat(VBounds, FZoom),
@@ -97,6 +117,44 @@ begin
   Result := FTilesTotal;
 end;
 
+function TTileIteratorByPolygon.InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
+var
+  i: Integer;
+  VLine: IProjectedPolygonLine;
+begin
+  if (FSingleLine<>nil) then begin
+    // один сегмент - только его и проверяем
+    Result := FSingleLine.IsRectIntersectPolygon(ARect);
+    Exit;
+  end;
+
+  // это тут возможно будет недостаточно быстро
+  // во-первых нет попадания сразу в текущий сегмент (в кэш)
+  // во-вторых ненужная проверка попадания в Bounds
+  // Result := FProjected.IsRectIntersectPolygon(ARect);
+
+  // проверяем кэш
+  if (FLastUsedLine<>nil) then begin
+    Result := FLastUsedLine.IsRectIntersectPolygon(ARect);
+    if Result then
+      Exit;
+  end;
+
+  // проверяем всё в цикле
+  for i := 0 to FProjected.Count-1 do begin
+    VLine := FProjected.GetItem(i);
+    if (Pointer(VLine)<>Pointer(FLastUsedLine)) then
+    if VLine.IsRectIntersectPolygon(ARect) then begin
+      // нашлось
+      Result := TRUE;
+      FLastUsedLine := VLine;
+      Exit;
+    end;
+  end;
+
+  Result := FALSE;
+end;
+
 function TTileIteratorByPolygon.Next(out ATile: TPoint): Boolean;
 var
   VRect: TDoubleRect;
@@ -105,7 +163,7 @@ begin
   while FCurrent.X < FTilesRect.Right do begin
     while FCurrent.Y < FTilesRect.Bottom do begin
       VRect := FGeoConverter.TilePos2PixelRectFloat(FCurrent, FZoom);
-      if FLine.IsRectIntersectPolygon(VRect) then begin
+      if InternalIntersectPolygon(VRect) then begin
         ATile := FCurrent;
         Result := True;
       end;
@@ -128,6 +186,7 @@ procedure TTileIteratorByPolygon.Reset;
 begin
   inherited;
   FCurrent := FTilesRect.TopLeft;
+  FLastUsedLine := nil;
 end;
 
 end.
