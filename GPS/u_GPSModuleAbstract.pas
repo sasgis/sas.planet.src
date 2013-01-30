@@ -244,7 +244,7 @@ begin
   FNotifiedTicks := 0;
   FGPSPosChanged := FALSE;
   FGPSSatChanged := FALSE;
-  InitSingleGPSData(@FSingleGPSData);
+  FSingleGPSData.Init;
 
   FSatellitesGP := TSatellitesInternalList.Create;
   FSatellitesGP.Capacity := 32;
@@ -772,8 +772,8 @@ procedure TGPSModuleAbstract._UpdateToEmptyPosition;
 begin
   //Lock;
   //try
-  FGPSPosChanged := SingleGPSDataNotEmpty(@FSingleGPSData);
-  InitSingleGPSData(@FSingleGPSData);
+  FGPSPosChanged := FSingleGPSData.NotEmpty;
+  FSingleGPSData.Init;
   FGPSSatChanged := FALSE;
   FLastStaticPosition := FGPSPositionFactory.BuildPositionEmpty;
   //finally

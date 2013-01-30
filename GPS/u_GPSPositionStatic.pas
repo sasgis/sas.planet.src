@@ -73,7 +73,7 @@ constructor TGPSPositionStatic.Create(
 begin
   inherited Create;
   if (ASingleGPSData = nil) then begin
-    InitSingleGPSData(@FSingleGPSData);
+    FSingleGPSData.Init;
   end else begin
     FSingleGPSData := ASingleGPSData^;
   end;
