@@ -141,10 +141,6 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FImageResamplerConfig: IImageResamplerConfig;
     FTileMatrixDraftResamplerConfig: IImageResamplerConfig;
-    FTileLoadResamplerConfig: IImageResamplerConfig;
-    FTileGetPrevResamplerConfig: IImageResamplerConfig;
-    FTileReprojectResamplerConfig: IImageResamplerConfig;
-    FTileDownloadResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
@@ -617,18 +613,13 @@ begin
       VFilesIterator
     );
 
-  FTileLoadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-  FTileGetPrevResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-  FTileReprojectResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-  FTileDownloadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-
   FMainMapsList :=
     TMapTypesMainList.Create(
       FZmpInfoSet,
-      FTileLoadResamplerConfig,
-      FTileGetPrevResamplerConfig,
-      FTileReprojectResamplerConfig,
-      FTileDownloadResamplerConfig,
+      FGlobalConfig.TileLoadResamplerConfig,
+      FGlobalConfig.TileGetPrevResamplerConfig,
+      FGlobalConfig.TileReprojectResamplerConfig,
+      FGlobalConfig.TileDownloadResamplerConfig,
       FPerfCounterList.CreateAndAddNewSubList('MapType')
     );
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
@@ -925,10 +916,6 @@ begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
     FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
     FTileMatrixDraftResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View_TilesDrafts'));
-    FTileLoadResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Load'));
-    FTileGetPrevResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_GetPrev'));
-    FTileReprojectResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Reproject'));
-    FTileDownloadResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('Maps_Download'));
     FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
     FMarkPictureList.ReadConfig(MainConfigProvider);
     FMarksFactoryConfig.ReadConfig(MainConfigProvider);
@@ -989,10 +976,6 @@ begin
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FTileMatrixDraftResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View_TilesDrafts'));
-  FTileLoadResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Load'));
-  FTileGetPrevResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_GetPrev'));
-  FTileReprojectResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Reproject'));
-  FTileDownloadResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Maps_Download'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);
   FMarksFactoryConfig.WriteConfig(MainConfigProvider);

@@ -118,6 +118,7 @@ implementation
 uses
   SysUtils,
   Classes,
+  i_ImageResamplerFactory,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_GlobalAppConfig,
@@ -127,6 +128,8 @@ uses
   u_InetConfig,
   u_WindowPositionConfig,
   u_ThreadConfig,
+  u_ImageResamplerFactoryListStaticSimple,
+  u_ImageResamplerConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -137,6 +140,8 @@ constructor TGlobalConfig.Create(
   const ABaseDataPath: IPathConfig;
   const ABaseApplicationPath: IPathConfig
 );
+var
+  VResamplerFactoryList: IImageResamplerFactoryList;
 begin
   inherited Create;
   FBaseCahcePath := TPathConfig.Create('PrimaryPath', '.', ABaseCacheDataPath);
@@ -188,6 +193,20 @@ begin
 
   FMainThreadConfig := TThreadConfig.Create(tpHigher);
   Add(FMainThreadConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
+
+  VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
+
+  FTileLoadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  Add(FTileLoadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Load'), False, False, False, False);
+
+  FTileGetPrevResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  Add(FTileGetPrevResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_GetPrev'), False, False, False, False);
+
+  FTileReprojectResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  Add(FTileReprojectResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Reproject'), False, False, False, False);
+
+  FTileDownloadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Download'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

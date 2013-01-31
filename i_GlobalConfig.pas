@@ -79,7 +79,6 @@ type
     function GetMainThreadConfig: IThreadConfig;
     property MainThreadConfig: IThreadConfig read GetMainThreadConfig;
 
-(*
     function GetTileLoadResamplerConfig: IImageResamplerConfig;
     property TileLoadResamplerConfig: IImageResamplerConfig read GetTileLoadResamplerConfig;
 
@@ -92,6 +91,7 @@ type
     function GetTileDownloadResamplerConfig: IImageResamplerConfig;
     property TileDownloadResamplerConfig: IImageResamplerConfig read GetTileDownloadResamplerConfig;
 
+(*
     function GetBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read GetBitmapPostProcessingConfig;
 
