@@ -117,6 +117,7 @@ implementation
 
 uses
   SysUtils,
+  Classes,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_GlobalAppConfig,
@@ -125,6 +126,7 @@ uses
   u_GSMGeoCodeConfig,
   u_InetConfig,
   u_WindowPositionConfig,
+  u_ThreadConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -173,7 +175,7 @@ begin
   FLastSelectionInfo := TLastSelectionInfo.Create;
 
   FLanguageManager := TLanguageManager.Create(IncludeTrailingPathDelimiter(ABaseApplicationPath.FullPath) + 'lang');
-  Add(FLanguageManager, TConfigSaveLoadStrategyBasicProviderSubItem.Create('VIEW'), False, False, False, False);
+  Add(FLanguageManager, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
 
   FGsmConfig := TGSMGeoCodeConfig.Create;
   Add(FGsmConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GSM'), False, False, False, False);
@@ -183,6 +185,9 @@ begin
 
   FInternalBrowserConfig := TWindowPositionConfig.Create;
   Add(FInternalBrowserConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('InternalBrowser'), False, False, False, False);
+
+  FMainThreadConfig := TThreadConfig.Create(tpHigher);
+  Add(FMainThreadConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

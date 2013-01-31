@@ -76,10 +76,10 @@ type
     function GetInternalBrowserConfig: IWindowPositionConfig;
     property InternalBrowserConfig: IWindowPositionConfig read GetInternalBrowserConfig;
 
-(*
     function GetMainThreadConfig: IThreadConfig;
     property MainThreadConfig: IThreadConfig read GetMainThreadConfig;
 
+(*
     function GetTileLoadResamplerConfig: IImageResamplerConfig;
     property TileLoadResamplerConfig: IImageResamplerConfig read GetTileLoadResamplerConfig;
 

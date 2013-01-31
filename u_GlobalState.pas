@@ -137,7 +137,6 @@ type
     FDownloadInfo: IDownloadInfoSimple;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloaderThreadConfig: IThreadConfig;
-    FMainThreadConfig: IThreadConfig;
     FGlobalInternetState: IGlobalInternetState;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FImageResamplerConfig: IImageResamplerConfig;
@@ -469,9 +468,8 @@ begin
 
   FDownloadConfig := TGlobalDownloadConfig.Create;
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
-  FMainThreadConfig := TThreadConfig.Create(tpHigher);
   FMainThreadConfigListener := TNotifyEventListenerSync.Create(FGUISyncronizedTimerNotifier, 1000, Self.OnMainThreadConfigChange);
-  FMainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
+  FGlobalConfig.MainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
   OnMainThreadConfigChange;
 
   VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
@@ -920,7 +918,6 @@ begin
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloaderThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
-  FMainThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
 
@@ -961,7 +958,7 @@ const
     THREAD_PRIORITY_NORMAL, THREAD_PRIORITY_ABOVE_NORMAL,
     THREAD_PRIORITY_HIGHEST, THREAD_PRIORITY_TIME_CRITICAL);
 begin
-  SetThreadPriority(GetCurrentThread(), Priorities[FMainThreadConfig.Priority]);
+  SetThreadPriority(GetCurrentThread(), Priorities[FGlobalConfig.MainThreadConfig.Priority]);
 end;
 
 procedure TGlobalState.SaveMainParams;
@@ -983,7 +980,6 @@ begin
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloaderThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
-  FMainThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
@@ -1008,8 +1004,8 @@ end;
 
 procedure TGlobalState.SendTerminateToThreads;
 begin
-  if FMainThreadConfig <> nil then begin
-    FMainThreadConfig.ChangeNotifier.Remove(FMainThreadConfigListener);
+  if FGlobalConfig.MainThreadConfig <> nil then begin
+    FGlobalConfig.MainThreadConfig.ChangeNotifier.Remove(FMainThreadConfigListener);
   end;
 
   FGUISyncronizedTimer.Enabled := False;
