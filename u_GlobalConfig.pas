@@ -124,6 +124,7 @@ uses
   u_LanguageManager,
   u_GSMGeoCodeConfig,
   u_InetConfig,
+  u_WindowPositionConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -179,6 +180,9 @@ begin
 
   FInetConfig := TInetConfig.Create;
   Add(FInetConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Internet'), False, False, False, False);
+
+  FInternalBrowserConfig := TWindowPositionConfig.Create;
+  Add(FInternalBrowserConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('InternalBrowser'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

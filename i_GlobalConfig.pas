@@ -73,10 +73,10 @@ type
     function GetInetConfig: IInetConfig;
     property InetConfig: IInetConfig read GetInetConfig;
 
-(*
     function GetInternalBrowserConfig: IWindowPositionConfig;
     property InternalBrowserConfig: IWindowPositionConfig read GetInternalBrowserConfig;
 
+(*
     function GetMainThreadConfig: IThreadConfig;
     property MainThreadConfig: IThreadConfig read GetMainThreadConfig;
 

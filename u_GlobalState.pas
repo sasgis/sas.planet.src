@@ -170,7 +170,6 @@ type
     FProtocol: TIeEmbeddedProtocolRegistration;
     FPathDetalizeList: IPathDetalizeProviderList;
     FInvisibleBrowser: IInvisibleBrowser;
-    FInternalBrowserConfig: IWindowPositionConfig;
     FInternalBrowser: IInternalBrowser;
     FDebugInfoWindow: IDebugInfoWindow;
     FAppStartedNotifier: INotifierOneOperation;
@@ -514,8 +513,6 @@ begin
     FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
   end;
 
-  FInternalBrowserConfig := TWindowPositionConfig.Create;
-
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
 
@@ -659,7 +656,7 @@ begin
   FInternalBrowser :=
     TInternalBrowserByForm.Create(
       FGlobalConfig.LanguageManager,
-      FInternalBrowserConfig,
+      FGlobalConfig.InternalBrowserConfig,
       FGlobalConfig.InetConfig.ProxyConfig,
       FContentTypeManager
     );
@@ -917,7 +914,6 @@ begin
       FBatteryStatus,
       FValueToStringConverterConfig
     );
-  FInternalBrowserConfig.ReadConfig(MainConfigProvider.GetSubItem('InternalBrowser'));
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorderInternal.Load;
   FGpsTrackRecorderInternal.Load;
@@ -990,7 +986,6 @@ begin
   FMainThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
-  FInternalBrowserConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('InternalBrowser'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
