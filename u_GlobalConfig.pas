@@ -122,6 +122,7 @@ uses
   u_GlobalAppConfig,
   u_LastSelectionInfo,
   u_LanguageManager,
+  u_GSMGeoCodeConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -171,6 +172,9 @@ begin
 
   FLanguageManager := TLanguageManager.Create(IncludeTrailingPathDelimiter(ABaseApplicationPath.FullPath) + 'lang');
   Add(FLanguageManager, TConfigSaveLoadStrategyBasicProviderSubItem.Create('VIEW'), False, False, False, False);
+
+  FGsmConfig := TGSMGeoCodeConfig.Create;
+  Add(FGsmConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GSM'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

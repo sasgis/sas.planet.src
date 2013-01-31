@@ -5604,12 +5604,12 @@ procedure TfrmMain.tbitmPositionByGSMClick(Sender: TObject);
 var
   PosFromGSM: TPosFromGSM;
 begin
- PosFromGSM:=TPosFromGSM.Create(GState.GSMpar, FMapGoto);
- try
-   PosFromGSM.GetPos(FConfig.ViewPortState.GetCurrentZoom);
- except
-   PosFromGSM.Free;
- end;
+  PosFromGSM:=TPosFromGSM.Create(GState.Config.GsmConfig, FMapGoto);
+  try
+    PosFromGSM.GetPos(FConfig.ViewPortState.GetCurrentZoom);
+  except
+    PosFromGSM.Free;
+  end;
 end;
 
 procedure TfrmMain.tbitmPropertiesClick(Sender: TObject);

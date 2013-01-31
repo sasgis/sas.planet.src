@@ -404,14 +404,14 @@ begin
   end;
 
  GState.ViewConfig.BackGroundColor := ColorBoxBackGround.Selected;
- GState.GSMpar.LockWrite;
+ GState.Config.GsmConfig.LockWrite;
  try
-   GState.GSMpar.SetUseGSMByCOM(chkPosFromGSM.Checked);
-   GState.GSMpar.SetBaudRate(strtoint(CBGSMBaundRate.text));
-   GState.GSMpar.SetPortName(CBGSMComPort.Text);
-   GState.GSMpar.SetWaitTime(SEWaitingAnswer.Value);
+   GState.Config.GsmConfig.SetUseGSMByCOM(chkPosFromGSM.Checked);
+   GState.Config.GsmConfig.SetBaudRate(strtoint(CBGSMBaundRate.text));
+   GState.Config.GsmConfig.SetPortName(CBGSMComPort.Text);
+   GState.Config.GsmConfig.SetWaitTime(SEWaitingAnswer.Value);
  finally
-   GState.GSMpar.UnlockWrite;
+   GState.Config.GsmConfig.UnlockWrite;
  end;
   GState.Config.GlobalAppConfig.IsShowIconInTray := CBMinimizeToTray.Checked;
   GState.MainMemCacheConfig.MaxSize := SETilesOCache.value;
@@ -687,14 +687,14 @@ begin
   end;
 
  ColorBoxBackGround.Selected:=GState.ViewConfig.BackGroundColor;
-  GState.GSMpar.LockRead;
+  GState.Config.GsmConfig.LockRead;
   try
-    chkPosFromGSM.Checked := GState.GSMpar.GetUseGSMByCOM;
-    CBGSMComPort.Text := GState.GSMpar.GetPortName;
-    CBGSMBaundRate.text := inttostr(GState.GSMpar.GetBaudRate);
-    SEWaitingAnswer.Value := GState.GSMpar.GetWaitTime;
+    chkPosFromGSM.Checked := GState.Config.GsmConfig.GetUseGSMByCOM;
+    CBGSMComPort.Text := GState.Config.GsmConfig.GetPortName;
+    CBGSMBaundRate.text := inttostr(GState.Config.GsmConfig.GetBaudRate);
+    SEWaitingAnswer.Value := GState.Config.GsmConfig.GetWaitTime;
   finally
-    GState.GSMpar.UnlockRead;
+    GState.Config.GsmConfig.UnlockRead;
   end;
   VInetConfig := GState.InetConfig;
   VInetConfig.LockRead;

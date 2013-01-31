@@ -67,10 +67,10 @@ type
     function GetLanguageManager: ILanguageManager;
     property LanguageManager: ILanguageManager read GetLanguageManager;
 
-(*
     function GetGsmConfig: IGSMGeoCodeConfig;
     property GsmConfig: IGSMGeoCodeConfig read GetGsmConfig;
 
+(*
     function GetInetConfig: IInetConfig;
     property InetConfig: IInetConfig read GetInetConfig;
 

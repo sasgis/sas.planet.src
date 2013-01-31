@@ -131,7 +131,6 @@ type
     FMainMapsList: TMapTypesMainList;
     FInetConfig: IInetConfig;
     FGPSConfig: IGPSConfig;
-    FGSMpar: IGSMGeoCodeConfig;
     FGPSPositionFactory: IGPSPositionFactory;
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
@@ -229,7 +228,6 @@ type
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
-    property GSMpar: IGSMGeoCodeConfig read FGSMpar;
     property InetConfig: IInetConfig read FInetConfig;
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
@@ -304,7 +302,6 @@ uses
   u_InetConfig,
   u_Datum,
   u_PLTSimpleParser,
-  u_GSMGeoCodeConfig,
   u_GPSConfig,
   u_MarkCategoryFactoryConfig,
   u_GeoCoderListSimple,
@@ -502,7 +499,6 @@ begin
       FGlobalConfig.GpsTrackRecorderFileName
     );
   FGpsTrackRecorder := FGpsTrackRecorderInternal;
-  FGSMpar := TGSMGeoCodeConfig.Create;
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
 
@@ -699,7 +695,6 @@ begin
   FGPSRecorder := nil;
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
-  FGSMpar := nil;
   FInetConfig := nil;
   FViewConfig := nil;
   FMainFormConfig := nil;
@@ -936,7 +931,6 @@ begin
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloaderThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FMainThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
-  FGSMpar.ReadConfig(MainConfigProvider.GetSubItem('GSM'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
 
@@ -1002,7 +996,6 @@ begin
   FDownloaderThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FMainThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
-  FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FInternalBrowserConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('InternalBrowser'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
