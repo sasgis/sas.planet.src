@@ -129,7 +129,6 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
-    FInetConfig: IInetConfig;
     FGPSConfig: IGPSConfig;
     FGPSPositionFactory: IGPSPositionFactory;
     FMainFormConfig: IMainFormConfig;
@@ -228,7 +227,6 @@ type
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
-    property InetConfig: IInetConfig read FInetConfig;
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
@@ -299,7 +297,6 @@ uses
   u_CoordConverterListStaticSimple,
   u_DownloadInfoSimple,
   u_StartUpLogoConfig,
-  u_InetConfig,
   u_Datum,
   u_PLTSimpleParser,
   u_GPSConfig,
@@ -482,7 +479,6 @@ begin
   FImageResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
   FTileMatrixDraftResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
 
-  FInetConfig := TInetConfig.Create;
   FGPSConfig := TGPSConfig.Create(FGlobalConfig.TrackPath);
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorderInternal :=
@@ -587,7 +583,7 @@ begin
     );
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
-      FInetConfig,
+      FGlobalConfig.InetConfig,
       BGTimerNotifier,
       TDownloadResultFactory.Create,
       FValueToStringConverterConfig
@@ -644,7 +640,7 @@ begin
   FPathDetalizeList :=
     TPathDetalizeProviderListSimple.Create(
       FGlobalConfig.LanguageManager,
-      FInetConfig,
+      FGlobalConfig.InetConfig,
       FBGTimerNotifier,
       TDownloadResultFactory.Create,
       TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
@@ -658,13 +654,13 @@ begin
   FInvisibleBrowser :=
     TInvisibleBrowserByFormSynchronize.Create(
       FGlobalConfig.LanguageManager,
-      FInetConfig.ProxyConfig
+      FGlobalConfig.InetConfig.ProxyConfig
     );
   FInternalBrowser :=
     TInternalBrowserByForm.Create(
       FGlobalConfig.LanguageManager,
       FInternalBrowserConfig,
-      FInetConfig.ProxyConfig,
+      FGlobalConfig.InetConfig.ProxyConfig,
       FContentTypeManager
     );
   FDebugInfoWindow :=
@@ -695,7 +691,6 @@ begin
   FGPSRecorder := nil;
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
-  FInetConfig := nil;
   FViewConfig := nil;
   FMainFormConfig := nil;
   FLastSearchResultConfig := nil;
@@ -890,7 +885,7 @@ begin
     FTileNameParser,
     FBGTimerNotifier,
     FAppClosingNotifier,
-    FInetConfig,
+    FGlobalConfig.InetConfig,
     FDownloadConfig,
     FDownloaderThreadConfig,
     FBitmapFactory,
@@ -927,7 +922,6 @@ begin
   FGPSRecorderInternal.Load;
   FGpsTrackRecorderInternal.Load;
   FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
-  FInetConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloaderThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FMainThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
@@ -991,7 +985,6 @@ begin
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
   FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
-  FInetConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloaderThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FMainThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));

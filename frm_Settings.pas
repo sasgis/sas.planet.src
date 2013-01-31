@@ -346,7 +346,7 @@ var
   VUseProxy: Boolean;
   VHost: AnsiString;
 begin
-  VProxyConfig := GState.InetConfig.ProxyConfig;
+  VProxyConfig := GState.Config.InetConfig.ProxyConfig;
   VProxyConfig.LockRead;
   try
     VUseIEProxy := VProxyConfig.GetUseIESettings;
@@ -484,7 +484,7 @@ begin
   end;
 
   GState.MainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
-  VInetConfig :=GState.InetConfig;
+  VInetConfig :=GState.Config.InetConfig;
   VInetConfig.LockWrite;
   try
     VProxyConfig := VInetConfig.ProxyConfig;
@@ -696,7 +696,7 @@ begin
   finally
     GState.Config.GsmConfig.UnlockRead;
   end;
-  VInetConfig := GState.InetConfig;
+  VInetConfig := GState.Config.InetConfig;
   VInetConfig.LockRead;
   try
     SETimeOut.Value := VInetConfig.GetTimeOut;

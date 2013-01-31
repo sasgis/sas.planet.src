@@ -123,6 +123,7 @@ uses
   u_LastSelectionInfo,
   u_LanguageManager,
   u_GSMGeoCodeConfig,
+  u_InetConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -175,6 +176,9 @@ begin
 
   FGsmConfig := TGSMGeoCodeConfig.Create;
   Add(FGsmConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GSM'), False, False, False, False);
+
+  FInetConfig := TInetConfig.Create;
+  Add(FInetConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Internet'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

@@ -5540,7 +5540,7 @@ begin
       FMarkDBGUI,
       GState.Config.LanguageManager,
       GState.VectorItemsFactory,
-      GState.InetConfig);
+      GState.Config.InetConfig);
   // link to position    
   FfrmDGAvailablePic.ShowInfo(AVisualPoint, FConfig.ViewPortState.View.GetStatic);
 end;

@@ -70,10 +70,10 @@ type
     function GetGsmConfig: IGSMGeoCodeConfig;
     property GsmConfig: IGSMGeoCodeConfig read GetGsmConfig;
 
-(*
     function GetInetConfig: IInetConfig;
     property InetConfig: IInetConfig read GetInetConfig;
 
+(*
     function GetInternalBrowserConfig: IWindowPositionConfig;
     property InternalBrowserConfig: IWindowPositionConfig read GetInternalBrowserConfig;
 
