@@ -123,7 +123,6 @@ type
     FMapCalibrationList: IMapCalibrationList;
     FCacheConfig: TGlobalCacheConfig;
     FLanguageManager: ILanguageManager;
-    FLastSelectionInfo: ILastSelectionInfo;
     FMarksDb: IMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
     FCoordConverterList: ICoordConverterList;
@@ -231,7 +230,6 @@ type
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
-    property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
     property InetConfig: IInetConfig read FInetConfig;
@@ -596,7 +594,6 @@ begin
       GUISyncronizedTimerNotifier,
       FPerfCounterList
     );
-  FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FInetConfig,
@@ -689,7 +686,7 @@ begin
     TLastSelectionInfoSaver.Create(
       FAppClosingNotifier,
       FVectorItemsFactory,
-      FLastSelectionInfo,
+      FGlobalConfig.LastSelectionInfo,
       FGlobalConfig.LastSelectionFileName
     );
 end;
@@ -704,7 +701,6 @@ begin
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
   FMarksDb := nil;
-  FLastSelectionInfo := nil;
   FGPSConfig := nil;
   FGPSRecorder := nil;
   FreeAndNil(FMainMapsList);

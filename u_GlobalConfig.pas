@@ -119,6 +119,7 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_GlobalAppConfig,
+  u_LastSelectionInfo,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -163,6 +164,8 @@ begin
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
   Add(FGlobalAppConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('VIEW'), False, False, False, False);
+
+  FLastSelectionInfo := TLastSelectionInfo.Create;
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;
