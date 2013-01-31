@@ -31,16 +31,13 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TLastSelectionInfo = class(TConfigDataElementBase, ILastSelectionInfo)
+  TLastSelectionInfo = class(TConfigDataElementBaseEmptySaveLoad, ILastSelectionInfo)
   private
     FVectorItemsFactory: IVectorItemsFactory;
     // Полигон последнего выделения при операциях с областью.
     FPolygon: ILonLatPolygon;
     // Масштаб, на котором было последнее выделение
     FZoom: Byte;
-  protected
-    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetZoom: Byte;
     function GetPolygon: ILonLatPolygon;
@@ -65,33 +62,6 @@ begin
   FVectorItemsFactory := AVectorItemsFactory;
   FPolygon := AVectorItemsFactory.CreateLonLatPolygon(nil, 0);
   FZoom := 0;
-end;
-
-procedure TLastSelectionInfo.DoReadConfig(const AConfigData: IConfigDataProvider);
-var
-  VPolygon: ILonLatPolygon;
-  VZoom: Byte;
-begin
-  inherited;
-  if AConfigData <> nil then begin
-    VPolygon := ReadPolygon(AConfigData, FVectorItemsFactory);
-    if VPolygon.Count > 0 then begin
-      VZoom := AConfigData.Readinteger('Zoom', FZoom);
-      SetPolygon(VPolygon, VZoom);
-    end;
-  end;
-end;
-
-procedure TLastSelectionInfo.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider
-);
-begin
-  inherited;
-  AConfigData.DeleteValues;
-  if FPolygon.Count > 0 then begin
-    AConfigData.WriteInteger('Zoom', FZoom);
-    WritePolygon(AConfigData, FPolygon);
-  end;
 end;
 
 function TLastSelectionInfo.GetPolygon: ILonLatPolygon;
