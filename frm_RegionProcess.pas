@@ -423,16 +423,18 @@ begin
     finally
       FLastSelectionInfo.UnlockRead;
     end;
-    VIni:=TIniFile.Create(SaveSelDialog.FileName);
-    try
-      VHLGData := TConfigDataWriteProviderByIniFile.Create(VIni);
-      VIni := nil;
-    finally
-      VIni.Free;
+    if VPolygon <> nil then begin
+      VIni:=TIniFile.Create(SaveSelDialog.FileName);
+      try
+        VHLGData := TConfigDataWriteProviderByIniFile.Create(VIni);
+        VIni := nil;
+      finally
+        VIni.Free;
+      end;
+      VPolygonSection := VHLGData.GetOrCreateSubItem('HIGHLIGHTING');
+      VPolygonSection.WriteInteger('zoom', VZoom + 1);
+      WritePolygon(VPolygonSection, VPolygon);
     end;
-    VPolygonSection := VHLGData.GetOrCreateSubItem('HIGHLIGHTING');
-    VPolygonSection.WriteInteger('zoom',VZoom + 1);
-    WritePolygon(VPolygonSection, VPolygon);
   end;
 end;
 

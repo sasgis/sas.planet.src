@@ -596,7 +596,7 @@ begin
       GUISyncronizedTimerNotifier,
       FPerfCounterList
     );
-  FLastSelectionInfo := TLastSelectionInfo.Create(FVectorItemsFactory);
+  FLastSelectionInfo := TLastSelectionInfo.Create;
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FInetConfig,

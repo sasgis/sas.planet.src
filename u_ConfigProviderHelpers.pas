@@ -231,12 +231,14 @@ var
   i: Integer;
   VPoint: TDoublePoint;
 begin
-  VEnum := APolygon.GetEnum;
-  i := 1;
-  while VEnum.Next(VPoint) do begin
-    AConfigProvider.WriteFloat('PointLon_' + IntToStr(i), VPoint.x);
-    AConfigProvider.WriteFloat('PointLat_' + IntToStr(i), VPoint.y);
-    Inc(i);
+  if APolygon <> nil then begin
+    VEnum := APolygon.GetEnum;
+    i := 1;
+    while VEnum.Next(VPoint) do begin
+      AConfigProvider.WriteFloat('PointLon_' + IntToStr(i), VPoint.x);
+      AConfigProvider.WriteFloat('PointLat_' + IntToStr(i), VPoint.y);
+      Inc(i);
+    end;
   end;
 end;
 

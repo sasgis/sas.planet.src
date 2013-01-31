@@ -3903,7 +3903,7 @@ begin
   finally
     GState.LastSelectionInfo.UnlockRead;
   end;
-  if VPolygon.Count > 0 then begin
+  if (VPolygon<> nil) and (VPolygon.Count > 0) then begin
     FState.State := ao_movemap;
     FFormRegionProcess.Show_(VZoom, VPolygon);
   end else begin
@@ -4180,7 +4180,7 @@ end;
 
 procedure TfrmMain.TBCOORDClick(Sender: TObject);
 var
-  Poly: ILonLatPolygon;
+  VPolygon: ILonLatPolygon;
   VSelLonLat: TfrmLonLatRectEdit;
   VLonLatRect: TDoubleRect;
 begin
@@ -4192,18 +4192,18 @@ begin
       GState.ValueToStringConverterConfig
     );
   Try
-    Poly := GState.LastSelectionInfo.Polygon;
-    if Poly.Count > 0 then begin
-      VLonLatRect := Poly.Item[0].Bounds.Rect;
+    VPolygon := GState.LastSelectionInfo.Polygon;
+    if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
+      VLonLatRect := VPolygon.Item[0].Bounds.Rect;
     end else begin
       VLonLatRect.TopLeft := FConfig.ViewPortState.View.GetStatic.GetCenterLonLat;
       VLonLatRect.BottomRight := VLonLatRect.TopLeft;
     end;
     if VSelLonLat.Execute(VLonLatRect) Then Begin
-      Poly := GState.VectorItemsFactory.CreateLonLatPolygonByRect(VLonLatRect);
+      VPolygon := GState.VectorItemsFactory.CreateLonLatPolygonByRect(VLonLatRect);
       FState.State := ao_movemap;
-      FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, Poly);
-      Poly := nil;
+      FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPolygon);
+      VPolygon := nil;
     end else begin
       FState.State := ao_movemap;
     end;

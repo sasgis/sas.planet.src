@@ -165,6 +165,9 @@ begin
     finally
       FLastSelection.UnlockRead;
     end;
+    if VPolygon = nil then begin
+      Exit;
+    end;
     VPath := ExtractFilePath(VFileName);
     if not ForceDirectories(VPath) then begin
       Exit;

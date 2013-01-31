@@ -104,7 +104,7 @@ begin
   try
     if FConfig.Visible then begin
       FLine := FLastSelectionInfo.Polygon;
-      if FLine.Count > 0 then begin
+      if (FLine <> nil) and (FLine.Count > 0) then begin
         SetNeedRedraw;
         Show;
       end else begin
