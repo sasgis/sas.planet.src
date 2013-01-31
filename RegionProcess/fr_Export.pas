@@ -66,6 +66,7 @@ implementation
 
 uses
   gnugettext,
+  u_ExportProviderRMapsSQLite,
   u_ExportProviderYaMobileV3,
   u_ExportProviderYaMobileV4,
   u_ExportProviderGEKml,
@@ -271,6 +272,19 @@ begin
       AProjectionFactory,
       AVectorItemsFactory,
       ACoordConverterFactory
+    );
+  CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+
+  VExportProvider :=
+    TExportProviderRMapsSQLite.Create(
+      ALanguageManager,
+      AAppClosingNotifier,
+      ATimerNoifier,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      AProjectionFactory,
+      AVectorItemsFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
