@@ -122,7 +122,6 @@ type
     FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IMapCalibrationList;
     FCacheConfig: TGlobalCacheConfig;
-    FLanguageManager: ILanguageManager;
     FMarksDb: IMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
     FCoordConverterList: ICoordConverterList;
@@ -230,7 +229,6 @@ type
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
-    property LanguageManager: ILanguageManager read FLanguageManager;
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
     property InetConfig: IInetConfig read FInetConfig;
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
@@ -301,7 +299,6 @@ uses
   u_KmzInfoSimpleParser,
   u_CoordConverterFactorySimple,
   u_CoordConverterListStaticSimple,
-  u_LanguageManager,
   u_DownloadInfoSimple,
   u_StartUpLogoConfig,
   u_InetConfig,
@@ -453,8 +450,6 @@ begin
   FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
-  FLanguageManager := TLanguageManager.Create(VProgramPath + 'lang');
-  FLanguageManager.ReadConfig(VViewCnonfig);
 
   if FGlobalConfig.GlobalAppConfig.IsShowDebugInfo then begin
     FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
@@ -582,7 +577,7 @@ begin
       VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000)
     );
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create(FBitmapFactory);
-  FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
+  FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FGlobalConfig.LanguageManager);
   FGpsSystem :=
     TGpsSystem.Create(
       FAppStartedNotifier,
@@ -604,14 +599,14 @@ begin
   FMarkPictureList := TMarkPictureListSimple.Create(FGlobalConfig.MarksIconsPath, FContentTypeManager);
   FMarksFactoryConfig :=
     TMarksFactoryConfig.Create(
-      FLanguageManager,
+      FGlobalConfig.LanguageManager,
       FMarkPictureList
     );
-  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
+  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FGlobalConfig.LanguageManager);
 
   FMarksDb :=
     TMarksSystem.Create(
-      FLanguageManager,
+      FGlobalConfig.LanguageManager,
       FGlobalConfig.MarksDbPath,
       FMarkPictureList,
       FVectorItemsFactory,
@@ -631,7 +626,7 @@ begin
       FArchiveReadWriteFactory,
       FContentTypeManager,
       FBitmapFactory,
-      FLanguageManager,
+      FGlobalConfig.LanguageManager,
       VFilesIterator
     );
 
@@ -652,7 +647,7 @@ begin
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FPathDetalizeList :=
     TPathDetalizeProviderListSimple.Create(
-      FLanguageManager,
+      FGlobalConfig.LanguageManager,
       FInetConfig,
       FBGTimerNotifier,
       TDownloadResultFactory.Create,
@@ -666,12 +661,12 @@ begin
 
   FInvisibleBrowser :=
     TInvisibleBrowserByFormSynchronize.Create(
-      FLanguageManager,
+      FGlobalConfig.LanguageManager,
       FInetConfig.ProxyConfig
     );
   FInternalBrowser :=
     TInternalBrowserByForm.Create(
-      FLanguageManager,
+      FGlobalConfig.LanguageManager,
       FInternalBrowserConfig,
       FInetConfig.ProxyConfig,
       FContentTypeManager
@@ -696,7 +691,6 @@ begin
   FGCThread.Terminate;
   FGCThread.WaitFor;
   FreeAndNil(FGCThread);
-  FLanguageManager := nil;
   FTileNameGenerator := nil;
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
@@ -893,7 +887,7 @@ begin
   FTerrainConfig.ReadConfig(MainConfigProvider.GetSubItem('Terrain'));
 
   FMainMapsList.LoadMaps(
-    FLanguageManager,
+    FGlobalConfig.LanguageManager,
     FMainMemCacheConfig,
     FCacheConfig,
     FGlobalBerkeleyDBHelper,
@@ -925,7 +919,7 @@ begin
 
   FSensorList :=
     TSensorListStuped.Create(
-      FLanguageManager,
+      FGlobalConfig.LanguageManager,
       FMainFormConfig.ViewPortState.View,
       FMainFormConfig.NavToPoint,
       FGPSRecorder,
@@ -1011,7 +1005,6 @@ begin
   FGSMpar.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GSM'));
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FInternalBrowserConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('InternalBrowser'));
-  FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
@@ -1029,6 +1022,7 @@ begin
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
   FTerrainConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Terrain'));
+  FGlobalConfig.WriteConfig(MainConfigProvider);
 end;
 
 procedure TGlobalState.SendTerminateToThreads;

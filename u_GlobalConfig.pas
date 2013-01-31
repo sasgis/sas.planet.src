@@ -116,10 +116,12 @@ type
 implementation
 
 uses
+  SysUtils,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_GlobalAppConfig,
   u_LastSelectionInfo,
+  u_LanguageManager,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -166,6 +168,9 @@ begin
   Add(FGlobalAppConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('VIEW'), False, False, False, False);
 
   FLastSelectionInfo := TLastSelectionInfo.Create;
+
+  FLanguageManager := TLanguageManager.Create(IncludeTrailingPathDelimiter(ABaseApplicationPath.FullPath) + 'lang');
+  Add(FLanguageManager, TConfigSaveLoadStrategyBasicProviderSubItem.Create('VIEW'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

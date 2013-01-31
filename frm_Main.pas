@@ -852,7 +852,7 @@ begin
   FMapGoto := TMapViewGoto.Create(FConfig.ViewPortState);
   FMarkDBGUI :=
     TMarksDbGUIHelper.Create(
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       GState.Config.MediaDataPath,
       GState.MarksDb,
       GState.ImportFileByExt,
@@ -863,7 +863,7 @@ begin
     );
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
       GState.Config.LastSelectionInfo,
@@ -897,7 +897,7 @@ begin
   FFormRegionProcess.PopupParent := Self;
   FfrmGoTo :=
     TfrmGoTo.Create(
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       GState.MarksDb.MarksDb,
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState.View,
@@ -906,7 +906,7 @@ begin
 
   FfrmCacheManager :=
     TfrmCacheManager.Create(
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
       GState.BGTimerNotifier,
@@ -920,14 +920,14 @@ begin
   FfrmCacheManager.PopupParent := Self;
 
   FfrmMapLayersOptions := TfrmMapLayersOptions.Create(
-    GState.LanguageManager,
+    GState.Config.LanguageManager,
     FConfig.LayersConfig.ScaleLineConfig,
     FConfig.LayersConfig.StatBar,
     GState.TerrainConfig,
     GState.TerrainProviderList
   );
 
-  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.LanguageManager);
+  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.Config.LanguageManager);
 
   LoadMapIconsList;
 
@@ -1052,7 +1052,7 @@ begin
     TSensorViewListGeneratorStuped.Create(
       GState.GUISyncronizedTimerNotifier,
       GState.ValueToStringConverterConfig,
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       Self,
       TBXDock1,
       NSensors,
@@ -1251,7 +1251,7 @@ begin
 
     FfrmSettings :=
       TfrmSettings.Create(
-        GState.LanguageManager,
+        GState.Config.LanguageManager,
         FShortCutManager,
         FMapTypeEditor,
         Self.SaveConfig
@@ -1262,7 +1262,7 @@ begin
     FfrmMarksExplorer :=
       TfrmMarksExplorer.Create(
         False,
-        GState.LanguageManager,
+        GState.Config.LanguageManager,
         FConfig.ViewPortState.View,
         FConfig.NavToPoint,
         FConfig.MarksExplorerWindowConfig,
@@ -1855,7 +1855,7 @@ begin
   );
   FLayersList.Add(
     TLayerScaleLine.Create(
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -1867,7 +1867,7 @@ begin
   );
   VLicensList :=
     TActiveMapsLicenseList.Create(
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.Create(FConfig.MainMapsConfig.GetAllActiveMapsSet)
     );
   FLayersList.Add(
@@ -1881,7 +1881,7 @@ begin
   );
   FLayersList.Add(
     TLayerStatBar.Create(
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       GState.PerfCounterList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
@@ -2064,7 +2064,7 @@ var
   i: Integer;
   VManager: ILanguageManager;
 begin
-  VManager := GState.LanguageManager;
+  VManager := GState.Config.LanguageManager;
   for i := 0 to VManager.LanguageList.Count - 1 do begin
     TLanguageTBXItem.Create(Self, TBLang, VManager, i);
   end;
@@ -3835,7 +3835,7 @@ end;
 procedure TfrmMain.tbitmAboutClick(Sender: TObject);
 begin
   if FfrmAbout = nil then begin
-    FfrmAbout := TfrmAbout.Create(GState.LanguageManager);
+    FfrmAbout := TfrmAbout.Create(GState.Config.LanguageManager);
   end;
   FfrmAbout.ShowModal;
 end;
@@ -4187,7 +4187,7 @@ begin
   TBRectSave.ImageIndex:=12;
   VSelLonLat:=
     TfrmLonLatRectEdit.Create(
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       FConfig.ViewPortState.View,
       GState.ValueToStringConverterConfig
     );
@@ -5538,7 +5538,7 @@ begin
   if (nil=FfrmDGAvailablePic) then
     FfrmDGAvailablePic:=TfrmDGAvailablePic.Create(
       FMarkDBGUI,
-      GState.LanguageManager,
+      GState.Config.LanguageManager,
       GState.VectorItemsFactory,
       GState.InetConfig);
   // link to position    

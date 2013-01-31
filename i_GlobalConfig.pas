@@ -64,10 +64,10 @@ type
     function GetLastSelectionInfo: ILastSelectionInfo;
     property LastSelectionInfo: ILastSelectionInfo read GetLastSelectionInfo;
 
-(*
     function GetLanguageManager: ILanguageManager;
     property LanguageManager: ILanguageManager read GetLanguageManager;
 
+(*
     function GetGsmConfig: IGSMGeoCodeConfig;
     property GsmConfig: IGSMGeoCodeConfig read GetGsmConfig;
 
