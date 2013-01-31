@@ -284,6 +284,7 @@
     <DCCReference Include="i_FindVectorItems.pas" />
     <DCCReference Include="i_FullMapMouseCursorLayerConfig.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
+    <DCCReference Include="i_GlobalConfig.pas" />
     <DCCReference Include="i_GlobalDownloadConfig.pas" />
     <DCCReference Include="i_GlobalInternetState.pas" />
     <DCCReference Include="i_GlobalViewMainConfig.pas" />
@@ -895,6 +896,7 @@
     <DCCReference Include="u_GeoFun.pas" />
     <DCCReference Include="u_GeoToStr.pas" />
     <DCCReference Include="u_GlobalAppConfig.pas" />
+    <DCCReference Include="u_GlobalConfig.pas" />
     <DCCReference Include="u_GlobalDownloadConfig.pas" />
     <DCCReference Include="u_GlobalInternetState.pas" />
     <DCCReference Include="u_GlobalState.pas" />

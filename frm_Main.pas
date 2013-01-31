@@ -853,7 +853,7 @@ begin
   FMarkDBGUI :=
     TMarksDbGUIHelper.Create(
       GState.LanguageManager,
-      GState.MediaDataPath,
+      GState.Config.MediaDataPath,
       GState.MarksDb,
       GState.ImportFileByExt,
       FConfig.ViewPortState.View,
@@ -1100,7 +1100,7 @@ begin
       );
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
-    tbitmShowDebugInfo.Visible := GState.GlobalAppConfig.IsShowDebugInfo;
+    tbitmShowDebugInfo.Visible := GState.Config.GlobalAppConfig.IsShowDebugInfo;
 
     InitGridsMenus;
     
@@ -2229,7 +2229,7 @@ begin
   Result.Add(N006);
   Result.Add(N007);
   Result.Add(NFillMap);
-  if not GState.GlobalAppConfig.IsShowDebugInfo then begin
+  if not GState.Config.GlobalAppConfig.IsShowDebugInfo then begin
     Result.Add(tbitmShowDebugInfo);
   end; 
 end;
@@ -2720,14 +2720,14 @@ begin
     FWinPosition.UnlockRead;
   end;
   if VIsMinimized then begin
-    if (not TrayIcon.Visible) and GState.GlobalAppConfig.IsShowIconInTray  then begin
+    if (not TrayIcon.Visible) and GState.Config.GlobalAppConfig.IsShowIconInTray  then begin
       TrayIcon.Visible := True;
       ShowWindow(Self.Handle, SW_HIDE);
     end else begin
       Self.WindowState := wsMinimized;
     end;
   end else begin
-    if (TrayIcon.Visible) and GState.GlobalAppConfig.IsShowIconInTray  then begin
+    if (TrayIcon.Visible) and GState.Config.GlobalAppConfig.IsShowIconInTray  then begin
       ShowWindow(Self.Handle, SW_SHOW);
       TrayIcon.Visible := False;
     end;

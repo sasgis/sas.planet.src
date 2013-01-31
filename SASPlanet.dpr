@@ -323,6 +323,8 @@ uses
   i_DoublePointsAggregator in 'i_DoublePointsAggregator.pas',
   u_DoublePointsAggregator in 'u_DoublePointsAggregator.pas',
   u_GlobalState in 'u_GlobalState.pas',
+  i_GlobalConfig in 'i_GlobalConfig.pas',
+  u_GlobalConfig in 'u_GlobalConfig.pas',
   u_GlobalInternetState in 'u_GlobalInternetState.pas',
   u_GpsSystem in 'GPS\u_GpsSystem.pas',
   i_TextByVectorItem in 'i_TextByVectorItem.pas',

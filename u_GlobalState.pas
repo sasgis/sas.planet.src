@@ -96,6 +96,7 @@ uses
   i_GlobalBerkeleyDBHelper,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
+  i_GlobalConfig,
   u_IeEmbeddedProtocolRegistration,
   u_GlobalCacheConfig;
 
@@ -104,25 +105,16 @@ uses
 type
   TGlobalState = class
   private
+    FGlobalConfig: IGlobalConfig;
     FBaseConfigPath: IPathConfig;
     FBaseDataPath: IPathConfig;
     FBaseCahcePath: IPathConfig;
     FBaseApplicationPath: IPathConfig;
-    FMapsPath: IPathConfig;
-    FTrackPath: IPathConfig;
-    FMarksDbPath: IPathConfig;
-    FMarksIconsPath: IPathConfig;
-    FMediaDataPath: IPathConfig;
-    FTerrainDataPath: IPathConfig;
-    FLastSelectionFileName: IPathConfig;
-    FGpsRecorderFileName: IPathConfig;
-    FGpsTrackRecorderFileName: IPathConfig;
 
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpConfig: IZmpConfig;
     FZmpInfoSet: IZmpInfoSet;
     FResourceProvider: IConfigDataProvider;
-    FGlobalAppConfig: IGlobalAppConfig;
     FStartUpLogoConfig: IStartUpLogoConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FTileNameParser: ITileFileNameParsersList;
@@ -210,6 +202,8 @@ type
     );
     {$ENDIF SasDebugWithJcl}
   public
+    property Config: IGlobalConfig read FGlobalConfig;
+
     property MapType: TMapTypesMainList read FMainMapsList;
     property CacheConfig: TGlobalCacheConfig read FCacheConfig;
     property MarksDb: IMarksSystem read FMarksDb;
@@ -226,8 +220,6 @@ type
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
     property AppStartedNotifier: INotifierOneOperation read FAppStartedNotifier;
     property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
-    property MediaDataPath: IPathConfig read FMediaDataPath;
-    property TerrainDataPath: IPathConfig read FTerrainDataPath;
 
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
@@ -239,7 +231,6 @@ type
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
-    property GlobalAppConfig: IGlobalAppConfig read FGlobalAppConfig;
     property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property GSMpar: IGSMGeoCodeConfig read FGSMpar;
@@ -380,6 +371,7 @@ uses
   u_LastSelectionInfoSaver,
   u_ListenerByEvent,
   u_Synchronizer,
+  u_GlobalConfig,
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
@@ -410,6 +402,18 @@ begin
     // run as EXE
     VProgramPath := ExtractFilePath(ParamStr(0));
   end;
+  FBaseApplicationPath := TPathConfig.Create('', VProgramPath, nil);
+  FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
+  FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
+  FBaseCahcePath := TPathConfig.Create('', VProgramPath, nil);
+
+  FGlobalConfig :=
+    TGlobalConfig.Create(
+      FBaseCahcePath,
+      FBaseConfigPath,
+      FBaseDataPath,
+      FBaseApplicationPath
+    );
   FBGTimerNotifierInternal := TNotifierTime.Create;
   FBGTimerNotifier := FBGTimerNotifierInternal;
   FBitmapFactory :=
@@ -417,20 +421,6 @@ begin
       FBGTimerNotifier,
       MakeSyncRW_Var(Self, false)
     );
-
-  FBaseApplicationPath := TPathConfig.Create('', VProgramPath, nil);
-  FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
-  FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
-  FBaseCahcePath := TPathConfig.Create('PrimaryPath', VProgramPath, nil);
-  FMapsPath := TPathConfig.Create('PrimaryPath', '.\Maps', FBaseConfigPath);
-  FTrackPath := TPathConfig.Create('PrimaryPath', '.\TrackLog', FBaseDataPath);
-  FMarksDbPath := TPathConfig.Create('PrimaryPath', '.', FBaseDataPath);
-  FMarksIconsPath := TPathConfig.Create('', '.\MarksIcons', FBaseApplicationPath);
-  FMediaDataPath := TPathConfig.Create('PrimaryPath', '.\MediaData', FBaseDataPath);
-  FTerrainDataPath := TPathConfig.Create('PrimaryPath', '.\TerrainData', FBaseDataPath);
-  FLastSelectionFileName := TPathConfig.Create('FileName', '.\LastSelection.hlg', FBaseDataPath);
-  FGpsRecorderFileName := TPathConfig.Create('InfoFileName', '.\GpsInfo.ini', FBaseDataPath);
-  FGpsTrackRecorderFileName := TPathConfig.Create('TrackFileName', '.\LastPoints.dat', FBaseDataPath);
 
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create(FBitmapFactory);
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
@@ -446,22 +436,13 @@ begin
       HInstance
     );
 
-  // read directories
-  FMapsPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMAPS'));
-  FTrackPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTRACKS'));
-  FMarksDbPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMARKS'));
-  FMediaDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoMediaData'));
-  FTerrainDataPath.ReadConfig(FMainConfigProvider.GetSubItem('PATHtoTerrainData'));
-  FLastSelectionFileName.ReadConfig(FMainConfigProvider.GetSubItem('LastSelection'));
-  FGpsRecorderFileName.ReadConfig(FMainConfigProvider.GetSubItem('GpsData'));
-  FGpsTrackRecorderFileName.ReadConfig(FMainConfigProvider.GetSubItem('GpsData'));
+  FGlobalConfig.ReadConfig(FMainConfigProvider);
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FVectorItemsFactory := TVectorItemsFactorySimple.Create;
 
-  FGlobalAppConfig := TGlobalAppConfig.Create;
   FGlobalInternetState := TGlobalInternetState.Create;
 
   FProjConverterFactory := TProjConverterFactory.Create;
@@ -476,11 +457,8 @@ begin
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
   FLanguageManager := TLanguageManager.Create(VProgramPath + 'lang');
   FLanguageManager.ReadConfig(VViewCnonfig);
-  if VViewCnonfig <> nil then begin
-    FGlobalAppConfig.ReadConfig(VViewCnonfig);
-  end;
 
-  if FGlobalAppConfig.IsShowDebugInfo then begin
+  if FGlobalConfig.GlobalAppConfig.IsShowDebugInfo then begin
     FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
     if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
       FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
@@ -500,7 +478,7 @@ begin
 
   FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FCacheConfig.BDBCachePath);
 
-  FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FTerrainDataPath, FCacheConfig);
+  FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FGlobalConfig.TerrainDataPath, FCacheConfig);
   FTerrainConfig := TTerrainConfig.Create;
 
   FDownloadConfig := TGlobalDownloadConfig.Create;
@@ -515,12 +493,12 @@ begin
   FTileMatrixDraftResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
 
   FInetConfig := TInetConfig.Create;
-  FGPSConfig := TGPSConfig.Create(FTrackPath);
+  FGPSConfig := TGPSConfig.Create(FGlobalConfig.TrackPath);
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorderInternal :=
     TGPSRecorder.Create(
       TDatum.Create(3395, 6378137, 6356752),
-      FGpsRecorderFileName,
+      FGlobalConfig.GpsRecorderFileName,
       FGPSPositionFactory.BuildPositionEmpty
     );
   FGPSRecorder := FGPSRecorderInternal;
@@ -528,7 +506,7 @@ begin
   FGpsTrackRecorderInternal :=
     TGpsTrackRecorder.Create(
       FVectorItemsFactory,
-      FGpsTrackRecorderFileName
+      FGlobalConfig.GpsTrackRecorderFileName
     );
   FGpsTrackRecorder := FGpsTrackRecorderInternal;
   FGSMpar := TGSMGeoCodeConfig.Create;
@@ -626,7 +604,7 @@ begin
       TDownloadResultFactory.Create,
       FValueToStringConverterConfig
     );
-  FMarkPictureList := TMarkPictureListSimple.Create(FMarksIconsPath, FContentTypeManager);
+  FMarkPictureList := TMarkPictureListSimple.Create(FGlobalConfig.MarksIconsPath, FContentTypeManager);
   FMarksFactoryConfig :=
     TMarksFactoryConfig.Create(
       FLanguageManager,
@@ -637,7 +615,7 @@ begin
   FMarksDb :=
     TMarksSystem.Create(
       FLanguageManager,
-      FMarksDbPath,
+      FGlobalConfig.MarksDbPath,
       FMarkPictureList,
       FVectorItemsFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
@@ -646,7 +624,7 @@ begin
       FMarksCategoryFactoryConfig
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
-  VFilesIterator := VFilesIteratorFactory.CreateIterator(FMapsPath.FullPath, '');
+  VFilesIterator := VFilesIteratorFactory.CreateIterator(FGlobalConfig.MapsPath.FullPath, '');
   FZmpConfig := TZmpConfig.Create;
   FZmpConfig.ReadConfig(FMainConfigProvider.GetSubItem('ZmpDefaultParams'));
   FZmpInfoSet :=
@@ -703,7 +681,7 @@ begin
     );
   FDebugInfoWindow :=
     TDebugInfoWindow.Create(
-      FGlobalAppConfig,
+      FGlobalConfig.GlobalAppConfig,
       FPerfCounterList
     );
   FBatteryStatus := TBatteryStatus.Create;
@@ -712,7 +690,7 @@ begin
       FAppClosingNotifier,
       FVectorItemsFactory,
       FLastSelectionInfo,
-      FLastSelectionFileName
+      FGlobalConfig.LastSelectionFileName
     );
 end;
 
@@ -781,7 +759,7 @@ begin
 
   VInternalDomainInfoProvider :=
     TInternalDomainInfoProviderByDataProvider.Create(
-      TConfigDataProviderByPathConfig.Create(FMediaDataPath),
+      TConfigDataProviderByPathConfig.Create(FGlobalConfig.MediaDataPath),
       FContentTypeManager
     );
   VInternalDomainInfoProviderList.Add(
@@ -888,7 +866,7 @@ end;
 procedure TGlobalState.StartThreads;
 begin
   FAppStartedNotifierInternal.ExecuteOperation;
-  if FGlobalAppConfig.IsSendStatistic then begin
+  if FGlobalConfig.GlobalAppConfig.IsSendStatistic then begin
     FInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
   end;
   FLastSelectionSaver.Start;
@@ -909,7 +887,7 @@ var
   Ini: TMeminifile;
   VMapsPath: String;
 begin
-  VMapsPath := IncludeTrailingPathDelimiter(FMapsPath.FullPath);
+  VMapsPath := IncludeTrailingPathDelimiter(FGlobalConfig.MapsPath.FullPath);
   ForceDirectories(VMapsPath);
   Ini := TMeminiFile.Create(VMapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
@@ -1021,7 +999,7 @@ begin
   if ModuleIsLib then begin
     Exit;
   end;
-  VMapsPath := IncludeTrailingPathDelimiter(FMapsPath.FullPath);
+  VMapsPath := IncludeTrailingPathDelimiter(FGlobalConfig.MapsPath.FullPath);
   Ini := TMeminiFile.Create(VMapsPath + 'Maps.ini');
   VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
   FMainMapsList.SaveMaps(VLocalMapsConfig);
@@ -1038,7 +1016,6 @@ begin
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FInternalBrowserConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('InternalBrowser'));
   FLanguageManager.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
-  FGlobalAppConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('VIEW'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
@@ -1056,15 +1033,6 @@ begin
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
   FTerrainConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Terrain'));
-
-  FMapsPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMAPS'));
-  FTrackPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoTRACKS'));
-  FMarksDbPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMARKS'));
-  FMediaDataPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoMediaData'));
-  FTerrainDataPath.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('PATHtoTerrainData'));
-  FLastSelectionFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('LastSelection'));
-  FGpsRecorderFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('GpsData'));
-  FGpsTrackRecorderFileName.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('GpsData'));
 end;
 
 procedure TGlobalState.SendTerminateToThreads;
