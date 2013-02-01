@@ -466,7 +466,7 @@ begin
     GState.Config.ValueToStringConverterConfig.UnlockWrite;
   end;
 
-  GState.ImageResamplerConfig.ActiveIndex := cbbResizeMethod.ItemIndex;
+  GState.Config.ImageResamplerConfig.ActiveIndex := cbbResizeMethod.ItemIndex;
   GState.MapType.TileLoadResamplerConfig.ActiveIndex := cbbResizeOnLoad.ItemIndex;
   GState.MapType.TileGetPrevResamplerConfig.ActiveIndex := cbbResizeGetPre.ItemIndex;
   GState.MapType.TileReprojectResamplerConfig.ActiveIndex := cbbProjectionChange.ItemIndex;
@@ -794,8 +794,8 @@ begin
     GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
   end;
 
-  InitResamplersList(GState.ImageResamplerConfig.GetList, cbbResizeMethod);
-  cbbResizeMethod.ItemIndex := GState.ImageResamplerConfig.ActiveIndex;
+  InitResamplersList(GState.Config.ImageResamplerConfig.GetList, cbbResizeMethod);
+  cbbResizeMethod.ItemIndex := GState.Config.ImageResamplerConfig.ActiveIndex;
 
   InitResamplersList(GState.MapType.TileLoadResamplerConfig.GetList, cbbResizeOnLoad);
   cbbResizeOnLoad.ItemIndex := GState.MapType.TileLoadResamplerConfig.ActiveIndex;

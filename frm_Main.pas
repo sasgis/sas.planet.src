@@ -875,7 +875,7 @@ begin
       GState.TileNameGenerator,
       GState.ViewConfig,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
-      GState.ImageResamplerConfig,
+      GState.Config.ImageResamplerConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
       GState.MarksDb,

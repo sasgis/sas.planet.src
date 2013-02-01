@@ -98,10 +98,10 @@ type
     function GetValueToStringConverterConfig: IValueToStringConverterConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read GetValueToStringConverterConfig;
 
-(*
     function GetImageResamplerConfig: IImageResamplerConfig;
     property ImageResamplerConfig: IImageResamplerConfig read GetImageResamplerConfig;
 
+(*
     function GetTileMatrixDraftResamplerConfig: IImageResamplerConfig;
     property TileMatrixDraftResamplerConfig: IImageResamplerConfig read GetTileMatrixDraftResamplerConfig;
 

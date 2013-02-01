@@ -138,7 +138,6 @@ type
     FDownloaderThreadConfig: IThreadConfig;
     FGlobalInternetState: IGlobalInternetState;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FImageResamplerConfig: IImageResamplerConfig;
     FTileMatrixDraftResamplerConfig: IImageResamplerConfig;
     FGeoCoderList: IGeoCoderList;
     FMainMemCacheConfig: IMainMemCacheConfig;
@@ -222,7 +221,6 @@ type
 
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
-    property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
     property TileMatrixDraftResamplerConfig: IImageResamplerConfig read FTileMatrixDraftResamplerConfig;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
@@ -466,7 +464,6 @@ begin
   OnMainThreadConfigChange;
 
   VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
-  FImageResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
   FTileMatrixDraftResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
 
   FGPSConfig := TGPSConfig.Create(FGlobalConfig.TrackPath);
@@ -676,7 +673,6 @@ begin
   FViewConfig := nil;
   FMainFormConfig := nil;
   FLastSearchResultConfig := nil;
-  FImageResamplerConfig := nil;
   FTileMatrixDraftResamplerConfig := nil;
   FBitmapPostProcessingConfig := nil;
   FMainMemCacheConfig := nil;
@@ -908,7 +904,6 @@ begin
 
   if (not ModuleIsLib) then begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
-    FImageResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
     FTileMatrixDraftResamplerConfig.ReadConfig(MainConfigProvider.GetSubItem('View_TilesDrafts'));
     FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
     FMarkPictureList.ReadConfig(MainConfigProvider);
@@ -967,7 +962,6 @@ begin
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
-  FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FTileMatrixDraftResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View_TilesDrafts'));
   FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);

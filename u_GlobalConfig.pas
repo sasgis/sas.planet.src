@@ -211,6 +211,9 @@ begin
 
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ValueFormats'), False, False, False, False);
+
+  FImageResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;
