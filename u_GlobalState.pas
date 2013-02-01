@@ -169,7 +169,6 @@ type
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FLastSelectionSaver: IBackgroundTask;
-    FLastSearchResultConfig: ILastSearchResultConfig;
     FMainThreadConfigListener: IListener;
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -597,7 +596,6 @@ begin
       FVectorItemsFactory,
       VKmlLoader
     );
-  FLastSearchResultConfig := TLastSearchResultConfig.Create;
 
   InitProtocol;
 
@@ -641,7 +639,6 @@ begin
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
   FMainFormConfig := nil;
-  FLastSearchResultConfig := nil;
   FBitmapPostProcessingConfig := nil;
   FMarksCategoryFactoryConfig := nil;
   FMarkPictureList := nil;
@@ -718,7 +715,7 @@ begin
 
   VInternalDomainInfoProvider :=
     TInternalDomainInfoProviderByLastSearchResults.Create(
-      FLastSearchResultConfig,
+      FGlobalConfig.LastSearchResultConfig,
       VTextProivder,
       nil
     );
@@ -841,7 +838,7 @@ begin
       FLocalConverterFactory,
       FContentTypeManager,
       FGeoCoderList,
-      FLastSearchResultConfig,
+      FGlobalConfig.LastSearchResultConfig,
       FMainMapsList.MapsSet,
       FMainMapsList.LayersSet,
       FMainMapsList.FirstMainMapGUID,

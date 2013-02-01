@@ -24,6 +24,7 @@ uses
   i_ZmpConfig,
   i_WindowPositionConfig,
   i_GlobalConfig,
+  i_LastSearchResultConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataElementComplexBase;
@@ -68,6 +69,7 @@ type
     FStartUpLogoConfig: IStartUpLogoConfig;
     FTerrainConfig: ITerrainConfig;
     FZmpConfig: IZmpConfig;
+    FLastSearchResultConfig: ILastSearchResultConfig;
   private
     function GetBaseCahcePath: IPathConfig;
     function GetMapsPath: IPathConfig;
@@ -104,6 +106,7 @@ type
     function GetStartUpLogoConfig: IStartUpLogoConfig;
     function GetTerrainConfig: ITerrainConfig;
     function GetZmpConfig: IZmpConfig;
+    function GetLastSearchResultConfig: ILastSearchResultConfig;
   public
     constructor Create(
       const ABaseCacheDataPath: IPathConfig;
@@ -137,6 +140,7 @@ uses
   u_GlobalDownloadConfig,
   u_TerrainConfig,
   u_ZmpConfig,
+  u_LastSearchResultConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -244,6 +248,8 @@ begin
 
   FZmpConfig := TZmpConfig.Create;
   Add(FZmpConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ZmpDefaultParams'), False, False, False, False);
+
+  FLastSearchResultConfig := TLastSearchResultConfig.Create;
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;
@@ -309,6 +315,11 @@ end;
 function TGlobalConfig.GetLanguageManager: ILanguageManager;
 begin
   Result := FLanguageManager;
+end;
+
+function TGlobalConfig.GetLastSearchResultConfig: ILastSearchResultConfig;
+begin
+  Result := FLastSearchResultConfig;
 end;
 
 function TGlobalConfig.GetLastSelectionFileName: IPathConfig;

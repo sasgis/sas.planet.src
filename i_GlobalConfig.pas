@@ -23,6 +23,7 @@ uses
   i_WindowPositionConfig,
   i_TerrainConfig,
   i_ZmpConfig,
+  i_LastSearchResultConfig,
   i_ConfigDataElement;
 
 type
@@ -137,6 +138,9 @@ type
 
     function GetZmpConfig: IZmpConfig;
     property ZmpConfig: IZmpConfig read GetZmpConfig;
+
+    function GetLastSearchResultConfig: ILastSearchResultConfig;
+    property LastSearchResultConfig: ILastSearchResultConfig read GetLastSearchResultConfig;
   end;
 
 implementation
