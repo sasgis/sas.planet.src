@@ -132,6 +132,7 @@ uses
   u_ImageResamplerConfig,
   u_ValueToStringConverterConfig,
   u_MainMemCacheConfig,
+  u_GPSConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -221,6 +222,9 @@ begin
 
   FMainMemCacheConfig := TMainMemCacheConfig.Create;
   Add(FMainMemCacheConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
+
+  FGPSConfig := TGPSConfig.Create(FTrackPath);
+  Add(FGPSConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GPS'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

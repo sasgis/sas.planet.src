@@ -129,7 +129,6 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
-    FGPSConfig: IGPSConfig;
     FGPSPositionFactory: IGPSPositionFactory;
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
@@ -219,7 +218,6 @@ type
 
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
-    property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
@@ -285,7 +283,6 @@ uses
   u_StartUpLogoConfig,
   u_Datum,
   u_PLTSimpleParser,
-  u_GPSConfig,
   u_MarkCategoryFactoryConfig,
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
@@ -460,7 +457,6 @@ begin
 
   VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
 
-  FGPSConfig := TGPSConfig.Create(FGlobalConfig.TrackPath);
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorderInternal :=
     TGPSRecorder.Create(
@@ -552,7 +548,7 @@ begin
       FAppStartedNotifier,
       FAppClosingNotifier,
       TGPSModuleFactoryByVSAGPS.Create(FGPSPositionFactory),
-      FGPSConfig,
+      FGlobalConfig.GPSConfig,
       FGPSRecorderInternal,
       FGpsTrackRecorderInternal,
       GUISyncronizedTimerNotifier,
@@ -659,7 +655,6 @@ begin
   FContentTypeManager := nil;
   FMapCalibrationList := nil;
   FMarksDb := nil;
-  FGPSConfig := nil;
   FGPSRecorder := nil;
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
@@ -888,7 +883,6 @@ begin
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorderInternal.Load;
   FGpsTrackRecorderInternal.Load;
-  FGPSConfig.ReadConfig(MainConfigProvider.GetSubItem('GPS'));
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloaderThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
@@ -942,7 +936,6 @@ begin
 
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
-  FGPSConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('GPS'));
   FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloaderThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));

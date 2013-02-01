@@ -318,7 +318,7 @@ begin
       GState.SkyMapDraw,
       GState.MainFormConfig.GPSBehaviour,
       GState.MainFormConfig.LayersConfig.GPSTrackConfig,
-      GState.GPSConfig
+      GState.Config.GPSConfig
     );
   PageControl1.ActivePageIndex:=0;
 end;

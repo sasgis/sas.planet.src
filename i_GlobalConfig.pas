@@ -107,10 +107,10 @@ type
     function GetMainMemCacheConfig: IMainMemCacheConfig;
     property MainMemCacheConfig: IMainMemCacheConfig read GetMainMemCacheConfig;
 
-(*
     function GetGPSConfig: IGpsConfig;
     property GPSConfig: IGPSConfig read GetGpsConfig;
 
+(*
     function GetMarksFactoryConfig: IMarksFactoryConfig;
     property MarksFactoryConfig: IMarksFactoryConfig read GetMarksFactoryConfig;
 

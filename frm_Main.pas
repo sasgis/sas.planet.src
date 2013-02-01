@@ -4160,7 +4160,7 @@ end;
 
 procedure TfrmMain.TBGPSconnClick(Sender: TObject);
 begin
-  GState.GPSConfig.GPSEnabled := TTBXitem(Sender).Checked;
+  GState.Config.GPSConfig.GPSEnabled := TTBXitem(Sender).Checked;
 end;
 
 procedure TfrmMain.TBGPSPathClick(Sender: TObject);
