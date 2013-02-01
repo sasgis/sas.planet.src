@@ -101,10 +101,10 @@ type
     function GetImageResamplerConfig: IImageResamplerConfig;
     property ImageResamplerConfig: IImageResamplerConfig read GetImageResamplerConfig;
 
-(*
     function GetTileMatrixDraftResamplerConfig: IImageResamplerConfig;
     property TileMatrixDraftResamplerConfig: IImageResamplerConfig read GetTileMatrixDraftResamplerConfig;
 
+(*
     function GetMainMemCacheConfig: IMainMemCacheConfig;
     property MainMemCacheConfig: IMainMemCacheConfig read GetMainMemCacheConfig;
 

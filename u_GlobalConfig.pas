@@ -210,10 +210,13 @@ begin
   Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Download'), False, False, False, False);
 
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
-  Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ValueFormats'), False, False, False, False);
+  Add(FValueToStringConverterConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ValueFormats'), False, False, False, False);
 
   FImageResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
-  Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
+  Add(FImageResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
+
+  FTileMatrixDraftResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  Add(FTileMatrixDraftResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View_TilesDrafts'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;
