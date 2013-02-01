@@ -130,6 +130,7 @@ uses
   u_ThreadConfig,
   u_ImageResamplerFactoryListStaticSimple,
   u_ImageResamplerConfig,
+  u_ValueToStringConverterConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -207,6 +208,9 @@ begin
 
   FTileDownloadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
   Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Download'), False, False, False, False);
+
+  FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
+  Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ValueFormats'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

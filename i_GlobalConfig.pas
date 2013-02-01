@@ -94,10 +94,11 @@ type
 (*
     function GetBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read GetBitmapPostProcessingConfig;
-
+*)
     function GetValueToStringConverterConfig: IValueToStringConverterConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read GetValueToStringConverterConfig;
 
+(*
     function GetImageResamplerConfig: IImageResamplerConfig;
     property ImageResamplerConfig: IImageResamplerConfig read GetImageResamplerConfig;
 

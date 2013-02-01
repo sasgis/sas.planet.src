@@ -456,14 +456,14 @@ begin
    GState.CacheConfig.DefCache := 2;
  end;
  
-  GState.ValueToStringConverterConfig.LockWrite;
+  GState.Config.ValueToStringConverterConfig.LockWrite;
   try
-    GState.ValueToStringConverterConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
-    GState.ValueToStringConverterConfig.DegrShowFormat := TDegrShowFormat(CB_llstrType.ItemIndex);
-    GState.ValueToStringConverterConfig.DistStrFormat := TDistStrFormat(ComboBox1.ItemIndex);
-    GState.ValueToStringConverterConfig.AreaShowFormat := TAreaStrFormat(cbbAreaFormat.ItemIndex);
+    GState.Config.ValueToStringConverterConfig.IsLatitudeFirst := ChBoxFirstLat.Checked;
+    GState.Config.ValueToStringConverterConfig.DegrShowFormat := TDegrShowFormat(CB_llstrType.ItemIndex);
+    GState.Config.ValueToStringConverterConfig.DistStrFormat := TDistStrFormat(ComboBox1.ItemIndex);
+    GState.Config.ValueToStringConverterConfig.AreaShowFormat := TAreaStrFormat(cbbAreaFormat.ItemIndex);
   finally
-    GState.ValueToStringConverterConfig.UnlockWrite;
+    GState.Config.ValueToStringConverterConfig.UnlockWrite;
   end;
 
   GState.ImageResamplerConfig.ActiveIndex := cbbResizeMethod.ItemIndex;
@@ -812,14 +812,14 @@ begin
   InitResamplersList(GState.TileMatrixDraftResamplerConfig.GetList, cbbResizeTileMatrixDraft);
   cbbResizeTileMatrixDraft.ItemIndex := GState.TileMatrixDraftResamplerConfig.ActiveIndex;
 
-  GState.ValueToStringConverterConfig.LockRead;
+  GState.Config.ValueToStringConverterConfig.LockRead;
   try
-    ChBoxFirstLat.Checked:=GState.ValueToStringConverterConfig.IsLatitudeFirst;
-    CB_llstrType.ItemIndex:=byte(GState.ValueToStringConverterConfig.DegrShowFormat);
-    ComboBox1.ItemIndex := byte(GState.ValueToStringConverterConfig.DistStrFormat);
-    cbbAreaFormat.ItemIndex := byte(GState.ValueToStringConverterConfig.AreaShowFormat);
+    ChBoxFirstLat.Checked:=GState.Config.ValueToStringConverterConfig.IsLatitudeFirst;
+    CB_llstrType.ItemIndex:=byte(GState.Config.ValueToStringConverterConfig.DegrShowFormat);
+    ComboBox1.ItemIndex := byte(GState.Config.ValueToStringConverterConfig.DistStrFormat);
+    cbbAreaFormat.ItemIndex := byte(GState.Config.ValueToStringConverterConfig.AreaShowFormat);
   finally
-    GState.ValueToStringConverterConfig.UnlockRead;
+    GState.Config.ValueToStringConverterConfig.UnlockRead;
   end;
   GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockRead;
   try

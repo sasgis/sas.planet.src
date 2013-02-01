@@ -133,7 +133,6 @@ type
     FGPSPositionFactory: IGPSPositionFactory;
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloaderThreadConfig: IThreadConfig;
@@ -223,7 +222,6 @@ type
 
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
-    property ValueToStringConverterConfig: IValueToStringConverterConfig read FValueToStringConverterConfig;
     property ImageResamplerConfig: IImageResamplerConfig read FImageResamplerConfig;
     property TileMatrixDraftResamplerConfig: IImageResamplerConfig read FTileMatrixDraftResamplerConfig;
     property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
@@ -297,7 +295,6 @@ uses
   u_MarkCategoryFactoryConfig,
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
-  u_ValueToStringConverterConfig,
   u_GlobalAppConfig,
   u_MainMemCacheConfig,
   u_MarkPictureListSimple,
@@ -560,7 +557,6 @@ begin
       VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000)
     );
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create(FBitmapFactory);
-  FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FGlobalConfig.LanguageManager);
   FGpsSystem :=
     TGpsSystem.Create(
       FAppStartedNotifier,
@@ -577,7 +573,7 @@ begin
       FGlobalConfig.InetConfig,
       BGTimerNotifier,
       TDownloadResultFactory.Create,
-      FValueToStringConverterConfig
+      FGlobalConfig.ValueToStringConverterConfig
     );
   FMarkPictureList := TMarkPictureListSimple.Create(FGlobalConfig.MarksIconsPath, FContentTypeManager);
   FMarksFactoryConfig :=
@@ -683,7 +679,6 @@ begin
   FImageResamplerConfig := nil;
   FTileMatrixDraftResamplerConfig := nil;
   FBitmapPostProcessingConfig := nil;
-  FValueToStringConverterConfig := nil;
   FMainMemCacheConfig := nil;
   FMarksCategoryFactoryConfig := nil;
   FMarkPictureList := nil;
@@ -737,7 +732,7 @@ begin
   VTextProviderList.Duplicates := dupError;
   VTextProivder :=
     TTextByVectorItemMarkInfo.Create(
-      FValueToStringConverterConfig,
+      FGlobalConfig.ValueToStringConverterConfig,
       TDatum.Create(3395, 6378137, 6356752)
     );
 
@@ -901,7 +896,7 @@ begin
       FGPSRecorder,
       FGpsSystem,
       FBatteryStatus,
-      FValueToStringConverterConfig
+      FGlobalConfig.ValueToStringConverterConfig
     );
   FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorderInternal.Load;
@@ -910,7 +905,6 @@ begin
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloaderThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
-  FValueToStringConverterConfig.ReadConfig(MainConfigProvider.GetSubItem('ValueFormats'));
 
   if (not ModuleIsLib) then begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
@@ -971,7 +965,6 @@ begin
   FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
-  FValueToStringConverterConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ValueFormats'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FImageResamplerConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
