@@ -35,7 +35,10 @@ type
     function CreateZipReaderByName(const AFileName: string): IArchiveReader;
     function CreateZipReaderByStream(const AStream: TStream): IArchiveReader;
     // Zip writer
-    function CreateZipWriterByName(const AFileName: string): IArchiveWriter;
+    function CreateZipWriterByName(
+      const AFileName: string;
+      const AAllowOpenExisting: Boolean
+    ): IArchiveWriter;
     function CreateZipWriterByStream(const AStream: TStream): IArchiveWriter;
     // Tar reader
     function CreateTarReaderByName(const AFileName: string): IArchiveReader;
@@ -91,10 +94,11 @@ begin
 end;
 
 function TArchiveReadWriteFactory.CreateZipWriterByName(
-  const AFileName: string
+  const AFileName: string;
+  const AAllowOpenExisting: Boolean
 ): IArchiveWriter;
 begin
-  Result := TArchiveWriteByKaZip.Create(AFileName);
+  Result := TArchiveWriteByKaZip.Create(AFileName, AAllowOpenExisting);
 end;
 
 function TArchiveReadWriteFactory.CreateZipWriterByStream(

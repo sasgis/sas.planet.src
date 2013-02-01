@@ -32,7 +32,10 @@ type
     function CreateZipReaderByName(const AFileName: string): IArchiveReader;
     function CreateZipReaderByStream(const AStream: TStream): IArchiveReader;
 
-    function CreateZipWriterByName(const AFileName: string): IArchiveWriter;
+    function CreateZipWriterByName(
+      const AFileName: string;
+      const AAllowOpenExisting: Boolean
+    ): IArchiveWriter;
     function CreateZipWriterByStream(const AStream: TStream): IArchiveWriter;
 
     function CreateTarReaderByName(const AFileName: string): IArchiveReader;

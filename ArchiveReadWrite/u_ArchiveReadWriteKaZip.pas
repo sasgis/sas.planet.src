@@ -58,7 +58,7 @@ type
       const AFileDate: TDateTime
     ): Integer;
   public
-    constructor Create(const AFileName: string); overload;
+    constructor Create(const AFileName: string; const AAllowOpenExisting: Boolean); overload;
     constructor Create(const AStream: TStream); overload;
     destructor Destroy; override;
   end;
@@ -138,14 +138,23 @@ end;
 
 { TArchiveWriteByKaZip }
 
-constructor TArchiveWriteByKaZip.Create(const AFileName: string);
+constructor TArchiveWriteByKaZip.Create(
+  const AFileName: string;
+  const AAllowOpenExisting: Boolean
+);
 begin
   inherited Create;
   FIsFromFileName := True;
   FZip := TKAZip.Create(nil);
   FZip.FileName := AFileName;
-  FZip.CreateZip(AFileName);
-  FZip.CompressionType := ctFast;
+
+  if AAllowOpenExisting and FileExists(AFileName) then begin
+    FZip.Open(AFileName);
+  end else begin
+    FZip.CreateZip(AFileName);
+    FZip.CompressionType := ctFast;
+  end;
+  
   FZip.Active := True;
 end;
 
