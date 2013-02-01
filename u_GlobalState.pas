@@ -143,7 +143,6 @@ type
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     FGpsSystem: IGPSModule;
     FImportFileByExt: IImportFile;
-    FViewConfig: IGlobalViewMainConfig;
     FGPSRecorder: IGPSRecorder;
     FGPSRecorderInternal: IGPSRecorderInternal;
     FGpsTrackRecorder: IGpsTrackRecorder;
@@ -219,7 +218,6 @@ type
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
-    property ViewConfig: IGlobalViewMainConfig read FViewConfig;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
@@ -472,7 +470,6 @@ begin
       FGlobalConfig.GpsTrackRecorderFileName
     );
   FGpsTrackRecorder := FGpsTrackRecorderInternal;
-  FViewConfig := TGlobalViewMainConfig.Create;
 
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FTileNameParser := TTileFileNameParsersSimpleList.Create;
@@ -658,7 +655,6 @@ begin
   FGPSRecorder := nil;
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
-  FViewConfig := nil;
   FMainFormConfig := nil;
   FLastSearchResultConfig := nil;
   FBitmapPostProcessingConfig := nil;
@@ -880,7 +876,6 @@ begin
       FBatteryStatus,
       FGlobalConfig.ValueToStringConverterConfig
     );
-  FViewConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
   FGPSRecorderInternal.Load;
   FGpsTrackRecorderInternal.Load;
   FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
@@ -939,7 +934,6 @@ begin
   FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloaderThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
-  FViewConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FMainFormConfig.WriteConfig(MainConfigProvider);

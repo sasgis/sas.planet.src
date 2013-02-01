@@ -133,6 +133,7 @@ uses
   u_ValueToStringConverterConfig,
   u_MainMemCacheConfig,
   u_GPSConfig,
+  u_GlobalViewMainConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -225,6 +226,9 @@ begin
 
   FGPSConfig := TGPSConfig.Create(FTrackPath);
   Add(FGPSConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GPS'), False, False, False, False);
+
+  FViewConfig := TGlobalViewMainConfig.Create;
+  Add(FViewConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

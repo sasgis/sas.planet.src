@@ -873,7 +873,7 @@ begin
       GState.MapType.GUIConfigList,
       GState.CoordConverterFactory,
       GState.TileNameGenerator,
-      GState.ViewConfig,
+      GState.Config.ViewConfig,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       GState.Config.ImageResamplerConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
@@ -1206,7 +1206,7 @@ begin
     );
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
-      GState.ViewConfig.GetChangeNotifier
+      GState.Config.ViewConfig.GetChangeNotifier
     );
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
@@ -2621,7 +2621,7 @@ var
 begin
   Nbackload.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtMap;
   NbackloadLayer.Checked := FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig.UsePrevZoomAtLayer;
-  map.Color := GState.ViewConfig.BackGroundColor;
+  map.Color := GState.Config.ViewConfig.BackGroundColor;
 
   NGoToCur.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
   Ninvertcolor.Checked:=GState.BitmapPostProcessingConfig.InvertColor;

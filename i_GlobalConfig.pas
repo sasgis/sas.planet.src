@@ -116,10 +116,12 @@ type
 
     function GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read GetMarksCategoryFactoryConfig;
+*)
 
     function GetViewConfig: IGlobalViewMainConfig;
     property ViewConfig: IGlobalViewMainConfig read GetViewConfig;
 
+(*
     function GetDownloadConfig: IGlobalDownloadConfig;
     property DownloadConfig: IGlobalDownloadConfig read GetDownloadConfig;
 

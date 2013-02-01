@@ -403,7 +403,7 @@ begin
     GState.DownloadConfig.UnlockWrite;
   end;
 
- GState.ViewConfig.BackGroundColor := ColorBoxBackGround.Selected;
+ GState.Config.ViewConfig.BackGroundColor := ColorBoxBackGround.Selected;
  GState.Config.GsmConfig.LockWrite;
  try
    GState.Config.GsmConfig.SetUseGSMByCOM(chkPosFromGSM.Checked);
