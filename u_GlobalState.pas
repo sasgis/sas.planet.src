@@ -139,7 +139,6 @@ type
     FGlobalInternetState: IGlobalInternetState;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FGeoCoderList: IGeoCoderList;
-    FMainMemCacheConfig: IMainMemCacheConfig;
     FMarkPictureList: IMarkPictureList;
     FMarksFactoryConfig: IMarksFactoryConfig;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
@@ -220,7 +219,6 @@ type
 
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
-    property MainMemCacheConfig: IMainMemCacheConfig read FMainMemCacheConfig;
     property GPSConfig: IGPSConfig read FGPSConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
     property ViewConfig: IGlobalViewMainConfig read FViewConfig;
@@ -292,7 +290,6 @@ uses
   u_GeoCoderListSimple,
   u_BitmapPostProcessingConfig,
   u_GlobalAppConfig,
-  u_MainMemCacheConfig,
   u_MarkPictureListSimple,
   u_MarksFactoryConfig,
   u_ImageResamplerConfig,
@@ -479,7 +476,6 @@ begin
       FGlobalConfig.GpsTrackRecorderFileName
     );
   FGpsTrackRecorder := FGpsTrackRecorderInternal;
-  FMainMemCacheConfig := TMainMemCacheConfig.Create;
   FViewConfig := TGlobalViewMainConfig.Create;
 
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
@@ -671,7 +667,6 @@ begin
   FMainFormConfig := nil;
   FLastSearchResultConfig := nil;
   FBitmapPostProcessingConfig := nil;
-  FMainMemCacheConfig := nil;
   FMarksCategoryFactoryConfig := nil;
   FMarkPictureList := nil;
   FSkyMapDraw := nil;
@@ -851,7 +846,7 @@ begin
 
   FMainMapsList.LoadMaps(
     FGlobalConfig.LanguageManager,
-    FMainMemCacheConfig,
+    FGlobalConfig.MainMemCacheConfig,
     FCacheConfig,
     FGlobalBerkeleyDBHelper,
     FTileNameGenerator,
@@ -900,7 +895,6 @@ begin
 
   if (not ModuleIsLib) then begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
-    FMainMemCacheConfig.ReadConfig(MainConfigProvider.GetSubItem('View'));
     FMarkPictureList.ReadConfig(MainConfigProvider);
     FMarksFactoryConfig.ReadConfig(MainConfigProvider);
     FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
@@ -957,7 +951,6 @@ begin
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
-  FMainMemCacheConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('View'));
   FMarkPictureList.WriteConfig(MainConfigProvider);
   FMarksFactoryConfig.WriteConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));

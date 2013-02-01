@@ -131,6 +131,7 @@ uses
   u_ImageResamplerFactoryListStaticSimple,
   u_ImageResamplerConfig,
   u_ValueToStringConverterConfig,
+  u_MainMemCacheConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -217,6 +218,9 @@ begin
 
   FTileMatrixDraftResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
   Add(FTileMatrixDraftResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View_TilesDrafts'), False, False, False, False);
+
+  FMainMemCacheConfig := TMainMemCacheConfig.Create;
+  Add(FMainMemCacheConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

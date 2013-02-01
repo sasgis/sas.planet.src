@@ -414,7 +414,7 @@ begin
    GState.Config.GsmConfig.UnlockWrite;
  end;
   GState.Config.GlobalAppConfig.IsShowIconInTray := CBMinimizeToTray.Checked;
-  GState.MainMemCacheConfig.MaxSize := SETilesOCache.value;
+  GState.Config.MainMemCacheConfig.MaxSize := SETilesOCache.value;
 
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
@@ -711,7 +711,7 @@ begin
   finally
     VInetConfig.UnlockRead;
   end;
-  SETilesOCache.Value := GState.MainMemCacheConfig.MaxSize;
+  SETilesOCache.Value := GState.Config.MainMemCacheConfig.MaxSize;
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.LockRead;
   try
     MapZapColorBox.Selected := WinColor(GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor);

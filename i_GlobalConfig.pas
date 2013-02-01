@@ -104,10 +104,10 @@ type
     function GetTileMatrixDraftResamplerConfig: IImageResamplerConfig;
     property TileMatrixDraftResamplerConfig: IImageResamplerConfig read GetTileMatrixDraftResamplerConfig;
 
-(*
     function GetMainMemCacheConfig: IMainMemCacheConfig;
     property MainMemCacheConfig: IMainMemCacheConfig read GetMainMemCacheConfig;
 
+(*
     function GetGPSConfig: IGpsConfig;
     property GPSConfig: IGPSConfig read GetGpsConfig;
 
