@@ -136,6 +136,7 @@ uses
   u_GlobalViewMainConfig,
   u_GlobalDownloadConfig,
   u_TerrainConfig,
+  u_ZmpConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -240,6 +241,9 @@ begin
 
   FTerrainConfig := TTerrainConfig.Create;
   Add(FTerrainConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Terrain'), False, False, False, False);
+
+  FZmpConfig := TZmpConfig.Create;
+  Add(FZmpConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ZmpDefaultParams'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

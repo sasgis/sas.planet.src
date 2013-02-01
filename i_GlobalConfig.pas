@@ -135,10 +135,8 @@ type
     function GetTerrainConfig: ITerrainConfig;
     property TerrainConfig: ITerrainConfig read GetTerrainConfig;
 
-(*
     function GetZmpConfig: IZmpConfig;
     property ZmpConfig: IZmpConfig read GetZmpConfig;
-*)
   end;
 
 implementation

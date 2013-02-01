@@ -112,7 +112,6 @@ type
     FBaseApplicationPath: IPathConfig;
 
     FMainConfigProvider: IConfigDataWriteProvider;
-    FZmpConfig: IZmpConfig;
     FZmpInfoSet: IZmpInfoSet;
     FResourceProvider: IConfigDataProvider;
     FStartUpLogoConfig: IStartUpLogoConfig;
@@ -300,7 +299,6 @@ uses
   u_PathConfig,
   u_ThreadConfig,
   u_BatteryStatus,
-  u_ZmpConfig,
   u_ZmpInfoSet,
   u_ZmpFileNamesIteratorFactory,
   u_SensorListStuped,
@@ -568,11 +566,9 @@ begin
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
   VFilesIterator := VFilesIteratorFactory.CreateIterator(FGlobalConfig.MapsPath.FullPath, '');
-  FZmpConfig := TZmpConfig.Create;
-  FZmpConfig.ReadConfig(FMainConfigProvider.GetSubItem('ZmpDefaultParams'));
   FZmpInfoSet :=
     TZmpInfoSet.Create(
-      FZmpConfig,
+      FGlobalConfig.ZmpConfig,
       FCoordConverterFactory,
       FArchiveReadWriteFactory,
       FContentTypeManager,
@@ -915,7 +911,6 @@ begin
 
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
-  FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
