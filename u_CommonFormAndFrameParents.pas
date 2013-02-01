@@ -43,6 +43,8 @@ type
     procedure OnLangChange;
   protected
     procedure RefreshTranslation; virtual;
+  protected
+    property LanguageManager: ILanguageManager read FLanguageManager;
   public
     constructor Create(const ALanguageManager: ILanguageManager); reintroduce;
     destructor Destroy; override;
