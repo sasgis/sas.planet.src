@@ -133,7 +133,6 @@ type
     FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     FDownloadInfo: IDownloadInfoSimple;
-    FDownloadConfig: IGlobalDownloadConfig;
     FDownloaderThreadConfig: IThreadConfig;
     FGlobalInternetState: IGlobalInternetState;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -222,7 +221,6 @@ type
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
     property SensorList: ISensorList read FSensorList;
-    property DownloadConfig: IGlobalDownloadConfig read FDownloadConfig;
     property DownloaderThreadConfig: IThreadConfig read FDownloaderThreadConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
@@ -291,7 +289,6 @@ uses
   u_ImageResamplerFactoryListStaticSimple,
   u_ImportByFileExt,
   u_GlobalViewMainConfig,
-  u_GlobalDownloadConfig,
   u_GlobalBerkeleyDBHelper,
   u_GPSRecorder,
   u_GpsTrackRecorder,
@@ -447,7 +444,6 @@ begin
   FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FGlobalConfig.TerrainDataPath, FCacheConfig);
   FTerrainConfig := TTerrainConfig.Create;
 
-  FDownloadConfig := TGlobalDownloadConfig.Create;
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
   FMainThreadConfigListener := TNotifyEventListenerSync.Create(FGUISyncronizedTimerNotifier, 1000, Self.OnMainThreadConfigChange);
   FGlobalConfig.MainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
@@ -845,7 +841,7 @@ begin
     FBGTimerNotifier,
     FAppClosingNotifier,
     FGlobalConfig.InetConfig,
-    FDownloadConfig,
+    FGlobalConfig.DownloadConfig,
     FDownloaderThreadConfig,
     FBitmapFactory,
     FContentTypeManager,
@@ -878,7 +874,6 @@ begin
     );
   FGPSRecorderInternal.Load;
   FGpsTrackRecorderInternal.Load;
-  FDownloadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FDownloaderThreadConfig.ReadConfig(MainConfigProvider.GetSubItem('Internet'));
   FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
 
@@ -931,7 +926,6 @@ begin
 
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
-  FDownloadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FDownloaderThreadConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Internet'));
   FZmpConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('ZmpDefaultParams'));
   FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));

@@ -888,7 +888,7 @@ begin
       GState.BitmapTileSaveLoadFactory,
       GState.ArchiveReadWriteFactory,
       GState.MapCalibrationList,
-      GState.DownloadConfig,
+      GState.Config.DownloadConfig,
       GState.DownloadInfo,
       GState.Config.ValueToStringConverterConfig,
       FMapGoto,

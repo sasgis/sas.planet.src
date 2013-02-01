@@ -121,10 +121,10 @@ type
     function GetViewConfig: IGlobalViewMainConfig;
     property ViewConfig: IGlobalViewMainConfig read GetViewConfig;
 
-(*
     function GetDownloadConfig: IGlobalDownloadConfig;
     property DownloadConfig: IGlobalDownloadConfig read GetDownloadConfig;
 
+(*
     function GetDownloaderThreadConfig: IThreadConfig;
     property DownloaderThreadConfig: IThreadConfig read GetDownloaderThreadConfig;
 

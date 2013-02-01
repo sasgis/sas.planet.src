@@ -134,6 +134,7 @@ uses
   u_MainMemCacheConfig,
   u_GPSConfig,
   u_GlobalViewMainConfig,
+  u_GlobalDownloadConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -229,6 +230,9 @@ begin
 
   FViewConfig := TGlobalViewMainConfig.Create;
   Add(FViewConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
+
+  FDownloadConfig := TGlobalDownloadConfig.Create;
+  Add(FDownloadConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Internet'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

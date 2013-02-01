@@ -394,13 +394,13 @@ begin
 
   GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
-  GState.DownloadConfig.LockWrite;
+  GState.Config.DownloadConfig.LockWrite;
   try
-    GState.DownloadConfig.IsUseSessionLastSuccess := CBLastSuccess.Checked;
-    GState.DownloadConfig.IsGoNextTileIfDownloadError := CkBGoNextTile.Checked;
-    GState.DownloadConfig.IsSaveTileNotExists := CBSaveTileNotExists.Checked;
+    GState.Config.DownloadConfig.IsUseSessionLastSuccess := CBLastSuccess.Checked;
+    GState.Config.DownloadConfig.IsGoNextTileIfDownloadError := CkBGoNextTile.Checked;
+    GState.Config.DownloadConfig.IsSaveTileNotExists := CBSaveTileNotExists.Checked;
   finally
-    GState.DownloadConfig.UnlockWrite;
+    GState.Config.DownloadConfig.UnlockWrite;
   end;
 
  GState.Config.ViewConfig.BackGroundColor := ColorBoxBackGround.Selected;
@@ -677,16 +677,16 @@ begin
 
   MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 
-  GState.DownloadConfig.LockRead;
+  GState.Config.DownloadConfig.LockRead;
   try
-    CBLastSuccess.Checked:=GState.DownloadConfig.IsUseSessionLastSuccess;
-    CkBGoNextTile.Checked:=GState.DownloadConfig.IsGoNextTileIfDownloadError;
-    CBSaveTileNotExists.Checked:=GState.DownloadConfig.IsSaveTileNotExists;
+    CBLastSuccess.Checked:=GState.Config.DownloadConfig.IsUseSessionLastSuccess;
+    CkBGoNextTile.Checked:=GState.Config.DownloadConfig.IsGoNextTileIfDownloadError;
+    CBSaveTileNotExists.Checked:=GState.Config.DownloadConfig.IsSaveTileNotExists;
   finally
-    GState.DownloadConfig.UnlockRead;
+    GState.Config.DownloadConfig.UnlockRead;
   end;
 
- ColorBoxBackGround.Selected:=GState.ViewConfig.BackGroundColor;
+ ColorBoxBackGround.Selected:=GState.Config.ViewConfig.BackGroundColor;
   GState.Config.GsmConfig.LockRead;
   try
     chkPosFromGSM.Checked := GState.Config.GsmConfig.GetUseGSMByCOM;
