@@ -233,6 +233,9 @@ begin
 
   FDownloadConfig := TGlobalDownloadConfig.Create;
   Add(FDownloadConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Internet'), False, False, False, False);
+
+  FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
+  Add(FDownloaderThreadConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Internet'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

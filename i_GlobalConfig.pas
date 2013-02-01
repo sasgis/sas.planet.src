@@ -124,10 +124,10 @@ type
     function GetDownloadConfig: IGlobalDownloadConfig;
     property DownloadConfig: IGlobalDownloadConfig read GetDownloadConfig;
 
-(*
     function GetDownloaderThreadConfig: IThreadConfig;
     property DownloaderThreadConfig: IThreadConfig read GetDownloaderThreadConfig;
 
+(*
     function GetStartUpLogoConfig: IStartUpLogoConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read GetStartUpLogoConfig;
 

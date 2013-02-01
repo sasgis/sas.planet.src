@@ -3542,7 +3542,7 @@ begin
           (MessageBox(handle,pchar(Format(SAS_MSG_TileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES))
       then begin
         TTileDownloaderUIOneTile.Create(
-          GState.DownloaderThreadConfig,
+          GState.Config.DownloaderThreadConfig,
           GState.AppClosingNotifier,
           VTile,
           VZoomCurr,
@@ -4851,7 +4851,7 @@ begin
         end;
         if HiWord(GetKeyState(VK_INSERT))<>0 then begin
           TTileDownloaderUIOneTile.Create(
-            GState.DownloaderThreadConfig,
+            GState.Config.DownloaderThreadConfig,
             GState.AppClosingNotifier,
             VTile,
             VZoomCurr,
