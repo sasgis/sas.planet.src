@@ -34,7 +34,7 @@ type
 
     function CreateZipWriterByName(
       const AFileName: string;
-      const AAllowOpenExisting: Boolean
+      const AAllowOpenExisting: Boolean = FALSE
     ): IArchiveWriter;
     function CreateZipWriterByStream(const AStream: TStream): IArchiveWriter;
 
