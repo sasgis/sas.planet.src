@@ -130,10 +130,12 @@ type
 (*
     function GetStartUpLogoConfig: IStartUpLogoConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read GetStartUpLogoConfig;
+*)
 
     function GetTerrainConfig: ITerrainConfig;
     property TerrainConfig: ITerrainConfig read GetTerrainConfig;
 
+(*
     function GetZmpConfig: IZmpConfig;
     property ZmpConfig: IZmpConfig read GetZmpConfig;
 *)

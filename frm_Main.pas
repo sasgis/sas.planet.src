@@ -923,7 +923,7 @@ begin
     GState.Config.LanguageManager,
     FConfig.LayersConfig.ScaleLineConfig,
     FConfig.LayersConfig.StatBar,
-    GState.TerrainConfig,
+    GState.Config.TerrainConfig,
     GState.TerrainProviderList
   );
 
@@ -1892,7 +1892,7 @@ begin
       FMouseState,
       GState.GUISyncronizedTimerNotifier,
       GState.TerrainProviderList,
-      GState.TerrainConfig,
+      GState.Config.TerrainConfig,
       GState.DownloadInfo,
       GState.GlobalInternetState,
       Self.tbitmOnInterfaceOptionsClick,

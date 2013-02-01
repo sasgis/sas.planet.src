@@ -167,7 +167,6 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
-    FTerrainConfig: ITerrainConfig;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FLastSelectionSaver: IBackgroundTask;
@@ -228,7 +227,6 @@ type
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
-    property TerrainConfig: ITerrainConfig read FTerrainConfig;
     property GlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper read FGlobalBerkeleyDBHelper;
 
     constructor Create;
@@ -296,7 +294,6 @@ uses
   u_ProjectionInfoFactory,
   u_LocalCoordConverterFactorySimpe,
   u_TerrainProviderList,
-  u_TerrainConfig,
   u_MainFormConfig,
   u_LastSearchResultConfig,
   u_ProjConverterFactory,
@@ -440,7 +437,6 @@ begin
   FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FCacheConfig.BDBCachePath);
 
   FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FGlobalConfig.TerrainDataPath, FCacheConfig);
-  FTerrainConfig := TTerrainConfig.Create;
 
   FMainThreadConfigListener := TNotifyEventListenerSync.Create(FGUISyncronizedTimerNotifier, 1000, Self.OnMainThreadConfigChange);
   FGlobalConfig.MainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
@@ -662,7 +658,6 @@ begin
   FArchiveReadWriteFactory := nil;
   FBitmapTileSaveLoadFactory := nil;
   FTerrainProviderList := nil;
-  FTerrainConfig := nil;
   FProjConverterFactory := nil;
   FGlobalBerkeleyDBHelper := nil;
   FreeAndNil(FCacheConfig);
@@ -826,8 +821,6 @@ begin
 
   FCacheConfig.LoadConfig(FMainConfigProvider);
 
-  FTerrainConfig.ReadConfig(MainConfigProvider.GetSubItem('Terrain'));
-
   FMainMapsList.LoadMaps(
     FGlobalConfig.LanguageManager,
     FGlobalConfig.MainMemCacheConfig,
@@ -931,7 +924,6 @@ begin
   FMarksFactoryConfig.WriteConfig(MainConfigProvider);
   FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
-  FTerrainConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('Terrain'));
   FGlobalConfig.WriteConfig(MainConfigProvider);
 end;
 

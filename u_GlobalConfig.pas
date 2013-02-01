@@ -135,6 +135,7 @@ uses
   u_GPSConfig,
   u_GlobalViewMainConfig,
   u_GlobalDownloadConfig,
+  u_TerrainConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -236,6 +237,9 @@ begin
 
   FDownloaderThreadConfig := TThreadConfig.Create(tpLower);
   Add(FDownloaderThreadConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Internet'), False, False, False, False);
+
+  FTerrainConfig := TTerrainConfig.Create;
+  Add(FTerrainConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Terrain'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;
