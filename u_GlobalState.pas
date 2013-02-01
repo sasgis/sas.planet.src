@@ -114,7 +114,6 @@ type
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpInfoSet: IZmpInfoSet;
     FResourceProvider: IConfigDataProvider;
-    FStartUpLogoConfig: IStartUpLogoConfig;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FTileNameParser: ITileFileNameParsersList;
     FGCThread: TGarbageCollectorThread;
@@ -217,7 +216,6 @@ type
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
     property SensorList: ISensorList read FSensorList;
-    property StartUpLogoConfig: IStartUpLogoConfig read FStartUpLogoConfig;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorItemsFactory: IVectorItemsFactory read FVectorItemsFactory;
@@ -467,11 +465,6 @@ begin
       FArchiveReadWriteFactory,
       FPerfCounterList
     );
-
-  if (not ModuleIsLib) then begin
-    FStartUpLogoConfig := TStartUpLogoConfig.Create(FContentTypeManager);
-    FStartUpLogoConfig.ReadConfig(FMainConfigProvider.GetSubItem('StartUpLogo'));
-  end;
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
   VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
@@ -908,7 +901,6 @@ begin
 
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
-  FStartUpLogoConfig.WriteConfig(FMainConfigProvider.GetOrCreateSubItem('StartUpLogo'));
   FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);

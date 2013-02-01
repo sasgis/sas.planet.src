@@ -128,10 +128,8 @@ type
     function GetDownloaderThreadConfig: IThreadConfig;
     property DownloaderThreadConfig: IThreadConfig read GetDownloaderThreadConfig;
 
-(*
     function GetStartUpLogoConfig: IStartUpLogoConfig;
     property StartUpLogoConfig: IStartUpLogoConfig read GetStartUpLogoConfig;
-*)
 
     function GetTerrainConfig: ITerrainConfig;
     property TerrainConfig: ITerrainConfig read GetTerrainConfig;

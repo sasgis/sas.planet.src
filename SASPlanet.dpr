@@ -1052,7 +1052,12 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskBar := True;
     Application.Title := SAS_STR_ApplicationTitle;
-    TfrmStartLogo.ShowLogo(GState.Config.LanguageManager, GState.StartUpLogoConfig);
+    TfrmStartLogo.ShowLogo(
+      GState.Config.LanguageManager,
+      GState.ContentTypeManager,
+      GState.MainConfigProvider,
+      GState.Config.StartUpLogoConfig
+    );
     try
       GState.LoadConfig;
     except

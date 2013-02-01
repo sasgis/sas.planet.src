@@ -141,6 +141,7 @@ uses
   u_TerrainConfig,
   u_ZmpConfig,
   u_LastSearchResultConfig,
+  u_StartUpLogoConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -250,6 +251,9 @@ begin
   Add(FZmpConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ZmpDefaultParams'), False, False, False, False);
 
   FLastSearchResultConfig := TLastSearchResultConfig.Create;
+
+  FStartUpLogoConfig := TStartUpLogoConfig.Create;
+  Add(FStartUpLogoConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('StartUpLogo'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

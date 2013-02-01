@@ -23,53 +23,33 @@ unit u_StartUpLogoConfig;
 interface
 
 uses
-  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ContentTypeManager,
   i_StartUpLogoConfig,
   u_ConfigDataElementBase;
 
 type
   TStartUpLogoConfig = class(TConfigDataElementBase, IStartUpLogoConfig)
   private
-    FContentTypeManager: IContentTypeManager;
-
     FIsShowLogo: Boolean;
-
-    FLogoFileName: string;
-    FLogo: IBitmap32Static;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetIsShowLogo: Boolean;
     procedure SetIsShowLogo(AValue: Boolean);
-
-    function GetLogo: IBitmap32Static;
   public
-    constructor Create(
-      const AContentTypeManager: IContentTypeManager
-    );
+    constructor Create;
   end;
 
 implementation
 
-uses
-  u_ConfigProviderHelpers;
-
 { TGlobalAppConfig }
 
-constructor TStartUpLogoConfig.Create(
-  const AContentTypeManager: IContentTypeManager
-);
+constructor TStartUpLogoConfig.Create;
 begin
   inherited Create;
-  FContentTypeManager := AContentTypeManager;
-
   FIsShowLogo := True;
-  FLogo := nil;
-  FLogoFileName := 'sas:\Resource\LOGOI.jpg';
 end;
 
 procedure TStartUpLogoConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -77,9 +57,6 @@ begin
   inherited;
   if AConfigData <> nil then begin
     FIsShowLogo := AConfigData.ReadBool('ShowLogo', FIsShowLogo);
-
-    FLogo := ReadBitmapByFileRef(AConfigData, FLogoFileName, FContentTypeManager, FLogo);
-
     SetChanged;
   end;
 end;
@@ -95,16 +72,6 @@ begin
   LockRead;
   try
     Result := FIsShowLogo;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TStartUpLogoConfig.GetLogo: IBitmap32Static;
-begin
-  LockRead;
-  try
-    Result := FLogo;
   finally
     UnlockRead;
   end;

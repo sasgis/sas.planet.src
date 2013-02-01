@@ -30,6 +30,8 @@ uses
   StdCtrls,
   GR32_Image,
   i_LanguageManager,
+  i_ContentTypeManager,
+  i_ConfigDataProvider,
   i_StartUpLogoConfig,
   u_CommonFormAndFrameParents;
 
@@ -45,16 +47,20 @@ type
     procedure imgLogoClick(Sender: TObject);
   private
     FReadyToHide: Boolean;
-    FConfig: IStartUpLogoConfig;
+    FContentTypeManager: IContentTypeManager;
+    FConfigData: IConfigDataProvider;
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AConfig: IStartUpLogoConfig
+      const AContentTypeManager: IContentTypeManager;
+      const AConfigData: IConfigDataProvider
     ); reintroduce;
   public
     destructor Destroy; override;
 
     class procedure ShowLogo(
       const ALanguageManager: ILanguageManager;
+      const AContentTypeManager: IContentTypeManager;
+      const AConfigData: IConfigDataProvider;
       const AConfig: IStartUpLogoConfig
     );
     class procedure ReadyToHideLogo;
@@ -67,6 +73,7 @@ uses
   Types,
   c_SasVersion,
   i_Bitmap32Static,
+  u_ConfigProviderHelpers,
   u_BitmapFunc;
 
 var
@@ -76,11 +83,13 @@ var
 
 constructor TfrmStartLogo.Create(
   const ALanguageManager: ILanguageManager;
-  const AConfig: IStartUpLogoConfig
+  const AContentTypeManager: IContentTypeManager;
+  const AConfigData: IConfigDataProvider
 );
 begin
   inherited Create(ALanguageManager);
-  FConfig := AConfig;
+  FContentTypeManager := AContentTypeManager;
+  FConfigData := AConfigData;
 end;
 
 destructor TfrmStartLogo.Destroy;
@@ -99,7 +108,7 @@ var
   VBitmapSize: TPoint;
   VBitmapStatic: IBitmap32Static;
 begin
-  VBitmapStatic := FConfig.Logo;
+  VBitmapStatic := ReadBitmapByFileRef(FConfigData, 'sas:\Resource\LOGOI.jpg', FContentTypeManager, nil);
   if VBitmapStatic <> nil then begin
     AssignStaticToBitmap32(imgLogo.Bitmap, VBitmapStatic);
   end;
@@ -141,11 +150,13 @@ end;
 
 class procedure TfrmStartLogo.ShowLogo(
   const ALanguageManager: ILanguageManager;
+  const AContentTypeManager: IContentTypeManager;
+  const AConfigData: IConfigDataProvider;
   const AConfig: IStartUpLogoConfig
 );
 begin
   if AConfig.IsShowLogo then begin
-    frmStartLogo := TfrmStartLogo.Create(ALanguageManager, AConfig);
+    frmStartLogo := TfrmStartLogo.Create(ALanguageManager, AContentTypeManager, AConfigData);
     frmStartLogo.Show;
     Application.ProcessMessages;
   end;
