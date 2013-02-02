@@ -90,7 +90,6 @@ uses
   SysUtils,
   Classes,
   IniFiles,
-  i_BinaryData,
   u_GeoFun,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,

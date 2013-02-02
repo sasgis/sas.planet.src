@@ -25,8 +25,6 @@ uses
   i_WindowPositionConfig,
   i_GlobalConfig,
   i_LastSearchResultConfig,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   u_ConfigDataElementComplexBase;
 
 type

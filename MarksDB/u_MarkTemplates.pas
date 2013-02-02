@@ -25,7 +25,6 @@ interface
 uses
   GR32,
   i_MarkTemplate,
-  i_MarkPicture,
   i_MarkNameGenerator,
   u_BaseInterfacedObject;
 

@@ -23,11 +23,8 @@ unit u_LastSelectionInfo;
 interface
 
 uses
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_LastSelectionInfo,
   i_VectorItemLonLat,
-  i_VectorItemsFactory,
   u_ConfigDataElementBase;
 
 type
@@ -49,9 +46,6 @@ type
   end;
 
 implementation
-
-uses
-  u_ConfigProviderHelpers;
 
 { TLastSelectionInfo }
 

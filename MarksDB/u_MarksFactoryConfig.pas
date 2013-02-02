@@ -24,7 +24,6 @@ interface
 
 uses
   i_LanguageManager,
-  i_MarkPicture,
   i_MarksFactoryConfig,
   u_ConfigDataElementComplexBase;
 

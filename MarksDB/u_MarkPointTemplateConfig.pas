@@ -27,7 +27,6 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
-  i_MarkPicture,
   i_MarkTemplate,
   i_MarkCategory,
   i_MarksFactoryConfig,

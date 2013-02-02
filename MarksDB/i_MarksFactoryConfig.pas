@@ -25,7 +25,6 @@ interface
 uses
   GR32,
   i_ConfigDataElement,
-  i_MarkPicture,
   i_MarkCategory,
   i_MarkNameGenerator,
   i_MarkTemplate;

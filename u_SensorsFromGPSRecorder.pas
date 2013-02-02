@@ -153,7 +153,6 @@ implementation
 
 uses
   SysUtils,
-  u_GeoToStr,
   vsagps_public_time;
 
 { TSensorFromGPSRecorderLastSpeed }

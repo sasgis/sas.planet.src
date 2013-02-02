@@ -25,7 +25,6 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_Bitmap32StaticFactory,
   i_BitmapPostProcessingConfig,
   u_ConfigDataElementBase;
 
