@@ -30,6 +30,7 @@ uses
   strutils,
   i_InetConfig,
   i_DownloadResult,
+  i_DownloadResultFactory,
   i_DownloadRequest,
   u_DownloadRequest,
   u_AvailPicsAbstract,
@@ -39,6 +40,7 @@ type
   TAvailPicsDD = class(TAvailPicsByKey)
   Private
    FLayerKey: string;
+   FResultFactory: IDownloadResultFactory;
   public
     procedure AfterConstruction; override;
 
@@ -55,7 +57,8 @@ type
   TAvailPicsDataDoors = array [TAvailPicsDataDoorsID] of TAvailPicsDD;
 
 procedure GenerateAvailPicsDD(var ADDs: TAvailPicsDataDoors;
-                               const ATileInfoPtr: PAvailPicsTileInfo);
+                              const AResultFactory: IDownloadResultFactory;
+                              const ATileInfoPtr: PAvailPicsTileInfo);
 
 implementation
 
@@ -66,7 +69,6 @@ uses
   i_BinaryData,
   i_Downloader,
   i_NotifierOperation,
-  i_DownloadResultFactory,
   u_GeoToStr,
   u_DownloaderHttp,
   u_Notifier,
@@ -75,13 +77,16 @@ uses
   u_TileRequestBuilderHelpers;
 
 procedure GenerateAvailPicsDD(var ADDs: TAvailPicsDataDoors;
-                               const ATileInfoPtr: PAvailPicsTileInfo);
+                              const AResultFactory: IDownloadResultFactory;
+                              const ATileInfoPtr: PAvailPicsTileInfo);
 var
   j: TAvailPicsDataDoorsID;
 begin
+  Assert(AResultFactory<>nil);
   for j := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
     if (nil=ADDs[j]) then begin
       ADDs[j] := TAvailPicsDD.Create(ATileInfoPtr);
+      ADDs[j].FResultFactory := AResultFactory;
       case Ord(j) of
       1: ADDs[j].LayerKey :='c4453cc2-6e13-4a39-91ce-972e567a15d8'; // WorldView-1
       2: ADDs[j].LayerKey :='2f864ade-2820-4ddd-9a51-b1d2f4b66e18'; // WorldView-2
@@ -107,8 +112,6 @@ function TAvailPicsDD.ContentType: String;
 begin
   Result := 'text/xml';
 end;
-
-
 
 function TAvailPicsDD.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 var
@@ -255,7 +258,7 @@ var
   VStrPostData: AnsiString;
   VResultOk: IDownloadResultOk;
   VResult: IDownloadResult;
-  VResultFactory: IDownloadResultFactory;
+  
   VCancelNotifier: INotifierOperation;
   VResultWithRespond: IDownloadResultWithServerRespond;
   V_user_guest_uid: string;
@@ -291,8 +294,7 @@ begin
                    VPostData,
                    AInetConfig.GetStatic
                   );
-  VResultFactory := TDownloadResultFactory.Create;
-  VDownloader:=TDownloaderHttp.Create(VResultFactory);
+  VDownloader:=TDownloaderHttp.Create(FResultFactory);
   VCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   VResult := VDownloader.DoRequest(
               VPostRequest,

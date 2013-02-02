@@ -1002,7 +1002,7 @@ begin
   GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo);
 
   // make for datadoors
-  GenerateAvailPicsDD(FDDs, @FAvailPicsTileInfo);
+  GenerateAvailPicsDD(FDDs, FResultFactory, @FAvailPicsTileInfo);
 
   // make for terraserver
   if (nil=FTerraserver) then
@@ -1290,7 +1290,6 @@ begin
   FVectorItemsFactory := AVectorItemsFactory;
   FInetConfig := AInetConfig;
   FResultFactory := TDownloadResultFactory.Create;
-
 end;
 
 destructor TfrmDGAvailablePic.Destroy;
