@@ -249,6 +249,7 @@
     <DCCReference Include="i_BitmapLayerProvider.pas" />
     <DCCReference Include="i_BitmapLayerProviderWithListener.pas" />
     <DCCReference Include="i_BitmapMarker.pas" />
+    <DCCReference Include="i_BitmapPostProcessing.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_CalcLineLayerConfig.pas" />
     <DCCReference Include="i_CenterScaleConfig.pas" />
@@ -814,8 +815,9 @@
     <DCCReference Include="u_BitmapLayerProviderSimpleForCombine.pas" />
     <DCCReference Include="u_BitmapLayerProviderWithBgColor.pas" />
     <DCCReference Include="u_BitmapMarker.pas" />
+    <DCCReference Include="u_BitmapPostProcessing.pas" />
+    <DCCReference Include="u_BitmapPostProcessingChangeableByConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
-    <DCCReference Include="u_BitmapPostProcessingConfigStatic.pas" />
     <DCCReference Include="u_CalcLineLayerConfig.pas" />
     <DCCReference Include="u_CenterScaleConfig.pas" />
     <DCCReference Include="u_ChangeableBase.pas" />
