@@ -23,8 +23,7 @@ unit i_MarkTemplate;
 interface
 
 uses
-  GR32,
-  i_MarkPicture;
+  GR32;
 
 type
   IMarkTemplate = interface
