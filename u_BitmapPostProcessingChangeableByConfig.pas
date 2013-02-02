@@ -30,7 +30,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TBitmapPostProcessingChangeableByConfig = class(TConfigDataElementWithStaticBase, IBitmapPostProcessingChangeable)
+  TBitmapPostProcessingChangeableByConfig = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IBitmapPostProcessingChangeable)
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FConfig: IBitmapPostProcessingConfig;
