@@ -759,13 +759,18 @@ end;
 procedure TGlobalState.LoadConfig;
 var
   VLocalMapsConfig: IConfigDataProvider;
-  Ini: TMeminifile;
+  VIniFile: TMeminifile;
   VMapsPath: String;
 begin
   VMapsPath := IncludeTrailingPathDelimiter(FGlobalConfig.MapsPath.FullPath);
   ForceDirectories(VMapsPath);
-  Ini := TMeminiFile.Create(VMapsPath + 'Maps.ini');
-  VLocalMapsConfig := TConfigDataProviderByIniFile.Create(Ini);
+  VIniFile := TMeminiFile.Create(VMapsPath + 'Maps.ini');
+  try
+    VLocalMapsConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+    VIniFile := nil;
+  finally
+    VIniFile.Free;
+  end;
 
   FCacheConfig.LoadConfig(FMainConfigProvider);
 
@@ -846,7 +851,7 @@ end;
 
 procedure TGlobalState.SaveMainParams;
 var
-  Ini: TMeminifile;
+  VIniFile: TMeminifile;
   VLocalMapsConfig: IConfigDataWriteProvider;
   VMapsPath: String;
 begin
@@ -854,8 +859,13 @@ begin
     Exit;
   end;
   VMapsPath := IncludeTrailingPathDelimiter(FGlobalConfig.MapsPath.FullPath);
-  Ini := TMeminiFile.Create(VMapsPath + 'Maps.ini');
-  VLocalMapsConfig := TConfigDataWriteProviderByIniFile.Create(Ini);
+  VIniFile := TMeminiFile.Create(VMapsPath + 'Maps.ini');
+  try
+    VLocalMapsConfig := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+    VIniFile := nil;
+  finally
+    VIniFile.Free;
+  end;
   FMainMapsList.SaveMaps(VLocalMapsConfig);
 
   FGPSRecorderInternal.Save;

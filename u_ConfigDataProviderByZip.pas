@@ -132,15 +132,20 @@ begin
   if (VExt = '.INI') or (VExt = '.TXT') then begin
     VData := FArchive.GetItemByName(FSubFolder + AIdent);
     if VData <> nil then begin
-      VIniFile := TMemIniFile.Create('');
       VIniStream := TStreamReadOnlyByBinaryData.Create(VData);
       try
         VIniStream.Position := 0;
         VIniStrings := TStringList.Create;
         try
           VIniStrings.LoadFromStream(VIniStream);
-          VIniFile.SetStrings(VIniStrings);
-          Result := TConfigDataProviderByIniFile.Create(VIniFile);
+          VIniFile := TMemIniFile.Create('');
+          try
+            VIniFile.SetStrings(VIniStrings);
+            Result := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+            VIniFile := nil;
+          finally
+            VIniFile.Free;
+          end;
         finally
           VIniStrings.Free;
         end;

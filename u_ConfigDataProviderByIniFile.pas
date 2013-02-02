@@ -75,7 +75,7 @@ type
     function ReadSubItemsList: IStringListStatic;
     function ReadValuesList: IStringListStatic;
   public
-    constructor Create(AIniFile: TCustomIniFile);
+    constructor CreateWithOwn(AIniFile: TCustomIniFile);
     destructor Destroy; override;
   end;
 
@@ -89,7 +89,7 @@ uses
 
 { TConfigDataProviderByIniFile }
 
-constructor TConfigDataProviderByIniFile.Create(AIniFile: TCustomIniFile);
+constructor TConfigDataProviderByIniFile.CreateWithOwn(AIniFile: TCustomIniFile);
 begin
   Assert(AIniFile <> nil);
   inherited Create;

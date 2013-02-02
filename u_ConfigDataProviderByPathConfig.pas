@@ -112,27 +112,27 @@ begin
     VExt := UpperCase(ExtractFileExt(AIdent));
     if (VExt = '.INI') or (VExt = '.TXT') then begin
       if FileExists(VFullName) then begin
-        VIniFile := TMemIniFile.Create('');
+        VIniStream := TMemoryStream.Create;
         try
-          VIniStream := TMemoryStream.Create;
+          VIniStream.LoadFromFile(VFullName);
+          VIniStream.Position := 0;
+          VIniStrings := TStringList.Create;
           try
-            VIniStream.LoadFromFile(VFullName);
-            VIniStream.Position := 0;
-            VIniStrings := TStringList.Create;
+            VIniStrings.LoadFromStream(VIniStream);
+            VIniFile := TMemIniFile.Create('');
             try
-              VIniStrings.LoadFromStream(VIniStream);
               VIniFile.SetStrings(VIniStrings);
+              Result := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+              VIniFile := nil;
             finally
-              VIniStrings.Free;
+              VIniFile.Free;
             end;
           finally
-            VIniStream.Free;
+            VIniStrings.Free;
           end;
-        except
-          VIniFile.Free;
-          raise;
+        finally
+          VIniStream.Free;
         end;
-        Result := TConfigDataProviderByIniFile.Create(VIniFile);
       end;
     end;
   end;

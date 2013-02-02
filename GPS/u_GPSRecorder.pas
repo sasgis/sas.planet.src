@@ -92,8 +92,7 @@ uses
   IniFiles,
   u_GeoFun,
   u_ConfigDataProviderByIniFile,
-  u_ConfigDataWriteProviderByIniFile,
-  u_BaseInterfacedObject;
+  u_ConfigDataWriteProviderByIniFile;
 
 { TGPSRecorder }
 
@@ -124,16 +123,16 @@ begin
     try
       VIniFile := TMemIniFile.Create(VFileName);
       try
-        VData := TConfigDataProviderByIniFile.Create(VIniFile);
+        VData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
         VIniFile := nil;
-        VSensorsData := VData.GetSubItem('GPS');
-        if VSensorsData <> nil then begin
-          FOdometer1 := VSensorsData.ReadFloat('Odometer1', FOdometer1);
-          FOdometer2 := VSensorsData.ReadFloat('Odometer2', FOdometer2);
-          SetChanged;
-        end;
       finally
         VIniFile.Free;
+      end;
+      VSensorsData := VData.GetSubItem('GPS');
+      if VSensorsData <> nil then begin
+        FOdometer1 := VSensorsData.ReadFloat('Odometer1', FOdometer1);
+        FOdometer2 := VSensorsData.ReadFloat('Odometer2', FOdometer2);
+        SetChanged;
       end;
     except
       Assert(False, 'Exception on GPSRecorder read');
@@ -153,14 +152,14 @@ begin
   try
     VIniFile := TMemIniFile.Create(VFileName);
     try
-      VData := TConfigDataWriteProviderByIniFile.Create(VIniFile);
+      VData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
       VIniFile := nil;
-      VSensorsData := VData.GetOrCreateSubItem('GPS');
-      VSensorsData.WriteFloat('Odometer1', FOdometer1);
-      VSensorsData.WriteFloat('Odometer2', FOdometer2);
     finally
       VIniFile.Free;
     end;
+    VSensorsData := VData.GetOrCreateSubItem('GPS');
+    VSensorsData.WriteFloat('Odometer1', FOdometer1);
+    VSensorsData.WriteFloat('Odometer2', FOdometer2);
   except
     Assert(False, 'Exception on GPSRecorder write');
   end;

@@ -144,7 +144,7 @@ end;
 
 procedure TProviderTilesDownload.StartBySLS(const AFileName: string);
 var
-  VIni: TMemIniFile;
+  VIniFile: TMemIniFile;
   VSLSData: IConfigDataProvider;
   VSessionSection: IConfigDataProvider;
   VLog: TLogSimpleProvider;
@@ -172,8 +172,13 @@ var
   VProjection: IProjectionInfo;
   VProjectedPolygon: IProjectedPolygon;
 begin
-  VIni := TMemIniFile.Create(AFileName);
-  VSLSData := TConfigDataProviderByIniFile.Create(VIni);
+  VIniFile := TMemIniFile.Create(AFileName);
+  try
+    VSLSData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+    VIniFile := nil;
+  finally
+    VIniFile.Free;
+  end;
   VSessionSection := VSLSData.GetSubItem('Session');
   VLog := TLogSimpleProvider.Create(5000, 0);
   VLogSimple := VLog;

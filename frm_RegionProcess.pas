@@ -310,19 +310,19 @@ end;
 
 procedure TfrmRegionProcess.LoadSelFromFile(const FileName: string);
 var
-  VIni:TMemIniFile;
+  VIniFile:TMemIniFile;
   VHLGData: IConfigDataProvider;
   VPolygonSection: IConfigDataProvider;
   VPolygon: ILonLatPolygon;
   VZoom: Byte;
 begin
   if FileExists(FileName) then begin
-    VIni := TMemIniFile.Create(FileName);
+    VIniFile := TMemIniFile.Create(FileName);
     try
-      VHLGData := TConfigDataProviderByIniFile.Create(VIni);
-      VIni := nil;
+      VHLGData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+      VIniFile := nil;
     finally
-      FreeAndNil(VIni);
+      FreeAndNil(VIniFile);
     end;
     VPolygonSection := VHLGData.GetSubItem('HIGHLIGHTING');
     if VPolygonSection <> nil then begin
@@ -408,7 +408,7 @@ end;
 
 procedure TfrmRegionProcess.SpeedButton1Click(Sender: TObject);
 var
-  VIni: Tinifile;
+  VIniFile: Tinifile;
   VZoom: Byte;
   VPolygon: ILonLatPolygon;
   VHLGData: IConfigDataWriteProvider;
@@ -424,12 +424,12 @@ begin
       FLastSelectionInfo.UnlockRead;
     end;
     if VPolygon <> nil then begin
-      VIni:=TIniFile.Create(SaveSelDialog.FileName);
+      VIniFile := TIniFile.Create(SaveSelDialog.FileName);
       try
-        VHLGData := TConfigDataWriteProviderByIniFile.Create(VIni);
-        VIni := nil;
+        VHLGData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+        VIniFile := nil;
       finally
-        VIni.Free;
+        VIniFile.Free;
       end;
       VPolygonSection := VHLGData.GetOrCreateSubItem('HIGHLIGHTING');
       VPolygonSection.WriteInteger('zoom', VZoom + 1);

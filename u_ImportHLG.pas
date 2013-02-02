@@ -68,7 +68,7 @@ function TImportHLG.ProcessImport(
   const AConfig: IImportConfig
 ): IInterfaceList;
 var
-  VIni: TMemIniFile;
+  VIniFile: TMemIniFile;
   VHLGData: IConfigDataProvider;
   VPolygonSection: IConfigDataProvider;
   VPolygon: ILonLatPolygon;
@@ -76,12 +76,12 @@ var
 begin
   Result := nil;
   if AConfig.TemplateNewPoly <> nil then begin
-    VIni := TMemIniFile.Create(AFileName);
+    VIniFile := TMemIniFile.Create(AFileName);
     try
-      VHLGData := TConfigDataProviderByIniFile.Create(VIni);
-      VIni := nil;
+      VHLGData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+      VIniFile := nil;
     finally
-      FreeAndNil(VIni);
+      FreeAndNil(VIniFile);
     end;
     VPolygonSection := VHLGData.GetSubItem('HIGHLIGHTING');
     if VPolygonSection <> nil then begin

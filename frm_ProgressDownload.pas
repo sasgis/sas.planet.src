@@ -314,18 +314,22 @@ end;
 procedure TfrmProgressDownload.btnSaveClick(Sender: TObject);
 var
   VFileName: string;
-  VIni: TMemIniFile;
+  VIniFile: TMemIniFile;
   VSLSData: IConfigDataWriteProvider;
   VSessionSection: IConfigDataWriteProvider;
 begin
   if SaveSessionDialog.Execute then begin
     VFileName := SaveSessionDialog.FileName;
     if VFileName <> '' then begin
-      VIni := TMemIniFile.Create(VFileName);
-      VSLSData := TConfigDataWriteProviderByIniFile.Create(VIni);
+      VIniFile := TMemIniFile.Create(VFileName);
+      try
+        VSLSData := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+        VIniFile := nil;
+      finally
+        VIniFile.Free;
+      end;
       VSessionSection := VSLSData.GetOrCreateSubItem('Session');
       FProgressInfo.SaveState(VSessionSection);
-      VIni.UpdateFile;
     end;
   end;
 end;

@@ -138,15 +138,15 @@ begin
       try
         VIniFile := TMemIniFile.Create(VFileName);
         try
-          VProvider := TConfigDataWriteProviderByIniFile.Create(VIniFile);
+          VProvider := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
           VIniFile := nil;
-          VProvider := VProvider.GetOrCreateSubItem('HIGHLIGHTING');
-          VPolygon := ReadPolygon(VProvider, FVectorItemsFactory);
-          if VPolygon.Count > 0 then begin
-            VZoom := VProvider.Readinteger('Zoom', VZoom);
-          end;
         finally
           VIniFile.Free;
+        end;
+        VProvider := VProvider.GetOrCreateSubItem('HIGHLIGHTING');
+        VPolygon := ReadPolygon(VProvider, FVectorItemsFactory);
+        if VPolygon.Count > 0 then begin
+          VZoom := VProvider.Readinteger('Zoom', VZoom);
         end;
       except
         VZoom := 0;

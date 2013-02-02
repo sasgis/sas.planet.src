@@ -29,14 +29,12 @@ uses
 type
   TSASMainConfigProvider = class(TConfigDataWriteProviderWithGlobal)
   private
-    FMainIni: TMemIniFile;
     function GetMainConfigFileName(const ABasePath, AExeFileName: string): string;
   public
     constructor Create(
       const ABasePath, AExeFileName: string;
       AHandle: THandle
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -60,21 +58,18 @@ var
   VResourceProvider: IConfigDataProvider;
   VGlobalProvider: IConfigDataProvider;
   VMainProvider: IConfigDataWriteProvider;
+  VIniFile: TMemIniFile;
 begin
   VResourceProvider := TConfigDataProviderByResources.Create(AHandle);
   VGlobalProvider := TConfigDataProviderVirtualWithSubItem.Create('Resource', VResourceProvider);
-  FMainIni := TMeminifile.Create(GetMainConfigFileName(ABasePath, AExeFileName));
-  VMainProvider := TConfigDataWriteProviderByIniFile.Create(FMainIni);
-  inherited Create(VMainProvider, 'sas:\', VGlobalProvider);
-end;
-
-destructor TSASMainConfigProvider.Destroy;
-begin
+  VIniFile := TMeminifile.Create(GetMainConfigFileName(ABasePath, AExeFileName));
   try
-    FMainIni.UpdateFile;
-  except
+    VMainProvider := TConfigDataWriteProviderByIniFile.CreateWithOwn(VIniFile);
+    VIniFile := nil;
+  finally
+    VIniFile.Free;
   end;
-  inherited;
+  inherited Create(VMainProvider, 'sas:\', VGlobalProvider);
 end;
 
 function TSASMainConfigProvider.GetMainConfigFileName(const ABasePath, AExeFileName: string): string;

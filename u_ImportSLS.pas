@@ -48,7 +48,7 @@ function TImportSLS.ProcessImport(
   const AConfig: IImportConfig
 ): IInterfaceList;
 var
-  VIni: TMemIniFile;
+  VIniFile: TMemIniFile;
   VMark: IMark;
   VSLSData: IConfigDataProvider;
   VPolygonSection: IConfigDataProvider;
@@ -56,12 +56,12 @@ var
 begin
   Result := nil;
   if AConfig.TemplateNewPoly <> nil then begin
-    VIni := TMemIniFile.Create(AFileName);
+    VIniFile := TMemIniFile.Create(AFileName);
     try
-      VSLSData := TConfigDataProviderByIniFile.Create(VIni);
-      VIni := nil;
+      VSLSData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+      VIniFile := nil;
     finally
-      FreeAndNil(VIni);
+      FreeAndNil(VIniFile);
     end;
     VPolygonSection := VSLSData.GetSubItem('Session');
     if VPolygonSection <> nil then begin
