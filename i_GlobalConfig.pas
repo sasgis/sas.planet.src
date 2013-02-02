@@ -92,10 +92,9 @@ type
     function GetTileDownloadResamplerConfig: IImageResamplerConfig;
     property TileDownloadResamplerConfig: IImageResamplerConfig read GetTileDownloadResamplerConfig;
 
-(*
     function GetBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
     property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read GetBitmapPostProcessingConfig;
-*)
+
     function GetValueToStringConverterConfig: IValueToStringConverterConfig;
     property ValueToStringConverterConfig: IValueToStringConverterConfig read GetValueToStringConverterConfig;
 

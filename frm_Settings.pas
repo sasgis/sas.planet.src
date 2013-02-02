@@ -418,13 +418,13 @@ begin
 
   GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
- GState.BitmapPostProcessingConfig.LockWrite;
+ GState.Config.BitmapPostProcessingConfig.LockWrite;
  try
-   GState.BitmapPostProcessingConfig.InvertColor:=CBinvertcolor.Checked;
-   GState.BitmapPostProcessingConfig.GammaN:=TrBarGamma.Position;
-   GState.BitmapPostProcessingConfig.ContrastN:=TrBarContrast.Position;
+   GState.Config.BitmapPostProcessingConfig.InvertColor:=CBinvertcolor.Checked;
+   GState.Config.BitmapPostProcessingConfig.GammaN:=TrBarGamma.Position;
+   GState.Config.BitmapPostProcessingConfig.ContrastN:=TrBarContrast.Position;
  finally
-   GState.BitmapPostProcessingConfig.UnlockWrite;
+   GState.Config.BitmapPostProcessingConfig.UnlockWrite;
  end;
   GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.LockWrite;
   try
@@ -720,13 +720,13 @@ begin
     GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
  CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
-  GState.BitmapPostProcessingConfig.LockRead;
+  GState.Config.BitmapPostProcessingConfig.LockRead;
   try
-    CBinvertcolor.Checked := GState.BitmapPostProcessingConfig.InvertColor;
-    TrBarGamma.Position:=GState.BitmapPostProcessingConfig.GammaN;
-    TrBarContrast.Position:=GState.BitmapPostProcessingConfig.ContrastN;
+    CBinvertcolor.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
+    TrBarGamma.Position:=GState.Config.BitmapPostProcessingConfig.GammaN;
+    TrBarContrast.Position:=GState.Config.BitmapPostProcessingConfig.ContrastN;
   finally
-    GState.BitmapPostProcessingConfig.UnlockRead;
+    GState.Config.BitmapPostProcessingConfig.UnlockRead;
   end;
   if TrBarGamma.Position < 50 then begin
     LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position*2)/100)+')';

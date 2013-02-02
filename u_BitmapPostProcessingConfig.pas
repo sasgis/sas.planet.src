@@ -32,7 +32,6 @@ uses
 type
   TBitmapPostProcessingConfig = class(TConfigDataElementWithStaticBase, IBitmapPostProcessingConfig)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
     FInvertColor: boolean;
     FGammaN: Integer;
     FContrastN: Integer;
@@ -51,99 +50,67 @@ type
     function GetContrastN: Integer;
     procedure SetContrastN(const AValue: Integer);
 
-    function GetStatic: IBitmapPostProcessing;
+    function GetStatic: IBitmapPostProcessingConfigStatic;
   public
-    constructor Create(const ABitmapFactory: IBitmap32StaticFactory);
+    constructor Create;
   end;
 
 implementation
 
 uses
-  u_BitmapPostProcessingConfigStatic;
+  u_BaseInterfacedObject;
 
-function BLimit(B: Integer): Byte;
-begin
-  if B < 0 then begin
-    Result := 0;
-  end else if B > 255 then begin
-    Result := 255;
-  end else begin
-    Result := B;
+type
+  TBitmapPostProcessingConfigStatic = class(TBaseInterfacedObject, IBitmapPostProcessingConfigStatic)
+  private
+    FInvertColor: boolean;
+    FGammaN: Integer;
+    FContrastN: Integer;
+  private
+    function GetInvertColor: boolean;
+    function GetGammaN: Integer;
+    function GetContrastN: Integer;
+  public
+    constructor Create(
+      AInvertColor: boolean;
+      AGammaN: Integer;
+      AContrastN: Integer
+    );
   end;
+
+{ TBitmapPostProcessingConfigStatic }
+
+constructor TBitmapPostProcessingConfigStatic.Create(
+  AInvertColor: boolean;
+  AGammaN, AContrastN: Integer
+);
+begin
+  inherited Create;
+  FInvertColor := AInvertColor;
+  FGammaN := AGammaN;
+  FContrastN := AContrastN;
 end;
 
-function Power(Base, Exponent: Extended): Extended;
+function TBitmapPostProcessingConfigStatic.GetContrastN: Integer;
 begin
-  Result := Exp(Exponent * Ln(Base));
+  Result := FContrastN;
 end;
 
-function GetContrastTable(
-  const AContrastN: Integer
-): TComponentTable;
-var
-  mr, i: Integer;
-  vd: Double;
+function TBitmapPostProcessingConfigStatic.GetGammaN: Integer;
 begin
-  mr := 128;
-  if AContrastN > 0 then begin
-    vd := 1 + (AContrastN / 100);
-  end else begin
-    vd := 1 - (Sqrt(-AContrastN / 1000));
-  end;
-  for i := 0 to 255 do begin
-    Result[i] := BLimit(mr + Trunc((i - mr) * vd));
-  end;
+  Result := FGammaN;
 end;
 
-function GetGammaTable(const AGammaN: Integer): TComponentTable;
-var
-  X: integer;
-  L: Double;
+function TBitmapPostProcessingConfigStatic.GetInvertColor: boolean;
 begin
-  if AGammaN < 50 then begin
-    L := 1 / ((AGammaN * 2) / 100);
-  end else begin
-    L := 1 / ((AGammaN - 40) / 10);
-  end;
-  Result[0] := 0;
-  for X := 1 to 255 do begin
-    Result[X] := round(255 * Power(X / 255, L));
-  end;
-end;
-
-function GetInvertTable: TComponentTable;
-var
-  i: Integer;
-begin
-  for i := 0 to 255 do begin
-    Result[i] := i xor $FF;
-  end;
-end;
-
-function GetEqualTable: TComponentTable;
-var
-  i: Integer;
-begin
-  for i := 0 to 255 do begin
-    Result[i] := i;
-  end;
-end;
-
-function CombineTables(const ATable1, ATable2: TComponentTable): TComponentTable;
-var
-  i: Integer;
-begin
-  for i := 0 to 255 do begin
-    Result[i] := ATable1[ATable2[i]];
-  end;
+  Result := FInvertColor;
 end;
 
 { TBitmapPostProcessingConfig }
 
-constructor TBitmapPostProcessingConfig.Create(const ABitmapFactory: IBitmap32StaticFactory);
+constructor TBitmapPostProcessingConfig.Create;
 begin
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
   FInvertColor := False;
   FContrastN := 0;
   FGammaN := 50;
@@ -151,24 +118,9 @@ end;
 
 function TBitmapPostProcessingConfig.CreateStatic: IInterface;
 var
-  VStatic: IBitmapPostProcessing;
-  VTable: TComponentTable;
+  VStatic: IBitmapPostProcessingConfigStatic;
 begin
-  if (FContrastN = 0) and (not FInvertColor) and (FGammaN = 50) then begin
-    VStatic := TBitmapPostProcessingSimple.Create;
-  end else begin
-    VTable := GetEqualTable;
-    if FContrastN <> 0 then begin
-      VTable := CombineTables(GetContrastTable(FContrastN), VTable);
-    end;
-    if FInvertColor then begin
-      VTable := CombineTables(GetInvertTable, VTable);
-    end;
-    if FGammaN <> 50 then begin
-      VTable := CombineTables(GetGammaTable(FGammaN), VTable);
-    end;
-    VStatic := TBitmapPostProcessingByTable.Create(FBitmapFactory, VTable);
-  end;
+  VStatic := TBitmapPostProcessingConfigStatic.Create(FInvertColor, FGammaN, FContrastN);
   Result := VStatic;
 end;
 
@@ -225,9 +177,9 @@ begin
   end;
 end;
 
-function TBitmapPostProcessingConfig.GetStatic: IBitmapPostProcessing;
+function TBitmapPostProcessingConfig.GetStatic: IBitmapPostProcessingConfigStatic;
 begin
-  Result := IBitmapPostProcessing(GetStaticInternal);
+  Result := IBitmapPostProcessingConfigStatic(GetStaticInternal);
 end;
 
 procedure TBitmapPostProcessingConfig.SetContrastN(const AValue: Integer);

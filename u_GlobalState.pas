@@ -94,6 +94,7 @@ uses
   i_DebugInfoWindow,
   i_GlobalInternetState,
   i_GlobalBerkeleyDBHelper,
+  i_BitmapPostProcessing,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_GlobalConfig,
@@ -129,7 +130,7 @@ type
     FMainMapsList: TMapTypesMainList;
     FGPSPositionFactory: IGPSPositionFactory;
     FMainFormConfig: IMainFormConfig;
-    FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+    FBitmapPostProcessing: IBitmapPostProcessingChangeable;
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -210,7 +211,7 @@ type
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
 
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
-    property BitmapPostProcessingConfig: IBitmapPostProcessingConfig read FBitmapPostProcessingConfig;
+    property BitmapPostProcessing: IBitmapPostProcessingChangeable read FBitmapPostProcessing;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
@@ -330,6 +331,7 @@ uses
   u_GlobalInternetState,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
+  u_BitmapPostProcessingChangeableByConfig,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -518,7 +520,11 @@ begin
       FBGTimerNotifierInternal,
       VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000)
     );
-  FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create(FBitmapFactory);
+  FBitmapPostProcessing :=
+    TBitmapPostProcessingChangeableByConfig.Create(
+      FGlobalConfig.BitmapPostProcessingConfig,
+      FBitmapFactory
+    );
   FGpsSystem :=
     TGpsSystem.Create(
       FAppStartedNotifier,
@@ -632,7 +638,6 @@ begin
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
   FMainFormConfig := nil;
-  FBitmapPostProcessingConfig := nil;
   FMarksCategoryFactoryConfig := nil;
   FMarkPictureList := nil;
   FSkyMapDraw := nil;
@@ -850,7 +855,6 @@ begin
     );
   FGPSRecorderInternal.Load;
   FGpsTrackRecorderInternal.Load;
-  FBitmapPostProcessingConfig.ReadConfig(MainConfigProvider.GetSubItem('COLOR_LEVELS'));
 
   if (not ModuleIsLib) then begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
@@ -901,7 +905,6 @@ begin
 
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
-  FBitmapPostProcessingConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('COLOR_LEVELS'));
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FMarkPictureList.WriteConfig(MainConfigProvider);

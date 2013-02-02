@@ -8,7 +8,7 @@ uses
   i_NotifierTime,
   i_NotifierOperation,
   i_TileError,
-  i_BitmapPostProcessingConfig,
+  i_BitmapPostProcessing,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
@@ -27,7 +27,7 @@ type
   private
     FErrorLogger: ITileErrorLogger;
     FBitmapFactory: IBitmap32StaticFactory;
-    FPostProcessingConfig: IBitmapPostProcessingConfig;
+    FPostProcessing: IBitmapPostProcessingChangeable;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FMainMap: IMapTypeChangeable;
     FLayesList: IMapTypeListChangeable;
@@ -54,7 +54,7 @@ type
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMainMap: IMapTypeChangeable;
       const ALayesList: IMapTypeListChangeable;
-      const APostProcessingConfig: IBitmapPostProcessingConfig;
+      const APostProcessing: IBitmapPostProcessingChangeable;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AThreadConfig: IThreadConfig;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -84,7 +84,7 @@ constructor TMapLayerBitmapMaps.Create(
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMainMap: IMapTypeChangeable;
   const ALayesList: IMapTypeListChangeable;
-  const APostProcessingConfig: IBitmapPostProcessingConfig;
+  const APostProcessing: IBitmapPostProcessingChangeable;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AThreadConfig: IThreadConfig;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -116,7 +116,7 @@ begin
   FLayesList := ALayesList;
   FErrorLogger := AErrorLogger;
   FBitmapFactory := ABitmapFactory;
-  FPostProcessingConfig := APostProcessingConfig;
+  FPostProcessing := APostProcessing;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
 
   LinksList.Add(
@@ -136,7 +136,7 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FPostProcessingConfig.GetChangeNotifier
+    FPostProcessing.GetChangeNotifier
   );
   Visible := True;
 end;
@@ -155,7 +155,7 @@ begin
   VMainMap := FMainMap.GetStatic;
   VLayersList := FLayesList.List;
   VUsePrevConfig := FUseTilePrevZoomConfig.GetStatic;
-  VPostProcessingConfig := FPostProcessingConfig.GetStatic;
+  VPostProcessingConfig := FPostProcessing.GetStatic;
 
   Result :=
     TBitmapLayerProviderForViewMaps.Create(

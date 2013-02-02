@@ -24,7 +24,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_LocalCoordConverterFactorySimpe,
-  i_BitmapPostProcessingConfig,
+  i_BitmapPostProcessing,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarksSystem,
@@ -53,7 +53,7 @@ type
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
-    FBitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+    FBitmapPostProcessing: IBitmapPostProcessingChangeable;
     FMapCalibrationList: IMapCalibrationList;
   protected
     function PrepareTargetFileName: string;
@@ -93,7 +93,7 @@ type
       const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList;
       const AUseQuality: Boolean;
       const AUseAlfa: Boolean;
@@ -145,7 +145,7 @@ constructor TProviderMapCombineBase.Create(
   const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AMapCalibrationList: IMapCalibrationList;
   const AUseQuality: Boolean;
   const AUseAlfa: Boolean;
@@ -168,7 +168,7 @@ begin
   FMarksDrawConfig := AMarksDrawConfig;
   FMarksDB := AMarksDB;
   FLocalConverterFactory := ALocalConverterFactory;
-  FBitmapPostProcessingConfig := ABitmapPostProcessingConfig;
+  FBitmapPostProcessing := ABitmapPostProcessing;
   FBitmapFactory := ABitmapFactory;
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
@@ -293,7 +293,7 @@ begin
   VRecolorConfig := nil;
   VUseRecolor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseRecolor;
   if VUseRecolor then begin
-    VRecolorConfig := FBitmapPostProcessingConfig.GetStatic;
+    VRecolorConfig := FBitmapPostProcessing.GetStatic;
   end;
   Result :=
     TBitmapLayerProviderSimpleForCombine.Create(

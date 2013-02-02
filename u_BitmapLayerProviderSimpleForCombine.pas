@@ -9,7 +9,7 @@ uses
   i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
-  i_BitmapPostProcessingConfig,
+  i_BitmapPostProcessing,
   u_BaseInterfacedObject;
 
 type

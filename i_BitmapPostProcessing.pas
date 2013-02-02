@@ -18,41 +18,23 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_BitmapPostProcessingConfig;
+unit i_BitmapPostProcessing;
 
 interface
 
 uses
-  i_ConfigDataElement;
+  i_Bitmap32Static,
+  i_Changeable;
 
 type
-  IBitmapPostProcessingConfigStatic = interface
-    ['{6CE9D4D8-4CCB-4E1A-8CEB-78BDA0FB65BF}']
-    function GetInvertColor: boolean;
-    property InvertColor: boolean read GetInvertColor;
-
-    function GetGammaN: Integer;
-    property GammaN: Integer read GetGammaN;
-
-    function GetContrastN: Integer;
-    property ContrastN: Integer read GetContrastN;
+  IBitmapPostProcessing = interface
+    ['{3DBBF6CA-6AA3-4578-8D23-3E04D1D42C34}']
+    function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   end;
 
-  IBitmapPostProcessingConfig = interface(IConfigDataElement)
-    ['{3CF3CE21-3488-495C-9A17-A2164763342E}']
-    function GetInvertColor: boolean;
-    procedure SetInvertColor(const AValue: boolean);
-    property InvertColor: boolean read GetInvertColor write SetInvertColor;
-
-    function GetGammaN: Integer;
-    procedure SetGammaN(const AValue: Integer);
-    property GammaN: Integer read GetGammaN write SetGammaN;
-
-    function GetContrastN: Integer;
-    procedure SetContrastN(const AValue: Integer);
-    property ContrastN: Integer read GetContrastN write SetContrastN;
-
-    function GetStatic: IBitmapPostProcessingConfigStatic;
+  IBitmapPostProcessingChangeable = interface(IChangeable)
+    ['{176AC2B3-0BE7-4383-B87A-8649C7F086EE}']
+    function GetStatic: IBitmapPostProcessing;
   end;
 
 implementation

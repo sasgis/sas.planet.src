@@ -49,7 +49,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_BitmapPostProcessingConfig,
+  i_BitmapPostProcessing,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   i_UseTilePrevZoomConfig,
@@ -131,7 +131,7 @@ type
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -183,7 +183,7 @@ constructor TfrmRegionProcess.Create(
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
@@ -292,7 +292,7 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapFactory,
-      ABitmapPostProcessingConfig,
+      ABitmapPostProcessing,
       AMapCalibrationList
     );
 end;

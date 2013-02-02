@@ -19,7 +19,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_LocalCoordConverterFactorySimpe,
-  i_BitmapPostProcessingConfig,
+  i_BitmapPostProcessing,
   i_Bitmap32StaticFactory,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
@@ -51,7 +51,7 @@ type
       const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList
     );
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
@@ -82,7 +82,7 @@ constructor TProviderMapCombineBMP.Create(
   const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AMapCalibrationList: IMapCalibrationList);
 begin
   inherited Create(
@@ -102,7 +102,7 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapFactory,
-      ABitmapPostProcessingConfig,
+      ABitmapPostProcessing,
       AMapCalibrationList,
       False,
       False,

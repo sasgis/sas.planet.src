@@ -880,7 +880,7 @@ begin
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
       GState.MarksDb,
       GState.LocalConverterFactory,
-      GState.BitmapPostProcessingConfig,
+      GState.BitmapPostProcessing,
       GState.ProjectionFactory,
       GState.CoordConverterList,
       GState.VectorItemsFactory,
@@ -1194,7 +1194,7 @@ begin
     );
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
-      GState.BitmapPostProcessingConfig.GetChangeNotifier
+      GState.Config.BitmapPostProcessingConfig.GetChangeNotifier
     );
     FLinksList.Add(
       VMainFormMainConfigChangeListener,
@@ -1379,7 +1379,7 @@ begin
       GState.LocalConverterFactory,
       FConfig.MainMapsConfig.GetActiveMap,
       TMapTypeListChangeableByActiveMapsSet.Create(FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
-      GState.BitmapPostProcessingConfig,
+      GState.BitmapPostProcessing,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
       GState.BitmapFactory,
@@ -1919,7 +1919,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig,
       FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,
       TMapTypeListChangeableByActiveMapsSet.Create(FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig.GetActiveLayersSet),
-      GState.BitmapPostProcessingConfig,
+      GState.BitmapPostProcessing,
       FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
       FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
       GState.BitmapFactory,
@@ -2624,7 +2624,7 @@ begin
   map.Color := GState.Config.ViewConfig.BackGroundColor;
 
   NGoToCur.Checked := FConfig.MapZoomingConfig.ZoomingAtMousePos;
-  Ninvertcolor.Checked:=GState.BitmapPostProcessingConfig.InvertColor;
+  Ninvertcolor.Checked:=GState.Config.BitmapPostProcessingConfig.InvertColor;
   TBGPSToPoint.Checked:=FConfig.GPSBehaviour.MapMove;
   tbitmGPSCenterMap.Checked:=TBGPSToPoint.Checked;
   TBGPSToPointCenter.Checked:=FConfig.GPSBehaviour.MapMoveCentered;
@@ -4282,7 +4282,7 @@ end;
 
 procedure TfrmMain.NinvertcolorClick(Sender: TObject);
 begin
-  GState.BitmapPostProcessingConfig.InvertColor := (Sender as TTBXItem).Checked;
+  GState.Config.BitmapPostProcessingConfig.InvertColor := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.mapDblClick(Sender: TObject);

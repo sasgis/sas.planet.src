@@ -142,6 +142,7 @@ uses
   u_ZmpConfig,
   u_LastSearchResultConfig,
   u_StartUpLogoConfig,
+  u_BitmapPostProcessingConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -254,6 +255,9 @@ begin
 
   FStartUpLogoConfig := TStartUpLogoConfig.Create;
   Add(FStartUpLogoConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('StartUpLogo'), False, False, False, False);
+
+  FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
+  Add(FBitmapPostProcessingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('COLOR_LEVELS'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

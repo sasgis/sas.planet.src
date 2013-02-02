@@ -14,7 +14,7 @@ uses
   i_LocalCoordConverter,
   i_MapTypes,
   i_BitmapLayerProvider,
-  i_BitmapPostProcessingConfig,
+  i_BitmapPostProcessing,
   i_BitmapLayerProviderWithListener,
   i_TileError,
   u_MapType,

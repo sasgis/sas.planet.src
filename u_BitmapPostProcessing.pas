@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_BitmapPostProcessingConfigStatic;
+unit u_BitmapPostProcessing;
 
 interface
 
@@ -26,7 +26,7 @@ uses
   GR32,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
-  i_BitmapPostProcessingConfig,
+  i_BitmapPostProcessing,
   u_BaseInterfacedObject;
 
 type

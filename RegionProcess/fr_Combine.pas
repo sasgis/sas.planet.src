@@ -21,7 +21,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_BitmapPostProcessingConfig,
+  i_BitmapPostProcessing,
   i_Bitmap32StaticFactory,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
@@ -62,7 +62,7 @@ type
       const AMarksDB: IMarksSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     destructor Destroy; override;
@@ -110,7 +110,7 @@ constructor TfrCombine.Create(
   const AMarksDB: IMarksSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const ABitmapPostProcessingConfig: IBitmapPostProcessingConfig;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );
 var
@@ -137,7 +137,7 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapFactory,
-      ABitmapPostProcessingConfig,
+      ABitmapPostProcessing,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -160,7 +160,7 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapFactory,
-      ABitmapPostProcessingConfig,
+      ABitmapPostProcessing,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -183,7 +183,7 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapFactory,
-      ABitmapPostProcessingConfig,
+      ABitmapPostProcessing,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -206,7 +206,7 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapFactory,
-      ABitmapPostProcessingConfig,
+      ABitmapPostProcessing,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -229,7 +229,7 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapFactory,
-      ABitmapPostProcessingConfig,
+      ABitmapPostProcessing,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -254,7 +254,7 @@ begin
       AMarksDB,
       ALocalConverterFactory,
       ABitmapFactory,
-      ABitmapPostProcessingConfig,
+      ABitmapPostProcessing,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
