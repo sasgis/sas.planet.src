@@ -51,13 +51,13 @@ type
     FTextBgColor: TColor32;
     FFontSize: Integer;
     FMarkerSize: Integer;
-    FPic: IMarkPicture;
+    FPicName: string;
   protected
     function GetTextColor: TColor32;
     function GetTextBgColor: TColor32;
     function GetFontSize: Integer;
     function GetMarkerSize: Integer;
-    function GetPic: IMarkPicture;
+    function GetPicName: string;
     function IsSame(const ATemplate: IMarkTemplatePoint): Boolean;
   public
     constructor Create(
@@ -67,7 +67,7 @@ type
       ATextBgColor: TColor32;
       AFontSize: Integer;
       AMarkerSize: Integer;
-      const APic: IMarkPicture
+      const APicName: string
     );
   end;
 
@@ -149,7 +149,7 @@ constructor TMarkTemplatePoint.Create(
   const ACategoryStringID: string;
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer;
-  const APic: IMarkPicture
+  const APicName: string
 );
 begin
   inherited Create(ANameGenerator, ACategoryStringID);
@@ -157,7 +157,7 @@ begin
   FTextBgColor := ATextBgColor;
   FFontSize := AFontSize;
   FMarkerSize := AMarkerSize;
-  FPic := APic;
+  FPicName := APicName;
 end;
 
 function TMarkTemplatePoint.GetTextColor: TColor32;
@@ -170,9 +170,9 @@ begin
   Result := FTextBgColor;
 end;
 
-function TMarkTemplatePoint.GetPic: IMarkPicture;
+function TMarkTemplatePoint.GetPicName: string;
 begin
-  Result := FPic;
+  Result := FPicName;
 end;
 
 function TMarkTemplatePoint.GetFontSize: Integer;
@@ -194,7 +194,7 @@ begin
       (FTextBgColor = ATemplate.TextBgColor) and
       (FFontSize = ATemplate.FontSize) and
       (FMarkerSize = ATemplate.MarkerSize) and
-      (FPic = ATemplate.Pic);
+      (FPicName = ATemplate.PicName);
   end;
 end;
 

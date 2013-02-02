@@ -37,26 +37,22 @@ type
   TMarkPointTemplateConfig = class(TMarkTemplateConfigBase, IMarkPointTemplateConfig)
   private
     FDefaultTemplate: IMarkTemplatePoint;
-    FMarkPictureList: IMarkPictureList;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      const APic: IMarkPicture;
+      const APicName: string;
       const ACategory: ICategory;
       ATextColor, ATextBgColor: TColor32;
       AFontSize, AMarkerSize: Integer
     ): IMarkTemplatePoint;
 
-    function GetMarkPictureList: IMarkPictureList;
-
     function GetDefaultTemplate: IMarkTemplatePoint;
     procedure SetDefaultTemplate(const AValue: IMarkTemplatePoint);
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AMarkPictureList: IMarkPictureList
+      const ALanguageManager: ILanguageManager
     );
   end;
 
@@ -72,11 +68,9 @@ uses
 { TMarkPointTemplateConfig }
 
 constructor TMarkPointTemplateConfig.Create(
-  const ALanguageManager: ILanguageManager;
-  const AMarkPictureList: IMarkPictureList
+  const ALanguageManager: ILanguageManager
 );
 var
-  VPic: IMarkPicture;
   VFormatString: IStringConfigDataElement;
 begin
   VFormatString :=
@@ -89,16 +83,9 @@ begin
     );
   inherited Create(VFormatString);
 
-  FMarkPictureList := AMarkPictureList;
-  if FMarkPictureList.Count > 0 then begin
-    VPic := FMarkPictureList.Get(0);
-  end else begin
-    VPic := nil;
-  end;
-
   FDefaultTemplate :=
     CreateTemplate(
-      VPic,
+      '',
       nil,
       SetAlpha(clYellow32, 166),
       SetAlpha(clBlack32, 166),
@@ -108,7 +95,7 @@ begin
 end;
 
 function TMarkPointTemplateConfig.CreateTemplate(
-  const APic: IMarkPicture;
+  const APicName: string;
   const ACategory: ICategory;
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer
@@ -120,6 +107,7 @@ begin
   if ACategory <> nil then begin
     VCategoryStringId := ACategory.StringId;
   end;
+
   Result :=
     TMarkTemplatePoint.Create(
       NameGenerator,
@@ -128,7 +116,7 @@ begin
       ATextBgColor,
       AFontSize,
       AMarkerSize,
-      APic
+      APicName
     );
 end;
 
@@ -137,8 +125,6 @@ procedure TMarkPointTemplateConfig.DoReadConfig(
 );
 var
   VPicName: string;
-  VPic: IMarkPicture;
-  VPicIndex: Integer;
   VCategoryId: string;
   VTextColor, VTextBgColor: TColor32;
   VFontSize, VMarkerSize: Integer;
@@ -150,25 +136,9 @@ begin
   VTextBgColor := FDefaultTemplate.TextBgColor;
   VFontSize := FDefaultTemplate.FontSize;
   VMarkerSize := FDefaultTemplate.MarkerSize;
-  VPic := FDefaultTemplate.Pic;
-  if VPic = nil then begin
-    VPic := FMarkPictureList.GetDefaultPicture;
-  end;
-  if VPic <> nil then begin
-    VPicName := VPic.GetName;
-  end;
+  VPicName := FDefaultTemplate.PicName;
   if AConfigData <> nil then begin
     VPicName := AConfigData.ReadString('IconName', VPicName);
-    if VPicName = '' then begin
-      VPic := nil;
-    end else begin
-      VPicIndex := FMarkPictureList.GetIndexByName(VPicName);
-      if VPicIndex < 0 then begin
-        VPic := nil;
-      end else begin
-        VPic := FMarkPictureList.Get(VPicIndex);
-      end;
-    end;
     VCategoryId := AConfigData.ReadString('CategoryId', VCategoryId);
     VTextColor := ReadColor32(AConfigData, 'TextColor', VTextColor);
     VTextBgColor := ReadColor32(AConfigData, 'ShadowColor', VTextBgColor);
@@ -183,7 +153,7 @@ begin
       VTextBgColor,
       VFontSize,
       VMarkerSize,
-      VPic
+      VPicName
     );
   SetDefaultTemplate(VTemplate);
 end;
@@ -191,17 +161,9 @@ end;
 procedure TMarkPointTemplateConfig.DoWriteConfig(
   const AConfigData: IConfigDataWriteProvider
 );
-var
-  VPicName: string;
-  VPic: IMarkPicture;
 begin
   inherited;
-  VPicName := '';
-  VPic := FDefaultTemplate.Pic;
-  if VPic <> nil then begin
-    VPicName := VPic.GetName;
-  end;
-  AConfigData.WriteString('IconName', VPicName);
+  AConfigData.WriteString('IconName', FDefaultTemplate.PicName);
   AConfigData.WriteString('CategoryId', FDefaultTemplate.CategoryStringID);
   WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.TextColor);
   WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.TextBgColor);
@@ -217,11 +179,6 @@ begin
   finally
     UnlockRead;
   end;
-end;
-
-function TMarkPointTemplateConfig.GetMarkPictureList: IMarkPictureList;
-begin
-  Result := FMarkPictureList;
 end;
 
 procedure TMarkPointTemplateConfig.SetDefaultTemplate(

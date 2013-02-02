@@ -40,8 +40,7 @@ type
     function GetPolyTemplateConfig: IMarkPolyTemplateConfig;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
-      const AMarkPictureList: IMarkPictureList
+      const ALanguageManager: ILanguageManager
     );
   end;
 
@@ -56,13 +55,12 @@ uses
 { TMarksFactoryConfig }
 
 constructor TMarksFactoryConfig.Create(
-  const ALanguageManager: ILanguageManager;
-  const AMarkPictureList: IMarkPictureList
+  const ALanguageManager: ILanguageManager
 );
 begin
   inherited Create;
 
-  FPointTemplateConfig := TMarkPointTemplateConfig.Create(ALanguageManager, AMarkPictureList);
+  FPointTemplateConfig := TMarkPointTemplateConfig.Create(ALanguageManager);
   Add(FPointTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoint'));
 
   FLineTemplateConfig := TMarkLineTemplateConfig.Create(ALanguageManager);

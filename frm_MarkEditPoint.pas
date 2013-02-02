@@ -246,12 +246,17 @@ procedure TfrmMarkEditPoint.btnSetAsTemplateClick(Sender: TObject);
 var
   VConfig: IMarkPointTemplateConfig;
   VTemplate: IMarkTemplatePoint;
+  VPicName: string;
 begin
   if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
     VConfig := FMarksDb.Factory.Config.PointTemplateConfig;
+    VPicName := '';
+    if frSelectPicture.Picture <> nil then begin
+      VPicName := frSelectPicture.Picture.GetName;
+    end;
     VTemplate :=
       VConfig.CreateTemplate(
-        frSelectPicture.Picture,
+        VPicName,
         frMarkCategory.GetCategory,
         SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),

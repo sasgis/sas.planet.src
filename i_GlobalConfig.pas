@@ -110,13 +110,11 @@ type
     function GetGPSConfig: IGpsConfig;
     property GPSConfig: IGPSConfig read GetGpsConfig;
 
-(*
     function GetMarksFactoryConfig: IMarksFactoryConfig;
     property MarksFactoryConfig: IMarksFactoryConfig read GetMarksFactoryConfig;
 
     function GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read GetMarksCategoryFactoryConfig;
-*)
 
     function GetViewConfig: IGlobalViewMainConfig;
     property ViewConfig: IGlobalViewMainConfig read GetViewConfig;

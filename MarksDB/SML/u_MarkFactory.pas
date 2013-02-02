@@ -173,6 +173,7 @@ type
   public
     constructor Create(
       const AConfig: IMarksFactoryConfig;
+      const AMarkPictureList: IMarkPictureList;
       const AFactory: IVectorItemsFactory;
       const AHintConverter: IHtmlToHintTextConverter;
       const ACategoryDB: IMarkCategoryDBSmlInternal
@@ -194,6 +195,7 @@ uses
 
 constructor TMarkFactory.Create(
   const AConfig: IMarksFactoryConfig;
+  const AMarkPictureList: IMarkPictureList;
   const AFactory: IVectorItemsFactory;
   const AHintConverter: IHtmlToHintTextConverter;
   const ACategoryDB: IMarkCategoryDBSmlInternal
@@ -204,7 +206,7 @@ begin
   FFactory := AFactory;
   FHintConverter := AHintConverter;
   FCategoryDB := ACategoryDB;
-  FMarkPictureList := FConfig.PointTemplateConfig.MarkPictureList;
+  FMarkPictureList := AMarkPictureList;
 end;
 
 function TMarkFactory.CreateNewLine(
@@ -258,6 +260,9 @@ var
   VCategoryStringId: string;
   VName: string;
   VCategoryId: Integer;
+  VPicName: string;
+  VPic: IMarkPicture;
+  VPicIndex: Integer;
 begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
@@ -275,13 +280,24 @@ begin
     VCategoryId := StrToIntDef(VCategoryStringID, VCategoryId);
   end;
 
+  VPic := nil;
+  VPicName := VTemplate.PicName;
+  if VPicName <> '' then begin
+    VPicIndex := FMarkPictureList.GetIndexByName(VPicName);
+    if VPicIndex >= 0 then begin
+      VPic := FMarkPictureList.Get(VPicIndex);
+    end;
+  end else begin
+    VPic := FMarkPictureList.GetDefaultPicture;
+  end;
+
   Result :=
     CreatePoint(
       CNotExistMarkID,
       VName,
       True,
-      '',
-      VTemplate.Pic,
+      VPicName,
+      VPic,
       VCategoryId,
       nil,
       ADesc,

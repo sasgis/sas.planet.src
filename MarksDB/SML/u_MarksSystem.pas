@@ -218,6 +218,7 @@ begin
     TMarksDb.Create(
       VState,
       ABasePath,
+      AMarkPictureList,
       FCategoryDBInternal,
       APerfCounterList.CreateAndAddNewSubList('MarksDb'),
       AVectorItemsFactory,

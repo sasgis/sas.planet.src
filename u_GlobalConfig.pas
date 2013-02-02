@@ -143,6 +143,8 @@ uses
   u_LastSearchResultConfig,
   u_StartUpLogoConfig,
   u_BitmapPostProcessingConfig,
+  u_MarksFactoryConfig,
+  u_MarkCategoryFactoryConfig,
   u_PathConfig;
 
 { TGlobalConfig }
@@ -258,6 +260,12 @@ begin
 
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   Add(FBitmapPostProcessingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('COLOR_LEVELS'), False, False, False, False);
+
+  FMarksFactoryConfig := TMarksFactoryConfig.Create(FLanguageManager);
+  Add(FMarksFactoryConfig, TConfigSaveLoadStrategyBasicUseProvider.Create, False, False, False, False);
+
+  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
+  Add(FMarksCategoryFactoryConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewCategory'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;

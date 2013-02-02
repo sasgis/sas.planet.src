@@ -34,12 +34,10 @@ uses
   i_NotifierOperation,
   i_GPSPositionFactory,
   i_LanguageManager,
-  i_InetConfig,
   i_Listener,
   i_BackgroundTask,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
-  i_LastSearchResultConfig,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_ContentTypeManager,
@@ -49,45 +47,29 @@ uses
   i_ProjConverter,
   i_BatteryStatus,
   i_LocalCoordConverterFactorySimpe,
-  i_ProxySettings,
   i_GPSModule,
-  i_GSMGeoCodeConfig,
   i_MainFormConfig,
-  i_WindowPositionConfig,
-  i_GlobalAppConfig,
-  i_BitmapPostProcessingConfig,
-  i_ValueToStringConverter,
   u_GarbageCollectorThread,
-  i_LastSelectionInfo,
   i_DownloadInfoSimple,
   i_ImageResamplerConfig,
   i_GeoCoderList,
-  i_MainMemCacheConfig,
   i_MarkPicture,
   i_InternalPerformanceCounter,
-  u_LastSelectionInfo,
   i_MarksSystem,
   u_MapTypesMainList,
-  i_ThreadConfig,
-  i_ZmpConfig,
   i_ZmpInfoSet,
-  i_GPSConfig,
   i_PathConfig,
   i_NotifierTime,
   i_Bitmap32StaticFactory,
   i_MapCalibration,
   i_MarksFactoryConfig,
   i_MarkCategoryFactoryConfig,
-  i_GlobalViewMainConfig,
-  i_GlobalDownloadConfig,
-  i_StartUpLogoConfig,
   i_ImportFile,
   i_PathDetalizeProviderList,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
   i_SensorList,
   i_TerrainProviderList,
-  i_TerrainConfig,
   i_VectorItemsFactory,
   i_InvisibleBrowser,
   i_InternalBrowser,
@@ -136,8 +118,6 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FGeoCoderList: IGeoCoderList;
     FMarkPictureList: IMarkPictureList;
-    FMarksFactoryConfig: IMarksFactoryConfig;
-    FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     FGpsSystem: IGPSModule;
     FImportFileByExt: IImportFile;
     FGPSRecorder: IGPSRecorder;
@@ -212,7 +192,6 @@ type
 
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessing: IBitmapPostProcessingChangeable read FBitmapPostProcessing;
-    property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read FMarksCategoryFactoryConfig;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
@@ -264,24 +243,17 @@ uses
   u_MarksSystem,
   u_MapCalibrationListBasic,
   u_XmlInfoSimpleParser,
-  u_KmlInfoSimpleParser,
-  u_KmzInfoSimpleParser,
   u_CoordConverterFactorySimple,
   u_CoordConverterListStaticSimple,
   u_DownloadInfoSimple,
-  u_StartUpLogoConfig,
   u_Datum,
   u_PLTSimpleParser,
   u_MarkCategoryFactoryConfig,
   u_GeoCoderListSimple,
-  u_BitmapPostProcessingConfig,
-  u_GlobalAppConfig,
   u_MarkPictureListSimple,
   u_MarksFactoryConfig,
-  u_ImageResamplerConfig,
   u_ImageResamplerFactoryListStaticSimple,
   u_ImportByFileExt,
-  u_GlobalViewMainConfig,
   u_GlobalBerkeleyDBHelper,
   u_GPSRecorder,
   u_GpsTrackRecorder,
@@ -292,15 +264,12 @@ uses
   u_LocalCoordConverterFactorySimpe,
   u_TerrainProviderList,
   u_MainFormConfig,
-  u_LastSearchResultConfig,
   u_ProjConverterFactory,
   u_PathConfig,
-  u_ThreadConfig,
   u_BatteryStatus,
   u_ZmpInfoSet,
   u_ZmpFileNamesIteratorFactory,
   u_SensorListStuped,
-  u_WindowPositionConfig,
   u_HtmlToHintTextConverterStuped,
   u_InvisibleBrowserByFormSynchronize,
   u_InternalBrowserByForm,
@@ -544,12 +513,6 @@ begin
       FGlobalConfig.ValueToStringConverterConfig
     );
   FMarkPictureList := TMarkPictureListSimple.Create(FGlobalConfig.MarksIconsPath, FContentTypeManager);
-  FMarksFactoryConfig :=
-    TMarksFactoryConfig.Create(
-      FGlobalConfig.LanguageManager,
-      FMarkPictureList
-    );
-  FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FGlobalConfig.LanguageManager);
 
   FMarksDb :=
     TMarksSystem.Create(
@@ -559,8 +522,8 @@ begin
       FVectorItemsFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       THtmlToHintTextConverterStuped.Create,
-      FMarksFactoryConfig,
-      FMarksCategoryFactoryConfig
+      FGlobalConfig.MarksFactoryConfig,
+      FGlobalConfig.MarksCategoryFactoryConfig
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
   VFilesIterator := VFilesIteratorFactory.CreateIterator(FGlobalConfig.MapsPath.FullPath, '');
@@ -638,7 +601,6 @@ begin
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
   FMainFormConfig := nil;
-  FMarksCategoryFactoryConfig := nil;
   FMarkPictureList := nil;
   FSkyMapDraw := nil;
   FreeAndNil(FProtocol);
@@ -859,8 +821,6 @@ begin
   if (not ModuleIsLib) then begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
     FMarkPictureList.ReadConfig(MainConfigProvider);
-    FMarksFactoryConfig.ReadConfig(MainConfigProvider);
-    FMarksCategoryFactoryConfig.ReadConfig(MainConfigProvider.GetSubItem('MarkNewCategory'));
     FMarksDb.ReadConfig(MainConfigProvider);
   end;
 end;
@@ -908,8 +868,6 @@ begin
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.SaveConfig(FMainConfigProvider);
   FMarkPictureList.WriteConfig(MainConfigProvider);
-  FMarksFactoryConfig.WriteConfig(MainConfigProvider);
-  FMarksCategoryFactoryConfig.WriteConfig(MainConfigProvider.GetOrCreateSubItem('MarkNewCategory'));
   FMarksDb.WriteConfig(MainConfigProvider);
   FGlobalConfig.WriteConfig(MainConfigProvider);
 end;

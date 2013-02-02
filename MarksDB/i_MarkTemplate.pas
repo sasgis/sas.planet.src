@@ -49,8 +49,8 @@ type
     function GetMarkerSize: Integer;
     property MarkerSize: Integer read GetMarkerSize;
 
-    function GetPic: IMarkPicture;
-    property Pic: IMarkPicture read GetPic;
+    function GetPicName: string;
+    property PicName: string read GetPicName;
 
     function IsSame(const ATemplate: IMarkTemplatePoint): Boolean;
   end;

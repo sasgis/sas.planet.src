@@ -109,6 +109,7 @@ uses
   SysUtils,
   i_MarkTemplate,
   i_MarkFactory,
+  i_MarkPicture,
   i_MarksFactoryConfig,
   u_ImportConfig;
 
@@ -153,6 +154,9 @@ var
   VPointTemplate: IMarkTemplatePoint;
   VPathTemplate: IMarkTemplateLine;
   VPolyTemplate: IMarkTemplatePoly;
+  VPicName: string;
+  VPicIndex: Integer;
+  VPic: IMarkPicture;
 begin
   frMarkCategory.Parent := pnlCategory;
   frMarkCategory.Init(ACategory);
@@ -165,7 +169,18 @@ begin
   VConfig := VFactory.Config;
 
   VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
-  frSelectPicture.Picture := VPointTemplate.Pic;
+
+  VPicName := VPointTemplate.PicName;
+  if VPicName <> '' then begin
+    VPic := nil;
+    VPicIndex := FMarksDb.Factory.MarkPictureList.GetIndexByName(VPicName);
+    if VPicIndex >= 0 then begin
+      VPic := FMarksDb.Factory.MarkPictureList.Get(VPicIndex);
+    end;
+  end else begin
+    VPic := FMarksDb.Factory.MarkPictureList.GetDefaultPicture;
+  end;
+  frSelectPicture.Picture := VPic;
   frSelectedPicture.Picture := frSelectPicture.Picture;
 
   clrbxPointTextColor.Selected := WinColor(VPointTemplate.TextColor);
@@ -214,12 +229,17 @@ var
   VMarkTemplateLine: IMarkTemplateLine;
   VMarkTemplatePoly: IMarkTemplatePoly;
   VCategory: ICategory;
+  VPicName: string;
 begin
   if not chkPointIgnore.Checked then begin
     VCategory := frMarkCategory.GetCategory;
+    VPicName := '';
+    if frSelectPicture.Picture <> nil then begin
+      VPicName := frSelectPicture.Picture.GetName;
+    end;
     VMarkTemplatePoint :=
       FMarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
-        frSelectPicture.Picture,
+        VPicName,
         VCategory,
         SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointShadowAlfa.Value)/100)*256)),

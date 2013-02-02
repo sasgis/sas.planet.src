@@ -34,14 +34,11 @@ type
   IMarkPointTemplateConfig = interface(IConfigDataElement)
     ['{B796934A-83FE-4E8A-B69D-11237690AA23}']
     function CreateTemplate(
-      const APic: IMarkPicture;
+      const APicName: string;
       const ACategory: ICategory;
       ATextColor, ATextBgColor: TColor32;
       AFontSize, AMarkerSize: Integer
     ): IMarkTemplatePoint;
-
-    function GetMarkPictureList: IMarkPictureList;
-    property MarkPictureList: IMarkPictureList read GetMarkPictureList;
 
     function GetDefaultTemplate: IMarkTemplatePoint;
     procedure SetDefaultTemplate(const AValue: IMarkTemplatePoint);

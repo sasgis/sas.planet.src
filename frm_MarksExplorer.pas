@@ -208,6 +208,7 @@ uses
   i_StaticTreeItem,
   i_ImportConfig,
   i_MarkTemplate,
+  i_MarkPicture,
   i_MarksFactoryConfig,
   i_VectorItemLonLat,
   u_ListenerByEvent;
@@ -551,6 +552,9 @@ var
   VCategoryPoint: ICategory;
   VCategoryLine: ICategory;
   VCategoryPoly: ICategory;
+  VPicName: string;
+  VPicIndex: Integer;
+  VPic: IMarkPicture;
   VMarkId: IMarkId;
   i:integer;
 begin
@@ -571,6 +575,16 @@ begin
             FMarkDBGUI.MarksDb.GetMarkCategoryByStringId(
               VImportConfig.TemplateNewPoint.CategoryStringID
             );
+            VPicName := VImportConfig.TemplateNewPoint.PicName;
+            if VPicName <> '' then begin
+              VPic := nil;
+              VPicIndex := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.GetIndexByName(VPicName);
+              if VPicIndex >= 0 then begin
+                VPic := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.Get(VPicIndex);
+              end;
+            end else begin
+              VPic := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.GetDefaultPicture;
+            end;
         end;
         if VImportConfig.TemplateNewLine <> nil then begin
           VCategoryLine :=
@@ -593,7 +607,7 @@ begin
                 VMarkPoint,
                 VMarkPoint.Name,
                 FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
-                VImportConfig.TemplateNewPoint.Pic,
+                VPic,
                 VCategoryPoint,
                 VMarkPoint.Desc,
                 VMarkPoint.Point,
@@ -923,7 +937,7 @@ begin
     VPointTemplate := VTemplateConfig.DefaultTemplate;
     VPointTemplate :=
       VTemplateConfig.CreateTemplate(
-        VPointTemplate.Pic,
+        VPointTemplate.PicName,
         VCategory,
         VPointTemplate.TextColor,
         VPointTemplate.TextBgColor,

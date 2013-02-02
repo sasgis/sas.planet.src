@@ -42,6 +42,7 @@ uses
   i_MarksDb,
   i_MarksDbSmlInternal,
   i_MarkFactorySmlInternal,
+  i_MarkPicture,
   i_ReadWriteStateInternal,
   u_ConfigDataElementBase;
 
@@ -133,6 +134,7 @@ type
     constructor Create(
       const AStateInternal: IReadWriteStateInternal;
       const ABasePath: IPathConfig;
+      const AMarkPictureList: IMarkPictureList;
       const ACategoryDB: IMarkCategoryDBSmlInternal;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -311,6 +313,7 @@ end;
 constructor TMarksDb.Create(
   const AStateInternal: IReadWriteStateInternal;
   const ABasePath: IPathConfig;
+  const AMarkPictureList: IMarkPictureList;
   const ACategoryDB: IMarkCategoryDBSmlInternal;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AVectorItemsFactory: IVectorItemsFactory;
@@ -327,6 +330,7 @@ begin
   VFactory :=
     TMarkFactory.Create(
       AFactoryConfig,
+      AMarkPictureList,
       AVectorItemsFactory,
       AHintConverter,
       ACategoryDB
