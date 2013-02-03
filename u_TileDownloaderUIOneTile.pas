@@ -176,40 +176,59 @@ var
   VResultNotNecessary: IDownloadResultNotNecessary;
   VResultDataNotExists: IDownloadResultDataNotExists;
   VRequestError: ITileRequestResultError;
-  VErrorString: string;
   VError: ITileErrorInfo;
 begin
   FGlobalInternetState.DecQueueCount;
   if AResult <> nil then begin
-    VErrorString := '';
+    VError := nil;
     if Supports(AResult, ITileRequestResultError, VRequestError) then begin
-      VErrorString := VRequestError.ErrorText;
+      VError :=
+        TTileErrorInfoByTileRequestResult.Create(
+          FMapType.Zmp.GUID,
+          VRequestError
+        );
     end else if Supports(AResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
       if Supports(VResultWithDownload.DownloadResult, IDownloadResultOk, VDownloadResultOk) then begin
         if FDownloadInfo <> nil then begin
           FDownloadInfo.Add(1, VDownloadResultOk.Data.Size);
         end;
       end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists, VResultDataNotExists) then begin
-        VErrorString := VResultDataNotExists.ReasonText;
+        VError :=
+          TTileErrorInfoByDataNotExists.Create(
+            FMapType.Zmp.GUID,
+            AResult.Request.Zoom,
+            AResult.Request.Tile,
+            VResultDataNotExists
+          );
       end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
-        VErrorString := VResultDownloadError.ErrorText;
+        VError :=
+          TTileErrorInfoByDownloadResultError.Create(
+            FMapType.Zmp.GUID,
+            AResult.Request.Zoom,
+            AResult.Request.Tile,
+            VResultDownloadError
+          );
       end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary, VResultNotNecessary) then begin
-        VErrorString := VResultNotNecessary.ReasonText;
+        VError :=
+          TTileErrorInfoByNotNecessary.Create(
+            FMapType.Zmp.GUID,
+            AResult.Request.Zoom,
+            AResult.Request.Tile,
+            VResultNotNecessary
+          );
       end else begin
-        VErrorString := 'Unexpected error';
+        VError :=
+          TTileErrorInfo.Create(
+            FMapType.Zmp.GUID,
+            AResult.Request.Zoom,
+            AResult.Request.Tile,
+            'Unexpected error'
+          );
       end;
     end;
 
-    if VErrorString <> '' then begin
+    if VError <> nil then begin
       if FErrorLogger <> nil then begin
-        VErrorString := 'Error: ' + VErrorString;
-        VError :=
-          TTileErrorInfo.Create(
-            FMapType,
-            AResult.Request.Zoom,
-            AResult.Request.Tile,
-            VErrorString
-          );
         FErrorLogger.LogError(VError);
       end;
     end;

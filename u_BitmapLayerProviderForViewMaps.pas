@@ -164,7 +164,7 @@ begin
       if FErrorLogger <> nil then begin
         VError :=
           TTileErrorInfo.Create(
-            AMapType.MapType,
+            AMapType.MapType.Zmp.GUID,
             AZoom,
             ATile,
             E.Message
@@ -177,7 +177,7 @@ begin
     else if FErrorLogger <> nil then begin
         FErrorLogger.LogError(
           TTileErrorInfo.Create(
-          AMapType.MapType,
+          AMapType.MapType.Zmp.GUID,
           AZoom,
           ATile,
           'Unexpected read tile error'

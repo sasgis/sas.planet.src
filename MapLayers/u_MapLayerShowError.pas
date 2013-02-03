@@ -18,6 +18,7 @@ uses
   i_SimpleFlag,
   i_MarkerDrawable,
   i_TileErrorLogProviedrStuped,
+  i_MapTypes,
   u_MapType,
   u_MapLayerBasic;
 
@@ -26,6 +27,7 @@ type
   private
     FLogProvider: ITileErrorLogProviedrStuped;
     FBitmapFactory: IBitmap32StaticFactory;
+    FMapsSet: IMapTypeSet;
     FNeedUpdateFlag: ISimpleFlag;
 
     FErrorInfo: ITileErrorInfo;
@@ -35,7 +37,10 @@ type
 
     procedure OnTimer;
     procedure OnErrorRecive;
-    function CreateMarkerByError(const AErrorInfo: ITileErrorInfo): IMarkerDrawable;
+    function CreateMarkerByError(
+      const AMapType: TMapType;
+      const AErrorInfo: ITileErrorInfo
+    ): IMarkerDrawable;
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -49,6 +54,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AMapsSet: IMapTypeSet;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ALogProvider: ITileErrorLogProviedrStuped;
       const ATimerNoifier: INotifierTime
@@ -59,6 +65,8 @@ implementation
 
 uses
   Types,
+  Classes,
+  c_ZeroGUID,
   i_CoordConverter,
   i_Bitmap32Static,
   u_ListenerByEvent,
@@ -77,6 +85,7 @@ constructor TTileErrorInfoLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AMapsSet: IMapTypeSet;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ALogProvider: ITileErrorLogProviedrStuped;
   const ATimerNoifier: INotifierTime
@@ -90,6 +99,7 @@ begin
     AView
   );
   FLogProvider := ALogProvider;
+  FMapsSet := AMapsSet;
   FBitmapFactory := ABitmapFactory;
   FErrorInfo := nil;
   FNeedUpdateFlag := TSimpleFlagWithInterlock.Create;
@@ -106,6 +116,7 @@ begin
 end;
 
 function TTileErrorInfoLayer.CreateMarkerByError(
+  const AMapType: TMapType;
   const AErrorInfo: ITileErrorInfo
 ): IMarkerDrawable;
 var
@@ -122,8 +133,8 @@ begin
     VBitmap := TBitmap32.Create;
     try
       VBitmap.CombineMode := cmMerge;
-      if AErrorInfo.MapType <> nil then begin
-        VText := AErrorInfo.MapType.GUIConfig.Name.Value;
+      if AMapType <> nil then begin
+        VText := AMapType.GUIConfig.Name.Value;
         VMapNameSize := VBitmap.TextExtent(VText);
         VSize.X := VMapNameSize.cx;
         VSize.Y := VMapNameSize.cy + 20;
@@ -230,6 +241,8 @@ var
   VFixedOnView: TDoublePoint;
   VErrorInfo: ITileErrorInfo;
   VConverter: ICoordConverter;
+  VGUID: TGUID;
+  VMap: IMapType;
   VMapType: TMapType;
   VZoom: Byte;
   VTile: TPoint;
@@ -242,7 +255,14 @@ begin
     FErrorInfoCS.EndRead;
   end;
   if FErrorInfo <> nil then begin
-    VMapType := VErrorInfo.MapType;
+    VGUID := VErrorInfo.MapTypeGUID;
+    VMapType := nil;
+    if not IsEqualGUID(VGUID, CGUID_Zero) then begin
+      VMap := FMapsSet.GetMapTypeByGUID(VGUID);
+      if VMap <> nil then begin
+        VMapType := VMap.MapType;
+      end;
+    end;
     VConverter := VMapType.GeoConvert;
     VZoom := VErrorInfo.Zoom;
     VTile := VErrorInfo.Tile;
@@ -253,7 +273,7 @@ begin
     if PixelPointInRect(VFixedOnView, DoubleRect(ALocalConverter.GetLocalRect)) then begin
       VMarker := FMarker;
       if VMarker = nil then begin
-        VMarker := CreateMarkerByError(FErrorInfo);
+        VMarker := CreateMarkerByError(VMapType, FErrorInfo);
       end;
       FMarker := VMarker;
       if VMarker <> nil then begin

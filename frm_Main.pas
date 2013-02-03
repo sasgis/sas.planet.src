@@ -1795,6 +1795,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState.View,
+      FConfig.MainMapsConfig.GetAllMapsSet,
       GState.BitmapFactory,
       FTileErrorLogProvider,
       GState.GUISyncronizedTimerNotifier

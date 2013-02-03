@@ -29,8 +29,8 @@ uses
 type
   ITileErrorInfo = interface
     ['{35CA6508-14F7-43D0-BA19-C6FE088936FB}']
-    function GetMapType: TMapType;
-    property MapType: TMapType read GetMapType;
+    function GetMapTypeGUID: TGUID;
+    property MapTypeGUID: TGUID read GetMapTypeGUID;
 
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;

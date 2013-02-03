@@ -372,9 +372,13 @@ begin
   end;
 end;
 
-procedure TMapLayerVectorMaps.AddElementsFromMap(AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation; const AElments: IInterfaceList;
-  Alayer: TMapType; const ALocalConverter: ILocalCoordConverter);
+procedure TMapLayerVectorMaps.AddElementsFromMap(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const AElments: IInterfaceList;
+  Alayer: TMapType;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   ii: integer;
   kml: IVectorDataItemList;
@@ -427,7 +431,7 @@ begin
     if VErrorString <> '' then begin
       VError :=
         TTileErrorInfo.Create(
-          Alayer,
+          Alayer.Zmp.GUID,
           VZoom,
           VTile,
           VErrorString

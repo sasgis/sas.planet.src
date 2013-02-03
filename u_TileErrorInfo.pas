@@ -25,45 +25,139 @@ interface
 uses
   Types,
   i_TileError,
+  i_TileRequestResult,
+  i_DownloadResult,
   u_MapType,
   u_BaseInterfacedObject;
 
 type
-  TTileErrorInfo = class(TBaseInterfacedObject, ITileErrorInfo)
+  TTileErrorInfoBase = class(TBaseInterfacedObject, ITileErrorInfo)
   private
-    FMapType: TMapType;
+    FMapTypeGUID: TGUID;
     FZoom: Byte;
     FTile: TPoint;
-    FErrorText: string;
   private
-    function GetMapType: TMapType;
+    function GetMapTypeGUID: TGUID;
     function GetZoom: Byte;
     function GetTile: TPoint;
-    function GetErrorText: string;
+    function GetErrorText: string; virtual; abstract;
   public
     constructor Create(
-      AMapType: TMapType;
-      AZoom: Byte;
+      const AMapTypeGUID: TGUID;
+      const AZoom: Byte;
+      const ATile: TPoint
+    );
+  end;
+
+  TTileErrorInfo = class(TTileErrorInfoBase)
+  private
+    FErrorText: string;
+  private
+    function GetErrorText: string; override;
+  public
+    constructor Create(
+      const AMapTypeGUID: TGUID;
+      const AZoom: Byte;
       const ATile: TPoint;
       const AErrorText: string
     );
   end;
 
+  TTileErrorInfoByDataNotExists = class(TTileErrorInfoBase)
+  private
+    FResult: IDownloadResultDataNotExists;
+  private
+    function GetErrorText: string; override;
+  public
+    constructor Create(
+      const AMapTypeGUID: TGUID;
+      const AZoom: Byte;
+      const ATile: TPoint;
+      const AResult: IDownloadResultDataNotExists
+    );
+  end;
+
+  TTileErrorInfoByDownloadResultError = class(TTileErrorInfoBase)
+  private
+    FResult: IDownloadResultError;
+  private
+    function GetErrorText: string; override;
+  public
+    constructor Create(
+      const AMapTypeGUID: TGUID;
+      const AZoom: Byte;
+      const ATile: TPoint;
+      const AResult: IDownloadResultError
+    );
+  end;
+
+  TTileErrorInfoByNotNecessary = class(TTileErrorInfoBase)
+  private
+    FResult: IDownloadResultNotNecessary;
+  private
+    function GetErrorText: string; override;
+  public
+    constructor Create(
+      const AMapTypeGUID: TGUID;
+      const AZoom: Byte;
+      const ATile: TPoint;
+      const AResult: IDownloadResultNotNecessary
+    );
+  end;
+
+  TTileErrorInfoByTileRequestResult = class(TTileErrorInfoBase)
+  private
+    FResult: ITileRequestResultError;
+  private
+    function GetErrorText: string; override;
+  public
+    constructor Create(
+      const AMapTypeGUID: TGUID;
+      const AResult: ITileRequestResultError
+    );
+  end;
+
 implementation
+
+{ TTileErrorInfoBase }
+
+constructor TTileErrorInfoBase.Create(
+  const AMapTypeGUID: TGUID;
+  const AZoom: Byte;
+  const ATile: TPoint
+);
+begin
+  inherited Create;
+  FMapTypeGUID := AMapTypeGUID;
+  FZoom := AZoom;
+  FTile := ATile;
+end;
+
+function TTileErrorInfoBase.GetMapTypeGUID: TGUID;
+begin
+  Result := FMapTypeGUID;
+end;
+
+function TTileErrorInfoBase.GetTile: TPoint;
+begin
+  Result := FTile;
+end;
+
+function TTileErrorInfoBase.GetZoom: Byte;
+begin
+  Result := FZoom;
+end;
 
 { TTileErrorInfo }
 
 constructor TTileErrorInfo.Create(
-  AMapType: TMapType;
-  AZoom: Byte;
+  const AMapTypeGUID: TGUID;
+  const AZoom: Byte;
   const ATile: TPoint;
   const AErrorText: string
 );
 begin
-  inherited Create;
-  FMapType := AMapType;
-  FZoom := AZoom;
-  FTile := ATile;
+  inherited Create(AMapTypeGUID, AZoom, ATile);
   FErrorText := AErrorText;
 end;
 
@@ -72,19 +166,69 @@ begin
   Result := FErrorText;
 end;
 
-function TTileErrorInfo.GetMapType: TMapType;
+{ TTileErrorInfoByTileRequestResult }
+
+constructor TTileErrorInfoByTileRequestResult.Create(
+  const AMapTypeGUID: TGUID;
+  const AResult: ITileRequestResultError
+);
 begin
-  Result := FMapType;
+  Assert(AResult <> nil);
+  inherited Create(AMapTypeGUID, AResult.Request.Zoom, AResult.Request.Tile);
+  FResult := AResult;
 end;
 
-function TTileErrorInfo.GetTile: TPoint;
+function TTileErrorInfoByTileRequestResult.GetErrorText: string;
 begin
-  Result := FTile;
+  Result := FResult.ErrorText;
 end;
 
-function TTileErrorInfo.GetZoom: Byte;
+{ TTileErrorInfoByDataNotExists }
+
+constructor TTileErrorInfoByDataNotExists.Create(
+  const AMapTypeGUID: TGUID;
+  const AZoom: Byte;
+  const ATile: TPoint;
+  const AResult: IDownloadResultDataNotExists
+);
 begin
-  Result := FZoom;
+  inherited Create(AMapTypeGUID, AZoom, ATile);
+  FResult := AResult;
+end;
+
+function TTileErrorInfoByDataNotExists.GetErrorText: string;
+begin
+  Result := FResult.ReasonText;
+end;
+
+{ TTileErrorInfoByDownloadResultError }
+
+constructor TTileErrorInfoByDownloadResultError.Create(
+  const AMapTypeGUID: TGUID; const AZoom: Byte; const ATile: TPoint;
+  const AResult: IDownloadResultError);
+begin
+  inherited Create(AMapTypeGUID, AZoom, ATile);
+  FResult := AResult;
+end;
+
+function TTileErrorInfoByDownloadResultError.GetErrorText: string;
+begin
+  Result := FResult.ErrorText;
+end;
+
+{ TTileErrorInfoByNotNecessary }
+
+constructor TTileErrorInfoByNotNecessary.Create(const AMapTypeGUID: TGUID;
+  const AZoom: Byte; const ATile: TPoint;
+  const AResult: IDownloadResultNotNecessary);
+begin
+  inherited Create(AMapTypeGUID, AZoom, ATile);
+  FResult := AResult;
+end;
+
+function TTileErrorInfoByNotNecessary.GetErrorText: string;
+begin
+  Result := FResult.ReasonText;
 end;
 
 end.
