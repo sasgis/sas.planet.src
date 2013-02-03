@@ -28,14 +28,17 @@ type
 
   IErrorInfoTile = interface
     ['{B10B733B-BA3F-416D-B9B1-9BDDE576BB30}']
-    function GetGeoConverter: ICoordConverter;
-    property GeoConverter: ICoordConverter read GetGeoConverter;
-
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
     function GetTile: TPoint;
     property Tile: TPoint read GetTile;
+  end;
+
+  IErrorInfoMapType = interface
+    ['{2A88F07B-6C27-45E9-B37C-A1F58EE6008B}']
+    function GetMapTypeGUID: TGUID;
+    property MapTypeGUID: TGUID read GetMapTypeGUID;
   end;
 
 implementation
