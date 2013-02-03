@@ -97,6 +97,11 @@ constructor TfrmProgressSimple.Create(
   const APolygon: ILonLatPolygon
 );
 begin
+  Assert(AAppClosingNotifier <> nil);
+  Assert(ATimerNoifier <> nil);
+  Assert(ACancelNotifier <> nil);
+  Assert(AMapGoto <> nil);
+  Assert(APolygon <> nil);
   inherited Create(AOwner);
   FRarProgress := TRarProgress.Create(Self);
   with FRarProgress do begin

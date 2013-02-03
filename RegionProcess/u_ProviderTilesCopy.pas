@@ -112,7 +112,7 @@ begin
   Result := SAS_STR_OperationTilesCopyCaption;
 end;
 
-procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto);
 var
   VPath: string;
   VZoomArr: TByteDynArray;

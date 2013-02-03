@@ -29,6 +29,7 @@ uses
   i_MarksDrawConfig,
   i_MarksSystem,
   i_MapCalibration,
+  i_MapViewGoto,
   i_VectorItemsFactory,
   i_GlobalViewMainConfig,
   u_ExportProviderAbstract,
@@ -66,6 +67,8 @@ type
     ): IBitmapLayerProvider;
     function PreparePolygon(const APolygon: ILonLatPolygon): IProjectedPolygon;
     procedure PrepareProcessInfo(
+      const APolygon: ILonLatPolygon;
+      const AMapGoto: IMapViewGoto;
       out ACancelNotifier: INotifierOperation;
       out AOperationID: Integer;
       out AProgressInfo: IRegionProcessProgressInfoInternal
@@ -331,6 +334,8 @@ begin
 end;
 
 procedure TProviderMapCombineBase.PrepareProcessInfo(
+  const APolygon: ILonLatPolygon;
+  const AMapGoto: IMapViewGoto;
   out ACancelNotifier: INotifierOperation;
   out AOperationID: Integer;
   out AProgressInfo: IRegionProcessProgressInfoInternal
@@ -351,9 +356,9 @@ begin
     FTimerNoifier,
     VCancelNotifierInternal,
     VProgressInfo,
-    nil,
-    nil,
-);
+    AMapGoto,
+    APolygon
+  );
 end;
 
 function TProviderMapCombineBase.PrepareTargetConverter(

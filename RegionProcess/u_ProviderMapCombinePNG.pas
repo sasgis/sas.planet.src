@@ -133,7 +133,13 @@ begin
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
   VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
 
-  PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
+  PrepareProcessInfo(
+    APolygon,
+    AMapGoto,
+    VCancelNotifier,
+    VOperationID,
+    VProgressInfo
+  );
   TThreadMapCombinePNG.Create(
     VCancelNotifier,
     VOperationID,

@@ -155,7 +155,13 @@ begin
     ShowMessage(SAS_MSG_GarminMax1Mp);
   end;
 
-  PrepareProcessInfo(VCancelNotifier, VOperationID, VProgressInfo);
+  PrepareProcessInfo(
+    APolygon,
+    AMapGoto,
+    VCancelNotifier,
+    VOperationID,
+    VProgressInfo
+  );
   TThreadMapCombineKMZ.Create(
     VCancelNotifier,
     VOperationID,
