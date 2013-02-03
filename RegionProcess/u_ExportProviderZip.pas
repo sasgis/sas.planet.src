@@ -9,6 +9,7 @@ uses
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
@@ -43,7 +44,7 @@ type
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
 
@@ -114,7 +115,7 @@ begin
   Result := SAS_STR_ExportZipPackCaption;
 end;
 
-procedure TExportProviderZip.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderZip.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VPath: string;
   Zoomarr: TByteDynArray;
@@ -139,7 +140,9 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    AMapGoto,
+    APolygon
   );
 
   TThreadExportToArchive.Create(

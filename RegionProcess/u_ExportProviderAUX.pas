@@ -8,6 +8,7 @@ uses
   i_NotifierOperation,
   i_LanguageManager,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
@@ -36,7 +37,7 @@ type
       const AVectorItemsFactory: IVectorItemsFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
 
@@ -99,7 +100,7 @@ begin
   Result := SAS_STR_ExportAUXGeoServerCaption;
 end;
 
-procedure TExportProviderAUX.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderAUX.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VPath: string;
   VMapType: TMapType;
@@ -129,7 +130,9 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    AMapGoto,
+    APolygon
   );
 
   TThreadExportToAUX.Create(

@@ -20,6 +20,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_Bitmap32StaticFactory,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_TileFileNameGeneratorsList,
   i_MapTypeGUIConfigList,
@@ -54,7 +55,7 @@ type
     ); reintroduce;
     destructor Destroy; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon);
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
     procedure Show(
       AParent: TWinControl;
       AZoom: byte;
@@ -352,13 +353,13 @@ begin
   CBFormatChange(nil);
 end;
 
-procedure TfrExport.StartProcess(const APolygon: ILonLatPolygon);
+procedure TfrExport.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VExportProvider: TExportProviderAbstract;
 begin
   VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[CBFormat.ItemIndex]);
   if VExportProvider <> nil then begin
-    VExportProvider.StartProcess(APolygon);
+    VExportProvider.StartProcess(APolygon, AMapGoto);
   end;
 end;
 

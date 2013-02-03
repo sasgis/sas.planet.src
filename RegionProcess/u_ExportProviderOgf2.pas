@@ -14,6 +14,7 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_LanguageManager,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract,
@@ -48,7 +49,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
 implementation
@@ -125,7 +126,7 @@ begin
   Result := SAS_STR_ExportOgf2PackCaption;
 end;
 
-procedure TExportProviderOgf2.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderOgf2.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VTargetFile: string;
   VCancelNotifierInternal: INotifierOperationInternal;
@@ -153,8 +154,10 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
-  );
+    VProgressInfo,
+    AMapGoto,
+    APolygon
+);
 
   TThreadExportToOgf2.Create(
     VCancelNotifierInternal,

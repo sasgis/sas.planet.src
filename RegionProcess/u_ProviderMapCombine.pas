@@ -350,8 +350,10 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
-  );
+    VProgressInfo,
+    nil,
+    nil,
+);
 end;
 
 function TProviderMapCombineBase.PrepareTargetConverter(

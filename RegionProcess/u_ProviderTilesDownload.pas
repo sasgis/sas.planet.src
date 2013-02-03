@@ -36,6 +36,7 @@ uses
   i_ValueToStringConverter,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
+  i_MapViewGoto,
   u_MapType,
   u_ExportProviderAbstract,
   fr_TilesDownload;
@@ -65,7 +66,7 @@ type
       const ADownloadInfo: IDownloadInfoSimple
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
     procedure StartBySLS(const AFileName: string);
   end;
 
@@ -296,7 +297,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDownload.StartProcess(const APolygon: ILonLatPolygon);
+procedure TProviderTilesDownload.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VMapType: TMapType;
   VZoom: byte;

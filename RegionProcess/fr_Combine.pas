@@ -15,6 +15,7 @@ uses
   i_CoordConverterList,
   i_VectorItemLonLat,
   i_MapTypes,
+  i_MapViewGoto,
   i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -67,7 +68,7 @@ type
     ); reintroduce;
     destructor Destroy; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon);
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
     procedure Show(
       AParent: TWinControl;
       AZoom: byte;
@@ -323,13 +324,13 @@ begin
   cbbOutputFormatChange(nil);
 end;
 
-procedure TfrCombine.StartProcess(const APolygon: ILonLatPolygon);
+procedure TfrCombine.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VExportProvider: TExportProviderAbstract;
 begin
   VExportProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[cbbOutputFormat.ItemIndex]);
   if VExportProvider <> nil then begin
-    VExportProvider.StartProcess(APolygon);
+    VExportProvider.StartProcess(APolygon, AMapGoto);
   end;
 end;
 

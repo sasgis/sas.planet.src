@@ -8,6 +8,7 @@ uses
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_RegionProcessParamsFrame;
@@ -43,7 +44,10 @@ type
       const APolygon: ILonLatPolygon
     );
     procedure Hide;
-    procedure StartProcess(const APolygon: ILonLatPolygon); virtual; abstract;
+    procedure StartProcess(
+      const APolygon: ILonLatPolygon;
+      const AMapGoto: IMapViewGoto
+    ); virtual; abstract;
   end;
 
 implementation

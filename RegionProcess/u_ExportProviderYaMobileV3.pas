@@ -11,6 +11,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
+  i_MapViewGoto,
   i_LocalCoordConverterFactorySimpe,
   i_Bitmap32StaticFactory,
   i_VectorItemsFactory,
@@ -49,7 +50,12 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+//    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(
+      const APolygon: ILonLatPolygon;
+      const AMapGoto: IMapViewGoto
+    ); override;
+
   end;
 
 
@@ -119,7 +125,8 @@ begin
   Result := SAS_STR_ExportYaMobileV3Caption;
 end;
 
-procedure TExportProviderYaMobileV3.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderYaMobileV3.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+
 var
   VPath: string;
   VZoomArr: TByteDynArray;
@@ -151,7 +158,9 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    AMapGoto,
+    APolygon
   );
 
   TThreadExportYaMobileV3.Create(

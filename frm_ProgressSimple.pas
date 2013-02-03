@@ -34,23 +34,31 @@ uses
   i_NotifierTime,
   i_Listener,
   i_ListenerTime,
+  i_MapViewGoto,
+  i_VectorItemLonLat,
   i_RegionProcessProgressInfo,
   i_NotifierOperation,
-  u_CommonFormAndFrameParents;
+  u_CommonFormAndFrameParents, Buttons;
 
 type
   TfrmProgressSimple = class(TCommonFormParent)
     MemoInfo: TMemo;
     pnlProgress: TPanel;
+    SpeedButton_fit: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoInfoChange(Sender: TObject);
+    procedure SpeedButton_fitClick(Sender: TObject);
   private
     FCancelNotifier: INotifierOperationInternal;
     FProgressInfo: IRegionProcessProgressInfo;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifierTime;
+    FMapGoto: IMapViewGoto;
+    FPolygon: ILonLatPolygon;
+
+
 
     FRarProgress: TRarProgress;
     FAppClosingListener: IListener;
@@ -64,7 +72,9 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
       const ACancelNotifier: INotifierOperationInternal;
-      const AProgressInfo: IRegionProcessProgressInfo
+      const AProgressInfo: IRegionProcessProgressInfo;
+      const AMapGoto: IMapViewGoto;
+      const APolygon: ILonLatPolygon
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -82,7 +92,9 @@ constructor TfrmProgressSimple.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
   const ACancelNotifier: INotifierOperationInternal;
-  const AProgressInfo: IRegionProcessProgressInfo
+  const AProgressInfo: IRegionProcessProgressInfo;
+  const AMapGoto: IMapViewGoto;
+  const APolygon: ILonLatPolygon
 );
 begin
   inherited Create(AOwner);
@@ -115,6 +127,8 @@ begin
   FRarProgress.Max := 100;
   FRarProgress.Progress1 := 0;
   FRarProgress.Visible := True;
+  FMapGoto := AMapGoto;
+  FPolygon := APolygon;
 
   FCancelNotifier := ACancelNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -195,6 +209,14 @@ begin
       Close;
     end;
   end;
+end;
+
+procedure TfrmProgressSimple.SpeedButton_fitClick(Sender: TObject);
+begin
+  if (FMapGoto <> nil) and (FPolygon <> nil) then begin
+    FMapGoto.FitRectToScreen(FPolygon.Bounds.Rect);
+  end;
+
 end;
 
 end.

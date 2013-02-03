@@ -11,6 +11,7 @@ uses
   i_VectorItemsFactory,
   i_LanguageManager,
   i_MapTypes,
+  i_mapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   u_ExportProviderAbstract;
@@ -38,7 +39,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
 implementation
@@ -105,7 +106,7 @@ begin
   Result := SAS_STR_ExportCEPackCaption;
 end;
 
-procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VPath: string;
   Zoomarr: TByteDynArray;
@@ -135,7 +136,9 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    AMapGoto,
+    APolygon
   );
 
   TThreadExportToCE.Create(

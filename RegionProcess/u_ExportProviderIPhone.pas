@@ -9,6 +9,7 @@ uses
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_Bitmap32StaticFactory,
   i_CoordConverterFactory,
@@ -51,7 +52,7 @@ type
       ANewFormat: Boolean
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
 
@@ -127,7 +128,7 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VPath: string;
   VZoomArr: TByteDynArray;
@@ -176,7 +177,9 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    AMapGoto,
+    APolygon
   );
 
   TThreadExportIPhone.Create(
