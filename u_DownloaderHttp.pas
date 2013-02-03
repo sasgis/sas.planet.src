@@ -495,6 +495,7 @@ var
   VProxyConfig: IProxyConfigStatic;
   VUserAgent: AnsiString;
   VProxyHost: AnsiString;
+  VPos: Integer;
 begin
   if (ARawHttpRequestHeader <> '') and
     (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then begin
@@ -544,10 +545,17 @@ begin
       end else if FHttpClientLastConfig.ProxyUseCustomSettings then begin
         FHttpClient.AccessType := wHttpAt_Proxy;
         VProxyHost := FHttpClientLastConfig.ProxyHost;
-        FHttpClient.ProxyParams.ProxyServer :=
-          ALCopyStr(VProxyHost, 0, ALPos(':', VProxyHost) - 1);
-        FHttpClient.ProxyParams.ProxyPort :=
-          ALStrToInt(ALCopyStr(VProxyHost, ALPos(':', VProxyHost) + 1, Length(VProxyHost)));
+        VPos := ALPos(':', VProxyHost);
+        if VPos > 0 then begin
+          FHttpClient.ProxyParams.ProxyServer :=
+            ALCopyStr(VProxyHost, 0, VPos - 1);
+          FHttpClient.ProxyParams.ProxyPort :=
+            ALStrToInt(ALCopyStr(VProxyHost, VPos + 1, Length(VProxyHost)));
+        end else begin
+          FHttpClient.ProxyParams.ProxyServer := VProxyHost;
+          FHttpClient.ProxyParams.ProxyPort := 0;
+        end;
+
         if FHttpClientLastConfig.ProxyUseLogin then begin
           FHttpClient.ProxyParams.ProxyUserName := FHttpClientLastConfig.ProxyUserName;
           FHttpClient.ProxyParams.ProxyPassword := FHttpClientLastConfig.ProxyPassword;
