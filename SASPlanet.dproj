@@ -396,6 +396,7 @@
     <DCCReference Include="i_Rect.pas" />
     <DCCReference Include="i_RegionProcessProgressInfo.pas" />
     <DCCReference Include="i_RegionProcessProgressInfoDownload.pas" />
+    <DCCReference Include="i_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_ScaleLineConfig.pas" />
     <DCCReference Include="i_SearchResultPresenter.pas" />
@@ -1095,6 +1096,7 @@
     <DCCReference Include="u_ReadWriteStateStatic.pas" />
     <DCCReference Include="u_RegionProcessProgressInfo.pas" />
     <DCCReference Include="u_RegionProcessProgressInfoDownload.pas" />
+    <DCCReference Include="u_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="u_ResStrings.pas" />
     <DCCReference Include="u_SASMainConfigProvider.pas" />
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />

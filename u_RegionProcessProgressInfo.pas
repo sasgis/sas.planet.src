@@ -3,6 +3,7 @@ unit u_RegionProcessProgressInfo;
 interface
 
 uses
+  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   u_BaseInterfacedObject;
 
@@ -14,6 +15,8 @@ type
     FCaption: string;
     FFirstLine: string;
     FSecondLine: string;
+    FCancelNotifier: INotifierOperation;
+    FOperationID: Integer;
   private
     function GetProcessedRatio: Double;
     procedure SetProcessedRatio(const AValue: Double);
@@ -30,17 +33,27 @@ type
     procedure SetSecondLine(const AValue: string);
 
     procedure Finish;
+    function GetCancelNotifier: INotifierOperation;
+    function GetOperationID: Integer;
   public
-    constructor Create;
+    constructor Create(
+      const ACancelNotifier: INotifierOperation;
+      const AOperationID: Integer
+    );
   end;
 
 implementation
 
 { TRegionProcessProgressInfo }
 
-constructor TRegionProcessProgressInfo.Create;
+constructor TRegionProcessProgressInfo.Create(
+  const ACancelNotifier: INotifierOperation;
+  const AOperationID: Integer
+);
 begin
   inherited Create;
+  FCancelNotifier := ACancelNotifier;
+  FOperationID := AOperationID;
   FFinished := False;
   FProcessedRatio := 0;
 end;
@@ -48,6 +61,11 @@ end;
 procedure TRegionProcessProgressInfo.Finish;
 begin
   FFinished := True;
+end;
+
+function TRegionProcessProgressInfo.GetCancelNotifier: INotifierOperation;
+begin
+  Result := FCancelNotifier;
 end;
 
 function TRegionProcessProgressInfo.GetCaption: string;
@@ -63,6 +81,11 @@ end;
 function TRegionProcessProgressInfo.GetFirstLine: string;
 begin
   Result := FFirstLine;
+end;
+
+function TRegionProcessProgressInfo.GetOperationID: Integer;
+begin
+  Result := FOperationID;
 end;
 
 function TRegionProcessProgressInfo.GetProcessedRatio: Double;

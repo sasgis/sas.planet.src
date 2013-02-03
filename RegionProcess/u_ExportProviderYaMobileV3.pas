@@ -151,7 +151,7 @@ begin
 
   VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
   VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create;
+  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
 
   TfrmProgressSimple.Create(
     Application,

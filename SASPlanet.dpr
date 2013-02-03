@@ -209,6 +209,8 @@ uses
   u_ImageLineProvider in 'u_ImageLineProvider.pas',
   i_RegionProcessProgressInfo in 'i_RegionProcessProgressInfo.pas',
   u_RegionProcessProgressInfo in 'u_RegionProcessProgressInfo.pas',
+  i_RegionProcessProgressInfoInternalFactory in 'i_RegionProcessProgressInfoInternalFactory.pas',
+  u_RegionProcessProgressInfoInternalFactory in 'u_RegionProcessProgressInfoInternalFactory.pas',
   i_RegionProcessProgressInfoDownload in 'i_RegionProcessProgressInfoDownload.pas',
   u_RegionProcessProgressInfoDownload in 'u_RegionProcessProgressInfoDownload.pas',
   u_ThreadDownloadTiles in 'RegionProcess\u_ThreadDownloadTiles.pas',

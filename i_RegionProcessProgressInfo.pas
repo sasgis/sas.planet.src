@@ -2,6 +2,9 @@ unit i_RegionProcessProgressInfo;
 
 interface
 
+uses
+  i_NotifierOperation;
+
 type
   IProgressInfoBase = interface
     ['{B636F3D1-3F17-4BE5-8D8E-E161F945E42D}']
@@ -14,6 +17,12 @@ type
 
   IProgressInfoInternalBase = interface
     ['{D5D89EE7-AAB5-485D-B497-30E1DE9EBBFC}']
+    function GetCancelNotifier: INotifierOperation;
+    property CancelNotifier: INotifierOperation read GetCancelNotifier;
+
+    function GetOperationID: Integer;
+    property OperationID: Integer read GetOperationID;
+
     procedure SetProcessedRatio(const AValue: Double);
     procedure Finish;
   end;
