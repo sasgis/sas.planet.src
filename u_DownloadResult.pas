@@ -327,7 +327,12 @@ end;
 
 function TDownloadResultError.GetErrorText: string;
 begin
-  Result := Format(gettext(FErrorTextFormat), FErrorTextArgs);
+  try
+    Result := Format(gettext(FErrorTextFormat), FErrorTextArgs);
+  except
+    Assert(False, 'Ошибка форматирования текста сообщения об ошибке');
+    Result := FErrorTextFormat;
+  end;
 end;
 
 { TDownloadResultProxyError }
