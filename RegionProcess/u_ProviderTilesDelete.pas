@@ -29,6 +29,7 @@ uses
   i_NotifierOperation,
   i_LanguageManager,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
@@ -58,7 +59,8 @@ type
       const AVectorItemsFactory: IVectorItemsFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
+
   end;
 
 
@@ -121,7 +123,7 @@ begin
   Result := SAS_STR_OperationDeleteCaption;
 end;
 
-procedure TProviderTilesDelete.StartProcess(const APolygon: ILonLatPolygon);
+procedure TProviderTilesDelete.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VMapType: TMapType;
   VZoom: byte;
@@ -152,7 +154,9 @@ begin
       FAppClosingNotifier,
       FTimerNoifier,
       VCancelNotifierInternal,
-      VProgressInfo
+      VProgressInfo,
+      AMapGoto,
+      APolygon
     );
 
     TThreadDeleteTiles.Create(

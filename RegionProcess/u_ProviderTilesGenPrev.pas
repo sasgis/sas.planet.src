@@ -10,6 +10,7 @@ uses
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_ImageResamplerConfig,
@@ -47,7 +48,7 @@ type
       const AImageResamplerConfig: IImageResamplerConfig
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
 
@@ -117,7 +118,7 @@ begin
   Result := SAS_STR_OperationGenPrevCaption;
 end;
 
-procedure TProviderTilesGenPrev.StartProcess(const APolygon: ILonLatPolygon);
+procedure TProviderTilesGenPrev.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VInZooms: TByteDynArray;
   VMapType: TMapType;
@@ -146,7 +147,9 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    AMapGoto,
+    APolygon
   );
 
   TThreadGenPrevZoom.Create(

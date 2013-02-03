@@ -10,6 +10,7 @@ uses
   i_VectorItemsFactory,
   i_LanguageManager,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
@@ -37,7 +38,12 @@ type
       const AVectorItemsFactory: IVectorItemsFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+//    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(
+      const APolygon: ILonLatPolygon;
+      const AMapGoto: IMapViewGoto
+    ); override;
+
   end;
 
 
@@ -99,7 +105,8 @@ begin
   Result := SAS_STR_ExportRMapsSQLiteExportCaption;
 end;
 
-procedure TExportProviderRMapsSQLite.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderRMapsSQLite.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto); 
+
 var
   VPath: string;
   VZoomArr: TByteDynArray;
@@ -129,7 +136,9 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    AMapGoto,
+    APolygon
   );
 
   TThreadExportRMapsSQLite.Create(

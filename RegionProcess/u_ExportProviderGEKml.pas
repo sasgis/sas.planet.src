@@ -10,6 +10,7 @@ uses
   i_VectorItemsFactory,
   i_LanguageManager,
   i_MapTypes,
+  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
@@ -37,7 +38,7 @@ type
       const AVectorItemsFactory: IVectorItemsFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
 
@@ -100,7 +101,7 @@ begin
   Result := SAS_STR_ExportGEKmlExportCaption;
 end;
 
-procedure TExportProviderGEKml.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderGEKml.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VPath: string;
   VZoomArr: TByteDynArray;
@@ -127,7 +128,9 @@ begin
     FAppClosingNotifier,
     FTimerNoifier,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    AMapGoto,
+    APolygon
   );
 
   TThreadExportKML.Create(

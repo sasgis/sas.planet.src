@@ -36,6 +36,7 @@ uses
   ComCtrls,
   i_NotifierTime,
   i_NotifierOperation,
+  i_MapViewGoto,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_LastSelectionInfo,
@@ -63,7 +64,6 @@ uses
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
-  i_MapViewGoto,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
   u_MarksDbGUIHelper,
@@ -337,32 +337,32 @@ end;
 
 procedure TfrmRegionProcess.DelRegion(const APolyLL: ILonLatPolygon);
 begin
-  FProviderTilesDelte.StartProcess(APolyLL);
+  FProviderTilesDelte.StartProcess(APolyLL, FMapGoto);
 end;
 
 procedure TfrmRegionProcess.ExportREG(const APolyLL: ILonLatPolygon);
 begin
-  FfrExport.StartProcess(APolyLL);
+  FfrExport.StartProcess(APolyLL, FMapGoto);
 end;
 
 procedure TfrmRegionProcess.savefilesREG(const APolyLL: ILonLatPolygon);
 begin
-  FProviderTilesCopy.StartProcess(APolyLL);
+  FProviderTilesCopy.StartProcess(APolyLL, FMapGoto);
 end;
 
 procedure TfrmRegionProcess.LoadRegion(const APolyLL: ILonLatPolygon);
 begin
-  FProviderTilesDownload.StartProcess(APolyLL);
+  FProviderTilesDownload.StartProcess(APolyLL, FMapGoto);
 end;
 
 procedure TfrmRegionProcess.genbacksatREG(const APolyLL: ILonLatPolygon);
 begin
-  FProviderTilesGenPrev.StartProcess(APolyLL);
+  FProviderTilesGenPrev.StartProcess(APolyLL, FMapGoto);
 end;
 
 procedure TfrmRegionProcess.scleitRECT(const APolyLL: ILonLatPolygon);
 begin
-  FfrCombine.StartProcess(APolyLL);
+  FfrCombine.StartProcess(APolyLL, FMapGoto);
 end;
 
 

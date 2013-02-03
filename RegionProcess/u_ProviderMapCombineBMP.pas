@@ -15,6 +15,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessProgressInfo,
   i_MapTypes,
+  i_MapViewGoto,
   i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -54,7 +55,7 @@ type
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList
     );
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
 implementation
@@ -111,7 +112,7 @@ begin
   );
 end;
 
-procedure TProviderMapCombineBMP.StartProcess(const APolygon: ILonLatPolygon);
+procedure TProviderMapCombineBMP.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;
