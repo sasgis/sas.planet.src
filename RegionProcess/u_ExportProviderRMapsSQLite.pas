@@ -13,6 +13,7 @@ uses
   i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_RegionProcessProgressInfoInternalFactory,
   i_CoordConverterFactory,
   u_ExportProviderAbstract,
   fr_ExportRMapsSQLite;
@@ -28,6 +29,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -64,6 +66,7 @@ uses
 { TExportProviderKml }
 
 constructor TExportProviderRMapsSQLite.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -75,6 +78,7 @@ constructor TExportProviderRMapsSQLite.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

@@ -18,6 +18,7 @@ uses
   i_VectorItemsFactory,
   i_Bitmap32StaticFactory,
   i_GlobalViewMainConfig,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_TilesGenPrev;
 
@@ -35,6 +36,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -70,6 +72,7 @@ uses
 { TProviderTilesGenPrev }
 
 constructor TProviderTilesGenPrev.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -84,6 +87,7 @@ constructor TProviderTilesGenPrev.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

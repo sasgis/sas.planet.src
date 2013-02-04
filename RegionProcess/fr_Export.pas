@@ -24,6 +24,7 @@ uses
   i_ActiveMapsConfig,
   i_TileFileNameGeneratorsList,
   i_MapTypeGUIConfigList,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract;
 
 type
@@ -38,6 +39,7 @@ type
     FPolygon: ILonLatPolygon;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -84,6 +86,7 @@ uses
 { TfrExport }
 
 constructor TfrExport.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -106,6 +109,7 @@ begin
   inherited Create(ALanguageManager);
   VExportProvider :=
     TExportProviderIPhone.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -124,6 +128,7 @@ begin
 
   VExportProvider :=
     TExportProviderIPhone.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -142,6 +147,7 @@ begin
 
   VExportProvider :=
     TExportProviderGEKml.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -155,6 +161,7 @@ begin
 
   VExportProvider :=
     TExportProviderYaMobileV3.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -172,6 +179,7 @@ begin
 
   VExportProvider :=
     TExportProviderYaMobileV4.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -189,6 +197,7 @@ begin
 
   VExportProvider :=
     TExportProviderAUX.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -202,6 +211,7 @@ begin
 
   VExportProvider :=
     TExportProviderZip.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -217,6 +227,7 @@ begin
 
   VExportProvider :=
     TExportProviderTar.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -232,6 +243,7 @@ begin
 
   VExportProvider :=
     TExportProviderJNX.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -247,6 +259,7 @@ begin
 
     VExportProvider :=
     TExportProviderOgf2.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -264,6 +277,7 @@ begin
 
   VExportProvider :=
     TExportProviderCE.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -278,6 +292,7 @@ begin
 
   VExportProvider :=
     TExportProviderRMapsSQLite.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,

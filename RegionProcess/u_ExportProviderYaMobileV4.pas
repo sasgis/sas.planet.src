@@ -17,6 +17,7 @@ uses
   i_CoordConverterFactory,
   i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_ExportYaMobileV4;
 
@@ -36,6 +37,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -73,6 +75,7 @@ uses
 { TExportProviderYaMaps }
 
 constructor TExportProviderYaMobileV4.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -88,6 +91,7 @@ constructor TExportProviderYaMobileV4.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

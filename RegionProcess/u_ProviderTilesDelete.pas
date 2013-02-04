@@ -35,6 +35,7 @@ uses
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_VectorItemLonLat,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_TilesDelete;
 
@@ -49,6 +50,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -82,6 +84,7 @@ uses
 { TProviderTilesDelete }
 
 constructor TProviderTilesDelete.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -93,6 +96,7 @@ constructor TProviderTilesDelete.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

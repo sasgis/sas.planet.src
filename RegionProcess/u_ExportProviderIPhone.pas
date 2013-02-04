@@ -17,6 +17,7 @@ uses
   i_VectorItemsFactory,
   i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_ExportIPhone;
 
@@ -37,6 +38,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -73,6 +75,7 @@ uses
 { TExportProviderIPhone }
 
 constructor TExportProviderIPhone.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -89,6 +92,7 @@ constructor TExportProviderIPhone.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

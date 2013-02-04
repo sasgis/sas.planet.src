@@ -16,6 +16,7 @@ uses
   i_VectorItemsFactory,
   i_TileFileNameGeneratorsList,
   i_GlobalBerkeleyDBHelper,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_TilesCopy;
 
@@ -32,6 +33,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -67,6 +69,7 @@ uses
 { TProviderTilesCopy }
 
 constructor TProviderTilesCopy.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -80,6 +83,7 @@ constructor TProviderTilesCopy.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

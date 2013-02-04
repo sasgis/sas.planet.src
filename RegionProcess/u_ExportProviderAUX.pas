@@ -14,6 +14,7 @@ uses
   i_VectorItemsFactory,
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract;
 
 type
@@ -27,6 +28,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -59,6 +61,7 @@ uses
 { TExportProviderKml }
 
 constructor TExportProviderAUX.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -70,6 +73,7 @@ constructor TExportProviderAUX.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

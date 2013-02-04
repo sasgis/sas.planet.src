@@ -16,6 +16,7 @@ uses
   i_ArchiveReadWriteFactory,
   i_MapTypeGUIConfigList,
   i_TileFileNameGeneratorsList,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_ExportToFileCont;
 
@@ -32,6 +33,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -66,6 +68,7 @@ uses
 { TExportProviderKml }
 
 constructor TExportProviderZip.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -79,6 +82,7 @@ constructor TExportProviderZip.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

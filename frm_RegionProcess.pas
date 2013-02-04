@@ -64,6 +64,7 @@ uses
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
   u_MarksDbGUIHelper,
@@ -114,6 +115,7 @@ type
     procedure ExportREG(const APolyLL: ILonLatPolygon);
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -166,6 +168,7 @@ uses
 {$R *.dfm}
 
 constructor TfrmRegionProcess.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -205,6 +208,7 @@ begin
   FMarkDBGUI:=AMarkDBGUI;
   FfrExport :=
     TfrExport.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -223,6 +227,7 @@ begin
 
   FProviderTilesDelte :=
     TProviderTilesDelete.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -234,6 +239,7 @@ begin
     );
   FProviderTilesGenPrev :=
     TProviderTilesGenPrev.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -248,6 +254,7 @@ begin
     );
   FProviderTilesCopy :=
     TProviderTilesCopy.Create(
+      AProgressFactory,
       ALanguageManager,
       AAppClosingNotifier,
       ATimerNoifier,
@@ -262,6 +269,7 @@ begin
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
       AAppClosingNotifier,
+      AProgressFactory,
       ALanguageManager,
       AValueToStringConverterConfig,
       AMainMapsConfig,
@@ -274,6 +282,7 @@ begin
     );
   FfrCombine :=
     TfrCombine.Create(
+      AProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,

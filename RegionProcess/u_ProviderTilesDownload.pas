@@ -37,6 +37,7 @@ uses
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   i_MapViewGoto,
+  i_RegionProcessProgressInfoInternalFactory,
   u_MapType,
   u_ExportProviderAbstract,
   fr_TilesDownload;
@@ -55,6 +56,7 @@ type
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AMainMapsConfig: IMainMapsConfig;
@@ -97,6 +99,7 @@ uses
 
 constructor TProviderTilesDownload.Create(
   const AAppClosingNotifier: INotifierOneOperation;
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AMainMapsConfig: IMainMapsConfig;
@@ -109,6 +112,7 @@ constructor TProviderTilesDownload.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

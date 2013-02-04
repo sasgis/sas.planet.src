@@ -30,6 +30,7 @@ uses
   i_MapCalibration,
   i_VectorItemsFactory,
   i_GlobalViewMainConfig,
+  i_RegionProcessProgressInfoInternalFactory,
   u_CommonFormAndFrameParents;
 
 type
@@ -45,6 +46,7 @@ type
     FPolygon: ILonLatPolygon;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -93,6 +95,7 @@ uses
 { TfrCombine }
 
 constructor TfrCombine.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -122,6 +125,7 @@ begin
 
   VExportProvider :=
     TProviderMapCombineJPG.Create(
+      AProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -145,6 +149,7 @@ begin
 
   VExportProvider :=
     TProviderMapCombinePNG.Create(
+      AProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -168,6 +173,7 @@ begin
 
   VExportProvider :=
     TProviderMapCombineBMP.Create(
+      AProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -191,6 +197,7 @@ begin
 
   VExportProvider :=
     TProviderMapCombineECW.Create(
+      AProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -214,6 +221,7 @@ begin
 
   VExportProvider :=
     TProviderMapCombineJP2.Create(
+      AProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -237,6 +245,7 @@ begin
 
   VExportProvider :=
     TProviderMapCombineKMZ.Create(
+      AProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,

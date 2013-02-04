@@ -16,6 +16,7 @@ uses
   i_Bitmap32StaticFactory,
   i_VectorItemsFactory,
   i_VectorItemLonLat,
+  i_RegionProcessProgressInfoInternalFactory,
   i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,
   fr_ExportYaMobileV3;
@@ -36,6 +37,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -76,6 +78,7 @@ uses
 { TExportProviderYaMobileV3 }
 
 constructor TExportProviderYaMobileV3.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -91,6 +94,7 @@ constructor TExportProviderYaMobileV3.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

@@ -17,6 +17,7 @@ uses
   i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_ExportToOgf2;
 
@@ -35,6 +36,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -70,6 +72,7 @@ uses
 { TExportProviderOgf2 }
 
 constructor TExportProviderOgf2.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -85,6 +88,7 @@ constructor TExportProviderOgf2.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

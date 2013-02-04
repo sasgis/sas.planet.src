@@ -28,6 +28,7 @@ uses
   i_MapCalibration,
   i_VectorItemsFactory,
   i_GlobalViewMainConfig,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   u_ProviderMapCombine;
 
@@ -36,6 +37,7 @@ type
   private
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -69,6 +71,7 @@ uses
 { TProviderMapCombinePNG }
 
 constructor TProviderMapCombinePNG.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig; const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -87,6 +90,7 @@ constructor TProviderMapCombinePNG.Create(
   const AMapCalibrationList: IMapCalibrationList);
 begin
   inherited Create(
+      AProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,

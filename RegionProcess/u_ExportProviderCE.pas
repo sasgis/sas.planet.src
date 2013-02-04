@@ -14,6 +14,7 @@ uses
   i_mapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract;
 
 type
@@ -28,6 +29,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -60,6 +62,7 @@ uses
 { TExportProviderCE }
 
 constructor TExportProviderCE.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -72,6 +75,7 @@ constructor TExportProviderCE.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

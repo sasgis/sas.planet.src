@@ -32,6 +32,7 @@ uses
   i_MapViewGoto,
   i_VectorItemsFactory,
   i_GlobalViewMainConfig,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_MapCombine;
 
@@ -77,6 +78,7 @@ type
     function GetCaption: string; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -129,6 +131,7 @@ uses
 { TProviderMapCombineBase }
 
 constructor TProviderMapCombineBase.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -154,6 +157,7 @@ constructor TProviderMapCombineBase.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

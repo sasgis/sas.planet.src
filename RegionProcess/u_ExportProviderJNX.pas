@@ -16,6 +16,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_ExportToJNX;
 
@@ -32,6 +33,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -64,6 +66,7 @@ uses
 { TExportProviderJNX }
 
 constructor TExportProviderJNX.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -77,6 +80,7 @@ constructor TExportProviderJNX.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

@@ -16,6 +16,7 @@ uses
   i_VectorItemsFactory,
   i_ArchiveReadWriteFactory,
   i_TileFileNameGeneratorsList,
+  i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_ExportToFileCont;
 
@@ -32,6 +33,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -65,6 +67,7 @@ uses
 { TExportProviderTar }
 
 constructor TExportProviderTar.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -78,6 +81,7 @@ constructor TExportProviderTar.Create(
 );
 begin
   inherited Create(
+    AProgressFactory,
     ALanguageManager,
     AMainMapsConfig,
     AFullMapsSet,

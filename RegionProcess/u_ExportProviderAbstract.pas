@@ -11,6 +11,7 @@ uses
   i_MapViewGoto,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_RegionProcessProgressInfoInternalFactory,
   i_RegionProcessParamsFrame;
 
 type
@@ -21,16 +22,19 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FProgressFactory: IRegionProcessProgressInfoInternalFactory;
     function GetParamsFrame: IRegionProcessParamsFrameBase;
   protected
     function CreateFrame: TFrame; virtual; abstract;
     property ParamsFrame: IRegionProcessParamsFrameBase read GetParamsFrame;
+    property ProgressFactory: IRegionProcessProgressInfoInternalFactory read FProgressFactory;
     property LanguageManager: ILanguageManager read FLanguageManager;
     property MainMapsConfig: IMainMapsConfig read FMainMapsConfig;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
     property GUIConfigList: IMapTypeGUIConfigList read FGUIConfigList;
   public
     constructor Create(
+      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -58,6 +62,7 @@ uses
 { TExportProviderAbstract }
 
 constructor TExportProviderAbstract.Create(
+  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -65,6 +70,7 @@ constructor TExportProviderAbstract.Create(
 );
 begin
   inherited Create;
+  FProgressFactory := AProgressFactory;
   FLanguageManager := ALanguageManager;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
