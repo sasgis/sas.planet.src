@@ -49,7 +49,6 @@ type
     procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
   end;
 
-
 implementation
 
 uses
@@ -57,14 +56,10 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
   u_ThreadExportToArchive,
   u_ResStrings,
-  u_MapType,
-  frm_ProgressSimple;
+  u_MapType;
 
 { TExportProviderKml }
 

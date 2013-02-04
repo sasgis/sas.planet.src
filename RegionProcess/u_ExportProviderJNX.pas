@@ -56,12 +56,8 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   u_ThreadExportToJNX,
-  u_ResStrings,
-  frm_ProgressSimple;
+  u_ResStrings;
 
 
 { TExportProviderJNX }

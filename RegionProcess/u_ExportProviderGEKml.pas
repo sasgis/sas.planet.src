@@ -51,13 +51,9 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   u_ThreadExportKML,
   u_ResStrings,
-  u_MapType,
-  frm_ProgressSimple;
+  u_MapType;
 
 { TExportProviderKml }
 

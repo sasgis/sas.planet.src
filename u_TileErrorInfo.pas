@@ -27,7 +27,6 @@ uses
   i_TileError,
   i_TileRequestResult,
   i_DownloadResult,
-  u_MapType,
   u_BaseInterfacedObject;
 
 type

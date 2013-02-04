@@ -17,7 +17,7 @@ uses
   i_BitmapLayerProvider,
   i_VectorItemProjected,
   i_VectorItemLonLat,
-  i_RegionProcessProgressInfo,
+  
   i_MapTypes,
   i_UseTilePrevZoomConfig,
   i_Bitmap32StaticFactory,
@@ -29,7 +29,6 @@ uses
   i_MarksDrawConfig,
   i_MarksSystem,
   i_MapCalibration,
-  i_MapViewGoto,
   i_VectorItemsFactory,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
@@ -118,11 +117,7 @@ uses
   u_BitmapLayerProviderSimpleForCombine,
   u_BitmapLayerProviderInPolygon,
   u_BitmapLayerProviderWithBGColor,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
-  u_ResStrings,
-  frm_ProgressSimple;
+  u_ResStrings;
 
 { TProviderMapCombineBase }
 

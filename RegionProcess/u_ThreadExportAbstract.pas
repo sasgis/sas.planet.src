@@ -6,7 +6,6 @@ uses
   Classes,
   Types,
   i_VectorItemLonLat,
-  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;

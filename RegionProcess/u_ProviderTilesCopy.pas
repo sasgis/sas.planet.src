@@ -58,14 +58,10 @@ uses
   c_CacheTypeCodes, // for cache types
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,
   u_ThreadExportToBerkeleyDB,
   u_ThreadExportToStorage,
-  u_ResStrings,
-  frm_ProgressSimple;
+  u_ResStrings;
 
 { TProviderTilesCopy }
 

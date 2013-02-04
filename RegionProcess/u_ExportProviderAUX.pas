@@ -49,15 +49,11 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   i_VectorItemProjected,
   u_ThreadExportToAUX,
   u_ResStrings,
   u_MapType,
-  fr_ExportAUX,
-  frm_ProgressSimple;
+  fr_ExportAUX;
 
 { TExportProviderKml }
 

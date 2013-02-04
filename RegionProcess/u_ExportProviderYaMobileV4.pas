@@ -53,8 +53,6 @@ type
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
-
-
   end;
 
 
@@ -65,13 +63,9 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   u_ThreadExportYaMobileV4,
   u_ResStrings,
-  u_MapType,
-  frm_ProgressSimple;
+  u_MapType;
 
 { TExportProviderYaMaps }
 

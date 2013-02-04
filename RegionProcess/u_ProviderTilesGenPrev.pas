@@ -62,13 +62,9 @@ uses
   i_ImageResamplerFactory,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   u_ThreadGenPrevZoom,
   u_ResStrings,
-  u_MapType,
-  frm_ProgressSimple;
+  u_MapType;
 
 { TProviderTilesGenPrev }
 

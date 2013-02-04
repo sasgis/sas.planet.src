@@ -73,14 +73,10 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_PredicateByTileInfo,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   i_VectorItemProjected,
   u_ThreadDeleteTiles,
   u_ResStrings,
-  u_MapType,
-  frm_ProgressSimple;
+  u_MapType;
 
 { TProviderTilesDelete }
 

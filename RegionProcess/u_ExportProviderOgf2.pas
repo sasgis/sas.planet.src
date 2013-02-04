@@ -63,12 +63,8 @@ uses
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   u_ThreadExportToOgf2,
-  u_ResStrings,
-  frm_ProgressSimple;
+  u_ResStrings;
 
 { TExportProviderOgf2 }
 

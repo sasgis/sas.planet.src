@@ -57,13 +57,9 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
-  u_Notifier,
-  u_NotifierOperation,
-  u_RegionProcessProgressInfo,
   u_ThreadExportToArchive,
   u_ResStrings,
-  u_MapType,
-  frm_ProgressSimple;
+  u_MapType;
 
 { TExportProviderTar }
 
