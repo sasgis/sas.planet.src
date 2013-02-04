@@ -55,6 +55,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_RegionProcessProgressInfo,
   u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
@@ -109,7 +110,7 @@ begin
   Result := SAS_STR_ExportRMapsSQLiteExportCaption;
 end;
 
-procedure TExportProviderRMapsSQLite.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto); 
+procedure TExportProviderRMapsSQLite.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto);
 
 var
   VPath: string;
@@ -117,9 +118,7 @@ var
   VMapTypeList: IMapTypeListStatic;
   VForceDropTarget: boolean;
   VReplaceExistingTiles: Boolean;
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VOperationID: Integer;
-  VProgressInfo: TRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -131,19 +130,7 @@ begin
     VMapTypeList := MapTypeList;
   end;
 
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo,
-    AMapGoto,
-    APolygon
-  );
+  VProgressInfo := ProgressFactory.Build(APolygon);
 
   TThreadExportRMapsSQLite.Create(
     VProgressInfo,

@@ -61,6 +61,7 @@ uses
   GR32,
   i_ImageResamplerFactory,
   i_RegionProcessParamsFrame,
+  i_RegionProcessProgressInfo,
   u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
@@ -127,9 +128,7 @@ var
   VInZooms: TByteDynArray;
   VMapType: TMapType;
   VResampler: IImageResamplerFactory;
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VOperationID: Integer;
-  VProgressInfo: TRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
   VBgColor: TColor32;
 begin
   inherited;
@@ -142,19 +141,7 @@ begin
     VBgColor := Color32(FViewConfig.BackGroundColor);
   end;
 
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo,
-    AMapGoto,
-    APolygon
-  );
+  VProgressInfo := ProgressFactory.Build(APolygon);
 
   TThreadGenPrevZoom.Create(
     VProgressInfo,

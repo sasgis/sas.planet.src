@@ -50,6 +50,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_RegionProcessProgressInfo,
   u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
@@ -120,9 +121,7 @@ var
   VComent: string;
   VRecoverInfo: boolean;
 
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VOperationID: Integer;
-  VProgressInfo: TRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
 begin
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -131,19 +130,7 @@ begin
   VComent := (ParamsFrame as IRegionProcessParamsFrameExportToCE).Coment;
   VRecoverInfo := (ParamsFrame as IRegionProcessParamsFrameExportToCE).IsAddRecoverInfo;
 
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo,
-    AMapGoto,
-    APolygon
-  );
+  VProgressInfo := ProgressFactory.Build(APolygon);
 
   TThreadExportToCE.Create(
     VProgressInfo,

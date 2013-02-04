@@ -64,6 +64,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_RegionProcessProgressInfo,
   u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
@@ -132,9 +133,7 @@ var
   VZoomArr: TByteDynArray;
   typemaparr: array of TMapType;
   comprSat, comprMap: byte;
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VOperationID: Integer;
-  VProgressInfo: TRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -146,19 +145,7 @@ begin
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
 
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo,
-    AMapGoto,
-    APolygon
-  );
+  VProgressInfo := ProgressFactory.Build(APolygon);
 
   TThreadExportYaMobileV4.Create(
     VProgressInfo,

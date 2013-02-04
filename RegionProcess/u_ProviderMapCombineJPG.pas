@@ -135,7 +135,7 @@ begin
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
   VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
 
-  VProgressInfo := PrepareProcessInfo(APolygon, AMapGoto);
+  VProgressInfo := ProgressFactory.Build(APolygon);
   TThreadMapCombineJPG.Create(
     VProgressInfo,
     APolygon,

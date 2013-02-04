@@ -60,6 +60,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
   u_Notifier,
@@ -133,9 +134,7 @@ end;
 procedure TExportProviderOgf2.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
 var
   VTargetFile: string;
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VOperationID: Integer;
-  VProgressInfo: TRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
   VImageProvider: IBitmapLayerProvider;
   VZoom: Byte;
   VSaver: IBitmapTileSaver;
@@ -149,19 +148,7 @@ begin
   VSaver := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).Saver;
   VTileSize := (ParamsFrame as IRegionProcessParamsFrameExportToOgf2).TileSize;
 
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo,
-    AMapGoto,
-    APolygon
-);
+  VProgressInfo := ProgressFactory.Build(APolygon);
 
   TThreadExportToOgf2.Create(
     VProgressInfo,

@@ -71,6 +71,7 @@ implementation
 uses
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_RegionProcessProgressInfo,
   i_PredicateByTileInfo,
   u_Notifier,
   u_NotifierOperation,
@@ -132,9 +133,7 @@ var
   VMapType: TMapType;
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VOperationID: Integer;
-  VProgressInfo: TRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
 begin
   inherited;
@@ -149,19 +148,7 @@ begin
         APolygon
       );
 
-    VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-    VOperationID := VCancelNotifierInternal.CurrentOperation;
-    VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-
-    TfrmProgressSimple.Create(
-      Application,
-      FAppClosingNotifier,
-      FTimerNoifier,
-      VCancelNotifierInternal,
-      VProgressInfo,
-      AMapGoto,
-      APolygon
-    );
+    VProgressInfo := ProgressFactory.Build(APolygon);
 
     TThreadDeleteTiles.Create(
       VProgressInfo,

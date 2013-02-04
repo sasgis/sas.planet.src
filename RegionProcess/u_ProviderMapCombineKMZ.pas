@@ -157,7 +157,7 @@ begin
     ShowMessage(SAS_MSG_GarminMax1Mp);
   end;
 
-  VProgressInfo := PrepareProcessInfo(APolygon, AMapGoto);
+  VProgressInfo := ProgressFactory.Build(APolygon);
   TThreadMapCombineKMZ.Create(
     VProgressInfo,
     APolygon,

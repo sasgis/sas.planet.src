@@ -57,6 +57,7 @@ uses
   SysUtils,
   c_CacheTypeCodes, // for cache types
   i_RegionProcessParamsFrame,
+  i_RegionProcessProgressInfo,
   u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
@@ -122,9 +123,7 @@ var
   VZoomArr: TByteDynArray;
   VReplace: Boolean;
   VDeleteSource: Boolean;
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VOperationID: Integer;
-  VProgressInfo: TRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
   VCacheType: Byte;
   VSetTargetVersionEnabled: Boolean;
   VSetTargetVersionValue: String;
@@ -137,19 +136,7 @@ begin
   VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
   VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
 
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo,
-    AMapGoto,
-    APolygon
-  );
+  VProgressInfo := ProgressFactory.Build(APolygon);
 
   if VCacheType = c_File_Cache_Id_DBMS then begin
     // set version options

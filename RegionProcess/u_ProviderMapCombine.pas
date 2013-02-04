@@ -67,10 +67,6 @@ type
       const AProjectedPolygon: IProjectedPolygon
     ): IBitmapLayerProvider;
     function PreparePolygon(const APolygon: ILonLatPolygon): IProjectedPolygon;
-    function PrepareProcessInfo(
-      const APolygon: ILonLatPolygon;
-      const AMapGoto: IMapViewGoto
-    ): IRegionProcessProgressInfoInternal;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -332,31 +328,6 @@ begin
       VProjection,
       APolygon
     );
-end;
-
-function TProviderMapCombineBase.PrepareProcessInfo(
-  const APolygon: ILonLatPolygon;
-  const AMapGoto: IMapViewGoto
-): IRegionProcessProgressInfoInternal;
-var
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VProgressInfo: TRegionProcessProgressInfo;
-  VOperationID: Integer;
-begin
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-  Result := VProgressInfo;
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo,
-    AMapGoto,
-    APolygon
-  );
 end;
 
 function TProviderMapCombineBase.PrepareTargetConverter(

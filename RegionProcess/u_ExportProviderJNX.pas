@@ -55,6 +55,7 @@ uses
   Types,
   SysUtils,
   i_RegionProcessParamsFrame,
+  i_RegionProcessProgressInfo,
   u_Notifier,
   u_NotifierOperation,
   u_RegionProcessProgressInfo,
@@ -125,9 +126,7 @@ var
   VZorder: integer;
   VProductID: integer;
   VJpgQuality: IStringListStatic;
-  VCancelNotifierInternal: INotifierOperationInternal;
-  VOperationID: Integer;
-  VProgressInfo: TRegionProcessProgressInfo;
+  VProgressInfo: IRegionProcessProgressInfoInternal;
   VLevelsDesc: IStringListStatic;
   VMapList: IMapTypeListStatic;
   VLayerList: IMapTypeListStatic;
@@ -148,19 +147,7 @@ begin
   VScaleArr := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ScaleArray;
   VMapList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapList;
 
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  VOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
-
-  TfrmProgressSimple.Create(
-    Application,
-    FAppClosingNotifier,
-    FTimerNoifier,
-    VCancelNotifierInternal,
-    VProgressInfo,
-    AMapGoto,
-    APolygon
-);
+  VProgressInfo := ProgressFactory.Build(APolygon);
 
   TThreadExportToJnx.Create(
     VProgressInfo,
