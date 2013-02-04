@@ -146,8 +146,6 @@ begin
   );
 
   TThreadExportToArchive.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     FArchiveReadWriteFactory.CreateZipWriterByName(VPath),
     FProjectionFactory,

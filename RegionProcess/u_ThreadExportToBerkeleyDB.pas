@@ -66,8 +66,6 @@ type
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -97,8 +95,6 @@ uses
 
 constructor TThreadExportToBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -110,8 +106,6 @@ constructor TThreadExportToBerkeleyDB.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     AZoomArr,

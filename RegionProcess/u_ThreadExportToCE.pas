@@ -30,8 +30,6 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -61,8 +59,6 @@ uses
 { TThreadExportToCE }
 
 constructor TThreadExportToCE.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -77,8 +73,6 @@ constructor TThreadExportToCE.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     Azoomarr,

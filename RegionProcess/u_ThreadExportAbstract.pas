@@ -19,8 +19,6 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const AZooms: TByteDynArray;
@@ -35,8 +33,6 @@ uses
   SysUtils;
 
 constructor TThreadExportAbstract.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const AZooms: TByteDynArray;
@@ -49,8 +45,6 @@ var
   VZoom: Byte;
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     ADebigThreadName

@@ -61,8 +61,6 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -96,8 +94,6 @@ uses
 { TThreadExportYaMobileV4 }
 
 constructor TThreadExportYaMobileV4.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -117,8 +113,6 @@ var
   VTaskIndex: Integer;
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     Azoomarr,

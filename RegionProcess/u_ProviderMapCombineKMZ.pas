@@ -132,8 +132,6 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
-  VCancelNotifier: INotifierOperation;
-  VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VMapSize: TPoint;
   VMapPieceSize: TPoint;
@@ -155,16 +153,8 @@ begin
     ShowMessage(SAS_MSG_GarminMax1Mp);
   end;
 
-  PrepareProcessInfo(
-    APolygon,
-    AMapGoto,
-    VCancelNotifier,
-    VOperationID,
-    VProgressInfo
-  );
+  VProgressInfo := PrepareProcessInfo(APolygon, AMapGoto);
   TThreadMapCombineKMZ.Create(
-    VCancelNotifier,
-    VOperationID,
     VProgressInfo,
     APolygon,
     VTargetConverter,

@@ -40,8 +40,6 @@ type
     procedure ProgressFormUpdateOnProgress(const AProcessed, AToProcess: Int64);
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -71,8 +69,6 @@ uses
   u_TileIteratorByRect;
 
 constructor TThreadGenPrevZoom.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
@@ -89,8 +85,6 @@ constructor TThreadGenPrevZoom.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygLL,
     AnsiString(Self.ClassName)

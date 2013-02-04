@@ -164,8 +164,6 @@ begin
   );
 
   TThreadExportYaMobileV3.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     FCoordConverterFactory,
     FLocalConverterFactory,

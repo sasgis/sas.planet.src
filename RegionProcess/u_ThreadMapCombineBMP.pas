@@ -32,8 +32,6 @@ type
     ); override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const ATargetConverter: ILocalCoordConverter;
@@ -54,8 +52,6 @@ uses
   u_ImageLineProvider;
 
 constructor TThreadMapCombineBMP.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const ATargetConverter: ILocalCoordConverter;
@@ -68,8 +64,6 @@ constructor TThreadMapCombineBMP.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     ATargetConverter,

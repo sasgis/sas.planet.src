@@ -142,8 +142,6 @@ begin
   );
 
   TThreadExportToCE.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     FCoordConverterFactory,
     FProjectionFactory,

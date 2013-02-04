@@ -33,8 +33,6 @@ type
     property PolygLL: ILonLatPolygon read FPolygLL;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const ADebugThreadName: AnsiString = ''
@@ -51,8 +49,6 @@ uses
   u_ListenerByEvent;
 
 constructor TThreadRegionProcessAbstract.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const ADebugThreadName: AnsiString = ''
@@ -62,8 +58,8 @@ begin
   FDebugThreadName := ADebugThreadName;
   Priority := tpLowest;
   FreeOnTerminate := true;
-  FCancelNotifier := ACancelNotifier;
-  FOperationID := AOperationID;
+  FCancelNotifier := AProgressInfo.CancelNotifier;
+  FOperationID := AProgressInfo.OperationID;
   FProgressInfo := AProgressInfo;
   FPolygLL := APolygon;
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin

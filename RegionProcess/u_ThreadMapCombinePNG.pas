@@ -33,8 +33,6 @@ type
     ); override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const ATargetConverter: ILocalCoordConverter;
@@ -100,8 +98,6 @@ end;
 { TThreadMapCombinePNG }
 
 constructor TThreadMapCombinePNG.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const ATargetConverter: ILocalCoordConverter;
@@ -115,8 +111,6 @@ constructor TThreadMapCombinePNG.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     ATargetConverter,

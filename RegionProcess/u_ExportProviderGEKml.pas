@@ -134,8 +134,6 @@ begin
   );
 
   TThreadExportKML.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     VPath,
     FProjectionFactory,

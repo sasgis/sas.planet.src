@@ -183,8 +183,6 @@ begin
   );
 
   TThreadExportIPhone.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     FCoordConverterFactory,
     FLocalConverterFactory,

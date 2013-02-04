@@ -153,8 +153,6 @@ begin
   );
 
   TThreadGenPrevZoom.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     FProjectionFactory,
     FVectorItemsFactory,

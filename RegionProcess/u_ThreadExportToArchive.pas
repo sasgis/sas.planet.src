@@ -30,8 +30,6 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      const AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AArchiveWriter: IArchiveWriter;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -55,8 +53,6 @@ uses
 { TThreadExportToArchive }
 
 constructor TThreadExportToArchive.Create(
-  const ACancelNotifier: INotifierOperation;
-  const AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AArchiveWriter: IArchiveWriter;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -68,8 +64,6 @@ constructor TThreadExportToArchive.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     Azoomarr,

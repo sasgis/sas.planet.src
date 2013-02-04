@@ -160,8 +160,6 @@ begin
     );
 
     TThreadDeleteTiles.Create(
-      VCancelNotifierInternal,
-      VOperationID,
       VProgressInfo,
       APolygon,
       VProjectedPolygon,

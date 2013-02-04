@@ -40,8 +40,6 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -67,8 +65,6 @@ uses
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToFileSystem.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -81,8 +77,6 @@ constructor TThreadExportToFileSystem.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     AZoomArr,

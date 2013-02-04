@@ -64,8 +64,6 @@ type
     ); virtual; abstract;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      const AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AConfigPath, AExportPath: string;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -90,8 +88,6 @@ uses
   u_TileIteratorByPolygon;
 
 constructor TThreadExportEnumerator.Create(
-  const ACancelNotifier: INotifierOperation;
-  const AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AConfigPath, AExportPath: string;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -106,8 +102,6 @@ constructor TThreadExportEnumerator.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     AZoomArr,

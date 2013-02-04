@@ -24,8 +24,6 @@ type
     procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon;
@@ -47,8 +45,6 @@ uses
 { TThreadExportToAUX }
 
 constructor TThreadExportToAUX.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon;
@@ -58,8 +54,6 @@ constructor TThreadExportToAUX.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     AnsiString(Self.ClassName)

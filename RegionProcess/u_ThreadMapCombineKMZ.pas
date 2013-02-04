@@ -35,8 +35,6 @@ type
     ); override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const ATargetConverter: ILocalCoordConverter;
@@ -63,8 +61,6 @@ uses
   u_GeoToStr;
 
 constructor TThreadMapCombineKMZ.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const ATargetConverter: ILocalCoordConverter;
@@ -79,8 +75,6 @@ constructor TThreadMapCombineKMZ.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     ATargetConverter,

@@ -142,8 +142,6 @@ begin
   );
 
   TThreadExportRMapsSQLite.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     '',
     VPath,

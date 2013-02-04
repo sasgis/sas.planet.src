@@ -120,8 +120,6 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
-  VCancelNotifier: INotifierOperation;
-  VOperationID: Integer;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBGColor: TColor32;
 begin
@@ -133,16 +131,8 @@ begin
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
   VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
 
-  PrepareProcessInfo(
-    APolygon,
-    AMapGoto,
-    VCancelNotifier,
-    VOperationID,
-    VProgressInfo
-  );
+  VProgressInfo := PrepareProcessInfo(APolygon, AMapGoto);
   TThreadMapCombineJPG.Create(
-    VCancelNotifier,
-    VOperationID,
     VProgressInfo,
     APolygon,
     VTargetConverter,

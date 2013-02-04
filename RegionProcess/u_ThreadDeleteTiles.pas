@@ -51,8 +51,6 @@ type
     );
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolyLL: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon;
@@ -72,8 +70,6 @@ uses
   u_TileIteratorByPolygon;
 
 constructor TThreadDeleteTiles.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolyLL: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon;
@@ -84,8 +80,6 @@ constructor TThreadDeleteTiles.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolyLL,
     AnsiString(Self.ClassName)

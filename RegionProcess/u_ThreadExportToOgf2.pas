@@ -52,8 +52,6 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -91,8 +89,6 @@ const
 { TThreadExportToOgf2 }
 
 constructor TThreadExportToOgf2.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -108,8 +104,6 @@ constructor TThreadExportToOgf2.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     AnsiString(Self.ClassName)

@@ -160,8 +160,6 @@ begin
 );
 
   TThreadExportToOgf2.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     FCoordConverterFactory,
     FLocalConverterFactory,

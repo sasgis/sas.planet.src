@@ -136,8 +136,6 @@ begin
   );
 
   TThreadExportToAUX.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     APolygon,
     VProjectedPolygon,

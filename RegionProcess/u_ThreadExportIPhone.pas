@@ -61,8 +61,6 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -99,8 +97,6 @@ uses
   u_BitmapLayerProviderMapWithLayer;
 
 constructor TThreadExportIPhone.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -121,8 +117,6 @@ var
   VTaskIndex: Integer;
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     Azoomarr,

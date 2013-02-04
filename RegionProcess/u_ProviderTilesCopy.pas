@@ -156,8 +156,6 @@ begin
       VSetTargetVersionValue := '';
 
     TThreadExportToDBMS.Create(
-      VCancelNotifierInternal,
-      VOperationID,
       VProgressInfo,
       '', // allow empty value here (if path completely defined)
       VPath,
@@ -174,8 +172,6 @@ begin
   end else if VCacheType = c_File_Cache_Id_BDB then begin
     TThreadExportToBerkeleyDB.Create(
       FGlobalBerkeleyDBHelper,
-      VCancelNotifierInternal,
-      VOperationID,
       VProgressInfo,
       VPath,
       FProjectionFactory,
@@ -188,8 +184,6 @@ begin
     );
   end else begin
     TThreadExportToFileSystem.Create(
-      VCancelNotifierInternal,
-      VOperationID,
       VProgressInfo,
       VPath,
       FProjectionFactory,

@@ -66,13 +66,10 @@ type
       const AProjectedPolygon: IProjectedPolygon
     ): IBitmapLayerProvider;
     function PreparePolygon(const APolygon: ILonLatPolygon): IProjectedPolygon;
-    procedure PrepareProcessInfo(
+    function PrepareProcessInfo(
       const APolygon: ILonLatPolygon;
-      const AMapGoto: IMapViewGoto;
-      out ACancelNotifier: INotifierOperation;
-      out AOperationID: Integer;
-      out AProgressInfo: IRegionProcessProgressInfoInternal
-    );
+      const AMapGoto: IMapViewGoto
+    ): IRegionProcessProgressInfoInternal;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -333,22 +330,19 @@ begin
     );
 end;
 
-procedure TProviderMapCombineBase.PrepareProcessInfo(
+function TProviderMapCombineBase.PrepareProcessInfo(
   const APolygon: ILonLatPolygon;
-  const AMapGoto: IMapViewGoto;
-  out ACancelNotifier: INotifierOperation;
-  out AOperationID: Integer;
-  out AProgressInfo: IRegionProcessProgressInfoInternal
-);
+  const AMapGoto: IMapViewGoto
+): IRegionProcessProgressInfoInternal;
 var
   VCancelNotifierInternal: INotifierOperationInternal;
   VProgressInfo: TRegionProcessProgressInfo;
+  VOperationID: Integer;
 begin
   VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
-  ACancelNotifier := VCancelNotifierInternal;
-  AOperationID := VCancelNotifierInternal.CurrentOperation;
-  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, AOperationID);
-  AProgressInfo := VProgressInfo;
+  VOperationID := VCancelNotifierInternal.CurrentOperation;
+  VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
+  Result := VProgressInfo;
 
   TfrmProgressSimple.Create(
     Application,

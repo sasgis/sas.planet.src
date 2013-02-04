@@ -159,8 +159,6 @@ begin
 );
 
   TThreadExportToJnx.Create(
-    VCancelNotifierInternal,
-    VOperationID,
     VProgressInfo,
     FCoordConverterFactory,
     FProjectionFactory,

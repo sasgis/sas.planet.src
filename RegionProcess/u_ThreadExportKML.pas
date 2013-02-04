@@ -37,8 +37,6 @@ type
     procedure ProcessRegion; override;
   public
     constructor Create(
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -62,8 +60,6 @@ uses
   i_CoordConverter;
 
 constructor TThreadExportKML.Create(
-  const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -76,8 +72,6 @@ constructor TThreadExportKML.Create(
 );
 begin
   inherited Create(
-    ACancelNotifier,
-    AOperationID,
     AProgressInfo,
     APolygon,
     Azoomarr,
