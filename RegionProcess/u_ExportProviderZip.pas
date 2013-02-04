@@ -4,12 +4,9 @@ interface
 
 uses
   Forms,
-  i_NotifierTime,
-  i_NotifierOperation,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
-  i_MapViewGoto,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
   i_VectorItemsFactory,

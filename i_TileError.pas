@@ -23,8 +23,7 @@ unit i_TileError;
 interface
 
 uses
-  Types,
-  u_MapType;
+  Types;
 
 type
   ITileErrorInfo = interface

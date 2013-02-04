@@ -36,7 +36,6 @@ uses
   i_ValueToStringConverter,
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
-  i_MapViewGoto,
   i_RegionProcessProgressInfoInternalFactory,
   u_MapType,
   u_ExportProviderAbstract,

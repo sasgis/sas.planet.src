@@ -7,8 +7,6 @@ uses
   Forms,
   GR32,
   t_GeoTypes,
-  i_NotifierTime,
-  i_NotifierOperation,
   i_LanguageManager,
   i_CoordConverter,
   i_LocalCoordConverter,
@@ -17,7 +15,6 @@ uses
   i_BitmapLayerProvider,
   i_VectorItemProjected,
   i_VectorItemLonLat,
-  
   i_MapTypes,
   i_UseTilePrevZoomConfig,
   i_Bitmap32StaticFactory,

@@ -4,8 +4,6 @@ interface
 
 uses
   GR32,
-  i_NotifierTime,
-  i_NotifierOperation,
   i_LanguageManager,
   i_LocalCoordConverter,
   i_CoordConverterFactory,
@@ -16,7 +14,6 @@ uses
   i_RegionProcessProgressInfo,
   i_ArchiveReadWriteFactory,
   i_MapTypes,
-  i_MapViewGoto,
   i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

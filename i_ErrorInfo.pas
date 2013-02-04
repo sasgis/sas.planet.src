@@ -4,8 +4,7 @@ interface
 
 uses
   Types,
-  i_LonLatRect,
-  i_CoordConverter;
+  i_LonLatRect;
 
 type
   IErrorInfoSimple = interface
