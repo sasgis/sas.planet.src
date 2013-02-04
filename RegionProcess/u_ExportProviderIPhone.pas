@@ -32,16 +32,12 @@ type
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FNewFormat: Boolean;
-    FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifierTime;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -54,7 +50,7 @@ type
       ANewFormat: Boolean
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -74,8 +70,6 @@ uses
 constructor TExportProviderIPhone.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -102,8 +96,6 @@ begin
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapFactory := ABitmapFactory;
   FNewFormat := ANewFormat;
-  FAppClosingNotifier := AAppClosingNotifier;
-  FTimerNoifier := ATimerNoifier;
 end;
 
 function TExportProviderIPhone.CreateFrame: TFrame;
@@ -129,7 +121,7 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TExportProviderIPhone.StartProcess(const APolygon: ILonLatPolygon);
 var
   VPath: string;
   VZoomArr: TByteDynArray;

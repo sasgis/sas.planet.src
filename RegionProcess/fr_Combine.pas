@@ -53,8 +53,6 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifierTime;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -70,7 +68,7 @@ type
     ); reintroduce;
     destructor Destroy; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+    procedure StartProcess(const APolygon: ILonLatPolygon);
     procedure Show(
       AParent: TWinControl;
       AZoom: byte;
@@ -102,8 +100,6 @@ constructor TfrCombine.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
@@ -132,8 +128,6 @@ begin
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
@@ -156,8 +150,6 @@ begin
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
@@ -180,8 +172,6 @@ begin
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
@@ -204,8 +194,6 @@ begin
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
@@ -228,8 +216,6 @@ begin
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
@@ -252,8 +238,6 @@ begin
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
@@ -333,13 +317,13 @@ begin
   cbbOutputFormatChange(nil);
 end;
 
-procedure TfrCombine.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TfrCombine.StartProcess(const APolygon: ILonLatPolygon);
 var
   VExportProvider: TExportProviderAbstract;
 begin
   VExportProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[cbbOutputFormat.ItemIndex]);
   if VExportProvider <> nil then begin
-    VExportProvider.StartProcess(APolygon, AMapGoto);
+    VExportProvider.StartProcess(APolygon);
   end;
 end;
 

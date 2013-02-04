@@ -68,7 +68,7 @@ type
       const ADownloadInfo: IDownloadInfoSimple
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
     procedure StartBySLS(const AFileName: string);
   end;
 
@@ -301,7 +301,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDownload.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TProviderTilesDownload.StartProcess(const APolygon: ILonLatPolygon);
 var
   VMapType: TMapType;
   VZoom: byte;

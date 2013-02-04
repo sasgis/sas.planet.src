@@ -23,16 +23,12 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
-    FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifierTime;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -41,7 +37,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
@@ -61,8 +57,6 @@ uses
 constructor TExportProviderCE.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -81,8 +75,6 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FCoordConverterFactory := ACoordConverterFactory;
-  FAppClosingNotifier := AAppClosingNotifier;
-  FTimerNoifier := ATimerNoifier;
 end;
 
 function TExportProviderCE.CreateFrame: TFrame;
@@ -107,7 +99,7 @@ begin
   Result := SAS_STR_ExportCEPackCaption;
 end;
 
-procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon);
 var
   VPath: string;
   Zoomarr: TByteDynArray;

@@ -27,16 +27,12 @@ type
     FVectorItemsFactory: IVectorItemsFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
-    FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifierTime;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -46,7 +42,7 @@ type
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
@@ -66,8 +62,6 @@ uses
 constructor TExportProviderTar.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -88,8 +82,6 @@ begin
   FVectorItemsFactory := AVectorItemsFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FTileNameGenerator := ATileNameGenerator;
-  FAppClosingNotifier := AAppClosingNotifier;
-  FTimerNoifier := ATimerNoifier;
 end;
 
 function TExportProviderTar.CreateFrame: TFrame;
@@ -115,7 +107,7 @@ begin
   Result := SAS_STR_ExportTarPackCaption;
 end;
 
-procedure TExportProviderTar.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TExportProviderTar.StartProcess(const APolygon: ILonLatPolygon);
 var
   VPath: string;
   Zoomarr: TByteDynArray;

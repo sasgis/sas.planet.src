@@ -27,16 +27,12 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-    FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifierTime;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -46,7 +42,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
@@ -65,8 +61,6 @@ uses
 constructor TExportProviderJNX.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -87,8 +81,6 @@ begin
   FVectorItemsFactory := AVectorItemsFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
-  FAppClosingNotifier := AAppClosingNotifier;
-  FTimerNoifier := ATimerNoifier;
 end;
 
 function TExportProviderJNX.CreateFrame: TFrame;
@@ -112,7 +104,7 @@ begin
   Result := SAS_STR_ExportJNXPackCaption;
 end;
 
-procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TExportProviderJNX.StartProcess(const APolygon: ILonLatPolygon);
 var
   VPath: string;
   Zoomarr: TByteDynArray;

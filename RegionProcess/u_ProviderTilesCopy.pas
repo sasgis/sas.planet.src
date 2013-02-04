@@ -27,16 +27,12 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
-    FAppClosingNotifier: INotifierOneOperation;
-    FTimerNoifier: INotifierTime;
   protected
     function CreateFrame: TFrame; override;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AFullMapsSet: IMapTypeSet;
@@ -46,7 +42,7 @@ type
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 
@@ -68,8 +64,6 @@ uses
 constructor TProviderTilesCopy.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AFullMapsSet: IMapTypeSet;
@@ -90,8 +84,6 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FTileNameGenerator := ATileNameGenerator;
-  FAppClosingNotifier := AAppClosingNotifier;
-  FTimerNoifier := ATimerNoifier;
 end;
 
 function TProviderTilesCopy.CreateFrame: TFrame;
@@ -113,7 +105,7 @@ begin
   Result := SAS_STR_OperationTilesCopyCaption;
 end;
 
-procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto);
+procedure TProviderTilesCopy.StartProcess(const APolygon: ILonLatPolygon);
 var
   VPath: string;
   VZoomArr: TByteDynArray;

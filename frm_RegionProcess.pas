@@ -210,8 +210,6 @@ begin
     TfrExport.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -229,8 +227,6 @@ begin
     TProviderTilesDelete.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -241,8 +237,6 @@ begin
     TProviderTilesGenPrev.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -256,8 +250,6 @@ begin
     TProviderTilesCopy.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AGlobalBerkeleyDBHelper,
       AFullMapsSet,
@@ -289,8 +281,6 @@ begin
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
@@ -346,32 +336,32 @@ end;
 
 procedure TfrmRegionProcess.DelRegion(const APolyLL: ILonLatPolygon);
 begin
-  FProviderTilesDelte.StartProcess(APolyLL, FMapGoto);
+  FProviderTilesDelte.StartProcess(APolyLL);
 end;
 
 procedure TfrmRegionProcess.ExportREG(const APolyLL: ILonLatPolygon);
 begin
-  FfrExport.StartProcess(APolyLL, FMapGoto);
+  FfrExport.StartProcess(APolyLL);
 end;
 
 procedure TfrmRegionProcess.savefilesREG(const APolyLL: ILonLatPolygon);
 begin
-  FProviderTilesCopy.StartProcess(APolyLL, FMapGoto);
+  FProviderTilesCopy.StartProcess(APolyLL);
 end;
 
 procedure TfrmRegionProcess.LoadRegion(const APolyLL: ILonLatPolygon);
 begin
-  FProviderTilesDownload.StartProcess(APolyLL, FMapGoto);
+  FProviderTilesDownload.StartProcess(APolyLL);
 end;
 
 procedure TfrmRegionProcess.genbacksatREG(const APolyLL: ILonLatPolygon);
 begin
-  FProviderTilesGenPrev.StartProcess(APolyLL, FMapGoto);
+  FProviderTilesGenPrev.StartProcess(APolyLL);
 end;
 
 procedure TfrmRegionProcess.scleitRECT(const APolyLL: ILonLatPolygon);
 begin
-  FfrCombine.StartProcess(APolyLL, FMapGoto);
+  FfrCombine.StartProcess(APolyLL);
 end;
 
 

@@ -44,8 +44,6 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifierTime;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -57,7 +55,7 @@ type
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList
     );
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto ); override;
+    procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
 
 implementation
@@ -77,8 +75,6 @@ constructor TProviderMapCombinePNG.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
@@ -97,8 +93,6 @@ begin
       AGUIConfigList,
       AViewConfig,
       AUseTilePrevZoomConfig,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
@@ -116,7 +110,7 @@ begin
   );
 end;
 
-procedure TProviderMapCombinePNG.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TProviderMapCombinePNG.StartProcess(const APolygon: ILonLatPolygon);
 var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;

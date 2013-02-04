@@ -49,8 +49,7 @@ type
     );
     procedure Hide;
     procedure StartProcess(
-      const APolygon: ILonLatPolygon;
-      const AMapGoto: IMapViewGoto
+      const APolygon: ILonLatPolygon
     ); virtual; abstract;
   end;
 

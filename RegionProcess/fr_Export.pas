@@ -41,8 +41,6 @@ type
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const ATimerNoifier: INotifierTime;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -57,7 +55,7 @@ type
     ); reintroduce;
     destructor Destroy; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+    procedure StartProcess(const APolygon: ILonLatPolygon);
     procedure Show(
       AParent: TWinControl;
       AZoom: byte;
@@ -88,8 +86,6 @@ uses
 constructor TfrExport.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -111,8 +107,6 @@ begin
     TExportProviderIPhone.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -130,8 +124,6 @@ begin
     TExportProviderIPhone.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -149,8 +141,6 @@ begin
     TExportProviderGEKml.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -163,8 +153,6 @@ begin
     TExportProviderYaMobileV3.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -181,8 +169,6 @@ begin
     TExportProviderYaMobileV4.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -199,8 +185,6 @@ begin
     TExportProviderAUX.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -213,8 +197,6 @@ begin
     TExportProviderZip.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -229,8 +211,6 @@ begin
     TExportProviderTar.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -245,8 +225,6 @@ begin
     TExportProviderJNX.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -261,8 +239,6 @@ begin
     TExportProviderOgf2.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -279,8 +255,6 @@ begin
     TExportProviderCE.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -294,8 +268,6 @@ begin
     TExportProviderRMapsSQLite.Create(
       AProgressFactory,
       ALanguageManager,
-      AAppClosingNotifier,
-      ATimerNoifier,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
@@ -368,13 +340,13 @@ begin
   CBFormatChange(nil);
 end;
 
-procedure TfrExport.StartProcess(const APolygon: ILonLatPolygon; const AMapGoto: IMapViewGoto );
+procedure TfrExport.StartProcess(const APolygon: ILonLatPolygon);
 var
   VExportProvider: TExportProviderAbstract;
 begin
   VExportProvider := TExportProviderAbstract(CBFormat.Items.Objects[CBFormat.ItemIndex]);
   if VExportProvider <> nil then begin
-    VExportProvider.StartProcess(APolygon, AMapGoto);
+    VExportProvider.StartProcess(APolygon);
   end;
 end;
 
