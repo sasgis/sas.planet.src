@@ -69,6 +69,7 @@ uses
   i_MapTypeConfigModalEdit,
   i_MapTypeHotKeyListStatic,
   i_MarksSimple,
+  i_VectorDataItemSimple,
   i_MainFormConfig,
   i_SearchResultPresenter,
   i_MainWindowPosition,
@@ -586,6 +587,7 @@ type
     FMapZoomAnimtion: Boolean;
     FMapMoveAnimtion: Boolean;
     FSelectedMark: IMark;
+    FSelectedWiki: IVectorDataItemPoly;
     FEditMarkPoint: IMarkPoint;
     FEditMarkLine: IMarkLine;
     FEditMarkPoly: IMarkPoly;
@@ -724,7 +726,6 @@ uses
   i_ActiveMapsConfig,
   i_MarkerDrawable,
   i_LanguageManager,
-  i_VectorDataItemSimple,
   i_EnumDoublePoint,
   i_DoublePointFilter,
   i_PathDetalizeProviderList,
@@ -4392,12 +4393,20 @@ end;
 procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IMark;
+  VSelectedWiki: IVectorDataItemPoly;
   Vpolygon: ILonLatPolygon;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
     Vpolygon := FMarkDBGUI.PolygonForOperation(VMark, FConfig.ViewPortState.View.GetStatic.ProjectionInfo);
     if Vpolygon <> nil then FFormRegionProcess.Show_(FConfig.ViewPortState.View.GetStatic.ProjectionInfo.Zoom, Vpolygon);
+  end else begin
+    // no mark - try to select wiki
+    VSelectedWiki := FSelectedWiki;
+    if (VSelectedWiki <> nil) then begin
+      Vpolygon := VSelectedWiki.Line;
+      if Vpolygon <> nil then FFormRegionProcess.Show_(FConfig.ViewPortState.View.GetStatic.ProjectionInfo.Zoom, Vpolygon);
+    end;
   end;
 end;
 
@@ -4785,6 +4794,17 @@ begin
     FMoveByMouseStartPoint := Point(X, Y);
     FSelectedMark := nil;
     map.PopupMenu:=nil;
+  end;
+
+  if (FSelectedMark<>nil) then begin
+    // mark selected
+    FSelectedWiki := nil;
+  end else begin
+    // try to select wiki object
+    VVectorItem := FWikiLayer.FindItem(VLocalConverter, Point(x, y), VMarkS);
+    if not Supports(VVectorItem, IVectorDataItemPoly, FSelectedWiki) then begin
+      FSelectedWiki := nil;
+    end;
   end;
 end;
 
@@ -6035,7 +6055,7 @@ begin
   NMarkExport.Visible := VMark <> nil;
   NMarkDel.Visible := VMark <> nil;
   tbsprtMainPopUp0.Visible := VMark <> nil;
-  NMarkOper.Visible := VMark <> nil;
+  NMarkOper.Visible := (VMark <> nil) or (FSelectedWiki <> nil);
   NMarkNav.Visible := VMark <> nil;
   NMarkPlay.Visible := (VMark <> nil) and (FPlacemarkPlayerPlugin <> nil) and (FPlacemarkPlayerPlugin.Available);
   tbitmMarkInfo.Visible := (VMark <> nil);
