@@ -6,6 +6,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessProgressInfo,
   i_MapViewGoto,
+  i_RegionProcess,
   i_NotifierOperation,
   i_NotifierTime,
   i_RegionProcessProgressInfoInternalFactory,
@@ -17,6 +18,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifierTime;
     FMapGoto: IMapViewGoto;
+    FRegionProcess: IRegionProcess;
   private
     function Build(
       const APolygon: ILonLatPolygon
@@ -25,6 +27,7 @@ type
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
+      const ARegionProcess: IRegionProcess;
       const AMapGoto: IMapViewGoto
     );
   end;
@@ -42,11 +45,15 @@ uses
 
 constructor TRegionProcessProgressInfoInternalFactory.Create(
   const AAppClosingNotifier: INotifierOneOperation;
-  const ATimerNoifier: INotifierTime; const AMapGoto: IMapViewGoto);
+  const ATimerNoifier: INotifierTime;
+  const ARegionProcess: IRegionProcess;
+  const AMapGoto: IMapViewGoto
+);
 begin
   inherited Create;
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
+  FRegionProcess := ARegionProcess;
   FMapGoto := AMapGoto;
 end;
 
@@ -69,6 +76,7 @@ begin
     FTimerNoifier,
     VCancelNotifierInternal,
     VProgressInfo,
+    FRegionProcess,
     FMapGoto,
     APolygon
   );

@@ -35,6 +35,7 @@ uses
   i_Listener,
   i_ListenerTime,
   i_MapViewGoto,
+  i_RegionProcess,
   i_VectorItemLonLat,
   i_RegionProcessProgressInfo,
   i_NotifierOperation,
@@ -45,20 +46,21 @@ type
     MemoInfo: TMemo;
     pnlProgress: TPanel;
     SpeedButton_fit: TSpeedButton;
+    SpeedButton_selmanager: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoInfoChange(Sender: TObject);
     procedure SpeedButton_fitClick(Sender: TObject);
+    procedure SpeedButton_selmanagerClick(Sender: TObject);
   private
     FCancelNotifier: INotifierOperationInternal;
     FProgressInfo: IRegionProcessProgressInfo;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifierTime;
     FMapGoto: IMapViewGoto;
+    FRegionProcess: IRegionProcess;
     FPolygon: ILonLatPolygon;
-
-
 
     FRarProgress: TRarProgress;
     FAppClosingListener: IListener;
@@ -73,6 +75,7 @@ type
       const ATimerNoifier: INotifierTime;
       const ACancelNotifier: INotifierOperationInternal;
       const AProgressInfo: IRegionProcessProgressInfo;
+      const ARegionProcess: IRegionProcess;
       const AMapGoto: IMapViewGoto;
       const APolygon: ILonLatPolygon
     ); reintroduce;
@@ -93,6 +96,7 @@ constructor TfrmProgressSimple.Create(
   const ATimerNoifier: INotifierTime;
   const ACancelNotifier: INotifierOperationInternal;
   const AProgressInfo: IRegionProcessProgressInfo;
+  const ARegionProcess: IRegionProcess;
   const AMapGoto: IMapViewGoto;
   const APolygon: ILonLatPolygon
 );
@@ -139,6 +143,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
   FProgressInfo := AProgressInfo;
+  FRegionProcess := ARegionProcess;
 
   FTimerListener := TListenerTimeCheck.Create(Self.OnTimer, 1000);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnClose);
@@ -221,7 +226,13 @@ begin
   if (FMapGoto <> nil) and (FPolygon <> nil) then begin
     FMapGoto.FitRectToScreen(FPolygon.Bounds.Rect);
   end;
+end;
 
+procedure TfrmProgressSimple.SpeedButton_selmanagerClick(Sender: TObject);
+begin
+  if (FMapGoto <> nil) and (FPolygon <> nil) then begin
+    FRegionProcess.ProcessPolygon(FPolygon);
+  end;
 end;
 
 end.

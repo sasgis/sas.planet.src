@@ -224,6 +224,7 @@ begin
     TRegionProcessProgressInfoInternalFactory.Create(
       AAppClosingNotifier,
       ATimerNoifier,
+      Self,
       FMapGoto
     );
   FfrExport :=
