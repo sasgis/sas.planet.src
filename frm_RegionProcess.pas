@@ -115,7 +115,6 @@ type
     procedure ExportREG(const APolyLL: ILonLatPolygon);
   public
     constructor Create(
-      const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
@@ -161,6 +160,7 @@ uses
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigProviderHelpers,
+  u_RegionProcessProgressInfoInternalFactory,
   u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy;
@@ -168,7 +168,6 @@ uses
 {$R *.dfm}
 
 constructor TfrmRegionProcess.Create(
-  const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
@@ -200,15 +199,23 @@ constructor TfrmRegionProcess.Create(
   const AMapGoto: IMapViewGoto;
   const AMarkDBGUI: TMarksDbGUIHelper
 );
+var
+  VProgressFactory: IRegionProcessProgressInfoInternalFactory;
 begin
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
   FVectorItemsFactory := AVectorItemsFactory;
   FMapGoto := AMapGoto;
   FMarkDBGUI:=AMarkDBGUI;
+  VProgressFactory :=
+    TRegionProcessProgressInfoInternalFactory.Create(
+      AAppClosingNotifier,
+      ATimerNoifier,
+      FMapGoto
+    );
   FfrExport :=
     TfrExport.Create(
-      AProgressFactory,
+      VProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -225,7 +232,7 @@ begin
 
   FProviderTilesDelte :=
     TProviderTilesDelete.Create(
-      AProgressFactory,
+      VProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -235,7 +242,7 @@ begin
     );
   FProviderTilesGenPrev :=
     TProviderTilesGenPrev.Create(
-      AProgressFactory,
+      VProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
@@ -248,7 +255,7 @@ begin
     );
   FProviderTilesCopy :=
     TProviderTilesCopy.Create(
-      AProgressFactory,
+      VProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AGlobalBerkeleyDBHelper,
@@ -261,7 +268,7 @@ begin
   FProviderTilesDownload :=
     TProviderTilesDownload.Create(
       AAppClosingNotifier,
-      AProgressFactory,
+      VProgressFactory,
       ALanguageManager,
       AValueToStringConverterConfig,
       AMainMapsConfig,
@@ -274,7 +281,7 @@ begin
     );
   FfrCombine :=
     TfrCombine.Create(
-      AProgressFactory,
+      VProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,

@@ -819,7 +819,6 @@ uses
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
-  u_RegionProcessProgressInfoInternalFactory,
   frm_StartLogo,
   frm_LonLatRectEdit;
 
@@ -837,7 +836,6 @@ var
   VMouseState: TMouseState;
   VLineOnMapEditChangeListener: IListener;
   VBitmapStatic: IBitmap32Static;
-  VProgressFactory: IRegionProcessProgressInfoInternalFactory;
 begin
   inherited;
 
@@ -864,15 +862,8 @@ begin
       GState.ArchiveReadWriteFactory,
       GState.Config.ValueToStringConverterConfig,
     );
-  VProgressFactory :=
-    TRegionProcessProgressInfoInternalFactory.Create(
-      GState.AppClosingNotifier,
-      GState.GUISyncronizedTimerNotifier,
-      FMapGoto
-    );
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
-      VProgressFactory,
       GState.Config.LanguageManager,
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
