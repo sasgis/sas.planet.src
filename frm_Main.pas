@@ -2286,15 +2286,16 @@ begin
   FNOpenDirItemList := nil;
   FNCopyLinkItemList := nil;
   FLinksList := nil;
+  FRegionProcess := nil;
   FreeAndNil(FfrmAbout);
   FreeAndNil(FTumbler);
   FreeAndNil(FRuller);
-  FreeAndNil(FFormRegionProcess);
   FreeAndNil(FfrmGoTo);
   FreeAndNil(FfrmSettings);
   FreeAndNil(FfrmMapLayersOptions);
   FreeAndNil(FfrmCacheManager);
   FreeAndNil(FfrmMarksExplorer);
+  FreeAndNil(FFormRegionProcess);
   FreeAndNil(FMarkDBGUI);
   inherited;
 end;
