@@ -43,6 +43,7 @@ uses
   TBX,
   TBXControls,
   i_Listener,
+  i_RegionProcess,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_LocalCoordConverterChangeable,
@@ -52,7 +53,6 @@ uses
   i_WindowPositionConfig,
   i_MarksSimple,
   i_MarkCategory,
-  frm_RegionProcess,
   u_MarksDbGUIHelper;
 
 type
@@ -167,7 +167,7 @@ type
     FMarksShowConfigListener: IListener;
     FConfigListener: IListener;
     FMarksSystemStateListener: IListener;
-    FFormRegionProcess: TfrmRegionProcess;
+    FRegionProcess: IRegionProcess;
 
 
     procedure OnCategoryDbChanged;
@@ -194,7 +194,7 @@ type
       const AMarksShowConfig: IUsedMarksConfig;
       AMarkDBGUI: TMarksDbGUIHelper;
       const AMapGoto: IMapViewGoto;
-      const AFormRegionProcess: TfrmRegionProcess
+      const ARegionProcess: IRegionProcess
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -224,7 +224,7 @@ constructor TfrmMarksExplorer.Create(
   const AMarksShowConfig: IUsedMarksConfig;
   AMarkDBGUI: TMarksDbGUIHelper;
   const AMapGoto: IMapViewGoto;
-  const AFormRegionProcess: TfrmRegionProcess
+  const ARegionProcess: IRegionProcess
 );
 begin
   inherited Create(ALanguageManager);
@@ -235,14 +235,13 @@ begin
   FMarksShowConfig := AMarksShowConfig;
   FViewPortState := AViewPortState;
   FNavToPoint := ANavToPoint;
+  FRegionProcess := ARegionProcess;
   MarksListBox.MultiSelect:=true;
   FCategoryDBListener := TNotifyNoMmgEventListener.Create(Self.OnCategoryDbChanged);
   FMarksDBListener := TNotifyNoMmgEventListener.Create(Self.OnMarksDbChanged);
   FMarksShowConfigListener := TNotifyNoMmgEventListener.Create(Self.OnMarksShowConfigChanged);
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FMarksSystemStateListener := TNotifyNoMmgEventListener.Create(Self.OnMarkSystemStateChanged);
-  FFormRegionProcess := AFormRegionProcess;
-
 end;
 
 procedure TfrmMarksExplorer.CreateParams(var Params: TCreateParams);
@@ -707,7 +706,7 @@ begin
   if VMark <> nil then begin
     Vpolygon := FMarkDBGUI.PolygonForOperation(VMark, FViewPortState.GetStatic.ProjectionInfo);
     if Vpolygon <> nil then begin
-      FFormRegionProcess.Show_(FViewPortState.GetStatic.ProjectionInfo.Zoom, Vpolygon);
+      FRegionProcess.ProcessPolygon(Vpolygon);
       ModalResult := mrOk;
     end;
   end;

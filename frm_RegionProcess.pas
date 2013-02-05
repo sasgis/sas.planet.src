@@ -58,9 +58,11 @@ uses
   i_MarksDrawConfig,
   i_MarksSystem,
   i_MapTypes,
+  i_RegionProcess,
   i_ActiveMapsConfig,
   i_MapCalibration,
   i_TileFileNameGeneratorsList,
+  i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
@@ -72,7 +74,7 @@ uses
   fr_Export;
 
 type
-  TfrmRegionProcess = class(TFormWitghLanguageManager)
+  TfrmRegionProcess = class(TFormWitghLanguageManager, IRegionProcess)
     Button1: TButton;
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
@@ -107,12 +109,21 @@ type
     FProviderTilesDownload: TProviderTilesDownload;
     FMapGoto: IMapViewGoto;
     FMarkDBGUI: TMarksDbGUIHelper;
+    FPosition: ILocalCoordConverterChangeable;
     procedure LoadRegion(const APolyLL: ILonLatPolygon);
     procedure DelRegion(const APolyLL: ILonLatPolygon);
     procedure genbacksatREG(const APolyLL: ILonLatPolygon);
     procedure scleitRECT(const APolyLL: ILonLatPolygon);
     procedure savefilesREG(const APolyLL: ILonLatPolygon);
     procedure ExportREG(const APolyLL: ILonLatPolygon);
+  private
+    procedure ProcessPolygon(
+      const APolygon: ILonLatPolygon
+    );
+    procedure ProcessPolygonWithZoom(
+      const AZoom: Byte;
+      const APolygon: ILonLatPolygon
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -121,6 +132,7 @@ type
       const ALastSelectionInfo: ILastSelectionInfo;
       const AMainMapsConfig: IMainMapsConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const APosition: ILocalCoordConverterChangeable;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -149,7 +161,6 @@ type
     destructor Destroy; override;
     procedure LoadSelFromFile(const FileName:string);
     procedure StartSlsFromFile(const AFileName:string);
-    procedure Show_(AZoom:byte; const APolygon: ILonLatPolygon);
   end;
 
 implementation
@@ -174,6 +185,7 @@ constructor TfrmRegionProcess.Create(
   const ALastSelectionInfo: ILastSelectionInfo;
   const AMainMapsConfig: IMainMapsConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const APosition: ILocalCoordConverterChangeable;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const ACoordConverterFactory: ICoordConverterFactory;
@@ -204,6 +216,7 @@ var
 begin
   inherited Create(ALanguageManager);
   FLastSelectionInfo := ALastSelectionInfo;
+  FPosition := APosition;
   FVectorItemsFactory := AVectorItemsFactory;
   FMapGoto := AMapGoto;
   FMarkDBGUI:=AMarkDBGUI;
@@ -335,10 +348,27 @@ begin
       VPolygon := ReadPolygon(VPolygonSection, FVectorItemsFactory);
       if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
         VZoom := VPolygonSection.ReadInteger('zoom', 1) - 1;
-        Self.Show_(VZoom, VPolygon);
+        Self.ProcessPolygonWithZoom(VZoom, VPolygon);
       end;
     end;
   end
+end;
+
+procedure TfrmRegionProcess.ProcessPolygon(const APolygon: ILonLatPolygon);
+begin
+  FZoom_rect := FPosition.GetStatic.Zoom;
+  FPolygonLL := APolygon;
+  FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
+  Self.Show;
+end;
+
+procedure TfrmRegionProcess.ProcessPolygonWithZoom(const AZoom: Byte;
+  const APolygon: ILonLatPolygon);
+begin
+  FZoom_rect := AZoom;
+  FPolygonLL := APolygon;
+  FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
+  Self.Show;
 end;
 
 procedure TfrmRegionProcess.DelRegion(const APolyLL: ILonLatPolygon);
@@ -385,14 +415,6 @@ begin
   if CBCloseWithStart.Checked then begin
     close;
   end;
-end;
-
-procedure TfrmRegionProcess.Show_(AZoom:byte; const APolygon: ILonLatPolygon);
-begin
-  FZoom_rect:=AZoom;
-  FPolygonLL := APolygon;
-  FLastSelectionInfo.SetPolygon(APolygon, FZoom_rect);
-  Self.Show;
 end;
 
 procedure TfrmRegionProcess.FormShow(Sender: TObject);

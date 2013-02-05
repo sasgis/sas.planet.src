@@ -207,6 +207,7 @@ uses
   u_MapTypeListChangeableActiveBitmapLayers in 'u_MapTypeListChangeableActiveBitmapLayers.pas',
   i_ImageLineProvider in 'i_ImageLineProvider.pas',
   u_ImageLineProvider in 'u_ImageLineProvider.pas',
+  i_RegionProcess in 'i_RegionProcess.pas',
   i_RegionProcessProgressInfo in 'i_RegionProcessProgressInfo.pas',
   u_RegionProcessProgressInfo in 'u_RegionProcessProgressInfo.pas',
   i_RegionProcessProgressInfoInternalFactory in 'i_RegionProcessProgressInfoInternalFactory.pas',

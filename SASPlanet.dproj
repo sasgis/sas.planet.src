@@ -394,6 +394,7 @@
     <DCCReference Include="i_ReadWriteState.pas" />
     <DCCReference Include="i_ReadWriteStateInternal.pas" />
     <DCCReference Include="i_Rect.pas" />
+    <DCCReference Include="i_RegionProcess.pas" />
     <DCCReference Include="i_RegionProcessProgressInfo.pas" />
     <DCCReference Include="i_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="i_RegionProcessProgressInfoInternalFactory.pas" />

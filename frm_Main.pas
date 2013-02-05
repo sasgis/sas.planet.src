@@ -74,6 +74,7 @@ uses
   i_SearchResultPresenter,
   i_MainWindowPosition,
   i_SelectionRect,
+  i_RegionProcess,
   i_LineOnMapEdit,
   i_PointOnMapEdit,
   i_MapTypeIconsList,
@@ -610,6 +611,7 @@ type
     FTumbler:TBitmap32;
     FSensorViewList: IGUIDInterfaceSet;
     FFormRegionProcess: TfrmRegionProcess;
+    FRegionProcess: IRegionProcess;
     FfrmGoTo: TfrmGoTo;
     FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
@@ -871,6 +873,7 @@ begin
       GState.Config.LastSelectionInfo,
       FConfig.MainMapsConfig,
       GState.GlobalBerkeleyDBHelper,
+      FConfig.ViewPortState.View,
       GState.MapType.FullMapsSet,
       GState.MapType.GUIConfigList,
       GState.CoordConverterFactory,
@@ -896,6 +899,7 @@ begin
       FMapGoto,
       FMarkDBGUI
     );
+  FRegionProcess := FFormRegionProcess;
   FFormRegionProcess.PopupParent := Self;
   FfrmGoTo :=
     TfrmGoTo.Create(
@@ -3908,7 +3912,7 @@ begin
   end;
   if (VPolygon<> nil) and (VPolygon.Count > 0) then begin
     FState.State := ao_movemap;
-    FFormRegionProcess.Show_(VZoom, VPolygon);
+    FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
   end else begin
     showmessage(SAS_MSG_NeedHL);
   end;
@@ -4205,7 +4209,7 @@ begin
     if VSelLonLat.Execute(VLonLatRect) Then Begin
       VPolygon := GState.VectorItemsFactory.CreateLonLatPolygonByRect(VLonLatRect);
       FState.State := ao_movemap;
-      FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPolygon);
+      FRegionProcess.ProcessPolygon(VPolygon);
       VPolygon := nil;
     end else begin
       FState.State := ao_movemap;
@@ -4399,13 +4403,13 @@ begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
     Vpolygon := FMarkDBGUI.PolygonForOperation(VMark, FConfig.ViewPortState.View.GetStatic.ProjectionInfo);
-    if Vpolygon <> nil then FFormRegionProcess.Show_(FConfig.ViewPortState.View.GetStatic.ProjectionInfo.Zoom, Vpolygon);
+    if Vpolygon <> nil then FRegionProcess.ProcessPolygon(Vpolygon);
   end else begin
     // no mark - try to select wiki
     VSelectedWiki := FSelectedWiki;
     if (VSelectedWiki <> nil) then begin
       Vpolygon := VSelectedWiki.Line;
-      if Vpolygon <> nil then FFormRegionProcess.Show_(FConfig.ViewPortState.View.GetStatic.ProjectionInfo.Zoom, Vpolygon);
+      if Vpolygon <> nil then FRegionProcess.ProcessPolygon(Vpolygon);
     end;
   end;
 end;
@@ -4916,7 +4920,7 @@ begin
       if VSelectionFinished then begin
         VPoly := GState.VectorItemsFactory.CreateLonLatPolygonByRect(VSelectionRect);
         FState.State := ao_movemap;
-        FFormRegionProcess.Show_(VZoomCurr, VPoly);
+        FRegionProcess.ProcessPolygonWithZoom(VZoomCurr, VPoly);
         VPoly := nil;
       end;
       Exit;
@@ -5501,7 +5505,7 @@ begin
       ao_select_poly: begin
         VPoly := (VLineOnMapEdit as IPolygonOnMapEdit).Polygon;
         FState.State := ao_movemap;
-        FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
+        FRegionProcess.ProcessPolygon(VPoly);
       end;
       ao_select_line: begin
         VPath := (VLineOnMapEdit as IPathOnMapEdit).Path;
@@ -5519,7 +5523,7 @@ begin
                 VFilter
               );
             FState.State := ao_movemap;
-            FFormRegionProcess.Show_(FConfig.ViewPortState.GetCurrentZoom, VPoly);
+            FRegionProcess.ProcessPolygon(VPoly);
           end;
         end;
       end;
@@ -5747,7 +5751,7 @@ begin
 
   VPolygon := GState.VectorItemsFactory.CreateLonLatPolygonByRect(VLonLatRect);
   FState.State := ao_movemap;
-  FFormRegionProcess.Show_(VZoom, VPolygon);
+  FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
 end;
 
 procedure TfrmMain.TBSearchWindowClose(Sender: TObject);
