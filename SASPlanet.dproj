@@ -131,15 +131,6 @@
     <DCCReference Include="frm_MarksMultiEdit.pas">
       <Form>frmMarksMultiEdit</Form>
     </DCCReference>
-    <DCCReference Include="frm_ProgressDownload.pas">
-      <Form>frmProgressDownload</Form>
-    </DCCReference>
-    <DCCReference Include="frm_ProgressSimple.pas">
-      <Form>frmProgressSimple</Form>
-    </DCCReference>
-    <DCCReference Include="frm_RegionProcess.pas">
-      <Form>frmRegionProcess</Form>
-    </DCCReference>
     <DCCReference Include="frm_Settings.pas">
       <Form>frmSettings</Form>
     </DCCReference>
@@ -394,10 +385,6 @@
     <DCCReference Include="i_ReadWriteState.pas" />
     <DCCReference Include="i_ReadWriteStateInternal.pas" />
     <DCCReference Include="i_Rect.pas" />
-    <DCCReference Include="i_RegionProcess.pas" />
-    <DCCReference Include="i_RegionProcessProgressInfo.pas" />
-    <DCCReference Include="i_RegionProcessProgressInfoDownload.pas" />
-    <DCCReference Include="i_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_ScaleLineConfig.pas" />
     <DCCReference Include="i_SearchResultPresenter.pas" />
@@ -549,6 +536,15 @@
     <DCCReference Include="Performance\u_InternalPerformanceCounterListForDebug.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterListForDebugOneClass.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterStaticData.pas" />
+    <DCCReference Include="RegionProcess\frm_ProgressDownload.pas">
+      <Form>frmProgressDownload</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\frm_ProgressSimple.pas">
+      <Form>frmProgressSimple</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\frm_RegionProcess.pas">
+      <Form>frmRegionProcess</Form>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_Combine.pas">
       <Form>frCombine</Form>
       <DesignClass>TFrame</DesignClass>
@@ -617,7 +613,11 @@
       <Form>frTilesGenPrev</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="RegionProcess\i_RegionProcess.pas" />
     <DCCReference Include="RegionProcess\i_RegionProcessParamsFrame.pas" />
+    <DCCReference Include="RegionProcess\i_RegionProcessProgressInfo.pas" />
+    <DCCReference Include="RegionProcess\i_RegionProcessProgressInfoDownload.pas" />
+    <DCCReference Include="RegionProcess\i_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderAbstract.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderCE.pas" />
@@ -641,6 +641,9 @@
     <DCCReference Include="RegionProcess\u_ProviderTilesDelete.pas" />
     <DCCReference Include="RegionProcess\u_ProviderTilesDownload.pas" />
     <DCCReference Include="RegionProcess\u_ProviderTilesGenPrev.pas" />
+    <DCCReference Include="RegionProcess\u_RegionProcessProgressInfo.pas" />
+    <DCCReference Include="RegionProcess\u_RegionProcessProgressInfoDownload.pas" />
+    <DCCReference Include="RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="RegionProcess\u_ThreadDeleteTiles.pas" />
     <DCCReference Include="RegionProcess\u_ThreadDownloadTiles.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportAbstract.pas" />
@@ -1095,9 +1098,6 @@
     <DCCReference Include="u_ProxyConfig.pas" />
     <DCCReference Include="u_ReadWriteStateInternal.pas" />
     <DCCReference Include="u_ReadWriteStateStatic.pas" />
-    <DCCReference Include="u_RegionProcessProgressInfo.pas" />
-    <DCCReference Include="u_RegionProcessProgressInfoDownload.pas" />
-    <DCCReference Include="u_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="u_ResStrings.pas" />
     <DCCReference Include="u_SASMainConfigProvider.pas" />
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />

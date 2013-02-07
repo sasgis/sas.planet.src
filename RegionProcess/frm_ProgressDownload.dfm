@@ -127,7 +127,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 112
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Process not more than:'
@@ -138,7 +138,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
@@ -159,7 +159,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 78
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Processed total:'
@@ -170,7 +170,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
@@ -191,7 +191,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 88
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Downloaded total:'
@@ -202,7 +202,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
@@ -223,7 +223,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 105
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Approx. to download:'
@@ -234,7 +234,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight
@@ -255,7 +255,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 0
         Top = 0
         Width = 75
-        Height = 17
+        Height = 13
         Align = alLeft
         BiDiMode = bdLeftToRight
         Caption = 'Time remaining:'
@@ -266,7 +266,7 @@ object frmProgressDownload: TfrmProgressDownload
         Left = 316
         Top = 0
         Width = 6
-        Height = 17
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         BiDiMode = bdLeftToRight

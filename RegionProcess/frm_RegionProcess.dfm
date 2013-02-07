@@ -145,7 +145,6 @@ object frmRegionProcess: TfrmRegionProcess
       ParentShowHint = False
       ShowHint = True
       OnClick = SpeedButton_fitClick
-      ExplicitLeft = 379
     end
     object SpeedButton_mkMark: TSpeedButton
       AlignWithMargins = True
@@ -196,7 +195,6 @@ object frmRegionProcess: TfrmRegionProcess
       ParentShowHint = False
       ShowHint = True
       OnClick = SpeedButton_mkMarkClick
-      ExplicitLeft = 379
     end
     object Button1: TButton
       AlignWithMargins = True
@@ -233,7 +231,6 @@ object frmRegionProcess: TfrmRegionProcess
       Checked = True
       State = cbChecked
       TabOrder = 2
-      ExplicitWidth = 336
     end
   end
   object SaveSelDialog: TSaveDialog

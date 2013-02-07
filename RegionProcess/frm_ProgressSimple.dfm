@@ -118,8 +118,6 @@ object frmProgressSimple: TfrmProgressSimple
     ReadOnly = True
     TabOrder = 0
     OnChange = MemoInfoChange
-    ExplicitLeft = -6
-    ExplicitTop = -6
   end
   object pnlProgress: TPanel
     Left = 0
