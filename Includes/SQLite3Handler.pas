@@ -245,12 +245,15 @@ begin
 end;
 
 procedure TSQLite3DbHandler.Open(const ADbFileName: AnsiString; const AOpenFlags: Integer);
+var
+  VDBFileName: AnsiString;
 begin
   Close;
   try
+    VDBFileName := AnsiToUtf8(ADbFileName);
     CheckError(
       g_Sqlite3Library.sqlite3_open_v2(
-      PAnsiChar(ADbFileName),
+      PAnsiChar(VDBFileName),
       Sqlite3Handle,
       AOpenFlags, // SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE // SQLITE_OPEN_READWRITE
       nil
