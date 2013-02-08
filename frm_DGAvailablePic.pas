@@ -820,6 +820,8 @@ begin
       if (nil=VImportConfig) then begin
         // single time only!
         VImportConfig := FMarkDBGUI.EditModalImportConfig;
+        if (nil=VImportConfig) then
+          Exit;
         VPointsAggregator := TDoublePointsAggregator.Create;
         if (nil=VImportConfig.TemplateNewPoly) then
           Exit;
