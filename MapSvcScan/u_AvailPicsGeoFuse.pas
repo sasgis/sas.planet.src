@@ -194,15 +194,25 @@ const
     var AParams: TStrings;
     var AExternalResultCount: Integer): Boolean;
   var
-    VDate, VID: String;
+    VDate, VID, VColl: String;
+    VItemExisting: Boolean;
+    VItemFetched: TDateTime;
   begin
     // add item
     VID := AParams.Values['IMAGE_ID'];
+    VColl := AParams.Values['COLLECTION_VEHICLE_LONG'];
+    VItemExisting := ItemExists(FBaseStorageName+'_'+VColl, VID, @VItemFetched);
     VDate := System.Copy(VID,1,4) + DateSeparator + System.Copy(VID,5,2) + DateSeparator + System.Copy(VID,7,2);
     // add date to params
     AParams.Values['Date'] := VDate;
-    VID := AParams.Values['COLLECTION_VEHICLE_LONG'];
-    Result := FTileInfoPtr.AddImageProc(Self, VDate, VID, AParams);
+    Result := FTileInfoPtr.AddImageProc(
+      Self,
+      VDate,
+      VColl,
+      VItemExisting,
+      VItemFetched,
+      AParams
+    );
     FreeAndNil(AParams);
     // inc count
     if Result then begin

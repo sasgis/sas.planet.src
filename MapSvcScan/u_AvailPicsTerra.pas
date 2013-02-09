@@ -111,6 +111,8 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     VLayer: String;
     VSep: String; // actual separator
     VPos: Integer;
+    VItemExisting: Boolean;
+    VItemFetched: TDateTime;
   begin
     // value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
     VValue := AnsiLowerCase(Trim(GetAfter('>', AOptionText)));
@@ -167,6 +169,10 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
       AParams := TStringList.Create
     else
       AParams.Clear;
+
+    // check existing
+    VItemExisting := ItemExists(FBaseStorageName, VLayer, @VItemFetched);
+
     // add
     AParams.Values['layer'] := VLayer;
     AParams.Values['date'] := VDate;
@@ -180,7 +186,14 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
           '&styp=&vic=';
 
     // call
-    Result := FTileInfoPtr.AddImageProc(Self, VDate, 'Terraserver', AParams);
+    Result := FTileInfoPtr.AddImageProc(
+      Self,
+      VDate,
+      'Terraserver',
+      VItemExisting,
+      VItemFetched,
+      AParams
+    );
   end;
 
 var

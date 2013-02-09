@@ -29,6 +29,7 @@ uses
   i_InetConfig,
   i_DownloadResult,
   i_DownloadRequest,
+  i_MapSvcScanStorage,
   u_DownloadRequest,
   u_AvailPicsAbstract;
 
@@ -56,8 +57,11 @@ type
   // treat boolean as FALSE = Recency,TRUE = ColorOnly
   TAvailPicsNMCs = array [TAvailPicsNMCZoom, Boolean] of TAvailPicsNMC;
 
-procedure GenerateAvailPicsNMC(var ADGs: TAvailPicsNMCs;
-                               const ATileInfoPtr: PAvailPicsTileInfo);
+procedure GenerateAvailPicsNMC(
+  var ADGs: TAvailPicsNMCs;
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AMapSvcScanStorage: IMapSvcScanStorage
+);
 
 function FindExifInJpeg(const AJpegBuffer: Pointer;
                         const AJpegSize: Cardinal;
@@ -376,19 +380,22 @@ begin
   Inc(Result);
 end;
 
-procedure GenerateAvailPicsNMC(var ADGs: TAvailPicsNMCs;
-                               const ATileInfoPtr: PAvailPicsTileInfo);
+procedure GenerateAvailPicsNMC(
+  var ADGs: TAvailPicsNMCs;
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AMapSvcScanStorage: IMapSvcScanStorage
+);
 var
   j: TAvailPicsNMCZoom;
 begin
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
     if (nil=ADGs[j,FALSE]) then begin
-      ADGs[j,FALSE] := TAvailPicsNMC.Create(ATileInfoPtr);
+      ADGs[j,FALSE] := TAvailPicsNMC.Create(ATileInfoPtr, AMapSvcScanStorage);
       ADGs[j,FALSE].WorkingZoom := Ord(j);
       ADGs[j,FALSE].FProfile := 'Recency';
     end;
     if (nil=ADGs[j,TRUE]) then begin
-      ADGs[j,TRUE] := TAvailPicsNMC.Create(ATileInfoPtr);
+      ADGs[j,TRUE] := TAvailPicsNMC.Create(ATileInfoPtr, AMapSvcScanStorage);
       ADGs[j,TRUE].WorkingZoom := Ord(j);
       ADGs[j,TRUE].FProfile := 'ColorOnly';
     end;
@@ -653,7 +660,14 @@ const
           *)
 
           // add item
-          FTileInfoPtr.AddImageProc(Self, VDate, 'Nokia z'+IntToStr(FWorkingZoom), VSLParams);
+          FTileInfoPtr.AddImageProc(
+            Self,
+            VDate,
+            'Nokia z'+IntToStr(FWorkingZoom),
+            FALSE, // because of NOKIA is down
+            0,     // TODO: check ASAP
+            VSLParams
+          );
         end;
       end;
     finally

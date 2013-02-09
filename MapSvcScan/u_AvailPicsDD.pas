@@ -32,6 +32,7 @@ uses
   i_DownloadResult,
   i_DownloadResultFactory,
   i_DownloadRequest,
+  i_MapSvcScanStorage,
   u_DownloadRequest,
   u_AvailPicsAbstract,
   u_BinaryDataByMemStream;
@@ -56,9 +57,12 @@ type
   TAvailPicsDataDoorsID = (dd1=1, dd2=2, dd3=3, dd4=4, dd5=5);
   TAvailPicsDataDoors = array [TAvailPicsDataDoorsID] of TAvailPicsDD;
 
-procedure GenerateAvailPicsDD(var ADDs: TAvailPicsDataDoors;
-                              const AResultFactory: IDownloadResultFactory;
-                              const ATileInfoPtr: PAvailPicsTileInfo);
+procedure GenerateAvailPicsDD(
+  var ADDs: TAvailPicsDataDoors;
+  const AResultFactory: IDownloadResultFactory;
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AMapSvcScanStorage: IMapSvcScanStorage
+);
 
 implementation
 
@@ -75,25 +79,43 @@ uses
   u_NotifierOperation,
   u_TileRequestBuilderHelpers;
 
-procedure GenerateAvailPicsDD(var ADDs: TAvailPicsDataDoors;
-                              const AResultFactory: IDownloadResultFactory;
-                              const ATileInfoPtr: PAvailPicsTileInfo);
+procedure GenerateAvailPicsDD(
+  var ADDs: TAvailPicsDataDoors;
+  const AResultFactory: IDownloadResultFactory;
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AMapSvcScanStorage: IMapSvcScanStorage
+);
 var
   j: TAvailPicsDataDoorsID;
 begin
   Assert(AResultFactory<>nil);
   for j := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
     if (nil=ADDs[j]) then begin
-      ADDs[j] := TAvailPicsDD.Create(ATileInfoPtr);
+      ADDs[j] := TAvailPicsDD.Create(ATileInfoPtr, AMapSvcScanStorage);
       ADDs[j].FResultFactory := AResultFactory;
       case Ord(j) of
-      1: ADDs[j].LayerKey :='c4453cc2-6e13-4a39-91ce-972e567a15d8'; // WorldView-1
-      2: ADDs[j].LayerKey :='2f864ade-2820-4ddd-9a51-b1d2f4b66e18'; // WorldView-2
-      3: ADDs[j].LayerKey :='1798eda6-9987-407e-8373-eb324d5b31fd'; // QuickBird
-      4: ADDs[j].LayerKey :='cb547543-5619-464d-a0ee-4ff5ff2e7dab'; // GeoEye
-      5: ADDs[j].LayerKey :='f8ff73f4-7632-4dda-b276-5dca821a8281'; // Ikonos
+      1: begin
+        ADDs[j].FBaseStorageName := 'DD_WV1';
+        ADDs[j].LayerKey :='c4453cc2-6e13-4a39-91ce-972e567a15d8'; // WorldView-1
+      end;
+      2: begin
+        ADDs[j].FBaseStorageName := 'DD_WV2';
+        ADDs[j].LayerKey :='2f864ade-2820-4ddd-9a51-b1d2f4b66e18'; // WorldView-2
+      end;
+      3: begin
+        ADDs[j].FBaseStorageName := 'DD_QB';
+        ADDs[j].LayerKey :='1798eda6-9987-407e-8373-eb324d5b31fd'; // QuickBird
+      end;
+      4: begin
+        ADDs[j].FBaseStorageName := 'DD_GE';
+        ADDs[j].LayerKey :='cb547543-5619-464d-a0ee-4ff5ff2e7dab'; // GeoEye
+      end;
+      5: begin
+        ADDs[j].FBaseStorageName := 'DD_IK';
+        ADDs[j].LayerKey :='f8ff73f4-7632-4dda-b276-5dca821a8281'; // Ikonos
+      end;
       else
-         ADDs[j].LayerKey:='';
+        ADDs[j].LayerKey:='';
       end;
     end;
   end;
@@ -139,7 +161,10 @@ var
       Result := ASrcId;
     end;
   end;
-  
+
+var
+  VItemExists: Boolean;
+  VItemFetched: TDateTime;
 begin
   VMemoryStream := TMemoryStream.Create;
   VMemoryStream.Position:=0;
@@ -179,6 +204,8 @@ begin
 
             VposList := SubNode.GetAttribute('uid');
             VParams.Values['uid'] := VposList;
+
+            VItemExists := ItemExists(FBaseStorageName, VposList, @VItemFetched);
 
             VposList := SubNode.GetAttribute('acq_date');
             VParams.Values['acq_date'] := VposList;
@@ -224,7 +251,14 @@ begin
             VposList := ReplaceStr(VposList,'GeoEye ','');
             VposList := 'DD:' + VposList;
 
-            VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VposList, VParams);
+            VAddResult := FTileInfoPtr.AddImageProc(
+              Self,
+              VDate,
+              VposList,
+              VItemExists,
+              VItemFetched,
+              VParams
+            );
             FreeAndNil(VParams);
             if VAddResult then begin
               Inc(Result);

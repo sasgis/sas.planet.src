@@ -161,7 +161,14 @@ begin
         VZoom := FTileInfoPtr.Zoom;
         AdjustMinimalBingHiResZoom(VZoom);
 
-        if FTileInfoPtr.AddImageProc(Self, VVintageStart, 'Bing (z'+inttostr(VZoom+1)+')', VSLParams) then
+        if FTileInfoPtr.AddImageProc(
+            Self,
+            VVintageStart,
+            'Bing (z'+inttostr(VZoom+1)+')',
+            FALSE, // cannot check image identidier for BING
+            0,
+            VSLParams
+        ) then
           Inc(Result);
       end;
 

@@ -28,6 +28,7 @@ uses
   i_InetConfig,
   i_DownloadResult,
   i_DownloadRequest,
+  i_MapSvcScanStorage,
   u_DownloadRequest,
   u_AvailPicsAbstract;
 
@@ -51,8 +52,11 @@ type
 
   TAvailPicsDGs = array of TAvailPicsDG;
 
-procedure GenerateAvailPicsDG(var ADGs: TAvailPicsDGs;
-                              const ATileInfoPtr: PAvailPicsTileInfo);
+procedure GenerateAvailPicsDG(
+  var ADGs: TAvailPicsDGs;
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AMapSvcScanStorage: IMapSvcScanStorage
+);
 
 implementation
 
@@ -170,8 +174,11 @@ var
              );  }
 
 
-procedure GenerateAvailPicsDG(var ADGs: TAvailPicsDGs;
-                              const ATileInfoPtr: PAvailPicsTileInfo);
+procedure GenerateAvailPicsDG(
+  var ADGs: TAvailPicsDGs;
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AMapSvcScanStorage: IMapSvcScanStorage
+);
 var i,k: Integer;
 begin
   k := length(Stacks);
@@ -181,11 +188,14 @@ begin
 
   // create objects
   for i:=0 to k-1 do begin
-    ADGs[i] := TAvailPicsDG.Create(ATileInfoPtr);
-    ADGs[i].FStack_Key      := Stacks[i,0];
-    ADGs[i].FStack_Number   := Stacks[i,1];
-    ADGs[i].FStack_Descript := Stacks[i,2];
-    ADGs[i].FStack_AppId    := Stacks[i,3];
+    ADGs[i] := TAvailPicsDG.Create(ATileInfoPtr, AMapSvcScanStorage);
+    with ADGs[i] do begin
+      FStack_Key       := Stacks[i,0];
+      FStack_Number    := Stacks[i,1];
+      FStack_Descript  := Stacks[i,2];
+      FStack_AppId     := Stacks[i,3];
+      FBaseStorageName := FBaseStorageName + '_' + FStack_Number;
+    end;
   end;
 end;
 
@@ -292,6 +302,8 @@ var
   VDateOrig, VProvider, VColor, VResolution: String;
   VParams: TStrings;
   VMemoryStream: TMemoryStream;
+  VItemExists: Boolean;
+  VItemFetched: TDateTime;
 begin
   VMemoryStream := TMemoryStream.Create;
   VMemoryStream.Position:=0;
@@ -352,8 +364,18 @@ begin
         VParams.Values['resolution']:=VResolution;
         VParams.Values['color']:=VColor;
 
+        // check
+        VItemExists := ItemExists(FBaseStorageName, VId, @VItemFetched);
+
         // add item
-        VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, VId, VParams);
+        VAddResult := FTileInfoPtr.AddImageProc(
+          Self,
+          VDate,
+          VId,
+          VItemExists,
+          VItemFetched,
+          VParams
+        );
         FreeAndNil(VParams);
 
         if VAddResult then begin

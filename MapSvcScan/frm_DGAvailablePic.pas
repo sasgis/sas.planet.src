@@ -42,6 +42,7 @@ uses
   i_DownloadResultFactory,
   i_Downloader,
   i_PathConfig,
+  i_MapSvcScanStorage,
   t_GeoTypes,
   u_CommonFormAndFrameParents,
   u_AvailPicsAbstract,
@@ -98,6 +99,7 @@ type
     Up: TPanel;
     chkGeoFuse: TCheckBox;
     chkMNCasColorOnly: TCheckBox;
+    chkShowOnlyNew: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -116,6 +118,7 @@ type
     procedure chkALLServicesClick(Sender: TObject);
     procedure chkLowResolutionTooClick(Sender: TObject);
     procedure veImageParamsDblClick(Sender: TObject);
+    procedure chkShowOnlyNewClick(Sender: TObject);
   private
     FBing: TAvailPicsBing;
     FDG2: TAvailPicsDG2;
@@ -125,15 +128,17 @@ type
     FESRI: TAvailPicsESRI;
     FDGStacks: TAvailPicsDGs;
     FGeoFuse: TAvailPicsGeoFuse;
-    
+
     FAvailPicsTileInfo: TAvailPicsTileInfo;
     FCallIndex: DWORD;
     FVertResizeFactor: Integer;
     FCSAddNode: IReadWriteSync;
     FALLClicking: Boolean;
+    FStartRefresh: TDateTime;
     // object from main form
     FMarkDBGUI: TMarksDbGUIHelper;
     FMapSvcScanPath: IPathConfig;
+    FMapSvcScanStorage: IMapSvcScanStorage;
     FVectorItemsFactory: IVectorItemsFactory;
 
   private
@@ -163,6 +168,8 @@ type
     function AddAvailImageItem(Sender: TObject;
                                const ADate: String;
                                const AId: String;
+                               const AExisting: Boolean;
+                               const AFetched: TDateTime;
                                var AParams: TStrings): Boolean;
 
     // get tid list (for DG only)
@@ -207,6 +214,7 @@ uses
   u_NotifierOperation,
   u_InetFunc,
   u_DoublePointsAggregator,
+  u_MapSvcScanStorage,
   u_GeoFun,
   u_GeoToStr;
 
@@ -438,9 +446,13 @@ begin
     Accept:=FALSE;
 end;
 
-function TfrmDGAvailablePic.AddAvailImageItem(Sender: TObject;
-                                              const ADate, AId: String;
-                                              var AParams: TStrings): Boolean;
+function TfrmDGAvailablePic.AddAvailImageItem(
+  Sender: TObject;
+  const ADate, AId: String;
+  const AExisting: Boolean;
+  const AFetched: TDateTime;
+  var AParams: TStrings
+): Boolean;
 
   procedure _CopyNewLines(dst: TStrings; const src: TStrings);
   var
@@ -461,6 +473,11 @@ var
   VDateNode, VItemNode: TTreeNode;
 begin
   Result:=FALSE;
+
+  // if do not show OLD items
+  if AExisting and FAvailPicsTileInfo.ShowOnlyNewItems then
+  if AFetched < (FStartRefresh-1) then
+    Exit;
 
   (*
   // IF need for subnodes for different services
@@ -520,6 +537,7 @@ var
   i: TAvailPicsDataDoorsID;
   VComp: TComponent;
 begin
+  FStartRefresh := Now;
   // clear
   ClearAvailableImages;
 
@@ -622,6 +640,11 @@ end;
 procedure TfrmDGAvailablePic.chkLowResolutionTooClick(Sender: TObject);
 begin
   FAvailPicsTileInfo.LowResToo := chkLowResolutionToo.Checked;
+end;
+
+procedure TfrmDGAvailablePic.chkShowOnlyNewClick(Sender: TObject);
+begin
+  FAvailPicsTileInfo.ShowOnlyNewItems := chkShowOnlyNew.Checked;
 end;
 
 procedure TfrmDGAvailablePic.btnDownClick(Sender: TObject);
@@ -997,33 +1020,33 @@ var i,k: Integer;
 begin
   // make for bing
   if (nil=FBing) then
-    FBing := TAvailPicsBing.Create(@FAvailPicsTileInfo);
+    FBing := TAvailPicsBing.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for DigitalGlobe2
   if (nil=FDG2) then
-    FDG2 := TAvailPicsDG2.Create(@FAvailPicsTileInfo);
+    FDG2 := TAvailPicsDG2.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for nokia map creator
-  GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo);
+  GenerateAvailPicsNMC(FNMCs, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for datadoors
-  GenerateAvailPicsDD(FDDs, FResultFactory, @FAvailPicsTileInfo);
+  GenerateAvailPicsDD(FDDs, FResultFactory, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for terraserver
   if (nil=FTerraserver) then
-    FTerraserver := TAvailPicsTerraserver.Create(@FAvailPicsTileInfo);
+    FTerraserver := TAvailPicsTerraserver.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for ESRI
   if (nil=FESRI) then
-    FESRI := TAvailPicsESRI.Create(@FAvailPicsTileInfo);
+    FESRI := TAvailPicsESRI.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for GeoFuse.GeoEye
   if (nil=FGeoFuse) then
-    FGeoFuse := TAvailPicsGeoFuse.Create(@FAvailPicsTileInfo);
+    FGeoFuse := TAvailPicsGeoFuse.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for digital globe
   if (0=Length(FDGStacks)) then
-    GenerateAvailPicsDG(FDGStacks, @FAvailPicsTileInfo);
+    GenerateAvailPicsDG(FDGStacks, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // fill cbDGstacks
   cbDGstacks.Items.Clear;
@@ -1296,6 +1319,8 @@ begin
   FLocalConverter := nil;
   FVectorItemsFactory := AVectorItemsFactory;
   FInetConfig := AInetConfig;
+  FStartRefresh := Now;
+  FMapSvcScanStorage := TMapSvcScanStorage.Create(AMapSvcScanPath);
   FResultFactory := TDownloadResultFactory.Create;
 end;
 
@@ -1310,6 +1335,7 @@ begin
   FInetConfig:=nil;
   FLocalConverter:=nil;
   FCSAddNode:=nil;
+  FMapSvcScanStorage:=nil;
   FMapSvcScanPath:=nil;
   inherited;
 end;

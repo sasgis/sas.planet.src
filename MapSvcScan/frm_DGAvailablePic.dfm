@@ -160,15 +160,24 @@ object frmDGAvailablePic: TfrmDGAvailablePic
           OnClick = btnMakePolyClick
         end
         object chkALLImages: TCheckBox
-          AlignWithMargins = True
-          Left = 3
-          Top = 186
-          Width = 89
+          Left = 0
+          Top = 172
+          Width = 95
           Height = 17
           Align = alBottom
           Caption = 'All Images'
-          TabOrder = 5
+          TabOrder = 6
           OnClick = chkALLImagesClick
+        end
+        object chkShowOnlyNew: TCheckBox
+          Left = 0
+          Top = 155
+          Width = 95
+          Height = 17
+          Align = alBottom
+          Caption = 'Show only new'
+          TabOrder = 5
+          OnClick = chkShowOnlyNewClick
         end
       end
     end
@@ -225,7 +234,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         Width = 198
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
       object chkALLServices: TCheckBox

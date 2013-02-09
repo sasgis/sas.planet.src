@@ -82,6 +82,8 @@ var
   i : integer;
   VParams: TStrings;
   VMemoryStream: TMemoryStream;
+  VItemExisting: Boolean;
+  VItemFetched: TDateTime;
 begin
   VMemoryStream := TMemoryStream.Create;
   VMemoryStream.Position:=0;
@@ -107,6 +109,7 @@ begin
             VParams:=nil;
             VDate := PlacemarkNode.ChildNodes.FindNode('DigitalGlobe:formattedDate').text;
             VfeatureId := PlacemarkNode.ChildNodes.FindNode('DigitalGlobe:featureId').text;
+
             vSampleDistance := PlacemarkNode.ChildNodes.FindNode('DigitalGlobe:groundSampleDistance').text;
             VlegacyId := PlacemarkNode.ChildNodes.FindNode('DigitalGlobe:legacyId').text;
             VDate1 := PlacemarkNode.ChildNodes.FindNode('DigitalGlobe:acquisitionDate').text;
@@ -138,7 +141,16 @@ begin
               VParams.Values['METADATA_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseMetadata?buffer=1.0&catalogId='+VlegacyId+'&imageHeight=natres&imageWidth=natres';
             end;
 
-            VAddResult := FTileInfoPtr.AddImageProc(Self, VDate, 'DigitalGlobe', VParams);
+            VItemExisting := ItemExists(FBaseStorageName, VfeatureId, @VItemFetched);
+
+            VAddResult := FTileInfoPtr.AddImageProc(
+              Self,
+              VDate,
+              'DigitalGlobe',
+              VItemExisting,
+              VItemFetched,
+              VParams
+            );
             FreeAndNil(VParams);
             if VAddResult then begin
               Inc(Result);

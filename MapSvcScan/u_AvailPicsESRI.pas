@@ -125,6 +125,8 @@ var
   VAddResult: Boolean;
   VKey, VValue: String;
   VMemoryStream: TMemoryStream;
+  VItemExists: Boolean;
+  VItemFetched: TDateTime;
 begin
   VMemoryStream := TMemoryStream.Create;
   VMemoryStream.Position:=0;
@@ -157,8 +159,17 @@ begin
         if VInAttributes and ('}' = VLine) then begin
           // end of attributes
           VInAttributes := FALSE;
+          // check
+          VItemExists := ItemExists(FBaseStorageName, VId+'_'+VDate, @VItemFetched);
           // add item
-          VAddResult := FTileInfoPtr.AddImageProc(Self, VDateToDate(VDate), 'ESRI'+' '+VId, VParams);
+          VAddResult := FTileInfoPtr.AddImageProc(
+            Self,
+            VDateToDate(VDate),
+            'ESRI'+' '+VId,
+            VItemExists,
+            VItemFetched,
+            VParams
+          );
           FreeAndNil(VParams);
           // inc count
           if VAddResult then begin

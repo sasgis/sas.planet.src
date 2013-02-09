@@ -29,6 +29,7 @@ uses
   i_DownloadResult,
   i_DownloadRequest,
   i_LocalCoordConverter,
+  i_MapSvcScanStorage,
   t_GeoTypes;
 
 type
@@ -36,6 +37,8 @@ type
   TAddAvailImageItemProc = function (Sender: TObject;
                                      const ADate: String;
                                      const AId: String;
+                                     const AExisting: Boolean;
+                                     const AFetched: TDateTime;
                                      var AParams: TStrings): Boolean of object;
 
   PAvailPicsTileInfo = ^TAvailPicsTileInfo;
@@ -45,6 +48,7 @@ type
     LonLat: TDoublePoint;
     Zoom: Byte;
     LowResToo: Boolean;
+    ShowOnlyNewItems: Boolean;
     // for DG
     mpp: Extended;
     hi,wi: Integer;
@@ -56,8 +60,13 @@ type
   protected
     FTileInfoPtr: PAvailPicsTileInfo;
     FLocalConverter: ILocalCoordConverter;
+    FMapSvcScanStorage: IMapSvcScanStorage;
+    FBaseStorageName: String;
   public
-    constructor Create(const ATileInfoPtr: PAvailPicsTileInfo);
+    constructor Create(
+      const ATileInfoPtr: PAvailPicsTileInfo;
+      const AMapSvcScanStorage: IMapSvcScanStorage
+    );
     destructor Destroy; override;
 
     procedure SetLocalConverter(const ALocalConverter: ILocalCoordConverter);
@@ -69,6 +78,13 @@ type
 
     // Request or PostRequest
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; virtual; abstract;
+
+    // check item exists, if not - add it to storage
+    function ItemExists(
+      const AServiceName: String;
+      const AIdentifier: WideString;
+      const AFetchedDate: PDateTime
+    ): Boolean;
   end;
 
   TAvailPicsByKey = class(TAvailPicsAbstract)
@@ -106,17 +122,38 @@ end;
 
 { TAvailPicsAbstract }
 
-constructor TAvailPicsAbstract.Create(const ATileInfoPtr: PAvailPicsTileInfo);
+constructor TAvailPicsAbstract.Create(
+  const ATileInfoPtr: PAvailPicsTileInfo;
+  const AMapSvcScanStorage: IMapSvcScanStorage
+);
 begin
   inherited Create;
+  FMapSvcScanStorage := AMapSvcScanStorage;
   FTileInfoPtr := ATileInfoPtr;
   FLocalConverter := nil;
+  FBaseStorageName := Classname;
+  System.Delete(FBaseStorageName, 1, 10);
 end;
 
 destructor TAvailPicsAbstract.Destroy;
 begin
   FLocalConverter:=nil;
   inherited;
+end;
+
+function TAvailPicsAbstract.ItemExists(
+  const AServiceName: String;
+  const AIdentifier: WideString;
+  const AFetchedDate: PDateTime
+): Boolean;
+begin
+  // check existing
+  Result := FMapSvcScanStorage.ItemExists(AServiceName, AIdentifier, AFetchedDate);
+  if Result then
+    Exit;
+  // item not found - register by current date
+  AFetchedDate^ := Now;
+  FMapSvcScanStorage.AddItem(AServiceName, AIdentifier, AFetchedDate^);
 end;
 
 procedure TAvailPicsAbstract.SetLocalConverter(const ALocalConverter: ILocalCoordConverter);
