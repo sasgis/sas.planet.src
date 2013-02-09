@@ -6,14 +6,16 @@ uses
   SysUtils,
   Classes,
   SQLite3Handler,
-  i_PathConfig,
+  i_Listener,
+  i_MapSvcScanConfig,
   i_MapSvcScanStorage,
   u_BaseInterfacedObject;
 
 type
   TMapSvcScanStorage = class(TBaseInterfacedObject, IMapSvcScanStorage)
   private
-    FMapSvcScanPath: IPathConfig;
+    FMapSvcScanConfig: IMapSvcScanConfig;
+    FConfigChangeListener: IListener;
     FSync: IReadWriteSync;
     FDbHandler: TSQLite3DbHandler;
     FInitialized: Boolean;
@@ -29,6 +31,8 @@ type
     function DateTimeToDBSeconds(const AValue: TDateTime): Integer;
     function DBSecondsToDateTime(const AValue: Integer): TDateTime;
   private
+    procedure OnConfigChanged;
+  private
     { IMapSvcScanStorage }
     function Available: Boolean;
     function ItemExists(
@@ -43,7 +47,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const AMapSvcScanPath: IPathConfig
+      const AMapSvcScanConfig: IMapSvcScanConfig
     );
     destructor Destroy; override;
   end;
@@ -52,6 +56,7 @@ implementation
 
 uses
   ALSqlite3Wrapper,
+  u_ListenerByEvent,
   u_Synchronizer;
 
 const
@@ -105,42 +110,24 @@ begin
   AStmtData^.Cancelled := TRUE;
 end;
 
-constructor TMapSvcScanStorage.Create(const AMapSvcScanPath: IPathConfig);
-var
-  VPath: String;
+constructor TMapSvcScanStorage.Create(
+  const AMapSvcScanConfig: IMapSvcScanConfig
+);
 begin
   inherited Create;
-  FMapSvcScanPath := AMapSvcScanPath;
+  FMapSvcScanConfig := AMapSvcScanConfig;
   FSync := MakeSyncRW_Std(Self);
 
   FServices := TStringList.Create;
   FServices.Sorted := TRUE;
   FServices.Duplicates := dupIgnore;
 
-  FInitialized := FDbHandler.Init;
-  if FInitialized then
-  try
-    VPath := AMapSvcScanPath.FullPath;
-    ForceDirectories(VPath);
-    VPath := IncludeTrailingPathDelimiter(VPath) + 'FoundItems.sqlitedb';
-    if FileExists(VPath) then begin
-      // open existing
-      FDbHandler.Open(VPath, SQLITE_OPEN_READWRITE);
-    end else begin
-      // create new database
-      FDbHandler.Open(VPath, (SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE));
-      // generate structure
-      FDbHandler.ExecSQL('create table IF NOT EXISTS svcinfo (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, svcname NVARCHAR NOT NULL)');
-      FDbHandler.ExecSQL('create unique index IF NOT EXISTS svcinfo_uniq on svcinfo (svcname)');
-      FDbHandler.ExecSQL('create table IF NOT EXISTS svcitem (id INTEGER NOT NULL CONSTRAINT svcinfo_fk REFERENCES svcinfo (id) ON DELETE CASCADE, itemname NVARCHAR NOT NULL, itemdate INT NOT NULL, constraint PK_SVCITEM primary key (id, itemname))');
-    end;
-    // apply config
-    FDbHandler.ExecSQL('PRAGMA main.journal_mode=PERSIST'); // DELETE by default // WAL // PERSIST
-    FDbHandler.ExecSQL('PRAGMA synchronous=NORMAL'); // FULL by default
-    FDbHandler.ExecSQL('PRAGMA foreign_keys=ON'); // OFF by default
-  except
-    FDbHandler.Close;
-  end;
+  FInitialized := FALSE;
+
+  FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChanged);
+  FMapSvcScanConfig.ChangeNotifier.Add(FConfigChangeListener);
+
+  OnConfigChanged;
 end;
 
 function TMapSvcScanStorage.DateTimeToDBSeconds(const AValue: TDateTime): Integer;
@@ -155,6 +142,11 @@ end;
 
 destructor TMapSvcScanStorage.Destroy;
 begin
+  if (FConfigChangeListener<>nil) then begin
+    FMapSvcScanConfig.ChangeNotifier.Remove(FConfigChangeListener);
+    FConfigChangeListener := nil;
+  end;
+
   FInitialized := FALSE;
   FSync.BeginWrite;
   try
@@ -183,7 +175,7 @@ var
       Length(VServiceName)
     );
   end;
-  
+
 begin
   FSync.BeginRead;
   try
@@ -265,6 +257,55 @@ begin
     end;
   except
     Result := FALSE;
+  end;
+end;
+
+procedure TMapSvcScanStorage.OnConfigChanged;
+var
+  VUseStorage: Boolean;
+  VPath: String;
+begin
+  VUseStorage := FMapSvcScanConfig.UseStorage;
+  if (Available=VUseStorage) then
+    Exit;
+
+  FSync.BeginWrite;
+  try
+    if (not VUseStorage) then begin
+      FDbHandler.Close;
+      Exit;
+    end;
+
+    if (not FInitialized) then begin
+      FInitialized := FDbHandler.Init;
+      if not FInitialized then
+        Exit;
+    end;
+
+    try
+      VPath := FMapSvcScanConfig.Path.FullPath;
+      ForceDirectories(VPath);
+      VPath := IncludeTrailingPathDelimiter(VPath) + 'FoundItems.sqlitedb';
+      if FileExists(VPath) then begin
+        // open existing
+        FDbHandler.Open(VPath, SQLITE_OPEN_READWRITE);
+      end else begin
+        // create new database
+        FDbHandler.Open(VPath, (SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE));
+        // generate structure
+        FDbHandler.ExecSQL('create table IF NOT EXISTS svcinfo (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, svcname NVARCHAR NOT NULL)');
+        FDbHandler.ExecSQL('create unique index IF NOT EXISTS svcinfo_uniq on svcinfo (svcname)');
+        FDbHandler.ExecSQL('create table IF NOT EXISTS svcitem (id INTEGER NOT NULL CONSTRAINT svcinfo_fk REFERENCES svcinfo (id) ON DELETE CASCADE, itemname NVARCHAR NOT NULL, itemdate INT NOT NULL, constraint PK_SVCITEM primary key (id, itemname))');
+      end;
+      // apply config
+      FDbHandler.ExecSQL('PRAGMA main.journal_mode=PERSIST'); // DELETE by default // WAL // PERSIST
+      FDbHandler.ExecSQL('PRAGMA synchronous=NORMAL'); // FULL by default
+      FDbHandler.ExecSQL('PRAGMA foreign_keys=ON'); // OFF by default
+    except
+      FDbHandler.Close;
+    end;
+  finally
+    FSync.EndWrite;
   end;
 end;
 

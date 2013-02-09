@@ -24,6 +24,7 @@ uses
   i_TerrainConfig,
   i_ZmpConfig,
   i_LastSearchResultConfig,
+  i_MapSvcScanConfig,
   i_ConfigDataElement;
 
 type
@@ -34,9 +35,6 @@ type
 
     function GetMapsPath: IPathConfig;
     property MapsPath: IPathConfig read GetMapsPath;
-
-    function GetMapSvcScanPath: IPathConfig;
-    property MapSvcScanPath: IPathConfig read GetMapSvcScanPath;
 
     function GetTrackPath: IPathConfig;
     property TrackPath: IPathConfig read GetTrackPath;
@@ -139,6 +137,9 @@ type
 
     function GetLastSearchResultConfig: ILastSearchResultConfig;
     property LastSearchResultConfig: ILastSearchResultConfig read GetLastSearchResultConfig;
+
+    function GetMapSvcScanConfig: IMapSvcScanConfig;
+    property MapSvcScanConfig: IMapSvcScanConfig read GetMapSvcScanConfig;
   end;
 
 implementation

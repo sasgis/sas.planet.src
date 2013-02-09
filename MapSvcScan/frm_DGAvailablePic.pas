@@ -42,7 +42,7 @@ uses
   i_DownloadResult,
   i_DownloadResultFactory,
   i_Downloader,
-  i_PathConfig,
+  i_MapSvcScanConfig,
   i_MapSvcScanStorage,
   t_GeoTypes,
   u_CommonFormAndFrameParents,
@@ -138,7 +138,7 @@ type
     FStartRefresh: TDateTime;
     // object from main form
     FMarkDBGUI: TMarksDbGUIHelper;
-    FMapSvcScanPath: IPathConfig;
+    FMapSvcScanConfig: IMapSvcScanConfig;
     FMapSvcScanStorage: IMapSvcScanStorage;
     FVectorItemsFactory: IVectorItemsFactory;
 
@@ -192,7 +192,7 @@ type
   public
     constructor Create(
       const AMarkDBGUI: TMarksDbGUIHelper;
-      const AMapSvcScanPath: IPathConfig;
+      const AMapSvcScanConfig: IMapSvcScanConfig;
       const ALanguageManager: ILanguageManager;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AInetConfig: IInetConfig
@@ -489,7 +489,7 @@ begin
   if AExisting then begin
     VExistDiff := Round(FStartRefresh-AFetched);
     // if do not show OLD items
-    if FAvailPicsTileInfo.ShowOnlyNewItems then
+    if chkShowOnlyNew.Checked then
     if VExistDiff > 1 then
       Exit;
     if VExistDiff < 0 then
@@ -652,7 +652,7 @@ end;
 
 procedure TfrmDGAvailablePic.chkShowOnlyNewClick(Sender: TObject);
 begin
-  FAvailPicsTileInfo.ShowOnlyNewItems := chkShowOnlyNew.Checked;
+  FMapSvcScanConfig.ShowOnlyNew := chkShowOnlyNew.Checked;
 end;
 
 procedure TfrmDGAvailablePic.btnDownClick(Sender: TObject);
@@ -1326,14 +1326,14 @@ end;
 
 constructor TfrmDGAvailablePic.Create(
   const AMarkDBGUI: TMarksDbGUIHelper;
-  const AMapSvcScanPath: IPathConfig;
+  const AMapSvcScanConfig: IMapSvcScanConfig;
   const ALanguageManager: ILanguageManager;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AInetConfig: IInetConfig
 );
 begin
   FMarkDBGUI := AMarkDBGUI;
-  FMapSvcScanPath := AMapSvcScanPath;
+  FMapSvcScanConfig := AMapSvcScanConfig;
   FALLClicking := FALSE;
   FVertResizeFactor:=0;
   FCallIndex:=0;
@@ -1357,7 +1357,7 @@ begin
   FVectorItemsFactory := AVectorItemsFactory;
   FInetConfig := AInetConfig;
   FStartRefresh := Now;
-  FMapSvcScanStorage := TMapSvcScanStorage.Create(AMapSvcScanPath);
+  FMapSvcScanStorage := TMapSvcScanStorage.Create(AMapSvcScanConfig);
   FResultFactory := TDownloadResultFactory.Create;
 end;
 
@@ -1373,7 +1373,7 @@ begin
   FLocalConverter:=nil;
   FCSAddNode:=nil;
   FMapSvcScanStorage:=nil;
-  FMapSvcScanPath:=nil;
+  FMapSvcScanConfig:=nil;
   inherited;
 end;
 
@@ -1442,6 +1442,11 @@ end;
 
 procedure TfrmDGAvailablePic.FormShow(Sender: TObject);
 begin
+  // set saved params
+  chkShowOnlyNew.Visible := FMapSvcScanConfig.UseStorage;
+  chkShowOnlyNew.Checked := FMapSvcScanConfig.ShowOnlyNew;
+
+  // others
   FVertResizeFactor:=Height-gbAvailImages.Top-gbAvailImages.Height-spltDesc.Height-gbImageParams.Height;
   ApplyServicesCheckboxHandlers;
 end;

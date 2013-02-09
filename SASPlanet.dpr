@@ -928,6 +928,8 @@ uses
   u_InetFunc in 'u_InetFunc.pas',
   i_DebugInfoWindow in 'i_DebugInfoWindow.pas',
   u_DebugInfoWindow in 'u_DebugInfoWindow.pas',
+  i_MapSvcScanConfig in 'MapSvcScan\i_MapSvcScanConfig.pas',
+  u_MapSvcScanConfig in 'MapSvcScan\u_MapSvcScanConfig.pas',
   i_MapSvcScanStorage in 'MapSvcScan\i_MapSvcScanStorage.pas',
   u_MapSvcScanStorage in 'MapSvcScan\u_MapSvcScanStorage.pas',
   u_AvailPicsAbstract in 'MapSvcScan\u_AvailPicsAbstract.pas',

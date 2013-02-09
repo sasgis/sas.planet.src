@@ -25,6 +25,7 @@ uses
   i_WindowPositionConfig,
   i_GlobalConfig,
   i_LastSearchResultConfig,
+  i_MapSvcScanConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -69,10 +70,10 @@ type
     FTerrainConfig: ITerrainConfig;
     FZmpConfig: IZmpConfig;
     FLastSearchResultConfig: ILastSearchResultConfig;
+    FMapSvcScanConfig: IMapSvcScanConfig;
   private
     function GetBaseCahcePath: IPathConfig;
     function GetMapsPath: IPathConfig;
-    function GetMapSvcScanPath: IPathConfig;
     function GetTrackPath: IPathConfig;
     function GetMarksDbPath: IPathConfig;
     function GetMarksIconsPath: IPathConfig;
@@ -107,6 +108,7 @@ type
     function GetTerrainConfig: ITerrainConfig;
     function GetZmpConfig: IZmpConfig;
     function GetLastSearchResultConfig: ILastSearchResultConfig;
+    function GetMapSvcScanConfig: IMapSvcScanConfig;
   public
     constructor Create(
       const ABaseCacheDataPath: IPathConfig;
@@ -141,6 +143,7 @@ uses
   u_TerrainConfig,
   u_ZmpConfig,
   u_LastSearchResultConfig,
+  u_MapSvcScanConfig,
   u_StartUpLogoConfig,
   u_BitmapPostProcessingConfig,
   u_MarksFactoryConfig,
@@ -264,6 +267,9 @@ begin
   FBitmapPostProcessingConfig := TBitmapPostProcessingConfig.Create;
   Add(FBitmapPostProcessingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('COLOR_LEVELS'), False, False, False, False);
 
+  FMapSvcScanConfig := TMapSvcScanConfig.Create(FMapSvcScanPath);
+  Add(FMapSvcScanConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MapSvcScan'), False, False, False, False);
+
   FMarksFactoryConfig := TMarksFactoryConfig.Create(FLanguageManager);
   Add(FMarksFactoryConfig, TConfigSaveLoadStrategyBasicUseProvider.Create, False, False, False, False);
 
@@ -366,9 +372,9 @@ begin
   Result := FMapsPath;
 end;
 
-function TGlobalConfig.GetMapSvcScanPath: IPathConfig;
+function TGlobalConfig.GetMapSvcScanConfig: IMapSvcScanConfig;
 begin
-  Result := FMapSvcScanPath;
+  Result := FMapSvcScanConfig;
 end;
 
 function TGlobalConfig.GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;

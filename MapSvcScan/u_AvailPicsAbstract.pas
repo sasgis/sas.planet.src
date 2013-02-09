@@ -48,7 +48,6 @@ type
     LonLat: TDoublePoint;
     Zoom: Byte;
     LowResToo: Boolean;
-    ShowOnlyNewItems: Boolean;
     // for DG
     mpp: Extended;
     hi,wi: Integer;
