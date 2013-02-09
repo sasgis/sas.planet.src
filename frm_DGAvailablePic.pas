@@ -41,6 +41,7 @@ uses
   i_DownloadResult,
   i_DownloadResultFactory,
   i_Downloader,
+  i_PathConfig,
   t_GeoTypes,
   u_CommonFormAndFrameParents,
   u_AvailPicsAbstract,
@@ -132,6 +133,7 @@ type
     FALLClicking: Boolean;
     // object from main form
     FMarkDBGUI: TMarksDbGUIHelper;
+    FMapSvcScanPath: IPathConfig;
     FVectorItemsFactory: IVectorItemsFactory;
 
   private
@@ -180,6 +182,7 @@ type
   public
     constructor Create(
       const AMarkDBGUI: TMarksDbGUIHelper;
+      const AMapSvcScanPath: IPathConfig;
       const ALanguageManager: ILanguageManager;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AInetConfig: IInetConfig
@@ -193,19 +196,19 @@ type
 implementation
 
 uses
-  u_Clipboard,
-  u_Synchronizer,
   i_ImportConfig,
   i_MarksSimple,
   i_VectorItemLonLat,
+  i_CoordConverter,
   i_DoublePointsAggregator,
+  u_Clipboard,
+  u_Synchronizer,
   u_Notifier,
   u_NotifierOperation,
   u_InetFunc,
   u_DoublePointsAggregator,
   u_GeoFun,
-  u_GeoToStr,
-  i_CoordConverter;
+  u_GeoToStr;
 
 type
   TGetList = class(TThread)
@@ -1263,12 +1266,14 @@ end;
 
 constructor TfrmDGAvailablePic.Create(
   const AMarkDBGUI: TMarksDbGUIHelper;
+  const AMapSvcScanPath: IPathConfig;
   const ALanguageManager: ILanguageManager;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AInetConfig: IInetConfig
 );
 begin
   FMarkDBGUI := AMarkDBGUI;
+  FMapSvcScanPath := AMapSvcScanPath;
   FALLClicking := FALSE;
   FVertResizeFactor:=0;
   FCallIndex:=0;
@@ -1305,6 +1310,7 @@ begin
   FInetConfig:=nil;
   FLocalConverter:=nil;
   FCSAddNode:=nil;
+  FMapSvcScanPath:=nil;
   inherited;
 end;
 

@@ -32,6 +32,7 @@ type
   private
     FBaseCahcePath: IPathConfig;
     FMapsPath: IPathConfig;
+    FMapSvcScanPath: IPathConfig;
     FTrackPath: IPathConfig;
     FMarksDbPath: IPathConfig;
     FMarksIconsPath: IPathConfig;
@@ -71,6 +72,7 @@ type
   private
     function GetBaseCahcePath: IPathConfig;
     function GetMapsPath: IPathConfig;
+    function GetMapSvcScanPath: IPathConfig;
     function GetTrackPath: IPathConfig;
     function GetMarksDbPath: IPathConfig;
     function GetMarksIconsPath: IPathConfig;
@@ -162,6 +164,9 @@ begin
 
   FMapsPath := TPathConfig.Create('PrimaryPath', '.\Maps', ABaseConfigPath);
   Add(FMapsPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoMAPS'), False, False, False, False);
+
+  FMapSvcScanPath := TPathConfig.Create('PrimaryPath', '.\MapSvcScan', ABaseDataPath);
+  Add(FMapSvcScanPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoMapSvcScan'), False, False, False, False);
 
   FTrackPath := TPathConfig.Create('PrimaryPath', '.\TrackLog', ABaseDataPath);
   Add(FTrackPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoTRACKS'), False, False, False, False);
@@ -359,6 +364,11 @@ end;
 function TGlobalConfig.GetMapsPath: IPathConfig;
 begin
   Result := FMapsPath;
+end;
+
+function TGlobalConfig.GetMapSvcScanPath: IPathConfig;
+begin
+  Result := FMapSvcScanPath;
 end;
 
 function TGlobalConfig.GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;

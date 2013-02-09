@@ -5565,6 +5565,7 @@ begin
   if (nil=FfrmDGAvailablePic) then
     FfrmDGAvailablePic:=TfrmDGAvailablePic.Create(
       FMarkDBGUI,
+      GState.Config.MapSvcScanPath,
       GState.Config.LanguageManager,
       GState.VectorItemsFactory,
       GState.Config.InetConfig);

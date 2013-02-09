@@ -35,6 +35,9 @@ type
     function GetMapsPath: IPathConfig;
     property MapsPath: IPathConfig read GetMapsPath;
 
+    function GetMapSvcScanPath: IPathConfig;
+    property MapSvcScanPath: IPathConfig read GetMapSvcScanPath;
+
     function GetTrackPath: IPathConfig;
     property TrackPath: IPathConfig read GetTrackPath;
 
