@@ -492,6 +492,7 @@
     <DCCReference Include="MapSvcScan\frm_DGAvailablePic.pas">
       <Form>frmDGAvailablePic</Form>
     </DCCReference>
+    <DCCReference Include="MapSvcScan\i_MapSvcScanConfig.pas" />
     <DCCReference Include="MapSvcScan\i_MapSvcScanStorage.pas" />
     <DCCReference Include="MapSvcScan\u_AvailPicsAbstract.pas" />
     <DCCReference Include="MapSvcScan\u_AvailPicsBing.pas" />
@@ -502,6 +503,7 @@
     <DCCReference Include="MapSvcScan\u_AvailPicsGeoFuse.pas" />
     <DCCReference Include="MapSvcScan\u_AvailPicsNMC.pas" />
     <DCCReference Include="MapSvcScan\u_AvailPicsTerra.pas" />
+    <DCCReference Include="MapSvcScan\u_MapSvcScanConfig.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanStorage.pas" />
     <DCCReference Include="MarksDB\i_MarkCategory.pas" />
     <DCCReference Include="MarksDB\i_MarkCategoryDB.pas" />
