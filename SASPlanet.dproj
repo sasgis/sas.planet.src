@@ -408,6 +408,7 @@
     <DCCReference Include="i_StringListChangeable.pas" />
     <DCCReference Include="i_StringListStatic.pas" />
     <DCCReference Include="i_StringProvider.pas" />
+    <DCCReference Include="i_SystemTimeProvider.pas" />
     <DCCReference Include="i_TextByVectorItem.pas" />
     <DCCReference Include="i_Thread.pas" />
     <DCCReference Include="i_ThreadConfig.pas" />
@@ -1141,6 +1142,7 @@
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_StringListStatic.pas" />
     <DCCReference Include="u_StringProviderForMapTileItem.pas" />
+    <DCCReference Include="u_SystemTimeProvider.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="u_TextByVectorItemHTMLByDescription.pas" />
     <DCCReference Include="u_TextByVectorItemMarkInfo.pas" />

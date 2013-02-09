@@ -91,6 +91,8 @@ uses
   u_HashFunctionCRC64 in 'u_HashFunctionCRC64.pas',
   i_Datum in 'i_Datum.pas',
   u_Datum in 'u_Datum.pas',
+  i_SystemTimeProvider in 'i_SystemTimeProvider.pas',
+  u_SystemTimeProvider in 'u_SystemTimeProvider.pas',
   u_TimeZoneInfo in 'u_TimeZoneInfo.pas',
   i_SimpleFlag in 'i_SimpleFlag.pas',
   u_SimpleFlagWithInterlock in 'u_SimpleFlagWithInterlock.pas',
