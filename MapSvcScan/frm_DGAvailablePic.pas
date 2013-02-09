@@ -180,6 +180,12 @@ type
       const AExisting: Boolean;
       const AExistDiff: Integer
     );
+    // change checked state for node
+    function GetTreeNodeChecked(const AItemNode: TTreeNode): Boolean;
+    procedure SetTreeNodeChecked(
+      const AItemNode: TTreeNode;
+      const AChecked: Boolean
+    );
 
     // get tid list (for DG only)
     function Get_DG_tid_List: String;
@@ -233,7 +239,8 @@ const
   c_ALLBox_Unchecked   = $02;
   c_ALLBox_Both        = $03;
 
-  c_StateIndex_Checked = $01;
+  c_StateIndex_Cleared = $01;
+  c_StateIndex_Checked = $02;
 
 type
   TGetList = class(TThread)
@@ -393,6 +400,22 @@ begin
     end;
   finally
     PostFinishedMessage;
+  end;
+end;
+
+procedure TfrmDGAvailablePic.SetTreeNodeChecked(
+  const AItemNode: TTreeNode;
+  const AChecked: Boolean
+);
+var VAlreadyChecked: Boolean;
+begin
+  VAlreadyChecked := GetTreeNodeChecked(AItemNode);
+  if (VAlreadyChecked<>AChecked) then begin
+    with AItemNode do
+    if AChecked then
+      StateIndex := c_StateIndex_Checked
+    else
+      StateIndex := c_StateIndex_Cleared;
   end;
 end;
 
@@ -627,16 +650,14 @@ end;
 procedure TfrmDGAvailablePic.chkALLImagesClick(Sender: TObject);
 var
   i: Integer;
+  VChecked: Boolean;
 begin
+  VChecked := (chkALLImages.State = cbChecked);
   if chkALLImages.state<>cbGrayed then
   if tvFound.Items.Count>0 then
-  for i := 0 to tvFound.Items.Count-1 do
-  with tvFound.Items.Item[i] do begin
-    if chkALLImages.State = cbChecked then
-      StateIndex := StateIndex or c_StateIndex_Checked
-    else
-      StateIndex := StateIndex and (not c_StateIndex_Checked);
-  end;
+  with tvFound.Items do
+  for i := 0 to Count-1 do
+  SetTreeNodeChecked(Item[i], VChecked);
 end;
 
 procedure TfrmDGAvailablePic.chkALLServicesClick(Sender: TObject);
@@ -765,7 +786,7 @@ begin
   if (0<k) then
   for i := 0 to k-1 do
   if (nil<>tvFound.Items.Item[i].Data) then
-  if ((tvFound.Items.Item[i].StateIndex and c_StateIndex_Checked) <> 0) then begin
+  if GetTreeNodeChecked(tvFound.Items.Item[i]) then begin
     // prepare values
     VXCommaY := FALSE;
     VGeometry := '';
@@ -990,6 +1011,11 @@ begin
   Result := TRUE;
 end;
 
+function TfrmDGAvailablePic.GetTreeNodeChecked(const AItemNode: TTreeNode): Boolean;
+begin
+  Result := (AItemNode.StateIndex = c_StateIndex_Checked);
+end;
+
 function TfrmDGAvailablePic.Get_DG_tid_List: String;
 var
   i,k: Integer;
@@ -1000,7 +1026,7 @@ begin
   if (0<k) then
   for i := 0 to k-1 do
   if (nil<>tvFound.Items.Item[i].Data) then
-  if ((tvFound.Items.Item[i].StateIndex and c_StateIndex_Checked) <> 0) then
+  if GetTreeNodeChecked(tvFound.Items.Item[i]) then
   try
     // get tid for DG items
     single_tid := TStrings(tvFound.Items.Item[i].Data).Values['tid'];
@@ -1194,6 +1220,7 @@ var
   MH:THitTests;
   VNode:TTreeNode;
   i:integer;
+  VNewChecked: Boolean;
 begin
   MH:= tvFound.GetHitTestInfoAt(X,Y);
 
@@ -1203,20 +1230,15 @@ begin
     if (nil=VNode) then
       Exit;
       
-    with VNode do begin
-      if ((StateIndex and c_StateIndex_Checked) = 0) then
-        StateIndex := StateIndex or c_StateIndex_Checked
-      else
-        StateIndex := StateIndex and (not c_StateIndex_Checked);
-    end;
 
-    for i:=0 to VNode.Count-1 do
-    with VNode.Item[i] do begin
-      if ((StateIndex and c_StateIndex_Checked) = 0) then
-        StateIndex := StateIndex or c_StateIndex_Checked
-      else
-        StateIndex := StateIndex and (not c_StateIndex_Checked);
-    end;
+    // toggle
+    VNewChecked := not GetTreeNodeChecked(VNode);
+
+    SetTreeNodeChecked(VNode, VNewChecked);
+
+    with VNode do
+    for i:=0 to Count-1 do
+      SetTreeNodeChecked(Item[i], VNewChecked);
   end;
   
   if (htOnLabel in MH) then begin
@@ -1234,7 +1256,7 @@ begin
   if tvFound.Items.Count>0 then
   for i := 0 to tvFound.Items.Count-1 do begin
     // keep state
-    if ((tvFound.Items.Item[i].StateIndex and c_StateIndex_Checked) <> 0) then
+    if GetTreeNodeChecked(tvFound.Items.Item[i]) then
       VHasState := (VHasState or c_ALLBox_Checked) // checked
     else
       VHasState := (VHasState or c_ALLBox_Unchecked);
