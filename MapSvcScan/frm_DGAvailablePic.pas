@@ -174,6 +174,12 @@ type
                                const AExisting: Boolean;
                                const AFetched: TDateTime;
                                var AParams: TStrings): Boolean;
+    // bold for new items
+    procedure CheckNodeIsNewImage(
+      const AItemNode: TTreeNode;
+      const AExisting: Boolean;
+      const AExistDiff: Integer
+    );
 
     // get tid list (for DG only)
     function Get_DG_tid_List: String;
@@ -510,6 +516,7 @@ begin
         // check for 2 images on 1 day 
           if TStrings(VItemNode.Data).Values['Date'] <> TStrings(AParams).Values['Date'] then begin
             VItemNode := tvFound.Items.AddChild(VDateNode, AID+' ('+copy(TStrings(AParams).Values['Date'],12,8)+')');
+            CheckNodeIsNewImage(VItemNode, AExisting, VExistDiff);
             VItemNode.Data := AParams;
             AParams := nil; // own object
           end else begin
@@ -596,6 +603,25 @@ begin
         else
   else if tvFound.Selected.Parent<>tvFound.Selected.GetPrev
         then tvFound.Selected.MoveTo(tvFound.Selected.GetPrev,naInsert)
+end;
+
+procedure TfrmDGAvailablePic.CheckNodeIsNewImage(
+  const AItemNode: TTreeNode;
+  const AExisting: Boolean;
+  const AExistDiff: Integer
+);
+var
+  VItem: TTVItem;
+begin
+  if AExisting and (AExistDiff>1) then
+    Exit;
+  with VItem do begin
+    mask := TVIF_STATE or TVIF_HANDLE;
+    hItem := AItemNode.ItemId;
+    stateMask := TVIS_BOLD;
+    state := TVIS_BOLD;
+    TreeView_SetItem(AItemNode.Handle, VItem);
+  end;
 end;
 
 procedure TfrmDGAvailablePic.chkALLImagesClick(Sender: TObject);
@@ -924,22 +950,6 @@ function TfrmDGAvailablePic.GetImagesNode(
   const ADateDiff: Integer;
   var AResultNode: TTreeNode
 ): Boolean;
-
-  procedure _CheckNewNode;
-  var
-    VItem: TTVItem;
-  begin
-    if AExisting and (ADateDiff>0) then
-      Exit;
-    with VItem do begin
-      mask := TVIF_STATE or TVIF_HANDLE;
-      hItem := AResultNode.ItemId;
-      stateMask := TVIS_BOLD;
-      state := TVIS_BOLD;
-      TreeView_SetItem(AResultNode.Handle, VItem);
-    end;
-  end;
-  
 var
   i,k: Integer;
 begin
@@ -965,7 +975,7 @@ begin
       // found
       Inc(Result);
       // mark if new
-      _CheckNewNode;
+      CheckNodeIsNewImage(AResultNode, AExisting, ADateDiff);
       Exit;
     end;
   end;
@@ -976,7 +986,7 @@ begin
   end else begin
     AResultNode := tvFound.Items.AddChild(AParentNode, AText);
   end;
-  _CheckNewNode;
+  CheckNodeIsNewImage(AResultNode, AExisting, ADateDiff);
   Result := TRUE;
 end;
 
