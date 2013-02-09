@@ -26,6 +26,7 @@ uses
   Windows,
   SysUtils,
   Classes,
+  Graphics,
   Controls,
   Forms,
   StdCtrls,
@@ -162,6 +163,8 @@ type
     // get (find and create if not exists) node
     function GetImagesNode(const AParentNode: TTreeNode;
                            const AText: String;
+                           const AExisting: Boolean;
+                           const ADateDiff: Integer;
                            var AResultNode: TTreeNode): Boolean;
 
     // add item to images
@@ -217,6 +220,14 @@ uses
   u_MapSvcScanStorage,
   u_GeoFun,
   u_GeoToStr;
+
+const
+  c_ALLBox_None        = $00;
+  c_ALLBox_Checked     = $01;
+  c_ALLBox_Unchecked   = $02;
+  c_ALLBox_Both        = $03;
+
+  c_StateIndex_Checked = $01;
 
 type
   TGetList = class(TThread)
@@ -471,33 +482,30 @@ var
   //VImageService: String;
   // VVendorNode: TTreeNode;
   VDateNode, VItemNode: TTreeNode;
+  VExistDiff: Integer;
 begin
   Result:=FALSE;
 
-  // if do not show OLD items
-  if AExisting and FAvailPicsTileInfo.ShowOnlyNewItems then
-  if AFetched < (FStartRefresh-1) then
-    Exit;
-
-  (*
-  // IF need for subnodes for different services
-  // TODO: get image service by sender without this "simplicity"
-  if (Sender=FBing) then
-    VImageService:=chkBing.Caption
-  else if (Sender=FNMC) then
-    VImageService:=chkNMC.Caption
-  else
-    VImageService:=chkDG.Caption;
-  *)
-  
+  if AExisting then begin
+    VExistDiff := Round(FStartRefresh-AFetched);
+    // if do not show OLD items
+    if FAvailPicsTileInfo.ShowOnlyNewItems then
+    if VExistDiff > 1 then
+      Exit;
+    if VExistDiff < 0 then
+      VExistDiff := 0;
+  end else begin
+    VExistDiff := 0;
+  end;
+ 
   FCSAddNode.BeginWrite;
   try
     // lookup for node as "2011/12/30" -> "DG" -> NODE (TID + PARAMS)
-    if GetImagesNode(nil, ADate, VDateNode) then
+    if GetImagesNode(nil, ADate, AExisting, VExistDiff, VDateNode) then
     //if GetImagesNode(VDateNode, VImageService, VVendorNode) then
     begin
       // find existing node or create new one
-      if GetImagesNode(VDateNode, AId, VItemNode) then begin
+      if GetImagesNode(VDateNode, AId, AExisting, VExistDiff, VItemNode) then begin
         if (VItemNode.Data<>nil) then begin
         // check for 2 images on 1 day 
           if TStrings(VItemNode.Data).Values['Date'] <> TStrings(AParams).Values['Date'] then begin
@@ -599,9 +607,9 @@ begin
   for i := 0 to tvFound.Items.Count-1 do
   with tvFound.Items.Item[i] do begin
     if chkALLImages.State = cbChecked then
-      StateIndex := 2
+      StateIndex := StateIndex or c_StateIndex_Checked
     else
-      StateIndex := 1;
+      StateIndex := StateIndex and (not c_StateIndex_Checked);
   end;
 end;
 
@@ -731,7 +739,7 @@ begin
   if (0<k) then
   for i := 0 to k-1 do
   if (nil<>tvFound.Items.Item[i].Data) then
-  if (2=tvFound.Items.Item[i].StateIndex) then begin
+  if ((tvFound.Items.Item[i].StateIndex and c_StateIndex_Checked) <> 0) then begin
     // prepare values
     VXCommaY := FALSE;
     VGeometry := '';
@@ -909,9 +917,29 @@ begin
     Result := '';
 end;
 
-function TfrmDGAvailablePic.GetImagesNode(const AParentNode: TTreeNode;
-                                          const AText: String;
-                                          var AResultNode: TTreeNode): Boolean;
+function TfrmDGAvailablePic.GetImagesNode(
+  const AParentNode: TTreeNode;
+  const AText: String;
+  const AExisting: Boolean;
+  const ADateDiff: Integer;
+  var AResultNode: TTreeNode
+): Boolean;
+
+  procedure _CheckNewNode;
+  var
+    VItem: TTVItem;
+  begin
+    if AExisting and (ADateDiff>0) then
+      Exit;
+    with VItem do begin
+      mask := TVIF_STATE or TVIF_HANDLE;
+      hItem := AResultNode.ItemId;
+      stateMask := TVIS_BOLD;
+      state := TVIS_BOLD;
+      TreeView_SetItem(AResultNode.Handle, VItem);
+    end;
+  end;
+  
 var
   i,k: Integer;
 begin
@@ -936,6 +964,8 @@ begin
     if SameText(AResultNode.Text, AText) then begin
       // found
       Inc(Result);
+      // mark if new
+      _CheckNewNode;
       Exit;
     end;
   end;
@@ -943,11 +973,11 @@ begin
   // not found - should create
   if (nil=AParentNode) then begin
     AResultNode := tvFound.Items.Add(nil, AText);
-    Result := TRUE;
   end else begin
     AResultNode := tvFound.Items.AddChild(AParentNode, AText);
-    Result := TRUE;
   end;
+  _CheckNewNode;
+  Result := TRUE;
 end;
 
 function TfrmDGAvailablePic.Get_DG_tid_List: String;
@@ -960,7 +990,7 @@ begin
   if (0<k) then
   for i := 0 to k-1 do
   if (nil<>tvFound.Items.Item[i].Data) then
-  if (2=tvFound.Items.Item[i].StateIndex) then
+  if ((tvFound.Items.Item[i].StateIndex and c_StateIndex_Checked) <> 0) then
   try
     // get tid for DG items
     single_tid := TStrings(tvFound.Items.Item[i].Data).Values['tid'];
@@ -1163,13 +1193,20 @@ begin
     if (nil=VNode) then
       Exit;
       
-    if(VNode.StateIndex <> 2) then
-      VNode.StateIndex := 2
-    else
-      VNode.StateIndex := 1;
+    with VNode do begin
+      if ((StateIndex and c_StateIndex_Checked) = 0) then
+        StateIndex := StateIndex or c_StateIndex_Checked
+      else
+        StateIndex := StateIndex and (not c_StateIndex_Checked);
+    end;
 
     for i:=0 to VNode.Count-1 do
-      VNode.Item[i].StateIndex:=VNode.StateIndex;
+    with VNode.Item[i] do begin
+      if ((StateIndex and c_StateIndex_Checked) = 0) then
+        StateIndex := StateIndex or c_StateIndex_Checked
+      else
+        StateIndex := StateIndex and (not c_StateIndex_Checked);
+    end;
   end;
   
   if (htOnLabel in MH) then begin
@@ -1183,16 +1220,16 @@ var
   VHasState: Byte;
 begin
   // obtain ALLImages checkbox state
-  VHasState := 0;
+  VHasState := c_ALLBox_None;
   if tvFound.Items.Count>0 then
   for i := 0 to tvFound.Items.Count-1 do begin
     // keep state
-    if (2=tvFound.Items.Item[i].StateIndex) then
-      VHasState := (VHasState or $01) // checked
+    if ((tvFound.Items.Item[i].StateIndex and c_StateIndex_Checked) <> 0) then
+      VHasState := (VHasState or c_ALLBox_Checked) // checked
     else
-      VHasState := (VHasState or $02);
+      VHasState := (VHasState or c_ALLBox_Unchecked);
     // check both exist
-    if ($03 = VHasState) then
+    if (c_ALLBox_Both = VHasState) then
       break;
   end;
 
@@ -1207,18 +1244,18 @@ var
   VHasState: Byte;
 begin
   // obtain chkALLServices checkbox state
-  VHasState := 0;
+  VHasState := c_ALLBox_None;
   if PnlSearch.ControlCount>0 then
   for i := 0 to PnlSearch.ControlCount-1 do begin
     VBox := PnlSearch.Controls[i];
     if IsCommonServiceCheckbox(VBox) then begin
       // keep state
       if (cbChecked = TCheckBox(VBox).State) then
-        VHasState := (VHasState or $01) // checked
+        VHasState := (VHasState or c_ALLBox_Checked) // checked
       else
-        VHasState := (VHasState or $02);
+        VHasState := (VHasState or c_ALLBox_Unchecked);
       // check both exist
-      if ($03 = VHasState) then
+      if (c_ALLBox_Both = VHasState) then
         break;
     end;
   end;
@@ -1343,11 +1380,11 @@ end;
 procedure TfrmDGAvailablePic.ApplyALLCheckboxState(const AChkBox: TCheckBox; const AHasState: Byte);
 begin
   case AHasState of
-    $03: begin
+    c_ALLBox_Both: begin
       // both
       AChkBox.State := cbGrayed;
     end;
-    $01: begin
+    c_ALLBox_Checked: begin
       // all checked
       AChkBox.State := cbChecked;
     end;
