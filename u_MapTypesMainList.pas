@@ -48,7 +48,7 @@ uses
   i_MapTypes,
   i_GlobalBerkeleyDBHelper,
   u_MapTypeSetChangeableSimple,
-  u_GlobalCacheConfig,
+  i_GlobalCacheConfig,
   u_MapType;
 
 type
@@ -93,7 +93,7 @@ type
     procedure LoadMaps(
       const ALanguageManager: ILanguageManager;
       const AMainMemCacheConfig: IMainMemCacheConfig;
-      const AGlobalCacheConfig: TGlobalCacheConfig;
+      const AGlobalCacheConfig: IGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
@@ -218,7 +218,7 @@ end;
 procedure TMapTypesMainList.LoadMaps(
   const ALanguageManager: ILanguageManager;
   const AMainMemCacheConfig: IMainMemCacheConfig;
-  const AGlobalCacheConfig: TGlobalCacheConfig;
+  const AGlobalCacheConfig: IGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;

@@ -31,7 +31,7 @@ uses
   i_CoordConverter,
   i_TerrainStorage,
   i_TerrainProvider,
-  u_GlobalCacheConfig,
+  i_GlobalCacheConfig,
   u_GoogleEarthLibrary,
   u_TerrainProviderByGEMemCache,
   u_BaseInterfacedObject;
@@ -68,12 +68,12 @@ type
 
   TTerrainProviderByGoogleEarth = class(TTerrainProviderByDLL)
   public
-    constructor Create(const ACacheConfig: TGlobalCacheConfig);
+    constructor Create(const ACacheConfig: IGlobalCacheConfig);
   end;
 
   TTerrainProviderByGeoCacher = class(TTerrainProviderByDLL)
   public
-    constructor Create(const ACacheConfig: TGlobalCacheConfig);
+    constructor Create(const ACacheConfig: IGlobalCacheConfig);
   end;
   
 implementation
@@ -264,7 +264,7 @@ end;
 { TTerrainProviderByGoogleEarth }
 
 constructor TTerrainProviderByGoogleEarth.Create(
-  const ACacheConfig: TGlobalCacheConfig
+  const ACacheConfig: IGlobalCacheConfig
 );
 var
   VStrorage: ITerrainStorage;
@@ -285,7 +285,7 @@ end;
 { TTerrainProviderByGeoCacher }
 
 constructor TTerrainProviderByGeoCacher.Create(
-  const ACacheConfig: TGlobalCacheConfig);
+  const ACacheConfig: IGlobalCacheConfig);
 var
   VStrorage: ITerrainStorage;
   VConverter: ICoordConverter;

@@ -276,6 +276,7 @@
     <DCCReference Include="i_FindVectorItems.pas" />
     <DCCReference Include="i_FullMapMouseCursorLayerConfig.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
+    <DCCReference Include="i_GlobalCacheConfig.pas" />
     <DCCReference Include="i_GlobalConfig.pas" />
     <DCCReference Include="i_GlobalDownloadConfig.pas" />
     <DCCReference Include="i_GlobalInternetState.pas" />

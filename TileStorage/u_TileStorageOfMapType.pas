@@ -26,13 +26,13 @@ uses
   i_TileFileNameParsersList,
   i_GlobalBerkeleyDBHelper,
   i_TileInfoBasicMemCache,
-  u_GlobalCacheConfig,
+  i_GlobalCacheConfig,
   u_BaseInterfacedObject;
 
 type
   TTileStorageOfMapType = class(TBaseInterfacedObject, ITileStorage)
   private
-    FGlobalCacheConfig: TGlobalCacheConfig;
+    FGlobalCacheConfig: IGlobalCacheConfig;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FConfig: ISimpleTileStorageConfig;
     FVersionConfig: IMapVersionConfig;
@@ -135,7 +135,7 @@ type
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
   public
     constructor Create(
-      const AGlobalCacheConfig: TGlobalCacheConfig;
+      const AGlobalCacheConfig: IGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -172,7 +172,7 @@ uses
 { TTileStorageOfMapType }
 
 constructor TTileStorageOfMapType.Create(
-  const AGlobalCacheConfig: TGlobalCacheConfig;
+  const AGlobalCacheConfig: IGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -224,7 +224,7 @@ begin
   DoUpdateStorage;
 
   FConfig.ChangeNotifier.Add(FConfigChangeListener);
-  FGlobalCacheConfig.CacheChangeNotifier.Add(FGlobalConfigChangeListener);
+  FGlobalCacheConfig.ChangeNotifier.Add(FGlobalConfigChangeListener);
   FActualPath.ChangeNotifier.Add(FPathChangeListener);
 end;
 
@@ -236,7 +236,7 @@ begin
     FConfigChangeListener := nil;
   end;
   if FGlobalCacheConfig <> nil then begin
-    FGlobalCacheConfig.CacheChangeNotifier.Remove(FGlobalConfigChangeListener);
+    FGlobalCacheConfig.ChangeNotifier.Remove(FGlobalConfigChangeListener);
     FGlobalCacheConfig := nil;
     FGlobalConfigChangeListener := nil;
   end;

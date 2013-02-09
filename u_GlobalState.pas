@@ -75,10 +75,10 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_GlobalConfig,
+  i_GlobalCacheConfig,
   u_GarbageCollectorThread,
   u_MapTypesMainList,
-  u_IeEmbeddedProtocolRegistration,
-  u_GlobalCacheConfig;
+  u_IeEmbeddedProtocolRegistration;
 
 {$I vsagps_defines.inc}
 
@@ -99,7 +99,7 @@ type
     FGCThread: TGarbageCollectorThread;
     FContentTypeManager: IContentTypeManager;
     FMapCalibrationList: IMapCalibrationList;
-    FCacheConfig: TGlobalCacheConfig;
+    FCacheConfig: IGlobalCacheConfig;
     FMarksDb: IMarksSystem;
     FCoordConverterFactory: ICoordConverterFactory;
     FCoordConverterList: ICoordConverterList;
@@ -161,7 +161,7 @@ type
     property Config: IGlobalConfig read FGlobalConfig;
 
     property MapType: TMapTypesMainList read FMainMapsList;
-    property CacheConfig: TGlobalCacheConfig read FCacheConfig;
+    property CacheConfig: IGlobalCacheConfig read FCacheConfig;
     property MarksDb: IMarksSystem read FMarksDb;
     property GpsSystem: IGPSModule read FGpsSystem;
 
@@ -293,6 +293,7 @@ uses
   u_Synchronizer,
   u_GlobalConfig,
   u_GlobalInternetState,
+  u_GlobalCacheConfig,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
   u_BitmapPostProcessingChangeableByConfig,
@@ -608,7 +609,6 @@ begin
   FTerrainProviderList := nil;
   FProjConverterFactory := nil;
   FGlobalBerkeleyDBHelper := nil;
-  FreeAndNil(FCacheConfig);
   inherited;
 end;
 
@@ -772,7 +772,7 @@ begin
     VIniFile.Free;
   end;
 
-  FCacheConfig.LoadConfig(FMainConfigProvider);
+  FCacheConfig.ReadConfig(FMainConfigProvider);
 
   FMainMapsList.LoadMaps(
     FGlobalConfig.LanguageManager,
@@ -871,7 +871,7 @@ begin
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
   FMainFormConfig.WriteConfig(MainConfigProvider);
-  FCacheConfig.SaveConfig(FMainConfigProvider);
+  FCacheConfig.WriteConfig(FMainConfigProvider);
   FMarkPictureList.WriteConfig(MainConfigProvider);
   FMarksDb.WriteConfig(MainConfigProvider);
   FGlobalConfig.WriteConfig(MainConfigProvider);
