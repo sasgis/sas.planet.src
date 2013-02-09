@@ -83,9 +83,6 @@
     <DCCReference Include="frm_DebugInfo.pas">
       <Form>frmDebugInfo</Form>
     </DCCReference>
-    <DCCReference Include="frm_DGAvailablePic.pas">
-      <Form>frmDGAvailablePic</Form>
-    </DCCReference>
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
     </DCCReference>
@@ -492,6 +489,20 @@
     <DCCReference Include="MapLayers\u_TiledLayerWithThreadBase.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerBasic.pas" />
     <DCCReference Include="MapLayers\u_WindowLayerWithPos.pas" />
+    <DCCReference Include="MapSvcScan\frm_DGAvailablePic.pas">
+      <Form>frmDGAvailablePic</Form>
+    </DCCReference>
+    <DCCReference Include="MapSvcScan\i_MapSvcScanStorage.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsAbstract.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsBing.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsDD.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsDG.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsDG2.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsESRI.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsGeoFuse.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsNMC.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsTerra.pas" />
+    <DCCReference Include="MapSvcScan\u_MapSvcScanStorage.pas" />
     <DCCReference Include="MarksDB\i_MarkCategory.pas" />
     <DCCReference Include="MarksDB\i_MarkCategoryDB.pas" />
     <DCCReference Include="MarksDB\i_MarkCategoryFactory.pas" />
@@ -784,15 +795,6 @@
     <DCCReference Include="u_ActiveMapTBXItem.pas" />
     <DCCReference Include="u_ActivMapWithLayers.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
-    <DCCReference Include="u_AvailPicsAbstract.pas" />
-    <DCCReference Include="u_AvailPicsBing.pas" />
-    <DCCReference Include="u_AvailPicsDD.pas" />
-    <DCCReference Include="u_AvailPicsDG.pas" />
-    <DCCReference Include="u_AvailPicsDG2.pas" />
-    <DCCReference Include="u_AvailPicsESRI.pas" />
-    <DCCReference Include="u_AvailPicsGeoFuse.pas" />
-    <DCCReference Include="u_AvailPicsNMC.pas" />
-    <DCCReference Include="u_AvailPicsTerra.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BaseInterfacedObject.pas" />
