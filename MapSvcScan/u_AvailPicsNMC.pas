@@ -408,7 +408,7 @@ procedure TAvailPicsNMC.AfterConstruction;
 begin
   inherited;
   FWorkingZoom:=0; // real value
-  FDefaultKey:='88a38a0c5e5cf5e340b95dd5eacae3a065d0275a68e71fe6';
+  FDefaultKey:='LBSP_DEV_ALL';
 end;
 
 function TAvailPicsNMC.ContentType: String;
@@ -625,6 +625,8 @@ const
     VTail, VDate: String;
     VSLParams: TStrings;
     VIsGeometry: Boolean;
+    VItemExisting: Boolean;
+    VItemFetched: TDateTime;
   begin
     VSLParams:=TStringList.Create;
     try
@@ -659,13 +661,20 @@ const
           end;
           *)
 
+          // check existing
+          VItemExisting := ItemExists(
+            FBaseStorageName+'_'+FProfile,
+            VSLParams.Values['featureId'],
+            @VItemFetched
+          );
+
           // add item
           FTileInfoPtr.AddImageProc(
             Self,
             VDate,
             'Nokia z'+IntToStr(FWorkingZoom),
-            FALSE, // because of NOKIA is down
-            0,     // TODO: check ASAP
+            VItemExisting,
+            VItemFetched,
             VSLParams
           );
         end;
@@ -805,10 +814,13 @@ end;
 
 function TAvailPicsNMC.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 begin
- Result := TDownloadRequest.Create(
-           'http://0.stl.prd.lbsp.navteq.com/satellite/6.0/images/?profile='+FProfile+'&syn=1&appid=jsapi&token='+FDefaultKey+'&quadkey='+GetQuadKey,
-           '',
-           AInetConfig.GetStatic
-           );
+  Result := TDownloadRequest.Create(
+    'http://stg.lbsp.navteq.com/satellite/6.0/images/?token='+FDefaultKey+
+    '&profile='+FProfile+
+    '&quadkey='+GetQuadKey,
+    '',
+    AInetConfig.GetStatic
+  );
 end;
+
 end.
