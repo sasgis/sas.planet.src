@@ -214,12 +214,6 @@ type
     procedure ApplyUTCDateTime; virtual; abstract;
     procedure ResetDGPS; virtual; abstract;
     procedure ResetUnitInfo; virtual; abstract;
-
-    function ExecuteGPSCommand(
-      const AUnitIndex: Byte;
-      const ACommand: LongInt;
-      const APointer: Pointer
-    ): AnsiString; virtual; abstract;
   public
     constructor Create(const APositionFactory: IGPSPositionFactory);
     destructor Destroy; override;

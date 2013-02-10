@@ -26,6 +26,7 @@ uses
   i_GPS,
   i_GPSModule,
   i_GPSRecorder,
+  i_SystemTimeProvider,
   i_Sensor,
   u_SensorFromGPSRecorderBase;
 
@@ -103,6 +104,7 @@ type
 
   TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime, ISensorResetable)
   private
+    FSystemTime: ISystemTimeProvider;
     FGPSModule: IGPSModule;
   protected
     function GetSensorTypeIID: TGUID; override;
@@ -110,6 +112,7 @@ type
     procedure Reset;
   public
     constructor Create(
+      const ASystemTime: ISystemTimeProvider;
       const AGPSRecorder: IGPSRecorder;
       const AGPSModule: IGPSModule
     );
@@ -152,8 +155,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  vsagps_public_time;
+  SysUtils;
 
 { TSensorFromGPSRecorderLastSpeed }
 
@@ -338,12 +340,14 @@ end;
 { TSensorFromGPSRecorderLocalTime }
 
 constructor TSensorFromGPSRecorderLocalTime.Create(
+  const ASystemTime: ISystemTimeProvider;
   const AGPSRecorder: IGPSRecorder;
   const AGPSModule: IGPSModule
 );
 begin
   inherited Create(AGPSRecorder);
   FGPSModule := AGPSModule;
+  FSystemTime := ASystemTime;
 end;
 
 function TSensorFromGPSRecorderLocalTime.GetCurrentValue: TDateTime;
@@ -356,7 +360,7 @@ begin
     Result := VPosition.UTCTime;
   end;
   if (0 <> Result) then begin
-    Result := SystemTimeToLocalTime(Result);
+    Result := FSystemTime.UTCToLocalTime(Result);
   end;
 end;
 

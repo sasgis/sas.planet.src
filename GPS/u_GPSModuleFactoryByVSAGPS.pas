@@ -24,6 +24,7 @@ interface
 
 uses
   i_GPSPositionFactory,
+  i_SystemTimeProvider,
   i_GPSModuleByCOM,
   i_GPSModuleByCOMFactory,
   u_BaseInterfacedObject;
@@ -31,11 +32,15 @@ uses
 type
   TGPSModuleFactoryByVSAGPS = class(TBaseInterfacedObject, IGPSModuleByCOMFactory)
   private
+    FSystemTime: ISystemTimeProvider;
     FGPSPositionFactory: IGPSPositionFactory;
   private
     function CreateGPSModule: IGPSModuleByCOM;
   public
-    constructor Create(const AGPSPositionFactory: IGPSPositionFactory);
+    constructor Create(
+      const ASystemTime: ISystemTimeProvider;
+      const AGPSPositionFactory: IGPSPositionFactory
+    );
   end;
 
 implementation
@@ -46,16 +51,18 @@ uses
 { TGPSModuleFactoryByZylGPS }
 
 constructor TGPSModuleFactoryByVSAGPS.Create(
+  const ASystemTime: ISystemTimeProvider;
   const AGPSPositionFactory: IGPSPositionFactory
 );
 begin
   inherited Create;
+  FSystemTime := ASystemTime;
   FGPSPositionFactory := AGPSPositionFactory;
 end;
 
 function TGPSModuleFactoryByVSAGPS.CreateGPSModule: IGPSModuleByCOM;
 begin
-  Result := TGPSModuleByVSAGPS.Create(FGPSPositionFactory);
+  Result := TGPSModuleByVSAGPS.Create(FSystemTime, FGPSPositionFactory);
 end;
 
 end.

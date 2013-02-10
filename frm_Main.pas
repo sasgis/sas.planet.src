@@ -707,8 +707,6 @@ implementation
 
 uses
   StrUtils,
-  vsagps_public_base,
-  vsagps_public_time,
   t_CommonTypes,
   t_FillingMapModes,
   c_ZeroGUID,
@@ -1040,7 +1038,6 @@ var
   VProvider: IConfigDataProvider;
   VSensorViewGenerator: ISensorViewListGenerator;
 begin
-  SystemTimeChanged;
   Application.Title:=Caption;
   Caption:=Caption+' '+SASVersion;
   TBXSetTheme('SAStbxTheme');
@@ -3297,13 +3294,7 @@ end;
 procedure TfrmMain.WMTimeChange(var m: TMessage);
 begin
   inherited;
-  SystemTimeChanged;
-  // notify track writer
-  try
-    if Assigned(GState.GpsSystem) then
-      GState.GpsSystem.ExecuteGPSCommand(cUnitIndex_Reserved, gpsc_LocalTimeChanged, nil);
-  except
-  end;
+  GState.SystemTimeChanged;
 end;
 
 procedure TfrmMain.TBFullSizeClick(Sender:TObject);

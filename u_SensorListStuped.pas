@@ -29,6 +29,7 @@ uses
   i_GPSModule,
   i_ValueToStringConverter,
   i_BatteryStatus,
+  i_SystemTimeProvider,
   i_LanguageManager,
   u_SensorListBase;
 
@@ -39,6 +40,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AViewPortState: ILocalCoordConverterChangeable;
       const ANavigationToPoint: INavigationToPoint;
+      const ASystemTime: ISystemTimeProvider;
       const AGPSRecorder: IGPSRecorder;
       const AGPSModule: IGPSModule;
       const ABatteryStatus: IBatteryStatus;
@@ -67,6 +69,7 @@ constructor TSensorListStuped.Create(
   const ALanguageManager: ILanguageManager;
   const AViewPortState: ILocalCoordConverterChangeable;
   const ANavigationToPoint: INavigationToPoint;
+  const ASystemTime: ISystemTimeProvider;
   const AGPSRecorder: IGPSRecorder;
   const AGPSModule: IGPSModule;
   const ABatteryStatus: IBatteryStatus;
@@ -393,7 +396,7 @@ begin
     );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderLocalTime.Create(AGPSRecorder, AGPSModule);
+  VSensor := TSensorFromGPSRecorderLocalTime.Create(ASystemTime, AGPSRecorder, AGPSModule);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager, @SAS_STR_SensorGPSRecorderLocalTimeCaption

@@ -105,11 +105,6 @@ type
     procedure ApplyUTCDateTime;
     procedure ResetDGPS;
     procedure ResetUnitInfo;
-    function ExecuteGPSCommand(
-      const AUnitIndex: Byte;
-      const ACommand: LongInt;
-      const APointer: Pointer
-    ): AnsiString;
   public
     procedure AfterConstruction; override;
   public
@@ -222,12 +217,6 @@ begin
   FGPSModuleByCOM := nil;
   FCS := nil;
   inherited;
-end;
-
-function TGpsSystem.ExecuteGPSCommand(const AUnitIndex: Byte;
-  const ACommand: Integer; const APointer: Pointer): AnsiString;
-begin
-  FGPSModuleByCOM.ExecuteGPSCommand(AUnitIndex, ACommand, APointer);
 end;
 
 function TGpsSystem.GetConnectedNotifier: INotifier;

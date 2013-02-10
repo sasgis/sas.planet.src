@@ -59,12 +59,6 @@ type
     procedure ApplyUTCDateTime;
     procedure ResetDGPS;
     procedure ResetUnitInfo;
-
-    function ExecuteGPSCommand(
-      const AUnitIndex: Byte;
-      const ACommand: LongInt;
-      const APointer: Pointer
-    ): AnsiString;
   end;
 
 implementation

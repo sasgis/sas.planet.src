@@ -31,6 +31,8 @@ uses
   i_GPSModuleByCOMPortSettings,
   i_GPSModuleByCOM,
   i_GPSConfig,
+  i_SystemTimeProvider,
+  i_Listener,
   u_GPSModuleAbstract,
 {$if defined(VSAGPS_AS_DLL)}
   vsagps_public_dll,
@@ -58,6 +60,8 @@ type
     FVSAGPS_Object: Tvsagps_object;
     FVSAGPS_Logger: Tvsagps_track_writer;
 {$ifend}
+    FSystemTime: ISystemTimeProvider;
+    FSystemTimeChangeListener: IListener;
 
     FGPSGPS_DevParams: TVSAGPS_ALL_DEVICE_PARAMS;
     FVSAGPS_LOG_WRITER_PARAMS: TVSAGPS_LOG_WRITER_PARAMS;
@@ -98,6 +102,7 @@ type
                                  const ADevType: DWORD;
                                  const pData: PSingleTrackPointData);
   private
+    procedure OnSystemTimeChange;
     procedure ReGenerateGPSUnitInfo(const AUnitIndex: Byte);
     procedure InternalApplyCalcStatsFlag(const AUnitIndex: Byte; const AAllowCalc: Boolean);
     procedure InternalPrepareLoggerParams;
@@ -125,6 +130,11 @@ type
 
     procedure LockUnitInfo(const AUnitIndex: Byte);
     procedure UnlockUnitInfo(const AUnitIndex: Byte);
+    function ExecuteGPSCommand(
+      const AUnitIndex: Byte;
+      const ACommand: LongInt;
+      const APointer: Pointer
+    ): AnsiString;
   private
     procedure GPSDoStateChanged(const AUnitIndex: Byte;
                                 const ANewState: Tvsagps_GPSState);
@@ -143,12 +153,6 @@ type
     procedure ApplyUTCDateTime; override;
     procedure ResetDGPS; override;
     procedure ResetUnitInfo; override;
-
-    function ExecuteGPSCommand(
-      const AUnitIndex: Byte;
-      const ACommand: LongInt;
-      const APointer: Pointer
-    ): AnsiString; override;
   protected
     procedure LockLogger;
     procedure UnlockLogger;
@@ -156,9 +160,13 @@ type
     procedure UnlockConnect;
     procedure DoAddPointToLogWriter(const AUnitIndex: Byte); override;
   public
-    constructor Create(const AGPSPositionFactory: IGPSPositionFactory);
+    constructor Create(
+      const ASystemTime: ISystemTimeProvider;
+      const AGPSPositionFactory: IGPSPositionFactory
+    );
     destructor Destroy; override;
   end;
+
 implementation
 
 uses
@@ -166,6 +174,7 @@ uses
   Math,
   Classes,
   u_ResStrings,
+  u_ListenerByEvent,
   t_GeoTypes;
 
 
@@ -351,9 +360,13 @@ end;
 
 { TGPSModuleByZylGPS }
 
-constructor TGPSModuleByVSAGPS.Create(const AGPSPositionFactory: IGPSPositionFactory);
+constructor TGPSModuleByVSAGPS.Create(
+  const ASystemTime: ISystemTimeProvider;
+  const AGPSPositionFactory: IGPSPositionFactory
+);
 begin
   inherited Create(AGPSPositionFactory);
+  FSystemTime := ASystemTime;
 
   InitializeCriticalSection(FConnectCS);
   InitializeCriticalSection(FLoggerCS);
@@ -400,10 +413,18 @@ begin
   InternalPrepareLoggerParams;
 
   FConnectState := gs_DoneDisconnected;
+  FSystemTimeChangeListener := TNotifyNoMmgEventListener.Create(Self.OnSystemTimeChange);
+  FSystemTime.SystemTimeChangedNotifier.Add(FSystemTimeChangeListener);
 end;
 
 destructor TGPSModuleByVSAGPS.Destroy;
 begin
+  if FSystemTime <> nil then begin
+    FSystemTime.SystemTimeChangedNotifier.Remove(FSystemTimeChangeListener);
+    FSystemTime := nil;
+  end;
+  FSystemTimeChangeListener := nil;
+
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
   VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: begin');
 {$ifend}
@@ -413,7 +434,7 @@ begin
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
   VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: kill object');
 {$ifend}
-  
+
 {$if defined(VSAGPS_AS_DLL)}
   if (nil<>FVSAGPS_HANDLE) then begin
     VSAGPS_Destroy(FVSAGPS_HANDLE);
@@ -1220,6 +1241,12 @@ begin
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
   VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.LockUnitInfo: ok');
 {$ifend}
+end;
+
+procedure TGPSModuleByVSAGPS.OnSystemTimeChange;
+begin
+  // notify track writer
+  ExecuteGPSCommand(cUnitIndex_Reserved, gpsc_LocalTimeChanged, nil);
 end;
 
 procedure TGPSModuleByVSAGPS.ReGenerateGPSUnitInfo(const AUnitIndex: Byte);

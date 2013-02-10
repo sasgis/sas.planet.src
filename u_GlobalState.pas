@@ -74,6 +74,7 @@ uses
   i_BitmapPostProcessing,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
+  i_SystemTimeProvider,
   i_GlobalConfig,
   i_GlobalCacheConfig,
   u_GarbageCollectorThread,
@@ -122,6 +123,8 @@ type
     FGpsTrackRecorder: IGpsTrackRecorder;
     FGpsTrackRecorderInternal: IGpsTrackRecorderInternal;
     FSkyMapDraw: ISatellitesInViewMapDraw;
+    FSystemTime: ISystemTimeProvider;
+    FSystemTimeInternal: ISystemTimeProviderInternal;
     FBGTimerNotifier: INotifierTime;
     FBGTimerNotifierInternal: INotifierTimeInternal;
     FGUISyncronizedTimer: TTimer;
@@ -186,6 +189,7 @@ type
     property GUISyncronizedTimerNotifier: INotifierTime read FGUISyncronizedTimerNotifier;
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
     property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
+    property SystemTime: ISystemTimeProvider read FSystemTime;
 
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessing: IBitmapPostProcessingChangeable read FBitmapPostProcessing;
@@ -208,6 +212,7 @@ type
     procedure SaveMainParams;
     procedure StartThreads;
     procedure SendTerminateToThreads;
+    procedure SystemTimeChanged;
 
     procedure StartExceptionTracking;
     procedure StopExceptionTracking;
@@ -294,6 +299,7 @@ uses
   u_GlobalConfig,
   u_GlobalInternetState,
   u_GlobalCacheConfig,
+  u_SystemTimeProvider,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
   u_BitmapPostProcessingChangeableByConfig,
@@ -343,6 +349,8 @@ begin
       FBGTimerNotifier,
       MakeSyncRW_Var(Self, false)
     );
+  FSystemTimeInternal := TSystemTimeProvider.Create;
+  FSystemTime := FSystemTimeInternal;
 
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create(FBitmapFactory);
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
@@ -494,7 +502,7 @@ begin
     TGpsSystem.Create(
       FAppStartedNotifier,
       FAppClosingNotifier,
-      TGPSModuleFactoryByVSAGPS.Create(FGPSPositionFactory),
+      TGPSModuleFactoryByVSAGPS.Create(FSystemTime, FGPSPositionFactory),
       FGlobalConfig.GPSConfig,
       FGPSRecorderInternal,
       FGpsTrackRecorderInternal,
@@ -756,6 +764,11 @@ begin
   {$ENDIF SasDebugWithJcl}
 end;
 
+procedure TGlobalState.SystemTimeChanged;
+begin
+  FSystemTimeInternal.SystemTimeChanged;
+end;
+
 procedure TGlobalState.LoadConfig;
 var
   VLocalMapsConfig: IConfigDataProvider;
@@ -810,6 +823,7 @@ begin
       FGlobalConfig.LanguageManager,
       FMainFormConfig.ViewPortState.View,
       FMainFormConfig.NavToPoint,
+      FSystemTime,
       FGPSRecorder,
       FGpsSystem,
       FBatteryStatus,
