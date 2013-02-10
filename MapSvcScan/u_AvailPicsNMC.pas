@@ -53,7 +53,7 @@ type
     property WorkingZoom: Byte read FWorkingZoom write FWorkingZoom;
   end;
 
-  TAvailPicsNMCZoom = (nmcz15=15, nmcz16=16, nmcz18=18, nmcz20=20);
+  TAvailPicsNMCZoom = (nmcz13=13, nmcz15=15, nmcz16=16, nmcz18=18, nmcz20=20);
   // treat boolean as FALSE = Recency,TRUE = ColorOnly
   TAvailPicsNMCs = array [TAvailPicsNMCZoom, Boolean] of TAvailPicsNMC;
 

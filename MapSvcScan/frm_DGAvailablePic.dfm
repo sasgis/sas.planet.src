@@ -292,33 +292,33 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         OnClick = chkLowResolutionTooClick
       end
       object chkNMC15: TCheckBox
-        Left = 86
+        Left = 112
         Top = 78
-        Width = 36
+        Width = 32
         Height = 17
         Caption = '15'
         TabOrder = 7
       end
       object chkNMC16: TCheckBox
-        Left = 128
+        Left = 148
         Top = 78
-        Width = 36
+        Width = 32
         Height = 17
         Caption = '16'
         TabOrder = 8
       end
       object chkNMC18: TCheckBox
-        Left = 170
+        Left = 184
         Top = 78
-        Width = 36
+        Width = 32
         Height = 17
         Caption = '18'
         TabOrder = 9
       end
       object chkNMC20: TCheckBox
-        Left = 212
+        Left = 220
         Top = 78
-        Width = 36
+        Width = 32
         Height = 17
         Caption = '20'
         TabOrder = 10
@@ -381,12 +381,20 @@ object frmDGAvailablePic: TfrmDGAvailablePic
         TabOrder = 17
       end
       object chkMNCasColorOnly: TCheckBox
-        Left = 128
+        Left = 112
         Top = 60
         Width = 65
         Height = 17
         Caption = 'Color only'
         TabOrder = 18
+      end
+      object chkNMC13: TCheckBox
+        Left = 76
+        Top = 78
+        Width = 32
+        Height = 17
+        Caption = '13'
+        TabOrder = 19
       end
     end
   end

@@ -101,6 +101,7 @@ type
     chkGeoFuse: TCheckBox;
     chkMNCasColorOnly: TCheckBox;
     chkShowOnlyNew: TCheckBox;
+    chkNMC13: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
