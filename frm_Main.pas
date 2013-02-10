@@ -2959,16 +2959,7 @@ begin
       if VMap <> nil then begin
         VMapType := VMap.MapType;
         if VMapType.Abilities.IsLayer then begin
-          FConfig.MainMapsConfig.LockWrite;
-          try
-            if FConfig.MainMapsConfig.GetActiveLayersSet.GetStatic.GetMapTypeByGUID(VMap.GUID) = nil then begin
-              FConfig.MainMapsConfig.SelectLayerByGUID(VMap.GUID);
-            end else begin
-              FConfig.MainMapsConfig.UnSelectLayerByGUID(VMap.GUID);
-            end;
-          finally
-            FConfig.MainMapsConfig.UnlockWrite;
-          end;
+          FConfig.MainMapsConfig.InvertLayerSelectionByGUID(VMap.GUID);
         end else begin
           FConfig.MainMapsConfig.SelectMainByGUID(VMap.GUID);
         end;

@@ -46,6 +46,7 @@ type
     property LayerSetSelectNotyfier: INotifierWithGUID read FLayerSetSelectNotyfier;
     property LayerSetUnselectNotyfier: INotifierWithGUID read FLayerSetUnselectNotyfier;
   protected
+    procedure InvertLayerSelectionByGUID(const AMapGUID: TGUID);
     procedure SelectLayerByGUID(const AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(const AMapGUID: TGUID);
 
@@ -226,6 +227,20 @@ end;
 function TActivMapWithLayers.GetLayersSet: IMapTypeSet;
 begin
   Result := FLayersSet;
+end;
+
+procedure TActivMapWithLayers.InvertLayerSelectionByGUID(const AMapGUID: TGUID);
+begin
+  LockWrite;
+  try
+    if FActiveLayersSet.GetStatic.GetMapTypeByGUID(AMapGUID) = nil then begin
+      FLayerSetSelectNotyfier.NotifyByGUID(AMapGUID);
+    end else begin
+      FLayerSetUnselectNotyfier.NotifyByGUID(AMapGUID);
+    end;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 function TActivMapWithLayers.GetActiveLayersSet: IMapTypeSetChangeable;

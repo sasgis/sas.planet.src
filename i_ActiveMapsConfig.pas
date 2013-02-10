@@ -49,6 +49,7 @@ type
 
   IActivMapWithLayers = interface(IMainActiveMap)
     ['{92B95280-7FD6-402A-8260-3FD83ED6BE36}']
+    procedure InvertLayerSelectionByGUID(const AMapGUID: TGUID);
     procedure SelectLayerByGUID(const AMapGUID: TGUID);
     procedure UnSelectLayerByGUID(const AMapGUID: TGUID);
 
