@@ -35,21 +35,25 @@ type
     FMinPixelPerSecond: Double;
     FMaxPixelPerSecond: Double;
     FSpeedChangeTime: Double;
+    FStopTime: Double;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetFirstKeyPressDelta: Double;
-    procedure SetFirstKeyPressDelta(AValue: Double);
+    procedure SetFirstKeyPressDelta(const AValue: Double);
 
     function GetMinPixelPerSecond: Double;
-    procedure SetMinPixelPerSecond(AValue: Double);
+    procedure SetMinPixelPerSecond(const AValue: Double);
 
     function GetMaxPixelPerSecond: Double;
-    procedure SetMaxPixelPerSecond(AValue: Double);
+    procedure SetMaxPixelPerSecond(const AValue: Double);
 
     function GetSpeedChangeTime: Double;
-    procedure SetSpeedChangeTime(AValue: Double);
+    procedure SetSpeedChangeTime(const AValue: Double);
+
+    function GetStopTime: Double;
+    procedure SetStopTime(const AValue: Double);
   public
     constructor Create;
   end;
@@ -65,16 +69,18 @@ begin
   FMinPixelPerSecond := 20;
   FMaxPixelPerSecond := 1024;
   FSpeedChangeTime := 3;
+  FStopTime := 1;
 end;
 
 procedure TKeyMovingConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FFirstKeyPressDelta := AConfigData.ReadFloat('FirstKeyPressDelta', FFirstKeyPressDelta);
-    FMinPixelPerSecond := AConfigData.ReadFloat('MinPixelPerSecond', FMinPixelPerSecond);
-    FMaxPixelPerSecond := AConfigData.ReadFloat('MaxPixelPerSecond', FMaxPixelPerSecond);
-    FSpeedChangeTime := AConfigData.ReadFloat('SpeedChangeTime', FSpeedChangeTime);
+    SetFirstKeyPressDelta(AConfigData.ReadFloat('FirstKeyPressDelta', FFirstKeyPressDelta));
+    SetMinPixelPerSecond(AConfigData.ReadFloat('MinPixelPerSecond', FMinPixelPerSecond));
+    SetMaxPixelPerSecond(AConfigData.ReadFloat('MaxPixelPerSecond', FMaxPixelPerSecond));
+    SetSpeedChangeTime(AConfigData.ReadFloat('SpeedChangeTime', FSpeedChangeTime));
+    SetStopTime(AConfigData.ReadFloat('StopTime', FStopTime));
     SetChanged;
   end;
 end;
@@ -86,6 +92,7 @@ begin
   AConfigData.WriteFloat('MinPixelPerSecond', FMinPixelPerSecond);
   AConfigData.WriteFloat('MaxPixelPerSecond', FMaxPixelPerSecond);
   AConfigData.WriteFloat('SpeedChangeTime', FSpeedChangeTime);
+  AConfigData.WriteFloat('StopTime', FStopTime);
 end;
 
 function TKeyMovingConfig.GetFirstKeyPressDelta: Double;
@@ -128,12 +135,31 @@ begin
   end;
 end;
 
-procedure TKeyMovingConfig.SetFirstKeyPressDelta(AValue: Double);
+function TKeyMovingConfig.GetStopTime: Double;
 begin
+  LockRead;
+  try
+    Result := FStopTime;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TKeyMovingConfig.SetFirstKeyPressDelta(const AValue: Double);
+var
+  VValue: Double;
+begin
+  VValue := AValue;
+  if VValue < 0 then begin
+    VValue := 0;
+  end else if VValue > 2000 then begin
+    VValue :=  2000;
+  end;
+
   LockWrite;
   try
-    if FFirstKeyPressDelta <> AValue then begin
-      FFirstKeyPressDelta := AValue;
+    if FFirstKeyPressDelta <> VValue then begin
+      FFirstKeyPressDelta := VValue;
       SetChanged;
     end;
   finally
@@ -141,12 +167,21 @@ begin
   end;
 end;
 
-procedure TKeyMovingConfig.SetMaxPixelPerSecond(AValue: Double);
+procedure TKeyMovingConfig.SetMaxPixelPerSecond(const AValue: Double);
+var
+  VValue: Double;
 begin
+  VValue := AValue;
+  if VValue < 0 then begin
+    VValue := 0;
+  end else if VValue > 2000 then begin
+    VValue :=  2000;
+  end;
+
   LockWrite;
   try
-    if FMaxPixelPerSecond <> AValue then begin
-      FMaxPixelPerSecond := AValue;
+    if FMaxPixelPerSecond <> VValue then begin
+      FMaxPixelPerSecond := VValue;
       SetChanged;
     end;
   finally
@@ -154,12 +189,21 @@ begin
   end;
 end;
 
-procedure TKeyMovingConfig.SetMinPixelPerSecond(AValue: Double);
+procedure TKeyMovingConfig.SetMinPixelPerSecond(const AValue: Double);
+var
+  VValue: Double;
 begin
+  VValue := AValue;
+  if VValue < 0 then begin
+    VValue := 0;
+  end else if VValue > 2000 then begin
+    VValue :=  2000;
+  end;
+
   LockWrite;
   try
-    if FMinPixelPerSecond <> AValue then begin
-      FMinPixelPerSecond := AValue;
+    if FMinPixelPerSecond <> VValue then begin
+      FMinPixelPerSecond := VValue;
       SetChanged;
     end;
   finally
@@ -167,12 +211,39 @@ begin
   end;
 end;
 
-procedure TKeyMovingConfig.SetSpeedChangeTime(AValue: Double);
+procedure TKeyMovingConfig.SetSpeedChangeTime(const AValue: Double);
+var
+  VValue: Double;
 begin
+  VValue := AValue;
+  if VValue < 0 then begin
+    VValue := 0;
+  end;
+
   LockWrite;
   try
-    if FSpeedChangeTime <> AValue then begin
-      FSpeedChangeTime := AValue;
+    if FSpeedChangeTime <> VValue then begin
+      FSpeedChangeTime := VValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TKeyMovingConfig.SetStopTime(const AValue: Double);
+var
+  VValue: Double;
+begin
+  VValue := AValue;
+  if VValue < 0 then begin
+    VValue := 0;
+  end;
+
+  LockWrite;
+  try
+    if FStopTime <> VValue then begin
+      FStopTime := VValue;
       SetChanged;
     end;
   finally
