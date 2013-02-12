@@ -1030,7 +1030,12 @@ begin
   if VBitmapStatic <> nil then begin
     AssignStaticToBitmap32(FTumbler, VBitmapStatic);
   end;
-  FKeyMovingHandler := TKeyMovingHandler.Create(FConfig.ViewPortState, FConfig.KeyMovingConfig);
+  FKeyMovingHandler :=
+    TKeyMovingHandler.Create(
+      FConfig.ViewPortState,
+      GState.GUISyncronizedTimerNotifier,
+      FConfig.KeyMovingConfig
+    );
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
