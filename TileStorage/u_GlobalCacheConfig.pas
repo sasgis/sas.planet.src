@@ -107,6 +107,7 @@ procedure TGlobalCacheConfig.DoReadConfig(const AConfigProvider: IConfigDataProv
 var
   VViewConfig: IConfigDataProvider;
 begin
+  inherited;
   if AConfigProvider <> nil then begin
     VViewConfig := AConfigProvider.GetSubItem('VIEW');
     if VViewConfig <> nil then begin
@@ -121,6 +122,7 @@ procedure TGlobalCacheConfig.DoWriteConfig(
 var
   VViewConfig: IConfigDataWriteProvider;
 begin
+  inherited;
   VViewConfig := AConfigProvider.GetOrCreateSubItem('VIEW');
   VViewConfig.WriteInteger('DefCache', FDefCache);
 end;
