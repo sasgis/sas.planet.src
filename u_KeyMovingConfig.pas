@@ -29,7 +29,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TKeyMovingConfig = class(TConfigDataElementBase, IKeyMovingConfig)
+  TKeyMovingConfig = class(TConfigDataElementWithStaticBase, IKeyMovingConfig)
   private
     FFirstKeyPressDelta: Double;
     FMinPixelPerSecond: Double;
@@ -37,6 +37,7 @@ type
     FSpeedChangeTime: Double;
     FStopTime: Double;
   protected
+    function CreateStatic: IInterface; override;
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
@@ -54,11 +55,79 @@ type
 
     function GetStopTime: Double;
     procedure SetStopTime(const AValue: Double);
+
+    function GetStatic: IKeyMovingConfigStatic;
   public
     constructor Create;
   end;
 
 implementation
+
+uses
+  u_BaseInterfacedObject;
+
+{ TKeyMovingConfigStatic }
+
+type
+  TKeyMovingConfigStatic = class(TBaseInterfacedObject, IKeyMovingConfigStatic)
+  private
+    FFirstKeyPressDelta: Double;
+    FMinPixelPerSecond: Double;
+    FMaxPixelPerSecond: Double;
+    FSpeedChangeTime: Double;
+    FStopTime: Double;
+  private
+    function GetFirstKeyPressDelta: Double;
+    function GetMinPixelPerSecond: Double;
+    function GetMaxPixelPerSecond: Double;
+    function GetSpeedChangeTime: Double;
+    function GetStopTime: Double;
+  public
+    constructor Create(
+      const AFirstKeyPressDelta: Double;
+      const AMinPixelPerSecond: Double;
+      const AMaxPixelPerSecond: Double;
+      const ASpeedChangeTime: Double;
+      const AStopTime: Double
+    );
+  end;
+
+constructor TKeyMovingConfigStatic.Create(
+  const AFirstKeyPressDelta, AMinPixelPerSecond, AMaxPixelPerSecond, ASpeedChangeTime, AStopTime: Double
+);
+begin
+  inherited Create;
+  FFirstKeyPressDelta := AFirstKeyPressDelta;
+  FMinPixelPerSecond := AMinPixelPerSecond;
+  FMaxPixelPerSecond := AMaxPixelPerSecond;
+  FSpeedChangeTime := ASpeedChangeTime;
+  FStopTime := AStopTime;
+end;
+
+function TKeyMovingConfigStatic.GetFirstKeyPressDelta: Double;
+begin
+  Result := FFirstKeyPressDelta;
+end;
+
+function TKeyMovingConfigStatic.GetMaxPixelPerSecond: Double;
+begin
+  Result := FMaxPixelPerSecond;
+end;
+
+function TKeyMovingConfigStatic.GetMinPixelPerSecond: Double;
+begin
+  Result := FMinPixelPerSecond;
+end;
+
+function TKeyMovingConfigStatic.GetSpeedChangeTime: Double;
+begin
+  Result := FSpeedChangeTime;
+end;
+
+function TKeyMovingConfigStatic.GetStopTime: Double;
+begin
+  Result := FStopTime;
+end;
 
 { TKeyMovingConfig }
 
@@ -70,6 +139,14 @@ begin
   FMaxPixelPerSecond := 1024;
   FSpeedChangeTime := 3;
   FStopTime := 1;
+end;
+
+function TKeyMovingConfig.CreateStatic: IInterface;
+var
+  VStatic: IKeyMovingConfigStatic;
+begin
+  VStatic := TKeyMovingConfigStatic.Create(FFirstKeyPressDelta, FMinPixelPerSecond, FMaxPixelPerSecond, FSpeedChangeTime, FStopTime);
+  Result := VStatic;
 end;
 
 procedure TKeyMovingConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -133,6 +210,11 @@ begin
   finally
     UnlockRead;
   end;
+end;
+
+function TKeyMovingConfig.GetStatic: IKeyMovingConfigStatic;
+begin
+  Result := IKeyMovingConfigStatic(GetStaticInternal);
 end;
 
 function TKeyMovingConfig.GetStopTime: Double;

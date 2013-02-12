@@ -26,6 +26,24 @@ uses
   i_ConfigDataElement;
 
 type
+  IKeyMovingConfigStatic = interface
+    ['{E82C27D5-CB77-4E56-8A09-B1B894FAF224}']
+    function GetFirstKeyPressDelta: Double;
+    property FirstKeyPressDelta: Double read GetFirstKeyPressDelta;
+
+    function GetMinPixelPerSecond: Double;
+    property MinPixelPerSecond: Double read GetMinPixelPerSecond;
+
+    function GetMaxPixelPerSecond: Double;
+    property MaxPixelPerSecond: Double read GetMaxPixelPerSecond;
+
+    function GetSpeedChangeTime: Double;
+    property SpeedChangeTime: Double read GetSpeedChangeTime;
+
+    function GetStopTime: Double;
+    property StopTime: Double read GetStopTime;
+  end;
+
   IKeyMovingConfig = interface(IConfigDataElement)
     ['{87769678-9D11-4E47-AAE5-88F4809B7406}']
     function GetFirstKeyPressDelta: Double;
@@ -47,6 +65,8 @@ type
     function GetStopTime: Double;
     procedure SetStopTime(const AValue: Double);
     property StopTime: Double read GetStopTime write SetStopTime;
+
+    function GetStatic: IKeyMovingConfigStatic;
   end;
 
 implementation
