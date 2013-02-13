@@ -111,6 +111,7 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     VLayer: String;
     VSep: String; // actual separator
     VPos: Integer;
+    VItemIdentifier: String;
     VItemExisting: Boolean;
     VItemFetched: TDateTime;
   begin
@@ -171,7 +172,12 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
       AParams.Clear;
 
     // check existing
-    VItemExisting := ItemExists(FBaseStorageName, VLayer, @VItemFetched);
+    VItemIdentifier := VLayer;
+    if (Length(VItemIdentifier)<=16) then begin
+      // add provider
+      VItemIdentifier := VItemIdentifier + '_' + VValue;
+    end;
+    VItemExisting := ItemExists(FBaseStorageName, VItemIdentifier, @VItemFetched);
 
     // add
     AParams.Values['layer'] := VLayer;

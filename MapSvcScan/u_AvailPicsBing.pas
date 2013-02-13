@@ -67,7 +67,9 @@ end;
 procedure TAvailPicsBing.AfterConstruction;
 begin
   inherited;
-  FDefaultKey := 'AvuPoJ5DwFK0Htv75MetMjEN1QjQHiB8UIkTP0XZGHUQn-y2-r464Mjg27vyQ8Z1';
+  //FDefaultKey := 'AvuPoJ5DwFK0Htv75MetMjEN1QjQHiB8UIkTP0XZGHUQn-y2-r464Mjg27vyQ8Z1';
+  // from Version=1145
+  FDefaultKey := 'Akw4XWHH0ngzzB_4DmHOv_XByRBtX5qwLAS9RgRYDamxvLeIxRfSzmuvWFB9RF7d';
 end;
 
 function TAvailPicsBing.ContentType: String;

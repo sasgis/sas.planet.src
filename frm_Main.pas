@@ -394,6 +394,7 @@ type
     NGShScale5000: TTBXItem;
     NGShScale2500: TTBXItem;
     Rosreestr: TTBXItem;
+    TBXMakeRosreestrPolygon: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -547,6 +548,7 @@ type
     procedure tbitmMakeVersionByMarkClick(Sender: TObject);
     procedure tbitmSelectVersionByMarkClick(Sender: TObject);
     procedure RosreestrClick(Sender: TObject);
+    procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -740,6 +742,7 @@ uses
   i_PathDetalizeProvider,
   i_StringListChangeable,
   i_RegionProcessProgressInfoInternalFactory,
+  u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
   u_GeoFun,
   u_GeoToStr,
@@ -5778,6 +5781,42 @@ begin
     if VItem <> nil then begin
       FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VItem.GetGUID;
     end;
+  end;
+end;
+
+procedure TfrmMain.TBXMakeRosreestrPolygonClick(Sender: TObject);
+var
+  VLocalConverter: ILocalCoordConverter;
+  VConverter: ICoordConverter;
+  VZoom: Byte;
+  VMouseMapPoint: TDoublePoint;
+  VLonLat:TDoublePoint;
+  VMapRect: TDoubleRect;
+  VLonLatRect: TDoubleRect;
+  VMark: IMark;
+begin
+  VLocalConverter := FConfig.ViewPortState.View.GetStatic;
+  VConverter := VLocalConverter.GetGeoConverter;
+  VZoom := VLocalConverter.GetZoom;
+  VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
+  VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
+  VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  VMapRect := VLocalConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+  VMark := ImportFromArcGIS(
+    FMarkDBGUI,
+    GState.Config.InetConfig,
+    VConverter,
+    GState.VectorItemsFactory,
+    VLonLatRect,
+    VLonLat,
+    VZoom,
+    map.Width,
+    map.Height
+  );
+  if (VMark<>nil) then begin
+    // show new mark
   end;
 end;
 

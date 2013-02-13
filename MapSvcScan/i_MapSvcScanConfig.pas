@@ -27,6 +27,26 @@ type
     function GetOldAfterDays: Integer;
     procedure SetOldAfterDays(const AValue: Integer);
     property OldAfterDays: Integer read GetOldAfterDays write SetOldAfterDays;
+
+    function GetDataDoorsState: Integer;
+    procedure SetDataDoorsState(const AValue: Integer);
+    property DataDoorsState: Integer read GetDataDoorsState write SetDataDoorsState;
+
+    function GetKosmosnimkiState: Integer;
+    procedure SetKosmosnimkiState(const AValue: Integer);
+    property KosmosnimkiState: Integer read GetKosmosnimkiState write SetKosmosnimkiState;
+
+    function GetRosCosmosState: Integer;
+    procedure SetRosCosmosState(const AValue: Integer);
+    property RosCosmosState: Integer read GetRosCosmosState write SetRosCosmosState;
+
+    function GetRosCosmosUserName: String;
+    procedure SetRosCosmosUserName(const AValue: String);
+    property RosCosmosUserName: String read GetRosCosmosUserName write SetRosCosmosUserName;
+
+    function GetRosCosmosPassword: String;
+    procedure SetRosCosmosPassword(const AValue: String);
+    property RosCosmosPassword: String read GetRosCosmosPassword write SetRosCosmosPassword;
   end;
 
 implementation

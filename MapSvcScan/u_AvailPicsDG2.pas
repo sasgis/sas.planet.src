@@ -82,6 +82,7 @@ var
   i : integer;
   VParams: TStrings;
   VMemoryStream: TMemoryStream;
+  VItemIdentifier: String;
   VItemExisting: Boolean;
   VItemFetched: TDateTime;
 begin
@@ -141,7 +142,12 @@ begin
               VParams.Values['METADATA_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseMetadata?buffer=1.0&catalogId='+VlegacyId+'&imageHeight=natres&imageWidth=natres';
             end;
 
-            VItemExisting := ItemExists(FBaseStorageName, VfeatureId, @VItemFetched);
+            VItemIdentifier := VfeatureId;
+            if (Length(VItemIdentifier)<=16) then begin
+              VItemIdentifier := VItemIdentifier + '_' + VlegacyId;
+            end;
+            
+            VItemExisting := ItemExists(FBaseStorageName, VItemIdentifier, @VItemFetched);
 
             VAddResult := FTileInfoPtr.AddImageProc(
               Self,

@@ -502,7 +502,9 @@
     <DCCReference Include="MapSvcScan\u_AvailPicsDG2.pas" />
     <DCCReference Include="MapSvcScan\u_AvailPicsESRI.pas" />
     <DCCReference Include="MapSvcScan\u_AvailPicsGeoFuse.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsKosmosnimki.pas" />
     <DCCReference Include="MapSvcScan\u_AvailPicsNMC.pas" />
+    <DCCReference Include="MapSvcScan\u_AvailPicsRosCosmos.pas" />
     <DCCReference Include="MapSvcScan\u_AvailPicsTerra.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanConfig.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanStorage.pas" />
@@ -1068,6 +1070,7 @@
     <DCCReference Include="u_MiniMapLayerConfig.pas" />
     <DCCReference Include="u_MiniMapMapsConfig.pas" />
     <DCCReference Include="u_MouseState.pas" />
+    <DCCReference Include="u_MultiPoligonParser.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
     <DCCReference Include="u_Notifier.pas" />
     <DCCReference Include="u_NotifierFactorySimple.pas" />

@@ -17,6 +17,11 @@ type
     FShowOnlyNew: Boolean;
     FMakeOnlyNew: Boolean;
     FOldAfterDays: Integer;
+    FDataDoorsState: Integer;
+    FKosmosnimkiState: Integer;
+    FRosCosmosState: Integer;
+    FRosCosmosUserName: String;
+    FRosCosmosPassword: String;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -34,6 +39,21 @@ type
 
     function GetOldAfterDays: Integer;
     procedure SetOldAfterDays(const AValue: Integer);
+
+    function GetDataDoorsState: Integer;
+    procedure SetDataDoorsState(const AValue: Integer);
+
+    function GetKosmosnimkiState: Integer;
+    procedure SetKosmosnimkiState(const AValue: Integer);
+
+    function GetRosCosmosState: Integer;
+    procedure SetRosCosmosState(const AValue: Integer);
+
+    function GetRosCosmosUserName: String;
+    procedure SetRosCosmosUserName(const AValue: String);
+
+    function GetRosCosmosPassword: String;
+    procedure SetRosCosmosPassword(const AValue: String);
   public
     constructor Create(const AMapSvcScanPath: IPathConfig);
   end;
@@ -50,6 +70,11 @@ begin
   FShowOnlyNew := FALSE;
   FMakeOnlyNew := TRUE;
   FOldAfterDays := 1;
+  FDataDoorsState := 0;
+  FKosmosnimkiState := 0;
+  FRosCosmosState := 0;
+  FRosCosmosUserName := '';
+  FRosCosmosPassword := '';
 end;
 
 procedure TMapSvcScanConfig.DoReadConfig(
@@ -62,6 +87,11 @@ begin
     SetShowOnlyNew(AConfigData.ReadBool('ShowOnlyNew', FShowOnlyNew));
     SetMakeOnlyNew(AConfigData.ReadBool('MakeOnlyNew', FMakeOnlyNew));
     SetOldAfterDays(AConfigData.ReadInteger('OldAfterDays', FOldAfterDays));
+    SetDataDoorsState(AConfigData.ReadInteger('DataDoorsState', FDataDoorsState));
+    SetKosmosnimkiState(AConfigData.ReadInteger('KosmosnimkiState', FKosmosnimkiState));
+    SetRosCosmosState(AConfigData.ReadInteger('RosCosmosState', FRosCosmosState));
+    SetRosCosmosUserName(AConfigData.ReadString('RosCosmosUserName', FRosCosmosUserName));
+    SetRosCosmosPassword(AConfigData.ReadString('RosCosmosPassword', FRosCosmosPassword));
   end;
 end;
 
@@ -74,6 +104,31 @@ begin
   AConfigData.WriteBool('ShowOnlyNew', FShowOnlyNew);
   AConfigData.WriteBool('MakeOnlyNew', FMakeOnlyNew);
   AConfigData.WriteInteger('OldAfterDays', FOldAfterDays);
+  AConfigData.WriteInteger('DataDoorsState', FDataDoorsState);
+  AConfigData.WriteInteger('KosmosnimkiState', FKosmosnimkiState);
+  AConfigData.WriteInteger('RosCosmosState', FRosCosmosState);
+  AConfigData.WriteString('RosCosmosUserName', FRosCosmosUserName);
+  AConfigData.WriteString('RosCosmosPassword', FRosCosmosPassword);
+end;
+
+function TMapSvcScanConfig.GetDataDoorsState: Integer;
+begin
+  LockRead;
+  try
+    Result := FDataDoorsState;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMapSvcScanConfig.GetKosmosnimkiState: Integer;
+begin
+  LockRead;
+  try
+    Result := FKosmosnimkiState;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TMapSvcScanConfig.GetMakeOnlyNew: Boolean;
@@ -102,6 +157,36 @@ begin
   Result := FMapSvcScanPath;
 end;
 
+function TMapSvcScanConfig.GetRosCosmosPassword: String;
+begin
+  LockRead;
+  try
+    Result := FRosCosmosPassword;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMapSvcScanConfig.GetRosCosmosState: Integer;
+begin
+  LockRead;
+  try
+    Result := FRosCosmosState;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMapSvcScanConfig.GetRosCosmosUserName: String;
+begin
+  LockRead;
+  try
+    Result := FRosCosmosUserName;
+  finally
+    UnlockRead;
+  end;
+end;
+
 function TMapSvcScanConfig.GetShowOnlyNew: Boolean;
 begin
   LockRead;
@@ -119,6 +204,32 @@ begin
     Result := FUseStorage;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TMapSvcScanConfig.SetDataDoorsState(const AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FDataDoorsState <> AValue then begin
+      FDataDoorsState := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapSvcScanConfig.SetKosmosnimkiState(const AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FKosmosnimkiState <> AValue then begin
+      FKosmosnimkiState := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 
@@ -141,6 +252,45 @@ begin
   try
     if FOldAfterDays <> AValue then begin
       FOldAfterDays := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapSvcScanConfig.SetRosCosmosPassword(const AValue: String);
+begin
+  LockWrite;
+  try
+    if FRosCosmosPassword <> AValue then begin
+      FRosCosmosPassword := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapSvcScanConfig.SetRosCosmosState(const AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FRosCosmosState <> AValue then begin
+      FRosCosmosState := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMapSvcScanConfig.SetRosCosmosUserName(const AValue: String);
+begin
+  LockWrite;
+  try
+    if FRosCosmosUserName <> AValue then begin
+      FRosCosmosUserName := AValue;
       SetChanged;
     end;
   finally

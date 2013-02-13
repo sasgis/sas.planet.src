@@ -77,6 +77,7 @@ uses
   u_DownloaderHttp,
   u_Notifier,
   u_NotifierOperation,
+  u_DownloadResultFactory,
   u_TileRequestBuilderHelpers;
 
 procedure GenerateAvailPicsDD(

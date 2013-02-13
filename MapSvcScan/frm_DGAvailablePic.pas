@@ -33,6 +33,12 @@ uses
   ComCtrls,
   CommCtrl,
   ExtCtrls,
+  TB2Dock,
+  TB2Toolbar,
+  TBX,
+  TB2Item,
+  TB2ExtItems,
+  TBXExtItems,
   i_LanguageManager,
   i_VectorItemsFactory,
   i_InetConfig,
@@ -55,27 +61,23 @@ uses
   u_AvailPicsESRI,
   u_AvailPicsDD,
   u_AvailPicsGeoFuse,
+  u_AvailPicsRosCosmos,
+  u_AvailPicsKosmosnimki,
   u_DownloadResultFactory,
   u_DownloaderHttp,
   u_MarksDbGUIHelper,
   Grids,
-  ValEdit;
+  ValEdit, Spin;
 
 type
   TfrmDGAvailablePic = class(TFormWitghLanguageManager)
     gbImageParams: TGroupBox;
     gbAvailImages: TGroupBox;
     tvFound: TTreeView;
-    btnUp: TButton;
-    btnDown: TButton;
-    btnCopy: TButton;
     pnlRight: TPanel;
-    btnRefresh: TButton;
     veImageParams: TValueListEditor;
     spltDesc: TSplitter;
-    btnMakePoly: TButton;
     chkALLImages: TCheckBox;
-    lbNMC: TLabel;
     lbNMCZoom: TLabel;
     lbZoom: TLabel;
     cbDGstacks: TComboBox;
@@ -90,18 +92,68 @@ type
     chkESRI: TCheckBox;
     chkDG2: TCheckBox;
     chkDG: TCheckBox;
-    PnlSearch: TGroupBox;
     ChkDD1: TCheckBox;
     ChkDD2: TCheckBox;
     ChkDD3: TCheckBox;
     ChkDD4: TCheckBox;
     ChkDD5: TCheckBox;
-    LabelDatadoors: TLabel;
     Up: TPanel;
     chkGeoFuse: TCheckBox;
     chkMNCasColorOnly: TCheckBox;
     chkShowOnlyNew: TCheckBox;
     chkNMC13: TCheckBox;
+    TBXOperationsToolbar: TTBXToolbar;
+    TBXUp: TTBXItem;
+    TBXDown: TTBXItem;
+    TBXCopyTIDs: TTBXItem;
+    pcAvailPicsSearch: TPageControl;
+    tsImageServices: TTabSheet;
+    tsDDandRC: TTabSheet;
+    chkDataDoors: TCheckBox;
+    pnlImgSvcFooter: TPanel;
+    grpbxDatadoors: TGroupBox;
+    pnImgSvcTop: TPanel;
+    pnlImgSvcOthers: TPanel;
+    grpbxStorage: TGroupBox;
+    chkUseStorage: TCheckBox;
+    spnOldAfterDays: TSpinEdit;
+    LblOldAfterDays: TLabel;
+    LblNMC: TLabel;
+    chkSearchKosmosnimki: TCheckBox;
+    btnRefresh: TButton;
+    btnMakePoly: TButton;
+    chkRoscosmos: TCheckBox;
+    pnlNMCMain: TPanel;
+    pnlNMCZoom: TPanel;
+    grpbxRosCosmos: TGroupBox;
+    tsStorage: TTabSheet;
+    ChkRC1: TCheckBox;
+    ChkRC2: TCheckBox;
+    ChkRC3: TCheckBox;
+    ChkRC4: TCheckBox;
+    pnlRoscosmosPassword: TPanel;
+    edtRoscosmosPassword: TEdit;
+    lblRoscosmosPassword: TLabel;
+    lbllRosCosmosUsername: TLabel;
+    edtRosCosmosUsername: TEdit;
+    pnlRosCosmosFlags: TPanel;
+    grpbxKosmosnimki: TGroupBox;
+    chkKS1: TCheckBox;
+    chkKS2: TCheckBox;
+    chkKS3: TCheckBox;
+    chkKS4: TCheckBox;
+    pnlKosmosnimki1: TPanel;
+    pnlKosmosnimki2: TPanel;
+    chkKS5: TCheckBox;
+    chkKS6: TCheckBox;
+    chkKS7: TCheckBox;
+    chkKS8: TCheckBox;
+    pnlKosmosnimkiSpot: TPanel;
+    chkKS9: TCheckBox;
+    chkKS10: TCheckBox;
+    chkKS11: TCheckBox;
+    chkKS13: TCheckBox;
+    chkKS12: TCheckBox;
     procedure btnUpClick(Sender: TObject);
     procedure btnDownClick(Sender: TObject);
     procedure tvFoundMouseDown(Sender: TObject; Button: TMouseButton;
@@ -121,11 +173,16 @@ type
     procedure chkLowResolutionTooClick(Sender: TObject);
     procedure veImageParamsDblClick(Sender: TObject);
     procedure chkShowOnlyNewClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure LblShowOnlyNewClick(Sender: TObject);
+    procedure chkUseStorageClick(Sender: TObject);
   private
     FBing: TAvailPicsBing;
     FDG2: TAvailPicsDG2;
     FNMCs: TAvailPicsNMCs;
     FDDs: TAvailPicsDataDoors;
+    FRCs: TAvailPicsRosCosmos;
+    FKSs: TAvailPicsKosmosnimki;
     FTerraserver: TAvailPicsTerraserver;
     FESRI: TAvailPicsESRI;
     FDGStacks: TAvailPicsDGs;
@@ -137,6 +194,7 @@ type
     FCSAddNode: IReadWriteSync;
     FALLClicking: Boolean;
     FStartRefresh: TDateTime;
+    FOldImgDiff: Integer;
     // object from main form
     FMarkDBGUI: TMarksDbGUIHelper;
     FMapSvcScanConfig: IMapSvcScanConfig;
@@ -191,10 +249,15 @@ type
     // get tid list (for DG only)
     function Get_DG_tid_List: String;
 
+    procedure LoadOptions;
+    procedure SaveOptions;
+    procedure PrepareImageChecker;
+    procedure SaveOnRefresh;
     procedure UpdateALLImagesState;
     procedure UpdateALLServicesState;
     procedure ApplyALLCheckboxState(const AChkBox: TCheckBox; const AHasState: Byte);
     procedure ApplyServicesCheckboxHandlers;
+    function ForeachServicesCheckboxes(const AGetStateByAll: Boolean): Byte;
     function IsCommonServiceCheckbox(const ABox: TControl): Boolean;
     function GetImageParamsValue(const ACol, ARow: Integer): String;
     function OpenFromImageParams(const AItemValue: String): Boolean;
@@ -231,6 +294,7 @@ uses
   u_InetFunc,
   u_DoublePointsAggregator,
   u_MapSvcScanStorage,
+  u_MultiPoligonParser,
   u_GeoFun,
   u_GeoToStr;
 
@@ -302,7 +366,7 @@ begin
   FForm := AForm;
   FChkBox := AChkBox;
   FCallIndex := AForm.FCallIndex;
-  FDownloaderHttp:=TDownloaderHttp.Create(AForm.FResultFactory);
+  FDownloaderHttp:=TDownloaderHttp.Create(AForm.FResultFactory, TRUE);
 end;
 
 destructor TGetList.Destroy;
@@ -402,6 +466,62 @@ begin
   finally
     PostFinishedMessage;
   end;
+end;
+
+procedure TfrmDGAvailablePic.SaveOnRefresh;
+begin
+  // save OldAfterDays
+  FMapSvcScanConfig.OldAfterDays := spnOldAfterDays.Value;
+  // save RosCosmos auth
+  FMapSvcScanConfig.RosCosmosUserName := edtRosCosmosUsername.Text;
+  FMapSvcScanConfig.RosCosmosPassword := edtRoscosmosPassword.Text;
+end;
+
+procedure TfrmDGAvailablePic.SaveOptions;
+var
+  VIntValue: Integer;
+
+  procedure _GetForChkBox(const ABox: TCheckBox; const AIncValue: Integer);
+  begin
+    if ABox.Checked then
+      VIntValue := VIntValue + AIncValue;
+  end;
+begin
+  SaveOnRefresh;
+
+  // save DD selection
+  VIntValue := 0;
+  _GetForChkBox(ChkDD1, $01);
+  _GetForChkBox(ChkDD2, $02);
+  _GetForChkBox(ChkDD3, $04);
+  _GetForChkBox(ChkDD4, $08);
+  _GetForChkBox(ChkDD5, $10);
+  FMapSvcScanConfig.DataDoorsState := VIntValue;
+
+  // save RC selection
+  VIntValue := 0;
+  _GetForChkBox(ChkRC1, $01);
+  _GetForChkBox(ChkRC2, $02);
+  _GetForChkBox(ChkRC3, $04);
+  _GetForChkBox(ChkRC4, $08);
+  FMapSvcScanConfig.RosCosmosState := VIntValue;
+
+  // save Kosmosnimki state
+  VIntValue := 0;
+  _GetForChkBox(ChkKS1, $01);
+  _GetForChkBox(ChkKS2, $02);
+  _GetForChkBox(ChkKS3, $04);
+  _GetForChkBox(ChkKS4, $08);
+  _GetForChkBox(ChkKS5, $10);
+  _GetForChkBox(ChkKS6, $20);
+  _GetForChkBox(ChkKS7, $40);
+  _GetForChkBox(ChkKS8, $80);
+  _GetForChkBox(ChkKS9,  $0100);
+  _GetForChkBox(ChkKS10, $0200);
+  _GetForChkBox(ChkKS11, $0400);
+  _GetForChkBox(ChkKS12, $0800);
+  _GetForChkBox(ChkKS13, $1000);
+  FMapSvcScanConfig.KosmosnimkiState := VIntValue;
 end;
 
 procedure TfrmDGAvailablePic.SetTreeNodeChecked(
@@ -517,10 +637,10 @@ begin
   Result:=FALSE;
 
   if AExisting then begin
-    VExistDiff := Round(FStartRefresh-AFetched);
+    VExistDiff := Trunc(FStartRefresh-AFetched);
     // if do not show OLD items
     if chkShowOnlyNew.Checked then
-    if VExistDiff > 1 then
+    if VExistDiff >= FOldImgDiff then
       Exit;
     if VExistDiff < 0 then
       VExistDiff := 0;
@@ -574,9 +694,12 @@ var
   VDGstack: TAvailPicsDG;
   j: TAvailPicsNMCZoom;
   i: TAvailPicsDataDoorsID;
+  k: TAvailPicsRosCosmosID;
+  kk: TAvailPicsKosmosnimkiID;
   VComp: TComponent;
 begin
-  FStartRefresh := Now;
+  SaveOnRefresh;
+  PrepareImageChecker;
   // clear
   ClearAvailableImages;
 
@@ -593,6 +716,7 @@ begin
     end;
   end;
 
+  if chkDataDoors.Checked then
   for i := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
     // ChkDD1, ChkDD2, ChkDD3, ChkDD4, ChkDD5
     VComp := FindComponent('ChkDD' + IntToStr(Ord(i)));
@@ -601,6 +725,26 @@ begin
       // do not request for GeoEye and IKONOS if GeoFuse.GeoEye is checked
       if (Ord(i)<4) or (not chkGeoFuse.Checked) then
         RunImageThread(TCheckBox(VComp), FDDs[i]);
+    end;
+  end;
+
+  if chkRoscosmos.Checked then
+  for k := Low(TAvailPicsRosCosmosID) to High(TAvailPicsRosCosmosID) do begin
+    // ChkRC1, ChkRC2, ChkRC3, ChkRC4
+    VComp := FindComponent('ChkRC' + IntToStr(Ord(k)));
+    if Assigned(VComp) then
+    if (VComp is TCheckBox) then begin
+      RunImageThread(TCheckBox(VComp), FRCs[k]);
+    end;
+  end;
+
+  if chkSearchKosmosnimki.Checked then
+  for kk := Low(TAvailPicsKosmosnimkiID) to High(TAvailPicsKosmosnimkiID) do begin
+    // ChkKS1, ChkKS2, ..., ChkKS13
+    VComp := FindComponent('ChkKS' + IntToStr(Ord(kk)));
+    if Assigned(VComp) then
+    if (VComp is TCheckBox) then begin
+      RunImageThread(TCheckBox(VComp), FKSs[kk]);
     end;
   end;
 
@@ -637,7 +781,7 @@ procedure TfrmDGAvailablePic.CheckNodeIsNewImage(
 var
   VItem: TTVItem;
 begin
-  if AExisting and (AExistDiff>1) then
+  if AExisting and (AExistDiff>=FOldImgDiff) then
     Exit;
   with VItem do begin
     mask := TVIF_STATE or TVIF_HANDLE;
@@ -662,9 +806,6 @@ begin
 end;
 
 procedure TfrmDGAvailablePic.chkALLServicesClick(Sender: TObject);
-var
-  i: Integer;
-  VBox: TControl;
 begin
   if FALLClicking then
     Exit;
@@ -677,16 +818,10 @@ begin
 
   // apply to all checkbox in gbImagesSource (except sender)
   if chkALLServices.state<>cbGrayed then
-  if PnlSearch.ControlCount>0 then begin
+  if tsImageServices.ControlCount>0 then begin
     FALLClicking := TRUE;
     try
-      for i := 0 to PnlSearch.ControlCount-1 do begin
-        VBox := PnlSearch.Controls[i];
-        if IsCommonServiceCheckbox(VBox) then begin
-          // apply to service checkbox
-          TCheckBox(VBox).State := chkALLServices.State;
-        end;
-      end;
+      ForeachServicesCheckboxes(FALSE);
     finally
       FALLClicking := FALSE;
     end;
@@ -701,6 +836,11 @@ end;
 procedure TfrmDGAvailablePic.chkShowOnlyNewClick(Sender: TObject);
 begin
   FMapSvcScanConfig.ShowOnlyNew := chkShowOnlyNew.Checked;
+end;
+
+procedure TfrmDGAvailablePic.chkUseStorageClick(Sender: TObject);
+begin
+  FMapSvcScanConfig.UseStorage := chkUseStorage.Checked;
 end;
 
 procedure TfrmDGAvailablePic.btnDownClick(Sender: TObject);
@@ -762,14 +902,18 @@ procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
 
   procedure _AddWithBR(var AFullDesc: String; const ACaption, AValue: String);
   begin
-    if (0<Length(AValue)) then begin
-      AFullDesc := AFullDesc + '<br>' + ACaption + ':' + AValue;
-    end;
+    if (0=Length(AValue)) then
+      Exit;
+    if (0<Length(AFullDesc)) then
+      AFullDesc := AFullDesc + '<br>';
+    AFullDesc := AFullDesc + ACaption + ':' + AValue;
   end;
 
 var
   i,k: Integer;
+  j: Integer;
   VXCommaY, VCommaAsDelimiter: Boolean;
+  VUseMultiPoligonParser, VInMetr: Boolean;
   VName, VDesc, VGeometry, VDate: String;
   VImportConfig: IImportConfig;
   VPointsAggregator: IDoublePointsAggregator;
@@ -778,6 +922,7 @@ var
   VPolygon: ILonLatPolygon;
   VMark: IMark;
   VAllNewMarks: IInterfaceList;
+  VAllLinesToDesc: Boolean;
 begin
   if (nil=FMarkDBGUI) then
     Exit;
@@ -790,109 +935,127 @@ begin
   if GetTreeNodeChecked(tvFound.Items.Item[i]) then begin
     // prepare values
     VXCommaY := FALSE;
+    VUseMultiPoligonParser := FALSE;
+    VInMetr := FALSE;
     VGeometry := '';
+
     with TStrings(tvFound.Items.Item[i].Data) do
-
     try
-      VGeometry := Values['VposList'];
-      if 0=length(VGeometry) then
-      if length(Values['Geometry'])>0 then begin
-         VGeometry := Values['Geometry'];
-         VXCommaY := TRUE;
-      end;
+      // check if use ALL values for DESC (except Geometry!)
+      VAllLinesToDesc := FALSE;
 
-      (*
-      if (0=Length(VGeometry)) then begin
-        // allow import geometry for NokiaMapCreator - tile-bounded only!
-        VGeometry := Values['geometry'];
-        VGeometry := StringReplace(VGeometry, ',', ' ', [rfReplaceAll]);
+      VDate := Values['ProviderName'];
+
+      if SameText(VDate,'RosCosmos') then begin
+        VUseMultiPoligonParser := TRUE;
+        VInMetr := TRUE;
+        VAllLinesToDesc := TRUE;
+      end else if SameText(VDate, 'Kosmosnimki') then begin
+        VAllLinesToDesc := TRUE;
         VXCommaY := TRUE;
       end;
-      *)
 
-      VDate := Values['Date'];
-      if (0=Length(VDate)) then
-        VDate := Values['acquisitionDate'];
-      if (0=Length(VDate)) then
-        VDate := Values['acq_date'];
-
-
-      if (0<Length(VGeometry)) then begin
-
-        VDesc := Values['FeatureId'];
-        if 0<length(VDesc)then begin
-          Vname := copy(VDate,1,10)+' '+VDesc;
-          VDesc := 'FeatureId:'+VDesc;
+      if VAllLinesToDesc then begin
+        // name from Node
+        Vname := tvFound.Items.Item[i].Text;
+        VDesc := '';
+        // loop through all other lines
+        for j := 0 to Count-1 do begin
+          VDate := Names[j];
+          if SameText(VDate,'Geometry') then begin
+            // coordinates
+            VGeometry := Values[VDate];
+          end else begin
+            // copy
+            _AddWithBR(VDesc, VDate, Values[VDate]);
+          end;
+        end;
+        // end of AllLinesToDesc mode
+      end else begin
+        // manual mode - field by field
+        VGeometry := Values['VposList'];
+        if 0=length(VGeometry) then
+        if length(Values['Geometry'])>0 then begin
+           VGeometry := Values['Geometry'];
+           VXCommaY := TRUE;
         end;
 
-         if 0=length(VDesc) then begin
-          VDesc := Values['uid'];
-          if 0=length(VDesc) then
-            VDesc := Values['IMAGE_ID'];
-          Vname := copy(VDate,1,10)+' '+VDesc;
-          VDesc := 'uid:'+VDesc;
-         end;
-        // add Date
-        _AddWithBR(VDesc, 'Date', VDate);
-
-        // add other values - use VDate as temp buffer
-        // add Color
-        VDate := Values['Color'];
+        VDate := Values['Date'];
         if (0=Length(VDate)) then
-          VDate := Values['productType'];
-        _AddWithBR(VDesc, 'Color', VDate);
-
-        // add Resolution
-        VDate := Values['Resolution'];
+          VDate := Values['acquisitionDate'];
         if (0=Length(VDate)) then
-          VDate := Values['groundSampleDistance'];
-        if (0=Length(VDate)) then
-          VDate := Values['GSD'];
-        _AddWithBR(VDesc, 'Resolution', VDate);
+          VDate := Values['acq_date'];
 
-        // add dataLayer
-        VDate := Values['dataLayer'];
-        _AddWithBR(VDesc, 'DataLayer', VDate);
+        if (0<Length(VGeometry)) then begin
+          // has geometry - OK
+          VDesc := Values['FeatureId'];
+          if 0<length(VDesc)then begin
+            Vname := copy(VDate,1,10)+' '+VDesc;
+            VDesc := 'FeatureId:'+VDesc;
+          end;
 
-        // add Source
-        VDate := Values['Source'];
-        _AddWithBR(VDesc, 'Source', VDate);
+           if 0=length(VDesc) then begin
+            VDesc := Values['uid'];
+            if 0=length(VDesc) then
+              VDesc := Values['IMAGE_ID'];
+            Vname := copy(VDate,1,10)+' '+VDesc;
+            VDesc := 'uid:'+VDesc;
+           end;
+          // add Date
+          _AddWithBR(VDesc, 'Date', VDate);
 
-        // add ID if exist
-        VDate := Values['LegacyId'];
-        _AddWithBR(VDesc, 'LegacyId', VDate);
+          // add other values - use VDate as temp buffer
+          // add Color
+          VDate := Values['Color'];
+          if (0=Length(VDate)) then
+            VDate := Values['productType'];
+          _AddWithBR(VDesc, 'Color', VDate);
 
-        if 0=length(VDate) then begin
-          VDate := Values['CatalogID'];
-          _AddWithBR(VDesc, 'CatalogID', VDate);
+          // add Resolution
+          VDate := Values['Resolution'];
+          if (0=Length(VDate)) then
+            VDate := Values['groundSampleDistance'];
+          if (0=Length(VDate)) then
+            VDate := Values['GSD'];
+          _AddWithBR(VDesc, 'Resolution', VDate);
+
+          // add dataLayer
+          VDate := Values['dataLayer'];
+          _AddWithBR(VDesc, 'DataLayer', VDate);
+
+          // add Source
+          VDate := Values['Source'];
+          _AddWithBR(VDesc, 'Source', VDate);
+
+          // add ID if exist
+          VDate := Values['LegacyId'];
+          _AddWithBR(VDesc, 'LegacyId', VDate);
+
+          if 0=length(VDate) then begin
+            VDate := Values['CatalogID'];
+            _AddWithBR(VDesc, 'CatalogID', VDate);
+          end;
+
+          VDate := Values['SCENE_ID'];
+          _AddWithBR(VDesc, 'SCENE_ID', VDate);
+
+          // add Provider
+          VDate := Values['Provider'];
+          if (0=Length(VDate)) then
+            VDate := tvFound.Items.Item[i].text; // only from DG and NokiaMapCreator and GeoFuse.GeoEye
+          _AddWithBR(VDesc, 'Provider', VDate);
+
+          // add Preview (from more info to less info)
+          VDate := Values['IMAGE_FILE_URL'];
+          if (0<>Length(VDate)) then
+            _AddWithBR(VDesc, 'PreviewLink', '<a href='+VDate+'>'+VDate+'</a>');
+
+          VDate := Values['FULL_METADATA_URL'];
+          if (0=Length(VDate)) then
+            VDate := Values['METADATA_URL'];
+          if (0<>Length(VDate)) then
+            _AddWithBR(VDesc, 'MetadataLink', '<a href='+VDate+'>'+VDate+'</a>');
         end;
-
-        (*
-        VDate := Values['IMAGE_ID'];
-        if (0<>Length(VDate)) then
-        _AddWithBR(VDesc, 'IMAGE_ID', VDate);
-        *)
-        
-        VDate := Values['SCENE_ID'];
-        _AddWithBR(VDesc, 'SCENE_ID', VDate);
-
-        // add Provider
-        VDate := Values['Provider'];
-        if (0=Length(VDate)) then
-          VDate := tvFound.Items.Item[i].text; // only from DG and NokiaMapCreator and GeoFuse.GeoEye
-        _AddWithBR(VDesc, 'Provider', VDate);
-
-        // add Preview (from more info to less info)
-        VDate := Values['IMAGE_FILE_URL'];
-        if (0<>Length(VDate)) then
-          _AddWithBR(VDesc, 'PreviewLink', '<a href='+VDate+'>'+VDate+'</a>');
-
-        VDate := Values['FULL_METADATA_URL'];
-        if (0=Length(VDate)) then
-          VDate := Values['METADATA_URL'];
-        if (0<>Length(VDate)) then
-          _AddWithBR(VDesc, 'MetadataLink', '<a href='+VDate+'>'+VDate+'</a>');
-
       end;
     except
     end;
@@ -909,22 +1072,34 @@ begin
           Exit;
       end;
 
-      // fill with coords
-      VCommaAsDelimiter := (System.Pos(',',VGeometry)>0);
-      VPointsAggregator.Clear;
-      repeat
-        // cut pairs (space-separated y and x)
-        try
-          VPoint := _ExtractPoint(VGeometry, VXCommaY, VCommaAsDelimiter);
-          VValidPoint := (not PointIsEmpty(VPoint)) and ((Abs(VPoint.X) <= 180) and (Abs(VPoint.Y) <= 90));
-        except
-          VValidPoint := FALSE;
-        end;
-        // add pair
-        if VValidPoint then begin
-          VPointsAggregator.Add(VPoint);
-        end;
-      until (0=Length(VGeometry));
+      if VUseMultiPoligonParser then begin
+        // use common multipolygon parser
+        VPointsAggregator.Clear;
+        ParsePointsToAggregator(
+          VPointsAggregator,
+          VGeometry,
+          FLocalConverter.GeoConverter,
+          VInMetr,
+          FALSE
+        );
+      end else begin
+        // fill with coords
+        VCommaAsDelimiter := (System.Pos(',',VGeometry)>0);
+        VPointsAggregator.Clear;
+        repeat
+          // cut pairs (space-separated y and x)
+          try
+            VPoint := _ExtractPoint(VGeometry, VXCommaY, VCommaAsDelimiter);
+            VValidPoint := (not PointIsEmpty(VPoint)) and ((Abs(VPoint.X) <= 180) and (Abs(VPoint.Y) <= 90));
+          except
+            VValidPoint := FALSE;
+          end;
+          // add pair
+          if VValidPoint then begin
+            VPointsAggregator.Add(VPoint);
+          end;
+        until (0=Length(VGeometry));
+      end;
 
       if (VPointsAggregator.Count>0) then begin
         // create lonlats
@@ -953,8 +1128,9 @@ begin
 
   if Assigned(VAllNewMarks) then
   if (nil<>VImportConfig) then
-  if (nil<>VImportConfig.MarkDB) then
+  if (nil<>VImportConfig.MarkDB) then begin
     VImportConfig.MarkDB.UpdateMarksList(nil, VAllNewMarks);
+  end;
 end;
 
 function TfrmDGAvailablePic.GetImageParamsValue(const ACol, ARow: Integer): String;
@@ -1055,6 +1231,8 @@ var
   i,k: Integer;
   j: TAvailPicsNMCZoom;
   jj: TAvailPicsDataDoorsID;
+  kk: TAvailPicsRosCosmosID;
+  ii: TAvailPicsKosmosnimkiID;
 begin
   // simple
   FreeAndNil(FBing);
@@ -1071,6 +1249,15 @@ begin
   for jj := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
     FreeAndNil(FDDs[jj]);
   end;
+
+  for kk := Low(TAvailPicsRosCosmosID) to High(TAvailPicsRosCosmosID) do begin
+    FreeAndNil(FRCs[kk]);
+  end;
+
+  for ii := Low(TAvailPicsKosmosnimkiID) to High(TAvailPicsKosmosnimkiID) do begin
+    FreeAndNil(FKSs[ii]);
+  end;
+
   // list
   cbDGstacks.Items.Clear;
   k:=Length(FDGStacks);
@@ -1080,6 +1267,65 @@ begin
     end;
     setLength(FDGStacks, 0);
   end;
+end;
+
+procedure TfrmDGAvailablePic.LblShowOnlyNewClick(Sender: TObject);
+begin
+  chkShowOnlyNew.Checked := (not chkShowOnlyNew.Checked);
+end;
+
+procedure TfrmDGAvailablePic.LoadOptions;
+var
+  VIntValue: Integer;
+
+  procedure _SetForChkBox(const ABox: TCheckBox; const AIncValue: Integer);
+  begin
+    ABox.Checked := ((VIntValue and AIncValue) <> 0);
+  end;
+begin
+  // set saved params
+  chkUseStorage.Checked := FMapSvcScanConfig.UseStorage;
+  chkShowOnlyNew.Checked := FMapSvcScanConfig.ShowOnlyNew;
+
+  VIntValue := FMapSvcScanConfig.OldAfterDays;
+  if (VIntValue >= spnOldAfterDays.MinValue) and (VIntValue <= spnOldAfterDays.MaxValue) then begin
+    spnOldAfterDays.Value := VIntValue;
+  end;
+
+  // restore DD selection
+  VIntValue := FMapSvcScanConfig.DataDoorsState;
+  _SetForChkBox(ChkDD1, $01);
+  _SetForChkBox(ChkDD2, $02);
+  _SetForChkBox(ChkDD3, $04);
+  _SetForChkBox(ChkDD4, $08);
+  _SetForChkBox(ChkDD5, $10);
+
+  // restore KS selection
+  VIntValue := FMapSvcScanConfig.KosmosnimkiState;
+  _SetForChkBox(ChkKS1, $01);
+  _SetForChkBox(ChkKS2, $02);
+  _SetForChkBox(ChkKS3, $04);
+  _SetForChkBox(ChkKS4, $08);
+  _SetForChkBox(ChkKS5, $10);
+  _SetForChkBox(ChkKS6, $20);
+  _SetForChkBox(ChkKS7, $40);
+  _SetForChkBox(ChkKS8, $80);
+  _SetForChkBox(ChkKS9,  $0100);
+  _SetForChkBox(ChkKS10, $0200);
+  _SetForChkBox(ChkKS11, $0400);
+  _SetForChkBox(ChkKS12, $0800);
+  _SetForChkBox(ChkKS13, $1000);
+
+  // restore RC selection
+  VIntValue := FMapSvcScanConfig.RosCosmosState;
+  _SetForChkBox(ChkRC1, $01);
+  _SetForChkBox(ChkRC2, $02);
+  _SetForChkBox(ChkRC3, $04);
+  _SetForChkBox(ChkRC4, $08);
+
+  // restore RC auth
+  edtRosCosmosUsername.Text := FMapSvcScanConfig.RosCosmosUserName;
+  edtRoscosmosPassword.Text := FMapSvcScanConfig.RosCosmosPassword;
 end;
 
 procedure TfrmDGAvailablePic.MakePicsVendors;
@@ -1099,9 +1345,15 @@ begin
   // make for datadoors
   GenerateAvailPicsDD(FDDs, FResultFactory, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
+  // make for roscosmos
+  GenerateAvailPicsRC(FRCs, FResultFactory, @FAvailPicsTileInfo,  FMapSvcScanConfig, FMapSvcScanStorage);
+
   // make for terraserver
   if (nil=FTerraserver) then
     FTerraserver := TAvailPicsTerraserver.Create(@FAvailPicsTileInfo, FMapSvcScanStorage);
+
+  // make for kosmosnimki
+  GenerateAvailPicsKS(FKSs, FResultFactory, @FAvailPicsTileInfo, FMapSvcScanStorage);
 
   // make for ESRI
   if (nil=FESRI) then
@@ -1133,12 +1385,20 @@ begin
   Result := (Length(AItemValue)>4) and SameText(System.Copy(AItemValue,1,4),'http');
 end;
 
+procedure TfrmDGAvailablePic.PrepareImageChecker;
+begin
+  FStartRefresh := Now;
+  FOldImgDiff := FMapSvcScanConfig.OldAfterDays;
+end;
+
 procedure TfrmDGAvailablePic.PropagateLocalConverter;
 var
   i,k: Integer;
   j: TAvailPicsNMCZoom;
   r: Boolean;
   jj: TAvailPicsDataDoorsID;
+  kk: TAvailPicsRosCosmosID;
+  ii: TAvailPicsKosmosnimkiID;
 begin
   if (nil<>FBing) then
     FBing.SetLocalConverter(FLocalConverter);
@@ -1155,6 +1415,16 @@ begin
   for jj := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
     if (FDDs[jj]<>nil) then
       FDDs[jj].SetLocalConverter(FLocalConverter);
+  end;
+
+  for kk := Low(TAvailPicsRosCosmosID) to High(TAvailPicsRosCosmosID) do begin
+    if (FRCs[kk]<>nil) then
+      FRCs[kk].SetLocalConverter(FLocalConverter);
+  end;
+
+  for ii := Low(TAvailPicsKosmosnimkiID) to High(TAvailPicsKosmosnimkiID) do begin
+    if (FKSs[ii]<>nil) then
+      FKSs[ii].SetLocalConverter(FLocalConverter);
   end;
 
   if (nil<>FTerraserver) then
@@ -1272,26 +1542,10 @@ end;
 
 procedure TfrmDGAvailablePic.UpdateALLServicesState;
 var
-  i: Integer;
-  VBox: TControl;
   VHasState: Byte;
 begin
   // obtain chkALLServices checkbox state
-  VHasState := c_ALLBox_None;
-  if PnlSearch.ControlCount>0 then
-  for i := 0 to PnlSearch.ControlCount-1 do begin
-    VBox := PnlSearch.Controls[i];
-    if IsCommonServiceCheckbox(VBox) then begin
-      // keep state
-      if (cbChecked = TCheckBox(VBox).State) then
-        VHasState := (VHasState or c_ALLBox_Checked) // checked
-      else
-        VHasState := (VHasState or c_ALLBox_Unchecked);
-      // check both exist
-      if (c_ALLBox_Both = VHasState) then
-        break;
-    end;
-  end;
+  VHasState := ForeachServicesCheckboxes(TRUE);
 
   // apply chkALLServices checkbox state
   ApplyALLCheckboxState(chkALLServices, VHasState);
@@ -1374,6 +1628,8 @@ begin
   FDG2:=nil;
   FillChar(FNMCs, sizeof(FNMCs), 0);
   FillChar(FDDs, sizeof(FDDs), 0);
+  FillChar(FRCs, sizeof(FRCs), 0);
+  FillChar(FKSs, sizeof(FKSs), 0);
   FTerraserver:=nil;
   FESRI:=nil;
   FGeoFuse:=nil;
@@ -1389,9 +1645,9 @@ begin
   FLocalConverter := nil;
   FVectorItemsFactory := AVectorItemsFactory;
   FInetConfig := AInetConfig;
-  FStartRefresh := Now;
   FMapSvcScanStorage := TMapSvcScanStorage.Create(AMapSvcScanConfig);
   FResultFactory := TDownloadResultFactory.Create;
+  PrepareImageChecker;
 end;
 
 destructor TfrmDGAvailablePic.Destroy;
@@ -1429,24 +1685,67 @@ begin
 end;
 
 procedure TfrmDGAvailablePic.ApplyServicesCheckboxHandlers;
-var
-  i: Integer;
-  VBox: TControl;
 begin
   // set OnClick if empty from chkALLServices
-  if PnlSearch.ControlCount>0 then
-  for i := 0 to PnlSearch.ControlCount-1 do begin
-    VBox := PnlSearch.Controls[i];
-    if IsCommonServiceCheckbox(VBox) then begin
-      // apply handler
-      TCheckBox(VBox).OnClick := chkALLServices.OnClick;
-    end;
-  end;
+  ForeachServicesCheckboxes(FALSE);
 end;
 
 procedure TfrmDGAvailablePic.btnCopyClick(Sender: TObject);
 begin
   CopyStringToClipboard(Handle, Get_DG_tid_List);
+end;
+
+function TfrmDGAvailablePic.ForeachServicesCheckboxes(const AGetStateByAll: Boolean): Byte;
+
+  function _DoForCheckBox(const ABox: TCheckBox; var AResult: Byte): Boolean;
+  begin
+    Result := FALSE;
+    if AGetStateByAll then begin
+      // keep state
+      if (cbChecked = ABox.State) then
+        AResult := (AResult or c_ALLBox_Checked) // checked
+      else
+        AResult := (AResult or c_ALLBox_Unchecked);
+      // check both exist
+      if (c_ALLBox_Both = AResult) then
+        Inc(Result);
+    end else begin
+      // set state to box OR apply handler
+      if Assigned(ABox.OnClick) then
+        ABox.State := chkALLServices.State
+      else
+        ABox.OnClick := chkALLServices.OnClick;
+    end;
+  end;
+
+var
+  i, j: Integer;
+  VPanel, VBox: TControl;
+begin
+  // loop through all services checkboxes (not options!)
+  // if AGetStateByAll
+  // then GET STATE by all checkboxes
+  // else SET STATE to all checkboxes
+  Result := c_ALLBox_None;
+
+  for i := 0 to tsImageServices.ControlCount-1 do begin
+    VPanel := tsImageServices.Controls[i];
+    if IsCommonServiceCheckbox(VPanel) then begin
+      // common checkbox
+      if _DoForCheckBox(TCheckBox(VPanel), Result) then
+        Exit;
+    end else if (VPanel is TPanel) then begin
+      // update internal checkboxes
+      for j := 0 to TPanel(VPanel).ControlCount-1 do begin
+        VBox := TPanel(VPanel).Controls[j];
+        if IsCommonServiceCheckbox(VBox) then begin
+          // apply to service checkbox
+          if _DoForCheckBox(TCheckBox(VBox), Result) then
+            Exit;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmDGAvailablePic.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
@@ -1465,6 +1764,11 @@ begin
   end;
 end;
 
+procedure TfrmDGAvailablePic.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  SaveOptions;
+end;
+
 procedure TfrmDGAvailablePic.FormCreate(Sender: TObject);
 begin
   // make checkboxes in list
@@ -1475,9 +1779,7 @@ end;
 
 procedure TfrmDGAvailablePic.FormShow(Sender: TObject);
 begin
-  // set saved params
-  chkShowOnlyNew.Visible := FMapSvcScanConfig.UseStorage;
-  chkShowOnlyNew.Checked := FMapSvcScanConfig.ShowOnlyNew;
+  LoadOptions;
 
   // others
   FVertResizeFactor:=Height-gbAvailImages.Top-gbAvailImages.Height-spltDesc.Height-gbImageParams.Height;
