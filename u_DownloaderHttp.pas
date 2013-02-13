@@ -66,6 +66,7 @@ type
     FDisconnectByServer: Byte;
     FDisconnectByUser: Byte;
     FOpeningHandle: HINTERNET;
+    FAllowUseCookie: Boolean;
     function InternalMakeResponse(
       const AResultFactory: IDownloadResultFactory;
       const ARequest: IDownloadRequest;
@@ -120,7 +121,8 @@ type
     ): IDownloadResult;
   public
     constructor Create(
-      const AResultFactory: IDownloadResultFactory
+      const AResultFactory: IDownloadResultFactory;
+      const AAllowUseCookie: Boolean = FALSE
     );
     destructor Destroy; override;
   end;
@@ -151,13 +153,15 @@ begin
 end;
 
 constructor TDownloaderHttp.Create(
-  const AResultFactory: IDownloadResultFactory
+  const AResultFactory: IDownloadResultFactory;
+  const AAllowUseCookie: Boolean
 );
 begin
   inherited Create;
   FOpeningHandle := nil;
   FDisconnectByUser := 0;
   FDisconnectByServer := 0;
+  FAllowUseCookie := AAllowUseCookie;
   FCS := MakeSyncRW_Big(Self, FALSE);
   FHttpClient := TALWinInetHTTPClient.Create(nil);
   FHttpClient.OnStatusChange := DoOnALStatusChange;
@@ -519,13 +523,27 @@ begin
     FHttpClient.SendTimeout := FHttpClientLastConfig.HttpTimeOut;
     FHttpClient.ReceiveTimeout := FHttpClientLastConfig.HttpTimeOut;
   end;
-  FHttpClient.InternetOptions :=
+
+  // cookie
+  if FAllowUseCookie then begin
+    // allow cookie
+    FHttpClient.InternetOptions :=
+    [
+      wHttpIo_No_cache_write,
+      wHttpIo_Pragma_nocache,
+      wHttpIo_Keep_connection
+    ]
+  end else begin
+    // no cookie
+    FHttpClient.InternetOptions :=
     [
       wHttpIo_No_cache_write,
       wHttpIo_Pragma_nocache,
       wHttpIo_No_cookies,
       wHttpIo_Keep_connection
     ];
+  end;
+    
   VProxyConfig := AInetConfig.ProxyConfigStatic;
   if Assigned(VProxyConfig) then begin
     if (FHttpClientLastConfig.ProxyUseIESettings <> VProxyConfig.UseIESettings) or
