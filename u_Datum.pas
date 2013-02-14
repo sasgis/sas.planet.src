@@ -142,43 +142,39 @@ function TDatum.CalcPoligonArea(
   const ACount: Integer
 ): Double;
 
-  function Sign(AValue: double): integer;
-  begin
-    if AValue < 0 then begin
-      Result := -1;
-    end else begin
-      Result := 1;
-    end;
-  end;
-
   function Orientation(
   const APoints: PDoublePointArray;
   const ACount: Integer
-  ): extended;
+  ): Boolean;
   var
     i: integer;
     s: double;
   begin
     s := 0;
-    for i := 0 to ACount - 1 do begin
-      s := s + (APoints[(i + 1) mod ACount].x - APoints[i].x) * (APoints[(i + 1) mod ACount].y + APoints[i].y);
+    for i := 0 to ACount-2 do begin
+      s := s + (APoints[(i + 1)].x - APoints[i].x) * (APoints[(i + 1)].y + APoints[i].y);
     end;
-    result := -s / 2;
+    // for (ACount-1)
+    s := s + (APoints[0].x - APoints[(ACount-1)].x) * (APoints[0].y + APoints[(ACount-1)].y);
+    result := (s <= 0); // (-s/2)
   end;
 
-  function Det(const point1, point2, point3: TDoublePoint): Extended;
+  function Det(const point1, point2, point3: TDoublePoint): Boolean;
   begin
-    Result := ((point2.X - point1.X) * (point3.Y - point1.Y) - (point2.Y - point1.Y) * (point3.X - point1.X)) / 2;
+    Result := ((point2.X - point1.X) * (point3.Y - point1.Y) >= (point2.Y - point1.Y) * (point3.X - point1.X)); // s/2
   end;
 
   function InTriangle(const point, point1, point2, point3: TDoublePoint): Boolean;
   var
-    a, b, c: double;
+    a, b: Boolean;
   begin
     a := Det(point, point1, point2);
     b := Det(point, point2, point3);
-    c := Det(point, point3, point1);
-    Result := ((a >= 0) and (b >= 0) and (c >= 0)) or ((a < 0) and (b < 0) and (c < 0));
+    Result := (a=b);
+    if Result then begin
+      b := Det(point, point3, point1);
+      Result := (a=b);
+    end;
   end;
 
 var
@@ -187,11 +183,11 @@ var
   pn: array [0..2] of integer;
   NodeN: integer;
   PointsNum: integer;
-  Orient: Integer;
+  VOrient: Boolean;
   inPoint: Boolean;
   s: double;
   i: integer;
-  PointsA: Array of integer;
+  VPointsA: Array of Boolean;
   ErrNum: integer;
 begin
   s := 0;
@@ -199,27 +195,31 @@ begin
     result := s;
     exit;
   end;
-  Orient := Sign(Orientation(APoints, ACount)); //ориентация многоугольника
+  VOrient := Orientation(APoints, ACount); //ориентация многоугольника
   PointsNum := ACount;
   ErrNum := 0;
-  SetLength(PointsA, ACount);
+  SetLength(VPointsA, ACount);
   For NodeN := 0 to ACount - 1 do begin
-    PointsA[NodeN] := 1;
+    VPointsA[NodeN] := True;
   end;
   for i := 0 to 2 do begin
     pn[i] := i;
     p[i] := APoints[i];
   end;
   while (PointsNum > 3) and (ErrNum <= ACount) do begin
-    if Sign(Det(p[0], p[1], p[2])) = Orient then begin//Проверка ориентации треугольника
+    if Det(p[0], p[1], p[2]) = VOrient then begin//Проверка ориентации треугольника
       inPoint := false;
-      NodeN := (pn[2] + 1) mod ACount;
+      NodeN := (pn[2] + 1);
+      if (NodeN=ACount) then
+        NodeN := 0;
       Node := APoints[Noden];
       while NodeN <> pn[0] do begin
-        if (PointsA[NodeN] = 1) and (InTriangle(Node, p[0], p[1], p[2])) then begin
+        if (VPointsA[NodeN]) and (InTriangle(Node, p[0], p[1], p[2])) then begin
           inPoint := true;  // Проверка не попала ли вершина в отсекаемый треугольник
         end;
-        Noden := (NodeN + 1) mod ACount;
+        Inc(NodeN);
+        if (NodeN=ACount) then
+          NodeN := 0;
         Node := APoints[NodeN];
       end;
     end else begin
@@ -227,7 +227,7 @@ begin
     end;
     if (not InPoint) then begin
       s := s + SphericalTriangleSquare(p);
-      PointsA[pn[1]] := 0;    //Удаление вершины из рассмотрения
+      VPointsA[pn[1]] := False;    //Удаление вершины из рассмотрения
       dec(PointsNum);
       ErrNum := 0;
     end else begin
@@ -237,9 +237,13 @@ begin
     end;
     pn[1] := pn[2];  //  Переход к следущему треугольнику
     p[1] := APoints[pn[1]];
-    pn[2] := (pn[2] + 1) mod ACount;
-    while (PointsA[pn[2]] = 0) and (pn[2] <> pn[0]) do begin
-      pn[2] := (pn[2] + 1) mod ACount;
+    Inc(pn[2]);
+    if (pn[2]=ACount) then
+      pn[2] := 0;
+    while (not VPointsA[pn[2]]) and (pn[2] <> pn[0]) do begin
+      Inc(pn[2]);
+      if (pn[2]=ACount) then
+        pn[2] := 0;
     end;
     p[2] := APoints[pn[2]];
   end;
