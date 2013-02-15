@@ -58,6 +58,7 @@ uses
   i_PathConfig,
   i_NotifierTime,
   i_Bitmap32StaticFactory,
+  i_VectorDataFactory,
   i_MapCalibration,
   i_ImportFile,
   i_PathDetalizeProviderList,
@@ -150,6 +151,7 @@ type
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FLastSelectionSaver: IBackgroundTask;
     FMainThreadConfigListener: IListener;
+    FVectorDataFactory: IVectorDataFactory;
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
 
@@ -201,6 +203,7 @@ type
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorItemsFactory: IVectorItemsFactory read FVectorItemsFactory;
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
+    property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
@@ -474,9 +477,9 @@ begin
       VMarksKmlLoadCounterList
     );
 {$ifend}
-
+  FVectorDataFactory := TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create);
   FImportFileByExt := TImportByFileExt.Create(
-    TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
+    FVectorDataFactory,
     FVectorItemsFactory,
     VXmlLoader,
     TPLTSimpleParser.Create(
@@ -558,7 +561,7 @@ begin
       FGlobalConfig.InetConfig,
       FBGTimerNotifier,
       TDownloadResultFactory.Create,
-      TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create),
+      FVectorDataFactory,
       FVectorItemsFactory,
       VKmlLoader
     );
