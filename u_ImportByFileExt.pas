@@ -64,7 +64,7 @@ implementation
 
 uses
   SysUtils,
-  u_ImportKML,
+  u_ImportByVectorLoader,
   u_ImportHLG,
   u_ImportCSV,
   u_ImportSLS,

@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_ImportKML;
+unit u_ImportByVectorLoader;
 
 interface
 
