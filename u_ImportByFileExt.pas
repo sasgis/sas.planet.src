@@ -82,10 +82,10 @@ constructor TImportByFileExt.Create(
 );
 begin
   inherited Create;
-  FImportGPX := TImportKML.Create(AVectorDataFactory, AGpxLoader);
-  FImportKML := TImportKML.Create(AVectorDataFactory, AKmlLoader);
-  FImportKMZ := TImportKML.Create(AVectorDataFactory, AKmzLoader);
-  FImportPLT := TImportKML.Create(AVectorDataFactory, APltLoader);
+  FImportGPX := TImportByVectorLoader.Create(AVectorDataFactory, AGpxLoader);
+  FImportKML := TImportByVectorLoader.Create(AVectorDataFactory, AKmlLoader);
+  FImportKMZ := TImportByVectorLoader.Create(AVectorDataFactory, AKmzLoader);
+  FImportPLT := TImportByVectorLoader.Create(AVectorDataFactory, APltLoader);
   FImportCSV := TImportCSV.Create(AFactory);
   FImportHLG := TImportHLG.Create(AFactory);
   FImportMP := TImportMpSimple.Create(AFactory);

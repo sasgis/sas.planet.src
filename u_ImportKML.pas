@@ -32,7 +32,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TImportKML = class(TBaseInterfacedObject, IImportFile)
+  TImportByVectorLoader = class(TBaseInterfacedObject, IImportFile)
   private
     FVectorDataFactory: IVectorDataFactory;
     FLoader: IVectorDataLoader;
@@ -56,9 +56,9 @@ uses
   i_MarksSimple,
   i_VectorDataItemSimple;
 
-{ TImportKML }
+{ TImportByVectorLoader }
 
-constructor TImportKML.Create(
+constructor TImportByVectorLoader.Create(
   const AVectorDataFactory: IVectorDataFactory;
   const ALoader: IVectorDataLoader
 );
@@ -68,7 +68,7 @@ begin
   FLoader := ALoader;
 end;
 
-function TImportKML.ProcessImport(
+function TImportByVectorLoader.ProcessImport(
   const AMarksSystem: IMarksSystem;
   const AFileName: string;
   const AConfig: IImportConfig
