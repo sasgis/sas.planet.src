@@ -7,7 +7,9 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ReadWriteState,
+  i_VectorDataItemSimple,
   i_MarksFactoryConfig,
+  i_ImportConfig,
   i_MarksSimple,
   i_MarkCategory,
   i_MarksDb,
@@ -31,6 +33,11 @@ type
 
     function GetMarkByStringId(const AId: string): IMark;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
+
+    function ImportItemsList(
+      const ADataItemList: IVectorDataItemList;
+      const AImportConfig: IImportConfig
+    ): IInterfaceList;
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;

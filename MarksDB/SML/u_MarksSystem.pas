@@ -34,6 +34,8 @@ uses
   i_ReadWriteState,
   i_MarksSimple,
   i_MarkPicture,
+  i_VectorDataItemSimple,
+  i_ImportConfig,
   i_HtmlToHintTextConverter,
   i_MarksFactoryConfig,
   i_MarkCategory,
@@ -73,6 +75,11 @@ type
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
+    function ImportItemsList(
+      const ADataItemList: IVectorDataItemList;
+      const AImportConfig: IImportConfig
+    ): IInterfaceList;
+
     function MarksSubsetToStaticTree(const ASubset: IMarksSubset): IStaticTreeItem;
     function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
 
@@ -98,8 +105,11 @@ implementation
 uses
   SysUtils,
   ActiveX,
+  i_MarkFactory,
+  i_MarkTemplate,
   u_StaticTreeBuilderBase,
   u_ReadWriteStateInternal,
+  u_MarksSubset,
   u_MarksDb,
   u_MarkCategoryDB;
 
@@ -337,6 +347,72 @@ begin
     if VCategory.Visible then begin
       Result.Add(VCategory);
     end;
+  end;
+end;
+
+function TMarksSystem.ImportItemsList(
+  const ADataItemList: IVectorDataItemList;
+  const AImportConfig: IImportConfig
+): IInterfaceList;
+var
+  VItem: IVectorDataItemSimple;
+  VPoint: IVectorDataItemPoint;
+  VLine: IVectorDataItemLine;
+  VPoly: IVectorDataItemPoly;
+  i: Integer;
+  VFactory: IMarkFactory;
+  VMark: IMark;
+  VTemplateNewPoint: IMarkTemplatePoint;
+  VTemplateNewLine: IMarkTemplateLine;
+  VTemplateNewPoly: IMarkTemplatePoly;
+  VMarksList: IInterfaceList;
+begin
+  Result := nil;
+  VFactory := FMarksDb.Factory;
+  VTemplateNewPoint := AImportConfig.TemplateNewPoint;
+  VTemplateNewLine := AImportConfig.TemplateNewLine;
+  VTemplateNewPoly := AImportConfig.TemplateNewPoly;
+  VMarksList := TInterfaceList.Create;
+  for i := 0 to ADataItemList.Count - 1 do begin
+    VMark := nil;
+    VItem := ADataItemList.GetItem(i);
+    if Supports(VItem, IVectorDataItemPoint, VPoint) then begin
+      if VTemplateNewPoint <> nil then begin
+        VMark :=
+          VFactory.CreateNewPoint(
+            VPoint.Point,
+            VPoint.Name,
+            VPoint.Desc,
+            VTemplateNewPoint
+          );
+      end;
+    end else if Supports(VItem, IVectorDataItemLine, VLine) then begin
+      if VTemplateNewLine <> nil then begin
+        VMark :=
+          VFactory.CreateNewLine(
+            VLine.Line,
+            VLine.Name,
+            VLine.Desc,
+            VTemplateNewLine
+          );
+      end;
+    end else if Supports(VItem, IVectorDataItemPoly, VPoly) then begin
+      if VTemplateNewPoly <> nil then begin
+        VMark :=
+          VFactory.CreateNewPoly(
+            VPoly.Line,
+            VPoly.Name,
+            VPoly.Desc,
+            VTemplateNewPoly
+          );
+      end;
+    end;
+    if VMark <> nil then begin
+      VMarksList.Add(VMark);
+    end;
+  end;
+  if VMarksList.Count > 0 then begin
+    Result := FMarksDb.UpdateMarksList(nil, VMarksList);
   end;
 end;
 
