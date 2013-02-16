@@ -35,7 +35,7 @@ type
   TImportKML = class(TBaseInterfacedObject, IImportFile)
   private
     FVectorDataFactory: IVectorDataFactory;
-    FKmlLoader: IVectorDataLoader;
+    FLoader: IVectorDataLoader;
   private
     function ProcessImport(
       const AMarksSystem: IMarksSystem;
@@ -45,7 +45,7 @@ type
   public
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory;
-      const AKmlLoader: IVectorDataLoader
+      const ALoader: IVectorDataLoader
     );
   end;
 
@@ -60,12 +60,12 @@ uses
 
 constructor TImportKML.Create(
   const AVectorDataFactory: IVectorDataFactory;
-  const AKmlLoader: IVectorDataLoader
+  const ALoader: IVectorDataLoader
 );
 begin
   inherited Create;
   FVectorDataFactory := AVectorDataFactory;
-  FKmlLoader := AKmlLoader;
+  FLoader := ALoader;
 end;
 
 function TImportKML.ProcessImport(
@@ -80,7 +80,7 @@ begin
   Result := nil;
   VStream := TFileStream.Create(AFileName, fmOpenRead);
   try
-    KML := FKmlLoader.LoadFromStream(VStream, nil, FVectorDataFactory);
+    KML := FLoader.LoadFromStream(VStream, nil, FVectorDataFactory);
     if Assigned(KML) then begin
       Result := AMarksSystem.ImportItemsList(KML, AConfig);
     end;
