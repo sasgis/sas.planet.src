@@ -27,6 +27,7 @@ uses
   i_VectorItemsFactory,
   i_ImportFile,
   i_ImportConfig,
+  i_MarksSystem,
   u_BaseInterfacedObject;
 
 type
@@ -35,6 +36,7 @@ type
     FFactory: IVectorItemsFactory;
   private
     function ProcessImport(
+      const AMarksSystem: IMarksSystem;
       const AFileName: string;
       const AConfig: IImportConfig
     ): IInterfaceList;
@@ -64,6 +66,7 @@ begin
 end;
 
 function TImportHLG.ProcessImport(
+  const AMarksSystem: IMarksSystem;
   const AFileName: string;
   const AConfig: IImportConfig
 ): IInterfaceList;
@@ -89,14 +92,14 @@ begin
     end;
     if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
       VMark :=
-        AConfig.MarkDB.Factory.CreateNewPoly(
+        AMarksSystem.MarksDb.Factory.CreateNewPoly(
           VPolygon,
           ExtractFileName(AFileName),
           '',
           AConfig.TemplateNewPoly
         );
       if VMark <> nil then begin
-        VMark := AConfig.MarkDB.UpdateMark(nil, VMark);
+        VMark := AMarksSystem.MarksDb.UpdateMark(nil, VMark);
         if VMark <> nil then begin
           Result := TInterfaceList.Create;
           Result.Add(VMark);

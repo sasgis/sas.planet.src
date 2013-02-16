@@ -29,6 +29,7 @@ uses
   i_DoublePointsAggregator,
   i_ImportFile,
   i_ImportConfig,
+  i_MarksSystem,
   u_BaseInterfacedObject;
 
 type
@@ -41,6 +42,7 @@ type
     );
   private
     function ProcessImport(
+      const AMarksSystem: IMarksSystem;
       const AFileName: string;
       const AConfig: IImportConfig
     ): IInterfaceList;
@@ -116,6 +118,7 @@ begin
 end;
 
 function TImportMpSimple.ProcessImport(
+  const AMarksSystem: IMarksSystem;
   const AFileName: string;
   const AConfig: IImportConfig
 ): IInterfaceList;
@@ -162,14 +165,14 @@ begin
       FreeAndNil(VFile);
     end;
     if VPointsAggregator.Count > 2 then begin
-      VMark := AConfig.MarkDB.Factory.CreateNewPoly(
+      VMark := AMarksSystem.MarksDb.Factory.CreateNewPoly(
         FFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count),
         ExtractFileName(AFileName),
         '',
         AConfig.TemplateNewPoly
       );
       if VMark <> nil then begin
-        VMark := AConfig.MarkDB.UpdateMark(nil, VMark);
+        VMark := AMarksSystem.MarksDb.UpdateMark(nil, VMark);
         if VMark <> nil then begin
           Result := TInterfaceList.Create;
           Result.Add(VMark);

@@ -5793,7 +5793,8 @@ var
   VLonLat:TDoublePoint;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VMark: IMark;
+  VMarksList: IVectorDataItemList;
+  VImportConfig: IImportConfig;
 begin
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
   VConverter := VLocalConverter.GetGeoConverter;
@@ -5804,19 +5805,25 @@ begin
   VMapRect := VLocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-  VMark := ImportFromArcGIS(
-    FMarkDBGUI,
+  VImportConfig := FMarkDBGUI.EditModalImportConfig;
+  if (nil=VImportConfig) then
+    Exit;
+  if (nil=VImportConfig.TemplateNewPoly) then
+    Exit;
+
+  VMarksList := ImportFromArcGIS(
     GState.Config.InetConfig,
-    VConverter,
+    GState.CoordConverterFactory,
     GState.VectorItemsFactory,
+    GState.VectorDataFactory,
     VLonLatRect,
     VLonLat,
     VZoom,
-    map.Width,
-    map.Height
+    VLocalConverter.GetLocalRectSize
   );
-  if (VMark<>nil) then begin
-    // show new mark
+  // import all marks
+  if Assigned(VMarksList) then begin
+    FMarkDBGUI.MarksDb.ImportItemsList(VMarksList, VImportConfig);
   end;
 end;
 

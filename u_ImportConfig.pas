@@ -31,18 +31,15 @@ uses
 type
   TImportConfig = class(TBaseInterfacedObject, IImportConfig)
   private
-    FMarkDB: IMarksDb;
     FTemplateNewPoint: IMarkTemplatePoint;
     FTemplateNewLine: IMarkTemplateLine;
     FTemplateNewPoly: IMarkTemplatePoly;
   private
-    function GetMarkDB: IMarksDb;
     function GetTemplateNewPoint: IMarkTemplatePoint;
     function GetTemplateNewLine: IMarkTemplateLine;
     function GetTemplateNewPoly: IMarkTemplatePoly;
   public
     constructor Create(
-      const AMarkDB: IMarksDb;
       const ATemplateNewPoint: IMarkTemplatePoint;
       const ATemplateNewLine: IMarkTemplateLine;
       const ATemplateNewPoly: IMarkTemplatePoly
@@ -54,22 +51,15 @@ implementation
 { TImportConfig }
 
 constructor TImportConfig.Create(
-  const AMarkDB: IMarksDb;
   const ATemplateNewPoint: IMarkTemplatePoint;
   const ATemplateNewLine: IMarkTemplateLine;
   const ATemplateNewPoly: IMarkTemplatePoly
 );
 begin
   inherited Create;
-  FMarkDB := AMarkDB;
   FTemplateNewPoint := ATemplateNewPoint;
   FTemplateNewLine := ATemplateNewLine;
   FTemplateNewPoly := ATemplateNewPoly;
-end;
-
-function TImportConfig.GetMarkDB: IMarksDb;
-begin
-  Result := FMarkDB;
 end;
 
 function TImportConfig.GetTemplateNewLine: IMarkTemplateLine;

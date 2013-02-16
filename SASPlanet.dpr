@@ -668,7 +668,6 @@ uses
   i_ImportConfig in 'i_ImportConfig.pas',
   u_ImportConfig in 'u_ImportConfig.pas',
   i_ImportFile in 'i_ImportFile.pas',
-  u_MarksImportBase in 'u_MarksImportBase.pas',
   u_ImportKML in 'u_ImportKML.pas',
   u_ImportHLG in 'u_ImportHLG.pas',
   u_ImportCSV in 'u_ImportCSV.pas',

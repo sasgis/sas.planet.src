@@ -29,6 +29,7 @@ uses
   i_VectorDataFactory,
   i_VectorDataLoader,
   i_ImportConfig,
+  i_MarksSystem,
   u_BaseInterfacedObject;
 
 type
@@ -44,6 +45,7 @@ type
     FImportSLS: IImportFile;
   private
     function ProcessImport(
+      const AMarksSystem: IMarksSystem;
       const AFileName: string;
       const AConfig: IImportConfig
     ): IInterfaceList;
@@ -91,6 +93,7 @@ begin
 end;
 
 function TImportByFileExt.ProcessImport(
+  const AMarksSystem: IMarksSystem;
   const AFileName: string;
   const AConfig: IImportConfig
 ): IInterfaceList;
@@ -100,21 +103,21 @@ begin
   Result := nil;
   VExtLwr := LowerCase(ExtractFileExt(AFileName));
   if ('.gpx' = VExtLwr) then begin
-    Result := FImportGPX.ProcessImport(AFileName, AConfig);
+    Result := FImportGPX.ProcessImport(AMarksSystem, AFileName, AConfig);
   end else if ('.kml' = VExtLwr) then begin
-    Result := FImportKML.ProcessImport(AFileName, AConfig);
+    Result := FImportKML.ProcessImport(AMarksSystem, AFileName, AConfig);
   end else if ('.kmz' = VExtLwr) then begin
-    Result := FImportKMZ.ProcessImport(AFileName, AConfig);
+    Result := FImportKMZ.ProcessImport(AMarksSystem, AFileName, AConfig);
   end else if ('.plt' = VExtLwr) then begin
-    Result := FImportPLT.ProcessImport(AFileName, AConfig);
+    Result := FImportPLT.ProcessImport(AMarksSystem, AFileName, AConfig);
   end else if ('.csv' = VExtLwr) then begin
-    Result := FImportCSV.ProcessImport(AFileName, AConfig);
+    Result := FImportCSV.ProcessImport(AMarksSystem, AFileName, AConfig);
   end else if ('.hlg' = VExtLwr) then begin
-    Result := FImportHLG.ProcessImport(AFileName, AConfig);
+    Result := FImportHLG.ProcessImport(AMarksSystem, AFileName, AConfig);
   end else if ('.mp' = VExtLwr) then begin
-    Result := FImportMP.ProcessImport(AFileName, AConfig);
+    Result := FImportMP.ProcessImport(AMarksSystem, AFileName, AConfig);
   end else if ('.sls' = VExtLwr) then begin
-    Result := FImportSLS.ProcessImport(AFileName, AConfig);
+    Result := FImportSLS.ProcessImport(AMarksSystem, AFileName, AConfig);
   end;
 end;
 

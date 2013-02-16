@@ -30,6 +30,7 @@ uses
   i_DoublePointsAggregator,
   i_ImportFile,
   i_ImportConfig,
+  i_MarksSystem,
   u_BaseInterfacedObject;
 
 type
@@ -38,6 +39,7 @@ type
     FFactory: IVectorItemsFactory;
   private
     function ProcessImport(
+      const AMarksSystem: IMarksSystem;
       const AFileName: string;
       const AConfig: IImportConfig
     ): IInterfaceList;
@@ -66,6 +68,7 @@ begin
 end;
 
 function TImportCSV.ProcessImport(
+  const AMarksSystem: IMarksSystem;
   const AFileName: string;
   const AConfig: IImportConfig
 ): IInterfaceList;
@@ -283,7 +286,7 @@ function TImportCSV.ProcessImport(
       if (nil=AConfig.TemplateNewPoint) then
         Exit;
       // make
-      VMark := AConfig.MarkDB.Factory.CreateNewPoint(
+      VMark := AMarksSystem.MarksDb.Factory.CreateNewPoint(
         APointsAggregator.Points[0],
         VPointName,
         VPointDesc,
@@ -294,7 +297,7 @@ function TImportCSV.ProcessImport(
       if (nil=AConfig.TemplateNewPoly) then
         Exit;
       // make
-      VMark := AConfig.MarkDB.Factory.CreateNewPoly(
+      VMark := AMarksSystem.MarksDb.Factory.CreateNewPoly(
         FFactory.CreateLonLatPolygon(APointsAggregator.Points, APointsAggregator.Count),
         VPointName,
         VPointDesc,
@@ -305,7 +308,7 @@ function TImportCSV.ProcessImport(
       if (nil=AConfig.TemplateNewLine) then
         Exit;
       // make
-      VMark := AConfig.MarkDB.Factory.CreateNewLine(
+      VMark := AMarksSystem.MarksDb.Factory.CreateNewLine(
         FFactory.CreateLonLatPath(APointsAggregator.Points, APointsAggregator.Count),
         VPointName,
         VPointDesc,
@@ -384,7 +387,7 @@ function TImportCSV.ProcessImport(
     _AppendStr(VPointDesc, '<br>', '"IMPORTED FROM": "' + AFilePath + '"');
 
     // make simple point
-    VMark := AConfig.MarkDB.Factory.CreateNewPoint(ACoords, VPointName, VPointDesc, AConfig.TemplateNewPoint);
+    VMark := AMarksSystem.MarksDb.Factory.CreateNewPoint(ACoords, VPointName, VPointDesc, AConfig.TemplateNewPoint);
     if (VMark <> nil) then begin
       // add mark to array
       AAllNewMarks.Add(VMark);
@@ -601,8 +604,8 @@ begin
 
   if Assigned(VAllNewMarks) then
   if (VAllNewMarks.Count>0) then
-  if (nil<>AConfig.MarkDB) then begin
-    Result := AConfig.MarkDB.UpdateMarksList(nil, VAllNewMarks);
+  if (nil<>AMarksSystem) then begin
+    Result := AMarksSystem.MarksDb.UpdateMarksList(nil, VAllNewMarks);
   end;
 end;
 

@@ -27,17 +27,21 @@ uses
   i_VectorDataLoader,
   i_VectorDataFactory,
   i_ImportConfig,
-  u_MarksImportBase;
+  i_ImportFile,
+  i_MarksSystem,
+  u_BaseInterfacedObject;
 
 type
-  TImportKML = class(TMarksImportBase)
+  TImportKML = class(TBaseInterfacedObject, IImportFile)
   private
+    FVectorDataFactory: IVectorDataFactory;
     FKmlLoader: IVectorDataLoader;
-  protected
-    function DoImport(
+  private
+    function ProcessImport(
+      const AMarksSystem: IMarksSystem;
       const AFileName: string;
       const AConfig: IImportConfig
-    ): IInterfaceList; override;
+    ): IInterfaceList;
   public
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory;
@@ -59,66 +63,26 @@ constructor TImportKML.Create(
   const AKmlLoader: IVectorDataLoader
 );
 begin
-  inherited Create(AVectorDataFactory);
+  inherited Create;
+  FVectorDataFactory := AVectorDataFactory;
   FKmlLoader := AKmlLoader;
 end;
 
-function TImportKML.DoImport(
+function TImportKML.ProcessImport(
+  const AMarksSystem: IMarksSystem;
   const AFileName: string;
   const AConfig: IImportConfig
 ): IInterfaceList;
 var
   KML: IVectorDataItemList;
-  VMark: IMark;
-  VItem: IVectorDataItemSimple;
-  VItemPoint: IVectorDataItemPoint;
-  VItemLine: IVectorDataItemLine;
-  VItemPoly: IVectorDataItemPoly;
-  i: Integer;
   VStream: TFileStream;
 begin
-  Result := TInterfaceList.Create;
+  Result := nil;
   VStream := TFileStream.Create(AFileName, fmOpenRead);
   try
-    KML := FKmlLoader.LoadFromStream(VStream, nil, VectorDataFactory);
+    KML := FKmlLoader.LoadFromStream(VStream, nil, FVectorDataFactory);
     if Assigned(KML) then begin
-      if (0 < KML.Count) then begin
-        for i := 0 to KML.Count - 1 do begin
-          VMark := nil;
-          VItem := KML.GetItem(i);
-          if Supports(VItem, IVectorDataItemPoint, VItemPoint) then begin
-            if AConfig.TemplateNewPoint <> nil then begin
-              VMark := AConfig.MarkDB.Factory.CreateNewPoint(
-                VItemPoint.Point,
-                VItemPoint.Name,
-                VItemPoint.Desc,
-                AConfig.TemplateNewPoint
-              );
-            end;
-          end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
-            if AConfig.TemplateNewPoly <> nil then begin
-              VMark := AConfig.MarkDB.Factory.CreateNewPoly(
-                VItemPoly.Line,
-                VItemPoly.Name,
-                VItemPoly.Desc,
-                AConfig.TemplateNewPoly
-              );
-            end;
-          end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
-            if AConfig.TemplateNewLine <> nil then begin
-              VMark := AConfig.MarkDB.Factory.CreateNewLine(
-                VItemLine.Line,
-                VItemLine.Name,
-                VItemLine.Desc,
-                AConfig.TemplateNewLine
-              );
-            end;
-          end;
-          if VMark <> nil then begin
-            Result.Add(VMark);
-          end;
-        end;
-      end;
+      Result := AMarksSystem.ImportItemsList(KML, AConfig);
     end;
   finally
     VStream.Free;

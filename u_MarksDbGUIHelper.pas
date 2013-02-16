@@ -508,7 +508,7 @@ begin
     if not Assigned(AImportConfig) then
       AImportConfig := EditModalImportConfig;
     if Assigned(AImportConfig) then begin
-      Result:= FImportFileByExt.ProcessImport(AFileNameToImport, AImportConfig);
+      Result:= FImportFileByExt.ProcessImport(FMarksDb, AFileNameToImport, AImportConfig);
     end;
   end;
 end;

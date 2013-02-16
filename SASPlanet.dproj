@@ -941,6 +941,7 @@
     <DCCReference Include="u_ImportByFileExt.pas" />
     <DCCReference Include="u_ImportConfig.pas" />
     <DCCReference Include="u_ImportCSV.pas" />
+    <DCCReference Include="u_ImportFromArcGIS.pas" />
     <DCCReference Include="u_ImportHLG.pas" />
     <DCCReference Include="u_ImportKML.pas" />
     <DCCReference Include="u_ImportMpSimple.pas" />
@@ -1063,7 +1064,6 @@
     <DCCReference Include="u_MarksDbGUIHelper.pas" />
     <DCCReference Include="u_MarksDrawConfig.pas" />
     <DCCReference Include="u_MarksDrawConfigStatic.pas" />
-    <DCCReference Include="u_MarksImportBase.pas" />
     <DCCReference Include="u_MarksLayerConfig.pas" />
     <DCCReference Include="u_MemTileCache.pas" />
     <DCCReference Include="u_MenuGeneratorByStaticTreeSimple.pas" />

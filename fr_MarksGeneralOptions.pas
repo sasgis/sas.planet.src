@@ -270,7 +270,6 @@ begin
   end;
   Result :=
     TImportConfig.Create(
-      FMarksDb,
       VMarkTemplatePoint,
       VMarkTemplateLine,
       VMarkTemplatePoly
