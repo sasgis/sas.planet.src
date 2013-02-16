@@ -160,7 +160,7 @@ begin
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      AVectorItemsFactory,
+      TKmlInfoSimpleParser.Create(AVectorItemsFactory, nil),
       FArchiveReadWriteFactory,
       ALoadPerfCounterList
     )

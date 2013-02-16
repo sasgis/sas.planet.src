@@ -50,7 +50,6 @@ type
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FAllowMultiParts: Boolean;
     FFormat: TFormatSettings;
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   private
     procedure Internal_ParseXML_UserProc(
       const pUserAuxPointer: Pointer;
@@ -77,10 +76,8 @@ type
     constructor Create(
       const AFactory: IVectorItemsFactory;
       const AAllowMultiParts: Boolean;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -155,31 +152,17 @@ end;
 constructor TXmlInfoSimpleParser.Create(
   const AFactory: IVectorItemsFactory;
   const AAllowMultiParts: Boolean;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
-var
-  VCounterName: String;
 begin
   inherited Create;
   FFactory := AFactory;
   FAllowMultiParts := AAllowMultiParts;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 
-  if Assigned(FArchiveReadWriteFactory) then begin
-    VCounterName := 'LoadXmlZipStream';
-  end else begin
-    VCounterName := 'LoadXmlStream';
+  if APerfCounterList <> nil then begin
+    FLoadXmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadXmlStream');
   end;
-
-  FLoadXmlStreamCounter := APerfCounterList.CreateAndAddNewCounter(VCounterName);
   VSAGPS_PrepareFormatSettings(FFormat);
-end;
-
-destructor TXmlInfoSimpleParser.Destroy;
-begin
-  FLoadXmlStreamCounter := nil;
-  inherited;
 end;
 
 function TXmlInfoSimpleParser.Internal_LoadFromStream_Original(
@@ -699,56 +682,18 @@ function TXmlInfoSimpleParser.LoadFromStream(
 ): IVectorDataItemList;
 var
   VCounterContext: TInternalPerformanceCounterContext;
-  // for unzip
-  I: Integer;
-  VZip: IArchiveReader;
-  VItemsCount: Integer;
-  VMemStream: TMemoryStream;
-  VStreamKml: TStream;
-  VIndex: Integer;
-  VData: IBinaryData;
-  VFileName: string;
 begin
   Result := nil;
-  VCounterContext := FLoadXmlStreamCounter.StartOperation;
-  try
-    if Assigned(FArchiveReadWriteFactory) then begin
-      // read from archive
-      VMemStream := TMemoryStream.Create;
-      try
-        VMemStream.LoadFromStream(AStream);
-        VMemStream.Position := 0;
-        VZip := FArchiveReadWriteFactory.CreateZipReaderByStream(VMemStream);
-        VItemsCount := VZip.GetItemsCount;
-        if VItemsCount > 0 then begin
-          VData := VZip.GetItemByName('doc.kml');
-          if VData = nil then begin
-            VIndex := 0;
-            for I := 0 to VItemsCount - 1 do begin
-              if ExtractFileExt(VZip.GetItemNameByIndex(I)) = '.kml' then begin
-                VIndex := I;
-                Break;
-              end;
-            end;
-            VData := VZip.GetItemByIndex(VIndex, VFileName);
-          end;
-          VStreamKml := TStreamReadOnlyByBinaryData.Create(VData);
-          try
-            Result := Internal_LoadFromStream_Original(VStreamKml, AIdData, AFactory);
-          finally
-            VStreamKml.Free;
-          end;
-        end;
-      finally
-        FreeAndNil(VMemStream);
-      end;
-
-    end else begin
+  if FLoadXmlStreamCounter <> nil then begin
+    VCounterContext := FLoadXmlStreamCounter.StartOperation;
+    try
       // read from single simple source
       Result := Internal_LoadFromStream_Original(AStream, AIdData, AFactory);
+    finally
+      FLoadXmlStreamCounter.FinishOperation(VCounterContext);
     end;
-  finally
-    FLoadXmlStreamCounter.FinishOperation(VCounterContext);
+  end else begin
+    Result := Internal_LoadFromStream_Original(AStream, AIdData, AFactory);
   end;
 end;
 

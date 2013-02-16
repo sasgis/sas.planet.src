@@ -248,6 +248,8 @@ uses
   u_MarksSystem,
   u_MapCalibrationListBasic,
   u_XmlInfoSimpleParser,
+  u_KmzInfoSimpleParser,
+  u_KmlInfoSimpleParser,
   u_CoordConverterFactorySimple,
   u_CoordConverterListStaticSimple,
   u_DownloadInfoSimple,
@@ -452,15 +454,13 @@ begin
     TXmlInfoSimpleParser.Create(
       FVectorItemsFactory,
       False,
-      nil,
       VMarksKmlLoadCounterList
     );
 {$if defined(VSAGPS_ALLOW_IMPORT_KML)}
   VKmlLoader := VXmlLoader;
   VKmzLoader :=
-    TXmlInfoSimpleParser.Create(
-      FVectorItemsFactory,
-      False,
+    TKmzInfoSimpleParser.Create(
+      TXmlInfoSimpleParser.Create(FVectorItemsFactory, False, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
@@ -472,7 +472,7 @@ begin
     );
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      FVectorItemsFactory,
+      TKmlInfoSimpleParser.Create(FVectorItemsFactory, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
