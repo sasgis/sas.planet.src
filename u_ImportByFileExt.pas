@@ -65,6 +65,9 @@ implementation
 uses
   SysUtils,
   u_ImportByVectorLoader,
+  u_SlsParser,
+  u_HlgParser,
+  u_MpSimpleParser,
   u_ImportHLG,
   u_ImportCSV,
   u_ImportSLS,
@@ -87,9 +90,9 @@ begin
   FImportKMZ := TImportByVectorLoader.Create(AVectorDataFactory, AKmzLoader);
   FImportPLT := TImportByVectorLoader.Create(AVectorDataFactory, APltLoader);
   FImportCSV := TImportCSV.Create(AFactory);
-  FImportHLG := TImportHLG.Create(AFactory);
-  FImportMP := TImportMpSimple.Create(AFactory);
-  FImportSLS := TImportSLS.Create(AFactory);
+  FImportHLG := TImportByVectorLoader.Create(AVectorDataFactory, THlgParser.Create(AFactory));
+  FImportMP := TImportByVectorLoader.Create(AVectorDataFactory, TMpSimpleParser.Create(AFactory));
+  FImportSLS := TImportByVectorLoader.Create(AVectorDataFactory, TSlsParser.Create(AFactory));
 end;
 
 function TImportByFileExt.ProcessImport(
