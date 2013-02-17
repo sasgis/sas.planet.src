@@ -68,10 +68,7 @@ uses
   u_SlsParser,
   u_HlgParser,
   u_MpSimpleParser,
-  u_ImportHLG,
-  u_ImportCSV,
-  u_ImportSLS,
-  u_ImportMpSimple;
+  u_CsvParser;
 
 { TImportByFileExt }
 
@@ -89,7 +86,7 @@ begin
   FImportKML := TImportByVectorLoader.Create(AVectorDataFactory, AKmlLoader);
   FImportKMZ := TImportByVectorLoader.Create(AVectorDataFactory, AKmzLoader);
   FImportPLT := TImportByVectorLoader.Create(AVectorDataFactory, APltLoader);
-  FImportCSV := TImportCSV.Create(AFactory);
+  FImportCSV := TImportByVectorLoader.Create(AVectorDataFactory, TCsvParser.Create(AFactory));
   FImportHLG := TImportByVectorLoader.Create(AVectorDataFactory, THlgParser.Create(AFactory));
   FImportMP := TImportByVectorLoader.Create(AVectorDataFactory, TMpSimpleParser.Create(AFactory));
   FImportSLS := TImportByVectorLoader.Create(AVectorDataFactory, TSlsParser.Create(AFactory));
