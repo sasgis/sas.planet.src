@@ -346,6 +346,7 @@ uses
   u_HlgParser in 'VectorLoaders\u_HlgParser.pas',
   u_SlsParser in 'VectorLoaders\u_SlsParser.pas',
   u_MpSimpleParser in 'VectorLoaders\u_MpSimpleParser.pas',
+  u_CsvParser in 'VectorLoaders\u_CsvParser.pas',
   u_MultiPoligonParser in 'u_MultiPoligonParser.pas',
   u_ImportFromArcGIS in 'u_ImportFromArcGIS.pas',
   u_ECWWrite in 'u_ECWWrite.pas',
