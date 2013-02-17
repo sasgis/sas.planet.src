@@ -46,11 +46,6 @@ type
       const AFactory: IVectorDataFactory
     ): IVectorDataItemList;
   private
-    function LoadFromStream(
-      AStream: TStream;
-      const AIdData: Pointer;
-      const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
@@ -107,31 +102,6 @@ begin
       Result := LoadFromStreamInternal(VStream, AIdData, AFactory);
     finally
       VStream.Free;
-    end;
-  finally
-    FLoadKmzStreamCounter.FinishOperation(VCounterContext);
-  end;
-end;
-
-function TKmzInfoSimpleParser.LoadFromStream(
-  AStream: TStream;
-  const AIdData: Pointer;
-  const AFactory: IVectorDataFactory
-): IVectorDataItemList;
-var
-  VMemStream: TMemoryStream;
-  VCounterContext: TInternalPerformanceCounterContext;
-begin
-  Result := nil;
-  VCounterContext := FLoadKmzStreamCounter.StartOperation;
-  try
-    VMemStream := TMemoryStream.Create;
-    try
-      VMemStream.LoadFromStream(AStream);
-      VMemStream.Position := 0;
-      Result := LoadFromStreamInternal(VMemStream, AIdData, AFactory);
-    finally
-      FreeAndNil(VMemStream);
     end;
   finally
     FLoadKmzStreamCounter.FinishOperation(VCounterContext);

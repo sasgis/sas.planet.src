@@ -54,7 +54,9 @@ implementation
 uses
   SysUtils,
   i_MarksSimple,
-  i_VectorDataItemSimple;
+  i_BinaryData,
+  i_VectorDataItemSimple,
+  u_BinaryDataByMemStream;
 
 { TImportByVectorLoader }
 
@@ -74,18 +76,22 @@ function TImportByVectorLoader.ProcessImport(
   const AConfig: IImportConfig
 ): IInterfaceList;
 var
-  KML: IVectorDataItemList;
-  VStream: TFileStream;
+  VMemStream: TMemoryStream;
+  VData: IBinaryData;
+  VVectorData: IVectorDataItemList;
 begin
   Result := nil;
-  VStream := TFileStream.Create(AFileName, fmOpenRead);
+  VMemStream := TMemoryStream.Create;
   try
-    KML := FLoader.LoadFromStream(VStream, nil, FVectorDataFactory);
-    if Assigned(KML) then begin
-      Result := AMarksSystem.ImportItemsList(KML, AConfig);
+    VMemStream.LoadFromFile(AFileName);
+    VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+    VMemStream := nil;
+    VVectorData := FLoader.Load(VData, nil, FVectorDataFactory);
+    if Assigned(VVectorData) then begin
+      Result := AMarksSystem.ImportItemsList(VVectorData, AConfig);
     end;
   finally
-    VStream.Free;
+    VMemStream.Free;
   end;
 end;
 
