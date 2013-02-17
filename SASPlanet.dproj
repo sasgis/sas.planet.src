@@ -962,9 +962,7 @@
     <DCCReference Include="u_InvisibleBrowserByFormSynchronize.pas" />
     <DCCReference Include="u_KeyMovingConfig.pas" />
     <DCCReference Include="u_KeyMovingHandler.pas" />
-    <DCCReference Include="u_KmlInfoSimpleParser.pas" />
     <DCCReference Include="u_KmlLayerConfig.pas" />
-    <DCCReference Include="u_KmzInfoSimpleParser.pas" />
     <DCCReference Include="u_LanguageListStatic.pas" />
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
@@ -1090,7 +1088,6 @@
     <DCCReference Include="u_PathDetalizeProviderListSimple.pas" />
     <DCCReference Include="u_PathDetalizeProviderMailRu.pas" />
     <DCCReference Include="u_PathDetalizeProviderYourNavigation.pas" />
-    <DCCReference Include="u_PLTSimpleParser.pas" />
     <DCCReference Include="u_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="u_PointOnMapEdit.pas" />
     <DCCReference Include="u_PointsSetLayerConfig.pas" />
@@ -1221,10 +1218,13 @@
     <DCCReference Include="u_VectorItemProjected.pas" />
     <DCCReference Include="u_VectorItemsFactorySimple.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />
-    <DCCReference Include="u_XmlInfoSimpleParser.pas" />
     <DCCReference Include="u_ZmpConfig.pas" />
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
     <DCCReference Include="u_ZmpInfo.pas" />
     <DCCReference Include="u_ZmpInfoSet.pas" />
+    <DCCReference Include="VectorLoaders\u_KmlInfoSimpleParser.pas" />
+    <DCCReference Include="VectorLoaders\u_KmzInfoSimpleParser.pas" />
+    <DCCReference Include="VectorLoaders\u_PLTSimpleParser.pas" />
+    <DCCReference Include="VectorLoaders\u_XmlInfoSimpleParser.pas" />
   </ItemGroup>
 </Project>
