@@ -36,7 +36,8 @@ type
 
     function ImportItemsList(
       const ADataItemList: IVectorDataItemList;
-      const AImportConfig: IImportConfig
+      const AImportConfig: IImportConfig;
+      const ANamePrefix: string
     ): IInterfaceList;
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceList;

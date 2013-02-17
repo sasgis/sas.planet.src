@@ -77,7 +77,8 @@ type
 
     function ImportItemsList(
       const ADataItemList: IVectorDataItemList;
-      const AImportConfig: IImportConfig
+      const AImportConfig: IImportConfig;
+      const ANamePrefix: string
     ): IInterfaceList;
 
     function MarksSubsetToStaticTree(const ASubset: IMarksSubset): IStaticTreeItem;
@@ -352,7 +353,8 @@ end;
 
 function TMarksSystem.ImportItemsList(
   const ADataItemList: IVectorDataItemList;
-  const AImportConfig: IImportConfig
+  const AImportConfig: IImportConfig;
+  const ANamePrefix: string
 ): IInterfaceList;
 var
   VItem: IVectorDataItemSimple;
@@ -366,6 +368,7 @@ var
   VTemplateNewLine: IMarkTemplateLine;
   VTemplateNewPoly: IMarkTemplatePoly;
   VMarksList: IInterfaceList;
+  VName: string;
 begin
   Result := nil;
   VFactory := FMarksDb.Factory;
@@ -376,12 +379,20 @@ begin
   for i := 0 to ADataItemList.Count - 1 do begin
     VMark := nil;
     VItem := ADataItemList.GetItem(i);
+    VName := VItem.Name;
+    if (VName = '') and (ANamePrefix <> '') then begin
+      if ADataItemList.Count > 1 then begin
+        VName := ANamePrefix + '-' + IntToStr(i + 1);
+      end else begin
+        VName := ANamePrefix;
+      end;
+    end;
     if Supports(VItem, IVectorDataItemPoint, VPoint) then begin
       if VTemplateNewPoint <> nil then begin
         VMark :=
           VFactory.CreateNewPoint(
             VPoint.Point,
-            VPoint.Name,
+            VName,
             VPoint.Desc,
             VTemplateNewPoint
           );
@@ -391,7 +402,7 @@ begin
         VMark :=
           VFactory.CreateNewLine(
             VLine.Line,
-            VLine.Name,
+            VName,
             VLine.Desc,
             VTemplateNewLine
           );
@@ -401,7 +412,7 @@ begin
         VMark :=
           VFactory.CreateNewPoly(
             VPoly.Line,
-            VPoly.Name,
+            VName,
             VPoly.Desc,
             VTemplateNewPoly
           );

@@ -88,7 +88,7 @@ begin
     VMemStream := nil;
     VVectorData := FLoader.Load(VData, nil, FVectorDataFactory);
     if Assigned(VVectorData) then begin
-      Result := AMarksSystem.ImportItemsList(VVectorData, AConfig);
+      Result := AMarksSystem.ImportItemsList(VVectorData, AConfig, ExtractFileName(AFileName));
     end;
   finally
     VMemStream.Free;

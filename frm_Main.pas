@@ -5823,7 +5823,7 @@ begin
   );
   // import all marks
   if Assigned(VMarksList) then begin
-    FMarkDBGUI.MarksDb.ImportItemsList(VMarksList, VImportConfig);
+    FMarkDBGUI.MarksDb.ImportItemsList(VMarksList, VImportConfig, '');
   end;
 end;
 
