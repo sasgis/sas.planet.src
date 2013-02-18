@@ -76,7 +76,7 @@ implementation
 uses
   SysUtils,
   Math,
-  Classes, gpc;
+  gpc;
 
 const
   //  онстанта дл€ преобразовани€ градусов в радианы
