@@ -40,7 +40,7 @@ type
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
-    function SphericalTriangleSquare(points: array of TDoublePoint): Double;
+    function SphericalTriangleSquare(const ATriangle: array of TDoublePoint): Double;
     function CalcPoligonArea(
       const APoints: PDoublePointArray;
       const ACount: Integer
@@ -75,10 +75,12 @@ implementation
 
 uses
   SysUtils,
-  Math;
+  Math,
+  Classes, gpc;
 
 const
-  D2R: Double = 0.017453292519943295769236907684886;// Константа для преобразования градусов в радианы
+  // Константа для преобразования градусов в радианы
+  D2R: Double = 0.017453292519943295769236907684886;
 
 { TDatum }
 
@@ -111,147 +113,82 @@ begin
   Result := CalcDist(AStart, AFinish, VInitialBearing, VFinalBearing);
 end;
 
-function TDatum.SphericalTriangleSquare(points: array of TDoublePoint): Double;
+function TDatum.SphericalTriangleSquare(const ATriangle: array of TDoublePoint): Double;
 var
-  x, y, z: array [0..2] of double;
-  a12, a23, a13, s, eps: double;
-  i: integer;
+  I: Integer;
+  VRadX, VRadY: Double;
+  x, y, z: array [0..2] of Double;
+  a12, a23, a13, s, eps: Double;
 begin
-  for i := 0 to 2 do begin
-    points[i].Y := Pi / 2 - points[i].Y * D2R;
-    points[i].X := Pi + points[i].X * D2R;
-    x[i] := Sin(points[i].Y) * Cos(points[i].X);
-    y[i] := Sin(points[i].Y) * Sin(points[i].X);
-    z[i] := Cos(points[i].Y);
+  for I := 0 to 2 do begin
+    VRadY := Pi / 2 - ATriangle[I].Y * D2R;
+    VRadX := Pi + ATriangle[I].X * D2R;
+    x[I] := Sin(VRadY) * Cos(VRadX);
+    y[I] := Sin(VRadY) * Sin(VRadX);
+    z[I] := Cos(VRadY);
   end;
-  a12 := ArcCos(1 - (Sqr(x[0] - x[1]) + Sqr(y[0] - y[1]) + Sqr(z[0] - z[1])) / 2);   //Стороны сферического треугольника
+  // Стороны сферического треугольника
+  a12 := ArcCos(1 - (Sqr(x[0] - x[1]) + Sqr(y[0] - y[1]) + Sqr(z[0] - z[1])) / 2);
   a23 := ArcCos(1 - (Sqr(x[1] - x[2]) + Sqr(y[1] - y[2]) + Sqr(z[1] - z[2])) / 2);
   a13 := ArcCos(1 - (Sqr(x[0] - x[2]) + Sqr(y[0] - y[2]) + Sqr(z[0] - z[2])) / 2);
   s := (a12 + a23 + a13) / 2;
   s := Tan(s / 2) * Tan((s - a12) / 2) * Tan((s - a23) / 2) * Tan((s - a13) / 2);
   if s >= 0 then begin
-    eps := 4 * ArcTan(Sqrt(s));  //сферический эксцесс
+    // Cферический эксцесс
+    eps := 4 * ArcTan(Sqrt(s));
   end else begin
     eps := 0;
   end;
-  Result := Sqr(FRadiusA) * eps;  //Площадь
+  Result := Sqr(FRadiusA) * eps;
 end;
 
 function TDatum.CalcPoligonArea(
   const APoints: PDoublePointArray;
   const ACount: Integer
 ): Double;
-
-  function Orientation(
-  const APoints: PDoublePointArray;
-  const ACount: Integer
-  ): Boolean;
-  var
-    i: integer;
-    s: double;
-  begin
-    s := 0;
-    for i := 0 to ACount-2 do begin
-      s := s + (APoints[(i + 1)].x - APoints[i].x) * (APoints[(i + 1)].y + APoints[i].y);
-    end;
-    // for (ACount-1)
-    s := s + (APoints[0].x - APoints[(ACount-1)].x) * (APoints[0].y + APoints[(ACount-1)].y);
-    result := (s <= 0); // (-s/2)
-  end;
-
-  function Det(const point1, point2, point3: TDoublePoint): Boolean;
-  begin
-    Result := ((point2.X - point1.X) * (point3.Y - point1.Y) >= (point2.Y - point1.Y) * (point3.X - point1.X)); // s/2
-  end;
-
-  function InTriangle(const point, point1, point2, point3: TDoublePoint): Boolean;
-  var
-    a, b: Boolean;
-  begin
-    a := Det(point, point1, point2);
-    b := Det(point, point2, point3);
-    Result := (a=b);
-    if Result then begin
-      b := Det(point, point3, point1);
-      Result := (a=b);
-    end;
-  end;
-
 var
-  Node: TDoublePoint;
-  p: array [0..2] of TDoublePoint;  //вершины треугольника
-  pn: array [0..2] of integer;
-  NodeN: integer;
-  PointsNum: integer;
-  VOrient: Boolean;
-  inPoint: Boolean;
-  s: double;
-  i: integer;
-  VPointsA: Array of Boolean;
-  ErrNum: integer;
+  I, J: Integer;
+  VPolygon: Tgpc_polygon;
+  VTriStrip: Tgpc_tristrip;
+  VVertexList: Tgpc_vertex_list;
+  VTriangle: array [0..2] of TDoublePoint;
 begin
-  s := 0;
-  if ACount < 3 then begin
-    result := s;
-    exit;
-  end;
-  VOrient := Orientation(APoints, ACount); //ориентация многоугольника
-  PointsNum := ACount;
-  ErrNum := 0;
-  SetLength(VPointsA, ACount);
-  For NodeN := 0 to ACount - 1 do begin
-    VPointsA[NodeN] := True;
-  end;
-  for i := 0 to 2 do begin
-    pn[i] := i;
-    p[i] := APoints[i];
-  end;
-  while (PointsNum > 3) and (ErrNum <= ACount) do begin
-    if Det(p[0], p[1], p[2]) = VOrient then begin//Проверка ориентации треугольника
-      inPoint := false;
-      NodeN := (pn[2] + 1);
-      if (NodeN=ACount) then
-        NodeN := 0;
-      Node := APoints[Noden];
-      while NodeN <> pn[0] do begin
-        if (VPointsA[NodeN]) and (InTriangle(Node, p[0], p[1], p[2])) then begin
-          inPoint := true;  // Проверка не попала ли вершина в отсекаемый треугольник
+  Result := 0;
+
+  VPolygon.num_contours := 0;
+  VPolygon.hole := nil;
+  VPolygon.contour := nil;
+
+  VVertexList.num_vertices := ACount;
+  VVertexList.vertex := Pgpc_vertex_array(APoints);
+
+  gpc_add_contour(@VPolygon, @VVertexList, 0);
+  try
+    VTriStrip.num_strips := 0;
+    VTriStrip.strip := nil;
+
+    gpc_polygon_to_tristrip(@VPolygon, @VTriStrip);
+    try
+      for I := 0 to VTriStrip.num_strips - 1 do begin
+        VVertexList := VTriStrip.strip[I];
+        for J := 0 to VVertexList.num_vertices - 2 - 1 do begin
+          VTriangle[0].X := VVertexList.vertex[J].x;
+          VTriangle[0].Y := VVertexList.vertex[J].Y;
+
+          VTriangle[1].X := VVertexList.vertex[J+1].x;
+          VTriangle[1].Y := VVertexList.vertex[J+1].y;
+
+          VTriangle[2].X := VVertexList.vertex[J+2].x;
+          VTriangle[2].Y := VVertexList.vertex[J+2].y;
+
+          Result :=  Result + SphericalTriangleSquare(VTriangle);
         end;
-        Inc(NodeN);
-        if (NodeN=ACount) then
-          NodeN := 0;
-        Node := APoints[NodeN];
       end;
-    end else begin
-      inPoint := true;
+    finally
+      gpc_free_tristrip(@VTriStrip);
     end;
-    if (not InPoint) then begin
-      s := s + SphericalTriangleSquare(p);
-      VPointsA[pn[1]] := False;    //Удаление вершины из рассмотрения
-      dec(PointsNum);
-      ErrNum := 0;
-    end else begin
-      pn[0] := pn[1];          //  Переход к следущему треугольнику
-      p[0] := APoints[pn[0]];
-      inc(ErrNum);
-    end;
-    pn[1] := pn[2];  //  Переход к следущему треугольнику
-    p[1] := APoints[pn[1]];
-    Inc(pn[2]);
-    if (pn[2]=ACount) then
-      pn[2] := 0;
-    while (not VPointsA[pn[2]]) and (pn[2] <> pn[0]) do begin
-      Inc(pn[2]);
-      if (pn[2]=ACount) then
-        pn[2] := 0;
-    end;
-    p[2] := APoints[pn[2]];
-  end;
-  if ErrNum <= ACount then begin
-    s := s + SphericalTriangleSquare(p);
-    result := s;
-  end else begin
-    result := NAN;
+  finally
+    gpc_free_polygon(@VPolygon);
   end;
 end;
 
