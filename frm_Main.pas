@@ -2558,14 +2558,14 @@ end;
 procedure TfrmMain.OnClickMapItem(Sender: TObject);
 var
   VSender: TComponent;
-  VAtiveMap: IActiveMapSingle;
+  VActiveMap: IActiveMapSingle;
   VMapType: IMapType;
 begin
   if Sender is TComponent then begin
     VSender := TComponent(Sender);
-    VAtiveMap := IActiveMapSingle(VSender.Tag);
-    if VAtiveMap <> nil then begin
-      VMapType := VAtiveMap.GetMapType;
+    VActiveMap := IActiveMapSingle(VSender.Tag);
+    if VActiveMap <> nil then begin
+      VMapType := VActiveMap.GetMapType;
       if VMapType <> nil then begin
         FConfig.MainMapsConfig.SelectMainByGUID(VMapType.GUID);
       end;
