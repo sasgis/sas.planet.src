@@ -124,14 +124,11 @@ var
   VRadX, VRadY, VSinRadY: Double;
   x, y, z: array [0..2] of Double;
   a12, a23, a13, s, n: Double;
-
 begin
   Result := 0;
-
   VPolygon.num_contours := 0;
   VPolygon.hole := nil;
-  VPolygon.contour := nil;
-
+  VPolygon.contour := nil;    
   VVertexList.num_vertices := ACount;
   VVertexList.vertex := Pgpc_vertex_array(APoints);
   // инициализируем полигон нашими точками
