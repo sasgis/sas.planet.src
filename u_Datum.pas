@@ -40,7 +40,6 @@ type
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
-    function SphericalTriangleSquare(const ATriangle: array of TDoublePoint): Double;
     function CalcPoligonArea(
       const APoints: PDoublePointArray;
       const ACount: Integer
@@ -113,45 +112,19 @@ begin
   Result := CalcDist(AStart, AFinish, VInitialBearing, VFinalBearing);
 end;
 
-function TDatum.SphericalTriangleSquare(const ATriangle: array of TDoublePoint): Double;
-var
-  I: Integer;
-  VRadX, VRadY: Double;
-  x, y, z: array [0..2] of Double;
-  a12, a23, a13, s, eps: Double;
-begin
-  for I := 0 to 2 do begin
-    VRadY := Pi / 2 - ATriangle[I].Y * D2R;
-    VRadX := Pi + ATriangle[I].X * D2R;
-    x[I] := Sin(VRadY) * Cos(VRadX);
-    y[I] := Sin(VRadY) * Sin(VRadX);
-    z[I] := Cos(VRadY);
-  end;
-  // Стороны сферического треугольника
-  a12 := ArcCos(1 - (Sqr(x[0] - x[1]) + Sqr(y[0] - y[1]) + Sqr(z[0] - z[1])) / 2);
-  a23 := ArcCos(1 - (Sqr(x[1] - x[2]) + Sqr(y[1] - y[2]) + Sqr(z[1] - z[2])) / 2);
-  a13 := ArcCos(1 - (Sqr(x[0] - x[2]) + Sqr(y[0] - y[2]) + Sqr(z[0] - z[2])) / 2);
-  s := (a12 + a23 + a13) / 2;
-  s := Tan(s / 2) * Tan((s - a12) / 2) * Tan((s - a23) / 2) * Tan((s - a13) / 2);
-  if s >= 0 then begin
-    // Cферический эксцесс
-    eps := 4 * ArcTan(Sqrt(s));
-  end else begin
-    eps := 0;
-  end;
-  Result := Sqr(FRadiusA) * eps;
-end;
-
 function TDatum.CalcPoligonArea(
   const APoints: PDoublePointArray;
   const ACount: Integer
 ): Double;
 var
-  I, J: Integer;
+  I, J, K: Integer;
   VPolygon: Tgpc_polygon;
   VTriStrip: Tgpc_tristrip;
   VVertexList: Tgpc_vertex_list;
-  VTriangle: array [0..2] of TDoublePoint;
+  VRadX, VRadY, VSinRadY: Double;
+  x, y, z: array [0..2] of Double;
+  a12, a23, a13, s, n: Double;
+
 begin
   Result := 0;
 
@@ -161,27 +134,36 @@ begin
 
   VVertexList.num_vertices := ACount;
   VVertexList.vertex := Pgpc_vertex_array(APoints);
-
+  // инициализируем полигон нашими точками
   gpc_add_contour(@VPolygon, @VVertexList, 0);
   try
     VTriStrip.num_strips := 0;
     VTriStrip.strip := nil;
-
+    // разбиваем полигон на треугольники
     gpc_polygon_to_tristrip(@VPolygon, @VTriStrip);
     try
+      n := 4 * Sqr(FRadiusA);
       for I := 0 to VTriStrip.num_strips - 1 do begin
         VVertexList := VTriStrip.strip[I];
         for J := 0 to VVertexList.num_vertices - 2 - 1 do begin
-          VTriangle[0].X := VVertexList.vertex[J].x;
-          VTriangle[0].Y := VVertexList.vertex[J].Y;
-
-          VTriangle[1].X := VVertexList.vertex[J+1].x;
-          VTriangle[1].Y := VVertexList.vertex[J+1].y;
-
-          VTriangle[2].X := VVertexList.vertex[J+2].x;
-          VTriangle[2].Y := VVertexList.vertex[J+2].y;
-
-          Result :=  Result + SphericalTriangleSquare(VTriangle);
+          // считаем площадь на сфере для каждого треугольника
+          for K := 0 to 2 do begin
+            VRadY := Pi / 2 - VVertexList.vertex[J+K].Y * D2R;
+            VRadX := Pi + VVertexList.vertex[J+K].X * D2R;
+            VSinRadY := Sin(VRadY);
+            x[K] := VSinRadY * Cos(VRadX);
+            y[K] := VSinRadY * Sin(VRadX);
+            z[K] := Cos(VRadY);
+          end;
+          // стороны сферического треугольника
+          a12 := ArcCos(1 - (Sqr(x[0] - x[1]) + Sqr(y[0] - y[1]) + Sqr(z[0] - z[1])) / 2);
+          a23 := ArcCos(1 - (Sqr(x[1] - x[2]) + Sqr(y[1] - y[2]) + Sqr(z[1] - z[2])) / 2);
+          a13 := ArcCos(1 - (Sqr(x[0] - x[2]) + Sqr(y[0] - y[2]) + Sqr(z[0] - z[2])) / 2);
+          s := (a12 + a23 + a13) / 2;
+          s := Tan(s / 2) * Tan((s - a12) / 2) * Tan((s - a23) / 2) * Tan((s - a13) / 2); 
+          if s >= 0 then begin
+            Result := Result + n * ArcTan(Sqrt(s));
+          end;
         end;
       end;
     finally
