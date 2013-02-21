@@ -742,6 +742,7 @@ uses
   i_PathDetalizeProvider,
   i_StringListChangeable,
   i_RegionProcessProgressInfoInternalFactory,
+  u_Datum,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
   u_GeoFun,
@@ -823,6 +824,7 @@ uses
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
+  frm_MarkInfo,
   frm_StartLogo,
   frm_LonLatRectEdit;
 
@@ -6437,10 +6439,20 @@ end;
 procedure TfrmMain.tbitmMarkInfoClick(Sender: TObject);
 var
   VMark: IMark;
+  VfrmMarkInfo: TfrmMarkInfo;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemInfoSuffix);
+    VfrmMarkInfo := TfrmMarkInfo.Create(
+      GState.Config.LanguageManager,
+      GState.Config.ValueToStringConverterConfig,
+      TDatum.Create(3395, 6378137, 6356752)
+    );
+    try
+      VfrmMarkInfo.ShowInfoModal(VMark);
+    finally
+      FreeAndNil(VfrmMarkInfo);
+    end;
   end;
 end;
 

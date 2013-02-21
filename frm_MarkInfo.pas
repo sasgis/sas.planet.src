@@ -28,9 +28,10 @@ type
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;
+    procedure OnAreaCalc(const APoly: IMarkPoly; const AArea: Double);
     function GetTextForPoint(const AMark: IMarkPoint): string;
     function GetTextForPath(const AMark: IMarkLine): string;
-    function GetTextForPoly(const AMark: IMarkPoly): string;
+    function GetTextForPoly(const AMark: IMarkPoly; const AArea: Double = -1): string;
   public
     procedure ShowInfoModal(const AMark: IMark);
   public
@@ -47,6 +48,45 @@ uses
   gnugettext;
 
 {$R *.dfm}
+
+type
+  TOnAreaCalc = procedure(const APoly: IMarkPoly; const AArea: Double) of object;
+
+  TCalcAreaThread = class(TThread)
+  private
+    FPoly: IMarkPoly;
+    FDatum: IDatum;
+    FArea: Double;
+    FOnFinish: TOnAreaCalc;
+    procedure OnFinishSync;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(const APoly: IMarkPoly; const ADatum: IDatum; const AOnFinish: TOnAreaCalc);
+  end;
+
+{ TCalcAreaThread }
+
+constructor TCalcAreaThread.Create(const APoly: IMarkPoly; const ADatum: IDatum; const AOnFinish: TOnAreaCalc);
+begin
+  FPoly := APoly;
+  FDatum := ADatum;
+  FArea := 0;
+  FOnFinish := AOnFinish;
+  inherited Create(False);
+  FreeOnTerminate := True;
+end;
+
+procedure TCalcAreaThread.OnFinishSync;
+begin
+  FOnFinish(FPoly, FArea);
+end;
+
+procedure TCalcAreaThread.Execute;
+begin
+  FArea := FPoly.Line.CalcArea(FDatum);
+  Synchronize(OnFinishSync);
+end;
 
 { TfrmMarkInfo }
 
@@ -109,10 +149,9 @@ begin
   Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
-function TfrmMarkInfo.GetTextForPoly(const AMark: IMarkPoly): string;
+function TfrmMarkInfo.GetTextForPoly(const AMark: IMarkPoly; const AArea: Double = -1): string;
 var
   VLength: Double;
-  VArea: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
   i: Integer;
@@ -125,7 +164,6 @@ begin
     Inc(VPointsCount, AMark.Line.Item[i].Count);
   end;
   VLength := AMark.Line.CalcPerimeter(FDatum);
-  VArea := AMark.Line.CalcArea(FDatum);
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
@@ -137,8 +175,17 @@ begin
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
   Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
-  Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + #13#10;
+  if AArea <> -1 then begin
+    Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(AArea)]) + #13#10;
+  end else begin
+    Result := Result + Format(_('Area: %s'), ['calc...']) + #13#10;
+  end;
   Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
+end;
+
+procedure TfrmMarkInfo.OnAreaCalc(const APoly: IMarkPoly; const AArea: Double);
+begin
+  mmoInfo.Lines.Text := GetTextForPoly(APoly, AArea);
 end;
 
 procedure TfrmMarkInfo.ShowInfoModal(const AMark: IMark);
@@ -154,6 +201,7 @@ begin
     VText := GetTextForPath(VMarkLine);
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     VText := GetTextForPoly(VMarkPoly);
+    TCalcAreaThread.Create(VMarkPoly, FDatum, Self.OnAreaCalc);
   end else begin
     VText := 'Unknown mark type';
   end;
