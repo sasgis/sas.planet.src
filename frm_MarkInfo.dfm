@@ -1,9 +1,10 @@
 object frmMarkInfo: TfrmMarkInfo
   Left = 0
   Top = 0
+  BorderStyle = bsSizeToolWin
   Caption = 'Mark Info'
-  ClientHeight = 270
-  ClientWidth = 343
+  ClientHeight = 333
+  ClientWidth = 401
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,36 +14,46 @@ object frmMarkInfo: TfrmMarkInfo
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
+  object splDesc: TSplitter
+    Left = 0
+    Top = 94
+    Width = 401
+    Height = 4
+    Cursor = crVSplit
+    Align = alTop
+  end
   object mmoInfo: TMemo
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 337
-    Height = 234
-    Align = alClient
+    Left = 0
+    Top = 0
+    Width = 401
+    Height = 94
+    Align = alTop
     ReadOnly = True
     TabOrder = 0
+    ExplicitTop = 8
   end
-  object pnlBottom: TPanel
+  object embdwbDesc: TEmbeddedWB
     Left = 0
-    Top = 240
-    Width = 343
-    Height = 30
-    Align = alBottom
-    BevelOuter = bvNone
+    Top = 98
+    Width = 401
+    Height = 235
+    Align = alClient
     TabOrder = 1
-    object btnClose: TButton
-      AlignWithMargins = True
-      Left = 265
-      Top = 3
-      Width = 75
-      Height = 24
-      Align = alRight
-      Cancel = True
-      Caption = 'Close'
-      Default = True
-      ModalResult = 1
-      TabOrder = 0
-    end
+    Silent = False
+    DisableCtrlShortcuts = 'N'
+    UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
+    About = ' EmbeddedWB http://bsalsa.com/'
+    PrintOptions.HTMLHeader.Strings = (
+      '<HTML></HTML>')
+    PrintOptions.Orientation = poPortrait
+    ExplicitLeft = 72
+    ExplicitTop = 128
+    ExplicitHeight = 181
+    ControlData = {
+      4C000000722900004A1800000000000000000000000000000000000000000000
+      000000004C000000000000000000000001000000E0D057007335CF11AE690800
+      2B2E126208000000000000004C0000000114020000000000C000000000000046
+      8000000000000000000000000000000000000000000000000000000000000000
+      00000000000000000100000000000000000000000000000000000000}
   end
 end

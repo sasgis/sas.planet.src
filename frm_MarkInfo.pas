@@ -14,6 +14,10 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  OleCtrls,
+  SHDocVw_EWB,
+  EwbCore,
+  EmbeddedWB,
   i_LanguageManager,
   i_Datum,
   i_ValueToStringConverter,
@@ -23,8 +27,8 @@ uses
 type
   TfrmMarkInfo = class(TFormWitghLanguageManager)
     mmoInfo: TMemo;
-    pnlBottom: TPanel;
-    btnClose: TButton;
+    embdwbDesc: TEmbeddedWB;
+    splDesc: TSplitter;
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;
@@ -45,7 +49,8 @@ type
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  c_InternalBrowser;
 
 {$R *.dfm}
 
@@ -96,6 +101,7 @@ constructor TfrmMarkInfo.Create(
   const ADatum: IDatum
 );
 begin
+  TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'StatusText');
   Assert(AValueToStringConverterConfig <> nil);
   Assert(ADatum <> nil);
   inherited Create(ALanguageManager);
@@ -129,7 +135,6 @@ begin
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
   Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
-  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
 function TfrmMarkInfo.GetTextForPoint(const AMark: IMarkPoint): string;
@@ -146,7 +151,6 @@ begin
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
   Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point)]) + #13#10;
-  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
 function TfrmMarkInfo.GetTextForPoly(const AMark: IMarkPoly; const AArea: Double = -1): string;
@@ -180,7 +184,6 @@ begin
   end else begin
     Result := Result + Format(_('Area: %s'), ['calc...']) + #13#10;
   end;
-  Result := Result + Format(_('Description:'#13#10'%s'), [AMark.Desc]) + #13#10;
 end;
 
 procedure TfrmMarkInfo.OnAreaCalc(const APoly: IMarkPoly; const AArea: Double);
@@ -206,6 +209,9 @@ begin
     VText := 'Unknown mark type';
   end;
   mmoInfo.Lines.Text := VText;
+  if (AMark.GetInfoUrl <> '') and (AMark.Desc <> '') then begin
+    embdwbDesc.NavigateWait(AMark.GetInfoUrl + CVectorItemInfoSuffix);
+  end;
   Self.ShowModal;
 end;
 

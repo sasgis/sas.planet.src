@@ -655,16 +655,11 @@ begin
   VTextProviderList := TStringList.Create;
   VTextProviderList.Sorted := True;
   VTextProviderList.Duplicates := dupError;
-  VTextProivder :=
-    TTextByVectorItemMarkInfo.Create(
-      FGlobalConfig.ValueToStringConverterConfig,
-      TDatum.Create(3395, 6378137, 6356752)
-    );
+  VTextProivder := TTextByVectorItemHTMLByDescription.Create;
 
   VTextProviderList.AddObject(CVectorItemInfoSuffix, Pointer(VTextProivder));
   VTextProivder._AddRef;
 
-  VTextProivder := TTextByVectorItemHTMLByDescription.Create;
   VTextProviderList.AddObject(CVectorItemDescriptionSuffix, Pointer(VTextProivder));
   VTextProivder._AddRef;
 
