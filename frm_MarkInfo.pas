@@ -115,7 +115,11 @@ procedure TCalcAreaThread.Execute;
 begin
   SetCurrentThreadName(Self.ClassName);
   FArea := FPoly.Line.CalcArea(FDatum, FCancelNotifier, FOperationID);
-  Synchronize(OnFinishSync);
+  if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+    Terminate;
+  end else begin
+    Synchronize(OnFinishSync);
+  end;
 end;
 
 { TfrmMarkInfo }
@@ -213,7 +217,7 @@ begin
   if AArea <> -1 then begin
     Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(AArea)]) + #13#10;
   end else begin
-    Result := Result + Format(_('Area: %s'), ['calc...']) + #13#10;
+    Result := Result + Format(_('Area: %s'), [_('calc...')]) + #13#10;
   end;
 end;
 
@@ -248,6 +252,8 @@ begin
   mmoInfo.Lines.Text := VText;
   if (AMark.GetInfoUrl <> '') and (AMark.Desc <> '') then begin
     embdwbDesc.NavigateWait(AMark.GetInfoUrl + CVectorItemInfoSuffix);
+  end else begin
+    embdwbDesc.AssignEmptyDocument;
   end;
   Self.ShowModal;
 end;

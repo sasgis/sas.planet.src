@@ -37,7 +37,7 @@ type
     FExct: Double;
     FFlattening: Double;
   private
-    function GetEPSG: integer; stdcall;
+    function GetEPSG: Integer; stdcall;
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
@@ -63,12 +63,12 @@ type
     ): TDoublePoint;
   public
     constructor Create(
-      AEPSG: Integer;
+      const AEPSG: Integer;
       const ARadiusA: Double;
       const ARadiusB: Double
     ); overload;
     constructor Create(
-      AEPSG: Integer;
+      const AEPSG: Integer;
       const ARadiusA: Double
     ); overload;
   end;
@@ -87,7 +87,7 @@ const
 { TDatum }
 
 constructor TDatum.Create(
-  AEPSG: Integer;
+  const AEPSG: Integer;
   const ARadiusA, ARadiusB: Double
 );
 begin
@@ -100,7 +100,7 @@ begin
 end;
 
 constructor TDatum.Create(
-  AEPSG: Integer;
+  const AEPSG: Integer;
   const ARadiusA: Double
 );
 begin
@@ -143,7 +143,7 @@ begin
   try
     VTriStrip.num_strips := 0;
     VTriStrip.strip := nil;
-    // разбиваем полигон на треугольники
+    // разбиваем полигон на треугольники - потенциально длительная, неотменяемая операция
     gpc_polygon_to_tristrip(@VPolygon, @VTriStrip);
     try
       VCount := 0;
@@ -169,11 +169,13 @@ begin
           s := Tan(s / 2) * Tan((s - a12) / 2) * Tan((s - a23) / 2) * Tan((s - a13) / 2); 
           if s >= 0 then begin
             Result := Result + n * ArcTan(Sqrt(s));
+          end else begin
+            // вырожденный треугольник -> площадь равна нулю
           end;
           Inc(VCount);
           if VDoAbortCheck and (VCount mod 32 = 0) then begin
             if ANotifier.IsOperationCanceled(AOperationID) then begin
-              Result := 0;
+              Result := NAN;
               Exit;
             end;
           end;
