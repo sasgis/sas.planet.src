@@ -90,7 +90,6 @@ uses
   i_PlayerPlugin,
   u_ShortcutManager,
   u_MarksDbGUIHelper,
-  frm_MarkInfo,
   frm_About,
   frm_Settings,
   frm_MapLayersOptions,
@@ -615,7 +614,6 @@ type
     FSensorViewList: IGUIDInterfaceSet;
     FFormRegionProcess: TfrmRegionProcess;
     FRegionProcess: IRegionProcess;
-    FfrmMarkInfo: TfrmMarkInfo;
     FfrmGoTo: TfrmGoTo;
     FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
@@ -743,8 +741,7 @@ uses
   i_GPSRecorder,
   i_PathDetalizeProvider,
   i_StringListChangeable,
-  i_RegionProcessProgressInfoInternalFactory,
-  u_Datum,
+  i_RegionProcessProgressInfoInternalFactory,   
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
   u_GeoFun,
@@ -935,12 +932,6 @@ begin
     FConfig.LayersConfig.StatBar,
     GState.Config.TerrainConfig,
     GState.TerrainProviderList
-  );
-
-  FfrmMarkInfo := TfrmMarkInfo.Create(
-    GState.Config.LanguageManager,
-    GState.Config.ValueToStringConverterConfig,
-    TDatum.Create(3395, 6378137, 6356752)
   );
 
   FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.Config.LanguageManager);
@@ -2311,7 +2302,6 @@ begin
   FreeAndNil(FfrmMarksExplorer);
   FreeAndNil(FFormRegionProcess);
   FreeAndNil(FMarkDBGUI);
-  FreeAndNil(FfrmMarkInfo);
   inherited;
 end;
 
@@ -6450,7 +6440,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    FfrmMarkInfo.ShowInfoModal(VMark);
+    FMarkDBGUI.ShowMarkInfo(VMark);
   end;
 end;
 
