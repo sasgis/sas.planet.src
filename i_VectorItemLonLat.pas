@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  i_NotifierOperation,
   i_EnumDoublePoint,
   i_LonLatRect,
   i_Datum;
@@ -35,7 +36,11 @@ type
     property Bounds: ILonLatRect read GetBounds;
 
     function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(const ADatum: IDatum): Double;
+    function CalcArea(
+      const ADatum: IDatum;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -70,7 +75,11 @@ type
     property Bounds: ILonLatRect read GetBounds;
 
     function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(const ADatum: IDatum): Double;
+    function CalcArea(
+      const ADatum: IDatum;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;

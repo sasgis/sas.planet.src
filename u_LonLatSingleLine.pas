@@ -7,6 +7,7 @@ uses
   i_EnumDoublePoint,
   i_LonLatRect,
   i_Datum,
+  i_NotifierOperation,
   i_VectorItemLonLat,
   u_BaseInterfacedObject;
 
@@ -47,7 +48,11 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const ALine: ILonLatPolygonLine): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(const ADatum: IDatum): Double;
+    function CalcArea(
+      const ADatum: IDatum;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
   public
     constructor Create(
       const ABounds: ILonLatRect;
@@ -165,12 +170,16 @@ end;
 
 { TLonLatPolygonLine }
 
-function TLonLatPolygonLine.CalcArea(const ADatum: IDatum): Double;
+function TLonLatPolygonLine.CalcArea(
+  const ADatum: IDatum;
+  const ANotifier: INotifierOperation = nil;
+  const AOperationID: Integer = 0
+): Double;
 begin
   if FCount < 3 then begin
     Result := 0;
   end else begin
-    Result := ADatum.CalcPoligonArea(@FPoints[0], FCount);
+    Result := ADatum.CalcPolygonArea(@FPoints[0], FCount, ANotifier, AOperationID);
   end;
 end;
 

@@ -18,6 +18,7 @@ uses
   SHDocVw_EWB,
   EwbCore,
   EmbeddedWB,
+  i_NotifierOperation,
   i_LanguageManager,
   i_Datum,
   i_ValueToStringConverter,
@@ -29,7 +30,9 @@ type
     mmoInfo: TMemo;
     embdwbDesc: TEmbeddedWB;
     splDesc: TSplitter;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
+    FCancelNotifier: INotifierOperationInternal;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;
     procedure OnAreaCalc(const APoly: IMarkPoly; const AArea: Double);
@@ -50,7 +53,10 @@ implementation
 
 uses
   gnugettext,
-  c_InternalBrowser;
+  c_InternalBrowser,
+  u_Notifier,
+  u_NotifierOperation,
+  u_ReadableThreadNames;
 
 {$R *.dfm}
 
@@ -63,33 +69,52 @@ type
     FDatum: IDatum;
     FArea: Double;
     FOnFinish: TOnAreaCalc;
+    FOperationID: Cardinal;
+    FCancelNotifier: INotifierOperation;
     procedure OnFinishSync;
   protected
     procedure Execute; override;
   public
-    constructor Create(const APoly: IMarkPoly; const ADatum: IDatum; const AOnFinish: TOnAreaCalc);
+    constructor Create(
+      const APoly: IMarkPoly;
+      const ADatum: IDatum;
+      const ACancelNotifier: INotifierOperation;
+      const AOperationID: Cardinal;
+      const AOnFinish: TOnAreaCalc
+    );
   end;
 
 { TCalcAreaThread }
 
-constructor TCalcAreaThread.Create(const APoly: IMarkPoly; const ADatum: IDatum; const AOnFinish: TOnAreaCalc);
+constructor TCalcAreaThread.Create(
+  const APoly: IMarkPoly;
+  const ADatum: IDatum;
+  const ACancelNotifier: INotifierOperation;
+  const AOperationID: Cardinal;
+  const AOnFinish: TOnAreaCalc
+);
 begin
   FPoly := APoly;
   FDatum := ADatum;
   FArea := 0;
+  FOperationID := AOperationID;
+  FCancelNotifier := ACancelNotifier;
   FOnFinish := AOnFinish;
-  inherited Create(False);
   FreeOnTerminate := True;
+  inherited Create(False);
 end;
 
 procedure TCalcAreaThread.OnFinishSync;
 begin
-  FOnFinish(FPoly, FArea);
+  if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+    FOnFinish(FPoly, FArea);
+  end;
 end;
 
 procedure TCalcAreaThread.Execute;
 begin
-  FArea := FPoly.Line.CalcArea(FDatum);
+  SetCurrentThreadName(Self.ClassName);
+  FArea := FPoly.Line.CalcArea(FDatum, FCancelNotifier, FOperationID);
   Synchronize(OnFinishSync);
 end;
 
@@ -107,6 +132,12 @@ begin
   inherited Create(ALanguageManager);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FDatum := ADatum;
+  FCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+end;
+
+procedure TfrmMarkInfo.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  FCancelNotifier.NextOperation;
 end;
 
 function TfrmMarkInfo.GetTextForPath(const AMark: IMarkLine): string;
@@ -204,7 +235,13 @@ begin
     VText := GetTextForPath(VMarkLine);
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     VText := GetTextForPoly(VMarkPoly);
-    TCalcAreaThread.Create(VMarkPoly, FDatum, Self.OnAreaCalc);
+    TCalcAreaThread.Create(
+      VMarkPoly,
+      FDatum,
+      FCancelNotifier,
+      FCancelNotifier.CurrentOperation,
+      Self.OnAreaCalc
+    );
   end else begin
     VText := 'Unknown mark type';
   end;

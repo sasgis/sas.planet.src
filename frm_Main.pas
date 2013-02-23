@@ -90,6 +90,7 @@ uses
   i_PlayerPlugin,
   u_ShortcutManager,
   u_MarksDbGUIHelper,
+  frm_MarkInfo,
   frm_About,
   frm_Settings,
   frm_MapLayersOptions,
@@ -614,6 +615,7 @@ type
     FSensorViewList: IGUIDInterfaceSet;
     FFormRegionProcess: TfrmRegionProcess;
     FRegionProcess: IRegionProcess;
+    FfrmMarkInfo: TfrmMarkInfo;
     FfrmGoTo: TfrmGoTo;
     FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
@@ -824,7 +826,6 @@ uses
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
-  frm_MarkInfo,
   frm_StartLogo,
   frm_LonLatRectEdit;
 
@@ -934,6 +935,12 @@ begin
     FConfig.LayersConfig.StatBar,
     GState.Config.TerrainConfig,
     GState.TerrainProviderList
+  );
+
+  FfrmMarkInfo := TfrmMarkInfo.Create(
+    GState.Config.LanguageManager,
+    GState.Config.ValueToStringConverterConfig,
+    TDatum.Create(3395, 6378137, 6356752)
   );
 
   FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.Config.LanguageManager);
@@ -2304,6 +2311,7 @@ begin
   FreeAndNil(FfrmMarksExplorer);
   FreeAndNil(FFormRegionProcess);
   FreeAndNil(FMarkDBGUI);
+  FreeAndNil(FfrmMarkInfo);
   inherited;
 end;
 
@@ -6439,20 +6447,10 @@ end;
 procedure TfrmMain.tbitmMarkInfoClick(Sender: TObject);
 var
   VMark: IMark;
-  VfrmMarkInfo: TfrmMarkInfo;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    VfrmMarkInfo := TfrmMarkInfo.Create(
-      GState.Config.LanguageManager,
-      GState.Config.ValueToStringConverterConfig,
-      TDatum.Create(3395, 6378137, 6356752)
-    );
-    try
-      VfrmMarkInfo.ShowInfoModal(VMark);
-    finally
-      FreeAndNil(VfrmMarkInfo);
-    end;
+    FfrmMarkInfo.ShowInfoModal(VMark);
   end;
 end;
 

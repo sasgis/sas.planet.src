@@ -93,6 +93,7 @@ implementation
 uses
   i_Datum,
   i_LonLatRect,
+  i_NotifierOperation,
   u_GeoFun,
   u_BaseInterfacedObject;
 
@@ -139,7 +140,11 @@ type
     function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function GetBounds: ILonLatRect;
     function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(const ADatum: IDatum): Double;
+    function CalcArea(
+      const ADatum: IDatum;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
@@ -856,9 +861,13 @@ begin
   FLine := ALine;
 end;
 
-function TLonLatPolygonWithSelected.CalcArea(const ADatum: IDatum): Double;
+function TLonLatPolygonWithSelected.CalcArea(
+  const ADatum: IDatum;
+  const ANotifier: INotifierOperation = nil;
+  const AOperationID: Integer = 0
+): Double;
 begin
-  Result := FLine.CalcArea(ADatum);
+  Result := FLine.CalcArea(ADatum, ANotifier, AOperationID);
 end;
 
 function TLonLatPolygonWithSelected.CalcPerimeter(const ADatum: IDatum): Double;

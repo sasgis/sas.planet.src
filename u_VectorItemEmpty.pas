@@ -8,6 +8,7 @@ uses
   i_EnumDoublePoint,
   i_VectorItemLonLat,
   i_Datum,
+  i_NotifierOperation,
   u_BaseInterfacedObject;
 
 type
@@ -19,7 +20,11 @@ type
     function GetItemLonLatPolygonLine(AIndex: Integer): ILonLatPolygonLine;
 
     function GetEnumLonLat: IEnumLonLatPoint;
-    function CalcAreaLonLat(const ADatum: IDatum): Double;
+    function CalcAreaLonLat(
+      const ADatum: IDatum;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
   private
     function GetBounds: ILonLatRect;
     function GetCount: Integer;
@@ -72,7 +77,11 @@ begin
   FEnumLonLat := VEnum;
 end;
 
-function TLineSetEmpty.CalcAreaLonLat(const ADatum: IDatum): Double;
+function TLineSetEmpty.CalcAreaLonLat(
+  const ADatum: IDatum;
+  const ANotifier: INotifierOperation = nil;
+  const AOperationID: Integer = 0
+): Double;
 begin
   Result := 0;
 end;

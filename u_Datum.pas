@@ -25,6 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_Datum,
+  i_NotifierOperation,
   u_BaseInterfacedObject;
 
 type
@@ -40,9 +41,11 @@ type
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;
     function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
-    function CalcPoligonArea(
+    function CalcPolygonArea(
       const APoints: PDoublePointArray;
-      const ACount: Integer
+      const ACount: Integer;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
     ): Double;
     function CalcDist(const AStart, AFinish: TDoublePoint): Double; overload;
 
@@ -112,9 +115,11 @@ begin
   Result := CalcDist(AStart, AFinish, VInitialBearing, VFinalBearing);
 end;
 
-function TDatum.CalcPoligonArea(
+function TDatum.CalcPolygonArea(
   const APoints: PDoublePointArray;
-  const ACount: Integer
+  const ACount: Integer;
+  const ANotifier: INotifierOperation = nil;
+  const AOperationID: Integer = 0
 ): Double;
 var
   I, J, K: Integer;
@@ -124,6 +129,8 @@ var
   VRadX, VRadY, VSinRadY: Double;
   x, y, z: array [0..2] of Double;
   a12, a23, a13, s, n: Double;
+  VCount: Integer;
+  VDoAbortCheck: Boolean;
 begin
   Result := 0;
   VPolygon.num_contours := 0;
@@ -139,6 +146,8 @@ begin
     // разбиваем полигон на треугольники
     gpc_polygon_to_tristrip(@VPolygon, @VTriStrip);
     try
+      VCount := 0;
+      VDoAbortCheck := Assigned(ANotifier);
       n := 4 * Sqr(FRadiusA);
       for I := 0 to VTriStrip.num_strips - 1 do begin
         VVertexList := VTriStrip.strip[I];
@@ -160,6 +169,13 @@ begin
           s := Tan(s / 2) * Tan((s - a12) / 2) * Tan((s - a23) / 2) * Tan((s - a13) / 2); 
           if s >= 0 then begin
             Result := Result + n * ArcTan(Sqrt(s));
+          end;
+          Inc(VCount);
+          if VDoAbortCheck and (VCount mod 32 = 0) then begin
+            if ANotifier.IsOperationCanceled(AOperationID) then begin
+              Result := 0;
+              Exit;
+            end;
           end;
         end;
       end;

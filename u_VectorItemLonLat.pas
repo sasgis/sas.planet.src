@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  i_NotifierOperation,
   i_LonLatRect,
   i_EnumDoublePoint,
   i_Datum,
@@ -38,7 +39,11 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(const ADatum: IDatum): Double;
+    function CalcArea(
+      const ADatum: IDatum;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   end;
 
@@ -66,7 +71,11 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(const ADatum: IDatum): Double;
+    function CalcArea(
+      const ADatum: IDatum;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
     function GetBounds: ILonLatRect;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
@@ -158,13 +167,17 @@ end;
 
 { TLonLatPolygon }
 
-function TLonLatPolygon.CalcArea(const ADatum: IDatum): Double;
+function TLonLatPolygon.CalcArea(
+  const ADatum: IDatum;
+  const ANotifier: INotifierOperation = nil;
+  const AOperationID: Integer = 0
+): Double;
 var
   i: Integer;
 begin
   Result := 0;
   for i := 0 to FList.Count - 1 do begin
-    Result := Result + GetItem(i).CalcArea(ADatum);
+    Result := Result + GetItem(i).CalcArea(ADatum, ANotifier, AOperationID);
   end;
 end;
 
@@ -267,9 +280,13 @@ end;
 
 { TLonLatPolygonOneLine }
 
-function TLonLatPolygonOneLine.CalcArea(const ADatum: IDatum): Double;
+function TLonLatPolygonOneLine.CalcArea(
+  const ADatum: IDatum;
+  const ANotifier: INotifierOperation = nil;
+  const AOperationID: Integer = 0
+): Double;
 begin
-  Result := FLine.CalcArea(ADatum);
+  Result := FLine.CalcArea(ADatum, ANotifier, AOperationID);
 end;
 
 function TLonLatPolygonOneLine.CalcPerimeter(const ADatum: IDatum): Double;

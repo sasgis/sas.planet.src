@@ -23,7 +23,8 @@ unit i_Datum;
 interface
 
 uses
-  t_GeoTypes;
+  t_GeoTypes,
+  i_NotifierOperation;
 
 type
   IDatum = interface
@@ -39,9 +40,11 @@ type
     // Возвращает является ли другой конвертер эквивалентным текущему
     function IsSameDatum(const ADatum: IDatum): Boolean; stdcall;
 
-    function CalcPoligonArea(
+    function CalcPolygonArea(
       const APoints: PDoublePointArray;
-      const ACount: Integer
+      const ACount: Integer;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
     ): Double;
 
     // Возвращает кратчайшее (вдоль геодезической линии) расстояние между двумя
