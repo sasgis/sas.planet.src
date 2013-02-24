@@ -151,6 +151,9 @@ type
     procedure rgMarksShowModeClick(Sender: TObject);
     procedure tbpmnCategoriesPopup(Sender: TObject);
     procedure tbitmMarkInfoClick(Sender: TObject);
+    procedure CategoryTreeViewDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure CategoryTreeViewDragDrop(Sender, Source: TObject; X, Y: Integer);
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
@@ -177,6 +180,7 @@ type
     procedure OnMarkSystemStateChanged;
     procedure UpdateCategoryTree;
     procedure CategoryTreeViewVisible(Node: TTreeNode);
+    function GetNodeCategory(const ANode: TTreeNode): IMarkCategory;
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
@@ -423,12 +427,18 @@ begin
   end;
 end;
 
+function TfrmMarksExplorer.GetNodeCategory(const ANode: TTreeNode): IMarkCategory;
+begin
+  if ANode <> nil then begin
+    Result := IMarkCategory(ANode.Data);
+  end else begin
+    Result := nil;
+  end;
+end;
+
 function TfrmMarksExplorer.GetSelectedCategory: IMarkCategory;
 begin
-  Result := nil;
-  if CategoryTreeView.Selected <> nil then begin
-    Result := IMarkCategory(CategoryTreeView.Selected.Data);
-  end;
+  Result := GetNodeCategory(CategoryTreeView.Selected);
 end;
 
 function TfrmMarksExplorer.GetSelectedMarkFull: IMark;
@@ -735,7 +745,7 @@ var
   VVisible: Boolean;
   VIndex,VLevel,VNum: Integer;
 begin
-  VCategoryOld := IMarkCategory(Node.Data);
+  VCategoryOld := GetNodeCategory(Node);
   if VCategoryOld <> nil then begin
     //  VVisible, VIndex - для визуализации узлов.
     if Node.StateIndex=1 then begin
@@ -762,7 +772,7 @@ begin
       for VNum:=Node.AbsoluteIndex+1 to CategoryTreeView.Items.Count - 1 do
         if CategoryTreeView.Items[VNum].Level>VLevel then begin
           VTreeNode := CategoryTreeView.Items[VNum];
-          VCategoryOld := IMarkCategory(VTreeNode.Data);
+          VCategoryOld := GetNodeCategory(VTreeNode);
           if VCategoryOld <> nil then begin
             VCategoryNew := FMarkDBGUI.MarksDb.CategoryDB.Factory.ModifyVisible(VCategoryOld, VVisible);
             VTreeNode.StateIndex:=VIndex;
@@ -835,6 +845,54 @@ begin
     if VNode <> nil then begin
       CategoryTreeView.Select(VNode);
     end;
+  end;
+end;
+
+procedure TfrmMarksExplorer.CategoryTreeViewDragDrop(
+  Sender, Source: TObject;
+  X, Y: Integer
+);
+var
+  VNode: TTreeNode;
+  VMarkIdList: IInterfaceList;
+  VMarkIdListNew: IInterfaceList;
+  VCategoryNew: ICategory;
+  VMark: IMark;
+  i: Integer;
+begin
+  if (Source<>MarksListBox) then
+    Exit;
+  VNode := CategoryTreeView.GetNodeAt(X, Y);
+  if (VNode<>nil) and (VNode<>CategoryTreeView.Selected) then begin
+    // replace category for all selected marks in selected category
+    VMarkIdList := GetSelectedMarksIdList;
+    if (VMarkIdList<>nil) then begin
+      VCategoryNew := GetNodeCategory(VNode);
+      if VCategoryNew <> nil then begin
+        VMarkIdListNew := TInterfaceList.Create;
+        for i := 0 to VMarkIdList.Count - 1 do begin
+          VMark := FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VMarkIdList.Items[i]));
+          VMarkIdListNew.Add(FMarkDBGUI.MarksDb.MarksDb.Factory.ReplaceCategory(VMark, VCategoryNew));
+        end;
+        FMarkDBGUI.MarksDb.MarksDb.UpdateMarksList(VMarkIdList, VMarkIdListNew);
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMarksExplorer.CategoryTreeViewDragOver(
+  Sender, Source: TObject;
+  X, Y: Integer;
+  State: TDragState;
+  var Accept: Boolean
+);
+var
+  VNode: TTreeNode;
+begin
+  Accept := (Source=MarksListBox);
+  if Accept then begin
+    VNode := CategoryTreeView.GetNodeAt(X, Y);
+    Accept := (VNode<>nil) and (VNode<>CategoryTreeView.Selected);
   end;
 end;
 

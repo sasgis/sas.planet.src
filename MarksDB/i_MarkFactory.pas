@@ -54,6 +54,11 @@ type
       const ATemplate: IMarkTemplatePoly = nil
     ): IMarkPoly;
 
+    function ReplaceCategory(
+      const AMark: IMark;
+      const ACategory: ICategory
+    ): IMark;
+
     function ModifyPoint(
       const ASource: IMarkPoint;
       const AName: string;

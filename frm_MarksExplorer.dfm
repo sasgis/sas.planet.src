@@ -144,7 +144,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Left = 353
             Top = 0
             Width = 4
-            Height = 20
+            Height = 4
             Align = alRight
             TabOrder = 1
           end
@@ -156,6 +156,7 @@ object frmMarksExplorer: TfrmMarksExplorer
           Width = 351
           Height = 337
           Align = alClient
+          DragMode = dmAutomatic
           HideSelection = False
           Indent = 19
           MultiSelect = True
@@ -198,11 +199,10 @@ object frmMarksExplorer: TfrmMarksExplorer
           TabOrder = 0
           OnChange = CategoryTreeViewChange
           OnContextPopup = CategoryTreeViewContextPopup
+          OnDragDrop = CategoryTreeViewDragDrop
+          OnDragOver = CategoryTreeViewDragOver
           OnKeyUp = CategoryTreeViewKeyUp
           OnMouseUp = CategoryTreeViewMouseUp
-          ExplicitLeft = 4
-          ExplicitTop = 49
-          ExplicitHeight = 334
         end
         object TBXDockCategory: TTBXDock
           Left = 2
@@ -284,9 +284,6 @@ object frmMarksExplorer: TfrmMarksExplorer
             Checked = True
             State = cbChecked
             TabOrder = 1
-            ExplicitLeft = 81
-            ExplicitWidth = 168
-            ExplicitHeight = 17
           end
         end
       end
@@ -392,7 +389,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C01010300050080000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300050084000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

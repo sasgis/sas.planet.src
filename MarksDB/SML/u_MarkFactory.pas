@@ -139,6 +139,11 @@ type
       ALineWidth: Integer
     ): IMarkPoly;
 
+    function ReplaceCategory(
+      const AMark: IMark;
+      const ACategory: ICategory
+    ): IMark;
+
     function SimpleModifyPoint(
       const ASource: IMarkPoint;
       const ALonLat: TDoublePoint
@@ -802,6 +807,62 @@ begin
       AFillColor,
       ALineWidth
     );
+end;
+
+function TMarkFactory.ReplaceCategory(
+  const AMark: IMark;
+  const ACategory: ICategory
+): IMark;
+var
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
+begin
+  Result := nil;
+  if AMark = nil then begin
+    Exit;
+  end;
+  if Supports(AMark, IMarkPoint, VMarkPoint) then begin
+    Result :=
+      ModifyPoint(
+        VMarkPoint,
+        VMarkPoint.Name,
+        True,
+        VMarkPoint.Pic,
+        ACategory,
+        VMarkPoint.Desc,
+        VMarkPoint.Point,
+        VMarkPoint.TextColor,
+        VMarkPoint.TextBgColor,
+        VMarkPoint.FontSize,
+        VMarkPoint.MarkerSize
+      );
+  end else if Supports(AMark, IMarkLine, VMarkLine) then begin
+    Result :=
+      ModifyLine(
+        VMarkLine,
+        VMarkLine.Name,
+        True,
+        ACategory,
+        VMarkLine.Desc,
+        VMarkLine.Line,
+        VMarkLine.LineColor,
+        VMarkLine.LineWidth
+      );
+  end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
+    Result :=
+      ModifyPoly(
+        VMarkPoly,
+        VMarkPoly.Name,
+        True,
+        ACategory,
+        VMarkPoly.Desc,
+        VMarkPoly.Line,
+        VMarkPoly.BorderColor,
+        VMarkPoly.FillColor,
+        VMarkPoly.LineWidth
+      );
+  end;
 end;
 
 function TMarkFactory.GetConfig: IMarksFactoryConfig;
