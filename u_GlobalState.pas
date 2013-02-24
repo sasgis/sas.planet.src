@@ -55,6 +55,7 @@ uses
   i_InternalPerformanceCounter,
   i_MarksSystem,
   i_ZmpInfoSet,
+  i_Datum,
   i_PathConfig,
   i_NotifierTime,
   i_Bitmap32StaticFactory,
@@ -119,6 +120,7 @@ type
     FMarkPictureList: IMarkPictureList;
     FGpsSystem: IGPSModule;
     FImportFileByExt: IImportFile;
+    FGPSDatum: IDatum;
     FGPSRecorder: IGPSRecorder;
     FGPSRecorderInternal: IGPSRecorderInternal;
     FGpsTrackRecorder: IGpsTrackRecorder;
@@ -169,6 +171,7 @@ type
     property CacheConfig: IGlobalCacheConfig read FCacheConfig;
     property MarksDb: IMarksSystem read FMarksDb;
     property GpsSystem: IGPSModule read FGpsSystem;
+    property GPSDatum: IDatum read FGPSDatum;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
@@ -417,12 +420,14 @@ begin
   FGlobalConfig.MainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
   OnMainThreadConfigChange;
 
+  FGPSDatum := TDatum.Create(3395, 6378137, 6356752);
+
   VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
 
   FGPSPositionFactory := TGPSPositionFactory.Create;
   FGPSRecorderInternal :=
     TGPSRecorder.Create(
-      TDatum.Create(3395, 6378137, 6356752),
+      FGPSDatum,
       FGlobalConfig.GpsRecorderFileName,
       FGPSPositionFactory.BuildPositionEmpty
     );
