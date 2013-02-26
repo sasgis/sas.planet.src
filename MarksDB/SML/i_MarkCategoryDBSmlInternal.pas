@@ -31,6 +31,7 @@ type
     function SaveCategory2File: boolean;
     procedure LoadCategoriesFromFile;
     function GetCategoryByID(id: integer): IMarkCategory;
+    function GetCategoryByName(const AName: string): IMarkCategory;
   end;
 
 implementation

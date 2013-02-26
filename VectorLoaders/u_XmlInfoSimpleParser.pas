@@ -30,7 +30,7 @@ uses
   i_BinaryData,
   i_VectorDataFactory,
   i_VectorItemsFactory,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_ArchiveReadWriteFactory,
   i_ArchiveReadWrite,
   i_InternalPerformanceCounter,
@@ -60,18 +60,18 @@ type
       AStream: TStream;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   private
     function LoadFromStream(
       AStream: TStream;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   public
     constructor Create(
       const AFactory: IVectorItemsFactory;
@@ -83,8 +83,9 @@ type
 implementation
 
 uses
+  i_VectorDataItemSimple,
   u_StreamReadOnlyByBinaryData,
-  u_VectorDataItemList,
+  u_VectorDataItemSubset,
   u_GeoFun;
 
 type
@@ -169,7 +170,7 @@ function TXmlInfoSimpleParser.Internal_LoadFromStream_Original(
   AStream: TStream;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   tAux: TParseXML_Aux;
 begin
@@ -188,7 +189,7 @@ begin
     VSAGPS_LoadAndParseXML(Self, @tAux, '', AStream, TRUE, @(tAux.opt), rTVSAGPS_ParseXML_UserProc, FFormat);
     // output result
     if Assigned(tAux.list) then begin
-      Result := TVectorDataItemList.Create(tAux.list);
+      Result := TVectorItemSubset.Create(tAux.list);
       tAux.list := nil;
     end;
   finally
@@ -662,7 +663,7 @@ function TXmlInfoSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
@@ -679,7 +680,7 @@ function TXmlInfoSimpleParser.LoadFromStream(
   AStream: TStream;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VCounterContext: TInternalPerformanceCounterContext;
 begin

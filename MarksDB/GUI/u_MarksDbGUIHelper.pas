@@ -36,10 +36,15 @@ uses
   i_VectorItemLonLat,
   i_LocalCoordConverterChangeable,
   i_MarksSimple,
+  i_Category,
   i_MarkCategory,
   i_MarksSystem,
   i_ImportConfig,
   i_ImportFile,
+  i_MarkFactory,
+  i_MarksFactoryConfig,
+  i_MarkPicture,
+  i_HtmlToHintTextConverter,
   frm_MarkCategoryEdit,
   frm_MarkEditPoint,
   frm_MarkEditPath,
@@ -51,6 +56,7 @@ uses
 type
   TMarksDbGUIHelper = class
   private
+    FMarkFactory: IMarkFactory;
     FMarksDb: IMarksSystem;
     FVectorItemsFactory: IVectorItemsFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -89,7 +95,8 @@ type
     );
     function EditMarkModal(
       const AMark: IMark;
-      AIsNewMark: Boolean
+      const AIsNewMark: Boolean;
+      var AVisible: Boolean
     ): IMark;
     function EditCategoryModal(
       const ACategory: IMarkCategory;
@@ -129,10 +136,14 @@ type
 
     property MarksDb: IMarksSystem read FMarksDb;
     property ImportFileByExt: IImportFile read FImportFileByExt;
+    property MarkFactory: IMarkFactory read FMarkFactory;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
+      const AMarkFactoryConfig: IMarksFactoryConfig;
+      const AMarkPictureList: IMarkPictureList;
+      const AHintConverter: IHtmlToHintTextConverter;
       const AMarksDB: IMarksSystem;
       const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -149,11 +160,12 @@ uses
   SysUtils,
   gnugettext,
   i_DoublePointFilter,
+  i_VectorItemSubset,
   u_Datum,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
-//  u_EnumDoublePointCircleByPoint,
   u_ExportMarks2KML,
+  u_MarkFactory,
   u_GeoFun,
   u_GeoToStr;
 
@@ -162,6 +174,9 @@ uses
 constructor TMarksDbGUIHelper.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
+  const AMarkFactoryConfig: IMarksFactoryConfig;
+  const AMarkPictureList: IMarkPictureList;
+  const AHintConverter: IHtmlToHintTextConverter;
   const AMarksDB: IMarksSystem;
   const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -176,12 +191,21 @@ begin
   FVectorItemsFactory := AVectorItemsFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FMarkFactory :=
+    TMarkFactory.Create(
+      AMarkFactoryConfig,
+      AMarkPictureList,
+      AVectorItemsFactory,
+      AHintConverter,
+      AMarksDB
+     );
   FfrmMarkEditPoint :=
     TfrmMarkEditPoint.Create(
       ALanguageManager,
       AMediaPath,
+      FMarkFactory,
       FMarksDb.CategoryDB,
-      FMarksDb.MarksDb,
+      FMarkFactory.MarkPictureList,
       AViewPortState,
       AValueToStringConverterConfig
     );
@@ -189,15 +213,15 @@ begin
     TfrmMarkEditPath.Create(
       ALanguageManager,
       AMediaPath,
-      FMarksDb.CategoryDB,
-      FMarksDb.MarksDb
+      FMarkFactory,
+      FMarksDb.CategoryDB
     );
   FfrmMarkEditPoly :=
     TfrmMarkEditPoly.Create(
       ALanguageManager,
       AMediaPath,
-      FMarksDb.CategoryDB,
-      FMarksDb.MarksDb
+      FMarkFactory,
+      FMarksDb.CategoryDB
     );
   FfrmMarkCategoryEdit :=
     TfrmMarkCategoryEdit.Create(
@@ -207,8 +231,8 @@ begin
   FfrmImportConfigEdit :=
     TfrmImportConfigEdit.Create(
       ALanguageManager,
-      FMarksDb.CategoryDB,
-      FMarksDb.MarksDb
+      FMarkFactory,
+      FMarksDb.CategoryDB
     );
   FfrmMarkInfo :=
     TfrmMarkInfo.Create(
@@ -219,8 +243,8 @@ begin
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(
       ALanguageManager,
-      FMarksDb.CategoryDB,
-      FMarksDb.MarksDb
+      FMarkFactory,
+      FMarksDb.CategoryDB
     );
   FExportDialog := TSaveDialog.Create(nil);
 
@@ -258,13 +282,19 @@ end;
 function TMarksDbGUIHelper.AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
 var
   VMark: IMarkPoint;
+  VVisible: Boolean;
+  VResult: IMark;
 begin
   Result := False;
-  VMark := FMarksDb.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
-  VMark := FfrmMarkEditPoint.EditMark(VMark, True);
+  VVisible := True;
+  VMark := FMarkFactory.CreateNewPoint(ALonLat, '', '');
+  VMark := FfrmMarkEditPoint.EditMark(VMark, True, VVisible);
   if VMark <> nil then begin
-    FMarksDb.MarksDb.UpdateMark(nil, VMark);
-    Result := True;
+    VResult := FMarksDb.MarksDb.UpdateMark(nil, VMark);
+    if VResult <> nil then begin
+      FMarksDb.MarksDb.SetMarkVisible(VMark, VVisible);
+      Result := True;
+    end;
   end;
 end;
 
@@ -346,7 +376,8 @@ end;
 
 function TMarksDbGUIHelper.EditMarkModal(
   const AMark: IMark;
-  AIsNewMark: Boolean
+  const AIsNewMark: Boolean;
+  var AVisible: Boolean
 ): IMark;
 var
   VMarkPoint: IMarkPoint;
@@ -355,11 +386,11 @@ var
 begin
   Result := nil;
   if Supports(AMark, IMarkPoint, VMarkPoint) then begin
-    Result := FfrmMarkEditPoint.EditMark(VMarkPoint, AIsNewMark);
+    Result := FfrmMarkEditPoint.EditMark(VMarkPoint, AIsNewMark, AVisible);
   end else if Supports(AMark, IMarkLine, VMarkLine) then begin
-    Result := FfrmMarkEditPath.EditMark(VMarkLine, AIsNewMark);
+    Result := FfrmMarkEditPath.EditMark(VMarkLine, AIsNewMark, AVisible);
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
-    Result := FfrmMarkEditPoly.EditMark(VMarkPoly, AIsNewMark);
+    Result := FfrmMarkEditPoly.EditMark(VMarkPoly, AIsNewMark, AVisible);
   end;
 end;
 
@@ -374,7 +405,7 @@ procedure TMarksDbGUIHelper.ExportCategory(
 );
 var
   KMLExport: TExportMarks2KML;
-  VMarksSubset: IMarksSubset;
+  VMarksSubset: IVectorItemSubset;
   VFileName: string;
 begin
   if AMarkCategory <> nil then begin
@@ -416,7 +447,7 @@ procedure TMarksDbGUIHelper.ExportCategoryList(
 );
 var
   KMLExport: TExportMarks2KML;
-  VMarksSubset: IMarksSubset;
+  VMarksSubset: IVectorItemSubset;
   VFileName: string;
 begin
   if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
@@ -589,26 +620,31 @@ function TMarksDbGUIHelper.SaveLineModal(
 var
   VMark: IMarkLine;
   VSourceMark: IMarkLine;
-  VNewMark: Boolean;
+  VVisible: Boolean;
+  VResult: IMark;
 begin
   Result := False;
+  VSourceMark := nil;
   if AMark <> nil then begin
-    VMark := FMarksDb.MarksDb.Factory.SimpleModifyLine(AMark, ALine, ADescription);
-    VNewMark := AAsNewMark;
+    VVisible := FMarksDb.MarksDb.GetMarkVisible(AMark);
+    if AAsNewMark then begin
+      VSourceMark := nil;
+    end else begin
+      VSourceMark := AMark;
+    end;
+    VMark := FMarkFactory.SimpleModifyLine(AMark, ALine, ADescription);
   end else begin
-    VMark := FMarksDb.MarksDb.Factory.CreateNewLine(ALine, '', ADescription);
-    VNewMark := True;
+    VVisible := True;
+    VMark := FMarkFactory.CreateNewLine(ALine, '', ADescription);
   end;
   if VMark <> nil then begin
-    VMark := FfrmMarkEditPath.EditMark(VMark, VNewMark);
+    VMark := FfrmMarkEditPath.EditMark(VMark, VSourceMark = nil, VVisible);
     if VMark <> nil then begin
-      if AAsNewMark then begin
-        VSourceMark := nil;
-      end else begin
-        VSourceMark := AMark;
+      VResult := FMarksDb.MarksDb.UpdateMark(VSourceMark, VMark);
+      if VResult <> nil then begin
+        FMarksDb.MarksDb.SetMarkVisible(VResult, VVisible);
+        Result := True;
       end;
-      FMarksDb.MarksDb.UpdateMark(VSourceMark, VMark);
-      Result := True;
     end;
   end;
 end;
@@ -619,21 +655,28 @@ function TMarksDbGUIHelper.SavePointModal(
 ): Boolean;
 var
   VMark: IMarkPoint;
-  VNewMark: Boolean;
+  VVisible: Boolean;
+  VResult: IMark;
+  VSourceMark: IMarkPoint;
 begin
   Result := False;
   if AMark <> nil then begin
-    VMark := FMarksDb.MarksDb.Factory.SimpleModifyPoint(AMark, ALonLat);
-    VNewMark := False;
+    VVisible := FMarksDb.MarksDb.GetMarkVisible(AMark);
+    VSourceMark := AMark;
+    VMark := FMarkFactory.SimpleModifyPoint(AMark, ALonLat);
   end else begin
-    VMark := FMarksDb.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
-    VNewMark := True;
+    VVisible := True;
+    VSourceMark := nil;
+    VMark := FMarkFactory.CreateNewPoint(ALonLat, '', '');
   end;
   if VMark <> nil then begin
-    VMark := FfrmMarkEditPoint.EditMark(VMark, VNewMark);
+    VMark := FfrmMarkEditPoint.EditMark(VMark, VSourceMark = nil, VVisible);
     if VMark <> nil then begin
-      FMarksDb.MarksDb.UpdateMark(AMark, VMark);
-      Result := True;
+      VResult := FMarksDb.MarksDb.UpdateMark(VSourceMark, VMark);
+      if VResult <> nil then begin
+        FMarksDb.MarksDb.SetMarkVisible(VResult, VVisible);
+        Result := True;
+      end;
     end;
   end;
 end;
@@ -646,26 +689,31 @@ function TMarksDbGUIHelper.SavePolyModal(
 var
   VMark: IMarkPoly;
   VSourceMark: IMarkPoly;
-  VNewMark: Boolean;
+  VVisible: Boolean;
+  VResult: IMark;
 begin
   Result := False;
+  VSourceMark := nil;
   if AMark <> nil then begin
-    VMark := FMarksDb.MarksDb.Factory.SimpleModifyPoly(AMark, ALine);
-    VNewMark := AAsNewMark;
+    VVisible := FMarksDb.MarksDb.GetMarkVisible(AMark);
+    if AAsNewMark then begin
+      VSourceMark := nil;
+    end else begin
+      VSourceMark := AMark;
+    end;
+    VMark := FMarkFactory.SimpleModifyPoly(AMark, ALine);
   end else begin
-    VMark := FMarksDb.MarksDb.Factory.CreateNewPoly(ALine, '', '');
-    VNewMark := True;
+    VVisible := True;
+    VMark := FMarkFactory.CreateNewPoly(ALine, '', '');
   end;
   if VMark <> nil then begin
-    VMark := FfrmMarkEditPoly.EditMark(VMark, VNewMark);
+    VMark := FfrmMarkEditPoly.EditMark(VMark, VSourceMark = nil, VVisible);
     if VMark <> nil then begin
-      if AAsNewMark then begin
-        VSourceMark := nil;
-      end else begin
-        VSourceMark := AMark;
+      VResult := FMarksDb.MarksDb.UpdateMark(VSourceMark, VMark);
+      if VResult <> nil then begin
+        FMarksDb.MarksDb.SetMarkVisible(VResult, VVisible);
+        Result := True;
       end;
-      FMarksDb.MarksDb.UpdateMark(VSourceMark, VMark);
-      Result := True;
     end;
   end;
 end;

@@ -29,9 +29,10 @@ uses
   Forms,
   StdCtrls,
   ExtCtrls,
-  i_MarkCategory,
+  i_Category,
   i_LanguageManager,
   i_ImportConfig,
+  i_MarkFactory,
   i_MarksDb,
   i_MarkCategoryDB,
   u_CommonFormAndFrameParents,
@@ -50,11 +51,11 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const ACategoryDB: IMarkCategoryDB;
-      const AMarksDb: IMarksDb
+      const AMarkFactory: IMarkFactory;
+      const ACategoryDB: IMarkCategoryDB
     ); reintroduce;
     destructor Destroy; override;
-    function GetImportConfig(const ACategory:ICategory): IImportConfig;
+    function GetImportConfig(const ACategory: ICategory): IImportConfig;
   end;
 
 implementation
@@ -63,8 +64,8 @@ implementation
 
 constructor TfrmMarksMultiEdit.Create(
   const ALanguageManager: ILanguageManager;
-  const ACategoryDB: IMarkCategoryDB;
-  const AMarksDb: IMarksDb
+  const AMarkFactory: IMarkFactory;
+  const ACategoryDB: IMarkCategoryDB
 );
 begin
   inherited Create(ALanguageManager);
@@ -72,8 +73,8 @@ begin
   frMarksGeneralOptions:=
     TfrMarksGeneralOptions.Create(
       ALanguageManager,
-      ACategoryDB,
-      AMarksDb
+      AMarkFactory,
+      ACategoryDB
     );
   frMarksGeneralOptions.SetIgnore(true);
 end;

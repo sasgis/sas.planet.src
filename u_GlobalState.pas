@@ -211,6 +211,7 @@ type
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
     property GlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper read FGlobalBerkeleyDBHelper;
+    property MarkPictureList: IMarkPictureList read FMarkPictureList;
 
     constructor Create;
     destructor Destroy; override;

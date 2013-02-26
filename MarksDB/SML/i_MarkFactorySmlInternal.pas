@@ -25,6 +25,9 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_MarkPicture,
+  i_Category,
+  i_VectorItemLonLat,
   i_MarksSimple;
 
 type
@@ -44,6 +47,43 @@ type
       AScale1: Integer;
       AScale2: Integer
     ): IMark;
+    function CreateInternalMark(AMark: IMark): IMark;
+
+    function CreatePoint(
+      AId: Integer;
+      const AName: string;
+      AVisible: Boolean;
+      const APicName: string;
+      const APic: IMarkPicture;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const APoint: TDoublePoint;
+      ATextColor, ATextBgColor: TColor32;
+      AFontSize, AMarkerSize: Integer
+    ): IMarkPoint;
+    function CreateLine(
+      AId: Integer;
+      const AName: string;
+      AVisible: Boolean;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ALine: ILonLatPath;
+      ALineColor: TColor32;
+      ALineWidth: Integer
+    ): IMarkLine;
+    function CreatePoly(
+      AId: Integer;
+      const AName: string;
+      AVisible: Boolean;
+      const ACategory: ICategory;
+      const ADesc: string;
+      const ALine: ILonLatPolygon;
+      ABorderColor, AFillColor: TColor32;
+      ALineWidth: Integer
+    ): IMarkPoly;
+
+    function GetMarkPictureList: IMarkPictureList;
+    property MarkPictureList: IMarkPictureList read GetMarkPictureList;
   end;
 
 const

@@ -28,7 +28,7 @@ uses
   i_ConfigDataWriteProvider,
   i_LanguageManager,
   i_MarkTemplate,
-  i_MarkCategory,
+  i_Category,
   i_MarksFactoryConfig,
   u_MarkTemplateConfigBase;
 
@@ -62,6 +62,7 @@ uses
   u_ConfigProviderHelpers,
   u_StringConfigDataElementWithDefByStringRec,
   u_ResStrings,
+  u_Category,
   u_MarkTemplates;
 
 { TMarkPointTemplateConfig }
@@ -100,17 +101,17 @@ function TMarkPointTemplateConfig.CreateTemplate(
   AFontSize, AMarkerSize: Integer
 ): IMarkTemplatePoint;
 var
-  VCategoryStringId: string;
+  VCategory: ICategory;
 begin
-  VCategoryStringId := '';
-  if ACategory <> nil then begin
-    VCategoryStringId := ACategory.StringId;
+  VCategory := ACategory;
+  if VCategory = nil then begin
+    VCategory := TCategory.Create('');
   end;
 
   Result :=
     TMarkTemplatePoint.Create(
       NameGenerator,
-      VCategoryStringId,
+      VCategory,
       ATextColor,
       ATextBgColor,
       AFontSize,
@@ -124,13 +125,13 @@ procedure TMarkPointTemplateConfig.DoReadConfig(
 );
 var
   VPicName: string;
-  VCategoryId: string;
+  VCategoryName: string;
   VTextColor, VTextBgColor: TColor32;
   VFontSize, VMarkerSize: Integer;
   VTemplate: IMarkTemplatePoint;
 begin
   inherited;
-  VCategoryId := FDefaultTemplate.CategoryStringID;
+  VCategoryName := FDefaultTemplate.Category.Name;
   VTextColor := FDefaultTemplate.TextColor;
   VTextBgColor := FDefaultTemplate.TextBgColor;
   VFontSize := FDefaultTemplate.FontSize;
@@ -138,7 +139,7 @@ begin
   VPicName := FDefaultTemplate.PicName;
   if AConfigData <> nil then begin
     VPicName := AConfigData.ReadString('IconName', VPicName);
-    VCategoryId := AConfigData.ReadString('CategoryId', VCategoryId);
+    VCategoryName := AConfigData.ReadString('CategoryName', VCategoryName);
     VTextColor := ReadColor32(AConfigData, 'TextColor', VTextColor);
     VTextBgColor := ReadColor32(AConfigData, 'ShadowColor', VTextBgColor);
     VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
@@ -147,7 +148,7 @@ begin
   VTemplate :=
     TMarkTemplatePoint.Create(
       NameGenerator,
-      VCategoryId,
+      TCategory.Create(VCategoryName),
       VTextColor,
       VTextBgColor,
       VFontSize,
@@ -163,7 +164,7 @@ procedure TMarkPointTemplateConfig.DoWriteConfig(
 begin
   inherited;
   AConfigData.WriteString('IconName', FDefaultTemplate.PicName);
-  AConfigData.WriteString('CategoryId', FDefaultTemplate.CategoryStringID);
+  AConfigData.WriteString('CategoryName', FDefaultTemplate.Category.Name);
   WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.TextColor);
   WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.TextBgColor);
   AConfigData.WriteInteger('FontSize', FDefaultTemplate.FontSize);

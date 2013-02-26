@@ -19,7 +19,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     object lblPointIcon: TLabel
       Left = 2
       Top = 15
-      Width = 55
+      Width = 21
       Height = 64
       Align = alLeft
       Alignment = taCenter
@@ -28,7 +28,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
     end
     object pnlImage: TPanel
       AlignWithMargins = True
-      Left = 60
+      Left = 26
       Top = 18
       Width = 58
       Height = 58
@@ -38,9 +38,9 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
       OnResize = pnlImageResize
     end
     object pnlPointParams: TPanel
-      Left = 121
+      Left = 87
       Top = 15
-      Width = 486
+      Width = 520
       Height = 64
       Align = alClient
       BevelOuter = bvNone
@@ -48,7 +48,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
       object flwpnlPointText: TFlowPanel
         Left = 0
         Top = 0
-        Width = 486
+        Width = 520
         Height = 28
         Align = alTop
         BevelOuter = bvNone
@@ -123,7 +123,7 @@ object frMarksGeneralOptions: TfrMarksGeneralOptions
       object flwpnlPointShadowParams: TFlowPanel
         Left = 0
         Top = 28
-        Width = 486
+        Width = 520
         Height = 41
         Align = alTop
         BevelOuter = bvNone

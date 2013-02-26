@@ -722,6 +722,7 @@ uses
   i_CoordConverter,
   i_ProjectionInfo,
   i_VectorItemLonLat,
+  i_VectorItemSubset,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_GUIDListStatic,
@@ -823,6 +824,7 @@ uses
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
+  u_HtmlToHintTextConverterStuped,
   frm_StartLogo,
   frm_LonLatRectEdit;
 
@@ -859,6 +861,9 @@ begin
     TMarksDbGUIHelper.Create(
       GState.Config.LanguageManager,
       GState.Config.MediaDataPath,
+      GState.Config.MarksFactoryConfig,
+      GState.MarkPictureList,
+      THtmlToHintTextConverterStuped.Create,
       GState.MarksDb,
       GState.ImportFileByExt,
       FConfig.ViewPortState.View,
@@ -5385,7 +5390,7 @@ begin
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
       VLonLat := VMark.GetGoToLonLat;
-      FConfig.NavToPoint.StartNavToMark(VMark as IMarkId, VLonLat);
+      FConfig.NavToPoint.StartNavToMark(VMark.StringID, VLonLat);
     end else begin
       FConfig.NavToPoint.StopNav;
     end;
@@ -5634,12 +5639,18 @@ procedure TfrmMain.tbitmPropertiesClick(Sender: TObject);
 var
   VMark: IMark;
   VMarkModifed: IMark;
+  VVisible: Boolean;
+  VResult: IMark;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    VMarkModifed := FMarkDBGUI.EditMarkModal(VMark, False);
+    VVisible := FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark);
+    VMarkModifed := FMarkDBGUI.EditMarkModal(VMark, False, VVisible);
     if VMarkModifed <> nil then begin
-      GState.MarksDb.MarksDb.UpdateMark(VMark, VMarkModifed);
+      VResult := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMark, VMarkModifed);
+      if VResult <> nil then begin
+        FMarkDBGUI.MarksDb.MarksDb.SetMarkVisible(VResult, VVisible);
+      end;
     end;
   end;
 end;
@@ -5793,7 +5804,7 @@ var
   VLonLat:TDoublePoint;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VMarksList: IVectorDataItemList;
+  VMarksList: IVectorItemSubset;
   VImportConfig: IImportConfig;
 begin
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
@@ -6099,7 +6110,8 @@ begin
   NMarkPlay.Visible := (VMark <> nil) and (FPlacemarkPlayerPlugin <> nil) and (FPlacemarkPlayerPlugin.Available);
   tbitmMarkInfo.Visible := (VMark <> nil);
   tbitmCopyToClipboardGenshtabName.Visible := GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
-  if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and VMark.IsSameId(FConfig.NavToPoint.MarkId) then begin
+  if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and
+    (FConfig.NavToPoint.MarkId <> '') and (VMark.StringID = FConfig.NavToPoint.MarkId) then begin
     NMarkNav.Checked:=true
   end else begin
     NMarkNav.Checked:=false;
@@ -6367,6 +6379,8 @@ var
   VStr: WideString;
   VPlacemark: IGeoCodePlacemark;
   VMark: IMark;
+  VVisible: Boolean;
+  VResult: IMark;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
@@ -6375,14 +6389,18 @@ begin
       VStr := VPlacemark.GetDesc;
     end;
     VMark :=
-      FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoint(
+      FMarkDBGUI.MarkFactory.CreateNewPoint(
         VPlacemark.GetPoint,
         VPlacemark.Name,
         VStr
       );
-    VMark := FMarkDBGUI.EditMarkModal(VMark, True);
+    VVisible := True;
+    VMark := FMarkDBGUI.EditMarkModal(VMark, True, VVisible);
     if VMark <> nil then begin
-      FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
+      VResult := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
+      if VResult <> nil then begin
+        FMarkDBGUI.MarksDb.MarksDb.SetMarkVisible(VMark, VVisible);
+      end;
     end;
   end;
 end;

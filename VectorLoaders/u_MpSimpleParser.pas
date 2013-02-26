@@ -6,7 +6,7 @@ uses
   i_BinaryData,
   i_VectorDataLoader,
   i_VectorItemsFactory,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_VectorDataFactory,
   i_DoublePointsAggregator,
   u_BaseInterfacedObject;
@@ -24,7 +24,7 @@ type
       const AData: IBinaryData;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   public
     constructor Create(
       const AFactory: IVectorItemsFactory
@@ -41,10 +41,11 @@ uses
   t_GeoTypes,
   i_ConfigDataProvider,
   i_VectorItemLonLat,
+  i_VectorDataItemSimple,
   u_ConfigProviderHelpers,
   u_StreamReadOnlyByBinaryData,
   u_ConfigDataProviderByIniFile,
-  u_VectorDataItemList,
+  u_VectorDataItemSubset,
   u_DoublePointsAggregator,
   u_GeoFun;
 
@@ -108,7 +109,7 @@ function TMpSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VFileStrings: TStringList;
   VDataStream: TStream;
@@ -175,7 +176,7 @@ begin
       );
     VList := TInterfaceList.Create;
     VList.Add(VItem);
-    Result := TVectorDataItemList.Create(VList);
+    Result := TVectorItemSubset.Create(VList);
   end;
 end;
 

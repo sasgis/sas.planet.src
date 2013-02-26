@@ -18,46 +18,44 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MarkId;
+unit u_MarkCategorySmlDbInternal;
 
 interface
 
 uses
-  i_MarksSimple,
   i_Category,
+  i_MarkCategory,
   i_MarksDbSmlInternal,
   u_BaseInterfacedObject;
 
 type
-  TMarkId = class(TBaseInterfacedObject, IMarkId, IMarkSMLInternal)
+  TMarkCategorySmlDbInternal = class(TBaseInterfacedObject, ICategory, IMarkCategory, IMarkCategorySMLInternal)
   private
-    FName: string;
     FId: Integer;
     FDbId: Integer;
-    FCategory: ICategory;
-    FCategoryId: Integer;
+    FName: string;
     FVisible: Boolean;
-  protected
-    function IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
-  protected
-    function GetStringID: string;
-    function GetName: string;
-    function GetMarkType: TGUID; virtual; abstract;
-  protected
-    function GetId: Integer;
+    FAfterScale: integer;
+    FBeforeScale: integer;
+  private
+    function GetId: integer;
     function GetDbId: integer;
-    function GetCategory: ICategory;
-    function GetCategoryId: Integer;
-    function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
-    function IsSameId(const AMarkId: IMarkId): Boolean;
+  private
+    function GetName: string;
+    function IsSame(const ACategory: ICategory): Boolean;
+    function IsEqual(const ACategory: ICategory): Boolean;
+  private
+    function GetVisible: boolean;
+    function GetAfterScale: integer;
+    function GetBeforeScale: integer;
   public
     constructor Create(
-      const AName: string;
       AId: Integer;
       ADbId: Integer;
-      const ACategory: ICategory;
-      AVisible: Boolean
+      const AName: string;
+      AVisible: Boolean;
+      AAfterScale: integer;
+      ABeforeScale: integer
     );
   end;
 
@@ -67,110 +65,96 @@ uses
   SysUtils,
   i_MarkCategoryFactoryDbInternal;
 
-{ TMarkId }
+{ TMarkCategorySmlDbInternal }
 
-constructor TMarkId.Create(
-  const AName: string;
+constructor TMarkCategorySmlDbInternal.Create(
   AId: Integer;
   ADbId: Integer;
-  const ACategory: ICategory;
-  AVisible: Boolean
+  const AName: string;
+  AVisible: Boolean;
+  AAfterScale, ABeforeScale: Integer
 );
-var
-  VCategory: IMarkCategorySMLInternal;
 begin
+  Assert(AId >= 0);
+  Assert(ADbId <> 0);
+  Assert(AName <> '');
+  Assert(AAfterScale >= 0);
+  Assert(ABeforeScale >= 0);
   inherited Create;
-  FName := AName;
   FId := AId;
   FDbId := ADbId;
-  FCategory := ACategory;
-  FCategoryId := CNotExistCategoryID;
-  if FCategory <> nil then begin
-    if Supports(FCategory, IMarkCategorySMLInternal, VCategory) then begin
-      FCategoryId := VCategory.Id;
-    end;
-  end;
+  FName := AName;
   FVisible := AVisible;
+  FAfterScale := AAfterScale;
+  FBeforeScale := ABeforeScale;
 end;
 
-function TMarkId.GetCategory: ICategory;
+function TMarkCategorySmlDbInternal.GetAfterScale: integer;
 begin
-  Result := FCategory;
+  Result := FAfterScale;
 end;
 
-function TMarkId.GetCategoryId: Integer;
+function TMarkCategorySmlDbInternal.GetBeforeScale: integer;
 begin
-  Result := FCategoryId;
+  Result := FBeforeScale;
 end;
 
-function TMarkId.GetDbId: integer;
+function TMarkCategorySmlDbInternal.GetDbId: integer;
 begin
   Result := FDbId;
 end;
 
-function TMarkId.GetId: Integer;
+function TMarkCategorySmlDbInternal.GetId: integer;
 begin
   Result := FId;
 end;
 
-function TMarkId.GetName: string;
+function TMarkCategorySmlDbInternal.GetName: string;
 begin
   Result := FName;
 end;
 
-function TMarkId.GetStringID: string;
-begin
-  Result := '';
-  if FId >= 0 then begin
-    Result := IntToStr(FId);
-  end;
-end;
-
-function TMarkId.GetVisible: Boolean;
+function TMarkCategorySmlDbInternal.GetVisible: boolean;
 begin
   Result := FVisible;
 end;
 
-function TMarkId.IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
+function TMarkCategorySmlDbInternal.IsEqual(const ACategory: ICategory): Boolean;
+var
+  VCategory: IMarkCategory;
 begin
-  Result := True;
-  if FDbId <> AMarkInternal.DbId then begin
+  if ACategory = nil then begin
     Result := False;
     Exit;
   end;
-  if FCategoryId <> AMarkInternal.CategoryId then begin
+  if ACategory = ICategory(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if ACategory.Name <> FName then begin
     Result := False;
     Exit;
   end;
-  if FId <> AMarkInternal.Id then begin
+  if Supports(ACategory, IMarkCategory, VCategory) then begin
+    Result :=
+      (VCategory.Visible = FVisible) and
+      (VCategory.AfterScale = FAfterScale) and
+      (VCategory.BeforeScale = FBeforeScale);
+  end else begin
     Result := False;
-    Exit;
-  end;
-  if FVisible <> AMarkInternal.Visible then begin
-    Result := False;
-    Exit;
-  end;
-  if FName <> AMarkInternal.Name then begin
-    Result := False;
-    Exit;
   end;
 end;
 
-function TMarkId.IsSameId(const AMarkId: IMarkId): Boolean;
+function TMarkCategorySmlDbInternal.IsSame(const ACategory: ICategory): Boolean;
 var
-  VMarkInternal: IMarkSMLInternal;
+  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   Result := False;
-  if AMarkId <> nil then begin
-    if Supports(AMarkId, IMarkSMLInternal, VMarkInternal) then begin
-      Result := (FId = VMarkInternal.Id) and (FDbId = VMarkInternal.DbId);
+  if ACategory <> nil then begin
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      Result := FId = VCategoryInternal.Id;
     end;
   end;
-end;
-
-procedure TMarkId.SetVisible(AValue: Boolean);
-begin
-  FVisible := AValue;
 end;
 
 end.

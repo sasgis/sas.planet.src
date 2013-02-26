@@ -30,7 +30,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TMarkCategoryFactory = class(TBaseInterfacedObject, IMarkCategoryFactory, IMarkCategoryFactoryDbInternal)
+  TMarkCategoryFactory = class(TBaseInterfacedObject, IMarkCategoryFactory)
   private
     FConfig: IMarkCategoryFactoryConfig;
   private
@@ -47,14 +47,6 @@ type
       AVisible: Boolean
     ): IMarkCategory;
     function GetConfig: IMarkCategoryFactoryConfig;
-  private
-    function CreateCategory(
-      AId: Integer;
-      const AName: string;
-      AVisible: Boolean;
-      AAfterScale: integer;
-      ABeforeScale: integer
-    ): IMarkCategory;
   public
     constructor Create(
       const AConfig: IMarkCategoryFactoryConfig
@@ -64,9 +56,7 @@ type
 implementation
 
 uses
-  SysUtils,
   StrUtils,
-  i_MarksDbSmlInternal,
   u_MarkCategory;
 
 { TMarkCategoryFactory }
@@ -77,22 +67,6 @@ constructor TMarkCategoryFactory.Create(
 begin
   inherited Create;
   FConfig := AConfig;
-end;
-
-function TMarkCategoryFactory.CreateCategory(
-  AId: Integer;
-  const AName: string;
-  AVisible: Boolean;
-  AAfterScale, ABeforeScale: integer
-): IMarkCategory;
-begin
-  Result := TMarkCategory.Create(
-    AId,
-    AName,
-    AVisible,
-    AAfterScale,
-    ABeforeScale
-  );
 end;
 
 function TMarkCategoryFactory.CreateNew(const AName: string): IMarkCategory;
@@ -116,7 +90,7 @@ begin
   end;
 
   Result :=
-    CreateCategory(
+    TMarkCategory.Create(
       CNotExistCategoryID,
       VName,
       True,
@@ -138,8 +112,6 @@ function TMarkCategoryFactory.Modify(
 ): IMarkCategory;
 var
   VName: string;
-  VId: Integer;
-  VCategoryInternal: IMarkCategorySMLInternal;
 begin
   VName := AName;
   FConfig.LockRead;
@@ -151,14 +123,9 @@ begin
     FConfig.UnlockRead;
   end;
 
-  VId := CNotExistCategoryID;
-  if Supports(ASource, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    VId := VCategoryInternal.Id;
-  end;
-
   Result :=
-    CreateCategory(
-      VId,
+    TMarkCategory.Create(
+      CNotExistCategoryID,
       VName,
       AVisible,
       AAfterScale,
@@ -170,18 +137,10 @@ function TMarkCategoryFactory.ModifyVisible(
   const ASource: IMarkCategory;
   AVisible: Boolean
 ): IMarkCategory;
-var
-  VId: Integer;
-  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  VId := CNotExistCategoryID;
-  if Supports(ASource, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    VId := VCategoryInternal.Id;
-  end;
-
   Result :=
-    CreateCategory(
-      VId,
+    TMarkCategory.Create(
+      CNotExistCategoryID,
       ASource.Name,
       AVisible,
       ASource.AfterScale,

@@ -26,7 +26,7 @@ uses
   Classes,
   i_BinaryData,
   i_VectorDataFactory,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_VectorItemsFactory,
   i_ArchiveReadWriteFactory,
   i_InternalPerformanceCounter,
@@ -44,13 +44,13 @@ type
       AStream: TStream;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   private
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   public
     constructor Create(
       const AKmlParser: IVectorDataLoader;
@@ -89,7 +89,7 @@ function TKmzInfoSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VCounterContext: TInternalPerformanceCounterContext;
   VStream: TStreamReadOnlyByBinaryData;
@@ -112,7 +112,7 @@ function TKmzInfoSimpleParser.LoadFromStreamInternal(
   AStream: TStream;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VZip: IArchiveReader;
   VItemsCount: Integer;

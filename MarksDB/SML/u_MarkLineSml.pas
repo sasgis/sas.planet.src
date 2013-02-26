@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MarkPoint;
+unit u_MarkLineSml;
 
 interface
 
@@ -26,24 +26,20 @@ uses
   GR32,
   t_GeoTypes,
   i_LonLatRect,
-  i_MarksSimple,
+  i_VectorItemLonLat,
   i_VectorDataItemSimple,
-  i_MarkCategory,
-  i_MarksDbSmlInternal,
-  i_MarkPicture,
+  i_MarksSimple,
+  i_Category,
   i_HtmlToHintTextConverter,
-  u_MarkFullBase;
+  u_MarkFullBaseSml;
 
 type
-  TMarkPoint = class(TMarkFullBase, IVectorDataItemPoint, IMarkPoint, IMarkPointSMLInternal)
+  TMarkLineSml = class(TMarkFullBaseSml, IVectorDataItemLine, IMarkLine,
+    IVectorDataItemWithLineParams)
   private
-    FPicName: string;
-    FPic: IMarkPicture;
-    FLLRect: ILonLatRect;
-    FTextColor: TColor32;
-    FTextBgColor: TColor32;
-    FFontSize: Integer;
-    FMarkerSize: Integer;
+    FLine: ILonLatPath;
+    FLineColor: TColor32;
+    FLineWidth: Integer;
   protected
     function GetMarkType: TGUID; override;
   protected
@@ -51,81 +47,83 @@ type
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IMark): Boolean; override;
   private
-    function GetPoint: TDoublePoint;
-    function GetTextColor: TColor32;
-    function GetTextBgColor: TColor32;
-    function GetFontSize: Integer;
-    function GetMarkerSize: Integer;
-    function GetPicName: string;
-    function GetPic: IMarkPicture;
+    function GetLine: ILonLatPath;
+    function GetLineColor: TColor32;
+    function GetLineWidth: Integer;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       AId: Integer;
+      ADbId: Integer;
       AVisible: Boolean;
-      const APicName: string;
-      const APic: IMarkPicture;
       const ACategory: ICategory;
       const ADesc: string;
-      const APoint: TDoublePoint;
-      ATextColor: TColor32;
-      ATextBgColor: TColor32;
-      AFontSize: Integer;
-      AMarkerSize: Integer
+      const ALine: ILonLatPath;
+      ALineColor: TColor32;
+      ALineWidth: Integer
     );
   end;
 
 implementation
 
 uses
-  SysUtils,
-  u_LonLatRectByPoint;
+  SysUtils;
 
-{ TMarkPoint }
+{ TMarkLineSml }
 
-constructor TMarkPoint.Create(
+constructor TMarkLineSml.Create(
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   AId: Integer;
+  ADbId: Integer;
   AVisible: Boolean;
-  const APicName: string;
-  const APic: IMarkPicture;
   const ACategory: ICategory;
   const ADesc: string;
-  const APoint: TDoublePoint;
-  ATextColor, ATextBgColor: TColor32;
-  AFontSize, AMarkerSize: Integer
+  const ALine: ILonLatPath;
+  ALineColor: TColor32;
+  ALineWidth: Integer
 );
 begin
-  inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
-  FPicName := APicName;
-  FPic := APic;
-  FLLRect := TLonLatRectByPoint.Create(APoint);
-  FTextColor := ATextColor;
-  FTextBgColor := ATextBgColor;
-  FFontSize := AFontSize;
-  FMarkerSize := AMarkerSize;
+  inherited Create(AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
+  FLine := ALine;
+  FLineColor := ALineColor;
+  FLineWidth := ALineWidth;
 end;
 
-function TMarkPoint.GetTextColor: TColor32;
+function TMarkLineSml.GetLineColor: TColor32;
 begin
-  Result := FTextColor;
+  Result := FLineColor;
 end;
 
-function TMarkPoint.IsEqual(const AMark: IMark): Boolean;
+function TMarkLineSml.GetGoToLonLat: TDoublePoint;
+begin
+  FLine.GetEnum.Next(Result);
+end;
+
+function TMarkLineSml.GetLLRect: ILonLatRect;
+begin
+  Result := FLine.Bounds;
+end;
+
+function TMarkLineSml.GetMarkType: TGUID;
+begin
+  Result := IMarkLine;
+end;
+
+function TMarkLineSml.IsEqual(const AMark: IMark): Boolean;
 var
-  VMarkPoint: IMarkPoint;
+  VMarkPath: IMarkLine;
 begin
   if AMark = IMark(Self) then begin
     Result := True;
     Exit;
   end;
-  if not FLLRect.IsEqual(AMark.LLRect) then begin
+  if not Supports(AMark, IMarkLine, VMarkPath) then begin
     Result := False;
     Exit;
   end;
-  if not Supports(AMark, IMarkPoint, VMarkPoint) then begin
+  if not FLine.Bounds.IsEqual(VMarkPath.LLRect) then begin
     Result := False;
     Exit;
   end;
@@ -133,72 +131,29 @@ begin
     Result := False;
     Exit;
   end;
-  if FPic <> VMarkPoint.Pic then begin
+  if FLineColor <> VMarkPath.LineColor then begin
     Result := False;
     Exit;
   end;
-  if FTextColor <> VMarkPoint.TextColor then begin
+  if FLineWidth <> VMarkPath.LineWidth then begin
     Result := False;
     Exit;
   end;
-  if FTextBgColor <> VMarkPoint.TextBgColor then begin
-    Result := False;
-    Exit;
-  end;
-  if FFontSize <> VMarkPoint.FontSize then begin
-    Result := False;
-    Exit;
-  end;
-  if FMarkerSize <> VMarkPoint.MarkerSize then begin
+  if not FLine.IsSame(VMarkPath.Line) then begin
     Result := False;
     Exit;
   end;
   Result := True;
 end;
 
-function TMarkPoint.GetTextBgColor: TColor32;
+function TMarkLineSml.GetLine: ILonLatPath;
 begin
-  Result := FTextBgColor;
+  Result := FLine;
 end;
 
-function TMarkPoint.GetGoToLonLat: TDoublePoint;
+function TMarkLineSml.GetLineWidth: Integer;
 begin
-  Result := FLLRect.TopLeft;
-end;
-
-function TMarkPoint.GetLLRect: ILonLatRect;
-begin
-  Result := FLLRect;
-end;
-
-function TMarkPoint.GetPic: IMarkPicture;
-begin
-  Result := FPic;
-end;
-
-function TMarkPoint.GetPicName: string;
-begin
-  Result := FPicName;
-end;
-
-function TMarkPoint.GetPoint: TDoublePoint;
-begin
-  Result := FLLRect.TopLeft;
-end;
-
-function TMarkPoint.GetFontSize: Integer;
-begin
-  Result := FFontSize;
-end;
-
-function TMarkPoint.GetMarkerSize: Integer;
-begin
-  Result := FMarkerSize;
-end;
-
-function TMarkPoint.GetMarkType: TGUID;
-begin
-  Result := IMarkPoint;
+  Result := FLineWidth;
 end;
 
 end.

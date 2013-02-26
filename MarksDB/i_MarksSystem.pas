@@ -10,6 +10,7 @@ uses
   i_VectorDataItemSimple,
   i_MarksFactoryConfig,
   i_ImportConfig,
+  i_VectorItemSubset,
   i_MarksSimple,
   i_MarkCategory,
   i_MarksDb,
@@ -35,7 +36,7 @@ type
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     function ImportItemsList(
-      const ADataItemList: IVectorDataItemList;
+      const ADataItemList: IVectorItemSubset;
       const AImportConfig: IImportConfig;
       const ANamePrefix: string
     ): IInterfaceList;
@@ -44,7 +45,7 @@ type
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
-    function MarksSubsetToStaticTree(const ASubset: IMarksSubset): IStaticTreeItem;
+    function MarksSubsetToStaticTree(const ASubset: IVectorItemSubset): IStaticTreeItem;
     function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
 
     procedure ReadConfig(const AConfigData: IConfigDataProvider);

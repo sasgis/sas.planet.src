@@ -26,8 +26,8 @@ uses
   Classes,
   i_Notifier,
   t_GeoTypes,
-  i_MarkCategory,
-  i_MarkFactory,
+  i_Category,
+  i_VectorItemSubset,
   i_MarksSimple;
 
 type
@@ -51,6 +51,10 @@ type
       const AMark: IMarkId;
       AVisible: Boolean
     );
+    procedure SetMarkVisible(
+      const AMark: IMark;
+      AVisible: Boolean
+    );
     procedure SetMarkVisibleByIDList(
       const AMarkList: IInterfaceList;
       AVisible: Boolean
@@ -70,18 +74,15 @@ type
       const ARect: TDoubleRect;
       const ACategoryList: IInterfaceList;
       AIgnoreVisible: Boolean
-    ): IMarksSubset; overload;
+    ): IVectorItemSubset; overload;
     function GetMarksSubset(
       const ARect: TDoubleRect;
       const ACategory: ICategory;
       AIgnoreVisible: Boolean
-    ): IMarksSubset; overload;
+    ): IVectorItemSubset; overload;
 
     function GetChangeNotifier: INotifier;
     property ChangeNotifier: INotifier read GetChangeNotifier;
-
-    function GetFactory: IMarkFactory;
-    property Factory: IMarkFactory read GetFactory;
   end;
 
 implementation

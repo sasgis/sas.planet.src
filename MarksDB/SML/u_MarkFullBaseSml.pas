@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MarkFullBase;
+unit u_MarkFullBaseSml;
 
 interface
 
@@ -27,12 +27,13 @@ uses
   i_LonLatRect,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
-  i_MarkCategory,
+  i_Category,
   i_MarksSimple,
   u_MarkId;
 
 type
-  TMarkFullBase = class(TMarkId, IVectorDataItemSimple, IMark)
+  TMarkFullBaseSml = class(TMarkId, IMark,
+    IVectorDataItemSimple, IVectorDataItemWithCategory)
   private
     FHintConverter: IHtmlToHintTextConverter;
     FDesc: string;
@@ -50,6 +51,7 @@ type
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       AId: Integer;
+      ADbId: Integer;
       const ACategory: ICategory;
       const ADesc: string;
       AVisible: Boolean
@@ -65,36 +67,37 @@ uses
 
 { TMarkFullBase }
 
-constructor TMarkFullBase.Create(
+constructor TMarkFullBaseSml.Create(
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   AId: Integer;
+  ADbId: Integer;
   const ACategory: ICategory;
   const ADesc: string;
   AVisible: Boolean
 );
 begin
-  inherited Create(AName, AId, ACategory, AVisible);
+  inherited Create(AName, AId, ADbId, ACategory, AVisible);
   FHintConverter := AHintConverter;
   FDesc := ADesc;
 end;
 
-function TMarkFullBase.GetDesc: string;
+function TMarkFullBaseSml.GetDesc: string;
 begin
   Result := FDesc;
 end;
 
-function TMarkFullBase.GetHintText: string;
+function TMarkFullBaseSml.GetHintText: string;
 begin
   Result := FHintConverter.Convert(GetName, FDesc);
 end;
 
-function TMarkFullBase.GetInfoCaption: string;
+function TMarkFullBaseSml.GetInfoCaption: string;
 begin
   Result := GetName;
 end;
 
-function TMarkFullBase.GetInfoHTML: string;
+function TMarkFullBaseSml.GetInfoHTML: string;
 begin
   Result := '';
   if FDesc <> '' then begin
@@ -104,7 +107,7 @@ begin
   end;
 end;
 
-function TMarkFullBase.GetInfoUrl: string;
+function TMarkFullBaseSml.GetInfoUrl: string;
 begin
   Result := GetStringID;
   if Result <> '' then begin
@@ -112,7 +115,7 @@ begin
   end;
 end;
 
-function TMarkFullBase.IsEqual(const AMark: IMark): Boolean;
+function TMarkFullBaseSml.IsEqual(const AMark: IMark): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin

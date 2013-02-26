@@ -9,7 +9,7 @@ uses
   StdCtrls,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
-  i_MarkCategory,
+  i_Category,
   i_MarkCategoryDB;
 
 type
@@ -35,7 +35,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  i_MarkCategory;
 
 {$R *.dfm}
 
@@ -65,11 +66,11 @@ procedure TfrMarkCategorySelectOrAdd.CategoryListToStrings(
 );
 var
   i: Integer;
-  VCategory: IMarkCategory;
+  VCategory: ICategory;
 begin
   AStrings.Clear;
   for i := 0 to AList.Count - 1 do begin
-    VCategory := IMarkCategory(AList[i]);
+    VCategory := ICategory(AList[i]);
     AStrings.AddObject(VCategory.Name, Pointer(VCategory));
   end;
 end;
@@ -119,7 +120,7 @@ begin
     for i := 0 to CBKateg.Items.Count - 1 do begin
       VCategory := ICategory(Pointer(CBKateg.Items.Objects[i]));
       if VCategory <> nil then begin
-        if VCategory.IsSame(ACategory) then begin
+        if VCategory.Name = ACategory.Name then begin
           CBKateg.ItemIndex := i;
           Break;
         end;

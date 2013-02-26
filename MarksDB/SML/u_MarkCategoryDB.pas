@@ -42,6 +42,7 @@ uses
 type
   TMarkCategoryDB = class(TConfigDataElementBaseEmptySaveLoad, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
   private
+    FDbId: Integer;
     FBasePath: IPathConfig;
     FStateInternal: IReadWriteStateInternal;
 
@@ -82,6 +83,7 @@ type
     function GetCategoryByID(id: integer): IMarkCategory;
   public
     constructor Create(
+      const ADbId: Integer;
       const AStateInternal: IReadWriteStateInternal;
       const ABasePath: IPathConfig;
       const AFactoryConfig: IMarkCategoryFactoryConfig
@@ -95,26 +97,27 @@ uses
   DB,
   t_CommonTypes,
   i_EnumID,
+  i_Category,
   u_IDInterfaceList,
   u_SimpleFlagWithInterlock,
   i_MarksDbSmlInternal,
+  u_MarkCategoryFactorySmlDbInternal,
   u_MarkCategoryFactory;
 
 constructor TMarkCategoryDB.Create(
+  const ADbId: Integer;
   const AStateInternal: IReadWriteStateInternal;
   const ABasePath: IPathConfig;
   const AFactoryConfig: IMarkCategoryFactoryConfig
 );
-var
-  VFactory: TMarkCategoryFactory;
 begin
   inherited Create;
+  FDbId := ADbId;
   FBasePath := ABasePath;
   FStateInternal := AStateInternal;
   FList := TIDInterfaceList.Create;
-  VFactory := TMarkCategoryFactory.Create(AFactoryConfig);
-  FFactoryDbInternal := VFactory;
-  FFactory := VFactory;
+  FFactoryDbInternal := TMarkCategoryFactorySmlDbInternal.Create(FDbId);
+  FFactory := TMarkCategoryFactory.Create(AFactoryConfig);
   FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
   FCdsKategory := TClientDataSet.Create(nil);
   FCdsKategory.Name := 'CDSKategory';
@@ -169,7 +172,9 @@ begin
   Result := nil;
   VIdOld := CNotExistCategoryID;
   if Supports(AOldCategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    VIdOld := VCategoryInternal.Id;
+    if VCategoryInternal.DbId = FDbId then begin
+      VIdOld := VCategoryInternal.Id;
+    end;
   end;
   VIdNew := CNotExistCategoryID;
   VLocated := False;

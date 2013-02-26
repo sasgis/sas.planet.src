@@ -6,7 +6,7 @@ uses
   Types,
   i_NotifierTilePyramidUpdate,
   i_ProjectionInfo,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_Bitmap32Static;
 
 type
@@ -33,7 +33,7 @@ type
 
     function GetTile(
       const ATile: TPoint
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   end;
 
   IVectorTileProviderWithNotifier = interface(IVectorTileProvider)

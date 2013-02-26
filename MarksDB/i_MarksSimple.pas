@@ -28,7 +28,7 @@ uses
   t_GeoTypes,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
-  i_MarkCategory,
+  i_Category,
   i_MarkPicture;
 
 type
@@ -98,22 +98,14 @@ type
     function GetLine: ILonLatPolygon;
     property Line: ILonLatPolygon read GetLine;
 
-    function GetBorderColor: TColor32;
-    property BorderColor: TColor32 read GetBorderColor;
-
     function GetFillColor: TColor32;
     property FillColor: TColor32 read GetFillColor;
 
+    function GetLineColor: TColor32;
+    property LineColor: TColor32 read GetLineColor;
+
     function GetLineWidth: Integer;
     property LineWidth: Integer read GetLineWidth;
-  end;
-
-  IMarksSubset = interface
-    ['{D2DBC018-AAF5-44CB-A2B1-B5AC1C3341C5}']
-    function GetSubsetByLonLatRect(const ARect: TDoubleRect): IMarksSubset;
-    function GetSubsetByCategory(const ACategory: ICategory): IMarksSubset;
-    function GetEnum: IEnumUnknown;
-    function IsEmpty: Boolean;
   end;
 
 implementation

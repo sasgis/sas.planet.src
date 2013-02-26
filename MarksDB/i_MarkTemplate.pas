@@ -23,15 +23,16 @@ unit i_MarkTemplate;
 interface
 
 uses
-  GR32;
+  GR32,
+  i_Category;
 
 type
   IMarkTemplate = interface
     ['{2D6A0C13-754C-4BC1-9003-361CA28D311E}']
     function GetNewName: string;
 
-    function GetCategoryStringID: string;
-    property CategoryStringID: string read GetCategoryStringID;
+    function GetCategory: ICategory;
+    property Category: ICategory read GetCategory;
   end;
 
   IMarkTemplatePoint = interface(IMarkTemplate)

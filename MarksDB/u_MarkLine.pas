@@ -29,12 +29,13 @@ uses
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
   i_MarksSimple,
-  i_MarkCategory,
+  i_Category,
   i_HtmlToHintTextConverter,
   u_MarkFullBase;
 
 type
-  TMarkLine = class(TMarkFullBase, IVectorDataItemLine, IMarkLine)
+  TMarkLine = class(TMarkFullBase, IVectorDataItemLine, IMarkLine,
+    IVectorDataItemWithLineParams)
   private
     FLine: ILonLatPath;
     FLineColor: TColor32;
@@ -53,8 +54,6 @@ type
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
-      AId: Integer;
-      AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
       const ALine: ILonLatPath;
@@ -73,8 +72,6 @@ uses
 constructor TMarkLine.Create(
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
-  AId: Integer;
-  AVisible: Boolean;
   const ACategory: ICategory;
   const ADesc: string;
   const ALine: ILonLatPath;
@@ -82,7 +79,7 @@ constructor TMarkLine.Create(
   ALineWidth: Integer
 );
 begin
-  inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
+  inherited Create(AHintConverter, AName, ACategory, ADesc);
   FLine := ALine;
   FLineColor := ALineColor;
   FLineWidth := ALineWidth;

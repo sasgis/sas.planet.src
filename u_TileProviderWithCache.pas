@@ -6,7 +6,7 @@ uses
   Types,
   i_NotifierTilePyramidUpdate,
   i_Bitmap32Static,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_ProjectionInfo,
   i_TileProvider,
   i_TileObjCache,
@@ -34,7 +34,7 @@ type
     FCache: ITileObjCacheVector;
   private
     function GetProjectionInfo: IProjectionInfo;
-    function GetTile(const ATile: TPoint): IVectorDataItemList;
+    function GetTile(const ATile: TPoint): IVectorItemSubset;
     function GetChangeNotifier: INotifierTilePyramidUpdate;
   public
     constructor Create(
@@ -111,7 +111,7 @@ end;
 
 function TVectorTileProviderWithCache.GetTile(
   const ATile: TPoint
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VZoom: Byte;
 begin

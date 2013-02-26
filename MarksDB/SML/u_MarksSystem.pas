@@ -35,6 +35,7 @@ uses
   i_MarksSimple,
   i_MarkPicture,
   i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_ImportConfig,
   i_HtmlToHintTextConverter,
   i_MarksFactoryConfig,
@@ -45,6 +46,7 @@ uses
   i_MarksDb,
   i_MarksSystem,
   i_MarksDbSmlInternal,
+  i_MarkFactorySmlInternal,
   i_StaticTreeItem,
   i_StaticTreeBuilder,
   u_BaseInterfacedObject;
@@ -55,13 +57,17 @@ type
     FBasePath: IPathConfig;
     FMarksFactoryConfig: IMarksFactoryConfig;
     FState: IReadWriteStateChangeble;
+    FDbId: Integer;
 
     FMarksDb: IMarksDb;
     FMarksDbInternal: IMarksDbSmlInternal;
     FCategoryDB: IMarkCategoryDB;
     FCategoryDBInternal: IMarkCategoryDBSmlInternal;
+    FFactoryDbInternal: IMarkFactorySmlInternal;
+
     FCategoryTreeBuilder: IStaticTreeBuilder;
     FMarksSubsetTreeBuilder: IStaticTreeBuilder;
+    function GetCategoryListByMarksSubset(const ASubset: IVectorItemSubset): IInterfaceList;
   private
     function GetState: IReadWriteStateChangeble;
     function GetMarksDb: IMarksDb;
@@ -76,12 +82,12 @@ type
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
     function ImportItemsList(
-      const ADataItemList: IVectorDataItemList;
+      const ADataItemList: IVectorItemSubset;
       const AImportConfig: IImportConfig;
       const ANamePrefix: string
     ): IInterfaceList;
 
-    function MarksSubsetToStaticTree(const ASubset: IMarksSubset): IStaticTreeItem;
+    function MarksSubsetToStaticTree(const ASubset: IVectorItemSubset): IStaticTreeItem;
     function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
 
     procedure ReadConfig(const AConfigData: IConfigDataProvider);
@@ -106,11 +112,12 @@ implementation
 uses
   SysUtils,
   ActiveX,
+  i_Category,
   i_MarkFactory,
   i_MarkTemplate,
   u_StaticTreeBuilderBase,
   u_ReadWriteStateInternal,
-  u_MarksSubset,
+  u_MarkFactorySmlDbInternal,
   u_MarksDb,
   u_MarkCategoryDB;
 
@@ -187,13 +194,13 @@ procedure TStaticTreeByMarksSubsetBuilder.ProcessItems(
   AList: TStringList
 );
 var
-  VSubset: IMarksSubset;
+  VSubset: IVectorItemSubset;
   VEnum: IEnumUnknown;
   VMark: IMark;
   i: Cardinal;
 begin
   inherited;
-  VSubset := ASource as IMarksSubset;
+  VSubset := ASource as IVectorItemSubset;
   VEnum := VSubset.GetEnum;
   while (VEnum.Next(1, VMark, @i) = S_OK) do begin
     ProcessItem(ASource, VMark, AList);
@@ -218,23 +225,29 @@ var
   VState: TReadWriteStateInternal;
 begin
   inherited Create;
+  FDbId := Integer(Self);
   FBasePath := ABasePath;
   VState := TReadWriteStateInternal.Create;
   FState := VState;
-  VCategoryDb := TMarkCategoryDB.Create(VState, FBasePath, ACategoryFactoryConfig);
+  VCategoryDb := TMarkCategoryDB.Create(FDbId , VState, FBasePath, ACategoryFactoryConfig);
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
   FMarksFactoryConfig := AFactoryConfig;
-  VMarksDb :=
-    TMarksDb.Create(
-      VState,
-      ABasePath,
+  FFactoryDbInternal :=
+    TMarkFactorySmlDbInternal.Create(
+      FDbId,
       AMarkPictureList,
-      FCategoryDBInternal,
-      APerfCounterList.CreateAndAddNewSubList('MarksDb'),
       AVectorItemsFactory,
       AHintConverter,
-      FMarksFactoryConfig
+      FCategoryDBInternal
+    );
+  VMarksDb :=
+    TMarksDb.Create(
+      Integer(Self),
+      VState,
+      ABasePath,
+      FFactoryDbInternal,
+      APerfCounterList.CreateAndAddNewSubList('MarksDb')
     );
   FMarksDb := VMarksDb;
   FMarksDbInternal := VMarksDb;
@@ -271,6 +284,41 @@ end;
 function TMarksSystem.GetCategoryDB: IMarkCategoryDB;
 begin
   Result := FCategoryDB;
+end;
+
+function TMarksSystem.GetCategoryListByMarksSubset(
+  const ASubset: IVectorItemSubset
+): IInterfaceList;
+var
+  VResult: TInterfaceList;
+  VEnum: IEnumUnknown;
+  VItem: IInterface;
+  VCnt: Integer;
+  VMark: IMark;
+  VCategory: ICategory;
+begin
+  if ASubset.IsEmpty then begin
+    Result := nil;
+    Exit;
+  end;
+  VResult := TInterfaceList.Create;
+  Result := VResult;
+  VResult.Lock;
+  try
+    VEnum := ASubset.GetEnum;
+    while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
+      if Supports(VItem, IMark, VMark) then begin
+        VCategory := VMark.Category;
+        if VCategory <> nil then begin
+          if VResult.IndexOf(VCategory) < 0 then begin
+            VResult.Add(VCategory);
+          end;
+        end;
+      end;
+    end;
+  finally
+    VResult.Unlock;
+  end;
 end;
 
 function TMarksSystem.GetMarkByStringId(const AId: string): IMark;
@@ -352,7 +400,7 @@ begin
 end;
 
 function TMarksSystem.ImportItemsList(
-  const ADataItemList: IVectorDataItemList;
+  const ADataItemList: IVectorItemSubset;
   const AImportConfig: IImportConfig;
   const ANamePrefix: string
 ): IInterfaceList;
@@ -362,19 +410,26 @@ var
   VLine: IVectorDataItemLine;
   VPoly: IVectorDataItemPoly;
   i: Integer;
-  VFactory: IMarkFactory;
   VMark: IMark;
   VTemplateNewPoint: IMarkTemplatePoint;
   VTemplateNewLine: IMarkTemplateLine;
   VTemplateNewPoly: IMarkTemplatePoly;
   VMarksList: IInterfaceList;
   VName: string;
+  VPic: IMarkPicture;
+  VCategory: ICategory;
 begin
   Result := nil;
-  VFactory := FMarksDb.Factory;
   VTemplateNewPoint := AImportConfig.TemplateNewPoint;
   VTemplateNewLine := AImportConfig.TemplateNewLine;
   VTemplateNewPoly := AImportConfig.TemplateNewPoly;
+
+  VPic := nil;
+  if VTemplateNewPoint <> nil then begin
+    VPic :=  FFactoryDbInternal.MarkPictureList.FindByNameOrDefault(VTemplateNewPoint.PicName);
+  end;
+  VCategory := AImportConfig.RootCategory;
+
   VMarksList := TInterfaceList.Create;
   for i := 0 to ADataItemList.Count - 1 do begin
     VMark := nil;
@@ -389,32 +444,58 @@ begin
     end;
     if Supports(VItem, IVectorDataItemPoint, VPoint) then begin
       if VTemplateNewPoint <> nil then begin
+        if VName = '' then begin
+          VName := VTemplateNewPoint.GetNewName;
+        end;
         VMark :=
-          VFactory.CreateNewPoint(
-            VPoint.Point,
+          FFactoryDbInternal.CreatePoint(
+            CNotExistMarkID,
             VName,
+            True,
+            VTemplateNewPoint.PicName,
+            VPic,
+            VCategory,
             VPoint.Desc,
-            VTemplateNewPoint
+            VPoint.Point,
+            VTemplateNewPoint.TextColor,
+            VTemplateNewPoint.TextBgColor,
+            VTemplateNewPoint.FontSize,
+            VTemplateNewPoint.MarkerSize
           );
       end;
     end else if Supports(VItem, IVectorDataItemLine, VLine) then begin
       if VTemplateNewLine <> nil then begin
+        if VName = '' then begin
+          VName := VTemplateNewLine.GetNewName;
+        end;
         VMark :=
-          VFactory.CreateNewLine(
-            VLine.Line,
+          FFactoryDbInternal.CreateLine(
+            CNotExistMarkID,
             VName,
+            True,
+            VCategory,
             VLine.Desc,
-            VTemplateNewLine
+            VLine.Line,
+            VTemplateNewLine.LineColor,
+            VTemplateNewLine.LineWidth
           );
       end;
     end else if Supports(VItem, IVectorDataItemPoly, VPoly) then begin
       if VTemplateNewPoly <> nil then begin
+        if VName = '' then begin
+          VName := VTemplateNewPoly.GetNewName;
+        end;
         VMark :=
-          VFactory.CreateNewPoly(
-            VPoly.Line,
+          FFactoryDbInternal.CreatePoly(
+            CNotExistMarkID,
             VName,
+            True,
+            VCategory,
             VPoly.Desc,
-            VTemplateNewPoly
+            VPoly.Line,
+            VTemplateNewPoly.BorderColor,
+            VTemplateNewPoly.FillColor,
+            VTemplateNewPoly.LineWidth
           );
       end;
     end;
@@ -428,7 +509,7 @@ begin
 end;
 
 function TMarksSystem.MarksSubsetToStaticTree(
-  const ASubset: IMarksSubset
+  const ASubset: IVectorItemSubset
 ): IStaticTreeItem;
 begin
   Result := FMarksSubsetTreeBuilder.BuildStatic(ASubset);

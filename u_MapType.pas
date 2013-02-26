@@ -64,6 +64,7 @@ uses
   i_TileFileNameParsersList,
   i_NotifierTilePyramidUpdate,
   i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_VectorDataFactory,
   i_ProjConverter,
   i_TileDownloadSubsystem,
@@ -129,7 +130,7 @@ type
       const AXY: TPoint;
       const AZoom: byte;
       var AVersionInfo: IMapVersionInfo
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
     function LoadTileFromPreZ(
       const AXY: TPoint;
       const AZoom: byte;
@@ -171,7 +172,7 @@ type
       const AZoom: byte;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
     function LoadTileUni(
       const AXY: TPoint;
       const AZoom: byte;
@@ -585,7 +586,7 @@ function TMapType.LoadKmlTileFromStorage(
   const AXY: TPoint;
   const AZoom: byte;
   var AVersionInfo: IMapVersionInfo
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VTileInfoWithData: ITileInfoWithData;
   VIdData: TIdData;
@@ -802,7 +803,7 @@ function TMapType.LoadTileVector(
   const AZoom: byte;
   IgnoreError: Boolean;
   const ACache: ITileObjCacheVector
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VVersionInfo: IMapVersionInfo;
 begin

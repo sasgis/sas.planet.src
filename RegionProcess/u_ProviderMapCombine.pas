@@ -101,6 +101,7 @@ uses
   i_LonLatRect,
   i_MarksSimple,
   i_MarkerProviderForVectorItem,
+  i_VectorItemSubset,
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   u_GeoFun,
@@ -206,7 +207,7 @@ var
   VLonLatRect: TDoubleRect;
   VZoom: Byte;
   VGeoConverter: ICoordConverter;
-  VMarksSubset: IMarksSubset;
+  VMarksSubset: IVectorItemSubset;
   VMarksConfigStatic: IUsedMarksConfigStatic;
   VList: IInterfaceList;
   VMarksImageProvider: IBitmapLayerProvider;

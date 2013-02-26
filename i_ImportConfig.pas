@@ -23,12 +23,15 @@ unit i_ImportConfig;
 interface
 
 uses
-  i_MarkTemplate,
-  i_MarksDb;
+  i_Category,
+  i_MarkTemplate;
 
 type
   IImportConfig = interface
     ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
+    function GetRootCategory: ICategory;
+    property RootCategory: ICategory read GetRootCategory;
+
     function GetTemplateNewPoint: IMarkTemplatePoint;
     property TemplateNewPoint: IMarkTemplatePoint read GetTemplateNewPoint;
 

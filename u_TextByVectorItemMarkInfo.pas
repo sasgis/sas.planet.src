@@ -4,7 +4,6 @@ interface
 
 uses
   i_VectorDataItemSimple,
-  i_MarksSimple,
   i_ValueToStringConverter,
   i_Datum,
   i_TextByVectorItem,
@@ -15,9 +14,9 @@ type
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;
-    function GetTextForPoint(const AMark: IMarkPoint): string;
-    function GetTextForPath(const AMark: IMarkLine): string;
-    function GetTextForPoly(const AMark: IMarkPoly): string;
+    function GetTextForPoint(const AMark: IVectorDataItemPoint): string;
+    function GetTextForPath(const AMark: IVectorDataItemLine): string;
+    function GetTextForPoly(const AMark: IVectorDataItemPoly): string;
   private
     function GetText(const AItem: IVectorDataItemSimple): string;
   public
@@ -50,15 +49,15 @@ end;
 function TTextByVectorItemMarkInfo.GetText(
   const AItem: IVectorDataItemSimple): string;
 var
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
+  VMarkPoint: IVectorDataItemPoint;
+  VMarkLine: IVectorDataItemLine;
+  VMarkPoly: IVectorDataItemPoly;
 begin
-  if Supports(AItem, IMarkPoint, VMarkPoint) then begin
+  if Supports(AItem, IVectorDataItemPoint, VMarkPoint) then begin
     Result := GetTextForPoint(VMarkPoint);
-  end else if Supports(AItem, IMarkLine, VMarkLine) then begin
+  end else if Supports(AItem, IVectorDataItemLine, VMarkLine) then begin
     Result := GetTextForPath(VMarkLine);
-  end else if Supports(AItem, IMarkPoly, VMarkPoly) then begin
+  end else if Supports(AItem, IVectorDataItemPoly, VMarkPoly) then begin
     Result := GetTextForPoly(VMarkPoly);
   end else begin
     Result := 'Unknown mark type';
@@ -76,12 +75,13 @@ begin
   end;
 end;
 
-function TTextByVectorItemMarkInfo.GetTextForPath(const AMark: IMarkLine): string;
+function TTextByVectorItemMarkInfo.GetTextForPath(const AMark: IVectorDataItemLine): string;
 var
   VLength: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
   i: Integer;
+  VItemWithCategory: IVectorDataItemWithCategory;
   VConverter: IValueToStringConverter;
   VCategoryName: string;
 begin
@@ -94,8 +94,10 @@ begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if AMark.Category <> nil then begin
-    VCategoryName := AMark.Category.Name;
+  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if VItemWithCategory.Category <> nil then begin
+      VCategoryName := VItemWithCategory.Category.Name;
+    end;
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
@@ -105,16 +107,19 @@ begin
   Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 
-function TTextByVectorItemMarkInfo.GetTextForPoint(const AMark: IMarkPoint): string;
+function TTextByVectorItemMarkInfo.GetTextForPoint(const AMark: IVectorDataItemPoint): string;
 var
+  VItemWithCategory: IVectorDataItemWithCategory;
   VConverter: IValueToStringConverter;
   VCategoryName: string;
 begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if AMark.Category <> nil then begin
-    VCategoryName := AMark.Category.Name;
+  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if VItemWithCategory.Category <> nil then begin
+      VCategoryName := VItemWithCategory.Category.Name;
+    end;
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
@@ -122,13 +127,14 @@ begin
   Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 
-function TTextByVectorItemMarkInfo.GetTextForPoly(const AMark: IMarkPoly): string;
+function TTextByVectorItemMarkInfo.GetTextForPoly(const AMark: IVectorDataItemPoly): string;
 var
   VLength: Double;
   VArea: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
   i: Integer;
+  VItemWithCategory: IVectorDataItemWithCategory;
   VConverter: IValueToStringConverter;
   VCategoryName: string;
 begin
@@ -142,8 +148,10 @@ begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if AMark.Category <> nil then begin
-    VCategoryName := AMark.Category.Name;
+  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if VItemWithCategory.Category <> nil then begin
+      VCategoryName := VItemWithCategory.Category.Name;
+    end;
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;

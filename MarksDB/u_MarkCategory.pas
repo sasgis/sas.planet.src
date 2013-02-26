@@ -23,29 +23,25 @@ unit u_MarkCategory;
 interface
 
 uses
+  i_Category,
   i_MarkCategory,
-  i_MarksDbSmlInternal,
   u_BaseInterfacedObject;
 
 type
-  TMarkCategory = class(TBaseInterfacedObject, ICategory, IMarkCategory, IMarkCategorySMLInternal)
+  TMarkCategory = class(TBaseInterfacedObject, ICategory, IMarkCategory)
   private
-    FId: Integer;
     FName: string;
     FVisible: Boolean;
     FAfterScale: integer;
     FBeforeScale: integer;
   private
-    function GetId: integer; stdcall;
-  private
-    function GetName: string; stdcall;
-    function GetStringId: string;
+    function GetName: string; 
     function IsSame(const ACategory: ICategory): Boolean;
     function IsEqual(const ACategory: ICategory): Boolean;
   private
-    function GetVisible: boolean; stdcall;
-    function GetAfterScale: integer; stdcall;
-    function GetBeforeScale: integer; stdcall;
+    function GetVisible: boolean;
+    function GetAfterScale: integer;
+    function GetBeforeScale: integer;
   public
     constructor Create(
       AId: Integer;
@@ -59,8 +55,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  i_MarkCategoryFactoryDbInternal;
+  SysUtils;
 
 { TMarkCategory }
 
@@ -72,7 +67,6 @@ constructor TMarkCategory.Create(
 );
 begin
   inherited Create;
-  FId := AId;
   FName := AName;
   FVisible := AVisible;
   FAfterScale := AAfterScale;
@@ -89,23 +83,9 @@ begin
   Result := FBeforeScale;
 end;
 
-function TMarkCategory.GetId: integer;
-begin
-  Result := FId;
-end;
-
 function TMarkCategory.GetName: string;
 begin
   Result := FName;
-end;
-
-function TMarkCategory.GetStringId: string;
-begin
-  if FId = CNotExistCategoryID then begin
-    Result := '';
-  end else begin
-    Result := IntToStr(FId);
-  end;
 end;
 
 function TMarkCategory.GetVisible: boolean;
@@ -140,15 +120,8 @@ begin
 end;
 
 function TMarkCategory.IsSame(const ACategory: ICategory): Boolean;
-var
-  VCategoryInternal: IMarkCategorySMLInternal;
 begin
-  Result := False;
-  if ACategory <> nil then begin
-    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
-      Result := FId = VCategoryInternal.Id;
-    end;
-  end;
+  Result := ACategory = ICategory(Self);
 end;
 
 end.

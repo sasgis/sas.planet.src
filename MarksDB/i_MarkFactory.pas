@@ -26,7 +26,7 @@ uses
   GR32,
   t_GeoTypes,
   i_VectorItemLonLat,
-  i_MarkCategory,
+  i_Category,
   i_MarkPicture,
   i_MarksFactoryConfig,
   i_MarkTemplate,
@@ -62,7 +62,6 @@ type
     function ModifyPoint(
       const ASource: IMarkPoint;
       const AName: string;
-      AVisible: Boolean;
       const APic: IMarkPicture;
       const ACategory: ICategory;
       const ADesc: string;
@@ -75,7 +74,6 @@ type
     function ModifyLine(
       const ASource: IMarkLine;
       const AName: string;
-      AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
       const ALine: ILonLatPath;
@@ -85,7 +83,6 @@ type
     function ModifyPoly(
       const ASource: IMarkPoly;
       const AName: string;
-      AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
       const ALine: ILonLatPolygon;

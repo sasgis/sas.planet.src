@@ -25,7 +25,7 @@ interface
 uses
   Types,
   i_Bitmap32Static,
-  i_VectorDataItemSimple;
+  i_VectorItemSubset;
 
 type
   ITileObjCacheVector = interface
@@ -40,14 +40,14 @@ type
       const AZoom: Byte
     );
     procedure AddTileToCache(
-      const AObj: IVectorDataItemList;
+      const AObj: IVectorItemSubset;
       const AXY: TPoint;
       const AZoom: Byte
     );
     function TryLoadTileFromCache(
       const AXY: TPoint;
       const AZoom: Byte
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   end;
 
   ITileObjCacheBitmap = interface

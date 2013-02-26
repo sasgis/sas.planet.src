@@ -13,8 +13,9 @@ uses
   ExtCtrls,
   Buttons,
   GR32,
-  i_MarkCategory,
+  i_Category,
   i_ImportConfig,
+  i_MarkFactory,
   i_MarksDb,
   i_MarkCategoryDB,
   i_LanguageManager,
@@ -87,7 +88,7 @@ type
     frMarkCategory: TfrMarkCategorySelectOrAdd;
     frSelectPicture: TfrPictureSelectFromList;
     frSelectedPicture: TfrSelectedPicture;
-    FMarksDb: IMarksDb;
+    FMarkFactory: IMarkFactory;
     procedure SelectImageFromList(Sender: TObject);
   public
     procedure SetIgnore(AValue: Boolean);
@@ -97,8 +98,8 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const ACategoryDB: IMarkCategoryDB;
-      const AMarksDb: IMarksDb
+      const AMarkFactory: IMarkFactory;
+      const ACategoryDB: IMarkCategoryDB
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -108,21 +109,21 @@ implementation
 uses
   SysUtils,
   i_MarkTemplate,
-  i_MarkFactory,
   i_MarkPicture,
   i_MarksFactoryConfig,
+  u_Category,
   u_ImportConfig;
 
 {$R *.dfm}
 
 constructor TfrMarksGeneralOptions.Create(
   const ALanguageManager: ILanguageManager;
-  const ACategoryDB: IMarkCategoryDB;
-  const AMarksDb: IMarksDb
+  const AMarkFactory: IMarkFactory;
+  const ACategoryDB: IMarkCategoryDB
 );
 begin
   inherited Create(ALanguageManager);
-  FMarksDb := AMarksDb;
+  FMarkFactory := AMarkFactory;
 
   frMarkCategory :=
     TfrMarkCategorySelectOrAdd.Create(
@@ -133,7 +134,7 @@ begin
   frSelectPicture :=
     TfrPictureSelectFromList.Create(
       ALanguageManager,
-      FMarksDb.Factory.MarkPictureList,
+      AMarkFactory.MarkPictureList,
       Self.SelectImageFromList
     );
   frSelectedPicture := TfrSelectedPicture.Create(ALanguageManager, Self.imgIconMouseDown);
@@ -149,7 +150,6 @@ end;
 
 procedure TfrMarksGeneralOptions.Init(const ACategory: ICategory);
 var
-  VFactory: IMarkFactory;
   VConfig: IMarksFactoryConfig;
   VPointTemplate: IMarkTemplatePoint;
   VPathTemplate: IMarkTemplateLine;
@@ -165,20 +165,19 @@ begin
 
   frSelectedPicture.Parent := pnlImage;
 
-  VFactory := FMarksDb.Factory;
-  VConfig := VFactory.Config;
+  VConfig := FMarkFactory.Config;
 
   VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
 
   VPicName := VPointTemplate.PicName;
   if VPicName <> '' then begin
     VPic := nil;
-    VPicIndex := FMarksDb.Factory.MarkPictureList.GetIndexByName(VPicName);
+    VPicIndex := FMarkFactory.MarkPictureList.GetIndexByName(VPicName);
     if VPicIndex >= 0 then begin
-      VPic := FMarksDb.Factory.MarkPictureList.Get(VPicIndex);
+      VPic := FMarkFactory.MarkPictureList.Get(VPicIndex);
     end;
   end else begin
-    VPic := FMarksDb.Factory.MarkPictureList.GetDefaultPicture;
+    VPic := FMarkFactory.MarkPictureList.GetDefaultPicture;
   end;
   frSelectPicture.Picture := VPic;
   frSelectedPicture.Picture := frSelectPicture.Picture;
@@ -231,16 +230,16 @@ var
   VCategory: ICategory;
   VPicName: string;
 begin
+  VCategory := frMarkCategory.GetCategory;
   if not chkPointIgnore.Checked then begin
-    VCategory := frMarkCategory.GetCategory;
     VPicName := '';
     if frSelectPicture.Picture <> nil then begin
       VPicName := frSelectPicture.Picture.GetName;
     end;
     VMarkTemplatePoint :=
-      FMarksDb.Factory.Config.PointTemplateConfig.CreateTemplate(
+      FMarkFactory.Config.PointTemplateConfig.CreateTemplate(
         VPicName,
-        VCategory,
+        TCategory.Create(''),
         SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointShadowAlfa.Value)/100)*256)),
         sePointFontSize.Value,
@@ -249,10 +248,9 @@ begin
   end;
   VMarkTemplateLine := nil;
   if not chkLineIgnore.Checked then begin
-    VCategory := frMarkCategory.GetCategory;
     VMarkTemplateLine :=
-      FMarksDb.Factory.Config.LineTemplateConfig.CreateTemplate(
-        VCategory,
+      FMarkFactory.Config.LineTemplateConfig.CreateTemplate(
+        TCategory.Create(''),
         SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
         seLineWidth.Value
       );
@@ -261,8 +259,8 @@ begin
   if not chkPolyIgnore.Checked then begin
     VCategory := frMarkCategory.GetCategory;
     VMarkTemplatePoly :=
-      FMarksDb.Factory.Config.PolyTemplateConfig.CreateTemplate(
-        VCategory,
+      FMarkFactory.Config.PolyTemplateConfig.CreateTemplate(
+        TCategory.Create(''),
         SetAlpha(Color32(clrbxPolyLineColor.Selected),round(((100-sePolyLineTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxPolyFillColor.Selected),round(((100-sePolyFillTransp.Value)/100)*256)),
         sePolyLineWidth.Value
@@ -270,6 +268,7 @@ begin
   end;
   Result :=
     TImportConfig.Create(
+      VCategory,
       VMarkTemplatePoint,
       VMarkTemplateLine,
       VMarkTemplatePoly

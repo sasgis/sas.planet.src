@@ -20,6 +20,7 @@ uses
   i_Bitmap32StaticFactory,
   i_TileError,
   i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_VectorItemsFactory,
   i_ImageResamplerConfig,
   i_IdCacheSimple,
@@ -38,7 +39,7 @@ type
 
     FProjectedCache: IIdCacheSimple;
 
-    FAllElements: IVectorDataItemList;
+    FAllElements: IVectorItemSubset;
     FAllElementsCS: IReadWriteSync;
 
     FVectorMapsSet: IMapTypeSet;
@@ -63,10 +64,10 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
     function MouseOnElements(
       const AVisualConverter: ILocalCoordConverter;
-      const ACopiedElements: IVectorDataItemList;
+      const ACopiedElements: IVectorItemSubset;
       const xy: TPoint;
       var AItemS: Double
     ): IVectorDataItemSimple;
@@ -120,7 +121,7 @@ uses
   u_ListenerByEvent,
   u_TileErrorInfo,
   u_IdCacheSimpleThreadSafe,
-  u_VectorDataItemList,
+  u_VectorDataItemSubset,
   u_GeoFun,
   u_TileIteratorByRect,
   u_Synchronizer,
@@ -195,7 +196,7 @@ var
   VConfig: IVectorItemDrawConfigStatic;
   VLinesClipRect: TDoubleRect;
   VMapPixelRect: TDoubleRect;
-  VList: IVectorDataItemList;
+  VList: IVectorItemSubset;
   VVectorMapsSet: IMapTypeSet;
 begin
   Result := nil;
@@ -248,7 +249,7 @@ function TMapLayerVectorMaps.FindItem(
   out AMarkS: Double
 ): IVectorDataItemSimple;
 var
-  VElements: IVectorDataItemList;
+  VElements: IVectorItemSubset;
 begin
   Result := nil;
   AMarkS := 0;
@@ -267,7 +268,7 @@ end;
 
 function TMapLayerVectorMaps.MouseOnElements(
   const AVisualConverter: ILocalCoordConverter;
-  const ACopiedElements: IVectorDataItemList;
+  const ACopiedElements: IVectorItemSubset;
   const xy: TPoint;
   var AItemS: Double
 ): IVectorDataItemSimple;
@@ -381,7 +382,7 @@ procedure TMapLayerVectorMaps.AddElementsFromMap(
 );
 var
   ii: integer;
-  kml: IVectorDataItemList;
+  kml: IVectorItemSubset;
   VTileIterator: ITileIterator;
   VZoom: Byte;
   VSourceGeoConvert: ICoordConverter;
@@ -471,7 +472,7 @@ end;
 
 function TMapLayerVectorMaps.PrepareWikiElements(AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter): IVectorDataItemList;
+  const ALocalConverter: ILocalCoordConverter): IVectorItemSubset;
 var
   VVectorMapsSet: IMapTypeSet;
   VEnum: IEnumGUID;
@@ -506,7 +507,7 @@ begin
   finally
     VElements.Unlock;
   end;
-  Result := TVectorDataItemList.Create(VElements);
+  Result := TVectorItemSubset.Create(VElements);
 end;
 
 procedure TMapLayerVectorMaps.StartThreads;

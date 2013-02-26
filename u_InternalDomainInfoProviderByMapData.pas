@@ -47,6 +47,7 @@ uses
   i_TileStorage,
   i_TileInfoBasic,
   i_VectorDataItemSimple,
+  i_VectorItemSubset,
   u_BinaryData;
 
 const
@@ -91,7 +92,7 @@ var
   VMapType: IMapType;
   VTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
-  VVectorTile: IVectorDataItemList;
+  VVectorTile: IVectorItemSubset;
   VItem: IVectorDataItemSimple;
   VText: string;
 begin

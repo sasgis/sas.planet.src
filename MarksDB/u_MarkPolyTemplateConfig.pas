@@ -28,7 +28,7 @@ uses
   i_ConfigDataWriteProvider,
   i_LanguageManager,
   i_MarkTemplate,
-  i_MarkCategory,
+  i_Category,
   i_MarksFactoryConfig,
   u_MarkTemplateConfigBase;
 
@@ -62,6 +62,7 @@ uses
   u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,
   u_ResStrings,
+  u_Category,
   u_MarkTemplates;
 
 { TMarkPolyTemplateConfig }
@@ -98,16 +99,17 @@ function TMarkPolyTemplateConfig.CreateTemplate(
   ALineWidth: Integer
 ): IMarkTemplatePoly;
 var
-  VCategoryId: string;
+  VCategory: ICategory;
 begin
-  VCategoryId := '';
-  if ACategory <> nil then begin
-    VCategoryId := ACategory.StringId;
+  VCategory := ACategory;
+  if VCategory = nil then begin
+    VCategory := TCategory.Create('');
   end;
+
   Result :=
     TMarkTemplatePoly.Create(
       NameGenerator,
-      VCategoryId,
+      VCategory,
       ABorderColor,
       AFillColor,
       ALineWidth
@@ -120,16 +122,16 @@ procedure TMarkPolyTemplateConfig.DoReadConfig(
 var
   VBorderColor, VFillColor: TColor32;
   VLineWidth: Integer;
-  VCategoryID: string;
+  VCategoryName: string;
   VTemplate: IMarkTemplatePoly;
 begin
   inherited;
-  VCategoryID := FDefaultTemplate.CategoryStringID;
+  VCategoryName := FDefaultTemplate.Category.Name;
   VBorderColor := FDefaultTemplate.BorderColor;
   VFillColor := FDefaultTemplate.FillColor;
   VLineWidth := FDefaultTemplate.LineWidth;
   if AConfigData <> nil then begin
-    VCategoryID := AConfigData.ReadString('CategoryId', VCategoryID);
+    VCategoryName := AConfigData.ReadString('CategoryName', VCategoryName);
     VBorderColor := ReadColor32(AConfigData, 'LineColor', VBorderColor);
     VFillColor := ReadColor32(AConfigData, 'FillColor', VFillColor);
     VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
@@ -137,7 +139,7 @@ begin
   VTemplate :=
     TMarkTemplatePoly.Create(
       NameGenerator,
-      VCategoryID,
+      TCategory.Create(VCategoryName),
       VBorderColor,
       VFillColor,
       VLineWidth
@@ -150,7 +152,7 @@ procedure TMarkPolyTemplateConfig.DoWriteConfig(
 );
 begin
   inherited;
-  AConfigData.WriteString('CategoryId', FDefaultTemplate.CategoryStringID);
+  AConfigData.WriteString('CategoryName', FDefaultTemplate.Category.Name);
   WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.BorderColor);
   WriteColor32(AConfigData, 'FillColor', FDefaultTemplate.FillColor);
   AConfigData.WriteInteger('LineWidth', FDefaultTemplate.LineWidth);

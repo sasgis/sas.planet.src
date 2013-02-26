@@ -23,8 +23,11 @@ unit i_VectorDataItemSimple;
 interface
 
 uses
+  GR32,
   t_GeoTypes,
   i_LonLatRect,
+  i_MarkPicture,
+  i_Category,
   i_VectorItemLonLat;
 
 type
@@ -45,10 +48,40 @@ type
     function GetInfoCaption: string;
   end;
 
+  IVectorDataItemWithCategory = interface
+    ['{4B83C411-647D-442C-B289-E6F65A65B9F5}']
+    function GetCategory: ICategory;
+    property Category: ICategory read GetCategory;
+  end;
+
   IVectorDataItemPoint = interface(IVectorDataItemSimple)
     ['{C4EF133D-831F-4F8F-BF51-D5B9C89C87D7}']
     function GetPoint: TDoublePoint;
     property Point: TDoublePoint read GetPoint;
+  end;
+
+  IVectorDataItemPointWithIconParams = interface
+    ['{D96343C5-9F7C-4276-BB41-6AA5AD4DE948}']
+    function GetPicName: string;
+    property PicName: string read GetPicName;
+
+    function GetPic: IMarkPicture;
+    property Pic: IMarkPicture read GetPic;
+
+    function GetMarkerSize: Integer;
+    property MarkerSize: Integer read GetMarkerSize;
+  end;
+
+  IVectorDataItemPointWithCaptionParams = interface
+    ['{CBF01A7B-F6CE-4EE2-BEF6-740B624AE41C}']
+    function GetTextColor: TColor32;
+    property TextColor: TColor32 read GetTextColor;
+
+    function GetTextBgColor: TColor32;
+    property TextBgColor: TColor32 read GetTextBgColor;
+
+    function GetFontSize: Integer;
+    property FontSize: Integer read GetFontSize;
   end;
 
   IVectorDataItemLine = interface(IVectorDataItemSimple)
@@ -57,18 +90,25 @@ type
     property Line: ILonLatPath read GetLine;
   end;
 
+  IVectorDataItemWithLineParams = interface
+    ['{DD90D0C7-3855-4367-ADCA-1548280E0512}']
+    function GetLineColor: TColor32;
+    property LineColor: TColor32 read GetLineColor;
+
+    function GetLineWidth: Integer;
+    property LineWidth: Integer read GetLineWidth;
+  end;
+
   IVectorDataItemPoly = interface(IVectorDataItemSimple)
     ['{8693C9BF-C424-4223-AAD2-8DDEAD2344A1}']
     function GetLine: ILonLatPolygon;
     property Line: ILonLatPolygon read GetLine;
   end;
 
-  IVectorDataItemList = interface
-    ['{E2BF9449-23E0-41C2-9824-DCAF226712D8}']
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function GetItem(AIndex: Integer): IVectorDataItemSimple;
+  IVectorDataItemPolyWithFillParams = interface
+    ['{29762CED-12E5-4382-99B9-25FAD102071E}']
+    function GetFillColor: TColor32;
+    property FillColor: TColor32 read GetFillColor;
   end;
 
 implementation

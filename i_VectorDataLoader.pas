@@ -25,7 +25,7 @@ interface
 uses
   i_BinaryData,
   i_VectorDataFactory,
-  i_VectorDataItemSimple;
+  i_VectorItemSubset;
 
 type
   IVectorDataLoader = interface
@@ -34,7 +34,7 @@ type
       const AData: IBinaryData;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   end;
 
 implementation

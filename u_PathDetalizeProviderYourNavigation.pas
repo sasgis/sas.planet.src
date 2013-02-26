@@ -68,6 +68,7 @@ uses
   i_DownloadRequest,
   i_DownloadResult,
   i_EnumDoublePoint,
+  i_VectorItemSubset,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_DownloadRequest,
@@ -102,7 +103,7 @@ function TPathDetalizeProviderYourNavigation.GetPath(
 ): ILonLatPath;
 var
   url: string;
-  kml: IVectorDataItemList;
+  kml: IVectorItemSubset;
   conerr: boolean;
   VPointsAggregator: IDoublePointsAggregator;
   VItem: IVectorDataItemLine;

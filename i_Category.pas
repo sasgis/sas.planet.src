@@ -18,41 +18,18 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_MarkPicture;
+unit i_Category;
 
 interface
 
-uses
-  Classes,
-  i_BinaryData,
-  i_BitmapMarker,
-  i_ConfigDataElement;
-
 type
-  IMarkPicture = interface
-    ['{4F70C829-D49A-4019-AAF6-3AA9BCD2CCAE}']
-    function GetSource: IBinaryData;
-    property Source: IBinaryData read GetSource;
-
-    function GetMarker: IBitmapMarker;
-
+  ICategory = interface
+    ['{B870BAEC-8ADD-4D29-9A9E-B9131C0C5681}']
     function GetName: string;
+    property Name: string read GetName;
 
-    function GetTextAlignment: TAlignment;
-    function GetTextVerticalAlignment: TVerticalAlignment;
-  end;
-
-  IMarkPictureList = interface(IConfigDataElement)
-    ['{C080A087-C571-4654-8B3E-63D6E6A5542F}']
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function Get(AIndex: Integer): IMarkPicture;
-    function GetName(AIndex: Integer): string;
-    function GetIndexByName(const AValue: string): Integer;
-
-    function GetDefaultPicture: IMarkPicture;
-    function FindByNameOrDefault(const AValue: string): IMarkPicture;
+    function IsSame(const ACategory: ICategory): Boolean;
+    function IsEqual(const ACategory: ICategory): Boolean;
   end;
 
 implementation

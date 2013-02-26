@@ -22,7 +22,7 @@ uses
   i_LanguageManager,
   i_Datum,
   i_ValueToStringConverter,
-  i_MarksSimple,
+  i_VectorDataItemSimple,
   u_CommonFormAndFrameParents;
 
 type
@@ -35,12 +35,12 @@ type
     FCancelNotifier: INotifierOperationInternal;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;
-    procedure OnAreaCalc(const APoly: IMarkPoly; const AArea: Double);
-    function GetTextForPoint(const AMark: IMarkPoint): string;
-    function GetTextForPath(const AMark: IMarkLine): string;
-    function GetTextForPoly(const AMark: IMarkPoly; const AArea: Double = -1): string;
+    procedure OnAreaCalc(const APoly: IVectorDataItemPoly; const AArea: Double);
+    function GetTextForPoint(const AMark: IVectorDataItemPoint): string;
+    function GetTextForPath(const AMark: IVectorDataItemLine): string;
+    function GetTextForPoly(const AMark: IVectorDataItemPoly; const AArea: Double = -1): string;
   public
-    procedure ShowInfoModal(const AMark: IMark);
+    procedure ShowInfoModal(const AMark: IVectorDataItemSimple);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -61,11 +61,11 @@ uses
 {$R *.dfm}
 
 type
-  TOnAreaCalc = procedure(const APoly: IMarkPoly; const AArea: Double) of object;
+  TOnAreaCalc = procedure(const APoly: IVectorDataItemPoly; const AArea: Double) of object;
 
   TCalcAreaThread = class(TThread)
   private
-    FPoly: IMarkPoly;
+    FPoly: IVectorDataItemPoly;
     FDatum: IDatum;
     FArea: Double;
     FOnFinish: TOnAreaCalc;
@@ -76,7 +76,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      const APoly: IMarkPoly;
+      const APoly: IVectorDataItemPoly;
       const ADatum: IDatum;
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Cardinal;
@@ -87,7 +87,7 @@ type
 { TCalcAreaThread }
 
 constructor TCalcAreaThread.Create(
-  const APoly: IMarkPoly;
+  const APoly: IVectorDataItemPoly;
   const ADatum: IDatum;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Cardinal;
@@ -144,12 +144,13 @@ begin
   FCancelNotifier.NextOperation;
 end;
 
-function TfrmMarkInfo.GetTextForPath(const AMark: IMarkLine): string;
+function TfrmMarkInfo.GetTextForPath(const AMark: IVectorDataItemLine): string;
 var
   VLength: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
   i: Integer;
+  VItemWithCategory: IVectorDataItemWithCategory;
   VConverter: IValueToStringConverter;
   VCategoryName: string;
 begin
@@ -162,8 +163,10 @@ begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if AMark.Category <> nil then begin
-    VCategoryName := AMark.Category.Name;
+  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if VItemWithCategory.Category <> nil then begin
+      VCategoryName := VItemWithCategory.Category.Name;
+    end;
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
@@ -172,28 +175,32 @@ begin
   Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
 end;
 
-function TfrmMarkInfo.GetTextForPoint(const AMark: IMarkPoint): string;
+function TfrmMarkInfo.GetTextForPoint(const AMark: IVectorDataItemPoint): string;
 var
   VConverter: IValueToStringConverter;
+  VItemWithCategory: IVectorDataItemWithCategory;
   VCategoryName: string;
 begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if AMark.Category <> nil then begin
-    VCategoryName := AMark.Category.Name;
+  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if VItemWithCategory.Category <> nil then begin
+      VCategoryName := VItemWithCategory.Category.Name;
+    end;
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
   Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point)]) + #13#10;
 end;
 
-function TfrmMarkInfo.GetTextForPoly(const AMark: IMarkPoly; const AArea: Double = -1): string;
+function TfrmMarkInfo.GetTextForPoly(const AMark: IVectorDataItemPoly; const AArea: Double = -1): string;
 var
   VLength: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
   i: Integer;
+  VItemWithCategory: IVectorDataItemWithCategory;
   VConverter: IValueToStringConverter;
   VCategoryName: string;
 begin
@@ -206,8 +213,10 @@ begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if AMark.Category <> nil then begin
-    VCategoryName := AMark.Category.Name;
+  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if VItemWithCategory.Category <> nil then begin
+      VCategoryName := VItemWithCategory.Category.Name;
+    end;
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
@@ -221,23 +230,23 @@ begin
   end;
 end;
 
-procedure TfrmMarkInfo.OnAreaCalc(const APoly: IMarkPoly; const AArea: Double);
+procedure TfrmMarkInfo.OnAreaCalc(const APoly: IVectorDataItemPoly; const AArea: Double);
 begin
   mmoInfo.Lines.Text := GetTextForPoly(APoly, AArea);
 end;
 
-procedure TfrmMarkInfo.ShowInfoModal(const AMark: IMark);
+procedure TfrmMarkInfo.ShowInfoModal(const AMark: IVectorDataItemSimple);
 var
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
+  VMarkPoint: IVectorDataItemPoint;
+  VMarkLine: IVectorDataItemLine;
+  VMarkPoly: IVectorDataItemPoly;
   VText: string;
 begin
-  if Supports(AMark, IMarkPoint, VMarkPoint) then begin
+  if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
     VText := GetTextForPoint(VMarkPoint);
-  end else if Supports(AMark, IMarkLine, VMarkLine) then begin
+  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
     VText := GetTextForPath(VMarkLine);
-  end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
+  end else if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
     VText := GetTextForPoly(VMarkPoly);
     TCalcAreaThread.Create(
       VMarkPoly,

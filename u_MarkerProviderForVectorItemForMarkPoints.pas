@@ -65,7 +65,6 @@ uses
   SysUtils,
   GR32_Resamplers,
   t_GeoTypes,
-  i_MarksSimple,
   u_Bitmap32ByStaticBitmap,
   u_BitmapMarker,
   u_BitmapFunc,
@@ -180,32 +179,37 @@ function TMarkerProviderForVectorItemForMarkPoints.GetMarker(
   const AItem: IVectorDataItemSimple): IMarkerDrawable;
 var
   VMarker: IBitmapMarker;
-  VMarkPoint: IMarkPoint;
+  VMarkWithIcon: IVectorDataItemPointWithIconParams;
+  VMarkWithCaption: IVectorDataItemPointWithCaptionParams;
   VMarkerIcon: IMarkerDrawable;
   VMarkerCaption: IMarkerDrawable;
+  VMarkerSize: Integer;
 begin
   Result := nil;
-  if not Supports(AItem, IMarkPoint, VMarkPoint) then begin
-    Exit;
+  VMarkerSize := 0;
+  VMarkerIcon := nil;
+  if Supports(AItem, IVectorDataItemPointWithIconParams, VMarkWithIcon) then begin
+    VMarkerSize := VMarkWithIcon.MarkerSize;
+    VMarker := nil;
+    if (VMarkWithIcon.Pic <> nil) then begin
+      VMarker := VMarkWithIcon.Pic.GetMarker;
+    end;
+    VMarkerIcon := GetIconMarker(VMarker, VMarkerSize);
   end;
-
-  VMarker := nil;
-  if (VMarkPoint.Pic <> nil) then begin
-    VMarker := VMarkPoint.Pic.GetMarker;
-  end;
-  VMarkerIcon := GetIconMarker(VMarker, VMarkPoint.MarkerSize);
 
   VMarkerCaption := nil;
   if FConfig.ShowPointCaption then begin
-    VMarkerCaption :=
-      GetCaptionMarker(
-        VMarkPoint.Name,
-        VMarkPoint.FontSize,
-        VMarkPoint.TextColor,
-        VMarkPoint.TextBgColor,
-        FConfig.UseSolidCaptionBackground,
-        VMarkPoint.MarkerSize
-      );
+    if Supports(AItem, IVectorDataItemPointWithCaptionParams, VMarkWithCaption) then begin
+      VMarkerCaption :=
+        GetCaptionMarker(
+          AItem.Name,
+          VMarkWithCaption.FontSize,
+          VMarkWithCaption.TextColor,
+          VMarkWithCaption.TextBgColor,
+          FConfig.UseSolidCaptionBackground,
+          VMarkerSize
+        );
+    end;
   end;
 
   if (VMarkerCaption <> nil) and (VMarkerIcon <> nil) then begin

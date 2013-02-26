@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MarksSubset;
+unit u_VectorDataItemSubset;
 
 interface
 
@@ -26,90 +26,111 @@ uses
   Classes,
   ActiveX,
   t_GeoTypes,
-  i_MarkCategory,
-  i_MarksSimple,
+  i_VectorDataItemSimple,
+  i_Category,
+  i_VectorItemSubset,
   u_BaseInterfacedObject;
 
 type
-  TMarksSubset = class(TBaseInterfacedObject, IMarksSubset)
+  TVectorItemSubset = class(TBaseInterfacedObject, IVectorItemSubset)
   private
     FList: IInterfaceList;
   private
-    function GetSubsetByLonLatRect(const ARect: TDoubleRect): IMarksSubset;
-    function GetSubsetByCategory(const ACategory: ICategory): IMarksSubset;
+    function GetSubsetByLonLatRect(const ARect: TDoubleRect): IVectorItemSubset;
+    function GetSubsetByCategory(const ACategory: ICategory): IVectorItemSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
+
+    function GetCount: Integer;
+    function GetItem(AIndex: Integer): IVectorDataItemSimple;
   public
-    constructor Create(const AList: IInterfaceList);
+    constructor Create(AList: IInterfaceList);
   end;
 
 implementation
 
 uses
+  SysUtils,
   u_EnumUnknown;
 
-{ TMarksSubset }
+{ TVectorItemSubset }
 
-constructor TMarksSubset.Create(const AList: IInterfaceList);
+constructor TVectorItemSubset.Create(AList: IInterfaceList);
 begin
   inherited Create;
   FList := AList;
 end;
 
-function TMarksSubset.GetEnum: IEnumUnknown;
+function TVectorItemSubset.GetCount: Integer;
+begin
+  Result := FList.Count;
+end;
+
+function TVectorItemSubset.GetEnum: IEnumUnknown;
 begin
   Result := TEnumUnknown.Create(FList);
 end;
 
-function TMarksSubset.GetSubsetByCategory(const ACategory: ICategory): IMarksSubset;
+function TVectorItemSubset.GetItem(AIndex: Integer): IVectorDataItemSimple;
+begin
+  Result := IVectorDataItemSimple(FList.Items[AIndex]);
+end;
+
+function TVectorItemSubset.GetSubsetByCategory(
+  const ACategory: ICategory): IVectorItemSubset;
 var
   VNewList: IInterfaceList;
   i: Integer;
   VCategory: ICategory;
-  VMark: IMark;
+  VItem: IVectorDataItemSimple;
+  VItemWithCategory: IVectorDataItemWithCategory;
 begin
   VNewList := TInterfaceList.Create;
   VNewList.Lock;
   try
     for i := 0 to FList.Count - 1 do begin
-      VMark := IMark(FList.Items[i]);
-      VCategory := VMark.Category;
+      VItem := IVectorDataItemSimple(FList.Items[i]);
+      VCategory := nil;
+      if Supports(VItem, IVectorDataItemWithCategory, VItemWithCategory) then begin
+        VCategory := VItemWithCategory.Category;
+      end;
       if (ACategory <> nil) and (VCategory <> nil) then begin
         if VCategory.IsSame(ACategory) then begin
-          VNewList.Add(VMark);
+          VNewList.Add(VItem);
         end;
       end else if (ACategory = nil) and (VCategory = nil) then begin
-        VNewList.Add(VMark);
+        VNewList.Add(VItem);
       end;
     end;
   finally
     VNewList.Unlock;
   end;
-  Result := TMarksSubset.Create(VNewList);
+  Result := TVectorItemSubset.Create(VNewList);
 end;
 
-function TMarksSubset.GetSubsetByLonLatRect(const ARect: TDoubleRect): IMarksSubset;
+function TVectorItemSubset.GetSubsetByLonLatRect(
+  const ARect: TDoubleRect): IVectorItemSubset;
 var
   VNewList: IInterfaceList;
   i: Integer;
-  VMark: IMark;
+  VItem: IVectorDataItemSimple;
 begin
   VNewList := TInterfaceList.Create;
   VNewList.Lock;
   try
     for i := 0 to FList.Count - 1 do begin
-      VMark := IMark(FList.Items[i]);
-      if VMark.LLRect.IsIntersecWithRect(ARect) then begin
-        VNewList.Add(VMark);
+      VItem := IVectorDataItemSimple(FList.Items[i]);
+      if VItem.LLRect.IsIntersecWithRect(ARect) then begin
+        VNewList.Add(VItem);
       end;
     end;
   finally
     VNewList.Unlock;
   end;
-  Result := TMarksSubset.Create(VNewList);
+  Result := TVectorItemSubset.Create(VNewList);
 end;
 
-function TMarksSubset.IsEmpty: Boolean;
+function TVectorItemSubset.IsEmpty: Boolean;
 begin
   Result := FList.Count = 0;
 end;

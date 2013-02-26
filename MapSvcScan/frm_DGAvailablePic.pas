@@ -1106,7 +1106,7 @@ begin
         VPolygon := FVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
-          VMark := FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoly(
+          VMark := FMarkDBGUI.MarkFactory.CreateNewPoly(
             VPolygon,
             Vname,
             VDesc,

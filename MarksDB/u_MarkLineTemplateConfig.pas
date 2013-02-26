@@ -28,7 +28,7 @@ uses
   i_ConfigDataWriteProvider,
   i_LanguageManager,
   i_MarkTemplate,
-  i_MarkCategory,
+  i_Category,
   i_MarksFactoryConfig,
   u_MarkTemplateConfigBase;
 
@@ -60,6 +60,7 @@ uses
   i_StringConfigDataElement,
   u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,
+  u_Category,
   u_ResStrings,
   u_MarkTemplates;
 
@@ -95,16 +96,17 @@ function TMarkLineTemplateConfig.CreateTemplate(
   ALineWidth: Integer
 ): IMarkTemplateLine;
 var
-  VCategoryId: string;
+  VCategory: ICategory;
 begin
-  VCategoryId := '';
-  if ACategory <> nil then begin
-    VCategoryId := ACategory.StringId;
+  VCategory := ACategory;
+  if VCategory = nil then begin
+    VCategory := TCategory.Create('');
   end;
+
   Result :=
     TMarkTemplateLine.Create(
       NameGenerator,
-      VCategoryId,
+      VCategory,
       ALineColor,
       ALineWidth
     );
@@ -114,24 +116,24 @@ procedure TMarkLineTemplateConfig.DoReadConfig(
   const AConfigData: IConfigDataProvider
 );
 var
-  VCategoryId: string;
+  VCategoryName: string;
   VLineColor: TColor32;
   VLineWidth: Integer;
   VTemplate: IMarkTemplateLine;
 begin
   inherited;
-  VCategoryId := FDefaultTemplate.CategoryStringID;
+  VCategoryName := FDefaultTemplate.Category.Name;
   VLineColor := FDefaultTemplate.LineColor;
   VLineWidth := FDefaultTemplate.LineWidth;
   if AConfigData <> nil then begin
-    VCategoryId := AConfigData.ReadString('CategoryId', VCategoryId);
+    VCategoryName := AConfigData.ReadString('CategoryName', VCategoryName);
     VLineColor := ReadColor32(AConfigData, 'LineColor', VLineColor);
     VLineWidth := AConfigData.ReadInteger('LineWidth', VLineWidth);
   end;
   VTemplate :=
     TMarkTemplateLine.Create(
       NameGenerator,
-      VCategoryId,
+      TCategory.Create(VCategoryName),
       VLineColor,
       VLineWidth
     );
@@ -144,7 +146,7 @@ procedure TMarkLineTemplateConfig.DoWriteConfig(
 );
 begin
   inherited;
-  AConfigData.WriteString('CategoryId', FDefaultTemplate.CategoryStringID);
+  AConfigData.WriteString('CategoryName', FDefaultTemplate.Category.Name);
   WriteColor32(AConfigData, 'LineColor', FDefaultTemplate.LineColor);
   AConfigData.WriteInteger('LineWidth', FDefaultTemplate.LineWidth);
 end;

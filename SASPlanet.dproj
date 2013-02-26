@@ -86,9 +86,6 @@
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
     </DCCReference>
-    <DCCReference Include="frm_ImportConfigEdit.pas">
-      <Form>frmImportConfigEdit</Form>
-    </DCCReference>
     <DCCReference Include="frm_IntrnalBrowser.pas">
       <Form>frmIntrnalBrowser</Form>
     </DCCReference>
@@ -107,26 +104,8 @@
     <DCCReference Include="frm_MapTypeEdit.pas">
       <Form>frmMapTypeEdit</Form>
     </DCCReference>
-    <DCCReference Include="frm_MarkCategoryEdit.pas">
-      <Form>frmMarkCategoryEdit</Form>
-    </DCCReference>
-    <DCCReference Include="frm_MarkEditPath.pas">
-      <Form>frmMarkEditPath</Form>
-    </DCCReference>
-    <DCCReference Include="frm_MarkEditPoint.pas">
-      <Form>frmMarkEditPoint</Form>
-    </DCCReference>
-    <DCCReference Include="frm_MarkEditPoly.pas">
-      <Form>frmMarkEditPoly</Form>
-    </DCCReference>
     <DCCReference Include="frm_MarkInfo.pas">
       <Form>frmMarkInfo</Form>
-    </DCCReference>
-    <DCCReference Include="frm_MarksExplorer.pas">
-      <Form>frmMarksExplorer</Form>
-    </DCCReference>
-    <DCCReference Include="frm_MarksMultiEdit.pas">
-      <Form>frmMarksMultiEdit</Form>
     </DCCReference>
     <DCCReference Include="frm_Settings.pas">
       <Form>frmSettings</Form>
@@ -151,18 +130,6 @@
     </DCCReference>
     <DCCReference Include="fr_MapsList.pas">
       <Form>frMapsList</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="fr_MarkCategorySelectOrAdd.pas">
-      <Form>frMarkCategorySelectOrAdd</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="fr_MarkDescription.pas">
-      <Form>frMarkDescription</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="fr_MarksGeneralOptions.pas">
-      <Form>frMarksGeneralOptions</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_PictureSelectFromList.pas">
@@ -240,6 +207,7 @@
     <DCCReference Include="i_BitmapPostProcessing.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_CalcLineLayerConfig.pas" />
+    <DCCReference Include="i_Category.pas" />
     <DCCReference Include="i_CenterScaleConfig.pas" />
     <DCCReference Include="i_Changeable.pas" />
     <DCCReference Include="i_ConfigDataElement.pas" />
@@ -450,6 +418,7 @@
     <DCCReference Include="i_VectorItemLonLat.pas" />
     <DCCReference Include="i_VectorItemProjected.pas" />
     <DCCReference Include="i_VectorItemsFactory.pas" />
+    <DCCReference Include="i_VectorItemSubset.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_WindowPositionConfig.pas" />
     <DCCReference Include="i_ZmpConfig.pas" />
@@ -508,6 +477,40 @@
     <DCCReference Include="MapSvcScan\u_AvailPicsTerra.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanConfig.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanStorage.pas" />
+    <DCCReference Include="MarksDb\GUI\frm_ImportConfigEdit.pas">
+      <Form>frmImportConfigEdit</Form>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\frm_MarkCategoryEdit.pas">
+      <Form>frmMarkCategoryEdit</Form>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\frm_MarkEditPath.pas">
+      <Form>frmMarkEditPath</Form>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\frm_MarkEditPoint.pas">
+      <Form>frmMarkEditPoint</Form>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\frm_MarkEditPoly.pas">
+      <Form>frmMarkEditPoly</Form>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\frm_MarksExplorer.pas">
+      <Form>frmMarksExplorer</Form>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\frm_MarksMultiEdit.pas">
+      <Form>frmMarksMultiEdit</Form>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\fr_MarkCategorySelectOrAdd.pas">
+      <Form>frMarkCategorySelectOrAdd</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\fr_MarkDescription.pas">
+      <Form>frMarkDescription</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\fr_MarksGeneralOptions.pas">
+      <Form>frMarksGeneralOptions</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="MarksDb\GUI\u_MarksDbGUIHelper.pas" />
     <DCCReference Include="MarksDB\i_MarkCategory.pas" />
     <DCCReference Include="MarksDB\i_MarkCategoryDB.pas" />
     <DCCReference Include="MarksDB\i_MarkCategoryFactory.pas" />
@@ -523,26 +526,33 @@
     <DCCReference Include="MarksDB\SML\i_MarkCategoryFactoryDbInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkFactorySmlInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarksDbSmlInternal.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkCategory.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkCategoryDB.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkCategoryFactory.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkFactory.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkFullBase.pas" />
+    <DCCReference Include="MarksDB\SML\u_MarkCategoryFactorySmlDbInternal.pas" />
+    <DCCReference Include="MarksDB\SML\u_MarkCategorySmlDbInternal.pas" />
+    <DCCReference Include="MarksDB\SML\u_MarkFactorySmlDbInternal.pas" />
+    <DCCReference Include="MarksDB\SML\u_MarkFullBaseSml.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkId.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkLine.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkPoint.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkPoly.pas" />
+    <DCCReference Include="MarksDB\SML\u_MarkLineSml.pas" />
+    <DCCReference Include="MarksDB\SML\u_MarkPointSml.pas" />
+    <DCCReference Include="MarksDB\SML\u_MarkPolySml.pas" />
     <DCCReference Include="MarksDB\SML\u_MarksDb.pas" />
     <DCCReference Include="MarksDB\SML\u_MarksSystem.pas" />
+    <DCCReference Include="MarksDb\u_ImportByVectorLoader.pas" />
+    <DCCReference Include="MarksDB\u_MarkCategory.pas" />
+    <DCCReference Include="MarksDB\u_MarkCategoryFactory.pas" />
     <DCCReference Include="MarksDB\u_MarkCategoryFactoryConfig.pas" />
+    <DCCReference Include="MarksDB\u_MarkFactory.pas" />
+    <DCCReference Include="MarksDB\u_MarkFullBase.pas" />
+    <DCCReference Include="MarksDB\u_MarkLine.pas" />
     <DCCReference Include="MarksDB\u_MarkLineTemplateConfig.pas" />
     <DCCReference Include="MarksDB\u_MarkNameGenerator.pas" />
     <DCCReference Include="MarksDB\u_MarkPictureListSimple.pas" />
     <DCCReference Include="MarksDB\u_MarkPictureSimple.pas" />
+    <DCCReference Include="MarksDB\u_MarkPoint.pas" />
     <DCCReference Include="MarksDB\u_MarkPointTemplateConfig.pas" />
+    <DCCReference Include="MarksDB\u_MarkPoly.pas" />
     <DCCReference Include="MarksDB\u_MarkPolyTemplateConfig.pas" />
     <DCCReference Include="MarksDB\u_MarksFactoryConfig.pas" />
-    <DCCReference Include="MarksDB\u_MarksSubset.pas" />
     <DCCReference Include="MarksDB\u_MarkTemplateConfigBase.pas" />
     <DCCReference Include="MarksDB\u_MarkTemplates.pas" />
     <DCCReference Include="Performance\i_InternalPerformanceCounter.pas" />
@@ -832,6 +842,7 @@
     <DCCReference Include="u_BitmapPostProcessingChangeableByConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_CalcLineLayerConfig.pas" />
+    <DCCReference Include="u_Category.pas" />
     <DCCReference Include="u_CenterScaleConfig.pas" />
     <DCCReference Include="u_ChangeableBase.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
@@ -939,7 +950,6 @@
     <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_ImportByFileExt.pas" />
-    <DCCReference Include="u_ImportByVectorLoader.pas" />
     <DCCReference Include="u_ImportConfig.pas" />
     <DCCReference Include="u_ImportFromArcGIS.pas" />
     <DCCReference Include="u_InetConfig.pas" />
@@ -1055,7 +1065,6 @@
     <DCCReference Include="u_MarkerSimpleConfigStatic.pas" />
     <DCCReference Include="u_MarkPolygonLayerConfig.pas" />
     <DCCReference Include="u_MarkPolyLineLayerConfig.pas" />
-    <DCCReference Include="u_MarksDbGUIHelper.pas" />
     <DCCReference Include="u_MarksDrawConfig.pas" />
     <DCCReference Include="u_MarksDrawConfigStatic.pas" />
     <DCCReference Include="u_MarksLayerConfig.pas" />
@@ -1201,12 +1210,12 @@
     <DCCReference Include="u_VectorDataFactoryForMap.pas" />
     <DCCReference Include="u_VectorDataFactorySimple.pas" />
     <DCCReference Include="u_VectorDataItemBase.pas" />
-    <DCCReference Include="u_VectorDataItemList.pas" />
     <DCCReference Include="u_VectorDataItemOfMapBase.pas" />
     <DCCReference Include="u_VectorDataItemOfMapPoint.pas" />
     <DCCReference Include="u_VectorDataItemOfMapPolygon.pas" />
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
+    <DCCReference Include="u_VectorDataItemSubset.pas" />
     <DCCReference Include="u_VectorItemDrawConfig.pas" />
     <DCCReference Include="u_VectorItemEmpty.pas" />
     <DCCReference Include="u_VectorItemLocal.pas" />

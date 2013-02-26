@@ -10,7 +10,7 @@ uses
   i_Bitmap32StaticFactory,
   i_MapVersionConfig,
   i_BitmapTileSaveLoad,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_ProjectionInfo,
   i_TileProvider,
   i_VectorDataLoader,
@@ -55,7 +55,7 @@ type
     FIsIgnoreError: Boolean;
   private
     function GetProjectionInfo: IProjectionInfo;
-    function GetTile(const ATile: TPoint): IVectorDataItemList;
+    function GetTile(const ATile: TPoint): IVectorItemSubset;
     function GetChangeNotifier: INotifierTilePyramidUpdate;
   public
     constructor Create(
@@ -199,7 +199,7 @@ begin
   Result := FProjectionInfo;
 end;
 
-function TVectorTileProviderByStorage.GetTile(const ATile: TPoint): IVectorDataItemList;
+function TVectorTileProviderByStorage.GetTile(const ATile: TPoint): IVectorItemSubset;
 var
   VTileInfo: ITileInfoWithData;
   VZoom: Byte;

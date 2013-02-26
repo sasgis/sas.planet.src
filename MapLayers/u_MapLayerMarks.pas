@@ -22,6 +22,7 @@ uses
   i_ImageResamplerConfig,
   i_IdCacheSimple,
   i_FindVectorItems,
+  i_VectorItemSubset,
   i_MarkerDrawable,
   i_MarksSimple,
   i_MarksSystem,
@@ -42,7 +43,7 @@ type
     FProjectedCache: IIdCacheSimple;
     FMarkerCache: IIdCacheSimple;
 
-    FMarksSubset: IMarksSubset;
+    FMarksSubset: IVectorItemSubset;
     FMarksSubsetCS: IReadWriteSync;
 
     procedure OnConfigChange;
@@ -50,7 +51,7 @@ type
     function GetMarksSubset(
       const AConfig: IUsedMarksConfigStatic;
       const ALocalConverter: ILocalCoordConverter
-    ): IMarksSubset;
+    ): IVectorItemSubset;
   protected
     function CreateLayerProvider(
       AOperationID: Integer;
@@ -178,7 +179,7 @@ function TMapLayerMarks.CreateLayerProvider(
 ): IBitmapLayerProvider;
 var
   VCounterContext: TInternalPerformanceCounterContext;
-  VMarksSubset: IMarksSubset;
+  VMarksSubset: IVectorItemSubset;
   VMapRect: TDoubleRect;
   VLinesClipRect: TDoubleRect;
   VMarksDrawConfig: IMarksDrawConfigStatic;
@@ -237,7 +238,7 @@ var
   VMark: IMark;
   VMapRect: TDoubleRect;
   VLocalConverter: ILocalCoordConverter;
-  VMarksSubset: IMarksSubset;
+  VMarksSubset: IVectorItemSubset;
   VMarksEnum: IEnumUnknown;
   VSquare: Double;
   i: Cardinal;
@@ -313,7 +314,7 @@ end;
 function TMapLayerMarks.GetMarksSubset(
   const AConfig: IUsedMarksConfigStatic;
   const ALocalConverter: ILocalCoordConverter
-): IMarksSubset;
+): IVectorItemSubset;
 var
   VList: IInterfaceList;
   VZoom: Byte;

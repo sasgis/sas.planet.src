@@ -31,7 +31,7 @@ uses
   i_InternalPerformanceCounter,
   i_MainMemCacheConfig,
   i_Bitmap32Static,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_ListenerTime,
   i_NotifierTime,
   i_TileObjCache,
@@ -103,14 +103,14 @@ type
   TMemTileCacheVector = class(TMemTileCacheBase, ITileObjCacheVector)
   protected
     procedure AddTileToCache(
-      const AObj: IVectorDataItemList;
+      const AObj: IVectorItemSubset;
       const AXY: TPoint;
       const AZoom: Byte
     );
     function TryLoadTileFromCache(
       const AXY: TPoint;
       const AZoom: Byte
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   end;
 
   TMemTileCacheBitmap = class(TMemTileCacheBase, ITileObjCacheBitmap)
@@ -425,7 +425,7 @@ end;
 { TMemTileCacheVector }
 
 procedure TMemTileCacheVector.AddTileToCache(
-  const AObj: IVectorDataItemList;
+  const AObj: IVectorItemSubset;
   const AXY: TPoint;
   const AZoom: Byte
 );
@@ -453,9 +453,9 @@ end;
 function TMemTileCacheVector.TryLoadTileFromCache(
   const AXY: TPoint;
   const AZoom: Byte
-): IVectorDataItemList;
+): IVectorItemSubset;
 begin
-  if not TryLoadObjectFromCache(AXY, AZoom, IVectorDataItemList, Result) then begin
+  if not TryLoadObjectFromCache(AXY, AZoom, IVectorItemSubset, Result) then begin
     Result := nil;
   end;
 end;

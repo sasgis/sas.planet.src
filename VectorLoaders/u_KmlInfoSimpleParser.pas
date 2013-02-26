@@ -30,6 +30,7 @@ uses
   i_VectorDataFactory,
   i_VectorItemsFactory,
   i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_DoublePointsAggregator,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
@@ -89,18 +90,18 @@ type
       AStream: TStream;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   private
     function LoadFromStream(
       AStream: TStream;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   public
     constructor Create(
       const AFactory: IVectorItemsFactory;
@@ -116,7 +117,7 @@ uses
   cUnicodeCodecs,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
-  u_VectorDataItemList,
+  u_VectorDataItemSubset,
   u_GeoFun;
 
 { TKmlInfoSimpleParser }
@@ -199,7 +200,7 @@ function TKmlInfoSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
@@ -216,7 +217,7 @@ function TKmlInfoSimpleParser.LoadFromStream(
   AStream: TStream;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
@@ -235,7 +236,7 @@ end;
 function TKmlInfoSimpleParser.LoadFromStreamInternal(AStream: TStream;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
   function GetAnsiString(AStream: TStream): AnsiString;
   var
     VBOMSize: Integer;
@@ -279,7 +280,7 @@ begin
     if VKml <> '' then begin
       VList := TInterfaceList.Create;
       parse(VKml, VList, AIdData, AFactory);
-      Result := TVectorDataItemList.Create(VList);
+      Result := TVectorItemSubset.Create(VList);
     end else begin
       Assert(False, 'KML data reader - Unknown error');
     end;

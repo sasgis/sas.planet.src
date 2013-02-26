@@ -18,14 +18,13 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit frm_MarkEditPath;
+unit frm_MarkEditPoly;
 
 interface
 
 uses
   Windows,
   SysUtils,
-  Buttons,
   Classes,
   Controls,
   Forms,
@@ -33,55 +32,73 @@ uses
   Spin,
   StdCtrls,
   ExtCtrls,
+  Buttons,
   GR32,
   u_CommonFormAndFrameParents,
   i_PathConfig,
   i_LanguageManager,
   i_MarksSimple,
+  i_MarkFactory,
   i_MarkCategoryDB,
-  i_MarksDb,
   fr_MarkDescription,
   fr_MarkCategorySelectOrAdd;
 
 type
-  TfrmMarkEditPath = class(TFormWitghLanguageManager)
+  TfrmMarkEditPoly = class(TFormWitghLanguageManager)
     lblName: TLabel;
-    lblLineColor: TLabel;
-    lblWidth: TLabel;
     edtName: TEdit;
     btnOk: TButton;
     btnCancel: TButton;
     chkVisible: TCheckBox;
+    lblLineColor: TLabel;
+    lblLineWidth: TLabel;
     clrbxLineColor: TColorBox;
-    seWidth: TSpinEdit;
-    SEtransp: TSpinEdit;
-    lblTransp: TLabel;
-    ColorDialog1: TColorDialog;
+    seLineWidth: TSpinEdit;
+    seLineTransp: TSpinEdit;
+    lblLineTransp: TLabel;
     btnLineColor: TSpeedButton;
+    lblFillColor: TLabel;
+    clrbxFillColor: TColorBox;
+    seFillTransp: TSpinEdit;
+    lblFillTransp: TLabel;
+    btnFillColor: TSpeedButton;
+    lblLine: TLabel;
+    lblFill: TLabel;
+    ColorDialog1: TColorDialog;
+    lblCategory: TLabel;
+    CBKateg: TComboBox;
+    pnlBottomButtons: TPanel;
+    flwpnlFill: TFlowPanel;
+    pnlFill: TPanel;
+    pnlLine: TPanel;
+    flwpnlLine: TFlowPanel;
+    pnlDescription: TPanel;
     pnlCategory: TPanel;
     pnlName: TPanel;
-    pnlDescription: TPanel;
-    flwpnlStyle: TFlowPanel;
-    pnlBottomButtons: TPanel;
     btnSetAsTemplate: TButton;
     procedure btnOkClick(Sender: TObject);
     procedure btnLineColorClick(Sender: TObject);
+    procedure btnFillColorClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSetAsTemplateClick(Sender: TObject);
   private
+    FMarkFactory: IMarkFactory;
     FCategoryDB: IMarkCategoryDB;
-    FMarksDb: IMarksDb;
     frMarkDescription: TfrMarkDescription;
     frMarkCategory: TfrMarkCategorySelectOrAdd;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
-      const ACategoryDB: IMarkCategoryDB;
-      const AMarksDb: IMarksDb
+      const AMarkFactory: IMarkFactory;
+      const ACategoryDB: IMarkCategoryDB
     ); reintroduce;
     destructor Destroy; override;
-    function EditMark(const AMark: IMarkLine; AIsNewMark: Boolean): IMarkLine;
+    function EditMark(
+      const AMark: IMarkPoly;
+      const AIsNewMark: Boolean;
+      var AVisible: Boolean
+    ): IMarkPoly;
   end;
 
 implementation
@@ -93,16 +110,16 @@ uses
 
 {$R *.dfm}
 
-constructor TfrmMarkEditPath.Create(
+constructor TfrmMarkEditPoly.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
-  const ACategoryDB: IMarkCategoryDB;
-  const AMarksDb: IMarksDb
+  const AMarkFactory: IMarkFactory;
+  const ACategoryDB: IMarkCategoryDB
 );
 begin
   inherited Create(ALanguageManager);
-  FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
+  FMarkFactory := AMarkFactory;
 
   frMarkDescription := TfrMarkDescription.Create(ALanguageManager, AMediaPath);
   frMarkCategory :=
@@ -112,40 +129,48 @@ begin
     );
 end;
 
-destructor TfrmMarkEditPath.Destroy;
+destructor TfrmMarkEditPoly.Destroy;
 begin
   FreeAndNil(frMarkDescription);
   FreeAndNil(frMarkCategory);
   inherited;
 end;
 
-function TfrmMarkEditPath.EditMark(const AMark: IMarkLine; AIsNewMark: Boolean): IMarkLine;
+function TfrmMarkEditPoly.EditMark(
+  const AMark: IMarkPoly;
+  const AIsNewMark: Boolean;
+  var AVisible: Boolean
+): IMarkPoly;
 begin
   frMarkCategory.Init(AMark.Category);
   try
     edtName.Text:=AMark.Name;
-    frMarkDescription.Description := AMark.Desc;
-    SEtransp.Value:=100-round(AlphaComponent(AMark.LineColor)/255*100);
-    seWidth.Value:=AMark.LineWidth;
+    frMarkDescription.Description:=AMark.Desc;
+    seLineTransp.Value:=100-round(AlphaComponent(AMark.LineColor)/255*100);
+    seFillTransp.Value:=100-round(AlphaComponent(AMark.FillColor)/255*100);
+    seLineWidth.Value:=AMark.LineWidth;
     clrbxLineColor.Selected:=WinColor(AMark.LineColor);
-    chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
+    clrbxFillColor.Selected:=WinColor(AMark.FillColor);
+    chkVisible.Checked:= AVisible;
     if AIsNewMark then begin
-      Caption := SAS_STR_AddNewPath;
+      Caption:=SAS_STR_AddNewPoly;
     end else begin
-      Caption := SAS_STR_EditPath;
+      Caption:=SAS_STR_EditPoly;
     end;
     Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
-      Result := FMarksDb.Factory.ModifyLine(
-        AMark,
-        edtName.Text,
-        chkVisible.Checked,
-        frMarkCategory.GetCategory,
-        frMarkDescription.Description,
-        AMark.Line,
-        SetAlpha(Color32(clrbxLineColor.Selected),round(((100-SEtransp.Value)/100)*256)),
-        seWidth.Value
-      );
+      Result :=
+        FMarkFactory.ModifyPoly(
+          AMark,
+          edtName.Text,
+          frMarkCategory.GetCategory,
+          frMarkDescription.Description,
+          AMark.Line,
+          SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
+          SetAlpha(Color32(clrbxFillColor.Selected),round(((100-seFillTransp.Value)/100)*256)),
+          seLineWidth.Value
+        );
+      AVisible := chkVisible.Checked;
     end else begin
       Result := nil;
     end;
@@ -154,38 +179,44 @@ begin
   end;
 end;
 
-procedure TfrmMarkEditPath.FormShow(Sender: TObject);
+procedure TfrmMarkEditPoly.FormShow(Sender: TObject);
 begin
   frMarkCategory.Parent := pnlCategory;
   frMarkDescription.Parent := pnlDescription;
   edtName.SetFocus;
 end;
 
-procedure TfrmMarkEditPath.btnOkClick(Sender: TObject);
+procedure TfrmMarkEditPoly.btnOkClick(Sender: TObject);
 begin
   ModalResult := mrOk;
 end;
 
-procedure TfrmMarkEditPath.btnSetAsTemplateClick(Sender: TObject);
+procedure TfrmMarkEditPoly.btnSetAsTemplateClick(Sender: TObject);
 var
-  VConfig: IMarkLineTemplateConfig;
-  VTemplate: IMarkTemplateLine;
+  VConfig: IMarkPolyTemplateConfig;
+  VTemplate: IMarkTemplatePoly;
 begin
   if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
-    VConfig := FMarksDb.Factory.Config.LineTemplateConfig;
+    VConfig := FMarkFactory.Config.PolyTemplateConfig;
     VTemplate :=
       VConfig.CreateTemplate(
         frMarkCategory.GetCategory,
-        SetAlpha(Color32(clrbxLineColor.Selected),round(((100-SEtransp.Value)/100)*256)),
-        seWidth.Value
+        SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
+        SetAlpha(Color32(clrbxFillColor.Selected),round(((100-seFillTransp.Value)/100)*256)),
+        seLineWidth.Value
       );
     VConfig.DefaultTemplate := VTemplate;
   end;
 end;
 
-procedure TfrmMarkEditPath.btnLineColorClick(Sender: TObject);
+procedure TfrmMarkEditPoly.btnLineColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxLineColor.Selected:=ColorDialog1.Color;
+end;
+
+procedure TfrmMarkEditPoly.btnFillColorClick(Sender: TObject);
+begin
+ if ColorDialog1.Execute then clrbxFillColor.Selected:=ColorDialog1.Color;
 end;
 
 end.

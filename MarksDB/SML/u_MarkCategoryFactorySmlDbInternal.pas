@@ -18,44 +18,60 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_VectorDataItemList;
+unit u_MarkCategoryFactorySmlDbInternal;
 
 interface
 
 uses
-  Classes,
-  i_VectorDataItemSimple,
+  i_MarkCategory,
+  i_MarkCategoryFactoryDbInternal,
   u_BaseInterfacedObject;
 
 type
-  TVectorDataItemList = class(TBaseInterfacedObject, IVectorDataItemList)
+  TMarkCategoryFactorySmlDbInternal = class(TBaseInterfacedObject, IMarkCategoryFactoryDbInternal)
   private
-    FList: IInterfaceList;
+    FDbId: Integer;
   private
-    function GetCount: Integer;
-    function GetItem(AIndex: Integer): IVectorDataItemSimple;
+    function CreateCategory(
+      AId: Integer;
+      const AName: string;
+      AVisible: Boolean;
+      AAfterScale: integer;
+      ABeforeScale: integer
+    ): IMarkCategory;
   public
-    constructor Create(AList: IInterfaceList);
+    constructor Create(const ADbId: Integer);
   end;
 
 implementation
 
-{ TVectorDataItemList }
+uses
+  u_MarkCategorySmlDbInternal;
 
-constructor TVectorDataItemList.Create(AList: IInterfaceList);
+{ TMarkCategoryFactorySmlDbInternal }
+
+constructor TMarkCategoryFactorySmlDbInternal.Create(const ADbId: Integer);
 begin
   inherited Create;
-  FList := AList;
+  FDbId := ADbId;
 end;
 
-function TVectorDataItemList.GetCount: Integer;
+function TMarkCategoryFactorySmlDbInternal.CreateCategory(
+  AId: Integer;
+  const AName: string;
+  AVisible: Boolean;
+  AAfterScale, ABeforeScale: integer
+): IMarkCategory;
 begin
-  Result := FList.Count;
-end;
-
-function TVectorDataItemList.GetItem(AIndex: Integer): IVectorDataItemSimple;
-begin
-  Result := IVectorDataItemSimple(FList.Items[AIndex]);
+  Result :=
+    TMarkCategorySmlDbInternal.Create(
+      AId,
+      FDbId,
+      AName,
+      AVisible,
+      AAfterScale,
+      ABeforeScale
+    );
 end;
 
 end.

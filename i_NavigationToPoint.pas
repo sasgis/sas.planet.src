@@ -24,7 +24,6 @@ interface
 
 uses
   t_GeoTypes,
-  i_MarksSimple,
   i_ConfigDataElement;
 
 type
@@ -33,14 +32,14 @@ type
     function GetIsActive: Boolean;
     property IsActive: Boolean read GetIsActive;
 
-    function GetMarkId: IMarkId;
-    property MarkId: IMarkId read GetMarkId;
+    function GetMarkId: string;
+    property MarkId: string read GetMarkId;
 
     function GetLonLat: TDoublePoint;
     property LonLat: TDoublePoint read GetLonLat;
 
     procedure StartNavToMark(
-      const AMarkId: IMarkId;
+      const AMarkId: string;
       const APointLonLat: TDoublePoint
     );
     procedure StartNavLonLat(const APointLonLat: TDoublePoint);

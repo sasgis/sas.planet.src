@@ -11,7 +11,7 @@ object frMarkCategorySelectOrAdd: TfrMarkCategorySelectOrAdd
     Left = 3
     Top = 3
     Width = 49
-    Height = 21
+    Height = 13
     Align = alLeft
     Caption = 'Category:'
     Layout = tlCenter
@@ -24,7 +24,7 @@ object frMarkCategorySelectOrAdd: TfrMarkCategorySelectOrAdd
     Height = 21
     Align = alClient
     DropDownCount = 20
-    ItemHeight = 13
+    ItemHeight = 0
     TabOrder = 0
     Text = 'New Category'
   end

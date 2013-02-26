@@ -14,6 +14,7 @@ uses
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
   i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_IdCacheSimple,
   i_LocalCoordConverter,
   i_NotifierOperation,
@@ -33,7 +34,7 @@ type
     FPointColor: TColor32;
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItems: IVectorDataItemList;
+    FVectorItems: IVectorItemSubset;
     FProjectionInfo: IProjectionInfo;
     FProjectedCache: IIdCacheSimple;
     FLinesClipRect: TDoubleRect;
@@ -123,7 +124,7 @@ type
       const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IIdCacheSimple;
       const ALinesClipRect: TDoubleRect;
-      const AVectorItems: IVectorDataItemList
+      const AVectorItems: IVectorItemSubset
     );
     destructor Destroy; override;
   end;
@@ -157,7 +158,7 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IIdCacheSimple;
   const ALinesClipRect: TDoubleRect;
-  const AVectorItems: IVectorDataItemList
+  const AVectorItems: IVectorItemSubset
 );
 begin
   inherited Create;

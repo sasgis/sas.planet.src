@@ -88,9 +88,9 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
   end
   object flwpnlZooms: TFlowPanel
     Left = 0
-    Top = 46
+    Top = 43
     Width = 295
-    Height = 31
+    Height = 34
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
@@ -146,7 +146,7 @@ object frmMarkCategoryEdit: TfrmMarkCategoryEdit
       Left = 3
       Top = 3
       Width = 27
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = 'Name'
       Layout = tlCenter

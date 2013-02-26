@@ -46,7 +46,7 @@ object frmMarkEditPath: TfrmMarkEditPath
       Left = 3
       Top = 3
       Width = 31
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = 'Name:'
       Layout = tlCenter

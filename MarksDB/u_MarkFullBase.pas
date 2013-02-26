@@ -18,159 +18,140 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MarkId;
+unit u_MarkFullBase;
 
 interface
 
 uses
-  i_MarksSimple,
+  t_GeoTypes,
+  i_LonLatRect,
+  i_HtmlToHintTextConverter,
+  i_VectorDataItemSimple,
   i_Category,
-  i_MarksDbSmlInternal,
+  i_MarksSimple,
   u_BaseInterfacedObject;
 
 type
-  TMarkId = class(TBaseInterfacedObject, IMarkId, IMarkSMLInternal)
+  TMarkFullBase = class(TBaseInterfacedObject, IMark,
+    IVectorDataItemSimple, IVectorDataItemWithCategory)
   private
     FName: string;
-    FId: Integer;
-    FDbId: Integer;
+    FHintConverter: IHtmlToHintTextConverter;
+    FDesc: string;
     FCategory: ICategory;
-    FCategoryId: Integer;
-    FVisible: Boolean;
-  protected
-    function IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
   protected
     function GetStringID: string;
     function GetName: string;
     function GetMarkType: TGUID; virtual; abstract;
-  protected
-    function GetId: Integer;
-    function GetDbId: integer;
-    function GetCategory: ICategory;
-    function GetCategoryId: Integer;
-    function GetVisible: Boolean;
-    procedure SetVisible(AValue: Boolean);
+    function GetDesc: string;
+    function GetLLRect: ILonLatRect; virtual; abstract;
+    function GetHintText: string;
+    function GetInfoHTML: string;
+    function GetInfoUrl: string;
+    function GetInfoCaption: string;
+    function GetGoToLonLat: TDoublePoint; virtual; abstract;
+    function IsEqual(const AMark: IMark): Boolean; virtual;
     function IsSameId(const AMarkId: IMarkId): Boolean;
+    function GetCategory: ICategory;
   public
     constructor Create(
+      const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
-      AId: Integer;
-      ADbId: Integer;
       const ACategory: ICategory;
-      AVisible: Boolean
+      const ADesc: string
     );
   end;
 
 implementation
 
-uses
-  SysUtils,
-  i_MarkCategoryFactoryDbInternal;
+{ TMarkFullBase }
 
-{ TMarkId }
-
-constructor TMarkId.Create(
+constructor TMarkFullBase.Create(
+  const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
-  AId: Integer;
-  ADbId: Integer;
   const ACategory: ICategory;
-  AVisible: Boolean
+  const ADesc: string
 );
-var
-  VCategory: IMarkCategorySMLInternal;
 begin
   inherited Create;
   FName := AName;
-  FId := AId;
-  FDbId := ADbId;
   FCategory := ACategory;
-  FCategoryId := CNotExistCategoryID;
-  if FCategory <> nil then begin
-    if Supports(FCategory, IMarkCategorySMLInternal, VCategory) then begin
-      FCategoryId := VCategory.Id;
-    end;
-  end;
-  FVisible := AVisible;
+  FHintConverter := AHintConverter;
+  FDesc := ADesc;
 end;
 
-function TMarkId.GetCategory: ICategory;
+function TMarkFullBase.GetCategory: ICategory;
 begin
   Result := FCategory;
 end;
 
-function TMarkId.GetCategoryId: Integer;
+function TMarkFullBase.GetDesc: string;
 begin
-  Result := FCategoryId;
+  Result := FDesc;
 end;
 
-function TMarkId.GetDbId: integer;
+function TMarkFullBase.GetHintText: string;
 begin
-  Result := FDbId;
+  Result := FHintConverter.Convert(GetName, FDesc);
 end;
 
-function TMarkId.GetId: Integer;
+function TMarkFullBase.GetInfoCaption: string;
 begin
-  Result := FId;
+  Result := GetName;
 end;
 
-function TMarkId.GetName: string;
+function TMarkFullBase.GetInfoHTML: string;
+begin
+  Result := '';
+  if FDesc <> '' then begin
+    Result := '<HTML><BODY>';
+    Result := Result + FDesc;
+    Result := Result + '</BODY></HTML>';
+  end;
+end;
+
+function TMarkFullBase.GetInfoUrl: string;
+begin
+  Result := '';
+end;
+
+function TMarkFullBase.GetName: string;
 begin
   Result := FName;
 end;
 
-function TMarkId.GetStringID: string;
+function TMarkFullBase.GetStringID: string;
 begin
   Result := '';
-  if FId >= 0 then begin
-    Result := IntToStr(FId);
-  end;
 end;
 
-function TMarkId.GetVisible: Boolean;
-begin
-  Result := FVisible;
-end;
-
-function TMarkId.IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
+function TMarkFullBase.IsEqual(const AMark: IMark): Boolean;
 begin
   Result := True;
-  if FDbId <> AMarkInternal.DbId then begin
+  if FName <> AMark.Name then begin
     Result := False;
     Exit;
   end;
-  if FCategoryId <> AMarkInternal.CategoryId then begin
+  if FDesc <> AMark.Desc then begin
     Result := False;
     Exit;
   end;
-  if FId <> AMarkInternal.Id then begin
-    Result := False;
-    Exit;
-  end;
-  if FVisible <> AMarkInternal.Visible then begin
-    Result := False;
-    Exit;
-  end;
-  if FName <> AMarkInternal.Name then begin
-    Result := False;
-    Exit;
-  end;
-end;
-
-function TMarkId.IsSameId(const AMarkId: IMarkId): Boolean;
-var
-  VMarkInternal: IMarkSMLInternal;
-begin
-  Result := False;
-  if AMarkId <> nil then begin
-    if Supports(AMarkId, IMarkSMLInternal, VMarkInternal) then begin
-      Result := (FId = VMarkInternal.Id) and (FDbId = VMarkInternal.DbId);
+  if FCategory <> nil then begin
+    if not FCategory.IsSame(AMark.Category) then begin
+      Result := False;
+      Exit;
+    end;
+  end else begin
+    if AMark.Category <> nil then begin
+      Result := False;
+      Exit;
     end;
   end;
 end;
 
-procedure TMarkId.SetVisible(AValue: Boolean);
+function TMarkFullBase.IsSameId(const AMarkId: IMarkId): Boolean;
 begin
-  FVisible := AValue;
+  Result := False;
 end;
 
 end.

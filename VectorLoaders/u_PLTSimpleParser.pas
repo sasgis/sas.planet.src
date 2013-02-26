@@ -29,6 +29,7 @@ uses
   i_VectorDataFactory,
   i_VectorItemsFactory,
   i_VectorDataLoader,
+  i_VectorItemSubset,
   i_DoublePointsAggregator,
   i_InternalPerformanceCounter,
   i_VectorDataItemSimple,
@@ -53,12 +54,12 @@ type
       AStream: TStream;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   public
     constructor Create(
       const AFactory: IVectorItemsFactory;
@@ -70,7 +71,7 @@ implementation
 
 uses
   u_StreamReadOnlyByBinaryData,
-  u_VectorDataItemList,
+  u_VectorDataItemSubset,
   u_DoublePointsAggregator,
   u_GeoFun,
   u_GeoToStr;
@@ -89,7 +90,7 @@ function TPLTSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
 begin
@@ -106,7 +107,7 @@ function TPLTSimpleParser.LoadFromStream(
   AStream: TStream;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   pltstr: TStringList;
   trackname: string;
@@ -132,7 +133,7 @@ begin
           );
         VList := TInterfaceList.Create;
         VList.Add(VItem);
-        Result := TVectorDataItemList.Create(VList);
+        Result := TVectorItemSubset.Create(VList);
       end;
     end;
   finally

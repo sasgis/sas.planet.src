@@ -18,73 +18,81 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_ImportConfig;
+unit u_ImportByVectorLoader;
 
 interface
 
 uses
-  i_Category,
-  i_MarkTemplate,
+  Classes,
+  i_VectorDataLoader,
+  i_VectorDataFactory,
   i_ImportConfig,
+  i_ImportFile,
+  i_MarksSystem,
   u_BaseInterfacedObject;
 
 type
-  TImportConfig = class(TBaseInterfacedObject, IImportConfig)
+  TImportByVectorLoader = class(TBaseInterfacedObject, IImportFile)
   private
-    FRootCategory: ICategory;
-    FTemplateNewPoint: IMarkTemplatePoint;
-    FTemplateNewLine: IMarkTemplateLine;
-    FTemplateNewPoly: IMarkTemplatePoly;
+    FVectorDataFactory: IVectorDataFactory;
+    FLoader: IVectorDataLoader;
   private
-    function GetRootCategory: ICategory;
-    function GetTemplateNewPoint: IMarkTemplatePoint;
-    function GetTemplateNewLine: IMarkTemplateLine;
-    function GetTemplateNewPoly: IMarkTemplatePoly;
+    function ProcessImport(
+      const AMarksSystem: IMarksSystem;
+      const AFileName: string;
+      const AConfig: IImportConfig
+    ): IInterfaceList;
   public
     constructor Create(
-      const ARootCategory: ICategory;
-      const ATemplateNewPoint: IMarkTemplatePoint;
-      const ATemplateNewLine: IMarkTemplateLine;
-      const ATemplateNewPoly: IMarkTemplatePoly
+      const AVectorDataFactory: IVectorDataFactory;
+      const ALoader: IVectorDataLoader
     );
   end;
 
 implementation
 
-{ TImportConfig }
+uses
+  SysUtils,
+  i_MarksSimple,
+  i_BinaryData,
+  i_VectorItemSubset,
+  u_BinaryDataByMemStream;
 
-constructor TImportConfig.Create(
-  const ARootCategory: ICategory;
-  const ATemplateNewPoint: IMarkTemplatePoint;
-  const ATemplateNewLine: IMarkTemplateLine;
-  const ATemplateNewPoly: IMarkTemplatePoly
+{ TImportByVectorLoader }
+
+constructor TImportByVectorLoader.Create(
+  const AVectorDataFactory: IVectorDataFactory;
+  const ALoader: IVectorDataLoader
 );
 begin
   inherited Create;
-  FRootCategory := ARootCategory;
-  FTemplateNewPoint := ATemplateNewPoint;
-  FTemplateNewLine := ATemplateNewLine;
-  FTemplateNewPoly := ATemplateNewPoly;
+  FVectorDataFactory := AVectorDataFactory;
+  FLoader := ALoader;
 end;
 
-function TImportConfig.GetRootCategory: ICategory;
+function TImportByVectorLoader.ProcessImport(
+  const AMarksSystem: IMarksSystem;
+  const AFileName: string;
+  const AConfig: IImportConfig
+): IInterfaceList;
+var
+  VMemStream: TMemoryStream;
+  VData: IBinaryData;
+  VVectorData: IVectorItemSubset;
 begin
-  Result := FRootCategory;
-end;
-
-function TImportConfig.GetTemplateNewLine: IMarkTemplateLine;
-begin
-  Result := FTemplateNewLine;
-end;
-
-function TImportConfig.GetTemplateNewPoint: IMarkTemplatePoint;
-begin
-  Result := FTemplateNewPoint;
-end;
-
-function TImportConfig.GetTemplateNewPoly: IMarkTemplatePoly;
-begin
-  Result := FTemplateNewPoly;
+  Result := nil;
+  VMemStream := TMemoryStream.Create;
+  try
+    VMemStream.LoadFromFile(AFileName);
+    VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+    VMemStream := nil;
+    VVectorData := FLoader.Load(VData, nil, FVectorDataFactory);
+    if Assigned(VVectorData) then begin
+      Result := AMarksSystem.ImportItemsList(VVectorData, AConfig, ExtractFileName(AFileName));
+    end;
+  finally
+    VMemStream.Free;
+  end;
 end;
 
 end.

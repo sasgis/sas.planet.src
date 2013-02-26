@@ -26,7 +26,7 @@ uses
   i_BinaryData,
   i_VectorDataLoader,
   i_VectorItemsFactory,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_VectorDataFactory,
   u_BaseInterfacedObject;
 
@@ -39,7 +39,7 @@ type
       const AData: IBinaryData;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
-    ): IVectorDataItemList;
+    ): IVectorItemSubset;
   public
     constructor Create(
       const AFactory: IVectorItemsFactory
@@ -55,9 +55,10 @@ uses
   Classes,
   t_GeoTypes,
   i_VectorItemLonLat,
+  i_VectorDataItemSimple,
   i_DoublePointsAggregator,
   u_StreamReadOnlyByBinaryData,
-  u_VectorDataItemList,
+  u_VectorDataItemSubset,
   u_DoublePointsAggregator,
   u_GeoFun,
   u_GeoToStr;
@@ -388,7 +389,7 @@ function TCsvParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
-): IVectorDataItemList;
+): IVectorItemSubset;
 var
   VFileBody, VFileHeader, VParsedLine: TStringList;
   i, VIndexVoxField: Integer;
@@ -556,7 +557,7 @@ begin
     VFileHeader.Free;
     VParsedLine.Free;
   end;
-  Result := TVectorDataItemList.Create(VAllItems);
+  Result := TVectorItemSubset.Create(VAllItems);
 end;
 
 end.

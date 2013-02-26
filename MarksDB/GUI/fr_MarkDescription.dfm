@@ -31,7 +31,7 @@ object frMarkDescription: TfrMarkDescription
       Left = 3
       Top = 3
       Width = 57
-      Height = 22
+      Height = 13
       Align = alLeft
       Caption = 'Description:'
       Layout = tlBottom

@@ -49,6 +49,7 @@ type
     function GetIndexByName(const AValue: string): Integer;
 
     function GetDefaultPicture: IMarkPicture;
+    function FindByNameOrDefault(const AValue: string): IMarkPicture;
   public
     constructor Create(
       const ABasePath: IPathConfig;
@@ -135,6 +136,26 @@ procedure TMarkPictureListSimple.DoWriteConfig(
 );
 begin
   inherited;
+end;
+
+function TMarkPictureListSimple.FindByNameOrDefault(
+  const AValue: string): IMarkPicture;
+var
+  VIndex: Integer;
+begin
+  Result := nil;
+  LockRead;
+  try
+    if FList.Find(AValue, VIndex) then begin
+      Result := Get(VIndex);
+    end else begin
+      if GetCount > 0 then begin
+        Result := Get(0);
+      end;
+    end;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TMarkPictureListSimple.Get(AIndex: Integer): IMarkPicture;

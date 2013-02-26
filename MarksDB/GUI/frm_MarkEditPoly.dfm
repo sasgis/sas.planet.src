@@ -95,7 +95,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     end
     object flwpnlFill: TFlowPanel
       Left = 0
-      Top = 16
+      Top = 13
       Width = 327
       Height = 30
       Align = alTop
@@ -181,7 +181,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
     end
     object flwpnlLine: TFlowPanel
       Left = 0
-      Top = 16
+      Top = 13
       Width = 327
       Height = 28
       Align = alTop
@@ -288,7 +288,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Left = 3
       Top = 3
       Width = 49
-      Height = 19
+      Height = 13
       Align = alLeft
       Caption = 'Category:'
     end
@@ -299,7 +299,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Width = 266
       Height = 21
       Align = alClient
-      ItemHeight = 13
+      ItemHeight = 0
       TabOrder = 0
       Text = 'New Category'
     end
@@ -317,7 +317,7 @@ object frmMarkEditPoly: TfrmMarkEditPoly
       Left = 3
       Top = 3
       Width = 31
-      Height = 21
+      Height = 13
       Align = alLeft
       Caption = 'Name:'
     end

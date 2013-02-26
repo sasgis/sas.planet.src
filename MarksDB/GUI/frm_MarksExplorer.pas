@@ -210,6 +210,7 @@ uses
   t_CommonTypes,
   t_GeoTypes,
   i_StaticTreeItem,
+  i_Category,
   i_ImportConfig,
   i_MarkTemplate,
   i_MarkPicture,
@@ -558,66 +559,55 @@ var
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
-  VCategoryPoint: ICategory;
-  VCategoryLine: ICategory;
-  VCategoryPoly: ICategory;
+  VCategory: ICategory;
   VPicName: string;
   VPicIndex: Integer;
   VPic: IMarkPicture;
   VMarkId: IMarkId;
   i:integer;
+  VVisible: Boolean;
+  VResult: IMark;
+  VResultList: IInterfaceList;
 begin
   VMarkIdList:=GetSelectedMarksIdList;
   if VMarkIdList <> nil then begin
     if VMarkIdList.Count=1 then begin
       VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VMarkIdList[0]));
-      VMark := FMarkDBGUI.EditMarkModal(VMark, False);
+      VVisible := FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark);
+      VMark := FMarkDBGUI.EditMarkModal(VMark, False, VVisible);
       if VMark <> nil then begin
-        FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMarkIdList[0], VMark);
+        VResult := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMarkIdList[0], VMark);
+        if VResult <> nil then begin
+          FMarkDBGUI.MarksDb.MarksDb.SetMarkVisible(VResult, VVisible);
+        end;
       end;
     end else begin
       VImportConfig := FMarkDBGUI.MarksMultiEditModal(GetSelectedCategory);
       if (VImportConfig <> nil) then begin
+        VCategory := VImportConfig.RootCategory;
         VMarksList:=TInterfaceList.Create;
         if VImportConfig.TemplateNewPoint <> nil then begin
-          VCategoryPoint :=
-            FMarkDBGUI.MarksDb.GetMarkCategoryByStringId(
-              VImportConfig.TemplateNewPoint.CategoryStringID
-            );
             VPicName := VImportConfig.TemplateNewPoint.PicName;
             if VPicName <> '' then begin
               VPic := nil;
-              VPicIndex := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.GetIndexByName(VPicName);
+              VPicIndex := FMarkDBGUI.MarkFactory.MarkPictureList.GetIndexByName(VPicName);
               if VPicIndex >= 0 then begin
-                VPic := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.Get(VPicIndex);
+                VPic := FMarkDBGUI.MarkFactory.MarkPictureList.Get(VPicIndex);
               end;
             end else begin
-              VPic := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.GetDefaultPicture;
+              VPic := FMarkDBGUI.MarkFactory.MarkPictureList.GetDefaultPicture;
             end;
-        end;
-        if VImportConfig.TemplateNewLine <> nil then begin
-          VCategoryLine :=
-            FMarkDBGUI.MarksDb.GetMarkCategoryByStringId(
-              VImportConfig.TemplateNewLine.CategoryStringID
-            );
-        end;
-        if VImportConfig.TemplateNewPoly <> nil then begin
-          VCategoryPoly :=
-            FMarkDBGUI.MarksDb.GetMarkCategoryByStringId(
-              VImportConfig.TemplateNewPoly.CategoryStringID
-            );
         end;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMarkId := IMarkId(VMarkIdList[i]);
           VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(VMarkId);
           if Supports(VMark, IMarkPoint, VMarkPoint) then begin
             if VImportConfig.TemplateNewPoint<>nil then begin
-              VMark:=FMarkDBGUI.MarksDb.MarksDb.Factory.ModifyPoint(
+              VMark:=FMarkDBGUI.MarkFactory.ModifyPoint(
                 VMarkPoint,
                 VMarkPoint.Name,
-                FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
                 VPic,
-                VCategoryPoint,
+                VCategory,
                 VMarkPoint.Desc,
                 VMarkPoint.Point,
                 VImportConfig.TemplateNewPoint.TextColor,
@@ -628,11 +618,10 @@ begin
             end;
           end else if Supports(VMark, IMarkLine, VMarkLine) then begin
             if VImportConfig.TemplateNewLine<>nil then begin
-              VMark:=FMarkDBGUI.MarksDb.MarksDb.Factory.ModifyLine(
+              VMark:=FMarkDBGUI.MarkFactory.ModifyLine(
                 VMarkLine,
                 VMarkLine.Name,
-                FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
-                VCategoryLine,
+                VCategory,
                 VMarkLine.Desc,
                 VMarkLine.Line,
                 VImportConfig.TemplateNewLine.LineColor,
@@ -641,11 +630,10 @@ begin
             end;
           end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
             if VImportConfig.TemplateNewPoly<>nil then begin
-              VMark:=FMarkDBGUI.MarksDb.MarksDb.Factory.ModifyPoly(
+              VMark:=FMarkDBGUI.MarkFactory.ModifyPoly(
                 VMarkPoly,
                 VMarkPoly.Name,
-                FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark),
-                VCategoryPoly,
+                VCategory,
                 VMarkPoly.Desc,
                 VMarkPoly.Line,
                 VImportConfig.TemplateNewPoly.BorderColor,
@@ -659,7 +647,10 @@ begin
           end;
         end;
         if (VMarksList<>nil) then begin
-          FMarkDBGUI.MarksDb.MarksDb.UpdateMarksList(VMarkIdList, VMarksList);
+          VResultList := FMarkDBGUI.MarksDb.MarksDb.UpdateMarksList(VMarkIdList, VMarksList);
+          if VResultList <> nil then begin
+            FMarkDBGUI.MarksDb.MarksDb.SetMarkVisibleByIDList(VResultList, True);
+          end;
         end;
       end;
     end;
@@ -698,7 +689,7 @@ begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
       LL := VMark.GetGoToLonLat;
-      FNavToPoint.StartNavToMark(VMark as IMarkId, LL);
+      FNavToPoint.StartNavToMark(VMark.StringID, LL);
     end else begin
       btnNavOnMark.Checked:=not btnNavOnMark.Checked;
     end;
@@ -872,7 +863,7 @@ begin
         VMarkIdListNew := TInterfaceList.Create;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMark := FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VMarkIdList.Items[i]));
-          VMarkIdListNew.Add(FMarkDBGUI.MarksDb.MarksDb.Factory.ReplaceCategory(VMark, VCategoryNew));
+          VMarkIdListNew.Add(FMarkDBGUI.MarkFactory.ReplaceCategory(VMark, VCategoryNew));
         end;
         FMarkDBGUI.MarksDb.MarksDb.UpdateMarksList(VMarkIdList, VMarkIdListNew);
       end;
@@ -985,6 +976,7 @@ var
   VTemplateConfig: IMarkPointTemplateConfig;
   VMark: IMark;
   VCategory: ICategory;
+  VVisible: Boolean;
 begin
   VLonLat := FViewPortState.GetStatic.GetCenterLonLat;
   VCategory := GetSelectedCategory;
@@ -1003,10 +995,14 @@ begin
       );
   end;
 
-  VMark := FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
-  VMark := FMarkDBGUI.EditMarkModal(VMark, True);
+  VVisible := True;
+  VMark := FMarkDBGUI.MarkFactory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
+  VMark := FMarkDBGUI.EditMarkModal(VMark, True, VVisible);
   if VMark <> nil then begin
-    FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
+    VMark := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
+    if VMark <> nil then begin
+      FMarkDBGUI.MarksDb.MarksDb.SetMarkVisible(VMark, VVisible);
+    end;
   end;
 end;
 

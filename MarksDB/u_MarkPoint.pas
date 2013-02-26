@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MarkPoly;
+unit u_MarkPoint;
 
 interface
 
@@ -26,20 +26,23 @@ uses
   GR32,
   t_GeoTypes,
   i_LonLatRect,
-  i_VectorItemLonLat,
-  i_VectorDataItemSimple,
   i_MarksSimple,
-  i_MarkCategory,
+  i_VectorDataItemSimple,
+  i_Category,
+  i_MarkPicture,
   i_HtmlToHintTextConverter,
   u_MarkFullBase;
 
 type
-  TMarkPoly = class(TMarkFullBase, IVectorDataItemPoly, IMarkPoly)
+  TMarkPoint = class(TMarkFullBase, IVectorDataItemPoint, IMarkPoint,
+    IVectorDataItemPointWithIconParams, IVectorDataItemPointWithCaptionParams)
   private
-    FLine: ILonLatPolygon;
-    FBorderColor: TColor32;
-    FFillColor: TColor32;
-    FLineWidth: Integer;
+    FPic: IMarkPicture;
+    FLLRect: ILonLatRect;
+    FTextColor: TColor32;
+    FTextBgColor: TColor32;
+    FFontSize: Integer;
+    FMarkerSize: Integer;
   protected
     function GetMarkType: TGUID; override;
   protected
@@ -47,93 +50,74 @@ type
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IMark): Boolean; override;
   private
-    function GetLine: ILonLatPolygon;
-    function GetBorderColor: TColor32;
-    function GetFillColor: TColor32;
-    function GetLineWidth: Integer;
+    function GetPoint: TDoublePoint;
+    function GetTextColor: TColor32;
+    function GetTextBgColor: TColor32;
+    function GetFontSize: Integer;
+    function GetMarkerSize: Integer;
+    function GetPic: IMarkPicture;
+    function GetPicName: string;
   public
     constructor Create(
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
-      AId: Integer;
-      AVisible: Boolean;
+      const APic: IMarkPicture;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: ILonLatPolygon;
-      ABorderColor: TColor32;
-      AFillColor: TColor32;
-      ALineWidth: Integer
+      const APoint: TDoublePoint;
+      ATextColor: TColor32;
+      ATextBgColor: TColor32;
+      AFontSize: Integer;
+      AMarkerSize: Integer
     );
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_LonLatRectByPoint;
 
-{ TMarkFull }
+{ TMarkPoint }
 
-constructor TMarkPoly.Create(
+constructor TMarkPoint.Create(
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
-  AId: Integer;
-  AVisible: Boolean;
+  const APic: IMarkPicture;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: ILonLatPolygon;
-  ABorderColor, AFillColor: TColor32;
-  ALineWidth: Integer
+  const APoint: TDoublePoint;
+  ATextColor, ATextBgColor: TColor32;
+  AFontSize, AMarkerSize: Integer
 );
 begin
-  inherited Create(AHintConverter, AName, AId, ACategory, ADesc, AVisible);
-  FLine := ALine;
-  FBorderColor := ABorderColor;
-  FFillColor := AFillColor;
-  FLineWidth := ALineWidth;
+  inherited Create(AHintConverter, AName, ACategory, ADesc);
+  FPic := APic;
+  FLLRect := TLonLatRectByPoint.Create(APoint);
+  FTextColor := ATextColor;
+  FTextBgColor := ATextBgColor;
+  FFontSize := AFontSize;
+  FMarkerSize := AMarkerSize;
 end;
 
-function TMarkPoly.GetBorderColor: TColor32;
+function TMarkPoint.GetTextColor: TColor32;
 begin
-  Result := FBorderColor;
+  Result := FTextColor;
 end;
 
-function TMarkPoly.GetFillColor: TColor32;
-begin
-  Result := FFillColor;
-end;
-
-function TMarkPoly.GetGoToLonLat: TDoublePoint;
+function TMarkPoint.IsEqual(const AMark: IMark): Boolean;
 var
-  VRect: TDoubleRect;
-begin
-  VRect := FLine.Bounds.Rect;
-  Result.X := (VRect.Left + VRect.Right) / 2;
-  Result.Y := (VRect.Top + VRect.Bottom) / 2;
-end;
-
-function TMarkPoly.GetLLRect: ILonLatRect;
-begin
-  Result := FLine.Bounds;
-end;
-
-function TMarkPoly.GetMarkType: TGUID;
-begin
-  Result := IMarkPoly;
-end;
-
-function TMarkPoly.IsEqual(const AMark: IMark): Boolean;
-var
-  VMarkPoly: IMarkPoly;
+  VMarkPoint: IMarkPoint;
 begin
   if AMark = IMark(Self) then begin
     Result := True;
     Exit;
   end;
-  if not Supports(AMark, IMarkPoly, VMarkPoly) then begin
+  if not FLLRect.IsEqual(AMark.LLRect) then begin
     Result := False;
     Exit;
   end;
-  if not FLine.Bounds.IsEqual(VMarkPoly.LLRect) then begin
+  if not Supports(AMark, IMarkPoint, VMarkPoint) then begin
     Result := False;
     Exit;
   end;
@@ -141,33 +125,75 @@ begin
     Result := False;
     Exit;
   end;
-  if FBorderColor <> VMarkPoly.BorderColor then begin
+  if FPic <> VMarkPoint.Pic then begin
     Result := False;
     Exit;
   end;
-  if FFillColor <> VMarkPoly.FillColor then begin
+  if FTextColor <> VMarkPoint.TextColor then begin
     Result := False;
     Exit;
   end;
-  if FLineWidth <> VMarkPoly.LineWidth then begin
+  if FTextBgColor <> VMarkPoint.TextBgColor then begin
     Result := False;
     Exit;
   end;
-  if not FLine.IsSame(VMarkPoly.Line) then begin
+  if FFontSize <> VMarkPoint.FontSize then begin
+    Result := False;
+    Exit;
+  end;
+  if FMarkerSize <> VMarkPoint.MarkerSize then begin
     Result := False;
     Exit;
   end;
   Result := True;
 end;
 
-function TMarkPoly.GetLine: ILonLatPolygon;
+function TMarkPoint.GetTextBgColor: TColor32;
 begin
-  Result := FLine;
+  Result := FTextBgColor;
 end;
 
-function TMarkPoly.GetLineWidth: Integer;
+function TMarkPoint.GetGoToLonLat: TDoublePoint;
 begin
-  Result := FLineWidth;
+  Result := FLLRect.TopLeft;
+end;
+
+function TMarkPoint.GetLLRect: ILonLatRect;
+begin
+  Result := FLLRect;
+end;
+
+function TMarkPoint.GetPic: IMarkPicture;
+begin
+  Result := FPic;
+end;
+
+function TMarkPoint.GetPicName: string;
+begin
+  Result := '';
+  if FPic <> nil then begin
+    Result := FPic.GetName;
+  end;
+end;
+
+function TMarkPoint.GetPoint: TDoublePoint;
+begin
+  Result := FLLRect.TopLeft;
+end;
+
+function TMarkPoint.GetFontSize: Integer;
+begin
+  Result := FFontSize;
+end;
+
+function TMarkPoint.GetMarkerSize: Integer;
+begin
+  Result := FMarkerSize;
+end;
+
+function TMarkPoint.GetMarkType: TGUID;
+begin
+  Result := IMarkPoint;
 end;
 
 end.

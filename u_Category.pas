@@ -18,81 +18,65 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_ImportByVectorLoader;
+unit u_Category;
 
 interface
 
 uses
-  Classes,
-  i_VectorDataLoader,
-  i_VectorDataFactory,
-  i_ImportConfig,
-  i_ImportFile,
-  i_MarksSystem,
+  i_Category,
   u_BaseInterfacedObject;
 
 type
-  TImportByVectorLoader = class(TBaseInterfacedObject, IImportFile)
+  TCategory = class(TBaseInterfacedObject, ICategory)
   private
-    FVectorDataFactory: IVectorDataFactory;
-    FLoader: IVectorDataLoader;
+    FName: string;
   private
-    function ProcessImport(
-      const AMarksSystem: IMarksSystem;
-      const AFileName: string;
-      const AConfig: IImportConfig
-    ): IInterfaceList;
+    function GetName: string;
+    function IsSame(const ACategory: ICategory): Boolean;
+    function IsEqual(const ACategory: ICategory): Boolean;
   public
     constructor Create(
-      const AVectorDataFactory: IVectorDataFactory;
-      const ALoader: IVectorDataLoader
+      const AName: string
     );
   end;
 
 implementation
 
-uses
-  SysUtils,
-  i_MarksSimple,
-  i_BinaryData,
-  i_VectorDataItemSimple,
-  u_BinaryDataByMemStream;
+{ TMarkCategory }
 
-{ TImportByVectorLoader }
-
-constructor TImportByVectorLoader.Create(
-  const AVectorDataFactory: IVectorDataFactory;
-  const ALoader: IVectorDataLoader
+constructor TCategory.Create(
+  const AName: string
 );
 begin
   inherited Create;
-  FVectorDataFactory := AVectorDataFactory;
-  FLoader := ALoader;
+  FName := AName;
 end;
 
-function TImportByVectorLoader.ProcessImport(
-  const AMarksSystem: IMarksSystem;
-  const AFileName: string;
-  const AConfig: IImportConfig
-): IInterfaceList;
-var
-  VMemStream: TMemoryStream;
-  VData: IBinaryData;
-  VVectorData: IVectorDataItemList;
+function TCategory.GetName: string;
 begin
-  Result := nil;
-  VMemStream := TMemoryStream.Create;
-  try
-    VMemStream.LoadFromFile(AFileName);
-    VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
-    VMemStream := nil;
-    VVectorData := FLoader.Load(VData, nil, FVectorDataFactory);
-    if Assigned(VVectorData) then begin
-      Result := AMarksSystem.ImportItemsList(VVectorData, AConfig, ExtractFileName(AFileName));
-    end;
-  finally
-    VMemStream.Free;
+  Result := FName;
+end;
+
+function TCategory.IsEqual(const ACategory: ICategory): Boolean;
+begin
+  if ACategory = nil then begin
+    Result := False;
+    Exit;
   end;
+  if ACategory = ICategory(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if ACategory.Name <> FName then begin
+    Result := False;
+    Exit;
+  end;
+  Result := True;
+end;
+
+function TCategory.IsSame(const ACategory: ICategory): Boolean;
+begin
+  Result := ACategory = ICategory(Self);
 end;
 
 end.

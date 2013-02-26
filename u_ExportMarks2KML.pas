@@ -33,8 +33,9 @@ uses
   ActiveX,
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
-  i_MarksSimple,
-  i_MarkCategory,
+  i_Category,
+  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   u_GeoToStr;
 
 type
@@ -47,39 +48,39 @@ type
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FZip: IArchiveWriter;
     procedure AddFolders(
-      const AMarksSet: IMarksSubset;
+      const AMarksSet: IVectorItemSubset;
       const ACategoryList: IInterfaceList
     );
     function AddFolder(
       const AParentNode: IXMLNode;
       const ACategoryNamePostfix: string;
-      const AMarksSubset: IMarksSubset
+      const AMarksSubset: IVectorItemSubset
     ): boolean;
     function AddMarks(
-      const AMarksSubset: IMarksSubset;
+      const AMarksSubset: IVectorItemSubset;
       const inNode: iXMLNode
     ): Boolean;
     procedure AddMark(
-      const Mark: IMark;
+      const Mark: IVectorDataItemSimple;
       const inNode: iXMLNode
     );
-    function SaveMarkIcon(const Mark: IMarkPoint): string;
+    function SaveMarkIcon(const Mark: IVectorDataItemPointWithIconParams): string;
     function Color32toKMLColor(Color32: TColor32): string;
   public
     constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
     destructor Destroy; override;
     procedure ExportToKML(
       const ACategoryList: IInterfaceList;
-      const AMarksSubset: IMarksSubset;
+      const AMarksSubset: IVectorItemSubset;
       const AFileName: string
     );
     procedure ExportCategoryToKML(
-      const ACategory: IMarkCategory;
-      const AMarksSubset: IMarksSubset;
+      const ACategory: ICategory;
+      const AMarksSubset: IVectorItemSubset;
       const AFileName: string
     );
     procedure ExportMarkToKML(
-      const Mark: IMark;
+      const Mark: IVectorDataItemSimple;
       const AFileName: string
     );
   end;
@@ -147,7 +148,7 @@ end;
 
 procedure TExportMarks2KML.ExportToKML(
   const ACategoryList: IInterfaceList;
-  const AMarksSubset: IMarksSubset;
+  const AMarksSubset: IVectorItemSubset;
   const AFileName: string
 );
 var
@@ -175,8 +176,8 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportCategoryToKML(
-  const ACategory: IMarkCategory;
-  const AMarksSubset: IMarksSubset;
+  const ACategory: ICategory;
+  const AMarksSubset: IVectorItemSubset;
   const AFileName: string
 );
 var
@@ -204,7 +205,7 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportMarkToKML(
-  const Mark: IMark;
+  const Mark: IVectorDataItemSimple;
   const AFileName: string
 );
 var
@@ -232,16 +233,16 @@ begin
 end;
 
 procedure TExportMarks2KML.AddFolders(
-  const AMarksSet: IMarksSubset;
+  const AMarksSet: IVectorItemSubset;
   const ACategoryList: IInterfaceList
 );
 var
   K: Integer;
-  VCategory: IMarkCategory;
-  VMarksSubset: IMarksSubset;
+  VCategory: ICategory;
+  VMarksSubset: IVectorItemSubset;
 begin
   for K := 0 to ACategoryList.Count - 1 do begin
-    VCategory := IMarkCategory(Pointer(ACategoryList.Items[K]));
+    VCategory := ICategory(Pointer(ACategoryList.Items[K]));
     VMarksSubset := AMarksSet.GetSubsetByCategory(VCategory);
     AddFolder(doc, VCategory.Name, VMarksSubset);
   end;
@@ -250,7 +251,7 @@ end;
 function TExportMarks2KML.AddFolder(
   const AParentNode: IXMLNode;
   const ACategoryNamePostfix: string;
-  const AMarksSubset: IMarksSubset
+  const AMarksSubset: IVectorItemSubset
 ): boolean;
   function FindNodeWithText(
     AParent: iXMLNode;
@@ -314,11 +315,11 @@ begin
 end;
 
 function TExportMarks2KML.AddMarks(
-  const AMarksSubset: IMarksSubset;
+  const AMarksSubset: IVectorItemSubset;
   const inNode: iXMLNode
 ): Boolean;
 var
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VEnumMarks: IEnumUnknown;
   i: integer;
 begin
@@ -331,7 +332,7 @@ begin
 end;
 
 procedure TExportMarks2KML.AddMark(
-  const Mark: IMark;
+  const Mark: IVectorDataItemSimple;
   const inNode: iXMLNode
 );
 var
@@ -339,34 +340,50 @@ var
   currNode: IXMLNode;
   coordinates: string;
   VFileName: string;
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
+  VMarkPoint: IVectorDataItemPoint;
+  VMarkPointIconParams: IVectorDataItemPointWithIconParams;
+  VMarkPointCaptionParams: IVectorDataItemPointWithCaptionParams;
+  VMarkLine: IVectorDataItemLine;
+  VMarkLineLineParams: IVectorDataItemWithLineParams;
+  VMarkPoly: IVectorDataItemPoly;
+  VMarkPolyFillParams: IVectorDataItemPolyWithFillParams;
   VEnum: IEnumLonLatPoint;
   VLonLat: TDoublePoint;
 begin
   currNode := inNode.AddChild('Placemark');
   currNode.ChildValues['name'] := XMLTextPrepare(Mark.Name);
   currNode.ChildValues['description'] := XMLTextPrepare(Mark.Desc);
-  if Supports(Mark, IMarkPoint, VMarkPoint) then begin
-    with currNode.AddChild('Style') do begin
-      with AddChild('LabelStyle') do begin
-        ChildValues['color'] := Color32toKMLColor(VMarkPoint.TextColor);
-        ChildValues['scale'] := R2StrPoint(VMarkPoint.FontSize / 14);
-      end;
-      if VMarkPoint.Pic <> nil then begin
-        with AddChild('IconStyle') do begin
-          VFileName := SaveMarkIcon(VMarkPoint);
-          width := VMarkPoint.Pic.GetMarker.Size.X;
-          ChildValues['scale'] := R2StrPoint(VMarkPoint.MarkerSize / width);
-          with AddChild('Icon') do begin
-            ChildValues['href'] := VFileName;
+  if Supports(Mark, IVectorDataItemPoint, VMarkPoint) then begin
+    if not Supports(Mark, IVectorDataItemPointWithIconParams, VMarkPointIconParams) then begin
+      VMarkPointIconParams := nil;
+    end;
+    if not Supports(Mark, IVectorDataItemPointWithCaptionParams, VMarkPointCaptionParams) then begin
+      VMarkPointCaptionParams := nil;
+    end;
+    if (VMarkPointCaptionParams <> nil) or (VMarkPointIconParams <> nil)  then begin
+      with currNode.AddChild('Style') do begin
+        if VMarkPointCaptionParams <> nil then begin
+          with AddChild('LabelStyle') do begin
+            ChildValues['color'] := Color32toKMLColor(VMarkPointCaptionParams.TextColor);
+            ChildValues['scale'] := R2StrPoint(VMarkPointCaptionParams.FontSize / 14);
           end;
-          with AddChild('hotSpot') do begin
-            Attributes['x'] := '0.5';
-            Attributes['y'] := 0;
-            Attributes['xunits'] := 'fraction';
-            Attributes['yunits'] := 'fraction';
+        end;
+        if VMarkPointIconParams <> nil then begin
+          if VMarkPointIconParams.Pic <> nil then begin
+            with AddChild('IconStyle') do begin
+              VFileName := SaveMarkIcon(VMarkPointIconParams);
+              width := VMarkPointIconParams.Pic.GetMarker.Size.X;
+              ChildValues['scale'] := R2StrPoint(VMarkPointIconParams.MarkerSize / width);
+              with AddChild('Icon') do begin
+                ChildValues['href'] := VFileName;
+              end;
+              with AddChild('hotSpot') do begin
+                Attributes['x'] := '0.5';
+                Attributes['y'] := 0;
+                Attributes['xunits'] := 'fraction';
+                Attributes['yunits'] := 'fraction';
+              end;
+            end;
           end;
         end;
       end;
@@ -375,11 +392,13 @@ begin
     currNode.ChildValues['extrude'] := 1;
     coordinates := coordinates + R2StrPoint(VMarkPoint.Point.X) + ',' + R2StrPoint(VMarkPoint.Point.Y) + ',0 ';
     currNode.ChildValues['coordinates'] := coordinates;
-  end else if Supports(Mark, IMarkLine, VMarkLine) then begin
-    with currNode.AddChild('Style') do begin
-      with AddChild('LineStyle') do begin
-        ChildValues['color'] := Color32toKMLColor(VMarkLine.LineColor);
-        ChildValues['width'] := R2StrPoint(VMarkLine.LineWidth);
+  end else if Supports(Mark, IVectorDataItemLine, VMarkLine) then begin
+    if Supports(Mark, IVectorDataItemWithLineParams, VMarkLineLineParams) then begin
+      with currNode.AddChild('Style') do begin
+        with AddChild('LineStyle') do begin
+          ChildValues['color'] := Color32toKMLColor(VMarkLineLineParams.LineColor);
+          ChildValues['width'] := R2StrPoint(VMarkLineLineParams.LineWidth);
+        end;
       end;
     end;
     currNode := currNode.AddChild('LineString');
@@ -390,15 +409,27 @@ begin
       coordinates := coordinates + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ',0 ';
     end;
     currNode.ChildValues['coordinates'] := coordinates;
-  end else if Supports(Mark, IMarkPoly, VMarkPoly) then begin
-    with currNode.AddChild('Style') do begin
-      with AddChild('LineStyle') do begin
-        ChildValues['color'] := Color32toKMLColor(VMarkPoly.BorderColor);
-        ChildValues['width'] := R2StrPoint(VMarkPoly.LineWidth);
-      end;
-      with AddChild('PolyStyle') do begin
-        ChildValues['color'] := Color32toKMLColor(VMarkPoly.FillColor);
-        ChildValues['fill'] := 1;
+  end else if Supports(Mark, IVectorDataItemPoly, VMarkPoly) then begin
+    if not Supports(Mark, IVectorDataItemWithLineParams, VMarkLineLineParams) then begin
+      VMarkLineLineParams := nil;
+    end;
+    if not Supports(Mark, IVectorDataItemPolyWithFillParams, VMarkPolyFillParams) then begin
+      VMarkPolyFillParams := nil;
+    end;
+    if (VMarkLineLineParams <> nil) or (VMarkPolyFillParams <> nil) then begin
+      with currNode.AddChild('Style') do begin
+        if VMarkLineLineParams <> nil then begin
+          with AddChild('LineStyle') do begin
+            ChildValues['color'] := Color32toKMLColor(VMarkLineLineParams.LineColor);
+            ChildValues['width'] := R2StrPoint(VMarkLineLineParams.LineWidth);
+          end;
+        end;
+        if VMarkPolyFillParams <> nil then begin
+          with AddChild('PolyStyle') do begin
+            ChildValues['color'] := Color32toKMLColor(VMarkPolyFillParams.FillColor);
+            ChildValues['fill'] := 1;
+          end;
+        end;
       end;
     end;
     currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
@@ -420,7 +451,7 @@ begin
     IntToHex(RedComponent(Color32), 2);
 end;
 
-function TExportMarks2KML.SaveMarkIcon(const Mark: IMarkPoint): string;
+function TExportMarks2KML.SaveMarkIcon(const Mark: IVectorDataItemPointWithIconParams): string;
 var
   VTargetPath: string;
   VTargetFullName: string;

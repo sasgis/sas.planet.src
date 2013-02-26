@@ -41,8 +41,8 @@ uses
   i_ValueToStringConverter,
   i_MarkPicture,
   i_MarksSimple,
+  i_MarkFactory,
   i_MarkCategoryDB,
-  i_MarksDb,
   fr_MarkDescription,
   fr_LonLat,
   fr_PictureSelectFromList,
@@ -95,7 +95,7 @@ type
     procedure imgIconMouseDown(Sender: TObject);
   private
     FCategoryDB: IMarkCategoryDB;
-    FMarksDb: IMarksDb;
+    FMarkFactory: IMarkFactory;
     frMarkDescription: TfrMarkDescription;
     frLonLatPoint: TfrLonLat;
     frMarkCategory: TfrMarkCategorySelectOrAdd;
@@ -106,13 +106,18 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
+      const AMarkFactory: IMarkFactory;
       const ACategoryDB: IMarkCategoryDB;
-      const AMarksDb: IMarksDb;
+      const APictureList: IMarkPictureList;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
-    function EditMark(const AMark: IMarkPoint; AIsNewMark: Boolean): IMarkPoint;
+    function EditMark(
+      const AMark: IMarkPoint;
+      const AIsNewMark: Boolean;
+      var AVisible: Boolean
+    ): IMarkPoint;
   end;
 
 implementation
@@ -128,15 +133,16 @@ uses
 constructor TfrmMarkEditPoint.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
+  const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDB;
-  const AMarksDb: IMarksDb;
+  const APictureList: IMarkPictureList;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create(ALanguageManager);
-  FMarksDb := AMarksDb;
   FCategoryDB := ACategoryDB;
+  FMarkFactory := AMarkFactory;
 
   frMarkDescription := TfrMarkDescription.Create(ALanguageManager, AMediaPath);
   frLonLatPoint :=
@@ -154,7 +160,7 @@ begin
   frSelectPicture :=
     TfrPictureSelectFromList.Create(
       ALanguageManager,
-      FMarksDb.Factory.MarkPictureList,
+      APictureList,
       Self.SelectImageFromList
     );
   frSelectedPicture := TfrSelectedPicture.Create(ALanguageManager, Self.imgIconMouseDown);
@@ -170,7 +176,11 @@ begin
   inherited;
 end;
 
-function TfrmMarkEditPoint.EditMark(const AMark: IMarkPoint; AIsNewMark: Boolean): IMarkPoint;
+function TfrmMarkEditPoint.EditMark(
+  const AMark: IMarkPoint;
+  const AIsNewMark: Boolean;
+  var AVisible: Boolean
+): IMarkPoint;
 var
   VLonLat:TDoublePoint;
 begin
@@ -189,7 +199,7 @@ begin
   seTransp.Value:=100-round(AlphaComponent(AMark.TextColor)/255*100);
   clrbxTextColor.Selected:=WinColor(AMark.TextColor);
   clrbxShadowColor.Selected:=WinColor(AMark.TextBgColor);
-  chkVisible.Checked:= FMarksDb.GetMarkVisible(AMark);
+  chkVisible.Checked:= AVisible;
   frMarkCategory.Init(AMark.Category);
   try
     if AIsNewMark then begin
@@ -201,19 +211,20 @@ begin
     Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
-      Result := FMarksDb.Factory.ModifyPoint(
-        AMark,
-        edtName.Text,
-        chkVisible.Checked,
-        frSelectPicture.Picture,
-        frMarkCategory.GetCategory,
-        frMarkDescription.Description,
-        VLonLat,
-        SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
-        SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
-        seFontSize.Value,
-        seIconSize.Value
-      );
+      Result :=
+        FMarkFactory.ModifyPoint(
+          AMark,
+          edtName.Text,
+          frSelectPicture.Picture,
+          frMarkCategory.GetCategory,
+          frMarkDescription.Description,
+          VLonLat,
+          SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
+          SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
+          seFontSize.Value,
+          seIconSize.Value
+        );
+      AVisible := chkVisible.Checked;
     end else begin
       Result := nil;
     end;
@@ -249,7 +260,7 @@ var
   VPicName: string;
 begin
   if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
-    VConfig := FMarksDb.Factory.Config.PointTemplateConfig;
+    VConfig := FMarkFactory.Config.PointTemplateConfig;
     VPicName := '';
     if frSelectPicture.Picture <> nil then begin
       VPicName := frSelectPicture.Picture.GetName;

@@ -9,7 +9,7 @@ uses
   i_InetConfig,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
-  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_VectorDataFactory;
 
 // если ещё надо будет использовать - вынести импортилку в отдельный класс
@@ -22,7 +22,7 @@ function ImportFromArcGIS(
   const ALonLat: TDoublePoint;
   const AZoom: Byte;
   const AMapSize: TPoint
-): IVectorDataItemList;
+): IVectorItemSubset;
 
 implementation
 
@@ -42,7 +42,7 @@ uses
   u_DownloadResultFactory,
   u_DownloadRequest,
   u_DownloaderHttp,
-  u_VectorDataItemList,
+  u_VectorDataItemSubset,
   u_Notifier,
   u_NotifierOperation,
   u_DoublePointsAggregator,
@@ -357,7 +357,7 @@ function ImportFromArcGIS(
   const ALonLat: TDoublePoint;
   const AZoom: Byte;
   const AMapSize: TPoint
-): IVectorDataItemList;
+): IVectorItemSubset;
 
 const
   c_JSON_Delimiter = '},{';
@@ -517,7 +517,7 @@ begin
           end;
 
           if (nil=Result) then begin
-            Result := TVectorDataItemList.Create(VAllNewMarks);
+            Result := TVectorItemSubset.Create(VAllNewMarks);
           end;
         end;
       end;
