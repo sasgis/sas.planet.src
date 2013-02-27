@@ -842,7 +842,6 @@ uses
   u_MapZoomingConfig in 'u_MapZoomingConfig.pas',
   i_MapMovingConfig in 'i_MapMovingConfig.pas',
   u_MapMovingConfig in 'u_MapMovingConfig.pas',
-  u_MappedFile in 'u_MappedFile.pas',
   i_MainFormConfig in 'i_MainFormConfig.pas',
   u_MainFormMainConfig in 'u_MainFormMainConfig.pas',
   u_MainFormConfig in 'u_MainFormConfig.pas',

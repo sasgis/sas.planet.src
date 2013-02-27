@@ -68,23 +68,31 @@ uses
   u_Synchronizer,
   u_GeoCodePlacemark;
 
+type
+  TTabArray = array [1..19] of AnsiString;
+
 { TGeoCoderByTXT }
 
-function GetNsubstring( const A_String,A_Separator:string; const N:integer):string;
+procedure StringToTabArray(const AString: AnsiString; var AArray: TTabArray);
+const
+  cTabChar: AnsiChar = #09;
+  cTabCharSize = 1;
 var
-i, j, cnt: integer;
+  I, J, K: Integer;
 begin
-j:=0;
-i:=posex(a_separator,a_string);
-cnt:=1;
-while (i<>0) and (cnt<N) do
- begin
-     Inc(cnt);
-     j:= i;
-     i := PosEx(A_Separator, A_String, i + Length(A_Separator));
- end;
-if (cnt>=n)and(i=0) then i:=length(A_String)+1;
-result := copy(A_String,j+1,(i-j-1));
+  I := PosEx(cTabChar, AString);
+  J := 0;
+  K := 1;
+  while I > 0 do begin
+    Inc(J);
+    if J > Length(AArray) then begin
+      Break;
+    end else begin
+      AArray[J] := Copy(AString, K, (I - K));
+      K := I + 1;
+      I := PosEx(cTabChar, AString, K);
+    end;
+  end;
 end;
 
 function ItemExist(
@@ -120,93 +128,111 @@ procedure TGeoCoderByTXT.SearchInTXTFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AFile : string ;
-  const ASearch : widestring;
-  Alist : IInterfaceList;
-  var Acnt : integer
-  );
+  const ASearch : WideString;
+  AList : IInterfaceList;
+  var ACnt : integer
+);
 var
- VFormatSettings : TFormatSettings;
- VPlace : IGeoCodePlacemark;
- VPoint : TDoublePoint;
- slat, slon, sname, sdesc, sfulldesc : string;
- VLinkErr : boolean;
- i, j, l: integer;
- VStr: AnsiString;
- VSearch : widestring;
- V_StrData : string;
- Skip: boolean;
- VValueConverter: IValueToStringConverter;
- VFile: TMappedFile;
- VData: PByte;
+  VFormatSettings : TFormatSettings;
+  VPlace : IGeoCodePlacemark;
+  VPoint : TDoublePoint;
+  slat, slon, sname, sdesc, sfulldesc : string;
+  i, j, l: integer;
+  VSearch : WideString;
+  VValueConverter: IValueToStringConverter;
+  VFile: TMappedFile;
+  VData, VLineStart: PByte;
+  VLineSize: Integer;
+  VAnsiLine: AnsiString;
+  VAnsiLineUpper: AnsiString;
+  VTabArray: TTabArray;
 begin
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   VFormatSettings.DecimalSeparator := '.';
   VSearch := AnsiUpperCase(ASearch);
+  for I := Low(VTabArray) to High(VTabArray) do begin
+    VTabArray[I] := '';
+  end;
   VFile := TMappedFile.Create(AFile);
-  VData := PByte(VFile.Content);
-  for j := 0 to VFile.Size - 1 do begin
-    VStr := VStr + chr(VData^);
-    if VData^ = $0A then begin // найден конец строки
-      V_StrData := AnsiUpperCase(utf8toansi(VStr));
-      if (PosEx(VSearch, V_StrData,1)>1) {and (i>0) }then begin
-        VLinkErr := false;
-        V_StrData := utf8toansi(VStr);
-        if Acnt mod 5 =0 then
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then
-          Exit;
-        sdesc := '';
-        sdesc := sdesc + GetNsubstring(V_StrData,#09,18) + #$D#$A;
-        sdesc := sdesc + GetNsubstring(V_StrData,#09,2) + #$D#$A;
-        sdesc := sdesc + GetNsubstring(V_StrData,#09,3) + #$D#$A;
-        sdesc := sdesc + GetNsubstring(V_StrData,#09,4) + #$D#$A;
-        sdesc := sdesc + GetNsubstring(V_StrData,#09,19);
-        slat := GetNsubstring(V_StrData,#09,5);
-        slon := GetNsubstring(V_StrData,#09,6);
-        if (slat='') or (slon='') then VLinkErr := true;
-        if VLinkErr <> true then begin
-          try
-            VPoint.Y := StrToFloat(slat, VFormatSettings);
-            VPoint.X := StrToFloat(slon, VFormatSettings);
-          except
-            raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
-          end;
-
-          sname := GetNsubstring(V_StrData,#09,4);
-          if sname ='' then sname := GetNsubstring(V_StrData,#09,3);
-          l := length(sname);
-          while (copy(sname,l,1)<>',') and (l>0) do dec(l);
-          sname := copy(sname,l+1,length(sname)-l);
-          if PosEx('?',sname)>0 then begin
-            l := length(sname);
-            while (copy(sname,l,1)<>#09) and (l>0) do dec(l);
-            i := PosEx(VSearch , V_StrData);
-            l := PosEx(#09 , V_StrData,i);
-            sname := Copy(V_StrData, i, l - i);
-            if  PosEx(',',sname)>0 then begin
-              i:=0;
-              l := PosEx(',' , sname);
-              sname := Copy(sname, i, l - (i+1));
+  try
+    VData := PByte(VFile.Content);
+    VLineStart := VData;
+    for I := 0 to VFile.Size - 1 do begin
+      if VData^ = $0A then begin // найден конец строки
+        VLineSize := Cardinal(VData) - Cardinal(VLineStart);
+        SetLength(VAnsiLine, VLineSize);
+        Move(VLineStart^, VAnsiLine[1], VLineSize);
+        VAnsiLine := Utf8ToAnsi(VAnsiLine);
+        VAnsiLineUpper := AnsiUpperCase(VAnsiLine);
+        if Pos(VSearch, VAnsiLineUpper) > 1 then begin
+          if ACnt mod 5 = 0 then begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+              Exit;
             end;
           end;
 
-          sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
-          sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
-          sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
+          StringToTabArray(VAnsiLine, VTabArray);
 
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-          // если закометировать условие то не будет производиться фильтрация одинаковых элементов
-          skip := ItemExist(Vplace, Alist);
-          if not skip then begin
-            inc(Acnt);
-            Alist.Add(VPlace);
+          sdesc :=
+            VTabArray[18] + #$D#$A +
+            VTabArray[02] + #$D#$A +
+            VTabArray[03] + #$D#$A +
+            VTabArray[04] + #$D#$A +
+            VTabArray[19] + #$D#$A;
+
+          slat := VTabArray[5];
+          slon := VTabArray[6];
+
+          if (slat <> '') and (slon <> '') then begin
+            try
+              VPoint.Y := StrToFloat(slat, VFormatSettings);
+              VPoint.X := StrToFloat(slon, VFormatSettings);
+            except
+              raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
+            end;
+
+            sname := VTabArray[4];
+            if sname = '' then begin
+              sname := VTabArray[3];
+            end;
+
+            l := length(sname);
+            while (copy(sname,l,1)<>',') and (l>0) do dec(l);
+            sname := copy(sname,l+1,length(sname)-l);
+
+            if PosEx('?',sname)>0 then begin
+              l := length(sname);
+              while (Copy(sname,l,1)<>#09) and (l>0) do dec(l);
+              j := PosEx(VSearch , VAnsiLineUpper);
+              l := PosEx(#09 , VAnsiLine, j);
+              sname := Copy(VAnsiLine, j, l - j);
+              if  PosEx(',',sname)>0 then begin
+                j := 0;
+                l := PosEx(',' , sname);
+                sname := Copy(sname, j, l - (j+1));
+              end;
+            end;
+
+            sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
+            sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
+            sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
+
+            VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+            if not ItemExist(VPlace, AList) then begin
+              Inc(ACnt);
+              AList.Add(VPlace);
+            end;
           end;
         end;
+        Inc(VData);
+        VLineStart := VData;
+      end else begin
+        Inc(VData);
       end;
-    VStr:='';
     end;
-  Inc(VData);
+  finally
+    VFile.Free;
   end;
-VFile.Free;
 end;
 
 constructor TGeoCoderByTXT.Create;
