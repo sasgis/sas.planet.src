@@ -33,6 +33,8 @@ uses
   i_ContentTypeManager,
   i_ConfigDataProvider,
   i_StartUpLogoConfig,
+  i_Listener,
+  i_NotifierOperation,
   u_CommonFormAndFrameParents;
 
 type
@@ -49,8 +51,13 @@ type
     FReadyToHide: Boolean;
     FContentTypeManager: IContentTypeManager;
     FConfigData: IConfigDataProvider;
+    FAppStartedNotifier: INotifierOneOperation;
+    FAppStartedListener: IListener;
+    procedure OnAppStarted;
+  private
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AAppStartedNotifier: INotifierOneOperation;
       const AContentTypeManager: IContentTypeManager;
       const AConfigData: IConfigDataProvider
     ); reintroduce;
@@ -59,11 +66,11 @@ type
 
     class procedure ShowLogo(
       const ALanguageManager: ILanguageManager;
+      const AAppStartedNotifier: INotifierOneOperation;
       const AContentTypeManager: IContentTypeManager;
       const AConfigData: IConfigDataProvider;
       const AConfig: IStartUpLogoConfig
     );
-    class procedure ReadyToHideLogo;
   end;
 
 
@@ -74,6 +81,7 @@ uses
   c_SasVersion,
   i_Bitmap32Static,
   u_ConfigProviderHelpers,
+  u_ListenerByEvent,
   u_BitmapFunc;
 
 var
@@ -83,17 +91,27 @@ var
 
 constructor TfrmStartLogo.Create(
   const ALanguageManager: ILanguageManager;
+  const AAppStartedNotifier: INotifierOneOperation;
   const AContentTypeManager: IContentTypeManager;
   const AConfigData: IConfigDataProvider
 );
 begin
   inherited Create(ALanguageManager);
+  FAppStartedNotifier := AAppStartedNotifier;
   FContentTypeManager := AContentTypeManager;
   FConfigData := AConfigData;
+  FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
+  FAppStartedNotifier.Add(FAppStartedListener);
 end;
 
 destructor TfrmStartLogo.Destroy;
 begin
+  if FAppStartedNotifier <> nil then begin
+    FAppStartedNotifier.Remove(FAppStartedListener);
+    FAppStartedNotifier := nil;
+    FAppStartedListener := nil;
+  end;
+
   frmStartLogo := nil;
   inherited;
 end;
@@ -124,6 +142,9 @@ begin
   imgLogo.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
   lblVersion.Caption:='v '+SASVersion;
   FReadyToHide := False;
+  if FAppStartedNotifier.IsExecuted then begin
+    OnAppStarted;
+  end;
 end;
 
 procedure TfrmStartLogo.tmrLogoTimer(Sender: TObject);
@@ -140,24 +161,27 @@ begin
   end;
 end;
 
-class procedure TfrmStartLogo.ReadyToHideLogo;
+procedure TfrmStartLogo.OnAppStarted;
 begin
-  if frmStartLogo <> nil then begin
-    frmStartLogo.FReadyToHide := True;
-    frmStartLogo.tmrLogo.Enabled := True;
-  end;
+  FReadyToHide := True;
+  tmrLogo.Enabled := True;
 end;
 
 class procedure TfrmStartLogo.ShowLogo(
   const ALanguageManager: ILanguageManager;
+  const AAppStartedNotifier: INotifierOneOperation;
   const AContentTypeManager: IContentTypeManager;
   const AConfigData: IConfigDataProvider;
   const AConfig: IStartUpLogoConfig
 );
 begin
   if AConfig.IsShowLogo then begin
-    frmStartLogo := TfrmStartLogo.Create(ALanguageManager, AContentTypeManager, AConfigData);
-    frmStartLogo.Show;
+    TfrmStartLogo.Create(
+      ALanguageManager,
+      AAppStartedNotifier,
+      AContentTypeManager,
+      AConfigData
+    ).Show;
     Application.ProcessMessages;
   end;
 end;

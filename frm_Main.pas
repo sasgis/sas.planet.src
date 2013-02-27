@@ -742,7 +742,6 @@ uses
   i_GPSRecorder,
   i_PathDetalizeProvider,
   i_StringListChangeable,
-  i_RegionProcessProgressInfoInternalFactory,   
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
   u_GeoFun,
@@ -825,7 +824,6 @@ uses
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
   u_HtmlToHintTextConverterStuped,
-  frm_StartLogo,
   frm_LonLatRectEdit;
 
 type
@@ -1325,7 +1323,6 @@ begin
     FStartedNormal := True;
   finally
     map.SetFocus;
-    TfrmStartLogo.ReadyToHideLogo;
   end;
 end;
 
