@@ -1078,6 +1078,7 @@ begin
     Application.Title := SAS_STR_ApplicationTitle;
     TfrmStartLogo.ShowLogo(
       GState.Config.LanguageManager,
+      GState.AppStartedNotifier,
       GState.ContentTypeManager,
       GState.MainConfigProvider,
       GState.Config.StartUpLogoConfig
