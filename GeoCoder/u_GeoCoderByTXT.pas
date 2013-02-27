@@ -28,7 +28,8 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_ValueToStringConverter,
-  u_GeoCoderLocalBasic;
+  u_GeoCoderLocalBasic,
+  u_MappedFile;
 
 type
   EGeoCoderERR = class(Exception);
@@ -129,93 +130,83 @@ var
  VPoint : TDoublePoint;
  slat, slon, sname, sdesc, sfulldesc : string;
  VLinkErr : boolean;
- i, k, l: integer;
+ i, j, l: integer;
  VStr: AnsiString;
  VSearch : widestring;
  V_StrData : string;
  Skip: boolean;
- VStream: TFileStream;
  VValueConverter: IValueToStringConverter;
+ VFile: TMappedFile;
+ VData: PByte;
 begin
- VValueConverter := FValueToStringConverterConfig.GetStatic;
- VFormatSettings.DecimalSeparator := '.';
- VSearch := AnsiUpperCase(ASearch);
- FLock.BeginRead;
- try
-  VStream := TFileStream.Create(AFile, fmOpenRead);
-   try
-    SetLength(Vstr,VStream.Size);
-    VStream.ReadBuffer(VStr[1],VStream.Size);
-   finally
-   VStream.Free;
-   end;
-  finally
-  FLock.EndRead;
- end;
-  Vstr := AnsiUpperCase(utf8toansi(Vstr));
-  // ищем вхождение, затем бежим назад до начала блока
-  i:=1;
-  while (PosEx(VSearch, VStr, i)>i) {and (i>0) }do begin
-    VLinkErr := false;
-    i := PosEx(VSearch, VStr, i);
-    k := PosEx(#$A, VStr, i); // конец блока найденных данных.
-    l := i;
-    while (copy(Vstr,l,1)<>#$A) and (l>0) do dec(l); // начало блока с найденными данными
-    V_StrData := Copy(VStr, l+1 , k-l);
-    if Acnt mod 5 =0 then
-     if ACancelNotifier.IsOperationCanceled(AOperationID) then
-       Exit;
-     sdesc := '';
-     sdesc := sdesc + GetNsubstring(V_StrData,#09,18) + #$D#$A;
-     sdesc := sdesc + GetNsubstring(V_StrData,#09,2) + #$D#$A;
-     sdesc := sdesc + GetNsubstring(V_StrData,#09,3) + #$D#$A;
-     sdesc := sdesc + GetNsubstring(V_StrData,#09,4) + #$D#$A;
-     sdesc := sdesc + GetNsubstring(V_StrData,#09,19);
-     slat := GetNsubstring(V_StrData,#09,5);
-     slon := GetNsubstring(V_StrData,#09,6);
-    if (slat='') or (slon='') then VLinkErr := true;
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VFormatSettings.DecimalSeparator := '.';
+  VSearch := AnsiUpperCase(ASearch);
+  VFile := TMappedFile.Create(AFile);
+  VData := PByte(VFile.Content);
+  for j := 0 to VFile.Size - 1 do begin
+    VStr := VStr + chr(VData^);
+    if VData^ = $0A then begin // найден конец строки
+      V_StrData := AnsiUpperCase(utf8toansi(VStr));
+      if (PosEx(VSearch, V_StrData,1)>1) {and (i>0) }then begin
+        VLinkErr := false;
+        V_StrData := utf8toansi(VStr);
+        if Acnt mod 5 =0 then
+        if ACancelNotifier.IsOperationCanceled(AOperationID) then
+          Exit;
+        sdesc := '';
+        sdesc := sdesc + GetNsubstring(V_StrData,#09,18) + #$D#$A;
+        sdesc := sdesc + GetNsubstring(V_StrData,#09,2) + #$D#$A;
+        sdesc := sdesc + GetNsubstring(V_StrData,#09,3) + #$D#$A;
+        sdesc := sdesc + GetNsubstring(V_StrData,#09,4) + #$D#$A;
+        sdesc := sdesc + GetNsubstring(V_StrData,#09,19);
+        slat := GetNsubstring(V_StrData,#09,5);
+        slon := GetNsubstring(V_StrData,#09,6);
+        if (slat='') or (slon='') then VLinkErr := true;
+        if VLinkErr <> true then begin
+          try
+            VPoint.Y := StrToFloat(slat, VFormatSettings);
+            VPoint.X := StrToFloat(slon, VFormatSettings);
+          except
+            raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
+          end;
 
-    if VLinkErr <> true then begin
-     try
-       VPoint.Y := StrToFloat(slat, VFormatSettings);
-       VPoint.X := StrToFloat(slon, VFormatSettings);
-     except
-       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
-     end;
+          sname := GetNsubstring(V_StrData,#09,4);
+          if sname ='' then sname := GetNsubstring(V_StrData,#09,3);
+          l := length(sname);
+          while (copy(sname,l,1)<>',') and (l>0) do dec(l);
+          sname := copy(sname,l+1,length(sname)-l);
+          if PosEx('?',sname)>0 then begin
+            l := length(sname);
+            while (copy(sname,l,1)<>#09) and (l>0) do dec(l);
+            i := PosEx(VSearch , V_StrData);
+            l := PosEx(#09 , V_StrData,i);
+            sname := Copy(V_StrData, i, l - i);
+            if  PosEx(',',sname)>0 then begin
+              i:=0;
+              l := PosEx(',' , sname);
+              sname := Copy(sname, i, l - (i+1));
+            end;
+          end;
 
-      sname := GetNsubstring(V_StrData,#09,4);
-      if sname ='' then sname := GetNsubstring(V_StrData,#09,3);
-      l := length(sname);
-      while (copy(sname,l,1)<>',') and (l>0) do dec(l);
-      sname := copy(sname,l+1,length(sname)-l);
-      if PosEx('?',sname)>0 then begin
-       l := length(sname);
-       while (copy(sname,l,1)<>#09) and (l>0) do dec(l);
-       i := PosEx(VSearch , V_StrData);
-       l := PosEx(#09 , V_StrData,i);
-       sname := Copy(V_StrData, i, l - i);
-       if  PosEx(',',sname)>0 then begin
-         i:=0;
-         l := PosEx(',' , sname);
-        sname := Copy(sname, i, l - (i+1));
-       end;
+          sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
+          sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
+          sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
+
+          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          // если закометировать условие то не будет производиться фильтрация одинаковых элементов
+          skip := ItemExist(Vplace, Alist);
+          if not skip then begin
+            inc(Acnt);
+            Alist.Add(VPlace);
+          end;
+        end;
       end;
-
-      sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
-      sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
-      sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-
-      VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
-      // если закометировать условие то не будет производиться фильтрация одинаковых элементов
-      skip := ItemExist(Vplace, Alist);
-      if not skip then
-       begin
-        inc(Acnt);
-        Alist.Add(VPlace);
-       end;
+    VStr:='';
     end;
-    i:=k;
+  Inc(VData);
   end;
+VFile.Free;
 end;
 
 constructor TGeoCoderByTXT.Create;
