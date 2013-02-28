@@ -63,7 +63,7 @@ type
     );
   end;
 
-  TContentTypeInfoKml = class(TContentTypeInfoBase, IContentTypeInfoVectorData)
+  TContentTypeInfoVector = class(TContentTypeInfoBase, IContentTypeInfoVectorData)
   private
     FLoader: IVectorDataLoader;
   private
@@ -137,9 +137,9 @@ begin
   Result := FSaver;
 end;
 
-{ TContentTypeInfoKml }
+{ TContentTypeInfoVector }
 
-function TContentTypeInfoKml.CheckOtherForSaveCompatible(
+function TContentTypeInfoVector.CheckOtherForSaveCompatible(
   const AContentType: IContentTypeInfoBasic): Boolean;
 var
   VVectorType: IContentTypeInfoVectorData;
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-constructor TContentTypeInfoKml.Create(
+constructor TContentTypeInfoVector.Create(
   const AContentType, ADefaultExt: AnsiString;
   const ALoader: IVectorDataLoader
 );
@@ -160,7 +160,7 @@ begin
   FLoader := ALoader;
 end;
 
-function TContentTypeInfoKml.GetLoader: IVectorDataLoader;
+function TContentTypeInfoVector.GetLoader: IVectorDataLoader;
 begin
   Result := FLoader;
 end;

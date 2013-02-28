@@ -68,6 +68,7 @@ uses
   u_ContentConverterKml2Kmz,
   u_KmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
+  u_XmlInfoSimpleParser,
   u_ContentConverterBase,
   u_ContentConverterBitmap;
 
@@ -145,7 +146,7 @@ begin
   AddByType(VContentType, 'image/x-windows-bmp');
   AddByExt(VContentType, VExt);
 
-  VContentType := TContentTypeInfoKml.Create(
+  VContentType := TContentTypeInfoVector.Create(
     'application/vnd.google-earth.kml+xml',
     '.kml',
     TKmlInfoSimpleParser.Create(
@@ -156,12 +157,24 @@ begin
   AddByType(VContentType, VContentType.GetContentType);
   AddByExt(VContentType, VContentType.GetDefaultExt);
 
-  VContentType := TContentTypeInfoKml.Create(
+  VContentType := TContentTypeInfoVector.Create(
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
       TKmlInfoSimpleParser.Create(AVectorItemsFactory, nil),
       FArchiveReadWriteFactory,
+      ALoadPerfCounterList
+    )
+  );
+  AddByType(VContentType, VContentType.GetContentType);
+  AddByExt(VContentType, VContentType.GetDefaultExt);
+
+  VContentType := TContentTypeInfoVector.Create(
+    'application/gpx+xml',
+    '.gpx',
+    TXmlInfoSimpleParser.Create(
+      AVectorItemsFactory,
+      False,
       ALoadPerfCounterList
     )
   );
