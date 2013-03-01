@@ -75,10 +75,40 @@ type
     property IsForceFillColor: Boolean read GetIsForceFillColor;
   end;
 
+  IImportConfigNew = interface
+    ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
+    function GetRootCategory: ICategory;
+    property RootCategory: ICategory read GetRootCategory;
+
+    function GetIsAddAllInRootCategory: Boolean;
+    property IsAddAllInRootCategory: Boolean read GetIsAddAllInRootCategory;
+
+    function GetPointParams: IImportPointParams;
+    property PointParams: IImportPointParams read GetPointParams;
+
+    function GetLineParams: IImportLineParams;
+    property LineParams: IImportLineParams read GetLineParams;
+
+    function GetPolyParams: IImportPolyParams;
+    property PolyParams: IImportPolyParams read GetPolyParams;
+
+    function GetTemplateNewPoint: IMarkTemplatePoint;
+    property TemplateNewPoint: IMarkTemplatePoint read GetTemplateNewPoint;
+
+    function GetTemplateNewLine: IMarkTemplateLine;
+    property TemplateNewLine: IMarkTemplateLine read GetTemplateNewLine;
+
+    function GetTemplateNewPoly: IMarkTemplatePoly;
+    property TemplateNewPoly: IMarkTemplatePoly read GetTemplateNewPoly;
+  end;
+
   IImportConfig = interface
     ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
     function GetRootCategory: ICategory;
     property RootCategory: ICategory read GetRootCategory;
+
+    function GetPolyParams: IImportPolyParams;
+    property PolyParams: IImportPolyParams read GetPolyParams;
 
     function GetTemplateNewPoint: IMarkTemplatePoint;
     property TemplateNewPoint: IMarkTemplatePoint read GetTemplateNewPoint;
