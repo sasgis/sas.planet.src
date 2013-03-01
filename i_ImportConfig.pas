@@ -27,6 +27,54 @@ uses
   i_MarkTemplate;
 
 type
+  IImportPointParams = interface
+    ['{2042149A-3C2C-44A7-8939-CB14EDD53078}']
+    function GetTemplate: IMarkTemplatePoint;
+    property Template: IMarkTemplatePoint read GetTemplate;
+
+    function GetIsForceTextColor: Boolean;
+    property IsForceTextColor: Boolean read GetIsForceTextColor;
+
+    function GetIsForceTextBgColor: Boolean;
+    property IsForceTextBgColor: Boolean read GetIsForceTextBgColor;
+
+    function GetIsForceFontSize: Boolean;
+    property IsForceFontSize: Boolean read GetIsForceFontSize;
+
+    function GetIsForceMarkerSize: Boolean;
+    property IsForceMarkerSize: Boolean read GetIsForceMarkerSize;
+
+    function GetIsForcePicName: Boolean;
+    property IsForcePicName: Boolean read GetIsForcePicName;
+  end;
+
+  IImportLineParams = interface
+    ['{99AFF863-CB3E-4774-9994-A3EE9F445A44}']
+    function GetTemplate: IMarkTemplateLine;
+    property Template: IMarkTemplateLine read GetTemplate;
+
+    function GetIsForceLineColor: Boolean;
+    property IsForceLineColor: Boolean read GetIsForceLineColor;
+
+    function GetIsForceLineWidth: Boolean;
+    property IsForceLineWidth: Boolean read GetIsForceLineWidth;
+  end;
+
+  IImportPolyParams = interface
+    ['{FB94F289-5FE9-48D8-9FC9-9E2A05BD18F7}']
+    function GetTemplate: IMarkTemplatePoly;
+    property Template: IMarkTemplatePoly read GetTemplate;
+
+    function GetIsForceLineColor: Boolean;
+    property IsForceLineColor: Boolean read GetIsForceLineColor;
+
+    function GetIsForceLineWidth: Boolean;
+    property IsForceLineWidth: Boolean read GetIsForceLineWidth;
+
+    function GetIsForceFillColor: Boolean;
+    property IsForceFillColor: Boolean read GetIsForceFillColor;
+  end;
+
   IImportConfig = interface
     ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
     function GetRootCategory: ICategory;
