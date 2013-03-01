@@ -68,14 +68,14 @@ type
 
   IMarkTemplatePoly = interface(IMarkTemplate)
     ['{81CB621A-112D-4914-B801-BBBAAE11C797}']
-    function GetBorderColor: TColor32;
-    property BorderColor: TColor32 read GetBorderColor;
-
-    function GetFillColor: TColor32;
-    property FillColor: TColor32 read GetFillColor;
+    function GetLineColor: TColor32;
+    property LineColor: TColor32 read GetLineColor;
 
     function GetLineWidth: Integer;
     property LineWidth: Integer read GetLineWidth;
+
+    function GetFillColor: TColor32;
+    property FillColor: TColor32 read GetFillColor;
 
     function IsSame(const ATemplate: IMarkTemplatePoly): Boolean;
   end;

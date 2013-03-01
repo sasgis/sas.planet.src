@@ -293,7 +293,7 @@ begin
       VCategory,
       ADesc,
       ALine,
-      VTemplate.BorderColor,
+      VTemplate.LineColor,
       VTemplate.FillColor,
       VTemplate.LineWidth
     );

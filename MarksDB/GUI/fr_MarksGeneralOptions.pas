@@ -197,8 +197,8 @@ begin
 
   VPolyTemplate := VConfig.PolyTemplateConfig.DefaultTemplate;
 
-  clrbxPolyLineColor.Selected := WinColor(VPolyTemplate.BorderColor);
-  sePolyLineTransp.Value := 100-round(AlphaComponent(VPolyTemplate.BorderColor)/255*100);
+  clrbxPolyLineColor.Selected := WinColor(VPolyTemplate.LineColor);
+  sePolyLineTransp.Value := 100-round(AlphaComponent(VPolyTemplate.LineColor)/255*100);
   clrbxPolyFillColor.Selected := WinColor(VPolyTemplate.FillColor);
   sePolyFillTransp.Value := 100-round(AlphaComponent(VPolyTemplate.FillColor)/255*100);
   sePolyLineWidth.Value := VPolyTemplate.LineWidth;

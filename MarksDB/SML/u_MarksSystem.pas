@@ -493,7 +493,7 @@ begin
             VCategory,
             VPoly.Desc,
             VPoly.Line,
-            VTemplateNewPoly.BorderColor,
+            VTemplateNewPoly.LineColor,
             VTemplateNewPoly.FillColor,
             VTemplateNewPoly.LineWidth
           );

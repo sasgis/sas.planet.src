@@ -636,7 +636,7 @@ begin
                 VCategory,
                 VMarkPoly.Desc,
                 VMarkPoly.Line,
-                VImportConfig.TemplateNewPoly.BorderColor,
+                VImportConfig.TemplateNewPoly.LineColor,
                 VImportConfig.TemplateNewPoly.FillColor,
                 VImportConfig.TemplateNewPoly.LineWidth
               );

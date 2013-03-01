@@ -90,11 +90,11 @@ type
 
   TMarkTemplatePoly = class(TMarkTemplateBase, IMarkTemplatePoly)
   private
-    FBorderColor: TColor32;
+    FLineColor: TColor32;
     FFillColor: TColor32;
     FLineWidth: Integer;
   protected
-    function GetBorderColor: TColor32;
+    function GetLineColor: TColor32;
     function GetFillColor: TColor32;
     function GetLineWidth: Integer;
     function IsSame(const ATemplate: IMarkTemplatePoly): Boolean;
@@ -102,7 +102,7 @@ type
     constructor Create(
       const ANameGenerator: IMarkNameGenerator;
       const ACategory: ICategory;
-      ABorderColor: TColor32;
+      ALineColor: TColor32;
       AFillColor: TColor32;
       ALineWidth: Integer
     );
@@ -243,19 +243,19 @@ end;
 constructor TMarkTemplatePoly.Create(
   const ANameGenerator: IMarkNameGenerator;
   const ACategory: ICategory;
-  ABorderColor, AFillColor: TColor32;
+  ALineColor, AFillColor: TColor32;
   ALineWidth: Integer
 );
 begin
   inherited Create(ANameGenerator, ACategory);
-  FBorderColor := ABorderColor;
+  FLineColor := ALineColor;
   FFillColor := AFillColor;
   FLineWidth := ALineWidth;
 end;
 
-function TMarkTemplatePoly.GetBorderColor: TColor32;
+function TMarkTemplatePoly.GetLineColor: TColor32;
 begin
-  Result := FBorderColor;
+  Result := FLineColor;
 end;
 
 function TMarkTemplatePoly.GetFillColor: TColor32;
@@ -273,7 +273,7 @@ begin
   Result := IsSameInternal(ATemplate);
   if Result then begin
     Result :=
-      (FBorderColor = ATemplate.BorderColor) and
+      (FLineColor = ATemplate.LineColor) and
       (FFillColor = ATemplate.FillColor) and
       (FLineWidth = ATemplate.LineWidth);
   end;
