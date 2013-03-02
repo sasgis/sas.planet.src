@@ -75,13 +75,28 @@ type
     property IsForceFillColor: Boolean read GetIsForceFillColor;
   end;
 
+  IImportCategoryParams = interface
+    ['{2C97B7DE-52B9-4404-B151-79FE7E799847}']
+    function GetIsAddAllInRootCategory: Boolean;
+    property IsAddAllInRootCategory: Boolean read GetIsAddAllInRootCategory;
+
+    function GetIsIgnoreMarkIfSubCategotyNotEixts: Boolean;
+    property IsIgnoreMarkIfSubCategotyNotEixts: Boolean read GetIsIgnoreMarkIfSubCategotyNotEixts;
+
+    function GetIsCreateSubCategory: Boolean;
+    property IsCreateSubCategory: Boolean read GetIsCreateSubCategory;
+
+    function GetIsIgnoreMarkIfExistsWithSameNameInCategory: Boolean;
+    property IsIgnoreMarkIfExistsWithSameNameInCategory: Boolean read GetIsIgnoreMarkIfExistsWithSameNameInCategory;
+  end;
+
   IImportConfigNew = interface
     ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
     function GetRootCategory: ICategory;
     property RootCategory: ICategory read GetRootCategory;
 
-    function GetIsAddAllInRootCategory: Boolean;
-    property IsAddAllInRootCategory: Boolean read GetIsAddAllInRootCategory;
+    function GetCategoryParams: IImportCategoryParams;
+    property CategoryParams: IImportCategoryParams read GetCategoryParams;
 
     function GetPointParams: IImportPointParams;
     property PointParams: IImportPointParams read GetPointParams;
@@ -91,24 +106,12 @@ type
 
     function GetPolyParams: IImportPolyParams;
     property PolyParams: IImportPolyParams read GetPolyParams;
-
-    function GetTemplateNewPoint: IMarkTemplatePoint;
-    property TemplateNewPoint: IMarkTemplatePoint read GetTemplateNewPoint;
-
-    function GetTemplateNewLine: IMarkTemplateLine;
-    property TemplateNewLine: IMarkTemplateLine read GetTemplateNewLine;
-
-    function GetTemplateNewPoly: IMarkTemplatePoly;
-    property TemplateNewPoly: IMarkTemplatePoly read GetTemplateNewPoly;
   end;
 
   IImportConfig = interface
     ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
     function GetRootCategory: ICategory;
     property RootCategory: ICategory read GetRootCategory;
-
-    function GetPolyParams: IImportPolyParams;
-    property PolyParams: IImportPolyParams read GetPolyParams;
 
     function GetTemplateNewPoint: IMarkTemplatePoint;
     property TemplateNewPoint: IMarkTemplatePoint read GetTemplateNewPoint;

@@ -92,6 +92,49 @@ type
     );
   end;
 
+  TImportCategoryParams = class(TBaseInterfacedObject, IImportCategoryParams)
+  private
+    FIsAddAllInRootCategory: Boolean;
+    FIsIgnoreMarkIfSubCategotyNotEixts: Boolean;
+    FIsCreateSubCategory: Boolean;
+    FIsIgnoreMarkIfExistsWithSameNameInCategory: Boolean;
+  private
+    function GetIsAddAllInRootCategory: Boolean;
+    function GetIsIgnoreMarkIfSubCategotyNotEixts: Boolean;
+    function GetIsCreateSubCategory: Boolean;
+    function GetIsIgnoreMarkIfExistsWithSameNameInCategory: Boolean;
+  public
+    constructor Create(
+      const AIsAddAllInRootCategory: Boolean;
+      const AIsIgnoreMarkIfSubCategotyNotEixts: Boolean;
+      const AIsCreateSubCategory: Boolean;
+      const AIsIgnoreMarkIfExistsWithSameNameInCategory: Boolean
+    );
+  end;
+
+  TImportConfigNew = class(TBaseInterfacedObject, IImportConfigNew)
+  private
+    FRootCategory: ICategory;
+    FCategoryParams: IImportCategoryParams;
+    FPointParams: IImportPointParams;
+    FLineParams: IImportLineParams;
+    FPolyParams: IImportPolyParams;
+  private
+    function GetRootCategory: ICategory;
+    function GetCategoryParams: IImportCategoryParams;
+    function GetPointParams: IImportPointParams;
+    function GetLineParams: IImportLineParams;
+    function GetPolyParams: IImportPolyParams;
+  public
+    constructor Create(
+      const ARootCategory: ICategory;
+      const ACategoryParams: IImportCategoryParams;
+      const APointParams: IImportPointParams;
+      const ALineParams: IImportLineParams;
+      const APolyParams: IImportPolyParams
+    );
+  end;
+
   TImportConfig = class(TBaseInterfacedObject, IImportConfig)
   private
     FRootCategory: ICategory;
@@ -263,6 +306,85 @@ end;
 function TImportPolyParams.GetTemplate: IMarkTemplatePoly;
 begin
   Result := FTemplate;
+end;
+
+{ TImportCategoryParams }
+
+constructor TImportCategoryParams.Create(
+  const AIsAddAllInRootCategory: Boolean;
+  const AIsIgnoreMarkIfSubCategotyNotEixts: Boolean;
+  const AIsCreateSubCategory: Boolean;
+  const AIsIgnoreMarkIfExistsWithSameNameInCategory: Boolean
+);
+begin
+  inherited Create;
+  FIsAddAllInRootCategory := AIsAddAllInRootCategory;
+  FIsIgnoreMarkIfSubCategotyNotEixts := AIsIgnoreMarkIfSubCategotyNotEixts;
+  FIsCreateSubCategory := AIsCreateSubCategory;
+  FIsIgnoreMarkIfExistsWithSameNameInCategory := AIsIgnoreMarkIfExistsWithSameNameInCategory;
+end;
+
+function TImportCategoryParams.GetIsAddAllInRootCategory: Boolean;
+begin
+  Result := FIsAddAllInRootCategory;
+end;
+
+function TImportCategoryParams.GetIsCreateSubCategory: Boolean;
+begin
+  Result := FIsCreateSubCategory;
+end;
+
+function TImportCategoryParams.GetIsIgnoreMarkIfExistsWithSameNameInCategory: Boolean;
+begin
+  Result := FIsIgnoreMarkIfExistsWithSameNameInCategory;
+end;
+
+function TImportCategoryParams.GetIsIgnoreMarkIfSubCategotyNotEixts: Boolean;
+begin
+  Result := FIsIgnoreMarkIfSubCategotyNotEixts;
+end;
+
+{ TImportConfigNew }
+
+constructor TImportConfigNew.Create(
+  const ARootCategory: ICategory;
+  const ACategoryParams: IImportCategoryParams;
+  const APointParams: IImportPointParams;
+  const ALineParams: IImportLineParams;
+  const APolyParams: IImportPolyParams
+);
+begin
+  inherited Create;
+  FRootCategory := ARootCategory;
+  FCategoryParams := ACategoryParams;
+  FPointParams := APointParams;
+  FLineParams := ALineParams;
+  FPolyParams := APolyParams;
+end;
+
+function TImportConfigNew.GetCategoryParams: IImportCategoryParams;
+begin
+  Result := FCategoryParams;
+end;
+
+function TImportConfigNew.GetLineParams: IImportLineParams;
+begin
+  Result := FLineParams;
+end;
+
+function TImportConfigNew.GetPointParams: IImportPointParams;
+begin
+  Result := FPointParams;
+end;
+
+function TImportConfigNew.GetPolyParams: IImportPolyParams;
+begin
+  Result := FPolyParams;
+end;
+
+function TImportConfigNew.GetRootCategory: ICategory;
+begin
+  Result := FRootCategory;
 end;
 
 end.
