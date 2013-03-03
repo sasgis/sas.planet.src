@@ -84,7 +84,7 @@ object frExportToJNX: TfrExportToJNX
           Margins.Top = 0
           Margins.Right = 0
           Align = alCustom
-          Caption = 'Map'
+          Caption = 'Map:'
         end
         object pnlMain: TPanel
           Left = 226
@@ -101,42 +101,43 @@ object frExportToJNX: TfrExportToJNX
             216
             241)
           object lblCompress: TLabel
-            Left = 145
-            Top = -1
-            Width = 65
+            Left = 153
+            Top = 0
+            Width = 57
             Height = 13
             Anchors = [akTop, akRight]
             Caption = 'Compression:'
           end
           object Label1: TLabel
-            Left = 1
-            Top = -1
+            Left = 5
+            Top = 0
             Width = 35
             Height = 13
             Anchors = [akTop, akRight]
             Caption = 'Zooms:'
           end
           object Label2: TLabel
-            Left = 75
+            Left = 70
             Top = 0
             Width = 25
             Height = 13
             Anchors = [akTop, akRight]
-            Caption = 'Scale'
+            Caption = 'Scale:'
           end
           object EJpgQuality: TSpinEdit
-            Left = 147
+            Left = 154
             Top = 19
-            Width = 65
+            Width = 57
             Height = 22
             Anchors = [akTop, akRight]
             MaxValue = 100
             MinValue = 10
             TabOrder = 0
             Value = 95
+            Enabled = False
           end
           object CbbZoom: TComboBox
-            Left = 3
+            Left = 5
             Top = 19
             Width = 57
             Height = 21
@@ -145,12 +146,13 @@ object frExportToJNX: TfrExportToJNX
             Anchors = [akTop, akRight]
             ItemHeight = 13
             TabOrder = 1
+            Enabled = False
             OnChange = CbbZoomChange
           end
           object EJpgQuality2: TSpinEdit
-            Left = 147
-            Top = 48
-            Width = 65
+            Left = 154
+            Top = 46
+            Width = 57
             Height = 22
             Anchors = [akTop, akRight]
             Enabled = False
@@ -160,7 +162,7 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom2: TComboBox
-            Left = 3
+            Left = 5
             Top = 46
             Width = 57
             Height = 21
@@ -173,9 +175,9 @@ object frExportToJNX: TfrExportToJNX
             OnChange = CbbZoom2Change
           end
           object EJpgQuality4: TSpinEdit
-            Left = 147
+            Left = 154
             Top = 100
-            Width = 65
+            Width = 57
             Height = 22
             Anchors = [akTop, akRight]
             Enabled = False
@@ -185,8 +187,8 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom4: TComboBox
-            Left = 2
-            Top = 98
+            Left = 5
+            Top = 100
             Width = 57
             Height = 21
             Align = alCustom
@@ -198,9 +200,9 @@ object frExportToJNX: TfrExportToJNX
             OnChange = CbbZoom4Change
           end
           object EJpgQuality5: TSpinEdit
-            Left = 147
-            Top = 126
-            Width = 65
+            Left = 154
+            Top = 127
+            Width = 57
             Height = 22
             Anchors = [akTop, akRight]
             Enabled = False
@@ -210,8 +212,8 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom5: TComboBox
-            Left = 3
-            Top = 125
+            Left = 5
+            Top = 127
             Width = 57
             Height = 21
             Align = alCustom
@@ -223,9 +225,9 @@ object frExportToJNX: TfrExportToJNX
             OnChange = CbbZoom5Change
           end
           object EJpgQuality3: TSpinEdit
-            Left = 147
-            Top = 76
-            Width = 65
+            Left = 154
+            Top = 73
+            Width = 57
             Height = 22
             Anchors = [akTop, akRight]
             Enabled = False
@@ -235,8 +237,8 @@ object frExportToJNX: TfrExportToJNX
             Value = 95
           end
           object CbbZoom3: TComboBox
-            Left = 3
-            Top = 75
+            Left = 5
+            Top = 73
             Width = 57
             Height = 21
             Align = alCustom
@@ -248,8 +250,8 @@ object frExportToJNX: TfrExportToJNX
             OnChange = CbbZoom3Change
           end
           object cbbscale2: TComboBox
-            Left = 77
-            Top = 47
+            Left = 70
+            Top = 46
             Width = 57
             Height = 21
             Align = alCustom
@@ -260,8 +262,8 @@ object frExportToJNX: TfrExportToJNX
             TabOrder = 10
           end
           object cbbscale3: TComboBox
-            Left = 77
-            Top = 76
+            Left = 70
+            Top = 73
             Width = 57
             Height = 21
             Align = alCustom
@@ -272,8 +274,8 @@ object frExportToJNX: TfrExportToJNX
             TabOrder = 11
           end
           object cbbscale4: TComboBox
-            Left = 77
-            Top = 99
+            Left = 70
+            Top = 100
             Width = 57
             Height = 21
             Align = alCustom
@@ -284,8 +286,8 @@ object frExportToJNX: TfrExportToJNX
             TabOrder = 12
           end
           object cbbscale5: TComboBox
-            Left = 77
-            Top = 126
+            Left = 70
+            Top = 127
             Width = 57
             Height = 21
             Align = alCustom
@@ -296,8 +298,8 @@ object frExportToJNX: TfrExportToJNX
             TabOrder = 13
           end
           object cbbscale: TComboBox
-            Left = 77
-            Top = 20
+            Left = 70
+            Top = 19
             Width = 57
             Height = 21
             Align = alCustom
@@ -339,6 +341,54 @@ object frExportToJNX: TfrExportToJNX
               '12m'
               '8m'
               '5m')
+            Enabled = False
+          end
+          object ChRecompress1: TCheckBox
+            Left = 134
+            Top = 21
+            Width = 20
+            Height = 17
+            TabOrder = 15
+            Hint = 'Re-compress JPEG tiles'
+            Enabled = False
+            Visible = False
+            OnClick = ChRecompress1Click
+          end
+          object ChRecompress2: TCheckBox
+            Left = 134
+            Top = 48
+            Width = 20
+            Height = 17
+            TabOrder = 16
+            Hint = 'Re-compress JPEG tiles'
+            OnClick = ChRecompress2Click
+          end
+          object ChRecompress3: TCheckBox
+            Left = 134
+            Top = 75
+            Width = 20
+            Height = 17
+            TabOrder = 17
+            Hint = 'Re-compress JPEG tiles'
+            OnClick = ChRecompress3Click
+          end
+          object ChRecompress4: TCheckBox
+            Left = 134
+            Top = 102
+            Width = 20
+            Height = 17
+            TabOrder = 18
+            Hint = 'Re-compress JPEG tiles'
+            OnClick = ChRecompress4Click
+          end
+          object ChRecompress5: TCheckBox
+            Left = 134
+            Top = 129
+            Width = 20
+            Height = 17
+            TabOrder = 19
+            Hint = 'Re-compress JPEG tiles'
+            OnClick = ChRecompress5Click
           end
         end
       end
@@ -352,7 +402,7 @@ object frExportToJNX: TfrExportToJNX
         TabOrder = 1
         object ChMap1: TCheckBox
           Left = 3
-          Top = 5
+          Top = 3
           Width = 20
           Height = 17
           TabOrder = 0
@@ -369,6 +419,7 @@ object frExportToJNX: TfrExportToJNX
           DropDownCount = 16
           ItemHeight = 13
           TabOrder = 1
+          Enabled = False
           OnChange = cbbMapChange
         end
         object cbbMap2: TComboBox
@@ -429,7 +480,7 @@ object frExportToJNX: TfrExportToJNX
         end
         object ChMap2: TCheckBox
           Left = 3
-          Top = 32
+          Top = 30
           Width = 20
           Height = 17
           Enabled = False

@@ -50,6 +50,8 @@ type
     function GetMapList: IMapTypeListStatic;
     property MapList: IMapTypeListStatic read GetMapList;
 
+    function GetRecompress: TBooleanDynArray;
+    property Recompress: TBooleanDynArray read GetRecompress;
 
   end;
 
@@ -98,6 +100,11 @@ type
     cbbscale3: TComboBox;
     cbbscale4: TComboBox;
     cbbscale5: TComboBox;
+    ChRecompress1: TCheckBox;
+    ChRecompress2: TCheckBox;
+    ChRecompress3: TCheckBox;
+    ChRecompress4: TCheckBox;
+    ChRecompress5: TCheckBox;
     cbbMap4: TComboBox;
     cbbMap3: TComboBox;
     cbbMap2: TComboBox;
@@ -132,6 +139,11 @@ type
     procedure CbbZoom4Change(Sender: TObject);
     procedure CbbZoom5Change(Sender: TObject);
     procedure cbbVersionChange(Sender: TObject);
+    procedure ChRecompress1Click(Sender: TObject);
+    procedure ChRecompress2Click(Sender: TObject);
+    procedure ChRecompress3Click(Sender: TObject);
+    procedure ChRecompress4Click(Sender: TObject);
+    procedure ChRecompress5Click(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -141,6 +153,12 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+
+    procedure UpdateRecompress1State;
+    procedure UpdateRecompress2State;
+    procedure UpdateRecompress3State;
+    procedure UpdateRecompress4State;
+    procedure UpdateRecompress5State;
   private
     function GetZoomArray: TByteDynArray;
     function GetScaleArray: TByteDynArray;
@@ -154,6 +172,7 @@ type
     function GetZOrder: Integer;
     function GetProductID: Integer;
     function GetMapList: IMapTypeListStatic;
+    function GetRecompress: TBooleanDynArray;
 
   public
     constructor Create(
@@ -191,6 +210,8 @@ begin
   cnt := 0;
   if ChMap1.Checked then inc(cnt);
   TreeView1.Items[cnt*3+1].Text :=cbbMap2.text;
+
+  UpdateRecompress2State;
 end;
 
 procedure TfrExportToJNX.cbbMap3Change(Sender: TObject);
@@ -202,6 +223,7 @@ begin
   if ChMap2.Checked then inc(cnt);
   TreeView1.Items[cnt*3+1].Text :=cbbMap3.text;
 
+  UpdateRecompress3State;
 end;
 
 procedure TfrExportToJNX.cbbMap4Change(Sender: TObject);
@@ -214,6 +236,7 @@ begin
   if ChMap3.Checked then inc(cnt);
   TreeView1.Items[cnt*3+1].Text :=cbbMap4.text;
 
+  UpdateRecompress4State;
 end;
 
 procedure TfrExportToJNX.cbbMap5Change(Sender: TObject);
@@ -226,6 +249,8 @@ begin
   if ChMap3.Checked then inc(cnt);
   if ChMap4.Checked then inc(cnt);
   TreeView1.Items[cnt*3+1].Text :=cbbMap5.text;
+
+  UpdateRecompress5State;
 end;
 
 procedure TfrExportToJNX.cbbMapChange(Sender: TObject);
@@ -235,6 +260,8 @@ begin
     EMapName.text := cbbMap.text;
     TreeView1.Items[1].Text :=cbbMap.text;
   end;
+
+  UpdateRecompress1State;
 end;
 
 procedure TfrExportToJNX.cbbVersionChange(Sender: TObject);
@@ -367,7 +394,6 @@ begin
   end;
   if cbbMap.ItemIndex=-1 then cbbMap.ItemIndex:=0;
 
-
   cbbMap2.Items := cbbMap.Items;
   cbbMap3.Items := cbbMap.Items;
   cbbMap4.Items := cbbMap.Items;
@@ -391,30 +417,33 @@ begin
     EZorder.visible := false;
     LZOrder.visible := false;
   end;
+
+  UpdateRecompress1State;
+  UpdateRecompress2State;
+  UpdateRecompress3State;
+  UpdateRecompress4State;
+  UpdateRecompress5State;
 end;
 
 procedure TfrExportToJNX.ChMap1Click(Sender: TObject);
 var
  VItemNode, VParentNode : TTreeNode;
 begin
+  cbbMap.Enabled := ChMap1.Checked;
+  EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
+  CbbZoom.Enabled := ChMap1.Checked;
+  cbbscale.Enabled := ChMap1.Checked;
+  ChMap2.Enabled := ChMap1.Checked;
+  ChRecompress1.Enabled := ChMap1.Checked;
+
 if  ChMap1.Checked then begin
     VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(1));
     TreeView1.Items.AddChild(VParentNode, cbbMap.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
-    cbbMap.Enabled := true;
-    EJpgQuality.Enabled := true;
-    CbbZoom.Enabled := true;
-    cbbscale.Enabled := true;
-    ChMap2.Enabled := true;
   end else begin
-    cbbMap.Enabled := false;
-    EJpgQuality.Enabled := false;
-    CbbZoom.Enabled := false;
-    cbbscale.Enabled := false;
     VItemNode := TreeView1.Items[0];
     TreeView1.Items.delete(VItemNode);
 
-    ChMap2.Enabled := False;
     ChMap2.Checked := False;
   end;
 end;
@@ -424,6 +453,13 @@ var
  VItemNode, VParentNode : TTreeNode;
  cnt : integer;
 begin
+  cbbMap2.Enabled := ChMap2.Checked;
+  EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked;
+  CbbZoom2.Enabled := ChMap2.Checked;
+  cbbscale2.Enabled := ChMap2.Checked;
+  ChMap3.Enabled := ChMap2.Checked;
+  ChRecompress2.Enabled := ChMap2.Checked;
+
 cnt := 0;
 if ChMap1.Checked then inc(cnt);
 if ChMap2.Checked then begin
@@ -436,20 +472,10 @@ if ChMap2.Checked then begin
        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(2));
     TreeView1.Items.AddChild(VParentNode, cbbMap2.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
-    cbbMap2.Enabled := true;
-    EJpgQuality2.Enabled := true;
-    CbbZoom2.Enabled := true;
-    cbbscale2.Enabled := true;
-    ChMap3.Enabled := true;
   end else begin
-    cbbMap2.Enabled := false;
-    EJpgQuality2.Enabled := false;
-    CbbZoom2.Enabled := false;
-    cbbscale2.Enabled := false;
     VItemNode := TreeView1.Items[cnt*3];
     TreeView1.Items.delete(VItemNode);
 
-    ChMap3.Enabled := False;
     ChMap3.Checked := False;
   end;
 end;
@@ -459,6 +485,13 @@ var
  VItemNode, VParentNode : TTreeNode;
  cnt : integer;
 begin
+  cbbMap3.Enabled := ChMap3.Checked;
+  EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked;
+  CbbZoom3.Enabled := ChMap3.Checked;
+  cbbscale3.Enabled := ChMap3.Checked;
+  ChMap4.Enabled := ChMap3.Checked;
+  ChRecompress3.Enabled := ChMap3.Checked;
+
 cnt := 0;
 if ChMap1.Checked then inc(cnt);
 if ChMap2.Checked then inc(cnt);
@@ -472,20 +505,10 @@ if ChMap3.Checked then begin
        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(3));
     TreeView1.Items.AddChild(VParentNode, cbbMap3.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
-    cbbMap3.Enabled := true;
-    EJpgQuality3.Enabled := true;
-    CbbZoom3.Enabled := true;
-    cbbscale3.Enabled := true;
-    ChMap4.Enabled := true;
   end else begin
-    cbbMap3.Enabled := false;
-    EJpgQuality3.Enabled := false;
-    CbbZoom3.Enabled := false;
-    cbbscale3.Enabled := false;
     VItemNode := TreeView1.Items[cnt*3];
     TreeView1.Items.delete(VItemNode);
 
-    ChMap4.Enabled := False;
     ChMap4.Checked := False;
   end;
 end;
@@ -495,6 +518,13 @@ var
  VItemNode, VParentNode : TTreeNode;
  cnt : integer;
 begin
+  cbbMap4.Enabled := ChMap4.Checked;
+  EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked;
+  CbbZoom4.Enabled := ChMap4.Checked;
+  cbbscale4.Enabled := ChMap4.Checked;
+  ChMap5.Enabled := ChMap4.Checked;
+  ChRecompress4.Enabled := ChMap4.Checked;
+
 cnt := 0;
 if ChMap1.Checked then inc(cnt);
 if ChMap2.Checked then inc(cnt);
@@ -509,20 +539,10 @@ if ChMap4.Checked then begin
        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(4));
     TreeView1.Items.AddChild(VParentNode, cbbMap4.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
-    cbbMap4.Enabled := true;
-    EJpgQuality4.Enabled := true;
-    CbbZoom4.Enabled := true;
-    cbbscale4.Enabled := true;
-    ChMap5.Enabled := true;
   end else begin
-    cbbMap4.Enabled := false;
-    EJpgQuality4.Enabled := false;
-    CbbZoom4.Enabled := false;
-    cbbscale4.Enabled := false;
     VItemNode := TreeView1.Items[cnt*3];
     TreeView1.Items.delete(VItemNode);
 
-    ChMap5.Enabled := False;
     ChMap5.Checked := False;
   end;
 end;
@@ -532,6 +552,12 @@ var
  VItemNode, VParentNode : TTreeNode;
  cnt : integer;
 begin
+  cbbMap5.Enabled := ChMap5.Checked;
+  EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;
+  CbbZoom5.Enabled := ChMap5.Checked;
+  cbbscale5.Enabled := ChMap5.Checked;
+  ChRecompress5.Enabled := ChMap5.Checked;
+
 cnt := 0;
 if ChMap1.Checked then inc(cnt);
 if ChMap2.Checked then inc(cnt);
@@ -547,15 +573,7 @@ if ChMap5.Checked then begin
        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(5));
     TreeView1.Items.AddChild(VParentNode, cbbMap5.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
-    cbbMap5.Enabled := true;
-    EJpgQuality5.Enabled := true;
-    CbbZoom5.Enabled := true;
-    cbbscale5.Enabled := true;
   end else begin
-    cbbMap5.Enabled := false;
-    EJpgQuality5.Enabled := false;
-    CbbZoom5.Enabled := false;
-    cbbscale5.Enabled := false;
     VItemNode := TreeView1.Items[cnt*3];
     TreeView1.Items.delete(VItemNode);
   end;
@@ -754,6 +772,114 @@ begin
     Result := 0;
   end else begin
     Result := EZorder.Value;
+  end;
+end;
+
+function TfrExportToJNX.GetRecompress: TBooleanDynArray;
+var
+  VCount: Integer;
+begin
+  Result := nil;
+  VCount := 0;
+  if ChMap1.Checked then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := ChRecompress1.Checked;
+      Inc(VCount);
+  end;
+  if ChMap2.Checked then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := ChRecompress2.Checked;
+      Inc(VCount);
+  end;
+  if ChMap3.Checked then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := ChRecompress3.Checked;
+      Inc(VCount);
+  end;
+  if ChMap4.Checked then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := ChRecompress4.Checked;
+      Inc(VCount);
+  end;
+  if ChMap5.Checked then begin
+      SetLength(Result, VCount + 1);
+      Result[VCount] := ChRecompress5.Checked;
+  end;
+
+end;
+
+procedure TfrExportToJNX.ChRecompress1Click(Sender: TObject);
+begin
+  EJpgQuality.Enabled := ChRecompress1.Checked;
+end;
+
+procedure TfrExportToJNX.ChRecompress2Click(Sender: TObject);
+begin
+  EJpgQuality2.Enabled := ChRecompress2.Checked;
+end;
+
+procedure TfrExportToJNX.ChRecompress3Click(Sender: TObject);
+begin
+  EJpgQuality3.Enabled := ChRecompress3.Checked;
+end;
+
+procedure TfrExportToJNX.ChRecompress4Click(Sender: TObject);
+begin
+  EJpgQuality4.Enabled := ChRecompress4.Checked;
+end;
+
+procedure TfrExportToJNX.ChRecompress5Click(Sender: TObject);
+begin
+  EJpgQuality5.Enabled := ChRecompress5.Checked;
+end;
+
+procedure TfrExportToJNX.UpdateRecompress1State;
+begin
+  with TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]) do
+  begin
+    ChRecompress1.Visible := SameText(ContentType.GetContentType, 'image/jpg');
+    ChRecompress1.Checked := not ChRecompress1.Visible;
+    EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
+  end;
+end;
+
+procedure TfrExportToJNX.UpdateRecompress2State;
+begin
+  with TMapType(cbbMap2.Items.Objects[cbbMap2.ItemIndex]) do
+  begin
+    ChRecompress2.Visible := SameText(ContentType.GetContentType, 'image/jpg');
+    ChRecompress2.Checked := not ChRecompress2.Visible;
+    EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked;
+  end;
+end;
+
+procedure TfrExportToJNX.UpdateRecompress3State;
+begin
+  with TMapType(cbbMap3.Items.Objects[cbbMap3.ItemIndex]) do
+  begin
+    ChRecompress3.Visible := SameText(ContentType.GetContentType, 'image/jpg');
+    ChRecompress3.Checked := not ChRecompress3.Visible;
+    EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked;
+  end;
+end;
+
+procedure TfrExportToJNX.UpdateRecompress4State;
+begin
+  with TMapType(cbbMap4.Items.Objects[cbbMap4.ItemIndex]) do
+  begin
+    ChRecompress4.Visible := SameText(ContentType.GetContentType, 'image/jpg');
+    ChRecompress4.Checked := not ChRecompress4.Visible;
+    EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked;
+  end;
+end;
+
+procedure TfrExportToJNX.UpdateRecompress5State;
+begin
+  with TMapType(cbbMap5.Items.Objects[cbbMap5.ItemIndex]) do
+  begin
+    ChRecompress5.Visible := SameText(ContentType.GetContentType, 'image/jpg');
+    ChRecompress5.Checked := not ChRecompress5.Visible;
+    EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;
   end;
 end;
 

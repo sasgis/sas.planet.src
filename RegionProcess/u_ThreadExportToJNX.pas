@@ -39,6 +39,7 @@ type
     FLayersList: IMapTypeListStatic;
     FZoomList: TByteDynArray;
     FScaleArr: TByteDynArray;
+    FRecompressArr: TBooleanDynArray;
 
   protected
     procedure ProcessRegion; override;
@@ -61,7 +62,8 @@ type
       const ALevelsDesc: IStringListStatic;
       const AMapList: IMapTypeListStatic;
       const ALayerList: IMapTypeListStatic;
-      const AScaleArr: TByteDynArray
+      const AScaleArr: TByteDynArray;
+      const ARecompressArr: TBooleanDynArray
     );
   end;
 
@@ -95,7 +97,8 @@ constructor TThreadExportToJnx.Create(
   const ALevelsDesc: IStringListStatic;
   const AMapList: IMapTypeListStatic;
   const ALayerList: IMapTypeListStatic;
-  const AScaleArr: TByteDynArray
+  const AScaleArr: TByteDynArray;
+  const ARecompressArr: TBooleanDynArray
 );
 begin
   inherited Create(
@@ -120,6 +123,7 @@ begin
   FLayersList := ALayerList;
   FZoomList := Azoomarr;
   FScaleArr := AScaleArr;
+  FRecompressArr := ARecompressArr;
 end;
 
 procedure TThreadExportToJnx.ProcessRegion;
@@ -149,6 +153,7 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VData: IBinaryData;
+  VFileStream: TFileStream;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -191,7 +196,9 @@ begin
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         for i := 0 to Length(FZoomList) - 1 do begin
-          VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(StrToInt(FJpgQuality.Items[i]));
+          if FRecompressArr[i] then
+            VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(StrToInt(FJpgQuality.Items[i]));
+
           VZoom := FZoomList[i];
           VGeoConvert := FMapList.Items[i].MapType.GeoConvert;
           VTileIterator := VTileIterators[i];
@@ -199,9 +206,25 @@ begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
               exit;
             end;
-            VBitmapTile := FMapList.Items[i].MapType.LoadTile(VTile, VZoom, True);
-            if VBitmapTile <> nil then begin
-              VData := VSaver.Save(VBitmapTile);
+
+            if FMapList.Items[i].MapType.TileExists(VTile, VZoom) then begin
+              VStringStream.Size := 0;
+
+              if FRecompressArr[i] then begin
+                VBitmapTile := FMapList.Items[i].MapType.LoadTile(VTile, VZoom, True);
+                if VBitmapTile <> nil then begin
+                  VData := VSaver.Save(VBitmapTile);
+                  VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
+                end;
+              end
+              else begin
+                VFileStream := TFileStream.Create(FMapList.Items[i].MapType.GetTileFileName(VTile, VZoom), fmOpenRead);
+                try
+                  VStringStream.CopyFrom(VFileStream, 0);
+                finally
+                  FreeAndNil(VFileStream);
+                end;
+              end;
 
               VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X, VTile.Y + 1), VZoom);
               VBottomRight := VGeoConvert.TilePos2LonLat(Point(VTile.X + 1, VTile.Y), VZoom);
@@ -212,9 +235,6 @@ begin
                 WGS84CoordToJNX(VTopLeft.Y),
                 WGS84CoordToJNX(VTopLeft.X)
               );
-
-              VStringStream.Size := 0;
-              VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
 
               VWriter.WriteTile(
                 i,

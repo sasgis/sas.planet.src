@@ -116,6 +116,7 @@ var
   VMapList: IMapTypeListStatic;
   VLayerList: IMapTypeListStatic;
   VScaleArr: TByteDynArray;
+  VRecompressArr: TBooleanDynArray;
 begin
   inherited;
 
@@ -131,6 +132,7 @@ begin
   VProductID := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductID;
   VScaleArr := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ScaleArray;
   VMapList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapList;
+  VRecompressArr := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).Recompress;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
@@ -152,7 +154,8 @@ begin
     VLevelsDesc,
     VMapList,
     VLayerList,
-    VScaleArr
+    VScaleArr,
+    VRecompressArr
   );
 end;
 
