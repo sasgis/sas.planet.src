@@ -27,6 +27,7 @@ uses
   i_Notifier,
   t_GeoTypes,
   i_Category,
+  i_MarkFactory,
   i_VectorItemSubset,
   i_MarksSimple;
 
@@ -44,6 +45,10 @@ type
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
 
+    function FindMarkByName(
+      const AName: string;
+      const ACategory: ICategory
+    ): IMark;
     function GetAllMarksIdList: IInterfaceList;
     function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
@@ -80,6 +85,9 @@ type
       const ACategory: ICategory;
       AIgnoreVisible: Boolean
     ): IVectorItemSubset; overload;
+
+    function GetFactory: IMarkFactory;
+    property Factory: IMarkFactory read GetFactory;
 
     function GetChangeNotifier: INotifier;
     property ChangeNotifier: INotifier read GetChangeNotifier;

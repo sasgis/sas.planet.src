@@ -35,6 +35,7 @@ uses
   i_Category,
   i_MarksSimple,
   i_MarksDb,
+  i_MarkFactory,
   i_VectorItemSubset,
   i_MarksDbSmlInternal,
   i_MarkFactorySmlInternal,
@@ -51,6 +52,7 @@ type
 
     FStream: TStream;
     FCdsMarks: TClientDataSet;
+    FFactory: IMarkFactory;
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FMarksList: IIDInterfaceList;
     FByCategoryList: IIDInterfaceList;
@@ -93,6 +95,11 @@ type
     ): IInterfaceList;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
+    function FindMarkByName(
+      const AName: string;
+      const ACategory: ICategory
+    ): IMark;
+
     procedure SetMarkVisibleByID(
       const AMark: IMarkId;
       AVisible: Boolean
@@ -128,11 +135,13 @@ type
       const ACategory: ICategory;
       AIgnoreVisible: Boolean
     ): IVectorItemSubset; overload;
+    function GetFactory: IMarkFactory;
   public
     constructor Create(
       const ADbId: Integer;
       const AStateInternal: IReadWriteStateInternal;
       const ABasePath: IPathConfig;
+      const AFactory: IMarkFactory;
       const AFactoryDbInternal: IMarkFactorySmlInternal;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -142,6 +151,7 @@ type
 implementation
 
 uses
+  ActiveX,
   DB,
   Math,
   GR32,
@@ -308,6 +318,7 @@ constructor TMarksDb.Create(
   const ADbId: Integer;
   const AStateInternal: IReadWriteStateInternal;
   const ABasePath: IPathConfig;
+  const AFactory: IMarkFactory;
   const AFactoryDbInternal: IMarkFactorySmlInternal;
   const APerfCounterList: IInternalPerformanceCounterList
 );
@@ -317,6 +328,7 @@ begin
   FBasePath := ABasePath;
   FStateInternal := AStateInternal;
   FPerfCounterList := APerfCounterList;
+  FFactory := AFactory;
   FFactoryDbInternal := AFactoryDbInternal;
 
   FMarksList := TIDInterfaceList.Create;
@@ -340,6 +352,50 @@ begin
   FMarksList := nil;
   FFactoryDbInternal := nil;
   inherited;
+end;
+
+function TMarksDb.FindMarkByName(
+  const AName: string;
+  const ACategory: ICategory
+): IMark;
+var
+  VCategory: IMarkCategorySMLInternal;
+  VList: IIDInterfaceList;
+  VEnum: IEnumUnknown;
+  VItem: IInterface;
+  VCnt: Integer;
+  VMark: IMark;
+begin
+  Result := nil;
+  if not Supports(ACategory, IMarkCategorySMLInternal, VCategory) then begin
+    VCategory := nil;
+  end;
+  if VCategory <> nil then begin
+    if (VCategory.DbId <> FDbId) or (VCategory.Id = CNotExistCategoryID) then begin
+      VCategory := nil;
+    end;
+  end;
+  LockRead;
+  try
+    if VCategory <> nil then begin
+      VList := IIDInterfaceList(FByCategoryList.GetByID(VCategory.Id));
+    end else begin
+      VList := FMarksList;
+    end;
+    if VList <> nil then begin
+      VEnum := VList.GetEnumUnknown;
+      while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
+        if Supports(VItem, IMark, VMark) then begin
+          if VMark.Name = AName then begin
+            Result := VMark;
+            Exit;
+          end;
+        end;
+      end;
+    end;
+  finally
+    UnlockRead;
+  end;
 end;
 
 function TMarksDb._UpdateMark(
@@ -1029,6 +1085,11 @@ begin
     '</DATAPACKET>';
   ACdsMarks.IndexFieldNames := 'categoryid;LonR;LonL;LatT;LatB;visible';
   ACdsMarks.Open;
+end;
+
+function TMarksDb.GetFactory: IMarkFactory;
+begin
+  Result := FFactory;
 end;
 
 function TMarksDb.GetFilterTextByCategory(const ACategory: ICategory): string;

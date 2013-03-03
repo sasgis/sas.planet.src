@@ -112,7 +112,7 @@ type
     );
   end;
 
-  TImportConfigNew = class(TBaseInterfacedObject, IImportConfigNew)
+  TImportConfigNew = class(TBaseInterfacedObject, IImportConfig)
   private
     FRootCategory: ICategory;
     FCategoryParams: IImportCategoryParams;
@@ -135,7 +135,7 @@ type
     );
   end;
 
-  TImportConfig = class(TBaseInterfacedObject, IImportConfig)
+  TImportConfig = class(TBaseInterfacedObject, IImportConfigOld)
   private
     FRootCategory: ICategory;
     FTemplateNewPoint: IMarkTemplatePoint;

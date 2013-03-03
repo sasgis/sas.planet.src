@@ -89,9 +89,10 @@ type
     frSelectPicture: TfrPictureSelectFromList;
     frSelectedPicture: TfrSelectedPicture;
     FMarkFactory: IMarkFactory;
+    FIsIgnoreByDefault: Boolean;
+    FIsForceSet: Boolean;
     procedure SelectImageFromList(Sender: TObject);
   public
-    procedure SetIgnore(AValue: Boolean);
     procedure Init(const ACategory: ICategory);
     function GetImportConfig: IImportConfig;
     procedure Clear;
@@ -99,7 +100,9 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMarkFactory: IMarkFactory;
-      const ACategoryDB: IMarkCategoryDB
+      const ACategoryDB: IMarkCategoryDB;
+      const AIsIgnoreByDefault: Boolean;
+      const AIsForceSet: Boolean
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -119,11 +122,15 @@ uses
 constructor TfrMarksGeneralOptions.Create(
   const ALanguageManager: ILanguageManager;
   const AMarkFactory: IMarkFactory;
-  const ACategoryDB: IMarkCategoryDB
+  const ACategoryDB: IMarkCategoryDB;
+  const AIsIgnoreByDefault: Boolean;
+  const AIsForceSet: Boolean
 );
 begin
   inherited Create(ALanguageManager);
   FMarkFactory := AMarkFactory;
+  FIsIgnoreByDefault := AIsIgnoreByDefault;
+  FIsForceSet := AIsForceSet;
 
   frMarkCategory :=
     TfrMarkCategorySelectOrAdd.Create(
@@ -202,19 +209,16 @@ begin
   clrbxPolyFillColor.Selected := WinColor(VPolyTemplate.FillColor);
   sePolyFillTransp.Value := 100-round(AlphaComponent(VPolyTemplate.FillColor)/255*100);
   sePolyLineWidth.Value := VPolyTemplate.LineWidth;
+
+  chkPointIgnore.Checked := FIsIgnoreByDefault;
+  chkLineIgnore.Checked := FIsIgnoreByDefault;
+  chkPolyIgnore.Checked := FIsIgnoreByDefault;
 end;
 
 procedure TfrMarksGeneralOptions.SelectImageFromList(Sender: TObject);
 begin
   frSelectPicture.Visible := False;
   frSelectedPicture.Picture := frSelectPicture.Picture;
-end;
-
-procedure TfrMarksGeneralOptions.SetIgnore(AValue: Boolean);
-begin
-  chkPointIgnore.Checked := AValue;
-  chkLineIgnore.Checked := AValue;
-  chkPolyIgnore.Checked := AValue;
 end;
 
 procedure TfrMarksGeneralOptions.Clear;
@@ -227,9 +231,15 @@ var
   VMarkTemplatePoint: IMarkTemplatePoint;
   VMarkTemplateLine: IMarkTemplateLine;
   VMarkTemplatePoly: IMarkTemplatePoly;
+  VPointParams: IImportPointParams;
+  VLineParams: IImportLineParams;
+  VPolyParams: IImportPolyParams;
   VCategory: ICategory;
   VPicName: string;
 begin
+  VPointParams := nil;
+  VLineParams := nil;
+  VPolyParams := nil;
   VCategory := frMarkCategory.GetCategory;
   if not chkPointIgnore.Checked then begin
     VPicName := '';
@@ -245,6 +255,7 @@ begin
         sePointFontSize.Value,
         sePointIconSize.Value
       );
+    VPointParams := TImportPointParams.Create(VMarkTemplatePoint, FIsForceSet, FIsForceSet, FIsForceSet, FIsForceSet, FIsForceSet);
   end;
   VMarkTemplateLine := nil;
   if not chkLineIgnore.Checked then begin
@@ -254,6 +265,7 @@ begin
         SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
         seLineWidth.Value
       );
+    VLineParams := TImportLineParams.Create(VMarkTemplateLine, FIsForceSet, FIsForceSet);
   end;
   VMarkTemplatePoly := nil;
   if not chkPolyIgnore.Checked then begin
@@ -265,13 +277,15 @@ begin
         SetAlpha(Color32(clrbxPolyFillColor.Selected),round(((100-sePolyFillTransp.Value)/100)*256)),
         sePolyLineWidth.Value
       );
+    VPolyParams := TImportPolyParams.Create(VMarkTemplatePoly, FIsForceSet, FIsForceSet, FIsForceSet);
   end;
   Result :=
-    TImportConfig.Create(
+    TImportConfigNew.Create(
       VCategory,
-      VMarkTemplatePoint,
-      VMarkTemplateLine,
-      VMarkTemplatePoly
+      TImportCategoryParams.Create(True, False, False, False),
+      VPointParams,
+      VLineParams,
+      VPolyParams
     );
 end;
 

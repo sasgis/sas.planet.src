@@ -5816,7 +5816,7 @@ begin
   VImportConfig := FMarkDBGUI.EditModalImportConfig;
   if (nil=VImportConfig) then
     Exit;
-  if (nil=VImportConfig.TemplateNewPoly) then
+  if (nil=VImportConfig.PolyParams) then
     Exit;
 
   VMarksList := ImportFromArcGIS(
@@ -6386,7 +6386,7 @@ begin
       VStr := VPlacemark.GetDesc;
     end;
     VMark :=
-      FMarkDBGUI.MarkFactory.CreateNewPoint(
+      FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoint(
         VPlacemark.GetPoint,
         VPlacemark.Name,
         VStr
