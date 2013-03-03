@@ -177,15 +177,8 @@ begin
   VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
 
   VPicName := VPointTemplate.PicName;
-  if VPicName <> '' then begin
-    VPic := nil;
-    VPicIndex := FMarkFactory.MarkPictureList.GetIndexByName(VPicName);
-    if VPicIndex >= 0 then begin
-      VPic := FMarkFactory.MarkPictureList.Get(VPicIndex);
-    end;
-  end else begin
-    VPic := FMarkFactory.MarkPictureList.GetDefaultPicture;
-  end;
+  VPic := FMarkFactory.MarkPictureList.FindByNameOrDefault(VPicName);
+
   frSelectPicture.Picture := VPic;
   frSelectedPicture.Picture := frSelectPicture.Picture;
 

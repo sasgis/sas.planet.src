@@ -242,7 +242,6 @@ var
   VName: string;
   VPicName: string;
   VPic: IMarkPicture;
-  VPicIndex: Integer;
   VCategory: ICategory;
 begin
   VTemplate := ATemplate;
@@ -257,16 +256,8 @@ begin
 
   VCategory := VTemplate.Category;
 
-  VPic := nil;
   VPicName := VTemplate.PicName;
-  if VPicName <> '' then begin
-    VPicIndex := FMarkPictureList.GetIndexByName(VPicName);
-    if VPicIndex >= 0 then begin
-      VPic := FMarkPictureList.Get(VPicIndex);
-    end;
-  end else begin
-    VPic := FMarkPictureList.GetDefaultPicture;
-  end;
+  VPic  := FMarkPictureList.FindByNameOrDefault(VPicName);
 
   Result :=
     CreatePoint(

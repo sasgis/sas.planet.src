@@ -563,7 +563,6 @@ var
   VMarkPoly: IVectorDataItemPoly;
   VCategory: ICategory;
   VPicName: string;
-  VPicIndex: Integer;
   VPic: IMarkPicture;
   VMarkId: IMarkId;
   i:integer;
@@ -589,16 +588,8 @@ begin
         VCategory := VImportConfig.RootCategory;
         VMarksList:=TInterfaceList.Create;
         if VImportConfig.PointParams <> nil then begin
-            VPicName := VImportConfig.PointParams.Template.PicName;
-            if VPicName <> '' then begin
-              VPic := nil;
-              VPicIndex := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.GetIndexByName(VPicName);
-              if VPicIndex >= 0 then begin
-                VPic := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.Get(VPicIndex);
-              end;
-            end else begin
-              VPic := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.GetDefaultPicture;
-            end;
+          VPicName := VImportConfig.PointParams.Template.PicName;
+          VPic := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.FindByNameOrDefault(VPicName);
         end;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMarkId := IMarkId(VMarkIdList[i]);
