@@ -77,6 +77,8 @@ uses
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_SystemTimeProvider,
+  i_MarkCategoryFactory,
+  i_MarkFactory,
   i_GlobalConfig,
   i_GlobalCacheConfig,
   u_GarbageCollectorThread,
@@ -154,6 +156,8 @@ type
     FLastSelectionSaver: IBackgroundTask;
     FMainThreadConfigListener: IListener;
     FVectorDataFactory: IVectorDataFactory;
+    FMarkFactory: IMarkFactory;
+    FMarkCategoryFactory: IMarkCategoryFactory;
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
 
@@ -308,6 +312,8 @@ uses
   u_GlobalConfig,
   u_GlobalInternetState,
   u_GlobalCacheConfig,
+  u_MarkFactory,
+  u_MarkCategoryFactory,
   u_SystemTimeProvider,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
@@ -527,6 +533,17 @@ begin
     );
   FMarkPictureList := TMarkPictureListSimple.Create(FGlobalConfig.MarksIconsPath, FContentTypeManager);
 
+  FMarkCategoryFactory :=
+    TMarkCategoryFactory.Create(
+      FGlobalConfig.MarksCategoryFactoryConfig
+    );
+  FMarkFactory :=
+    TMarkFactory.Create(
+      FGlobalConfig.MarksFactoryConfig,
+      FMarkPictureList,
+      FVectorItemsFactory,
+      THtmlToHintTextConverterStuped.Create
+    );
   FMarksDb :=
     TMarksSystem.Create(
       FGlobalConfig.LanguageManager,
@@ -535,6 +552,8 @@ begin
       FVectorItemsFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       THtmlToHintTextConverterStuped.Create,
+      FMarkFactory,
+      FMarkCategoryFactory,
       FGlobalConfig.MarksFactoryConfig,
       FGlobalConfig.MarksCategoryFactoryConfig
     );

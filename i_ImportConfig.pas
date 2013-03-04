@@ -90,7 +90,7 @@ type
     property IsIgnoreMarkIfExistsWithSameNameInCategory: Boolean read GetIsIgnoreMarkIfExistsWithSameNameInCategory;
   end;
 
-  IImportConfigNew = interface
+  IImportConfig = interface
     ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
     function GetRootCategory: ICategory;
     property RootCategory: ICategory read GetRootCategory;
@@ -108,7 +108,7 @@ type
     property PolyParams: IImportPolyParams read GetPolyParams;
   end;
 
-  IImportConfig = interface
+  IImportConfigOld = interface
     ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
     function GetRootCategory: ICategory;
     property RootCategory: ICategory read GetRootCategory;

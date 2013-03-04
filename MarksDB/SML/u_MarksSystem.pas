@@ -45,6 +45,8 @@ uses
   i_MarkCategoryDBSmlInternal,
   i_MarksDb,
   i_MarksSystem,
+  i_MarkFactory,
+  i_MarkCategoryFactory,
   i_MarksDbSmlInternal,
   i_MarkFactorySmlInternal,
   i_StaticTreeItem,
@@ -100,6 +102,8 @@ type
       const AVectorItemsFactory: IVectorItemsFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AHintConverter: IHtmlToHintTextConverter;
+      const AMarkFactory: IMarkFactory;
+      const AMarkCategoryFactory: IMarkCategoryFactory;
       const AFactoryConfig: IMarksFactoryConfig;
       const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
     );
@@ -112,8 +116,8 @@ implementation
 uses
   SysUtils,
   ActiveX,
+  GR32,
   i_Category,
-  i_MarkFactory,
   i_MarkTemplate,
   u_StaticTreeBuilderBase,
   u_ReadWriteStateInternal,
@@ -216,6 +220,8 @@ constructor TMarksSystem.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AHintConverter: IHtmlToHintTextConverter;
+  const AMarkFactory: IMarkFactory;
+  const AMarkCategoryFactory: IMarkCategoryFactory;
   const AFactoryConfig: IMarksFactoryConfig;
   const ACategoryFactoryConfig: IMarkCategoryFactoryConfig
 );
@@ -229,7 +235,14 @@ begin
   FBasePath := ABasePath;
   VState := TReadWriteStateInternal.Create;
   FState := VState;
-  VCategoryDb := TMarkCategoryDB.Create(FDbId , VState, FBasePath, ACategoryFactoryConfig);
+  VCategoryDb :=
+    TMarkCategoryDB.Create(
+      FDbId,
+      VState,
+      FBasePath,
+      AMarkCategoryFactory,
+      ACategoryFactoryConfig
+    );
   FCategoryDB := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
   FMarksFactoryConfig := AFactoryConfig;
@@ -246,6 +259,7 @@ begin
       Integer(Self),
       VState,
       ABasePath,
+      AMarkFactory,
       FFactoryDbInternal,
       APerfCounterList.CreateAndAddNewSubList('MarksDb')
     );
@@ -411,22 +425,19 @@ var
   VPoly: IVectorDataItemPoly;
   i: Integer;
   VMark: IMark;
-  VTemplateNewPoint: IMarkTemplatePoint;
-  VTemplateNewLine: IMarkTemplateLine;
-  VTemplateNewPoly: IMarkTemplatePoly;
   VMarksList: IInterfaceList;
   VName: string;
   VPic: IMarkPicture;
   VCategory: ICategory;
 begin
   Result := nil;
-  VTemplateNewPoint := AImportConfig.TemplateNewPoint;
-  VTemplateNewLine := AImportConfig.TemplateNewLine;
-  VTemplateNewPoly := AImportConfig.TemplateNewPoly;
 
   VPic := nil;
-  if VTemplateNewPoint <> nil then begin
-    VPic :=  FFactoryDbInternal.MarkPictureList.FindByNameOrDefault(VTemplateNewPoint.PicName);
+  if AImportConfig.PointParams <> nil then begin
+    VPic :=
+      FFactoryDbInternal.MarkPictureList.FindByNameOrDefault(
+        AImportConfig.PointParams.Template.PicName
+      );
   end;
   VCategory := AImportConfig.RootCategory;
 
@@ -441,63 +452,38 @@ begin
       end else begin
         VName := ANamePrefix;
       end;
+    end else begin
+      if AImportConfig.CategoryParams.IsIgnoreMarkIfExistsWithSameNameInCategory then begin
+        if FMarksDb.FindMarkByName(VName, VCategory) <> nil then begin
+          Continue;
+        end;
+      end;
     end;
     if Supports(VItem, IVectorDataItemPoint, VPoint) then begin
-      if VTemplateNewPoint <> nil then begin
-        if VName = '' then begin
-          VName := VTemplateNewPoint.GetNewName;
-        end;
-        VMark :=
-          FFactoryDbInternal.CreatePoint(
-            CNotExistMarkID,
-            VName,
-            True,
-            VTemplateNewPoint.PicName,
-            VPic,
-            VCategory,
-            VPoint.Desc,
-            VPoint.Point,
-            VTemplateNewPoint.TextColor,
-            VTemplateNewPoint.TextBgColor,
-            VTemplateNewPoint.FontSize,
-            VTemplateNewPoint.MarkerSize
-          );
-      end;
+      VMark :=
+        FMarksDb.Factory.PreparePoint(
+          VPoint,
+          VName,
+          AImportConfig.PointParams,
+          VCategory,
+          VPic
+        );
     end else if Supports(VItem, IVectorDataItemLine, VLine) then begin
-      if VTemplateNewLine <> nil then begin
-        if VName = '' then begin
-          VName := VTemplateNewLine.GetNewName;
-        end;
-        VMark :=
-          FFactoryDbInternal.CreateLine(
-            CNotExistMarkID,
-            VName,
-            True,
-            VCategory,
-            VLine.Desc,
-            VLine.Line,
-            VTemplateNewLine.LineColor,
-            VTemplateNewLine.LineWidth
-          );
-      end;
+      VMark :=
+        FMarksDb.Factory.PrepareLine(
+          VLine,
+          VName,
+          AImportConfig.LineParams,
+          VCategory
+        );
     end else if Supports(VItem, IVectorDataItemPoly, VPoly) then begin
-      if VTemplateNewPoly <> nil then begin
-        if VName = '' then begin
-          VName := VTemplateNewPoly.GetNewName;
-        end;
-        VMark :=
-          FFactoryDbInternal.CreatePoly(
-            CNotExistMarkID,
-            VName,
-            True,
-            VCategory,
-            VPoly.Desc,
-            VPoly.Line,
-            VTemplateNewPoly.LineColor,
-            VTemplateNewPoly.FillColor,
-            VTemplateNewPoly.LineWidth
-          );
-      end;
+      VMark :=
+        FMarksDb.Factory.PreparePoly(
+          VPoly,
+          VName,
+          AImportConfig.PolyParams,
+          VCategory
+        );
     end;
     if VMark <> nil then begin
       VMarksList.Add(VMark);

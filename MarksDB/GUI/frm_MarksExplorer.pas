@@ -216,6 +216,7 @@ uses
   i_MarkPicture,
   i_MarksFactoryConfig,
   i_VectorItemLonLat,
+  i_VectorDataItemSimple,
   u_ListenerByEvent;
 
 {$R *.dfm}
@@ -555,13 +556,13 @@ var
   VMarkIdList: IInterfaceList;
   VMarksList: IInterfaceList;
   VMark: IMark;
+  VMarkNew: IMark;
   VImportConfig: IImportConfig;
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
+  VMarkPoint: IVectorDataItemPoint;
+  VMarkLine: IVectorDataItemLine;
+  VMarkPoly: IVectorDataItemPoly;
   VCategory: ICategory;
   VPicName: string;
-  VPicIndex: Integer;
   VPic: IMarkPicture;
   VMarkId: IMarkId;
   i:integer;
@@ -586,63 +587,42 @@ begin
       if (VImportConfig <> nil) then begin
         VCategory := VImportConfig.RootCategory;
         VMarksList:=TInterfaceList.Create;
-        if VImportConfig.TemplateNewPoint <> nil then begin
-            VPicName := VImportConfig.TemplateNewPoint.PicName;
-            if VPicName <> '' then begin
-              VPic := nil;
-              VPicIndex := FMarkDBGUI.MarkFactory.MarkPictureList.GetIndexByName(VPicName);
-              if VPicIndex >= 0 then begin
-                VPic := FMarkDBGUI.MarkFactory.MarkPictureList.Get(VPicIndex);
-              end;
-            end else begin
-              VPic := FMarkDBGUI.MarkFactory.MarkPictureList.GetDefaultPicture;
-            end;
+        if VImportConfig.PointParams <> nil then begin
+          VPicName := VImportConfig.PointParams.Template.PicName;
+          VPic := FMarkDBGUI.MarksDb.MarksDb.Factory.MarkPictureList.FindByNameOrDefault(VPicName);
         end;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMarkId := IMarkId(VMarkIdList[i]);
           VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(VMarkId);
-          if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-            if VImportConfig.TemplateNewPoint<>nil then begin
-              VMark:=FMarkDBGUI.MarkFactory.ModifyPoint(
+          if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
+            VMarkNew :=
+              FMarkDBGUI.MarksDb.MarksDb.Factory.PreparePoint(
                 VMarkPoint,
                 VMarkPoint.Name,
-                VPic,
+                VImportConfig.PointParams,
                 VCategory,
-                VMarkPoint.Desc,
-                VMarkPoint.Point,
-                VImportConfig.TemplateNewPoint.TextColor,
-                VImportConfig.TemplateNewPoint.TextBgColor,
-                VImportConfig.TemplateNewPoint.FontSize,
-                VImportConfig.TemplateNewPoint.MarkerSize
+                VPic
               );
-            end;
-          end else if Supports(VMark, IMarkLine, VMarkLine) then begin
-            if VImportConfig.TemplateNewLine<>nil then begin
-              VMark:=FMarkDBGUI.MarkFactory.ModifyLine(
+          end else if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
+            VMarkNew :=
+              FMarkDBGUI.MarksDb.MarksDb.Factory.PrepareLine(
                 VMarkLine,
                 VMarkLine.Name,
-                VCategory,
-                VMarkLine.Desc,
-                VMarkLine.Line,
-                VImportConfig.TemplateNewLine.LineColor,
-                VImportConfig.TemplateNewLine.LineWidth
+                VImportConfig.LineParams,
+                VCategory
               );
-            end;
-          end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-            if VImportConfig.TemplateNewPoly<>nil then begin
-              VMark:=FMarkDBGUI.MarkFactory.ModifyPoly(
+          end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
+            VMarkNew :=
+              FMarkDBGUI.MarksDb.MarksDb.Factory.PreparePoly(
                 VMarkPoly,
                 VMarkPoly.Name,
-                VCategory,
-                VMarkPoly.Desc,
-                VMarkPoly.Line,
-                VImportConfig.TemplateNewPoly.LineColor,
-                VImportConfig.TemplateNewPoly.FillColor,
-                VImportConfig.TemplateNewPoly.LineWidth
+                VImportConfig.PolyParams,
+                VCategory
               );
-            end;
           end;
-          if VMark <> nil then begin
+          if VMarkNew <> nil then begin
+            VMarksList.Add(VMarkNew);
+          end else begin
             VMarksList.Add(VMark);
           end;
         end;
@@ -863,7 +843,7 @@ begin
         VMarkIdListNew := TInterfaceList.Create;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMark := FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VMarkIdList.Items[i]));
-          VMarkIdListNew.Add(FMarkDBGUI.MarkFactory.ReplaceCategory(VMark, VCategoryNew));
+          VMarkIdListNew.Add(FMarkDBGUI.MarksDb.MarksDb.Factory.ReplaceCategory(VMark, VCategoryNew));
         end;
         FMarkDBGUI.MarksDb.MarksDb.UpdateMarksList(VMarkIdList, VMarkIdListNew);
       end;
@@ -996,7 +976,7 @@ begin
   end;
 
   VVisible := True;
-  VMark := FMarkDBGUI.MarkFactory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
+  VMark := FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
   VMark := FMarkDBGUI.EditMarkModal(VMark, True, VVisible);
   if VMark <> nil then begin
     VMark := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);

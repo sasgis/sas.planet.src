@@ -1068,7 +1068,7 @@ begin
         if (nil=VImportConfig) then
           Exit;
         VPointsAggregator := TDoublePointsAggregator.Create;
-        if (nil=VImportConfig.TemplateNewPoly) then
+        if (nil=VImportConfig.PolyParams) then
           Exit;
       end;
 
@@ -1106,11 +1106,11 @@ begin
         VPolygon := FVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
-          VMark := FMarkDBGUI.MarkFactory.CreateNewPoly(
+          VMark := FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoly(
             VPolygon,
             Vname,
             VDesc,
-            VImportConfig.TemplateNewPoly
+            VImportConfig.PolyParams.Template
           );
 
           if (nil<>VMark) then begin

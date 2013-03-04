@@ -146,7 +146,7 @@ begin
   Result := nil;
   LockRead;
   try
-    if FList.Find(AValue, VIndex) then begin
+    if (AValue <> '') and FList.Find(AValue, VIndex) then begin
       Result := Get(VIndex);
     end else begin
       if GetCount > 0 then begin

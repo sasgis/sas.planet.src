@@ -56,7 +56,6 @@ uses
 type
   TMarksDbGUIHelper = class
   private
-    FMarkFactory: IMarkFactory;
     FMarksDb: IMarksSystem;
     FVectorItemsFactory: IVectorItemsFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -136,7 +135,6 @@ type
 
     property MarksDb: IMarksSystem read FMarksDb;
     property ImportFileByExt: IImportFile read FImportFileByExt;
-    property MarkFactory: IMarkFactory read FMarkFactory;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -191,21 +189,13 @@ begin
   FVectorItemsFactory := AVectorItemsFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
-  FMarkFactory :=
-    TMarkFactory.Create(
-      AMarkFactoryConfig,
-      AMarkPictureList,
-      AVectorItemsFactory,
-      AHintConverter,
-      AMarksDB
-     );
   FfrmMarkEditPoint :=
     TfrmMarkEditPoint.Create(
       ALanguageManager,
       AMediaPath,
-      FMarkFactory,
+      FMarksDb.MarksDb.Factory,
       FMarksDb.CategoryDB,
-      FMarkFactory.MarkPictureList,
+      FMarksDb.MarksDb.Factory.MarkPictureList,
       AViewPortState,
       AValueToStringConverterConfig
     );
@@ -213,14 +203,14 @@ begin
     TfrmMarkEditPath.Create(
       ALanguageManager,
       AMediaPath,
-      FMarkFactory,
+      FMarksDb.MarksDb.Factory,
       FMarksDb.CategoryDB
     );
   FfrmMarkEditPoly :=
     TfrmMarkEditPoly.Create(
       ALanguageManager,
       AMediaPath,
-      FMarkFactory,
+      FMarksDb.MarksDb.Factory,
       FMarksDb.CategoryDB
     );
   FfrmMarkCategoryEdit :=
@@ -231,7 +221,7 @@ begin
   FfrmImportConfigEdit :=
     TfrmImportConfigEdit.Create(
       ALanguageManager,
-      FMarkFactory,
+      FMarksDb.MarksDb.Factory,
       FMarksDb.CategoryDB
     );
   FfrmMarkInfo :=
@@ -243,7 +233,7 @@ begin
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(
       ALanguageManager,
-      FMarkFactory,
+      FMarksDb.MarksDb.Factory,
       FMarksDb.CategoryDB
     );
   FExportDialog := TSaveDialog.Create(nil);
@@ -287,7 +277,7 @@ var
 begin
   Result := False;
   VVisible := True;
-  VMark := FMarkFactory.CreateNewPoint(ALonLat, '', '');
+  VMark := FMarksDb.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
   VMark := FfrmMarkEditPoint.EditMark(VMark, True, VVisible);
   if VMark <> nil then begin
     VResult := FMarksDb.MarksDb.UpdateMark(nil, VMark);
@@ -632,10 +622,10 @@ begin
     end else begin
       VSourceMark := AMark;
     end;
-    VMark := FMarkFactory.SimpleModifyLine(AMark, ALine, ADescription);
+    VMark := FMarksDb.MarksDb.Factory.SimpleModifyLine(AMark, ALine, ADescription);
   end else begin
     VVisible := True;
-    VMark := FMarkFactory.CreateNewLine(ALine, '', ADescription);
+    VMark := FMarksDb.MarksDb.Factory.CreateNewLine(ALine, '', ADescription);
   end;
   if VMark <> nil then begin
     VMark := FfrmMarkEditPath.EditMark(VMark, VSourceMark = nil, VVisible);
@@ -663,11 +653,11 @@ begin
   if AMark <> nil then begin
     VVisible := FMarksDb.MarksDb.GetMarkVisible(AMark);
     VSourceMark := AMark;
-    VMark := FMarkFactory.SimpleModifyPoint(AMark, ALonLat);
+    VMark := FMarksDb.MarksDb.Factory.SimpleModifyPoint(AMark, ALonLat);
   end else begin
     VVisible := True;
     VSourceMark := nil;
-    VMark := FMarkFactory.CreateNewPoint(ALonLat, '', '');
+    VMark := FMarksDb.MarksDb.Factory.CreateNewPoint(ALonLat, '', '');
   end;
   if VMark <> nil then begin
     VMark := FfrmMarkEditPoint.EditMark(VMark, VSourceMark = nil, VVisible);
@@ -701,10 +691,10 @@ begin
     end else begin
       VSourceMark := AMark;
     end;
-    VMark := FMarkFactory.SimpleModifyPoly(AMark, ALine);
+    VMark := FMarksDb.MarksDb.Factory.SimpleModifyPoly(AMark, ALine);
   end else begin
     VVisible := True;
-    VMark := FMarkFactory.CreateNewPoly(ALine, '', '');
+    VMark := FMarksDb.MarksDb.Factory.CreateNewPoly(ALine, '', '');
   end;
   if VMark <> nil then begin
     VMark := FfrmMarkEditPoly.EditMark(VMark, VSourceMark = nil, VVisible);

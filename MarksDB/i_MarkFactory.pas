@@ -26,6 +26,8 @@ uses
   GR32,
   t_GeoTypes,
   i_VectorItemLonLat,
+  i_VectorDataItemSimple,
+  i_ImportConfig,
   i_Category,
   i_MarkPicture,
   i_MarksFactoryConfig,
@@ -103,6 +105,26 @@ type
     function SimpleModifyPoly(
       const ASource: IMarkPoly;
       const ALine: ILonLatPolygon
+    ): IMarkPoly;
+
+    function PreparePoint(
+      const AItem: IVectorDataItemPoint;
+      const AName: string;
+      const AParams: IImportPointParams;
+      const ACategory: ICategory;
+      const ADefaultPic: IMarkPicture
+    ): IMarkPoint;
+    function PrepareLine(
+      const AItem: IVectorDataItemLine;
+      const AName: string;
+      const AParams: IImportLineParams;
+      const ACategory: ICategory
+    ): IMarkLine;
+    function PreparePoly(
+      const AItem: IVectorDataItemPoly;
+      const AName: string;
+      const AParams: IImportPolyParams;
+      const ACategory: ICategory
     ): IMarkPoly;
 
     function GetMarkPictureList: IMarkPictureList;

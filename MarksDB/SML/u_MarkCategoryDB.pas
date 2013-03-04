@@ -86,6 +86,7 @@ type
       const ADbId: Integer;
       const AStateInternal: IReadWriteStateInternal;
       const ABasePath: IPathConfig;
+      const AFactory: IMarkCategoryFactory;
       const AFactoryConfig: IMarkCategoryFactoryConfig
     );
     destructor Destroy; override;
@@ -108,6 +109,7 @@ constructor TMarkCategoryDB.Create(
   const ADbId: Integer;
   const AStateInternal: IReadWriteStateInternal;
   const ABasePath: IPathConfig;
+  const AFactory: IMarkCategoryFactory;
   const AFactoryConfig: IMarkCategoryFactoryConfig
 );
 begin
@@ -115,9 +117,9 @@ begin
   FDbId := ADbId;
   FBasePath := ABasePath;
   FStateInternal := AStateInternal;
+  FFactory := AFactory;
   FList := TIDInterfaceList.Create;
   FFactoryDbInternal := TMarkCategoryFactorySmlDbInternal.Create(FDbId);
-  FFactory := TMarkCategoryFactory.Create(AFactoryConfig);
   FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
   FCdsKategory := TClientDataSet.Create(nil);
   FCdsKategory.Name := 'CDSKategory';

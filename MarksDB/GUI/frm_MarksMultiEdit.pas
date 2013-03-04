@@ -74,9 +74,10 @@ begin
     TfrMarksGeneralOptions.Create(
       ALanguageManager,
       AMarkFactory,
-      ACategoryDB
+      ACategoryDB,
+      True,
+      True
     );
-  frMarksGeneralOptions.SetIgnore(true);
 end;
 
 destructor TfrmMarksMultiEdit.Destroy;

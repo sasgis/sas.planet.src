@@ -73,7 +73,9 @@ begin
     TfrMarksGeneralOptions.Create(
       ALanguageManager,
       AMarkFactory,
-      ACategoryDB
+      ACategoryDB,
+      False,
+      False
     );
 end;
 
