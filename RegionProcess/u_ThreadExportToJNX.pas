@@ -214,8 +214,6 @@ begin
             end;
 
             if Supports(VTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-              VStringStream.Size := 0;
-
               if SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') and not FRecompressArr[i] then
                 VData := VTileInfo.TileData
               else begin
@@ -224,9 +222,6 @@ begin
                   VData := VSaver.Save(VBitmapTile);
                 end;
               end;
-
-              if Assigned(VData) then
-                VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
 
               VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X, VTile.Y + 1), VZoom);
               VBottomRight := VGeoConvert.TilePos2LonLat(Point(VTile.X + 1, VTile.Y), VZoom);
@@ -237,6 +232,9 @@ begin
                 WGS84CoordToJNX(VTopLeft.Y),
                 WGS84CoordToJNX(VTopLeft.X)
               );
+
+              VStringStream.Size := 0;
+              VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
 
               VWriter.WriteTile(
                 i,
