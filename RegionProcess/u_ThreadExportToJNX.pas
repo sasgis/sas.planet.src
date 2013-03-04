@@ -20,6 +20,7 @@ windows,
   i_StringListStatic,
   i_TileStorage,
   i_TileInfoBasic,
+  i_ContentTypeInfo,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
@@ -159,6 +160,7 @@ var
   VData: IBinaryData;
   VTileStorage: ITileStorage;
   VTileInfo: ITileInfoWithData;
+  VContentTypeInfoBitmap: IContentTypeInfoBitmap;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -214,36 +216,42 @@ begin
             end;
 
             if Supports(VTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-              if SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') and not FRecompressArr[i] then
-                VData := VTileInfo.TileData
-              else begin
-                VBitmapTile := FMapList.Items[i].MapType.LoadTile(VTile, VZoom, True);
-                if Assigned(VBitmapTile) then begin
-                  VData := VSaver.Save(VBitmapTile);
+              VData := Nil;
+
+              if FRecompressArr[i] or not SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
+                if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
+                  VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
+                  if Assigned(VBitmapTile) then begin
+                    VData := VSaver.Save(VBitmapTile);
+                  end;
                 end;
+              end
+              else begin
+                VData := VTileInfo.TileData;
               end;
 
-              VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X, VTile.Y + 1), VZoom);
-              VBottomRight := VGeoConvert.TilePos2LonLat(Point(VTile.X + 1, VTile.Y), VZoom);
+              if Assigned(VData) then begin
+                VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X, VTile.Y + 1), VZoom);
+                VBottomRight := VGeoConvert.TilePos2LonLat(Point(VTile.X + 1, VTile.Y), VZoom);
 
-              VTileBounds := JNXRect(
-                WGS84CoordToJNX(VBottomRight.Y),
-                WGS84CoordToJNX(VBottomRight.X),
-                WGS84CoordToJNX(VTopLeft.Y),
-                WGS84CoordToJNX(VTopLeft.X)
-              );
+                VTileBounds := JNXRect(
+                  WGS84CoordToJNX(VBottomRight.Y),
+                  WGS84CoordToJNX(VBottomRight.X),
+                  WGS84CoordToJNX(VTopLeft.Y),
+                  WGS84CoordToJNX(VTopLeft.X)
+                );
 
-              VStringStream.Size := 0;
-              VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
+                VStringStream.Size := 0;
+                VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
 
-              VWriter.WriteTile(
-                i,
-                256,
-                256,
-                VTileBounds,
-                VStringStream.DataString
-              );
-
+                VWriter.WriteTile(
+                  i,
+                  256,
+                  256,
+                  VTileBounds,
+                  VStringStream.DataString
+                );
+              end;
             end;
             inc(VTilesProcessed);
             if VTilesProcessed mod 100 = 0 then begin
