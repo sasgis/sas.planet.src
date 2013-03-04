@@ -3,6 +3,8 @@ unit u_ThreadExportToJNX;
 interface
 
 uses
+windows,
+
   Types,
   SysUtils,
   Classes,
@@ -16,6 +18,8 @@ uses
   i_VectorItemsFactory,
   i_BitmapTileSaveLoadFactory,
   i_StringListStatic,
+  i_TileStorage,
+  i_TileInfoBasic,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
@@ -153,7 +157,8 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VData: IBinaryData;
-  VFileStream: TFileStream;
+  VTileStorage: ITileStorage;
+  VTileInfo: ITileInfoWithData;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -196,8 +201,9 @@ begin
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         for i := 0 to Length(FZoomList) - 1 do begin
-          if FRecompressArr[i] then
-            VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(StrToInt(FJpgQuality.Items[i]));
+          VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(StrToInt(FJpgQuality.Items[i]));
+
+          VTileStorage := FMapList.Items[i].MapType.TileStorage;
 
           VZoom := FZoomList[i];
           VGeoConvert := FMapList.Items[i].MapType.GeoConvert;
@@ -207,24 +213,20 @@ begin
               exit;
             end;
 
-            if FMapList.Items[i].MapType.TileExists(VTile, VZoom) then begin
+            if Supports(VTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
               VStringStream.Size := 0;
 
-              if FRecompressArr[i] then begin
-                VBitmapTile := FMapList.Items[i].MapType.LoadTile(VTile, VZoom, True);
-                if VBitmapTile <> nil then begin
-                  VData := VSaver.Save(VBitmapTile);
-                  VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
-                end;
-              end
+              if SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') and not FRecompressArr[i] then
+                VData := VTileInfo.TileData
               else begin
-                VFileStream := TFileStream.Create(FMapList.Items[i].MapType.GetTileFileName(VTile, VZoom), fmOpenRead);
-                try
-                  VStringStream.CopyFrom(VFileStream, 0);
-                finally
-                  FreeAndNil(VFileStream);
+                VBitmapTile := FMapList.Items[i].MapType.LoadTile(VTile, VZoom, True);
+                if Assigned(VBitmapTile) then begin
+                  VData := VSaver.Save(VBitmapTile);
                 end;
               end;
+
+              if Assigned(VData) then
+                VStringStream.WriteBuffer(VData.Buffer^, VData.Size);
 
               VTopLeft := VGeoConvert.TilePos2LonLat(Point(VTile.X, VTile.Y + 1), VZoom);
               VBottomRight := VGeoConvert.TilePos2LonLat(Point(VTile.X + 1, VTile.Y), VZoom);

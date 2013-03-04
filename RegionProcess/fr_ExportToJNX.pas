@@ -154,11 +154,6 @@ type
       const APolygon: ILonLatPolygon
     );
 
-    procedure UpdateRecompress1State;
-    procedure UpdateRecompress2State;
-    procedure UpdateRecompress3State;
-    procedure UpdateRecompress4State;
-    procedure UpdateRecompress5State;
   private
     function GetZoomArray: TByteDynArray;
     function GetScaleArray: TByteDynArray;
@@ -210,8 +205,6 @@ begin
   cnt := 0;
   if ChMap1.Checked then inc(cnt);
   TreeView1.Items[cnt*3+1].Text :=cbbMap2.text;
-
-  UpdateRecompress2State;
 end;
 
 procedure TfrExportToJNX.cbbMap3Change(Sender: TObject);
@@ -222,8 +215,6 @@ begin
   if ChMap1.Checked then inc(cnt);
   if ChMap2.Checked then inc(cnt);
   TreeView1.Items[cnt*3+1].Text :=cbbMap3.text;
-
-  UpdateRecompress3State;
 end;
 
 procedure TfrExportToJNX.cbbMap4Change(Sender: TObject);
@@ -235,8 +226,6 @@ begin
   if ChMap2.Checked then inc(cnt);
   if ChMap3.Checked then inc(cnt);
   TreeView1.Items[cnt*3+1].Text :=cbbMap4.text;
-
-  UpdateRecompress4State;
 end;
 
 procedure TfrExportToJNX.cbbMap5Change(Sender: TObject);
@@ -249,8 +238,6 @@ begin
   if ChMap3.Checked then inc(cnt);
   if ChMap4.Checked then inc(cnt);
   TreeView1.Items[cnt*3+1].Text :=cbbMap5.text;
-
-  UpdateRecompress5State;
 end;
 
 procedure TfrExportToJNX.cbbMapChange(Sender: TObject);
@@ -260,8 +247,6 @@ begin
     EMapName.text := cbbMap.text;
     TreeView1.Items[1].Text :=cbbMap.text;
   end;
-
-  UpdateRecompress1State;
 end;
 
 procedure TfrExportToJNX.cbbVersionChange(Sender: TObject);
@@ -417,12 +402,6 @@ begin
     EZorder.visible := false;
     LZOrder.visible := false;
   end;
-
-  UpdateRecompress1State;
-  UpdateRecompress2State;
-  UpdateRecompress3State;
-  UpdateRecompress4State;
-  UpdateRecompress5State;
 end;
 
 procedure TfrExportToJNX.ChMap1Click(Sender: TObject);
@@ -430,7 +409,7 @@ var
  VItemNode, VParentNode : TTreeNode;
 begin
   cbbMap.Enabled := ChMap1.Checked;
-  EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
+  EJpgQuality.Enabled := ChMap1.Checked;
   CbbZoom.Enabled := ChMap1.Checked;
   cbbscale.Enabled := ChMap1.Checked;
   ChMap2.Enabled := ChMap1.Checked;
@@ -454,7 +433,7 @@ var
  cnt : integer;
 begin
   cbbMap2.Enabled := ChMap2.Checked;
-  EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked;
+  EJpgQuality2.Enabled := ChMap2.Checked;
   CbbZoom2.Enabled := ChMap2.Checked;
   cbbscale2.Enabled := ChMap2.Checked;
   ChMap3.Enabled := ChMap2.Checked;
@@ -486,7 +465,7 @@ var
  cnt : integer;
 begin
   cbbMap3.Enabled := ChMap3.Checked;
-  EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked;
+  EJpgQuality3.Enabled := ChMap3.Checked;
   CbbZoom3.Enabled := ChMap3.Checked;
   cbbscale3.Enabled := ChMap3.Checked;
   ChMap4.Enabled := ChMap3.Checked;
@@ -519,7 +498,7 @@ var
  cnt : integer;
 begin
   cbbMap4.Enabled := ChMap4.Checked;
-  EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked;
+  EJpgQuality4.Enabled := ChMap4.Checked;
   CbbZoom4.Enabled := ChMap4.Checked;
   cbbscale4.Enabled := ChMap4.Checked;
   ChMap5.Enabled := ChMap4.Checked;
@@ -553,7 +532,7 @@ var
  cnt : integer;
 begin
   cbbMap5.Enabled := ChMap5.Checked;
-  EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;
+  EJpgQuality5.Enabled := ChMap5.Checked;
   CbbZoom5.Enabled := ChMap5.Checked;
   cbbscale5.Enabled := ChMap5.Checked;
   ChRecompress5.Enabled := ChMap5.Checked;
@@ -831,56 +810,6 @@ end;
 procedure TfrExportToJNX.ChRecompress5Click(Sender: TObject);
 begin
   EJpgQuality5.Enabled := ChRecompress5.Checked;
-end;
-
-procedure TfrExportToJNX.UpdateRecompress1State;
-begin
-  with TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]) do
-  begin
-    ChRecompress1.Visible := SameText(ContentType.GetContentType, 'image/jpg');
-    ChRecompress1.Checked := not ChRecompress1.Visible;
-    EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
-  end;
-end;
-
-procedure TfrExportToJNX.UpdateRecompress2State;
-begin
-  with TMapType(cbbMap2.Items.Objects[cbbMap2.ItemIndex]) do
-  begin
-    ChRecompress2.Visible := SameText(ContentType.GetContentType, 'image/jpg');
-    ChRecompress2.Checked := not ChRecompress2.Visible;
-    EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked;
-  end;
-end;
-
-procedure TfrExportToJNX.UpdateRecompress3State;
-begin
-  with TMapType(cbbMap3.Items.Objects[cbbMap3.ItemIndex]) do
-  begin
-    ChRecompress3.Visible := SameText(ContentType.GetContentType, 'image/jpg');
-    ChRecompress3.Checked := not ChRecompress3.Visible;
-    EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked;
-  end;
-end;
-
-procedure TfrExportToJNX.UpdateRecompress4State;
-begin
-  with TMapType(cbbMap4.Items.Objects[cbbMap4.ItemIndex]) do
-  begin
-    ChRecompress4.Visible := SameText(ContentType.GetContentType, 'image/jpg');
-    ChRecompress4.Checked := not ChRecompress4.Visible;
-    EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked;
-  end;
-end;
-
-procedure TfrExportToJNX.UpdateRecompress5State;
-begin
-  with TMapType(cbbMap5.Items.Objects[cbbMap5.ItemIndex]) do
-  begin
-    ChRecompress5.Visible := SameText(ContentType.GetContentType, 'image/jpg');
-    ChRecompress5.Checked := not ChRecompress5.Visible;
-    EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;
-  end;
 end;
 
 end.

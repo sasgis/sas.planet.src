@@ -349,9 +349,8 @@ object frExportToJNX: TfrExportToJNX
             Width = 20
             Height = 17
             TabOrder = 15
-            Hint = 'Re-compress JPEG tiles'
+            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
             Enabled = False
-            Visible = False
             OnClick = ChRecompress1Click
           end
           object ChRecompress2: TCheckBox
@@ -360,7 +359,8 @@ object frExportToJNX: TfrExportToJNX
             Width = 20
             Height = 17
             TabOrder = 16
-            Hint = 'Re-compress JPEG tiles'
+            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Enabled = False
             OnClick = ChRecompress2Click
           end
           object ChRecompress3: TCheckBox
@@ -369,7 +369,8 @@ object frExportToJNX: TfrExportToJNX
             Width = 20
             Height = 17
             TabOrder = 17
-            Hint = 'Re-compress JPEG tiles'
+            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Enabled = False
             OnClick = ChRecompress3Click
           end
           object ChRecompress4: TCheckBox
@@ -378,7 +379,8 @@ object frExportToJNX: TfrExportToJNX
             Width = 20
             Height = 17
             TabOrder = 18
-            Hint = 'Re-compress JPEG tiles'
+            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Enabled = False
             OnClick = ChRecompress4Click
           end
           object ChRecompress5: TCheckBox
@@ -387,7 +389,8 @@ object frExportToJNX: TfrExportToJNX
             Width = 20
             Height = 17
             TabOrder = 19
-            Hint = 'Re-compress JPEG tiles'
+            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Enabled = False
             OnClick = ChRecompress5Click
           end
         end
