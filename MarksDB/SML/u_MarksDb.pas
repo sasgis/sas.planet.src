@@ -294,19 +294,18 @@ begin
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
     if APolygon.Count > 0 then begin
+      VEnum := APolygon.GetEnum;
+      while VEnum.Next(VCurrPoint) do begin
+        VPoint.X := VCurrPoint.X;
+        VPoint.Y := VCurrPoint.Y;
+        VStream.Write(VPoint, SizeOf(VPoint));
+      end;
       VLine := APolygon.Item[0];
-      if VLine.Count = 1 then begin
-        VPoint.X := VLine.Points[0].X;
-        VPoint.Y := VLine.Points[0].Y;
+      if VLine.Count > 1 then begin
+        VCurrPoint := VLine.Points[0];
+        VPoint.X := VCurrPoint.X;
+        VPoint.Y := VCurrPoint.Y;
         VStream.Write(VPoint, SizeOf(VPoint));
-        VStream.Write(VPoint, SizeOf(VPoint));
-      end else begin
-        VEnum := VLine.GetEnum;
-        while VEnum.Next(VCurrPoint) do begin
-          VPoint.X := VCurrPoint.X;
-          VPoint.Y := VCurrPoint.Y;
-          VStream.Write(VPoint, SizeOf(VPoint));
-        end;
       end;
     end;
   finally

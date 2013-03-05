@@ -357,7 +357,7 @@ begin
       end;
     end else begin
       if DoublePointsEqual(APoints[0], APoints[APointCount - 1]) then begin
-        VPolygon := FFactory.CreateLonLatPolygon(APoints, APointCount);
+        VPolygon := FFactory.CreateLonLatPolygon(APoints, APointCount - 1);
         if VPolygon.Count <> 0 then begin
           Result :=
             CreatePoly(
