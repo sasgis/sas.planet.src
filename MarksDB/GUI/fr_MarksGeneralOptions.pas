@@ -162,7 +162,6 @@ var
   VPathTemplate: IMarkTemplateLine;
   VPolyTemplate: IMarkTemplatePoly;
   VPicName: string;
-  VPicIndex: Integer;
   VPic: IMarkPicture;
 begin
   frMarkCategory.Parent := pnlCategory;
