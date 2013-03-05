@@ -465,7 +465,7 @@ begin
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorItemsFactory,
-      False,
+      True,
       VMarksKmlLoadCounterList
     );
 {$if defined(VSAGPS_ALLOW_IMPORT_KML)}
