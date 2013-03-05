@@ -91,6 +91,7 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_EnumDoublePoint,
+  i_VectorItemLonLat,
   u_BinaryDataByMemStream,
   u_StreamReadOnlyByBinaryData;
 
@@ -118,6 +119,18 @@ begin
     SetString(Result, Buf, P - Buf);
   finally
     FreeMem(Buf);
+  end;
+end;
+
+function GetKMLCoordinates(
+  const APointEnum: IEnumLonLatPoint
+): String;
+var
+  VPoint: TDoublePoint;
+begin
+  Result := '';
+  while APointEnum.Next(VPoint) do begin
+    Result := Result + R2StrPoint(VPoint.X) + ',' + R2StrPoint(VPoint.Y) + ',0 ';
   end;
 end;
 
@@ -336,9 +349,11 @@ procedure TExportMarks2KML.AddMark(
   const inNode: iXMLNode
 );
 var
+  i: integer;
   width: integer;
   currNode: IXMLNode;
-  coordinates: string;
+  rootNode: IXMLNode;
+  VCoordinates: string;
   VFileName: string;
   VMarkPoint: IVectorDataItemPoint;
   VMarkPointIconParams: IVectorDataItemPointWithIconParams;
@@ -347,13 +362,16 @@ var
   VMarkLineLineParams: IVectorDataItemWithLineParams;
   VMarkPoly: IVectorDataItemPoly;
   VMarkPolyFillParams: IVectorDataItemPolyWithFillParams;
-  VEnum: IEnumLonLatPoint;
-  VLonLat: TDoublePoint;
+  VLonLatPolygon: ILonLatPolygon;
+  VLonLatPolygonLine: ILonLatPolygonLine;
+  VLonLatPath: ILonLatPath;
+  VLonLatPathLine: ILonLatPathLine;
 begin
   currNode := inNode.AddChild('Placemark');
   currNode.ChildValues['name'] := XMLTextPrepare(Mark.Name);
   currNode.ChildValues['description'] := XMLTextPrepare(Mark.Desc);
   if Supports(Mark, IVectorDataItemPoint, VMarkPoint) then begin
+    // Placemark
     if not Supports(Mark, IVectorDataItemPointWithIconParams, VMarkPointIconParams) then begin
       VMarkPointIconParams := nil;
     end;
@@ -390,9 +408,13 @@ begin
     end;
     currNode := currNode.AddChild('Point');
     currNode.ChildValues['extrude'] := 1;
-    coordinates := coordinates + R2StrPoint(VMarkPoint.Point.X) + ',' + R2StrPoint(VMarkPoint.Point.Y) + ',0 ';
-    currNode.ChildValues['coordinates'] := coordinates;
+    with VMarkPoint.Point do begin
+      VCoordinates := R2StrPoint(X) + ',' + R2StrPoint(Y) + ',0 ';
+    end;
+    currNode.ChildValues['coordinates'] := VCoordinates;
   end else if Supports(Mark, IVectorDataItemLine, VMarkLine) then begin
+    // <Placemark><MultiGeometry><LineString></LineString><LineString>...
+    // <Placemark><LineString><coordinates>
     if Supports(Mark, IVectorDataItemWithLineParams, VMarkLineLineParams) then begin
       with currNode.AddChild('Style') do begin
         with AddChild('LineStyle') do begin
@@ -401,15 +423,31 @@ begin
         end;
       end;
     end;
-    currNode := currNode.AddChild('LineString');
-    currNode.ChildValues['extrude'] := 1;
-    coordinates := '';
-    VEnum := VMarkLine.Line.GetEnum;
-    while VEnum.Next(VLonLat) do begin
-      coordinates := coordinates + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ',0 ';
+    VLonLatPath := VMarkLine.Line;
+    if VLonLatPath.Count>1 then begin
+      // MultiGeometry
+      rootNode := currNode.AddChild('MultiGeometry');
+      for i := 0 to VLonLatPath.Count-1 do begin
+        VLonLatPathLine := VLonLatPath.Item[i];
+        if (VLonLatPathLine.Count>1) then begin
+          // make path
+          currNode := rootNode.AddChild('LineString');
+          currNode.ChildValues['extrude'] := 1;
+          VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
+          currNode.ChildValues['coordinates'] := VCoordinates;
+        end;
+      end;
+    end else begin
+      // simple object
+      currNode := currNode.AddChild('LineString');
+      currNode.ChildValues['extrude'] := 1;
+      VLonLatPathLine := VLonLatPath.Item[0];
+      VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
+      currNode.ChildValues['coordinates'] := VCoordinates;
     end;
-    currNode.ChildValues['coordinates'] := coordinates;
   end else if Supports(Mark, IVectorDataItemPoly, VMarkPoly) then begin
+    // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
+    // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
     if not Supports(Mark, IVectorDataItemWithLineParams, VMarkLineLineParams) then begin
       VMarkLineLineParams := nil;
     end;
@@ -432,14 +470,28 @@ begin
         end;
       end;
     end;
-    currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
-    currNode.ChildValues['extrude'] := 1;
-    coordinates := '';
-    VEnum := VMarkPoly.Line.GetEnum;
-    while VEnum.Next(VLonLat) do begin
-      coordinates := coordinates + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ',0 ';
+    VLonLatPolygon := VMarkPoly.Line;
+    if VLonLatPolygon.Count>1 then begin
+      // MultiGeometry
+      rootNode := currNode.AddChild('MultiGeometry');
+      for i := 0 to VLonLatPolygon.Count-1 do begin
+        VLonLatPolygonLine := VLonLatPolygon.Item[i];
+        if (VLonLatPolygonLine.Count>2) then begin
+          // make contour
+          currNode := rootNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
+          currNode.ChildValues['extrude'] := 1;
+          VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
+          currNode.ChildValues['coordinates'] := VCoordinates;
+        end;
+      end;
+    end else begin
+      // simple object
+      currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
+      currNode.ChildValues['extrude'] := 1;
+      VLonLatPolygonLine := VLonLatPolygon.Item[0];
+      VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
+      currNode.ChildValues['coordinates'] := VCoordinates;
     end;
-    currNode.ChildValues['coordinates'] := coordinates;
   end;
 end;
 
