@@ -409,7 +409,7 @@ var
  VItemNode, VParentNode : TTreeNode;
 begin
   cbbMap.Enabled := ChMap1.Checked;
-  EJpgQuality.Enabled := ChMap1.Checked;
+  EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
   CbbZoom.Enabled := ChMap1.Checked;
   cbbscale.Enabled := ChMap1.Checked;
   ChMap2.Enabled := ChMap1.Checked;
@@ -433,7 +433,7 @@ var
  cnt : integer;
 begin
   cbbMap2.Enabled := ChMap2.Checked;
-  EJpgQuality2.Enabled := ChMap2.Checked;
+  EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked;;
   CbbZoom2.Enabled := ChMap2.Checked;
   cbbscale2.Enabled := ChMap2.Checked;
   ChMap3.Enabled := ChMap2.Checked;
@@ -465,7 +465,7 @@ var
  cnt : integer;
 begin
   cbbMap3.Enabled := ChMap3.Checked;
-  EJpgQuality3.Enabled := ChMap3.Checked;
+  EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked;;
   CbbZoom3.Enabled := ChMap3.Checked;
   cbbscale3.Enabled := ChMap3.Checked;
   ChMap4.Enabled := ChMap3.Checked;
@@ -498,7 +498,7 @@ var
  cnt : integer;
 begin
   cbbMap4.Enabled := ChMap4.Checked;
-  EJpgQuality4.Enabled := ChMap4.Checked;
+  EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked;;
   CbbZoom4.Enabled := ChMap4.Checked;
   cbbscale4.Enabled := ChMap4.Checked;
   ChMap5.Enabled := ChMap4.Checked;
@@ -532,7 +532,7 @@ var
  cnt : integer;
 begin
   cbbMap5.Enabled := ChMap5.Checked;
-  EJpgQuality5.Enabled := ChMap5.Checked;
+  EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;;
   CbbZoom5.Enabled := ChMap5.Checked;
   cbbscale5.Enabled := ChMap5.Checked;
   ChRecompress5.Enabled := ChMap5.Checked;
