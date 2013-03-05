@@ -472,7 +472,7 @@ begin
   VKmlLoader := VXmlLoader;
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      TXmlInfoSimpleParser.Create(FVectorItemsFactory, False, nil),
+      TXmlInfoSimpleParser.Create(FVectorItemsFactory, True, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
