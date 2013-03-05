@@ -243,8 +243,8 @@ var
   VSquare: Double;
   i: Cardinal;
   VCounterContext: TInternalPerformanceCounterContext;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
+  VMarkLine: IVectorDataItemLine;
+  VMarkPoly: IVectorDataItemPoly;
   VProjectdPath: IProjectedPath;
   VProjectdPolygon: IProjectedPolygon;
 begin
@@ -281,7 +281,7 @@ begin
               AMarkS := 0;
               exit;
             end else begin
-              if Supports(VMark, IMarkLine, VMarkLine) then begin
+              if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
                 if Supports(FProjectedCache.GetByID(Integer(VMarkLine)), IProjectedPath, VProjectdPath) then begin
                   if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
                     Result := VMark;
@@ -289,10 +289,10 @@ begin
                     exit;
                   end;
                 end;
-              end else if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+              end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
                 if Supports(FProjectedCache.GetByID(Integer(VMarkPoly)), IProjectedPolygon, VProjectdPolygon) then begin
                   if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
-                    VProjectdPolygon.IsPointOnBorder(VPixelPos, (VMarkPoly.LineWidth / 2) + 3) then begin
+                    VProjectdPolygon.IsPointOnBorder(VPixelPos, 3) then begin
                     VSquare := VProjectdPolygon.CalcArea;
                     if (Result = nil) or (VSquare < AMarkS) then begin
                       Result := VMark;
