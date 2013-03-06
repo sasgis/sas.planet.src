@@ -36,6 +36,7 @@ type
     FDefConfig: ITileDownloaderConfigStatic;
     FIntetConfig: IInetConfig;
     FEnabled: Boolean;
+    FAllowUseCookie: Boolean;
     FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
@@ -52,6 +53,9 @@ type
 
     function GetEnabled: Boolean;
     procedure SetEnabled(AValue: Boolean);
+
+    function GetAllowUseCookie: Boolean;
+    procedure SetAllowUseCookie(const AValue: Boolean);
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);
@@ -95,6 +99,7 @@ begin
   FDefConfig := ADefault;
   FIntetConfig := AIntetConfig;
   FEnabled := FDefConfig.Enabled;
+  FAllowUseCookie := FDefConfig.AllowUseCookie;
   FWaitInterval := FDefConfig.WaitInterval;
   FMaxConnectToServerCount := FDefConfig.MaxConnectToServerCount;
   FIgnoreMIMEType := FDefConfig.IgnoreMIMEType;
@@ -113,6 +118,7 @@ begin
     TTileDownloaderConfigStatic.Create(
       FIntetConfig.GetStatic,
       FEnabled,
+      FAllowUseCookie,
       FWaitInterval,
       FMaxConnectToServerCount,
       FIgnoreMIMEType,
@@ -129,6 +135,7 @@ procedure TTileDownloaderConfig.DoReadConfig(
 begin
   inherited;
   if AConfigData <> nil then begin
+    FAllowUseCookie := AConfigData.ReadBool('AllowUseCookie', FAllowUseCookie);
     FIgnoreMIMEType := AConfigData.ReadBool('IgnoreContentType', FIgnoreMIMEType);
     FDefaultMIMEType := AConfigData.ReadAnsiString('DefaultContentType', FDefaultMIMEType);
     FExpectedMIMETypes := AConfigData.ReadAnsiString('ContentType', FExpectedMIMETypes);
@@ -161,6 +168,16 @@ begin
   LockRead;
   try
     Result := FIteratorSubRectSize;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TTileDownloaderConfig.GetAllowUseCookie: Boolean;
+begin
+  LockRead;
+  try
+    Result := FAllowUseCookie;
   finally
     UnlockRead;
   end;
@@ -243,6 +260,19 @@ begin
     if (FIteratorSubRectSize.x <> AValue.x) or
       (FIteratorSubRectSize.y <> AValue.y) then begin
       FIteratorSubRectSize := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTileDownloaderConfig.SetAllowUseCookie(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FAllowUseCookie <> AValue then begin
+      FAllowUseCookie := AValue;
       SetChanged;
     end;
   finally

@@ -36,6 +36,9 @@ type
     function GetEnabled: Boolean;
     property Enabled: Boolean read GetEnabled;
 
+    function GetAllowUseCookie: Boolean;
+    property AllowUseCookie: Boolean read GetAllowUseCookie;
+
     function GetWaitInterval: Cardinal;
     property WaitInterval: Cardinal read GetWaitInterval;
 
@@ -63,6 +66,10 @@ type
     function GetEnabled: Boolean;
     procedure SetEnabled(AValue: Boolean);
     property Enabled: Boolean read GetEnabled write SetEnabled;
+
+    function GetAllowUseCookie: Boolean;
+    procedure SetAllowUseCookie(const AValue: Boolean);
+    property AllowUseCookie: Boolean read GetAllowUseCookie write SetAllowUseCookie;
 
     function GetWaitInterval: Cardinal;
     procedure SetWaitInterval(AValue: Cardinal);

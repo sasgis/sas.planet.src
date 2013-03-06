@@ -19,7 +19,7 @@ type
   private
     FResultFactory: IDownloadResultFactory;
     FGCNotifier: INotifierTime;
-
+    FAllowUseCookie: Boolean;
     FTTLListener: IListenerTimeWithUsedFlag;
     FCS: IReadWriteSync;
     FDownloader: IDownloader;
@@ -33,7 +33,8 @@ type
   public
     constructor Create(
       const AGCNotifier: INotifierTime;
-      const AResultFactory: IDownloadResultFactory
+      const AResultFactory: IDownloadResultFactory;
+      const AAllowUseCookie: Boolean = False
     );
     destructor Destroy; override;
   end;
@@ -48,13 +49,15 @@ uses
 
 constructor TDownloaderHttpWithTTL.Create(
   const AGCNotifier: INotifierTime;
-  const AResultFactory: IDownloadResultFactory
+  const AResultFactory: IDownloadResultFactory;
+  const AAllowUseCookie: Boolean
 );
 const
   CHttpClientTTL = 300000; // 5 min
   CHttpClientTTLCheckInterval = 30000; // 30 sec
 begin
   inherited Create;
+  FAllowUseCookie := AAllowUseCookie;
   FResultFactory := AResultFactory;
   FGCNotifier := AGCNotifier;
   FCS := MakeSyncRW_Std(Self, FALSE);
@@ -84,7 +87,7 @@ begin
     FTTLListener.UpdateUseTime;
     VDownloader := FDownloader;
     if VDownloader = nil then begin
-      VDownloader := TDownloaderHttp.Create(FResultFactory);
+      VDownloader := TDownloaderHttp.Create(FResultFactory, FAllowUseCookie);
       FDownloader := VDownloader;
     end;
     Result := VDownloader.DoRequest(ARequest, ACancelNotifier, AOperationID);

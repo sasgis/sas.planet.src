@@ -123,7 +123,8 @@ begin
   VDownloader :=
     TDownloaderHttpWithTTL.Create(
       FGCNotifier,
-      FResultFactory
+      FResultFactory,
+      FTileDownloaderConfig.AllowUseCookie
     );
   VTileDownloadRequestBuilder :=
     TTileDownloadRequestBuilderLazy.Create(

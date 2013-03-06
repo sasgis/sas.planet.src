@@ -33,6 +33,7 @@ type
   private
     FInetConfigStatic: IInetConfigStatic;
     FEnabled: Boolean;
+    FAllowUseCookie: Boolean;
     FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
@@ -42,6 +43,7 @@ type
   private
     function GetInetConfigStatic: IInetConfigStatic;
     function GetEnabled: Boolean;
+    function GetAllowUseCookie: Boolean;
     function GetWaitInterval: Cardinal;
     function GetMaxConnectToServerCount: Cardinal;
     function GetIgnoreMIMEType: Boolean;
@@ -52,6 +54,7 @@ type
     constructor Create(
       const AInetConfigStatic: IInetConfigStatic;
       AEnabled: Boolean;
+      const AAllowUseCookie: Boolean;
       AWaitInterval: Cardinal;
       AMaxConnectToServerCount: Cardinal;
       AIgnoreMIMEType: Boolean;
@@ -68,6 +71,7 @@ implementation
 constructor TTileDownloaderConfigStatic.Create(
   const AInetConfigStatic: IInetConfigStatic;
   AEnabled: Boolean;
+  const AAllowUseCookie: Boolean;
   AWaitInterval: Cardinal;
   AMaxConnectToServerCount: Cardinal;
   AIgnoreMIMEType: Boolean;
@@ -78,6 +82,7 @@ begin
   inherited Create;
   FInetConfigStatic := AInetConfigStatic;
   FEnabled := AEnabled;
+  FAllowUseCookie := AAllowUseCookie;
   FWaitInterval := AWaitInterval;
   FMaxConnectToServerCount := AMaxConnectToServerCount;
   FIgnoreMIMEType := AIgnoreMIMEType;
@@ -89,6 +94,11 @@ end;
 function TTileDownloaderConfigStatic.GetIteratorSubRectSize: TPoint;
 begin
   Result := FIteratorSubRectSize;
+end;
+
+function TTileDownloaderConfigStatic.GetAllowUseCookie: Boolean;
+begin
+  Result := FAllowUseCookie;
 end;
 
 function TTileDownloaderConfigStatic.GetDefaultMIMEType: AnsiString;
