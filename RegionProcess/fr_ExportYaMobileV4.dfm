@@ -297,6 +297,19 @@ object frExportYaMobileV4: TfrExportYaMobileV4
         Caption = 'Replace existing tiles'
         TabOrder = 1
       end
+      object rgTileSize: TRadioGroup
+        Left = 0
+        Top = 119
+        Width = 240
+        Height = 42
+        Caption = 'Tile Size'
+        Columns = 2
+        ItemIndex = 0
+        Items.Strings = (
+          '128x128 pix'
+          '256x256 pix')
+        TabOrder = 2
+      end
     end
   end
   object pnlTop: TPanel

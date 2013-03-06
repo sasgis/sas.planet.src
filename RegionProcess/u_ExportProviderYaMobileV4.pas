@@ -143,6 +143,7 @@ begin
     VZoomArr,
     typemaparr,
     FFrame.chkReplaseTiles.Checked,
+    TYaMobileV4TileSize(FFrame.rgTileSize.ItemIndex),
     comprSat,
     comprMap
   );

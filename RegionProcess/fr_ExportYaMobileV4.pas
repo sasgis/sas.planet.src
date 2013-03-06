@@ -50,6 +50,7 @@ type
     lblSat: TLabel;
     lblMaps: TLabel;
     chkReplaseTiles: TCheckBox;
+    rgTileSize: TRadioGroup;
     procedure btnSelectTargetPathClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
@@ -177,6 +178,7 @@ begin
   if cbbSat.ItemIndex=-1 then cbbSat.ItemIndex:=1;
   if cbbMap.ItemIndex=-1 then cbbMap.ItemIndex:=0;
   if cbbHybr.ItemIndex=-1 then cbbHybr.ItemIndex:=0;
+  if rgTileSize.ItemIndex = -1 then rgTileSize.ItemIndex := 0;
 end;
 
 end.

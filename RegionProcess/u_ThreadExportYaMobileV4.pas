@@ -25,6 +25,8 @@ uses
   u_ThreadExportAbstract;
 
 type
+  TYaMobileV4TileSize = (yats128 = 0, yats256 = 1);
+
   TExportTaskYaMobileV4 = record
     FMapId: Integer;
     FMapName: string;
@@ -45,6 +47,7 @@ type
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FCacheFile: array [0..7] of TYaMobileCacheFile;
     FCacheCount: Byte;
+    FTileSize: TYaMobileV4TileSize;
     procedure GenUserXml(const AMapID, AMapName: string);
     function OpenCacheFile(
       const ACachePath: string;
@@ -72,9 +75,10 @@ type
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       const Atypemaparr: array of TMapType;
-      AReplace: boolean;
-      Acsat: byte;
-      Acmap: byte
+      const AReplace: boolean;
+      const ATileSize: TYaMobileV4TileSize;
+      const Acsat: byte;
+      const Acmap: byte
     );
     destructor Destroy; override;
   end;
@@ -105,8 +109,10 @@ constructor TThreadExportYaMobileV4.Create(
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   const Atypemaparr: array of TMapType;
-  AReplace: boolean;
-  Acsat, Acmap: byte
+  const AReplace: boolean;
+  const ATileSize: TYaMobileV4TileSize;
+  const Acsat: byte;
+  const Acmap: byte
 );
 var
   i: integer;
@@ -118,6 +124,7 @@ begin
     Azoomarr,
     AnsiString(Self.ClassName)
   );
+  FTileSize := ATileSize;
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
@@ -262,12 +269,17 @@ var
   VAddStr: string;
   BOM: array[0..2] of Byte;
   VSize: Integer;
+  VSizeInPixelsStr: string;
 begin
   VStream := TMemoryStream.Create;
   try
     VUserXmlPath := FExportPath + 'config' + PathDelim + 'user.xml';
     if ForceDirectories(ExtractFilePath(VUserXmlPath)) then begin
-      VAddStr := '    <l id="' + AMapID + '" request="" name="' + AMapName + '" service="0" size_in_pixels="128" ver="1" />' + #10 + '</map_layers>' + #10;
+      case FTileSize of
+        yats128: VSizeInPixelsStr := '128';
+        yats256: VSizeInPixelsStr := '256';
+      end;
+      VAddStr := '    <l id="' + AMapID + '" request="" name="' + AMapName + '" service="0" size_in_pixels="' + VSizeInPixelsStr + '" ver="1" />' + #10 + '</map_layers>' + #10;
       if not FileExists(VUserXmlPath) then begin
         VUserXml := '<?xml version="1.0" encoding="utf-8" ?>' + #10 + '<map_layers>' + #10 + VAddStr;
       end else begin
@@ -365,30 +377,45 @@ begin
                   FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
                 );
               if VBitmapTile <> nil then begin
-                for xi := 0 to hxyi do begin
-                  for yi := 0 to hxyi do begin
-                    bmp32crop.Clear;
-                    BlockTransfer(
-                      bmp32crop,
-                      0,
-                      0,
-                      VBitmapTile,
-                      bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
-                      dmOpaque
-                    );
-                    VStaticBitmapCrop :=
-                      FBitmapFactory.Build(
-                        Point(sizeim, sizeim),
-                        bmp32crop.Bits
+                case FTileSize of
+                  yats256:
+                    begin
+                      VDataToSave := FTasks[j].FSaver.Save(VBitmapTile);
+                      AddTileToCache(
+                        VDataToSave,
+                        VTile,
+                        VZoom,
+                        FTasks[j].FMapId
                       );
-                    VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
-                    AddTileToCache(
-                      VDataToSave,
-                      Types.Point(2 * VTile.X + Xi, 2 * VTile.Y + Yi),
-                      VZoom,
-                      FTasks[j].FMapId
-                    );
-                  end;
+                    end; 
+                  yats128:
+                    begin
+                      for xi := 0 to hxyi do begin
+                        for yi := 0 to hxyi do begin
+                          bmp32crop.Clear;
+                          BlockTransfer(
+                            bmp32crop,
+                            0,
+                            0,
+                            VBitmapTile,
+                            bounds(sizeim * xi, sizeim * yi, sizeim, sizeim),
+                            dmOpaque
+                          );
+                          VStaticBitmapCrop :=
+                            FBitmapFactory.Build(
+                              Point(sizeim, sizeim),
+                              bmp32crop.Bits
+                            );
+                          VDataToSave := FTasks[j].FSaver.Save(VStaticBitmapCrop);
+                          AddTileToCache(
+                            VDataToSave,
+                            Types.Point(2 * VTile.X + Xi, 2 * VTile.Y + Yi),
+                            VZoom,
+                            FTasks[j].FMapId
+                          );
+                        end;
+                      end;
+                    end;
                 end;
               end;
               inc(VTilesProcessed);
