@@ -229,11 +229,15 @@ var
   VCategoryDb: TMarkCategoryDB;
   VMarksDb: TMarksDb;
   VState: TReadWriteStateInternal;
+  VPerfCounterList: IInternalPerformanceCounterList;
 begin
   inherited Create;
   FDbId := Integer(Self);
   FBasePath := ABasePath;
   VState := TReadWriteStateInternal.Create;
+  if APerfCounterList <> nil then begin
+    VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('MarksDb');
+  end;
   FState := VState;
   VCategoryDb :=
     TMarkCategoryDB.Create(
@@ -261,7 +265,7 @@ begin
       ABasePath,
       AMarkFactory,
       FFactoryDbInternal,
-      APerfCounterList.CreateAndAddNewSubList('MarksDb')
+      VPerfCounterList
     );
   FMarksDb := VMarksDb;
   FMarksDbInternal := VMarksDb;

@@ -48,7 +48,6 @@ type
     FDbId: Integer;
     FBasePath: IPathConfig;
     FStateInternal: IReadWriteStateInternal;
-    FPerfCounterList: IInternalPerformanceCounterList;
 
     FStream: TStream;
     FCdsMarks: TClientDataSet;
@@ -326,7 +325,6 @@ begin
   FDbId := ADbId;
   FBasePath := ABasePath;
   FStateInternal := AStateInternal;
-  FPerfCounterList := APerfCounterList;
   FFactory := AFactory;
   FFactoryDbInternal := AFactoryDbInternal;
 
@@ -334,8 +332,10 @@ begin
   FByCategoryList := TIDInterfaceList.Create;
   FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
 
-  FLoadDbCounter := FPerfCounterList.CreateAndAddNewCounter('LoadDb');
-  FSaveDbCounter := FPerfCounterList.CreateAndAddNewCounter('SaveDb');
+  if APerfCounterList <> nil then begin
+    FLoadDbCounter := APerfCounterList.CreateAndAddNewCounter('LoadDb');
+    FSaveDbCounter := APerfCounterList.CreateAndAddNewCounter('SaveDb');
+  end;
 
   FCdsMarks := TClientDataSet.Create(nil);
   FCdsMarks.Name := 'CDSmarks';
@@ -1225,7 +1225,11 @@ var
   XML: AnsiString;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
-  VCounterContext := FLoadDbCounter.StartOperation;
+  if FLoadDbCounter <> nil then begin
+    VCounterContext := FLoadDbCounter.StartOperation;
+  end else begin
+    VCounterContext := 0;
+  end;
   try
     VFileName := GetMarksFileName;
     FStateInternal.LockWrite;
@@ -1342,7 +1346,9 @@ begin
       FStateInternal.UnlockWrite;
     end;
   finally
-    FLoadDbCounter.FinishOperation(VCounterContext);
+    if VCounterContext <> 0 then begin
+      FLoadDbCounter.FinishOperation(VCounterContext);
+    end;
   end;
 end;
 
@@ -1353,7 +1359,11 @@ var
 begin
   result := true;
   if FNeedSaveFlag.CheckFlagAndReset then begin
-    VCounterContext := FSaveDbCounter.StartOperation;
+    if FSaveDbCounter <> nil then begin
+      VCounterContext := FSaveDbCounter.StartOperation;
+    end else begin
+      VCounterContext := 0;
+    end;
     try
       try
         FStateInternal.LockRead;
@@ -1384,7 +1394,9 @@ begin
         FNeedSaveFlag.SetFlag;
       end;
     finally
-      FSaveDbCounter.FinishOperation(VCounterContext);
+      if VCounterContext <> 0 then begin
+        FSaveDbCounter.FinishOperation(VCounterContext);
+      end;
     end;
   end;
 end;
