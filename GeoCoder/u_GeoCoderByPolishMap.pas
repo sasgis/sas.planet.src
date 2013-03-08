@@ -560,19 +560,25 @@ begin
     k :=  PosEx('[END', VStr, i);
     VStr2 := copy(VStr, i, k - i); // вырежем весь первый блок
     VTempList := TStringList.Create;
-    VTemplist.Clear;
-    while (PosEx('CITY', VStr2, i) > 0) do begin
-      j := i;
-      i := PosEx('CITY', VStr2, j);
-      i := PosEx('=', VStr2, i);
-      j := PosEx(V_EndOfLine, VStr2, i);
-      sname := (Copy(VStr2, i + 1, j - (i + 1)));
-      VTemplist.add(sname);
-    end;// заполнили массив городов, если они заданы в начале файла
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      Exit;
+    try
+      while (PosEx('CITY', VStr2, i) > 0) do begin
+        j := i;
+        i := PosEx('CITY', VStr2, j);
+        i := PosEx('=', VStr2, i);
+        j := PosEx(V_EndOfLine, VStr2, i);
+        sname := (Copy(VStr2, i + 1, j - (i + 1)));
+        VTemplist.add(sname);
+      end;// заполнили массив городов, если они заданы в начале файла
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Exit;
+      end;
+      if VTemplist.Count>0 then begin
+        VCityList := TStringListStatic.CreateWithOwn(VTemplist);
+        VTemplist := nil;
+      end;
+    finally
+      FreeAndNil(VTempList);
     end;
-    if VTemplist.Count>0 then VCityList := TStringListStatic.CreateWithOwn(VTemplist);
   end;
   Vi := i + 1;
   // ищем вхождение, затем бежим назад до начала блока
