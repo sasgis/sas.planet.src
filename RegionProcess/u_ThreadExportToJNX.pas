@@ -82,6 +82,7 @@ uses
   i_BinaryData,
   i_VectorItemProjected,
   i_BitmapTileSaveLoad,
+  i_MapVersionInfo,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToJnx.Create(
@@ -159,6 +160,7 @@ var
   VTilesProcessed: Int64;
   VData: IBinaryData;
   VTileStorage: ITileStorage;
+  VMapVersionInfo: IMapVersionInfo;
   VTileInfo: ITileInfoWithData;
   VContentTypeInfoBitmap: IContentTypeInfoBitmap;
 begin
@@ -206,7 +208,7 @@ begin
           VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(StrToInt(FJpgQuality.Items[i]));
 
           VTileStorage := FMapList.Items[i].MapType.TileStorage;
-
+          VMapVersionInfo := FMapList.Items[i].MapType.VersionConfig.Version;
           VZoom := FZoomList[i];
           VGeoConvert := FMapList.Items[i].MapType.GeoConvert;
           VTileIterator := VTileIterators[i];
@@ -215,9 +217,8 @@ begin
               exit;
             end;
 
-            if Supports(VTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+            if Supports(VTileStorage.GetTileInfo(VTile, VZoom, VMapVersionInfo, gtimWithData), ITileInfoWithData, VTileInfo) then begin
               VData := Nil;
-
               if FRecompressArr[i] or not SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
                 if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
                   VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
@@ -225,8 +226,7 @@ begin
                     VData := VSaver.Save(VBitmapTile);
                   end;
                 end;
-              end
-              else begin
+              end else begin
                 VData := VTileInfo.TileData;
               end;
 
