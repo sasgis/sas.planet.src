@@ -149,8 +149,6 @@ object frmGoTo: TfrmGoTo
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 13
         TabOrder = 0
-        OnChange = cbbAllMarksDropDown
-        OnDropDown = cbbAllMarksDropDown
       end
     end
     object tsCoordinates: TTabSheet

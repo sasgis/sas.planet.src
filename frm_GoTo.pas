@@ -75,7 +75,10 @@ type
     procedure InitHistory;
     procedure InitGeoCoders;
     procedure EmptyGeoCoders;
-    procedure MarksListToStrings(AList: IInterfaceList; AStrings: TStrings);
+    procedure MarksListToStrings(
+      const AList: IInterfaceList;
+      AStrings: TStrings
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -152,26 +155,42 @@ procedure TfrmGoTo.InitHistory;
 var
   i: Integer;
 begin
-  FMainGeoCoderConfig.SearchHistory.LockRead;
-  try
-    for i := 0 to FMainGeoCoderConfig.SearchHistory.Count - 1 do begin
-      cbbGeoCode.Items.Add(FMainGeoCoderConfig.SearchHistory.GetItem(i));
+  with FMainGeoCoderConfig.SearchHistory do begin
+    LockRead;
+    try
+      if (Count>0) then begin
+        cbbGeoCode.Items.BeginUpdate;
+        try
+          for i := 0 to Count-1 do begin
+            cbbGeoCode.Items.Add(GetItem(i));
+          end;
+        finally
+          cbbGeoCode.Items.EndUpdate;
+        end;
+      end;
+    finally
+      UnlockRead;
     end;
-  finally
-    FMainGeoCoderConfig.SearchHistory.UnlockRead;
   end;
 end;
 
-procedure TfrmGoTo.MarksListToStrings(AList: IInterfaceList;
-  AStrings: TStrings);
+procedure TfrmGoTo.MarksListToStrings(
+  const AList: IInterfaceList;
+  AStrings: TStrings
+);
 var
   i: Integer;
   VMarkId: IMarkId;
 begin
-  AStrings.Clear;
-  for i := 0 to AList.Count - 1 do begin
-    VMarkId := IMarkId(AList[i]);
-    AStrings.AddObject(VMarkId.Name, Pointer(VMarkId));
+  AStrings.BeginUpdate;
+  try
+    AStrings.Clear;
+    for i := 0 to AList.Count - 1 do begin
+      VMarkId := IMarkId(AList[i]);
+      AStrings.AddObject(VMarkId.Name, Pointer(VMarkId));
+    end;
+  finally
+    AStrings.EndUpdate;
   end;
 end;
 
