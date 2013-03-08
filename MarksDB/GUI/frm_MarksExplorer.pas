@@ -575,9 +575,9 @@ begin
     if VMarkIdList.Count=1 then begin
       VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VMarkIdList[0]));
       VVisible := FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark);
-      VMark := FMarkDBGUI.EditMarkModal(VMark, False, VVisible);
-      if VMark <> nil then begin
-        VResult := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMarkIdList[0], VMark);
+      VMarkNew := FMarkDBGUI.EditMarkModal(VMark, False, VVisible);
+      if VMarkNew <> nil then begin
+        VResult := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMark, VMarkNew);
         if VResult <> nil then begin
           FMarkDBGUI.MarksDb.MarksDb.SetMarkVisible(VResult, VVisible);
         end;

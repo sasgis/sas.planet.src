@@ -326,7 +326,7 @@ begin
       end;
       VMessage := Format(VMessage, [AMarkId.Name]);
       if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
-        FMarksDb.MarksDb.UpdateMark(AMarkId, nil);
+        FMarksDb.MarksDb.UpdateMark(VMark, nil);
         Result := True;
       end;
     end;

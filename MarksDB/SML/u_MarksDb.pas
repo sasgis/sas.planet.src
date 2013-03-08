@@ -85,7 +85,7 @@ type
     procedure LoadMarksFromFile;
   private
     function UpdateMark(
-      const AOldMark: IInterface;
+      const AOldMark: IMark;
       const ANewMark: IMark
     ): IMark;
     function UpdateMarksList(
@@ -543,7 +543,7 @@ begin
 end;
 
 function TMarksDb.UpdateMark(
-  const AOldMark: IInterface;
+  const AOldMark: IMark;
   const ANewMark: IMark
 ): IMark;
 begin
