@@ -54,6 +54,7 @@ uses
   i_TileStorage,
   i_BinaryData,
   i_VectorItemProjected,
+  i_MapVersionInfo,
   u_TileIteratorByPolygon;
 
 { TThreadExportToCE }
@@ -102,6 +103,7 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileInfo: ITileInfoWithData;
+  VMapVersionInfo: IMapVersionInfo;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -121,6 +123,8 @@ begin
       SAS_STR_Zoom + ': ' + inttostr(VZoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess)
     );
   end;
+
+  VMapVersionInfo := FMapType.VersionConfig.Version;
 
   //Начинает процесс экспорта тайлов в файл fname (без расширения!);
   //maxsize - максимально допустимый размер файлов данных (если <0, то взять
@@ -144,7 +148,7 @@ begin
             exit;
           end;
           VExt := FMapType.StorageConfig.TileFileExt;
-          if Supports(VTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+          if Supports(VTileStorage.GetTileInfo(VTile, VZoom, VMapVersionInfo, gtimWithData), ITileInfoWithData, VTileInfo) then begin
             VSAS4WinCE.Add(
               VZoom + 1,
               VTile.X,
