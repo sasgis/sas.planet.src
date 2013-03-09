@@ -580,28 +580,30 @@ end;
 
 function TfrExportToJNX.GetJpgQuality: IStringListStatic;
 var VJPGList: TStringList;
-
 begin
   VJPGList := TStringList.Create;
-  VJPGList.Clear;
+  try
+    if ChMap1.Checked then  begin
+      VJPGList.Add(inttostr(EJpgQuality.Value));
+    end;
+    if ChMap2.Checked then  begin
+      VJPGList.Add(inttostr(EJpgQuality2.Value));
+    end;
+    if ChMap3.Checked then  begin
+      VJPGList.Add(inttostr(EJpgQuality3.Value));
+    end;
+    if ChMap4.Checked then  begin
+      VJPGList.Add(inttostr(EJpgQuality4.Value));
+    end;
+    if ChMap5.Checked then  begin
+      VJPGList.Add(inttostr(EJpgQuality5.Value));
+    end;
 
-  if ChMap1.Checked then  begin
-    VJPGList.Add(inttostr(EJpgQuality.Value));
+    Result := TStringListStatic.CreateWithOwn(VJPGList);
+    VJPGList := nil;
+  finally
+    VJPGList.Free;
   end;
-  if ChMap2.Checked then  begin
-    VJPGList.Add(inttostr(EJpgQuality2.Value));
-  end;
-  if ChMap3.Checked then  begin
-    VJPGList.Add(inttostr(EJpgQuality3.Value));
-  end;
-  if ChMap4.Checked then  begin
-    VJPGList.Add(inttostr(EJpgQuality4.Value));
-  end;
-  if ChMap5.Checked then  begin
-    VJPGList.Add(inttostr(EJpgQuality5.Value));
-  end;
-
-  Result := TStringListStatic.CreateWithOwn(VJPGList);
 end;
 
 function TfrExportToJNX.GetLevelsDesc: IStringListStatic;
