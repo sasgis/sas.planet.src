@@ -5375,7 +5375,7 @@ end;
 
 procedure TfrmMain.tbitmPlacemarkManagerClick(Sender: TObject);
 begin
-  FfrmMarksExplorer.Visible := not FfrmMarksExplorer.Visible;
+  FfrmMarksExplorer.ToggleVisible;
 end;
 
 procedure TfrmMain.NMarkNavClick(Sender: TObject);

@@ -189,6 +189,8 @@ type
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
+    procedure ToggleVisible;
+  public
     constructor Create(
       AUseAsIndepentWindow: Boolean;
       const ALanguageManager: ILanguageManager;
@@ -1177,6 +1179,16 @@ begin
     tbitmAddCategory.Caption := _('Add Category');
   end else begin
     tbitmAddCategory.Caption := _('Add SubCategory');
+  end;
+end;
+
+procedure TfrmMarksExplorer.ToggleVisible;
+begin
+  if (not Self.Visible) or (Self.WindowState = wsMinimized) then begin
+    Self.Visible := True;
+    Self.WindowState := wsNormal;
+  end else begin
+    Self.Visible := False;
   end;
 end;
 
