@@ -984,7 +984,7 @@ object frmMain: TfrmMain
           AutoCheck = True
           Images = MenusImageList
           OnClick = tbitmGaugeClick
-          Caption = 'Gauge'
+          Caption = 'Azimuth Circle'
           Hint = ''
         end
         object Ninvertcolor: TTBXItem
