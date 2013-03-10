@@ -458,7 +458,7 @@ begin
       end;
     end else begin
       if AImportConfig.CategoryParams.IsIgnoreMarkIfExistsWithSameNameInCategory then begin
-        if FMarksDb.FindMarkByName(VName, VCategory) <> nil then begin
+        if FMarksDb.GetMarkByName(VName, VCategory) <> nil then begin
           Continue;
         end;
       end;

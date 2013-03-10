@@ -34,46 +34,10 @@ uses
 type
   IMarksDb = interface
     ['{66181215-0260-42A3-9CEA-549329D85F74}']
-    function UpdateMark(
-      const AOldMark: IMark;
-      const ANewMark: IMark
-    ): IMark;
-    function UpdateMarksList(
-      const AOldMarkList: IInterfaceList;
-      const ANewMarkList: IInterfaceList
-    ): IInterfaceList;
-
-    function GetMarkByID(const AMarkId: IMarkId): IMark;
-
-    function FindMarkByName(
+    function GetMarkByName(
       const AName: string;
       const ACategory: ICategory
     ): IMark;
-    function GetAllMarksIdList: IInterfaceList;
-    function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
-
-    procedure SetMarkVisibleByID(
-      const AMark: IMarkId;
-      AVisible: Boolean
-    );
-    procedure SetMarkVisible(
-      const AMark: IMark;
-      AVisible: Boolean
-    );
-    procedure SetMarkVisibleByIDList(
-      const AMarkList: IInterfaceList;
-      AVisible: Boolean
-    );
-    procedure ToggleMarkVisibleByIDList(
-      const AMarkList: IInterfaceList
-    );
-
-    function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
-    function GetMarkVisible(const AMark: IMark): Boolean; overload;
-    procedure SetAllMarksInCategoryVisible(
-      const ACategory: ICategory;
-      ANewVisible: Boolean
-    );
 
     function GetMarksSubset(
       const ARect: TDoubleRect;
@@ -85,6 +49,33 @@ type
       const ACategory: ICategory;
       AIgnoreVisible: Boolean
     ): IVectorItemSubset; overload;
+
+    function UpdateMark(
+      const AOldMark: IMark;
+      const ANewMark: IMark
+    ): IMark;
+    function UpdateMarksList(
+      const AOldMarkList: IInterfaceList;
+      const ANewMarkList: IInterfaceList
+    ): IInterfaceList;
+
+    function GetAllMarksIdList: IInterfaceList;
+    function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
+
+    function GetMarkByID(const AMarkId: IMarkId): IMark;
+
+    procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
+    procedure SetMarkVisible(const AMark: IMark; AVisible: Boolean);
+
+    procedure SetMarkVisibleByIDList(const AMarkList: IInterfaceList; AVisible: Boolean);
+    procedure ToggleMarkVisibleByIDList(const AMarkList: IInterfaceList);
+
+    function GetMarkVisibleByID(const AMark: IMarkId): Boolean;
+    function GetMarkVisible(const AMark: IMark): Boolean;
+    procedure SetAllMarksInCategoryVisible(
+      const ACategory: ICategory;
+      ANewVisible: Boolean
+    );
 
     function GetFactory: IMarkFactory;
     property Factory: IMarkFactory read GetFactory;

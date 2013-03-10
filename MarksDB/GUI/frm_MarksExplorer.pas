@@ -407,7 +407,7 @@ begin
             VNode.Text := VName;
           end;
           VNode.Data := Pointer(VMarkId);
-          if FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMarkId) then begin
+          if FMarkDBGUI.MarksDb.MarksDb.GetMarkVisibleByID(VMarkId) then begin
             VNode.StateIndex := 1;
           end else begin
             VNode.StateIndex := 2;

@@ -94,7 +94,7 @@ type
     ): IInterfaceList;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
-    function FindMarkByName(
+    function GetMarkByName(
       const AName: string;
       const ACategory: ICategory
     ): IMark;
@@ -114,8 +114,8 @@ type
     procedure ToggleMarkVisibleByIDList(
       const AMarkList: IInterfaceList
     );
-    function GetMarkVisible(const AMark: IMarkId): Boolean; overload;
-    function GetMarkVisible(const AMark: IMark): Boolean; overload;
+    function GetMarkVisibleByID(const AMark: IMarkId): Boolean;
+    function GetMarkVisible(const AMark: IMark): Boolean;
     function GetAllMarksIdList: IInterfaceList;
     function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
@@ -353,7 +353,7 @@ begin
   inherited;
 end;
 
-function TMarksDb.FindMarkByName(
+function TMarksDb.GetMarkByName(
   const AName: string;
   const ACategory: ICategory
 ): IMark;
@@ -671,7 +671,7 @@ end;
 procedure TMarksDb.WriteCurrentMarkId(const AMark: IMarkId);
 begin
   FCdsMarks.FieldByName('name').AsString := AMark.Name;
-  FCdsMarks.FieldByName('Visible').AsBoolean := GetMarkVisible(AMark);
+  FCdsMarks.FieldByName('Visible').AsBoolean := GetMarkVisibleByID(AMark);
 end;
 
 procedure TMarksDb.WriteCurrentMark(const AMark: IMark);
@@ -765,7 +765,7 @@ begin
   end;
 end;
 
-function TMarksDb.GetMarkVisible(const AMark: IMarkId): Boolean;
+function TMarksDb.GetMarkVisibleByID(const AMark: IMarkId): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin
