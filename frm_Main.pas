@@ -862,7 +862,6 @@ begin
       GState.Config.MediaDataPath,
       GState.Config.MarksFactoryConfig,
       GState.MarkPictureList,
-      THtmlToHintTextConverterStuped.Create as IHtmlToHintTextConverter,
       GState.MarksDb,
       GState.ImportFileByExt,
       FConfig.ViewPortState.View,

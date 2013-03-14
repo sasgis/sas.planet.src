@@ -141,7 +141,6 @@ type
       const AMediaPath: IPathConfig;
       const AMarkFactoryConfig: IMarksFactoryConfig;
       const AMarkPictureList: IMarkPictureList;
-      const AHintConverter: IHtmlToHintTextConverter;
       const AMarksDB: IMarksSystem;
       const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -174,7 +173,6 @@ constructor TMarksDbGUIHelper.Create(
   const AMediaPath: IPathConfig;
   const AMarkFactoryConfig: IMarksFactoryConfig;
   const AMarkPictureList: IMarkPictureList;
-  const AHintConverter: IHtmlToHintTextConverter;
   const AMarksDB: IMarksSystem;
   const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
