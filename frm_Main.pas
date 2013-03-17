@@ -2395,6 +2395,7 @@ begin
   if VConverter.ProjectionEPSG<>CGoogleProjectionEPSG then begin
     VConverter := GState.CoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
   end;
+  VConverter.CheckLonLatPos(VLonLat);
   VLonLat:=VConverter.LonLat2Metr(VLonLat);
   CopyStringToClipboard(
     'http://maps.rosreestr.ru/PortalOnline/?' +
