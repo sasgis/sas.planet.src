@@ -59,6 +59,7 @@ uses
   TBXExtItems,
   TBXGraphics,
   TBXSASTheme,
+  c_CoordConverter,
   u_CommonFormAndFrameParents,
   i_GUIDSet,
   t_GeoTypes,
@@ -2391,6 +2392,10 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
+  if VConverter.ProjectionEPSG<>CGoogleProjectionEPSG then begin
+    VConverter := GState.CoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
+  end;
+  VConverter.CheckLonLatPos(VLonLat);
   VLonLat:=VConverter.LonLat2Metr(VLonLat);
   CopyStringToClipboard(
     'http://maps.rosreestr.ru/PortalOnline/?' +
