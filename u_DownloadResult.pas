@@ -94,6 +94,11 @@ type
     function GetIsServerExists: Boolean; override;
   end;
 
+  TDownloadResultUnknownError = class(TDownloadResultError, IDownloadResultUnknownError)
+  protected
+    function GetIsServerExists: Boolean; override;
+  end;
+
   TDownloadResultNoConnetctToServerByErrorCode = class(TDownloadResultNoConnetctToServer)
   public
     constructor Create(
@@ -345,6 +350,13 @@ end;
 { TDownloadResultNoConnetctToServer }
 
 function TDownloadResultNoConnetctToServer.GetIsServerExists: Boolean;
+begin
+  Result := False;
+end;
+
+{  TDownloadResultUnknownError }
+
+function TDownloadResultUnknownError.GetIsServerExists: Boolean;
 begin
   Result := False;
 end;

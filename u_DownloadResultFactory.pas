@@ -253,7 +253,7 @@ function TDownloadResultFactory.BuildLoadErrorByUnknownReason(
 ): IDownloadResultError;
 begin
   Result :=
-    TDownloadResultLoadError.Create(
+    TDownloadResultUnknownError.Create(
       ARequest,
       AReasonTextFormat,
       AReasonTextArgs

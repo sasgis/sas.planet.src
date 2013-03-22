@@ -78,6 +78,10 @@ type
     ['{0C6013F7-CD38-44EC-808D-1CA3D1B0712B}']
   end;
 
+  IDownloadResultUnknownError = interface(IDownloadResultError)
+    ['{A5D55886-393E-4E85-97D4-17D824E2C75F}']
+  end;
+
   IDownloadResultBanned = interface(IDownloadResultError)
     ['{C51C4998-89C4-440C-9605-A57F85BB7491}']
   end;
