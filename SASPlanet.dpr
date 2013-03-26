@@ -11,6 +11,8 @@ uses
   MidasLib,
   XPMan,
   u_ReadableThreadNames,
+  u_TileStorageArchive in 'TileStorage\Archive\u_TileStorageArchive.pas',
+  u_TileStorageTar in 'TileStorage\Archive\u_TileStorageTar.pas',
   i_GlobalBerkeleyDBHelper in 'TileStorage\BerkeleyDB\i_GlobalBerkeleyDBHelper.pas',
   u_GlobalBerkeleyDBHelper in 'TileStorage\BerkeleyDB\u_GlobalBerkeleyDBHelper.pas',
   u_BerkeleyDB in 'TileStorage\BerkeleyDB\u_BerkeleyDB.pas',

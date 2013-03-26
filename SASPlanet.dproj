@@ -723,6 +723,8 @@
     <DCCReference Include="Terrain\u_TerrainProviderByGEMemCache.pas" />
     <DCCReference Include="Terrain\u_TerrainProviderList.pas" />
     <DCCReference Include="Terrain\u_TerrainProviderListElement.pas" />
+    <DCCReference Include="TileStorage\Archive\u_TileStorageArchive.pas" />
+    <DCCReference Include="TileStorage\Archive\u_TileStorageTar.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBEnv.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBFactory.pas" />

@@ -78,6 +78,9 @@ type
     procedure btnSelectDestPathClick(Sender: TObject);
     procedure btnCanselClick(Sender: TObject);
   private
+    type
+      TTileCacheInArchiveType = (atNoArch = 0, atTar = 1, atZip = 2, atUnk = 3);
+  private
     FLanguageManager: ILanguageManager;
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifierTime;
@@ -92,6 +95,7 @@ type
     function CreateSimpleTileStorage(
       const ARootPath: string;
       const ADefExtention: string;
+      const AArchiveType: TTileCacheInArchiveType;
       const ACoordConverter: ICoordConverter;
       const AFormatID: Byte
     ): ITileStorage;
@@ -132,6 +136,7 @@ uses
   u_TileStorageBerkeleyDB,
   u_TileStorageDBMS,
   u_TileStorageGE,
+  u_TileStorageTar,
   u_CacheConverterProgressInfo,
   frm_ProgressCacheConvrter;
 
@@ -168,9 +173,13 @@ begin
   cbbDestCacheTypes.ItemIndex := 5; // BerkeleyDB
 end;
 
-function TfrmCacheManager.CreateSimpleTileStorage(const ARootPath,
-  ADefExtention: string; const ACoordConverter: ICoordConverter;
-  const AFormatID: Byte): ITileStorage;
+function TfrmCacheManager.CreateSimpleTileStorage(
+  const ARootPath: string;
+  const ADefExtention: string;
+  const AArchiveType: TTileCacheInArchiveType;
+  const ACoordConverter: ICoordConverter;
+  const AFormatID: Byte
+): ITileStorage;
 var
   VMapVersionFactory: IMapVersionFactory;
   VContentType: IContentTypeInfoBasic;
@@ -178,6 +187,11 @@ var
   VFileNameParser: ITileFileNameParser;
 begin
   Result := nil;
+
+  if (AArchiveType <> atNoArch) and (AFormatID in [c_File_Cache_Id_BDB, c_File_Cache_Id_DBMS, c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
+    Exit;
+  end;
+
   VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
   if AFormatID = c_File_Cache_Id_BDB then begin
     VMapVersionFactory := TMapVersionFactorySimpleString.Create;
@@ -223,15 +237,35 @@ begin
     VMapVersionFactory := TMapVersionFactorySimpleString.Create;
     VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(AFormatID);
     VFileNameParser := FFileNameParsersList.GetParser(AFormatID);
-    Result :=
-      TTileStorageFileSystem.Create(
-        ACoordConverter,
-        ARootPath,
-        VContentType,
-        VMapVersionFactory,
-        VFileNameGenerator,
-        VFileNameParser
-      );
+    case AArchiveType of
+      atNoArch: begin
+        Result :=
+          TTileStorageFileSystem.Create(
+            ACoordConverter,
+            ARootPath,
+            VContentType,
+            VMapVersionFactory,
+            VFileNameGenerator,
+            VFileNameParser
+          );
+      end;
+      atTar: begin
+        Result :=
+          TTileStorageTar.Create(
+            ARootPath,
+            VContentType,
+            FContentTypeManager,
+            ACoordConverter,
+            VFileNameParser,
+            VFileNameGenerator
+          );
+      end;
+      atZip: begin
+        // ToDo
+      end;
+    else
+      // Error
+    end;
   end;
 end;
 
@@ -292,6 +326,21 @@ procedure TfrmCacheManager.ProcessCacheConverter;
       Result := c_File_Cache_Id_SAS;
     end;
   end;
+
+  function IsTileCacheInArchive(const APath: string; out AArchType: TTileCacheInArchiveType): Boolean;
+  begin
+    if SameStr(ExtractFileExt(APath), '.tar') then begin
+      AArchType := atTar;
+    end else if SameStr(ExtractFileExt(APath), '.zip') then begin
+      AArchType := atZip;
+    end else if ExtractFileExt(APath) <> '' then begin
+      AArchType := atUnk;
+    end else begin
+      AArchType := atNoArch;
+    end;
+    Result := not (AArchType in [atNoArch, atUnk]);
+  end;
+
 var
   VProgressInfo: ICacheConverterProgressInfo;
   VCancelNotifierInternal: INotifierOperationInternal;
@@ -304,6 +353,7 @@ var
   VDestPath: string;
   VDefExtention: string;
   VDotPos: Integer;
+  VArchType: TTileCacheInArchiveType;
 begin
   VProgressInfo := TCacheConverterProgressInfo.Create;
 
@@ -318,14 +368,19 @@ begin
     VDefExtention := Copy(VDefExtention, VDotPos, Length(VDefExtention) - VDotPos + 1);
   end else begin
     VDefExtention := '.' + VDefExtention;
-  end; 
+  end;
   VDefExtention := LowerCase(VDefExtention);
 
-  VSourcePath := IncludeTrailingPathDelimiter(Trim(edtPath.Text));
+  VSourcePath := Trim(edtPath.Text);
+  if not IsTileCacheInArchive(VSourcePath, VArchType) then begin
+    VSourcePath := IncludeTrailingPathDelimiter(VSourcePath);
+  end;
+
   VSource :=
     CreateSimpleTileStorage(
       VSourcePath,
       VDefExtention,
+      VArchType,
       VCoordConverter,
       GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex)
     );
@@ -336,11 +391,14 @@ begin
     // кроме СУБД - создадим папку в целевом хранилище
     ForceDirectories(VDestPath);
   end;
-  
+
+  VArchType := atNoArch;
+
   VTarget :=
     CreateSimpleTileStorage(
       VDestPath,
       VDefExtention,
+      VArchType,
       VCoordConverter,
       GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex)
     );
