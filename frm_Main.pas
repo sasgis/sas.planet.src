@@ -664,6 +664,7 @@ type
     Procedure WMSize(Var Msg: TWMSize); Message WM_SIZE;
     Procedure WMMove(Var Msg: TWMMove); Message WM_MOVE;
     Procedure WMSysCommand(Var Msg: TMessage); Message WM_SYSCOMMAND;
+    Procedure WMCOPYDATA(Var Msg: TMessage); Message WM_COPYDATA;
 
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
     procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; AZoom:byte; const AMousePos:TPoint);
@@ -3295,6 +3296,113 @@ begin
       inherited;
     end;
   end else inherited;
+end;
+
+//Процедура обработки входящего сообщения из другого приложения
+//структура входящего сообщения: [Режим];[Данные1];[Данные2];...
+//                                     режим;  широта ; долгота ; зум
+//режим 1 (переход к координате):         "1;58.594136;49.684498;17"
+//                                     режим;  широта ; долгота
+//режим 2 (навигация на координату):      "2;58.594136;49.684498"
+//
+//режим 3 (режим 1+2: переход по координате+навигация)
+//                                     режим; зум
+//режим 4 (изменение зума):               "4;16"
+//
+// Обратно возвращается результат:
+// 0 - успех
+// 1 - ошибка: не опознан режим
+// 2 - ошибка: для указанного режима передано недостаточно параметров
+// 3 - ошибка: координата должна указываться через точку
+// 4 - ошибка: неправильная координата
+Procedure TfrmMain.WMCOPYDATA(var Msg: TMessage);
+var
+  Vpcd : PCopyDataStruct;
+  VRecievedStr : string;
+  VMode : Integer;
+  Vl1, Vi : Integer;
+  VLonLat : TDoublePoint;
+  VZoom : Byte;
+  VParam :array[1..5] of string;
+  VGeoConverter: ICoordConverter;
+
+begin
+  //получим строку из сообщения
+  Vpcd := PCopyDataStruct(Msg.LParam);
+  VRecievedStr:= String(PChar(Vpcd.lpData));
+  //заполним массив параметров из входящей строки
+  Vi := 0;
+  repeat
+    Vl1 := Pos(';',VRecievedStr);
+    if Vl1 > 0 then begin
+      Vi := Vi + 1;
+      VParam[Vi] := Copy(VRecievedStr,1,Vl1-1);
+      Delete(VRecievedStr,1,Vl1);
+    end else begin
+      Vi := Vi + 1;
+      VParam[Vi] := VRecievedStr;
+    end;
+  until (Vl1 = 0)OR(Vi = 5);
+
+  //определим режим
+  VMode := StrToIntDef(VParam[1],0);
+  if VMode < 4 then begin
+    if Vi >= 3 then begin
+      //считаем координаты
+      if (TryStrPointToFloat(VParam[2],VLonLat.y))AND(TryStrPointToFloat(VParam[3],VLonLat.x)) then begin
+        //проверим на допустимость координаты
+        VGeoConverter := FConfig.ViewPortState.View.GetStatic.GetGeoConverter;
+        if not VGeoConverter.CheckLonLatPos(VLonLat) then begin
+          VMode := 0;
+          Msg.Result := 4; //вернем ошибку - неверная координата
+        end;
+        //считаем зум
+        if Vi > 3 then begin
+          VZoom := StrToIntDef(VParam[4],0)-1;
+          if not VGeoConverter.CheckZoom(VZoom) then begin
+            VZoom := 0;
+          end;
+        end Else begin
+          VZoom := 0;
+        end;
+      end else begin
+        VMode := 0;
+        Msg.Result := 3; //вернем ошибку - координата должна указываться через точку
+      end;
+    end else begin
+      //неверное кол-во переданных параметров для заданного режима - установим результат 2
+      Msg.Result := 2;
+      VMode := 0;
+    end;
+    if (VMode = 1)or(VMode = 3) then begin
+      //перейдем к координатам
+      if VZoom = 0 then begin
+        FConfig.ViewPortState.ChangeLonLat(VLonLat);
+      end Else begin
+        FConfig.ViewPortState.ChangeLonLatAndZoom(VZoom, VLonLat);
+      end;
+    end;
+    if (VMode = 2)or(VMode = 3) then begin
+      //навигация на координаты
+      FConfig.NavToPoint.StartNavLonLat(VLonLat)
+    end;
+  end else if VMode = 4 then begin
+    //измененеи зума
+    if Vi > 1 then begin
+      VZoom := StrToIntDef(VParam[2],0)-1;
+      VGeoConverter := FConfig.ViewPortState.View.GetStatic.GetGeoConverter;
+      if VGeoConverter.CheckZoom(VZoom) then begin
+        FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
+      end;
+    end else begin
+      //неверное кол-во переданных параметров для заданного режима - установим результат 2
+      Msg.Result := 2;
+    end;
+  end else begin
+    //если режим не определился - установим результат 1
+    Msg.Result := 1;
+  end;
+  inherited;
 end;
 
 procedure TfrmMain.WMTimeChange(var m: TMessage);
