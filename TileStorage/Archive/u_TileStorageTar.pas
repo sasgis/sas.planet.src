@@ -25,12 +25,14 @@ interface
 uses
   Types,
   i_TileInfoBasic,
+  i_ArchiveReadWrite,
   i_TileFileNameParser,
   u_TileStorageArchive;
 
 type
   TTileStorageTar = class(TTileStorageArchive)
   protected
+    function GetArchiveWriter: IArchiveWriter; override;
     function ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo; override;
   end;
 
@@ -41,6 +43,7 @@ uses
   SysUtils,
   LibTar,
   i_ContentTypeManager,
+  u_ArchiveWriteLibTar,
   u_BinaryDataByMemStream,
   u_BaseInterfacedObject;
 
@@ -140,6 +143,17 @@ begin
 end;
 
 { TTileStorageTar }
+
+function TTileStorageTar.GetArchiveWriter: IArchiveWriter;
+begin
+  if Assigned(FWriter) then begin
+    Result := FWriter;
+  end else begin
+    ForceDirectories(ExtractFilePath(FArchiveFileName));
+    FWriter := TArchiveWriteByLibTar.Create(FArchiveFileName);
+    Result := FWriter;
+  end;
+end;
 
 function TTileStorageTar.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo;
 begin

@@ -385,14 +385,14 @@ begin
       GetCacheFormatFromIndex(cbbCacheTypes.ItemIndex)
     );
 
-  VDestPath := IncludeTrailingPathDelimiter(Trim(edtDestPath.Text));
-
-  if (cbbDestCacheTypes.ItemIndex <> 6) then begin
-    // кроме СУБД - создадим папку в целевом хранилище
-    ForceDirectories(VDestPath);
+  VDestPath := Trim(edtDestPath.Text);
+  if not IsTileCacheInArchive(VDestPath, VArchType) then begin
+    VDestPath := IncludeTrailingPathDelimiter(VDestPath);  
+    if (cbbDestCacheTypes.ItemIndex <> 6) then begin
+      // кроме СУБД - создадим папку в целевом хранилище
+      ForceDirectories(VDestPath);
+    end;
   end;
-
-  VArchType := atNoArch;
 
   VTarget :=
     CreateSimpleTileStorage(

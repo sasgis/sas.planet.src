@@ -134,9 +134,11 @@ begin
           ATileInfo.FVersionInfo,
           gtimAsIs
         );
-      if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and (ATileInfo.FInfoType = titTneExists))) then begin
-        Result := True;
-        FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
+      if Assigned(VTileInfo) then begin
+        if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and (ATileInfo.FInfoType = titTneExists))) then begin
+          Result := True;
+          FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
+        end;
       end;
     end;
 

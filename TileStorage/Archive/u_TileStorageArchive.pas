@@ -32,6 +32,7 @@ uses
   i_CoordConverter,
   i_MapVersionInfo,
   i_ContentTypeInfo,
+  i_ArchiveReadWrite,
   i_ContentTypeManager,
   i_TileFileNameParser,
   i_TileFileNameGenerator,
@@ -41,6 +42,8 @@ uses
 type
   TTileStorageArchive = class(TBaseInterfacedObject, ITileStorage)
   protected
+    FSync: IReadWriteSync;
+    FWriter: IArchiveWriter;
     FArchiveFileName: string;
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
@@ -49,6 +52,8 @@ type
     FCoordConverter: ICoordConverter;
     FTileNameParser: ITileFileNameParser;
     FTileNameGenerator: ITileFileNameGenerator;
+  protected
+    function GetArchiveWriter: IArchiveWriter; virtual;
   protected
     { ITileStorage }
     function GetTileNotifier: INotifierTilePyramidUpdate;
@@ -111,6 +116,10 @@ type
 
 implementation
 
+uses
+  u_Synchronizer,
+  u_BinaryDataByMemStream;
+
 { TTileStorageArchive }
 
 constructor TTileStorageArchive.Create(
@@ -132,6 +141,12 @@ begin
   FCoordConverter := ACoordConverter;
   FTileNameParser := ATileNameParser;
   FTileNameGenerator := ATileNameGenerator;
+  FSync := MakeSyncRW_Big(Self, False); 
+end;
+
+function TTileStorageArchive.GetArchiveWriter: IArchiveWriter;
+begin
+  Result := nil;
 end;
 
 function TTileStorageArchive.GetTileNotifier: INotifierTilePyramidUpdate;
@@ -190,8 +205,20 @@ procedure TTileStorageArchive.SaveTile(
   const AContentType: IContentTypeInfoBasic;
   const AData: IBinaryData
 );
+var
+  VTileName: string;
+  VArchiveWriter: IArchiveWriter;
 begin
-  //
+  FSync.BeginWrite;
+  try
+    VArchiveWriter := GetArchiveWriter;
+    if Assigned(VArchiveWriter) then begin
+      VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + FContentType.GetDefaultExt;
+      VArchiveWriter.AddFile(AData, VTileName, ALoadDate);
+    end;
+  finally
+    FSync.EndWrite;
+  end;
 end;
 
 procedure TTileStorageArchive.SaveTNE(
@@ -200,8 +227,22 @@ procedure TTileStorageArchive.SaveTNE(
   const AVersion: IMapVersionInfo;
   const ALoadDate: TDateTime
 );
+var
+  VTileName: string;
+  VData: IBinaryData;
+  VArchiveWriter: IArchiveWriter;
 begin
-  //
+  FSync.BeginWrite;
+  try
+    VArchiveWriter := GetArchiveWriter;
+    if Assigned(VArchiveWriter) then begin
+      VData := TBinaryDataByMemStream.CreateFromMem(0, nil);
+      VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + '.tne';
+      VArchiveWriter.AddFile(VData, VTileName, ALoadDate);
+    end;
+  finally
+    FSync.EndWrite;
+  end;
 end;
 
 function TTileStorageArchive.GetListOfTileVersions(
