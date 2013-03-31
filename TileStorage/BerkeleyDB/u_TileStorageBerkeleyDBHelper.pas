@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -41,10 +41,21 @@ type
 
   TTileStorageBerkeleyDBHelper = class(TObject)
   private
+    type
+      TTileOperation = (toRead = 0, toWrite = 1, toDelete = 2, toExists = 3);
+  private
     FPool: IBerkeleyDBPool;
     FEnvironment: IBerkeleyDBEnvironment;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FSyncCallListener: IListener;
+    function GetTileKey(
+        const AOperation: TTileOperation;
+        const ATileXY: TPoint;
+        const AVersionInfo: IMapVersionInfo;
+        const ADatabase: IBerkeleyDB;
+        const ATileDate: TDateTime = 0;
+        const ATileCRC: Cardinal = 0
+    ): IBinaryData;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -112,6 +123,7 @@ implementation
 uses
   Windows,
   SysUtils,
+  CRC32,
   u_ListenerByEvent,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
@@ -140,7 +152,7 @@ begin
 
   FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(AStorageRootPath);
 
-  VMetaKey := TBerkeleyDBKey.Create(Point(cBerkeleyDBMetaKeyX, cBerkeleyDBMetaKeyY));
+  VMetaKey := TBerkeleyDBMetaKey.Create;
   VMetaValue := TBerkeleyDBMetaValue.Create(AStorageEPSG);
 
   FSyncCallListener := TNotifyNoMmgEventListener.Create(Self.Sync);
@@ -183,6 +195,93 @@ begin
   end;
 end;
 
+function TTileStorageBerkeleyDBHelper.GetTileKey(
+  const AOperation: TTileStorageBerkeleyDBHelper.TTileOperation;
+  const ATileXY: TPoint;
+  const AVersionInfo: IMapVersionInfo;
+  const ADatabase: IBerkeleyDB;
+  const ATileDate: TDateTime = 0;
+  const ATileCRC: Cardinal = 0
+): IBinaryData;
+var
+  I: Integer;
+  VKey: IBinaryData;
+  VValue: IBinaryData;
+  VMaxID: Word;
+  VVersionID: Word;
+  VTileInfoIndex: Integer;
+  VVersionMeta: IBerkeleyDBVersionedMetaValue;
+  VMetaElement: IBerkeleyDBVersionedMetaValueElement;
+begin
+  Result := nil;
+  if Assigned(AVersionInfo) and (AVersionInfo.StoreString <> '') then begin
+
+    VMaxID := 0;
+    VVersionID := 0;
+    VTileInfoIndex := -1;
+
+    VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
+    VValue := ADatabase.Read(VKey);
+    if Assigned(VValue) then begin
+      VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VValue);
+      for I := 0 to VVersionMeta.ItemsCount - 1 do begin
+        if WideSameStr(VVersionMeta.Item[I].TileVersionInfo, AVersionInfo.StoreString) then begin
+          VVersionID := VVersionMeta.Item[I].VersionID;
+          VTileInfoIndex := I;
+          Break;
+        end else if (AOperation = toWrite) and (VVersionMeta.Item[I].TileCRC = ATileCRC) then begin
+          //ToDo
+        end;
+        if VVersionMeta.Item[I].VersionID > VMaxID then begin
+          VMaxID := VVersionMeta.Item[I].VersionID;
+        end;
+      end;
+    end else begin
+      if AOperation = toWrite then begin
+        VVersionMeta := TBerkeleyDBVersionedMetaValue.Create;
+      end;
+    end;
+
+    if AOperation in [toRead, toDelete, toExists] then begin
+      if (VVersionID <> 0) and (VTileInfoIndex <> -1) then begin
+        Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
+        if AOperation = toDelete then begin
+          VVersionMeta.Del(VTileInfoIndex);
+          if VVersionMeta.ItemsCount > 0 then begin
+            VValue := VVersionMeta as IBinaryData;
+            ADatabase.Write(VKey, VValue);
+          end;
+        end;
+      end;
+    end else begin // toWrite
+      if VVersionID = 0 then begin
+        VVersionID := VMaxID + 1;
+      end;
+
+      VMetaElement :=
+        TBerkeleyDBVersionedMetaValueElement.Create(
+          VVersionID,
+          ATileDate,
+          ATileCRC,
+          AVersionInfo
+        );
+
+      if VTileInfoIndex <> -1 then begin
+        VVersionMeta.Replace(VTileInfoIndex, VMetaElement);
+      end else begin
+        VVersionMeta.Add(VMetaElement);
+      end;
+
+      VValue := VVersionMeta as IBinaryData;
+      if ADatabase.Write(VKey, VValue) then begin
+        Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
+      end;
+    end;
+  end else begin
+    Result := TBerkeleyDBKey.Create(ATileXY);
+  end;
+end;
+
 function TTileStorageBerkeleyDBHelper.SaveTile(
   const ADatabaseFileName: string;
   const ATileXY: TPoint;
@@ -198,19 +297,26 @@ var
   VDatabase: IBerkeleyDB;
   VTile: Pointer;
   VSize: Integer;
+  VTileCRC: Cardinal;
 begin
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
     if Assigned(AData) then begin
       VTile := AData.Buffer;
       VSize := AData.Size;
+      VTileCRC := CRC32Buf(VTile, VSize);
     end else begin
       VTile := nil;
       VSize := 0;
+      VTileCRC := 0;
+    end; 
+    VKey := GetTileKey(toWrite, ATileXY, AVersionInfo, VDatabase, ATileDate, VTileCRC);
+    if Assigned(VKey) then begin
+      VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, AVersionInfo, ATileContetType);
+      Result := VDatabase.Write(VKey, VValue);
+    end else begin
+      Result := False;
     end;
-    VKey := TBerkeleyDBKey.Create(ATileXY);
-    VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, AVersionInfo, ATileContetType);
-    Result := VDatabase.Write(VKey, VValue);
   finally
     FPool.Release(VDatabase);
   end;
@@ -228,8 +334,12 @@ var
 begin
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    VKey := TBerkeleyDBKey.Create(ATileXY);
-    Result := VDatabase.Del(VKey);
+    VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
+    if Assigned(VKey) then begin
+      Result := VDatabase.Del(VKey);
+    end else begin
+      Result := False;
+    end;
   finally
     FPool.Release(VDatabase);
   end;
@@ -254,16 +364,18 @@ begin
   Result := False;
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    VKey := TBerkeleyDBKey.Create(ATileXY);
-    VBinValue := VDatabase.Read(VKey);
-    if Assigned(VBinValue) then begin
-      VValue := TBerkeleyDBValue.Create(VBinValue);
-      if (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
-        ATileBinaryData := TBinaryDataByBerkeleyDBValue.Create(VValue);
-        ATileVersion := VValue.TileVersionInfo;
-        ATileContentType := VValue.TileContentType;
-        ATileDate := VValue.TileDate;
-        Result := True;
+    VKey := GetTileKey(toRead, ATileXY, AVersionInfo, VDatabase);
+    if Assigned(VKey) then begin
+      VBinValue := VDatabase.Read(VKey);
+      if Assigned(VBinValue) then begin
+        VValue := TBerkeleyDBValue.Create(VBinValue);
+        if (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
+          ATileBinaryData := TBinaryDataByBerkeleyDBValue.Create(VValue);
+          ATileVersion := VValue.TileVersionInfo;
+          ATileContentType := VValue.TileContentType;
+          ATileDate := VValue.TileDate;
+          Result := True;
+        end;
       end;
     end;
   finally
@@ -283,8 +395,12 @@ var
 begin
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    VKey := TBerkeleyDBKey.Create(ATileXY);
-    Result := VDatabase.Exists(VKey);
+    VKey := GetTileKey(toExists, ATileXY, AVersionInfo, VDatabase);
+    if Assigned(VKey) then begin
+      Result := VDatabase.Exists(VKey);
+    end else begin
+      Result := False;
+    end;
   finally
     FPool.Release(VDatabase);
   end;
@@ -306,12 +422,14 @@ begin
   Result := False;
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    VKey := TBerkeleyDBKey.Create(ATileXY);
-    VBinValue := VDatabase.Read(VKey);
-    if Assigned(VBinValue) then begin
-      VValue := TBerkeleyDBValue.Create(VBinValue);
-      ATileDate := VValue.TileDate;
-      Result := True;
+    VKey := GetTileKey(toRead, ATileXY, AVersionInfo, VDatabase);
+    if Assigned(VKey) then begin
+      VBinValue := VDatabase.Read(VKey);
+      if Assigned(VBinValue) then begin
+        VValue := TBerkeleyDBValue.Create(VBinValue);
+        ATileDate := VValue.TileDate;
+        Result := True;
+      end;
     end;
   finally
     FPool.Release(VDatabase);
@@ -337,8 +455,8 @@ function TTileStorageBerkeleyDBHelper.GetTileExistsArray(
 ): Boolean;
 var
   VKey: IBerkeleyDBKey;
+  VVersionedKey: IBerkeleyDBVersionedKey;
   VBinKey: IBinaryData;
-  VPoint: TPoint;
   VValidKeyCount: Integer;
   VDatabase: IBerkeleyDB;
   VList: IInterfaceList;
@@ -352,16 +470,19 @@ begin
       SetLength(ATileExistsArray, VList.Count);
       VValidKeyCount := 0;
       VKey := TBerkeleyDBKey.Create(Point(0, 0));
+      VVersionedKey := TBerkeleyDBVersionedKey.Create(Point(0, 0), 0);
       for I := 0 to VList.Count - 1 do begin
         VBinKey := VList.Items[I] as IBinaryData;
-        VKey.Assign(VBinKey.Buffer, VBinKey.Size, False);
-        VPoint := VKey.Point;
-        if
-          (Cardinal(VPoint.X) <> cBerkeleyDBMetaKeyX) and
-          (Cardinal(VPoint.Y) <> cBerkeleyDBMetaKeyY)
-        then begin
-          ATileExistsArray[VValidKeyCount] := VPoint;
-          Inc(VValidKeyCount);
+        if VKey.Assign(VBinKey.Buffer, VBinKey.Size, False) then begin
+          if not IsMetaKey(VKey) then begin
+            ATileExistsArray[VValidKeyCount] := VKey.Point;
+            Inc(VValidKeyCount);
+          end;
+        end else if VVersionedKey.Assign(VBinKey.Buffer, VBinKey.Size, False) then begin
+          if not IsMetaKey(VVersionedKey) then begin
+            ATileExistsArray[VValidKeyCount] := VVersionedKey.Point;
+            Inc(VValidKeyCount);
+          end;
         end;
       end;
       SetLength(ATileExistsArray, VValidKeyCount);

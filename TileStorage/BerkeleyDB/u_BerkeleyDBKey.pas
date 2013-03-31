@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -28,10 +28,6 @@ uses
   i_BerkeleyDBKeyValue,
   u_BaseInterfacedObject;
 
-const
-  cBerkeleyDBMetaKeyX: Cardinal = $FFFFFFFF;
-  cBerkeleyDBMetaKeyY: Cardinal = $FFFFFFFF;
-
 type
   TBerkeleyDBKey = class(TBaseInterfacedObject, IBerkeleyDBKey, IBinaryData)
   private
@@ -43,7 +39,7 @@ type
       PKey = ^TKey;
   private
     FPoint: TPoint;
-    FData: PKey;
+    FData: Pointer;
     FSize: Integer;
     FOwnMem: Boolean;
     function PointToKey(const APoint: TPoint): PKey;
@@ -51,9 +47,14 @@ type
   private
     { IBerkeleyDBKey }
     function GetPoint: TPoint;
+    { IBerkeleyDBKeyValueBase }
     function GetData: Pointer;
     function GetSize: Integer;
-    procedure Assign(const AData: Pointer; const ASize: Integer; const AOwnMem: Boolean);
+    function Assign(
+      const AData: Pointer;
+      const ASize: Integer;
+      const AOwnMem: Boolean
+    ): Boolean;
     { IBinaryData }
     function IBinaryData.GetBuffer = GetData;
     function IBinaryData.GetSize = GetSize;
@@ -69,7 +70,63 @@ type
     destructor Destroy; override;
   end;
 
+  TBerkeleyDBMetaKey = class(TBerkeleyDBKey, IBerkeleyDBMetaKey)
+  public
+    constructor Create;
+  end;
+
+  TBerkeleyDBVersionedKey = class(TBerkeleyDBKey, IBerkeleyDBVersionedKey)
+  private
+    FVersionID: Word;
+  private
+    { IBerkeleyDBVersionedKey }
+    function GetVersionID: Word;
+    { IBerkeleyDBKeyValueBase }
+    function Assign(
+      const AData: Pointer;
+      const ASize: Integer;
+      const AOwnMem: Boolean
+    ): Boolean;
+  public
+    constructor Create(
+      const APoint: TPoint;
+      const AVersionID: Word
+    );
+  end;
+
+  TBerkeleyDBVersionedMetaKey = class(TBerkeleyDBVersionedKey, IBerkeleyDBVersionedMetaKey)
+  public
+    constructor Create(const APoint: TPoint);
+  end;
+
+function IsMetaKey(const AKey: IBerkeleyDBKey): Boolean;
+
 implementation
+
+uses
+  SysUtils;
+
+type
+  PWord = ^Word;
+
+const
+  cBerkeleyDBMetaKeyX: Cardinal = $FFFFFFFF;
+  cBerkeleyDBMetaKeyY: Cardinal = $FFFFFFFF;
+  cBerkeleyDBVersionedMetaKeyID: Word = $FFFF;
+
+function IsMetaKey(const AKey: IBerkeleyDBKey): Boolean;
+var
+  VVersionedKey: IBerkeleyDBVersionedKey;
+begin
+  Result := Supports(AKey, IBerkeleyDBMetaKey) or Supports(AKey, IBerkeleyDBVersionedMetaKey);
+  if not Result then begin
+    if Supports(AKey, IBerkeleyDBVersionedKey, VVersionedKey) then begin
+      Result := VVersionedKey.VersionID = cBerkeleyDBVersionedMetaKeyID;
+    end else begin
+      Result := (Cardinal(AKey.Point.X) = cBerkeleyDBMetaKeyX) and (Cardinal(AKey.Point.Y) = cBerkeleyDBMetaKeyY);
+    end;
+  end;
+end;
 
 function Swap32(Value: Cardinal): Cardinal; assembler;
 asm
@@ -102,24 +159,28 @@ constructor TBerkeleyDBKey.Create(
 begin
   inherited Create;
   FData := nil;
-  Assign(AData, ASize, AOwnMem);
+  if not Assign(AData, ASize, AOwnMem) then begin
+    Assert(False, 'TBerkeleyDBKey.Assign fail!');
+  end;
 end;
 
-procedure TBerkeleyDBKey.Assign(
+function TBerkeleyDBKey.Assign(
   const AData: Pointer;
   const ASize: Integer;
   const AOwnMem: Boolean
-);
+): Boolean;
 begin
-  Assert(AData <> nil);
-  Assert(ASize = SizeOf(TKey));
-  if (FData <> nil) and FOwnMem then begin
-    FreeMemory(FData);
+  Result := False;
+  if (AData <> nil) and (ASize = SizeOf(TKey)) then begin
+    if (FData <> nil) and FOwnMem then begin
+      FreeMemory(FData);
+    end;
+    FData := AData;
+    FSize := ASize;
+    FOwnMem := AOwnMem;
+    FPoint := KeyToPoint(FData);
+    Result := True;
   end;
-  FData := AData;
-  FSize := ASize;
-  FOwnMem := AOwnMem;
-  FPoint := KeyToPoint(FData);
 end;
 
 destructor TBerkeleyDBKey.Destroy;
@@ -211,6 +272,76 @@ end;
 function TBerkeleyDBKey.GetSize: Integer;
 begin
   Result := FSize;
+end;
+
+{ TBerkeleyDBMetaKey }
+
+constructor TBerkeleyDBMetaKey.Create;
+begin
+  inherited Create(Point(cBerkeleyDBMetaKeyX, cBerkeleyDBMetaKeyY));
+end;
+
+{ TBerkeleyDBVersionedKey }
+
+constructor TBerkeleyDBVersionedKey.Create(
+  const APoint: TPoint;
+  const AVersionID: Word
+);
+var
+  VKey: PKey;
+  VData: PByte;
+begin
+  inherited Create;
+  FPoint := APoint;
+  FVersionID := AVersionID;
+  VKey := inherited PointToKey(FPoint);
+  try
+    FSize := SizeOf(TKey) + SizeOf(FVersionID);
+    FData := GetMemory(FSize);
+    VData := FData;
+    Move(VKey^, VData^, SizeOf(TKey));
+    Inc(VData, SizeOf(TKey));
+    Move(FVersionID, VData^, SizeOf(FVersionID));
+    FOwnMem := True;
+  finally
+    FreeMemory(VKey);
+  end;
+end;
+
+function TBerkeleyDBVersionedKey.Assign(
+  const AData: Pointer;
+  const ASize: Integer;
+  const AOwnMem: Boolean
+): Boolean;
+var
+  VData: PByte;
+begin
+  Result := False;
+  if (AData <> nil) and (ASize = (SizeOf(TKey) + SizeOf(FVersionID))) then begin
+    if (FData <> nil) and FOwnMem then begin
+      FreeMemory(FData);
+    end;
+    FData := AData;
+    FSize := ASize;
+    FOwnMem := AOwnMem;
+    FPoint := inherited KeyToPoint(FData);
+    VData := FData;
+    Inc(VData, SizeOf(TKey));
+    FVersionID := PWord(VData)^;
+    Result := True;
+  end;
+end;
+
+function TBerkeleyDBVersionedKey.GetVersionID: Word;
+begin
+  Result := FVersionID;
+end;
+
+{ TBerkeleyDBVersionedMetaKey }
+
+constructor TBerkeleyDBVersionedMetaKey.Create(const APoint: TPoint);
+begin
+  inherited Create(APoint, cBerkeleyDBVersionedMetaKeyID);
 end;
 
 end. 
