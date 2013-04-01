@@ -964,6 +964,7 @@ begin
   end;
   FValue.ItemsCount := I;
   SetLength(FValue.ItemsArray, FValue.ItemsCount);
+  ValueToData;
 end;
 
 end.
