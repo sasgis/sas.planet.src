@@ -23,6 +23,7 @@ unit u_BerkeleyDBEnv;
 interface
 
 uses
+  Classes,
   SyncObjs,
   libdb51,
   i_Listener,
@@ -48,6 +49,7 @@ type
     FCS: TCriticalSection;
     FClientsCount: Integer;
     FListener: IListener;
+    FTxnList: TList;
     function Open: Boolean;
     procedure Sync;
   private
@@ -57,6 +59,9 @@ type
     function GetClientsCount: Integer;
     procedure SetClientsCount(const AValue: Integer);
     procedure RemoveUnUsedLogs;
+    procedure TransactionBegin(out ATxn: PBerkeleyTxn);
+    procedure TransactionCommit(var ATxn: PBerkeleyTxn);
+    procedure TransactionAbort(var ATxn: PBerkeleyTxn);
     procedure TransactionCheckPoint;
     function GetSyncCallListener: IListener;
   public
@@ -104,6 +109,7 @@ constructor TBerkeleyDBEnv.Create(
 begin
   inherited Create;
   dbenv := nil;
+  FTxnList := TList.Create;
   New(FAppPrivate);
   FAppPrivate.FEnvRootPath := AEnvRootPath;
   FAppPrivate.FHelper := AGlobalBerkeleyDBHelper;
@@ -116,10 +122,20 @@ begin
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
+var
+  I: Integer;
+  txn: PDB_TXN;
 begin
   try
     FListener := nil;
     if dbenv <> nil then begin
+      for I := 0 to FTxnList.Count - 1 do begin
+        txn := FTxnList.Items[I];
+        if txn <> nil then begin
+          txn.abort(txn);
+        end;
+      end; 
+      FTxnList.Free;
       TransactionCheckPoint;
       RemoveUnUsedLogs;
       CheckBDBandNil(dbenv.close(dbenv, 0), dbenv);
@@ -195,6 +211,63 @@ begin
     end;
   finally
     FCS.Release;
+  end;
+end;
+
+procedure TBerkeleyDBEnv.TransactionBegin(out ATxn: PBerkeleyTxn);
+var
+  txn: PDB_TXN;
+begin
+  FCS.Acquire;
+  try
+    if FActive and FLibInitOk then begin
+      txn := nil;
+      CheckBDB(dbenv.txn_begin(dbenv, nil, @txn, DB_TXN_NOWAIT));
+      ATxn := txn;
+      FTxnList.Add(txn);
+    end else begin
+      ATxn := nil;
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+procedure TBerkeleyDBEnv.TransactionCommit(var ATxn: PBerkeleyTxn);
+var
+  txn: PDB_TXN;
+begin
+  if ATxn <> nil then begin
+    txn := ATxn;
+    ATxn := nil;
+    FCS.Acquire;
+    try
+      if FActive and FLibInitOk then begin
+        FTxnList.Remove(txn);
+        CheckBDBandNil(txn.commit(txn, 0), txn);
+      end;
+    finally
+      FCS.Release;
+    end;
+  end;
+end;
+
+procedure TBerkeleyDBEnv.TransactionAbort(var ATxn: PBerkeleyTxn);
+var
+  txn: PDB_TXN;
+begin
+  if ATxn <> nil then begin
+    txn := ATxn;
+    ATxn := nil;
+    FCS.Acquire;
+    try
+      if FActive and FLibInitOk then begin
+        FTxnList.Remove(txn);
+        CheckBDBandNil(txn.abort(txn), txn);
+      end;
+    finally
+      FCS.Release;
+    end;
   end;
 end;
 

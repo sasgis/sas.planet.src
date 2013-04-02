@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -26,6 +26,8 @@ uses
   i_Listener;
 
 type
+  PBerkeleyTxn = Pointer;
+
   IBerkeleyDBEnvironment = interface
     ['{0D73208B-3729-43F3-9AAE-DF1616107648}']
     function GetEnvironmentPointerForApi: Pointer;
@@ -42,6 +44,10 @@ type
     property SyncCallListener: IListener read GetSyncCallListener;
 
     procedure RemoveUnUsedLogs;
+
+    procedure TransactionBegin(out ATxn: PBerkeleyTxn);
+    procedure TransactionCommit(var ATxn: PBerkeleyTxn);
+    procedure TransactionAbort(var ATxn: PBerkeleyTxn);
     procedure TransactionCheckPoint;
   end;
 
