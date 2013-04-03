@@ -136,16 +136,16 @@ begin
         if txn <> nil then begin
           txn.abort(txn);
         end;
-      end; 
-      FTxnList.Free;
+      end;
       TransactionCheckPoint;
       RemoveUnUsedLogs;
-      CheckBDBandNil(dbenv.close(dbenv, 0), dbenv);
+      dbenv.close(dbenv, 0);
     end;
-    FCS.Free;
   finally
     FAppPrivate.FHelper := nil;
     Dispose(FAppPrivate);
+    FTxnList.Free;
+    FCS.Free;
     inherited Destroy;
   end;
 end;

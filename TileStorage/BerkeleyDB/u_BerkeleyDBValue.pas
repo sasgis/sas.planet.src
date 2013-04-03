@@ -702,6 +702,7 @@ begin
     (Length(FValue.TileVersionInfo) + Length(cWideCharEndLine)) * SizeOf(WideChar);
 
   FData := GetMemory(FSize);
+  FOwnMem := True;
   VPtr := FData;
 
    // version id
@@ -892,6 +893,7 @@ begin
   end;
 
   FData := GetMemory(FSize);
+  FOwnMem := True;
   VPtr := FData;
 
    // magic
