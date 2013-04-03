@@ -52,6 +52,7 @@ type
     FTxnList: TList;
     function Open: Boolean;
     procedure Sync;
+    procedure MakeDefConfigFile(const AEnvHomePath: string);
   private
     { IBerkeleyDBEnvironment }
     function GetEnvironmentPointerForApi: Pointer;
@@ -82,6 +83,7 @@ uses
 const
   cBerkeleyDBEnvSubDir = 'env';
   cBerkeleyDBEnvErrPfx = 'BerkeleyDB Env';
+  cBerkeleyDBEnvConfig = 'DB_CONFIG';
 
 procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 var
@@ -157,29 +159,55 @@ begin
   end;
 end;
 
+procedure TBerkeleyDBEnv.MakeDefConfigFile(const AEnvHomePath: string);
+var
+  VFile: string;
+  VList: TStringList;
+begin
+  VFile := AEnvHomePath + cBerkeleyDBEnvConfig;
+  if not FileExists(VFile) then begin
+    VList := TStringList.Create;
+    try
+      VList.Add('set_flags DB_TXN_NOSYNC on');
+      VList.Add('set_flags DB_TXN_WRITE_NOSYNC on');
+      VList.Add('set_verbose DB_VERB_RECOVERY on');
+      VList.Add('set_data_dir ..');
+      VList.Add('');
+      VList.Add('#Logs dir');
+      VList.Add('set_lg_dir .');
+      VList.Add('');
+      VList.Add('#Single log-file size in bytes (def = 10M)');
+      VList.Add('set_lg_max 10485760');
+      VList.Add('');
+      VList.Add('#Log in-memory buffer size in bytes (def = 256k)');
+      VList.Add('set_lg_bsize 10485760');
+      VList.Add('');
+      VList.Add('log_set_config DB_LOG_AUTO_REMOVE on');
+      VList.SaveToFile(VFile);
+    finally
+      VList.Free;
+    end;
+  end;
+end;
+
 function TBerkeleyDBEnv.Open: Boolean;
 var
-  I: Integer;
   VPath: AnsiString;
 begin
   if not FActive and FLibInitOk then begin
-    CheckBDB(db_env_create(dbenv, 0)); 
+
+    VPath := FAppPrivate.FEnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
+    if not DirectoryExists(VPath) then begin
+      ForceDirectories(VPath);
+    end;
+
+    MakeDefConfigFile(VPath);
+    
+    CheckBDB(db_env_create(dbenv, 0));
     dbenv.app_private := FAppPrivate;
     dbenv.set_errpfx(dbenv, CBerkeleyDBEnvErrPfx);
     dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
     CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));
-    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_NOSYNC, 1));
-    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 1));
-    CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_RECOVERY, 1));
-    CheckBDB(dbenv.set_data_dir(dbenv, '..'));
-    CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
-
-    VPath := FAppPrivate.FEnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
-    I := LastDelimiter(PathDelim, VPath);
-    VPath := copy(VPath, 1, I);
-    if not DirectoryExists(VPath) then begin
-      ForceDirectories(VPath);
-    end;
 
     CheckBDB(
       dbenv.open(
