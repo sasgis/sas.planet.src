@@ -169,10 +169,12 @@ begin
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
   FFileNameGenerator := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
-
+  {$MESSAGE HINT 'ToDo: validate TTileStorageBerkeleyDBHelper.Create'}
   FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
     AGlobalBerkeleyDBHelper,
     StoragePath,
+    False, // ToDo: Read-Only
+    True,  // ToDo: Versioned
     AGeoConverter.ProjectionEPSG
   );
 

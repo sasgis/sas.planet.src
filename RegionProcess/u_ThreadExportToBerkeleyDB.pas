@@ -230,10 +230,13 @@ begin
       VVersionInfo := VMapType.VersionConfig.Version;
       VGeoConvert := VMapType.GeoConvert;
       VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
+      {$MESSAGE HINT 'ToDo: validate TTileStorageBerkeleyDBHelper.Create'}
       VHelper :=
         TTileStorageBerkeleyDBHelper.Create(
           FGlobalBerkeleyDBHelper,
           VPath,
+          False, // ToDo: raise error if it Read-Only
+          True,  // ToDo: Versioned
           VMapType.GeoConvert.ProjectionEPSG
         );
       try

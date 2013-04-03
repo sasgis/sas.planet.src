@@ -50,6 +50,8 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FSyncCallListener: IListener;
     FLock: IReadWriteSync;
+    FIsReadOnly: Boolean;
+    FIsVersioned: Boolean;
     function GetTileKey(
         const AOperation: TTileOperation;
         const ATileXY: TPoint;
@@ -62,6 +64,8 @@ type
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AStorageRootPath: string;
+      const AIsReadOnly: Boolean;
+      const AIsVersioned: Boolean;
       const AStorageEPSG: Integer
     );
     destructor Destroy; override;
@@ -143,23 +147,27 @@ const
 constructor TTileStorageBerkeleyDBHelper.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AStorageRootPath: string;
+  const AIsReadOnly: Boolean;
+  const AIsVersioned: Boolean;
   const AStorageEPSG: Integer
 );
 var
-  VMetaKey: IBinaryData;
-  VMetaValue: IBinaryData;
   VDatabaseFactory: IBerkeleyDBFactory;
 begin
   inherited Create;
 
-  FLock := MakeSyncRW_Big(Self, False);
+  FIsReadOnly := AIsReadOnly;
+  FIsVersioned := AIsVersioned;
+
+  if FIsVersioned then begin
+    FLock := MakeSyncRW_Big(Self, False);
+  end else begin
+    FLock := MakeSyncFake(Self);
+  end;
 
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 
   FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(AStorageRootPath);
-
-  VMetaKey := TBerkeleyDBMetaKey.Create;
-  VMetaValue := TBerkeleyDBMetaValue.Create(AStorageEPSG);
 
   FSyncCallListener := TNotifyNoMmgEventListener.Create(Self.Sync);
 
@@ -167,8 +175,9 @@ begin
     FGlobalBerkeleyDBHelper,
     FEnvironment,
     FSyncCallListener,
-    VMetaKey,
-    VMetaValue
+    FIsReadOnly,
+    TBerkeleyDBMetaKey.Create as IBinaryData,
+    TBerkeleyDBMetaValue.Create(AStorageEPSG) as IBinaryData
   );
 
   FPool := TBerkeleyDBPool.Create(
@@ -226,7 +235,7 @@ var
   VVersionMeta: IBerkeleyDBVersionedMetaValue;
   VMetaElement: IBerkeleyDBVersionedMetaValueElement;
 begin
-  if Assigned(AVersionInfo) and (AVersionInfo.StoreString <> '') then begin
+  if FIsVersioned and Assigned(AVersionInfo) and (AVersionInfo.StoreString <> '') then begin
     J := 0;
     VIsDeadLock := False;
     repeat
@@ -609,7 +618,7 @@ begin
             ATileExistsArray[VValidKeyCount] := VKey.Point;
             Inc(VValidKeyCount);
           end;
-        end else if VVersionedKey.Assign(VBinKey.Buffer, VBinKey.Size, False) then begin
+        end else if FIsVersioned and VVersionedKey.Assign(VBinKey.Buffer, VBinKey.Size, False) then begin
           if not IsMetaKey(VVersionedKey) then begin
             ATileExistsArray[VValidKeyCount] := VVersionedKey.Point;
             Inc(VValidKeyCount);

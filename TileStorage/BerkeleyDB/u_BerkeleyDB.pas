@@ -45,6 +45,7 @@ type
     FEnvRootPath: string;
     FPageSize: Cardinal;
     FFileName: string;
+    FIsReadOnly: Boolean;
     FSyncAllow: ISimpleFlag;
     FOperationsCount: ICounter;
     FLock: IReadWriteSync;
@@ -72,6 +73,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
       const ASyncCallListener: IListener;
+      const AIsReadOnly: Boolean;
       const APageSize: Cardinal
     );
     destructor Destroy; override;
@@ -98,12 +100,14 @@ constructor TBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
   const ASyncCallListener: IListener;
+  const AIsReadOnly: Boolean;
   const APageSize: Cardinal
 );
 begin
   inherited Create;
   FHelper := AGlobalBerkeleyDBHelper;
   FPageSize := APageSize;
+  FIsReadOnly := AIsReadOnly;
   db := nil;
   dbenv := AEnvironment.dbenv;
   FEnvRootPath := AEnvironment.RootPath;
@@ -140,6 +144,7 @@ procedure TBerkeleyDB.Open(const ADatabaseFileName: string);
 var
   VErrorMsg: string;
   VRelativeFileName: AnsiString;
+  VOpenFlags: Cardinal;
 begin
   FLock.BeginWrite;
   try
@@ -153,8 +158,12 @@ begin
       if not FileExists(FFileName) then begin
         CheckBDB(db.set_pagesize(db, FPageSize));
       end;
-      CheckBDB(db.open(db, nil, Pointer(AnsiToUtf8(VRelativeFileName)), '',
-        DB_BTREE, (DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD), 0));
+      if FIsReadOnly then begin
+        VOpenFlags := DB_RDONLY or DB_THREAD;
+      end else begin
+        VOpenFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
+      end;
+      CheckBDB(db.open(db, nil, Pointer(AnsiToUtf8(VRelativeFileName)), '', DB_BTREE, VOpenFlags, 0));
     except
       on E: Exception do begin
         VErrorMsg := '';
@@ -284,6 +293,8 @@ var
   ret: Integer;
   dbtKey, dbtData: DBT;
 begin
+  Assert(not FIsReadOnly);
+
   Result := False;
   AIsDeadLock := False;
   try
@@ -389,6 +400,8 @@ var
   ret: Integer;
   dbtKey: DBT;
 begin
+  Assert(not FIsReadOnly);
+
   Result := False;
   try
     FillChar(dbtKey, Sizeof(DBT), 0);
