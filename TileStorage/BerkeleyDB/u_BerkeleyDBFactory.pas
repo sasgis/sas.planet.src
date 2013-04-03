@@ -62,6 +62,7 @@ begin
   FHelper := AHelper;
   FEnvironment := AEnvironment;
   FSyncCallListener := ASyncCallListener;
+  FIsReadOnly := AIsReadOnly;
   FMetaKey := AMetaKey;
   FMetaValue := AMetaValue;
 end;
