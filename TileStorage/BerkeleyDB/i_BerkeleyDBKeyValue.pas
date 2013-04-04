@@ -96,6 +96,12 @@ type
     function GetVersionID: Word;
     property VersionID: Word read GetVersionID;
 
+    function GetTilePriority: Word;
+    property TilePriority: Word read GetTilePriority;
+
+    function GetTileSize: Integer;
+    property TileSize: Integer read GetTileSize;
+
     function GetTileDate: TDateTime;
     property TileDate: TDateTime read GetTileDate;
 
@@ -104,6 +110,9 @@ type
 
     function GetTileVersionInfo: WideString;
     property TileVersionInfo: WideString read GetTileVersionInfo;
+
+    function GetTileContentType: WideString;
+    property TileContentType: WideString read GetTileContentType;
   end;
 
   IBerkeleyDBVersionedMetaValue = interface(IBerkeleyDBKeyValueBase)

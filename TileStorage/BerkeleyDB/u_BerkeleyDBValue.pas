@@ -134,19 +134,26 @@ type
     type
       TVersionedMetaValueElement = record
         VersionID: Word;
+        TilePriority: Word;
+        TileSize: Integer;
         TileDate: TDateTime;
         TileCRC: Cardinal;
         TileVersionInfo: WideString;
+        TileContentType: WideString;
       end;
+      PVersionedMetaValueElement = ^TVersionedMetaValueElement;
   private
-    FValue: TVersionedMetaValueElement;
+    FValue: PVersionedMetaValueElement;
     procedure ValueToData;
   private
     { IBerkeleyDBVersionedMetaValueElement }
     function GetVersionID: Word;
+    function GetTilePriority: Word;
+    function GetTileSize: Integer;
     function GetTileDate: TDateTime;
     function GetTileCRC: Cardinal;
     function GetTileVersionInfo: WideString;
+    function GetTileContentType: WideString;
     { IBerkeleyDBKeyValueBase }
     function Assign(
       const AData: Pointer;
@@ -156,13 +163,17 @@ type
   public
     constructor Create(
       const AVersionID: Word;
+      const ATilePriority: Word;
+      const ATileSize: Integer;
       const ATileDate: TDateTime;
       const ATileCRC: Cardinal;
-      const ATileVersionInfo: IMapVersionInfo
+      const ATileVersionInfo: IMapVersionInfo;
+      const ATileContentType: IContentTypeInfoBasic
     ); overload;
     constructor Create(
       const AData: Pointer
     ); overload;
+    destructor Destroy; override;
   end;
 
   TBerkeleyDBVersionedMetaValue = class(TBerkeleyDBValueBase, IBerkeleyDBVersionedMetaValue)
@@ -628,25 +639,41 @@ end;
 
 constructor TBerkeleyDBVersionedMetaValueElement.Create(
   const AVersionID: Word;
+  const ATilePriority: Word;
+  const ATileSize: Integer;
   const ATileDate: TDateTime;
   const ATileCRC: Cardinal;
-  const ATileVersionInfo: IMapVersionInfo
+  const ATileVersionInfo: IMapVersionInfo;
+  const ATileContentType: IContentTypeInfoBasic
 );
 begin
   inherited Create;
+  New(FValue);
   FValue.VersionID := AVersionID;
+  FValue.TilePriority := ATilePriority;
+  FValue.TileSize := ATileSize;
   FValue.TileDate := ATileDate;
   FValue.TileCRC := ATileCRC;
   FValue.TileVersionInfo := ATileVersionInfo.StoreString;
+  FValue.TileContentType := ATileContentType.GetContentType;
   ValueToData;
 end;
 
 constructor TBerkeleyDBVersionedMetaValueElement.Create(const AData: Pointer);
 begin
   inherited Create;
-  Assign(AData, -1, False);
+  New(FValue);
+  if not Assign(AData, -1, False) then begin
+    Dispose(FValue);
+    FValue := nil;
+  end;
 end;
 
+destructor TBerkeleyDBVersionedMetaValueElement.Destroy;
+begin
+  Dispose(FValue);
+  inherited Destroy;
+end;
 
 function TBerkeleyDBVersionedMetaValueElement.Assign(
   const AData: Pointer;
@@ -669,6 +696,12 @@ begin
   FValue.VersionID := PWord(VPtr)^;
   Inc(VPtr, SizeOf(FValue.VersionID));
 
+  FValue.TilePriority := PWord(VPtr)^;
+  Inc(VPtr, SizeOf(FValue.TilePriority));
+
+  FValue.TileSize := PInteger(VPtr)^;
+  Inc(VPtr, SizeOf(FValue.TileSize));
+
   FValue.TileDate := PDateTime(VPtr)^;
   Inc(VPtr, SizeOf(FValue.TileDate));
 
@@ -677,6 +710,9 @@ begin
 
   FValue.TileVersionInfo := PWideChar(VPtr);
   Inc(VPtr, (Length(FValue.TileVersionInfo) + 1) * SizeOf(WideChar));
+
+  FValue.TileContentType := PWideChar(VPtr);
+  Inc(VPtr, (Length(FValue.TileContentType) + 1) * SizeOf(WideChar));
 
   if FSize <= 0 then begin
     FSize := Cardinal(VPtr) - Cardinal(AData);
@@ -697,9 +733,12 @@ begin
 
   FSize :=
     SizeOf(FValue.VersionID) +
+    SizeOf(FValue.TilePriority) +
+    SizeOf(FValue.TileSize) +
     SizeOf(FValue.TileDate) +
     SizeOf(FValue.TileCRC) +
-    (Length(FValue.TileVersionInfo) + Length(cWideCharEndLine)) * SizeOf(WideChar);
+    (Length(FValue.TileVersionInfo) + Length(cWideCharEndLine)) * SizeOf(WideChar) +
+    (Length(FValue.TileContentType) + Length(cWideCharEndLine)) * SizeOf(WideChar);
 
   FData := GetMemory(FSize);
   FOwnMem := True;
@@ -708,6 +747,16 @@ begin
    // version id
   VLen := SizeOf(FValue.VersionID);
   PWord(VPtr)^ := FValue.VersionID;
+  Inc(VPtr, VLen);
+
+   // tile priority
+  VLen := SizeOf(FValue.TilePriority);
+  PWord(VPtr)^ := FValue.TilePriority;
+  Inc(VPtr, VLen);
+
+   // tile size
+  VLen := SizeOf(FValue.TileSize);
+  PInteger(VPtr)^ := FValue.TileSize;
   Inc(VPtr, VLen);
 
    // tile date
@@ -728,27 +777,79 @@ begin
   end;
   VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
   Move(cWideCharEndLine, VPtr^, VLen);
+
+  // tile content-type
+  VLen := Length(FValue.TileContentType) * SizeOf(WideChar);
+  if VLen > 0 then begin
+    Move(PWideChar(FValue.TileContentType)^, VPtr^, VLen);
+    Inc(VPtr, VLen);
+  end;
+  VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
+  Move(cWideCharEndLine, VPtr^, VLen);
 end;
 
 function TBerkeleyDBVersionedMetaValueElement.GetVersionID: Word;
 begin
-  Result := FValue.VersionID;
+  if Assigned(FValue) then begin
+    Result := FValue.VersionID;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTilePriority: Word;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TilePriority;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTileSize: Integer;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TileSize;
+  end else begin
+    Result := -1;
+  end;
 end;
 
 function TBerkeleyDBVersionedMetaValueElement.GetTileDate: TDateTime;
 begin
-  Result := FValue.TileDate;
+  if Assigned(FValue) then begin
+    Result := FValue.TileDate;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function TBerkeleyDBVersionedMetaValueElement.GetTileCRC: Cardinal;
 begin
-  Result := FValue.TileCRC;
+  if Assigned(FValue) then begin
+    Result := FValue.TileCRC;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function TBerkeleyDBVersionedMetaValueElement.GetTileVersionInfo: WideString;
 begin
-  Result := FValue.TileVersionInfo;
-end;                               
+  if Assigned(FValue) then begin
+    Result := FValue.TileVersionInfo;
+  end else begin
+    Result := '';
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTileContentType: WideString;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TileContentType;
+  end else begin
+    Result := '';
+  end;
+end;
 
 { TBerkeleyDBVersionedMetaValue }
 

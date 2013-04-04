@@ -57,6 +57,8 @@ type
         const ATileXY: TPoint;
         const AVersionInfo: IMapVersionInfo;
         const ADatabase: IBerkeleyDB;
+        const AContentType: IContentTypeInfoBasic = nil;
+        const ATileSize: Integer = 0;
         const ATileDate: TDateTime = 0;
         const ATileCRC: Cardinal = 0
     ): IBinaryData;
@@ -215,6 +217,8 @@ function TTileStorageBerkeleyDBHelper.GetTileKey(
   const ATileXY: TPoint;
   const AVersionInfo: IMapVersionInfo;
   const ADatabase: IBerkeleyDB;
+  const AContentType: IContentTypeInfoBasic = nil;
+  const ATileSize: Integer = 0;
   const ATileDate: TDateTime = 0;
   const ATileCRC: Cardinal = 0
 ): IBinaryData;
@@ -352,9 +356,12 @@ begin
           VMetaElement :=
             TBerkeleyDBVersionedMetaValueElement.Create(
               VVersionID,
+              0,
+              ATileSize,
               ATileDate,
               ATileCRC,
-              AVersionInfo
+              AVersionInfo,
+              AContentType
             );
 
           if VTileInfoIndex <> -1 then begin
@@ -422,7 +429,7 @@ begin
     end;
     FLock.BeginWrite;
     try
-      VKey := GetTileKey(toWrite, ATileXY, AVersionInfo, VDatabase, ATileDate, VTileCRC);
+      VKey := GetTileKey(toWrite, ATileXY, AVersionInfo, VDatabase, ATileContetType, VSize, ATileDate, VTileCRC);
       if Assigned(VKey) then begin
         VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, AVersionInfo, ATileContetType);
         Result := VDatabase.Write(VKey, VValue);
