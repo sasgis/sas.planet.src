@@ -42,6 +42,10 @@ type
     function GetVersion: IMapVersionInfo;
     procedure SetVersion(const AValue: IMapVersionInfo);
     property Version: IMapVersionInfo read GetVersion write SetVersion;
+
+    function GetShowPrevVersion: Boolean;
+    procedure SetShowPrevVersion(const AValue: Boolean);
+    property ShowPrevVersion: Boolean read GetShowPrevVersion write SetShowPrevVersion;
   end;
 
   IMapVersionChanger = interface

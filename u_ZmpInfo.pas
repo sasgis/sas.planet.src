@@ -1038,10 +1038,12 @@ end;
 
 procedure TZmpInfo.LoadVersion(const AConfig: IConfigDataProvider);
 var
-  VVersion: Variant;
+  VVersion: String;
+  VShowPrevVersion: Boolean;
 begin
   VVersion := AConfig.ReadString('Version', '');
-  FVersionConfig := TMapVersionInfo.Create(VVersion);
+  VShowPrevVersion := AConfig.ReadBool('ShowPrevVersion', False);
+  FVersionConfig := TMapVersionInfo.Create(VVersion, VShowPrevVersion);
 end;
 
 end.

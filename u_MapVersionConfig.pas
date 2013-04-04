@@ -33,6 +33,7 @@ type
   TMapVersionConfig = class(TConfigDataElementBase, IMapVersionConfig)
   private
     FDefConfig: IMapVersionInfo;
+    FShowPrevVersion: Boolean;
     FVersionFactory: IMapVersionFactory;
     FVersion: IMapVersionInfo;
   protected
@@ -44,6 +45,9 @@ type
 
     function GetVersion: IMapVersionInfo;
     procedure SetVersion(const AValue: IMapVersionInfo);
+
+    function GetShowPrevVersion: Boolean;
+    procedure SetShowPrevVersion(const AValue: Boolean);
   public
     constructor Create(const ADefConfig: IMapVersionInfo);
   end;
@@ -60,19 +64,25 @@ constructor TMapVersionConfig.Create(const ADefConfig: IMapVersionInfo);
 begin
   inherited Create;
   FDefConfig := ADefConfig;
-  FVersionFactory := TMapVersionFactorySimpleString.Create;
+  FShowPrevVersion := ADefConfig.ShowPrevVersion;
+  FVersionFactory := TMapVersionFactorySimpleString.Create(FShowPrevVersion);
   FVersion := FVersionFactory.CreateByMapVersion(FDefConfig);
 end;
 
 procedure TMapVersionConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VStoreString: string;
+  VShowPrevVersion: Boolean;
 begin
   inherited;
   if AConfigData <> nil then begin
     VStoreString := AConfigData.ReadString('Version', FVersion.StoreString);
     if VStoreString <> FVersion.StoreString then begin
       SetVersion(FVersionFactory.CreateByStoreString(VStoreString));
+    end;
+    VShowPrevVersion := AConfigData.ReadBool('ShowPrevVersion', FShowPrevVersion);
+    if VShowPrevVersion <> FShowPrevVersion then begin
+      SetShowPrevVersion(VShowPrevVersion);
     end;
   end;
 end;
@@ -82,6 +92,7 @@ procedure TMapVersionConfig.DoWriteConfig(
 );
 var
   VStoreString: string;
+  VShowPrevVersion: Boolean;
 begin
   inherited;
   VStoreString := FVersion.StoreString;
@@ -89,6 +100,22 @@ begin
     AConfigData.WriteString('Version', VStoreString);
   end else begin
     AConfigData.DeleteValue('Version');
+  end;
+  VShowPrevVersion := FShowPrevVersion;
+  if VShowPrevVersion <> FDefConfig.ShowPrevVersion then begin
+    AConfigData.WriteBool('ShowPrevVersion', VShowPrevVersion);
+  end else begin
+    AConfigData.DeleteValue('ShowPrevVersion');
+  end;
+end;
+
+function TMapVersionConfig.GetShowPrevVersion: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowPrevVersion;
+  finally
+    UnlockRead;
   end;
 end;
 
@@ -109,6 +136,21 @@ begin
     Result := FVersionFactory;
   finally
     UnlockRead;
+  end;
+end;
+
+procedure TMapVersionConfig.SetShowPrevVersion(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowPrevVersion <> AValue then begin
+      FShowPrevVersion := AValue;
+      FVersionFactory := TMapVersionFactorySimpleString.Create(FShowPrevVersion);
+      FVersion := FVersionFactory.CreateByMapVersion(FVersion);
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
   end;
 end;
 

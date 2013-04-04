@@ -44,6 +44,7 @@ type
     function GetUrlString: string;
     function GetStoreString: string;
     function GetCaption: string;
+    function GetShowPrevVersion: Boolean;
     function GetVer: Word;
     function GetGEServer: String;
     function GetTileDate: String;
@@ -80,6 +81,11 @@ end;
 function TMapVersionInfoGE.GetGEServer: String;
 begin
   Result := FGEServer;
+end;
+
+function TMapVersionInfoGE.GetShowPrevVersion: Boolean;
+begin
+  Result := False;
 end;
 
 function TMapVersionInfoGE.GetStoreString: string;

@@ -10,8 +10,12 @@ uses
 type
   TMapVersionFactorySimpleString = class(TBaseInterfacedObject, IMapVersionFactory)
   private
+    FShowPrevVersion: Boolean;
+  private
     function CreateByStoreString(const AValue: string): IMapVersionInfo;
     function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
+  public
+    constructor Create(const AShowPrevVersion: Boolean = False);
   end;
 
 implementation
@@ -20,6 +24,12 @@ uses
   u_MapVersionInfo;
 
 { TMapVersionFactorySimpleString }
+
+constructor TMapVersionFactorySimpleString.Create(const AShowPrevVersion: Boolean);
+begin
+  inherited Create;
+  FShowPrevVersion := AShowPrevVersion;
+end;
 
 function TMapVersionFactorySimpleString.CreateByMapVersion(
   const AValue: IMapVersionInfo
@@ -36,7 +46,7 @@ function TMapVersionFactorySimpleString.CreateByStoreString(
   const AValue: string
 ): IMapVersionInfo;
 begin
-  Result := TMapVersionInfo.Create(AValue);
+  Result := TMapVersionInfo.Create(AValue, FShowPrevVersion);
 end;
 
 end.

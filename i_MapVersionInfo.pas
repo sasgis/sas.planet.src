@@ -34,6 +34,9 @@ type
     function GetCaption: string;
     property Caption: string read GetCaption;
 
+    function GetShowPrevVersion: Boolean;
+    property ShowPrevVersion: Boolean read GetShowPrevVersion;
+
     function IsSame(const AValue: IMapVersionInfo): Boolean;
   end;
 
