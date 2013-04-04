@@ -3308,6 +3308,11 @@ end;
 //режим 3 (режим 1+2: переход по координате+навигация)
 //                                     режим; зум
 //режим 4 (изменение зума):               "4;16"
+//                                 режим; GUID карты/слоя (в примере - GUID yandex-карты)
+//режим 5 (изменение карты/слоя):     "5;{8238C84A-D37E-45E1-A735-FBCFBCD4168C}"
+//                                         режим;флаг видимости меток (0-не видимы;1-видимы)
+//режим 6 (установка режима видимости меток): "6;1"
+//
 //
 // Обратно возвращается результат:
 // 0 - успех
@@ -3315,6 +3320,8 @@ end;
 // 2 - ошибка: для указанного режима передано недостаточно параметров
 // 3 - ошибка: координата должна указываться через точку
 // 4 - ошибка: неправильная координата
+// 5 - ошибка: неопознанный GUID карты/слоя
+// 6 - ошибка: неправильный GUID карты/слоя
 Procedure TfrmMain.WMCOPYDATA(var Msg: TMessage);
 var
   Vpcd : PCopyDataStruct;
@@ -3323,6 +3330,8 @@ var
   Vl1, Vi : Integer;
   VLonLat : TDoublePoint;
   VZoom : Byte;
+  VGUID: TGUID;
+  VMap: IMapType;
   VParam :array[1..5] of string;
   VGeoConverter: ICoordConverter;
 
@@ -3370,8 +3379,7 @@ begin
         Msg.Result := 3; //вернем ошибку - координата должна указываться через точку
       end;
     end else begin
-      //неверное кол-во переданных параметров для заданного режима - установим результат 2
-      Msg.Result := 2;
+      Msg.Result := 2; //неверное кол-во переданных параметров для заданного режима
       VMode := 0;
     end;
     if (VMode = 1)or(VMode = 3) then begin
@@ -3395,12 +3403,57 @@ begin
         FConfig.ViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
       end;
     end else begin
-      //неверное кол-во переданных параметров для заданного режима - установим результат 2
-      Msg.Result := 2;
+      Msg.Result := 2; //неверное кол-во переданных параметров для заданного режима
+    end;
+  end else if VMode = 5 then begin
+    if Vi > 1 then begin
+      if VParam[2]<>'' then begin
+        try
+          VGUID := StringToGUID(VParam[2]);
+        except
+          VGUID := CGUID_Zero;
+        end;
+        if not IsEqualGUID(VGUID, CGUID_Zero) then begin
+          VMap := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
+          if VMap <> nil then begin
+            if VMap.MapType.Abilities.IsLayer then begin
+              FConfig.MainMapsConfig.LockWrite;
+              try
+                if FConfig.MainMapsConfig.GetActiveLayersSet.GetStatic.GetMapTypeByGUID(VMap.GUID) = nil then begin
+                  FConfig.MainMapsConfig.SelectLayerByGUID(VMap.GUID);
+                end else begin
+                  FConfig.MainMapsConfig.UnSelectLayerByGUID(VMap.GUID);
+                end;
+              finally
+                FConfig.MainMapsConfig.UnlockWrite;
+              end;
+            end else begin
+              FConfig.MainMapsConfig.SelectMainByGUID(VMap.GUID);
+            end;
+          end else begin
+            Msg.Result := 5; //передан неопознанный GUID карты/слоя
+          end;
+        end else begin
+          Msg.Result := 6; //передан неправильный GUID карты/слоя
+        end;
+      end else begin
+        Msg.Result := 6; //передан неправильный GUID карты/слоя
+      end;
+    end else begin
+      Msg.Result := 2; //неверное кол-во переданных параметров для заданного режима
+    end;
+  end else if VMode = 6 then begin
+    if Vi > 1 then begin
+      if VParam[2]='1' then begin
+        FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := True;
+      end else if VParam[2]='0' then begin
+        FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := False;
+      end;
+    end else begin
+      Msg.Result := 2; //неверное кол-во переданных параметров для заданного режима
     end;
   end else begin
-    //если режим не определился - установим результат 1
-    Msg.Result := 1;
+    Msg.Result := 1; //режим не определился
   end;
   inherited;
 end;
