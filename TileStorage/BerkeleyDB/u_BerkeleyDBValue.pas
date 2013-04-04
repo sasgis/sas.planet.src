@@ -221,8 +221,11 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
-  CRC32;
+  CRC32,
+  ALZLibEx,
+  ALZLibExGZ;
 
 const
   cWideCharEndLine: WideChar = #0000;
@@ -898,7 +901,11 @@ var
   I: Integer;
   VPtr: PByte;
   VCRC32: Cardinal;
+  VStr: AnsiString;
+  VGzStr: RawByteString;
 begin
+  Result := False;
+
   Clear;
 
   if FOwnMem and Assigned(FData) then begin
@@ -909,9 +916,19 @@ begin
   FSize := ASize;
   FOwnMem := AOwnMem;
 
-  New(FValue);
+  VStr := '';
+  SetLength(VGzStr, FSize);
+  Move(FData^, VGzStr[1], FSize); // как обойтись без копирования ???
 
-  VPtr := FData;
+  GZDecompressString(VStr, VGzStr);
+
+  if VStr = '' then begin
+    Exit;
+  end;
+
+  VPtr := @VStr[1];
+
+  New(FValue);
 
   Move(VPtr^, FValue.RecMagic[0], Length(FValue.RecMagic));
   Inc(VPtr, Length(FValue.RecMagic));
@@ -920,7 +937,7 @@ begin
     FValue.RecCRC32 := PCardinal(VPtr)^;
     PCardinal(VPtr)^ := 0;
 
-    VCRC32 := CRC32Buf(FData, FSize);
+    VCRC32 := CRC32Buf(@VStr[1], Length(VStr));
 
     PCardinal(VPtr)^ := FValue.RecCRC32;
     if VCRC32 = FValue.RecCRC32 then begin
@@ -979,6 +996,8 @@ var
   VPtr: PByte;
   VLen: Integer;
   VCRC32Ptr: PByte;
+  VGZIP: TMemoryStream;
+  VCompressionStream: TGZCompressionStream;
 begin
   if FOwnMem and Assigned(FData) then begin
     FreeMemory(FData);
@@ -1024,6 +1043,25 @@ begin
   // calc and save CRC32
   FValue.RecCRC32 := CRC32Buf(Pointer(FData), FSize);
   PInteger(VCRC32Ptr)^ := FValue.RecCRC32;
+
+  // make gzip archive
+  VGZIP := TMemoryStream.Create;
+  try
+    VCompressionStream := TGZCompressionStream.Create(VGZIP);
+    try
+      VCompressionStream.Write(FData^, FSize);
+    finally
+      VCompressionStream.Free;
+    end;
+    if VGZIP.Size > 0 then begin
+      FSize := VGZIP.Size;
+      FData := ReallocMemory(FData, FSize);
+      VGZIP.Position := 0;
+      VGZIP.ReadBuffer(FData^, FSize);
+    end;
+  finally
+    VGZIP.Free;
+  end; 
 end;
 
 function TBerkeleyDBVersionedMetaValue.GetCount: Integer;
