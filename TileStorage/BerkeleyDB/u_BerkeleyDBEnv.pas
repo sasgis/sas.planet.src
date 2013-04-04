@@ -172,6 +172,8 @@ begin
       VList.Add('set_flags DB_TXN_WRITE_NOSYNC on');
       VList.Add('set_verbose DB_VERB_RECOVERY on');
       VList.Add('set_data_dir ..');
+      VList.Add('set_cachesize 0 2097152 1');
+      VList.Add('mutex_set_max 30000');
       VList.Add('');
       VList.Add('#Logs dir');
       VList.Add('set_lg_dir .');
@@ -180,7 +182,7 @@ begin
       VList.Add('set_lg_max 10485760');
       VList.Add('');
       VList.Add('#Log in-memory buffer size in bytes (def = 256k)');
-      VList.Add('set_lg_bsize 10485760');
+      VList.Add('set_lg_bsize 2097152');
       VList.Add('');
       VList.Add('log_set_config DB_LOG_AUTO_REMOVE on');
       VList.SaveToFile(VFile);
