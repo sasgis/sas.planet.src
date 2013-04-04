@@ -28,6 +28,13 @@ uses
   i_BerkeleyDBEnv;
 
 type
+  TExistsKeyArrayElement = record
+    KeySize: Integer;
+    KeyData: TList;
+  end;
+
+  TExistsKeyArray = array of TExistsKeyArrayElement;
+
   IBerkeleyDB = interface
     ['{7B7EFD37-ADAF-4A83-A3D8-CA3AAD6A300E}']
     procedure Open(const ADatabaseFileName: string);
@@ -43,7 +50,9 @@ type
     function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
     function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
 
-    function ExistsList: IInterfaceList;
+    function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
+    procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
+
     procedure Sync(const ASyncWithNotifier: Boolean);
 
     function GetFileName: string;

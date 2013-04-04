@@ -65,7 +65,8 @@ type
     function Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
     function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
     function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
-    function ExistsList: IInterfaceList;
+    function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
+    procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
     procedure Sync(const ASyncWithNotifier: Boolean);
     function GetFileName: string;
   public
@@ -471,14 +472,16 @@ begin
   end;
 end;
 
-function TBerkeleyDB.ExistsList: IInterfaceList;
+function TBerkeleyDB.CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
 var
+  I: Integer;
+  VIsFound: Boolean;
   dbtKey, dbtData: DBT;
   dbc: PDBC;
-  VKey: IBinaryData;
 begin
+  Result := False;
+  SetLength(AKeyArray, 0);
   try
-    Result := TInterfaceList.Create;
     FLock.BeginWrite;
     try
       CheckBDB(db.cursor(db, nil, @dbc, 0));
@@ -495,12 +498,25 @@ begin
 
           if CheckAndFoundBDB(dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT)) then begin
             if (dbtKey.data <> nil) and (dbtKey.size > 0) then begin
-              VKey := TBinaryData.Create(dbtKey.size, dbtKey.data, True);
-              Result.Add(VKey);
+              VIsFound := False;
+              for I := 0 to Length(AKeyArray) - 1 do begin
+                if AKeyArray[I].KeySize = Integer(dbtKey.size) then begin
+                  VIsFound := True;
+                  AKeyArray[I].KeyData.Add(dbtKey.data);
+                  Break;
+                end;
+              end;
+              if not VIsFound then begin
+                I := Length(AKeyArray);
+                SetLength(AKeyArray, I + 1);
+                AKeyArray[I].KeySize := dbtKey.size;
+                AKeyArray[I].KeyData := TList.Create;
+                AKeyArray[I].KeyData.Add(dbtKey.data);
+              end;
             end;
           end else begin
             Break;
-          end;
+          end;  
         until False;
       finally
         CheckBDBandNil(dbc.close(dbc), dbc);
@@ -508,10 +524,26 @@ begin
     finally
       FLock.EndWrite;
     end;
+    Result := Length(AKeyArray) > 0;
   except
     on E: Exception do
       FHelper.RaiseException(E.ClassName + ': ' + E.Message);
   end;
+end;
+
+procedure TBerkeleyDB.ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
+var
+  I, J: Integer;
+begin
+  for I := 0 to Length(AKeyArray) - 1 do begin
+    for J := 0 to AKeyArray[I].KeyData.Count - 1 do begin
+      if AKeyArray[I].KeyData.Items[J] <> nil then begin
+        FreeMemory(AKeyArray[I].KeyData.Items[J]);
+      end;
+    end;
+    AKeyArray[I].KeyData.Free;
+  end;
+  SetLength(AKeyArray, 0);
 end;
 
 function TBerkeleyDB.GetFileName: string;

@@ -588,45 +588,84 @@ function TTileStorageBerkeleyDBHelper.GetTileExistsArray(
   const AVersionInfo: IMapVersionInfo;
   out ATileExistsArray: TPointArray
 ): Boolean;
+
+  procedure _KeyArrayToPointArray(
+    const AKey: IBerkeleyDBKey;
+    const AKeySize: Integer;
+    const AKeyArray: TList;
+    const ABitMask: TBits
+  );
+  var
+    I, J: Integer;
+    VBitIndex: Integer;
+    VTilePoint: TPoint;
+  begin
+    J := Length(ATileExistsArray);
+    SetLength(ATileExistsArray, Length(ATileExistsArray) + AKeyArray.Count);
+    for I := 0 to AKeyArray.Count - 1 do begin
+      if AKey.Assign(AKeyArray.Items[I], AKeySize, False) then begin
+        if not IsMetaKey(AKey) then begin
+          VTilePoint := AKey.Point;
+          VBitIndex := (VTilePoint.X mod 256) * 256 + (VTilePoint.Y mod 256);
+          if not ABitMask.Bits[VBitIndex] then begin
+            ABitMask.Bits[VBitIndex] := True;
+            ATileExistsArray[J] := VTilePoint;
+            Inc(J);
+          end;
+        end;
+      end;
+    end;
+    SetLength(ATileExistsArray, J);
+  end;
+
 var
+  I: Integer;
+  VMask: TBits;
+  VKeySize: Integer;
+  VVersionedKeySize: Integer;
   VKey: IBerkeleyDBKey;
   VVersionedKey: IBerkeleyDBVersionedKey;
-  VBinKey: IBinaryData;
-  VValidKeyCount: Integer;
   VDatabase: IBerkeleyDB;
-  VList: IInterfaceList;
-  I: Integer;
+  VList: TExistsKeyArray;
 begin
   Result := False;
+  SetLength(ATileExistsArray, 0);
+
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
     FLock.BeginRead;
     try
-      VList := VDatabase.ExistsList;
+       if not VDatabase.CreateExistsKeyArray(VList) then begin
+         Exit;
+       end;
     finally
       FLock.EndRead;
     end;
-    if Assigned(VList) then begin
-      SetLength(ATileExistsArray, VList.Count);
-      VValidKeyCount := 0;
+    try
       VKey := TBerkeleyDBKey.Create(Point(0, 0));
+      VKeySize := VKey.Size;
+
       VVersionedKey := TBerkeleyDBVersionedKey.Create(Point(0, 0), 0);
-      for I := 0 to VList.Count - 1 do begin
-        VBinKey := VList.Items[I] as IBinaryData;
-        if VKey.Assign(VBinKey.Buffer, VBinKey.Size, False) then begin
-          if not IsMetaKey(VKey) then begin
-            ATileExistsArray[VValidKeyCount] := VKey.Point;
-            Inc(VValidKeyCount);
-          end;
-        end else if FIsVersioned and VVersionedKey.Assign(VBinKey.Buffer, VBinKey.Size, False) then begin
-          if not IsMetaKey(VVersionedKey) then begin
-            ATileExistsArray[VValidKeyCount] := VVersionedKey.Point;
-            Inc(VValidKeyCount);
+      VVersionedKeySize := VVersionedKey.Size;
+
+      VMask := TBits.Create;
+      try
+        VMask.Size := 256 * 256; // max tile points in sdb file
+        for I := 0 to Length(VList) - 1 do begin
+          if VList[I].KeySize = VKeySize then begin
+            _KeyArrayToPointArray(VKey, VKeySize, VList[I].KeyData, VMask);
+          end else if VList[I].KeySize = VVersionedKeySize then begin
+            _KeyArrayToPointArray(VVersionedKey, VVersionedKeySize, VList[I].KeyData, VMask);
+          end else begin
+            // unknown keys
           end;
         end;
+      finally
+        VMask.Free;
       end;
-      SetLength(ATileExistsArray, VValidKeyCount);
-      Result := VValidKeyCount > 0;
+      Result := Length(ATileExistsArray) > 0;
+    finally
+      VDatabase.ReleaseExistsKeyArray(VList);
     end;
   finally
     FPool.Release(VDatabase);

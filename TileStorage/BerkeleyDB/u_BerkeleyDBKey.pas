@@ -99,7 +99,12 @@ type
     constructor Create(const APoint: TPoint);
   end;
 
-function IsMetaKey(const AKey: IBerkeleyDBKey): Boolean;
+function IsMetaKey(const AKey: IBerkeleyDBKey): Boolean; inline;
+
+const
+  cBerkeleyDBMetaKeyX: Cardinal = $FFFFFFFF;
+  cBerkeleyDBMetaKeyY: Cardinal = $FFFFFFFF;
+  cBerkeleyDBVersionedMetaKeyID: Word = $FFFF;
 
 implementation
 
@@ -109,12 +114,7 @@ uses
 type
   PWord = ^Word;
 
-const
-  cBerkeleyDBMetaKeyX: Cardinal = $FFFFFFFF;
-  cBerkeleyDBMetaKeyY: Cardinal = $FFFFFFFF;
-  cBerkeleyDBVersionedMetaKeyID: Word = $FFFF;
-
-function IsMetaKey(const AKey: IBerkeleyDBKey): Boolean;
+function IsMetaKey(const AKey: IBerkeleyDBKey): Boolean; inline;
 var
   VVersionedKey: IBerkeleyDBVersionedKey;
 begin
