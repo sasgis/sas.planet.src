@@ -31,7 +31,7 @@ uses
   ALZLibEx;
 
 const
-  cBerkeleyValueZlibMagic: Cardinal = $5A56414C; // ZVAL (Zlib VALue)
+  cBerkeleyValueZlibMagic: Cardinal = $4C41565A; // ZVAL (Zlib VALue)
 
 procedure ZlibCompress(const AInData: Pointer; const AInSize: Integer; out AOutData: Pointer; out AOutSize: Integer);
 var
@@ -41,7 +41,8 @@ var
 begin
   ZCompress(AInData, AInSize, VZlibData, VZlibDataSize);
   try
-    AOutData := GetMemory(VZlibDataSize + 8);
+    AOutSize := VZlibDataSize + 8;
+    AOutData := GetMemory(AOutSize);
     VPtr := AOutData;
     PCardinal(VPtr)^ := cBerkeleyValueZlibMagic;
     Inc(VPtr, 4);

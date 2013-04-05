@@ -779,7 +779,8 @@ begin
   end;
   VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
   Move(cWideCharEndLine, VPtr^, VLen);
-
+  Inc(VPtr, VLen);
+  
   // tile content-type
   VLen := Length(FValue.TileContentType) * SizeOf(WideChar);
   if VLen > 0 then begin
