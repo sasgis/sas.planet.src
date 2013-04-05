@@ -224,8 +224,7 @@ uses
   Classes,
   SysUtils,
   CRC32,
-  ALZLibEx,
-  ALZLibExGZ;
+  u_BerkeleyDBValueZlib;
 
 const
   cWideCharEndLine: WideChar = #0000;
@@ -901,32 +900,25 @@ var
   I: Integer;
   VPtr: PByte;
   VCRC32: Cardinal;
-  VStr: AnsiString;
-  VGzStr: RawByteString;
 begin
-  Result := False;
-
   Clear;
 
   if FOwnMem and Assigned(FData) then begin
     FreeMemory(FData);
   end;
 
-  FData := AData;
-  FSize := ASize;
-  FOwnMem := AOwnMem;
-
-  VStr := '';
-  SetLength(VGzStr, FSize);
-  Move(FData^, VGzStr[1], FSize); // как обойтись без копирования ???
-
-  GZDecompressString(VStr, VGzStr);
-
-  if VStr = '' then begin
-    Exit;
+  if ZlibDecompress(AData, ASize, Pointer(FData), FSize) then begin
+    FOwnMem := True;
+    if AOwnMem then begin
+      FreeMemory(AData);
+    end;
+  end else begin
+    FData := AData;
+    FSize := ASize;
+    FOwnMem := AOwnMem;
   end;
 
-  VPtr := @VStr[1];
+  VPtr := FData;
 
   New(FValue);
 
@@ -937,7 +929,7 @@ begin
     FValue.RecCRC32 := PCardinal(VPtr)^;
     PCardinal(VPtr)^ := 0;
 
-    VCRC32 := CRC32Buf(@VStr[1], Length(VStr));
+    VCRC32 := CRC32Buf(FData, FSize);
 
     PCardinal(VPtr)^ := FValue.RecCRC32;
     if VCRC32 = FValue.RecCRC32 then begin
@@ -996,8 +988,6 @@ var
   VPtr: PByte;
   VLen: Integer;
   VCRC32Ptr: PByte;
-  VGZIP: TMemoryStream;
-  VCompressionStream: TGZCompressionStream;
 begin
   if FOwnMem and Assigned(FData) then begin
     FreeMemory(FData);
@@ -1044,24 +1034,13 @@ begin
   FValue.RecCRC32 := CRC32Buf(Pointer(FData), FSize);
   PInteger(VCRC32Ptr)^ := FValue.RecCRC32;
 
-  // make gzip archive
-  VGZIP := TMemoryStream.Create;
-  try
-    VCompressionStream := TGZCompressionStream.Create(VGZIP);
-    try
-      VCompressionStream.Write(FData^, FSize);
-    finally
-      VCompressionStream.Free;
-    end;
-    if VGZIP.Size > 0 then begin
-      FSize := VGZIP.Size;
-      FData := ReallocMemory(FData, FSize);
-      VGZIP.Position := 0;
-      VGZIP.ReadBuffer(FData^, FSize);
-    end;
-  finally
-    VGZIP.Free;
-  end; 
+  // make archive
+  VPtr := nil;
+  VLen := 0;
+  ZlibCompress(FData, FSize, Pointer(VPtr), VLen);
+  FreeMemory(FData);
+  FData := VPtr;
+  FSize := VLen;
 end;
 
 function TBerkeleyDBVersionedMetaValue.GetCount: Integer;
