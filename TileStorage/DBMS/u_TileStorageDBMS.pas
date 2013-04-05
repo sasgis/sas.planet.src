@@ -1077,6 +1077,10 @@ begin
           if (AVersionInfo<>nil) then begin
             VVersionString := AVersionInfo.StoreString;
             VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
+            // ShowPrevVersion mode
+            if AVersionInfo.ShowPrevVersion then begin
+              VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SHOW_PREV_VERSION);
+            end;
           end else begin
             VBufferIn.szVersionIn := nil;
           end;
@@ -1181,8 +1185,16 @@ begin
           // make flags
           VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
           // make version
-          VVersionString := AVersionInfo.StoreString;
-          VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
+          if (AVersionInfo<>nil) then begin
+            VVersionString := AVersionInfo.StoreString;
+            VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
+            // ShowPrevVersion mode
+            if AVersionInfo.ShowPrevVersion then begin
+              VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SHOW_PREV_VERSION);
+            end;
+          end else begin
+            VBufferIn.szVersionIn := nil;
+          end;
           if SizeOf(Char)=SizeOf(AnsiChar) then begin
             // AnsiString
             VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN or ETS_ROI_ANSI_VERSION_OUT);
