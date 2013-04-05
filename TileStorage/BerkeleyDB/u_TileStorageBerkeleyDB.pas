@@ -98,6 +98,12 @@ type
       const ALoadDate: TDateTime
     ); override;
 
+    function GetListOfTileVersions(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
+    ): IMapVersionListStatic; override;
+
     function ScanTiles(
       const AIgnoreTNE: Boolean
     ): IEnumTileInfo; override;
@@ -236,6 +242,8 @@ var
   VTileVersion: WideString;
   VTileContentType: WideString;
   VTileDate: TDateTime;
+  VTileSize: Integer;
+  VList: IMapVersionListStatic;
 begin
   if Assigned(FTileInfoMemCache) then begin
     Result := FTileInfoMemCache.Get(AXY, AZoom, True);
@@ -254,33 +262,50 @@ begin
     VResult := False;
 
     if FileExists(VPath) then begin
-
-      VResult := FStorageHelper.LoadTile(
-        VPath,
-        AXY,
-        AZoom,
-        AVersionInfo,
-        VTileBinaryData,
-        VTileVersion,
-        VTileContentType,
-        VTileDate
-      );
-
-      if VResult then begin
-        if AMode = gtimWithoutData then begin
-          Result := TTileInfoBasicExists.Create(
-            VTileDate,
-            VTileBinaryData.Size,
-            MapVersionFactory.CreateByStoreString(VTileVersion),
-            FContentTypeManager.GetInfo(VTileContentType)
+      if AMode = gtimWithoutData then begin
+        VResult :=
+          FStorageHelper.LoadTileInfo(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo,
+            True, // single tile info
+            True, // any version
+            VList,
+            VTileVersion,
+            VTileContentType,
+            VTileSize,
+            VTileDate
           );
-        end else begin
-          Result := TTileInfoBasicExistsWithTile.Create(
-            VTileDate,
+        if VResult then begin
+          Result :=
+            TTileInfoBasicExists.Create(
+              VTileDate,
+              VTileSize,
+              MapVersionFactory.CreateByStoreString(VTileVersion),
+              FContentTypeManager.GetInfo(VTileContentType)
+            );
+        end;
+      end else begin
+        VResult :=
+          FStorageHelper.LoadTile(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo,
             VTileBinaryData,
-            MapVersionFactory.CreateByStoreString(VTileVersion),
-            FContentTypeManager.GetInfo(VTileContentType)
+            VTileVersion,
+            VTileContentType,
+            VTileDate
           );
+        if VResult then begin
+          Result :=
+            TTileInfoBasicExistsWithTile.Create(
+              VTileDate,
+              VTileBinaryData,
+              MapVersionFactory.CreateByStoreString(VTileVersion),
+              FContentTypeManager.GetInfo(VTileContentType)
+            );
         end;
       end;
     end;
@@ -308,6 +333,43 @@ begin
 
   if Assigned(FTileInfoMemCache) then begin
     FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+  end;
+end;
+
+function TTileStorageBerkeleyDB.GetListOfTileVersions(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): IMapVersionListStatic;
+var
+  VPath: string;
+  VResult: Boolean;
+  VTileVersion: WideString;
+  VTileContentType: WideString;
+  VTileDate: TDateTime;
+  VTileSize: Integer;
+  VList: IMapVersionListStatic;
+begin
+  Result := nil;
+  VPath := StoragePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + cStorageFileExt;
+  if FileExists(VPath) then begin
+    VResult :=
+      FStorageHelper.LoadTileInfo(
+        VPath,
+        AXY,
+        AZoom,
+        AVersionInfo,
+        False, // single tile info
+        False, // any version
+        Result,
+        VTileVersion,
+        VTileContentType,
+        VTileSize,
+        VTileDate
+      );
+    if VResult then begin
+      Result := VList;
+    end;
   end;
 end;
 

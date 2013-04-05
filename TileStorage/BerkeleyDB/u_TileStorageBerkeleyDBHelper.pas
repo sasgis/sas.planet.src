@@ -101,6 +101,20 @@ type
       out ATileDate: TDateTime
     ): Boolean;
 
+    function LoadTileInfo(
+      const ADatabaseFileName: string;
+      const ATileXY: TPoint;
+      const ATileZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
+      const ASingleTileInfo: Boolean;
+      const AAnyVersionFound: Boolean;
+      out ATileVersionListStatic: IMapVersionListStatic;
+      out ATileVersion: WideString;
+      out ATileContentType: WideString;
+      out ATileSize: Integer;
+      out ATileDate: TDateTime
+    ): Boolean;
+
     function TileExists(
       const ADatabaseFileName: string;
       const ATileXY: TPoint;
@@ -138,6 +152,8 @@ uses
   u_BerkeleyDBValue,
   u_BerkeleyDBPool,
   u_BerkeleyDBFactory,
+  u_MapVersionInfo,
+  u_MapVersionListStatic,
   u_BinaryDataByBerkeleyDBValue;
 
 const
@@ -509,6 +525,130 @@ begin
       end;
     finally
       FLock.EndRead;
+    end;
+  finally
+    FPool.Release(VDatabase);
+  end;
+end;
+
+function TTileStorageBerkeleyDBHelper.LoadTileInfo(
+  const ADatabaseFileName: string;
+  const ATileXY: TPoint;
+  const ATileZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
+  const ASingleTileInfo: Boolean;
+  const AAnyVersionFound: Boolean;
+  out ATileVersionListStatic: IMapVersionListStatic;
+  out ATileVersion: WideString;
+  out ATileContentType: WideString;
+  out ATileSize: Integer;
+  out ATileDate: TDateTime
+): Boolean;
+var
+  I: Integer;
+  VKey: IBinaryData;
+  VBinValue: IBinaryData;
+  VDatabase: IBerkeleyDB;
+  VValue: IBerkeleyDBValue;
+  VVersionMeta: IBerkeleyDBVersionedMetaValue;
+  VMetaElement: IBerkeleyDBVersionedMetaValueElement;
+  VList: IInterfaceList;
+  VTileInfoIndex: Integer;
+  VYoungestTileIndex: Integer;
+  VYoungestTileDate: TDateTime;
+begin
+  Result := False;
+  ATileVersionListStatic := nil;
+
+  VDatabase := FPool.Acquire(ADatabaseFileName);
+  try
+    if FIsVersioned then begin
+      VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
+      FLock.BeginRead;
+      try
+        VBinValue := VDatabase.Read(VKey);
+      finally
+        FLock.EndRead;
+      end;
+      if Assigned(VBinValue) then begin
+        VTileInfoIndex := -1;
+        VYoungestTileIndex := -1;
+        VYoungestTileDate := 0;
+
+        if not ASingleTileInfo then begin
+          VList := TInterfaceList.Create;
+        end else begin
+          VList := nil;
+        end;
+
+        VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VBinValue);
+        for I := 0 to VVersionMeta.ItemsCount - 1 do begin
+          VMetaElement := VVersionMeta.Item[I];
+          if Assigned(VList) and (VMetaElement.TileVersionInfo <> '') then begin
+            VList.Add(
+              (TMapVersionInfo.Create(VMetaElement.TileVersionInfo) as IMapVersionInfo)
+            );
+          end;
+          if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
+            VTileInfoIndex := I;
+            if ASingleTileInfo then begin
+              Break;
+            end;
+          end;
+          if VMetaElement.TileDate > VYoungestTileDate then begin
+            VYoungestTileDate := VMetaElement.TileDate;
+            VYoungestTileIndex := I;
+          end;
+        end;
+
+        if ASingleTileInfo then begin
+          if (VTileInfoIndex = -1) and (VYoungestTileIndex <> -1) and AAnyVersionFound then begin
+            VTileInfoIndex := VYoungestTileIndex;
+          end;
+
+          if VTileInfoIndex <> -1 then begin
+            VMetaElement := VVersionMeta.Item[VTileInfoIndex];
+
+            ATileVersion := VMetaElement.TileVersionInfo;
+            ATileContentType := VMetaElement.TileContentType;
+            ATileDate := VMetaElement.TileDate;
+            ATileSize := VMetaElement.TileSize;
+
+            Result := True;
+          end;
+        end else begin
+          if Assigned(VList) and (VList.Count > 0) then begin
+            ATileVersionListStatic := TMapVersionListStatic.Create(VList);
+            Result := True;
+          end;
+        end;
+      end;
+    end;
+
+    if not Result then begin
+      VKey := TBerkeleyDBKey.Create(ATileXY);
+      FLock.BeginRead;
+      try
+        VBinValue := VDatabase.Read(VKey);
+      finally
+        FLock.EndRead;
+      end;
+      if Assigned(VBinValue) then begin
+        VValue := TBerkeleyDBValue.Create(VBinValue);
+        if ASingleTileInfo then begin
+          ATileVersion := VValue.TileVersionInfo;
+          ATileContentType := VValue.TileContentType;
+          ATileDate := VValue.TileDate;
+          ATileSize := VValue.TileSize;
+        end else begin
+          VList := TInterfaceList.Create;
+          VList.Add(
+            (TMapVersionInfo.Create(VValue.TileVersionInfo) as IMapVersionInfo)
+          );
+          ATileVersionListStatic := TMapVersionListStatic.Create(VList);
+        end;
+        Result := True;
+      end;
     end;
   finally
     FPool.Release(VDatabase);
