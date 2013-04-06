@@ -48,7 +48,7 @@ constructor TTileStorageTypeDBMS.Create(
 );
 begin
   inherited Create(
-    TTileStorageTypeAbilitiesBerkeleyDB.Create,
+    TTileStorageTypeAbilitiesDBMS.Create,
     TMapVersionFactorySimpleString.Create,
     AConfig
   );

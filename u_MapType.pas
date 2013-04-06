@@ -148,6 +148,7 @@ type
     function GetTileNotifier: INotifierTilePyramidUpdate;
   public
     function AllowListOfTileVersions: Boolean;
+    function AllowShowPrevVersion: Boolean;
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
     procedure ClearMemCache;
     function GetTileFileName(
@@ -541,6 +542,20 @@ begin
   Result := VTypeCode in [
     c_File_Cache_Id_GE,
     c_File_Cache_Id_GC,
+    c_File_Cache_Id_DBMS,
+    c_File_Cache_Id_BDB
+  ];
+end;
+
+function TMapType.AllowShowPrevVersion: Boolean;
+var
+  VTypeCode: Byte;
+begin
+  VTypeCode := FStorageConfig.CacheTypeCode;
+  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
+    VTypeCode := FGlobalCacheConfig.DefCache;
+  end;
+  Result := VTypeCode in [
     c_File_Cache_Id_DBMS,
     c_File_Cache_Id_BDB
   ];

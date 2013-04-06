@@ -586,7 +586,7 @@ begin
           VMetaElement := VVersionMeta.Item[I];
           if Assigned(VList) and (VMetaElement.TileVersionInfo <> '') then begin
             VList.Add(
-              (TMapVersionInfo.Create(VMetaElement.TileVersionInfo) as IMapVersionInfo)
+              (TMapVersionInfo.Create(VMetaElement.TileVersionInfo, AVersionInfo.ShowPrevVersion) as IMapVersionInfo)
             );
           end;
           if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
@@ -643,7 +643,7 @@ begin
         end else begin
           VList := TInterfaceList.Create;
           VList.Add(
-            (TMapVersionInfo.Create(VValue.TileVersionInfo) as IMapVersionInfo)
+            (TMapVersionInfo.Create(VValue.TileVersionInfo, AVersionInfo.ShowPrevVersion) as IMapVersionInfo)
           );
           ATileVersionListStatic := TMapVersionListStatic.Create(VList);
         end;

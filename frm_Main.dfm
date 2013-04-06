@@ -3568,6 +3568,12 @@ object frmMain: TfrmMain
         Caption = 'Make by Placemark'
         Hint = ''
       end
+      object tbpmiShowPrevVersion: TTBXItem
+        AutoCheck = True
+        OnClick = tbpmiShowPrevVersionClick
+        Caption = 'Show previous Version'
+        Hint = ''
+      end
       object tbpmiClearVersion: TTBXItem
         OnClick = tbpmiClearVersionClick
         Caption = 'Reset'
