@@ -30,6 +30,7 @@ uses
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_BinaryData,
+  i_MapVersionConfig,
   i_BerkeleyDBKeyValue,
   i_BerkeleyDBFactory,
   i_GlobalBerkeleyDBHelper,
@@ -52,6 +53,7 @@ type
     FLock: IReadWriteSync;
     FIsReadOnly: Boolean;
     FIsVersioned: Boolean;
+    FMapVersionFactory: IMapVersionFactory;
     function GetTileKey(
         const AOperation: TTileOperation;
         const ATileXY: TPoint;
@@ -63,14 +65,6 @@ type
         const ATileCRC: Cardinal = 0
     ): IBinaryData;
   public
-    constructor Create(
-      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-      const AStorageRootPath: string;
-      const AIsReadOnly: Boolean;
-      const AIsVersioned: Boolean;
-      const AStorageEPSG: Integer
-    );
-    destructor Destroy; override;
     function CreateDirIfNotExists(APath: string): Boolean;
 
     function SaveTile(
@@ -107,7 +101,6 @@ type
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const ASingleTileInfo: Boolean;
-      const AAnyVersionFound: Boolean;
       out ATileVersionListStatic: IMapVersionListStatic;
       out ATileVersion: WideString;
       out ATileContentType: WideString;
@@ -138,6 +131,16 @@ type
       const AVersionInfo: IMapVersionInfo;
       out ATileExistsArray: TPointArray
     ): Boolean;
+  public
+    constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const AMapVersionFactory: IMapVersionFactory;
+      const AStorageRootPath: string;
+      const AIsReadOnly: Boolean;
+      const AIsVersioned: Boolean;
+      const AStorageEPSG: Integer
+    );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -164,6 +167,7 @@ const
 
 constructor TTileStorageBerkeleyDBHelper.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const AMapVersionFactory: IMapVersionFactory;
   const AStorageRootPath: string;
   const AIsReadOnly: Boolean;
   const AIsVersioned: Boolean;
@@ -174,6 +178,7 @@ var
 begin
   inherited Create;
 
+  FMapVersionFactory := AMapVersionFactory;
   FIsReadOnly := AIsReadOnly;
   FIsVersioned := AIsVersioned;
 
@@ -360,8 +365,10 @@ begin
             end;
             Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
           end else if (AOperation = toRead) and (VYoungestTileVersionID <> 0) then begin
-            // не нашли нужный - отдаём хоть какой (только для чтения)
-            Result := TBerkeleyDBVersionedKey.Create(ATileXY, VYoungestTileVersionID);
+            if AVersionInfo.ShowPrevVersion then begin 
+              // не нашли нужный - отдаём хоть какой (только для чтения)
+              Result := TBerkeleyDBVersionedKey.Create(ATileXY, VYoungestTileVersionID);
+            end;
           end;
         end else begin // toWrite
 
@@ -537,7 +544,6 @@ function TTileStorageBerkeleyDBHelper.LoadTileInfo(
   const ATileZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const ASingleTileInfo: Boolean;
-  const AAnyVersionFound: Boolean;
   out ATileVersionListStatic: IMapVersionListStatic;
   out ATileVersion: WideString;
   out ATileContentType: WideString;
@@ -556,6 +562,7 @@ var
   VTileInfoIndex: Integer;
   VYoungestTileIndex: Integer;
   VYoungestTileDate: TDateTime;
+  VMapVersionInfo: IMapVersionInfo;
 begin
   Result := False;
   ATileVersionListStatic := nil;
@@ -585,9 +592,12 @@ begin
         for I := 0 to VVersionMeta.ItemsCount - 1 do begin
           VMetaElement := VVersionMeta.Item[I];
           if Assigned(VList) and (VMetaElement.TileVersionInfo <> '') then begin
-            VList.Add(
-              (TMapVersionInfo.Create(VMetaElement.TileVersionInfo, AVersionInfo.ShowPrevVersion) as IMapVersionInfo)
-            );
+            VMapVersionInfo :=
+              FMapVersionFactory.CreateByStoreString(
+                VMetaElement.TileVersionInfo,
+                AVersionInfo.ShowPrevVersion
+              );
+            VList.Add(VMapVersionInfo);
           end;
           if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
             VTileInfoIndex := I;
@@ -602,8 +612,10 @@ begin
         end;
 
         if ASingleTileInfo then begin
-          if (VTileInfoIndex = -1) and (VYoungestTileIndex <> -1) and AAnyVersionFound then begin
-            VTileInfoIndex := VYoungestTileIndex;
+          if (VTileInfoIndex = -1) and (VYoungestTileIndex <> -1) then begin
+            if AVersionInfo.ShowPrevVersion then begin
+              VTileInfoIndex := VYoungestTileIndex;
+            end;
           end;
 
           if VTileInfoIndex <> -1 then begin
@@ -641,10 +653,13 @@ begin
           ATileDate := VValue.TileDate;
           ATileSize := VValue.TileSize;
         end else begin
+          VMapVersionInfo :=
+            FMapVersionFactory.CreateByStoreString(
+              VValue.TileVersionInfo,
+              AVersionInfo.ShowPrevVersion
+            );
           VList := TInterfaceList.Create;
-          VList.Add(
-            (TMapVersionInfo.Create(VValue.TileVersionInfo, AVersionInfo.ShowPrevVersion) as IMapVersionInfo)
-          );
+          VList.Add(VMapVersionInfo);
           ATileVersionListStatic := TMapVersionListStatic.Create(VList);
         end;
         Result := True;

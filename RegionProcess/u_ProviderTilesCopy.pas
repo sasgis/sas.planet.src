@@ -4,6 +4,7 @@ interface
 
 uses
   Forms,
+  i_NotifierTime,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
@@ -20,6 +21,7 @@ uses
 type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
+    FTimerNoifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
@@ -28,6 +30,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const ATimerNoifier: INotifierTime;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
@@ -59,6 +62,7 @@ uses
 { TProviderTilesCopy }
 
 constructor TProviderTilesCopy.Create(
+  const ATimerNoifier: INotifierTime;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
@@ -77,6 +81,7 @@ begin
     AFullMapsSet,
     AGUIConfigList
   );
+  FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
@@ -147,6 +152,7 @@ begin
     );
   end else if VCacheType = c_File_Cache_Id_BDB then begin
     TThreadExportToBerkeleyDB.Create(
+      FTimerNoifier,
       FGlobalBerkeleyDBHelper,
       VProgressInfo,
       VPath,

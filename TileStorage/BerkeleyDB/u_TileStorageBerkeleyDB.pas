@@ -178,6 +178,7 @@ begin
   {$MESSAGE HINT 'ToDo: validate TTileStorageBerkeleyDBHelper.Create'}
   FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
     AGlobalBerkeleyDBHelper,
+    AMapVersionFactory,
     StoragePath,
     False, // ToDo: Read-Only
     True,  // ToDo: Versioned
@@ -270,7 +271,6 @@ begin
             AZoom,
             AVersionInfo,
             True, // single tile info
-            True, // any version
             VList,
             VTileVersion,
             VTileContentType,
@@ -351,24 +351,25 @@ var
   VList: IMapVersionListStatic;
 begin
   Result := nil;
-  VPath := StoragePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + cStorageFileExt;
-  if FileExists(VPath) then begin
-    VResult :=
-      FStorageHelper.LoadTileInfo(
-        VPath,
-        AXY,
-        AZoom,
-        AVersionInfo,
-        False, // single tile info
-        False, // any version
-        VList,
-        VTileVersion,
-        VTileContentType,
-        VTileSize,
-        VTileDate
-      );
-    if VResult then begin
-      Result := VList;
+  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+    VPath := StoragePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + cStorageFileExt;
+    if FileExists(VPath) then begin
+      VResult :=
+        FStorageHelper.LoadTileInfo(
+          VPath,
+          AXY,
+          AZoom,
+          AVersionInfo,
+          False, // single tile info
+          VList,
+          VTileVersion,
+          VTileContentType,
+          VTileSize,
+          VTileDate
+        );
+      if VResult then begin
+        Result := VList;
+      end;
     end;
   end;
 end;
