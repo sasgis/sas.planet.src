@@ -6,6 +6,7 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_ContentTypeManager,
+  i_MapVersionConfig,
   i_TileStorage,
   i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
@@ -25,6 +26,7 @@ type
   public
     constructor Create(
       const AContentTypeManager: IContentTypeManager;
+      const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -42,6 +44,7 @@ type
   public
     constructor Create(
       const AContentTypeManager: IContentTypeManager;
+      const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -50,19 +53,19 @@ implementation
 
 uses
   u_TileStorageTypeAbilities,
-  u_MapVersionFactoryGE,
   u_TileStorageGE;
 
 { TTileStorageTypeGE }
 
 constructor TTileStorageTypeGE.Create(
   const AContentTypeManager: IContentTypeManager;
+  const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
     TTileStorageTypeAbilitiesGE.Create,
-    TMapVersionFactoryGE.Create,
+    AMapVersionFactory,
     AConfig
   );
   FContentTypeManager := AContentTypeManager;
@@ -88,12 +91,13 @@ end;
 
 constructor TTileStorageTypeGC.Create(
   const AContentTypeManager: IContentTypeManager;
+  const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
     TTileStorageTypeAbilitiesGE.Create,
-    TMapVersionFactoryGE.Create,
+    AMapVersionFactory,
     AConfig
   );
   FContentTypeManager := AContentTypeManager;

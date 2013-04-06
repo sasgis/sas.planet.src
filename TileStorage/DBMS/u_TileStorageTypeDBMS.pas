@@ -7,6 +7,7 @@ uses
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_NotifierTime,
+  i_MapVersionConfig,
   i_TileStorage,
   i_TileStorageTypeConfig,
   i_TileInfoBasicMemCache,
@@ -28,6 +29,7 @@ type
     constructor Create(
       const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
+      const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -36,7 +38,6 @@ implementation
 
 uses
   u_TileStorageTypeAbilities,
-  u_MapVersionFactorySimpleString,
   u_TileStorageDBMS;
 
 { TTileStorageTypeDBMS }
@@ -44,12 +45,13 @@ uses
 constructor TTileStorageTypeDBMS.Create(
   const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
+  const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
     TTileStorageTypeAbilitiesDBMS.Create,
-    TMapVersionFactorySimpleString.Create,
+    AMapVersionFactory,
     AConfig
   );
   FGCNotifier := AGCNotifier;

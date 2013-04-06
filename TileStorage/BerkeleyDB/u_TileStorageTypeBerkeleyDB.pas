@@ -7,6 +7,7 @@ uses
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_NotifierTime,
+  i_MapVersionConfig,
   i_TileStorage,
   i_TileStorageTypeConfig,
   i_TileInfoBasicMemCache,
@@ -31,6 +32,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
+      const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -39,7 +41,6 @@ implementation
 
 uses
   u_TileStorageTypeAbilities,
-  u_MapVersionFactorySimpleString,
   u_TileStorageBerkeleyDB;
 
 { TTileStorageTypeBerkeleyDB }
@@ -48,12 +49,13 @@ constructor TTileStorageTypeBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
+  const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
     TTileStorageTypeAbilitiesBerkeleyDB.Create,
-    TMapVersionFactorySimpleString.Create,
+    AMapVersionFactory,
     AConfig
   );
   FGCNotifier := AGCNotifier;

@@ -924,6 +924,7 @@ begin
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
       GState.BGTimerNotifier,
+      GState.MapVersionFactoryList,
       GState.GlobalBerkeleyDBHelper,
       GState.ContentTypeManager,
       GState.CoordConverterFactory,

@@ -165,8 +165,6 @@ uses
   u_TileStorageGE,
   u_TileStorageDBMS,
   u_TileStorageInRAM,
-  u_MapVersionFactoryGE,
-  u_MapVersionFactorySimpleString,
   u_Synchronizer;
 
 { TTileStorageOfMapType }
@@ -202,7 +200,7 @@ begin
   VState := TStorageStateProxy.Create;
   FStorageState := VState;
   FStorageStateProxy := VState;
-  FMapVersionFactoryDefault := TMapVersionFactorySimpleString.Create;
+  FMapVersionFactoryDefault := FVersionConfig.VersionFactory;
   FStorageLock := TCounterInterlock.Create;
   FStorageNeedUpdate := TSimpleFlagWithInterlock.Create;
 
@@ -258,19 +256,16 @@ var
   VMainContentType: IContentTypeInfoBasic;
   VFileNameGenerator: ITileFileNameGenerator;
   VFileNameParser: ITileFileNameParser;
-  VMapVersionFactory: IMapVersionFactory;
   VCoordConverter: ICoordConverter;
 begin
   FStorage := nil;
   try
     FCurrentTypeCode := ATypeCode;
     FCurrentPath := APath;
-    VMapVersionFactory := nil;
     VCoordConverter := AConfig.CoordConverter;
     if ATypeCode = c_File_Cache_Id_BDB then begin
       VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
       if VMainContentType <> nil then begin
-        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageBerkeleyDB.Create(
             FGlobalBerkeleyDBHelper,
@@ -279,14 +274,13 @@ begin
             FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             VMainContentType
           );
       end;
     end else if ATypeCode = c_File_Cache_Id_DBMS then begin
       VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
       if VMainContentType <> nil then begin
-        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageDBMS.Create(
             VCoordConverter,
@@ -295,7 +289,7 @@ begin
             FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             VMainContentType
           );
       end;
@@ -304,12 +298,11 @@ begin
         (VCoordConverter.GetProjectionEPSG = CGELonLatProjectionEPSG) and
         (VCoordConverter.GetTileSplitCode = CTileSplitQuadrate256x256)
       then begin
-        VMapVersionFactory := TMapVersionFactoryGE.Create;
         FStorage :=
           TTileStorageGE.Create(
             VCoordConverter,
             FCurrentPath,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             FContentTypeManager
           );
       end;
@@ -318,12 +311,11 @@ begin
         (VCoordConverter.GetProjectionEPSG = CGELonLatProjectionEPSG) and
         (VCoordConverter.GetTileSplitCode = CTileSplitQuadrate256x256)
       then begin
-        VMapVersionFactory := TMapVersionFactoryGE.Create;
         FStorage :=
           TTileStorageGC.Create(
             VCoordConverter,
             FCurrentPath,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             FContentTypeManager
           );
       end;
@@ -332,13 +324,12 @@ begin
       VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(ATypeCode);
       VFileNameParser := FFileNameParsersList.GetParser(ATypeCode);
       if (VMainContentType <> nil) and (VFileNameGenerator <> nil) and (VFileNameParser <> nil) then begin
-        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageFileSystem.Create(
             VCoordConverter,
             FCurrentPath,
             VMainContentType,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             VFileNameGenerator,
             VFileNameParser
           );
@@ -346,29 +337,22 @@ begin
     end else if ATypeCode = c_File_Cache_Id_RAM then begin
       VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
       if VMainContentType <> nil then begin
-        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageInRAM.Create(
             FCacheTileInfo,
             VCoordConverter,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             VMainContentType
           );
       end;
     end;
   except
     FStorage := nil;
-    VMapVersionFactory := nil;
   end;
   if FStorage <> nil then begin
-    if VMapVersionFactory = nil then begin
-      VMapVersionFactory := FMapVersionFactoryDefault;
-    end;
-    FVersionConfig.VersionFactory := VMapVersionFactory;
     FStorageStateProxy.Target := FStorage.State;
   end else begin
     FStorageStateProxy.Target := nil;
-    FVersionConfig.VersionFactory := FMapVersionFactoryDefault;
   end;
 end;
 

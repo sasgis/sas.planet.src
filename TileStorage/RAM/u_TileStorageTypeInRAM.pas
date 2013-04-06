@@ -26,6 +26,7 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_TileInfoBasicMemCache,
+  i_MapVersionConfig,
   i_TileStorage,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
@@ -41,6 +42,7 @@ type
     ): ITileStorage; override;
   public
     constructor Create(
+      const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -49,18 +51,18 @@ implementation
 
 uses      
   u_TileStorageTypeAbilities,
-  u_TileStorageInRAM,
-  u_MapVersionFactorySimpleString;
+  u_TileStorageInRAM;
 
 { TTileStorageTypeInRAM }
 
 constructor TTileStorageTypeInRAM.Create(
+  const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
     TTileStorageTypeAbilitiesFileFolder.Create,
-    TMapVersionFactorySimpleString.Create,
+    AMapVersionFactory,
     AConfig
   );
 end;

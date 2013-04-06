@@ -7,6 +7,7 @@ uses
   i_ContentTypeInfo,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
+  i_MapVersionConfig,
   i_TileStorage,
   i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
@@ -28,6 +29,7 @@ type
     constructor Create(
       const ANameGenerator: ITileFileNameGenerator;
       const ATileNameParser: ITileFileNameParser;
+      const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -36,20 +38,20 @@ implementation
 
 uses
   u_TileStorageTypeAbilities,
-  u_TileStorageFileSystem,
-  u_MapVersionFactorySimpleString;
+  u_TileStorageFileSystem;
 
 { TTileStorageTypeFileSystemSimple }
 
 constructor TTileStorageTypeFileSystemSimple.Create(
   const ANameGenerator: ITileFileNameGenerator;
   const ATileNameParser: ITileFileNameParser;
+  const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
     TTileStorageTypeAbilitiesFileFolder.Create,
-    TMapVersionFactorySimpleString.Create,
+    AMapVersionFactory,
     AConfig
   );
   FNameGenerator := ANameGenerator;

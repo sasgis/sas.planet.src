@@ -43,6 +43,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_ProjConverter,
+  i_MapVersionFactoryList,
   i_MainMemCacheConfig,
   i_MapTypeGUIConfigList,
   i_MapTypes,
@@ -92,6 +93,7 @@ type
 
     procedure LoadMaps(
       const ALanguageManager: ILanguageManager;
+      const AMapVersionFactoryList: IMapVersionFactoryList;
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: IGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -217,6 +219,7 @@ end;
 
 procedure TMapTypesMainList.LoadMaps(
   const ALanguageManager: ILanguageManager;
+  const AMapVersionFactoryList: IMapVersionFactoryList;
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: IGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -276,6 +279,7 @@ begin
         TMapType.Create(
           ALanguageManager,
           VZmp,
+          AMapVersionFactoryList,
           AMainMemCacheConfig,
           AGlobalCacheConfig,
           AGlobalBerkeleyDBHelper,

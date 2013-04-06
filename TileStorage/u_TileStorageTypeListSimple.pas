@@ -28,6 +28,8 @@ uses
   i_ContentTypeManager,
   i_GlobalBerkeleyDBHelper,
   i_SimpleTileStorageConfig,
+  i_MapVersionConfig,
+  i_MapVersionFactoryList,
   i_TileStorageTypeConfig,
   i_TileStorageType,
   i_TileStorageTypeListItem,
@@ -37,6 +39,7 @@ type
   TTileStorageTypeListSimple = class(TTileStorageTypeList)
   public
     constructor Create(
+      const AMapVersionFactoryList: IMapVersionFactoryList;
       const AConfig: ISimpleTileStorageConfigStatic;
       const AContentTypeManager: IContentTypeManager;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -77,6 +80,7 @@ const
 { TTileStorageTypeListSimple }
 
 constructor TTileStorageTypeListSimple.Create(
+  const AMapVersionFactoryList: IMapVersionFactoryList;
   const AConfig: ISimpleTileStorageConfigStatic;
   const AContentTypeManager: IContentTypeManager;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -93,6 +97,7 @@ begin
     TTileStorageTypeFileSystemSimple.Create(
       TTileFileNameSAS.Create,
       TTileFileNameSAS.Create,
+      AMapVersionFactoryList.GetSimpleVersionFactory,
       VStorageTypeConfig
     );
   VItem :=
@@ -108,6 +113,7 @@ begin
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
     TTileFileNameGMV.Create,
     TTileFileNameGMV.Create,
+    AMapVersionFactoryList.GetSimpleVersionFactory,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -122,6 +128,7 @@ begin
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
     TTileFileNameES.Create,
     TTileFileNameES.Create,
+    AMapVersionFactoryList.GetSimpleVersionFactory,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -136,6 +143,7 @@ begin
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
     TTileFileNameGM1.Create,
     TTileFileNameGM1.Create,
+    AMapVersionFactoryList.GetSimpleVersionFactory,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -150,6 +158,7 @@ begin
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
     TTileFileNameGM2.Create,
     TTileFileNameGM2.Create,
+    AMapVersionFactoryList.GetSimpleVersionFactory,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -163,6 +172,7 @@ begin
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_GE);
   VStorageType := TTileStorageTypeGE.Create(
     AContentTypeManager,
+    AMapVersionFactoryList.GetGEVersionFactory,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -174,8 +184,9 @@ begin
   Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_GC);
-  VStorageType := TTileStorageTypeGE.Create(
+  VStorageType := TTileStorageTypeGC.Create(
     AContentTypeManager,
+    AMapVersionFactoryList.GetGEVersionFactory,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -191,6 +202,7 @@ begin
     AGlobalBerkeleyDBHelper,
     AGCNotifier,
     AContentTypeManager,
+    AMapVersionFactoryList.GetSimpleVersionFactory,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -205,6 +217,7 @@ begin
   VStorageType := TTileStorageTypeDBMS.Create(
     AGCNotifier,
     AContentTypeManager,
+    AMapVersionFactoryList.GetSimpleVersionFactory,
     VStorageTypeConfig
   );
   VItem := TTileStorageTypeListItem.Create(
@@ -216,7 +229,10 @@ begin
   Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_RAM);
-  VStorageType := TTileStorageTypeInRAM.Create(VStorageTypeConfig);
+  VStorageType := TTileStorageTypeInRAM.Create(
+    AMapVersionFactoryList.GetSimpleVersionFactory,
+    VStorageTypeConfig
+  );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeInRAM,
     'RAM',

@@ -41,7 +41,6 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetVersionFactory: IMapVersionFactory;
-    procedure SetVersionFactory(const AValue: IMapVersionFactory);
 
     function GetVersion: IMapVersionInfo;
     procedure SetVersion(const AValue: IMapVersionInfo);
@@ -49,24 +48,27 @@ type
     function GetShowPrevVersion: Boolean;
     procedure SetShowPrevVersion(const AValue: Boolean);
   public
-    constructor Create(const ADefConfig: IMapVersionInfo);
+    constructor Create(
+      const ADefConfig: IMapVersionInfo;
+      const AMapVersionFactory: IMapVersionFactory
+    );
   end;
 
 
 implementation
 
-uses
-  u_MapVersionFactorySimpleString;
-
 { TMapVersionConfig }
 
-constructor TMapVersionConfig.Create(const ADefConfig: IMapVersionInfo);
+constructor TMapVersionConfig.Create(
+  const ADefConfig: IMapVersionInfo;
+  const AMapVersionFactory: IMapVersionFactory
+);
 begin
   inherited Create;
   FDefConfig := ADefConfig;
   FShowPrevVersion := ADefConfig.ShowPrevVersion;
-  FVersionFactory := TMapVersionFactorySimpleString.Create(FShowPrevVersion);
-  FVersion := FVersionFactory.CreateByMapVersion(FDefConfig);
+  FVersionFactory := AMapVersionFactory;
+  FVersion := FVersionFactory.CreateByMapVersion(FDefConfig, FShowPrevVersion);
 end;
 
 procedure TMapVersionConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -145,8 +147,7 @@ begin
   try
     if FShowPrevVersion <> AValue then begin
       FShowPrevVersion := AValue;
-      FVersionFactory := TMapVersionFactorySimpleString.Create(FShowPrevVersion);
-      FVersion := FVersionFactory.CreateByMapVersion(FVersion);
+      FVersion := FVersionFactory.CreateByMapVersion(FVersion, FShowPrevVersion);
       SetChanged;
     end;
   finally
@@ -161,25 +162,11 @@ begin
   LockWrite;
   try
     if FVersion <> AValue then begin
-      VValue := FVersionFactory.CreateByMapVersion(AValue);
+      VValue := FVersionFactory.CreateByMapVersion(AValue, FShowPrevVersion);
       if FVersion <> VValue then begin
         FVersion := VValue;
         SetChanged;
       end;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMapVersionConfig.SetVersionFactory(const AValue: IMapVersionFactory);
-begin
-  LockWrite;
-  try
-    if FVersionFactory <> AValue then begin
-      FVersionFactory := AValue;
-      FVersion := FVersionFactory.CreateByMapVersion(FVersion);
-      SetChanged;
     end;
   finally
     UnlockWrite;

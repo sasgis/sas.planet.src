@@ -41,6 +41,7 @@ uses
   i_LanguageManager,
   i_CoordConverter,
   i_MapVersionConfig,
+  i_MapVersionFactoryList,
   i_TileDownloadRequestBuilderConfig,
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
@@ -237,6 +238,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AZmp: IZmpInfo;
+      const AMapVersionFactoryList: IMapVersionFactoryList;
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: IGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -316,6 +318,7 @@ end;
 constructor TMapType.Create(
   const ALanguageManager: ILanguageManager;
   const AZmp: IZmpInfo;
+  const AMapVersionFactoryList: IMapVersionFactoryList;
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: IGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -364,7 +367,7 @@ begin
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
 
-  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
+  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig, AMapVersionFactoryList.GetVersionFactoryByCode(FZmp.StorageConfig.CacheTypeCode));
   FVersionChangeListener := TNotifyNoMmgEventListener.Create(Self.OnVersionChange);
   FVersionConfig.ChangeNotifier.Add(FVersionChangeListener);
 

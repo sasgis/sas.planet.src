@@ -45,6 +45,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_ValueToStringConverter,
+  i_MapVersionFactoryList,
   i_GlobalBerkeleyDBHelper,
   u_CommonFormAndFrameParents;
 
@@ -85,6 +86,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FTimerNoifier: INotifierTime;
     FGCNotifier: INotifierTime;
+    FMapVersionFactoryList: IMapVersionFactoryList;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
     FCoordConverterFactory: ICoordConverterFactory;
@@ -105,6 +107,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
       const AGCNotifier: INotifierTime;
+      const AMapVersionFactoryList: IMapVersionFactoryList;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -131,7 +134,6 @@ uses
   u_Notifier,
   u_NotifierOperation,
   u_ThreadCacheConverter,
-  u_MapVersionFactorySimpleString,
   u_TileStorageFileSystem,
   u_TileStorageBerkeleyDB,
   u_TileStorageDBMS,
@@ -149,6 +151,7 @@ constructor TfrmCacheManager.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
   const AGCNotifier: INotifierTime;
+  const AMapVersionFactoryList: IMapVersionFactoryList;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
@@ -162,6 +165,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTimerNoifier := ATimerNoifier;
   FGCNotifier := AGCNotifier;
+  FMapVersionFactoryList := AMapVersionFactoryList;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
@@ -181,7 +185,6 @@ function TfrmCacheManager.CreateSimpleTileStorage(
   const AFormatID: Byte
 ): ITileStorage;
 var
-  VMapVersionFactory: IMapVersionFactory;
   VContentType: IContentTypeInfoBasic;
   VFileNameGenerator: ITileFileNameGenerator;
   VFileNameParser: ITileFileNameParser;
@@ -194,7 +197,6 @@ begin
 
   VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
   if AFormatID = c_File_Cache_Id_BDB then begin
-    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
     Result :=
       TTileStorageBerkeleyDB.Create(
         FGlobalBerkeleyDBHelper,
@@ -203,11 +205,10 @@ begin
         FGCNotifier,
         nil,
         FContentTypeManager,
-        VMapVersionFactory,
+        FMapVersionFactoryList.GetSimpleVersionFactory,
         VContentType
       );
   end else if AFormatID = c_File_Cache_Id_DBMS then begin
-    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
     Result :=
       TTileStorageDBMS.Create(
         ACoordConverter,
@@ -216,7 +217,7 @@ begin
         FGCNotifier,
         nil,
         FContentTypeManager,
-        VMapVersionFactory,
+        FMapVersionFactoryList.GetSimpleVersionFactory,
         VContentType
       );
   end else if AFormatID = c_File_Cache_Id_GE then begin
@@ -224,6 +225,7 @@ begin
 //      TTileStorageGE.Create(
 //        VStorageConfig,
 //        VGlobalCacheConfig,
+//        FMapVersionFactoryList.GetGEVersionFactory
 //        FContentTypeManager
 //      );
   end else if AFormatID = c_File_Cache_Id_GC then begin
@@ -231,10 +233,10 @@ begin
 //      TTileStorageGC.Create(
 //        VStorageConfig,
 //        VGlobalCacheConfig,
+//        FMapVersionFactoryList.GetGEVersionFactory
 //        FContentTypeManager
 //      );
   end else if AFormatID in [c_File_Cache_Id_GMV, c_File_Cache_Id_SAS, c_File_Cache_Id_ES, c_File_Cache_Id_GM, c_File_Cache_Id_GM_Aux, c_File_Cache_Id_GM_Bing] then begin
-    VMapVersionFactory := TMapVersionFactorySimpleString.Create;
     VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(AFormatID);
     VFileNameParser := FFileNameParsersList.GetParser(AFormatID);
     case AArchiveType of
@@ -244,7 +246,7 @@ begin
             ACoordConverter,
             ARootPath,
             VContentType,
-            VMapVersionFactory,
+            FMapVersionFactoryList.GetSimpleVersionFactory,
             VFileNameGenerator,
             VFileNameParser
           );

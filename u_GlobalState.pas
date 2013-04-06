@@ -31,6 +31,7 @@ uses
   Classes,
   IniFiles,
   SysUtils,
+  i_MapVersionFactoryList,
   i_NotifierOperation,
   i_GPSPositionFactory,
   i_Listener,
@@ -139,6 +140,7 @@ type
     FSensorList: ISensorList;
     FPerfCounterList: IInternalPerformanceCounterList;
     FProtocol: TIeEmbeddedProtocolRegistration;
+    FMapVersionFactoryList: IMapVersionFactoryList;
     FPathDetalizeList: IPathDetalizeProviderList;
     FInvisibleBrowser: IInvisibleBrowser;
     FInternalBrowser: IInternalBrowser;
@@ -158,6 +160,7 @@ type
     FVectorDataFactory: IVectorDataFactory;
     FMarkFactory: IMarkFactory;
     FMarkCategoryFactory: IMarkCategoryFactory;
+
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
 
@@ -216,6 +219,7 @@ type
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
     property GlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper read FGlobalBerkeleyDBHelper;
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
+    property MapVersionFactoryList: IMapVersionFactoryList read FMapVersionFactoryList;
 
     constructor Create;
     destructor Destroy; override;
@@ -263,6 +267,7 @@ uses
   u_DownloadInfoSimple,
   u_Datum,
   u_PLTSimpleParser,
+  u_MapVersionFactoryList,
   u_GeoCoderListSimple,
   u_MarkPictureListSimple,
   u_ImageResamplerFactoryListStaticSimple,
@@ -349,6 +354,8 @@ begin
   FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseCahcePath := TPathConfig.Create('', VProgramPath, nil);
+
+  FMapVersionFactoryList := TMapVersionFactoryList.Create;
 
   FGlobalConfig :=
     TGlobalConfig.Create(
@@ -812,6 +819,7 @@ begin
 
   FMainMapsList.LoadMaps(
     FGlobalConfig.LanguageManager,
+    FMapVersionFactoryList,
     FGlobalConfig.MainMemCacheConfig,
     FCacheConfig,
     FGlobalBerkeleyDBHelper,
