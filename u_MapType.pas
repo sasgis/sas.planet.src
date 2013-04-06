@@ -342,6 +342,7 @@ constructor TMapType.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
+  VTypeCode: Byte;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
   VMapVersionChanger: IMapVersionChanger;
@@ -367,7 +368,12 @@ begin
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
 
-  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig, AMapVersionFactoryList.GetVersionFactoryByCode(FZmp.StorageConfig.CacheTypeCode));
+  VTypeCode := FZmp.StorageConfig.CacheTypeCode;
+  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
+    VTypeCode := FGlobalCacheConfig.DefCache;
+  end;
+
+  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig, AMapVersionFactoryList.GetVersionFactoryByCode(VTypeCode));
   FVersionChangeListener := TNotifyNoMmgEventListener.Create(Self.OnVersionChange);
   FVersionConfig.ChangeNotifier.Add(FVersionChangeListener);
 
