@@ -361,7 +361,7 @@ begin
         AVersionInfo,
         False, // single tile info
         False, // any version
-        Result,
+        VList,
         VTileVersion,
         VTileContentType,
         VTileSize,

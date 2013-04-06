@@ -107,6 +107,7 @@ type
     FAbilitiesConfig: IMapAbilitiesConfig;
     FMapAttachmentsFactory: IMapAttachmentsFactory;
     FStorageConfig: ISimpleTileStorageConfig;
+    FGlobalCacheConfig: IGlobalCacheConfig;
     FTileDownloadSubsystem: ITileDownloadSubsystem;
     FPerfCounterList: IInternalPerformanceCounterList;
 
@@ -355,6 +356,7 @@ begin
   FResamplerConfigLoad := AResamplerConfigLoad;
   FResamplerConfigGetPrev := AResamplerConfigGetPrev;
   FResamplerConfigChangeProjection := AResamplerConfigChangeProjection;
+  FGlobalCacheConfig := AGlobalCacheConfig;
   FGlobalDownloadConfig := ADownloadConfig;
   FBitmapFactory := ABitmapFactory;
   FContentTypeManager := AContentTypeManager;
@@ -399,7 +401,7 @@ begin
 
   FStorage :=
     TTileStorageOfMapType.Create(
-      AGlobalCacheConfig,
+      FGlobalCacheConfig,
       AGlobalBerkeleyDBHelper,
       FStorageConfig,
       FCacheTileInfo,
@@ -509,6 +511,7 @@ begin
   FGUIConfig := nil;
   FMapAttachmentsFactory := nil;
   FAbilitiesConfig := nil;
+  FGlobalCacheConfig := nil;
   FStorageConfig := nil;
   FStorage := nil;
   inherited;
@@ -528,9 +531,19 @@ begin
 end;
 
 function TMapType.AllowListOfTileVersions: Boolean;
+var
+  VTypeCode: Byte;
 begin
-  // only for GE and GC and DBMS
-  Result := (FStorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC, c_File_Cache_Id_DBMS]);
+  VTypeCode := FStorageConfig.CacheTypeCode;
+  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
+    VTypeCode := FGlobalCacheConfig.DefCache;
+  end;
+  Result := VTypeCode in [
+    c_File_Cache_Id_GE,
+    c_File_Cache_Id_GC,
+    c_File_Cache_Id_DBMS,
+    c_File_Cache_Id_BDB
+  ];
 end;
 
 function TMapType.TileExists(
