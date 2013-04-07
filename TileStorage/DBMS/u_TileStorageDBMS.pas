@@ -754,7 +754,7 @@ begin
   if Result then begin
     if Assigned(FTileInfoMemCache) then begin
       // delete both tile and TNE
-      FTileInfoMemCache.Remove(AXY, AZoom);
+      FTileInfoMemCache.Remove(AXY, AZoom, AVersionInfo);
     end;
     FETSTTLListener.CheckUseTimeUpdated;
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
@@ -1037,7 +1037,7 @@ var
 begin
   // try to read from cache
   if Assigned(FTileInfoMemCache) then begin
-    Result := FTileInfoMemCache.Get(AXY, AZoom, True);
+    Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, True);
     if Result <> nil then begin
       Exit;
     end;
