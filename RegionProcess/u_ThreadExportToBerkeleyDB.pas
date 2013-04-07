@@ -144,35 +144,54 @@ procedure TThreadExportToBerkeleyDB.ProcessTile(
 var
   VSrcTileInfo, VDestTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
+  VVersionInfo: IMapVersionInfo;
+  VMapVersionList: IMapVersionListStatic;
+  VVersionCount: Integer;
 begin
-  VSrcTileInfo := FSourceTileStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData);
-  if not FDestOverwriteTiles then begin
-    VDestTileInfo := FDestTileStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithoutData);
-    if Assigned(VDestTileInfo) then begin
-      if (VDestTileInfo.IsExists or (VDestTileInfo.IsExistsTNE and VSrcTileInfo.IsExistsTNE)) then begin
-        Exit;
+  VVersionCount := 0;
+  VMapVersionList := FSourceTileStorage.GetListOfTileVersions(AXY, AZoom, AVersionInfo);
+  repeat
+    if Assigned(VMapVersionList) and (VVersionCount < VMapVersionList.Count) then begin
+      VVersionInfo := VMapVersionList.Item[VVersionCount];
+      Inc(VVersionCount);
+    end else begin
+      VVersionInfo := AVersionInfo;
+      VVersionCount := -1;
+    end;
+    VSrcTileInfo := FSourceTileStorage.GetTileInfo(AXY, AZoom, VVersionInfo, gtimWithData);
+    if Assigned(VSrcTileInfo) then begin
+      if not FDestOverwriteTiles then begin
+        VDestTileInfo := FDestTileStorage.GetTileInfo(AXY, AZoom, VVersionInfo, gtimWithoutData);
+        if Assigned(VDestTileInfo) then begin
+          if (VDestTileInfo.IsExists or (VDestTileInfo.IsExistsTNE and VSrcTileInfo.IsExistsTNE)) then begin
+            Continue;
+          end;
+        end;
+      end;
+      if VSrcTileInfo.IsExists then begin
+        if Supports(VSrcTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+          FDestTileStorage.SaveTile(
+            AXY,
+            AZoom,
+            VVersionInfo,
+            VTileInfoWithData.LoadDate,
+            VTileInfoWithData.ContentType,
+            VTileInfoWithData.TileData
+          );
+        end;
+      end else if VSrcTileInfo.IsExistsTNE then begin
+        FDestTileStorage.SaveTNE(
+          AXY,
+          AZoom,
+          VVersionInfo,
+          VSrcTileInfo.LoadDate
+        );
+      end;
+      if FIsMove then begin
+        FSourceTileStorage.DeleteTile(AXY, AZoom, VVersionInfo);
       end;
     end;
-  end; 
-  if VSrcTileInfo.IsExists then begin
-    if Supports(VSrcTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
-      FDestTileStorage.SaveTile(
-        AXY,
-        AZoom,
-        AVersionInfo,
-        VTileInfoWithData.LoadDate,
-        VTileInfoWithData.ContentType,
-        VTileInfoWithData.TileData
-      );
-    end;
-  end else if VSrcTileInfo.IsExistsTNE then begin
-    FDestTileStorage.SaveTNE(
-      AXY,
-      AZoom,
-      AVersionInfo,
-      VSrcTileInfo.LoadDate
-    );
-  end;
+  until VVersionCount < 0;
 end;
 
 procedure TThreadExportToBerkeleyDB.ProcessRegion;
@@ -238,10 +257,6 @@ begin
           end;
 
           ProcessTile(VTile, VZoom, VVersionInfo);
-
-          if FIsMove then begin
-            FSourceTileStorage.DeleteTile(VTile, VZoom, VVersionInfo);
-          end;
 
           Inc(VTilesProcessed);
           if VTilesProcessed mod 100 = 0 then begin
