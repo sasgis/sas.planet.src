@@ -229,7 +229,8 @@ type
     ): IMapVersionListStatic; override;
 
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
     
   public
@@ -1734,7 +1735,10 @@ begin
   InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, ALoadDate, nil, FETS_InsertTNE, TRUE);
 end;
 
-function TTileStorageETS.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo;
+function TTileStorageETS.ScanTiles(
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
 begin
   if (FETS_MakeTileEnum<>nil) and
      (FETS_NextTileEnum<>nil) and

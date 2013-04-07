@@ -62,6 +62,7 @@ type
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean; virtual; abstract;
+    function GetIsCanSaveMultiVersionTiles: Boolean; virtual;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -106,7 +107,8 @@ type
     ): IMapVersionListStatic; virtual;
 
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; virtual;
   public
     constructor Create(
@@ -149,6 +151,11 @@ begin
   FTileNotifierInternal := VNotifier;
 end;
 
+function TTileStorageAbstract.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := False;
+end;
+
 function TTileStorageAbstract.GetCoordConverter: ICoordConverter;
 begin
   Result := FGeoConverter;
@@ -183,7 +190,9 @@ begin
 end;
 
 function TTileStorageAbstract.ScanTiles(
-  const AIgnoreTNE: Boolean): IEnumTileInfo;
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
 begin
   Result := nil;
 end;

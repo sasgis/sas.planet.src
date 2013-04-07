@@ -99,7 +99,7 @@ var
   VEnum: IEnumTileInfo;
   VTileInfo: TTileInfo;
 begin
-  VEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne);
+  VEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne, FDestTileStorage.GetIsCanSaveMultiVersionTiles);
   while VEnum.Next(VTileInfo) do begin
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
       Break;

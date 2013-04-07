@@ -85,6 +85,7 @@ type
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean;
+    function GetIsCanSaveMultiVersionTiles: Boolean;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -129,7 +130,8 @@ type
     ): IMapVersionListStatic;
 
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo;
   protected
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
@@ -539,6 +541,17 @@ begin
   end;
 end;
 
+function TTileStorageOfMapType.GetIsCanSaveMultiVersionTiles: Boolean;
+var
+  VStorage: ITileStorage;
+begin
+  Result := False;
+  VStorage := GetStorage;
+  if VStorage <> nil then begin
+    Result := VStorage.GetIsCanSaveMultiVersionTiles;
+  end;
+end;
+
 function TTileStorageOfMapType.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
@@ -674,14 +687,17 @@ begin
   end;
 end;
 
-function TTileStorageOfMapType.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo;
+function TTileStorageOfMapType.ScanTiles(
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
 var
   VStorage: ITileStorage;
 begin
   Result := nil;
   VStorage := GetStorage;
   if VStorage <> nil then begin
-    Result := VStorage.ScanTiles(AIgnoreTNE);
+    Result := VStorage.ScanTiles(AIgnoreTNE, AIgnoreMultiVersionTiles);
   end;
 end;
 

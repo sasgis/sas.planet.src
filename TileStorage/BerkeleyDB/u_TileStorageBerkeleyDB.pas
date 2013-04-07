@@ -53,9 +53,11 @@ type
     FSyncCallListner: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
+    FVersioned: Boolean;
     procedure OnSyncCall;
   protected
     function GetIsFileCache: Boolean; override;
+    function GetIsCanSaveMultiVersionTiles: Boolean; override;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -105,7 +107,8 @@ type
     ): IMapVersionListStatic; override;
 
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
   private
     { IBasicMemCache }
@@ -175,13 +178,15 @@ begin
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
   FFileNameGenerator := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
-  {$MESSAGE HINT 'ToDo: validate TTileStorageBerkeleyDBHelper.Create'}
+
+  FVersioned := True; // ToDo: Versioned
+
   FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
     AGlobalBerkeleyDBHelper,
     AMapVersionFactory,
     StoragePath,
     False, // ToDo: Read-Only
-    True,  // ToDo: Versioned
+    FVersioned,  
     AGeoConverter.ProjectionEPSG
   );
 
@@ -216,6 +221,11 @@ end;
 function TTileStorageBerkeleyDB.GetIsFileCache: Boolean;
 begin
   Result := False;
+end;
+
+function TTileStorageBerkeleyDB.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := FVersioned;
 end;
 
 function TTileStorageBerkeleyDB.GetTileFileName(
@@ -670,7 +680,8 @@ begin
 end;
 
 function TTileStorageBerkeleyDB.ScanTiles(
-  const AIgnoreTNE: Boolean
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
 ): IEnumTileInfo;
 const
   cMaxFolderDepth = 10;
@@ -704,8 +715,10 @@ begin
     VFileNameParser := TTileFileNameBerkeleyDB.Create as ITileFileNameParser;
     Result :=
       TEnumTileInfoByBerkeleyDB.Create(
+        AIgnoreMultiVersionTiles,
         VFilesIterator,
         VFileNameParser,
+        Self.MapVersionFactory,
         (Self as ITileStorage),
         FStorageHelper
       );
