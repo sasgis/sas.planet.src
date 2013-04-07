@@ -370,7 +370,7 @@ begin
           AXY,
           AZoom,
           AVersionInfo,
-          False, // single tile info
+          False, // multi-versions tile info
           VList,
           VTileVersion,
           VTileContentType,
