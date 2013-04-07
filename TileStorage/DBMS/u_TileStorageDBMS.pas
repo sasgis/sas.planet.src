@@ -181,6 +181,7 @@ type
   protected
     // base storage interface
     function GetIsFileCache: Boolean; override;
+    function GetIsCanSaveMultiVersionTiles: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -929,6 +930,11 @@ end;
 function TTileStorageETS.GetIsFileCache: Boolean;
 begin
   Result := False;
+end;
+
+function TTileStorageETS.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := True;
 end;
 
 function TTileStorageETS.GetListOfTileVersions(
