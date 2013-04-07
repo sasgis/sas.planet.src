@@ -652,17 +652,8 @@ begin
           ATileContentType := VValue.TileContentType;
           ATileDate := VValue.TileDate;
           ATileSize := VValue.TileSize;
-        end else begin
-          VMapVersionInfo :=
-            FMapVersionFactory.CreateByStoreString(
-              VValue.TileVersionInfo,
-              AVersionInfo.ShowPrevVersion
-            );
-          VList := TInterfaceList.Create;
-          VList.Add(VMapVersionInfo);
-          ATileVersionListStatic := TMapVersionListStatic.Create(VList);
+          Result := True;
         end;
-        Result := True;
       end;
     end;
   finally
