@@ -1042,7 +1042,7 @@ var
   VShowPrevVersion: Boolean;
 begin
   VVersion := AConfig.ReadString('Version', '');
-  VShowPrevVersion := AConfig.ReadBool('ShowPrevVersion', False);
+  VShowPrevVersion := AConfig.ReadBool('ShowPrevVersion', True);
   FVersionConfig := TMapVersionInfo.Create(VVersion, VShowPrevVersion);
 end;
 
