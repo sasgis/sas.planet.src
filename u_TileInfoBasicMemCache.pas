@@ -31,6 +31,7 @@ uses
   i_TileInfoBasicMemCache,
   i_NotifierTime,
   i_ListenerTime,
+  i_TileStorage,
   i_InternalPerformanceCounter,
   u_BaseInterfacedObject;
 
@@ -79,11 +80,14 @@ type
     );
     procedure Remove(
       const AXY: TPoint;
-      const AZoom: Byte
+      const AZoom: Byte;
+      const AVersionInfo: IMapVersionInfo
     );
     function Get(
       const AXY: TPoint;
       const AZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AMode: TGetTileInfoMode;
       const AUpdateTTL: Boolean
     ): ITileInfoBasic;
     procedure Clear;
@@ -160,6 +164,8 @@ const
   cUndefItemValue = -1;
 var
   I: Integer;
+  VVersion: string;
+  VTileVersion: string;
   VTile: PTileInfoCacheRec;
   VOldestItem: Integer;
   VEmptyItem: Integer;
@@ -174,12 +180,23 @@ begin
       VOldestItem := cUndefItemValue;
       VEmptyItem := cUndefItemValue;
       VMinTTL := $FFFFFFFF;
+      if Assigned(AVersionInfo) then begin
+        VVersion := AVersionInfo.StoreString;
+      end else begin
+        VVersion := '';
+      end;
       for I := 0 to FList.Count - 1 do begin
         VTile := PTileInfoCacheRec(FList.Items[I]);
+        if Assigned(VTile.TileVersionInfo) then begin
+          VTileVersion := VTile.TileVersionInfo.StoreString;
+        end else begin
+          VTileVersion := '';
+        end;
         if (VTile.TileXY.X = AXY.X) and
            (VTile.TileXY.Y = AXY.Y) and
            (VTile.TileZoom = AZoom) and
-           (not VTile.IsEmptyCacheRec)
+           (not VTile.IsEmptyCacheRec) and
+           SameStr(VTileVersion, VVersion)
         then begin
           VTile.TileTTL := GetTickCount + FTTL;
           VTile.TileVersionInfo := AVersionInfo;
@@ -221,10 +238,13 @@ end;
 
 procedure TTileInfoBasicMemCache.Remove(
   const AXY: TPoint;
-  const AZoom: Byte
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo
 );
 var
   I: Integer;
+  VVersion: string;
+  VTileVersion: string;
   VTile: PTileInfoCacheRec;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
@@ -232,11 +252,22 @@ begin
   try
     FCS.BeginWrite;
     try
+      if Assigned(AVersionInfo) then begin
+        VVersion := AVersionInfo.StoreString;
+      end else begin
+        VVersion := '';
+      end;
       for I := 0 to FList.Count - 1 do begin
         VTile := PTileInfoCacheRec(FList.Items[I]);
+        if Assigned(VTile.TileVersionInfo) then begin
+          VTileVersion := VTile.TileVersionInfo.StoreString;
+        end else begin
+          VTileVersion := '';
+        end;
         if (VTile.TileXY.X = AXY.X) and
            (VTile.TileXY.Y = AXY.Y) and
-           (VTile.TileZoom = AZoom)
+           (VTile.TileZoom = AZoom) and
+           SameStr(VTileVersion, VVersion)
         then begin
           MakeItClean(VTile);
           Break;
@@ -254,10 +285,14 @@ end;
 function TTileInfoBasicMemCache.Get(
   const AXY: TPoint;
   const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
+  const AMode: TGetTileInfoMode;
   const AUpdateTTL: Boolean
 ): ITileInfoBasic;
 var
   I: Integer;
+  VVersion: string;
+  VTileVersion: string;
   VTile: PTileInfoCacheRec;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
@@ -266,12 +301,23 @@ begin
     FCS.BeginWrite;
     try
       Result := nil;
+      if Assigned(AVersionInfo) then begin
+        VVersion := AVersionInfo.StoreString;
+      end else begin
+        VVersion := '';
+      end;
       for I := 0 to FList.Count - 1 do begin
         VTile := PTileInfoCacheRec(FList.Items[I]);
+        if Assigned(VTile.TileVersionInfo) then begin
+          VTileVersion := VTile.TileVersionInfo.StoreString;
+        end else begin
+          VTileVersion := '';
+        end;
         if (VTile.TileXY.X = AXY.X) and
            (VTile.TileXY.Y = AXY.Y) and
            (VTile.TileZoom = AZoom) and
-           (not VTile.IsEmptyCacheRec)
+           (not VTile.IsEmptyCacheRec) and
+           SameStr(VTileVersion, VVersion)
         then begin
           if (VTile.TileTTL < GetTickCount) then begin
             if FClearStrategy = csOneByOne then begin
@@ -280,8 +326,14 @@ begin
           end else begin
             if AUpdateTTL then begin
               VTile.TileTTL := GetTickCount + FTTL;
+            end;              
+            if AMode = gtimWithData then begin
+              if not Supports(VTile.TileInfoBasic, ITileInfoWithData, Result) then begin
+                Result := nil;
+              end;
+            end else begin // gtimWithoutData, gtimAsIs
+              Result := VTile.TileInfoBasic;
             end;
-            Result := VTile.TileInfoBasic;
           end;
           Break;
         end;

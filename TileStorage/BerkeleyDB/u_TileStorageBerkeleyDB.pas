@@ -257,7 +257,7 @@ var
   VList: IMapVersionListStatic;
 begin
   if Assigned(FTileInfoMemCache) then begin
-    Result := FTileInfoMemCache.Get(AXY, AZoom, True);
+    Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, True);
     if Result <> nil then begin
       Exit;
     end;

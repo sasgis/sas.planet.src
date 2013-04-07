@@ -170,7 +170,7 @@ function TTileStorageInRAM.GetTileInfo(
   const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 begin
-  Result := FTileInfoMemCache.Get(AXY, AZoom, False);
+  Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, False);
   if Result = nil then begin
     Result := FTileNotExistsTileInfo;
     FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, FTileNotExistsTileInfo);
