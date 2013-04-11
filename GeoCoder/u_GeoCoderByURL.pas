@@ -458,6 +458,37 @@ begin
   slon := Copy(VLink, i + 4, j - (i + 4));
  end;
 
+ // http://khm0.google.com/kh/v=127&src=app&x=24398&s=&y=10570&z=15&s=Gali
+ if RegExprGetMatchSubStr(VLink,'khm.+google\..+x=[0-9]+', 0) <> '' then begin
+  sname := 'Google tile';
+
+  i := PosEx('y=', VLink, 1);
+  j := PosEx('&', VLink, i);
+  slat := Copy(VLink, i + 2, j - (i + 2));
+  Vilat := strtoint(slat);
+
+  i := PosEx('x=', VLink, 1);
+  j := PosEx('&', VLink, i);
+  slon := Copy(VLink, i + 2, j - (i + 2));
+  Vilon := strtoint(slon);
+
+  i := PosEx('z=', VLink, 1);
+  j := PosEx('&', VLink, i);
+  slon := Copy(VLink, i + 2, j - (i + 2));
+  VZoom := strtoint(slon);
+  inc(VZoom);
+
+  XYPoint.X:=ViLon;
+  XYPoint.Y:=ViLat;
+  sdesc := 'z='+inttostr(VZoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#$D#$A;
+  XYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
+  XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
+  VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
+  slat := ReplaceStr(FloatToStr(VPoint.Y),',','.');
+  slon := ReplaceStr(FloatToStr(VPoint.X),',','.');
+ end;
+
+
  // http://c.tile.openstreetmap.org/10/622/367.png
  if RegExprGetMatchSubStr(VLink,'\.(openstreetmap|opencyclemap|osm).+\.png',0)<>''  then begin
   sname := 'OpenStreetMap';
@@ -639,6 +670,7 @@ end.
 
 // тайловые ссылки
 // http://a.tile.openstreetmap.org/15/19928/11707.png
+// http://khm0.google.com/kh/v=127&src=app&x=24398&s=&y=10570&z=15&s=Gali
 
 // Короткие
 // http://g.co/maps/7anbg
