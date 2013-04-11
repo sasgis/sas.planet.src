@@ -329,9 +329,9 @@ procedure TfrmCacheManager.ProcessCacheConverter;
 
   function IsTileCacheInArchive(const APath: string; out AArchType: TTileCacheInArchiveType): Boolean;
   begin
-    if SameStr(ExtractFileExt(APath), '.tar') then begin
+    if LowerCase(ExtractFileExt(APath)) = '.tar' then begin
       AArchType := atTar;
-    end else if SameStr(ExtractFileExt(APath), '.zip') then begin
+    end else if LowerCase(ExtractFileExt(APath)) = '.zip' then begin
       AArchType := atZip;
     end else if ExtractFileExt(APath) <> '' then begin
       AArchType := atUnk;
