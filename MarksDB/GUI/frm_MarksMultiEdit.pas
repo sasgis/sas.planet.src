@@ -33,7 +33,7 @@ uses
   i_LanguageManager,
   i_ImportConfig,
   i_MarkFactory,
-  i_MarksDb,
+  i_MarkDb,
   i_MarkCategoryDB,
   u_CommonFormAndFrameParents,
   fr_MarksGeneralOptions;

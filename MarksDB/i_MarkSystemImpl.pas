@@ -18,23 +18,31 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_ImportFile;
+unit i_MarkSystemImpl;
 
 interface
 
 uses
-  Classes,
-  i_MarkSystem,
-  i_ImportConfig;
+  i_ReadWriteState,
+  i_Mark,
+  i_MarkCategory,
+  i_MarkDbImpl,
+  i_MarkCategoryDBImpl;
 
 type
-  IImportFile = interface
-    ['{0EF61663-09C0-4C71-A6F0-4E26380296E9}']
-    function ProcessImport(
-      const AMarksSystem: IMarkSystem;
-      const AFileName: string;
-      const AConfig: IImportConfig
-    ): IInterfaceList;
+  IMarkSystemImpl = interface
+    ['{E974C3C0-499C-4BB0-B82E-34D39AFCBA9F}']
+    function GetState: IReadWriteStateChangeble;
+    property State: IReadWriteStateChangeble read GetState;
+
+    function GetMarkDb: IMarkDbImpl;
+    property MarkDb: IMarkDbImpl read GetMarkDb;
+
+    function GetCategoryDB: IMarkCategoryDBImpl;
+    property CategoryDB: IMarkCategoryDBImpl read GetCategoryDB;
+
+    function GetMarkByStringId(const AId: string): IMark;
+    function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
   end;
 
 implementation

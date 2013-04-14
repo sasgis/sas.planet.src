@@ -56,7 +56,7 @@ uses
   i_UseTilePrevZoomConfig,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
-  i_MarksSystem,
+  i_MarkSystem,
   i_MapTypes,
   i_RegionProcess,
   i_ActiveMapsConfig,
@@ -69,7 +69,7 @@ uses
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
-  u_MarksDbGUIHelper,
+  u_MarkDbGUIHelper,
   fr_Combine,
   fr_Export;
 
@@ -108,7 +108,7 @@ type
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TProviderTilesDownload;
     FMapGoto: IMapViewGoto;
-    FMarkDBGUI: TMarksDbGUIHelper;
+    FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
     procedure LoadRegion(const APolyLL: ILonLatPolygon);
     procedure DelRegion(const APolyLL: ILonLatPolygon);
@@ -142,7 +142,7 @@ type
       const AImageResamplerConfig: IImageResamplerConfig;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
-      const AMarksDB: IMarksSystem;
+      const AMarksDB: IMarkSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -156,7 +156,7 @@ type
       const ADownloadInfo: IDownloadInfoSimple;
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AMapGoto: IMapViewGoto;
-      const AMarkDBGUI: TMarksDbGUIHelper
+      const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
     procedure LoadSelFromFile(const FileName:string);
@@ -195,7 +195,7 @@ constructor TfrmRegionProcess.Create(
   const AImageResamplerConfig: IImageResamplerConfig;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
-  const AMarksDB: IMarksSystem;
+  const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -209,7 +209,7 @@ constructor TfrmRegionProcess.Create(
   const ADownloadInfo: IDownloadInfoSimple;
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AMapGoto: IMapViewGoto;
-  const AMarkDBGUI: TMarksDbGUIHelper
+  const AMarkDBGUI: TMarkDbGUIHelper
 );
 var
   VProgressFactory: IRegionProcessProgressInfoInternalFactory;

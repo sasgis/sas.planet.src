@@ -25,7 +25,7 @@ interface
 uses
   Classes,
   i_BinaryData,
-  i_MarksSystem,
+  i_MarkSystem,
   i_TextByVectorItem,
   i_InternalDomainInfoProvider,
   u_BaseInterfacedObject;
@@ -33,7 +33,7 @@ uses
 type
   TInternalDomainInfoProviderByMarksSystem = class(TBaseInterfacedObject, IInternalDomainInfoProvider)
   private
-    FMarksSystem: IMarksSystem;
+    FMarksSystem: IMarkSystem;
     FTextProviders: TStringList;
     FDefaultProvider: ITextByVectorItem;
     function BuildBinaryDataByText(const AText: string): IBinaryData;
@@ -49,7 +49,7 @@ type
     ): IBinaryData;
   public
     constructor Create(
-      const AMarksSystem: IMarksSystem;
+      const AMarksSystem: IMarkSystem;
       const ADefaultProvider: ITextByVectorItem;
       ATextProviders: TStringList
     );
@@ -61,13 +61,13 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  i_MarksSimple,
+  i_Mark,
   u_BinaryData;
 
 { TInternalDomainInfoProviderByMarksSystem }
 
 constructor TInternalDomainInfoProviderByMarksSystem.Create(
-  const AMarksSystem: IMarksSystem;
+  const AMarksSystem: IMarkSystem;
   const ADefaultProvider: ITextByVectorItem;
   ATextProviders: TStringList
 );

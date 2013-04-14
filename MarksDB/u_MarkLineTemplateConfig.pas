@@ -29,7 +29,7 @@ uses
   i_LanguageManager,
   i_MarkTemplate,
   i_Category,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   u_MarkTemplateConfigBase;
 
 type

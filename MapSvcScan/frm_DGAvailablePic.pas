@@ -65,7 +65,7 @@ uses
   u_AvailPicsKosmosnimki,
   u_DownloadResultFactory,
   u_DownloaderHttp,
-  u_MarksDbGUIHelper,
+  u_MarkDbGUIHelper,
   Grids,
   ValEdit, Spin;
 
@@ -196,7 +196,7 @@ type
     FStartRefresh: TDateTime;
     FOldImgDiff: Integer;
     // object from main form
-    FMarkDBGUI: TMarksDbGUIHelper;
+    FMarkDBGUI: TMarkDbGUIHelper;
     FMapSvcScanConfig: IMapSvcScanConfig;
     FMapSvcScanStorage: IMapSvcScanStorage;
     FVectorItemsFactory: IVectorItemsFactory;
@@ -267,7 +267,7 @@ type
     FResultFactory: IDownloadResultFactory;
   public
     constructor Create(
-      const AMarkDBGUI: TMarksDbGUIHelper;
+      const AMarkDBGUI: TMarkDbGUIHelper;
       const AMapSvcScanConfig: IMapSvcScanConfig;
       const ALanguageManager: ILanguageManager;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -283,7 +283,7 @@ implementation
 
 uses
   i_ImportConfig,
-  i_MarksSimple,
+  i_Mark,
   i_VectorItemLonLat,
   i_CoordConverter,
   i_DoublePointsAggregator,
@@ -1106,7 +1106,7 @@ begin
         VPolygon := FVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
-          VMark := FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoly(
+          VMark := FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewPoly(
             VPolygon,
             Vname,
             VDesc,
@@ -1128,7 +1128,7 @@ begin
 
   if Assigned(VAllNewMarks) then
   if (nil<>VImportConfig) then begin
-    FMarkDBGUI.MarksDb.MarksDb.UpdateMarksList(nil, VAllNewMarks);
+    FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(nil, VAllNewMarks);
   end;
 end;
 
@@ -1611,7 +1611,7 @@ begin
 end;
 
 constructor TfrmDGAvailablePic.Create(
-  const AMarkDBGUI: TMarksDbGUIHelper;
+  const AMarkDBGUI: TMarkDbGUIHelper;
   const AMapSvcScanConfig: IMapSvcScanConfig;
   const ALanguageManager: ILanguageManager;
   const AVectorItemsFactory: IVectorItemsFactory;

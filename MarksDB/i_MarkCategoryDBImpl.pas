@@ -18,23 +18,33 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_ImportFile;
+unit i_MarkCategoryDBImpl;
 
 interface
 
 uses
   Classes,
-  i_MarkSystem,
-  i_ImportConfig;
+  i_Notifier,
+  i_MarkCategory;
 
 type
-  IImportFile = interface
-    ['{0EF61663-09C0-4C71-A6F0-4E26380296E9}']
-    function ProcessImport(
-      const AMarksSystem: IMarkSystem;
-      const AFileName: string;
-      const AConfig: IImportConfig
+  IMarkCategoryDBImpl = interface
+    ['{7B54650B-BF85-4688-A493-0DED82DADFFD}']
+    function GetCategoryByName(const AName: string): IMarkCategory;
+    function UpdateCategory(
+      const AOldCategory: IMarkCategory;
+      const ANewCategory: IMarkCategory
+    ): IMarkCategory;
+    function UpdateCategoryList(
+      const AOldCategory: IInterfaceList;
+      const ANewCategory: IInterfaceList
     ): IInterfaceList;
+
+    function GetCategoriesList: IInterfaceList;
+    procedure SetAllCategoriesVisible(ANewVisible: Boolean);
+
+    function GetChangeNotifier: INotifier;
+    property ChangeNotifier: INotifier read GetChangeNotifier;
   end;
 
 implementation

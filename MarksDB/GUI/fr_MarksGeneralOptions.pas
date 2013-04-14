@@ -16,7 +16,7 @@ uses
   i_Category,
   i_ImportConfig,
   i_MarkFactory,
-  i_MarksDb,
+  i_MarkDb,
   i_MarkCategoryDB,
   i_LanguageManager,
   u_CommonFormAndFrameParents,
@@ -113,7 +113,7 @@ uses
   SysUtils,
   i_MarkTemplate,
   i_MarkPicture,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   u_Category,
   u_ImportConfig;
 
@@ -157,7 +157,7 @@ end;
 
 procedure TfrMarksGeneralOptions.Init(const ACategory: ICategory);
 var
-  VConfig: IMarksFactoryConfig;
+  VConfig: IMarkFactoryConfig;
   VPointTemplate: IMarkTemplatePoint;
   VPathTemplate: IMarkTemplateLine;
   VPolyTemplate: IMarkTemplatePoly;

@@ -69,7 +69,7 @@ uses
   i_TileErrorLogProviedrStuped,
   i_MapTypeConfigModalEdit,
   i_MapTypeHotKeyListStatic,
-  i_MarksSimple,
+  i_Mark,
   i_VectorDataItemSimple,
   i_MainFormConfig,
   i_SearchResultPresenter,
@@ -90,7 +90,7 @@ uses
   i_FindVectorItems,
   i_PlayerPlugin,
   u_ShortcutManager,
-  u_MarksDbGUIHelper,
+  u_MarkDbGUIHelper,
   frm_About,
   frm_Settings,
   frm_MapLayersOptions,
@@ -603,7 +603,7 @@ type
     FLineOnMapByOperation: array [TStateEnum] of ILineOnMapEdit;
     FPointOnMapEdit: IPointOnMapEdit;
     FSelectionRect: ISelectionRect;
-    FMarkDBGUI: TMarksDbGUIHelper;
+    FMarkDBGUI: TMarkDbGUIHelper;
     FPlacemarkPlayerPlugin: IPlayerPlugin;
     //FPlacemarkPlayerTask: IPlayerTask;
 
@@ -719,6 +719,7 @@ uses
   i_Listener,
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_MarkId,
   i_MapTypes,
   i_GeoCoderList,
   i_CoordConverter,
@@ -859,7 +860,7 @@ begin
   FConfig := GState.MainFormConfig;
   FMapGoto := TMapViewGoto.Create(FConfig.ViewPortState);
   FMarkDBGUI :=
-    TMarksDbGUIHelper.Create(
+    TMarkDbGUIHelper.Create(
       GState.Config.LanguageManager,
       GState.Config.MediaDataPath,
       GState.Config.MarksFactoryConfig,
@@ -910,7 +911,7 @@ begin
   FfrmGoTo :=
     TfrmGoTo.Create(
       GState.Config.LanguageManager,
-      GState.MarksDb.MarksDb,
+      GState.MarksDb.MarkDb,
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState.View,
       GState.Config.ValueToStringConverterConfig
@@ -3729,7 +3730,7 @@ var
 begin
   VMark := FSelectedMark;
   if Supports(VMark, IMarkId, VMarkId) then begin
-    FMarkDBGUI.MarksDb.MarksDb.SetMarkVisibleByID(VMarkId, False);
+    FMarkDBGUI.MarksDb.MarkDb.SetMarkVisibleByID(VMarkId, False);
   end;
 end;
 
@@ -5807,12 +5808,12 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    VVisible := FMarkDBGUI.MarksDb.MarksDb.GetMarkVisible(VMark);
+    VVisible := FMarkDBGUI.MarksDb.MarkDb.GetMarkVisible(VMark);
     VMarkModifed := FMarkDBGUI.EditMarkModal(VMark, False, VVisible);
     if VMarkModifed <> nil then begin
-      VResult := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(VMark, VMarkModifed);
+      VResult := FMarkDBGUI.MarksDb.MarkDb.UpdateMark(VMark, VMarkModifed);
       if VResult <> nil then begin
-        FMarkDBGUI.MarksDb.MarksDb.SetMarkVisible(VResult, VVisible);
+        FMarkDBGUI.MarksDb.MarkDb.SetMarkVisible(VResult, VVisible);
       end;
     end;
   end;
@@ -5875,7 +5876,7 @@ begin
         VImportConfig := nil;
         VList := FMarkDBGUI.ImportFile(VFileName, VImportConfig);
         if (VList <> nil) and (VList.Count > 0) then begin
-          VMark:=FMarkDBGUI.MarksDb.MarksDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
+          VMark:=FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
           if VMark <> nil then begin
             if Supports(VMark, IMarkPoint, VMarkPoint) then begin
               FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
@@ -6552,7 +6553,7 @@ begin
       VStr := VPlacemark.GetDesc;
     end;
     VMark :=
-      FMarkDBGUI.MarksDb.MarksDb.Factory.CreateNewPoint(
+      FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewPoint(
         VPlacemark.GetPoint,
         VPlacemark.Name,
         VStr
@@ -6560,9 +6561,9 @@ begin
     VVisible := True;
     VMark := FMarkDBGUI.EditMarkModal(VMark, True, VVisible);
     if VMark <> nil then begin
-      VResult := FMarkDBGUI.MarksDb.MarksDb.UpdateMark(nil, VMark);
+      VResult := FMarkDBGUI.MarksDb.MarkDb.UpdateMark(nil, VMark);
       if VResult <> nil then begin
-        FMarkDBGUI.MarksDb.MarksDb.SetMarkVisible(VMark, VVisible);
+        FMarkDBGUI.MarksDb.MarkDb.SetMarkVisible(VMark, VVisible);
       end;
     end;
   end;

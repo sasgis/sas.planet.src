@@ -23,9 +23,10 @@ unit u_MarkId;
 interface
 
 uses
-  i_MarksSimple,
+  i_MarkId,
+  i_Mark,
   i_Category,
-  i_MarksDbSmlInternal,
+  i_MarkDbSmlInternal,
   u_BaseInterfacedObject;
 
 type
@@ -51,6 +52,7 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     function IsSameId(const AMarkId: IMarkId): Boolean;
+    function IsSameMark(const AMark: IMark): Boolean;
   public
     constructor Create(
       const AName: string;
@@ -163,6 +165,18 @@ begin
   Result := False;
   if AMarkId <> nil then begin
     if Supports(AMarkId, IMarkSMLInternal, VMarkInternal) then begin
+      Result := (FId = VMarkInternal.Id) and (FDbId = VMarkInternal.DbId);
+    end;
+  end;
+end;
+
+function TMarkId.IsSameMark(const AMark: IMark): Boolean;
+var
+  VMarkInternal: IMarkSMLInternal;
+begin
+  Result := False;
+  if AMark <> nil then begin
+    if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
       Result := (FId = VMarkInternal.Id) and (FDbId = VMarkInternal.DbId);
     end;
   end;

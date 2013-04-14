@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MarkCategoryDB;
+unit u_MarkCategoryDBSml;
 
 interface
 
@@ -29,21 +29,19 @@ uses
   DBClient,
   i_IDList,
   i_SimpleFlag,
-  i_PathConfig,
   i_MarkCategory,
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryDbInternal,
-  i_MarkCategoryFactoryConfig,
-  i_MarkCategoryDB,
   i_MarkCategoryDBSmlInternal,
   i_ReadWriteStateInternal,
+  i_MarkCategoryDBImpl,
   u_ConfigDataElementBase;
 
 type
-  TMarkCategoryDB = class(TConfigDataElementBaseEmptySaveLoad, IMarkCategoryDB, IMarkCategoryDBSmlInternal)
+  TMarkCategoryDBSml = class(TConfigDataElementBaseEmptySaveLoad, IMarkCategoryDBSmlInternal, IMarkCategoryDBImpl)
   private
     FDbId: Integer;
-    FBasePath: IPathConfig;
+    FFileName: string;
     FStateInternal: IReadWriteStateInternal;
 
     FStream: TStream;
@@ -56,12 +54,13 @@ type
     function ReadCurrentCategory(out AId: Integer): IMarkCategory;
     procedure WriteCurrentCategory(const ACategory: IMarkCategory);
     function GetMarksCategoryBackUpFileName: string;
-    function GetMarksCategoryFileName: string;
     procedure InitEmptyDS;
     function _UpdateCategory(
       const AOldCategory: IInterface;
       const ANewCategory: IInterface
     ): IMarkCategory;
+    function SaveCategory2File: boolean;
+    procedure LoadCategoriesFromFile;
   private
     function GetCategoryByName(const AName: string): IMarkCategory;
     function UpdateCategory(
@@ -75,19 +74,13 @@ type
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
-
-    function GetFactory: IMarkCategoryFactory;
   private
-    function SaveCategory2File: boolean;
-    procedure LoadCategoriesFromFile;
     function GetCategoryByID(id: integer): IMarkCategory;
   public
     constructor Create(
       const ADbId: Integer;
       const AStateInternal: IReadWriteStateInternal;
-      const ABasePath: IPathConfig;
-      const AFactory: IMarkCategoryFactory;
-      const AFactoryConfig: IMarkCategoryFactoryConfig
+      const AFileName: string
     );
     destructor Destroy; override;
   end;
@@ -101,23 +94,19 @@ uses
   i_Category,
   u_IDInterfaceList,
   u_SimpleFlagWithInterlock,
-  i_MarksDbSmlInternal,
-  u_MarkCategoryFactorySmlDbInternal,
-  u_MarkCategoryFactory;
+  i_MarkDbSmlInternal,
+  u_MarkCategoryFactorySmlDbInternal;
 
-constructor TMarkCategoryDB.Create(
+constructor TMarkCategoryDBSml.Create(
   const ADbId: Integer;
   const AStateInternal: IReadWriteStateInternal;
-  const ABasePath: IPathConfig;
-  const AFactory: IMarkCategoryFactory;
-  const AFactoryConfig: IMarkCategoryFactoryConfig
+  const AFileName: string
 );
 begin
   inherited Create;
   FDbId := ADbId;
-  FBasePath := ABasePath;
+  FFileName := AFileName;
   FStateInternal := AStateInternal;
-  FFactory := AFactory;
   FList := TIDInterfaceList.Create;
   FFactoryDbInternal := TMarkCategoryFactorySmlDbInternal.Create(FDbId);
   FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
@@ -125,10 +114,12 @@ begin
   FCdsKategory.Name := 'CDSKategory';
   FCdsKategory.DisableControls;
   InitEmptyDS;
+  LoadCategoriesFromFile;
 end;
 
-destructor TMarkCategoryDB.Destroy;
+destructor TMarkCategoryDBSml.Destroy;
 begin
+  SaveCategory2File;
   FreeAndNil(FStream);
   FreeAndNil(FCdsKategory);
   FList := nil;
@@ -137,7 +128,7 @@ begin
   inherited;
 end;
 
-function TMarkCategoryDB.ReadCurrentCategory(out AId: Integer): IMarkCategory;
+function TMarkCategoryDBSml.ReadCurrentCategory(out AId: Integer): IMarkCategory;
 var
   VName: string;
   VVisible: Boolean;
@@ -152,7 +143,7 @@ begin
   Result := FFactoryDbInternal.CreateCategory(AId, VName, VVisible, VAfterScale, VBeforeScale);
 end;
 
-procedure TMarkCategoryDB.WriteCurrentCategory(const ACategory: IMarkCategory);
+procedure TMarkCategoryDBSml.WriteCurrentCategory(const ACategory: IMarkCategory);
 begin
   FCdsKategory.fieldbyname('name').AsString := ACategory.Name;
   FCdsKategory.FieldByName('visible').AsBoolean := ACategory.Visible;
@@ -160,7 +151,7 @@ begin
   FCdsKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
-function TMarkCategoryDB._UpdateCategory(
+function TMarkCategoryDBSml._UpdateCategory(
   const AOldCategory, ANewCategory: IInterface
 ): IMarkCategory;
 var
@@ -238,7 +229,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.UpdateCategory(
+function TMarkCategoryDBSml.UpdateCategory(
   const AOldCategory: IMarkCategory;
   const ANewCategory: IMarkCategory
 ): IMarkCategory;
@@ -253,7 +244,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.UpdateCategoryList(const AOldCategoryList,
+function TMarkCategoryDBSml.UpdateCategoryList(const AOldCategoryList,
   ANewCategoryList: IInterfaceList): IInterfaceList;
 var
   i: Integer;
@@ -319,7 +310,7 @@ begin
   end;
 end;
 
-procedure TMarkCategoryDB.InitEmptyDS;
+procedure TMarkCategoryDBSml.InitEmptyDS;
 begin
   FCdsKategory.Close;
   FCdsKategory.XMLData :=
@@ -340,7 +331,7 @@ begin
   FCdsKategory.Open;
 end;
 
-function TMarkCategoryDB.GetCategoryByID(id: integer): IMarkCategory;
+function TMarkCategoryDBSml.GetCategoryByID(id: integer): IMarkCategory;
 begin
   Result := nil;
   LockRead;
@@ -351,7 +342,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.GetCategoryByName(const AName: string): IMarkCategory;
+function TMarkCategoryDBSml.GetCategoryByName(const AName: string): IMarkCategory;
 var
   VEnum: IEnumID;
   i: Cardinal;
@@ -374,12 +365,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.GetFactory: IMarkCategoryFactory;
-begin
-  Result := FFactory;
-end;
-
-procedure TMarkCategoryDB.SetAllCategoriesVisible(ANewVisible: Boolean);
+procedure TMarkCategoryDBSml.SetAllCategoriesVisible(ANewVisible: Boolean);
 var
   VCategory: IMarkCategory;
   VId: Integer;
@@ -410,7 +396,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.GetCategoriesList: IInterfaceList;
+function TMarkCategoryDBSml.GetCategoriesList: IInterfaceList;
 var
   VEnum: IEnumID;
   i: Cardinal;
@@ -430,17 +416,12 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.GetMarksCategoryBackUpFileName: string;
+function TMarkCategoryDBSml.GetMarksCategoryBackUpFileName: string;
 begin
-  Result := IncludeTrailingPathDelimiter(FBasePath.FullPath) + 'Categorymarks.~sml';
+  Result := ChangeFileExt(FFileName, '.~sml');
 end;
 
-function TMarkCategoryDB.GetMarksCategoryFileName: string;
-begin
-  Result := IncludeTrailingPathDelimiter(FBasePath.FullPath) + 'Categorymarks.sml';
-end;
-
-procedure TMarkCategoryDB.LoadCategoriesFromFile;
+procedure TMarkCategoryDBSml.LoadCategoriesFromFile;
 var
   VFileName: string;
   VCategory: IMarkCategory;
@@ -448,7 +429,7 @@ var
   XML: AnsiString;
   VStream: TFileStream;
 begin
-  VFileName := GetMarksCategoryFileName;
+  VFileName := FFileName;
   FStateInternal.LockWrite;
   try
     LockWrite;
@@ -549,7 +530,7 @@ begin
   end;
 end;
 
-function TMarkCategoryDB.SaveCategory2File: boolean;
+function TMarkCategoryDBSml.SaveCategory2File: boolean;
 var
   XML: AnsiString;
 begin

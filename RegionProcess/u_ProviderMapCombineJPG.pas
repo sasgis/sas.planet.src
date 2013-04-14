@@ -21,7 +21,7 @@ uses
   i_Bitmap32StaticFactory,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
-  i_MarksSystem,
+  i_MarkSystem,
   i_MapCalibration,
   i_VectorItemsFactory,
   i_GlobalViewMainConfig,
@@ -46,7 +46,7 @@ type
       const AVectorItemsFactory: IVectorItemsFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
-      const AMarksDB: IMarksSystem;
+      const AMarksDB: IMarkSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
@@ -76,7 +76,7 @@ constructor TProviderMapCombineJPG.Create(
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AMarksShowConfig: IUsedMarksConfig;
-  const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarksSystem;
+  const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;

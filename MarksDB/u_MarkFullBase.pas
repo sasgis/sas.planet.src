@@ -28,7 +28,7 @@ uses
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
   i_Category,
-  i_MarksSimple,
+  i_Mark,
   u_BaseInterfacedObject;
 
 type
@@ -51,7 +51,6 @@ type
     function GetInfoCaption: string;
     function GetGoToLonLat: TDoublePoint; virtual; abstract;
     function IsEqual(const AMark: IMark): Boolean; virtual;
-    function IsSameId(const AMarkId: IMarkId): Boolean;
     function GetCategory: ICategory;
   public
     constructor Create(
@@ -147,11 +146,6 @@ begin
       Exit;
     end;
   end;
-end;
-
-function TMarkFullBase.IsSameId(const AMarkId: IMarkId): Boolean;
-begin
-  Result := False;
 end;
 
 end.

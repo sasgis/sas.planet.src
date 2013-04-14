@@ -40,7 +40,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MarkPicture,
-  i_MarksSimple,
+  i_Mark,
   i_MarkFactory,
   i_MarkCategoryDB,
   fr_MarkDescription,
@@ -125,7 +125,7 @@ implementation
 uses
   t_GeoTypes,
   i_MarkTemplate,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   u_ResStrings;
 
 {$R *.dfm}

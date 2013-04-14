@@ -15,7 +15,7 @@ uses
   i_MainMemCacheConfig,
   i_GPSConfig,
   i_GlobalViewMainConfig,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   i_MarkCategoryFactoryConfig,
   i_GlobalDownloadConfig,
   i_ThreadConfig,
@@ -111,8 +111,8 @@ type
     function GetGPSConfig: IGpsConfig;
     property GPSConfig: IGPSConfig read GetGpsConfig;
 
-    function GetMarksFactoryConfig: IMarksFactoryConfig;
-    property MarksFactoryConfig: IMarksFactoryConfig read GetMarksFactoryConfig;
+    function GetMarksFactoryConfig: IMarkFactoryConfig;
+    property MarksFactoryConfig: IMarkFactoryConfig read GetMarksFactoryConfig;
 
     function GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read GetMarksCategoryFactoryConfig;

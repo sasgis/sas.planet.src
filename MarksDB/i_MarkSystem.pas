@@ -1,4 +1,4 @@
-unit i_MarksSystem;
+unit i_MarkSystem;
 
 interface
 
@@ -8,29 +8,26 @@ uses
   i_ConfigDataWriteProvider,
   i_ReadWriteState,
   i_VectorDataItemSimple,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   i_ImportConfig,
   i_VectorItemSubset,
-  i_MarksSimple,
+  i_Mark,
   i_MarkCategory,
-  i_MarksDb,
+  i_MarkDb,
   i_MarkCategoryDB,
   i_StaticTreeItem;
 
 type
-  IMarksSystem = interface
+  IMarkSystem = interface
     ['{E974C3C0-499C-4BB0-B82E-34D39AFCBA9F}']
     function GetState: IReadWriteStateChangeble;
     property State: IReadWriteStateChangeble read GetState;
 
-    function GetMarksDb: IMarksDb;
-    property MarksDb: IMarksDb read GetMarksDb;
+    function GetMarkDb: IMarkDb;
+    property MarkDb: IMarkDb read GetMarkDb;
 
     function GetCategoryDB: IMarkCategoryDB;
     property CategoryDB: IMarkCategoryDB read GetCategoryDB;
-
-    function GetMarksFactoryConfig: IMarksFactoryConfig;
-    property MarksFactoryConfig: IMarksFactoryConfig read GetMarksFactoryConfig;
 
     function GetMarkByStringId(const AId: string): IMark;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
@@ -45,11 +42,8 @@ type
     function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
-    function MarksSubsetToStaticTree(const ASubset: IVectorItemSubset): IStaticTreeItem;
+    function MarkSubsetToStaticTree(const ASubset: IVectorItemSubset): IStaticTreeItem;
     function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
-
-    procedure ReadConfig(const AConfigData: IConfigDataProvider);
-    procedure WriteConfig(const AConfigData: IConfigDataWriteProvider);
   end;
 
 implementation

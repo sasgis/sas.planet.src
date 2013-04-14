@@ -24,8 +24,8 @@ uses
   i_FindVectorItems,
   i_VectorItemSubset,
   i_MarkerDrawable,
-  i_MarksSimple,
-  i_MarksSystem,
+  i_Mark,
+  i_MarkSystem,
   u_TiledLayerWithThreadBase;
 
 type
@@ -34,7 +34,7 @@ type
     FConfig: IMarksLayerConfig;
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FMarkDB: IMarksSystem;
+    FMarkDB: IMarkSystem;
     FMarkIconDefault: IMarkerDrawableChangeable;
 
     FGetMarksCounter: IInternalPerformanceCounter;
@@ -80,7 +80,7 @@ type
       const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IMarksLayerConfig;
-      const AMarkDB: IMarksSystem
+      const AMarkDB: IMarkSystem
     );
   end;
 
@@ -117,7 +117,7 @@ constructor TMapLayerMarks.Create(
   const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IMarksLayerConfig;
-  const AMarkDB: IMarksSystem
+  const AMarkDB: IMarkSystem
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;
@@ -164,7 +164,7 @@ begin
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMarksDbChange),
-    FMarkDB.MarksDb.ChangeNotifier
+    FMarkDB.MarkDb.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMarksDbChange),
@@ -337,7 +337,12 @@ begin
         VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
         VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
         VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-        Result := FMarkDB.MarksDb.GetMarksSubset(VLonLatRect, VList, AConfig.IgnoreMarksVisible);
+        Result :=
+          FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(
+            VLonLatRect,
+            VList,
+            AConfig.IgnoreMarksVisible
+          );
       end;
     finally
       VList := nil;

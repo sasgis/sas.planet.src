@@ -26,7 +26,7 @@ uses
   GR32,
   t_GeoTypes,
   i_LonLatRect,
-  i_MarksSimple,
+  i_Mark,
   i_VectorDataItemSimple,
   i_Category,
   i_MarkPicture,

@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_MarksDbSmlInternal;
+unit i_MarkDbSmlInternal;
 
 interface
 
@@ -42,12 +42,6 @@ type
     property Visible: Boolean read GetVisible write SetVisible;
   end;
 
-  IMarkPointSMLInternal = interface(IMarkSMLInternal)
-    ['{8032428E-F038-46C0-A060-47EDDF3A4852}']
-    function GetPicName: string;
-    property PicName: string read GetPicName;
-  end;
-
   IMarkCategorySMLInternal = interface
     ['{08E68E71-FD75-4E7F-953F-485F034525AA}']
     function GetId: integer;
@@ -57,11 +51,9 @@ type
     property DbId: integer read GetDbId;
   end;
 
-  IMarksDbSmlInternal = interface
+  IMarkDbSmlInternal = interface
     ['{54D17191-A56C-4951-8838-7E492906213A}']
     function GetById(AId: Integer): IMarkSMLInternal;
-    function SaveMarks2File: boolean;
-    procedure LoadMarksFromFile;
   end;
 
 implementation

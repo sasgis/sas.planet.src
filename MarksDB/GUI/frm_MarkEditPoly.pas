@@ -37,7 +37,7 @@ uses
   u_CommonFormAndFrameParents,
   i_PathConfig,
   i_LanguageManager,
-  i_MarksSimple,
+  i_Mark,
   i_MarkFactory,
   i_MarkCategoryDB,
   fr_MarkDescription,
@@ -105,7 +105,7 @@ implementation
 
 uses
   i_MarkTemplate,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   u_ResStrings;
 
 {$R *.dfm}

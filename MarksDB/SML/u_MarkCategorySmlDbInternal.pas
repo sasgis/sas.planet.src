@@ -25,7 +25,7 @@ interface
 uses
   i_Category,
   i_MarkCategory,
-  i_MarksDbSmlInternal,
+  i_MarkDbSmlInternal,
   u_BaseInterfacedObject;
 
 type

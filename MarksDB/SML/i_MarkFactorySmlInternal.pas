@@ -28,7 +28,7 @@ uses
   i_MarkPicture,
   i_Category,
   i_VectorItemLonLat,
-  i_MarksSimple;
+  i_Mark;
 
 type
   IMarkFactorySmlInternal = interface

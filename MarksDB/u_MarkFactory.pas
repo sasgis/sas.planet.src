@@ -30,9 +30,9 @@ uses
   i_VectorDataItemSimple,
   i_ImportConfig,
   i_MarkPicture,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   i_Category,
-  i_MarksSimple,
+  i_Mark,
   i_MarkTemplate,
   i_HtmlToHintTextConverter,
   i_MarkFactory,
@@ -42,7 +42,7 @@ type
 
   TMarkFactory = class(TBaseInterfacedObject, IMarkFactory)
   private
-    FConfig: IMarksFactoryConfig;
+    FConfig: IMarkFactoryConfig;
     FFactory: IVectorItemsFactory;
     FHintConverter: IHtmlToHintTextConverter;
 
@@ -165,10 +165,10 @@ type
     ): IMarkPoly;
 
     function GetMarkPictureList: IMarkPictureList;
-    function GetConfig: IMarksFactoryConfig;
+    function GetConfig: IMarkFactoryConfig;
   public
     constructor Create(
-      const AConfig: IMarksFactoryConfig;
+      const AConfig: IMarkFactoryConfig;
       const AMarkPictureList: IMarkPictureList;
       const AFactory: IVectorItemsFactory;
       const AHintConverter: IHtmlToHintTextConverter
@@ -186,7 +186,7 @@ uses
 { TMarkFactory }
 
 constructor TMarkFactory.Create(
-  const AConfig: IMarksFactoryConfig;
+  const AConfig: IMarkFactoryConfig;
   const AMarkPictureList: IMarkPictureList;
   const AFactory: IVectorItemsFactory;
   const AHintConverter: IHtmlToHintTextConverter
@@ -699,7 +699,7 @@ begin
   end;
 end;
 
-function TMarkFactory.GetConfig: IMarksFactoryConfig;
+function TMarkFactory.GetConfig: IMarkFactoryConfig;
 begin
   Result := FConfig;
 end;

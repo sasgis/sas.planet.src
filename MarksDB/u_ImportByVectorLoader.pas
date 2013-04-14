@@ -28,7 +28,7 @@ uses
   i_VectorDataFactory,
   i_ImportConfig,
   i_ImportFile,
-  i_MarksSystem,
+  i_MarkSystem,
   u_BaseInterfacedObject;
 
 type
@@ -38,7 +38,7 @@ type
     FLoader: IVectorDataLoader;
   private
     function ProcessImport(
-      const AMarksSystem: IMarksSystem;
+      const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
     ): IInterfaceList;
@@ -53,7 +53,7 @@ implementation
 
 uses
   SysUtils,
-  i_MarksSimple,
+  i_Mark,
   i_BinaryData,
   i_VectorItemSubset,
   u_BinaryDataByMemStream;
@@ -71,7 +71,7 @@ begin
 end;
 
 function TImportByVectorLoader.ProcessImport(
-  const AMarksSystem: IMarksSystem;
+  const AMarksSystem: IMarkSystem;
   const AFileName: string;
   const AConfig: IImportConfig
 ): IInterfaceList;

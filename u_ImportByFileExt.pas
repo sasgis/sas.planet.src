@@ -29,7 +29,7 @@ uses
   i_VectorDataFactory,
   i_VectorDataLoader,
   i_ImportConfig,
-  i_MarksSystem,
+  i_MarkSystem,
   u_BaseInterfacedObject;
 
 type
@@ -45,7 +45,7 @@ type
     FImportSLS: IImportFile;
   private
     function ProcessImport(
-      const AMarksSystem: IMarksSystem;
+      const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
     ): IInterfaceList;
@@ -93,7 +93,7 @@ begin
 end;
 
 function TImportByFileExt.ProcessImport(
-  const AMarksSystem: IMarksSystem;
+  const AMarksSystem: IMarkSystem;
   const AFileName: string;
   const AConfig: IImportConfig
 ): IInterfaceList;

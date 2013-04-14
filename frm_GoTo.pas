@@ -33,7 +33,7 @@ uses
   Controls,
   t_GeoTypes,
   i_LanguageManager,
-  i_MarksDb,
+  i_MarkDb,
   i_MainGeoCoderConfig,
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
@@ -60,7 +60,7 @@ type
     procedure cbbAllMarksDropDown(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FMarksDb: IMarksDb;
+    FMarksDb: IMarkDb;
     FMainGeoCoderConfig: IMainGeoCoderConfig;
     FViewPortState: ILocalCoordConverterChangeable;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -82,7 +82,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMarksDb: IMarksDb;
+      const AMarksDb: IMarkDb;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -99,7 +99,8 @@ implementation
 uses
   ActiveX,
   i_GeoCoderList,
-  i_MarksSimple,
+  i_MarkId,
+  i_Mark,
   i_LocalCoordConverter,
   i_NotifierOperation,
   u_Notifier,
@@ -276,14 +277,14 @@ end;
 procedure TfrmGoTo.cbbAllMarksDropDown(Sender: TObject);
 begin
   if cbbAllMarks.Items.Count=0 then begin
-    FMarksList := FMarksDb.GetAllMarksIdList;
+    FMarksList := FMarksDb.GetAllMarkIdList;
     MarksListToStrings(FMarksList, cbbAllMarks.Items);
   end;
 end;
 
 constructor TfrmGoTo.Create(
   const ALanguageManager: ILanguageManager;
-  const AMarksDb: IMarksDb;
+  const AMarksDb: IMarkDb;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverterConfig: IValueToStringConverterConfig

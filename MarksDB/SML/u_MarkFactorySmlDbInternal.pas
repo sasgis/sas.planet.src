@@ -30,7 +30,7 @@ uses
   i_MarkPicture,
   i_Category,
   i_MarkCategoryDBSmlInternal,
-  i_MarksSimple,
+  i_Mark,
   i_HtmlToHintTextConverter,
   i_MarkFactorySmlInternal,
   u_BaseInterfacedObject;
@@ -108,7 +108,7 @@ implementation
 
 uses
   SysUtils,
-  i_MarksDbSmlInternal,
+  i_MarkDbSmlInternal,
   
   u_GeoFun,
   u_MarkPointSml,

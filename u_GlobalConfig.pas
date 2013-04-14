@@ -13,7 +13,7 @@ uses
   i_ValueToStringConverter,
   i_ImageResamplerConfig,
   i_MainMemCacheConfig,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   i_MarkCategoryFactoryConfig,
   i_GPSConfig,
   i_GlobalViewMainConfig,
@@ -61,7 +61,7 @@ type
     FTileMatrixDraftResamplerConfig: IImageResamplerConfig;
     FMainMemCacheConfig: IMainMemCacheConfig;
     FGPSConfig: IGpsConfig;
-    FMarksFactoryConfig: IMarksFactoryConfig;
+    FMarksFactoryConfig: IMarkFactoryConfig;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     FViewConfig: IGlobalViewMainConfig;
     FDownloadConfig: IGlobalDownloadConfig;
@@ -99,7 +99,7 @@ type
     function GetTileMatrixDraftResamplerConfig: IImageResamplerConfig;
     function GetMainMemCacheConfig: IMainMemCacheConfig;
     function GetGPSConfig: IGpsConfig;
-    function GetMarksFactoryConfig: IMarksFactoryConfig;
+    function GetMarksFactoryConfig: IMarkFactoryConfig;
     function GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     function GetViewConfig: IGlobalViewMainConfig;
     function GetDownloadConfig: IGlobalDownloadConfig;
@@ -146,7 +146,7 @@ uses
   u_MapSvcScanConfig,
   u_StartUpLogoConfig,
   u_BitmapPostProcessingConfig,
-  u_MarksFactoryConfig,
+  u_MarkFactoryConfig,
   u_MarkCategoryFactoryConfig,
   u_PathConfig;
 
@@ -270,7 +270,7 @@ begin
   FMapSvcScanConfig := TMapSvcScanConfig.Create(FMapSvcScanPath);
   Add(FMapSvcScanConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MapSvcScan'), False, False, False, False);
 
-  FMarksFactoryConfig := TMarksFactoryConfig.Create(FLanguageManager);
+  FMarksFactoryConfig := TMarkFactoryConfig.Create(FLanguageManager);
   Add(FMarksFactoryConfig, TConfigSaveLoadStrategyBasicUseProvider.Create, False, False, False, False);
 
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
@@ -387,7 +387,7 @@ begin
   Result := FMarksDbPath;
 end;
 
-function TGlobalConfig.GetMarksFactoryConfig: IMarksFactoryConfig;
+function TGlobalConfig.GetMarksFactoryConfig: IMarkFactoryConfig;
 begin
   Result := FMarksFactoryConfig;
 end;

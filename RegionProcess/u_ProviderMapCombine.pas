@@ -24,7 +24,7 @@ uses
   i_BitmapPostProcessing,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
-  i_MarksSystem,
+  i_MarkSystem,
   i_MapCalibration,
   i_VectorItemsFactory,
   i_GlobalViewMainConfig,
@@ -45,7 +45,7 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
     FVectorItemsFactory: IVectorItemsFactory;
-    FMarksDB: IMarksSystem;
+    FMarksDB: IMarkSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -80,7 +80,7 @@ type
       const AVectorItemsFactory: IVectorItemsFactory;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
-      const AMarksDB: IMarksSystem;
+      const AMarksDB: IMarkSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
@@ -99,7 +99,7 @@ uses
   SysUtils,
   gnugettext,
   i_LonLatRect,
-  i_MarksSimple,
+  i_Mark,
   i_MarkerProviderForVectorItem,
   i_VectorItemSubset,
   i_RegionProcessParamsFrame,
@@ -128,7 +128,7 @@ constructor TProviderMapCombineBase.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
-  const AMarksDB: IMarksSystem;
+  const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
@@ -240,7 +240,12 @@ begin
         if (VList <> nil) and (VList.Count = 0) then begin
           VMarksSubset := nil;
         end else begin
-          VMarksSubset := FMarksDB.MarksDb.GetMarksSubset(VLonLatRect, VList, VMarksConfigStatic.IgnoreMarksVisible);
+          VMarksSubset :=
+            FMarksDB.MarkDb.GetMarkSubsetByCategoryListInRect(
+              VLonLatRect,
+              VList,
+              VMarksConfigStatic.IgnoreMarksVisible
+            );
         end;
       finally
         VList := nil;

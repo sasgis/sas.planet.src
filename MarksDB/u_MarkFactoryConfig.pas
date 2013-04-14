@@ -18,17 +18,17 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MarksFactoryConfig;
+unit u_MarkFactoryConfig;
 
 interface
 
 uses
   i_LanguageManager,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   u_ConfigDataElementComplexBase;
 
 type
-  TMarksFactoryConfig = class(TConfigDataElementComplexBase, IMarksFactoryConfig)
+  TMarkFactoryConfig = class(TConfigDataElementComplexBase, IMarkFactoryConfig)
   private
     FPointTemplateConfig: IMarkPointTemplateConfig;
     FLineTemplateConfig: IMarkLineTemplateConfig;
@@ -51,9 +51,9 @@ uses
   u_MarkLineTemplateConfig,
   u_MarkPolyTemplateConfig;
 
-{ TMarksFactoryConfig }
+{ TMarkFactoryConfig }
 
-constructor TMarksFactoryConfig.Create(
+constructor TMarkFactoryConfig.Create(
   const ALanguageManager: ILanguageManager
 );
 begin
@@ -69,17 +69,17 @@ begin
   Add(FPolyTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoly'));
 end;
 
-function TMarksFactoryConfig.GetLineTemplateConfig: IMarkLineTemplateConfig;
+function TMarkFactoryConfig.GetLineTemplateConfig: IMarkLineTemplateConfig;
 begin
   Result := FLineTemplateConfig;
 end;
 
-function TMarksFactoryConfig.GetPointTemplateConfig: IMarkPointTemplateConfig;
+function TMarkFactoryConfig.GetPointTemplateConfig: IMarkPointTemplateConfig;
 begin
   Result := FPointTemplateConfig;
 end;
 
-function TMarksFactoryConfig.GetPolyTemplateConfig: IMarkPolyTemplateConfig;
+function TMarkFactoryConfig.GetPolyTemplateConfig: IMarkPolyTemplateConfig;
 begin
   Result := FPolyTemplateConfig;
 end;

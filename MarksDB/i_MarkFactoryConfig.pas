@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_MarksFactoryConfig;
+unit i_MarkFactoryConfig;
 
 interface
 
@@ -78,7 +78,7 @@ type
   end;
 
 
-  IMarksFactoryConfig = interface(IConfigDataElement)
+  IMarkFactoryConfig = interface(IConfigDataElement)
     ['{9CC0FDE0-44B2-443D-8856-ED7263F0F8BF}']
     function GetPointTemplateConfig: IMarkPointTemplateConfig;
     property PointTemplateConfig: IMarkPointTemplateConfig read GetPointTemplateConfig;

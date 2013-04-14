@@ -28,7 +28,7 @@ uses
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
   i_Category,
-  i_MarksSimple,
+  i_Mark,
   u_MarkId;
 
 type
@@ -63,7 +63,7 @@ implementation
 uses
   SysUtils,
   c_InternalBrowser,
-  i_MarksDbSmlInternal;
+  i_MarkDbSmlInternal;
 
 { TMarkFullBase }
 

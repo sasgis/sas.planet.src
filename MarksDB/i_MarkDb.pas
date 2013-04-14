@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_MarksDb;
+unit i_MarkDb;
 
 interface
 
@@ -29,38 +29,47 @@ uses
   i_Category,
   i_MarkFactory,
   i_VectorItemSubset,
-  i_MarksSimple;
+  i_MarkId,
+  i_Mark;
 
 type
-  IMarksDb = interface
+  IMarkDb = interface
     ['{66181215-0260-42A3-9CEA-549329D85F74}']
     function GetMarkByName(
       const AName: string;
       const ACategory: ICategory
     ): IMark;
 
-    function GetMarksSubset(
+    function GetMarkSubsetByCategoryList(
+      const ACategoryList: IInterfaceList;
+      const AIncludeHiddenMarks: Boolean
+    ): IVectorItemSubset;
+    function GetMarkSubsetByCategory(
+      const ACategory: ICategory;
+      const AIncludeHiddenMarks: Boolean
+    ): IVectorItemSubset;
+    function GetMarkSubsetByCategoryListInRect(
       const ARect: TDoubleRect;
       const ACategoryList: IInterfaceList;
-      AIgnoreVisible: Boolean
-    ): IVectorItemSubset; overload;
-    function GetMarksSubset(
+      const AIncludeHiddenMarks: Boolean
+    ): IVectorItemSubset;
+    function GetMarkSubsetByCategoryInRect(
       const ARect: TDoubleRect;
       const ACategory: ICategory;
-      AIgnoreVisible: Boolean
-    ): IVectorItemSubset; overload;
+      const AIncludeHiddenMarks: Boolean
+    ): IVectorItemSubset;
 
     function UpdateMark(
       const AOldMark: IMark;
       const ANewMark: IMark
     ): IMark;
-    function UpdateMarksList(
+    function UpdateMarkList(
       const AOldMarkList: IInterfaceList;
       const ANewMarkList: IInterfaceList
     ): IInterfaceList;
 
-    function GetAllMarksIdList: IInterfaceList;
-    function GetMarksIdListByCategory(const ACategory: ICategory): IInterfaceList;
+    function GetAllMarkIdList: IInterfaceList;
+    function GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceList;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
 

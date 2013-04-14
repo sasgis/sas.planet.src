@@ -30,9 +30,9 @@ uses
   i_ImportConfig,
   i_Category,
   i_MarkPicture,
-  i_MarksFactoryConfig,
+  i_MarkFactoryConfig,
   i_MarkTemplate,
-  i_MarksSimple;
+  i_Mark;
 
 type
   IMarkFactory = interface
@@ -130,8 +130,8 @@ type
     function GetMarkPictureList: IMarkPictureList;
     property MarkPictureList: IMarkPictureList read GetMarkPictureList;
 
-    function GetConfig: IMarksFactoryConfig;
-    property Config: IMarksFactoryConfig read GetConfig;
+    function GetConfig: IMarkFactoryConfig;
+    property Config: IMarkFactoryConfig read GetConfig;
   end;
 
 implementation

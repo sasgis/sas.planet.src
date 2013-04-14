@@ -26,17 +26,17 @@ uses
   GR32,
   t_GeoTypes,
   i_LonLatRect,
-  i_MarksSimple,
+  i_Mark,
   i_VectorDataItemSimple,
   i_Category,
-  i_MarksDbSmlInternal,
+  i_MarkDbSmlInternal,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
   u_MarkFullBaseSml;
 
 type
-  TMarkPointSml = class(TMarkFullBaseSml, IMarkPoint, IMarkPointSMLInternal,
-    IVectorDataItemPoint, IVectorDataItemPointWithIconParams, IVectorDataItemPointWithCaptionParams)
+  TMarkPointSml = class(TMarkFullBaseSml, IMarkPoint, IVectorDataItemPoint,
+    IVectorDataItemPointWithIconParams, IVectorDataItemPointWithCaptionParams)
   private
     FPicName: string;
     FPic: IMarkPicture;
