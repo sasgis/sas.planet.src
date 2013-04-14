@@ -143,6 +143,11 @@ type
       const ACategory: ICategory;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
+    function GetMarkSubsetByName(
+      const AName: string;
+      const AMaxCount: Integer;
+      const AIncludeHiddenMarks: Boolean
+    ): IVectorItemSubset;
   public
     constructor Create(
       const ADbId: Integer;
@@ -161,6 +166,7 @@ uses
   ActiveX,
   DB,
   Math,
+  StrUtils,
   GR32,
   t_CommonTypes,
   i_EnumID,
@@ -1225,6 +1231,48 @@ begin
       end;
     finally
       UnlockRead;
+    end;
+  finally
+    VResultList.Unlock;
+  end;
+end;
+
+function TMarkDbSml.GetMarkSubsetByName(
+  const AName: string;
+  const AMaxCount: Integer;
+  const AIncludeHiddenMarks: Boolean
+): IVectorItemSubset;
+var
+  VResultList: IInterfaceList;
+  VList: IIDInterfaceList;
+  VMark: IMark;
+  VEnumId: IEnumID;
+  AId: Integer;
+  VCnt: Cardinal;
+  VMarkInternal: IMarkSMLInternal;
+begin
+  VResultList := TInterfaceList.Create;
+  Result := TVectorItemSubset.Create(VResultList);
+  VResultList.Lock;
+  try
+    VList := FMarkList;
+    VEnumId := VList.GetIDEnum;
+    while VEnumId.Next(1, AId, VCnt) = S_OK do begin
+      VMark := IMark(VList.GetByID(AId));
+      if ContainsText(VMark.Name, AName) then begin
+        if not AIncludeHiddenMarks then begin
+          if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+            if VMarkInternal.Visible then begin
+              VResultList.Add(VMark);
+            end;
+          end;
+        end else begin
+          VResultList.Add(VMark);
+        end;
+        if (AMaxCount > 0) and (VResultList.Count >= AMaxCount) then begin
+          Break;
+        end;
+      end;
     end;
   finally
     VResultList.Unlock;

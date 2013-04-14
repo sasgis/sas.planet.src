@@ -55,6 +55,11 @@ type
       const ACategory: ICategory;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
+    function GetMarkSubsetByName(
+      const AName: string;
+      const AMaxCount: Integer;
+      const AIncludeHiddenMarks: Boolean
+    ): IVectorItemSubset;
 
     function UpdateMark(
       const AOldMark: IMark;
@@ -242,6 +247,21 @@ begin
   VImpl := FMarkSystemImpl.GetStatic;
   if VImpl <> nil then begin
     Result := VImpl.MarkDb.GetMarkSubsetByCategoryListInRect(ARect, ACategoryList, AIncludeHiddenMarks);
+  end;
+end;
+
+function TMarkDbByImpl.GetMarkSubsetByName(
+  const AName: string;
+  const AMaxCount: Integer;
+  const AIncludeHiddenMarks: Boolean
+): IVectorItemSubset;
+var
+  VImpl: IMarkSystemImpl;
+begin
+  Result := nil;
+  VImpl := FMarkSystemImpl.GetStatic;
+  if VImpl <> nil then begin
+    Result := VImpl.MarkDb.GetMarkSubsetByName(AName, AMaxCount, AIncludeHiddenMarks);
   end;
 end;
 
