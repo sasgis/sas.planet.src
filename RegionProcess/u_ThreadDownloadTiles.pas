@@ -334,7 +334,7 @@ begin
           end else begin
             FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
           end;
-          if (FCheckExistTileDate) and (VTileInfo.IsExists) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
+          if (FCheckExistTileDate) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
             // skip existing newer tile (but download attachments)
             FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
             FLastProcessedPoint := VTile;
