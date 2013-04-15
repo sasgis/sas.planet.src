@@ -61,11 +61,11 @@ type
     FSetTargetVersionEnabled: Boolean;
     FSetTargetVersionValue: string;
     function GetFullPathName(const ARelativePathName: string): string;  
-    procedure ProcessTile(
+    function ProcessTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
-    ); inline;
+    ): Integer; inline;
   protected
     procedure ProcessRegion; override;
   public
@@ -145,11 +145,11 @@ begin
   SetLength(Result, StrLen(PChar(Result)));
 end;
 
-procedure TThreadExportToBerkeleyDB.ProcessTile(
+function TThreadExportToBerkeleyDB.ProcessTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo
-);
+): Integer;
 var
   VSrcTileInfo, VDestTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
@@ -157,6 +157,7 @@ var
   VMapVersionList: IMapVersionListStatic;
   VVersionCount: Integer;
 begin
+  Result := 0;
   VVersionCount := 0;
   if not FSetTargetVersionEnabled then begin
     // will try copy all versions from source
@@ -167,6 +168,7 @@ begin
   end;
 
   repeat
+    Inc(Result);
     if Assigned(VMapVersionList) and (VVersionCount < VMapVersionList.Count) then begin
       VVersionInfo := VMapVersionList.Item[VVersionCount];
       Inc(VVersionCount);
@@ -222,6 +224,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VProcessedCount: Integer;
   VVersionInfo: IMapVersionInfo;
 begin
   inherited;
@@ -277,9 +280,9 @@ begin
             Exit;
           end;
 
-          ProcessTile(VTile, VZoom, VVersionInfo);
+          VProcessedCount := ProcessTile(VTile, VZoom, VVersionInfo);
 
-          Inc(VTilesProcessed);
+          Inc(VTilesProcessed, VProcessedCount);
           if VTilesProcessed mod 100 = 0 then begin
             ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
