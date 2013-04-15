@@ -187,8 +187,8 @@ begin
       FLogFileStream := TFileStream.Create(VLogFileName, fmOpenReadWrite or fmShareDenyNone);
     end;
 
-    DateTimeToString(VDateTimeStr, 'dd-mm-yyyy  hh:nn:ss.zzzz', Now);
-    VLogMsg := AnsiString(VDateTimeStr) + '  ' + AMsg + #13#10;
+    DateTimeToString(VDateTimeStr, 'dd-mm-yyyy hh:nn:ss.zzzz', Now);
+    VLogMsg := AnsiString(VDateTimeStr) + #09 + AMsg + #13#10;
 
     FLogFileStream.Position := FLogFileStream.Size;
     FLogFileStream.Write(VLogMsg[1], Length(VLogMsg));

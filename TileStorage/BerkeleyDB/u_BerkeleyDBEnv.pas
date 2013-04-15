@@ -35,6 +35,7 @@ type
   TBerkeleyDBEnvAppPrivate = record
     FEnvRootPath: string;
     FHelper: IGlobalBerkeleyDBHelper;
+    FBerkeleyDBEnv: IBerkeleyDBEnvironment;
   end;
   PBerkeleyDBEnvAppPrivate = ^TBerkeleyDBEnvAppPrivate;
 
@@ -47,6 +48,9 @@ type
     FLibInitOk: Boolean;
     FLastRemoveLogTime: Cardinal;
     FCS: TCriticalSection;
+    FMsgCS: TCriticalSection;
+    FMsgFileName: string;
+    FMsgFileStream: TFileStream;
     FClientsCount: Integer;
     FListener: IListener;
     FTxnList: TList;
@@ -65,6 +69,7 @@ type
     procedure TransactionAbort(var ATxn: PBerkeleyTxn);
     procedure TransactionCheckPoint;
     function GetSyncCallListener: IListener;
+    procedure SaveVerbMsg(const AMsg: AnsiString);
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -84,6 +89,7 @@ const
   cBerkeleyDBEnvSubDir = 'env';
   cBerkeleyDBEnvErrPfx = 'BerkeleyDB Env';
   cBerkeleyDBEnvConfig = 'DB_CONFIG';
+  cVerboseMsgFileName  = 'msg.log';
 
 procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 var
@@ -93,12 +99,22 @@ begin
   VMsg := errpfx + AnsiString(': ') + msg;
   VEnvPrivate := dbenv.app_private;
   if Assigned(VEnvPrivate) then begin
-    VMsg := VMsg + ' (' + VEnvPrivate.FEnvRootPath + ')';
+    VMsg := VMsg + #09 + VEnvPrivate.FEnvRootPath;
   end;
   if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FHelper) then begin
     VEnvPrivate.FHelper.RaiseException(VMsg);
   end else begin
     raise EBerkeleyDBExeption.Create(string(VMsg));
+  end;
+end;
+
+procedure BerkeleyDBMsgCall(dbenv: PDB_ENV; msg: PAnsiChar); cdecl;
+var
+  VEnvPrivate: PBerkeleyDBEnvAppPrivate;
+begin
+  VEnvPrivate := dbenv.app_private;
+  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FBerkeleyDBEnv) then begin
+    VEnvPrivate.FBerkeleyDBEnv.SaveVerbMsg(msg);
   end;
 end;
 
@@ -115,12 +131,23 @@ begin
   New(FAppPrivate);
   FAppPrivate.FEnvRootPath := AEnvRootPath;
   FAppPrivate.FHelper := AGlobalBerkeleyDBHelper;
+  FAppPrivate.FBerkeleyDBEnv := (Self as IBerkeleyDBEnvironment);
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
   FClientsCount := 1;
   FLibInitOk := InitBerkeleyDB;
   FListener := TNotifyNoMmgEventListener.Create(Self.Sync);
+
+  FMsgFileStream := nil;
+  FMsgCS := TCriticalSection.Create;
+
+  FMsgFileName := StringReplace(AEnvRootPath, cBerkeleyDBEnvSubDir + PathDelim, '', [rfIgnoreCase]);
+  FMsgFileName := StringReplace(FMsgFileName, cBerkeleyDBEnvSubDir, '', [rfIgnoreCase]);
+  FMsgFileName := IncludeTrailingPathDelimiter(FMsgFileName) + cVerboseMsgFileName;
+  if FileExists(FMsgFileName) then begin
+    DeleteFile(FMsgFileName); // ignore possible errors
+  end;
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
@@ -143,9 +170,12 @@ begin
     end;
   finally
     FAppPrivate.FHelper := nil;
+    FAppPrivate.FBerkeleyDBEnv := nil;
     Dispose(FAppPrivate);
     FTxnList.Free;
     FCS.Free;
+    FMsgFileStream.Free;
+    FMsgCS.Free;
     inherited Destroy;
   end;
 end;
@@ -168,22 +198,13 @@ begin
   if not FileExists(VFile) then begin
     VList := TStringList.Create;
     try
-      VList.Add('set_flags DB_TXN_NOSYNC on');
       VList.Add('set_flags DB_TXN_WRITE_NOSYNC on');
-      VList.Add('set_verbose DB_VERB_RECOVERY on');
+      VList.Add('set_lg_dir .');
       VList.Add('set_data_dir ..');
       VList.Add('set_cachesize 0 2097152 1');
       VList.Add('mutex_set_max 30000');
-      VList.Add('');
-      VList.Add('#Logs dir');
-      VList.Add('set_lg_dir .');
-      VList.Add('');
-      VList.Add('#Single log-file size in bytes (def = 10M)');
       VList.Add('set_lg_max 10485760');
-      VList.Add('');
-      VList.Add('#Log in-memory buffer size in bytes (def = 256k)');
       VList.Add('set_lg_bsize 2097152');
-      VList.Add('');
       VList.Add('log_set_config DB_LOG_AUTO_REMOVE on');
       VList.SaveToFile(VFile);
     finally
@@ -209,6 +230,7 @@ begin
     dbenv.app_private := FAppPrivate;
     dbenv.set_errpfx(dbenv, CBerkeleyDBEnvErrPfx);
     dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
+    dbenv.set_msgcall(dbenv, BerkeleyDBMsgCall);
     CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));
 
     CheckBDB(
@@ -356,6 +378,31 @@ end;
 function TBerkeleyDBEnv.GetSyncCallListener: IListener;
 begin
   Result := FListener;
+end;
+
+procedure TBerkeleyDBEnv.SaveVerbMsg(const AMsg: AnsiString);
+var
+  VMsg: AnsiString;
+  VDateTimeStr: string;
+begin
+  FMsgCS.Acquire;
+  try
+    if not Assigned(FMsgFileStream) then begin
+      if not FileExists(FMsgFileName) then begin
+        FMsgFileStream := TFileStream.Create(FMsgFileName, fmCreate);
+        FMsgFileStream.Free;
+      end;
+      FMsgFileStream := TFileStream.Create(FMsgFileName, fmOpenReadWrite or fmShareDenyNone);
+    end;
+
+    DateTimeToString(VDateTimeStr, 'dd-mm-yyyy hh:nn:ss.zzzz', Now);
+    VMsg := AnsiString(VDateTimeStr) + #09 + AMsg + #13#10;
+
+    FMsgFileStream.Position := FMsgFileStream.Size;
+    FMsgFileStream.Write(VMsg[1], Length(VMsg));
+  finally
+    FMsgCS.Release;
+  end;
 end;
 
 end.
