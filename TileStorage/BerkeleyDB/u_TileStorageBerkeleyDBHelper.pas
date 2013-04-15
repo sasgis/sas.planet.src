@@ -296,8 +296,19 @@ begin
         end;
 
         if Assigned(VValue) then begin
+          try
+            VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VValue);
+          except
+            on E: EBerkeleyDBBadValue do begin
+              FGlobalBerkeleyDBHelper.LogException(E.Message);
+              FEnvironment.TransactionAbort(VTransaction);
+              ADatabase.Del(VKey);
+              Exit;
+            end else begin
+              raise;
+            end;
+          end;
           // есть метаинформация о версионных тайлах
-          VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VValue);
           for I := 0 to VVersionMeta.ItemsCount - 1 do begin
             VMetaElement := VVersionMeta.Item[I];
             if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
@@ -520,7 +531,20 @@ begin
       if Assigned(VKey) then begin
         VBinValue := VDatabase.Read(VKey);
         if Assigned(VBinValue) then begin
-          VValue := TBerkeleyDBValue.Create(VBinValue);
+          try
+            VValue := TBerkeleyDBValue.Create(VBinValue);
+          except
+            on E: EBerkeleyDBBadValue do begin
+              FGlobalBerkeleyDBHelper.LogException(E.Message);
+              VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
+              if Assigned(VKey) then begin
+                VDatabase.Del(VKey);
+              end;
+              Exit;
+            end else begin
+              raise;
+            end;
+          end;
           if (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
             ATileBinaryData := TBinaryDataByBerkeleyDBValue.Create(VValue);
             ATileVersion := VValue.TileVersionInfo;
@@ -588,7 +612,21 @@ begin
           VList := nil;
         end;
 
-        VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VBinValue);
+        try
+          VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VBinValue);
+        except
+          on E: EBerkeleyDBBadValue do begin
+            FGlobalBerkeleyDBHelper.LogException(E.Message);
+            VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
+            if Assigned(VKey) then begin
+              VDatabase.Del(VKey);
+            end;
+            Exit;
+          end else begin
+            raise;
+          end;
+        end;
+
         for I := 0 to VVersionMeta.ItemsCount - 1 do begin
           VMetaElement := VVersionMeta.Item[I];
           if Assigned(VList) and (VMetaElement.TileVersionInfo <> '') then begin
@@ -646,7 +684,22 @@ begin
         FLock.EndRead;
       end;
       if Assigned(VBinValue) then begin
-        VValue := TBerkeleyDBValue.Create(VBinValue);
+
+        try
+          VValue := TBerkeleyDBValue.Create(VBinValue);
+        except
+          on E: EBerkeleyDBBadValue do begin
+            FGlobalBerkeleyDBHelper.LogException(E.Message);
+            VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
+            if Assigned(VKey) then begin
+              VDatabase.Del(VKey);
+            end;
+            Exit;
+          end else begin
+            raise;
+          end;
+        end;
+
         if ASingleTileInfo then begin
           ATileVersion := VValue.TileVersionInfo;
           ATileContentType := VValue.TileContentType;
@@ -711,7 +764,22 @@ begin
       if Assigned(VKey) then begin
         VBinValue := VDatabase.Read(VKey);
         if Assigned(VBinValue) then begin
-          VValue := TBerkeleyDBValue.Create(VBinValue);
+
+          try
+            VValue := TBerkeleyDBValue.Create(VBinValue);
+          except
+            on E: EBerkeleyDBBadValue do begin
+              FGlobalBerkeleyDBHelper.LogException(E.Message);
+              VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
+              if Assigned(VKey) then begin
+                VDatabase.Del(VKey);
+              end;
+              Exit;
+            end else begin
+              raise;
+            end;
+          end;
+
           ATileDate := VValue.TileDate;
           Result := True;
         end;

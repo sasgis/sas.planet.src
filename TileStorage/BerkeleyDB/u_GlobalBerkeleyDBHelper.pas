@@ -52,6 +52,7 @@ type
     function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
     procedure RaiseException(const EMsg: AnsiString);
+    procedure LogException(const EMsg: AnsiString);
   public
     constructor Create(const APathConfig: IPathConfig);
     destructor Destroy; override;
@@ -199,13 +200,18 @@ end;
 
 procedure TGlobalBerkeleyDBHelper.RaiseException(const EMsg: AnsiString);
 begin
+  LogException(EMsg);
+  raise EBerkeleyDBExeption.Create(string(EMsg));
+end;
+
+procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: AnsiString);
+begin
   if FSaveErrorsToLog then
   try
     SaveErrorToLog(EMsg);
   except
     // ignore
   end;
-  raise EBerkeleyDBExeption.Create(String(EMsg));
 end;
 
 end.

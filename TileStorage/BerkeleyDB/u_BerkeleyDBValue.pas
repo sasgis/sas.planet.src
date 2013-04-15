@@ -23,6 +23,7 @@ unit u_BerkeleyDBValue;
 interface
 
 uses
+  SysUtils,
   i_BinaryData,
   i_ContentTypeInfo,
   i_MapVersionInfo,
@@ -30,6 +31,8 @@ uses
   u_BaseInterfacedObject;
 
 type
+  EBerkeleyDBBadValue = class(Exception);
+
   TBerkeleyDBValueBase = class(TBaseInterfacedObject, IBerkeleyDBKeyValueBase, IBinaryData)
   protected
     FData: PByte;
@@ -222,7 +225,6 @@ implementation
 
 uses
   Classes,
-  SysUtils,
   CRC32,
   u_BerkeleyDBValueZlib;
 
@@ -345,7 +347,7 @@ begin
     FMetaValue.StorageEPSG := PInteger(VPtr)^;
     FMetaValue.MetaCRC32 := CRC32Buf(Pointer(FMetaValue), ASize);
     if PCardinal(VCRC32Ptr)^ <> FMetaValue.MetaCRC32 then begin
-      raise Exception.Create(
+      raise EBerkeleyDBBadValue.Create(
         'Error [BerkeleyDB MetaValue]: Bad CRC32 value: 0x' + IntToHex(FMetaValue.MetaCRC32, 8)
       );
     end;
@@ -576,12 +578,12 @@ begin
 
       Result := True;
     end else begin
-      raise Exception.Create(
+      raise EBerkeleyDBBadValue.Create(
         'Error [BerkeleyDB Value]: Bad CRC32 value: 0x' + IntToHex(FValue.RecCRC32, 8)
       );
     end;
   end else begin
-    raise Exception.Create(
+    raise EBerkeleyDBBadValue.Create(
       AnsiString('Error [BerkeleyDB Value]: Bad magic value (') +
       FValue.RecMagic[0] +
       FValue.RecMagic[1] +
@@ -948,13 +950,13 @@ begin
 
       Result := True;
     end else begin
-      raise Exception.Create(
+      raise EBerkeleyDBBadValue.Create(
         'Error [BerkeleyDB Versioned Meta Value]: Bad CRC32 value: 0x' +
         IntToHex(FValue.RecCRC32, 8)
       );
     end;
   end else begin
-    raise Exception.Create(
+    raise EBerkeleyDBBadValue.Create(
       AnsiString('Error [BerkeleyDB Versioned Meta Value]: Bad magic value (') +
       FValue.RecMagic[0] +
       FValue.RecMagic[1] +
