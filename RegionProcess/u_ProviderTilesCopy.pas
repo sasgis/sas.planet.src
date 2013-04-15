@@ -128,14 +128,15 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  if VCacheType = c_File_Cache_Id_DBMS then begin
-    // set version options
-    VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
-    if VSetTargetVersionEnabled then
-      VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue
-    else
-      VSetTargetVersionValue := '';
+  // set version options
+  VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
+  if VSetTargetVersionEnabled then begin
+    VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue
+  end else begin
+    VSetTargetVersionValue := '';
+  end;
 
+  if VCacheType = c_File_Cache_Id_DBMS then begin
     TThreadExportToDBMS.Create(
       VProgressInfo,
       '', // allow empty value here (if path completely defined)
@@ -161,6 +162,8 @@ begin
       APolygon,
       VZoomArr,
       VMaps,
+      VSetTargetVersionEnabled,
+      VSetTargetVersionValue,
       VDeleteSource,
       VReplace
     );

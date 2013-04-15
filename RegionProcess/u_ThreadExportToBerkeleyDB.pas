@@ -58,6 +58,8 @@ type
     FIsMove: Boolean;
     FDestOverwriteTiles: Boolean;
     FPathExport: string;
+    FSetTargetVersionEnabled: Boolean;
+    FSetTargetVersionValue: string;
     function GetFullPathName(const ARelativePathName: string): string;  
     procedure ProcessTile(
       const AXY: TPoint;
@@ -77,8 +79,10 @@ type
       const APolygon: ILonLatPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
-      AMove: boolean;
-      AReplace: boolean
+      const ASetTargetVersionEnabled: Boolean;
+      const ASetTargetVersionValue: string;
+      const AMove: Boolean;
+      const AReplace: Boolean
     );
   end;
 
@@ -106,7 +110,10 @@ constructor TThreadExportToBerkeleyDB.Create(
   const APolygon: ILonLatPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;
-  AMove, AReplace: boolean
+  const ASetTargetVersionEnabled: Boolean;
+  const ASetTargetVersionValue: string;
+  const AMove: Boolean;
+  const AReplace: Boolean
 );
 begin
   inherited Create(
@@ -123,6 +130,8 @@ begin
   if FPathExport = '' then begin
     raise Exception.Create('Can''t ExpandFileName: ' + APath);
   end;
+  FSetTargetVersionEnabled := ASetTargetVersionEnabled;
+  FSetTargetVersionValue := ASetTargetVersionValue;
   FIsMove := AMove;
   FTileNameGen := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
   FDestOverwriteTiles := AReplace;
@@ -149,7 +158,14 @@ var
   VVersionCount: Integer;
 begin
   VVersionCount := 0;
-  VMapVersionList := FSourceTileStorage.GetListOfTileVersions(AXY, AZoom, AVersionInfo);
+  if not FSetTargetVersionEnabled then begin
+    // will try copy all versions from source
+    VMapVersionList := FSourceTileStorage.GetListOfTileVersions(AXY, AZoom, AVersionInfo);
+  end else begin
+    // will copy only one version
+    VMapVersionList := nil;
+  end;
+
   repeat
     if Assigned(VMapVersionList) and (VVersionCount < VMapVersionList.Count) then begin
       VVersionInfo := VMapVersionList.Item[VVersionCount];
@@ -234,7 +250,12 @@ begin
     for I := 0 to FMapTypeArr.Count - 1 do begin
       VMapType := FMapTypeArr.Items[I].MapType;
       FSourceTileStorage := VMapType.TileStorage;
-      VVersionInfo := VMapType.VersionConfig.Version;
+
+      if FSetTargetVersionEnabled then begin
+        VVersionInfo := VMapType.VersionConfig.VersionFactory.CreateByStoreString(FSetTargetVersionValue);
+      end else begin
+        VVersionInfo := VMapType.VersionConfig.Version;
+      end;
 
       FDestTileStorage :=
         TTileStorageBerkeleyDB.Create(

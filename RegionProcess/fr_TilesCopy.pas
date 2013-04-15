@@ -132,7 +132,7 @@ procedure TfrTilesCopy.cbbNamesTypeChange(Sender: TObject);
 var
   VAllowSetVersion: Boolean;
 begin
-  VAllowSetVersion := (c_File_Cache_Id_DBMS = GetTargetCacheType);
+  VAllowSetVersion := (GetTargetCacheType in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB]);
   chkSetTargetVersionTo.Enabled := VAllowSetVersion;
   UpdateSetTargetVersionState;
 end;
