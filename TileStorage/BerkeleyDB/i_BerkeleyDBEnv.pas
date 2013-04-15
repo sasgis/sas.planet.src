@@ -49,8 +49,6 @@ type
     procedure TransactionCommit(var ATxn: PBerkeleyTxn);
     procedure TransactionAbort(var ATxn: PBerkeleyTxn);
     procedure TransactionCheckPoint;
-
-    procedure SaveVerbMsg(const AMsg: AnsiString);
   end;
 
 implementation

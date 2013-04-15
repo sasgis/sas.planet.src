@@ -21,6 +21,7 @@ uses
   u_BerkeleyDBPool in 'TileStorage\BerkeleyDB\u_BerkeleyDBPool.pas',
   u_BerkeleyDBValue in 'TileStorage\BerkeleyDB\u_BerkeleyDBValue.pas',
   u_BerkeleyDBValueZlib in 'TileStorage\BerkeleyDB\u_BerkeleyDBValueZlib.pas',
+  u_BerkeleyDBMsgLogger in 'TileStorage\BerkeleyDB\u_BerkeleyDBMsgLogger.pas',
   i_BerkeleyDBKeyValue in 'TileStorage\BerkeleyDB\i_BerkeleyDBKeyValue.pas',
   u_TileFileNameBerkeleyDB in 'TileStorage\BerkeleyDB\u_TileFileNameBerkeleyDB.pas',
   u_TileStorageBerkeleyDB in 'TileStorage\BerkeleyDB\u_TileStorageBerkeleyDB.pas',

@@ -29,13 +29,14 @@ uses
   i_Listener,
   i_BerkeleyDBEnv,
   i_GlobalBerkeleyDBHelper,
+  u_BerkeleyDBMsgLogger,
   u_BaseInterfacedObject;
 
 type
   TBerkeleyDBEnvAppPrivate = record
     FEnvRootPath: string;
     FHelper: IGlobalBerkeleyDBHelper;
-    FBerkeleyDBEnv: IBerkeleyDBEnvironment;
+    FMsgLogger: TBerkeleyDBMsgLogger;
   end;
   PBerkeleyDBEnvAppPrivate = ^TBerkeleyDBEnvAppPrivate;
 
@@ -48,9 +49,6 @@ type
     FLibInitOk: Boolean;
     FLastRemoveLogTime: Cardinal;
     FCS: TCriticalSection;
-    FMsgCS: TCriticalSection;
-    FMsgFileName: string;
-    FMsgFileStream: TFileStream;
     FClientsCount: Integer;
     FListener: IListener;
     FTxnList: TList;
@@ -69,7 +67,6 @@ type
     procedure TransactionAbort(var ATxn: PBerkeleyTxn);
     procedure TransactionCheckPoint;
     function GetSyncCallListener: IListener;
-    procedure SaveVerbMsg(const AMsg: AnsiString);
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -113,8 +110,8 @@ var
   VEnvPrivate: PBerkeleyDBEnvAppPrivate;
 begin
   VEnvPrivate := dbenv.app_private;
-  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FBerkeleyDBEnv) then begin
-    VEnvPrivate.FBerkeleyDBEnv.SaveVerbMsg(msg);
+  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FMsgLogger) then begin
+    VEnvPrivate.FMsgLogger.SaveVerbMsg(msg);
   end;
 end;
 
@@ -131,21 +128,13 @@ begin
   New(FAppPrivate);
   FAppPrivate.FEnvRootPath := AEnvRootPath;
   FAppPrivate.FHelper := AGlobalBerkeleyDBHelper;
-  FAppPrivate.FBerkeleyDBEnv := (Self as IBerkeleyDBEnvironment);
+  FAppPrivate.FMsgLogger := TBerkeleyDBMsgLogger.Create(IncludeTrailingPathDelimiter(AEnvRootPath) + cVerboseMsgFileName);
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
   FClientsCount := 1;
   FLibInitOk := InitBerkeleyDB;
   FListener := TNotifyNoMmgEventListener.Create(Self.Sync);
-
-  FMsgFileStream := nil;
-  FMsgCS := TCriticalSection.Create;
-
-  FMsgFileName := IncludeTrailingPathDelimiter(AEnvRootPath) + cVerboseMsgFileName;
-  if FileExists(FMsgFileName) then begin
-    DeleteFile(FMsgFileName); // ignore possible errors
-  end;
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
@@ -168,12 +157,10 @@ begin
     end;
   finally
     FAppPrivate.FHelper := nil;
-    FAppPrivate.FBerkeleyDBEnv := nil;
+    FAppPrivate.FMsgLogger.Free;
     Dispose(FAppPrivate);
     FTxnList.Free;
     FCS.Free;
-    FMsgFileStream.Free;
-    FMsgCS.Free;
     inherited Destroy;
   end;
 end;
@@ -376,31 +363,6 @@ end;
 function TBerkeleyDBEnv.GetSyncCallListener: IListener;
 begin
   Result := FListener;
-end;
-
-procedure TBerkeleyDBEnv.SaveVerbMsg(const AMsg: AnsiString);
-var
-  VMsg: AnsiString;
-  VDateTimeStr: string;
-begin
-  FMsgCS.Acquire;
-  try
-    if not Assigned(FMsgFileStream) then begin
-      if not FileExists(FMsgFileName) then begin
-        FMsgFileStream := TFileStream.Create(FMsgFileName, fmCreate);
-        FMsgFileStream.Free;
-      end;
-      FMsgFileStream := TFileStream.Create(FMsgFileName, fmOpenReadWrite or fmShareDenyNone);
-    end;
-
-    DateTimeToString(VDateTimeStr, 'dd-mm-yyyy hh:nn:ss.zzzz', Now);
-    VMsg := AnsiString(VDateTimeStr) + #09 + AMsg + #13#10;
-
-    FMsgFileStream.Position := FMsgFileStream.Size;
-    FMsgFileStream.Write(VMsg[1], Length(VMsg));
-  finally
-    FMsgCS.Release;
-  end;
 end;
 
 end.
