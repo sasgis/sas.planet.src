@@ -142,9 +142,7 @@ begin
   FMsgFileStream := nil;
   FMsgCS := TCriticalSection.Create;
 
-  FMsgFileName := StringReplace(AEnvRootPath, cBerkeleyDBEnvSubDir + PathDelim, '', [rfIgnoreCase]);
-  FMsgFileName := StringReplace(FMsgFileName, cBerkeleyDBEnvSubDir, '', [rfIgnoreCase]);
-  FMsgFileName := IncludeTrailingPathDelimiter(FMsgFileName) + cVerboseMsgFileName;
+  FMsgFileName := IncludeTrailingPathDelimiter(AEnvRootPath) + cVerboseMsgFileName;
   if FileExists(FMsgFileName) then begin
     DeleteFile(FMsgFileName); // ignore possible errors
   end;
