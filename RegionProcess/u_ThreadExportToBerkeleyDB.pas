@@ -167,7 +167,7 @@ begin
   Result := 0;
   VVersionCount := 0;
 
-  if not FSetTargetVersionEnabled then begin
+  if FIsVersioned and not FSetTargetVersionEnabled then begin
     // will try copy all versions from source and ingnore ATargetVersionInfo
     VMapVersionList := FSourceTileStorage.GetListOfTileVersions(AXY, AZoom, ASrcVersionInfo);
   end else begin
