@@ -63,8 +63,9 @@ type
     function GetFullPathName(const ARelativePathName: string): string;  
     function ProcessTile(
       const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AZoom: Byte;
+      const ASrcVersionInfo: IMapVersionInfo;
+      const ATargetVersionInfo: IMapVersionInfo
     ): Integer; inline;
   protected
     procedure ProcessRegion; override;
@@ -147,39 +148,44 @@ end;
 
 function TThreadExportToBerkeleyDB.ProcessTile(
   const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AZoom: Byte;
+  const ASrcVersionInfo: IMapVersionInfo;
+  const ATargetVersionInfo: IMapVersionInfo
 ): Integer;
 var
   VSrcTileInfo, VDestTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
-  VVersionInfo: IMapVersionInfo;
+  VSrcVersionInfo: IMapVersionInfo;
+  VTargetVersionInfo: IMapVersionInfo;
   VMapVersionList: IMapVersionListStatic;
   VVersionCount: Integer;
 begin
   Result := 0;
   VVersionCount := 0;
+
   if not FSetTargetVersionEnabled then begin
-    // will try copy all versions from source
-    VMapVersionList := FSourceTileStorage.GetListOfTileVersions(AXY, AZoom, AVersionInfo);
+    // will try copy all versions from source and ingnore ATargetVersionInfo
+    VMapVersionList := FSourceTileStorage.GetListOfTileVersions(AXY, AZoom, ASrcVersionInfo);
   end else begin
-    // will copy only one version
+    // will copy only one (current) version from source and save it with a ATargetVersionInfo
     VMapVersionList := nil;
   end;
 
   repeat
     Inc(Result);
     if Assigned(VMapVersionList) and (VVersionCount < VMapVersionList.Count) then begin
-      VVersionInfo := VMapVersionList.Item[VVersionCount];
+      VSrcVersionInfo := VMapVersionList.Item[VVersionCount];
+      VTargetVersionInfo := VSrcVersionInfo;
       Inc(VVersionCount);
     end else begin
-      VVersionInfo := AVersionInfo;
+      VSrcVersionInfo := ASrcVersionInfo;
+      VTargetVersionInfo := ATargetVersionInfo;
       VVersionCount := -1;
     end;
-    VSrcTileInfo := FSourceTileStorage.GetTileInfo(AXY, AZoom, VVersionInfo, gtimWithData);
+    VSrcTileInfo := FSourceTileStorage.GetTileInfo(AXY, AZoom, VSrcVersionInfo, gtimWithData);
     if Assigned(VSrcTileInfo) then begin
       if not FDestOverwriteTiles then begin
-        VDestTileInfo := FDestTileStorage.GetTileInfo(AXY, AZoom, VVersionInfo, gtimWithoutData);
+        VDestTileInfo := FDestTileStorage.GetTileInfo(AXY, AZoom, VTargetVersionInfo, gtimWithoutData);
         if Assigned(VDestTileInfo) then begin
           if (VDestTileInfo.IsExists or (VDestTileInfo.IsExistsTNE and VSrcTileInfo.IsExistsTNE)) then begin
             Continue;
@@ -191,7 +197,7 @@ begin
           FDestTileStorage.SaveTile(
             AXY,
             AZoom,
-            VVersionInfo,
+            VTargetVersionInfo,
             VTileInfoWithData.LoadDate,
             VTileInfoWithData.ContentType,
             VTileInfoWithData.TileData
@@ -201,12 +207,12 @@ begin
         FDestTileStorage.SaveTNE(
           AXY,
           AZoom,
-          VVersionInfo,
+          VTargetVersionInfo,
           VSrcTileInfo.LoadDate
         );
       end;
       if FIsMove then begin
-        FSourceTileStorage.DeleteTile(AXY, AZoom, VVersionInfo);
+        FSourceTileStorage.DeleteTile(AXY, AZoom, VSrcVersionInfo);
       end;
     end;
   until VVersionCount < 0;
@@ -225,7 +231,8 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VProcessedCount: Integer;
-  VVersionInfo: IMapVersionInfo;
+  VSrcVersionInfo: IMapVersionInfo;
+  VTargetVersionInfo: IMapVersionInfo;
 begin
   inherited;
   SetLength(VTileIterators, FMapTypeArr.Count, Length(FZooms));
@@ -253,11 +260,16 @@ begin
     for I := 0 to FMapTypeArr.Count - 1 do begin
       VMapType := FMapTypeArr.Items[I].MapType;
       FSourceTileStorage := VMapType.TileStorage;
+      VSrcVersionInfo := VMapType.VersionConfig.Version;
 
       if FSetTargetVersionEnabled then begin
-        VVersionInfo := VMapType.VersionConfig.VersionFactory.CreateByStoreString(FSetTargetVersionValue);
+        VTargetVersionInfo :=
+          VMapType.VersionConfig.VersionFactory.CreateByStoreString(
+            FSetTargetVersionValue,
+            VSrcVersionInfo.ShowPrevVersion
+          );
       end else begin
-        VVersionInfo := VMapType.VersionConfig.Version;
+        VTargetVersionInfo := VSrcVersionInfo;
       end;
 
       FDestTileStorage :=
@@ -280,7 +292,7 @@ begin
             Exit;
           end;
 
-          VProcessedCount := ProcessTile(VTile, VZoom, VVersionInfo);
+          VProcessedCount := ProcessTile(VTile, VZoom, VSrcVersionInfo, VTargetVersionInfo);
 
           Inc(VTilesProcessed, VProcessedCount);
           if VTilesProcessed mod 100 = 0 then begin
