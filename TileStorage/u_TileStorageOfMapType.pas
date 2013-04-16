@@ -265,7 +265,7 @@ begin
     FCurrentTypeCode := ATypeCode;
     FCurrentPath := APath;
     VCoordConverter := AConfig.CoordConverter;
-    if ATypeCode = c_File_Cache_Id_BDB then begin
+    if ATypeCode in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
       VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
       if VMainContentType <> nil then begin
         FStorage :=
@@ -273,6 +273,7 @@ begin
             FGlobalBerkeleyDBHelper,
             VCoordConverter,
             FCurrentPath,
+            (ATypeCode = c_File_Cache_Id_BDB_Versioned),
             FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
@@ -468,7 +469,7 @@ begin
     c_File_Cache_Id_GE: begin
       VBasePath := FGlobalCacheConfig.GECachePath;
     end;
-    c_File_Cache_Id_BDB: begin
+    c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned: begin
       VBasePath := FGlobalCacheConfig.BDBCachePath;
     end;
     c_File_Cache_Id_DBMS: begin

@@ -75,6 +75,7 @@ object frmCacheManager: TfrmCacheManager
             'GlobalMapper Tiles'
             'GlobalMapper Aux'
             'BerkeleyDB'
+            'BerkeleyDB (Versioned)'
             'DBMS')
         end
         object chkIgnoreTNE: TCheckBox
@@ -160,6 +161,7 @@ object frmCacheManager: TfrmCacheManager
             'GlobalMapper Tiles'
             'GlobalMapper Aux'
             'BerkeleyDB'
+            'BerkeleyDB (Versioned)'
             'DBMS')
         end
         object chkOverwrite: TCheckBox

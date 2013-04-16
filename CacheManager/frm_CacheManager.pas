@@ -191,17 +191,25 @@ var
 begin
   Result := nil;
 
-  if (AArchiveType <> atNoArch) and (AFormatID in [c_File_Cache_Id_BDB, c_File_Cache_Id_DBMS, c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
+  if (AArchiveType <> atNoArch) and
+     (AFormatID in [
+      c_File_Cache_Id_BDB,
+      c_File_Cache_Id_BDB_Versioned,
+      c_File_Cache_Id_DBMS,
+      c_File_Cache_Id_GE,
+      c_File_Cache_Id_GC
+    ]) then begin
     Exit;
   end;
 
   VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
-  if AFormatID = c_File_Cache_Id_BDB then begin
+  if AFormatID in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
     Result :=
       TTileStorageBerkeleyDB.Create(
         FGlobalBerkeleyDBHelper,
         ACoordConverter,
         ARootPath,
+        (AFormatID = c_File_Cache_Id_BDB_Versioned),
         FGCNotifier,
         nil,
         FContentTypeManager,
@@ -323,7 +331,8 @@ procedure TfrmCacheManager.ProcessCacheConverter;
       3: Result := c_File_Cache_Id_GM;
       4: Result := c_File_Cache_Id_GM_Aux;
       5: Result := c_File_Cache_Id_BDB;
-      6: Result := c_File_Cache_Id_DBMS;
+      6: Result := c_File_Cache_Id_BDB_Versioned;
+      7: Result := c_File_Cache_Id_DBMS;
     else
       Result := c_File_Cache_Id_SAS;
     end;
@@ -390,8 +399,7 @@ begin
   VDestPath := Trim(edtDestPath.Text);
   if not IsTileCacheInArchive(VDestPath, VArchType) then begin
     VDestPath := IncludeTrailingPathDelimiter(VDestPath);  
-    if (cbbDestCacheTypes.ItemIndex <> 6) then begin
-      // кроме СУБД - создадим папку в целевом хранилище
+    if GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex) <> c_File_Cache_Id_DBMS then begin
       ForceDirectories(VDestPath);
     end;
   end;

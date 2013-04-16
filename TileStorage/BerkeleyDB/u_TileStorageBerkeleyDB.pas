@@ -119,6 +119,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
+      const AIsVersioned: Boolean;
       const AGCNotifier: INotifierTime;
       const ATileInfoMemCache: ITileInfoBasicMemCache;
       const AContentTypeManager: IContentTypeManager;
@@ -158,6 +159,7 @@ constructor TTileStorageBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
+  const AIsVersioned: Boolean;
   const AGCNotifier: INotifierTime;
   const ATileInfoMemCache: ITileInfoBasicMemCache;
   const AContentTypeManager: IContentTypeManager;
@@ -179,7 +181,7 @@ begin
 
   FFileNameGenerator := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
 
-  FVersioned := True; // ToDo: Versioned
+  FVersioned := AIsVersioned;
 
   FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
     AGlobalBerkeleyDBHelper,

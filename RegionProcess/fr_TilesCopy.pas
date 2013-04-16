@@ -132,7 +132,7 @@ procedure TfrTilesCopy.cbbNamesTypeChange(Sender: TObject);
 var
   VAllowSetVersion: Boolean;
 begin
-  VAllowSetVersion := (GetTargetCacheType in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB]);
+  VAllowSetVersion := (GetTargetCacheType in [c_File_Cache_Id_DBMS, c_File_Cache_Id_BDB_Versioned]);
   chkSetTargetVersionTo.Enabled := VAllowSetVersion;
   UpdateSetTargetVersionState;
 end;
@@ -234,13 +234,16 @@ end;
 
 function TfrTilesCopy.GetTargetCacheType: Byte;
 begin
-  if cbbNamesType.ItemIndex >= 4 then begin
-    // BDB and DBMS
-    Result := cbbNamesType.ItemIndex + 2;
-  end else if cbbNamesType.ItemIndex >= 0 then begin
-    Result := cbbNamesType.ItemIndex + 1
-  end else begin
-    Result := 1;
+  case cbbNamesType.ItemIndex of
+    0: Result := c_File_Cache_Id_GMV;
+    1: Result := c_File_Cache_Id_SAS;
+    2: Result := c_File_Cache_Id_ES;
+    3: Result := c_File_Cache_Id_GM;
+    4: Result := c_File_Cache_Id_BDB;
+    5: Result := c_File_Cache_Id_BDB_Versioned;
+    6: Result := c_File_Cache_Id_DBMS;
+  else
+    Result := c_File_Cache_Id_SAS;
   end;
 end;
 

@@ -151,12 +151,13 @@ begin
       VDeleteSource,
       VReplace
     );
-  end else if VCacheType = c_File_Cache_Id_BDB then begin
+  end else if VCacheType in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
     TThreadExportToBerkeleyDB.Create(
       FTimerNoifier,
       FGlobalBerkeleyDBHelper,
       VProgressInfo,
       VPath,
+      (VCacheType = c_File_Cache_Id_BDB_Versioned),
       FProjectionFactory,
       FVectorItemsFactory,
       APolygon,

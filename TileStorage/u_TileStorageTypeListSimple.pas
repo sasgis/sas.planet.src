@@ -69,6 +69,7 @@ const
   CTileStorageTypeGE: TGUID = '{71C83BAA-EEA0-45E1-833E-8CCC3A8D1A1A}';
   CTileStorageTypeGC: TGUID = '{F3163512-A190-426B-9D18-881AAD9DE61C}';
   CTileStorageTypeBerkeleyDB: TGUID = '{3DBF81CD-9356-40EB-9778-DE4D98E5BE61}';
+  CTileStorageTypeBerkeleyDBVersioned: TGUID = '{CA3868AE-6762-4D17-B72F-6892E61E119B}';
   CTileStorageTypeDBMS: TGUID = '{5F9E2D54-A433-4853-B7EB-3EE218160263}';
   CTileStorageTypeFileSystemSAS: TGUID = '{BE87ACAB-7031-4F57-9C1D-FA62C709818F}';
   CTileStorageTypeFileSystemGMV: TGUID = '{CB20D66C-FC79-4D1C-93A9-1C41A8D6B002}';
@@ -201,6 +202,7 @@ begin
   VStorageType := TTileStorageTypeBerkeleyDB.Create(
     AGlobalBerkeleyDBHelper,
     AGCNotifier,
+    False, // IsVersioned
     AContentTypeManager,
     AMapVersionFactoryList.GetSimpleVersionFactory,
     VStorageTypeConfig
@@ -209,7 +211,24 @@ begin
     CTileStorageTypeBerkeleyDB,
     'Berkeley DB',
     VStorageType,
-    False
+    True
+  );
+  Add(VItem);
+
+  VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_BDB);
+  VStorageType := TTileStorageTypeBerkeleyDB.Create(
+    AGlobalBerkeleyDBHelper,
+    AGCNotifier,
+    True, // IsVersioned
+    AContentTypeManager,
+    AMapVersionFactoryList.GetSimpleVersionFactory,
+    VStorageTypeConfig
+  );
+  VItem := TTileStorageTypeListItem.Create(
+    CTileStorageTypeBerkeleyDB,
+    'Berkeley DB (Versioned)',
+    VStorageType,
+    True
   );
   Add(VItem);
 

@@ -285,6 +285,38 @@ uses
 
 {$R *.dfm}
 
+function GetDefCacheFromIndex(const AIndex: Integer): Byte;
+begin
+  case AIndex of
+    0: Result := c_File_Cache_Id_GMV;
+    1: Result := c_File_Cache_Id_SAS;
+    2: Result := c_File_Cache_Id_ES;
+    3: Result := c_File_Cache_Id_GM;
+    4: Result := c_File_Cache_Id_BDB;
+    5: Result := c_File_Cache_Id_BDB_Versioned;
+    6: Result := c_File_Cache_Id_DBMS;
+    7: Result := c_File_Cache_Id_RAM;
+  else
+    Result := c_File_Cache_Id_SAS;
+  end;
+end;
+
+function GetIndexFromDefCache(const ADefCacheId: Byte): Integer;
+begin
+  case ADefCacheId of
+    c_File_Cache_Id_GMV:  Result := 0;
+    c_File_Cache_Id_SAS:  Result := 1;
+    c_File_Cache_Id_ES:   Result := 2;
+    c_File_Cache_Id_GM:   Result := 3;
+    c_File_Cache_Id_BDB:  Result := 4;
+    c_File_Cache_Id_BDB_Versioned: Result := 5;
+    c_File_Cache_Id_DBMS: Result := 6;
+    c_File_Cache_Id_RAM:  Result := 7;
+  else
+    Result := 1;
+  end;
+end;
+
 constructor TfrmSettings.Create(
   const ALanguageManager: ILanguageManager;
   const AShortCutManager: TShortcutManager;
@@ -440,21 +472,7 @@ begin
     GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
 
- if CBCacheType.ItemIndex >= 0 then begin
-   if CBCacheType.ItemIndex + 3 in [c_File_Cache_Id_RAM] then begin
-     // RAM
-     GState.CacheConfig.DefCache := CBCacheType.ItemIndex + 3;
-   end else if CBCacheType.ItemIndex + 2 in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS] then begin
-     // BDB or DBMS
-     GState.CacheConfig.DefCache := CBCacheType.ItemIndex + 2;
-   end else begin
-     // other starting items
-     GState.CacheConfig.DefCache := CBCacheType.ItemIndex+1;
-   end;
- end else begin
-   // no selection
-   GState.CacheConfig.DefCache := 2;
- end;
+  GState.CacheConfig.DefCache := GetDefCacheFromIndex(CBCacheType.ItemIndex);
  
   GState.Config.ValueToStringConverterConfig.LockWrite;
   try
@@ -761,28 +779,16 @@ begin
     GState.MainFormConfig.MainConfig.UnlockRead;
   end;
 
-  if GState.CacheConfig.DefCache in [c_File_Cache_Id_RAM] then begin
-    // RAM
-    CBCacheType.ItemIndex := GState.CacheConfig.DefCache - 3;
-  end else if GState.CacheConfig.DefCache in [c_File_Cache_Id_BDB, c_File_Cache_Id_DBMS] then begin
-    // BDB or DBMS by default
-    CBCacheType.ItemIndex := GState.CacheConfig.DefCache - 2;
-  end else if GState.CacheConfig.DefCache > 4 then begin
-    // no GE and GC by default
-    CBCacheType.ItemIndex := 1;
-  end else begin
-    // starting items
-    CBCacheType.ItemIndex:=GState.CacheConfig.DefCache-1;
-  end;
+  CBCacheType.ItemIndex := GetIndexFromDefCache(GState.CacheConfig.DefCache);
 
- OldCPath.text:=GState.CacheConfig.OldCPath.Path;
- NewCpath.text:=GState.CacheConfig.NewCpath.Path;
- ESCPath.text:=GState.CacheConfig.ESCPath.Path;
- GMTilesPath.text:=GState.CacheConfig.GMTilesPath.Path;
- GECachePath.text:=GState.CacheConfig.GECachePath.Path;
- edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath.Path;
- edtDBMSCachePath.text:=GState.CacheConfig.DBMSCachePath.Path;
- edtGCCachePath.text:=GState.CacheConfig.GCCachePath.Path;
+  OldCPath.text:=GState.CacheConfig.OldCPath.Path;
+  NewCpath.text:=GState.CacheConfig.NewCpath.Path;
+  ESCPath.text:=GState.CacheConfig.ESCPath.Path;
+  GMTilesPath.text:=GState.CacheConfig.GMTilesPath.Path;
+  GECachePath.text:=GState.CacheConfig.GECachePath.Path;
+  edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath.Path;
+  edtDBMSCachePath.text:=GState.CacheConfig.DBMSCachePath.Path;
+  edtGCCachePath.text:=GState.CacheConfig.GCCachePath.Path;
 
   GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
   try

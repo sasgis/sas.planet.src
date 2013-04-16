@@ -552,7 +552,7 @@ begin
     c_File_Cache_Id_GE,
     c_File_Cache_Id_GC,
     c_File_Cache_Id_DBMS,
-    c_File_Cache_Id_BDB
+    c_File_Cache_Id_BDB_Versioned
   ];
 end;
 
@@ -566,7 +566,7 @@ begin
   end;
   Result := VTypeCode in [
     c_File_Cache_Id_DBMS,
-    c_File_Cache_Id_BDB
+    c_File_Cache_Id_BDB_Versioned
   ];
 end;
 

@@ -58,6 +58,7 @@ type
     FIsMove: Boolean;
     FDestOverwriteTiles: Boolean;
     FPathExport: string;
+    FIsVersioned: Boolean;
     FSetTargetVersionEnabled: Boolean;
     FSetTargetVersionValue: string;
     function GetFullPathName(const ARelativePathName: string): string;  
@@ -75,6 +76,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
+      const AIsVersioned: Boolean;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
@@ -106,6 +108,7 @@ constructor TThreadExportToBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
+  const AIsVersioned: Boolean;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
@@ -128,6 +131,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FPathExport := GetFullPathName(APath);
+  FIsVersioned := AIsVersioned;
   if FPathExport = '' then begin
     raise Exception.Create('Can''t ExpandFileName: ' + APath);
   end;
@@ -277,6 +281,7 @@ begin
           FGlobalBerkeleyDBHelper,
           VMapType.GeoConvert,
           IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName),
+          FIsVersioned,
           FTimerNoifier,
           nil, // MemCache - not needed here
           VMapType.ContentTypeManager,
