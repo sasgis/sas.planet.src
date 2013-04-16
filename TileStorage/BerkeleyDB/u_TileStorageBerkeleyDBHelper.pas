@@ -62,7 +62,8 @@ type
         const AContentType: IContentTypeInfoBasic = nil;
         const ATileSize: Integer = 0;
         const ATileDate: TDateTime = 0;
-        const ATileCRC: Cardinal = 0
+        const ATileCRC: Cardinal = 0;
+        const AAllowReplace: Boolean = False
     ): IBinaryData;
   public
     function CreateDirIfNotExists(APath: string): Boolean;
@@ -241,7 +242,8 @@ function TTileStorageBerkeleyDBHelper.GetTileKey(
   const AContentType: IContentTypeInfoBasic = nil;
   const ATileSize: Integer = 0;
   const ATileDate: TDateTime = 0;
-  const ATileCRC: Cardinal = 0
+  const ATileCRC: Cardinal = 0;
+  const AAllowReplace: Boolean = False
 ): IBinaryData;
 const
   cOnDeadLockRetryCount = 3;
@@ -314,12 +316,17 @@ begin
             if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
               // нашли тайл с такой же версией
               VVersionID := VMetaElement.VersionID;
-              VTileInfoIndex := I; // индекс тайла, для перезаписи его метаинформации
-              Break;
+              if not AAllowReplace and (AOperation = toWrite) then begin
+                FEnvironment.TransactionAbort(VTransaction);
+                Exit;
+              end else begin
+                VTileInfoIndex := I; // индекс тайла, для перезаписи его метаинформации
+                Break;
+              end;
             end else if (AOperation = toWrite) and (VMetaElement.TileCRC = ATileCRC) then begin
               // версия у тайлов не совпадает, но они сами по себе идентичны
               FEnvironment.TransactionAbort(VTransaction);
-              Exit; 
+              Exit;
             end;
             if VMetaElement.VersionID > VMaxID then begin
               VMaxID := VMetaElement.VersionID;
