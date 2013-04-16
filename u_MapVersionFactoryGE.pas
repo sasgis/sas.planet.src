@@ -19,8 +19,10 @@ type
 
   TMapVersionFactoryGE = class(TBaseInterfacedObject, IMapVersionFactory, IMapVersionFactoryGEInternal)
   private
-    function CreateByStoreString(const AValue: string): IMapVersionInfo;
-    function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
+    function CreateByStoreString(const AValue: string; const AShowPrevVersion: Boolean = False): IMapVersionInfo;
+    function CreateByMapVersion(const AValue: IMapVersionInfo; const AShowPrevVersion: Boolean = False): IMapVersionInfo;
+    function IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
+    { IMapVersionFactoryGEInternal }
     function CreateByGE(
       const AVer: Word;
       const AGEServer: String;
@@ -44,11 +46,12 @@ type
     function GetUrlString: string;
     function GetStoreString: string;
     function GetCaption: string;
+    function GetShowPrevVersion: Boolean;
     function GetVer: Word;
     function GetGEServer: String;
     function GetTileDate: String;
 
-    function IsSame(const AValue: IMapVersionInfo): Boolean;
+    //function IsSame(const AValue: IMapVersionInfo): Boolean;
   public
     constructor Create(
       const AVer: Word;
@@ -80,6 +83,11 @@ end;
 function TMapVersionInfoGE.GetGEServer: String;
 begin
   Result := FGEServer;
+end;
+
+function TMapVersionInfoGE.GetShowPrevVersion: Boolean;
+begin
+  Result := False;
 end;
 
 function TMapVersionInfoGE.GetStoreString: string;
@@ -116,6 +124,7 @@ begin
   Result := FVer;
 end;
 
+(*
 function TMapVersionInfoGE.IsSame(const AValue: IMapVersionInfo): Boolean;
 var
   VVersionGE: IMapVersionInfoGE;
@@ -137,6 +146,7 @@ begin
     end;
   end;
 end;
+*)
 
 { TMapVersionFactoryGE }
 
@@ -150,7 +160,8 @@ begin
 end;
 
 function TMapVersionFactoryGE.CreateByMapVersion(
-  const AValue: IMapVersionInfo
+  const AValue: IMapVersionInfo;
+  const AShowPrevVersion: Boolean
 ): IMapVersionInfo;
 begin
   Result := nil;
@@ -164,7 +175,8 @@ begin
 end;
 
 function TMapVersionFactoryGE.CreateByStoreString(
-  const AValue: string
+  const AValue: string;
+  const AShowPrevVersion: Boolean
 ): IMapVersionInfo;
 
   function _StrToWord(
@@ -242,6 +254,16 @@ begin
   end;
 
   Result := TMapVersionInfoGE.Create(VVer, VGEServer, VTileDate);
+end;
+
+function TMapVersionFactoryGE.IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
+var V: IMapVersionFactoryGEInternal;
+begin
+  if (nil=AMapVersionFactory) then begin
+    Result := False;
+  end else begin
+    Result := Supports(AMapVersionFactory, IMapVersionFactoryGEInternal, V);
+  end;
 end;
 
 end.

@@ -85,6 +85,7 @@ type
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean;
+    function GetIsCanSaveMultiVersionTiles: Boolean;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -129,7 +130,8 @@ type
     ): IMapVersionListStatic;
 
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo;
   protected
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
@@ -165,8 +167,6 @@ uses
   u_TileStorageGE,
   u_TileStorageDBMS,
   u_TileStorageInRAM,
-  u_MapVersionFactoryGE,
-  u_MapVersionFactorySimpleString,
   u_Synchronizer;
 
 { TTileStorageOfMapType }
@@ -202,7 +202,7 @@ begin
   VState := TStorageStateProxy.Create;
   FStorageState := VState;
   FStorageStateProxy := VState;
-  FMapVersionFactoryDefault := TMapVersionFactorySimpleString.Create;
+  FMapVersionFactoryDefault := FVersionConfig.VersionFactory;
   FStorageLock := TCounterInterlock.Create;
   FStorageNeedUpdate := TSimpleFlagWithInterlock.Create;
 
@@ -258,35 +258,32 @@ var
   VMainContentType: IContentTypeInfoBasic;
   VFileNameGenerator: ITileFileNameGenerator;
   VFileNameParser: ITileFileNameParser;
-  VMapVersionFactory: IMapVersionFactory;
   VCoordConverter: ICoordConverter;
 begin
   FStorage := nil;
   try
     FCurrentTypeCode := ATypeCode;
     FCurrentPath := APath;
-    VMapVersionFactory := nil;
     VCoordConverter := AConfig.CoordConverter;
-    if ATypeCode = c_File_Cache_Id_BDB then begin
+    if ATypeCode in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
       VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
       if VMainContentType <> nil then begin
-        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageBerkeleyDB.Create(
             FGlobalBerkeleyDBHelper,
             VCoordConverter,
             FCurrentPath,
+            (ATypeCode = c_File_Cache_Id_BDB_Versioned),
             FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             VMainContentType
           );
       end;
     end else if ATypeCode = c_File_Cache_Id_DBMS then begin
       VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
       if VMainContentType <> nil then begin
-        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageDBMS.Create(
             VCoordConverter,
@@ -295,7 +292,7 @@ begin
             FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             VMainContentType
           );
       end;
@@ -304,12 +301,11 @@ begin
         (VCoordConverter.GetProjectionEPSG = CGELonLatProjectionEPSG) and
         (VCoordConverter.GetTileSplitCode = CTileSplitQuadrate256x256)
       then begin
-        VMapVersionFactory := TMapVersionFactoryGE.Create;
         FStorage :=
           TTileStorageGE.Create(
             VCoordConverter,
             FCurrentPath,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             FContentTypeManager
           );
       end;
@@ -318,12 +314,11 @@ begin
         (VCoordConverter.GetProjectionEPSG = CGELonLatProjectionEPSG) and
         (VCoordConverter.GetTileSplitCode = CTileSplitQuadrate256x256)
       then begin
-        VMapVersionFactory := TMapVersionFactoryGE.Create;
         FStorage :=
           TTileStorageGC.Create(
             VCoordConverter,
             FCurrentPath,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             FContentTypeManager
           );
       end;
@@ -332,13 +327,12 @@ begin
       VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(ATypeCode);
       VFileNameParser := FFileNameParsersList.GetParser(ATypeCode);
       if (VMainContentType <> nil) and (VFileNameGenerator <> nil) and (VFileNameParser <> nil) then begin
-        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageFileSystem.Create(
             VCoordConverter,
             FCurrentPath,
             VMainContentType,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             VFileNameGenerator,
             VFileNameParser
           );
@@ -346,29 +340,22 @@ begin
     end else if ATypeCode = c_File_Cache_Id_RAM then begin
       VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
       if VMainContentType <> nil then begin
-        VMapVersionFactory := TMapVersionFactorySimpleString.Create;
         FStorage :=
           TTileStorageInRAM.Create(
             FCacheTileInfo,
             VCoordConverter,
-            VMapVersionFactory,
+            FVersionConfig.VersionFactory,
             VMainContentType
           );
       end;
     end;
   except
     FStorage := nil;
-    VMapVersionFactory := nil;
   end;
   if FStorage <> nil then begin
-    if VMapVersionFactory = nil then begin
-      VMapVersionFactory := FMapVersionFactoryDefault;
-    end;
-    FVersionConfig.VersionFactory := VMapVersionFactory;
     FStorageStateProxy.Target := FStorage.State;
   end else begin
     FStorageStateProxy.Target := nil;
-    FVersionConfig.VersionFactory := FMapVersionFactoryDefault;
   end;
 end;
 
@@ -482,7 +469,7 @@ begin
     c_File_Cache_Id_GE: begin
       VBasePath := FGlobalCacheConfig.GECachePath;
     end;
-    c_File_Cache_Id_BDB: begin
+    c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned: begin
       VBasePath := FGlobalCacheConfig.BDBCachePath;
     end;
     c_File_Cache_Id_DBMS: begin
@@ -552,6 +539,17 @@ begin
   VStorage := GetStorage;
   if VStorage <> nil then begin
     Result := VStorage.IsFileCache;
+  end;
+end;
+
+function TTileStorageOfMapType.GetIsCanSaveMultiVersionTiles: Boolean;
+var
+  VStorage: ITileStorage;
+begin
+  Result := False;
+  VStorage := GetStorage;
+  if VStorage <> nil then begin
+    Result := VStorage.GetIsCanSaveMultiVersionTiles;
   end;
 end;
 
@@ -690,14 +688,17 @@ begin
   end;
 end;
 
-function TTileStorageOfMapType.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo;
+function TTileStorageOfMapType.ScanTiles(
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
 var
   VStorage: ITileStorage;
 begin
   Result := nil;
   VStorage := GetStorage;
   if VStorage <> nil then begin
-    Result := VStorage.ScanTiles(AIgnoreTNE);
+    Result := VStorage.ScanTiles(AIgnoreTNE, AIgnoreMultiVersionTiles);
   end;
 end;
 

@@ -33,7 +33,10 @@ type
   TTileStorageTar = class(TTileStorageArchive)
   protected
     function GetArchiveWriter: IArchiveWriter; override;
-    function ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo; override;
+    function ScanTiles(
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
+    ): IEnumTileInfo; override;
   end;
 
 implementation
@@ -155,7 +158,10 @@ begin
   end;
 end;
 
-function TTileStorageTar.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo;
+function TTileStorageTar.ScanTiles(
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
 begin
   Result :=
     TEnumTileInfoByTar.Create(

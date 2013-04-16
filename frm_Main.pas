@@ -396,6 +396,7 @@ type
     NGShScale2500: TTBXItem;
     Rosreestr: TTBXItem;
     TBXMakeRosreestrPolygon: TTBXItem;
+    tbpmiShowPrevVersion: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -550,6 +551,7 @@ type
     procedure tbitmSelectVersionByMarkClick(Sender: TObject);
     procedure RosreestrClick(Sender: TObject);
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
+    procedure tbpmiShowPrevVersionClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -923,6 +925,7 @@ begin
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
       GState.BGTimerNotifier,
+      GState.MapVersionFactoryList,
       GState.GlobalBerkeleyDBHelper,
       GState.ContentTypeManager,
       GState.CoordConverterFactory,
@@ -3132,6 +3135,17 @@ begin
   DoSelectSpecialVersion(nil);
 end;
 
+procedure TfrmMain.tbpmiShowPrevVersionClick(Sender: TObject);
+var
+  VMapType: TMapType;
+begin
+  // for current map
+  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+
+  // apply this version or clear (uncheck) version
+  VMapType.VersionConfig.ShowPrevVersion := tbpmiShowPrevVersion.Checked;
+end;
+
 procedure TfrmMain.tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
 var
   VMapType: TMapType;
@@ -3149,6 +3163,7 @@ var
   VVersion: IMapVersionInfo;
   VNewIndex: Integer;
   VStartingNewIndex: Integer;
+  VAllowListOfTileVersions: Boolean;
 begin
   // remove all versions
   for i := (tbpmiVersions.Count-1) downto 0 do begin
@@ -3159,7 +3174,9 @@ begin
 
   // and add view items
   VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
-  if VMapType.AllowListOfTileVersions then begin
+  VAllowListOfTileVersions := VMapType.AllowListOfTileVersions;
+  tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions and VMapType.AllowShowPrevVersion;
+  if VAllowListOfTileVersions then begin
     // to lonlat
     VLocalConverter := FConfig.ViewPortState.View.GetStatic;
     VConverter := VLocalConverter.GetGeoConverter;
@@ -3178,6 +3195,7 @@ begin
     // get current version
     VVersion := VMapType.VersionConfig.Version;
     VCurrentVersion := VVersion.StoreString;
+    tbpmiShowPrevVersion.Checked := VVersion.ShowPrevVersion;
     VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VZoomCurr, VVersion);
     VVersion := nil;
     // parse list

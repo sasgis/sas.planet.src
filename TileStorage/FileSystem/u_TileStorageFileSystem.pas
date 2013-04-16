@@ -95,7 +95,8 @@ type
     ); override;
 
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
   public
     constructor Create(
@@ -647,7 +648,9 @@ begin
 end;
 
 function TTileStorageFileSystem.ScanTiles(
-  const AIgnoreTNE: Boolean): IEnumTileInfo;
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
 const
   cMaxFolderDepth = 10;
 var

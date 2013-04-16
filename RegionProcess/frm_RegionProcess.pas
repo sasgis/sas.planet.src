@@ -269,6 +269,7 @@ begin
     );
   FProviderTilesCopy :=
     TProviderTilesCopy.Create(
+      ATimerNoifier,
       VProgressFactory,
       ALanguageManager,
       AMainMapsConfig,

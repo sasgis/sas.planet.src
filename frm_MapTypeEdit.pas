@@ -112,6 +112,40 @@ uses
 
 {$R *.dfm}
 
+function GetCacheIdFromIndex(const AIndex: Integer): Byte;
+begin
+  case AIndex of
+    0: Result := c_File_Cache_Id_DEFAULT;
+    1: Result := c_File_Cache_Id_GMV;
+    2: Result := c_File_Cache_Id_SAS;
+    3: Result := c_File_Cache_Id_ES;
+    4: Result := c_File_Cache_Id_GM;
+    5: Result := c_File_Cache_Id_BDB;
+    6: Result := c_File_Cache_Id_BDB_Versioned;
+    7: Result := c_File_Cache_Id_DBMS;
+    8: Result := c_File_Cache_Id_RAM;
+  else
+    Result := c_File_Cache_Id_DEFAULT;
+  end;
+end;
+
+function GetIndexFromCacheId(const ACacheId: Byte): Integer;
+begin
+  case ACacheId of
+    c_File_Cache_Id_DEFAULT: Result := 0;
+    c_File_Cache_Id_GMV:  Result := 1;
+    c_File_Cache_Id_SAS:  Result := 2;
+    c_File_Cache_Id_ES:   Result := 3;
+    c_File_Cache_Id_GM:   Result := 4;
+    c_File_Cache_Id_BDB:  Result := 5;
+    c_File_Cache_Id_BDB_Versioned: Result := 6;
+    c_File_Cache_Id_DBMS: Result := 7;
+    c_File_Cache_Id_RAM:  Result := 8;
+  else
+    Result := 0;
+  end;
+end;
+
 procedure TfrmMapTypeEdit.btnResetHeaderClick(Sender: TObject);
 begin
   mmoHeader.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader;
@@ -142,21 +176,8 @@ begin
   try
     FMapType.StorageConfig.NameInCache := EditNameinCache.Text;
     // do not change cache types for GE and GC
-    if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
-      // common cache types
-      if CBCacheType.ItemIndex > 0 then begin
-        if CBCacheType.ItemIndex in [5,6] then begin
-          // BDB and DBMS
-          FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex + 1;
-        end else if CBCacheType.ItemIndex in [7] then begin
-          // RAM
-          FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex + 2;
-        end else begin
-          FMapType.StorageConfig.CacheTypeCode := CBCacheType.ItemIndex;
-        end;
-      end else begin
-        FMapType.StorageConfig.CacheTypeCode := c_File_Cache_Id_DEFAULT;
-      end;
+    if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
+      FMapType.StorageConfig.CacheTypeCode := GetCacheIdFromIndex(CBCacheType.ItemIndex);
     end;
   finally
     FMapType.StorageConfig.UnlockWrite;
@@ -186,16 +207,8 @@ begin
   SESleep.Value:=FMapType.Zmp.TileDownloaderConfig.WaitInterval;
   EditHotKey.HotKey:=FMapType.Zmp.GUI.HotKey;
 
-  if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
-    if FMapType.Zmp.StorageConfig.CacheTypeCode in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS] then begin
-      // BDB and DBMS
-      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 1;
-    end else if FMapType.Zmp.StorageConfig.CacheTypeCode in [c_File_Cache_Id_RAM] then begin
-      // RAM
-      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 2;
-    end else begin
-      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
-    end;
+  if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
+    CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.Zmp.StorageConfig.CacheTypeCode);
   end;
 
   EditParSubMenu.Text:=FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
@@ -232,15 +245,7 @@ end;
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
-    if (FMapType.Zmp.StorageConfig.CacheTypeCode in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS]) then begin
-      // BDB and DBMS
-      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 1;
-    end else if FMapType.Zmp.StorageConfig.CacheTypeCode in [c_File_Cache_Id_RAM] then begin
-      // RAM
-      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode - 2;
-    end else begin
-      CBCacheType.ItemIndex := FMapType.Zmp.StorageConfig.CacheTypeCode;
-    end;
+    CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.Zmp.StorageConfig.CacheTypeCode);
   end;
 end;
 
@@ -272,15 +277,7 @@ begin
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
-      if (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_BDB,c_File_Cache_Id_DBMS]) then begin
-        // BDB and DBMS
-        CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode - 1;
-      end else if FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_RAM] then begin
-        // RAM
-        CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode - 2;
-      end else begin
-        CBCacheType.ItemIndex := FMapType.StorageConfig.CacheTypeCode;
-      end;
+      CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.Zmp.StorageConfig.CacheTypeCode);
     end else begin
       // GE or GC
       pnlCacheType.Visible := False;

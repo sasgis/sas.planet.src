@@ -635,6 +635,7 @@ object frmSettings: TfrmSettings
             'EarthSlicer 1.95'
             'GlobalMapper Tiles'
             'BerkeleyDB'
+            'BerkeleyDB (Versioned)'
             'DBMS'
             'RAM')
           ExplicitLeft = 329

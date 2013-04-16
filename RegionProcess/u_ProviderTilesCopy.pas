@@ -4,6 +4,7 @@ interface
 
 uses
   Forms,
+  i_NotifierTime,
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
@@ -20,6 +21,7 @@ uses
 type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
+    FTimerNoifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
@@ -28,6 +30,7 @@ type
     function CreateFrame: TFrame; override;
   public
     constructor Create(
+      const ATimerNoifier: INotifierTime;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
@@ -59,6 +62,7 @@ uses
 { TProviderTilesCopy }
 
 constructor TProviderTilesCopy.Create(
+  const ATimerNoifier: INotifierTime;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
@@ -77,6 +81,7 @@ begin
     AFullMapsSet,
     AGUIConfigList
   );
+  FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
@@ -123,14 +128,15 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  if VCacheType = c_File_Cache_Id_DBMS then begin
-    // set version options
-    VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
-    if VSetTargetVersionEnabled then
-      VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue
-    else
-      VSetTargetVersionValue := '';
+  // set version options
+  VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
+  if VSetTargetVersionEnabled then begin
+    VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue
+  end else begin
+    VSetTargetVersionValue := '';
+  end;
 
+  if VCacheType = c_File_Cache_Id_DBMS then begin
     TThreadExportToDBMS.Create(
       VProgressInfo,
       '', // allow empty value here (if path completely defined)
@@ -145,16 +151,20 @@ begin
       VDeleteSource,
       VReplace
     );
-  end else if VCacheType = c_File_Cache_Id_BDB then begin
+  end else if VCacheType in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
     TThreadExportToBerkeleyDB.Create(
+      FTimerNoifier,
       FGlobalBerkeleyDBHelper,
       VProgressInfo,
       VPath,
+      (VCacheType = c_File_Cache_Id_BDB_Versioned),
       FProjectionFactory,
       FVectorItemsFactory,
       APolygon,
       VZoomArr,
       VMaps,
+      VSetTargetVersionEnabled,
+      VSetTargetVersionValue,
       VDeleteSource,
       VReplace
     );

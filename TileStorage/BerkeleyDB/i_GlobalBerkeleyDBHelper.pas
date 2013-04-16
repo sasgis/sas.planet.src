@@ -31,6 +31,7 @@ type
     function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
     procedure RaiseException(const EMsg: AnsiString);
+    procedure LogException(const EMsg: AnsiString);
   end;
 
 implementation

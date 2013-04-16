@@ -23,17 +23,20 @@ unit u_BerkeleyDBEnv;
 interface
 
 uses
+  Classes,
   SyncObjs,
   libdb51,
   i_Listener,
   i_BerkeleyDBEnv,
   i_GlobalBerkeleyDBHelper,
+  u_BerkeleyDBMsgLogger,
   u_BaseInterfacedObject;
 
 type
   TBerkeleyDBEnvAppPrivate = record
     FEnvRootPath: string;
     FHelper: IGlobalBerkeleyDBHelper;
+    FMsgLogger: TBerkeleyDBMsgLogger;
   end;
   PBerkeleyDBEnvAppPrivate = ^TBerkeleyDBEnvAppPrivate;
 
@@ -48,8 +51,10 @@ type
     FCS: TCriticalSection;
     FClientsCount: Integer;
     FListener: IListener;
+    FTxnList: TList;
     function Open: Boolean;
     procedure Sync;
+    procedure MakeDefConfigFile(const AEnvHomePath: string);
   private
     { IBerkeleyDBEnvironment }
     function GetEnvironmentPointerForApi: Pointer;
@@ -57,6 +62,9 @@ type
     function GetClientsCount: Integer;
     procedure SetClientsCount(const AValue: Integer);
     procedure RemoveUnUsedLogs;
+    procedure TransactionBegin(out ATxn: PBerkeleyTxn);
+    procedure TransactionCommit(var ATxn: PBerkeleyTxn);
+    procedure TransactionAbort(var ATxn: PBerkeleyTxn);
     procedure TransactionCheckPoint;
     function GetSyncCallListener: IListener;
   public
@@ -77,6 +85,8 @@ uses
 const
   cBerkeleyDBEnvSubDir = 'env';
   cBerkeleyDBEnvErrPfx = 'BerkeleyDB Env';
+  cBerkeleyDBEnvConfig = 'DB_CONFIG';
+  cVerboseMsgFileName  = 'msg.log';
 
 procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 var
@@ -86,12 +96,22 @@ begin
   VMsg := errpfx + AnsiString(': ') + msg;
   VEnvPrivate := dbenv.app_private;
   if Assigned(VEnvPrivate) then begin
-    VMsg := VMsg + ' (' + VEnvPrivate.FEnvRootPath + ')';
+    VMsg := VMsg + #09 + VEnvPrivate.FEnvRootPath;
   end;
   if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FHelper) then begin
     VEnvPrivate.FHelper.RaiseException(VMsg);
   end else begin
     raise EBerkeleyDBExeption.Create(string(VMsg));
+  end;
+end;
+
+procedure BerkeleyDBMsgCall(dbenv: PDB_ENV; msg: PAnsiChar); cdecl;
+var
+  VEnvPrivate: PBerkeleyDBEnvAppPrivate;
+begin
+  VEnvPrivate := dbenv.app_private;
+  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FMsgLogger) then begin
+    VEnvPrivate.FMsgLogger.SaveVerbMsg(msg);
   end;
 end;
 
@@ -104,9 +124,11 @@ constructor TBerkeleyDBEnv.Create(
 begin
   inherited Create;
   dbenv := nil;
+  FTxnList := TList.Create;
   New(FAppPrivate);
   FAppPrivate.FEnvRootPath := AEnvRootPath;
   FAppPrivate.FHelper := AGlobalBerkeleyDBHelper;
+  FAppPrivate.FMsgLogger := TBerkeleyDBMsgLogger.Create(IncludeTrailingPathDelimiter(AEnvRootPath) + cVerboseMsgFileName);
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
@@ -116,18 +138,29 @@ begin
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
+var
+  I: Integer;
+  txn: PDB_TXN;
 begin
   try
     FListener := nil;
     if dbenv <> nil then begin
+      for I := 0 to FTxnList.Count - 1 do begin
+        txn := FTxnList.Items[I];
+        if txn <> nil then begin
+          txn.abort(txn);
+        end;
+      end;
       TransactionCheckPoint;
       RemoveUnUsedLogs;
-      CheckBDBandNil(dbenv.close(dbenv, 0), dbenv);
+      dbenv.close(dbenv, 0);
     end;
-    FCS.Free;
   finally
     FAppPrivate.FHelper := nil;
+    FAppPrivate.FMsgLogger.Free;
     Dispose(FAppPrivate);
+    FTxnList.Free;
+    FCS.Free;
     inherited Destroy;
   end;
 end;
@@ -141,29 +174,49 @@ begin
   end;
 end;
 
+procedure TBerkeleyDBEnv.MakeDefConfigFile(const AEnvHomePath: string);
+var
+  VFile: string;
+  VList: TStringList;
+begin
+  VFile := AEnvHomePath + cBerkeleyDBEnvConfig;
+  if not FileExists(VFile) then begin
+    VList := TStringList.Create;
+    try
+      VList.Add('set_flags DB_TXN_WRITE_NOSYNC on');
+      VList.Add('set_lg_dir .');
+      VList.Add('set_data_dir ..');
+      VList.Add('set_cachesize 0 2097152 1');
+      VList.Add('mutex_set_max 30000');
+      VList.Add('set_lg_max 10485760');
+      VList.Add('set_lg_bsize 2097152');
+      VList.Add('log_set_config DB_LOG_AUTO_REMOVE on');
+      VList.SaveToFile(VFile);
+    finally
+      VList.Free;
+    end;
+  end;
+end;
+
 function TBerkeleyDBEnv.Open: Boolean;
 var
-  I: Integer;
   VPath: AnsiString;
 begin
   if not FActive and FLibInitOk then begin
-    CheckBDB(db_env_create(dbenv, 0)); 
-    dbenv.app_private := FAppPrivate;
-    dbenv.set_errpfx(dbenv, CBerkeleyDBEnvErrPfx);
-    dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
-    CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));
-    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_NOSYNC, 1));
-    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 1));
-    CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_RECOVERY, 1));
-    CheckBDB(dbenv.set_data_dir(dbenv, '..'));
-    CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
 
     VPath := FAppPrivate.FEnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
-    I := LastDelimiter(PathDelim, VPath);
-    VPath := copy(VPath, 1, I);
     if not DirectoryExists(VPath) then begin
       ForceDirectories(VPath);
     end;
+
+    MakeDefConfigFile(VPath);
+    
+    CheckBDB(db_env_create(dbenv, 0));
+    dbenv.app_private := FAppPrivate;
+    dbenv.set_errpfx(dbenv, CBerkeleyDBEnvErrPfx);
+    dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
+    dbenv.set_msgcall(dbenv, BerkeleyDBMsgCall);
+    CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));
 
     CheckBDB(
       dbenv.open(
@@ -195,6 +248,63 @@ begin
     end;
   finally
     FCS.Release;
+  end;
+end;
+
+procedure TBerkeleyDBEnv.TransactionBegin(out ATxn: PBerkeleyTxn);
+var
+  txn: PDB_TXN;
+begin
+  FCS.Acquire;
+  try
+    if FActive and FLibInitOk then begin
+      txn := nil;
+      CheckBDB(dbenv.txn_begin(dbenv, nil, @txn, DB_TXN_NOWAIT));
+      ATxn := txn;
+      FTxnList.Add(txn);
+    end else begin
+      ATxn := nil;
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+procedure TBerkeleyDBEnv.TransactionCommit(var ATxn: PBerkeleyTxn);
+var
+  txn: PDB_TXN;
+begin
+  if ATxn <> nil then begin
+    txn := ATxn;
+    ATxn := nil;
+    FCS.Acquire;
+    try
+      if FActive and FLibInitOk then begin
+        FTxnList.Remove(txn);
+        CheckBDBandNil(txn.commit(txn, 0), txn);
+      end;
+    finally
+      FCS.Release;
+    end;
+  end;
+end;
+
+procedure TBerkeleyDBEnv.TransactionAbort(var ATxn: PBerkeleyTxn);
+var
+  txn: PDB_TXN;
+begin
+  if ATxn <> nil then begin
+    txn := ATxn;
+    ATxn := nil;
+    FCS.Acquire;
+    try
+      if FActive and FLibInitOk then begin
+        FTxnList.Remove(txn);
+        CheckBDBandNil(txn.abort(txn), txn);
+      end;
+    finally
+      FCS.Release;
+    end;
   end;
 end;
 

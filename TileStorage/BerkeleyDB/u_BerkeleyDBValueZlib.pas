@@ -18,39 +18,61 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_BerkeleyDBEnv;
+unit u_BerkeleyDBValueZlib;
 
 interface
 
-uses
-  i_Listener;
-
-type
-  PBerkeleyTxn = Pointer;
-
-  IBerkeleyDBEnvironment = interface
-    ['{0D73208B-3729-43F3-9AAE-DF1616107648}']
-    function GetEnvironmentPointerForApi: Pointer;
-    property dbenv: Pointer read GetEnvironmentPointerForApi;
-
-    function GetRootPath: string;
-    property RootPath: string read GetRootPath;
-
-    function GetClientsCount: Integer;
-    procedure SetClientsCount(const AValue: Integer);
-    property ClientsCount: Integer read GetClientsCount write SetClientsCount;
-
-    function GetSyncCallListener: IListener;
-    property SyncCallListener: IListener read GetSyncCallListener;
-
-    procedure RemoveUnUsedLogs;
-
-    procedure TransactionBegin(out ATxn: PBerkeleyTxn);
-    procedure TransactionCommit(var ATxn: PBerkeleyTxn);
-    procedure TransactionAbort(var ATxn: PBerkeleyTxn);
-    procedure TransactionCheckPoint;
-  end;
+procedure ZlibCompress(const AInData: Pointer; const AInSize: Integer; out AOutData: Pointer; out AOutSize: Integer);
+function ZlibDecompress(const AInData: Pointer; const AInSize: Integer; out AOutData: Pointer; out AOutSize: Integer): Boolean;
 
 implementation
+
+uses
+  ALZLibEx;
+
+const
+  cBerkeleyValueZlibMagic: Cardinal = $4C41565A; // ZVAL (Zlib VALue)
+
+procedure ZlibCompress(const AInData: Pointer; const AInSize: Integer; out AOutData: Pointer; out AOutSize: Integer);
+var
+  VPtr: PByte;
+  VZlibData: Pointer;
+  VZlibDataSize: Integer;
+begin
+  ZCompress(AInData, AInSize, VZlibData, VZlibDataSize);
+  try
+    AOutSize := VZlibDataSize + 8;
+    AOutData := GetMemory(AOutSize);
+    VPtr := AOutData;
+    PCardinal(VPtr)^ := cBerkeleyValueZlibMagic;
+    Inc(VPtr, 4);
+    PInteger(VPtr)^ := AInSize;
+    Inc(VPtr, 4);
+    Move(VZlibData^, VPtr^, VZlibDataSize);
+  finally
+    FreeMemory(VZlibData);
+  end;
+end;
+
+
+function ZlibDecompress(const AInData: Pointer; const AInSize: Integer; out AOutData: Pointer; out AOutSize: Integer): Boolean;
+var
+  VPtr: PByte;
+  VUnconpressSize: Integer;
+begin
+  Result := False;
+  AOutData := nil;
+  AOutSize := 0;
+  VPtr := AInData;
+  if (AInSize > 8) and (PCardinal(VPtr)^ = cBerkeleyValueZlibMagic) then begin
+    Inc(VPtr, 4);
+    VUnconpressSize := PInteger(VPtr)^;
+    Inc(VPtr, 4);
+    ZDecompress(VPtr, (AInSize - 8), AOutData, AOutSize, VUnconpressSize);
+    Result := True;
+  end else begin
+    // error     
+  end;
+end;
 
 end.

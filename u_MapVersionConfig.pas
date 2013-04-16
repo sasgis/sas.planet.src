@@ -33,6 +33,7 @@ type
   TMapVersionConfig = class(TConfigDataElementBase, IMapVersionConfig)
   private
     FDefConfig: IMapVersionInfo;
+    FShowPrevVersion: Boolean;
     FVersionFactory: IMapVersionFactory;
     FVersion: IMapVersionInfo;
   protected
@@ -40,39 +41,50 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
     function GetVersionFactory: IMapVersionFactory;
-    procedure SetVersionFactory(const AValue: IMapVersionFactory);
 
     function GetVersion: IMapVersionInfo;
     procedure SetVersion(const AValue: IMapVersionInfo);
+
+    function GetShowPrevVersion: Boolean;
+    procedure SetShowPrevVersion(const AValue: Boolean);
   public
-    constructor Create(const ADefConfig: IMapVersionInfo);
+    constructor Create(
+      const ADefConfig: IMapVersionInfo;
+      const AMapVersionFactory: IMapVersionFactory
+    );
   end;
 
 
 implementation
 
-uses
-  u_MapVersionFactorySimpleString;
-
 { TMapVersionConfig }
 
-constructor TMapVersionConfig.Create(const ADefConfig: IMapVersionInfo);
+constructor TMapVersionConfig.Create(
+  const ADefConfig: IMapVersionInfo;
+  const AMapVersionFactory: IMapVersionFactory
+);
 begin
   inherited Create;
   FDefConfig := ADefConfig;
-  FVersionFactory := TMapVersionFactorySimpleString.Create;
-  FVersion := FVersionFactory.CreateByMapVersion(FDefConfig);
+  FShowPrevVersion := ADefConfig.ShowPrevVersion;
+  FVersionFactory := AMapVersionFactory;
+  FVersion := FVersionFactory.CreateByMapVersion(FDefConfig, FShowPrevVersion);
 end;
 
 procedure TMapVersionConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 var
   VStoreString: string;
+  VShowPrevVersion: Boolean;
 begin
   inherited;
   if AConfigData <> nil then begin
     VStoreString := AConfigData.ReadString('Version', FVersion.StoreString);
     if VStoreString <> FVersion.StoreString then begin
       SetVersion(FVersionFactory.CreateByStoreString(VStoreString));
+    end;
+    VShowPrevVersion := AConfigData.ReadBool('ShowPrevVersion', FShowPrevVersion);
+    if VShowPrevVersion <> FShowPrevVersion then begin
+      SetShowPrevVersion(VShowPrevVersion);
     end;
   end;
 end;
@@ -82,6 +94,7 @@ procedure TMapVersionConfig.DoWriteConfig(
 );
 var
   VStoreString: string;
+  VShowPrevVersion: Boolean;
 begin
   inherited;
   VStoreString := FVersion.StoreString;
@@ -89,6 +102,22 @@ begin
     AConfigData.WriteString('Version', VStoreString);
   end else begin
     AConfigData.DeleteValue('Version');
+  end;
+  VShowPrevVersion := FShowPrevVersion;
+  if VShowPrevVersion <> FDefConfig.ShowPrevVersion then begin
+    AConfigData.WriteBool('ShowPrevVersion', VShowPrevVersion);
+  end else begin
+    AConfigData.DeleteValue('ShowPrevVersion');
+  end;
+end;
+
+function TMapVersionConfig.GetShowPrevVersion: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowPrevVersion;
+  finally
+    UnlockRead;
   end;
 end;
 
@@ -112,6 +141,20 @@ begin
   end;
 end;
 
+procedure TMapVersionConfig.SetShowPrevVersion(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowPrevVersion <> AValue then begin
+      FShowPrevVersion := AValue;
+      FVersion := FVersionFactory.CreateByMapVersion(FVersion, FShowPrevVersion);
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 procedure TMapVersionConfig.SetVersion(const AValue: IMapVersionInfo);
 var
   VValue: IMapVersionInfo;
@@ -119,25 +162,11 @@ begin
   LockWrite;
   try
     if FVersion <> AValue then begin
-      VValue := FVersionFactory.CreateByMapVersion(AValue);
+      VValue := FVersionFactory.CreateByMapVersion(AValue, FShowPrevVersion);
       if FVersion <> VValue then begin
         FVersion := VValue;
         SetChanged;
       end;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMapVersionConfig.SetVersionFactory(const AValue: IMapVersionFactory);
-begin
-  LockWrite;
-  try
-    if FVersionFactory <> AValue then begin
-      FVersionFactory := AValue;
-      FVersion := FVersionFactory.CreateByMapVersion(FVersion);
-      SetChanged;
     end;
   finally
     UnlockWrite;

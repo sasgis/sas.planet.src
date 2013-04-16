@@ -41,6 +41,7 @@ uses
   i_LanguageManager,
   i_CoordConverter,
   i_MapVersionConfig,
+  i_MapVersionFactoryList,
   i_TileDownloadRequestBuilderConfig,
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
@@ -107,6 +108,7 @@ type
     FAbilitiesConfig: IMapAbilitiesConfig;
     FMapAttachmentsFactory: IMapAttachmentsFactory;
     FStorageConfig: ISimpleTileStorageConfig;
+    FGlobalCacheConfig: IGlobalCacheConfig;
     FTileDownloadSubsystem: ITileDownloadSubsystem;
     FPerfCounterList: IInternalPerformanceCounterList;
 
@@ -147,6 +149,7 @@ type
     function GetTileNotifier: INotifierTilePyramidUpdate;
   public
     function AllowListOfTileVersions: Boolean;
+    function AllowShowPrevVersion: Boolean;
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
     procedure ClearMemCache;
     function GetTileFileName(
@@ -235,6 +238,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AZmp: IZmpInfo;
+      const AMapVersionFactoryList: IMapVersionFactoryList;
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: IGlobalCacheConfig;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -314,6 +318,7 @@ end;
 constructor TMapType.Create(
   const ALanguageManager: ILanguageManager;
   const AZmp: IZmpInfo;
+  const AMapVersionFactoryList: IMapVersionFactoryList;
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: IGlobalCacheConfig;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -337,6 +342,7 @@ constructor TMapType.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
+  VTypeCode: Byte;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
   VMapVersionChanger: IMapVersionChanger;
@@ -355,13 +361,19 @@ begin
   FResamplerConfigLoad := AResamplerConfigLoad;
   FResamplerConfigGetPrev := AResamplerConfigGetPrev;
   FResamplerConfigChangeProjection := AResamplerConfigChangeProjection;
+  FGlobalCacheConfig := AGlobalCacheConfig;
   FGlobalDownloadConfig := ADownloadConfig;
   FBitmapFactory := ABitmapFactory;
   FContentTypeManager := AContentTypeManager;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
 
-  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig);
+  VTypeCode := FZmp.StorageConfig.CacheTypeCode;
+  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
+    VTypeCode := FGlobalCacheConfig.DefCache;
+  end;
+
+  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig, AMapVersionFactoryList.GetVersionFactoryByCode(VTypeCode));
   FVersionChangeListener := TNotifyNoMmgEventListener.Create(Self.OnVersionChange);
   FVersionConfig.ChangeNotifier.Add(FVersionChangeListener);
 
@@ -399,7 +411,7 @@ begin
 
   FStorage :=
     TTileStorageOfMapType.Create(
-      AGlobalCacheConfig,
+      FGlobalCacheConfig,
       AGlobalBerkeleyDBHelper,
       FStorageConfig,
       FCacheTileInfo,
@@ -509,6 +521,7 @@ begin
   FGUIConfig := nil;
   FMapAttachmentsFactory := nil;
   FAbilitiesConfig := nil;
+  FGlobalCacheConfig := nil;
   FStorageConfig := nil;
   FStorage := nil;
   inherited;
@@ -528,9 +541,33 @@ begin
 end;
 
 function TMapType.AllowListOfTileVersions: Boolean;
+var
+  VTypeCode: Byte;
 begin
-  // only for GE and GC and DBMS
-  Result := (FStorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC, c_File_Cache_Id_DBMS]);
+  VTypeCode := FStorageConfig.CacheTypeCode;
+  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
+    VTypeCode := FGlobalCacheConfig.DefCache;
+  end;
+  Result := VTypeCode in [
+    c_File_Cache_Id_GE,
+    c_File_Cache_Id_GC,
+    c_File_Cache_Id_DBMS,
+    c_File_Cache_Id_BDB_Versioned
+  ];
+end;
+
+function TMapType.AllowShowPrevVersion: Boolean;
+var
+  VTypeCode: Byte;
+begin
+  VTypeCode := FStorageConfig.CacheTypeCode;
+  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
+    VTypeCode := FGlobalCacheConfig.DefCache;
+  end;
+  Result := VTypeCode in [
+    c_File_Cache_Id_DBMS,
+    c_File_Cache_Id_BDB_Versioned
+  ];
 end;
 
 function TMapType.TileExists(

@@ -52,6 +52,7 @@ type
     function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
     procedure RaiseException(const EMsg: AnsiString);
+    procedure LogException(const EMsg: AnsiString);
   public
     constructor Create(const APathConfig: IPathConfig);
     destructor Destroy; override;
@@ -187,8 +188,8 @@ begin
       FLogFileStream := TFileStream.Create(VLogFileName, fmOpenReadWrite or fmShareDenyNone);
     end;
 
-    DateTimeToString(VDateTimeStr, 'dd-mm-yyyy  hh:nn:ss.zzzz', Now);
-    VLogMsg := AnsiString(VDateTimeStr) + '  ' + AMsg + #13#10;
+    DateTimeToString(VDateTimeStr, 'dd-mm-yyyy hh:nn:ss.zzzz', Now);
+    VLogMsg := AnsiString(VDateTimeStr) + #09 + AMsg + #13#10;
 
     FLogFileStream.Position := FLogFileStream.Size;
     FLogFileStream.Write(VLogMsg[1], Length(VLogMsg));
@@ -199,13 +200,18 @@ end;
 
 procedure TGlobalBerkeleyDBHelper.RaiseException(const EMsg: AnsiString);
 begin
+  LogException(EMsg);
+  raise EBerkeleyDBExeption.Create(string(EMsg));
+end;
+
+procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: AnsiString);
+begin
   if FSaveErrorsToLog then
   try
     SaveErrorToLog(EMsg);
   except
     // ignore
   end;
-  raise EBerkeleyDBExeption.Create(String(EMsg));
 end;
 
 end.

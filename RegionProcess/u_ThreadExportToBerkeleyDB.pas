@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -27,8 +27,11 @@ uses
   Types,
   SysUtils,
   Classes,
+  i_TileStorage,
+  i_TileInfoBasic,
   i_MapVersionInfo,
   i_VectorItemLonLat,
+  i_NotifierTime,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
@@ -44,37 +47,45 @@ uses
 type
   TThreadExportToBerkeleyDB = class(TThreadExportAbstract)
   private
+    FTimerNoifier: INotifierTime;
+    FSourceTileStorage: ITileStorage;
+    FDestTileStorage: ITileStorage;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FMapTypeArr: IMapTypeListStatic;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FTileNameGen: ITileFileNameGenerator;
-    FIsMove: boolean;
-    FIsReplace: boolean;
+    FIsMove: Boolean;
+    FDestOverwriteTiles: Boolean;
     FPathExport: string;
-    function GetFullPathName(const ARelativePathName: string): string;
-    function TileExportToRemoteBDB(
-      AHelper: TTileStorageBerkeleyDBHelper;
-      AMapType: TMapType;
+    FIsVersioned: Boolean;
+    FSetTargetVersionEnabled: Boolean;
+    FSetTargetVersionValue: string;
+    function GetFullPathName(const ARelativePathName: string): string;  
+    function ProcessTile(
       const AXY: TPoint;
-      AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo;
-      const ARemotePath: string
-    ): Boolean;
+      const AZoom: Byte;
+      const ASrcVersionInfo: IMapVersionInfo;
+      const ATargetVersionInfo: IMapVersionInfo
+    ): Integer; inline;
   protected
     procedure ProcessRegion; override;
   public
     constructor Create(
+      const ATimerNoifier: INotifierTime;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
+      const AIsVersioned: Boolean;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
-      AMove: boolean;
-      AReplace: boolean
+      const ASetTargetVersionEnabled: Boolean;
+      const ASetTargetVersionValue: string;
+      const AMove: Boolean;
+      const AReplace: Boolean
     );
   end;
 
@@ -86,23 +97,27 @@ uses
   i_ContentTypeInfo,
   i_VectorItemProjected,
   i_TileIterator,
-  i_TileInfoBasic,
-  i_TileStorage,
+  u_TileStorageBerkeleyDB,
   u_TileFileNameBerkeleyDB,
   u_TileIteratorByPolygon;
 
 { TThreadExportToBerkeleyDB }
 
 constructor TThreadExportToBerkeleyDB.Create(
+  const ATimerNoifier: INotifierTime;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
+  const AIsVersioned: Boolean;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;
-  AMove, AReplace: boolean
+  const ASetTargetVersionEnabled: Boolean;
+  const ASetTargetVersionValue: string;
+  const AMove: Boolean;
+  const AReplace: Boolean
 );
 begin
   inherited Create(
@@ -111,16 +126,20 @@ begin
     AZoomArr,
     AnsiString(Self.ClassName)
   );
+  FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FPathExport := GetFullPathName(APath);
+  FIsVersioned := AIsVersioned;
   if FPathExport = '' then begin
     raise Exception.Create('Can''t ExpandFileName: ' + APath);
   end;
+  FSetTargetVersionEnabled := ASetTargetVersionEnabled;
+  FSetTargetVersionValue := ASetTargetVersionValue;
   FIsMove := AMove;
   FTileNameGen := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
-  FIsReplace := AReplace;
+  FDestOverwriteTiles := AReplace;
   FMapTypeArr := AMapTypeArr;
 end;
 
@@ -131,91 +150,108 @@ begin
   SetLength(Result, StrLen(PChar(Result)));
 end;
 
-function TThreadExportToBerkeleyDB.TileExportToRemoteBDB(
-  AHelper: TTileStorageBerkeleyDBHelper;
-  AMapType: TMapType;
+function TThreadExportToBerkeleyDB.ProcessTile(
   const AXY: TPoint;
-  AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo;
-  const ARemotePath: string
-): Boolean;
+  const AZoom: Byte;
+  const ASrcVersionInfo: IMapVersionInfo;
+  const ATargetVersionInfo: IMapVersionInfo
+): Integer;
 var
-  VExportSDBFile: string;
-  VTileInfo: ITileInfoWithData;
-  VTileExists: Boolean;
-  VSDBFileExists: Boolean;
-  VLoadDate: TDateTime;
-  VContenetType: IContentTypeInfoBasic;
+  VSrcTileInfo, VDestTileInfo: ITileInfoBasic;
+  VTileInfoWithData: ITileInfoWithData;
+  VSrcVersionInfo: IMapVersionInfo;
+  VTargetVersionInfo: IMapVersionInfo;
+  VMapVersionList: IMapVersionListStatic;
+  VVersionCount: Integer;
 begin
-  Result := False;
-  VExportSDBFile :=
-    IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) +
-      AMapType.GetShortFolderName) +
-    FTileNameGen.GetTileFileName(AXY, AZoom) +
-    '.sdb';
-  VSDBFileExists := FileExists(VExportSDBFile);
-  if VSDBFileExists then begin
-    VTileExists := AHelper.TileExists(VExportSDBFile, AXY, AZoom, AVersionInfo);
+  Result := 0;
+  VVersionCount := 0;
+
+  if not FSetTargetVersionEnabled then begin
+    // will try copy all versions from source and ingnore ATargetVersionInfo
+    VMapVersionList := FSourceTileStorage.GetListOfTileVersions(AXY, AZoom, ASrcVersionInfo);
   end else begin
-    VTileExists := False;
+    // will copy only one (current) version from source and save it with a ATargetVersionInfo
+    VMapVersionList := nil;
   end;
-  if not VTileExists or (VTileExists and FIsReplace) then begin
-    if Supports(AMapType.TileStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-      if VSDBFileExists or AHelper.CreateDirIfNotExists(VExportSDBFile) then begin
-        if VTileInfo <> nil then begin
-          VLoadDate := VTileInfo.LoadDate;
-        end else begin
-          VLoadDate := Now;
+
+  repeat
+    Inc(Result);
+    if Assigned(VMapVersionList) and (VVersionCount < VMapVersionList.Count) then begin
+      VSrcVersionInfo := VMapVersionList.Item[VVersionCount];
+      VTargetVersionInfo := VSrcVersionInfo;
+      Inc(VVersionCount);
+    end else begin
+      VSrcVersionInfo := ASrcVersionInfo;
+      VTargetVersionInfo := ATargetVersionInfo;
+      VVersionCount := -1;
+    end;
+    VSrcTileInfo := FSourceTileStorage.GetTileInfo(AXY, AZoom, VSrcVersionInfo, gtimWithData);
+    if Assigned(VSrcTileInfo) then begin
+      if not FDestOverwriteTiles then begin
+        VDestTileInfo := FDestTileStorage.GetTileInfo(AXY, AZoom, VTargetVersionInfo, gtimWithoutData);
+        if Assigned(VDestTileInfo) then begin
+          if (VDestTileInfo.IsExists or (VDestTileInfo.IsExistsTNE and VSrcTileInfo.IsExistsTNE)) then begin
+            Continue;
+          end;
         end;
-        if (VTileInfo <> nil) then begin
-          VContenetType := VTileInfo.ContentType;
-        end else begin
-          VContenetType := AMapType.ContentType;
+      end;
+      if VSrcTileInfo.IsExists then begin
+        if Supports(VSrcTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+          FDestTileStorage.SaveTile(
+            AXY,
+            AZoom,
+            VTargetVersionInfo,
+            VTileInfoWithData.LoadDate,
+            VTileInfoWithData.ContentType,
+            VTileInfoWithData.TileData
+          );
         end;
-        Result := AHelper.SaveTile(
-          VExportSDBFile,
+      end else if VSrcTileInfo.IsExistsTNE then begin
+        FDestTileStorage.SaveTNE(
           AXY,
           AZoom,
-          VLoadDate,
-          VTileInfo.VersionInfo,
-          VContenetType,
-          VTileInfo.TileData
+          VTargetVersionInfo,
+          VSrcTileInfo.LoadDate
         );
       end;
+      if FIsMove then begin
+        FSourceTileStorage.DeleteTile(AXY, AZoom, VSrcVersionInfo);
+      end;
     end;
-  end;
+  until VVersionCount < 0;
 end;
 
 procedure TThreadExportToBerkeleyDB.ProcessRegion;
 var
-  i, j: integer;
+  I, J: Integer;
   VZoom: Byte;
-  VPath: string;
   VTile: TPoint;
   VMapType: TMapType;
   VGeoConvert: ICoordConverter;
   VTileIterators: array of array of ITileIterator;
   VTileIterator: ITileIterator;
-  VHelper: TTileStorageBerkeleyDBHelper;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VVersionInfo: IMapVersionInfo;
+  VProcessedCount: Integer;
+  VSrcVersionInfo: IMapVersionInfo;
+  VTargetVersionInfo: IMapVersionInfo;
 begin
   inherited;
   SetLength(VTileIterators, FMapTypeArr.Count, Length(FZooms));
   VTilesToProcess := 0;
-  for i := 0 to FMapTypeArr.Count - 1 do begin
-    for j := 0 to Length(FZooms) - 1 do begin
-      VZoom := FZooms[j];
-      VGeoConvert := FMapTypeArr.Items[i].MapType.GeoConvert;
+  for I := 0 to FMapTypeArr.Count - 1 do begin
+    for J := 0 to Length(FZooms) - 1 do begin
+      VZoom := FZooms[J];
+      VGeoConvert := FMapTypeArr.Items[I].MapType.GeoConvert;
       VProjectedPolygon :=
         FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );
-      VTileIterators[i, j] := TTileIteratorByPolygon.Create(VProjectedPolygon);
-      VTilesToProcess := VTilesToProcess + VTileIterators[i, j].TilesTotal;
+      VTileIterators[I, J] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+      VTilesToProcess := VTilesToProcess + VTileIterators[I, J].TilesTotal;
     end;
   end;
   try
@@ -225,44 +261,55 @@ begin
     );
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-    for i := 0 to FMapTypeArr.Count - 1 do begin
-      VMapType := FMapTypeArr.Items[i].MapType;
-      VVersionInfo := VMapType.VersionConfig.Version;
-      VGeoConvert := VMapType.GeoConvert;
-      VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
-      VHelper :=
-        TTileStorageBerkeleyDBHelper.Create(
+    for I := 0 to FMapTypeArr.Count - 1 do begin
+      VMapType := FMapTypeArr.Items[I].MapType;
+      FSourceTileStorage := VMapType.TileStorage;
+      VSrcVersionInfo := VMapType.VersionConfig.Version;
+
+      if FSetTargetVersionEnabled then begin
+        VTargetVersionInfo :=
+          VMapType.VersionConfig.VersionFactory.CreateByStoreString(
+            FSetTargetVersionValue,
+            VSrcVersionInfo.ShowPrevVersion
+          );
+      end else begin
+        VTargetVersionInfo := VSrcVersionInfo;
+      end;
+
+      FDestTileStorage :=
+        TTileStorageBerkeleyDB.Create(
           FGlobalBerkeleyDBHelper,
-          VPath,
-          VMapType.GeoConvert.ProjectionEPSG
+          VMapType.GeoConvert,
+          IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName),
+          FIsVersioned,
+          FTimerNoifier,
+          nil, // MemCache - not needed here
+          VMapType.ContentTypeManager,
+          VMapType.VersionConfig.VersionFactory,
+          VMapType.ContentType
         );
-      try
-        for j := 0 to Length(FZooms) - 1 do begin
-          VZoom := FZooms[j];
-          VTileIterator := VTileIterators[i, j];
-          while VTileIterator.Next(VTile) do begin
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              exit;
-            end;
-            if TileExportToRemoteBDB(VHelper, VMapType, VTile, VZoom, VVersionInfo, VPath) then begin
-              if FIsMove then begin
-                VMapType.TileStorage.DeleteTile(VTile, VZoom, VVersionInfo);
-              end;
-            end;
-            inc(VTilesProcessed);
-            if VTilesProcessed mod 100 = 0 then begin
-              ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-            end;
+
+      for J := 0 to Length(FZooms) - 1 do begin
+        VZoom := FZooms[J];
+        VTileIterator := VTileIterators[I, J];
+        while VTileIterator.Next(VTile) do begin
+          if CancelNotifier.IsOperationCanceled(OperationID) then begin
+            Exit;
+          end;
+
+          VProcessedCount := ProcessTile(VTile, VZoom, VSrcVersionInfo, VTargetVersionInfo);
+
+          Inc(VTilesProcessed, VProcessedCount);
+          if VTilesProcessed mod 100 = 0 then begin
+            ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
           end;
         end;
-      finally
-        FreeAndNil(VHelper);
-      end;
+      end;  
     end;
   finally
-    for i := 0 to FMapTypeArr.Count - 1 do begin
-      for j := 0 to Length(FZooms) - 1 do begin
-        VTileIterators[i, j] := nil;
+    for I := 0 to FMapTypeArr.Count - 1 do begin
+      for J := 0 to Length(FZooms) - 1 do begin
+        VTileIterators[I, J] := nil;
       end;
     end;
     VTileIterators := nil;

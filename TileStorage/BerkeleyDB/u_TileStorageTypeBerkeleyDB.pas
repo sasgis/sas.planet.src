@@ -7,6 +7,7 @@ uses
   i_ContentTypeInfo,
   i_ContentTypeManager,
   i_NotifierTime,
+  i_MapVersionConfig,
   i_TileStorage,
   i_TileStorageTypeConfig,
   i_TileInfoBasicMemCache,
@@ -17,6 +18,7 @@ type
   TTileStorageTypeBerkeleyDB = class(TTileStorageTypeBase)
   private
     FGCNotifier: INotifierTime;
+    FIsVersioned: Boolean;
     FContentTypeManager: IContentTypeManager;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   protected
@@ -30,7 +32,9 @@ type
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGCNotifier: INotifierTime;
+      const AIsVersioned: Boolean;
       const AContentTypeManager: IContentTypeManager;
+      const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
   end;
@@ -39,7 +43,6 @@ implementation
 
 uses
   u_TileStorageTypeAbilities,
-  u_MapVersionFactorySimpleString,
   u_TileStorageBerkeleyDB;
 
 { TTileStorageTypeBerkeleyDB }
@@ -47,16 +50,19 @@ uses
 constructor TTileStorageTypeBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGCNotifier: INotifierTime;
+  const AIsVersioned: Boolean;
   const AContentTypeManager: IContentTypeManager;
+  const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create(
     TTileStorageTypeAbilitiesBerkeleyDB.Create,
-    TMapVersionFactorySimpleString.Create,
+    AMapVersionFactory,
     AConfig
   );
   FGCNotifier := AGCNotifier;
+  FIsVersioned := AIsVersioned;
   FContentTypeManager := AContentTypeManager;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 end;
@@ -73,6 +79,7 @@ begin
       FGlobalBerkeleyDBHelper,
       AGeoConverter,
       APath,
+      FIsVersioned,
       FGCNotifier,
       ACacheTileInfo,
       FContentTypeManager,

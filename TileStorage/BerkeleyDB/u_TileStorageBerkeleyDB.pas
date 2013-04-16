@@ -53,9 +53,11 @@ type
     FSyncCallListner: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
+    FVersioned: Boolean;
     procedure OnSyncCall;
   protected
     function GetIsFileCache: Boolean; override;
+    function GetIsCanSaveMultiVersionTiles: Boolean; override;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -98,8 +100,15 @@ type
       const ALoadDate: TDateTime
     ); override;
 
+    function GetListOfTileVersions(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
+    ): IMapVersionListStatic; override;
+
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
   private
     { IBasicMemCache }
@@ -110,6 +119,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
+      const AIsVersioned: Boolean;
       const AGCNotifier: INotifierTime;
       const ATileInfoMemCache: ITileInfoBasicMemCache;
       const AContentTypeManager: IContentTypeManager;
@@ -149,6 +159,7 @@ constructor TTileStorageBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
+  const AIsVersioned: Boolean;
   const AGCNotifier: INotifierTime;
   const ATileInfoMemCache: ITileInfoBasicMemCache;
   const AContentTypeManager: IContentTypeManager;
@@ -170,9 +181,14 @@ begin
 
   FFileNameGenerator := TTileFileNameBerkeleyDB.Create as ITileFileNameGenerator;
 
+  FVersioned := AIsVersioned;
+
   FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
     AGlobalBerkeleyDBHelper,
+    AMapVersionFactory,
     StoragePath,
+    False, // ToDo: Read-Only
+    FVersioned,  
     AGeoConverter.ProjectionEPSG
   );
 
@@ -209,6 +225,11 @@ begin
   Result := False;
 end;
 
+function TTileStorageBerkeleyDB.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := FVersioned;
+end;
+
 function TTileStorageBerkeleyDB.GetTileFileName(
   const AXY: TPoint;
   const AZoom: Byte;
@@ -234,6 +255,8 @@ var
   VTileVersion: WideString;
   VTileContentType: WideString;
   VTileDate: TDateTime;
+  VTileSize: Integer;
+  VList: IMapVersionListStatic;
 begin
   if Assigned(FTileInfoMemCache) then begin
     Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, True);
@@ -252,33 +275,49 @@ begin
     VResult := False;
 
     if FileExists(VPath) then begin
-
-      VResult := FStorageHelper.LoadTile(
-        VPath,
-        AXY,
-        AZoom,
-        AVersionInfo,
-        VTileBinaryData,
-        VTileVersion,
-        VTileContentType,
-        VTileDate
-      );
-
-      if VResult then begin
-        if AMode = gtimWithoutData then begin
-          Result := TTileInfoBasicExists.Create(
-            VTileDate,
-            VTileBinaryData.Size,
-            MapVersionFactory.CreateByStoreString(VTileVersion),
-            FContentTypeManager.GetInfo(VTileContentType)
+      if AMode = gtimWithoutData then begin
+        VResult :=
+          FStorageHelper.LoadTileInfo(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo,
+            True, // single tile info
+            VList,
+            VTileVersion,
+            VTileContentType,
+            VTileSize,
+            VTileDate
           );
-        end else begin
-          Result := TTileInfoBasicExistsWithTile.Create(
-            VTileDate,
+        if VResult then begin
+          Result :=
+            TTileInfoBasicExists.Create(
+              VTileDate,
+              VTileSize,
+              MapVersionFactory.CreateByStoreString(VTileVersion),
+              FContentTypeManager.GetInfo(VTileContentType)
+            );
+        end;
+      end else begin
+        VResult :=
+          FStorageHelper.LoadTile(
+            VPath,
+            AXY,
+            AZoom,
+            AVersionInfo,
             VTileBinaryData,
-            MapVersionFactory.CreateByStoreString(VTileVersion),
-            FContentTypeManager.GetInfo(VTileContentType)
+            VTileVersion,
+            VTileContentType,
+            VTileDate
           );
+        if VResult then begin
+          Result :=
+            TTileInfoBasicExistsWithTile.Create(
+              VTileDate,
+              VTileBinaryData,
+              MapVersionFactory.CreateByStoreString(VTileVersion),
+              FContentTypeManager.GetInfo(VTileContentType)
+            );
         end;
       end;
     end;
@@ -306,6 +345,44 @@ begin
 
   if Assigned(FTileInfoMemCache) then begin
     FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, Result);
+  end;
+end;
+
+function TTileStorageBerkeleyDB.GetListOfTileVersions(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionInfo
+): IMapVersionListStatic;
+var
+  VPath: string;
+  VResult: Boolean;
+  VTileVersion: WideString;
+  VTileContentType: WideString;
+  VTileDate: TDateTime;
+  VTileSize: Integer;
+  VList: IMapVersionListStatic;
+begin
+  Result := nil;
+  if GetState.GetStatic.ReadAccess <> asDisabled then begin
+    VPath := StoragePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + cStorageFileExt;
+    if FileExists(VPath) then begin
+      VResult :=
+        FStorageHelper.LoadTileInfo(
+          VPath,
+          AXY,
+          AZoom,
+          AVersionInfo,
+          False, // multi-versions tile info
+          VList,
+          VTileVersion,
+          VTileContentType,
+          VTileSize,
+          VTileDate
+        );
+      if VResult then begin
+        Result := VList;
+      end;
+    end;
   end;
 end;
 
@@ -605,7 +682,8 @@ begin
 end;
 
 function TTileStorageBerkeleyDB.ScanTiles(
-  const AIgnoreTNE: Boolean
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
 ): IEnumTileInfo;
 const
   cMaxFolderDepth = 10;
@@ -639,8 +717,10 @@ begin
     VFileNameParser := TTileFileNameBerkeleyDB.Create as ITileFileNameParser;
     Result :=
       TEnumTileInfoByBerkeleyDB.Create(
+        AIgnoreMultiVersionTiles,
         VFilesIterator,
         VFileNameParser,
+        Self.MapVersionFactory,
         (Self as ITileStorage),
         FStorageHelper
       );

@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -45,21 +45,28 @@ type
     FEnvRootPath: string;
     FPageSize: Cardinal;
     FFileName: string;
+    FIsReadOnly: Boolean;
     FSyncAllow: ISimpleFlag;
     FOperationsCount: ICounter;
     FLock: IReadWriteSync;
     FSyncCallListener: IListener;
     FSyncCallNotifier: INotifierInternal;
+    FOnDeadLockRetryCount: Integer;
     function IsNeedDoSync: Boolean;
   private
     { IBerkeleyDB }
     procedure Open(const ADatabaseFileName: string);
     procedure Close;
-    function Read(const AKey: IBinaryData): IBinaryData;
-    function Write(const AKey, AValue: IBinaryData): Boolean;
-    function Exists(const AKey: IBinaryData): Boolean;
-    function ExistsList: IInterfaceList;
-    function Del(const AKey: IBinaryData): Boolean;
+    function Read(const AKey: IBinaryData): IBinaryData; overload;
+    function Write(const AKey, AValue: IBinaryData): Boolean; overload;
+    function Exists(const AKey: IBinaryData): Boolean; overload;
+    function Del(const AKey: IBinaryData): Boolean; overload;
+    function Read(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): IBinaryData; overload;
+    function Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
+    function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
+    function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
+    function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
+    procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
     procedure Sync(const ASyncWithNotifier: Boolean);
     function GetFileName: string;
   public
@@ -67,6 +74,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
       const ASyncCallListener: IListener;
+      const AIsReadOnly: Boolean;
       const APageSize: Cardinal
     );
     destructor Destroy; override;
@@ -93,12 +101,14 @@ constructor TBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
   const ASyncCallListener: IListener;
+  const AIsReadOnly: Boolean;
   const APageSize: Cardinal
 );
 begin
   inherited Create;
   FHelper := AGlobalBerkeleyDBHelper;
   FPageSize := APageSize;
+  FIsReadOnly := AIsReadOnly;
   db := nil;
   dbenv := AEnvironment.dbenv;
   FEnvRootPath := AEnvironment.RootPath;
@@ -111,6 +121,7 @@ begin
     FSyncCallNotifier := TNotifierBase.Create;
     FSyncCallNotifier.Add(FSyncCallListener);
   end;
+  FOnDeadLockRetryCount := 3;
 end;
 
 destructor TBerkeleyDB.Destroy;
@@ -134,6 +145,7 @@ procedure TBerkeleyDB.Open(const ADatabaseFileName: string);
 var
   VErrorMsg: string;
   VRelativeFileName: AnsiString;
+  VOpenFlags: Cardinal;
 begin
   FLock.BeginWrite;
   try
@@ -147,8 +159,12 @@ begin
       if not FileExists(FFileName) then begin
         CheckBDB(db.set_pagesize(db, FPageSize));
       end;
-      CheckBDB(db.open(db, nil, Pointer(AnsiToUtf8(VRelativeFileName)), '',
-        DB_BTREE, (DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD), 0));
+      if FIsReadOnly then begin
+        VOpenFlags := DB_RDONLY or DB_THREAD;
+      end else begin
+        VOpenFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
+      end;
+      CheckBDB(db.open(db, nil, Pointer(AnsiToUtf8(VRelativeFileName)), '', DB_BTREE, VOpenFlags, 0));
     except
       on E: Exception do begin
         VErrorMsg := '';
@@ -185,10 +201,40 @@ end;
 
 function TBerkeleyDB.Read(const AKey: IBinaryData): IBinaryData;
 var
+  b: Boolean;
+begin
+  Result := Read(AKey, nil, b);
+end;
+function TBerkeleyDB.Write(const AKey, AValue: IBinaryData): Boolean;
+var
+  b: Boolean;
+begin
+  Result := Write(AKey, AValue, nil, b);
+end;
+
+function TBerkeleyDB.Exists(const AKey: IBinaryData): Boolean;
+var
+  b: Boolean;
+begin
+  Result := Exists(AKey, nil, b);
+end;
+
+function TBerkeleyDB.Del(const AKey: IBinaryData): Boolean;
+var
+  b: Boolean;
+begin
+  Result := Del(AKey, nil, b);
+end;
+
+function TBerkeleyDB.Read(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): IBinaryData;
+var
+  I: Integer;
+  ret: Integer;
   dbtKey, dbtData: DBT;
   VFound: Boolean;
 begin
   Result := nil;
+  VFound := False;
   try
     FillChar(dbtKey, Sizeof(DBT), 0);
     FillChar(dbtData, Sizeof(DBT), 0);
@@ -198,11 +244,33 @@ begin
 
     dbtData.flags := DB_DBT_MALLOC; // -> память должен освобождать юзер
 
-    FLock.BeginWrite;
-    try
-      VFound := CheckAndFoundBDB(db.get(db, nil, @dbtKey, @dbtData, 0));
-    finally
-      FLock.EndWrite;
+    I := 0;
+    repeat
+      Inc(I);
+
+      FLock.BeginWrite;
+      try
+        ret := db.get(db, PDB_TXN(ATxn), @dbtKey, @dbtData, AFlag);
+      finally
+        FLock.EndWrite;
+      end;
+
+      case ret of
+        DB_LOCK_DEADLOCK: begin
+          AIsDeadLock := True;
+          if ATxn <> nil then begin
+            Break;
+          end;
+        end;
+      else
+        AIsDeadLock := False;
+        VFound := CheckAndFoundBDB(ret);
+        Break;
+      end;
+    until I > FOnDeadLockRetryCount;
+
+    if AIsDeadLock and (ATxn = nil) then begin
+      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
     end;
 
     if VFound then begin
@@ -220,11 +288,16 @@ begin
   end;
 end;
 
-function TBerkeleyDB.Write(const AKey, AValue: IBinaryData): Boolean;
+function TBerkeleyDB.Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean;
 var
+  I: Integer;
+  ret: Integer;
   dbtKey, dbtData: DBT;
 begin
+  Assert(not FIsReadOnly);
+
   Result := False;
+  AIsDeadLock := False;
   try
     FillChar(dbtKey, Sizeof(DBT), 0);
     FillChar(dbtData, Sizeof(DBT), 0);
@@ -235,19 +308,39 @@ begin
     dbtData.data := AValue.Buffer;
     dbtData.size := AValue.Size;
 
-    FLock.BeginWrite;
-    try
-      Result := CheckAndNotExistsBDB(db.put(db, nil, @dbtKey, @dbtData, 0));
-    finally
-      FLock.EndWrite;
+    I := 0;
+    repeat
+      Inc(I);
+
+      FLock.BeginWrite;
+      try
+        ret := db.put(db, PDB_TXN(ATxn), @dbtKey, @dbtData, 0);
+      finally
+        FLock.EndWrite;
+      end;
+
+      case ret of
+        DB_LOCK_DEADLOCK: begin
+          AIsDeadLock := True;
+          if ATxn <> nil then begin
+            Break;
+          end;
+        end;
+      else
+        AIsDeadLock := False;
+        Result := CheckAndNotExistsBDB(ret);
+        Break;
+      end;
+    until I > FOnDeadLockRetryCount;
+
+    if AIsDeadLock and (ATxn = nil) then begin
+      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
     end;
 
     if Result then begin
       if IsNeedDoSync then begin
         Sync(True);
       end;
-    end else begin
-      // key exists
     end;
   except
     on E: Exception do
@@ -255,8 +348,10 @@ begin
   end;
 end;
 
-function TBerkeleyDB.Exists(const AKey: IBinaryData): Boolean;
+function TBerkeleyDB.Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean;
 var
+  I: Integer;
+  ret: Integer;
   dbtKey: DBT;
 begin
   Result := False;
@@ -266,11 +361,33 @@ begin
     dbtKey.data := AKey.Buffer;
     dbtKey.size := AKey.Size;
 
-    FLock.BeginWrite;
-    try
-      Result := CheckAndFoundBDB(db.exists(db, nil, @dbtKey, 0));
-    finally
-      FLock.EndWrite;
+    I := 0;
+    repeat
+      Inc(I);
+
+      FLock.BeginWrite;
+      try
+        ret := db.exists(db, PDB_TXN(ATxn), @dbtKey, 0);
+      finally
+        FLock.EndWrite;
+      end;
+
+      case ret of
+        DB_LOCK_DEADLOCK: begin
+          AIsDeadLock := True;
+          if ATxn <> nil then begin
+            Break;
+          end;
+        end;
+      else
+        AIsDeadLock := False;
+        Result := CheckAndFoundBDB(ret);
+        Break;
+      end;
+    until I > FOnDeadLockRetryCount;
+
+    if AIsDeadLock and (ATxn = nil) then begin
+      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
     end;
   except
     on E: Exception do
@@ -278,10 +395,14 @@ begin
   end;
 end;
 
-function TBerkeleyDB.Del(const AKey: IBinaryData): Boolean;
+function TBerkeleyDB.Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean;
 var
+  I: Integer;
+  ret: Integer;
   dbtKey: DBT;
 begin
+  Assert(not FIsReadOnly);
+
   Result := False;
   try
     FillChar(dbtKey, Sizeof(DBT), 0);
@@ -289,11 +410,33 @@ begin
     dbtKey.data := AKey.Buffer;
     dbtKey.size := AKey.Size;
 
-    FLock.BeginWrite;
-    try
-      Result := CheckAndFoundBDB(db.del(db, nil, @dbtKey, 0));
-    finally
-      FLock.EndWrite;
+    I := 0;
+    repeat
+      Inc(I);
+
+      FLock.BeginWrite;
+      try
+        ret := db.del(db, PDB_TXN(ATxn), @dbtKey, 0);
+      finally
+        FLock.EndWrite;
+      end;
+
+      case ret of
+        DB_LOCK_DEADLOCK: begin
+          AIsDeadLock := True;
+          if ATxn <> nil then begin
+            Break;
+          end;
+        end;
+      else
+        AIsDeadLock := False;
+        Result := CheckAndFoundBDB(ret);
+        Break;
+      end;
+    until I > FOnDeadLockRetryCount;
+
+    if AIsDeadLock and (ATxn = nil) then begin
+      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
     end;
 
     if Result then begin
@@ -329,14 +472,16 @@ begin
   end;
 end;
 
-function TBerkeleyDB.ExistsList: IInterfaceList;
+function TBerkeleyDB.CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
 var
+  I: Integer;
+  VIsFound: Boolean;
   dbtKey, dbtData: DBT;
   dbc: PDBC;
-  VKey: IBinaryData;
 begin
+  Result := False;
+  SetLength(AKeyArray, 0);
   try
-    Result := TInterfaceList.Create;
     FLock.BeginWrite;
     try
       CheckBDB(db.cursor(db, nil, @dbc, 0));
@@ -353,12 +498,25 @@ begin
 
           if CheckAndFoundBDB(dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT)) then begin
             if (dbtKey.data <> nil) and (dbtKey.size > 0) then begin
-              VKey := TBinaryData.Create(dbtKey.size, dbtKey.data, True);
-              Result.Add(VKey);
+              VIsFound := False;
+              for I := 0 to Length(AKeyArray) - 1 do begin
+                if AKeyArray[I].KeySize = Integer(dbtKey.size) then begin
+                  VIsFound := True;
+                  AKeyArray[I].KeyData.Add(dbtKey.data);
+                  Break;
+                end;
+              end;
+              if not VIsFound then begin
+                I := Length(AKeyArray);
+                SetLength(AKeyArray, I + 1);
+                AKeyArray[I].KeySize := dbtKey.size;
+                AKeyArray[I].KeyData := TList.Create;
+                AKeyArray[I].KeyData.Add(dbtKey.data);
+              end;
             end;
           end else begin
             Break;
-          end;
+          end;  
         until False;
       finally
         CheckBDBandNil(dbc.close(dbc), dbc);
@@ -366,10 +524,26 @@ begin
     finally
       FLock.EndWrite;
     end;
+    Result := Length(AKeyArray) > 0;
   except
     on E: Exception do
       FHelper.RaiseException(E.ClassName + ': ' + E.Message);
   end;
+end;
+
+procedure TBerkeleyDB.ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
+var
+  I, J: Integer;
+begin
+  for I := 0 to Length(AKeyArray) - 1 do begin
+    for J := 0 to AKeyArray[I].KeyData.Count - 1 do begin
+      if AKeyArray[I].KeyData.Items[J] <> nil then begin
+        FreeMemory(AKeyArray[I].KeyData.Items[J]);
+      end;
+    end;
+    AKeyArray[I].KeyData.Free;
+  end;
+  SetLength(AKeyArray, 0);
 end;
 
 function TBerkeleyDB.GetFileName: string;

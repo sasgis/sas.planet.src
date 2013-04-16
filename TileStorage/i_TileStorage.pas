@@ -49,22 +49,27 @@ type
     function GetIsFileCache: Boolean;
     property IsFileCache: Boolean read GetIsFileCache;
 
+    function GetIsCanSaveMultiVersionTiles: Boolean;
+
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): string;
+
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic;
+
     function DeleteTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
+
     procedure SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -73,12 +78,14 @@ type
       const AContentType: IContentTypeInfoBasic;
       const AData: IBinaryData
     );
+
     procedure SaveTNE(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo;
       const ALoadDate: TDateTime
     );
+
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
@@ -92,7 +99,8 @@ type
     ): ITileRectInfo;
 
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo;
   end;
 

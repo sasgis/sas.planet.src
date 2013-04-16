@@ -30,15 +30,18 @@ type
   TMapVersionInfo = class(TBaseInterfacedObject, IMapVersionInfo)
   private
     FVersion: string;
+    FShowPrevVersion: Boolean;
   private
     function GetUrlString: string;
     function GetStoreString: string;
     function GetCaption: string;
+    function GetShowPrevVersion: Boolean;
 
-    function IsSame(const AValue: IMapVersionInfo): Boolean;
+    //function IsSame(const AValue: IMapVersionInfo): Boolean;
   public
     constructor Create(
-      const AVersion: string
+      const AVersion: string;
+      const AShowPrevVersion: Boolean
     );
   end;
 
@@ -46,15 +49,24 @@ implementation
 
 { TMapVersionInfo }
 
-constructor TMapVersionInfo.Create(const AVersion: string);
+constructor TMapVersionInfo.Create(
+  const AVersion: string;
+  const AShowPrevVersion: Boolean
+);
 begin
   inherited Create;
   FVersion := AVersion;
+  FShowPrevVersion := AShowPrevVersion;
 end;
 
 function TMapVersionInfo.GetCaption: string;
 begin
   Result := FVersion;
+end;
+
+function TMapVersionInfo.GetShowPrevVersion: Boolean;
+begin
+  Result := FShowPrevVersion;
 end;
 
 function TMapVersionInfo.GetStoreString: string;
@@ -67,17 +79,21 @@ begin
   Result := FVersion;
 end;
 
+(*
 function TMapVersionInfo.IsSame(const AValue: IMapVersionInfo): Boolean;
 begin
+  // not used!
   if AValue = nil then begin
     Result := False;
   end else begin
     if AValue = IMapVersionInfo(Self) then begin
       Result := True;
     end else begin
+      // do not check ShowPrevVersion!
       Result := AValue.StoreString = FVersion;
     end;
   end;
 end;
+*)
 
 end.

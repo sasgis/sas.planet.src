@@ -208,6 +208,7 @@ const
   ETS_ROI_SELECT_TILE_BODY     = $00000020; // with tile body (or query info only)
   ETS_ROI_EXCLUSIVELY          = $00000040; // if set - exclusive access
   ETS_ROI_CHECK_EXISTS_ONLY    = $00000080; // just check if tile exists
+  ETS_ROI_SHOW_PREV_VERSION    = $00000100; // allow select tile with prev version
 
   // output
   ETS_ROO_TILE_EXISTS  = $00000001; // tile found

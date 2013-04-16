@@ -181,14 +181,17 @@ procedure TGlobalCacheConfig.SetDefCache(const AValue: byte);
 begin
   LockWrite;
   try
-    if AValue in [c_File_Cache_Id_GMV,
-      c_File_Cache_Id_SAS,
-      c_File_Cache_Id_ES,
-      c_File_Cache_Id_GM,
-      c_File_Cache_Id_GM_Aux,
-      c_File_Cache_Id_DBMS,
-      c_File_Cache_Id_RAM,
-      c_File_Cache_Id_BDB] then begin
+    if AValue in [
+        c_File_Cache_Id_GMV,
+        c_File_Cache_Id_SAS,
+        c_File_Cache_Id_ES,
+        c_File_Cache_Id_GM,
+        c_File_Cache_Id_GM_Aux,
+        c_File_Cache_Id_DBMS,
+        c_File_Cache_Id_RAM,
+        c_File_Cache_Id_BDB,
+        c_File_Cache_Id_BDB_Versioned
+      ] then begin
       if FDefCache <> AValue then begin
         FDefCache := AValue;
         SetChanged;

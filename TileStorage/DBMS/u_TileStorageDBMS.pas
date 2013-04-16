@@ -181,6 +181,7 @@ type
   protected
     // base storage interface
     function GetIsFileCache: Boolean; override;
+    function GetIsCanSaveMultiVersionTiles: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -229,7 +230,8 @@ type
     ): IMapVersionListStatic; override;
 
     function ScanTiles(
-      const AIgnoreTNE: Boolean
+      const AIgnoreTNE: Boolean;
+      const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
     
   public
@@ -930,6 +932,11 @@ begin
   Result := False;
 end;
 
+function TTileStorageETS.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := True;
+end;
+
 function TTileStorageETS.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
@@ -1077,6 +1084,10 @@ begin
           if (AVersionInfo<>nil) then begin
             VVersionString := AVersionInfo.StoreString;
             VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
+            // ShowPrevVersion mode
+            if AVersionInfo.ShowPrevVersion then begin
+              VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SHOW_PREV_VERSION);
+            end;
           end else begin
             VBufferIn.szVersionIn := nil;
           end;
@@ -1181,8 +1192,16 @@ begin
           // make flags
           VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
           // make version
-          VVersionString := AVersionInfo.StoreString;
-          VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
+          if (AVersionInfo<>nil) then begin
+            VVersionString := AVersionInfo.StoreString;
+            VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
+            // ShowPrevVersion mode
+            if AVersionInfo.ShowPrevVersion then begin
+              VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SHOW_PREV_VERSION);
+            end;
+          end else begin
+            VBufferIn.szVersionIn := nil;
+          end;
           if SizeOf(Char)=SizeOf(AnsiChar) then begin
             // AnsiString
             VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN or ETS_ROI_ANSI_VERSION_OUT);
@@ -1722,7 +1741,10 @@ begin
   InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, ALoadDate, nil, FETS_InsertTNE, TRUE);
 end;
 
-function TTileStorageETS.ScanTiles(const AIgnoreTNE: Boolean): IEnumTileInfo;
+function TTileStorageETS.ScanTiles(
+  const AIgnoreTNE: Boolean;
+  const AIgnoreMultiVersionTiles: Boolean
+): IEnumTileInfo;
 begin
   if (FETS_MakeTileEnum<>nil) and
      (FETS_NextTileEnum<>nil) and

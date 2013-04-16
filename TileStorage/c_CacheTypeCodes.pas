@@ -12,6 +12,7 @@ const
   c_File_Cache_Id_GM_Bing = 42; // "Bing Maps (Virtual Earth) Tiles"
   c_File_Cache_Id_GE = 5;  // GE cache direct access
   c_File_Cache_Id_BDB = 6;
+  c_File_Cache_Id_BDB_Versioned = 61;
   c_File_Cache_Id_DBMS = 7;
   c_File_Cache_Id_GC = 8;  // GeoCacher.LOCAL direct access
   c_File_Cache_Id_RAM = 9; // only in-memory cache    

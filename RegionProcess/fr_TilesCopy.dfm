@@ -100,8 +100,9 @@ object frTilesCopy: TfrTilesCopy
           'GoogleMV'
           'SAS.Planet'
           'ES1.95'
-          'GMT (GlobalMapper >=10.02)'
+          'GlobalMapper Tiles'
           'BerkeleyDB'
+          'BerkeleyDB (Versioned)'
           'DBMS')
       end
       object chkDeleteSource: TCheckBox

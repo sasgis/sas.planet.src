@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -23,6 +23,7 @@ unit u_BerkeleyDBValue;
 interface
 
 uses
+  SysUtils,
   i_BinaryData,
   i_ContentTypeInfo,
   i_MapVersionInfo,
@@ -30,6 +31,8 @@ uses
   u_BaseInterfacedObject;
 
 type
+  EBerkeleyDBBadValue = class(Exception);
+
   TBerkeleyDBValueBase = class(TBaseInterfacedObject, IBerkeleyDBKeyValueBase, IBinaryData)
   protected
     FData: PByte;
@@ -39,11 +42,11 @@ type
     { IBerkeleyDBKeyValueBase }
     function GetData: Pointer;
     function GetSize: Integer;
-    procedure Assign(
+    function Assign(
       const AData: Pointer;
       const ASize: Integer;
       const AOwnMem: Boolean
-    ); virtual; abstract;
+    ): Boolean; virtual; abstract;
     { IBinaryData }
     function IBinaryData.GetBuffer = GetData;
     function IBinaryData.GetSize = GetSize;
@@ -64,11 +67,11 @@ type
   private
     FMetaValue: PMetaValue;
     procedure DataToMetaValue(const AStorageEPSG: Integer);
-    procedure Assign(
+    function Assign(
       const AData: Pointer;
       const ASize: Integer;
       const AOwnMem: Boolean
-    ); override;
+    ): Boolean; override;
   private
     { IBerkeleyDBMetaValue }
     function GetStorageEPSG: Integer;
@@ -100,11 +103,11 @@ type
       const ATileVersionInfo: IMapVersionInfo;
       const ATileContentType: IContentTypeInfoBasic
     );
-    procedure Assign(
+    function Assign(
       const AData: Pointer;
       const ASize: Integer;
       const AOwnMem: Boolean
-    ); override;
+    ): Boolean; override;
   private
     { IBerkeleyDBValue }
     function GetTileBody: Pointer;
@@ -129,17 +132,110 @@ type
     destructor Destroy; override;
   end;
 
+  TBerkeleyDBVersionedMetaValueElement = class(TBerkeleyDBValueBase, IBerkeleyDBVersionedMetaValueElement)
+  private
+    type
+      TVersionedMetaValueElement = record
+        VersionID: Word;
+        TilePriority: Word;
+        TileSize: Integer;
+        TileDate: TDateTime;
+        TileCRC: Cardinal;
+        TileVersionInfo: WideString;
+        TileContentType: WideString;
+      end;
+      PVersionedMetaValueElement = ^TVersionedMetaValueElement;
+  private
+    FValue: PVersionedMetaValueElement;
+    procedure ValueToData;
+  private
+    { IBerkeleyDBVersionedMetaValueElement }
+    function GetVersionID: Word;
+    function GetTilePriority: Word;
+    function GetTileSize: Integer;
+    function GetTileDate: TDateTime;
+    function GetTileCRC: Cardinal;
+    function GetTileVersionInfo: WideString;
+    function GetTileContentType: WideString;
+    { IBerkeleyDBKeyValueBase }
+    function Assign(
+      const AData: Pointer;
+      const ASize: Integer;
+      const AOwnMem: Boolean
+    ): Boolean; override;
+  public
+    constructor Create(
+      const AVersionID: Word;
+      const ATilePriority: Word;
+      const ATileSize: Integer;
+      const ATileDate: TDateTime;
+      const ATileCRC: Cardinal;
+      const ATileVersionInfo: IMapVersionInfo;
+      const ATileContentType: IContentTypeInfoBasic
+    ); overload;
+    constructor Create(
+      const AData: Pointer
+    ); overload;
+    destructor Destroy; override;
+  end;
+
+  TBerkeleyDBVersionedMetaValue = class(TBerkeleyDBValueBase, IBerkeleyDBVersionedMetaValue)
+  private
+    type
+      TVersionedMetaValue = record
+        RecMagic: array [0..3] of AnsiChar;
+        RecCRC32: Cardinal;
+        ItemsCount: Word;
+        ItemsArray: array of IBerkeleyDBVersionedMetaValueElement;
+      end;
+      PVersionedMetaValue = ^TVersionedMetaValue;
+  private
+    FValue: PVersionedMetaValue;
+    FBinData: IBinaryData;
+    procedure Alloc;
+    procedure Clear;
+    procedure ValueToData;
+  private
+    { IBerkeleyDBKeyValueBase }
+    function Assign(
+      const AData: Pointer;
+      const ASize: Integer;
+      const AOwnMem: Boolean
+    ): Boolean; override;
+    { IBerkeleyDBVersionedMetaValue }
+    function GetCount: Integer;
+    function GetItem(const AIndex: Integer): IBerkeleyDBVersionedMetaValueElement;
+    function Add(const AItem: IBerkeleyDBVersionedMetaValueElement): Integer;
+    procedure Replace(const AIndex: Integer; const AItem: IBerkeleyDBVersionedMetaValueElement);
+    procedure Del(const AIndex: Integer);
+  public
+    constructor Create; overload;
+    constructor Create(
+      const AData: Pointer;
+      const ASize: Integer;
+      const AOwnMem: Boolean
+    ); overload;
+    constructor Create(
+      const AData: IBinaryData
+    ); overload;
+    destructor Destroy; override;
+  end;
+
 implementation
 
 uses
-  SysUtils,
-  CRC32;
+  Classes,
+  CRC32,
+  u_BerkeleyDBValueZlib;
 
 const
   cWideCharEndLine: WideChar = #0000;
 
   cMetaValueVersion = #01;
   cMetaValueMagic: array [0..3] of AnsiChar = ('M', 'I', 'D', cMetaValueVersion); // Meta Info Data
+
+  cVersionedMetaValueVersion = #01;
+  cVersionedMetaValueMagic: array [0..3] of AnsiChar = ('M', 'V', 'I', cVersionedMetaValueVersion); // Meta Version Info
 
   cValueVersion = #03;
   cValueMagic: array [0..3] of AnsiChar = ('T', 'L', 'D', cValueVersion);         // TiLe Data
@@ -215,15 +311,17 @@ begin
   Move(FMetaValue^, FData^, FSize);
 end;
 
-procedure TBerkeleyDBMetaValue.Assign(
+function TBerkeleyDBMetaValue.Assign(
   const AData: Pointer;
   const ASize: Integer;
   const AOwnMem: Boolean
-);
+): Boolean;
 var
   VPtr: PByte;
   VCRC32Ptr: PByte;
 begin
+  Result := False;
+
   if Assigned(FMetaValue) then begin
     Dispose(FMetaValue);
   end;
@@ -249,10 +347,11 @@ begin
     FMetaValue.StorageEPSG := PInteger(VPtr)^;
     FMetaValue.MetaCRC32 := CRC32Buf(Pointer(FMetaValue), ASize);
     if PCardinal(VCRC32Ptr)^ <> FMetaValue.MetaCRC32 then begin
-      raise Exception.Create(
+      raise EBerkeleyDBBadValue.Create(
         'Error [BerkeleyDB MetaValue]: Bad CRC32 value: 0x' + IntToHex(FMetaValue.MetaCRC32, 8)
       );
     end;
+    Result := True;
   end;
 end;
 
@@ -377,6 +476,7 @@ begin
   // init crc32 with zero value
   VCRC32Ptr := VPtr;
   VLen := SizeOf(FValue.RecCRC32);
+  FValue.RecCRC32 := 0;
   PInteger(VCRC32Ptr)^ := FValue.RecCRC32;
   Inc(VPtr, VLen);
 
@@ -420,11 +520,11 @@ begin
   PInteger(VCRC32Ptr)^ := FValue.RecCRC32;
 end;
 
-procedure TBerkeleyDBValue.Assign(
+function TBerkeleyDBValue.Assign(
   const AData: Pointer;
   const ASize: Integer;
   const AOwnMem: Boolean
-);
+): Boolean;
 var
   VPtr: PByte;
   VCRC32: Cardinal;
@@ -475,13 +575,15 @@ begin
       end else begin
         FValue.TileBody := nil;
       end;
+
+      Result := True;
     end else begin
-      raise Exception.Create(
+      raise EBerkeleyDBBadValue.Create(
         'Error [BerkeleyDB Value]: Bad CRC32 value: 0x' + IntToHex(FValue.RecCRC32, 8)
       );
     end;
   end else begin
-    raise Exception.Create(
+    raise EBerkeleyDBBadValue.Create(
       AnsiString('Error [BerkeleyDB Value]: Bad magic value (') +
       FValue.RecMagic[0] +
       FValue.RecMagic[1] +
@@ -535,6 +637,457 @@ begin
   end else begin
     Result := '';
   end;
+end;
+
+{ TBerkeleyDBVersionedMetaValueElement }
+
+constructor TBerkeleyDBVersionedMetaValueElement.Create(
+  const AVersionID: Word;
+  const ATilePriority: Word;
+  const ATileSize: Integer;
+  const ATileDate: TDateTime;
+  const ATileCRC: Cardinal;
+  const ATileVersionInfo: IMapVersionInfo;
+  const ATileContentType: IContentTypeInfoBasic
+);
+begin
+  inherited Create;
+  New(FValue);
+  FValue.VersionID := AVersionID;
+  FValue.TilePriority := ATilePriority;
+  FValue.TileSize := ATileSize;
+  FValue.TileDate := ATileDate;
+  FValue.TileCRC := ATileCRC;
+  FValue.TileVersionInfo := ATileVersionInfo.StoreString;
+  FValue.TileContentType := ATileContentType.GetContentType;
+  ValueToData;
+end;
+
+constructor TBerkeleyDBVersionedMetaValueElement.Create(const AData: Pointer);
+begin
+  inherited Create;
+  New(FValue);
+  if not Assign(AData, -1, False) then begin
+    Dispose(FValue);
+    FValue := nil;
+  end;
+end;
+
+destructor TBerkeleyDBVersionedMetaValueElement.Destroy;
+begin
+  Dispose(FValue);
+  inherited Destroy;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.Assign(
+  const AData: Pointer;
+  const ASize: Integer;
+  const AOwnMem: Boolean
+): Boolean;
+var
+  VPtr: PByte;
+begin
+  if FOwnMem and Assigned(FData) then begin
+    FreeMemory(FData);
+  end;
+
+  FData := AData;
+  FSize := ASize;
+  FOwnMem := AOwnMem;
+
+  VPtr := AData;
+
+  FValue.VersionID := PWord(VPtr)^;
+  Inc(VPtr, SizeOf(FValue.VersionID));
+
+  FValue.TilePriority := PWord(VPtr)^;
+  Inc(VPtr, SizeOf(FValue.TilePriority));
+
+  FValue.TileSize := PInteger(VPtr)^;
+  Inc(VPtr, SizeOf(FValue.TileSize));
+
+  FValue.TileDate := PDateTime(VPtr)^;
+  Inc(VPtr, SizeOf(FValue.TileDate));
+
+  FValue.TileCRC := PCardinal(VPtr)^;
+  Inc(VPtr, SizeOf(FValue.TileCRC));
+
+  FValue.TileVersionInfo := PWideChar(VPtr);
+  Inc(VPtr, (Length(FValue.TileVersionInfo) + 1) * SizeOf(WideChar));
+
+  FValue.TileContentType := PWideChar(VPtr);
+  Inc(VPtr, (Length(FValue.TileContentType) + 1) * SizeOf(WideChar));
+
+  if FSize <= 0 then begin
+    FSize := Cardinal(VPtr) - Cardinal(AData);
+    FOwnMem := False;
+  end;
+
+  Result := True;
+end;
+
+procedure TBerkeleyDBVersionedMetaValueElement.ValueToData;
+var
+  VPtr: PByte;
+  VLen: Integer;
+begin
+  if FOwnMem and Assigned(FData) then begin
+    FreeMemory(FData);
+  end;
+
+  FSize :=
+    SizeOf(FValue.VersionID) +
+    SizeOf(FValue.TilePriority) +
+    SizeOf(FValue.TileSize) +
+    SizeOf(FValue.TileDate) +
+    SizeOf(FValue.TileCRC) +
+    (Length(FValue.TileVersionInfo) + Length(cWideCharEndLine)) * SizeOf(WideChar) +
+    (Length(FValue.TileContentType) + Length(cWideCharEndLine)) * SizeOf(WideChar);
+
+  FData := GetMemory(FSize);
+  FOwnMem := True;
+  VPtr := FData;
+
+   // version id
+  VLen := SizeOf(FValue.VersionID);
+  PWord(VPtr)^ := FValue.VersionID;
+  Inc(VPtr, VLen);
+
+   // tile priority
+  VLen := SizeOf(FValue.TilePriority);
+  PWord(VPtr)^ := FValue.TilePriority;
+  Inc(VPtr, VLen);
+
+   // tile size
+  VLen := SizeOf(FValue.TileSize);
+  PInteger(VPtr)^ := FValue.TileSize;
+  Inc(VPtr, VLen);
+
+   // tile date
+  VLen := SizeOf(FValue.TileDate);
+  PDateTime(VPtr)^ := FValue.TileDate;
+  Inc(VPtr, VLen);
+
+  // tile CRC
+  VLen := SizeOf(FValue.TileCRC);
+  PCardinal(VPtr)^ := FValue.TileCRC;
+  Inc(VPtr, VLen);
+
+  // tile version
+  VLen := Length(FValue.TileVersionInfo) * SizeOf(WideChar);
+  if VLen > 0 then begin
+    Move(PWideChar(FValue.TileVersionInfo)^, VPtr^, VLen);
+    Inc(VPtr, VLen);
+  end;
+  VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
+  Move(cWideCharEndLine, VPtr^, VLen);
+  Inc(VPtr, VLen);
+  
+  // tile content-type
+  VLen := Length(FValue.TileContentType) * SizeOf(WideChar);
+  if VLen > 0 then begin
+    Move(PWideChar(FValue.TileContentType)^, VPtr^, VLen);
+    Inc(VPtr, VLen);
+  end;
+  VLen := Length(cWideCharEndLine) * SizeOf(WideChar);
+  Move(cWideCharEndLine, VPtr^, VLen);
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetVersionID: Word;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.VersionID;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTilePriority: Word;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TilePriority;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTileSize: Integer;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TileSize;
+  end else begin
+    Result := -1;
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTileDate: TDateTime;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TileDate;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTileCRC: Cardinal;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TileCRC;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTileVersionInfo: WideString;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TileVersionInfo;
+  end else begin
+    Result := '';
+  end;
+end;
+
+function TBerkeleyDBVersionedMetaValueElement.GetTileContentType: WideString;
+begin
+  if Assigned(FValue) then begin
+    Result := FValue.TileContentType;
+  end else begin
+    Result := '';
+  end;
+end;
+
+{ TBerkeleyDBVersionedMetaValue }
+
+constructor TBerkeleyDBVersionedMetaValue.Create;
+begin
+  inherited Create;
+  FValue := nil;
+  FBinData := nil;
+  Alloc;
+  ValueToData;
+end;
+
+constructor TBerkeleyDBVersionedMetaValue.Create(
+  const AData: Pointer;
+  const ASize: Integer;
+  const AOwnMem: Boolean
+);
+begin
+  inherited Create;
+  FValue := nil;
+  FBinData := nil;
+  Assign(AData, ASize, AOwnMem);
+end;
+
+constructor TBerkeleyDBVersionedMetaValue.Create(
+  const AData: IBinaryData
+);
+begin
+  inherited Create;
+  Assign(AData.Buffer, AData.Size, False);
+  FBinData := AData;
+end;
+
+destructor TBerkeleyDBVersionedMetaValue.Destroy;
+begin
+  Clear;
+  inherited Destroy;
+end;
+
+function TBerkeleyDBVersionedMetaValue.Assign(
+  const AData: Pointer;
+  const ASize: Integer;
+  const AOwnMem: Boolean
+): Boolean;
+var
+  I: Integer;
+  VPtr: PByte;
+  VCRC32: Cardinal;
+begin
+  Clear;
+
+  if FOwnMem and Assigned(FData) then begin
+    FreeMemory(FData);
+  end;
+
+  if ZlibDecompress(AData, ASize, Pointer(FData), FSize) then begin
+    FOwnMem := True;
+    if AOwnMem then begin
+      FreeMemory(AData);
+    end;
+  end else begin
+    FData := AData;
+    FSize := ASize;
+    FOwnMem := AOwnMem;
+  end;
+
+  VPtr := FData;
+
+  New(FValue);
+
+  Move(VPtr^, FValue.RecMagic[0], Length(FValue.RecMagic));
+  Inc(VPtr, Length(FValue.RecMagic));
+
+  if FValue.RecMagic = cVersionedMetaValueMagic then begin
+    FValue.RecCRC32 := PCardinal(VPtr)^;
+    PCardinal(VPtr)^ := 0;
+
+    VCRC32 := CRC32Buf(FData, FSize);
+
+    PCardinal(VPtr)^ := FValue.RecCRC32;
+    if VCRC32 = FValue.RecCRC32 then begin
+      Inc(VPtr, SizeOf(FValue.RecCRC32));
+
+      FValue.ItemsCount := PWord(VPtr)^;
+      Inc(VPtr, SizeOf(FValue.ItemsCount));
+
+      SetLength(FValue.ItemsArray, FValue.ItemsCount);
+
+      for I := 0 to FValue.ItemsCount - 1 do begin
+        FValue.ItemsArray[I] := TBerkeleyDBVersionedMetaValueElement.Create(VPtr);
+        Inc(VPtr, FValue.ItemsArray[I].Size);
+      end;
+
+      Result := True;
+    end else begin
+      raise EBerkeleyDBBadValue.Create(
+        'Error [BerkeleyDB Versioned Meta Value]: Bad CRC32 value: 0x' +
+        IntToHex(FValue.RecCRC32, 8)
+      );
+    end;
+  end else begin
+    raise EBerkeleyDBBadValue.Create(
+      AnsiString('Error [BerkeleyDB Versioned Meta Value]: Bad magic value (') +
+      FValue.RecMagic[0] +
+      FValue.RecMagic[1] +
+      FValue.RecMagic[2] +
+      FValue.RecMagic[3] +
+      ')'
+    );
+  end;
+end;
+
+procedure TBerkeleyDBVersionedMetaValue.Alloc;
+begin
+  New(FValue);
+  Move(cVersionedMetaValueMagic[0], FValue.RecMagic[0], Length(FValue.RecMagic));
+  FValue.RecCRC32 := 0;
+  FValue.ItemsCount := 0;
+  SetLength(FValue.ItemsArray, 0);
+end;
+
+procedure TBerkeleyDBVersionedMetaValue.Clear;
+begin
+  if Assigned(FValue) then begin
+    SetLength(FValue.ItemsArray, 0);
+    Dispose(FValue);
+  end;
+  FBinData := nil;
+end;
+
+procedure TBerkeleyDBVersionedMetaValue.ValueToData;
+var
+  I: Integer;
+  VPtr: PByte;
+  VLen: Integer;
+  VCRC32Ptr: PByte;
+begin
+  if FOwnMem and Assigned(FData) then begin
+    FreeMemory(FData);
+  end;
+
+  FSize :=
+    Length(FValue.RecMagic) +
+    SizeOf(FValue.RecCRC32) +
+    SizeOf(FValue.ItemsCount);
+
+  for I := 0 to Length(FValue.ItemsArray) - 1 do begin
+    Inc(FSize, FValue.ItemsArray[I].Size);
+  end;
+
+  FData := GetMemory(FSize);
+  FOwnMem := True;
+  VPtr := FData;
+
+   // magic
+  VLen := Length(FValue.RecMagic);
+  Move(FValue.RecMagic[0], VPtr^, VLen);
+  Inc(VPtr, VLen);
+
+  // init crc32 with zero value
+  VCRC32Ptr := VPtr;
+  VLen := SizeOf(FValue.RecCRC32);
+  FValue.RecCRC32 := 0;
+  PInteger(VCRC32Ptr)^ := FValue.RecCRC32;
+  Inc(VPtr, VLen);
+
+  // items count
+  VLen := SizeOf(FValue.ItemsCount);
+  PWord(VPtr)^ := FValue.ItemsCount;
+  Inc(VPtr, VLen);
+
+  // items values
+  for I := 0 to Length(FValue.ItemsArray) - 1 do begin
+    VLen := FValue.ItemsArray[I].Size;
+    Move(FValue.ItemsArray[I].Data^, VPtr^, VLen);
+    Inc(VPtr, VLen);
+  end;
+
+  // calc and save CRC32
+  FValue.RecCRC32 := CRC32Buf(Pointer(FData), FSize);
+  PInteger(VCRC32Ptr)^ := FValue.RecCRC32;
+
+  // make archive
+  VPtr := nil;
+  VLen := 0;
+  ZlibCompress(FData, FSize, Pointer(VPtr), VLen);
+  FreeMemory(FData);
+  FData := VPtr;
+  FSize := VLen;
+end;
+
+function TBerkeleyDBVersionedMetaValue.GetCount: Integer;
+begin
+  Result := FValue.ItemsCount;
+end;
+
+function TBerkeleyDBVersionedMetaValue.GetItem(const AIndex: Integer): IBerkeleyDBVersionedMetaValueElement;
+begin
+  Result := FValue.ItemsArray[AIndex];
+end;
+
+function TBerkeleyDBVersionedMetaValue.Add(const AItem: IBerkeleyDBVersionedMetaValueElement): Integer;
+var
+  I: Integer;
+begin
+  I := Length(FValue.ItemsArray);
+  FValue.ItemsCount := I + 1;
+  SetLength(FValue.ItemsArray, FValue.ItemsCount);
+  FValue.ItemsArray[I] := AItem;
+  ValueToData;
+  Result := FValue.ItemsCount;
+end;
+
+procedure TBerkeleyDBVersionedMetaValue.Replace(
+  const AIndex: Integer;
+  const AItem: IBerkeleyDBVersionedMetaValueElement
+);
+begin
+  FValue.ItemsArray[AIndex] := AItem;
+  ValueToData;
+end;
+
+procedure TBerkeleyDBVersionedMetaValue.Del(const AIndex: Integer);
+var
+  I: Integer;
+begin
+  I := Length(FValue.ItemsArray) - 1;
+  if AIndex <> I then begin
+    FValue.ItemsArray[AIndex] := FValue.ItemsArray[I];
+  end;
+  FValue.ItemsCount := I;
+  SetLength(FValue.ItemsArray, FValue.ItemsCount);
+  ValueToData;
 end;
 
 end.

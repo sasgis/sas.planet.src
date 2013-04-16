@@ -143,6 +143,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         'EarthSlicer 1.95'
         'GlobalMapper Tiles'
         'BerkeleyDB'
+        'BerkeleyDB (Versioned)'
         'DBMS'
         'RAM')
     end

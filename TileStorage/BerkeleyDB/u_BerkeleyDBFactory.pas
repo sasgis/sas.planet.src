@@ -19,6 +19,7 @@ type
     FHelper: IGlobalBerkeleyDBHelper;
     FEnvironment: IBerkeleyDBEnvironment;
     FSyncCallListener: IListener;
+    FIsReadOnly: Boolean;
     FMetaKey: IBinaryData;
     FMetaValue: IBinaryData;
   private
@@ -29,6 +30,7 @@ type
       const AHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
       const ASyncCallListener: IListener;
+      const AIsReadOnly: Boolean;
       const AMetaKey: IBinaryData;
       const AMetaValue: IBinaryData
     );
@@ -49,6 +51,7 @@ constructor TBerkeleyDBFactory.Create(
   const AHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
   const ASyncCallListener: IListener;
+  const AIsReadOnly: Boolean;
   const AMetaKey: IBinaryData;
   const AMetaValue: IBinaryData
 );
@@ -59,6 +62,7 @@ begin
   FHelper := AHelper;
   FEnvironment := AEnvironment;
   FSyncCallListener := ASyncCallListener;
+  FIsReadOnly := AIsReadOnly;
   FMetaKey := AMetaKey;
   FMetaValue := AMetaValue;
 end;
@@ -80,6 +84,7 @@ begin
     FHelper,
     FEnvironment,
     FSyncCallListener,
+    FIsReadOnly,
     cBerkeleyDBPageSize
   );
   VDatabase.Open(ADatabaseFileName);
