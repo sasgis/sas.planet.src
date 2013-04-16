@@ -133,6 +133,11 @@ asm
   bswap eax
 end;
 
+function Swap16(Value: Word): Word; assembler;
+asm
+   xchg al, ah
+end;
+
 procedure SetBit(var ADest: Cardinal; const ABit: Integer); inline;
 begin
   ADest := ADest or (Cardinal(1) shl ABit);
@@ -290,18 +295,20 @@ constructor TBerkeleyDBVersionedKey.Create(
 var
   VKey: PKey;
   VData: PByte;
+  VVersionID: Word;
 begin
   inherited Create;
   FPoint := APoint;
   FVersionID := AVersionID;
+  VVersionID := Swap16(FVersionID);
   VKey := inherited PointToKey(FPoint);
   try
-    FSize := SizeOf(TKey) + SizeOf(FVersionID);
+    FSize := SizeOf(TKey) + SizeOf(VVersionID);
     FData := GetMemory(FSize);
     VData := FData;
     Move(VKey^, VData^, SizeOf(TKey));
     Inc(VData, SizeOf(TKey));
-    Move(FVersionID, VData^, SizeOf(FVersionID));
+    Move(VVersionID, VData^, SizeOf(VVersionID));
     FOwnMem := True;
   finally
     FreeMemory(VKey);
@@ -327,7 +334,7 @@ begin
     FPoint := inherited KeyToPoint(FData);
     VData := FData;
     Inc(VData, SizeOf(TKey));
-    FVersionID := PWord(VData)^;
+    FVersionID := Swap16(PWord(VData)^);
     Result := True;
   end;
 end;
