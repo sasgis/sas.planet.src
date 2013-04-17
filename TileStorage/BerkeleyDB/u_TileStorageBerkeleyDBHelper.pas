@@ -386,6 +386,8 @@ begin
                 end;
               end;
               Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
+            end else if AOperation = toDelete then begin
+              FEnvironment.TransactionAbort(VTransaction);
             end else if AVersionInfo.ShowPrevVersion and (AOperation in [toRead, toExists]) and (VYoungestTileVersionID <> 0) then begin
               // не нашли тайл нужной версии - отдаём хоть какой (только для чтения)
               Result := TBerkeleyDBVersionedKey.Create(ATileXY, VYoungestTileVersionID);
