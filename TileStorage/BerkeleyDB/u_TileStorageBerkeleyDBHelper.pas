@@ -262,179 +262,182 @@ var
   VVersionMeta: IBerkeleyDBVersionedMetaValue;
   VMetaElement: IBerkeleyDBVersionedMetaValueElement;
 begin
-  if FIsVersioned and Assigned(AVersionInfo) and (AVersionInfo.StoreString <> '') then begin
-    J := 0;
-    VIsDeadLock := False;
-    repeat
-      Inc(J);
+  if FIsVersioned then begin
+    if not Assigned(AVersionInfo) or (Assigned(AVersionInfo) and (AVersionInfo.StoreString = '')) then begin
+      Result := TBerkeleyDBKey.Create(ATileXY);
+    end else begin
+      J := 0;
+      VIsDeadLock := False;
+      repeat
+        Inc(J);
 
-      Result := nil;
+        Result := nil;
 
-      VMaxID := 0;
-      VVersionID := 0;
-      VTileInfoIndex := -1;
-      VYoungestTileDate := 0;
-      VYoungestTileVersionID := 0;
+        VMaxID := 0;
+        VVersionID := 0;
+        VTileInfoIndex := -1;
+        VYoungestTileDate := 0;
+        VYoungestTileVersionID := 0;
 
-      VTransaction := nil;
-      VTransactionFlag := 0;
-      if AOperation in [toWrite, toDelete] then begin
-        // заводим транзакцию, для защиты от одновременного редактирования
-        // метаинформации о тайле из разных процессов
-        FEnvironment.TransactionBegin(VTransaction);
-        if VTransaction <> nil then begin
-          // флаг для специальной оптимизации локера в БД - уменьшает
-          // вероятность возникновения дедлоков
-          VTransactionFlag := DB_RMW; // read-modify-write cycle
-        end;
-      end;
-
-      try
-        VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
-        VValue := ADatabase.Read(VKey, VTransaction, VIsDeadLock, VTransactionFlag);
-        if VIsDeadLock then begin
-          FEnvironment.TransactionAbort(VTransaction);
-          Continue;
-        end;
-
-        if Assigned(VValue) then begin
-          try
-            VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VValue);
-          except
-            on E: EBerkeleyDBBadValue do begin
-              FGlobalBerkeleyDBHelper.LogException(E.Message);
-              FEnvironment.TransactionAbort(VTransaction);
-              ADatabase.Del(VKey);
-              Exit;
-            end else begin
-              raise;
-            end;
+        VTransaction := nil;
+        VTransactionFlag := 0;
+        if AOperation in [toWrite, toDelete] then begin
+          // заводим транзакцию, для защиты от одновременного редактирования
+          // метаинформации о тайле из разных процессов
+          FEnvironment.TransactionBegin(VTransaction);
+          if VTransaction <> nil then begin
+            // флаг для специальной оптимизации локера в БД - уменьшает
+            // вероятность возникновения дедлоков
+            VTransactionFlag := DB_RMW; // read-modify-write cycle
           end;
-          // есть метаинформация о версионных тайлах
-          for I := 0 to VVersionMeta.ItemsCount - 1 do begin
-            VMetaElement := VVersionMeta.Item[I];
-            if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
-              // нашли тайл с такой же версией
-              VVersionID := VMetaElement.VersionID;
-              if not AAllowReplace and (AOperation = toWrite) then begin
+        end;
+
+        try
+          VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
+          VValue := ADatabase.Read(VKey, VTransaction, VIsDeadLock, VTransactionFlag);
+          if VIsDeadLock then begin
+            FEnvironment.TransactionAbort(VTransaction);
+            Continue;
+          end;
+
+          if Assigned(VValue) then begin
+            try
+              VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VValue);
+            except
+              on E: EBerkeleyDBBadValue do begin
+                FGlobalBerkeleyDBHelper.LogException(E.Message);
                 FEnvironment.TransactionAbort(VTransaction);
+                ADatabase.Del(VKey);
                 Exit;
               end else begin
-                VTileInfoIndex := I; // индекс тайла, для перезаписи его метаинформации
-                Break;
+                raise;
               end;
-            end else if (AOperation = toWrite) and (VMetaElement.TileCRC = ATileCRC) then begin
-              // версия у тайлов не совпадает, но они сами по себе идентичны
+            end;
+            // есть метаинформация о версионных тайлах
+            for I := 0 to VVersionMeta.ItemsCount - 1 do begin
+              VMetaElement := VVersionMeta.Item[I];
+              if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
+                // нашли тайл с такой же версией
+                VVersionID := VMetaElement.VersionID;
+                if not AAllowReplace and (AOperation = toWrite) then begin
+                  FEnvironment.TransactionAbort(VTransaction);
+                  Exit;
+                end else begin
+                  VTileInfoIndex := I; // индекс тайла, для перезаписи его метаинформации
+                  Break;
+                end;
+              end else if (AOperation = toWrite) and (VMetaElement.TileCRC = ATileCRC) then begin
+                // версия у тайлов не совпадает, но они сами по себе идентичны
+                FEnvironment.TransactionAbort(VTransaction);
+                Exit;
+              end;
+              if VMetaElement.VersionID > VMaxID then begin
+                VMaxID := VMetaElement.VersionID;
+              end;
+              if VMetaElement.TileDate > VYoungestTileDate then begin
+                VYoungestTileDate := VMetaElement.TileDate;
+                VYoungestTileVersionID := VMetaElement.VersionID;
+              end;
+            end;
+          end else begin
+            // метаинформации, а, соответственно, и версионных тайлов ещё нету
+            if AOperation = toWrite then begin
+              VVersionMeta := TBerkeleyDBVersionedMetaValue.Create;
+            end else begin
+              if AVersionInfo.ShowPrevVersion and (AOperation in [toRead, toExists]) then begin
+                // но возможно, найдётся неверсионный тайл
+                Result := TBerkeleyDBKey.Create(ATileXY);
+              end;
               FEnvironment.TransactionAbort(VTransaction);
               Exit;
             end;
-            if VMetaElement.VersionID > VMaxID then begin
-              VMaxID := VMetaElement.VersionID;
-            end;
-            if VMetaElement.TileDate > VYoungestTileDate then begin
-              VYoungestTileDate := VMetaElement.TileDate;
-              VYoungestTileVersionID := VMetaElement.VersionID;
-            end;
           end;
-        end else begin
-          // метаинформации, а, соответственно, и версионных тайлов ещё нету
-          if AOperation = toWrite then begin
-            VVersionMeta := TBerkeleyDBVersionedMetaValue.Create;
-          end else begin
-            if AOperation = toRead then begin
-              // но возможно, найдётся неверсионный тайл (только для чтения)
-              Result := TBerkeleyDBKey.Create(ATileXY);
-            end;
-            Exit;
-          end;
-        end;
 
-        if AOperation in [toRead, toDelete, toExists] then begin
-          if (VVersionID <> 0) and (VTileInfoIndex <> -1) then begin
-            // нашли нужный тайл
-            if (AOperation = toDelete) and Assigned(VVersionMeta) then begin
-              // подчистим метаинформацию
-              VVersionMeta.Del(VTileInfoIndex);
-              if VVersionMeta.ItemsCount > 0 then begin
-                if ADatabase.Write(VKey, (VVersionMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
-                  FEnvironment.TransactionCommit(VTransaction);
-                end else begin
-                  FEnvironment.TransactionAbort(VTransaction);
-                  if VIsDeadLock then begin
-                    Continue;
+          if AOperation in [toRead, toDelete, toExists] then begin
+            if (VVersionID <> 0) and (VTileInfoIndex <> -1) then begin
+              // нашли нужный тайл
+              if (AOperation = toDelete) and Assigned(VVersionMeta) then begin
+                // подчистим метаинформацию
+                VVersionMeta.Del(VTileInfoIndex);
+                if VVersionMeta.ItemsCount > 0 then begin
+                  if ADatabase.Write(VKey, (VVersionMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
+                    FEnvironment.TransactionCommit(VTransaction);
                   end else begin
-                    Assert(False);
-                    Exit;
+                    FEnvironment.TransactionAbort(VTransaction);
+                    if VIsDeadLock then begin
+                      Continue;
+                    end else begin
+                      Assert(False);
+                      Exit;
+                    end;
                   end;
-                end;
-              end else begin
-                if ADatabase.Del(VKey, VTransaction, VIsDeadLock) then begin
-                  FEnvironment.TransactionCommit(VTransaction);
                 end else begin
-                  FEnvironment.TransactionAbort(VTransaction);
-                  if VIsDeadLock then begin
-                    Continue;
+                  if ADatabase.Del(VKey, VTransaction, VIsDeadLock) then begin
+                    FEnvironment.TransactionCommit(VTransaction);
                   end else begin
-                    Assert(False);
-                    Exit;
+                    FEnvironment.TransactionAbort(VTransaction);
+                    if VIsDeadLock then begin
+                      Continue;
+                    end else begin
+                      Assert(False);
+                      Exit;
+                    end;
                   end;
                 end;
               end;
-            end;
-            Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
-          end else if (AOperation = toRead) and (VYoungestTileVersionID <> 0) then begin
-            if AVersionInfo.ShowPrevVersion then begin 
-              // не нашли нужный - отдаём хоть какой (только для чтения)
+              Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
+            end else if AVersionInfo.ShowPrevVersion and (AOperation in [toRead, toExists]) and (VYoungestTileVersionID <> 0) then begin
+              // не нашли тайл нужной версии - отдаём хоть какой (только для чтения)
               Result := TBerkeleyDBVersionedKey.Create(ATileXY, VYoungestTileVersionID);
             end;
-          end;
-        end else begin // toWrite
+          end else begin // toWrite
 
-          if VVersionID = 0 then begin
-            VVersionID := VMaxID + 1;
-          end;
+            if VVersionID = 0 then begin
+              VVersionID := VMaxID + 1;
+            end;
 
-          VMetaElement :=
-            TBerkeleyDBVersionedMetaValueElement.Create(
-              VVersionID,
-              0,
-              ATileSize,
-              ATileDate,
-              ATileCRC,
-              AVersionInfo,
-              AContentType
-            );
+            VMetaElement :=
+              TBerkeleyDBVersionedMetaValueElement.Create(
+                VVersionID,
+                0,
+                ATileSize,
+                ATileDate,
+                ATileCRC,
+                AVersionInfo,
+                AContentType
+              );
 
-          if VTileInfoIndex <> -1 then begin
-            VVersionMeta.Replace(VTileInfoIndex, VMetaElement);
-          end else begin
-            VVersionMeta.Add(VMetaElement);
-          end;
-
-          if ADatabase.Write(VKey, (VVersionMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
-            FEnvironment.TransactionCommit(VTransaction);
-            Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
-          end else begin
-            FEnvironment.TransactionAbort(VTransaction);
-            if VIsDeadLock then begin
-              Continue;
+            if VTileInfoIndex <> -1 then begin
+              VVersionMeta.Replace(VTileInfoIndex, VMetaElement);
             end else begin
-              Assert(False);
-              Exit;
+              VVersionMeta.Add(VMetaElement);
+            end;
+
+            if ADatabase.Write(VKey, (VVersionMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
+              FEnvironment.TransactionCommit(VTransaction);
+              Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
+            end else begin
+              FEnvironment.TransactionAbort(VTransaction);
+              if VIsDeadLock then begin
+                Continue;
+              end else begin
+                Assert(False);
+                Exit;
+              end;
             end;
           end;
+        except
+          FEnvironment.TransactionAbort(VTransaction);
+          raise;
         end;
-      except
-        FEnvironment.TransactionAbort(VTransaction);
-        raise;
+        Break; // повтор разрешаем только при дедлоках, через Continue
+      until Assigned(Result) or (J > cOnDeadLockRetryCount);
+
+      if VIsDeadLock and (Result = nil) then begin
+        CheckBDB(DB_LOCK_DEADLOCK); // raise exception about deadlock
       end;
-      Break; // повтор разрешаем только при дедлоках, через Continue
-    until Assigned(Result) or (J > cOnDeadLockRetryCount);
 
-    if VIsDeadLock and (Result = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
     end;
-
   end else begin
     Result := TBerkeleyDBKey.Create(ATileXY);
   end;
@@ -682,7 +685,7 @@ begin
       end;
     end;
 
-    if not Result then begin
+    if ASingleTileInfo and (not FIsVersioned or (FIsVersioned and not Result and AVersionInfo.ShowPrevVersion)) then begin
       VKey := TBerkeleyDBKey.Create(ATileXY);
       FLock.BeginRead;
       try
@@ -707,13 +710,11 @@ begin
           end;
         end;
 
-        if ASingleTileInfo then begin
-          ATileVersion := VValue.TileVersionInfo;
-          ATileContentType := VValue.TileContentType;
-          ATileDate := VValue.TileDate;
-          ATileSize := VValue.TileSize;
-          Result := True;
-        end;
+        ATileVersion := VValue.TileVersionInfo;
+        ATileContentType := VValue.TileContentType;
+        ATileDate := VValue.TileDate;
+        ATileSize := VValue.TileSize;
+        Result := True;
       end;
     end;
   finally
