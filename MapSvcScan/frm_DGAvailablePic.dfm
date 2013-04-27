@@ -177,7 +177,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       Top = 0
       Width = 267
       Height = 220
-      ActivePage = tsStorage
+      ActivePage = tsImageServices
       Align = alLeft
       TabOrder = 1
       object tsImageServices: TTabSheet
@@ -351,6 +351,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             Align = alLeft
             Caption = 'Nokia'
             Layout = tlCenter
+            ExplicitHeight = 13
           end
           object chkMNCasColorOnly: TCheckBox
             Left = 79
@@ -379,6 +380,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             ParentShowHint = False
             ShowHint = False
             Layout = tlCenter
+            ExplicitHeight = 13
           end
           object chkNMC13: TCheckBox
             Left = 79
@@ -430,6 +432,10 @@ object frmDGAvailablePic: TfrmDGAvailablePic
       object tsDDandRC: TTabSheet
         Caption = 'DD+RC'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object grpbxDatadoors: TGroupBox
           Left = 0
           Top = 0
@@ -503,7 +509,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             object lblRoscosmosPassword: TLabel
               Left = 0
               Top = 34
-              Width = 135
+              Width = 46
               Height = 13
               Align = alTop
               Caption = 'Password'
@@ -512,7 +518,7 @@ object frmDGAvailablePic: TfrmDGAvailablePic
             object lbllRosCosmosUsername: TLabel
               Left = 0
               Top = 0
-              Width = 135
+              Width = 48
               Height = 13
               Align = alTop
               Caption = 'Username'
