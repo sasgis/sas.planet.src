@@ -38,6 +38,9 @@ function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
 function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString;
 function GetDiv3Path(const ASource: AnsiString): AnsiString;
 function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer;
+function Base64EncodeStr(const Data: AnsiString): AnsiString;
+function Base64UrlEncodeStr(const Data: AnsiString): AnsiString;
+function Base64DecodeStr(const Data: AnsiString): AnsiString;
 
 implementation
 
@@ -45,6 +48,7 @@ uses
   SysUtils,
   Classes,
   Math,
+  EDBase64,
   DateUtils,
   RegExpr;
 
@@ -252,6 +256,21 @@ begin
   i := System.Pos('\',Result);
   if (i<4) then
     System.Delete(Result, 1, i);
+end;
+
+function Base64EncodeStr(const Data: AnsiString): AnsiString;
+begin
+  Result := Base64Encode(Data);
+end;
+
+function Base64UrlEncodeStr(const Data: AnsiString): AnsiString;
+begin
+  Result := Base64UrlEncode(Data);
+end;
+
+function Base64DecodeStr(const Data: AnsiString): AnsiString;
+begin
+  Result := Base64Decode(Data);
 end;
 
 end.

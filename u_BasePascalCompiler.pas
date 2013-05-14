@@ -205,6 +205,11 @@ begin
     Sender.AddDelphiFunction('function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer');
     Sender.AddDelphiFunction('function FileExists(const FileName: AnsiString): Boolean');
 
+    // Base64 routines
+    Sender.AddDelphiFunction('function Base64Encode(const Data: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function Base64UrlEncode(const Data: AnsiString): AnsiString');
+    Sender.AddDelphiFunction('function Base64Decode(const Data: AnsiString): AnsiString');
+
     Result := True;
   end else begin
     Result := False;
@@ -276,6 +281,11 @@ begin
   Self.RegisterDelphiFunction(@GetDiv3Path, 'GetDiv3Path', cdRegister);
   Self.RegisterDelphiFunction(@SaveToLocalFile, 'SaveToLocalFile', cdRegister);
   Self.RegisterDelphiFunction(@FileExists, 'FileExists', cdRegister);
+
+  // Base64 routines
+  Self.RegisterDelphiFunction(@Base64EncodeStr, 'Base64Encode', cdRegister);
+  Self.RegisterDelphiFunction(@Base64UrlEncodeStr, 'Base64UrlEncode', cdRegister);
+  Self.RegisterDelphiFunction(@Base64DecodeStr, 'Base64Decode', cdRegister);
 end;
 
 { TBaseFactoryPascalScript }
