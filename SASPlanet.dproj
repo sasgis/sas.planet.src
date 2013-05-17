@@ -963,6 +963,7 @@
     <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_ImportByFileExt.pas" />
+    <DCCReference Include="u_ImportJpegWithExif.pas" />    
     <DCCReference Include="u_ImportConfig.pas" />
     <DCCReference Include="u_ImportFromArcGIS.pas" />
     <DCCReference Include="u_InetConfig.pas" />

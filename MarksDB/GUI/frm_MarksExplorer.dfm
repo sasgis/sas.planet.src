@@ -144,7 +144,7 @@ object frmMarksExplorer: TfrmMarksExplorer
             Left = 353
             Top = 0
             Width = 4
-            Height = 4
+            Height = 20
             Align = alRight
             TabOrder = 1
           end
@@ -374,11 +374,12 @@ object frmMarksExplorer: TfrmMarksExplorer
     DefaultExt = '*.kml'
     Filter = 
       'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx,*.cs' +
-      'v)|*.kml;*.plt;*.kmz;*.sls;*.hlg;*.gpx;*.csv|Google KML files (*' +
-      '.kml)|*.kml|OziExplorer Track Point File Version 2.1 (*.plt)|*.p' +
-      'lt|Google KMZ files (*.kmz)|*.kmz|Download session (*.sls)|*.sls' +
-      '|Selection (*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.gpx|Univer' +
-      'sal CSV files (*.csv)|*.csv'
+      'v,*.jpg)|*.kml;*.plt;*.kmz;*.sls;*.hlg;*.gpx;*.csv;*.jpg|Google ' +
+      'KML files (*.kml)|*.kml|OziExplorer Track Point File Version 2.1' +
+      ' (*.plt)|*.plt|Google KMZ files (*.kmz)|*.kmz|Download session (' +
+      '*.sls)|*.sls|Selection (*.hlg)|*.hlg|GPS Exchange files (*.gpx)|' +
+      '*.gpx|Universal CSV files (*.csv)|*.csv|JPEG Image whtg GPS Exif' +
+      ' (*.jpg)|*.jpg'
     Options = [ofAllowMultiSelect, ofEnableSizing]
     Left = 352
     Top = 144
@@ -389,7 +390,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C0101030005008C000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300900090000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

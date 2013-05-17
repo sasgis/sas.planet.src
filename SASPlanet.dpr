@@ -696,6 +696,7 @@ uses
   u_ImportConfig in 'u_ImportConfig.pas',
   i_ImportFile in 'i_ImportFile.pas',
   u_ImportByVectorLoader in 'MarksDb\u_ImportByVectorLoader.pas',
+  u_ImportJpegWithExif in 'u_ImportJpegWithExif.pas',
   u_ImportByFileExt in 'u_ImportByFileExt.pas',
   u_ExportMarks2KML in 'u_ExportMarks2KML.pas',
   i_UrlByCoordProvider in 'i_UrlByCoordProvider.pas',

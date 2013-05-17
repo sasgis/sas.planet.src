@@ -28,6 +28,7 @@ uses
   i_VectorItemsFactory,
   i_VectorDataFactory,
   i_VectorDataLoader,
+  i_ValueToStringConverter,
   i_ImportConfig,
   i_MarkSystem,
   u_BaseInterfacedObject;
@@ -43,6 +44,7 @@ type
     FImportHLG: IImportFile;
     FImportMP: IImportFile;
     FImportSLS: IImportFile;
+    FImportJPG: IImportFile;
   private
     function ProcessImport(
       const AMarksSystem: IMarkSystem;
@@ -51,6 +53,7 @@ type
     ): IInterfaceList;
   public
     constructor Create(
+      const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AVectorDataFactory: IVectorDataFactory;
       const AFactory: IVectorItemsFactory;
       const AGpxLoader: IVectorDataLoader;
@@ -65,6 +68,7 @@ implementation
 uses
   SysUtils,
   u_ImportByVectorLoader,
+  u_ImportJpegWithExif,
   u_SlsParser,
   u_HlgParser,
   u_MpSimpleParser,
@@ -73,6 +77,7 @@ uses
 { TImportByFileExt }
 
 constructor TImportByFileExt.Create(
+  const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItemsFactory;
   const AGpxLoader: IVectorDataLoader;
@@ -90,6 +95,7 @@ begin
   FImportHLG := TImportByVectorLoader.Create(AVectorDataFactory, THlgParser.Create(AFactory));
   FImportMP := TImportByVectorLoader.Create(AVectorDataFactory, TMpSimpleParser.Create(AFactory));
   FImportSLS := TImportByVectorLoader.Create(AVectorDataFactory, TSlsParser.Create(AFactory));
+  FImportJPG := TImportJpegWithExif.Create(AVectorDataFactory, AValueToStringConverterConfig);
 end;
 
 function TImportByFileExt.ProcessImport(
@@ -118,6 +124,8 @@ begin
     Result := FImportMP.ProcessImport(AMarksSystem, AFileName, AConfig);
   end else if ('.sls' = VExtLwr) then begin
     Result := FImportSLS.ProcessImport(AMarksSystem, AFileName, AConfig);
+  end else if ('.jpg' = VExtLwr) then begin
+    Result := FImportJPG.ProcessImport(AMarksSystem, AFileName, AConfig);
   end;
 end;
 

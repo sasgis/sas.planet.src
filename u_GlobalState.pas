@@ -498,6 +498,7 @@ begin
 {$ifend}
   FVectorDataFactory := TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create);
   FImportFileByExt := TImportByFileExt.Create(
+    FGlobalConfig.ValueToStringConverterConfig,
     FVectorDataFactory,
     FVectorItemsFactory,
     VXmlLoader,
