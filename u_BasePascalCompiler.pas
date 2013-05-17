@@ -177,11 +177,14 @@ begin
     // numeric routines
     Sender.AddDelphiFunction('function Random(const X: Integer): Integer');
     Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): String');
+    Sender.AddDelphiFunction('function Power(const Base, Exponent: Extended): Extended');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
     Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): String');
     Sender.AddDelphiFunction('function Ceil(const X: Extended): Integer;');
     Sender.AddDelphiFunction('function Floor(const X: Extended): Integer;');
     Sender.AddDelphiFunction('function Log2(const X: Extended): Extended;');
+    Sender.AddDelphiFunction('function Ln(const X: Extended): Extended;');
+    Sender.AddDelphiFunction('function Sqrt(const X: Extended): Extended;');
     Sender.AddDelphiFunction('function Max(const A, B: Integer): Integer;');
     Sender.AddDelphiFunction('function MaxExt(const A, B: Extended): Extended;');
     Sender.AddDelphiFunction('function Min(const A, B: Integer): Integer;');
@@ -253,12 +256,15 @@ begin
 
   // numeric routines
   Self.RegisterDelphiFunction(@RoundEx, 'RoundEx', cdRegister);
+  Self.RegisterDelphiFunction(@Power, 'Power', cdRegister);
   Self.RegisterDelphiFunction(@IntPower, 'IntPower', cdRegister);
   Self.RegisterDelphiFunction(@RandomInt, 'Random', cdRegister);
   Self.RegisterDelphiFunction(@IntToHex, 'IntToHex', cdRegister);
   Self.RegisterDelphiFunction(@Ceil, 'Ceil', cdRegister);
   Self.RegisterDelphiFunction(@Floor, 'Floor', cdRegister);
   Self.RegisterDelphiFunction(@Log2, 'Log2', cdRegister);
+  Self.RegisterDelphiFunction(@Ln, 'Ln', cdRegister);
+  Self.RegisterDelphiFunction(@Sqrt, 'Sqrt', cdRegister);
   Self.RegisterDelphiFunction(@MaxInt, 'Max', cdRegister);
   Self.RegisterDelphiFunction(@MaxExt, 'MaxExt', cdRegister);
   Self.RegisterDelphiFunction(@MinInt, 'Min', cdRegister);
