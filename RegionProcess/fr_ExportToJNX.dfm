@@ -309,12 +309,6 @@ object frExportToJNX: TfrExportToJNX
             TabOrder = 14
             Items.Strings = (
               '800km'
-              '800km'
-              '800km'
-              '800km'
-              '800km'
-              '800km'
-              '800km'
               '500km'
               '300km'
               '200km'

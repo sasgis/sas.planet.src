@@ -183,11 +183,16 @@ type
 implementation
 
 uses
+  IniFiles,
   RegExprUtils,
   i_GUIDListStatic,
+  i_ConfigDataProvider,
+  i_PathConfig,
   u_StringListStatic,
   u_MapType,
-  u_MapTypeListStatic;
+  u_MapTypeListStatic,
+  u_ConfigDataProviderByIniFile,
+  u_GlobalState;
 
 {$R *.dfm}
 
@@ -260,12 +265,69 @@ begin
   end;
 end;
 
+type
+  TZoomIndexToScaleIndex = array [0..23] of integer;
 const
-  ZoomIndexToScaleIndex: array [0..23] of integer = (
-    0, 1, 2, 3, 4, 5, 6, 8,
-    9, 11, 12, 14, 15, 17, 18, 20,
-    21, 23, 24, 26, 27, 29, 30, 32
+  DefZoomIndexToScaleIndex: TZoomIndexToScaleIndex = (
+    0, 0, 0, 0, 2, 3, 5,
+    6, 8, 9, 11, 12, 14, 15, 17,
+    18, 20, 21, 23, 24, 26, 26, 26, 26
   );
+var
+  ZoomIndexToScaleIndex: TZoomIndexToScaleIndex;
+
+procedure InitZoomIndexToScaleIndex;
+const
+  GarminMetricZoomListStr =
+    '800km,500km,300km,200km,120km,80km,50km,30km,20km,' +
+    '12km,8km,5km,3km,2km,1.2km,800m,500m,300m,' +
+    '200m,120m,80m,50m,30m,20m,12m,8m,5m';
+var
+  VGarminZoomList: TStringList;
+  VConfigPath: IPathConfig;
+  VIniFile: TMeminiFile;
+  VJnxScaleConfig: IConfigDataProvider;
+  VJnxLevelMappingConfig: IConfigDataProvider;
+  VStr: String;
+  i: integer;
+  VIndex: integer;
+begin
+  ZoomIndexToScaleIndex := DefZoomIndexToScaleIndex;
+
+  try
+    VGarminZoomList := TStringList.Create;
+    VIniFile := Nil;
+    try
+      VGarminZoomList.CommaText := GarminMetricZoomListStr;
+
+      VConfigPath := GState.Config.BaseCahcePath.BasePathConfig;
+      if Assigned(VConfigPath) and FileExists(VConfigPath.Path + 'JnxScales.ini') then
+      begin
+        VIniFile := TMeminiFile.Create(VConfigPath.Path + 'JnxScales.ini');
+        VJnxScaleConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+        VJnxLevelMappingConfig := VJnxScaleConfig.GetSubItem('LevelMapping');
+      
+        if Assigned(VJnxScaleConfig) then
+          for i:=0 to 23 do
+          begin
+            VStr := VJnxLevelMappingConfig.ReadString('z' + IntToStr(i + 1), '');
+            // Если в INIшнике нет соответствующего значения, будет использовано значение из набора по умолчанию.
+            if VStr <> '' then
+            begin
+              VIndex := VGarminZoomList.IndexOf(VStr);
+              if VIndex <> -1 then
+                ZoomIndexToScaleIndex[i] := VIndex;
+            end;
+          end;
+      end;
+    finally
+      VJnxLevelMappingConfig := Nil;
+      VJnxScaleConfig := Nil;
+      VGarminZoomList.Free;
+    end;
+  except
+  end;
+end;
 
 procedure TfrExportToJNX.CbbZoom2Change(Sender: TObject);
 begin
@@ -325,6 +387,9 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
 begin
+  // Инициализируем список соответствия масштабов каждый раз, чтобы можно было пробовать различные настройки, не перезапуская программу.
+  InitZoomIndexToScaleIndex;
+
   if CbbZoom.Items.count=0 then begin
     for i:=1 to 24 do begin
       CbbZoom.Items.Add(inttostr(i));
