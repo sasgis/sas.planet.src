@@ -3,14 +3,19 @@ unit fr_TilesDownload;
 interface
 
 uses
-  Windows,
-  SysUtils,
   Classes,
   Controls,
-  Forms,
-  ExtCtrls,
-  StdCtrls,
   ComCtrls,
+  ExtCtrls,
+  Forms,
+  Menus,
+  SysUtils,
+  StdCtrls,
+  TBX,
+  TB2Item,
+  TB2ExtItems,
+  TBXExtItems,
+  Windows,
   i_MapTypes,
   i_CoordConverterFactory,
   i_LanguageManager,
@@ -71,9 +76,19 @@ type
     lblMap: TLabel;
     Bevel1: TBevel;
     chkStartPaused: TCheckBox;
+    MainPopupMenu: TTBXPopupMenu;
+    TBX_Layers: TTBXItem;
+    TBX_Maps: TTBXItem;
+    TBX_All: TTBXItem;
+    TBX_active: TTBXItem;
+    TBSeparatorItem1: TTBSeparatorItem;
+    TBX_Filter: TTBXItem;
+    TBX_AFilter: TTBXEditItem;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
+    procedure RefreshList(Sender: TObject);
+    procedure ApplyFilter(Sender: TObject);
   private
     FVectorFactory: IVectorItemsFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -110,6 +125,7 @@ type
 implementation
 
 uses
+  StrUtils,
   t_GeoTypes,
   i_GUIDListStatic,
   i_VectorItemProjected,
@@ -247,11 +263,6 @@ end;
 procedure TfrTilesDownload.Init(const AZoom: Byte; const APolygon: ILonLatPolygon);
 var
   i: integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   FPolygLL := APolygon;
   cbbZoom.Items.Clear;
@@ -259,27 +270,119 @@ begin
     cbbZoom.Items.Add(inttostr(i));
   end;
   cbbZoom.ItemIndex := AZoom;
-
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
   cbbMap.items.Clear;
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.TileDownloadSubsystem.State.GetStatic.Enabled)and(VMapType.GUIConfig.Enabled) then begin
-      VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-
-      // select current map by default
-      if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-        cbbMap.ItemIndex:=VAddedIndex;
-      end;
-    end;
-  end;
-  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
-    cbbMap.ItemIndex := 0;
-  end;
+  RefreshList(TBX_All); // set items
   dtpReplaceOlderDate.Date:=now;
   cbbZoomChange(nil);
 end;
 
+procedure TfrTilesDownload.ApplyFilter(Sender: TObject);
+begin
+ RefreshList(TBX_Filter);
+end;
+
+procedure TfrTilesDownload.RefreshList(Sender: TObject);
+var
+  VMode: Integer; // 1 All  2 Maps  3 Layers  4 Active   5 Filter
+  VCurNewIndex: Integer;
+  VActiveMapGUID: TGUID;
+  i: integer;
+  VNewMapType: TMapType;
+  VAddedIndex: Integer;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
+  VAdd: Boolean;
+  VLayers: IMapTypeSet;
+  VMapName: string;
+  VFilter: string;
+begin
+  VMode := TTBXItem(Sender).Tag;
+  TTBXItem(Sender).checked := True;
+  VCurNewIndex := 0;
+  VLayers := nil;
+  VFilter := AnsiUpperCase(TBX_AFilter.Text);
+  // get active map
+  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
+  // refresh list
+  cbbMap.items.BeginUpdate;
+  try
+    cbbMap.items.Clear;
+    VGUIDList := FGUIConfigList.OrderedMapGUIDList;
+    for i := 0 to VGUIDList.Count-1 do begin
+      VGUID := VGUIDList.Items[i];
+      VNewMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      // check if allow to download
+      if (VNewMapType.TileDownloadSubsystem.State.GetStatic.Enabled) then
+      if (VNewMapType.GUIConfig.Enabled) then begin
+        // check if allow to add map to list
+        case VMode of
+          1: begin
+            // all maps
+            VAdd := True;
+          end;
+          2: begin
+            // only maps
+            VAdd := (not VNewMapType.Abilities.IsLayer);
+          end;
+          3: begin
+            // only layers
+            VAdd := (VNewMapType.Abilities.IsLayer);
+            // update layers list
+            if (nil=VLayers) then begin
+               VLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
+            end;
+            // select first active layer
+            if (VLayers.GetMapTypeByGUID(VGUID) <> nil) and (VCurNewIndex = 0) then
+            begin
+              VCurNewIndex := cbbMap.Items.Count;
+            end;
+          end;
+          4: begin
+            // only visible items: main map or visible layer
+            if VNewMapType.Abilities.IsLayer then begin
+              if (nil=VLayers) then begin
+                VLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
+              end;
+              VAdd := VLayers.GetMapTypeByGUID(VGUID) <> nil
+            end else begin
+                VAdd := IsEqualGUID(VActiveMapGUID, VGUID);
+            end;
+          end;
+          5: begin // Filter by name
+            if VFilter <> '' then begin
+              VMapName := AnsiUpperCase(FFullMapsSet.GetMapTypeByGUID(VGUID).MapType.GUIConfig.Name.Value);
+              if posex(VFilter,VMapName) <> 0 then begin
+                VAdd := True
+              end else begin
+                VAdd := False
+              end
+            end else begin
+              VAdd := true;
+            end;
+            end else begin VAdd := False;
+          end;
+        end;
+        if VAdd then begin
+          VAddedIndex := cbbMap.Items.AddObject(VNewMapType.GUIConfig.Name.Value, VNewMapType);
+          // select current map by default
+          if IsEqualGUID(VNewMapType.Zmp.GUID, VActiveMapGUID) then begin
+           cbbMap.ItemIndex:=VAddedIndex;
+          end;
+        end;
+      end;
+    end;
+    // if not selected - select some item
+    if (cbbMap.Items.Count > 0) then begin
+      if (cbbMap.ItemIndex < 0) and (VCurNewIndex>=0) then begin
+        cbbMap.ItemIndex := VCurNewIndex;
+      end;
+      // last chance
+      if (cbbMap.ItemIndex < 0) then begin
+        cbbMap.ItemIndex := 0;
+      end;
+    end;
+  finally
+    cbbMap.items.EndUpdate;
+  end;
+end;
 end.

@@ -49,6 +49,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = 'Zoom:'
+        ExplicitWidth = 30
       end
       object cbbZoom: TComboBox
         Left = 5
@@ -81,6 +82,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = '_'
+        ExplicitWidth = 6
       end
       object lblMap: TLabel
         AlignWithMargins = True
@@ -93,6 +95,7 @@ object frTilesDownload: TfrTilesDownload
         Margins.Right = 0
         Align = alTop
         Caption = 'Map:'
+        ExplicitWidth = 24
       end
       object Bevel1: TBevel
         Left = 5
@@ -111,6 +114,7 @@ object frTilesDownload: TfrTilesDownload
         Style = csDropDownList
         DropDownCount = 16
         ItemHeight = 13
+        PopupMenu = MainPopupMenu
         TabOrder = 0
       end
       object chkReplace: TCheckBox
@@ -169,6 +173,7 @@ object frTilesDownload: TfrTilesDownload
             Align = alLeft
             Caption = 'only created before'
             Layout = tlCenter
+            ExplicitHeight = 13
           end
           object chkReplaceOlder: TCheckBox
             Left = 0
@@ -202,6 +207,62 @@ object frTilesDownload: TfrTilesDownload
         Caption = 'Start paused'
         TabOrder = 4
       end
+    end
+  end
+  object MainPopupMenu: TTBXPopupMenu
+    Tag = 5
+    Left = 408
+    Top = 224
+    object TBX_All: TTBXItem
+      Tag = 1
+      Checked = True
+      GroupIndex = 1
+      RadioItem = True
+      OnClick = RefreshList
+      Caption = 'All'
+      Hint = ''
+    end
+    object TBX_Maps: TTBXItem
+      Tag = 2
+      GroupIndex = 1
+      RadioItem = True
+      OnClick = RefreshList
+      Caption = 'Maps'
+      Hint = ''
+    end
+    object TBX_Layers: TTBXItem
+      Tag = 3
+      GroupIndex = 1
+      RadioItem = True
+      OnClick = RefreshList
+      Caption = 'Layers'
+      Hint = ''
+    end
+    object TBX_active: TTBXItem
+      Tag = 4
+      GroupIndex = 1
+      RadioItem = True
+      OnClick = RefreshList
+      Caption = 'Active'
+      Hint = ''
+    end
+    object TBSeparatorItem1: TTBSeparatorItem
+      Caption = ''
+      Hint = ''
+    end
+    object TBX_Filter: TTBXItem
+      Tag = 5
+      GroupIndex = 1
+      RadioItem = True
+      OnClick = RefreshList
+      Caption = 'Filter'
+      Hint = ''
+    end
+    object TBX_AFilter: TTBXEditItem
+      Tag = 5
+      OnChange = ApplyFilter
+      Caption = ''
+      Hint = ''
     end
   end
 end
