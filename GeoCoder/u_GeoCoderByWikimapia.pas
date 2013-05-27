@@ -59,7 +59,63 @@ uses
   u_GeoCodePlacemark;
 
 
-{ TGeoCoderByOSM }
+{ TGeoCoderByWikiMapia }
+
+procedure QuickSort(
+  var AList:IInterfaceList;
+  var ADist: array of Double;
+    L, R: Integer
+  );
+  var
+    I, J: Integer;
+    P: Double;
+    TD: Double;
+
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := ADist[(L + R) shr 1];
+      repeat
+        while ADist[I] < P do begin
+          Inc(I);
+        end;
+        while ADist[J] > P do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          TD := ADist[I];
+
+          ADist[I] := ADist[J];
+          ADist[J] := TD;
+          AList.Exchange(I,J);
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(AList, ADist, L, J);
+      end;
+      L := I;
+    until I >= R;
+end;
+
+procedure SortIt(
+  var AList:IInterfaceList;
+  const ALocalConverter: ILocalCoordConverter
+    );
+var
+  i: integer;
+  VMark: IGeoCodePlacemark;
+  VDistArr: array of Double;
+begin
+   setlength(VDistArr,AList.Count);
+   for i := 0 to AList.GetCount-1 do begin
+      VMark := IGeoCodePlacemark(AList.Items[i]);
+      VDistArr[i]:=ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat,VMark.GetPoint);
+   end;
+  QuickSort(AList,VDistArr,0,AList.GetCount-1);
+end;
 
 function TGeoCoderByWikiMapia.ParseResultToPlacemarksList(
   const ACancelNotifier: INotifierOperation;
@@ -87,8 +143,8 @@ begin
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceList.Create;
-  i := PosEx('<div style="overflow: hidden; width:100%;width:3px;height:2px;"', VStr, 1);
-  while (PosEx('<div class="sdiv" onclick="parent.jevals=', VStr, i) > i) and (i > 0) do begin
+  i := PosEx('<ul class="nav searchlist">', VStr, 1);
+  while (PosEx('<li onclick="parent.Search.zoomTo', VStr, i) > i) and (i > 0) do begin
     j := i;
 
     //    зум для внешней ссылки оставлен для потом
@@ -98,21 +154,22 @@ begin
     //    j := PosEx(')', AStr, i);
     //    VZoom:=Copy(AStr, i + 1, j - (i + 1));
 
-    i := PosEx('{parent.searchvis(', VStr, j);
-    j := PosEx(',', VStr, i + 18);
-    slon := Copy(VStr, i + 18, j - (i + 18));
+    i := PosEx('parent.Search.zoomTo(', VStr, j);
+    j := PosEx(',', VStr, i + 21);
+    slon := Copy(VStr, i + 21, j - (i + 21));
 
     i := j;
-    j := PosEx(')', VStr, i + 1);
+    j := PosEx(',', VStr, i + 1);
     slat := Copy(VStr, i + 1, j - (i + 1));
 
-    i := PosEx('<span class="sname">', VStr, j);
-    j := PosEx('<', VStr, i + 20);
-    sname := Utf8ToAnsi(Copy(VStr, i + 20, j - (i + 20)));
+    i := PosEx('<strong>', VStr, j);
+    j := PosEx('</strong>', VStr, i + 8);
+    sname := Utf8ToAnsi(Copy(VStr, i + 8, j - (i + 8)));
 
-    i := PosEx('<span class="desc">', VStr, j);
-    j := PosEx('<', VStr, i + 19);
-    sdesc := Utf8ToAnsi(Copy(VStr, i + 19, j - (i + 19)));
+    i := PosEx('<small>', VStr, j);
+    j := PosEx('<', VStr, i + 7);
+    sdesc := Utf8ToAnsi(Copy(VStr, i + 7, j - (i + 7)));
+    sdesc := Trim(ReplaceStr(sdesc,#$0A,''));
 
     //    оставим до лучших времён
     //    sfulldesc:='http://www.wikimapia.org/#lat='+slat+'&lon='+slon+'&z='+VZoom;
@@ -130,6 +187,7 @@ begin
     end;
 
   end;
+  if VList.GetCount>1 then SortIt(VList, ALocalConverter);
   Result := VList;
 end;
 
