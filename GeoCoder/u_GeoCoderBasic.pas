@@ -57,6 +57,15 @@ type
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceList; virtual; abstract;
+    procedure QuickSort(
+      var AList:IInterfaceList;
+      var ADist: array of Double;
+      L, R: Integer
+    );
+    procedure SortIt(
+      var AList:IInterfaceList;
+      const ALocalConverter: ILocalCoordConverter
+    );
   private
     function GetLocations(
       const ACancelNotifier: INotifierOperation;
@@ -94,6 +103,63 @@ begin
   FInetSettings := AInetSettings;
   FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
 end;
+
+procedure TGeoCoderBasic.QuickSort(
+  var AList:IInterfaceList;
+  var ADist: array of Double;
+    L, R: Integer
+  );
+  var
+    I, J: Integer;
+    P: Double;
+    TD: Double;
+
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := ADist[(L + R) shr 1];
+      repeat
+        while ADist[I] < P do begin
+          Inc(I);
+        end;
+        while ADist[J] > P do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          TD := ADist[I];
+
+          ADist[I] := ADist[J];
+          ADist[J] := TD;
+          AList.Exchange(I,J);
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(AList, ADist, L, J);
+      end;
+      L := I;
+    until I >= R;
+end;
+
+procedure TGeoCoderBasic.SortIt(
+  var AList:IInterfaceList;
+  const ALocalConverter: ILocalCoordConverter
+    );
+var
+  i: integer;
+  VMark: IGeoCodePlacemark;
+  VDistArr: array of Double;
+begin
+   setlength(VDistArr,AList.Count);
+   for i := 0 to AList.GetCount-1 do begin
+      VMark := IGeoCodePlacemark(AList.Items[i]);
+      VDistArr[i]:=ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat,VMark.GetPoint);
+   end;
+  QuickSort(AList,VDistArr,0,AList.GetCount-1);
+end;
+
 
 function TGeoCoderBasic.GetLocations(
   const ACancelNotifier: INotifierOperation;
