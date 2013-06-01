@@ -296,7 +296,6 @@ begin
 
   try
     VGarminZoomList := TStringList.Create;
-    VIniFile := Nil;
     try
       VGarminZoomList.CommaText := GarminMetricZoomListStr;
 
