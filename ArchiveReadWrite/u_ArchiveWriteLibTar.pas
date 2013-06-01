@@ -49,6 +49,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_StreamReadOnlyByBinaryData;
 
 { TArchiveWriteByLibTar }
@@ -69,8 +70,8 @@ end;
 
 destructor TArchiveWriteByLibTar.Destroy;
 begin
-  FTar.Free;
-  inherited Destroy;
+  FreeAndNil(FTar);
+  inherited;
 end;
 
 function TArchiveWriteByLibTar.AddFile(

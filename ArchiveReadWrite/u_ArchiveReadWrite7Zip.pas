@@ -121,11 +121,13 @@ end;
 
 destructor TArchiveReadBy7Zip.Destroy;
 begin
-  FArch.Close;
-  if FOwnStream then begin
-    FStream.Free;
+  if Assigned(FArch) then begin
+    FArch.Close;
   end;
-  inherited Destroy;
+  if FOwnStream then begin
+    FreeAndNil(FStream);
+  end;
+  inherited;
 end;
 
 function TArchiveReadBy7Zip.CreateArchive(
@@ -221,11 +223,13 @@ end;
 
 destructor TArchiveWriteBy7Zip.Destroy;
 begin
-  FArch.SaveToStream(FStream);
-  if FOwnStream then begin
-    FStream.Free;
+  if Assigned(FArch) and Assigned(FStream) then begin
+    FArch.SaveToStream(FStream);
   end;
-  inherited Destroy;
+  if FOwnStream then begin
+    FreeAndNil(FStream);
+  end;
+  inherited;
 end;
 
 function TArchiveWriteBy7Zip.CreateArchive(

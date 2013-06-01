@@ -100,9 +100,11 @@ end;
 
 destructor TConfigDataWriteProviderByIniFile.Destroy;
 begin
-  try
-    IniFile.UpdateFile;
-  except
+  if Assigned(IniFile) then begin
+    try
+      IniFile.UpdateFile;
+    except
+    end;
   end;
   inherited;
 end;

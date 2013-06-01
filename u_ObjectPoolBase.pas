@@ -137,24 +137,30 @@ destructor TObjectPoolBase.Destroy;
 var
   VObject: TObjectFromPoolAbstract;
 begin
-  FFreeProcedure.Disable;
-
-  if FTTLNotifier <> nil then begin
-    FTTLNotifier.Remove(FTTLListener);
+  if Assigned(FFreeProcedure) then begin
+    FFreeProcedure.Disable;
   end;
 
-  FSync.BeginWrite;
-  try
-    while True do begin
-      VObject := _PullObject;
-      if VObject = nil then begin
-        Break;
-      end else begin
-        VObject.Free;
+  if Assigned(FTTLNotifier) and Assigned(FTTLListener) then begin
+    FTTLNotifier.Remove(FTTLListener);
+    FTTLNotifier := nil;
+    FTTLListener := nil;
+  end;
+
+  if Assigned(FSync) then begin
+    FSync.BeginWrite;
+    try
+      while True do begin
+        VObject := _PullObject;
+        if VObject = nil then begin
+          Break;
+        end else begin
+          VObject.Free;
+        end;
       end;
+    finally
+      FSync.EndWrite;
     end;
-  finally
-    FSync.EndWrite;
   end;
   inherited;
 end;

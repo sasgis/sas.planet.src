@@ -255,7 +255,7 @@ begin
   if FOwnMem and Assigned(FData) then begin
     FreeMemory(FData);
   end;
-  inherited Destroy;
+  inherited;
 end;
 
 function TBerkeleyDBValueBase.GetData: Pointer;
@@ -283,7 +283,7 @@ begin
   if Assigned(FMetaValue) then begin
     Dispose(FMetaValue);
   end;
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TBerkeleyDBMetaValue.DataToMetaValue(const AStorageEPSG: Integer);
@@ -414,7 +414,7 @@ begin
     Dispose(FValue);
   end;
   FBinData := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TBerkeleyDBValue.TileToValue(
@@ -676,7 +676,7 @@ end;
 destructor TBerkeleyDBVersionedMetaValueElement.Destroy;
 begin
   Dispose(FValue);
-  inherited Destroy;
+  inherited;
 end;
 
 function TBerkeleyDBVersionedMetaValueElement.Assign(
@@ -891,7 +891,7 @@ end;
 destructor TBerkeleyDBVersionedMetaValue.Destroy;
 begin
   Clear;
-  inherited Destroy;
+  inherited;
 end;
 
 function TBerkeleyDBVersionedMetaValue.Assign(

@@ -103,7 +103,7 @@ begin
     FListenerByRect[i].Listener := nil;
   end;
   FListenerByRect := nil;
-  if FListenerByAllZoom <> nil then begin
+  if Assigned(FListenerByAllZoom) then begin
     for i := 0 to FListenerByAllZoom.Count - 1 do begin
       IInterface(FListenerByAllZoom[i])._Release;
     end;
@@ -299,7 +299,7 @@ begin
     FreeAndNil(FListenersByZoom[i]);
   end;
   FListenersByZoom := nil;
-  if FListeners <> nil then begin
+  if Assigned(FListeners) then begin
     for i := 0 to FListeners.Count - 1 do begin
       IInterface(FListeners[i])._Release;
     end;

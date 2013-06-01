@@ -25,7 +25,6 @@ type
     procedure DoChangeNotify; virtual;
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -41,14 +40,6 @@ begin
   FBeforeChangeNotifier := TNotifierBase.Create;
   FChangeNotifier := TNotifierBase.Create;
   FAfterChangeNotifier := TNotifierBase.Create;
-end;
-
-destructor TChangeableBase.Destroy;
-begin
-  FBeforeChangeNotifier := nil;
-  FChangeNotifier := nil;
-  FAfterChangeNotifier := nil;
-  inherited;
 end;
 
 procedure TChangeableBase.DoAfterChangeNotify;

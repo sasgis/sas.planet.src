@@ -109,13 +109,13 @@ end;
 destructor TBerkeleyDBPool.Destroy;
 begin
   Abort;
-  FObjList.Free;
-  FCrashList.Free;
-  FCS.Free;
+  FreeAndNil(FObjList);
+  FreeAndNil(FCrashList);
+  FreeAndNil(FCS);
   FreeAndNil(FFinishEvent);
   FDatabaseFactory := nil;
   FHelper := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TBerkeleyDBPool.Release(const ADatabase: IBerkeleyDB);

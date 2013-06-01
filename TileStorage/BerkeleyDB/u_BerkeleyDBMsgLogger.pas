@@ -39,9 +39,9 @@ end;
 
 destructor TBerkeleyDBMsgLogger.Destroy;
 begin
-  FMsgFileStream.Free;
-  FMsgCS.Free;
-  inherited Destroy;
+  FreeAndNil(FMsgFileStream);
+  FreeAndNil(FMsgCS);
+  inherited;
 end;
 
 procedure TBerkeleyDBMsgLogger.SaveVerbMsg(const AMsg: AnsiString);

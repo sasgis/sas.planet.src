@@ -56,7 +56,7 @@ destructor TStorageStateProxy.Destroy;
 begin
   LockWrite;
   try
-    if FTarget <> nil then begin
+    if Assigned(FTarget) and Assigned(FTargetChangeListener) then begin
       FTarget.ChangeNotifier.Remove(FTargetChangeListener);
       FTarget := nil;
       FTargetChangeListener := nil;

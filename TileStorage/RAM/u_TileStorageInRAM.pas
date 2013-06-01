@@ -146,7 +146,7 @@ begin
   FTileInfoMemCache := nil;
   FMainContentType := nil;
   FTileNotExistsTileInfo := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 function TTileStorageInRAM.GetIsFileCache: Boolean;

@@ -38,7 +38,6 @@ type
     ): IFileNameIterator;
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -91,12 +90,6 @@ function TZmpFileNamesIteratorFactory.CreateIterator(
 ): IFileNameIterator;
 begin
   Result := FFactory.CreateIterator(ARootFolderName, AFolderNameFromRoot);
-end;
-
-destructor TZmpFileNamesIteratorFactory.Destroy;
-begin
-  FFactory := nil;
-  inherited;
 end;
 
 end.

@@ -42,7 +42,6 @@ type
     procedure LogError(const AValue: ITileErrorInfo);
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -58,13 +57,6 @@ begin
   inherited Create;
   FCS := MakeSyncRW_Var(Self, False);
   FNotifier := TNotifierBase.Create;
-end;
-
-destructor TTileErrorLogProviedrStuped.Destroy;
-begin
-  FNotifier := nil;
-  FCS := nil;
-  inherited;
 end;
 
 function TTileErrorLogProviedrStuped.GetLastErrorInfo: ITileErrorInfo;

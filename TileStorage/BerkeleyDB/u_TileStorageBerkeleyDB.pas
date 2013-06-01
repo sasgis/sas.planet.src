@@ -202,17 +202,17 @@ end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
-  if Assigned(FGCNotifier) then begin
+  if Assigned(FGCNotifier) and Assigned(FSyncCallListner) then begin
     FGCNotifier.Remove(FSyncCallListner);
     FGCNotifier := nil;
+    FSyncCallListner := nil;
   end;
-  FSyncCallListner := nil;
   FTileInfoMemCache := nil;
   FreeAndNil(FStorageHelper);
   FMainContentType := nil;
   FContentTypeManager := nil;
   FTileNotExistsTileInfo := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TTileStorageBerkeleyDB.OnSyncCall;

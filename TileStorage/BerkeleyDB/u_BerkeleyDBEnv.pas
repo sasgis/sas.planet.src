@@ -159,9 +159,9 @@ begin
     FAppPrivate.FHelper := nil;
     FAppPrivate.FMsgLogger.Free;
     Dispose(FAppPrivate);
-    FTxnList.Free;
-    FCS.Free;
-    inherited Destroy;
+    FreeAndNil(FTxnList);
+    FreeAndNil(FCS);
+    inherited;
   end;
 end;
 

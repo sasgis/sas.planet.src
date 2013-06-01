@@ -53,7 +53,7 @@ end;
 destructor TBinaryDataByBerkeleyDBValue.Destroy;
 begin
   FValue := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 function TBinaryDataByBerkeleyDBValue.GetBuffer: Pointer;

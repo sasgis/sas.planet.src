@@ -87,7 +87,6 @@ type
       const ASection: string;
       const AParent: IConfigDataProvider
     );
-    destructor Destroy; override;
   end;
 
 
@@ -120,14 +119,6 @@ begin
   FFormatSettings.ShortTimeFormat := 'HH:mm:ss';
   FFormatSettings.ListSeparator := ';';
   FFormatSettings.TwoDigitYearCenturyWindow := 50;
-end;
-
-destructor TConfigDataProviderByIniFileSection.Destroy;
-begin
-  FIniFile := nil;
-  FSection := '';
-  FParent := nil;
-  inherited;
 end;
 
 function TConfigDataProviderByIniFileSection.GetSubItemSectionName(

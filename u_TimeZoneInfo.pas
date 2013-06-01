@@ -103,7 +103,7 @@ begin
     FTimeZoneDll := 0;
   end;
   FreeMem(FStrBuf);
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TTimeZoneInfo.GetLonLatToTimeZoneID;

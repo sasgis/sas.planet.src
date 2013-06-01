@@ -88,8 +88,8 @@ end;
 
 destructor TArchiveReadByKaZip.Destroy;
 begin
-  FZip.Free;
-  inherited Destroy;
+  FreeAndNil(FZip);
+  inherited;
 end;
 
 function TArchiveReadByKaZip.GetItemsCount: Integer;
@@ -170,12 +170,12 @@ end;
 
 destructor TArchiveWriteByKaZip.Destroy;
 begin
-  if FIsFromFileName then begin
+  if FIsFromFileName and Assigned(FZip) then begin
     FZip.Active := False;
     FZip.Close;
   end;
-  FZip.Free;
-  inherited Destroy;
+  FreeAndNil(FZip);
+  inherited;
 end;
 
 function TArchiveWriteByKaZip.AddFile(

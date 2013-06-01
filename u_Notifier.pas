@@ -50,8 +50,10 @@ destructor TNotifierBase.Destroy;
 var
   i: integer;
 begin
-  for i := 0 to FListeners.Count - 1 do begin
-    IInterface(FListeners.Items[i])._Release;
+  if Assigned(FListeners) then begin
+    for i := 0 to FListeners.Count - 1 do begin
+      IInterface(FListeners.Items[i])._Release;
+    end;
   end;
   FreeAndNil(FListeners);
   inherited;

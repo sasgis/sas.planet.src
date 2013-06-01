@@ -215,11 +215,13 @@ end;
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
   FSyncCallListener := nil;
-  FGlobalBerkeleyDBHelper.FreeEnvironment(FEnvironment);
+  if Assigned(FGlobalBerkeleyDBHelper) then begin
+    FGlobalBerkeleyDBHelper.FreeEnvironment(FEnvironment);
+  end;
   FPool := nil;
   FEnvironment := nil;
   FGlobalBerkeleyDBHelper := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 function TTileStorageBerkeleyDBHelper.CreateDirIfNotExists(APath: string): Boolean;

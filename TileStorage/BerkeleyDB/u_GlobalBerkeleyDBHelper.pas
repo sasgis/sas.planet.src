@@ -84,16 +84,16 @@ end;
 
 destructor TGlobalBerkeleyDBHelper.Destroy;
 begin
-  if FPathConfig <> nil then begin
+  if (FPathConfig <> nil) and (FCacheConfigChangeListener <> nil) then begin
     FPathConfig.ChangeNotifier.Remove(FCacheConfigChangeListener);
     FPathConfig := nil;
     FCacheConfigChangeListener := nil;
   end;
   FEnvList := nil;
-  FEnvCS.Free;
+  FreeAndNil(FEnvCS);
   FreeAndNil(FLogFileStream);
-  FLogCS.Free;
-  inherited Destroy;
+  FreeAndNil(FLogCS);
+  inherited;
 end;
 
 procedure TGlobalBerkeleyDBHelper.OnCacheConfigChange;

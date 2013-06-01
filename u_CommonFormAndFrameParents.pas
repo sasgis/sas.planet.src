@@ -97,10 +97,11 @@ end;
 
 destructor TCommonFrameParent.Destroy;
 begin
-  FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
-  FLanguageChangeListener := nil;
-  FLanguageManager := nil;
-
+  if Assigned(FLanguageManager) and Assigned(FLanguageChangeListener) then begin
+    FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
+    FLanguageChangeListener := nil;
+    FLanguageManager := nil;
+  end;
   inherited;
 end;
 
@@ -130,10 +131,11 @@ end;
 
 destructor TFormWitghLanguageManager.Destroy;
 begin
-  FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
-  FLanguageChangeListener := nil;
-  FLanguageManager := nil;
-
+  if Assigned(FLanguageManager) and Assigned(FLanguageChangeListener) then begin
+    FLanguageManager.ChangeNotifier.Remove(FLanguageChangeListener);
+    FLanguageChangeListener := nil;
+    FLanguageManager := nil;
+  end;
   inherited;
 end;
 

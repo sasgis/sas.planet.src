@@ -80,7 +80,7 @@ end;
 
 destructor TPathConfig.Destroy;
 begin
-  if FBasePathConfig <> nil then begin
+  if Assigned(FBasePathConfig) and Assigned(FBasePathListener) then begin
     FBasePathConfig.ChangeNotifier.Remove(FBasePathListener);
     FBasePathListener := nil;
     FBasePathConfig := nil;

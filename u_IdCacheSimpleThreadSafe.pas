@@ -22,7 +22,6 @@ type
     );
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -38,12 +37,6 @@ begin
   inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
   FIdList := TIDInterfaceList.Create(False);
-end;
-
-destructor TIdCacheSimpleThreadSafe.Destroy;
-begin
-  FCS := nil;
-  inherited;
 end;
 
 procedure TIdCacheSimpleThreadSafe.Add(

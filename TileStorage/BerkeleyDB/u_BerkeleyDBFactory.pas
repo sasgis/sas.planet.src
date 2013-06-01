@@ -34,7 +34,6 @@ type
       const AMetaKey: IBinaryData;
       const AMetaValue: IBinaryData
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -65,13 +64,6 @@ begin
   FIsReadOnly := AIsReadOnly;
   FMetaKey := AMetaKey;
   FMetaValue := AMetaValue;
-end;
-
-destructor TBerkeleyDBFactory.Destroy;
-begin
-  FEnvironment := nil;
-  FHelper := nil;
-  inherited Destroy;
 end;
 
 function TBerkeleyDBFactory.CreateDatabase(

@@ -77,7 +77,6 @@ type
       const AStopNotifyCounter: ICounter = nil;
       const ALock: IReadWriteSync = nil
     );
-    destructor Destroy; override;
   end;
 
 type
@@ -216,13 +215,6 @@ constructor TConfigDataElementWithStaticBase.Create(
 begin
   inherited;
   FStaticCS := MakeSyncRW_Var(Self);
-end;
-
-destructor TConfigDataElementWithStaticBase.Destroy;
-begin
-  FStaticCS := nil;
-  FStatic := nil;
-  inherited;
 end;
 
 procedure TConfigDataElementWithStaticBase.DoBeforeChangeNotify;

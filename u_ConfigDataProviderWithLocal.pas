@@ -81,7 +81,6 @@ type
       const AProviderMain: IConfigDataProvider;
       const AProviderLocal: IConfigDataProvider
     );
-    destructor Destroy; override;
   public
 
   end;
@@ -102,13 +101,6 @@ begin
   inherited Create;
   FProviderMain := AProviderMain;
   FProviderLocal := AProviderLocal;
-end;
-
-destructor TConfigDataProviderWithLocal.Destroy;
-begin
-  FProviderMain := nil;
-  FProviderLocal := nil;
-  inherited;
 end;
 
 function TConfigDataProviderWithLocal.GetSubItem(

@@ -194,7 +194,7 @@ begin
     FreeMemory(FData);
     FData := nil;
   end;
-  inherited Destroy;
+  inherited;
 end;
 
 function TBerkeleyDBKey.PointToKey(const APoint: TPoint): PKey;

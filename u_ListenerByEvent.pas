@@ -129,7 +129,7 @@ end;
 
 destructor TNotifyEventListenerSync.Destroy;
 begin
-  if FTimerNoifier <> nil then begin
+  if Assigned(FTimerNoifier) and Assigned(FTimerListener) then begin
     FTimerNoifier.Remove(FTimerListener);
     FTimerNoifier := nil;
     FTimerListener := nil;

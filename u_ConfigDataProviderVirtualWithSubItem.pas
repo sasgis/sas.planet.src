@@ -77,7 +77,6 @@ type
       const ASubItemName: string;
       const ASubItem: IConfigDataProvider
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -95,12 +94,6 @@ begin
   inherited Create;
   FSubItemName := ASubItemName;
   FSubItem := ASubItem;
-end;
-
-destructor TConfigDataProviderVirtualWithSubItem.Destroy;
-begin
-  FSubItem := nil;
-  inherited;
 end;
 
 function TConfigDataProviderVirtualWithSubItem.GetSubItem(

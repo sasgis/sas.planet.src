@@ -66,7 +66,7 @@ end;
 destructor TBinaryData.Destroy;
 begin
   FreeMem(FBuffer);
-  inherited Destroy;
+  inherited;
 end;
 
 function TBinaryData.GetBuffer: Pointer;

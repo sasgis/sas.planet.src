@@ -130,14 +130,14 @@ begin
     Sync(False);
     Close;
   finally
-    if Assigned(FSyncCallNotifier) then begin
+    if Assigned(FSyncCallNotifier) and Assigned(FSyncCallListener) then begin
       FSyncCallNotifier.Remove(FSyncCallListener);
       FSyncCallListener := nil;
       FSyncCallNotifier := nil;
     end;
     FLock := nil;
     FHelper := nil;
-    inherited Destroy;
+    inherited;
   end;
 end;
 

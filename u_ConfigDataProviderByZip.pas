@@ -113,7 +113,7 @@ end;
 destructor TConfigDataProviderByArchive.Destroy;
 begin
   FArchive := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 function TConfigDataProviderByArchive.GetSubItem(

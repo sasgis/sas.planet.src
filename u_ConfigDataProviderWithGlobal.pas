@@ -87,7 +87,6 @@ type
       const AProviderGlobalPrefix: string;
       const AProviderGlobal: IConfigDataProvider
     );
-    destructor Destroy; override;
   public
 
   end;
@@ -111,13 +110,6 @@ begin
   FProviderGlobalPrefix := AProviderGlobalPrefix;
   FProviderGlobalPrefixLen := Length(AProviderGlobalPrefix);
   FProviderGlobal := AProviderGlobal;
-end;
-
-destructor TConfigDataProviderWithGlobal.Destroy;
-begin
-  FProviderMain := nil;
-  FProviderGlobal := nil;
-  inherited;
 end;
 
 function TConfigDataProviderWithGlobal.GetSubItem(

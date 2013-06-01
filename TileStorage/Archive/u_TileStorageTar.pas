@@ -88,8 +88,8 @@ end;
 
 destructor TEnumTileInfoByTar.Destroy;
 begin
-  FTarReader.Free;
-  inherited Destroy;
+  FreeAndNil(FTarReader);
+  inherited;
 end;
 
 function TEnumTileInfoByTar.Next(var ATileInfo: TTileInfo): Boolean;

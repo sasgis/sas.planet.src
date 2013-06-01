@@ -57,7 +57,6 @@ type
     function CreateRarReaderByStream(const AStream: TStream): IArchiveReader;
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -72,11 +71,6 @@ uses
 constructor TArchiveReadWriteFactory.Create;
 begin
   inherited Create;
-end;
-
-destructor TArchiveReadWriteFactory.Destroy;
-begin
-  inherited Destroy;
 end;
 
 function TArchiveReadWriteFactory.CreateZipReaderByName(

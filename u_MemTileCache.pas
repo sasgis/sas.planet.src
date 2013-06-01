@@ -180,15 +180,19 @@ destructor TMemTileCacheBase.Destroy;
 var
   VNotifier: INotifierTilePyramidUpdate;
 begin
-  FConfig.GetChangeNotifier.Remove(FConfigListener);
-  FConfigListener := nil;
-  FConfig := nil;
+  if Assigned(FConfig) and Assigned(FConfigListener) then begin
+    FConfig.GetChangeNotifier.Remove(FConfigListener);
+    FConfigListener := nil;
+    FConfig := nil;
+  end;
 
-  FGCNotifier.Remove(FTTLListener);
-  FTTLListener := nil;
-  FGCNotifier := nil;
+  if Assigned(FGCNotifier) and Assigned(FTTLListener) then begin
+    FGCNotifier.Remove(FTTLListener);
+    FTTLListener := nil;
+    FGCNotifier := nil;
+  end;
 
-  if FTileStorage <> nil then begin
+  if Assigned(FTileStorage) and Assigned(FStorageChangeListener) then begin
     VNotifier := FTileStorage.TileNotifier;
     if VNotifier <> nil then begin
       VNotifier.Remove(FStorageChangeListener);
