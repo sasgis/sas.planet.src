@@ -90,8 +90,12 @@ end;
 destructor TTileRequestProcessorPool.Destroy;
 begin
   OnTTLTrim;
-  FDownloaderList.ChangeNotifier.Remove(FDownloadersListListener);
-  FGCNotifier.Remove(FTTLListener);
+  if Assigned(FDownloaderList) and Assigned(FDownloadersListListener) then begin
+    FDownloaderList.ChangeNotifier.Remove(FDownloadersListListener);
+  end;
+  if Assigned(FGCNotifier) and Assigned(FTTLListener) then begin
+    FGCNotifier.Remove(FTTLListener);
+  end;
   FTTLListener := nil;
   FGCNotifier := nil;
   FDownloadersListListener := nil;

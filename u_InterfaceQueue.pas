@@ -91,9 +91,11 @@ begin
   end;
   FRequestArray := nil;
 
-  FAppClosingNotifier.Remove(FAppClosingListener);
-  FAppClosingListener := nil;
-  FAppClosingNotifier := nil;
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
+    FAppClosingNotifier.Remove(FAppClosingListener);
+    FAppClosingListener := nil;
+    FAppClosingNotifier := nil;
+  end;
 
   CloseHandle(FStopThreadEventHandle);
   CloseHandle(FCapasitySemaphore);

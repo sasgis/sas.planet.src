@@ -82,12 +82,12 @@ end;
 
 destructor TLocalConverterChangeableOfMiniMap.Destroy;
 begin
-  if FSoruce <> nil then begin
+  if Assigned(FSoruce) and Assigned(FSourceListener) then begin
     FSoruce.ChangeNotifier.Remove(FSourceListener);
     FSoruce := nil;
     FSourceListener := nil;
   end;
-  if FConfig <> nil then begin
+  if Assigned(FConfig) and Assigned(FConfigListener) then begin
     FConfig.ChangeNotifier.Remove(FConfigListener);
     FConfig := nil;
     FConfigListener := nil;

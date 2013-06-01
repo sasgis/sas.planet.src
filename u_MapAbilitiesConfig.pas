@@ -91,10 +91,11 @@ end;
 
 destructor TMapAbilitiesConfig.Destroy;
 begin
-  FStorageConfig.GetChangeNotifier.Remove(FStorageConfigListener);
-  FStorageConfigListener := nil;
-  FStorageConfig := nil;
-
+  if Assigned(FStorageConfig) and Assigned(FStorageConfigListener) then begin
+    FStorageConfig.GetChangeNotifier.Remove(FStorageConfigListener);
+    FStorageConfigListener := nil;
+    FStorageConfig := nil;
+  end;
   inherited;
 end;
 

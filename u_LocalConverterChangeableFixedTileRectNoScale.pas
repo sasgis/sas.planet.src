@@ -72,7 +72,7 @@ end;
 
 destructor TLocalConverterChangeableFixedTileRectNoScale.Destroy;
 begin
-  if FSoruce <> nil then begin
+  if Assigned(FSoruce) and Assigned(FSourceListener) then begin
     FSoruce.ChangeNotifier.Remove(FSourceListener);
     FSoruce := nil;
     FSourceListener := nil;

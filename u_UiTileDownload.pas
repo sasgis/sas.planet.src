@@ -178,27 +178,33 @@ end;
 
 destructor TUiTileDownload.Destroy;
 begin
-  FTileDownloadFinishListener.Disconnect;
-
-  FGCNotifier.Remove(FTTLListener);
-  FTTLListener := nil;
-  FGCNotifier := nil;
-
-  FLinksList.DeactivateLinks;
-
-  FCS.BeginWrite;
-  try
-    if FDownloadTask <> nil then begin
-      FDownloadTask.StopExecute;
-      FDownloadTask.Terminate;
-      FDownloadTask := nil;
-    end;
-  finally
-    FCS.EndWrite;
+  if Assigned(FTileDownloadFinishListener) then begin
+    FTileDownloadFinishListener.Disconnect;
   end;
 
-  CloseHandle(FSemaphore);
-  CloseHandle(FCancelEventHandle);
+  if Assigned(FGCNotifier) and Assigned(FTTLListener) then begin
+    FGCNotifier.Remove(FTTLListener);
+    FTTLListener := nil;
+    FGCNotifier := nil;
+  end;
+  if Assigned(FLinksList) then begin
+    FLinksList.DeactivateLinks;
+  end;
+
+  if Assigned(FCS) then begin
+    FCS.BeginWrite;
+    try
+      if Assigned(FDownloadTask) then begin
+        FDownloadTask.StopExecute;
+        FDownloadTask.Terminate;
+        FDownloadTask := nil;
+      end;
+    finally
+      FCS.EndWrite;
+    end;
+    CloseHandle(FSemaphore);
+    CloseHandle(FCancelEventHandle);
+  end;
 
   FCS := nil;
   FVisualCoordConverterCS := nil;

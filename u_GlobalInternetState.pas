@@ -35,7 +35,6 @@ type
     function GetQueueCount: Integer;
   public
     constructor Create;
-    destructor Destroy; override;
     procedure IncQueueCount;
     procedure DecQueueCount;
     property QueueCount: Integer read GetQueueCount;
@@ -53,12 +52,6 @@ begin
   inherited;
   FCS := MakeSyncRW_Var(Self);
   FQueueCount := 0;
-end;
-
-destructor TGlobalInternetState.Destroy;
-begin
-  FCS := nil;
-  inherited Destroy;
 end;
 
 procedure TGlobalInternetState.IncQueueCount;

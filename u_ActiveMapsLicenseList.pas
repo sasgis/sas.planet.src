@@ -62,12 +62,12 @@ end;
 
 destructor TActiveMapsLicenseList.Destroy;
 begin
-  if FMapsSet <> nil then begin
+  if Assigned(FMapsSet) and Assigned(FMapsListListener) then begin
     FMapsSet.ChangeNotifier.Remove(FMapsListListener);
     FMapsSet := nil;
     FMapsListListener := nil;
   end;
-  if FLanguageManager <> nil then begin
+  if Assigned(FLanguageManager) and Assigned(FLanguageManagerListener) then begin
     FLanguageManager.ChangeNotifier.Remove(FLanguageManagerListener);
     FLanguageManager := nil;
     FLanguageManagerListener := nil;

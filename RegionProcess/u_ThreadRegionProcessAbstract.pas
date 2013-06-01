@@ -73,14 +73,16 @@ end;
 
 destructor TThreadRegionProcessAbstract.Destroy;
 begin
-  if (FCancelListener <> nil) and (FCancelNotifier <> nil) then begin
+  if Assigned(FCancelListener) and Assigned(FCancelNotifier) then begin
     FCancelNotifier.RemoveListener(FCancelListener);
     FCancelListener := nil;
     FCancelNotifier := nil;
   end;
   FPolygLL := nil;
-  FProgressInfo.Finish;
-  FProgressInfo := nil;
+  if Assigned(FProgressInfo) then begin
+    FProgressInfo.Finish;
+    FProgressInfo := nil;
+  end;
   inherited;
 end;
 

@@ -493,7 +493,7 @@ end;
 
 destructor TMapType.Destroy;
 begin
-  if FVersionConfig <> nil then begin
+  if Assigned(FVersionConfig) and Assigned(FVersionChangeListener) then begin
     FVersionConfig.ChangeNotifier.Remove(FVersionChangeListener);
     FVersionConfig := nil;
     FVersionChangeListener := nil;

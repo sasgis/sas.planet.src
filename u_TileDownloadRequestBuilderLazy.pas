@@ -32,7 +32,6 @@ type
       const ADownloader: IDownloader;
       const AFactory: ITileDownloadRequestBuilderFactory
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -51,12 +50,6 @@ begin
   FBuilderCS := MakeSyncRW_Var(Self, False);
   FDownloader := ADownloader;
   FFactory := AFactory;
-end;
-
-destructor TTileDownloadRequestBuilderLazy.Destroy;
-begin
-  FBuilderCS := nil;
-  inherited;
 end;
 
 function TTileDownloadRequestBuilderLazy.BuildRequest(

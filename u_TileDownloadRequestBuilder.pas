@@ -50,7 +50,6 @@ type
     ): ITileDownloadRequest; virtual; abstract;
   public
     constructor Create(const AConfig: ITileDownloadRequestBuilderConfig);
-    destructor Destroy; override;
   end;
 
 implementation
@@ -65,12 +64,6 @@ begin
   inherited Create;
   FConfig := AConfig;
   FCS := MakeSyncRW_Big(Self, TRUE);
-end;
-
-destructor TTileDownloadRequestBuilder.Destroy;
-begin
-  FCS := nil;
-  inherited Destroy;
 end;
 
 procedure TTileDownloadRequestBuilder.Lock;

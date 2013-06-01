@@ -73,7 +73,6 @@ type
       ACompressionQuality: Byte;
       const APerfCounterList: IInternalPerformanceCounterList
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -198,11 +197,6 @@ begin
   inherited Create;
   FSaveCounter := APerfCounterList.CreateAndAddNewCounter('LibJPEG/SaveStream');
   FCompressionQuality := ACompressionQuality;
-end;
-
-destructor TLibJpegTileSaver.Destroy;
-begin
-  inherited Destroy;
 end;
 
 function TLibJpegTileSaver.Save(const ABitmap: IBitmap32Static): IBinaryData;

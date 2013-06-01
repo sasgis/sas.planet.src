@@ -88,15 +88,15 @@ end;
 
 destructor TLastSelectionInfoSaver.Destroy;
 begin
-  if FLastSelection <> nil then begin
+  if Assigned(FLastSelection) and Assigned(FListener) then begin
     FLastSelection.ChangeNotifier.Remove(FListener);
+    FLastSelection := nil;
   end;
-  FLastSelection := nil;
 
-  if FFileName <> nil then begin
+  if Assigned(FFileName) and Assigned(FListener) then begin
     FFileName.ChangeNotifier.Remove(FListener);
+    FFileName := nil;
   end;
-  FFileName := nil;
 
   FListener := nil;
   inherited;

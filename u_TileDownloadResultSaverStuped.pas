@@ -132,9 +132,11 @@ end;
 
 destructor TTileDownloadResultSaverStuped.Destroy;
 begin
-  FStorage.State.ChangeNotifier.Add(FStorageStateListener);
-  FStorageStateListener := nil;
-
+  if Assigned(FStorage) and Assigned(FStorageStateListener) then begin
+    FStorage.State.ChangeNotifier.Add(FStorageStateListener);
+    FStorageStateListener := nil;
+    FStorage := nil;
+  end;
   inherited;
 end;
 

@@ -49,7 +49,6 @@ type
       const ATileCount: UInt64 = 0;
       const ASize: UInt64 = 0
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -70,13 +69,6 @@ begin
   FCS := MakeSyncRW_Var(Self);
   FTileCount := ATileCount;
   FSize := ASize;
-end;
-
-destructor TDownloadInfoSimple.Destroy;
-begin
-  FParentInfo := nil;
-  FCS := nil;
-  inherited;
 end;
 
 procedure TDownloadInfoSimple.Add(ACount, ASize: UInt64);

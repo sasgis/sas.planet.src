@@ -165,9 +165,11 @@ end;
 
 destructor TTileDownloadRequestBuilderPascalScript.Destroy;
 begin
-  FLangManager.GetChangeNotifier.Remove(FLangListener);
-  FLangManager := nil;
-  FLangListener := nil;
+  if Assigned(FLangManager) and Assigned(FLangListener) then begin
+    FLangManager.GetChangeNotifier.Remove(FLangListener);
+    FLangManager := nil;
+    FLangListener := nil;
+  end;
 
   FreeAndNil(FPSExec);
   FCoordConverter := nil;

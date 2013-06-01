@@ -92,7 +92,6 @@ type
       const ABitPerPixel: Byte;
       const APerfCounterList: IInternalPerformanceCounterList
     );
-    destructor Destroy; override;
   end;
 
   TBitmapTileFreeImageSaverBmp = class(TBitmapTileFreeImageSaver)
@@ -288,12 +287,6 @@ begin
   else // FIF_BMP, FIF_GIF
     FFlag := 0;
   end;
-end;
-
-destructor TBitmapTileFreeImageSaver.Destroy;
-begin
-  FCounter := nil;
-  inherited Destroy;
 end;
 
 function TBitmapTileFreeImageSaver.Save(

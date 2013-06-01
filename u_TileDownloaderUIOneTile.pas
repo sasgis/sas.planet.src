@@ -124,11 +124,15 @@ end;
 
 destructor TTileDownloaderUIOneTile.Destroy;
 begin
-  FTileDownloadFinishListener.Disconnect;
+  if Assigned(FTileDownloadFinishListener) then begin
+    FTileDownloadFinishListener.Disconnect;
+  end;
 
-  FAppClosingNotifier.Remove(FAppClosingListener);
-  FAppClosingNotifier := nil;
-  FAppClosingListener := nil;
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
+    FAppClosingNotifier.Remove(FAppClosingListener);
+    FAppClosingNotifier := nil;
+    FAppClosingListener := nil;
+  end;
 
   FreeAndNil(FFinishEvent);
 

@@ -103,8 +103,12 @@ end;
 
 destructor TTileDownloaderList.Destroy;
 begin
-  FTileDownloaderConfig.ChangeNotifier.Remove(FConfigListener);
-  FDownloadSystemState.ChangeNotifier.Remove(FConfigListener);
+  if Assigned(FTileDownloaderConfig) and Assigned(FConfigListener) then begin
+    FTileDownloaderConfig.ChangeNotifier.Remove(FConfigListener);
+  end;
+  if Assigned(FDownloadSystemState) and Assigned(FConfigListener) then begin
+    FDownloadSystemState.ChangeNotifier.Remove(FConfigListener);
+  end;
 
   FConfigListener := nil;
   FTileDownloaderConfig := nil;

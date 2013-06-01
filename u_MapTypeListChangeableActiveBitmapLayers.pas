@@ -58,12 +58,12 @@ var
   VCnt: Cardinal;
   VMapType: IMapType;
 begin
-  if FSourceSet <> nil then begin
+  if Assigned(FSourceSet) and Assigned(FLayerSetListener)then begin
     FSourceSet.ChangeNotifier.Remove(FLayerSetListener);
+    FLayerSetListener := nil;
     FSourceSet := nil;
   end;
-  FLayerSetListener := nil;
-  if FLayersSet <> nil then begin
+  if Assigned(FLayersSet) and Assigned(FZOrderListener) then begin
     VEnum := FLayersSet.GetIterator;
     while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
       VMapType := FLayersSet.GetMapTypeByGUID(VGuid);

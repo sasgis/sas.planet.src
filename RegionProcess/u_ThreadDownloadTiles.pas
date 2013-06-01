@@ -239,16 +239,16 @@ begin
     FTileDownloadFinishListener := nil;
   end;
 
-  if FCancelNotifier <> nil then begin
+  if Assigned(FCancelNotifier) and Assigned(FAppClosingListener) then begin
     FCancelNotifier.RemoveListener(FAppClosingListener);
+    FCancelNotifier := nil;
   end;
-  FCancelNotifier := nil;
 
-  if FAppClosingNotifier <> nil then begin
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
     FAppClosingNotifier.Remove(FAppClosingListener);
+    FAppClosingNotifier := nil;
+    FAppClosingListener := nil;
   end;
-  FAppClosingNotifier := nil;
-  FAppClosingListener := nil;
 
   FreeAndNil(FFinishEvent);
   inherited;
