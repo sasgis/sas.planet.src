@@ -60,6 +60,9 @@ type
 implementation
 
 uses
+  {$IFDEF EUREKALOG}
+  ExceptionLog,
+  {$ENDIF}
   u_ListenerByEvent,
   u_ReadableThreadNames,
   u_Synchronizer;
@@ -209,11 +212,19 @@ end;
 
 procedure TThread4InterfacedThread.Execute;
 begin
-  inherited;
-  SetCurrentThreadName(FDebugName);
-  if not Terminated then begin
-    FExec;
+  {$IFDEF EUREKALOG}
+  try
+  {$ENDIF}
+    inherited;
+    SetCurrentThreadName(FDebugName);
+    if not Terminated then begin
+      FExec;
+    end;
+  {$IFDEF EUREKALOG}
+  except
+    ShowLastExceptionData;
   end;
+  {$ENDIF}
 end;
 
 procedure TThread4InterfacedThread.Start(const ARef: IInterface);
