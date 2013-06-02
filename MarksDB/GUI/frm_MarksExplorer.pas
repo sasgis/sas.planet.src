@@ -273,11 +273,9 @@ end;
 
 destructor TfrmMarksExplorer.Destroy;
 begin
-  if FWindowConfig <> nil then begin
-    if FConfigListener <> nil then begin
-      FWindowConfig.ChangeNotifier.Remove(FConfigListener);
-      FConfigListener := nil;
-    end;
+  if Assigned(FWindowConfig) and Assigned(FConfigListener) then begin
+    FWindowConfig.ChangeNotifier.Remove(FConfigListener);
+    FConfigListener := nil;
   end;
   inherited;
 end;

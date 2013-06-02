@@ -115,7 +115,6 @@ type
       const AFileNameParsersList: ITileFileNameParsersList;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -277,12 +276,6 @@ begin
       // Error
     end;
   end;
-end;
-
-destructor TfrmCacheManager.Destroy;
-begin
-  FAppClosingNotifier := nil;
-  inherited Destroy;
 end;
 
 procedure TfrmCacheManager.btnSelectSrcPathClick(Sender: TObject);

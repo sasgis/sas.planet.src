@@ -91,11 +91,11 @@ end;
 
 destructor TStringConfigDataElementWithDefBase.Destroy;
 begin
-  if FLanguageManager <> nil then begin
+  if Assigned(FLanguageManager) and Assigned(FLangChangeListener) then begin
     FLanguageManager.GetChangeNotifier.Remove(FLangChangeListener);
+    FLangChangeListener := nil;
+    FLanguageManager := nil;
   end;
-  FLangChangeListener := nil;
-  FLanguageManager := nil;
   inherited;
 end;
 

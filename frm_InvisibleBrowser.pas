@@ -49,7 +49,6 @@ type
       const ALanguageManager: ILanguageManager;
       const AProxyConfig: IProxyConfig
     ); reintroduce;
-    destructor Destroy; override;
     procedure NavigateAndWait(const AUrl: WideString);
   end;
 
@@ -59,6 +58,8 @@ uses
   u_Synchronizer;
 
 {$R *.dfm}
+
+{ TfrmInvisibleBrowser }
 
 constructor TfrmInvisibleBrowser.Create(
   const ALanguageManager: ILanguageManager;
@@ -70,18 +71,10 @@ begin
   FCS := MakeSyncRW_Big(Self, False);
 end;
 
-destructor TfrmInvisibleBrowser.Destroy;
-begin
-  FCS := nil;
-  inherited;
-end;
-
 procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);
 begin
   WebBrowser1.Navigate('about:blank');
 end;
-
-{ TfrmInvisibleBrowser }
 
 procedure TfrmInvisibleBrowser.NavigateAndWait(const AUrl: WideString);
 begin

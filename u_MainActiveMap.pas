@@ -55,7 +55,6 @@ type
       const AMainMapChangeNotyfier: INotifierWithGUID = nil;
       const AMapSingleSet: IActiveMapSingleSet = nil
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -108,14 +107,6 @@ begin
 
   FActiveMap := TMapTypeChangeableByNotifier.Create(FMainMapChangeNotyfier, FMapsSet);
   Add(FActiveMap);
-end;
-
-destructor TMainActiveMap.Destroy;
-begin
-  FMainMapChangeNotyfier := nil;
-  FMapsSet := nil;
-  FActiveMap := nil;
-  inherited;
 end;
 
 procedure TMainActiveMap.DoReadConfig(const AConfigData: IConfigDataProvider);

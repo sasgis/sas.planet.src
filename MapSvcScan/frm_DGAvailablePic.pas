@@ -334,8 +334,6 @@ type
       const AForm: TfrmDGAvailablePic;
       const AChkBox: TCheckBox
     );
-
-    destructor Destroy; override;
   end;
 
 {$R *.dfm}
@@ -367,12 +365,6 @@ begin
   FChkBox := AChkBox;
   FCallIndex := AForm.FCallIndex;
   FDownloaderHttp:=TDownloaderHttp.Create(AForm.FResultFactory, TRUE);
-end;
-
-destructor TGetList.Destroy;
-begin
-  FInetConfig:=nil;
-  inherited;
 end;
 
 procedure TGetList.ShowError;
@@ -1258,7 +1250,9 @@ begin
   end;
 
   // list
-  cbDGstacks.Items.Clear;
+  if Assigned(cbDGstacks) then begin
+    cbDGstacks.Items.Clear;
+  end;
   k:=Length(FDGStacks);
   if (0<k) then begin
     for i := k-1 downto 0 do begin

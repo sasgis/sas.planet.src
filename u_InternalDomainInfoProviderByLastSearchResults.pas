@@ -86,15 +86,15 @@ var
   i: Integer;
   VItem: Pointer;
 begin
-  if FTextProviders <> nil then begin
+  if Assigned(FTextProviders) then begin
     for i := 0 to FTextProviders.Count - 1 do begin
       VItem := FTextProviders.Objects[i];
       if VItem <> nil then begin
         IInterface(VItem)._Release;
       end;
     end;
+    FreeAndNil(FTextProviders);
   end;
-  FreeAndNil(FTextProviders);
   inherited;
 end;
 

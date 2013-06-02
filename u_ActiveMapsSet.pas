@@ -113,17 +113,17 @@ end;
 
 destructor TLayerSetChangeable.Destroy;
 begin
-  if FLayerSetSelectNotyfier <> nil then begin
+  if Assigned(FLayerSetSelectNotyfier) and Assigned(FLayerSetSelectListener) then begin
     FLayerSetSelectNotyfier.Remove(FLayerSetSelectListener);
+    FLayerSetSelectListener := nil;
+    FLayerSetSelectNotyfier := nil;
   end;
-  FLayerSetSelectListener := nil;
-  FLayerSetSelectNotyfier := nil;
 
-  if FLayerSetUnselectNotyfier <> nil then begin
+  if Assigned(FLayerSetUnselectNotyfier) and Assigned(FLayerSetUnselectListener) then begin
     FLayerSetUnselectNotyfier.Remove(FLayerSetUnselectListener);
+    FLayerSetUnselectListener := nil;
+    FLayerSetUnselectNotyfier := nil;
   end;
-  FLayerSetUnselectListener := nil;
-  FLayerSetUnselectNotyfier := nil;
 
   inherited;
 end;
@@ -237,17 +237,17 @@ end;
 
 destructor TMapsSetChangeableByMainMapAndLayersSet.Destroy;
 begin
-  if FMainMap <> nil then begin
+  if Assigned(FMainMap) and Assigned(FMainMapListener) then begin
     FMainMap.ChangeNotifier.Remove(FMainMapListener);
+    FMainMap := nil;
+    FMainMapListener := nil;
   end;
-  FMainMap := nil;
-  FMainMapListener := nil;
 
-  if FLayersSet <> nil then begin
+  if Assigned(FLayersSet) and Assigned(FLayerSetListener) then begin
     FLayersSet.ChangeNotifier.Remove(FLayerSetListener);
+    FLayersSet := nil;
+    FLayerSetListener := nil;
   end;
-  FLayersSet := nil;
-  FLayerSetListener := nil;
 
   inherited;
 end;

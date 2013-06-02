@@ -135,17 +135,17 @@ end;
 
 destructor TfrmProgressCacheConverter.Destroy;
 begin
-  if FTimerNoifier <> nil then begin
+  if Assigned(FTimerNoifier) and Assigned(FTimerListener) then begin
     FTimerNoifier.Remove(FTimerListener);
     FTimerNoifier := nil;
     FTimerListener := nil;
   end;
-  if FAppClosingNotifier <> nil then begin
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
     FAppClosingNotifier.Remove(FAppClosingListener);
     FAppClosingNotifier := nil;
     FAppClosingListener := nil;
-  end;   
-  inherited Destroy;
+  end;
+  inherited;
 end;
 
 procedure TfrmProgressCacheConverter.FormCreate(Sender: TObject);

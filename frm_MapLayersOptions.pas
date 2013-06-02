@@ -121,7 +121,6 @@ type
       const ATerrainConfig: ITerrainConfig;
       const ATerrainProviderList: ITerrainProviderList
     ); reintroduce;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -151,11 +150,6 @@ begin
   FStatBarConfig := AStatBarConfig;
   FTerrainConfig := ATerrainConfig;
   FTerrainProviderList := ATerrainProviderList;
-end;
-
-destructor TfrmMapLayersOptions.Destroy;
-begin
-  inherited Destroy;
 end;
 
 procedure TfrmMapLayersOptions.FormShow(Sender: TObject);

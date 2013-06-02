@@ -90,9 +90,11 @@ end;
 
 destructor TValueToStringConverterConfig.Destroy;
 begin
-  FDependentOnElement.GetChangeNotifier.Remove(FDependentOnElementListener);
-  FDependentOnElementListener := nil;
-  FDependentOnElement := nil;
+  if Assigned(FDependentOnElement) and Assigned(FDependentOnElementListener) then begin
+    FDependentOnElement.GetChangeNotifier.Remove(FDependentOnElementListener);
+    FDependentOnElementListener := nil;
+    FDependentOnElement := nil;
+  end;
   inherited;
 end;
 

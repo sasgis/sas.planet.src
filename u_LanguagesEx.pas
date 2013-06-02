@@ -110,10 +110,10 @@ end;
 
 destructor TLanguagesEx.Destroy;
 begin
-  FISO639.Free;
-  FISO3166.Free;
-  FGetText.Free;
-  FEngNames.Free;
+  FreeAndNil(FISO639);
+  FreeAndNil(FISO3166);
+  FreeAndNil(FGetText);
+  FreeAndNil(FEngNames);
   inherited;
 end;
 

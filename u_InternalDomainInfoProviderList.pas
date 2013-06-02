@@ -62,12 +62,14 @@ var
   i: Integer;
   VItem: IInterface;
 begin
-  for i := 0 to FList.Count - 1 do begin
-    VItem := IInterface(Pointer(FList.Objects[i]));
-    FList.Objects[i] := nil;
-    VItem._Release;
+  if Assigned(FList) then begin
+    for i := 0 to FList.Count - 1 do begin
+      VItem := IInterface(Pointer(FList.Objects[i]));
+      FList.Objects[i] := nil;
+      VItem._Release;
+    end;
+    FreeAndNil(FList);
   end;
-  FreeAndNil(FList);
   inherited;
 end;
 

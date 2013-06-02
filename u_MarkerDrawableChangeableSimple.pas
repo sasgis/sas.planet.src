@@ -78,7 +78,7 @@ end;
 
 destructor TMarkerDrawableChangeableSimple.Destroy;
 begin
-  if FConfig <> nil then begin
+  if Assigned(FConfig) and Assigned(FConfigListener) then begin
     FConfig.ChangeNotifier.Remove(FConfigListener);
     FConfig := nil;
     FConfigListener := nil;
@@ -129,7 +129,7 @@ end;
 
 destructor TMarkerDrawableWithDirectionChangeableSimple.Destroy;
 begin
-  if FConfig <> nil then begin
+  if Assigned(FConfig) and Assigned(FConfigListener) then begin
     FConfig.ChangeNotifier.Remove(FConfigListener);
     FConfig := nil;
     FConfigListener := nil;

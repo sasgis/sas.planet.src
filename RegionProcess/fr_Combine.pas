@@ -257,9 +257,11 @@ destructor TfrCombine.Destroy;
 var
   i: Integer;
 begin
-  for i := 0 to cbbOutputFormat.Items.Count - 1 do begin
-    cbbOutputFormat.Items.Objects[i].Free;
-    cbbOutputFormat.Items.Objects[i] := nil;
+  if Assigned(cbbOutputFormat) then begin
+    for i := 0 to cbbOutputFormat.Items.Count - 1 do begin
+      cbbOutputFormat.Items.Objects[i].Free;
+      cbbOutputFormat.Items.Objects[i] := nil;
+    end;
   end;
   inherited;
 end;

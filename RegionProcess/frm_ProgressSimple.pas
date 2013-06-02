@@ -163,13 +163,13 @@ end;
 
 destructor TfrmProgressSimple.Destroy;
 begin
-  if FAppClosingNotifier <> nil then begin
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
     FAppClosingNotifier.Remove(FAppClosingListener);
     FAppClosingNotifier := nil;
     FAppClosingListener := nil;
   end;
 
-  if FTimerNoifier <> nil then begin
+  if Assigned(FTimerNoifier) and Assigned(FTimerListener) then begin
     FTimerNoifier.Remove(FTimerListener);
     FTimerNoifier := nil;
     FTimerListener := nil;

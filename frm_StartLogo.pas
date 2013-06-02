@@ -106,7 +106,7 @@ end;
 
 destructor TfrmStartLogo.Destroy;
 begin
-  if FAppStartedNotifier <> nil then begin
+  if Assigned(FAppStartedNotifier) and Assigned(FAppStartedListener) then begin
     FAppStartedNotifier.Remove(FAppStartedListener);
     FAppStartedNotifier := nil;
     FAppStartedListener := nil;

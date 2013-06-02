@@ -60,7 +60,6 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
     constructor Create(const AMapsSet, ALayersSet: IMapTypeSet);
-    destructor Destroy; override;
   end;
 
 implementation
@@ -135,17 +134,6 @@ begin
       GetActiveMap,
       FActiveLayersSet
     );
-end;
-
-destructor TActivMapWithLayers.Destroy;
-begin
-  FLayerSetSelectNotyfier := nil;
-  FLayerSetUnselectNotyfier := nil;
-
-  FAllMapsSet := nil;
-  FActiveLayersSet := nil;
-  FAllActiveMapsSet := nil;
-  inherited;
 end;
 
 procedure TActivMapWithLayers.DoReadConfig(const AConfigData: IConfigDataProvider);

@@ -89,7 +89,6 @@ type
     );
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -110,12 +109,6 @@ begin
   FMaxTime := 3;
   FUsedTime := 0.1;
   FPrevSpeedUsed := 0;
-end;
-
-destructor TMouseState.Destroy;
-begin
-  FCS := nil;
-  inherited;
 end;
 
 function TMouseState.GetCurentPos: TPoint;

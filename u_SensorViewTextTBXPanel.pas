@@ -370,8 +370,10 @@ end;
 
 destructor TSensorViewTBXPanelBase.Destroy;
 begin
-  FLinksList.DeactivateLinks;
-  FLinksList := nil;
+  if Assigned(FLinksList) then begin
+    FLinksList.DeactivateLinks;
+    FLinksList := nil;
+  end;
   FreeAndNil(FBar);
   FConfig := nil;
   FSensor := nil;

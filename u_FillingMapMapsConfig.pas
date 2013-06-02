@@ -81,11 +81,15 @@ end;
 
 destructor TFillingMapMapsConfig.Destroy;
 begin
-  FMainMap.ChangeNotifier.Remove(FMainMapChangeListener);
-  FMainMapChangeListener := nil;
+  if Assigned(FMainMap) and Assigned(FMainMapChangeListener) then begin
+    FMainMap.ChangeNotifier.Remove(FMainMapChangeListener);
+    FMainMapChangeListener := nil;
+  end;
 
-  MainMapChangeNotyfier.Remove(FSelectedMapChangeListener);
-  FSelectedMapChangeListener := nil;
+  if Assigned(MainMapChangeNotyfier) and Assigned(FSelectedMapChangeListener) then begin
+    MainMapChangeNotyfier.Remove(FSelectedMapChangeListener);
+    FSelectedMapChangeListener := nil;
+  end;
 
   FMainMap := nil;
   inherited;

@@ -86,7 +86,7 @@ end;
 
 destructor TThreadCacheManagerAbstract.Destroy;
 begin
-  if (FCancelListener <> nil) and (FCancelNotifier <> nil) then begin
+  if Assigned(FCancelNotifier) and Assigned(FCancelListener) then begin
     FCancelNotifier.RemoveListener(FCancelListener);
     FCancelListener := nil;
     FCancelNotifier := nil;

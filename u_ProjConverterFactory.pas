@@ -204,7 +204,9 @@ end;
 
 destructor TProjConverterByDll.Destroy;
 begin
-  FDllHolder.ProjFree(FprojPJ);
+  if Assigned(FDllHolder) then begin
+    FDllHolder.ProjFree(FprojPJ);
+  end;
   FprojPJ := nil;
   FDllHolder := nil;
   inherited;

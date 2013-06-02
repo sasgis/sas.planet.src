@@ -174,7 +174,7 @@ end;
 
 destructor TBitmapPostProcessingChangeableByConfig.Destroy;
 begin
-  if FConfig <> nil then begin
+  if Assigned(FConfig) and Assigned(FConfigChangeListener) then begin
     FConfig.ChangeNotifier.Remove(FConfigChangeListener);
     FConfigChangeListener := nil;
   end;

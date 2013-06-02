@@ -54,7 +54,6 @@ type
       const ASingleGPSData: PSingleGPSData;
       const ASatellites: IGPSSatellitesInView
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -130,12 +129,6 @@ begin
   if NoData_Float64(FSingleGPSData.PDOP) then begin
     FSingleGPSData.PDOP := NaN;
   end;
-end;
-
-destructor TGPSPositionStatic.Destroy;
-begin
-  FSatellites := nil;
-  inherited;
 end;
 
 function TGPSPositionStatic.GetAltitude: Double;

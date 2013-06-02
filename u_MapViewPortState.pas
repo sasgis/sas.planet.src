@@ -168,7 +168,7 @@ end;
 
 destructor TMapViewPortState.Destroy;
 begin
-  if FMainMapConfig <> nil then begin
+  if Assigned(FMainMapConfig) and Assigned(FMainMapChangeListener) then begin
     FMainMapConfig.GetChangeNotifier.Remove(FMainMapChangeListener);
     FMainMapChangeListener := nil;
     FMainMapConfig := nil;

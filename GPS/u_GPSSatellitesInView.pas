@@ -70,7 +70,6 @@ type
       const AItemsCountGL: Integer;
       AItemsGL: PUnknownList
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -90,13 +89,6 @@ begin
   // make
   InternalCreateItems(AItemsCountGP, AItemsGP, FItemsGP);
   InternalCreateItems(AItemsCountGL, AItemsGL, FItemsGL);
-end;
-
-destructor TGPSSatellitesInView.Destroy;
-begin
-  FItemsGP := nil;
-  FItemsGL := nil;
-  inherited;
 end;
 
 function TGPSSatellitesInView.EnumerateTalkerID(var ATalkerID: AnsiString): Boolean;

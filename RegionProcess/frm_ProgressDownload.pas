@@ -167,8 +167,10 @@ end;
 
 destructor TfrmProgressDownload.Destroy;
 begin
-  UpdateTimer.Enabled := false;
-  if FCancelNotifier <> nil then begin
+  if Assigned(UpdateTimer) then begin
+    UpdateTimer.Enabled := false;
+  end;
+  if Assigned(FCancelNotifier) then begin
     FCancelNotifier.NextOperation;
   end;
   FreeAndNil(FProgress);

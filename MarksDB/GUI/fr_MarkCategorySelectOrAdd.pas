@@ -78,7 +78,9 @@ end;
 procedure TfrMarkCategorySelectOrAdd.Clear;
 begin
   FCategoryList := nil;
-  CBKateg.Items.Clear;
+  if Assigned(CBKateg) then begin
+    CBKateg.Items.Clear;
+  end;
 end;
 
 function TfrMarkCategorySelectOrAdd.GetCategory: ICategory;

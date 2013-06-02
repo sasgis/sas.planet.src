@@ -153,7 +153,7 @@ begin
   end;
   FreeAndNil(FList);
   FCS := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TTileInfoBasicMemCache.Add(

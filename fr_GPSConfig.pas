@@ -162,8 +162,10 @@ end;
 
 destructor TfrGPSConfig.Destroy;
 begin
-  if FGpsSystem <> nil then begin
+  if Assigned(FGpsSystem) and Assigned(FConnectListener) then begin
     FGpsSystem.ConnectingNotifier.Remove(FConnectListener);
+  end;
+  if Assigned(FGpsSystem) and Assigned(FDisconnectListener) then begin
     FGpsSystem.DisconnectedNotifier.Remove(FDisconnectListener);
   end;
   FGpsSystem := nil;

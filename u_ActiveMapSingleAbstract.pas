@@ -46,7 +46,6 @@ type
       const AMapType: IMapType;
       AIsActive: Boolean
     );
-    destructor Destroy; override;
   end;
 
 type
@@ -106,12 +105,6 @@ begin
   end;
 end;
 
-destructor TActiveMapSingleAbstract.Destroy;
-begin
-  FMapType := nil;
-  inherited;
-end;
-
 function TActiveMapSingleAbstract.GetIsActive: Boolean;
 begin
   LockRead;
@@ -157,9 +150,11 @@ end;
 
 destructor TActiveMapSingleMainMap.Destroy;
 begin
-  FMainMapChangeNotyfier.Remove(FMainMapListener);
-  FMainMapListener := nil;
-  FMainMapChangeNotyfier := nil;
+  if Assigned(FMainMapChangeNotyfier) and Assigned(FMainMapListener) then begin
+    FMainMapChangeNotyfier.Remove(FMainMapListener);
+    FMainMapListener := nil;
+    FMainMapChangeNotyfier := nil;
+  end;
   inherited;
 end;
 
@@ -189,13 +184,17 @@ end;
 
 destructor TActiveMapSingleLayer.Destroy;
 begin
-  FLayerSetSelectNotyfier.Remove(FLayerSetSelectListener);
-  FLayerSetSelectListener := nil;
-  FLayerSetSelectNotyfier := nil;
+  if Assigned(FLayerSetSelectNotyfier) and Assigned(FLayerSetSelectListener) then begin
+    FLayerSetSelectNotyfier.Remove(FLayerSetSelectListener);
+    FLayerSetSelectListener := nil;
+    FLayerSetSelectNotyfier := nil;
+  end;
 
-  FLayerSetUnselectNotyfier.Remove(FLayerSetUnselectListener);
-  FLayerSetUnselectListener := nil;
-  FLayerSetUnselectNotyfier := nil;
+  if Assigned(FLayerSetUnselectNotyfier) and Assigned(FLayerSetUnselectListener) then begin
+    FLayerSetUnselectNotyfier.Remove(FLayerSetUnselectListener);
+    FLayerSetUnselectListener := nil;
+    FLayerSetUnselectNotyfier := nil;
+  end;
 
   inherited;
 end;

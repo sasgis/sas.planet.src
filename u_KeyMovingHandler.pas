@@ -115,7 +115,7 @@ end;
 
 destructor TKeyMovingHandler.Destroy;
 begin
-  if FTimerNotifier <> nil then begin
+  if Assigned(FTimerNotifier) and Assigned(FTimerListener) then begin
     FTimerNotifier.Remove(FTimerListener);
     FTimerNotifier := nil;
     FTimerListener := nil;

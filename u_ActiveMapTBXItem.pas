@@ -73,8 +73,10 @@ end;
 
 destructor TActiveMapTBXItem.Destroy;
 begin
-  FMapActive.GetChangeNotifier.Remove(FListener);
-  FListener := nil;
+  if Assigned(FMapActive) and Assigned(FListener) then begin
+    FMapActive.GetChangeNotifier.Remove(FListener);
+    FListener := nil;
+  end;
   inherited;
 end;
 

@@ -898,12 +898,14 @@ procedure TSatellitesInternalList.SetCount(NewCount: Integer);
 var
   i: Integer;
 begin
-  if FList.Count > NewCount then begin
-    for i := NewCount to FList.Count - 1 do begin
-      IInterface(FList.List[i]) := nil;
+  if Assigned(FList) then begin
+    if FList.Count > NewCount then begin
+      for i := NewCount to FList.Count - 1 do begin
+        IInterface(FList.List[i]) := nil;
+      end;
     end;
+    FList.Count := NewCount;
   end;
-  FList.Count := NewCount;
 end;
 
 end.

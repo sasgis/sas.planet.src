@@ -79,8 +79,7 @@ end;
 
 destructor TBitmap32StaticSimple.Destroy;
 begin
-  if Assigned(FBits) then
-  begin
+  if Assigned(FBits) then begin
     FreeMem(FBits);
     FBits := nil;
   end;

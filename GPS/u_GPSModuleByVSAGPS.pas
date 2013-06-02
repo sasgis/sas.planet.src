@@ -419,11 +419,11 @@ end;
 
 destructor TGPSModuleByVSAGPS.Destroy;
 begin
-  if FSystemTime <> nil then begin
+  if Assigned(FSystemTime) and Assigned(FSystemTimeChangeListener) then begin
     FSystemTime.SystemTimeChangedNotifier.Remove(FSystemTimeChangeListener);
+    FSystemTimeChangeListener := nil;
     FSystemTime := nil;
   end;
-  FSystemTimeChangeListener := nil;
 
 {$if defined(VSAGPS_USE_DEBUG_STRING)}
   VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Destroy: begin');

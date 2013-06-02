@@ -99,10 +99,14 @@ end;
 
 destructor TMapTypeGUIConfigList.Destroy;
 begin
-  FLanguageManager.BeforeChangeNotifier.Remove(FBeforeLangChangeListener);
-  FLanguageManager.AfterChangeNotifier.Remove(FAfterLangChangeListener);
-  FBeforeLangChangeListener := nil;
-  FAfterLangChangeListener := nil;
+  if Assigned(FLanguageManager) and Assigned(FBeforeLangChangeListener) then begin
+    FLanguageManager.BeforeChangeNotifier.Remove(FBeforeLangChangeListener);
+    FBeforeLangChangeListener := nil;
+  end;
+  if Assigned(FLanguageManager) and Assigned(FAfterLangChangeListener) then begin
+    FLanguageManager.AfterChangeNotifier.Remove(FAfterLangChangeListener);
+    FAfterLangChangeListener := nil;
+  end;
   FLanguageManager := nil;
 
   inherited;

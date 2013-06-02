@@ -66,7 +66,6 @@ type
       const ATileInfoPtr: PAvailPicsTileInfo;
       const AMapSvcScanStorage: IMapSvcScanStorage
     );
-    destructor Destroy; override;
 
     procedure SetLocalConverter(const ALocalConverter: ILocalCoordConverter);
 
@@ -132,12 +131,6 @@ begin
   FLocalConverter := nil;
   FBaseStorageName := Classname;
   System.Delete(FBaseStorageName, 1, 10);
-end;
-
-destructor TAvailPicsAbstract.Destroy;
-begin
-  FLocalConverter:=nil;
-  inherited;
 end;
 
 function TAvailPicsAbstract.ItemExists(

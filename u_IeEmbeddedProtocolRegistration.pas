@@ -61,7 +61,9 @@ end;
 
 destructor TIeEmbeddedProtocolRegistration.Destroy;
 begin
-  FInternetSession.UnregisterNameSpace(FFactory, PWideChar(FProtocol));
+  if Assigned(FInternetSession) then begin
+    FInternetSession.UnregisterNameSpace(FFactory, PWideChar(FProtocol));
+  end;
   FFactory := nil;
   FInternetSession := nil;
   inherited;

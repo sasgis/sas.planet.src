@@ -280,9 +280,11 @@ destructor TfrExport.Destroy;
 var
   i: Integer;
 begin
-  for i := 0 to CBFormat.Items.Count - 1 do begin
-    CBFormat.Items.Objects[i].Free;
-    CBFormat.Items.Objects[i] := nil;
+  if Assigned(CBFormat) then begin
+    for i := 0 to CBFormat.Items.Count - 1 do begin
+      CBFormat.Items.Objects[i].Free;
+      CBFormat.Items.Objects[i] := nil;
+    end;
   end;
   inherited;
 end;

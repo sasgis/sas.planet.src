@@ -80,9 +80,11 @@ end;
 
 destructor TMapTypeChangeableByNotifier.Destroy;
 begin
-  FMainMapChangeNotyfier.Remove(FMainMapListener);
-  FMainMapListener := nil;
-  FMainMapChangeNotyfier := nil;
+  if Assigned(FMainMapChangeNotyfier) and Assigned(FMainMapListener) then begin
+    FMainMapChangeNotyfier.Remove(FMainMapListener);
+    FMainMapListener := nil;
+    FMainMapChangeNotyfier := nil;
+  end;
   FMapsSet := nil;
   inherited;
 end;

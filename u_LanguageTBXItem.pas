@@ -83,9 +83,11 @@ end;
 
 destructor TLanguageTBXItem.Destroy;
 begin
-  FLanguageManager.GetChangeNotifier.Remove(FListener);
-  FListener := nil;
-  FLanguageManager := nil;
+  if Assigned(FLanguageManager) and Assigned(FListener) then begin
+    FLanguageManager.GetChangeNotifier.Remove(FListener);
+    FListener := nil;
+    FLanguageManager := nil;
+  end;
   inherited;
 end;
 

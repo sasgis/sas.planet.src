@@ -70,11 +70,11 @@ end;
 
 destructor TMapTypeSetChangeableBySourceSetWithFilter.Destroy;
 begin
-  if FSourceSet <> nil then begin
+  if Assigned(FSourceSet) and Assigned(FSourceSetListener) then begin
     FSourceSet.ChangeNotifier.Remove(FSourceSetListener);
+    FSourceSetListener := nil;
     FSourceSet := nil;
   end;
-  FSourceSetListener := nil;
   inherited;
 end;
 

@@ -183,8 +183,10 @@ destructor TfrMapsList.Destroy;
 var
   i: Integer;
 begin
-  For i:=0 to MapList.Items.Count-1 do begin
-    MapList.Items.Item[i].data := nil;
+  if Assigned(MapList) then begin
+    for i := 0 to MapList.Items.Count - 1 do begin
+      MapList.Items.Item[i].data := nil;
+    end;
   end;
   inherited;
 end;

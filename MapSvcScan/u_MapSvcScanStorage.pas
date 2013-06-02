@@ -142,20 +142,22 @@ end;
 
 destructor TMapSvcScanStorage.Destroy;
 begin
-  if (FConfigChangeListener<>nil) then begin
+  if Assigned(FMapSvcScanConfig) and Assigned(FConfigChangeListener) then begin
     FMapSvcScanConfig.ChangeNotifier.Remove(FConfigChangeListener);
     FConfigChangeListener := nil;
   end;
 
   FInitialized := FALSE;
-  FSync.BeginWrite;
-  try
-    FDbHandler.Close;
-    FreeAndNil(FServices);
-  finally
-    FSync.EndWrite;
+  if Assigned(FSync) then begin
+    FSync.BeginWrite;
+    try
+      FDbHandler.Close;
+      FreeAndNil(FServices);
+    finally
+      FSync.EndWrite;
+    end;
   end;
-  inherited Destroy;
+  inherited;
 end;
 
 function TMapSvcScanStorage.GetServiceId(const AServiceName: String): Integer;
