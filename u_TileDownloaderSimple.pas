@@ -121,14 +121,21 @@ end;
 
 destructor TTileDownloaderSimple.Destroy;
 begin
-  FDestroyNotifierInternal.NextOperation;
-  FAppClosingNotifier.Remove(FAppClosingListener);
-  FAppClosingListener := nil;
-  FAppClosingNotifier := nil;
+  if Assigned(FDestroyNotifierInternal) then begin
+    FDestroyNotifierInternal.NextOperation;
+  end;
 
-  FTileDownloaderConfig.ChangeNotifier.Remove(FConfigChangeListener);
-  FConfigChangeListener := nil;
-  FTileDownloaderConfig := nil;
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
+    FAppClosingNotifier.Remove(FAppClosingListener);
+    FAppClosingListener := nil;
+    FAppClosingNotifier := nil;
+  end;
+
+  if Assigned(FTileDownloaderConfig) and Assigned(FConfigChangeListener) then begin
+    FTileDownloaderConfig.ChangeNotifier.Remove(FConfigChangeListener);
+    FConfigChangeListener := nil;
+    FTileDownloaderConfig := nil;
+  end;
 
   FCS := nil;
   FreeAndNil(FCancelEvent);

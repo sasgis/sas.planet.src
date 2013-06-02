@@ -145,18 +145,20 @@ end;
 
 destructor TTileStorageDLLTerrain.Destroy;
 begin
-  FDLLSync.BeginWrite;
-  try
-    FReadAccess := asDisabled;
-    InternalLib_Unload;
-  finally
-    FDLLSync.EndWrite;
+  if Assigned(FDLLSync) then begin
+    FDLLSync.BeginWrite;
+    try
+      FReadAccess := asDisabled;
+      InternalLib_Unload;
+    finally
+      FDLLSync.EndWrite;
+    end;
   end;
   FTileNotExistsTileInfo := nil;
   FDLLSync := nil;
   FNotifier := nil;
   FNotifierInternal := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 function TTileStorageDLLTerrain.GetAvailable: Boolean;

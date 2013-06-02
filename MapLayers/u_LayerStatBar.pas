@@ -195,9 +195,9 @@ end;
 
 destructor TLayerStatBar.Destroy;
 begin
-  FTimeZoneInfo.Free;
-  FPopupMenu.Free;
-  inherited Destroy;
+  FreeAndNil(FTimeZoneInfo);
+  FreeAndNil(FPopupMenu);
+  inherited;
 end;
 
 function TLayerStatBar.GetNewBitmapSize: TPoint;

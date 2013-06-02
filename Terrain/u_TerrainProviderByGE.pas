@@ -124,21 +124,21 @@ end;
 
 destructor TTerrainProviderByDLL.Destroy;
 begin
-  if FPathConfig <> nil then begin
+  if Assigned(FPathConfig) and Assigned(FCacheConfigChangeListener) then begin
     FPathConfig.ChangeNotifier.Remove(FCacheConfigChangeListener);
     FPathConfig := nil;
     FCacheConfigChangeListener := nil;
   end;
-  if FStorage <> nil then begin
+  if Assigned(FStorage) and Assigned(FCacheStateChangeListner) then begin
     FStorage.Notifier.Remove(FCacheStateChangeListner);
   end;
   FCoordConverter := nil;
   FStorage := nil;
   FStateChangeNotifier := nil;
   FStateChangeNotifierInternal := nil;
-  FMemCache.Free;
-  FGoogleEarthLib.Free;
-  inherited Destroy;
+  FreeAndNil(FMemCache);
+  FreeAndNil(FGoogleEarthLib);
+  inherited;
 end;
 
 function TTerrainProviderByDLL.GetStateChangeNotifier: INotifier;

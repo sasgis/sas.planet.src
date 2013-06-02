@@ -144,11 +144,13 @@ end;
 
 destructor TTileInfoBasicMemCache.Destroy;
 begin
-  if Assigned(FTTLCheckNotifier) then begin
+  if Assigned(FTTLCheckNotifier) and Assigned(FTTLCheckListener) then begin
     FTTLCheckNotifier.Remove(FTTLCheckListener);
     FTTLCheckNotifier := nil;
   end;
-  Self.Clear;
+  if Assigned(FCS) then begin
+    Self.Clear;
+  end;
   FreeAndNil(FList);
   FCS := nil;
   inherited Destroy;

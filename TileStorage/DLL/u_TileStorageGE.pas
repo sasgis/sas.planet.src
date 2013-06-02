@@ -394,19 +394,23 @@ end;
 
 destructor TTileStorageDLL.Destroy;
 begin
-  StorageStateInternal.ReadAccess := asDisabled;
+  if Assigned(StorageStateInternal) then begin
+    StorageStateInternal.ReadAccess := asDisabled;
+  end;
 
-  FDLLSync.BeginWrite;
-  try
-    InternalLib_Unload;
-  finally
-    FDLLSync.EndWrite;
+  if Assigned(FDLLSync) then begin
+    FDLLSync.BeginWrite;
+    try
+      InternalLib_Unload;
+    finally
+      FDLLSync.EndWrite;
+    end;
   end;
 
   FTileNotExistsTileInfo := nil;
   FDLLSync := nil;
 
-  inherited Destroy;
+  inherited;
 end;
 
 function TTileStorageDLL.GetIsFileCache: Boolean;

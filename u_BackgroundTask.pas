@@ -101,9 +101,11 @@ end;
 
 destructor TBackgroundTask.Destroy;
 begin
-  FAppClosingNotifier.Remove(FAppClosingListener);
-  FAppClosingListener := nil;
-  FAppClosingNotifier := nil;
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
+    FAppClosingNotifier.Remove(FAppClosingListener);
+    FAppClosingListener := nil;
+    FAppClosingNotifier := nil;
+  end;
 
   Terminate;
   CloseHandle(FStopThreadHandle);

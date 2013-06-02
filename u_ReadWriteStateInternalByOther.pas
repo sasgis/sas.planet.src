@@ -48,7 +48,7 @@ end;
 
 destructor TReadWriteStateInternalByOther.Destroy;
 begin
-  if FOtherState <> nil then begin
+  if Assigned(FOtherState) and Assigned(FOtherStateListener) then begin
     FOtherState.ChangeNotifier.Remove(FOtherStateListener);
     FOtherState := nil;
   end;

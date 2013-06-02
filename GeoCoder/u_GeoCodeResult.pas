@@ -47,7 +47,6 @@ type
       const AMessage: WideString;
       const AList: IInterfaceList
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -69,14 +68,6 @@ begin
   FList := AList;
   FMessage := AMessage;
   FResultCode := AResultCode;
-end;
-
-destructor TGeoCodeResult.Destroy;
-begin
-  FList := nil;
-  FSearchText := '';
-  FMessage := '';
-  inherited;
 end;
 
 function TGeoCodeResult.GetMessage: WideString;

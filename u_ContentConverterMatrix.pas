@@ -79,7 +79,7 @@ var
   i: Integer;
   VObj: TObject;
 begin
-  if FList <> nil then begin
+  if Assigned(FList) then begin
     for i := 0 to FList.Count - 1 do begin
       VObj := FList.Objects[i];
       VObj.Free;

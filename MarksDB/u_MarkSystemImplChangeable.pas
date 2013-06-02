@@ -95,11 +95,11 @@ end;
 
 destructor TMarkSystemImplChangeable.Destroy;
 begin
-  if FBasePath <> nil then begin
+  if Assigned(FBasePath) and Assigned(FPathChangeListener) then begin
     FBasePath.ChangeNotifier.Remove(FPathChangeListener);
     FBasePath := nil;
   end;
-  if FAppStartedNotifier <> nil then begin
+  if Assigned(FAppStartedNotifier) and Assigned(FAppStartedListener) then begin
     FAppStartedNotifier.Remove(FAppStartedListener);
     FAppStartedNotifier := nil;
   end;

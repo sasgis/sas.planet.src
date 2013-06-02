@@ -43,7 +43,6 @@ type
       const ASource: IContentTypeInfoBasic;
       const ATarget: IContentTypeInfoBasic
     );
-    destructor Destroy; override;
   end;
 
   TContentConverterBase = class(TContentConverterAbstract)
@@ -68,13 +67,6 @@ begin
   inherited Create;
   FSource := ASource;
   FTarget := ATarget;
-end;
-
-destructor TContentConverterAbstract.Destroy;
-begin
-  FSource := nil;
-  FTarget := nil;
-  inherited;
 end;
 
 function TContentConverterAbstract.GetSource: IContentTypeInfoBasic;

@@ -155,7 +155,7 @@ end;
 
 destructor TExportMarks2KML.Destroy;
 begin
-  kmldoc.Free;
+  FreeAndNil(kmldoc);
   inherited;
 end;
 

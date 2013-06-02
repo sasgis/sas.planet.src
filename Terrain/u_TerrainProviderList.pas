@@ -48,7 +48,6 @@ type
     procedure Add(const AItem: ITerrainProviderListElement);
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
   TTerrainProviderListSimple = class(TTerrainProviderListBase)
@@ -63,7 +62,6 @@ type
       const ATerrainDataPath: IPathConfig;
       const ACacheConfig: IGlobalCacheConfig
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -112,13 +110,6 @@ begin
 
   // make external items
   LoadFromIni;
-end;
-
-destructor TTerrainProviderListSimple.Destroy;
-begin
-  FProjConverterFactory := nil;
-  FTerrainDataPath := nil;
-  inherited;
 end;
 
 procedure TTerrainProviderListSimple.LoadFromIni;
@@ -203,13 +194,6 @@ begin
   FCS := MakeSyncRW_Std(Self, TRUE);
   FList := TGUIDInterfaceSet.Create(False);
   FAddNotifier := TNotifierBase.Create;
-end;
-
-destructor TTerrainProviderListBase.Destroy;
-begin
-  FList := nil;
-  FCS := nil;
-  inherited;
 end;
 
 procedure TTerrainProviderListBase.Add(const AItem: ITerrainProviderListElement);

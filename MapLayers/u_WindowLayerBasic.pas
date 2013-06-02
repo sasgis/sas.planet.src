@@ -73,11 +73,11 @@ end;
 destructor TWindowLayerAbstract.Destroy;
 begin
   FLinksList := nil;
-  if FAppStartedNotifier <> nil then begin
+  if Assigned(FAppStartedNotifier) and Assigned(FAppStartedListener) then begin
     FAppStartedNotifier.Remove(FAppStartedListener);
     FAppStartedNotifier := nil;
   end;
-  if FAppClosingNotifier <> nil then begin
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
     FAppClosingNotifier.Remove(FAppClosingListener);
     FAppClosingNotifier := nil;
   end;

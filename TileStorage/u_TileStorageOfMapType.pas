@@ -230,17 +230,17 @@ end;
 
 destructor TTileStorageOfMapType.Destroy;
 begin
-  if FConfig <> nil then begin
+  if Assigned(FConfig) and Assigned(FConfigChangeListener) then begin
     FConfig.ChangeNotifier.Remove(FConfigChangeListener);
     FConfig := nil;
     FConfigChangeListener := nil;
   end;
-  if FGlobalCacheConfig <> nil then begin
+  if Assigned(FGlobalCacheConfig) and Assigned(FGlobalConfigChangeListener) then begin
     FGlobalCacheConfig.ChangeNotifier.Remove(FGlobalConfigChangeListener);
     FGlobalCacheConfig := nil;
     FGlobalConfigChangeListener := nil;
   end;
-  if FActualPath <> nil then begin
+  if Assigned(FActualPath) and Assigned(FPathChangeListener) then begin
     FActualPath.ChangeNotifier.Remove(FPathChangeListener);
     FActualPath := nil;
     FPathChangeListener := nil;

@@ -95,7 +95,6 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AContentType: IContentTypeInfoBasic
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -190,12 +189,6 @@ begin
   inherited Create(ADate, AVersionInfo);
   FContentType := AContentType;
   FTileData := ATileData;
-end;
-
-destructor TTileInfoBasicExistsWithTile.Destroy;
-begin
-  FTileData := nil;
-  inherited;
 end;
 
 function TTileInfoBasicExistsWithTile.GetContentType: IContentTypeInfoBasic;

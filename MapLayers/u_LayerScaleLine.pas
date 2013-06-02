@@ -267,9 +267,9 @@ end;
 
 destructor TLayerScaleLine.Destroy;
 begin
-  FTmpBitmap.Free;
-  FPopupMenu.Free;
-  inherited Destroy;
+  FreeAndNil(FTmpBitmap);
+  FreeAndNil(FPopupMenu);
+  inherited;
 end;
 
 procedure TLayerScaleLine.OnConfigChange;

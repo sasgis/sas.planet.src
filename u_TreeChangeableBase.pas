@@ -82,9 +82,11 @@ end;
 
 destructor TTreeChangeableBase.Destroy;
 begin
-  FConfigChangeNotifier.Remove(FConfigChangeListener);
-  FConfigChangeListener := nil;
-  FConfigChangeNotifier := nil;
+  if Assigned(FConfigChangeNotifier) and Assigned(FConfigChangeListener) then begin
+    FConfigChangeNotifier.Remove(FConfigChangeListener);
+    FConfigChangeListener := nil;
+    FConfigChangeNotifier := nil;
+  end;
 
   FCS := nil;
 

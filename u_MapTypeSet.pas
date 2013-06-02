@@ -39,7 +39,6 @@ type
   public
     procedure Add(const AMap: IMapType);
     constructor Create(AAllowNil: Boolean);
-    destructor Destroy; override;
   end;
 
 implementation
@@ -66,12 +65,6 @@ constructor TMapTypeSet.Create(AAllowNil: Boolean);
 begin
   inherited Create;
   FList := TGUIDInterfaceSet.Create(AAllowNil);
-end;
-
-destructor TMapTypeSet.Destroy;
-begin
-  FList := nil;
-  inherited;
 end;
 
 function TMapTypeSet.GetCount: Integer;

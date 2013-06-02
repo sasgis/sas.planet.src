@@ -86,9 +86,11 @@ end;
 
 destructor TGarbageCollectorThread.Destroy;
 begin
-  FCancelEvent.SetEvent;
+  if Assigned(FCancelEvent) then begin
+    FCancelEvent.SetEvent;
+  end;
 
-  if FAppClosingNotifier <> nil then begin
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
     FAppClosingNotifier.Remove(FAppClosingListener);
     FAppClosingListener := nil;
     FAppClosingNotifier := nil;

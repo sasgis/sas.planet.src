@@ -126,11 +126,11 @@ end;
 
 destructor TMarkDbByImpl.Destroy;
 begin
-  if FNotifier <> nil then begin
+  if Assigned(FNotifier) and Assigned(FDbImplChangeListener) then begin
     FNotifier.Remove(FDbImplChangeListener);
     FNotifier := nil;
   end;
-  if FMarkSystemImpl <> nil then begin
+  if Assigned(FMarkSystemImpl) and Assigned(FImplChangeListener) then begin
     FMarkSystemImpl.ChangeNotifier.Remove(FImplChangeListener);
     FMarkSystemImpl := nil;
   end;

@@ -65,7 +65,7 @@ begin
   end;
   FLibHandle := 0;
   FCreateObject := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 function TGoogleEarthLibrary.InitLib(const ALibName: string): Boolean;

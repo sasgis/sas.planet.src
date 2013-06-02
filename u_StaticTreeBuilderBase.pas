@@ -120,10 +120,12 @@ var
   i: Integer;
   VObj: TObject;
 begin
-  for i := 0 to FSubList.Count - 1 do begin
-    VObj := FSubList.Objects[i];
-    FSubList.Objects[i] := nil;
-    VObj.Free;
+  if Assigned(FSubList) then begin
+    for i := 0 to FSubList.Count - 1 do begin
+      VObj := FSubList.Objects[i];
+      FSubList.Objects[i] := nil;
+      VObj.Free;
+    end;
   end;
   FreeAndNil(FSubList);
   FData := nil;

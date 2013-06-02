@@ -119,7 +119,9 @@ end;
 
 destructor TMarkCategoryDBSml.Destroy;
 begin
-  SaveCategory2File;
+  if Assigned(FCdsKategory) then begin
+    SaveCategory2File;
+  end;
   FreeAndNil(FStream);
   FreeAndNil(FCdsKategory);
   FList := nil;

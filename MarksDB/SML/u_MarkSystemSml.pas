@@ -65,7 +65,6 @@ type
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AHintConverter: IHtmlToHintTextConverter
     );
-    destructor Destroy; override;
   end;
 
 
@@ -124,13 +123,6 @@ begin
     );
   FMarkDbImpl := VMarkDb;
   FMarkDbInternal := VMarkDb;
-end;
-
-destructor TMarkSystemSml.Destroy;
-begin
-  FMarkDbInternal := nil;
-  FCategoryDBInternal := nil;
-  inherited;
 end;
 
 function TMarkSystemSml.GetCategoryDB: IMarkCategoryDBImpl;

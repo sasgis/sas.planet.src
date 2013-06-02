@@ -152,13 +152,15 @@ end;
 
 destructor TLayerStatBarPopupMenu.Destroy;
 begin
-  FLanguageManager.GetChangeNotifier.Remove(FListener);
-  FListener := nil;
-  FLanguageManager := nil;
+  if Assigned(FLanguageManager) and Assigned(FListener) then begin
+    FLanguageManager.GetChangeNotifier.Remove(FListener);
+    FListener := nil;
+    FLanguageManager := nil;
+  end;
   FStatBarConfig := nil;
   FTerrainConfig := nil;
   FTerrainProviderList := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TLayerStatBarPopupMenu.BuildPopUpMenu;

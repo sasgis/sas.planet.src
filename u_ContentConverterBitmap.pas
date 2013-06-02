@@ -40,7 +40,6 @@ type
       const ASource: IContentTypeInfoBasic;
       const ATarget: IContentTypeInfoBasic
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -70,13 +69,6 @@ begin
   if FTargetSaver = nil then begin
     raise Exception.Create(SAS_ERR_CantSaveBitmapToTargetType);
   end;
-end;
-
-destructor TContentConverterBitmap.Destroy;
-begin
-  FSourceLoader := nil;
-  FTargetSaver := nil;
-  inherited;
 end;
 
 function TContentConverterBitmap.Convert(const AData: IBinaryData): IBinaryData;

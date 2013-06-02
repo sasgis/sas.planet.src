@@ -42,7 +42,6 @@ type
     function Clone(out enm: IEnumUnknown): HResult; stdcall;
   public
     constructor Create(AList: IInterfaceList);
-    destructor Destroy; override;
   end;
 
 
@@ -65,12 +64,6 @@ begin
   inherited Create;
   FList := AList;
   FCurrent := 0;
-end;
-
-destructor TEnumUnknown.Destroy;
-begin
-  FList := nil;
-  inherited;
 end;
 
 function TEnumUnknown.Next(

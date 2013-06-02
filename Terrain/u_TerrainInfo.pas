@@ -170,9 +170,9 @@ begin
   FTerrainProviderList := nil;
   FTerrainConfig := nil;
 
-  FConfigSync.Free;
+  FreeAndNil(FConfigSync);
 
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TTerrainInfo.OnProviderStateChange;

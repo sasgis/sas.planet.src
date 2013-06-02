@@ -71,7 +71,7 @@ destructor TContentTypeListByKey.Destroy;
 var
   i: Integer;
 begin
-  if FList <> nil then begin
+  if Assigned(FList) then begin
     for i := 0 to FList.Count - 1 do begin
       IInterface(Pointer(FList.Objects[i]))._Release;
     end;

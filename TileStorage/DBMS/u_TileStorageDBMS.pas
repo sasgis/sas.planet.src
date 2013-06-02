@@ -766,7 +766,9 @@ end;
 destructor TTileStorageETS.Destroy;
 var VDummyLocked: Boolean;
 begin
-  StorageStateInternal.ReadAccess := asDisabled;
+  if Assigned(StorageStateInternal) then begin
+    StorageStateInternal.ReadAccess := asDisabled;
+  end;
 
   DoBeginWork(ETS_ROI_EXCLUSIVELY, VDummyLocked);
   try
@@ -778,7 +780,7 @@ begin
     end;
 
     FETSTTLListener := nil;
-    FTileInfoMemCache := nil;   
+    FTileInfoMemCache := nil;
     FMapVersionConfig := nil;
     FMainContentType := nil;
     FContentTypeManager := nil;

@@ -281,11 +281,14 @@ end;
 
 destructor TTileDownloadSubsystem.Destroy;
 begin
-  FDestroyNotifierInternal.NextOperation;
-  FAppClosingNotifier.Remove(FAppClosingListener);
-  FAppClosingListener := nil;
-  FAppClosingNotifier := nil;
-
+  if Assigned(FDestroyNotifierInternal) then begin
+    FDestroyNotifierInternal.NextOperation;
+  end;
+  if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
+    FAppClosingNotifier.Remove(FAppClosingListener);
+    FAppClosingListener := nil;
+    FAppClosingNotifier := nil;
+  end;
   inherited;
 end;
 

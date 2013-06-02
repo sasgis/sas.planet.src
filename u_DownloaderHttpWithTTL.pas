@@ -67,9 +67,11 @@ end;
 
 destructor TDownloaderHttpWithTTL.Destroy;
 begin
-  FGCNotifier.Remove(FTTLListener);
-  FTTLListener := nil;
-  FGCNotifier := nil;
+  if Assigned(FGCNotifier) and Assigned(FTTLListener) then begin
+    FGCNotifier.Remove(FTTLListener);
+    FTTLListener := nil;
+    FGCNotifier := nil;
+  end;
   FCS := nil;
   inherited;
 end;

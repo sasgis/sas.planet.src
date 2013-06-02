@@ -113,26 +113,33 @@ var
   VNeedResume: Boolean;
 begin
   VNeedResume := False;
+  if Assigned(FConfig) and Assigned(FConfigListener) then begin
+    FConfig.ChangeNotifier.Remove(FConfigListener);
+    FConfigListener := nil;
+    FConfig := nil;
+  end;
 
-  FConfig.ChangeNotifier.Remove(FConfigListener);
-  FConfigListener := nil;
-  FConfig := nil;
-
-  FCS.BeginWrite;
-  try
-    if not FStarted then begin
-      FThread.OnTerminate := nil;
-      VNeedResume := True;
+  if Assigned(FCS) then begin
+    FCS.BeginWrite;
+    try
+      if not FStarted then begin
+        if Assigned(FThread) then begin
+          FThread.OnTerminate := nil;
+        end;
+        VNeedResume := True;
+      end;
+    finally
+      FCS.EndWrite;
     end;
-  finally
-    FCS.EndWrite;
   end;
 
 
   FCS := nil;
 
   if VNeedResume then begin
-    FThread.Resume;
+    if Assigned(FThread) then begin
+      FThread.Resume;
+    end;
   end;
   inherited;
 end;

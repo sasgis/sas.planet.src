@@ -72,16 +72,18 @@ uses
 constructor TTerrainProviderByGEMemCache.Create(const ACapacity: Integer);
 begin
   inherited Create;
-  FCS := MakeSyncRW_Var(Self, False);
   FList := TList.Create;
+  FCS := MakeSyncRW_Var(Self, False);
   FCapacity := ACapacity;
 end;
 
 destructor TTerrainProviderByGEMemCache.Destroy;
 begin
-  Self.Clear;
+  if Assigned(FCS) then begin
+    Self.Clear;
+  end;
   FreeAndNil(FList);
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TTerrainProviderByGEMemCache.Add(

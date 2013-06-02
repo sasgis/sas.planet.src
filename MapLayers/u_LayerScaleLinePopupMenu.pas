@@ -120,11 +120,13 @@ end;
 
 destructor TLayerScaleLinePopupMenu.Destroy;
 begin
-  FLanguageManager.GetChangeNotifier.Remove(FListener);
-  FListener := nil;
-  FLanguageManager := nil;
+  if Assigned(FLanguageManager) and Assigned(FListener) then begin
+    FLanguageManager.GetChangeNotifier.Remove(FListener);
+    FListener := nil;
+    FLanguageManager := nil;
+  end;
   FConfig := nil;
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TLayerScaleLinePopupMenu.BuildPopUpMenu;

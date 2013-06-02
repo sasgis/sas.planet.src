@@ -90,10 +90,12 @@ procedure TMarkPictureListSimple.Clear;
 var
   i: Integer;
 begin
-  for i := 0 to FList.Count - 1 do begin
-    IInterface(Pointer(FList.Objects[i]))._Release;
+  if Assigned(FList) then begin
+    for i := 0 to FList.Count - 1 do begin
+      IInterface(Pointer(FList.Objects[i]))._Release;
+    end;
+    FList.Clear;
   end;
-  FList.Clear;
 end;
 
 procedure TMarkPictureListSimple.DoReadConfig(const AConfigData: IConfigDataProvider);

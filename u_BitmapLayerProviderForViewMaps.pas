@@ -122,7 +122,9 @@ end;
 
 destructor TBitmapLayerProviderForViewMaps.Destroy;
 begin
-  RemoveListener;
+  if Assigned(FListenerCS) then begin
+    RemoveListener;
+  end;
   inherited;
 end;
 

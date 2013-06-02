@@ -55,7 +55,6 @@ type
       const AFullDesc: WideString;
       AAccuracy: Integer
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -79,12 +78,6 @@ begin
   FFullDesc := AFullDesc;
   FLLRect := TLonLatRectByPoint.Create(APoint);
   FAccuracy := AAccuracy;
-end;
-
-destructor TGeoCodePlacemark.Destroy;
-begin
-  FAddress := '';
-  inherited;
 end;
 
 function TGeoCodePlacemark.GetAccuracy: Integer;

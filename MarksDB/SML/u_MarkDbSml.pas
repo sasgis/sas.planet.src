@@ -358,7 +358,9 @@ end;
 
 destructor TMarkDbSml.Destroy;
 begin
-  SaveMarks2File;
+  if Assigned(FCdsMarks) then begin
+    SaveMarks2File;
+  end;
   FreeAndNil(FStream);
   FreeAndNil(FCdsMarks);
   FByCategoryList := nil;

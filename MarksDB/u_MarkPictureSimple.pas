@@ -59,7 +59,6 @@ type
       const AName: string;
       const ALoader: IBitmapTileLoader
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -86,12 +85,6 @@ begin
 
   FCS := MakeSyncRW_Sym(Self, False);
   FInitedFlag := TSimpleFlagWithInterlock.Create;
-end;
-
-destructor TMarkPictureSimple.Destroy;
-begin
-  FCS := nil;
-  inherited;
 end;
 
 function TMarkPictureSimple.GetTextAlignment: TAlignment;

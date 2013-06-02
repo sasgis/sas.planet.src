@@ -44,7 +44,6 @@ type
     function GetAddNotifier: INotifier;
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
@@ -62,13 +61,6 @@ begin
   FCS := MakeSyncRW_Std(Self, TRUE);
   FList := TGUIDInterfaceSet.Create(False);
   FAddNotifier := TNotifierBase.Create;
-end;
-
-destructor TGeoCoderListBase.Destroy;
-begin
-  FList := nil;
-  FCS := nil;
-  inherited;
 end;
 
 procedure TGeoCoderListBase.Add(const AItem: IGeoCoderListEntity);

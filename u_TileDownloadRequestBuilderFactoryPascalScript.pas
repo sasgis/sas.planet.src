@@ -67,7 +67,6 @@ type
       const AProjFactory: IProjConverterFactory;
       const ALangManager: ILanguageManager
     );
-    destructor Destroy; override;
   end;
 
 implementation
@@ -106,12 +105,6 @@ begin
   if AScriptText = '' then begin
     FStateInternal.Disable('Empty script');
   end;
-end;
-
-destructor TTileDownloadRequestBuilderFactoryPascalScript.Destroy;
-begin
-  FCS := nil;
-  inherited;
 end;
 
 function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(
