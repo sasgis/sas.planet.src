@@ -55,6 +55,8 @@ type
       const ATileRequest: ITileRequest
     ): ITileRequestResult;
   public
+    procedure AfterConstruction; override;
+  public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
       const ATileDownloadRequestBuilder: ITileDownloadRequestBuilder;
@@ -114,9 +116,6 @@ begin
 
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
-  if FAppClosingNotifier.IsExecuted then begin
-    OnAppClosing;
-  end;
 end;
 
 destructor TTileDownloaderSimple.Destroy;
@@ -140,6 +139,16 @@ begin
   FCS := nil;
   FreeAndNil(FCancelEvent);
   inherited;
+end;
+
+procedure TTileDownloaderSimple.AfterConstruction;
+begin
+  inherited;
+  if FAppClosingNotifier.IsExecuted then begin
+    OnAppClosing;
+  end else begin
+    OnConfigChange;
+  end;
 end;
 
 function TTileDownloaderSimple.Download(
