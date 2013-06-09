@@ -144,7 +144,7 @@ end;
 procedure TBerkeleyDB.Open(const ADatabaseFileName: string);
 var
   VErrorMsg: string;
-  VRelativeFileName: AnsiString;
+  VRelativeFileName: UTF8String;
   VOpenFlags: Cardinal;
 begin
   FLock.BeginWrite;
@@ -153,7 +153,7 @@ begin
     try
       FFileName := ADatabaseFileName;
       VRelativeFileName :=
-        StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]);
+        AnsiToUtf8(StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]));
       CheckBDB(db_create(db, dbenv, 0));
       db.set_errpfx(db, cBerkeleyDBErrPfx);
       if not FileExists(FFileName) then begin
@@ -164,7 +164,7 @@ begin
       end else begin
         VOpenFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
       end;
-      CheckBDB(db.open(db, nil, Pointer(AnsiToUtf8(VRelativeFileName)), '', DB_BTREE, VOpenFlags, 0));
+      CheckBDB(db.open(db, nil, PAnsiChar(VRelativeFileName), '', DB_BTREE, VOpenFlags, 0));
     except
       on E: Exception do begin
         VErrorMsg := '';

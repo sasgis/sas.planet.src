@@ -200,28 +200,41 @@ end;
 
 function TBerkeleyDBEnv.Open: Boolean;
 var
-  VPath: AnsiString;
+  VPath: string;
+  VPathUtf8: UTF8String;
 begin
   if not FActive and FLibInitOk then begin
 
     VPath := FAppPrivate.FEnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
+    VPathUtf8 := AnsiToUtf8(VPath);
+
     if not DirectoryExists(VPath) then begin
       ForceDirectories(VPath);
     end;
 
     MakeDefConfigFile(VPath);
-    
+
     CheckBDB(db_env_create(dbenv, 0));
+
     dbenv.app_private := FAppPrivate;
-    dbenv.set_errpfx(dbenv, CBerkeleyDBEnvErrPfx);
+    dbenv.set_errpfx(dbenv, cBerkeleyDBEnvErrPfx);
     dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
     dbenv.set_msgcall(dbenv, BerkeleyDBMsgCall);
     CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));
 
+    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 1));
+    CheckBDB(dbenv.set_lg_dir(dbenv, '.'));
+    CheckBDB(dbenv.set_data_dir(dbenv, '..'));
+    CheckBDB(dbenv.set_cachesize(dbenv, 0, 2*1024*1024, 1)); 
+    CheckBDB(dbenv.mutex_set_max(dbenv, 30000));
+    CheckBDB(dbenv.set_lg_max(dbenv, 10*1024*1024));
+    CheckBDB(dbenv.set_lg_bsize(dbenv, 2*1024*1024));
+    CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
+
     CheckBDB(
       dbenv.open(
         dbenv,
-        Pointer(AnsiToUtf8(VPath)),
+        PAnsiChar(VPathUtf8),
         DB_CREATE_ or
         DB_RECOVER or
         DB_INIT_LOCK or
