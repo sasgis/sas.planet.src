@@ -5,13 +5,9 @@ interface
 uses
   SysUtils,
   Classes,
-  t_GeoTypes,
   i_Listener,
   i_Notifier,
-  i_Category,
   i_MarkCategory,
-  i_VectorItemSubset,
-  i_Mark,
   i_MarkCategoryFactory,
   i_MarkCategoryDB,
   i_MarkSystemImplChangeable,

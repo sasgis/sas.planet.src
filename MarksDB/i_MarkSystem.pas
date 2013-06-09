@@ -4,11 +4,7 @@ interface
 
 uses
   Classes,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_ReadWriteState,
-  i_VectorDataItemSimple,
-  i_MarkFactoryConfig,
   i_ImportConfig,
   i_VectorItemSubset,
   i_Mark,

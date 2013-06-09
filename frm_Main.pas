@@ -747,7 +747,6 @@ uses
   i_GPSRecorder,
   i_PathDetalizeProvider,
   i_StringListChangeable,
-  i_HtmlToHintTextConverter,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
   u_GeoFun,
@@ -829,7 +828,6 @@ uses
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
-  u_HtmlToHintTextConverterStuped,
   frm_LonLatRectEdit;
 
 type

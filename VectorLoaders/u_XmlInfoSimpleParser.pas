@@ -31,8 +31,6 @@ uses
   i_VectorDataFactory,
   i_VectorItemsFactory,
   i_VectorItemSubset,
-  i_ArchiveReadWriteFactory,
-  i_ArchiveReadWrite,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
   u_BaseInterfacedObject,

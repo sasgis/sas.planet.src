@@ -23,7 +23,6 @@ unit i_Mark;
 interface
 
 uses
-  ActiveX,
   GR32,
   t_GeoTypes,
   i_VectorItemLonLat,

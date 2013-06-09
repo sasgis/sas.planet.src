@@ -51,13 +51,10 @@ implementation
 uses
   Types,
   SysUtils,
-  StrUtils,
   Classes,
   t_GeoTypes,
-  i_VectorItemLonLat,
   i_VectorDataItemSimple,
   i_DoublePointsAggregator,
-  u_StreamReadOnlyByBinaryData,
   u_VectorDataItemSubset,
   u_DoublePointsAggregator,
   u_GeoFun,

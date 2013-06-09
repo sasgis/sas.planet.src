@@ -53,7 +53,6 @@ implementation
 
 uses
   SysUtils,
-  i_Mark,
   i_BinaryData,
   i_VectorItemSubset,
   u_BinaryDataByMemStream;

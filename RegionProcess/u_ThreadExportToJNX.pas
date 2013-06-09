@@ -3,8 +3,7 @@ unit u_ThreadExportToJNX;
 interface
 
 uses
-windows,
-
+  windows,
   Types,
   SysUtils,
   Classes,
@@ -21,7 +20,6 @@ windows,
   i_TileStorage,
   i_TileInfoBasic,
   i_ContentTypeInfo,
-  u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;
 

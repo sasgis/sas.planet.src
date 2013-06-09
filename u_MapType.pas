@@ -64,7 +64,6 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_NotifierTilePyramidUpdate,
-  i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_VectorDataFactory,
   i_ProjConverter,

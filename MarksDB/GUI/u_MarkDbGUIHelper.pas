@@ -45,7 +45,6 @@ uses
   i_MarkFactory,
   i_MarkFactoryConfig,
   i_MarkPicture,
-  i_HtmlToHintTextConverter,
   frm_MarkCategoryEdit,
   frm_MarkEditPoint,
   frm_MarkEditPath,
@@ -165,8 +164,6 @@ uses
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
   u_ExportMarks2KML,
-  u_MarkFactory,
-  u_GeoFun,
   u_GeoToStr;
 
 { TMarksDbGUIHelper }

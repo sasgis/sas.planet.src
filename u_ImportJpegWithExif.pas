@@ -55,10 +55,8 @@ uses
   CCR.Exif,
   SysUtils,
   t_GeoTypes,
-  i_Mark,
   i_VectorItemSubset,
   i_VectorDataItemSimple,
-  u_GeoFun,
   u_VectorDataItemSubset;
 
 { TImportJpegWithExif }

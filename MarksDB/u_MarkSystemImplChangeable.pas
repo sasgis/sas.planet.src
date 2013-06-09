@@ -10,8 +10,6 @@ uses
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_HtmlToHintTextConverter,
-  i_MarkFactory,
-  i_MarkCategoryFactory,
   i_ReadWriteState,
   i_MarkSystemImpl,
   i_MarkSystemImplChangeable,

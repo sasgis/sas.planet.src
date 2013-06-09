@@ -99,7 +99,6 @@ uses
   SysUtils,
   gnugettext,
   i_LonLatRect,
-  i_Mark,
   i_MarkerProviderForVectorItem,
   i_VectorItemSubset,
   i_RegionProcessParamsFrame,

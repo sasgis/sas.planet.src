@@ -27,7 +27,6 @@ uses
   i_BinaryData,
   i_VectorDataFactory,
   i_VectorItemSubset,
-  i_VectorItemsFactory,
   i_ArchiveReadWriteFactory,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
@@ -64,7 +63,6 @@ implementation
 uses
   SysUtils,
   i_ArchiveReadWrite,
-  u_KmlInfoSimpleParser,
   u_StreamReadOnlyByBinaryData;
 
 { TKmzInfoSimpleParser }

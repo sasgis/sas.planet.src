@@ -29,7 +29,6 @@ uses
   i_Mark,
   i_VectorDataItemSimple,
   i_Category,
-  i_MarkDbSmlInternal,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
   u_MarkFullBaseSml;
