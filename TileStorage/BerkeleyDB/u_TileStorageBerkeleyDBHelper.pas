@@ -796,16 +796,12 @@ end;
 
 procedure TTileStorageBerkeleyDBHelper.Sync(out AHotDatabaseCount: Integer);
 begin
-  if Assigned(FPool) then begin
-    FPool.Sync;
-    AHotDatabaseCount := FPool.Count;
-  end else begin
-    AHotDatabaseCount := 0;
-  end;
-  if Assigned(FEnvironment) then begin
-    FEnvironment.TransactionCheckPoint;
-    FEnvironment.RemoveUnUsedLogs;
-  end;
+  Assert(Assigned(FPool));
+  Assert(Assigned(FEnvironment));
+
+  FEnvironment.Sync;
+  FPool.Sync;
+  AHotDatabaseCount := FPool.Count;
 end;
 
 function TTileStorageBerkeleyDBHelper.GetTileExistsArray(

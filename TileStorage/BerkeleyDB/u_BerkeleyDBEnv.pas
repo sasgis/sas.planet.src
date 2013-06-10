@@ -26,7 +26,6 @@ uses
   Classes,
   SyncObjs,
   libdb51,
-  i_Listener,
   i_BerkeleyDBEnv,
   i_GlobalBerkeleyDBHelper,
   u_BerkeleyDBMsgLogger,
@@ -50,23 +49,21 @@ type
     FLastRemoveLogTime: Cardinal;
     FCS: TCriticalSection;
     FClientsCount: Integer;
-    FListener: IListener;
     FTxnList: TList;
     function Open: Boolean;
-    procedure Sync;
     procedure MakeDefConfigFile(const AEnvHomePath: string);
+    procedure RemoveUnUsedLogs;
+    procedure TransactionCheckPoint;
   private
     { IBerkeleyDBEnvironment }
     function GetEnvironmentPointerForApi: Pointer;
     function GetRootPath: string;
     function GetClientsCount: Integer;
     procedure SetClientsCount(const AValue: Integer);
-    procedure RemoveUnUsedLogs;
     procedure TransactionBegin(out ATxn: PBerkeleyTxn);
     procedure TransactionCommit(var ATxn: PBerkeleyTxn);
     procedure TransactionAbort(var ATxn: PBerkeleyTxn);
-    procedure TransactionCheckPoint;
-    function GetSyncCallListener: IListener;
+    procedure Sync;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -79,8 +76,7 @@ implementation
 
 uses
   Windows,
-  SysUtils,
-  u_ListenerByEvent;
+  SysUtils;
 
 const
   cBerkeleyDBEnvSubDir = 'env';
@@ -134,7 +130,6 @@ begin
   FLastRemoveLogTime := 0;
   FClientsCount := 1;
   FLibInitOk := InitBerkeleyDB;
-  FListener := TNotifyNoMmgEventListener.Create(Self.Sync);
 end;
 
 destructor TBerkeleyDBEnv.Destroy;
@@ -143,7 +138,6 @@ var
   txn: PDB_TXN;
 begin
   try
-    FListener := nil;
     if dbenv <> nil then begin
       for I := 0 to FTxnList.Count - 1 do begin
         txn := FTxnList.Items[I];
@@ -371,11 +365,6 @@ begin
   finally
     FCS.Release;
   end;
-end;
-
-function TBerkeleyDBEnv.GetSyncCallListener: IListener;
-begin
-  Result := FListener;
 end;
 
 end.

@@ -22,9 +22,6 @@ unit i_BerkeleyDBEnv;
 
 interface
 
-uses
-  i_Listener;
-
 type
   PBerkeleyTxn = Pointer;
 
@@ -40,15 +37,11 @@ type
     procedure SetClientsCount(const AValue: Integer);
     property ClientsCount: Integer read GetClientsCount write SetClientsCount;
 
-    function GetSyncCallListener: IListener;
-    property SyncCallListener: IListener read GetSyncCallListener;
-
-    procedure RemoveUnUsedLogs;
-
     procedure TransactionBegin(out ATxn: PBerkeleyTxn);
     procedure TransactionCommit(var ATxn: PBerkeleyTxn);
     procedure TransactionAbort(var ATxn: PBerkeleyTxn);
-    procedure TransactionCheckPoint;
+
+    procedure Sync;
   end;
 
 implementation
