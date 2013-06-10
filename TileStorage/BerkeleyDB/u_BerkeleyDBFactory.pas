@@ -3,9 +3,6 @@ unit u_BerkeleyDBFactory;
 interface
 
 uses
-  Types,
-  SysUtils,
-  i_Listener,
   i_BinaryData,
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
@@ -18,7 +15,6 @@ type
   private
     FHelper: IGlobalBerkeleyDBHelper;
     FEnvironment: IBerkeleyDBEnvironment;
-    FSyncCallListener: IListener;
     FIsReadOnly: Boolean;
     FMetaKey: IBinaryData;
     FMetaValue: IBinaryData;
@@ -29,7 +25,6 @@ type
     constructor Create(
       const AHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
-      const ASyncCallListener: IListener;
       const AIsReadOnly: Boolean;
       const AMetaKey: IBinaryData;
       const AMetaValue: IBinaryData
@@ -49,7 +44,6 @@ const
 constructor TBerkeleyDBFactory.Create(
   const AHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
-  const ASyncCallListener: IListener;
   const AIsReadOnly: Boolean;
   const AMetaKey: IBinaryData;
   const AMetaValue: IBinaryData
@@ -60,7 +54,6 @@ begin
   inherited Create;
   FHelper := AHelper;
   FEnvironment := AEnvironment;
-  FSyncCallListener := ASyncCallListener;
   FIsReadOnly := AIsReadOnly;
   FMetaKey := AMetaKey;
   FMetaValue := AMetaValue;
@@ -75,7 +68,6 @@ begin
   VDatabase := TBerkeleyDB.Create(
     FHelper,
     FEnvironment,
-    FSyncCallListener,
     FIsReadOnly,
     cBerkeleyDBPageSize
   );

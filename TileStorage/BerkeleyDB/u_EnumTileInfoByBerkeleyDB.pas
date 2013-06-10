@@ -29,7 +29,7 @@ uses
   i_FileNameIterator,
   i_MapVersionConfig,
   i_TileFileNameParser,
-  u_TileStorageBerkeleyDBHelper,
+  i_TileStorageBerkeleyDBHelper,
   u_BaseInterfacedObject;
 
 type
@@ -40,7 +40,7 @@ type
     FTileFileNameParser: ITileFileNameParser;
     FEmptyVersionInfo: IMapVersionInfo;
     FStorage: ITileStorage;
-    FHelper: TTileStorageBerkeleyDBHelper;
+    FHelper: ITileStorageBerkeleyDBHelper;
     FCurFileTilesArray: TPointArray;
     FCurFileIndex: Integer;
     FCurFileZoom: Byte;
@@ -55,7 +55,7 @@ type
       const ATileFileNameParser: ITileFileNameParser;
       const AMapVersionFactory: IMapVersionFactory;
       const AStorage: ITileStorage;
-      const AHelper: TTileStorageBerkeleyDBHelper
+      const AHelper: ITileStorageBerkeleyDBHelper
     );
   end;
 
@@ -74,7 +74,7 @@ constructor TEnumTileInfoByBerkeleyDB.Create(
   const ATileFileNameParser: ITileFileNameParser;
   const AMapVersionFactory: IMapVersionFactory;
   const AStorage: ITileStorage;
-  const AHelper: TTileStorageBerkeleyDBHelper
+  const AHelper: ITileStorageBerkeleyDBHelper
 );
 begin
   inherited Create;

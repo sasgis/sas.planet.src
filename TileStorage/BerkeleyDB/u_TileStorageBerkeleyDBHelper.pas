@@ -26,7 +26,6 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_Listener,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_BinaryData,
@@ -34,14 +33,14 @@ uses
   i_BerkeleyDBKeyValue,
   i_BerkeleyDBFactory,
   i_GlobalBerkeleyDBHelper,
+  i_TileStorageBerkeleyDBHelper,
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
-  i_BerkeleyDBPool;
+  i_BerkeleyDBPool,
+  u_BaseInterfacedObject;
 
 type
-  TPointArray = array of TPoint;
-
-  TTileStorageBerkeleyDBHelper = class(TObject)
+  TTileStorageBerkeleyDBHelper = class(TBaseInterfacedObject, ITileStorageBerkeleyDBHelper)
   private
     type
       TTileOperation = (toRead = 0, toWrite = 1, toDelete = 2, toExists = 3);
@@ -49,25 +48,23 @@ type
     FPool: IBerkeleyDBPool;
     FEnvironment: IBerkeleyDBEnvironment;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FSyncCallListener: IListener;
     FLock: IReadWriteSync;
     FIsReadOnly: Boolean;
     FIsVersioned: Boolean;
     FMapVersionFactory: IMapVersionFactory;
     function GetTileKey(
-        const AOperation: TTileOperation;
-        const ATileXY: TPoint;
-        const AVersionInfo: IMapVersionInfo;
-        const ADatabase: IBerkeleyDB;
-        const AContentType: IContentTypeInfoBasic = nil;
-        const ATileSize: Integer = 0;
-        const ATileDate: TDateTime = 0;
-        const ATileCRC: Cardinal = 0;
-        const AAllowReplace: Boolean = False
+      const AOperation: TTileOperation;
+      const ATileXY: TPoint;
+      const AVersionInfo: IMapVersionInfo;
+      const ADatabase: IBerkeleyDB;
+      const AContentType: IContentTypeInfoBasic = nil;
+      const ATileSize: Integer = 0;
+      const ATileDate: TDateTime = 0;
+      const ATileCRC: Cardinal = 0;
+      const AAllowReplace: Boolean = False
     ): IBinaryData;
-  public
-    function CreateDirIfNotExists(APath: string): Boolean;
-
+  private
+    { ITileStorageBerkeleyDBHelper }
     function SaveTile(
       const ADatabaseFileName: string;
       const ATileXY: TPoint;
@@ -124,14 +121,14 @@ type
       out ATileDate: TDateTime
     ): Boolean;
 
-    procedure Sync;
-
     function GetTileExistsArray(
       const ADatabaseFileName: string;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       out ATileExistsArray: TPointArray
     ): Boolean;
+
+    procedure Sync(out AHotDatabaseCount: Integer);
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -144,6 +141,8 @@ type
     destructor Destroy; override;
   end;
 
+function CreateDirIfNotExists(APath: string): Boolean;
+
 implementation
 
 uses
@@ -151,18 +150,25 @@ uses
   libdb51,
   CRC32,
   u_Synchronizer,
-  u_ListenerByEvent,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
   u_BerkeleyDBPool,
   u_BerkeleyDBFactory,
-  u_MapVersionInfo,
   u_MapVersionListStatic,
   u_BinaryDataByBerkeleyDBValue;
 
 const
   cBerkeleyDBPoolSize = 32;
   cBerkeleyDBUnusedPoolObjectsTTL = 60000; // 60 sec
+
+function CreateDirIfNotExists(APath: string): Boolean;
+begin
+  APath := Copy(APath, 1, LastDelimiter(PathDelim, APath));
+  Result := DirectoryExists(APath);
+  if not Result then begin
+    Result := ForceDirectories(APath);
+  end;
+end;
 
 { TTileStorageBerkeleyDBHelper }
 
@@ -193,12 +199,9 @@ begin
 
   FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(AStorageRootPath);
 
-  FSyncCallListener := TNotifyNoMmgEventListener.Create(Self.Sync);
-
   VDatabaseFactory := TBerkeleyDBFactory.Create(
     FGlobalBerkeleyDBHelper,
     FEnvironment,
-    FSyncCallListener,
     FIsReadOnly,
     TBerkeleyDBMetaKey.Create as IBinaryData,
     TBerkeleyDBMetaValue.Create(AStorageEPSG) as IBinaryData
@@ -214,7 +217,6 @@ end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
 begin
-  FSyncCallListener := nil;
   if Assigned(FGlobalBerkeleyDBHelper) then begin
     FGlobalBerkeleyDBHelper.FreeEnvironment(FEnvironment);
   end;
@@ -222,18 +224,6 @@ begin
   FEnvironment := nil;
   FGlobalBerkeleyDBHelper := nil;
   inherited;
-end;
-
-function TTileStorageBerkeleyDBHelper.CreateDirIfNotExists(APath: string): Boolean;
-var
-  I: Integer;
-begin
-  I := LastDelimiter(PathDelim, APath);
-  APath := copy(APath, 1, I);
-  Result := DirectoryExists(APath);
-  if not Result then begin
-    Result := ForceDirectories(APath);
-  end;
 end;
 
 function TTileStorageBerkeleyDBHelper.GetTileKey(
@@ -804,10 +794,13 @@ begin
   end;
 end;
 
-procedure TTileStorageBerkeleyDBHelper.Sync;
+procedure TTileStorageBerkeleyDBHelper.Sync(out AHotDatabaseCount: Integer);
 begin
   if Assigned(FPool) then begin
     FPool.Sync;
+    AHotDatabaseCount := FPool.Count;
+  end else begin
+    AHotDatabaseCount := 0;
   end;
   if Assigned(FEnvironment) then begin
     FEnvironment.TransactionCheckPoint;

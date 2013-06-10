@@ -53,7 +53,7 @@ type
     function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
     procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
 
-    procedure Sync(const ASyncWithNotifier: Boolean);
+    procedure Sync;
 
     function GetFileName: string;
     property FileName: string read GetFileName;

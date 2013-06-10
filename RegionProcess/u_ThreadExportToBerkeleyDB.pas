@@ -41,7 +41,6 @@ uses
   i_MapTypes,
   u_MapType,
   u_ResStrings,
-  u_TileStorageBerkeleyDBHelper,
   u_ThreadExportAbstract;
 
 type

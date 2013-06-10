@@ -224,7 +224,6 @@ type
 implementation
 
 uses
-  Classes,
   CRC32,
   u_BerkeleyDBValueZlib;
 

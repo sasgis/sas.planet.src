@@ -23,7 +23,7 @@ unit u_TileStorageBerkeleyDB;
 interface
 
 uses
-  Types,
+  Windows,
   SysUtils,
   i_BinaryData,
   i_MapVersionInfo,
@@ -37,24 +37,30 @@ uses
   i_NotifierTime,
   i_ListenerTime,
   i_TileFileNameGenerator,
-  i_GlobalBerkeleyDBHelper,  
+  i_GlobalBerkeleyDBHelper,
   i_TileInfoBasicMemCache,
-  u_TileStorageBerkeleyDBHelper,
+  i_TileStorageBerkeleyDBHelper,
   u_TileStorageAbstract;
 
 type
   TTileStorageBerkeleyDB = class(TTileStorageAbstract, IBasicMemCache)
   private
-    FStorageHelper: TTileStorageBerkeleyDBHelper;
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+    FStorageHelper: ITileStorageBerkeleyDBHelper;
+    FStorageHelperLock: IReadWriteSync;
     FMainContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCNotifier: INotifierTime;
-    FSyncCallListner: IListenerTimeWithUsedFlag;
+    FSyncCallListener: IListenerTimeWithUsedFlag;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
     FVersioned: Boolean;
+    FReadOnlyAccess: Boolean;
+    FCommitsCountToSync: Integer;
     procedure OnSyncCall;
+    procedure OnCommitSync;
+    function GetStorageHelper: ITileStorageBerkeleyDBHelper;
   protected
     function GetIsFileCache: Boolean; override;
     function GetIsCanSaveMultiVersionTiles: Boolean; override;
@@ -146,12 +152,15 @@ uses
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
   u_TileInfoBasic,
+  u_Synchronizer,  
+  u_TileStorageBerkeleyDBHelper,
   u_EnumTileInfoByBerkeleyDB;
 
 const
   cStorageFileExt = '.sdb';
   cTneStorageFileExt = '.tne';
   cStorageSyncInterval = 300000; // 5 min
+  cStorageCommitsCountToSync = 1000;
 
 { TTileStorageBerkeleyDB }
 
@@ -173,6 +182,7 @@ begin
     AGeoConverter,
     AStoragePath
   );
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
   FTileInfoMemCache := ATileInfoMemCache;
@@ -183,32 +193,33 @@ begin
 
   FVersioned := AIsVersioned;
 
-  FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
-    AGlobalBerkeleyDBHelper,
-    AMapVersionFactory,
-    StoragePath,
-    False, // ToDo: Read-Only
-    FVersioned,  
-    AGeoConverter.ProjectionEPSG
-  );
-
-  FSyncCallListner := TListenerTTLCheck.Create(
+  FSyncCallListener := TListenerTTLCheck.Create(
     Self.OnSyncCall,
     cStorageSyncInterval
   );
 
-  FGCNotifier.Add(FSyncCallListner);
+  if Assigned(FGCNotifier) and Assigned(FSyncCallListener) then begin
+    FGCNotifier.Add(FSyncCallListener);
+  end;
+
+  FStorageHelper := nil;
+  FStorageHelperLock := MakeSyncRW_Var(Self, False);
+
+  FCommitsCountToSync := cStorageCommitsCountToSync;
+
+  FReadOnlyAccess := False; // ToDo
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
 begin
-  if Assigned(FGCNotifier) and Assigned(FSyncCallListner) then begin
-    FGCNotifier.Remove(FSyncCallListner);
-    FGCNotifier := nil;
-    FSyncCallListner := nil;
+  if Assigned(FGCNotifier) and Assigned(FSyncCallListener) then begin
+    FGCNotifier.Remove(FSyncCallListener);
   end;
+  FGCNotifier := nil;
+  FSyncCallListener := nil;
+  FStorageHelper := nil;
+  FGlobalBerkeleyDBHelper := nil;
   FTileInfoMemCache := nil;
-  FreeAndNil(FStorageHelper);
   FMainContentType := nil;
   FContentTypeManager := nil;
   FTileNotExistsTileInfo := nil;
@@ -216,8 +227,42 @@ begin
 end;
 
 procedure TTileStorageBerkeleyDB.OnSyncCall;
+var
+  VHelper: ITileStorageBerkeleyDBHelper;
+  VHotDbCount: Integer;
 begin
-  FStorageHelper.Sync;
+  FStorageHelperLock.BeginRead;
+  try
+    VHelper := FStorageHelper;
+  finally
+    FStorageHelperLock.EndRead;
+  end;
+
+  if Assigned(VHelper) then begin
+    VHelper.Sync(VHotDbCount);
+    VHelper := nil;
+    if VHotDbCount <= 0 then begin
+      FStorageHelperLock.BeginWrite;
+      try
+        FStorageHelper := nil;
+      finally
+        FStorageHelperLock.EndWrite;
+      end;
+    end else begin
+      FSyncCallListener.CheckUseTimeUpdated;
+    end;
+  end;
+end;
+
+procedure TTileStorageBerkeleyDB.OnCommitSync;
+var
+  VCount: Integer;
+begin
+  VCount := InterlockedExchangeAdd(@FCommitsCountToSync, -1);
+  if VCount < 0 then begin
+    InterlockedExchange(FCommitsCountToSync, cStorageCommitsCountToSync);
+    Self.OnSyncCall;
+  end;
 end;
 
 function TTileStorageBerkeleyDB.GetIsFileCache: Boolean;
@@ -257,6 +302,7 @@ var
   VTileDate: TDateTime;
   VTileSize: Integer;
   VList: IMapVersionListStatic;
+  VHelper: ITileStorageBerkeleyDBHelper;
 begin
   if Assigned(FTileInfoMemCache) then begin
     Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, True);
@@ -275,14 +321,15 @@ begin
     VResult := False;
 
     if FileExists(VPath) then begin
+      VHelper := GetStorageHelper; 
       if AMode = gtimWithoutData then begin
         VResult :=
-          FStorageHelper.LoadTileInfo(
+          VHelper.LoadTileInfo(
             VPath,
             AXY,
             AZoom,
             AVersionInfo,
-            True, // single tile info
+            True, // will get single tile info
             VList,
             VTileVersion,
             VTileContentType,
@@ -300,7 +347,7 @@ begin
         end;
       end else begin
         VResult :=
-          FStorageHelper.LoadTile(
+          VHelper.LoadTile(
             VPath,
             AXY,
             AZoom,
@@ -325,7 +372,10 @@ begin
     if not VResult then begin
       VPath := ChangeFileExt(VPath, cTneStorageFileExt);
       if FileExists(VPath) then begin
-        VResult := FStorageHelper.IsTNEFound(
+        if not Assigned(VHelper) then begin
+          VHelper := GetStorageHelper;
+        end;
+        VResult := VHelper.IsTNEFound(
           VPath,
           AXY,
           AZoom,
@@ -361,18 +411,20 @@ var
   VTileDate: TDateTime;
   VTileSize: Integer;
   VList: IMapVersionListStatic;
+  VHelper: ITileStorageBerkeleyDBHelper;
 begin
   Result := nil;
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
     VPath := StoragePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + cStorageFileExt;
     if FileExists(VPath) then begin
+      VHelper := GetStorageHelper;
       VResult :=
-        FStorageHelper.LoadTileInfo(
+        VHelper.LoadTileInfo(
           VPath,
           AXY,
           AZoom,
           AVersionInfo,
-          False, // multi-versions tile info
+          False, // will get multi-versions tile info
           VList,
           VTileVersion,
           VTileContentType,
@@ -424,6 +476,7 @@ var
   VTileVersion: WideString;
   VTileContentType: WideString;
   VTileDate: TDateTime;
+  VHelper: ITileStorageBerkeleyDBHelper;
 begin
   Result := nil;
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
@@ -474,7 +527,8 @@ begin
           end;
 
           if (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists)) then begin
-            VTileExists := FStorageHelper.LoadTile(
+            VHelper := GetStorageHelper; 
+            VTileExists := VHelper.LoadTile(
               VFileInfo.Name,
               VTile,
               VZoom,
@@ -490,7 +544,7 @@ begin
               VItems[VIndex].FSize := VTileBinaryData.Size;
               VItems[VIndex].FInfoType := titExists;
             end else begin
-              VTileExists := FStorageHelper.IsTNEFound(
+              VTileExists := VHelper.IsTNEFound(
                 VTneFileInfo.Name,
                 VTile,
                 VZoom,
@@ -542,6 +596,7 @@ var
   VPath: string;
   VResult: Boolean;
   VTileInfo: ITileInfoBasic;
+  VHelper: ITileStorageBerkeleyDBHelper;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
@@ -551,8 +606,9 @@ begin
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       cStorageFileExt;
-    if FStorageHelper.CreateDirIfNotExists(VPath) then begin 
-      VResult := FStorageHelper.SaveTile(
+    if CreateDirIfNotExists(VPath) then begin 
+      VHelper := GetStorageHelper;
+      VResult := VHelper.SaveTile(
         VPath,
         AXY,
         AZoom,
@@ -577,8 +633,8 @@ begin
             VTileInfo
           );
         end;
-        FSyncCallListner.CheckUseTimeUpdated;
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+        OnCommitSync;
       end;
     end;
   end;
@@ -593,6 +649,7 @@ procedure TTileStorageBerkeleyDB.SaveTNE(
 var
   VPath: String;
   VResult: Boolean;
+  VHelper: ITileStorageBerkeleyDBHelper;
 begin
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     DeleteTile(AXY, AZoom, AVersionInfo); // del old tile if exists
@@ -600,8 +657,9 @@ begin
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
       cTneStorageFileExt;
-    if FStorageHelper.CreateDirIfNotExists(VPath) then begin
-      VResult := FStorageHelper.SaveTile(
+    if CreateDirIfNotExists(VPath) then begin
+      VHelper := GetStorageHelper;
+      VResult := VHelper.SaveTile(
         VPath,
         AXY,
         AZoom,
@@ -619,8 +677,8 @@ begin
             TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
           );
         end;
-        FSyncCallListner.CheckUseTimeUpdated;
         NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+        OnCommitSync;
       end;
     end;
   end;
@@ -633,6 +691,7 @@ function TTileStorageBerkeleyDB.DeleteTile(
 ): Boolean;
 var
   VPath: string;
+  VHelper: ITileStorageBerkeleyDBHelper;
 begin
   Result := False;
   if GetState.GetStatic.DeleteAccess <> asDisabled then begin
@@ -642,7 +701,8 @@ begin
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +
         cStorageFileExt;
       if FileExists(VPath) then begin
-        Result := FStorageHelper.DeleteTile(
+        VHelper := GetStorageHelper;
+        Result := VHelper.DeleteTile(
           VPath,
           AXY,
           AZoom,
@@ -655,7 +715,10 @@ begin
           FFileNameGenerator.GetTileFileName(AXY, AZoom) +
           cTneStorageFileExt;
         if FileExists(VPath) then begin
-          Result := FStorageHelper.DeleteTile(
+          if not Assigned(VHelper) then begin
+            VHelper := GetStorageHelper;
+          end;
+          Result := VHelper.DeleteTile(
             VPath,
             AXY,
             AZoom,
@@ -675,8 +738,8 @@ begin
           TTileInfoBasicNotExists.Create(0, AVersionInfo)
         );
       end;
-      FSyncCallListner.CheckUseTimeUpdated;
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+      OnCommitSync;
     end;
   end;
 end;
@@ -693,6 +756,7 @@ var
   VFilesIterator: IFileNameIterator;
   VFoldersIteratorFactory: IFileNameIteratorFactory;
   VFilesInFolderIteratorFactory: IFileNameIteratorFactory;
+  VHelper: ITileStorageBerkeleyDBHelper;
 begin
   VProcessFileMasks := TWideStringList.Create;
   try
@@ -715,6 +779,9 @@ begin
     );
 
     VFileNameParser := TTileFileNameBerkeleyDB.Create as ITileFileNameParser;
+
+    VHelper := GetStorageHelper;
+
     Result :=
       TEnumTileInfoByBerkeleyDB.Create(
         AIgnoreMultiVersionTiles,
@@ -722,7 +789,7 @@ begin
         VFileNameParser,
         Self.MapVersionFactory,
         (Self as ITileStorage),
-        FStorageHelper
+        VHelper
       );
   finally
     VProcessFileMasks.Free;
@@ -734,6 +801,39 @@ begin
   if Assigned(FTileInfoMemCache) then begin
     FTileInfoMemCache.Clear;
   end;
+end;
+
+function TTileStorageBerkeleyDB.GetStorageHelper: ITileStorageBerkeleyDBHelper;
+begin
+  FStorageHelperLock.BeginRead;
+  try
+    Result := FStorageHelper;
+  finally
+    FStorageHelperLock.EndRead;
+  end;
+
+  if not Assigned(Result) then begin
+    FStorageHelperLock.BeginWrite;
+    try
+      if not Assigned(FStorageHelper) then begin    
+        FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
+          FGlobalBerkeleyDBHelper,
+          MapVersionFactory,
+          StoragePath,
+          FReadOnlyAccess,
+          FVersioned,
+          GeoConverter.ProjectionEPSG
+        );
+      end;
+      Result := FStorageHelper;
+    finally
+      FStorageHelperLock.EndWrite;
+    end;
+  end;
+
+  FSyncCallListener.CheckUseTimeUpdated; 
+
+  Assert(Assigned(Result));
 end;
 
 end.

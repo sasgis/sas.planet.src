@@ -26,10 +26,7 @@ uses
   Classes,
   SysUtils,
   libdb51,
-  i_Notifier,
-  i_Listener,
   i_BinaryData,
-  i_SimpleFlag,
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
   i_GlobalBerkeleyDBHelper,
@@ -46,13 +43,8 @@ type
     FPageSize: Cardinal;
     FFileName: string;
     FIsReadOnly: Boolean;
-    FSyncAllow: ISimpleFlag;
-    FOperationsCount: ICounter;
     FLock: IReadWriteSync;
-    FSyncCallListener: IListener;
-    FSyncCallNotifier: INotifierInternal;
     FOnDeadLockRetryCount: Integer;
-    function IsNeedDoSync: Boolean;
   private
     { IBerkeleyDB }
     procedure Open(const ADatabaseFileName: string);
@@ -67,13 +59,12 @@ type
     function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
     function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
     procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
-    procedure Sync(const ASyncWithNotifier: Boolean);
+    procedure Sync;
     function GetFileName: string;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
-      const ASyncCallListener: IListener;
       const AIsReadOnly: Boolean;
       const APageSize: Cardinal
     );
@@ -83,24 +74,20 @@ type
 implementation
 
 uses
-  u_Notifier,
   u_BinaryData,
-  u_Synchronizer,
-  u_SimpleFlagWithInterlock;
+  u_Synchronizer;
 
 type
   EBerkeleyDB = class(Exception);
 
 const
   cBerkeleyDBErrPfx = 'BerkeleyDB';
-  cMaxOperationsCountToSync = 1024;
 
 { TBerkeleyDB }
 
 constructor TBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
-  const ASyncCallListener: IListener;
   const AIsReadOnly: Boolean;
   const APageSize: Cardinal
 );
@@ -114,27 +101,15 @@ begin
   FEnvRootPath := AEnvironment.RootPath;
   FFileName := '';                      
   FLock := MakeSyncRW_Std(Self, False);
-  FSyncAllow := TSimpleFlagWithInterlock.Create;
-  FOperationsCount := TCounterInterlock.Create;
-  FSyncCallListener := ASyncCallListener;
-  if Assigned(FSyncCallListener) then begin
-    FSyncCallNotifier := TNotifierBase.Create;
-    FSyncCallNotifier.Add(FSyncCallListener);
-  end;
   FOnDeadLockRetryCount := 3;
 end;
 
 destructor TBerkeleyDB.Destroy;
 begin
   try
-    Sync(False);
-    Close;
+    Self.Sync;
+    Self.Close;
   finally
-    if Assigned(FSyncCallNotifier) and Assigned(FSyncCallListener) then begin
-      FSyncCallNotifier.Remove(FSyncCallListener);
-      FSyncCallListener := nil;
-      FSyncCallNotifier := nil;
-    end;
     FLock := nil;
     FHelper := nil;
     inherited;
@@ -336,12 +311,6 @@ begin
     if AIsDeadLock and (ATxn = nil) then begin
       CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
     end;
-
-    if Result then begin
-      if IsNeedDoSync then begin
-        Sync(True);
-      end;
-    end;
   except
     on E: Exception do
       FHelper.RaiseException(E.ClassName + ': ' + E.Message);
@@ -438,34 +407,21 @@ begin
     if AIsDeadLock and (ATxn = nil) then begin
       CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
     end;
-
-    if Result then begin
-      if IsNeedDoSync then begin
-        Sync(True);
-      end;
-    end else begin
-      // key not found
-    end;
   except
     on E: Exception do
       FHelper.RaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
-procedure TBerkeleyDB.Sync(const ASyncWithNotifier: Boolean);
+procedure TBerkeleyDB.Sync;
 begin
   try
-    if FSyncAllow.CheckFlagAndReset then begin
-      FLock.BeginWrite;
-      try
-        CheckBDB(db.sync(db, 0));
-      finally
-        FLock.EndWrite;
-      end;
-      if ASyncWithNotifier and Assigned(FSyncCallNotifier) then begin
-        FSyncCallNotifier.Notify(nil);
-      end;
-    end
+    FLock.BeginWrite;
+    try
+      CheckBDB(db.sync(db, 0));
+    finally
+      FLock.EndWrite;
+    end;
   except
     on E: Exception do
       FHelper.RaiseException(E.ClassName + ': ' + E.Message);
@@ -549,18 +505,6 @@ end;
 function TBerkeleyDB.GetFileName: string;
 begin
   Result := FFileName;
-end;
-
-function TBerkeleyDB.IsNeedDoSync: Boolean;
-var
-  VCount: Integer;
-begin
-  FSyncAllow.SetFlag;
-  VCount := FOperationsCount.Inc;
-  Result := (VCount >= cMaxOperationsCountToSync);
-  if Result then begin
-    FOperationsCount.Reset;
-  end;
 end;
 
 end.

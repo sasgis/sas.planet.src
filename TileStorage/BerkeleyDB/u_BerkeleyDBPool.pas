@@ -51,6 +51,7 @@ type
     { IBerkeleyDBPool }
     function Acquire(const ADatabaseFileName: string): IBerkeleyDB;
     procedure Release(const ADatabase: IBerkeleyDB);
+    function Count: Integer;
     procedure Sync;
   public
     constructor Create(
@@ -256,12 +257,26 @@ begin
             Dispose(PRec);
             FObjList.Items[i] := nil;
           end else begin
-            PRec.Database.Sync(False);
+            PRec.Database.Sync;
           end;
         end;
       end;
     finally
       FObjList.Pack;
+    end;
+  finally
+    FCS.Release;
+  end;
+end;
+
+function TBerkeleyDBPool.Count: Integer;
+begin
+  FCS.Acquire;
+  try
+    if Assigned(FObjList) then begin
+      Result := FObjList.Count;
+    end else begin
+      Result := 0;
     end;
   finally
     FCS.Release;

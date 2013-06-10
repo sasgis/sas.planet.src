@@ -30,6 +30,7 @@ type
     ['{BAC521DC-676E-48F2-BEE2-9E7AFC82F9CA}']
     function Acquire(const ADatabaseFileName: string): IBerkeleyDB;
     procedure Release(const ADatabase: IBerkeleyDB);
+    function Count: Integer;
     procedure Sync;
   end;
 

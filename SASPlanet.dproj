@@ -740,6 +740,7 @@
     <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBKeyValue.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBPool.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_GlobalBerkeleyDBHelper.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\i_TileStorageBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBEnv.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBFactory.pas" />
