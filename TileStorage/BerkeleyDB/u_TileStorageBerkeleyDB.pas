@@ -259,7 +259,7 @@ var
   VCount: Integer;
 begin
   VCount := InterlockedExchangeAdd(@FCommitsCountToSync, -1);
-  if VCount < 0 then begin
+  if VCount = 0 then begin
     InterlockedExchange(FCommitsCountToSync, cStorageCommitsCountToSync);
     Self.OnSyncCall;
   end;
