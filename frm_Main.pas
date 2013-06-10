@@ -82,6 +82,7 @@ uses
   i_MessageHandler,
   i_MouseState,
   i_MainFormState,
+  i_LocalCoordConverter,
   i_MouseHandler,
   i_TreeChangeable,
   i_MapViewGoto,
@@ -89,6 +90,7 @@ uses
   i_MenuGeneratorByTree,
   i_FindVectorItems,
   i_PlayerPlugin,
+  i_VectorItemSubset,
   u_ShortcutManager,
   u_MarkDbGUIHelper,
   frm_About,
@@ -701,6 +703,10 @@ type
     procedure SaveConfig(Sender: TObject);
     function ConvLatLon2Scale(const Astr:string):Double;
     function Deg2StrValue(const aDeg:Double):string;
+
+    function SelectForEdit(AList: IVectorItemSubset; ALocalConverter: ILocalCoordConverter): IVectorDataItemSimple;
+    function AddToHint(AHint: string; AMark: IMark): string;
+
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -727,8 +733,7 @@ uses
   i_CoordConverter,
   i_ProjectionInfo,
   i_VectorItemLonLat,
-  i_VectorItemSubset,
-  i_LocalCoordConverter,
+  i_VectorItemProjected,
   i_LocalCoordConverterChangeable,
   i_GUIDListStatic,
   i_ActiveMapsConfig,
@@ -738,6 +743,7 @@ uses
   i_DoublePointFilter,
   i_PathDetalizeProviderList,
   i_SensorViewListGenerator,
+  i_VectorItemsFactory,
   i_ConfigDataProvider,
   i_PointCaptionsLayerConfig,
   i_MapVersionInfo,
@@ -4874,11 +4880,11 @@ var
   VClickMapRect: TDoubleRect;
   VIsClickInMap: Boolean;
   VVectorItem: IVectorDataItemSimple;
+  VVectorItems: IVectorItemSubset;
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
   VMagnetPoint: TDoublePoint;
-  VMarkS: Double;
 begin
   if (FHintWindow<>nil) then begin
     FHintWindow.ReleaseHandle;
@@ -4921,7 +4927,10 @@ begin
           VMagnetPoint := CEmptyDoublePoint;
           if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
              (FConfig.MainConfig.MagnetDraw) then begin
-            VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
+            VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x, y));
+            if((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
+              VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
+            end;
           end;
           if VVectorItem <> nil then begin
             if Supports(VVectorItem, IMarkPoint, VMarkPoint) then begin
@@ -4962,7 +4971,10 @@ begin
   if (VIsClickInMap)and (Button=mbright)and(FState.State=ao_movemap) then begin
     VVectorItem := nil;
     if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-      VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x, y), VMarkS);
+      VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x, y));
+      if((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
+        VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
+      end;
     end;
     if not Supports(VVectorItem, IMark, FSelectedMark) then begin
       FSelectedMark := nil;
@@ -4981,9 +4993,61 @@ begin
     FSelectedWiki := nil;
   end else begin
     // try to select wiki object
-    VVectorItem := FWikiLayer.FindItem(VLocalConverter, Point(x, y), VMarkS);
+    VVectorItems := FWikiLayer.FindItems(VLocalConverter, Point(x, y));
+    if((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
+      VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
+    end;
     if not Supports(VVectorItem, IVectorDataItemPoly, FSelectedWiki) then begin
       FSelectedWiki := nil;
+    end;
+  end;
+end;
+
+function TfrmMain.SelectForEdit(AList: IVectorItemSubset; ALocalConverter: ILocalCoordConverter): IVectorDataItemSimple;
+var
+  VMarksEnum: IEnumUnknown;
+  VMark: IMark;
+  i: integer;
+  VMarkPoly: IVectorDataItemPoly;
+  VProjectedPolygon: IProjectedPolygon;
+  VSize: Double;
+  VArea: Double;
+  VVectorItemsFactory: IVectorItemsFactory;
+begin
+  Result := nil;
+  if AList.Count = 1 then begin
+    Result := AList.GetItem(0);
+    Exit;
+  end;
+  VMarksEnum := AList.GetEnum;
+  while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
+    if Supports(VMark, IMarkPoint) then begin
+      Result := VMark;
+      Exit;
+    end;
+  end;
+  VMarksEnum := AList.GetEnum;
+  while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
+    if Supports(VMark, IVectorDataItemLine) then begin
+      Result := VMark;
+      Exit;
+    end;
+  end;
+  VSize:=-1;
+  VMarksEnum := AList.GetEnum;
+  VVectorItemsFactory := GState.VectorItemsFactory;
+  while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
+    if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
+      VProjectedPolygon := VVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+          ALocalConverter.ProjectionInfo,
+          VMarkPoly.Line,
+          nil
+        );
+      VArea := VProjectedPolygon.CalcArea();
+      if((VArea < VSize) or (VSize < 0)) then begin
+        Result := VMark;
+        VSize := VArea;
+      end;
     end;
   end;
 end;
@@ -4991,7 +5055,6 @@ end;
 procedure TfrmMain.mapMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
-  VItemArea: Double;
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
@@ -5006,9 +5069,14 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseDownPos: TPoint;
   VMouseMoveDelta: TPoint;
-  VMarkS: Double;
   VVectorItem: IVectorDataItemSimple;
-  VVectorItemFound: IVectorDataItemSimple;
+  VVectorItems: IVectorItemSubset;
+  I: Integer;
+  VDescription: string;
+  VTitle: string;
+  VMark: IMark;
+  VEnumUnknown: IEnumUnknown;
+  VFound: integer;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
@@ -5121,43 +5189,96 @@ begin
       FMouseState.GetLastUpPos(Button)
     );
   end;
-
+  VFound:=0;
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
     if (FState.State=ao_movemap)and(Button=mbLeft) then begin
-      VItemArea := 0;
-
       VVectorItem := nil;
-      VVectorItem := FWikiLayer.FindItem(VLocalConverter, Point(x,y), VMarkS);
-      if VVectorItem <> nil then begin
-        VVectorItemFound := VVectorItem;
-        VItemArea := VMarkS;
-      end;
-
-      VVectorItem := FLayerSearchResults.FindItem(VLocalConverter, Point(x,y), VMarkS);
-      if VVectorItem <> nil then begin
-        VVectorItemFound := VVectorItem;
-        VItemArea := VMarkS;
-      end;
-
-      VVectorItem := nil;
-      if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
-        VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, Point(x,y), VMarkS);
-      end;
-
-      if VVectorItem <> nil then begin
-        if (VVectorItemFound = nil) or (not Supports(VVectorItem, IMarkPoly)) or (VItemArea >= VMarkS) then begin
-         VVectorItemFound := VVectorItem;
-        end;
-      end;
-
-      if VVectorItemFound <> nil  then begin
-        if VVectorItemFound.Desc <> '' then begin
-          if VVectorItemFound.GetInfoUrl <> '' then begin
-            GState.InternalBrowser.Navigate(VVectorItemFound.GetInfoCaption, VVectorItemFound.GetInfoUrl + CVectorItemDescriptionSuffix);
-          end else begin
-            GState.InternalBrowser.ShowMessage(VVectorItemFound.GetInfoCaption, VVectorItemFound.Desc);
+      VVectorItems := FWikiLayer.FindItems(VLocalConverter, Point(x,y));
+      if VVectorItems <> nil then begin
+        if VVectorItems.Count > 0 then begin
+          VEnumUnknown := VVectorItems.GetEnum;
+          while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
+            if VMark.GetInfoUrl <> '' then begin
+              if VMark.Name <> '' then begin
+                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
+                  VMark.Name + '</a><br>';
+              end else begin
+                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
+                  VMark.GetInfoUrl + '</a><br>';
+              end;
+            end else begin
+              VDescription := VDescription + '<hr>';
+            end;
+            VDescription := VDescription + VMark.Desc;
+            VTitle := VTitle + VMark.Name + '; ';
+            VFound := VFound + 1;
+            VVectorItem := VMark;
           end;
         end;
+      end;
+
+      VVectorItems := FLayerSearchResults.FindItems(VLocalConverter, Point(x,y));
+      if VVectorItems <> nil then begin
+        if VVectorItems.Count > 0 then begin
+          VEnumUnknown:=VVectorItems.GetEnum;
+          while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
+            if VMark.GetInfoUrl <> '' then begin
+              if VMark.Name <> '' then begin
+                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
+                  VMark.Name + '</a><br>';
+              end else begin
+                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
+                  VMark.GetInfoUrl + '</a><br>';
+              end;
+            end else begin
+              VDescription := VDescription + '<hr>';
+            end;
+            VDescription := VDescription + VMark.Desc;
+            VTitle := VTitle + VMark.Name + '; ';
+            VFound := VFound + 1;
+            VVectorItem := VMark;
+          end;
+        end;
+      end;
+
+      VVectorItems := nil;
+      if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
+        VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x,y));
+      end;
+
+      if VVectorItems <> nil then begin
+        if VVectorItems.Count > 0 then begin
+          VEnumUnknown := VVectorItems.GetEnum;
+          while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
+            if VMark.GetInfoUrl <> '' then begin
+              if VMark.Name <> '' then begin
+                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl +
+                  '">' + VMark.Name + '</a><br>';
+              end else begin
+                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl +
+                  '">' + VMark.GetInfoUrl + '</a><br>';
+              end;
+            end else begin
+              VDescription := VDescription + '<hr>';
+            end;
+            VDescription := VDescription + VMark.Desc;
+            VTitle := VTitle + VMark.Name + '; ';
+            VFound := VFound + 1;
+            VVectorItem := VMark;
+          end;
+        end;
+      end;
+
+      if VFound=1 then begin
+        if VVectorItem.GetInfoUrl <> '' then begin
+          GState.InternalBrowser.Navigate(VVectorItem.GetInfoCaption, VVectorItem.GetInfoUrl +
+            CVectorItemDescriptionSuffix);
+        end else begin
+          GState.InternalBrowser.ShowMessage(VTitle, VDescription);
+        end;
+      end else if VFound>1 then begin
+        GState.InternalBrowser.ShowMessage(VTitle, 'Found: '+ inttostr(VFound) +
+          '<br>' + VDescription);
       end;
     end;
   end;
@@ -5171,20 +5292,21 @@ var
   VConverter: ICoordConverter;
   VLonLat: TDoublePoint;
   VItemFound: IVectorDataItemSimple;
-  VItemS: Double;
   VItemHint: string;
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseMoveDelta: TPoint;
   VLastMouseMove: TPoint;
   VMousePos: TPoint;
-  VMarkS: Double;
   VVectorItem: IVectorDataItemSimple;
   VMarkPoint: IMarkPoint;
   VMarkPoly: IMarkPoly;
   VMarkLine: IMarkLine;
   VMagnetPoint: TDoublePoint;
-
+  VVectorItems: IVectorItemSubset;
+  VEnumUnknown: IEnumUnknown;
+  VMark: IMark;
+  i: integer;
   function _AllowShowHint: Boolean;
   var
     hf: HWND;
@@ -5238,7 +5360,10 @@ begin
       end;
 
       if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-        VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
+        VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, VMousePos);
+        if((VVectorItems<>nil)and(VVectorItems.Count>0)) then begin
+          VVectorItem:=SelectForEdit(VVectorItems, VLocalConverter);
+        end;
         if VVectorItem <> nil then begin
           if Supports(VVectorItem, IMarkPoint, VMarkPoint) then begin
             VMagnetPoint := VMarkPoint.Point;
@@ -5324,39 +5449,52 @@ begin
      _AllowShowHint then begin
     // show hint
     VItemFound := nil;
-    VItemS := 0;
-    VVectorItem := FWikiLayer.FindItem(VLocalConverter, VMousePos, VMarkS);
-    if VVectorItem <> nil then begin
-      VItemFound := VVectorItem;
-      VItemS := VMarkS;
+
+    VVectorItem := nil;
+    VVectorItems := FWikiLayer.FindItems(VLocalConverter,VMousePos);
+    if VVectorItems <> nil then begin
+      if VVectorItems.Count > 0 then begin
+        VEnumUnknown := VVectorItems.GetEnum;
+        if VEnumUnknown <> nil then
+          while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
+            VItemHint := addToHint(VItemHint, VMark);
+          end;
+      end;
     end;
 
-    VVectorItem := FLayerSearchResults.FindItem(VLocalConverter, VMousePos, VMarkS);
-    if VVectorItem <> nil then begin
-      VItemFound := VVectorItem;
-      VItemS := VMarkS;
+    VVectorItems := FLayerSearchResults.FindItems(VLocalConverter, VMousePos);
+    if VVectorItems <> nil then begin
+      if VVectorItems.Count > 0 then begin
+        VEnumUnknown := VVectorItems.GetEnum;
+        while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
+            VItemHint := addToHint(VItemHint, VMark);
+        end;
+      end;
     end;
 
     VVectorItem := nil;
+    VVectorItems := nil;
     if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
-      VVectorItem := FLayerMapMarks.FindItem(VLocalConverter, VMousePos, VMarkS);
+      VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, VMousePos);
     end;
-    if VVectorItem <> nil then begin
-      if (VItemFound = nil) or (not Supports(VVectorItem, IMarkPoly)) or (VItemS >= VMarkS) then begin
-        VItemFound := VVectorItem;
+    if VVectorItems <> nil then begin
+      if VVectorItems.Count > 0 then begin
+        VEnumUnknown := VVectorItems.GetEnum;
+        while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
+          VItemHint := addToHint(VItemHint, VMark);
+        end;
       end;
     end;
 
-    if VItemFound <> nil then begin
+    if VItemHint <> '' then begin
       if map.Cursor = crDefault then begin
         map.Cursor := crHandPoint;
       end;
-      if FHintWindow<>nil then FHintWindow.ReleaseHandle;
-        VItemHint := VItemFound.GetHintText;
-        if VItemHint<>'' then begin
-          if FHintWindow=nil then begin
-            FHintWindow:=THintWindow.Create(Self);
-            FHintWindow.Brush.Color:=clInfoBk;
+      if FHintWindow <> nil then FHintWindow.ReleaseHandle;
+        if VItemHint <> '' then begin
+          if FHintWindow = nil then begin
+            FHintWindow := THintWindow.Create(Self);
+            FHintWindow.Brush.Color := clInfoBk;
           end;
           hintrect:=FHintWindow.CalcHintRect(Screen.Width, VItemHint, nil);
           FHintWindow.ActivateHint(
@@ -5365,12 +5503,21 @@ begin
           );
           FHintWindow.Repaint;
         end;
-        FShowActivHint:=true;
+        FShowActivHint := true;
       end else begin
         if map.Cursor = crHandPoint then begin
           map.Cursor := crDefault;
         end;
     end;
+  end;
+end;
+
+function TfrmMain.AddToHint(AHint: string; AMark: IMark): string;
+begin
+  if AHint = '' then begin
+    Result := AHint + AMark.getHintText;
+  end else begin
+    Result := AHint + #13#10'----------------'#13#10 + AMark.GetHintText;
   end;
 end;
 

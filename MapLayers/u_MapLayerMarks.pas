@@ -60,11 +60,10 @@ type
     ): IBitmapLayerProvider; override;
     procedure StartThreads; override;
   private
-    function FindItem(
+    function FindItems(
       const AVisualConverter: ILocalCoordConverter;
-      const ALocalPoint: TPoint;
-      out AMarkS: Double
-    ): IVectorDataItemSimple;
+      const ALocalPoint: TPoint
+    ): IVectorItemSubset;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -100,6 +99,7 @@ uses
   u_Synchronizer,
   u_MarkerProviderForVectorItemWithCache,
   u_MarkerProviderForVectorItemForMarkPoints,
+  u_VectorDataItemSubset,
   u_BitmapLayerProviderByMarksSubset;
 
 { TMapMarksLayerNew }
@@ -226,9 +226,10 @@ begin
   end;
 end;
 
-function TMapLayerMarks.FindItem(
-  const AVisualConverter: ILocalCoordConverter; const ALocalPoint: TPoint;
-  out AMarkS: Double): IVectorDataItemSimple;
+function TMapLayerMarks.FindItems(
+  const AVisualConverter: ILocalCoordConverter;
+  const ALocalPoint: TPoint
+): IVectorItemSubset;
 var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -240,19 +241,20 @@ var
   VLocalConverter: ILocalCoordConverter;
   VMarksSubset: IVectorItemSubset;
   VMarksEnum: IEnumUnknown;
-  VSquare: Double;
   i: Cardinal;
   VCounterContext: TInternalPerformanceCounterContext;
   VMarkLine: IVectorDataItemLine;
   VMarkPoly: IVectorDataItemPoly;
   VProjectdPath: IProjectedPath;
   VProjectdPolygon: IProjectedPolygon;
+  VMarkList: IVectorItemSubset;
+  Vtmp: IInterfaceList;
 begin
-  Result := nil;
+  Vtmp := TInterfaceList.Create;
+  VMarkList := TVectorItemSubset.Create(Vtmp);
+  Result := VMarkList;
   VCounterContext := FMouseOnRegCounter.StartOperation;
   try
-    AMarkS := 0;
-
     FMarksSubsetCS.BeginRead;
     try
       VMarksSubset := FMarksSubset;
@@ -277,27 +279,19 @@ begin
         while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
           if VMark.LLRect.IsIntersecWithRect(VLonLatRect) then begin
             if Supports(VMark, IMarkPoint) then begin
-              Result := VMark;
-              AMarkS := 0;
-              exit;
+              Vtmp.add(VMark);
             end else begin
               if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
                 if Supports(FProjectedCache.GetByID(Integer(VMarkLine)), IProjectedPath, VProjectdPath) then begin
                   if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
-                    Result := VMark;
-                    AMarkS := 0;
-                    exit;
+                    Vtmp.Add(VMark);
                   end;
                 end;
               end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
                 if Supports(FProjectedCache.GetByID(Integer(VMarkPoly)), IProjectedPolygon, VProjectdPolygon) then begin
                   if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
                     VProjectdPolygon.IsPointOnBorder(VPixelPos, 3) then begin
-                    VSquare := VProjectdPolygon.CalcArea;
-                    if (Result = nil) or (VSquare < AMarkS) then begin
-                      Result := VMark;
-                      AMarkS := VSquare;
-                    end;
+                    Vtmp.Add(VMark);
                   end;
                 end;
               end;

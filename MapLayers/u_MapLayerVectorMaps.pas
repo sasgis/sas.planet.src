@@ -68,9 +68,8 @@ type
     function MouseOnElements(
       const AVisualConverter: ILocalCoordConverter;
       const ACopiedElements: IVectorItemSubset;
-      const xy: TPoint;
-      var AItemS: Double
-    ): IVectorDataItemSimple;
+      const xy: TPoint
+    ): IVectorItemSubset;
   protected
     function CreateLayerProvider(
       AOperationID: Integer;
@@ -80,11 +79,10 @@ type
     procedure DelicateRedrawWithFullUpdate; override;
     procedure StartThreads; override;
   private
-    function FindItem(
+    function FindItems(
       const AVisualConverter: ILocalCoordConverter;
-      const ALocalPoint: TPoint;
-      out AMarkS: Double
-    ): IVectorDataItemSimple;
+      const ALocalPoint: TPoint
+    ): IVectorItemSubset;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -243,16 +241,14 @@ begin
   inherited;
 end;
 
-function TMapLayerVectorMaps.FindItem(
+function TMapLayerVectorMaps.FindItems(
   const AVisualConverter: ILocalCoordConverter;
-  const ALocalPoint: TPoint;
-  out AMarkS: Double
-): IVectorDataItemSimple;
+  const ALocalPoint: TPoint
+): IVectorItemSubset;
 var
   VElements: IVectorItemSubset;
 begin
   Result := nil;
-  AMarkS := 0;
   if Visible then begin
     FAllElementsCS.BeginRead;
     try
@@ -261,7 +257,7 @@ begin
       FAllElementsCS.EndRead;
     end;
     if VElements <> nil then begin
-      Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint, AMarkS);
+      Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint);
     end;
   end;
 end;
@@ -269,9 +265,8 @@ end;
 function TMapLayerVectorMaps.MouseOnElements(
   const AVisualConverter: ILocalCoordConverter;
   const ACopiedElements: IVectorItemSubset;
-  const xy: TPoint;
-  var AItemS: Double
-): IVectorDataItemSimple;
+  const xy: TPoint
+): IVectorItemSubset;
 var
   VRect: TRect;
   VConverter: ICoordConverter;
@@ -285,9 +280,12 @@ var
   VItemLine: IVectorDataItemLine;
   VItemPoly: IVectorDataItemPoly;
   VProjectdPolygon: IProjectedPolygon;
-  VSquare: Double;
+  VMarkList: IVectorItemSubset;
+  Vtmp: IInterfaceList;
 begin
-  Result := nil;
+  Vtmp := TInterfaceList.Create;
+  VMarkList := TVectorItemSubset.Create(Vtmp);
+  Result := VMarkList;
 
   if ACopiedElements.Count > 0 then begin
     VRect.Left := xy.X - 3;
@@ -307,25 +305,17 @@ begin
       VItem := ACopiedElements.GetItem(i);
       if VItem.LLRect.IsIntersecWithRect(VLonLatRect) then begin
         if Supports(VItem, IVectorDataItemPoint) then begin
-          Result := VItem;
-          AItemS := 0;
-          Exit;
+          Vtmp.add(VItem);
         end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
           if Supports(FProjectedCache.GetByID(Integer(VItemLine)), IProjectedPath, VProjectdPath) then begin
             if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
-              Result := VItem;
-              AItemS := 0;
-              Exit;
+              Vtmp.add(VItem);
             end;
           end;
         end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
           if Supports(FProjectedCache.GetByID(Integer(VItemPoly)), IProjectedPolygon, VProjectdPolygon) then begin
             if VProjectdPolygon.IsPointInPolygon(VPixelPos) then begin
-              VSquare := VProjectdPolygon.CalcArea;
-              if (Result = nil) or (VSquare < AItemS) then begin
-                Result := VItem;
-                AItemS := VSquare;
-              end;
+              Vtmp.add(VItem);
             end;
           end;
         end;

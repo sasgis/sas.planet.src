@@ -18,6 +18,7 @@ uses
   i_VectorDataItemSimple,
   i_FindVectorItems,
   i_GeoCoder,
+  i_VectorItemSubset,
   u_MapLayerBasic;
 
 type
@@ -34,11 +35,10 @@ type
     ); override;
     procedure StartThreads; override;
   private
-    function FindItem(
+    function FindItems(
       const AVisualConverter: ILocalCoordConverter;
-      const ALocalPoint: TPoint;
-      out AItemS: Double
-    ): IVectorDataItemSimple;
+      const ALocalPoint: TPoint
+    ): IVectorItemSubset;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -54,12 +54,13 @@ type
 implementation
 
 uses
-  Types,
+  Classes,
   SysUtils,
   c_InternalBrowser,
   i_CoordConverter,
   u_ListenerByEvent,
   u_GeoCodePlacemarkWithUrlDecorator,
+  u_VectorDataItemSubset,
   u_GeoFun;
 
 { TSearchResultsLayer }
@@ -140,11 +141,10 @@ begin
   end;
 end;
 
-function TSearchResultsLayer.FindItem(
+function TSearchResultsLayer.FindItems(
   const AVisualConverter: ILocalCoordConverter;
-  const ALocalPoint: TPoint;
-  out AItemS: Double
-): IVectorDataItemSimple;
+  const ALocalPoint: TPoint
+): IVectorItemSubset;
 var
   VLonLatRect: TDoubleRect;
   VRect: TRect;
@@ -157,9 +157,13 @@ var
   VPlacemark: IGeoCodePlacemark;
   VSearchResults: IGeoCodeResult;
   VIndex: Integer;
+  VMarkList: IVectorItemSubset;
+  Vtmp: IInterfaceList;
+  VTempItem: IGeoCodePlacemark;
 begin
-  Result := nil;
-  AItemS := 0;
+  Vtmp := TInterfaceList.Create;
+  VMarkList := TVectorItemSubset.Create(Vtmp);
+  Result := VMarkList;
   VSearchResults := FLastSearchResults.GeoCodeResult;
   if VSearchResults <> nil then begin
     VRect.Left := ALocalPoint.X - 5;
@@ -176,13 +180,11 @@ begin
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       if LonLatPointInRect(VPlacemark.GetPoint, VLonLatRect) then begin
-        Result :=
-          TGeoCodePlacemarkWithUrlDecorator.Create(
+        VTempItem := TGeoCodePlacemarkWithUrlDecorator.Create(
             VPlacemark,
             CLastSearchResultsInternalURL + IntToStr(VIndex) + '/'
           );
-        AItemS := 0;
-        exit;
+        Vtmp.add(VTempItem);
       end;
       Inc(VIndex);
     end;
