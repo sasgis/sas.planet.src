@@ -91,7 +91,6 @@ begin
 
   Result :=
     TMarkCategory.Create(
-      CNotExistCategoryID,
       VName,
       True,
       VAfterScale,
@@ -125,7 +124,6 @@ begin
 
   Result :=
     TMarkCategory.Create(
-      CNotExistCategoryID,
       VName,
       AVisible,
       AAfterScale,
@@ -140,7 +138,6 @@ function TMarkCategoryFactory.ModifyVisible(
 begin
   Result :=
     TMarkCategory.Create(
-      CNotExistCategoryID,
       ASource.Name,
       AVisible,
       ASource.AfterScale,

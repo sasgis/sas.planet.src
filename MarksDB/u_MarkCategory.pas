@@ -44,7 +44,6 @@ type
     function GetBeforeScale: integer;
   public
     constructor Create(
-      AId: Integer;
       const AName: string;
       AVisible: Boolean;
       AAfterScale: integer;
@@ -60,7 +59,6 @@ uses
 { TMarkCategory }
 
 constructor TMarkCategory.Create(
-  AId: Integer;
   const AName: string;
   AVisible: Boolean;
   AAfterScale, ABeforeScale: integer
