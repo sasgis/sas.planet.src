@@ -57,6 +57,7 @@ uses
   t_GeoTypes,
   i_VectorItemSubset,
   i_VectorDataItemSimple,
+  CCR.Exif.IPTC,
   u_VectorDataItemSubset;
 
 { TImportJpegWithExif }
@@ -77,7 +78,6 @@ function TImportJpegWithExif.ProcessImport(
   const AConfig: IImportConfig
 ): IInterfaceList;
 var
-  VVectorData: IVectorItemSubset;
   VPoint: TDoublePoint;
   VExifData: TExifData;
   VGPSLatitude: TGPSLatitude;
@@ -85,13 +85,22 @@ var
   VGPSAltitude: TExifFraction;
   VDesc: string;
   VItem: IVectorDataItemSimple;
-  VList: IInterfaceList;
   VValueToStringConverter: IValueToStringConverter;
   VAltitude: string;
   VExAltitude: Extended;
+  VTmpStr: string;
+  i: Integer;
+  VTitle: string;
+  Vkeys: TStrings;
+  VIPTCData: TIPTCData;
+  VList: IInterfaceList;
+  VVectorData: IVectorItemSubset;
+  VFormattedDateTime : string;
 begin
-  VValueToStringConverter := FValueToStringConverterConfig.GetStatic;
   Result := nil;
+  if not FileExists(AFileName) then Exit;
+  VDEsc := '';
+  VValueToStringConverter := FValueToStringConverterConfig.GetStatic;
   VExifData := TExifData.Create;
   try
     VExifData.LoadFromGraphic(AFileName);
@@ -119,7 +128,32 @@ begin
       VAltitude := FloatToStrF(VExAltitude, ffFixed, 10, 2);
     end;
 
-    VDEsc := '';
+    VIPTCData := TIPTCData.Create;
+    try
+      VIPTCData.LoadFromGraphic(AFileName);
+      Vkeys := TStringList.Create;
+      try
+        VIPTCData.GetKeyWords(Vkeys);
+        VTmpStr := '';
+        if Assigned(Vkeys) and (Vkeys.Count > 0) then begin
+          for i := 0 to Vkeys.Count - 1 do begin
+           if Vkeys.Strings[i]<>'' then
+             VTmpStr := VTmpStr + Vkeys.Strings[i] + '; ';
+          end;
+          VDEsc := VDEsc + 'Tags: '+ VTmpStr + '<br>' + #$0D#$0A;
+        end;
+        VTmpStr := VIPTCData.CountryName + ', ' + VIPTCData.ProvinceOrState + ', ' + VIPTCData.City + ', ' +
+          VIPTCData.SubLocation + '<br>' + #$0D#$0A;
+        //Esli sodergit nekoe kolichestvo razumnoi informacii
+        if Length(VTmpStr)>20 then VDEsc := VDEsc + 'Location: '+ VTmpStr + '<br>' + #$0D#$0A;
+        VTmpStr := '';
+      finally
+        VKeys.Free;
+      end;
+    finally
+      VIPTCData.Free;
+    end;
+
     VDEsc := VDEsc + 'Coordinates: [ '+VValueToStringConverter.LonLatConvert(VPoint)+' ]<br>' + #$0D#$0A;
     if VAltitude <> '' then
       VDEsc := VDEsc + 'Elevation: ' + VAltitude + '<br>' + #$0D#$0A;
@@ -127,27 +161,45 @@ begin
       VDEsc := VDEsc + 'GPS Version:' + VExifData.GPSVersion.AsString + '<br>' + #$0D#$0A;
     if VExifData.CameraMake <> '' then
       VDEsc := VDEsc + 'Camera: '+ VExifData.CameraMake + ' '+VExifData.CameraModel + '<br>' + #$0D#$0A;
-    if not VExifData.DateTime.MissingOrInvalid then
+    if not VExifData.DateTimeOriginal.MissingOrInvalid then begin
+      VDEsc := VDEsc + 'Date: '+ VExifData.DateTimeOriginal.AsString + '<br>' + #$0D#$0A;
+    end else if not VExifData.DateTime.MissingOrInvalid then begin
       VDEsc := VDEsc + 'Date: '+ VExifData.DateTime.AsString + '<br>' + #$0D#$0A;
-    VDEsc := VDEsc + '<img width=50% height=50% src="' + AFileName+ '">';
+    end;
+
+    if VExifData.Keywords<>'' then
+      VDEsc := VDEsc + 'Windows Tags: '+ VExifData.Keywords + '<br>' + #$0D#$0A;
+    if VExifData.Author<>'' then
+      VDEsc := VDEsc + 'Author: '+ VExifData.Author + '<br>' + #$0D#$0A;
+
+    VDEsc := VDEsc + '<img width=600 src="' + AFileName + '">';
+
+    VTitle := ExtractFileName(AFileName);
+    if not VExifData.DateTimeOriginal.MissingOrInvalid then begin
+      DateTimeToString(VFormattedDateTime, 'yyyy.mm.dd-hh:mm:ss', VExifData.DateTimeOriginal.Value);
+      VTitle := VFormattedDateTime;
+    end else if not VExifData.DateTime.MissingOrInvalid then begin
+      DateTimeToString(VFormattedDateTime, 'yyyy.mm.dd-hh:mm:ss', VExifData.DateTime.Value);
+      VTitle := VFormattedDateTime;
+    end;
 
   finally
     VExifData.Free;
   end;
 
-  VItem :=
-    FVectorDataFactory.BuildPoint(
+  VItem := FVectorDataFactory.BuildPoint(
     nil,
-    '',
+    VTitle,
     VDesc,
     VPoint
   );
+
   if VItem <> nil then begin
     VList := TInterfaceList.Create;
     VList.Add(VItem);
     VVectorData := TVectorItemSubset.Create(VList);
     Result := AMarksSystem.ImportItemsList(VVectorData, AConfig, ExtractFileName(AFileName));
-  end
-  else result := nil;
   end;
+end;
+
 end.
