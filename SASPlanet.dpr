@@ -711,6 +711,8 @@ uses
   u_PathDetalizeProviderListBase in 'u_PathDetalizeProviderListBase.pas',
   u_PathDetalizeProviderListSimple in 'u_PathDetalizeProviderListSimple.pas',
   u_UserInterfaceItemBase in 'u_UserInterfaceItemBase.pas',
+  i_VectorItemTree in 'i_VectorItemTree.pas',
+  u_VectorItemTree in 'u_VectorItemTree.pas',
   i_StaticTreeItem in 'i_StaticTreeItem.pas',
   u_StaticTreeItem in 'u_StaticTreeItem.pas',
   i_StaticTreeBuilder in 'i_StaticTreeBuilder.pas',
