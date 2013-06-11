@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   i_Notifier,
+  i_Category,
   i_MarkCategory;
 
 type
@@ -39,6 +40,8 @@ type
       const AOldCategory: IInterfaceList;
       const ANewCategory: IInterfaceList
     ): IInterfaceList;
+
+    function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
 
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);

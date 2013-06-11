@@ -29,6 +29,7 @@ uses
   DBClient,
   i_IDList,
   i_SimpleFlag,
+  i_Category,
   i_MarkCategory,
   i_MarkCategoryFactory,
   i_MarkCategoryFactoryDbInternal,
@@ -72,6 +73,8 @@ type
       const ANewCategoryList: IInterfaceList
     ): IInterfaceList;
 
+    function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
+
     function GetCategoriesList: IInterfaceList;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
   private
@@ -91,7 +94,6 @@ uses
   DB,
   t_CommonTypes,
   i_EnumID,
-  i_Category,
   u_IDInterfaceList,
   u_SimpleFlagWithInterlock,
   i_MarkDbSmlInternal,
@@ -331,6 +333,24 @@ begin
     '<ROWDATA></ROWDATA>' +
     '</DATAPACKET>';
   FCdsKategory.Open;
+end;
+
+function TMarkCategoryDBSml.IsCategoryFromThisDb(
+  const ACategory: ICategory
+): Boolean;
+var
+  VCategoryInternal: IMarkCategorySMLInternal;
+begin
+  Assert(Assigned(ACategory));
+  Result := False;
+  LockWrite;
+  try
+    if Supports(ACategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
+      Result := VCategoryInternal.DbId = FDbId;
+    end;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 function TMarkCategoryDBSml.GetCategoryByID(id: integer): IMarkCategory;
