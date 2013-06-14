@@ -391,7 +391,7 @@ begin
             VMetaElement :=
               TBerkeleyDBVersionedMetaValueElement.Create(
                 VVersionID,
-                0,
+                0, // TileZOrder
                 ATileSize,
                 ATileDate,
                 ATileCRC,

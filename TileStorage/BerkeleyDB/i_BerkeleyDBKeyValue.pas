@@ -96,8 +96,8 @@ type
     function GetVersionID: Word;
     property VersionID: Word read GetVersionID;
 
-    function GetTilePriority: Word;
-    property TilePriority: Word read GetTilePriority;
+    function GetTileZOrder: Word;
+    property TileZOrder: Word read GetTileZOrder;
 
     function GetTileSize: Integer;
     property TileSize: Integer read GetTileSize;

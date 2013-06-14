@@ -137,7 +137,7 @@ type
     type
       TVersionedMetaValueElement = record
         VersionID: Word;
-        TilePriority: Word;
+        TileZOrder: Word;
         TileSize: Integer;
         TileDate: TDateTime;
         TileCRC: Cardinal;
@@ -151,7 +151,7 @@ type
   private
     { IBerkeleyDBVersionedMetaValueElement }
     function GetVersionID: Word;
-    function GetTilePriority: Word;
+    function GetTileZOrder: Word;
     function GetTileSize: Integer;
     function GetTileDate: TDateTime;
     function GetTileCRC: Cardinal;
@@ -166,7 +166,7 @@ type
   public
     constructor Create(
       const AVersionID: Word;
-      const ATilePriority: Word;
+      const ATileZOrder: Word;
       const ATileSize: Integer;
       const ATileDate: TDateTime;
       const ATileCRC: Cardinal;
@@ -642,7 +642,7 @@ end;
 
 constructor TBerkeleyDBVersionedMetaValueElement.Create(
   const AVersionID: Word;
-  const ATilePriority: Word;
+  const ATileZOrder: Word;
   const ATileSize: Integer;
   const ATileDate: TDateTime;
   const ATileCRC: Cardinal;
@@ -653,7 +653,7 @@ begin
   inherited Create;
   New(FValue);
   FValue.VersionID := AVersionID;
-  FValue.TilePriority := ATilePriority;
+  FValue.TileZOrder := ATileZOrder;
   FValue.TileSize := ATileSize;
   FValue.TileDate := ATileDate;
   FValue.TileCRC := ATileCRC;
@@ -699,8 +699,8 @@ begin
   FValue.VersionID := PWord(VPtr)^;
   Inc(VPtr, SizeOf(FValue.VersionID));
 
-  FValue.TilePriority := PWord(VPtr)^;
-  Inc(VPtr, SizeOf(FValue.TilePriority));
+  FValue.TileZOrder := PWord(VPtr)^;
+  Inc(VPtr, SizeOf(FValue.TileZOrder));
 
   FValue.TileSize := PInteger(VPtr)^;
   Inc(VPtr, SizeOf(FValue.TileSize));
@@ -736,7 +736,7 @@ begin
 
   FSize :=
     SizeOf(FValue.VersionID) +
-    SizeOf(FValue.TilePriority) +
+    SizeOf(FValue.TileZOrder) +
     SizeOf(FValue.TileSize) +
     SizeOf(FValue.TileDate) +
     SizeOf(FValue.TileCRC) +
@@ -752,9 +752,9 @@ begin
   PWord(VPtr)^ := FValue.VersionID;
   Inc(VPtr, VLen);
 
-   // tile priority
-  VLen := SizeOf(FValue.TilePriority);
-  PWord(VPtr)^ := FValue.TilePriority;
+   // tile Z-order
+  VLen := SizeOf(FValue.TileZOrder);
+  PWord(VPtr)^ := FValue.TileZOrder;
   Inc(VPtr, VLen);
 
    // tile size
@@ -801,10 +801,10 @@ begin
   end;
 end;
 
-function TBerkeleyDBVersionedMetaValueElement.GetTilePriority: Word;
+function TBerkeleyDBVersionedMetaValueElement.GetTileZOrder: Word;
 begin
   if Assigned(FValue) then begin
-    Result := FValue.TilePriority;
+    Result := FValue.TileZOrder;
   end else begin
     Result := 0;
   end;
