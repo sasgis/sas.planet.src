@@ -34,6 +34,7 @@ uses
   i_BerkeleyDBFactory,
   i_GlobalBerkeleyDBHelper,
   i_TileStorageBerkeleyDBHelper,
+  i_TileStorageBerkeleyDBConfigStatic,
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
   i_BerkeleyDBPool,
@@ -133,8 +134,8 @@ type
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AMapVersionFactory: IMapVersionFactory;
+      const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
       const AStorageRootPath: string;
-      const AIsReadOnly: Boolean;
       const AIsVersioned: Boolean;
       const AStorageEPSG: Integer
     );
@@ -157,10 +158,6 @@ uses
   u_MapVersionListStatic,
   u_BinaryDataByBerkeleyDBValue;
 
-const
-  cBerkeleyDBPoolSize = 32;
-  cBerkeleyDBUnusedPoolObjectsTTL = 60000; // 60 sec
-
 function CreateDirIfNotExists(APath: string): Boolean;
 begin
   APath := Copy(APath, 1, LastDelimiter(PathDelim, APath));
@@ -175,8 +172,8 @@ end;
 constructor TTileStorageBerkeleyDBHelper.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AMapVersionFactory: IMapVersionFactory;
+  const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
   const AStorageRootPath: string;
-  const AIsReadOnly: Boolean;
   const AIsVersioned: Boolean;
   const AStorageEPSG: Integer
 );
@@ -186,7 +183,7 @@ begin
   inherited Create;
 
   FMapVersionFactory := AMapVersionFactory;
-  FIsReadOnly := AIsReadOnly;
+  FIsReadOnly := AStorageConfig.IsReadOnly;
   FIsVersioned := AIsVersioned;
 
   if FIsVersioned then begin
@@ -202,6 +199,7 @@ begin
   VDatabaseFactory := TBerkeleyDBFactory.Create(
     FGlobalBerkeleyDBHelper,
     FEnvironment,
+    AStorageConfig.DatabasePageSize,
     FIsReadOnly,
     TBerkeleyDBMetaKey.Create as IBinaryData,
     TBerkeleyDBMetaValue.Create(AStorageEPSG) as IBinaryData
@@ -210,8 +208,8 @@ begin
   FPool := TBerkeleyDBPool.Create(
     FGlobalBerkeleyDBHelper,
     VDatabaseFactory,
-    cBerkeleyDBPoolSize,
-    cBerkeleyDBUnusedPoolObjectsTTL
+    AStorageConfig.PoolSize,
+    AStorageConfig.PoolObjectTTL
   );
 end;
 

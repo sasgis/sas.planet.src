@@ -40,6 +40,7 @@ uses
   i_GlobalBerkeleyDBHelper,
   i_TileInfoBasicMemCache,
   i_TileStorageBerkeleyDBHelper,
+  i_TileStorageBerkeleyDBConfigStatic,
   u_TileStorageAbstract;
 
 type
@@ -56,8 +57,8 @@ type
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
     FVersioned: Boolean;
-    FReadOnlyAccess: Boolean;
     FCommitsCountToSync: Integer;
+    FStorageConfig: ITileStorageBerkeleyDBConfigStatic;
     procedure OnSyncCall;
     procedure OnCommitSync;
     function GetStorageHelper: ITileStorageBerkeleyDBHelper;
@@ -154,13 +155,12 @@ uses
   u_TileInfoBasic,
   u_Synchronizer,  
   u_TileStorageBerkeleyDBHelper,
+  u_TileStorageBerkeleyDBConfigStatic,
   u_EnumTileInfoByBerkeleyDB;
 
 const
   cStorageFileExt = '.sdb';
   cTneStorageFileExt = '.tne';
-  cStorageSyncInterval = 300000; // 5 min
-  cStorageCommitsCountToSync = 1000;
 
 { TTileStorageBerkeleyDB }
 
@@ -176,12 +176,15 @@ constructor TTileStorageBerkeleyDB.Create(
   const AMainContentType: IContentTypeInfoBasic
 );
 begin
+  FStorageConfig := TTileStorageBerkeleyDBConfigStatic.Create(AStoragePath);    // ToDo: get StorageConfig as param
+
   inherited Create(
-    TTileStorageTypeAbilitiesBerkeleyDB.Create,
+    TTileStorageTypeAbilitiesBerkeleyDB.Create(FStorageConfig.IsReadOnly),
     AMapVersionFactory,
     AGeoConverter,
     AStoragePath
   );
+
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
@@ -195,7 +198,7 @@ begin
 
   FSyncCallListener := TListenerTTLCheck.Create(
     Self.OnSyncCall,
-    cStorageSyncInterval
+    FStorageConfig.SyncInterval
   );
 
   if Assigned(FGCNotifier) and Assigned(FSyncCallListener) then begin
@@ -205,9 +208,7 @@ begin
   FStorageHelper := nil;
   FStorageHelperLock := MakeSyncRW_Var(Self, False);
 
-  FCommitsCountToSync := cStorageCommitsCountToSync;
-
-  FReadOnlyAccess := False; // ToDo
+  FCommitsCountToSync := FStorageConfig.CommitsCountToSync;
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
@@ -223,6 +224,7 @@ begin
   FMainContentType := nil;
   FContentTypeManager := nil;
   FTileNotExistsTileInfo := nil;
+  FStorageConfig := nil;
   inherited;
 end;
 
@@ -260,7 +262,7 @@ var
 begin
   VCount := InterlockedExchangeAdd(@FCommitsCountToSync, -1);
   if VCount = 0 then begin
-    InterlockedExchange(FCommitsCountToSync, cStorageCommitsCountToSync);
+    InterlockedExchange(FCommitsCountToSync, FStorageConfig.CommitsCountToSync);
     Self.OnSyncCall;
   end;
 end;
@@ -819,8 +821,8 @@ begin
         FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
           FGlobalBerkeleyDBHelper,
           MapVersionFactory,
+          FStorageConfig,
           StoragePath,
-          FReadOnlyAccess,
           FVersioned,
           GeoConverter.ProjectionEPSG
         );

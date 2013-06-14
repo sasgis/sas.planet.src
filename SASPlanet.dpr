@@ -27,6 +27,8 @@ uses
   u_TileStorageBerkeleyDB in 'TileStorage\BerkeleyDB\u_TileStorageBerkeleyDB.pas',
   i_TileStorageBerkeleyDBHelper in 'TileStorage\BerkeleyDB\i_TileStorageBerkeleyDBHelper.pas',
   u_TileStorageBerkeleyDBHelper in 'TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBHelper.pas',
+  i_TileStorageBerkeleyDBConfigStatic in 'TileStorage\BerkeleyDB\i_TileStorageBerkeleyDBConfigStatic.pas',
+  u_TileStorageBerkeleyDBConfigStatic in 'TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBConfigStatic.pas',
   u_TileStorageTypeBerkeleyDB in 'TileStorage\BerkeleyDB\u_TileStorageTypeBerkeleyDB.pas',
   u_EnumTileInfoByBerkeleyDB in 'TileStorage\BerkeleyDB\u_EnumTileInfoByBerkeleyDB.pas',
   u_BinaryDataByBerkeleyDBValue in 'TileStorage\BerkeleyDB\u_BinaryDataByBerkeleyDBValue.pas',

@@ -741,6 +741,7 @@
     <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBKeyValue.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_BerkeleyDBPool.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_GlobalBerkeleyDBHelper.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\i_TileStorageBerkeleyDBConfigStatic.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_TileStorageBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBEnv.pas" />
@@ -755,6 +756,7 @@
     <DCCReference Include="TileStorage\BerkeleyDB\u_GlobalBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileFileNameBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDB.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBConfigStatic.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileStorageTypeBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\c_CacheTypeCodes.pas" />

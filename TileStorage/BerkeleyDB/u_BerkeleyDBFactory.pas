@@ -15,6 +15,7 @@ type
   private
     FHelper: IGlobalBerkeleyDBHelper;
     FEnvironment: IBerkeleyDBEnvironment;
+    FPageSize: Cardinal;
     FIsReadOnly: Boolean;
     FMetaKey: IBinaryData;
     FMetaValue: IBinaryData;
@@ -25,6 +26,7 @@ type
     constructor Create(
       const AHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
+      const APageSize: Cardinal;
       const AIsReadOnly: Boolean;
       const AMetaKey: IBinaryData;
       const AMetaValue: IBinaryData
@@ -36,14 +38,12 @@ implementation
 uses
   u_BerkeleyDB;
 
-const
-  cBerkeleyDBPageSize = 1024; // 1k
-
 { TBerkeleyDBFactory }
 
 constructor TBerkeleyDBFactory.Create(
   const AHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
+  const APageSize: Cardinal;
   const AIsReadOnly: Boolean;
   const AMetaKey: IBinaryData;
   const AMetaValue: IBinaryData
@@ -54,6 +54,7 @@ begin
   inherited Create;
   FHelper := AHelper;
   FEnvironment := AEnvironment;
+  FPageSize := APageSize;
   FIsReadOnly := AIsReadOnly;
   FMetaKey := AMetaKey;
   FMetaValue := AMetaValue;
@@ -69,7 +70,7 @@ begin
     FHelper,
     FEnvironment,
     FIsReadOnly,
-    cBerkeleyDBPageSize
+    FPageSize
   );
   VDatabase.Open(ADatabaseFileName);
   if not VDatabase.Exists(FMetaKey) then begin

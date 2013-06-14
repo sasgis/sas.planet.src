@@ -45,10 +45,14 @@ type
 
   TTileStorageTypeAbilitiesBerkeleyDB = class(TBaseInterfacedObject, IStorageTypeAbilities)
   private
+    FIsReadOnly: Boolean;
+  private
     function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
     function GetAllowDelete: Boolean;
     function GetAllowReplace: Boolean;
+  public
+    constructor Create(const AIsReadOnly: Boolean);
   end;
 
   TTileStorageTypeAbilitiesDBMS = class(TBaseInterfacedObject, IStorageTypeAbilities)
@@ -116,24 +120,30 @@ end;
 
 { TTileStorageTypeAbilitiesBerkeleyDB }
 
+constructor TTileStorageTypeAbilitiesBerkeleyDB.Create(const AIsReadOnly: Boolean);
+begin
+  inherited Create;
+  FIsReadOnly := AIsReadOnly;
+end;
+
 function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowAdd: Boolean;
 begin
-  Result := True;
+  Result := not FIsReadOnly;
 end;
 
 function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowDelete: Boolean;
 begin
-  Result := True;
+  Result := not FIsReadOnly;
 end;
 
 function TTileStorageTypeAbilitiesBerkeleyDB.GetAllowReplace: Boolean;
 begin
-  Result := True;
+  Result := not FIsReadOnly;
 end;
 
 function TTileStorageTypeAbilitiesBerkeleyDB.GetIsReadOnly: Boolean;
 begin
-  Result := False;
+  Result := FIsReadOnly;
 end;
 
 { TTileStorageTypeAbilitiesDBMS }
