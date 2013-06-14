@@ -253,6 +253,8 @@ var
   VFlag: Cardinal;
   VValue: IBinaryData;
 begin
+  Result := nil;
+
   if ATransaction <> nil then begin
     VFlag := DB_RMW; // read-modify-write cycle
   end else begin
@@ -407,6 +409,7 @@ begin
 
     if CheckIfVersioned(AVersionInfo) then begin
       I := 0;
+      VIsDeadLock := False;
       repeat
         FEnvironment.TransactionBegin(VTransaction);
         try
@@ -504,6 +507,7 @@ begin
   try
     if CheckIfVersioned(AVersionInfo) then begin
       I := 0;
+      VIsDeadLock := False;
       repeat
         FEnvironment.TransactionBegin(VTransaction);
         try
