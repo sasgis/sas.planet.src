@@ -101,7 +101,7 @@ begin
   db := nil;
   dbenv := AEnvironment.dbenv;
   FEnvRootPath := AEnvironment.RootPath;
-  FFileName := '';                      
+  FFileName := '';
   FLock := MakeSyncRW_Std(Self, False);
   FOnDeadLockRetryCount := AOnDeadLockRetryCount;
 end;
@@ -225,11 +225,11 @@ begin
     repeat
       Inc(I);
 
-      FLock.BeginWrite;
+      FLock.BeginRead;
       try
         ret := db.get(db, PDB_TXN(ATxn), @dbtKey, @dbtData, AFlag);
       finally
-        FLock.EndWrite;
+        FLock.EndRead;
       end;
 
       case ret of
@@ -336,11 +336,11 @@ begin
     repeat
       Inc(I);
 
-      FLock.BeginWrite;
+      FLock.BeginRead;
       try
         ret := db.exists(db, PDB_TXN(ATxn), @dbtKey, 0);
       finally
-        FLock.EndWrite;
+        FLock.EndRead;
       end;
 
       case ret of
@@ -440,7 +440,7 @@ begin
   Result := False;
   SetLength(AKeyArray, 0);
   try
-    FLock.BeginWrite;
+    FLock.EndRead;
     try
       CheckBDB(db.cursor(db, nil, @dbc, 0));
       try
@@ -480,7 +480,7 @@ begin
         CheckBDBandNil(dbc.close(dbc), dbc);
       end;
     finally
-      FLock.EndWrite;
+      FLock.EndRead;
     end;
     Result := Length(AKeyArray) > 0;
   except
