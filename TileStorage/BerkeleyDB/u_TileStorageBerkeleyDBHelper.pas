@@ -201,7 +201,7 @@ begin
   FMapVersionFactory := AMapVersionFactory;
   FIsReadOnly := AStorageConfig.IsReadOnly;
   FIsVersioned := AIsVersioned;
-
+  FOnDeadLockRetryCount := AStorageConfig.OnDeadLockRetryCount;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 
   FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(AStorageRootPath);
@@ -210,6 +210,7 @@ begin
     FGlobalBerkeleyDBHelper,
     FEnvironment,
     AStorageConfig.DatabasePageSize,
+    FOnDeadLockRetryCount,
     FIsReadOnly,
     TBerkeleyDBMetaKey.Create as IBinaryData,
     TBerkeleyDBMetaValue.Create(AStorageEPSG) as IBinaryData
@@ -221,8 +222,6 @@ begin
     AStorageConfig.PoolSize,
     AStorageConfig.PoolObjectTTL
   );
-
-  FOnDeadLockRetryCount := 3;
 end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;

@@ -66,6 +66,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
       const AIsReadOnly: Boolean;
+      const AOnDeadLockRetryCount: Integer;
       const APageSize: Cardinal
     );
     destructor Destroy; override;
@@ -89,6 +90,7 @@ constructor TBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
   const AIsReadOnly: Boolean;
+  const AOnDeadLockRetryCount: Integer;
   const APageSize: Cardinal
 );
 begin
@@ -101,7 +103,7 @@ begin
   FEnvRootPath := AEnvironment.RootPath;
   FFileName := '';                      
   FLock := MakeSyncRW_Std(Self, False);
-  FOnDeadLockRetryCount := 3;
+  FOnDeadLockRetryCount := AOnDeadLockRetryCount;
 end;
 
 destructor TBerkeleyDB.Destroy;

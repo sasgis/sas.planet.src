@@ -16,6 +16,7 @@ type
     FHelper: IGlobalBerkeleyDBHelper;
     FEnvironment: IBerkeleyDBEnvironment;
     FPageSize: Cardinal;
+    FOnDeadLockRetryCount: Integer;
     FIsReadOnly: Boolean;
     FMetaKey: IBinaryData;
     FMetaValue: IBinaryData;
@@ -27,6 +28,7 @@ type
       const AHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
       const APageSize: Cardinal;
+      const AOnDeadLockRetryCount: Integer;
       const AIsReadOnly: Boolean;
       const AMetaKey: IBinaryData;
       const AMetaValue: IBinaryData
@@ -44,6 +46,7 @@ constructor TBerkeleyDBFactory.Create(
   const AHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
   const APageSize: Cardinal;
+  const AOnDeadLockRetryCount: Integer;
   const AIsReadOnly: Boolean;
   const AMetaKey: IBinaryData;
   const AMetaValue: IBinaryData
@@ -55,6 +58,7 @@ begin
   FHelper := AHelper;
   FEnvironment := AEnvironment;
   FPageSize := APageSize;
+  FOnDeadLockRetryCount := AOnDeadLockRetryCount;
   FIsReadOnly := AIsReadOnly;
   FMetaKey := AMetaKey;
   FMetaValue := AMetaValue;
@@ -70,6 +74,7 @@ begin
     FHelper,
     FEnvironment,
     FIsReadOnly,
+    FOnDeadLockRetryCount,
     FPageSize
   );
   VDatabase.Open(ADatabaseFileName);

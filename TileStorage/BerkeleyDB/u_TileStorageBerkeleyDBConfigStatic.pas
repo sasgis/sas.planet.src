@@ -37,6 +37,7 @@ type
     FPoolSize: Cardinal;
     FPoolObjectTTL: Cardinal;
     FDatabasePageSize: Cardinal;
+    FOnDeadLockRetryCount: Integer;
   private
     procedure DoReadConfig;
   private
@@ -47,6 +48,7 @@ type
     function GetPoolSize: Cardinal;
     function GetPoolObjectTTL: Cardinal;
     function GetDatabasePageSize: Cardinal;
+    function GetOnDeadLockRetryCount: Integer;
   public
     constructor Create(const AStoragePath: string);
   end;
@@ -74,6 +76,7 @@ begin
   FPoolSize := 32;
   FPoolObjectTTL := 60000;
   FDatabasePageSize := 1024;
+  FOnDeadLockRetryCount := 3;
 
   DoReadConfig;
 end;
@@ -108,6 +111,11 @@ begin
   Result := FDatabasePageSize;
 end;
 
+function TTileStorageBerkeleyDBConfigStatic.GetOnDeadLockRetryCount: Integer;
+begin
+  Result := FOnDeadLockRetryCount;
+end;
+
 procedure TTileStorageBerkeleyDBConfigStatic.DoReadConfig;
 var
   VIni: TIniFile;
@@ -121,6 +129,7 @@ begin
       FPoolSize := VIni.ReadInteger('BerkeleyDB', 'PoolSize', FPoolSize);
       FPoolObjectTTL := VIni.ReadInteger('BerkeleyDB', 'PoolObjectTTL', FPoolObjectTTL);
       FDatabasePageSize := VIni.ReadInteger('BerkeleyDB', 'DatabasePageSize', FDatabasePageSize);
+      FOnDeadLockRetryCount := VIni.ReadInteger('BerkeleyDB', 'OnDeadLockRetryCount', FOnDeadLockRetryCount);
     finally
       VIni.Free;
     end;

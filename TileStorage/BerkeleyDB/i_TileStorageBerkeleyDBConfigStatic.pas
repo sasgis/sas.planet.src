@@ -42,6 +42,9 @@ type
 
     function GetDatabasePageSize: Cardinal;
     property DatabasePageSize: Cardinal read GetDatabasePageSize;
+
+    function GetOnDeadLockRetryCount: Integer;
+    property OnDeadLockRetryCount: Integer read GetOnDeadLockRetryCount;
   end;
 
 implementation
