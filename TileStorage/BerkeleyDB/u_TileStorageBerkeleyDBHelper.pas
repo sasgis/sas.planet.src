@@ -44,25 +44,42 @@ type
   TTileStorageBerkeleyDBHelper = class(TBaseInterfacedObject, ITileStorageBerkeleyDBHelper)
   private
     type
-      TTileOperation = (toRead = 0, toWrite = 1, toDelete = 2, toExists = 3);
+      TVersionIDInfo = record
+        IsSameVersionFound: Boolean;
+        IsSameCRCFound: Boolean;
+        YoungestTileVersionID: Word;
+        TileIndexInMetaValue: Integer;
+      end;
+      PVersionIDInfo = ^TVersionIDInfo;
   private
     FPool: IBerkeleyDBPool;
     FEnvironment: IBerkeleyDBEnvironment;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FLock: IReadWriteSync;
     FIsReadOnly: Boolean;
     FIsVersioned: Boolean;
     FMapVersionFactory: IMapVersionFactory;
-    function GetTileKey(
-      const AOperation: TTileOperation;
+    FOnDeadLockRetryCount: Integer;
+  private
+    function CheckIfVersioned(const AVersionInfo: IMapVersionInfo): Boolean; inline;
+
+    function ReadVersionedMetaValue(
+      const AVersionedMetaKey: IBinaryData;
+      const ATransaction: PBerkeleyTxn;
+      const ADatabase: IBerkeleyDB;
+      var AIsDeadLock: Boolean
+    ): IBerkeleyDBVersionedMetaValue;
+
+    function GetTileVersionID(
+      const ATileCRC: Cardinal;
+      const AVersionInfo: IMapVersionInfo;
+      const AVersionedMetaValue: IBerkeleyDBVersionedMetaValue;
+      const AVersionIDInfo: PVersionIDInfo
+    ): Word;
+
+    function GetReadOnlyKey(
       const ATileXY: TPoint;
       const AVersionInfo: IMapVersionInfo;
-      const ADatabase: IBerkeleyDB;
-      const AContentType: IContentTypeInfoBasic = nil;
-      const ATileSize: Integer = 0;
-      const ATileDate: TDateTime = 0;
-      const ATileCRC: Cardinal = 0;
-      const AAllowReplace: Boolean = False
+      const ADatabase: IBerkeleyDB
     ): IBinaryData;
   private
     { ITileStorageBerkeleyDBHelper }
@@ -150,7 +167,6 @@ uses
   Windows,
   libdb51,
   CRC32,
-  u_Synchronizer,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
   u_BerkeleyDBPool,
@@ -186,12 +202,6 @@ begin
   FIsReadOnly := AStorageConfig.IsReadOnly;
   FIsVersioned := AIsVersioned;
 
-  if FIsVersioned then begin
-    FLock := MakeSyncRW_Big(Self, False);
-  end else begin
-    FLock := MakeSyncFake(Self);
-  end;
-
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 
   FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(AStorageRootPath);
@@ -211,6 +221,8 @@ begin
     AStorageConfig.PoolSize,
     AStorageConfig.PoolObjectTTL
   );
+
+  FOnDeadLockRetryCount := 3;
 end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
@@ -224,213 +236,132 @@ begin
   inherited;
 end;
 
-function TTileStorageBerkeleyDBHelper.GetTileKey(
-  const AOperation: TTileOperation;
-  const ATileXY: TPoint;
-  const AVersionInfo: IMapVersionInfo;
+function TTileStorageBerkeleyDBHelper.CheckIfVersioned(
+  const AVersionInfo: IMapVersionInfo
+): Boolean;
+begin
+  Result := FIsVersioned and Assigned(AVersionInfo) and (AVersionInfo.StoreString <> '');
+end;
+
+function TTileStorageBerkeleyDBHelper.ReadVersionedMetaValue(
+  const AVersionedMetaKey: IBinaryData;
+  const ATransaction: PBerkeleyTxn;
   const ADatabase: IBerkeleyDB;
-  const AContentType: IContentTypeInfoBasic = nil;
-  const ATileSize: Integer = 0;
-  const ATileDate: TDateTime = 0;
-  const ATileCRC: Cardinal = 0;
-  const AAllowReplace: Boolean = False
-): IBinaryData;
-const
-  cOnDeadLockRetryCount = 3;
+  var AIsDeadLock: Boolean
+): IBerkeleyDBVersionedMetaValue;
 var
-  I, J: Integer;
-  VKey: IBinaryData;
+  VFlag: Cardinal;
   VValue: IBinaryData;
+begin
+  if ATransaction <> nil then begin
+    VFlag := DB_RMW; // read-modify-write cycle
+  end else begin
+    VFlag := 0;
+  end;
+
+  VValue := ADatabase.Read(AVersionedMetaKey, ATransaction, AIsDeadLock, VFlag);
+
+  if not AIsDeadLock and Assigned(VValue) then begin
+    try
+      Result := TBerkeleyDBVersionedMetaValue.Create(VValue);
+    except
+      on E: EBerkeleyDBBadValue do begin
+        FGlobalBerkeleyDBHelper.LogException(E.Message);
+        ADatabase.Del(AVersionedMetaKey, ATransaction, AIsDeadLock);
+        Result := nil;
+      end else begin
+        raise;
+      end;
+    end;
+  end;
+end;
+
+function TTileStorageBerkeleyDBHelper.GetTileVersionID(
+  const ATileCRC: Cardinal;
+  const AVersionInfo: IMapVersionInfo;
+  const AVersionedMetaValue: IBerkeleyDBVersionedMetaValue;
+  const AVersionIDInfo: PVersionIDInfo
+): Word;
+var
+  I: Integer;
   VMaxID: Word;
-  VVersionID: Word;
   VYoungestTileDate: TDateTime;
-  VYoungestTileVersionID: Word;
-  VTileInfoIndex: Integer;
-  VIsDeadLock: Boolean;
-  VTransaction: PBerkeleyTxn;
-  VTransactionFlag: Cardinal;
-  VVersionMeta: IBerkeleyDBVersionedMetaValue;
   VMetaElement: IBerkeleyDBVersionedMetaValueElement;
 begin
-  if FIsVersioned then begin
-    if not Assigned(AVersionInfo) or (Assigned(AVersionInfo) and (AVersionInfo.StoreString = '')) then begin
-      Result := TBerkeleyDBKey.Create(ATileXY);
-    end else begin
-      J := 0;
-      VIsDeadLock := False;
-      repeat
-        Inc(J);
+  Result := 0;
 
-        Result := nil;
+  AVersionIDInfo.IsSameVersionFound := False;
+  AVersionIDInfo.IsSameCRCFound := False;
+  AVersionIDInfo.YoungestTileVersionID := 0;
+  AVersionIDInfo.TileIndexInMetaValue := -1;
 
-        VMaxID := 0;
-        VVersionID := 0;
-        VTileInfoIndex := -1;
-        VYoungestTileDate := 0;
-        VYoungestTileVersionID := 0;
+  VMaxID := 0;
+  VYoungestTileDate := 0;
 
-        VTransaction := nil;
-        VTransactionFlag := 0;
-        if AOperation in [toWrite, toDelete] then begin
-          // заводим транзакцию, для защиты от одновременного редактирования
-          // метаинформации о тайле из разных процессов
-          FEnvironment.TransactionBegin(VTransaction);
-          if VTransaction <> nil then begin
-            // флаг для специальной оптимизации локера в БД - уменьшает
-            // вероятность возникновения дедлоков
-            VTransactionFlag := DB_RMW; // read-modify-write cycle
-          end;
-        end;
-
-        try
-          VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
-          VValue := ADatabase.Read(VKey, VTransaction, VIsDeadLock, VTransactionFlag);
-          if VIsDeadLock then begin
-            FEnvironment.TransactionAbort(VTransaction);
-            Continue;
-          end;
-
-          if Assigned(VValue) then begin
-            try
-              VVersionMeta := TBerkeleyDBVersionedMetaValue.Create(VValue);
-            except
-              on E: EBerkeleyDBBadValue do begin
-                FGlobalBerkeleyDBHelper.LogException(E.Message);
-                FEnvironment.TransactionAbort(VTransaction);
-                ADatabase.Del(VKey);
-                Exit;
-              end else begin
-                raise;
-              end;
-            end;
-            // есть метаинформация о версионных тайлах
-            for I := 0 to VVersionMeta.ItemsCount - 1 do begin
-              VMetaElement := VVersionMeta.Item[I];
-              if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
-                // нашли тайл с такой же версией
-                VVersionID := VMetaElement.VersionID;
-                if not AAllowReplace and (AOperation = toWrite) then begin
-                  FEnvironment.TransactionAbort(VTransaction);
-                  Exit;
-                end else begin
-                  VTileInfoIndex := I; // индекс тайла, для перезаписи его метаинформации
-                  Break;
-                end;
-              end else if (AOperation = toWrite) and (VMetaElement.TileCRC = ATileCRC) then begin
-                // версия у тайлов не совпадает, но они сами по себе идентичны
-                FEnvironment.TransactionAbort(VTransaction);
-                Exit;
-              end;
-              if VMetaElement.VersionID > VMaxID then begin
-                VMaxID := VMetaElement.VersionID;
-              end;
-              if VMetaElement.TileDate > VYoungestTileDate then begin
-                VYoungestTileDate := VMetaElement.TileDate;
-                VYoungestTileVersionID := VMetaElement.VersionID;
-              end;
-            end;
-          end else begin
-            // метаинформации, а, соответственно, и версионных тайлов ещё нету
-            if AOperation = toWrite then begin
-              VVersionMeta := TBerkeleyDBVersionedMetaValue.Create;
-            end else begin
-              if AVersionInfo.ShowPrevVersion and (AOperation in [toRead, toExists]) then begin
-                // но возможно, найдётся неверсионный тайл
-                Result := TBerkeleyDBKey.Create(ATileXY);
-              end;
-              FEnvironment.TransactionAbort(VTransaction);
-              Exit;
-            end;
-          end;
-
-          if AOperation in [toRead, toDelete, toExists] then begin
-            if (VVersionID <> 0) and (VTileInfoIndex <> -1) then begin
-              // нашли нужный тайл
-              if (AOperation = toDelete) and Assigned(VVersionMeta) then begin
-                // подчистим метаинформацию
-                VVersionMeta.Del(VTileInfoIndex);
-                if VVersionMeta.ItemsCount > 0 then begin
-                  if ADatabase.Write(VKey, (VVersionMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
-                    FEnvironment.TransactionCommit(VTransaction);
-                  end else begin
-                    FEnvironment.TransactionAbort(VTransaction);
-                    if VIsDeadLock then begin
-                      Continue;
-                    end else begin
-                      Assert(False);
-                      Exit;
-                    end;
-                  end;
-                end else begin
-                  if ADatabase.Del(VKey, VTransaction, VIsDeadLock) then begin
-                    FEnvironment.TransactionCommit(VTransaction);
-                  end else begin
-                    FEnvironment.TransactionAbort(VTransaction);
-                    if VIsDeadLock then begin
-                      Continue;
-                    end else begin
-                      Assert(False);
-                      Exit;
-                    end;
-                  end;
-                end;
-              end;
-              Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
-            end else if AOperation = toDelete then begin
-              FEnvironment.TransactionAbort(VTransaction);
-            end else if AVersionInfo.ShowPrevVersion and (AOperation in [toRead, toExists]) and (VYoungestTileVersionID <> 0) then begin
-              // не нашли тайл нужной версии - отдаём хоть какой (только для чтения)
-              Result := TBerkeleyDBVersionedKey.Create(ATileXY, VYoungestTileVersionID);
-            end;
-          end else begin // toWrite
-
-            if VVersionID = 0 then begin
-              VVersionID := VMaxID + 1;
-            end;
-
-            VMetaElement :=
-              TBerkeleyDBVersionedMetaValueElement.Create(
-                VVersionID,
-                0, // TileZOrder
-                ATileSize,
-                ATileDate,
-                ATileCRC,
-                AVersionInfo,
-                AContentType
-              );
-
-            if VTileInfoIndex <> -1 then begin
-              VVersionMeta.Replace(VTileInfoIndex, VMetaElement);
-            end else begin
-              VVersionMeta.Add(VMetaElement);
-            end;
-
-            if ADatabase.Write(VKey, (VVersionMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
-              FEnvironment.TransactionCommit(VTransaction);
-              Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
-            end else begin
-              FEnvironment.TransactionAbort(VTransaction);
-              if VIsDeadLock then begin
-                Continue;
-              end else begin
-                Assert(False);
-                Exit;
-              end;
-            end;
-          end;
-        except
-          FEnvironment.TransactionAbort(VTransaction);
-          raise;
-        end;
-        Break; // повтор разрешаем только при дедлоках, через Continue
-      until Assigned(Result) or (J > cOnDeadLockRetryCount);
-
-      if VIsDeadLock and (Result = nil) then begin
-        CheckBDB(DB_LOCK_DEADLOCK); // raise exception about deadlock
-      end;
-
+  for I := 0 to AVersionedMetaValue.ItemsCount - 1 do begin
+    VMetaElement := AVersionedMetaValue.Item[I];
+    if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
+      AVersionIDInfo.IsSameVersionFound := True;
+      AVersionIDInfo.TileIndexInMetaValue := I;
+      Result := VMetaElement.VersionID;
+      Break;
+    end else if VMetaElement.TileCRC = ATileCRC then begin
+      AVersionIDInfo.IsSameCRCFound := True;
+      AVersionIDInfo.TileIndexInMetaValue := I;
+      Result := VMetaElement.VersionID;
+      Break;
     end;
+    if VMetaElement.VersionID > VMaxID then begin
+      VMaxID := VMetaElement.VersionID;
+    end;
+    if VMetaElement.TileDate > VYoungestTileDate then begin
+      VYoungestTileDate := VMetaElement.TileDate;
+      AVersionIDInfo.YoungestTileVersionID := VMetaElement.VersionID;
+    end;
+  end;
+
+  if Result = 0 then begin
+    Result := VMaxID + 1;
+  end;
+end;
+
+function TTileStorageBerkeleyDBHelper.GetReadOnlyKey(
+  const ATileXY: TPoint;
+  const AVersionInfo: IMapVersionInfo;
+  const ADatabase: IBerkeleyDB
+): IBinaryData;
+var
+  VKey: IBinaryData;
+  VIsDeadLock: Boolean;
+  VVersionID: Word;
+  VVersionIDInfo: TVersionIDInfo;
+  VVersionedMeta: IBerkeleyDBVersionedMetaValue;
+begin
+  Result := nil;
+  if CheckIfVersioned(AVersionInfo) then begin
+    VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
+    VVersionedMeta := ReadVersionedMetaValue(VKey, nil, ADatabase, VIsDeadLock);
+
+    if Assigned(VVersionedMeta) then begin
+      VVersionID := GetTileVersionID(0, AVersionInfo, VVersionedMeta, @VVersionIDInfo);
+
+      if VVersionIDInfo.IsSameVersionFound then begin
+        // show versioned tile
+        Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
+      end else if AVersionInfo.ShowPrevVersion and (VVersionIDInfo.YoungestTileVersionID <> 0) then begin
+        // show yougest versioned tile
+        Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionIDInfo.YoungestTileVersionID);
+      end else if AVersionInfo.ShowPrevVersion then begin
+        // show not versioned tile
+        Result := TBerkeleyDBKey.Create(ATileXY);
+      end;
+    end else if AVersionInfo.ShowPrevVersion then begin
+      // show not versioned tile
+      Result := TBerkeleyDBKey.Create(ATileXY);
+    end;
+
   end else begin
+    // show not versioned tile
     Result := TBerkeleyDBKey.Create(ATileXY);
   end;
 end;
@@ -445,35 +376,107 @@ function TTileStorageBerkeleyDBHelper.SaveTile(
   const AData: IBinaryData
 ): Boolean;
 var
+  I: Integer;
   VKey: IBinaryData;
   VValue: IBinaryData;
   VDatabase: IBerkeleyDB;
   VTile: Pointer;
   VSize: Integer;
   VTileCRC: Cardinal;
+  VIsDeadLock: Boolean;
+  VTransaction: PBerkeleyTxn;
+  VVersionID: Word;
+  VVersionIDInfo: TVersionIDInfo;
+  VVersionedMeta: IBerkeleyDBVersionedMetaValue;
+  VMetaElement: IBerkeleyDBVersionedMetaValueElement;
 begin
+  Result := False;
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
     if Assigned(AData) then begin
       VTile := AData.Buffer;
       VSize := AData.Size;
       VTileCRC := CRC32Buf(VTile, VSize);
-    end else begin
+    end else begin // will save TNE info
       VTile := nil;
       VSize := 0;
       VTileCRC := 0;
     end;
-    FLock.BeginWrite;
-    try
-      VKey := GetTileKey(toWrite, ATileXY, AVersionInfo, VDatabase, ATileContetType, VSize, ATileDate, VTileCRC);
-      if Assigned(VKey) then begin
-        VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, AVersionInfo, ATileContetType);
-        Result := VDatabase.Write(VKey, VValue);
-      end else begin
-        Result := False;
+
+    VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, AVersionInfo, ATileContetType);
+
+    if CheckIfVersioned(AVersionInfo) then begin
+      I := 0;
+      repeat
+        FEnvironment.TransactionBegin(VTransaction);
+        try
+          VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
+          VVersionedMeta := ReadVersionedMetaValue(VKey, VTransaction, VDatabase, VIsDeadLock);
+
+          if VIsDeadLock then begin
+            FEnvironment.TransactionAbort(VTransaction);
+            Continue;
+          end;
+
+          if not Assigned(VVersionedMeta) then begin
+            VVersionedMeta := TBerkeleyDBVersionedMetaValue.Create;
+          end;
+
+          VVersionID := GetTileVersionID(VTileCRC, AVersionInfo, VVersionedMeta, @VVersionIDInfo);
+
+          if VVersionIDInfo.IsSameCRCFound then begin
+            Exit;
+          end;
+
+          VMetaElement :=
+            TBerkeleyDBVersionedMetaValueElement.Create(
+              VVersionID,
+              0, // TileZOrder
+              VSize,
+              ATileDate,
+              VTileCRC,
+              AVersionInfo,
+              ATileContetType
+            );
+
+          if VVersionIDInfo.TileIndexInMetaValue <> -1 then begin
+            VVersionedMeta.Replace(VVersionIDInfo.TileIndexInMetaValue, VMetaElement);
+          end else begin
+            VVersionedMeta.Add(VMetaElement);
+          end;
+
+          if VDatabase.Write(VKey, (VVersionedMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
+            VKey := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
+            if VDatabase.Write(VKey, VValue, VTransaction, VIsDeadLock) then begin
+              FEnvironment.TransactionCommit(VTransaction);
+              Result := True;
+              Exit;
+            end else if VIsDeadLock then begin
+              FEnvironment.TransactionAbort(VTransaction);
+              Continue;
+            end else begin
+              Assert(False);
+              Exit;
+            end;
+          end else if VIsDeadLock then begin
+            FEnvironment.TransactionAbort(VTransaction);
+            Continue;
+          end else begin
+            Assert(False);
+            Exit;
+          end;
+        except
+          FEnvironment.TransactionAbort(VTransaction);
+          raise;
+        end;
+        Inc(I);
+      until I > FOnDeadLockRetryCount;
+      if VIsDeadLock and (not Result) then begin
+        CheckBDB(DB_LOCK_DEADLOCK); // raise exception about deadlock
       end;
-    finally
-      FLock.EndWrite;
+    end else begin
+      VKey := TBerkeleyDBKey.Create(ATileXY);
+      Result := VDatabase.Write(VKey, VValue);
     end;
   finally
     FPool.Release(VDatabase);
@@ -487,21 +490,78 @@ function TTileStorageBerkeleyDBHelper.DeleteTile(
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
 var
+  I: Integer;
   VKey: IBinaryData;
   VDatabase: IBerkeleyDB;
+  VIsDeadLock: Boolean;
+  VTransaction: PBerkeleyTxn;
+  VVersionID: Word;
+  VVersionIDInfo: TVersionIDInfo;
+  VVersionedMeta: IBerkeleyDBVersionedMetaValue;
 begin
+  Result := False;
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    FLock.BeginWrite;
-    try
-      VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
-      if Assigned(VKey) then begin
-        Result := VDatabase.Del(VKey);
-      end else begin
-        Result := False;
+    if CheckIfVersioned(AVersionInfo) then begin
+      I := 0;
+      repeat
+        FEnvironment.TransactionBegin(VTransaction);
+        try
+          VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
+          VVersionedMeta := ReadVersionedMetaValue(VKey, VTransaction, VDatabase, VIsDeadLock);
+
+          if VIsDeadLock then begin
+            FEnvironment.TransactionAbort(VTransaction);
+            Continue;
+          end;
+
+          if not Assigned(VVersionedMeta) then begin
+            Exit;
+          end;
+
+          VVersionID := GetTileVersionID(0, AVersionInfo, VVersionedMeta, @VVersionIDInfo);
+
+          if VVersionIDInfo.IsSameVersionFound then begin
+            VKey := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
+            VVersionedMeta.Del(VVersionIDInfo.TileIndexInMetaValue);
+            if VVersionedMeta.ItemsCount > 0 then begin
+              if VDatabase.Write(VKey, (VVersionedMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
+                FEnvironment.TransactionCommit(VTransaction);
+                Result := True;
+                Exit;
+              end else if VIsDeadLock then begin
+                FEnvironment.TransactionAbort(VTransaction);
+                Continue;
+              end else begin
+                Assert(False);
+                Exit;
+              end;
+            end else begin
+              if VDatabase.Del(VKey, VTransaction, VIsDeadLock) then begin
+                FEnvironment.TransactionCommit(VTransaction);
+                Result := True;
+                Exit;
+              end else if VIsDeadLock then begin
+                FEnvironment.TransactionAbort(VTransaction);
+                Continue;
+              end else begin
+                Assert(False);
+                Exit;
+              end;
+            end;
+          end;
+        except
+          FEnvironment.TransactionAbort(VTransaction);
+          raise;
+        end;
+        Inc(I);
+      until I > FOnDeadLockRetryCount;
+      if VIsDeadLock and (not Result) then begin
+        CheckBDB(DB_LOCK_DEADLOCK); // raise exception about deadlock
       end;
-    finally
-      FLock.EndWrite;
+    end else begin
+      VKey := TBerkeleyDBKey.Create(ATileXY);
+      Result := VDatabase.Del(VKey);
     end;
   finally
     FPool.Release(VDatabase);
@@ -527,37 +587,28 @@ begin
   Result := False;
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    FLock.BeginRead;
-    try
-      VKey := GetTileKey(toRead, ATileXY, AVersionInfo, VDatabase);
-      if Assigned(VKey) then begin
-        VBinValue := VDatabase.Read(VKey);
-        if Assigned(VBinValue) then begin
-          try
-            VValue := TBerkeleyDBValue.Create(VBinValue);
-          except
-            on E: EBerkeleyDBBadValue do begin
-              FGlobalBerkeleyDBHelper.LogException(E.Message);
-              VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
-              if Assigned(VKey) then begin
-                VDatabase.Del(VKey);
-              end;
-              Exit;
-            end else begin
-              raise;
-            end;
-          end;
-          if (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
+    VKey := GetReadOnlyKey(ATileXY, AVersionInfo, VDatabase);
+    if Assigned(VKey) then begin
+      VBinValue := VDatabase.Read(VKey);
+      if Assigned(VBinValue) then begin
+        try
+          VValue := TBerkeleyDBValue.Create(VBinValue);
+          if Assigned(VValue) and (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
             ATileBinaryData := TBinaryDataByBerkeleyDBValue.Create(VValue);
             ATileVersion := VValue.TileVersionInfo;
             ATileContentType := VValue.TileContentType;
             ATileDate := VValue.TileDate;
             Result := True;
           end;
+        except
+          on E: EBerkeleyDBBadValue do begin
+            FGlobalBerkeleyDBHelper.LogException(E.Message);
+            Self.DeleteTile(ADatabaseFileName, ATileXY, ATileZoom, AVersionInfo);
+          end else begin
+            raise;
+          end;
         end;
       end;
-    finally
-      FLock.EndRead;
     end;
   finally
     FPool.Release(VDatabase);
@@ -597,12 +648,7 @@ begin
   try
     if FIsVersioned then begin
       VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
-      FLock.BeginRead;
-      try
-        VBinValue := VDatabase.Read(VKey);
-      finally
-        FLock.EndRead;
-      end;
+      VBinValue := VDatabase.Read(VKey);
       if Assigned(VBinValue) then begin
         VTileInfoIndex := -1;
         VYoungestTileIndex := -1;
@@ -619,10 +665,7 @@ begin
         except
           on E: EBerkeleyDBBadValue do begin
             FGlobalBerkeleyDBHelper.LogException(E.Message);
-            VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
-            if Assigned(VKey) then begin
-              VDatabase.Del(VKey);
-            end;
+            Self.DeleteTile(ADatabaseFileName, ATileXY, ATileZoom, AVersionInfo);
             Exit;
           end else begin
             raise;
@@ -679,12 +722,7 @@ begin
 
     if ASingleTileInfo and (not FIsVersioned or (FIsVersioned and not Result and AVersionInfo.ShowPrevVersion)) then begin
       VKey := TBerkeleyDBKey.Create(ATileXY);
-      FLock.BeginRead;
-      try
-        VBinValue := VDatabase.Read(VKey);
-      finally
-        FLock.EndRead;
-      end;
+      VBinValue := VDatabase.Read(VKey);
       if Assigned(VBinValue) then begin
 
         try
@@ -692,10 +730,7 @@ begin
         except
           on E: EBerkeleyDBBadValue do begin
             FGlobalBerkeleyDBHelper.LogException(E.Message);
-            VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
-            if Assigned(VKey) then begin
-              VDatabase.Del(VKey);
-            end;
+            Self.DeleteTile(ADatabaseFileName, ATileXY, ATileZoom, AVersionInfo);
             Exit;
           end else begin
             raise;
@@ -724,18 +759,12 @@ var
   VKey: IBinaryData;
   VDatabase: IBerkeleyDB;
 begin
+  Result := False;
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    FLock.BeginRead;
-    try
-      VKey := GetTileKey(toExists, ATileXY, AVersionInfo, VDatabase);
-      if Assigned(VKey) then begin
-        Result := VDatabase.Exists(VKey);
-      end else begin
-        Result := False;
-      end;
-    finally
-      FLock.EndRead;
+    VKey := GetReadOnlyKey(ATileXY, AVersionInfo, VDatabase);
+    if Assigned(VKey) then begin
+      Result := VDatabase.Exists(VKey);
     end;
   finally
     FPool.Release(VDatabase);
@@ -758,34 +787,24 @@ begin
   Result := False;
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    FLock.BeginRead;
-    try
-      VKey := GetTileKey(toRead, ATileXY, AVersionInfo, VDatabase);
-      if Assigned(VKey) then begin
-        VBinValue := VDatabase.Read(VKey);
-        if Assigned(VBinValue) then begin
-
-          try
-            VValue := TBerkeleyDBValue.Create(VBinValue);
-          except
-            on E: EBerkeleyDBBadValue do begin
-              FGlobalBerkeleyDBHelper.LogException(E.Message);
-              VKey := GetTileKey(toDelete, ATileXY, AVersionInfo, VDatabase);
-              if Assigned(VKey) then begin
-                VDatabase.Del(VKey);
-              end;
-              Exit;
-            end else begin
-              raise;
-            end;
-          end;
-
+    VKey := GetReadOnlyKey(ATileXY, AVersionInfo, VDatabase);
+    if Assigned(VKey) then begin
+      VBinValue := VDatabase.Read(VKey);
+      if Assigned(VBinValue) then begin  
+        try
+          VValue := TBerkeleyDBValue.Create(VBinValue);
           ATileDate := VValue.TileDate;
           Result := True;
+        except
+          on E: EBerkeleyDBBadValue do begin
+            FGlobalBerkeleyDBHelper.LogException(E.Message);
+            Self.DeleteTile(ADatabaseFileName, ATileXY, ATileZoom, AVersionInfo);
+            Exit;
+          end else begin
+            raise;
+          end;
         end;
       end;
-    finally
-      FLock.EndRead;
     end;
   finally
     FPool.Release(VDatabase);
@@ -853,13 +872,8 @@ begin
 
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    FLock.BeginRead;
-    try
-       if not VDatabase.CreateExistsKeyArray(VList) then begin
-         Exit;
-       end;
-    finally
-      FLock.EndRead;
+    if not VDatabase.CreateExistsKeyArray(VList) then begin
+      Exit;
     end;
     try
       VKey := TBerkeleyDBKey.Create(Point(0, 0));
@@ -893,3 +907,4 @@ begin
 end;
 
 end.
+
