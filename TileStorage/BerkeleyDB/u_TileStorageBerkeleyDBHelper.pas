@@ -60,7 +60,7 @@ type
     FMapVersionFactory: IMapVersionFactory;
     FOnDeadLockRetryCount: Integer;
   private
-    function CheckIfVersioned(const AVersionInfo: IMapVersionInfo): Boolean; inline;
+    function CheckVersionInfo(const AVersionInfo: IMapVersionInfo): IMapVersionInfo;
 
     function ReadVersionedMetaValue(
       const AVersionedMetaKey: IBinaryData;
@@ -171,6 +171,7 @@ uses
   u_BerkeleyDBValue,
   u_BerkeleyDBPool,
   u_BerkeleyDBFactory,
+  u_MapVersionInfo,
   u_MapVersionListStatic,
   u_BinaryDataByBerkeleyDBValue;
 
@@ -235,11 +236,14 @@ begin
   inherited;
 end;
 
-function TTileStorageBerkeleyDBHelper.CheckIfVersioned(
+function TTileStorageBerkeleyDBHelper.CheckVersionInfo(
   const AVersionInfo: IMapVersionInfo
-): Boolean;
+): IMapVersionInfo;
 begin
-  Result := FIsVersioned and Assigned(AVersionInfo) and (AVersionInfo.StoreString <> '');
+  Result := AVersionInfo;
+  if not Assigned(Result) then begin
+    Result := TMapVersionInfo.Create('', True);
+  end;
 end;
 
 function TTileStorageBerkeleyDBHelper.ReadVersionedMetaValue(
@@ -293,7 +297,7 @@ begin
 
   AVersionIDInfo.IsSameVersionFound := False;
   AVersionIDInfo.IsSameCRCFound := False;
-  AVersionIDInfo.YoungestTileVersionID := 0;
+  AVersionIDInfo.YoungestTileVersionID := $FFFF;
   AVersionIDInfo.TileIndexInMetaValue := -1;
 
   VMaxID := 0;
@@ -306,7 +310,7 @@ begin
       AVersionIDInfo.TileIndexInMetaValue := I;
       Result := VMetaElement.VersionID;
       Break;
-    end else if VMetaElement.TileCRC = ATileCRC then begin
+    end else if (ATileCRC <> 0) and (VMetaElement.TileCRC = ATileCRC) then begin
       AVersionIDInfo.IsSameCRCFound := True;
       AVersionIDInfo.TileIndexInMetaValue := I;
       Result := VMetaElement.VersionID;
@@ -321,7 +325,7 @@ begin
     end;
   end;
 
-  if Result = 0 then begin
+  if (Result = 0) and (AVersionInfo.StoreString <> '') then begin
     Result := VMaxID + 1;
   end;
 end;
@@ -336,31 +340,28 @@ var
   VIsDeadLock: Boolean;
   VVersionID: Word;
   VVersionIDInfo: TVersionIDInfo;
+  VVersionInfo: IMapVersionInfo;
   VVersionedMeta: IBerkeleyDBVersionedMetaValue;
 begin
   Result := nil;
-  if CheckIfVersioned(AVersionInfo) then begin
+  if FIsVersioned then begin
+    VVersionInfo := CheckVersionInfo(AVersionInfo);
+
     VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
     VVersionedMeta := ReadVersionedMetaValue(VKey, nil, ADatabase, VIsDeadLock);
 
     if Assigned(VVersionedMeta) then begin
-      VVersionID := GetTileVersionID(0, AVersionInfo, VVersionedMeta, @VVersionIDInfo);
+      VVersionID := GetTileVersionID(0, VVersionInfo, VVersionedMeta, @VVersionIDInfo);
 
       if VVersionIDInfo.IsSameVersionFound then begin
         // show versioned tile
         Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
-      end else if AVersionInfo.ShowPrevVersion and (VVersionIDInfo.YoungestTileVersionID <> 0) then begin
+      end else if VVersionInfo.ShowPrevVersion then begin
+        Assert(VVersionIDInfo.YoungestTileVersionID <> $FFFF);
         // show yougest versioned tile
         Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionIDInfo.YoungestTileVersionID);
-      end else if AVersionInfo.ShowPrevVersion then begin
-        // show not versioned tile
-        Result := TBerkeleyDBKey.Create(ATileXY);
       end;
-    end else if AVersionInfo.ShowPrevVersion then begin
-      // show not versioned tile
-      Result := TBerkeleyDBKey.Create(ATileXY);
     end;
-
   end else begin
     // show not versioned tile
     Result := TBerkeleyDBKey.Create(ATileXY);
@@ -388,6 +389,7 @@ var
   VTransaction: PBerkeleyTxn;
   VVersionID: Word;
   VVersionIDInfo: TVersionIDInfo;
+  VVersionInfo: IMapVersionInfo;
   VVersionedMeta: IBerkeleyDBVersionedMetaValue;
   VMetaElement: IBerkeleyDBVersionedMetaValueElement;
 begin
@@ -404,9 +406,10 @@ begin
       VTileCRC := 0;
     end;
 
-    VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, AVersionInfo, ATileContetType);
+    VVersionInfo := CheckVersionInfo(AVersionInfo);
+    VValue := TBerkeleyDBValue.Create(VTile, VSize, ATileDate, VVersionInfo, ATileContetType);
 
-    if CheckIfVersioned(AVersionInfo) then begin
+    if FIsVersioned then begin
       I := 0;
       VIsDeadLock := False;
       repeat
@@ -424,7 +427,7 @@ begin
             VVersionedMeta := TBerkeleyDBVersionedMetaValue.Create;
           end;
 
-          VVersionID := GetTileVersionID(VTileCRC, AVersionInfo, VVersionedMeta, @VVersionIDInfo);
+          VVersionID := GetTileVersionID(VTileCRC, VVersionInfo, VVersionedMeta, @VVersionIDInfo);
 
           if VVersionIDInfo.IsSameCRCFound then begin
             Exit;
@@ -437,7 +440,7 @@ begin
               VSize,
               ATileDate,
               VTileCRC,
-              AVersionInfo,
+              VVersionInfo,
               ATileContetType
             );
 
@@ -499,12 +502,13 @@ var
   VTransaction: PBerkeleyTxn;
   VVersionID: Word;
   VVersionIDInfo: TVersionIDInfo;
+  VVersionInfo: IMapVersionInfo;
   VVersionedMeta: IBerkeleyDBVersionedMetaValue;
 begin
   Result := False;
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
-    if CheckIfVersioned(AVersionInfo) then begin
+    if FIsVersioned then begin
       I := 0;
       VIsDeadLock := False;
       repeat
@@ -522,7 +526,8 @@ begin
             Exit;
           end;
 
-          VVersionID := GetTileVersionID(0, AVersionInfo, VVersionedMeta, @VVersionIDInfo);
+          VVersionInfo := CheckVersionInfo(AVersionInfo);
+          VVersionID := GetTileVersionID(0, VVersionInfo, VVersionedMeta, @VVersionIDInfo);
 
           if VVersionIDInfo.IsSameVersionFound then begin
             VKey := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);

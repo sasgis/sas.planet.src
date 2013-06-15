@@ -62,6 +62,7 @@ type
     procedure OnSyncCall;
     procedure OnCommitSync;
     function GetStorageHelper: ITileStorageBerkeleyDBHelper;
+    function GetStorageFileExtention(const AIsForTneStore: Boolean = False): string;
   protected
     function GetIsFileCache: Boolean; override;
     function GetIsCanSaveMultiVersionTiles: Boolean; override;
@@ -161,6 +162,8 @@ uses
 const
   cStorageFileExt = '.sdb';
   cTneStorageFileExt = '.tne';
+  cVersionedStorageFileExt = '.sdbv';
+  cVersionedTneStorageFileExt = '.tnev';
 
 { TTileStorageBerkeleyDB }
 
@@ -277,6 +280,23 @@ begin
   Result := FVersioned;
 end;
 
+function TTileStorageBerkeleyDB.GetStorageFileExtention(const AIsForTneStore: Boolean = False): string;
+begin
+  if not AIsForTneStore then begin
+    if FVersioned then begin
+      Result := cVersionedStorageFileExt;
+    end else begin
+      Result := cStorageFileExt;
+    end;
+  end else begin
+    if FVersioned then begin
+      Result := cVersionedTneStorageFileExt;
+    end else begin
+      Result := cTneStorageFileExt;
+    end;
+  end;
+end;
+
 function TTileStorageBerkeleyDB.GetTileFileName(
   const AXY: TPoint;
   const AZoom: Byte;
@@ -286,7 +306,7 @@ begin
   Result :=
     StoragePath +
     FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-    cStorageFileExt;
+    GetStorageFileExtention;
 end;
 
 function TTileStorageBerkeleyDB.GetTileInfo(
@@ -318,7 +338,7 @@ begin
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      cStorageFileExt;
+      GetStorageFileExtention;
 
     VResult := False;
 
@@ -372,7 +392,7 @@ begin
     end;
 
     if not VResult then begin
-      VPath := ChangeFileExt(VPath, cTneStorageFileExt);
+      VPath := ChangeFileExt(VPath, GetStorageFileExtention(True));
       if FileExists(VPath) then begin
         if not Assigned(VHelper) then begin
           VHelper := GetStorageHelper;
@@ -417,7 +437,7 @@ var
 begin
   Result := nil;
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
-    VPath := StoragePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + cStorageFileExt;
+    VPath := StoragePath + FFileNameGenerator.GetTileFileName(AXY, AZoom) + GetStorageFileExtention;
     if FileExists(VPath) then begin
       VHelper := GetStorageHelper;
       VResult :=
@@ -500,8 +520,8 @@ begin
           VFileInfo.Name :=
             StoragePath +
             FFileNameGenerator.GetTileFileName(VTile, VZoom) +
-            cStorageFileExt;
-          VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, cTneStorageFileExt);
+            GetStorageFileExtention;
+          VTneFileInfo.Name := ChangeFileExt(VFileInfo.Name, GetStorageFileExtention(True));
           VFolderInfo.Name := ExtractFilePath(VFileInfo.Name);
 
           if VFolderInfo.Name = VFolderInfo.PrevName then begin
@@ -607,7 +627,7 @@ begin
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      cStorageFileExt;
+      GetStorageFileExtention;
     if CreateDirIfNotExists(VPath) then begin 
       VHelper := GetStorageHelper;
       VResult := VHelper.SaveTile(
@@ -658,7 +678,7 @@ begin
     VPath :=
       StoragePath +
       FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-      cTneStorageFileExt;
+      GetStorageFileExtention(True);
     if CreateDirIfNotExists(VPath) then begin
       VHelper := GetStorageHelper;
       VResult := VHelper.SaveTile(
@@ -701,7 +721,7 @@ begin
       VPath :=
         StoragePath +
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        cStorageFileExt;
+        GetStorageFileExtention;
       if FileExists(VPath) then begin
         VHelper := GetStorageHelper;
         Result := VHelper.DeleteTile(
@@ -715,7 +735,7 @@ begin
         VPath :=
           StoragePath +
           FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-          cTneStorageFileExt;
+          GetStorageFileExtention(True);
         if FileExists(VPath) then begin
           if not Assigned(VHelper) then begin
             VHelper := GetStorageHelper;
@@ -762,9 +782,9 @@ var
 begin
   VProcessFileMasks := TWideStringList.Create;
   try
-    VProcessFileMasks.Add('*' + cStorageFileExt);
+    VProcessFileMasks.Add('*' + GetStorageFileExtention);
     if not AIgnoreTNE then begin
-      VProcessFileMasks.Add('*' + cTneStorageFileExt);
+      VProcessFileMasks.Add('*' + GetStorageFileExtention(True));
     end;
 
     VFoldersIteratorFactory :=

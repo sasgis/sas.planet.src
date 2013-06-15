@@ -667,6 +667,9 @@ begin
       'x' + IntToStr(AXY.X) + PathDelim +
       'y' + IntToStr(AXY.Y) + FContentType.GetDefaultExt;
   end;
+  if FStorage.GetIsCanSaveMultiVersionTiles and (FVersionConfig.Version.StoreString <> '') then begin
+    Result := Result + PathDelim + 'v' + FVersionConfig.Version.StoreString;
+  end;
 end;
 
 function TMapType.GetFillingMapBitmap(

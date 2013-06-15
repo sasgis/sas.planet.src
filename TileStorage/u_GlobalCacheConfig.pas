@@ -45,6 +45,7 @@ type
     FGECachePath: IPathConfig;
     FGCCachePath: IPathConfig;
     FBDBCachePath: IPathConfig;
+    FBDBVerCachePath: IPathConfig;
     FDBMSCachePath: IPathConfig;
 
     function GetDefCache: byte;
@@ -57,6 +58,7 @@ type
     function GetGECachePath: IPathConfig;
     function GetGCCachePath: IPathConfig;
     function GetBDBCachePath: IPathConfig;
+    function GetBDBVerCachePath: IPathConfig;
     function GetDBMSCachePath: IPathConfig;
   protected
     procedure DoReadConfig(const AConfigProvider: IConfigDataProvider); override;
@@ -99,6 +101,8 @@ begin
   Add(FGCCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
   FBDBCachePath  := TPathConfig.Create('BDBCache',  c_File_Cache_Default_BDB,  FCacheGlobalPath);
   Add(FBDBCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
+  FBDBVerCachePath  := TPathConfig.Create('BDBVerCache',  c_File_Cache_Default_BDBv,  FCacheGlobalPath);
+  Add(FBDBVerCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
   FDBMSCachePath := TPathConfig.Create('DBMSCache', c_File_Cache_Default_DBMS, FCacheGlobalPath);
   Add(FDBMSCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
 end;
@@ -130,6 +134,11 @@ end;
 function TGlobalCacheConfig.GetBDBCachePath: IPathConfig;
 begin
   Result := FBDBCachePath;
+end;
+
+function TGlobalCacheConfig.GetBDBVerCachePath: IPathConfig;
+begin
+  Result := FBDBVerCachePath;
 end;
 
 function TGlobalCacheConfig.GetDBMSCachePath: IPathConfig;

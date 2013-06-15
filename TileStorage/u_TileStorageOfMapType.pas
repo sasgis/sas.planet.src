@@ -469,8 +469,11 @@ begin
     c_File_Cache_Id_GE: begin
       VBasePath := FGlobalCacheConfig.GECachePath;
     end;
-    c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned: begin
+    c_File_Cache_Id_BDB: begin
       VBasePath := FGlobalCacheConfig.BDBCachePath;
+    end;
+    c_File_Cache_Id_BDB_Versioned: begin
+      VBasePath := FGlobalCacheConfig.BDBVerCachePath;
     end;
     c_File_Cache_Id_DBMS: begin
       VBasePath := FGlobalCacheConfig.DBMSCachePath;

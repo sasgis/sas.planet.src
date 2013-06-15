@@ -23,6 +23,7 @@ const
   c_File_Cache_Default_GM   = 'cache_gmt';     // for 4x
   c_File_Cache_Default_GE   = 'cache_GE';      // for 5
   c_File_Cache_Default_BDB  = 'cache_db';      // for 6
+  c_File_Cache_Default_BDBv = 'cache_dbv';     // for 61
   c_File_Cache_Default_DBMS = 'SASGIS_DBMS\$'; // for 7
   c_File_Cache_Default_GC   = 'cache_GC';      // for 8
   c_File_Cache_Default_RAM  = '';              // for 9

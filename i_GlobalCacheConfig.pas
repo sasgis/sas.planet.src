@@ -17,18 +17,28 @@ type
     //Пути к кэшам разных типов
     function GetNewCPath: IPathConfig;
     property NewCPath: IPathConfig read GetNewCPath;
+
     function GetOldCPath: IPathConfig;
     property OldCPath: IPathConfig read GetOldCPath;
+
     function GetESCPath: IPathConfig;
     property ESCPath: IPathConfig read GetESCPath;
+
     function GetGMTilesPath: IPathConfig;
     property GMTilesPath: IPathConfig read GetGMTilesPath;
+
     function GetGECachePath: IPathConfig;
     property GECachePath: IPathConfig read GetGECachePath;
+
     function GetGCCachePath: IPathConfig;
     property GCCachePath: IPathConfig read GetGCCachePath;
+
     function GetBDBCachePath: IPathConfig;
     property BDBCachePath: IPathConfig read GetBDBCachePath;
+
+    function GetBDBVerCachePath: IPathConfig;
+    property BDBVerCachePath: IPathConfig read GetBDBVerCachePath;
+
     function GetDBMSCachePath: IPathConfig;
     property DBMSCachePath: IPathConfig read GetDBMSCachePath;
   end;
