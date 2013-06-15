@@ -102,7 +102,8 @@ begin
   dbenv := AEnvironment.dbenv;
   FEnvRootPath := AEnvironment.RootPath;
   FFileName := '';
-  FLock := MakeSyncRW_Std(Self, False);
+//  FLock := MakeSyncRW_Std(Self, False);
+  FLock := MakeSyncFake(Self);
   FOnDeadLockRetryCount := AOnDeadLockRetryCount;
 end;
 
@@ -440,7 +441,7 @@ begin
   Result := False;
   SetLength(AKeyArray, 0);
   try
-    FLock.EndRead;
+    FLock.BeginRead;
     try
       CheckBDB(db.cursor(db, nil, @dbc, 0));
       try
