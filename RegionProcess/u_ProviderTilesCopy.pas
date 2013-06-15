@@ -115,6 +115,7 @@ var
   VDeleteSource: Boolean;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VCacheType: Byte;
+  VPlaceInSubFolder: Boolean;
   VSetTargetVersionEnabled: Boolean;
   VSetTargetVersionValue: String;
   VMaps: IMapTypeListStatic;
@@ -123,6 +124,7 @@ begin
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMaps := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).MapTypeList;
   VReplace := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).ReplaseTarget;
+  VPlaceInSubFolder := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).PlaceInNameSubFolder;
   VDeleteSource := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).DeleteSource;
   VCacheType := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).TargetCacheType;
 
@@ -157,6 +159,7 @@ begin
       FGlobalBerkeleyDBHelper,
       VProgressInfo,
       VPath,
+      (VPlaceInSubFolder or (VMaps.Count > 1)),
       (VCacheType = c_File_Cache_Id_BDB_Versioned),
       FProjectionFactory,
       FVectorItemsFactory,
@@ -172,6 +175,7 @@ begin
     TThreadExportToFileSystem.Create(
       VProgressInfo,
       VPath,
+      (VPlaceInSubFolder or (VMaps.Count > 1)),
       FProjectionFactory,
       FVectorItemsFactory,
       APolygon,

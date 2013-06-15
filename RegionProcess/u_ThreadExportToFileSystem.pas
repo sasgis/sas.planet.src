@@ -30,6 +30,7 @@ type
     FIsMove: boolean;
     FIsReplace: boolean;
     FPathExport: string;
+    FPlaceInSubFolder: Boolean;
 
     function SaveTileToFile(
       const ATileInfo: ITileInfoWithData;
@@ -42,6 +43,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
+      const APlaceInSubFolder: Boolean;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const APolygon: ILonLatPolygon;
@@ -67,6 +69,7 @@ uses
 constructor TThreadExportToFileSystem.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
+  const APlaceInSubFolder: Boolean;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const APolygon: ILonLatPolygon;
@@ -85,6 +88,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FPathExport := APath;
+  FPlaceInSubFolder := APlaceInSubFolder;
   FIsMove := AMove;
   FTileNameGen := ATileNameGen;
   FIsReplace := AReplace;
@@ -171,7 +175,10 @@ begin
         VVersion := VMapType.VersionConfig.Version;
         VGeoConvert := VMapType.GeoConvert;
         VExt := VMapType.StorageConfig.TileFileExt;
-        VPath := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName);
+        VPath := IncludeTrailingPathDelimiter(FPathExport);
+        if FPlaceInSubFolder then begin
+          VPath := IncludeTrailingPathDelimiter(VPath + VMapType.GetShortFolderName);
+        end;
         VTileIterator := VTileIterators[j, i];
         while VTileIterator.Next(VTile) do begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin

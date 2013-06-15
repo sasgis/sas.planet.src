@@ -34,6 +34,9 @@ type
     function GetMapTypeList: IMapTypeListStatic;
     property MapTypeList: IMapTypeListStatic read GetMapTypeList;
 
+    function GetPlaceInNameSubFolder: Boolean;
+    property PlaceInNameSubFolder: Boolean read GetPlaceInNameSubFolder;
+
     function GetSetTargetVersionEnabled: Boolean;
     property SetTargetVersionEnabled: Boolean read GetSetTargetVersionEnabled;
 
@@ -66,6 +69,7 @@ type
     chkAllMaps: TCheckBox;
     chklstMaps: TCheckListBox;
     Panel1: TPanel;
+    chkPlaceInNameSubFolder: TCheckBox;
     chkSetTargetVersionTo: TCheckBox;
     edSetTargetVersionValue: TEdit;
     pnSetTargetVersionOptions: TPanel;
@@ -94,6 +98,7 @@ type
     function GetDeleteSource: Boolean;
     function GetTargetCacheType: Byte;
     function GetMapTypeList: IMapTypeListStatic;
+    function GetPlaceInNameSubFolder: Boolean;
     function GetSetTargetVersionEnabled: Boolean;
     function GetSetTargetVersionValue: String;
   public
@@ -215,6 +220,11 @@ end;
 function TfrTilesCopy.GetPath: string;
 begin
   Result := IncludeTrailingPathDelimiter(edtTargetPath.Text);
+end;
+
+function TfrTilesCopy.GetPlaceInNameSubFolder: Boolean;
+begin
+  Result := chkPlaceInNameSubFolder.Checked;
 end;
 
 function TfrTilesCopy.GetReplaseTarget: Boolean;

@@ -53,9 +53,9 @@ object frTilesCopy: TfrTilesCopy
       end
       object chklstZooms: TCheckListBox
         Left = 3
-        Top = 20
+        Top = 17
         Width = 69
-        Height = 212
+        Height = 215
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
@@ -86,7 +86,7 @@ object frTilesCopy: TfrTilesCopy
       end
       object cbbNamesType: TComboBox
         Left = 3
-        Top = 20
+        Top = 17
         Width = 370
         Height = 21
         Align = alTop
@@ -108,7 +108,7 @@ object frTilesCopy: TfrTilesCopy
       object chkDeleteSource: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 44
+        Top = 58
         Width = 370
         Height = 17
         Margins.Left = 0
@@ -117,11 +117,12 @@ object frTilesCopy: TfrTilesCopy
         Align = alTop
         Caption = 'Move'
         TabOrder = 1
+        ExplicitTop = 41
       end
       object chkReplaseTarget: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 61
+        Top = 75
         Width = 370
         Height = 17
         Margins.Left = 0
@@ -130,6 +131,7 @@ object frTilesCopy: TfrTilesCopy
         Align = alTop
         Caption = 'Overwrite if equal'
         TabOrder = 2
+        ExplicitTop = 58
       end
       object chkAllMaps: TCheckBox
         AlignWithMargins = True
@@ -147,18 +149,16 @@ object frTilesCopy: TfrTilesCopy
       end
       object chklstMaps: TCheckListBox
         Left = 3
-        Top = 125
+        Top = 139
         Width = 370
-        Height = 107
+        Height = 93
         Align = alClient
         ItemHeight = 13
         TabOrder = 4
-        ExplicitTop = 81
-        ExplicitHeight = 151
       end
       object pnSetTargetVersionOptions: TPanel
         Left = 3
-        Top = 81
+        Top = 95
         Width = 370
         Height = 44
         Margins.Left = 0
@@ -169,7 +169,7 @@ object frTilesCopy: TfrTilesCopy
         AutoSize = True
         BevelOuter = bvNone
         TabOrder = 5
-        ExplicitLeft = 0
+        ExplicitTop = 78
         object chkSetTargetVersionTo: TCheckBox
           Left = 0
           Top = 0
@@ -183,7 +183,7 @@ object frTilesCopy: TfrTilesCopy
           Enabled = False
           TabOrder = 0
           OnClick = chkSetTargetVersionToClick
-          ExplicitLeft = 3
+          ExplicitTop = 17
         end
         object edSetTargetVersionValue: TEdit
           AlignWithMargins = True
@@ -194,8 +194,20 @@ object frTilesCopy: TfrTilesCopy
           Align = alTop
           Enabled = False
           TabOrder = 1
-          ExplicitTop = 17
+          ExplicitTop = 37
         end
+      end
+      object chkPlaceInNameSubFolder: TCheckBox
+        Left = 3
+        Top = 38
+        Width = 370
+        Height = 17
+        Align = alTop
+        Caption = 'Make subfolder with map path name'
+        Checked = True
+        State = cbChecked
+        TabOrder = 6
+        ExplicitTop = 55
       end
     end
   end
@@ -213,7 +225,7 @@ object frTilesCopy: TfrTilesCopy
       Left = 3
       Top = 3
       Width = 41
-      Height = 18
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft

@@ -57,6 +57,7 @@ type
     FIsMove: Boolean;
     FDestOverwriteTiles: Boolean;
     FPathExport: string;
+    FPlaceInSubFolder: Boolean;
     FIsVersioned: Boolean;
     FSetTargetVersionEnabled: Boolean;
     FSetTargetVersionValue: string;
@@ -75,6 +76,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
+      const APlaceInSubFolder: Boolean;
       const AIsVersioned: Boolean;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
@@ -107,6 +109,7 @@ constructor TThreadExportToBerkeleyDB.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
+  const APlaceInSubFolder: Boolean;
   const AIsVersioned: Boolean;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
@@ -130,6 +133,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FPathExport := GetFullPathName(APath);
+  FPlaceInSubFolder := APlaceInSubFolder;
   FIsVersioned := AIsVersioned;
   if FPathExport = '' then begin
     raise Exception.Create('Can''t ExpandFileName: ' + APath);
@@ -227,6 +231,7 @@ var
   VZoom: Byte;
   VTile: TPoint;
   VMapType: TMapType;
+  VPath: string;
   VGeoConvert: ICoordConverter;
   VTileIterators: array of array of ITileIterator;
   VTileIterator: ITileIterator;
@@ -275,11 +280,16 @@ begin
         VTargetVersionInfo := VSrcVersionInfo;
       end;
 
+      VPath := IncludeTrailingPathDelimiter(FPathExport);
+      if FPlaceInSubFolder then begin
+        VPath := IncludeTrailingPathDelimiter(VPath + VMapType.GetShortFolderName);
+      end;
+
       FDestTileStorage :=
         TTileStorageBerkeleyDB.Create(
           FGlobalBerkeleyDBHelper,
           VMapType.GeoConvert,
-          IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(FPathExport) + VMapType.GetShortFolderName),
+          VPath,
           FIsVersioned,
           FTimerNoifier,
           nil, // MemCache - not needed here
