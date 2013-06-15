@@ -277,7 +277,7 @@ begin
     if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
-      CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.Zmp.StorageConfig.CacheTypeCode);
+      CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.StorageConfig.CacheTypeCode);
     end else begin
       // GE or GC
       pnlCacheType.Visible := False;
