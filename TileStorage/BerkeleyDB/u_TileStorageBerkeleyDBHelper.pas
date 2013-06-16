@@ -305,7 +305,7 @@ begin
 
   for I := 0 to AVersionedMetaValue.ItemsCount - 1 do begin
     VMetaElement := AVersionedMetaValue.Item[I];
-    if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
+    if WideSameText(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
       AVersionIDInfo.IsSameVersionFound := True;
       AVersionIDInfo.TileIndexInMetaValue := I;
       Result := VMetaElement.VersionID;

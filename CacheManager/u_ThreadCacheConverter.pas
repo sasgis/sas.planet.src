@@ -119,7 +119,7 @@ begin
       Break;
     end;
     if FCheckSourceVersion then begin
-      if Assigned(VTileInfo.FVersionInfo) and WideSameStr(VTileInfo.FVersionInfo.StoreString, FSourceVersionInfo.StoreString) then begin
+      if Assigned(VTileInfo.FVersionInfo) and WideSameText(VTileInfo.FVersionInfo.StoreString, FSourceVersionInfo.StoreString) then begin
         if not OnSourceTileStorageScan(VTileInfo) then begin
           Break;
         end;
