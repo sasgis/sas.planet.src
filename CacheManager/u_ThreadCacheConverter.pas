@@ -27,6 +27,7 @@ uses
   i_NotifierOperation,
   i_TileInfoBasic,
   i_TileStorage,
+  i_MapVersionInfo,
   i_CacheConverterProgressInfo,
   u_ThreadCacheManagerAbstract;
 
@@ -36,12 +37,16 @@ type
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
     FSourceTileStorage: ITileStorage;
+    FSourceVersionInfo: IMapVersionInfo;
     FSourceStorageRootPath: string;
     FDestTileStorage: ITileStorage;
+    FDestVersionInfo: IMapVersionInfo;
     FSourceIgnoreTne: Boolean;
     FSourceRemoveTiles: Boolean;
     FDestOverwriteTiles: Boolean;
     FProgressInfo: ICacheConverterProgressInfo;
+    FCheckSourceVersion: Boolean;
+    FReplaceDestVersion: Boolean;
 
     function OnSourceTileStorageScan(
       const ATileInfo: TTileInfo
@@ -53,8 +58,10 @@ type
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const ASourceStorage: ITileStorage;
+      const ASourceVersionInfo: IMapVersionInfo;
       const ASourceStorageRootPath: string;
-      const ATargetStorage: ITileStorage;
+      const ADestStorage: ITileStorage;
+      const ADestVersionInfo: IMapVersionInfo;
       const ASourceIgnoreTne: Boolean;
       const ASourceRemoveTiles: Boolean;
       const ADestOverwriteTiles: Boolean;
@@ -73,8 +80,10 @@ constructor TThreadCacheConverter.Create(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const ASourceStorage: ITileStorage;
+  const ASourceVersionInfo: IMapVersionInfo;
   const ASourceStorageRootPath: string;
-  const ATargetStorage: ITileStorage;
+  const ADestStorage: ITileStorage;
+  const ADestVersionInfo: IMapVersionInfo;
   const ASourceIgnoreTne: Boolean;
   const ASourceRemoveTiles: Boolean;
   const ADestOverwriteTiles: Boolean;
@@ -88,8 +97,13 @@ begin
   FDestOverwriteTiles := ADestOverwriteTiles;
   FProgressInfo := AProgressInfo;
   FSourceTileStorage := ASourceStorage;
+  FSourceVersionInfo := ASourceVersionInfo;
   FSourceStorageRootPath := ASourceStorageRootPath;
-  FDestTileStorage := ATargetStorage;
+  FDestTileStorage := ADestStorage;
+  FDestVersionInfo := ADestVersionInfo;
+
+  FCheckSourceVersion := Assigned(FSourceVersionInfo);
+  FReplaceDestVersion := Assigned(FDestVersionInfo);
 
   inherited Create(FCancelNotifier, FOperationID, AnsiString(Self.ClassName));
 end;
@@ -104,7 +118,13 @@ begin
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
       Break;
     end;
-    if not OnSourceTileStorageScan(VTileInfo) then begin
+    if FCheckSourceVersion then begin
+      if Assigned(VTileInfo.FVersionInfo) and WideSameStr(VTileInfo.FVersionInfo.StoreString, FSourceVersionInfo.StoreString) then begin
+        if not OnSourceTileStorageScan(VTileInfo) then begin
+          Break;
+        end;
+      end;
+    end else if not OnSourceTileStorageScan(VTileInfo) then begin
       Break;
     end;
     if FSourceRemoveTiles then begin
@@ -122,16 +142,23 @@ function TThreadCacheConverter.OnSourceTileStorageScan(
 var
   VTileInfo: ITileInfoBasic;
   VTileFullPath: string;
+  VDestVersionInfo: IMapVersionInfo;
 begin
   Result := False;
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
+
+    if FReplaceDestVersion then begin
+      VDestVersionInfo := FDestVersionInfo;
+    end else begin
+      VDestVersionInfo := ATileInfo.FVersionInfo;
+    end;
 
     if not FDestOverwriteTiles then begin
       VTileInfo :=
         FDestTileStorage.GetTileInfo(
           ATileInfo.FTile,
           ATileInfo.FZoom,
-          ATileInfo.FVersionInfo,
+          VDestVersionInfo,
           gtimAsIs
         );
       if Assigned(VTileInfo) then begin
@@ -148,7 +175,7 @@ begin
         FDestTileStorage.SaveTile(
           ATileInfo.FTile,
           ATileInfo.FZoom,
-          ATileInfo.FVersionInfo,
+          VDestVersionInfo,
           ATileInfo.FLoadDate,
           ATileInfo.FContentType,
           ATileInfo.FData
@@ -158,7 +185,7 @@ begin
         FDestTileStorage.SaveTNE(
           ATileInfo.FTile,
           ATileInfo.FZoom,
-          ATileInfo.FVersionInfo,
+          VDestVersionInfo,
           ATileInfo.FLoadDate
         );
         Result := True;
