@@ -159,7 +159,7 @@ begin
           ATileInfo.FTile,
           ATileInfo.FZoom,
           VDestVersionInfo,
-          gtimAsIs
+          gtimWithoutData
         );
       if Assigned(VTileInfo) then begin
         if (VTileInfo.IsExists or (VTileInfo.IsExistsTNE and (ATileInfo.FInfoType = titTneExists))) then begin
