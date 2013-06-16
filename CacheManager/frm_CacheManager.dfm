@@ -2,7 +2,7 @@ object frmCacheManager: TfrmCacheManager
   Left = 0
   Top = 0
   Caption = 'Cache Manager'
-  ClientHeight = 316
+  ClientHeight = 397
   ClientWidth = 572
   Color = clBtnFace
   ParentFont = True
@@ -15,30 +15,32 @@ object frmCacheManager: TfrmCacheManager
     Left = 0
     Top = 0
     Width = 572
-    Height = 279
+    Height = 360
     ActivePage = tsConverter
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 279
     object tsConverter: TTabSheet
       Caption = 'Convert Cache Format'
+      ExplicitHeight = 251
       object grpSrc: TGroupBox
         Left = 2
         Top = 0
         Width = 559
-        Height = 113
+        Height = 161
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Source Cache'
         TabOrder = 0
         object lblPath: TLabel
-          Left = 16
+          Left = 10
           Top = 16
           Width = 26
           Height = 13
           Caption = 'Path:'
         end
         object lblCacheType: TLabel
-          Left = 16
+          Left = 10
           Top = 62
           Width = 38
           Height = 13
@@ -52,16 +54,16 @@ object frmCacheManager: TfrmCacheManager
           Caption = 'Extention:'
         end
         object edtPath: TEdit
-          Left = 16
+          Left = 10
           Top = 35
-          Width = 510
+          Width = 516
           Height = 21
           Align = alCustom
-          Anchors = [akLeft, akRight]
+          Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
         end
         object cbbCacheTypes: TComboBox
-          Left = 16
+          Left = 10
           Top = 81
           Width = 153
           Height = 21
@@ -104,50 +106,67 @@ object frmCacheManager: TfrmCacheManager
         end
         object btnSelectSrcPath: TButton
           Left = 532
-          Top = 35
+          Top = 34
           Width = 21
           Height = 19
           Align = alCustom
-          Anchors = [akRight]
+          Anchors = [akTop, akRight]
           Caption = '...'
           TabOrder = 5
           OnClick = btnSelectSrcPathClick
         end
+        object chkCheckSourceVersion: TCheckBox
+          Left = 10
+          Top = 108
+          Width = 536
+          Height = 17
+          Caption = 'Process only tiles  with version:'
+          TabOrder = 6
+        end
+        object edtSourceVersion: TEdit
+          Left = 10
+          Top = 131
+          Width = 536
+          Height = 21
+          Align = alCustom
+          Anchors = [akLeft, akTop, akRight]
+          TabOrder = 7
+        end
       end
       object grpDestCache: TGroupBox
         Left = 3
-        Top = 119
+        Top = 167
         Width = 559
-        Height = 113
+        Height = 162
         Align = alCustom
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Dest Cache'
         TabOrder = 1
         object lblDestPath: TLabel
-          Left = 16
+          Left = 10
           Top = 16
           Width = 26
           Height = 13
           Caption = 'Path:'
         end
         object lblDestFormat: TLabel
-          Left = 16
+          Left = 10
           Top = 62
           Width = 38
           Height = 13
           Caption = 'Format:'
         end
         object edtDestPath: TEdit
-          Left = 16
+          Left = 10
           Top = 35
-          Width = 509
+          Width = 516
           Height = 21
           Align = alCustom
-          Anchors = [akLeft, akRight]
+          Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
         end
         object cbbDestCacheTypes: TComboBox
-          Left = 16
+          Left = 10
           Top = 81
           Width = 153
           Height = 21
@@ -178,23 +197,41 @@ object frmCacheManager: TfrmCacheManager
           Width = 21
           Height = 19
           Align = alCustom
-          Anchors = [akRight]
+          Anchors = [akTop, akRight]
           Caption = '...'
           TabOrder = 3
           OnClick = btnSelectDestPathClick
+        end
+        object chkReplaceDestVersion: TCheckBox
+          Left = 10
+          Top = 108
+          Width = 536
+          Height = 17
+          Caption = 'Set same version for all processed tiles:'
+          TabOrder = 4
+        end
+        object edtDestVersion: TEdit
+          Left = 10
+          Top = 131
+          Width = 535
+          Height = 21
+          Align = alCustom
+          Anchors = [akLeft, akTop, akRight]
+          TabOrder = 5
         end
       end
     end
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 279
+    Top = 360
     Width = 572
     Height = 37
     Align = alBottom
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
+    ExplicitTop = 279
     object btnStart: TButton
       AlignWithMargins = True
       Left = 410

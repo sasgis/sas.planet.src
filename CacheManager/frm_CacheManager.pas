@@ -74,6 +74,10 @@ type
     chkOverwrite: TCheckBox;
     btnSelectSrcPath: TButton;
     btnSelectDestPath: TButton;
+    chkCheckSourceVersion: TCheckBox;
+    edtSourceVersion: TEdit;
+    chkReplaceDestVersion: TCheckBox;
+    edtDestVersion: TEdit;
     procedure btnStartClick(Sender: TObject);
     procedure btnSelectSrcPathClick(Sender: TObject);
     procedure btnSelectDestPathClick(Sender: TObject);
@@ -125,6 +129,7 @@ uses
   {$WARN UNIT_PLATFORM ON}
   c_CacheTypeCodes,
   c_CoordConverter,
+  i_MapVersionInfo,
   i_MapVersionConfig,
   i_ContentTypeInfo,
   i_TileFileNameGenerator,
@@ -351,8 +356,10 @@ var
   VOperationID: Integer;
   VConverterThread: TThreadCacheConverter;
   VCoordConverter: ICoordConverter;
-  VSource: ITileStorage;
-  VTarget: ITileStorage;
+  VSourceStorage: ITileStorage;
+  VDestStorage: ITileStorage;
+  VSourceVersion: IMapVersionInfo;
+  VDestVersion: IMapVersionInfo;
   VSourcePath: string;
   VDestPath: string;
   VDefExtention: string;
@@ -380,7 +387,7 @@ begin
     VSourcePath := IncludeTrailingPathDelimiter(VSourcePath);
   end;
 
-  VSource :=
+  VSourceStorage :=
     CreateSimpleTileStorage(
       VSourcePath,
       VDefExtention,
@@ -397,7 +404,7 @@ begin
     end;
   end;
 
-  VTarget :=
+  VDestStorage :=
     CreateSimpleTileStorage(
       VDestPath,
       VDefExtention,
@@ -406,14 +413,25 @@ begin
       GetCacheFormatFromIndex(cbbDestCacheTypes.ItemIndex)
     );
 
+  VSourceVersion := nil;
+  VDestVersion := nil;
+
+  if chkCheckSourceVersion.Checked then begin
+    VSourceVersion := FMapVersionFactoryList.GetSimpleVersionFactory.CreateByStoreString(Trim(edtSourceVersion.Text));
+  end;
+
+  if chkReplaceDestVersion.Checked then begin
+    VDestVersion := FMapVersionFactoryList.GetSimpleVersionFactory.CreateByStoreString(Trim(edtDestVersion.Text));
+  end;
+
   VConverterThread := TThreadCacheConverter.Create(
     VCancelNotifierInternal,
     VOperationID,
-    VSource,
-    nil,
+    VSourceStorage,
+    VSourceVersion,
     VSourcePath,
-    VTarget,
-    nil,
+    VDestStorage,
+    VDestVersion,
     chkIgnoreTNE.Checked,
     chkRemove.Checked,
     chkOverwrite.Checked,
