@@ -732,9 +732,7 @@ begin
           end;
         end;
       end;
-    end;
-
-    if ASingleTileInfo and (not FIsVersioned or (FIsVersioned and not Result and AVersionInfo.ShowPrevVersion)) then begin
+    end else begin
       VKey := TBerkeleyDBKey.Create(ATileXY);
       VBinValue := VDatabase.Read(VKey);
       if Assigned(VBinValue) then begin
