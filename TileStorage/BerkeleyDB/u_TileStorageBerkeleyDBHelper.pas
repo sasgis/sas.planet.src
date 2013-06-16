@@ -430,6 +430,7 @@ begin
           VVersionID := GetTileVersionID(VTileCRC, VVersionInfo, VVersionedMeta, @VVersionIDInfo);
 
           if VVersionIDInfo.IsSameCRCFound then begin
+            FEnvironment.TransactionAbort(VTransaction);
             Exit;
           end;
 
@@ -460,6 +461,7 @@ begin
               FEnvironment.TransactionAbort(VTransaction);
               Continue;
             end else begin
+              FEnvironment.TransactionAbort(VTransaction);
               Assert(False);
               Exit;
             end;
@@ -467,6 +469,7 @@ begin
             FEnvironment.TransactionAbort(VTransaction);
             Continue;
           end else begin
+            FEnvironment.TransactionAbort(VTransaction);
             Assert(False);
             Exit;
           end;
@@ -523,6 +526,7 @@ begin
           end;
 
           if not Assigned(VVersionedMeta) then begin
+            FEnvironment.TransactionAbort(VTransaction);
             Exit;
           end;
 
@@ -541,6 +545,7 @@ begin
                 FEnvironment.TransactionAbort(VTransaction);
                 Continue;
               end else begin
+                FEnvironment.TransactionAbort(VTransaction);
                 Assert(False);
                 Exit;
               end;
@@ -553,6 +558,7 @@ begin
                 FEnvironment.TransactionAbort(VTransaction);
                 Continue;
               end else begin
+                FEnvironment.TransactionAbort(VTransaction);
                 Assert(False);
                 Exit;
               end;
