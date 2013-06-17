@@ -117,7 +117,11 @@ begin
   VTileRect := VConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
   VResultMapPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
 
-  if EqualRect(ACurrentCoordConverter.GetRectInMapPixel, VResultMapPixelRect) then begin
+  if
+    EqualRect(ACurrentCoordConverter.GetRectInMapPixel, VResultMapPixelRect) and
+    (ACurrentCoordConverter.Zoom = VZoom) and
+    ACurrentCoordConverter.GeoConverter.IsSameConverter(VConverter)
+  then begin
     Result := ACurrentCoordConverter;
   end else if EqualRect(VSourcePixelRect, VResultMapPixelRect) and (Abs(AVisualCoordConverter.GetScale - 1) < 0.001) then begin
     Result := AVisualCoordConverter;
