@@ -586,6 +586,10 @@
       <Form>frCombine</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="RegionProcess\fr_MapSelect.pas">
+      <Form>frMapSelect</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_Export.pas">
       <Form>frExport</Form>
       <DesignClass>TFrame</DesignClass>

@@ -16,6 +16,7 @@ uses
   TB2ExtItems,
   TBXExtItems,
   Windows,
+  fr_MapSelect,
   i_MapTypes,
   i_CoordConverterFactory,
   i_LanguageManager,
@@ -63,32 +64,22 @@ type
     chkReplaceIfDifSize: TCheckBox;
     chkReplaceOlder: TCheckBox;
     dtpReplaceOlderDate: TDateTimePicker;
-    cbbMap: TComboBox;
     cbbZoom: TComboBox;
     chkTryLoadIfTNE: TCheckBox;
     pnlTop: TPanel;
     pnlBottom: TPanel;
-    pnlRight: TPanel;
     pnlMain: TPanel;
     pnlTileReplaceCondition: TPanel;
     pnlReplaceOlder: TPanel;
     lblReplaceOlder: TLabel;
-    lblMap: TLabel;
-    Bevel1: TBevel;
     chkStartPaused: TCheckBox;
-    MainPopupMenu: TTBXPopupMenu;
-    TBX_Layers: TTBXItem;
-    TBX_Maps: TTBXItem;
-    TBX_All: TTBXItem;
-    TBX_active: TTBXItem;
-    TBSeparatorItem1: TTBSeparatorItem;
-    TBX_Filter: TTBXItem;
-    TBX_AFilter: TTBXEditItem;
+    pnlMapSelect: TPanel;
+    pnlZoom: TPanel;
+    lblMapCaption: TLabel;
+    pnlFrame: TPanel;
     procedure chkReplaceClick(Sender: TObject);
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
-    procedure RefreshList(Sender: TObject);
-    procedure ApplyFilter(Sender: TObject);
   private
     FVectorFactory: IVectorItemsFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -96,6 +87,8 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FfrMapSelect: TfrMapSelect;
+
   private
     procedure Init(
       const AZoom: byte;
@@ -111,6 +104,7 @@ type
     function GetIsReplaceIfDifSize: Boolean;
     function GetIsReplaceIfOlder: Boolean;
     function GetReplaceDate: TDateTime;
+    function GetAllowDownload(AMapType: TMapType): boolean; // чисто для проверки
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -120,6 +114,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -146,12 +141,7 @@ var
   VPixelRect: TRect;
   VTileRect: TRect;
 begin
-  if cbbMap.ItemIndex >= 0 then begin
-    Vmt := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end else begin
-    Vmt := nil;
-  end;
-
+  Vmt := FfrMapSelect.GetSelectedMapType;
   if Vmt <> nil then begin
     VZoom := cbbZoom.ItemIndex;
     Vmt.GeoConvert.CheckZoom(VZoom);
@@ -180,6 +170,12 @@ begin
       end;
     end;
   end;
+end;
+
+destructor TfrTilesDownload.Destroy;
+begin
+  FreeAndNil(FfrMapSelect);
+  inherited;
 end;
 
 procedure TfrTilesDownload.chkReplaceClick(Sender: TObject);
@@ -212,6 +208,22 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfAll, // show maps and layers
+      false,  // add -NO- to combobox
+      false,  // show disabled map
+      GetAllowDownload
+    );
+end;
+
+function TfrTilesDownload.GetAllowDownload(AMapType: TMapType): boolean; // чисто для проверки
+begin
+   Result := (AMapType.StorageConfig.GetAllowAdd) and (AMapType.TileDownloadSubsystem.State.GetStatic.Enabled);
 end;
 
 function TfrTilesDownload.GetIsIgnoreTne: Boolean;
@@ -241,10 +253,7 @@ end;
 
 function TfrTilesDownload.GetMapType: TMapType;
 begin
-  Result := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end;
+  Result := FfrMapSelect.GetSelectedMapType;
 end;
 
 function TfrTilesDownload.GetReplaceDate: TDateTime;
@@ -270,119 +279,10 @@ begin
     cbbZoom.Items.Add(inttostr(i));
   end;
   cbbZoom.ItemIndex := AZoom;
-  cbbMap.items.Clear;
-  RefreshList(TBX_All); // set items
   dtpReplaceOlderDate.Date:=now;
   cbbZoomChange(nil);
+  cbbZoomChange(cbbzoom);
+  FfrMapSelect.Show(pnlFrame);
 end;
 
-procedure TfrTilesDownload.ApplyFilter(Sender: TObject);
-begin
- RefreshList(TBX_Filter);
-end;
-
-procedure TfrTilesDownload.RefreshList(Sender: TObject);
-var
-  VMode: Integer; // 1 All  2 Maps  3 Layers  4 Active   5 Filter
-  VCurNewIndex: Integer;
-  VActiveMapGUID: TGUID;
-  i: integer;
-  VNewMapType: TMapType;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
-  VAdd: Boolean;
-  VLayers: IMapTypeSet;
-  VMapName: string;
-  VFilter: string;
-begin
-  VMode := TTBXItem(Sender).Tag;
-  TTBXItem(Sender).checked := True;
-  VCurNewIndex := 0;
-  VLayers := nil;
-  VFilter := AnsiUpperCase(TBX_AFilter.Text);
-  // get active map
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  // refresh list
-  cbbMap.items.BeginUpdate;
-  try
-    cbbMap.items.Clear;
-    VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-    for i := 0 to VGUIDList.Count-1 do begin
-      VGUID := VGUIDList.Items[i];
-      VNewMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-      // check if allow to download
-      if (VNewMapType.TileDownloadSubsystem.State.GetStatic.Enabled) then
-      if (VNewMapType.GUIConfig.Enabled) then begin
-        // check if allow to add map to list
-        case VMode of
-          1: begin
-            // all maps
-            VAdd := True;
-          end;
-          2: begin
-            // only maps
-            VAdd := (not VNewMapType.Abilities.IsLayer);
-          end;
-          3: begin
-            // only layers
-            VAdd := (VNewMapType.Abilities.IsLayer);
-            // update layers list
-            if (nil=VLayers) then begin
-               VLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
-            end;
-            // select first active layer
-            if (VLayers.GetMapTypeByGUID(VGUID) <> nil) and (VCurNewIndex = 0) then
-            begin
-              VCurNewIndex := cbbMap.Items.Count;
-            end;
-          end;
-          4: begin
-            // only visible items: main map or visible layer
-            if VNewMapType.Abilities.IsLayer then begin
-              if (nil=VLayers) then begin
-                VLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
-              end;
-              VAdd := VLayers.GetMapTypeByGUID(VGUID) <> nil
-            end else begin
-                VAdd := IsEqualGUID(VActiveMapGUID, VGUID);
-            end;
-          end;
-          5: begin // Filter by name
-            if VFilter <> '' then begin
-              VMapName := AnsiUpperCase(FFullMapsSet.GetMapTypeByGUID(VGUID).MapType.GUIConfig.Name.Value);
-              if posex(VFilter,VMapName) <> 0 then begin
-                VAdd := True
-              end else begin
-                VAdd := False
-              end
-            end else begin
-              VAdd := true;
-            end;
-            end else begin VAdd := False;
-          end;
-        end;
-        if VAdd then begin
-          VAddedIndex := cbbMap.Items.AddObject(VNewMapType.GUIConfig.Name.Value, VNewMapType);
-          // select current map by default
-          if IsEqualGUID(VNewMapType.Zmp.GUID, VActiveMapGUID) then begin
-           cbbMap.ItemIndex:=VAddedIndex;
-          end;
-        end;
-      end;
-    end;
-    // if not selected - select some item
-    if (cbbMap.Items.Count > 0) then begin
-      if (cbbMap.ItemIndex < 0) and (VCurNewIndex>=0) then begin
-        cbbMap.ItemIndex := VCurNewIndex;
-      end;
-      // last chance
-      if (cbbMap.ItemIndex < 0) then begin
-        cbbMap.ItemIndex := 0;
-      end;
-    end;
-  finally
-    cbbMap.items.EndUpdate;
-  end;
-end;
 end.

@@ -23,134 +23,55 @@ object frTilesDownload: TfrTilesDownload
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 22
+    Top = 84
     Width = 451
-    Height = 282
+    Height = 220
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    object pnlRight: TPanel
-      Left = 392
-      Top = 0
-      Width = 59
-      Height = 282
-      Align = alRight
-      BevelOuter = bvNone
-      BorderWidth = 5
-      TabOrder = 0
-      object lblZoom: TLabel
-        AlignWithMargins = True
-        Left = 5
-        Top = 5
-        Width = 49
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Zoom:'
-        ExplicitWidth = 30
-      end
-      object cbbZoom: TComboBox
-        Left = 5
-        Top = 21
-        Width = 49
-        Height = 21
-        Align = alTop
-        Style = csDropDownList
-        ItemHeight = 13
-        TabOrder = 0
-        OnChange = cbbZoomChange
-      end
-    end
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 392
-      Height = 282
+      Width = 451
+      Height = 220
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 5
-      TabOrder = 1
-      object lblStat: TLabel
-        AlignWithMargins = True
-        Left = 5
-        Top = 45
-        Width = 382
-        Height = 13
-        Margins.Left = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = '_'
-        ExplicitWidth = 6
-      end
-      object lblMap: TLabel
-        AlignWithMargins = True
-        Left = 5
-        Top = 5
-        Width = 382
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Map:'
-        ExplicitWidth = 24
-      end
-      object Bevel1: TBevel
-        Left = 5
-        Top = 61
-        Width = 382
-        Height = 5
-        Align = alTop
-        Shape = bsTopLine
-      end
-      object cbbMap: TComboBox
-        Left = 5
-        Top = 21
-        Width = 382
-        Height = 21
-        Align = alTop
-        Style = csDropDownList
-        DropDownCount = 16
-        ItemHeight = 13
-        PopupMenu = MainPopupMenu
-        TabOrder = 0
-      end
+      TabOrder = 0
       object chkReplace: TCheckBox
         Left = 5
-        Top = 98
-        Width = 382
+        Top = 37
+        Width = 441
         Height = 16
         Align = alTop
         Caption = 'Overwrite old tiles'
-        TabOrder = 1
+        TabOrder = 0
         OnClick = chkReplaceClick
       end
       object chkTryLoadIfTNE: TCheckBox
         Left = 5
-        Top = 82
-        Width = 382
+        Top = 21
+        Width = 441
         Height = 16
         Align = alTop
         Caption = 'Try to re-download missing tiles'
-        TabOrder = 2
+        TabOrder = 1
       end
       object pnlTileReplaceCondition: TPanel
         Left = 5
-        Top = 114
-        Width = 382
+        Top = 53
+        Width = 441
         Height = 40
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
         BorderWidth = 3
         Padding.Left = 15
-        TabOrder = 3
+        TabOrder = 2
         object chkReplaceIfDifSize: TCheckBox
           Left = 18
           Top = 3
-          Width = 361
+          Width = 420
           Height = 13
           Align = alTop
           Caption = 'only if different'
@@ -160,7 +81,7 @@ object frTilesDownload: TfrTilesDownload
         object pnlReplaceOlder: TPanel
           Left = 18
           Top = 16
-          Width = 361
+          Width = 420
           Height = 21
           Align = alTop
           BevelOuter = bvNone
@@ -200,69 +121,94 @@ object frTilesDownload: TfrTilesDownload
       end
       object chkStartPaused: TCheckBox
         Left = 5
-        Top = 66
-        Width = 382
+        Top = 5
+        Width = 441
         Height = 16
         Align = alTop
         Caption = 'Start paused'
-        TabOrder = 4
+        TabOrder = 3
       end
     end
   end
-  object MainPopupMenu: TTBXPopupMenu
-    Tag = 5
-    Left = 408
-    Top = 224
-    object TBX_All: TTBXItem
-      Tag = 1
-      Checked = True
-      GroupIndex = 1
-      RadioItem = True
-      OnClick = RefreshList
-      Caption = 'All'
-      Hint = ''
+  object pnlMapSelect: TPanel
+    Left = 0
+    Top = 22
+    Width = 451
+    Height = 62
+    Align = alTop
+    BevelEdges = [beBottom]
+    BevelKind = bkTile
+    BevelOuter = bvNone
+    TabOrder = 2
+    DesignSize = (
+      451
+      60)
+    object lblStat: TLabel
+      AlignWithMargins = True
+      Left = 0
+      Top = 44
+      Width = 451
+      Height = 13
+      Margins.Left = 0
+      Margins.Right = 0
+      Align = alBottom
+      Caption = '_'
+      ExplicitWidth = 6
     end
-    object TBX_Maps: TTBXItem
-      Tag = 2
-      GroupIndex = 1
-      RadioItem = True
-      OnClick = RefreshList
-      Caption = 'Maps'
-      Hint = ''
+    object pnlZoom: TPanel
+      Left = 392
+      Top = 0
+      Width = 59
+      Height = 41
+      Align = alRight
+      Alignment = taLeftJustify
+      BevelEdges = []
+      BevelKind = bkTile
+      BevelOuter = bvNone
+      BorderWidth = 3
+      TabOrder = 0
+      object lblZoom: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 53
+        Height = 13
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
+        Align = alTop
+        Caption = 'Zoom:'
+        ExplicitWidth = 30
+      end
+      object cbbZoom: TComboBox
+        Left = 3
+        Top = 17
+        Width = 53
+        Height = 21
+        Align = alBottom
+        Style = csDropDownList
+        ItemHeight = 13
+        TabOrder = 0
+        OnChange = cbbZoomChange
+      end
     end
-    object TBX_Layers: TTBXItem
-      Tag = 3
-      GroupIndex = 1
-      RadioItem = True
-      OnClick = RefreshList
-      Caption = 'Layers'
-      Hint = ''
-    end
-    object TBX_active: TTBXItem
-      Tag = 4
-      GroupIndex = 1
-      RadioItem = True
-      OnClick = RefreshList
-      Caption = 'Active'
-      Hint = ''
-    end
-    object TBSeparatorItem1: TTBSeparatorItem
-      Caption = ''
-      Hint = ''
-    end
-    object TBX_Filter: TTBXItem
-      Tag = 5
-      GroupIndex = 1
-      RadioItem = True
-      OnClick = RefreshList
-      Caption = 'Filter'
-      Hint = ''
-    end
-    object TBX_AFilter: TTBXEditItem
-      Tag = 5
-      OnChange = ApplyFilter
-      Caption = ''
-      Hint = ''
+    object pnlFrame: TPanel
+      Left = 3
+      Top = 4
+      Width = 392
+      Height = 43
+      Anchors = [akLeft, akTop, akRight]
+      BevelOuter = bvNone
+      TabOrder = 1
+      object lblMapCaption: TLabel
+        Left = 0
+        Top = 0
+        Width = 392
+        Height = 13
+        Align = alTop
+        Caption = 'Map:'
+        ExplicitWidth = 24
+      end
     end
   end
 end

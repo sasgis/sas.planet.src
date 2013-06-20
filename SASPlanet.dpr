@@ -1035,6 +1035,7 @@ uses
   u_ProviderTilesCopy in 'RegionProcess\u_ProviderTilesCopy.pas',
   fr_MapCombine in 'RegionProcess\fr_MapCombine.pas' {frMapCombine: TFrame},
   fr_Combine in 'RegionProcess\fr_Combine.pas' {frCombine: TFrame},
+  fr_MapSelect in 'RegionProcess\fr_MapSelect.pas' {frMapSelect: TFrame},
   u_ProviderMapCombineBMP in 'RegionProcess\u_ProviderMapCombineBMP.pas',
   u_ProviderMapCombineJP2 in 'RegionProcess\u_ProviderMapCombineJP2.pas',
   u_ProviderMapCombineECW in 'RegionProcess\u_ProviderMapCombineECW.pas',
