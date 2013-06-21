@@ -12,12 +12,14 @@ uses
   CheckLst,
   Spin,
   ExtCtrls,
+  fr_MapSelect,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
@@ -40,9 +42,6 @@ type
     lblMapCompress: TLabel;
     seMapCompress: TSpinEdit;
     seSatCompress: TSpinEdit;
-    cbbHybr: TComboBox;
-    cbbMap: TComboBox;
-    cbbSat: TComboBox;
     lblSatCompress: TLabel;
     lblCompress: TLabel;
     lblHybr: TLabel;
@@ -51,26 +50,36 @@ type
     lblMaps: TLabel;
     chkReplaseTiles: TCheckBox;
     rgTileSize: TRadioGroup;
+    pnlHyb: TPanel;
+    pnlMap: TPanel;
+    pnlSat: TPanel;
     procedure btnSelectTargetPathClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FfrSatSelect: TfrMapSelect;
+    FfrMapSelect: TfrMapSelect;
+    FfrHybSelect: TfrMapSelect;
   private
     procedure Init(
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
-  private
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
+    function GetAllowExport(AMapType: TMapType): boolean;
   public
+    function GetSat(): TfrMapSelect;
+    function GetMap(): TfrMapSelect;
+    function GetHyb(): TfrMapSelect;
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -80,8 +89,7 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   i_GUIDListStatic,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 {$R *.dfm}
 
@@ -105,6 +113,52 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+  FfrSatSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      True,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      True,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrHybSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfLayers, // show maps and layers
+      True,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+end;
+
+destructor TfrExportYaMobileV4.Destroy;
+begin
+  FreeAndNil(FfrSatSelect);
+  FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrHybSelect);
+  inherited;
+end;
+
+function TfrExportYaMobileV4.GetAllowExport(AMapType: TMapType): boolean;
+begin
+  Result := AMapType.IsBitmapTiles;
 end;
 
 function TfrExportYaMobileV4.GetPath: string;
@@ -128,57 +182,32 @@ begin
   end;
 end;
 
+function TfrExportYaMobileV4.GetSat: TfrMapSelect;
+begin
+  Result := FfrSatSelect;
+end;
+
+function TfrExportYaMobileV4.GetMap: TfrMapSelect;
+begin
+  Result := FfrMapSelect;
+end;
+
+function TfrExportYaMobileV4.GetHyb: TfrMapSelect;
+begin
+  Result := FfrHybSelect;
+end;
+
 procedure TfrExportYaMobileV4.Init;
 var
   i: integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VActiveLayers: IMapTypeSet;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   chklstZooms.Items.Clear;
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
-
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  VActiveLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
-  cbbSat.items.Clear;
-  cbbMap.items.Clear;
-  cbbHybr.items.Clear;
-  cbbSat.Items.AddObject(SAS_STR_No,nil);
-  cbbMap.Items.AddObject(SAS_STR_No,nil);
-  cbbHybr.Items.AddObject(SAS_STR_No,nil);
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
-      if (not(VMapType.Abilities.IsLayer)) then begin
-        VAddedIndex := cbbSat.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-          cbbSat.ItemIndex:=VAddedIndex;
-        end;
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-          cbbMap.ItemIndex:=VAddedIndex;
-        end;
-      end else if(VMapType.IsHybridLayer) then begin
-        VAddedIndex := cbbHybr.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if (cbbHybr.ItemIndex=-1) then begin
-          if VActiveLayers.GetMapTypeByGUID(VGUID) <> nil then begin
-            cbbHybr.ItemIndex:=VAddedIndex;
-          end;
-        end;
-      end;
-    end;
-  end;
-  if cbbSat.ItemIndex=-1 then cbbSat.ItemIndex:=1;
-  if cbbMap.ItemIndex=-1 then cbbMap.ItemIndex:=0;
-  if cbbHybr.ItemIndex=-1 then cbbHybr.ItemIndex:=0;
   if rgTileSize.ItemIndex = -1 then rgTileSize.ItemIndex := 0;
+  FfrSatSelect.Show(pnlSat);
+  FfrMapSelect.Show(pnlMap);
+  FfrHybSelect.Show(pnlHyb);
 end;
-
 end.

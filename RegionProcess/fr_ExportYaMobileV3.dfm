@@ -28,7 +28,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 57
+        Width = 85
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
@@ -36,6 +36,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
         Align = alTop
         Caption = 'Zooms:'
         Layout = tlCenter
+        ExplicitWidth = 35
       end
       object chklstZooms: TCheckListBox
         Left = 3
@@ -73,8 +74,8 @@ object frExportYaMobileV3: TfrExportYaMobileV3
         BevelOuter = bvNone
         ColumnCollection = <
           item
-            SizeStyle = ssAuto
-            Value = 25.731584258324920000
+            SizeStyle = ssAbsolute
+            Value = 50.000000000000000000
           end
           item
             Value = 100.000000000000000000
@@ -108,27 +109,13 @@ object frExportYaMobileV3: TfrExportYaMobileV3
             Row = 2
           end
           item
-            Column = 1
-            Control = cbbHybr
-            Row = 3
-          end
-          item
-            Column = 1
-            Control = cbbMap
-            Row = 1
-          end
-          item
-            Column = 1
-            Control = cbbSat
-            Row = 2
-          end
-          item
             Column = 4
             Control = lblSatCompress
             Row = 2
           end
           item
             Column = 3
+            ColumnSpan = 2
             Control = lblCompress
             Row = 0
           end
@@ -148,9 +135,25 @@ object frExportYaMobileV3: TfrExportYaMobileV3
             Row = 2
           end
           item
-            Column = 1
+            Column = 0
+            ColumnSpan = 2
             Control = lblMaps
             Row = 0
+          end
+          item
+            Column = 1
+            Control = pnlHyb
+            Row = 3
+          end
+          item
+            Column = 1
+            Control = pnlMap
+            Row = 2
+          end
+          item
+            Column = 1
+            Control = pnlSat
+            Row = 1
           end>
         RowCollection = <
           item
@@ -187,7 +190,7 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Left = 240
           Top = 20
           Width = 40
-          Height = 21
+          Height = 22
           Anchors = []
           MaxValue = 9
           MinValue = 0
@@ -198,45 +201,12 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Left = 240
           Top = 41
           Width = 40
-          Height = 21
+          Height = 22
           Anchors = []
           MaxValue = 100
           MinValue = 1
           TabOrder = 1
           Value = 85
-        end
-        object cbbHybr: TComboBox
-          Left = 43
-          Top = 62
-          Width = 197
-          Height = 21
-          Align = alClient
-          Style = csDropDownList
-          DropDownCount = 16
-          ItemHeight = 0
-          TabOrder = 2
-        end
-        object cbbMap: TComboBox
-          Left = 43
-          Top = 20
-          Width = 197
-          Height = 21
-          Align = alClient
-          Style = csDropDownList
-          DropDownCount = 16
-          ItemHeight = 0
-          TabOrder = 3
-        end
-        object cbbSat: TComboBox
-          Left = 43
-          Top = 41
-          Width = 197
-          Height = 21
-          Align = alClient
-          Style = csDropDownList
-          DropDownCount = 16
-          ItemHeight = 0
-          TabOrder = 4
         end
         object lblSatCompress: TLabel
           Left = 280
@@ -246,55 +216,92 @@ object frExportYaMobileV3: TfrExportYaMobileV3
           Align = alClient
           Caption = '100..1 max'
           Layout = tlCenter
+          ExplicitWidth = 55
+          ExplicitHeight = 13
         end
         object lblCompress: TLabel
           Left = 240
-          Top = 3
-          Width = 40
-          Height = 13
-          Anchors = []
+          Top = 0
+          Width = 120
+          Height = 20
+          Align = alClient
           Caption = 'Compression:'
+          ExplicitWidth = 65
+          ExplicitHeight = 13
         end
         object lblHybr: TLabel
           Left = 0
           Top = 62
-          Width = 43
+          Width = 50
           Height = 21
           Align = alClient
           AutoSize = False
           Caption = 'Hybrid'
           Layout = tlCenter
+          ExplicitWidth = 43
         end
         object lblMap: TLabel
           Left = 0
           Top = 20
-          Width = 43
+          Width = 50
           Height = 21
           Align = alClient
           AutoSize = False
           Caption = 'Map'
           Layout = tlCenter
+          ExplicitWidth = 43
         end
         object lblSat: TLabel
           Left = 0
           Top = 41
-          Width = 43
+          Width = 50
           Height = 21
           Align = alClient
           AutoSize = False
           Caption = 'Satellite'
           Layout = tlCenter
+          ExplicitWidth = 43
         end
         object lblMaps: TLabel
-          Left = 43
+          Left = 0
           Top = 0
-          Width = 197
+          Width = 240
           Height = 20
           Align = alClient
-          Alignment = taCenter
           AutoSize = False
           Caption = 'Enable the following map types:'
           Layout = tlCenter
+          ExplicitLeft = 43
+          ExplicitWidth = 197
+        end
+        object pnlHyb: TPanel
+          Left = 50
+          Top = 62
+          Width = 190
+          Height = 21
+          Align = alClient
+          Anchors = []
+          BevelOuter = bvNone
+          TabOrder = 2
+        end
+        object pnlMap: TPanel
+          Left = 50
+          Top = 41
+          Width = 190
+          Height = 21
+          Align = alClient
+          BevelOuter = bvNone
+          TabOrder = 3
+        end
+        object pnlSat: TPanel
+          Left = 50
+          Top = 20
+          Width = 190
+          Height = 21
+          Align = alClient
+          Anchors = []
+          BevelOuter = bvNone
+          TabOrder = 4
         end
       end
     end
@@ -312,19 +319,20 @@ object frExportYaMobileV3: TfrExportYaMobileV3
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 86
-      Height = 13
+      Width = 41
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
-      Left = 92
+      Left = 47
       Top = 3
-      Width = 335
+      Width = 380
       Height = 21
       Align = alClient
       TabOrder = 0

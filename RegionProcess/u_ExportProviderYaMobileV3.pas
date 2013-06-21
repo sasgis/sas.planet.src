@@ -124,9 +124,9 @@ begin
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
   setlength(typemaparr, 3);
-  typemaparr[0] := TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
-  typemaparr[1] := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
-  typemaparr[2] := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
+  typemaparr[0] := FFrame.GetSat.GetSelectedMapType;
+  typemaparr[1] := FFrame.GetMap.GetSelectedMapType;
+  typemaparr[2] := FFrame.GetHyb.GetSelectedMapType;
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
   Replace := FFrame.chkReplaseTiles.Checked;

@@ -36,6 +36,7 @@ object frExportYaMobileV4: TfrExportYaMobileV4
         Align = alTop
         Caption = 'Zooms:'
         Layout = tlCenter
+        ExplicitWidth = 35
       end
       object chklstZooms: TCheckListBox
         Left = 3
@@ -64,62 +65,44 @@ object frExportYaMobileV4: TfrExportYaMobileV4
         BevelOuter = bvNone
         ColumnCollection = <
           item
-            SizeStyle = ssAuto
-            Value = 25.731584258324920000
+            SizeStyle = ssAbsolute
+            Value = 50.000000000000000000
           end
           item
             Value = 100.000000000000000000
           end
           item
-            SizeStyle = ssAuto
-            Value = 20.000000000000000000
+            SizeStyle = ssAbsolute
+            Value = 50.000000000000000000
           end
           item
             SizeStyle = ssAbsolute
-            Value = 40.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 80.000000000000000000
+            Value = 60.000000000000000000
           end>
         ControlCollection = <
           item
-            Column = 4
+            Column = 3
             Control = lblMapCompress
             Row = 1
           end
           item
-            Column = 3
+            Column = 2
             Control = seMapCompress
             Row = 1
           end
           item
-            Column = 3
+            Column = 2
             Control = seSatCompress
             Row = 2
           end
           item
-            Column = 1
-            Control = cbbHybr
-            Row = 3
-          end
-          item
-            Column = 1
-            Control = cbbMap
-            Row = 1
-          end
-          item
-            Column = 1
-            Control = cbbSat
-            Row = 2
-          end
-          item
-            Column = 4
+            Column = 3
             Control = lblSatCompress
             Row = 2
           end
           item
-            Column = 3
+            Column = 2
+            ColumnSpan = 2
             Control = lblCompress
             Row = 0
           end
@@ -139,9 +122,25 @@ object frExportYaMobileV4: TfrExportYaMobileV4
             Row = 2
           end
           item
-            Column = 1
+            Column = 0
+            ColumnSpan = 2
             Control = lblMaps
             Row = 0
+          end
+          item
+            Column = 1
+            Control = pnlHyb
+            Row = 3
+          end
+          item
+            Column = 1
+            Control = pnlMap
+            Row = 1
+          end
+          item
+            Column = 1
+            Control = pnlSat
+            Row = 2
           end>
         RowCollection = <
           item
@@ -165,17 +164,20 @@ object frExportYaMobileV4: TfrExportYaMobileV4
           360
           93)
         object lblMapCompress: TLabel
-          Left = 280
+          Left = 300
           Top = 20
-          Width = 80
+          Width = 60
           Height = 21
           Align = alClient
           AutoSize = False
           Caption = '0..9 max'
           Layout = tlCenter
+          ExplicitLeft = 311
+          ExplicitTop = 26
+          ExplicitWidth = 100
         end
         object seMapCompress: TSpinEdit
-          Left = 240
+          Left = 255
           Top = 20
           Width = 40
           Height = 22
@@ -186,7 +188,7 @@ object frExportYaMobileV4: TfrExportYaMobileV4
           Value = 2
         end
         object seSatCompress: TSpinEdit
-          Left = 240
+          Left = 255
           Top = 41
           Width = 40
           Height = 22
@@ -196,96 +198,104 @@ object frExportYaMobileV4: TfrExportYaMobileV4
           TabOrder = 1
           Value = 85
         end
-        object cbbHybr: TComboBox
-          Left = 43
-          Top = 62
-          Width = 197
-          Height = 21
-          Align = alClient
-          Style = csDropDownList
-          DropDownCount = 16
-          ItemHeight = 13
-          TabOrder = 2
-        end
-        object cbbMap: TComboBox
-          Left = 43
-          Top = 20
-          Width = 197
-          Height = 21
-          Align = alClient
-          Style = csDropDownList
-          DropDownCount = 16
-          ItemHeight = 13
-          TabOrder = 3
-        end
-        object cbbSat: TComboBox
-          Left = 43
-          Top = 41
-          Width = 197
-          Height = 21
-          Align = alClient
-          Style = csDropDownList
-          DropDownCount = 16
-          ItemHeight = 13
-          TabOrder = 4
-        end
         object lblSatCompress: TLabel
-          Left = 280
+          Left = 300
           Top = 41
-          Width = 80
+          Width = 60
           Height = 21
           Align = alClient
           Caption = '100..1 max'
           Layout = tlCenter
+          ExplicitLeft = 351
+          ExplicitWidth = 55
+          ExplicitHeight = 13
         end
         object lblCompress: TLabel
-          Left = 240
-          Top = 3
-          Width = 40
-          Height = 13
-          Anchors = []
+          Left = 250
+          Top = 0
+          Width = 110
+          Height = 20
+          Align = alClient
           Caption = 'Compression:'
+          ExplicitLeft = 301
+          ExplicitWidth = 65
+          ExplicitHeight = 13
         end
         object lblHybr: TLabel
           Left = 0
           Top = 62
-          Width = 43
+          Width = 50
           Height = 21
           Align = alClient
           AutoSize = False
           Caption = 'Hybrid'
           Layout = tlCenter
+          ExplicitWidth = 43
         end
         object lblMap: TLabel
           Left = 0
           Top = 20
-          Width = 43
+          Width = 50
           Height = 21
           Align = alClient
           AutoSize = False
           Caption = 'Map'
           Layout = tlCenter
+          ExplicitLeft = 70
+          ExplicitTop = 3
+          ExplicitWidth = 360
+          ExplicitHeight = 20
         end
         object lblSat: TLabel
           Left = 0
           Top = 41
-          Width = 43
+          Width = 50
           Height = 21
           Align = alClient
           AutoSize = False
           Caption = 'Satellite'
           Layout = tlCenter
+          ExplicitWidth = 43
         end
         object lblMaps: TLabel
-          Left = 43
+          Left = 0
           Top = 0
-          Width = 197
+          Width = 250
           Height = 20
           Align = alClient
-          Alignment = taCenter
           AutoSize = False
           Caption = 'Enable the following map types:'
           Layout = tlCenter
+          ExplicitWidth = 64
+        end
+        object pnlHyb: TPanel
+          Left = 50
+          Top = 62
+          Width = 200
+          Height = 21
+          Align = alClient
+          Anchors = []
+          BevelOuter = bvNone
+          TabOrder = 2
+        end
+        object pnlMap: TPanel
+          Left = 50
+          Top = 20
+          Width = 200
+          Height = 21
+          Align = alClient
+          BevelOuter = bvNone
+          TabOrder = 3
+        end
+        object pnlSat: TPanel
+          Left = 50
+          Top = 41
+          Width = 200
+          Height = 21
+          Align = alClient
+          Anchors = []
+          BevelOuter = bvNone
+          TabOrder = 4
         end
       end
       object chkReplaseTiles: TCheckBox
@@ -333,6 +343,7 @@ object frExportYaMobileV4: TfrExportYaMobileV4
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetPath: TEdit
       Left = 47
