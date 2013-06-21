@@ -30,6 +30,8 @@ uses
   ExtCtrls,
   StdCtrls,
   Spin,
+  fr_MapSelect,
+  t_CommonTypes,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -48,24 +50,26 @@ type
       IRegionProcessParamsFrameOneZoom,
       IRegionProcessParamsFrameProcessPredicate
     )
-    cbbMap: TComboBox;
     seDelSize: TSpinEdit;
     chkDelBySize: TCheckBox;
-    lblMap: TLabel;
     pnlTop: TPanel;
     pnlBottom: TPanel;
-    pnlRight: TPanel;
-    lblZoom: TLabel;
-    cbbZoom: TComboBox;
     pnlCenter: TPanel;
     lblStat: TLabel;
     flwpnlDelBySize: TFlowPanel;
     lblDelSize: TLabel;
     rgTarget: TRadioGroup;
+    pnlMapSelect: TPanel;
+    pnlZoom: TPanel;
+    Labelzoom: TLabel;
+    cbbZoom: TComboBox;
+    pnlFrame: TPanel;
+    lblMapCaption: TLabel;
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FfrMapSelect: TfrMapSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -74,6 +78,7 @@ type
   private
     function GetMapType: TMapType;
     function GetZoom: Byte;
+    function CheckIsDeleteable(AMapType: TMapType): boolean;
   private
     function GetPredicate: IPredicateByTileInfo;
   public
@@ -83,6 +88,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -106,14 +112,29 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfAll, // show maps and layers
+      False,  // add -NO- to combobox
+      true,  // show disabled map
+      CheckIsDeleteable
+    );
+end;
+
+destructor TfrTilesDelete.Destroy;
+begin
+  FreeAndNil(FfrMapSelect);
+  inherited;
 end;
 
 function TfrTilesDelete.GetMapType: TMapType;
 begin
-  Result := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end;
+  Result := FfrMapSelect.GetSelectedMapType;
 end;
 
 function TfrTilesDelete.GetPredicate: IPredicateByTileInfo;
@@ -128,13 +149,17 @@ begin
     end else begin
       Result := TPredicateByTileInfoExistsTile.Create;
     end;
-  end else if rgTarget.ItemIndex = 1 then begin
-    Result := TPredicateByTileInfoExistsTNE.Create;
-  end else if rgTarget.ItemIndex = 2 then begin
-    if chkDelBySize.Checked and (seDelSize.Value >= 0) then begin
-      Result := TPredicateByTileInfoEqualSize.Create(True, seDelSize.Value);
+  end else begin
+    if rgTarget.ItemIndex = 1 then begin
+      Result := TPredicateByTileInfoExistsTNE.Create;
     end else begin
-      Result := TPredicateByTileInfoExistsTileOrTNE.Create;
+      if rgTarget.ItemIndex = 2 then begin
+        if chkDelBySize.Checked and (seDelSize.Value >= 0) then begin
+          Result := TPredicateByTileInfoEqualSize.Create(True, seDelSize.Value);
+        end else begin
+          Result := TPredicateByTileInfoExistsTileOrTNE.Create;
+        end;
+      end;
     end;
   end;
 end;
@@ -147,42 +172,23 @@ begin
   Result := cbbZoom.ItemIndex;
 end;
 
+function TfrTilesDelete.CheckIsDeleteable(AMapType: TMapType): boolean;
+begin
+  Result := (AMapType.StorageConfig.AllowDelete) and (AMapType.TileStorage.State.GetStatic.WriteAccess <> asDisabled);
+end;
+
 procedure TfrTilesDelete.Init(
   const AZoom: byte;
   const APolygon: ILonLatPolygon
 );
 var
   i: integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   cbbZoom.Items.Clear;
-  for i:=1 to 24 do begin
+  for i:= 1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));
   end;
   cbbZoom.ItemIndex := AZoom;
-
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  cbbMap.items.Clear;
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.StorageConfig.AllowDelete)and(VMapType.GUIConfig.Enabled) then begin
-      VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-
-      // select current map by default
-      if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-        cbbMap.ItemIndex:=VAddedIndex;
-      end;
-    end;
-  end;
-  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
-    cbbMap.ItemIndex := 0;
-  end;
+  FfrMapSelect.Show(pnlFrame);
 end;
-
 end.

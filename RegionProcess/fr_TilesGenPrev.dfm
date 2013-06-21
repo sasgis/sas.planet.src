@@ -9,9 +9,9 @@ object frTilesGenPrev: TfrTilesGenPrev
   TabOrder = 0
   object pnlBottom: TPanel
     Left = 0
-    Top = 22
+    Top = 65
     Width = 451
-    Height = 282
+    Height = 239
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -19,91 +19,56 @@ object frTilesGenPrev: TfrTilesGenPrev
       Left = 337
       Top = 0
       Width = 114
-      Height = 282
+      Height = 239
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      object lblFromZoom: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 94
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'From zoom:'
-      end
       object lblZooms: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 43
-        Width = 88
+        Top = 6
+        Width = 108
         Height = 13
         Margins.Left = 0
         Margins.Right = 0
         Align = alTop
         Caption = 'To zooms:'
-      end
-      object cbbFromZoom: TComboBox
-        Left = 3
-        Top = 19
-        Width = 108
-        Height = 21
-        Align = alTop
-        Style = csDropDownList
-        ItemHeight = 0
-        TabOrder = 0
-        OnChange = cbbFromZoomChange
+        ExplicitWidth = 49
       end
       object chkAllZooms: TCheckBox
         Left = 3
-        Top = 262
+        Top = 219
         Width = 108
         Height = 17
         Align = alBottom
         Caption = 'All'
-        TabOrder = 1
+        TabOrder = 0
         OnClick = chkAllZoomsClick
       end
       object chklstZooms: TCheckListBox
         Left = 3
-        Top = 59
+        Top = 22
         Width = 108
-        Height = 203
+        Height = 197
         OnClickCheck = chklstZoomsClickCheck
         Align = alClient
         ItemHeight = 13
-        TabOrder = 2
+        TabOrder = 1
       end
     end
     object pnlCenter: TPanel
       Left = 0
       Top = 0
       Width = 337
-      Height = 282
+      Height = 239
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
       DesignSize = (
         337
-        282)
-      object lblMap: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 331
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        AutoSize = False
-        Caption = 'Map:'
-      end
+        239)
       object lblStat: TLabel
         Left = 10
         Top = 100
@@ -114,7 +79,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       object lblResampler: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 43
+        Top = 6
         Width = 331
         Height = 13
         Margins.Left = 0
@@ -122,11 +87,12 @@ object frTilesGenPrev: TfrTilesGenPrev
         Align = alTop
         AutoSize = False
         Caption = 'Resize algorithm:'
+        ExplicitTop = 43
       end
       object Bevel1: TBevel
         AlignWithMargins = True
         Left = 3
-        Top = 85
+        Top = 48
         Width = 331
         Height = 3
         Margins.Left = 0
@@ -135,28 +101,18 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Bottom = 0
         Align = alTop
         Shape = bsTopLine
-      end
-      object cbbMap: TComboBox
-        Left = 3
-        Top = 19
-        Width = 331
-        Height = 21
-        Align = alTop
-        Style = csDropDownList
-        DropDownCount = 16
-        ItemHeight = 0
-        TabOrder = 0
+        ExplicitTop = 85
       end
       object cbbResampler: TComboBox
         Left = 3
-        Top = 59
+        Top = 22
         Width = 331
         Height = 21
         Align = alTop
         Style = csDropDownList
         ItemHeight = 13
         ItemIndex = 0
-        TabOrder = 1
+        TabOrder = 0
         Text = 'Box'
         Items.Strings = (
           'Box'
@@ -176,7 +132,7 @@ object frTilesGenPrev: TfrTilesGenPrev
       object chkReplace: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 91
+        Top = 54
         Width = 331
         Height = 17
         Margins.Left = 0
@@ -184,38 +140,38 @@ object frTilesGenPrev: TfrTilesGenPrev
         Margins.Bottom = 0
         Align = alTop
         Caption = 'Overwrite existing tiles'
-        TabOrder = 2
+        TabOrder = 1
         OnClick = chkReplaceClick
       end
       object chkSaveFullOnly: TCheckBox
         Left = 3
-        Top = 131
+        Top = 94
         Width = 331
         Height = 17
         Align = alTop
         Caption = 'Save only complete tiles'
-        TabOrder = 4
+        TabOrder = 3
       end
       object chkFromPrevZoom: TCheckBox
         Left = 3
-        Top = 148
+        Top = 111
         Width = 331
         Height = 17
         Align = alTop
         Caption = 'Generate each zoom from previous one'
-        TabOrder = 5
+        TabOrder = 4
         OnClick = chkFromPrevZoomClick
       end
       object pnlUsePrevTiles: TPanel
         Left = 3
-        Top = 108
+        Top = 71
         Width = 331
         Height = 23
         Align = alTop
         AutoSize = True
         BevelOuter = bvNone
         Padding.Left = 15
-        TabOrder = 3
+        TabOrder = 2
         object chkUsePrevTiles: TCheckBox
           AlignWithMargins = True
           Left = 18
@@ -243,5 +199,74 @@ object frTilesGenPrev: TfrTilesGenPrev
     BorderWidth = 3
     Caption = 'Generate Lower Zooms for Selection'
     TabOrder = 1
+  end
+  object pnlMapSelect: TPanel
+    Left = 0
+    Top = 22
+    Width = 451
+    Height = 43
+    Align = alTop
+    Alignment = taLeftJustify
+    BevelEdges = [beBottom]
+    BevelKind = bkTile
+    BevelOuter = bvNone
+    BorderWidth = 3
+    TabOrder = 2
+    DesignSize = (
+      451
+      41)
+    object pnlZoom: TPanel
+      Left = 340
+      Top = 3
+      Width = 108
+      Height = 35
+      Align = alRight
+      Alignment = taLeftJustify
+      BevelEdges = []
+      BevelKind = bkTile
+      BevelOuter = bvNone
+      BorderWidth = 1
+      TabOrder = 0
+      object lblFromZoom: TLabel
+        AlignWithMargins = True
+        Left = 4
+        Top = 0
+        Width = 56
+        Height = 13
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
+        Caption = 'From zoom:'
+      end
+      object cbbFromZoom: TComboBox
+        Left = 1
+        Top = 14
+        Width = 106
+        Height = 21
+        Style = csDropDownList
+        ItemHeight = 13
+        TabOrder = 0
+        OnChange = cbbFromZoomChange
+      end
+    end
+    object pnlFrame: TPanel
+      Left = 3
+      Top = 4
+      Width = 335
+      Height = 40
+      Alignment = taLeftJustify
+      Anchors = [akLeft, akTop, akRight]
+      BevelOuter = bvNone
+      TabOrder = 1
+      object lblMapCaption: TLabel
+        Left = 0
+        Top = 0
+        Width = 335
+        Height = 13
+        Align = alTop
+        Caption = 'Map:'
+        ExplicitWidth = 24
+      end
+    end
   end
 end

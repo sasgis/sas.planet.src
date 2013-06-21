@@ -11,6 +11,8 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  fr_MapSelect,
+  t_CommonTypes,
   i_LanguageManager,
   i_ImageResamplerFactory,
   i_MapTypes,
@@ -52,9 +54,7 @@ type
     pnlBottom: TPanel;
     pnlRight: TPanel;
     pnlCenter: TPanel;
-    lblMap: TLabel;
     lblStat: TLabel;
-    cbbMap: TComboBox;
     pnlTop: TPanel;
     cbbFromZoom: TComboBox;
     lblFromZoom: TLabel;
@@ -68,6 +68,10 @@ type
     chkFromPrevZoom: TCheckBox;
     chkUsePrevTiles: TCheckBox;
     Bevel1: TBevel;
+    pnlMapSelect: TPanel;
+    pnlZoom: TPanel;
+    pnlFrame: TPanel;
+    lblMapCaption: TLabel;
     procedure cbbFromZoomChange(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
     procedure chkFromPrevZoomClick(Sender: TObject);
@@ -78,6 +82,7 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FImageResamplerConfig: IImageResamplerConfig;
+    FfrMapSelect: TfrMapSelect;
     procedure InitResamplersList(const AList: IImageResamplerFactoryList; ABox: TComboBox);
   private
     procedure Init(
@@ -87,7 +92,7 @@ type
   private
     function GetMapType: TMapType;
     function GetZoomArray: TByteDynArray;
-  private
+    function GetAllowGenPrev(AMapType: TMapType): boolean;
     function GetIsReplace: Boolean;
     function GetIsSaveFullOnly: Boolean;
     function GetIsUseTilesFromPrevZoom: Boolean;
@@ -101,6 +106,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AImageResamplerConfig: IImageResamplerConfig
     ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -114,12 +120,51 @@ uses
 const
   CZommDeltaMax = 8;
 
+constructor TfrTilesGenPrev.Create(
+  const ALanguageManager: ILanguageManager;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AImageResamplerConfig: IImageResamplerConfig
+);
+begin
+  TP_Ignore(Self, 'cbbResampler.Items');
+  TP_Ignore(Self, 'cbbResampler.Text');
+  inherited Create(ALanguageManager);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+  FImageResamplerConfig := AImageResamplerConfig;
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfAll, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowGenPrev
+    );
+end;
+
+destructor TfrTilesGenPrev.Destroy;
+begin
+  FreeAndNil(FfrMapSelect);
+  inherited;
+end;
+
+function TfrTilesGenPrev.GetAllowGenPrev(AMapType: TMapType): boolean;
+begin
+  Result := (AMapType.IsBitmapTiles) and (AMapType.TileStorage.State.GetStatic.WriteAccess <> asDisabled);
+end;
+
 procedure TfrTilesGenPrev.cbbFromZoomChange(Sender: TObject);
 var
   i: integer;
 begin
   chklstZooms.Items.Clear;
-  for i := cbbFromZoom.ItemIndex+1 downto 1 do begin
+  for i := cbbFromZoom.ItemIndex + 1 downto 1 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
   chklstZoomsClickCheck(nil);
@@ -201,24 +246,7 @@ end;
 
 procedure TfrTilesGenPrev.chkReplaceClick(Sender: TObject);
 begin
- chkUsePrevTiles.Enabled:= chkReplace.Checked;
-end;
-
-constructor TfrTilesGenPrev.Create(
-  const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
-  const AImageResamplerConfig: IImageResamplerConfig
-);
-begin
-  TP_Ignore(Self, 'cbbResampler.Items');
-  TP_Ignore(Self, 'cbbResampler.Text');
-  inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
-  FImageResamplerConfig := AImageResamplerConfig;
+ chkUsePrevTiles.Enabled := chkReplace.Checked;
 end;
 
 function TfrTilesGenPrev.GetIsCreateAllFromFirstZoom: Boolean;
@@ -243,10 +271,7 @@ end;
 
 function TfrTilesGenPrev.GetMapType: TMapType;
 begin
-  Result := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end;
+  Result := FfrMapSelect.GetSelectedMapType;
 end;
 
 function TfrTilesGenPrev.GetResampler: IImageResamplerFactory;
@@ -270,12 +295,11 @@ var
 begin
   Result := nil;
   VCount := 1;
-
   SetLength(Result, VCount);
   VSourceZoom := cbbFromZoom.ItemIndex + 1;
   Result[0] := VSourceZoom;
   if VSourceZoom > 0 then begin
-    for i := 0 to VSourceZoom  - 1do begin
+    for i := 0 to VSourceZoom  - 1 do begin
       if chklstZooms.ItemEnabled[i] then begin
         if chklstZooms.Checked[i] then begin
           SetLength(Result, VCount + 1);
@@ -290,17 +314,12 @@ end;
 procedure TfrTilesGenPrev.Init(
   const AZoom: byte;
   const APolygon: ILonLatPolygon
-);
+  );
 var
   i: integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   cbbFromZoom.Items.Clear;
-  for i:=2 to 24 do begin
+  for i := 2 to 24 do begin
     cbbFromZoom.Items.Add(inttostr(i));
   end;
   if AZoom > 0 then begin
@@ -309,33 +328,15 @@ begin
     cbbFromZoom.ItemIndex := 0;
   end;
   cbbFromZoomChange(cbbFromZoom);
-
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  cbbMap.items.Clear;
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if VMapType.IsBitmapTiles then begin
-      if VMapType.GUIConfig.Enabled then begin
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
-        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-          cbbMap.ItemIndex:=VAddedIndex;
-        end;
-      end;
-    end;
-  end;
-  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
-    cbbMap.ItemIndex := 0;
-  end;
   InitResamplersList(FImageResamplerConfig.GetList, cbbResampler);
   cbbResampler.ItemIndex := FImageResamplerConfig.ActiveIndex;
+  FfrMapSelect.Show(pnlFrame);
 end;
 
 procedure TfrTilesGenPrev.InitResamplersList(
   const AList: IImageResamplerFactoryList;
   ABox: TComboBox
-);
+  );
 var
   i: Integer;
 begin
