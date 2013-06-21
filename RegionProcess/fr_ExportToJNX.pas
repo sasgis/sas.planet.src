@@ -10,7 +10,10 @@ uses
   Forms,
   Dialogs,
   StdCtrls,
+  Spin,
+  ComCtrls,
   ExtCtrls,
+  fr_MapSelect,
   i_LanguageManager,
   i_MapTypes,
   i_StringListStatic,
@@ -18,7 +21,8 @@ uses
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
-  u_CommonFormAndFrameParents, Spin, ComCtrls;
+  u_MapType,
+  u_CommonFormAndFrameParents;
 
 type
   IRegionProcessParamsFrameExportToJNX = interface(IRegionProcessParamsFrameBase)
@@ -52,8 +56,7 @@ type
 
     function GetRecompress: TBooleanDynArray;
     property Recompress: TBooleanDynArray read GetRecompress;
-
-  end;
+end;
 
 type
   TfrExportToJNX = class(
@@ -105,11 +108,6 @@ type
     ChRecompress3: TCheckBox;
     ChRecompress4: TCheckBox;
     ChRecompress5: TCheckBox;
-    cbbMap4: TComboBox;
-    cbbMap3: TComboBox;
-    cbbMap2: TComboBox;
-    cbbMap: TComboBox;
-    cbbMap5: TComboBox;
     lblMap: TLabel;
     ChMap5: TCheckBox;
     ChMap4: TCheckBox;
@@ -121,18 +119,18 @@ type
     cbbVersion: TComboBox;
     chkUseRecolor: TCheckBox;
     chkUseMapMarks: TCheckBox;
+    pnlMap: TPanel;
+    pnlMap2: TPanel;
+    pnlMap3: TPanel;
+    pnlMap4: TPanel;
+    pnlMap5: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
-    procedure cbbMapChange(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
     procedure ChMap1Click(Sender: TObject);
     procedure ChMap2Click(Sender: TObject);
     procedure ChMap3Click(Sender: TObject);
     procedure ChMap4Click(Sender: TObject);
     procedure ChMap5Click(Sender: TObject);
-    procedure cbbMap2Change(Sender: TObject);
-    procedure cbbMap3Change(Sender: TObject);
-    procedure cbbMap4Change(Sender: TObject);
-    procedure cbbMap5Change(Sender: TObject);
     procedure CbbZoomChange(Sender: TObject);
     procedure CbbZoom2Change(Sender: TObject);
     procedure CbbZoom3Change(Sender: TObject);
@@ -144,20 +142,30 @@ type
     procedure ChRecompress3Click(Sender: TObject);
     procedure ChRecompress4Click(Sender: TObject);
     procedure ChRecompress5Click(Sender: TObject);
+    procedure MapChange(Sender: TObject);
+    procedure Map2Change(Sender: TObject);
+    procedure Map3Change(Sender: TObject);
+    procedure Map4Change(Sender: TObject);
+    procedure Map5Change(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FfrMapSelect: TfrMapSelect;
+    FfrMap2Select: TfrMapSelect;
+    FfrMap3Select: TfrMapSelect;
+    FfrMap4Select: TfrMapSelect;
+    FfrMap5Select: TfrMapSelect;
   private
     procedure Init(
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
-
   private
     function GetZoomArray: TByteDynArray;
     function GetScaleArray: TByteDynArray;
     function GetPath: string;
+    function GetAllowExport(AMapType: TMapType): boolean;
   private
     function GetLevelsDesc: IStringListStatic;
     function GetProductName: string;
@@ -178,6 +186,7 @@ type
       const AFileFilters: string;
       const AFileExtDefault: string
     ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -189,12 +198,97 @@ uses
   i_ConfigDataProvider,
   i_PathConfig,
   u_StringListStatic,
-  u_MapType,
   u_MapTypeListStatic,
   u_ConfigDataProviderByIniFile,
   u_GlobalState;
 
 {$R *.dfm}
+constructor TfrExportToJNX.Create(
+  const ALanguageManager: ILanguageManager;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const AFileFilters: string;
+  const AFileExtDefault: string
+);
+begin
+  inherited Create(ALanguageManager);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+  dlgSaveTargetFile.Filter := AFileFilters;
+  dlgSaveTargetFile.DefaultExt := AFileExtDefault;
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrMapSelect.OnMapChange := MapChange;
+  FfrMap2Select :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrMap2Select.OnMapChange := Map2Change;
+  FfrMap3Select :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrMap3Select.OnMapChange := Map3Change;
+  FfrMap4Select :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrMap4Select.OnMapChange := Map4Change;
+  FfrMap5Select :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrMap5Select.OnMapChange := Map5Change;
+end;
+
+destructor TfrExportToJNX.Destroy;
+  begin
+    FreeAndNil(FfrMapSelect);
+    FreeAndNil(FfrMap2Select);
+    FreeAndNil(FfrMap3Select);
+    FreeAndNil(FfrMap4Select);
+    FreeAndNil(FfrMap5Select);
+  inherited;
+end;
 
 procedure TfrExportToJNX.btnSelectTargetFileClick(Sender: TObject);
 begin
@@ -203,26 +297,35 @@ begin
   end;
 end;
 
-procedure TfrExportToJNX.cbbMap2Change(Sender: TObject);
+procedure TfrExportToJNX.MapChange(Sender: TObject);
+begin
+  if ChMap1.Checked then begin
+    EProductName.text := 'SAS Palnet';
+    EMapName.text := FfrMapSelect.Text;
+    TreeView1.Items[1].Text := FfrMapSelect.text;
+  end;
+end;
+
+procedure TfrExportToJNX.Map2Change(Sender: TObject);
 var
  cnt : integer;
 begin
   cnt := 0;
   if ChMap1.Checked then inc(cnt);
-  TreeView1.Items[cnt*3+1].Text :=cbbMap2.text;
+  TreeView1.Items[cnt*3 + 1].Text := FfrMap2Select.text;
 end;
 
-procedure TfrExportToJNX.cbbMap3Change(Sender: TObject);
+procedure TfrExportToJNX.Map3Change(Sender: TObject);
 var
  cnt : integer;
 begin
   cnt := 0;
   if ChMap1.Checked then inc(cnt);
   if ChMap2.Checked then inc(cnt);
-  TreeView1.Items[cnt*3+1].Text :=cbbMap3.text;
+  TreeView1.Items[cnt*3 + 1].Text := FfrMap3Select.text;
 end;
 
-procedure TfrExportToJNX.cbbMap4Change(Sender: TObject);
+procedure TfrExportToJNX.Map4Change(Sender: TObject);
 var
  cnt : integer;
 begin
@@ -230,10 +333,10 @@ begin
   if ChMap1.Checked then inc(cnt);
   if ChMap2.Checked then inc(cnt);
   if ChMap3.Checked then inc(cnt);
-  TreeView1.Items[cnt*3+1].Text :=cbbMap4.text;
+  TreeView1.Items[cnt*3 + 1].Text := FfrMap4Select.text;
 end;
 
-procedure TfrExportToJNX.cbbMap5Change(Sender: TObject);
+procedure TfrExportToJNX.Map5Change(Sender: TObject);
 var
  cnt : integer;
 begin
@@ -242,16 +345,7 @@ begin
   if ChMap2.Checked then inc(cnt);
   if ChMap3.Checked then inc(cnt);
   if ChMap4.Checked then inc(cnt);
-  TreeView1.Items[cnt*3+1].Text :=cbbMap5.text;
-end;
-
-procedure TfrExportToJNX.cbbMapChange(Sender: TObject);
-begin
-  if ChMap1.Checked then begin
-    EProductName.text := 'SAS Palnet';
-    EMapName.text := cbbMap.text;
-    TreeView1.Items[1].Text :=cbbMap.text;
-  end;
+  TreeView1.Items[cnt*3 + 1].Text := FfrMap5Select.Text;
 end;
 
 procedure TfrExportToJNX.cbbVersionChange(Sender: TObject);
@@ -353,41 +447,27 @@ begin
   cbbscale.ItemIndex := ZoomIndexToScaleIndex[CbbZoom.itemindex];
 end;
 
-
-
-
-constructor TfrExportToJNX.Create(
-  const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList;
-  const AFileFilters: string;
-  const AFileExtDefault: string
-);
-begin
-  inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
-  dlgSaveTargetFile.Filter := AFileFilters;
-  dlgSaveTargetFile.DefaultExt := AFileExtDefault;
-end;
-
 procedure TfrExportToJNX.Init(
       const AZoom: byte;
-      const APolygon: ILonLatPolygon
-    );
+      const APolygon: ILonLatPolygon);
 var
   i: integer;
-  VMapType: TMapType;
   VActiveMapGUID: TGUID;
   VActiveLayers: IMapTypeSet;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   // Инициализируем список соответствия масштабов каждый раз, чтобы можно было пробовать различные настройки, не перезапуская программу.
   InitZoomIndexToScaleIndex;
+  FfrMapSelect.Show(pnlMap);
+  FfrMap2Select.Show(pnlMap2);
+  FfrMap3Select.Show(pnlMap3);
+  FfrMap4Select.Show(pnlMap4);
+  FfrMap5Select.Show(pnlMap5);
+
+  FfrMapSelect.SetEnabled(false);
+  FfrMap2Select.SetEnabled(false);
+  FfrMap3Select.SetEnabled(false);
+  FfrMap4Select.SetEnabled(false);
+  FfrMap5Select.SetEnabled(false);
 
   if CbbZoom.Items.count=0 then begin
     for i:=1 to 24 do begin
@@ -407,12 +487,6 @@ begin
     cbbscale4.items := cbbscale.Items;
     cbbscale5.items := cbbscale.Items;
 
-    cbbMap.items.Clear;
-    cbbMap2.items.Clear;
-    cbbMap3.items.Clear;
-    cbbMap4.items.Clear;
-    cbbMap5.items.Clear;
-
     CbbZoom.ItemIndex := AZoom;
     CbbZoom2.ItemIndex := AZoom;
     CbbZoom3.ItemIndex := AZoom;
@@ -424,40 +498,11 @@ begin
     cbbscale3.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale4.ItemIndex := ZoomIndexToScaleIndex[AZoom];
     cbbscale5.ItemIndex := ZoomIndexToScaleIndex[AZoom];
-
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.GUIConfig.Enabled) then begin
-     if (not(VMapType.Abilities.IsLayer)) then begin
-      VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-      if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-        cbbMap.ItemIndex:=VAddedIndex;
-      end;
-     end;
-    end;
-  end;
-  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
-    cbbMap.ItemIndex := 0;
-  end;
-  if cbbMap.ItemIndex=-1 then cbbMap.ItemIndex:=0;
-
-  cbbMap2.Items := cbbMap.Items;
-  cbbMap3.Items := cbbMap.Items;
-  cbbMap4.Items := cbbMap.Items;
-  cbbMap5.Items := cbbMap.Items;
-
-  If cbbMap2.ItemIndex=-1 then cbbMap2.ItemIndex := cbbMap.ItemIndex;
-  If cbbMap3.ItemIndex=-1 then cbbMap3.ItemIndex := cbbMap.ItemIndex;
-  If cbbMap4.ItemIndex=-1 then cbbMap4.ItemIndex := cbbMap.ItemIndex;
-  If cbbMap5.ItemIndex=-1 then cbbMap5.ItemIndex := cbbMap.ItemIndex;
   end;
 
-  EMapName.text := cbbMap.text;
+  EMapName.text := FfrMapSelect.Text;
   EProductName.text := 'SAS Planet';
-  EProductID.ItemIndex :=0;
-
+  EProductID.ItemIndex := 0;
   if cbbVersion.ItemIndex = -1 then cbbVersion.ItemIndex := 0;
   if cbbVersion.ItemIndex = 1 then begin
     EZorder.visible := true;
@@ -468,25 +513,29 @@ begin
   end;
 end;
 
+function TfrExportToJNX.GetAllowExport(AMapType: TMapType): boolean;
+begin
+  Result := AMapType.IsBitmapTiles;
+end;
+
 procedure TfrExportToJNX.ChMap1Click(Sender: TObject);
 var
  VItemNode, VParentNode : TTreeNode;
 begin
-  cbbMap.Enabled := ChMap1.Checked;
+  FfrMapSelect.SetEnabled(ChMap1.Checked);
   EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
   CbbZoom.Enabled := ChMap1.Checked;
   cbbscale.Enabled := ChMap1.Checked;
   ChMap2.Enabled := ChMap1.Checked;
   ChRecompress1.Enabled := ChMap1.Checked;
 
-if  ChMap1.Checked then begin
+  if  ChMap1.Checked then begin
     VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(1));
-    TreeView1.Items.AddChild(VParentNode, cbbMap.text);
+    TreeView1.Items.AddChild(VParentNode, FfrMapSelect.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
   end else begin
     VItemNode := TreeView1.Items[0];
     TreeView1.Items.delete(VItemNode);
-
     ChMap2.Checked := False;
   end;
 end;
@@ -496,29 +545,30 @@ var
  VItemNode, VParentNode : TTreeNode;
  cnt : integer;
 begin
-  cbbMap2.Enabled := ChMap2.Checked;
-  EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked;;
+  cnt := 0;
+  FfrMap2Select.SetEnabled(ChMap2.Checked);
+  EJpgQuality2.Enabled := ChMap2.Checked and ChRecompress2.Checked;
   CbbZoom2.Enabled := ChMap2.Checked;
   cbbscale2.Enabled := ChMap2.Checked;
   ChMap3.Enabled := ChMap2.Checked;
   ChRecompress2.Enabled := ChMap2.Checked;
-
-cnt := 0;
-if ChMap1.Checked then inc(cnt);
-if ChMap2.Checked then begin
-  if (TreeView1.Items.count >cnt*3) then begin
-    VItemNode := TreeView1.Items[(cnt)*3];
-    VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(2));
-   end else
-    if TreeView1.Items.Count=0 then
-       VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(2)) else
-       VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(2));
-    TreeView1.Items.AddChild(VParentNode, cbbMap2.text);
+  if ChMap1.Checked then inc(cnt);
+  if ChMap2.Checked then begin
+    if (TreeView1.Items.count > cnt * 3) then begin
+      VItemNode := TreeView1.Items[cnt * 3];
+      VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(2));
+    end else begin
+      if TreeView1.Items.Count=0 then begin
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(2))
+      end else begin
+        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(2));
+      end;
+    end;
+    TreeView1.Items.AddChild(VParentNode, FfrMap2Select.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
   end else begin
-    VItemNode := TreeView1.Items[cnt*3];
+    VItemNode := TreeView1.Items[cnt * 3];
     TreeView1.Items.delete(VItemNode);
-
     ChMap3.Checked := False;
   end;
 end;
@@ -528,30 +578,31 @@ var
  VItemNode, VParentNode : TTreeNode;
  cnt : integer;
 begin
-  cbbMap3.Enabled := ChMap3.Checked;
-  EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked;;
+  cnt := 0;
+  FfrMap3Select.SetEnabled(ChMap3.Checked);
+  EJpgQuality3.Enabled := ChMap3.Checked and ChRecompress3.Checked;
   CbbZoom3.Enabled := ChMap3.Checked;
   cbbscale3.Enabled := ChMap3.Checked;
   ChMap4.Enabled := ChMap3.Checked;
   ChRecompress3.Enabled := ChMap3.Checked;
-
-cnt := 0;
-if ChMap1.Checked then inc(cnt);
-if ChMap2.Checked then inc(cnt);
-if ChMap3.Checked then begin
-  if (TreeView1.Items.count >cnt*3) then begin
-    VItemNode := TreeView1.Items[(cnt)*3];
-    VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(3));
-   end else
-    if TreeView1.Items.Count=0 then
-       VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(3)) else
-       VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(3));
-    TreeView1.Items.AddChild(VParentNode, cbbMap3.text);
+  if ChMap1.Checked then inc(cnt);
+  if ChMap2.Checked then inc(cnt);
+  if ChMap3.Checked then begin
+    if (TreeView1.Items.count >cnt * 3) then begin
+      VItemNode := TreeView1.Items[cnt * 3];
+      VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(3));
+    end else begin
+      if TreeView1.Items.Count=0 then begin
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(3))
+      end else begin
+        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(3));
+      end;
+    end;
+    TreeView1.Items.AddChild(VParentNode, FfrMap3Select.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
   end else begin
-    VItemNode := TreeView1.Items[cnt*3];
+    VItemNode := TreeView1.Items[cnt * 3];
     TreeView1.Items.delete(VItemNode);
-
     ChMap4.Checked := False;
   end;
 end;
@@ -561,31 +612,32 @@ var
  VItemNode, VParentNode : TTreeNode;
  cnt : integer;
 begin
-  cbbMap4.Enabled := ChMap4.Checked;
-  EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked;;
+  cnt := 0;
+  FfrMap4Select.SetEnabled(ChMap4.Checked);
+  EJpgQuality4.Enabled := ChMap4.Checked and ChRecompress4.Checked;
   CbbZoom4.Enabled := ChMap4.Checked;
   cbbscale4.Enabled := ChMap4.Checked;
   ChMap5.Enabled := ChMap4.Checked;
   ChRecompress4.Enabled := ChMap4.Checked;
-
-cnt := 0;
-if ChMap1.Checked then inc(cnt);
-if ChMap2.Checked then inc(cnt);
-if ChMap3.Checked then inc(cnt);
-if ChMap4.Checked then begin
-  if (TreeView1.Items.count >cnt*3) then begin
-    VItemNode := TreeView1.Items[(cnt)*3];
-    VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(4));
-   end else
-    if TreeView1.Items.Count=0 then
-       VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(4)) else
-       VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(4));
-    TreeView1.Items.AddChild(VParentNode, cbbMap4.text);
+  if ChMap1.Checked then inc(cnt);
+  if ChMap2.Checked then inc(cnt);
+  if ChMap3.Checked then inc(cnt);
+  if ChMap4.Checked then begin
+    if (TreeView1.Items.count > cnt * 3) then begin
+      VItemNode := TreeView1.Items[cnt * 3];
+      VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(4));
+    end else begin
+      if TreeView1.Items.Count=0 then begin
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(4))
+      end else begin
+        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(4));
+      end;
+    end;
+    TreeView1.Items.AddChild(VParentNode, FfrMap4Select.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
   end else begin
-    VItemNode := TreeView1.Items[cnt*3];
+    VItemNode := TreeView1.Items[cnt * 3];
     TreeView1.Items.delete(VItemNode);
-
     ChMap5.Checked := False;
   end;
 end;
@@ -595,42 +647,42 @@ var
  VItemNode, VParentNode : TTreeNode;
  cnt : integer;
 begin
-  cbbMap5.Enabled := ChMap5.Checked;
+  cnt := 0;
+  FfrMap5Select.SetEnabled(ChMap5.Checked);
   EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;;
   CbbZoom5.Enabled := ChMap5.Checked;
   cbbscale5.Enabled := ChMap5.Checked;
   ChRecompress5.Enabled := ChMap5.Checked;
-
-cnt := 0;
-if ChMap1.Checked then inc(cnt);
-if ChMap2.Checked then inc(cnt);
-if ChMap3.Checked then inc(cnt);
-if ChMap4.Checked then inc(cnt);
-if ChMap5.Checked then begin
-  if (TreeView1.Items.count >cnt*3) then begin
-    VItemNode := TreeView1.Items[(cnt)*3];
-    VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(5));
-   end else
-    if TreeView1.Items.Count=0 then
-       VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(5)) else
-       VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(5));
-    TreeView1.Items.AddChild(VParentNode, cbbMap5.text);
+  if ChMap1.Checked then inc(cnt);
+  if ChMap2.Checked then inc(cnt);
+  if ChMap3.Checked then inc(cnt);
+  if ChMap4.Checked then inc(cnt);
+  if ChMap5.Checked then begin
+    if (TreeView1.Items.count >cnt * 3) then begin
+      VItemNode := TreeView1.Items[(cnt) * 3];
+      VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(5));
+    end else begin
+      if TreeView1.Items.Count=0 then begin
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(5))
+      end else begin
+        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(5));
+      end;
+    end;
+    TreeView1.Items.AddChild(VParentNode, FfrMap5Select.text);
     TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
   end else begin
-    VItemNode := TreeView1.Items[cnt*3];
+    VItemNode := TreeView1.Items[cnt * 3];
     TreeView1.Items.delete(VItemNode);
   end;
 end;
 
 procedure TfrExportToJNX.PageControl1Change(Sender: TObject);
 begin
-  if PageControl1.TabIndex >=2 then begin
-      MapsPanel.Visible := false;
+  if PageControl1.TabIndex >= 2 then begin
+    MapsPanel.Visible := false;
   end else begin
-      MapsPanel.Visible := true;
+    MapsPanel.Visible := true;
   end;
-
-
 end;
 
 function TfrExportToJNX.GetJNXVersion: Integer;
@@ -721,28 +773,28 @@ var
 begin
   i := 0;
   if ChMap1.Checked then  begin
-    SetLength(VMaps, i+1);
-    VMaps[i] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]).Zmp.GUID);
+    SetLength(VMaps, i + 1);
+    VMaps[i] := FfrMapSelect.GetSelectedIMapType;
     inc(i);
   end;
   if ChMap2.Checked then  begin
-    SetLength(VMaps, i+1);
-    VMaps[i] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbMap2.Items.Objects[cbbMap2.ItemIndex]).Zmp.GUID);
+    SetLength(VMaps, i + 1);
+    VMaps[i] := FfrMap2Select.GetSelectedIMapType;
     inc(i);
   end;
   if ChMap3.Checked then  begin
-    SetLength(VMaps, i+1);
-    VMaps[i] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbMap3.Items.Objects[cbbMap3.ItemIndex]).Zmp.GUID);
+    SetLength(VMaps, i + 1);
+    VMaps[i] := FfrMap3Select.GetSelectedIMapType;
     inc(i);
   end;
   if ChMap4.Checked then  begin
-    SetLength(VMaps, i+1);
-    VMaps[i] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbMap4.Items.Objects[cbbMap4.ItemIndex]).Zmp.GUID);
+    SetLength(VMaps, i + 1);
+    VMaps[i] := FfrMap4Select.GetSelectedIMapType;
     inc(i);
   end;
   if ChMap5.Checked then  begin
-    SetLength(VMaps, i+1);
-    VMaps[i] := FFullMapsSet.GetMapTypeByGUID(TMapType(cbbMap5.Items.Objects[cbbMap5.ItemIndex]).Zmp.GUID);
+    SetLength(VMaps, i + 1);
+    VMaps[i] := FfrMap5Select.GetSelectedIMapType;
   end;
   Result := TMapTypeListStatic.Create(VMaps);
 end;
@@ -777,7 +829,6 @@ begin
       SetLength(Result, VCount + 1);
       Result[VCount] := cbbscale5.ItemIndex;
   end;
-
 end;
 function TfrExportToJNX.GetZoomArray: TByteDynArray;
 var
@@ -850,7 +901,6 @@ begin
       SetLength(Result, VCount + 1);
       Result[VCount] := ChRecompress5.Checked;
   end;
-
 end;
 
 procedure TfrExportToJNX.ChRecompress1Click(Sender: TObject);
@@ -877,5 +927,4 @@ procedure TfrExportToJNX.ChRecompress5Click(Sender: TObject);
 begin
   EJpgQuality5.Enabled := ChRecompress5.Checked;
 end;
-
 end.

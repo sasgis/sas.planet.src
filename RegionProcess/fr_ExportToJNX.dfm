@@ -78,7 +78,7 @@ object frExportToJNX: TfrExportToJNX
           AlignWithMargins = True
           Left = 27
           Top = 0
-          Width = 20
+          Width = 24
           Height = 13
           Margins.Left = 0
           Margins.Top = 0
@@ -103,7 +103,7 @@ object frExportToJNX: TfrExportToJNX
           object lblCompress: TLabel
             Left = 153
             Top = 0
-            Width = 57
+            Width = 65
             Height = 13
             Anchors = [akTop, akRight]
             Caption = 'Compression:'
@@ -119,7 +119,7 @@ object frExportToJNX: TfrExportToJNX
           object Label2: TLabel
             Left = 70
             Top = 0
-            Width = 25
+            Width = 29
             Height = 13
             Anchors = [akTop, akRight]
             Caption = 'Scale:'
@@ -130,11 +130,11 @@ object frExportToJNX: TfrExportToJNX
             Width = 57
             Height = 22
             Anchors = [akTop, akRight]
+            Enabled = False
             MaxValue = 100
             MinValue = 10
             TabOrder = 0
             Value = 95
-            Enabled = False
           end
           object CbbZoom: TComboBox
             Left = 5
@@ -144,9 +144,9 @@ object frExportToJNX: TfrExportToJNX
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
+            Enabled = False
             ItemHeight = 13
             TabOrder = 1
-            Enabled = False
             OnChange = CbbZoomChange
           end
           object EJpgQuality2: TSpinEdit
@@ -305,6 +305,7 @@ object frExportToJNX: TfrExportToJNX
             Align = alCustom
             Style = csDropDownList
             Anchors = [akTop, akRight]
+            Enabled = False
             ItemHeight = 13
             TabOrder = 14
             Items.Strings = (
@@ -335,16 +336,17 @@ object frExportToJNX: TfrExportToJNX
               '12m'
               '8m'
               '5m')
-            Enabled = False
           end
           object ChRecompress1: TCheckBox
             Left = 134
             Top = 21
             Width = 20
             Height = 17
-            TabOrder = 15
-            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Hint = 
+              'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
+              'ssed'
             Enabled = False
+            TabOrder = 15
             OnClick = ChRecompress1Click
           end
           object ChRecompress2: TCheckBox
@@ -352,9 +354,11 @@ object frExportToJNX: TfrExportToJNX
             Top = 48
             Width = 20
             Height = 17
-            TabOrder = 16
-            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Hint = 
+              'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
+              'ssed'
             Enabled = False
+            TabOrder = 16
             OnClick = ChRecompress2Click
           end
           object ChRecompress3: TCheckBox
@@ -362,9 +366,11 @@ object frExportToJNX: TfrExportToJNX
             Top = 75
             Width = 20
             Height = 17
-            TabOrder = 17
-            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Hint = 
+              'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
+              'ssed'
             Enabled = False
+            TabOrder = 17
             OnClick = ChRecompress3Click
           end
           object ChRecompress4: TCheckBox
@@ -372,9 +378,11 @@ object frExportToJNX: TfrExportToJNX
             Top = 102
             Width = 20
             Height = 17
-            TabOrder = 18
-            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Hint = 
+              'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
+              'ssed'
             Enabled = False
+            TabOrder = 18
             OnClick = ChRecompress4Click
           end
           object ChRecompress5: TCheckBox
@@ -382,9 +390,11 @@ object frExportToJNX: TfrExportToJNX
             Top = 129
             Width = 20
             Height = 17
-            TabOrder = 19
-            Hint = 'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompressed'
+            Hint = 
+              'Re-compress JPEG tiles'#13#10'Note: Non-JPEG tiles are always recompre' +
+              'ssed'
             Enabled = False
+            TabOrder = 19
             OnClick = ChRecompress5Click
           end
         end
@@ -397,6 +407,9 @@ object frExportToJNX: TfrExportToJNX
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelOuter = bvNone
         TabOrder = 1
+        DesignSize = (
+          225
+          231)
         object ChMap1: TCheckBox
           Left = 3
           Top = 3
@@ -405,83 +418,13 @@ object frExportToJNX: TfrExportToJNX
           TabOrder = 0
           OnClick = ChMap1Click
         end
-        object cbbMap: TComboBox
-          Left = 23
-          Top = 1
-          Width = 197
-          Height = 21
-          Align = alCustom
-          Style = csDropDownList
-          Anchors = [akLeft, akTop, akRight]
-          DropDownCount = 16
-          ItemHeight = 13
-          TabOrder = 1
-          Enabled = False
-          OnChange = cbbMapChange
-        end
-        object cbbMap2: TComboBox
-          Left = 23
-          Top = 28
-          Width = 197
-          Height = 21
-          Align = alCustom
-          Style = csDropDownList
-          Anchors = [akLeft, akTop, akRight]
-          DropDownCount = 16
-          Enabled = False
-          ItemHeight = 13
-          TabOrder = 2
-          OnChange = cbbMap2Change
-        end
-        object cbbMap3: TComboBox
-          Left = 23
-          Top = 55
-          Width = 197
-          Height = 21
-          Align = alCustom
-          Style = csDropDownList
-          Anchors = [akLeft, akTop, akRight]
-          DropDownCount = 16
-          Enabled = False
-          ItemHeight = 13
-          TabOrder = 3
-          OnChange = cbbMap3Change
-        end
-        object cbbMap4: TComboBox
-          Left = 23
-          Top = 82
-          Width = 197
-          Height = 21
-          Align = alCustom
-          Style = csDropDownList
-          Anchors = [akLeft, akTop, akRight]
-          DropDownCount = 16
-          Enabled = False
-          ItemHeight = 13
-          TabOrder = 4
-          OnChange = cbbMap4Change
-        end
-        object cbbMap5: TComboBox
-          Left = 23
-          Top = 109
-          Width = 197
-          Height = 21
-          Align = alCustom
-          Style = csDropDownList
-          Anchors = [akLeft, akTop, akRight]
-          DropDownCount = 16
-          Enabled = False
-          ItemHeight = 13
-          TabOrder = 5
-          OnChange = cbbMap5Change
-        end
         object ChMap2: TCheckBox
           Left = 3
           Top = 30
           Width = 20
           Height = 17
           Enabled = False
-          TabOrder = 6
+          TabOrder = 1
           OnClick = ChMap2Click
         end
         object ChMap3: TCheckBox
@@ -490,7 +433,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 20
           Height = 17
           Enabled = False
-          TabOrder = 7
+          TabOrder = 2
           OnClick = ChMap3Click
         end
         object ChMap4: TCheckBox
@@ -499,7 +442,7 @@ object frExportToJNX: TfrExportToJNX
           Width = 20
           Height = 17
           Enabled = False
-          TabOrder = 8
+          TabOrder = 3
           OnClick = ChMap4Click
         end
         object ChMap5: TCheckBox
@@ -508,8 +451,53 @@ object frExportToJNX: TfrExportToJNX
           Width = 20
           Height = 17
           Enabled = False
-          TabOrder = 9
+          TabOrder = 4
           OnClick = ChMap5Click
+        end
+        object pnlMap: TPanel
+          Left = 23
+          Top = 1
+          Width = 199
+          Height = 21
+          Anchors = [akLeft, akTop, akRight]
+          BevelOuter = bvNone
+          TabOrder = 5
+        end
+        object pnlMap2: TPanel
+          Left = 23
+          Top = 28
+          Width = 199
+          Height = 21
+          Anchors = [akLeft, akTop, akRight]
+          BevelOuter = bvNone
+          TabOrder = 6
+        end
+        object pnlMap4: TPanel
+          Left = 23
+          Top = 82
+          Width = 199
+          Height = 21
+          Anchors = [akLeft, akTop, akRight]
+          BevelOuter = bvNone
+          TabOrder = 7
+        end
+        object pnlMap3: TPanel
+          Left = 23
+          Top = 55
+          Width = 199
+          Height = 21
+          Anchors = [akLeft, akTop, akRight]
+          BevelOuter = bvNone
+          TabOrder = 8
+        end
+        object pnlMap5: TPanel
+          Left = 23
+          Top = 109
+          Width = 199
+          Height = 21
+          Anchors = [akLeft, akTop, akRight]
+          BevelOuter = bvNone
+          TabOrder = 9
         end
       end
     end
