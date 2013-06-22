@@ -23,6 +23,7 @@ unit i_SimpleTileStorageConfig;
 interface
 
 uses
+  i_TileStorageAbilities,
   i_CoordConverter,
   i_ConfigDataElement;
 
@@ -41,17 +42,8 @@ type
     function GetTileFileExt: string;
     property TileFileExt: string read GetTileFileExt;
 
-    function GetIsReadOnly: boolean;
-    property IsReadOnly: Boolean read GetIsReadOnly;
-
-    function GetAllowDelete: boolean;
-    property AllowDelete: Boolean read GetAllowDelete;
-
-    function GetAllowAdd: boolean;
-    property AllowAdd: Boolean read GetAllowAdd;
-
-    function GetAllowReplace: boolean;
-    property AllowReplace: Boolean read GetAllowReplace;
+    function GetAbilities: ITileStorageAbilities;
+    property Abilities: ITileStorageAbilities read GetAbilities;
 
     function GetUseMemCache: Boolean;
     property UseMemCache: Boolean read GetUseMemCache;

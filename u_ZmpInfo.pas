@@ -214,6 +214,7 @@ uses
   i_StringListStatic,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
+  i_TileStorageAbilities,
   u_BinaryDataListStatic,
   u_StringByLanguageWithStaticList,
   u_TileDownloadRequestBuilderConfig,
@@ -221,6 +222,7 @@ uses
   u_TilePostDownloadCropConfigStatic,
   u_ContentTypeSubstByList,
   u_MapAbilitiesConfigStatic,
+  u_TileStorageAbilities,
   u_SimpleTileStorageConfigStatic,
   u_MapVersionInfo,
   u_MapAttachmentsInfo,
@@ -921,6 +923,7 @@ var
   VMemCacheCapacity: Integer;
   VMemCacheTTL: Cardinal;
   VMemCacheClearStrategy: Integer;
+  VStorageAbilities: ITileStorageAbilities;
 begin
   VNameInCache := AConfig.ReadString('NameInCache', '');
   VCacheTypeCode := AConfig.ReadInteger('CacheType', 0);
@@ -943,16 +946,21 @@ begin
     VAllowReplace := True;
   end;
 
+  VStorageAbilities :=
+    TTileStorageAbilities.Create(
+      VIsReadOnly,
+      VAllowAdd,
+      VAllowDelete,
+      VAllowReplace
+    );
+
   FStorageConfig :=
     TSimpleTileStorageConfigStatic.Create(
       FGeoConvert,
       VCacheTypeCode,
       VNameInCache,
       VTileFileExt,
-      VIsReadOnly,
-      VAllowDelete,
-      VAllowAdd,
-      VAllowReplace,
+      VStorageAbilities,
       VUseMemCache,
       VMemCacheCapacity,
       VMemCacheTTL,

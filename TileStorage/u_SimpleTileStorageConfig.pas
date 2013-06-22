@@ -93,6 +93,8 @@ implementation
 
 uses
   c_CacheTypeCodes,
+  i_TileStorageAbilities,
+  u_TileStorageAbilities,
   u_SimpleTileStorageConfigStatic;
 
 { TSimpleTileStorageConfig }
@@ -107,10 +109,10 @@ begin
   FCacheTypeCode := FDefConfig.CacheTypeCode;
   FNameInCache := FDefConfig.NameInCache;
 
-  FIsReadOnly := FDefConfig.IsReadOnly;
-  FAllowDelete := FDefConfig.AllowDelete;
-  FAllowAdd := FDefConfig.AllowAdd;
-  FAllowReplace := FDefConfig.AllowReplace;
+  FIsReadOnly := FDefConfig.Abilities.IsReadOnly;
+  FAllowDelete := FDefConfig.Abilities.AllowDelete;
+  FAllowAdd := FDefConfig.Abilities.AllowAdd;
+  FAllowReplace := FDefConfig.Abilities.AllowReplace;
   FUseMemCache := FDefConfig.UseMemCache;
   FMemCacheCapacity := FDefConfig.MemCacheCapacity;
   FMemCacheTTL := FDefConfig.MemCacheTTL;
@@ -120,17 +122,22 @@ end;
 function TSimpleTileStorageConfig.CreateStatic: IInterface;
 var
   VStatic: ISimpleTileStorageConfigStatic;
+  VStorageAbilities: ITileStorageAbilities;
 begin
+  VStorageAbilities :=
+    TTileStorageAbilities.Create(
+      FIsReadOnly,
+      FAllowAdd,
+      FAllowDelete,
+      FAllowReplace
+    );
   VStatic :=
     TSimpleTileStorageConfigStatic.Create(
       FDefConfig.CoordConverter,
       FCacheTypeCode,
       FNameInCache,
       FDefConfig.TileFileExt,
-      FIsReadOnly,
-      FAllowDelete,
-      FAllowAdd,
-      FAllowReplace,
+      VStorageAbilities,
       FUseMemCache,
       FMemCacheCapacity,
       FMemCacheTTL,
@@ -167,7 +174,7 @@ begin
   end else begin
     AConfigData.DeleteValue('NameInCache');
   end;
-  if FIsReadOnly <> FDefConfig.IsReadOnly then begin
+  if FIsReadOnly <> FDefConfig.Abilities.IsReadOnly then begin
     AConfigData.WriteBool('IsReadOnly', FIsReadOnly);
   end else begin
     AConfigData.DeleteValue('IsReadOnly');
@@ -295,7 +302,7 @@ var
 begin
   LockWrite;
   try
-    VValue := FDefConfig.AllowAdd and (not FIsReadOnly) and AValue;
+    VValue := FDefConfig.Abilities.AllowAdd and (not FIsReadOnly) and AValue;
     if FAllowAdd <> VValue then begin
       FAllowAdd := VValue;
       SetChanged;
@@ -311,7 +318,7 @@ var
 begin
   LockWrite;
   try
-    VValue := FDefConfig.AllowDelete and (not FIsReadOnly) and AValue;
+    VValue := FDefConfig.Abilities.AllowDelete and (not FIsReadOnly) and AValue;
     if FAllowDelete <> VValue then begin
       FAllowDelete := VValue;
       SetChanged;
@@ -327,7 +334,7 @@ var
 begin
   LockWrite;
   try
-    VValue := FDefConfig.AllowReplace and (not FIsReadOnly) and AValue;
+    VValue := FDefConfig.Abilities.AllowReplace and (not FIsReadOnly) and AValue;
     if FAllowReplace <> VValue then begin
       FAllowReplace := VValue;
       SetChanged;
@@ -360,7 +367,7 @@ var
 begin
   LockWrite;
   try
-    VValue := FDefConfig.IsReadOnly or (FNameInCache = '') or AValue;
+    VValue := FDefConfig.Abilities.IsReadOnly or (FNameInCache = '') or AValue;
     if FIsReadOnly <> VValue then begin
       FIsReadOnly := VValue;
       SetAllowDelete(FAllowDelete);

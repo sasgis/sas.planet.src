@@ -205,7 +205,7 @@ begin
   VStorageConfig := FStorageConfig.GetStatic;
   LockWrite;
   try
-    VValue := FDefConfig.UseDownload and VStorageConfig.AllowAdd and AValue;
+    VValue := FDefConfig.UseDownload and VStorageConfig.Abilities.AllowAdd and AValue;
     if FUseDownload <> VValue then begin
       FUseDownload := VValue;
       SetChanged;

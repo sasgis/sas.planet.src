@@ -40,6 +40,7 @@ uses
   u_TileStorageInRAM in 'TileStorage\RAM\u_TileStorageInRAM.pas',
   u_TileStorageTypeInRAM in 'TileStorage\RAM\u_TileStorageTypeInRAM.pas',
   i_TileStorageAbilities in 'TileStorage\i_TileStorageAbilities.pas',
+  u_TileStorageAbilities in 'TileStorage\u_TileStorageAbilities.pas',
   i_SimpleTileStorageConfig in 'TileStorage\i_SimpleTileStorageConfig.pas',
   i_StorageState in 'TileStorage\i_StorageState.pas',
   i_StorageStateInternal in 'TileStorage\i_StorageStateInternal.pas',

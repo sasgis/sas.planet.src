@@ -23,6 +23,7 @@ unit u_SimpleTileStorageConfigStatic;
 interface
 
 uses
+  i_TileStorageAbilities,
   i_CoordConverter,
   i_SimpleTileStorageConfig,
   u_BaseInterfacedObject;
@@ -34,10 +35,7 @@ type
     FCacheTypeCode: Integer;
     FNameInCache: string;
     FTileFileExt: string;
-    FIsReadOnly: Boolean;
-    FAllowDelete: Boolean;
-    FAllowAdd: Boolean;
-    FAllowReplace: Boolean;
+    FAbilities: ITileStorageAbilities;
     FUseMemCache: Boolean;
     FMemCacheCapacity: Integer;
     FMemCacheTTL: Cardinal;
@@ -47,10 +45,7 @@ type
     function GetCacheTypeCode: Integer;
     function GetNameInCache: string;
     function GetTileFileExt: string;
-    function GetIsReadOnly: Boolean;
-    function GetAllowDelete: Boolean;
-    function GetAllowAdd: Boolean;
-    function GetAllowReplace: Boolean;
+    function GetAbilities: ITileStorageAbilities;
     function GetUseMemCache: Boolean;
     function GetMemCacheCapacity: Integer;
     function GetMemCacheTTL: Cardinal;
@@ -61,10 +56,7 @@ type
       const ACacheTypeCode: Integer;
       const ANameInCache: string;
       const ATileFileExt: string;
-      const AIsReadOnly: Boolean;
-      const AAllowDelete: Boolean;
-      const AAllowAdd: Boolean;
-      const AAllowReplace: Boolean;
+      const AAbilities: ITileStorageAbilities;
       const AUseMemCache: Boolean;
       const AMemCacheCapacity: Integer;
       const AMemCacheTTL: Cardinal;
@@ -81,10 +73,7 @@ constructor TSimpleTileStorageConfigStatic.Create(
   const ACacheTypeCode: Integer;
   const ANameInCache: string;
   const ATileFileExt: string;
-  const AIsReadOnly: Boolean;
-  const AAllowDelete: Boolean;
-  const AAllowAdd: Boolean;
-  const AAllowReplace: Boolean;
+  const AAbilities: ITileStorageAbilities;
   const AUseMemCache: Boolean;
   const AMemCacheCapacity: Integer;
   const AMemCacheTTL: Cardinal;
@@ -96,29 +85,16 @@ begin
   FCacheTypeCode := ACacheTypeCode;
   FNameInCache := ANameInCache;
   FTileFileExt := ATileFileExt;
-  FIsReadOnly := AIsReadOnly;
-  FAllowDelete := AAllowDelete;
-  FAllowAdd := AAllowAdd;
-  FAllowReplace := AAllowReplace;
+  FAbilities := AAbilities;
   FUseMemCache := AUseMemCache;
   FMemCacheCapacity := AMemCacheCapacity;
   FMemCacheTTL := AMemCacheTTL;
   FMemCacheClearStrategy := AMemCacheClearStrategy;
 end;
 
-function TSimpleTileStorageConfigStatic.GetAllowAdd: Boolean;
+function TSimpleTileStorageConfigStatic.GetAbilities: ITileStorageAbilities;
 begin
-  Result := FAllowAdd;
-end;
-
-function TSimpleTileStorageConfigStatic.GetAllowDelete: Boolean;
-begin
-  Result := FAllowDelete;
-end;
-
-function TSimpleTileStorageConfigStatic.GetAllowReplace: Boolean;
-begin
-  Result := FAllowReplace;
+  Result := FAbilities;
 end;
 
 function TSimpleTileStorageConfigStatic.GetCacheTypeCode: Integer;
@@ -129,11 +105,6 @@ end;
 function TSimpleTileStorageConfigStatic.GetCoordConverter: ICoordConverter;
 begin
   Result := FCoordConverter;
-end;
-
-function TSimpleTileStorageConfigStatic.GetIsReadOnly: Boolean;
-begin
-  Result := FIsReadOnly;
 end;
 
 function TSimpleTileStorageConfigStatic.GetNameInCache: string;
