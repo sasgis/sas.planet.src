@@ -27,7 +27,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TTileStorageTypeAbilitiesFileFolder = class(TBaseInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesFileFolder = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
     function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
@@ -35,7 +35,7 @@ type
     function GetAllowReplace: Boolean;
   end;
 
-  TTileStorageTypeAbilitiesGE = class(TBaseInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesGE = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
     function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
@@ -43,7 +43,7 @@ type
     function GetAllowReplace: Boolean;
   end;
 
-  TTileStorageTypeAbilitiesBerkeleyDB = class(TBaseInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesBerkeleyDB = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
     FIsReadOnly: Boolean;
   private
@@ -55,7 +55,7 @@ type
     constructor Create(const AIsReadOnly: Boolean);
   end;
 
-  TTileStorageTypeAbilitiesDBMS = class(TBaseInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesDBMS = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
     function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;
@@ -63,7 +63,7 @@ type
     function GetAllowReplace: Boolean;
   end;
 
-  TTileStorageTypeAbilitiesRAM = class(TBaseInterfacedObject, IStorageTypeAbilities)
+  TTileStorageTypeAbilitiesRAM = class(TBaseInterfacedObject, ITileStorageAbilities)
   private
     function GetIsReadOnly: Boolean;
     function GetAllowAdd: Boolean;

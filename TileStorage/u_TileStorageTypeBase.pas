@@ -36,11 +36,11 @@ uses
 type
   TTileStorageTypeBase = class(TBaseInterfacedObject, ITileStorageType)
   private
-    FInfo: IStorageTypeAbilities;
+    FAbilities: ITileStorageAbilities;
     FMapVersionFactory: IMapVersionFactory;
     FConfig: ITileStorageTypeConfig;
   protected
-    function GetInfo: IStorageTypeAbilities;
+    function GetAbilities: ITileStorageAbilities;
     function GetConfig: ITileStorageTypeConfig;
     function GetMapVersionFactory: IMapVersionFactory;
     function BuildStorage(
@@ -51,7 +51,7 @@ type
     ): ITileStorage; virtual; abstract;
   public
     constructor Create(
-      const AInfo: IStorageTypeAbilities;
+      const AAbilities: ITileStorageAbilities;
       const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
@@ -62,13 +62,13 @@ implementation
 { TTileStorageTypeBase }
 
 constructor TTileStorageTypeBase.Create(
-  const AInfo: IStorageTypeAbilities;
+  const AAbilities: ITileStorageAbilities;
   const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
 begin
   inherited Create;
-  FInfo := AInfo;
+  FAbilities := AAbilities;
   FMapVersionFactory := AMapVersionFactory;
   FConfig := AConfig;
 end;
@@ -78,9 +78,9 @@ begin
   Result := FConfig;
 end;
 
-function TTileStorageTypeBase.GetInfo: IStorageTypeAbilities;
+function TTileStorageTypeBase.GetAbilities: ITileStorageAbilities;
 begin
-  Result := FInfo;
+  Result := FAbilities;
 end;
 
 function TTileStorageTypeBase.GetMapVersionFactory: IMapVersionFactory;

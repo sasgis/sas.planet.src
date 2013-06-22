@@ -29,13 +29,10 @@ uses
 
 type
   ITileStorageInfo = interface
-    function GetTypeInfo: IStorageTypeAbilities;
+    function GetTypeAbilities: ITileStorageAbilities;
+    function GetForceAbilities: ITileStorageAbilities;
     function GetMainContentType: IContentTypeInfoBasic;
     function GetAllowDifferentContentTypes: Boolean;
-
-    function GetAllowDelete: boolean;
-    function GetAllowSave: boolean;
-    function GetIsReadOnly: boolean;
     function GetCoordConverter: ICoordConverter;
   end;
 

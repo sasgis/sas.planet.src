@@ -12,7 +12,7 @@ uses
 type
   TStorageStateInternal = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IStorageStateInternal, IStorageStateChangeble)
   private
-    FStorageTypeAbilities: IStorageTypeAbilities;
+    FStorageForceAbilities: ITileStorageAbilities;
 
     FReadAccess: TAccesState;
     FWriteAccess: TAccesState;
@@ -40,7 +40,7 @@ type
     function GetStatic: IStorageStateStatic;
   public
     constructor Create(
-      const AStorageTypeAbilities: IStorageTypeAbilities
+      const AStorageForceAbilities: ITileStorageAbilities
     );
   end;
 
@@ -52,35 +52,35 @@ uses
 { TStorageStateInternal }
 
 constructor TStorageStateInternal.Create(
-  const AStorageTypeAbilities: IStorageTypeAbilities
+  const AStorageForceAbilities: ITileStorageAbilities
 );
 begin
   inherited Create;
-  FStorageTypeAbilities := AStorageTypeAbilities;
+  FStorageForceAbilities := AStorageForceAbilities;
   FReadAccess := asUnknown;
   FWriteAccess := asUnknown;
   FDeleteAccess := asUnknown;
   FAddAccess := asUnknown;
   FReplaceAccess := asUnknown;
 
-  if FStorageTypeAbilities.IsReadOnly then begin
+  if FStorageForceAbilities.IsReadOnly then begin
     FWriteAccess := asDisabled;
     FDeleteAccess := asDisabled;
     FAddAccess := asDisabled;
     FReplaceAccess := asDisabled;
   end else begin
     FWriteAccess := asUnknown;
-    if FStorageTypeAbilities.AllowAdd then begin
+    if FStorageForceAbilities.AllowAdd then begin
       FAddAccess := asUnknown;
     end else begin
       FAddAccess := asDisabled;
     end;
-    if FStorageTypeAbilities.AllowDelete then begin
+    if FStorageForceAbilities.AllowDelete then begin
       FDeleteAccess := asUnknown;
     end else begin
       FDeleteAccess := asDisabled;
     end;
-    if FStorageTypeAbilities.AllowReplace then begin
+    if FStorageForceAbilities.AllowReplace then begin
       FReplaceAccess := asUnknown;
     end else begin
       FReplaceAccess := asDisabled;
@@ -166,7 +166,7 @@ var
   VValue: TAccesState;
 begin
   VValue := AValue;
-  if FStorageTypeAbilities.IsReadOnly or not FStorageTypeAbilities.AllowAdd then begin
+  if FStorageForceAbilities.IsReadOnly or not FStorageForceAbilities.AllowAdd then begin
     VValue := asDisabled;
   end;
 
@@ -197,7 +197,7 @@ var
   VValue: TAccesState;
 begin
   VValue := AValue;
-  if FStorageTypeAbilities.IsReadOnly or not FStorageTypeAbilities.AllowDelete then begin
+  if FStorageForceAbilities.IsReadOnly or not FStorageForceAbilities.AllowDelete then begin
     VValue := asDisabled;
   end;
 
@@ -247,7 +247,7 @@ var
   VValue: TAccesState;
 begin
   VValue := AValue;
-  if FStorageTypeAbilities.IsReadOnly or not FStorageTypeAbilities.AllowReplace then begin
+  if FStorageForceAbilities.IsReadOnly or not FStorageForceAbilities.AllowReplace then begin
     VValue := asDisabled;
   end;
 
@@ -278,10 +278,10 @@ var
   VValue: TAccesState;
 begin
   VValue := AValue;
-  if FStorageTypeAbilities.IsReadOnly or not (
-    FStorageTypeAbilities.AllowReplace or
-    FStorageTypeAbilities.AllowAdd or
-    FStorageTypeAbilities.AllowDelete
+  if FStorageForceAbilities.IsReadOnly or not (
+    FStorageForceAbilities.AllowReplace or
+    FStorageForceAbilities.AllowAdd or
+    FStorageForceAbilities.AllowDelete
     ) then begin
     VValue := asDisabled;
   end;

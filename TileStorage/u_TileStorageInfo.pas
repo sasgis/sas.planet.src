@@ -32,31 +32,23 @@ uses
 type
   TTileStorageInfo = class(TBaseInterfacedObject, ITileStorageInfo)
   private
-    FTypeInfo: IStorageTypeAbilities;
+    FTypeAbilities: ITileStorageAbilities;
+    FForceAbilities: ITileStorageAbilities;
     FMainContentType: IContentTypeInfoBasic;
     FAllowDifferentContentTypes: Boolean;
-
-    FAllowDelete: boolean;
-    FAllowSave: boolean;
-    FIsReadOnly: boolean;
     FCoordConverter: ICoordConverter;
   private
-    function GetTypeInfo: IStorageTypeAbilities;
+    function GetTypeAbilities: ITileStorageAbilities;
+    function GetForceAbilities: ITileStorageAbilities;
     function GetMainContentType: IContentTypeInfoBasic;
     function GetAllowDifferentContentTypes: Boolean;
-
-    function GetAllowDelete: boolean;
-    function GetAllowSave: boolean;
-    function GetIsReadOnly: boolean;
     function GetCoordConverter: ICoordConverter;
   public
     constructor Create(
-      const ATypeInfo: IStorageTypeAbilities;
+      const ATypeAbilities: ITileStorageAbilities;
+      const AForceAbilities: ITileStorageAbilities;
       const AMainContentType: IContentTypeInfoBasic;
       AAllowDifferentContentTypes: Boolean;
-      AAllowDelete: boolean;
-      AAllowSave: boolean;
-      AIsReadOnly: boolean;
       const ACoordConverter: ICoordConverter
     );
   end;
@@ -66,25 +58,19 @@ implementation
 { TTileStorageInfo }
 
 constructor TTileStorageInfo.Create(
-  const ATypeInfo: IStorageTypeAbilities;
+  const ATypeAbilities: ITileStorageAbilities;
+  const AForceAbilities: ITileStorageAbilities;
   const AMainContentType: IContentTypeInfoBasic;
-  AAllowDifferentContentTypes, AAllowDelete, AAllowSave, AIsReadOnly: boolean;
+  AAllowDifferentContentTypes: Boolean;
   const ACoordConverter: ICoordConverter
 );
 begin
   inherited Create;
-  FTypeInfo := ATypeInfo;
+  FTypeAbilities := ATypeAbilities;
+  FForceAbilities := AForceAbilities;
   FCoordConverter := ACoordConverter;
   FMainContentType := AMainContentType;
   FAllowDifferentContentTypes := AAllowDifferentContentTypes;
-  FAllowDelete := AAllowDelete;
-  FAllowSave := AAllowSave;
-  FIsReadOnly := AIsReadOnly;
-end;
-
-function TTileStorageInfo.GetAllowDelete: boolean;
-begin
-  Result := FAllowDelete;
 end;
 
 function TTileStorageInfo.GetAllowDifferentContentTypes: Boolean;
@@ -92,19 +78,14 @@ begin
   Result := FAllowDifferentContentTypes;
 end;
 
-function TTileStorageInfo.GetAllowSave: boolean;
-begin
-  Result := FAllowSave;
-end;
-
 function TTileStorageInfo.GetCoordConverter: ICoordConverter;
 begin
   Result := FCoordConverter;
 end;
 
-function TTileStorageInfo.GetIsReadOnly: boolean;
+function TTileStorageInfo.GetForceAbilities: ITileStorageAbilities;
 begin
-  Result := FIsReadOnly;
+  Result := FForceAbilities;
 end;
 
 function TTileStorageInfo.GetMainContentType: IContentTypeInfoBasic;
@@ -112,9 +93,9 @@ begin
   Result := FMainContentType;
 end;
 
-function TTileStorageInfo.GetTypeInfo: IStorageTypeAbilities;
+function TTileStorageInfo.GetTypeAbilities: ITileStorageAbilities;
 begin
-  Result := FTypeInfo;
+  Result := FTypeAbilities;
 end;
 
 end.

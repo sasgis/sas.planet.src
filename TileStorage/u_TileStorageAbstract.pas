@@ -112,7 +112,7 @@ type
     ): IEnumTileInfo; virtual;
   public
     constructor Create(
-      const AStorageTypeAbilities: IStorageTypeAbilities;
+      const AStorageForceAbilities: ITileStorageAbilities;
       const AMapVersionFactory: IMapVersionFactory;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string
@@ -128,7 +128,7 @@ uses
 { TTileStorageAbstract }
 
 constructor TTileStorageAbstract.Create(
-  const AStorageTypeAbilities: IStorageTypeAbilities;
+  const AStorageForceAbilities: ITileStorageAbilities;
   const AMapVersionFactory: IMapVersionFactory;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string
@@ -142,7 +142,7 @@ begin
   FStoragePath := AStoragePath;
   FGeoConverter := AGeoConverter;
 
-  VState := TStorageStateInternal.Create(AStorageTypeAbilities);
+  VState := TStorageStateInternal.Create(AStorageForceAbilities);
   FStorageStateInternal := VState;
   FStorageState := VState;
 

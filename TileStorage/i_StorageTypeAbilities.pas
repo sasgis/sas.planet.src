@@ -23,7 +23,7 @@ unit i_StorageTypeAbilities;
 interface
 
 type
-  IStorageTypeAbilities = interface
+  ITileStorageAbilities = interface
     ['{EBB122FB-5382-49CA-A265-3BEA89694B0E}']
     function GetIsReadOnly: boolean;
     property IsReadOnly: boolean read GetIsReadOnly;
