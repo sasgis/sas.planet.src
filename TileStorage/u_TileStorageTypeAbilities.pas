@@ -23,7 +23,7 @@ unit u_TileStorageTypeAbilities;
 interface
 
 uses
-  i_StorageTypeAbilities,
+  i_TileStorageAbilities,
   u_BaseInterfacedObject;
 
 type

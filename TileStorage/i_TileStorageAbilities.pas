@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_StorageTypeAbilities;
+unit i_TileStorageAbilities;
 
 interface
 

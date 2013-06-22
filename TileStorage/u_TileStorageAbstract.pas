@@ -29,7 +29,7 @@ uses
   i_MapVersionInfo,
   i_MapVersionConfig,
   i_ContentTypeInfo,
-  i_StorageTypeAbilities,
+  i_TileStorageAbilities,
   i_StorageState,
   i_StorageStateInternal,
   i_TileInfoBasic,

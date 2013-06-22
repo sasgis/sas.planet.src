@@ -25,7 +25,7 @@ interface
 uses
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_StorageTypeAbilities;
+  i_TileStorageAbilities;
 
 type
   ITileStorageInfo = interface

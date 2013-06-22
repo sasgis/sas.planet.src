@@ -4,7 +4,7 @@ interface
 
 uses
   t_CommonTypes,
-  i_StorageTypeAbilities,
+  i_TileStorageAbilities,
   i_StorageState,
   i_StorageStateInternal,
   u_ConfigDataElementBase;

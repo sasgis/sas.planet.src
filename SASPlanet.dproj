@@ -789,12 +789,12 @@
     <DCCReference Include="TileStorage\i_StorageState.pas" />
     <DCCReference Include="TileStorage\i_StorageStateInternal.pas" />
     <DCCReference Include="TileStorage\i_StorageStateProxy.pas" />
-    <DCCReference Include="TileStorage\i_StorageTypeAbilities.pas" />
     <DCCReference Include="TileStorage\i_TileFileNameGenerator.pas" />
     <DCCReference Include="TileStorage\i_TileFileNameGeneratorsList.pas" />
     <DCCReference Include="TileStorage\i_TileFileNameParser.pas" />
     <DCCReference Include="TileStorage\i_TileFileNameParsersList.pas" />
     <DCCReference Include="TileStorage\i_TileStorage.pas" />
+    <DCCReference Include="TileStorage\i_TileStorageAbilities.pas" />
     <DCCReference Include="TileStorage\i_TileStorageConfig.pas" />
     <DCCReference Include="TileStorage\i_TileStorageInfo.pas" />
     <DCCReference Include="TileStorage\i_TileStorageType.pas" />
