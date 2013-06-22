@@ -44,6 +44,7 @@ type
     property MapVersionFactory: IMapVersionFactory read GetMapVersionFactory;
 
     function BuildStorage(
+      const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string;

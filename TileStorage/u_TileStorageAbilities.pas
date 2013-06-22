@@ -37,10 +37,10 @@ constructor TTileStorageAbilities.Create(
 );
 begin
   inherited Create;
-  FIsReadOnly := AIsReadOnly;
-  FAllowAdd := AAllowAdd;
-  FAllowDelete := AAllowDelete;
-  FAllowReplace := AAllowReplace;
+  FIsReadOnly := AIsReadOnly or not (AAllowAdd or AAllowDelete or AAllowReplace);
+  FAllowAdd := AAllowAdd and not FIsReadOnly;
+  FAllowDelete := AAllowDelete and not FIsReadOnly;
+  FAllowReplace := AAllowReplace and not FIsReadOnly;
 end;
 
 function TTileStorageAbilities.GetAllowAdd: Boolean;

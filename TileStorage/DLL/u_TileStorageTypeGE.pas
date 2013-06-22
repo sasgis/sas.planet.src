@@ -8,6 +8,7 @@ uses
   i_ContentTypeManager,
   i_MapVersionConfig,
   i_TileStorage,
+  i_TileStorageAbilities,
   i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
@@ -17,7 +18,8 @@ type
   private
     FContentTypeManager: IContentTypeManager;
   protected
-    function BuildStorage(
+    function BuildStorageInternal(
+      const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string;
@@ -35,7 +37,8 @@ type
   private
     FContentTypeManager: IContentTypeManager;
   protected
-    function BuildStorage(
+    function BuildStorageInternal(
+      const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string;
@@ -71,7 +74,8 @@ begin
   FContentTypeManager := AContentTypeManager;
 end;
 
-function TTileStorageTypeGE.BuildStorage(
+function TTileStorageTypeGE.BuildStorageInternal(
+  const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
   const APath: string;
@@ -103,7 +107,8 @@ begin
   FContentTypeManager := AContentTypeManager;
 end;
 
-function TTileStorageTypeGC.BuildStorage(
+function TTileStorageTypeGC.BuildStorageInternal(
+  const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
   const APath: string;

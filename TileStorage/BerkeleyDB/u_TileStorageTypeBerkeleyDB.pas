@@ -9,6 +9,7 @@ uses
   i_NotifierTime,
   i_MapVersionConfig,
   i_TileStorage,
+  i_TileStorageAbilities,
   i_TileStorageTypeConfig,
   i_TileInfoBasicMemCache,
   i_GlobalBerkeleyDBHelper,
@@ -22,7 +23,8 @@ type
     FContentTypeManager: IContentTypeManager;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   protected
-    function BuildStorage(
+    function BuildStorageInternal(
+      const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string;
@@ -67,7 +69,8 @@ begin
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 end;
 
-function TTileStorageTypeBerkeleyDB.BuildStorage(
+function TTileStorageTypeBerkeleyDB.BuildStorageInternal(
+  const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
   const APath: string;

@@ -40,15 +40,24 @@ type
     FMapVersionFactory: IMapVersionFactory;
     FConfig: ITileStorageTypeConfig;
   protected
-    function GetAbilities: ITileStorageAbilities;
-    function GetConfig: ITileStorageTypeConfig;
-    function GetMapVersionFactory: IMapVersionFactory;
-    function BuildStorage(
+    function BuildStorageInternal(
+      const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string;
       const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; virtual; abstract;
+  protected
+    function GetAbilities: ITileStorageAbilities;
+    function GetConfig: ITileStorageTypeConfig;
+    function GetMapVersionFactory: IMapVersionFactory;
+    function BuildStorage(
+      const AForceAbilities: ITileStorageAbilities;
+      const AGeoConverter: ICoordConverter;
+      const AMainContentType: IContentTypeInfoBasic;
+      const APath: string;
+      const ACacheTileInfo: ITileInfoBasicMemCache
+    ): ITileStorage;
   public
     constructor Create(
       const AAbilities: ITileStorageAbilities;
@@ -59,7 +68,38 @@ type
 
 implementation
 
+uses
+  u_TileStorageAbilities;
+
 { TTileStorageTypeBase }
+
+function TTileStorageTypeBase.BuildStorage(
+  const AForceAbilities: ITileStorageAbilities;
+  const AGeoConverter: ICoordConverter;
+  const AMainContentType: IContentTypeInfoBasic;
+  const APath: string;
+  const ACacheTileInfo: ITileInfoBasicMemCache
+): ITileStorage;
+var
+  VAbilities: ITileStorageAbilities;
+begin
+  VAbilities :=
+    TTileStorageAbilities.Create(
+      FAbilities.IsReadOnly or AForceAbilities.IsReadOnly,
+      FAbilities.AllowAdd and AForceAbilities.AllowAdd,
+      FAbilities.AllowDelete and AForceAbilities.AllowDelete,
+      FAbilities.AllowReplace and AForceAbilities.AllowReplace
+    );
+
+  Result :=
+    BuildStorageInternal(
+      VAbilities,
+      AGeoConverter,
+      AMainContentType,
+      APath,
+      ACacheTileInfo
+    );
+end;
 
 constructor TTileStorageTypeBase.Create(
   const AAbilities: ITileStorageAbilities;

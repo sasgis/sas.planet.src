@@ -9,6 +9,7 @@ uses
   i_TileFileNameParser,
   i_MapVersionConfig,
   i_TileStorage,
+  i_TileStorageAbilities,
   i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
@@ -19,7 +20,8 @@ type
     FNameGenerator: ITileFileNameGenerator;
     FTileNameParser: ITileFileNameParser;
   protected
-    function BuildStorage(
+    function BuildStorageInternal(
+      const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string;
@@ -58,7 +60,8 @@ begin
   FTileNameParser := ATileNameParser;
 end;
 
-function TTileStorageTypeFileSystemSimple.BuildStorage(
+function TTileStorageTypeFileSystemSimple.BuildStorageInternal(
+  const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
   const APath: string;

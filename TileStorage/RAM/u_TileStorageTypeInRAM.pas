@@ -28,13 +28,15 @@ uses
   i_TileInfoBasicMemCache,
   i_MapVersionConfig,
   i_TileStorage,
+  i_TileStorageAbilities,
   i_TileStorageTypeConfig,
   u_TileStorageTypeBase;
 
 type
   TTileStorageTypeInRAM = class(TTileStorageTypeBase)
   protected
-    function BuildStorage(
+    function BuildStorageInternal(
+      const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string;
@@ -49,7 +51,7 @@ type
 
 implementation
 
-uses      
+uses
   u_TileStorageTypeAbilities,
   u_TileStorageInRAM;
 
@@ -67,7 +69,8 @@ begin
   );
 end;
 
-function TTileStorageTypeInRAM.BuildStorage(
+function TTileStorageTypeInRAM.BuildStorageInternal(
+  const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
   const APath: string;

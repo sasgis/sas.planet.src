@@ -9,6 +9,7 @@ uses
   i_NotifierTime,
   i_MapVersionConfig,
   i_TileStorage,
+  i_TileStorageAbilities,
   i_TileStorageTypeConfig,
   i_TileInfoBasicMemCache,
   u_TileStorageTypeBase;
@@ -19,7 +20,8 @@ type
     FGCNotifier: INotifierTime;
     FContentTypeManager: IContentTypeManager;
   protected
-    function BuildStorage(
+    function BuildStorageInternal(
+      const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
       const APath: string;
@@ -58,7 +60,8 @@ begin
   FContentTypeManager := AContentTypeManager;
 end;
 
-function TTileStorageTypeDBMS.BuildStorage(
+function TTileStorageTypeDBMS.BuildStorageInternal(
+  const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
   const APath: string;
