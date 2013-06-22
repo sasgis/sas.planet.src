@@ -13,7 +13,6 @@ uses
   Spin,
   ComCtrls,
   ExtCtrls,
-  fr_MapSelect,
   i_LanguageManager,
   i_MapTypes,
   i_StringListStatic,
@@ -22,6 +21,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -194,7 +194,6 @@ implementation
 uses
   IniFiles,
   RegExprUtils,
-  i_GUIDListStatic,
   i_ConfigDataProvider,
   i_PathConfig,
   u_StringListStatic,

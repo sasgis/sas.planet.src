@@ -8,15 +8,9 @@ uses
   ComCtrls,
   ExtCtrls,
   Forms,
-  Menus,
   SysUtils,
   StdCtrls,
-  TBX,
-  TB2Item,
-  TB2ExtItems,
-  TBXExtItems,
   Windows,
-  fr_MapSelect,
   i_MapTypes,
   i_CoordConverterFactory,
   i_LanguageManager,
@@ -26,6 +20,7 @@ uses
   i_MapTypeGUIConfigList,
   i_RegionProcessParamsFrame,
   u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -120,9 +115,7 @@ type
 implementation
 
 uses
-  StrUtils,
   t_GeoTypes,
-  i_GUIDListStatic,
   i_VectorItemProjected,
   u_GeoFun,
   u_ResStrings;

@@ -26,7 +26,6 @@ uses
   i_MarkCategory,
   i_MarkCategoryFactoryConfig,
   i_MarkCategoryFactory,
-  i_MarkCategoryFactoryDbInternal,
   u_BaseInterfacedObject;
 
 type

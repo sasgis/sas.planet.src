@@ -62,8 +62,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  i_MarkCategoryFactoryDbInternal;
+  SysUtils;
 
 { TMarkCategorySmlDbInternal }
 

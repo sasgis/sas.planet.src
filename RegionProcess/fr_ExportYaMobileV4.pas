@@ -12,7 +12,6 @@ uses
   CheckLst,
   Spin,
   ExtCtrls,
-  fr_MapSelect,
   i_LanguageManager,
   i_MapTypes,
   i_ActiveMapsConfig,
@@ -20,6 +19,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -86,10 +86,8 @@ implementation
 
 uses
   {$WARN UNIT_PLATFORM OFF}
-  FileCtrl,
+  FileCtrl;
   {$WARN UNIT_PLATFORM ON}
-  i_GUIDListStatic,
-  u_ResStrings;
 
 {$R *.dfm}
 

@@ -11,7 +11,6 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
-  fr_MapSelect,
   t_CommonTypes,
   i_LanguageManager,
   i_ImageResamplerFactory,
@@ -22,6 +21,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -112,8 +112,7 @@ type
 implementation
 
 uses
-  gnugettext,
-  i_GUIDListStatic;
+  gnugettext;
 
 {$R *.dfm}
 

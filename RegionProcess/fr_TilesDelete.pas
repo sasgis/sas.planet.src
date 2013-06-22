@@ -30,7 +30,6 @@ uses
   ExtCtrls,
   StdCtrls,
   Spin,
-  fr_MapSelect,
   t_CommonTypes,
   i_LanguageManager,
   i_MapTypes,
@@ -40,6 +39,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -94,7 +94,6 @@ type
 implementation
 
 uses
-  i_GUIDListStatic,
   u_PredicateByTileInfoBase;
 
 {$R *.dfm}

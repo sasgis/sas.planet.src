@@ -74,8 +74,7 @@ implementation
 uses
   c_CacheTypeCodes,
   u_PathConfig,
-  u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_Notifier;
+  u_ConfigSaveLoadStrategyBasicProviderSubItem;
 
 { TGlobalCacheConfig }
 
