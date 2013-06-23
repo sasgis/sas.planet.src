@@ -35,13 +35,13 @@ object frmSettings: TfrmSettings
       object flwpnlMemCache: TFlowPanel
         AlignWithMargins = True
         Left = 3
-        Top = 247
+        Top = 275
         Width = 638
         Height = 25
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitTop = 220
+        ExplicitTop = 247
         object Label30: TLabel
           AlignWithMargins = True
           Left = 3
@@ -67,7 +67,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 644
-        Height = 244
+        Height = 272
         Align = alTop
         BevelOuter = bvNone
         ColumnCollection = <
@@ -209,6 +209,26 @@ object frmSettings: TfrmSettings
           end
           item
             Column = 0
+            Control = lblBDBVerCachePath
+            Row = 6
+          end
+          item
+            Column = 1
+            Control = edtBDBVerCachePath
+            Row = 6
+          end
+          item
+            Column = 2
+            Control = btnSetDefBDBVerCachePath
+            Row = 6
+          end
+          item
+            Column = 3
+            Control = btnSetBDBVerCachePath
+            Row = 6
+          end
+          item
+            Column = 0
             Control = lbGCCachePath
             Row = 7
           end
@@ -230,34 +250,38 @@ object frmSettings: TfrmSettings
           item
             Column = 0
             Control = Label37
-            Row = 8
+            Row = 9
           end
           item
             Column = 1
             Control = CBCacheType
-            Row = 8
+            Row = 9
           end
           item
             Column = 0
             Control = lbDBMSCachePath
-            Row = 6
+            Row = 8
           end
           item
             Column = 1
             Control = edtDBMSCachePath
-            Row = 6
+            Row = 8
           end
           item
             Column = 2
             Control = btnSetDefDBMSCachePath
-            Row = 6
+            Row = 8
           end
           item
             Column = 3
             Control = btnSetDBMSCachePath
-            Row = 6
+            Row = 8
           end>
         RowCollection = <
+          item
+            SizeStyle = ssAbsolute
+            Value = 27.000000000000000000
+          end
           item
             SizeStyle = ssAbsolute
             Value = 27.000000000000000000
@@ -296,7 +320,7 @@ object frmSettings: TfrmSettings
         TabOrder = 1
         DesignSize = (
           644
-          244)
+          272)
         object Label15: TLabel
           AlignWithMargins = True
           Left = 3
@@ -531,7 +555,7 @@ object frmSettings: TfrmSettings
           Width = 398
           Height = 21
           Align = alClient
-          TabOrder = 15
+          TabOrder = 25
         end
         object btnSetDefBDBCachePath: TButton
           Tag = 6
@@ -541,13 +565,56 @@ object frmSettings: TfrmSettings
           Height = 21
           Anchors = []
           Caption = '<>'
-          TabOrder = 16
+          TabOrder = 26
           OnClick = Button4Click
         end
         object btnSetBDBCachePath: TButton
           Tag = 6
           Left = 624
           Top = 138
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '...'
+          TabOrder = 27
+          OnClick = Button5Click
+        end
+        object lblBDBVerCachePath: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 165
+          Width = 194
+          Height = 21
+          Align = alClient
+          Caption = 'BerkeleyDB (Versioned) cache folder:'
+          Layout = tlCenter
+          ExplicitWidth = 178
+          ExplicitHeight = 13
+        end
+        object edtBDBVerCachePath: TEdit
+          AlignWithMargins = True
+          Left = 203
+          Top = 165
+          Width = 398
+          Height = 21
+          Align = alClient
+          TabOrder = 15
+        end
+        object btnSetDefBDBVerCachePath: TButton
+          Tag = 61
+          Left = 604
+          Top = 165
+          Width = 20
+          Height = 21
+          Anchors = []
+          Caption = '<>'
+          TabOrder = 16
+          OnClick = Button4Click
+        end
+        object btnSetBDBVerCachePath: TButton
+          Tag = 61
+          Left = 624
+          Top = 165
           Width = 20
           Height = 21
           Anchors = []
@@ -564,7 +631,6 @@ object frmSettings: TfrmSettings
           Align = alClient
           Caption = 'GeoCacher root folder:'
           Layout = tlCenter
-          ExplicitTop = 165
           ExplicitWidth = 111
           ExplicitHeight = 13
         end
@@ -576,7 +642,6 @@ object frmSettings: TfrmSettings
           Height = 21
           Align = alClient
           TabOrder = 18
-          ExplicitTop = 165
         end
         object btnSetDefGCCachePath: TButton
           Tag = 8
@@ -588,8 +653,6 @@ object frmSettings: TfrmSettings
           Caption = '<>'
           TabOrder = 19
           OnClick = Button4Click
-          ExplicitLeft = 607
-          ExplicitTop = 189
         end
         object btnSetGCCachePath: TButton
           Tag = 8
@@ -601,26 +664,23 @@ object frmSettings: TfrmSettings
           Caption = '...'
           TabOrder = 20
           OnClick = Button5Click
-          ExplicitLeft = 630
-          ExplicitTop = 189
         end
         object Label37: TLabel
           AlignWithMargins = True
           Left = 3
-          Top = 219
+          Top = 246
           Width = 194
-          Height = 22
+          Height = 23
           Align = alClient
           Caption = 'Default cache type'
           Layout = tlCenter
-          ExplicitLeft = 5
-          ExplicitTop = 233
-          ExplicitHeight = 21
+          ExplicitWidth = 91
+          ExplicitHeight = 13
         end
         object CBCacheType: TComboBox
           AlignWithMargins = True
           Left = 203
-          Top = 219
+          Top = 246
           Width = 398
           Height = 21
           Align = alClient
@@ -638,52 +698,43 @@ object frmSettings: TfrmSettings
             'BerkeleyDB (Versioned)'
             'DBMS'
             'RAM')
-          ExplicitLeft = 329
-          ExplicitTop = 192
-          ExplicitWidth = 145
         end
         object lbDBMSCachePath: TLabel
           AlignWithMargins = True
           Left = 3
-          Top = 165
+          Top = 219
           Width = 194
           Height = 21
           Align = alClient
           Caption = 'DBMS root:'
           Layout = tlCenter
-          ExplicitTop = 192
           ExplicitWidth = 54
           ExplicitHeight = 13
         end
         object edtDBMSCachePath: TEdit
           AlignWithMargins = True
           Left = 203
-          Top = 165
+          Top = 219
           Width = 398
           Height = 21
           Align = alClient
           TabOrder = 22
-          ExplicitLeft = 341
-          ExplicitTop = 192
-          ExplicitWidth = 121
         end
         object btnSetDefDBMSCachePath: TButton
           Tag = 7
           Left = 604
-          Top = 163
+          Top = 217
           Width = 20
           Height = 25
           Anchors = []
           Caption = '<>'
           TabOrder = 23
           OnClick = Button4Click
-          ExplicitLeft = 607
-          ExplicitTop = 189
         end
         object btnSetDBMSCachePath: TButton
           Tag = 7
           Left = 624
-          Top = 163
+          Top = 217
           Width = 20
           Height = 25
           Anchors = []

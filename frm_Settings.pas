@@ -142,6 +142,10 @@ type
     edtBDBCachePath: TEdit;
     btnSetDefBDBCachePath: TButton;
     btnSetBDBCachePath: TButton;
+    lblBDBVerCachePath: TLabel;
+    edtBDBVerCachePath: TEdit;
+    btnSetDefBDBVerCachePath: TButton;
+    btnSetBDBVerCachePath: TButton;
     Label32: TLabel;
     SETimeOut: TSpinEdit;
     tsGSM: TTabSheet;
@@ -543,6 +547,7 @@ begin
  GState.CacheConfig.GMTilesPath.Path:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
  GState.CacheConfig.GECachePath.Path:=IncludeTrailingPathDelimiter(GECachePath.Text);
  GState.CacheConfig.BDBCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
+ GState.CacheConfig.BDBVerCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBVerCachePath.Text);
  GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
  GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
 
@@ -590,6 +595,7 @@ begin
  if (Sender as TButton).Tag=4 then GMTilesPath.Text      := c_File_Cache_Default_GM + PathDelim;
  if (Sender as TButton).Tag=5 then GECachePath.Text      := c_File_Cache_Default_GE + PathDelim;
  if (Sender as TButton).Tag=6 then edtBDBCachePath.Text  := c_File_Cache_Default_BDB + PathDelim;
+ if (Sender as TButton).Tag=61 then edtBDBVerCachePath.Text  := c_File_Cache_Default_BDBv + PathDelim;
  if (Sender as TButton).Tag=7 then edtDBMSCachePath.Text := c_File_Cache_Default_DBMS; // without deliiter(s)
  if (Sender as TButton).Tag=8 then edtGCCachePath.Text   := c_File_Cache_Default_GC + PathDelim;
 end;
@@ -610,6 +616,7 @@ begin
     if (Sender as TButton).Tag=4 then GMTilesPath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=5 then GECachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=6 then edtBDBCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
+    if (Sender as TButton).Tag=61 then edtBDBVerCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
     if (Sender as TButton).Tag=7 then ;
     if (Sender as TButton).Tag=8 then edtGCCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
   end;
@@ -787,6 +794,7 @@ begin
   GMTilesPath.text:=GState.CacheConfig.GMTilesPath.Path;
   GECachePath.text:=GState.CacheConfig.GECachePath.Path;
   edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath.Path;
+  edtBDBVerCachePath.text:=GState.CacheConfig.BDBVerCachePath.Path;
   edtDBMSCachePath.text:=GState.CacheConfig.DBMSCachePath.Path;
   edtGCCachePath.text:=GState.CacheConfig.GCCachePath.Path;
 
