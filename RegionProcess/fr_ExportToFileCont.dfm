@@ -29,13 +29,14 @@ object frExportToFileCont: TfrExportToFileCont
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 57
+        Width = 69
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
         Align = alTop
         Caption = 'Zooms:'
+        ExplicitWidth = 35
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -71,56 +72,56 @@ object frExportToFileCont: TfrExportToFileCont
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      object lblMap: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 370
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Map'
-      end
       object lblNamesType: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 43
+        Top = 44
         Width = 370
         Height = 13
         Margins.Left = 0
         Margins.Right = 0
         Align = alTop
         Caption = 'Export selection to format:'
-      end
-      object cbbMap: TComboBox
-        Left = 3
-        Top = 19
-        Width = 370
-        Height = 21
-        Align = alTop
-        Style = csDropDownList
-        DropDownCount = 16
-        ItemHeight = 0
-        TabOrder = 0
+        ExplicitWidth = 129
       end
       object cbbNamesType: TComboBox
         Left = 3
-        Top = 59
+        Top = 60
         Width = 370
         Height = 21
         Align = alTop
         Style = csDropDownList
         ItemHeight = 13
         ItemIndex = 1
-        TabOrder = 1
+        TabOrder = 0
         Text = 'SAS.Planet'
         Items.Strings = (
           'GoogleMV'
           'SAS.Planet'
           'ES1.95'
           'GMT (GlobalMapper >=10.02)')
+      end
+      object pnlFrame: TPanel
+        Left = 3
+        Top = 3
+        Width = 370
+        Height = 38
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 1
+        object lblMap: TLabel
+          AlignWithMargins = True
+          Left = 0
+          Top = 0
+          Width = 370
+          Height = 13
+          Margins.Left = 0
+          Margins.Top = 0
+          Margins.Right = 0
+          Align = alTop
+          Caption = 'Map'
+          ExplicitWidth = 20
+        end
       end
     end
   end
@@ -137,8 +138,8 @@ object frExportToFileCont: TfrExportToFileCont
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 86
-      Height = 13
+      Width = 41
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
@@ -146,11 +147,12 @@ object frExportToFileCont: TfrExportToFileCont
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
-      Left = 92
+      Left = 47
       Top = 3
-      Width = 335
+      Width = 380
       Height = 21
       Align = alClient
       TabOrder = 0

@@ -15,69 +15,72 @@ object frExportAUX: TfrExportAUX
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    object pnlMain: TPanel
+    object pnlMapSelect: TPanel
       Left = 0
       Top = 0
-      Width = 376
-      Height = 277
-      Align = alClient
+      Width = 451
+      Height = 43
+      Align = alTop
+      BevelEdges = [beBottom]
+      BevelKind = bkTile
       BevelOuter = bvNone
-      BorderWidth = 3
       TabOrder = 0
-      object lblMap: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 31
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Map'
-      end
-      object cbbMap: TComboBox
-        Left = 3
-        Top = 19
-        Width = 370
-        Height = 21
-        Align = alTop
-        Style = csDropDownList
-        DropDownCount = 16
-        ItemHeight = 0
+      DesignSize = (
+        451
+        41)
+      object pnlZoom: TPanel
+        Left = 392
+        Top = 0
+        Width = 59
+        Height = 41
+        Align = alRight
+        Alignment = taLeftJustify
+        BevelEdges = []
+        BevelKind = bkTile
+        BevelOuter = bvNone
+        BorderWidth = 3
         TabOrder = 0
+        object lblZoom: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 53
+          Height = 13
+          Margins.Left = 0
+          Margins.Top = 0
+          Margins.Right = 0
+          Align = alTop
+          Caption = 'Zoom:'
+          ExplicitWidth = 30
+        end
+        object cbbZoom: TComboBox
+          Left = 3
+          Top = 17
+          Width = 53
+          Height = 21
+          Align = alBottom
+          Style = csDropDownList
+          ItemHeight = 13
+          TabOrder = 0
+        end
       end
-    end
-    object pnlRight: TPanel
-      Left = 376
-      Top = 0
-      Width = 75
-      Height = 277
-      Align = alRight
-      BevelOuter = bvNone
-      BorderWidth = 3
-      TabOrder = 1
-      object lblZoom: TLabel
-        AlignWithMargins = True
+      object pnlFrame: TPanel
         Left = 3
-        Top = 3
-        Width = 49
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Zoom:'
-      end
-      object cbbZoom: TComboBox
-        Left = 3
-        Top = 19
-        Width = 69
-        Height = 21
-        Align = alTop
-        Style = csDropDownList
-        ItemHeight = 0
-        TabOrder = 0
+        Top = 4
+        Width = 392
+        Height = 43
+        Anchors = [akLeft, akTop, akRight]
+        BevelOuter = bvNone
+        TabOrder = 1
+        object lblMapCaption: TLabel
+          Left = 0
+          Top = 0
+          Width = 392
+          Height = 13
+          Align = alTop
+          Caption = 'Map:'
+          ExplicitWidth = 24
+        end
       end
     end
   end
@@ -94,19 +97,20 @@ object frExportAUX: TfrExportAUX
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 86
-      Height = 13
+      Width = 41
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
-      Left = 92
+      Left = 47
       Top = 3
-      Width = 335
+      Width = 380
       Height = 21
       Align = alClient
       TabOrder = 0

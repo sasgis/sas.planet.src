@@ -35,6 +35,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Margins.Right = 0
         Align = alTop
         Caption = 'Zooms:'
+        ExplicitWidth = 35
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -52,9 +53,9 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object chklstZooms: TCheckListBox
         Left = 3
-        Top = 16
+        Top = 19
         Width = 69
-        Height = 238
+        Height = 235
         Align = alClient
         ItemHeight = 13
         TabOrder = 1
@@ -84,7 +85,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object chkReplaceExistingTiles: TCheckBox
         Left = 3
-        Top = 57
+        Top = 62
         Width = 370
         Height = 17
         Align = alTop
@@ -96,7 +97,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       object chkForceDropTarget: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 40
+        Top = 45
         Width = 370
         Height = 17
         Margins.Left = 0
@@ -108,15 +109,13 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         State = cbChecked
         TabOrder = 1
       end
-      object cbbMap: TComboBox
+      object pnlMap: TPanel
         Left = 3
-        Top = 16
+        Top = 19
         Width = 370
-        Height = 21
+        Height = 23
         Align = alTop
-        Style = csDropDownList
-        DropDownCount = 16
-        ItemHeight = 13
+        BevelOuter = bvNone
         TabOrder = 2
       end
     end
@@ -135,12 +134,13 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       Left = 3
       Top = 3
       Width = 41
-      Height = 21
+      Height = 18
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47

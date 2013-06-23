@@ -21,6 +21,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_RegionProcessParamsFrame,
   u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -46,7 +47,6 @@ type
     chklstZooms: TCheckListBox;
     pnlMain: TPanel;
     lblMap: TLabel;
-    cbbMap: TComboBox;
     pnlTop: TPanel;
     lblTargetFile: TLabel;
     edtTargetFile: TEdit;
@@ -54,6 +54,7 @@ type
     dlgSaveTargetFile: TSaveDialog;
     cbbNamesType: TComboBox;
     lblNamesType: TLabel;
+    pnlFrame: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
   private
@@ -61,6 +62,7 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
+    FfrMapSelect: TfrMapSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -70,8 +72,8 @@ type
     function GetMapType: TMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
-  private
     function GetNameGenerator: ITileFileNameGenerator;
+    function GetAllowExport(AMapType: TMapType): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -82,6 +84,7 @@ type
       const AFileFilters: string;
       const AFileExtDefault: string
     ); reintroduce;
+    destructor Destroy; override;
     procedure RefreshTranslation; override;
   end;
 
@@ -126,14 +129,33 @@ begin
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
   cbbNamesType.ItemIndex := 1;
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfAll, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+end;
+
+destructor TfrExportToFileCont.Destroy;
+begin
+  FreeAndNil(FfrMapSelect);
+  inherited;
+end;
+ 
+function TfrExportToFileCont.GetAllowExport(AMapType: TMapType): boolean;
+begin
+  Result := True
 end;
 
 function TfrExportToFileCont.GetMapType: TMapType;
 begin
-  Result := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end;
+  Result := FfrMapSelect.GetSelectedMapType;
   Assert(Result <> nil);
 end;
 
@@ -166,33 +188,12 @@ end;
 procedure TfrExportToFileCont.Init;
 var
   i: integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   chklstZooms.Items.Clear;
-  for i:=1 to 24 do begin
+  for i := 1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
-
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  cbbMap.items.Clear;
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.GUIConfig.Enabled) then begin
-      VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-      if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-        cbbMap.ItemIndex:=VAddedIndex;
-      end;
-    end;
-  end;
-  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
-    cbbMap.ItemIndex := 0;
-  end;
+  FfrMapSelect.Show(pnlFrame);
 end;
 
 procedure TfrExportToFileCont.RefreshTranslation;
@@ -203,5 +204,4 @@ begin
   inherited;
   cbbNamesType.ItemIndex := i;
 end;
-
 end.
