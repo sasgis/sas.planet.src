@@ -91,6 +91,7 @@ uses
   i_FindVectorItems,
   i_PlayerPlugin,
   i_VectorItemSubset,
+  i_ImportConfig,
   u_ShortcutManager,
   u_MarkDbGUIHelper,
   frm_About,
@@ -669,6 +670,7 @@ type
     Procedure WMMove(Var Msg: TWMMove); Message WM_MOVE;
     Procedure WMSysCommand(Var Msg: TMessage); Message WM_SYSCOMMAND;
     Procedure WMCOPYDATA(Var Msg: TMessage); Message WM_COPYDATA;
+    procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
 
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
     procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; AZoom:byte; const AMousePos:TPoint);
@@ -707,6 +709,7 @@ type
     function SelectForEdit(AList: IVectorItemSubset; ALocalConverter: ILocalCoordConverter): IVectorDataItemSimple;
     function AddToHint(AHint: string; AMark: IMark): string;
 
+    procedure ProcessOpenFile(const AFileName: string; var AImportConfig: IImportConfig);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -810,7 +813,6 @@ uses
   u_UITileDownloadList,
   u_MapTypeConfigModalEditByForm,
   u_ConfigProviderHelpers,
-  i_ImportConfig,
   u_EnumDoublePointLine2Poly,
   u_SaveLoadTBConfigByConfigProvider,
   u_MapTypeMenuItemsGeneratorBasic,
@@ -1089,6 +1091,7 @@ begin
   TBEditPath.Visible:=false;
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
   InitLayers;
+  DragAcceptFiles(Self.Handle, True);
   ProgramStart:=true;
 end;
 
@@ -1099,6 +1102,7 @@ begin
     tbxpmnSearchResult.Tag := 0;
   end;
   FSensorViewList := nil;
+  DragAcceptFiles(Self.Handle, False);
 end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
@@ -3479,6 +3483,32 @@ begin
     Msg.Result := 1; //режим не определился
   end;
   inherited;
+end;
+
+procedure TfrmMain.WMDropFiles(var Msg: TWMDropFiles);
+var
+  I: Integer;
+  VDropH: HDROP;
+  VDroppedFileCount: Integer;
+  VFileName: string;
+  VFileNameLength: Integer;
+  VImportConfig: IImportConfig;
+begin
+  inherited;
+  Msg.Result := 0;
+  VDropH := Msg.Drop;
+  try
+    VImportConfig := nil;
+    VDroppedFileCount := DragQueryFile(VDropH, $FFFFFFFF, nil, 0);
+    for I := 0 to Pred(VDroppedFileCount) do begin
+      VFileNameLength := DragQueryFile(VDropH, I, nil, 0);
+      SetLength(VFileName, VFileNameLength);
+      DragQueryFile(VDropH, I, PChar(VFileName), VFileNameLength + 1);
+      ProcessOpenFile(VFileName, VImportConfig);
+    end;
+  finally
+    DragFinish(VDropH);
+  end;
 end;
 
 procedure TfrmMain.WMTimeChange(var m: TMessage);
@@ -6016,44 +6046,47 @@ begin
   );
 end;
 
-
-procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
+procedure TfrmMain.ProcessOpenFile(const AFileName: string; var AImportConfig: IImportConfig);
 var
-  VFileName: string;
-  VImportConfig: IImportConfig;
   VList: IInterfaceList;
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
   VMark: IMark;
 begin
-  if (OpenSessionDialog.Execute) then begin
-    FState.State := ao_movemap;
-    VFileName := OpenSessionDialog.FileName;
-    if FileExists(VFileName) then begin
-      if ExtractFileExt(VFileName)='.sls' then begin
-        FFormRegionProcess.StartSlsFromFile(VFileName);
-      end else if ExtractFileExt(VFileName)='.hlg' then begin
-        FFormRegionProcess.LoadSelFromFile(VFileName);
-      end else begin
-        VImportConfig := nil;
-        VList := FMarkDBGUI.ImportFile(VFileName, VImportConfig);
-        if (VList <> nil) and (VList.Count > 0) then begin
-          VMark:=FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
-          if VMark <> nil then begin
-            if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-              FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
-            end;
-            if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-              FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
-            end;
-            if Supports(VMark, IMarkLine, VMarkLine) then begin
-              FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-            end;
+  FState.State := ao_movemap;
+  if FileExists(AFileName) then begin
+    if ExtractFileExt(AFileName)='.sls' then begin
+      FFormRegionProcess.StartSlsFromFile(AFileName);
+    end else if ExtractFileExt(AFileName)='.hlg' then begin
+      FFormRegionProcess.LoadSelFromFile(AFileName);
+    end else begin
+      VList := FMarkDBGUI.ImportFile(AFileName, AImportConfig);
+      if (VList <> nil) and (VList.Count > 0) then begin
+        VMark:=FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
+        if VMark <> nil then begin
+          if Supports(VMark, IMarkPoint, VMarkPoint) then begin
+            FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
+          end;
+          if Supports(VMark, IMarkPoly, VMarkPoly) then begin
+            FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
+          end;
+          if Supports(VMark, IMarkLine, VMarkLine) then begin
+            FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
           end;
         end;
       end;
     end;
+  end;
+end;
+
+procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
+var
+  VImportConfig: IImportConfig;
+begin
+  if (OpenSessionDialog.Execute) then begin
+    VImportConfig := nil;
+    ProcessOpenFile(OpenSessionDialog.FileName, VImportConfig);
   end;
 end;
 
