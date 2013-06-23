@@ -709,7 +709,15 @@ type
     function SelectForEdit(AList: IVectorItemSubset; ALocalConverter: ILocalCoordConverter): IVectorDataItemSimple;
     function AddToHint(AHint: string; AMark: IMark): string;
 
-    procedure ProcessOpenFile(const AFileName: string; var AImportConfig: IImportConfig);
+    procedure ProcessOpenFile(
+      const AFileName: string;
+      var AImportConfig: IImportConfig;
+      var ALastMark: IMark
+    );
+    procedure ShowLastMark(const ALastMark: IMark);
+  protected
+    procedure CreateWnd; override;
+    procedure DestroyWnd; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -1056,6 +1064,18 @@ begin
     );
 end;
 
+procedure TfrmMain.CreateWnd;
+begin
+  inherited;
+  DragAcceptFiles(Self.Handle, True);
+end;
+
+procedure TfrmMain.DestroyWnd;
+begin
+  DragAcceptFiles(Self.Handle, False);
+  inherited;
+end;
+
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
   VProvider: IConfigDataProvider;
@@ -1091,7 +1111,6 @@ begin
   TBEditPath.Visible:=false;
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
   InitLayers;
-  DragAcceptFiles(Self.Handle, True);
   ProgramStart:=true;
 end;
 
@@ -1102,7 +1121,6 @@ begin
     tbxpmnSearchResult.Tag := 0;
   end;
   FSensorViewList := nil;
-  DragAcceptFiles(Self.Handle, False);
 end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
@@ -3493,21 +3511,24 @@ var
   VFileName: string;
   VFileNameLength: Integer;
   VImportConfig: IImportConfig;
+  VLastMark: IMark;
 begin
   inherited;
   Msg.Result := 0;
   VDropH := Msg.Drop;
   try
+    VLastMark := nil;
     VImportConfig := nil;
     VDroppedFileCount := DragQueryFile(VDropH, $FFFFFFFF, nil, 0);
     for I := 0 to Pred(VDroppedFileCount) do begin
       VFileNameLength := DragQueryFile(VDropH, I, nil, 0);
       SetLength(VFileName, VFileNameLength);
       DragQueryFile(VDropH, I, PChar(VFileName), VFileNameLength + 1);
-      ProcessOpenFile(VFileName, VImportConfig);
+      ProcessOpenFile(VFileName, VImportConfig, VLastMark);
     end;
   finally
     DragFinish(VDropH);
+    ShowLastMark(VLastMark);
   end;
 end;
 
@@ -6046,13 +6067,9 @@ begin
   );
 end;
 
-procedure TfrmMain.ProcessOpenFile(const AFileName: string; var AImportConfig: IImportConfig);
+procedure TfrmMain.ProcessOpenFile(const AFileName: string; var AImportConfig: IImportConfig; var ALastMark: IMark);
 var
   VList: IInterfaceList;
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
-  VMark: IMark;
 begin
   FState.State := ao_movemap;
   if FileExists(AFileName) then begin
@@ -6063,30 +6080,45 @@ begin
     end else begin
       VList := FMarkDBGUI.ImportFile(AFileName, AImportConfig);
       if (VList <> nil) and (VList.Count > 0) then begin
-        VMark:=FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
-        if VMark <> nil then begin
-          if Supports(VMark, IMarkPoint, VMarkPoint) then begin
-            FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
-          end;
-          if Supports(VMark, IMarkPoly, VMarkPoly) then begin
-            FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
-          end;
-          if Supports(VMark, IMarkLine, VMarkLine) then begin
-            FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-          end;
-        end;
+        ALastMark := FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1])); 
       end;
     end;
+  end;
+end;
+
+procedure TfrmMain.ShowLastMark(const ALastMark: IMark);
+var
+  VMarkPoint: IMarkPoint;
+  VMarkLine: IMarkLine;
+  VMarkPoly: IMarkPoly;
+begin
+  if not Assigned(ALastMark) then begin
+    Exit;
+  end;
+  if Supports(ALastMark, IMarkPoint, VMarkPoint) then begin
+    FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
+    Exit;
+  end;
+  if Supports(ALastMark, IMarkPoly, VMarkPoly) then begin
+    FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
+    Exit;
+  end;
+  if Supports(ALastMark, IMarkLine, VMarkLine) then begin
+    FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
+    Exit;
   end;
 end;
 
 procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
 var
   VImportConfig: IImportConfig;
+  VLastMark: IMark;
 begin
   if (OpenSessionDialog.Execute) then begin
+    VLastMark := nil;
     VImportConfig := nil;
-    ProcessOpenFile(OpenSessionDialog.FileName, VImportConfig);
+    ProcessOpenFile(OpenSessionDialog.FileName, VImportConfig, VLastMark);
+    ShowLastMark(VLastMark);
   end;
 end;
 
