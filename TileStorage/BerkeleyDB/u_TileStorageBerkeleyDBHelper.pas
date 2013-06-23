@@ -653,10 +653,12 @@ var
   VTileInfoIndex: Integer;
   VYoungestTileIndex: Integer;
   VYoungestTileDate: TDateTime;
+  VVersionInfo: IMapVersionInfo;
   VMapVersionInfo: IMapVersionInfo;
 begin
   Result := False;
   ATileVersionListStatic := nil;
+  VVersionInfo := CheckVersionInfo(AVersionInfo);
 
   VDatabase := FPool.Acquire(ADatabaseFileName);
   try
@@ -692,11 +694,11 @@ begin
             VMapVersionInfo :=
               FMapVersionFactory.CreateByStoreString(
                 VMetaElement.TileVersionInfo,
-                AVersionInfo.ShowPrevVersion
+                VVersionInfo.ShowPrevVersion
               );
             VList.Add(VMapVersionInfo);
           end;
-          if WideSameStr(VMetaElement.TileVersionInfo, AVersionInfo.StoreString) then begin
+          if WideSameStr(VMetaElement.TileVersionInfo, VVersionInfo.StoreString) then begin
             VTileInfoIndex := I;
             if ASingleTileInfo then begin
               Break;
@@ -710,7 +712,7 @@ begin
 
         if ASingleTileInfo then begin
           if (VTileInfoIndex = -1) and (VYoungestTileIndex <> -1) then begin
-            if AVersionInfo.ShowPrevVersion then begin
+            if VVersionInfo.ShowPrevVersion then begin
               VTileInfoIndex := VYoungestTileIndex;
             end;
           end;
