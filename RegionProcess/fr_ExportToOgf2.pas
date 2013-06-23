@@ -12,6 +12,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Spin,
+  fr_MapSelect,
   i_LanguageManager,
   i_MapTypes,
   i_BitmapTileSaveLoad,
@@ -24,6 +25,7 @@ uses
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessParamsFrame,
+  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
@@ -47,7 +49,6 @@ type
     )
     pnlCenter: TPanel;
     lblMap: TLabel;
-    cbbMap: TComboBox;
     pnlTop: TPanel;
     lblTargetFile: TLabel;
     edtTargetFile: TEdit;
@@ -58,7 +59,6 @@ type
     cbbZoom: TComboBox;
     lblStat: TLabel;
     lblHyb: TLabel;
-    cbbHyb: TComboBox;
     cbbImageFormat: TComboBox;
     lblImageFormat: TLabel;
     lblTileRes: TLabel;
@@ -67,6 +67,8 @@ type
     lblJpgQulity: TLabel;
     seJpgQuality: TSpinEdit;
     pnlBottom: TPanel;
+    pnlMap: TPanel;
+    pnlHyb: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
     procedure cbbTileResChange(Sender: TObject);
@@ -79,6 +81,8 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FPolygLL: ILonLatPolygon;
+    FfrMapSelect: TfrMapSelect;
+    FfrHybSelect: TfrMapSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -91,6 +95,7 @@ type
   private
     function GetSaver: IBitmapTileSaver;
     function GetTileSize: TPoint;
+    function GetAllowExport(AMapType: TMapType): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -104,6 +109,7 @@ type
       const AFileFilters: string;
       const AFileExtDefault: string
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -114,7 +120,6 @@ uses
   i_VectorItemProjected,
   u_GeoFun,
   u_BitmapLayerProviderMapWithLayer,
-  u_MapType,
   u_ResStrings;
 
 {$R *.dfm}
@@ -148,11 +153,7 @@ var
   VTileRect: TRect;
   VTileSize: Integer;
 begin
-  if cbbMap.ItemIndex >= 0 then begin
-    VMapType := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end else begin
-    VMapType := nil;
-  end;
+  VMapType := FfrMapSelect.GetSelectedMapType;
 
   if cbbTileRes.ItemIndex > 0 then begin
     VTileSize := 256;
@@ -216,6 +217,40 @@ begin
   FGUIConfigList := AGUIConfigList;
   dlgSaveTargetFile.Filter := AFileFilters;
   dlgSaveTargetFile.DefaultExt := AFileExtDefault;
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrHybSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfLayers, // show maps and layers
+      true,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+end;
+
+destructor TfrExportToOgf2.Destroy;
+begin
+  FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrHybSelect);
+  inherited;
+end;
+
+function TfrExportToOgf2.GetAllowExport(AMapType: TMapType): boolean;
+begin
+  Result := AMapType.IsBitmapTiles;
 end;
 
 function TfrExportToOgf2.GetPath: string;
@@ -229,15 +264,8 @@ var
   VLayer: TMapType;
   VUsePrevZoom: Boolean;
 begin
-  VMap := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end;
-  VLayer := nil;
-  if cbbHyb.ItemIndex >= 0 then begin
-    VLayer := TMapType(cbbHyb.Items.Objects[cbbHyb.ItemIndex]);
-  end;
-
+  VMap := FfrMapSelect.GetSelectedMapType;
+  VLayer := FfrHybSelect.GetSelectedMapType;
   VUsePrevZoom := chkUsePrevZoom.Checked;
 
   Result :=
@@ -258,14 +286,13 @@ begin
     0: begin
       Result := FBitmapTileSaveLoadFactory.CreateBmpSaver;
     end;
-
     1: begin
       Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp)
     end;
   else begin
-    VJpegQuality := seJpgQuality.Value;
-    Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(VJpegQuality);
-  end;
+      VJpegQuality := seJpgQuality.Value;
+      Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(VJpegQuality);
+    end;
   end;
 end;
 
@@ -296,18 +323,9 @@ procedure TfrExportToOgf2.Init(
 );
 var
   I: Integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VActiveLayers: IMapTypeSet;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   FPolygLL := APolygon;
-
   cbbZoom.Items.Clear;
-  cbbMap.Items.Clear;
-  cbbHyb.Items.Clear;
 
   for I := 1 to 24 do begin
     cbbZoom.Items.Add(IntToStr(I));
@@ -316,38 +334,9 @@ begin
 
   cbbTileRes.ItemIndex := 0; // 128*128 pix
   cbbImageFormat.ItemIndex := 2; // JPEG
-
-  cbbHyb.Items.AddObject(SAS_STR_No, nil);
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  VActiveLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  for I := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[I];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.IsBitmapTiles) and (VMapType.GUIConfig.Enabled) then begin
-      if (not(VMapType.Abilities.IsLayer)) then begin
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-          cbbMap.ItemIndex := VAddedIndex;
-        end;
-      end else if(VMapType.IsHybridLayer) then begin
-        VAddedIndex := cbbHyb.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if (cbbHyb.ItemIndex = -1) then begin
-          if VActiveLayers.GetMapTypeByGUID(VGUID) <> nil then begin
-            cbbHyb.ItemIndex := VAddedIndex;
-          end;
-        end;
-      end;
-    end;
-  end;
-  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
-    cbbMap.ItemIndex := 0;
-  end;
-  if cbbHyb.ItemIndex = -1 then begin
-    cbbHyb.ItemIndex := 0;
-  end;
-
   cbbZoomChange(nil);
+  FfrMapSelect.Show(pnlMap);
+  FfrHybSelect.Show(pnlHyb);
 end;
 
 end.

@@ -18,6 +18,8 @@ uses
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -36,9 +38,6 @@ type
     lblSatCompress: TLabel;
     lblMapCompress: TLabel;
     lblHybrCompress: TLabel;
-    cbbSat: TComboBox;
-    cbbMap: TComboBox;
-    cbbHybr: TComboBox;
     rbSat: TRadioButton;
     rbMap: TRadioButton;
     rbHybr: TRadioButton;
@@ -56,12 +55,18 @@ type
     chklstZooms: TCheckListBox;
     chkAllZooms: TCheckBox;
     grdpnlMaps: TGridPanel;
+    pnlSat: TPanel;
+    pnlMap: TPanel;
+    pnlHyb: TPanel;
     procedure chkAllZoomsClick(Sender: TObject);
     procedure btnSelectTargetPathClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FfrSatSelect: TfrMapSelect;
+    FfrMapSelect: TfrMapSelect;
+    FfrHybSelect: TfrMapSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -70,13 +75,18 @@ type
   private
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
+    function GetAllowExport(AMapType: TMapType): boolean;
   public
+    function GetSat(): TMapType;
+    function GetMap(): TMapType;
+    function GetHyb(): TMapType;
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -86,10 +96,68 @@ uses
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
   i_GUIDListStatic,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 {$R *.dfm}
+
+constructor TfrExportIPhone.Create(
+  const ALanguageManager: ILanguageManager;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList
+);
+begin
+  inherited Create(ALanguageManager);
+  FMainMapsConfig := AMainMapsConfig;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+  FfrSatSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      True,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps and layers
+      True,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrHybSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfLayers, // show maps and layers
+      True,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+end;
+
+destructor TfrExportIPhone.Destroy;
+begin
+  FreeAndNil(FfrSatSelect);
+  FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrHybSelect);
+  inherited;
+end;
+
+function TfrExportIPhone.GetAllowExport(AMapType: TMapType): boolean;
+begin
+  Result := AMapType.IsBitmapTiles;
+end;
 
 procedure TfrExportIPhone.btnSelectTargetPathClick(Sender: TObject);
 var
@@ -104,22 +172,9 @@ procedure TfrExportIPhone.chkAllZoomsClick(Sender: TObject);
 var
   i: byte;
 begin
-  for i:=0 to chklstZooms.Count-1 do begin
+  for i := 0 to chklstZooms.Count - 1 do begin
     chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
   end;
-end;
-
-constructor TfrExportIPhone.Create(
-  const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList
-);
-begin
-  inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
 end;
 
 function TfrExportIPhone.GetPath: string;
@@ -143,58 +198,32 @@ begin
   end;
 end;
 
+function TfrExportIPhone.GetSat: TMapType;
+begin
+  Result := FfrSatSelect.GetSelectedMapType;
+end;
+
+function TfrExportIPhone.GetMap: TMapType;
+begin
+  Result := FfrMapSelect.GetSelectedMapType;
+end;
+
+function TfrExportIPhone.GetHyb: TMapType;
+begin
+  Result := FfrHybSelect.GetSelectedMapType;
+end;
+
 procedure TfrExportIPhone.Init;
 var
   i: integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VActiveLayers: IMapTypeSet;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   chklstZooms.Items.Clear;
-  for i:=1 to 24 do begin
+  for i := 1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
 
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  VActiveLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
-
-  cbbSat.items.Clear;
-  cbbMap.items.Clear;
-  cbbHybr.items.Clear;
-  cbbSat.Items.AddObject(SAS_STR_No,nil);
-  cbbMap.Items.AddObject(SAS_STR_No,nil);
-  cbbHybr.Items.AddObject(SAS_STR_No,nil);
-
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
-      if (not(VMapType.Abilities.IsLayer)) then begin
-        VAddedIndex := cbbSat.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-          cbbSat.ItemIndex:=VAddedIndex;
-        end;
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-          cbbMap.ItemIndex:=VAddedIndex;
-        end;
-      end else if(VMapType.IsHybridLayer) then begin
-        VAddedIndex := cbbHybr.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-        if (cbbHybr.ItemIndex=-1) then begin
-          if VActiveLayers.GetMapTypeByGUID(VGUID) <> nil then begin
-            cbbHybr.ItemIndex:=VAddedIndex;
-          end;
-        end;
-      end;
-    end;
-  end;
-  if cbbSat.ItemIndex=-1 then cbbSat.ItemIndex:=1;
-  if cbbMap.ItemIndex=-1 then cbbMap.ItemIndex:=0;
-  if cbbHybr.ItemIndex=-1 then cbbHybr.ItemIndex:=0;
+  FfrSatSelect.Show(pnlSat);
+  FfrMapSelect.Show(pnlMap);
+  FfrHybSelect.Show(pnlHyb);
 end;
-
 end.

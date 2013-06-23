@@ -133,19 +133,19 @@ begin
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   setlength(typemaparr, 3);
   VActiveMapIndex := 0;
-  typemaparr[0] := TMapType(FFrame.cbbSat.Items.Objects[FFrame.cbbSat.ItemIndex]);
+  typemaparr[0] := FFrame.GetMap;
   if typemaparr[0] <> nil then begin
     if FFrame.rbSat.Checked then begin
       VActiveMapIndex := 0;
     end;
   end;
-  typemaparr[1] := TMapType(FFrame.cbbMap.Items.Objects[FFrame.cbbMap.ItemIndex]);
+  typemaparr[1] := FFrame.GetSat;
   if typemaparr[1] <> nil then begin
     if FFrame.rbMap.Checked then begin
       VActiveMapIndex := 1;
     end;
   end;
-  typemaparr[2] := TMapType(FFrame.cbbHybr.Items.Objects[FFrame.cbbHybr.ItemIndex]);
+  typemaparr[2] := FFrame.GetHyb;
   if typemaparr[2] <> nil then begin
     if FFrame.rbHybr.Checked then begin
       VActiveMapIndex := 2;

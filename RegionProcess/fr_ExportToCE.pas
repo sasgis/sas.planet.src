@@ -20,6 +20,7 @@ uses
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -27,10 +28,8 @@ type
     ['{00A64FCB-EFC5-4E88-B4CF-0FCCDB096FAE}']
     function GetComent: string;
     property Coment: string read GetComent;
-
     function GetIsAddRecoverInfo: boolean;
     property IsAddRecoverInfo: boolean read GetIsAddRecoverInfo;
-
     function GetMaxSize: integer;
     property MaxSize: integer read GetMaxSize;
   end;
@@ -50,7 +49,6 @@ type
     chkAllZooms: TCheckBox;
     chklstZooms: TCheckListBox;
     lblMap: TLabel;
-    cbbMap: TComboBox;
     pnlTop: TPanel;
     lblTargetFile: TLabel;
     edtTargetFile: TEdit;
@@ -60,15 +58,15 @@ type
     SaveRecoverInfo: TCheckBox;
     lVolSize: TLabel;
     dlgSaveTargetFile: TSaveDialog;
-    LFoldersName: TListBox;
     CComment: TCheckBox;
     CheckBox1: TCheckBox;
     CMapName: TCheckBox;
     TempPath: TEdit;
     cbbMaxVolSize: TSpinEdit;
+    pnlMap: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
-    procedure cbbMapChange(Sender: TObject);
+    procedure MapChange(Sender: TObject);
     procedure chklstZoomsDblClick(Sender: TObject);
     procedure CMapNameClick(Sender: TObject);
     procedure CCommentClick(Sender: TObject);
@@ -76,6 +74,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FfrMapSelect: TfrMapSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -85,10 +84,11 @@ type
     function GetMapType: TMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
-  private
+    function GetAllowExport(AMapType: TMapType): boolean;
     function GetComent: string;
     function GetIsAddRecoverInfo: boolean;
     function GetMaxSize: integer;
+    procedure SetMapName();
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -98,6 +98,7 @@ type
       const AFileFilters: string;
       const AFileExtDefault: string
     ); reintroduce;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -108,61 +109,6 @@ uses
   i_GUIDListStatic;
 
 {$R *.dfm}
-
-procedure TfrExportToCE.btnSelectTargetFileClick(Sender: TObject);
-var TempString: string ;
-begin
-  if SelectDirectory('', '', TempString) then begin
-   TempPath.text := TempString;
-   edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text)+LFoldersName.items[cbbMap.itemindex];
-  end;
-end;
-
-procedure TfrExportToCE.cbbMapChange(Sender: TObject);
-begin
-  if EMapName.enabled then  EMapName.text := cbbMap.text;
-  if (TempPath.text = '' ) and (edtTargetFile.Text<>'')then TempPath.text := edtTargetFile.Text;
-  if (TempPath.text <> '' )then
-  edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text)+LFoldersName.items[cbbMap.itemindex]
-end;
-
-procedure TfrExportToCE.CCommentClick(Sender: TObject);
-begin
-  if CComment.checked then EComent.enabled := true else begin
-      EComent.Enabled := false;
-      EComent.text := '';
-  end;
-end;
-
-procedure TfrExportToCE.chkAllZoomsClick(Sender: TObject);
-var
-  i: byte;
-begin
-  if chkAllZooms.state<>cbGrayed then
-  for i:=0 to chklstZooms.items.Count-1 do begin
-    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
-  end;
-end;
-
-procedure TfrExportToCE.chklstZoomsDblClick(Sender: TObject);
-var
-  i: Integer;
-begin
-  for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i]:=true;
-  if chklstZooms.ItemIndex<chklstZooms.items.count-1 then for i := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i]:=false;
-  if chklstZooms.ItemIndex=chklstZooms.items.count-1 then chkAllZooms.state:=cbChecked else chkAllZooms.state:=cbGrayed;
-end;
-
-procedure TfrExportToCE.CMapNameClick(Sender: TObject);
-begin
-  if CMapName.checked then begin
-     EMapName.enabled := true;
-     EMapName.text := cbbMap.text;
-  end else begin
-     EMapName.Enabled := false;
-     EMapName.text := '';
-  end;
-end;
 
 constructor TfrExportToCe.Create(
   const ALanguageManager: ILanguageManager;
@@ -177,6 +123,100 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfAll, // show maps and layers
+      False,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowExport
+    );
+  FfrMapSelect.OnMapChange := MapChange;
+end;
+
+destructor TfrExportToCE.Destroy;
+begin
+  FreeAndNil(FfrMapSelect);
+  inherited;
+end;
+
+function TfrExportToCE.GetAllowExport(AMapType: TMapType): boolean;
+begin
+  Result := AMapType.IsBitmapTiles;
+end;
+
+procedure TfrExportToCE.btnSelectTargetFileClick(Sender: TObject);
+var TempString: string;
+begin
+  if FfrMapSelect.GetSelectedMapType <> nil then begin
+    if SelectDirectory('', '', TempString) then begin
+     TempPath.text := TempString;
+     edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+    end;
+  end;
+end;
+
+procedure TfrExportToCE.SetMapName();
+begin
+  if CMapName.checked then begin
+     EMapName.enabled := true;
+     if FfrMapSelect.GetSelectedMapType <> nil then begin
+       EMapName.text := FfrMapSelect.GetSelectedMapType.GUIConfig.Name.Value;
+     end else begin
+      EMapName.text := '';
+     end;
+  end else begin
+     EMapName.Enabled := false;
+     EMapName.text := '';
+  end;
+end;
+
+procedure TfrExportToCE.MapChange(Sender: TObject);
+begin
+  SetMapName();
+  if (TempPath.text = '' ) and (edtTargetFile.Text <> '')then TempPath.text := edtTargetFile.Text;
+  if (TempPath.text <> '' )then begin
+    if FfrMapSelect.GetSelectedMapType <> nil then begin
+      edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+    end else begin
+      edtTargetFile.Text := '';
+    end;
+  end;
+end;
+
+procedure TfrExportToCE.CCommentClick(Sender: TObject);
+begin
+  if CComment.checked then EComent.enabled := true else begin
+    EComent.Enabled := false;
+    EComent.text := '';
+  end;
+end;
+
+procedure TfrExportToCE.chkAllZoomsClick(Sender: TObject);
+var
+  i: byte;
+begin
+  if chkAllZooms.state <> cbGrayed then
+  for i := 0 to chklstZooms.items.Count - 1 do begin
+    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
+  end;
+end;
+
+procedure TfrExportToCE.chklstZoomsDblClick(Sender: TObject);
+var
+  i: Integer;
+begin
+  for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i] := true;
+  if chklstZooms.ItemIndex < chklstZooms.items.count-1 then for i := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i] := false;
+  if chklstZooms.ItemIndex = chklstZooms.items.count-1 then chkAllZooms.state := cbChecked else chkAllZooms.state := cbGrayed;
+end;
+
+procedure TfrExportToCE.CMapNameClick(Sender: TObject);
+begin
+  SetMapName();
 end;
 
 function TfrExportToCE.GetComent: string;
@@ -203,10 +243,7 @@ end;
 
 function TfrExportToCE.GetMapType: TMapType;
 begin
-  Result := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end;
+  Result := FfrMapSelect.GetSelectedMapType;
 end;
 
 function TfrExportToCE.GetMaxSize: integer;
@@ -250,51 +287,16 @@ end;
 procedure TfrExportToCE.Init;
 var
   i: integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VAddedIndex: Integer;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   if chklstZooms.Items.count=0 then
   for i:=1 to 24 do begin
     chklstZooms.Items.Add(inttostr(i));
   end;
-
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  cbbMap.items.Clear;
-  LFoldersName.items.Clear;
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.GUIConfig.Enabled) then begin
-      VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value,VMapType);
-      LFoldersName.Items.AddObject(VMapType.GetShortFolderName,VMapType);
-
-      if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-        cbbMap.ItemIndex:=VAddedIndex;
-          if TempPath.text <> '' then
-           edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text)+LFoldersName.items[cbbMap.itemindex];
-      end;
-    end;
-  end;
-  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
-    cbbMap.ItemIndex := 0;
-  end;
   if CComment.checked then EComent.enabled := true else begin
       EComent.Enabled := false;
       EComent.text := '';
   end;
-  if CMapName.checked then begin
-     EMapName.enabled := true;
-     EMapName.text := cbbMap.text;
-  end else begin
-     EMapName.Enabled := false;
-     EMapName.text := '';
-  end;
-
-
+  FfrMapSelect.Show(pnlMap);
+  SetMapName();
 end;
-
 end.

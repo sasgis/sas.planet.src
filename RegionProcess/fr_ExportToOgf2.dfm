@@ -1,7 +1,7 @@
 object frExportToOgf2: TfrExportToOgf2
   Left = 0
   Top = 0
-  Width = 535
+  Width = 451
   Height = 304
   Align = alClient
   ParentShowHint = False
@@ -11,7 +11,7 @@ object frExportToOgf2: TfrExportToOgf2
   object pnlCenter: TPanel
     Left = 0
     Top = 27
-    Width = 462
+    Width = 378
     Height = 252
     Align = alClient
     BevelOuter = bvNone
@@ -19,7 +19,7 @@ object frExportToOgf2: TfrExportToOgf2
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 462
+      Width = 378
       Height = 252
       Align = alClient
       AutoSize = True
@@ -74,30 +74,6 @@ object frExportToOgf2: TfrExportToOgf2
         Caption = 'Quality (for JPEG):'
         Layout = tlCenter
       end
-      object cbbMap: TComboBox
-        Left = 3
-        Top = 19
-        Width = 459
-        Height = 21
-        Align = alCustom
-        Style = csDropDownList
-        Anchors = [akLeft, akTop, akRight]
-        DropDownCount = 16
-        ItemHeight = 13
-        TabOrder = 0
-      end
-      object cbbHyb: TComboBox
-        Left = 3
-        Top = 59
-        Width = 459
-        Height = 21
-        Align = alCustom
-        Style = csDropDownList
-        Anchors = [akLeft, akTop, akRight]
-        DropDownCount = 16
-        ItemHeight = 13
-        TabOrder = 1
-      end
       object cbbImageFormat: TComboBox
         Left = 3
         Top = 129
@@ -105,7 +81,7 @@ object frExportToOgf2: TfrExportToOgf2
         Height = 21
         ItemHeight = 13
         ItemIndex = 2
-        TabOrder = 2
+        TabOrder = 0
         Text = 'JPEG'
         Items.Strings = (
           'BMP'
@@ -119,7 +95,7 @@ object frExportToOgf2: TfrExportToOgf2
         Height = 21
         ItemHeight = 13
         ItemIndex = 0
-        TabOrder = 3
+        TabOrder = 1
         Text = '128x128 pix'
         OnChange = cbbTileResChange
         Items.Strings = (
@@ -132,7 +108,7 @@ object frExportToOgf2: TfrExportToOgf2
         Width = 369
         Height = 17
         Caption = 'Use tiles from lower zooms (on unavalible tile)'
-        TabOrder = 4
+        TabOrder = 2
       end
       object seJpgQuality: TSpinEdit
         Left = 305
@@ -141,15 +117,35 @@ object frExportToOgf2: TfrExportToOgf2
         Height = 22
         MaxValue = 100
         MinValue = 1
-        TabOrder = 5
+        TabOrder = 3
         Value = 75
+      end
+      object pnlMap: TPanel
+        Left = 3
+        Top = 22
+        Width = 372
+        Height = 23
+        Align = alCustom
+        Anchors = [akLeft, akTop, akRight]
+        BevelOuter = bvNone
+        TabOrder = 4
+      end
+      object pnlHyb: TPanel
+        Left = 3
+        Top = 56
+        Width = 372
+        Height = 23
+        Align = alCustom
+        Anchors = [akLeft, akTop, akRight]
+        BevelOuter = bvNone
+        TabOrder = 5
       end
     end
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 535
+    Width = 451
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -168,17 +164,18 @@ object frExportToOgf2: TfrExportToOgf2
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
       Top = 3
-      Width = 464
+      Width = 380
       Height = 21
       Align = alClient
       TabOrder = 0
     end
     object btnSelectTargetFile: TButton
-      Left = 511
+      Left = 427
       Top = 3
       Width = 21
       Height = 21
@@ -213,7 +210,7 @@ object frExportToOgf2: TfrExportToOgf2
     end
     object cbbZoom: TComboBox
       Left = 3
-      Top = 16
+      Top = 19
       Width = 67
       Height = 21
       Align = alTop
@@ -229,17 +226,17 @@ object frExportToOgf2: TfrExportToOgf2
     Width = 451
     Height = 25
     Align = alBottom
+    Alignment = taLeftJustify
     BevelEdges = [beTop]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 3
     object lblStat: TLabel
-      Left = 3
-      Top = -1
-      Width = 7
+      Left = 0
+      Top = 0
+      Width = 451
       Height = 13
-      Align = alCustom
-      Anchors = [akLeft, akBottom]
+      Align = alTop
       Caption = '_'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clGreen
@@ -248,6 +245,7 @@ object frExportToOgf2: TfrExportToOgf2
       Font.Style = [fsBold]
       ParentFont = False
       Layout = tlCenter
+      ExplicitWidth = 7
     end
   end
   object dlgSaveTargetFile: TSaveDialog

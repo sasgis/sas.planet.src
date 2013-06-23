@@ -36,6 +36,7 @@ object frExportToCE: TfrExportToCE
         Margins.Right = 0
         Align = alTop
         Caption = 'Zooms:'
+        ExplicitWidth = 35
       end
       object chkAllZooms: TCheckBox
         AlignWithMargins = True
@@ -103,26 +104,13 @@ object frExportToCE: TfrExportToCE
         Anchors = [akTop, akRight]
         Caption = 'Max volume size, Mb'
       end
-      object cbbMap: TComboBox
-        Left = 3
-        Top = 20
-        Width = 262
-        Height = 21
-        Align = alCustom
-        Style = csDropDownList
-        Anchors = [akLeft, akTop, akRight]
-        DropDownCount = 16
-        ItemHeight = 13
-        TabOrder = 0
-        OnChange = cbbMapChange
-      end
       object EMapName: TEdit
         Left = 111
         Top = 47
         Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        TabOrder = 2
+        TabOrder = 1
       end
       object EComent: TEdit
         Left = 111
@@ -130,7 +118,7 @@ object frExportToCE: TfrExportToCE
         Width = 259
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        TabOrder = 1
+        TabOrder = 0
       end
       object SaveRecoverInfo: TCheckBox
         Left = 3
@@ -140,16 +128,7 @@ object frExportToCE: TfrExportToCE
         Caption = 'Save recovery information'
         Checked = True
         State = cbChecked
-        TabOrder = 3
-      end
-      object LFoldersName: TListBox
-        Left = 271
-        Top = 101
-        Width = 99
-        Height = 97
-        ItemHeight = 13
-        TabOrder = 4
-        Visible = False
+        TabOrder = 2
       end
       object CComment: TCheckBox
         Left = 3
@@ -157,7 +136,7 @@ object frExportToCE: TfrExportToCE
         Width = 102
         Height = 17
         Caption = 'Comment'
-        TabOrder = 5
+        TabOrder = 3
         OnClick = CCommentClick
       end
       object CMapName: TCheckBox
@@ -166,7 +145,7 @@ object frExportToCE: TfrExportToCE
         Width = 102
         Height = 17
         Caption = 'Map Name'
-        TabOrder = 6
+        TabOrder = 4
         OnClick = CMapNameClick
       end
       object TempPath: TEdit
@@ -174,8 +153,7 @@ object frExportToCE: TfrExportToCE
         Top = 204
         Width = 99
         Height = 21
-        TabOrder = 7
-        Visible = False
+        TabOrder = 5
       end
       object cbbMaxVolSize: TSpinEdit
         Left = 271
@@ -185,8 +163,17 @@ object frExportToCE: TfrExportToCE
         Anchors = [akTop, akRight]
         MaxValue = 2047
         MinValue = 1
-        TabOrder = 8
+        TabOrder = 6
         Value = 1024
+      end
+      object pnlMap: TPanel
+        Left = 3
+        Top = 18
+        Width = 262
+        Height = 23
+        Anchors = [akLeft, akTop, akRight]
+        BevelOuter = bvNone
+        TabOrder = 7
       end
     end
   end
@@ -212,6 +199,7 @@ object frExportToCE: TfrExportToCE
       Alignment = taRightJustify
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
