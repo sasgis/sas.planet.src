@@ -209,6 +209,7 @@ type
 implementation
 
 uses
+  ExplorerSort,
   gnugettext,
   t_CommonTypes,
   t_GeoTypes,
@@ -357,6 +358,7 @@ begin
     CategoryTreeView.Items.BeginUpdate;
     try
       UpdateTreeSubItems(VTree, VSelectedCategory, nil, CategoryTreeView.Items);
+      CategoryTreeView.CustomSort(TreeViewCompare, 0);
     finally
       CategoryTreeView.Items.EndUpdate;
     end;
@@ -382,7 +384,6 @@ begin
     FMarksList := FMarkDBGUI.MarksDb.MarkDb.GetMarkIdListByCategory(VCategory);
     VSortedMarksList := TStringList.Create;
     try
-      VSortedMarksList.Sorted := True;
       VSortedMarksList.Duplicates := dupAccept;
       VSortedMarksList.BeginUpdate;
       try
@@ -391,6 +392,7 @@ begin
           VName := FMarkDBGUI.GetMarkIdCaption(VMarkId);
           VSortedMarksList.AddObject(VName, Pointer(VMarkId));
         end;
+        VSortedMarksList.CustomSort(StringListCompare);
       finally
         VSortedMarksList.EndUpdate;
       end;
