@@ -698,7 +698,7 @@ begin
               );
             VList.Add(VMapVersionInfo);
           end;
-          if WideSameStr(VMetaElement.TileVersionInfo, VVersionInfo.StoreString) then begin
+          if WideSameText(VMetaElement.TileVersionInfo, VVersionInfo.StoreString) then begin
             VTileInfoIndex := I;
             if ASingleTileInfo then begin
               Break;
