@@ -563,6 +563,9 @@ begin
                 Exit;
               end;
             end;
+          end else begin
+            FEnvironment.TransactionAbort(VTransaction);
+            Exit;
           end;
         except
           FEnvironment.TransactionAbort(VTransaction);
