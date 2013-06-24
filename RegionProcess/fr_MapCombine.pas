@@ -28,6 +28,8 @@ uses
   i_ProjectionInfo,
   i_BitmapLayerProvider,
   i_Bitmap32StaticFactory,
+  u_MapType,
+  fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -81,15 +83,6 @@ type
     lblSplitVert: TLabel;
     seSplitHor: TSpinEdit;
     seSplitVert: TSpinEdit;
-    pnlCenter: TPanel;
-    pnlMapSource: TPanel;
-    lblMap: TLabel;
-    cbbMap: TComboBox;
-    pnlZoom: TPanel;
-    lblZoom: TLabel;
-    cbbZoom: TComboBox;
-    lblHybr: TLabel;
-    cbbHybr: TComboBox;
     pnlOptions: TPanel;
     chkUseMapMarks: TCheckBox;
     chkUseRecolor: TCheckBox;
@@ -101,11 +94,18 @@ type
     seJpgQuality: TSpinEdit;
     lblStat: TLabel;
     pnlBottom: TPanel;
-    pnlCenterMain: TPanel;
     chkPngWithAlpha: TCheckBox;
     pnlProjection: TPanel;
     lblProjection: TLabel;
     cbbProjection: TComboBox;
+    pnlMapSelect: TPanel;
+    pnlZoom: TPanel;
+    Labelzoom: TLabel;
+    cbbZoom: TComboBox;
+    pnlMapFrame: TPanel;
+    lblMapCaption: TLabel;
+    pnlLayerFrame: TPanel;
+    lblLayerCaption: TLabel;
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
@@ -124,7 +124,8 @@ type
     FUseAlfa: Boolean;
     FDefaultExt: string;
     FFormatName: string;
-    procedure UpdatePanelSizes;
+    FfrMapSelect: TfrMapSelect;
+    FfrLayerSelect: TfrMapSelect;
     procedure UpdateProjectionsList;
   private
     procedure Init(
@@ -143,6 +144,7 @@ type
     function GetQuality: Integer;
     function GetIsSaveAlfa: Boolean;
     function GetBGColor: TColor32;
+    function GetAllowWrite(AMapType: TMapType): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -162,6 +164,7 @@ type
       const AFormatName: string
     ); reintroduce;
     procedure RefreshTranslation; override;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -175,8 +178,7 @@ uses
   u_GeoFun,
   u_BitmapLayerProviderMapWithLayer,
   u_MapCalibrationListBasic,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 {$R *.dfm}
 
@@ -217,8 +219,41 @@ begin
   FFormatName := AFormatName;
   chkPngWithAlpha.Visible := FUseAlfa;
   flwpnlJpegQuality.Visible := FUseQuality;
+  FfrMapSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfMaps, // show maps
+      True,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowWrite
+    );
+  FfrLayerSelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfLayers, // show maps
+      True,  // add -NO- to combobox
+      False,  // show disabled map
+      GetAllowWrite
+    );
   UpdateProjectionsList;
-  UpdatePanelSizes;
+end;
+
+destructor TfrMapCombine.Destroy;
+begin
+  FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrLayerSelect);
+  inherited;
+end;
+
+function TfrMapCombine.GetAllowWrite(AMapType: TMapType): boolean;
+begin
+  Result := AMapType.IsBitmapTiles;
 end;
 
 procedure TfrMapCombine.btnSelectTargetFileClick(Sender: TObject);
@@ -232,7 +267,7 @@ end;
 
 procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
 var
-  numd:int64 ;
+  numd: int64 ;
   Vmt: TMapType;
   VZoom: byte;
   VPolyLL: ILonLatPolygon;
@@ -242,12 +277,8 @@ var
   VPixelRect: TRect;
   VTileRect: TRect;
 begin
-  if cbbMap.ItemIndex >= 0 then begin
-    Vmt := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end else begin
-    Vmt := nil;
-  end;
-
+  Vmt := FfrMapSelect.GetSelectedMapType;
+  if (Vmt = nil) then Vmt := FfrLayerSelect.GetSelectedMapType; //calc for layer if map is not selected
   if Vmt <> nil then begin
     VZoom := cbbZoom.ItemIndex;
     Vmt.GeoConvert.CheckZoom(VZoom);
@@ -266,12 +297,12 @@ begin
         numd := (VTileRect.Right - VTileRect.Left);
         numd := numd * (VTileRect.Bottom - VTileRect.Top);
         lblStat.Caption :=
-          SAS_STR_filesnum+': '+
-          inttostr(VTileRect.Right - VTileRect.Left)+'x'+
-          inttostr(VTileRect.Bottom - VTileRect.Top)+
+          SAS_STR_filesnum + ': ' +
+          inttostr(VTileRect.Right - VTileRect.Left) + 'x' +
+          inttostr(VTileRect.Bottom - VTileRect.Top) +
           '('+inttostr(numd)+')' +
           ', '+SAS_STR_Resolution + ' ' +
-          inttostr(VPixelRect.Right - VPixelRect.Left)+'x'+
+          inttostr(VPixelRect.Right - VPixelRect.Left) + 'x' +
           inttostr(VPixelRect.Bottom - VPixelRect.Top);
       end;
     end;
@@ -282,10 +313,7 @@ function TfrMapCombine.GetBGColor: TColor32;
 var
   VMap: TMapType;
 begin
-  VMap := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end;
+  VMap := FfrMapSelect.GetSelectedMapType;
   if VMap = nil then begin
     Result := SetAlpha(FViewConfig.BackGroundColor, 0);
   end else begin
@@ -341,16 +369,8 @@ begin
   end;
   if VGeoConverter = nil then begin
     VMainMapType := nil;
-
-    VMap := nil;
-    if cbbMap.ItemIndex >= 0 then begin
-      VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-    end;
-    VLayer := nil;
-    if cbbHybr.ItemIndex >= 0 then begin
-      VLayer := TMapType(cbbHybr.Items.Objects[cbbHybr.ItemIndex]);
-    end;
-
+    VMap := FfrMapSelect.GetSelectedMapType;
+    VLayer := FfrLayerSelect.GetSelectedMapType;
     if VIndex = 0 then begin
       if VMap <> nil then begin
         VMainMapType := VMap;
@@ -379,9 +399,8 @@ var
   VMap: TMapType;
   VLayer: TMapType;
 begin
-  VMap := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  VLayer := TMapType(cbbHybr.Items.Objects[cbbHybr.ItemIndex]);
-
+  VMap := FfrMapSelect.GetSelectedMapType;
+  VLayer := FfrLayerSelect.GetSelectedMapType;
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmapFactory,
@@ -419,62 +438,22 @@ procedure TfrMapCombine.Init(
 );
 var
   i: Integer;
-  VMapType: TMapType;
-  VActiveMapGUID: TGUID;
-  VActiveLayers: IMapTypeSet;
-  VAddedIndex: Integer;
   VMapCalibration: IMapCalibration;
-  VGUIDList: IGUIDListStatic;
-  VGUID: TGUID;
 begin
   FPolygLL := APolygon;
-
   cbbZoom.Items.Clear;
-  for i:=1 to 24 do begin
+  for i := 1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));
   end;
   cbbZoom.ItemIndex := AZoom;
-
-  VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
-  VActiveLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
-  cbbMap.Items.Clear;
-  cbbHybr.Items.Clear;
-  cbbMap.Items.Add(SAS_STR_No);
-  cbbHybr.Items.Add(SAS_STR_No);
-  VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
-    VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.IsBitmapTiles)and(VMapType.GUIConfig.Enabled) then begin
-      if not VMapType.Abilities.IsLayer then begin
-        VAddedIndex := cbbMap.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
-        if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
-          cbbMap.ItemIndex:=VAddedIndex;
-        end;
-      end else begin
-        VAddedIndex := cbbHybr.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
-        if (cbbHybr.ItemIndex=-1) then begin
-          if VActiveLayers.GetMapTypeByGUID(VGUID) <> nil then begin
-            cbbHybr.ItemIndex:=VAddedIndex;
-          end;
-        end;
-      end;
-    end;
-  end;
-  if (cbbMap.Items.Count > 0) and (cbbMap.ItemIndex < 0) then begin
-    cbbMap.ItemIndex := 0;
-  end;
-  if (cbbHybr.Items.Count > 0) and (cbbHybr.ItemIndex < 0) then begin
-    cbbHybr.ItemIndex := 0;
-  end;
-
   chklstPrTypes.Clear;
   for i := 0 to FMapCalibrationList.Count - 1 do begin
     VMapCalibration := FMapCalibrationList.Get(i);
     chklstPrTypes.AddItem(VMapCalibration.GetName, Pointer(VMapCalibration));
   end;
   cbbZoomChange(nil);
-  UpdatePanelSizes;
+  FfrMapSelect.Show(pnlMapFrame);
+  FfrLayerSelect.Show(pnlLayerFrame);
 end;
 
 procedure TfrMapCombine.RefreshTranslation;
@@ -487,12 +466,6 @@ begin
   if VProjectionIndex >= 0 then begin
     cbbProjection.ItemIndex := VProjectionIndex;
   end;
-  UpdatePanelSizes;
-end;
-
-procedure TfrMapCombine.UpdatePanelSizes;
-begin
-  pnlCenter.ClientHeight := pnlMapSource.Height;
 end;
 
 procedure TfrMapCombine.UpdateProjectionsList;
@@ -507,5 +480,4 @@ begin
   end;
   cbbProjection.ItemIndex := 0;
 end;
-
 end.

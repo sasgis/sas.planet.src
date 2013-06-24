@@ -2,7 +2,7 @@ object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
   Width = 535
-  Height = 235
+  Height = 304
   Align = alClient
   ParentShowHint = False
   ShowHint = True
@@ -22,12 +22,13 @@ object frMapCombine: TfrMapCombine
       Left = 3
       Top = 3
       Width = 41
-      Height = 19
+      Height = 16
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
@@ -36,6 +37,7 @@ object frMapCombine: TfrMapCombine
       Height = 19
       Align = alClient
       TabOrder = 0
+      ExplicitHeight = 21
     end
     object btnSelectTargetFile: TButton
       Left = 511
@@ -48,171 +50,19 @@ object frMapCombine: TfrMapCombine
       OnClick = btnSelectTargetFileClick
     end
   end
-  object pnlCenter: TPanel
-    Left = 0
-    Top = 25
-    Width = 535
-    Height = 119
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 1
-    object pnlZoom: TPanel
-      Left = 479
-      Top = 0
-      Width = 56
-      Height = 119
-      Align = alRight
-      BevelOuter = bvNone
-      BorderWidth = 3
-      Constraints.MinWidth = 56
-      TabOrder = 0
-      object lblZoom: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 50
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        AutoSize = False
-        Caption = 'Zoom:'
-      end
-      object cbbZoom: TComboBox
-        Left = 3
-        Top = 16
-        Width = 50
-        Height = 21
-        Align = alTop
-        Style = csDropDownList
-        ItemHeight = 13
-        TabOrder = 0
-        OnChange = cbbZoomChange
-      end
-    end
-    object pnlCenterMain: TPanel
-      Left = 0
-      Top = 0
-      Width = 479
-      Height = 119
-      Align = alClient
-      BevelOuter = bvNone
-      TabOrder = 1
-      object pnlMapSource: TPanel
-        Left = 0
-        Top = 0
-        Width = 479
-        Height = 120
-        Align = alTop
-        AutoSize = True
-        BevelOuter = bvNone
-        BorderWidth = 3
-        TabOrder = 0
-        object lblMap: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 3
-          Width = 473
-          Height = 13
-          Margins.Left = 0
-          Margins.Top = 0
-          Margins.Right = 0
-          Align = alTop
-          Caption = 'Base Map:'
-          Layout = tlCenter
-        end
-        object lblHybr: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 40
-          Width = 473
-          Height = 13
-          Margins.Left = 0
-          Margins.Right = 0
-          Align = alTop
-          Caption = 'Overlay layer:'
-          Layout = tlCenter
-        end
-        object lblStat: TLabel
-          AlignWithMargins = True
-          Left = 6
-          Top = 104
-          Width = 467
-          Height = 13
-          Align = alTop
-          Caption = '_'
-          Layout = tlCenter
-        end
-        object cbbMap: TComboBox
-          Left = 3
-          Top = 16
-          Width = 473
-          Height = 21
-          Align = alTop
-          Style = csDropDownList
-          DropDownCount = 16
-          ItemHeight = 13
-          TabOrder = 0
-        end
-        object cbbHybr: TComboBox
-          Left = 3
-          Top = 53
-          Width = 473
-          Height = 21
-          Align = alTop
-          Style = csDropDownList
-          ItemHeight = 13
-          ItemIndex = 0
-          TabOrder = 1
-          Text = 'No'
-          Items.Strings = (
-            'No')
-        end
-        object pnlProjection: TPanel
-          Left = 3
-          Top = 74
-          Width = 473
-          Height = 27
-          Align = alTop
-          BevelOuter = bvNone
-          TabOrder = 2
-          object lblProjection: TLabel
-            Left = 0
-            Top = 0
-            Width = 52
-            Height = 27
-            Align = alLeft
-            Caption = 'Projection:'
-            Layout = tlCenter
-          end
-          object cbbProjection: TComboBox
-            Left = 52
-            Top = 0
-            Width = 421
-            Height = 21
-            Align = alClient
-            Style = csDropDownList
-            ItemHeight = 13
-            TabOrder = 0
-          end
-        end
-      end
-    end
-  end
   object pnlBottom: TPanel
     Left = 0
-    Top = 144
+    Top = 135
     Width = 535
-    Height = 91
+    Height = 169
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     object pnlOptions: TPanel
       Left = 0
       Top = 0
       Width = 210
-      Height = 91
+      Height = 169
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
@@ -285,7 +135,7 @@ object frMapCombine: TfrMapCombine
       Left = 210
       Top = 0
       Width = 157
-      Height = 91
+      Height = 169
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -305,7 +155,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 18
         Width = 151
-        Height = 70
+        Height = 148
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -321,7 +171,7 @@ object frMapCombine: TfrMapCombine
       Left = 367
       Top = 0
       Width = 168
-      Height = 91
+      Height = 169
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
@@ -371,6 +221,131 @@ object frMapCombine: TfrMapCombine
           TabOrder = 1
           Value = 1
         end
+      end
+    end
+  end
+  object pnlMapSelect: TPanel
+    Left = 0
+    Top = 25
+    Width = 535
+    Height = 110
+    Align = alTop
+    BevelEdges = [beBottom]
+    BevelKind = bkTile
+    BevelOuter = bvNone
+    TabOrder = 2
+    DesignSize = (
+      535
+      108)
+    object lblStat: TLabel
+      AlignWithMargins = True
+      Left = 3
+      Top = 92
+      Width = 529
+      Height = 13
+      Align = alBottom
+      Caption = '_'
+      Layout = tlCenter
+      ExplicitWidth = 6
+    end
+    object pnlZoom: TPanel
+      Left = 476
+      Top = 0
+      Width = 59
+      Height = 68
+      Align = alRight
+      Alignment = taLeftJustify
+      BevelEdges = []
+      BevelKind = bkTile
+      BevelOuter = bvNone
+      TabOrder = 0
+      object Labelzoom: TLabel
+        AlignWithMargins = True
+        Left = 3
+        Top = -2
+        Width = 30
+        Height = 13
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
+        Caption = 'Zoom:'
+      end
+      object cbbZoom: TComboBox
+        Left = 1
+        Top = 11
+        Width = 53
+        Height = 21
+        Style = csDropDownList
+        ItemHeight = 13
+        TabOrder = 0
+        OnChange = cbbZoomChange
+      end
+    end
+    object pnlMapFrame: TPanel
+      Left = 3
+      Top = -2
+      Width = 727
+      Height = 38
+      Alignment = taLeftJustify
+      Anchors = [akLeft, akTop, akRight]
+      BevelOuter = bvNone
+      TabOrder = 1
+      object lblMapCaption: TLabel
+        Left = 0
+        Top = 0
+        Width = 727
+        Height = 13
+        Align = alTop
+        Caption = 'Map:'
+        ExplicitWidth = 24
+      end
+    end
+    object pnlLayerFrame: TPanel
+      Left = 3
+      Top = 32
+      Width = 727
+      Height = 40
+      Alignment = taLeftJustify
+      Anchors = [akLeft, akTop, akRight]
+      BevelOuter = bvNone
+      TabOrder = 2
+      object lblLayerCaption: TLabel
+        Left = 0
+        Top = 0
+        Width = 727
+        Height = 13
+        Align = alTop
+        Caption = 'Overlay layer:'
+        ExplicitWidth = 69
+      end
+    end
+    object pnlProjection: TPanel
+      Left = 0
+      Top = 68
+      Width = 535
+      Height = 21
+      Align = alBottom
+      BevelOuter = bvNone
+      TabOrder = 3
+      object lblProjection: TLabel
+        Left = 0
+        Top = 0
+        Width = 52
+        Height = 21
+        Align = alLeft
+        Caption = 'Projection:'
+        Layout = tlCenter
+        ExplicitHeight = 13
+      end
+      object cbbProjection: TComboBox
+        Left = 52
+        Top = 0
+        Width = 483
+        Height = 21
+        Align = alClient
+        Style = csDropDownList
+        ItemHeight = 13
+        TabOrder = 0
       end
     end
   end
