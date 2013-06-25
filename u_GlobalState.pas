@@ -426,7 +426,7 @@ begin
   FGUISyncronizedTimerNotifier := FGUISyncronizedTimerNotifierInternal;
   FGUISyncronizedTimerCounter := FPerfCounterList.CreateAndAddNewCounter('GUITimer');
 
-  FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FCacheConfig.BDBCachePath);
+  FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FBaseApplicationPath);
 
   FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FGlobalConfig.TerrainDataPath, FCacheConfig);
 
