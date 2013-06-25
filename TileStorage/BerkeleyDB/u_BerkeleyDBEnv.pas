@@ -26,8 +26,12 @@ uses
   Classes,
   SyncObjs,
   libdb51,
+  t_BerkeleyDB,
+  i_BerkeleyDB,
   i_BerkeleyDBEnv,
+  i_BerkeleyDBPool,
   i_GlobalBerkeleyDBHelper,
+  i_TileStorageBerkeleyDBConfigStatic,
   u_BerkeleyDBMsgLogger,
   u_BaseInterfacedObject;
 
@@ -50,6 +54,7 @@ type
     FCS: TCriticalSection;
     FClientsCount: Integer;
     FTxnList: TList;
+    FDatabasePool: IBerkeleyDBPool;
     function Open: Boolean;
     procedure MakeDefConfigFile(const AEnvHomePath: string);
     procedure RemoveUnUsedLogs;
@@ -59,14 +64,18 @@ type
     function GetEnvironmentPointerForApi: Pointer;
     function GetRootPath: string;
     function GetClientsCount: Integer;
+    function Acquire(const ADatabaseFileName: string): IBerkeleyDB;
+    procedure Release(const ADatabase: IBerkeleyDB);
     procedure SetClientsCount(const AValue: Integer);
     procedure TransactionBegin(out ATxn: PBerkeleyTxn);
     procedure TransactionCommit(var ATxn: PBerkeleyTxn);
     procedure TransactionAbort(var ATxn: PBerkeleyTxn);
-    procedure Sync;
+    procedure Sync(out AHotDatabaseCount: Integer);
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
+      const AStorageEPSG: Integer;
       const AEnvRootPath: string
     );
     destructor Destroy; override;
@@ -76,7 +85,13 @@ implementation
 
 uses
   Windows,
-  SysUtils;
+  SysUtils,
+  i_BinaryData,
+  i_BerkeleyDBFactory,
+  u_BerkeleyDBKey,
+  u_BerkeleyDBValue,
+  u_BerkeleyDBPool,
+  u_BerkeleyDBFactory;
 
 const
   cBerkeleyDBEnvSubDir = 'env';
@@ -115,16 +130,38 @@ end;
 
 constructor TBerkeleyDBEnv.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
+  const AStorageEPSG: Integer;
   const AEnvRootPath: string
 );
+var
+  VDatabaseFactory: IBerkeleyDBFactory;
 begin
   inherited Create;
   dbenv := nil;
   FTxnList := TList.Create;
+
   New(FAppPrivate);
   FAppPrivate.FEnvRootPath := AEnvRootPath;
   FAppPrivate.FHelper := AGlobalBerkeleyDBHelper;
   FAppPrivate.FMsgLogger := TBerkeleyDBMsgLogger.Create(IncludeTrailingPathDelimiter(AEnvRootPath) + cVerboseMsgFileName);
+
+  VDatabaseFactory := TBerkeleyDBFactory.Create(
+    AGlobalBerkeleyDBHelper,
+    AStorageConfig.DatabasePageSize,
+    AStorageConfig.OnDeadLockRetryCount,
+    AStorageConfig.IsReadOnly,
+    TBerkeleyDBMetaKey.Create as IBinaryData,
+    TBerkeleyDBMetaValue.Create(AStorageEPSG) as IBinaryData
+  );
+
+  FDatabasePool := TBerkeleyDBPool.Create(
+    AGlobalBerkeleyDBHelper,
+    VDatabaseFactory,
+    AStorageConfig.PoolSize,
+    AStorageConfig.PoolObjectTTL
+  );
+
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
@@ -138,6 +175,7 @@ var
   txn: PDB_TXN;
 begin
   try
+    FDatabasePool := nil;
     if dbenv <> nil then begin
       for I := 0 to FTxnList.Count - 1 do begin
         txn := FTxnList.Items[I];
@@ -327,10 +365,11 @@ begin
   end;
 end;
 
-procedure TBerkeleyDBEnv.Sync;
+procedure TBerkeleyDBEnv.Sync(out AHotDatabaseCount: Integer);
 begin
   TransactionCheckPoint;
   RemoveUnUsedLogs;
+  FDatabasePool.Sync(AHotDatabaseCount);
 end;
 
 function TBerkeleyDBEnv.GetEnvironmentPointerForApi: Pointer;
@@ -365,6 +404,16 @@ begin
   finally
     FCS.Release;
   end;
+end;
+
+function TBerkeleyDBEnv.Acquire(const ADatabaseFileName: string): IBerkeleyDB;
+begin
+  Result := FDatabasePool.Acquire(ADatabaseFileName, Self);
+end;
+
+procedure TBerkeleyDBEnv.Release(const ADatabase: IBerkeleyDB);
+begin
+  FDatabasePool.Release(ADatabase);
 end;
 
 end.

@@ -15,6 +15,7 @@ uses
   u_TileStorageTar in 'TileStorage\Archive\u_TileStorageTar.pas',
   i_GlobalBerkeleyDBHelper in 'TileStorage\BerkeleyDB\i_GlobalBerkeleyDBHelper.pas',
   u_GlobalBerkeleyDBHelper in 'TileStorage\BerkeleyDB\u_GlobalBerkeleyDBHelper.pas',
+  t_BerkeleyDB in 'TileStorage\BerkeleyDB\t_BerkeleyDB.pas',
   u_BerkeleyDB in 'TileStorage\BerkeleyDB\u_BerkeleyDB.pas',
   u_BerkeleyDBEnv in 'TileStorage\BerkeleyDB\u_BerkeleyDBEnv.pas',
   u_BerkeleyDBKey in 'TileStorage\BerkeleyDB\u_BerkeleyDBKey.pas',

@@ -23,13 +23,20 @@ unit i_GlobalBerkeleyDBHelper;
 interface
 
 uses
-  i_BerkeleyDBEnv;
+  i_BerkeleyDBEnv,
+  i_TileStorageBerkeleyDBConfigStatic;
 
 type
   IGlobalBerkeleyDBHelper = interface
     ['{01EDEF03-9DCE-42A9-AB26-40A6C1C7104D}']
-    function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
+    function AllocateEnvironment(
+      const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
+      const AStorageEPSG: Integer;
+      const AEnvRootPath: string
+    ): IBerkeleyDBEnvironment;
+
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
+
     procedure RaiseException(const EMsg: AnsiString);
     procedure LogException(const EMsg: AnsiString);
   end;

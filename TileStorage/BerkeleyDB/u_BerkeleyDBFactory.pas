@@ -14,7 +14,6 @@ type
   TBerkeleyDBFactory = class(TBaseInterfacedObject, IBerkeleyDBFactory)
   private
     FHelper: IGlobalBerkeleyDBHelper;
-    FEnvironment: IBerkeleyDBEnvironment;
     FPageSize: Cardinal;
     FOnDeadLockRetryCount: Integer;
     FIsReadOnly: Boolean;
@@ -22,11 +21,13 @@ type
     FMetaValue: IBinaryData;
   private
     { IBerkeleyDBFactory }
-    function CreateDatabase(const ADatabaseFileName: string): IBerkeleyDB;
+    function CreateDatabase(
+      const ADatabaseFileName: string;
+      const AEnvironment: IBerkeleyDBEnvironment
+    ): IBerkeleyDB;
   public
     constructor Create(
       const AHelper: IGlobalBerkeleyDBHelper;
-      const AEnvironment: IBerkeleyDBEnvironment;
       const APageSize: Cardinal;
       const AOnDeadLockRetryCount: Integer;
       const AIsReadOnly: Boolean;
@@ -44,7 +45,6 @@ uses
 
 constructor TBerkeleyDBFactory.Create(
   const AHelper: IGlobalBerkeleyDBHelper;
-  const AEnvironment: IBerkeleyDBEnvironment;
   const APageSize: Cardinal;
   const AOnDeadLockRetryCount: Integer;
   const AIsReadOnly: Boolean;
@@ -53,10 +53,8 @@ constructor TBerkeleyDBFactory.Create(
 );
 begin
   Assert(Assigned(AHelper));
-  Assert(Assigned(AEnvironment));
   inherited Create;
   FHelper := AHelper;
-  FEnvironment := AEnvironment;
   FPageSize := APageSize;
   FOnDeadLockRetryCount := AOnDeadLockRetryCount;
   FIsReadOnly := AIsReadOnly;
@@ -65,14 +63,15 @@ begin
 end;
 
 function TBerkeleyDBFactory.CreateDatabase(
-  const ADatabaseFileName: string
+  const ADatabaseFileName: string;
+  const AEnvironment: IBerkeleyDBEnvironment
 ): IBerkeleyDB;
 var
   VDatabase: IBerkeleyDB;
 begin
   VDatabase := TBerkeleyDB.Create(
     FHelper,
-    FEnvironment,
+    AEnvironment,
     FIsReadOnly,
     FOnDeadLockRetryCount,
     FPageSize

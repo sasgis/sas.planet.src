@@ -26,18 +26,17 @@ uses
   Types,
   Classes,
   SysUtils,
+  t_BerkeleyDB,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_BinaryData,
   i_MapVersionConfig,
   i_BerkeleyDBKeyValue,
-  i_BerkeleyDBFactory,
   i_GlobalBerkeleyDBHelper,
   i_TileStorageBerkeleyDBHelper,
   i_TileStorageBerkeleyDBConfigStatic,
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
-  i_BerkeleyDBPool,
   u_BaseInterfacedObject;
 
 type
@@ -52,7 +51,6 @@ type
       end;
       PVersionIDInfo = ^TVersionIDInfo;
   private
-    FPool: IBerkeleyDBPool;
     FEnvironment: IBerkeleyDBEnvironment;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FIsReadOnly: Boolean;
@@ -169,8 +167,6 @@ uses
   CRC32,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
-  u_BerkeleyDBPool,
-  u_BerkeleyDBFactory,
   u_MapVersionInfo,
   u_MapVersionListStatic,
   u_BinaryDataByBerkeleyDBValue;
@@ -194,9 +190,9 @@ constructor TTileStorageBerkeleyDBHelper.Create(
   const AIsVersioned: Boolean;
   const AStorageEPSG: Integer
 );
-var
-  VDatabaseFactory: IBerkeleyDBFactory;
 begin
+  Assert(Assigned(AGlobalBerkeleyDBHelper));
+
   inherited Create;
 
   FMapVersionFactory := AMapVersionFactory;
@@ -205,23 +201,10 @@ begin
   FOnDeadLockRetryCount := AStorageConfig.OnDeadLockRetryCount;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 
-  FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(AStorageRootPath);
-
-  VDatabaseFactory := TBerkeleyDBFactory.Create(
-    FGlobalBerkeleyDBHelper,
-    FEnvironment,
-    AStorageConfig.DatabasePageSize,
-    FOnDeadLockRetryCount,
-    FIsReadOnly,
-    TBerkeleyDBMetaKey.Create as IBinaryData,
-    TBerkeleyDBMetaValue.Create(AStorageEPSG) as IBinaryData
-  );
-
-  FPool := TBerkeleyDBPool.Create(
-    FGlobalBerkeleyDBHelper,
-    VDatabaseFactory,
-    AStorageConfig.PoolSize,
-    AStorageConfig.PoolObjectTTL
+  FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(
+    AStorageConfig,
+    AStorageEPSG,
+    AStorageRootPath
   );
 end;
 
@@ -230,7 +213,6 @@ begin
   if Assigned(FGlobalBerkeleyDBHelper) then begin
     FGlobalBerkeleyDBHelper.FreeEnvironment(FEnvironment);
   end;
-  FPool := nil;
   FEnvironment := nil;
   FGlobalBerkeleyDBHelper := nil;
   inherited;
@@ -394,7 +376,7 @@ var
   VMetaElement: IBerkeleyDBVersionedMetaValueElement;
 begin
   Result := False;
-  VDatabase := FPool.Acquire(ADatabaseFileName);
+  VDatabase := FEnvironment.Acquire(ADatabaseFileName);
   try
     if Assigned(AData) then begin
       VTile := AData.Buffer;
@@ -487,7 +469,7 @@ begin
       Result := VDatabase.Write(VKey, VValue);
     end;
   finally
-    FPool.Release(VDatabase);
+    FEnvironment.Release(VDatabase);
   end;
 end;
 
@@ -509,7 +491,7 @@ var
   VVersionedMeta: IBerkeleyDBVersionedMetaValue;
 begin
   Result := False;
-  VDatabase := FPool.Acquire(ADatabaseFileName);
+  VDatabase := FEnvironment.Acquire(ADatabaseFileName);
   try
     if FIsVersioned then begin
       I := 0;
@@ -581,7 +563,7 @@ begin
       Result := VDatabase.Del(VKey);
     end;
   finally
-    FPool.Release(VDatabase);
+    FEnvironment.Release(VDatabase);
   end;
 end;
 
@@ -602,7 +584,7 @@ var
   VDatabase: IBerkeleyDB;
 begin
   Result := False;
-  VDatabase := FPool.Acquire(ADatabaseFileName);
+  VDatabase := FEnvironment.Acquire(ADatabaseFileName);
   try
     VKey := GetReadOnlyKey(ATileXY, AVersionInfo, VDatabase);
     if Assigned(VKey) then begin
@@ -628,7 +610,7 @@ begin
       end;
     end;
   finally
-    FPool.Release(VDatabase);
+    FEnvironment.Release(VDatabase);
   end;
 end;
 
@@ -663,7 +645,7 @@ begin
   ATileVersionListStatic := nil;
   VVersionInfo := CheckVersionInfo(AVersionInfo);
 
-  VDatabase := FPool.Acquire(ADatabaseFileName);
+  VDatabase := FEnvironment.Acquire(ADatabaseFileName);
   try
     if FIsVersioned then begin
       VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
@@ -762,7 +744,7 @@ begin
       end;
     end;
   finally
-    FPool.Release(VDatabase);
+    FEnvironment.Release(VDatabase);
   end;
 end;
 
@@ -777,14 +759,14 @@ var
   VDatabase: IBerkeleyDB;
 begin
   Result := False;
-  VDatabase := FPool.Acquire(ADatabaseFileName);
+  VDatabase := FEnvironment.Acquire(ADatabaseFileName);
   try
     VKey := GetReadOnlyKey(ATileXY, AVersionInfo, VDatabase);
     if Assigned(VKey) then begin
       Result := VDatabase.Exists(VKey);
     end;
   finally
-    FPool.Release(VDatabase);
+    FEnvironment.Release(VDatabase);
   end;
 end;
 
@@ -802,7 +784,7 @@ var
   VDatabase: IBerkeleyDB;
 begin
   Result := False;
-  VDatabase := FPool.Acquire(ADatabaseFileName);
+  VDatabase := FEnvironment.Acquire(ADatabaseFileName);
   try
     VKey := GetReadOnlyKey(ATileXY, AVersionInfo, VDatabase);
     if Assigned(VKey) then begin
@@ -824,18 +806,14 @@ begin
       end;
     end;
   finally
-    FPool.Release(VDatabase);
+    FEnvironment.Release(VDatabase);
   end;
 end;
 
 procedure TTileStorageBerkeleyDBHelper.Sync(out AHotDatabaseCount: Integer);
 begin
-  Assert(Assigned(FPool));
-  Assert(Assigned(FEnvironment));
-
-  FEnvironment.Sync;
-  FPool.Sync;
-  AHotDatabaseCount := FPool.Count;
+  Assert(Assigned(FEnvironment));      
+  FEnvironment.Sync(AHotDatabaseCount);
 end;
 
 function TTileStorageBerkeleyDBHelper.GetTileExistsArray(
@@ -887,7 +865,7 @@ begin
   Result := False;
   SetLength(ATileExistsArray, 0);
 
-  VDatabase := FPool.Acquire(ADatabaseFileName);
+  VDatabase := FEnvironment.Acquire(ADatabaseFileName);
   try
     if not VDatabase.CreateExistsKeyArray(VList) then begin
       Exit;
@@ -919,7 +897,7 @@ begin
       VDatabase.ReleaseExistsKeyArray(VList);
     end;
   finally
-    FPool.Release(VDatabase);
+    FEnvironment.Release(VDatabase);
   end;
 end;
 

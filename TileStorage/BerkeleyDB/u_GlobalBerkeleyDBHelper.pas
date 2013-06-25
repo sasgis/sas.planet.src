@@ -31,6 +31,7 @@ uses
   i_PathConfig,
   i_GlobalBerkeleyDBHelper,
   i_BerkeleyDBEnv,
+  i_TileStorageBerkeleyDBConfigStatic,
   u_BaseInterfacedObject;
 
 type
@@ -49,7 +50,11 @@ type
     procedure OnCacheConfigChange;
   private
     { IGlobalBerkeleyDBHelper }
-    function AllocateEnvironment(const AEnvRootPath: string): IBerkeleyDBEnvironment;
+    function AllocateEnvironment(
+      const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
+      const AStorageEPSG: Integer;
+      const AEnvRootPath: string
+    ): IBerkeleyDBEnvironment;
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
     procedure RaiseException(const EMsg: AnsiString);
     procedure LogException(const EMsg: AnsiString);
@@ -115,6 +120,8 @@ begin
 end;
 
 function TGlobalBerkeleyDBHelper.AllocateEnvironment(
+  const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
+  const AStorageEPSG: Integer;
   const AEnvRootPath: string
 ): IBerkeleyDBEnvironment;
 var
@@ -137,7 +144,12 @@ begin
       end;
     end;
     if not Assigned(Result) then begin
-      VEnv := TBerkeleyDBEnv.Create(Self, VPath);
+      VEnv := TBerkeleyDBEnv.Create(
+        (Self as IGlobalBerkeleyDBHelper),
+        AStorageConfig,
+        AStorageEPSG,
+        VPath
+      );
       FEnvList.Add(VEnv);
       Result := VEnv;
     end;

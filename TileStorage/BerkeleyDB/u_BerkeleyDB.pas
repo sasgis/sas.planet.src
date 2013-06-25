@@ -26,6 +26,7 @@ uses
   Classes,
   SysUtils,
   libdb51,
+  t_BerkeleyDB,
   i_BinaryData,
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
@@ -102,7 +103,7 @@ begin
   dbenv := AEnvironment.dbenv;
   FEnvRootPath := AEnvironment.RootPath;
   FFileName := '';
-//  FLock := MakeSyncRW_Std(Self, False);
+//FLock := MakeSyncRW_Std(Self, False);
   FLock := MakeSyncFake(Self);
   FOnDeadLockRetryCount := AOnDeadLockRetryCount;
 end;
@@ -110,7 +111,6 @@ end;
 destructor TBerkeleyDB.Destroy;
 begin
   try
-    Self.Sync;
     Self.Close;
   finally
     FLock := nil;

@@ -747,6 +747,7 @@
     <DCCReference Include="TileStorage\BerkeleyDB\i_GlobalBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_TileStorageBerkeleyDBConfigStatic.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\i_TileStorageBerkeleyDBHelper.pas" />
+    <DCCReference Include="TileStorage\BerkeleyDB\t_BerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBEnv.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBFactory.pas" />

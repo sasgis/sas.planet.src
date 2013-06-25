@@ -23,15 +23,20 @@ unit i_BerkeleyDBPool;
 interface
 
 uses
-  i_BerkeleyDB;
+  i_BerkeleyDB,
+  i_BerkeleyDBEnv;
 
 type
   IBerkeleyDBPool = interface
     ['{BAC521DC-676E-48F2-BEE2-9E7AFC82F9CA}']
-    function Acquire(const ADatabaseFileName: string): IBerkeleyDB;
+    function Acquire(
+      const ADatabaseFileName: string;
+      const AEnvironment: IBerkeleyDBEnvironment
+    ): IBerkeleyDB;
+
     procedure Release(const ADatabase: IBerkeleyDB);
-    function Count: Integer;
-    procedure Sync;
+
+    procedure Sync(out AHotDatabaseCount: Integer);
   end;
 
 implementation

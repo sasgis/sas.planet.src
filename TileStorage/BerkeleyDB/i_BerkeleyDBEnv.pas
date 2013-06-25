@@ -22,9 +22,11 @@ unit i_BerkeleyDBEnv;
 
 interface
 
-type
-  PBerkeleyTxn = Pointer;
+uses
+  t_BerkeleyDB,
+  i_BerkeleyDB;
 
+type
   IBerkeleyDBEnvironment = interface
     ['{0D73208B-3729-43F3-9AAE-DF1616107648}']
     function GetEnvironmentPointerForApi: Pointer;
@@ -37,11 +39,14 @@ type
     procedure SetClientsCount(const AValue: Integer);
     property ClientsCount: Integer read GetClientsCount write SetClientsCount;
 
+    function Acquire(const ADatabaseFileName: string): IBerkeleyDB;
+    procedure Release(const ADatabase: IBerkeleyDB);
+
     procedure TransactionBegin(out ATxn: PBerkeleyTxn);
     procedure TransactionCommit(var ATxn: PBerkeleyTxn);
     procedure TransactionAbort(var ATxn: PBerkeleyTxn);
 
-    procedure Sync;
+    procedure Sync(out AHotDatabaseCount: Integer);
   end;
 
 implementation

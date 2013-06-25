@@ -18,38 +18,22 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_BerkeleyDB;
+unit t_BerkeleyDB;
 
 interface
 
 uses
-  t_BerkeleyDB,
-  i_BinaryData;
+  Classes;
 
 type
-  IBerkeleyDB = interface
-    ['{7B7EFD37-ADAF-4A83-A3D8-CA3AAD6A300E}']
-    procedure Open(const ADatabaseFileName: string);
-    procedure Close;
+  PBerkeleyTxn = Pointer;
 
-    function Read(const AKey: IBinaryData): IBinaryData; overload;
-    function Write(const AKey, AValue: IBinaryData): Boolean; overload;
-    function Exists(const AKey: IBinaryData): Boolean; overload;
-    function Del(const AKey: IBinaryData): Boolean; overload;
-
-    function Read(const AKey: IBinaryData;  const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): IBinaryData; overload;
-    function Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
-    function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
-    function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
-
-    function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
-    procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
-
-    procedure Sync;
-
-    function GetFileName: string;
-    property FileName: string read GetFileName;
+  TExistsKeyArrayElement = record
+    KeySize: Integer;
+    KeyData: TList;
   end;
+
+  TExistsKeyArray = array of TExistsKeyArrayElement;
 
 implementation
 

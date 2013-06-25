@@ -23,12 +23,16 @@ unit i_BerkeleyDBFactory;
 interface
 
 uses
-  i_BerkeleyDB;
+  i_BerkeleyDB,
+  i_BerkeleyDBEnv;
 
 type
   IBerkeleyDBFactory = interface
     ['{288B5F70-F0AB-433B-8267-EB6D3205A16A}']
-    function CreateDatabase(const ADatabaseFileName: string): IBerkeleyDB;
+    function CreateDatabase(
+      const ADatabaseFileName: string;
+      const AEnvironment: IBerkeleyDBEnvironment
+    ): IBerkeleyDB;
   end;
 
 implementation
