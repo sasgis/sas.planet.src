@@ -822,6 +822,9 @@ var
 begin
   WriteFileHeaders(True);
 
+  if Length(JpegString) < 3 then
+    exit;
+
   if not CanAcceptTile(Level, Length(JpegString)) then
     Raise EJNXException.Create('JNX file is too large to accept more tiles.');
 
