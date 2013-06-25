@@ -54,6 +54,7 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FGCNotifier: INotifierTime;
     FSyncCallListener: IListenerTimeWithUsedFlag;
+    FSyncCallLock: IReadWriteSync;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
     FVersioned: Boolean;
@@ -212,6 +213,7 @@ begin
   FStorageHelperLock := MakeSyncRW_Var(Self, False);
 
   FCommitsCountToSync := FStorageConfig.CommitsCountToSync;
+  FSyncCallLock := MakeSyncRW_Std(Self, False);
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;
@@ -244,28 +246,45 @@ begin
   end;
 
   if Assigned(VHelper) then begin
-    VHelper.Sync(VHotDbCount);
-    VHelper := nil;
-    if VHotDbCount <= 0 then begin
-      FStorageHelperLock.BeginWrite;
-      try
-        FStorageHelper := nil;
-      finally
-        FStorageHelperLock.EndWrite;
+    FSyncCallLock.BeginWrite;
+    try
+      VHelper.Sync(VHotDbCount);
+      VHelper := nil;
+
+      if VHotDbCount <= 0 then begin
+        FStorageHelperLock.BeginWrite;
+        try
+          FStorageHelper := nil;
+        finally
+          FStorageHelperLock.EndWrite;
+        end;
+      end else begin
+        FSyncCallListener.CheckUseTimeUpdated;
       end;
-    end else begin
-      FSyncCallListener.CheckUseTimeUpdated;
+
+      FCommitsCountToSync := FStorageConfig.CommitsCountToSync;
+    finally
+      FSyncCallLock.EndWrite;
     end;
   end;
 end;
 
 procedure TTileStorageBerkeleyDB.OnCommitSync;
 var
-  VCount: Integer;
+  VDoSyncCall: Boolean;
 begin
-  VCount := InterlockedExchangeAdd(@FCommitsCountToSync, -1);
-  if VCount = 0 then begin
-    InterlockedExchange(FCommitsCountToSync, FStorageConfig.CommitsCountToSync);
+  FSyncCallLock.BeginWrite;
+  try
+    Dec(FCommitsCountToSync);
+    VDoSyncCall := (FCommitsCountToSync <= 0);
+    if VDoSyncCall then begin
+      FCommitsCountToSync := FStorageConfig.CommitsCountToSync;
+    end;
+  finally
+    FSyncCallLock.EndWrite;
+  end;
+
+  if VDoSyncCall then begin
     Self.OnSyncCall;
   end;
 end;
