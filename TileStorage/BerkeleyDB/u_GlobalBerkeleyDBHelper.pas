@@ -130,6 +130,7 @@ begin
       VEnv := FEnvList.Items[I] as IBerkeleyDBEnvironment;
       if Assigned(VEnv) then begin
         if VEnv.RootPath = VPath then begin
+          VEnv.ClientsCount := VEnv.ClientsCount + 1;
           Result := VEnv;
           Break;
         end;
