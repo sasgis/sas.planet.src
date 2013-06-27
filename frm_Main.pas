@@ -3207,7 +3207,7 @@ begin
     VLocalConverter := FConfig.ViewPortState.View.GetStatic;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
-    VMousePos := MainPopupMenu.PopupPoint;
+    VMousePos := FMouseState.GetLastDownPos(mbRight);
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(VMousePos);
     VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, False);
     VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
