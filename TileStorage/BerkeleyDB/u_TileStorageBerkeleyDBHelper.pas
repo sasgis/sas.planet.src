@@ -481,7 +481,7 @@ function TTileStorageBerkeleyDBHelper.DeleteTile(
 ): Boolean;
 var
   I: Integer;
-  VKey: IBinaryData;
+  VKey, VMetaKey: IBinaryData;
   VDatabase: IBerkeleyDB;
   VIsDeadLock: Boolean;
   VTransaction: PBerkeleyTxn;
@@ -499,8 +499,8 @@ begin
       repeat
         FEnvironment.TransactionBegin(VTransaction);
         try
-          VKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
-          VVersionedMeta := ReadVersionedMetaValue(VKey, VTransaction, VDatabase, VIsDeadLock);
+          VMetaKey := TBerkeleyDBVersionedMetaKey.Create(ATileXY);
+          VVersionedMeta := ReadVersionedMetaValue(VMetaKey, VTransaction, VDatabase, VIsDeadLock);
 
           if VIsDeadLock then begin
             FEnvironment.TransactionAbort(VTransaction);
@@ -519,10 +519,19 @@ begin
             VKey := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
             VVersionedMeta.Del(VVersionIDInfo.TileIndexInMetaValue);
             if VVersionedMeta.ItemsCount > 0 then begin
-              if VDatabase.Write(VKey, (VVersionedMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
-                FEnvironment.TransactionCommit(VTransaction);
-                Result := True;
-                Exit;
+              if VDatabase.Write(VMetaKey, (VVersionedMeta as IBinaryData), VTransaction, VIsDeadLock) then begin
+                if VDatabase.Del(VKey, VTransaction, VIsDeadLock) then begin
+                  FEnvironment.TransactionCommit(VTransaction);
+                  Result := True;
+                  Exit;
+                end else if VIsDeadLock then begin
+                  FEnvironment.TransactionAbort(VTransaction);
+                  Continue;
+                end else begin
+                  FEnvironment.TransactionAbort(VTransaction);
+                  Assert(False);
+                  Exit;
+                end;
               end else if VIsDeadLock then begin
                 FEnvironment.TransactionAbort(VTransaction);
                 Continue;
@@ -532,10 +541,19 @@ begin
                 Exit;
               end;
             end else begin
-              if VDatabase.Del(VKey, VTransaction, VIsDeadLock) then begin
-                FEnvironment.TransactionCommit(VTransaction);
-                Result := True;
-                Exit;
+              if VDatabase.Del(VMetaKey, VTransaction, VIsDeadLock) then begin
+                if VDatabase.Del(VKey, VTransaction, VIsDeadLock) then begin
+                  FEnvironment.TransactionCommit(VTransaction);
+                  Result := True;
+                  Exit;
+                end else if VIsDeadLock then begin
+                  FEnvironment.TransactionAbort(VTransaction);
+                  Continue;
+                end else begin
+                  FEnvironment.TransactionAbort(VTransaction);
+                  Assert(False);
+                  Exit;
+                end;
               end else if VIsDeadLock then begin
                 FEnvironment.TransactionAbort(VTransaction);
                 Continue;
