@@ -215,6 +215,7 @@ begin
   if not FileExists(VFile) then begin
     VList := TStringList.Create;
     try
+      VList.Add('set_flags DB_TXN_NOWAIT on');
       VList.Add('set_flags DB_TXN_WRITE_NOSYNC on');
       VList.Add('set_lg_dir .');
       VList.Add('set_data_dir ..');
@@ -254,6 +255,7 @@ begin
     dbenv.set_msgcall(dbenv, BerkeleyDBMsgCall);
     CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));
 
+    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_NOWAIT, 1));
     CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 1));
     CheckBDB(dbenv.set_lg_dir(dbenv, '.'));
     CheckBDB(dbenv.set_data_dir(dbenv, '..'));
