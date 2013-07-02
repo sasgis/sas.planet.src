@@ -8,8 +8,8 @@ uses
 
 type
   IVectorItemTree = interface
-    function GetCategory: ICategory;
-    property Category: ICategory read GetCategory;
+    function GetName: string;
+    property Name: string read GetName;
 
     function GetSubTreeItemCount: Integer;
     property SubTreeItemCount: Integer read GetSubTreeItemCount;

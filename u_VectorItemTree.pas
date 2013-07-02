@@ -12,17 +12,17 @@ uses
 type
   TVectorItemTree = class(TBaseInterfacedObject, IVectorItemTree)
   private
-    FCategory: ICategory;
+    FName: string;
     FItems: IVectorItemSubset;
     FSubTreeItemList: IInterfaceList;
   private
-    function GetCategory: ICategory;
+    function GetName: string;
     function GetSubTreeItemCount: Integer;
     function GetSubTreeItem(const AIndex: Integer): IVectorItemTree;
     function GetItems: IVectorItemSubset;
   public
     constructor Create(
-      const ACategory: ICategory;
+      const AName: string;
       const AItems: IVectorItemSubset;
       const ASubTreeItemList: IInterfaceList
     );
@@ -33,21 +33,20 @@ implementation
 { TVectorItemTree }
 
 constructor TVectorItemTree.Create(
-  const ACategory: ICategory;
+  const AName: string;
   const AItems: IVectorItemSubset;
   const ASubTreeItemList: IInterfaceList
 );
 begin
-  Assert(Assigned(ACategory));
   inherited Create;
-  FCategory := ACategory;
+  FName := AName;
   FItems := AItems;
   FSubTreeItemList := ASubTreeItemList;
 end;
 
-function TVectorItemTree.GetCategory: ICategory;
+function TVectorItemTree.GetName: string;
 begin
-  Result := FCategory;
+  Result := FName;
 end;
 
 function TVectorItemTree.GetItems: IVectorItemSubset;
