@@ -16,7 +16,7 @@ uses
 type
   TestTVectorItmesFactorySimple = class(TTestCase)
   private
-    FFactory: IVectorItmesFactory;
+    FFactory: IVectorItemsFactory;
     FPoints: array of TDoublePoint;
   protected
     procedure SetUp; override;
@@ -52,7 +52,7 @@ uses
 
 procedure TestTVectorItmesFactorySimple.SetUp;
 begin
-  FFactory := TVectorItmesFactorySimple.Create;
+  FFactory := TVectorItemsFactorySimple.Create;
 end;
 
 procedure TestTVectorItmesFactorySimple.CreateLonLatPathNoLines;
