@@ -909,6 +909,7 @@ uses
   i_Bitmap32Static in 'i_Bitmap32Static.pas',
   i_Bitmap32StaticFactory in 'i_Bitmap32StaticFactory.pas',
   u_Bitmap32StaticFactory in 'u_Bitmap32StaticFactory.pas',
+  u_Bitmap32StaticFactorySimple in 'u_Bitmap32StaticFactorySimple.pas',
   u_Bitmap32ByStaticBitmap in 'u_Bitmap32ByStaticBitmap.pas',
   u_ObjectPoolBitmap32Standart in 'u_ObjectPoolBitmap32Standart.pas',
   u_BitmapChangeableFaked in 'u_BitmapChangeableFaked.pas',

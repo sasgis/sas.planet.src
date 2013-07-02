@@ -14,6 +14,7 @@ type
   TBitmap32StaticFactory = class(TBaseInterfacedObject, IBitmap32StaticFactory)
   private
     FStandartSizePool: IObjectPoolBitmap32Standart;
+    FFactorySimple: IBitmap32StaticFactory;
   private
     function Build(
       const ASize: TPoint;
@@ -36,65 +37,8 @@ implementation
 uses
   Types,
   GR32_LowLevel,
+  u_Bitmap32StaticFactorySimple,
   u_ObjectPoolBitmap32Standart;
-
-type
-  TBitmap32StaticSimple = class(TBaseInterfacedObject, IBitmap32Static)
-  private
-    FSize: TPoint;
-    FBits: PColor32Array;
-  private
-    function GetSize: TPoint;
-    function GetData: PColor32Array;
-  public
-    constructor Create(
-      const ASize: TPoint
-    );
-    destructor Destroy; override;
-  end;
-
-{ TBitmap32StaticSimple }
-
-
-constructor TBitmap32StaticSimple.Create(
-  const ASize: TPoint
-);
-begin
-  inherited Create;
-  Assert(ASize.X > 0);
-  Assert(ASize.Y > 0);
-  Assert(ASize.X < 1 shl 16);
-  Assert(ASize.Y < 1 shl 16);
-  Assert(ASize.X * ASize.Y < 1 shl 28);
-
-  if
-    (ASize.X > 0) and (ASize.Y > 0) and
-    (ASize.X < 1 shl 16) and (ASize.Y < 1 shl 16) and
-    (ASize.X * ASize.Y < 1 shl 28)
-  then begin
-    GetMem(FBits, ASize.X * ASize.Y * 4);
-    FSize := ASize;
-  end;
-end;
-
-destructor TBitmap32StaticSimple.Destroy;
-begin
-  if Assigned(FBits) then begin
-    FreeMem(FBits);
-    FBits := nil;
-  end;
-  inherited;
-end;
-
-function TBitmap32StaticSimple.GetData: PColor32Array;
-begin
-  Result := FBits;
-end;
-
-function TBitmap32StaticSimple.GetSize: TPoint;
-begin
-  Result := FSize;
-end;
 
 { TBitmap32StaticFactory }
 
@@ -111,6 +55,7 @@ begin
       10,
       100
     );
+  FFactorySimple := TBitmap32StaticFactorySimple.Create;
 end;
 
 function TBitmap32StaticFactory.Build(const ASize: TPoint;
@@ -137,23 +82,11 @@ function TBitmap32StaticFactory.BuildEmpty(
 var
   VStandartSize: TPoint;
 begin
-  Assert(ASize.X > 0);
-  Assert(ASize.Y > 0);
-  Assert(ASize.X < 1 shl 16);
-  Assert(ASize.Y < 1 shl 16);
-  Assert(ASize.X * ASize.Y < 1 shl 28);
-
   VStandartSize := FStandartSizePool.Size;
   if (ASize.X = VStandartSize.X) and (ASize.Y = VStandartSize.Y) then begin
     Result := FStandartSizePool.Build;
-  end else if
-    (ASize.X > 0) and (ASize.Y > 0) and
-    (ASize.X < 1 shl 16) and (ASize.Y < 1 shl 16) and
-    (ASize.X * ASize.Y < 1 shl 28)
-  then begin
-    Result := TBitmap32StaticSimple.Create(ASize);
   end else begin
-    Result := nil;
+    Result := FFactorySimple.BuildEmpty(ASize);
   end;
 end;
 
