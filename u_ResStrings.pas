@@ -129,7 +129,7 @@ ResourceString
   SAS_STR_AllDelete = 'Deleted total:';
   SAS_STR_AllSaves = 'Total to save:';
   SAS_STR_Files = 'files';
-  SAS_STR_file = 'file';
+  SAS_STR_File = 'File';
   SAS_STR_No = 'No';
   SAS_STR_Yes = 'Yes';
   SAS_STR_Deleted = 'Deleting:';

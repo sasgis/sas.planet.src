@@ -454,7 +454,7 @@ begin
           end;
         end;
       end;
-      VString := SAS_STR_file + ' ' + VTileName;
+      VString := SAS_STR_File + ' ' + VTileName;
       RenderText(VOffset, VString, VNeedSeparator);
     end;
 
