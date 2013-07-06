@@ -32,9 +32,6 @@ begin
   FMsgFileStream := nil;
   FMsgCS := TCriticalSection.Create;
   FMsgFileName := AMsgFileName;
-  if FileExists(FMsgFileName) then begin
-    DeleteFile(FMsgFileName); // ignore possible errors
-  end;
 end;
 
 destructor TBerkeleyDBMsgLogger.Destroy;
