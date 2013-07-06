@@ -55,6 +55,7 @@ type
     FClientsCount: Integer;
     FTxnList: TList;
     FDatabasePool: IBerkeleyDBPool;
+    FIsFullVerboseMode: Boolean;
     function Open: Boolean;
     procedure MakeDefConfigFile(const AEnvHomePath: string);
     procedure RemoveUnUsedLogs;
@@ -162,6 +163,7 @@ begin
     AStorageConfig.PoolObjectTTL
   );
 
+  FIsFullVerboseMode := AStorageConfig.IsFullVerboseMode;
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
@@ -264,6 +266,24 @@ begin
     CheckBDB(dbenv.set_lg_max(dbenv, 10*1024*1024));
     CheckBDB(dbenv.set_lg_bsize(dbenv, 2*1024*1024));
     CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
+
+    if FIsFullVerboseMode then begin
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_DEADLOCK, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_FILEOPS, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_FILEOPS_ALL, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_RECOVERY, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REGISTER, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REPLICATION, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REP_ELECT, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REP_LEASE, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REP_MISC, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REP_MSGS, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REP_SYNC, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REP_SYSTEM, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REPMGR_CONNFAIL, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_REPMGR_MISC, 1));
+      CheckBDB(dbenv.set_verbose(dbenv, DB_VERB_WAITSFOR, 1));
+    end;
 
     CheckBDB(
       dbenv.open(

@@ -38,6 +38,7 @@ type
     FPoolObjectTTL: Cardinal;
     FDatabasePageSize: Cardinal;
     FOnDeadLockRetryCount: Integer;
+    FIsFullVerboseMode: Boolean;
   private
     procedure DoReadConfig;
   private
@@ -49,6 +50,7 @@ type
     function GetPoolObjectTTL: Cardinal;
     function GetDatabasePageSize: Cardinal;
     function GetOnDeadLockRetryCount: Integer;
+    function GetIsFullVerboseMode: Boolean;
   public
     constructor Create(const AStoragePath: string);
   end;
@@ -77,6 +79,7 @@ begin
   FPoolObjectTTL := 60000;
   FDatabasePageSize := 1024;
   FOnDeadLockRetryCount := 3;
+  FIsFullVerboseMode := False;
 
   DoReadConfig;
 end;
@@ -116,6 +119,11 @@ begin
   Result := FOnDeadLockRetryCount;
 end;
 
+function TTileStorageBerkeleyDBConfigStatic.GetIsFullVerboseMode: Boolean;
+begin
+  Result := FIsFullVerboseMode;
+end;
+
 procedure TTileStorageBerkeleyDBConfigStatic.DoReadConfig;
 var
   VIni: TIniFile;
@@ -130,6 +138,7 @@ begin
       FPoolObjectTTL := VIni.ReadInteger('BerkeleyDB', 'PoolObjectTTL', FPoolObjectTTL);
       FDatabasePageSize := VIni.ReadInteger('BerkeleyDB', 'DatabasePageSize', FDatabasePageSize);
       FOnDeadLockRetryCount := VIni.ReadInteger('BerkeleyDB', 'OnDeadLockRetryCount', FOnDeadLockRetryCount);
+      FIsFullVerboseMode := VIni.ReadBool('BerkeleyDB', 'IsFullVerboseMode', FIsFullVerboseMode);
     finally
       VIni.Free;
     end;

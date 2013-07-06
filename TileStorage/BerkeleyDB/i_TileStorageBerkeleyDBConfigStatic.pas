@@ -45,6 +45,9 @@ type
 
     function GetOnDeadLockRetryCount: Integer;
     property OnDeadLockRetryCount: Integer read GetOnDeadLockRetryCount;
+
+    function GetIsFullVerboseMode: Boolean;
+    property IsFullVerboseMode: Boolean read GetIsFullVerboseMode;
   end;
 
 implementation
