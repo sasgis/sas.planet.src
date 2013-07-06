@@ -30,7 +30,6 @@ type
   IBerkeleyDB = interface
     ['{7B7EFD37-ADAF-4A83-A3D8-CA3AAD6A300E}']
     procedure Open(const ADatabaseFileName: string);
-    procedure Close;
 
     function Read(const AKey: IBinaryData): IBinaryData; overload;
     function Write(const AKey, AValue: IBinaryData): Boolean; overload;
@@ -39,7 +38,7 @@ type
 
     function Read(const AKey: IBinaryData;  const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): IBinaryData; overload;
     function Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
-    function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
+    function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): Boolean; overload;
     function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
 
     function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
@@ -49,6 +48,12 @@ type
 
     function GetFileName: string;
     property FileName: string read GetFileName;
+
+    procedure LockRead;
+    procedure UnlockRead;
+
+    function LockWrite: Boolean;
+    procedure UnlockWrite;
   end;
 
 implementation

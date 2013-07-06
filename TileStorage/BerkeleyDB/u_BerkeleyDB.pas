@@ -49,19 +49,22 @@ type
   private
     { IBerkeleyDB }
     procedure Open(const ADatabaseFileName: string);
-    procedure Close;
     function Read(const AKey: IBinaryData): IBinaryData; overload;
     function Write(const AKey, AValue: IBinaryData): Boolean; overload;
     function Exists(const AKey: IBinaryData): Boolean; overload;
     function Del(const AKey: IBinaryData): Boolean; overload;
     function Read(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): IBinaryData; overload;
     function Write(const AKey, AValue: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
-    function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
+    function Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): Boolean; overload;
     function Del(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean; overload;
     function CreateExistsKeyArray(out AKeyArray: TExistsKeyArray): Boolean;
     procedure ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);
     procedure Sync;
     function GetFileName: string;
+    procedure LockRead;
+    procedure UnlockRead;
+    function LockWrite: Boolean;
+    procedure UnlockWrite;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -103,20 +106,45 @@ begin
   dbenv := AEnvironment.dbenv;
   FEnvRootPath := AEnvironment.RootPath;
   FFileName := '';
-//FLock := MakeSyncRW_Std(Self, False);
-  FLock := MakeSyncFake(Self);
+  FLock := MakeSyncRW_Big(Self, False);
   FOnDeadLockRetryCount := AOnDeadLockRetryCount;
 end;
 
 destructor TBerkeleyDB.Destroy;
 begin
-  try
-    Self.Close;
-  finally
-    FLock := nil;
-    FHelper := nil;
-    inherited;
+  if db <> nil then begin
+    try
+      CheckBDBandNil(db.close(db, 0), db);
+    except
+      on E: Exception do begin
+        if Assigned(FHelper) then begin
+          FHelper.LogException(E.ClassName + ': ' + E.Message);
+        end;
+      end;
+    end;
   end;
+  FLock := nil;
+  FHelper := nil;
+  inherited;
+end;
+
+procedure TBerkeleyDB.LockRead;
+begin
+  FLock.BeginRead;
+end;
+
+procedure TBerkeleyDB.UnlockRead;
+begin
+  FLock.EndRead;
+end;
+function TBerkeleyDB.LockWrite: Boolean;
+begin
+  Result := FLock.BeginWrite;
+end;
+
+procedure TBerkeleyDB.UnlockWrite;
+begin
+  FLock.EndWrite;
 end;
 
 procedure TBerkeleyDB.Open(const ADatabaseFileName: string);
@@ -125,56 +153,35 @@ var
   VRelativeFileName: UTF8String;
   VOpenFlags: Cardinal;
 begin
-  FLock.BeginWrite;
+  if db = nil then
   try
-    if db = nil then
-    try
-      FFileName := ADatabaseFileName;
-      VRelativeFileName :=
-        AnsiToUtf8(StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]));
-      CheckBDB(db_create(db, dbenv, 0));
-      db.set_errpfx(db, cBerkeleyDBErrPfx);
-      if not FileExists(FFileName) then begin
-        CheckBDB(db.set_pagesize(db, FPageSize));
-      end;
-      if FIsReadOnly then begin
-        VOpenFlags := DB_RDONLY or DB_THREAD;
-      end else begin
-        VOpenFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
-      end;
-      CheckBDB(db.open(db, nil, PAnsiChar(VRelativeFileName), '', DB_BTREE, VOpenFlags, 0));
-    except
-      on E: Exception do begin
-        VErrorMsg := '';
-        if db <> nil then
-        try
-          CheckBDBandNil(db.close(db, 0), db);
-        except
-          on EClose: Exception do
-            VErrorMsg := EClose.ClassName + ': ' + EClose.Message + #13#10;
-        end;
-        VErrorMsg := VErrorMsg + E.ClassName + ': ' + E.Message;
-        FHelper.RaiseException(VErrorMsg);
-      end;
+    FFileName := ADatabaseFileName;
+    VRelativeFileName := AnsiToUtf8(StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]));
+    CheckBDB(db_create(db, dbenv, 0));
+    db.set_errpfx(db, cBerkeleyDBErrPfx);
+    if not FileExists(FFileName) then begin
+      CheckBDB(db.set_pagesize(db, FPageSize));
     end;
-  finally
-    FLock.EndWrite;
-  end;
-end;
-
-procedure TBerkeleyDB.Close;
-begin
-  try
-    FLock.BeginWrite;
-    try
-      CheckBDBandNil(db.close(db, 0), db);
-    finally
-      FLock.EndWrite;
+    if FIsReadOnly then begin
+      VOpenFlags := DB_RDONLY or DB_THREAD;
+    end else begin
+      VOpenFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
     end;
+    CheckBDB(db.open(db, nil, PAnsiChar(VRelativeFileName), '', DB_BTREE, VOpenFlags, 0));
   except
-    on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
-  end;  
+    on E: Exception do begin
+      VErrorMsg := '';
+      if db <> nil then
+      try
+        CheckBDBandNil(db.close(db, 0), db);
+      except
+        on EClose: Exception do
+          VErrorMsg := EClose.ClassName + ': ' + EClose.Message + #13#10;
+      end;
+      VErrorMsg := VErrorMsg + E.ClassName + ': ' + E.Message;
+      FHelper.RaiseException(VErrorMsg);
+    end;
+  end;
 end;
 
 function TBerkeleyDB.Read(const AKey: IBinaryData): IBinaryData;
@@ -211,6 +218,7 @@ var
   dbtKey, dbtData: DBT;
   VFound: Boolean;
 begin
+  I := 0;
   Result := nil;
   VFound := False;
   try
@@ -220,24 +228,18 @@ begin
     dbtKey.data := AKey.Buffer;
     dbtKey.size := AKey.Size;
 
-    dbtData.flags := DB_DBT_MALLOC; // -> память должен освобождать юзер
+    dbtData.flags := DB_DBT_MALLOC;
 
-    I := 0;
     repeat
-      Inc(I);
-
-      FLock.BeginRead;
-      try
-        ret := db.get(db, PDB_TXN(ATxn), @dbtKey, @dbtData, AFlag);
-      finally
-        FLock.EndRead;
-      end;
+      ret := db.get(db, PDB_TXN(ATxn), @dbtKey, @dbtData, AFlag);
 
       case ret of
         DB_LOCK_DEADLOCK: begin
           AIsDeadLock := True;
           if ATxn <> nil then begin
             Break;
+          end else begin
+            Sleep(50);
           end;
         end;
       else
@@ -245,10 +247,11 @@ begin
         VFound := CheckAndFoundBDB(ret);
         Break;
       end;
+      Inc(I);
     until I > FOnDeadLockRetryCount;
 
     if AIsDeadLock and (ATxn = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
+      CheckBDB(DB_LOCK_DEADLOCK);
     end;
 
     if VFound then begin
@@ -274,6 +277,7 @@ var
 begin
   Assert(not FIsReadOnly);
 
+  I := 0;
   Result := False;
   AIsDeadLock := False;
   try
@@ -286,22 +290,16 @@ begin
     dbtData.data := AValue.Buffer;
     dbtData.size := AValue.Size;
 
-    I := 0;
     repeat
-      Inc(I);
-
-      FLock.BeginWrite;
-      try
-        ret := db.put(db, PDB_TXN(ATxn), @dbtKey, @dbtData, 0);
-      finally
-        FLock.EndWrite;
-      end;
+      ret := db.put(db, PDB_TXN(ATxn), @dbtKey, @dbtData, 0);
 
       case ret of
         DB_LOCK_DEADLOCK: begin
           AIsDeadLock := True;
           if ATxn <> nil then begin
             Break;
+          end else begin
+            Sleep(50);
           end;
         end;
       else
@@ -309,10 +307,11 @@ begin
         Result := CheckAndNotExistsBDB(ret);
         Break;
       end;
+      Inc(I);
     until I > FOnDeadLockRetryCount;
 
     if AIsDeadLock and (ATxn = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
+      CheckBDB(DB_LOCK_DEADLOCK);
     end;
   except
     on E: Exception do
@@ -320,12 +319,13 @@ begin
   end;
 end;
 
-function TBerkeleyDB.Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean): Boolean;
+function TBerkeleyDB.Exists(const AKey: IBinaryData; const ATxn: PBerkeleyTxn; out AIsDeadLock: Boolean; const AFlag: Cardinal = 0): Boolean;
 var
   I: Integer;
   ret: Integer;
   dbtKey: DBT;
 begin
+  I := 0;
   Result := False;
   try
     FillChar(dbtKey, Sizeof(DBT), 0);
@@ -333,22 +333,16 @@ begin
     dbtKey.data := AKey.Buffer;
     dbtKey.size := AKey.Size;
 
-    I := 0;
     repeat
-      Inc(I);
-
-      FLock.BeginRead;
-      try
-        ret := db.exists(db, PDB_TXN(ATxn), @dbtKey, 0);
-      finally
-        FLock.EndRead;
-      end;
+      ret := db.exists(db, PDB_TXN(ATxn), @dbtKey, AFlag);
 
       case ret of
         DB_LOCK_DEADLOCK: begin
           AIsDeadLock := True;
           if ATxn <> nil then begin
             Break;
+          end else begin
+            Sleep(50);
           end;
         end;
       else
@@ -356,10 +350,11 @@ begin
         Result := CheckAndFoundBDB(ret);
         Break;
       end;
+      Inc(I);
     until I > FOnDeadLockRetryCount;
 
     if AIsDeadLock and (ATxn = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
+      CheckBDB(DB_LOCK_DEADLOCK);
     end;
   except
     on E: Exception do
@@ -375,6 +370,7 @@ var
 begin
   Assert(not FIsReadOnly);
 
+  I := 0;
   Result := False;
   try
     FillChar(dbtKey, Sizeof(DBT), 0);
@@ -382,22 +378,16 @@ begin
     dbtKey.data := AKey.Buffer;
     dbtKey.size := AKey.Size;
 
-    I := 0;
     repeat
-      Inc(I);
-
-      FLock.BeginWrite;
-      try
-        ret := db.del(db, PDB_TXN(ATxn), @dbtKey, 0);
-      finally
-        FLock.EndWrite;
-      end;
+      ret := db.del(db, PDB_TXN(ATxn), @dbtKey, 0);
 
       case ret of
         DB_LOCK_DEADLOCK: begin
           AIsDeadLock := True;
           if ATxn <> nil then begin
             Break;
+          end else begin
+            Sleep(50);
           end;
         end;
       else
@@ -405,10 +395,11 @@ begin
         Result := CheckAndFoundBDB(ret);
         Break;
       end;
+      Inc(I);
     until I > FOnDeadLockRetryCount;
 
     if AIsDeadLock and (ATxn = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK); // <- raise exception about deadlock
+      CheckBDB(DB_LOCK_DEADLOCK);
     end;
   except
     on E: Exception do
@@ -419,12 +410,7 @@ end;
 procedure TBerkeleyDB.Sync;
 begin
   try
-    FLock.BeginWrite;
-    try
-      CheckBDB(db.sync(db, 0));
-    finally
-      FLock.EndWrite;
-    end;
+    CheckBDB(db.sync(db, 0));
   except
     on E: Exception do
       FHelper.RaiseException(E.ClassName + ': ' + E.Message);
@@ -441,47 +427,42 @@ begin
   Result := False;
   SetLength(AKeyArray, 0);
   try
-    FLock.BeginRead;
+    CheckBDB(db.cursor(db, nil, @dbc, 0));
     try
-      CheckBDB(db.cursor(db, nil, @dbc, 0));
-      try
-        repeat
-          FillChar(dbtKey, Sizeof(DBT), 0);
-          FillChar(dbtData, Sizeof(DBT), 0);
+      repeat
+        FillChar(dbtKey, Sizeof(DBT), 0);
+        FillChar(dbtData, Sizeof(DBT), 0);
 
-          dbtKey.flags := DB_DBT_MALLOC;   // -> память должен освобождать юзер
+        dbtKey.flags := DB_DBT_MALLOC;
 
-          dbtData.dlen := 0;
-          dbtData.doff := 0;
-          dbtData.flags := DB_DBT_PARTIAL; // -> не считывать value
+        dbtData.dlen := 0;
+        dbtData.doff := 0;
+        dbtData.flags := DB_DBT_PARTIAL;
 
-          if CheckAndFoundBDB(dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT)) then begin
-            if (dbtKey.data <> nil) and (dbtKey.size > 0) then begin
-              VIsFound := False;
-              for I := 0 to Length(AKeyArray) - 1 do begin
-                if AKeyArray[I].KeySize = Integer(dbtKey.size) then begin
-                  VIsFound := True;
-                  AKeyArray[I].KeyData.Add(dbtKey.data);
-                  Break;
-                end;
-              end;
-              if not VIsFound then begin
-                I := Length(AKeyArray);
-                SetLength(AKeyArray, I + 1);
-                AKeyArray[I].KeySize := dbtKey.size;
-                AKeyArray[I].KeyData := TList.Create;
+        if CheckAndFoundBDB(dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT)) then begin
+          if (dbtKey.data <> nil) and (dbtKey.size > 0) then begin
+            VIsFound := False;
+            for I := 0 to Length(AKeyArray) - 1 do begin
+              if AKeyArray[I].KeySize = Integer(dbtKey.size) then begin
+                VIsFound := True;
                 AKeyArray[I].KeyData.Add(dbtKey.data);
+                Break;
               end;
             end;
-          end else begin
-            Break;
-          end;  
-        until False;
-      finally
-        CheckBDBandNil(dbc.close(dbc), dbc);
-      end;
+            if not VIsFound then begin
+              I := Length(AKeyArray);
+              SetLength(AKeyArray, I + 1);
+              AKeyArray[I].KeySize := dbtKey.size;
+              AKeyArray[I].KeyData := TList.Create;
+              AKeyArray[I].KeyData.Add(dbtKey.data);
+            end;
+          end;
+        end else begin
+          Break;
+        end;
+      until False;
     finally
-      FLock.EndRead;
+      CheckBDBandNil(dbc.close(dbc), dbc);
     end;
     Result := Length(AKeyArray) > 0;
   except

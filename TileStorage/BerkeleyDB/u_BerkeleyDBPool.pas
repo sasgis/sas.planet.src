@@ -257,7 +257,12 @@ begin
               FObjList.Items[i] := nil;
             end else begin
               Assert(Assigned(PRec.Database));
-              PRec.Database.Sync;
+              PRec.Database.LockWrite;
+              try
+                PRec.Database.Sync;
+              finally
+                PRec.Database.UnLockWrite;
+              end;
             end;
           end;
         end;
