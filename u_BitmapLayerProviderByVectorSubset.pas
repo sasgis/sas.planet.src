@@ -47,7 +47,7 @@ type
     FListenLonLatRect: TDoubleRect;
     FListenerCS: IReadWriteSync;
 
-    FLayerListeners: array of IListener;
+    FLayerListeners: array of IListenerDisconnectable;
     FVersionListener: IListener;
 
     procedure OnMapVersionChange;
@@ -178,9 +178,23 @@ begin
 end;
 
 destructor TBitmapLayerProviderByVectorSubset.Destroy;
+var
+  i: Integer;
+  VCnt: Integer;
 begin
   if Assigned(FListenerCS) then begin
     RemoveListener;
+    FListenerCS.BeginWrite;
+    try
+      VCnt := Length(FLayerListeners);
+      for i := 0 to VCnt - 1 do begin
+        if Assigned(FLayerListeners[i]) then begin
+          FLayerListeners[i].Disconnect;
+        end;
+      end;
+    finally
+      FListenerCS.EndWrite;
+    end;
   end;
   inherited;
 end;
