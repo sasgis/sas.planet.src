@@ -32,12 +32,9 @@ type
   private
     FOperationID: Integer;
     FCancelListener: IListener;
-    FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
     FDebugThreadName: AnsiString;
     procedure OnCancel;
-    procedure SynShowMessage;
-    procedure ShowMessageSync(const AMessage: string);
   protected
     procedure Process; virtual; abstract;
     procedure Execute; override;
@@ -97,29 +94,12 @@ end;
 procedure TThreadCacheManagerAbstract.Execute;
 begin
   SetCurrentThreadName(FDebugThreadName);
-  try
-    Process;
-  except
-    on E: Exception do begin
-      ShowMessageSync(E.Message);
-    end;
-  end;
+  Process;
 end;
 
 procedure TThreadCacheManagerAbstract.OnCancel;
 begin
   Terminate;
-end;
-
-procedure TThreadCacheManagerAbstract.ShowMessageSync(const AMessage: string);
-begin
-  FMessageForShow := AMessage;
-  Synchronize(SynShowMessage);
-end;
-
-procedure TThreadCacheManagerAbstract.SynShowMessage;
-begin
-  ShowMessage(FMessageForShow);
 end;
 
 end.
