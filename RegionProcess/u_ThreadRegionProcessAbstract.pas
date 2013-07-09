@@ -22,7 +22,11 @@ type
     FDebugThreadName: AnsiString;
     procedure OnCancel;
     procedure SynShowMessage;
+    {$HINTS OFF}
+    // Disable hint: "Private symbol 'ShowMessageSync' declared but never used"
+    // in case we catch exceptions by EurekaLog (see below)
     procedure ShowMessageSync(const AMessage: string);
+    {$HINTS ON}
   protected
     procedure ProcessRegion; virtual; abstract;
     procedure Execute; override;
@@ -43,6 +47,9 @@ type
 implementation
 
 uses
+  {$IFDEF EUREKALOG}
+  ExceptionLog,
+  {$ENDIF}
   SysUtils,
   Dialogs,
   u_ReadableThreadNames,
@@ -92,9 +99,13 @@ begin
   try
     ProcessRegion;
   except
-    on e: Exception do begin
-      ShowMessageSync(e.Message);
+  {$IFDEF EUREKALOG}
+    ShowLastExceptionData;
+  {$ELSE}
+    on E: Exception do begin
+      ShowMessageSync(E.ClassName + ': ' + E.Message);
     end;
+  {$ENDIF}
   end;
 end;
 
