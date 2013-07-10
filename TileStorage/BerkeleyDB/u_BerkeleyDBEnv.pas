@@ -82,11 +82,19 @@ type
     destructor Destroy; override;
   end;
 
+  EBerkeleyDBEureka = class(EBerkeleyDBExeption)
+  public
+    constructor Create(const AMsg: AnsiString);
+  end;
+
 implementation
 
 uses
   Windows,
   SysUtils,
+{$IFDEF EUREKALOG}
+  ExceptionLog,
+{$ENDIF}
   i_BinaryData,
   i_BerkeleyDBFactory,
   u_BerkeleyDBKey,
@@ -113,7 +121,7 @@ begin
   if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FHelper) then begin
     VEnvPrivate.FHelper.RaiseException(VMsg);
   end else begin
-    raise EBerkeleyDBExeption.Create(string(VMsg));
+    raise EBerkeleyDBEureka.Create(VMsg);
   end;
 end;
 
@@ -436,6 +444,16 @@ end;
 procedure TBerkeleyDBEnv.Release(const ADatabase: IBerkeleyDB);
 begin
   FDatabasePool.Release(ADatabase);
+end;
+
+{ EBerkeleyDBEureka }
+
+constructor EBerkeleyDBEureka.Create(const AMsg: AnsiString);
+begin
+{$IFDEF EUREKALOG}
+  ShowLastExceptionData;
+{$ENDIF}
+  inherited Create(String(AMsg));
 end;
 
 end.

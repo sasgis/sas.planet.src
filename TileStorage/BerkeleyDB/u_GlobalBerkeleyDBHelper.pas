@@ -213,7 +213,7 @@ end;
 procedure TGlobalBerkeleyDBHelper.RaiseException(const EMsg: AnsiString);
 begin
   LogException(EMsg);
-  raise EBerkeleyDBExeption.Create(string(EMsg));
+  raise EBerkeleyDBEureka.Create(EMsg);
 end;
 
 procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: AnsiString);
