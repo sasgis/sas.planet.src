@@ -657,8 +657,19 @@ begin
   FValue.TileSize := ATileSize;
   FValue.TileDate := ATileDate;
   FValue.TileCRC := ATileCRC;
-  FValue.TileVersionInfo := ATileVersionInfo.StoreString;
-  FValue.TileContentType := ATileContentType.GetContentType;
+
+  if Assigned(ATileVersionInfo) then begin
+    FValue.TileVersionInfo := ATileVersionInfo.StoreString;
+  end else begin
+    FValue.TileVersionInfo := '';
+  end;
+
+  if Assigned(ATileContentType) then begin
+    FValue.TileContentType := ATileContentType.GetContentType;
+  end else begin
+    FValue.TileContentType := '';
+  end;
+
   ValueToData;
 end;
 
