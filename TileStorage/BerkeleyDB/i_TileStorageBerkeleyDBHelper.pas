@@ -40,7 +40,8 @@ type
       const ATileDate: TDateTime;
       const AVersionInfo: IMapVersionInfo;
       const ATileContetType: IContentTypeInfoBasic;
-      const AData: IBinaryData
+      const AData: IBinaryData;
+      const AKeepExisting: Boolean
     ): Boolean;
 
     function DeleteTile(

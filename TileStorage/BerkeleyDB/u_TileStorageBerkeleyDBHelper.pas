@@ -89,7 +89,8 @@ type
       const ATileDate: TDateTime;
       const AVersionInfo: IMapVersionInfo;
       const ATileContetType: IContentTypeInfoBasic;
-      const AData: IBinaryData
+      const AData: IBinaryData;
+      const AKeepExisting: Boolean
     ): Boolean;
 
     function DeleteTile(
@@ -366,7 +367,8 @@ function TTileStorageBerkeleyDBHelper.SaveTile(
   const ATileDate: TDateTime;
   const AVersionInfo: IMapVersionInfo;
   const ATileContetType: IContentTypeInfoBasic;
-  const AData: IBinaryData
+  const AData: IBinaryData;
+  const AKeepExisting: Boolean
 ): Boolean;
 var
   I: Integer;
@@ -431,6 +433,11 @@ begin
                 Exit;
               end;
 
+              if AKeepExisting and VVersionIDInfo.IsSameVersionFound then begin
+                FEnvironment.TransactionAbort(VTransaction);
+                Exit;
+              end;
+
               VMetaElement :=
                 TBerkeleyDBVersionedMetaValueElement.Create(
                   VVersionID,
@@ -483,6 +490,11 @@ begin
           end;
         end else begin
           VKey := TBerkeleyDBKey.Create(ATileXY);
+          // check if need to keep existing tile
+          if AKeepExisting and VDatabase.Exists(VKey) then begin
+            Exit;
+          end;
+          // save tile
           Result := VDatabase.Write(VKey, VValue);
         end;
       finally

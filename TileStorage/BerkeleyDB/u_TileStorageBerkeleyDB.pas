@@ -658,7 +658,8 @@ begin
         ALoadDate,
         AVersionInfo,
         AContentType,
-        AData
+        AData,
+        False // ToDo: KeepExisting
       );
       if VResult then begin
         VTileInfo :=
@@ -709,7 +710,8 @@ begin
         ALoadDate,
         AVersionInfo,
         nil,
-        nil
+        nil,
+        False // ToDo: KeepExisting
       );
       if VResult then begin
         if Assigned(FTileInfoMemCache) then begin
