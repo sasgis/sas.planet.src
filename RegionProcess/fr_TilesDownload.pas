@@ -274,8 +274,9 @@ begin
   cbbZoom.ItemIndex := AZoom;
   dtpReplaceOlderDate.Date:=now;
   cbbZoomChange(nil);
-  cbbZoomChange(cbbzoom);
   FfrMapSelect.Show(pnlFrame);
+  cbbZoomChange(cbbzoom);
+
 end;
 
 end.

@@ -249,6 +249,7 @@ begin
             VAddedIndex := cbbMap.Items.AddObject(VCurMapType.GUIConfig.Name.Value, VCurMapType);
             if IsEqualGUID(VCurMapType.Zmp.GUID, VActiveMapGUID) then begin // select current map by default
               cbbMap.ItemIndex := VAddedIndex;
+              VCurNewIndex := cbbMap.ItemIndex;
             end;
             if (VCurMapType.Abilities.IsLayer) then begin // select first active layer
               if(VLayers.GetMapTypeByGUID(VGUID) <> nil) and (VCurNewIndex = 0) then begin
