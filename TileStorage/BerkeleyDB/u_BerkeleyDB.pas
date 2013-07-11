@@ -160,6 +160,7 @@ begin
     FFileName := ADatabaseFileName;
     VRelativeFileName := AnsiToUtf8(StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]));
     CheckBDB(db_create(db, dbenv, 0));
+    Assert(db <> nil);
     db.set_errpfx(db, cBerkeleyDBErrPfx);
     if not FileExists(FFileName) then begin
       CheckBDB(db.set_pagesize(db, FPageSize));
@@ -220,6 +221,9 @@ var
   dbtKey, dbtData: DBT;
   VFound: Boolean;
 begin
+  Assert(AKey <> nil);
+  Assert(db <> nil);
+
   I := 0;
   Result := nil;
   VFound := False;
@@ -277,6 +281,9 @@ var
   ret: Integer;
   dbtKey, dbtData: DBT;
 begin
+  Assert(AKey <> nil);
+  Assert(AValue <> nil);
+  Assert(db <> nil);
   Assert(not FIsReadOnly);
 
   I := 0;
@@ -327,6 +334,9 @@ var
   ret: Integer;
   dbtKey: DBT;
 begin
+  Assert(AKey <> nil);
+  Assert(db <> nil);
+
   I := 0;
   Result := False;
   try
@@ -370,6 +380,8 @@ var
   ret: Integer;
   dbtKey: DBT;
 begin
+  Assert(AKey <> nil);
+  Assert(db <> nil);
   Assert(not FIsReadOnly);
 
   I := 0;
@@ -412,7 +424,9 @@ end;
 procedure TBerkeleyDB.Sync;
 begin
   try
-    CheckBDB(db.sync(db, 0));
+    if (db <> nil) then begin
+      CheckBDB(db.sync(db, 0));
+    end;
   except
     on E: Exception do
       FHelper.RaiseException(E.ClassName + ': ' + E.Message);
@@ -426,6 +440,7 @@ var
   dbtKey, dbtData: DBT;
   dbc: PDBC;
 begin
+  Assert(db <> nil);
   Result := False;
   SetLength(AKeyArray, 0);
   try
