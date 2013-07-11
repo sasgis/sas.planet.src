@@ -39,9 +39,9 @@ type
   private
     FSaveErrorsToLog: Boolean;
     FLogFileStream: TFileStream;
-    FDebugLogPath: string;
+    FFullBaseCachePath: string;
     FCacheConfigChangeListener: IListener;
-    FPathConfig: IPathConfig;
+    FBaseCachePath: IPathConfig;
     FEnvList: IInterfaceList;
     FEnvCS: TCriticalSection;
     FLogCS: TCriticalSection;
@@ -59,7 +59,7 @@ type
     procedure RaiseException(const EMsg: AnsiString);
     procedure LogException(const EMsg: AnsiString);
   public
-    constructor Create(const APathConfig: IPathConfig);
+    constructor Create(const ABaseCachePath: IPathConfig);
     destructor Destroy; override;
   end;
 
@@ -73,25 +73,27 @@ uses
 
 { TGlobalBerkeleyDBHelper }
 
-constructor TGlobalBerkeleyDBHelper.Create(const APathConfig: IPathConfig);
+constructor TGlobalBerkeleyDBHelper.Create(const ABaseCachePath: IPathConfig);
 begin
+  Assert(ABaseCachePath <> nil);
   inherited Create;
-  FPathConfig := APathConfig;
+  FBaseCachePath := ABaseCachePath;
   FEnvList := TInterfaceList.Create;
   FEnvCS := TCriticalSection.Create;
   FLogCS := TCriticalSection.Create;
   FLogFileStream := nil;
   FSaveErrorsToLog := {$IFDEF DEBUG} True {$ELSE} False {$ENDIF};
-  FDebugLogPath := FPathConfig.FullPath;
+  FFullBaseCachePath := FBaseCachePath.FullPath;
   FCacheConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnCacheConfigChange);
-  FPathConfig.ChangeNotifier.Add(FCacheConfigChangeListener);
+  Assert(FBaseCachePath.ChangeNotifier <> nil);
+  FBaseCachePath.ChangeNotifier.Add(FCacheConfigChangeListener);
 end;
 
 destructor TGlobalBerkeleyDBHelper.Destroy;
 begin
-  if (FPathConfig <> nil) and (FCacheConfigChangeListener <> nil) then begin
-    FPathConfig.ChangeNotifier.Remove(FCacheConfigChangeListener);
-    FPathConfig := nil;
+  if (FBaseCachePath <> nil) and (FCacheConfigChangeListener <> nil) then begin
+    FBaseCachePath.ChangeNotifier.Remove(FCacheConfigChangeListener);
+    FBaseCachePath := nil;
     FCacheConfigChangeListener := nil;
   end;
   FEnvList := nil;
@@ -105,7 +107,7 @@ procedure TGlobalBerkeleyDBHelper.OnCacheConfigChange;
 begin
   FLogCS.Acquire;
   try
-    FDebugLogPath := FPathConfig.FullPath;
+    FFullBaseCachePath := FBaseCachePath.FullPath;
     FreeAndNil(FLogFileStream);
   finally
     FLogCS.Release;
@@ -115,7 +117,8 @@ end;
 function TGlobalBerkeleyDBHelper.GetFullPathName(const ARelativePathName: string): string;
 begin
   SetLength(Result, MAX_PATH);
-  PathCombine(@Result[1], PChar(ExtractFilePath(ParamStr(0))), PChar(ARelativePathName));
+  PathCombine(@Result[1], PChar(ExtractFilePath(FFullBaseCachePath)), PChar(ARelativePathName));
+  Assert(sizeof(Result[1])=1);
   SetLength(Result, StrLen(PChar(Result)));
   Result := LowerCase(IncludeTrailingPathDelimiter(Result));
 end;
@@ -130,6 +133,7 @@ var
   VPath: string;
   VEnv: IBerkeleyDBEnvironment;
 begin
+  Assert(AStorageConfig <> nil);
   Result := nil;
   FEnvCS.Acquire;
   try
@@ -193,7 +197,7 @@ begin
   FLogCS.Acquire;
   try
     if not Assigned(FLogFileStream) then begin
-      VLogFileName := IncludeTrailingPathDelimiter(FDebugLogPath) + 'sdb.log';
+      VLogFileName := IncludeTrailingPathDelimiter(FFullBaseCachePath) + 'sdb.log';
       if not FileExists(VLogFileName) then begin
         FLogFileStream := TFileStream.Create(VLogFileName, fmCreate);
         FLogFileStream.Free;

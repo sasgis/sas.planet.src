@@ -55,6 +55,7 @@ constructor TStorageStateInternal.Create(
   const AStorageForceAbilities: ITileStorageAbilities
 );
 begin
+  Assert(AStorageForceAbilities <> nil);
   inherited Create;
   FStorageForceAbilities := AStorageForceAbilities;
   FReadAccess := asUnknown;

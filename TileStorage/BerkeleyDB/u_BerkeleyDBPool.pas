@@ -95,6 +95,8 @@ constructor TBerkeleyDBPool.Create(
   const AUnusedObjectTTL: Cardinal
 );
 begin
+  Assert(AGlobalBerkeleyDBHelper <> nil);
+  Assert(ADatabaseFactory <> nil);
   inherited Create;
   FHelper := AGlobalBerkeleyDBHelper;
   FDatabaseFactory := ADatabaseFactory;
@@ -168,6 +170,7 @@ var
   VRecIndexOldest: Integer;
   VReleaseOldest: Cardinal;
 begin
+  Assert(AEnvironment <> nil);
   try
     Result := nil;
     FCS.Acquire;
@@ -181,7 +184,7 @@ begin
         for I := 0 to FObjList.Count - 1 do begin
           PRec := FObjList.Items[I];
           if PRec <> nil then begin
-            Assert(Assigned(PRec.Database));
+            Assert(PRec.Database <> nil);
             VFound := (PRec.Database.FileName = ADatabaseFileName);
             if VFound then begin
               PRec.AcquireTime := GetTickCount;
@@ -214,7 +217,9 @@ begin
             raise EBerkeleyDBPool.Create(rsNoAvailableObjects);
           end;
 
+          Assert(FDatabaseFactory <> nil);
           PRec.Database := FDatabaseFactory.CreateDatabase(ADatabaseFileName, AEnvironment);
+          Assert(PRec.Database <> nil);
           PRec.AcquireTime := GetTickCount;
           PRec.ReleaseTime := 0;
           PRec.ActiveCount := 1;               
@@ -256,7 +261,7 @@ begin
               Dispose(PRec);
               FObjList.Items[i] := nil;
             end else begin
-              Assert(Assigned(PRec.Database));
+              Assert(PRec.Database <> nil);
               PRec.Database.LockWrite;
               try
                 PRec.Database.Sync;

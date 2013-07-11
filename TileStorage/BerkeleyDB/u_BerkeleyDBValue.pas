@@ -893,6 +893,7 @@ constructor TBerkeleyDBVersionedMetaValue.Create(
   const AData: IBinaryData
 );
 begin
+  Assert(AData <> nil);
   inherited Create;
   Assign(AData.Buffer, AData.Size, False);
   FBinData := AData;

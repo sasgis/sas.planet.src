@@ -146,6 +146,9 @@ constructor TBerkeleyDBEnv.Create(
 var
   VDatabaseFactory: IBerkeleyDBFactory;
 begin
+  Assert(AGlobalBerkeleyDBHelper <> nil);
+  Assert(AStorageConfig <> nil);
+
   inherited Create;
   dbenv := nil;
   FTxnList := TList.Create;
@@ -198,9 +201,12 @@ begin
       dbenv.close(dbenv, 0);
     end;
   finally
-    FAppPrivate.FHelper := nil;
-    FAppPrivate.FMsgLogger.Free;
-    Dispose(FAppPrivate);
+    if Assigned(FAppPrivate) then begin
+      FAppPrivate.FHelper := nil;
+      FAppPrivate.FMsgLogger.Free;
+      Dispose(FAppPrivate);
+      FAppPrivate := nil;
+    end;
     FreeAndNil(FTxnList);
     FreeAndNil(FCS);
     inherited;
@@ -247,7 +253,7 @@ var
   VPathUtf8: UTF8String;
 begin
   if not FActive and FLibInitOk then begin
-
+    Assert(FAppPrivate <> nil);
     VPath := FAppPrivate.FEnvRootPath + cBerkeleyDBEnvSubDir + PathDelim;
     VPathUtf8 := AnsiToUtf8(VPath);
 
@@ -399,7 +405,9 @@ procedure TBerkeleyDBEnv.Sync(out AHotDatabaseCount: Integer);
 begin
   TransactionCheckPoint;
   RemoveUnUsedLogs;
-  FDatabasePool.Sync(AHotDatabaseCount);
+  if Assigned(FDatabasePool) then begin
+    FDatabasePool.Sync(AHotDatabaseCount);
+  end;
 end;
 
 function TBerkeleyDBEnv.GetEnvironmentPointerForApi: Pointer;
@@ -438,11 +446,14 @@ end;
 
 function TBerkeleyDBEnv.Acquire(const ADatabaseFileName: string): IBerkeleyDB;
 begin
+  Assert(FDatabasePool <> nil);
   Result := FDatabasePool.Acquire(ADatabaseFileName, Self);
+  Assert(Result <> nil);
 end;
 
 procedure TBerkeleyDBEnv.Release(const ADatabase: IBerkeleyDB);
 begin
+  Assert(FDatabasePool <> nil);
   FDatabasePool.Release(ADatabase);
 end;
 

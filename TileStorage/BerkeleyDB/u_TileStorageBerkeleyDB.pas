@@ -180,6 +180,8 @@ constructor TTileStorageBerkeleyDB.Create(
   const AMainContentType: IContentTypeInfoBasic
 );
 begin
+  Assert(AGlobalBerkeleyDBHelper <> nil);
+
   FStorageConfig := TTileStorageBerkeleyDBConfigStatic.Create(AStoragePath);    // ToDo: get StorageConfig as param
 
   inherited Create(
@@ -874,7 +876,7 @@ begin
 
   FSyncCallListener.CheckUseTimeUpdated; 
 
-  Assert(Assigned(Result));
+  Assert(Result <> nil);
 end;
 
 end.

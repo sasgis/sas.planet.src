@@ -191,7 +191,9 @@ constructor TTileStorageBerkeleyDBHelper.Create(
   const AStorageEPSG: Integer
 );
 begin
-  Assert(Assigned(AGlobalBerkeleyDBHelper));
+  Assert(AGlobalBerkeleyDBHelper <> nil);
+  Assert(AMapVersionFactory <> nil);
+  Assert(AStorageConfig <> nil);
 
   inherited Create;
 
@@ -206,6 +208,7 @@ begin
     AStorageEPSG,
     AStorageRootPath
   );
+  Assert(FEnvironment <> nil);
 end;
 
 destructor TTileStorageBerkeleyDBHelper.Destroy;
@@ -894,7 +897,7 @@ end;
 
 procedure TTileStorageBerkeleyDBHelper.Sync(out AHotDatabaseCount: Integer);
 begin
-  Assert(Assigned(FEnvironment));      
+  Assert(FEnvironment <> nil);
   FEnvironment.Sync(AHotDatabaseCount);
 end;
 

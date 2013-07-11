@@ -98,6 +98,8 @@ constructor TBerkeleyDB.Create(
   const APageSize: Cardinal
 );
 begin
+  Assert(AGlobalBerkeleyDBHelper <> nil);
+  Assert(AEnvironment <> nil);
   inherited Create;
   FHelper := AGlobalBerkeleyDBHelper;
   FPageSize := APageSize;

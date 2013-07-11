@@ -55,7 +55,7 @@ constructor TBerkeleyDBFactory.Create(
   const AMetaValue: IBinaryData
 );
 begin
-  Assert(Assigned(AHelper));
+  Assert(AHelper <> nil);
   inherited Create;
   FHelper := AHelper;
   FPageSize := APageSize;
