@@ -13,6 +13,12 @@ function Base64UrlEncode(const Data: PAnsiChar; const DataSize: Integer): AnsiSt
 function Base64Decode(const Data: PAnsiChar; const DataSize: Integer): AnsiString; overload;
  
 implementation
+
+uses
+  SysUtils;
+
+type
+  EBase64Exception = class(Exception);
  
 const
   Base64Table    : array[0..63] of AnsiChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -45,6 +51,8 @@ begin
     $30..$39 {'0'..'9'} : result := _FI3[C];
     $41..$5A {'A'..'Z'} : result := _FI1[C];
     $61..$7A {'a'..'z'} : result := _FI2[C];
+  else
+    raise EBase64Exception.Create('Function FastIndexOf is out of range!');
   end;
 end;
 
