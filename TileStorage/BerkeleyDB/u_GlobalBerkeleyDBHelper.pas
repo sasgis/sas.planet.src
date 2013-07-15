@@ -56,16 +56,20 @@ type
       const AEnvRootPath: string
     ): IBerkeleyDBEnvironment;
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
-    procedure RaiseException(const EMsg: AnsiString);
+    procedure LogAndRaiseException(const EMsg: AnsiString);
     procedure LogException(const EMsg: AnsiString);
   public
     constructor Create(const ABaseCachePath: IPathConfig);
     destructor Destroy; override;
+    class procedure RaiseException(const EMsg: string);
   end;
 
 implementation
 
 uses
+  {$IFDEF EUREKALOG}
+  ExceptionLog,
+  {$ENDIF}
   SysUtils,
   ShLwApi,
   u_ListenerByEvent,
@@ -214,10 +218,23 @@ begin
   end;
 end;
 
-procedure TGlobalBerkeleyDBHelper.RaiseException(const EMsg: AnsiString);
+procedure TGlobalBerkeleyDBHelper.LogAndRaiseException(const EMsg: AnsiString);
 begin
   LogException(EMsg);
-  raise EBerkeleyDBEureka.Create(EMsg);
+  TGlobalBerkeleyDBHelper.RaiseException(EMsg);
+end;
+
+class procedure TGlobalBerkeleyDBHelper.RaiseException(const EMsg: string);
+begin
+  {$IFDEF EUREKALOG}
+  try
+  {$ENDIF}
+    raise EBerkeleyDBExeption.Create(EMsg);
+  {$IFDEF EUREKALOG}
+  except
+    ShowLastExceptionData;
+  end;
+  {$ENDIF}
 end;
 
 procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: AnsiString);

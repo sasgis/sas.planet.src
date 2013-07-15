@@ -182,7 +182,7 @@ begin
           VErrorMsg := EClose.ClassName + ': ' + EClose.Message + #13#10;
       end;
       VErrorMsg := VErrorMsg + E.ClassName + ': ' + E.Message;
-      FHelper.RaiseException(VErrorMsg);
+      FHelper.LogAndRaiseException(VErrorMsg);
     end;
   end;
 end;
@@ -271,7 +271,7 @@ begin
     end;
   except
     on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
@@ -324,7 +324,7 @@ begin
     end;
   except
     on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
@@ -370,7 +370,7 @@ begin
     end;
   except
     on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
@@ -417,7 +417,7 @@ begin
     end;
   except
     on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
@@ -429,7 +429,7 @@ begin
     end;
   except
     on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
@@ -484,7 +484,7 @@ begin
     Result := Length(AKeyArray) > 0;
   except
     on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 

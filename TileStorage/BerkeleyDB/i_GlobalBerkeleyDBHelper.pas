@@ -37,7 +37,7 @@ type
 
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
 
-    procedure RaiseException(const EMsg: AnsiString);
+    procedure LogAndRaiseException(const EMsg: AnsiString);
     procedure LogException(const EMsg: AnsiString);
   end;
 

@@ -155,7 +155,7 @@ begin
     end;
   except
     on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 
@@ -239,7 +239,7 @@ begin
     end;
   except
     on E: Exception do
-      FHelper.RaiseException(E.ClassName + ': ' + E.Message);
+      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
   end;
 end;
 

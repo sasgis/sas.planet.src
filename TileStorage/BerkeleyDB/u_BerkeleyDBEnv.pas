@@ -82,25 +82,18 @@ type
     destructor Destroy; override;
   end;
 
-  EBerkeleyDBEureka = class(EBerkeleyDBExeption)
-  public
-    constructor Create(const AMsg: AnsiString);
-  end;
-
 implementation
 
 uses
   Windows,
   SysUtils,
-{$IFDEF EUREKALOG}
-  ExceptionLog,
-{$ENDIF}
   i_BinaryData,
   i_BerkeleyDBFactory,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
   u_BerkeleyDBPool,
-  u_BerkeleyDBFactory;
+  u_BerkeleyDBFactory,
+  u_GlobalBerkeleyDBHelper;
 
 const
   cBerkeleyDBEnvSubDir = 'env';
@@ -119,9 +112,9 @@ begin
     VMsg := VMsg + #09 + VEnvPrivate.FEnvRootPath;
   end;
   if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FHelper) then begin
-    VEnvPrivate.FHelper.RaiseException(VMsg);
+    VEnvPrivate.FHelper.LogAndRaiseException(VMsg);
   end else begin
-    raise EBerkeleyDBEureka.Create(VMsg);
+    TGlobalBerkeleyDBHelper.RaiseException(VMsg);
   end;
 end;
 
@@ -264,7 +257,6 @@ begin
     MakeDefConfigFile(VPath);
 
     CheckBDB(db_env_create(dbenv, 0));
-
     dbenv.app_private := FAppPrivate;
     dbenv.set_errpfx(dbenv, cBerkeleyDBEnvErrPfx);
     dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
@@ -455,16 +447,6 @@ procedure TBerkeleyDBEnv.Release(const ADatabase: IBerkeleyDB);
 begin
   Assert(FDatabasePool <> nil);
   FDatabasePool.Release(ADatabase);
-end;
-
-{ EBerkeleyDBEureka }
-
-constructor EBerkeleyDBEureka.Create(const AMsg: AnsiString);
-begin
-{$IFDEF EUREKALOG}
-  ShowLastExceptionData;
-{$ENDIF}
-  inherited Create(String(AMsg));
 end;
 
 end.
