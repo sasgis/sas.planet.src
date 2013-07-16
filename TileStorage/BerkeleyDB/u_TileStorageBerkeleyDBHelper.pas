@@ -696,7 +696,7 @@ begin
     FSyncLock.EndRead;
   end;
 
-  if VFoundBadValue then begin
+  if VFoundBadValue and not FIsReadOnly then begin
     Self.DeleteTile(ADatabaseFileName, ATileXY, ATileZoom, AVersionInfo);
   end;
 end;
@@ -850,7 +850,7 @@ begin
     FSyncLock.EndRead;
   end;
 
-  if VFoundBadValue then begin
+  if VFoundBadValue and not FIsReadOnly then begin
     Self.DeleteTile(ADatabaseFileName, ATileXY, ATileZoom, AVersionInfo);
   end;
 end;
@@ -940,7 +940,7 @@ begin
     FSyncLock.EndRead;
   end;
 
-  if VFoundBadValue then begin
+  if VFoundBadValue and not FIsReadOnly then begin
     Self.DeleteTile(ADatabaseFileName, ATileXY, ATileZoom, AVersionInfo);
   end;
 end;
