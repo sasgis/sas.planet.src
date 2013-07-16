@@ -348,8 +348,7 @@ begin
       if VVersionIDInfo.IsSameVersionFound then begin
         // show versioned tile
         Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionID);
-      end else if VVersionInfo.ShowPrevVersion then begin
-        Assert(VVersionIDInfo.YoungestTileVersionID <> $FFFF);
+      end else if VVersionInfo.ShowPrevVersion and (VVersionIDInfo.YoungestTileVersionID <> $FFFF) then begin
         // show yougest versioned tile
         Result := TBerkeleyDBVersionedKey.Create(ATileXY, VVersionIDInfo.YoungestTileVersionID);
       end;
