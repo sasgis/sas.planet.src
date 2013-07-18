@@ -752,15 +752,21 @@ begin
           VcoordError := true;
         end;
        end;
-       if  PosEx('.SDB', V2Search, 1)>0 then begin   // G:\GoogleMV\cache_db\Nokia.Map.Creator.sat\z15\9\5\38.23.sdb\x9961y5888.jpg
-         i := PosEx('\X', V2Search, j); // X значение
+       if  PosEx('.SDB', V2Search, 1)>0 then begin   //g:\cache_dbv\sat_all_v1\z18\78\46\314.186.sdbv
+         i := PosEx('\Z', V2Search, 1);
          j := PosEx('\', V2Search, i+1);
-         slon := Copy(V2Search, i + 2, j - (i + 2));
-         Vilon := strtoint(slon);
          i := j+1;
-         j := PosEx('.', V2Search, i+1);
-         slat := Copy(V2Search, i + 1, j - (i + 1));
-         Vilat :=  strtoint(slat);
+         j := PosEx('\', V2Search, i);
+         i := j+1;
+         j := PosEx('\', V2Search, i);
+         i := j+1;
+         j := PosEx('.', V2Search, i);
+         slon := Copy(V2Search, i , j - (i));
+         Vilon := strtoint(slon) * 256;
+         i := j+1;
+         j := PosEx('.', V2Search, i);
+         slat := Copy(V2Search, i , j - (i));
+         Vilat :=  strtoint(slat) * 256;
          VcoordError := false;
          end else
        if PosEx('\X', V2Search, 1)>0 then begin   //G:\GoogleMV\cache\yamapng\z13\2\x2491\1\y1473.png
