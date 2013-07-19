@@ -62,6 +62,7 @@ implementation
 
 uses
   Windows,
+  u_StreamReadOnlyByBinaryData,
   u_GeoToStr;
 
 (*
@@ -188,7 +189,10 @@ begin
 
   // create objects
   for i:=0 to k-1 do begin
-    ADGs[i] := TAvailPicsDG.Create(ATileInfoPtr, AMapSvcScanStorage);
+    ADGs[i] := TAvailPicsDG.Create(
+      ATileInfoPtr,
+      AMapSvcScanStorage
+    );
     with ADGs[i] do begin
       FStack_Key       := Stacks[i,0];
       FStack_Number    := Stacks[i,1];
@@ -294,105 +298,97 @@ end;
 
 function TAvailPicsDG.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 var
+  VStream: TStreamReadOnlyByBinaryData;
   i: Integer;
-  VAddResult: Boolean;
   VList: TStringList;
   VLine: String;
   VDate, VId: String;
   VDateOrig, VProvider, VColor, VResolution: String;
   VParams: TStrings;
-  VMemoryStream: TMemoryStream;
   VItemExists: Boolean;
   VItemFetched: TDateTime;
 begin
-  VMemoryStream := TMemoryStream.Create;
-  VMemoryStream.Position:=0;
-  VMemoryStream.SetSize(AResultOk.Data.Size);
-  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
-  Result := 0;
+  Result:=0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
-    Exit;
-
-  VList:=TStringList.Create;
+  VParams := nil;
+  VList := nil;
+  VStream := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
   try
-    VList.LoadFromStream(VMemoryStream);
+    if (0 = VStream.Size) then
+      Exit;
 
-    if (0<VList.Count) then
-    for i := 0 to VList.Count-1 do
+    VList := TStringList.Create;
+    VList.LoadFromStream(VStream);
+
+    if (0 < VList.Count) then
+    for i := 0 to VList.Count - 1 do
     try
       //'7066342802,2007-05-06,"DigitalGlobe",-1,0.6,"Color-E",50000.0,'
-      VParams:=nil;
-      VLine:=VList[i];
-    
+      VLine := VList[i];
+
       // date as 2007/05/06
       VDate := GetWord(VLine, ',', 2);
-      if (Length(VDate)<10) then begin
-        break;
-      end;
-      VDate[5] := DateSeparator;
-      VDate[8] := DateSeparator;
+      if (Length(VDate) >= 10) then begin
+        VDate[5] := DateSeparator;
+        VDate[8] := DateSeparator;
 
-      // id = 7066342802
-      VId := GetWord(VLine, ',', 1);
+        // id = 7066342802
+        VId := GetWord(VLine, ',', 1);
 
-      // params:
+        // date original as 2007-05-06
+        VDateOrig := GetWord(VLine, ',', 2);
 
-      // date original as 2007-05-06
-      VDateOrig := GetWord(VLine, ',', 2);
+        // DigitalGlobe
+        VProvider := GetWord(VLine, ',', 3);
+        TrimQuotes(VProvider);
 
-      // DigitalGlobe
-      VProvider := GetWord(VLine, ',', 3);
-      TrimQuotes(VProvider);
+        // Color-E
+        VColor := GetWord(VLine, ',', 6);
+        TrimQuotes(VColor);
 
-      // Color-E
-      VColor := GetWord(VLine, ',', 6);
-      TrimQuotes(VColor);
+        // 0.6
+        VResolution := GetWord(VLine, ',', 5);
 
-      // 0.6
-      VResolution := GetWord(VLine, ',', 5);
+        if FTileInfoPtr.LowResToo or CheckHiResResolution(VResolution) then begin
+          // make params
+          if (VParams <> nil) then
+            VParams.Clear
+          else
+            VParams := TStringList.Create;
+          VParams.Values['tid'] := VId;
+          VParams.Values['date'] := VDateOrig;
+          VParams.Values['provider'] := VProvider;
+          VParams.Values['resolution'] := VResolution;
+          VParams.Values['color'] := VColor;
 
-      if FTileInfoPtr.LowResToo or CheckHiResResolution(VResolution) then begin
-        // make params
-        VParams:=TStringList.Create;
-        VParams.Values['tid']:=VId;
-        VParams.Values['date']:=VDateOrig;
-        VParams.Values['provider']:=VProvider;
-        VParams.Values['resolution']:=VResolution;
-        VParams.Values['color']:=VColor;
+          // check
+          VItemExists := ItemExists(FBaseStorageName, VId, @VItemFetched);
 
-        // check
-        VItemExists := ItemExists(FBaseStorageName, VId, @VItemFetched);
-
-        // add item
-        VAddResult := FTileInfoPtr.AddImageProc(
-          Self,
-          VDate,
-          VId,
-          VItemExists,
-          VItemFetched,
-          VParams
-        );
-        FreeAndNil(VParams);
-
-        if VAddResult then begin
-          Inc(Result);
+          // add item
+          if FTileInfoPtr.AddImageProc(
+            Self,
+            VDate,
+            VId,
+            VItemExists,
+            VItemFetched,
+            VParams
+          ) then begin
+            // added
+            Inc(Result);
+          end;
+          // FreeAndNil(VParams);
         end;
       end;
     except
-      if (nil<>VParams) then begin
-        try
-          VParams.Free;
-        except
-        end;
-        VParams:=nil;
-      end;
+      FreeAndNil(VParams);
     end;
   finally
-    FreeAndNil(VList);
+    VStream.Free;
+    VList.Free;
+    VParams.Free;
   end;
 end;
 

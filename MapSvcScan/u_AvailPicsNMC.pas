@@ -74,11 +74,11 @@ implementation
 
 uses
   xmldom,
-  vsagps_public_xml_dom,
-  vsagps_public_xml_parser,
   t_GeoTypes,
   u_GeoToStr,
   u_GeoFun,
+  u_XmlLoaderByVSAGPS,
+  u_StreamReadOnlyByBinaryData,
   u_ETS_Tiles;
 
 type
@@ -390,12 +390,18 @@ var
 begin
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
     if (nil=ADGs[j,FALSE]) then begin
-      ADGs[j,FALSE] := TAvailPicsNMC.Create(ATileInfoPtr, AMapSvcScanStorage);
+      ADGs[j,FALSE] := TAvailPicsNMC.Create(
+        ATileInfoPtr,
+        AMapSvcScanStorage
+      );
       ADGs[j,FALSE].WorkingZoom := Ord(j);
       ADGs[j,FALSE].FProfile := 'Recency';
     end;
     if (nil=ADGs[j,TRUE]) then begin
-      ADGs[j,TRUE] := TAvailPicsNMC.Create(ATileInfoPtr, AMapSvcScanStorage);
+      ADGs[j,TRUE] := TAvailPicsNMC.Create(
+        ATileInfoPtr,
+        AMapSvcScanStorage
+      );
       ADGs[j,TRUE].WorkingZoom := Ord(j);
       ADGs[j,TRUE].FProfile := 'ColorOnly';
     end;
@@ -469,7 +475,7 @@ const
   procedure _AddToSL(const SL: TStrings; const AValueName: String; const ANode: IDOMNode);
   var S: String;
   begin
-    S := VSAGPS_XML_DOMNodeValue(ANode);
+    S := GetXmlNodeText(ANode);
     if (0<Length(S)) then begin
       SL.Values[AValueName]:=S;
     end;
@@ -488,7 +494,7 @@ const
     VMM: TDoublePoint;
     VLonLat: TDoublePoint;
   begin
-    VCoords := VSAGPS_XML_DOMNodeValue(ANode);
+    VCoords := GetXmlNodeText(ANode);
     if (0<Length(VCoords)) then begin
       // parse coords (string with metrical values) like:
       // 6247045.446821287 8487567.61960449
@@ -591,34 +597,6 @@ const
     end;
   end;
 
-  function _GetDateForCaption(const ADate: String): String;
-  begin
-    Result := System.Copy(ADate,1,10);
-    if (0<Length(Result)) then
-    try
-      Result[5]:=DateSeparator;
-      Result[8]:=DateSeparator;
-    except
-    end;
-  end;
-
-  function _GetDateCaptionFromParams(const ASLParams: TStrings): String;
-  var
-    VPrevDate: String;
-  begin
-    // get single date at acquisitionDate
-    // or 2 dates from earliestAcquisitionDate to latestAcquisitionDate
-    Result := _GetDateForCaption(ASLParams.Values['latestAcquisitionDate']);
-    if (0<Length(Result)) then begin
-      VPrevDate := _GetDateForCaption(ASLParams.Values['earliestAcquisitionDate']);
-      if (Result<>VPrevDate) then
-        Result := VPrevDate + ' - ' + Result;
-    end else begin
-      // single date
-      Result := _GetDateForCaption(ASLParams.Values['acquisitionDate']);
-    end;
-  end;
-
   procedure _ParseFinishedFeature(const SL_Common: TStrings; const AFinishedFeature: IDOMNode);
   var
     VItem: IDOMNode;
@@ -648,7 +626,7 @@ const
       if FTileInfoPtr.LowResToo or CheckHiResResolution(VSLParams.Values['groundSampleDistance']) then begin
 //        VTail := VSLParams.Values['featureId'];
         // get date(s) for date caption
-        VDate := _GetDateCaptionFromParams(VSLParams);
+        VDate := GetDateCaptionFromParams(VSLParams);
         if (0<Length(VDate)) then begin
 
           // add params from common
@@ -713,66 +691,51 @@ var
   VFound, VIsGeometry: Boolean;
 begin
   Result:=0;
-  VTileNode:=nil;
-  VTileMatrixFeature:=nil;
-  VfeatureMember:=nil;
-  VFeatureCollection:=nil;
-  VDOMDocument:=nil;
-  try
-    // create xml
-    if VSAGPS_Create_DOMDocument(VDOMDocument, FALSE {no exception if false}, 1 {no validation}) then
-    if VSAGPS_Load_DOMDocument_FromStream(VDOMDocument, AStream, FALSE {no exception if false}) then
-    try
-      // wfs:FeatureCollection
-      VFeatureCollection := VDOMDocument.lastChild;
 
-      // gml:featureMember
-      VfeatureMember := VFeatureCollection.lastChild; // VfeatureMember.nodeType=1
+  if not LoadXmlDomDocFromStream(VDOMDocument, AStream) then
+    Exit;
 
-      // digitalglobe:TileMatrixFeature
-      VFound:=FALSE;
-      VTileMatrixFeature := VfeatureMember.lastChild;
-      while Assigned(VTileMatrixFeature) do begin
-        // check
-        if _NodeHasDGName(VTileMatrixFeature,VNodeNameTail,VIsGeometry) then begin
-          VFound:=TRUE;
-          break;
-        end;
-        // prev
-        VTileMatrixFeature:=VTileMatrixFeature.previousSibling;
-      end;
+  // wfs:FeatureCollection
+  VFeatureCollection := VDOMDocument.lastChild;
 
-      // loop subnodes (skip  and dive in '<digitalglobe:features>')
-      if VFound then begin
-        VSLCommon := TStringList.Create;
-        try
-          VTileNode := VTileMatrixFeature.firstChild;
-          while Assigned(VTileNode) do begin
-            // parse node
-            if _NodeHasDGName(VTileNode, VNodeNameTail, VIsGeometry) then begin
-              if SameText(VNodeNameTail,'features') then begin
-                // dive in features
-                _ParseFeatures(VSLCommon, VTileNode);
-              end else begin
-                // add to common
-                _AddToSL(VSLCommon, VNodeNameTail, VTileNode);
-              end;
-            end;
-            // next
-            VTileNode:=VTileNode.nextSibling;
-          end;
-        finally
-          FreeAndNil(VSLCommon);
-        end;
-      end;
-    except
+  // gml:featureMember
+  VfeatureMember := VFeatureCollection.lastChild; // VfeatureMember.nodeType=1
+
+  // digitalglobe:TileMatrixFeature
+  VFound := False;
+  VTileMatrixFeature := VfeatureMember.lastChild;
+  while Assigned(VTileMatrixFeature) do begin
+    // check
+    if _NodeHasDGName(VTileMatrixFeature, VNodeNameTail, VIsGeometry) then begin
+      VFound := True;
+      break;
     end;
-  finally
-    VTileNode:=nil;
-    VTileMatrixFeature:=nil;
-    VfeatureMember:=nil;
-    VFeatureCollection:=nil;
-    VDOMDocument:=nil;
+    // prev
+    VTileMatrixFeature := VTileMatrixFeature.previousSibling;
+  end;
+
+  // loop subnodes (skip and dive in '<digitalglobe:features>')
+  if VFound then begin
+    VSLCommon := TStringList.Create;
+    try
+      VTileNode := VTileMatrixFeature.firstChild;
+      while Assigned(VTileNode) do begin
+        // parse node
+        if _NodeHasDGName(VTileNode, VNodeNameTail, VIsGeometry) then begin
+          if SameText(VNodeNameTail, 'features') then begin
+            // dive in features
+            _ParseFeatures(VSLCommon, VTileNode);
+          end else begin
+            // add to common
+            _AddToSL(VSLCommon, VNodeNameTail, VTileNode);
+          end;
+        end;
+        // next
+        VTileNode:=VTileNode.nextSibling;
+      end;
+    finally
+      FreeAndNil(VSLCommon);
+    end;
   end;
 end;
 
@@ -781,32 +744,35 @@ function TAvailPicsNMC.ParseResponse(const AResultOk: IDownloadResultOk): Intege
 var
   VExifAttr: PByte;
   VLen: DWORD;
-  VStream: TPointedMemoryStream;
-  VMemoryStream: TMemoryStream;
+  VExifStream: TPointedMemoryStream;
+  VStream: TStreamReadOnlyByBinaryData;
 begin
-  VMemoryStream := TMemoryStream.Create;
-  VMemoryStream.Position:=0;
-  VMemoryStream.SetSize(AResultOk.Data.Size);
-  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
-
   Result := 0;
+
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
-    Exit;
+  Assert(not AResultOk.IsGZipped);
 
-  // get item for $9286 (UserComment)
-  if not FindExifInJpeg(VMemoryStream.Memory, VMemoryStream.Size, FALSE, $9286, VExifAttr, VLen) then
-    Exit;
-
-  // parse xml
-  VStream:=TPointedMemoryStream.Create;
+  VStream := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
   try
-    // set stream
-    VStream.SetPointer(VExifAttr, VLen);
-    // apply stream
-    Result := ParseExifXml(VStream);
+    if (0 = VStream.Size) then
+      Exit;
+
+    // get item for $9286 (UserComment)
+    if not FindExifInJpeg(VStream.Memory, VStream.Size, False, $9286, VExifAttr, VLen) then
+      Exit;
+
+    // parse xml
+    VExifStream := TPointedMemoryStream.Create;
+    try
+      // set stream
+      VExifStream.SetPointer(VExifAttr, VLen);
+      // apply stream
+      Result := ParseExifXml(VExifStream);
+    finally
+      VExifStream.Free;
+    end;
   finally
     VStream.Free;
   end;

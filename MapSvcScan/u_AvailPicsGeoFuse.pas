@@ -59,6 +59,7 @@ implementation
 uses
   Windows,
   ALZLibExGZ,
+  u_StreamReadOnlyByBinaryData,
   u_GeoToStr;
 
 type
@@ -349,10 +350,7 @@ begin
   if (0=AResultOk.Data.Size) or (nil=AResultOk.Data.Buffer) then
     Exit;
 
-  AList.NameValueSeparator := ':';
-  AList.Text := AResultOk.RawResponseHeader;
-
-  if SameText(Trim(AList.Values['Content-Encoding']), 'gzip') then begin
+  if AResultOk.IsGZipped then begin
     // gzipped
     try
       // try to unzip
@@ -409,7 +407,7 @@ function TAvailPicsGeoFuse.GetSimpleJsonGeoFuseText(
 var
   VSimpleText: String;
 begin
-  SetString(VSimpleText, PChar(AResultOk.Data.Buffer), AResultOk.Data.Size);
+  SetString(VSimpleText, PChar(AResultOk.Data.Buffer), (AResultOk.Data.Size div SizeOf(Char)));
   AList.Clear;
   AList.QuoteChar := '"';
   AList.Delimiter := ',';
@@ -423,26 +421,24 @@ function TAvailPicsGeoFuse.GetUnzippedJsonGeoFuseText(
   const AList: TStrings
 ): Boolean;
 var
-  VMemoryStream: TMemoryStream;
+  VZipped: TStreamReadOnlyByBinaryData;
   VUnzipped: TMemoryStream;
   VStrValue: String;
 begin
-  VMemoryStream := TMemoryStream.Create;
-  VUnzipped := TMemoryStream.Create;
+  VUnzipped := nil;
+  VZipped := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
   try
-    // copy to memstream for unzipper
-    VMemoryStream.SetSize(AResultOk.Data.Size);
-    VMemoryStream.Position:=0;
-    CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
+    VUnzipped := TMemoryStream.Create;
 
-    GZDecompressStream(VMemoryStream, VUnzipped);
+    // unzip
+    GZDecompressStream(VZipped, VUnzipped);
 
     // failed to unzip - try to use as plain text
     if (VUnzipped.Memory=nil) or (VUnzipped.Size=0) then
       Abort;
 
     // unzipped
-    SetString(VStrValue, PChar(VUnzipped.Memory), VUnzipped.Size);
+    SetString(VStrValue, PChar(VUnzipped.Memory), (VUnzipped.Size div SizeOf(Char)));
 
     // apply
     AList.Clear;
@@ -452,7 +448,7 @@ begin
     AList.DelimitedText := VStrValue;
     Result := (AList.Count>1);
   finally
-    VMemoryStream.Free;
+    VZipped.Free;
     VUnzipped.Free;
   end;
 end;

@@ -981,6 +981,7 @@ uses
   i_InternalBrowser in 'i_InternalBrowser.pas',
   u_InternalBrowserByForm in 'u_InternalBrowserByForm.pas',
   i_InvisibleBrowser in 'i_InvisibleBrowser.pas',
+  u_XmlLoaderByVSAGPS in 'u_XmlLoaderByVSAGPS.pas',
   u_InvisibleBrowserByFormSynchronize in 'u_InvisibleBrowserByFormSynchronize.pas',
   i_GPSConfig in 'GPS\i_GPSConfig.pas',
   u_GPSConfig in 'GPS\u_GPSConfig.pas',

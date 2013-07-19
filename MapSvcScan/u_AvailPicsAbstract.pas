@@ -66,6 +66,7 @@ type
       const ATileInfoPtr: PAvailPicsTileInfo;
       const AMapSvcScanStorage: IMapSvcScanStorage
     );
+    destructor Destroy; override;
 
     procedure SetLocalConverter(const ALocalConverter: ILocalCoordConverter);
 
@@ -93,6 +94,9 @@ type
 
 function CheckHiResResolution(const AStrResolution: String): Boolean;
 
+function GetDateForCaption(const ADate: String): String;
+function GetDateCaptionFromParams(const ASLParams: TStrings): String;
+
 implementation
 
 uses
@@ -118,6 +122,38 @@ begin
   end;
 end;
 
+function GetDateForCaption(const ADate: String): String;
+begin
+  Result := System.Copy(ADate, 1, 10);
+  if (0 < Length(Result)) then
+  try
+    Result[5] := DateSeparator;
+    Result[8] := DateSeparator;
+  except
+  end;
+end;
+
+function GetDateCaptionFromParams(const ASLParams: TStrings): String;
+var
+  VPrevDate: String;
+begin
+  // get single date at acquisitionDate
+  // or 2 dates from earliestAcquisitionDate to latestAcquisitionDate
+  Result := GetDateForCaption(ASLParams.Values['latestAcquisitionDate']);
+  if (0<Length(Result)) then begin
+    VPrevDate := GetDateForCaption(ASLParams.Values['earliestAcquisitionDate']);
+    if (Result<>VPrevDate) then
+      Result := VPrevDate + ' - ' + Result;
+  end else begin
+    // single date
+    VPrevDate := ASLParams.Values['acquisitionDate'];
+    if (0 = Length(VPrevDate)) then begin
+      VPrevDate := ASLParams.Values['formattedDate'];
+    end;
+    Result := GetDateForCaption(VPrevDate);
+  end;
+end;
+
 { TAvailPicsAbstract }
 
 constructor TAvailPicsAbstract.Create(
@@ -131,6 +167,12 @@ begin
   FLocalConverter := nil;
   FBaseStorageName := Classname;
   System.Delete(FBaseStorageName, 1, 10);
+end;
+
+destructor TAvailPicsAbstract.Destroy;
+begin
+  FLocalConverter:=nil;
+  inherited;
 end;
 
 function TAvailPicsAbstract.ItemExists(

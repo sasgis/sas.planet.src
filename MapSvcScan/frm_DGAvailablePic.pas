@@ -1234,7 +1234,8 @@ begin
 
   // fixed array
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
-    FreeAndNil(FNMCs[j]);
+    FreeAndNil(FNMCs[j, False]);
+    FreeAndNil(FNMCs[j, True]);
   end;
 
   for jj := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin

@@ -78,7 +78,8 @@ uses
   i_Downloader,
   u_GeoToStr,
   u_DownloadRequest,
-  u_BinaryDataByMemStream;
+  u_StreamReadOnlyByBinaryData,
+  u_BinaryData;
 
 procedure GenerateAvailPicsKS(
   var AKSs: TAvailPicsKosmosnimki;
@@ -92,7 +93,10 @@ begin
   Assert(AResultFactory<>nil);
   for j := Low(TAvailPicsKosmosnimkiID) to High(TAvailPicsKosmosnimkiID) do begin
     if (nil=AKSs[j]) then begin
-      AKSs[j] := TAvailPicsKS.Create(ATileInfoPtr, AMapSvcScanStorage);
+      AKSs[j] := TAvailPicsKS.Create(
+        ATileInfoPtr,
+        AMapSvcScanStorage
+      );
       with AKSs[j] do begin
         FResultFactory := AResultFactory;
         FKSMode := Ord(j);
@@ -329,10 +333,7 @@ begin
   if (0=AResultOk.Data.Size) or (nil=AResultOk.Data.Buffer) then
     Exit;
 
-  AList.NameValueSeparator := ':';
-  AList.Text := AResultOk.RawResponseHeader;
-
-  if SameText(Trim(AList.Values['Content-Encoding']), 'gzip') then begin
+  if AResultOk.IsGZipped then begin
     // gzipped
     try
       // try to unzip
@@ -350,7 +351,7 @@ end;
 function TAvailPicsKS.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
   VPostData: IBinaryData;
-  VPostdataStr: Ansistring;
+  VPostdataStr: AnsiString;
 
   VLink: String;
   VHeader: String;
@@ -375,10 +376,7 @@ begin
   VPostDataStr := MakePostString;
 
   VPostData :=
-    TBinaryDataByMemStream.CreateFromMem(
-      Length(VPostDataStr)*SizeOf(Char),
-      PChar(VPostDataStr)
-      );
+    TBinaryData.CreateByAnsiString(VPostDataStr);
 
   Result :=TDownloadPostRequest.Create(
            VLink,
@@ -409,35 +407,31 @@ function TAvailPicsKS.GetUnzippedJsonKosmosnimkiText(
   const AList: TStrings
 ): Boolean;
 var
-  VMemoryStream: TMemoryStream;
+  VZipped: TStreamReadOnlyByBinaryData;
   VUnzipped: TMemoryStream;
   VStrValue: String;
 begin
-  VMemoryStream := TMemoryStream.Create;
-  VUnzipped := TMemoryStream.Create;
+  VUnzipped := nil;
+  VZipped := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
   try
-    // copy to memstream for unzipper
-    VMemoryStream.SetSize(AResultOk.Data.Size);
-    VMemoryStream.Position:=0;
-    CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
+    VUnzipped := TMemoryStream.Create;
 
-    GZDecompressStream(VMemoryStream, VUnzipped);
+    GZDecompressStream(VZipped, VUnzipped);
 
     // failed to unzip - try to use as plain text
     if (VUnzipped.Memory=nil) or (VUnzipped.Size=0) then
       Abort;
 
     // unzipped
-    SetString(VStrValue, PChar(VUnzipped.Memory), VUnzipped.Size);
+    SetString(VStrValue, PChar(VUnzipped.Memory), (VUnzipped.Size div SizeOf(Char)));
 
     VStrValue := PrepareToParseString(VStrValue);
 
     PrepareStringList(AList);
     AList.DelimitedText := VStrValue;
     Result := (AList.Count>1);
-
   finally
-    VMemoryStream.Free;
+    VZipped.Free;
     VUnzipped.Free;
   end;
 end;

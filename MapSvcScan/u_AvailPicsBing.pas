@@ -33,6 +33,10 @@ uses
 
 type
   TAvailPicsBing = class(TAvailPicsByKey)
+  private
+    FForceZoom24: Byte;
+  protected
+    procedure AdjustCustomBingHiResZoom(var AActualZoom: Byte);
   public
     procedure AfterConstruction; override;
 
@@ -43,7 +47,12 @@ type
     function GetRequest(const AInetConfig: IInetConfig): IDownloadRequest; override;
   end;
 
-procedure AdjustMinimalBingHiResZoom(var VActualZoom: Byte);
+  TAvailPicsZ19Bing = class(TAvailPicsBing)
+  public
+    procedure AfterConstruction; override;
+  end;
+
+procedure AdjustMinimalBingHiResZoom(var AActualZoom: Byte);
 
 implementation
 
@@ -51,25 +60,39 @@ uses
   u_GeoToStr,
   xmldom,
   windows,
-  vsagps_public_xml_dom,
-  vsagps_public_xml_parser;
+  u_XmlLoaderByVSAGPS,
+  u_StreamReadOnlyByBinaryData;
 
-procedure AdjustMinimalBingHiResZoom(var VActualZoom: Byte);
+procedure AdjustMinimalBingHiResZoom(var AActualZoom: Byte);
 begin
   //  do not check for small zooms
   // check decremented
-  if (VActualZoom<14) then
-    VActualZoom:=14;
+  if (AActualZoom<14) then
+    AActualZoom:=14;
 end;
   
 { TAvailPicsBing }
 
+procedure TAvailPicsBing.AdjustCustomBingHiResZoom(var AActualZoom: Byte);
+begin
+  if (FForceZoom24<>0) then begin
+    // for special zoom
+    AActualZoom := FForceZoom24-1;
+  end else begin
+    // default
+    AdjustMinimalBingHiResZoom(AActualZoom);
+  end;
+end;
+
 procedure TAvailPicsBing.AfterConstruction;
 begin
   inherited;
+  FForceZoom24 := 0;
   //FDefaultKey := 'AvuPoJ5DwFK0Htv75MetMjEN1QjQHiB8UIkTP0XZGHUQn-y2-r464Mjg27vyQ8Z1';
   // from Version=1145
-  FDefaultKey := 'Akw4XWHH0ngzzB_4DmHOv_XByRBtX5qwLAS9RgRYDamxvLeIxRfSzmuvWFB9RF7d';
+  //FDefaultKey := 'Akw4XWHH0ngzzB_4DmHOv_XByRBtX5qwLAS9RgRYDamxvLeIxRfSzmuvWFB9RF7d';
+  // from Version=1398
+  FDefaultKey := 'Anqg-XzYo-sBPlzOWFHIcjC3F8s17P_O7L4RrevsHVg4fJk6g_eEmUBphtSn4ySg';
 end;
 
 function TAvailPicsBing.ContentType: String;
@@ -79,6 +102,7 @@ end;
 
 function TAvailPicsBing.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 var
+  VStream: TStreamReadOnlyByBinaryData;
   VDOMDocument: IDOMDocument;
   VResponse: IDOMNode;
   VResourceSets: IDOMNode;
@@ -89,109 +113,95 @@ var
   VNodeName, VNodeValue: String;
   VVintageStart, VVintageEnd: String;
   VSLParams: TStrings;
-  VMemoryStream: TMemoryStream;
   VZoom: Byte;
 begin
-  VMemoryStream := TMemoryStream.Create;
-  VMemoryStream.Position:=0;
-  VMemoryStream.SetSize(AResultOk.Data.Size);
-  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
   Result:=0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
-    Exit;
-
-  VSLParams:=nil;
-  VDOMDocument:=nil;
-  VResponse:=nil;
-  VResourceSets:=nil;
-  VResourceSet:=nil;
-  VResources:=nil;
-  VImageryMetadata:=nil;
-  VParam:=nil;
+  VStream := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
   try
-    // create xml
-    if VSAGPS_Create_DOMDocument(VDOMDocument, FALSE {no exception if false}, 1 {no validation}) then
-    if VSAGPS_Load_DOMDocument_FromStream(VDOMDocument, VMemoryStream, FALSE {no exception if false}) then
-    try
-      VResponse := VDOMDocument.lastChild;
-      // get StatusCode
-      // get AuthenticationResultCode
-      // get TraceId - no interesting info
-      VResourceSets := VResponse.lastChild;
-      VResourceSet := VResourceSets.lastChild;
-      // get EstimatedTotal
-      VResources := VResourceSet.lastChild;
-      VImageryMetadata := VResources.lastChild;
+    if (0 = VStream.Size) then
+      Exit;
 
-      VVintageStart:='';
-      VVintageEnd:='';
-      FreeAndNil(VSLParams);
-      VSLParams:=TStringList.Create;
+    if not LoadXmlDomDocFromStream(VDOMDocument, VStream) then
+      Exit;
+
+    VResponse := VDOMDocument.lastChild;
+    if (nil = VResponse) then
+      Exit;
+    // get StatusCode
+    // get AuthenticationResultCode
+    // get TraceId - no interesting info
+    VResourceSets := VResponse.lastChild;
+    if (nil = VResourceSets) then
+      Exit;
+    VResourceSet := VResourceSets.lastChild;
+    if (nil = VResourceSet) then
+      Exit;
+    // get EstimatedTotal
+    VResources := VResourceSet.lastChild;
+    if (nil = VResources) then
+      Exit;
+    VImageryMetadata := VResources.lastChild;
+    if (nil = VImageryMetadata) then
+      Exit;
+
+    VSLParams := TStringList.Create;
+    try
+      // init
+      VVintageStart := '';
+      VVintageEnd := '';
 
       // get params
-      VParam:=VImageryMetadata.firstChild;
+      VParam := VImageryMetadata.firstChild;
       while Assigned(VParam) do begin
         // param node
-        VNodeName:=VParam.nodeName;
-        VNodeValue:=VSAGPS_XML_DOMNodeValue(VParam);
-        VSLParams.Values[VNodeName]:=VNodeValue;
-
-        // save some values
-        if SameText(VNodeName,'VintageStart') then
-          VVintageStart:=VNodeValue;
-        if SameText(VNodeName,'VintageEnd') then
-          VVintageEnd:=VNodeValue;
-
+        VNodeName := VParam.nodeName;
+        if (0 < Length(VNodeName)) and (VNodeName[1] <> '#') then begin
+          VNodeValue := GetXmlNodeText(VParam);
+          VSLParams.Values[VNodeName] := VNodeValue;
+          // save some values
+          if SameText(VNodeName,'VintageStart') then
+            VVintageStart:=VNodeValue;
+          if SameText(VNodeName,'VintageEnd') then
+            VVintageEnd:=VNodeValue;
+          end;
         // next
-        VParam:=VParam.nextSibling;
+        VParam := VParam.nextSibling;
       end;
 
       // check
-      if (0<Length(VVintageStart)) and (0<Length(VVintageEnd)) then begin
+      if (0 < Length(VVintageStart)) and (0 < Length(VVintageEnd)) then begin
         // set user date format
-        VVintageStart[5]:=DateSeparator;
-        VVintageStart[8]:=DateSeparator;
-        VVintageEnd[5]:=DateSeparator;
-        VVintageEnd[8]:=DateSeparator;
+        VVintageStart[5] := DateSeparator;
+        VVintageStart[8] := DateSeparator;
+        VVintageEnd[5] := DateSeparator;
+        VVintageEnd[8] := DateSeparator;
 
-        if VVintageStart <> VVintageEnd then
+        if VVintageStart <> VVintageEnd then begin
            VVintageStart := VVintageStart + ' - '+ VVintageEnd;
+        end;
         VZoom := FTileInfoPtr.Zoom;
-        AdjustMinimalBingHiResZoom(VZoom);
+        AdjustCustomBingHiResZoom(VZoom);
 
         if FTileInfoPtr.AddImageProc(
             Self,
             VVintageStart,
             'Bing (z'+inttostr(VZoom+1)+')',
-            FALSE, // cannot check image identidier for BING
+            False, // cannot check image identifier for BING
             0,
             VSLParams
-        ) then
+        ) then begin
           Inc(Result);
-      end;
-
-      FreeAndNil(VSLParams);
-    except
-      if (nil<>VSLParams) then begin
-        try
-          VSLParams.Free;
-        except
         end;
-        VSLParams:=nil;
       end;
+    finally
+      VSLParams.Free;
     end;
   finally
-    VParam:=nil;
-    VImageryMetadata:=nil;
-    VResources:=nil;
-    VResourceSet:=nil;
-    VResourceSets:=nil;
-    VResponse:=nil;
-    VDOMDocument:=nil;
+    VStream.Free;
   end;
 end;
 
@@ -200,7 +210,7 @@ var VZoom: Byte;
     VLink: string;
 begin
  VZoom := FTileInfoPtr.Zoom;
- AdjustMinimalBingHiResZoom(VZoom);
+ AdjustCustomBingHiResZoom(VZoom);
  VLink := 'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/'+
             RoundEx(FTileInfoPtr.LonLat.Y, 6)+','+RoundEx(FTileInfoPtr.LonLat.X, 6)+
             '?zl='+IntToStr(VZoom)+'&o=xml&key='+FDefaultKey;
@@ -211,6 +221,14 @@ begin
            AInetConfig.GetStatic
            );
 
+end;
+
+{ TAvailPicsZ19Bing }
+
+procedure TAvailPicsZ19Bing.AfterConstruction;
+begin
+  inherited;
+  FForceZoom24 := 19;
 end;
 
 end.

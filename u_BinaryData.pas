@@ -40,6 +40,7 @@ type
       const ABuffer: Pointer;
       const AOwnBuffer: Boolean
     );
+    constructor CreateByAnsiString(const ASource: AnsiString);
     destructor Destroy; override;
   end;
 
@@ -61,6 +62,14 @@ begin
     GetMem(FBuffer, FSize);
     Move(ABuffer^, FBuffer^, FSize);
   end;
+end;
+
+constructor TBinaryData.CreateByAnsiString(const ASource: AnsiString);
+begin
+  inherited Create;
+  FSize := Length(ASource);
+  GetMem(FBuffer, FSize);
+  Move(ASource[1], FBuffer^, FSize);
 end;
 
 destructor TBinaryData.Destroy;

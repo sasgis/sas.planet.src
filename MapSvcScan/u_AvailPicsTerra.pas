@@ -46,6 +46,7 @@ implementation
 uses
   u_GeoToStr,
   windows,
+  u_StreamReadOnlyByBinaryData,
   u_TileRequestBuilderHelpers;
 
 function _RandInt5: String;
@@ -56,6 +57,44 @@ begin
   Result := IntToStr(i);
 end;
 
+function _ConvertToYYYYMMDD(const AText, ASep: String): String;
+var
+  VSepPos: Integer;
+  Vyyyy, Vmm, Vdd: String;
+begin
+  Result := '';
+  Vmm := '';
+  Vdd := '';
+  Vyyyy := AText;
+
+  // get m[m]
+  VSepPos := System.Pos(ASep, Vyyyy);
+  if VSepPos>0 then begin
+    Vmm := System.Copy(Vyyyy, 1, VSepPos-1);
+    System.Delete(Vyyyy, 1, VSepPos);
+    while Length(Vmm)<2 do
+      Vmm := '0' + Vmm;
+  end;
+
+  // get d[d]
+  VSepPos := System.Pos(ASep, Vyyyy);
+  if VSepPos>0 then begin
+    Vdd := System.Copy(Vyyyy, 1, VSepPos-1);
+    System.Delete(Vyyyy, 1, VSepPos);
+    while Length(Vdd)<2 do
+      Vdd := '0' + Vdd;
+  end;
+
+  // check all parts
+  if TryStrToInt(Vyyyy, VSepPos) then
+  if TryStrToInt(Vmm, VSepPos) then
+  if TryStrToInt(Vdd, VSepPos) then begin
+    // ok
+    Result := Vyyyy + DateSeparator + Vmm + DateSeparator + Vdd;
+  end;
+end;
+
+
 { TAvailPicsTerraserver }
 
 function TAvailPicsTerraserver.ContentType: String;
@@ -65,42 +104,6 @@ end;
 
 function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
 
-  function _ConvertToYYYYMMDD(const AText, ASep: String): String;
-  var
-    VSepPos: Integer;
-    Vyyyy, Vmm, Vdd: String;
-  begin
-    Result := '';
-    Vmm := '';
-    Vdd := '';
-    Vyyyy := AText;
-
-    // get m[m]
-    VSepPos := System.Pos(ASep, Vyyyy);
-    if VSepPos>0 then begin
-      Vmm := System.Copy(Vyyyy, 1, VSepPos-1);
-      System.Delete(Vyyyy, 1, VSepPos);
-      while Length(Vmm)<2 do
-        Vmm := '0' + Vmm;
-    end;
-
-    // get d[d]
-    VSepPos := System.Pos(ASep, Vyyyy);
-    if VSepPos>0 then begin
-      Vdd := System.Copy(Vyyyy, 1, VSepPos-1);
-      System.Delete(Vyyyy, 1, VSepPos);
-      while Length(Vdd)<2 do
-        Vdd := '0' + Vdd;
-    end;
-
-    // check all parts
-    if TryStrToInt(Vyyyy, VSepPos) then
-    if TryStrToInt(Vmm, VSepPos) then
-    if TryStrToInt(Vdd, VSepPos) then begin
-      // ok
-      Result := Vyyyy + DateSeparator + Vmm + DateSeparator + Vdd;
-    end;
-  end;
 
   function _ProcessOption(const AOptionText: String;
                           var AParams: TStrings): Boolean;
@@ -203,31 +206,28 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
   end;
 
 var
+  VStream: TStreamReadOnlyByBinaryData;
   VResponse: TStringList;
   VSLParams: TStrings;
   S: String;
-  VMemoryStream: TMemoryStream;
 begin
-  VMemoryStream := TMemoryStream.Create;
-  VMemoryStream.Position:=0;
-  VMemoryStream.SetSize(AResultOk.Data.Size);
-  CopyMemory(VMemoryStream.Memory, AResultOk.Data.Buffer, AResultOk.Data.Size);
   Result:=0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  if (nil=VMemoryStream) or (0=VMemoryStream.Size) then
-    Exit;
-
-  // search for:
-  // <option value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011</option>
-  // <option value='dg,f09a1d6be635f037f9b2a079ea57040b'  >7/19/2010</option>
+  VResponse := nil;
   VSLParams := nil;
-  VResponse := TStringList.Create;
+  VStream := TStreamReadOnlyByBinaryData.Create(AResultOk.Data);
   try
-    VResponse.LoadFromStream(VMemoryStream);
+    if (0 = VStream.Size) then
+      Exit;
 
+    VResponse := TStringList.Create;
+    VResponse.LoadFromStream(VStream);
+    // search for:
+    // <option value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011</option>
+    // <option value='dg,f09a1d6be635f037f9b2a079ea57040b'  >7/19/2010</option>
     while (VResponse.Count>0) do begin
       S := Trim(VResponse[0]);
       S := GetBetween(S, '<option', '</option>');
@@ -244,8 +244,9 @@ begin
       VResponse.Delete(0);
     end;
   finally
-    FreeAndNil(VResponse);
-    FreeAndNil(VSLParams);
+    VStream.Free;
+    VSLParams.Free;
+    VResponse.Free;
   end;
 end;
 

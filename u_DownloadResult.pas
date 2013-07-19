@@ -60,10 +60,11 @@ type
     function GetRawResponseHeader: AnsiString;
     function GetContentType: AnsiString;
     function GetData: IBinaryData;
+    function GetIsGZipped: Boolean;
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      AStatusCode: Cardinal;
+      const AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString;
       const AContentType: AnsiString;
       const AData: IBinaryData
@@ -105,7 +106,7 @@ type
       const ARequest: IDownloadRequest;
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const;
-      AErrorCode: DWORD
+      const AErrorCode: DWORD
     );
   end;
 
@@ -120,7 +121,7 @@ type
       const ARequest: IDownloadRequest;
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const;
-      AStatusCode: DWORD
+      const AStatusCode: DWORD
     );
   end;
 
@@ -130,7 +131,7 @@ type
       const ARequest: IDownloadRequest;
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const;
-      AStatusCode: DWORD
+      const AStatusCode: DWORD
     );
   end;
 
@@ -140,7 +141,7 @@ type
       const ARequest: IDownloadRequest;
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const;
-      AErrorCode: DWORD
+      const AErrorCode: DWORD
     );
   end;
 
@@ -155,7 +156,7 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      AStatusCode: Cardinal;
+      const AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString;
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const
@@ -177,7 +178,7 @@ type
     constructor Create(
       const ARequest: IDownloadRequest;
       const AContentType: AnsiString;
-      AStatusCode: Cardinal;
+      const AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString;
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const
@@ -201,7 +202,7 @@ type
       const ARequest: IDownloadRequest;
       const AReasonTextFormat: string;
       const AReasonTextArgs: array of const;
-      AStatusCode: Cardinal;
+      const AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString
     );
   end;
@@ -213,7 +214,7 @@ type
       const ARawResponseHeader: AnsiString;
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const;
-      AStatusCode: DWORD
+      const AStatusCode: DWORD
     );
   end;
 
@@ -221,7 +222,7 @@ type
   public
     constructor Create(
       const ARequest: IDownloadRequest;
-      AStatusCode: Cardinal;
+      const AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString;
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const
@@ -245,7 +246,7 @@ type
       const ARequest: IDownloadRequest;
       const AReasonTextFormat: string;
       const AReasonTextArgs: array of const;
-      AStatusCode: Cardinal;
+      const AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString
     );
   end;
@@ -275,7 +276,7 @@ end;
 
 constructor TDownloadResultOk.Create(
   const ARequest: IDownloadRequest;
-  AStatusCode: Cardinal;
+  const AStatusCode: Cardinal;
   const ARawResponseHeader, AContentType: AnsiString;
   const AData: IBinaryData
 );
@@ -295,6 +296,31 @@ end;
 function TDownloadResultOk.GetData: IBinaryData;
 begin
   Result := FData;
+end;
+
+function TDownloadResultOk.GetIsGZipped: Boolean;
+const
+  c_Content = 'Content-Encoding';
+  c_GZIPped = 'gzip';
+var
+  VPos: Integer;
+  VTxt: AnsiString;
+begin
+  Result := False;
+  VPos := Pos(c_Content, FRawResponseHeader);
+  if (VPos > 0) then begin
+    // skip before
+    VPos := VPos + Length(c_Content) + 1;
+    while (VPos <= Length(FRawResponseHeader)) and (FRawResponseHeader[VPos] in [#32,#10,#13,#160,':']) do begin
+      Inc(VPos);
+    end;
+    VTxt := '';
+    while (VPos <= Length(FRawResponseHeader)) and (not (FRawResponseHeader[VPos] in [#32,#10,#13,#160,':'])) do begin
+      VTxt := VTxt + FRawResponseHeader[VPos];
+      Inc(VPos);
+    end;
+    Result := (VTxt = c_GZIPped);
+  end;
 end;
 
 function TDownloadResultOk.GetIsServerExists: Boolean;
@@ -333,9 +359,11 @@ end;
 function TDownloadResultError.GetErrorText: string;
 begin
   try
-    Result := Format(gettext(FErrorTextFormat), FErrorTextArgs);
+    if Length(FErrorTextArgs)>0 then
+      Result := Format(gettext(FErrorTextFormat), FErrorTextArgs)
+    else
+      Result := FErrorTextFormat;
   except
-    Assert(False, 'Ошибка форматирования текста сообщения об ошибке');
     Result := FErrorTextFormat;
   end;
 end;
@@ -365,7 +393,7 @@ end;
 
 constructor TDownloadResultBanned.Create(
   const ARequest: IDownloadRequest;
-  AStatusCode: Cardinal;
+  const AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString;
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const
@@ -396,7 +424,7 @@ end;
 constructor TDownloadResultBadContentType.Create(
   const ARequest: IDownloadRequest;
   const AContentType: AnsiString;
-  AStatusCode: Cardinal;
+  const AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString;
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const
@@ -434,7 +462,7 @@ constructor TDownloadResultNoConnetctToServerByErrorCode.Create(
   const ARequest: IDownloadRequest;
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const;
-  AErrorCode: DWORD
+  const AErrorCode: DWORD
 );
 begin
   inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
@@ -446,7 +474,7 @@ constructor TDownloadResultLoadErrorByStatusCode.Create(
   const ARequest: IDownloadRequest;
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const;
-  AStatusCode: DWORD
+  const AStatusCode: DWORD
 );
 begin
   inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
@@ -458,7 +486,7 @@ constructor TDownloadResultLoadErrorByErrorCode.Create(
   const ARequest: IDownloadRequest;
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const;
-  AErrorCode: DWORD
+  const AErrorCode: DWORD
 );
 begin
   inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
@@ -477,7 +505,7 @@ constructor TDownloadResultDataNotExists.Create(
   const ARequest: IDownloadRequest;
   const AReasonTextFormat: string;
   const AReasonTextArgs: array of const;
-  AStatusCode: Cardinal;
+  const AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString
 );
 var
@@ -519,7 +547,7 @@ constructor TDownloadResultNotNecessary.Create(
   const ARequest: IDownloadRequest;
   const AReasonTextFormat: string;
   const AReasonTextArgs: array of const;
-  AStatusCode: Cardinal;
+  const AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString
 );
 var
@@ -562,7 +590,7 @@ constructor TDownloadResultDataNotExistsByStatusCode.Create(
   const ARawResponseHeader: AnsiString;
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const;
-  AStatusCode: DWORD
+  const AStatusCode: DWORD
 );
 begin
   inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs, AStatusCode, ARawResponseHeader);
@@ -572,7 +600,7 @@ end;
 
 constructor TDownloadResultDataNotExistsZeroSize.Create(
   const ARequest: IDownloadRequest;
-  AStatusCode: Cardinal;
+  const AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString;
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const
@@ -587,7 +615,7 @@ constructor TDownloadResultLoadErrorByUnknownStatusCode.Create(
   const ARequest: IDownloadRequest;
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const;
-  AStatusCode: DWORD
+  const AStatusCode: DWORD
 );
 begin
   inherited Create(ARequest, AErrorTextFormat, AErrorTextArgs);
