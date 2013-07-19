@@ -117,6 +117,7 @@ begin
   inherited Create;
   FOwnStream := False;
   FStream := AStream;
+  FArch := CreateArchive(AArchiveType);
 end;
 
 destructor TArchiveReadBy7Zip.Destroy;
