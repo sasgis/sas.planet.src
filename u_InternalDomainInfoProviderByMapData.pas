@@ -60,12 +60,7 @@ function TInternalDomainInfoProviderByMapData.BuildBinaryDataByText(
 begin
   Result := nil;
   if AText <> '' then begin
-    Result :=
-      TBinaryData.Create(
-        Length(AText) * SizeOf(AText[1]),
-        @AText[1],
-        False
-      );
+    Result := TBinaryData.CreateByString(AText);
   end;
 end;
 

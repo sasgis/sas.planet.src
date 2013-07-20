@@ -35,7 +35,7 @@ implementation
 uses
   SysUtils,
   i_BinaryData,
-  u_BinaryDataByMemStream,
+  u_BinaryData,
   i_DownloadRequest,
   i_DownloadResult,
   u_DownloadRequest;
@@ -72,11 +72,7 @@ begin
   AResponseData := '';
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
     if Length(APostData) > 0 then begin
-      VPostData :=
-        TBinaryDataByMemStream.CreateFromMem(
-          Length(APostData),
-          Addr(APostData[1])
-        );
+      VPostData := TBinaryData.CreateByAnsiString(APostData);
       VRequest :=
         TDownloadPostRequest.Create(
           ARequestUrl,

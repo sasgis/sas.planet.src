@@ -120,6 +120,7 @@ implementation
 
 uses
   u_Synchronizer,
+  u_BinaryData,
   u_BinaryDataByMemStream;
 
 { TTileStorageArchive }
@@ -243,7 +244,7 @@ begin
   try
     VArchiveWriter := GetArchiveWriter;
     if Assigned(VArchiveWriter) then begin
-      VData := TBinaryDataByMemStream.CreateFromMem(0, nil);
+      VData := TBinaryData.Create(0, nil);
       VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + '.tne';
       VArchiveWriter.AddFile(VData, VTileName, ALoadDate);
     end;

@@ -16,10 +16,6 @@ type
     function GetSize: Integer;
   public
     constructor CreateFromStream(AStream: TStream);
-    constructor CreateFromMem(
-      const ASize: Integer;
-      const ABuffer: Pointer
-    );
     constructor CreateWithOwn(AMemStream: TMemoryStream);
     destructor Destroy; override;
   end;
@@ -30,23 +26,6 @@ uses
   SysUtils;
 
 { TBinaryDataByMemStream }
-
-constructor TBinaryDataByMemStream.CreateFromMem(
-  const ASize: Integer;
-  const ABuffer: Pointer
-);
-var
-  VMemStream: TMemoryStream;
-begin
-  VMemStream := TMemoryStream.Create;
-  try
-    VMemStream.WriteBuffer(ABuffer^, ASize);
-    CreateWithOwn(VMemStream);
-    VMemStream := nil;
-  finally
-    VMemStream.Free;
-  end;
-end;
 
 constructor TBinaryDataByMemStream.CreateFromStream(AStream: TStream);
 var

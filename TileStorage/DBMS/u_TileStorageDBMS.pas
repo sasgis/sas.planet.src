@@ -271,7 +271,7 @@ implementation
 
 uses
   t_CommonTypes,
-  u_BinaryDataByMemStream,
+  u_BinaryData,
   u_MapVersionListStatic,
   u_Synchronizer,
   u_ListenerTime,
@@ -1268,7 +1268,7 @@ begin
   if (ASelectBufferOut^.ptTileBuffer <> nil) then
   if (ASelectBufferOut^.dwTileSize > 0) then begin
     // make TileBody object
-    Result := TBinaryDataByMemStream.CreateFromMem(ASelectBufferOut^.dwTileSize, ASelectBufferOut^.ptTileBuffer);
+    Result := TBinaryData.Create(ASelectBufferOut^.dwTileSize, ASelectBufferOut^.ptTileBuffer);
     Exit;
   end;
 

@@ -122,7 +122,7 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_SimpleHttpDownloader,
-  u_BinaryDataByMemStream,
+  u_BinaryData,
   u_ListenerByEvent,
   u_TileDownloadRequest,
   u_SimpleHttpDownloader,
@@ -216,11 +216,7 @@ begin
         end;
         if FpResultUrl.Data <> '' then begin
           if FpPostData.Data <> '' then begin
-            VPostData :=
-              TBinaryDataByMemStream.CreateFromMem(
-                Length(FpPostData.Data),
-                Addr(FpPostData.Data[1])
-              );
+            VPostData := TBinaryData.CreateByAnsiString(FpPostData.Data);
             Result :=
               TTileDownloadPostRequest.Create(
                 FpResultUrl.Data,

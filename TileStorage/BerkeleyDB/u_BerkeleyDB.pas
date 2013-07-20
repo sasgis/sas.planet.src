@@ -262,7 +262,7 @@ begin
 
     if VFound then begin
       if (dbtData.data <> nil) and (dbtData.size > 0) then begin
-        Result := TBinaryData.Create(dbtData.size, dbtData.data, True);
+        Result := TBinaryData.CreateWithOwn(dbtData.size, dbtData.data);
       end else begin
         raise EBerkeleyDB.Create('Value not assigned!');
       end;

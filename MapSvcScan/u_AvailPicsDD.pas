@@ -33,9 +33,7 @@ uses
   i_DownloadResultFactory,
   i_DownloadRequest,
   i_MapSvcScanStorage,
-  u_DownloadRequest,
-  u_AvailPicsAbstract,
-  u_BinaryDataByMemStream;
+  u_AvailPicsAbstract;
 
 type
   TAvailPicsDD = class(TAvailPicsByKey)
@@ -75,7 +73,9 @@ uses
   i_NotifierOperation,
   u_GeoToStr,
   u_DownloaderHttp,
+  u_BinaryData,
   u_Notifier,
+  u_DownloadRequest,
   u_NotifierOperation,
   u_DownloadResultFactory,
   u_TileRequestBuilderHelpers;
@@ -317,11 +317,7 @@ begin
     '    </ApplicationParameters>'+#$D#$A+
     '  </SOAP-ENV:Body>'+#$D#$A+
     '</SOAP-ENV:Envelope>';
-  VPostData :=
-        TBinaryDataByMemStream.CreateFromMem(
-          Length(VStrPostData),
-          Addr(VStrPostData[1])
-        );
+  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
   VPostRequest := TDownloadPostRequest.Create(
                    Vlink,
                    VHeader,
@@ -352,11 +348,7 @@ begin
     '    </AuthenticateGuest>'+#$D#$A+
     '  </SOAP-ENV:Body>'+#$D#$A+
     '</SOAP-ENV:Envelope>';
-  VPostData :=
-        TBinaryDataByMemStream.CreateFromMem(
-          Length(VStrPostData),
-          Addr(VStrPostData[1])
-        );
+  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
   VHeader :='User-Agent: Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.10.289 Version/12.01'+#$D#$A+
     'Host: www.datadoors.net'+#$D#$A+
     'Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1'+#$D#$A+
@@ -415,13 +407,7 @@ begin
     '</SOAP-ENV:Envelope>'
   else VPostDataStr := '';
 
-
-
- VPostData :=
-  TBinaryDataByMemStream.CreateFromMem(
-     Length(VPostDataStr),
-     Addr(VPostDataStr[1])
-     );
+ VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
 
  VHeader := 'Host: www.datadoors.net'+#$D#$A+
   'Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1'+#$D#$A+

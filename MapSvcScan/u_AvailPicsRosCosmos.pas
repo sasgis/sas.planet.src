@@ -16,7 +16,7 @@ uses
   i_DownloadResultFactory,
   u_DownloadRequest,
   u_AvailPicsAbstract,
-  u_BinaryDataByMemStream;
+  u_BinaryData;
 
 type
   TAvailPicsRC = class(TAvailPicsAbstract)
@@ -354,11 +354,7 @@ begin
   // Формируем строку запроса на залогинивание на сайте
   VPostdataStr := MakeSignInPostString;
 
-  VPostData :=
-        TBinaryDataByMemStream.CreateFromMem(
-          Length(VPostdataStr)*SizeOf(Char),
-          PChar(VPostdataStr)
-        );
+  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
   VPostRequest := TDownloadPostRequest.Create(
                    Vlink,
                    VHeader,
@@ -378,11 +374,7 @@ begin
    // Формируем строку запроса на получение списка снимков
    VPostDataStr := MakePostString;
 
-   VPostData :=
-    TBinaryDataByMemStream.CreateFromMem(
-      Length(VPostDataStr)*SizeOf(Char),
-      PChar(VPostDataStr)
-      );
+   VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
 
    VHeader :=
       'User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.52 Safari/537.17'+#$D#$A+

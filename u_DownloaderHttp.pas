@@ -132,6 +132,7 @@ uses
   u_HttpStatusChecker,
   u_StreamReadOnlyByBinaryData,
   u_TileRequestBuilderHelpers,
+  u_BinaryData,
   u_BinaryDataByMemStream;
 
 { TDownloaderHttp }
@@ -689,7 +690,7 @@ begin
     AHasOwned^ := TRUE;
   end else begin
     // cannot own - just copy
-    VResponseBody := TBinaryDataByMemStream.CreateFromMem(
+    VResponseBody := TBinaryData.Create(
       ABody.Size,
       ABody.Memory
     );

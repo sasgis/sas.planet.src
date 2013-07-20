@@ -37,9 +37,13 @@ type
   public
     constructor Create(
       const ASize: Integer;
-      const ABuffer: Pointer;
-      const AOwnBuffer: Boolean
+      const ABuffer: Pointer
     );
+    constructor CreateWithOwn(
+      const ASize: Integer;
+      const ABuffer: Pointer
+    );
+    constructor CreateByString(const ASource: String);
     constructor CreateByAnsiString(const ASource: AnsiString);
     destructor Destroy; override;
   end;
@@ -50,26 +54,41 @@ implementation
 
 constructor TBinaryData.Create(
   const ASize: Integer;
-  const ABuffer: Pointer;
-  const AOwnBuffer: Boolean
+  const ABuffer: Pointer
 );
 begin
   inherited Create;
   FSize := ASize;
-  if AOwnBuffer then begin
-    FBuffer := ABuffer;
-  end else begin
+  if FSize > 0 then begin
     GetMem(FBuffer, FSize);
     Move(ABuffer^, FBuffer^, FSize);
+  end else begin
+    FBuffer := nil;
   end;
 end;
 
 constructor TBinaryData.CreateByAnsiString(const ASource: AnsiString);
 begin
+  Create(Length(ASource), @ASource[1]);
+end;
+
+constructor TBinaryData.CreateByString(const ASource: String);
+begin
+  Create(Length(ASource) * SizeOf(ASource[1]), @ASource[1]);
+end;
+
+constructor TBinaryData.CreateWithOwn(
+  const ASize: Integer;
+  const ABuffer: Pointer
+);
+begin
   inherited Create;
-  FSize := Length(ASource);
-  GetMem(FBuffer, FSize);
-  Move(ASource[1], FBuffer^, FSize);
+  FSize := ASize;
+  if FSize > 0 then begin
+    FBuffer := ABuffer;
+  end else begin
+    FBuffer := nil;
+  end;
 end;
 
 destructor TBinaryData.Destroy;
