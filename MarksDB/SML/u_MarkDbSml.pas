@@ -692,7 +692,7 @@ end;
 
 procedure TMarkDbSml.WriteCurrentMark(const AMark: IMark);
 var
-  VMarkVisible: IMarkSMLInternal;
+  VMarkSMLInternal: IMarkSMLInternal;
   VMarkPointWithIcon: IVectorDataItemPointWithIconParams;
   VPicName: string;
   VCategoryId: Integer;
@@ -704,9 +704,9 @@ var
 begin
   VVisible := True;
   VCategoryId := CNotExistCategoryID;
-  if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
-    VVisible := VMarkVisible.Visible;
-    VCategoryId := VMarkVisible.CategoryId;
+  if Supports(AMark, IMarkSMLInternal, VMarkSMLInternal) then begin
+    VVisible := VMarkSMLInternal.Visible;
+    VCategoryId := VMarkSMLInternal.CategoryId;
   end;
 
   FCdsMarks.FieldByName('Visible').AsBoolean := VVisible;
