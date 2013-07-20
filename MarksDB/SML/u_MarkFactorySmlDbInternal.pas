@@ -192,6 +192,9 @@ var
   VMarkPoly: IMarkPoly;
   VVisible: Boolean;
 begin
+  Assert(Assigned(AMark));
+  Assert(Assigned(AMark.Category));
+
   VVisible := True;
   if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
     VVisible := VMarkInternal.Visible;
@@ -211,6 +214,7 @@ begin
       VCategory := FCategoryDB.GetCategoryByName(AMark.Category.Name);
     end;
   end;
+  Assert(Assigned(VCategory), 'Corresponding category in this DB have not been found');
 
   if Supports(AMark, IMarkPoint, VMarkPoint) then begin
     Result :=
@@ -253,6 +257,8 @@ begin
         VMarkPoly.FillColor,
         VMarkPoly.LineWidth
       );
+  end else begin
+    Assert(False, 'Unknown Mark type');
   end;
 end;
 
