@@ -60,7 +60,6 @@ type
     function GetRawResponseHeader: AnsiString;
     function GetContentType: AnsiString;
     function GetData: IBinaryData;
-    function GetIsGZipped: Boolean;
   public
     constructor Create(
       const ARequest: IDownloadRequest;
@@ -296,31 +295,6 @@ end;
 function TDownloadResultOk.GetData: IBinaryData;
 begin
   Result := FData;
-end;
-
-function TDownloadResultOk.GetIsGZipped: Boolean;
-const
-  c_Content = 'Content-Encoding';
-  c_GZIPped = 'gzip';
-var
-  VPos: Integer;
-  VTxt: AnsiString;
-begin
-  Result := False;
-  VPos := Pos(c_Content, FRawResponseHeader);
-  if (VPos > 0) then begin
-    // skip before
-    VPos := VPos + Length(c_Content) + 1;
-    while (VPos <= Length(FRawResponseHeader)) and (FRawResponseHeader[VPos] in [#32,#10,#13,#160,':']) do begin
-      Inc(VPos);
-    end;
-    VTxt := '';
-    while (VPos <= Length(FRawResponseHeader)) and (not (FRawResponseHeader[VPos] in [#32,#10,#13,#160,':'])) do begin
-      VTxt := VTxt + FRawResponseHeader[VPos];
-      Inc(VPos);
-    end;
-    Result := (VTxt = c_GZIPped);
-  end;
 end;
 
 function TDownloadResultOk.GetIsServerExists: Boolean;

@@ -62,9 +62,6 @@ type
 
     function GetData: IBinaryData;
     property Data: IBinaryData read GetData;
-
-    function GetIsGZipped: Boolean;
-    property IsGZipped: Boolean read GetIsGZipped;
   end;
 
   IDownloadResultError = interface(IDownloadResult)

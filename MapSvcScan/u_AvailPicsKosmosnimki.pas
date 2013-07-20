@@ -79,6 +79,7 @@ uses
   u_GeoToStr,
   u_DownloadRequest,
   u_StreamReadOnlyByBinaryData,
+  u_InetFunc,
   u_BinaryData;
 
 procedure GenerateAvailPicsKS(
@@ -333,7 +334,7 @@ begin
   if (0=AResultOk.Data.Size) or (nil=AResultOk.Data.Buffer) then
     Exit;
 
-  if AResultOk.IsGZipped then begin
+  if IsGZipped(AResultOk.RawResponseHeader) then begin
     // gzipped
     try
       // try to unzip
