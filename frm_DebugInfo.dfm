@@ -8,7 +8,6 @@ object frmDebugInfo: TfrmDebugInfo
   Color = clBtnFace
   ParentFont = True
   OldCreateOrder = False
-  PopupMode = pmExplicit
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -25,6 +24,7 @@ object frmDebugInfo: TfrmDebugInfo
     FixedColor = clWindow
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goDrawFocusSelected, goColSizing, goRowSelect]
+    PopupMenu = pmFiltering
     TabOrder = 0
     ColWidths = (
       338
@@ -42,6 +42,22 @@ object frmDebugInfo: TfrmDebugInfo
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
+    object lblFiltering: TLabel
+      Left = 378
+      Top = 0
+      Width = 38
+      Height = 13
+      Hint = 'Filtering'
+      Align = alClient
+      Caption = 'Filtering'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clRed
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      Layout = tlCenter
+    end
     object btnRefresh: TButton
       AlignWithMargins = True
       Left = 715
@@ -103,20 +119,22 @@ object frmDebugInfo: TfrmDebugInfo
       OnClick = btnCopyToClipboardClick
     end
     object chkHideEmtyRows: TCheckBox
-      Left = 88
-      Top = 6
+      Left = 79
+      Top = 0
       Width = 105
-      Height = 17
+      Height = 29
+      Align = alLeft
       Caption = 'Hide emty rows'
       Checked = True
       State = cbChecked
       TabOrder = 4
     end
     object chkAutoRefresh: TCheckBox
-      Left = 199
-      Top = 6
+      Left = 184
+      Top = 0
       Width = 97
-      Height = 17
+      Height = 29
+      Align = alLeft
       Caption = 'Auto Refresh'
       Checked = True
       State = cbChecked
@@ -124,10 +142,11 @@ object frmDebugInfo: TfrmDebugInfo
       OnClick = chkAutoRefreshClick
     end
     object chkAlphaBlend: TCheckBox
-      Left = 312
-      Top = 8
+      Left = 281
+      Top = 0
       Width = 97
-      Height = 17
+      Height = 29
+      Align = alLeft
       Caption = 'Alpha Blend'
       TabOrder = 6
       OnClick = chkAlphaBlendClick
@@ -137,5 +156,31 @@ object frmDebugInfo: TfrmDebugInfo
     OnTimer = tmrRefreshTimer
     Left = 200
     Top = 496
+  end
+  object pmFiltering: TPopupMenu
+    OnPopup = pmFilteringPopup
+    Left = 232
+    Top = 496
+    object pmiCountIsGreaterOrEqual: TMenuItem
+      Caption = 'Filter by Count'
+      OnClick = pmiCountIsGreaterOrEqualClick
+    end
+    object pmiCountReset: TMenuItem
+      Caption = 'Reset'
+      Hint = 'Reset'
+      OnClick = pmiCountResetClick
+    end
+    object pmiSep1: TMenuItem
+      Caption = '-'
+    end
+    object pmiTotalIsGreaterOrEqual: TMenuItem
+      Caption = 'Filter by Total'
+      OnClick = pmiTotalIsGreaterOrEqualClick
+    end
+    object pmiTotalReset: TMenuItem
+      Caption = 'Reset'
+      Hint = 'Reset'
+      OnClick = pmiTotalResetClick
+    end
   end
 end
