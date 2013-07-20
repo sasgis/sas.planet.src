@@ -9,6 +9,7 @@ type
     FNextFree: TObjectFromPoolAbstract;
   protected
     function CheckNeedDestroyObject: Boolean; virtual; abstract;
+    procedure InternalCleanup; virtual;
   protected
     function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
     function _AddRef: Integer; stdcall;
@@ -23,6 +24,11 @@ uses
   Windows;
 
 { TObjectFromPoolAbstract }
+
+procedure TObjectFromPoolAbstract.InternalCleanup;
+begin
+  // Do nothing by default
+end;
 
 function TObjectFromPoolAbstract.QueryInterface(const IID: TGUID;
   out Obj): HResult;
@@ -43,6 +49,7 @@ function TObjectFromPoolAbstract._Release: Integer;
 begin
   Result := InterlockedDecrement(FRefCount);
   if Result = 0 then begin
+    InternalCleanup;
     if CheckNeedDestroyObject then begin
       Destroy;
     end;
