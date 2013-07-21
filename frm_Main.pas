@@ -63,6 +63,7 @@ uses
   u_CommonFormAndFrameParents,
   i_GUIDSet,
   t_GeoTypes,
+  i_InterfaceListStatic,
   i_ListenerNotifierLinksList,
   i_ConfigDataWriteProvider,
   i_TileError,
@@ -588,7 +589,7 @@ type
     FNLayerInfoItemList: IGUIDObjectSet; //Пункт контекстного меню информация о слое
 
     FShortCutManager: TShortcutManager;
-    FLayersList: IInterfaceList;
+    FLayersList: IInterfaceListStatic;
 
     FSearchPresenter: ISearchResultPresenter;
     FMapMoving: Boolean;
@@ -738,7 +739,7 @@ uses
   i_Listener,
   i_NotifierOperation,
   i_Bitmap32Static,
-  i_InterfaceListStatic,
+  i_InterfaceListSimple,
   i_MarkId,
   i_MapTypes,
   i_GeoCoderList,
@@ -765,6 +766,7 @@ uses
   i_GPSRecorder,
   i_PathDetalizeProvider,
   i_StringListChangeable,
+  u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
   u_GeoFun,
@@ -1411,9 +1413,10 @@ var
   VLicensList: IStringListChangeable;
   VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
   VBitmapChangeable: IBitmapChangeable;
+  VLayersList: IInterfaceListSimple;
 begin
-  FLayersList := TInterfaceList.Create;
-  FLayersList.Add(
+  VLayersList := TInterfaceListSimple.Create;
+  VLayersList.Add(
     TMapLayerBitmapMaps.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1433,7 +1436,7 @@ begin
       GState.GUISyncronizedTimerNotifier
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TMapLayerGrids.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1466,8 +1469,8 @@ begin
       FConfig.LayersConfig.KmlLayerConfig,
       FConfig.MainMapsConfig.GetActiveKmlLayersSet
     );
-  FLayersList.Add(FWikiLayer);
-  FLayersList.Add(
+  VLayersList.Add(FWikiLayer);
+  VLayersList.Add(
     TMapLayerFillingMap.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1513,8 +1516,8 @@ begin
       FConfig.LayersConfig.MarksLayerConfig,
       FMarkDBGUI.MarksDb
     );
-  FLayersList.Add(FLayerMapMarks);
-  FLayersList.Add(
+  VLayersList.Add(FLayerMapMarks);
+  VLayersList.Add(
     TMapLayerGPSTrack.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1540,7 +1543,7 @@ begin
       TMarkerDrawableSimpleArrow,
       FConfig.LayersConfig.GPSMarker.MovedMarkerConfig
     );
-  FLayersList.Add(
+  VLayersList.Add(
     TMapLayerGPSMarker.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1554,7 +1557,7 @@ begin
       GState.GPSRecorder
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TMapLayerGPSMarkerRings.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1567,7 +1570,7 @@ begin
       GState.GPSRecorder
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TSelectionLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1579,7 +1582,7 @@ begin
       GState.Config.LastSelectionInfo
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPathEditLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1591,7 +1594,7 @@ begin
       FConfig.LayersConfig.CalcLineLayerConfig.LineConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPathEditPointsSetLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1605,7 +1608,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.CalcLineLayerConfig.PointsConfig.NormalPointMarker)
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TCalcLineLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1617,7 +1620,7 @@ begin
       GState.Config.ValueToStringConverterConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPathEditLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1629,7 +1632,7 @@ begin
       FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPathEditPointsSetLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1643,7 +1646,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolyLineLayerConfig.PointsConfig.NormalPointMarker)
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TCalcLineLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1655,7 +1658,7 @@ begin
       GState.Config.ValueToStringConverterConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPolygonEditLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1667,7 +1670,7 @@ begin
       FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPolygonEditPointsSetLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1681,7 +1684,7 @@ begin
       TMarkerDrawableChangeableSimple.Create(TMarkerDrawableSimpleSquare, FConfig.LayersConfig.MarkPolygonLayerConfig.PointsConfig.NormalPointMarker)
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPolygonEditLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1693,7 +1696,7 @@ begin
       FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPolygonEditPointsSetLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1708,7 +1711,7 @@ begin
     )
   );
 
-  FLayersList.Add(
+  VLayersList.Add(
     TSelectionPolylineShadowLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1720,7 +1723,7 @@ begin
       FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPathEditLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1732,7 +1735,7 @@ begin
       FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TPathEditPointsSetLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1747,7 +1750,7 @@ begin
     )
   );
 
-  FLayersList.Add(
+  VLayersList.Add(
     TSelectionRectLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1782,7 +1785,7 @@ begin
       FConfig.LastSearchResultConfig,
       VMarkerChangeable
     );
-  FLayersList.Add(FLayerSearchResults);
+  VLayersList.Add(FLayerSearchResults);
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
@@ -1797,7 +1800,7 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
   end;
-  FLayersList.Add(
+  VLayersList.Add(
     TGotoLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1821,7 +1824,7 @@ begin
       FConfig.LayersConfig.NavToPointMarkerConfig.ArrowMarkerConfig
     );
 
-  FLayersList.Add(
+  VLayersList.Add(
     TNavToMarkLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1834,7 +1837,7 @@ begin
       FConfig.LayersConfig.NavToPointMarkerConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TTileErrorInfoLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1861,7 +1864,7 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(7, 6))
       );
   end;
-  FLayersList.Add(
+  VLayersList.Add(
     TPointOnMapEditLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1872,7 +1875,7 @@ begin
       FPointOnMapEdit
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TFullMapMouseCursorLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1889,7 +1892,7 @@ begin
     TMarkerDrawableChangeableFaked.Create(
       TMarkerDrawableCenterScale.Create(GState.BitmapFactory)
     );
-  FLayersList.Add(
+  VLayersList.Add(
     TLayerCenterScale.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1900,7 +1903,7 @@ begin
       FConfig.LayersConfig.CenterScaleConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TLayerScaleLine.Create(
       GState.Config.LanguageManager,
       GState.PerfCounterList,
@@ -1917,7 +1920,7 @@ begin
       GState.Config.LanguageManager,
       TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.Create(FConfig.MainMapsConfig.GetAllActiveMapsSet)
     );
-  FLayersList.Add(
+  VLayersList.Add(
     TLayerLicenseList.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1926,7 +1929,7 @@ begin
       VLicensList
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TLayerStatBar.Create(
       GState.Config.LanguageManager,
       GState.PerfCounterList,
@@ -1953,7 +1956,7 @@ begin
       FConfig.ViewPortState.View,
       FConfig.LayersConfig.MiniMapLayerConfig
     );
-  FLayersList.Add(
+  VLayersList.Add(
     TMiniMapLayer.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1974,7 +1977,7 @@ begin
       GState.GUISyncronizedTimerNotifier
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TMiniMapLayerViewRect.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1987,7 +1990,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TMiniMapLayerTopBorder.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -1997,7 +2000,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     )
   );
-  FLayersList.Add(
+  VLayersList.Add(
     TMiniMapLayerLeftBorder.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -2018,7 +2021,7 @@ begin
   if VBitmap <> nil then begin
     VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
   end;
-  FLayersList.Add(
+  VLayersList.Add(
     TMiniMapLayerMinusButton.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -2040,7 +2043,7 @@ begin
   if VBitmap <> nil then begin
     VBitmapChangeable := TBitmapChangeableFaked.Create(VBitmap);
   end;
-  FLayersList.Add(
+  VLayersList.Add(
     TMiniMapLayerPlusButton.Create(
       GState.PerfCounterList,
       GState.AppStartedNotifier,
@@ -2051,6 +2054,7 @@ begin
       FConfig.LayersConfig.MiniMapLayerConfig
     )
   );
+  FLayersList := VLayersList.MakeStaticAndClear;
 end;
 
 procedure TfrmMain.InitMouseCursors;

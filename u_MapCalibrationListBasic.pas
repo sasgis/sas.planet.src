@@ -24,18 +24,19 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_MapCalibration,
   u_BaseInterfacedObject;
 
 type
   TMapCalibrationListByInterfaceList = class(TBaseInterfacedObject, IMapCalibrationList)
   private
-    FList: IInterfaceList;
+    FList: IInterfaceListStatic;
   private
     function GetCount: Integer;
     function Get(AIndex: Integer): IMapCalibration;
   public
-    constructor Create(AList: IInterfaceList);
+    constructor Create(AList: IInterfaceListStatic);
   end;
 
   TMapCalibrationListBasic = class(TMapCalibrationListByInterfaceList)
@@ -46,6 +47,8 @@ type
 implementation
 
 uses
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_MapCalibrationOzi,
   u_MapCalibrationDat,
   u_MapCalibrationKml,
@@ -54,7 +57,7 @@ uses
 
 { TMapCalibrationListByInterfaceList }
 
-constructor TMapCalibrationListByInterfaceList.Create(AList: IInterfaceList);
+constructor TMapCalibrationListByInterfaceList.Create(AList: IInterfaceListStatic);
 begin
   inherited Create;
   FList := AList;
@@ -76,15 +79,15 @@ end;
 
 constructor TMapCalibrationListBasic.Create;
 var
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
 begin
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   VList.Add(IMapCalibration(TMapCalibrationOzi.Create));
   VList.Add(IMapCalibration(TMapCalibrationDat.Create));
   VList.Add(IMapCalibration(TMapCalibrationKml.Create));
   VList.Add(IMapCalibration(TMapCalibrationTab.Create));
   VList.Add(IMapCalibration(TMapCalibrationWorldFiles.Create));
-  inherited Create(VList);
+  inherited Create(VList.MakeStaticAndClear);
 end;
 
 end.

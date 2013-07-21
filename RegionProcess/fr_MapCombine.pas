@@ -172,9 +172,11 @@ implementation
 uses
   gnugettext,
   t_GeoTypes,
+  i_InterfaceListSimple,
   i_GUIDListStatic,
   i_VectorItemProjected,
   i_CoordConverter,
+  u_InterfaceListSimple,
   u_GeoFun,
   u_BitmapLayerProviderMapWithLayer,
   u_MapCalibrationListBasic,
@@ -329,15 +331,15 @@ end;
 function TfrMapCombine.GetMapCalibrationList: IMapCalibrationList;
 var
   i: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
 begin
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   for i := 0 to chklstPrTypes.Items.Count - 1 do begin
     if chklstPrTypes.Checked[i] then begin
       VList.Add(IMapCalibration(Pointer(chklstPrTypes.Items.Objects[i])));
     end;
   end;
-  Result := TMapCalibrationListByInterfaceList.Create(VList);
+  Result := TMapCalibrationListByInterfaceList.Create(VList.MakeStaticAndClear);
 end;
 
 function TfrMapCombine.GetPath: string;

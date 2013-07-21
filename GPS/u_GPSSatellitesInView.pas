@@ -27,21 +27,21 @@ uses
   ActiveX,
   Classes,
   SysUtils,
-  i_GPS,
   vsagps_public_base,
+  i_InterfaceListStatic,
+  i_GPS,
   u_BaseInterfacedObject;
 
 type
   TGPSSatellitesInView = class(TBaseInterfacedObject, IGPSSatellitesInView)
   private
-    FItemsGP: IInterfaceList;
-    FItemsGL: IInterfaceList;
+    FItemsGP: IInterfaceListStatic;
+    FItemsGL: IInterfaceListStatic;
     FFixSatsALL: TVSAGPS_FIX_ALL;
-    procedure InternalCreateItems(
+    function InternalCreateItems(
       const AItemsCountTI: Integer;
-      AItemsTI: PUnknownList;
-      var AItemsIfaceTI: IInterfaceList
-    );
+      AItemsTI: PUnknownList
+    ): IInterfaceListStatic;
   private
     function GetCount(const ATalkerID: AnsiString): Byte; stdcall;
     function GetFixCount(const ATalkerID: AnsiString): Byte; stdcall;
@@ -74,6 +74,10 @@ type
 
 implementation
 
+uses
+  i_InterfaceListSimple,
+  u_InterfaceListSimple;
+  
 { TGPSSatellitesInView }
 
 constructor TGPSSatellitesInView.Create(
@@ -87,8 +91,8 @@ begin
   // init
   SetFixedSats(nil);
   // make
-  InternalCreateItems(AItemsCountGP, AItemsGP, FItemsGP);
-  InternalCreateItems(AItemsCountGL, AItemsGL, FItemsGL);
+  FItemsGP := InternalCreateItems(AItemsCountGP, AItemsGP);
+  FItemsGL := InternalCreateItems(AItemsCountGL, AItemsGL);
 end;
 
 function TGPSSatellitesInView.EnumerateTalkerID(var ATalkerID: AnsiString): Boolean;
@@ -226,17 +230,17 @@ begin
   end;
 end;
 
-procedure TGPSSatellitesInView.InternalCreateItems(
+function TGPSSatellitesInView.InternalCreateItems(
   const AItemsCountTI: Integer;
-  AItemsTI: PUnknownList;
-  var AItemsIfaceTI: IInterfaceList
-);
+  AItemsTI: PUnknownList
+): IInterfaceListStatic;
 var
   i: Integer;
   VItemCount: Integer;
   VItem: IGPSSatelliteInfo;
+  VList: IInterfaceListSimple;
 begin
-  AItemsIfaceTI := nil;
+  Result := nil;
 
   if (AItemsCountTI > 0) and (AItemsTI <> nil) then begin
     VItemCount := AItemsCountTI;
@@ -244,13 +248,14 @@ begin
       VItemCount := cNmea_max_sat_count;
     end;
 
-    AItemsIfaceTI := TInterfaceList.Create;
-    AItemsIfaceTI.Capacity := VItemCount;
+    VList := TInterfaceListSimple.Create;
+    VList.Capacity := VItemCount;
 
     for i := 0 to VItemCount - 1 do begin
       VItem := IGPSSatelliteInfo(AItemsTI^[i]);
-      AItemsIfaceTI.Add(VItem);
+      VList.Add(VItem);
     end;
+    Result := VList.MakeStaticAndClear;
   end;
 end;
 
