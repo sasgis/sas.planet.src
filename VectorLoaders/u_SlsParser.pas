@@ -33,9 +33,11 @@ uses
   IniFiles,
   i_ConfigDataProvider,
   i_VectorItemLonLat,
+  i_InterfaceListSimple,
   i_VectorDataItemSimple,
   u_ConfigProviderHelpers,
   u_StreamReadOnlyByBinaryData,
+  u_InterfaceListSimple,
   u_ConfigDataProviderByIniFile,
   u_VectorDataItemSubset;
 
@@ -60,7 +62,7 @@ var
   VPolygonSection: IConfigDataProvider;
   VPolygon: ILonLatPolygon;
   VItem: IVectorDataItemSimple;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
 begin
   Result := nil;
   VPolygon := nil;
@@ -101,9 +103,9 @@ begin
         '',
         VPolygon
       );
-    VList := TInterfaceList.Create;
+    VList := TInterfaceListSimple.Create;
     VList.Add(VItem);
-    Result := TVectorItemSubset.Create(VList);
+    Result := TVectorItemSubset.Create(VList.MakeStaticAndClear);
   end;
 end;
 

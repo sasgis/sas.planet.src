@@ -28,13 +28,14 @@ uses
   t_GeoTypes,
   i_VectorDataItemSimple,
   i_Category,
+  i_InterfaceListStatic,
   i_VectorItemSubset,
   u_BaseInterfacedObject;
 
 type
   TVectorItemSubset = class(TBaseInterfacedObject, IVectorItemSubset)
   private
-    FList: IInterfaceList;
+    FList: IInterfaceListStatic;
   private
     function GetSubsetByLonLatRect(const ARect: TDoubleRect): IVectorItemSubset;
     function GetSubsetByCategory(const ACategory: ICategory): IVectorItemSubset;
@@ -44,18 +45,20 @@ type
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IVectorDataItemSimple;
   public
-    constructor Create(AList: IInterfaceList);
+    constructor Create(AList: IInterfaceListStatic);
   end;
 
 implementation
 
 uses
   SysUtils,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_EnumUnknown;
 
 { TVectorItemSubset }
 
-constructor TVectorItemSubset.Create(AList: IInterfaceList);
+constructor TVectorItemSubset.Create(AList: IInterfaceListStatic);
 begin
   inherited Create;
   FList := AList;
@@ -68,7 +71,7 @@ end;
 
 function TVectorItemSubset.GetEnum: IEnumUnknown;
 begin
-  Result := TEnumUnknown.Create(FList);
+  Result := TEnumUnknownByStatic.Create(FList);
 end;
 
 function TVectorItemSubset.GetItem(AIndex: Integer): IVectorDataItemSimple;
@@ -79,15 +82,13 @@ end;
 function TVectorItemSubset.GetSubsetByCategory(
   const ACategory: ICategory): IVectorItemSubset;
 var
-  VNewList: IInterfaceList;
+  VNewList: IInterfaceListSimple;
   i: Integer;
   VCategory: ICategory;
   VItem: IVectorDataItemSimple;
   VItemWithCategory: IVectorDataItemWithCategory;
 begin
-  VNewList := TInterfaceList.Create;
-  VNewList.Lock;
-  try
+  VNewList := TInterfaceListSimple.Create;
     for i := 0 to FList.Count - 1 do begin
       VItem := IVectorDataItemSimple(FList.Items[i]);
       VCategory := nil;
@@ -102,32 +103,24 @@ begin
         VNewList.Add(VItem);
       end;
     end;
-  finally
-    VNewList.Unlock;
-  end;
-  Result := TVectorItemSubset.Create(VNewList);
+  Result := TVectorItemSubset.Create(VNewList.MakeStaticAndClear);
 end;
 
 function TVectorItemSubset.GetSubsetByLonLatRect(
   const ARect: TDoubleRect): IVectorItemSubset;
 var
-  VNewList: IInterfaceList;
+  VNewList: IInterfaceListSimple;
   i: Integer;
   VItem: IVectorDataItemSimple;
 begin
-  VNewList := TInterfaceList.Create;
-  VNewList.Lock;
-  try
+  VNewList := TInterfaceListSimple.Create;
     for i := 0 to FList.Count - 1 do begin
       VItem := IVectorDataItemSimple(FList.Items[i]);
       if VItem.LLRect.IsIntersecWithRect(ARect) then begin
         VNewList.Add(VItem);
       end;
     end;
-  finally
-    VNewList.Unlock;
-  end;
-  Result := TVectorItemSubset.Create(VNewList);
+  Result := TVectorItemSubset.Create(VNewList.MakeStaticAndClear);
 end;
 
 function TVectorItemSubset.IsEmpty: Boolean;

@@ -7,13 +7,14 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_LocalCoordConverter,
+  i_InterfaceListStatic,
   i_VectorItemLocal,
   u_BaseInterfacedObject;
 
 type
   TLocalLineSet = class(TBaseInterfacedObject)
   private
-    FList: IInterfaceList;
+    FList: IInterfaceListStatic;
     FLocalConverter: ILocalCoordConverter;
   private
     function GetCount: Integer;
@@ -21,7 +22,7 @@ type
   public
     constructor Create(
       const ALocalConverter: ILocalCoordConverter;
-      const AList: IInterfaceList
+      const AList: IInterfaceListStatic
     );
   end;
 
@@ -101,14 +102,14 @@ uses
 
 constructor TLocalLineSet.Create(
   const ALocalConverter: ILocalCoordConverter;
-  const AList: IInterfaceList
+  const AList: IInterfaceListStatic
 );
 begin
+  Assert(AList <> nil);
+  Assert(ALocalConverter <> nil);
   inherited Create;
   FList := AList;
-  Assert(FList <> nil);
   FLocalConverter := ALocalConverter;
-  Assert(FLocalConverter <> nil);
 end;
 
 function TLocalLineSet.GetCount: Integer;

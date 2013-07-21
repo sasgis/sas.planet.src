@@ -35,6 +35,7 @@ uses
   i_DownloadResult,
   i_DownloadRequest,
   i_Downloader,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_DoublePointsAggregator,
   i_CoordConverter,
@@ -42,6 +43,7 @@ uses
   u_DownloadResultFactory,
   u_DownloadRequest,
   u_DownloaderHttp,
+  u_InterfaceListSimple,
   u_VectorDataItemSubset,
   u_Notifier,
   u_NotifierOperation,
@@ -380,7 +382,7 @@ var
   VPos: Integer;
   VPointsAggregator: IDoublePointsAggregator;
   VPolygon: ILonLatPolygon;
-  VAllNewMarks: IInterfaceList;
+  VAllNewMarks: IInterfaceListSimple;
 begin
   Result := nil;
   VConverter := ACoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
@@ -511,13 +513,13 @@ begin
             if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
               // make polygon
               if (nil=VAllNewMarks) then
-                VAllNewMarks := TInterfaceList.Create;
+                VAllNewMarks := TInterfaceListSimple.Create;
               VAllNewMarks.Add(AVectorDataFactory.BuildPoly(nil, VMarkName, VMarkDesc, VPolygon));
             end;
           end;
 
           if (nil=Result) then begin
-            Result := TVectorItemSubset.Create(VAllNewMarks);
+            Result := TVectorItemSubset.Create(VAllNewMarks.MakeStaticAndClear);
           end;
         end;
       end;

@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   ActiveX,
+  i_InterfaceListStatic,
   u_BaseInterfacedObject;
 
 type
@@ -44,6 +45,21 @@ type
     constructor Create(AList: IInterfaceList);
   end;
 
+  TEnumUnknownByStatic = class(TBaseInterfacedObject, IEnumUnknown)
+  private
+    FList: IInterfaceListStatic;
+    FCurrent: Longint;
+    function Next(
+      celt: Longint;
+      out elt;
+      pceltFetched: PLongint
+    ): HResult; stdcall;
+    function Skip(celt: Longint): HResult; stdcall;
+    function Reset: HResult; stdcall;
+    function Clone(out enm: IEnumUnknown): HResult; stdcall;
+  public
+    constructor Create(AList: IInterfaceListStatic);
+  end;
 
 implementation
 
@@ -116,6 +132,68 @@ begin
     end;
   finally
     FList.Unlock;
+  end;
+end;
+
+{ TEnumUnknownByStatic }
+
+constructor TEnumUnknownByStatic.Create(AList: IInterfaceListStatic);
+begin
+  inherited Create;
+  FList := AList;
+  FCurrent := 0;
+end;
+
+function TEnumUnknownByStatic.Clone(out enm: IEnumUnknown): HResult;
+var
+  VClone: TEnumUnknownByStatic;
+begin
+  VClone := TEnumUnknownByStatic.Create(FList);
+  VClone.FCurrent := FCurrent;
+  enm := VClone;
+  Result := S_OK;
+end;
+
+function TEnumUnknownByStatic.Next(
+  celt: Integer;
+  out elt;
+  pceltFetched: PLongint
+): HResult;
+begin
+  if celt <> 1 then begin
+    Result := E_NOTIMPL;
+  end else begin
+    IInterface(elt) := nil;
+    if FCurrent < FList.Count then begin
+      IInterface(elt) := FList.Items[FCurrent];
+      Inc(FCurrent);
+      if pceltFetched <> nil then begin
+        pceltFetched^ := 1;
+      end;
+      Result := S_OK;
+    end else begin
+      if pceltFetched <> nil then begin
+        pceltFetched^ := 0;
+      end;
+      Result := S_FALSE;
+    end;
+  end;
+end;
+
+function TEnumUnknownByStatic.Reset: HResult;
+begin
+  FCurrent := 0;
+  Result := S_OK;
+end;
+
+function TEnumUnknownByStatic.Skip(celt: Integer): HResult;
+begin
+  if FCurrent + celt <= FList.Count then begin
+    Inc(FCurrent, celt);
+    Result := S_OK;
+  end else begin
+    FCurrent := FList.Count;
+    Result := S_FALSE;
   end;
 end;
 

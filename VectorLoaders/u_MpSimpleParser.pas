@@ -40,9 +40,11 @@ uses
   t_GeoTypes,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
+  i_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
   u_VectorDataItemSubset,
   u_DoublePointsAggregator,
+  u_InterfaceListSimple,
   u_GeoFun;
 
 const
@@ -111,7 +113,7 @@ var
   VDataStream: TStream;
   VPolygon: ILonLatPolygon;
   VItem: IVectorDataItemSimple;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VString: string;
   VPoligonLine: Integer;
   i: integer;
@@ -170,9 +172,9 @@ begin
         '',
         VPolygon
       );
-    VList := TInterfaceList.Create;
+    VList := TInterfaceListSimple.Create;
     VList.Add(VItem);
-    Result := TVectorItemSubset.Create(VList);
+    Result := TVectorItemSubset.Create(VList.MakeStaticAndClear);
   end;
 end;
 

@@ -321,8 +321,6 @@ constructor TDownloadResultError.Create(
   const AErrorTextFormat: string;
   const AErrorTextArgs: array of const
 );
-var
-  i: Integer;
 begin
   inherited Create(ARequest);
   FErrorTextFormat := AErrorTextFormat;

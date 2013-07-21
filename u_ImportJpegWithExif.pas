@@ -57,6 +57,8 @@ uses
   t_GeoTypes,
   i_VectorItemSubset,
   i_VectorDataItemSimple,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   CCR.Exif.IPTC,
   u_VectorDataItemSubset;
 
@@ -93,7 +95,7 @@ var
   VTitle: string;
   Vkeys: TStrings;
   VIPTCData: TIPTCData;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VVectorData: IVectorItemSubset;
   VFormattedDateTime : string;
 begin
@@ -195,9 +197,9 @@ begin
   );
 
   if VItem <> nil then begin
-    VList := TInterfaceList.Create;
+    VList := TInterfaceListSimple.Create;
     VList.Add(VItem);
-    VVectorData := TVectorItemSubset.Create(VList);
+    VVectorData := TVectorItemSubset.Create(VList.MakeStaticAndClear);
     Result := AMarksSystem.ImportItemsList(VVectorData, AConfig, ExtractFileName(AFileName));
   end;
 end;

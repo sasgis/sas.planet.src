@@ -7,13 +7,14 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_ProjectionInfo,
+  i_InterfaceListStatic,
   i_VectorItemProjected,
   u_BaseInterfacedObject;
 
 type
   TProjectedLineSet = class(TBaseInterfacedObject)
   private
-    FList: IInterfaceList;
+    FList: IInterfaceListStatic;
     FProjection: IProjectionInfo;
     FBounds: TDoubleRect;
   private
@@ -24,7 +25,7 @@ type
     constructor Create(
       const AProjection: IProjectionInfo;
       const ABounds: TDoubleRect;
-      const AList: IInterfaceList
+      const AList: IInterfaceListStatic
     );
   end;
 
@@ -147,9 +148,11 @@ uses
 constructor TProjectedLineSet.Create(
   const AProjection: IProjectionInfo;
   const ABounds: TDoubleRect;
-  const AList: IInterfaceList
+  const AList: IInterfaceListStatic
 );
 begin
+  Assert(AList <> nil);
+  Assert(AProjection <> nil);
   inherited Create;
   FList := AList;
   FBounds := ABounds;

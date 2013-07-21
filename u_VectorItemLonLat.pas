@@ -8,13 +8,14 @@ uses
   i_LonLatRect,
   i_EnumDoublePoint,
   i_Datum,
+  i_InterfaceListStatic,
   i_VectorItemLonLat,
   u_BaseInterfacedObject;
 
 type
   TLonLatLineSet = class(TBaseInterfacedObject)
   private
-    FList: IInterfaceList;
+    FList: IInterfaceListStatic;
     FBounds: ILonLatRect;
   private
     function GetCount: Integer;
@@ -22,7 +23,7 @@ type
   public
     constructor Create(
       const ABounds: ILonLatRect;
-      const AList: IInterfaceList
+      const AList: IInterfaceListStatic
     );
   end;
 
@@ -94,9 +95,11 @@ uses
 
 constructor TLonLatLineSet.Create(
   const ABounds: ILonLatRect;
-  const AList: IInterfaceList
+  const AList: IInterfaceListStatic
 );
 begin
+  Assert(AList <> nil);
+  Assert(ABounds <> nil);
   inherited Create;
   FBounds := ABounds;
   FList := AList;

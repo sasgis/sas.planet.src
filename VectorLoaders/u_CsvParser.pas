@@ -57,8 +57,10 @@ uses
   t_GeoTypes,
   i_VectorDataItemSimple,
   i_DoublePointsAggregator,
+  i_InterfaceListSimple,
   u_VectorDataItemSubset,
   u_DoublePointsAggregator,
+  u_InterfaceListSimple,
   u_GeoFun,
   u_GeoToStr;
 
@@ -305,7 +307,7 @@ procedure _MakeObjectFromArray(
   const AOldValues: PCSVPointFieldValues;
   const AIndices: PCSVPointFieldIndices;
   const APointsAggregator: IDoublePointsAggregator;
-  const AAllItems: IInterfaceList
+  const AAllItems: IInterfaceListSimple
 );
 var
   i: TCSVPointFieldType;
@@ -369,7 +371,7 @@ procedure _MakeNewPointWithFullInfo(
   const ACoords: TDoublePoint;
   const AIndices: PCSVPointFieldIndices;
   const AVoxFieldIndex: Integer;
-  const AAllItems: IInterfaceList
+  const AAllItems: IInterfaceListSimple
 );
 var
   i: TCSVPointFieldType;
@@ -486,7 +488,7 @@ var
   // to collect points for polyline
   VPointsAggregator: IDoublePointsAggregator;
   // to collect all new marks
-  VAllItems: IInterfaceList;
+  VAllItems: IInterfaceListSimple;
   VHeaders: string;
 begin
   Result := nil;
@@ -561,8 +563,8 @@ begin
     VParsedLine.QuoteChar := '"';
     VParsedLine.Delimiter := VFileHeader.Delimiter;
     VPointsAggregator := TDoublePointsAggregator.Create;
-    VAllItems := TInterfaceList.Create;
-    
+    VAllItems := TInterfaceListSimple.Create;
+
     // loop through
     for i := 1 to VFileBody.Count-1 do begin
       // parse line by specified delimiter
@@ -641,7 +643,7 @@ begin
     VFileHeader.Free;
     VParsedLine.Free;
   end;
-  Result := TVectorItemSubset.Create(VAllItems);
+  Result := TVectorItemSubset.Create(VAllItems.MakeStaticAndClear);
 end;
 
 end.

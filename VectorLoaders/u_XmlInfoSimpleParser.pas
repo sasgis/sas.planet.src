@@ -82,6 +82,8 @@ implementation
 
 uses
   i_VectorDataItemSimple,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
   u_VectorDataItemSubset,
   u_GeoFun;
@@ -103,7 +105,7 @@ type
     opt: Tvsagps_XML_ParserOptions;
     IdData: Pointer;
     Factory: IVectorDataFactory;
-    list: IInterfaceList;
+    list: IInterfaceListSimple;
     array_capacity: Integer;
     array_points: array of TDoublePoint;
   public
@@ -187,7 +189,7 @@ begin
     VSAGPS_LoadAndParseXML(Self, @tAux, '', AStream, TRUE, @(tAux.opt), rTVSAGPS_ParseXML_UserProc, FFormat);
     // output result
     if Assigned(tAux.list) then begin
-      Result := TVectorItemSubset.Create(tAux.list);
+      Result := TVectorItemSubset.Create(tAux.list.MakeStaticAndClear);
       tAux.list := nil;
     end;
   finally
@@ -311,7 +313,7 @@ var
     VAUX := PParseXML_Aux(pUserAuxPointer);
     // make list object
     if not Assigned(VAUX^.list) then begin
-      VAUX^.list := TInterfaceList.Create;
+      VAUX^.list := TInterfaceListSimple.Create;
     end;
     // create object
     wpt_iface := VAUX^.Factory.BuildPoint(VAUX^.IdData, VWSName, VWSDesc, wpt_point);
@@ -747,7 +749,7 @@ var
 begin
   // make list object
   if (nil=list) then begin
-    list := TInterfaceList.Create;
+    list := TInterfaceListSimple.Create;
   end;
 
   // make object and add it to list

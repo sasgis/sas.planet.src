@@ -58,8 +58,10 @@ uses
   SysUtils,
   c_InternalBrowser,
   i_CoordConverter,
+  i_InterfaceListSimple,
   u_ListenerByEvent,
   u_GeoCodePlacemarkWithUrlDecorator,
+  u_InterfaceListSimple,
   u_VectorDataItemSubset,
   u_GeoFun;
 
@@ -157,13 +159,11 @@ var
   VPlacemark: IGeoCodePlacemark;
   VSearchResults: IGeoCodeResult;
   VIndex: Integer;
-  VMarkList: IVectorItemSubset;
-  Vtmp: IInterfaceList;
+  Vtmp: IInterfaceListSimple;
   VTempItem: IGeoCodePlacemark;
 begin
-  Vtmp := TInterfaceList.Create;
-  VMarkList := TVectorItemSubset.Create(Vtmp);
-  Result := VMarkList;
+  Result := nil;
+  Vtmp := TInterfaceListSimple.Create;
   VSearchResults := FLastSearchResults.GeoCodeResult;
   if VSearchResults <> nil then begin
     VRect.Left := ALocalPoint.X - 5;
@@ -189,6 +189,7 @@ begin
       Inc(VIndex);
     end;
   end;
+  Result := TVectorItemSubset.Create(Vtmp.MakeStaticAndClear);
 end;
 
 procedure TSearchResultsLayer.StartThreads;

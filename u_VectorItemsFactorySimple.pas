@@ -177,7 +177,9 @@ uses
   Classes,
   i_LonLatRect,
   i_Datum,
+  i_InterfaceListSimple,
   u_GeoFun,
+  u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_LonLatSingleLine,
   u_ProjectedSingleLine,
@@ -237,7 +239,7 @@ var
   VStart: PDoublePointArray;
   VLineLen: Integer;
   VLineCount: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VPoint: TDoublePoint;
 begin
   VLineCount := 0;
@@ -249,7 +251,7 @@ begin
       if VLineLen > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -268,7 +270,7 @@ begin
   if VLineLen > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -282,7 +284,7 @@ begin
     Result := TLocalPathOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TLocalPath.Create(ALocalConverter, VList);
+    Result := TLocalPath.Create(ALocalConverter, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -294,7 +296,7 @@ function TVectorItemsFactorySimple.CreateLocalPathByEnum(
 var
   VPoint: TDoublePoint;
   VLine: ILocalPathLine;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
 begin
@@ -310,7 +312,7 @@ begin
       if VTemp.Count > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -326,7 +328,7 @@ begin
   if VTemp.Count > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -341,7 +343,7 @@ begin
     Result := TLocalPathOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TLocalPath.Create(ALocalConverter, VList);
+    Result := TLocalPath.Create(ALocalConverter, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -356,7 +358,7 @@ var
   VStart: PDoublePointArray;
   VLineLen: Integer;
   VLineCount: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VPoint: TDoublePoint;
 begin
   VLineCount := 0;
@@ -368,7 +370,7 @@ begin
       if VLineLen > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -387,7 +389,7 @@ begin
   if VLineLen > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -401,7 +403,7 @@ begin
     Result := TLocalPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TLocalPolygon.Create(ALocalConverter, VList);
+    Result := TLocalPolygon.Create(ALocalConverter, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -413,7 +415,7 @@ function TVectorItemsFactorySimple.CreateLocalPolygonByEnum(
 var
   VPoint: TDoublePoint;
   VLine: ILocalPolygonLine;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
 begin
@@ -428,7 +430,7 @@ begin
       if VTemp.Count > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -444,7 +446,7 @@ begin
   if VTemp.Count > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -459,7 +461,7 @@ begin
     Result := TLocalPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TLocalPolygon.Create(ALocalConverter, VList);
+    Result := TLocalPolygon.Create(ALocalConverter, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -473,7 +475,7 @@ var
   VStart: PDoublePointArray;
   VLineLen: Integer;
   VLineCount: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VPoint: TDoublePoint;
   VLineBounds: TDoubleRect;
   VBounds: TDoubleRect;
@@ -488,7 +490,7 @@ begin
       if VLineLen > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -532,7 +534,7 @@ begin
   if VLineLen > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -557,7 +559,7 @@ begin
   end else begin
     VList.Add(VLine);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPath.Create(VRect, VList);
+    Result := TLonLatPath.Create(VRect, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -568,7 +570,7 @@ function TVectorItemsFactorySimple.CreateLonLatPathByEnum(
 var
   VPoint: TDoublePoint;
   VLine: ILonLatPathLine;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   VLineBounds: TDoubleRect;
@@ -586,7 +588,7 @@ begin
       if VTemp.Count > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -629,7 +631,7 @@ begin
   if VTemp.Count > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -655,7 +657,7 @@ begin
   end else begin
     VList.Add(VLine);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPath.Create(VRect, VList);
+    Result := TLonLatPath.Create(VRect, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -669,7 +671,7 @@ var
   VStart: PDoublePointArray;
   VLineLen: Integer;
   VLineCount: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VPoint: TDoublePoint;
   VLineBounds: TDoubleRect;
   VBounds: TDoubleRect;
@@ -684,7 +686,7 @@ begin
       if VLineLen > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -728,7 +730,7 @@ begin
   if VLineLen > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -753,7 +755,7 @@ begin
   end else begin
     VList.Add(VLine);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPolygon.Create(VRect, VList);
+    Result := TLonLatPolygon.Create(VRect, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -764,7 +766,7 @@ function TVectorItemsFactorySimple.CreateLonLatPolygonByEnum(
 var
   VPoint: TDoublePoint;
   VLine: ILonLatPolygonLine;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   VLineBounds: TDoubleRect;
@@ -782,7 +784,7 @@ begin
       if VTemp.Count > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -825,7 +827,7 @@ begin
   if VTemp.Count > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -851,7 +853,7 @@ begin
   end else begin
     VList.Add(VLine);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPolygon.Create(VRect, VList);
+    Result := TLonLatPolygon.Create(VRect, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -866,7 +868,7 @@ var
   VTemp: IDoublePointsAggregator;
   VPoint: TDoublePoint;
   VLineCount: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineBounds: TDoubleRect;
   VBounds: TDoubleRect;
   VRect: ILonLatRect;
@@ -880,7 +882,7 @@ begin
         if VTemp.Count > 0 then begin
           if VLineCount > 0 then begin
             if VLineCount = 1 then begin
-              VList := TInterfaceList.Create;
+              VList := TInterfaceListSimple.Create;
             end;
             VList.Add(VLine);
             VLine := nil;
@@ -923,7 +925,7 @@ begin
     if VTemp.Count > 0 then begin
       if VLineCount > 0 then begin
         if VLineCount = 1 then begin
-          VList := TInterfaceList.Create;
+          VList := TInterfaceListSimple.Create;
         end;
         VList.Add(VLine);
         VLine := nil;
@@ -950,7 +952,7 @@ begin
   end else begin
     VList.Add(VLine);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPolygon.Create(VRect, VList);
+    Result := TLonLatPolygon.Create(VRect, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -988,7 +990,7 @@ function TVectorItemsFactorySimple.CreateProjectedPolygonByLonLatPolygonUseConve
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPolygonLine;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   i: Integer;
@@ -1016,7 +1018,7 @@ begin
     if VTemp.Count > 0 then begin
       if VLineCount > 0 then begin
         if VLineCount = 1 then begin
-          VList := TInterfaceList.Create;
+          VList := TInterfaceListSimple.Create;
         end;
         VList.Add(VLine);
         VLine := nil;
@@ -1034,7 +1036,7 @@ begin
   if VTemp.Count > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -1054,7 +1056,7 @@ begin
     Result := TProjectedPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPolygon.Create(AProjection, VBounds, VList);
+    Result := TProjectedPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -1069,7 +1071,7 @@ var
   VStart: PDoublePointArray;
   VLineLen: Integer;
   VLineCount: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VPoint: TDoublePoint;
   VBounds: TDoubleRect;
 begin
@@ -1082,7 +1084,7 @@ begin
       if VLineLen > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -1106,7 +1108,7 @@ begin
   if VLineLen > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -1125,7 +1127,7 @@ begin
     Result := TProjectedPathOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPath.Create(AProjection, VBounds, VList);
+    Result := TProjectedPath.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -1137,7 +1139,7 @@ function TVectorItemsFactorySimple.CreateProjectedPathByEnum(
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPathLine;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   VBounds: TDoubleRect;
@@ -1153,7 +1155,7 @@ begin
       if VTemp.Count > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -1174,7 +1176,7 @@ begin
   if VTemp.Count > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -1194,7 +1196,7 @@ begin
     Result := TProjectedPathOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPath.Create(AProjection, VBounds, VList);
+    Result := TProjectedPath.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -1245,7 +1247,7 @@ function TVectorItemsFactorySimple.CreateProjectedPathByLonLatPathUseConverter(
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPathLine;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   i: Integer;
@@ -1273,7 +1275,7 @@ begin
     if VTemp.Count > 0 then begin
       if VLineCount > 0 then begin
         if VLineCount = 1 then begin
-          VList := TInterfaceList.Create;
+          VList := TInterfaceListSimple.Create;
         end;
         VList.Add(VLine);
         VLine := nil;
@@ -1291,7 +1293,7 @@ begin
   if VTemp.Count > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -1311,7 +1313,7 @@ begin
     Result := TProjectedPathOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPath.Create(AProjection, VBounds, VList);
+    Result := TProjectedPath.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -1372,7 +1374,7 @@ var
   VStart: PDoublePointArray;
   VLineLen: Integer;
   VLineCount: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VPoint: TDoublePoint;
   VBounds: TDoubleRect;
 begin
@@ -1385,7 +1387,7 @@ begin
       if VLineLen > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -1409,7 +1411,7 @@ begin
   if VLineLen > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -1428,7 +1430,7 @@ begin
     Result := TProjectedPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPolygon.Create(AProjection, VBounds, VList);
+    Result := TProjectedPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -1440,7 +1442,7 @@ function TVectorItemsFactorySimple.CreateProjectedPolygonByEnum(
 var
   VPoint: TDoublePoint;
   VLine: IProjectedPolygonLine;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   VBounds: TDoubleRect;
@@ -1456,7 +1458,7 @@ begin
       if VTemp.Count > 0 then begin
         if VLineCount > 0 then begin
           if VLineCount = 1 then begin
-            VList := TInterfaceList.Create;
+            VList := TInterfaceListSimple.Create;
           end;
           VList.Add(VLine);
           VLine := nil;
@@ -1477,7 +1479,7 @@ begin
   if VTemp.Count > 0 then begin
     if VLineCount > 0 then begin
       if VLineCount = 1 then begin
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
       end;
       VList.Add(VLine);
       VLine := nil;
@@ -1497,7 +1499,7 @@ begin
     Result := TProjectedPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPolygon.Create(AProjection, VBounds, VList);
+    Result := TProjectedPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 

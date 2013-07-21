@@ -14,6 +14,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
+  i_InterfaceListSimple,
   i_InternalPerformanceCounter,
   i_MapTypes,
   i_KmlLayerConfig,
@@ -49,14 +50,14 @@ type
     procedure OnLayerSetChange;
 
     procedure AddWikiElement(
-      const AElments: IInterfaceList;
+      const AElments: IInterfaceListSimple;
       const AData: IVectorDataItemSimple;
       const ALocalConverter: ILocalCoordConverter
     );
     procedure AddElementsFromMap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AElments: IInterfaceList;
+      const AElments: IInterfaceListSimple;
       Alayer: TMapType;
       const ALocalConverter: ILocalCoordConverter
     );
@@ -121,6 +122,7 @@ uses
   u_IdCacheSimpleThreadSafe,
   u_VectorDataItemSubset,
   u_GeoFun,
+  u_InterfaceListSimple,
   u_TileIteratorByRect,
   u_Synchronizer,
   u_ResStrings,
@@ -280,12 +282,10 @@ var
   VItemLine: IVectorDataItemLine;
   VItemPoly: IVectorDataItemPoly;
   VProjectdPolygon: IProjectedPolygon;
-  VMarkList: IVectorItemSubset;
-  Vtmp: IInterfaceList;
+  Vtmp: IInterfaceListSimple;
 begin
-  Vtmp := TInterfaceList.Create;
-  VMarkList := TVectorItemSubset.Create(Vtmp);
-  Result := VMarkList;
+  Result := nil;
+  Vtmp := TInterfaceListSimple.Create;
 
   if ACopiedElements.Count > 0 then begin
     VRect.Left := xy.X - 3;
@@ -322,6 +322,7 @@ begin
       end;
     end;
   end;
+  Result := TVectorItemSubset.Create(Vtmp.MakeStaticAndClear);
 end;
 
 procedure TMapLayerVectorMaps.OnConfigChange;
@@ -366,7 +367,7 @@ end;
 procedure TMapLayerVectorMaps.AddElementsFromMap(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AElments: IInterfaceList;
+  const AElments: IInterfaceListSimple;
   Alayer: TMapType;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -433,7 +434,8 @@ begin
   end;
 end;
 
-procedure TMapLayerVectorMaps.AddWikiElement(const AElments: IInterfaceList;
+procedure TMapLayerVectorMaps.AddWikiElement(
+  const AElments: IInterfaceListSimple;
   const AData: IVectorDataItemSimple;
   const ALocalConverter: ILocalCoordConverter);
 var
@@ -470,7 +472,7 @@ var
   Vcnt: Cardinal;
   VItem: IMapType;
   VMapType: TMapType;
-  VElements: IInterfaceList;
+  VElements: IInterfaceListSimple;
 begin
   FVectorMapsSetCS.BeginRead;
   try
@@ -478,9 +480,7 @@ begin
   finally
     FVectorMapsSetCS.EndRead;
   end;
-  VElements := TInterfaceList.Create;
-  VElements.Lock;
-  try
+  VElements := TInterfaceListSimple.Create;
     if VVectorMapsSet <> nil then begin
       VEnum := VVectorMapsSet.GetIterator;
       while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
@@ -494,10 +494,7 @@ begin
         end;
       end;
     end;
-  finally
-    VElements.Unlock;
-  end;
-  Result := TVectorItemSubset.Create(VElements);
+  Result := TVectorItemSubset.Create(VElements.MakeStaticAndClear);
 end;
 
 procedure TMapLayerVectorMaps.StartThreads;

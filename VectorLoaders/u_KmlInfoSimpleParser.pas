@@ -27,6 +27,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_BinaryData,
+  i_InterfaceListSimple,
   i_VectorDataFactory,
   i_VectorItemsFactory,
   i_VectorDataItemSimple,
@@ -69,7 +70,7 @@ type
     ): PAnsiChar;
     function parse(
       const buffer: AnsiString;
-      const AList: IInterfaceList;
+      const AList: IInterfaceListSimple;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): boolean;
@@ -115,6 +116,7 @@ implementation
 uses
   StrUtils,
   cUnicodeCodecs,
+  u_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
   u_VectorDataItemSubset,
@@ -272,15 +274,15 @@ function TKmlInfoSimpleParser.LoadFromStreamInternal(AStream: TStream;
   end;
 var
   VKml: AnsiString;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
 begin
   Result := nil;
   if AStream.Size > 0 then begin
     VKml := GetAnsiString(AStream);
     if VKml <> '' then begin
-      VList := TInterfaceList.Create;
+      VList := TInterfaceListSimple.Create;
       parse(VKml, VList, AIdData, AFactory);
-      Result := TVectorItemSubset.Create(VList);
+      Result := TVectorItemSubset.Create(VList.MakeStaticAndClear);
     end else begin
       Assert(False, 'KML data reader - Unknown error');
     end;
@@ -324,7 +326,7 @@ end;
 
 function TKmlInfoSimpleParser.parse(
   const buffer: AnsiString;
-  const AList: IInterfaceList;
+  const AList: IInterfaceListSimple;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): boolean;

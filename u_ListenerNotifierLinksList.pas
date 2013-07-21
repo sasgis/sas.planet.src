@@ -29,6 +29,7 @@ uses
   i_Listener,
   i_ListenerTime,
   i_NotifierTime,
+  i_InterfaceListSimple,
   i_ListenerNotifierLinksList,
   u_BaseInterfacedObject;
 
@@ -37,8 +38,8 @@ type
   private
     FCS: IReadWriteSync;
     FLinksActive: Boolean;
-    FListenerList: IInterfaceList;
-    FNotifierList: IInterfaceList;
+    FListenerList: IInterfaceListSimple;
+    FNotifierList: IInterfaceListSimple;
     function GetCount: Integer;
     procedure ActivateLink(AIndex: Integer);
     procedure DeactivateLink(AIndex: Integer);
@@ -63,6 +64,7 @@ type
 implementation
 
 uses
+  u_InterfaceListSimple,
   u_Synchronizer;
 
 { TListenerNotifierLinksList }
@@ -71,8 +73,8 @@ constructor TListenerNotifierLinksList.Create;
 begin
   inherited Create;
   FCS := MakeSyncRW_Sym(Self, TRUE);
-  FListenerList := TInterfaceList.Create;
-  FNotifierList := TInterfaceList.Create;
+  FListenerList := TInterfaceListSimple.Create;
+  FNotifierList := TInterfaceListSimple.Create;
   FLinksActive := False;
 end;
 

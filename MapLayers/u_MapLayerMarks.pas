@@ -92,9 +92,11 @@ uses
   i_CoordConverter,
   i_TileMatrix,
   i_VectorItemProjected,
+  i_InterfaceListSimple,
   i_MarkerProviderForVectorItem,
   u_TileMatrixFactory,
   u_ListenerByEvent,
+  u_InterfaceListSimple,
   u_IdCacheSimpleThreadSafe,
   u_Synchronizer,
   u_MarkerProviderForVectorItemWithCache,
@@ -247,12 +249,10 @@ var
   VMarkPoly: IVectorDataItemPoly;
   VProjectdPath: IProjectedPath;
   VProjectdPolygon: IProjectedPolygon;
-  VMarkList: IVectorItemSubset;
-  Vtmp: IInterfaceList;
+  Vtmp: IInterfaceListSimple;
 begin
-  Vtmp := TInterfaceList.Create;
-  VMarkList := TVectorItemSubset.Create(Vtmp);
-  Result := VMarkList;
+  Result := nil;
+  Vtmp := TInterfaceListSimple.Create;
   VCounterContext := FMouseOnRegCounter.StartOperation;
   try
     FMarksSubsetCS.BeginRead;
@@ -303,6 +303,7 @@ begin
   finally
     FMouseOnRegCounter.FinishOperation(VCounterContext);
   end;
+  Result := TVectorItemSubset.Create(Vtmp.MakeStaticAndClear);
 end;
 
 function TMapLayerMarks.GetMarksSubset(

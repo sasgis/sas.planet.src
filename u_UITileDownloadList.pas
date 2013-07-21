@@ -13,13 +13,14 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
+  i_InterfaceListStatic,
   i_TileError,
   u_BaseInterfacedObject;
 
 type
   TUITileDownloadList = class(TBaseInterfacedObject)
   private
-    FList: IInterfaceList;
+    FList: IInterfaceListStatic;
   public
     constructor Create(
       const AGCNotifier: INotifierTime;
@@ -39,6 +40,8 @@ implementation
 
 uses
   ActiveX,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_UiTileDownload;
 
 { TUITileDownloadList }
@@ -61,9 +64,10 @@ var
   VGUID: TGUID;
   VMapTypeActive: IActiveMapSingle;
   VDownload: IInterface;
+  VList: IInterfaceListSimple;
 begin
   inherited Create;
-  FList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   VEnum := AMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, i) = S_OK do begin
     VMapTypeActive := AMapsSingleSet.GetMapSingle(VGUID);
@@ -80,9 +84,10 @@ begin
           AGlobalInternetState,
           AErrorLogger
         );
-      FList.Add(VDownload);
+      VList.Add(VDownload);
     end;
   end;
+  FList := VList.MakeStaticAndClear;
 end;
 
 end.

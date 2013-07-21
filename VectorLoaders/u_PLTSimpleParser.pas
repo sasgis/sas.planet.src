@@ -70,9 +70,11 @@ type
 implementation
 
 uses
+  i_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
   u_VectorDataItemSubset,
   u_DoublePointsAggregator,
+  u_InterfaceListSimple,
   u_GeoFun,
   u_GeoToStr;
 
@@ -111,7 +113,7 @@ function TPLTSimpleParser.LoadFromStream(
 var
   pltstr: TStringList;
   trackname: string;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VItem: IVectorDataItemSimple;
   VPointsAggregator: IDoublePointsAggregator;
 begin
@@ -131,9 +133,9 @@ begin
             '',
             FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count)
           );
-        VList := TInterfaceList.Create;
+        VList := TInterfaceListSimple.Create;
         VList.Add(VItem);
-        Result := TVectorItemSubset.Create(VList);
+        Result := TVectorItemSubset.Create(VList.MakeStaticAndClear);
       end;
     end;
   finally
