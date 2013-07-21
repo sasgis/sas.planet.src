@@ -29,6 +29,7 @@ uses
   libdb51,
   i_Listener,
   i_PathConfig,
+  i_InterfaceListSimple,
   i_GlobalBerkeleyDBHelper,
   i_BerkeleyDBEnv,
   i_TileStorageBerkeleyDBConfigStatic,
@@ -42,7 +43,7 @@ type
     FFullBaseCachePath: string;
     FCacheConfigChangeListener: IListener;
     FBaseCachePath: IPathConfig;
-    FEnvList: IInterfaceList;
+    FEnvList: IInterfaceListSimple;
     FEnvCS: TCriticalSection;
     FLogCS: TCriticalSection;
     function GetFullPathName(const ARelativePathName: string): string;
@@ -72,6 +73,7 @@ uses
   {$ENDIF}
   SysUtils,
   ShLwApi,
+  u_InterfaceListSimple,
   u_ListenerByEvent,
   u_BerkeleyDBEnv;
 
@@ -82,7 +84,7 @@ begin
   Assert(ABaseCachePath <> nil);
   inherited Create;
   FBaseCachePath := ABaseCachePath;
-  FEnvList := TInterfaceList.Create;
+  FEnvList := TInterfaceListSimple.Create;
   FEnvCS := TCriticalSection.Create;
   FLogCS := TCriticalSection.Create;
   FLogFileStream := nil;

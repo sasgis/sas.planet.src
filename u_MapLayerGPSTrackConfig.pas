@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   GR32,
+  i_InterfaceListSimple,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ThreadConfig,
@@ -63,12 +64,12 @@ type
   private
     function GetColorForSpeed(ASpeed: Double): TColor32;
   public
-    constructor Create(AList: IInterfaceList);
+    constructor Create(AList: IInterfaceListSimple);
   end;
 
   TTrackColorerConfig = class(TConfigDataElementComplexWithStaticBase, ITrackColorerConfig)
   private
-    FList: IInterfaceList;
+    FList: IInterfaceListSimple;
     procedure CreateDefault;
   protected
     function CreateStatic: IInterface; override;
@@ -121,6 +122,7 @@ implementation
 
 uses
   SysUtils,
+  u_InterfaceListSimple,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ThreadConfig,
@@ -160,7 +162,7 @@ end;
 constructor TTrackColorerConfig.Create;
 begin
   inherited Create;
-  FList := TInterfaceList.Create;
+  FList := TInterfaceListSimple.Create;
   CreateDefault;
 end;
 
@@ -337,7 +339,7 @@ end;
 
 { TTrackColorerStatic }
 
-constructor TTrackColorerStatic.Create(AList: IInterfaceList);
+constructor TTrackColorerStatic.Create(AList: IInterfaceListSimple);
 var
   i: Integer;
   VItem: ISpeedRangeItem;
