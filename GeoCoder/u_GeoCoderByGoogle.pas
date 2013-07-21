@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_DownloadRequest,
@@ -43,7 +44,7 @@ type
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
   end;
 
@@ -57,6 +58,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
+  u_InterfaceListSimple,
   u_ResStrings,
   u_GeoTostr,
   u_GeoCodePlacemark;
@@ -69,7 +71,7 @@ function TGeoCoderByGoogle.ParseResultToPlacemarksList(
   const AResult: IDownloadResultOk;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-): IInterfaceList;
+): IInterfaceListSimple;
 var
   Stream: TMemoryStream;
   Node: IXMLNode;
@@ -78,7 +80,7 @@ var
   StringList: TStringList;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   XMLDocument: TXMLDocument;
   VPointStr: string;
@@ -87,7 +89,7 @@ begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   Stream := TMemoryStream.Create;
   StringList := TStringList.Create;
   XMLDocument := TXMLDocument.Create(application);

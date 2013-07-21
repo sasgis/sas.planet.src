@@ -4,6 +4,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_Category,
   i_VectorItemSubset,
   i_VectorItemTree,
@@ -14,7 +15,7 @@ type
   private
     FName: string;
     FItems: IVectorItemSubset;
-    FSubTreeItemList: IInterfaceList;
+    FSubTreeItemList: IInterfaceListStatic;
   private
     function GetName: string;
     function GetSubTreeItemCount: Integer;
@@ -24,7 +25,7 @@ type
     constructor Create(
       const AName: string;
       const AItems: IVectorItemSubset;
-      const ASubTreeItemList: IInterfaceList
+      const ASubTreeItemList: IInterfaceListStatic
     );
   end;
 
@@ -35,7 +36,7 @@ implementation
 constructor TVectorItemTree.Create(
   const AName: string;
   const AItems: IVectorItemSubset;
-  const ASubTreeItemList: IInterfaceList
+  const ASubTreeItemList: IInterfaceListStatic
 );
 begin
   inherited Create;

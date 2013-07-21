@@ -29,6 +29,7 @@ uses
   t_GeoTypes,
   i_PathConfig,
   i_LanguageManager,
+  i_InterfaceListStatic,
   i_ProjectionInfo,
   i_VectorItemsFactory,
   i_ArchiveReadWriteFactory,
@@ -78,7 +79,7 @@ type
       handle: THandle
     ): Boolean;
     function DeleteMarksModal(
-      const AMarkIDList: IInterfaceList;
+      const AMarkIDList: IInterfaceListStatic;
       handle: THandle
     ): Boolean;
     function DeleteCategoryModal(
@@ -126,13 +127,13 @@ type
       AIgnoreMarksVisible: Boolean
     );
     procedure ExportCategoryList(
-      ACategoryList: IInterfaceList;
+      ACategoryList: IInterfaceListStatic;
       AIgnoreMarksVisible: Boolean
     );
     function ImportFile(
       const AFileNameToImport: String;
       var AImportConfig: IImportConfig
-    ): IInterfaceList;
+    ): IInterfaceListStatic;
 
     property MarksDb: IMarkSystem read FMarkSystem;
     property ImportFileByExt: IImportFile read FImportFileByExt;
@@ -333,7 +334,7 @@ begin
 end;
 
 function TMarkDbGUIHelper.DeleteMarksModal(
-  const AMarkIDList: IInterfaceList;
+  const AMarkIDList: IInterfaceListStatic;
   handle: THandle
 ): Boolean;
 var
@@ -430,7 +431,7 @@ end;
 
 
 procedure TMarkDbGUIHelper.ExportCategoryList(
-  ACategoryList: IInterfaceList;
+  ACategoryList: IInterfaceListStatic;
   AIgnoreMarksVisible: Boolean
 );
 var
@@ -519,7 +520,7 @@ end;
 function TMarkDbGUIHelper.ImportFile(
   const AFileNameToImport: String;
   var AImportConfig: IImportConfig
-): IInterfaceList;
+): IInterfaceListStatic;
 begin
   Result := nil;
   if (FileExists(AFileNameToImport)) then begin

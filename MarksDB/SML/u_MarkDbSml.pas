@@ -31,6 +31,7 @@ uses
   i_IDList,
   i_SimpleFlag,
   i_InternalPerformanceCounter,
+  i_InterfaceListStatic,
   i_InterfaceListSimple,
   i_Category,
   i_Mark,
@@ -91,9 +92,9 @@ type
       const ANewMark: IMark
     ): IMark;
     function UpdateMarkList(
-      const AOldMarkList: IInterfaceList;
-      const ANewMarkList: IInterfaceList
-    ): IInterfaceList;
+      const AOldMarkList: IInterfaceListStatic;
+      const ANewMarkList: IInterfaceListStatic
+    ): IInterfaceListStatic;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
     function GetMarkByName(
@@ -110,16 +111,16 @@ type
       AVisible: Boolean
     );
     procedure SetMarkVisibleByIDList(
-      const AMarkList: IInterfaceList;
+      const AMarkList: IInterfaceListStatic;
       AVisible: Boolean
     );
     procedure ToggleMarkVisibleByIDList(
-      const AMarkList: IInterfaceList
+      const AMarkList: IInterfaceListStatic
     );
     function GetMarkVisibleByID(const AMark: IMarkId): Boolean;
     function GetMarkVisible(const AMark: IMark): Boolean;
-    function GetAllMarkIdList: IInterfaceList;
-    function GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceList;
+    function GetAllMarkIdList: IInterfaceListStatic;
+    function GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceListStatic;
 
     procedure SetAllMarksInCategoryVisible(
       const ACategory: ICategory;
@@ -127,7 +128,7 @@ type
     );
 
     function GetMarkSubsetByCategoryList(
-      const ACategoryList: IInterfaceList;
+      const ACategoryList: IInterfaceListStatic;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
     function GetMarkSubsetByCategory(
@@ -136,7 +137,7 @@ type
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryListInRect(
       const ARect: TDoubleRect;
-      const ACategoryList: IInterfaceList;
+      const ACategoryList: IInterfaceListStatic;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryInRect(
@@ -576,8 +577,8 @@ begin
 end;
 
 function TMarkDbSml.UpdateMarkList(
-  const AOldMarkList, ANewMarkList: IInterfaceList
-): IInterfaceList;
+  const AOldMarkList, ANewMarkList: IInterfaceListStatic
+): IInterfaceListStatic;
 var
   i: Integer;
   VNew: IInterface;
@@ -585,11 +586,12 @@ var
   VResult: IMark;
   VMinCount: Integer;
   VMaxCount: Integer;
+  VTemp: IInterfaceListSimple;
 begin
   Result := nil;
   if ANewMarkList <> nil then begin
-    Result := TInterfaceList.Create;
-    Result.Capacity := ANewMarkList.Count;
+    VTemp := TInterfaceListSimple.Create;
+    VTemp.Capacity := ANewMarkList.Count;
 
     LockWrite;
     try
@@ -609,7 +611,7 @@ begin
         VOld := AOldMarkList[i];
         VNew := ANewMarkList[i];
         VResult := _UpdateMark(VOld, VNew);
-        Result.Add(VResult);
+        VTemp.Add(VResult);
       end;
       for i := VMinCount to VMaxCount - 1 do begin
         VOld := nil;
@@ -621,14 +623,15 @@ begin
           VNew := ANewMarkList[i];
         end;
         VResult := _UpdateMark(VOld, VNew);
-        if i < Result.Capacity then begin
-          Result.Add(VResult);
+        if i < VTemp.Capacity then begin
+          VTemp.Add(VResult);
         end;
       end;
     finally
       UnlockWrite;
     end;
     SaveMarks2File;
+    Result := VTemp.MakeStaticAndClear;
   end else begin
     LockWrite;
     try
@@ -914,7 +917,7 @@ begin
 end;
 
 procedure TMarkDbSml.SetMarkVisibleByIDList(
-  const AMarkList: IInterfaceList;
+  const AMarkList: IInterfaceListStatic;
   AVisible: Boolean
 );
 var
@@ -952,7 +955,7 @@ begin
   end;
 end;
 
-procedure TMarkDbSml.ToggleMarkVisibleByIDList(const AMarkList: IInterfaceList);
+procedure TMarkDbSml.ToggleMarkVisibleByIDList(const AMarkList: IInterfaceListStatic);
 var
   i: Integer;
   VMarkVisible: IMarkSMLInternal;
@@ -1004,25 +1007,28 @@ begin
   end;
 end;
 
-function TMarkDbSml.GetAllMarkIdList: IInterfaceList;
+function TMarkDbSml.GetAllMarkIdList: IInterfaceListStatic;
 var
   VEnumId: IEnumID;
   AId: Integer;
   VCnt: Cardinal;
   VMarkId: IMarkId;
+  VTemp: IInterfaceListSimple;
 begin
-  Result := TInterfaceList.Create;
+  Result := nil;
+  VTemp := TInterfaceListSimple.Create;
   LockRead;
   try
     VEnumId := FMarkList.GetIDEnum;
     while VEnumId.Next(1, AId, VCnt) = S_OK do begin
       if Supports(FMarkList.GetByID(AId), IMarkId, VMarkId) then begin
-        Result.Add(VMarkId);
+        VTemp.Add(VMarkId);
       end;
     end;
   finally
     UnlockRead;
   end;
+  Result := VTemp.MakeStaticAndClear;
 end;
 
 function TMarkDbSml.GetById(AId: Integer): IMarkSMLInternal;
@@ -1051,7 +1057,7 @@ begin
   end;
 end;
 
-function TMarkDbSml.GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceList;
+function TMarkDbSml.GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceListStatic;
 var
   VMarkId: IMarkId;
   VCategoryId: Integer;
@@ -1059,17 +1065,20 @@ var
   VEnumId: IEnumID;
   AId: Integer;
   VCnt: Cardinal;
+  VTemp: IInterfaceListSimple;
 begin
-  Result := TInterfaceList.Create;
+  Result := nil;
+  VTemp := TInterfaceListSimple.Create;
   VCategoryId := GetCategoryID(ACategory);
   if Supports(FByCategoryList.GetByID(VCategoryId), IIDInterfaceList, VList) then begin
     VEnumId := VList.GetIDEnum;
     while VEnumId.Next(1, AId, VCnt) = S_OK do begin
       if Supports(VList.GetByID(AId), IMarkId, VMarkId) then begin
-        Result.Add(VMarkId);
+        VTemp.Add(VMarkId);
       end;
     end;
   end;
+  Result := VTemp.MakeStaticAndClear;
 end;
 
 procedure TMarkDbSml.InitEmptyDS(ACdsMarks: TClientDataSet);
@@ -1175,7 +1184,7 @@ begin
 end;
 
 function TMarkDbSml.GetMarkSubsetByCategoryList(
-  const ACategoryList: IInterfaceList;
+  const ACategoryList: IInterfaceListStatic;
   const AIncludeHiddenMarks: Boolean): IVectorItemSubset;
 var
   VResultList: IInterfaceListSimple;
@@ -1206,7 +1215,7 @@ end;
 
 function TMarkDbSml.GetMarkSubsetByCategoryListInRect(
   const ARect: TDoubleRect;
-  const ACategoryList: IInterfaceList;
+  const ACategoryList: IInterfaceListStatic;
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemSubset;
 var

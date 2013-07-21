@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   sysutils,
+  i_InterfaceListSimple,
   i_GeoCoder,
   i_NotifierOperation,
   i_LocalCoordConverter,
@@ -37,11 +38,11 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     function PosStr2List(
       const APos1,APos2: string;
-      var AAList: IInterfaceList
+      var AAList: IInterfaceListSimple
     ) : boolean;
     function GenShtab2Pos(
       const AStr: string;
-      var AAList: IInterfaceList
+      var AAList: IInterfaceListSimple
     ):boolean;
   protected
     function DoSearch(
@@ -49,7 +50,7 @@ type
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
     constructor Create(
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -64,6 +65,7 @@ uses
   StrUtils,
   RegExprUtils,
   t_GeoTypes,
+  u_InterfaceListSimple,
   u_GeoCodePlacemark,
   u_GeoToStr;
 
@@ -229,7 +231,7 @@ begin
   end;
 end;
 
-function TGeoCoderByCoord.PosStr2List(const APos1,APos2: string; var AAList: IInterfaceList) : boolean;
+function TGeoCoderByCoord.PosStr2List(const APos1,APos2: string; var AAList: IInterfaceListSimple) : boolean;
 var
  VBLat1, VBlon1: boolean;
  VBLat2, VBlon2: boolean;
@@ -458,9 +460,9 @@ begin
 end;
 
 function TGeoCoderByCoord.GenShtab2Pos(
-      const AStr: string;
-      var AAList: IInterfaceList
-    ):boolean;
+  const AStr: string;
+  var AAList: IInterfaceListSimple
+):boolean;
 var
  VcoordError : boolean;
  VDLat, VDLon : Double;
@@ -689,7 +691,7 @@ function TGeoCoderByCoord.DoSearch(
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-): IInterfaceList;
+): IInterfaceListSimple;
 var
  V2Search : string;
  i,j : integer;
@@ -702,11 +704,11 @@ var
  XYRect:TRect;
  ViLat, ViLon : integer;
  VcoordError: boolean;
- VList: IInterfaceList;
+ VList: IInterfaceListSimple;
  VValueConverter: IValueToStringConverter;
 begin
  VValueConverter := FValueToStringConverterConfig.GetStatic;
- VList := TInterfaceList.Create;
+ VList := TInterfaceListSimple.Create;
  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
    Exit;
  end;

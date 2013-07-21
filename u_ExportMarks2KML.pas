@@ -31,6 +31,7 @@ uses
   XMLIntf,
   XMLDoc,
   ActiveX,
+  i_InterfaceListStatic,
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
   i_Category,
@@ -49,7 +50,7 @@ type
     FZip: IArchiveWriter;
     procedure AddFolders(
       const AMarksSet: IVectorItemSubset;
-      const ACategoryList: IInterfaceList
+      const ACategoryList: IInterfaceListStatic
     );
     function AddFolder(
       const AParentNode: IXMLNode;
@@ -70,7 +71,7 @@ type
     constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
     destructor Destroy; override;
     procedure ExportToKML(
-      const ACategoryList: IInterfaceList;
+      const ACategoryList: IInterfaceListStatic;
       const AMarksSubset: IVectorItemSubset;
       const AFileName: string
     );
@@ -160,7 +161,7 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportToKML(
-  const ACategoryList: IInterfaceList;
+  const ACategoryList: IInterfaceListStatic;
   const AMarksSubset: IVectorItemSubset;
   const AFileName: string
 );
@@ -247,7 +248,7 @@ end;
 
 procedure TExportMarks2KML.AddFolders(
   const AMarksSet: IVectorItemSubset;
-  const ACategoryList: IInterfaceList
+  const ACategoryList: IInterfaceListStatic
 );
 var
   K: Integer;

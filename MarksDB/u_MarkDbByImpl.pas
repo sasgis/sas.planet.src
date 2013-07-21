@@ -9,6 +9,7 @@ uses
   i_Listener,
   i_Notifier,
   i_Category,
+  i_InterfaceListStatic,
   i_VectorItemSubset,
   i_MarkId,
   i_Mark,
@@ -38,7 +39,7 @@ type
     ): IMark;
 
     function GetMarkSubsetByCategoryList(
-      const ACategoryList: IInterfaceList;
+      const ACategoryList: IInterfaceListStatic;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
     function GetMarkSubsetByCategory(
@@ -47,7 +48,7 @@ type
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryListInRect(
       const ARect: TDoubleRect;
-      const ACategoryList: IInterfaceList;
+      const ACategoryList: IInterfaceListStatic;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
     function GetMarkSubsetByCategoryInRect(
@@ -66,20 +67,20 @@ type
       const ANewMark: IMark
     ): IMark;
     function UpdateMarkList(
-      const AOldMarkList: IInterfaceList;
-      const ANewMarkList: IInterfaceList
-    ): IInterfaceList;
+      const AOldMarkList: IInterfaceListStatic;
+      const ANewMarkList: IInterfaceListStatic
+    ): IInterfaceListStatic;
 
-    function GetAllMarkIdList: IInterfaceList;
-    function GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceList;
+    function GetAllMarkIdList: IInterfaceListStatic;
+    function GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceListStatic;
 
     function GetMarkByID(const AMarkId: IMarkId): IMark;
 
     procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
     procedure SetMarkVisible(const AMark: IMark; AVisible: Boolean);
 
-    procedure SetMarkVisibleByIDList(const AMarkList: IInterfaceList; AVisible: Boolean);
-    procedure ToggleMarkVisibleByIDList(const AMarkList: IInterfaceList);
+    procedure SetMarkVisibleByIDList(const AMarkList: IInterfaceListStatic; AVisible: Boolean);
+    procedure ToggleMarkVisibleByIDList(const AMarkList: IInterfaceListStatic);
 
     function GetMarkVisibleByID(const AMark: IMarkId): Boolean;
     function GetMarkVisible(const AMark: IMark): Boolean;
@@ -137,7 +138,7 @@ begin
   inherited;
 end;
 
-function TMarkDbByImpl.GetAllMarkIdList: IInterfaceList;
+function TMarkDbByImpl.GetAllMarkIdList: IInterfaceListStatic;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -182,7 +183,7 @@ begin
 end;
 
 function TMarkDbByImpl.GetMarkIdListByCategory(
-  const ACategory: ICategory): IInterfaceList;
+  const ACategory: ICategory): IInterfaceListStatic;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -223,7 +224,7 @@ begin
 end;
 
 function TMarkDbByImpl.GetMarkSubsetByCategoryList(
-  const ACategoryList: IInterfaceList;
+  const ACategoryList: IInterfaceListStatic;
   const AIncludeHiddenMarks: Boolean): IVectorItemSubset;
 var
   VImpl: IMarkSystemImpl;
@@ -237,7 +238,7 @@ end;
 
 function TMarkDbByImpl.GetMarkSubsetByCategoryListInRect(
   const ARect: TDoubleRect;
-  const ACategoryList: IInterfaceList;
+  const ACategoryList: IInterfaceListStatic;
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemSubset;
 var
@@ -339,7 +340,7 @@ begin
   end;
 end;
 
-procedure TMarkDbByImpl.SetMarkVisibleByIDList(const AMarkList: IInterfaceList;
+procedure TMarkDbByImpl.SetMarkVisibleByIDList(const AMarkList: IInterfaceListStatic;
   AVisible: Boolean);
 var
   VImpl: IMarkSystemImpl;
@@ -351,7 +352,8 @@ begin
 end;
 
 procedure TMarkDbByImpl.ToggleMarkVisibleByIDList(
-  const AMarkList: IInterfaceList);
+  const AMarkList: IInterfaceListStatic
+);
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -372,8 +374,9 @@ begin
   end;
 end;
 
-function TMarkDbByImpl.UpdateMarkList(const AOldMarkList,
-  ANewMarkList: IInterfaceList): IInterfaceList;
+function TMarkDbByImpl.UpdateMarkList(
+  const AOldMarkList, ANewMarkList: IInterfaceListStatic
+): IInterfaceListStatic;
 var
   VImpl: IMarkSystemImpl;
 begin

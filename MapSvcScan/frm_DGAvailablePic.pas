@@ -286,12 +286,14 @@ uses
   i_Mark,
   i_VectorItemLonLat,
   i_CoordConverter,
+  i_InterfaceListSimple,
   i_DoublePointsAggregator,
   u_Clipboard,
   u_Synchronizer,
   u_Notifier,
   u_NotifierOperation,
   u_InetFunc,
+  u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_MapSvcScanStorage,
   u_MultiPoligonParser,
@@ -913,7 +915,7 @@ var
   VValidPoint: Boolean;
   VPolygon: ILonLatPolygon;
   VMark: IMark;
-  VAllNewMarks: IInterfaceList;
+  VAllNewMarks: IInterfaceListSimple;
   VAllLinesToDesc: Boolean;
 begin
   if (nil=FMarkDBGUI) then
@@ -1109,7 +1111,7 @@ begin
             // apply to database
             // VImportConfig.MarkDB.UpdateMark(nil, VMark);
             if (nil=VAllNewMarks) then
-              VAllNewMarks := TInterfaceList.Create;
+              VAllNewMarks := TInterfaceListSimple.Create;
             VAllNewMarks.Add(VMark);
           end;
         end;
@@ -1120,7 +1122,7 @@ begin
 
   if Assigned(VAllNewMarks) then
   if (nil<>VImportConfig) then begin
-    FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(nil, VAllNewMarks);
+    FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(nil, VAllNewMarks.MakeStaticAndClear);
   end;
 end;
 

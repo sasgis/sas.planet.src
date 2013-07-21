@@ -29,6 +29,7 @@ uses
   DBClient,
   i_IDList,
   i_SimpleFlag,
+  i_InterfaceListStatic,
   i_Category,
   i_MarkCategory,
   i_MarkCategoryFactory,
@@ -69,13 +70,13 @@ type
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
     function UpdateCategoryList(
-      const AOldCategoryList: IInterfaceList;
-      const ANewCategoryList: IInterfaceList
-    ): IInterfaceList;
+      const AOldCategoryList: IInterfaceListStatic;
+      const ANewCategoryList: IInterfaceListStatic
+    ): IInterfaceListStatic;
 
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
 
-    function GetCategoriesList: IInterfaceList;
+    function GetCategoriesList: IInterfaceListStatic;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
   private
     function GetCategoryByID(id: integer): IMarkCategory;
@@ -94,7 +95,9 @@ uses
   DB,
   t_CommonTypes,
   i_EnumID,
+  i_InterfaceListSimple,
   u_IDInterfaceList,
+  u_InterfaceListSimple,
   u_SimpleFlagWithInterlock,
   i_MarkDbSmlInternal,
   u_MarkCategoryFactorySmlDbInternal;
@@ -248,8 +251,9 @@ begin
   end;
 end;
 
-function TMarkCategoryDBSml.UpdateCategoryList(const AOldCategoryList,
-  ANewCategoryList: IInterfaceList): IInterfaceList;
+function TMarkCategoryDBSml.UpdateCategoryList(
+  const AOldCategoryList, ANewCategoryList: IInterfaceListStatic
+): IInterfaceListStatic;
 var
   i: Integer;
   VNew: IInterface;
@@ -257,11 +261,12 @@ var
   VResult: ICategory;
   VMinCount: Integer;
   VMaxCount: Integer;
+  VTemp:  IInterfaceListSimple;
 begin
   Result := nil;
   if ANewCategoryList <> nil then begin
-    Result := TInterfaceList.Create;
-    Result.Capacity := ANewCategoryList.Count;
+    VTemp := TInterfaceListSimple.Create;
+    VTemp.Capacity := ANewCategoryList.Count;
 
     LockWrite;
     try
@@ -281,7 +286,7 @@ begin
         VOld := AOldCategoryList[i];
         VNew := ANewCategoryList[i];
         VResult := _UpdateCategory(VOld, VNew);
-        Result.Add(VResult);
+        VTemp.Add(VResult);
       end;
       for i := VMinCount to VMaxCount - 1 do begin
         VOld := nil;
@@ -293,14 +298,15 @@ begin
           VNew := ANewCategoryList[i];
         end;
         VResult := _UpdateCategory(VOld, VNew);
-        if i < Result.Capacity then begin
-          Result.Add(VResult);
+        if i < VTemp.Capacity then begin
+          VTemp.Add(VResult);
         end;
       end;
     finally
       UnlockWrite;
     end;
     SaveCategory2File;
+    Result := VTemp.MakeStaticAndClear;
   end else begin
     LockWrite;
     try
@@ -418,24 +424,27 @@ begin
   end;
 end;
 
-function TMarkCategoryDBSml.GetCategoriesList: IInterfaceList;
+function TMarkCategoryDBSml.GetCategoriesList: IInterfaceListStatic;
 var
   VEnum: IEnumID;
   i: Cardinal;
   VId: Integer;
   VCategory: IMarkCategory;
+  VTemp: IInterfaceListSimple;
 begin
-  Result := TInterfaceList.Create;
+  Result := nil;
+  VTemp := TInterfaceListSimple.Create;
   LockRead;
   try
     VEnum := FList.GetIDEnum;
     while VEnum.Next(1, VId, i) = S_OK do begin
       VCategory := IMarkCategory(FList.GetByID(VId));
-      Result.Add(VCategory);
+      VTemp.Add(VCategory);
     end;
   finally
     UnlockRead;
   end;
+  Result := VTemp.MakeStaticAndClear;
 end;
 
 function TMarkCategoryDBSml.GetMarksCategoryBackUpFileName: string;

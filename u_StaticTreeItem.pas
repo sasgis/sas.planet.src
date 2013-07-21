@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_StaticTreeItem,
   u_BaseInterfacedObject;
 
@@ -33,7 +34,7 @@ type
     FData: IInterface;
     FName: string;
     FGroupName: string;
-    FSubItems: IInterfaceList;
+    FSubItems: IInterfaceListStatic;
   private
     function GetData: IInterface;
     function GetName: string;
@@ -45,7 +46,7 @@ type
       const AData: IInterface;
       const AName: string;
       const AGroupName: string;
-      const ASubItems: IInterfaceList
+      const ASubItems: IInterfaceListStatic
     );
   end;
 
@@ -56,7 +57,7 @@ implementation
 constructor TStaticTreeItem.Create(
   const AData: IInterface;
   const AName, AGroupName: string;
-  const ASubItems: IInterfaceList
+  const ASubItems: IInterfaceListStatic
 );
 begin
   inherited Create;

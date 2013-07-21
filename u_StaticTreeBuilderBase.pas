@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_StaticTreeItem,
   i_StaticTreeBuilder,
   u_BaseInterfacedObject;
@@ -57,7 +58,7 @@ type
       const AName: string;
       AList: TStringList
     );
-    function BuildTreeItemsList(AList: TStringList): IInterfaceList;
+    function BuildTreeItemsList(AList: TStringList): IInterfaceListStatic;
   protected
     function BuildStatic(const ASource: IInterface): IStaticTreeItem;
   end;
@@ -91,6 +92,8 @@ implementation
 
 uses
   SysUtils,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_StaticTreeItem;
 
 type
@@ -197,15 +200,17 @@ begin
 end;
 
 function TStaticTreeBuilderBase.BuildTreeItemsList(
-  AList: TStringList): IInterfaceList;
+  AList: TStringList
+): IInterfaceListStatic;
 var
   i: Integer;
   VTempItem: TTempTreeItem;
   VTreeItem: IStaticTreeItem;
+  VTemp: IInterfaceListSimple;
 begin
   Result := nil;
   if AList.Count > 0 then begin
-    Result := TInterfaceList.Create;
+    VTemp := TInterfaceListSimple.Create;
     for i := 0 to AList.Count - 1 do begin
       VTempItem := TTempTreeItem(AList.Objects[i]);
       VTreeItem :=
@@ -215,8 +220,9 @@ begin
           VTempItem.FGroupName,
           BuildTreeItemsList(VTempItem.FSubList)
         );
-      Result.Add(VTreeItem);
+      VTemp.Add(VTreeItem);
     end;
+    Result := VTemp.MakeStaticAndClear;
   end;
 end;
 

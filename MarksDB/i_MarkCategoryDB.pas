@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   i_Notifier,
+  i_InterfaceListStatic,
   i_MarkCategory,
   i_MarkCategoryFactory;
 
@@ -37,11 +38,11 @@ type
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
     function UpdateCategoryList(
-      const AOldCategory: IInterfaceList;
-      const ANewCategory: IInterfaceList
-    ): IInterfaceList;
+      const AOldCategory: IInterfaceListStatic;
+      const ANewCategory: IInterfaceListStatic
+    ): IInterfaceListStatic;
 
-    function GetCategoriesList: IInterfaceList;
+    function GetCategoriesList: IInterfaceListStatic;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
 
     function GetFactory: IMarkCategoryFactory;

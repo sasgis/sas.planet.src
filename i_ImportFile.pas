@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_MarkSystem,
   i_ImportConfig;
 
@@ -34,7 +35,7 @@ type
       const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
-    ): IInterfaceList;
+    ): IInterfaceListStatic;
   end;
 
 implementation

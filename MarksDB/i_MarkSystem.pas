@@ -6,6 +6,7 @@ uses
   Classes,
   i_ReadWriteState,
   i_ImportConfig,
+  i_InterfaceListStatic,
   i_VectorItemSubset,
   i_Mark,
   i_MarkCategory,
@@ -32,14 +33,14 @@ type
       const ADataItemList: IVectorItemSubset;
       const AImportConfig: IImportConfig;
       const ANamePrefix: string
-    ): IInterfaceList;
+    ): IInterfaceListStatic;
 
-    function GetVisibleCategories(AZoom: Byte): IInterfaceList;
-    function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
+    function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
+    function GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
     function MarkSubsetToStaticTree(const ASubset: IVectorItemSubset): IStaticTreeItem;
-    function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
+    function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
   end;
 
 implementation

@@ -98,6 +98,7 @@ uses
   Classes,
   SysUtils,
   gnugettext,
+  i_InterfaceListStatic,
   i_LonLatRect,
   i_MarkerProviderForVectorItem,
   i_VectorItemSubset,
@@ -208,7 +209,7 @@ var
   VGeoConverter: ICoordConverter;
   VMarksSubset: IVectorItemSubset;
   VMarksConfigStatic: IUsedMarksConfigStatic;
-  VList: IInterfaceList;
+  VList: IInterfaceListStatic;
   VMarksImageProvider: IBitmapLayerProvider;
   VMapRect: TRect;
   VLineClipRect: TDoubleRect;

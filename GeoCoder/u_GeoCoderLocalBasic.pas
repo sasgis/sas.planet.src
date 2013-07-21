@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_GeoCoder,
   i_LocalCoordConverter,
@@ -37,7 +38,7 @@ type
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; virtual; abstract;
+    ): IInterfaceListSimple; virtual; abstract;
   private
     function GetLocations(
       const ACancelNotifier: INotifierOperation;
@@ -49,12 +50,13 @@ type
 implementation
 
 uses
+  u_InterfaceListSimple,
   u_GeoCodeResult;
 
 { TGeoCoderLocalBasic }
 
 procedure QuickSort(
-  var AList:IInterfaceList;
+  var AList: IInterfaceListSimple;
   var ADist: array of Double;
   L, R: Integer
   );
@@ -91,9 +93,9 @@ begin
 end;
 
 procedure SortIt(
-  var AList:IInterfaceList;
+  var AList: IInterfaceListSimple;
   const ALocalConverter: ILocalCoordConverter
-  );
+);
 var
   i: integer;
   VMark: IGeoCodePlacemark;
@@ -114,7 +116,7 @@ function TGeoCoderLocalBasic.GetLocations(
   const ALocalConverter: ILocalCoordConverter
 ): IGeoCodeResult;
 var
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VResultCode: Integer;
 begin
   VResultCode := 200;
@@ -131,12 +133,12 @@ begin
    ALocalConverter
    );
   if VList = nil then begin
-    VList := TInterfaceList.Create;
+    VList := TInterfaceListSimple.Create;
   end;
 
   if VList.GetCount>1 then SortIt(VList ,ALocalConverter);
 
-  Result := TGeoCodeResult.Create(ASearch, VResultCode,'', VList);
+  Result := TGeoCodeResult.Create(ASearch, VResultCode,'', VList.MakeStaticAndClear);
 end;
 
 

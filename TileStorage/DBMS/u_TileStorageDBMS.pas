@@ -271,6 +271,8 @@ implementation
 
 uses
   t_CommonTypes,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_BinaryData,
   u_MapVersionListStatic,
   u_Synchronizer,
@@ -333,7 +335,7 @@ type
   PSelectTileCallbackInfo = ^TSelectTileCallbackInfo;
 
   TEnumTileVersionsCallbackInfo = packed record
-    TileVersionsList: IInterfaceList;
+    TileVersionsList: IInterfaceListSimple;
   end;
   PEnumTileVersionsCallbackInfo = ^TEnumTileVersionsCallbackInfo;
 
@@ -455,7 +457,7 @@ begin
   with PEnumTileVersionsCallbackInfo(ACallbackPointer)^ do
   if (nil=TileVersionsList) then begin
     // make list
-    TileVersionsList := TInterfaceList.Create;
+    TileVersionsList := TInterfaceListSimple.Create;
   end;
 
   // make version
@@ -1018,7 +1020,7 @@ begin
   until FALSE;
   
   // make result
-  Result := TMapVersionListStatic.Create(VObj.TileVersionsList);
+  Result := TMapVersionListStatic.Create(VObj.TileVersionsList.MakeStaticAndClear);
 end;
 
 function TTileStorageETS.GetTileFileName(

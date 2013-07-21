@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_DownloadRequest,
@@ -58,7 +59,7 @@ type
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
     constructor Create(
       const AInetSettings: IInetConfig;
@@ -76,6 +77,7 @@ uses
   StrUtils,
   RegExprUtils,
   t_GeoTypes,
+  u_InterfaceListSimple,
   u_ResStrings,
   u_DownloadRequest,
   u_GeoCodePlacemark;
@@ -607,13 +609,13 @@ end;
 function TGeoCoderByURL.ParseResultToPlacemarksList(
   const ACancelNotifier: INotifierOperation; AOperationID: Integer;
   const AResult: IDownloadResultOk; const ASearch: WideString;
-  const ALocalConverter: ILocalCoordConverter): IInterfaceList;
+  const ALocalConverter: ILocalCoordConverter): IInterfaceListSimple;
 var
- VPlace : IGeoCodePlacemark;
- VList: IInterfaceList;
+ VPlace: IGeoCodePlacemark;
+ VList: IInterfaceListSimple;
  VStr: string;
 begin
- VList := TInterfaceList.Create;
+ VList := TInterfaceListSimple.Create;
 
  if AResult = nil then // ничего не скачивали, полная ссылка
   VPlace := GetPointFromFullLink(ASearch, ALocalConverter)

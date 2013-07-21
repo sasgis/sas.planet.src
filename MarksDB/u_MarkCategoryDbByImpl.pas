@@ -7,6 +7,7 @@ uses
   Classes,
   i_Listener,
   i_Notifier,
+  i_InterfaceListStatic,
   i_MarkCategory,
   i_MarkCategoryFactory,
   i_MarkCategoryDB,
@@ -34,11 +35,11 @@ type
       const ANewCategory: IMarkCategory
     ): IMarkCategory;
     function UpdateCategoryList(
-      const AOldCategory: IInterfaceList;
-      const ANewCategory: IInterfaceList
-    ): IInterfaceList;
+      const AOldCategory: IInterfaceListStatic;
+      const ANewCategory: IInterfaceListStatic
+    ): IInterfaceListStatic;
 
-    function GetCategoriesList: IInterfaceList;
+    function GetCategoriesList: IInterfaceListStatic;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
 
     function GetFactory: IMarkCategoryFactory;
@@ -90,7 +91,7 @@ begin
   inherited;
 end;
 
-function TMarkCategoryDbByImpl.GetCategoriesList: IInterfaceList;
+function TMarkCategoryDbByImpl.GetCategoriesList: IInterfaceListStatic;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -165,8 +166,9 @@ begin
   end;
 end;
 
-function TMarkCategoryDbByImpl.UpdateCategoryList(const AOldCategory,
-  ANewCategory: IInterfaceList): IInterfaceList;
+function TMarkCategoryDbByImpl.UpdateCategoryList(
+  const AOldCategory, ANewCategory: IInterfaceListStatic
+): IInterfaceListStatic;
 var
   VImpl: IMarkSystemImpl;
 begin

@@ -155,6 +155,8 @@ type
 implementation
 
 uses
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_BinaryDataByMemStream,
   u_MapVersionListStatic,
   u_AvailPicsNMC,
@@ -426,7 +428,7 @@ function TTileStorageDLL.GetListOfTileVersions(
 var
   VEnumInfo: TEnumTileVersionsInfo;
   VVersionStoreString: AnsiString;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VVersion: IMapVersionInfo;
   i: Integer;
 begin
@@ -448,7 +450,7 @@ begin
           try
             // make version for each item
             if (TStringList(VEnumInfo.ListOfVersions).Count > 0) then begin
-              VList := TInterfaceList.Create;
+              VList := TInterfaceListSimple.Create;
               for i := 0 to TStringList(VEnumInfo.ListOfVersions).Count - 1 do begin
                 VVersion := MapVersionFactory.CreateByStoreString(TStringList(VEnumInfo.ListOfVersions).Strings[i]);
                 VList.Add(VVersion);
@@ -464,7 +466,7 @@ begin
     FDLLSync.EndRead;
   end;
 
-  Result := TMapVersionListStatic.Create(VList);
+  Result := TMapVersionListStatic.Create(VList.MakeStaticAndClear);
 end;
 
 function TTileStorageDLL.GetTileFileName(

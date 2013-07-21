@@ -738,6 +738,7 @@ uses
   i_Listener,
   i_NotifierOperation,
   i_Bitmap32Static,
+  i_InterfaceListStatic,
   i_MarkId,
   i_MapTypes,
   i_GeoCoderList,
@@ -6069,7 +6070,7 @@ end;
 
 procedure TfrmMain.ProcessOpenFile(const AFileName: string; var AImportConfig: IImportConfig; var ALastMark: IMark);
 var
-  VList: IInterfaceList;
+  VList: IInterfaceListStatic;
 begin
   FState.State := ao_movemap;
   if FileExists(AFileName) then begin

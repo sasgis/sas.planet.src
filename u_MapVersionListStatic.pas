@@ -4,19 +4,20 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_MapVersionInfo,
   u_BaseInterfacedObject;
 
 type
   TMapVersionListStatic = class(TBaseInterfacedObject, IMapVersionListStatic)
   private
-    FList: IInterfaceList;
+    FList: IInterfaceListStatic;
   private
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IMapVersionInfo;
   public
     constructor Create(
-      AList: IInterfaceList
+      AList: IInterfaceListStatic
     );
   end;
 
@@ -24,7 +25,7 @@ implementation
 
 { TMapVersionListStatic }
 
-constructor TMapVersionListStatic.Create(AList: IInterfaceList);
+constructor TMapVersionListStatic.Create(AList: IInterfaceListStatic);
 begin
   inherited Create;
   FList := AList;

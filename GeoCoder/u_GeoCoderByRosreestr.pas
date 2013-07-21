@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListSimple,
   i_InetConfig,
   i_DownloadResult,
   i_DownloadRequest,
@@ -49,7 +50,7 @@ type
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
     constructor Create(
       const AInetSettings: IInetConfig;
@@ -69,6 +70,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
+  u_InterfaceListSimple,
   u_ResStrings,
   u_GeoCodePlacemark;
 
@@ -122,13 +124,13 @@ function TGeoCoderByRosreestr.ParseResultToPlacemarksList(
   const AResult: IDownloadResultOk;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-): IInterfaceList;
+): IInterfaceListSimple;
 var
   slat, slon, sname, sdesc, sfulldesc, VtempString: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   VValueConverter: IValueToStringConverter;
   VStr: string;
@@ -146,7 +148,7 @@ begin
   SetLength(Vstr, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
   VFormatSettings.DecimalSeparator := '.';
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   i := PosEx('_jsonpCallback', VStr);
   VStr := ReplaceStr(VStr, '\"', '''');
   VStr := ReplaceStr(VStr, '\/', '/');

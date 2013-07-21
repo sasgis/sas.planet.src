@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_ImportFile,
   i_VectorItemsFactory,
   i_VectorDataFactory,
@@ -50,7 +51,7 @@ type
       const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
-    ): IInterfaceList;
+    ): IInterfaceListStatic;
   public
     constructor Create(
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -102,7 +103,7 @@ function TImportByFileExt.ProcessImport(
   const AMarksSystem: IMarkSystem;
   const AFileName: string;
   const AConfig: IImportConfig
-): IInterfaceList;
+): IInterfaceListStatic;
 var
   VExtLwr: String;
 begin

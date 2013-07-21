@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_VectorDataLoader,
   i_VectorDataFactory,
   i_ImportConfig,
@@ -41,7 +42,7 @@ type
       const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
-    ): IInterfaceList;
+    ): IInterfaceListStatic;
   public
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory;
@@ -73,7 +74,7 @@ function TImportByVectorLoader.ProcessImport(
   const AMarksSystem: IMarkSystem;
   const AFileName: string;
   const AConfig: IImportConfig
-): IInterfaceList;
+): IInterfaceListStatic;
 var
   VMemStream: TMemoryStream;
   VData: IBinaryData;

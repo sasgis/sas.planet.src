@@ -9,6 +9,7 @@ uses
   StdCtrls,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
+  i_InterfaceListStatic,
   i_Category,
   i_MarkCategoryDB;
 
@@ -18,9 +19,9 @@ type
     lblCategory: TLabel;
   private
     FCategoryDB: IMarkCategoryDB;
-    FCategoryList: IInterfaceList;
+    FCategoryList: IInterfaceListStatic;
     FLastUsedCategoryName: string;
-    procedure CategoryListToStrings(const AList: IInterfaceList; AStrings: TStrings);
+    procedure CategoryListToStrings(const AList: IInterfaceListStatic; AStrings: TStrings);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -61,7 +62,7 @@ begin
 end;
 
 procedure TfrMarkCategorySelectOrAdd.CategoryListToStrings(
-  const AList: IInterfaceList;
+  const AList: IInterfaceListStatic;
   AStrings: TStrings
 );
 var

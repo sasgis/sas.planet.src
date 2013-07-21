@@ -92,6 +92,7 @@ uses
   i_CoordConverter,
   i_TileMatrix,
   i_VectorItemProjected,
+  i_InterfaceListStatic,
   i_InterfaceListSimple,
   i_MarkerProviderForVectorItem,
   u_TileMatrixFactory,
@@ -311,7 +312,7 @@ function TMapLayerMarks.GetMarksSubset(
   const ALocalConverter: ILocalCoordConverter
 ): IVectorItemSubset;
 var
-  VList: IInterfaceList;
+  VList: IInterfaceListStatic;
   VZoom: Byte;
   VMapPixelRect: TDoubleRect;
   VLonLatRect: TDoubleRect;

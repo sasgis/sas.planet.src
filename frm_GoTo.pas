@@ -33,6 +33,7 @@ uses
   Controls,
   t_GeoTypes,
   i_LanguageManager,
+  i_InterfaceListStatic,
   i_MarkDb,
   i_MainGeoCoderConfig,
   i_LocalCoordConverterChangeable,
@@ -66,7 +67,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
-    FMarksList: IInterfaceList;
+    FMarksList: IInterfaceListStatic;
     function GeocodeResultFromLonLat(
       const ASearch: WideString;
       const ALonLat: TDoublePoint;
@@ -76,7 +77,7 @@ type
     procedure InitGeoCoders;
     procedure EmptyGeoCoders;
     procedure MarksListToStrings(
-      const AList: IInterfaceList;
+      const AList: IInterfaceListStatic;
       AStrings: TStrings
     );
   public
@@ -98,11 +99,13 @@ implementation
 
 uses
   ActiveX,
+  i_InterfaceListSimple,
   i_GeoCoderList,
   i_MarkId,
   i_Mark,
   i_LocalCoordConverter,
   i_NotifierOperation,
+  u_InterfaceListSimple,
   u_Notifier,
   u_NotifierOperation,
   u_GeoCodeResult,
@@ -117,12 +120,12 @@ function TfrmGoTo.GeocodeResultFromLonLat(
 ): IGeoCodeResult;
 var
   VPlace: IGeoCodePlacemark;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
 begin
   VPlace := TGeoCodePlacemark.Create(ALonLat, AMessage, '', '', 4);
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   VList.Add(VPlace);
-  Result := TGeoCodeResult.Create(ASearch, 203, '', VList);
+  Result := TGeoCodeResult.Create(ASearch, 203, '', VList.MakeStaticAndClear);
 end;
 
 procedure TfrmGoTo.InitGeoCoders;
@@ -176,7 +179,7 @@ begin
 end;
 
 procedure TfrmGoTo.MarksListToStrings(
-  const AList: IInterfaceList;
+  const AList: IInterfaceListStatic;
   AStrings: TStrings
 );
 var

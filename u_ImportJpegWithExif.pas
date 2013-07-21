@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListStatic,
   i_VectorDataFactory,
   i_ValueToStringConverter,
   i_ImportConfig,
@@ -41,7 +42,7 @@ type
       const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
-    ): IInterfaceList;
+    ): IInterfaceListStatic;
   public
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory;
@@ -78,7 +79,7 @@ function TImportJpegWithExif.ProcessImport(
   const AMarksSystem: IMarkSystem;
   const AFileName: string;
   const AConfig: IImportConfig
-): IInterfaceList;
+): IInterfaceListStatic;
 var
   VPoint: TDoublePoint;
   VExifData: TExifData;

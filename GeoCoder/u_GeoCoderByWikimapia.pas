@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_DownloadRequest,
@@ -43,7 +44,7 @@ type
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
   end;
 
@@ -55,6 +56,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
+  u_InterfaceListSimple,
   u_ResStrings,
   u_GeoCodePlacemark;
 
@@ -68,13 +70,13 @@ function TGeoCoderByWikiMapia.ParseResultToPlacemarksList(
   const AResult: IDownloadResultOk;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-): IInterfaceList;
+): IInterfaceListSimple;
 var
   slat, slon, sname, sdesc, sfulldesc{, vzoom}: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   VStr: string;
 begin
@@ -87,7 +89,7 @@ begin
   SetLength(Vstr, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
   VFormatSettings.DecimalSeparator := '.';
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   i := PosEx('<ul class="nav searchlist">', VStr, 1);
   while (PosEx('<li onclick="parent.Search.zoomTo', VStr, i) > i) and (i > 0) do begin
     j := i;

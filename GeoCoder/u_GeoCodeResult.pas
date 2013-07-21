@@ -25,6 +25,7 @@ interface
 uses
   ActiveX,
   Classes,
+  i_InterfaceListStatic,
   i_GeoCoder,
   u_BaseInterfacedObject;
 
@@ -34,7 +35,7 @@ type
     FSearchText: WideString;
     FMessage: WideString;
     FResultCode: Integer;
-    FList: IInterfaceList;
+    FList: IInterfaceListStatic;
     function GetSearchText: WideString; safecall;
     function GetResultCode: Integer; safecall;
     function GetMessage: WideString; safecall;
@@ -45,7 +46,7 @@ type
       const ASearchText: WideString;
       AResultCode: integer;
       const AMessage: WideString;
-      const AList: IInterfaceList
+      const AList: IInterfaceListStatic
     );
   end;
 
@@ -60,7 +61,7 @@ constructor TGeoCodeResult.Create(
   const ASearchText: WideString;
   AResultCode: integer;
   const AMessage: WideString;
-  const AList: IInterfaceList
+  const AList: IInterfaceListStatic
 );
 begin
   inherited Create;
@@ -77,7 +78,7 @@ end;
 
 function TGeoCodeResult.GetPlacemarks: IEnumUnknown;
 begin
-  Result := TEnumUnknown.Create(FList);
+  Result := TEnumUnknownByStatic.Create(FList);
 end;
 
 function TGeoCodeResult.GetPlacemarksCount: integer;

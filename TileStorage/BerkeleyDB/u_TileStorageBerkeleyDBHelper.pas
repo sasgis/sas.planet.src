@@ -167,6 +167,8 @@ uses
   Windows,
   libdb51,
   CRC32,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_Synchronizer,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
@@ -720,7 +722,7 @@ var
   VValue: IBerkeleyDBValue;
   VVersionMeta: IBerkeleyDBVersionedMetaValue;
   VMetaElement: IBerkeleyDBVersionedMetaValueElement;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VTileInfoIndex: Integer;
   VYoungestTileIndex: Integer;
   VYoungestTileDate: TDateTime;
@@ -748,7 +750,7 @@ begin
             VYoungestTileDate := 0;
 
             if not ASingleTileInfo then begin
-              VList := TInterfaceList.Create;
+              VList := TInterfaceListSimple.Create;
             end else begin
               VList := nil;
             end;
@@ -807,7 +809,7 @@ begin
                 end;
               end else begin
                 if Assigned(VList) and (VList.Count > 0) then begin
-                  ATileVersionListStatic := TMapVersionListStatic.Create(VList);
+                  ATileVersionListStatic := TMapVersionListStatic.Create(VList.MakeStaticAndClear);
                   Result := True;
                 end;
               end;

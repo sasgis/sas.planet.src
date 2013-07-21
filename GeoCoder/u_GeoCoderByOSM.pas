@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_DownloadRequest,
@@ -43,7 +44,7 @@ type
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
   end;
 
@@ -55,6 +56,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
+  u_InterfaceListSimple,
   u_ResStrings,
   u_GeoCodePlacemark;
 
@@ -67,13 +69,13 @@ function TGeoCoderByOSM.ParseResultToPlacemarksList(
   const AResult: IDownloadResultOk;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-): IInterfaceList;
+): IInterfaceListSimple;
 var
   slat, slon, sname, sdesc, sfulldesc, osm_type, osm_id: string;
   i, j, k: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   VStr: string;
 begin
@@ -84,7 +86,7 @@ begin
   end;
 
   VFormatSettings.DecimalSeparator := '.';
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   SetLength(Vstr, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
   i := PosEx('<searchresults', VStr);

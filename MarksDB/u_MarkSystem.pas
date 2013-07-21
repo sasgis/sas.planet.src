@@ -11,6 +11,7 @@ uses
   i_MarkDb,
   i_MarkCategoryDB,
   i_ImportConfig,
+  i_InterfaceListStatic,
   i_VectorItemSubset,
   i_StaticTreeItem,
   i_PathConfig,
@@ -43,18 +44,18 @@ type
     function GetMarkByStringId(const AId: string): IMark;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
-    function GetVisibleCategories(AZoom: Byte): IInterfaceList;
-    function GetVisibleCategoriesIgnoreZoom: IInterfaceList;
+    function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
+    function GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
     function ImportItemsList(
       const ADataItemList: IVectorItemSubset;
       const AImportConfig: IImportConfig;
       const ANamePrefix: string
-    ): IInterfaceList;
+    ): IInterfaceListStatic;
 
     function MarkSubsetToStaticTree(const ASubset: IVectorItemSubset): IStaticTreeItem;
-    function CategoryListToStaticTree(const AList: IInterfaceList): IStaticTreeItem;
+    function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
   public
     constructor Create(
       const ABasePath: IPathConfig;
@@ -75,9 +76,11 @@ uses
   ActiveX,
   SysUtils,
   i_Category,
+  i_InterfaceListSimple,
   i_VectorDataItemSimple,
   i_MarkSystemImpl,
   u_StaticTreeBuilderBase,
+  u_InterfaceListSimple,
   u_MarkDbByImpl,
   u_MarkCategoryDbByImpl,
   u_MarkSystemImplChangeable;
@@ -110,11 +113,11 @@ procedure TStaticTreeByCategoryListBuilder.ProcessItems(
   AList: TStringList
 );
 var
-  VList: IInterfaceList;
+  VList: IInterfaceListStatic;
   i: Integer;
 begin
   inherited;
-  VList := ASource as IInterfaceList;
+  VList := ASource as IInterfaceListStatic;
   for i := 0 to VList.Count - 1 do begin
     ProcessItem(ASource, VList.Items[i], AList);
   end;
@@ -211,14 +214,14 @@ begin
 end;
 
 function TMarkSystem.CategoryListToStaticTree(
-  const AList: IInterfaceList): IStaticTreeItem;
+  const AList: IInterfaceListStatic): IStaticTreeItem;
 begin
   Result := FCategoryTreeBuilder.BuildStatic(AList);
 end;
 
 procedure TMarkSystem.DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 var
-  VMarkIdList: IInterfaceList;
+  VMarkIdList: IInterfaceListStatic;
 begin
   VMarkIdList := FMarkDb.GetMarkIdListByCategory(ACategory);
   FMarkDb.UpdateMarkList(VMarkIdList, nil);
@@ -267,43 +270,50 @@ begin
   Result := FSystemImpl.State;
 end;
 
-function TMarkSystem.GetVisibleCategories(AZoom: Byte): IInterfaceList;
+function TMarkSystem.GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
 var
-  VList: IInterfaceList;
+  VTmp: IInterfaceListSimple;
+  VList: IInterfaceListStatic;
   VCategory: IMarkCategory;
   i: Integer;
 begin
-  Result := TInterfaceList.Create;
+  Result := nil;
+  VTmp := TInterfaceListSimple.Create;
   VList := FCategoryDB.GetCategoriesList;
   for i := 0 to VList.Count - 1 do begin
     VCategory := IMarkCategory(VList[i]);
     if (VCategory.Visible) and
       (VCategory.AfterScale <= AZoom + 1) and
       (VCategory.BeforeScale >= AZoom + 1) then begin
-      Result.Add(VCategory);
+      VTmp.Add(VCategory);
     end;
   end;
+  Result := VTmp.MakeStaticAndClear;
 end;
 
-function TMarkSystem.GetVisibleCategoriesIgnoreZoom: IInterfaceList;
+function TMarkSystem.GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
 var
-  VList: IInterfaceList;
+  VTmp: IInterfaceListSimple;
+  VList: IInterfaceListStatic;
   VCategory: IMarkCategory;
   i: Integer;
 begin
-  Result := TInterfaceList.Create;
+  VTmp := TInterfaceListSimple.Create;
   VList := FCategoryDB.GetCategoriesList;
   for i := 0 to VList.Count - 1 do begin
     VCategory := IMarkCategory(VList[i]);
     if VCategory.Visible then begin
-      Result.Add(VCategory);
+      VTmp.Add(VCategory);
     end;
   end;
+  Result := VTmp.MakeStaticAndClear;
 end;
 
-function TMarkSystem.ImportItemsList(const ADataItemList: IVectorItemSubset;
+function TMarkSystem.ImportItemsList(
+  const ADataItemList: IVectorItemSubset;
   const AImportConfig: IImportConfig;
-  const ANamePrefix: string): IInterfaceList;
+  const ANamePrefix: string
+): IInterfaceListStatic;
 var
   VItem: IVectorDataItemSimple;
   VPoint: IVectorDataItemPoint;
@@ -311,7 +321,7 @@ var
   VPoly: IVectorDataItemPoly;
   i: Integer;
   VMark: IMark;
-  VMarkList: IInterfaceList;
+  VMarkList: IInterfaceListSimple;
   VName: string;
   VPic: IMarkPicture;
   VCategory: ICategory;
@@ -327,7 +337,7 @@ begin
   end;
   VCategory := AImportConfig.RootCategory;
 
-  VMarkList := TInterfaceList.Create;
+  VMarkList := TInterfaceListSimple.Create;
   for i := 0 to ADataItemList.Count - 1 do begin
     VMark := nil;
     VItem := ADataItemList.GetItem(i);
@@ -376,7 +386,7 @@ begin
     end;
   end;
   if VMarkList.Count > 0 then begin
-    Result := FMarkDb.UpdateMarkList(nil, VMarkList);
+    Result := FMarkDb.UpdateMarkList(nil, VMarkList.MakeStaticAndClear);
   end;
 end;
 

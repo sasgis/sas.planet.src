@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   i_NotifierOperation,
+  i_InterfaceListSimple,
   i_InetConfig,
   i_NotifierTime,
   i_DownloadResultFactory,
@@ -56,14 +57,14 @@ type
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; virtual; abstract;
+    ): IInterfaceListSimple; virtual; abstract;
     procedure QuickSort(
-      const AList:IInterfaceList;
+      const AList:IInterfaceListSimple;
       var ADist: array of Double;
       L, R: Integer
     );
     procedure SortIt(
-      const AList:IInterfaceList;
+      const AList:IInterfaceListSimple;
       const ALocalConverter: ILocalCoordConverter
     );
   private
@@ -87,6 +88,7 @@ type
 implementation
 
 uses
+  u_InterfaceListSimple,
   u_DownloaderHttpWithTTL,
   u_DownloadRequest,
   u_GeoCodeResult;
@@ -105,7 +107,7 @@ begin
 end;
 
 procedure TGeoCoderBasic.QuickSort(
-  const AList:IInterfaceList;
+  const AList:IInterfaceListSimple;
   var ADist: array of Double;
   L, R: Integer
   );
@@ -142,7 +144,7 @@ begin
 end;
 
 procedure TGeoCoderBasic.SortIt(
-  const AList:IInterfaceList;
+  const AList:IInterfaceListSimple;
   const ALocalConverter: ILocalCoordConverter
   );
 var
@@ -166,7 +168,7 @@ function TGeoCoderBasic.GetLocations(
   const ALocalConverter: ILocalCoordConverter
 ): IGeoCodeResult;
 var
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VResultCode: Integer;
   VMessage: WideString;
   VRequest: IDownloadRequest;
@@ -228,13 +230,13 @@ begin
     end;
   end;
   if VList = nil then begin
-    VList := TInterfaceList.Create;
+    VList := TInterfaceListSimple.Create;
   end;
   if VList.Count = 0 then begin
     VResultCode := 404;
     VMessage := 'Не найдено';
   end;
-  Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList);
+  Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList.MakeStaticAndClear);
 end;
 
 function TGeoCoderBasic.PrepareRequestByURL(const AUrl: string): IDownloadRequest;

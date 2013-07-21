@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   sysutils,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_ValueToStringConverter,
@@ -43,7 +44,7 @@ type
     AOperationID: Integer;
     const AFile : string ;
     const ASearch : widestring;
-    Alist : IInterfaceList;
+    Alist : IInterfaceListSimple;
     var Acnt : integer
   );
   protected
@@ -52,7 +53,7 @@ type
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
     constructor Create(const AValueToStringConverterConfig: IValueToStringConverterConfig);
   end;
@@ -63,6 +64,7 @@ uses
   StrUtils,
   t_GeoTypes,
   i_GeoCoder,
+  u_InterfaceListSimple,
   u_ResStrings,
   u_Synchronizer,
   u_GeoCodePlacemark;
@@ -96,7 +98,7 @@ end;
 
 function ItemExist(
   const AValue: IGeoCodePlacemark;
-  const AList: IInterfaceList
+  const AList: IInterfaceListSimple
 ):boolean;
 var
   i: Integer;
@@ -128,7 +130,7 @@ procedure TGeoCoderByTXT.SearchInTXTFile(
   AOperationID: Integer;
   const AFile : string ;
   const ASearch : WideString;
-  AList : IInterfaceList;
+  AList : IInterfaceListSimple;
   var ACnt : integer
 );
 var
@@ -237,9 +239,9 @@ function TGeoCoderByTXT.DoSearch(
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-): IInterfaceList;
+): IInterfaceListSimple;
 var
-VList: IInterfaceList;
+VList: IInterfaceListSimple;
 vpath : string;
 Vcnt : integer;
 VFolder: string;
@@ -249,7 +251,7 @@ begin
  Vcnt := 1;
  MySearch := ASearch;
  while PosEx('  ',MySearch)>0 do MySearch := ReplaceStr(MySearch,'  ',' ');
- VList := TInterfaceList.Create;
+ VList := TInterfaceListSimple.Create;
  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt\');
  if FindFirst(VFolder + '*.txt', faAnyFile, SearchRec) = 0 then begin
   repeat

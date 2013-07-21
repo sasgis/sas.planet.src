@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_DownloadRequest,
@@ -43,7 +44,7 @@ type
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
   end;
 
@@ -56,6 +57,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
+  u_InterfaceListSimple,
   u_ResStrings,
   u_GeoCodePlacemark,
   u_GeoTostr;
@@ -490,13 +492,13 @@ function TGeoCoderByNavitel.ParseResultToPlacemarksList(
   const AResult: IDownloadResultOk;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-): IInterfaceList;
+): IInterfaceListSimple;
 var
   slat, slon, sname, sdesc, sfulldesc, Navitel_id, Navitel_type, place_id: string;
   i, j , ii , jj : integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
 
   vCurPos: integer;
@@ -520,7 +522,7 @@ begin
 
   VStr := ReplaceStr(VStr,#$0A,'');
   VFormatSettings.DecimalSeparator := '.';
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
 
   vCurPos:=1;
   while (vCurPos<length(VStr)) do begin

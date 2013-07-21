@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_DownloadRequest,
@@ -43,7 +44,7 @@ type
       const AResult: IDownloadResultOk;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
   public
   end;
 
@@ -55,6 +56,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
+  u_InterfaceListSimple,
   u_GeoToStr,
   u_ResStrings,
   u_GeoCodePlacemark;
@@ -67,13 +69,13 @@ function TGeoCoderByYandex.ParseResultToPlacemarksList(
   const AResult: IDownloadResultOk;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-): IInterfaceList;
+): IInterfaceListSimple;
 var
   slat, slon, sname, sdesc, sfulldesc: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
-  VList: IInterfaceList;
+  VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   CurPos:integer;// позиция текущего символа
   BrLevel:integer;//глубина вложенности {=плюс один   }=минус один
@@ -90,7 +92,7 @@ begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
-  VList := TInterfaceList.Create;
+  VList := TInterfaceListSimple.Create;
   SetLength(Vstr2Find, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr2Find[1], AResult.Data.Size);
   Vstr2Find := ReplaceStr(Vstr2Find,'\/','/'); // разделители

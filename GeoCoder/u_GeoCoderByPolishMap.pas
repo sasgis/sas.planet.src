@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   sysutils,
+  i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_ValueToStringConverter,
@@ -43,7 +44,7 @@ type
    AOperationID: Integer;
    const AFile : string ;
    const ASearch : widestring;
-   AList : IInterfaceList;
+   AList : IInterfaceListSimple;
    var Acnt : integer
    );
   protected
@@ -52,7 +53,7 @@ type
       AOperationID: Integer;
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-    ): IInterfaceList; override;
+    ): IInterfaceListSimple; override;
 
   public
     constructor Create(const AValueToStringConverterConfig: IValueToStringConverterConfig);
@@ -65,6 +66,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_StringlistStatic,
+  u_InterfaceListSimple,
   u_ResStrings,
   u_Synchronizer,
   u_GeoCodePlacemark,
@@ -456,7 +458,7 @@ end;
 
 function ItemExist(
   const AValue: IGeoCodePlacemark;
-  const AList: IInterfaceList
+  const AList: IInterfaceListSimple
 ):boolean;
 var
   i: Integer;
@@ -505,7 +507,7 @@ procedure TGeoCoderByPolishMap.SearchInMapFile(
   AOperationID: Integer;
   const AFile : string ;
   const ASearch : widestring;
-  AList : IInterfaceList;
+  AList : IInterfaceListSimple;
   var Acnt : integer
   );
 var
@@ -690,9 +692,9 @@ function TGeoCoderByPolishMap.DoSearch(
   AOperationID: Integer;
   const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter
-  ): IInterfaceList;
+  ): IInterfaceListSimple;
 var
-VList: IInterfaceList;
+VList: IInterfaceListSimple;
 vpath : string;
 Vcnt : integer;
 VFolder: string;
@@ -702,7 +704,7 @@ begin
  Vcnt := 1;
  MySearch := ASearch;
  while PosEx('  ',MySearch)>0 do MySearch := ReplaceStr(MySearch,'  ',' ');
- VList := TInterfaceList.Create;
+ VList := TInterfaceListSimple.Create;
  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp\');
  if FindFirst(VFolder + '*.mp', faAnyFile, SearchRec) = 0 then begin
   repeat

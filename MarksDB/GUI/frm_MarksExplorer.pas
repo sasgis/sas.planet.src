@@ -46,6 +46,7 @@ uses
   i_RegionProcess,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
+  i_InterfaceListStatic,
   i_LocalCoordConverterChangeable,
   i_NavigationToPoint,
   i_UsedMarksConfig,
@@ -158,8 +159,8 @@ type
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
-    FCategoryList: IInterfaceList;
-    FMarksList: IInterfaceList;
+    FCategoryList: IInterfaceListStatic;
+    FMarksList: IInterfaceListStatic;
     FMarkDBGUI: TMarkDbGUIHelper;
     FMarksShowConfig: IUsedMarksConfig;
     FWindowConfig: IWindowPositionConfig;
@@ -186,7 +187,7 @@ type
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IMark;
-    function GetSelectedMarksIdList: IInterfaceList;
+    function GetSelectedMarksIdList: IInterfaceListStatic;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
@@ -213,6 +214,7 @@ uses
   gnugettext,
   t_CommonTypes,
   t_GeoTypes,
+  i_InterfaceListSimple,
   i_StaticTreeItem,
   i_Category,
   i_ImportConfig,
@@ -221,6 +223,7 @@ uses
   i_MarkFactoryConfig,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
+  u_InterfaceListSimple,
   u_ListenerByEvent;
 
 {$R *.dfm}
@@ -457,16 +460,18 @@ begin
   end;
 end;
 
-function TfrmMarksExplorer.GetSelectedMarksIdList: IInterfaceList;
+function TfrmMarksExplorer.GetSelectedMarksIdList: IInterfaceListStatic;
 var
-  i:integer;
+  i: integer;
+  VTemp: IInterfaceListSimple;
 begin
-  Result := TInterfaceList.Create;
+  Result := nil;
+  VTemp := TInterfaceListSimple.Create;
   for i:=0 to MarksListBox.SelectionCount-1 do begin
-    Result.Add(IMarkId(MarksListBox.Selections[i].Data))
+    VTemp.Add(IMarkId(MarksListBox.Selections[i].Data))
   end;
-  if Result.Count=0 then begin
-    Result:=nil;
+  if VTemp.Count > 0 then begin
+    Result := VTemp.MakeStaticAndClear;
   end;
 end;
 
@@ -485,7 +490,7 @@ procedure TfrmMarksExplorer.btnImportClick(Sender: TObject);
 var
   VImportConfig: IImportConfig;
   i: Integer;
-  VList: IInterfaceList;
+  VList: IInterfaceListStatic;
   VMarkPoint: IMarkPoint;
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
@@ -530,7 +535,7 @@ end;
 
 procedure TfrmMarksExplorer.btnExportClick(Sender: TObject);
 var
-  VCategoryList: IInterfaceList;
+  VCategoryList: IInterfaceListStatic;
   VOnlyVisible: Boolean;
 begin
   VOnlyVisible := (TComponent(Sender).tag = 1);
@@ -544,7 +549,7 @@ end;
 
 procedure TfrmMarksExplorer.btnDelMarkClick(Sender: TObject);
 var
-  VMarkIdList: IInterfaceList;
+  VMarkIdList: IInterfaceListStatic;
 begin
   VMarkIdList:=GetSelectedMarksIdList;
   if VMarkIdList <> nil then begin
@@ -556,8 +561,8 @@ end;
 
 procedure TfrmMarksExplorer.btnEditMarkClick(Sender: TObject);
 var
-  VMarkIdList: IInterfaceList;
-  VMarksList: IInterfaceList;
+  VMarkIdList: IInterfaceListStatic;
+  VMarksList: IInterfaceListSimple;
   VMark: IMark;
   VMarkNew: IMark;
   VImportConfig: IImportConfig;
@@ -571,7 +576,7 @@ var
   i:integer;
   VVisible: Boolean;
   VResult: IMark;
-  VResultList: IInterfaceList;
+  VResultList: IInterfaceListStatic;
 begin
   VMarkIdList:=GetSelectedMarksIdList;
   if VMarkIdList <> nil then begin
@@ -589,7 +594,7 @@ begin
       VImportConfig := FMarkDBGUI.MarksMultiEditModal(GetSelectedCategory);
       if (VImportConfig <> nil) then begin
         VCategory := VImportConfig.RootCategory;
-        VMarksList:=TInterfaceList.Create;
+        VMarksList:=TInterfaceListSimple.Create;
         if VImportConfig.PointParams <> nil then begin
           VPicName := VImportConfig.PointParams.Template.PicName;
           VPic := FMarkDBGUI.MarksDb.MarkDb.Factory.MarkPictureList.FindByNameOrDefault(VPicName);
@@ -630,7 +635,7 @@ begin
           end;
         end;
         if (VMarksList<>nil) then begin
-          VResultList := FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(VMarkIdList, VMarksList);
+          VResultList := FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(VMarkIdList, VMarksList.MakeStaticAndClear);
           if VResultList <> nil then begin
             FMarkDBGUI.MarksDb.MarkDb.SetMarkVisibleByIDList(VResultList, True);
           end;
@@ -828,8 +833,8 @@ procedure TfrmMarksExplorer.CategoryTreeViewDragDrop(
 );
 var
   VNode: TTreeNode;
-  VMarkIdList: IInterfaceList;
-  VMarkIdListNew: IInterfaceList;
+  VMarkIdList: IInterfaceListStatic;
+  VMarkIdListNew: IInterfaceListSimple;
   VCategoryNew: ICategory;
   VMark: IMark;
   i: Integer;
@@ -843,12 +848,12 @@ begin
     if (VMarkIdList<>nil) then begin
       VCategoryNew := GetNodeCategory(VNode);
       if VCategoryNew <> nil then begin
-        VMarkIdListNew := TInterfaceList.Create;
+        VMarkIdListNew := TInterfaceListSimple.Create;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMark := FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VMarkIdList.Items[i]));
           VMarkIdListNew.Add(FMarkDBGUI.MarksDb.MarkDb.Factory.ReplaceCategory(VMark, VCategoryNew));
         end;
-        FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(VMarkIdList, VMarkIdListNew);
+        FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(VMarkIdList, VMarkIdListNew.MakeStaticAndClear);
       end;
     end;
   end;
@@ -1108,7 +1113,7 @@ end;
 procedure TfrmMarksExplorer.MarksListBoxKeyDown(Sender: TObject; var Key: Word;
     Shift: TShiftState);
 var
-  VMarkIdList: IInterfaceList;
+  VMarkIdList: IInterfaceListStatic;
 begin
   if Key = VK_SPACE then begin
     VMarkIdList:=GetSelectedMarksIdList;
