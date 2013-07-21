@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  VarRecUtils,
   i_BinaryData,
   i_DownloadRequest,
   i_DownloadResult,
@@ -73,7 +74,7 @@ type
   TDownloadResultError = class(TDownloadResult, IDownloadResultError)
   private
     FErrorTextFormat: string;
-    FErrorTextArgs: array of TVarRec;
+    FErrorTextArgs: TConstArray;
   protected
     function GetErrorText: string;
   public
@@ -82,6 +83,7 @@ type
       const AErrorTextFormat: string;
       const AErrorTextArgs: array of const
     );
+    destructor Destroy; override;
   end;
 
   TDownloadResultProxyError = class(TDownloadResultError, IDownloadResultProxyError)
@@ -324,10 +326,13 @@ var
 begin
   inherited Create(ARequest);
   FErrorTextFormat := AErrorTextFormat;
-  SetLength(FErrorTextArgs, Length(AErrorTextArgs));
-  for I := 0 to High(AErrorTextArgs) do begin
-    FErrorTextArgs[i] := AErrorTextArgs[i];
-  end;
+  FErrorTextArgs := CreateConstArray(AErrorTextArgs);
+end;
+
+destructor TDownloadResultError.Destroy;
+begin
+  FinalizeConstArray(FErrorTextArgs);
+  inherited;
 end;
 
 function TDownloadResultError.GetErrorText: string;
