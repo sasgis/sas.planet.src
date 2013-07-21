@@ -51,6 +51,8 @@ implementation
 uses
   Types,
   SysUtils,
+  StrUtils,
+  Math,
   Classes,
   t_GeoTypes,
   i_VectorDataItemSimple,
@@ -166,32 +168,115 @@ begin
     Result := (0<Length(Trim(AList[AIndex])));
 end;
 
-function _TryTextToFloat(const S: String; out AValue: Double): Boolean;
+function _TryTextToFloat(const AStr: string; out AValue: Double): Boolean;
 var
-  VText: String;
-  VNeg: Boolean;
+  llat: boolean;
+  Vpos: integer;
+  Vdelitel: single;
+  Vgms: double;
+  VText: string;
+  Vminus: boolean;
+  VTextTogms: string;
 begin
-  Result := (0<Length(S));
+  Result := (0<Length(Astr));
   if Result then begin
-    VNeg := FALSE;
-    VText := UpperCase(S);
-    case VText[Length(VText)] of
-      'N','E': begin
-        // positive
-        SetLength(VText, Length(VText)-1);
-      end;
-      'S','W': begin
-        // negative
-        VNeg := TRUE;
-        SetLength(VText, Length(VText)-1);
-      end;
-      else begin
-        // with sign - nothing
-      end;
+    AValue := 0;
+    VText := Trim(AnsiUpperCase(Astr));
+    llat := false;
+
+    VText := ReplaceStr(VText, 'LON','');
+    VText := ReplaceStr(VText, 'LN','');
+
+    if PosEx('S', VText, 1) > 0 then llat := true;
+    if PosEx('N', VText, 1) > 0 then llat := true;
+    if PosEx('Þ', VText, 1) > 0 then llat := true;
+    if PosEx('Ñ', VText, 1) > 0 then llat := true;
+    if PosEx('LAT', VText, 1) > 0 then llat := true;
+    if PosEx('LL', VText, 1) > 0 then llat := true;
+    VText := ReplaceStr(VText, 'LAT', '');
+    VText := ReplaceStr(VText, 'LL', '');
+    VText := ReplaceStr(VText, 'Ø.', '');
+    VText := ReplaceStr(VText, 'Ø', '');
+    VText := ReplaceStr(VText, 'Ä.', '');
+    VText := ReplaceStr(VText, 'Ä', '');
+    VText := ReplaceStr(VText, '=', '');
+    VText := ReplaceStr(VText, 'S', '-');
+    VText := ReplaceStr(VText, 'W', '-');
+    VText := ReplaceStr(VText, 'N', '+');
+    VText := ReplaceStr(VText, 'E', '+');
+    VText := ReplaceStr(VText, 'Þ', '-');
+    VText := ReplaceStr(VText, 'Ç', '-');
+    VText := ReplaceStr(VText, 'Â', '+');
+    VText := ReplaceStr(VText, 'Ñ', '+');
+    Vminus := false;
+    if posEx('-', VText, 1)>0 then Vminus := true;
+
+    if (VText[length(VText)] = '.') then VText := copy(VText, 1, length(VText)-1);
+    if (VText[length(VText)] = ',') then VText := copy(VText, 1, length(VText)-1);
+    if (VText[length(VText)] = '+') or (VText[length(VText)] = '-') then
+      VText := VText[length(VText)] +copy(VText, 0, length(VText) - 1);
+
+    if PosEx('+-', VText, 1) > 0 then begin // WE123 NS123
+      llat := true;
+      VText := ReplaceStr(VText,'+-','+');
     end;
-    Result := TryStrPointToFloat(VText, AValue);
-    if Result and VNeg then
-      AValue := -AValue;
+    if PosEx('-+', VText, 1) > 0 then begin // EW123 SN123
+      llat := true;
+      VText := ReplaceStr(VText,'-+','-');
+    end;
+    if PosEx('--', VText, 1) > 0 then begin // -123S
+      VText := ReplaceStr(VText,'--','-');
+    end;
+    Vpos :=1;
+    while Vpos <= length(VText) do begin
+      if (not(VText[Vpos] in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
+        VText[Vpos] := ' ';
+        dec(Vpos);
+      end;
+      if ((Vpos = 1)and(VText[Vpos] = ' '))or
+        ((Vpos = length(VText)) and (VText[Vpos] = ' ')) or
+        ((Vpos < length(VText) - 1) and (VText[Vpos] = ' ') and (VText[Vpos + 1] = ' ')) or
+        ((Vpos > 1) and (VText[Vpos] = ' ') and (not(VText[Vpos - 1] in ['0'..'9']))) or
+        ((Vpos < length(VText) - 1) and (VText[Vpos]=',') and (VText[Vpos + 1] = ' '))
+      then begin
+        Delete(VText, Vpos, 1);
+        dec(Vpos);
+      end;
+      inc(Vpos);
+    end;
+    AValue := 0;
+    Vdelitel := 1;
+    repeat
+      Vpos := posEx(' ', VText, 1);
+      if Vpos = 0 then begin
+        VTextTogms := VText;
+      end else begin
+        VTextTogms := copy(VText, 1, Vpos-1);
+        Delete(VText, 1, Vpos);
+      end;
+      if not TryStrPointToFloat(VTextTogms, Vgms) then Vgms := 0;
+
+      if ((Vdelitel>1) and (abs(Vgms) > 60))or
+        ((Vdelitel=1) and (llat) and (abs(Vgms)>90))or
+        ((Vdelitel=1) and (not llat) and (abs(Vgms)>180))
+      then begin
+        if (Vdelitel = 60) and (Vgms > 60) then begin //  37 6298475265502
+          Vdelitel := Power(10,length(VText));
+        end else begin
+          Result := false;
+        end;
+      end;
+      if (Vgms > Vdelitel) and (Vdelitel > 1) then Vgms := 0;
+      if Vgms <> 0 then begin
+        if AValue < 0 then begin
+          AValue := AValue - Vgms/Vdelitel;
+        end else begin
+          AValue := AValue + Vgms/Vdelitel;
+        end;
+      end;
+      if (Vminus) and (AValue > 0) then AValue := -AValue;
+      Vdelitel := Vdelitel*60;
+    until (Vpos = 0) or (Vdelitel > 3600) or (not result);
   end;
 end;
 
@@ -376,7 +461,9 @@ end;
 
 { TCsvParser }
 
-constructor TCsvParser.Create(const AFactory: IVectorItemsFactory);
+constructor TCsvParser.Create(
+  const AFactory: IVectorItemsFactory
+  );
 begin
   inherited Create;
   FFactory := AFactory;
