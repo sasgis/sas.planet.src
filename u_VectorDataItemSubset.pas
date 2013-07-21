@@ -23,7 +23,6 @@ unit u_VectorDataItemSubset;
 interface
 
 uses
-  Classes,
   ActiveX,
   t_GeoTypes,
   i_VectorDataItemSimple,

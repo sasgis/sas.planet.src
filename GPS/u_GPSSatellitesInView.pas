@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   ActiveX,
-  Classes,
   SysUtils,
   vsagps_public_base,
   i_InterfaceListStatic,

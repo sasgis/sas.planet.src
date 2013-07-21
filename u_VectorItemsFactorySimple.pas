@@ -174,7 +174,6 @@ type
 implementation
 
 uses
-  Classes,
   i_LonLatRect,
   i_Datum,
   i_InterfaceListSimple,

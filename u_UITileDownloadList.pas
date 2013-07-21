@@ -3,7 +3,6 @@ unit u_UITileDownloadList;
 interface
 
 uses
-  Classes,
   i_NotifierOperation,
   i_DownloadUIConfig,
   i_LocalCoordConverterChangeable,

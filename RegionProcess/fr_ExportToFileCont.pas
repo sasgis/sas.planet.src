@@ -90,9 +90,6 @@ type
 
 implementation
 
-uses
-  i_GUIDListStatic;
-
 {$R *.dfm}
 
 procedure TfrExportToFileCont.btnSelectTargetFileClick(Sender: TObject);

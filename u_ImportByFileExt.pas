@@ -23,7 +23,6 @@ unit u_ImportByFileExt;
 interface
 
 uses
-  Classes,
   i_InterfaceListStatic,
   i_ImportFile,
   i_VectorItemsFactory,

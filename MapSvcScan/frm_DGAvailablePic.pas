@@ -26,19 +26,19 @@ uses
   Windows,
   SysUtils,
   Classes,
-  Graphics,
   Controls,
   Forms,
   StdCtrls,
   ComCtrls,
   CommCtrl,
   ExtCtrls,
+  Grids,
+  ValEdit,
+  Spin,
   TB2Dock,
   TB2Toolbar,
   TBX,
   TB2Item,
-  TB2ExtItems,
-  TBXExtItems,
   i_LanguageManager,
   i_VectorItemsFactory,
   i_InetConfig,
@@ -65,9 +65,7 @@ uses
   u_AvailPicsKosmosnimki,
   u_DownloadResultFactory,
   u_DownloaderHttp,
-  u_MarkDbGUIHelper,
-  Grids,
-  ValEdit, Spin;
+  u_MarkDbGUIHelper;
 
 type
   TfrmDGAvailablePic = class(TFormWitghLanguageManager)

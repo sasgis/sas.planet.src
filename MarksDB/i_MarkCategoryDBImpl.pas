@@ -23,7 +23,6 @@ unit i_MarkCategoryDBImpl;
 interface
 
 uses
-  Classes,
   i_Notifier,
   i_InterfaceListStatic,
   i_Category,

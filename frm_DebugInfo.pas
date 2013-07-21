@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  Messages,
   SysUtils,
   Classes,
   Controls,

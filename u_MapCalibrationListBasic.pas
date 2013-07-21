@@ -23,7 +23,6 @@ unit u_MapCalibrationListBasic;
 interface
 
 uses
-  Classes,
   i_InterfaceListStatic,
   i_MapCalibration,
   u_BaseInterfacedObject;

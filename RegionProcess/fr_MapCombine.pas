@@ -173,7 +173,6 @@ uses
   gnugettext,
   t_GeoTypes,
   i_InterfaceListSimple,
-  i_GUIDListStatic,
   i_VectorItemProjected,
   i_CoordConverter,
   u_InterfaceListSimple,

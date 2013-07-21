@@ -59,7 +59,6 @@ implementation
 uses
   u_GeoToStr,
   xmldom,
-  windows,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData;
 

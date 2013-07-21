@@ -3,15 +3,11 @@ unit fr_MapsList;
 interface
 
 uses
-  Windows,
-  Messages,
   SysUtils,
-  Variants,
   Classes,
   Graphics,
   Controls,
   Forms,
-  Dialogs,
   ComCtrls,
   StdCtrls,
   ExtCtrls,

@@ -24,7 +24,6 @@ interface
 
 uses
   Windows,
-  Classes,
   Dialogs,
   t_GeoTypes,
   i_PathConfig,

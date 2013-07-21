@@ -87,7 +87,6 @@ implementation
 
 uses
   ActiveX,
-  Classes,
   t_GeoTypes,
   i_CoordConverter,
   i_TileMatrix,

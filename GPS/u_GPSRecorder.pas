@@ -88,7 +88,6 @@ implementation
 uses
   Math,
   SysUtils,
-  Classes,
   IniFiles,
   u_GeoFun,
   u_ConfigDataProviderByIniFile,

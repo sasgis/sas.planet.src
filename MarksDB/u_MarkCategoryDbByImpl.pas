@@ -3,8 +3,6 @@ unit u_MarkCategoryDbByImpl;
 interface
 
 uses
-  SysUtils,
-  Classes,
   i_Listener,
   i_Notifier,
   i_InterfaceListStatic,

@@ -3,7 +3,6 @@ unit u_ThreadExportEnumerator;
 interface
 
 uses
-  Windows,
   Types,
   SysUtils,
   Classes,

@@ -87,9 +87,6 @@ type
 
 implementation
 
-uses
-  i_GUIDListStatic;
-
 {$R *.dfm}
 
 constructor TfrExportGEKml.Create(

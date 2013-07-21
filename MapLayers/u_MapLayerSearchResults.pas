@@ -54,7 +54,6 @@ type
 implementation
 
 uses
-  Classes,
   SysUtils,
   c_InternalBrowser,
   i_CoordConverter,

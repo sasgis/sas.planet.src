@@ -24,7 +24,6 @@ interface
 
 uses
   ActiveX,
-  Classes,
   i_InterfaceListStatic,
   i_GeoCoder,
   u_BaseInterfacedObject;

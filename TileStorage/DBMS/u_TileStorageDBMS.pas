@@ -23,7 +23,6 @@ unit u_TileStorageDBMS;
 interface
 
 uses
-  Classes,
   SysUtils,
   Windows,
   i_BinaryData,

@@ -31,7 +31,6 @@ uses
   StdCtrls,
   Controls,
   Classes,
-  Buttons,
   DateUtils,
   RarProgress,
   u_CommonFormAndFrameParents,

@@ -57,7 +57,6 @@ type
 implementation
 
 uses
-  Windows,
   ALZLibExGZ,
   u_StreamReadOnlyByBinaryData,
   u_InetFunc,

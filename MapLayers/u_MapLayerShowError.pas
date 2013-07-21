@@ -65,7 +65,6 @@ implementation
 
 uses
   Types,
-  Classes,
   c_ZeroGUID,
   i_CoordConverter,
   i_Bitmap32Static,

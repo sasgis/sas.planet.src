@@ -154,9 +154,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TSensorFromGPSRecorderLastSpeed }
 
 function TSensorFromGPSRecorderLastSpeed.GetCurrentValue: Double;

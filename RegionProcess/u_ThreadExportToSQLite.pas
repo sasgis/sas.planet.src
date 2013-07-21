@@ -4,21 +4,11 @@ interface
 
 uses
   Windows,
-  Types,
   SysUtils,
   Classes,
   SQLite3Handler,
-  i_NotifierOperation,
-  i_RegionProcessProgressInfo,
-  i_CoordConverterFactory,
-  i_VectorItemsFactory,
-  i_VectorItemLonLat,
   i_TileInfoBasic,
-  i_TileStorage,
-  i_MapVersionInfo,
-  i_MapTypes,
   u_MapType,
-  u_ResStrings,
   u_ThreadExportEnumerator;
 
 type
@@ -57,11 +47,7 @@ type
 implementation
 
 uses
-  ALSqlite3Wrapper,
-  i_VectorItemProjected,
-  i_CoordConverter,
-  i_TileIterator,
-  u_TileIteratorByPolygon;
+  ALSqlite3Wrapper;
 
 type
   PEEToSQLiteData = ^TEEToSQLiteData;

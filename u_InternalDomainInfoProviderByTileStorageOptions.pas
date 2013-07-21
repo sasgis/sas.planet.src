@@ -3,7 +3,6 @@ unit u_InternalDomainInfoProviderByTileStorageOptions;
 interface
 
 uses
-  Types,
   i_BinaryData,
   i_MapTypes,
   i_InternalDomainInfoProvider,

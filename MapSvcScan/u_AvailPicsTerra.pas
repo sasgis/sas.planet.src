@@ -45,7 +45,6 @@ implementation
 
 uses
   u_GeoToStr,
-  windows,
   u_StreamReadOnlyByBinaryData,
   u_TileRequestBuilderHelpers;
 

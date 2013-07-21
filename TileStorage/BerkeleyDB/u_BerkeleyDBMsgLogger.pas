@@ -3,10 +3,8 @@ unit u_BerkeleyDBMsgLogger;
 interface
 
 uses
-  Windows,
   Classes,
-  SyncObjs,
-  u_BaseInterfacedObject;
+  SyncObjs;
 
 type
   TBerkeleyDBMsgLogger = class(TObject)

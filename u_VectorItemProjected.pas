@@ -3,7 +3,6 @@ unit u_VectorItemProjected;
 interface
 
 uses
-  Classes,
   t_GeoTypes,
   i_EnumDoublePoint,
   i_ProjectionInfo,

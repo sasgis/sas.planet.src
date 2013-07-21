@@ -23,7 +23,6 @@ unit u_GeoCoderLocalBasic;
 interface
 
 uses
-  Classes,
   i_InterfaceListSimple,
   i_NotifierOperation,
   i_GeoCoder,
@@ -47,6 +46,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IGeoCodeResult; safecall;
   end;
+
 implementation
 
 uses

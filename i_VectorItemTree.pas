@@ -3,7 +3,6 @@ unit i_VectorItemTree;
 interface
 
 uses
-  i_Category,
   i_VectorItemSubset;
 
 type

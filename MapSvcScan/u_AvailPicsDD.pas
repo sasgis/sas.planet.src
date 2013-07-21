@@ -66,7 +66,6 @@ implementation
 
 uses
   forms,
-  xmldom,
   windows,
   i_BinaryData,
   i_Downloader,
@@ -77,7 +76,6 @@ uses
   u_Notifier,
   u_DownloadRequest,
   u_NotifierOperation,
-  u_DownloadResultFactory,
   u_TileRequestBuilderHelpers;
 
 procedure GenerateAvailPicsDD(

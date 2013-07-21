@@ -3,7 +3,6 @@ unit u_Bitmap32StaticFactorySimple;
 interface
 
 uses
-  SysUtils,
   GR32,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,

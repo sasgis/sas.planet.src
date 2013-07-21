@@ -3,7 +3,6 @@ unit u_MapVersionListStatic;
 interface
 
 uses
-  Classes,
   i_InterfaceListStatic,
   i_MapVersionInfo,
   u_BaseInterfacedObject;

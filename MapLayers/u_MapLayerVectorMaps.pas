@@ -4,7 +4,6 @@ interface
 
 uses
   Types,
-  Classes,
   SysUtils,
   GR32_Image,
   i_Notifier,
@@ -104,7 +103,6 @@ type
   end;
 
 implementation
-
 
 uses
   GR32,

@@ -20,7 +20,6 @@
 
 unit u_AvailPicsDG2;
 
-
 interface
 
 uses
@@ -48,7 +47,6 @@ type
 implementation
 
 uses
-  windows,
   xmldom,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData,

@@ -3,7 +3,6 @@ unit u_ThreadExportToJNX;
 interface
 
 uses
-  windows,
   Types,
   SysUtils,
   Classes,

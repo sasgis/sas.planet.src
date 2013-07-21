@@ -23,7 +23,6 @@ unit u_InternalPerformanceCounterList;
 interface
 
 uses
-  Windows,
   Classes,
   ActiveX,
   i_IDList,

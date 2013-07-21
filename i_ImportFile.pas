@@ -23,7 +23,6 @@ unit i_ImportFile;
 interface
 
 uses
-  Classes,
   i_InterfaceListStatic,
   i_MarkSystem,
   i_ImportConfig;

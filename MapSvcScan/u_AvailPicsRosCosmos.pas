@@ -7,7 +7,6 @@ uses
   Classes,
   XMLIntf,
   XMLDoc,
-  StrUtils,
   i_InetConfig,
   i_DownloadResult,
   i_DownloadRequest,
@@ -48,9 +47,8 @@ procedure GenerateAvailPicsRC(
 implementation
 
 uses
-  forms,
-  xmldom,
-  windows,
+  Forms,
+  Windows,
   ALZLibExGZ,
   t_GeoTypes,
   i_BinaryData,
@@ -60,7 +58,6 @@ uses
   u_DownloaderHttp,
   u_Notifier,
   u_NotifierOperation,
-  u_DownloadResultFactory,
   u_GeoToStr;
 
 procedure GenerateAvailPicsRC(

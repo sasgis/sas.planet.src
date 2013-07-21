@@ -31,7 +31,6 @@ uses
   ShellApi,
   Classes,
   Menus,
-  Variants,
   ActiveX,
   ShlObj,
   ComObj,
@@ -40,7 +39,6 @@ uses
   OleCtrls,
   Controls,
   ExtCtrls,
-  Buttons,
   Dialogs,
   Spin,
   ImgList,
@@ -60,9 +58,8 @@ uses
   TBXGraphics,
   TBXSASTheme,
   c_CoordConverter,
-  u_CommonFormAndFrameParents,
-  i_GUIDSet,
   t_GeoTypes,
+  i_GUIDSet,
   i_InterfaceListStatic,
   i_ListenerNotifierLinksList,
   i_ConfigDataWriteProvider,
@@ -102,7 +99,8 @@ uses
   frm_DGAvailablePic,
   frm_MarksExplorer,
   frm_CacheManager,
-  frm_GoTo;
+  frm_GoTo,
+  u_CommonFormAndFrameParents;
 
 type
   TfrmMain = class(TCommonFormParent)

@@ -93,10 +93,8 @@ implementation
 
 uses
   {$WARN UNIT_PLATFORM OFF}
-  FileCtrl,
+  FileCtrl;
   {$WARN UNIT_PLATFORM ON}
-  i_GUIDListStatic,
-  u_ResStrings;
 
 {$R *.dfm}
 

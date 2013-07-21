@@ -102,11 +102,11 @@ type
   end;
 
 implementation
+
 uses
   {$WARN UNIT_PLATFORM OFF}
-  FileCtrl,
+  FileCtrl;
   {$WARN UNIT_PLATFORM ON}
-  i_GUIDListStatic;
 
 {$R *.dfm}
 

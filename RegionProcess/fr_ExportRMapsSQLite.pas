@@ -91,7 +91,6 @@ type
 implementation
 
 uses
-  i_GUIDListStatic,
   u_MapTypeListStatic;
 
 {$R *.dfm}

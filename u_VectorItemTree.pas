@@ -3,9 +3,7 @@ unit u_VectorItemTree;
 interface
 
 uses
-  Classes,
   i_InterfaceListStatic,
-  i_Category,
   i_VectorItemSubset,
   i_VectorItemTree,
   u_BaseInterfacedObject;

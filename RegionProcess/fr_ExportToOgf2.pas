@@ -116,7 +116,6 @@ implementation
 
 uses
   t_GeoTypes,
-  i_GUIDListStatic,
   i_VectorItemProjected,
   u_GeoFun,
   u_BitmapLayerProviderMapWithLayer,

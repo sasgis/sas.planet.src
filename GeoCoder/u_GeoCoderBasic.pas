@@ -24,7 +24,6 @@ interface
 
 uses
   SysUtils,
-  Classes,
   i_NotifierOperation,
   i_InterfaceListSimple,
   i_InetConfig,

@@ -68,24 +68,9 @@ type
 
 implementation
 
-uses
-  i_GUIDListStatic;
-
 {$R *.dfm}
 
-{ TFrame3 }
-destructor TfrExportAUX.Destroy;
-begin
-  FreeAndNil(FfrMapSelect);
-  inherited;
-end;
-
-procedure TfrExportAUX.btnSelectTargetFileClick(Sender: TObject);
-begin
-  if dlgTargetFileSelect.Execute then begin
-    edtTargetFile.Text := dlgTargetFileSelect.FileName;
-  end;
-end;
+{ TfrExportAUX }
 
 constructor TfrExportAUX.Create(
   const ALanguageManager: ILanguageManager;
@@ -109,6 +94,19 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+end;
+
+destructor TfrExportAUX.Destroy;
+begin
+  FreeAndNil(FfrMapSelect);
+  inherited;
+end;
+
+procedure TfrExportAUX.btnSelectTargetFileClick(Sender: TObject);
+begin
+  if dlgTargetFileSelect.Execute then begin
+    edtTargetFile.Text := dlgTargetFileSelect.FileName;
+  end;
 end;
 
 function TfrExportAUX.GetMapType: TMapType;

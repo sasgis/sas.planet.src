@@ -72,10 +72,8 @@ procedure GenerateAvailPicsKS(
 implementation
 
 uses
-  Windows,
   ALZLibExGZ,
   i_BinaryData,
-  i_Downloader,
   u_GeoToStr,
   u_DownloadRequest,
   u_StreamReadOnlyByBinaryData,

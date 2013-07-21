@@ -3,8 +3,6 @@ unit u_MarkDbByImpl;
 interface
 
 uses
-  SysUtils,
-  Classes,
   t_GeoTypes,
   i_Listener,
   i_Notifier,

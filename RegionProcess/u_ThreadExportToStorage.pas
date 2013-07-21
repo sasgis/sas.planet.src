@@ -3,7 +3,6 @@ unit u_ThreadExportToStorage;
 interface
 
 uses
-  Windows,
   Types,
   SysUtils,
   Classes,

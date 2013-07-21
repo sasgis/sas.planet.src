@@ -23,7 +23,6 @@ unit u_StaticTreeItem;
 interface
 
 uses
-  Classes,
   i_InterfaceListStatic,
   i_StaticTreeItem,
   u_BaseInterfacedObject;

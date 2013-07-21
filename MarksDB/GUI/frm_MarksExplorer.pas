@@ -34,7 +34,6 @@ uses
   Forms,
   Dialogs,
   StdCtrls,
-  CheckLst,
   ExtCtrls,
   ImgList,
   TB2Dock,

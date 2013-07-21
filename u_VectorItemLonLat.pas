@@ -3,7 +3,6 @@ unit u_VectorItemLonLat;
 interface
 
 uses
-  Classes,
   i_NotifierOperation,
   i_LonLatRect,
   i_EnumDoublePoint,

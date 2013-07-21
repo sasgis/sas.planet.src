@@ -120,8 +120,7 @@ implementation
 
 uses
   u_Synchronizer,
-  u_BinaryData,
-  u_BinaryDataByMemStream;
+  u_BinaryData;
 
 { TTileStorageArchive }
 

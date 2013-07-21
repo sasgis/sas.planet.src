@@ -61,7 +61,6 @@ procedure GenerateAvailPicsDG(
 implementation
 
 uses
-  Windows,
   u_StreamReadOnlyByBinaryData,
   u_GeoToStr;
 

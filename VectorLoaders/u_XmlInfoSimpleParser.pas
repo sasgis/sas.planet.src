@@ -23,7 +23,6 @@ unit u_XmlInfoSimpleParser;
 interface
 
 uses
-  Windows,
   Classes,
   SysUtils,
   t_GeoTypes,
