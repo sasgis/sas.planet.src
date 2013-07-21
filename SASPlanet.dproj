@@ -258,6 +258,8 @@
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_ImportFile.pas" />
     <DCCReference Include="i_InetConfig.pas" />
+    <DCCReference Include="i_InterfaceListSimple.pas" />
+    <DCCReference Include="i_InterfaceListStatic.pas" />
     <DCCReference Include="i_InterfaceQueue.pas" />
     <DCCReference Include="i_InternalBrowser.pas" />
     <DCCReference Include="i_InternalDomainInfoProvider.pas" />
@@ -980,6 +982,8 @@
     <DCCReference Include="u_InetConfigStatic.pas" />
     <DCCReference Include="u_InetFunc.pas" />
     <DCCReference Include="u_InterfacedThread.pas" />
+    <DCCReference Include="u_InterfaceListSimple.pas" />
+    <DCCReference Include="u_InterfaceListStatic.pas" />
     <DCCReference Include="u_InterfaceQueue.pas" />
     <DCCReference Include="u_InternalBrowserByForm.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByDataProvider.pas" />
