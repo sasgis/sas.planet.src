@@ -7,6 +7,7 @@ uses
   i_ImportConfig,
   i_InterfaceListStatic,
   i_VectorItemSubset,
+  i_VectorItemTree,
   i_Mark,
   i_MarkCategory,
   i_MarkDb,
@@ -38,7 +39,7 @@ type
     function GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
-    function MarkSubsetToStaticTree(const ASubset: IVectorItemSubset): IStaticTreeItem;
+    function CategoryTreeToMarkTree(const ACategoryTree: IStaticTreeItem): IVectorItemTree;
     function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
   end;
 

@@ -13,6 +13,7 @@ uses
   i_ImportConfig,
   i_InterfaceListStatic,
   i_VectorItemSubset,
+  i_VectorItemTree,
   i_StaticTreeItem,
   i_PathConfig,
   i_MarkPicture,
@@ -35,7 +36,6 @@ type
     FCategoryDB: IMarkCategoryDB;
 
     FCategoryTreeBuilder: IStaticTreeBuilder;
-    FMarkSubsetTreeBuilder: IStaticTreeBuilder;
   private
     function GetState: IReadWriteStateChangeble;
     function GetMarkDb: IMarkDb;
@@ -54,7 +54,7 @@ type
       const ANamePrefix: string
     ): IInterfaceListStatic;
 
-    function MarkSubsetToStaticTree(const ASubset: IVectorItemSubset): IStaticTreeItem;
+    function CategoryTreeToMarkTree(const ACategoryTree: IStaticTreeItem): IVectorItemTree;
     function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
   public
     constructor Create(
@@ -81,6 +81,7 @@ uses
   i_MarkSystemImpl,
   u_StaticTreeBuilderBase,
   u_InterfaceListSimple,
+  u_VectorItemTree,
   u_MarkDbByImpl,
   u_MarkCategoryDbByImpl,
   u_MarkSystemImplChangeable;
@@ -123,54 +124,6 @@ begin
   end;
 end;
 
-type
-  TStaticTreeByMarkSubsetBuilder = class(TStaticTreeBuilderBaseBySlash)
-  protected
-    procedure ProcessItems(
-      const ASource: IInterface;
-      AList: TStringList
-    ); override;
-    function GetNameFromItem(
-      const ASource: IInterface;
-      const AItem: IInterface
-    ): string; override;
-  end;
-
-{ TStaticTreeByMarkSubsetBuilder }
-
-function TStaticTreeByMarkSubsetBuilder.GetNameFromItem(
-  const ASource: IInterface;
-  const AItem: IInterface
-): string;
-var
-  VMark: IMark;
-begin
-  VMark := AItem as IMark;
-  if VMark.Category <> nil then begin
-    Result := VMark.Category.Name + LevelsSeparator + VMark.Name;
-  end else begin
-    Result := LevelsSeparator + VMark.Name;
-  end;
-end;
-
-procedure TStaticTreeByMarkSubsetBuilder.ProcessItems(
-  const ASource: IInterface;
-  AList: TStringList
-);
-var
-  VSubset: IVectorItemSubset;
-  VEnum: IEnumUnknown;
-  VMark: IMark;
-  i: Cardinal;
-begin
-  inherited;
-  VSubset := ASource as IVectorItemSubset;
-  VEnum := VSubset.GetEnum;
-  while (VEnum.Next(1, VMark, @i) = S_OK) do begin
-    ProcessItem(ASource, VMark, AList);
-  end;
-end;
-
 { TMarkSystem }
 
 constructor TMarkSystem.Create(
@@ -210,7 +163,6 @@ begin
   FCategoryDB := TMarkCategoryDbByImpl.Create(FSystemImpl, AMarkCategoryFactory);
 
   FCategoryTreeBuilder := TStaticTreeByCategoryListBuilder.Create('\', '');
-  FMarkSubsetTreeBuilder := TStaticTreeByMarkSubsetBuilder.Create('\', '');
 end;
 
 function TMarkSystem.CategoryListToStaticTree(
@@ -390,10 +342,40 @@ begin
   end;
 end;
 
-function TMarkSystem.MarkSubsetToStaticTree(
-  const ASubset: IVectorItemSubset): IStaticTreeItem;
+function TMarkSystem.CategoryTreeToMarkTree(
+  const ACategoryTree: IStaticTreeItem
+): IVectorItemTree;
+var
+  VCategory: IMarkCategory;
+  VMarkSubset: IVectorItemSubset;
+  VSubItems: IInterfaceListStatic;
+  i: Integer;
+  VTemp: IInterfaceListSimple;
 begin
-  Result := FMarkSubsetTreeBuilder.BuildStatic(ASubset);
+  Assert(Assigned(ACategoryTree));
+  Result := nil;
+  VMarkSubset := nil;
+  if Assigned(ACategoryTree) then begin
+    if Supports(ACategoryTree.Data, IMarkCategory, VCategory) then begin
+      VMarkSubset := FMarkDb.GetMarkSubsetByCategory(VCategory, True);
+    end;
+
+    VSubItems := nil;
+    if ACategoryTree.SubItemCount > 0 then begin
+      VTemp := TInterfaceListSimple.Create;
+      for i := 0 to ACategoryTree.SubItemCount - 1 do begin
+        VTemp.Add(CategoryTreeToMarkTree(ACategoryTree.SubItem[i]));
+      end;
+      VSubItems := VTemp.MakeStaticAndClear;
+    end;
+
+    Result :=
+      TVectorItemTree.Create(
+        ACategoryTree.Name,
+        VMarkSubset,
+        VSubItems
+      );
+  end;
 end;
 
 end.
