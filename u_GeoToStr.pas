@@ -27,6 +27,7 @@ uses
 
 function RoundEx(chislo: Double; Precision: Integer): string;
 function R2StrPoint(r: Double): string;
+function R2AnsiStrPoint(r: Double): AnsiString;
 function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: integer): string;
 function str2r(const AStrValue: string): Double;
 
@@ -38,10 +39,12 @@ implementation
 
 uses
   SysUtils,
-  Math;
+  Math,
+  ALfcnString;
 
 var
   GFormatSettings : TFormatSettings;
+  GAnsiFormatSettings : TALFormatSettings;
 
 function RoundEx(chislo: Double; Precision: Integer): string;
 begin
@@ -89,6 +92,11 @@ begin
   Result := FloatToStr(r, GFormatSettings);
 end;
 
+function R2AnsiStrPoint(r: Double): AnsiString;
+begin
+  Result := ALFloatToStr(r, GAnsiFormatSettings);
+end;
+
 function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: Integer): string;
 const
   CRomans: array[1..36] of string = ('I','II','III','IV','V','VI','VII','VIII','IX','X','XI',
@@ -119,4 +127,5 @@ end;
 
 initialization
   GFormatSettings.DecimalSeparator := '.';
+  GAnsiFormatSettings.DecimalSeparator := '.';
 end.
