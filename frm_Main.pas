@@ -2459,20 +2459,24 @@ begin
 end;
 
 procedure TfrmMain.CopyStringToClipboard(const s: string);
-var hg: THandle;
-    P: PChar;
+var
+  VStr: WideString;
+  hg: THandle;
+  P: Pointer;
+  VLen: Integer;
 begin
   if OpenClipboard(Handle) then
   begin
     try
       EmptyClipBoard;
-      hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, (Length(S)+1) * SizeOf(S[1]));
+      VStr := s;
+      VLen := (Length(VStr)+1) * SizeOf(VStr[1]);
+      hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, VLen);
       try
         P:=GlobalLock(hg);
         try
-          StrPCopy(P, s);
-          SetClipboardData(CF_TEXT, hg);
-          SetClipboardData(CF_LOCALE, hg);
+          Move(VStr[1], P^, VLen);
+          SetClipboardData(CF_UNICODETEXT, hg);
         finally
           GlobalUnlock(hg);
         end;
@@ -3882,6 +3886,7 @@ var
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
   VMapType: TMapType;
+  VCommandLine: AnsiString;
 begin
   if TMenuItem(Sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(Sender).Tag);
@@ -3903,7 +3908,8 @@ begin
     );
   VTileFileName := VMapType.GetTileFileName(VTile, VZoomCurr);
   if DirectoryExists(ExtractFilePath(VTileFileName)) then begin
-    WinExec(PAnsiChar('explorer /select,' + VTileFileName), SW_SHOWNORMAL);
+    VCommandLine := 'explorer /select,' + AnsiString(VTileFileName);
+    WinExec(PAnsiChar(VCommandLine), SW_SHOWNORMAL);
   end else begin
     ShowMessageFmt(SAS_ERR_DirectoryNotExistFmt, [VTileFileName]);
   end;
