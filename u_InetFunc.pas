@@ -4,20 +4,21 @@ interface
 
 procedure OpenUrlInBrowser(const URL: string);
 
-function IsGZipped(const AHeader: string): Boolean;
+function IsGZipped(const AHeader: AnsiString): Boolean;
 
 implementation
 
 uses
   Windows,
-  ShellAPI;
+  ShellAPI,
+  ALfcnString;
 
 procedure OpenUrlInBrowser(const URL: string);
 begin
   ShellExecute(0, nil, PChar(URL), nil, nil, SW_RESTORE);
 end;
 
-function IsGZipped(const AHeader: string): Boolean;
+function IsGZipped(const AHeader: AnsiString): Boolean;
 const
   c_Content = 'Content-Encoding';
   c_GZIPped = 'gzip';
@@ -26,7 +27,7 @@ var
   VTxt: AnsiString;
 begin
   Result := False;
-  VPos := Pos(c_Content, AHeader);
+  VPos := ALPos(c_Content, AHeader);
   if (VPos > 0) then begin
     // skip before
     VPos := VPos + Length(c_Content) + 1;

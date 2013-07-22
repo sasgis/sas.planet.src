@@ -367,6 +367,8 @@ constructor TTileStorageDLL.Create(
   const AMapVersionFactory: IMapVersionFactory;
   const AContentTypeManager: IContentTypeManager
 );
+var
+  VStoragePath: AnsiString;
 begin
   inherited Create(
     TTileStorageTypeAbilitiesGE.Create,
@@ -380,7 +382,8 @@ begin
   FDLLCacheHandle := nil;
   InternalLib_CleanupProc;
   FMainContentType := AContentTypeManager.GetInfo('image/jpeg');
-  if not InternalLib_SetPath(PAnsiChar(StoragePath)) then begin
+  VStoragePath := AnsiString(StoragePath);
+  if not InternalLib_SetPath(PAnsiChar(VStoragePath)) then begin
     StorageStateInternal.ReadAccess := asEnabled;
   end;
 end;

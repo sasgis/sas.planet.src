@@ -47,7 +47,7 @@ type
     );
     procedure AddByExt(
       const AInfo: IContentTypeInfoBasic;
-      const AExt: AnsiString
+      const AExt: string
     );
     property ExtList: TContentTypeListByKey read FExtList;
     property TypeList: TContentTypeListByKey read FTypeList;
@@ -59,11 +59,11 @@ type
 
   private
     function GetInfo(const AType: AnsiString): IContentTypeInfoBasic;
-    function GetInfoByExt(const AExt: AnsiString): IContentTypeInfoBasic;
+    function GetInfoByExt(const AExt: string): IContentTypeInfoBasic;
     function GetIsBitmapType(const AType: AnsiString): Boolean;
-    function GetIsBitmapExt(const AExt: AnsiString): Boolean;
+    function GetIsBitmapExt(const AExt: string): Boolean;
     function GetIsKmlType(const AType: AnsiString): Boolean;
-    function GetIsKmlExt(const AExt: AnsiString): Boolean;
+    function GetIsKmlExt(const AExt: string): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
   public
     constructor Create;
@@ -77,7 +77,7 @@ uses
 
 procedure TContentTypeManagerBase.AddByExt(
   const AInfo: IContentTypeInfoBasic;
-  const AExt: AnsiString
+  const AExt: string
 );
 begin
   FExtList.Add(AExt, AInfo);
@@ -138,12 +138,13 @@ begin
 end;
 
 function TContentTypeManagerBase.GetInfoByExt(
-  const AExt: AnsiString): IContentTypeInfoBasic;
+  const AExt: string
+): IContentTypeInfoBasic;
 begin
   Result := FExtList.Get(AExt);
 end;
 
-function TContentTypeManagerBase.GetIsBitmapExt(const AExt: AnsiString): Boolean;
+function TContentTypeManagerBase.GetIsBitmapExt(const AExt: string): Boolean;
 begin
   Result := FBitmapExtList.Get(AExt) <> nil;
 end;
@@ -153,7 +154,7 @@ begin
   Result := FBitmapTypeList.Get(AType) <> nil;
 end;
 
-function TContentTypeManagerBase.GetIsKmlExt(const AExt: AnsiString): Boolean;
+function TContentTypeManagerBase.GetIsKmlExt(const AExt: string): Boolean;
 begin
   Result := FKmlExtList.Get(AExt) <> nil;
 end;

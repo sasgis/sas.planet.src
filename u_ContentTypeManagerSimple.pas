@@ -102,7 +102,7 @@ var
   VLoader: IBitmapTileLoader;
   VSaver: IBitmapTileSaver;
   VExt: string;
-  VType: string;
+  VType: AnsiString;
 begin
   VSaver := ABitmapTileSaveLoadFactory.CreateJpegSaver(85, ASavePerfCounterList);
   VLoader := ABitmapTileSaveLoadFactory.CreateJpegLoader(ALoadPerfCounterList);

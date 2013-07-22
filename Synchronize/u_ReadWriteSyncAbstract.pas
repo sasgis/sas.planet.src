@@ -18,10 +18,10 @@ type
   TReadWriteSyncDebugWrapper = class(TInterfacedObject, IReadWriteSync)
   private
     FLock: IReadWriteSync;
-    FLockClassName: AnsiString;
+    FLockClassName: string;
     FName: ShortString;
   protected
-    procedure DoDebugGlobalLocks(const AProcedure, AEvent: AnsiString);
+    procedure DoDebugGlobalLocks(const AProcedure, AEvent: string);
   private
     procedure BeginRead;
     procedure EndRead;
@@ -30,7 +30,7 @@ type
   public
     constructor Create(
       const ALock: IReadWriteSync;
-      const ALockClassName: AnsiString;
+      const ALockClassName: string;
       const AName: AnsiString
     );
   end;
@@ -81,13 +81,13 @@ type
   TSynchronizerFactoryWithDebug = class(TInterfacedObject, IReadWriteSyncFactory)
   private
     FFactory: IReadWriteSyncFactory;
-    FLockClassName: AnsiString;
+    FLockClassName: string;
   private
     function Make(const AName: AnsiString): IReadWriteSync;
   public
     constructor Create(
       const AFactory: IReadWriteSyncFactory;
-      const ALockClassName: AnsiString
+      const ALockClassName: string
     );
   end;
 
@@ -176,7 +176,7 @@ end;
 
 constructor TReadWriteSyncDebugWrapper.Create(
   const ALock: IReadWriteSync;
-  const ALockClassName: AnsiString;
+  const ALockClassName: string;
   const AName: AnsiString
 );
 begin
@@ -202,15 +202,15 @@ begin
 end;
 
 procedure TReadWriteSyncDebugWrapper.DoDebugGlobalLocks(const AProcedure,
-  AEvent: AnsiString);
+  AEvent: string);
 const
-  c_SEP: AnsiString = ', ' + Chr(VK_TAB);
+  c_SEP: string = ', ' + Chr(VK_TAB);
 var
-  VText: AnsiString;
+  VText: string;
 begin
   if (not DebugGlobalLocks_Enabled) then
     Exit;
-  VText := FLockClassName + ' at $'+ IntToHex(Integer(Pointer(Self)), 8)+' (from '+FName+')' + c_SEP + 'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP +  AProcedure + c_SEP + AEvent;
+  VText := FLockClassName + ' at $'+ IntToHex(Integer(Pointer(Self)), 8)+' (from '+ string(FName)+')' + c_SEP + 'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP +  AProcedure + c_SEP + AEvent;
   OutputDebugString(PChar(VText));
 end;
 
@@ -337,7 +337,9 @@ end;
 { TSynchronizerFactoryWithDebug }
 
 constructor TSynchronizerFactoryWithDebug.Create(
-  const AFactory: IReadWriteSyncFactory; const ALockClassName: AnsiString);
+  const AFactory: IReadWriteSyncFactory;
+  const ALockClassName: string
+);
 begin
   Assert(AFactory <> nil);
   inherited Create;

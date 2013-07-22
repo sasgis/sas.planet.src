@@ -30,11 +30,11 @@ type
   IContentTypeManager = interface
     ['{157D7F4C-BBBB-4617-A0D1-250D066B4C2C}']
     function GetInfo(const AType: AnsiString): IContentTypeInfoBasic;
-    function GetInfoByExt(const AExt: AnsiString): IContentTypeInfoBasic;
+    function GetInfoByExt(const AExt: string): IContentTypeInfoBasic;
     function GetIsBitmapType(const AType: AnsiString): Boolean;
-    function GetIsBitmapExt(const AExt: AnsiString): Boolean;
+    function GetIsBitmapExt(const AExt: string): Boolean;
     function GetIsKmlType(const AType: AnsiString): Boolean;
-    function GetIsKmlExt(const AExt: AnsiString): Boolean;
+    function GetIsKmlExt(const AExt: string): Boolean;
     function GetConverter(const ATypeSource, ATypeTarget: AnsiString): IContentConverter;
   end;
 

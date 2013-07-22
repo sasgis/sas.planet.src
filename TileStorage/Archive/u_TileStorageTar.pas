@@ -104,7 +104,7 @@ begin
   Result := False;
   while FTarReader.FindNext(VTarRec) do begin
     if VTarRec.FileType = ftNormal then begin // regular file
-      VTileName := StringReplace(VTarRec.Name, '/', PathDelim, [rfReplaceAll]);
+      VTileName := StringReplace(string(VTarRec.Name), '/', PathDelim, [rfReplaceAll]);
       if FTileFileNameParser.GetTilePoint(VTileName, VTileXY, VZoom) then begin
         ATileInfo.FTile := VTileXY;
         ATileInfo.FZoom := VZoom;

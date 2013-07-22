@@ -32,16 +32,16 @@ type
   TContentTypeInfoBase = class(TBaseInterfacedObject, IContentTypeInfoBasic)
   private
     FContentType: AnsiString;
-    FDefaultExt: AnsiString;
+    FDefaultExt: string;
   private
     function GetContentType: AnsiString;
-    function GetDefaultExt: AnsiString;
+    function GetDefaultExt: string;
   protected
     function CheckOtherForSaveCompatible(const AContentType: IContentTypeInfoBasic): Boolean; virtual; abstract;
   public
     constructor Create(
       const AContentType: AnsiString;
-      const ADefaultExt: AnsiString
+      const ADefaultExt: string
     );
   end;
 
@@ -57,7 +57,7 @@ type
   public
     constructor Create(
       const AContentType: AnsiString;
-      const ADefaultExt: AnsiString;
+      const ADefaultExt: string;
       const ALoader: IBitmapTileLoader;
       const ASaver: IBitmapTileSaver
     );
@@ -73,7 +73,7 @@ type
   public
     constructor Create(
       const AContentType: AnsiString;
-      const ADefaultExt: AnsiString;
+      const ADefaultExt: string;
       const ALoader: IVectorDataLoader
     );
   end;
@@ -85,7 +85,10 @@ uses
 
 { TContentTypeInfoBase }
 
-constructor TContentTypeInfoBase.Create(const AContentType, ADefaultExt: AnsiString);
+constructor TContentTypeInfoBase.Create(
+  const AContentType: AnsiString;
+  const ADefaultExt: string
+);
 begin
   inherited Create;
   FContentType := AContentType;
@@ -97,7 +100,7 @@ begin
   Result := FContentType;
 end;
 
-function TContentTypeInfoBase.GetDefaultExt: AnsiString;
+function TContentTypeInfoBase.GetDefaultExt: string;
 begin
   Result := FDefaultExt;
 end;
@@ -105,7 +108,8 @@ end;
 { TContentTypeInfoBitmap }
 
 constructor TContentTypeInfoBitmap.Create(
-  const AContentType, ADefaultExt: AnsiString;
+  const AContentType: AnsiString;
+  const ADefaultExt: string;
   const ALoader: IBitmapTileLoader;
   const ASaver: IBitmapTileSaver
 );
@@ -152,7 +156,8 @@ begin
 end;
 
 constructor TContentTypeInfoVector.Create(
-  const AContentType, ADefaultExt: AnsiString;
+  const AContentType: AnsiString;
+  const ADefaultExt: string;
   const ALoader: IVectorDataLoader
 );
 begin

@@ -49,6 +49,7 @@ implementation
 uses
   Classes,
   SysUtils,
+  ALfcnString,
   t_GeoTypes,
   u_GeoToStr;
 
@@ -75,7 +76,9 @@ var
   VFileName: string;
   VFileStream: TFileStream;
   VText: AnsiString;
+  VFormat: TALFormatSettings;
 begin
+  VFormat.DecimalSeparator := '.';
   VFileName := ChangeFileExt(AFileName, '.dat');
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
@@ -83,10 +86,10 @@ begin
     VText := VText + '2' + #13#10;
     LL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
     LL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
-    VText := VText + R2StrPoint(LL1.x) + ',' + R2StrPoint(LL1.y) + #13#10;
-    VText := VText + R2StrPoint(LL2.x) + ',' + R2StrPoint(LL1.y) + #13#10;
-    VText := VText + R2StrPoint(LL2.x) + ',' + R2StrPoint(LL2.y) + #13#10;
-    VText := VText + R2StrPoint(LL1.x) + ',' + R2StrPoint(LL2.y) + #13#10;
+    VText := VText + ALFloatToStr(LL1.x, VFormat) + ',' + ALFloatToStr(LL1.y, VFormat) + #13#10;
+    VText := VText + ALFloatToStr(LL2.x, VFormat) + ',' + ALFloatToStr(LL1.y, VFormat) + #13#10;
+    VText := VText + ALFloatToStr(LL2.x, VFormat) + ',' + ALFloatToStr(LL2.y, VFormat) + #13#10;
+    VText := VText + ALFloatToStr(LL1.x, VFormat) + ',' + ALFloatToStr(LL2.y, VFormat) + #13#10;
     VText := VText + '(SASPlanet)' + #13#10;
 
     VFileStream.WriteBuffer(VText[1], Length(VText));
