@@ -292,7 +292,7 @@ begin
       DrawCaptions(AOperationID, ACancelNotifier, ALocalConverter);
     end;
     if FBitmapChangeFlag.CheckFlagAndReset then begin
-      Result := FBitmapFactory.Build(Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
+      Result := FBitmapFactory.Build(Types.Point(FBitmap.Width, FBitmap.Height), FBitmap.Bits);
     end;
   finally
     FCS.EndWrite;

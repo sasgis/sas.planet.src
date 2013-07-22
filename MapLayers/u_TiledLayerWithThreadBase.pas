@@ -553,7 +553,7 @@ begin
         end;
         if VBitmap <> nil then begin
           if not ABuffer.MeasuringMode then begin
-            VDstSize := Point(VDstRect.Right - VDstRect.Left, VDstRect.Bottom - VDstRect.Top);
+            VDstSize := Types.Point(VDstRect.Right - VDstRect.Left, VDstRect.Bottom - VDstRect.Top);
             if (VDstSize.X = VBitmap.Size.X) and (VDstSize.Y = VBitmap.Size.Y) then begin
               VCounterContext := FOneTilePaintSimpleCounter.StartOperation;
               try

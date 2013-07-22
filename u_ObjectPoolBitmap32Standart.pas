@@ -45,7 +45,7 @@ end;
 
 function TBitmap32StaticStandartSize.GetSize: TPoint;
 begin
-  Result := Point(CStandartSize, CStandartSize);
+  Result := Types.Point(CStandartSize, CStandartSize);
 end;
 
 { TObjectPoolBitmap32Standart }
@@ -66,7 +66,7 @@ end;
 
 function TObjectPoolBitmap32Standart.GetSize: TPoint;
 begin
-  Result := Point(CStandartSize, CStandartSize);
+  Result := Types.Point(CStandartSize, CStandartSize);
 end;
 
 end.

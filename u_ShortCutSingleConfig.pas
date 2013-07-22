@@ -132,7 +132,7 @@ begin
       end;
       Result :=
         ABitmapFactory.Build(
-          Point(VBitmap.Width, VBitmap.Height),
+          Types.Point(VBitmap.Width, VBitmap.Height),
           VBitmap.Bits
         );
     finally

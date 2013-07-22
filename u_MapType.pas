@@ -1001,7 +1001,7 @@ begin
   if (VTileRect.Left = VTileRect.Right - 1) and
     (VTileRect.Top = VTileRect.Bottom - 1) then begin
     VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTileRect.TopLeft, VZoom);
-    if EqualRect(VPixelRectCurrTile, APixelRectTarget) then begin
+    if Types.EqualRect(VPixelRectCurrTile, APixelRectTarget) then begin
       Result := LoadTileOrPreZ(VTileRect.TopLeft, VZoom, IgnoreError, AUsePre, ACache);
       Exit;
     end;

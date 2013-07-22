@@ -323,7 +323,7 @@ begin
     VBitmap.RenderText(VPos.X, VPos.Y, VNameDef, 2, clBlack32);
     Result :=
       ABitmapFactory.Build(
-        Point(VBitmap.Width, VBitmap.Height),
+        Types.Point(VBitmap.Width, VBitmap.Height),
         VBitmap.Bits
       )
   finally

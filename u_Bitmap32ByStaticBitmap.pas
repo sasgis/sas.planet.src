@@ -60,9 +60,9 @@ procedure TStaticBitmapBackend.InitializeSurface(NewWidth, NewHeight: Integer;
   ClearBuffer: Boolean);
 begin
   if ClearBuffer then begin
-    FBitmapStatic := FBitmapFactory.BuildEmptyClear(Point(NewWidth, NewHeight), 0);
+    FBitmapStatic := FBitmapFactory.BuildEmptyClear(Types.Point(NewWidth, NewHeight), 0);
   end else begin
-    FBitmapStatic := FBitmapFactory.BuildEmpty(Point(NewWidth, NewHeight));
+    FBitmapStatic := FBitmapFactory.BuildEmpty(Types.Point(NewWidth, NewHeight));
   end;
   if FBitmapStatic <> nil then begin
     FBits := FBitmapStatic.Data;
