@@ -195,6 +195,8 @@ end;
 procedure TfrmIntrnalBrowser.NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
 var
   VPostData, VHeaders: OleVariant;
+  VFlags: OleVariant;
+  VTargetFrameName: OleVariant;
   i: Integer;
 begin
   EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
@@ -206,11 +208,13 @@ begin
   for i := 1 to Length(APostData) do begin
     VPostData[i-1] := Ord(APostData[i]);
   end;
-  
+
   VHeaders := 'Referer: '+AReferer+#$D#$A+
               'Content-Type: application/x-www-form-urlencoded';
 
-  EmbeddedWB1.Navigate(AUrl, EmptyParam, EmptyParam, VPostData, VHeaders);
+  VFlags := EmptyParam;
+  VTargetFrameName := EmptyParam;
+  EmbeddedWB1.Navigate(AUrl, VFlags, VTargetFrameName, VPostData, VHeaders);
 end;
 
 procedure TfrmIntrnalBrowser.OnConfigChange;
