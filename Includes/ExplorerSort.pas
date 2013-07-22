@@ -13,13 +13,14 @@ unit ExplorerSort;
 interface
 
 uses
+  Windows,
   Classes;
 
 function CompareStringOrdinal(const S1, S2: string): Integer;
 
 function StringListCompare(List: TStringList; Index1, Index2: Integer): Integer;
 function ListViewCompare(lParam1, lParam2, lParamSort: Integer): Integer stdcall;
-function TreeViewCompare(lParam1, lParam2, lParamSort: Longint): Integer stdcall;
+function TreeViewCompare(lParam1, lParam2, lParamSort: LPARAM): Integer stdcall;
 
 implementation
 
@@ -37,7 +38,7 @@ begin
   Result := CompareStringOrdinal(TListItem(lParam1).Caption, TListItem(lParam2).Caption);
 end;
 
-function TreeViewCompare(lParam1, lParam2, lParamSort: Longint): Integer stdcall;
+function TreeViewCompare(lParam1, lParam2, lParamSort: LPARAM): Integer stdcall;
 begin
   Result := CompareStringOrdinal(TTreeNode(lParam1).Text, TTreeNode(lParam2).Text);
 end;

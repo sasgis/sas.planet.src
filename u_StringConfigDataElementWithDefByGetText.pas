@@ -37,7 +37,7 @@ constructor TStringConfigDataElementWithDefByGetText.Create(
   AUseSotre: Boolean;
   const AStoreIdentifier: string;
   AIsStoreDefault: Boolean;
-  const AGetTextMsgId: WideString
+  const AGetTextMsgId: MsgIdString
 );
 begin
   inherited Create(ALanguageManager, AUseSotre, AStoreIdentifier, AIsStoreDefault);
@@ -46,7 +46,7 @@ end;
 
 constructor TStringConfigDataElementWithDefByGetText.Create(
   const ALanguageManager: ILanguageManager;
-  const AGetTextMsgId: WideString
+  const AGetTextMsgId: MsgIdString
 );
 begin
   inherited Create(ALanguageManager, False, '', False);

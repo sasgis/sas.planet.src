@@ -202,7 +202,7 @@ begin
 end;
 
 procedure TReadWriteSyncDebugWrapper.DoDebugGlobalLocks(const AProcedure,
-  AEvent: String);
+  AEvent: AnsiString);
 const
   c_SEP: AnsiString = ', ' + Chr(VK_TAB);
 var
