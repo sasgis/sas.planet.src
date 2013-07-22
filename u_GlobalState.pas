@@ -561,7 +561,7 @@ begin
       FVectorItemsFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       FAppStartedNotifier,
-      THtmlToHintTextConverterStuped.Create,
+      THtmlToHintTextConverterStuped.Create
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
   VFilesIterator := VFilesIteratorFactory.CreateIterator(FGlobalConfig.MapsPath.FullPath, '');

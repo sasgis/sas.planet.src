@@ -887,7 +887,7 @@ begin
       FConfig.ViewPortState.View,
       GState.VectorItemsFactory,
       GState.ArchiveReadWriteFactory,
-      GState.Config.ValueToStringConverterConfig,
+      GState.Config.ValueToStringConverterConfig
     );
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
