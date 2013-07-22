@@ -29,6 +29,11 @@ type
     function GetMarkByStringId(const AId: string): IMark;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
+    function ImportItemsTree(
+      const ADataItemTree: IVectorItemTree;
+      const AImportConfig: IImportConfig
+    ): IInterfaceListStatic;
+
     function ImportItemsList(
       const ADataItemList: IVectorItemSubset;
       const AImportConfig: IImportConfig;

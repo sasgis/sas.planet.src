@@ -36,6 +36,7 @@ type
     FCategoryDB: IMarkCategoryDB;
 
     FCategoryTreeBuilder: IStaticTreeBuilder;
+    
   private
     function GetState: IReadWriteStateChangeble;
     function GetMarkDb: IMarkDb;
@@ -47,6 +48,11 @@ type
     function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
     function GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
+
+    function ImportItemsTree(
+      const ADataItemTree: IVectorItemTree;
+      const AImportConfig: IImportConfig
+    ): IInterfaceListStatic;
 
     function ImportItemsList(
       const ADataItemList: IVectorItemSubset;
@@ -259,6 +265,17 @@ begin
     end;
   end;
   Result := VTmp.MakeStaticAndClear;
+end;
+
+function TMarkSystem.ImportItemsTree(
+  const ADataItemTree: IVectorItemTree;
+  const AImportConfig: IImportConfig
+): IInterfaceListStatic;
+begin
+  Assert(Assigned(ADataItemTree));
+  Assert(Assigned(AImportConfig));
+
+  Result := nil;
 end;
 
 function TMarkSystem.ImportItemsList(
