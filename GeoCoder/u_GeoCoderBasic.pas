@@ -44,8 +44,8 @@ type
   protected
     property Downloader: IDownloader read FDownloader;
     property InetSettings: IInetConfig read FInetSettings;
-    function PrepareRequestByURL(const AUrl: string): IDownloadRequest;
-    function URLEncode(const S: string): string;
+    function PrepareRequestByURL(const AUrl: AnsiString): IDownloadRequest;
+    function URLEncode(const S: AnsiString): AnsiString;
     function PrepareRequest(
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
@@ -238,22 +238,22 @@ begin
   Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList.MakeStaticAndClear);
 end;
 
-function TGeoCoderBasic.PrepareRequestByURL(const AUrl: string): IDownloadRequest;
+function TGeoCoderBasic.PrepareRequestByURL(const AUrl: AnsiString): IDownloadRequest;
 begin
   Result := TDownloadRequest.Create(AUrl, '', FInetSettings.GetStatic);
 end;
 
-function TGeoCoderBasic.URLEncode(const S: string): string;
-  function DigitToHex(Digit: Integer): Char;
+function TGeoCoderBasic.URLEncode(const S: AnsiString): AnsiString;
+  function DigitToHex(Digit: Integer): AnsiChar;
   begin
     case Digit of
       0..9:
       begin
-        Result := Chr(Digit + Ord('0'));
+        Result := AnsiChar(Digit + Ord('0'));
       end;
       10..15:
       begin
-        Result := Chr(Digit - 10 + Ord('A'));
+        Result := AnsiChar(Digit - 10 + Ord('A'));
       end;
     else begin
       Result := '0';

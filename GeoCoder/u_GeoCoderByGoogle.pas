@@ -156,10 +156,10 @@ begin
     PrepareRequestByURL(
       'http://maps.google.com/maps/geo?q=' +
       URLEncode(AnsiToUtf8(VSearch)) +
-      '&output=xml' + SAS_STR_GoogleSearchLanguage +
+      '&output=xml' + AnsiString(SAS_STR_GoogleSearchLanguage) +
       '&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA' +
-      '&ll=' + R2StrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2StrPoint(ALocalConverter.GetCenterLonLat.y) +
-      '&spn=' + R2StrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2StrPoint(VLonLatRect.Top - VLonLatRect.Bottom)
+      '&ll=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
+      '&spn=' + R2AnsiStrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2AnsiStrPoint(VLonLatRect.Top - VLonLatRect.Bottom)
     );
 end;
 

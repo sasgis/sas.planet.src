@@ -55,6 +55,7 @@ uses
   XMLIntf,
   XMLDoc,
   SysUtils,
+  ALFcnString,
   t_GeoTypes,
   i_CoordConverter,
   i_GeoCoder,
@@ -153,8 +154,8 @@ begin
   Result :=
     PrepareRequestByURL(
       'http://catalog.api.2gis.ru/search?what=' + URLEncode(AnsiToUtf8(VSearch)) +
-      '&point=' + R2StrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2StrPoint(ALocalConverter.GetCenterLonLat.y) +
-      '&radius=' + inttostr(VRadius) +
+      '&point=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
+      '&radius=' + ALinttostr(VRadius) +
       '&page=1&pagesize=50&key=ruihvk0699&version=1.3&sort=relevance&output=xml'
     );
 end;

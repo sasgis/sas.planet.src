@@ -53,6 +53,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  ALFcnString,
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
@@ -71,13 +72,15 @@ function TGeoCoderByOSM.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  slat, slon, sname, sdesc, sfulldesc, osm_type, osm_id: string;
+  slat, slon: AnsiString;
+  sname, sdesc, sfulldesc: string;
+  osm_type, osm_id: AnsiString;
   i, j, k: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceListSimple;
-  VFormatSettings: TFormatSettings;
-  VStr: string;
+  VFormatSettings: TALFormatSettings;
+  VStr: AnsiString;
 begin
   sfulldesc := '';
   sdesc := '';
@@ -89,53 +92,53 @@ begin
   VList := TInterfaceListSimple.Create;
   SetLength(Vstr, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
-  i := PosEx('<searchresults', VStr);
+  i := ALPosEx('<searchresults', VStr);
 
-  while (PosEx('<place', VStr, i) > i) and (i > 0) do begin
+  while (ALPosEx('<place', VStr, i) > i) and (i > 0) do begin
     j := i;
 
-    i := PosEx('osm_type=''', VStr, j);
-    j := PosEx('''', VStr, i + 10);
+    i := ALPosEx('osm_type=''', VStr, j);
+    j := ALPosEx('''', VStr, i + 10);
     osm_type := Copy(VStr, i + 10, j - (i + 10));
 
-    i := PosEx('osm_id=''', VStr, j);
-    j := PosEx('''', VStr, i + 8);
+    i := ALPosEx('osm_id=''', VStr, j);
+    j := ALPosEx('''', VStr, i + 8);
     osm_id := Copy(VStr, i + 8, j - (i + 8));
 
-    i := PosEx('lat=''', VStr, j);
-    j := PosEx('''', VStr, i + 5);
+    i := ALPosEx('lat=''', VStr, j);
+    j := ALPosEx('''', VStr, i + 5);
     slat := Copy(VStr, i + 5, j - (i + 5));
 
-    i := PosEx('lon=''', VStr, j);
-    j := PosEx('''', VStr, i + 5);
+    i := ALPosEx('lon=''', VStr, j);
+    j := ALPosEx('''', VStr, i + 5);
     slon := Copy(VStr, i + 5, j - (i + 5));
 
-    i := PosEx('display_name=''', VStr, j);
-    j := PosEx('''', VStr, i + 14);
+    i := ALPosEx('display_name=''', VStr, j);
+    j := ALPosEx('''', VStr, i + 14);
     sname := Utf8ToAnsi(Copy(VStr, i + 14, j - (i + 14)));
 
-    i := PosEx('class=''', VStr, j);
+    i := ALPosEx('class=''', VStr, j);
     if i > j then begin
-      j := PosEx('''', VStr, i + 7);
+      j := ALPosEx('''', VStr, i + 7);
       sdesc := Utf8ToAnsi(Copy(VStr, i + 7, j - (i + 7)));
     end;
 
-    i := PosEx('type=''', VStr, j);
+    i := ALPosEx('type=''', VStr, j);
     if i > j then begin
-      j := PosEx('''', VStr, i + 6);
+      j := ALPosEx('''', VStr, i + 6);
       sdesc := sdesc + '=' + Utf8ToAnsi(Copy(VStr, i + 6, j - (i + 6)));
     end;
 
     // финт ушам, дабы не занимать много места
     // будем разбивать "Кураж, 84, Вокзальная улица, Магнитогорск, Челябинская область, Уральский федеральный округ, 455000, Российская Федерация"
     // до первой запятой, остальное пихать в переменную sdesc
-    k := posEx(',', sname, 1);
+    k := PosEx(',', sname, 1);
     sdesc := sdesc + (copy(sname, k, length(sname) - k + 1));
     sname := (copy(sname, 1, k - 1));
     // конец финта ушами
 
 
-    sfulldesc := 'http://www.openstreetmap.org/browse/' + osm_type + '/' + osm_id;
+    sfulldesc := 'http://www.openstreetmap.org/browse/' + string(osm_type) + '/' + string(osm_id);
 
     //    Получение ссылки на иконку объекта, (на будущее), дабы обозначать найденные объекты...
     //    k := PosEx('icon=''', AStr, i);
@@ -146,8 +149,8 @@ begin
     //    end else sfulldesc:='';
 
     try
-      VPoint.Y := StrToFloat(slat, VFormatSettings);
-      VPoint.X := StrToFloat(slon, VFormatSettings);
+      VPoint.Y := ALStrToFloat(slat, VFormatSettings);
+      VPoint.X := ALStrToFloat(slon, VFormatSettings);
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;

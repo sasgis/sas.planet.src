@@ -66,6 +66,7 @@ uses
   SysUtils,
   ALfcnString,
   t_GeoTypes,
+  u_GeoToStr,
   u_GeoFun;
 
 function GetProj(const AConverter: ICoordConverter): UTF8String;
@@ -230,9 +231,7 @@ var
   VText: AnsiString;
   VFileName: string;
   VFileStream: TFileStream;
-  VFormat: TALFormatSettings;
 begin
-  VFormat.DecimalSeparator := '.';
   VFileName := AFileName + 'w';
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
@@ -240,12 +239,12 @@ begin
     ll2 := AConverter.PixelPos2LonLat(xy2, AZoom);
     CalculateWFileParams(ll1, ll2, xy2.X - xy1.X, xy2.Y - xy1.Y, AConverter, CellX, CellY, OrigX, OrigY);
     VText := '';
-    VText := VText + ALFloatToStr(CellX, VFormat) + #13#10;
+    VText := VText + R2AnsiStrPoint(CellX) + #13#10;
     VText := VText + '0' + #13#10;
     VText := VText + '0' + #13#10;
-    VText := VText + ALFloatToStr(CellY, VFormat) + #13#10;
-    VText := VText + ALFloatToStr(OrigX, VFormat) + #13#10;
-    VText := VText + ALFloatToStr(OrigY, VFormat) + #13#10;
+    VText := VText + R2AnsiStrPoint(CellY) + #13#10;
+    VText := VText + R2AnsiStrPoint(OrigX) + #13#10;
+    VText := VText + R2AnsiStrPoint(OrigY) + #13#10;
     VFileStream.WriteBuffer(VText[1], Length(VText));
   finally
     VFileStream.Free;

@@ -66,6 +66,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  ALFcnString,
   RegExprUtils,
   t_GeoTypes,
   i_GeoCoder,
@@ -85,14 +86,14 @@ begin
   outout.Y := ((arctan(exp(in_Y / 6378137)) - Pi / 4) * 360) / Pi;
 end;
 
-function GetBetween(const ASTR,AFrom,ATo:string ; var VRes:string;APtr:integer):integer;
+function GetBetween(const ASTR,AFrom,ATo:AnsiString ; var VRes:AnsiString;APtr:integer):integer;
 var
  i,j:integer;
 begin
-  i:=PosEx(AFrom, ASTR, Aptr);
+  i:=ALPosEx(AFrom, ASTR, Aptr);
   if i>0 then
    begin
-   j:= PosEx(ATo, ASTR,i+length(AFrom));
+   j:= ALPosEx(ATo, ASTR,i+length(AFrom));
    if j>i then begin
      VRes := Copy(AStr, i + Length(AFrom), j - (i + length(AFrom)));
      Result := j;
@@ -126,15 +127,18 @@ function TGeoCoderByRosreestr.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  slat, slon, sname, sdesc, sfulldesc, VtempString: string;
+  slat, slon: AnsiString;
+  sname, sdesc, sfulldesc, VtempString: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceListSimple;
-  VFormatSettings: TFormatSettings;
+  VFormatSettings: TALFormatSettings;
   VValueConverter: IValueToStringConverter;
-  VStr: string;
+  VStr: AnsiString;
   VNeedSort: boolean;
+  VTemp: AnsiString;
+  VTemp1: AnsiString;
 begin
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   sfulldesc := '';
@@ -149,36 +153,37 @@ begin
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceListSimple.Create;
-  i := PosEx('_jsonpCallback', VStr);
-  VStr := ReplaceStr(VStr, '\"', '''');
-  VStr := ReplaceStr(VStr, '\/', '/');
-  VStr := ReplaceStr(VStr, '&quot;', '''');
+  i := ALPosEx('_jsonpCallback', VStr);
+  VStr := ALStringReplace(VStr, '\"', '''', [rfReplaceAll]);
+  VStr := ALStringReplace(VStr, '\/', '/', [rfReplaceAll]);
+  VStr := ALStringReplace(VStr, '&quot;', '''', [rfReplaceAll]);
 
   //по кадастровому номеру
-  while (PosEx('{"attributes"', VStr, i) > i) and (i > 0) do begin
-    j := PosEx('{"attributes"', VStr, i);
+  while (ALPosEx('{"attributes"', VStr, i) > i) and (i > 0) do begin
+    j := ALPosEx('{"attributes"', VStr, i);
     sdesc := '';
     sname := '';
-    j := GetBetween(Vstr,'"CAD_NUM":"','"',sname,j);
+    j := GetBetween(Vstr,'"CAD_NUM":"','"',VTemp,j);
+    sname := string(VTemp);
 
-    j := GetBetween(Vstr,'"OBJECT_ADDRESS":"','"',sdesc,j);
-    sdesc := Utf8ToAnsi(sdesc);
-    
+    j := GetBetween(Vstr,'"OBJECT_ADDRESS":"','"',VTemp,j);
+    sdesc := Utf8ToAnsi(VTemp);
+
     if sdesc='' then begin
-      j := GetBetween(Vstr,'"OBJECT_PLACE":"','"',sfulldesc,j);
-      j := GetBetween(Vstr,'"OBJECT_LOCALITY":"','"',sdesc,j);
-      sdesc := Utf8ToAnsi(sfulldesc+ ' ' +sdesc);
+      j := GetBetween(Vstr,'"OBJECT_PLACE":"','"',VTemp,j);
+      j := GetBetween(Vstr,'"OBJECT_LOCALITY":"','"',VTemp1,j);
+      sdesc := Utf8ToAnsi(VTemp+ ' ' +VTemp1);
     end;
 
     j := GetBetween(Vstr,'"XC":',',',slon,j);
     j := GetBetween(Vstr,'"YC":',',',slat,j);
 
     try
-      meters_to_lonlat(StrToFloat(slon, VFormatSettings), StrToFloat(slat, VFormatSettings), Vpoint);
+      meters_to_lonlat(ALStrToFloat(slon, VFormatSettings), ALStrToFloat(slat, VFormatSettings), Vpoint);
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    i := (PosEx('}}', VStr, j));
+    i := (ALPosEx('}}', VStr, j));
     sdesc := sdesc + #$D#$A + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
     sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
     VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -187,30 +192,30 @@ begin
 
   if 0 = VList.GetCount then VNeedSort := true;
   // по наименованию
-  while (PosEx('address', VStr, i) > i) and (i > 0) do begin
+  while (ALPosEx('address', VStr, i) > i) and (i > 0) do begin
     j := i;
 
-    i := PosEx('"address":"', VStr, j);
-    j := PosEx('"', VStr, i + 11);
+    i := ALPosEx('"address":"', VStr, j);
+    j := ALPosEx('"', VStr, i + 11);
     sname := Utf8ToAnsi(Copy(VStr, i + 11, j - (i + 11)));
 
-    i := PosEx('"x":', VStr, j);
-    j := PosEx('.', VStr, i + 4);
+    i := ALPosEx('"x":', VStr, j);
+    j := ALPosEx('.', VStr, i + 4);
     slon := Copy(VStr, i + 4, j - (i + 4));
 
-    i := PosEx('"y":', VStr, j);
-    j := PosEx('.', VStr, i + 4);
+    i := ALPosEx('"y":', VStr, j);
+    j := ALPosEx('.', VStr, i + 4);
     slat := Copy(VStr, i + 4, j - (i + 4));
 
-    i := PosEx('"ParentName":"', VStr, j);
-    j := PosEx('"', VStr, i + 14);
+    i := ALPosEx('"ParentName":"', VStr, j);
+    j := ALPosEx('"', VStr, i + 14);
     sdesc := Utf8ToAnsi(Copy(VStr, i + 14, j - (i + 14)));
     try
-      meters_to_lonlat(StrToFloat(slon, VFormatSettings), StrToFloat(slat, VFormatSettings), Vpoint);
+      meters_to_lonlat(ALStrToFloat(slon, VFormatSettings), ALStrToFloat(slat, VFormatSettings), Vpoint);
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    i := (PosEx('}}', VStr, i));
+    i := (ALPosEx('}}', VStr, i));
     sdesc := sdesc + #$D#$A + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
     sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
     VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
@@ -226,50 +231,50 @@ function TGeoCoderByRosreestr.PrepareRequest(
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 var
-  VSearch: String;
+  VSearch: AnsiString;
   VConverter: ICoordConverter;
   VZoom: Byte;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   i: integer;
-  s1, s2, s3, s4: string;
+  s1, s2, s3, s4: AnsiString;
   i1, i2, i3, i4: integer;
 begin
-  VSearch := ASearch;
+  VSearch := AnsiString(ASearch);
   VConverter := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-  VSearch := ReplaceStr(ReplaceStr(VSearch, '*', ''), ':', '');// убираем * и : из строки кадастрового номера
+  VSearch := ALStringReplace(ALStringReplace(VSearch, '*', '', [rfReplaceAll]), ':', '', [rfReplaceAll]);// убираем * и : из строки кадастрового номера
 
   if '' = RegExprReplaceMatchSubStr(VSearch, '[0-9]', '') then begin //cadastre number
-    VSearch := ASearch;
-    i := PosEx(':', VSearch, 1);
+    VSearch := AnsiString(ASearch);
+    i := ALPosEx(':', VSearch, 1);
     s1 := copy(VSearch, 1, i - 1);
     VSearch := copy(VSearch, i + 1, length(VSearch) - i + 1);
-    i1 := strtoint(s1);
+    i1 := ALStrToInt(s1);
 
-    i := PosEx(':', VSearch, 1);
+    i := ALPosEx(':', VSearch, 1);
     s2 := copy(VSearch, 1, i - 1);
     VSearch := copy(VSearch, i + 1, length(VSearch) - i + 1);
-    i2 := strtoint(s2);
+    i2 := ALStrToInt(s2);
 
-    i := PosEx(':', VSearch, 1);
+    i := ALPosEx(':', VSearch, 1);
     if i = 0 then begin
       i := length(VSearch) + 1;
     end;
     s3 := copy(VSearch, 1, i - 1);
     VSearch := copy(VSearch, i + 1, length(VSearch) - i + 1);
     try
-      i3 := strtoint(s3);
+      i3 := ALStrToInt(s3);
     except
       i3 := 0;
     end;
 
     s4 := VSearch;
     try
-      i4 := strtoint(s4);
+      i4 := ALStrToInt(s4);
     except
       i4 := 0;
     end;
@@ -297,8 +302,8 @@ begin
 
     VSearch := s1 + s2 + s3 + s4;
 
-    if PosEx('*', VSearch, 1) > 0 then begin
-      VSearch := ReplaceStr(VSearch, '*', '');// убираем * из строки кадастрового номера
+    if ALPosEx('*', VSearch, 1) > 0 then begin
+      VSearch := ALStringReplace(VSearch, '*', '', [rfReplaceAll]);// убираем * из строки кадастрового номера
       Result :=
         PrepareRequestByURL(
 //          'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript23._jsonpCallback'
@@ -320,13 +325,11 @@ begin
     end;
 
   end else begin //name
-    VSearch := ASearch;
     Result :=
       PrepareRequestByURL(
-        'http://maps.rosreestr.ru/ArcGIS/rest/services/Address/Locator_Composite/GeocodeServer/findAddressCandidates?SingleLine=' + URLEncode(AnsiToUtf8(VSearch)) + '&f=json&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript21._jsonpCallback'
+        'http://maps.rosreestr.ru/ArcGIS/rest/services/Address/Locator_Composite/GeocodeServer/findAddressCandidates?SingleLine=' + URLEncode(AnsiToUtf8(ASearch)) + '&f=json&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript21._jsonpCallback'
       );
   end;
-
 end;
 
 end.

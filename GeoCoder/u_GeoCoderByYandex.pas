@@ -53,6 +53,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  ALfcnString,
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
@@ -71,19 +72,20 @@ function TGeoCoderByYandex.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  slat, slon, sname, sdesc, sfulldesc: string;
+  slat, slon: AnsiString;
+  sname, sdesc, sfulldesc: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceListSimple;
-  VFormatSettings: TFormatSettings;
+  VFormatSettings: TALFormatSettings;
   CurPos:integer;// позици€ текущего символа
   BrLevel:integer;//глубина вложенности {=плюс один   }=минус один
-  Buffer:string; // сюда складываем временно считанную строку
-  CurChar:string; // текущий символ
+  Buffer:AnsiString; // сюда складываем временно считанную строку
+  CurChar:AnsiString; // текущий символ
   err:boolean;// признак окончани€ поиска когда уже всЄ нашли...
   ParseErr:boolean; // признак ошибки разбора строки
-  Vstr2Find :string;
+  Vstr2Find: AnsiString;
 begin
   Buffer := '';
   BrLevel := 0;
@@ -95,9 +97,9 @@ begin
   VList := TInterfaceListSimple.Create;
   SetLength(Vstr2Find, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr2Find[1], AResult.Data.Size);
-  Vstr2Find := ReplaceStr(Vstr2Find,'\/','/'); // разделители
-  Vstr2Find := ReplaceStr(Vstr2Find,'\"','"'); // разделители
-  CurPos:=PosEx('"features":[', Vstr2Find, 1)-1;
+  Vstr2Find := ALStringReplace(Vstr2Find,'\/','/', [rfReplaceAll]); // разделители
+  Vstr2Find := ALStringReplace(Vstr2Find,'\"','"', [rfReplaceAll]); // разделители
+  CurPos:=ALPosEx('"features":[', Vstr2Find, 1)-1;
   while (CurPos<length(Vstr2Find)) and (not err)do begin
    inc (CurPos);
    CurChar:=copy(Vstr2Find,CurPos,1);
@@ -115,63 +117,63 @@ begin
      j:=1;
      // если есть адресна€ информаци€ - добавл€ем еЄ
      // это же €вл€етс€ признаком того что точку нужно обрабатывать
-     i := PosEx('{"AddressLine":"', Buffer, 1);
+     i := ALPosEx('{"AddressLine":"', Buffer, 1);
      if i>0  then begin
       if i>j then begin
-       j := PosEx('",', Buffer, i + 16);
+       j := ALPosEx('",', Buffer, i + 16);
        sdesc:=Utf8ToAnsi(Copy(Buffer, i + 16, j - (i + 16)));
       end;
      end
     else
-    if PosEx('"Address":{"locality":"', Buffer, 1)>1 then begin
-     i := PosEx('"Address":{"locality":"', Buffer, 1);
-     j := PosEx('",', Buffer, i + 23);
+    if ALPosEx('"Address":{"locality":"', Buffer, 1)>1 then begin
+     i := ALPosEx('"Address":{"locality":"', Buffer, 1);
+     j := ALPosEx('",', Buffer, i + 23);
      sdesc:=Utf8ToAnsi(Copy(Buffer, i + 23, j - (i + 23)));
     end else
     // у Ќя  всЄ совсем по другому. провер€ем н€ковские пол€
-    if PosEx('PSearchMetaData', Buffer, 1)>1 then begin
-     i:=PosEx('"PSearchMetaData":{"id":"', Buffer, 1);
-     j := PosEx('",', Buffer, i + 25);
-     sfulldesc:='http://n.maps.yandex.ru/?l=wmap&oid='+Copy(Buffer, i + 25, j - (i + 25));
+    if ALPosEx('PSearchMetaData', Buffer, 1)>1 then begin
+     i:=ALPosEx('"PSearchMetaData":{"id":"', Buffer, 1);
+     j := ALPosEx('",', Buffer, i + 25);
+     sfulldesc:='http://n.maps.yandex.ru/?l=wmap&oid='+ string(Copy(Buffer, i + 25, j - (i + 25)));
    end
    else ParseErr:=true; // дальше строку не разбираем ибо отсутствует наименование.
 
    if not ParseErr then begin // если нашли признак валидности данных
     // делаем ссылку на описание если оно есть.
     j:=1;
-    i:= PosEx('"CompanyMetaData":{"id":"', Buffer, 1);
+    i:= ALPosEx('"CompanyMetaData":{"id":"', Buffer, 1);
     if i>j then begin
-     j := PosEx('",', Buffer, i + 25);
-     sfulldesc:='http://maps.yandex.ru/sprav/'+Copy(Buffer, i + 25, j - (i + 25))+'/';
+     j := ALPosEx('",', Buffer, i + 25);
+     sfulldesc:='http://maps.yandex.ru/sprav/'+string(Copy(Buffer, i + 25, j - (i + 25)))+'/';
     end;
 
      // достаЄм наименование
-     i := PosEx(',"name":"', Buffer, 1);
-     j := PosEx('",', Buffer, i + 9);
+     i := ALPosEx(',"name":"', Buffer, 1);
+     j := ALPosEx('",', Buffer, i + 9);
      sname:= Utf8ToAnsi(Copy(Buffer, i + 9, j - (i + 9)));
      // прибавл€ем статусную часть (улица,посЄлок..) если она идЄт сразу за наименованием
      if Copy(Buffer,j,8)='","type"' then begin
-      i := PosEx('"type":"', Buffer, j);
-      j := PosEx('",', Buffer, i + 8);
+      i := ALPosEx('"type":"', Buffer, j);
+      j := ALPosEx('",', Buffer, i + 8);
       sname:= sname+' '+Utf8ToAnsi(Copy(Buffer, i + 8, j - (i + 8)));
      end;
 
      // ƒостаЄм координаты
-     i := PosEx('"coordinates":[', Buffer, j);
-     j := PosEx(',', Buffer, i + 15);
+     i := ALPosEx('"coordinates":[', Buffer, j);
+     j := ALPosEx(',', Buffer, i + 15);
      slon := Copy(Buffer, i + 15, j - (i + 15));
-     i := PosEx(']', Buffer, j);
+     i := ALPosEx(']', Buffer, j);
      slat := Copy(Buffer, j + 1, i - (j + 1));
      if slat[1] = '\' then delete(slat, 1, 1);
      if slon[1] = '\' then delete(slon, 1, 1);
 
 
      i:=1;
-     if PosEx('"Categories":', Buffer, i)>i then begin// значит есть категори€
+     if ALPosEx('"Categories":', Buffer, i)>i then begin// значит есть категори€
       sdesc:=sdesc+' (';
-      while PosEx('{"name":"', Buffer, i)>i do begin // названий категорий может быть несколько поэтому будем их сцепл€ть (банки-банкоматы)
-       i := PosEx('{"name":"', Buffer, i);
-       j := PosEx('","', Buffer, i);
+      while ALPosEx('{"name":"', Buffer, i)>i do begin // названий категорий может быть несколько поэтому будем их сцепл€ть (банки-банкоматы)
+       i := ALPosEx('{"name":"', Buffer, i);
+       j := ALPosEx('","', Buffer, i);
        sdesc:=sdesc+' '+Utf8ToAnsi(Copy(Buffer, i + 9, j - (i + 9)));
        i:=j;
        end;
@@ -180,24 +182,24 @@ begin
 
      // описание из Ќя 
      j:=1;
-     i:= PosEx('{"locality":"', Buffer, 1);
+     i:= ALPosEx('{"locality":"', Buffer, 1);
      if i>j then begin
-      j := PosEx('"', Buffer, i + 13);
+      j := ALPosEx('"', Buffer, i + 13);
       sdesc:='(Ќя ) '+Utf8ToAnsi(Copy(Buffer, i + 13, j - (i + 13)));
       end;
 
      // описание из Ќя 
      j:=1;
-     i:= PosEx('"category_name":"', Buffer, 1);
+     i:= ALPosEx('"category_name":"', Buffer, 1);
      if i>j then begin
-      j := PosEx('"', Buffer, i + 17);
+      j := ALPosEx('"', Buffer, i + 17);
       if sdesc='' then sdesc:='(Ќя ) ';
       sdesc:=sdesc+' ('+Utf8ToAnsi(Copy(Buffer, i + 17, j - (i + 17)))+')';
       end;
 
      try
-      VPoint.Y := StrToFloat(slat, VFormatSettings);
-      VPoint.X := StrToFloat(slon, VFormatSettings);
+      VPoint.Y := ALStrToFloat(slat, VFormatSettings);
+      VPoint.X := ALStrToFloat(slon, VFormatSettings);
      except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
@@ -234,9 +236,9 @@ begin
   Result :=
     PrepareRequestByURL(
             'http://maps.yandex.ru/?text='+URLEncode(AnsiToUtf8(VSearch))+
-            '&sll='+R2StrPoint(ALocalConverter.GetCenterLonLat.x)+','+R2StrPoint(ALocalConverter.GetCenterLonLat.y)+
-            '&sspn='+R2StrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2StrPoint(VLonLatRect.Top-VLonLatRect.Bottom)+
-            '&z='+inttostr(VZoom)+'&source=form&output=json'
+            '&sll='+R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x)+','+R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y)+
+            '&sspn='+R2AnsiStrPoint(VLonLatRect.Right-VLonLatRect.Left)+','+R2AnsiStrPoint(VLonLatRect.Top-VLonLatRect.Bottom)+
+            '&z='+ALIntToStr(VZoom)+'&source=form&output=json'
     );
 end;
 end.

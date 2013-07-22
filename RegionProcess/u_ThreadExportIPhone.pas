@@ -85,6 +85,7 @@ type
 implementation
 
 uses
+  ALfcnString,
   c_CoordConverter,
   i_LocalCoordConverter,
   i_Bitmap32Static,
@@ -222,11 +223,11 @@ begin
   s := 'INSERT INTO Images (data,zoom,x,y,flags,length) VALUES ' +
     '(' +
     '?,' +
-    '"' + IntToStr(AZoom) + '",' +
-    '"' + IntToStr(AXY.X) + '",' +
-    '"' + IntToStr(AXY.Y) + '",' +
-    '"' + IntToStr(AFlags) + '",' +
-    '"' + IntToStr(AData.Size) + '"' +
+    '"' + ALIntToStr(AZoom) + '",' +
+    '"' + ALIntToStr(AXY.X) + '",' +
+    '"' + ALIntToStr(AXY.Y) + '",' +
+    '"' + ALIntToStr(AFlags) + '",' +
+    '"' + ALIntToStr(AData.Size) + '"' +
     ')';
 
   ASQLite3DbHandler^.ExecSQLWithBLOB(s, AData.Buffer, AData.Size);  
@@ -271,7 +272,7 @@ var
   VDataToSave: IBinaryData;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
-  VDatabaseName: string;
+  VDatabaseName: AnsiString;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
@@ -317,15 +318,15 @@ begin
 
       if VSQLite3DbHandler.Init then
       try
-        VDatabaseName := FExportPath + 'MapTiles' + c_SQLite_Ext;
-        if not FileExists(VDatabaseName) then begin
+        VDatabaseName := AnsiString(FExportPath + 'MapTiles' + c_SQLite_Ext);
+        if not FileExists(string(VDatabaseName)) then begin
           FIsReplace := True;
         end;
 
         If FIsReplace then begin
           // заменяем
-          If FileExists(VDatabaseName) then begin
-            DeleteFile(VDatabaseName);
+          If FileExists(string(VDatabaseName)) then begin
+            DeleteFile(string(VDatabaseName));
           end;
 
           VSQLite3DbHandler.Open(VDatabaseName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE);

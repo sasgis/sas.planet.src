@@ -50,7 +50,8 @@ uses
   Classes,
   SysUtils,
   ALfcnString,
-  t_GeoTypes;
+  t_GeoTypes,
+  u_GeoToStr;
 
 { TMapCalibrationOzi }
 
@@ -78,7 +79,6 @@ var
   lat, lon: array[1..3] of Double;
   i: integer;
   lats, lons: array[1..3] of AnsiString;
-  VFormat: TALFormatSettings;
   VFileName: String;
   VLL1, VLL2: TDoublePoint;
   VLL: TDoublePoint;
@@ -86,7 +86,6 @@ var
   VFileStream: TFileStream;
   VText: AnsiString;
 begin
-  VFormat.DecimalSeparator := '.';
   VFileName := ChangeFileExt(AFileName, '.map');
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
@@ -116,7 +115,7 @@ begin
     lat[3] := VLL2.Y;
 
     for i := 1 to 3 do begin
-      lons[i] := ALinttostr(trunc(abs(lon[i]))) + ', ' + ALFloatToStr(Frac(abs(lon[i])) * 60, VFormat);
+      lons[i] := ALIntToStr(trunc(abs(lon[i]))) + ', ' + R2AnsiStrPoint(Frac(abs(lon[i])) * 60);
       if lon[i] < 0 then begin
         lons[i] := lons[i] + ',W';
       end else begin
@@ -124,7 +123,7 @@ begin
       end;
     end;
     for i := 1 to 3 do begin
-      lats[i] := ALinttostr(trunc(abs(lat[i]))) + ', ' + ALFloatToStr(Frac(abs(lat[i])) * 60, VFormat);
+      lats[i] := ALinttostr(trunc(abs(lat[i]))) + ', ' + R2AnsiStrPoint(Frac(abs(lat[i])) * 60);
       if lat[i] < 0 then begin
         lats[i] := lats[i] + ',S';
       end else begin
@@ -158,14 +157,14 @@ begin
     VText := VText + 'MMPXY,3,' + ALinttostr(VLocalRect.Right) + ',' + ALinttostr(VLocalRect.Bottom) + #13#10;
     VText := VText + 'MMPXY,4,' + ALinttostr(VLocalRect.Left) + ',' + ALinttostr(VLocalRect.Bottom) + #13#10;
 
-    VText := VText + 'MMPLL,1, ' + ALFloatToStr(lon[1], VFormat) + ', ' + ALFloatToStr(lat[1], VFormat) + #13#10;
-    VText := VText + 'MMPLL,2, ' + ALFloatToStr(lon[3], VFormat) + ', ' + ALFloatToStr(lat[1], VFormat) + #13#10;
-    VText := VText + 'MMPLL,3, ' + ALFloatToStr(lon[3], VFormat) + ', ' + ALFloatToStr(lat[3], VFormat) + #13#10;
-    VText := VText + 'MMPLL,4, ' + ALFloatToStr(lon[1], VFormat) + ', ' + ALFloatToStr(lat[3], VFormat) + #13#10;
+    VText := VText + 'MMPLL,1, ' + R2AnsiStrPoint(lon[1]) + ', ' + R2AnsiStrPoint(lat[1]) + #13#10;
+    VText := VText + 'MMPLL,2, ' + R2AnsiStrPoint(lon[3]) + ', ' + R2AnsiStrPoint(lat[1]) + #13#10;
+    VText := VText + 'MMPLL,3, ' + R2AnsiStrPoint(lon[3]) + ', ' + R2AnsiStrPoint(lat[3]) + #13#10;
+    VText := VText + 'MMPLL,4, ' + R2AnsiStrPoint(lon[1]) + ', ' + R2AnsiStrPoint(lat[3]) + #13#10;
 
     rad := AConverter.Datum.GetSpheroidRadiusA;
 
-    VText := VText + 'MM1B,' + ALFloatToStr(1 / ((AConverter.PixelsAtZoomFloat(AZoom) / (2 * PI)) / (rad * cos(lat[2] * D2R))), VFormat) + #13#10;
+    VText := VText + 'MM1B,' + R2AnsiStrPoint(1 / ((AConverter.PixelsAtZoomFloat(AZoom) / (2 * PI)) / (rad * cos(lat[2] * D2R)))) + #13#10;
     VText := VText + 'MOP,Map Open Position,0,0' + #13#10;
     VText := VText + 'IWH,Map Image Width/Height,' + ALinttostr(VLocalRect.Right) + ',' + ALinttostr(VLocalRect.Bottom) + #13#10;
 

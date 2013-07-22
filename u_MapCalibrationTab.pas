@@ -80,9 +80,7 @@ var
   VFileName: string;
   VFileStream: TFileStream;
   VText: AnsiString;
-  VFormat: TALFormatSettings;
 begin
-  VFormat.DecimalSeparator := '.';
   VFileName := ChangeFileExt(AFileName, '.tab');
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
@@ -110,15 +108,15 @@ begin
     VLocalRect.TopLeft := Point(0, 0);
     VLocalRect.BottomRight := Point(xy2.X - xy1.X, xy2.y - xy1.y);
 
-    VText := VText + '(' + ALFloatToStr(lon[1], VFormat) + ',' + ALFloatToStr(lat[1], VFormat) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 1",' + #13#10;
-    VText := VText + '(' + ALFloatToStr(lon[3], VFormat) + ',' + ALFloatToStr(lat[3], VFormat) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 2",' + #13#10;
-    VText := VText + '(' + ALFloatToStr(lon[1], VFormat) + ',' + ALFloatToStr(lat[3], VFormat) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 3",' + #13#10;
-    VText := VText + '(' + ALFloatToStr(lon[3], VFormat) + ',' + ALFloatToStr(lat[1], VFormat) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 4",' + #13#10;
-    VText := VText + '(' + ALFloatToStr(lon[2], VFormat) + ',' + ALFloatToStr(lat[2], VFormat) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 5",' + #13#10;
-    VText := VText + '(' + ALFloatToStr(lon[2], VFormat) + ',' + ALFloatToStr(lat[1], VFormat) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 6",' + #13#10;
-    VText := VText + '(' + ALFloatToStr(lon[1], VFormat) + ',' + ALFloatToStr(lat[2], VFormat) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 7",' + #13#10;
-    VText := VText + '(' + ALFloatToStr(lon[3], VFormat) + ',' + ALFloatToStr(lat[2], VFormat) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 8",' + #13#10;
-    VText := VText + '(' + ALFloatToStr(lon[2], VFormat) + ',' + ALFloatToStr(lat[3], VFormat) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 9"' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[1]) + ',' + R2AnsiStrPoint(lat[1]) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 1",' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[3]) + ',' + R2AnsiStrPoint(lat[3]) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 2",' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[1]) + ',' + R2AnsiStrPoint(lat[3]) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 3",' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[3]) + ',' + R2AnsiStrPoint(lat[1]) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 4",' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[2]) + ',' + R2AnsiStrPoint(lat[2]) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 5",' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[2]) + ',' + R2AnsiStrPoint(lat[1]) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 6",' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[1]) + ',' + R2AnsiStrPoint(lat[2]) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 7",' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[3]) + ',' + R2AnsiStrPoint(lat[2]) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 8",' + #13#10;
+    VText := VText + '(' + R2AnsiStrPoint(lon[2]) + ',' + R2AnsiStrPoint(lat[3]) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 9"' + #13#10;
 
     VText := VText + 'CoordSys Earth Projection 1, 104' + #13#10;
     VText := VText + 'Units "degree"' + #13#10;
