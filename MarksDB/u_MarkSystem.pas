@@ -278,6 +278,9 @@ var
   VPic: IMarkPicture;
   VCategory: ICategory;
 begin
+  Assert(Assigned(ADataItemList));
+  Assert(Assigned(AImportConfig));
+  Assert(Assigned(AImportConfig.RootCategory));
   Result := nil;
 
   VPic := nil;
