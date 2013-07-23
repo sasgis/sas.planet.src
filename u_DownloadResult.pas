@@ -189,7 +189,7 @@ type
   TDownloadResultDataNotExists = class(TDownloadResult, IDownloadResultDataNotExists, IDownloadResultWithServerRespond)
   private
     FReasonTextFormat: string;
-    FReasonTextArgs: array of TVarRec;
+    FReasonTextArgs: TConstArray;
     FStatusCode: Cardinal;
     FRawResponseHeader: AnsiString;
   protected
@@ -206,6 +206,7 @@ type
       const AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString
     );
+    destructor Destroy; override;
   end;
 
   TDownloadResultDataNotExistsByStatusCode = class(TDownloadResultDataNotExists)
@@ -233,7 +234,7 @@ type
   TDownloadResultNotNecessary = class(TDownloadResult, IDownloadResultNotNecessary, IDownloadResultWithServerRespond)
   private
     FReasonTextFormat: string;
-    FReasonTextArgs: array of TVarRec;
+    FReasonTextArgs: TConstArray;
     FStatusCode: Cardinal;
     FRawResponseHeader: AnsiString;
   protected
@@ -250,6 +251,7 @@ type
       const AStatusCode: Cardinal;
       const ARawResponseHeader: AnsiString
     );
+    destructor Destroy; override;
   end;
 
 implementation
@@ -485,17 +487,18 @@ constructor TDownloadResultDataNotExists.Create(
   const AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString
 );
-var
-  i: Integer;
 begin
   inherited Create(ARequest);
   FReasonTextFormat := AReasonTextFormat;
-  SetLength(FReasonTextArgs, Length(AReasonTextArgs));
-  for I := 0 to High(AReasonTextArgs) do begin
-    FReasonTextArgs[i] := AReasonTextArgs[i];
-  end;
+  FReasonTextArgs := CreateConstArray(AReasonTextArgs);
   FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
+end;
+
+destructor TDownloadResultDataNotExists.Destroy;
+begin
+  FinalizeConstArray(FReasonTextArgs);
+  inherited;
 end;
 
 function TDownloadResultDataNotExists.GetIsServerExists: Boolean;
@@ -527,17 +530,18 @@ constructor TDownloadResultNotNecessary.Create(
   const AStatusCode: Cardinal;
   const ARawResponseHeader: AnsiString
 );
-var
-  i: Integer;
 begin
   inherited Create(ARequest);
   FReasonTextFormat := AReasonTextFormat;
-  SetLength(FReasonTextArgs, Length(AReasonTextArgs));
-  for I := 0 to High(AReasonTextArgs) do begin
-    FReasonTextArgs[i] := AReasonTextArgs[i];
-  end;
+  FReasonTextArgs := CreateConstArray(AReasonTextArgs);
   FStatusCode := AStatusCode;
   FRawResponseHeader := ARawResponseHeader;
+end;
+
+destructor TDownloadResultNotNecessary.Destroy;
+begin
+  FinalizeConstArray(FReasonTextArgs);
+  inherited;
 end;
 
 function TDownloadResultNotNecessary.GetIsServerExists: Boolean;
