@@ -151,6 +151,8 @@ end;
 
 procedure TBerkeleyDB.Open(const ADatabaseFileName: string);
 var
+  I: Integer;
+  ret: Integer;
   VErrorMsg: string;
   VRelativeFileName: UTF8String;
   VOpenFlags: Cardinal;
@@ -170,7 +172,20 @@ begin
     end else begin
       VOpenFlags := DB_CREATE_ or DB_AUTO_COMMIT or DB_THREAD;
     end;
-    CheckBDB(db.open(db, nil, PAnsiChar(VRelativeFileName), '', DB_BTREE, VOpenFlags, 0));
+
+    I := 0;
+    repeat
+      ret := db.open(db, nil, PAnsiChar(VRelativeFileName), '', DB_BTREE, VOpenFlags, 0);
+      if ret = DB_LOCK_DEADLOCK then begin
+        Sleep(50);
+        Inc(I);
+      end else begin
+        Break;
+      end;
+    until I > FOnDeadLockRetryCount;
+
+    CheckBDB(ret);
+
   except
     on E: Exception do begin
       VErrorMsg := '';
