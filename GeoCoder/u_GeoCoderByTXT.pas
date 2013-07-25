@@ -62,6 +62,7 @@ implementation
 
 uses
   StrUtils,
+  ALFcnString,
   t_GeoTypes,
   i_GeoCoder,
   u_InterfaceListSimple,
@@ -81,7 +82,7 @@ const
 var
   I, J, K: Integer;
 begin
-  I := PosEx(cTabChar, AString);
+  I := ALPosEx(cTabChar, AString);
   J := 0;
   K := 1;
   while I > 0 do begin
@@ -91,7 +92,7 @@ begin
     end else begin
       AArray[J] := Copy(AString, K, (I - K));
       K := I + 1;
-      I := PosEx(cTabChar, AString, K);
+      I := ALPosEx(cTabChar, AString, K);
     end;
   end;
 end;
@@ -134,10 +135,11 @@ procedure TGeoCoderByTXT.SearchInTXTFile(
   var ACnt : integer
 );
 var
-  VFormatSettings : TFormatSettings;
+  VFormatSettings : TALFormatSettings;
   VPlace : IGeoCodePlacemark;
   VPoint : TDoublePoint;
-  slat, slon, sname, sdesc, sfulldesc : string;
+  slat, slon: AnsiString;
+  sname, sdesc, sfulldesc : string;
   i, j, l: integer;
   VSearch : AnsiString;
   VValueConverter: IValueToStringConverter;
@@ -148,7 +150,7 @@ var
 begin
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   VFormatSettings.DecimalSeparator := '.';
-  VSearch := AnsiUpperCase(ASearch);
+  VSearch := AnsiString(AnsiUpperCase(ASearch));
   for I := Low(VTabArray) to High(VTabArray) do begin
     VTabArray[I] := '';
   end;
@@ -156,10 +158,10 @@ begin
   Reset(VTextFile);
   try
     while not EOF(VTextFile) do begin
-      Readln(VTextFile, VAnsiLine); 
+      Readln(VTextFile, VAnsiLine);
       VAnsiLine := Utf8ToAnsi(VAnsiLine);
-      VAnsiLineUpper := AnsiUpperCase(VAnsiLine);
-      if Pos(VSearch, VAnsiLineUpper) > 1 then begin
+      VAnsiLineUpper := AlUpperCase(VAnsiLine);
+      if ALPos(VSearch, VAnsiLineUpper) > 1 then begin
         if ACnt mod 5 = 0 then begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
             Exit;
@@ -180,8 +182,8 @@ begin
 
         if (slat <> '') and (slon <> '') then begin
           try
-            VPoint.Y := StrToFloat(slat, VFormatSettings);
-            VPoint.X := StrToFloat(slon, VFormatSettings);
+            VPoint.Y := ALStrToFloat(slat, VFormatSettings);
+            VPoint.X := ALStrToFloat(slon, VFormatSettings);
           except
             raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
           end;
@@ -198,8 +200,8 @@ begin
           if PosEx('?',sname)>0 then begin
             l := length(sname);
             while (Copy(sname,l,1)<>#09) and (l>0) do dec(l);
-            j := PosEx(VSearch , VAnsiLineUpper);
-            l := PosEx(#09 , VAnsiLine, j);
+            j := ALPosEx(VSearch , VAnsiLineUpper);
+            l := ALPosEx(#09 , VAnsiLine, j);
             sname := Copy(VAnsiLine, j, l - j);
             if  PosEx(',',sname)>0 then begin
               j := 0;

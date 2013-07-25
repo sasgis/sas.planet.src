@@ -53,6 +53,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  ALFcnString,
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
@@ -72,13 +73,14 @@ function TGeoCoderByWikiMapia.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  slat, slon, sname, sdesc, sfulldesc{, vzoom}: string;
+  slat, slon: AnsiString;
+  sname, sdesc, sfulldesc: string;
   i, j: integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceListSimple;
-  VFormatSettings: TFormatSettings;
-  VStr: string;
+  VFormatSettings: TALFormatSettings;
+  VStr: AnsiString;
 begin
   sfulldesc := '';
   sdesc := '';
@@ -90,8 +92,8 @@ begin
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceListSimple.Create;
-  i := PosEx('<ul class="nav searchlist">', VStr, 1);
-  while (PosEx('<li onclick="parent.Search.zoomTo', VStr, i) > i) and (i > 0) do begin
+  i := ALPosEx('<ul class="nav searchlist">', VStr, 1);
+  while (ALPosEx('<li onclick="parent.Search.zoomTo', VStr, i) > i) and (i > 0) do begin
     j := i;
 
     //    зум для внешней ссылки оставлен для потом
@@ -101,20 +103,20 @@ begin
     //    j := PosEx(')', AStr, i);
     //    VZoom:=Copy(AStr, i + 1, j - (i + 1));
 
-    i := PosEx('parent.Search.zoomTo(', VStr, j);
-    j := PosEx(',', VStr, i + 21);
+    i := ALPosEx('parent.Search.zoomTo(', VStr, j);
+    j := ALPosEx(',', VStr, i + 21);
     slon := Copy(VStr, i + 21, j - (i + 21));
 
     i := j;
-    j := PosEx(',', VStr, i + 1);
+    j := ALPosEx(',', VStr, i + 1);
     slat := Copy(VStr, i + 1, j - (i + 1));
 
-    i := PosEx('<strong>', VStr, j);
-    j := PosEx('</strong>', VStr, i + 8);
+    i := ALPosEx('<strong>', VStr, j);
+    j := ALPosEx('</strong>', VStr, i + 8);
     sname := Utf8ToAnsi(Copy(VStr, i + 8, j - (i + 8)));
 
-    i := PosEx('<small>', VStr, j);
-    j := PosEx('<', VStr, i + 7);
+    i := ALPosEx('<small>', VStr, j);
+    j := ALPosEx('<', VStr, i + 7);
     sdesc := Utf8ToAnsi(Copy(VStr, i + 7, j - (i + 7)));
     sdesc := Trim(ReplaceStr(sdesc,#$0A,''));
 
@@ -122,8 +124,8 @@ begin
     //    sfulldesc:='http://www.wikimapia.org/#lat='+slat+'&lon='+slon+'&z='+VZoom;
 
     try
-      VPoint.Y := StrToFloat(slat, VFormatSettings);
-      VPoint.X := StrToFloat(slon, VFormatSettings);
+      VPoint.Y := ALStrToFloat(slat, VFormatSettings);
+      VPoint.X := ALStrToFloat(slon, VFormatSettings);
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
