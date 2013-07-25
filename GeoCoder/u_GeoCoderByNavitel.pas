@@ -53,6 +53,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  ALFcnString,
   RegExprUtils,
   t_GeoTypes,
   i_GeoCoder,
@@ -494,18 +495,22 @@ function TGeoCoderByNavitel.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  slat, slon, sname, sdesc, sfulldesc, Navitel_id, Navitel_type, place_id: string;
+  slat, slon: AnsiString;
+  sname, sfulldesc: string;
+  sdesc: AnsiString;
+  Navitel_id, Navitel_type, place_id: AnsiString;
   i, j , ii , jj : integer;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceListSimple;
-  VFormatSettings: TFormatSettings;
+  VFormatSettings: TALFormatSettings;
 
   vCurPos: integer;
-  vCurChar: string;
+  vCurChar: AnsiString;
   vBrLevel: integer;
-  VBuffer: string;
-  VStr: string;
+  VBuffer: AnsiString;
+  VStr: AnsiString;
+  VDesc: string;
   VRequest: IDownloadRequest;
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
@@ -520,7 +525,7 @@ begin
   SetLength(Vstr, AResult.Data.Size);
   Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
 
-  VStr := ReplaceStr(VStr,#$0A,'');
+  VStr := ALStringReplace(VStr, #$0A, '', [rfReplaceAll]);
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceListSimple.Create;
 
@@ -539,14 +544,14 @@ begin
      sdesc:='';
      sname:='';
      sfulldesc:='';
-     i := PosEx('[', VBuffer, 1);
-     j := PosEx(',', VBuffer, 1);
+     i := ALPosEx('[', VBuffer, 1);
+     j := ALPosEx(',', VBuffer, 1);
      navitel_id := Copy(VBuffer, i + 1, j - (i + 1));
 
      j:=1;
-     i := PosEx('[', VBuffer, 1);
+     i := ALPosEx('[', VBuffer, 1);
      if i>0  then begin
-       j := PosEx(',', VBuffer, i + 1);
+       j := ALPosEx(',', VBuffer, i + 1);
        VRequest :=
         PrepareRequestByURL(
           'http://maps.navitel.su/webmaps/searchTwoStepInfo?id='+(Copy(VBuffer, i + 1, j - (i + 1)))
@@ -556,10 +561,10 @@ begin
         SetLength(sdesc, VResultOk.Data.Size);
         Move(VResultOk.Data.Buffer^, sdesc[1], VResultOk.Data.Size);
         ii := 1;
-       jj := PosEx(',', sdesc, ii + 1 );
+       jj := ALPosEx(',', sdesc, ii + 1 );
        slon := Copy(sdesc, ii + 1, jj - (ii + 1));
        ii := jj;
-       jj := PosEx(',', sdesc, ii + 1 );
+       jj := ALPosEx(',', sdesc, ii + 1 );
        slat := Copy(sdesc, ii + 1, jj - (ii + 1));
        sfulldesc :='';
       end else begin
@@ -567,15 +572,15 @@ begin
       end;
      end;
      i:=j+1;
-     j := PosEx(']', VBuffer, i);
+     j := ALPosEx(']', VBuffer, i);
      sname := Utf8ToAnsi(Copy(VBuffer, i + 3, j - (i + 4)));
-     j := PosEx(',', VBuffer, j+1);
+     j := ALPosEx(',', VBuffer, j+1);
      i := j+1;
-     j := PosEx(',', VBuffer, j+1);
+     j := ALPosEx(',', VBuffer, j+1);
      Navitel_type := Copy(VBuffer, i + 1, j - (i + 1));
-     Sname := NavitelType(StrToInt(Navitel_type )) + sname;
+     Sname := NavitelType(ALStrToInt(Navitel_type )) + sname;
      i := j+1;
-     j := PosEx(',', VBuffer, i+1);
+     j := ALPosEx(',', VBuffer, i+1);
      place_id := Copy(VBuffer, i + 1, j - (i + 1));
      if place_id<>'null' then begin
       VRequest := PrepareRequestByURL('http://maps.navitel.su/webmaps/searchById?id='+(place_id));
@@ -585,32 +590,32 @@ begin
         SetLength(sdesc, VResultOk.Data.Size);
         Move(VResultOk.Data.Buffer^, sdesc[1], VResultOk.Data.Size);
         sdesc := RegExprReplaceMatchSubStr(sdesc,'[0-9]','');
-        sdesc := ReplaceStr(sdesc,#$0A,'');
-        sdesc := ReplaceStr(sdesc,#$0D,'');
-        sdesc := ReplaceStr(sdesc,'[','');
-        sdesc := ReplaceStr(sdesc,']','');
-        sdesc := ReplaceStr(sdesc,'null','');
-        sdesc := ReplaceStr(sdesc,', ','');
-        sdesc := ReplaceStr(sdesc,'""','","');
-        sdesc := Utf8ToAnsi(sdesc);
+        sdesc := ALStringReplace(sdesc, #$0A, '', [rfReplaceAll]);
+        sdesc := ALStringReplace(sdesc, #$0D, '', [rfReplaceAll]);
+        sdesc := ALStringReplace(sdesc, '[', '', [rfReplaceAll]);
+        sdesc := ALStringReplace(sdesc, ']', '', [rfReplaceAll]);
+        sdesc := ALStringReplace(sdesc, 'null', '', [rfReplaceAll]);
+        sdesc := ALStringReplace(sdesc, ', ', '', [rfReplaceAll]);
+        sdesc := ALStringReplace(sdesc, '""', '","', [rfReplaceAll]);
+        VDesc := Utf8ToAnsi(sdesc);
       end else begin
         Exit;
       end;
      end else begin
-       i := PosEx('[', VBuffer, j+1);
+       i := ALPosEx('[', VBuffer, j+1);
        if i>j+1 then begin
-        j := PosEx(']', VBuffer, i);
-        sdesc := Utf8ToAnsi(Copy(VBuffer, i + 1, j - (i + 1)));
+        j := ALPosEx(']', VBuffer, i);
+        VDesc := Utf8ToAnsi(Copy(VBuffer, i + 1, j - (i + 1)));
        end;
      end;
 
      try
-       VPoint.Y := StrToFloat(slat, VFormatSettings);
-       VPoint.X := StrToFloat(slon, VFormatSettings);
+       VPoint.Y := ALStrToFloat(slat, VFormatSettings);
+       VPoint.X := ALStrToFloat(slon, VFormatSettings);
      except
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
-     VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+     VPlace := TGeoCodePlacemark.Create(VPoint, sname, VDesc, sfulldesc, 4);
      VList.Add(VPlace);
 
     VBuffer:='';
@@ -648,8 +653,8 @@ begin
   Result :=
     PrepareRequestByURL(
       'http://maps.navitel.su/webmaps/searchTwoStep?s='+URLEncode(AnsiToUtf8(VSearch))+
-      '&lon='+R2StrPoint(ALocalConverter.GetCenterLonLat.x)+'&lat='+R2StrPoint(ALocalConverter.GetCenterLonLat.y)+
-      '&z='+inttostr(VZoom)
+      '&lon='+R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x)+'&lat='+R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y)+
+      '&z='+ALIntToStr(VZoom)
     );
 end;
 

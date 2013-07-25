@@ -63,6 +63,7 @@ implementation
 
 uses
   StrUtils,
+  ALFcnString,
   t_GeoTypes,
   i_GeoCoder,
   i_StringlistStatic,
@@ -75,7 +76,7 @@ uses
 { TGeoCoderByPolishMap }
 
 function getType(
-  const ASection: string;
+  const ASection: AnsiString;
   const AType:integer
   ):string;
 begin
@@ -486,17 +487,17 @@ begin
 end;
 
 function GetParam(
-  const AName: string;
-  const AStr: string;
-  const ADef: string = ''
-):string;
+  const AName: AnsiString;
+  const AStr: AnsiString;
+  const ADef: AnsiString = ''
+):AnsiString;
 var
   i, j: integer;
 begin
   result := ADef;
-  i := PosEx(AName, AStr);
+  i := ALPosEx(AName, AStr);
   if (i = 0) then exit;
-  j := PosEx(#$A, AStr, i+1);
+  j := ALPosEx(#$A, AStr, i+1);
   if (j = 0) then j := length(AStr) + 1;
   if (j > 1) and (AStr[j - 1] = #$D) then dec(j); // учёт второго варианта конца строки
   result := Copy(AStr, i + length(AName) , j - (i + length(AName)));
@@ -511,15 +512,16 @@ procedure TGeoCoderByPolishMap.SearchInMapFile(
   var Acnt : integer
   );
 var
- VFormatSettings : TFormatSettings;
+ VFormatSettings : TALFormatSettings;
  VPlace : IGeoCodePlacemark;
  VPoint : TDoublePoint;
- slat, slon, sname, sdesc, sfulldesc : string;
+ slat, slon: AnsiString;
+ sname, sdesc, sfulldesc : string;
  VLinkErr : boolean;
  Vi, i, j, k, l: integer;
  VStr: AnsiString;
  vStr2: AnsiString;
- VSearch : widestring;
+ VSearch : AnsiString;
  VTemplist : TStringlist;
  VCityList : IStringListStatic;
 
@@ -531,15 +533,15 @@ var
  V_HouseNumber,
  V_CountryName,
  V_WebPage,
- V_Phone : string;
+ V_Phone : AnsiString;
  V_Type : integer;
  Skip: boolean;
  VStream: TFileStream;
- V_EndOfLine : string;
+ V_EndOfLine : AnsiString;
  VValueConverter: IValueToStringConverter;
 begin
  VFormatSettings.DecimalSeparator := '.';
- VSearch := AnsiUpperCase(ASearch);
+ VSearch := AnsiString(AnsiUpperCase(ASearch));
  FLock.BeginRead;
  try
   VStream := TFileStream.Create(AFile, fmOpenRead);
@@ -554,21 +556,21 @@ begin
   FLock.EndRead;
  end;
   if i < 10 then exit; // файл слишком маленький
-  i := PosEx(#$A, VStr, 2); // вдруг в самом начале файла пустая строка и лишь с #$A? её пропустим и найдём конец следующей
+  i := ALPosEx(#$A, VStr, 2); // вдруг в самом начале файла пустая строка и лишь с #$A? её пропустим и найдём конец следующей
   if (i > 1) and (VStr[i - 1] = #$D) then V_EndOfLine := #$D#$A else V_EndOfLine := #$A;
-  Vstr := AnsiUpperCase(Vstr);
-  i := PosEx('[CITIES]', VStr);
+  Vstr := AlUpperCase(Vstr);
+  i := ALPosEx('[CITIES]', VStr);
   if i > 0 then begin
-    k :=  PosEx('[END', VStr, i);
+    k :=  ALPosEx('[END', VStr, i);
     VStr2 := copy(VStr, i, k - i); // вырежем весь первый блок
     VTempList := TStringList.Create;
     try
-      while (PosEx('CITY', VStr2, i) > 0) do begin
+      while (ALPosEx('CITY', VStr2, i) > 0) do begin
         j := i;
-        i := PosEx('CITY', VStr2, j);
-        i := PosEx('=', VStr2, i);
-        j := PosEx(V_EndOfLine, VStr2, i);
-        sname := (Copy(VStr2, i + 1, j - (i + 1)));
+        i := ALPosEx('CITY', VStr2, j);
+        i := ALPosEx('=', VStr2, i);
+        j := ALPosEx(V_EndOfLine, VStr2, i);
+        sname := string(Copy(VStr2, i + 1, j - (i + 1)));
         VTemplist.add(sname);
       end;// заполнили массив городов, если они заданы в начале файла
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -586,13 +588,13 @@ begin
   // ищем вхождение, затем бежим назад до начала блока
   while true do begin
     VLinkErr := false;
-    Vi := PosEx(VSearch, VStr, Vi) + 1;
+    Vi := ALPosEx(VSearch, VStr, Vi) + 1;
     if Vi = 1 then break; // больше не нашли?
     j := Vi - 1;
     while (j > 0) and (Vstr[j] <> #$A) do dec(j); // начало строки с найденными данными
     if Vi < j + 7 then continue; // нашлось в имени тега, пропустим
     if copy(Vstr, j + 1, 6) <> 'LABEL=' then continue; // найденные данные не в теге Label?
-    k := PosEx(#$A'[END]', VStr, Vi); // конец блока найденных данных.
+    k := ALPosEx(#$A'[END]', VStr, Vi); // конец блока найденных данных.
     l := j;
     while (l > 0) and (copy(Vstr, l, 2) <> #$A'[') do dec(l); // начало блока с найденными данными
     VStr2 := copy(VStr, l + 1, k - l); // вырежем весь блок с найденными данными
@@ -606,7 +608,7 @@ begin
     V_WebPage := '';
     V_Phone :='';
 
-    i := PosEx(']', VStr2);
+    i := ALPosEx(']', VStr2);
     if i>0 then begin
      if i<k then begin
        V_SectionType := Copy(Vstr2, 2, i - 2);
@@ -615,24 +617,24 @@ begin
     end;
 
     V_Label := GetParam(#$A'LABEL=',vStr2);
-    V_Label := ReplaceStr(V_Label,'~[0X1F]',' ');
-    i := strtointdef(GetParam(#$A'CITYIDX=',vStr2),-1);
+    V_Label := ALStringReplace(V_Label,'~[0X1F]',' ', [rfReplaceAll]);
+    i := ALStrToIntDef(GetParam(#$A'CITYIDX=',vStr2),-1);
     if (i > 0) and (i < VCityList.Count) then
         V_CityName := VCityList.items[i - 1] else  V_CityName := '';
     V_CityName := GetParam(#$A'CITYNAME=',vStr2,V_CityName);
     V_RegionName := GetParam(#$A'REGIONNAME=',vStr2);
     V_CountryName := GetParam(#$A'COUNTRYNAME=',vStr2);
-    V_Type := strtointdef(GetParam(#$A'TYPE=',VStr2), -1);
+    V_Type := ALStrToIntDef(GetParam(#$A'TYPE=',VStr2), -1);
     V_StreetDesc := GetParam(#$A'STREETDESC=',vStr2);
     V_HouseNumber := GetParam(#$A'HOUSENUMBER=',vStr2);
     V_WebPage := GetParam(#$A'WEBPAGE=',vStr2,'');
     V_Phone := GetParam(#$A'PHONE=',vStr2,'');
 
-    i := PosEx('DATA', VStr2);
-    i := PosEx('(', VStr2, i);
-    j := PosEx(',', VStr2, i);
+    i := ALPosEx('DATA', VStr2);
+    i := ALPosEx('(', VStr2, i);
+    j := ALPosEx(',', VStr2, i);
     slat := Copy(Vstr2, i + 1, j - (i + 1));
-    i := PosEx(')', VStr2, i);
+    i := ALPosEx(')', VStr2, i);
     slon := Copy(Vstr2, j + 1, i - (j + 1));
 
     if (slat='') or (slon='') then VLinkErr := true;
@@ -643,28 +645,28 @@ begin
 
     if VLinkErr <> true then begin
      try
-       VPoint.Y := StrToFloat(slat, VFormatSettings);
-       VPoint.X := StrToFloat(slon, VFormatSettings);
+       VPoint.Y := ALStrToFloat(slat, VFormatSettings);
+       VPoint.X := ALStrToFloat(slon, VFormatSettings);
      except
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
       sdesc := '';
-      sname := V_Label;
-      if V_CountryName <> '' then sdesc := sdesc + V_CountryName + ', ';
-      if V_RegionName <> '' then sdesc := sdesc + V_RegionName;
+      sname := string(V_Label);
+      if V_CountryName <> '' then sdesc := sdesc + string(V_CountryName) + ', ';
+      if V_RegionName <> '' then sdesc := sdesc + string(V_RegionName);
       if sdesc <> '' then sdesc := sdesc + #$D#$A;
 
       if V_HouseNumber <>'' then
-        if sname='' then  sname := V_StreetDesc+' №'+V_HouseNumber
-          else sdesc := V_StreetDesc+' №'+V_HouseNumber + #$D#$A + sdesc ;
+        if sname='' then  sname := string(V_StreetDesc)+' №'+string(V_HouseNumber)
+          else sdesc := string(V_StreetDesc)+' №'+string(V_HouseNumber) + #$D#$A + sdesc;
       if V_Type<> -1 then sdesc := getType(V_SectionType,V_Type)+ #$D#$A + sdesc;
-      if V_CityName <> '' then sdesc := sdesc +  V_CityName + #$D#$A;
-      if V_Phone<>'' then sdesc := sdesc +'Phone '+ V_Phone + #$D#$A;
+      if V_CityName <> '' then sdesc := sdesc +  string(V_CityName) + #$D#$A;
+      if V_Phone<>'' then sdesc := sdesc +'Phone '+ string(V_Phone) + #$D#$A;
       VValueConverter := FValueToStringConverterConfig.GetStatic;
       sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
       sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
       sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-      if V_WebPage<>'' then sfulldesc := sfulldesc + '<br><a href=' + V_WebPage + '>' + V_WebPage + '</a>';
+      if V_WebPage<>'' then sfulldesc := sfulldesc + '<br><a href=' + string(V_WebPage) + '>' + string(V_WebPage) + '</a>';
       VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
 
       // если закометировать условие то не будет производиться фильтрация одинаковых элементов
