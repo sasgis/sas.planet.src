@@ -46,7 +46,7 @@ type
   public
     function Init: Boolean;
 
-    procedure Open(const ADbFileName: AnsiString; const AOpenFlags: Integer);
+    procedure Open(const ADbFileName: String; const AOpenFlags: Integer);
     procedure OpenW(const ADbFileName: WideString);
     procedure Close;
     function Opened: Boolean; inline;
@@ -286,7 +286,7 @@ begin
   Result := g_Sqlite3Library.sqlite3_last_insert_rowid(Sqlite3Handle)
 end;
 
-procedure TSQLite3DbHandler.Open(const ADbFileName: AnsiString; const AOpenFlags: Integer);
+procedure TSQLite3DbHandler.Open(const ADbFileName: String; const AOpenFlags: Integer);
 var
   VDBFileName: AnsiString;
 begin
