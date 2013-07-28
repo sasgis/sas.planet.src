@@ -447,7 +447,7 @@ begin
   end;
 
   if Assigned(ATileContentType) then begin
-    FValue.TileContentType := ATileContentType.GetContentType;
+    FValue.TileContentType := WideString(ATileContentType.GetContentType);
   end else begin
     FValue.TileContentType := '';
   end;
@@ -583,11 +583,11 @@ begin
     end;
   end else begin
     raise EBerkeleyDBBadValue.Create(
-      AnsiString('Error [BerkeleyDB Value]: Bad magic value (') +
-      FValue.RecMagic[0] +
+      'Error [BerkeleyDB Value]: Bad magic value (' +
+      string(FValue.RecMagic[0] +
       FValue.RecMagic[1] +
       FValue.RecMagic[2] +
-      FValue.RecMagic[3] +
+      FValue.RecMagic[3]) +
       ')'
     );
   end;
@@ -665,7 +665,7 @@ begin
   end;
 
   if Assigned(ATileContentType) then begin
-    FValue.TileContentType := ATileContentType.GetContentType;
+    FValue.TileContentType := WideString(ATileContentType.GetContentType);
   end else begin
     FValue.TileContentType := '';
   end;
@@ -968,11 +968,11 @@ begin
     end;
   end else begin
     raise EBerkeleyDBBadValue.Create(
-      AnsiString('Error [BerkeleyDB Versioned Meta Value]: Bad magic value (') +
-      FValue.RecMagic[0] +
+      'Error [BerkeleyDB Versioned Meta Value]: Bad magic value (' +
+      string(FValue.RecMagic[0] +
       FValue.RecMagic[1] +
       FValue.RecMagic[2] +
-      FValue.RecMagic[3] +
+      FValue.RecMagic[3]) +
       ')'
     );
   end;

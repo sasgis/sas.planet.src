@@ -26,6 +26,7 @@ uses
   Windows,
   Classes,
   SyncObjs,
+  ALFcnString,
   libdb51,
   i_Listener,
   i_PathConfig,
@@ -46,8 +47,9 @@ type
     FEnvList: IInterfaceListSimple;
     FEnvCS: TCriticalSection;
     FLogCS: TCriticalSection;
+    FFormatSettings: TALFormatSettings;
     function GetFullPathName(const ARelativePathName: string): string;
-    procedure SaveErrorToLog(const AMsg: AnsiString);
+    procedure SaveErrorToLog(const AMsg: string);
     procedure OnCacheConfigChange;
   private
     { IGlobalBerkeleyDBHelper }
@@ -57,8 +59,8 @@ type
       const AEnvRootPath: string
     ): IBerkeleyDBEnvironment;
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
-    procedure LogAndRaiseException(const EMsg: AnsiString);
-    procedure LogException(const EMsg: AnsiString);
+    procedure LogAndRaiseException(const EMsg: string);
+    procedure LogException(const EMsg: string);
   public
     constructor Create(const ABaseCachePath: IPathConfig);
     destructor Destroy; override;
@@ -88,6 +90,9 @@ begin
   FEnvCS := TCriticalSection.Create;
   FLogCS := TCriticalSection.Create;
   FLogFileStream := nil;
+  FFormatSettings.DateSeparator := '-';
+  FFormatSettings.TimeSeparator := ':';
+  FFormatSettings.DecimalSeparator := '.';
   FSaveErrorsToLog := {$IFDEF DEBUG} True {$ELSE} False {$ENDIF};
   FFullBaseCachePath := FBaseCachePath.FullPath;
   FCacheConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnCacheConfigChange);
@@ -195,7 +200,7 @@ begin
   end;
 end;
 
-procedure TGlobalBerkeleyDBHelper.SaveErrorToLog(const AMsg: AnsiString);
+procedure TGlobalBerkeleyDBHelper.SaveErrorToLog(const AMsg: string);
 var
   VLogMsg: AnsiString;
   VLogFileName: string;
@@ -211,7 +216,7 @@ begin
       FLogFileStream := TFileStream.Create(VLogFileName, fmOpenReadWrite or fmShareDenyNone);
     end;
 
-    VLogMsg := AnsiString(FormatDateTime('dd-mm-yyyy hh:nn:ss.zzzz', Now)) + #09 + AMsg + #13#10;
+    VLogMsg := ALFormatDateTime('dd-mm-yyyy hh:nn:ss.zzzz', Now, FFormatSettings) + #09 + AnsiString(AMsg) + #13#10;
 
     FLogFileStream.Position := FLogFileStream.Size;
     FLogFileStream.Write(VLogMsg[1], Length(VLogMsg));
@@ -220,7 +225,7 @@ begin
   end;
 end;
 
-procedure TGlobalBerkeleyDBHelper.LogAndRaiseException(const EMsg: AnsiString);
+procedure TGlobalBerkeleyDBHelper.LogAndRaiseException(const EMsg: string);
 begin
   LogException(EMsg);
   TGlobalBerkeleyDBHelper.RaiseException(EMsg);
@@ -239,7 +244,7 @@ begin
   {$ENDIF}
 end;
 
-procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: AnsiString);
+procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: string);
 begin
   if FSaveErrorsToLog then
   try
