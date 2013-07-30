@@ -222,6 +222,7 @@ type
 implementation
 
 uses
+  ALFcnString,
   u_Synchronizer,
   vsagps_public_sats_info,
   u_Notifier;
@@ -357,7 +358,7 @@ end;
 
 function TGPSModuleAbstract.GetSatellitesListByTalkerID(const ATalkerID: AnsiString): TSatellitesInternalList;
 begin
-  if SameText(ATalkerID, nmea_ti_GLONASS) then begin
+  if ALSameText(ATalkerID, nmea_ti_GLONASS) then begin
     Result := FSatellitesGL;
   end else begin
     Result := FSatellitesGP;
@@ -391,7 +392,7 @@ function TGPSModuleAbstract.SerializeSatsInfo: AnsiString;
     bsp: TSingleSatFixibilityData;
     ssp: TSingleSatSkyData;
     si: IGPSSatelliteInfo;
-    s: AnsiString;
+    VSingleInfo: AnsiString;
   begin
     si := nil;
     v_done := 0;
@@ -405,14 +406,14 @@ function TGPSModuleAbstract.SerializeSatsInfo: AnsiString;
               if SatAvailableForShow(sat_info.svid, snr, status) then begin
                 si.GetSkySatelliteParams(@ssp);
                 // to string
-                s := SerializeSingleSatInfo(@bsp, @ssp);
+                VSingleInfo := SerializeSingleSatInfo(@bsp, @ssp);
                 // prefix to result
                 if (0 = v_done) then begin
                   _AddToResult(sats_prefix);
                 end;
                 Inc(v_done);
                 // info to result
-                _AddToResult(s);
+                _AddToResult(VSingleInfo);
               end;
             end;
           end;
@@ -428,7 +429,7 @@ begin
   // for glonass
   _DoForSats(FSatellitesGL, nmea_ti_GLONASS);
   // Nmea23_Mode at the end of line
-  Result := Result + IntToHex(Ord(FSingleGPSData.DGPS.Nmea23_Mode), 2);
+  Result := Result + ALIntToHex(Ord(FSingleGPSData.DGPS.Nmea23_Mode), 2);
 end;
 
 procedure TGPSModuleAbstract.UnLockGPSData(

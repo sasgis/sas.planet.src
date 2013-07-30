@@ -211,7 +211,7 @@ var
     const a_to_description: Boolean
   );
   begin
-    SafeSetWideStringP(VWSName, ABuffer);
+    VWSName := SafeSetStringP(ABuffer);
     if a_to_description and (0 < Length(VWSName)) then begin
       if (0 < Length(VWSDesc)) then begin
         VWSDesc := VWSDesc + #13#10;
@@ -338,7 +338,7 @@ var
   begin
     Result := (AKmlData.fParamsStrs[kml_coordinates] <> nil);
     if Result then begin
-      SafeSetWideStringP(VCoordinates, AKmlData.fParamsStrs[kml_coordinates]);
+      VCoordinates := SafeSetStringP(AKmlData.fParamsStrs[kml_coordinates]);
       Result := parse_kml_coordinate(VCoordinates, @VData, FFormat);
       if Result then begin
         wpt_point.X := VData.lon1;
@@ -368,7 +368,7 @@ var
   begin
     Result := (AKmlData.fParamsStrs[kml_coordinates] <> nil);
     if Result then begin
-      SafeSetWideStringP(VCoordinates, AKmlData.fParamsStrs[kml_coordinates]);
+      VCoordinates := SafeSetStringP(AKmlData.fParamsStrs[kml_coordinates]);
       VPointsAdded := 0;
 
       // loop through points

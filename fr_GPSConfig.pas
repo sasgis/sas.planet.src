@@ -199,7 +199,7 @@ begin
     FGPSConfig.ModuleConfig.ConnectionTimeout:=SE_ConnectionTimeout.Value;
     FGPSConfig.ModuleConfig.NMEALog:=CB_GPSlogNmea.Checked;
     FGPSConfig.ModuleConfig.Delay:=SpinEdit1.Value;
-    FGPSConfig.ModuleConfig.Port := GetCOMPortNumber(AnsiString(ComboBoxCOM.Text));
+    FGPSConfig.ModuleConfig.Port := GetCOMPortNumber(ComboBoxCOM.Text);
     FGPSConfig.ModuleConfig.BaudRate:=StrToint(ComboBoxBoudRate.Text);
     FGPSConfig.WriteLog[ttPLT]:=CB_GPSlogPLT.Checked;
     FGPSConfig.WriteLog[ttGPX]:=CB_GPSlogGPX.Checked;

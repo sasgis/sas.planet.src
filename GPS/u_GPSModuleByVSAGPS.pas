@@ -37,7 +37,7 @@ uses
 {$if defined(VSAGPS_AS_DLL)}
   vsagps_public_dll,
 {$else}
-  vsagps_memory,
+  vsagps_public_memory,
   vsagps_object,
   vsagps_track_writer,
 {$ifend}
@@ -47,7 +47,6 @@ uses
   vsagps_public_device,
   vsagps_public_position,
   vsagps_public_trackpoint,
-  vsagps_public_sysutils,
   vsagps_public_unit_info;
 
 type
@@ -81,7 +80,7 @@ type
     FNotify_on_GLL: Boolean;
     FNotify_on_GSA: Boolean;
     FNotify_on_RMC: Boolean;
-    FGPSUnitInfo: AnsiString;
+    FGPSUnitInfo: string;
   private
     procedure GPSRecv_NMEA_GGA(const AUnitIndex: Byte; const pGGA: PNMEA_GGA);
     procedure GPSRecv_NMEA_GLL(const AUnitIndex: Byte; const pGLL: PNMEA_GLL);
@@ -126,7 +125,8 @@ type
     procedure InternalClearUnitInfo(const AUnitIndex: Byte);
     procedure InternalSetUnitInfo(const AUnitIndex: Byte;
                                   const AKind: TVSAGPS_UNIT_INFO_Kind;
-                                  const AValue: AnsiString);
+                                  const AValue: string
+                                  );
 
     procedure LockUnitInfo(const AUnitIndex: Byte);
     procedure UnlockUnitInfo(const AUnitIndex: Byte);
@@ -134,7 +134,7 @@ type
       const AUnitIndex: Byte;
       const ACommand: LongInt;
       const APointer: Pointer
-    ): AnsiString;
+    ): string;
   private
     procedure GPSDoStateChanged(const AUnitIndex: Byte;
                                 const ANewState: Tvsagps_GPSState);
@@ -143,7 +143,9 @@ type
     // called by device object when unit info changed
     procedure DoGPSUnitInfoChanged(const AUnitIndex: Byte;
                                    const AKind: TVSAGPS_UNIT_INFO_Kind;
-                                   const AValue: PAnsiChar);
+                                   const AValue: Pointer;
+                                   const AIsWide: Boolean
+                                   );
   protected
     procedure Connect(const AConfig: IGPSModuleByCOMPortSettings;
                       const ALogConfig: IGPSConfig); safecall;
@@ -173,6 +175,8 @@ uses
   DateUtils,
   Math,
   Classes,
+  ALFcnString,
+  vsagps_public_sysutils,
   u_ResStrings,
   u_ListenerByEvent,
   t_GeoTypes;
@@ -316,10 +320,17 @@ procedure rVSAGPS_UNIT_INFO_DLL_Proc(const pUserPointer: Pointer;
                                      const btUnitIndex: Byte;
                                      const dwGPSDevType: DWORD;
                                      const eKind: TVSAGPS_UNIT_INFO_Kind;
-                                     const szValue: PAnsiChar); stdcall;
+                                     const szValue: Pointer;
+                                     const AIsWide: Boolean
+                                     ); stdcall;
 begin
   if (nil<>pUserPointer) then
-    TGPSModuleByVSAGPS(pUserPointer).DoGPSUnitInfoChanged(btUnitIndex, eKind, szValue);
+    TGPSModuleByVSAGPS(pUserPointer).DoGPSUnitInfoChanged(
+      btUnitIndex,
+      eKind,
+      szValue,
+      AIsWide
+    );
 end;
 
 procedure rVSAGPS_GPSState_DLL_Proc(const pUserPointer: Pointer;
@@ -582,7 +593,7 @@ begin
     end else begin
       // NMEA via COMx port
       FGPSDevType:=gdt_COM_NMEA0183;
-      FGPSPortName:='COM' + IntToStr(AConfig.Port);
+      FGPSPortName:='COM' + AnsiString(IntToStr(AConfig.Port));
 {$if defined(VSAGPS_AS_DLL)}
       FGPSPortName:=FGPSPortName+#0;
       FszGPSPortName:=PAnsiChar(FGPSPortName);
@@ -654,7 +665,7 @@ begin
       if FRecvTimeoutOccured then
         TimeOutNotifier.Notify(nil);
       DisconnectedNotifier.Notify(nil);
-      DoGPSUnitInfoChanged(AUnitIndex, guik_ClearALL, ''); // reset unit info
+      DoGPSUnitInfoChanged(AUnitIndex, guik_ClearALL, nil, False); // reset unit info
     end;
     gs_ProcessConnecting:
       ConnectingNotifier.Notify(nil);
@@ -717,7 +728,7 @@ end;
 procedure TGPSModuleByVSAGPS.DoAddPointToLogWriter(const AUnitIndex: Byte);
 var
   tATP: Tvsagps_AddTrackPoint;
-  s: AnsiString;
+  VSatsInfo: AnsiString;
 begin
   //inherited;
   LockLogger;
@@ -730,9 +741,9 @@ begin
       try
         // get sats info (if requested)
         if (0<>FVSAGPS_GPX_WRITER_PARAMS.btWrite_Sasx_Sats_Info) then begin
-          s:=SerializeSatsInfo;
-          if (0<Length(s)) then begin
-            tATP.szSatsInfo := VSAGPS_AllocPCharByString(s, TRUE);
+          VSatsInfo := SerializeSatsInfo;
+          if (0<Length(VSatsInfo)) then begin
+            tATP.szSatsInfo := VSAGPS_AllocPCharByString(VSatsInfo, True);
           end;
         end;
         // run
@@ -742,7 +753,7 @@ begin
         FVSAGPS_Logger.AddTrackPoint(@tATP);
 {$ifend}
       finally
-        VSAGPS_FreeAndNil_PChar(tATP.szSatsInfo);
+        VSAGPS_FreeAndNil_PAnsiChar(tATP.szSatsInfo);
       end;
     end;
   finally
@@ -754,7 +765,7 @@ function TGPSModuleByVSAGPS.ExecuteGPSCommand(
   const AUnitIndex: Byte;
   const ACommand: LongInt;
   const APointer: Pointer
-): AnsiString;
+): string;
 begin
   // some special commands
 
@@ -816,15 +827,26 @@ end;
 procedure TGPSModuleByVSAGPS.DoGPSUnitInfoChanged(
   const AUnitIndex: Byte;
   const AKind: TVSAGPS_UNIT_INFO_Kind;
-  const AValue: PAnsiChar);
-var s: AnsiString;
+  const AValue: Pointer;
+  const AIsWide: Boolean
+);
+var
+  VValue: string;
+  VAnsiValue: AnsiString;
+  VWideValue: WideString;
 begin
   // save to info
   if (guik_ClearALL=AKind) then
     InternalClearUnitInfo(AUnitIndex)
   else begin
-    SafeSetStringP(s, AValue);
-    InternalSetUnitInfo(AUnitIndex, AKind, s);
+    if AIsWide then begin
+      VWideValue := SafeSetStringP(PWideChar(AValue));
+      VValue := string(VWideValue);
+    end else begin
+      VAnsiValue := SafeSetStringP(PAnsiChar(AValue));
+      VValue := string(VAnsiValue);
+    end;
+    InternalSetUnitInfo(AUnitIndex, AKind, VValue);
   end;
   ReGenerateGPSUnitInfo(AUnitIndex);
 end;
@@ -975,7 +997,7 @@ procedure TGPSModuleByVSAGPS.Do_VSAGPS_LOGGER_TRACKPARAMS_EVENT(const pLogger: P
   end;
 
 var
-  st: AnsiString;
+  st: string;
 begin
   if (ttGPX=pATP^.eTrackType) then
   case pATP^.eTrackParam of
@@ -990,7 +1012,7 @@ begin
       if (0<Length(st)) then begin
         AParamsOut^.UsePredefined:=FALSE;
         AParamsOut^.UseResult:=TRUE;
-        _AllocA(st);
+        _AllocA(AnsiString(st)); // TODO: correct this
       end;
     end;
   end;
@@ -1105,7 +1127,7 @@ end;
 procedure TGPSModuleByVSAGPS.InternalSetUnitInfo(
   const AUnitIndex: Byte;
   const AKind: TVSAGPS_UNIT_INFO_Kind;
-  const AValue: AnsiString
+  const AValue: string
 );
 begin
   LockUnitInfo(AUnitIndex);
@@ -1580,10 +1602,10 @@ begin
     Exit;
   LockGPSData;
   try
-    VSourceTalkerID:=NMEA_TalkerID_to_String(@(pGSA^.chCorrectedTalkerID));
+    VSourceTalkerID := NMEA_TalkerID_to_String(@(pGSA^.chCorrectedTalkerID));
 
     // if QZSS - skip (no data)
-    if SameText(VSourceTalkerID, nmea_ti_QZSS) then
+    if ALSameText(VSourceTalkerID, nmea_ti_QZSS) then
       Exit;
 
     // if no corrected talker_id - skip data
