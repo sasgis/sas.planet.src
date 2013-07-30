@@ -26,6 +26,7 @@ uses
   t_GeoTypes;
 
 function RoundEx(chislo: Double; Precision: Integer): string;
+function RoundExAnsi(chislo: Double; Precision: Integer): AnsiString;
 function R2StrPoint(r: Double): string;
 function R2AnsiStrPoint(r: Double): AnsiString;
 function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: integer): string;
@@ -52,6 +53,14 @@ begin
     Result := '-'
   else
     Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
+end;
+
+function RoundExAnsi(chislo: Double; Precision: Integer): AnsiString;
+begin
+  if IsNan(chislo) then
+    Result := '-'
+  else
+    Result := ALFloatToStrF(chislo, ffFixed, 18, Precision, GAnsiFormatSettings);
 end;
 
 function str2r(const AStrValue: string): Double;
