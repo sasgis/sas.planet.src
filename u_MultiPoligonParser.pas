@@ -86,12 +86,20 @@ JSON geometry:
 implementation
 
 uses
+  SysUtils,
   u_GeoFun,
   u_GeoToStr;
 
+{$IF CompilerVersion < 23}
+function CharInSet(const AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;
+begin
+  Result := (AChar in ASet)
+end;
+{$IFEND}
+
 function _IsCoord(const ASym: Char): Boolean;
 begin
-  Result := (ASym in ['0','1'..'9','.','-']);
+  Result := CharInSet(ASym, ['0','1'..'9','.','-']);
 end;
 
 function ParsePointsToAggregator(
@@ -108,7 +116,7 @@ var
   VPos, VEnd, L: Integer;
   VOk: Byte;
   VPoint: TDoublePoint;
-  VXYDelimiters: set of char;
+  VXYDelimiters: TSysCharSet;
 begin
   Result := 0;
   if (0=Length(ASourceText)) then
@@ -135,14 +143,14 @@ begin
 
     // extract coords
     while (VEnd<=L) do begin
-      if (ASourceText[VEnd] in VXYDelimiters) then begin
+      if CharInSet(ASourceText[VEnd], VXYDelimiters) then begin
         // space between X and Y - get X
         VPoint.X := StrPointToFloat(System.Copy(ASourceText, VPos, VEnd-VPos));
         // skip delimiters
-        while (VEnd<=L) and (ASourceText[VEnd] in VXYDelimiters) do
+        while (VEnd<=L) and CharInSet(ASourceText[VEnd], VXYDelimiters) do
           Inc(VEnd);
         // skip spaces
-        while (VEnd<=L) and (ASourceText[VEnd] in [#32,#160,#13,#10]) do
+        while (VEnd<=L) and CharInSet(ASourceText[VEnd], [#32,#160,#13,#10]) do
           Inc(VEnd);
         // first nonspace
         VPos := VEnd;

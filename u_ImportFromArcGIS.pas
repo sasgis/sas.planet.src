@@ -29,26 +29,29 @@ implementation
 uses
   Windows,
   Classes,
+  ALFcnString,
   ALZLibExGZ,
   c_CoordConverter,
   i_DownloadResultFactory,
   i_DownloadResult,
   i_DownloadRequest,
   i_Downloader,
-  i_InterfaceListSimple,
   i_NotifierOperation,
   i_DoublePointsAggregator,
   i_CoordConverter,
   i_VectorItemLonLat,
+  i_InterfaceListSimple,
   u_DownloadResultFactory,
   u_DownloadRequest,
   u_DownloaderHttp,
   u_InterfaceListSimple,
-  u_VectorDataItemSubset,
   u_Notifier,
   u_NotifierOperation,
   u_DoublePointsAggregator,
   u_MultiPoligonParser,
+  u_StreamReadOnlyByBinaryData,
+  u_VectorDataItemSubset,
+  u_InetFunc,
   u_GeoToStr;
 
 procedure AddWithBR(var AFullDesc: String; const ACaption, AValue: String);
@@ -73,25 +76,25 @@ begin
     SetLength(Result,(Length(Result)-1));
 end;
 
-function _refererxy(const AConverter: ICoordConverter; const ALonLat: TDoublePoint): String;
+function _refererxy(const AConverter: ICoordConverter; const ALonLat: TDoublePoint): AnsiString;
 var
   VMetrPoint: TDoublePoint;
 begin
   VMetrPoint := AConverter.LonLat2Metr(ALonLat);
-  Result := '&x='+RoundEx(VMetrPoint.X, 4)+'&y='+RoundEx(VMetrPoint.Y, 4);
+  Result := '&x=' + RoundExAnsi(VMetrPoint.X, 4) + '&y=' + RoundExAnsi(VMetrPoint.Y, 4);
 end;
 
-function _geometry(const AConverter: ICoordConverter; const ALonLat: TDoublePoint): String;
+function _geometry(const AConverter: ICoordConverter; const ALonLat: TDoublePoint): AnsiString;
 var
   VMetrPoint: TDoublePoint;
 begin
   VMetrPoint := AConverter.LonLat2Metr(ALonLat);
-  Result := '{"x":'+RoundEx(VMetrPoint.X, 9)+
-            ',"y":'+RoundEx(VMetrPoint.Y, 9)+
+  Result := '{"x":' + RoundExAnsi(VMetrPoint.X, 9) +
+            ',"y":' + RoundExAnsi(VMetrPoint.Y, 9) +
             ',"spatialReference":{"wkid":102100}}';
 end;
 
-function _mapExtent(const AConverter: ICoordConverter; const ALonLatRect: TDoubleRect): String;
+function _mapExtent(const AConverter: ICoordConverter; const ALonLatRect: TDoubleRect): AnsiString;
 var
   VMetrPointMin, VMetrPointMax: TDoublePoint;
 begin
@@ -101,17 +104,17 @@ begin
   VMetrPointMax.X := ALonLatRect.Right;
   VMetrPointMax.Y := ALonLatRect.Top;
   VMetrPointMax := AConverter.LonLat2Metr(VMetrPointMax);
-  Result := '{"xmin":'+RoundEx(VMetrPointMin.X, 9)+
-            ',"ymin":'+RoundEx(VMetrPointMin.Y, 9)+
-            ',"xmax":'+RoundEx(VMetrPointMax.X, 9)+
-            ',"ymax":'+RoundEx(VMetrPointMax.Y, 9)+
+  Result := '{"xmin":' + RoundExAnsi(VMetrPointMin.X, 9) +
+            ',"ymin":' + RoundExAnsi(VMetrPointMin.Y, 9) +
+            ',"xmax":' + RoundExAnsi(VMetrPointMax.X, 9) +
+            ',"ymax":' + RoundExAnsi(VMetrPointMax.Y, 9) +
             ',"spatialReference":{"wkid":102100}}';
 end;
 
-function _imageDisplay(const AMapSize: TPoint): String;
+function _imageDisplay(const AMapSize: TPoint): AnsiString;
 begin
   // '1314,323,96'
-  Result := IntToStr(AMapSize.X)+','+IntToStr(AMapSize.Y)+','+'96';
+  Result := ALIntToStr(AMapSize.X) + ',' + ALIntToStr(AMapSize.Y) + ',' + '96';
 end;
 
 function _GetCadastreLevel(const AText: String): Integer;
@@ -128,68 +131,72 @@ end;
 
 function _IsZippedDownloadResult(
   const ADownloadResultOk: IDownloadResultOk;
-  var AContentEncodingDetector: TStringList;
   out AInUtf8: Boolean
 ): Boolean;
 begin
-  if (nil=AContentEncodingDetector) then begin
-    AContentEncodingDetector := TStringList.Create;
-    AContentEncodingDetector.NameValueSeparator := ':';
-  end;
-  AContentEncodingDetector.Text := ADownloadResultOk.RawResponseHeader;
-  AInUtf8 := (System.Pos('utf-8', ADownloadResultOk.ContentType)>0);
-  Result := SameText(Trim(AContentEncodingDetector.Values['Content-Encoding']), 'gzip');
+  AInUtf8 := (ALPos('utf-8', ADownloadResultOk.ContentType)>0);
+  Result := IsGZipped(ADownloadResultOk.RawResponseHeader);
 end;
 
 function _GetPlainResponseFromDownloadResult(
-  var ASrcInZip: TMemoryStream;
-  var AUnZipped: TMemoryStream;
-  var AContentEncodingDetector: TStringList;
   const ADownloadResultOk: IDownloadResultOk
 ): String;
 var
   VZipped: Boolean;
   VUnUtf8: Boolean;
+  VSrc: TStreamReadOnlyByBinaryData;
+  VDst: TMemoryStream;
+  VAnsiRes: AnsiString;
 begin
   Result := '';
-  VZipped := _IsZippedDownloadResult(ADownloadResultOk, AContentEncodingDetector, VUnUtf8);
+  VZipped := _IsZippedDownloadResult(ADownloadResultOk, VUnUtf8);
   if VZipped then
   try
-    FreeAndNil(ASrcInZip);
-    ASrcInZip:=TMemoryStream.Create;
-    ASrcInZip.SetSize(ADownloadResultOk.Data.Size);
-    CopyMemory(ASrcInZip.Memory, ADownloadResultOk.Data.Buffer, ADownloadResultOk.Data.Size);
-    if (nil=ASrcInZip.Memory) or (0=ASrcInZip.Size) then
+    VDst := nil;
+    VSrc := TStreamReadOnlyByBinaryData.Create(ADownloadResultOk.Data);
+    try
+      VDst := TMemoryStream.Create;
+
+      GZDecompressStream(VSrc, VDst);
+
+      SetString(VAnsiRes, PAnsiChar(VDst.Memory), VDst.Size div SizeOf(AnsiChar));
+
+      if VUnUtf8 then begin
+        Result := Utf8ToAnsi(VAnsiRes);
+      end else begin
+        Result := string(VAnsiRes);
+      end;
+      
       Exit;
-    FreeAndNil(AUnZipped);
-    AUnZipped := TMemoryStream.Create;
-    GZDecompressStream(ASrcInZip, AUnZipped);
-    SetString(Result, PChar(AUnZipped.Memory), AUnZipped.Size div SizeOf(Char));
-    if VUnUtf8 then
-      Result := Utf8ToAnsi(Result);
-    Exit;
+    finally
+      VSrc.Free;
+      VDst.Free;
+    end;
   except
   end;
 
   // as plain text
   if ADownloadResultOk.Data.Size>0 then begin
-    SetString(Result, PChar(ADownloadResultOk.Data.Buffer), ADownloadResultOk.Data.Size div SizeOf(Char));
-    if VUnUtf8 then
-      Result := Utf8ToAnsi(Result);
+    SetString(VAnsiRes, PAnsiChar(ADownloadResultOk.Data.Buffer), ADownloadResultOk.Data.Size div SizeOf(AnsiChar));
+    if VUnUtf8 then begin
+      Result := Utf8ToAnsi(VAnsiRes);
+    end else begin
+      Result := string(VAnsiRes);
+    end;
   end;
 end;
 
 procedure _CheckThisIsParcel(
   const AText: String;
   var AMaxCadastreDelimiters: Integer;
-  var ACadastreNumber: String
+  var ACadastreNumber: AnsiString
 );
 var
   VLevel: Integer;
 begin
   VLevel := _GetCadastreLevel(AText);
   if (VLevel=3) then begin
-    ACadastreNumber := AText;
+    ACadastreNumber := AnsiString(AText);
   end;
   if (AMaxCadastreDelimiters<VLevel) then begin
     AMaxCadastreDelimiters:=VLevel;
@@ -214,24 +221,23 @@ procedure _ParseSingleJSON(
   const AText, AGeometry: String;
   const APointsAggregator: IDoublePointsAggregator;
   const ADownloader: IDownloader;
-  const AHeaders: String;
+  const AHeaders: AnsiString;
   const AConverter: ICoordConverter;
   const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
+  const AOperationID: Integer;
   var AJSONParams: TStringList;
-  var ASrcInZip: TMemoryStream;
-  var AUnZipped: TMemoryStream;
-  var AContentEncodingDetector: TStringList;
   out AMarkName, AMarkDesc: String
 );
 var
   i: Integer;
-  VTemp, VLine, VCadastreNumber: String;
+  VTemp, VLine: String;
+  VCadastreNumber: AnsiString;
   VMaxCadastreDelimiters: Integer;
-  VSecondLink: String;
+  VSecondLinkA: AnsiString;
   VSecondRequest: IDownloadRequest;
   VSecondResult: IDownloadResult;
   VSecondDownloadResultOk: IDownloadResultOk;
+  VSecondText: string;
 begin
   VMaxCadastreDelimiters := 0;
   VCadastreNumber := '';
@@ -265,17 +271,17 @@ begin
 
   // secondary request (only for parcels!)
   if (VMaxCadastreDelimiters=3) and (0<Length(VCadastreNumber)) then begin
-    VSecondLink :=
+    VSecondLinkA :=
       'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/'+
       'Cadastre/MapServer/exts/GKNServiceExtension/online/parcel/find?'+
       // ['59:39:320001:640'] = %5B%2759%3A39%3A320001%3A640%27%5D
-      'cadNums=%5B%27'+StringReplace(VCadastreNumber,':','%3A',[rfReplaceAll])+'%27%5D'+
+      'cadNums=%5B%27' + ALStringReplace(VCadastreNumber, ':', '%3A', [rfReplaceAll]) + '%27%5D'+
       '&onlyAttributes=false'+
       '&returnGeometry=false'+ // allow 'true'
       '&f=json';
 
     VSecondRequest := TDownloadRequest.Create(
-      VSecondLink,
+      VSecondLinkA,
       AHeaders,
       AInetConfig.GetStatic
     );
@@ -296,34 +302,31 @@ begin
       _PrepareJSONParser(AJSONParams);
 
       // parse second response
-      VSecondLink :=
+      VSecondText :=
         _GetPlainResponseFromDownloadResult(
-          ASrcInZip,
-          AUnZipped,
-          AContentEncodingDetector,
           VSecondDownloadResultOk
         );
 
-      if (System.Pos('error', VSecondLink)>0) and
-         (System.Pos('code', VSecondLink)>0) and
-         (System.Pos('Invalid URL', VSecondLink)>0) then begin
+      if (System.Pos('error', VSecondText)>0) and
+         (System.Pos('code', VSecondText)>0) and
+         (System.Pos('Invalid URL', VSecondText)>0) then begin
         raise Exception.Create('Cannot request parcel information');
       end;
 
       // delete debug fields
-      VMaxCadastreDelimiters :=  System.Pos('"debug":', VSecondLink);
+      VMaxCadastreDelimiters :=  System.Pos('"debug":', VSecondText);
       if (VMaxCadastreDelimiters>0) then begin
-        SetLength(VSecondLink, VMaxCadastreDelimiters-1);
+        SetLength(VSecondText, VMaxCadastreDelimiters-1);
       end;
 
-      VSecondLink := StringReplace(VSecondLink, '"features":','',[rfIgnoreCase]);
-      VSecondLink := StringReplace(VSecondLink, '"attributes":','',[rfIgnoreCase]);
-      VSecondLink := StringReplace(VSecondLink, '}]','',[rfReplaceAll]);
-      VSecondLink := StringReplace(VSecondLink, '[{','',[rfReplaceAll]);
-      VSecondLink := StringReplace(VSecondLink, '}','',[rfReplaceAll]);
-      VSecondLink := StringReplace(VSecondLink, '{','',[rfReplaceAll]);
+      VSecondText := StringReplace(VSecondText, '"features":','',[rfIgnoreCase]);
+      VSecondText := StringReplace(VSecondText, '"attributes":','',[rfIgnoreCase]);
+      VSecondText := StringReplace(VSecondText, '}]','',[rfReplaceAll]);
+      VSecondText := StringReplace(VSecondText, '[{','',[rfReplaceAll]);
+      VSecondText := StringReplace(VSecondText, '}','',[rfReplaceAll]);
+      VSecondText := StringReplace(VSecondText, '{','',[rfReplaceAll]);
 
-      AJSONParams.DelimitedText := VSecondLink;
+      AJSONParams.DelimitedText := VSecondText;
 
       // just add fields
       for i := 0 to AJSONParams.Count-1 do begin
@@ -366,16 +369,14 @@ const
 
 var
   VConverter: ICoordConverter;
-  VHead: String;
+  VHead: AnsiString;
   VDownloader: IDownloader;
   VCancelNotifier: INotifierOperation;
-  VContentEncodingDetector, VJSONParams: TStringList;
-  VSrcInZip: TMemoryStream;
-  VUnZipped: TMemoryStream;
+  VJSONParams: TStringList;
   VResultFactory: IDownloadResultFactory;
   VRequest: IDownloadRequest;
   VDownloadResultOk: IDownloadResultOk;
-  VLink: String;
+  VLink: AnsiString;
   VResult: IDownloadResult;
   VJSON, VText, VGeometry: String;
   VMarkName, VMarkDesc: String;
@@ -394,7 +395,7 @@ begin
       'Host: maps.rosreestr.ru'+#$D#$A+
       'Accept: */*'+#$D#$A+
       'Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'+#$D#$A+
-      'Referer: http://maps.rosreestr.ru/PortalOnline/?l='+IntToStr(AZoom)+_refererxy(VConverter, ALonLat)+'&mls=map|anno&cls=cadastre'+#$D#$A+
+      'Referer: http://maps.rosreestr.ru/PortalOnline/?l=' + ALIntToStr(AZoom) + _refererxy(VConverter, ALonLat)+'&mls=map|anno&cls=cadastre'+#$D#$A+
       'Connection: Keep-Alive'+#$D#$A+
       'Accept-Charset: windows-1251,utf-8;q=0.7,*;q=0.3'+#$D#$A+
       'Accept-Encoding: gzip, deflate';
@@ -438,16 +439,10 @@ begin
   // bingo!
   VPointsAggregator := nil;
   VAllNewMarks := nil;
-  VSrcInZip := nil;
-  VUnzipped := nil;
-  VContentEncodingDetector := nil;
   VJSONParams := nil;
   try
     VJSON :=
       _GetPlainResponseFromDownloadResult(
-        VSrcInZip,
-        VUnZipped,
-        VContentEncodingDetector,
         VDownloadResultOk
       );
 
@@ -486,7 +481,7 @@ begin
           VText := StringReplace(VText, '[', '', [rfReplaceAll]);
 
           if (nil=VPointsAggregator) then begin
-            VPointsAggregator := TDoublePointsAggregator.Create;
+            VPointsAggregator := TDoublePointsAggregator.Create;;
           end;
 
           _ParseSingleJSON(
@@ -500,9 +495,6 @@ begin
             VCancelNotifier,
             VCancelNotifier.CurrentOperation,
             VJSONParams,
-            VSrcInZip,
-            VUnZipped,
-            VContentEncodingDetector,
             VMarkName,
             VMarkDesc
           );
@@ -512,23 +504,21 @@ begin
             VPolygon := AVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
             if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
               // make polygon
-              if (nil=VAllNewMarks) then
+              if (nil=VAllNewMarks) then begin
+                // make result object
                 VAllNewMarks := TInterfaceListSimple.Create;
+              end;
               VAllNewMarks.Add(AVectorDataFactory.BuildPoly(nil, VMarkName, VMarkDesc, VPolygon));
             end;
-          end;
-
-          if (nil=Result) then begin
-            Result := TVectorItemSubset.Create(VAllNewMarks.MakeStaticAndClear);
           end;
         end;
       end;
     until FALSE;
+    if (VAllNewMarks <> nil) then begin
+      Result := TVectorItemSubset.Create(VAllNewMarks.MakeStaticAndClear);
+    end;
   finally
-    FreeAndNil(VSrcInZip);
-    FreeAndNil(VUnzipped);
     FreeAndNil(VJSONParams);
-    FreeAndNil(VContentEncodingDetector);
   end;
 end;
 

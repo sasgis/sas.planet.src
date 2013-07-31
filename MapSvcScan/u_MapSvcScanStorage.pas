@@ -55,6 +55,7 @@ type
 implementation
 
 uses
+  ALFcnString,
   ALSqlite3Wrapper,
   u_ListenerByEvent,
   u_Synchronizer;
@@ -85,10 +86,10 @@ begin
   // insert one row
   try
     FDbHandler.ExecSQLWithTEXTW(
-      'INSERT OR IGNORE INTO svcitem (id,itemname,itemdate) VALUES ('+IntToStr(VId)+',?,'+IntToStr(DateTimeToDBSeconds(AFetchedDate))+')',
+      'INSERT OR IGNORE INTO svcitem (id,itemname,itemdate) VALUES ('+ALIntToStr(VId)+',?,'+ALIntToStr(DateTimeToDBSeconds(AFetchedDate))+')',
       TRUE,
       PWideChar(AIdentifier),
-      Length(AIdentifier)      
+      Length(AIdentifier)
     );
     Result := TRUE;
   except
@@ -243,7 +244,7 @@ begin
   try
     VDBSeconds := 0;
     FDbHandler.OpenSQLWithTEXTW(
-      'SELECT itemdate FROM svcitem WHERE id='+IntToStr(VId)+' AND itemname=?',
+      'SELECT itemdate FROM svcitem WHERE id='+ALIntToStr(VId)+' AND itemname=?',
       CallbackReadSingleInt,
       @VDBSeconds,
       TRUE,
