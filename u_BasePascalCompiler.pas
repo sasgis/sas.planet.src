@@ -176,7 +176,7 @@ begin
   if ALSameText(AName, 'SYSTEM') then begin
     // numeric routines
     Sender.AddDelphiFunction('function Random(const X: Integer): Integer');
-    Sender.AddDelphiFunction('function RoundEx(chislo: Double; Precision: Integer): String');
+    Sender.AddDelphiFunction('function RoundEx(const chislo: Double; Precision: Integer): String');
     Sender.AddDelphiFunction('function Power(const Base, Exponent: Extended): Extended');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
     Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): String');

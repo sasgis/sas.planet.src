@@ -25,10 +25,10 @@ interface
 uses
   t_GeoTypes;
 
-function RoundEx(chislo: Double; Precision: Integer): string;
-function RoundExAnsi(chislo: Double; Precision: Integer): AnsiString;
-function R2StrPoint(r: Double): string;
-function R2AnsiStrPoint(r: Double): AnsiString;
+function RoundEx(const chislo: Double; const Precision: Integer): string;
+function RoundExAnsi(const chislo: Double; const Precision: Integer): AnsiString;
+function R2StrPoint(const r: Double): string;
+function R2AnsiStrPoint(const r: Double): AnsiString;
 function LonLat2GShListName(const ALonLat: TDoublePoint; AScale: Integer; Prec: integer): string;
 function str2r(const AStrValue: string): Double;
 
@@ -47,7 +47,7 @@ var
   GFormatSettings : TFormatSettings;
   GAnsiFormatSettings : TALFormatSettings;
 
-function RoundEx(chislo: Double; Precision: Integer): string;
+function RoundEx(const chislo: Double; const Precision: Integer): string;
 begin
   if IsNan(chislo) then
     Result := '-'
@@ -55,7 +55,7 @@ begin
     Result := FloatToStrF(chislo, ffFixed, 18, Precision, GFormatSettings);
 end;
 
-function RoundExAnsi(chislo: Double; Precision: Integer): AnsiString;
+function RoundExAnsi(const chislo: Double; const Precision: Integer): AnsiString;
 begin
   if IsNan(chislo) then
     Result := '-'
@@ -96,12 +96,12 @@ begin
   Result := TryStrToFloat(S, AValue, GFormatSettings);
 end;
 
-function R2StrPoint(r: Double): string;
+function R2StrPoint(const r: Double): string;
 begin
   Result := FloatToStr(r, GFormatSettings);
 end;
 
-function R2AnsiStrPoint(r: Double): AnsiString;
+function R2AnsiStrPoint(const r: Double): AnsiString;
 begin
   Result := ALFloatToStr(r, GAnsiFormatSettings);
 end;
