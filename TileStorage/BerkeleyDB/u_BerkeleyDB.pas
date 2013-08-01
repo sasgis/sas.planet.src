@@ -86,7 +86,7 @@ type
   EBerkeleyDB = class(Exception);
 
 const
-  cBerkeleyDBErrPfx = 'BerkeleyDB';
+  cBerkeleyDBErrPfx: AnsiString = 'BerkeleyDB';
 
 { TBerkeleyDB }
 
@@ -163,7 +163,7 @@ begin
     VRelativeFileName := AnsiToUtf8(StringReplace(FFileName, FEnvRootPath, '', [rfIgnoreCase]));
     CheckBDB(db_create(db, dbenv, 0));
     Assert(db <> nil);
-    db.set_errpfx(db, cBerkeleyDBErrPfx);
+    db.set_errpfx(db, PAnsiChar(cBerkeleyDBErrPfx));
     if not FileExists(FFileName) then begin
       CheckBDB(db.set_pagesize(db, FPageSize));
     end;

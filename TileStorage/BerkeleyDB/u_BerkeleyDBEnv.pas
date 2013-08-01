@@ -97,16 +97,16 @@ uses
 
 const
   cBerkeleyDBEnvSubDir = 'env';
-  cBerkeleyDBEnvErrPfx = 'BerkeleyDB Env';
+  cBerkeleyDBEnvErrPfx: AnsiString = 'BerkeleyDB Env';
   cBerkeleyDBEnvConfig = 'DB_CONFIG';
   cVerboseMsgFileName  = 'msg.log';
 
 procedure BerkeleyDBErrCall(dbenv: PDB_ENV; errpfx, msg: PAnsiChar); cdecl;
 var
-  VMsg: AnsiString;
+  VMsg: string;
   VEnvPrivate: PBerkeleyDBEnvAppPrivate;
 begin
-  VMsg := errpfx + AnsiString(': ') + msg;
+  VMsg := string(errpfx) + ': ' + string(msg);
   VEnvPrivate := dbenv.app_private;
   if Assigned(VEnvPrivate) then begin
     VMsg := VMsg + #09 + VEnvPrivate.FEnvRootPath;
@@ -124,7 +124,7 @@ var
 begin
   VEnvPrivate := dbenv.app_private;
   if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FMsgLogger) then begin
-    VEnvPrivate.FMsgLogger.SaveVerbMsg(msg);
+    VEnvPrivate.FMsgLogger.SaveVerbMsg(string(msg));
   end;
 end;
 
@@ -258,7 +258,7 @@ begin
 
     CheckBDB(db_env_create(dbenv, 0));
     dbenv.app_private := FAppPrivate;
-    dbenv.set_errpfx(dbenv, cBerkeleyDBEnvErrPfx);
+    dbenv.set_errpfx(dbenv, PAnsiChar(cBerkeleyDBEnvErrPfx));
     dbenv.set_errcall(dbenv, BerkeleyDBErrCall);
     dbenv.set_msgcall(dbenv, BerkeleyDBMsgCall);
     CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));

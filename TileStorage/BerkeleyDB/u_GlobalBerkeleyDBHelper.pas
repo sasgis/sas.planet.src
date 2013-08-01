@@ -26,7 +26,7 @@ uses
   Windows,
   Classes,
   SyncObjs,
-  ALFcnString,
+  SysUtils,
   libdb51,
   i_Listener,
   i_PathConfig,
@@ -47,7 +47,7 @@ type
     FEnvList: IInterfaceListSimple;
     FEnvCS: TCriticalSection;
     FLogCS: TCriticalSection;
-    FFormatSettings: TALFormatSettings;
+    FFormatSettings: TFormatSettings;
     function GetFullPathName(const ARelativePathName: string): string;
     procedure SaveErrorToLog(const AMsg: string);
     procedure OnCacheConfigChange;
@@ -73,7 +73,6 @@ uses
   {$IFDEF EUREKALOG}
   ExceptionLog,
   {$ENDIF}
-  SysUtils,
   ShLwApi,
   u_InterfaceListSimple,
   u_ListenerByEvent,
@@ -129,8 +128,7 @@ function TGlobalBerkeleyDBHelper.GetFullPathName(const ARelativePathName: string
 begin
   SetLength(Result, MAX_PATH);
   PathCombine(@Result[1], PChar(ExtractFilePath(FFullBaseCachePath)), PChar(ARelativePathName));
-  Assert(sizeof(Result[1])=1);
-  SetLength(Result, StrLen(PChar(Result)));
+  SetLength(Result, LStrLen(PChar(Result)));
   Result := LowerCase(IncludeTrailingPathDelimiter(Result));
 end;
 
@@ -202,7 +200,7 @@ end;
 
 procedure TGlobalBerkeleyDBHelper.SaveErrorToLog(const AMsg: string);
 var
-  VLogMsg: AnsiString;
+  VLogMsg: string;
   VLogFileName: string;
 begin
   FLogCS.Acquire;
@@ -216,10 +214,10 @@ begin
       FLogFileStream := TFileStream.Create(VLogFileName, fmOpenReadWrite or fmShareDenyNone);
     end;
 
-    VLogMsg := ALFormatDateTime('dd-mm-yyyy hh:nn:ss.zzzz', Now, FFormatSettings) + #09 + AnsiString(AMsg) + #13#10;
+    VLogMsg := FormatDateTime('dd-mm-yyyy hh:nn:ss.zzzz', Now, FFormatSettings) + #09 + AMsg + #13#10;
 
     FLogFileStream.Position := FLogFileStream.Size;
-    FLogFileStream.Write(VLogMsg[1], Length(VLogMsg));
+    FLogFileStream.Write(PChar(VLogMsg)^, Length(VLogMsg) * SizeOf(Char));
   finally
     FLogCS.Release;
   end;
