@@ -84,7 +84,7 @@ begin
     AProgressInfo,
     APolygon,
     AZoomArr,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   FTargetStorage := nil;
   FProjectionFactory := AProjectionFactory;

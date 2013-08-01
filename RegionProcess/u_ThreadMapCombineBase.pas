@@ -48,7 +48,7 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
-      const ADebugThreadName: AnsiString = ''
+      const ADebugThreadName: string = ''
     );
   end;
 
@@ -69,7 +69,7 @@ constructor TThreadMapCombineBase.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
-  const ADebugThreadName: AnsiString = ''
+  const ADebugThreadName: string = ''
 );
 begin
   inherited Create(

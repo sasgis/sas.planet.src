@@ -87,7 +87,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygLL,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   if Length(AZooms) <= 1 then begin
     raise Exception.Create('Не выбрано целевых масштабов');

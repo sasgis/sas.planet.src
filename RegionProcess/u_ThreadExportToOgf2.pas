@@ -106,7 +106,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   FImageProvider := AImageProvider;
   FZoom := AZoom;

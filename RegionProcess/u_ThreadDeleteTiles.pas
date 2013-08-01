@@ -82,7 +82,7 @@ begin
   inherited Create(
     AProgressInfo,
     APolyLL,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   FPolyProjected := AProjectedPolygon;
   FZoom := AZoom;

@@ -274,7 +274,7 @@ begin
       Exit;
     end;
 
-    SetCurrentThreadName(AnsiString(Self.ClassName));
+    SetCurrentThreadName(Self.ClassName);
     Randomize;
 
     VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);

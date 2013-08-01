@@ -21,7 +21,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: ILonLatPolygon;
       const AZooms: TByteDynArray;
-      const ADebigThreadName: AnsiString = ''
+      const ADebigThreadName: string = ''
     );
     destructor Destroy; override;
   end;
@@ -35,7 +35,7 @@ constructor TThreadExportAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: ILonLatPolygon;
   const AZooms: TByteDynArray;
-  const ADebigThreadName: AnsiString = ''
+  const ADebigThreadName: string = ''
 );
 var
   i: Integer;

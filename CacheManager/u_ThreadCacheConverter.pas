@@ -105,7 +105,7 @@ begin
   FCheckSourceVersion := Assigned(FSourceVersionInfo);
   FReplaceDestVersion := Assigned(FDestVersionInfo);
 
-  inherited Create(FCancelNotifier, FOperationID, AnsiString(Self.ClassName));
+  inherited Create(FCancelNotifier, FOperationID, Self.ClassName);
 end;
 
 procedure TThreadCacheConverter.Process;

@@ -52,7 +52,7 @@ type
   public
     constructor Create(
       const AConfig: IThreadConfig;
-      const ADebugName: AnsiString = ''
+      const ADebugName: string = ''
     );
     destructor Destroy; override;
   end;
@@ -72,14 +72,14 @@ type
   private
     FRef: IInterface;
     FExec: TThreadMethod;
-    FDebugName: AnsiString;
+    FDebugName: string;
   protected
     procedure DoTerminate; override;
     procedure Execute; override;
   public
     constructor Create(
       APriority: TThreadPriority;
-      const ADebugName: AnsiString;
+      const ADebugName: string;
       AExec: TThreadMethod
     );
     procedure Start(const ARef: IInterface);
@@ -89,7 +89,7 @@ type
 
 constructor TInterfacedThread.Create(
   const AConfig: IThreadConfig;
-  const ADebugName: AnsiString = ''
+  const ADebugName: string = ''
 );
 begin
   inherited Create;
@@ -200,7 +200,7 @@ end;
 
 constructor TThread4InterfacedThread.Create(
   APriority: TThreadPriority;
-  const ADebugName: AnsiString;
+  const ADebugName: string;
   AExec: TThreadMethod
 );
 begin

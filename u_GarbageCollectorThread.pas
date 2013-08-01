@@ -105,7 +105,7 @@ var
   VNow: Cardinal;
   VContext: TInternalPerformanceCounterContext;
 begin
-  SetCurrentThreadName(AnsiString(Self.ClassName));
+  SetCurrentThreadName(Self.ClassName);
   while not Terminated do begin
     VContext := FCounter.StartOperation;
     try

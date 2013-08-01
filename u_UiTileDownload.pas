@@ -487,7 +487,7 @@ begin
             FAppClosingNotifier,
             Self.DoProcessDownloadRequests,
             FConfig.ThreadConfig,
-            AnsiString(Self.ClassName)
+            Self.ClassName
           );
           VDownloadTask.Start;
           FDownloadTask := VDownloadTask;

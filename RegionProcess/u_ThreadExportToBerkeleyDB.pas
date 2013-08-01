@@ -126,7 +126,7 @@ begin
     AProgressInfo,
     APolygon,
     AZoomArr,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;

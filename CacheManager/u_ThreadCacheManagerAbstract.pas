@@ -34,7 +34,7 @@ type
     FCancelListener: IListener;
     FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
-    FDebugThreadName: AnsiString;
+    FDebugThreadName: string;
     procedure OnCancel;
     procedure SynShowMessage;
     {$HINTS OFF}
@@ -50,7 +50,7 @@ type
     constructor Create(
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
-      const ADebugThreadName: AnsiString = ''
+      const ADebugThreadName: string = ''
     );
     destructor Destroy; override;
   end;
@@ -71,7 +71,7 @@ uses
 constructor TThreadCacheManagerAbstract.Create(
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
-  const ADebugThreadName: AnsiString = ''
+  const ADebugThreadName: string = ''
 );
 begin
   inherited Create(True);

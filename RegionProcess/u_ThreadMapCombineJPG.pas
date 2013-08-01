@@ -89,7 +89,7 @@ begin
     AMapCalibrationList,
     AFileName,
     ASplitCount,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   FBgColor := ABgColor;
   FQuality := AQuality;

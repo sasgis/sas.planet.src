@@ -122,7 +122,7 @@ begin
     AProgressInfo,
     APolygon,
     Azoomarr,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   FTileSize := ATileSize;
   FCoordConverterFactory := ACoordConverterFactory;

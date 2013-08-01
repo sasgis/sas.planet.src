@@ -119,7 +119,7 @@ begin
     AMapCalibrationList,
     AFileName,
     ASplitCount,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   FBgColor := ABgColor;
   FWithAlpha := AWithAlpha;

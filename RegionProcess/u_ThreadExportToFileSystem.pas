@@ -83,7 +83,7 @@ begin
     AProgressInfo,
     APolygon,
     AZoomArr,
-    AnsiString(Self.ClassName)
+    Self.ClassName
   );
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
