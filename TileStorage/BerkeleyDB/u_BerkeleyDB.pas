@@ -153,7 +153,6 @@ procedure TBerkeleyDB.Open(const ADatabaseFileName: string);
 var
   I: Integer;
   ret: Integer;
-  VErrorMsg: string;
   VRelativeFileName: UTF8String;
   VOpenFlags: Cardinal;
 begin
@@ -185,20 +184,9 @@ begin
     until I > FOnDeadLockRetryCount;
 
     CheckBDB(ret);
-
   except
-    on E: Exception do begin
-      VErrorMsg := '';
-      if db <> nil then
-      try
-        CheckBDBandNil(db.close(db, 0), db);
-      except
-        on EClose: Exception do
-          VErrorMsg := EClose.ClassName + ': ' + EClose.Message + #13#10;
-      end;
-      VErrorMsg := VErrorMsg + E.ClassName + ': ' + E.Message;
-      FHelper.LogAndRaiseException(VErrorMsg);
-    end;
+    db := nil;
+    raise;
   end;
 end;
 
@@ -242,51 +230,47 @@ begin
   I := 0;
   Result := nil;
   VFound := False;
-  try
-    FillChar(dbtKey, Sizeof(DBT), 0);
-    FillChar(dbtData, Sizeof(DBT), 0);
 
-    dbtKey.data := AKey.Buffer;
-    dbtKey.size := AKey.Size;
+  FillChar(dbtKey, Sizeof(DBT), 0);
+  FillChar(dbtData, Sizeof(DBT), 0);
 
-    dbtData.flags := DB_DBT_MALLOC;
+  dbtKey.data := AKey.Buffer;
+  dbtKey.size := AKey.Size;
 
-    repeat
-      ret := db.get(db, PDB_TXN(ATxn), @dbtKey, @dbtData, AFlag);
+  dbtData.flags := DB_DBT_MALLOC;
 
-      case ret of
-        DB_LOCK_DEADLOCK: begin
-          AIsDeadLock := True;
-          if ATxn <> nil then begin
-            Break;
-          end else begin
-            Sleep(50);
-          end;
+  repeat
+    ret := db.get(db, PDB_TXN(ATxn), @dbtKey, @dbtData, AFlag);
+
+    case ret of
+      DB_LOCK_DEADLOCK: begin
+        AIsDeadLock := True;
+        if ATxn <> nil then begin
+          Break;
+        end else begin
+          Sleep(50);
         end;
-      else
-        AIsDeadLock := False;
-        VFound := CheckAndFoundBDB(ret);
-        Break;
       end;
-      Inc(I);
-    until I > FOnDeadLockRetryCount;
-
-    if AIsDeadLock and (ATxn = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK);
+    else
+      AIsDeadLock := False;
+      VFound := CheckAndFoundBDB(ret);
+      Break;
     end;
+    Inc(I);
+  until I > FOnDeadLockRetryCount;
 
-    if VFound then begin
-      if (dbtData.data <> nil) and (dbtData.size > 0) then begin
-        Result := TBinaryData.CreateWithOwn(dbtData.size, dbtData.data);
-      end else begin
-        raise EBerkeleyDB.Create('Value not assigned!');
-      end;
+  if AIsDeadLock and (ATxn = nil) then begin
+    CheckBDB(DB_LOCK_DEADLOCK);
+  end;
+
+  if VFound then begin
+    if (dbtData.data <> nil) and (dbtData.size > 0) then begin
+      Result := TBinaryData.CreateWithOwn(dbtData.size, dbtData.data);
     end else begin
-      Result := nil;
+      raise EBerkeleyDB.Create('Value not assigned!');
     end;
-  except
-    on E: Exception do
-      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
+  end else begin
+    Result := nil;
   end;
 end;
 
@@ -304,42 +288,38 @@ begin
   I := 0;
   Result := False;
   AIsDeadLock := False;
-  try
-    FillChar(dbtKey, Sizeof(DBT), 0);
-    FillChar(dbtData, Sizeof(DBT), 0);
 
-    dbtKey.data := AKey.Buffer;
-    dbtKey.size := AKey.Size;
+  FillChar(dbtKey, Sizeof(DBT), 0);
+  FillChar(dbtData, Sizeof(DBT), 0);
 
-    dbtData.data := AValue.Buffer;
-    dbtData.size := AValue.Size;
+  dbtKey.data := AKey.Buffer;
+  dbtKey.size := AKey.Size;
 
-    repeat
-      ret := db.put(db, PDB_TXN(ATxn), @dbtKey, @dbtData, 0);
+  dbtData.data := AValue.Buffer;
+  dbtData.size := AValue.Size;
 
-      case ret of
-        DB_LOCK_DEADLOCK: begin
-          AIsDeadLock := True;
-          if ATxn <> nil then begin
-            Break;
-          end else begin
-            Sleep(50);
-          end;
+  repeat
+    ret := db.put(db, PDB_TXN(ATxn), @dbtKey, @dbtData, 0);
+
+    case ret of
+      DB_LOCK_DEADLOCK: begin
+        AIsDeadLock := True;
+        if ATxn <> nil then begin
+          Break;
+        end else begin
+          Sleep(50);
         end;
-      else
-        AIsDeadLock := False;
-        Result := CheckAndNotExistsBDB(ret);
-        Break;
       end;
-      Inc(I);
-    until I > FOnDeadLockRetryCount;
-
-    if AIsDeadLock and (ATxn = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK);
+    else
+      AIsDeadLock := False;
+      Result := CheckAndNotExistsBDB(ret);
+      Break;
     end;
-  except
-    on E: Exception do
-      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
+    Inc(I);
+  until I > FOnDeadLockRetryCount;
+
+  if AIsDeadLock and (ATxn = nil) then begin
+    CheckBDB(DB_LOCK_DEADLOCK);
   end;
 end;
 
@@ -354,38 +334,34 @@ begin
 
   I := 0;
   Result := False;
-  try
-    FillChar(dbtKey, Sizeof(DBT), 0);
 
-    dbtKey.data := AKey.Buffer;
-    dbtKey.size := AKey.Size;
+  FillChar(dbtKey, Sizeof(DBT), 0);
 
-    repeat
-      ret := db.exists(db, PDB_TXN(ATxn), @dbtKey, AFlag);
+  dbtKey.data := AKey.Buffer;
+  dbtKey.size := AKey.Size;
 
-      case ret of
-        DB_LOCK_DEADLOCK: begin
-          AIsDeadLock := True;
-          if ATxn <> nil then begin
-            Break;
-          end else begin
-            Sleep(50);
-          end;
+  repeat
+    ret := db.exists(db, PDB_TXN(ATxn), @dbtKey, AFlag);
+
+    case ret of
+      DB_LOCK_DEADLOCK: begin
+        AIsDeadLock := True;
+        if ATxn <> nil then begin
+          Break;
+        end else begin
+          Sleep(50);
         end;
-      else
-        AIsDeadLock := False;
-        Result := CheckAndFoundBDB(ret);
-        Break;
       end;
-      Inc(I);
-    until I > FOnDeadLockRetryCount;
-
-    if AIsDeadLock and (ATxn = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK);
+    else
+      AIsDeadLock := False;
+      Result := CheckAndFoundBDB(ret);
+      Break;
     end;
-  except
-    on E: Exception do
-      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
+    Inc(I);
+  until I > FOnDeadLockRetryCount;
+
+  if AIsDeadLock and (ATxn = nil) then begin
+    CheckBDB(DB_LOCK_DEADLOCK);
   end;
 end;
 
@@ -401,50 +377,41 @@ begin
 
   I := 0;
   Result := False;
-  try
-    FillChar(dbtKey, Sizeof(DBT), 0);
 
-    dbtKey.data := AKey.Buffer;
-    dbtKey.size := AKey.Size;
+  FillChar(dbtKey, Sizeof(DBT), 0);
 
-    repeat
-      ret := db.del(db, PDB_TXN(ATxn), @dbtKey, 0);
+  dbtKey.data := AKey.Buffer;
+  dbtKey.size := AKey.Size;
 
-      case ret of
-        DB_LOCK_DEADLOCK: begin
-          AIsDeadLock := True;
-          if ATxn <> nil then begin
-            Break;
-          end else begin
-            Sleep(50);
-          end;
+  repeat
+    ret := db.del(db, PDB_TXN(ATxn), @dbtKey, 0);
+
+    case ret of
+      DB_LOCK_DEADLOCK: begin
+        AIsDeadLock := True;
+        if ATxn <> nil then begin
+          Break;
+        end else begin
+          Sleep(50);
         end;
-      else
-        AIsDeadLock := False;
-        Result := CheckAndFoundBDB(ret);
-        Break;
       end;
-      Inc(I);
-    until I > FOnDeadLockRetryCount;
-
-    if AIsDeadLock and (ATxn = nil) then begin
-      CheckBDB(DB_LOCK_DEADLOCK);
+    else
+      AIsDeadLock := False;
+      Result := CheckAndFoundBDB(ret);
+      Break;
     end;
-  except
-    on E: Exception do
-      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
+    Inc(I);
+  until I > FOnDeadLockRetryCount;
+
+  if AIsDeadLock and (ATxn = nil) then begin
+    CheckBDB(DB_LOCK_DEADLOCK);
   end;
 end;
 
 procedure TBerkeleyDB.Sync;
 begin
-  try
-    if (db <> nil) then begin
-      CheckBDB(db.sync(db, 0));
-    end;
-  except
-    on E: Exception do
-      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
+  if (db <> nil) then begin
+    CheckBDB(db.sync(db, 0));
   end;
 end;
 
@@ -456,51 +423,48 @@ var
   dbc: PDBC;
 begin
   Assert(db <> nil);
-  Result := False;
+
   SetLength(AKeyArray, 0);
+
+  CheckBDB(db.cursor(db, nil, @dbc, 0));
   try
-    CheckBDB(db.cursor(db, nil, @dbc, 0));
-    try
-      repeat
-        FillChar(dbtKey, Sizeof(DBT), 0);
-        FillChar(dbtData, Sizeof(DBT), 0);
+    repeat
+      FillChar(dbtKey, Sizeof(DBT), 0);
+      FillChar(dbtData, Sizeof(DBT), 0);
 
-        dbtKey.flags := DB_DBT_MALLOC;
+      dbtKey.flags := DB_DBT_MALLOC;
 
-        dbtData.dlen := 0;
-        dbtData.doff := 0;
-        dbtData.flags := DB_DBT_PARTIAL;
+      dbtData.dlen := 0;
+      dbtData.doff := 0;
+      dbtData.flags := DB_DBT_PARTIAL;
 
-        if CheckAndFoundBDB(dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT)) then begin
-          if (dbtKey.data <> nil) and (dbtKey.size > 0) then begin
-            VIsFound := False;
-            for I := 0 to Length(AKeyArray) - 1 do begin
-              if AKeyArray[I].KeySize = Integer(dbtKey.size) then begin
-                VIsFound := True;
-                AKeyArray[I].KeyData.Add(dbtKey.data);
-                Break;
-              end;
-            end;
-            if not VIsFound then begin
-              I := Length(AKeyArray);
-              SetLength(AKeyArray, I + 1);
-              AKeyArray[I].KeySize := dbtKey.size;
-              AKeyArray[I].KeyData := TList.Create;
+      if CheckAndFoundBDB(dbc.get(dbc, @dbtKey, @dbtData, DB_NEXT)) then begin
+        if (dbtKey.data <> nil) and (dbtKey.size > 0) then begin
+          VIsFound := False;
+          for I := 0 to Length(AKeyArray) - 1 do begin
+            if AKeyArray[I].KeySize = Integer(dbtKey.size) then begin
+              VIsFound := True;
               AKeyArray[I].KeyData.Add(dbtKey.data);
+              Break;
             end;
           end;
-        end else begin
-          Break;
+          if not VIsFound then begin
+            I := Length(AKeyArray);
+            SetLength(AKeyArray, I + 1);
+            AKeyArray[I].KeySize := dbtKey.size;
+            AKeyArray[I].KeyData := TList.Create;
+            AKeyArray[I].KeyData.Add(dbtKey.data);
+          end;
         end;
-      until False;
-    finally
-      CheckBDBandNil(dbc.close(dbc), dbc);
-    end;
+      end else begin
+        Break;
+      end;
+    until False;
+
     Result := Length(AKeyArray) > 0;
-  except
-    on E: Exception do
-      FHelper.LogAndRaiseException(E.ClassName + ': ' + E.Message);
-  end;
+  finally
+    CheckBDBandNil(dbc.close(dbc), dbc);
+  end; 
 end;
 
 procedure TBerkeleyDB.ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);

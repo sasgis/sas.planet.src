@@ -268,9 +268,8 @@ begin
         ADatabase.Del(AVersionedMetaKey, ATransaction, AIsDeadLock);
         Result := nil;
       end;
-      on E: Exception do begin
-        raise E;
-      end;
+    else
+      raise;
     end;
   end;
 end;
@@ -681,9 +680,8 @@ begin
                 VFoundBadValue := True;
                 FGlobalBerkeleyDBHelper.LogException(E.Message);
               end;
-              on E: Exception do begin
-                raise E;
-              end;
+            else
+              raise;
             end;
           end;
         end;
@@ -762,9 +760,8 @@ begin
                 VFoundBadValue := True;
                 FGlobalBerkeleyDBHelper.LogException(E.Message);
               end;
-              on E: Exception do begin
-                raise E;
-              end;
+            else
+              raise;
             end;
 
             if not VFoundBadValue then begin
@@ -827,9 +824,8 @@ begin
                 VFoundBadValue := True;
                 FGlobalBerkeleyDBHelper.LogException(E.Message);
               end;
-              on E: Exception do begin
-                raise E;
-              end;
+            else
+              raise;
             end;
 
             if not VFoundBadValue then begin
@@ -925,9 +921,8 @@ begin
                 VFoundBadValue := True;
                 FGlobalBerkeleyDBHelper.LogException(E.Message);
               end;
-              on E: Exception do begin
-                raise E;
-              end;
+            else
+              raise;
             end;
           end;
         end;

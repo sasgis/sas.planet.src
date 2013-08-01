@@ -29,12 +29,14 @@ uses
   i_FileNameIterator,
   i_MapVersionConfig,
   i_TileFileNameParser,
+  i_GlobalBerkeleyDBHelper,
   i_TileStorageBerkeleyDBHelper,
   u_BaseInterfacedObject;
 
 type
   TEnumTileInfoByBerkeleyDB = class(TBaseInterfacedObject, IEnumTileInfo)
   private
+    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FIgnoreMultiVersionTiles: Boolean;
     FFilesIterator: IFileNameIterator;
     FTileFileNameParser: ITileFileNameParser;
@@ -50,6 +52,7 @@ type
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
     constructor Create(
+      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AIgnoreMultiVersionTiles: Boolean;
       const AFilesIterator: IFileNameIterator;
       const ATileFileNameParser: ITileFileNameParser;
@@ -64,11 +67,13 @@ implementation
 uses
   Types,
   SysUtils,
-  i_BinaryData;
+  i_BinaryData,
+  u_GlobalBerkeleyDBHelper;
 
 { TEnumTileInfoByBerkeleyDB }
 
 constructor TEnumTileInfoByBerkeleyDB.Create(
+  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AIgnoreMultiVersionTiles: Boolean;
   const AFilesIterator: IFileNameIterator;
   const ATileFileNameParser: ITileFileNameParser;
@@ -77,7 +82,10 @@ constructor TEnumTileInfoByBerkeleyDB.Create(
   const AHelper: ITileStorageBerkeleyDBHelper
 );
 begin
+  Assert(AGlobalBerkeleyDBHelper <> nil);
+
   inherited Create;
+  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FIgnoreMultiVersionTiles := AIgnoreMultiVersionTiles;
   FFilesIterator := AFilesIterator;
   FTileFileNameParser := ATileFileNameParser;
@@ -101,70 +109,80 @@ var
   VVersionInfo: IMapVersionInfo;
 begin
   Result := False;
-  while FCurFileIndex >= 0 do begin
-    if FCurFileIndex < Length(FCurFileTilesArray) then begin
-      ATileInfo.FZoom := FCurFileZoom;
-      ATileInfo.FTile := FCurFileTilesArray[FCurFileIndex];
-      if not FIgnoreMultiVersionTiles then begin
-        if not Assigned(FCurMapVersionList) then begin
-          // get new list of versions for tile
-          FCurMapVersionList := FStorage.GetListOfTileVersions(ATileInfo.FTile, FCurFileZoom, nil);
-          FCurMapVersionIndex := 0;
-        end;
-        if Assigned(FCurMapVersionList) and (FCurMapVersionIndex < FCurMapVersionList.Count) then begin
-          // process tile with version
-          VVersionInfo := FCurMapVersionList.Item[FCurMapVersionIndex];
-          VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, VVersionInfo, gtimWithData);
-          // prepare process for next version of same tile
-          Inc(FCurMapVersionIndex);
+  try
+    while FCurFileIndex >= 0 do begin
+      if FCurFileIndex < Length(FCurFileTilesArray) then begin
+        ATileInfo.FZoom := FCurFileZoom;
+        ATileInfo.FTile := FCurFileTilesArray[FCurFileIndex];
+        if not FIgnoreMultiVersionTiles then begin
+          if not Assigned(FCurMapVersionList) then begin
+            // get new list of versions for tile
+            FCurMapVersionList := FStorage.GetListOfTileVersions(ATileInfo.FTile, FCurFileZoom, nil);
+            FCurMapVersionIndex := 0;
+          end;
+          if Assigned(FCurMapVersionList) and (FCurMapVersionIndex < FCurMapVersionList.Count) then begin
+            // process tile with version
+            VVersionInfo := FCurMapVersionList.Item[FCurMapVersionIndex];
+            VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, VVersionInfo, gtimWithData);
+            // prepare process for next version of same tile
+            Inc(FCurMapVersionIndex);
+          end else begin
+            // process tile without version
+            VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, nil, gtimWithData);
+            // prepare process for next tile
+            Inc(FCurFileIndex);
+            FCurMapVersionList := nil;
+          end;
         end else begin
-          // process tile without version
-          VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, nil, gtimWithData);
-          // prepare process for next tile
+          VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, FEmptyVersionInfo, gtimWithData);
           Inc(FCurFileIndex);
-          FCurMapVersionList := nil;
         end;
-      end else begin
-        VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, FEmptyVersionInfo, gtimWithData);
-        Inc(FCurFileIndex);
-      end;
-      if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
-        VData := VTileInfoWithData.TileData;
-      end else begin
-        VData := nil;
-      end;
-      ATileInfo.FLoadDate := VTileInfo.LoadDate;
-      ATileInfo.FVersionInfo := VTileInfo.VersionInfo;
-      ATileInfo.FContentType := VTileInfo.ContentType;
-      ATileInfo.FData := VData;
-      ATileInfo.FSize := VTileInfo.Size;
-      if VTileInfo.IsExists then begin
-        ATileInfo.FInfoType := titExists;
-        Result := True;
-        Break;
-      end else if VTileInfo.IsExistsTNE then begin
-        ATileInfo.FInfoType := titTneExists;
-        Result := True;
-        Break;
-      end else begin
-        ATileInfo.FInfoType := titNotExists;
-      end;
-    end else begin
-      if FFilesIterator.Next(VTileFileNameW) then begin
-        // start process new cache file
-        VTileFileName := FFilesIterator.GetRootFolderName + VTileFileNameW;
-        if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom) and
-          // get new array of tiles
-          FHelper.GetTileExistsArray(VTileFileName, FCurFileZoom, nil, FCurFileTilesArray) then begin
-          FCurFileIndex := 0;
+        if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
+          VData := VTileInfoWithData.TileData;
         end else begin
-          // skip file - tile name parser error
-          FCurFileIndex := Length(FCurFileTilesArray);
+          VData := nil;
+        end;
+        ATileInfo.FLoadDate := VTileInfo.LoadDate;
+        ATileInfo.FVersionInfo := VTileInfo.VersionInfo;
+        ATileInfo.FContentType := VTileInfo.ContentType;
+        ATileInfo.FData := VData;
+        ATileInfo.FSize := VTileInfo.Size;
+        if VTileInfo.IsExists then begin
+          ATileInfo.FInfoType := titExists;
+          Result := True;
+          Break;
+        end else if VTileInfo.IsExistsTNE then begin
+          ATileInfo.FInfoType := titTneExists;
+          Result := True;
+          Break;
+        end else begin
+          ATileInfo.FInfoType := titNotExists;
         end;
       end else begin
-        // fin enum - no any files found
-        FCurFileIndex := -1;
+        if FFilesIterator.Next(VTileFileNameW) then begin
+          // start process new cache file
+          VTileFileName := FFilesIterator.GetRootFolderName + VTileFileNameW;
+          if FTileFileNameParser.GetTilePoint(VTileFileName, VTileXY, FCurFileZoom) and
+            // get new array of tiles
+            FHelper.GetTileExistsArray(VTileFileName, FCurFileZoom, nil, FCurFileTilesArray) then begin
+            FCurFileIndex := 0;
+          end else begin
+            // skip file - tile name parser error
+            FCurFileIndex := Length(FCurFileTilesArray);
+          end;
+        end else begin
+          // fin enum - no any files found
+          FCurFileIndex := -1;
+        end;
       end;
+    end;
+  except
+    on E: Exception do begin
+      if Assigned(FGlobalBerkeleyDBHelper) then begin
+        FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
+      end;
+      //TGlobalBerkeleyDBHelper.TryShowLastExceptionData;
+      raise;
     end;
   end;
 end;

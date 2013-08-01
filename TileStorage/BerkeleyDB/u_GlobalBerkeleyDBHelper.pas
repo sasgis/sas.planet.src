@@ -59,20 +59,15 @@ type
       const AEnvRootPath: string
     ): IBerkeleyDBEnvironment;
     procedure FreeEnvironment(const AEnv: IBerkeleyDBEnvironment);
-    procedure LogAndRaiseException(const EMsg: string);
     procedure LogException(const EMsg: string);
   public
     constructor Create(const ABaseCachePath: IPathConfig);
     destructor Destroy; override;
-    class procedure RaiseException(const EMsg: string);
   end;
 
 implementation
 
 uses
-  {$IFDEF EUREKALOG}
-  ExceptionLog,
-  {$ENDIF}
   ShLwApi,
   u_InterfaceListSimple,
   u_ListenerByEvent,
@@ -92,7 +87,7 @@ begin
   FFormatSettings.DateSeparator := '-';
   FFormatSettings.TimeSeparator := ':';
   FFormatSettings.DecimalSeparator := '.';
-  FSaveErrorsToLog := {$IFDEF DEBUG} True {$ELSE} False {$ENDIF};
+  FSaveErrorsToLog :=True;
   FFullBaseCachePath := FBaseCachePath.FullPath;
   FCacheConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnCacheConfigChange);
   Assert(FBaseCachePath.ChangeNotifier <> nil);
@@ -221,25 +216,6 @@ begin
   finally
     FLogCS.Release;
   end;
-end;
-
-procedure TGlobalBerkeleyDBHelper.LogAndRaiseException(const EMsg: string);
-begin
-  LogException(EMsg);
-  TGlobalBerkeleyDBHelper.RaiseException(EMsg);
-end;
-
-class procedure TGlobalBerkeleyDBHelper.RaiseException(const EMsg: string);
-begin
-  {$IFDEF EUREKALOG}
-  try
-  {$ENDIF}
-    raise EBerkeleyDBExeption.Create(EMsg);
-  {$IFDEF EUREKALOG}
-  except
-    ShowLastExceptionData;
-  end;
-  {$ENDIF}
 end;
 
 procedure TGlobalBerkeleyDBHelper.LogException(const EMsg: string);

@@ -109,13 +109,9 @@ begin
   VMsg := string(errpfx) + ': ' + string(msg);
   VEnvPrivate := dbenv.app_private;
   if Assigned(VEnvPrivate) then begin
-    VMsg := VMsg + #09 + VEnvPrivate.FEnvRootPath;
+    VMsg := VMsg + ' [root path: ' + VEnvPrivate.FEnvRootPath + ']';
   end;
-  if Assigned(VEnvPrivate) and Assigned(VEnvPrivate.FHelper) then begin
-    VEnvPrivate.FHelper.LogAndRaiseException(VMsg);
-  end else begin
-    TGlobalBerkeleyDBHelper.RaiseException(VMsg);
-  end;
+  raise EBerkeleyDBExeption.Create(VMsg);
 end;
 
 procedure BerkeleyDBMsgCall(dbenv: PDB_ENV; msg: PAnsiChar); cdecl;
@@ -161,7 +157,6 @@ begin
   );
 
   FDatabasePool := TBerkeleyDBPool.Create(
-    AGlobalBerkeleyDBHelper,
     VDatabaseFactory,
     AStorageConfig.PoolSize,
     AStorageConfig.PoolObjectTTL
