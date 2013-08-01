@@ -79,8 +79,8 @@ type
       ALen: integer;
       const APointsAggregator: IDoublePointsAggregator
     ): boolean;
-    procedure parseName(var Name: String);
-    procedure parseDescription(var Description: String);
+    function parseName(Name: AnsiString): string;
+    function parseDescription(Description: AnsiString): string;
     function BuildItem(
       const AName, ADesc: string;
       const APointsAggregator: IDoublePointsAggregator;
@@ -115,6 +115,7 @@ implementation
 
 uses
   StrUtils,
+  ALfcnString,
   cUnicodeCodecs,
   u_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
@@ -289,39 +290,39 @@ begin
   end;
 end;
 
-procedure TKmlInfoSimpleParser.parseName(var Name: String);
+function TKmlInfoSimpleParser.parseName(Name: AnsiString): string;
 var
   pb: integer;
 begin
-  Name := Utf8ToAnsi(Name);
-  pb := PosEx('<![CDATA[', Name, 1);
+  pb := ALPosEx('<![CDATA[', Name, 1);
   if pb > 0 then begin
-    Name := copy(Name, pb + 9, PosEx(']]>', Name, 1) - (pb + 9));
+    Name := ALCopyStr(Name, pb + 9, ALPosEx(']]>', Name, 1) - (pb + 9));
   end;
+  Result := Utf8ToAnsi(Name);
 end;
 
-procedure TKmlInfoSimpleParser.parseDescription(var Description: String);
+function TKmlInfoSimpleParser.parseDescription(Description: AnsiString): string;
 var
   pb: integer;
   iip: integer;
 begin
-  Description := Utf8ToAnsi(Description);
-  pb := PosEx('<![CDATA[', Description, 1);
+  pb := ALPosEx('<![CDATA[', Description, 1);
   if pb > 0 then begin
-    Description := copy(Description, pb + 9, PosEx(']]>', Description, 1) - (pb + 9));
+    Description := ALCopyStr(Description, pb + 9, ALPosEx(']]>', Description, 1) - (pb + 9));
   end;
-  iip := PosEx('&lt;', Description, 1);
+  iip := ALPosEx('&lt;', Description, 1);
   while iip > 0 do begin
     Description[iip] := '<';
     Delete(Description, iip + 1, 3);
-    iip := PosEx('&lt;', Description, iip);
+    iip := ALPosEx('&lt;', Description, iip);
   end;
-  iip := PosEx('&gt;', Description, 1);
+  iip := ALPosEx('&gt;', Description, 1);
   while iip > 0 do begin
     Description[iip] := '>';
     Delete(Description, iip + 1, 3);
-    iip := PosEx('&gt;', Description, iip);
+    iip := ALPosEx('&gt;', Description, iip);
   end;
+  Result := Utf8ToAnsi(Description);
 end;
 
 function TKmlInfoSimpleParser.parse(
@@ -359,8 +360,7 @@ begin
             if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
               PosTag3 := Cardinal(FBMSrchNameE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
               if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
-                VName := copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1));
-                parseName(VName);
+                VName := parseName(ALCopyStr(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1)));
               end;
             end;
           end;
@@ -371,8 +371,7 @@ begin
             if (PosTag2 > PosStartPlace) and (PosTag2 < PosEndPlace) and (PosTag2 > PosTag1) then begin
               PosTag3 := Cardinal(FBMSrchDescE.Search(@buffer[PosTag2], PosEndPlace - PosTag2 + 1)) - sStart + 1;
               if (PosTag3 > PosStartPlace) and (PosTag3 < PosEndPlace) and (PosTag3 > PosTag2) then begin
-                VDescription := copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1));
-                parseDescription(VDescription);
+                VDescription := parseDescription(copy(buffer, PosTag2 + 1, PosTag3 - (PosTag2 + 1)));
               end;
             end;
           end;

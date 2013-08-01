@@ -47,6 +47,7 @@ type
 implementation
 
 uses
+  ALFcnString,
   ALSqlite3Wrapper;
 
 type
@@ -193,9 +194,9 @@ var
 begin
 
   VSQLText := FInsertSQLText+
-              IntToStr(AEETile^.Tile.X)+','+
-              IntToStr(AEETile^.Tile.Y)+','+
-              IntToStr(17-AEETile^.Zoom)+
+              ALIntToStr(AEETile^.Tile.X)+','+
+              ALIntToStr(AEETile^.Tile.Y)+','+
+              ALIntToStr(17-AEETile^.Zoom)+
               ',0,?)';
 
   PEEToSQLiteData(AEEData)^.SQLite3Db.ExecSQLWithBLOB(

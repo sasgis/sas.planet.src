@@ -263,7 +263,7 @@ begin
   if not FPSExec.LoadData(ACompiledData) then begin
     raise Exception.Create(
       SAS_ERR_UrlScriptByteCodeLoad + #13#10 +
-      TIFErrorToString(FPSExec.ExceptionCode, FPSExec.ExceptionString)
+      string(TIFErrorToString(FPSExec.ExceptionCode, FPSExec.ExceptionString))
     );
   end;
 

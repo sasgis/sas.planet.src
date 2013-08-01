@@ -28,26 +28,26 @@ uses
 function XYZ_to_QuadKey(
   const AXY: TPoint;
   const AZoom: Byte
-): String;
+): AnsiString;
 
 implementation
 
 function XYZ_to_QuadKey(
   const AXY: TPoint;
   const AZoom: Byte
-): String;
+): AnsiString;
 var
   i: Byte;
   osX,osY,prX,prY: Integer;
 
-  procedure _AddChar(const AChr: Char);
+  procedure _AddChar(const AChr: AnsiChar);
   begin
     Result:=Result+AChr;
   end;
-  
+
 begin
   Result:='';
-  
+
   // check zoom
   if (1<AZoom) and (AZoom<=24) then begin
     // correct zoom

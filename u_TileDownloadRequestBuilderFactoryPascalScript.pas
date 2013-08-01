@@ -72,6 +72,7 @@ type
 implementation
 
 uses
+  ALfcnString,
   uPSCompiler,
   u_Synchronizer,
   u_TileDownloadRequestBuilderPascalScript;
@@ -114,7 +115,7 @@ function TTileDownloadRequestBuilderFactoryPascalScript.DoCompilerOnAuxUses(
 var
   VType: TPSType;
 begin
-  if SameText('SYSTEM', AName) then begin
+  if ALSameText('SYSTEM', AName) then begin
     VType := ACompiler.FindType('ISimpleHttpDownloader');
     ACompiler.AddUsedVariable('Downloader', VType);
 
