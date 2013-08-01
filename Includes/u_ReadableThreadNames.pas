@@ -17,6 +17,10 @@ implementation
 uses
   Windows;
 
+{$IF CompilerVersion < 23}
+function IsDebuggerPresent: Boolean; stdcall; external 'kernel32.dll';
+{$IFEND}
+
 type
   TThreadNameInfo = record
     dwType     : DWORD;   // must be 0x1000
