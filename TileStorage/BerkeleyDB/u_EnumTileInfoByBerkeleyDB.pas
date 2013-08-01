@@ -181,7 +181,7 @@ begin
       if Assigned(FGlobalBerkeleyDBHelper) then begin
         FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
       end;
-      //TGlobalBerkeleyDBHelper.TryShowLastExceptionData;
+      TryShowLastExceptionData;
       raise;
     end;
   end;

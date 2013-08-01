@@ -65,13 +65,25 @@ type
     destructor Destroy; override;
   end;
 
+procedure TryShowLastExceptionData;
+
 implementation
 
 uses
+  {$IFDEF EUREKALOG}
+  ExceptionLog,
+  {$ENDIF}
   ShLwApi,
   u_InterfaceListSimple,
   u_ListenerByEvent,
   u_BerkeleyDBEnv;
+
+procedure TryShowLastExceptionData;
+begin
+  {$IFDEF EUREKALOG}
+  ShowLastExceptionData;
+  {$ENDIF}
+end;
 
 { TGlobalBerkeleyDBHelper }
 

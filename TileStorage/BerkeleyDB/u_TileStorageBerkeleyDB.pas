@@ -141,9 +141,6 @@ type
 implementation
 
 uses
-  {$IFDEF EUREKALOG}
-  ExceptionLog,
-  {$ENDIF}
   WideStrings,
   t_CommonTypes,
   i_TileIterator,
@@ -279,11 +276,8 @@ begin
       if Assigned(FGlobalBerkeleyDBHelper) then begin
         FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
       end;
-    {$IFDEF EUREKALOG}
-      ShowLastExceptionData;
-    {$ELSE}
+      TryShowLastExceptionData;
       raise;
-    {$ENDIF}
     end;
   end;
 end;
@@ -462,11 +456,8 @@ begin
       if Assigned(FGlobalBerkeleyDBHelper) then begin
         FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
       end;
-    {$IFDEF EUREKALOG}
-      ShowLastExceptionData;
-    {$ELSE}
+      TryShowLastExceptionData;
       raise;
-    {$ENDIF}
     end;
   end;
 end;
@@ -515,11 +506,8 @@ begin
       if Assigned(FGlobalBerkeleyDBHelper) then begin
         FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
       end;
-    {$IFDEF EUREKALOG}
-      ShowLastExceptionData;
-    {$ELSE}
+      TryShowLastExceptionData;
       raise;
-    {$ENDIF}
     end;
   end;
 end;
@@ -674,11 +662,8 @@ begin
       if Assigned(FGlobalBerkeleyDBHelper) then begin
         FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
       end;
-    {$IFDEF EUREKALOG}
-      ShowLastExceptionData;
-    {$ELSE}
+      TryShowLastExceptionData;
       raise;
-    {$ENDIF}
     end;
   end;
 end;
@@ -744,11 +729,8 @@ begin
       if Assigned(FGlobalBerkeleyDBHelper) then begin
         FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
       end;
-    {$IFDEF EUREKALOG}
-      ShowLastExceptionData;
-    {$ELSE}
+      TryShowLastExceptionData;
       raise;
-    {$ENDIF}
     end;
   end;
 end;
@@ -801,11 +783,8 @@ begin
         if Assigned(FGlobalBerkeleyDBHelper) then begin
           FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
         end;
-      {$IFDEF EUREKALOG}
-        ShowLastExceptionData;
-      {$ELSE}
+        TryShowLastExceptionData;
         raise;
-      {$ENDIF}
       end;
     end;
   end;
@@ -875,11 +854,8 @@ begin
       if Assigned(FGlobalBerkeleyDBHelper) then begin
         FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
       end;
-    {$IFDEF EUREKALOG}
-      ShowLastExceptionData;
-    {$ELSE}
+      TryShowLastExceptionData;
       raise;
-    {$ENDIF}
     end;
   end;
 end;
