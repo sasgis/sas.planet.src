@@ -1,5 +1,5 @@
 {******************************************************************************}
-{* SAS.Planet (SAS.Планета)                                                   *}
+{* SAS.Planet (SAS.РџР»Р°РЅРµС‚Р°)                                                   *}
 {* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
@@ -176,7 +176,7 @@ begin
   if ALSameText(AName, 'SYSTEM') then begin
     // numeric routines
     Sender.AddDelphiFunction('function Random(const X: Integer): Integer');
-    Sender.AddDelphiFunction('function RoundEx(const chislo: Double; Precision: Integer): String');
+    Sender.AddDelphiFunction('function RoundEx(const chislo: Double; const Precision: Integer): String');
     Sender.AddDelphiFunction('function Power(const Base, Exponent: Extended): Extended');
     Sender.AddDelphiFunction('function IntPower(const Base: Extended; const Exponent: Integer): Extended register');
     Sender.AddDelphiFunction('function IntToHex(Value: Integer; Digits: Integer): String');
