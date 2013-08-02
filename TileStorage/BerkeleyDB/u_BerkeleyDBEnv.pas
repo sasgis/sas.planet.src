@@ -110,7 +110,10 @@ begin
   VEnvPrivate := dbenv.app_private;
   if Assigned(VEnvPrivate) then begin
     VMsg := VMsg + ' [root path: ' + VEnvPrivate.FEnvRootPath + ']';
-  end;
+    if Assigned(VEnvPrivate.FHelper) then begin
+      VEnvPrivate.FHelper.LogException('[BDB ErrCall] ' + VMsg);
+    end;
+  end;                                       
   raise EBerkeleyDBExeption.Create(VMsg);
 end;
 
