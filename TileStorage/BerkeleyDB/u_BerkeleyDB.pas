@@ -185,7 +185,9 @@ begin
 
     CheckBDB(ret);
   except
-    db := nil;
+    if db <> nil then begin
+      CheckBDBandNil(db.close(db, 0), db);
+    end;
     raise;
   end;
 end;

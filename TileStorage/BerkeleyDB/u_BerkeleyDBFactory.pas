@@ -91,7 +91,6 @@ begin
     VIsNew := not FileExists(ADatabaseFileName);
 
     VDatabase.Open(ADatabaseFileName);
-    Result := VDatabase;
 
     if VIsNew and not FIsReadOnly then begin
       I := 0;
@@ -137,6 +136,8 @@ begin
   finally
     VDatabase.UnLockWrite;
   end;
+
+  Result := VDatabase;
 end;
 
 end.
