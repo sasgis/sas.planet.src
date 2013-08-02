@@ -605,25 +605,33 @@ begin
             end;
 
             if (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists)) then begin
+              VTileExists := False;
+
               if not Assigned(VHelper) then begin
                 VHelper := GetStorageHelper;
               end;
-              VTileExists := VHelper.LoadTile(
-                VFileInfo.Name,
-                VTile,
-                VZoom,
-                AVersionInfo,
-                VTileBinaryData,
-                VTileVersion,
-                VTileContentType,
-                VTileDate
-              );
-              if VTileExists then begin
-                // tile exists
-                VItems[VIndex].FLoadDate := VTileDate;
-                VItems[VIndex].FSize := VTileBinaryData.Size;
-                VItems[VIndex].FInfoType := titExists;
-              end else begin
+              
+              if VFileInfo.Exists then begin
+                VTileExists := VHelper.LoadTile(
+                  VFileInfo.Name,
+                  VTile,
+                  VZoom,
+                  AVersionInfo,
+                  VTileBinaryData,
+                  VTileVersion,
+                  VTileContentType,
+                  VTileDate
+                );
+
+                if VTileExists then begin
+                  // tile exists
+                  VItems[VIndex].FLoadDate := VTileDate;
+                  VItems[VIndex].FSize := VTileBinaryData.Size;
+                  VItems[VIndex].FInfoType := titExists;
+                end;
+              end;
+
+              if not VTileExists and VTneFileInfo.Exists then begin
                 VTileExists := VHelper.IsTNEFound(
                   VTneFileInfo.Name,
                   VTile,
@@ -636,12 +644,14 @@ begin
                   VItems[VIndex].FLoadDate := VTileDate;
                   VItems[VIndex].FSize := 0;
                   VItems[VIndex].FInfoType := titTneExists;
-                end else begin
-                  // neither tile nor tne
-                  VItems[VIndex].FLoadDate := 0;
-                  VItems[VIndex].FSize := 0;
-                  VItems[VIndex].FInfoType := titNotExists;
                 end;
+              end;
+
+              if not VTileExists then begin
+                // neither tile nor tne
+                VItems[VIndex].FLoadDate := 0;
+                VItems[VIndex].FSize := 0;
+                VItems[VIndex].FInfoType := titNotExists;
               end;
             end else begin
               // neither tile nor tne
@@ -697,6 +707,11 @@ begin
       if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
         raise Exception.Create('Bad content type for this tile storage');
       end;
+
+      Assert(AData <> nil);
+      Assert(AData.Buffer <> nil);
+      Assert(AData.Size > 0);
+
       VPath :=
         StoragePath +
         FFileNameGenerator.GetTileFileName(AXY, AZoom) +

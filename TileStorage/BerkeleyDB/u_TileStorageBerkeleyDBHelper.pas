@@ -527,6 +527,8 @@ var
   VVersionInfo: IMapVersionInfo;
   VVersionedMeta: IBerkeleyDBVersionedMetaValue;
 begin
+  Assert(FileExists(ADatabaseFileName));
+
   Result := False;
 
   FSyncLock.BeginRead;
@@ -655,6 +657,8 @@ var
   VDatabase: IBerkeleyDB;
   VFoundBadValue: Boolean;
 begin
+  Assert(FileExists(ADatabaseFileName));
+
   Result := False;
   VFoundBadValue := False;
 
@@ -730,6 +734,8 @@ var
   VMapVersionInfo: IMapVersionInfo;
   VFoundBadValue: Boolean;
 begin
+  Assert(FileExists(ADatabaseFileName));
+
   Result := False;
   VFoundBadValue := False;
   ATileVersionListStatic := nil;
@@ -864,6 +870,8 @@ var
   VKey: IBinaryData;
   VDatabase: IBerkeleyDB;
 begin
+  Assert(FileExists(ADatabaseFileName));
+
   Result := False;
 
   FSyncLock.BeginRead;
@@ -901,6 +909,8 @@ var
   VDatabase: IBerkeleyDB;
   VFoundBadValue: Boolean;
 begin
+  Assert(FileExists(ADatabaseFileName));
+
   Result := False;
   VFoundBadValue := False;
 
@@ -1001,6 +1011,8 @@ var
   VDatabase: IBerkeleyDB;
   VList: TExistsKeyArray;
 begin
+  Assert(FileExists(ADatabaseFileName));
+
   Result := False;
   SetLength(ATileExistsArray, 0);
 
