@@ -30,7 +30,6 @@ uses
   i_BinaryData,
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
-  i_GlobalBerkeleyDBHelper,
   u_BaseInterfacedObject;
 
 type
@@ -39,7 +38,6 @@ type
     db: PDB;
     dbenv: PDB_ENV;
   private
-    FHelper: IGlobalBerkeleyDBHelper;
     FEnvRootPath: string;
     FPageSize: Cardinal;
     FFileName: string;
@@ -67,7 +65,6 @@ type
     procedure UnlockWrite;
   public
     constructor Create(
-      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AEnvironment: IBerkeleyDBEnvironment;
       const AIsReadOnly: Boolean;
       const AOnDeadLockRetryCount: Integer;
@@ -91,17 +88,14 @@ const
 { TBerkeleyDB }
 
 constructor TBerkeleyDB.Create(
-  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AEnvironment: IBerkeleyDBEnvironment;
   const AIsReadOnly: Boolean;
   const AOnDeadLockRetryCount: Integer;
   const APageSize: Cardinal
 );
 begin
-  Assert(AGlobalBerkeleyDBHelper <> nil);
   Assert(AEnvironment <> nil);
   inherited Create;
-  FHelper := AGlobalBerkeleyDBHelper;
   FPageSize := APageSize;
   FIsReadOnly := AIsReadOnly;
   db := nil;
@@ -115,18 +109,9 @@ end;
 destructor TBerkeleyDB.Destroy;
 begin
   if db <> nil then begin
-    try
-      CheckBDBandNil(db.close(db, 0), db);
-    except
-      on E: Exception do begin
-        if Assigned(FHelper) then begin
-          FHelper.LogException(E.ClassName + ': ' + E.Message);
-        end;
-      end;
-    end;
+    CheckBDBandNil(db.close(db, 0), db);
   end;
   FLock := nil;
-  FHelper := nil;
   inherited;
 end;
 

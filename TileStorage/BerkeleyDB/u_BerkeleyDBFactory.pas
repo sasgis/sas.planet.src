@@ -7,13 +7,11 @@ uses
   i_BerkeleyDB,
   i_BerkeleyDBEnv,
   i_BerkeleyDBFactory,
-  i_GlobalBerkeleyDBHelper,
   u_BaseInterfacedObject;
 
 type
   TBerkeleyDBFactory = class(TBaseInterfacedObject, IBerkeleyDBFactory)
   private
-    FHelper: IGlobalBerkeleyDBHelper;
     FPageSize: Cardinal;
     FOnDeadLockRetryCount: Integer;
     FIsReadOnly: Boolean;
@@ -27,7 +25,6 @@ type
     ): IBerkeleyDB;
   public
     constructor Create(
-      const AHelper: IGlobalBerkeleyDBHelper;
       const APageSize: Cardinal;
       const AOnDeadLockRetryCount: Integer;
       const AIsReadOnly: Boolean;
@@ -47,7 +44,6 @@ uses
 { TBerkeleyDBFactory }
 
 constructor TBerkeleyDBFactory.Create(
-  const AHelper: IGlobalBerkeleyDBHelper;
   const APageSize: Cardinal;
   const AOnDeadLockRetryCount: Integer;
   const AIsReadOnly: Boolean;
@@ -55,9 +51,7 @@ constructor TBerkeleyDBFactory.Create(
   const AMetaValue: IBinaryData
 );
 begin
-  Assert(AHelper <> nil);
   inherited Create;
-  FHelper := AHelper;
   FPageSize := APageSize;
   FOnDeadLockRetryCount := AOnDeadLockRetryCount;
   FIsReadOnly := AIsReadOnly;
@@ -79,7 +73,6 @@ begin
   Result := nil;
   
   VDatabase := TBerkeleyDB.Create(
-    FHelper,
     AEnvironment,
     FIsReadOnly,
     FOnDeadLockRetryCount,

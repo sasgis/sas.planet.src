@@ -148,7 +148,6 @@ begin
   FAppPrivate.FMsgLogger := TBerkeleyDBMsgLogger.Create(IncludeTrailingPathDelimiter(AEnvRootPath) + cVerboseMsgFileName);
 
   VDatabaseFactory := TBerkeleyDBFactory.Create(
-    AGlobalBerkeleyDBHelper,
     AStorageConfig.DatabasePageSize,
     AStorageConfig.OnDeadLockRetryCount,
     AStorageConfig.IsReadOnly,
