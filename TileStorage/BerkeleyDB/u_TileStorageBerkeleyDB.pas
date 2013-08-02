@@ -684,9 +684,11 @@ procedure TTileStorageBerkeleyDB.SaveTile(
 var
   VPath: string;
   VResult: Boolean;
+  VDoNotifyUpdate: Boolean;
   VTileInfo: ITileInfoBasic;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
+  VDoNotifyUpdate := False;
   try
     if GetState.GetStatic.WriteAccess <> asDisabled then begin
       if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
@@ -724,8 +726,7 @@ begin
               VTileInfo
             );
           end;
-          NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-          OnCommitSync;
+          VDoNotifyUpdate := True;
         end;
       end;
     end;
@@ -738,6 +739,11 @@ begin
       raise;
     end;
   end;
+
+  if VDoNotifyUpdate then begin
+    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+    OnCommitSync;
+  end;
 end;
 
 procedure TTileStorageBerkeleyDB.SaveTNE(
@@ -749,8 +755,10 @@ procedure TTileStorageBerkeleyDB.SaveTNE(
 var
   VPath: String;
   VResult: Boolean;
+  VDoNotifyUpdate: Boolean;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
+  VDoNotifyUpdate := False;
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
     DeleteTile(AXY, AZoom, AVersionInfo); // del old tile if exists
     try
@@ -779,8 +787,7 @@ begin
               TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
             );
           end;
-          NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-          OnCommitSync;
+          VDoNotifyUpdate := True;
         end;
       end;
     except
@@ -793,6 +800,11 @@ begin
       end;
     end;
   end;
+
+  if VDoNotifyUpdate then begin
+    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+    OnCommitSync;
+  end;
 end;
 
 function TTileStorageBerkeleyDB.DeleteTile(
@@ -802,9 +814,11 @@ function TTileStorageBerkeleyDB.DeleteTile(
 ): Boolean;
 var
   VPath: string;
+  VDoNotifyUpdate: Boolean;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
   Result := False;
+  VDoNotifyUpdate := False;
   try
     if GetState.GetStatic.DeleteAccess <> asDisabled then begin
       try
@@ -850,8 +864,7 @@ begin
             TTileInfoBasicNotExists.Create(0, AVersionInfo)
           );
         end;
-        NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-        OnCommitSync;
+        VDoNotifyUpdate := True;
       end;
     end;
   except
@@ -862,6 +875,11 @@ begin
       TryShowLastExceptionData;
       raise;
     end;
+  end;
+
+  if VDoNotifyUpdate then begin
+    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
+    OnCommitSync;
   end;
 end;
 
