@@ -660,6 +660,9 @@ begin
             VItems
           );
         VItems := nil;
+        if Assigned(VHelper) then begin
+          FSyncCallListener.CheckUseTimeUpdated;
+        end;
       end;
     end;
   except
