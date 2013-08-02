@@ -266,7 +266,7 @@ begin
       Result := TBerkeleyDBVersionedMetaValue.Create(VValue);
     except
       on E: EBerkeleyDBBadValue do begin
-        FGlobalBerkeleyDBHelper.LogException(E.Message);
+        FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
         ADatabase.Del(AVersionedMetaKey, ATransaction, AIsDeadLock);
         Result := nil;
       end;
@@ -684,7 +684,7 @@ begin
             except
               on E: EBerkeleyDBBadValue do begin
                 VFoundBadValue := True;
-                FGlobalBerkeleyDBHelper.LogException(E.Message);
+                FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
               end;
             else
               raise;
@@ -766,7 +766,7 @@ begin
             except
               on E: EBerkeleyDBBadValue do begin
                 VFoundBadValue := True;
-                FGlobalBerkeleyDBHelper.LogException(E.Message);
+                FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
               end;
             else
               raise;
@@ -830,7 +830,7 @@ begin
             except
               on E: EBerkeleyDBBadValue do begin
                 VFoundBadValue := True;
-                FGlobalBerkeleyDBHelper.LogException(E.Message);
+                FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
               end;
             else
               raise;
@@ -931,7 +931,7 @@ begin
             except
               on E: EBerkeleyDBBadValue do begin
                 VFoundBadValue := True;
-                FGlobalBerkeleyDBHelper.LogException(E.Message);
+                FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
               end;
             else
               raise;

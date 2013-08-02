@@ -347,7 +347,7 @@ begin
     FMetaValue.MetaCRC32 := CRC32Buf(Pointer(FMetaValue), ASize);
     if PCardinal(VCRC32Ptr)^ <> FMetaValue.MetaCRC32 then begin
       raise EBerkeleyDBBadValue.Create(
-        'Error [BerkeleyDB MetaValue]: Bad CRC32 value: 0x' + IntToHex(FMetaValue.MetaCRC32, 8)
+        'Read meta-value error - bad checksumm: 0x' + IntToHex(FMetaValue.MetaCRC32, 8)
       );
     end;
     Result := True;
@@ -578,17 +578,12 @@ begin
       Result := True;
     end else begin
       raise EBerkeleyDBBadValue.Create(
-        'Error [BerkeleyDB Value]: Bad CRC32 value: 0x' + IntToHex(FValue.RecCRC32, 8)
+        'Read value error - bad checksumm: 0x' + IntToHex(FValue.RecCRC32, 8)
       );
     end;
   end else begin
     raise EBerkeleyDBBadValue.Create(
-      'Error [BerkeleyDB Value]: Bad magic value (' +
-      string(FValue.RecMagic[0] +
-      FValue.RecMagic[1] +
-      FValue.RecMagic[2] +
-      FValue.RecMagic[3]) +
-      ')'
+      'Read value error - bad magic: 0x' + IntToHex(PCardinal(@FValue.RecMagic[0])^, 8)
     );
   end;
 end;
@@ -962,18 +957,12 @@ begin
       Result := True;
     end else begin
       raise EBerkeleyDBBadValue.Create(
-        'Error [BerkeleyDB Versioned Meta Value]: Bad CRC32 value: 0x' +
-        IntToHex(FValue.RecCRC32, 8)
+        'Read versioned meta-value error - bad checksumm: 0x' + IntToHex(FValue.RecCRC32, 8)
       );
     end;
   end else begin
     raise EBerkeleyDBBadValue.Create(
-      'Error [BerkeleyDB Versioned Meta Value]: Bad magic value (' +
-      string(FValue.RecMagic[0] +
-      FValue.RecMagic[1] +
-      FValue.RecMagic[2] +
-      FValue.RecMagic[3]) +
-      ')'
+      'Read versioned meta-value error - bad magic: 0x' + IntToHex(PCardinal(@FValue.RecMagic[0])^, 8)
     );
   end;
 end;
