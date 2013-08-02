@@ -557,6 +557,7 @@ begin
   Result := nil;
   try
     if GetState.GetStatic.ReadAccess <> asDisabled then begin
+      VHelper := nil;
       VRect := ARect;
       VZoom := AZoom;
       GeoConverter.CheckTileRect(VRect, VZoom);
@@ -604,7 +605,9 @@ begin
             end;
 
             if (VFolderInfo.Exists and (VFileInfo.Exists or VTneFileInfo.Exists)) then begin
-              VHelper := GetStorageHelper; 
+              if not Assigned(VHelper) then begin
+                VHelper := GetStorageHelper;
+              end;
               VTileExists := VHelper.LoadTile(
                 VFileInfo.Name,
                 VTile,
