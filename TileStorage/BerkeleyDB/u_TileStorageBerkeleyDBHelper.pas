@@ -147,6 +147,8 @@ type
     ): Boolean;
 
     procedure Sync(out AHotDatabaseCount: Integer);
+
+    function GetRefCount: Integer;
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
@@ -1045,6 +1047,11 @@ begin
   finally
     FSyncLock.EndRead;
   end;
+end;
+
+function TTileStorageBerkeleyDBHelper.GetRefCount: Integer;
+begin
+  Result := Self.RefCount;
 end;
 
 end.

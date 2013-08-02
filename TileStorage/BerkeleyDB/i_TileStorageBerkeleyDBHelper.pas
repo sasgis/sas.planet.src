@@ -98,6 +98,9 @@ type
     ): Boolean;
 
     procedure Sync(out AHotDatabaseCount: Integer);
+
+    function GetRefCount: Integer;
+    property RefCount: Integer read GetRefCount;
   end;
 
 implementation

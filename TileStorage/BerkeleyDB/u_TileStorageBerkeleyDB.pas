@@ -258,7 +258,9 @@ begin
         if VHotDbCount <= 0 then begin
           FStorageHelperLock.BeginWrite;
           try
-            FStorageHelper := nil;
+            if Assigned(FStorageHelper) and (FStorageHelper.RefCount = 1) then begin
+              FStorageHelper := nil;
+            end;
           finally
             FStorageHelperLock.EndWrite;
           end;
