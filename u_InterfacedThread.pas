@@ -62,6 +62,7 @@ implementation
 uses
   {$IFDEF EUREKALOG}
   ExceptionLog,
+  ECore,
   {$ENDIF}
   u_ListenerByEvent,
   u_ReadableThreadNames,
@@ -229,6 +230,7 @@ begin
     end;
   {$IFDEF EUREKALOG}
   except
+    ForceApplicationTermination(tbTerminate);
     ShowLastExceptionData;
   end;
   {$ENDIF}
