@@ -4,11 +4,10 @@ interface
 
 uses
   i_Listener,
-  i_LocalCoordConverter,
-  i_BitmapLayerProvider;
+  i_LocalCoordConverter;
 
 type
-  IBitmapLayerProviderWithListener = interface(IBitmapLayerProvider)
+  IObjectWithListener = interface
     ['{95B7E0FF-1FD5-4239-BBDA-1535BF03A965}']
     procedure SetListener(
       const AListener: IListener;

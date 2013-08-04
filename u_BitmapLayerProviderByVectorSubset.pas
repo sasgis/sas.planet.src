@@ -26,7 +26,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderByVectorSubset = class(TBaseInterfacedObject, IBitmapLayerProvider, IBitmapLayerProviderWithListener)
+  TBitmapLayerProviderByVectorSubset = class(TBaseInterfacedObject, IBitmapLayerProvider, IObjectWithListener)
   private
     FVectorMapsSet: IMapTypeSet;
     FColorMain: TColor32;

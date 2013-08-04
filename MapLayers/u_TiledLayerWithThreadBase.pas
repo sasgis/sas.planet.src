@@ -229,7 +229,7 @@ procedure TTiledLayerWithThreadBase.DoUpdateTileMatrix;
 var
   VOldTileMatrix: ITileMatrix;
   VNewTileMatrix: ITileMatrix;
-  VProviderWithListener: IBitmapLayerProviderWithListener;
+  VProviderWithListener: IObjectWithListener;
 begin
   VOldTileMatrix := TileMatrix;
   if Visible then begin
@@ -240,7 +240,7 @@ begin
   if VOldTileMatrix <> VNewTileMatrix then begin
     FDrawTask.StopExecute;
     SetTileMatrix(VNewTileMatrix);
-    if Supports(LayerProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
+    if Supports(LayerProvider, IObjectWithListener, VProviderWithListener) then begin
       if VNewTileMatrix <> nil then begin
         VProviderWithListener.SetListener(FRectUpdateListener, VNewTileMatrix.LocalConverter);
       end else begin
@@ -311,7 +311,7 @@ procedure TTiledLayerWithThreadBase.OnPrepareTileMatrix(
 var
   VTileMatrix: ITileMatrix;
   VProvider: IBitmapLayerProvider;
-  VProviderWithListener: IBitmapLayerProviderWithListener;
+  VProviderWithListener: IObjectWithListener;
   VLayerConverter: ILocalCoordConverter;
   VNeedRedraw: Boolean;
   VCounterContext: TInternalPerformanceCounterContext;
@@ -330,7 +330,7 @@ begin
 
     VProvider := LayerProvider;
     if FUpdateLayerProviderFlag.CheckFlagAndReset then begin
-      if Supports(VProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
+      if Supports(VProvider, IObjectWithListener, VProviderWithListener) then begin
         VProviderWithListener.RemoveListener;
         VProviderWithListener := nil;
       end;
@@ -344,7 +344,7 @@ begin
       finally
         FPrepareLayerProviderCounter.FinishOperation(VCounterContext);
       end;
-      if Supports(VProvider, IBitmapLayerProviderWithListener, VProviderWithListener) then begin
+      if Supports(VProvider, IObjectWithListener, VProviderWithListener) then begin
         VProviderWithListener.SetListener(FRectUpdateListener, VTileMatrix.LocalConverter);
       end;
       SetMatrixNotReady(VTileMatrix);

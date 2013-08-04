@@ -20,7 +20,7 @@ type
   TBitmapLayerProviderFillingMap = class(
     TBaseInterfacedObject,
     IBitmapLayerProvider,
-    IBitmapLayerProviderWithListener
+    IObjectWithListener
     )
   private
     FMapType: IMapType;

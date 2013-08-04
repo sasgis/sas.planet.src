@@ -24,7 +24,7 @@ type
   TBitmapLayerProviderForViewMaps = class(
     TBaseInterfacedObject,
     IBitmapLayerProvider,
-    IBitmapLayerProviderWithListener
+    IObjectWithListener
     )
   private
     FMainMap: IMapType;
