@@ -92,7 +92,7 @@ begin
     AView,
     VTileMatrixFactory,
     ATimerNoifier,
-    True,
+    False,
     AConfig.ThreadConfig
   );
   FBitmapFactory := ABitmapFactory;
