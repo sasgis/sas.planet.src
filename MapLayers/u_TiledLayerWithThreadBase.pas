@@ -135,7 +135,7 @@ uses
   u_ListenerByEvent,
   u_ListenerTime,
   u_TileIteratorSpiralByRect,
-  i_BitmapLayerProviderWithListener,
+  i_ObjectWithListener,
   u_TileIteratorByRect,
   u_GeoFun,
   u_BitmapFunc,

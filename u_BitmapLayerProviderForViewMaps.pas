@@ -15,7 +15,7 @@ uses
   i_MapTypes,
   i_BitmapLayerProvider,
   i_BitmapPostProcessing,
-  i_BitmapLayerProviderWithListener,
+  i_ObjectWithListener,
   i_TileError,
   u_MapType,
   u_BaseInterfacedObject;

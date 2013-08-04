@@ -202,7 +202,6 @@
     <DCCReference Include="i_Bitmap32StaticFactory.pas" />
     <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
-    <DCCReference Include="i_BitmapLayerProviderWithListener.pas" />
     <DCCReference Include="i_BitmapMarker.pas" />
     <DCCReference Include="i_BitmapPostProcessing.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
@@ -335,6 +334,7 @@
     <DCCReference Include="i_NotifierRectUpdate.pas" />
     <DCCReference Include="i_NotifierTilePyramidUpdate.pas" />
     <DCCReference Include="i_NotifierTime.pas" />
+    <DCCReference Include="i_ObjectWithListener.pas" />
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PathDetalizeProvider.pas" />
     <DCCReference Include="i_PathDetalizeProviderList.pas" />

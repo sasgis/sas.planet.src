@@ -543,7 +543,7 @@ uses
   u_TileProviderByStorage in 'u_TileProviderByStorage.pas',
   u_TileProviderWithCache in 'u_TileProviderWithCache.pas',
   i_BitmapLayerProvider in 'i_BitmapLayerProvider.pas',
-  i_BitmapLayerProviderWithListener in 'i_BitmapLayerProviderWithListener.pas',
+  i_ObjectWithListener in 'i_ObjectWithListener.pas',
   u_BitmapLayerProviderInPolygon in 'u_BitmapLayerProviderInPolygon.pas',
   u_BitmapLayerProviderSimpleForCombine in 'u_BitmapLayerProviderSimpleForCombine.pas',
   u_BitmapLayerProviderWithBgColor in 'u_BitmapLayerProviderWithBgColor.pas',

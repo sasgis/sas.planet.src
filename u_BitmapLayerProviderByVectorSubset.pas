@@ -18,7 +18,7 @@ uses
   i_IdCacheSimple,
   i_LocalCoordConverter,
   i_NotifierOperation,
-  i_BitmapLayerProviderWithListener,
+  i_ObjectWithListener,
   i_VectorItemProjected,
   i_VectorItemsFactory,
   i_DoublePointsAggregator,

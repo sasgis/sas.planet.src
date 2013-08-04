@@ -1,4 +1,4 @@
-unit i_BitmapLayerProviderWithListener;
+unit i_ObjectWithListener;
 
 interface
 

@@ -12,7 +12,7 @@ uses
   i_MapTypes,
   i_BitmapLayerProvider,
   i_FillingMapColorer,
-  i_BitmapLayerProviderWithListener,
+  i_ObjectWithListener,
   u_MapType,
   u_BaseInterfacedObject;
 
