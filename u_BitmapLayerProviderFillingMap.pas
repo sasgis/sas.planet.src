@@ -24,7 +24,8 @@ type
     )
   private
     FMapType: IMapType;
-    FSourceZoom: Byte;
+    FUseRelativeZoom: Boolean;
+    FZoom: Integer;
     FColorer: IFillingMapColorer;
 
     FListener: IListener;
@@ -34,6 +35,9 @@ type
     FVersionListener: IListener;
     procedure OnTileUpdate(const AMsg: IInterface);
     procedure OnMapVersionChange;
+    function GetActualZoom(
+      const ALocalConverter: ILocalCoordConverter
+    ): Byte;
   private
     function GetBitmapRect(
       AOperationID: Integer;
@@ -49,7 +53,8 @@ type
   public
     constructor Create(
       const AMapType: IMapType;
-      ASourceZoom: Byte;
+      AUseRelativeZoom: Boolean;
+      AZoom: Integer;
       const AColorer: IFillingMapColorer
     );
     destructor Destroy; override;
@@ -71,13 +76,15 @@ uses
 
 constructor TBitmapLayerProviderFillingMap.Create(
   const AMapType: IMapType;
-  ASourceZoom: Byte;
+  AUseRelativeZoom: Boolean;
+  AZoom: Integer;
   const AColorer: IFillingMapColorer
 );
 begin
   inherited Create;
   FMapType := AMapType;
-  FSourceZoom := ASourceZoom;
+  FUseRelativeZoom := AUseRelativeZoom;
+  FZoom := AZoom;
   FColorer := AColorer;
   Assert(FMapType <> nil);
   Assert(FMapType.MapType <> nil);
@@ -93,13 +100,33 @@ begin
   inherited;
 end;
 
+function TBitmapLayerProviderFillingMap.GetActualZoom(
+  const ALocalConverter: ILocalCoordConverter): Byte;
+var
+  VZoom: Integer;
+begin
+  VZoom := FZoom;
+  if FUseRelativeZoom then begin
+    VZoom := VZoom + ALocalConverter.GetZoom;
+  end;
+  if VZoom < 0 then begin
+    Result := 0;
+  end else begin
+    Result := VZoom;
+    ALocalConverter.GetGeoConverter.CheckZoom(Result);
+  end;
+end;
+
 function TBitmapLayerProviderFillingMap.GetBitmapRect(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
+var
+  VSourceZoom: Byte;
 begin
-  if ALocalConverter.Zoom > FSourceZoom then begin
+  VSourceZoom := GetActualZoom(ALocalConverter);
+  if ALocalConverter.Zoom > VSourceZoom then begin
     Result := nil;
   end else begin
     Result :=
@@ -107,7 +134,7 @@ begin
         AOperationID,
         ACancelNotifier,
         ALocalConverter,
-        FSourceZoom,
+        VSourceZoom,
         FColorer
       );
   end;
@@ -180,7 +207,9 @@ var
   VLonLatRect: TDoubleRect;
   VMapLonLatRect: TDoubleRect;
   VTileRect: TRect;
+  VSourceZoom: Byte;
 begin
+  VSourceZoom := GetActualZoom(ALocalConverter);
   FListenerCS.BeginWrite;
   try
     if (AListener = nil) or (ALocalConverter = nil) then begin
@@ -208,10 +237,10 @@ begin
           VConverter.CheckLonLatRect(VMapLonLatRect);
           VTileRect :=
             RectFromDoubleRect(
-              VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, FSourceZoom),
+              VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VSourceZoom),
               rrToTopLeft
             );
-          VNotifier.AddListenerByRect(FMapListener, FSourceZoom, VTileRect);
+          VNotifier.AddListenerByRect(FMapListener, VSourceZoom, VTileRect);
         end;
       end;
       FListener := AListener;

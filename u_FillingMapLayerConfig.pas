@@ -76,7 +76,6 @@ type
 
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
-    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
 
     function GetFillMode: TFillMode;
     procedure SetFillMode(const AValue: TFillMode);
@@ -182,31 +181,6 @@ begin
   WriteColor32(AConfigData, 'NoTileColor', FNoTileColor);
   WriteColor32(AConfigData, 'TNEColor', FTNEColor);
   AConfigData.WriteInteger('FillingMapMode', Ord(FFillMode));
-end;
-
-function TFillingMapLayerConfig.GetActualZoom(
-  const ALocalConverter: ILocalCoordConverter
-): Byte;
-var
-  VZoom: Integer;
-  VRelative: Boolean;
-begin
-  LockRead;
-  try
-    VZoom := FZoom;
-    VRelative := FUseRelativeZoom;
-  finally
-    UnlockRead;
-  end;
-  if VRelative then begin
-    VZoom := VZoom + ALocalConverter.GetZoom;
-  end;
-  if VZoom < 0 then begin
-    Result := 0;
-  end else begin
-    Result := VZoom;
-    ALocalConverter.GetGeoConverter.CheckZoom(Result);
-  end;
 end;
 
 function TFillingMapLayerConfig.GetNoTileColor: TColor32;

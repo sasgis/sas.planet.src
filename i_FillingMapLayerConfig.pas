@@ -25,7 +25,6 @@ interface
 uses
   GR32,
   t_FillingMapModes,
-  i_LocalCoordConverter,
   i_FillingMapColorer,
   i_MapTypes,
   i_ThreadConfig,
@@ -55,8 +54,6 @@ type
 
     function GetTNEColor: TColor32;
     property TNEColor: TColor32 read GetTNEColor;
-
-    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
 
     function GetFillMode: TFillMode;
     property FillMode: TFillMode read GetFillMode;
@@ -107,7 +104,6 @@ type
 
     function GetSourceMap: IFillingMapMapsConfig;
     function GetStatic: IFillingMapLayerConfigStatic;
-    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
 
     function GetFillMode: TFillMode;
     procedure SetFillMode(const AValue: TFillMode);
