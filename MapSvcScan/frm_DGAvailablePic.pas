@@ -295,6 +295,7 @@ uses
   u_DoublePointsAggregator,
   u_MapSvcScanStorage,
   u_MultiPoligonParser,
+  u_VectorDataItemSubset,
   u_GeoFun,
   u_GeoToStr;
 
@@ -1120,7 +1121,7 @@ begin
 
   if Assigned(VAllNewMarks) then
   if (nil<>VImportConfig) then begin
-    FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(nil, VAllNewMarks.MakeStaticAndClear);
+    FMarkDBGUI.MarksDb.ImportItemsList(TVectorItemSubset.Create(VAllNewMarks.MakeStaticAndClear), VImportConfig,'')
   end;
 end;
 
