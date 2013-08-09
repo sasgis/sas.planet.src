@@ -327,6 +327,8 @@ uses
   i_FullMapMouseCursorLayerConfig in 'i_FullMapMouseCursorLayerConfig.pas',
   u_FullMapMouseCursorLayerConfig in 'u_FullMapMouseCursorLayerConfig.pas',
   u_PLTSimpleParser in 'VectorLoaders\u_PLTSimpleParser.pas',
+  i_VectorItemSubsetChangeable in 'i_VectorItemSubsetChangeable.pas',
+  u_VectorItemSubsetChangeableForVectorLayers in 'u_VectorItemSubsetChangeableForVectorLayers.pas',
   u_GeoFun in 'u_GeoFun.pas',
   i_EnumDoublePoint in 'i_EnumDoublePoint.pas',
   i_DoublePointFilter in 'i_DoublePointFilter.pas',
