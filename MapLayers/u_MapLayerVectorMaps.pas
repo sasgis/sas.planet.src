@@ -24,8 +24,8 @@ uses
   i_VectorItemsFactory,
   i_ImageResamplerConfig,
   i_IdCacheSimple,
+  i_VectorItemSubsetChangeable,
   i_FindVectorItems,
-  u_MapType,
   u_TiledLayerWithThreadBase;
 
 type
@@ -39,32 +39,12 @@ type
 
     FProjectedCache: IIdCacheSimple;
 
-    FAllElements: IVectorItemSubset;
-    FAllElementsCS: IReadWriteSync;
-
-    FVectorMapsSet: IMapTypeSet;
-    FVectorMapsSetCS: IReadWriteSync;
+    FVectorItems: IVectorItemSubsetChangeable;
 
     procedure OnConfigChange;
     procedure OnLayerSetChange;
+    procedure OnItemsUpdated;
 
-    procedure AddWikiElement(
-      const AElments: IInterfaceListSimple;
-      const AData: IVectorDataItemSimple;
-      const ALocalConverter: ILocalCoordConverter
-    );
-    procedure AddElementsFromMap(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const AElments: IInterfaceListSimple;
-      Alayer: TMapType;
-      const ALocalConverter: ILocalCoordConverter
-    );
-    function PrepareWikiElements(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALocalConverter: ILocalCoordConverter
-    ): IVectorItemSubset;
     function MouseOnElements(
       const AVisualConverter: ILocalCoordConverter;
       const ACopiedElements: IVectorItemSubset;
@@ -76,7 +56,6 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALayerConverter: ILocalCoordConverter
     ): IBitmapLayerProvider; override;
-    procedure DelicateRedrawWithFullUpdate; override;
     procedure StartThreads; override;
   private
     function FindItems(
@@ -106,24 +85,18 @@ implementation
 
 uses
   GR32,
-  ActiveX,
   t_GeoTypes,
   i_CoordConverter,
   i_TileMatrix,
-  i_TileIterator,
   i_VectorItemProjected,
   i_LonLatRect,
   i_VectorItemDrawConfig,
   u_TileMatrixFactory,
   u_ListenerByEvent,
-  u_TileErrorInfo,
   u_IdCacheSimpleThreadSafe,
   u_VectorDataItemSubset,
-  u_GeoFun,
   u_InterfaceListSimple,
-  u_TileIteratorByRect,
-  u_Synchronizer,
-  u_ResStrings,
+  u_VectorItemSubsetChangeableForVectorLayers,
   u_BitmapLayerProviderByVectorSubset;
 
 { TWikiLayerNew }
@@ -161,7 +134,7 @@ begin
     AView,
     VTileMatrixFactory,
     ATimerNoifier,
-    True,
+    False,
     AConfig.ThreadConfig
   );
   FConfig := AConfig;
@@ -171,8 +144,17 @@ begin
   FErrorLogger := AErrorLogger;
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
-  FVectorMapsSetCS := MakeSyncRW_Var(Self);
-  FAllElementsCS := MakeSyncRW_Var(Self, False);
+
+  FVectorItems :=
+    TVectorItemSubsetChangeableForVectorLayers.Create(
+      APerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      APosition,
+      ALayersSet,
+      AErrorLogger,
+      FConfig.ThreadConfig
+    );
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -183,6 +165,10 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
     FLayersSet.GetChangeNotifier
   );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnItemsUpdated),
+    FVectorItems.ChangeNotifier
+  );
 end;
 
 function TMapLayerVectorMaps.CreateLayerProvider(
@@ -192,53 +178,20 @@ function TMapLayerVectorMaps.CreateLayerProvider(
 ): IBitmapLayerProvider;
 var
   VConfig: IVectorItemDrawConfigStatic;
-  VLinesClipRect: TDoubleRect;
-  VMapPixelRect: TDoubleRect;
-  VList: IVectorItemSubset;
-  VVectorMapsSet: IMapTypeSet;
 begin
   Result := nil;
   VConfig := FConfig.DrawConfig.GetStatic;
 
-  VList := PrepareWikiElements(AOperationID, ACancelNotifier, ALayerConverter);
-  FProjectedCache.Clear;
-  FAllElementsCS.BeginWrite;
-  try
-    FAllElements := VList;
-  finally
-    FAllElementsCS.EndWrite;
-  end;
-
-  VMapPixelRect := ALayerConverter.GetRectInMapPixelFloat;
-  VLinesClipRect.Left := VMapPixelRect.Left - 10;
-  VLinesClipRect.Top := VMapPixelRect.Top - 10;
-  VLinesClipRect.Right := VMapPixelRect.Right + 10;
-  VLinesClipRect.Bottom := VMapPixelRect.Bottom + 10;
-  FVectorMapsSetCS.BeginRead;
-  try
-    VVectorMapsSet := FVectorMapsSet;
-  finally
-    FVectorMapsSetCS.EndRead;
-  end;
   Result :=
     TBitmapLayerProviderByVectorSubset.Create(
-      VVectorMapsSet,
       VConfig.MainColor,
       VConfig.ShadowColor,
       VConfig.PointColor,
       FVectorItemsFactory,
       FBitmapFactory,
-      ALayerConverter.ProjectionInfo,
       FProjectedCache,
-      VLinesClipRect,
-      VList
+      FVectorItems
     );
-end;
-
-procedure TMapLayerVectorMaps.DelicateRedrawWithFullUpdate;
-begin
-  UpdateLayerProviderFlag.SetFlag;
-  inherited;
 end;
 
 function TMapLayerVectorMaps.FindItems(
@@ -250,12 +203,7 @@ var
 begin
   Result := nil;
   if Visible then begin
-    FAllElementsCS.BeginRead;
-    try
-      VElements := FAllElements;
-    finally
-      FAllElementsCS.EndRead;
-    end;
+    VElements := FVectorItems.GetStatic;
     if VElements <> nil then begin
       Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint);
     end;
@@ -327,12 +275,7 @@ procedure TMapLayerVectorMaps.OnConfigChange;
 var
   VVectorMapsSet: IMapTypeSet;
 begin
-  FVectorMapsSetCS.BeginRead;
-  try
-    VVectorMapsSet := FVectorMapsSet;
-  finally
-    FVectorMapsSetCS.EndRead;
-  end;
+  VVectorMapsSet := FLayersSet.GetStatic;
   ViewUpdateLock;
   try
     Visible := (VVectorMapsSet <> nil) and (VVectorMapsSet.GetCount > 0);
@@ -342,157 +285,25 @@ begin
   end;
 end;
 
-procedure TMapLayerVectorMaps.OnLayerSetChange;
-var
-  VNewLayersSet: IMapTypeSet;
+procedure TMapLayerVectorMaps.OnItemsUpdated;
 begin
   ViewUpdateLock;
   try
-    VNewLayersSet := FLayersSet.GetStatic;
-
-    FVectorMapsSetCS.BeginWrite;
-    try
-      FVectorMapsSet := VNewLayersSet;
-    finally
-      FVectorMapsSetCS.EndWrite;
-    end;
-    OnConfigChange;
+    DelicateRedrawWithFullUpdate;
+    FProjectedCache.Clear;
   finally
     ViewUpdateUnlock;
   end;
 end;
 
-procedure TMapLayerVectorMaps.AddElementsFromMap(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const AElments: IInterfaceListSimple;
-  Alayer: TMapType;
-  const ALocalConverter: ILocalCoordConverter
-);
-var
-  ii: integer;
-  kml: IVectorItemSubset;
-  VTileIterator: ITileIterator;
-  VZoom: Byte;
-  VSourceGeoConvert: ICoordConverter;
-  VGeoConvert: ICoordConverter;
-  VBitmapOnMapPixelRect: TDoubleRect;
-  VSourceLonLatRect: TDoubleRect;
-  VTileSourceRect: TRect;
-  VTile: TPoint;
-  VErrorString: string;
-  VError: ITileErrorInfo;
+procedure TMapLayerVectorMaps.OnLayerSetChange;
 begin
-  VZoom := ALocalConverter.GetZoom;
-  VSourceGeoConvert := Alayer.GeoConvert;
-  VGeoConvert := ALocalConverter.GetGeoConverter;
-
-  VBitmapOnMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-  VGeoConvert.CheckPixelRectFloat(VBitmapOnMapPixelRect, VZoom);
-
-  VSourceLonLatRect := VGeoConvert.PixelRectFloat2LonLatRect(VBitmapOnMapPixelRect, VZoom);
-  VTileSourceRect :=
-    RectFromDoubleRect(
-      VSourceGeoConvert.LonLatRect2TileRectFloat(VSourceLonLatRect, VZoom),
-      rrToTopLeft
-    );
-  VTileIterator := TTileIteratorByRect.Create(VTileSourceRect);
-
-  while VTileIterator.Next(VTile) do begin
-    VErrorString := '';
-    try
-      kml := Alayer.LoadTileVector(VTile, VZoom, False, Alayer.CacheVector);
-      if kml <> nil then begin
-        if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          Break;
-        end else begin
-          for ii := 0 to KML.Count - 1 do begin
-            AddWikiElement(AElments, KML.GetItem(ii), ALocalConverter);
-          end;
-        end;
-      end;
-    except
-      on E: Exception do begin
-        VErrorString := E.Message;
-      end;
-      else
-        VErrorString := SAS_ERR_TileDownloadUnexpectedError;
-    end;
-    if VErrorString <> '' then begin
-      VError :=
-        TTileErrorInfo.Create(
-          Alayer.Zmp.GUID,
-          VZoom,
-          VTile,
-          VErrorString
-        );
-      FErrorLogger.LogError(VError);
-    end;
-    kml := nil;
-  end;
-end;
-
-procedure TMapLayerVectorMaps.AddWikiElement(
-  const AElments: IInterfaceListSimple;
-  const AData: IVectorDataItemSimple;
-  const ALocalConverter: ILocalCoordConverter);
-var
-  VConverter: ICoordConverter;
-  VSize: TPoint;
-  VRect: ILonLatRect;
-  VLLRect: TDoubleRect;
-  VBounds: TDoubleRect;
-begin
-  if AData <> nil then begin
-    VSize := ALocalConverter.GetLocalRectSize;
-    VConverter := ALocalConverter.GetGeoConverter;
-    VRect := AData.LLRect;
-    if VRect <> nil then begin
-      VLLRect := VRect.Rect;
-      VConverter.CheckLonLatRect(VLLRect);
-      VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
-      if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
-        if Supports(AData, IVectorDataItemPoint) or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
-          AElments.Add(AData);
-        end;
-      end;
-    end;
-  end;
-end;
-
-function TMapLayerVectorMaps.PrepareWikiElements(AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter): IVectorItemSubset;
-var
-  VVectorMapsSet: IMapTypeSet;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  Vcnt: Cardinal;
-  VItem: IMapType;
-  VMapType: TMapType;
-  VElements: IInterfaceListSimple;
-begin
-  FVectorMapsSetCS.BeginRead;
+  ViewUpdateLock;
   try
-    VVectorMapsSet := FVectorMapsSet;
+    OnConfigChange;
   finally
-    FVectorMapsSetCS.EndRead;
+    ViewUpdateUnlock;
   end;
-  VElements := TInterfaceListSimple.Create;
-    if VVectorMapsSet <> nil then begin
-      VEnum := VVectorMapsSet.GetIterator;
-      while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-        VItem := VVectorMapsSet.GetMapTypeByGUID(VGUID);
-        VMapType := VItem.GetMapType;
-        if VMapType.IsKmlTiles then begin
-          AddElementsFromMap(AOperationID, ACancelNotifier, VElements, VMapType, ALocalConverter);
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            Break;
-          end;
-        end;
-      end;
-    end;
-  Result := TVectorItemSubset.Create(VElements.MakeStaticAndClear);
 end;
 
 procedure TMapLayerVectorMaps.StartThreads;
