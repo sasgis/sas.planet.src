@@ -134,6 +134,7 @@ uses
   u_VectorDataItemSubset,
   u_TileErrorInfo,
   u_ResStrings,
+  u_Synchronizer,
   u_GeoFun;
 
 { TVectorItemSubsetChangeableForVectorLayers }
@@ -163,6 +164,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
 
   FDelicateUpdateFlag := TSimpleFlagWithInterlock.Create;
+  FResultCS := MakeSyncRW_Var(Self, False);
   FLinksList := TListenerNotifierLinksList.Create;
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
