@@ -34,6 +34,7 @@ uses
   i_MapVersionFactoryList,
   i_NotifierOperation,
   i_GPSPositionFactory,
+  i_HashFunction,
   i_Listener,
   i_BackgroundTask,
   i_ConfigDataWriteProvider,
@@ -99,6 +100,7 @@ type
 
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpInfoSet: IZmpInfoSet;
+    FHashFunction: IHashFunction;
     FResourceProvider: IConfigDataProvider;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FTileNameParser: ITileFileNameParsersList;
@@ -266,6 +268,8 @@ uses
   u_CoordConverterListStaticSimple,
   u_DownloadInfoSimple,
   u_Datum,
+  u_HashFunctionCityHash,
+  u_HashFunctionWithCounter,
   u_PLTSimpleParser,
   u_MapVersionFactoryList,
   u_GeoCoderListSimple,
@@ -364,6 +368,30 @@ begin
       FBaseDataPath,
       FBaseApplicationPath
     );
+
+  FMainConfigProvider :=
+    TSASMainConfigProvider.Create(
+      FBaseConfigPath.FullPath,
+      ExtractFileName(ParamStr(0)),
+      HInstance
+    );
+
+  FGlobalConfig.ReadConfig(FMainConfigProvider);
+  if FGlobalConfig.GlobalAppConfig.IsShowDebugInfo then begin
+    FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
+    if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
+      FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
+    end;
+  end else begin
+    FPerfCounterList := TInternalPerformanceCounterFake.Create;
+  end;
+
+  FHashFunction :=
+    THashFunctionWithCounter.Create(
+      THashFunctionCityHash.Create,
+      FPerfCounterList.CreateAndAddNewCounter('HashFunction')
+    );
+
   FBGTimerNotifierInternal := TNotifierTime.Create;
   FBGTimerNotifier := FBGTimerNotifierInternal;
   FBitmapFactory :=
@@ -381,19 +409,11 @@ begin
   FAppStartedNotifier := FAppStartedNotifierInternal;
   FAppClosingNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);
   FAppClosingNotifier := FAppClosingNotifierInternal;
-  FMainConfigProvider :=
-    TSASMainConfigProvider.Create(
-      FBaseConfigPath.FullPath,
-      ExtractFileName(ParamStr(0)),
-      HInstance
-    );
-
-  FGlobalConfig.ReadConfig(FMainConfigProvider);
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
-  FVectorItemsFactory := TVectorItemsFactorySimple.Create;
+  FVectorItemsFactory := TVectorItemsFactorySimple.Create(FHashFunction);
 
   FGlobalInternetState := TGlobalInternetState.Create;
 
@@ -407,15 +427,6 @@ begin
   FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
-
-  if FGlobalConfig.GlobalAppConfig.IsShowDebugInfo then begin
-    FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
-    if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
-      FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
-    end;
-  end else begin
-    FPerfCounterList := TInternalPerformanceCounterFake.Create;
-  end;
 
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;

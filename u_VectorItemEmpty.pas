@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  t_Hash,
   i_LonLatRect,
   i_EnumDoublePoint,
   i_VectorItemLonLat,
@@ -27,6 +28,7 @@ type
     ): Double;
   private
     function GetBounds: ILonLatRect;
+    function GetHash: THashValue;
     function GetCount: Integer;
     function CalcLength(const ADatum: IDatum): Double;
     function CalcPerimeter(const ADatum: IDatum): Double;
@@ -109,6 +111,11 @@ end;
 function TLineSetEmpty.GetEnumLonLat: IEnumLonLatPoint;
 begin
   Result := FEnumLonLat;
+end;
+
+function TLineSetEmpty.GetHash: THashValue;
+begin
+  Result := 0;
 end;
 
 function TLineSetEmpty.GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;

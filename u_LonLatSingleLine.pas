@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  t_Hash,
   i_EnumDoublePoint,
   i_LonLatRect,
   i_Datum,
@@ -16,15 +17,18 @@ type
   private
     FCount: Integer;
     FBounds: ILonLatRect;
+    FHash: THashValue;
     FPoints: array of TDoublePoint;
   private
     function GetBounds: ILonLatRect;
+    function GetHash: THashValue;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
   public
     constructor Create(
       AClosed: Boolean;
       const ABounds: ILonLatRect;
+      const AHash: THashValue;
       const APoints: PDoublePointArray;
       ACount: Integer
     ); overload;
@@ -38,6 +42,7 @@ type
   public
     constructor Create(
       const ABounds: ILonLatRect;
+      const AHash: THashValue;
       const APoints: PDoublePointArray;
       ACount: Integer
     );
@@ -56,6 +61,7 @@ type
   public
     constructor Create(
       const ABounds: ILonLatRect;
+      const AHash: THashValue;
       const APoints: PDoublePointArray;
       ACount: Integer
     );
@@ -72,12 +78,14 @@ uses
 constructor TLonLatLineBase.Create(
   AClosed: Boolean;
   const ABounds: ILonLatRect;
+  const AHash: THashValue;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
   inherited Create;
   FBounds := ABounds;
+  FHash := AHash;
   FCount := ACount;
   Assert(FCount > 0, 'Empty line');
 
@@ -97,6 +105,11 @@ end;
 function TLonLatLineBase.GetCount: Integer;
 begin
   Result := FCount;
+end;
+
+function TLonLatLineBase.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TLonLatLineBase.GetPoints: PDoublePointArray;
@@ -124,11 +137,12 @@ end;
 
 constructor TLonLatPathLine.Create(
   const ABounds: ILonLatRect;
+  const AHash: THashValue;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
-  inherited Create(False, ABounds, APoints, ACount);
+  inherited Create(False, ABounds, AHash, APoints, ACount);
 end;
 
 function TLonLatPathLine.GetEnum: IEnumLonLatPoint;
@@ -151,21 +165,25 @@ begin
     Exit;
   end;
 
-  if not FBounds.IsEqual(ALine.Bounds) then begin
-    Result := False;
-    Exit;
-  end;
-
-  VPoints := ALine.Points;
-
-  for i := 0 to FCount - 1 do begin
-    if not DoublePointsEqual(FPoints[i], VPoints[i]) then begin
+  if (FHash <> 0) and (ALine.Hash <> 0) then begin
+    Result := FHash = ALine.Hash;
+  end else begin
+    if not FBounds.IsEqual(ALine.Bounds) then begin
       Result := False;
       Exit;
     end;
-  end;
 
-  Result := True;
+    VPoints := ALine.Points;
+
+    for i := 0 to FCount - 1 do begin
+      if not DoublePointsEqual(FPoints[i], VPoints[i]) then begin
+        Result := False;
+        Exit;
+      end;
+    end;
+
+    Result := True;
+  end;
 end;
 
 { TLonLatPolygonLine }
@@ -201,11 +219,12 @@ end;
 
 constructor TLonLatPolygonLine.Create(
   const ABounds: ILonLatRect;
+  const AHash: THashValue;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
-  inherited Create(True, ABounds, APoints, ACount);
+  inherited Create(True, ABounds, AHash, APoints, ACount);
 end;
 
 function TLonLatPolygonLine.GetEnum: IEnumLonLatPoint;
@@ -228,21 +247,25 @@ begin
     Exit;
   end;
 
-  if not FBounds.IsEqual(ALine.Bounds) then begin
-    Result := False;
-    Exit;
-  end;
-
-  VPoints := ALine.Points;
-
-  for i := 0 to FCount - 1 do begin
-    if not DoublePointsEqual(FPoints[i], VPoints[i]) then begin
+  if (FHash <> 0) and (ALine.Hash <> 0) then begin
+    Result := FHash = ALine.Hash;
+  end else begin
+    if not FBounds.IsEqual(ALine.Bounds) then begin
       Result := False;
       Exit;
     end;
-  end;
 
-  Result := True;
+    VPoints := ALine.Points;
+
+    for i := 0 to FCount - 1 do begin
+      if not DoublePointsEqual(FPoints[i], VPoints[i]) then begin
+        Result := False;
+        Exit;
+      end;
+    end;
+
+    Result := True;
+  end;
 end;
 
 end.

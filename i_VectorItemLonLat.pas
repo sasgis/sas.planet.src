@@ -4,6 +4,7 @@ interface
 
 uses
   t_GeoTypes,
+  t_Hash,
   i_NotifierOperation,
   i_EnumDoublePoint,
   i_LonLatRect,
@@ -25,6 +26,9 @@ type
 
     function GetPoints: PDoublePointArray;
     property Points: PDoublePointArray read GetPoints;
+
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
   end;
 
   ILonLatPolygonLine = interface
@@ -47,6 +51,9 @@ type
 
     function GetPoints: PDoublePointArray;
     property Points: PDoublePointArray read GetPoints;
+
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
   end;
 
   ILonLatPath = interface
@@ -64,6 +71,9 @@ type
 
     function GetItem(AIndex: Integer): ILonLatPathLine;
     property Item[AIndex: Integer]: ILonLatPathLine read GetItem;
+
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
   end;
 
   ILonLatPolygon = interface
@@ -86,6 +96,9 @@ type
 
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
     property Item[AIndex: Integer]: ILonLatPolygonLine read GetItem;
+
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
   end;
 
 implementation

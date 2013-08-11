@@ -3,6 +3,7 @@ unit u_VectorItemLonLat;
 interface
 
 uses
+  t_Hash,
   i_NotifierOperation,
   i_LonLatRect,
   i_EnumDoublePoint,
@@ -15,13 +16,16 @@ type
   TLonLatLineSet = class(TBaseInterfacedObject)
   private
     FList: IInterfaceListStatic;
+    FHash: THashValue;
     FBounds: ILonLatRect;
   private
     function GetCount: Integer;
+    function GetHash: THashValue;
     function GetBounds: ILonLatRect;
   public
     constructor Create(
       const ABounds: ILonLatRect;
+      const AHash: THashValue;
       const AList: IInterfaceListStatic
     );
   end;
@@ -56,6 +60,7 @@ type
     function IsSame(const APath: ILonLatPath): Boolean;
     function CalcLength(const ADatum: IDatum): Double;
     function GetBounds: ILonLatRect;
+    function GetHash: THashValue;
     function GetItem(AIndex: Integer): ILonLatPathLine;
   public
     constructor Create(
@@ -77,6 +82,7 @@ type
       const AOperationID: Integer = 0
     ): Double;
     function GetBounds: ILonLatRect;
+    function GetHash: THashValue;
     function GetItem(AIndex: Integer): ILonLatPolygonLine;
   public
     constructor Create(
@@ -94,6 +100,7 @@ uses
 
 constructor TLonLatLineSet.Create(
   const ABounds: ILonLatRect;
+  const AHash: THashValue;
   const AList: IInterfaceListStatic
 );
 begin
@@ -101,6 +108,7 @@ begin
   Assert(ABounds <> nil);
   inherited Create;
   FBounds := ABounds;
+  FHash := AHash;
   FList := AList;
 end;
 
@@ -112,6 +120,11 @@ end;
 function TLonLatLineSet.GetCount: Integer;
 begin
   Result := FList.Count;
+end;
+
+function TLonLatLineSet.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 { TLonLatPath }
@@ -153,18 +166,22 @@ begin
     Exit;
   end;
 
-  for i := 0 to FList.Count - 1 do begin
-    VLine := GetItem(i);
-    if VLine = nil then begin
-      Result := False;
-      Exit;
+  if (FHash <> 0) and (APath.Hash <> 0) then begin
+    Result := FHash = APath.Hash;
+  end else begin
+    for i := 0 to FList.Count - 1 do begin
+      VLine := GetItem(i);
+      if VLine = nil then begin
+        Result := False;
+        Exit;
+      end;
+      if not VLine.IsSame(APath.Item[i]) then begin
+        Result := False;
+        Exit;
+      end;
     end;
-    if not VLine.IsSame(APath.Item[i]) then begin
-      Result := False;
-      Exit;
-    end;
+    Result := True;
   end;
-  Result := True;
 end;
 
 { TLonLatPolygon }
@@ -220,18 +237,22 @@ begin
     Exit;
   end;
 
-  for i := 0 to FList.Count - 1 do begin
-    VLine := GetItem(i);
-    if VLine = nil then begin
-      Result := False;
-      Exit;
+  if (FHash <> 0) and (APolygon.Hash <> 0) then begin
+    Result := FHash = APolygon.Hash;
+  end else begin
+    for i := 0 to FList.Count - 1 do begin
+      VLine := GetItem(i);
+      if VLine = nil then begin
+        Result := False;
+        Exit;
+      end;
+      if not VLine.IsSame(APolygon.Item[i]) then begin
+        Result := False;
+        Exit;
+      end;
     end;
-    if not VLine.IsSame(APolygon.Item[i]) then begin
-      Result := False;
-      Exit;
-    end;
+    Result := True;
   end;
-  Result := True;
 end;
 
 { TLonLatPathOneLine }
@@ -260,6 +281,11 @@ end;
 function TLonLatPathOneLine.GetEnum: IEnumLonLatPoint;
 begin
   Result := FLine.GetEnum;
+end;
+
+function TLonLatPathOneLine.GetHash: THashValue;
+begin
+  Result := FLine.Hash;
 end;
 
 function TLonLatPathOneLine.GetItem(AIndex: Integer): ILonLatPathLine;
@@ -315,6 +341,11 @@ end;
 function TLonLatPolygonOneLine.GetEnum: IEnumLonLatPoint;
 begin
   Result := FLine.GetEnum;
+end;
+
+function TLonLatPolygonOneLine.GetHash: THashValue;
+begin
+  Result := FLine.Hash;
 end;
 
 function TLonLatPolygonOneLine.GetItem(AIndex: Integer): ILonLatPolygonLine;
