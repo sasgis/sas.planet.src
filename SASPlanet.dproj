@@ -827,6 +827,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
+    <DCCReference Include="t_Hash.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapSingleSet.pas" />
@@ -964,7 +965,9 @@
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_GUIDListStatic.pas" />
     <DCCReference Include="u_HashCacheWithQueuesAbstract.pas" />
+    <DCCReference Include="u_HashFunctionCityHash.pas" />
     <DCCReference Include="u_HashFunctionCRC64.pas" />
+    <DCCReference Include="u_HashFunctionWithCounter.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
     <DCCReference Include="u_IdCacheSimpleThreadSafe.pas" />
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />

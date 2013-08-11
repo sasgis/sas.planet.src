@@ -3,6 +3,7 @@ unit u_HashFunctionCRC64;
 interface
 
 uses
+  t_Hash,
   i_HashFunction,
   u_BaseInterfacedObject;
 
@@ -19,7 +20,11 @@ type
     function CalcHashWithSeed(
       ABuffer: Pointer;
       ASize: Integer;
-      ASeed: THashValue
+      const ASeed: THashValue
+    ): THashValue;
+    function CalcHashOfTwoHash(
+      const AHash1: THashValue;
+      const AHash2: THashValue
     ): THashValue;
   public
     constructor Create;
@@ -38,10 +43,18 @@ begin
   Result := CalcHashWithSeed(ABuffer, ASize, Result);
 end;
 
+function THashFunctionCRC64.CalcHashOfTwoHash(
+  const AHash1: THashValue;
+  const AHash2: THashValue
+): THashValue;
+begin
+  Result := CalcHashWithSeed(@AHash2, SizeOf(THashValue), AHash1);
+end;
+
 function THashFunctionCRC64.CalcHashWithSeed(
   ABuffer: Pointer;
   ASize: Integer;
-  ASeed: THashValue
+  const ASeed: THashValue
 ): THashValue;
 var
   MyCRC64: UInt64;

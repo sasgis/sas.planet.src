@@ -2,9 +2,10 @@ unit i_HashFunction;
 
 interface
 
-type
-  THashValue = UInt64;
+uses
+  t_Hash;
 
+type
   IHashFunction = interface
     ['{5960ED76-146C-4172-80F7-ECBDF1270DDF}']
     function CalcHash(
@@ -14,7 +15,11 @@ type
     function CalcHashWithSeed(
       ABuffer: Pointer;
       ASize: Integer;
-      ASeed: THashValue
+      const ASeed: THashValue
+    ): THashValue;
+    function CalcHashOfTwoHash(
+      const AHash1: THashValue;
+      const AHash2: THashValue
     ): THashValue;
   end;
 
