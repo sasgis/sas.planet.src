@@ -147,7 +147,7 @@ begin
 
   FVectorItems :=
     TVectorItemSubsetChangeableForVectorLayers.Create(
-      APerfList,
+      PerfList,
       AAppStartedNotifier,
       AAppClosingNotifier,
       APosition,
