@@ -23,6 +23,7 @@ unit u_VectorDataItemPolygon;
 interface
 
 uses
+  t_Hash,
   i_LonLatRect,
   i_VectorDataItemSimple,
   i_VectorItemLonLat,
@@ -37,6 +38,7 @@ type
     function GetLLRect: ILonLatRect; override;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
@@ -51,6 +53,7 @@ type
     function GetLine: ILonLatPath;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
@@ -65,6 +68,7 @@ type
     function GetLine: ILonLatPolygon;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
@@ -78,12 +82,13 @@ implementation
 { TVectorDataItemPolygon }
 
 constructor TVectorDataItemPolygon.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
   const ALLRect: ILonLatRect
 );
 begin
-  inherited Create(AHintConverter, AName, ADesc);
+  inherited Create(AHash, AHintConverter, AName, ADesc);
   FLLRect := ALLRect;
 end;
 
@@ -95,12 +100,13 @@ end;
 { TVectorDataItemPath }
 
 constructor TVectorDataItemPath.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
   const ALine: ILonLatPath
 );
 begin
-  inherited Create(AHintConverter, AName, ADesc, ALine.Bounds);
+  inherited Create(AHash, AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
 end;
 
@@ -112,12 +118,13 @@ end;
 { TVectorDataItemPoly }
 
 constructor TVectorDataItemPoly.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
   const ALine: ILonLatPolygon
 );
 begin
-  inherited Create(AHintConverter, AName, ADesc, ALine.Bounds);
+  inherited Create(AHash, AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
 end;
 

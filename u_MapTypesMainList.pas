@@ -30,6 +30,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LanguageManager,
+  i_HashFunction,
   i_ThreadConfig,
   i_CoordConverterFactory,
   i_ZmpInfoSet,
@@ -99,6 +100,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const ATileNameGeneratorList: ITileFileNameGeneratorsList;
       const ATileNameParserList: ITileFileNameParsersList;
+      const AHashFunction: IHashFunction;
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const AInetConfig: IInetConfig;
@@ -225,6 +227,7 @@ procedure TMapTypesMainList.LoadMaps(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const ATileNameGeneratorList: ITileFileNameGeneratorsList;
   const ATileNameParserList: ITileFileNameParsersList;
+  const AHashFunction: IHashFunction;
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const AInetConfig: IInetConfig;
@@ -293,6 +296,7 @@ begin
           FTileReprojectResamplerConfig,
           FTileDownloadResamplerConfig,
           ABitmapFactory,
+          AHashFunction,
           ADownloadConfig,
           ADownloaderThreadConfig,
           AContentTypeManager,

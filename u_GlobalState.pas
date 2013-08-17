@@ -511,7 +511,7 @@ begin
       VMarksKmlLoadCounterList
     );
 {$ifend}
-  FVectorDataFactory := TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create);
+  FVectorDataFactory := TVectorDataFactorySimple.Create(FHashFunction, THtmlToHintTextConverterStuped.Create);
   FImportFileByExt := TImportByFileExt.Create(
     FGlobalConfig.ValueToStringConverterConfig,
     FVectorDataFactory,
@@ -846,6 +846,7 @@ begin
     FGlobalBerkeleyDBHelper,
     FTileNameGenerator,
     FTileNameParser,
+    FHashFunction,
     FBGTimerNotifier,
     FAppClosingNotifier,
     FGlobalConfig.InetConfig,

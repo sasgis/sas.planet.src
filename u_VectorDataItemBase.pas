@@ -23,6 +23,7 @@ unit u_VectorDataItemBase;
 interface
 
 uses
+  t_Hash,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
@@ -32,9 +33,11 @@ type
   TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItemSimple)
   private
     FHintConverter: IHtmlToHintTextConverter;
+    FHash: THashValue;
     FName: string;
     FDesc: string;
   protected
+    function GetHash: THashValue;
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: ILonLatRect; virtual; abstract;
@@ -44,6 +47,7 @@ type
     function GetInfoHTML: string;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string
@@ -55,12 +59,14 @@ implementation
 { TVectorDataItemBase }
 
 constructor TVectorDataItemBase.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string
 );
 begin
   inherited Create;
   FHintConverter := AHintConverter;
+  FHash := AHash;
   FName := AName;
   FDesc := ADesc;
 end;
@@ -68,6 +74,11 @@ end;
 function TVectorDataItemBase.GetDesc: string;
 begin
   Result := FDesc;
+end;
+
+function TVectorDataItemBase.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TVectorDataItemBase.GetHintText: string;

@@ -23,6 +23,7 @@ unit u_VectorDataItemOfMapBase;
 interface
 
 uses
+  t_Hash,
   i_LonLatRect,
   i_StringProvider,
   i_HtmlToHintTextConverter,
@@ -36,9 +37,11 @@ type
     FIndex: Integer;
 
     FHintConverter: IHtmlToHintTextConverter;
+    FHash: THashValue;
     FName: string;
     FDesc: string;
   protected
+    function GetHash: THashValue;
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: ILonLatRect; virtual; abstract;
@@ -48,6 +51,7 @@ type
     function GetInfoHTML: string;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
@@ -64,6 +68,7 @@ uses
 { TVectorDataItemBase }
 
 constructor TVectorDataItemOfMapBase.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
@@ -71,6 +76,7 @@ constructor TVectorDataItemOfMapBase.Create(
 );
 begin
   inherited Create;
+  FHash := AHash;
   FHintConverter := AHintConverter;
   FUrlPrefix := AUrlPrefix;
   FIndex := AIndex;
@@ -81,6 +87,11 @@ end;
 function TVectorDataItemOfMapBase.GetDesc: string;
 begin
   Result := FDesc;
+end;
+
+function TVectorDataItemOfMapBase.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TVectorDataItemOfMapBase.GetHintText: string;

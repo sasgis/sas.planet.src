@@ -23,6 +23,7 @@ unit u_VectorDataItemOfMapPolygon;
 interface
 
 uses
+  t_Hash,
   i_StringProvider,
   i_LonLatRect,
   i_VectorDataItemSimple,
@@ -38,6 +39,7 @@ type
     function GetLLRect: ILonLatRect; override;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
@@ -54,6 +56,7 @@ type
     function GetLine: ILonLatPath;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
@@ -70,6 +73,7 @@ type
     function GetLine: ILonLatPolygon;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
@@ -85,6 +89,7 @@ implementation
 { TVectorDataItemPolygon }
 
 constructor TVectorDataItemOfMapPolygon.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
@@ -93,6 +98,7 @@ constructor TVectorDataItemOfMapPolygon.Create(
 );
 begin
   inherited Create(
+    AHash,
     AHintConverter,
     AUrlPrefix,
     AIndex,
@@ -110,6 +116,7 @@ end;
 { TVectorDataItemPath }
 
 constructor TVectorDataItemOfMapPath.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
@@ -118,6 +125,7 @@ constructor TVectorDataItemOfMapPath.Create(
 );
 begin
   inherited Create(
+    AHash,
     AHintConverter,
     AUrlPrefix,
     AIndex,
@@ -136,6 +144,7 @@ end;
 { TVectorDataItemPoly }
 
 constructor TVectorDataItemOfMapPoly.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
@@ -144,6 +153,7 @@ constructor TVectorDataItemOfMapPoly.Create(
 );
 begin
   inherited Create(
+    AHash,
     AHintConverter,
     AUrlPrefix,
     AIndex,
