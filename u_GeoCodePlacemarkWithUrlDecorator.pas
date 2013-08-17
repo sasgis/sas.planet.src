@@ -3,6 +3,7 @@ unit u_GeoCodePlacemarkWithUrlDecorator;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_LonLatRect,
   i_VectorDataItemSimple,
@@ -15,6 +16,7 @@ type
     FSource: IGeoCodePlacemark;
     FUrl: string;
   private
+    function GetHash: THashValue;
     function GetPoint: TDoublePoint;
     function GetName: string;
     function GetDesc: string;
@@ -52,6 +54,11 @@ end;
 function TGeoCodePlacemarkWithUrlDecorator.GetDesc: string;
 begin
   Result := FSource.Desc;
+end;
+
+function TGeoCodePlacemarkWithUrlDecorator.GetHash: THashValue;
+begin
+  Result := FSource.Hash;
 end;
 
 function TGeoCodePlacemarkWithUrlDecorator.GetHintText: string;
