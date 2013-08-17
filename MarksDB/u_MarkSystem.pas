@@ -11,6 +11,7 @@ uses
   i_MarkDb,
   i_MarkCategoryDB,
   i_ImportConfig,
+  i_HashFunction,
   i_InterfaceListStatic,
   i_VectorItemSubset,
   i_VectorItemTree,
@@ -68,6 +69,7 @@ type
       const AMarkPictureList: IMarkPictureList;
       const AMarkFactory: IMarkFactory;
       const AMarkCategoryFactory: IMarkCategoryFactory;
+      const AHashFunction: IHashFunction;
       const AVectorItemsFactory: IVectorItemsFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
@@ -79,7 +81,6 @@ type
 implementation
 
 uses
-  ActiveX,
   SysUtils,
   i_Category,
   i_InterfaceListSimple,
@@ -137,6 +138,7 @@ constructor TMarkSystem.Create(
   const AMarkPictureList: IMarkPictureList;
   const AMarkFactory: IMarkFactory;
   const AMarkCategoryFactory: IMarkCategoryFactory;
+  const AHashFunction: IHashFunction;
   const AVectorItemsFactory: IVectorItemsFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
@@ -159,6 +161,7 @@ begin
     TMarkSystemImplChangeable.Create(
       ABasePath,
       AMarkPictureList,
+      AHashFunction,
       AVectorItemsFactory,
       VLoadDbCounter,
       VSaveDbCounter,

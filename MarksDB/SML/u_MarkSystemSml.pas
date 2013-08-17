@@ -23,6 +23,7 @@ unit u_MarkSystemSml;
 interface
 
 uses
+  i_HashFunction,
   i_VectorItemsFactory,
   i_InternalPerformanceCounter,
   i_ReadWriteState,
@@ -60,6 +61,7 @@ type
     constructor Create(
       const ABasePath: string;
       const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
       const AVectorItemsFactory: IVectorItemsFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
@@ -82,6 +84,7 @@ uses
 constructor TMarkSystemSml.Create(
   const ABasePath: string;
   const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
   const AVectorItemsFactory: IVectorItemsFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
@@ -109,6 +112,7 @@ begin
       FDbId,
       AMarkPictureList,
       AVectorItemsFactory,
+      AHashFunction,
       AHintConverter,
       FCategoryDBInternal
     );

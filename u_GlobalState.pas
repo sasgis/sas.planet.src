@@ -579,6 +579,7 @@ begin
       FMarkPictureList,
       FMarkFactory,
       FMarkCategoryFactory,
+      FHashFunction,
       FVectorItemsFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       FAppStartedNotifier,

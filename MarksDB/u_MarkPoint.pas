@@ -24,6 +24,7 @@ interface
 
 uses
   GR32,
+  t_Hash,
   t_GeoTypes,
   i_LonLatRect,
   i_Mark,
@@ -59,6 +60,7 @@ type
     function GetPicName: string;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const APic: IMarkPicture;
@@ -81,6 +83,7 @@ uses
 { TMarkPoint }
 
 constructor TMarkPoint.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   const APic: IMarkPicture;
@@ -91,7 +94,7 @@ constructor TMarkPoint.Create(
   AFontSize, AMarkerSize: Integer
 );
 begin
-  inherited Create(AHintConverter, AName, ACategory, ADesc);
+  inherited Create(AHash, AHintConverter, AName, ACategory, ADesc);
   FPic := APic;
   FLLRect := TLonLatRectByPoint.Create(APoint);
   FTextColor := ATextColor;

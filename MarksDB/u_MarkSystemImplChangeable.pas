@@ -6,6 +6,7 @@ uses
   i_PathConfig,
   i_Listener,
   i_MarkPicture,
+  i_HashFunction,
   i_VectorItemsFactory,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
@@ -21,6 +22,7 @@ type
   private
     FBasePath: IPathConfig;
     FMarkPictureList: IMarkPictureList;
+    FHashFunction: IHashFunction;
     FVectorItemsFactory: IVectorItemsFactory;
     FHintConverter: IHtmlToHintTextConverter;
     FLoadDbCounter: IInternalPerformanceCounter;
@@ -44,6 +46,7 @@ type
     constructor Create(
       const ABasePath: IPathConfig;
       const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
       const AVectorItemsFactory: IVectorItemsFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
@@ -64,6 +67,7 @@ uses
 constructor TMarkSystemImplChangeable.Create(
   const ABasePath: IPathConfig;
   const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
   const AVectorItemsFactory: IVectorItemsFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
@@ -75,6 +79,7 @@ begin
   inherited Create;
   FBasePath := ABasePath;
   FMarkPictureList := AMarkPictureList;
+  FHashFunction := AHashFunction;
   FVectorItemsFactory := AVectorItemsFactory;
   FLoadDbCounter := ALoadDbCounter;
   FSaveDbCounter := ASaveDbCounter;
@@ -114,6 +119,7 @@ begin
       TMarkSystemSml.Create(
         FBasePath.FullPath,
         FMarkPictureList,
+        FHashFunction,
         FVectorItemsFactory,
         FLoadDbCounter,
         FSaveDbCounter,

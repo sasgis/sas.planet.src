@@ -28,6 +28,7 @@ uses
   i_VectorItemLonLat,
   i_VectorItemsFactory,
   i_VectorDataItemSimple,
+  i_HashFunction,
   i_ImportConfig,
   i_MarkPicture,
   i_MarkFactoryConfig,
@@ -42,6 +43,7 @@ type
 
   TMarkFactory = class(TBaseInterfacedObject, IMarkFactory)
   private
+    FHashFunction: IHashFunction;
     FConfig: IMarkFactoryConfig;
     FFactory: IVectorItemsFactory;
     FHintConverter: IHtmlToHintTextConverter;
@@ -179,6 +181,7 @@ implementation
 
 uses
   SysUtils,
+  t_Hash,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;
@@ -316,9 +319,32 @@ function TMarkFactory.CreatePoint(
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer
 ): IMarkPoint;
+var
+  VHash: THashValue;
+  VPicHash: THashValue;
 begin
+  if APic = nil then begin
+    VPicHash := 0;
+  end else begin
+    VPicHash :=APic.Hash;
+  end;
+
+  VHash := FHashFunction.CalcHash(@APoint, SizeOf(TDoublePoint));
+  if AName <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
+  end;
+  if ADesc <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
+  end;
+  VHash := FHashFunction.CalcHashOfTwoHash(VHash, VPicHash);
+  VHash := FHashFunction.CalcHashWithSeed(@ATextColor, SizeOf(ATextColor), VHash);
+  VHash := FHashFunction.CalcHashWithSeed(@ATextBgColor, SizeOf(ATextBgColor), VHash);
+  VHash := FHashFunction.CalcHashWithSeed(@AFontSize, SizeOf(AFontSize), VHash);
+  VHash := FHashFunction.CalcHashWithSeed(@AMarkerSize, SizeOf(AMarkerSize), VHash);
+
   Result :=
     TMarkPoint.Create(
+      VHash,
       FHintConverter,
       AName,
       APic,
@@ -340,9 +366,21 @@ function TMarkFactory.CreateLine(
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IMarkLine;
+var
+  VHash: THashValue;
 begin
+  VHash := ALine.Hash;
+  if AName <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
+  end;
+  if ADesc <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
+  end;
+  VHash := FHashFunction.CalcHashWithSeed(@ALineColor, SizeOf(ALineColor), VHash);
+  VHash := FHashFunction.CalcHashWithSeed(@ALineWidth, SizeOf(ALineWidth), VHash);
   Result :=
     TMarkLine.Create(
+      VHash,
       FHintConverter,
       AName,
       ACategory,
@@ -361,9 +399,22 @@ function TMarkFactory.CreatePoly(
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 ): IMarkPoly;
+var
+  VHash: THashValue;
 begin
+  VHash := ALine.Hash;
+  if AName <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
+  end;
+  if ADesc <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
+  end;
+  VHash := FHashFunction.CalcHashWithSeed(@ABorderColor, SizeOf(ABorderColor), VHash);
+  VHash := FHashFunction.CalcHashWithSeed(@AFillColor, SizeOf(AFillColor), VHash);
+  VHash := FHashFunction.CalcHashWithSeed(@ALineWidth, SizeOf(ALineWidth), VHash);
   Result :=
     TMarkPoly.Create(
+      VHash,
       FHintConverter,
       AName,
       ACategory,
