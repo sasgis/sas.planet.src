@@ -24,6 +24,7 @@ interface
 
 uses
   ActiveX,
+  t_GeoTypes,
   i_NotifierOperation,
   i_VectorDataItemSimple,
   i_LocalCoordConverter;
@@ -31,16 +32,27 @@ uses
 type
   IGeoCodeResult = interface
     ['{C90929AD-3A6C-4906-A554-E1DA363ED060}']
-    function GetSearchText: WideString; safecall;
-    function GetResultCode: Integer; safecall;
-    function GetMessage: WideString; safecall;
-    function GetPlacemarks: IEnumUnknown; safecall;
-    function GetPlacemarksCount: integer; safecall;
+    function GetSearchText: string;
+    function GetResultCode: Integer;
+    function GetMessage: string;
+    function GetPlacemarks: IEnumUnknown;
+    function GetPlacemarksCount: integer;
   end;
 
   IGeoCodePlacemark = interface(IVectorDataItemPoint)
     ['{744CAB70-0466-433A-AF57-00BD5AFD9F45}']
-    function GetAccuracy: Integer; safecall;
+    function GetAccuracy: Integer;
+  end;
+
+  IGeoCodePlacemarkFactory = interface
+    ['{2ACD5E56-87C4-4A48-BBDD-055D0803C10C}']
+    function Build(
+      const APoint: TDoublePoint;
+      const AAddress: string;
+      const ADesc: string;
+      const AFullDesc: string;
+      const AAccuracy: Integer
+    ): IGeoCodePlacemark;
   end;
 
   IGeoCoder = interface
@@ -48,9 +60,9 @@ type
     function GetLocations(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
-    ): IGeoCodeResult; safecall;
+    ): IGeoCodeResult;
   end;
 
 implementation

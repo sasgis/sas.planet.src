@@ -53,6 +53,7 @@ type
     ): IInterfaceListSimple; override;
   public
     constructor Create(
+      const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
   end;
@@ -66,7 +67,6 @@ uses
   RegExprUtils,
   t_GeoTypes,
   u_InterfaceListSimple,
-  u_GeoCodePlacemark,
   u_GeoToStr;
 
 { TGeoCoderByCoord }
@@ -263,7 +263,7 @@ begin
         if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
          sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
          sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
          AAList.Add(VPlace);
          result:=true;
         end;
@@ -279,7 +279,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -292,7 +292,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -308,7 +308,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -321,7 +321,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -342,7 +342,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -355,7 +355,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -369,7 +369,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -382,7 +382,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -402,7 +402,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -415,7 +415,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -429,7 +429,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -442,7 +442,7 @@ begin
           inc(VCounter);sname := inttostr(VCounter)+'.) '+APos1+' '+APos2;
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           result:=true;
         end;
@@ -452,10 +452,11 @@ begin
 end;
 
 constructor TGeoCoderByCoord.Create(
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create();
+  inherited Create(APlacemarkFactory);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
@@ -677,7 +678,7 @@ begin
          if (abs(VPoint.y)<=90)and(abs(VPoint.x)<=180) then begin
           sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
           sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           AAList.Add(VPlace);
           Result := true;
           end;
@@ -833,7 +834,7 @@ begin
          sname := ASearch;
          sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
          sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-         VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+         VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
          VList.Add(VPlace);
          end;
     end;

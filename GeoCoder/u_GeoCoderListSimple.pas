@@ -25,6 +25,7 @@ interface
 uses
   i_NotifierTime,
   i_InetConfig,
+  i_GeoCoder,
   i_DownloadResultFactory,
   i_ValueToStringConverter,
   u_GeoCoderListBase;
@@ -35,6 +36,7 @@ type
     constructor Create(
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
+      const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -63,6 +65,7 @@ uses
 constructor TGeoCoderListSimple.Create(
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
@@ -74,7 +77,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderGoogleGUID,
       'Google',
-      TGeoCoderByGoogle.Create(AInetConfig, AGCNotifier, AResultFactory)
+      TGeoCoderByGoogle.Create(AInetConfig, AGCNotifier, APlacemarkFactory, AResultFactory)
     );
   Add(VItem);
 
@@ -82,7 +85,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderYandexGUID,
       'Yandex',
-      TGeoCoderByYandex.Create(AInetConfig, AGCNotifier, AResultFactory)
+      TGeoCoderByYandex.Create(AInetConfig, AGCNotifier, APlacemarkFactory, AResultFactory)
     );
   Add(VItem);
 
@@ -90,7 +93,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoder2GISGUID,
       '2GIS',
-      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AResultFactory)
+      TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, APlacemarkFactory, AResultFactory)
     );
   Add(VItem);
 
@@ -98,7 +101,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderOSMGUID,
       'OSM',
-      TGeoCoderByOSM.Create(AInetConfig, AGCNotifier, AResultFactory)
+      TGeoCoderByOSM.Create(AInetConfig, AGCNotifier, APlacemarkFactory, AResultFactory)
     );
   Add(VItem);
 
@@ -106,7 +109,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderWikiMapiaGUID,
       'WikiMapia',
-      TGeoCoderByWikiMapia.Create(AInetConfig, AGCNotifier, AResultFactory)
+      TGeoCoderByWikiMapia.Create(AInetConfig, AGCNotifier, APlacemarkFactory, AResultFactory)
     );
   Add(VItem);
 
@@ -114,7 +117,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
       'Rosreestr',
-      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AResultFactory, AValueToStringConverterConfig)
+      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, APlacemarkFactory, AResultFactory, AValueToStringConverterConfig)
     );
   Add(VItem);
 
@@ -122,7 +125,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderNavitelGUID,
       'Navitel',
-      TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, AResultFactory)
+      TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, APlacemarkFactory, AResultFactory)
     );
   Add(VItem);
 
@@ -130,7 +133,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
       'URL',
-      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AResultFactory, AValueToStringConverterConfig)
+      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, APlacemarkFactory, AResultFactory, AValueToStringConverterConfig)
     );
   Add(VItem);
 
@@ -139,7 +142,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderPolishMapGUID,
         'Offline search (*.mp)',
-        TGeoCoderByPolishMap.Create(AValueToStringConverterConfig)
+        TGeoCoderByPolishMap.Create(APlacemarkFactory, AValueToStringConverterConfig)
       );
     Add(VItem);
   Except
@@ -150,7 +153,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderGeonamesTXTGUID,
         'Offline search (*.txt)',
-        TGeoCoderByTXT.Create(AValueToStringConverterConfig)
+        TGeoCoderByTXT.Create(APlacemarkFactory, AValueToStringConverterConfig)
       );
     Add(VItem);
   Except
@@ -160,7 +163,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderCoordGUID,
       'Coordinates',
-      TGeoCoderByCoord.Create(AValueToStringConverterConfig)
+      TGeoCoderByCoord.Create(APlacemarkFactory, AValueToStringConverterConfig)
     );
   Add(VItem);
 

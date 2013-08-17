@@ -24,7 +24,7 @@ type
     function GetInfoUrl: string;
     function GetInfoCaption: string;
   private
-    function GetAccuracy: Integer; safecall;
+    function GetAccuracy: Integer;
   public
     constructor Create(
       const ASource: IGeoCodePlacemark;

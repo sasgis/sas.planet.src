@@ -23,20 +23,24 @@ unit u_GeoCodePlacemark;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_LonLatRect,
+  i_HashFunction,
   i_GeoCoder,
   u_BaseInterfacedObject;
 
 type
   TGeoCodePlacemark = class(TBaseInterfacedObject, IGeoCodePlacemark)
   private
+    FHash: THashValue;
     FLLRect: ILonLatRect;
-    FAddress: WideString;
-    FDesc: WideString;
-    FFullDesc: WideString;
+    FAddress: string;
+    FDesc: string;
+    FFullDesc: string;
     FAccuracy: Integer;
   private
+    function GetHash: THashValue;
     function GetPoint: TDoublePoint;
     function GetName: string;
     function GetDesc: string;
@@ -46,14 +50,32 @@ type
     function GetInfoUrl: string;
     function GetInfoCaption: string;
   private
-    function GetAccuracy: Integer; safecall;
+    function GetAccuracy: Integer;
   public
     constructor Create(
+      const AHash: THashValue;
       const APoint: TDoublePoint;
-      const AAddress: WideString;
-      const ADesc: WideString;
-      const AFullDesc: WideString;
-      AAccuracy: Integer
+      const AAddress: string;
+      const ADesc: string;
+      const AFullDesc: string;
+      const AAccuracy: Integer
+    );
+  end;
+
+  TGeoCodePlacemarkFactory = class(TBaseInterfacedObject, IGeoCodePlacemarkFactory)
+  private
+    FHashFunction: IHashFunction;
+  private
+    function Build(
+      const APoint: TDoublePoint;
+      const AAddress: string;
+      const ADesc: string;
+      const AFullDesc: string;
+      const AAccuracy: Integer
+    ): IGeoCodePlacemark;
+  public
+    constructor Create(
+      const AHashFunction: IHashFunction
     );
   end;
 
@@ -65,14 +87,16 @@ uses
 { TGeoCodePlacemark }
 
 constructor TGeoCodePlacemark.Create(
+  const AHash: THashValue;
   const APoint: TDoublePoint;
-  const AAddress: WideString;
-  const ADesc: WideString;
-  const AFullDesc: WideString;
-  AAccuracy: Integer
+  const AAddress: string;
+  const ADesc: string;
+  const AFullDesc: string;
+  const AAccuracy: Integer
 );
 begin
   inherited Create;
+  FHash := AHash;
   FAddress := AAddress;
   FDesc := ADesc;
   FFullDesc := AFullDesc;
@@ -93,6 +117,11 @@ end;
 function TGeoCodePlacemark.GetDesc: string;
 begin
   Result := FDesc;
+end;
+
+function TGeoCodePlacemark.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TGeoCodePlacemark.GetHintText: string;
@@ -123,6 +152,43 @@ end;
 function TGeoCodePlacemark.GetPoint: TDoublePoint;
 begin
   Result := FLLRect.TopLeft;
+end;
+
+{ TGeoCodePlacemarkFactory }
+
+constructor TGeoCodePlacemarkFactory.Create(const AHashFunction: IHashFunction);
+begin
+  inherited Create;
+  FHashFunction := AHashFunction;
+end;
+
+function TGeoCodePlacemarkFactory.Build(
+  const APoint: TDoublePoint;
+  const AAddress, ADesc, AFullDesc: string;
+  const AAccuracy: Integer
+): IGeoCodePlacemark;
+var
+  VHash: THashValue;
+begin
+  VHash := FHashFunction.CalcHash(@APoint, SizeOf(APoint));
+  if AAddress <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@AAddress[1], Length(AAddress), VHash);
+  end;
+  if ADesc <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc), VHash);
+  end;
+  if AFullDesc <> '' then begin
+    VHash := FHashFunction.CalcHashWithSeed(@AFullDesc[1], Length(AFullDesc), VHash);
+  end;
+  Result :=
+    TGeoCodePlacemark.Create(
+      VHash,
+      APoint,
+      AAddress,
+      ADesc,
+      AFullDesc,
+      AAccuracy
+    );
 end;
 
 end.

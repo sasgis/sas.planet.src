@@ -30,8 +30,9 @@ uses
   i_DownloadRequest,
   i_NotifierTime,
   i_NotifierOperation,
+  i_GeoCoder,
   i_LocalCoordConverter,
-  i_DownloadResultFactory,  
+  i_DownloadResultFactory,
   i_ValueToStringConverter,
   u_GeoCoderBasic;
 
@@ -55,6 +56,7 @@ type
     constructor Create(
       const AInetSettings: IInetConfig;
       const AGCNotifier: INotifierTime;
+      const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -69,11 +71,9 @@ uses
   ALFcnString,
   RegExprUtils,
   t_GeoTypes,
-  i_GeoCoder,
   i_CoordConverter,
   u_InterfaceListSimple,
-  u_ResStrings,
-  u_GeoCodePlacemark;
+  u_ResStrings;
 
 { TGeoCoderByRosreestr }
 
@@ -110,11 +110,12 @@ begin
 end;
 constructor TGeoCoderByRosreestr.Create(const AInetSettings: IInetConfig;
   const AGCNotifier: INotifierTime;
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AInetSettings, AGCNotifier, AResultFactory);
+  inherited Create(AInetSettings, AGCNotifier, APlacemarkFactory, AResultFactory);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
@@ -186,7 +187,7 @@ begin
     i := (ALPosEx('}}', VStr, j));
     sdesc := sdesc + #$D#$A + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
     sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-    VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+    VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
 
@@ -218,7 +219,7 @@ begin
     i := (ALPosEx('}}', VStr, i));
     sdesc := sdesc + #$D#$A + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
     sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-    VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+    VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
   if (VNeedSort) and (VList.GetCount>1) then SortIt(VList ,ALocalConverter); // only for names

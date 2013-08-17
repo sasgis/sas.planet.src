@@ -52,7 +52,6 @@ implementation
 
 uses
   SysUtils,
-  StrUtils,
   ALFcnString,
   RegExprUtils,
   t_GeoTypes,
@@ -60,7 +59,6 @@ uses
   i_CoordConverter,
   u_InterfaceListSimple,
   u_ResStrings,
-  u_GeoCodePlacemark,
   u_GeoTostr;
 
 { TGeoCoderByNavitel }
@@ -615,7 +613,7 @@ begin
      except
        raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
      end;
-     VPlace := TGeoCodePlacemark.Create(VPoint, sname, VDesc, sfulldesc, 4);
+     VPlace := PlacemarkFactory.Build(VPoint, sname, VDesc, sfulldesc, 4);
      VList.Add(VPlace);
 
     VBuffer:='';

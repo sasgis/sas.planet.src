@@ -61,8 +61,7 @@ uses
   i_GeoCoder,
   u_InterfaceListSimple,
   u_ResStrings,
-  u_GeoTostr,
-  u_GeoCodePlacemark;
+  u_GeoTostr;
 
 { TGeoCoderBy2GIS }
 
@@ -111,7 +110,7 @@ begin
             VFullDesc := 'http://sasgis.ru/stat/2GIS/2gis.php?id=' + PlacemarkNode.ChildNodes.FindNode('id').Text +
               '&hash=' + PlacemarkNode.ChildNodes.FindNode('hash').Text;
             if (AddressNode <> nil) then begin
-              VPlace := TGeoCodePlacemark.Create(VPoint, AddressNode.Text, VDesc, VFullDesc, 4);
+              VPlace := PlacemarkFactory.Build(VPoint, AddressNode.Text, VDesc, VFullDesc, 4);
               VList.Add(VPlace);
             end;
           except

@@ -31,6 +31,8 @@ uses
 
 type
   TGeoCoderLocalBasic = class(TBaseInterfacedObject, IGeoCoder)
+  private
+    FPlacemarkFactory: IGeoCodePlacemarkFactory;
   protected
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
@@ -38,13 +40,18 @@ type
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; virtual; abstract;
+    property PlacemarkFactory: IGeoCodePlacemarkFactory read FPlacemarkFactory;
   private
     function GetLocations(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
-    ): IGeoCodeResult; safecall;
+    ): IGeoCodeResult;
+  public
+    constructor Create(
+      const APlacemarkFactory: IGeoCodePlacemarkFactory
+    );
   end;
 
 implementation
@@ -109,10 +116,18 @@ begin
   QuickSort(AList, VDistArr, 0, AList.GetCount-1);
 end;
 
+constructor TGeoCoderLocalBasic.Create(
+  const APlacemarkFactory: IGeoCodePlacemarkFactory
+);
+begin
+  inherited Create;
+  FPlacemarkFactory := APlacemarkFactory;
+end;
+
 function TGeoCoderLocalBasic.GetLocations(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IGeoCodeResult;
 var

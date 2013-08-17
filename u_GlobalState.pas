@@ -62,6 +62,7 @@ uses
   i_NotifierTime,
   i_Bitmap32StaticFactory,
   i_VectorDataFactory,
+  i_GeoCoder,
   i_MapCalibration,
   i_ImportFile,
   i_PathDetalizeProviderList,
@@ -101,6 +102,7 @@ type
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpInfoSet: IZmpInfoSet;
     FHashFunction: IHashFunction;
+    FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
     FResourceProvider: IConfigDataProvider;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FTileNameParser: ITileFileNameParsersList;
@@ -217,6 +219,7 @@ type
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
+    property GeoCodePlacemarkFactory: IGeoCodePlacemarkFactory read FGeoCodePlacemarkFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
     property GlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper read FGlobalBerkeleyDBHelper;
@@ -283,6 +286,7 @@ uses
   u_GPSModuleFactoryByVSAGPS,
   u_GPSPositionFactory,
   u_ProjectionInfoFactory,
+  u_GeoCodePlacemark,
   u_LocalCoordConverterFactorySimpe,
   u_TerrainProviderList,
   u_MainFormConfig,
@@ -543,10 +547,12 @@ begin
       GUISyncronizedTimerNotifier,
       FPerfCounterList
     );
+  FGeoCodePlacemarkFactory := TGeoCodePlacemarkFactory.Create(FHashFunction);
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FGlobalConfig.InetConfig,
       BGTimerNotifier,
+      FGeoCodePlacemarkFactory,
       TDownloadResultFactory.Create,
       FGlobalConfig.ValueToStringConverterConfig
     );

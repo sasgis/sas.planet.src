@@ -41,7 +41,9 @@ type
   private
     FDownloader: IDownloader;
     FInetSettings: IInetConfig;
+    FPlacemarkFactory: IGeoCodePlacemarkFactory;
   protected
+    property PlacemarkFactory: IGeoCodePlacemarkFactory read FPlacemarkFactory;
     property Downloader: IDownloader read FDownloader;
     property InetSettings: IInetConfig read FInetSettings;
     function PrepareRequestByURL(const AUrl: AnsiString): IDownloadRequest;
@@ -70,13 +72,14 @@ type
     function GetLocations(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASearch: WideString;
+      const ASearch: string;
       const ALocalConverter: ILocalCoordConverter
-    ): IGeoCodeResult; safecall;
+    ): IGeoCodeResult;
   public
     constructor Create(
       const AInetSettings: IInetConfig;
       const AGCNotifier: INotifierTime;
+      const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory
     );
   end;
@@ -97,11 +100,13 @@ uses
 constructor TGeoCoderBasic.Create(
   const AInetSettings: IInetConfig;
   const AGCNotifier: INotifierTime;
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory
 );
 begin
   inherited Create;
   FInetSettings := AInetSettings;
+  FPlacemarkFactory := APlacemarkFactory;
   FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
 end;
 
@@ -163,7 +168,7 @@ end;
 function TGeoCoderBasic.GetLocations(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASearch: WideString;
+  const ASearch: string;
   const ALocalConverter: ILocalCoordConverter
 ): IGeoCodeResult;
 var

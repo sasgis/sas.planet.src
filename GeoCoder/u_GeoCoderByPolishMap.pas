@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   sysutils,
+  i_GeoCoder,
   i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
@@ -54,9 +55,11 @@ type
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
-
   public
-    constructor Create(const AValueToStringConverterConfig: IValueToStringConverterConfig);
+    constructor Create(
+      const APlacemarkFactory: IGeoCodePlacemarkFactory;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
+    );
   end;
 
 implementation
@@ -66,13 +69,9 @@ uses
   ALFcnString,
   ALStringList,
   t_GeoTypes,
-  i_GeoCoder,
-  i_StringlistStatic,
   u_InterfaceListSimple,
   u_ResStrings,
-  u_Synchronizer,
-  u_GeoCodePlacemark,
-  u_StringListStatic;
+  u_Synchronizer;
 
 { TGeoCoderByPolishMap }
 
@@ -659,7 +658,7 @@ begin
         sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
         sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
         if V_WebPage<>'' then sfulldesc := sfulldesc + '<br><a href=' + string(V_WebPage) + '>' + string(V_WebPage) + '</a>';
-        VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+        VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
 
         // если закометировать условие то не будет производитьс€ фильтраци€ одинаковых элементов
         skip := ItemExist(Vplace,AList);
@@ -675,10 +674,13 @@ begin
   end;
 end;
 
-constructor TGeoCoderByPolishMap.Create;
+constructor TGeoCoderByPolishMap.Create(
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
+);
 begin
-   inherited Create;
-   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp')) then
+  inherited Create(APlacemarkFactory);
+  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\mp')) then
     raise EDirNotExist.Create('not found .\userdata\mp\! skip GeoCoderByPolishMap');
   FLock := MakeSyncRW_Std(Self, False);
   FValueToStringConverterConfig := AValueToStringConverterConfig;

@@ -63,6 +63,7 @@ type
   private
     FMarksDb: IMarkDb;
     FMainGeoCoderConfig: IMainGeoCoderConfig;
+    FGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
     FViewPortState: ILocalCoordConverterChangeable;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FResult: IGeoCodeResult;
@@ -83,6 +84,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
       const AMarksDb: IMarkDb;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -108,8 +110,7 @@ uses
   u_InterfaceListSimple,
   u_Notifier,
   u_NotifierOperation,
-  u_GeoCodeResult,
-  u_GeoCodePlacemark;
+  u_GeoCodeResult;
 
 {$R *.dfm}
 
@@ -122,7 +123,7 @@ var
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceListSimple;
 begin
-  VPlace := TGeoCodePlacemark.Create(ALonLat, AMessage, '', '', 4);
+  VPlace := FGeoCodePlacemarkFactory.Build(ALonLat, AMessage, '', '', 4);
   VList := TInterfaceListSimple.Create;
   VList.Add(VPlace);
   Result := TGeoCodeResult.Create(ASearch, 203, '', VList.MakeStaticAndClear);
@@ -287,6 +288,7 @@ end;
 
 constructor TfrmGoTo.Create(
   const ALanguageManager: ILanguageManager;
+  const AGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
   const AMarksDb: IMarkDb;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -295,6 +297,7 @@ constructor TfrmGoTo.Create(
 begin
   inherited Create(ALanguageManager);
   FMarksDb := AMarksDb;
+  FGeoCodePlacemarkFactory := AGeoCodePlacemarkFactory;
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FViewPortState := AViewPortState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;

@@ -928,6 +928,7 @@ begin
   FfrmGoTo :=
     TfrmGoTo.Create(
       GState.Config.LanguageManager,
+      GState.GeoCodePlacemarkFactory,
       GState.MarksDb.MarkDb,
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState.View,
