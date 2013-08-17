@@ -317,6 +317,8 @@ uses
   u_VectorDataItemOfMapPolygon in 'u_VectorDataItemOfMapPolygon.pas',
   u_VectorDataItemOfMapPoint in 'u_VectorDataItemOfMapPoint.pas',
   u_VectorDataItemSubset in 'u_VectorDataItemSubset.pas',
+  i_VectorItemSubsetBuilder in 'i_VectorItemSubsetBuilder.pas',
+  u_VectorItemSubsetBuilder in 'u_VectorItemSubsetBuilder.pas',
   i_UseTilePrevZoomConfig in 'i_UseTilePrevZoomConfig.pas',
   u_UseTilePrevZoomConfig in 'u_UseTilePrevZoomConfig.pas',
   i_VectorItemDrawConfig in 'i_VectorItemDrawConfig.pas',

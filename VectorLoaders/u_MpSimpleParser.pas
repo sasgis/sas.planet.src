@@ -8,12 +8,14 @@ uses
   i_VectorItemsFactory,
   i_VectorItemSubset,
   i_VectorDataFactory,
+  i_VectorItemSubsetBuilder,
   i_DoublePointsAggregator,
   u_BaseInterfacedObject;
 
 type
   TMpSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FFactory: IVectorItemsFactory;
     procedure ParseCoordinates(
       const AData: string;
@@ -27,6 +29,7 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AFactory: IVectorItemsFactory
     );
   end;
@@ -40,11 +43,8 @@ uses
   t_GeoTypes,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
-  i_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
-  u_VectorDataItemSubset,
   u_DoublePointsAggregator,
-  u_InterfaceListSimple,
   u_GeoFun;
 
 const
@@ -53,9 +53,13 @@ const
 
 { TMpSimpleParser }
 
-constructor TMpSimpleParser.Create(const AFactory: IVectorItemsFactory);
+constructor TMpSimpleParser.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AFactory: IVectorItemsFactory
+);
 begin
   inherited Create;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FFactory := AFactory;
 end;
 
@@ -113,7 +117,7 @@ var
   VDataStream: TStream;
   VPolygon: ILonLatPolygon;
   VItem: IVectorDataItemSimple;
-  VList: IInterfaceListSimple;
+  VList: IVectorItemSubsetBuilder;
   VString: string;
   VPoligonLine: Integer;
   i: integer;
@@ -172,9 +176,9 @@ begin
         '',
         VPolygon
       );
-    VList := TInterfaceListSimple.Create;
+    VList := FVectorItemSubsetBuilderFactory.Build;
     VList.Add(VItem);
-    Result := TVectorItemSubset.Create(VList.MakeStaticAndClear);
+    Result := VList.MakeStaticAndClear;
   end;
 end;
 

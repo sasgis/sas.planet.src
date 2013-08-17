@@ -13,7 +13,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapLayerProvider,
-  i_InterfaceListSimple,
   i_InternalPerformanceCounter,
   i_MapTypes,
   i_KmlLayerConfig,
@@ -24,6 +23,7 @@ uses
   i_VectorItemsFactory,
   i_ImageResamplerConfig,
   i_IdCacheSimple,
+  i_VectorItemSubsetBuilder,
   i_VectorItemSubsetChangeable,
   i_FindVectorItems,
   u_TiledLayerWithThreadBase;
@@ -36,6 +36,7 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
     FProjectedCache: IIdCacheSimple;
 
@@ -72,6 +73,7 @@ type
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const ATimerNoifier: INotifierTime;
       const AErrorLogger: ITileErrorLogger;
@@ -94,8 +96,6 @@ uses
   u_TileMatrixFactory,
   u_ListenerByEvent,
   u_IdCacheSimpleThreadSafe,
-  u_VectorDataItemSubset,
-  u_InterfaceListSimple,
   u_VectorItemSubsetChangeableForVectorLayers,
   u_BitmapLayerProviderByVectorSubset;
 
@@ -109,6 +109,7 @@ constructor TMapLayerVectorMaps.Create(
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const ATimerNoifier: INotifierTime;
   const AErrorLogger: ITileErrorLogger;
@@ -142,6 +143,7 @@ begin
   FBitmapFactory := ABitmapFactory;
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   FProjectedCache := TIdCacheSimpleThreadSafe.Create;
 
@@ -153,6 +155,7 @@ begin
       APosition,
       ALayersSet,
       AErrorLogger,
+      AVectorItemSubsetBuilderFactory,
       FConfig.ThreadConfig
     );
 
@@ -228,10 +231,10 @@ var
   VItemLine: IVectorDataItemLine;
   VItemPoly: IVectorDataItemPoly;
   VProjectdPolygon: IProjectedPolygon;
-  Vtmp: IInterfaceListSimple;
+  Vtmp: IVectorItemSubsetBuilder;
 begin
   Result := nil;
-  Vtmp := TInterfaceListSimple.Create;
+  Vtmp := FVectorItemSubsetBuilderFactory.Build;
 
   if ACopiedElements.Count > 0 then begin
     VRect.Left := xy.X - 3;
@@ -268,7 +271,7 @@ begin
       end;
     end;
   end;
-  Result := TVectorItemSubset.Create(Vtmp.MakeStaticAndClear);
+  Result := Vtmp.MakeStaticAndClear;
 end;
 
 procedure TMapLayerVectorMaps.OnConfigChange;

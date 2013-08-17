@@ -16,6 +16,7 @@ uses
   i_LastSearchResultConfig,
   i_MarkerDrawable,
   i_VectorDataItemSimple,
+  i_VectorItemSubsetBuilder,
   i_FindVectorItems,
   i_GeoCoder,
   i_VectorItemSubset,
@@ -25,6 +26,7 @@ type
   TSearchResultsLayer = class(TMapLayerBasicNoBitmap, IFindVectorItems)
   private
     FLastSearchResults: ILastSearchResultConfig;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FMarker: IMarkerDrawableChangeable;
     procedure OnLastSearchResultsChange;
     procedure OnConfigChange;
@@ -46,6 +48,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ALastSearchResults: ILastSearchResultConfig;
       const AMarker: IMarkerDrawableChangeable
     );
@@ -57,11 +60,8 @@ uses
   SysUtils,
   c_InternalBrowser,
   i_CoordConverter,
-  i_InterfaceListSimple,
   u_ListenerByEvent,
   u_GeoCodePlacemarkWithUrlDecorator,
-  u_InterfaceListSimple,
-  u_VectorDataItemSubset,
   u_GeoFun;
 
 { TSearchResultsLayer }
@@ -72,6 +72,7 @@ constructor TSearchResultsLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALastSearchResults: ILastSearchResultConfig;
   const AMarker: IMarkerDrawableChangeable
 );
@@ -85,6 +86,7 @@ begin
   );
   FLastSearchResults := ALastSearchResults;
   FMarker := AMarker;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -158,11 +160,11 @@ var
   VPlacemark: IGeoCodePlacemark;
   VSearchResults: IGeoCodeResult;
   VIndex: Integer;
-  Vtmp: IInterfaceListSimple;
+  Vtmp: IVectorItemSubsetBuilder;
   VTempItem: IGeoCodePlacemark;
 begin
   Result := nil;
-  Vtmp := TInterfaceListSimple.Create;
+  Vtmp := FVectorItemSubsetBuilderFactory.Build;
   VSearchResults := FLastSearchResults.GeoCodeResult;
   if VSearchResults <> nil then begin
     VRect.Left := ALocalPoint.X - 5;
@@ -188,7 +190,7 @@ begin
       Inc(VIndex);
     end;
   end;
-  Result := TVectorItemSubset.Create(Vtmp.MakeStaticAndClear);
+  Result := Vtmp.MakeStaticAndClear;
 end;
 
 procedure TSearchResultsLayer.StartThreads;

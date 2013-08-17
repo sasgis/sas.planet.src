@@ -5,8 +5,8 @@ interface
 uses
   SysUtils,
   t_GeoTypes,
+  i_VectorItemSubsetBuilder,
   i_VectorItemSubset,
-  i_Changeable,
   i_VectorItemSubsetChangeable,
   i_Listener,
   i_InterfaceListSimple,
@@ -30,6 +30,7 @@ type
   private
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FPosition: ILocalCoordConverterChangeable;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
@@ -72,14 +73,14 @@ type
       const ALayerSet: IMapTypeSet
     ): IVectorItemSubset;
     procedure AddWikiElement(
-      const AElments: IInterfaceListSimple;
+      const AElments: IVectorItemSubsetBuilder;
       const AData: IVectorDataItemSimple;
       const ALocalConverter: ILocalCoordConverter
     );
     procedure AddElementsFromMap(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
-      const AElments: IInterfaceListSimple;
+      const AElments: IVectorItemSubsetBuilder;
       Alayer: TMapType;
       const ALocalConverter: ILocalCoordConverter
     );
@@ -110,6 +111,7 @@ type
       const APosition: ILocalCoordConverterChangeable;
       const ALayersSet: IMapTypeSetChangeable;
       const AErrorLogger: ITileErrorLogger;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AThreadConfig: IThreadConfig
     );
     destructor Destroy; override;
@@ -131,7 +133,6 @@ uses
   u_TileUpdateListenerToLonLat,
   u_ListenerByEvent,
   u_TileIteratorByRect,
-  u_VectorDataItemSubset,
   u_TileErrorInfo,
   u_ResStrings,
   u_Synchronizer,
@@ -146,16 +147,19 @@ constructor TVectorItemSubsetChangeableForVectorLayers.Create(
   const APosition: ILocalCoordConverterChangeable;
   const ALayersSet: IMapTypeSetChangeable;
   const AErrorLogger: ITileErrorLogger;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AThreadConfig: IThreadConfig
 );
 begin
   Assert(Assigned(APosition));
   Assert(Assigned(ALayersSet));
   Assert(Assigned(AErrorLogger));
+  Assert(Assigned(AVectorItemSubsetBuilderFactory));
   inherited Create();
   FPosition := APosition;
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   FSubsetPrepareCounter := APerfList.CreateAndAddNewCounter('SubsetPrepare');
   FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
@@ -472,7 +476,7 @@ end;
 procedure TVectorItemSubsetChangeableForVectorLayers.AddElementsFromMap(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const AElments: IInterfaceListSimple;
+  const AElments: IVectorItemSubsetBuilder;
   Alayer: TMapType;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -540,7 +544,7 @@ begin
 end;
 
 procedure TVectorItemSubsetChangeableForVectorLayers.AddWikiElement(
-  const AElments: IInterfaceListSimple;
+  const AElments: IVectorItemSubsetBuilder;
   const AData: IVectorDataItemSimple;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -580,9 +584,9 @@ var
   Vcnt: Cardinal;
   VItem: IMapType;
   VMapType: TMapType;
-  VElements: IInterfaceListSimple;
+  VElements: IVectorItemSubsetBuilder;
 begin
-  VElements := TInterfaceListSimple.Create;
+  VElements := FVectorItemSubsetBuilderFactory.Build;
   if ALayerSet <> nil then begin
     VEnum := ALayerSet.GetIterator;
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
@@ -596,7 +600,7 @@ begin
       end;
     end;
   end;
-  Result := TVectorItemSubset.Create(VElements.MakeStaticAndClear);
+  Result := VElements.MakeStaticAndClear;
 end;
 
 end.

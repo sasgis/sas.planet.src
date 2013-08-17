@@ -1461,6 +1461,7 @@ begin
       FConfig.ViewPortState.View,
       GState.Config.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
+      GState.VectorItemSubsetBuilderFactory,
       GState.VectorItemsFactory,
       GState.GUISyncronizedTimerNotifier,
       FTileErrorLogger,
@@ -1509,6 +1510,7 @@ begin
       GState.Config.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
       GState.VectorItemsFactory,
+      GState.VectorItemSubsetBuilderFactory,
       VMarkerChangeable,
       GState.GUISyncronizedTimerNotifier,
       GState.BitmapFactory,
@@ -1781,6 +1783,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState.View,
+      GState.VectorItemSubsetBuilderFactory,
       FConfig.LastSearchResultConfig,
       VMarkerChangeable
     );
@@ -5951,6 +5954,7 @@ begin
       GState.Config.MapSvcScanConfig,
       GState.Config.LanguageManager,
       GState.VectorItemsFactory,
+      GState.VectorItemSubsetBuilderFactory,
       GState.Config.InetConfig);
   // link to position    
   FfrmDGAvailablePic.ShowInfo(AVisualPoint, FConfig.ViewPortState.View.GetStatic);
@@ -6229,6 +6233,7 @@ begin
     GState.CoordConverterFactory,
     GState.VectorItemsFactory,
     GState.VectorDataFactory,
+    GState.VectorItemSubsetBuilderFactory,
     VLonLatRect,
     VLonLat,
     VZoom,

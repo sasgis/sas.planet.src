@@ -14,6 +14,7 @@ uses
   i_HashFunction,
   i_InterfaceListStatic,
   i_VectorItemSubset,
+  i_VectorItemSubsetBuilder,
   i_VectorItemTree,
   i_StaticTreeItem,
   i_PathConfig,
@@ -71,6 +72,7 @@ type
       const AMarkCategoryFactory: IMarkCategoryFactory;
       const AHashFunction: IHashFunction;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AHintConverter: IHtmlToHintTextConverter
@@ -140,6 +142,7 @@ constructor TMarkSystem.Create(
   const AMarkCategoryFactory: IMarkCategoryFactory;
   const AHashFunction: IHashFunction;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AHintConverter: IHtmlToHintTextConverter
@@ -163,6 +166,7 @@ begin
       AMarkPictureList,
       AHashFunction,
       AVectorItemsFactory,
+      AVectorItemSubsetBuilderFactory,
       VLoadDbCounter,
       VSaveDbCounter,
       AAppStartedNotifier,

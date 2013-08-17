@@ -62,6 +62,7 @@ uses
   i_NotifierTime,
   i_Bitmap32StaticFactory,
   i_VectorDataFactory,
+  i_VectorItemSubsetBuilder,
   i_GeoCoder,
   i_MapCalibration,
   i_ImportFile,
@@ -102,6 +103,7 @@ type
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpInfoSet: IZmpInfoSet;
     FHashFunction: IHashFunction;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
     FResourceProvider: IConfigDataProvider;
     FTileNameGenerator: ITileFileNameGeneratorsList;
@@ -196,6 +198,7 @@ type
     property AppStartedNotifier: INotifierOneOperation read FAppStartedNotifier;
     property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
 
+    property HashFunction: IHashFunction read FHashFunction;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
@@ -218,6 +221,7 @@ type
     property VectorItemsFactory: IVectorItemsFactory read FVectorItemsFactory;
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
+    property VectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory read FVectorItemSubsetBuilderFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property GeoCodePlacemarkFactory: IGeoCodePlacemarkFactory read FGeoCodePlacemarkFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
@@ -318,6 +322,7 @@ uses
   u_InternalDomainInfoProviderByLastSearchResults,
   u_InternalDomainInfoProviderByTileStorageOptions,
   u_Bitmap32StaticFactory,
+  u_VectorItemSubsetBuilder,
   u_GpsSystem,
   u_LastSelectionInfoSaver,
   u_ListenerByEvent,
@@ -395,7 +400,10 @@ begin
       THashFunctionCityHash.Create,
       FPerfCounterList.CreateAndAddNewCounter('HashFunction')
     );
-
+  FVectorItemSubsetBuilderFactory :=
+    TVectorItemSubsetBuilderFactory.Create(
+      FHashFunction
+    );
   FBGTimerNotifierInternal := TNotifierTime.Create;
   FBGTimerNotifier := FBGTimerNotifierInternal;
   FBitmapFactory :=
@@ -475,6 +483,7 @@ begin
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
       FPerfCounterList
@@ -487,6 +496,7 @@ begin
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       True,
       VMarksKmlLoadCounterList
     );
@@ -494,7 +504,7 @@ begin
   VKmlLoader := VXmlLoader;
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      TXmlInfoSimpleParser.Create(FVectorItemsFactory, True, nil),
+      TXmlInfoSimpleParser.Create(FVectorItemsFactory, FVectorItemSubsetBuilderFactory, True, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
@@ -502,6 +512,7 @@ begin
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       VMarksKmlLoadCounterList
     );
   VKmzLoader :=
@@ -516,9 +527,11 @@ begin
     FGlobalConfig.ValueToStringConverterConfig,
     FVectorDataFactory,
     FVectorItemsFactory,
+    FVectorItemSubsetBuilderFactory,
     VXmlLoader,
     TPLTSimpleParser.Create(
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       VMarksKmlLoadCounterList
     ),
     VKmlLoader,
@@ -581,6 +594,7 @@ begin
       FMarkCategoryFactory,
       FHashFunction,
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       FAppStartedNotifier,
       THtmlToHintTextConverterStuped.Create

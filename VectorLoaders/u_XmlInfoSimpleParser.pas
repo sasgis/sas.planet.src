@@ -30,6 +30,7 @@ uses
   i_VectorDataFactory,
   i_VectorItemsFactory,
   i_VectorItemSubset,
+  i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
   u_BaseInterfacedObject,
@@ -44,6 +45,7 @@ type
   TXmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FFactory: IVectorItemsFactory;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FAllowMultiParts: Boolean;
     FFormat: TFormatSettings;
@@ -72,6 +74,7 @@ type
   public
     constructor Create(
       const AFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AAllowMultiParts: Boolean;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -81,10 +84,7 @@ implementation
 
 uses
   i_VectorDataItemSimple,
-  i_InterfaceListSimple,
-  u_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
-  u_VectorDataItemSubset,
   u_GeoFun;
 
 type
@@ -103,8 +103,9 @@ type
   private
     opt: Tvsagps_XML_ParserOptions;
     IdData: Pointer;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     Factory: IVectorDataFactory;
-    list: IInterfaceListSimple;
+    list: IVectorItemSubsetBuilder;
     array_capacity: Integer;
     array_points: array of TDoublePoint;
   public
@@ -151,12 +152,14 @@ end;
 
 constructor TXmlInfoSimpleParser.Create(
   const AFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AAllowMultiParts: Boolean;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   FFactory := AFactory;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FAllowMultiParts := AAllowMultiParts;
 
   if APerfCounterList <> nil then begin
@@ -182,13 +185,14 @@ begin
   Inc(tAux.opt.gpx_options.bParse_trk);
   Inc(tAux.opt.gpx_options.bParse_wpt);
   tAux.Factory := AFactory;
+  tAux.FVectorItemSubsetBuilderFactory := FVectorItemSubsetBuilderFactory;
   tAux.IdData := AIdData;
   try
     // parse
     VSAGPS_LoadAndParseXML(Self, @tAux, '', AStream, TRUE, @(tAux.opt), rTVSAGPS_ParseXML_UserProc, FFormat);
     // output result
     if Assigned(tAux.list) then begin
-      Result := TVectorItemSubset.Create(tAux.list.MakeStaticAndClear);
+      Result := tAux.list.MakeStaticAndClear;
       tAux.list := nil;
     end;
   finally
@@ -312,7 +316,7 @@ var
     VAUX := PParseXML_Aux(pUserAuxPointer);
     // make list object
     if not Assigned(VAUX^.list) then begin
-      VAUX^.list := TInterfaceListSimple.Create;
+      VAUX^.list := FVectorItemSubsetBuilderFactory.Build;
     end;
     // create object
     wpt_iface := VAUX^.Factory.BuildPoint(VAUX^.IdData, VWSName, VWSDesc, wpt_point);
@@ -748,7 +752,7 @@ var
 begin
   // make list object
   if (nil=list) then begin
-    list := TInterfaceListSimple.Create;
+    list := FVectorItemSubsetBuilderFactory.Build;
   end;
 
   // make object and add it to list
@@ -885,11 +889,8 @@ begin
   array_points:=nil;
 
   Factory := nil;
-
-  if (list<>nil) then begin
-    list.Clear;
-    list := nil;
-  end;
+  FVectorItemSubsetBuilderFactory := nil;
+  list := nil;
 end;
 
 end.

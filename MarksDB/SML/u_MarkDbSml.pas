@@ -30,6 +30,7 @@ uses
   t_GeoTypes,
   i_IDList,
   i_SimpleFlag,
+  i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
   i_InterfaceListStatic,
   i_InterfaceListSimple,
@@ -49,6 +50,7 @@ type
     FDbId: Integer;
     FStateInternal: IReadWriteStateInternal;
     FFileName: string;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
@@ -75,12 +77,12 @@ type
       const ASourceList: IIDInterfaceList;
       const ARect: TDoubleRect;
       AIgnoreVisible: Boolean;
-      const AResultList: IInterfaceListSimple
+      const AResultList: IVectorItemSubsetBuilder
     );
     procedure _AddMarksToList(
       const ASourceList: IIDInterfaceList;
       AIgnoreVisible: Boolean;
-      const AResultList: IInterfaceListSimple
+      const AResultList: IVectorItemSubsetBuilder
     );
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
@@ -155,6 +157,7 @@ type
       const ADbId: Integer;
       const AStateInternal: IReadWriteStateInternal;
       const AFileName: string;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AFactoryDbInternal: IMarkFactorySmlInternal;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter
@@ -180,7 +183,6 @@ uses
   i_DoublePointsAggregator,
   i_VectorItemLonLat,
   u_DoublePointsAggregator,
-  u_VectorDataItemSubset,
   u_SimpleFlagWithInterlock,
   u_GeoFun;
 
@@ -334,6 +336,7 @@ constructor TMarkDbSml.Create(
   const ADbId: Integer;
   const AStateInternal: IReadWriteStateInternal;
   const AFileName: string;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AFactoryDbInternal: IMarkFactorySmlInternal;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter
@@ -344,6 +347,7 @@ begin
   FFileName := AFileName;
   FStateInternal := AStateInternal;
   FFactoryDbInternal := AFactoryDbInternal;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   FMarkList := TIDInterfaceList.Create;
   FByCategoryList := TIDInterfaceList.Create;
@@ -1129,7 +1133,7 @@ end;
 procedure TMarkDbSml._AddMarksToList(
   const ASourceList: IIDInterfaceList;
   AIgnoreVisible: Boolean;
-  const AResultList: IInterfaceListSimple
+  const AResultList: IVectorItemSubsetBuilder
 );
 var
   VMark: IMark;
@@ -1157,7 +1161,7 @@ procedure TMarkDbSml._AddMarksToListByRect(
   const ASourceList: IIDInterfaceList;
   const ARect: TDoubleRect;
   AIgnoreVisible: Boolean;
-  const AResultList: IInterfaceListSimple
+  const AResultList: IVectorItemSubsetBuilder
 );
 var
   VMark: IMark;
@@ -1187,13 +1191,13 @@ function TMarkDbSml.GetMarkSubsetByCategoryList(
   const ACategoryList: IInterfaceListStatic;
   const AIncludeHiddenMarks: Boolean): IVectorItemSubset;
 var
-  VResultList: IInterfaceListSimple;
+  VResultList: IVectorItemSubsetBuilder;
   i: Integer;
   VCategoryID: Integer;
   VList: IIDInterfaceList;
 begin
   Result := nil;
-  VResultList := TInterfaceListSimple.Create;
+  VResultList := FVectorItemSubsetBuilderFactory.Build;
     LockRead;
     try
       if (ACategoryList = nil) then begin
@@ -1210,7 +1214,7 @@ begin
     finally
       UnlockRead;
     end;
-  Result := TVectorItemSubset.Create(VResultList.MakeStaticAndClear);
+  Result := VResultList.MakeStaticAndClear;
 end;
 
 function TMarkDbSml.GetMarkSubsetByCategoryListInRect(
@@ -1219,13 +1223,13 @@ function TMarkDbSml.GetMarkSubsetByCategoryListInRect(
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemSubset;
 var
-  VResultList: IInterfaceListSimple;
+  VResultList: IVectorItemSubsetBuilder;
   i: Integer;
   VCategoryID: Integer;
   VList: IIDInterfaceList;
 begin
   Result := nil;
-  VResultList := TInterfaceListSimple.Create;
+  VResultList := FVectorItemSubsetBuilderFactory.Build;
     LockRead;
     try
       if (ACategoryList = nil) then begin
@@ -1242,7 +1246,7 @@ begin
     finally
       UnlockRead;
     end;
-  Result := TVectorItemSubset.Create(VResultList.MakeStaticAndClear);
+  Result := VResultList.MakeStaticAndClear;
 end;
 
 function TMarkDbSml.GetMarkSubsetByName(
@@ -1251,7 +1255,7 @@ function TMarkDbSml.GetMarkSubsetByName(
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemSubset;
 var
-  VResultList: IInterfaceListSimple;
+  VResultList: IVectorItemSubsetBuilder;
   VList: IIDInterfaceList;
   VMark: IMark;
   VEnumId: IEnumID;
@@ -1260,38 +1264,38 @@ var
   VMarkInternal: IMarkSMLInternal;
 begin
   Result := nil;
-  VResultList := TInterfaceListSimple.Create;
-    VList := FMarkList;
-    VEnumId := VList.GetIDEnum;
-    while VEnumId.Next(1, AId, VCnt) = S_OK do begin
-      VMark := IMark(VList.GetByID(AId));
-      if ContainsText(VMark.Name, AName) then begin
-        if not AIncludeHiddenMarks then begin
-          if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
-            if VMarkInternal.Visible then begin
-              VResultList.Add(VMark);
-            end;
+  VResultList := FVectorItemSubsetBuilderFactory.Build;
+  VList := FMarkList;
+  VEnumId := VList.GetIDEnum;
+  while VEnumId.Next(1, AId, VCnt) = S_OK do begin
+    VMark := IMark(VList.GetByID(AId));
+    if ContainsText(VMark.Name, AName) then begin
+      if not AIncludeHiddenMarks then begin
+        if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+          if VMarkInternal.Visible then begin
+            VResultList.Add(VMark);
           end;
-        end else begin
-          VResultList.Add(VMark);
         end;
-        if (AMaxCount > 0) and (VResultList.Count >= AMaxCount) then begin
-          Break;
-        end;
+      end else begin
+        VResultList.Add(VMark);
+      end;
+      if (AMaxCount > 0) and (VResultList.Count >= AMaxCount) then begin
+        Break;
       end;
     end;
-  Result := TVectorItemSubset.Create(VResultList.MakeStaticAndClear);
+  end;
+  Result := VResultList.MakeStaticAndClear;
 end;
 
 function TMarkDbSml.GetMarkSubsetByCategory(const ACategory: ICategory;
   const AIncludeHiddenMarks: Boolean): IVectorItemSubset;
 var
-  VResultList: IInterfaceListSimple;
+  VResultList: IVectorItemSubsetBuilder;
   VCategoryId: Integer;
   VList: IIDInterfaceList;
 begin
   Result := nil;
-  VResultList := TInterfaceListSimple.Create;
+  VResultList := FVectorItemSubsetBuilderFactory.Build;
     if ACategory = nil then begin
       VList := FMarkList;
     end else begin
@@ -1306,7 +1310,7 @@ begin
         UnlockRead;
       end;
     end;
-  Result := TVectorItemSubset.Create(VResultList.MakeStaticAndClear);
+  Result := VResultList.MakeStaticAndClear;
 end;
 
 function TMarkDbSml.GetMarkSubsetByCategoryInRect(
@@ -1315,12 +1319,12 @@ function TMarkDbSml.GetMarkSubsetByCategoryInRect(
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemSubset;
 var
-  VResultList: IInterfaceListSimple;
+  VResultList: IVectorItemSubsetBuilder;
   VCategoryId: Integer;
   VList: IIDInterfaceList;
 begin
   Result := nil;
-  VResultList := TInterfaceListSimple.Create;
+  VResultList := FVectorItemSubsetBuilderFactory.Build;
     if ACategory = nil then begin
       VList := FMarkList;
     end else begin
@@ -1335,7 +1339,7 @@ begin
         UnlockRead;
       end;
     end;
-  Result := TVectorItemSubset.Create(VResultList.MakeStaticAndClear);
+  Result := VResultList.MakeStaticAndClear;
 end;
 
 function TMarkDbSml.GetMarksBackUpFileName: string;

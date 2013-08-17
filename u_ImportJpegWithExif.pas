@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_VectorItemSubsetBuilder,
   i_InterfaceListStatic,
   i_VectorDataFactory,
   i_ValueToStringConverter,
@@ -35,6 +36,7 @@ uses
 type
   TImportJpegWithExif = class(TBaseInterfacedObject, IImportFile)
   private
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
   private
@@ -45,6 +47,7 @@ type
     ): IInterfaceListStatic;
   public
     constructor Create(
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -53,24 +56,23 @@ type
 implementation
 
 uses
-  CCR.Exif,
   SysUtils,
+  CCR.Exif,
+  CCR.Exif.IPTC,
   t_GeoTypes,
   i_VectorItemSubset,
-  i_VectorDataItemSimple,
-  i_InterfaceListSimple,
-  u_InterfaceListSimple,
-  CCR.Exif.IPTC,
-  u_VectorDataItemSubset;
+  i_VectorDataItemSimple;
 
 { TImportJpegWithExif }
 
 constructor TImportJpegWithExif.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FVectorDataFactory := AVectorDataFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig
 end;
@@ -96,7 +98,7 @@ var
   VTitle: string;
   Vkeys: TStrings;
   VIPTCData: TIPTCData;
-  VList: IInterfaceListSimple;
+  VList: IVectorItemSubsetBuilder;
   VVectorData: IVectorItemSubset;
   VFormattedDateTime : string;
 begin
@@ -198,9 +200,9 @@ begin
   );
 
   if VItem <> nil then begin
-    VList := TInterfaceListSimple.Create;
+    VList := FVectorItemSubsetBuilderFactory.Build;
     VList.Add(VItem);
-    VVectorData := TVectorItemSubset.Create(VList.MakeStaticAndClear);
+    VVectorData := VList.MakeStaticAndClear;
     Result := AMarksSystem.ImportItemsList(VVectorData, AConfig, ExtractFileName(AFileName));
   end;
 end;

@@ -41,6 +41,7 @@ uses
   TB2Item,
   i_LanguageManager,
   i_VectorItemsFactory,
+  i_VectorItemSubsetBuilder,
   i_InetConfig,
   i_LocalCoordConverter,
   i_NotifierOperation,
@@ -198,7 +199,7 @@ type
     FMapSvcScanConfig: IMapSvcScanConfig;
     FMapSvcScanStorage: IMapSvcScanStorage;
     FVectorItemsFactory: IVectorItemsFactory;
-
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
     procedure MakePicsVendors;
     procedure KillPicsVendors;
@@ -269,6 +270,7 @@ type
       const AMapSvcScanConfig: IMapSvcScanConfig;
       const ALanguageManager: ILanguageManager;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AInetConfig: IInetConfig
     ); reintroduce;
     destructor Destroy; override;
@@ -284,18 +286,15 @@ uses
   i_Mark,
   i_VectorItemLonLat,
   i_CoordConverter,
-  i_InterfaceListSimple,
   i_DoublePointsAggregator,
   u_Clipboard,
   u_Synchronizer,
   u_Notifier,
   u_NotifierOperation,
   u_InetFunc,
-  u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_MapSvcScanStorage,
   u_MultiPoligonParser,
-  u_VectorDataItemSubset,
   u_GeoFun,
   u_GeoToStr;
 
@@ -914,7 +913,7 @@ var
   VValidPoint: Boolean;
   VPolygon: ILonLatPolygon;
   VMark: IMark;
-  VAllNewMarks: IInterfaceListSimple;
+  VAllNewMarks: IVectorItemSubsetBuilder;
   VAllLinesToDesc: Boolean;
 begin
   if (nil=FMarkDBGUI) then
@@ -1110,7 +1109,7 @@ begin
             // apply to database
             // VImportConfig.MarkDB.UpdateMark(nil, VMark);
             if (nil=VAllNewMarks) then
-              VAllNewMarks := TInterfaceListSimple.Create;
+              VAllNewMarks := FVectorItemSubsetBuilderFactory.Build;
             VAllNewMarks.Add(VMark);
           end;
         end;
@@ -1121,7 +1120,7 @@ begin
 
   if Assigned(VAllNewMarks) then
   if (nil<>VImportConfig) then begin
-    FMarkDBGUI.MarksDb.ImportItemsList(TVectorItemSubset.Create(VAllNewMarks.MakeStaticAndClear), VImportConfig,'')
+    FMarkDBGUI.MarksDb.ImportItemsList(VAllNewMarks.MakeStaticAndClear, VImportConfig, '')
   end;
 end;
 
@@ -1611,10 +1610,12 @@ constructor TfrmDGAvailablePic.Create(
   const AMapSvcScanConfig: IMapSvcScanConfig;
   const ALanguageManager: ILanguageManager;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AInetConfig: IInetConfig
 );
 begin
   FMarkDBGUI := AMarkDBGUI;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMapSvcScanConfig := AMapSvcScanConfig;
   FALLClicking := FALSE;
   FVertResizeFactor:=0;

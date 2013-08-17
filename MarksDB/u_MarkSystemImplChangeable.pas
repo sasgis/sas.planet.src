@@ -8,6 +8,7 @@ uses
   i_MarkPicture,
   i_HashFunction,
   i_VectorItemsFactory,
+  i_VectorItemSubsetBuilder,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_HtmlToHintTextConverter,
@@ -24,6 +25,7 @@ type
     FMarkPictureList: IMarkPictureList;
     FHashFunction: IHashFunction;
     FVectorItemsFactory: IVectorItemsFactory;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FHintConverter: IHtmlToHintTextConverter;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
@@ -48,6 +50,7 @@ type
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AAppStartedNotifier: INotifierOneOperation;
@@ -69,6 +72,7 @@ constructor TMarkSystemImplChangeable.Create(
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
   const AAppStartedNotifier: INotifierOneOperation;
@@ -81,6 +85,7 @@ begin
   FMarkPictureList := AMarkPictureList;
   FHashFunction := AHashFunction;
   FVectorItemsFactory := AVectorItemsFactory;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FLoadDbCounter := ALoadDbCounter;
   FSaveDbCounter := ASaveDbCounter;
   FHintConverter := AHintConverter;
@@ -121,6 +126,7 @@ begin
         FMarkPictureList,
         FHashFunction,
         FVectorItemsFactory,
+        FVectorItemSubsetBuilderFactory,
         FLoadDbCounter,
         FSaveDbCounter,
         FHintConverter

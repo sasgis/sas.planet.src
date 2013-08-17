@@ -27,7 +27,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_BinaryData,
-  i_InterfaceListSimple,
+  i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
   i_VectorItemsFactory,
   i_VectorDataItemSimple,
@@ -43,6 +43,7 @@ type
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
     FFactory: IVectorItemsFactory;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
     FFormat: TFormatSettings;
     FBMSrchPlacemark: TSearchBM;
@@ -70,7 +71,7 @@ type
     ): PAnsiChar;
     function parse(
       const buffer: AnsiString;
-      const AList: IInterfaceListSimple;
+      const AList: IVectorItemSubsetBuilder;
       const AIdData: Pointer;
       const AFactory: IVectorDataFactory
     ): boolean;
@@ -106,6 +107,7 @@ type
   public
     constructor Create(
       const AFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -114,13 +116,10 @@ type
 implementation
 
 uses
-  StrUtils,
   ALfcnString,
   cUnicodeCodecs,
-  u_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
-  u_VectorDataItemSubset,
   u_GeoFun;
 
 { TKmlInfoSimpleParser }
@@ -163,11 +162,13 @@ end;
 
 constructor TKmlInfoSimpleParser.Create(
   const AFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   FFactory := AFactory;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   if APerfCounterList <> nil then begin
     FLoadKmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadKmlStream');
   end;
@@ -275,15 +276,15 @@ function TKmlInfoSimpleParser.LoadFromStreamInternal(AStream: TStream;
   end;
 var
   VKml: AnsiString;
-  VList: IInterfaceListSimple;
+  VList: IVectorItemSubsetBuilder;
 begin
   Result := nil;
   if AStream.Size > 0 then begin
     VKml := GetAnsiString(AStream);
     if VKml <> '' then begin
-      VList := TInterfaceListSimple.Create;
+      VList := FVectorItemSubsetBuilderFactory.Build;
       parse(VKml, VList, AIdData, AFactory);
-      Result := TVectorItemSubset.Create(VList.MakeStaticAndClear);
+      Result := VList.MakeStaticAndClear;
     end else begin
       Assert(False, 'KML data reader - Unknown error');
     end;
@@ -327,7 +328,7 @@ end;
 
 function TKmlInfoSimpleParser.parse(
   const buffer: AnsiString;
-  const AList: IInterfaceListSimple;
+  const AList: IVectorItemSubsetBuilder;
   const AIdData: Pointer;
   const AFactory: IVectorDataFactory
 ): boolean;

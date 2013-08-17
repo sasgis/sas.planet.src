@@ -10,6 +10,7 @@ uses
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_VectorItemSubset,
+  i_VectorItemSubsetBuilder,
   i_VectorDataFactory;
 
 // если ещё надо будет использовать - вынести импортилку в отдельный класс
@@ -18,6 +19,7 @@ function ImportFromArcGIS(
   const ACoordConverterFactory: ICoordConverterFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AVectorDataFactory: IVectorDataFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALonLatRect: TDoubleRect;
   const ALonLat: TDoublePoint;
   const AZoom: Byte;
@@ -40,17 +42,14 @@ uses
   i_DoublePointsAggregator,
   i_CoordConverter,
   i_VectorItemLonLat,
-  i_InterfaceListSimple,
   u_DownloadResultFactory,
   u_DownloadRequest,
   u_DownloaderHttp,
-  u_InterfaceListSimple,
   u_Notifier,
   u_NotifierOperation,
   u_DoublePointsAggregator,
   u_MultiPoligonParser,
   u_StreamReadOnlyByBinaryData,
-  u_VectorDataItemSubset,
   u_InetFunc,
   u_GeoToStr;
 
@@ -358,6 +357,7 @@ function ImportFromArcGIS(
   const ACoordConverterFactory: ICoordConverterFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AVectorDataFactory: IVectorDataFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALonLatRect: TDoubleRect;
   const ALonLat: TDoublePoint;
   const AZoom: Byte;
@@ -383,7 +383,7 @@ var
   VPos: Integer;
   VPointsAggregator: IDoublePointsAggregator;
   VPolygon: ILonLatPolygon;
-  VAllNewMarks: IInterfaceListSimple;
+  VAllNewMarks: IVectorItemSubsetBuilder;
 begin
   Result := nil;
   VConverter := ACoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
@@ -506,7 +506,7 @@ begin
               // make polygon
               if (nil=VAllNewMarks) then begin
                 // make result object
-                VAllNewMarks := TInterfaceListSimple.Create;
+                VAllNewMarks := AVectorItemSubsetBuilderFactory.Build;
               end;
               VAllNewMarks.Add(AVectorDataFactory.BuildPoly(nil, VMarkName, VMarkDesc, VPolygon));
             end;
@@ -515,7 +515,7 @@ begin
       end;
     until FALSE;
     if (VAllNewMarks <> nil) then begin
-      Result := TVectorItemSubset.Create(VAllNewMarks.MakeStaticAndClear);
+      Result := VAllNewMarks.MakeStaticAndClear;
     end;
   finally
     FreeAndNil(VJSONParams);

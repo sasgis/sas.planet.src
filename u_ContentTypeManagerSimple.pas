@@ -26,6 +26,7 @@ uses
   i_VectorItemsFactory,
   i_ContentTypeInfo,
   i_ContentConverter,
+  i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
@@ -45,6 +46,7 @@ type
     procedure UpdateConverterMatrix;
     procedure InitLists(
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALoadPerfCounterList: IInternalPerformanceCounterList;
       const ASavePerfCounterList: IInternalPerformanceCounterList
@@ -52,6 +54,7 @@ type
   public
     constructor Create(
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -76,6 +79,7 @@ uses
 
 constructor TContentTypeManagerSimple.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -85,6 +89,7 @@ begin
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   InitLists(
     AVectorItemsFactory,
+    AVectorItemSubsetBuilderFactory,
     ABitmapTileSaveLoadFactory,
     APerfCounterList.CreateAndAddNewSubList('TileLoad'),
     APerfCounterList.CreateAndAddNewSubList('TileSave')
@@ -93,6 +98,7 @@ end;
 
 procedure TContentTypeManagerSimple.InitLists(
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALoadPerfCounterList: IInternalPerformanceCounterList;
   const ASavePerfCounterList: IInternalPerformanceCounterList
@@ -151,6 +157,7 @@ begin
     '.kml',
     TKmlInfoSimpleParser.Create(
       AVectorItemsFactory,
+      AVectorItemSubsetBuilderFactory,
       ALoadPerfCounterList
     )
   );
@@ -161,7 +168,7 @@ begin
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      TKmlInfoSimpleParser.Create(AVectorItemsFactory, nil),
+      TKmlInfoSimpleParser.Create(AVectorItemsFactory, AVectorItemSubsetBuilderFactory, nil),
       FArchiveReadWriteFactory,
       ALoadPerfCounterList
     )
@@ -174,6 +181,7 @@ begin
     '.gpx',
     TXmlInfoSimpleParser.Create(
       AVectorItemsFactory,
+      AVectorItemSubsetBuilderFactory,
       False,
       ALoadPerfCounterList
     )

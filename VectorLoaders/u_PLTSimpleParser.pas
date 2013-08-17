@@ -26,6 +26,7 @@ uses
   Classes,
   t_GeoTypes,
   i_BinaryData,
+  i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
   i_VectorItemsFactory,
   i_VectorDataLoader,
@@ -38,6 +39,7 @@ uses
 type
   TPLTSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FFactory: IVectorItemsFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
     procedure ParseStringList(
@@ -63,6 +65,7 @@ type
   public
     constructor Create(
       const AFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -70,21 +73,20 @@ type
 implementation
 
 uses
-  i_InterfaceListSimple,
   u_StreamReadOnlyByBinaryData,
-  u_VectorDataItemSubset,
   u_DoublePointsAggregator,
-  u_InterfaceListSimple,
   u_GeoFun,
   u_GeoToStr;
 
 constructor TPLTSimpleParser.Create(
   const AFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   FFactory := AFactory;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
 end;
 
@@ -113,7 +115,7 @@ function TPLTSimpleParser.LoadFromStream(
 var
   pltstr: TStringList;
   trackname: string;
-  VList: IInterfaceListSimple;
+  VList: IVectorItemSubsetBuilder;
   VItem: IVectorDataItemSimple;
   VPointsAggregator: IDoublePointsAggregator;
 begin
@@ -133,9 +135,9 @@ begin
             '',
             FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count)
           );
-        VList := TInterfaceListSimple.Create;
+        VList := FVectorItemSubsetBuilderFactory.Build;
         VList.Add(VItem);
-        Result := TVectorItemSubset.Create(VList.MakeStaticAndClear);
+        Result := VList.MakeStaticAndClear;
       end;
     end;
   finally
