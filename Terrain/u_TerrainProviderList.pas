@@ -72,6 +72,7 @@ uses
   c_TerrainProviderGUID,
   u_TerrainProviderListElement,
   u_TerrainProviderByGE,
+  u_TerrainProviderByGoogleEarth,
   u_ExternalTerrainsProvider,
   u_Notifier,
   u_Synchronizer,
@@ -96,7 +97,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGoogleEarthGUID,
       'GoogleEarth',
-      TTerrainProviderByGoogleEarth.Create(ACacheConfig)
+      TTerrainProviderByGoogleEarth.Create(ACacheConfig.GECachePath)
     );
   Add(VItem);
 

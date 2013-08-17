@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileStorageGE;
+unit u_TileStorageGE deprecated;
 
 interface
 

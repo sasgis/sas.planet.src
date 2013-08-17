@@ -1,4 +1,4 @@
-unit u_MapVersionFactoryGE;
+unit u_MapVersionFactoryGE deprecated;
 
 interface
 

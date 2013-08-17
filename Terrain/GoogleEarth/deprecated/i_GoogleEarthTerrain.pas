@@ -1,4 +1,4 @@
-unit i_GoogleEarthTerrain;
+unit i_GoogleEarthTerrain deprecated;
 
 interface
 

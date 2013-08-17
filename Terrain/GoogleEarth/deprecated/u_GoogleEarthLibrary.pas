@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_GoogleEarthLibrary;
+unit u_GoogleEarthLibrary deprecated;
 
 interface
 

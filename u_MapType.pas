@@ -564,6 +564,7 @@ begin
     VTypeCode := FGlobalCacheConfig.DefCache;
   end;
   Result := VTypeCode in [
+    c_File_Cache_Id_GE,
     c_File_Cache_Id_DBMS,
     c_File_Cache_Id_BDB_Versioned
   ];
