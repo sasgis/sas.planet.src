@@ -101,6 +101,7 @@ uses
   i_StringListStatic in 'i_StringListStatic.pas',
   u_StringListStatic in 'u_StringListStatic.pas',
   t_Hash in 't_Hash.pas',
+  i_HashFunctionImpl in 'i_HashFunctionImpl.pas',
   i_HashFunction in 'i_HashFunction.pas',
   u_HashFunctionCRC64 in 'u_HashFunctionCRC64.pas',
   u_HashFunctionCityHash in 'u_HashFunctionCityHash.pas',

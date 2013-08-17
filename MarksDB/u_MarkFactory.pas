@@ -329,19 +329,14 @@ begin
     VPicHash :=APic.Hash;
   end;
 
-  VHash := FHashFunction.CalcHash(@APoint, SizeOf(TDoublePoint));
-  if AName <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-  end;
-  if ADesc <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-  end;
-  VHash := FHashFunction.CalcHashOfTwoHash(VHash, VPicHash);
-  VHash := FHashFunction.CalcHashWithSeed(@ATextColor, SizeOf(ATextColor), VHash);
-  VHash := FHashFunction.CalcHashWithSeed(@ATextBgColor, SizeOf(ATextBgColor), VHash);
-  VHash := FHashFunction.CalcHashWithSeed(@AFontSize, SizeOf(AFontSize), VHash);
-  VHash := FHashFunction.CalcHashWithSeed(@AMarkerSize, SizeOf(AMarkerSize), VHash);
-
+  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByHash(VHash, VPicHash);
+  FHashFunction.UpdateHashByInteger(VHash, AMarkerSize);
+  FHashFunction.UpdateHashByInteger(VHash, ATextColor);
+  FHashFunction.UpdateHashByInteger(VHash, ATextBgColor);
+  FHashFunction.UpdateHashByInteger(VHash, AFontSize);
   Result :=
     TMarkPoint.Create(
       VHash,
@@ -370,14 +365,10 @@ var
   VHash: THashValue;
 begin
   VHash := ALine.Hash;
-  if AName <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-  end;
-  if ADesc <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-  end;
-  VHash := FHashFunction.CalcHashWithSeed(@ALineColor, SizeOf(ALineColor), VHash);
-  VHash := FHashFunction.CalcHashWithSeed(@ALineWidth, SizeOf(ALineWidth), VHash);
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByInteger(VHash, ALineColor);
+  FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
   Result :=
     TMarkLine.Create(
       VHash,
@@ -403,15 +394,11 @@ var
   VHash: THashValue;
 begin
   VHash := ALine.Hash;
-  if AName <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-  end;
-  if ADesc <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-  end;
-  VHash := FHashFunction.CalcHashWithSeed(@ABorderColor, SizeOf(ABorderColor), VHash);
-  VHash := FHashFunction.CalcHashWithSeed(@AFillColor, SizeOf(AFillColor), VHash);
-  VHash := FHashFunction.CalcHashWithSeed(@ALineWidth, SizeOf(ALineWidth), VHash);
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByInteger(VHash, AFillColor);
+  FHashFunction.UpdateHashByInteger(VHash, ABorderColor);
+  FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
   Result :=
     TMarkPoly.Create(
       VHash,

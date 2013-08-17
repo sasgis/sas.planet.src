@@ -4,11 +4,11 @@ interface
 
 uses
   t_Hash,
-  i_HashFunction,
+  i_HashFunctionImpl,
   u_BaseInterfacedObject;
 
 type
-  THashFunctionCityHash = class(TBaseInterfacedObject, IHashFunction)
+  THashFunctionCityHash = class(TBaseInterfacedObject, IHashFunctionImpl)
   private
     function CalcHash(
       ABuffer: Pointer;
@@ -18,10 +18,6 @@ type
       ABuffer: Pointer;
       ASize: Integer;
       const ASeed: THashValue
-    ): THashValue;
-    function CalcHashOfTwoHash(
-      const AHash1: THashValue;
-      const AHash2: THashValue
     ): THashValue;
   end;
 
@@ -38,12 +34,6 @@ function THashFunctionCityHash.CalcHash(
 ): THashValue;
 begin
   Result := CityHash64(ABuffer, ASize);
-end;
-
-function THashFunctionCityHash.CalcHashOfTwoHash(const AHash1,
-  AHash2: THashValue): THashValue;
-begin
-  Result := CalcHashWithSeed(@AHash2, SizeOf(THashValue), AHash1);
 end;
 
 function THashFunctionCityHash.CalcHashWithSeed(

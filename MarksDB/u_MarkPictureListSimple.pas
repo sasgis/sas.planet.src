@@ -129,7 +129,7 @@ begin
       repeat
         if (SearchRec.Attr and faDirectory) <> faDirectory then begin
           VFullName := VPath + SearchRec.Name;
-          VHash := FHashFunction.CalcHash(@VFullName[1], Length(VFullName));
+          VHash := FHashFunction.CalcHashByString(VFullName);
           VPicture := TMarkPictureSimple.Create(VHash, VFullName, SearchRec.Name, VLoader);
           VPicture._AddRef;
           FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));

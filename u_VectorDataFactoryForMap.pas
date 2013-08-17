@@ -85,12 +85,8 @@ begin
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
     VHash := ALine.Hash;
-    if AName <> '' then begin
-      VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-    end;
-    if ADesc <> '' then begin
-      VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-    end;
+    FHashFunction.UpdateHashByString(VHash, AName);
+    FHashFunction.UpdateHashByString(VHash, ADesc);
     Result :=
       TVectorDataItemOfMapPath.Create(
         VHash,
@@ -117,13 +113,9 @@ begin
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
-    VHash := FHashFunction.CalcHash(@APoint, SizeOf(APoint));
-    if AName <> '' then begin
-      VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-    end;
-    if ADesc <> '' then begin
-      VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-    end;
+    VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+    FHashFunction.UpdateHashByString(VHash, AName);
+    FHashFunction.UpdateHashByString(VHash, ADesc);
     Result :=
       TVectorDataItemOfMapPoint.Create(
         VHash,
@@ -151,12 +143,8 @@ begin
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
     VHash := APoly.Hash;
-    if AName <> '' then begin
-      VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-    end;
-    if ADesc <> '' then begin
-      VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-    end;
+    FHashFunction.UpdateHashByString(VHash, AName);
+    FHashFunction.UpdateHashByString(VHash, ADesc);
     Result :=
       TVectorDataItemOfMapPoly.Create(
         VHash,

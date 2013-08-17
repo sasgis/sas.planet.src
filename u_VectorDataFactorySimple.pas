@@ -72,12 +72,8 @@ var
   VHash: THashValue;
 begin
   VHash := ALine.Hash;
-  if AName <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-  end;
-  if ADesc <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-  end;
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
   Result :=
     TVectorDataItemPath.Create(
       VHash,
@@ -96,13 +92,9 @@ function TVectorDataFactorySimple.BuildPoint(
 var
   VHash: THashValue;
 begin
-  VHash := FHashFunction.CalcHash(@APoint, SizeOf(APoint));
-  if AName <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-  end;
-  if ADesc <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-  end;
+  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
   Result :=
     TVectorDataItemPoint.Create(
       VHash,
@@ -122,12 +114,8 @@ var
   VHash: THashValue;
 begin
   VHash := APoly.Hash;
-  if AName <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@AName[1], Length(AName) * SizeOf(Char), VHash);
-  end;
-  if ADesc <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc) * SizeOf(Char), VHash);
-  end;
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
   Result :=
     TVectorDataItemPoly.Create(
       VHash,

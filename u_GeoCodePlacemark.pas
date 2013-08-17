@@ -170,16 +170,10 @@ function TGeoCodePlacemarkFactory.Build(
 var
   VHash: THashValue;
 begin
-  VHash := FHashFunction.CalcHash(@APoint, SizeOf(APoint));
-  if AAddress <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@AAddress[1], Length(AAddress), VHash);
-  end;
-  if ADesc <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@ADesc[1], Length(ADesc), VHash);
-  end;
-  if AFullDesc <> '' then begin
-    VHash := FHashFunction.CalcHashWithSeed(@AFullDesc[1], Length(AFullDesc), VHash);
-  end;
+  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  FHashFunction.UpdateHashByString(VHash, AAddress);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByString(VHash, AFullDesc);
   Result :=
     TGeoCodePlacemark.Create(
       VHash,

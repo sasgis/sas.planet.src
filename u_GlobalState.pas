@@ -398,7 +398,7 @@ begin
   FHashFunction :=
     THashFunctionWithCounter.Create(
       THashFunctionCityHash.Create,
-      FPerfCounterList.CreateAndAddNewCounter('HashFunction')
+      FPerfCounterList.CreateAndAddNewSubList('HashFunction')
     );
   FVectorItemSubsetBuilderFactory :=
     TVectorItemSubsetBuilderFactory.Create(

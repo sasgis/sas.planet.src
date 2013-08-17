@@ -4,12 +4,12 @@ interface
 
 uses
   t_Hash,
-  i_HashFunction,
+  i_HashFunctionImpl,
   u_BaseInterfacedObject;
 
 // взято отсюда http://www.delphisources.ru/pages/faq/base/hash_crc64.html
 type
-  THashFunctionCRC64 = class(TBaseInterfacedObject, IHashFunction)
+  THashFunctionCRC64 = class(TBaseInterfacedObject, IHashFunctionImpl)
   private
     T: array[Byte] of UInt64;
   private
@@ -21,10 +21,6 @@ type
       ABuffer: Pointer;
       ASize: Integer;
       const ASeed: THashValue
-    ): THashValue;
-    function CalcHashOfTwoHash(
-      const AHash1: THashValue;
-      const AHash2: THashValue
     ): THashValue;
   public
     constructor Create;
@@ -41,14 +37,6 @@ function THashFunctionCRC64.CalcHash(
 begin
   Result := not THashValue(0);
   Result := CalcHashWithSeed(ABuffer, ASize, Result);
-end;
-
-function THashFunctionCRC64.CalcHashOfTwoHash(
-  const AHash1: THashValue;
-  const AHash2: THashValue
-): THashValue;
-begin
-  Result := CalcHashWithSeed(@AHash2, SizeOf(THashValue), AHash1);
 end;
 
 function THashFunctionCRC64.CalcHashWithSeed(

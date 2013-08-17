@@ -76,7 +76,7 @@ begin
     if FList.Count = 1 then begin
       FHash := AItem.Hash;
     end else begin
-      FHash := FHashFunction.CalcHashOfTwoHash(FHash, AItem.Hash);
+      FHashFunction.UpdateHashByHash(FHash, AItem.Hash);
     end;
   end;
 end;
