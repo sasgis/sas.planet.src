@@ -556,8 +556,12 @@ begin
       TDownloadResultFactory.Create,
       FGlobalConfig.ValueToStringConverterConfig
     );
-  FMarkPictureList := TMarkPictureListSimple.Create(FGlobalConfig.MarksIconsPath, FContentTypeManager);
-
+  FMarkPictureList :=
+    TMarkPictureListSimple.Create(
+      FHashFunction,
+      FGlobalConfig.MarksIconsPath,
+      FContentTypeManager
+    );
   FMarkCategoryFactory :=
     TMarkCategoryFactory.Create(
       FGlobalConfig.MarksCategoryFactoryConfig

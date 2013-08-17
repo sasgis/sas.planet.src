@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_HashFunction,
   i_PathConfig,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -34,6 +35,7 @@ uses
 type
   TMarkPictureListSimple = class(TConfigDataElementBase, IMarkPictureList)
   private
+    FHashFunction: IHashFunction;
     FList: TStringList;
     FBasePath: IPathConfig;
     FContentTypeManager: IContentTypeManager;
@@ -52,6 +54,7 @@ type
     function FindByNameOrDefault(const AValue: string): IMarkPicture;
   public
     constructor Create(
+      const AHashFunction: IHashFunction;
       const ABasePath: IPathConfig;
       const AContentTypeManager: IContentTypeManager
     );
@@ -62,6 +65,7 @@ implementation
 
 uses
   SysUtils,
+  t_Hash,
   i_BitmapTileSaveLoad,
   i_ContentTypeInfo,
   u_MarkPictureSimple;
@@ -69,11 +73,13 @@ uses
 { TMarkPictureListSimple }
 
 constructor TMarkPictureListSimple.Create(
+  const AHashFunction: IHashFunction;
   const ABasePath: IPathConfig;
   const AContentTypeManager: IContentTypeManager
 );
 begin
   inherited Create;
+  FHashFunction := AHashFunction;
   FBasePath := ABasePath;
   FContentTypeManager := AContentTypeManager;
   FList := TStringList.Create;
@@ -107,6 +113,7 @@ var
   VContentType: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VPath: string;
+  VHash: THashValue;
 begin
   inherited;
   Clear;
@@ -122,7 +129,8 @@ begin
       repeat
         if (SearchRec.Attr and faDirectory) <> faDirectory then begin
           VFullName := VPath + SearchRec.Name;
-          VPicture := TMarkPictureSimple.Create(VFullName, SearchRec.Name, VLoader);
+          VHash := FHashFunction.CalcHash(@VFullName[1], Length(VFullName));
+          VPicture := TMarkPictureSimple.Create(VHash, VFullName, SearchRec.Name, VLoader);
           VPicture._AddRef;
           FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));
         end;
