@@ -25,6 +25,7 @@ interface
 uses
   SysUtils,
   Classes,
+  t_Hash,
   i_SimpleFlag,
   i_BinaryData,
   i_BitmapMarker,
@@ -35,6 +36,7 @@ uses
 type
   TMarkPictureSimple = class(TBaseInterfacedObject, IMarkPicture)
   private
+    FHash: THashValue;
     FFullFileName: string;
     FName: string;
     FLoader: IBitmapTileLoader;
@@ -46,8 +48,10 @@ type
     FInitedFlag: ISimpleFlag;
     procedure InitPic;
   private
+    function GetHash: THashValue;
+
     function GetMarker: IBitmapMarker;
-  private
+
     function GetName: string;
     function GetSource: IBinaryData;
 
@@ -55,6 +59,7 @@ type
     function GetTextVerticalAlignment: TVerticalAlignment;
   public
     constructor Create(
+      const AHash: THashValue;
       const AFullFileName: string;
       const AName: string;
       const ALoader: IBitmapTileLoader
@@ -73,12 +78,14 @@ uses
 
 { TMarkPictureSimple }
 constructor TMarkPictureSimple.Create(
+  const AHash: THashValue;
   const AFullFileName: string;
   const AName: string;
   const ALoader: IBitmapTileLoader
 );
 begin
   inherited Create;
+  FHash := AHash;
   FFullFileName := AFullFileName;
   FName := AName;
   FLoader := ALoader;
@@ -126,6 +133,11 @@ begin
       FCS.EndWrite;
     end;
   end;
+end;
+
+function TMarkPictureSimple.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TMarkPictureSimple.GetMarker: IBitmapMarker;

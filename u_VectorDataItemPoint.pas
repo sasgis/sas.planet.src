@@ -23,6 +23,7 @@ unit u_VectorDataItemPoint;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_LonLatRect,
   i_VectorDataItemSimple,
@@ -38,6 +39,7 @@ type
     function GetPoint: TDoublePoint;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
@@ -53,12 +55,14 @@ uses
 { TVectorDataItemPoint }
 
 constructor TVectorDataItemPoint.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
   const APoint: TDoublePoint
 );
 begin
   inherited Create(
+    AHash,
     AHintConverter,
     AName,
     ADesc

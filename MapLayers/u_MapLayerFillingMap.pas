@@ -85,7 +85,7 @@ begin
     AView,
     VTileMatrixFactory,
     ATimerNoifier,
-    True,
+    False,
     AConfig.ThreadConfig
   );
   FConfig := AConfig;
@@ -110,7 +110,8 @@ begin
     Result :=
       TBitmapLayerProviderFillingMap.Create(
         VConfig.SourceMap,
-        VConfig.GetActualZoom(ALayerConverter),
+        VConfig.UseRelativeZoom,
+        VConfig.Zoom,
         VConfig.Colorer
       );
   end;

@@ -23,6 +23,7 @@ unit u_MarkFullBase;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
@@ -35,11 +36,13 @@ type
   TMarkFullBase = class(TBaseInterfacedObject, IMark,
     IVectorDataItemSimple, IVectorDataItemWithCategory)
   private
+    FHash: THashValue;
     FName: string;
     FHintConverter: IHtmlToHintTextConverter;
     FDesc: string;
     FCategory: ICategory;
   protected
+    function GetHash: THashValue;
     function GetStringID: string;
     function GetName: string;
     function GetMarkType: TGUID; virtual; abstract;
@@ -54,6 +57,7 @@ type
     function GetCategory: ICategory;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ACategory: ICategory;
@@ -66,6 +70,7 @@ implementation
 { TMarkFullBase }
 
 constructor TMarkFullBase.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   const ACategory: ICategory;
@@ -73,6 +78,7 @@ constructor TMarkFullBase.Create(
 );
 begin
   inherited Create;
+  FHash := AHash;
   FName := AName;
   FCategory := ACategory;
   FHintConverter := AHintConverter;
@@ -87,6 +93,11 @@ end;
 function TMarkFullBase.GetDesc: string;
 begin
   Result := FDesc;
+end;
+
+function TMarkFullBase.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TMarkFullBase.GetHintText: string;

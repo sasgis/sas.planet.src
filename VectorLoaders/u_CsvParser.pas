@@ -28,11 +28,13 @@ uses
   i_VectorItemsFactory,
   i_VectorItemSubset,
   i_VectorDataFactory,
+  i_VectorItemSubsetBuilder,
   u_BaseInterfacedObject;
 
 type
   TCsvParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FFactory: IVectorItemsFactory;
   private
     function Load(
@@ -42,6 +44,7 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AFactory: IVectorItemsFactory
     );
   end;
@@ -57,10 +60,7 @@ uses
   t_GeoTypes,
   i_VectorDataItemSimple,
   i_DoublePointsAggregator,
-  i_InterfaceListSimple,
-  u_VectorDataItemSubset,
   u_DoublePointsAggregator,
-  u_InterfaceListSimple,
   u_GeoFun,
   u_GeoToStr;
 
@@ -307,7 +307,7 @@ procedure _MakeObjectFromArray(
   const AOldValues: PCSVPointFieldValues;
   const AIndices: PCSVPointFieldIndices;
   const APointsAggregator: IDoublePointsAggregator;
-  const AAllItems: IInterfaceListSimple
+  const AAllItems: IVectorItemSubsetBuilder
 );
 var
   i: TCSVPointFieldType;
@@ -371,7 +371,7 @@ procedure _MakeNewPointWithFullInfo(
   const ACoords: TDoublePoint;
   const AIndices: PCSVPointFieldIndices;
   const AVoxFieldIndex: Integer;
-  const AAllItems: IInterfaceListSimple
+  const AAllItems: IVectorItemSubsetBuilder
 );
 var
   i: TCSVPointFieldType;
@@ -464,10 +464,12 @@ end;
 { TCsvParser }
 
 constructor TCsvParser.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AFactory: IVectorItemsFactory
-  );
+);
 begin
   inherited Create;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FFactory := AFactory;
 end;
 
@@ -488,7 +490,7 @@ var
   // to collect points for polyline
   VPointsAggregator: IDoublePointsAggregator;
   // to collect all new marks
-  VAllItems: IInterfaceListSimple;
+  VAllItems: IVectorItemSubsetBuilder;
   VHeaders: string;
 begin
   Result := nil;
@@ -563,7 +565,7 @@ begin
     VParsedLine.QuoteChar := '"';
     VParsedLine.Delimiter := VFileHeader.Delimiter;
     VPointsAggregator := TDoublePointsAggregator.Create;
-    VAllItems := TInterfaceListSimple.Create;
+    VAllItems := FVectorItemSubsetBuilderFactory.Build;
 
     // loop through
     for i := 1 to VFileBody.Count-1 do begin
@@ -643,7 +645,7 @@ begin
     VFileHeader.Free;
     VParsedLine.Free;
   end;
-  Result := TVectorItemSubset.Create(VAllItems.MakeStaticAndClear);
+  Result := VAllItems.MakeStaticAndClear;
 end;
 
 end.

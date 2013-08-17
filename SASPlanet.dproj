@@ -249,6 +249,7 @@
     <DCCReference Include="i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="i_GUIDListStatic.pas" />
     <DCCReference Include="i_HashFunction.pas" />
+    <DCCReference Include="i_HashFunctionImpl.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
     <DCCReference Include="i_IdCacheSimple.pas" />
     <DCCReference Include="i_ImageLineProvider.pas" />
@@ -421,6 +422,7 @@
     <DCCReference Include="i_VectorItemProjected.pas" />
     <DCCReference Include="i_VectorItemsFactory.pas" />
     <DCCReference Include="i_VectorItemSubset.pas" />
+    <DCCReference Include="i_VectorItemSubsetBuilder.pas" />
     <DCCReference Include="i_VectorItemSubsetChangeable.pas" />
     <DCCReference Include="i_VectorItemTree.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
@@ -832,6 +834,7 @@
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
+    <DCCReference Include="t_Hash.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapSingleSet.pas" />
@@ -969,7 +972,9 @@
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_GUIDListStatic.pas" />
     <DCCReference Include="u_HashCacheWithQueuesAbstract.pas" />
+    <DCCReference Include="u_HashFunctionCityHash.pas" />
     <DCCReference Include="u_HashFunctionCRC64.pas" />
+    <DCCReference Include="u_HashFunctionWithCounter.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
     <DCCReference Include="u_IdCacheSimpleThreadSafe.pas" />
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />
@@ -1257,6 +1262,7 @@
     <DCCReference Include="u_VectorItemLonLat.pas" />
     <DCCReference Include="u_VectorItemProjected.pas" />
     <DCCReference Include="u_VectorItemsFactorySimple.pas" />
+    <DCCReference Include="u_VectorItemSubsetBuilder.pas" />
     <DCCReference Include="u_VectorItemSubsetChangeableForVectorLayers.pas" />
     <DCCReference Include="u_VectorItemTree.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />

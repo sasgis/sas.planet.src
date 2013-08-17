@@ -501,7 +501,7 @@ begin
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
   Result := nil;
-  if not VMarksSubset.IsEmpty then begin
+  if Assigned(VMarksSubset) and not VMarksSubset.IsEmpty then begin
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter) then begin

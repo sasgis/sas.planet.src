@@ -25,7 +25,6 @@ interface
 uses
   GR32,
   t_FillingMapModes,
-  i_LocalCoordConverter,
   i_FillingMapColorer,
   i_MapTypes,
   i_FillingMapLayerConfig,
@@ -59,7 +58,6 @@ type
     function GetFillFirstDay: TDateTime;
     function GetFillLastDay: TDateTime;
 
-    function GetActualZoom(const ALocalConverter: ILocalCoordConverter): Byte;
     function GetColorer: IFillingMapColorer;
   public
     constructor Create(
@@ -120,24 +118,6 @@ begin
       FFillFirstDay,
       FFillLastDay
     );
-end;
-
-function TFillingMapLayerConfigStatic.GetActualZoom(
-  const ALocalConverter: ILocalCoordConverter
-): Byte;
-var
-  VZoom: Integer;
-begin
-  VZoom := FZoom;
-  if FUseRelativeZoom then begin
-    VZoom := FZoom + ALocalConverter.GetZoom;
-  end;
-  if VZoom < 0 then begin
-    Result := 0;
-  end else begin
-    Result := VZoom;
-    ALocalConverter.GetGeoConverter.CheckZoom(Result);
-  end;
 end;
 
 function TFillingMapLayerConfigStatic.GetColorer: IFillingMapColorer;

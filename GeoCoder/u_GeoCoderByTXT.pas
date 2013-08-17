@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   sysutils,
+  i_GeoCoder,
   i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
@@ -55,7 +56,10 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; override;
   public
-    constructor Create(const AValueToStringConverterConfig: IValueToStringConverterConfig);
+    constructor Create(
+      const APlacemarkFactory: IGeoCodePlacemarkFactory;
+      const AValueToStringConverterConfig: IValueToStringConverterConfig
+    );
   end;
 
 implementation
@@ -63,11 +67,9 @@ implementation
 uses
   StrUtils,
   t_GeoTypes,
-  i_GeoCoder,
   u_InterfaceListSimple,
   u_ResStrings,
-  u_Synchronizer,
-  u_GeoCodePlacemark;
+  u_Synchronizer;
 
 type
   TTabArray = array [1..19] of string;
@@ -214,7 +216,7 @@ begin
           sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
           sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
 
-          VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
           if not ItemExist(VPlace, AList) then begin
             Inc(ACnt);
             AList.Add(VPlace);
@@ -227,9 +229,12 @@ begin
   end;
 end;
 
-constructor TGeoCoderByTXT.Create;
+constructor TGeoCoderByTXT.Create(
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
+);
 begin
-  inherited Create;
+  inherited Create(APlacemarkFactory);
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt')) then
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
   FLock := MakeSyncRW_Std(Self, False);

@@ -7,8 +7,6 @@ uses
   SysUtils,
   GR32,
   t_GeoTypes,
-  i_Listener,
-  i_MapTypes,
   i_CoordConverter,
   i_ProjectionInfo,
   i_Bitmap32Static,
@@ -18,40 +16,26 @@ uses
   i_IdCacheSimple,
   i_LocalCoordConverter,
   i_NotifierOperation,
-  i_ObjectWithListener,
   i_VectorItemProjected,
   i_VectorItemsFactory,
+  i_VectorItemSubsetChangeable,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderByVectorSubset = class(TBaseInterfacedObject, IBitmapLayerProvider, IObjectWithListener)
+  TBitmapLayerProviderByVectorSubset = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FVectorMapsSet: IMapTypeSet;
     FColorMain: TColor32;
     FColorBG: TColor32;
     FPointColor: TColor32;
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItems: IVectorItemSubset;
-    FProjectionInfo: IProjectionInfo;
+    FVectorItems: IVectorItemSubsetChangeable;
     FProjectedCache: IIdCacheSimple;
-    FLinesClipRect: TDoubleRect;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
-
-    FListener: IListener;
-    FListenLocalConverter: ILocalCoordConverter;
-    FListenLonLatRect: TDoubleRect;
-    FListenerCS: IReadWriteSync;
-
-    FLayerListeners: array of IListenerDisconnectable;
-    FVersionListener: IListener;
-
-    procedure OnMapVersionChange;
-    procedure OnTileUpdate(const AMsg: IInterface);
 
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
@@ -107,96 +91,54 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
-  private
-    procedure SetListener(
-      const AListener: IListener;
-      const ALocalConverter: ILocalCoordConverter
-    );
-    procedure RemoveListener;
   public
     constructor Create(
-      const AVectorMapsSet: IMapTypeSet;
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32;
       const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IIdCacheSimple;
-      const ALinesClipRect: TDoubleRect;
-      const AVectorItems: IVectorItemSubset
+      const AVectorItems: IVectorItemSubsetChangeable
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  ActiveX,
   GR32_Polygons,
   i_EnumDoublePoint,
   i_LonLatRect,
-  i_NotifierTilePyramidUpdate,
   u_Bitmap32ByStaticBitmap,
   u_DoublePointsAggregator,
   u_EnumDoublePointClosePoly,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,
-  u_TileUpdateListenerToLonLat,
-  u_ListenerByEvent,
-  u_Synchronizer,
   u_GeoFun;
 
 { TBitmapLayerProviderByVectorSubset }
 
 constructor TBitmapLayerProviderByVectorSubset.Create(
-  const AVectorMapsSet: IMapTypeSet;
-  AColorMain, AColorBG, APointColor: TColor32;
+  AColorMain: TColor32;
+  AColorBG: TColor32;
+  APointColor: TColor32;
   const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IIdCacheSimple;
-  const ALinesClipRect: TDoubleRect;
-  const AVectorItems: IVectorItemSubset
+  const AVectorItems: IVectorItemSubsetChangeable
 );
 begin
   inherited Create;
-  FVectorMapsSet := AVectorMapsSet;
   FColorMain := AColorMain;
   FColorBG := AColorBG;
   FPointColor := APointColor;
   FVectorItemsFactory := AVectorItemsFactory;
   FBitmapFactory := ABitmapFactory;
-  FProjectionInfo := AProjectionInfo;
   FProjectedCache := AProjectedCache;
-  FLinesClipRect := ALinesClipRect;
   FVectorItems := AVectorItems;
 
-  FListenerCS := MakeSyncRW_Var(Self, False);
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
-end;
-
-destructor TBitmapLayerProviderByVectorSubset.Destroy;
-var
-  i: Integer;
-  VCnt: Integer;
-begin
-  if Assigned(FListenerCS) then begin
-    RemoveListener;
-    FListenerCS.BeginWrite;
-    try
-      VCnt := Length(FLayerListeners);
-      for i := 0 to VCnt - 1 do begin
-        if Assigned(FLayerListeners[i]) then begin
-          FLayerListeners[i].Disconnect;
-        end;
-      end;
-    finally
-      FListenerCS.EndWrite;
-    end;
-  end;
-  inherited;
 end;
 
 function TBitmapLayerProviderByVectorSubset.DrawPath(
@@ -367,7 +309,7 @@ var
   VLine: IProjectedPolygonLine;
 begin
   Result := False;
-  VProjected := GetProjectedPolygon(AData, FProjectionInfo);
+  VProjected := GetProjectedPolygon(AData, ALocalConverter.ProjectionInfo, FPreparedPointsAggreagtor);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -484,6 +426,7 @@ var
   VBitmapInited: Boolean;
   VBitmap: TBitmap32ByStaticBitmap;
   VIsEmpty: Boolean;
+  VItems: IVectorItemSubset;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
@@ -493,12 +436,13 @@ begin
 
   VBitmapInited := False;
   Result := nil;
-  if FVectorItems.Count > 0 then begin
+  VItems := FVectorItems.GetStatic;
+  if (VItems <> nil) and (VItems.Count > 0) then begin
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       VIsEmpty := True;
-      for i := 0 to FVectorItems.Count - 1 do begin
-        VItem := FVectorItems.GetItem(i);
+      for i := 0 to VItems.Count - 1 do begin
+        VItem := VItems.GetItem(i);
         if VItem.LLRect.IsIntersecWithRect(VLLRect) then begin
           if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
             VIsEmpty := False;
@@ -528,10 +472,9 @@ begin
   VID := Integer(AData);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
     Result :=
-      FVectorItemsFactory.CreateProjectedPathWithClipByLonLatPath(
+      FVectorItemsFactory.CreateProjectedPathByLonLatPath(
         AProjectionInfo,
         AData.Line,
-        FLinesClipRect,
         ATemp
       );
     FProjectedCache.Add(VID, Result);
@@ -549,10 +492,9 @@ begin
   VID := Integer(AData);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
     Result :=
-      FVectorItemsFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
+      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
         AProjectionInfo,
         AData.Line,
-        FLinesClipRect,
         ATemp
       );
     FProjectedCache.Add(VID, Result);
@@ -570,181 +512,6 @@ begin
   ATargetBmp.SetSize(VSize.X, VSize.Y);
   ATargetBmp.Clear(0);
   ATargetBmp.CombineMode := cmMerge;
-end;
-
-procedure TBitmapLayerProviderByVectorSubset.OnMapVersionChange;
-var
-  VListener: IListener;
-begin
-  FListenerCS.BeginRead;
-  try
-    VListener := FListener;
-  finally
-    FListenerCS.EndRead;
-  end;
-  if VListener <> nil then begin
-    VListener.Notification(nil);
-  end;
-end;
-
-procedure TBitmapLayerProviderByVectorSubset.OnTileUpdate(
-  const AMsg: IInterface);
-var
-  VListener: IListener;
-  VLonLatRect: ILonLatRect;
-  VListenLonLatRect: TDoubleRect;
-begin
-  FListenerCS.BeginRead;
-  try
-    VListener := FListener;
-    VListenLonLatRect := FListenLonLatRect;
-  finally
-    FListenerCS.EndRead;
-  end;
-  if VListener <> nil then begin
-    if Supports(AMsg, ILonLatRect, VLonLatRect) then begin
-      if VLonLatRect.IsIntersecWithRect(VListenLonLatRect) then begin
-        VListener.Notification(nil);
-      end;
-    end else begin
-      VListener.Notification(nil);
-    end;
-  end;
-end;
-
-procedure TBitmapLayerProviderByVectorSubset.RemoveListener;
-var
-  VNotifier: INotifierTilePyramidUpdate;
-  i: Integer;
-  VMap: IMapType;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  Vcnt: Cardinal;
-begin
-  if FVectorMapsSet <> nil then begin
-    FListenerCS.BeginWrite;
-    try
-      if (FListener <> nil) and (FListenLocalConverter <> nil) then begin
-        VEnum := FVectorMapsSet.GetIterator;
-        i := 0;
-        while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-          VMap := FVectorMapsSet.GetMapTypeByGUID(VGUID);
-          if VMap <> nil then begin
-            VNotifier := VMap.MapType.TileNotifier;
-            if VNotifier <> nil then begin
-              VNotifier.Remove(FLayerListeners[i]);
-            end;
-            VMap.MapType.VersionConfig.ChangeNotifier.Remove(FVersionListener);
-          end;
-          Inc(i);
-        end;
-      end;
-      FListener := nil;
-      FListenLocalConverter := nil;
-    finally
-      FListenerCS.EndWrite;
-    end;
-  end;
-end;
-
-procedure TBitmapLayerProviderByVectorSubset.SetListener(
-  const AListener: IListener; const ALocalConverter: ILocalCoordConverter);
-var
-  VNotifier: INotifierTilePyramidUpdate;
-  i: Integer;
-  VMap: IMapType;
-  VZoom: Byte;
-  VTileRect: TRect;
-  VLonLatRect: TDoubleRect;
-  VMapRect: TRect;
-  VConverter: ICoordConverter;
-  VMapLonLatRect: TDoubleRect;
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  Vcnt: Cardinal;
-begin
-  if FVectorMapsSet <> nil then begin
-    FListenerCS.BeginWrite;
-    try
-      if (AListener = nil) or (ALocalConverter = nil) then begin
-        RemoveListener;
-      end else begin
-        if (FListener <> nil) and (FListenLocalConverter <> nil) then begin
-          VZoom := FListenLocalConverter.Zoom;
-          if (VZoom <> ALocalConverter.Zoom) then begin
-            VEnum := FVectorMapsSet.GetIterator;
-            i := 0;
-            while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-              VMap := FVectorMapsSet.GetMapTypeByGUID(VGUID);
-              if VMap <> nil then begin
-                VNotifier := VMap.MapType.TileNotifier;
-                if VNotifier <> nil then begin
-                  VNotifier.Remove(FLayerListeners[i]);
-                end;
-              end;
-              Inc(i);
-            end;
-          end;
-        end;
-        if Length(FLayerListeners) = 0 then begin
-          SetLength(FLayerListeners, FVectorMapsSet.GetCount);
-          VEnum := FVectorMapsSet.GetIterator;
-          i := 0;
-          while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-            VMap := FVectorMapsSet.GetMapTypeByGUID(VGUID);
-            if VMap <> nil then begin
-              FLayerListeners[i] := TTileUpdateListenerToLonLat.Create(VMap.MapType.GeoConvert, Self.OnTileUpdate);
-            end;
-            Inc(i);
-          end;
-        end;
-        if FVersionListener = nil then begin
-          FVersionListener := TNotifyNoMmgEventListener.Create(Self.OnMapVersionChange);
-        end;
-        if (FListener = nil) or (FListenLocalConverter = nil) then begin
-          VEnum := FVectorMapsSet.GetIterator;
-          while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-            VMap := FVectorMapsSet.GetMapTypeByGUID(VGUID);
-            if VMap <> nil then begin
-              VMap.MapType.VersionConfig.ChangeNotifier.Add(FVersionListener);
-            end;
-          end;
-        end;
-        if not ALocalConverter.GetIsSameConverter(FListenLocalConverter) then begin
-          VZoom := ALocalConverter.Zoom;
-          VConverter := ALocalConverter.GeoConverter;
-          VMapRect := ALocalConverter.GetRectInMapPixel;
-          VConverter.CheckPixelRect(VMapRect, VZoom);
-          VLonLatRect := VConverter.PixelRect2LonLatRect(VMapRect, VZoom);
-          FListenLonLatRect := VLonLatRect;
-          VEnum := FVectorMapsSet.GetIterator;
-          i := 0;
-          while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-            VMap := FVectorMapsSet.GetMapTypeByGUID(VGUID);
-            if VMap <> nil then begin
-              VNotifier := VMap.MapType.TileNotifier;
-              if VNotifier <> nil then begin
-                VConverter := VMap.MapType.GeoConvert;
-                VMapLonLatRect := VLonLatRect;
-                VConverter.CheckLonLatRect(VMapLonLatRect);
-                VTileRect :=
-                  RectFromDoubleRect(
-                    VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
-                    rrToTopLeft
-                  );
-                VNotifier.AddListenerByRect(FLayerListeners[i], VZoom, VTileRect);
-              end;
-            end;
-            Inc(i);
-          end;
-        end;
-        FListener := AListener;
-        FListenLocalConverter := ALocalConverter;
-      end;
-    finally
-      FListenerCS.EndWrite;
-    end;
-  end;
 end;
 
 end.

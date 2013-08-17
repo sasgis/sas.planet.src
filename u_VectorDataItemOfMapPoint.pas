@@ -23,6 +23,7 @@ unit u_VectorDataItemOfMapPoint;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_StringProvider,
   i_LonLatRect,
@@ -39,6 +40,7 @@ type
     function GetPoint: TDoublePoint;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AUrlPrefix: IStringProvider;
       const AIndex: Integer;
@@ -56,6 +58,7 @@ uses
 { TVectorDataItemPoint }
 
 constructor TVectorDataItemOfMapPoint.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
@@ -64,6 +67,7 @@ constructor TVectorDataItemOfMapPoint.Create(
 );
 begin
   inherited Create(
+    AHash,
     AHintConverter,
     AUrlPrefix,
     AIndex,

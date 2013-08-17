@@ -25,6 +25,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
+  i_HashFunction,
   i_VectorItemLonLat,
   i_VectorItemsFactory,
   i_MarkPicture,
@@ -39,6 +40,7 @@ type
   TMarkFactorySmlDbInternal = class(TBaseInterfacedObject, IMarkFactorySmlInternal)
   private
     FDbId: Integer;
+    FHashFunction: IHashFunction;
     FFactory: IVectorItemsFactory;
     FCategoryDB: IMarkCategoryDBSmlInternal;
     FHintConverter: IHtmlToHintTextConverter;
@@ -99,6 +101,7 @@ type
       const ADbId: Integer;
       const AMarkPictureList: IMarkPictureList;
       const AFactory: IVectorItemsFactory;
+      const AHashFunction: IHashFunction;
       const AHintConverter: IHtmlToHintTextConverter;
       const ACategoryDB: IMarkCategoryDBSmlInternal
     );
@@ -108,8 +111,8 @@ implementation
 
 uses
   SysUtils,
+  t_Hash,
   i_MarkDbSmlInternal,
-  
   u_GeoFun,
   u_MarkPointSml,
   u_MarkLineSml,
@@ -121,6 +124,7 @@ constructor TMarkFactorySmlDbInternal.Create(
   const ADbId: Integer;
   const AMarkPictureList: IMarkPictureList;
   const AFactory: IVectorItemsFactory;
+  const AHashFunction: IHashFunction;
   const AHintConverter: IHtmlToHintTextConverter;
   const ACategoryDB: IMarkCategoryDBSmlInternal
 );
@@ -128,6 +132,7 @@ begin
   inherited Create;
   FDbId := ADbId;
   FFactory := AFactory;
+  FHashFunction := AHashFunction;
   FHintConverter := AHintConverter;
   FCategoryDB := ACategoryDB;
   FMarkPictureList := AMarkPictureList;
@@ -149,6 +154,8 @@ var
   VPicIndex: Integer;
   VPic: IMarkPicture;
   VPicName: string;
+  VHash: THashValue;
+  VPicHash: THashValue;
 begin
   VPic := APic;
   if VPic = nil then begin
@@ -156,15 +163,28 @@ begin
     VPicIndex := FMarkPictureList.GetIndexByName(APicName);
     if VPicIndex < 0 then begin
       VPic := nil;
+      VPicHash := 0;
     end else begin
       VPic := FMarkPictureList.Get(VPicIndex);
+      VPicHash := VPic.Hash;
     end;
   end else begin
     VPicName := VPic.GetName;
+    VPicHash := VPic.Hash;
   end;
+
+  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByHash(VHash, VPicHash);
+  FHashFunction.UpdateHashByInteger(VHash, AMarkerSize);
+  FHashFunction.UpdateHashByInteger(VHash, ATextColor);
+  FHashFunction.UpdateHashByInteger(VHash, ATextBgColor);
+  FHashFunction.UpdateHashByInteger(VHash, AFontSize);
 
   Result :=
     TMarkPointSml.Create(
+      VHash,
       FHintConverter,
       AName,
       AId,
@@ -272,9 +292,17 @@ function TMarkFactorySmlDbInternal.CreateLine(
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IMarkLine;
+var
+  VHash: THashValue;
 begin
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByInteger(VHash, ALineColor);
+  FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
   Result :=
     TMarkLineSml.Create(
+      VHash,
       FHintConverter,
       AName,
       AId,
@@ -298,9 +326,18 @@ function TMarkFactorySmlDbInternal.CreatePoly(
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 ): IMarkPoly;
+var
+  VHash: THashValue;
 begin
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByInteger(VHash, AFillColor);
+  FHashFunction.UpdateHashByInteger(VHash, ABorderColor);
+  FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
   Result :=
     TMarkPolySml.Create(
+      VHash,
       FHintConverter,
       AName,
       AId,

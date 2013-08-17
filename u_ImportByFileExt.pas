@@ -28,6 +28,7 @@ uses
   i_VectorItemsFactory,
   i_VectorDataFactory,
   i_VectorDataLoader,
+  i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
   i_ImportConfig,
   i_MarkSystem,
@@ -56,6 +57,7 @@ type
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AVectorDataFactory: IVectorDataFactory;
       const AFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AGpxLoader: IVectorDataLoader;
       const APltLoader: IVectorDataLoader;
       const AKmlLoader: IVectorDataLoader;
@@ -80,6 +82,7 @@ constructor TImportByFileExt.Create(
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AVectorDataFactory: IVectorDataFactory;
   const AFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AGpxLoader: IVectorDataLoader;
   const APltLoader: IVectorDataLoader;
   const AKmlLoader: IVectorDataLoader;
@@ -91,11 +94,11 @@ begin
   FImportKML := TImportByVectorLoader.Create(AVectorDataFactory, AKmlLoader);
   FImportKMZ := TImportByVectorLoader.Create(AVectorDataFactory, AKmzLoader);
   FImportPLT := TImportByVectorLoader.Create(AVectorDataFactory, APltLoader);
-  FImportCSV := TImportByVectorLoader.Create(AVectorDataFactory, TCsvParser.Create(AFactory));
-  FImportHLG := TImportByVectorLoader.Create(AVectorDataFactory, THlgParser.Create(AFactory));
-  FImportMP := TImportByVectorLoader.Create(AVectorDataFactory, TMpSimpleParser.Create(AFactory));
-  FImportSLS := TImportByVectorLoader.Create(AVectorDataFactory, TSlsParser.Create(AFactory));
-  FImportJPG := TImportJpegWithExif.Create(AVectorDataFactory, AValueToStringConverterConfig);
+  FImportCSV := TImportByVectorLoader.Create(AVectorDataFactory, TCsvParser.Create(AVectorItemSubsetBuilderFactory, AFactory));
+  FImportHLG := TImportByVectorLoader.Create(AVectorDataFactory, THlgParser.Create(AVectorItemSubsetBuilderFactory, AFactory));
+  FImportMP := TImportByVectorLoader.Create(AVectorDataFactory, TMpSimpleParser.Create(AVectorItemSubsetBuilderFactory, AFactory));
+  FImportSLS := TImportByVectorLoader.Create(AVectorDataFactory, TSlsParser.Create(AVectorItemSubsetBuilderFactory, AFactory));
+  FImportJPG := TImportJpegWithExif.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AValueToStringConverterConfig);
 end;
 
 function TImportByFileExt.ProcessImport(

@@ -91,6 +91,7 @@ type
 implementation
 
 uses
+  t_Hash,
   i_Datum,
   i_LonLatRect,
   i_NotifierOperation,
@@ -122,6 +123,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APath: ILonLatPath): Boolean;
     function GetBounds: ILonLatRect;
+    function GetHash: THashValue;
     function CalcLength(const ADatum: IDatum): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ILonLatPathLine;
@@ -139,6 +141,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function GetBounds: ILonLatRect;
+    function GetHash: THashValue;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
       const ADatum: IDatum;
@@ -799,6 +802,11 @@ begin
   Result := FLine.GetEnum;
 end;
 
+function TLonLatPathWithSelected.GetHash: THashValue;
+begin
+  Result := FLine.Hash;
+end;
+
 function TLonLatPathWithSelected.GetItem(AIndex: Integer): ILonLatPathLine;
 begin
   Result := FLine.Item[AIndex];
@@ -888,6 +896,11 @@ end;
 function TLonLatPolygonWithSelected.GetEnum: IEnumLonLatPoint;
 begin
   Result := FLine.GetEnum;
+end;
+
+function TLonLatPolygonWithSelected.GetHash: THashValue;
+begin
+  Result := FLine.Hash;
 end;
 
 function TLonLatPolygonWithSelected.GetItem(

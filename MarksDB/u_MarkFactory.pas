@@ -28,6 +28,7 @@ uses
   i_VectorItemLonLat,
   i_VectorItemsFactory,
   i_VectorDataItemSimple,
+  i_HashFunction,
   i_ImportConfig,
   i_MarkPicture,
   i_MarkFactoryConfig,
@@ -42,6 +43,7 @@ type
 
   TMarkFactory = class(TBaseInterfacedObject, IMarkFactory)
   private
+    FHashFunction: IHashFunction;
     FConfig: IMarkFactoryConfig;
     FFactory: IVectorItemsFactory;
     FHintConverter: IHtmlToHintTextConverter;
@@ -179,6 +181,7 @@ implementation
 
 uses
   SysUtils,
+  t_Hash,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;
@@ -316,9 +319,27 @@ function TMarkFactory.CreatePoint(
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer
 ): IMarkPoint;
+var
+  VHash: THashValue;
+  VPicHash: THashValue;
 begin
+  if APic = nil then begin
+    VPicHash := 0;
+  end else begin
+    VPicHash :=APic.Hash;
+  end;
+
+  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByHash(VHash, VPicHash);
+  FHashFunction.UpdateHashByInteger(VHash, AMarkerSize);
+  FHashFunction.UpdateHashByInteger(VHash, ATextColor);
+  FHashFunction.UpdateHashByInteger(VHash, ATextBgColor);
+  FHashFunction.UpdateHashByInteger(VHash, AFontSize);
   Result :=
     TMarkPoint.Create(
+      VHash,
       FHintConverter,
       AName,
       APic,
@@ -340,9 +361,17 @@ function TMarkFactory.CreateLine(
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IMarkLine;
+var
+  VHash: THashValue;
 begin
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByInteger(VHash, ALineColor);
+  FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
   Result :=
     TMarkLine.Create(
+      VHash,
       FHintConverter,
       AName,
       ACategory,
@@ -361,9 +390,18 @@ function TMarkFactory.CreatePoly(
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 ): IMarkPoly;
+var
+  VHash: THashValue;
 begin
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByString(VHash, AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByInteger(VHash, AFillColor);
+  FHashFunction.UpdateHashByInteger(VHash, ABorderColor);
+  FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
   Result :=
     TMarkPoly.Create(
+      VHash,
       FHintConverter,
       AName,
       ACategory,

@@ -24,6 +24,7 @@ interface
 
 uses
   GR32,
+  t_Hash,
   t_GeoTypes,
   i_LonLatRect,
   i_MarkPicture,
@@ -33,6 +34,9 @@ uses
 type
   IVectorDataItemSimple = interface
     ['{1242B43D-C878-4AC9-9F29-0A3E258F4670}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
+
     function GetName: string;
     property Name: string read GetName;
 

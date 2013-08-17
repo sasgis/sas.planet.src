@@ -43,6 +43,7 @@ uses
   i_MapVersionConfig,
   i_MapVersionFactoryList,
   i_TileDownloadRequestBuilderConfig,
+  i_HashFunction,
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
   i_NotifierTime,
@@ -251,6 +252,7 @@ type
       const AResamplerConfigChangeProjection: IImageResamplerConfig;
       const AResamplerConfigDownload: IImageResamplerConfig;
       const ABitmapFactory: IBitmap32StaticFactory;
+      const AHashFunction: IHashFunction;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
       const AContentTypeManager: IContentTypeManager;
@@ -331,6 +333,7 @@ constructor TMapType.Create(
   const AResamplerConfigChangeProjection: IImageResamplerConfig;
   const AResamplerConfigDownload: IImageResamplerConfig;
   const ABitmapFactory: IBitmap32StaticFactory;
+  const AHashFunction: IHashFunction;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
   const AContentTypeManager: IContentTypeManager;
@@ -445,6 +448,7 @@ begin
     FMapDataUrlPrefix := CMapDataInternalURL + GUIDToString(FZmp.GUID) + '/';
     FVectorDataFactory :=
       TVectorDataFactoryForMap.Create(
+        AHashFunction,
         THtmlToHintTextConverterStuped.Create
       );
   end;

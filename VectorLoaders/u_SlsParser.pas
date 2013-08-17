@@ -8,12 +8,14 @@ uses
   i_VectorItemsFactory,
   i_VectorItemSubset,
   i_VectorDataFactory,
+  i_VectorItemSubsetBuilder,
   u_BaseInterfacedObject;
 
 type
   TSlsParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FFactory: IVectorItemsFactory;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
     function Load(
       const AData: IBinaryData;
@@ -22,6 +24,7 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AFactory: IVectorItemsFactory
     );
   end;
@@ -33,19 +36,20 @@ uses
   IniFiles,
   i_ConfigDataProvider,
   i_VectorItemLonLat,
-  i_InterfaceListSimple,
   i_VectorDataItemSimple,
   u_ConfigProviderHelpers,
   u_StreamReadOnlyByBinaryData,
-  u_InterfaceListSimple,
-  u_ConfigDataProviderByIniFile,
-  u_VectorDataItemSubset;
+  u_ConfigDataProviderByIniFile;
 
 { TSlsParser }
 
-constructor TSlsParser.Create(const AFactory: IVectorItemsFactory);
+constructor TSlsParser.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AFactory: IVectorItemsFactory
+);
 begin
   inherited Create;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FFactory := AFactory;
 end;
 
@@ -62,7 +66,7 @@ var
   VPolygonSection: IConfigDataProvider;
   VPolygon: ILonLatPolygon;
   VItem: IVectorDataItemSimple;
-  VList: IInterfaceListSimple;
+  VList: IVectorItemSubsetBuilder;
 begin
   Result := nil;
   VPolygon := nil;
@@ -103,9 +107,9 @@ begin
         '',
         VPolygon
       );
-    VList := TInterfaceListSimple.Create;
+    VList := FVectorItemSubsetBuilderFactory.Build;
     VList.Add(VItem);
-    Result := TVectorItemSubset.Create(VList.MakeStaticAndClear);
+    Result := VList.MakeStaticAndClear;
   end;
 end;
 

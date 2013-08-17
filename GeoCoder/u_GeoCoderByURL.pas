@@ -64,6 +64,7 @@ type
     constructor Create(
       const AInetSettings: IInetConfig;
       const AGCNotifier: INotifierTime;
+      const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -80,8 +81,7 @@ uses
   t_GeoTypes,
   u_InterfaceListSimple,
   u_ResStrings,
-  u_DownloadRequest,
-  u_GeoCodePlacemark;
+  u_DownloadRequest;
 
 { TGeoCoderByExtLink }
 
@@ -94,11 +94,12 @@ end;
 
 constructor TGeoCoderByURL.Create(const AInetSettings: IInetConfig;
   const AGCNotifier: INotifierTime;
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AInetSettings, AGCNotifier, AResultFactory);
+  inherited Create(AInetSettings, AGCNotifier, APlacemarkFactory, AResultFactory);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
@@ -291,7 +292,7 @@ begin
   end;
   sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
   sfulldesc := '<a href=' + string(Astr) + '>' +string(Astr)+ '</a><br>' + ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-  VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+  VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
   Result := VPlace;
  end else
  Result := nil;
@@ -595,7 +596,7 @@ begin
   end;
   sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
   sfulldesc := '<a href=' + string(Astr) + '>' +string(Astr)+ '</a><br>' + ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-  VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+  VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
   Result := VPlace;
  end else
  Result := nil;

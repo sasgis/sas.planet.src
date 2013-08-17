@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  t_Hash,
   i_BinaryData,
   i_BitmapMarker,
   i_ConfigDataElement;
@@ -40,6 +41,9 @@ type
 
     function GetTextAlignment: TAlignment;
     function GetTextVerticalAlignment: TVerticalAlignment;
+
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
   end;
 
   IMarkPictureList = interface(IConfigDataElement)

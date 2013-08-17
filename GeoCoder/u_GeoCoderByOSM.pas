@@ -58,8 +58,7 @@ uses
   i_GeoCoder,
   i_CoordConverter,
   u_InterfaceListSimple,
-  u_ResStrings,
-  u_GeoCodePlacemark;
+  u_ResStrings;
 
 
 { TGeoCoderByOSM }
@@ -154,7 +153,7 @@ begin
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
-    VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+    VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
   if VList.GetCount>1 then SortIt(VList ,ALocalConverter);

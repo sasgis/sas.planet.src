@@ -24,6 +24,7 @@ interface
 
 uses
   GR32,
+  t_Hash,
   t_GeoTypes,
   i_LonLatRect,
   i_VectorItemLonLat,
@@ -52,6 +53,7 @@ type
     function GetLineWidth: Integer;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ACategory: ICategory;
@@ -70,6 +72,7 @@ uses
 { TMarkFull }
 
 constructor TMarkLine.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   const ACategory: ICategory;
@@ -79,7 +82,7 @@ constructor TMarkLine.Create(
   ALineWidth: Integer
 );
 begin
-  inherited Create(AHintConverter, AName, ACategory, ADesc);
+  inherited Create(AHash, AHintConverter, AName, ACategory, ADesc);
   FLine := ALine;
   FLineColor := ALineColor;
   FLineWidth := ALineWidth;

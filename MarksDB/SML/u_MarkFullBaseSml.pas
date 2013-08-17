@@ -23,6 +23,7 @@ unit u_MarkFullBaseSml;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
@@ -35,9 +36,11 @@ type
   TMarkFullBaseSml = class(TMarkId, IMark,
     IVectorDataItemSimple, IVectorDataItemWithCategory)
   private
+    FHash: THashValue;
     FHintConverter: IHtmlToHintTextConverter;
     FDesc: string;
   protected
+    function GetHash: THashValue;
     function GetDesc: string;
     function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
@@ -48,6 +51,7 @@ type
     function IsEqual(const AMark: IMark): Boolean; virtual;
   public
     constructor Create(
+      const AHash: THashValue;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       AId: Integer;
@@ -68,6 +72,7 @@ uses
 { TMarkFullBase }
 
 constructor TMarkFullBaseSml.Create(
+  const AHash: THashValue;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   AId: Integer;
@@ -78,6 +83,7 @@ constructor TMarkFullBaseSml.Create(
 );
 begin
   inherited Create(AName, AId, ADbId, ACategory, AVisible);
+  FHash := AHash;
   FHintConverter := AHintConverter;
   FDesc := ADesc;
 end;
@@ -85,6 +91,11 @@ end;
 function TMarkFullBaseSml.GetDesc: string;
 begin
   Result := FDesc;
+end;
+
+function TMarkFullBaseSml.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TMarkFullBaseSml.GetHintText: string;

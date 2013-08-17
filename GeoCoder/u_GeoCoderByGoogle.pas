@@ -60,8 +60,7 @@ uses
   i_CoordConverter,
   u_InterfaceListSimple,
   u_ResStrings,
-  u_GeoTostr,
-  u_GeoCodePlacemark;
+  u_GeoTostr;
 
 { TGeoCoderByGoogle }
 
@@ -114,7 +113,7 @@ begin
             except
               raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [StringList[1], StringList[0]]);
             end;
-            VPlace := TGeoCodePlacemark.Create(VPoint, AddressNode.Text, '', '', 4);
+            VPlace := PlacemarkFactory.Build(VPoint, AddressNode.Text, '', '', 4);
             VList.Add(VPlace);
             StringList.Clear;
           end;

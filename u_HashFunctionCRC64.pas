@@ -3,12 +3,13 @@ unit u_HashFunctionCRC64;
 interface
 
 uses
-  i_HashFunction,
+  t_Hash,
+  i_HashFunctionImpl,
   u_BaseInterfacedObject;
 
 // взято отсюда http://www.delphisources.ru/pages/faq/base/hash_crc64.html
 type
-  THashFunctionCRC64 = class(TBaseInterfacedObject, IHashFunction)
+  THashFunctionCRC64 = class(TBaseInterfacedObject, IHashFunctionImpl)
   private
     T: array[Byte] of UInt64;
   private
@@ -19,7 +20,7 @@ type
     function CalcHashWithSeed(
       ABuffer: Pointer;
       ASize: Integer;
-      ASeed: THashValue
+      const ASeed: THashValue
     ): THashValue;
   public
     constructor Create;
@@ -41,7 +42,7 @@ end;
 function THashFunctionCRC64.CalcHashWithSeed(
   ABuffer: Pointer;
   ASize: Integer;
-  ASeed: THashValue
+  const ASeed: THashValue
 ): THashValue;
 var
   MyCRC64: UInt64;

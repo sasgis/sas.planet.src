@@ -58,8 +58,7 @@ uses
   i_GeoCoder,
   i_CoordConverter,
   u_InterfaceListSimple,
-  u_ResStrings,
-  u_GeoCodePlacemark;
+  u_ResStrings;
 
 
 { TGeoCoderByWikiMapia }
@@ -131,7 +130,7 @@ begin
     end;
 
     if not ((slat = '0') or (slon = '0')) then begin // пропускаем точки без координат
-      VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+      VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
       VList.Add(VPlace);
     end;
 

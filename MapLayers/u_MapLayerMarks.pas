@@ -18,6 +18,7 @@ uses
   i_MarksLayerConfig,
   i_VectorDataItemSimple,
   i_VectorItemsFactory,
+  i_VectorItemSubsetBuilder,
   i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
   i_IdCacheSimple,
@@ -33,6 +34,7 @@ type
   private
     FConfig: IMarksLayerConfig;
     FVectorItemsFactory: IVectorItemsFactory;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FMarkDB: IMarkSystem;
     FMarkIconDefault: IMarkerDrawableChangeable;
@@ -75,6 +77,7 @@ type
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AMarkIconDefault: IMarkerDrawableChangeable;
       const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -92,16 +95,13 @@ uses
   i_TileMatrix,
   i_VectorItemProjected,
   i_InterfaceListStatic,
-  i_InterfaceListSimple,
   i_MarkerProviderForVectorItem,
   u_TileMatrixFactory,
   u_ListenerByEvent,
-  u_InterfaceListSimple,
   u_IdCacheSimpleThreadSafe,
   u_Synchronizer,
   u_MarkerProviderForVectorItemWithCache,
   u_MarkerProviderForVectorItemForMarkPoints,
-  u_VectorDataItemSubset,
   u_BitmapLayerProviderByMarksSubset;
 
 { TMapMarksLayerNew }
@@ -115,6 +115,7 @@ constructor TMapLayerMarks.Create(
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AMarkIconDefault: IMarkerDrawableChangeable;
   const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -145,6 +146,7 @@ begin
   FConfig := AConfig;
   FMarkDB := AMarkDB;
   FVectorItemsFactory := AVectorItemsFactory;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMarkIconDefault := AMarkIconDefault;
   FBitmapFactory := ABitmapFactory;
 
@@ -249,10 +251,10 @@ var
   VMarkPoly: IVectorDataItemPoly;
   VProjectdPath: IProjectedPath;
   VProjectdPolygon: IProjectedPolygon;
-  Vtmp: IInterfaceListSimple;
+  Vtmp: IVectorItemSubsetBuilder;
 begin
   Result := nil;
-  Vtmp := TInterfaceListSimple.Create;
+  Vtmp := FVectorItemSubsetBuilderFactory.Build;
   VCounterContext := FMouseOnRegCounter.StartOperation;
   try
     FMarksSubsetCS.BeginRead;
@@ -303,7 +305,7 @@ begin
   finally
     FMouseOnRegCounter.FinishOperation(VCounterContext);
   end;
-  Result := TVectorItemSubset.Create(Vtmp.MakeStaticAndClear);
+  Result := Vtmp.MakeStaticAndClear;
 end;
 
 function TMapLayerMarks.GetMarksSubset(

@@ -34,6 +34,7 @@ uses
   i_MapVersionFactoryList,
   i_NotifierOperation,
   i_GPSPositionFactory,
+  i_HashFunction,
   i_Listener,
   i_BackgroundTask,
   i_ConfigDataWriteProvider,
@@ -61,6 +62,8 @@ uses
   i_NotifierTime,
   i_Bitmap32StaticFactory,
   i_VectorDataFactory,
+  i_VectorItemSubsetBuilder,
+  i_GeoCoder,
   i_MapCalibration,
   i_ImportFile,
   i_PathDetalizeProviderList,
@@ -99,6 +102,9 @@ type
 
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpInfoSet: IZmpInfoSet;
+    FHashFunction: IHashFunction;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
     FResourceProvider: IConfigDataProvider;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FTileNameParser: ITileFileNameParsersList;
@@ -192,6 +198,7 @@ type
     property AppStartedNotifier: INotifierOneOperation read FAppStartedNotifier;
     property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
 
+    property HashFunction: IHashFunction read FHashFunction;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
@@ -214,7 +221,9 @@ type
     property VectorItemsFactory: IVectorItemsFactory read FVectorItemsFactory;
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
+    property VectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory read FVectorItemSubsetBuilderFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
+    property GeoCodePlacemarkFactory: IGeoCodePlacemarkFactory read FGeoCodePlacemarkFactory;
     property ArchiveReadWriteFactory: IArchiveReadWriteFactory read FArchiveReadWriteFactory;
     property TerrainProviderList: ITerrainProviderList read FTerrainProviderList;
     property GlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper read FGlobalBerkeleyDBHelper;
@@ -266,6 +275,8 @@ uses
   u_CoordConverterListStaticSimple,
   u_DownloadInfoSimple,
   u_Datum,
+  u_HashFunctionCityHash,
+  u_HashFunctionWithCounter,
   u_PLTSimpleParser,
   u_MapVersionFactoryList,
   u_GeoCoderListSimple,
@@ -279,6 +290,7 @@ uses
   u_GPSModuleFactoryByVSAGPS,
   u_GPSPositionFactory,
   u_ProjectionInfoFactory,
+  u_GeoCodePlacemark,
   u_LocalCoordConverterFactorySimpe,
   u_TerrainProviderList,
   u_MainFormConfig,
@@ -310,6 +322,7 @@ uses
   u_InternalDomainInfoProviderByLastSearchResults,
   u_InternalDomainInfoProviderByTileStorageOptions,
   u_Bitmap32StaticFactory,
+  u_VectorItemSubsetBuilder,
   u_GpsSystem,
   u_LastSelectionInfoSaver,
   u_ListenerByEvent,
@@ -364,6 +377,33 @@ begin
       FBaseDataPath,
       FBaseApplicationPath
     );
+
+  FMainConfigProvider :=
+    TSASMainConfigProvider.Create(
+      FBaseConfigPath.FullPath,
+      ExtractFileName(ParamStr(0)),
+      HInstance
+    );
+
+  FGlobalConfig.ReadConfig(FMainConfigProvider);
+  if FGlobalConfig.GlobalAppConfig.IsShowDebugInfo then begin
+    FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
+    if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
+      FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
+    end;
+  end else begin
+    FPerfCounterList := TInternalPerformanceCounterFake.Create;
+  end;
+
+  FHashFunction :=
+    THashFunctionWithCounter.Create(
+      THashFunctionCityHash.Create,
+      FPerfCounterList.CreateAndAddNewSubList('HashFunction')
+    );
+  FVectorItemSubsetBuilderFactory :=
+    TVectorItemSubsetBuilderFactory.Create(
+      FHashFunction
+    );
   FBGTimerNotifierInternal := TNotifierTime.Create;
   FBGTimerNotifier := FBGTimerNotifierInternal;
   FBitmapFactory :=
@@ -381,19 +421,11 @@ begin
   FAppStartedNotifier := FAppStartedNotifierInternal;
   FAppClosingNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);
   FAppClosingNotifier := FAppClosingNotifierInternal;
-  FMainConfigProvider :=
-    TSASMainConfigProvider.Create(
-      FBaseConfigPath.FullPath,
-      ExtractFileName(ParamStr(0)),
-      HInstance
-    );
-
-  FGlobalConfig.ReadConfig(FMainConfigProvider);
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
-  FVectorItemsFactory := TVectorItemsFactorySimple.Create;
+  FVectorItemsFactory := TVectorItemsFactorySimple.Create(FHashFunction);
 
   FGlobalInternetState := TGlobalInternetState.Create;
 
@@ -407,15 +439,6 @@ begin
   FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);
   VViewCnonfig := FMainConfigProvider.GetSubItem('VIEW');
-
-  if FGlobalConfig.GlobalAppConfig.IsShowDebugInfo then begin
-    FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
-    if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
-      FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
-    end;
-  end else begin
-    FPerfCounterList := TInternalPerformanceCounterFake.Create;
-  end;
 
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
@@ -460,6 +483,7 @@ begin
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
       FPerfCounterList
@@ -472,6 +496,7 @@ begin
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       True,
       VMarksKmlLoadCounterList
     );
@@ -479,7 +504,7 @@ begin
   VKmlLoader := VXmlLoader;
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      TXmlInfoSimpleParser.Create(FVectorItemsFactory, True, nil),
+      TXmlInfoSimpleParser.Create(FVectorItemsFactory, FVectorItemSubsetBuilderFactory, True, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
@@ -487,6 +512,7 @@ begin
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       VMarksKmlLoadCounterList
     );
   VKmzLoader :=
@@ -496,14 +522,16 @@ begin
       VMarksKmlLoadCounterList
     );
 {$ifend}
-  FVectorDataFactory := TVectorDataFactorySimple.Create(THtmlToHintTextConverterStuped.Create);
+  FVectorDataFactory := TVectorDataFactorySimple.Create(FHashFunction, THtmlToHintTextConverterStuped.Create);
   FImportFileByExt := TImportByFileExt.Create(
     FGlobalConfig.ValueToStringConverterConfig,
     FVectorDataFactory,
     FVectorItemsFactory,
+    FVectorItemSubsetBuilderFactory,
     VXmlLoader,
     TPLTSimpleParser.Create(
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       VMarksKmlLoadCounterList
     ),
     VKmlLoader,
@@ -532,15 +560,21 @@ begin
       GUISyncronizedTimerNotifier,
       FPerfCounterList
     );
+  FGeoCodePlacemarkFactory := TGeoCodePlacemarkFactory.Create(FHashFunction);
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FGlobalConfig.InetConfig,
       BGTimerNotifier,
+      FGeoCodePlacemarkFactory,
       TDownloadResultFactory.Create,
       FGlobalConfig.ValueToStringConverterConfig
     );
-  FMarkPictureList := TMarkPictureListSimple.Create(FGlobalConfig.MarksIconsPath, FContentTypeManager);
-
+  FMarkPictureList :=
+    TMarkPictureListSimple.Create(
+      FHashFunction,
+      FGlobalConfig.MarksIconsPath,
+      FContentTypeManager
+    );
   FMarkCategoryFactory :=
     TMarkCategoryFactory.Create(
       FGlobalConfig.MarksCategoryFactoryConfig
@@ -558,7 +592,9 @@ begin
       FMarkPictureList,
       FMarkFactory,
       FMarkCategoryFactory,
+      FHashFunction,
       FVectorItemsFactory,
+      FVectorItemSubsetBuilderFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       FAppStartedNotifier,
       THtmlToHintTextConverterStuped.Create
@@ -824,6 +860,7 @@ begin
     FGlobalBerkeleyDBHelper,
     FTileNameGenerator,
     FTileNameParser,
+    FHashFunction,
     FBGTimerNotifier,
     FAppClosingNotifier,
     FGlobalConfig.InetConfig,

@@ -4,7 +4,9 @@ interface
 
 uses
   Windows,
+  t_Hash,
   t_GeoTypes,
+  i_HashFunction,
   i_StringProvider,
   i_HtmlToHintTextConverter,
   i_VectorItemLonLat,
@@ -21,6 +23,7 @@ type
 
   TVectorDataFactoryForMap = class(TBaseInterfacedObject, IVectorDataFactory)
   private
+    FHashFunction: IHashFunction;
     FHintConverter: IHtmlToHintTextConverter;
   private
     function BuildPoint(
@@ -43,6 +46,7 @@ type
     ): IVectorDataItemPoly;
   public
     constructor Create(
+      const AHashFunction: IHashFunction;
       const AHintConverter: IHtmlToHintTextConverter
     );
   end;
@@ -56,10 +60,14 @@ uses
 { TVectorDataFactoryForMap }
 
 constructor TVectorDataFactoryForMap.Create(
+  const AHashFunction: IHashFunction;
   const AHintConverter: IHtmlToHintTextConverter
 );
 begin
+  Assert(Assigned(AHashFunction));
+  Assert(Assigned(AHintConverter));
   inherited Create;
+  FHashFunction := AHashFunction;
   FHintConverter := AHintConverter;
 end;
 
@@ -70,13 +78,18 @@ function TVectorDataFactoryForMap.BuildPath(
 ): IVectorDataItemLine;
 var
   VIndex: Integer;
+  VHash: THashValue;
 begin
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
+    VHash := ALine.Hash;
+    FHashFunction.UpdateHashByString(VHash, AName);
+    FHashFunction.UpdateHashByString(VHash, ADesc);
     Result :=
       TVectorDataItemOfMapPath.Create(
+        VHash,
         FHintConverter,
         PIdData(AIdData).UrlPrefix,
         VIndex,
@@ -94,13 +107,18 @@ function TVectorDataFactoryForMap.BuildPoint(
 ): IVectorDataItemPoint;
 var
   VIndex: Integer;
+  VHash: THashValue;
 begin
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
+    VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+    FHashFunction.UpdateHashByString(VHash, AName);
+    FHashFunction.UpdateHashByString(VHash, ADesc);
     Result :=
       TVectorDataItemOfMapPoint.Create(
+        VHash,
         FHintConverter,
         PIdData(AIdData).UrlPrefix,
         VIndex,
@@ -118,13 +136,18 @@ function TVectorDataFactoryForMap.BuildPoly(
 ): IVectorDataItemPoly;
 var
   VIndex: Integer;
+  VHash: THashValue;
 begin
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
+    VHash := APoly.Hash;
+    FHashFunction.UpdateHashByString(VHash, AName);
+    FHashFunction.UpdateHashByString(VHash, ADesc);
     Result :=
       TVectorDataItemOfMapPoly.Create(
+        VHash,
         FHintConverter,
         PIdData(AIdData).UrlPrefix,
         VIndex,

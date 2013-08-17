@@ -31,20 +31,20 @@ uses
 type
   TGeoCodeResult = class(TBaseInterfacedObject, IGeoCodeResult)
   private
-    FSearchText: WideString;
-    FMessage: WideString;
+    FSearchText: string;
+    FMessage: string;
     FResultCode: Integer;
     FList: IInterfaceListStatic;
-    function GetSearchText: WideString; safecall;
-    function GetResultCode: Integer; safecall;
-    function GetMessage: WideString; safecall;
-    function GetPlacemarks: IEnumUnknown; safecall;
-    function GetPlacemarksCount: integer; safecall;
+    function GetSearchText: string;
+    function GetResultCode: Integer;
+    function GetMessage: string;
+    function GetPlacemarks: IEnumUnknown;
+    function GetPlacemarksCount: integer;
   public
     constructor Create(
-      const ASearchText: WideString;
+      const ASearchText: string;
       AResultCode: integer;
-      const AMessage: WideString;
+      const AMessage: string;
       const AList: IInterfaceListStatic
     );
   end;
@@ -57,9 +57,9 @@ uses
 { TGeoCodeResult }
 
 constructor TGeoCodeResult.Create(
-  const ASearchText: WideString;
+  const ASearchText: string;
   AResultCode: integer;
-  const AMessage: WideString;
+  const AMessage: string;
   const AList: IInterfaceListStatic
 );
 begin
@@ -70,7 +70,7 @@ begin
   FResultCode := AResultCode;
 end;
 
-function TGeoCodeResult.GetMessage: WideString;
+function TGeoCodeResult.GetMessage: string;
 begin
   Result := FMessage;
 end;
@@ -90,7 +90,7 @@ begin
   Result := FResultCode;
 end;
 
-function TGeoCodeResult.GetSearchText: WideString;
+function TGeoCodeResult.GetSearchText: string;
 begin
   Result := FSearchText;
 end;

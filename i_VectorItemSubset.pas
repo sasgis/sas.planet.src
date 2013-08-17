@@ -4,6 +4,7 @@ interface
 
 uses
   ActiveX,
+  t_Hash,
   t_GeoTypes,
   i_Category,
   i_VectorDataItemSimple;
@@ -20,6 +21,10 @@ type
     property Count: Integer read GetCount;
 
     function GetItem(AIndex: Integer): IVectorDataItemSimple;
+    property Items[AIndex: Integer]: IVectorDataItemSimple read GetItem; default;
+
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
   end;
 
 implementation

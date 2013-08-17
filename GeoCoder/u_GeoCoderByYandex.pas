@@ -52,15 +52,13 @@ implementation
 
 uses
   SysUtils,
-  StrUtils,
   ALfcnString,
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
   u_InterfaceListSimple,
   u_GeoToStr,
-  u_ResStrings,
-  u_GeoCodePlacemark;
+  u_ResStrings;
 
 { TGeoCoderByYandex }
 
@@ -206,7 +204,7 @@ begin
 
       // если нашли что-нибудь - тогда добавляем точку.
      if sdesc<>'' then begin
-      VPlace := TGeoCodePlacemark.Create(VPoint, sname, sdesc, sfulldesc, 4);
+      VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
       VList.Add(VPlace);
      end;
     end;

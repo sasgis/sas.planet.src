@@ -23,7 +23,9 @@ unit u_MarkSystemSml;
 interface
 
 uses
+  i_HashFunction,
   i_VectorItemsFactory,
+  i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
   i_ReadWriteState,
   i_Mark,
@@ -60,7 +62,9 @@ type
     constructor Create(
       const ABasePath: string;
       const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AHintConverter: IHtmlToHintTextConverter
@@ -82,7 +86,9 @@ uses
 constructor TMarkSystemSml.Create(
   const ABasePath: string;
   const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
   const AHintConverter: IHtmlToHintTextConverter
@@ -109,6 +115,7 @@ begin
       FDbId,
       AMarkPictureList,
       AVectorItemsFactory,
+      AHashFunction,
       AHintConverter,
       FCategoryDBInternal
     );
@@ -117,6 +124,7 @@ begin
       FDbId,
       VState,
       IncludeTrailingPathDelimiter(ABasePath) + 'marks.sml',
+      AVectorItemSubsetBuilderFactory,
       FFactoryDbInternal,
       ALoadDbCounter,
       ASaveDbCounter
