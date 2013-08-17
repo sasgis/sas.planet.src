@@ -27,7 +27,6 @@ uses
   DateUtils,
   SysUtils,
   t_FillingMapModes,
-  i_LocalCoordConverter,
   i_ThreadConfig,
   i_MapTypes,
   i_ConfigDataProvider,
