@@ -3,6 +3,7 @@ unit u_VectorItemSubsetBuilder;
 interface
 
 uses
+  t_Hash,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_VectorItemSubsetBuilder,
@@ -14,7 +15,9 @@ type
   TVectorItemSubsetBuilder = class(TBaseInterfacedObject, IVectorItemSubsetBuilder)
   private
     FHashFunction: IHashFunction;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FList: IInterfaceListSimple;
+    FHash: THashValue;
   private
     procedure Clear;
     function Add(const AItem: IVectorDataItemSimple): Integer;
@@ -27,7 +30,10 @@ type
     function MakeStaticAndClear: IVectorItemSubset;
     function MakeStaticCopy: IVectorItemSubset;
   public
-    constructor Create(const AHashFunction: IHashFunction);
+    constructor Create(
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AHashFunction: IHashFunction
+    );
   end;
 
   TVectorItemSubsetBuilderFactory = class(TBaseInterfacedObject, IVectorItemSubsetBuilderFactory)
@@ -47,9 +53,13 @@ uses
 
 { TVectorItemSubsetBuilder }
 
-constructor TVectorItemSubsetBuilder.Create(const AHashFunction: IHashFunction);
+constructor TVectorItemSubsetBuilder.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AHashFunction: IHashFunction
+);
 begin
   inherited Create;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FHashFunction := AHashFunction;
 end;
 
@@ -63,6 +73,11 @@ begin
       FList := TInterfaceListSimple.Create;
     end;
     Result := FList.Add(AItem);
+    if FList.Count = 1 then begin
+      FHash := AItem.Hash;
+    end else begin
+      FHash := FHashFunction.CalcHashOfTwoHash(FHash, AItem.Hash);
+    end;
   end;
 end;
 
@@ -103,7 +118,12 @@ begin
   Result := nil;
   if Assigned(FList) then begin
     if FList.Count > 0 then begin
-      Result := TVectorItemSubset.Create(FList.MakeStaticAndClear);
+      Result :=
+        TVectorItemSubset.Create(
+          FHash,
+          FVectorItemSubsetBuilderFactory,
+          FList.MakeStaticAndClear
+        );
     end;
   end;
 end;
@@ -113,7 +133,12 @@ begin
   Result := nil;
   if Assigned(FList) then begin
     if FList.Count > 0 then begin
-      Result := TVectorItemSubset.Create(FList.MakeStaticCopy);
+      Result :=
+        TVectorItemSubset.Create(
+          FHash,
+          FVectorItemSubsetBuilderFactory,
+          FList.MakeStaticCopy
+        );
     end;
   end;
 end;
@@ -139,7 +164,7 @@ end;
 
 function TVectorItemSubsetBuilderFactory.Build: IVectorItemSubsetBuilder;
 begin
-  Result := TVectorItemSubsetBuilder.Create(FHashFunction);
+  Result := TVectorItemSubsetBuilder.Create(Self, FHashFunction);
 end;
 
 end.
