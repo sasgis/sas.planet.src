@@ -2,9 +2,7 @@
 program SASPlanet;
 
 uses
-  {$IFDEF RELEASE}
-  FastMM4,
-  {$ENDIF}
+  ExceptionLog,
   Forms,
   Windows,
   SysUtils,
