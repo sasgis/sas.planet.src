@@ -47,6 +47,7 @@ uses
   i_VectorItemProjected,
   i_EnumDoublePoint,
   u_GeoFun,
+  u_ProjectionInfo,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_InternalPerformanceCounterFake,
@@ -367,13 +368,15 @@ var
   VLine: IProjectedPathLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  VProjection: IProjectionInfo;
 begin
+  VProjection := TProjectionInfo.Create(nil, 0);
   SetLength(FPoints, 4);
   FPoints[0] := DoublePoint(0, 1);
   FPoints[1] := CEmptyDoublePoint;
   FPoints[2] := DoublePoint(1, 1);
   FPoints[3] := DoublePoint(1, 0);
-  VResult := FFactory.CreateProjectedPath(nil, @FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateProjectedPath(VProjection, @FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(2, VResult.Count);
   VEnum := VResult.GetEnum;
@@ -482,13 +485,15 @@ var
   VLine: IProjectedPolygonLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
+  VProjection: IProjectionInfo;
 begin
+  VProjection := TProjectionInfo.Create(nil, 0);
   SetLength(FPoints, 4);
   FPoints[0] := DoublePoint(0, 1);
   FPoints[1] := CEmptyDoublePoint;
   FPoints[2] := DoublePoint(1, 1);
   FPoints[3] := DoublePoint(1, 0);
-  VResult := FFactory.CreateProjectedPolygon(nil, @FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateProjectedPolygon(VProjection, @FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(2, VResult.Count);
   VEnum := VResult.GetEnum;
