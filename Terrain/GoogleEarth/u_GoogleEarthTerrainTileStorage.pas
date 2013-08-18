@@ -34,6 +34,7 @@ uses
 type
   TGoogleEarthTerrainTileStorage = class(TBaseInterfacedObject, IGoogleEarthTerrainTileStorage)
   private
+    FAvailable: Boolean;
     FCachePath: string;
     FCacheProvider: IGoogleEarthCacheProvider;
     FSync: IReadWriteSync;
@@ -41,7 +42,7 @@ type
     FNotifierInternal: INotifierInternal;
     FMemCache: TGoogleEarthTerrainMemCache;
   private
-    function BuildCacheProvider(const APath: string): IGoogleEarthCacheProvider;
+    function BuildCacheProvider: Boolean;
   private
     { IGoogleEarthTerrainTileStorage }
     function GetTileInfo(
@@ -71,20 +72,16 @@ constructor TGoogleEarthTerrainTileStorage.Create(
 );
 begin
   inherited Create;
-  FSync := MakeSyncRW_Big(Self);
+  FSync := MakeSyncRW_Var(Self, False);
 
   FNotifierInternal := TNotifierBase.Create;
   FNotifier := FNotifierInternal;
 
   FMemCache := TGoogleEarthTerrainMemCache.Create;
 
-  FSync.BeginWrite;
-  try
-    FCachePath := AStoragePath;
-    FCacheProvider := BuildCacheProvider(AStoragePath);
-  finally
-    FSync.EndWrite;
-  end;
+  FCachePath := AStoragePath;
+  FCacheProvider := nil;
+  FAvailable := True;
 end;
 
 destructor TGoogleEarthTerrainTileStorage.Destroy;
@@ -93,21 +90,26 @@ begin
   FNotifierInternal := nil;
   FCacheProvider := nil;
   FSync := nil;
-  FMemCache.Free;
+  FreeAndNil(FMemCache);
   inherited;
 end;
 
-function TGoogleEarthTerrainTileStorage.BuildCacheProvider(
-  const APath: string
-): IGoogleEarthCacheProvider;
+function TGoogleEarthTerrainTileStorage.BuildCacheProvider: Boolean;
 var
   VCacheFactory: IGoogleEarthCacheProviderFactory;
 begin
-  VCacheFactory := CreateGoogleEarthCacheProviderFactory;
-  if VCacheFactory <> nil then begin
-    Result := VCacheFactory.CreateEarthTerrainProvider(PAnsiChar(APath));
-  end else begin
-    Result := nil;
+  FSync.BeginWrite;
+  try
+    if FAvailable and (FCacheProvider = nil) then begin
+      VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
+      if VCacheFactory <> nil then begin
+        FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(PAnsiChar(FCachePath));
+      end;
+    end;
+    FAvailable := (FCacheProvider <> nil);
+    Result := FAvailable;
+  finally
+    FSync.EndWrite;
   end;
 end;
 
@@ -122,6 +124,7 @@ var
   VOutTileVersion: Word;
   VOutTileDate: TDateTime;
   VTileSize: Integer;
+  VAvailable: Boolean;
 begin
   Result := FMemCache.Get(AXY, AZoom, VIsTne);
   
@@ -129,6 +132,21 @@ begin
 
     FSync.BeginRead;
     try
+      VAvailable := FAvailable and (FCacheProvider <> nil);
+    finally
+      FSync.EndRead;
+    end;
+
+    if not VAvailable then begin
+      if BuildCacheProvider then begin
+        FNotifierInternal.Notify(nil);
+      end else begin
+        Exit;
+      end;
+    end;
+
+    FSync.BeginRead;
+    try   
       if (FCacheProvider <> nil) then begin
         VResult := FCacheProvider.GetTileInfo(
           AXY,
@@ -158,30 +176,24 @@ end;
 
 function TGoogleEarthTerrainTileStorage.SetPath(const APath: string): Boolean;
 begin
-  Result := False;
-
   FSync.BeginWrite;
   try
-    if not SameText(FCachePath, APath) then begin
-      FMemCache.Clear;
-      FCachePath := APath;
-      FCacheProvider := BuildCacheProvider(FCachePath);
-      Result := True;
-    end;
+    FMemCache.Clear;
+    FCachePath := APath;
+    FCacheProvider := nil;
+    FAvailable := True;
+    Result := True;
   finally
     FSync.EndWrite;
   end;
-
-  if Result then begin
-    FNotifierInternal.Notify(nil);
-  end;
+  FNotifierInternal.Notify(nil);
 end;
 
 function TGoogleEarthTerrainTileStorage.GetAvailable: Boolean;
 begin
   FSync.BeginRead;
   try
-    Result := (FCacheProvider <> nil);
+    Result := FAvailable;
   finally
     FSync.EndRead;
   end;

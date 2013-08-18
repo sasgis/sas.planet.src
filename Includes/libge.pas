@@ -144,6 +144,20 @@ begin
   end;
 end;
 
+procedure libge_UnloadLibrary;
+begin
+  libge_Lock.Acquire;
+  try
+    if libge_Handle > 0 then begin
+      FreeLibrary(libge_Handle);
+      libge_Handle := 0;
+      libge_CreateObject := nil;
+    end;
+  finally
+    libge_Lock.Release;
+  end;
+end;
+
 function CreateGoogleEarthCacheProviderFactory: IGoogleEarthCacheProviderFactory;
 var
   VResult: IInterface;
@@ -181,6 +195,7 @@ initialization
   libge_Lock := TCriticalSection.Create;
 
 finalization
+  libge_UnloadLibrary;
   libge_Lock.Free;
 
 end.

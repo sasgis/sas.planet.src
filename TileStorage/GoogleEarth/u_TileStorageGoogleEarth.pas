@@ -41,11 +41,16 @@ uses
 type
   TTileStorageGoogleEarth = class(TTileStorageAbstract, IBasicMemCache, IEnumTileInfo)
   private
+    FCachePath: string;
+    FDatabaseName: string;
+    FIsTerrainStorage: Boolean;
     FMainContentType: IContentTypeInfoBasic;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FCacheProvider: IGoogleEarthCacheProvider;
     FCacheTmProvider: IGoogleEarthCacheProvider;
+    FLock: IReadWriteSync;
+    FIsProvidersCreated: Boolean;
   private
     function InternalGetTileInfo(
       const AXY: TPoint;
@@ -54,11 +59,7 @@ type
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic;
   protected
-    procedure BuildProviders(
-      const APath: string;
-      const AName: string;
-      const AIsTerrainStorage: Boolean
-    ); virtual;
+    function LazyBuildProviders: Boolean;
   protected
     { ITileStorage }
     function GetIsFileCache: Boolean; override;
@@ -147,7 +148,8 @@ uses
   u_TileRectInfoShort,
   u_TileIteratorByRect,
   u_TileStorageTypeAbilities,
-  u_TileInfoBasic;
+  u_TileInfoBasic,
+  u_Synchronizer;
 
 { TTileStorageGoogleEarth }
 
@@ -168,11 +170,19 @@ begin
     AStoragePath
   );
 
+  FCachePath := AStoragePath;
+  FDatabaseName := ANameInCache;
+  FIsTerrainStorage := AIsTerrainStorage;
+
   FMainContentType := AMainContentType;
   FTileInfoMemCache := ATileInfoMemCache;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
-  BuildProviders(AStoragePath, ANameInCache, AIsTerrainStorage);
+  FLock := MakeSyncRW_Var(Self, False);
+  FIsProvidersCreated := False;
+
+  FCacheProvider := nil;
+  FCacheTmProvider := nil;
 end;
 
 destructor TTileStorageGoogleEarth.Destroy;
@@ -182,48 +192,65 @@ begin
   FTileInfoMemCache := nil;
   FMainContentType := nil;
   FTileNotExistsTileInfo := nil;
+  FLock := nil;
   inherited;
 end;
 
-procedure TTileStorageGoogleEarth.BuildProviders(
-  const APath: string;
-  const AName: string;
-  const AIsTerrainStorage: Boolean
-);
+function TTileStorageGoogleEarth.LazyBuildProviders: Boolean;
 var
   VCachePath: PAnsiChar;
   VCacheFactory: IGoogleEarthCacheProviderFactory;
 begin
-  FCacheProvider := nil;
-  FCacheTmProvider := nil;
+  FLock.BeginRead;
+  try
+    Result := FIsProvidersCreated;
+  finally
+    FLock.EndRead;
+  end;
 
-  VCachePath := PAnsiChar(APath);
-  VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
+  if not Result then begin  
+    FLock.BeginWrite;
+    try
+      if not FIsProvidersCreated then begin
+        FIsProvidersCreated := True;
 
-  if VCacheFactory <> nil then begin
-    if (AName = '') or SameText(AName, 'earth')  then begin
-      if not AIsTerrainStorage then begin
-        FCacheProvider := VCacheFactory.CreateEarthProvider(VCachePath);
-        FCacheTmProvider := VCacheFactory.CreateEarthTmProvider(VCachePath);
-      end else begin
-        FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(VCachePath);
+        FCacheProvider := nil;
+        FCacheTmProvider := nil;
+
+        VCachePath := PAnsiChar(FCachePath);
+        VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
+
+        if VCacheFactory <> nil then begin
+          if (FDatabaseName = '') or SameText(FDatabaseName, 'earth')  then begin
+            if not FIsTerrainStorage then begin
+              FCacheProvider := VCacheFactory.CreateEarthProvider(VCachePath);
+              FCacheTmProvider := VCacheFactory.CreateEarthTmProvider(VCachePath);
+            end else begin
+              FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(VCachePath);
+            end;
+          end else if SameText(FDatabaseName, 'mars')  then begin
+            if not FIsTerrainStorage then begin
+              FCacheProvider := VCacheFactory.CreateMarsProvider(VCachePath);
+            end else begin
+              FCacheProvider := VCacheFactory.CreateMarsTerrainProvider(VCachePath);
+            end;
+          end else if SameText(FDatabaseName, 'moon')  then begin
+            if not FIsTerrainStorage then begin
+              FCacheProvider := VCacheFactory.CreateMoonProvider(VCachePath);
+            end else begin
+              FCacheProvider := VCacheFactory.CreateMoonTerrainProvider(VCachePath);
+            end;
+          end else if SameText(FDatabaseName, 'sky')  then begin
+            if not FIsTerrainStorage then begin
+              FCacheProvider := VCacheFactory.CreateSkyProvider(VCachePath);
+            end;
+          end;
+
+          Result := (FCacheProvider <> nil) or (FCacheTmProvider <> nil);
+        end;
       end;
-    end else if SameText(AName, 'mars')  then begin
-      if not AIsTerrainStorage then begin
-        FCacheProvider := VCacheFactory.CreateMarsProvider(VCachePath);
-      end else begin
-        FCacheProvider := VCacheFactory.CreateMarsTerrainProvider(VCachePath);
-      end;
-    end else if SameText(AName, 'moon')  then begin
-      if not AIsTerrainStorage then begin
-        FCacheProvider := VCacheFactory.CreateMoonProvider(VCachePath);
-      end else begin
-        FCacheProvider := VCacheFactory.CreateMoonTerrainProvider(VCachePath);
-      end;
-    end else if SameText(AName, 'sky')  then begin
-      if not AIsTerrainStorage then begin
-        FCacheProvider := VCacheFactory.CreateSkyProvider(VCachePath);
-      end;
+    finally
+      FLock.EndWrite;
     end;
   end;
 end;
@@ -323,6 +350,10 @@ var
 begin
   Result := nil;
 
+  if not LazyBuildProviders then begin
+    Exit;
+  end;
+
   ParseVersionInfo(
     AVersionInfo,
     VInTileVersion,
@@ -342,7 +373,7 @@ begin
         AZoom,
         VInTileVersion,
         VInTileDate,
-        VSearchAnyVersion,
+        True,
         VSearchAnyDate,
         VWithData,
         VTileSize,
@@ -478,6 +509,9 @@ var
 begin
   Result := nil;
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
+    if not LazyBuildProviders then begin
+      Exit;
+    end;
     VShowPrevVersion := Assigned(AVersionInfo) and AVersionInfo.ShowPrevVersion;
     VListSimple := TInterfaceListSimple.Create;
 
@@ -530,6 +564,9 @@ var
 begin
   Result := nil;
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
+    if not LazyBuildProviders then begin
+      Exit;
+    end;
     VRect := ARect;
     VZoom := AZoom;
     GeoConverter.CheckTileRect(VRect, VZoom);
