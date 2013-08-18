@@ -192,6 +192,9 @@
     <DCCReference Include="GPS\u_GpsTrackRecorder.pas" />
     <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_AntiBan.pas" />
+    <DCCReference Include="i_Appearance.pas" />
+    <DCCReference Include="i_AppearanceOfMarkFactory.pas" />
+    <DCCReference Include="i_AppearanceOfVectorItem.pas" />
     <DCCReference Include="i_BackgroundTask.pas" />
     <DCCReference Include="i_BasicMemCache.pas" />
     <DCCReference Include="i_BatteryStatus.pas" />
@@ -838,6 +841,10 @@
     <DCCReference Include="u_ActiveMapTBXItem.pas" />
     <DCCReference Include="u_ActivMapWithLayers.pas" />
     <DCCReference Include="u_AntiBanStuped.pas" />
+    <DCCReference Include="u_AppearanceOfMarkFactory.pas" />
+    <DCCReference Include="u_AppearanceOfMarkLine.pas" />
+    <DCCReference Include="u_AppearanceOfMarkPoint.pas" />
+    <DCCReference Include="u_AppearanceOfMarkPolygon.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BaseInterfacedObject.pas" />
