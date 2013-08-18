@@ -39,11 +39,10 @@ type
   private
     FOpId: Integer;
   protected
-    procedure CreateByKey(
+    function CreateByKey(
       const AKey: UInt64;
-      AData: Pointer;
-      out Item: IInterface
-    ); override;
+      AData: Pointer
+    ): IInterface; override;
     function GetIndexByKey(const AKey: UInt64): Integer; override;
   private
     function GetByKey(AKey: UInt64): ISimple;
@@ -130,17 +129,16 @@ begin
   FOpId := 0;
 end;
 
-procedure THashCacheWithQueuesTest.CreateByKey(
+function THashCacheWithQueuesTest.CreateByKey(
   const AKey: UInt64;
-  AData: Pointer;
-  out Item: IInterface
-);
+  AData: Pointer
+): IInterface;
 var
   VItem: ISimple;
 begin
   inherited;
   VItem := TSimple.Create(AKey, FOpId);
-  Item := VItem;
+  Result := VItem;
   Inc(FOpId);
 end;
 
@@ -148,7 +146,7 @@ function THashCacheWithQueuesTest.GetByKey(AKey: UInt64): ISimple;
 var
   VResult: IInterface;
 begin
-  GetOrCreateItem(AKey, nil, VResult);
+  VResult := GetOrCreateItem(AKey, nil);
   Result := VResult as ISimple;
 end;
 

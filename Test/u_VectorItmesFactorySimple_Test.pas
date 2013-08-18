@@ -43,16 +43,27 @@ implementation
 uses
   i_VectorItemLonLat,
   i_ProjectionInfo,
+  i_HashFunction,
   i_VectorItemProjected,
   i_EnumDoublePoint,
   u_GeoFun,
+  u_HashFunctionCityHash,
+  u_HashFunctionWithCounter,
+  u_InternalPerformanceCounterFake,
   u_VectorItemsFactorySimple;
 
 { TestTVectorItmesFactorySimple }
 
 procedure TestTVectorItmesFactorySimple.SetUp;
+var
+  VHashFunction: IHashFunction;
 begin
-  FFactory := TVectorItemsFactorySimple.Create;
+  VHashFunction :=
+    THashFunctionWithCounter.Create(
+      THashFunctionCityHash.Create,
+      TInternalPerformanceCounterFake.Create
+    );
+  FFactory := TVectorItemsFactorySimple.Create(VHashFunction);
 end;
 
 procedure TestTVectorItmesFactorySimple.CreateLonLatPathNoLines;
