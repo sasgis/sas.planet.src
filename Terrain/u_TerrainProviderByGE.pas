@@ -29,6 +29,7 @@ uses
   i_Notifier,
   i_PathConfig,
   i_CoordConverter,
+  i_CoordConverterFactory,
   i_TerrainStorage,
   i_TerrainProvider,
   i_GlobalCacheConfig,
@@ -68,14 +69,20 @@ type
 
   TTerrainProviderByGoogleEarth = class(TTerrainProviderByDLL)
   public
-    constructor Create(const ACacheConfig: IGlobalCacheConfig);
+    constructor Create(
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ACacheConfig: IGlobalCacheConfig
+    );
   end;
 
   TTerrainProviderByGeoCacher = class(TTerrainProviderByDLL)
   public
-    constructor Create(const ACacheConfig: IGlobalCacheConfig);
+    constructor Create(
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ACacheConfig: IGlobalCacheConfig
+    );
   end;
-  
+
 implementation
 
 uses
@@ -83,7 +90,6 @@ uses
   c_CoordConverter,
   c_TerrainProvider,
   i_TileInfoBasic,
-  i_CoordConverterFactory,
   i_GoogleEarthTerrain,
   u_GeoFun,
   u_Notifier,
@@ -264,6 +270,7 @@ end;
 { TTerrainProviderByGoogleEarth }
 
 constructor TTerrainProviderByGoogleEarth.Create(
+  const ACoordConverterFactory: ICoordConverterFactory;
   const ACacheConfig: IGlobalCacheConfig
 );
 var
@@ -274,7 +281,7 @@ begin
     TTileStorageGETerrain.Create(ACacheConfig.GECachePath.Path) as ITerrainStorage;
 
   VConverter :=
-    (TCoordConverterFactorySimple.Create as ICoordConverterFactory).GetCoordConverterByCode(
+    ACoordConverterFactory.GetCoordConverterByCode(
       CGELonLatProjectionEPSG,
       CTileSplitQuadrate256x256
     );
@@ -285,6 +292,7 @@ end;
 { TTerrainProviderByGeoCacher }
 
 constructor TTerrainProviderByGeoCacher.Create(
+  const ACoordConverterFactory: ICoordConverterFactory;
   const ACacheConfig: IGlobalCacheConfig);
 var
   VStrorage: ITerrainStorage;
@@ -294,7 +302,7 @@ begin
     TTileStorageGCTerrain.Create(ACacheConfig.GCCachePath.Path) as ITerrainStorage;
 
   VConverter :=
-    (TCoordConverterFactorySimple.Create as ICoordConverterFactory).GetCoordConverterByCode(
+    ACoordConverterFactory.GetCoordConverterByCode(
       CGELonLatProjectionEPSG,
       CTileSplitQuadrate256x256
     );

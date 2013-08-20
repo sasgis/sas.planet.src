@@ -451,7 +451,13 @@ begin
 
   FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FBaseApplicationPath);
 
-  FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FGlobalConfig.TerrainDataPath, FCacheConfig);
+  FTerrainProviderList :=
+    TTerrainProviderListSimple.Create(
+      FProjConverterFactory,
+      FCoordConverterFactory,
+      FGlobalConfig.TerrainDataPath,
+      FCacheConfig
+    );
 
   FMainThreadConfigListener := TNotifyEventListenerSync.Create(FGUISyncronizedTimerNotifier, 1000, Self.OnMainThreadConfigChange);
   FGlobalConfig.MainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
