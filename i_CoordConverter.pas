@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  t_Hash,
   t_GeoTypes,
   i_Datum;
 
@@ -65,6 +66,9 @@ type
 
   ICoordConverter = interface
     ['{E8884111-C538-424F-92BC-1BC9843EA6BB}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
+
     function GetDatum: IDatum; stdcall;
     property Datum: IDatum read GetDatum;
 

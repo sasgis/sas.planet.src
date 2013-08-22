@@ -24,6 +24,7 @@ interface
 
 uses
   Math,
+  t_Hash,
   t_GeoTypes,
   i_Datum,
   u_CoordConverterBasic;
@@ -37,9 +38,10 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
+      const AHash: THashValue;
       const ADatum: IDatum;
-      AProjEPSG: integer;
-      ACellSizeUnits: TCellSizeUnits
+      const AProjEPSG: integer;
+      const ACellSizeUnits: TCellSizeUnits
     );
   end;
 
@@ -48,9 +50,10 @@ implementation
 { TCoordConverterMercatorOnSphere }
 
 constructor TCoordConverterMercatorOnSphere.Create(
+  const AHash: THashValue;
   const ADatum: IDatum;
-  AProjEPSG: integer;
-  ACellSizeUnits: TCellSizeUnits
+  const AProjEPSG: integer;
+  const ACellSizeUnits: TCellSizeUnits
 );
 begin
   Assert(ADatum <> nil);

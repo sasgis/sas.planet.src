@@ -431,7 +431,7 @@ begin
 
   FProjConverterFactory := TProjConverterFactory.Create;
 
-  FCoordConverterFactory := TCoordConverterFactorySimple.Create;
+  FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction);
   FProjectionFactory := TProjectionInfoFactory.Create(MakeSyncRW_Var(Self, False));
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);

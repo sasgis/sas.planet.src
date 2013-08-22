@@ -23,6 +23,7 @@ unit u_Datum;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_Datum,
   i_NotifierOperation,
@@ -31,12 +32,14 @@ uses
 type
   TDatum = class(TBaseInterfacedObject, IDatum)
   private
+    FHash: THashValue;
     FEPSG: Integer;
     FRadiusA: Double;
     FRadiusB: Double;
     FExct: Double;
     FFlattening: Double;
   private
+    function GetHash: THashValue;
     function GetEPSG: Integer; stdcall;
     function GetSpheroidRadiusA: Double; stdcall;
     function GetSpheroidRadiusB: Double; stdcall;
@@ -63,11 +66,13 @@ type
     ): TDoublePoint;
   public
     constructor Create(
+      const AHash: THashValue;
       const AEPSG: Integer;
       const ARadiusA: Double;
       const ARadiusB: Double
     ); overload;
     constructor Create(
+      const AHash: THashValue;
       const AEPSG: Integer;
       const ARadiusA: Double
     ); overload;
@@ -87,11 +92,13 @@ const
 { TDatum }
 
 constructor TDatum.Create(
+  const AHash: THashValue;
   const AEPSG: Integer;
   const ARadiusA, ARadiusB: Double
 );
 begin
   inherited Create;
+  FHash := AHash;
   FEPSG := AEPSG;
   FRadiusA := ARadiusA;
   FRadiusB := ARadiusB;
@@ -100,11 +107,12 @@ begin
 end;
 
 constructor TDatum.Create(
+  const AHash: THashValue;
   const AEPSG: Integer;
   const ARadiusA: Double
 );
 begin
-  Create(AEPSG, ARadiusA, ARadiusA);
+  Create(AHash, AEPSG, ARadiusA, ARadiusA);
 end;
 
 function TDatum.CalcDist(const AStart, AFinish: TDoublePoint): Double;
@@ -192,6 +200,11 @@ end;
 function TDatum.GetEPSG: integer;
 begin
   Result := FEPSG;
+end;
+
+function TDatum.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TDatum.GetSpheroidRadiusA: Double;
