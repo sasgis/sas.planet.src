@@ -32,6 +32,7 @@ uses
   ALWinInetHttpClient,
   i_Listener,
   i_NotifierOperation,
+  i_BinaryData,
   i_Downloader,
   i_InetConfig,
   i_ProxySettings,
@@ -70,10 +71,9 @@ type
     function InternalMakeResponse(
       const AResultFactory: IDownloadResultFactory;
       const ARequest: IDownloadRequest;
+      const AResponseBody: IBinaryData;
       var AStatusCode: Cardinal;
-      var AContentType, ARawHeaderText: AnsiString;
-      const ABody: TMemoryStream;
-      const AHasOwned: PBoolean = nil
+      var AContentType, ARawHeaderText: AnsiString
     ): IDownloadResult;
     function ProcessFileSystemRequest(
       const ARequest: IDownloadRequest;
@@ -126,7 +126,6 @@ implementation
 
 uses
   ALfcnString,
-  i_BinaryData,
   u_ListenerByEvent,
   u_Synchronizer,
   u_HttpStatusChecker,
@@ -450,6 +449,7 @@ function TDownloaderHttp.OnAfterResponse(
   const AResultFactory: IDownloadResultFactory
 ): IDownloadResult;
 var
+  VResponseBody: IBinaryData;
   VRawHeaderText: AnsiString;
   VStatusCode: Cardinal;
   VContentType: AnsiString;
@@ -460,13 +460,18 @@ begin
     VStatusCode := ALStrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
       VContentType := FHttpResponseHeader.ContentType;
+      VResponseBody :=
+        TBinaryData.Create(
+          FHttpResponseBody.Size,
+          FHttpResponseBody.Memory
+        );
       Result := InternalMakeResponse(
         AResultFactory,
         ARequest,
+        VResponseBody,
         VStatusCode,
         VContentType,
-        VRawHeaderText,
-        FHttpResponseBody
+        VRawHeaderText
       );
     end else if IsDownloadErrorStatus(VStatusCode) then begin
       Result := AResultFactory.BuildLoadErrorByStatusCode(
@@ -591,7 +596,7 @@ var
   VStatusCode: Cardinal;
   VContentType, VRawResponseHeader: AnsiString;
   VMemStream: TMemoryStream;
-  VOwned: Boolean;
+  VResponseBody: IBinaryData;
 begin
   Result := nil;
   if (nil=AResultFactory) then
@@ -634,28 +639,26 @@ begin
   // check
   if FileExists(VUrl) then begin
     // found
-    VOwned := FALSE;
     VMemStream:=TMemoryStream.Create;
     try
       // read file
       VMemStream.LoadFromFile(VUrl);
-      // autodetect file type
-      VContentType := '';
-      VStatusCode := HTTP_STATUS_OK;
-      Result := InternalMakeResponse(
-        AResultFactory,
-        ARequest,
-        VStatusCode,
-        VContentType,
-        VRawResponseHeader,
-        VMemStream,
-        @VOwned
-      );
+      VResponseBody := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
+      VMemStream := nil;
     finally
-      if (not VOwned) then begin
-        VMemStream.Free;
-      end;
+      VMemStream.Free;
     end;
+    // autodetect file type
+    VContentType := '';
+    VStatusCode := HTTP_STATUS_OK;
+    Result := InternalMakeResponse(
+      AResultFactory,
+      ARequest,
+      VResponseBody,
+      VStatusCode,
+      VContentType,
+      VRawResponseHeader
+    );
   end;
 
   // no file
@@ -671,37 +674,21 @@ end;
 function TDownloaderHttp.InternalMakeResponse(
   const AResultFactory: IDownloadResultFactory;
   const ARequest: IDownloadRequest;
+  const AResponseBody: IBinaryData;
   var AStatusCode: Cardinal;
-  var AContentType, ARawHeaderText: AnsiString;
-  const ABody: TMemoryStream;
-  const AHasOwned: PBoolean
+  var AContentType, ARawHeaderText: AnsiString
 ): IDownloadResult;
 var
-  VSize: Int64;
   VRequestWithChecker: IRequestWithChecker;
-  VResponseBody: IBinaryData;
 begin
   Result := nil;
-  VSize := ABody.Size;
-
-  if (AHasOwned<>nil) then begin
-    // can own stream without copying memory
-    VResponseBody := TBinaryDataByMemStream.CreateWithOwn(ABody);
-    AHasOwned^ := TRUE;
-  end else begin
-    // cannot own - just copy
-    VResponseBody := TBinaryData.Create(
-      ABody.Size,
-      ABody.Memory
-    );
-  end;
 
   // if has checker
   if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
     Result := VRequestWithChecker.Checker.AfterReciveData(
       AResultFactory,
       ARequest,
-      VResponseBody,
+      AResponseBody,
       AStatusCode,
       AContentType,
       ARawHeaderText
@@ -709,7 +696,7 @@ begin
   end;
 
   if Result = nil then begin
-    if VSize = 0 then begin
+    if AResponseBody.Size = 0 then begin
       Result := AResultFactory.BuildDataNotExistsZeroSize(
         ARequest,
         AStatusCode,
@@ -721,7 +708,7 @@ begin
         AStatusCode,
         ARawHeaderText,
         AContentType,
-        VResponseBody
+        AResponseBody
       );
     end;
   end;
