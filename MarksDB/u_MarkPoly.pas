@@ -85,6 +85,7 @@ constructor TMarkPoly.Create(
   ALineWidth: Integer
 );
 begin
+  Assert(Assigned(ALine));
   inherited Create(AHash, AHintConverter, AName, ACategory, ADesc);
   FLine := ALine;
   FLineColor := ABorderColor;

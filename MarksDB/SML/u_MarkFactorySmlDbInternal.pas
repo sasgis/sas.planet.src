@@ -295,6 +295,7 @@ function TMarkFactorySmlDbInternal.CreateLine(
 var
   VHash: THashValue;
 begin
+  Assert(Assigned(ALine));
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
@@ -329,6 +330,7 @@ function TMarkFactorySmlDbInternal.CreatePoly(
 var
   VHash: THashValue;
 begin
+  Assert(Assigned(ALine));
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);

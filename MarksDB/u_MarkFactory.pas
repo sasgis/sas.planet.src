@@ -364,6 +364,7 @@ function TMarkFactory.CreateLine(
 var
   VHash: THashValue;
 begin
+  Assert(Assigned(ALine));
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
@@ -393,6 +394,7 @@ function TMarkFactory.CreatePoly(
 var
   VHash: THashValue;
 begin
+  Assert(Assigned(ALine));
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);

@@ -81,6 +81,7 @@ var
   VHash: THashValue;
 begin
   Assert(AIdData <> nil);
+  Assert(Assigned(ALine));
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
@@ -139,6 +140,7 @@ var
   VHash: THashValue;
 begin
   Assert(AIdData <> nil);
+  Assert(Assigned(APoly));
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;

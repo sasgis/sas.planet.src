@@ -106,6 +106,7 @@ constructor TVectorDataItemPath.Create(
   const ALine: ILonLatPath
 );
 begin
+  Assert(Assigned(ALine));
   inherited Create(AHash, AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
 end;
@@ -124,6 +125,7 @@ constructor TVectorDataItemPoly.Create(
   const ALine: ILonLatPolygon
 );
 begin
+  Assert(Assigned(ALine));
   inherited Create(AHash, AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
 end;

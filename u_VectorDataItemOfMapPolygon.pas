@@ -124,6 +124,7 @@ constructor TVectorDataItemOfMapPath.Create(
   const ALine: ILonLatPath
 );
 begin
+  Assert(Assigned(ALine));
   inherited Create(
     AHash,
     AHintConverter,
@@ -152,6 +153,7 @@ constructor TVectorDataItemOfMapPoly.Create(
   const ALine: ILonLatPolygon
 );
 begin
+  Assert(Assigned(ALine));
   inherited Create(
     AHash,
     AHintConverter,
