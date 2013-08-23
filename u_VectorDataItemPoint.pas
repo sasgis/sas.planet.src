@@ -50,6 +50,7 @@ type
 implementation
 
 uses
+  u_GeoFun,
   u_LonLatRectByPoint;
 
 { TVectorDataItemPoint }
@@ -61,6 +62,7 @@ constructor TVectorDataItemPoint.Create(
   const APoint: TDoublePoint
 );
 begin
+  Assert(not PointIsEmpty(APoint));
   inherited Create(
     AHash,
     AHintConverter,

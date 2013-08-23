@@ -182,6 +182,7 @@ implementation
 uses
   SysUtils,
   t_Hash,
+  u_GeoFun,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;
@@ -323,6 +324,7 @@ var
   VHash: THashValue;
   VPicHash: THashValue;
 begin
+  Assert(not PointIsEmpty(APoint));
   if APic = nil then begin
     VPicHash := 0;
   end else begin

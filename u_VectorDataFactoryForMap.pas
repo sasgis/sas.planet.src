@@ -54,6 +54,7 @@ type
 implementation
 
 uses
+  u_GeoFun,
   u_VectorDataItemOfMapPoint,
   u_VectorDataItemOfMapPolygon;
 
@@ -110,6 +111,7 @@ var
   VIndex: Integer;
   VHash: THashValue;
 begin
+  Assert(not PointIsEmpty(APoint));
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin

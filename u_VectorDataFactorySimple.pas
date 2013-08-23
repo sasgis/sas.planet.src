@@ -46,6 +46,7 @@ type
 implementation
 
 uses
+  u_GeoFun,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon;
 
@@ -93,6 +94,7 @@ function TVectorDataFactorySimple.BuildPoint(
 var
   VHash: THashValue;
 begin
+  Assert(not PointIsEmpty(APoint));
   VHash := FHashFunction.CalcHashByDoublePoint(APoint);
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
