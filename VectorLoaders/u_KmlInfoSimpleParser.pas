@@ -118,6 +118,7 @@ implementation
 uses
   ALfcnString,
   cUnicodeCodecs,
+  i_VectorItemLonLat,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
   u_GeoFun;
@@ -132,29 +133,39 @@ function TKmlInfoSimpleParser.BuildItem(
 ): IVectorDataItemSimple;
 var
   VPointCount: Integer;
+  VPath: ILonLatPath;
+  VPoly: ILonLatPolygon;
 begin
   Result := nil;
   VPointCount := APointsAggregator.Count;
   if VPointCount > 0 then begin
     if VPointCount = 1 then begin
-      Result := AFactory.BuildPoint(AIdData, AName, ADesc, APointsAggregator.Points[0]);
+      if not PointIsEmpty(APointsAggregator.Points[0]) then begin
+        Result := AFactory.BuildPoint(AIdData, AName, ADesc, APointsAggregator.Points[0]);
+      end;
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin
-        Result :=
-          AFactory.BuildPoly(
-            AIdData,
-            AName,
-            ADesc,
-            FFactory.CreateLonLatPolygon(APointsAggregator.Points, VPointCount)
-          );
+        VPoly := FFactory.CreateLonLatPolygon(APointsAggregator.Points, VPointCount);
+        if Assigned(VPoly) then begin
+          Result :=
+            AFactory.BuildPoly(
+              AIdData,
+              AName,
+              ADesc,
+              VPoly
+            );
+        end;
       end else begin
-        Result :=
-          AFactory.BuildPath(
-            AIdData,
-            AName,
-            ADesc,
-            FFactory.CreateLonLatPath(APointsAggregator.Points, VPointCount)
-          );
+        VPath := FFactory.CreateLonLatPath(APointsAggregator.Points, VPointCount);
+        if Assigned(VPath) then begin
+          Result :=
+            AFactory.BuildPath(
+              AIdData,
+              AName,
+              ADesc,
+              VPath
+            );
+        end;
       end;
     end;
   end;

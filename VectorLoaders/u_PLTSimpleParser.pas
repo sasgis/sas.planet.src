@@ -73,6 +73,7 @@ type
 implementation
 
 uses
+  i_VectorItemLonLat,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
   u_GeoFun,
@@ -118,6 +119,7 @@ var
   VList: IVectorItemSubsetBuilder;
   VItem: IVectorDataItemSimple;
   VPointsAggregator: IDoublePointsAggregator;
+  VPath: ILonLatPath;
 begin
   Result := nil;
   pltstr := TStringList.Create;
@@ -127,16 +129,21 @@ begin
       VPointsAggregator := TDoublePointsAggregator.Create;
       ParseStringList(pltstr, VPointsAggregator);
       if VPointsAggregator.Count > 0 then begin
-        trackname := GetWord(pltstr[4], ',', 4);
-        VItem :=
-          AFactory.BuildPath(
-            AIdData,
-            trackname,
-            '',
-            FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count)
-          );
+        VPath := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
+        if Assigned(VPath) then begin
+          trackname := GetWord(pltstr[4], ',', 4);
+          VItem :=
+            AFactory.BuildPath(
+              AIdData,
+              trackname,
+              '',
+              VPath
+            );
+        end;
         VList := FVectorItemSubsetBuilderFactory.Build;
-        VList.Add(VItem);
+        if Assigned(VItem) then begin
+          VList.Add(VItem);
+        end;
         Result := VList.MakeStaticAndClear;
       end;
     end;
