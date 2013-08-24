@@ -51,7 +51,7 @@ type
   end;
 
   IAppearancePolygonFill = interface(IAppearance)
-    ['{B38E37EB-FBD9-46F6-9ED1-A716AE5D155A}']
+    ['{006057E4-EE9A-4135-A286-327B1D2E8733}']
     function GetFillColor: TColor32;
     property FillColor: TColor32 read GetFillColor;
   end;
