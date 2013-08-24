@@ -62,14 +62,14 @@ type
     Size2: Integer;
     Pic: IMarkPicture;
     PicName: string;
-    MarkType: Byte;
+    MarkType: (mtPoint, mtPath, mtPolygon);
   end;
 
 { TAppearanceOfMarkFactory }
 
 constructor TAppearanceOfMarkFactory.Create(const AHashFunction: IHashFunction);
 begin
-  inherited Create(10, 10, 256, 100);
+  inherited Create(10, 0, 256, 0); // 2^10 elements in hash-table, LRU 256 elements
   FHashFunction := AHashFunction;
 end;
 
@@ -85,7 +85,7 @@ begin
   VResult := nil;
   VData := PDataRecord(AData);
   case VData.MarkType of
-    1: begin
+    mtPoint: begin
       VResult :=
         TAppearanceOfMarkPoint.Create(
           AKey,
@@ -99,7 +99,7 @@ begin
           VData^.Pic
         );
     end;
-    2: begin
+    mtPath: begin
       VResult :=
         TAppearanceOfMarkLine.Create(
           AKey,
@@ -107,7 +107,7 @@ begin
           VData^.Size1
         );
     end;
-    3: begin
+    mtPolygon: begin
       VResult :=
         TAppearanceOfMarkPolygon.Create(
           AKey,
@@ -131,9 +131,10 @@ var
   VHash: THashValue;
   VData: TDataRecord;
 begin
-  VHash := FHashFunction.CalcHashByInteger(ALineColor);
+  VHash := $443e31d70873bb6b;
+  FHashFunction.UpdateHashByInteger(VHash, ALineColor);
   FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
-  VData.MarkType := 2;
+  VData.MarkType := mtPath;
   VData.Color1 := ALineColor;
   VData.Size1 := ALineWidth;
 
@@ -151,21 +152,24 @@ var
   VHash: THashValue;
   VData: TDataRecord;
 begin
-  VData.Hash1 := FHashFunction.CalcHashByInteger(ATextColor);
+  VData.Hash1 := $df2118b946ed0b43;
+  FHashFunction.UpdateHashByInteger(VData.Hash1, ATextColor);
   FHashFunction.UpdateHashByInteger(VData.Hash1, ATextBgColor);
   FHashFunction.UpdateHashByInteger(VData.Hash1, AFontSize);
 
+  VData.Hash2 := $7498e432f9619b27;
   if Assigned(APic) then begin
-    VData.Hash2 := APic.Hash;
+    FHashFunction.UpdateHashByHash(VData.Hash2, APic.Hash);
   end else begin
-    VData.Hash2 := FHashFunction.CalcHashByString(APicName);
+    FHashFunction.UpdateHashByString(VData.Hash2, APicName);
   end;
   FHashFunction.UpdateHashByInteger(VData.Hash2, AMarkerSize);
 
-  VHash := VData.Hash1;
+  VHash := $40fd28c43506c95d;
+  FHashFunction.UpdateHashByHash(VHash, VData.Hash1);
   FHashFunction.UpdateHashByHash(VHash, VData.Hash2);
 
-  VData.MarkType := 1;
+  VData.MarkType := mtPoint;
   VData.Color1 := ATextColor;
   VData.Color2 := ATextBgColor;
   VData.Size1 := AFontSize;
@@ -184,15 +188,18 @@ var
   VHash: THashValue;
   VData: TDataRecord;
 begin
-  VData.Hash1 := FHashFunction.CalcHashByInteger(ALineColor);
+  VData.Hash1 := $8184bab36bb79df0;
+  FHashFunction.UpdateHashByInteger(VData.Hash1, ALineColor);
   FHashFunction.UpdateHashByInteger(VData.Hash1, ALineWidth);
 
-  VData.Hash2 := FHashFunction.CalcHashByInteger(AFillColor);
+  VData.Hash2 := $11b87fb1b900cc39;
+  FHashFunction.UpdateHashByInteger(VData.Hash2, AFillColor);
 
-  VHash := VData.Hash1;
+  VHash := $501f3e9b18861e44;
+  FHashFunction.UpdateHashByHash(VHash, VData.Hash1);
   FHashFunction.UpdateHashByHash(VHash, VData.Hash2);
 
-  VData.MarkType := 3;
+  VData.MarkType := mtPolygon;
   VData.Color1 := ALineColor;
   VData.Color2 := AFillColor;
   VData.Size1 := ALineWidth;

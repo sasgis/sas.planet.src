@@ -28,6 +28,7 @@ type
     function GetHashIcon: THashValue;
   private { IAppearance }
     function IAppearance.GetHash = GetHashCommon;
+    function IsEqual(const AValue: IAppearance): Boolean;
   private { IAppearancePointCaption }
     function IAppearancePointCaption.GetHash = GetHashCaption;
     function GetTextColor: TColor32;
@@ -122,6 +123,15 @@ end;
 function TAppearanceOfMarkPoint.GetTextColor: TColor32;
 begin
   Result := FTextColor;
+end;
+
+function TAppearanceOfMarkPoint.IsEqual(const AValue: IAppearance): Boolean;
+begin
+  if not Assigned(AValue) then begin
+    Result := False;
+  end else begin
+    Result := FHashCommon = AValue.Hash;
+  end;
 end;
 
 end.

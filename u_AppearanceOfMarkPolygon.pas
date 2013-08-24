@@ -24,6 +24,7 @@ type
     function GetHashFill: THashValue;
   private { IAppearance }
     function IAppearance.GetHash = GetHashCommon;
+    function IsEqual(const AValue: IAppearance): Boolean;
   private { IAppearancePolygonBorder }
     function IAppearancePolygonBorder.GetHash = GetHashBorder;
     function GetLineColor: TColor32;
@@ -90,6 +91,15 @@ end;
 function TAppearanceOfMarkPolygon.GetLineWidth: Integer;
 begin
   Result := FLineWidth;
+end;
+
+function TAppearanceOfMarkPolygon.IsEqual(const AValue: IAppearance): Boolean;
+begin
+  if not Assigned(AValue) then begin
+    Result := False;
+  end else begin
+    Result := FHashCommon = AValue.Hash;
+  end;
 end;
 
 end.

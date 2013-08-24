@@ -15,8 +15,10 @@ type
     FHash: THashValue;
     FLineColor: TColor32;
     FLineWidth: Integer;
-  private
+  private { IAppearance }
     function GetHash: THashValue;
+    function IsEqual(const AValue: IAppearance): Boolean;
+  private { IAppearanceLine }
     function GetLineColor: TColor32;
     function GetLineWidth: Integer;
   public
@@ -56,6 +58,15 @@ end;
 function TAppearanceOfMarkLine.GetLineWidth: Integer;
 begin
   Result := FLineWidth;
+end;
+
+function TAppearanceOfMarkLine.IsEqual(const AValue: IAppearance): Boolean;
+begin
+  if not Assigned(AValue) then begin
+    Result := False;
+  end else begin
+    Result := FHash = AValue.Hash;
+  end;
 end;
 
 end.
