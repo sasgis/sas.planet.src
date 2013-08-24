@@ -157,10 +157,11 @@ begin
   FHashFunction.UpdateHashByInteger(VData.Hash1, ATextBgColor);
   FHashFunction.UpdateHashByInteger(VData.Hash1, AFontSize);
 
-  VData.Hash2 := $7498e432f9619b27;
   if Assigned(APic) then begin
+    VData.Hash2 := $7498e432f9619b27;
     FHashFunction.UpdateHashByHash(VData.Hash2, APic.Hash);
   end else begin
+    VData.Hash2 := $31bfcd0d9f48d1d3;
     FHashFunction.UpdateHashByString(VData.Hash2, APicName);
   end;
   FHashFunction.UpdateHashByInteger(VData.Hash2, AMarkerSize);
