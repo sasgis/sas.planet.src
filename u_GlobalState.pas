@@ -589,6 +589,7 @@ begin
     TMarkFactory.Create(
       FGlobalConfig.MarksFactoryConfig,
       FMarkPictureList,
+      FHashFunction,
       FVectorItemsFactory,
       THtmlToHintTextConverterStuped.Create
     );

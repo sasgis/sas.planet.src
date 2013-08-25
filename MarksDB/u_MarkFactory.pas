@@ -172,6 +172,7 @@ type
     constructor Create(
       const AConfig: IMarkFactoryConfig;
       const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
       const AFactory: IVectorItemsFactory;
       const AHintConverter: IHtmlToHintTextConverter
     );
@@ -192,12 +193,15 @@ uses
 constructor TMarkFactory.Create(
   const AConfig: IMarkFactoryConfig;
   const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
   const AFactory: IVectorItemsFactory;
   const AHintConverter: IHtmlToHintTextConverter
 );
 begin
+  Assert(Assigned(AHashFunction));
   inherited Create;
   FConfig := AConfig;
+  FHashFunction := AHashFunction;
   FFactory := AFactory;
   FHintConverter := AHintConverter;
   FMarkPictureList := AMarkPictureList;
