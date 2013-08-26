@@ -46,7 +46,7 @@ begin
   inherited Create;
   FName := AName;
   FFactory := AFactory;
-  FList := TIDInterfaceList.Create(False);
+  FList := TIDInterfaceList.Create(False, 4000);
 end;
 
 procedure TInternalPerformanceCounterListForDebug.AddSubList(
