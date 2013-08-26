@@ -38,8 +38,9 @@ type
       const ASize: Integer;
       const bound: TRect
     );
+    procedure SetPicture(const Value: IMarkPicture);
   public
-    property Picture: IMarkPicture read FPicture write FPicture;
+    property Picture: IMarkPicture read FPicture write SetPicture;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -189,6 +190,7 @@ var
   VPicCount: Integer;
   VColCount: Integer;
   VRowCount: Integer;
+  VIndex: Integer;
 begin
   VPicCount := FPictureList.Count;
   VColCount := Trunc(drwgrdIcons.ClientWidth / drwgrdIcons.DefaultColWidth);
@@ -198,7 +200,43 @@ begin
     Inc(VRowCount);
   end;
   drwgrdIcons.RowCount := VRowCount;
+
+  VIndex := -1;
+  if Assigned(FPicture) then begin
+    VIndex := FPictureList.GetIndexByName(FPicture.GetName);
+  end;
+  if VIndex >= 0 then begin
+    drwgrdIcons.Row := VIndex div drwgrdIcons.ColCount;
+    drwgrdIcons.Col := VIndex mod drwgrdIcons.ColCount;
+  end else begin
+    drwgrdIcons.Row := 0;
+    drwgrdIcons.Col := 0;
+  end;
   drwgrdIcons.Repaint;
+end;
+
+procedure TfrPictureSelectFromList.SetPicture(const Value: IMarkPicture);
+var
+  VIndex: Integer;
+  VCol: Integer;
+  VRow: Integer;
+begin
+  FPicture := Value;
+  VIndex := -1;
+  if Assigned(FPicture) then begin
+    VIndex := FPictureList.GetIndexByName(FPicture.GetName);
+  end;
+  if VIndex >= 0 then begin
+    VRow := VIndex div drwgrdIcons.ColCount;
+    VCol := VIndex mod drwgrdIcons.ColCount;
+    if (VRow < drwgrdIcons.RowCount) and (VCol < drwgrdIcons.ColCount) then begin
+      drwgrdIcons.Row := VRow;
+      drwgrdIcons.Col := VCol;
+    end;
+  end else begin
+    drwgrdIcons.Row := 0;
+    drwgrdIcons.Col := 0;
+  end;
 end;
 
 end.
