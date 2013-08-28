@@ -165,6 +165,7 @@ uses
   u_TileStorageBerkeleyDB,
   u_TileStorageFileSystem,
   u_TileStorageGE,
+  u_TileStorageGoogleEarth,
   u_TileStorageDBMS,
   u_TileStorageInRAM,
   u_Synchronizer;
@@ -296,18 +297,24 @@ begin
             VMainContentType
           );
       end;
-    end else if ATypeCode = c_File_Cache_Id_GE then begin
+    end else if ATypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GEt] then begin
       if
         (VCoordConverter.GetProjectionEPSG = CGELonLatProjectionEPSG) and
         (VCoordConverter.GetTileSplitCode = CTileSplitQuadrate256x256)
       then begin
-        FStorage :=
-          TTileStorageGE.Create(
-            VCoordConverter,
-            FCurrentPath,
-            FVersionConfig.VersionFactory,
-            FContentTypeManager
-          );
+        VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
+        if VMainContentType <> nil then begin
+          FStorage :=
+            TTileStorageGoogleEarth.Create(
+              VCoordConverter,
+              FGlobalCacheConfig.GECachePath.FullPath,
+              AConfig.NameInCache,
+              ATypeCode in [c_File_Cache_Id_GEt],
+              FCacheTileInfo,
+              FVersionConfig.VersionFactory,
+              VMainContentType
+            );
+        end;
       end;
     end else if ATypeCode = c_File_Cache_Id_GC then begin
       if
@@ -466,7 +473,7 @@ begin
     c_File_Cache_Id_GM_Bing: begin
       VBasePath := FGlobalCacheConfig.GMTilesPath;
     end;
-    c_File_Cache_Id_GE: begin
+    c_File_Cache_Id_GE, c_File_Cache_Id_GEt: begin
       VBasePath := FGlobalCacheConfig.GECachePath;
     end;
     c_File_Cache_Id_BDB: begin

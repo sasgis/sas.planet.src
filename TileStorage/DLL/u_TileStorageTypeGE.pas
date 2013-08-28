@@ -1,4 +1,4 @@
-unit u_TileStorageTypeGE;
+unit u_TileStorageTypeGE deprecated;
 
 interface
 

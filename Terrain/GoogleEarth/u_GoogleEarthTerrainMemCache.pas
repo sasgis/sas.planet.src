@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TerrainProviderByGEMemCache;
+unit u_GoogleEarthTerrainMemCache;
 
 interface
 
@@ -26,41 +26,29 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_GoogleEarthTerrain;
+  libge;
 
 type
-  PTerrainTile = ^TTerrainTile;
-  TTerrainTile = record
-    X: Integer;
-    Y: Integer;
-    Zoom: Byte;
-    Exists: Boolean;
-    LastAccess: Cardinal;
-    Parser: IGoogleEarthTerrain;
-  end;
-
-  TTerrainProviderByGEMemCache = class(TObject)
+  TGoogleEarthTerrainMemCache = class(TObject)
   private
     FList: TList;
     FCapacity: Integer;
     FCS: IReadWriteSync;
   public
-    constructor Create(const ACapacity: Integer);
-    destructor Destroy; override;
     procedure Add(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AParser: IGoogleEarthTerrain
-    );
-    procedure AddTne(
-      const AXY: TPoint;
-      const AZoom: Byte
+      const AProvider: IGoogleEarthTerrainTileProvider
     );
     function Get(
       const AXY: TPoint;
-      const AZoom: Byte
-    ): PTerrainTile;
+      const AZoom: Byte;
+      out AIsTne: Boolean
+    ): IGoogleEarthTerrainTileProvider;
     procedure Clear;
+  public
+    constructor Create(const ACapacity: Integer = 500);
+    destructor Destroy; override;
   end;
 
 implementation
@@ -69,7 +57,20 @@ uses
   Windows,
   u_Synchronizer;
 
-constructor TTerrainProviderByGEMemCache.Create(const ACapacity: Integer);
+type
+  TTerrainTileInfo = record
+    X: Integer;
+    Y: Integer;
+    Zoom: Byte;
+    IsTne: Boolean;
+    LastAccess: Cardinal;
+    Provider: IGoogleEarthTerrainTileProvider;
+  end;
+  PTerrainTileInfo = ^TTerrainTileInfo;
+
+{ TGoogleEarthTerrainMemCache }
+
+constructor TGoogleEarthTerrainMemCache.Create(const ACapacity: Integer);
 begin
   inherited Create;
   FList := TList.Create;
@@ -77,23 +78,24 @@ begin
   FCapacity := ACapacity;
 end;
 
-destructor TTerrainProviderByGEMemCache.Destroy;
+destructor TGoogleEarthTerrainMemCache.Destroy;
 begin
   if Assigned(FCS) then begin
     Self.Clear;
   end;
   FreeAndNil(FList);
+  FCS := nil;
   inherited;
 end;
 
-procedure TTerrainProviderByGEMemCache.Add(
+procedure TGoogleEarthTerrainMemCache.Add(
   const AXY: TPoint;
   const AZoom: Byte;
-  const AParser: IGoogleEarthTerrain
+  const AProvider: IGoogleEarthTerrainTileProvider
 );
 var
   I: Integer;
-  VTile: PTerrainTile;
+  VTile: PTerrainTileInfo;
   VReplaceOld: Boolean;
   VOldestItem: Integer;
   VOldestAccessTime: Cardinal;
@@ -105,22 +107,16 @@ begin
     VReplaceOld := (FCapacity < FList.Count);
 
     for I := 0 to FList.Count - 1 do begin
-      VTile := PTerrainTile(FList.Items[I]);
+      VTile := PTerrainTileInfo(FList.Items[I]);
+      Assert(VTile <> nil);
       if (VTile.X = AXY.X) and
          (VTile.Y = AXY.Y) and
          (VTile.Zoom = AZoom)
       then begin
-        if VTile.Exists then begin
-          raise Exception.CreateFmt(
-            'Tile alredy in mem! X=%d Y=%d Z=%d', [AXY.X, AXY.Y, AZoom]
-          );
-        end else if Assigned(AParser) then begin
-          VTile.Parser := AParser;
-          VTile.LastAccess := GetTickCount;
-          Exit;
-        end else begin
-          Exit;
-        end;
+        VTile.IsTne := not Assigned(AProvider);
+        VTile.Provider := AProvider;
+        VTile.LastAccess := GetTickCount;
+        Exit;
       end else begin
         if VTile.LastAccess < VOldestAccessTime then begin
           VOldestItem := I;
@@ -131,8 +127,8 @@ begin
 
     if VReplaceOld then begin
       if (FList.Count > 0) and (FList.Count > VOldestItem) then begin
-        VTile := PTerrainTile(FList.Items[VOldestItem]);
-        VTile.Parser := nil;
+        VTile := PTerrainTileInfo(FList.Items[VOldestItem]);
+        VTile.Provider := nil;
         Dispose(VTile);
         FList.Delete(VOldestItem);
       end;
@@ -143,9 +139,9 @@ begin
     VTile.X := AXY.X;
     VTile.Y := AXY.Y;
     VTile.Zoom := AZoom;
-    VTile.Exists := Assigned(AParser);
+    VTile.IsTne := not Assigned(AProvider);
     VTile.LastAccess := GetTickCount;
-    VTile.Parser := AParser;
+    VTile.Provider := AProvider;
 
     FList.Add(VTile);
   finally
@@ -153,33 +149,28 @@ begin
   end;
 end;
 
-procedure TTerrainProviderByGEMemCache.AddTne(
+function TGoogleEarthTerrainMemCache.Get(
   const AXY: TPoint;
-  const AZoom: Byte
-);
-begin
-  Self.Add(AXY, AZoom, nil);
-end;
-
-function TTerrainProviderByGEMemCache.Get(
-  const AXY: TPoint;
-  const AZoom: Byte
-): PTerrainTile;
+  const AZoom: Byte;
+  out AIsTne: Boolean
+): IGoogleEarthTerrainTileProvider;
 var
   I: Integer;
-  VTile: PTerrainTile;
+  VTile: PTerrainTileInfo;
 begin
   FCS.BeginWrite;
   try
     Result := nil;
+    AIsTne := False;
     for I := 0 to FList.Count - 1 do begin
-      VTile := PTerrainTile(FList.Items[I]);
+      VTile := PTerrainTileInfo(FList.Items[I]);
       if (VTile.X = AXY.X) and
          (VTile.Y = AXY.Y) and
          (VTile.Zoom = AZoom)
       then begin
         VTile.LastAccess := GetTickCount;
-        Result := VTile;
+        AIsTne := VTile.IsTne;
+        Result := VTile.Provider;
         Break;
       end;
     end;
@@ -188,16 +179,16 @@ begin
   end;
 end;
 
-procedure TTerrainProviderByGEMemCache.Clear;
+procedure TGoogleEarthTerrainMemCache.Clear;
 var
   I: Integer;
-  VTile: PTerrainTile;
+  VTile: PTerrainTileInfo;
 begin
   FCS.BeginWrite;
   try
     for I := 0 to FList.Count - 1 do begin
-      VTile := PTerrainTile(FList.Items[I]);
-      VTile.Parser := nil;
+      VTile := PTerrainTileInfo(FList.Items[I]);
+      VTile.Provider := nil;
       Dispose(VTile);
     end;
     FList.Clear;

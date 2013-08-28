@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -18,9 +18,31 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_ExternalTerrainsProvider;
+unit i_GoogleEarthTerrainTileStorage;
 
 interface
+
+uses
+  Types,
+  libge,
+  i_Notifier;
+
+type
+  IGoogleEarthTerrainTileStorage = interface
+   ['{7B442714-32D4-4EA4-9841-85DBE07A1E7A}']
+    function GetTileInfo(
+      const AXY: TPoint;
+      const AZoom: Byte
+    ): IGoogleEarthTerrainTileProvider;
+
+    function SetPath(const APath: string): Boolean;
+
+    function GetAvailable: Boolean;
+    property Available: Boolean read GetAvailable;
+
+    function GetNotifier: INotifier;
+    property Notifier: INotifier read GetNotifier;
+  end;
 
 implementation
 

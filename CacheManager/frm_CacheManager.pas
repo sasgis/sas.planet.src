@@ -141,7 +141,7 @@ uses
   u_TileStorageFileSystem,
   u_TileStorageBerkeleyDB,
   u_TileStorageDBMS,
-  u_TileStorageGE,
+  //u_TileStorageGE,
   u_TileStorageTar,
   u_CacheConverterProgressInfo,
   frm_ProgressCacheConvrter;

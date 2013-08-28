@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TileStorageGETerrain;
+unit u_TileStorageGETerrain deprecated;
 
 interface
 
@@ -67,11 +67,6 @@ type
     function SetPath(const APath: string): Boolean;
     function GetAvailable: Boolean;
     function GetNotifier: INotifier;
-  end;
-
-  TTileStorageGETerrain = class(TTileStorageDLLTerrain)
-  protected
-    function InternalLib_Initialize: Boolean; override;
   end;
 
   TTileStorageGCTerrain = class(TTileStorageDLLTerrain)
@@ -309,16 +304,6 @@ begin
   finally
     FDLLSync.EndRead;
   end;
-end;
-
-{ TTileStorageGETerrain }
-
-function TTileStorageGETerrain.InternalLib_Initialize: Boolean;
-begin
-  if (0 = FDLLHandle) then begin
-    FDLLHandle := LoadLibrary('TileStorage_GE.dll');
-  end;
-  Result := inherited InternalLib_Initialize;
 end;
 
 { TTileStorageGCTerrain }

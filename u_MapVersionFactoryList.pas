@@ -15,7 +15,7 @@ type
     FGEVersionFactory: IMapVersionFactory;
   private
     function GetSimpleVersionFactory: IMapVersionFactory;
-    function GetGEVersionFactory: IMapVersionFactory;
+    function GetGEVersionFactory: IMapVersionFactory; deprecated;
     function GetVersionFactoryByCode(const ACacheTypeCode: Integer): IMapVersionFactory;
   public
     constructor Create;
@@ -50,7 +50,7 @@ end;
 function TMapVersionFactoryList.GetVersionFactoryByCode(const ACacheTypeCode: Integer): IMapVersionFactory;
 begin
   case ACacheTypeCode of
-    c_File_Cache_Id_GE, c_File_Cache_Id_GC: begin
+    c_File_Cache_Id_GC: begin
       Result := FGEVersionFactory;
     end;
     else begin

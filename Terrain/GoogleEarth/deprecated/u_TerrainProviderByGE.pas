@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_TerrainProviderByGE;
+unit u_TerrainProviderByGE deprecated;
 
 interface
 
@@ -65,14 +65,6 @@ type
       const ACoordConverter: ICoordConverter
     );
     destructor Destroy; override;
-  end;
-
-  TTerrainProviderByGoogleEarth = class(TTerrainProviderByDLL)
-  public
-    constructor Create(
-      const ACoordConverterFactory: ICoordConverterFactory;
-      const ACacheConfig: IGlobalCacheConfig
-    );
   end;
 
   TTerrainProviderByGeoCacher = class(TTerrainProviderByDLL)
@@ -265,28 +257,6 @@ begin
 
     until False;
   end;  
-end;
-
-{ TTerrainProviderByGoogleEarth }
-
-constructor TTerrainProviderByGoogleEarth.Create(
-  const ACoordConverterFactory: ICoordConverterFactory;
-  const ACacheConfig: IGlobalCacheConfig
-);
-var
-  VStrorage: ITerrainStorage;
-  VConverter: ICoordConverter;
-begin
-  VStrorage :=
-    TTileStorageGETerrain.Create(ACacheConfig.GECachePath.Path) as ITerrainStorage;
-
-  VConverter :=
-    ACoordConverterFactory.GetCoordConverterByCode(
-      CGELonLatProjectionEPSG,
-      CTileSplitQuadrate256x256
-    );
-
-  inherited Create(ACacheConfig.GECachePath, VStrorage, VConverter);
 end;
 
 { TTerrainProviderByGeoCacher }
