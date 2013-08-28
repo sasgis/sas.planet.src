@@ -109,7 +109,7 @@ type
 
     function GetListOfTileVersions(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): IMapVersionListStatic; override;
 
@@ -541,52 +541,57 @@ end;
 
 function TTileStorageGoogleEarth.GetListOfTileVersions(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): IMapVersionListStatic;
+
+  procedure _TileInfoListToListSimple(
+    const ATileInfoList: IGoogleEarthTileInfoList;
+    const AListSimple: IInterfaceListSimple;
+    const AShowPrevVersion: Boolean
+  );
+  var
+    I: Integer;
+    VTileVersion: Word;
+    VTileDate: TDateTime;
+    VTileSize: Integer;
+    VVersionStr: string;
+    VMapVersionInfo: IMapVersionInfo;
+  begin
+    Assert(Assigned(AListSimple));
+    if Assigned(ATileInfoList) then begin
+      for I := 0 to ATileInfoList.Count - 1 do begin
+        if ATileInfoList.Get(I, VTileSize, VTileVersion, VTileDate) then begin
+          VVersionStr := BuildVersionStr(VTileVersion, VTileDate, False);
+          VMapVersionInfo := MapVersionFactory.CreateByStoreString(VVersionStr, AShowPrevVersion);
+          AListSimple.Add(VMapVersionInfo);
+        end;
+      end;
+    end;
+  end;
+
 var
-  I: Integer;
-  VTileVersion: Word;
-  VTileDate: TDateTime;
-  VTileSize: Integer;
-  VVersionStr: string;
   VShowPrevVersion: Boolean;
   VList: IGoogleEarthTileInfoList;
   VListSimple: IInterfaceListSimple;
-  VMapVersionInfo: IMapVersionInfo;
 begin
   Result := nil;
   if GetState.GetStatic.ReadAccess <> asDisabled then begin
     if not LazyBuildProviders then begin
       Exit;
     end;
+
     VShowPrevVersion := Assigned(AVersionInfo) and AVersionInfo.ShowPrevVersion;
     VListSimple := TInterfaceListSimple.Create;
 
     if FCacheProvider <> nil then begin
       VList := FCacheProvider.GetListOfTileVersions(AXY, AZoom, 0, 0);
-      if Assigned(VList) then begin
-        for I := 0 to VList.Count - 1 do begin
-          if VList.Get(I, VTileSize, VTileVersion, VTileDate) then begin
-            VVersionStr := BuildVersionStr(VTileVersion, VTileDate, False);
-            VMapVersionInfo := MapVersionFactory.CreateByStoreString(VVersionStr, VShowPrevVersion);
-            VListSimple.Add(VMapVersionInfo);
-          end;
-        end;
-      end;
+      _TileInfoListToListSimple(VList, VListSimple, VShowPrevVersion);
     end;
 
     if FCacheTmProvider <> nil then begin 
       VList := FCacheTmProvider.GetListOfTileVersions(AXY, AZoom, 0, 0);
-      if Assigned(VList) then begin
-        for I := 0 to VList.Count - 1 do begin
-          if VList.Get(I, VTileSize, VTileVersion, VTileDate) then begin
-            VVersionStr := BuildVersionStr(VTileVersion, VTileDate, True);
-            VMapVersionInfo := MapVersionFactory.CreateByStoreString(VVersionStr, VShowPrevVersion);
-            VListSimple.Add(VMapVersionInfo);
-          end;
-        end;
-      end;
+      _TileInfoListToListSimple(VList, VListSimple, VShowPrevVersion);
     end;
 
     if VListSimple.Count > 0 then begin
