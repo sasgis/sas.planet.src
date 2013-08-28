@@ -69,16 +69,6 @@ uses
   u_CoordConverterFactorySimple,
   u_GoogleEarthTerrainTileStorage;
 
-procedure CheckGoogleEarthTerrainTileZoom(var AZoom: Byte);
-begin
-  // GE terrain's zooms must be in values: [3,5,7,9,11,13,15,17,19,23,25]
-  if AZoom <= 3 then begin
-    AZoom := 2;
-  end else if (AZoom mod 2) > 0 then begin
-    AZoom := AZoom - 1;
-  end;
-end;
-
 { TTerrainProviderByGoogleEarth }
 
 constructor TTerrainProviderByGoogleEarth.Create(

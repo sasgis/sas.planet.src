@@ -140,9 +140,11 @@ type
 implementation
 
 uses
+  t_GeoTypes,
   t_CommonTypes,
   i_TileIterator,
   i_InterfaceListSimple,
+  u_GeoFun,
   u_InterfaceListSimple,
   u_MapVersionListStatic,
   u_TileRectInfoShort,
@@ -332,8 +334,12 @@ function TTileStorageGoogleEarth.InternalGetTileInfo(
   const AMode: TGetTileInfoMode
 ): ITileInfoBasic;
 var
+  I: Integer;
   VResult: Boolean;
   VData: IInterface;
+  VXY: TPoint;
+  VLonLat: TDoublePoint;
+  VZoom: Byte;
   VInTileVersion: Word;
   VInTileDate: TDateTime;
   VOutTileVersion: Word;
@@ -343,8 +349,12 @@ var
   VSearchAnyVersion: Boolean;
   VSearchAnyDate: Boolean;
   VIsTmVersion: Boolean;
-  VBinData: IBinaryData;
+  VBinData, VTmpData: IBinaryData;
   VTileVersionStr: string;
+  VTileVersionInfo: IMapVersionInfo;
+  VIsOceanTerrain: Boolean;
+  VCoordConverter: ICoordConverter;
+  VTerrainList: IGoogleEarthTerrainTileList;
   VImageTileContentProvider: IGoogleEarthImageTileProvider;
   VTerrainTileContentProvider: IGoogleEarthTerrainTileProvider;
 begin
@@ -352,6 +362,22 @@ begin
 
   if not LazyBuildProviders then begin
     Exit;
+  end;
+
+  VXY.X := AXY.X;
+  VXY.Y := AXY.Y;
+  VZoom := AZoom;
+
+  if FIsTerrainStorage then begin
+    CheckGoogleEarthTerrainTileZoom(VZoom);
+    if VZoom <> AZoom then begin
+      VCoordConverter := Self.GeoConverter;
+      VLonLat := VCoordConverter.TilePos2LonLat(AXY, AZoom);
+      VXY := PointFromDoublePoint(
+        VCoordConverter.LonLat2TilePosFloat(VLonLat, VZoom),
+        prToTopLeft
+      );
+    end;
   end;
 
   ParseVersionInfo(
@@ -369,8 +395,8 @@ begin
   if VIsTmVersion then begin
     if (FCacheTmProvider <> nil) then begin
       VResult := FCacheTmProvider.GetTileInfo(
-        AXY,
-        AZoom,
+        VXY,
+        VZoom,
         VInTileVersion,
         VInTileDate,
         True,
@@ -384,8 +410,8 @@ begin
     end;
     if not VResult and VSearchAnyVersion and (FCacheProvider <> nil) then begin
       VResult := FCacheProvider.GetTileInfo(
-        AXY,
-        AZoom,
+        VXY,
+        VZoom,
         0,
         0,
         True,
@@ -400,8 +426,8 @@ begin
   end else begin
     if (FCacheProvider <> nil) then begin
       VResult := FCacheProvider.GetTileInfo(
-        AXY,
-        AZoom,
+        VXY,
+        VZoom,
         VInTileVersion,
         VInTileDate,
         VSearchAnyVersion,
@@ -415,8 +441,8 @@ begin
     end;
     if not VResult and VSearchAnyVersion and (FCacheTmProvider <> nil) then begin
       VResult := FCacheTmProvider.GetTileInfo(
-        AXY,
-        AZoom,
+        VXY,
+        VZoom,
         0,
         0,
         True,
@@ -432,11 +458,33 @@ begin
 
   if VResult then begin
     VTileVersionStr := BuildVersionStr(VOutTileVersion, VOutTileDate, VIsTmVersion);
+    VTileVersionInfo := MapVersionFactory.CreateByStoreString(VTileVersionStr, VSearchAnyVersion);
     if VWithData then begin
       if Supports(VData, IGoogleEarthImageTileProvider, VImageTileContentProvider) then begin
         VBinData := VImageTileContentProvider.GetJPEG;
       end else if Supports(VData, IGoogleEarthTerrainTileProvider, VTerrainTileContentProvider) then begin
-        VBinData := VTerrainTileContentProvider.GetKML;
+        VBinData := nil;
+        VTerrainList := VTerrainTileContentProvider.GetKML;
+        if Assigned(VTerrainList) then begin
+          for I := 0 to VTerrainList.Count - 1 do begin
+            VTmpData := VTerrainList.Get(I, VXY.X, VXY.Y, VZoom, VIsOceanTerrain);
+            if (VXY.X = AXY.X) and (VXY.Y = AXY.Y) and (VZoom = AZoom) then begin
+              VBinData := VTmpData;
+            end;
+            if Assigned(FTileInfoMemCache) then begin
+              Result := TTileInfoBasicExistsWithTile.Create(
+                VOutTileDate,
+                VTmpData,
+                VTileVersionInfo,
+                FMainContentType
+              );
+              FTileInfoMemCache.Add(VXY, VZoom, VTileVersionInfo, Result);
+            end;
+          end;
+          Result := nil;
+        end else begin
+          Assert(False);
+        end;
       end else begin
         VBinData := nil;
       end;
@@ -446,7 +494,7 @@ begin
           TTileInfoBasicExistsWithTile.Create(
             VOutTileDate,
             VBinData,
-            MapVersionFactory.CreateByStoreString(VTileVersionStr, VSearchAnyVersion),
+            VTileVersionInfo,
             FMainContentType
           );
       end;
@@ -455,7 +503,7 @@ begin
         TTileInfoBasicExists.Create(
           VOutTileDate,
           VTileSize,
-          MapVersionFactory.CreateByStoreString(VTileVersionStr, VSearchAnyVersion),
+          VTileVersionInfo,
           FMainContentType
         );
     end;

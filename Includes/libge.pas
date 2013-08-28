@@ -28,13 +28,41 @@ type
     ): IGoogleEarthImageTileProvider; safecall;
   end;
 
+  IGoogleEarthTerrainTileList = interface
+    ['{51534AA0-F941-4A42-A4BD-1749E58EDBC9}']
+    procedure Add(
+      const X, Y: Integer;
+      const AZoom: Byte;
+      const AData: IBinaryData;
+      const AIsOcean: Boolean
+    ); safecall;
+
+    function Get(
+      const AIndex: Integer;
+      out X, Y: Integer;
+      out AZoom: Byte;
+      out AIsOcean: Boolean
+    ): IBinaryData; safecall;
+
+    function GetCount: Integer; safecall;
+    property Count: Integer read GetCount;
+  end;
+
   IGoogleEarthTerrainTileProvider = interface
     ['{F369DDE7-D239-4BBF-B199-41C67BFDBDCD}']
     function PointElevation(const ALon: Double; const ALat: Double): Single; safecall;
-    function GetKML: IBinaryData; safecall;
-    function GetKMZ: IBinaryData; safecall;
-    function GetSTL: IBinaryData; safecall;
-    function GetBT: IBinaryData; safecall;
+
+    function GetKML: IGoogleEarthTerrainTileList; overload; safecall;
+    function GetKML(const X, Y: Integer; const AZoom: Byte): IBinaryData; overload; safecall;
+
+    function GetKMZ: IGoogleEarthTerrainTileList; overload; safecall;
+    function GetKMZ(const X, Y: Integer; const AZoom: Byte): IBinaryData; overload; safecall;
+
+    function GetSTL: IGoogleEarthTerrainTileList; overload; safecall;
+    function GetSTL(const X, Y: Integer; const AZoom: Byte): IBinaryData; overload; safecall;
+
+    function GetBT: IGoogleEarthTerrainTileList; overload; safecall;
+    function GetBT(const X, Y: Integer; const AZoom: Byte): IBinaryData; overload; safecall;
   end;
   
   IGoogleEarthTerrainTileProviderFactory = interface
@@ -113,6 +141,8 @@ function CreateGoogleEarthCacheProviderFactory: IGoogleEarthCacheProviderFactory
 function CreateGoogleEarthImageTileProviderFactory: IGoogleEarthImageTileProviderFactory;
 function CreateGoogleEarthTerrainTileProviderFactory: IGoogleEarthTerrainTileProviderFactory;
 
+procedure CheckGoogleEarthTerrainTileZoom(var AZoom: Byte);
+
 implementation
 
 uses
@@ -188,6 +218,15 @@ begin
   if libge_LoadLibrary then begin
     VResult := libge_CreateObject(IGoogleEarthTerrainTileProviderFactory);
     Supports(VResult, IGoogleEarthTerrainTileProviderFactory, Result);
+  end;
+end;
+
+procedure CheckGoogleEarthTerrainTileZoom(var AZoom: Byte);
+begin
+  if AZoom < 2 then begin
+    AZoom := 2;
+  end else if (AZoom mod 2) > 0 then begin
+    AZoom := AZoom - 1;
   end;
 end;
 
