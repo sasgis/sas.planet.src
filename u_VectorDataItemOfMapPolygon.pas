@@ -24,6 +24,7 @@ interface
 
 uses
   t_Hash,
+  t_GeoTypes,
   i_StringProvider,
   i_LonLatRect,
   i_VectorDataItemSimple,
@@ -53,6 +54,7 @@ type
   private
     FLine: ILonLatPath;
   protected
+    function GetGoToLonLat: TDoublePoint; override;
     function GetLine: ILonLatPath;
   public
     constructor Create(
@@ -70,6 +72,7 @@ type
   private
     FLine: ILonLatPolygon;
   protected
+    function GetGoToLonLat: TDoublePoint; override;
     function GetLine: ILonLatPolygon;
   public
     constructor Create(
@@ -85,6 +88,9 @@ type
 
 
 implementation
+
+uses
+  u_GeoFun;
 
 { TVectorDataItemPolygon }
 
@@ -137,6 +143,11 @@ begin
   FLine := ALine;
 end;
 
+function TVectorDataItemOfMapPath.GetGoToLonLat: TDoublePoint;
+begin
+  FLine.GetEnum.Next(Result);
+end;
+
 function TVectorDataItemOfMapPath.GetLine: ILonLatPath;
 begin
   Result := FLine;
@@ -164,6 +175,11 @@ begin
     ALine.Bounds
   );
   FLine := ALine;
+end;
+
+function TVectorDataItemOfMapPoly.GetGoToLonLat: TDoublePoint;
+begin
+  Result := RectCenter(FLine.Bounds.Rect);
 end;
 
 function TVectorDataItemOfMapPoly.GetLine: ILonLatPolygon;

@@ -218,7 +218,6 @@ uses
   i_Category,
   i_ImportConfig,
   i_MarkTemplate,
-  i_MarkPicture,
   i_MarkFactoryConfig,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
@@ -389,12 +388,14 @@ begin
       VSortedMarksList.Duplicates := dupAccept;
       VSortedMarksList.BeginUpdate;
       try
-        for I := 0 to FMarksList.Count - 1 do begin
-          VMarkId := IMarkId(FMarksList.Items[I]);
-          VName := FMarkDBGUI.GetMarkIdCaption(VMarkId);
-          VSortedMarksList.AddObject(VName, Pointer(VMarkId));
+        if Assigned(FMarksList) then begin
+          for I := 0 to FMarksList.Count - 1 do begin
+            VMarkId := IMarkId(FMarksList.Items[I]);
+            VName := FMarkDBGUI.GetMarkIdCaption(VMarkId);
+            VSortedMarksList.AddObject(VName, Pointer(VMarkId));
+          end;
+          VSortedMarksList.CustomSort(StringListCompare);
         end;
-        VSortedMarksList.CustomSort(StringListCompare);
       finally
         VSortedMarksList.EndUpdate;
       end;
@@ -569,8 +570,6 @@ var
   VMarkLine: IVectorDataItemLine;
   VMarkPoly: IVectorDataItemPoly;
   VCategory: ICategory;
-  VPicName: string;
-  VPic: IMarkPicture;
   VMarkId: IMarkId;
   i:integer;
   VVisible: Boolean;
@@ -594,10 +593,6 @@ begin
       if (VImportConfig <> nil) then begin
         VCategory := VImportConfig.RootCategory;
         VMarksList:=TInterfaceListSimple.Create;
-        if VImportConfig.PointParams <> nil then begin
-          VPicName := VImportConfig.PointParams.Template.PicName;
-          VPic := FMarkDBGUI.MarksDb.MarkDb.Factory.MarkPictureList.FindByNameOrDefault(VPicName);
-        end;
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMarkId := IMarkId(VMarkIdList[i]);
           VMark:=FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(VMarkId);
@@ -607,8 +602,7 @@ begin
                 VMarkPoint,
                 VMarkPoint.Name,
                 VImportConfig.PointParams,
-                VCategory,
-                VPic
+                VCategory
               );
           end else if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
             VMarkNew :=
@@ -671,12 +665,14 @@ procedure TfrmMarksExplorer.btnNavOnMarkClick(Sender: TObject);
 var
   VMark: IMark;
   LL: TDoublePoint;
+  VMarkStringId: string;
 begin
   if (btnNavOnMark.Checked) then begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
       LL := VMark.GetGoToLonLat;
-      FNavToPoint.StartNavToMark(VMark.StringID, LL);
+      VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
+      FNavToPoint.StartNavToMark(VMarkStringId, LL);
     end else begin
       btnNavOnMark.Checked:=not btnNavOnMark.Checked;
     end;
@@ -973,12 +969,8 @@ begin
     VPointTemplate := VTemplateConfig.DefaultTemplate;
     VPointTemplate :=
       VTemplateConfig.CreateTemplate(
-        VPointTemplate.PicName,
-        VCategory,
-        VPointTemplate.TextColor,
-        VPointTemplate.TextBgColor,
-        VPointTemplate.FontSize,
-        VPointTemplate.MarkerSize
+        VPointTemplate.Appearance,
+        VCategory
       );
   end;
 

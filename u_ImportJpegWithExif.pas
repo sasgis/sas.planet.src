@@ -30,7 +30,7 @@ uses
   i_ValueToStringConverter,
   i_ImportConfig,
   i_ImportFile,
-  i_MarkSystem,
+  i_VectorItemTree,
   u_BaseInterfacedObject;
 
 type
@@ -41,10 +41,9 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
   private
     function ProcessImport(
-      const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
-    ): IInterfaceListStatic;
+    ): IVectorItemTree;
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -61,7 +60,8 @@ uses
   CCR.Exif.IPTC,
   t_GeoTypes,
   i_VectorItemSubset,
-  i_VectorDataItemSimple;
+  i_VectorDataItemSimple,
+  u_VectorItemTree;
 
 { TImportJpegWithExif }
 
@@ -78,10 +78,9 @@ begin
 end;
 
 function TImportJpegWithExif.ProcessImport(
-  const AMarksSystem: IMarkSystem;
   const AFileName: string;
   const AConfig: IImportConfig
-): IInterfaceListStatic;
+): IVectorItemTree;
 var
   VPoint: TDoublePoint;
   VExifData: TExifData;
@@ -194,6 +193,7 @@ begin
 
   VItem := FVectorDataFactory.BuildPoint(
     nil,
+    nil,
     VTitle,
     VDesc,
     VPoint
@@ -203,7 +203,7 @@ begin
     VList := FVectorItemSubsetBuilderFactory.Build;
     VList.Add(VItem);
     VVectorData := VList.MakeStaticAndClear;
-    Result := AMarksSystem.ImportItemsList(VVectorData, AConfig, ExtractFileName(AFileName));
+    Result := TVectorItemTree.Create(ExtractFileName(AFileName), VVectorData, nil);
   end;
 end;
 

@@ -26,18 +26,13 @@ type
     function GetCategoryDB: IMarkCategoryDB;
     property CategoryDB: IMarkCategoryDB read GetCategoryDB;
 
+    function GetStringIdByMark(const AMark: IMark): string;
     function GetMarkByStringId(const AId: string): IMark;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     function ImportItemsTree(
       const ADataItemTree: IVectorItemTree;
       const AImportConfig: IImportConfig
-    ): IInterfaceListStatic;
-
-    function ImportItemsList(
-      const ADataItemList: IVectorItemSubset;
-      const AImportConfig: IImportConfig;
-      const ANamePrefix: string
     ): IInterfaceListStatic;
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;

@@ -29,7 +29,7 @@ uses
   i_VectorDataFactory,
   i_ImportConfig,
   i_ImportFile,
-  i_MarkSystem,
+  i_VectorItemTree,
   u_BaseInterfacedObject;
 
 type
@@ -39,10 +39,9 @@ type
     FLoader: IVectorDataLoader;
   private
     function ProcessImport(
-      const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
-    ): IInterfaceListStatic;
+    ): IVectorItemTree;
   public
     constructor Create(
       const AVectorDataFactory: IVectorDataFactory;
@@ -56,6 +55,7 @@ uses
   SysUtils,
   i_BinaryData,
   i_VectorItemSubset,
+  u_VectorItemTree,
   u_BinaryDataByMemStream;
 
 { TImportByVectorLoader }
@@ -71,10 +71,9 @@ begin
 end;
 
 function TImportByVectorLoader.ProcessImport(
-  const AMarksSystem: IMarkSystem;
   const AFileName: string;
   const AConfig: IImportConfig
-): IInterfaceListStatic;
+): IVectorItemTree;
 var
   VMemStream: TMemoryStream;
   VData: IBinaryData;
@@ -87,9 +86,7 @@ begin
     VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
     VMemStream := nil;
     VVectorData := FLoader.Load(VData, nil, FVectorDataFactory);
-    if Assigned(VVectorData) then begin
-      Result := AMarksSystem.ImportItemsList(VVectorData, AConfig, ExtractFileName(AFileName));
-    end;
+    Result := TVectorItemTree.Create(ExtractFileName(AFileName), VVectorData, nil);
   finally
     VMemStream.Free;
   end;

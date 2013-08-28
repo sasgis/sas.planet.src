@@ -174,9 +174,9 @@ uses
   StrUtils,
   GR32,
   t_CommonTypes,
-  i_EnumID,
   i_EnumDoublePoint,
   i_VectorDataItemSimple,
+  i_AppearanceOfVectorItem,
   i_MarkCategoryFactoryDbInternal,
   u_IDInterfaceList,
   u_InterfaceListSimple,
@@ -431,8 +431,6 @@ var
   VLocated: Boolean;
   VOldMark: IMark;
   VNewMark: IMark;
-  VCategoryOld: IMarkCategorySMLInternal;
-  VCategoryNew: IMarkCategorySMLInternal;
   VList: IIDInterfaceList;
   VCategoryIdOld: Integer;
   VCategoryIdNew: Integer;
@@ -442,18 +440,34 @@ begin
   if Supports(AOldMark, IMarkSMLInternal, VMarkInternal) then begin
     if VMarkInternal.DbId = FDbId then begin
       VIdOld := VMarkInternal.Id;
+    end else begin
+      Assert(False, 'Error type of old mark object');
+      Exit;
+    end;
+  end else begin
+    Assert(not Assigned(AOldMark), 'Error type of old mark object');
+    if Assigned(AOldMark) then begin
+      Exit;
     end;
   end;
 
   if Supports(ANewMark, IMark, VNewMark) then begin
     VNewMark := FFactoryDbInternal.CreateInternalMark(VNewMark);
+    Assert(Assigned(VNewMark), 'Error type of new mark object');
+    if not Assigned(VNewMark) then begin
+      Exit;
+    end;
   end else begin
+    Assert(not Assigned(ANewMark), 'Error type of new mark object');
+    if Assigned(ANewMark) then begin
+      Exit;
+    end;
     VNewMark := nil;
   end;
 
   VLocated := False;
   VOldMark := nil;
-  if VIdOld >= 0 then begin
+  if VIdOld <> CNotExistMarkID then begin
     VOldMark := IMark(FMarkList.GetByID(VIdOld));
     if (VOldMark <> nil) and (VNewMark <> nil) then begin
       if VOldMark.IsEqual(VNewMark) then begin
@@ -489,23 +503,17 @@ begin
   end;
 
   VIdNew := CNotExistMarkID;
+  VCategoryIdNew := CNotExistCategoryID;
   if Supports(Result, IMarkSMLInternal, VMarkInternal) then begin
     VIdNew := VMarkInternal.Id;
+    VCategoryIdNew := VMarkInternal.CategoryId;
   end;
 
   VCategoryIdOld := CNotExistCategoryID;
-  if VOldMark <> nil then begin
-    if Supports(VOldMark.Category, IMarkCategorySMLInternal, VCategoryOld) then begin
-      VCategoryIdOld := VCategoryOld.Id;
-    end;
+  if Supports(VOldMark, IMarkSMLInternal, VMarkInternal) then begin
+    VCategoryIdOld := VMarkInternal.CategoryId;
   end;
 
-  VCategoryIdNew := CNotExistCategoryID;
-  if Result <> nil then begin
-    if Supports(Result.Category, IMarkCategorySMLInternal, VCategoryNew) then begin
-      VCategoryIdNew := VCategoryNew.Id;
-    end;
-  end;
   if VIdOld = VIdNew then begin
     if VOldMark <> nil then begin
       if Result <> nil then begin
@@ -702,7 +710,6 @@ end;
 procedure TMarkDbSml.WriteCurrentMark(const AMark: IMark);
 var
   VMarkSMLInternal: IMarkSMLInternal;
-  VMarkPointWithIcon: IVectorDataItemPointWithIconParams;
   VPicName: string;
   VCategoryId: Integer;
   VVisible: Boolean;
@@ -710,13 +717,34 @@ var
   VMarkLine: IMarkLine;
   VMarkPoly: IMarkPoly;
   VPoint: TDoublePoint;
+  VAppearanceIcon: IAppearancePointIcon;
+  VAppearanceCaption: IAppearancePointCaption;
+  VAppearanceLine: IAppearanceLine;
+  VAppearanceBorder: IAppearancePolygonBorder;
+  VAppearanceFill: IAppearancePolygonFill;
+  VTextColor: TColor32;
+  VTextBgColor: TColor32;
+  VFontSize: Integer;
+  VMarkerSize: Integer;
+  VLineColor: TColor32;
+  VLineWidth: Integer;
+  VFillColor: TColor32;
+  VMarkWithCategory: IVectorDataItemWithCategory;
+  VCategory: IMarkCategorySMLInternal;
 begin
   VVisible := True;
   VCategoryId := CNotExistCategoryID;
   if Supports(AMark, IMarkSMLInternal, VMarkSMLInternal) then begin
     VVisible := VMarkSMLInternal.Visible;
     VCategoryId := VMarkSMLInternal.CategoryId;
+  end else begin
+    if Supports(AMark, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+      if Supports(VMarkWithCategory.Category, IMarkCategorySMLInternal, VCategory) then begin
+        VCategoryId := VCategory.Id;
+      end;
+    end;
   end;
+  Assert(VCategoryId <> CNotExistCategoryID);
 
   FCdsMarks.FieldByName('Visible').AsBoolean := VVisible;
   FCdsMarks.FieldByName('name').AsString := AMark.Name;
@@ -728,30 +756,56 @@ begin
   FCdsMarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
 
   if Supports(AMark, IMarkPoint, VMarkPoint) then begin
+    VTextColor := 0;
+    VTextBgColor := 0;
+    VFontSize := 0;
+    VMarkerSize := 0;
     VPicName := '';
-    if Supports(AMark, IVectorDataItemPointWithIconParams, VMarkPointWithIcon) then begin
-      VPicName := VMarkPointWithIcon.PicName;
+    if Supports(AMark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
+      VTextColor := VAppearanceCaption.TextColor;
+      VTextBgColor := VAppearanceCaption.TextBgColor;
+      VFontSize := VAppearanceCaption.FontSize;
+    end;
+    if Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+      VMarkerSize := VAppearanceIcon.MarkerSize;
+      VPicName := VAppearanceIcon.PicName;
     end;
     FCdsMarks.FieldByName('PicName').AsString := VPicName;
     VPoint := VMarkPoint.Point;
     BlobFromPoint(VPoint, FCdsMarks.FieldByName('LonLatArr'));
-    FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoint.TextColor;
-    FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoint.TextBgColor;
-    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoint.FontSize;
-    FCdsMarks.FieldByName('Scale2').AsInteger := VMarkPoint.MarkerSize;
+    FCdsMarks.FieldByName('Color1').AsInteger := VTextColor;
+    FCdsMarks.FieldByName('Color2').AsInteger := VTextBgColor;
+    FCdsMarks.FieldByName('Scale1').AsInteger := VFontSize;
+    FCdsMarks.FieldByName('Scale2').AsInteger := VMarkerSize;
   end else if Supports(AMark, IMarkLine, VMarkLine) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
     BlobFromPath(VMarkLine.Line, FCdsMarks.FieldByName('LonLatArr'));
-    FCdsMarks.FieldByName('Color1').AsInteger := VMarkLine.LineColor;
+    VLineColor := 0;
+    VLineWidth := 0;
+    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+      VLineColor := VAppearanceLine.LineColor;
+      VLineWidth := VAppearanceLine.LineWidth;
+    end;
+    FCdsMarks.FieldByName('Color1').AsInteger := VLineColor;
     FCdsMarks.FieldByName('Color2').AsInteger := 0;
-    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkLine.LineWidth;
+    FCdsMarks.FieldByName('Scale1').AsInteger := VLineWidth;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;
   end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
     BlobFromPolygon(VMarkPoly.Line, FCdsMarks.FieldByName('LonLatArr'));
-    FCdsMarks.FieldByName('Color1').AsInteger := VMarkPoly.LineColor;
-    FCdsMarks.FieldByName('Color2').AsInteger := VMarkPoly.FillColor;
-    FCdsMarks.FieldByName('Scale1').AsInteger := VMarkPoly.LineWidth;
+    VLineColor := 0;
+    VLineWidth := 0;
+    VFillColor := 0;
+    if Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+      VLineColor := VAppearanceBorder.LineColor;
+      VLineWidth := VAppearanceBorder.LineWidth;
+    end;
+    if Supports(AMark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
+      VFillColor := VAppearanceFill.FillColor;
+    end;
+    FCdsMarks.FieldByName('Color1').AsInteger := VLineColor;
+    FCdsMarks.FieldByName('Color2').AsInteger := VFillColor;
+    FCdsMarks.FieldByName('Scale1').AsInteger := VLineWidth;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;
   end;
 end;
@@ -767,7 +821,7 @@ begin
     if Supports(AMarkId, IMarkSMLInternal, VMarkVisible) then begin
       AId := VMarkVisible.Id;
     end;
-    if AId >= 0 then begin
+    if AId <> CNotExistMarkID then begin
       LockRead;
       try
         Result := IMark(FMarkList.GetByID(AId));
@@ -811,10 +865,10 @@ var
   VFilter: string;
   VCategoryId: Integer;
   VList: IIDInterfaceList;
-  VEnumId: IEnumID;
-  AId: Integer;
+  VEnum: IEnumUnknown;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
+  VItem: IInterface;
 begin
   VFilter := GetFilterTextByCategory(ACategory);
   if VFilter <> '' then begin
@@ -838,9 +892,9 @@ begin
       VCategoryId := GetCategoryID(ACategory);
       VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryId));
       if VList <> nil then begin
-        VEnumId := VList.GetIDEnum;
-        while VEnumId.Next(1, AId, VCnt) = S_OK do begin
-          if Supports(VList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
+        VEnum := VList.GetEnumUnknown;
+        while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
+          if Supports(VItem, IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := ANewVisible;
           end;
         end;
@@ -863,7 +917,7 @@ begin
       AId := VMarkVisible.Id;
       VMarkVisible.Visible := AVisible;
     end;
-    if AId >= 0 then begin
+    if AId <> CNotExistMarkID then begin
       LockWrite;
       try
         FCdsMarks.Filtered := false;
@@ -899,7 +953,7 @@ begin
       AId := VMarkVisible.Id;
       VMarkVisible.Visible := AVisible;
     end;
-    if AId >= 0 then begin
+    if AId <> CNotExistMarkID then begin
       LockWrite;
       try
         FCdsMarks.Filtered := false;
@@ -939,7 +993,7 @@ begin
           AId := VMarkVisible.Id;
           VMarkVisible.Visible := AVisible;
         end;
-        if AId >= 0 then begin
+        if AId <> CNotExistMarkID then begin
           if Supports(FMarkList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := AVisible;
             FCdsMarks.Filtered := false;
@@ -991,7 +1045,7 @@ begin
           AId := VMarkVisible.Id;
           VMarkVisible.Visible := VVisible;
         end;
-        if AId >= 0 then begin
+        if AId <> CNotExistMarkID then begin
           if Supports(FMarkList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := VVisible;
             FCdsMarks.Filtered := false;
@@ -1013,9 +1067,9 @@ end;
 
 function TMarkDbSml.GetAllMarkIdList: IInterfaceListStatic;
 var
-  VEnumId: IEnumID;
-  AId: Integer;
+  VEnum: IEnumUnknown;
   VCnt: Cardinal;
+  VItem: IInterface;
   VMarkId: IMarkId;
   VTemp: IInterfaceListSimple;
 begin
@@ -1023,9 +1077,9 @@ begin
   VTemp := TInterfaceListSimple.Create;
   LockRead;
   try
-    VEnumId := FMarkList.GetIDEnum;
-    while VEnumId.Next(1, AId, VCnt) = S_OK do begin
-      if Supports(FMarkList.GetByID(AId), IMarkId, VMarkId) then begin
+    VEnum := FMarkList.GetEnumUnknown;
+    while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
+      if Supports(VItem, IMarkId, VMarkId) then begin
         VTemp.Add(VMarkId);
       end;
     end;
@@ -1066,23 +1120,24 @@ var
   VMarkId: IMarkId;
   VCategoryId: Integer;
   VList: IIDInterfaceList;
-  VEnumId: IEnumID;
-  AId: Integer;
+  VEnum: IEnumUnknown;
   VCnt: Cardinal;
+  VItem: IUnknown;
   VTemp: IInterfaceListSimple;
 begin
   Result := nil;
-  VTemp := TInterfaceListSimple.Create;
   VCategoryId := GetCategoryID(ACategory);
   if Supports(FByCategoryList.GetByID(VCategoryId), IIDInterfaceList, VList) then begin
-    VEnumId := VList.GetIDEnum;
-    while VEnumId.Next(1, AId, VCnt) = S_OK do begin
-      if Supports(VList.GetByID(AId), IMarkId, VMarkId) then begin
+    VTemp := TInterfaceListSimple.Create;
+    VTemp.Capacity := VList.Count;
+    VEnum := VList.GetEnumUnknown;
+    while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
+      if Supports(VItem, IMarkId, VMarkId) then begin
         VTemp.Add(VMarkId);
       end;
     end;
+    Result := VTemp.MakeStaticAndClear;
   end;
-  Result := VTemp.MakeStaticAndClear;
 end;
 
 procedure TMarkDbSml.InitEmptyDS(ACdsMarks: TClientDataSet);
@@ -1137,19 +1192,22 @@ procedure TMarkDbSml._AddMarksToList(
 );
 var
   VMark: IMark;
-  VEnumId: IEnumID;
-  AId: Integer;
+  VEnum: IEnumUnknown;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
+  VNewCapacity: Integer;
 begin
-  VEnumId := ASourceList.GetIDEnum;
-  while VEnumId.Next(1, AId, VCnt) = S_OK do begin
-    VMark := IMark(ASourceList.GetByID(AId));
+  if AIgnoreVisible then begin
+    VNewCapacity := AResultList.Count + ASourceList.Count;
+    if AResultList.Capacity < VNewCapacity then begin
+      AResultList.Capacity := VNewCapacity;
+    end;
+  end;
+  VEnum := ASourceList.GetEnumUnknown;
+  while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
     if not AIgnoreVisible then begin
-      if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
-        if VMarkInternal.Visible then begin
-          AResultList.Add(VMark);
-        end;
+      if VMarkInternal.Visible then begin
+        AResultList.Add(VMark);
       end;
     end else begin
       AResultList.Add(VMark);
@@ -1165,14 +1223,12 @@ procedure TMarkDbSml._AddMarksToListByRect(
 );
 var
   VMark: IMark;
-  VEnumId: IEnumID;
-  AId: Integer;
+  VEnum: IEnumUnknown;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
 begin
-  VEnumId := ASourceList.GetIDEnum;
-  while VEnumId.Next(1, AId, VCnt) = S_OK do begin
-    VMark := IMark(ASourceList.GetByID(AId));
+  VEnum := ASourceList.GetEnumUnknown;
+  while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
     if VMark.LLRect.IsIntersecWithRect(ARect) then begin
       if not AIgnoreVisible then begin
         if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
@@ -1258,17 +1314,15 @@ var
   VResultList: IVectorItemSubsetBuilder;
   VList: IIDInterfaceList;
   VMark: IMark;
-  VEnumId: IEnumID;
-  AId: Integer;
+  VEnum: IEnumUnknown;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
 begin
   Result := nil;
   VResultList := FVectorItemSubsetBuilderFactory.Build;
   VList := FMarkList;
-  VEnumId := VList.GetIDEnum;
-  while VEnumId.Next(1, AId, VCnt) = S_OK do begin
-    VMark := IMark(VList.GetByID(AId));
+  VEnum := VList.GetEnumUnknown;
+  while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
     if ContainsText(VMark.Name, AName) then begin
       if not AIncludeHiddenMarks then begin
         if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
@@ -1426,11 +1480,7 @@ begin
                 VMark := ReadCurrentMark;
                 if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
                   VIdNew := VMarkInternal.Id;
-                  if VMark.Category = nil then begin
-                    VCategoryIdNew := CNotExistCategoryID;
-                  end else begin
-                    VCategoryIdNew := VMarkInternal.CategoryId;
-                  end;
+                  VCategoryIdNew := VMarkInternal.CategoryId;
                   FMarkList.Add(VIdNew, VMark);
                   VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryIdNew));
                   if VList = nil then begin

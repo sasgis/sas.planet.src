@@ -24,6 +24,7 @@ interface
 
 uses
   i_LanguageManager,
+  i_AppearanceOfMarkFactory,
   i_MarkFactoryConfig,
   u_ConfigDataElementComplexBase;
 
@@ -39,6 +40,7 @@ type
     function GetPolyTemplateConfig: IMarkPolyTemplateConfig;
   public
     constructor Create(
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const ALanguageManager: ILanguageManager
     );
   end;
@@ -54,18 +56,19 @@ uses
 { TMarkFactoryConfig }
 
 constructor TMarkFactoryConfig.Create(
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const ALanguageManager: ILanguageManager
 );
 begin
   inherited Create;
 
-  FPointTemplateConfig := TMarkPointTemplateConfig.Create(ALanguageManager);
+  FPointTemplateConfig := TMarkPointTemplateConfig.Create(AAppearanceOfMarkFactory, ALanguageManager);
   Add(FPointTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoint'));
 
-  FLineTemplateConfig := TMarkLineTemplateConfig.Create(ALanguageManager);
+  FLineTemplateConfig := TMarkLineTemplateConfig.Create(AAppearanceOfMarkFactory, ALanguageManager);
   Add(FLineTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewLine'));
 
-  FPolyTemplateConfig := TMarkPolyTemplateConfig.Create(ALanguageManager);
+  FPolyTemplateConfig := TMarkPolyTemplateConfig.Create(AAppearanceOfMarkFactory, ALanguageManager);
   Add(FPolyTemplateConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewPoly'));
 end;
 

@@ -41,6 +41,8 @@ uses
   i_ValueToStringConverter,
   i_MarkPicture,
   i_Mark,
+  i_Appearance,
+  i_AppearanceOfMarkFactory,
   i_MarkFactory,
   i_MarkCategoryDB,
   fr_MarkDescription,
@@ -94,7 +96,10 @@ type
     procedure btnSetAsTemplateClick(Sender: TObject);
     procedure imgIconMouseDown(Sender: TObject);
   private
+    FSourceMark: IMarkPoint;
     FCategoryDB: IMarkCategoryDB;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+    FPictureList: IMarkPictureList;
     FMarkFactory: IMarkFactory;
     frMarkDescription: TfrMarkDescription;
     frLonLatPoint: TfrLonLat;
@@ -102,10 +107,12 @@ type
     frSelectPicture: TfrPictureSelectFromList;
     frSelectedPicture: TfrSelectedPicture;
     procedure SelectImageFromList(Sender: TObject);
+    function MakeAppearance: IAppearance;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryDB: IMarkCategoryDB;
       const APictureList: IMarkPictureList;
@@ -125,6 +132,9 @@ implementation
 uses
   t_GeoTypes,
   i_MarkTemplate,
+  i_AppearanceOfVectorItem,
+  i_Category,
+  i_VectorDataItemSimple,
   i_MarkFactoryConfig,
   u_ResStrings;
 
@@ -133,6 +143,7 @@ uses
 constructor TfrmMarkEditPoint.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDB;
   const APictureList: IMarkPictureList;
@@ -142,7 +153,9 @@ constructor TfrmMarkEditPoint.Create(
 begin
   inherited Create(ALanguageManager);
   FCategoryDB := ACategoryDB;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FMarkFactory := AMarkFactory;
+  FPictureList := APictureList;
 
   frMarkDescription := TfrMarkDescription.Create(ALanguageManager, AMediaPath);
   frLonLatPoint :=
@@ -183,24 +196,63 @@ function TfrmMarkEditPoint.EditMark(
 ): IMarkPoint;
 var
   VLonLat:TDoublePoint;
+  VAppearanceCaption: IAppearancePointCaption;
+  VAppearanceIcon: IAppearancePointIcon;
+  VPicIndex: Integer;
+  VPic: IMarkPicture;
+  VCategory: ICategory;
+  VMarkWithCategory: IVectorDataItemWithCategory;
 begin
+  FSourceMark := AMark;
   frMarkDescription.Description:='';
   frSelectPicture.Visible := False;
   frSelectPicture.Parent := Self;
-  frSelectPicture.Picture := AMark.Pic;
 
   frSelectedPicture.Parent := pnlImage;
-  frSelectedPicture.Picture := AMark.Pic;
+
+  if Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+    if Assigned(VAppearanceIcon.Pic) then begin
+      VPic := VAppearanceIcon.Pic;
+    end else begin
+      if VAppearanceIcon.PicName = '' then begin
+        VPic := FPictureList.GetDefaultPicture;
+      end else begin
+        VPicIndex := FPictureList.GetIndexByName(VAppearanceIcon.PicName);
+        if VPicIndex >= 0 then begin
+          VPic := FPictureList.Get(VPicIndex);
+        end else begin
+          VPic := nil;
+        end;
+      end;
+    end;
+    frSelectedPicture.Picture := VPic;
+    frSelectPicture.Picture := VPic;
+    seIconSize.Value := VAppearanceIcon.MarkerSize;
+  end else begin
+    frSelectedPicture.Picture := nil;
+    seIconSize.Value := 0;
+  end;
 
   edtName.Text:=AMark.Name;
   frMarkDescription.Description:=AMark.Desc;
-  seFontSize.Value:=AMark.FontSize;
-  seIconSize.Value:=AMark.MarkerSize;
-  seTransp.Value:=100-round(AlphaComponent(AMark.TextColor)/255*100);
-  clrbxTextColor.Selected:=WinColor(AMark.TextColor);
-  clrbxShadowColor.Selected:=WinColor(AMark.TextBgColor);
+
+  if Supports(AMark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
+    seFontSize.Value := VAppearanceCaption.FontSize;
+    seTransp.Value := 100-round(AlphaComponent(VAppearanceCaption.TextColor)/255*100);
+    clrbxTextColor.Selected := WinColor(VAppearanceCaption.TextColor);
+    clrbxShadowColor.Selected := WinColor(VAppearanceCaption.TextBgColor);
+  end else begin
+    seFontSize.Value := 0;
+    seTransp.Value := 0;
+    clrbxTextColor.Selected := WinColor(clBlack32);
+    clrbxShadowColor.Selected := WinColor(clWhite32);
+  end;
   chkVisible.Checked:= AVisible;
-  frMarkCategory.Init(AMark.Category);
+  VCategory := nil;
+  if Supports(AMark, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+    VCategory := VMarkWithCategory.Category;
+  end;
+  frMarkCategory.Init(VCategory);
   try
     if AIsNewMark then begin
       Caption:=SAS_STR_AddNewMark;
@@ -212,23 +264,19 @@ begin
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
       Result :=
-        FMarkFactory.ModifyPoint(
-          AMark,
-          edtName.Text,
-          frSelectPicture.Picture,
-          frMarkCategory.GetCategory,
-          frMarkDescription.Description,
+        FMarkFactory.CreatePoint(
           VLonLat,
-          SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
-          SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
-          seFontSize.Value,
-          seIconSize.Value
+          edtName.Text,
+          frMarkDescription.Description,
+          frMarkCategory.GetCategory,
+          MakeAppearance
         );
       AVisible := chkVisible.Checked;
     end else begin
       Result := nil;
     end;
   finally
+    FSourceMark := nil;
     frMarkCategory.Clear;
   end;
 end;
@@ -257,22 +305,13 @@ procedure TfrmMarkEditPoint.btnSetAsTemplateClick(Sender: TObject);
 var
   VConfig: IMarkPointTemplateConfig;
   VTemplate: IMarkTemplatePoint;
-  VPicName: string;
 begin
   if MessageBox(handle, pchar('Set as default for new marks?'), pchar(SAS_MSG_coution), 36) = IDYES then begin
     VConfig := FMarkFactory.Config.PointTemplateConfig;
-    VPicName := '';
-    if frSelectPicture.Picture <> nil then begin
-      VPicName := frSelectPicture.Picture.GetName;
-    end;
     VTemplate :=
       VConfig.CreateTemplate(
-        VPicName,
-        frMarkCategory.GetCategory,
-        SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
-        SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
-        seFontSize.Value,
-        seIconSize.Value
+        MakeAppearance,
+        frMarkCategory.GetCategory
       );
     VConfig.DefaultTemplate := VTemplate;
   end;
@@ -295,6 +334,35 @@ begin
     frSelectPicture.Visible := True;
     frSelectPicture.SetFocus;
   end;
+end;
+
+function TfrmMarkEditPoint.MakeAppearance: IAppearance;
+var
+  VPic: IMarkPicture;
+  VPicName: string;
+  VAppearanceIcon: IAppearancePointIcon;
+begin
+  VPic := frSelectedPicture.Picture;
+  VPicName := '';
+  if Assigned(VPic) then begin
+    VPicName := VPic.GetName;
+  end else begin
+    if Assigned(FSourceMark) then begin
+      if Supports(FSourceMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+        VPicName := VAppearanceIcon.PicName;
+      end;
+    end;
+  end;
+
+  Result :=
+    FAppearanceOfMarkFactory.CreatePointAppearance(
+      SetAlpha(Color32(clrbxTextColor.Selected),round(((100-seTransp.Value)/100)*256)),
+      SetAlpha(Color32(clrbxShadowColor.Selected),round(((100-seTransp.Value)/100)*256)),
+      seFontSize.Value,
+      VPicName,
+      frSelectPicture.Picture,
+      seIconSize.Value
+    );
 end;
 
 procedure TfrmMarkEditPoint.SelectImageFromList(Sender: TObject);

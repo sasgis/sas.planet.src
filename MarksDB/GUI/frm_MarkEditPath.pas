@@ -39,6 +39,8 @@ uses
   i_LanguageManager,
   i_Mark,
   i_MarkCategoryDB,
+  i_Appearance,
+  i_AppearanceOfMarkFactory,
   i_MarkFactory,
   fr_MarkDescription,
   fr_MarkCategorySelectOrAdd;
@@ -70,13 +72,16 @@ type
     procedure btnSetAsTemplateClick(Sender: TObject);
   private
     FCategoryDB: IMarkCategoryDB;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMarkFactory: IMarkFactory;
     frMarkDescription: TfrMarkDescription;
     frMarkCategory: TfrMarkCategorySelectOrAdd;
+    function MakeAppearance: IAppearance;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryDB: IMarkCategoryDB
     ); reintroduce;
@@ -92,6 +97,9 @@ implementation
 
 uses
   i_MarkTemplate,
+  i_AppearanceOfVectorItem,
+  i_Category,
+  i_VectorDataItemSimple,
   i_MarkFactoryConfig,
   u_ResStrings;
 
@@ -100,12 +108,14 @@ uses
 constructor TfrmMarkEditPath.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDB
 );
 begin
   inherited Create(ALanguageManager);
   FCategoryDB := ACategoryDB;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FMarkFactory := AMarkFactory;
 
   frMarkDescription := TfrMarkDescription.Create(ALanguageManager, AMediaPath);
@@ -128,14 +138,28 @@ function TfrmMarkEditPath.EditMark(
   const AIsNewMark: Boolean;
   var AVisible: Boolean
 ): IMarkLine;
+var
+  VAppearanceLine: IAppearanceLine;
+  VCategory: ICategory;
+  VMarkWithCategory: IVectorDataItemWithCategory;
 begin
-  frMarkCategory.Init(AMark.Category);
+  VCategory := nil;
+  if Supports(AMark, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+    VCategory := VMarkWithCategory.Category;
+  end;
+  frMarkCategory.Init(VCategory);
   try
     edtName.Text:=AMark.Name;
     frMarkDescription.Description := AMark.Desc;
-    SEtransp.Value:=100-round(AlphaComponent(AMark.LineColor)/255*100);
-    seWidth.Value:=AMark.LineWidth;
-    clrbxLineColor.Selected:=WinColor(AMark.LineColor);
+    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+      SEtransp.Value := 100-round(AlphaComponent(VAppearanceLine.LineColor)/255*100);
+      seWidth.Value := VAppearanceLine.LineWidth;
+      clrbxLineColor.Selected := WinColor(VAppearanceLine.LineColor);
+    end else begin
+      SEtransp.Value := 0;
+      seWidth.Value := 0;
+      clrbxLineColor.Selected := WinColor(clBlack32);
+    end;
     chkVisible.Checked:= AVisible;
     if AIsNewMark then begin
       Caption := SAS_STR_AddNewPath;
@@ -145,14 +169,12 @@ begin
     Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       Result :=
-        FMarkFactory.ModifyLine(
-          AMark,
-          edtName.Text,
-          frMarkCategory.GetCategory,
-          frMarkDescription.Description,
+        FMarkFactory.CreateLine(
           AMark.Line,
-          SetAlpha(Color32(clrbxLineColor.Selected),round(((100-SEtransp.Value)/100)*256)),
-          seWidth.Value
+          edtName.Text,
+          frMarkDescription.Description,
+          frMarkCategory.GetCategory,
+          MakeAppearance
         );
       AVisible := chkVisible.Checked;
     end else begin
@@ -170,6 +192,15 @@ begin
   edtName.SetFocus;
 end;
 
+function TfrmMarkEditPath.MakeAppearance: IAppearance;
+begin
+  Result :=
+    FAppearanceOfMarkFactory.CreateLineAppearance(
+      SetAlpha(Color32(clrbxLineColor.Selected),round(((100-SEtransp.Value)/100)*256)),
+      seWidth.Value
+    );
+end;
+
 procedure TfrmMarkEditPath.btnOkClick(Sender: TObject);
 begin
   ModalResult := mrOk;
@@ -184,9 +215,8 @@ begin
     VConfig := FMarkFactory.Config.LineTemplateConfig;
     VTemplate :=
       VConfig.CreateTemplate(
-        frMarkCategory.GetCategory,
-        SetAlpha(Color32(clrbxLineColor.Selected),round(((100-SEtransp.Value)/100)*256)),
-        seWidth.Value
+        MakeAppearance,
+        frMarkCategory.GetCategory
       );
     VConfig.DefaultTemplate := VTemplate;
   end;

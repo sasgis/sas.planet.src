@@ -25,6 +25,7 @@ interface
 uses
   t_Hash,
   t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_VectorDataItemSimple,
   i_HtmlToHintTextConverter,
@@ -36,10 +37,12 @@ type
     FLLRect: ILonLatRect;
   protected
     function GetLLRect: ILonLatRect; override;
+    function GetGoToLonLat: TDoublePoint; override;
     function GetPoint: TDoublePoint;
   public
     constructor Create(
       const AHash: THashValue;
+      const AAppearance: IAppearance;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
@@ -57,6 +60,7 @@ uses
 
 constructor TVectorDataItemPoint.Create(
   const AHash: THashValue;
+  const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
   const APoint: TDoublePoint
@@ -65,11 +69,17 @@ begin
   Assert(not PointIsEmpty(APoint));
   inherited Create(
     AHash,
+    AAppearance,
     AHintConverter,
     AName,
     ADesc
   );
   FLLRect := TLonLatRectByPoint.Create(APoint);
+end;
+
+function TVectorDataItemPoint.GetGoToLonLat: TDoublePoint;
+begin
+  Result := FLLRect.TopLeft;
 end;
 
 function TVectorDataItemPoint.GetLLRect: ILonLatRect;

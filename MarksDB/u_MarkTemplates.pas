@@ -23,8 +23,9 @@ unit u_MarkTemplates;
 interface
 
 uses
-  GR32,
   i_Category,
+  i_Appearance,
+  i_AppearanceOfVectorItem,
   i_MarkTemplate,
   i_MarkNameGenerator,
   u_BaseInterfacedObject;
@@ -33,95 +34,94 @@ type
   TMarkTemplateBase = class(TBaseInterfacedObject, IMarkTemplate)
   private
     FNameGenerator: IMarkNameGenerator;
+    FAppearance: IAppearance;
     FCategory: ICategory;
     function IsSameInternal(const ATemplate: IMarkTemplate): Boolean;
   protected
     function GetNewName: string;
+    function GetAppearance: IAppearance;
     function GetCategory: ICategory;
   public
     constructor Create(
       const ANameGenerator: IMarkNameGenerator;
+      const AAppearance: IAppearance;
       const ACategory: ICategory
     );
   end;
 
   TMarkTemplatePoint = class(TMarkTemplateBase, IMarkTemplatePoint)
   private
-    FTextColor: TColor32;
-    FTextBgColor: TColor32;
-    FFontSize: Integer;
-    FMarkerSize: Integer;
-    FPicName: string;
+    FCaptionAppearance: IAppearancePointCaption;
+    FIconAppearance: IAppearancePointIcon;
   protected
-    function GetTextColor: TColor32;
-    function GetTextBgColor: TColor32;
-    function GetFontSize: Integer;
-    function GetMarkerSize: Integer;
-    function GetPicName: string;
+    function GetCaptionAppearance: IAppearancePointCaption;
+    function GetIconAppearance: IAppearancePointIcon;
+
     function IsSame(const ATemplate: IMarkTemplatePoint): Boolean;
   public
     constructor Create(
       const ANameGenerator: IMarkNameGenerator;
       const ACategory: ICategory;
-      ATextColor: TColor32;
-      ATextBgColor: TColor32;
-      AFontSize: Integer;
-      AMarkerSize: Integer;
-      const APicName: string
+      const AAppearance: IAppearance
     );
   end;
 
   TMarkTemplateLine = class(TMarkTemplateBase, IMarkTemplateLine)
   private
-    FLineColor: TColor32;
-    FLineWidth: Integer;
+    FLineAppearance: IAppearanceLine;
   protected
-    function GetLineColor: TColor32;
-    function GetLineWidth: Integer;
+    function GetLineAppearance: IAppearanceLine;
     function IsSame(const ATemplate: IMarkTemplateLine): Boolean;
   public
     constructor Create(
       const ANameGenerator: IMarkNameGenerator;
       const ACategory: ICategory;
-      ALineColor: TColor32;
-      ALineWidth: Integer
+      const AAppearance: IAppearance
     );
   end;
 
   TMarkTemplatePoly = class(TMarkTemplateBase, IMarkTemplatePoly)
   private
-    FLineColor: TColor32;
-    FFillColor: TColor32;
-    FLineWidth: Integer;
+    FBorderAppearance: IAppearancePolygonBorder;
+    FFillAppearance: IAppearancePolygonFill;
   protected
-    function GetLineColor: TColor32;
-    function GetFillColor: TColor32;
-    function GetLineWidth: Integer;
+    function GetBorderAppearance: IAppearancePolygonBorder;
+    function GetFillAppearance: IAppearancePolygonFill;
+
     function IsSame(const ATemplate: IMarkTemplatePoly): Boolean;
   public
     constructor Create(
       const ANameGenerator: IMarkNameGenerator;
       const ACategory: ICategory;
-      ALineColor: TColor32;
-      AFillColor: TColor32;
-      ALineWidth: Integer
+      const AAppearance: IAppearance
     );
   end;
 
 implementation
 
+uses
+  SysUtils;
+
 { FMarkTemplateBase }
 
 constructor TMarkTemplateBase.Create(
   const ANameGenerator: IMarkNameGenerator;
+  const AAppearance: IAppearance;
   const ACategory: ICategory
 );
 begin
   Assert(ANameGenerator <> nil);
   Assert(ACategory <> nil);
+  Assert(Assigned(AAppearance));
   inherited Create;
   FNameGenerator := ANameGenerator;
+  FAppearance := AAppearance;
   FCategory := ACategory;
+end;
+
+function TMarkTemplateBase.GetAppearance: IAppearance;
+begin
+  Result := FAppearance;
 end;
 
 function TMarkTemplateBase.GetCategory: ICategory;
@@ -139,6 +139,10 @@ function TMarkTemplateBase.IsSameInternal(
 ): Boolean;
 begin
   Result := False;
+  if not FAppearance.IsEqual(ATemplate.Appearance) then begin
+    Result := False;
+    Exit;
+  end;
   if ATemplate <> nil then begin
     if FCategory = nil then begin
       Result := ATemplate.Category = nil;
@@ -153,55 +157,29 @@ end;
 constructor TMarkTemplatePoint.Create(
   const ANameGenerator: IMarkNameGenerator;
   const ACategory: ICategory;
-  ATextColor, ATextBgColor: TColor32;
-  AFontSize, AMarkerSize: Integer;
-  const APicName: string
+  const AAppearance: IAppearance
 );
 begin
-  inherited Create(ANameGenerator, ACategory);
-  FTextColor := ATextColor;
-  FTextBgColor := ATextBgColor;
-  FFontSize := AFontSize;
-  FMarkerSize := AMarkerSize;
-  FPicName := APicName;
+  Assert(Supports(AAppearance, IAppearancePointCaption));
+  Assert(Supports(AAppearance, IAppearancePointIcon));
+  inherited Create(ANameGenerator, AAppearance, ACategory);
+  Supports(AAppearance, IAppearancePointCaption, FCaptionAppearance);
+  Supports(AAppearance, IAppearancePointIcon, FIconAppearance);
 end;
 
-function TMarkTemplatePoint.GetTextColor: TColor32;
+function TMarkTemplatePoint.GetCaptionAppearance: IAppearancePointCaption;
 begin
-  Result := FTextColor;
+  Result := FCaptionAppearance;
 end;
 
-function TMarkTemplatePoint.GetTextBgColor: TColor32;
+function TMarkTemplatePoint.GetIconAppearance: IAppearancePointIcon;
 begin
-  Result := FTextBgColor;
-end;
-
-function TMarkTemplatePoint.GetPicName: string;
-begin
-  Result := FPicName;
-end;
-
-function TMarkTemplatePoint.GetFontSize: Integer;
-begin
-  Result := FFontSize;
-end;
-
-function TMarkTemplatePoint.GetMarkerSize: Integer;
-begin
-  Result := FMarkerSize;
+  Result := FIconAppearance;
 end;
 
 function TMarkTemplatePoint.IsSame(const ATemplate: IMarkTemplatePoint): Boolean;
 begin
   Result := IsSameInternal(ATemplate);
-  if Result then begin
-    Result :=
-      (FTextColor = ATemplate.TextColor) and
-      (FTextBgColor = ATemplate.TextBgColor) and
-      (FFontSize = ATemplate.FontSize) and
-      (FMarkerSize = ATemplate.MarkerSize) and
-      (FPicName = ATemplate.PicName);
-  end;
 end;
 
 { TMarkTemplateLine }
@@ -209,33 +187,22 @@ end;
 constructor TMarkTemplateLine.Create(
   const ANameGenerator: IMarkNameGenerator;
   const ACategory: ICategory;
-  ALineColor: TColor32;
-  ALineWidth: Integer
+  const AAppearance: IAppearance
 );
 begin
-  inherited Create(ANameGenerator, ACategory);
-  FLineColor := ALineColor;
-  FLineWidth := ALineWidth;
+  Assert(Supports(AAppearance, IAppearanceLine));
+  inherited Create(ANameGenerator, AAppearance, ACategory);
+  Supports(AAppearance, IAppearanceLine, FLineAppearance);
 end;
 
-function TMarkTemplateLine.GetLineColor: TColor32;
+function TMarkTemplateLine.GetLineAppearance: IAppearanceLine;
 begin
-  Result := FLineColor;
-end;
-
-function TMarkTemplateLine.GetLineWidth: Integer;
-begin
-  Result := FLineWidth;
+  Result := FLineAppearance;
 end;
 
 function TMarkTemplateLine.IsSame(const ATemplate: IMarkTemplateLine): Boolean;
 begin
   Result := IsSameInternal(ATemplate);
-  if Result then begin
-    Result :=
-      (FLineColor = ATemplate.LineColor) and
-      (FLineWidth = ATemplate.LineWidth);
-  end;
 end;
 
 { TMarkTemplatePoly }
@@ -243,40 +210,29 @@ end;
 constructor TMarkTemplatePoly.Create(
   const ANameGenerator: IMarkNameGenerator;
   const ACategory: ICategory;
-  ALineColor, AFillColor: TColor32;
-  ALineWidth: Integer
+  const AAppearance: IAppearance
 );
 begin
-  inherited Create(ANameGenerator, ACategory);
-  FLineColor := ALineColor;
-  FFillColor := AFillColor;
-  FLineWidth := ALineWidth;
+  Assert(Supports(AAppearance, IAppearancePolygonBorder));
+  Assert(Supports(AAppearance, IAppearancePolygonFill));
+  inherited Create(ANameGenerator, AAppearance, ACategory);
+  Supports(AAppearance, IAppearancePolygonBorder, FBorderAppearance);
+  Supports(AAppearance, IAppearancePolygonFill, FFillAppearance);
 end;
 
-function TMarkTemplatePoly.GetLineColor: TColor32;
+function TMarkTemplatePoly.GetBorderAppearance: IAppearancePolygonBorder;
 begin
-  Result := FLineColor;
+  Result := FBorderAppearance;
 end;
 
-function TMarkTemplatePoly.GetFillColor: TColor32;
+function TMarkTemplatePoly.GetFillAppearance: IAppearancePolygonFill;
 begin
-  Result := FFillColor;
-end;
-
-function TMarkTemplatePoly.GetLineWidth: Integer;
-begin
-  Result := FLineWidth;
+  Result := FFillAppearance;
 end;
 
 function TMarkTemplatePoly.IsSame(const ATemplate: IMarkTemplatePoly): Boolean;
 begin
   Result := IsSameInternal(ATemplate);
-  if Result then begin
-    Result :=
-      (FLineColor = ATemplate.LineColor) and
-      (FFillColor = ATemplate.FillColor) and
-      (FLineWidth = ATemplate.LineWidth);
-  end;
 end;
 
 end.

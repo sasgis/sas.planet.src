@@ -40,8 +40,8 @@ type
     FVisible: Boolean;
   protected
     function IsEqualInternal(const AMarkInternal: IMarkSMLInternal): Boolean;
-  protected
     function GetStringID: string;
+  protected
     function GetName: string;
     function GetMarkType: TGUID; virtual; abstract;
   protected

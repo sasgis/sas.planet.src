@@ -27,11 +27,13 @@ uses
   i_VectorItemsFactory,
   i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
+  i_AppearanceOfMarkFactory,
   i_ReadWriteState,
   i_Mark,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
   i_MarkCategory,
+  i_MarkFactory,
   i_MarkDbImpl,
   i_MarkCategoryDBImpl,
   i_MarkSystemImpl,
@@ -56,6 +58,7 @@ type
     function GetCategoryDB: IMarkCategoryDBImpl;
     function GetState: IReadWriteStateChangeble;
 
+    function GetStringIdByMark(const AMark: IMark): string;
     function GetMarkByStringId(const AId: string): IMark;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
   public
@@ -63,8 +66,10 @@ type
       const ABasePath: string;
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AMarkFactory: IMarkFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AHintConverter: IHtmlToHintTextConverter
@@ -87,8 +92,10 @@ constructor TMarkSystemSml.Create(
   const ABasePath: string;
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AMarkFactory: IMarkFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
   const AHintConverter: IHtmlToHintTextConverter
@@ -115,6 +122,8 @@ begin
       FDbId,
       AMarkPictureList,
       AVectorItemsFactory,
+      AAppearanceOfMarkFactory,
+      AMarkFactory,
       AHashFunction,
       AHintConverter,
       FCategoryDBInternal
@@ -175,6 +184,16 @@ end;
 function TMarkSystemSml.GetState: IReadWriteStateChangeble;
 begin
   Result := FState;
+end;
+
+function TMarkSystemSml.GetStringIdByMark(const AMark: IMark): string;
+var
+  VMark: IMarkSMLInternal;
+begin
+  Result := '';
+  if Supports(AMark, IMarkSMLInternal, VMark) then begin
+    Result := IntToStr(VMark.Id);
+  end;
 end;
 
 end.

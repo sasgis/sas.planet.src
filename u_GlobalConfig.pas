@@ -7,6 +7,7 @@ uses
   i_GlobalAppConfig,
   i_LastSelectionInfo,
   i_LanguageManager,
+  i_AppearanceOfMarkFactory,
   i_GSMGeoCodeConfig,
   i_InetConfig,
   i_BitmapPostProcessingConfig,
@@ -111,6 +112,8 @@ type
     function GetMapSvcScanConfig: IMapSvcScanConfig;
   public
     constructor Create(
+      const AGlobalAppConfig: IGlobalAppConfig;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const ABaseCacheDataPath: IPathConfig;
       const ABaseConfigPath: IPathConfig;
       const ABaseDataPath: IPathConfig;
@@ -126,7 +129,6 @@ uses
   i_ImageResamplerFactory,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
-  u_GlobalAppConfig,
   u_LastSelectionInfo,
   u_LanguageManager,
   u_GSMGeoCodeConfig,
@@ -153,6 +155,8 @@ uses
 { TGlobalConfig }
 
 constructor TGlobalConfig.Create(
+  const AGlobalAppConfig: IGlobalAppConfig;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const ABaseCacheDataPath: IPathConfig;
   const ABaseConfigPath: IPathConfig;
   const ABaseDataPath: IPathConfig;
@@ -195,7 +199,7 @@ begin
   FGpsTrackRecorderFileName := TPathConfig.Create('TrackFileName', '.\LastPoints.dat', ABaseDataPath);
   Add(FGpsTrackRecorderFileName, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GpsData'), False, False, False, False);
 
-  FGlobalAppConfig := TGlobalAppConfig.Create;
+  FGlobalAppConfig := AGlobalAppConfig;
   Add(FGlobalAppConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('VIEW'), False, False, False, False);
 
   FLastSelectionInfo := TLastSelectionInfo.Create;
@@ -270,7 +274,7 @@ begin
   FMapSvcScanConfig := TMapSvcScanConfig.Create(FMapSvcScanPath);
   Add(FMapSvcScanConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MapSvcScan'), False, False, False, False);
 
-  FMarksFactoryConfig := TMarkFactoryConfig.Create(FLanguageManager);
+  FMarksFactoryConfig := TMarkFactoryConfig.Create(AAppearanceOfMarkFactory, FLanguageManager);
   Add(FMarksFactoryConfig, TConfigSaveLoadStrategyBasicUseProvider.Create, False, False, False, False);
 
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);

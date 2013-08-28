@@ -23,9 +23,9 @@ unit i_MarkFactoryConfig;
 interface
 
 uses
-  GR32,
   i_ConfigDataElement,
   i_Category,
+  i_Appearance,
   i_MarkNameGenerator,
   i_MarkTemplate;
 
@@ -33,10 +33,8 @@ type
   IMarkPointTemplateConfig = interface(IConfigDataElement)
     ['{B796934A-83FE-4E8A-B69D-11237690AA23}']
     function CreateTemplate(
-      const APicName: string;
-      const ACategory: ICategory;
-      ATextColor, ATextBgColor: TColor32;
-      AFontSize, AMarkerSize: Integer
+      const AAppearance: IAppearance;
+      const ACategory: ICategory
     ): IMarkTemplatePoint;
 
     function GetDefaultTemplate: IMarkTemplatePoint;
@@ -49,9 +47,8 @@ type
   IMarkLineTemplateConfig = interface(IConfigDataElement)
     ['{0F7596F4-1BA2-4581-9509-77627F50B1AF}']
     function CreateTemplate(
-      const ACategory: ICategory;
-      ALineColor: TColor32;
-      ALineWidth: Integer
+      const AAppearance: IAppearance;
+      const ACategory: ICategory
     ): IMarkTemplateLine;
 
     function GetDefaultTemplate: IMarkTemplateLine;
@@ -64,10 +61,8 @@ type
   IMarkPolyTemplateConfig = interface(IConfigDataElement)
     ['{149D8DC1-7848-4D34-ABCA-2B7F8D3A22EF}']
     function CreateTemplate(
-      const ACategory: ICategory;
-      ABorderColor: TColor32;
-      AFillColor: TColor32;
-      ALineWidth: Integer
+      const AAppearance: IAppearance;
+      const ACategory: ICategory
     ): IMarkTemplatePoly;
 
     function GetDefaultTemplate: IMarkTemplatePoly;

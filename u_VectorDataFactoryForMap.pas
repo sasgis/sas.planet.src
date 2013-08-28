@@ -7,6 +7,7 @@ uses
   t_Hash,
   t_GeoTypes,
   i_HashFunction,
+  i_Appearance,
   i_StringProvider,
   i_HtmlToHintTextConverter,
   i_VectorItemLonLat,
@@ -28,18 +29,21 @@ type
   private
     function BuildPoint(
       const AIdData: Pointer;
+      const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
       const APoint: TDoublePoint
     ): IVectorDataItemPoint;
     function BuildPath(
       const AIdData: Pointer;
+      const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
       const ALine: ILonLatPath
     ): IVectorDataItemLine;
     function BuildPoly(
       const AIdData: Pointer;
+      const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
       const APoly: ILonLatPolygon
@@ -74,6 +78,7 @@ end;
 
 function TVectorDataFactoryForMap.BuildPath(
   const AIdData: Pointer;
+  const AAppearance: IAppearance;
   const AName, ADesc: string;
   const ALine: ILonLatPath
 ): IVectorDataItemLine;
@@ -104,6 +109,7 @@ end;
 
 function TVectorDataFactoryForMap.BuildPoint(
   const AIdData: Pointer;
+  const AAppearance: IAppearance;
   const AName, ADesc: string;
   const APoint: TDoublePoint
 ): IVectorDataItemPoint;
@@ -134,6 +140,7 @@ end;
 
 function TVectorDataFactoryForMap.BuildPoly(
   const AIdData: Pointer;
+  const AAppearance: IAppearance;
   const AName, ADesc: string;
   const APoly: ILonLatPolygon
 ): IVectorDataItemPoly;

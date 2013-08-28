@@ -5,6 +5,7 @@ interface
 uses
   t_Hash,
   t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_VectorDataItemSimple,
   i_GeoCoder,
@@ -17,10 +18,13 @@ type
     FUrl: string;
   private
     function GetHash: THashValue;
+    function GetAppearance: IAppearance;
     function GetPoint: TDoublePoint;
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: ILonLatRect;
+    function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+    function GetGoToLonLat: TDoublePoint;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetInfoUrl: string;
@@ -51,9 +55,19 @@ begin
   Result := FSource.GetAccuracy;
 end;
 
+function TGeoCodePlacemarkWithUrlDecorator.GetAppearance: IAppearance;
+begin
+  Result := FSource.Appearance;
+end;
+
 function TGeoCodePlacemarkWithUrlDecorator.GetDesc: string;
 begin
   Result := FSource.Desc;
+end;
+
+function TGeoCodePlacemarkWithUrlDecorator.GetGoToLonLat: TDoublePoint;
+begin
+  Result := FSource.GetGoToLonLat;
 end;
 
 function TGeoCodePlacemarkWithUrlDecorator.GetHash: THashValue;
@@ -94,6 +108,12 @@ end;
 function TGeoCodePlacemarkWithUrlDecorator.GetPoint: TDoublePoint;
 begin
   Result := FSource.Point;
+end;
+
+function TGeoCodePlacemarkWithUrlDecorator.IsEqual(
+  const AItem: IVectorDataItemSimple): Boolean;
+begin
+  Result := FSource.IsEqual(AItem);
 end;
 
 end.

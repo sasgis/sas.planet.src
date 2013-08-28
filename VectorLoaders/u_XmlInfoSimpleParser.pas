@@ -320,7 +320,7 @@ var
       VAUX^.list := FVectorItemSubsetBuilderFactory.Build;
     end;
     // create object
-    wpt_iface := VAUX^.Factory.BuildPoint(VAUX^.IdData, VWSName, VWSDesc, wpt_point);
+    wpt_iface := VAUX^.Factory.BuildPoint(VAUX^.IdData, nil, VWSName, VWSDesc, wpt_point);
     // add object to list
     VAUX^.list.Add(wpt_iface);
   end;
@@ -763,7 +763,7 @@ begin
     if (1 = FArrayCount) then begin
       // single point in track segment - make as point
       if not PointIsEmpty(array_points[0]) then begin
-        trk_obj := Factory.BuildPoint(IdData, AWideStrName, AWideStrDesc, array_points[0]);
+        trk_obj := Factory.BuildPoint(IdData, nil, AWideStrName, AWideStrDesc, array_points[0]);
       end;
     end else if ((FCurrentFOT = fotPolygon))
                 OR
@@ -774,6 +774,7 @@ begin
       if Assigned(VPoly) then begin
         trk_obj := Factory.BuildPoly(
             IdData,
+            nil,
             AWideStrName,
             AWideStrDesc,
             VPoly
@@ -785,6 +786,7 @@ begin
       if Assigned(VPath) then begin
         trk_obj := Factory.BuildPath(
             IdData,
+            nil,
             AWideStrName,
             AWideStrDesc,
             VPath

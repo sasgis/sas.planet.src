@@ -24,7 +24,9 @@ interface
 
 uses
   t_Hash,
+  t_GeoTypes,
   i_LonLatRect,
+  i_Appearance,
   i_StringProvider,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
@@ -42,9 +44,12 @@ type
     FDesc: string;
   protected
     function GetHash: THashValue;
+    function GetAppearance: IAppearance;
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: ILonLatRect; virtual; abstract;
+    function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+    function GetGoToLonLat: TDoublePoint; virtual; abstract;
     function GetHintText: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;
@@ -82,6 +87,11 @@ begin
   FIndex := AIndex;
   FName := AName;
   FDesc := ADesc;
+end;
+
+function TVectorDataItemOfMapBase.GetAppearance: IAppearance;
+begin
+  Result := nil;
 end;
 
 function TVectorDataItemOfMapBase.GetDesc: string;
@@ -125,6 +135,28 @@ end;
 function TVectorDataItemOfMapBase.GetName: string;
 begin
   Result := FName;
+end;
+
+function TVectorDataItemOfMapBase.IsEqual(
+  const AItem: IVectorDataItemSimple): Boolean;
+begin
+  Result := True;
+  if (AItem.Hash <> 0) and (FHash <> 0) and (AItem.Hash <> FHash) then begin
+    Result := False;
+    Exit;
+  end;
+  if Assigned(AItem.Appearance) then begin
+    Result := False;
+    Exit;
+  end;
+  if FName <> AItem.Name then begin
+    Result := False;
+    Exit;
+  end;
+  if FDesc <> AItem.Desc then begin
+    Result := False;
+    Exit;
+  end;
 end;
 
 end.

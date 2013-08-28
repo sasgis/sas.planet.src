@@ -23,8 +23,8 @@ unit i_MarkFactory;
 interface
 
 uses
-  GR32,
   t_GeoTypes,
+  i_Appearance,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
   i_ImportConfig,
@@ -61,36 +61,26 @@ type
       const ACategory: ICategory
     ): IMark;
 
-    function ModifyPoint(
-      const ASource: IMarkPoint;
-      const AName: string;
-      const APic: IMarkPicture;
-      const ACategory: ICategory;
-      const ADesc: string;
+    function CreatePoint(
       const APoint: TDoublePoint;
-      ATextColor: TColor32;
-      ATextBgColor: TColor32;
-      AFontSize: Integer;
-      AMarkerSize: Integer
+      const AName: string;
+      const ADesc: string;
+      const ACategory: ICategory;
+      const AAppearance: IAppearance
     ): IMarkPoint;
-    function ModifyLine(
-      const ASource: IMarkLine;
-      const AName: string;
-      const ACategory: ICategory;
-      const ADesc: string;
+    function CreateLine(
       const ALine: ILonLatPath;
-      ALineColor: TColor32;
-      ALineWidth: Integer
+      const AName: string;
+      const ADesc: string;
+      const ACategory: ICategory;
+      const AAppearance: IAppearance
     ): IMarkLine;
-    function ModifyPoly(
-      const ASource: IMarkPoly;
+    function CreatePoly(
+      const ALine: ILonLatPolygon;
+      const ADesc: string;
       const AName: string;
       const ACategory: ICategory;
-      const ADesc: string;
-      const ALine: ILonLatPolygon;
-      ABorderColor: TColor32;
-      AFillColor: TColor32;
-      ALineWidth: Integer
+      const AAppearance: IAppearance
     ): IMarkPoly;
 
     function SimpleModifyPoint(
@@ -111,8 +101,7 @@ type
       const AItem: IVectorDataItemPoint;
       const AName: string;
       const AParams: IImportPointParams;
-      const ACategory: ICategory;
-      const ADefaultPic: IMarkPicture
+      const ACategory: ICategory
     ): IMarkPoint;
     function PrepareLine(
       const AItem: IVectorDataItemLine;

@@ -340,6 +340,7 @@ begin
     if not PointIsEmpty(APointsAggregator.Points[0]) then begin
       VItem := AFactory.BuildPoint(
         AIdData,
+        nil,
         VPointName,
         VPointDesc,
         APointsAggregator.Points[0]
@@ -351,6 +352,7 @@ begin
       // make
       VItem := AFactory.BuildPoly(
         AIdData,
+        nil,
         VPointName,
         VPointDesc,
         VPoly
@@ -362,6 +364,7 @@ begin
       // make
       VItem := AFactory.BuildPath(
         AIdData,
+        nil,
         VPointName,
         VPointDesc,
         VPath
@@ -430,6 +433,7 @@ begin
   // make simple point
   VItem := AFactory.BuildPoint(
     AIdData,
+    nil,
     VPointName,
     VPointDesc,
     ACoords

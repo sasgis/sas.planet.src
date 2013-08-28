@@ -37,6 +37,7 @@ type
     FLLRect: ILonLatRect;
   protected
     function GetLLRect: ILonLatRect; override;
+    function GetGoToLonLat: TDoublePoint; override;
     function GetPoint: TDoublePoint;
   public
     constructor Create(
@@ -77,6 +78,11 @@ begin
     ADesc
   );
   FLLRect := TLonLatRectByPoint.Create(APoint);
+end;
+
+function TVectorDataItemOfMapPoint.GetGoToLonLat: TDoublePoint;
+begin
+  Result := FLLRect.TopLeft;
 end;
 
 function TVectorDataItemOfMapPoint.GetLLRect: ILonLatRect;

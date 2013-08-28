@@ -41,6 +41,7 @@ type
     function GetCategoryDB: IMarkCategoryDBImpl;
     property CategoryDB: IMarkCategoryDBImpl read GetCategoryDB;
 
+    function GetStringIdByMark(const AMark: IMark): string;
     function GetMarkByStringId(const AId: string): IMark;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
   end;

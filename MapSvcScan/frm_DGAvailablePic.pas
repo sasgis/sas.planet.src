@@ -292,6 +292,7 @@ uses
   u_Notifier,
   u_NotifierOperation,
   u_InetFunc,
+  u_VectorItemTree,
   u_DoublePointsAggregator,
   u_MapSvcScanStorage,
   u_MultiPoligonParser,
@@ -1098,12 +1099,12 @@ begin
         VPolygon := FVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
-          VMark := FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewPoly(
-            VPolygon,
-            Vname,
-            VDesc,
-            VImportConfig.PolyParams.Template
-          );
+          VMark :=
+            FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewPoly(
+              VPolygon,
+              Vname,
+              VDesc
+            );
 
           if (nil<>VMark) then begin
             // apply to database
@@ -1120,7 +1121,10 @@ begin
 
   if Assigned(VAllNewMarks) then
   if (nil<>VImportConfig) then begin
-    FMarkDBGUI.MarksDb.ImportItemsList(VAllNewMarks.MakeStaticAndClear, VImportConfig, '')
+    FMarkDBGUI.MarksDb.ImportItemsTree(
+      TVectorItemTree.Create('', VAllNewMarks.MakeStaticAndClear, nil),
+      VImportConfig
+    )
   end;
 end;
 

@@ -26,12 +26,14 @@ uses
   GR32,
   t_GeoTypes,
   i_HashFunction,
+  i_AppearanceOfMarkFactory,
   i_VectorItemLonLat,
   i_VectorItemsFactory,
   i_MarkPicture,
   i_Category,
   i_MarkCategoryDBSmlInternal,
   i_Mark,
+  i_MarkFactory,
   i_HtmlToHintTextConverter,
   i_MarkFactorySmlInternal,
   u_BaseInterfacedObject;
@@ -42,6 +44,8 @@ type
     FDbId: Integer;
     FHashFunction: IHashFunction;
     FFactory: IVectorItemsFactory;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+    FMarkFactory: IMarkFactory;
     FCategoryDB: IMarkCategoryDBSmlInternal;
     FHintConverter: IHtmlToHintTextConverter;
 
@@ -95,12 +99,13 @@ type
       AScale2: Integer
     ): IMark;
     function CreateInternalMark(AMark: IMark): IMark;
-    function GetMarkPictureList: IMarkPictureList;
   public
     constructor Create(
       const ADbId: Integer;
       const AMarkPictureList: IMarkPictureList;
       const AFactory: IVectorItemsFactory;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkFactory: IMarkFactory;
       const AHashFunction: IHashFunction;
       const AHintConverter: IHtmlToHintTextConverter;
       const ACategoryDB: IMarkCategoryDBSmlInternal
@@ -113,6 +118,8 @@ uses
   SysUtils,
   t_Hash,
   i_MarkDbSmlInternal,
+  i_Appearance,
+  i_VectorDataItemSimple,
   u_GeoFun,
   u_MarkPointSml,
   u_MarkLineSml,
@@ -124,6 +131,8 @@ constructor TMarkFactorySmlDbInternal.Create(
   const ADbId: Integer;
   const AMarkPictureList: IMarkPictureList;
   const AFactory: IVectorItemsFactory;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkFactory: IMarkFactory;
   const AHashFunction: IHashFunction;
   const AHintConverter: IHtmlToHintTextConverter;
   const ACategoryDB: IMarkCategoryDBSmlInternal
@@ -132,6 +141,8 @@ begin
   inherited Create;
   FDbId := ADbId;
   FFactory := AFactory;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
+  FMarkFactory := AMarkFactory;
   FHashFunction := AHashFunction;
   FHintConverter := AHintConverter;
   FCategoryDB := ACategoryDB;
@@ -155,32 +166,32 @@ var
   VPic: IMarkPicture;
   VPicName: string;
   VHash: THashValue;
-  VPicHash: THashValue;
+  VAppearance: IAppearance;
 begin
   VPic := APic;
   if VPic = nil then begin
     VPicName := APicName;
     VPicIndex := FMarkPictureList.GetIndexByName(APicName);
-    if VPicIndex < 0 then begin
-      VPic := nil;
-      VPicHash := 0;
-    end else begin
+    if VPicIndex >= 0 then begin
       VPic := FMarkPictureList.Get(VPicIndex);
-      VPicHash := VPic.Hash;
     end;
   end else begin
     VPicName := VPic.GetName;
-    VPicHash := VPic.Hash;
   end;
+  VAppearance :=
+    FAppearanceOfMarkFactory.CreatePointAppearance(
+      ATextColor,
+      ATextBgColor,
+      AFontSize,
+      VPicName,
+      VPic,
+      AMarkerSize
+    );
 
   VHash := FHashFunction.CalcHashByDoublePoint(APoint);
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  FHashFunction.UpdateHashByHash(VHash, VPicHash);
-  FHashFunction.UpdateHashByInteger(VHash, AMarkerSize);
-  FHashFunction.UpdateHashByInteger(VHash, ATextColor);
-  FHashFunction.UpdateHashByInteger(VHash, ATextBgColor);
-  FHashFunction.UpdateHashByInteger(VHash, AFontSize);
+  FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
 
   Result :=
     TMarkPointSml.Create(
@@ -190,15 +201,10 @@ begin
       AId,
       FDbId,
       AVisible,
-      VPicName,
-      VPic,
+      VAppearance,
       ACategory,
       ADesc,
-      APoint,
-      ATextColor,
-      ATextBgColor,
-      AFontSize,
-      AMarkerSize
+      APoint
     );
 end;
 
@@ -206,80 +212,30 @@ function TMarkFactorySmlDbInternal.CreateInternalMark(AMark: IMark): IMark;
 var
   VCategory: ICategory;
   VMarkInternal: IMarkSMLInternal;
-  VCategoryInternal: IMarkCategorySMLInternal;
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
-  VVisible: Boolean;
+  VMarkWithCategory: IVectorDataItemWithCategory;
 begin
   Assert(Assigned(AMark));
-  Assert(Assigned(AMark.Category));
 
-  VVisible := True;
   if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
-    VVisible := VMarkInternal.Visible;
     if VMarkInternal.DbId = FDbId then begin
       Result := AMark;
       Exit;
     end;
   end;
   VCategory := nil;
-  if Supports(AMark.Category, IMarkCategorySMLInternal, VCategoryInternal) then begin
-    if VCategoryInternal.DbId = FDbId then begin
-      VCategory := AMark.Category;
-    end;
-  end;
-  if VCategory = nil then begin
-    if AMark.Category <> nil then begin
-      VCategory := FCategoryDB.GetCategoryByName(AMark.Category.Name);
+  if Supports(AMark, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+    VCategory := VMarkWithCategory.Category;
+    if Assigned(VCategory) then begin
+      if not FCategoryDB.IsCategoryFromThisDb(VCategory) then begin
+        VCategory := FCategoryDB.GetCategoryByName(VCategory.Name);
+        if Assigned(VCategory) then begin
+          Result := FMarkFactory.ReplaceCategory(AMark, VCategory);
+        end;
+      end;
     end;
   end;
   Assert(Assigned(VCategory), 'Corresponding category in this DB have not been found');
-
-  if Supports(AMark, IMarkPoint, VMarkPoint) then begin
-    Result :=
-      CreatePoint(
-        -1,
-        VMarkPoint.Name,
-        VVisible,
-        '',
-        VMarkPoint.Pic,
-        VCategory,
-        VMarkPoint.Desc,
-        VMarkPoint.Point,
-        VMarkPoint.TextColor,
-        VMarkPoint.TextBgColor,
-        VMarkPoint.FontSize,
-        VMarkPoint.MarkerSize
-      );
-  end else if Supports(AMark, IMarkLine, VMarkLine) then begin
-    Result :=
-      CreateLine(
-        -1,
-        VMarkLine.Name,
-        VVisible,
-        VCategory,
-        VMarkLine.Desc,
-        VMarkLine.Line,
-        VMarkLine.LineColor,
-        VMarkLine.LineWidth
-      );
-  end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
-    Result :=
-      CreatePoly(
-        -1,
-        VMarkPoly.Name,
-        VVisible,
-        VCategory,
-        VMarkPoly.Desc,
-        VMarkPoly.Line,
-        VMarkPoly.LineColor,
-        VMarkPoly.FillColor,
-        VMarkPoly.LineWidth
-      );
-  end else begin
-    Assert(False, 'Unknown Mark type');
-  end;
+  Result := AMark;
 end;
 
 function TMarkFactorySmlDbInternal.CreateLine(
@@ -294,13 +250,19 @@ function TMarkFactorySmlDbInternal.CreateLine(
 ): IMarkLine;
 var
   VHash: THashValue;
+  VAppearance: IAppearance;
 begin
   Assert(Assigned(ALine));
+  VAppearance :=
+    FAppearanceOfMarkFactory.CreateLineAppearance(
+      ALineColor,
+      ALineWidth
+    );
+
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  FHashFunction.UpdateHashByInteger(VHash, ALineColor);
-  FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
+  FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
   Result :=
     TMarkLineSml.Create(
       VHash,
@@ -309,11 +271,10 @@ begin
       AId,
       FDbId,
       AVisible,
+      VAppearance,
       ACategory,
       ADesc,
-      ALine,
-      ALineColor,
-      ALineWidth
+      ALine
     );
 end;
 
@@ -329,14 +290,19 @@ function TMarkFactorySmlDbInternal.CreatePoly(
 ): IMarkPoly;
 var
   VHash: THashValue;
+  VAppearance: IAppearance;
 begin
   Assert(Assigned(ALine));
+  VAppearance :=
+    FAppearanceOfMarkFactory.CreatePolygonAppearance(
+      ABorderColor,
+      ALineWidth,
+      AFillColor
+    );
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  FHashFunction.UpdateHashByInteger(VHash, AFillColor);
-  FHashFunction.UpdateHashByInteger(VHash, ABorderColor);
-  FHashFunction.UpdateHashByInteger(VHash, ALineWidth);
+  FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
   Result :=
     TMarkPolySml.Create(
       VHash,
@@ -345,18 +311,11 @@ begin
       AId,
       FDbId,
       AVisible,
+      VAppearance,
       ACategory,
       ADesc,
-      ALine,
-      ABorderColor,
-      AFillColor,
-      ALineWidth
+      ALine
     );
-end;
-
-function TMarkFactorySmlDbInternal.GetMarkPictureList: IMarkPictureList;
-begin
-  Result := FMarkPictureList;
 end;
 
 function TMarkFactorySmlDbInternal.CreateMark(

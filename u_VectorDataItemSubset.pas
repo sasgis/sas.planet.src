@@ -60,8 +60,6 @@ implementation
 
 uses
   SysUtils,
-  i_InterfaceListSimple,
-  u_InterfaceListSimple,
   u_EnumUnknown;
 
 { TVectorItemSubset }

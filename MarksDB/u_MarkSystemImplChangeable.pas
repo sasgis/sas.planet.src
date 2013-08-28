@@ -9,6 +9,8 @@ uses
   i_HashFunction,
   i_VectorItemsFactory,
   i_VectorItemSubsetBuilder,
+  i_AppearanceOfMarkFactory,
+  i_MarkFactory,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
   i_HtmlToHintTextConverter,
@@ -24,8 +26,10 @@ type
     FBasePath: IPathConfig;
     FMarkPictureList: IMarkPictureList;
     FHashFunction: IHashFunction;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FVectorItemsFactory: IVectorItemsFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FMarkFactory: IMarkFactory;
     FHintConverter: IHtmlToHintTextConverter;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
@@ -49,8 +53,10 @@ type
       const ABasePath: IPathConfig;
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AMarkFactory: IMarkFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AAppStartedNotifier: INotifierOneOperation;
@@ -71,8 +77,10 @@ constructor TMarkSystemImplChangeable.Create(
   const ABasePath: IPathConfig;
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AMarkFactory: IMarkFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
   const AAppStartedNotifier: INotifierOneOperation;
@@ -84,8 +92,10 @@ begin
   FBasePath := ABasePath;
   FMarkPictureList := AMarkPictureList;
   FHashFunction := AHashFunction;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FVectorItemsFactory := AVectorItemsFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+  FMarkFactory := AMarkFactory;
   FLoadDbCounter := ALoadDbCounter;
   FSaveDbCounter := ASaveDbCounter;
   FHintConverter := AHintConverter;
@@ -125,8 +135,10 @@ begin
         FBasePath.FullPath,
         FMarkPictureList,
         FHashFunction,
+        FAppearanceOfMarkFactory,
         FVectorItemsFactory,
         FVectorItemSubsetBuilderFactory,
+        FMarkFactory,
         FLoadDbCounter,
         FSaveDbCounter,
         FHintConverter

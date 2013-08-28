@@ -23,42 +23,28 @@ unit u_MarkPointSml;
 interface
 
 uses
-  GR32,
   t_Hash,
   t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_Mark,
   i_VectorDataItemSimple,
   i_Category,
-  i_MarkPicture,
   i_HtmlToHintTextConverter,
   u_MarkFullBaseSml;
 
 type
-  TMarkPointSml = class(TMarkFullBaseSml, IMarkPoint, IVectorDataItemPoint,
-    IVectorDataItemPointWithIconParams, IVectorDataItemPointWithCaptionParams)
+  TMarkPointSml = class(TMarkFullBaseSml, IMarkPoint, IVectorDataItemPoint)
   private
-    FPicName: string;
-    FPic: IMarkPicture;
     FLLRect: ILonLatRect;
-    FTextColor: TColor32;
-    FTextBgColor: TColor32;
-    FFontSize: Integer;
-    FMarkerSize: Integer;
   protected
     function GetMarkType: TGUID; override;
   protected
     function GetLLRect: ILonLatRect; override;
     function GetGoToLonLat: TDoublePoint; override;
-    function IsEqual(const AMark: IMark): Boolean; override;
+    function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
     function GetPoint: TDoublePoint;
-    function GetTextColor: TColor32;
-    function GetTextBgColor: TColor32;
-    function GetFontSize: Integer;
-    function GetMarkerSize: Integer;
-    function GetPicName: string;
-    function GetPic: IMarkPicture;
   public
     constructor Create(
       const AHash: THashValue;
@@ -67,15 +53,10 @@ type
       AId: Integer;
       ADbId: Integer;
       AVisible: Boolean;
-      const APicName: string;
-      const APic: IMarkPicture;
+      const AAppearance: IAppearance;
       const ACategory: ICategory;
       const ADesc: string;
-      const APoint: TDoublePoint;
-      ATextColor: TColor32;
-      ATextBgColor: TColor32;
-      AFontSize: Integer;
-      AMarkerSize: Integer
+      const APoint: TDoublePoint
     );
   end;
 
@@ -95,37 +76,27 @@ constructor TMarkPointSml.Create(
   AId: Integer;
   ADbId: Integer;
   AVisible: Boolean;
-  const APicName: string;
-  const APic: IMarkPicture;
+  const AAppearance: IAppearance;
   const ACategory: ICategory;
   const ADesc: string;
-  const APoint: TDoublePoint;
-  ATextColor, ATextBgColor: TColor32;
-  AFontSize, AMarkerSize: Integer
+  const APoint: TDoublePoint
 );
 begin
   Assert(not PointIsEmpty(APoint));
-  inherited Create(AHash, AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
-  FPicName := APicName;
-  FPic := APic;
+  inherited Create(AHash, AAppearance, AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
   FLLRect := TLonLatRectByPoint.Create(APoint);
-  FTextColor := ATextColor;
-  FTextBgColor := ATextBgColor;
-  FFontSize := AFontSize;
-  FMarkerSize := AMarkerSize;
 end;
 
-function TMarkPointSml.GetTextColor: TColor32;
-begin
-  Result := FTextColor;
-end;
-
-function TMarkPointSml.IsEqual(const AMark: IMark): Boolean;
+function TMarkPointSml.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
 var
   VMarkPoint: IMarkPoint;
 begin
   if AMark = IMark(Self) then begin
     Result := True;
+    Exit;
+  end;
+  if not inherited IsEqual(AMark) then begin
+    Result := False;
     Exit;
   end;
   if not FLLRect.IsEqual(AMark.LLRect) then begin
@@ -136,36 +107,7 @@ begin
     Result := False;
     Exit;
   end;
-  if not inherited IsEqual(AMark) then begin
-    Result := False;
-    Exit;
-  end;
-  if FPic <> VMarkPoint.Pic then begin
-    Result := False;
-    Exit;
-  end;
-  if FTextColor <> VMarkPoint.TextColor then begin
-    Result := False;
-    Exit;
-  end;
-  if FTextBgColor <> VMarkPoint.TextBgColor then begin
-    Result := False;
-    Exit;
-  end;
-  if FFontSize <> VMarkPoint.FontSize then begin
-    Result := False;
-    Exit;
-  end;
-  if FMarkerSize <> VMarkPoint.MarkerSize then begin
-    Result := False;
-    Exit;
-  end;
   Result := True;
-end;
-
-function TMarkPointSml.GetTextBgColor: TColor32;
-begin
-  Result := FTextBgColor;
 end;
 
 function TMarkPointSml.GetGoToLonLat: TDoublePoint;
@@ -178,29 +120,9 @@ begin
   Result := FLLRect;
 end;
 
-function TMarkPointSml.GetPic: IMarkPicture;
-begin
-  Result := FPic;
-end;
-
-function TMarkPointSml.GetPicName: string;
-begin
-  Result := FPicName;
-end;
-
 function TMarkPointSml.GetPoint: TDoublePoint;
 begin
   Result := FLLRect.TopLeft;
-end;
-
-function TMarkPointSml.GetFontSize: Integer;
-begin
-  Result := FFontSize;
-end;
-
-function TMarkPointSml.GetMarkerSize: Integer;
-begin
-  Result := FMarkerSize;
 end;
 
 function TMarkPointSml.GetMarkType: TGUID;

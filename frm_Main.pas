@@ -764,6 +764,7 @@ uses
   i_GPSRecorder,
   i_PathDetalizeProvider,
   i_StringListChangeable,
+  i_AppearanceOfVectorItem,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
@@ -819,6 +820,7 @@ uses
   u_MapViewGoto,
   u_LanguageTBXItem,
   u_MouseState,
+  u_VectorItemTree,
   u_UITileDownloadList,
   u_MapTypeConfigModalEditByForm,
   u_ConfigProviderHelpers,
@@ -882,6 +884,7 @@ begin
       GState.Config.MediaDataPath,
       GState.Config.MarksFactoryConfig,
       GState.MarkPictureList,
+      GState.AppearanceOfMarkFactory,
       GState.MarksDb,
       GState.ImportFileByExt,
       FConfig.ViewPortState.View,
@@ -4883,11 +4886,16 @@ var
   VLonLatPoint: TDoublePoint;
   VMapPoint: TDoublePoint;
   VCurrPixel: TDoublePoint;
+  VAppearanceBorder: IAppearancePolygonBorder;
 begin
   Result := CEmptyDoublePoint;
   VZoom := AProjection.Zoom;
   VConverter := AProjection.GeoConverter;
-  r := (AMarkPoly.LineWidth / 2) + 3;
+  if Supports(AMarkPoly.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+    r := (VAppearanceBorder.LineWidth / 2) + 3;
+  end else begin
+    r := 2;
+  end;
   VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
   VEnum := AMarkPoly.Line.GetEnum;
   while VEnum.Next(VLonLatPoint) do begin
@@ -4913,11 +4921,16 @@ var
   VLonLatPoint: TDoublePoint;
   VMapPoint: TDoublePoint;
   VCurrPixel: TDoublePoint;
+  VAppearanceLine: IAppearanceLine;
 begin
   VZoom := AProjection.Zoom;
   VConverter := AProjection.GeoConverter;
   Result := CEmptyDoublePoint;
-  r := (AMarkLine.LineWidth / 2) + 3;
+  if Supports(AMarkLine.Appearance, IAppearanceLine, VAppearanceLine) then begin
+    r := (VAppearanceLine.LineWidth / 2) + 3;
+  end else begin
+    r := 2;
+  end;
   VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
   VEnum := AMarkLine.Line.GetEnum;
   while VEnum.Next(VLonLatPoint) do begin
@@ -5776,12 +5789,14 @@ procedure TfrmMain.NMarkNavClick(Sender: TObject);
 var
   VLonLat:TDoublePoint;
   VMark: IMark;
+  VMarkStringId: string;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
       VLonLat := VMark.GetGoToLonLat;
-      FConfig.NavToPoint.StartNavToMark(VMark.StringID, VLonLat);
+      VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
+      FConfig.NavToPoint.StartNavToMark(VMarkStringID, VLonLat);
     end else begin
       FConfig.NavToPoint.StopNav;
     end;
@@ -6241,7 +6256,10 @@ begin
   );
   // import all marks
   if Assigned(VMarksList) then begin
-    FMarkDBGUI.MarksDb.ImportItemsList(VMarksList, VImportConfig, '');
+    FMarkDBGUI.MarksDb.ImportItemsTree(
+      TVectorItemTree.Create('', VMarksList, nil),
+      VImportConfig
+    );
   end;
 end;
 
@@ -6497,6 +6515,7 @@ var
   VGUID: TGUID;
   VGUIDList: IGUIDListStatic;
   VMark: IMark;
+  VMarkStringId: string;
   VInternalDomainOptions: IInternalDomainOptions;
 begin
   VMark := FSelectedMark;
@@ -6517,11 +6536,15 @@ begin
   NMarkPlay.Visible := (VMark <> nil) and (FPlacemarkPlayerPlugin <> nil) and (FPlacemarkPlayerPlugin.Available);
   tbitmMarkInfo.Visible := (VMark <> nil);
   tbitmCopyToClipboardGenshtabName.Visible := GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible;
-  if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and
-    (FConfig.NavToPoint.MarkId <> '') and (VMark.StringID = FConfig.NavToPoint.MarkId) then begin
-    NMarkNav.Checked:=true
+  if (VMark <> nil) and (FConfig.NavToPoint.IsActive) and (FConfig.NavToPoint.MarkId <> '') then begin
+    VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
+    if (VMarkStringID = FConfig.NavToPoint.MarkId) then begin
+      NMarkNav.Checked := True
+    end else begin
+      NMarkNav.Checked := False;
+    end;
   end else begin
-    NMarkNav.Checked:=false;
+    NMarkNav.Checked := False;
   end;
   ldm.Visible:=false;
   dlm.Visible:=false;

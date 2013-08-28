@@ -6,6 +6,7 @@ uses
   t_Hash,
   t_GeoTypes,
   i_HashFunction,
+  i_Appearance,
   i_HtmlToHintTextConverter,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
@@ -20,18 +21,21 @@ type
   private
     function BuildPoint(
       const AIdData: Pointer;
+      const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
       const APoint: TDoublePoint
     ): IVectorDataItemPoint;
     function BuildPath(
       const AIdData: Pointer;
+      const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
       const ALine: ILonLatPath
     ): IVectorDataItemLine;
     function BuildPoly(
       const AIdData: Pointer;
+      const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
       const APoly: ILonLatPolygon
@@ -66,6 +70,7 @@ end;
 
 function TVectorDataFactorySimple.BuildPath(
   const AIdData: Pointer;
+  const AAppearance: IAppearance;
   const AName, ADesc: string;
   const ALine: ILonLatPath
 ): IVectorDataItemLine;
@@ -76,9 +81,13 @@ begin
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
+  if Assigned(AAppearance) then begin
+    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+  end;
   Result :=
     TVectorDataItemPath.Create(
       VHash,
+      AAppearance,
       FHintConverter,
       AName,
       ADesc,
@@ -88,6 +97,7 @@ end;
 
 function TVectorDataFactorySimple.BuildPoint(
   const AIdData: Pointer;
+  const AAppearance: IAppearance;
   const AName, ADesc: string;
   const APoint: TDoublePoint
 ): IVectorDataItemPoint;
@@ -98,9 +108,13 @@ begin
   VHash := FHashFunction.CalcHashByDoublePoint(APoint);
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
+  if Assigned(AAppearance) then begin
+    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+  end;
   Result :=
     TVectorDataItemPoint.Create(
       VHash,
+      AAppearance,
       FHintConverter,
       AName,
       ADesc,
@@ -110,6 +124,7 @@ end;
 
 function TVectorDataFactorySimple.BuildPoly(
   const AIdData: Pointer;
+  const AAppearance: IAppearance;
   const AName, ADesc: string;
   const APoly: ILonLatPolygon
 ): IVectorDataItemPoly;
@@ -120,9 +135,13 @@ begin
   VHash := APoly.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
+  if Assigned(AAppearance) then begin
+    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+  end;
   Result :=
     TVectorDataItemPoly.Create(
       VHash,
+      AAppearance,
       FHintConverter,
       AName,
       ADesc,

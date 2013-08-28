@@ -24,21 +24,26 @@ interface
 
 uses
   i_Category,
-  i_MarkTemplate,
+  i_Appearance,
+  i_AppearanceOfVectorItem,
   i_ImportConfig,
   u_BaseInterfacedObject;
 
 type
   TImportPointParams = class(TBaseInterfacedObject, IImportPointParams)
   private
-    FTemplate: IMarkTemplatePoint;
+    FAppearance: IAppearance;
+    FCaptionAppearance: IAppearancePointCaption;
+    FIconAppearance: IAppearancePointIcon;
     FIsForceTextColor: Boolean;
     FIsForceTextBgColor: Boolean;
     FIsForceFontSize: Boolean;
     FIsForceMarkerSize: Boolean;
     FIsForcePicName: Boolean;
   private
-    function GetTemplate: IMarkTemplatePoint;
+    function GetAppearance: IAppearance;
+    function GetCaptionAppearance: IAppearancePointCaption;
+    function GetIconAppearance: IAppearancePointIcon;
     function GetIsForceTextColor: Boolean;
     function GetIsForceTextBgColor: Boolean;
     function GetIsForceFontSize: Boolean;
@@ -46,7 +51,7 @@ type
     function GetIsForcePicName: Boolean;
   public
     constructor Create(
-      const ATemplate: IMarkTemplatePoint;
+      const AAppearance: IAppearance;
       const AIsForceTextColor: Boolean;
       const AIsForceTextBgColor: Boolean;
       const AIsForceFontSize: Boolean;
@@ -57,16 +62,18 @@ type
 
   TImportLineParams = class(TBaseInterfacedObject, IImportLineParams)
   private
-    FTemplate: IMarkTemplateLine;
+    FAppearance: IAppearance;
+    FLineAppearance: IAppearanceLine;
     FIsForceLineColor: Boolean;
     FIsForceLineWidth: Boolean;
   private
-    function GetTemplate: IMarkTemplateLine;
+    function GetAppearance: IAppearance;
+    function GetLineAppearance: IAppearanceLine;
     function GetIsForceLineColor: Boolean;
     function GetIsForceLineWidth: Boolean;
   public
     constructor Create(
-      const ATemplate: IMarkTemplateLine;
+      const AAppearance: IAppearance;
       const AIsForceLineColor: Boolean;
       const AIsForceLineWidth: Boolean
     );
@@ -74,18 +81,22 @@ type
 
   TImportPolyParams = class(TBaseInterfacedObject, IImportPolyParams)
   private
-    FTemplate: IMarkTemplatePoly;
+    FAppearance: IAppearance;
+    FBorderAppearance: IAppearancePolygonBorder;
+    FFillAppearance: IAppearancePolygonFill;
     FIsForceLineColor: Boolean;
     FIsForceLineWidth: Boolean;
     FIsForceFillColor: Boolean;
   private
-    function GetTemplate: IMarkTemplatePoly;
+    function GetAppearance: IAppearance;
+    function GetBorderAppearance: IAppearancePolygonBorder;
+    function GetFillAppearance: IAppearancePolygonFill;
     function GetIsForceLineColor: Boolean;
     function GetIsForceLineWidth: Boolean;
     function GetIsForceFillColor: Boolean;
   public
     constructor Create(
-      const ATemplate: IMarkTemplatePoly;
+      const AAppearance: IAppearance;
       const AIsForceLineColor: Boolean;
       const AIsForceLineWidth: Boolean;
       const AIsForceFillColor: Boolean
@@ -112,7 +123,7 @@ type
     );
   end;
 
-  TImportConfigNew = class(TBaseInterfacedObject, IImportConfig)
+  TImportConfig = class(TBaseInterfacedObject, IImportConfig)
   private
     FRootCategory: ICategory;
     FCategoryParams: IImportCategoryParams;
@@ -135,68 +146,15 @@ type
     );
   end;
 
-  TImportConfig = class(TBaseInterfacedObject, IImportConfigOld)
-  private
-    FRootCategory: ICategory;
-    FTemplateNewPoint: IMarkTemplatePoint;
-    FTemplateNewLine: IMarkTemplateLine;
-    FTemplateNewPoly: IMarkTemplatePoly;
-  private
-    function GetRootCategory: ICategory;
-    function GetTemplateNewPoint: IMarkTemplatePoint;
-    function GetTemplateNewLine: IMarkTemplateLine;
-    function GetTemplateNewPoly: IMarkTemplatePoly;
-  public
-    constructor Create(
-      const ARootCategory: ICategory;
-      const ATemplateNewPoint: IMarkTemplatePoint;
-      const ATemplateNewLine: IMarkTemplateLine;
-      const ATemplateNewPoly: IMarkTemplatePoly
-    );
-  end;
-
 implementation
 
-{ TImportConfig }
-
-constructor TImportConfig.Create(
-  const ARootCategory: ICategory;
-  const ATemplateNewPoint: IMarkTemplatePoint;
-  const ATemplateNewLine: IMarkTemplateLine;
-  const ATemplateNewPoly: IMarkTemplatePoly
-);
-begin
-  inherited Create;
-  FRootCategory := ARootCategory;
-  FTemplateNewPoint := ATemplateNewPoint;
-  FTemplateNewLine := ATemplateNewLine;
-  FTemplateNewPoly := ATemplateNewPoly;
-end;
-
-function TImportConfig.GetRootCategory: ICategory;
-begin
-  Result := FRootCategory;
-end;
-
-function TImportConfig.GetTemplateNewLine: IMarkTemplateLine;
-begin
-  Result := FTemplateNewLine;
-end;
-
-function TImportConfig.GetTemplateNewPoint: IMarkTemplatePoint;
-begin
-  Result := FTemplateNewPoint;
-end;
-
-function TImportConfig.GetTemplateNewPoly: IMarkTemplatePoly;
-begin
-  Result := FTemplateNewPoly;
-end;
+uses
+  SysUtils;
 
 { TImportPointParams }
 
 constructor TImportPointParams.Create(
-  const ATemplate: IMarkTemplatePoint;
+  const AAppearance: IAppearance;
   const AIsForceTextColor: Boolean;
   const AIsForceTextBgColor: Boolean;
   const AIsForceFontSize: Boolean;
@@ -204,13 +162,32 @@ constructor TImportPointParams.Create(
   const AIsForcePicName: Boolean
 );
 begin
+  Assert(Supports(AAppearance, IAppearancePointCaption));
+  Assert(Supports(AAppearance, IAppearancePointIcon));
   inherited Create;
-  FTemplate := ATemplate;
+  FAppearance := AAppearance;
+  FCaptionAppearance := AAppearance as IAppearancePointCaption;
+  FIconAppearance := AAppearance as IAppearancePointIcon;
   FIsForceTextColor := AIsForceTextColor;
   FIsForceTextBgColor := AIsForceTextBgColor;
   FIsForceFontSize := AIsForceFontSize;
   FIsForceMarkerSize := AIsForceMarkerSize;
   FIsForcePicName := AIsForcePicName;
+end;
+
+function TImportPointParams.GetAppearance: IAppearance;
+begin
+  Result :=FAppearance;
+end;
+
+function TImportPointParams.GetCaptionAppearance: IAppearancePointCaption;
+begin
+  Result := FCaptionAppearance;
+end;
+
+function TImportPointParams.GetIconAppearance: IAppearancePointIcon;
+begin
+  Result := FIconAppearance;
 end;
 
 function TImportPointParams.GetIsForceFontSize: Boolean;
@@ -238,23 +215,25 @@ begin
   Result := FIsForceTextColor;
 end;
 
-function TImportPointParams.GetTemplate: IMarkTemplatePoint;
-begin
-  Result := FTemplate;
-end;
-
 { TImportLineParams }
 
 constructor TImportLineParams.Create(
-  const ATemplate: IMarkTemplateLine;
+  const AAppearance: IAppearance;
   const AIsForceLineColor: Boolean;
   const AIsForceLineWidth: Boolean
 );
 begin
+  Assert(Supports(AAppearance, IAppearanceLine));
   inherited Create;
-  FTemplate := ATemplate;
+  FAppearance := AAppearance;
+  FLineAppearance := AAppearance as IAppearanceLine;
   FIsForceLineColor := AIsForceLineWidth;
   FIsForceLineWidth := AIsForceLineWidth;
+end;
+
+function TImportLineParams.GetAppearance: IAppearance;
+begin
+  Result :=FAppearance;
 end;
 
 function TImportLineParams.GetIsForceLineColor: Boolean;
@@ -267,25 +246,44 @@ begin
   Result := FIsForceLineWidth;
 end;
 
-function TImportLineParams.GetTemplate: IMarkTemplateLine;
+function TImportLineParams.GetLineAppearance: IAppearanceLine;
 begin
-  Result := FTemplate;
+  Result := FLineAppearance;
 end;
 
 { TImportPolyParams }
 
 constructor TImportPolyParams.Create(
-  const ATemplate: IMarkTemplatePoly;
+  const AAppearance: IAppearance;
   const AIsForceLineColor: Boolean;
   const AIsForceLineWidth: Boolean;
   const AIsForceFillColor: Boolean
 );
 begin
+  Assert(Supports(AAppearance, IAppearancePolygonBorder));
+  Assert(Supports(AAppearance, IAppearancePolygonFill));
   inherited Create;
-  FTemplate := ATemplate;
+  FAppearance := AAppearance;
+  FBorderAppearance := AAppearance as IAppearancePolygonBorder;
+  FFillAppearance := AAppearance as IAppearancePolygonFill;
   FIsForceLineColor := AIsForceLineWidth;
   FIsForceLineWidth := AIsForceLineWidth;
   FIsForceFillColor := AIsForceFillColor;
+end;
+
+function TImportPolyParams.GetAppearance: IAppearance;
+begin
+  Result :=FAppearance;
+end;
+
+function TImportPolyParams.GetBorderAppearance: IAppearancePolygonBorder;
+begin
+  Result := FBorderAppearance;
+end;
+
+function TImportPolyParams.GetFillAppearance: IAppearancePolygonFill;
+begin
+  Result := FFillAppearance;
 end;
 
 function TImportPolyParams.GetIsForceFillColor: Boolean;
@@ -301,11 +299,6 @@ end;
 function TImportPolyParams.GetIsForceLineWidth: Boolean;
 begin
   Result := FIsForceLineWidth;
-end;
-
-function TImportPolyParams.GetTemplate: IMarkTemplatePoly;
-begin
-  Result := FTemplate;
 end;
 
 { TImportCategoryParams }
@@ -344,9 +337,9 @@ begin
   Result := FIsIgnoreMarkIfSubCategotyNotEixts;
 end;
 
-{ TImportConfigNew }
+{ TImportConfig }
 
-constructor TImportConfigNew.Create(
+constructor TImportConfig.Create(
   const ARootCategory: ICategory;
   const ACategoryParams: IImportCategoryParams;
   const APointParams: IImportPointParams;
@@ -362,27 +355,27 @@ begin
   FPolyParams := APolyParams;
 end;
 
-function TImportConfigNew.GetCategoryParams: IImportCategoryParams;
+function TImportConfig.GetCategoryParams: IImportCategoryParams;
 begin
   Result := FCategoryParams;
 end;
 
-function TImportConfigNew.GetLineParams: IImportLineParams;
+function TImportConfig.GetLineParams: IImportLineParams;
 begin
   Result := FLineParams;
 end;
 
-function TImportConfigNew.GetPointParams: IImportPointParams;
+function TImportConfig.GetPointParams: IImportPointParams;
 begin
   Result := FPointParams;
 end;
 
-function TImportConfigNew.GetPolyParams: IImportPolyParams;
+function TImportConfig.GetPolyParams: IImportPolyParams;
 begin
   Result := FPolyParams;
 end;
 
-function TImportConfigNew.GetRootCategory: ICategory;
+function TImportConfig.GetRootCategory: ICategory;
 begin
   Result := FRootCategory;
 end;

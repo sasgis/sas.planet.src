@@ -26,6 +26,8 @@ uses
   GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
+  i_Appearance,
+  i_AppearanceOfMarkFactory,
   i_LanguageManager,
   i_MarkTemplate,
   i_Category,
@@ -41,16 +43,15 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   protected
     function CreateTemplate(
-      const APicName: string;
-      const ACategory: ICategory;
-      ATextColor, ATextBgColor: TColor32;
-      AFontSize, AMarkerSize: Integer
+      const AAppearance: IAppearance;
+      const ACategory: ICategory
     ): IMarkTemplatePoint;
 
     function GetDefaultTemplate: IMarkTemplatePoint;
     procedure SetDefaultTemplate(const AValue: IMarkTemplatePoint);
   public
     constructor Create(
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const ALanguageManager: ILanguageManager
     );
   end;
@@ -68,10 +69,12 @@ uses
 { TMarkPointTemplateConfig }
 
 constructor TMarkPointTemplateConfig.Create(
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const ALanguageManager: ILanguageManager
 );
 var
   VFormatString: IStringConfigDataElement;
+  VAppearance: IAppearance;
 begin
   VFormatString :=
     TStringConfigDataElementWithDefByStringRec.Create(
@@ -81,24 +84,27 @@ begin
       True,
       @SAS_STR_NewMark
     );
-  inherited Create(VFormatString);
+  inherited Create(AAppearanceOfMarkFactory, VFormatString);
 
-  FDefaultTemplate :=
-    CreateTemplate(
-      '',
-      nil,
+  VAppearance :=
+    AppearanceOfMarkFactory.CreatePointAppearance(
       SetAlpha(clYellow32, 166),
       SetAlpha(clBlack32, 166),
       11,
+      '',
+      nil,
       32
+    );
+  FDefaultTemplate :=
+    CreateTemplate(
+      VAppearance,
+      nil
     );
 end;
 
 function TMarkPointTemplateConfig.CreateTemplate(
-  const APicName: string;
-  const ACategory: ICategory;
-  ATextColor, ATextBgColor: TColor32;
-  AFontSize, AMarkerSize: Integer
+  const AAppearance: IAppearance;
+  const ACategory: ICategory
 ): IMarkTemplatePoint;
 var
   VCategory: ICategory;
@@ -112,11 +118,7 @@ begin
     TMarkTemplatePoint.Create(
       NameGenerator,
       VCategory,
-      ATextColor,
-      ATextBgColor,
-      AFontSize,
-      AMarkerSize,
-      APicName
+      AAppearance
     );
 end;
 
@@ -129,14 +131,15 @@ var
   VTextColor, VTextBgColor: TColor32;
   VFontSize, VMarkerSize: Integer;
   VTemplate: IMarkTemplatePoint;
+  VAppearance: IAppearance;
 begin
   inherited;
   VCategoryName := FDefaultTemplate.Category.Name;
-  VTextColor := FDefaultTemplate.TextColor;
-  VTextBgColor := FDefaultTemplate.TextBgColor;
-  VFontSize := FDefaultTemplate.FontSize;
-  VMarkerSize := FDefaultTemplate.MarkerSize;
-  VPicName := FDefaultTemplate.PicName;
+  VTextColor := FDefaultTemplate.CaptionAppearance.TextColor;
+  VTextBgColor := FDefaultTemplate.CaptionAppearance.TextBgColor;
+  VFontSize := FDefaultTemplate.CaptionAppearance.FontSize;
+  VMarkerSize := FDefaultTemplate.IconAppearance.MarkerSize;
+  VPicName := FDefaultTemplate.IconAppearance.PicName;
   if AConfigData <> nil then begin
     VPicName := AConfigData.ReadString('IconName', VPicName);
     VCategoryName := AConfigData.ReadString('CategoryName', VCategoryName);
@@ -145,15 +148,19 @@ begin
     VFontSize := AConfigData.ReadInteger('FontSize', VFontSize);
     VMarkerSize := AConfigData.ReadInteger('IconSize', VMarkerSize);
   end;
-  VTemplate :=
-    TMarkTemplatePoint.Create(
-      NameGenerator,
-      TCategory.Create(VCategoryName),
+  VAppearance :=
+    AppearanceOfMarkFactory.CreatePointAppearance(
       VTextColor,
       VTextBgColor,
       VFontSize,
-      VMarkerSize,
-      VPicName
+      VPicName,
+      nil,
+      VMarkerSize
+    );
+  VTemplate :=
+    CreateTemplate(
+      VAppearance,
+      TCategory.Create(VCategoryName)
     );
   SetDefaultTemplate(VTemplate);
 end;
@@ -163,12 +170,12 @@ procedure TMarkPointTemplateConfig.DoWriteConfig(
 );
 begin
   inherited;
-  AConfigData.WriteString('IconName', FDefaultTemplate.PicName);
+  AConfigData.WriteString('IconName', FDefaultTemplate.IconAppearance.PicName);
   AConfigData.WriteString('CategoryName', FDefaultTemplate.Category.Name);
-  WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.TextColor);
-  WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.TextBgColor);
-  AConfigData.WriteInteger('FontSize', FDefaultTemplate.FontSize);
-  AConfigData.WriteInteger('IconSize', FDefaultTemplate.MarkerSize);
+  WriteColor32(AConfigData, 'TextColor', FDefaultTemplate.CaptionAppearance.TextColor);
+  WriteColor32(AConfigData, 'ShadowColor', FDefaultTemplate.CaptionAppearance.TextBgColor);
+  AConfigData.WriteInteger('FontSize', FDefaultTemplate.CaptionAppearance.FontSize);
+  AConfigData.WriteInteger('IconSize', FDefaultTemplate.IconAppearance.MarkerSize);
 end;
 
 function TMarkPointTemplateConfig.GetDefaultTemplate: IMarkTemplatePoint;

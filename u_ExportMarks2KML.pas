@@ -34,6 +34,7 @@ uses
   i_InterfaceListStatic,
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
+  i_AppearanceOfVectorItem,
   i_Category,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
@@ -65,7 +66,7 @@ type
       const Mark: IVectorDataItemSimple;
       const inNode: iXMLNode
     );
-    function SaveMarkIcon(const Mark: IVectorDataItemPointWithIconParams): string;
+    function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
     function Color32toKMLColor(Color32: TColor32): string;
   public
     constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
@@ -357,12 +358,13 @@ var
   VCoordinates: string;
   VFileName: string;
   VMarkPoint: IVectorDataItemPoint;
-  VMarkPointIconParams: IVectorDataItemPointWithIconParams;
-  VMarkPointCaptionParams: IVectorDataItemPointWithCaptionParams;
+  VAppearanceIcon: IAppearancePointIcon;
+  VAppearanceCaption: IAppearancePointCaption;
   VMarkLine: IVectorDataItemLine;
-  VMarkLineLineParams: IVectorDataItemWithLineParams;
+  VAppearanceLine: IAppearanceLine;
   VMarkPoly: IVectorDataItemPoly;
-  VMarkPolyFillParams: IVectorDataItemPolyWithFillParams;
+  VAppearanceBorder: IAppearancePolygonBorder;
+  VAppearanceFill: IAppearancePolygonFill;
   VLonLatPolygon: ILonLatPolygon;
   VLonLatPolygonLine: ILonLatPolygonLine;
   VLonLatPath: ILonLatPath;
@@ -373,26 +375,26 @@ begin
   currNode.ChildValues['description'] := XMLTextPrepare(Mark.Desc);
   if Supports(Mark, IVectorDataItemPoint, VMarkPoint) then begin
     // Placemark
-    if not Supports(Mark, IVectorDataItemPointWithIconParams, VMarkPointIconParams) then begin
-      VMarkPointIconParams := nil;
+    if not Supports(Mark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+      VAppearanceIcon := nil;
     end;
-    if not Supports(Mark, IVectorDataItemPointWithCaptionParams, VMarkPointCaptionParams) then begin
-      VMarkPointCaptionParams := nil;
+    if not Supports(Mark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
+      VAppearanceCaption := nil;
     end;
-    if (VMarkPointCaptionParams <> nil) or (VMarkPointIconParams <> nil)  then begin
+    if (VAppearanceCaption <> nil) or (VAppearanceIcon <> nil)  then begin
       with currNode.AddChild('Style') do begin
-        if VMarkPointCaptionParams <> nil then begin
+        if VAppearanceCaption <> nil then begin
           with AddChild('LabelStyle') do begin
-            ChildValues['color'] := Color32toKMLColor(VMarkPointCaptionParams.TextColor);
-            ChildValues['scale'] := R2StrPoint(VMarkPointCaptionParams.FontSize / 14);
+            ChildValues['color'] := Color32toKMLColor(VAppearanceCaption.TextColor);
+            ChildValues['scale'] := R2StrPoint(VAppearanceCaption.FontSize / 14);
           end;
         end;
-        if VMarkPointIconParams <> nil then begin
-          if VMarkPointIconParams.Pic <> nil then begin
+        if VAppearanceIcon <> nil then begin
+          if VAppearanceIcon.Pic <> nil then begin
             with AddChild('IconStyle') do begin
-              VFileName := SaveMarkIcon(VMarkPointIconParams);
-              width := VMarkPointIconParams.Pic.GetMarker.Size.X;
-              ChildValues['scale'] := R2StrPoint(VMarkPointIconParams.MarkerSize / width);
+              VFileName := SaveMarkIcon(VAppearanceIcon);
+              width := VAppearanceIcon.Pic.GetMarker.Size.X;
+              ChildValues['scale'] := R2StrPoint(VAppearanceIcon.MarkerSize / width);
               with AddChild('Icon') do begin
                 ChildValues['href'] := VFileName;
               end;
@@ -416,11 +418,11 @@ begin
   end else if Supports(Mark, IVectorDataItemLine, VMarkLine) then begin
     // <Placemark><MultiGeometry><LineString></LineString><LineString>...
     // <Placemark><LineString><coordinates>
-    if Supports(Mark, IVectorDataItemWithLineParams, VMarkLineLineParams) then begin
+    if Supports(Mark.Appearance, IAppearanceLine, VAppearanceLine) then begin
       with currNode.AddChild('Style') do begin
         with AddChild('LineStyle') do begin
-          ChildValues['color'] := Color32toKMLColor(VMarkLineLineParams.LineColor);
-          ChildValues['width'] := R2StrPoint(VMarkLineLineParams.LineWidth);
+          ChildValues['color'] := Color32toKMLColor(VAppearanceLine.LineColor);
+          ChildValues['width'] := R2StrPoint(VAppearanceLine.LineWidth);
         end;
       end;
     end;
@@ -449,23 +451,23 @@ begin
   end else if Supports(Mark, IVectorDataItemPoly, VMarkPoly) then begin
     // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
     // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
-    if not Supports(Mark, IVectorDataItemWithLineParams, VMarkLineLineParams) then begin
-      VMarkLineLineParams := nil;
+    if not Supports(Mark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+      VAppearanceBorder := nil;
     end;
-    if not Supports(Mark, IVectorDataItemPolyWithFillParams, VMarkPolyFillParams) then begin
-      VMarkPolyFillParams := nil;
+    if not Supports(Mark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
+      VAppearanceFill := nil;
     end;
-    if (VMarkLineLineParams <> nil) or (VMarkPolyFillParams <> nil) then begin
+    if (VAppearanceBorder <> nil) or (VAppearanceFill <> nil) then begin
       with currNode.AddChild('Style') do begin
-        if VMarkLineLineParams <> nil then begin
+        if VAppearanceBorder <> nil then begin
           with AddChild('LineStyle') do begin
-            ChildValues['color'] := Color32toKMLColor(VMarkLineLineParams.LineColor);
-            ChildValues['width'] := R2StrPoint(VMarkLineLineParams.LineWidth);
+            ChildValues['color'] := Color32toKMLColor(VAppearanceBorder.LineColor);
+            ChildValues['width'] := R2StrPoint(VAppearanceBorder.LineWidth);
           end;
         end;
-        if VMarkPolyFillParams <> nil then begin
+        if VAppearanceFill <> nil then begin
           with AddChild('PolyStyle') do begin
-            ChildValues['color'] := Color32toKMLColor(VMarkPolyFillParams.FillColor);
+            ChildValues['color'] := Color32toKMLColor(VAppearanceFill.FillColor);
             ChildValues['fill'] := 1;
           end;
         end;
@@ -504,7 +506,7 @@ begin
     IntToHex(RedComponent(Color32), 2);
 end;
 
-function TExportMarks2KML.SaveMarkIcon(const Mark: IVectorDataItemPointWithIconParams): string;
+function TExportMarks2KML.SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
 var
   VTargetPath: string;
   VTargetFullName: string;
@@ -513,12 +515,12 @@ var
   VData: IBinaryData;
 begin
   Result := '';
-  if Mark.Pic <> nil then begin
-    VData := Mark.Pic.Source;
+  if AAppearanceIcon.Pic <> nil then begin
+    VData := AAppearanceIcon.Pic.Source;
     if VData <> nil then begin
       VStream := TStreamReadOnlyByBinaryData.Create(VData);
       try
-        VPicName := Mark.Pic.GetName;
+        VPicName := AAppearanceIcon.Pic.GetName;
         VTargetPath := 'files' + PathDelim;
         Result := VTargetPath + VPicName;
         if inKMZ then begin

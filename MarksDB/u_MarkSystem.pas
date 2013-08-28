@@ -13,6 +13,7 @@ uses
   i_ImportConfig,
   i_HashFunction,
   i_InterfaceListStatic,
+  i_AppearanceOfMarkFactory,
   i_VectorItemSubset,
   i_VectorItemSubsetBuilder,
   i_VectorItemTree,
@@ -20,6 +21,7 @@ uses
   i_PathConfig,
   i_MarkPicture,
   i_VectorItemsFactory,
+  i_InterfaceListSimple,
   i_InternalPerformanceCounter,
   i_NotifierOperation,
   i_HtmlToHintTextConverter,
@@ -36,14 +38,21 @@ type
     FSystemImpl: IMarkSystemImplChangeable;
     FMarkDb: IMarkDb;
     FCategoryDB: IMarkCategoryDB;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
     FCategoryTreeBuilder: IStaticTreeBuilder;
-    
+    procedure PrepareFromTreeForImport(
+      const AMarkList: IInterfaceListSimple;
+      const ADataItemTree: IVectorItemTree;
+      const AImportConfig: IImportConfig
+    );
+
   private
     function GetState: IReadWriteStateChangeble;
     function GetMarkDb: IMarkDb;
     function GetCategoryDB: IMarkCategoryDB;
 
+    function GetStringIdByMark(const AMark: IMark): string;
     function GetMarkByStringId(const AId: string): IMark;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
@@ -56,12 +65,6 @@ type
       const AImportConfig: IImportConfig
     ): IInterfaceListStatic;
 
-    function ImportItemsList(
-      const ADataItemList: IVectorItemSubset;
-      const AImportConfig: IImportConfig;
-      const ANamePrefix: string
-    ): IInterfaceListStatic;
-
     function CategoryTreeToMarkTree(const ACategoryTree: IStaticTreeItem): IVectorItemTree;
     function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
   public
@@ -71,6 +74,7 @@ type
       const AMarkFactory: IMarkFactory;
       const AMarkCategoryFactory: IMarkCategoryFactory;
       const AHashFunction: IHashFunction;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
@@ -85,7 +89,6 @@ implementation
 uses
   SysUtils,
   i_Category,
-  i_InterfaceListSimple,
   i_VectorDataItemSimple,
   i_MarkSystemImpl,
   u_StaticTreeBuilderBase,
@@ -141,6 +144,7 @@ constructor TMarkSystem.Create(
   const AMarkFactory: IMarkFactory;
   const AMarkCategoryFactory: IMarkCategoryFactory;
   const AHashFunction: IHashFunction;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
@@ -154,6 +158,7 @@ var
 begin
   inherited Create;
   FMarkPictureList := AMarkPictureList;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   if APerfCounterList <> nil then begin
     VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('MarksDb');
@@ -165,8 +170,10 @@ begin
       ABasePath,
       AMarkPictureList,
       AHashFunction,
+      AAppearanceOfMarkFactory,
       AVectorItemsFactory,
       AVectorItemSubsetBuilderFactory,
+      AMarkFactory,
       VLoadDbCounter,
       VSaveDbCounter,
       AAppStartedNotifier,
@@ -235,6 +242,19 @@ begin
   Result := FSystemImpl.State;
 end;
 
+function TMarkSystem.GetStringIdByMark(const AMark: IMark): string;
+var
+  VImpl: IMarkSystemImpl;
+begin
+  Result := '';
+  if AMark <> nil then begin
+    VImpl := FSystemImpl.GetStatic;
+    if VImpl <> nil then begin
+      Result := VImpl.GetStringIdByMark(AMark);
+    end;
+  end;
+end;
+
 function TMarkSystem.GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
 var
   VTmp: IInterfaceListSimple;
@@ -278,18 +298,25 @@ function TMarkSystem.ImportItemsTree(
   const ADataItemTree: IVectorItemTree;
   const AImportConfig: IImportConfig
 ): IInterfaceListStatic;
+var
+  VMarkList: IInterfaceListSimple;
 begin
   Assert(Assigned(ADataItemTree));
   Assert(Assigned(AImportConfig));
-
+  Assert(AImportConfig.CategoryParams.IsAddAllInRootCategory);
   Result := nil;
+  VMarkList := TInterfaceListSimple.Create;
+  PrepareFromTreeForImport(VMarkList, ADataItemTree, AImportConfig);
+  if VMarkList.Count > 0 then begin
+    Result := FMarkDb.UpdateMarkList(nil, VMarkList.MakeStaticAndClear);
+  end;
 end;
 
-function TMarkSystem.ImportItemsList(
-  const ADataItemList: IVectorItemSubset;
-  const AImportConfig: IImportConfig;
-  const ANamePrefix: string
-): IInterfaceListStatic;
+procedure TMarkSystem.PrepareFromTreeForImport(
+  const AMarkList: IInterfaceListSimple;
+  const ADataItemTree: IVectorItemTree;
+  const AImportConfig: IImportConfig
+);
 var
   VItem: IVectorDataItemSimple;
   VPoint: IVectorDataItemPoint;
@@ -297,35 +324,20 @@ var
   VPoly: IVectorDataItemPoly;
   i: Integer;
   VMark: IMark;
-  VMarkList: IInterfaceListSimple;
   VName: string;
-  VPic: IMarkPicture;
   VCategory: ICategory;
 begin
-  Assert(Assigned(ADataItemList));
-  Assert(Assigned(AImportConfig));
-  Assert(Assigned(AImportConfig.RootCategory));
-  Result := nil;
-
-  VPic := nil;
-  if AImportConfig.PointParams <> nil then begin
-    VPic :=
-      FMarkPictureList.FindByNameOrDefault(
-        AImportConfig.PointParams.Template.PicName
-      );
-  end;
   VCategory := AImportConfig.RootCategory;
 
-  VMarkList := TInterfaceListSimple.Create;
-  for i := 0 to ADataItemList.Count - 1 do begin
+  for i := 0 to ADataItemTree.Items.Count - 1 do begin
     VMark := nil;
-    VItem := ADataItemList.GetItem(i);
+    VItem := ADataItemTree.Items.Items[i];
     VName := VItem.Name;
-    if (VName = '') and (ANamePrefix <> '') then begin
-      if ADataItemList.Count > 1 then begin
-        VName := ANamePrefix + '-' + IntToStr(i + 1);
+    if (VName = '') and (ADataItemTree.Name <> '') then begin
+      if ADataItemTree.Items.Count > 1 then begin
+        VName := ADataItemTree.Name + '-' + IntToStr(i + 1);
       end else begin
-        VName := ANamePrefix;
+        VName := ADataItemTree.Name;
       end;
     end else begin
       if AImportConfig.CategoryParams.IsIgnoreMarkIfExistsWithSameNameInCategory then begin
@@ -340,8 +352,7 @@ begin
           VPoint,
           VName,
           AImportConfig.PointParams,
-          VCategory,
-          VPic
+          VCategory
         );
     end else if Supports(VItem, IVectorDataItemLine, VLine) then begin
       VMark :=
@@ -361,11 +372,15 @@ begin
         );
     end;
     if VMark <> nil then begin
-      VMarkList.Add(VMark);
+      AMarkList.Add(VMark);
     end;
   end;
-  if VMarkList.Count > 0 then begin
-    Result := FMarkDb.UpdateMarkList(nil, VMarkList.MakeStaticAndClear);
+  for i := 0 to ADataItemTree.SubTreeItemCount - 1 do begin
+    PrepareFromTreeForImport(
+      AMarkList,
+      ADataItemTree.GetSubTreeItem(i),
+      AImportConfig
+    );
   end;
 end;
 

@@ -15,6 +15,7 @@ uses
   GR32,
   i_Category,
   i_ImportConfig,
+  i_AppearanceOfMarkFactory,
   i_MarkFactory,
   i_MarkCategoryDB,
   i_LanguageManager,
@@ -87,6 +88,7 @@ type
     frMarkCategory: TfrMarkCategorySelectOrAdd;
     frSelectPicture: TfrPictureSelectFromList;
     frSelectedPicture: TfrSelectedPicture;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMarkFactory: IMarkFactory;
     FIsIgnoreByDefault: Boolean;
     FIsForceSet: Boolean;
@@ -98,6 +100,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryDB: IMarkCategoryDB;
       const AIsIgnoreByDefault: Boolean;
@@ -110,16 +113,17 @@ implementation
 
 uses
   SysUtils,
+  i_Appearance,
   i_MarkTemplate,
   i_MarkPicture,
   i_MarkFactoryConfig,
-  u_Category,
   u_ImportConfig;
 
 {$R *.dfm}
 
 constructor TfrMarksGeneralOptions.Create(
   const ALanguageManager: ILanguageManager;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDB;
   const AIsIgnoreByDefault: Boolean;
@@ -127,6 +131,7 @@ constructor TfrMarksGeneralOptions.Create(
 );
 begin
   inherited Create(ALanguageManager);
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FMarkFactory := AMarkFactory;
   FIsIgnoreByDefault := AIsIgnoreByDefault;
   FIsForceSet := AIsForceSet;
@@ -174,32 +179,32 @@ begin
 
   VPointTemplate := VConfig.PointTemplateConfig.DefaultTemplate;
 
-  VPicName := VPointTemplate.PicName;
+  VPicName := VPointTemplate.IconAppearance.PicName;
   VPic := FMarkFactory.MarkPictureList.FindByNameOrDefault(VPicName);
 
   frSelectPicture.Picture := VPic;
   frSelectedPicture.Picture := frSelectPicture.Picture;
 
-  clrbxPointTextColor.Selected := WinColor(VPointTemplate.TextColor);
-  clrbxPointShadowColor.Selected := WinColor(VPointTemplate.TextBgColor);
-  sePointTextTransp.Value := 100-round(AlphaComponent(VPointTemplate.TextColor)/255*100);
-  sePointShadowAlfa.Value := 100-round(AlphaComponent(VPointTemplate.TextBgColor)/255*100);
-  sePointFontSize.Value := VPointTemplate.FontSize;
-  sePointIconSize.Value := VPointTemplate.MarkerSize;
+  clrbxPointTextColor.Selected := WinColor(VPointTemplate.CaptionAppearance.TextColor);
+  clrbxPointShadowColor.Selected := WinColor(VPointTemplate.CaptionAppearance.TextBgColor);
+  sePointTextTransp.Value := 100-round(AlphaComponent(VPointTemplate.CaptionAppearance.TextColor)/255*100);
+  sePointShadowAlfa.Value := 100-round(AlphaComponent(VPointTemplate.CaptionAppearance.TextBgColor)/255*100);
+  sePointFontSize.Value := VPointTemplate.CaptionAppearance.FontSize;
+  sePointIconSize.Value := VPointTemplate.IconAppearance.MarkerSize;
 
 
   VPathTemplate := VConfig.LineTemplateConfig.DefaultTemplate;
-  clrbxLineColor.Selected := WinColor(VPathTemplate.LineColor);
-  seLineTransp.Value := 100-round(AlphaComponent(VPathTemplate.LineColor)/255*100);
-  seLineWidth.Value := VPathTemplate.LineWidth;
+  clrbxLineColor.Selected := WinColor(VPathTemplate.LineAppearance.LineColor);
+  seLineTransp.Value := 100-round(AlphaComponent(VPathTemplate.LineAppearance.LineColor)/255*100);
+  seLineWidth.Value := VPathTemplate.LineAppearance.LineWidth;
 
   VPolyTemplate := VConfig.PolyTemplateConfig.DefaultTemplate;
 
-  clrbxPolyLineColor.Selected := WinColor(VPolyTemplate.LineColor);
-  sePolyLineTransp.Value := 100-round(AlphaComponent(VPolyTemplate.LineColor)/255*100);
-  clrbxPolyFillColor.Selected := WinColor(VPolyTemplate.FillColor);
-  sePolyFillTransp.Value := 100-round(AlphaComponent(VPolyTemplate.FillColor)/255*100);
-  sePolyLineWidth.Value := VPolyTemplate.LineWidth;
+  clrbxPolyLineColor.Selected := WinColor(VPolyTemplate.BorderAppearance.LineColor);
+  sePolyLineTransp.Value := 100-round(AlphaComponent(VPolyTemplate.BorderAppearance.LineColor)/255*100);
+  clrbxPolyFillColor.Selected := WinColor(VPolyTemplate.FillAppearance.FillColor);
+  sePolyFillTransp.Value := 100-round(AlphaComponent(VPolyTemplate.FillAppearance.FillColor)/255*100);
+  sePolyLineWidth.Value := VPolyTemplate.BorderAppearance.LineWidth;
 
   chkPointIgnore.Checked := FIsIgnoreByDefault;
   chkLineIgnore.Checked := FIsIgnoreByDefault;
@@ -219,14 +224,13 @@ end;
 
 function TfrMarksGeneralOptions.GetImportConfig: IImportConfig;
 var
-  VMarkTemplatePoint: IMarkTemplatePoint;
-  VMarkTemplateLine: IMarkTemplateLine;
-  VMarkTemplatePoly: IMarkTemplatePoly;
   VPointParams: IImportPointParams;
   VLineParams: IImportLineParams;
   VPolyParams: IImportPolyParams;
   VCategory: ICategory;
+  VPic: IMarkPicture;
   VPicName: string;
+  VAppearance: IAppearance;
 begin
   VPointParams := nil;
   VLineParams := nil;
@@ -234,44 +238,41 @@ begin
   VCategory := frMarkCategory.GetCategory;
   if not chkPointIgnore.Checked then begin
     VPicName := '';
-    if frSelectPicture.Picture <> nil then begin
-      VPicName := frSelectPicture.Picture.GetName;
+    VPic := frSelectPicture.Picture;
+    if VPic <> nil then begin
+      VPicName := VPic.GetName;
     end;
-    VMarkTemplatePoint :=
-      FMarkFactory.Config.PointTemplateConfig.CreateTemplate(
-        VPicName,
-        TCategory.Create(''),
+    VAppearance :=
+      FAppearanceOfMarkFactory.CreatePointAppearance(
         SetAlpha(Color32(clrbxPointTextColor.Selected),round(((100-sePointTextTransp.Value)/100)*256)),
         SetAlpha(Color32(clrbxPointShadowColor.Selected),round(((100-sePointShadowAlfa.Value)/100)*256)),
         sePointFontSize.Value,
+        VPicName,
+        VPic,
         sePointIconSize.Value
       );
-    VPointParams := TImportPointParams.Create(VMarkTemplatePoint, FIsForceSet, FIsForceSet, FIsForceSet, FIsForceSet, FIsForceSet);
+    VPointParams := TImportPointParams.Create(VAppearance, FIsForceSet, FIsForceSet, FIsForceSet, FIsForceSet, FIsForceSet);
   end;
-  VMarkTemplateLine := nil;
   if not chkLineIgnore.Checked then begin
-    VMarkTemplateLine :=
-      FMarkFactory.Config.LineTemplateConfig.CreateTemplate(
-        TCategory.Create(''),
+    VAppearance :=
+      FAppearanceOfMarkFactory.CreateLineAppearance(
         SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
         seLineWidth.Value
       );
-    VLineParams := TImportLineParams.Create(VMarkTemplateLine, FIsForceSet, FIsForceSet);
+    VLineParams := TImportLineParams.Create(VAppearance, FIsForceSet, FIsForceSet);
   end;
-  VMarkTemplatePoly := nil;
   if not chkPolyIgnore.Checked then begin
     VCategory := frMarkCategory.GetCategory;
-    VMarkTemplatePoly :=
-      FMarkFactory.Config.PolyTemplateConfig.CreateTemplate(
-        TCategory.Create(''),
+    VAppearance :=
+      FAppearanceOfMarkFactory.CreatePolygonAppearance(
         SetAlpha(Color32(clrbxPolyLineColor.Selected),round(((100-sePolyLineTransp.Value)/100)*256)),
-        SetAlpha(Color32(clrbxPolyFillColor.Selected),round(((100-sePolyFillTransp.Value)/100)*256)),
-        sePolyLineWidth.Value
+        sePolyLineWidth.Value,
+        SetAlpha(Color32(clrbxPolyFillColor.Selected),round(((100-sePolyFillTransp.Value)/100)*256))
       );
-    VPolyParams := TImportPolyParams.Create(VMarkTemplatePoly, FIsForceSet, FIsForceSet, FIsForceSet);
+    VPolyParams := TImportPolyParams.Create(VAppearance, FIsForceSet, FIsForceSet, FIsForceSet);
   end;
   Result :=
-    TImportConfigNew.Create(
+    TImportConfig.Create(
       VCategory,
       TImportCategoryParams.Create(True, False, False, False),
       VPointParams,

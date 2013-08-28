@@ -25,13 +25,15 @@ interface
 uses
   t_Hash,
   t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_HashFunction,
+  i_VectorDataItemSimple,
   i_GeoCoder,
   u_BaseInterfacedObject;
 
 type
-  TGeoCodePlacemark = class(TBaseInterfacedObject, IGeoCodePlacemark)
+  TGeoCodePlacemark = class(TBaseInterfacedObject, IGeoCodePlacemark, IVectorDataItemPoint, IVectorDataItemSimple)
   private
     FHash: THashValue;
     FLLRect: ILonLatRect;
@@ -41,10 +43,13 @@ type
     FAccuracy: Integer;
   private
     function GetHash: THashValue;
+    function GetAppearance: IAppearance;
     function GetPoint: TDoublePoint;
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: ILonLatRect;
+    function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+    function GetGoToLonLat: TDoublePoint;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetInfoUrl: string;
@@ -82,6 +87,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_LonLatRectByPoint;
 
 { TGeoCodePlacemark }
@@ -109,6 +115,11 @@ begin
   Result := FAccuracy;
 end;
 
+function TGeoCodePlacemark.GetAppearance: IAppearance;
+begin
+  Result := nil;
+end;
+
 function TGeoCodePlacemark.GetName: string;
 begin
   Result := FAddress;
@@ -117,6 +128,11 @@ end;
 function TGeoCodePlacemark.GetDesc: string;
 begin
   Result := FDesc;
+end;
+
+function TGeoCodePlacemark.GetGoToLonLat: TDoublePoint;
+begin
+  Result := FLLRect.TopLeft;
 end;
 
 function TGeoCodePlacemark.GetHash: THashValue;
@@ -152,6 +168,55 @@ end;
 function TGeoCodePlacemark.GetPoint: TDoublePoint;
 begin
   Result := FLLRect.TopLeft;
+end;
+
+function TGeoCodePlacemark.IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+var
+  VGeoCodePlacemark: IGeoCodePlacemark;
+begin
+  if not Assigned(AItem) then begin
+    Result := False;
+    Exit;
+  end;
+  if AItem = IVectorDataItemSimple(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (FHash <> 0) and (AItem.Hash <> 0) and (FHash <> AItem.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+  if FLLRect.IsEqual(AItem.LLRect) then begin
+    Result := False;
+    Exit;
+  end;
+  if Assigned(AItem.Appearance) then begin
+    Result := False;
+    Exit;
+  end;
+  if FAddress <> AItem.Name then begin
+    Result := False;
+    Exit;
+  end;
+  if FDesc <> AItem.Desc then begin
+    Result := False;
+    Exit;
+  end;
+  if not Supports(AItem, IGeoCodePlacemark, VGeoCodePlacemark) then begin
+    Result := False;
+    Exit;
+  end;
+  if FAccuracy <> VGeoCodePlacemark.GetAccuracy then begin
+    Result := False;
+    Exit;
+  end;
+
+  if FFullDesc <> VGeoCodePlacemark.GetInfoHTML then begin
+    Result := False;
+    Exit;
+  end;
+
+  Result := True;
 end;
 
 { TGeoCodePlacemarkFactory }

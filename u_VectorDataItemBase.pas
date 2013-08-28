@@ -24,7 +24,9 @@ interface
 
 uses
   t_Hash,
+  t_GeoTypes,
   i_LonLatRect,
+  i_Appearance,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
   u_BaseInterfacedObject;
@@ -33,6 +35,7 @@ type
   TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItemSimple)
   private
     FHintConverter: IHtmlToHintTextConverter;
+    FAppearance: IAppearance;
     FHash: THashValue;
     FName: string;
     FDesc: string;
@@ -41,6 +44,9 @@ type
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: ILonLatRect; virtual; abstract;
+    function GetAppearance: IAppearance;
+    function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+    function GetGoToLonLat: TDoublePoint; virtual; abstract;
     function GetHintText: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;
@@ -48,6 +54,7 @@ type
   public
     constructor Create(
       const AHash: THashValue;
+      const AAppearance: IAppearance;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string
@@ -60,15 +67,22 @@ implementation
 
 constructor TVectorDataItemBase.Create(
   const AHash: THashValue;
+  const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string
 );
 begin
   inherited Create;
   FHintConverter := AHintConverter;
+  FAppearance := AAppearance;
   FHash := AHash;
   FName := AName;
   FDesc := ADesc;
+end;
+
+function TVectorDataItemBase.GetAppearance: IAppearance;
+begin
+  Result := FAppearance;
 end;
 
 function TVectorDataItemBase.GetDesc: string;
@@ -112,6 +126,36 @@ end;
 function TVectorDataItemBase.GetName: string;
 begin
   Result := FName;
+end;
+
+function TVectorDataItemBase.IsEqual(
+  const AItem: IVectorDataItemSimple
+): Boolean;
+begin
+  Result := True;
+  if (AItem.Hash <> 0) and (FHash <> 0) and (AItem.Hash <> FHash) then begin
+    Result := False;
+    Exit;
+  end;
+  if Assigned(FAppearance) then begin
+    if not FAppearance.IsEqual(AItem.Appearance) then begin
+      Result := False;
+      Exit;
+    end;
+  end else begin
+    if Assigned(AItem.Appearance) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  if FName <> AItem.Name then begin
+    Result := False;
+    Exit;
+  end;
+  if FDesc <> AItem.Desc then begin
+    Result := False;
+    Exit;
+  end;
 end;
 
 end.

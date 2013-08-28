@@ -24,6 +24,8 @@ interface
 
 uses
   t_Hash,
+  t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_VectorDataItemSimple,
   i_VectorItemLonLat,
@@ -39,6 +41,7 @@ type
   public
     constructor Create(
       const AHash: THashValue;
+      const AAppearance: IAppearance;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
@@ -51,9 +54,11 @@ type
     FLine: ILonLatPath;
   protected
     function GetLine: ILonLatPath;
+    function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
       const AHash: THashValue;
+      const AAppearance: IAppearance;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
@@ -66,9 +71,11 @@ type
     FLine: ILonLatPolygon;
   protected
     function GetLine: ILonLatPolygon;
+    function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
       const AHash: THashValue;
+      const AAppearance: IAppearance;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
@@ -79,16 +86,20 @@ type
 
 implementation
 
+uses
+  u_GeoFun;
+  
 { TVectorDataItemPolygon }
 
 constructor TVectorDataItemPolygon.Create(
   const AHash: THashValue;
+  const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
   const ALLRect: ILonLatRect
 );
 begin
-  inherited Create(AHash, AHintConverter, AName, ADesc);
+  inherited Create(AHash, AAppearance, AHintConverter, AName, ADesc);
   FLLRect := ALLRect;
 end;
 
@@ -101,14 +112,20 @@ end;
 
 constructor TVectorDataItemPath.Create(
   const AHash: THashValue;
+  const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
   const ALine: ILonLatPath
 );
 begin
   Assert(Assigned(ALine));
-  inherited Create(AHash, AHintConverter, AName, ADesc, ALine.Bounds);
+  inherited Create(AHash, AAppearance, AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
+end;
+
+function TVectorDataItemPath.GetGoToLonLat: TDoublePoint;
+begin
+  FLine.GetEnum.Next(Result);
 end;
 
 function TVectorDataItemPath.GetLine: ILonLatPath;
@@ -120,14 +137,20 @@ end;
 
 constructor TVectorDataItemPoly.Create(
   const AHash: THashValue;
+  const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
   const ALine: ILonLatPolygon
 );
 begin
   Assert(Assigned(ALine));
-  inherited Create(AHash, AHintConverter, AName, ADesc, ALine.Bounds);
+  inherited Create(AHash, AAppearance, AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
+end;
+
+function TVectorDataItemPoly.GetGoToLonLat: TDoublePoint;
+begin
+  Result := RectCenter(FLine.Bounds.Rect);
 end;
 
 function TVectorDataItemPoly.GetLine: ILonLatPolygon;

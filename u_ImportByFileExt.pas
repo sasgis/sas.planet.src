@@ -31,7 +31,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
   i_ImportConfig,
-  i_MarkSystem,
+  i_VectorItemTree,
   u_BaseInterfacedObject;
 
 type
@@ -48,10 +48,9 @@ type
     FImportJPG: IImportFile;
   private
     function ProcessImport(
-      const AMarksSystem: IMarkSystem;
       const AFileName: string;
       const AConfig: IImportConfig
-    ): IInterfaceListStatic;
+    ): IVectorItemTree;
   public
     constructor Create(
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -102,33 +101,32 @@ begin
 end;
 
 function TImportByFileExt.ProcessImport(
-  const AMarksSystem: IMarkSystem;
   const AFileName: string;
   const AConfig: IImportConfig
-): IInterfaceListStatic;
+): IVectorItemTree;
 var
   VExtLwr: String;
 begin
   Result := nil;
   VExtLwr := LowerCase(ExtractFileExt(AFileName));
   if ('.gpx' = VExtLwr) then begin
-    Result := FImportGPX.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportGPX.ProcessImport(AFileName, AConfig);
   end else if ('.kml' = VExtLwr) then begin
-    Result := FImportKML.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportKML.ProcessImport(AFileName, AConfig);
   end else if ('.kmz' = VExtLwr) then begin
-    Result := FImportKMZ.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportKMZ.ProcessImport(AFileName, AConfig);
   end else if ('.plt' = VExtLwr) then begin
-    Result := FImportPLT.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportPLT.ProcessImport(AFileName, AConfig);
   end else if ('.csv' = VExtLwr) then begin
-    Result := FImportCSV.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportCSV.ProcessImport(AFileName, AConfig);
   end else if ('.hlg' = VExtLwr) then begin
-    Result := FImportHLG.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportHLG.ProcessImport(AFileName, AConfig);
   end else if ('.mp' = VExtLwr) then begin
-    Result := FImportMP.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportMP.ProcessImport(AFileName, AConfig);
   end else if ('.sls' = VExtLwr) then begin
-    Result := FImportSLS.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportSLS.ProcessImport(AFileName, AConfig);
   end else if ('.jpg' = VExtLwr) then begin
-    Result := FImportJPG.ProcessImport(AMarksSystem, AFileName, AConfig);
+    Result := FImportJPG.ProcessImport(AFileName, AConfig);
   end;
 end;
 

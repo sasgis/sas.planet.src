@@ -31,6 +31,7 @@ uses
   ExtCtrls,
   i_LanguageManager,
   i_ImportConfig,
+  i_AppearanceOfMarkFactory,
   i_MarkFactory,
   i_MarkCategoryDB,
   u_CommonFormAndFrameParents,
@@ -49,6 +50,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryDB: IMarkCategoryDB
     ); reintroduce;
@@ -62,6 +64,7 @@ implementation
 
 constructor TfrmImportConfigEdit.Create(
   const ALanguageManager: ILanguageManager;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDB
 );
@@ -71,6 +74,7 @@ begin
   frMarksGeneralOptions:=
     TfrMarksGeneralOptions.Create(
       ALanguageManager,
+      AAppearanceOfMarkFactory,
       AMarkFactory,
       ACategoryDB,
       False,

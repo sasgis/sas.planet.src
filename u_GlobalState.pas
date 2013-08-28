@@ -36,6 +36,7 @@ uses
   i_GPSPositionFactory,
   i_HashFunction,
   i_Listener,
+  i_AppearanceOfMarkFactory,
   i_BackgroundTask,
   i_ConfigDataWriteProvider,
   i_ConfigDataProvider,
@@ -103,6 +104,7 @@ type
     FMainConfigProvider: IConfigDataWriteProvider;
     FZmpInfoSet: IZmpInfoSet;
     FHashFunction: IHashFunction;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
     FResourceProvider: IConfigDataProvider;
@@ -199,6 +201,7 @@ type
     property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
 
     property HashFunction: IHashFunction read FHashFunction;
+    property AppearanceOfMarkFactory: IAppearanceOfMarkFactory read FAppearanceOfMarkFactory;
     property MainConfigProvider: IConfigDataWriteProvider read FMainConfigProvider;
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
@@ -261,10 +264,12 @@ uses
   i_InternalDomainInfoProvider,
   i_ImageResamplerFactory,
   i_TextByVectorItem,
+  i_GlobalAppConfig,
   u_TextByVectorItemHTMLByDescription,
   u_TextByVectorItemMarkInfo,
   u_NotifierTime,
   i_FileNameIterator,
+  u_AppearanceOfMarkFactory,
   u_ContentTypeManagerSimple,
   u_MarkSystem,
   u_MapCalibrationListBasic,
@@ -330,6 +335,7 @@ uses
   u_GlobalConfig,
   u_GlobalInternetState,
   u_GlobalCacheConfig,
+  u_GlobalAppConfig,
   u_MarkFactory,
   u_MarkCategoryFactory,
   u_SystemTimeProvider,
@@ -353,6 +359,7 @@ var
   VProgramPath: string;
   VSleepByClass: IConfigDataProvider;
   VResamplerFactoryList: IImageResamplerFactoryList;
+  VGlobalAppConfig: IGlobalAppConfig;
 begin
   inherited Create;
   if ModuleIsLib then begin
@@ -368,15 +375,7 @@ begin
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseCahcePath := TPathConfig.Create('', VProgramPath, nil);
 
-  FMapVersionFactoryList := TMapVersionFactoryList.Create;
-
-  FGlobalConfig :=
-    TGlobalConfig.Create(
-      FBaseCahcePath,
-      FBaseConfigPath,
-      FBaseDataPath,
-      FBaseApplicationPath
-    );
+  VGlobalAppConfig := TGlobalAppConfig.Create;
 
   FMainConfigProvider :=
     TSASMainConfigProvider.Create(
@@ -385,8 +384,9 @@ begin
       HInstance
     );
 
-  FGlobalConfig.ReadConfig(FMainConfigProvider);
-  if FGlobalConfig.GlobalAppConfig.IsShowDebugInfo then begin
+  VGlobalAppConfig.ReadConfig(FMainConfigProvider.GetSubItem('VIEW'));
+
+  if VGlobalAppConfig.IsShowDebugInfo then begin
     FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
     if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
       FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
@@ -400,6 +400,23 @@ begin
       THashFunctionCityHash.Create,
       FPerfCounterList.CreateAndAddNewSubList('HashFunction')
     );
+
+  FMapVersionFactoryList := TMapVersionFactoryList.Create;
+
+  FAppearanceOfMarkFactory := TAppearanceOfMarkFactory.Create(FHashFunction);
+
+  FGlobalConfig :=
+    TGlobalConfig.Create(
+      VGlobalAppConfig,
+      FAppearanceOfMarkFactory,
+      FBaseCahcePath,
+      FBaseConfigPath,
+      FBaseDataPath,
+      FBaseApplicationPath
+    );
+
+  FGlobalConfig.ReadConfig(FMainConfigProvider);
+
   FVectorItemSubsetBuilderFactory :=
     TVectorItemSubsetBuilderFactory.Create(
       FHashFunction
@@ -591,6 +608,7 @@ begin
       FMarkPictureList,
       FHashFunction,
       FVectorItemsFactory,
+      FAppearanceOfMarkFactory,
       THtmlToHintTextConverterStuped.Create
     );
   FMarkSystem :=
@@ -600,6 +618,7 @@ begin
       FMarkFactory,
       FMarkCategoryFactory,
       FHashFunction,
+      FAppearanceOfMarkFactory,
       FVectorItemsFactory,
       FVectorItemSubsetBuilderFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),

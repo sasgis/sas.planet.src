@@ -25,6 +25,7 @@ interface
 uses
   t_Hash,
   t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
@@ -37,13 +38,14 @@ type
     IVectorDataItemSimple, IVectorDataItemWithCategory)
   private
     FHash: THashValue;
+    FAppearance: IAppearance;
     FName: string;
     FHintConverter: IHtmlToHintTextConverter;
     FDesc: string;
     FCategory: ICategory;
   protected
     function GetHash: THashValue;
-    function GetStringID: string;
+    function GetAppearance: IAppearance;
     function GetName: string;
     function GetMarkType: TGUID; virtual; abstract;
     function GetDesc: string;
@@ -53,11 +55,12 @@ type
     function GetInfoUrl: string;
     function GetInfoCaption: string;
     function GetGoToLonLat: TDoublePoint; virtual; abstract;
-    function IsEqual(const AMark: IMark): Boolean; virtual;
+    function IsEqual(const AMark: IVectorDataItemSimple): Boolean; virtual;
     function GetCategory: ICategory;
   public
     constructor Create(
       const AHash: THashValue;
+      const AAppearance: IAppearance;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ACategory: ICategory;
@@ -67,22 +70,33 @@ type
 
 implementation
 
+uses
+  SysUtils;
+  
 { TMarkFullBase }
 
 constructor TMarkFullBase.Create(
   const AHash: THashValue;
+  const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   const ACategory: ICategory;
   const ADesc: string
 );
 begin
+  Assert(Assigned(AAppearance));
   inherited Create;
   FHash := AHash;
+  FAppearance := AAppearance;
   FName := AName;
   FCategory := ACategory;
   FHintConverter := AHintConverter;
   FDesc := ADesc;
+end;
+
+function TMarkFullBase.GetAppearance: IAppearance;
+begin
+  Result := FAppearance;
 end;
 
 function TMarkFullBase.GetCategory: ICategory;
@@ -130,14 +144,19 @@ begin
   Result := FName;
 end;
 
-function TMarkFullBase.GetStringID: string;
-begin
-  Result := '';
-end;
-
-function TMarkFullBase.IsEqual(const AMark: IMark): Boolean;
+function TMarkFullBase.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
+var
+  VVectorDataItemWithCategory: IVectorDataItemWithCategory;
 begin
   Result := True;
+  if (AMark.Hash <> 0) and (FHash <> 0) and (AMark.Hash <> FHash) then begin
+    Result := False;
+    Exit;
+  end;
+  if not FAppearance.IsEqual(AMark.Appearance) then begin
+    Result := False;
+    Exit;
+  end;
   if FName <> AMark.Name then begin
     Result := False;
     Exit;
@@ -146,13 +165,18 @@ begin
     Result := False;
     Exit;
   end;
+  if not Supports(AMark, IVectorDataItemWithCategory, VVectorDataItemWithCategory) then begin
+    Result := False;
+    Exit;
+  end;
+
   if FCategory <> nil then begin
-    if not FCategory.IsSame(AMark.Category) then begin
+    if not FCategory.IsSame(VVectorDataItemWithCategory.Category) then begin
       Result := False;
       Exit;
     end;
   end else begin
-    if AMark.Category <> nil then begin
+    if VVectorDataItemWithCategory.Category <> nil then begin
       Result := False;
       Exit;
     end;

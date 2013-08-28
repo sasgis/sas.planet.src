@@ -141,7 +141,7 @@ begin
   if VPointCount > 0 then begin
     if VPointCount = 1 then begin
       if not PointIsEmpty(APointsAggregator.Points[0]) then begin
-        Result := AFactory.BuildPoint(AIdData, AName, ADesc, APointsAggregator.Points[0]);
+        Result := AFactory.BuildPoint(AIdData, nil, AName, ADesc, APointsAggregator.Points[0]);
       end;
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin
@@ -150,6 +150,7 @@ begin
           Result :=
             AFactory.BuildPoly(
               AIdData,
+              nil,
               AName,
               ADesc,
               VPoly
@@ -161,6 +162,7 @@ begin
           Result :=
             AFactory.BuildPath(
               AIdData,
+              nil, 
               AName,
               ADesc,
               VPath

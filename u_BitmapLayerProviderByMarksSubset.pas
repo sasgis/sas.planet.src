@@ -120,6 +120,7 @@ uses
   SysUtils,
   GR32_Polygons,
   i_MarkerDrawable,
+  i_AppearanceOfVectorItem,
   i_CoordConverter,
   i_EnumDoublePoint,
   u_Bitmap32ByStaticBitmap,
@@ -178,7 +179,7 @@ var
   VLineIndex: Integer;
   VLine: IProjectedPathLine;
   VIndex: Integer;
-  VLineWithParams: IVectorDataItemWithLineParams;
+  VAppearanceLine: IAppearanceLine;
 begin
   Result := False;
   VProjected := GetProjectedPath(AMarkLine, FProjectionInfo);
@@ -246,11 +247,11 @@ begin
               InitBitmap(ATargetBmp, ALocalConverter);
               ABitmapInited := True;
             end;
-            if Supports(AMarkLine, IVectorDataItemWithLineParams, VLineWithParams) then begin
+            if Supports(AMarkLine.Appearance, IAppearanceLine, VAppearanceLine) then begin
               with VPolygon.Outline do try
-                with Grow(GR32.Fixed(VLineWithParams.LineWidth / 2), 0.5) do try
+                with Grow(GR32.Fixed(VAppearanceLine.LineWidth / 2), 0.5) do try
                   FillMode := pfWinding;
-                  DrawFill(ATargetBmp, VLineWithParams.LineColor);
+                  DrawFill(ATargetBmp, VAppearanceLine.LineColor);
                 finally
                   free;
                 end;
@@ -286,8 +287,8 @@ var
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
   VLine: IProjectedPolygonLine;
-  VLineWithParams: IVectorDataItemWithLineParams;
-  VPolyWithFillParams: IVectorDataItemPolyWithFillParams;
+  VAppearanceBorder: IAppearancePolygonBorder;
+  VAppearanceFill: IAppearancePolygonFill;
 begin
   Result := False;
   VProjected := GetProjectedPolygon(AMarkPoly, FProjectionInfo);
@@ -348,14 +349,14 @@ begin
               InitBitmap(ATargetBmp, ALocalConverter);
               ABitmapInited := True;
             end;
-            if Supports(AMarkPoly, IVectorDataItemPolyWithFillParams, VPolyWithFillParams) then begin
-              VPolygon.DrawFill(ATargetBmp, VPolyWithFillParams.FillColor);
+            if Supports(AMarkPoly.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
+              VPolygon.DrawFill(ATargetBmp, VAppearanceFill.FillColor);
             end;
-            if Supports(AMarkPoly, IVectorDataItemWithLineParams, VLineWithParams) then begin
+            if Supports(AMarkPoly.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
               with VPolygon.Outline do try
-                with Grow(GR32.Fixed(VLineWithParams.LineWidth / 2), 0.5) do try
+                with Grow(GR32.Fixed(VAppearanceBorder.LineWidth / 2), 0.5) do try
                   FillMode := pfWinding;
-                  DrawFill(ATargetBmp, VLineWithParams.LineColor);
+                  DrawFill(ATargetBmp, VAppearanceBorder.LineColor);
                 finally
                   free;
                 end;
@@ -523,12 +524,12 @@ var
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
   VGeoConverter: ICoordConverter;
-  VLineWithParams: IVectorDataItemWithLineParams;
+  VAppearanceLine: IAppearanceLine;
 begin
   VID := Integer(AMarkPath);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    if Supports(AMarkPath, IVectorDataItemWithLineParams, VLineWithParams) then begin
-      VLineWidth := VLineWithParams.LineWidth;
+    if Supports(AMarkPath.Appearance, IAppearanceLine, VAppearanceLine) then begin
+      VLineWidth := VAppearanceLine.LineWidth;
     end else begin
       VLineWidth := 0;
     end;
@@ -569,12 +570,12 @@ var
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
   VGeoConverter: ICoordConverter;
-  VLineWithParams: IVectorDataItemWithLineParams;
+  VAppearanceBorder: IAppearancePolygonBorder;
 begin
   VID := Integer(AMarkPoly);
   if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    if Supports(AMarkPoly, IVectorDataItemWithLineParams, VLineWithParams) then begin
-      VLineWidth := VLineWithParams.LineWidth;
+    if Supports(AMarkPoly.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+      VLineWidth := VAppearanceBorder.LineWidth;
     end else begin
       VLineWidth := 0;
     end;

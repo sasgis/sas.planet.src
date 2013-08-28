@@ -23,9 +23,9 @@ unit u_MarkLineSml;
 interface
 
 uses
-  GR32,
   t_Hash,
   t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
@@ -35,22 +35,17 @@ uses
   u_MarkFullBaseSml;
 
 type
-  TMarkLineSml = class(TMarkFullBaseSml, IVectorDataItemLine, IMarkLine,
-    IVectorDataItemWithLineParams)
+  TMarkLineSml = class(TMarkFullBaseSml, IVectorDataItemLine, IMarkLine)
   private
     FLine: ILonLatPath;
-    FLineColor: TColor32;
-    FLineWidth: Integer;
   protected
     function GetMarkType: TGUID; override;
   protected
     function GetLLRect: ILonLatRect; override;
     function GetGoToLonLat: TDoublePoint; override;
-    function IsEqual(const AMark: IMark): Boolean; override;
+    function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
     function GetLine: ILonLatPath;
-    function GetLineColor: TColor32;
-    function GetLineWidth: Integer;
   public
     constructor Create(
       const AHash: THashValue;
@@ -59,11 +54,10 @@ type
       AId: Integer;
       ADbId: Integer;
       AVisible: Boolean;
+      const AAppearance: IAppearance;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: ILonLatPath;
-      ALineColor: TColor32;
-      ALineWidth: Integer
+      const ALine: ILonLatPath
     );
   end;
 
@@ -81,23 +75,15 @@ constructor TMarkLineSml.Create(
   AId: Integer;
   ADbId: Integer;
   AVisible: Boolean;
+  const AAppearance: IAppearance;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: ILonLatPath;
-  ALineColor: TColor32;
-  ALineWidth: Integer
+  const ALine: ILonLatPath
 );
 begin
   Assert(Assigned(ALine));
-  inherited Create(AHash, AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
+  inherited Create(AHash, AAppearance, AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
   FLine := ALine;
-  FLineColor := ALineColor;
-  FLineWidth := ALineWidth;
-end;
-
-function TMarkLineSml.GetLineColor: TColor32;
-begin
-  Result := FLineColor;
 end;
 
 function TMarkLineSml.GetGoToLonLat: TDoublePoint;
@@ -115,7 +101,7 @@ begin
   Result := IMarkLine;
 end;
 
-function TMarkLineSml.IsEqual(const AMark: IMark): Boolean;
+function TMarkLineSml.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
 var
   VMarkPath: IMarkLine;
 begin
@@ -123,23 +109,15 @@ begin
     Result := True;
     Exit;
   end;
+  if not inherited IsEqual(AMark) then begin
+    Result := False;
+    Exit;
+  end;
   if not Supports(AMark, IMarkLine, VMarkPath) then begin
     Result := False;
     Exit;
   end;
   if not FLine.Bounds.IsEqual(VMarkPath.LLRect) then begin
-    Result := False;
-    Exit;
-  end;
-  if not inherited IsEqual(AMark) then begin
-    Result := False;
-    Exit;
-  end;
-  if FLineColor <> VMarkPath.LineColor then begin
-    Result := False;
-    Exit;
-  end;
-  if FLineWidth <> VMarkPath.LineWidth then begin
     Result := False;
     Exit;
   end;
@@ -153,11 +131,6 @@ end;
 function TMarkLineSml.GetLine: ILonLatPath;
 begin
   Result := FLine;
-end;
-
-function TMarkLineSml.GetLineWidth: Integer;
-begin
-  Result := FLineWidth;
 end;
 
 end.

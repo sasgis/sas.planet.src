@@ -9,9 +9,6 @@ uses
 type
   IMarkId = interface
     ['{A3FE0170-8D32-4777-A3EA-53D678875B7B}']
-    function GetStringID: string;
-    property StringID: string read GetStringID;
-
     function GetCategory: ICategory;
     property Category: ICategory read GetCategory;
 

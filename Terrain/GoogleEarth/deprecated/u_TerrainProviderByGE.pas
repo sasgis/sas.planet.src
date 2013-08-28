@@ -86,7 +86,6 @@ uses
   u_GeoFun,
   u_Notifier,
   u_ListenerByEvent,
-  u_CoordConverterFactorySimple,
   u_TileStorageGETerrain;
 
 const

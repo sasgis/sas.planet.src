@@ -103,6 +103,7 @@ begin
     VItem :=
       AFactory.BuildPoly(
         AIdData,
+        nil,
         '',
         '',
         VPolygon

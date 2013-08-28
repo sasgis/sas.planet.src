@@ -25,6 +25,7 @@ interface
 uses
   t_Hash,
   t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
@@ -37,10 +38,12 @@ type
     IVectorDataItemSimple, IVectorDataItemWithCategory)
   private
     FHash: THashValue;
+    FAppearance: IAppearance;
     FHintConverter: IHtmlToHintTextConverter;
     FDesc: string;
   protected
     function GetHash: THashValue;
+    function GetAppearance: IAppearance;
     function GetDesc: string;
     function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
@@ -48,10 +51,11 @@ type
     function GetInfoUrl: string;
     function GetInfoCaption: string;
     function GetGoToLonLat: TDoublePoint; virtual; abstract;
-    function IsEqual(const AMark: IMark): Boolean; virtual;
+    function IsEqual(const AMark: IVectorDataItemSimple): Boolean; virtual;
   public
     constructor Create(
       const AHash: THashValue;
+      const AAppearance: IAppearance;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       AId: Integer;
@@ -73,6 +77,7 @@ uses
 
 constructor TMarkFullBaseSml.Create(
   const AHash: THashValue;
+  const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   AId: Integer;
@@ -82,10 +87,17 @@ constructor TMarkFullBaseSml.Create(
   AVisible: Boolean
 );
 begin
+  Assert(Assigned(AAppearance));
   inherited Create(AName, AId, ADbId, ACategory, AVisible);
   FHash := AHash;
+  FAppearance := AAppearance;
   FHintConverter := AHintConverter;
   FDesc := ADesc;
+end;
+
+function TMarkFullBaseSml.GetAppearance: IAppearance;
+begin
+  Result := FAppearance;
 end;
 
 function TMarkFullBaseSml.GetDesc: string;
@@ -126,10 +138,18 @@ begin
   end;
 end;
 
-function TMarkFullBaseSml.IsEqual(const AMark: IMark): Boolean;
+function TMarkFullBaseSml.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin
+  if (AMark.Hash <> 0) and (FHash <> 0) and (AMark.Hash <> FHash) then begin
+    Result := False;
+    Exit;
+  end;
+  if not FAppearance.IsEqual(AMark.Appearance) then begin
+    Result := False;
+    Exit;
+  end;
   Result := False;
   if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
     if IsEqualInternal(VMarkInternal) then begin

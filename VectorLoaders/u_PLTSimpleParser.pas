@@ -135,6 +135,7 @@ begin
           VItem :=
             AFactory.BuildPath(
               AIdData,
+              nil,
               trackname,
               '',
               VPath

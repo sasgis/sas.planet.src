@@ -24,13 +24,20 @@ interface
 
 uses
   i_Category,
-  i_MarkTemplate;
+  i_Appearance,
+  i_AppearanceOfVectorItem;
 
 type
   IImportPointParams = interface
     ['{2042149A-3C2C-44A7-8939-CB14EDD53078}']
-    function GetTemplate: IMarkTemplatePoint;
-    property Template: IMarkTemplatePoint read GetTemplate;
+    function GetAppearance: IAppearance;
+    property Appearance: IAppearance read GetAppearance;
+
+    function GetCaptionAppearance: IAppearancePointCaption;
+    property CaptionAppearance: IAppearancePointCaption read GetCaptionAppearance;
+
+    function GetIconAppearance: IAppearancePointIcon;
+    property IconAppearance: IAppearancePointIcon read GetIconAppearance;
 
     function GetIsForceTextColor: Boolean;
     property IsForceTextColor: Boolean read GetIsForceTextColor;
@@ -50,8 +57,11 @@ type
 
   IImportLineParams = interface
     ['{99AFF863-CB3E-4774-9994-A3EE9F445A44}']
-    function GetTemplate: IMarkTemplateLine;
-    property Template: IMarkTemplateLine read GetTemplate;
+    function GetAppearance: IAppearance;
+    property Appearance: IAppearance read GetAppearance;
+
+    function GetLineAppearance: IAppearanceLine;
+    property LineAppearance: IAppearanceLine read GetLineAppearance;
 
     function GetIsForceLineColor: Boolean;
     property IsForceLineColor: Boolean read GetIsForceLineColor;
@@ -62,8 +72,14 @@ type
 
   IImportPolyParams = interface
     ['{FB94F289-5FE9-48D8-9FC9-9E2A05BD18F7}']
-    function GetTemplate: IMarkTemplatePoly;
-    property Template: IMarkTemplatePoly read GetTemplate;
+    function GetAppearance: IAppearance;
+    property Appearance: IAppearance read GetAppearance;
+
+    function GetBorderAppearance: IAppearancePolygonBorder;
+    property BorderAppearance: IAppearancePolygonBorder read GetBorderAppearance;
+
+    function GetFillAppearance: IAppearancePolygonFill;
+    property FillAppearance: IAppearancePolygonFill read GetFillAppearance;
 
     function GetIsForceLineColor: Boolean;
     property IsForceLineColor: Boolean read GetIsForceLineColor;
@@ -106,21 +122,6 @@ type
 
     function GetPolyParams: IImportPolyParams;
     property PolyParams: IImportPolyParams read GetPolyParams;
-  end;
-
-  IImportConfigOld = interface
-    ['{95479381-A0D7-4FE3-86FB-11C5ED532FD2}']
-    function GetRootCategory: ICategory;
-    property RootCategory: ICategory read GetRootCategory;
-
-    function GetTemplateNewPoint: IMarkTemplatePoint;
-    property TemplateNewPoint: IMarkTemplatePoint read GetTemplateNewPoint;
-
-    function GetTemplateNewLine: IMarkTemplateLine;
-    property TemplateNewLine: IMarkTemplateLine read GetTemplateNewLine;
-
-    function GetTemplateNewPoly: IMarkTemplatePoly;
-    property TemplateNewPoly: IMarkTemplatePoly read GetTemplateNewPoly;
   end;
 
 implementation

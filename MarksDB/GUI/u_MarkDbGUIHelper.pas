@@ -42,6 +42,7 @@ uses
   i_MarkSystem,
   i_ImportConfig,
   i_ImportFile,
+  i_AppearanceOfMarkFactory,
   i_MarkFactory,
   i_MarkFactoryConfig,
   i_MarkPicture,
@@ -143,6 +144,7 @@ type
       const AMediaPath: IPathConfig;
       const AMarkFactoryConfig: IMarkFactoryConfig;
       const AMarkPictureList: IMarkPictureList;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
       const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -159,6 +161,7 @@ uses
   SysUtils,
   gnugettext,
   i_DoublePointFilter,
+  i_VectorItemTree,
   i_VectorItemSubset,
   u_Datum,
   u_ResStrings,
@@ -173,6 +176,7 @@ constructor TMarkDbGUIHelper.Create(
   const AMediaPath: IPathConfig;
   const AMarkFactoryConfig: IMarkFactoryConfig;
   const AMarkPictureList: IMarkPictureList;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
   const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -192,6 +196,7 @@ begin
     TfrmMarkEditPoint.Create(
       ALanguageManager,
       AMediaPath,
+      AAppearanceOfMarkFactory,
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB,
       FMarkSystem.MarkDb.Factory.MarkPictureList,
@@ -202,6 +207,7 @@ begin
     TfrmMarkEditPath.Create(
       ALanguageManager,
       AMediaPath,
+      AAppearanceOfMarkFactory,
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB
     );
@@ -209,6 +215,7 @@ begin
     TfrmMarkEditPoly.Create(
       ALanguageManager,
       AMediaPath,
+      AAppearanceOfMarkFactory,
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB
     );
@@ -220,6 +227,7 @@ begin
   FfrmImportConfigEdit :=
     TfrmImportConfigEdit.Create(
       ALanguageManager,
+      AAppearanceOfMarkFactory,
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB
     );
@@ -232,6 +240,7 @@ begin
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(
       ALanguageManager,
+      AAppearanceOfMarkFactory,
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB
     );
@@ -520,13 +529,18 @@ function TMarkDbGUIHelper.ImportFile(
   const AFileNameToImport: String;
   var AImportConfig: IImportConfig
 ): IInterfaceListStatic;
+var
+  VTree: IVectorItemTree;
 begin
   Result := nil;
   if (FileExists(AFileNameToImport)) then begin
     if not Assigned(AImportConfig) then
       AImportConfig := EditModalImportConfig;
     if Assigned(AImportConfig) then begin
-      Result:= FImportFileByExt.ProcessImport(FMarkSystem, AFileNameToImport, AImportConfig);
+      VTree := FImportFileByExt.ProcessImport(AFileNameToImport, AImportConfig);
+      if Assigned(VTree) then begin
+        Result := FMarkSystem.ImportItemsTree(VTree, AImportConfig);
+      end;
     end;
   end;
 end;

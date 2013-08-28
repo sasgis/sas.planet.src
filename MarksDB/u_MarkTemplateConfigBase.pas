@@ -24,6 +24,7 @@ interface
 
 uses
   i_MarkNameGenerator,
+  i_AppearanceOfMarkFactory,
   i_StringConfigDataElement,
   u_ConfigDataElementComplexBase;
 
@@ -31,12 +32,15 @@ type
   TMarkTemplateConfigBase = class(TConfigDataElementComplexBase)
   private
     FNameGenerator: IMarkNameGenerator;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   protected
     property NameGenerator: IMarkNameGenerator read FNameGenerator;
+    property AppearanceOfMarkFactory: IAppearanceOfMarkFactory read FAppearanceOfMarkFactory;
   protected
     function GetNameGenerator: IMarkNameGenerator;
   public
     constructor Create(
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AFormatString: IStringConfigDataElement
     );
   end;
@@ -50,10 +54,13 @@ uses
 { TMarkTemplateConfigBase }
 
 constructor TMarkTemplateConfigBase.Create(
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AFormatString: IStringConfigDataElement
 );
 begin
   inherited Create;
+
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
 
   FNameGenerator := TMarkNameGenerator.Create(AFormatString);
   Add(FNameGenerator, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Name'), False, False, False, False);

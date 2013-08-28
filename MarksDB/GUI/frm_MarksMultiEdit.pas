@@ -30,6 +30,7 @@ uses
   StdCtrls,
   ExtCtrls,
   i_Category,
+  i_AppearanceOfMarkFactory,
   i_LanguageManager,
   i_ImportConfig,
   i_MarkFactory,
@@ -50,6 +51,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryDB: IMarkCategoryDB
     ); reintroduce;
@@ -63,6 +65,7 @@ implementation
 
 constructor TfrmMarksMultiEdit.Create(
   const ALanguageManager: ILanguageManager;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDB
 );
@@ -72,6 +75,7 @@ begin
   frMarksGeneralOptions:=
     TfrMarksGeneralOptions.Create(
       ALanguageManager,
+      AAppearanceOfMarkFactory,
       AMarkFactory,
       ACategoryDB,
       True,

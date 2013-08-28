@@ -508,7 +508,7 @@ begin
                 // make result object
                 VAllNewMarks := AVectorItemSubsetBuilderFactory.Build;
               end;
-              VAllNewMarks.Add(AVectorDataFactory.BuildPoly(nil, VMarkName, VMarkDesc, VPolygon));
+              VAllNewMarks.Add(AVectorDataFactory.BuildPoly(nil, nil, VMarkName, VMarkDesc, VPolygon));
             end;
           end;
         end;

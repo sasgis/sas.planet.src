@@ -23,9 +23,9 @@ unit u_MarkPolySml;
 interface
 
 uses
-  GR32,
   t_Hash,
   t_GeoTypes,
+  i_Appearance,
   i_LonLatRect,
   i_VectorItemLonLat,
   i_VectorDataItemSimple,
@@ -35,24 +35,17 @@ uses
   u_MarkFullBaseSml;
 
 type
-  TMarkPolySml = class(TMarkFullBaseSml, IMarkPoly, IVectorDataItemPoly,
-    IVectorDataItemPolyWithFillParams, IVectorDataItemWithLineParams)
+  TMarkPolySml = class(TMarkFullBaseSml, IMarkPoly, IVectorDataItemPoly)
   private
     FLine: ILonLatPolygon;
-    FLineColor: TColor32;
-    FFillColor: TColor32;
-    FLineWidth: Integer;
   protected
     function GetMarkType: TGUID; override;
   protected
     function GetLLRect: ILonLatRect; override;
     function GetGoToLonLat: TDoublePoint; override;
-    function IsEqual(const AMark: IMark): Boolean; override;
+    function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
     function GetLine: ILonLatPolygon;
-    function GetLineColor: TColor32;
-    function GetFillColor: TColor32;
-    function GetLineWidth: Integer;
   public
     constructor Create(
       const AHash: THashValue;
@@ -61,12 +54,10 @@ type
       AId: Integer;
       ADbId: Integer;
       AVisible: Boolean;
+      const AAppearance: IAppearance;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: ILonLatPolygon;
-      ABorderColor: TColor32;
-      AFillColor: TColor32;
-      ALineWidth: Integer
+      const ALine: ILonLatPolygon
     );
   end;
 
@@ -84,29 +75,15 @@ constructor TMarkPolySml.Create(
   AId: Integer;
   ADbId: Integer;
   AVisible: Boolean;
+  const AAppearance: IAppearance;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: ILonLatPolygon;
-  ABorderColor, AFillColor: TColor32;
-  ALineWidth: Integer
+  const ALine: ILonLatPolygon
 );
 begin
   Assert(Assigned(ALine));
-  inherited Create(AHash, AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
+  inherited Create(AHash, AAppearance, AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
   FLine := ALine;
-  FLineColor := ABorderColor;
-  FFillColor := AFillColor;
-  FLineWidth := ALineWidth;
-end;
-
-function TMarkPolySml.GetLineColor: TColor32;
-begin
-  Result := FLineColor;
-end;
-
-function TMarkPolySml.GetFillColor: TColor32;
-begin
-  Result := FFillColor;
 end;
 
 function TMarkPolySml.GetGoToLonLat: TDoublePoint;
@@ -128,7 +105,7 @@ begin
   Result := IMarkPoly;
 end;
 
-function TMarkPolySml.IsEqual(const AMark: IMark): Boolean;
+function TMarkPolySml.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
 var
   VMarkPoly: IMarkPoly;
 begin
@@ -136,27 +113,15 @@ begin
     Result := True;
     Exit;
   end;
+  if not inherited IsEqual(AMark) then begin
+    Result := False;
+    Exit;
+  end;
   if not Supports(AMark, IMarkPoly, VMarkPoly) then begin
     Result := False;
     Exit;
   end;
   if not FLine.Bounds.IsEqual(VMarkPoly.LLRect) then begin
-    Result := False;
-    Exit;
-  end;
-  if not inherited IsEqual(AMark) then begin
-    Result := False;
-    Exit;
-  end;
-  if FLineColor <> VMarkPoly.LineColor then begin
-    Result := False;
-    Exit;
-  end;
-  if FFillColor <> VMarkPoly.FillColor then begin
-    Result := False;
-    Exit;
-  end;
-  if FLineWidth <> VMarkPoly.LineWidth then begin
     Result := False;
     Exit;
   end;
@@ -170,11 +135,6 @@ end;
 function TMarkPolySml.GetLine: ILonLatPolygon;
 begin
   Result := FLine;
-end;
-
-function TMarkPolySml.GetLineWidth: Integer;
-begin
-  Result := FLineWidth;
 end;
 
 end.
