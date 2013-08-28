@@ -78,6 +78,7 @@ implementation
 
 uses
   SysUtils,
+  u_GeoFun,
   u_LonLatRectByPoint;
 
 { TMarkPoint }
@@ -94,6 +95,7 @@ constructor TMarkPoint.Create(
   AFontSize, AMarkerSize: Integer
 );
 begin
+  Assert(not PointIsEmpty(APoint));
   inherited Create(AHash, AHintConverter, AName, ACategory, ADesc);
   FPic := APic;
   FLLRect := TLonLatRectByPoint.Create(APoint);

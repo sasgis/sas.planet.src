@@ -54,6 +54,7 @@ type
 implementation
 
 uses
+  u_GeoFun,
   u_VectorDataItemOfMapPoint,
   u_VectorDataItemOfMapPolygon;
 
@@ -81,6 +82,7 @@ var
   VHash: THashValue;
 begin
   Assert(AIdData <> nil);
+  Assert(Assigned(ALine));
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
@@ -109,6 +111,7 @@ var
   VIndex: Integer;
   VHash: THashValue;
 begin
+  Assert(not PointIsEmpty(APoint));
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin
@@ -139,6 +142,7 @@ var
   VHash: THashValue;
 begin
   Assert(AIdData <> nil);
+  Assert(Assigned(APoly));
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;

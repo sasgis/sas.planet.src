@@ -99,7 +99,7 @@ begin
     AView,
     VTileMatrixFactory,
     ATimerNoifier,
-    False,
+    True,
     AConfig.ThreadConfig
   );
   FGPSRecorder := AGpsTrackRecorder;

@@ -54,7 +54,6 @@ constructor TDownloaderHttpWithTTL.Create(
 );
 const
   CHttpClientTTL = 300000; // 5 min
-  CHttpClientTTLCheckInterval = 30000; // 30 sec
 begin
   inherited Create;
   FAllowUseCookie := AAllowUseCookie;

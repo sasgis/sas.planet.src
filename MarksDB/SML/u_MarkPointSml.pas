@@ -83,6 +83,7 @@ implementation
 
 uses
   SysUtils,
+  u_GeoFun,
   u_LonLatRectByPoint;
 
 { TMarkPointSml }
@@ -103,6 +104,7 @@ constructor TMarkPointSml.Create(
   AFontSize, AMarkerSize: Integer
 );
 begin
+  Assert(not PointIsEmpty(APoint));
   inherited Create(AHash, AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
   FPicName := APicName;
   FPic := APic;

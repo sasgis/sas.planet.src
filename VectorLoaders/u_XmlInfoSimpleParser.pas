@@ -83,6 +83,7 @@ type
 implementation
 
 uses
+  i_VectorItemLonLat,
   i_VectorDataItemSimple,
   u_StreamReadOnlyByBinaryData,
   u_GeoFun;
@@ -749,6 +750,8 @@ procedure TParseXML_Aux.AddCoordsToList(
 );
 var
   trk_obj: IVectorDataItemSimple;
+  VPath: ILonLatPath;
+  VPoly: ILonLatPolygon;
 begin
   // make list object
   if (nil=list) then begin
@@ -759,26 +762,34 @@ begin
   if (0 < FArrayCount) then begin
     if (1 = FArrayCount) then begin
       // single point in track segment - make as point
-      trk_obj := Factory.BuildPoint(IdData, AWideStrName, AWideStrDesc, array_points[0]);
+      if not PointIsEmpty(array_points[0]) then begin
+        trk_obj := Factory.BuildPoint(IdData, AWideStrName, AWideStrDesc, array_points[0]);
+      end;
     end else if ((FCurrentFOT = fotPolygon))
                 OR
                 ((FCurrentFOT = fotUnknown) and
                   IsClosed_Array) then begin
       // polygon
-      trk_obj := Factory.BuildPoly(
-          IdData,
-          AWideStrName,
-          AWideStrDesc,
-          AItemsFactory.CreateLonLatPolygon(@array_points[0], FArrayCount)
-        );
+      VPoly := AItemsFactory.CreateLonLatPolygon(@array_points[0], FArrayCount);
+      if Assigned(VPoly) then begin
+        trk_obj := Factory.BuildPoly(
+            IdData,
+            AWideStrName,
+            AWideStrDesc,
+            VPoly
+          );
+      end;
     end else begin
       // polyline
-      trk_obj := Factory.BuildPath(
-          IdData,
-          AWideStrName,
-          AWideStrDesc,
-          AItemsFactory.CreateLonLatPath(@array_points[0], FArrayCount)
-        );
+      VPath := AItemsFactory.CreateLonLatPath(@array_points[0], FArrayCount);
+      if Assigned(VPath) then begin
+        trk_obj := Factory.BuildPath(
+            IdData,
+            AWideStrName,
+            AWideStrDesc,
+            VPath
+          );
+      end;
     end;
     list.Add(trk_obj);
   end;

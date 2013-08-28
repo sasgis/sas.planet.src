@@ -4,6 +4,7 @@ interface
 
 uses
   SysUtils,
+  t_Hash,
   u_BaseInterfacedObject;
 
 type
@@ -16,7 +17,7 @@ type
   PCacheItem = ^TCacheItem;
 
   TCacheItem = record
-    Key: UInt64;
+    Key: THashValue;
     Value: IInterface;
     NextIndex: TItemIndex;
     PrevIndex: TItemIndex;
@@ -100,7 +101,7 @@ type
   public
     function GetItem(
       AHashIndex: THashIndex;
-      const AKey: UInt64;
+      const AKey: THashValue;
       out AIndex: TItemIndex
     ): PCacheItem;
     procedure RemoveItem(
@@ -127,6 +128,7 @@ type
     FItemsCount: Integer;
     FHash: THashTable;
     FHashSize: Integer;
+    FHashMask: THashValue;
 
     // Стек для неиспользуемых элементов кэша
     FFreeItems: TStack;
@@ -148,18 +150,16 @@ type
     procedure MoveItemFromFirstInToFirstOut;
     procedure FreeItemFromQueueMulti;
   protected
-    procedure CreateByKey(
-      const AKey: UInt64;
-      AData: Pointer;
-      out Item: IInterface
-    ); virtual; abstract;
-    function GetIndexByKey(const AKey: UInt64): THashIndex; virtual; abstract;
-    procedure GetOrCreateItem(
-      const AKey: UInt64;
-      AData: Pointer;
-      out AItem: IInterface
-    );
-    procedure DeleteItem(const AKey: UInt64);
+    function CreateByKey(
+      const AKey: THashValue;
+      AData: Pointer
+    ): IInterface; virtual; abstract;
+    function GetIndexByKey(const AKey: THashValue): THashIndex; virtual;
+    function GetOrCreateItem(
+      const AKey: THashValue;
+      AData: Pointer
+    ): IInterface;
+    procedure DeleteItem(const AKey: THashValue);
     procedure Clear;
   public
     constructor Create(
@@ -492,7 +492,7 @@ end;
 
 function THashTable.GetItem(
   AHashIndex: THashIndex;
-  const AKey: UInt64;
+  const AKey: THashValue;
   out AIndex: TItemIndex
 ): PCacheItem;
 begin
@@ -591,7 +591,7 @@ begin
     VHashSizeInBit := 30;
   end;
   FHashSize := 1 shl VHashSizeInBit;
-
+  FHashMask := FHashSize - 1;
 
   FQueueMultiMaxCount := AMultiUseCount;
   FQueueFirstInMaxCount := AFirstUseCount;
@@ -681,7 +681,7 @@ begin
   end;
 end;
 
-procedure THashCacheWithQueuesAbstract.DeleteItem(const AKey: UInt64);
+procedure THashCacheWithQueuesAbstract.DeleteItem(const AKey: THashValue);
 var
   VHashIndex: THashIndex;
   VCurrIndex: TItemIndex;
@@ -731,17 +731,22 @@ begin
   FFreeItems.Push(VIndex, VItem);
 end;
 
-procedure THashCacheWithQueuesAbstract.GetOrCreateItem(
-  const AKey: UInt64;
-  AData: Pointer;
-  out AItem: IInterface
-);
+function THashCacheWithQueuesAbstract.GetIndexByKey(
+  const AKey: THashValue): THashIndex;
+begin
+  Result := AKey and FHashMask;
+end;
+
+function THashCacheWithQueuesAbstract.GetOrCreateItem(
+  const AKey: THashValue;
+  AData: Pointer
+): IInterface;
 var
   VHashIndex: THashIndex;
   VCurrIndex: TItemIndex;
   VCurrItem: PCacheItem;
 begin
-  AItem := nil;
+  Result := nil;
   VHashIndex := GetIndexByKey(AKey);
   Assert(VHashIndex >= 0);
   Assert(VHashIndex < FHashSize);
@@ -755,13 +760,13 @@ begin
       case VCurrItem.QueueType of
         qtMulti: begin
           Assert(VCurrItem.Value <> nil);
-          AItem := VCurrItem.Value;
+          Result := VCurrItem.Value;
           FQueueMulti.MoveItemToHead(VCurrIndex, VCurrItem);
         end;
         qtFirstIn: begin
           Assert(FQueueFirstInMaxCount > 0);
           Assert(VCurrItem.Value <> nil);
-          AItem := VCurrItem.Value;
+          Result := VCurrItem.Value;
         end;
         qtFirstOut: begin
           Assert(FQueueFirstOutMaxCount > 0);
@@ -774,8 +779,8 @@ begin
     FCS.EndWrite;
   end;
 
-  if AItem = nil then begin
-    CreateByKey(AKey, AData, AItem);
+  if Result = nil then begin
+    Result := CreateByKey(AKey, AData);
     FCS.BeginWrite;
     try
       VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
@@ -793,7 +798,7 @@ begin
             Assert(FQueueFirstOutMaxCount > 0);
             Assert(VCurrItem.Value = nil);
             FQueueFirstOut.ExcludeItem(VCurrIndex, VCurrItem);
-            VCurrItem.Value := AItem;
+            VCurrItem.Value := Result;
             if FQueueMulti.Count + 1 > FQueueMultiMaxCount then begin
               FreeItemFromQueueMulti;
             end else begin
@@ -835,12 +840,12 @@ begin
         end;
         VCurrItem.Key := AKey;
         if FQueueFirstInMaxCount > 0 then begin
-          VCurrItem.Value := AItem;
+          VCurrItem.Value := Result;
           FQueueFirstIn.PushItemToHead(VCurrIndex, VCurrItem);
         end else if FQueueFirstOutMaxCount > 0 then begin
           FQueueFirstOut.PushItemToHead(VCurrIndex, VCurrItem);
         end else begin
-          VCurrItem.Value := AItem;
+          VCurrItem.Value := Result;
           FQueueMulti.PushItemToHead(VCurrIndex, VCurrItem);
         end;
         FHash.AddItem(VHashIndex, VCurrIndex, VCurrItem);

@@ -5,6 +5,7 @@ interface
 uses
   SysUtils,
   i_IDList,
+  i_HashFunction,
   i_CoordConverter,
   i_ProjectionInfo,
   i_CoordConverterFactory,
@@ -13,6 +14,7 @@ uses
 type
   TProjectionInfoFactory = class(TBaseInterfacedObject, IProjectionInfoFactory)
   private
+    FHashFunction: IHashFunction;
     FSync: IReadWriteSync;
     FProjectionsByConverter: IIDInterfaceList;
   private
@@ -21,20 +23,28 @@ type
       AZoom: Byte
     ): IProjectionInfo;
   public
-    constructor Create(const ASync: IReadWriteSync);
+    constructor Create(
+      const AHashFunction: IHashFunction;
+      const ASync: IReadWriteSync
+    );
   end;
 
 implementation
 
 uses
+  t_Hash,
   u_IDInterfaceList,
   u_ProjectionInfo;
 
 { TProjectionInfoFactory }
 
-constructor TProjectionInfoFactory.Create(const ASync: IReadWriteSync);
+constructor TProjectionInfoFactory.Create(
+  const AHashFunction: IHashFunction;
+  const ASync: IReadWriteSync
+);
 begin
   inherited Create;
+  FHashFunction := AHashFunction;
   FSync := ASync;
 
   FProjectionsByConverter := TIDInterfaceList.Create(False);
@@ -49,8 +59,14 @@ var
   VZooms: IIDInterfaceList;
   i: Integer;
   VProjection: IProjectionInfo;
+  VHash: THashValue;
 begin
+  Assert(Assigned(AGeoConverter));
   Result := nil;
+  if not Assigned(AGeoConverter) then begin
+    Exit;
+  end;
+
   VID := Integer(AGeoConverter);
   FSync.BeginRead;
   try
@@ -65,7 +81,9 @@ begin
   end else begin
     VZooms := TIDInterfaceList.Create(False);
     for i := AGeoConverter.MinZoom to AGeoConverter.MaxZoom do begin
-      VProjection := TProjectionInfo.Create(AGeoConverter, i);
+      VHash := AGeoConverter.Hash;
+      FHashFunction.UpdateHashByInteger(VHash, i);
+      VProjection := TProjectionInfo.Create(VHash, AGeoConverter, i);
       VZooms.Add(i, VProjection);
       if i =  AZoom then begin
         Result := VProjection;

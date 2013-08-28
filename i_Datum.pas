@@ -23,12 +23,16 @@ unit i_Datum;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_NotifierOperation;
 
 type
   IDatum = interface
     ['{FF96E41C-41EC-4D87-BD1B-42F8E7CA3E15}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
+
     // Возвращает код EPSG для этого датума. Для нестандартных проекций и сфероидов будет возвращать 0
     function GetEPSG: integer; stdcall;
     property EPSG: Integer read GetEPSG;

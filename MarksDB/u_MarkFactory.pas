@@ -172,6 +172,7 @@ type
     constructor Create(
       const AConfig: IMarkFactoryConfig;
       const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
       const AFactory: IVectorItemsFactory;
       const AHintConverter: IHtmlToHintTextConverter
     );
@@ -182,6 +183,7 @@ implementation
 uses
   SysUtils,
   t_Hash,
+  u_GeoFun,
   u_MarkPoint,
   u_MarkLine,
   u_MarkPoly;
@@ -191,12 +193,15 @@ uses
 constructor TMarkFactory.Create(
   const AConfig: IMarkFactoryConfig;
   const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
   const AFactory: IVectorItemsFactory;
   const AHintConverter: IHtmlToHintTextConverter
 );
 begin
+  Assert(Assigned(AHashFunction));
   inherited Create;
   FConfig := AConfig;
+  FHashFunction := AHashFunction;
   FFactory := AFactory;
   FHintConverter := AHintConverter;
   FMarkPictureList := AMarkPictureList;
@@ -323,6 +328,7 @@ var
   VHash: THashValue;
   VPicHash: THashValue;
 begin
+  Assert(not PointIsEmpty(APoint));
   if APic = nil then begin
     VPicHash := 0;
   end else begin
@@ -364,6 +370,7 @@ function TMarkFactory.CreateLine(
 var
   VHash: THashValue;
 begin
+  Assert(Assigned(ALine));
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
@@ -393,6 +400,7 @@ function TMarkFactory.CreatePoly(
 var
   VHash: THashValue;
 begin
+  Assert(Assigned(ALine));
   VHash := ALine.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);

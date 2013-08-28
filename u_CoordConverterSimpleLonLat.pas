@@ -23,6 +23,7 @@ unit u_CoordConverterSimpleLonLat;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_Datum,
   u_CoordConverterBasic;
@@ -38,9 +39,10 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
+      const AHash: THashValue;
       const ADatum: IDatum;
-      AProjEPSG: integer;
-      ACellSizeUnits: TCellSizeUnits
+      const AProjEPSG: integer;
+      const ACellSizeUnits: TCellSizeUnits
     );
   end;
 
@@ -52,9 +54,10 @@ uses
 { TCoordConverterSimpleLonLat }
 
 constructor TCoordConverterSimpleLonLat.Create(
+  const AHash: THashValue;
   const ADatum: IDatum;
-  AProjEPSG: integer;
-  ACellSizeUnits: TCellSizeUnits
+  const AProjEPSG: integer;
+  const ACellSizeUnits: TCellSizeUnits
 );
 var
   VRadiusA, VRadiusB: Double;

@@ -23,6 +23,7 @@ unit u_CoordConverterMercatorOnEllipsoid;
 interface
 
 uses
+  t_Hash,
   t_GeoTypes,
   i_Datum,
   u_CoordConverterBasic;
@@ -38,9 +39,10 @@ type
     function Relative2LonLatInternal(const XY: TDoublePoint): TDoublePoint; override; stdcall;
   public
     constructor Create(
+      const AHash: THashValue;
       const ADatum: IDatum;
-      AProjEPSG: integer;
-      ACellSizeUnits: TCellSizeUnits
+      const AProjEPSG: integer;
+      const ACellSizeUnits: TCellSizeUnits
     );
   end;
 
@@ -56,15 +58,16 @@ const
 { TCoordConverterMercatorOnEllipsoid }
 
 constructor TCoordConverterMercatorOnEllipsoid.Create(
+  const AHash: THashValue;
   const ADatum: IDatum;
-  AProjEPSG: integer;
-  ACellSizeUnits: TCellSizeUnits
+  const AProjEPSG: integer;
+  const ACellSizeUnits: TCellSizeUnits
 );
 var
   VRadiusA, VRadiusB: Double;
 begin
   Assert(ADatum <> nil);
-  inherited Create(ADatum, AProjEPSG, ACellSizeUnits);
+  inherited Create(AHash, ADatum, AProjEPSG, ACellSizeUnits);
   VRadiusA := ADatum.GetSpheroidRadiusA;
   VRadiusB := ADatum.GetSpheroidRadiusB;
   FExct := sqrt(VRadiusA * VRadiusA - VRadiusB * VRadiusB) / VRadiusA;

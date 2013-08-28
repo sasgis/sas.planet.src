@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  t_Hash,
   t_GeoTypes,
   i_Datum,
   i_CoordConverter,
@@ -32,6 +33,7 @@ uses
 type
   TCoordConverterAbstract = class(TBaseInterfacedObject, ICoordConverter)
   private
+    FHash: THashValue;
     FDatum: IDatum;
     FProjEPSG: integer;
     FCellSizeUnits: TCellSizeUnits;
@@ -272,6 +274,7 @@ type
     function TilesAtZoom(const AZoom: byte): Longint; stdcall;
     function PixelsAtZoom(const AZoom: byte): Longint; stdcall;
   protected
+    function GetHash: THashValue;
     function GetDatum: IDatum; stdcall;
 
     function GetMinZoom: Byte; stdcall;
@@ -517,9 +520,10 @@ type
     function IsSameConverter(const AOtherMapCoordConv: ICoordConverter): Boolean; stdcall;
   public
     constructor Create(
+      const AHash: THashValue;
       const ADatum: IDatum;
-      AProjEPSG: integer;
-      ACellSizeUnits: TCellSizeUnits
+      const AProjEPSG: integer;
+      const ACellSizeUnits: TCellSizeUnits
     );
   end;
 
@@ -1188,6 +1192,11 @@ begin
   Result := FDatum;
 end;
 
+function TCoordConverterAbstract.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
 function TCoordConverterAbstract.GetMaxZoom: Byte;
 begin
   Result := 23;
@@ -1204,12 +1213,14 @@ begin
 end;
 
 constructor TCoordConverterAbstract.Create(
+  const AHash: THashValue;
   const ADatum: IDatum;
-  AProjEPSG: integer;
-  ACellSizeUnits: TCellSizeUnits
+  const AProjEPSG: integer;
+  const ACellSizeUnits: TCellSizeUnits
 );
 begin
   inherited Create;
+  FHash := AHash;
   FDatum := ADatum;
   FProjEPSG := AProjEPSG;
   FCellSizeUnits := ACellSizeUnits;

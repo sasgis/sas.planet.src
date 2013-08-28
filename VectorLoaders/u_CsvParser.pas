@@ -58,6 +58,7 @@ uses
   Math,
   Classes,
   t_GeoTypes,
+  i_VectorItemLonLat,
   i_VectorDataItemSimple,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
@@ -313,6 +314,8 @@ var
   i: TCSVPointFieldType;
   VPointName, VPointDesc: String;
   VItem: IVectorDataItemSimple;
+  VPath: ILonLatPath;
+  VPoly: ILonLatPolygon;
 begin
   if APointsAggregator.Count=0 then
     Exit;
@@ -334,28 +337,36 @@ begin
 
   if APointsAggregator.Count=1 then begin
     // make
-    VItem := AFactory.BuildPoint(
-      AIdData,
-      VPointName,
-      VPointDesc,
-      APointsAggregator.Points[0]
-    );
+    if not PointIsEmpty(APointsAggregator.Points[0]) then begin
+      VItem := AFactory.BuildPoint(
+        AIdData,
+        VPointName,
+        VPointDesc,
+        APointsAggregator.Points[0]
+      );
+    end;
   end else if (APointsAggregator.Count>2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count-1]) then begin
-    // make
-    VItem := AFactory.BuildPoly(
-      AIdData,
-      VPointName,
-      VPointDesc,
-      AVectorFactory.CreateLonLatPolygon(APointsAggregator.Points, APointsAggregator.Count)
-    );
+    VPoly := AVectorFactory.CreateLonLatPolygon(APointsAggregator.Points, APointsAggregator.Count);
+    if Assigned(VPoly) then begin
+      // make
+      VItem := AFactory.BuildPoly(
+        AIdData,
+        VPointName,
+        VPointDesc,
+        VPoly
+      );
+    end;
   end else begin
-    // make
-    VItem := AFactory.BuildPath(
-      AIdData,
-      VPointName,
-      VPointDesc,
-      AVectorFactory.CreateLonLatPath(APointsAggregator.Points, APointsAggregator.Count)
-    );
+    VPath := AVectorFactory.CreateLonLatPath(APointsAggregator.Points, APointsAggregator.Count);
+    if Assigned(VPath) then begin
+      // make
+      VItem := AFactory.BuildPath(
+        AIdData,
+        VPointName,
+        VPointDesc,
+        VPath
+      );
+    end;
   end;
 
   if (VItem <> nil) then begin

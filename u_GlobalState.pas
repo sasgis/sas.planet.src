@@ -431,8 +431,8 @@ begin
 
   FProjConverterFactory := TProjConverterFactory.Create;
 
-  FCoordConverterFactory := TCoordConverterFactorySimple.Create;
-  FProjectionFactory := TProjectionInfoFactory.Create(MakeSyncRW_Var(Self, False));
+  FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction);
+  FProjectionFactory := TProjectionInfoFactory.Create(FHashFunction, MakeSyncRW_Var(Self, False));
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
   FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);
 
@@ -451,7 +451,13 @@ begin
 
   FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FBaseApplicationPath);
 
-  FTerrainProviderList := TTerrainProviderListSimple.Create(FProjConverterFactory, FGlobalConfig.TerrainDataPath, FCacheConfig);
+  FTerrainProviderList :=
+    TTerrainProviderListSimple.Create(
+      FProjConverterFactory,
+      FCoordConverterFactory,
+      FGlobalConfig.TerrainDataPath,
+      FCacheConfig
+    );
 
   FMainThreadConfigListener := TNotifyEventListenerSync.Create(FGUISyncronizedTimerNotifier, 1000, Self.OnMainThreadConfigChange);
   FGlobalConfig.MainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
@@ -583,6 +589,7 @@ begin
     TMarkFactory.Create(
       FGlobalConfig.MarksFactoryConfig,
       FMarkPictureList,
+      FHashFunction,
       FVectorItemsFactory,
       THtmlToHintTextConverterStuped.Create
     );

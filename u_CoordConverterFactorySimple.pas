@@ -24,6 +24,7 @@ interface
 
 uses
   i_Datum,
+  i_HashFunction,
   i_CoordConverter,
   i_ConfigDataProvider,
   i_CoordConverterFactory,
@@ -32,6 +33,7 @@ uses
 type
   TCoordConverterFactorySimple = class(TBaseInterfacedObject, IDatumFactory, ICoordConverterFactory)
   private
+    FHashFunction: IHashFunction;
     FDatumGoogle: IDatum;
     FDatumYandex: IDatum;
     FDatum53004: IDatum;
@@ -50,13 +52,16 @@ type
       ATileSplitCode: Integer
     ): ICoordConverter;
   public
-    constructor Create;
+    constructor Create(
+      const AHashFunction: IHashFunction
+    );
   end;
 
 implementation
 
 uses
   SysUtils,
+  t_Hash,
   t_GeoTypes,
   c_CoordConverter,
   u_Datum,
@@ -67,30 +72,54 @@ uses
 
 { TCoordConverterFactorySimple }
 
-constructor TCoordConverterFactorySimple.Create;
+constructor TCoordConverterFactorySimple.Create(
+  const AHashFunction: IHashFunction
+);
 var
   VRadiusA: Double;
   VRadiusB: Double;
+  VHash: THashValue;
 begin
   inherited Create;
+  FHashFunction := AHashFunction;
 
   VRadiusA := 6378137;
-  FDatumGoogle := TDatum.Create(CGoogleDatumEPSG, VRadiusA, VRadiusA);
+  VRadiusB := VRadiusA;
+  VHash := FHashFunction.CalcHashByDouble(VRadiusA);
+  FHashFunction.UpdateHashByDouble(VHash, VRadiusB);
+  FDatumGoogle := TDatum.Create(VHash, CGoogleDatumEPSG, VRadiusA, VRadiusA);
 
   VRadiusA := 6378137;
   VRadiusB := 6356752;
-  FDatumYandex := TDatum.Create(CYandexDatumEPSG, VRadiusA, VRadiusB);
+  VHash := FHashFunction.CalcHashByDouble(VRadiusA);
+  FHashFunction.UpdateHashByDouble(VHash, VRadiusB);
+  FDatumYandex := TDatum.Create(VHash, CYandexDatumEPSG, VRadiusA, VRadiusB);
 
   VRadiusA := 6371000;
-  FDatum53004 := TDatum.Create(53004, VRadiusA, VRadiusA);
+  VRadiusB := VRadiusA;
+  VHash := FHashFunction.CalcHashByDouble(VRadiusA);
+  FHashFunction.UpdateHashByDouble(VHash, VRadiusB);
+  FDatum53004 := TDatum.Create(VHash, 53004, VRadiusA, VRadiusA);
 
-  FGoogle := TCoordConverterMercatorOnSphere.Create(FDatumGoogle, CGoogleProjectionEPSG, CELL_UNITS_METERS);
+  VHash := FHashFunction.CalcHashByInteger(1);
+  FHashFunction.UpdateHashByHash(VHash, FDatumGoogle.Hash);
+  FHashFunction.UpdateHashByInteger(VHash, CGoogleProjectionEPSG);
+  FGoogle := TCoordConverterMercatorOnSphere.Create(VHash, FDatumGoogle, CGoogleProjectionEPSG, CELL_UNITS_METERS);
 
-  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(FDatum53004, 53004, CELL_UNITS_METERS);
+  VHash := FHashFunction.CalcHashByInteger(1);
+  FHashFunction.UpdateHashByHash(VHash, FDatum53004.Hash);
+  FHashFunction.UpdateHashByInteger(VHash, 53004);
+  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(VHash, FDatum53004, 53004, CELL_UNITS_METERS);
 
-  FYandex := TCoordConverterMercatorOnEllipsoid.Create(FDatumYandex, CYandexProjectionEPSG, CELL_UNITS_METERS);
+  VHash := FHashFunction.CalcHashByInteger(2);
+  FHashFunction.UpdateHashByHash(VHash, FDatumYandex.Hash);
+  FHashFunction.UpdateHashByInteger(VHash, CYandexProjectionEPSG);
+  FYandex := TCoordConverterMercatorOnEllipsoid.Create(VHash, FDatumYandex, CYandexProjectionEPSG, CELL_UNITS_METERS);
 
-  FLonLat := TCoordConverterSimpleLonLat.Create(FDatumYandex, CGELonLatProjectionEPSG, CELL_UNITS_DEGREES);
+  VHash := FHashFunction.CalcHashByInteger(3);
+  FHashFunction.UpdateHashByHash(VHash, FDatumYandex.Hash);
+  FHashFunction.UpdateHashByInteger(VHash, CGELonLatProjectionEPSG);
+  FLonLat := TCoordConverterSimpleLonLat.Create(VHash, FDatumYandex, CGELonLatProjectionEPSG, CELL_UNITS_DEGREES);
 end;
 
 function TCoordConverterFactorySimple.GetByCode(ADatumEPSG: Integer): IDatum;
@@ -114,6 +143,7 @@ function TCoordConverterFactorySimple.GetByRadius(
 ): IDatum;
 var
   VEPSG: Integer;
+  VHash: THashValue;
 begin
   VEPSG := 0;
   if (Abs(ARadiusA - 6378137) < 1) and (Abs(ARadiusB - 6378137) < 1) then begin
@@ -125,7 +155,9 @@ begin
   if VEPSG > 0 then begin
     Result := GetByCode(VEPSG);
   end else begin
-    Result := TDatum.Create(0, ARadiusA, ARadiusB);
+    VHash := FHashFunction.CalcHashByDouble(ARadiusA);
+    FHashFunction.UpdateHashByDouble(VHash, ARadiusB);
+    Result := TDatum.Create(VHash, 0, ARadiusA, ARadiusB);
   end;
 end;
 
@@ -167,6 +199,7 @@ var
   VEPSG: Integer;
   VTileSplitCode: Integer;
   VDatum: IDatum;
+  VHash: THashValue;
 begin
   Result := nil;
   VTileSplitCode := CTileSplitQuadrate256x256;
@@ -223,7 +256,10 @@ begin
         end else if VDatum.EPSG = 53004  then begin
           Result := FEPSG53004;
         end else begin
-          Result := TCoordConverterMercatorOnSphere.Create(VDatum, 0, CELL_UNITS_UNKNOWN);
+          VHash := FHashFunction.CalcHashByInteger(1);
+          FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
+          FHashFunction.UpdateHashByInteger(VHash, 0);
+          Result := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, 0, CELL_UNITS_UNKNOWN);
         end;
       end;
       2: begin
@@ -231,7 +267,10 @@ begin
         if VDatum.EPSG = CYandexDatumEPSG then begin
           Result := FYandex;
         end else begin
-          Result := TCoordConverterMercatorOnEllipsoid.Create(VDatum, 0, CELL_UNITS_UNKNOWN);
+          VHash := FHashFunction.CalcHashByInteger(2);
+          FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
+          FHashFunction.UpdateHashByInteger(VHash, 0);
+          Result := TCoordConverterMercatorOnEllipsoid.Create(VHash, VDatum, 0, CELL_UNITS_UNKNOWN);
         end;
       end;
       3: begin
@@ -239,7 +278,10 @@ begin
         if VDatum.EPSG = CYandexDatumEPSG then begin
           Result := FLonLat;
         end else begin
-          Result := TCoordConverterSimpleLonLat.Create(VDatum, 0, CELL_UNITS_UNKNOWN);
+          VHash := FHashFunction.CalcHashByInteger(3);
+          FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
+          FHashFunction.UpdateHashByInteger(VHash, 0);
+          Result := TCoordConverterSimpleLonLat.Create(VHash, VDatum, 0, CELL_UNITS_UNKNOWN);
         end;
       end;
     else begin
