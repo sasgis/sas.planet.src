@@ -27,6 +27,7 @@ uses
   ActiveX,
   i_GUIDSet,
   i_Notifier,
+  i_CoordConverterFactory,
   i_TerrainProviderList,
   i_TerrainProviderListElement,
   i_PathConfig,
@@ -59,6 +60,7 @@ type
   public
     constructor Create(
       const AProjConverterFactory: IProjConverterFactory;
+      const ACoordConverterFactory: ICoordConverterFactory;
       const ATerrainDataPath: IPathConfig;
       const ACacheConfig: IGlobalCacheConfig
     );
@@ -82,6 +84,7 @@ uses
 
 constructor TTerrainProviderListSimple.Create(
   const AProjConverterFactory: IProjConverterFactory;
+  const ACoordConverterFactory: ICoordConverterFactory;
   const ATerrainDataPath: IPathConfig;
   const ACacheConfig: IGlobalCacheConfig
 );
@@ -97,7 +100,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGoogleEarthGUID,
       'GoogleEarth',
-      TTerrainProviderByGoogleEarth.Create(ACacheConfig.GECachePath)
+      TTerrainProviderByGoogleEarth.Create(ACoordConverterFactory, ACacheConfig.GECachePath)
     );
   Add(VItem);
 
@@ -105,7 +108,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGeoCacherGUID,
       'GeoCacher',
-      TTerrainProviderByGeoCacher.Create(ACacheConfig)
+      TTerrainProviderByGeoCacher.Create(ACoordConverterFactory, ACacheConfig)
     );
   Add(VItem);
 

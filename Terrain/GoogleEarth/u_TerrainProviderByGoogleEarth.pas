@@ -31,6 +31,7 @@ uses
   i_PathConfig,
   i_CoordConverter,
   i_TerrainProvider,
+  i_CoordConverterFactory,
   i_GoogleEarthTerrainTileStorage,
   u_BaseInterfacedObject;
 
@@ -52,6 +53,7 @@ type
     function GetStateChangeNotifier: INotifier;
   public
     constructor Create(
+      const ACoordConverterFactory: ICoordConverterFactory;
       const APathConfig: IPathConfig
     );
     destructor Destroy; override;
@@ -62,7 +64,6 @@ implementation
 uses
   c_CoordConverter,
   c_TerrainProvider,
-  i_CoordConverterFactory,  
   u_GeoFun,
   u_Notifier,
   u_ListenerByEvent,
@@ -72,6 +73,7 @@ uses
 { TTerrainProviderByGoogleEarth }
 
 constructor TTerrainProviderByGoogleEarth.Create(
+  const ACoordConverterFactory: ICoordConverterFactory;
   const APathConfig: IPathConfig
 );
 begin
@@ -81,7 +83,7 @@ begin
   FStorage := TGoogleEarthTerrainTileStorage.Create(FPathConfig.FullPath);
 
   FCoordConverter :=
-    (TCoordConverterFactorySimple.Create as ICoordConverterFactory).GetCoordConverterByCode(
+    ACoordConverterFactory.GetCoordConverterByCode(
       CGELonLatProjectionEPSG,
       CTileSplitQuadrate256x256
     );
