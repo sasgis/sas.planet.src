@@ -19,6 +19,7 @@ type
     FfrmInvisibleBrowser: TfrmInvisibleBrowser;
   private
     procedure NavigateAndWait(const AUrl: WideString);
+    procedure InternalCreateBrowser;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -91,6 +92,11 @@ begin
   inherited;
 end;
 
+procedure TInvisibleBrowserByFormSynchronize.InternalCreateBrowser;
+begin
+  FfrmInvisibleBrowser := TfrmInvisibleBrowser.Create(FLanguageManager, FProxyConfig);
+end;
+
 procedure TInvisibleBrowserByFormSynchronize.NavigateAndWait(const AUrl: WideString);
 var
   VSyncNav: TSyncNavigate;
@@ -98,7 +104,7 @@ begin
   FCS.BeginWrite;
   try
     if FfrmInvisibleBrowser = nil then begin
-      FfrmInvisibleBrowser := TfrmInvisibleBrowser.Create(FLanguageManager, FProxyConfig);
+      TThread.Synchronize(nil, InternalCreateBrowser);
     end;
   finally
     FCS.EndWrite;
