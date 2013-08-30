@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  t_Hash,
   t_GeoTypes,
   i_CoordConverter,
   i_ProjectionInfo,
@@ -33,6 +34,7 @@ uses
 type
   TLocalCoordConverterBase = class(TBaseInterfacedObject, ILocalCoordConverter)
   private
+    FHash: THashValue;
     FLocalRect: TRect;
     FLocalSize: TPoint;
     FLocalCenter: TDoublePoint;
@@ -40,6 +42,7 @@ type
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
   protected
+    function GetHash: THashValue;
     function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean;
 
     function GetScale: Double; virtual; abstract;
@@ -74,6 +77,7 @@ type
     function GetRectInMapPixelFloat: TDoubleRect;
   public
     constructor Create(
+      const AHash: THashValue;
       const ALocalRect: TRect;
       const AProjection: IProjectionInfo
     );
@@ -94,6 +98,7 @@ type
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   public
     constructor Create(
+      const AHash: THashValue;
       const ALocalRect: TRect;
       const AProjection: IProjectionInfo;
       const AMapScale: Double;
@@ -114,6 +119,7 @@ type
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   public
     constructor Create(
+      const AHash: THashValue;
       const ALocalRect: TRect;
       const AProjection: IProjectionInfo;
       const AMapPixelAtLocalZero: TPoint
@@ -133,6 +139,7 @@ type
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   public
     constructor Create(
+      const AHash: THashValue;
       const ALocalRect: TRect;
       const AProjection: IProjectionInfo;
       const AMapPixelAtLocalZero: TDoublePoint
@@ -145,11 +152,13 @@ uses
   u_GeoFun;
 
 constructor TLocalCoordConverterBase.Create(
+  const AHash: THashValue;
   const ALocalRect: TRect;
   const AProjection: IProjectionInfo
 );
 begin
   inherited Create;
+  FHash := AHash;
   FLocalRect := ALocalRect;
   FLocalSize.X := FLocalRect.Right - FLocalRect.Left;
   FLocalSize.Y := FLocalRect.Bottom - FLocalRect.Top;
@@ -179,16 +188,20 @@ begin
   Result := FGeoConverter;
 end;
 
+function TLocalCoordConverterBase.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
 function TLocalCoordConverterBase.GetIsSameConverter(
   const AConverter: ILocalCoordConverter
 ): Boolean;
-var
-  VSelf: ILocalCoordConverter;
 begin
-  VSelf := Self;
-  if VSelf = AConverter then begin
+  if ILocalCoordConverter(Self) = AConverter then begin
     Result := True;
   end else if AConverter = nil then begin
+    Result := False;
+  end else if (FHash <> 0) and (AConverter.Hash <> 0) and (FHash <> AConverter.Hash) then begin
     Result := False;
   end else begin
     Result := False;
@@ -355,13 +368,14 @@ end;
 { TLocalCoordConverter }
 
 constructor TLocalCoordConverter.Create(
+  const AHash: THashValue;
   const ALocalRect: TRect;
   const AProjection: IProjectionInfo;
   const AMapScale: Double;
   const AMapPixelAtLocalZero: TDoublePoint
 );
 begin
-  inherited Create(ALocalRect, AProjection);
+  inherited Create(AHash, ALocalRect, AProjection);
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;
   FMapScale := AMapScale;
 end;
@@ -427,12 +441,13 @@ end;
 { TLocalCoordConverterNoScale }
 
 constructor TLocalCoordConverterNoScaleIntDelta.Create(
+  const AHash: THashValue;
   const ALocalRect: TRect;
   const AProjection: IProjectionInfo;
   const AMapPixelAtLocalZero: TPoint
 );
 begin
-  inherited Create(ALocalRect, AProjection);
+  inherited Create(AHash, ALocalRect, AProjection);
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;
 end;
 
@@ -490,12 +505,13 @@ end;
 { TLocalCoordConverterNoScale }
 
 constructor TLocalCoordConverterNoScale.Create(
+  const AHash: THashValue;
   const ALocalRect: TRect;
   const AProjection: IProjectionInfo;
   const AMapPixelAtLocalZero: TDoublePoint
 );
 begin
-  inherited Create(ALocalRect, AProjection);
+  inherited Create(AHash, ALocalRect, AProjection);
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;
 end;
 

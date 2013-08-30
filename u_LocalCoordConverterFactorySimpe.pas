@@ -25,8 +25,10 @@ interface
 uses
   Types,
   t_GeoTypes,
+  i_HashFunction,
   i_CoordConverter,
   i_CoordConverterFactory,
+  i_ProjectionInfo,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   u_BaseInterfacedObject;
@@ -34,7 +36,25 @@ uses
 type
   TLocalCoordConverterFactorySimpe = class(TBaseInterfacedObject, ILocalCoordConverterFactorySimpe)
   private
+    FHashFunction: IHashFunction;
     FProjectionFactory: IProjectionInfoFactory;
+  private
+    function CreateNoScaleIntDelta(
+      const ALocalRect: TRect;
+      const AProjection: IProjectionInfo;
+      const AMapPixelAtLocalZero: TPoint
+    ): ILocalCoordConverter;
+    function CreateNoScale(
+      const ALocalRect: TRect;
+      const AProjection: IProjectionInfo;
+      const AMapPixelAtLocalZero: TDoublePoint
+    ): ILocalCoordConverter;
+    function CreateScaled(
+      const ALocalRect: TRect;
+      const AProjection: IProjectionInfo;
+      const AMapScale: Double;
+      const AMapPixelAtLocalZero: TDoublePoint
+    ): ILocalCoordConverter;
   private
     function CreateConverter(
       const ALocalRect: TRect;
@@ -95,6 +115,7 @@ type
     ): ILocalCoordConverter;
   public
     constructor Create(
+      const AHashFunction: IHashFunction;
       const AProjectionFactory: IProjectionInfoFactory
     );
   end;
@@ -102,16 +123,19 @@ type
 implementation
 
 uses
+  t_Hash,
   u_GeoFun,
   u_LocalCoordConverter;
 
 { TLocalCoordConverterFactorySimpe }
 
 constructor TLocalCoordConverterFactorySimpe.Create(
+  const AHashFunction: IHashFunction;
   const AProjectionFactory: IProjectionInfoFactory
 );
 begin
   inherited Create;
+  FHashFunction := AHashFunction;
   FProjectionFactory := AProjectionFactory;
 end;
 
@@ -430,7 +454,7 @@ begin
         VResultMapPixelRect.Bottom - VResultMapPixelRect.Top
       );
     Result :=
-      TLocalCoordConverterNoScaleIntDelta.Create(
+      CreateNoScaleIntDelta(
         VResultLocalPixelRect,
         ASource.ProjectionInfo,
         VResultMapPixelRect.TopLeft
@@ -479,7 +503,7 @@ begin
         VResultMapPixelRect.Bottom - VResultMapPixelRect.Top
       );
     Result :=
-      TLocalCoordConverterNoScaleIntDelta.Create(
+      CreateNoScaleIntDelta(
         VResultLocalPixelRect,
         FProjectionFactory.GetByConverterAndZoom(AGeoConverter, VZoom),
         VResultMapPixelRect.TopLeft
@@ -517,7 +541,7 @@ begin
       VTopLeftMapPixelFloat.Y := VLocalCenterMapPixel.Y - VLocalCenter.Y;
       VTopLeftMapPixel := PointFromDoublePoint(VTopLeftMapPixelFloat, prClosest);
       Result :=
-        TLocalCoordConverterNoScaleIntDelta.Create(
+        CreateNoScaleIntDelta(
           ALocalRect,
           FProjectionFactory.GetByConverterAndZoom(AGeoConverter, VZoom),
           VTopLeftMapPixel
@@ -530,7 +554,7 @@ begin
       VTopLeftMapPixelFloat.Y := VLocalCenterMapPixelFloat.Y - VLocalCenter.Y;
 
       Result :=
-        TLocalCoordConverterNoScale.Create(
+        CreateNoScale(
           ALocalRect,
           FProjectionFactory.GetByConverterAndZoom(AGeoConverter, VZoom),
           VTopLeftMapPixelFloat
@@ -546,7 +570,7 @@ begin
     VTopLeftMapPixelFloat.Y := VLocalCenterMapPixelFloat.Y - VLocalCenter.Y;
 
     Result :=
-      TLocalCoordConverter.Create(
+      CreateScaled(
         ALocalRect,
         FProjectionFactory.GetByConverterAndZoom(AGeoConverter, VZoom),
         AMapScale,
@@ -562,7 +586,7 @@ function TLocalCoordConverterFactorySimpe.CreateConverterNoScale(
   const AMapPixelAtLocalZero: TPoint
 ): ILocalCoordConverter;
 begin
-  Result := TLocalCoordConverterNoScaleIntDelta.Create(
+  Result := CreateNoScaleIntDelta(
     ALocalRect,
     FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
     AMapPixelAtLocalZero
@@ -583,11 +607,77 @@ begin
   VBitmapTileRect.Top := 0;
   VBitmapTileRect.Right := VPixelRect.Right - VPixelRect.Left;
   VBitmapTileRect.Bottom := VPixelRect.Bottom - VPixelRect.Top;
-  Result := TLocalCoordConverterNoScaleIntDelta.Create(
+  Result := CreateNoScaleIntDelta(
     VBitmapTileRect,
     FProjectionFactory.GetByConverterAndZoom(AGeoConverter, AZoom),
     VPixelRect.TopLeft
   );
+end;
+
+function TLocalCoordConverterFactorySimpe.CreateNoScale(
+  const ALocalRect: TRect;
+  const AProjection: IProjectionInfo;
+  const AMapPixelAtLocalZero: TDoublePoint
+): ILocalCoordConverter;
+var
+  VHash: THashValue;
+begin
+  VHash := $2eb7867c2318cc59;
+  FHashFunction.UpdateHashByRect(VHash, ALocalRect);
+  FHashFunction.UpdateHashByHash(VHash, AProjection.Hash);
+  FHashFunction.UpdateHashByDoublePoint(VHash, AMapPixelAtLocalZero);
+  Result :=
+    TLocalCoordConverterNoScale.Create(
+      VHash,
+      ALocalRect,
+      AProjection,
+      AMapPixelAtLocalZero
+    );
+end;
+
+function TLocalCoordConverterFactorySimpe.CreateNoScaleIntDelta(
+  const ALocalRect: TRect;
+  const AProjection: IProjectionInfo;
+  const AMapPixelAtLocalZero: TPoint
+): ILocalCoordConverter;
+var
+  VHash: THashValue;
+begin
+  VHash := $801bc862120f6bf5;
+  FHashFunction.UpdateHashByRect(VHash, ALocalRect);
+  FHashFunction.UpdateHashByHash(VHash, AProjection.Hash);
+  FHashFunction.UpdateHashByPoint(VHash, AMapPixelAtLocalZero);
+  Result :=
+    TLocalCoordConverterNoScaleIntDelta.Create(
+      VHash,
+      ALocalRect,
+      AProjection,
+      AMapPixelAtLocalZero
+    );
+end;
+
+function TLocalCoordConverterFactorySimpe.CreateScaled(
+  const ALocalRect: TRect;
+  const AProjection: IProjectionInfo;
+  const AMapScale: Double;
+  const AMapPixelAtLocalZero: TDoublePoint
+): ILocalCoordConverter;
+var
+  VHash: THashValue;
+begin
+  VHash := $de6a45ffc3ed1159;
+  FHashFunction.UpdateHashByRect(VHash, ALocalRect);
+  FHashFunction.UpdateHashByHash(VHash, AProjection.Hash);
+  FHashFunction.UpdateHashByDouble(VHash, AMapScale);
+  FHashFunction.UpdateHashByDoublePoint(VHash, AMapPixelAtLocalZero);
+  Result :=
+    TLocalCoordConverter.Create(
+      VHash,
+      ALocalRect,
+      AProjection,
+      AMapScale,
+      AMapPixelAtLocalZero
+    );
 end;
 
 end.

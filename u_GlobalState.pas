@@ -451,7 +451,7 @@ begin
   FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction);
   FProjectionFactory := TProjectionInfoFactory.Create(FHashFunction, MakeSyncRW_Var(Self, False));
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
-  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FProjectionFactory);
+  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FHashFunction, FProjectionFactory);
 
   FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);

@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  t_Hash,
   t_GeoTypes,
   i_CoordConverter,
   i_ProjectionInfo;
@@ -31,6 +32,9 @@ uses
 type
   ILocalCoordConverter = interface
     ['{48CD8E96-6EB3-4162-B321-B8B64D71B0AB}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
+
     function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean;
 
     function GetProjectionInfo: IProjectionInfo;
