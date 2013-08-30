@@ -24,6 +24,7 @@ unit u_GUIDInterfaceSet;
 interface
 
 uses
+  ActiveX,
   i_GUIDSet,
   u_GUIDSet;
 
@@ -42,19 +43,22 @@ type
   TInterfaceWithGUIDListSortCompare = function(const Item1, Item2: TGUID): Integer of object;
 
   TGUIDInterfaceSet = class(TGUIDSetBase, IGUIDInterfaceSet)
-  protected
+  private
     FList: PInterfaceWithGUIDList;
-    procedure SetCapacity(NewCapacity: Integer); override;
-    procedure SetCount(NewCount: Integer); override;
-    procedure Delete(Index: Integer); override;
     procedure Insert(
       Index: Integer;
       const AGUID: TGUID;
       const AObj: IInterface
     );
+  protected
+    procedure SetCapacity(NewCapacity: Integer); override;
+    procedure SetCount(NewCount: Integer); override;
+    procedure Delete(Index: Integer); override;
     procedure Sort(); override;
     function GetItemGUID(Index: Integer): TGUID; override;
-  public
+  private
+    function GetItem(Index: Integer): IInterface;
+    function GetEnumUnknown: IEnumUnknown;
     // Добавление объекта. Если объект с таким GUID уже есть, то заменяться не будет
     // Возвращает хранимый объект
     function Add(
@@ -80,7 +84,85 @@ implementation
 uses
   Windows,
   Classes,
+  Math,
   SysUtils;
+
+type
+  TGUIDInterfaceListEnum = class(TInterfacedObject, IEnumUnknown)
+  private
+    FGUIDList: TGUIDInterfaceSet;
+    FCurrentIndex: integer;
+  private
+    function Next(
+      celt: Longint;
+      out rgelt;
+      pceltFetched: PLongint
+    ): HResult; stdcall;
+    function Skip(celt: Longint): HResult; stdcall;
+    function Reset: HResult; stdcall;
+    function Clone(out ppenum: IEnumUnknown): HResult; stdcall;
+  public
+    constructor Create(AGUIDList: TGUIDInterfaceSet);
+  end;
+
+{ TGUIDInterfaceListEnum }
+
+function TGUIDInterfaceListEnum.Clone(out ppenum: IEnumUnknown): HResult;
+var
+  VGUIDListEnum: TGUIDInterfaceListEnum;
+begin
+  VGUIDListEnum := TGUIDInterfaceListEnum.Create(FGUIDList);
+  ppenum := VGUIDListEnum;
+  VGUIDListEnum.FCurrentIndex := FCurrentIndex;
+  Result := S_OK;
+end;
+
+constructor TGUIDInterfaceListEnum.Create(AGUIDList: TGUIDInterfaceSet);
+begin
+  FGUIDList := AGUIDList;
+  FCurrentIndex := 0;
+end;
+
+function TGUIDInterfaceListEnum.Next(
+  celt: Longint;
+  out rgelt;
+  pceltFetched: PLongint
+): HResult;
+var
+  i: integer;
+  Vp: ^IInterface;
+begin
+  pceltFetched^ := min(celt, FGUIDList.Count - FCurrentIndex);
+  Vp := @rgelt;
+  if pceltFetched^ > 0 then begin
+    for i := 0 to pceltFetched^ - 1 do begin
+      Vp^ := FGUIDList.GetItem(FCurrentIndex + i);
+      Inc(Vp);
+    end;
+    Inc(FCurrentIndex, pceltFetched^);
+  end;
+  if pceltFetched^ <> celt then begin
+    Result := S_FALSE;
+  end else begin
+    Result := S_OK;
+  end;
+end;
+
+function TGUIDInterfaceListEnum.Reset: HResult;
+begin
+  FCurrentIndex := 0;
+  Result := S_OK;
+end;
+
+function TGUIDInterfaceListEnum.Skip(celt: Longint): HResult;
+begin
+  Inc(FCurrentIndex, celt);
+  if FCurrentIndex > FGUIDList.FCount then begin
+    Result := S_FALSE;
+  end else begin
+    Result := S_OK;
+  end;
+end;
 
 { TGUIDList }
 
@@ -124,6 +206,16 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+function TGUIDInterfaceSet.GetEnumUnknown: IEnumUnknown;
+begin
+  Result := TGUIDInterfaceListEnum.Create(Self);
+end;
+
+function TGUIDInterfaceSet.GetItem(Index: Integer): IInterface;
+begin
+  Result := FList^[Index].Obj;
 end;
 
 function TGUIDInterfaceSet.GetItemGUID(Index: Integer): TGUID;

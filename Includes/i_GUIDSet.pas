@@ -56,7 +56,10 @@ type
 
     // Получение итератора GUID-ов
     function GetGUIDEnum(): IEnumGUID;
+    function GetEnumUnknown: IEnumUnknown;
 
+    function GetItem(AIndex: Integer): IInterface;
+    property Items[AIndex: Integer]: IInterface read GetItem;
     procedure SetCount(NewCount: Integer);
     function GetCount: Integer;
     property Count: Integer read GetCount write SetCount;
