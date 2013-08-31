@@ -80,14 +80,13 @@ end;
 
 function TMapTypeSetChangeableBySourceSetWithFilter.CreateStatic: IInterface;
 var
-  VResult: TMapTypeSet;
+  VResult: IMapTypeSetBuilder;
   VEnum: IEnumGUID;
   VGuid: TGUID;
   VCnt: Cardinal;
   VMapType: IMapType;
 begin
-  VResult := TMapTypeSet.Create(False);
-  Result := IMapTypeSet(VResult);
+  VResult := TMapTypeSetBuilder.Create(False);
   if FPrevSourceSetStatic <> nil then begin
     VEnum := FPrevSourceSetStatic.GetIterator;
     while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
@@ -99,6 +98,7 @@ begin
       end;
     end;
   end;
+  Result := VResult.MakeAndClear;
 end;
 
 function TMapTypeSetChangeableBySourceSetWithFilter.GetStatic: IMapTypeSet;

@@ -110,13 +110,12 @@ end;
 function TMiniMapMapsConfig.CreateMiniMapLayersSet(const ASourceLayersSet: IMapTypeSet): IMapTypeSet;
 var
   VMap: IMapType;
-  VList: TMapTypeSet;
+  VList: IMapTypeSetBuilder;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VList := TMapTypeSet.Create(True);
-  Result := VList;
+  VList := TMapTypeSetBuilder.Create(True);
   VEnun := ASourceLayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMap := ASourceLayersSet.GetMapTypeByGUID(VGUID);
@@ -124,18 +123,18 @@ begin
       VList.Add(VMap);
     end;
   end;
+  Result := VList.MakeAndClear;
 end;
 
 function TMiniMapMapsConfig.CreateMiniMapMapsSet(const ASourceMapsSet: IMapTypeSet): IMapTypeSet;
 var
   VMap: IMapType;
-  VList: TMapTypeSet;
+  VList: IMapTypeSetBuilder;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VList := TMapTypeSet.Create(True);
-  Result := VList;
+  VList := TMapTypeSetBuilder.Create(True);
   VList.Add(TMapTypeBasic.Create(nil));
   VEnun := ASourceMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
@@ -144,6 +143,7 @@ begin
       VList.Add(VMap);
     end;
   end;
+  Result := VList.MakeAndClear;
 end;
 
 procedure TMiniMapMapsConfig.OnMainMapChange;

@@ -88,7 +88,7 @@ var
   i: Cardinal;
   VMapType: IMapType;
   VSingleMap: IActiveMapSingle;
-  VAllMapsList: TMapTypeSet;
+  VAllMapsList: IMapTypeSetBuilder;
   VSingleSet: IGUIDInterfaceSet;
   VMainMapChangeNotyfier: INotifierWithGUID;
 begin
@@ -98,7 +98,8 @@ begin
   FLayersSet := ALayersSet;
 
   VSingleSet := TGUIDInterfaceSet.Create(False);
-  VAllMapsList := TMapTypeSet.Create(True);
+  VAllMapsList := TMapTypeSetBuilder.Create(True);
+  VAllMapsList.Capacity := AMapsSet.Count + ALayersSet.Count;
 
   VEnun := AMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
@@ -121,7 +122,7 @@ begin
   end;
   inherited Create(AMapsSet, VMainMapChangeNotyfier, TActiveMapSingleSet.Create(VSingleSet));
 
-  FAllMapsSet := VAllMapsList;
+  FAllMapsSet := VAllMapsList.MakeAndClear;
 
   FActiveLayersSet := TLayerSetChangeable.Create(
     FLayersSet,

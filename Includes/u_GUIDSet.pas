@@ -34,6 +34,7 @@ type
     FCapacity: Integer;
     FAllowNil: Boolean;
     procedure Grow; virtual;
+    function GetCapacity: Integer;
     procedure SetCapacity(NewCapacity: Integer); virtual; abstract;
     procedure SetCount(NewCount: Integer); virtual; abstract;
     function GetCount: Integer;
@@ -344,6 +345,11 @@ begin
   Result := Find(AGUID, VIndex);
 end;
 
+
+function TGUIDSetBase.GetCapacity: Integer;
+begin
+  Result := FCapacity;
+end;
 
 function TGUIDSetBase.GetCount: Integer;
 begin

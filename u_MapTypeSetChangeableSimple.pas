@@ -50,11 +50,14 @@ begin
 end;
 
 procedure TMapTypeSetChangeableSimple.SetStatic(const AValue: IMapTypeSet);
+var
+  VList: IMapTypeSetBuilder;
 begin
   FCS.BeginWrite;
   try
     if AValue = nil then begin
-      FStatic := TMapTypeSet.Create(False);
+      VList := TMapTypeSetBuilder.Create(False);
+      FStatic := VList.MakeAndClear;
     end else begin
       FStatic := AValue;
     end;

@@ -60,6 +60,11 @@ type
 
     function GetItem(AIndex: Integer): IInterface;
     property Items[AIndex: Integer]: IInterface read GetItem;
+
+    function GetCapacity: Integer;
+    procedure SetCapacity(ANewCapacity: Integer);
+    property Capacity: Integer read GetCapacity write SetCapacity;
+
     procedure SetCount(NewCount: Integer);
     function GetCount: Integer;
     property Count: Integer read GetCount write SetCount;

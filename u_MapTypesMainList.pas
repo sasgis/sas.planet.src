@@ -196,16 +196,14 @@ var
   i: Integer;
   VMap: TMapType;
   VMapType: IMapType;
-  VFullMapsList: TMapTypeSet;
-  VMapsList: TMapTypeSet;
-  VLayersList: TMapTypeSet;
+  VFullMapsList: IMapTypeSetBuilder;
+  VMapsList: IMapTypeSetBuilder;
+  VLayersList: IMapTypeSetBuilder;
 begin
-  VFullMapsList := TMapTypeSet.Create(False);
-  FFullMapsSet := VFullMapsList;
-  VMapsList := TMapTypeSet.Create(False);
-  FMapsSet := VMapsList;
-  VLayersList := TMapTypeSet.Create(False);
-  FLayersSet := VLayersList;
+  VFullMapsList := TMapTypeSetBuilder.Create(False);
+  VFullMapsList.Capacity := Length(FMapType);
+  VMapsList := TMapTypeSetBuilder.Create(False);
+  VLayersList := TMapTypeSetBuilder.Create(False);
   for i := 0 to Length(FMapType) - 1 do begin
     VMap := FMapType[i];
     VMapType := TMapTypeBasic.Create(VMap);
@@ -216,6 +214,9 @@ begin
       VMapsList.Add(VMapType);
     end;
   end;
+  FMapsSet := VMapsList.MakeAndClear;
+  FLayersSet := VLayersList.MakeAndClear;
+  FFullMapsSet := VFullMapsList.MakeAndClear;
   FFullMapsSetChangeableInternal.SetStatic(FFullMapsSet);
 end;
 

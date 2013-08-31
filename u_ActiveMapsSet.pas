@@ -90,13 +90,16 @@ constructor TLayerSetChangeable.Create(
   const AMapsSet: IMapTypeSet;
   const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: INotifier
 );
+var
+  VMapTypeSetBuilder: IMapTypeSetBuilder;
 begin
   Assert(AMapsSet <> nil);
   Assert(ALayerSetSelectNotyfier <> nil);
   Assert(ALayerSetUnselectNotyfier <> nil);
   inherited Create;
   FMapsSet := AMapsSet;
-  FStatic := TMapTypeSet.Create(True);
+  VMapTypeSetBuilder := TMapTypeSetBuilder.Create(True);
+  FStatic := VMapTypeSetBuilder.MakeAndClear;
 
   FLayerSetSelectNotyfier := ALayerSetSelectNotyfier;
   if FLayerSetSelectNotyfier <> nil then begin
@@ -141,7 +144,7 @@ end;
 procedure TLayerSetChangeable.OnLayerSetSelect(const AGUID: TGUID);
 var
   VMapType: IMapType;
-  VList: TMapTypeSet;
+  VList: IMapTypeSetBuilder;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
@@ -151,13 +154,14 @@ begin
     LockWrite;
     try
       if FStatic.GetMapTypeByGUID(AGUID) = nil then begin
-        VList := TMapTypeSet.Create(True);
+        VList := TMapTypeSetBuilder.Create(True);
+        VList.Capacity := FStatic.Count + 1;
         VEnun := FStatic.GetIterator;
         while VEnun.Next(1, VGUID, i) = S_OK do begin
           VList.Add(FMapsSet.GetMapTypeByGUID(VGUID));
         end;
         VList.Add(VMapType);
-        FStatic := VList;
+        FStatic := VList.MakeAndClear;
         SetChanged;
       end;
     finally
@@ -169,7 +173,7 @@ end;
 procedure TLayerSetChangeable.OnLayerSetUnselect(const AGUID: TGUID);
 var
   VMapType: IMapType;
-  VList: TMapTypeSet;
+  VList: IMapTypeSetBuilder;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
@@ -179,14 +183,17 @@ begin
     LockWrite;
     try
       if FStatic.GetMapTypeByGUID(AGUID) <> nil then begin
-        VList := TMapTypeSet.Create(True);
+        VList := TMapTypeSetBuilder.Create(True);
+        if FStatic.Count > 0 then begin
+          VList.Capacity := FStatic.Count - 1;
+        end;
         VEnun := FStatic.GetIterator;
         while VEnun.Next(1, VGUID, i) = S_OK do begin
           if not IsEqualGUID(VGUID, AGUID) then begin
             VList.Add(FMapsSet.GetMapTypeByGUID(VGUID));
           end;
         end;
-        FStatic := VList;
+        FStatic := VList.MakeAndClear;
         SetChanged;
       end;
     finally
@@ -218,20 +225,21 @@ end;
 function TMapsSetChangeableByMainMapAndLayersSet.CreateStatic: IInterface;
 var
   VLayersSet: IMapTypeSet;
-  VList: TMapTypeSet;
+  VList: IMapTypeSetBuilder;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
   VStatic: IMapTypeSet;
 begin
   VLayersSet := FLayersSet.GetStatic;
-  VList := TMapTypeSet.Create(True);
-  VStatic := VList;
+  VList := TMapTypeSetBuilder.Create(True);
+  VList.Capacity := VLayersSet.Count + 1;
   VEnun := VLayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VList.Add(VLayersSet.GetMapTypeByGUID(VGUID));
   end;
   VList.Add(FMainMap.GetStatic);
+  VStatic := VList.MakeAndClear;
   Result := VStatic;
 end;
 

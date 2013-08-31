@@ -98,19 +98,20 @@ end;
 function TFillingMapMapsConfig.CreateMapsSet(const ASourceMapsSet: IMapTypeSet): IMapTypeSet;
 var
   VMap: IMapType;
-  VList: TMapTypeSet;
+  VList: IMapTypeSetBuilder;
   VEnun: IEnumGUID;
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VList := TMapTypeSet.Create(True);
-  Result := VList;
+  VList := TMapTypeSetBuilder.Create(True);
+  VList.Capacity := ASourceMapsSet.Count + 1;
   VList.Add(TMapTypeBasic.Create(nil));
   VEnun := ASourceMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMap := ASourceMapsSet.GetMapTypeByGUID(VGUID);
     VList.Add(VMap);
   end;
+  Result := VList.MakeAndClear;
 end;
 
 function TFillingMapMapsConfig.GetActualMap: IMapType;

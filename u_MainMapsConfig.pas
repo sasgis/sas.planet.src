@@ -61,14 +61,14 @@ var
   VGUID: TGUID;
   i: Cardinal;
   VMapType: IMapType;
-  VBitmapLayersList: TMapTypeSet;
-  VKmlLayersList: TMapTypeSet;
+  VBitmapLayersList: IMapTypeSetBuilder;
+  VKmlLayersList: IMapTypeSetBuilder;
 begin
   FDefaultMapGUID := ADefaultMapGUID;
   inherited Create(AMapsSet, ALayersSet);
 
-  VBitmapLayersList := TMapTypeSet.Create(True);
-  VKmlLayersList := TMapTypeSet.Create(True);
+  VBitmapLayersList := TMapTypeSetBuilder.Create(True);
+  VKmlLayersList := TMapTypeSetBuilder.Create(True);
 
   VEnun := ALayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
@@ -82,13 +82,13 @@ begin
   end;
 
   FActiveBitmapLayersSet := TLayerSetChangeable.Create(
-    VBitmapLayersList,
+    VBitmapLayersList.MakeAndClear,
     LayerSetSelectNotyfier,
     LayerSetUnselectNotyfier
   );
 
   FActiveKmlLayersSet := TLayerSetChangeable.Create(
-    VKmlLayersList,
+    VKmlLayersList.MakeAndClear,
     LayerSetSelectNotyfier,
     LayerSetUnselectNotyfier
   );

@@ -42,19 +42,6 @@ type
     function GetStatic: IMapType;
   end;
 
-  IMapTypeSet = interface
-    ['{45EF5080-01DC-4FE1-92E1-E93574439718}']
-    function IsEqual(const AValue: IMapTypeSet): Boolean;
-    function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
-    function GetIterator: IEnumGUID;
-    function GetCount: Integer;
-  end;
-
-  IMapTypeSetChangeable = interface(IChangeable)
-    ['{F6548515-4FB4-45F1-A742-B886BBCB1024}']
-    function GetStatic: IMapTypeSet;
-  end;
-
   IMapTypeListStatic = interface
     ['{0A48D2E0-5C39-4E1A-A438-B50535E6D69B}']
     function GetCount: Integer;
@@ -62,6 +49,35 @@ type
 
     function GetItem(AIndex: Integer): IMapType;
     property Items[AIndex: Integer]: IMapType read GetItem;
+  end;
+
+  IMapTypeSet = interface(IMapTypeListStatic)
+    ['{45EF5080-01DC-4FE1-92E1-E93574439718}']
+    function IsEqual(const AValue: IMapTypeSet): Boolean;
+    function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
+    function GetIterator: IEnumGUID;
+    function GetMapTypeIterator: IEnumUnknown;
+  end;
+
+  IMapTypeSetBuilder = interface
+    ['{B41BE8B9-B70A-4E7D-B462-DA31513DB13A}']
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetCapacity: Integer;
+    procedure SetCapacity(ANewCapacity: Integer);
+    property Capacity: Integer read GetCapacity write SetCapacity;
+
+    procedure Add(const AItem: IMapType);
+    procedure Clear;
+    function MakeCopy: IMapTypeSet;
+    function MakeAndClear: IMapTypeSet;
+  end;
+
+
+  IMapTypeSetChangeable = interface(IChangeable)
+    ['{F6548515-4FB4-45F1-A742-B886BBCB1024}']
+    function GetStatic: IMapTypeSet;
   end;
 
 implementation

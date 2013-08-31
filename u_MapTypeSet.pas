@@ -29,15 +29,19 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TMapTypeSet = class(TBaseInterfacedObject, IMapTypeSet)
+  TMapTypeSetBuilder = class(TBaseInterfacedObject, IMapTypeSetBuilder)
   private
+    FAllowNil: Boolean;
     FList: IGUIDInterfaceSet;
-    function IsEqual(const AValue: IMapTypeSet): Boolean;
-    function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
-    function GetIterator: IEnumGUID;
+  private
     function GetCount: Integer;
+    function GetCapacity: Integer;
+    procedure SetCapacity(ANewCapacity: Integer);
+    procedure Add(const AItem: IMapType);
+    procedure Clear;
+    function MakeCopy: IMapTypeSet;
+    function MakeAndClear: IMapTypeSet;
   public
-    procedure Add(const AMap: IMapType);
     constructor Create(AAllowNil: Boolean);
   end;
 
@@ -49,27 +53,35 @@ uses
 
 { TMapTypeList }
 
-procedure TMapTypeSet.Add(const AMap: IMapType);
-var
-  VGUID: TGUID;
-begin
-  if AMap <> nil then begin
-    VGUID := AMap.GUID;
-  end else begin
-    VGUID := CGUID_Zero;
+type
+  TMapTypeSet = class(TBaseInterfacedObject, IMapTypeSet)
+  private
+    FList: IGUIDInterfaceSet;
+    function IsEqual(const AValue: IMapTypeSet): Boolean;
+    function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
+    function GetIterator: IEnumGUID;
+    function GetMapTypeIterator: IEnumUnknown;
+    function GetItem(AIndex: Integer): IMapType;
+    function GetCount: Integer;
+  public
+    constructor Create(const AList: IGUIDInterfaceSet);
   end;
-  FList.Add(VGUID, AMap);
-end;
 
-constructor TMapTypeSet.Create(AAllowNil: Boolean);
+constructor TMapTypeSet.Create(const AList: IGUIDInterfaceSet);
 begin
+  Assert(Assigned(AList));
   inherited Create;
-  FList := TGUIDInterfaceSet.Create(AAllowNil);
+  FList := AList;
 end;
 
 function TMapTypeSet.GetCount: Integer;
 begin
   Result := FList.Count;
+end;
+
+function TMapTypeSet.GetItem(AIndex: Integer): IMapType;
+begin
+  Result := FList.Items[AIndex] as IMapType;
 end;
 
 function TMapTypeSet.GetIterator: IEnumGUID;
@@ -80,6 +92,11 @@ end;
 function TMapTypeSet.GetMapTypeByGUID(const AGUID: TGUID): IMapType;
 begin
   Result := FList.GetByGUID(AGUID) as IMapType;
+end;
+
+function TMapTypeSet.GetMapTypeIterator: IEnumUnknown;
+begin
+  Result := FList.GetEnumUnknown;
 end;
 
 function TMapTypeSet.IsEqual(const AValue: IMapTypeSet): Boolean;
@@ -108,6 +125,97 @@ begin
     end;
   end;
   Result := True;
+end;
+
+{ TMapTypeSetBuilder }
+
+constructor TMapTypeSetBuilder.Create(AAllowNil: Boolean);
+begin
+  inherited Create;
+  FAllowNil := AAllowNil;
+end;
+
+procedure TMapTypeSetBuilder.Add(const AItem: IMapType);
+var
+  VGUID: TGUID;
+begin
+  if not Assigned(FList) then begin
+    FList := TGUIDInterfaceSet.Create(FAllowNil);
+  end;
+
+  if AItem <> nil then begin
+    VGUID := AItem.GUID;
+  end else begin
+    VGUID := CGUID_Zero;
+  end;
+  FList.Add(VGUID, AItem);
+end;
+
+procedure TMapTypeSetBuilder.Clear;
+begin
+  if Assigned(FList) then begin
+    FList.Clear;
+  end;
+end;
+
+function TMapTypeSetBuilder.GetCapacity: Integer;
+begin
+  if Assigned(FList) then begin
+    Result := FList.Capacity;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TMapTypeSetBuilder.GetCount: Integer;
+begin
+  if Assigned(FList) then begin
+    Result := FList.Count;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TMapTypeSetBuilder.MakeAndClear: IMapTypeSet;
+begin
+  if not Assigned(FList) then begin
+    FList := TGUIDInterfaceSet.Create(FAllowNil);
+  end;
+  Result := TMapTypeSet.Create(FList);
+  FList := nil;
+end;
+
+function TMapTypeSetBuilder.MakeCopy: IMapTypeSet;
+var
+  VList: IGUIDInterfaceSet;
+  i: Integer;
+  VMap: IMapType;
+begin
+  VList := TGUIDInterfaceSet.Create(FAllowNil);
+  if Assigned(FList) then begin
+    for i := 0 to FList.Count - 1 do begin
+      VMap := FList.Items[i] as IMapType;
+      if Assigned(VMap) then begin
+        VList.Add(VMap.GUID, VMap);
+      end else begin
+        VList.Add(CGUID_Zero, nil);
+      end;
+    end;
+  end;
+end;
+
+procedure TMapTypeSetBuilder.SetCapacity(ANewCapacity: Integer);
+begin
+  if ANewCapacity > 0 then begin
+    if not Assigned(FList) then begin
+      FList := TGUIDInterfaceSet.Create(FAllowNil);
+    end;
+    FList.Capacity := ANewCapacity;
+  end else begin
+    if Assigned(FList) then begin
+      FList.Capacity := ANewCapacity;
+    end;
+  end;
 end;
 
 end.
