@@ -56,6 +56,7 @@ type
     FTxnList: TList;
     FDatabasePool: IBerkeleyDBPool;
     FIsFullVerboseMode: Boolean;
+    FDatabasePageSize: Cardinal;
     function Open: Boolean;
     procedure MakeDefConfigFile(const AEnvHomePath: string);
     procedure RemoveUnUsedLogs;
@@ -165,6 +166,7 @@ begin
   );
 
   FIsFullVerboseMode := AStorageConfig.IsFullVerboseMode;
+  FDatabasePageSize := AStorageConfig.DatabasePageSize;
   FCS := TCriticalSection.Create;
   FActive := False;
   FLastRemoveLogTime := 0;
@@ -226,7 +228,6 @@ begin
       VList.Add('set_lg_dir .');
       VList.Add('set_data_dir ..');
       VList.Add('set_cachesize 0 2097152 1');
-      VList.Add('mutex_set_max 30000');
       VList.Add('set_lg_max 10485760');
       VList.Add('set_lg_bsize 2097152');
       VList.Add('log_set_config DB_LOG_AUTO_REMOVE on');
@@ -264,8 +265,14 @@ begin
     CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 1));
     CheckBDB(dbenv.set_lg_dir(dbenv, '.'));
     CheckBDB(dbenv.set_data_dir(dbenv, '..'));
-    CheckBDB(dbenv.set_cachesize(dbenv, 0, 2*1024*1024, 1)); 
-    CheckBDB(dbenv.mutex_set_max(dbenv, 30000));
+    CheckBDB(dbenv.set_cachesize(dbenv, 0, 2*1024*1024, 1));
+
+    if FDatabasePageSize <= 4096 then begin
+      CheckBDB(dbenv.set_mp_pagesize(dbenv, FDatabasePageSize));
+    end else begin
+      CheckBDB(dbenv.set_mp_pagesize(dbenv, 4096));
+    end;
+
     CheckBDB(dbenv.set_lg_max(dbenv, 10*1024*1024));
     CheckBDB(dbenv.set_lg_bsize(dbenv, 2*1024*1024));
     CheckBDB(dbenv.log_set_config(dbenv, DB_LOG_AUTO_REMOVE, 1));
