@@ -24,7 +24,6 @@ interface
 
 uses
   Classes,
-  i_InterfaceListStatic,
   i_VectorDataLoader,
   i_VectorDataFactory,
   i_ImportConfig,

@@ -6,7 +6,6 @@ uses
   i_ReadWriteState,
   i_ImportConfig,
   i_InterfaceListStatic,
-  i_VectorItemSubset,
   i_VectorItemTree,
   i_Mark,
   i_MarkCategory,

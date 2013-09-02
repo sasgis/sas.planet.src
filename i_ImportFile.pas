@@ -23,7 +23,6 @@ unit i_ImportFile;
 interface
 
 uses
-  i_InterfaceListStatic,
   i_VectorItemTree,
   i_ImportConfig;
 

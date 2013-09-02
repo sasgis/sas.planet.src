@@ -25,7 +25,6 @@ interface
 uses
   Classes,
   i_VectorItemSubsetBuilder,
-  i_InterfaceListStatic,
   i_VectorDataFactory,
   i_ValueToStringConverter,
   i_ImportConfig,
