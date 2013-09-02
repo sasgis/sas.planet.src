@@ -1923,7 +1923,7 @@ begin
   VLicensList :=
     TActiveMapsLicenseList.Create(
       GState.Config.LanguageManager,
-      TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.Create(FConfig.MainMapsConfig.GetAllActiveMapsSet)
+      TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.Create(GState.MapTypeSetBuilderFactory, FConfig.MainMapsConfig.GetAllActiveMapsSet)
     );
   VLayersList.Add(
     TLayerLicenseList.Create(

@@ -31,6 +31,7 @@ uses
 type
   TLayerSetChangeable = class(TConfigDataElementBaseEmptySaveLoad, IMapTypeSetChangeable)
   private
+    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FMapsSet: IMapTypeSet;
 
     FStatic: IMapTypeSet;
@@ -47,6 +48,7 @@ type
     function GetStatic: IMapTypeSet;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMapsSet: IMapTypeSet;
       const ALayerSetSelectNotyfier: INotifier;
       const ALayerSetUnselectNotyfier: INotifier
@@ -56,6 +58,7 @@ type
 
   TMapsSetChangeableByMainMapAndLayersSet = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapTypeSetChangeable)
   private
+    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FMainMap: IMapTypeChangeable;
     FLayersSet: IMapTypeSetChangeable;
 
@@ -70,6 +73,7 @@ type
     function GetStatic: IMapTypeSet;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMainMap: IMapTypeChangeable;
       const ALayersSet: IMapTypeSetChangeable
     );
@@ -80,13 +84,13 @@ implementation
 
 uses
   ActiveX,
-  u_MapTypeSet,
   u_ListenerByEvent,
   u_NotifyWithGUIDEvent;
 
 { TActiveMapsSet }
 
 constructor TLayerSetChangeable.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMapsSet: IMapTypeSet;
   const ALayerSetSelectNotyfier, ALayerSetUnselectNotyfier: INotifier
 );
@@ -97,8 +101,9 @@ begin
   Assert(ALayerSetSelectNotyfier <> nil);
   Assert(ALayerSetUnselectNotyfier <> nil);
   inherited Create;
+  FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FMapsSet := AMapsSet;
-  VMapTypeSetBuilder := TMapTypeSetBuilder.Create(True);
+  VMapTypeSetBuilder := FMapTypeSetBuilderFactory.Build(True);
   FStatic := VMapTypeSetBuilder.MakeAndClear;
 
   FLayerSetSelectNotyfier := ALayerSetSelectNotyfier;
@@ -154,7 +159,7 @@ begin
     LockWrite;
     try
       if FStatic.GetMapTypeByGUID(AGUID) = nil then begin
-        VList := TMapTypeSetBuilder.Create(True);
+        VList := FMapTypeSetBuilderFactory.Build(True);
         VList.Capacity := FStatic.Count + 1;
         VEnun := FStatic.GetIterator;
         while VEnun.Next(1, VGUID, i) = S_OK do begin
@@ -183,7 +188,7 @@ begin
     LockWrite;
     try
       if FStatic.GetMapTypeByGUID(AGUID) <> nil then begin
-        VList := TMapTypeSetBuilder.Create(True);
+        VList := FMapTypeSetBuilderFactory.Build(True);
         if FStatic.Count > 0 then begin
           VList.Capacity := FStatic.Count - 1;
         end;
@@ -205,6 +210,7 @@ end;
 { TMapsSetChangeableByMainMapAndLayersSet }
 
 constructor TMapsSetChangeableByMainMapAndLayersSet.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMainMap: IMapTypeChangeable;
   const ALayersSet: IMapTypeSetChangeable
 );
@@ -212,6 +218,7 @@ begin
   Assert(AMainMap <> nil);
   Assert(ALayersSet <> nil);
   inherited Create;
+  FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FMainMap := AMainMap;
   FLayersSet := ALayersSet;
 
@@ -232,7 +239,7 @@ var
   VStatic: IMapTypeSet;
 begin
   VLayersSet := FLayersSet.GetStatic;
-  VList := TMapTypeSetBuilder.Create(True);
+  VList := FMapTypeSetBuilderFactory.Build(True);
   VList.Capacity := VLayersSet.Count + 1;
   VEnun := VLayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin

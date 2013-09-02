@@ -74,6 +74,10 @@ type
     function MakeAndClear: IMapTypeSet;
   end;
 
+  IMapTypeSetBuilderFactory = interface
+    ['{C5573186-2284-470D-B617-30F4C22898FF}']
+    function Build(const AAllowNil: Boolean): IMapTypeSetBuilder;
+  end;
 
   IMapTypeSetChangeable = interface(IChangeable)
     ['{F6548515-4FB4-45F1-A742-B886BBCB1024}']

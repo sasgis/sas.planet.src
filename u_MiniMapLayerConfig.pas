@@ -68,6 +68,7 @@ type
     function GetThreadConfig: IThreadConfig;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMainMap: IMapTypeChangeable;
       const AMapsSet: IMapTypeSet;
       const ALayersSet: IMapTypeSet
@@ -87,6 +88,7 @@ uses
 { TMiniMapLayerConfig }
 
 constructor TMiniMapLayerConfig.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMainMap: IMapTypeChangeable;
   const AMapsSet: IMapTypeSet;
   const ALayersSet: IMapTypeSet
@@ -101,7 +103,13 @@ begin
   FUseTilePrevZoomConfig := TUseTilePrevZoomConfig.Create;
   Add(FUseTilePrevZoomConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
-  FMapsConfig := TMiniMapMapsConfig.Create(AMainMap, AMapsSet, ALayersSet);
+  FMapsConfig :=
+    TMiniMapMapsConfig.Create(
+      AMapTypeSetBuilderFactory,
+      AMainMap,
+      AMapsSet,
+      ALayersSet
+    );
   Add(FMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
 
   FThreadConfig := TThreadConfig.Create(tpLower);

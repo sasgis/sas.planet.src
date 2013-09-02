@@ -38,6 +38,7 @@ type
     function GetActiveKmlLayersSet: IMapTypeSetChangeable;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMapsSet, ALayersSet: IMapTypeSet;
       const ADefaultMapGUID: TGUID
     );
@@ -47,12 +48,12 @@ implementation
 
 uses
   ActiveX,
-  u_MapTypeSet,
   u_ActiveMapsSet;
 
 { TMainMapsConfig }
 
 constructor TMainMapsConfig.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMapsSet, ALayersSet: IMapTypeSet;
   const ADefaultMapGUID: TGUID
 );
@@ -65,10 +66,10 @@ var
   VKmlLayersList: IMapTypeSetBuilder;
 begin
   FDefaultMapGUID := ADefaultMapGUID;
-  inherited Create(AMapsSet, ALayersSet);
+  inherited Create(AMapTypeSetBuilderFactory, AMapsSet, ALayersSet);
 
-  VBitmapLayersList := TMapTypeSetBuilder.Create(True);
-  VKmlLayersList := TMapTypeSetBuilder.Create(True);
+  VBitmapLayersList := AMapTypeSetBuilderFactory.Build(True);
+  VKmlLayersList := AMapTypeSetBuilderFactory.Build(True);
 
   VEnun := ALayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
@@ -82,12 +83,14 @@ begin
   end;
 
   FActiveBitmapLayersSet := TLayerSetChangeable.Create(
+    AMapTypeSetBuilderFactory,
     VBitmapLayersList.MakeAndClear,
     LayerSetSelectNotyfier,
     LayerSetUnselectNotyfier
   );
 
   FActiveKmlLayersSet := TLayerSetChangeable.Create(
+    AMapTypeSetBuilderFactory,
     VKmlLayersList.MakeAndClear,
     LayerSetSelectNotyfier,
     LayerSetUnselectNotyfier

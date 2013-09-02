@@ -34,6 +34,7 @@ uses
 type
   TActivMapWithLayers = class(TMainActiveMap, IActivMapWithLayers)
   private
+    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FLayerSetSelectNotyfier: INotifierWithGUID;
     FLayerSetUnselectNotyfier: INotifierWithGUID;
 
@@ -59,7 +60,10 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
-    constructor Create(const AMapsSet, ALayersSet: IMapTypeSet);
+    constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
+      const AMapsSet, ALayersSet: IMapTypeSet
+    );
   end;
 
 implementation
@@ -71,7 +75,6 @@ uses
   c_ZeroGUID,
   i_StringListStatic,
   u_GUIDInterfaceSet,
-  u_MapTypeSet,
   u_ActiveMapSingleAbstract,
   u_ActiveMapSingleSet,
   u_ActiveMapsSet;
@@ -81,7 +84,10 @@ const
 
 { TActivMapWithLayers }
 
-constructor TActivMapWithLayers.Create(const AMapsSet, ALayersSet: IMapTypeSet);
+constructor TActivMapWithLayers.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
+  const AMapsSet, ALayersSet: IMapTypeSet
+);
 var
   VEnun: IEnumGUID;
   VGUID: TGUID;
@@ -92,13 +98,14 @@ var
   VSingleSet: IGUIDInterfaceSet;
   VMainMapChangeNotyfier: INotifierWithGUID;
 begin
+  FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   VMainMapChangeNotyfier := TNotifierWithGUID.Create;
   FLayerSetSelectNotyfier := TNotifierWithGUID.Create;
   FLayerSetUnselectNotyfier := TNotifierWithGUID.Create;
   FLayersSet := ALayersSet;
 
   VSingleSet := TGUIDInterfaceSet.Create(False);
-  VAllMapsList := TMapTypeSetBuilder.Create(True);
+  VAllMapsList := FMapTypeSetBuilderFactory.Build(True);
   VAllMapsList.Capacity := AMapsSet.Count + ALayersSet.Count;
 
   VEnun := AMapsSet.GetIterator;
@@ -125,6 +132,7 @@ begin
   FAllMapsSet := VAllMapsList.MakeAndClear;
 
   FActiveLayersSet := TLayerSetChangeable.Create(
+    FMapTypeSetBuilderFactory,
     FLayersSet,
     FLayerSetSelectNotyfier,
     FLayerSetUnselectNotyfier
@@ -132,6 +140,7 @@ begin
 
   FAllActiveMapsSet :=
     TMapsSetChangeableByMainMapAndLayersSet.Create(
+      FMapTypeSetBuilderFactory,
       GetActiveMap,
       FActiveLayersSet
     );

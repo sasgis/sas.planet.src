@@ -32,6 +32,7 @@ uses
 type
   TFillingMapMapsConfig = class(TMainActiveMap, IFillingMapMapsConfig)
   private
+    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FActualMap: IMapType;
     FSelectedMapChangeListener: IListener;
     FMainMap: IMapTypeChangeable;
@@ -44,6 +45,7 @@ type
     function GetActualMap: IMapType;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMainMap: IMapTypeChangeable;
       const AMapsSet: IMapTypeSet
     );
@@ -57,16 +59,17 @@ uses
   c_ZeroGUID,
   u_ListenerByEvent,
   u_NotifyWithGUIDEvent,
-  u_MapTypeBasic,
-  u_MapTypeSet;
+  u_MapTypeBasic;
 
 { TFillingMapMapsConfig }
 
 constructor TFillingMapMapsConfig.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMainMap: IMapTypeChangeable;
   const AMapsSet: IMapTypeSet
 );
 begin
+  FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FMainMap := AMainMap;
   inherited Create(CreateMapsSet(AMapsSet));
 
@@ -103,7 +106,7 @@ var
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VList := TMapTypeSetBuilder.Create(True);
+  VList := FMapTypeSetBuilderFactory.Build(True);
   VList.Capacity := ASourceMapsSet.Count + 1;
   VList.Add(TMapTypeBasic.Create(nil));
   VEnun := ASourceMapsSet.GetIterator;

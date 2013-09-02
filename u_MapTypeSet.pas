@@ -29,20 +29,9 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TMapTypeSetBuilder = class(TBaseInterfacedObject, IMapTypeSetBuilder)
+  TMapTypeSetBuilderFactory = class(TBaseInterfacedObject, IMapTypeSetBuilderFactory)
   private
-    FAllowNil: Boolean;
-    FList: IGUIDInterfaceSet;
-  private
-    function GetCount: Integer;
-    function GetCapacity: Integer;
-    procedure SetCapacity(ANewCapacity: Integer);
-    procedure Add(const AItem: IMapType);
-    procedure Clear;
-    function MakeCopy: IMapTypeSet;
-    function MakeAndClear: IMapTypeSet;
-  public
-    constructor Create(AAllowNil: Boolean);
+    function Build(const AAllowNil: Boolean): IMapTypeSetBuilder;
   end;
 
 implementation
@@ -128,6 +117,23 @@ begin
 end;
 
 { TMapTypeSetBuilder }
+
+type
+  TMapTypeSetBuilder = class(TBaseInterfacedObject, IMapTypeSetBuilder)
+  private
+    FAllowNil: Boolean;
+    FList: IGUIDInterfaceSet;
+  private
+    function GetCount: Integer;
+    function GetCapacity: Integer;
+    procedure SetCapacity(ANewCapacity: Integer);
+    procedure Add(const AItem: IMapType);
+    procedure Clear;
+    function MakeCopy: IMapTypeSet;
+    function MakeAndClear: IMapTypeSet;
+  public
+    constructor Create(AAllowNil: Boolean);
+  end;
 
 constructor TMapTypeSetBuilder.Create(AAllowNil: Boolean);
 begin
@@ -216,6 +222,15 @@ begin
       FList.Capacity := ANewCapacity;
     end;
   end;
+end;
+
+{ TMapTypeSetBuilderFactory }
+
+function TMapTypeSetBuilderFactory.Build(
+  const AAllowNil: Boolean
+): IMapTypeSetBuilder;
+begin
+  Result := TMapTypeSetBuilder.Create(AAllowNil);
 end;
 
 end.

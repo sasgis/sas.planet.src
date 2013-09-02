@@ -31,6 +31,7 @@ uses
 type
   TMiniMapMapsConfig = class(TActivMapWithLayers, IMapTypeChangeable)
   private
+    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FStatic: IMapType;
     FSelectedMapChangeListener: IListener;
     FMainMap: IMapTypeChangeable;
@@ -44,6 +45,7 @@ type
     function GetStatic: IMapType;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMainMap: IMapTypeChangeable;
       const AMapsSet: IMapTypeSet;
       const ALayersSet: IMapTypeSet
@@ -58,19 +60,20 @@ uses
   c_ZeroGUID,
   u_ListenerByEvent,
   u_NotifyWithGUIDEvent,
-  u_MapTypeBasic,
-  u_MapTypeSet;
+  u_MapTypeBasic;
 
 { TMiniMapMapsConfig }
 
 constructor TMiniMapMapsConfig.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMainMap: IMapTypeChangeable;
   const AMapsSet: IMapTypeSet;
   const ALayersSet: IMapTypeSet
 );
 begin
+  FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FMainMap := AMainMap;
-  inherited Create(CreateMiniMapMapsSet(AMapsSet), CreateMiniMapLayersSet(ALayersSet));
+  inherited Create(AMapTypeSetBuilderFactory, CreateMiniMapMapsSet(AMapsSet), CreateMiniMapLayersSet(ALayersSet));
 
   FMainMapChangeListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
   FMainMap.ChangeNotifier.Add(FMainMapChangeListener);
@@ -115,7 +118,7 @@ var
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VList := TMapTypeSetBuilder.Create(True);
+  VList := FMapTypeSetBuilderFactory.Build(True);
   VEnun := ASourceLayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMap := ASourceLayersSet.GetMapTypeByGUID(VGUID);
@@ -134,7 +137,7 @@ var
   VGUID: TGUID;
   i: Cardinal;
 begin
-  VList := TMapTypeSetBuilder.Create(True);
+  VList := FMapTypeSetBuilderFactory.Build(True);
   VList.Add(TMapTypeBasic.Create(nil));
   VEnun := ASourceMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin

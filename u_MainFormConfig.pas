@@ -76,6 +76,7 @@ type
     function GetMarksExplorerWindowConfig: IWindowPositionConfig;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AContentTypeManager: IContentTypeManager;
       const AGeoCoderList: IGeoCoderList;
@@ -108,6 +109,7 @@ uses
 { TMainFormConfig }
 
 constructor TMainFormConfig.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AContentTypeManager: IContentTypeManager;
   const AGeoCoderList: IGeoCoderList;
@@ -128,11 +130,11 @@ begin
   Add(FGPSBehaviour, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MainFormGPSEvents'));
   FMainGeoCoderConfig := TMainGeoCoderConfig.Create(AGeoCoderList);
   Add(FMainGeoCoderConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GeoCoder'));
-  FMainMapsConfig := TMainMapsConfig.Create(AMapsSet, ALayersSet, ADefaultMapGUID);
+  FMainMapsConfig := TMainMapsConfig.Create(AMapTypeSetBuilderFactory, AMapsSet, ALayersSet, ADefaultMapGUID);
   Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
   FViewPortState := TMapViewPortState.Create(ACoordConverterFactory, FMainMapsConfig, APerfCounterList);
   Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));
-  FLayersConfig := TMainFormLayersConfig.Create(FMainMapsConfig);
+  FLayersConfig := TMainFormLayersConfig.Create(AMapTypeSetBuilderFactory, FMainMapsConfig);
   Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FDownloadUIConfig := TDownloadUIConfig.Create;
   Add(FDownloadUIConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ViewDownload'));

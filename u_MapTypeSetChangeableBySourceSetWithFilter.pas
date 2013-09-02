@@ -10,6 +10,7 @@ uses
 type
   TMapTypeSetChangeableBySourceSetWithFilter = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapTypeSetChangeable)
   private
+    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FSourceSet: IMapTypeSetChangeable;
     FSourceSetListener: IListener;
 
@@ -23,6 +24,7 @@ type
     function IsValidMapType(const AMapType: IMapType): Boolean; virtual;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const ASourceSet: IMapTypeSetChangeable
     );
     destructor Destroy; override;
@@ -50,16 +52,17 @@ implementation
 
 uses
   ActiveX,
-  u_ListenerByEvent,
-  u_MapTypeSet;
+  u_ListenerByEvent;
 
 { TMapTypeSetChangeableBySourceSetWithFilter }
 
 constructor TMapTypeSetChangeableBySourceSetWithFilter.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const ASourceSet: IMapTypeSetChangeable
 );
 begin
   inherited Create;
+  FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FSourceSet := ASourceSet;
 
   FSourceSetListener := TNotifyNoMmgEventListener.Create(Self.OnActiveMapsSetChange);
@@ -86,7 +89,7 @@ var
   VCnt: Cardinal;
   VMapType: IMapType;
 begin
-  VResult := TMapTypeSetBuilder.Create(False);
+  VResult := FMapTypeSetBuilderFactory.Build(False);
   if FPrevSourceSetStatic <> nil then begin
     VEnum := FPrevSourceSetStatic.GetIterator;
     while VEnum.Next(1, VGuid, VCnt) = S_OK do begin

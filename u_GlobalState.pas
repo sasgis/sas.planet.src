@@ -65,6 +65,7 @@ uses
   i_VectorDataFactory,
   i_VectorItemSubsetBuilder,
   i_GeoCoder,
+  i_MapTypes,
   i_MapCalibration,
   i_ImportFile,
   i_PathDetalizeProviderList,
@@ -107,6 +108,7 @@ type
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
+    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FResourceProvider: IConfigDataProvider;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FTileNameParser: ITileFileNameParsersList;
@@ -196,6 +198,7 @@ type
     property CoordConverterList: ICoordConverterList read FCoordConverterList;
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
+    property MapTypeSetBuilderFactory: IMapTypeSetBuilderFactory read FMapTypeSetBuilderFactory;
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
     property AppStartedNotifier: INotifierOneOperation read FAppStartedNotifier;
     property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
@@ -264,6 +267,7 @@ uses
   i_InternalDomainInfoProvider,
   i_ImageResamplerFactory,
   i_TextByVectorItem,
+  u_MapTypeSet,
   i_GlobalAppConfig,
   u_TextByVectorItemHTMLByDescription,
   u_TextByVectorItemMarkInfo,
@@ -638,8 +642,11 @@ begin
       VFilesIterator
     );
 
+  FMapTypeSetBuilderFactory := TMapTypeSetBuilderFactory.Create;
+
   FMainMapsList :=
     TMapTypesMainList.Create(
+      FMapTypeSetBuilderFactory,
       FZmpInfoSet,
       FGlobalConfig.TileLoadResamplerConfig,
       FGlobalConfig.TileGetPrevResamplerConfig,
@@ -901,6 +908,7 @@ begin
   );
   FMainFormConfig :=
     TMainFormConfig.Create(
+      FMapTypeSetBuilderFactory,
       FLocalConverterFactory,
       FContentTypeManager,
       FGeoCoderList,

@@ -58,6 +58,7 @@ type
 
   TMapTypesMainList = class
   private
+    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FGUIConfigList: IMapTypeGUIConfigList;
     FZmpInfoSet: IZmpInfoSet;
     FPerfCounterList: IInternalPerformanceCounterList;
@@ -78,6 +79,7 @@ type
     function GetFirstMainMapGUID: TGUID;
   public
     constructor Create(
+      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AZmpInfoSet: IZmpInfoSet;
       const ATileLoadResamplerConfig: IImageResamplerConfig;
       const ATileGetPrevResamplerConfig: IImageResamplerConfig;
@@ -133,12 +135,12 @@ uses
   i_ZmpInfo,
   u_MapTypeGUIConfigList,
   u_MapTypeBasic,
-  u_MapTypeSet,
   u_ResStrings;
 
 { TMapTypesMainList }
 
 constructor TMapTypesMainList.Create(
+  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AZmpInfoSet: IZmpInfoSet;
   const ATileLoadResamplerConfig: IImageResamplerConfig;
   const ATileGetPrevResamplerConfig: IImageResamplerConfig;
@@ -148,13 +150,18 @@ constructor TMapTypesMainList.Create(
 );
 begin
   inherited Create;
+  FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FZmpInfoSet := AZmpInfoSet;
   FTileLoadResamplerConfig := ATileLoadResamplerConfig;
   FTileGetPrevResamplerConfig := ATileGetPrevResamplerConfig;
   FTileReprojectResamplerConfig := ATileReprojectResamplerConfig;
   FTileDownloadResamplerConfig := ATileDownloadResamplerConfig;
   FPerfCounterList := APerfCounterList;
-  FFullMapsSetChangeableInternal := TMapTypeSetChangeableSimple.Create(nil);
+  FFullMapsSetChangeableInternal :=
+    TMapTypeSetChangeableSimple.Create(
+      AMapTypeSetBuilderFactory,
+      nil
+    );
   FFullMapsSetChangeable := FFullMapsSetChangeableInternal;
 end;
 
@@ -200,10 +207,10 @@ var
   VMapsList: IMapTypeSetBuilder;
   VLayersList: IMapTypeSetBuilder;
 begin
-  VFullMapsList := TMapTypeSetBuilder.Create(False);
+  VFullMapsList := FMapTypeSetBuilderFactory.Build(False);
   VFullMapsList.Capacity := Length(FMapType);
-  VMapsList := TMapTypeSetBuilder.Create(False);
-  VLayersList := TMapTypeSetBuilder.Create(False);
+  VMapsList := FMapTypeSetBuilderFactory.Build(False);
+  VLayersList := FMapTypeSetBuilderFactory.Build(False);
   for i := 0 to Length(FMapType) - 1 do begin
     VMap := FMapType[i];
     VMapType := TMapTypeBasic.Create(VMap);
