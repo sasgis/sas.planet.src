@@ -224,7 +224,7 @@ begin
     VList := TStringList.Create;
     try
       VList.Add('set_flags DB_TXN_NOWAIT on');
-      VList.Add('set_flags DB_TXN_WRITE_NOSYNC on');
+      VList.Add('set_flags DB_TXN_WRITE_NOSYNC off');
       VList.Add('set_lg_dir .');
       VList.Add('set_data_dir ..');
       VList.Add('set_cachesize 0 2097152 1');
@@ -262,7 +262,7 @@ begin
     CheckBDB(dbenv.set_alloc(dbenv, @GetMemory, @ReallocMemory, @FreeMemory));
 
     CheckBDB(dbenv.set_flags(dbenv, DB_TXN_NOWAIT, 1));
-    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 1));
+    CheckBDB(dbenv.set_flags(dbenv, DB_TXN_WRITE_NOSYNC, 0));
     CheckBDB(dbenv.set_lg_dir(dbenv, '.'));
     CheckBDB(dbenv.set_data_dir(dbenv, '..'));
     CheckBDB(dbenv.set_cachesize(dbenv, 0, 2*1024*1024, 1));
