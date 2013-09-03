@@ -85,21 +85,23 @@ var
   VLocalRect: TRect;
   VFileStream: TFileStream;
   VText: AnsiString;
+  VMapName: AnsiString;
 begin
   VFileName := ChangeFileExt(AFileName, '.map');
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
-    VText := '';
-    VText := VText + 'OziExplorer Map Data File Version 2.2' + #13#10;
-    VText := VText + 'Created by SAS.Planet' + #13#10;
-    VText := VText + UTF8Encode(ExtractFileName(AFileName)) + #13#10;
-    VText := VText + '1 ,Map Code,' + #13#10;
-    VText := VText + 'WGS 84,,   0.0000,   0.0000,WGS 84' + #13#10;
-    VText := VText + 'Reserved 1' + #13#10;
-    VText := VText + 'Reserved 2' + #13#10;
-    VText := VText + 'Magnetic Variation,,,E' + #13#10;
-    VText := VText + 'Map Projection,Mercator,PolyCal,No,AutoCalOnly,No,BSBUseWPX,No' + #13#10;
-
+    VMapName := UTF8Encode(ExtractFileName(AFileName));
+    
+    VText :=
+      'OziExplorer Map Data File Version 2.2' + #13#10 +
+      VMapName + #13#10 +
+      VMapName + #13#10 +
+      '1 ,Map Code,' + #13#10 +
+      'WGS 84,,   0.0000,   0.0000,WGS 84' + #13#10 +
+      'Reserved 1' + #13#10 +
+      'Reserved 2' + #13#10 +
+      'Magnetic Variation,,,E' + #13#10 +
+      'Map Projection,Mercator,PolyCal,No,AutoCalOnly,No,BSBUseWPX,No' + #13#10; 
 
     VLL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
     VLL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
