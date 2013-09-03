@@ -44,7 +44,7 @@ type
     ): IBinaryData;
     procedure SaveOziCalibrationMap(
       const AGeoConvert: ICoordConverter;
-      const ATileRect: TRect;
+      const APixelRect: TRect;
       const AZoom: Byte
     );
     procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
@@ -123,7 +123,7 @@ end;
 
 procedure TThreadExportToOgf2.SaveOziCalibrationMap(
   const AGeoConvert: ICoordConverter;
-  const ATileRect: TRect;
+  const APixelRect: TRect;
   const AZoom: Byte
 );
 var
@@ -132,8 +132,8 @@ begin
   VOziCalibrationMap := TMapCalibrationOzi.Create;
   VOziCalibrationMap.SaveCalibrationInfo(
     FTargetFile,
-    ATileRect.TopLeft,
-    ATileRect.BottomRight,
+    APixelRect.TopLeft,
+    APixelRect.BottomRight,
     AZoom,
     AGeoConvert
   );
@@ -224,7 +224,7 @@ begin
 
   SaveOziCalibrationMap(
     VGeoConvert,
-    VPixelRect,
+    VGeoConvert.TileRect2PixelRect(VTileRect, VZoom),
     VZoom
   );
 
