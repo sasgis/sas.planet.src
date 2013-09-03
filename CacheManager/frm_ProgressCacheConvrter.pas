@@ -158,6 +158,7 @@ procedure TfrmProgressCacheConverter.FormClose(Sender: TObject;
 begin
   CancelOperation;
   Action := caFree;
+  Application.MainForm.SetFocus;
 end;
 
 procedure TfrmProgressCacheConverter.FormKeyUp(Sender: TObject; var Key: Word;
