@@ -109,6 +109,7 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
     FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
+    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FResourceProvider: IConfigDataProvider;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FTileNameParser: ITileFileNameParsersList;
@@ -199,6 +200,7 @@ type
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
     property MapTypeSetBuilderFactory: IMapTypeSetBuilderFactory read FMapTypeSetBuilderFactory;
+    property MapTypeListBuilderFactory: IMapTypeListBuilderFactory read FMapTypeListBuilderFactory;
     property MapCalibrationList: IMapCalibrationList read FMapCalibrationList;
     property AppStartedNotifier: INotifierOneOperation read FAppStartedNotifier;
     property AppClosingNotifier: INotifierOneOperation read FAppClosingNotifier;
@@ -268,6 +270,7 @@ uses
   i_ImageResamplerFactory,
   i_TextByVectorItem,
   u_MapTypeSet,
+  u_MapTypeListStatic,
   i_GlobalAppConfig,
   u_TextByVectorItemHTMLByDescription,
   u_TextByVectorItemMarkInfo,
@@ -643,6 +646,7 @@ begin
     );
 
   FMapTypeSetBuilderFactory := TMapTypeSetBuilderFactory.Create(FHashFunction);
+  FMapTypeListBuilderFactory := TMapTypeListBuilderFactory.Create(FHashFunction);
 
   FMainMapsList :=
     TMapTypesMainList.Create(

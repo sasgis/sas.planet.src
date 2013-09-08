@@ -61,6 +61,7 @@ type
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkAllZoomsClick(Sender: TObject);
   private
+    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -81,6 +82,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
@@ -97,6 +99,7 @@ uses
 
 constructor TfrExportRMapsSQLite.Create(
   const ALanguageManager: ILanguageManager;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList
@@ -104,6 +107,7 @@ constructor TfrExportRMapsSQLite.Create(
 begin
   inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
+  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   FfrMapSelect :=
@@ -153,11 +157,11 @@ end;
 
 function TfrExportRMapsSQLite.GetMapTypeList: IMapTypeListStatic;
 var
-  VMaps: array of IMapType;
+  VMaps: IMapTypeListBuilder;
 begin
-  SetLength(VMaps, 1);
-  VMaps[0] := FFullMapsSet.GetMapTypeByGUID(GetMapType.Zmp.GUID);
-  Result := TMapTypeListStatic.Create(VMaps);
+  VMaps := FMapTypeListBuilderFactory.Build;
+  VMaps.Add(FFullMapsSet.GetMapTypeByGUID(GetMapType.Zmp.GUID));
+  Result := VMaps.MakeAndClear;
 end;
 
 function TfrExportRMapsSQLite.GetForceDropTarget: Boolean;

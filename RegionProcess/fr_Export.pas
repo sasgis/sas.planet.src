@@ -41,6 +41,7 @@ type
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
@@ -86,6 +87,7 @@ constructor TfrExport.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
@@ -225,6 +227,7 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AMapTypeListBuilderFactory,
       AProjectionFactory,
       AVectorItemsFactory,
       ABitmapTileSaveLoadFactory,
@@ -268,6 +271,7 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AMapTypeListBuilderFactory,
       AProjectionFactory,
       AVectorItemsFactory
     );

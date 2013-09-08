@@ -12,6 +12,7 @@ uses
 type
   TMapTypeListChangeableByActiveMapsSet = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMapTypeListChangeable)
   private
+    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FSourceSet: IMapTypeSetChangeable;
 
     FZOrderListener: IListener;
@@ -25,6 +26,7 @@ type
     function CreateStatic: IInterface; override;
   public
     constructor Create(
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const ASourceSet: IMapTypeSetChangeable
     );
     destructor Destroy; override;
@@ -40,10 +42,13 @@ uses
 { TMapTypeListChangeableByActiveMapsSet }
 
 constructor TMapTypeListChangeableByActiveMapsSet.Create(
-  const ASourceSet: IMapTypeSetChangeable);
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+  const ASourceSet: IMapTypeSetChangeable
+);
 begin
   inherited Create;
   FSourceSet := ASourceSet;
+  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
 
   FZOrderListener := TNotifyNoMmgEventListener.Create(Self.OnMapZOrderChanged);
   FLayerSetListener := TNotifyNoMmgEventListener.Create(Self.OnLayerSetChanged);
@@ -78,7 +83,7 @@ end;
 
 function TMapTypeListChangeableByActiveMapsSet.CreateStatic: IInterface;
   procedure QuickSort(
-    var AMapsList: array of IMapType;
+    var AMapsList: IMapTypeListBuilder;
     var AZList: array of Integer;
     L, R: Integer
   );
@@ -118,46 +123,34 @@ function TMapTypeListChangeableByActiveMapsSet.CreateStatic: IInterface;
     until I >= R;
   end;
 var
-  VLayers: array of IMapType;
+  VLayers: IMapTypeListBuilder;
   VZArray: array of Integer;
   i: Integer;
-  VEnum: IEnumGUID;
-  VCnt: Cardinal;
-  VGUID: TGUID;
+  VEnum: IEnumUnknown;
+  VCnt: Integer;
   VCount: Integer;
+  VMapType: IMapType;
 begin
-  try
-    i := 0;
-    if FLayersSet <> nil then begin
-      VCount := FLayersSet.GetCount;
-      SetLength(VLayers, VCount);
-      VEnum := FLayersSet.GetIterator;
-      while VEnum.Next(1, VGUID, VCnt) = S_OK do begin
-        VLayers[i] := FLayersSet.GetMapTypeByGUID(VGUID);
-        if VLayers[i] <> nil then begin
-          Inc(i);
-          if i >= VCount then begin
-            Break;
-          end;
-        end;
+  VLayers := FMapTypeListBuilderFactory.Build;
+  if FLayersSet <> nil then begin
+    VCount := FLayersSet.GetCount;
+    VLayers.Capacity := VCount;
+    VEnum := FLayersSet.GetMapTypeIterator;
+    while VEnum.Next(1, VMapType, @VCnt) = S_OK do begin
+      if Assigned(VMapType) then begin
+        VLayers.Add(VMapType);
       end;
     end;
-    VCount := i;
-    SetLength(VLayers, VCount);
-    SetLength(VZArray, VCount);
-    for i := 0 to VCount - 1 do begin
-      VZArray[i] := VLayers[i].MapType.LayerDrawConfig.LayerZOrder;
-    end;
-    if VCount > 1 then begin
-      QuickSort(VLayers, VZArray, 0, VCount - 1);
-    end;
-    Result := IMapTypeListStatic(TMapTypeListStatic.Create(VLayers));
-  finally
-    for i := 0 to Length(VLayers) - 1 do begin
-      VLayers[i] := nil;
-    end;
-    VLayers := nil;
   end;
+  VCount := VLayers.Count;
+  SetLength(VZArray, VCount);
+  for i := 0 to VCount - 1 do begin
+    VZArray[i] := VLayers[i].MapType.LayerDrawConfig.LayerZOrder;
+  end;
+  if VCount > 1 then begin
+    QuickSort(VLayers, VZArray, 0, VCount - 1);
+  end;
+  Result := VLayers.MakeAndClear;
 end;
 
 function TMapTypeListChangeableByActiveMapsSet.GetList: IMapTypeListStatic;

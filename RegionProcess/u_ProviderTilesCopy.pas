@@ -21,6 +21,7 @@ uses
 type
   TProviderTilesCopy = class(TExportProviderAbstract)
   private
+    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FTimerNoifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FProjectionFactory: IProjectionInfoFactory;
@@ -37,6 +38,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -69,6 +71,7 @@ constructor TProviderTilesCopy.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -81,6 +84,7 @@ begin
     AFullMapsSet,
     AGUIConfigList
   );
+  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FProjectionFactory := AProjectionFactory;
@@ -93,6 +97,7 @@ begin
   Result :=
     TfrTilesCopy.Create(
       Self.LanguageManager,
+      FMapTypeListBuilderFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList

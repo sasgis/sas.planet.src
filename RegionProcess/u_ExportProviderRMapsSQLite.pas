@@ -18,6 +18,7 @@ uses
 type
   TExportProviderRMapsSQLite = class(TExportProviderAbstract)
   private
+    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorItemsFactory: IVectorItemsFactory;
   protected
@@ -29,6 +30,7 @@ type
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IVectorItemsFactory
     );
@@ -55,6 +57,7 @@ constructor TExportProviderRMapsSQLite.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IVectorItemsFactory
 );
@@ -66,6 +69,7 @@ begin
     AFullMapsSet,
     AGUIConfigList
   );
+  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorItemsFactory := AVectorItemsFactory;
 end;
@@ -75,6 +79,7 @@ begin
   Result :=
     TfrExportRMapsSQLite.Create(
       Self.LanguageManager,
+      FMapTypeListBuilderFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList

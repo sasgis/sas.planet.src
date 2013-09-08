@@ -148,6 +148,7 @@ type
     procedure Map4Change(Sender: TObject);
     procedure Map5Change(Sender: TObject);
   private
+    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -180,6 +181,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -204,6 +206,7 @@ uses
 {$R *.dfm}
 constructor TfrExportToJNX.Create(
   const ALanguageManager: ILanguageManager;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -213,6 +216,7 @@ constructor TfrExportToJNX.Create(
 begin
   inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
+  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   dlgSaveTargetFile.Filter := AFileFilters;
@@ -767,35 +771,41 @@ end;
 
 function TfrExportToJNX.GetMapList: IMapTypeListStatic;
 var
-  VMaps: array of IMapType;
-  i: integer;
+  VMaps: IMapTypeListBuilder;
+  VMap: IMapType;
 begin
-  i := 0;
+  VMaps := FMapTypeListBuilderFactory.Build;
   if ChMap1.Checked then  begin
-    SetLength(VMaps, i + 1);
-    VMaps[i] := FfrMapSelect.GetSelectedIMapType;
-    inc(i);
+    VMap := FfrMapSelect.GetSelectedIMapType;
+    if Assigned(VMap) then begin
+      VMaps.Add(VMap);
+    end;
   end;
   if ChMap2.Checked then  begin
-    SetLength(VMaps, i + 1);
-    VMaps[i] := FfrMap2Select.GetSelectedIMapType;
-    inc(i);
+    VMap := FfrMap2Select.GetSelectedIMapType;
+    if Assigned(VMap) then begin
+      VMaps.Add(VMap);
+    end;
   end;
   if ChMap3.Checked then  begin
-    SetLength(VMaps, i + 1);
-    VMaps[i] := FfrMap3Select.GetSelectedIMapType;
-    inc(i);
+    VMap := FfrMap3Select.GetSelectedIMapType;
+    if Assigned(VMap) then begin
+      VMaps.Add(VMap);
+    end;
   end;
   if ChMap4.Checked then  begin
-    SetLength(VMaps, i + 1);
-    VMaps[i] := FfrMap4Select.GetSelectedIMapType;
-    inc(i);
+    VMap := FfrMap4Select.GetSelectedIMapType;
+    if Assigned(VMap) then begin
+      VMaps.Add(VMap);
+    end;
   end;
   if ChMap5.Checked then  begin
-    SetLength(VMaps, i + 1);
-    VMaps[i] := FfrMap5Select.GetSelectedIMapType;
+    VMap := FfrMap5Select.GetSelectedIMapType;
+    if Assigned(VMap) then begin
+      VMaps.Add(VMap);
+    end;
   end;
-  Result := TMapTypeListStatic.Create(VMaps);
+  Result := VMaps.MakeAndClear;
 end;
 
 function TfrExportToJNX.GetScaleArray: TByteDynArray;

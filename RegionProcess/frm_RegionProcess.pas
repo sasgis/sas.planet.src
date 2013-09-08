@@ -131,6 +131,7 @@ type
       const ATimerNoifier: INotifierTime;
       const ALastSelectionInfo: ILastSelectionInfo;
       const AMainMapsConfig: IMainMapsConfig;
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const APosition: ILocalCoordConverterChangeable;
       const AFullMapsSet: IMapTypeSet;
@@ -184,6 +185,7 @@ constructor TfrmRegionProcess.Create(
   const ATimerNoifier: INotifierTime;
   const ALastSelectionInfo: ILastSelectionInfo;
   const AMainMapsConfig: IMainMapsConfig;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const APosition: ILocalCoordConverterChangeable;
   const AFullMapsSet: IMapTypeSet;
@@ -234,6 +236,7 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      AMapTypeListBuilderFactory,
       ACoordConverterFactory,
       ALocalConverterFactory,
       AProjectionFactory,
@@ -276,6 +279,7 @@ begin
       AGlobalBerkeleyDBHelper,
       AFullMapsSet,
       AGUIConfigList,
+      AMapTypeListBuilderFactory,
       AProjectionFactory,
       AVectorItemsFactory,
       ATileNameGenerator

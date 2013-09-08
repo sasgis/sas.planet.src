@@ -80,6 +80,7 @@ type
     procedure cbbNamesTypeChange(Sender: TObject);
     procedure chkSetTargetVersionToClick(Sender: TObject);
   private
+    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -104,6 +105,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
@@ -177,6 +179,7 @@ end;
 
 constructor TfrTilesCopy.Create(
   const ALanguageManager: ILanguageManager;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList
@@ -184,6 +187,7 @@ constructor TfrTilesCopy.Create(
 begin
   inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
+  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   cbbNamesType.ItemIndex := 1;
@@ -197,10 +201,11 @@ end;
 function TfrTilesCopy.GetMapTypeList: IMapTypeListStatic;
 var
   VMap: IMapType;
-  VMaps: array of IMapType;
+  VMaps: IMapTypeListBuilder;
   VMapType: TMapType;
   i: Integer;
 begin
+  VMaps := FMapTypeListBuilderFactory.Build;
   for i := 0 to chklstMaps.Items.Count - 1 do begin
     if chklstMaps.Checked[i] then begin
       VMap := nil;
@@ -209,12 +214,11 @@ begin
         VMap := FFullMapsSet.GetMapTypeByGUID(VMapType.Zmp.GUID);
       end;
       if VMap <> nil then begin
-        SetLength(VMaps, Length(VMaps) + 1);
-        VMaps[Length(VMaps) - 1] := VMap;
+        VMaps.Add(VMap);
       end;
     end;
   end;
-  Result := TMapTypeListStatic.Create(VMaps);
+  Result := VMaps.MakeAndClear;
 end;
 
 function TfrTilesCopy.GetPath: string;

@@ -52,11 +52,37 @@ type
     property Items[AIndex: Integer]: IMapType read GetItem;
   end;
 
+  IMapTypeListBuilder = interface
+    ['{9349108A-1B0F-4920-B273-32710FE6659B}']
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetCapacity: Integer;
+    procedure SetCapacity(ANewCapacity: Integer);
+    property Capacity: Integer read GetCapacity write SetCapacity;
+
+    function GetItem(AIndex: Integer): IMapType;
+    procedure SetItem(AIndex: Integer; const AItem: IMapType);
+    property Items[Index: Integer]: IMapType read GetItem write SetItem; default;
+
+    procedure Add(const AItem: IMapType);
+    procedure Clear;
+    procedure Delete(AIndex: Integer);
+    procedure Exchange(AIndex1, AIndex2: Integer);
+    function MakeCopy: IMapTypeListStatic;
+    function MakeAndClear: IMapTypeListStatic;
+  end;
+
+  IMapTypeListBuilderFactory = interface
+    ['{C5573186-2284-470D-B617-30F4C22898FF}']
+    function Build: IMapTypeListBuilder;
+  end;
+
   IMapTypeSet = interface(IMapTypeListStatic)
     ['{45EF5080-01DC-4FE1-92E1-E93574439718}']
     function GetHash: THashValue;
     property Hash: THashValue read GetHash;
-    
+
     function IsEqual(const AValue: IMapTypeSet): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
