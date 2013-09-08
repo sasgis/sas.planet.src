@@ -280,12 +280,12 @@ begin
 end;
 
 destructor TfrExportToJNX.Destroy;
-  begin
-    FreeAndNil(FfrMapSelect);
-    FreeAndNil(FfrMap2Select);
-    FreeAndNil(FfrMap3Select);
-    FreeAndNil(FfrMap4Select);
-    FreeAndNil(FfrMap5Select);
+begin
+  FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrMap2Select);
+  FreeAndNil(FfrMap3Select);
+  FreeAndNil(FfrMap4Select);
+  FreeAndNil(FfrMap5Select);
   inherited;
 end;
 
