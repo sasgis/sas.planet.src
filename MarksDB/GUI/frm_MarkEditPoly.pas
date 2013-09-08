@@ -218,8 +218,8 @@ begin
   Result :=
     FAppearanceOfMarkFactory.CreatePolygonAppearance(
       SetAlpha(Color32(clrbxLineColor.Selected),round(((100-seLineTransp.Value)/100)*256)),
-      SetAlpha(Color32(clrbxFillColor.Selected),round(((100-seFillTransp.Value)/100)*256)),
-      seLineWidth.Value
+      seLineWidth.Value,
+      SetAlpha(Color32(clrbxFillColor.Selected),round(((100-seFillTransp.Value)/100)*256))
     );
 end;
 
