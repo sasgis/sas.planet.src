@@ -38,7 +38,6 @@ type
     function MakeStaticAndClear: IInterfaceListStatic;
     function MakeStaticCopy: IInterfaceListStatic;
   public
-    constructor Create();
     destructor Destroy; override;
   end;
 
@@ -49,12 +48,6 @@ uses
   u_InterfaceListStatic;
 
 { TInterfaceListSimple }
-
-constructor TInterfaceListSimple.Create;
-begin
-  inherited Create;
-  FList := TList.Create;
-end;
 
 destructor TInterfaceListSimple.Destroy;
 var
@@ -75,6 +68,9 @@ end;
 
 function TInterfaceListSimple.Add(const AItem: IInterface): Integer;
 begin
+  if not Assigned(FList) then begin
+    FList := TList.Create;
+  end;
   Result := FList.Add(nil);
   FList[Result] := Pointer(AItem);
   if Assigned(AItem) then begin
@@ -89,8 +85,14 @@ begin
   if Assigned(AList) then begin
     AList.Lock;
     try
-      for i := 0 to AList.Count - 1 do begin
-        Add(AList[i]);
+      if AList.Count > 0 then begin
+        if not Assigned(FList) then begin
+          FList := TList.Create;
+        end;
+
+        for i := 0 to AList.Count - 1 do begin
+          Add(AList[i]);
+        end;
       end;
     finally
       AList.Unlock;
@@ -103,8 +105,14 @@ var
   i: Integer;
 begin
   if Assigned(AList) then begin
-    for i := 0 to AList.Count - 1 do begin
-      Add(AList[i]);
+    if AList.Count > 0 then begin
+      if not Assigned(FList) then begin
+        FList := TList.Create;
+      end;
+
+      for i := 0 to AList.Count - 1 do begin
+        Add(AList[i]);
+      end;
     end;
   end;
 end;
@@ -114,8 +122,14 @@ var
   i: Integer;
 begin
   if Assigned(AList) then begin
-    for i := 0 to AList.Count - 1 do begin
-      Add(AList[i]);
+    if AList.Count > 0 then begin
+      if not Assigned(FList) then begin
+        FList := TList.Create;
+      end;
+
+      for i := 0 to AList.Count - 1 do begin
+        Add(AList[i]);
+      end;
     end;
   end;
 end;
@@ -149,12 +163,20 @@ end;
 
 function TInterfaceListSimple.GetCapacity: Integer;
 begin
-  Result := FList.Capacity;
+  if Assigned(FList) then begin
+    Result := FList.Capacity;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function TInterfaceListSimple.GetCount: Integer;
 begin
-  Result := FList.Count;
+  if Assigned(FList) then begin
+    Result := FList.Count;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function TInterfaceListSimple.GetItem(AIndex: Integer): IInterface;
@@ -164,11 +186,18 @@ end;
 
 function TInterfaceListSimple.IndexOf(const AItem: IInterface): Integer;
 begin
-  Result := FList.IndexOf(Pointer(AItem));
+  if Assigned(FList) then begin
+    Result := FList.IndexOf(Pointer(AItem));
+  end else begin
+    Result := -1;
+  end;
 end;
 
 procedure TInterfaceListSimple.Insert(AIndex: Integer; const AItem: IInterface);
 begin
+  if not Assigned(FList) then begin
+    FList := TList.Create;
+  end;
   FList.Insert(AIndex, nil);
   FList[AIndex] := Pointer(AItem);
   if Assigned(AItem) then begin
@@ -183,15 +212,18 @@ end;
 
 function TInterfaceListSimple.MakeStaticAndClear: IInterfaceListStatic;
 begin
-  Result := TInterfaceListStatic.CreateWithOwn(FList);
-  if not Assigned(FList) then begin
-    FList := nil;
+  Result := nil;
+  if Assigned(FList) and (FList.Count > 0) then begin
+    Result := TInterfaceListStatic.CreateWithOwn(FList);
   end;
 end;
 
 function TInterfaceListSimple.MakeStaticCopy: IInterfaceListStatic;
 begin
-  Result := TInterfaceListStatic.Create(FList);
+  Result := nil;
+  if Assigned(FList) and (FList.Count > 0) then begin
+    Result := TInterfaceListStatic.Create(FList);
+  end;
 end;
 
 function TInterfaceListSimple.Remove(const AItem: IInterface): Integer;
@@ -205,19 +237,34 @@ end;
 
 procedure TInterfaceListSimple.SetCapacity(ANewCapacity: Integer);
 begin
-  FList.Capacity := ANewCapacity;
+  if Assigned(FList) then begin
+    FList.Capacity := ANewCapacity;
+  end else begin
+    if ANewCapacity > 0 then begin
+      FList := TList.Create;
+      FList.Capacity := ANewCapacity;
+    end;
+  end;
 end;
 
 procedure TInterfaceListSimple.SetCount(ANewCount: Integer);
 var
   i: Integer;
 begin
-  if FList.Count > ANewCount then begin
-    for i := FList.Count - 1 downto ANewCount do begin
-      Delete(i);
+  if Assigned(FList) then begin
+    if FList.Count > ANewCount then begin
+      for i := FList.Count - 1 downto ANewCount do begin
+        Delete(i);
+      end;
+    end;
+    FList.Count := ANewCount;
+  end else begin
+    if ANewCount > 0 then begin
+      FList := TList.Create;
+      FList.Count := ANewCount;
     end;
   end;
-  FList.Count := ANewCount;
+
 end;
 
 procedure TInterfaceListSimple.SetItem(AIndex: Integer; const AItem: IInterface);
