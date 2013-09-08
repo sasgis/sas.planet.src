@@ -642,7 +642,7 @@ begin
       VFilesIterator
     );
 
-  FMapTypeSetBuilderFactory := TMapTypeSetBuilderFactory.Create;
+  FMapTypeSetBuilderFactory := TMapTypeSetBuilderFactory.Create(FHashFunction);
 
   FMainMapsList :=
     TMapTypesMainList.Create(

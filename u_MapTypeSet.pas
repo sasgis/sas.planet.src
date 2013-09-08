@@ -25,27 +25,38 @@ interface
 uses
   ActiveX,
   i_GUIDSet,
+  i_HashFunction,
   i_MapTypes,
   u_BaseInterfacedObject;
 
 type
   TMapTypeSetBuilderFactory = class(TBaseInterfacedObject, IMapTypeSetBuilderFactory)
   private
+    FHashFunction: IHashFunction;
+  private
     function Build(const AAllowNil: Boolean): IMapTypeSetBuilder;
+  public
+    constructor Create(const AHashFunction: IHashFunction);
   end;
 
 implementation
 
 uses
-  u_GUIDInterfaceSet,
-  c_ZeroGUID;
+  t_Hash,
+  c_ZeroGUID,
+  u_GUIDInterfaceSet;
+
+const
+  CInitialHash : THashValue = $49626a97a946096;
 
 { TMapTypeList }
 
 type
   TMapTypeSet = class(TBaseInterfacedObject, IMapTypeSet)
   private
+    FHash: THashValue;
     FList: IGUIDInterfaceSet;
+    function GetHash: THashValue;
     function IsEqual(const AValue: IMapTypeSet): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
@@ -53,19 +64,28 @@ type
     function GetItem(AIndex: Integer): IMapType;
     function GetCount: Integer;
   public
-    constructor Create(const AList: IGUIDInterfaceSet);
+    constructor Create(const AHash: THashValue; const AList: IGUIDInterfaceSet);
   end;
 
-constructor TMapTypeSet.Create(const AList: IGUIDInterfaceSet);
+constructor TMapTypeSet.Create(
+  const AHash: THashValue;
+  const AList: IGUIDInterfaceSet
+);
 begin
   Assert(Assigned(AList));
   inherited Create;
+  FHash := AHash;
   FList := AList;
 end;
 
 function TMapTypeSet.GetCount: Integer;
 begin
   Result := FList.Count;
+end;
+
+function TMapTypeSet.GetHash: THashValue;
+begin
+  Result := FHash;
 end;
 
 function TMapTypeSet.GetItem(AIndex: Integer): IMapType;
@@ -102,6 +122,11 @@ begin
     Result := True;
     Exit;
   end;
+  if (FHash <> 0) and (AValue.Hash <> 0) and (FHash <> AValue.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+
   if AValue.GetCount <> FList.Count then begin
     Result := False;
     Exit;
@@ -121,6 +146,7 @@ end;
 type
   TMapTypeSetBuilder = class(TBaseInterfacedObject, IMapTypeSetBuilder)
   private
+    FHashFunction: IHashFunction;
     FAllowNil: Boolean;
     FList: IGUIDInterfaceSet;
   private
@@ -132,12 +158,20 @@ type
     function MakeCopy: IMapTypeSet;
     function MakeAndClear: IMapTypeSet;
   public
-    constructor Create(AAllowNil: Boolean);
+    constructor Create(
+      const AHashFunction: IHashFunction;
+      AAllowNil: Boolean
+    );
   end;
 
-constructor TMapTypeSetBuilder.Create(AAllowNil: Boolean);
+constructor TMapTypeSetBuilder.Create(
+  const AHashFunction: IHashFunction;
+  AAllowNil: Boolean
+);
 begin
+  Assert(Assigned(AHashFunction));
   inherited Create;
+  FHashFunction := AHashFunction;
   FAllowNil := AAllowNil;
 end;
 
@@ -183,11 +217,22 @@ begin
 end;
 
 function TMapTypeSetBuilder.MakeAndClear: IMapTypeSet;
+var
+  VHash: THashValue;
+  VEnum: IEnumGUID;
+  VGUID: TGUID;
+  VFetched: Cardinal;
 begin
+  VHash := CInitialHash;
   if not Assigned(FList) then begin
     FList := TGUIDInterfaceSet.Create(FAllowNil);
+  end else begin
+    VEnum := FList.GetGUIDEnum;
+    while VEnum.Next(1, VGUID, VFetched) = S_OK  do begin
+      FHashFunction.UpdateHashByGUID(VHash, VGUID);
+    end;
   end;
-  Result := TMapTypeSet.Create(FList);
+  Result := TMapTypeSet.Create(VHash, FList);
   FList := nil;
 end;
 
@@ -196,18 +241,24 @@ var
   VList: IGUIDInterfaceSet;
   i: Integer;
   VMap: IMapType;
+  VGUID: TGUID;
+  VHash: THashValue;
 begin
+  VHash := CInitialHash;
   VList := TGUIDInterfaceSet.Create(FAllowNil);
   if Assigned(FList) then begin
     for i := 0 to FList.Count - 1 do begin
       VMap := FList.Items[i] as IMapType;
       if Assigned(VMap) then begin
-        VList.Add(VMap.GUID, VMap);
+        VGUID := VMap.GUID;
       end else begin
-        VList.Add(CGUID_Zero, nil);
+        VGUID := CGUID_Zero;
       end;
+      VList.Add(VGUID, VMap);
+      FHashFunction.UpdateHashByGUID(VHash, VGUID);
     end;
   end;
+  Result := TMapTypeSet.Create(VHash, VList);
 end;
 
 procedure TMapTypeSetBuilder.SetCapacity(ANewCapacity: Integer);
@@ -230,7 +281,14 @@ function TMapTypeSetBuilderFactory.Build(
   const AAllowNil: Boolean
 ): IMapTypeSetBuilder;
 begin
-  Result := TMapTypeSetBuilder.Create(AAllowNil);
+  Result := TMapTypeSetBuilder.Create(FHashFunction, AAllowNil);
+end;
+
+constructor TMapTypeSetBuilderFactory.Create(
+  const AHashFunction: IHashFunction);
+begin
+  inherited Create;
+  FHashFunction := AHashFunction;
 end;
 
 end.

@@ -24,6 +24,7 @@ interface
 
 uses
   ActiveX,
+  t_Hash,
   i_Changeable,
   u_MapType;
 
@@ -53,6 +54,9 @@ type
 
   IMapTypeSet = interface(IMapTypeListStatic)
     ['{45EF5080-01DC-4FE1-92E1-E93574439718}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
+    
     function IsEqual(const AValue: IMapTypeSet): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
