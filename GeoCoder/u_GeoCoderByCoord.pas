@@ -38,11 +38,11 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     function PosStr2List(
       const APos1,APos2: string;
-      var AAList: IInterfaceListSimple
+      const AAList: IInterfaceListSimple
     ) : boolean;
     function GenShtab2Pos(
       const AStr: string;
-      var AAList: IInterfaceListSimple
+      const AAList: IInterfaceListSimple
     ):boolean;
   protected
     function DoSearch(
@@ -231,7 +231,7 @@ begin
   end;
 end;
 
-function TGeoCoderByCoord.PosStr2List(const APos1,APos2: string; var AAList: IInterfaceListSimple) : boolean;
+function TGeoCoderByCoord.PosStr2List(const APos1,APos2: string; const AAList: IInterfaceListSimple) : boolean;
 var
  VBLat1, VBlon1: boolean;
  VBLat2, VBlon2: boolean;
@@ -462,7 +462,7 @@ end;
 
 function TGeoCoderByCoord.GenShtab2Pos(
   const AStr: string;
-  var AAList: IInterfaceListSimple
+  const AAList: IInterfaceListSimple
 ):boolean;
 var
  VcoordError : boolean;
