@@ -33,6 +33,7 @@ var
   i: Integer;
   VItem: Pointer;
 begin
+  Assert(Assigned(AList));
   VList := TList.Create;
   try
     VList.Capacity := AList.Count;
@@ -59,6 +60,8 @@ end;
 
 constructor TInterfaceListStatic.CreateWithOwn(var AList: TList);
 begin
+  Assert(Assigned(AList));
+  Assert(AList.Count > 0);
   inherited Create;
   FList := AList;
   AList := nil;
