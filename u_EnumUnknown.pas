@@ -42,7 +42,7 @@ type
     function Reset: HResult; stdcall;
     function Clone(out enm: IEnumUnknown): HResult; stdcall;
   public
-    constructor Create(AList: IInterfaceList);
+    constructor Create(const AList: IInterfaceList);
   end;
 
   TEnumUnknownByStatic = class(TBaseInterfacedObject, IEnumUnknown)
@@ -58,7 +58,7 @@ type
     function Reset: HResult; stdcall;
     function Clone(out enm: IEnumUnknown): HResult; stdcall;
   public
-    constructor Create(AList: IInterfaceListStatic);
+    constructor Create(const AList: IInterfaceListStatic);
   end;
 
 implementation
@@ -75,7 +75,7 @@ begin
   Result := S_OK;
 end;
 
-constructor TEnumUnknown.Create(AList: IInterfaceList);
+constructor TEnumUnknown.Create(const AList: IInterfaceList);
 begin
   inherited Create;
   FList := AList;
@@ -137,7 +137,7 @@ end;
 
 { TEnumUnknownByStatic }
 
-constructor TEnumUnknownByStatic.Create(AList: IInterfaceListStatic);
+constructor TEnumUnknownByStatic.Create(const AList: IInterfaceListStatic);
 begin
   inherited Create;
   FList := AList;

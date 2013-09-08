@@ -30,7 +30,7 @@ uses
 type
   ITrackColorerStatic = interface
     ['{8DB3AAF8-D665-40C1-AC21-B8027347F95A}']
-    function GetColorForSpeed(ASpeed: Double): TColor32;
+    function GetColorForSpeed(const ASpeed: Double): TColor32;
   end;
 
   ISpeedRangeItem = interface
@@ -48,7 +48,7 @@ type
 
     function GetSpeedRangeItem(AIndex: Integer): ISpeedRangeItem;
     function AddSpeedRangeItem(
-      ASpeed: Double;
+      const ASpeed: Double;
       AMinColor, AMaxColor: TColor32
     ): Integer;
     procedure ClearItems;

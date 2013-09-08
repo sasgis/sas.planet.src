@@ -44,7 +44,7 @@ type
       AScale1: Integer;
       AScale2: Integer
     ): IMark;
-    function CreateInternalMark(AMark: IMark): IMark;
+    function CreateInternalMark(const AMark: IMark): IMark;
   end;
 
 const

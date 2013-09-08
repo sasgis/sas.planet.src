@@ -127,7 +127,7 @@ type
       AIgnoreMarksVisible: Boolean
     );
     procedure ExportCategoryList(
-      ACategoryList: IInterfaceListStatic;
+      const ACategoryList: IInterfaceListStatic;
       AIgnoreMarksVisible: Boolean
     );
     function ImportFile(
@@ -439,7 +439,7 @@ end;
 
 
 procedure TMarkDbGUIHelper.ExportCategoryList(
-  ACategoryList: IInterfaceListStatic;
+  const ACategoryList: IInterfaceListStatic;
   AIgnoreMarksVisible: Boolean
 );
 var

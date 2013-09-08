@@ -35,7 +35,7 @@ type
     function GetCount: Integer;
     function Get(AIndex: Integer): IMapCalibration;
   public
-    constructor Create(AList: IInterfaceListStatic);
+    constructor Create(const AList: IInterfaceListStatic);
   end;
 
   TMapCalibrationListBasic = class(TMapCalibrationListByInterfaceList)
@@ -56,7 +56,7 @@ uses
 
 { TMapCalibrationListByInterfaceList }
 
-constructor TMapCalibrationListByInterfaceList.Create(AList: IInterfaceListStatic);
+constructor TMapCalibrationListByInterfaceList.Create(const AList: IInterfaceListStatic);
 begin
   inherited Create;
   FList := AList;

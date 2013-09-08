@@ -16,7 +16,7 @@ type
     function GetItem(AIndex: Integer): IMapVersionInfo;
   public
     constructor Create(
-      AList: IInterfaceListStatic
+      const AList: IInterfaceListStatic
     );
   end;
 
@@ -24,7 +24,7 @@ implementation
 
 { TMapVersionListStatic }
 
-constructor TMapVersionListStatic.Create(AList: IInterfaceListStatic);
+constructor TMapVersionListStatic.Create(const AList: IInterfaceListStatic);
 begin
   inherited Create;
   FList := AList;

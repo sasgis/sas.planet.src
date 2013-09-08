@@ -49,7 +49,7 @@ type
       const ATick: Int64
     ): Double;
   public
-    constructor Create(AConfig: IKeyMovingConfig);
+    constructor Create(const AConfig: IKeyMovingConfig);
   end;
 
   TKeyMovingHandler = class(TBaseInterfacedObject, IMessageHandler)
@@ -256,7 +256,7 @@ end;
 
 { TMovmentByDirection }
 
-constructor TMovmentByDirection.Create(AConfig: IKeyMovingConfig);
+constructor TMovmentByDirection.Create(const AConfig: IKeyMovingConfig);
 begin
   inherited Create;
   FConfig := AConfig;

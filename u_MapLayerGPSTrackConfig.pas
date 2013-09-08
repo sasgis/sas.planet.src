@@ -46,7 +46,7 @@ type
     function GetMaxSpeedColor: TColor32;
   public
     constructor Create(
-      ASpeed: Double;
+      const ASpeed: Double;
       AMinColor, AMaxColor: TColor32
     );
   end;
@@ -59,12 +59,12 @@ type
     FMaxColorArray: TArrayOfColor32;
     function GetColor(
       AColorMin, AColorMax: TColor32;
-      ASpeedMin, ASpeedMax, ASpeed: Double
+      const ASpeedMin, ASpeedMax, ASpeed: Double
     ): TColor32;
   private
-    function GetColorForSpeed(ASpeed: Double): TColor32;
+    function GetColorForSpeed(const ASpeed: Double): TColor32;
   public
-    constructor Create(AList: IInterfaceListSimple);
+    constructor Create(const AList: IInterfaceListSimple);
   end;
 
   TTrackColorerConfig = class(TConfigDataElementComplexWithStaticBase, ITrackColorerConfig)
@@ -83,7 +83,7 @@ type
 
     function GetSpeedRangeItem(AIndex: Integer): ISpeedRangeItem;
     function AddSpeedRangeItem(
-      ASpeed: Double;
+      const ASpeed: Double;
       AMinColor, AMaxColor: TColor32
     ): Integer;
     procedure ClearItems;
@@ -131,9 +131,8 @@ uses
 { TSpeedRangeItem }
 
 constructor TSpeedRangeItem.Create(
-  ASpeed: Double;
-  AMinColor,
-  AMaxColor: TColor32
+  const ASpeed: Double;
+  AMinColor, AMaxColor: TColor32
 );
 begin
   inherited Create;
@@ -241,9 +240,8 @@ begin
 end;
 
 function TTrackColorerConfig.AddSpeedRangeItem(
-  ASpeed: Double;
-  AMinColor,
-  AMaxColor: TColor32
+  const ASpeed: Double;
+  AMinColor, AMaxColor: TColor32
 ): Integer;
 var
   VItemNew: ISpeedRangeItem;
@@ -339,7 +337,7 @@ end;
 
 { TTrackColorerStatic }
 
-constructor TTrackColorerStatic.Create(AList: IInterfaceListSimple);
+constructor TTrackColorerStatic.Create(const AList: IInterfaceListSimple);
 var
   i: Integer;
   VItem: ISpeedRangeItem;
@@ -361,8 +359,7 @@ end;
 
 function TTrackColorerStatic.GetColor(
   AColorMin, AColorMax: TColor32;
-  ASpeedMin,
-  ASpeedMax, ASpeed: Double
+  const ASpeedMin, ASpeedMax, ASpeed: Double
 ): TColor32;
 var
   VRatio: Double;
@@ -412,7 +409,7 @@ begin
   Result := Color32(VR, VG, VB, VA);
 end;
 
-function TTrackColorerStatic.GetColorForSpeed(ASpeed: Double): TColor32;
+function TTrackColorerStatic.GetColorForSpeed(const ASpeed: Double): TColor32;
 var
   L, H, I, C: Integer;
   VIndex: Integer;

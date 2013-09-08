@@ -52,7 +52,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      AList: IInterfaceListStatic
+      const AList: IInterfaceListStatic
     );
   end;
 
@@ -67,7 +67,7 @@ uses
 constructor TVectorItemSubset.Create(
   const AHash: THashValue;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  AList: IInterfaceListStatic
+  const AList: IInterfaceListStatic
 );
 begin
   inherited Create;

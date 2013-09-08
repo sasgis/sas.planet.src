@@ -45,7 +45,7 @@ type
    AOperationID: Integer;
    const AFile : string ;
    const ASearch : widestring;
-   AList : IInterfaceListSimple;
+   const AList : IInterfaceListSimple;
    var Acnt : integer
    );
   protected
@@ -508,7 +508,7 @@ procedure TGeoCoderByPolishMap.SearchInMapFile(
   AOperationID: Integer;
   const AFile : string ;
   const ASearch : widestring;
-  AList : IInterfaceListSimple;
+  const AList : IInterfaceListSimple;
   var Acnt : integer
   );
 var

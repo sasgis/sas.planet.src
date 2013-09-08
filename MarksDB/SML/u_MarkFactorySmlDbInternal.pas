@@ -98,7 +98,7 @@ type
       AScale1: Integer;
       AScale2: Integer
     ): IMark;
-    function CreateInternalMark(AMark: IMark): IMark;
+    function CreateInternalMark(const AMark: IMark): IMark;
   public
     constructor Create(
       const ADbId: Integer;
@@ -208,7 +208,7 @@ begin
     );
 end;
 
-function TMarkFactorySmlDbInternal.CreateInternalMark(AMark: IMark): IMark;
+function TMarkFactorySmlDbInternal.CreateInternalMark(const AMark: IMark): IMark;
 var
   VCategory: ICategory;
   VMarkInternal: IMarkSMLInternal;

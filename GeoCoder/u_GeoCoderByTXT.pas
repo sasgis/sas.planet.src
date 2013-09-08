@@ -45,7 +45,7 @@ type
     AOperationID: Integer;
     const AFile : string ;
     const ASearch : widestring;
-    Alist : IInterfaceListSimple;
+    const Alist : IInterfaceListSimple;
     var Acnt : integer
   );
   protected
@@ -132,7 +132,7 @@ procedure TGeoCoderByTXT.SearchInTXTFile(
   AOperationID: Integer;
   const AFile : string ;
   const ASearch : WideString;
-  AList : IInterfaceListSimple;
+  const AList : IInterfaceListSimple;
   var ACnt : integer
 );
 var

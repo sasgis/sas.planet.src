@@ -705,8 +705,11 @@ type
     function ConvLatLon2Scale(const Astr:string):Double;
     function Deg2StrValue(const aDeg:Double):string;
 
-    function SelectForEdit(AList: IVectorItemSubset; ALocalConverter: ILocalCoordConverter): IVectorDataItemSimple;
-    function AddToHint(AHint: string; AMark: IMark): string;
+    function SelectForEdit(
+      const AList: IVectorItemSubset;
+      const ALocalConverter: ILocalCoordConverter
+    ): IVectorDataItemSimple;
+    function AddToHint(const AHint: string; const AMark: IMark): string;
 
     procedure ProcessOpenFile(
       const AFileName: string;
@@ -5080,7 +5083,10 @@ begin
   end;
 end;
 
-function TfrmMain.SelectForEdit(AList: IVectorItemSubset; ALocalConverter: ILocalCoordConverter): IVectorDataItemSimple;
+function TfrmMain.SelectForEdit(
+  const AList: IVectorItemSubset;
+  const ALocalConverter: ILocalCoordConverter
+): IVectorDataItemSimple;
 var
   VMarksEnum: IEnumUnknown;
   VMark: IMark;
@@ -5589,7 +5595,7 @@ begin
   end;
 end;
 
-function TfrmMain.AddToHint(AHint: string; AMark: IMark): string;
+function TfrmMain.AddToHint(const AHint: string; const AMark: IMark): string;
 begin
   if AHint = '' then begin
     Result := AHint + AMark.getHintText;
