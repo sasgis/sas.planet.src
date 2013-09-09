@@ -157,17 +157,19 @@ begin
         VCurrentFileName := FFilePath + FFileName + FFileExt;
       end;
 
-      for pti := 0 to FMapCalibrationList.Count - 1 do begin
-        try
-          (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(
-            VCurrentFileName,
-            VCurrentPieceRect.TopLeft,
-            VCurrentPieceRect.BottomRight,
-            FTargetConverter.Zoom,
-            FTargetConverter.GeoConverter
-          );
-        except
-          //TODO: ƒобавить сюда нормальную обработку ошибок.
+      if Assigned(FMapCalibrationList) then begin
+        for pti := 0 to FMapCalibrationList.Count - 1 do begin
+          try
+            (FMapCalibrationList.get(pti) as IMapCalibration).SaveCalibrationInfo(
+              VCurrentFileName,
+              VCurrentPieceRect.TopLeft,
+              VCurrentPieceRect.BottomRight,
+              FTargetConverter.Zoom,
+              FTargetConverter.GeoConverter
+            );
+          except
+            //TODO: ƒобавить сюда нормальную обработку ошибок.
+          end;
         end;
       end;
       try
