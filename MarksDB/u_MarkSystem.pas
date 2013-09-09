@@ -196,7 +196,9 @@ var
   VMarkIdList: IInterfaceListStatic;
 begin
   VMarkIdList := FMarkDb.GetMarkIdListByCategory(ACategory);
-  FMarkDb.UpdateMarkList(VMarkIdList, nil);
+  if Assigned(VMarkIdList) and (VMarkIdList.Count > 0) then begin
+    FMarkDb.UpdateMarkList(VMarkIdList, nil);
+  end;
   FCategoryDB.UpdateCategory(ACategory, nil);
 end;
 
