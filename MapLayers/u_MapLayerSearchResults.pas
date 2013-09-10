@@ -133,7 +133,7 @@ var
   VSearchResults: IGeoCodeResult;
 begin
   VSearchResults := FLastSearchResults.GeoCodeResult;
-  if VSearchResults <> nil then begin
+  if (VSearchResults <> nil) and (VSearchResults.GetPlacemarksCount > 0) then begin
     VMarker := FMarker.GetStatic;
     VConverter := ALocalConverter.GetGeoConverter;
     VEnum := VSearchResults.GetPlacemarks;
@@ -164,9 +164,9 @@ var
   VTempItem: IGeoCodePlacemark;
 begin
   Result := nil;
-  Vtmp := FVectorItemSubsetBuilderFactory.Build;
   VSearchResults := FLastSearchResults.GeoCodeResult;
-  if VSearchResults <> nil then begin
+  if (VSearchResults <> nil) and (VSearchResults.GetPlacemarksCount > 0) then begin
+    Vtmp := FVectorItemSubsetBuilderFactory.Build;
     VRect.Left := ALocalPoint.X - 5;
     VRect.Top := ALocalPoint.Y - 5;
     VRect.Right := ALocalPoint.X + 5;
@@ -189,8 +189,8 @@ begin
       end;
       Inc(VIndex);
     end;
+    Result := Vtmp.MakeStaticAndClear;
   end;
-  Result := Vtmp.MakeStaticAndClear;
 end;
 
 procedure TSearchResultsLayer.StartThreads;

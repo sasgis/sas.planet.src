@@ -77,12 +77,20 @@ end;
 
 function TGeoCodeResult.GetPlacemarks: IEnumUnknown;
 begin
-  Result := TEnumUnknownByStatic.Create(FList);
+  if Assigned(FList) then begin
+    Result := TEnumUnknownByStatic.Create(FList);
+  end else begin
+    Result := nil;
+  end;
 end;
 
 function TGeoCodeResult.GetPlacemarksCount: integer;
 begin
-  Result := FList.Count;
+  if Assigned(FList) then begin
+    Result := FList.Count;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 function TGeoCodeResult.GetResultCode: Integer;

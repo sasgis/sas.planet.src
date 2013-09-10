@@ -110,7 +110,7 @@ var
 begin
   Result := nil;
   VLastResult := FLastSearchResults.GeoCodeResult;
-  if VLastResult <> nil then begin
+  if (VLastResult <> nil) and (VLastResult.GetPlacemarksCount > 0) then begin
     VIndex := 0;
     VEnum := VLastResult.GetPlacemarks;
     while VEnum.Next(1, VItem, @VCnt) = S_OK  do begin

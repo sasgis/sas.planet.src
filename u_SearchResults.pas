@@ -130,37 +130,39 @@ var
 begin
   ClearSearchResults;
   VItemForGoTo := nil;
-  VEnum := ASearchResult.GetPlacemarks;
 
   FLastSearchResults.ClearGeoCodeResult;
-  if ASearchResult.GetPlacemarksCount > 1 then begin
-    FOnShowResults(Self);
-    FLastSearchResults.GeoCodeResult := ASearchResult;
-  end;
+  if ASearchResult.GetPlacemarksCount > 0 then begin
+    if ASearchResult.GetPlacemarksCount > 1 then begin
+      FOnShowResults(Self);
+      FLastSearchResults.GeoCodeResult := ASearchResult;
+    end;
 
-  VCnt := 0;
-  while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-    if VItemForGoTo = nil then begin
-      VItemForGoTo := VPlacemark;
-    end;
-    LengthFSearchItems := length(FSearchItems);
-    SetLength(FSearchItems, LengthFSearchItems + 1);
-    FSearchItems[LengthFSearchItems] :=
-      TfrSearchResultsItem.Create(
-        nil,
-        FDrawParent,
-        FPopUp,
-        VPlacemark,
-        FViewPortState,
-        FIntrnalBrowser,
-        FMapGoto
-      );
-    if LengthFSearchItems > 0 then begin
-      FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;
-    end;
-    Inc(VCnt);
-    if VCnt > 100 then begin
-      Break;
+    VCnt := 0;
+    VEnum := ASearchResult.GetPlacemarks;
+    while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
+      if VItemForGoTo = nil then begin
+        VItemForGoTo := VPlacemark;
+      end;
+      LengthFSearchItems := length(FSearchItems);
+      SetLength(FSearchItems, LengthFSearchItems + 1);
+      FSearchItems[LengthFSearchItems] :=
+        TfrSearchResultsItem.Create(
+          nil,
+          FDrawParent,
+          FPopUp,
+          VPlacemark,
+          FViewPortState,
+          FIntrnalBrowser,
+          FMapGoto
+        );
+      if LengthFSearchItems > 0 then begin
+        FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;
+      end;
+      Inc(VCnt);
+      if VCnt > 100 then begin
+        Break;
+      end;
     end;
   end;
 
