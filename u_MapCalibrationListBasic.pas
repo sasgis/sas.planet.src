@@ -71,7 +71,11 @@ end;
 
 function TMapCalibrationListByInterfaceList.GetCount: Integer;
 begin
-  Result := FList.Count;
+  if Assigned(FList) then begin
+    Result := FList.Count;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 { TMapCalibrationListBasic }
