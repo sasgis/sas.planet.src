@@ -188,7 +188,10 @@ end;
 function TMarkSystem.CategoryListToStaticTree(
   const AList: IInterfaceListStatic): IStaticTreeItem;
 begin
-  Result := FCategoryTreeBuilder.BuildStatic(AList);
+  Result := nil;
+  if Assigned(AList) then begin
+    Result := FCategoryTreeBuilder.BuildStatic(AList);
+  end;
 end;
 
 procedure TMarkSystem.DeleteCategoryWithMarks(const ACategory: IMarkCategory);
@@ -265,17 +268,19 @@ var
   i: Integer;
 begin
   Result := nil;
-  VTmp := TInterfaceListSimple.Create;
   VList := FCategoryDB.GetCategoriesList;
-  for i := 0 to VList.Count - 1 do begin
-    VCategory := IMarkCategory(VList[i]);
-    if (VCategory.Visible) and
-      (VCategory.AfterScale <= AZoom + 1) and
-      (VCategory.BeforeScale >= AZoom + 1) then begin
-      VTmp.Add(VCategory);
+  if Assigned(VList) and (VList.Count > 0) then begin
+    VTmp := TInterfaceListSimple.Create;
+    for i := 0 to VList.Count - 1 do begin
+      VCategory := IMarkCategory(VList[i]);
+      if (VCategory.Visible) and
+        (VCategory.AfterScale <= AZoom + 1) and
+        (VCategory.BeforeScale >= AZoom + 1) then begin
+        VTmp.Add(VCategory);
+      end;
     end;
+    Result := VTmp.MakeStaticAndClear;
   end;
-  Result := VTmp.MakeStaticAndClear;
 end;
 
 function TMarkSystem.GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
@@ -285,15 +290,18 @@ var
   VCategory: IMarkCategory;
   i: Integer;
 begin
-  VTmp := TInterfaceListSimple.Create;
+  Result := nil;
   VList := FCategoryDB.GetCategoriesList;
-  for i := 0 to VList.Count - 1 do begin
-    VCategory := IMarkCategory(VList[i]);
-    if VCategory.Visible then begin
-      VTmp.Add(VCategory);
+  if Assigned(VList) and (VList.Count > 0) then begin
+    VTmp := TInterfaceListSimple.Create;
+    for i := 0 to VList.Count - 1 do begin
+      VCategory := IMarkCategory(VList[i]);
+      if VCategory.Visible then begin
+        VTmp.Add(VCategory);
+      end;
     end;
+    Result := VTmp.MakeStaticAndClear;
   end;
-  Result := VTmp.MakeStaticAndClear;
 end;
 
 function TMarkSystem.ImportItemsTree(
