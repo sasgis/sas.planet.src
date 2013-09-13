@@ -313,33 +313,35 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
     end else begin
       VNode := AParentNode.getFirstChild;
     end;
-    for i := 0 to ATree.SubItemCount - 1 do begin
-      VTree := ATree.SubItem[i];
-      VName := VTree.Name;
-      if VName = '' then begin
-        VName := '(NoName)';
-      end;
-      if VNode = nil then begin
-        VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
-      end else begin
-        VNode.Text := VName;
-      end;
-      if Supports(VTree.Data, IMarkCategory, VCategory) then begin
-        VNode.Data := Pointer(VCategory);
-        if VCategory.Visible then begin
-          VNode.StateIndex := 1;
+    if Assigned(ATree) then begin
+      for i := 0 to ATree.SubItemCount - 1 do begin
+        VTree := ATree.SubItem[i];
+        VName := VTree.Name;
+        if VName = '' then begin
+          VName := '(NoName)';
+        end;
+        if VNode = nil then begin
+          VNode := ATreeItems.AddChildObject(AParentNode, VName, nil);
         end else begin
-          VNode.StateIndex := 2;
+          VNode.Text := VName;
         end;
-        if VCategory.IsSame(ASelectedCategory) then begin
-          VNode.Selected := True;
+        if Supports(VTree.Data, IMarkCategory, VCategory) then begin
+          VNode.Data := Pointer(VCategory);
+          if VCategory.Visible then begin
+            VNode.StateIndex := 1;
+          end else begin
+            VNode.StateIndex := 2;
+          end;
+          if VCategory.IsSame(ASelectedCategory) then begin
+            VNode.Selected := True;
+          end;
+        end else begin
+          VNode.StateIndex:=0;
+          VNode.Data := nil;
         end;
-      end else begin
-        VNode.StateIndex:=0;
-        VNode.Data := nil;
+        UpdateTreeSubItems(VTree, ASelectedCategory, VNode, ATreeItems);
+        VNode := VNode.getNextSibling;
       end;
-      UpdateTreeSubItems(VTree, ASelectedCategory, VNode, ATreeItems);
-      VNode := VNode.getNextSibling;
     end;
     while VNode <> nil do begin
       VNodeToDelete := VNode;
