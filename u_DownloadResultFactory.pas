@@ -191,12 +191,24 @@ function TDownloadResultFactory.BuildDataNotExistsByStatusCode(
   const ARawResponseHeader: AnsiString;
   const AStatusCode: DWORD
 ): IDownloadResultDataNotExists;
+var
+  VMessage: string;
 begin
+  case AStatusCode of
+    204:
+      VMessage := gettext_noop('HTTP %d No Content');
+    400:
+      VMessage := gettext_noop('HTTP %d Bad Request');
+    404:
+      VMessage := gettext_noop('HTTP %d Not Found');
+    else
+      VMessage := gettext_noop('HTTP %d Unknown Error');
+  end;
   Result :=
     TDownloadResultDataNotExistsByStatusCode.Create(
       ARequest,
       ARawResponseHeader,
-      gettext_noop('Data does not found! Status code %d'),
+      VMessage,
       [AStatusCode],
       AStatusCode
     );
