@@ -45,11 +45,16 @@ type
 
   IMapTypeListStatic = interface
     ['{0A48D2E0-5C39-4E1A-A438-B50535E6D69B}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
     function GetItem(AIndex: Integer): IMapType;
     property Items[AIndex: Integer]: IMapType read GetItem;
+
+    function IsEqual(const AValue: IMapTypeListStatic): Boolean;
   end;
 
   IMapTypeListBuilder = interface
@@ -78,10 +83,16 @@ type
     function Build: IMapTypeListBuilder;
   end;
 
-  IMapTypeSet = interface(IMapTypeListStatic)
+  IMapTypeSet = interface
     ['{45EF5080-01DC-4FE1-92E1-E93574439718}']
     function GetHash: THashValue;
     property Hash: THashValue read GetHash;
+
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetItem(AIndex: Integer): IMapType;
+    property Items[AIndex: Integer]: IMapType read GetItem;
 
     function IsEqual(const AValue: IMapTypeSet): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;

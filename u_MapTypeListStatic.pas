@@ -22,24 +22,35 @@ type
 implementation
 
 uses
+  t_Hash,
   u_InterfaceListSimple;
+
+const
+  CInitialHash : THashValue = $c74bb7e2dee15036;
 
 { TMapTypeListStatic }
 
 type
   TMapTypeListStatic = class(TBaseInterfacedObject, IMapTypeListStatic)
   private
+    FHash: THashValue;
     FItems: IInterfaceListStatic;
   private
+    function GetHash: THashValue;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IMapType;
+    function IsEqual(const AValue: IMapTypeListStatic): Boolean;
   public
-    constructor Create(const AItems: IInterfaceListStatic);
+    constructor Create(const AHash: THashValue; const AItems: IInterfaceListStatic);
   end;
 
-constructor TMapTypeListStatic.Create(const AItems: IInterfaceListStatic);
+constructor TMapTypeListStatic.Create(
+  const AHash: THashValue;
+  const AItems: IInterfaceListStatic
+);
 begin
   inherited Create;
+  FHash := AHash;
   FItems := AItems;
 end;
 
@@ -52,9 +63,44 @@ begin
   end;
 end;
 
+function TMapTypeListStatic.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
 function TMapTypeListStatic.GetItem(AIndex: Integer): IMapType;
 begin
   Result := IMapType(FItems[AIndex]);
+end;
+
+function TMapTypeListStatic.IsEqual(const AValue: IMapTypeListStatic): Boolean;
+var
+  i: Integer;
+begin
+  if AValue = nil then begin
+    Result := False;
+    Exit;
+  end;
+  if AValue = IMapTypeListStatic(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (FHash <> 0) and (AValue.Hash <> 0) and (FHash <> AValue.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+
+  if AValue.GetCount <> GetCount then begin
+    Result := False;
+    Exit;
+  end;
+  for i := 0 to GetCount - 1 do begin
+    if AValue.Items[i] <> GetItem(i) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  Result := True;
 end;
 
 { TMapTypeListBuilder }
@@ -127,13 +173,27 @@ begin
 end;
 
 function TMapTypeListBuilder.MakeAndClear: IMapTypeListStatic;
+var
+  VHash: THashValue;
+  i: Integer;
 begin
-  Result := TMapTypeListStatic.Create(FList.MakeStaticAndClear);
+  VHash := CInitialHash;
+  for i := 0 to FList.Count - 1 do begin
+    FHashFunction.UpdateHashByGUID(VHash, GetItem(i).GUID);
+  end;
+  Result := TMapTypeListStatic.Create(VHash, FList.MakeStaticAndClear);
 end;
 
 function TMapTypeListBuilder.MakeCopy: IMapTypeListStatic;
+var
+  VHash: THashValue;
+  i: Integer;
 begin
-  Result := TMapTypeListStatic.Create(FList.MakeStaticCopy);
+  VHash := CInitialHash;
+  for i := 0 to FList.Count - 1 do begin
+    FHashFunction.UpdateHashByGUID(VHash, GetItem(i).GUID);
+  end;
+  Result := TMapTypeListStatic.Create(VHash, FList.MakeStaticCopy);
 end;
 
 procedure TMapTypeListBuilder.SetCapacity(ANewCapacity: Integer);
