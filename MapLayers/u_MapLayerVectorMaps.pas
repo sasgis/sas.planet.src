@@ -26,6 +26,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_VectorItemSubsetChangeable,
   i_FindVectorItems,
+  i_ProjectedGeometryProvider,
   u_TiledLayerWithThreadBase;
 
 type
@@ -37,8 +38,7 @@ type
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-
-    FProjectedCache: IIdCacheSimple;
+    FProjectedProvider: IProjectedGeometryProvider;
 
     FVectorItems: IVectorItemSubsetChangeable;
 
@@ -75,6 +75,7 @@ type
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AProjectedProvider: IProjectedGeometryProvider;
       const ATimerNoifier: INotifierTime;
       const AErrorLogger: ITileErrorLogger;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -111,6 +112,7 @@ constructor TMapLayerVectorMaps.Create(
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AProjectedProvider: IProjectedGeometryProvider;
   const ATimerNoifier: INotifierTime;
   const AErrorLogger: ITileErrorLogger;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -144,8 +146,7 @@ begin
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-
-  FProjectedCache := TIdCacheSimpleThreadSafe.Create;
+  FProjectedProvider := AProjectedProvider;
 
   FVectorItems :=
     TVectorItemSubsetChangeableForVectorLayers.Create(
@@ -192,7 +193,7 @@ begin
       VConfig.PointColor,
       FVectorItemsFactory,
       FBitmapFactory,
-      FProjectedCache,
+      FProjectedProvider,
       FVectorItems
     );
 end;
@@ -256,13 +257,15 @@ begin
         if Supports(VItem, IVectorDataItemPoint) then begin
           Vtmp.add(VItem);
         end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
-          if Supports(FProjectedCache.GetByID(Integer(VItemLine)), IProjectedPath, VProjectdPath) then begin
+          VProjectdPath := FProjectedProvider.GetProjectedPath(AVisualConverter.ProjectionInfo,  VItemLine.Line);
+          if Assigned(VProjectdPath) then begin
             if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
               Vtmp.add(VItem);
             end;
           end;
         end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
-          if Supports(FProjectedCache.GetByID(Integer(VItemPoly)), IProjectedPolygon, VProjectdPolygon) then begin
+          VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(AVisualConverter.ProjectionInfo,  VItemPoly.Line);
+          if Assigned(VProjectdPolygon) then begin
             if VProjectdPolygon.IsPointInPolygon(VPixelPos) then begin
               Vtmp.add(VItem);
             end;
@@ -293,7 +296,6 @@ begin
   ViewUpdateLock;
   try
     DelicateRedrawWithFullUpdate;
-    FProjectedCache.Clear;
   finally
     ViewUpdateUnlock;
   end;

@@ -50,6 +50,7 @@ uses
   i_BatteryStatus,
   i_LocalCoordConverterFactorySimpe,
   i_GPSModule,
+  i_ProjectedGeometryProvider,
   i_MainFormConfig,
   i_DownloadInfoSimple,
   i_ImageResamplerConfig,
@@ -169,6 +170,7 @@ type
     FLastSelectionSaver: IBackgroundTask;
     FMainThreadConfigListener: IListener;
     FVectorDataFactory: IVectorDataFactory;
+    FProjectedGeometryProvider: IProjectedGeometryProvider;
     FMarkFactory: IMarkFactory;
     FMarkCategoryFactory: IMarkCategoryFactory;
 
@@ -229,6 +231,7 @@ type
     property VectorItemsFactory: IVectorItemsFactory read FVectorItemsFactory;
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
+    property ProjectedGeometryProvider: IProjectedGeometryProvider read FProjectedGeometryProvider;
     property VectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory read FVectorItemSubsetBuilderFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property GeoCodePlacemarkFactory: IGeoCodePlacemarkFactory read FGeoCodePlacemarkFactory;
@@ -345,6 +348,7 @@ uses
   u_GlobalAppConfig,
   u_MarkFactory,
   u_MarkCategoryFactory,
+  u_ProjectedGeometryProvider,
   u_SystemTimeProvider,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
@@ -553,6 +557,11 @@ begin
     );
 {$ifend}
   FVectorDataFactory := TVectorDataFactorySimple.Create(FHashFunction, THtmlToHintTextConverterStuped.Create);
+  FProjectedGeometryProvider :=
+    TProjectedGeometryProvider.Create(
+      FHashFunction,
+      FVectorItemsFactory
+    );
   FImportFileByExt := TImportByFileExt.Create(
     FGlobalConfig.ValueToStringConverterConfig,
     FVectorDataFactory,

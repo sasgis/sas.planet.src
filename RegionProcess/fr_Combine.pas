@@ -26,6 +26,7 @@ uses
   i_MarkSystem,
   i_MapCalibration,
   i_VectorItemsFactory,
+  i_ProjectedGeometryProvider,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   u_CommonFormAndFrameParents;
@@ -53,6 +54,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AMarksShowConfig: IUsedMarksConfig;
@@ -100,6 +102,7 @@ constructor TfrCombine.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMarksShowConfig: IUsedMarksConfig;
@@ -128,6 +131,7 @@ begin
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
+      AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -150,6 +154,7 @@ begin
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
+      AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -172,6 +177,7 @@ begin
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
+      AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -194,6 +200,7 @@ begin
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
+      AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -216,6 +223,7 @@ begin
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
+      AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
@@ -238,6 +246,7 @@ begin
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
+      AProjectedGeometryProvider,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
       AMarksShowConfig,

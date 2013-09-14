@@ -28,7 +28,7 @@ uses
   t_GeoTypes,
   i_ProjectionInfo,
   i_MarkerProviderForVectorItem,
-  i_IdCacheSimple,
+  i_ProjectedGeometryProvider,
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_Bitmap32Static,
@@ -51,19 +51,10 @@ type
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IVectorItemSubset;
     FProjectionInfo: IProjectionInfo;
-    FProjectedCache: IIdCacheSimple;
-    FLinesClipRect: TDoubleRect;
+    FProjectedCache: IProjectedGeometryProvider;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
-    function GetProjectedPath(
-      const AMarkPath: IVectorDataItemLine;
-      const AProjectionInfo: IProjectionInfo
-    ): IProjectedPath;
-    function GetProjectedPolygon(
-      const AMarkPoly: IVectorDataItemPoly;
-      const AProjectionInfo: IProjectionInfo
-    ): IProjectedPolygon;
 
     function DrawSubset(
       AOperationID: Integer;
@@ -106,9 +97,8 @@ type
       const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectionInfo: IProjectionInfo;
-      const AProjectedCache: IIdCacheSimple;
+      const AProjectedCache: IProjectedGeometryProvider;
       const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
-      const ALinesClipRect: TDoubleRect;
       const AMarksSubset: IVectorItemSubset
     );
   end;
@@ -141,9 +131,8 @@ constructor TBitmapLayerProviderByMarksSubset.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectionInfo: IProjectionInfo;
-  const AProjectedCache: IIdCacheSimple;
+  const AProjectedCache: IProjectedGeometryProvider;
   const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
-  const ALinesClipRect: TDoubleRect;
   const AMarksSubset: IVectorItemSubset
 );
 begin
@@ -155,7 +144,6 @@ begin
   FMarksSubset := AMarksSubset;
   FProjectedCache := AProjectedCache;
   FMarkerProviderForVectorItem := AMarkerProviderForVectorItem;
-  FLinesClipRect := ALinesClipRect;
 
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
@@ -182,7 +170,7 @@ var
   VAppearanceLine: IAppearanceLine;
 begin
   Result := False;
-  VProjected := GetProjectedPath(AMarkLine, FProjectionInfo);
+  VProjected := FProjectedCache.GetProjectedPath(FProjectionInfo, AMarkLine.Line);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -291,7 +279,7 @@ var
   VAppearanceFill: IAppearancePolygonFill;
 begin
   Result := False;
-  VProjected := GetProjectedPolygon(AMarkPoly, FProjectionInfo);
+  VProjected := FProjectedCache.GetProjectedPolygon(FProjectionInfo, AMarkPoly.Line);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -511,98 +499,6 @@ begin
     finally
       VBitmap.Free;
     end;
-  end;
-end;
-
-function TBitmapLayerProviderByMarksSubset.GetProjectedPath(
-  const AMarkPath: IVectorDataItemLine;
-  const AProjectionInfo: IProjectionInfo
-): IProjectedPath;
-var
-  VID: Integer;
-  VLineWidth: Integer;
-  VTestArrLenLonLatRect: TDoubleRect;
-  VTestArrLenPixelRect: TDoubleRect;
-  VGeoConverter: ICoordConverter;
-  VAppearanceLine: IAppearanceLine;
-begin
-  VID := Integer(AMarkPath);
-  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    if Supports(AMarkPath.Appearance, IAppearanceLine, VAppearanceLine) then begin
-      VLineWidth := VAppearanceLine.LineWidth;
-    end else begin
-      VLineWidth := 0;
-    end;
-    VTestArrLenLonLatRect := AMarkPath.LLRect.Rect;
-    VGeoConverter := AProjectionInfo.GeoConverter;
-    VGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
-    VTestArrLenPixelRect := VGeoConverter.LonLatRect2PixelRectFloat(VTestArrLenLonLatRect, AProjectionInfo.Zoom);
-    if
-      (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VLineWidth + 2) or
-      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VLineWidth + 2)
-    then begin
-      Result :=
-        FVectorItemsFactory.CreateProjectedPathWithClipByLonLatPath(
-          AProjectionInfo,
-          AMarkPath.Line,
-          FLinesClipRect,
-          FPreparedPointsAggreagtor
-        );
-    end else begin
-      Result :=
-        FVectorItemsFactory.CreateProjectedPath(
-          AProjectionInfo,
-          nil,
-          0
-        );
-    end;
-    FProjectedCache.Add(VID, Result);
-  end;
-end;
-
-function TBitmapLayerProviderByMarksSubset.GetProjectedPolygon(
-  const AMarkPoly: IVectorDataItemPoly;
-  const AProjectionInfo: IProjectionInfo
-): IProjectedPolygon;
-var
-  VID: Integer;
-  VLineWidth: Integer;
-  VTestArrLenLonLatRect: TDoubleRect;
-  VTestArrLenPixelRect: TDoubleRect;
-  VGeoConverter: ICoordConverter;
-  VAppearanceBorder: IAppearancePolygonBorder;
-begin
-  VID := Integer(AMarkPoly);
-  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    if Supports(AMarkPoly.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
-      VLineWidth := VAppearanceBorder.LineWidth;
-    end else begin
-      VLineWidth := 0;
-    end;
-    VTestArrLenLonLatRect := AMarkPoly.LLRect.Rect;
-    VGeoConverter := AProjectionInfo.GeoConverter;
-    VGeoConverter.CheckLonLatRect(VTestArrLenLonLatRect);
-    VTestArrLenPixelRect := VGeoConverter.LonLatRect2PixelRectFloat(VTestArrLenLonLatRect, AProjectionInfo.Zoom);
-    if
-      (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > VLineWidth + 2) or
-      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > VLineWidth + 2)
-    then begin
-      Result :=
-        FVectorItemsFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
-          AProjectionInfo,
-          AMarkPoly.Line,
-          FLinesClipRect,
-          FPreparedPointsAggreagtor
-        );
-    end else begin
-      Result :=
-        FVectorItemsFactory.CreateProjectedPolygon(
-          AProjectionInfo,
-          nil,
-          0
-        );
-    end;
-    FProjectedCache.Add(VID, Result);
   end;
 end;
 

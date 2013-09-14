@@ -13,7 +13,7 @@ uses
   i_Bitmap32StaticFactory,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
-  i_IdCacheSimple,
+  i_ProjectedGeometryProvider,
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_VectorItemProjected,
@@ -32,7 +32,7 @@ type
     FVectorItemsFactory: IVectorItemsFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorItems: IVectorItemSubsetChangeable;
-    FProjectedCache: IIdCacheSimple;
+    FProjectedCache: IProjectedGeometryProvider;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
@@ -41,17 +41,6 @@ type
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter
     );
-    function GetProjectedPath(
-      const AData: IVectorDataItemLine;
-      const AProjectionInfo: IProjectionInfo;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IProjectedPath;
-    function GetProjectedPolygon(
-      const AData: IVectorDataItemPoly;
-      const AProjectionInfo: IProjectionInfo;
-      const ATemp: IDoublePointsAggregator = nil
-    ): IProjectedPolygon;
-
     function DrawPoint(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
@@ -98,7 +87,7 @@ type
       APointColor: TColor32;
       const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AProjectedCache: IIdCacheSimple;
+      const AProjectedCache: IProjectedGeometryProvider;
       const AVectorItems: IVectorItemSubsetChangeable
     );
   end;
@@ -125,7 +114,7 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   APointColor: TColor32;
   const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AProjectedCache: IIdCacheSimple;
+  const AProjectedCache: IProjectedGeometryProvider;
   const AVectorItems: IVectorItemSubsetChangeable
 );
 begin
@@ -164,7 +153,7 @@ var
 begin
   Result := False;
   if AData.Line.Count > 0 then begin
-    VProjected := GetProjectedPath(AData, ALocalConverter.ProjectionInfo, FPreparedPointsAggreagtor);
+    VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, AData.Line);
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
       if IsIntersecProjectedRect(VMapRect, VProjected.Bounds) then begin
@@ -309,7 +298,7 @@ var
   VLine: IProjectedPolygonLine;
 begin
   Result := False;
-  VProjected := GetProjectedPolygon(AData, ALocalConverter.ProjectionInfo, FPreparedPointsAggreagtor);
+  VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, AData.Line);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -458,46 +447,6 @@ begin
     finally
       VBitmap.Free;
     end;
-  end;
-end;
-
-function TBitmapLayerProviderByVectorSubset.GetProjectedPath(
-  const AData: IVectorDataItemLine;
-  const AProjectionInfo: IProjectionInfo;
-  const ATemp: IDoublePointsAggregator
-): IProjectedPath;
-var
-  VID: Integer;
-begin
-  VID := Integer(AData);
-  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    Result :=
-      FVectorItemsFactory.CreateProjectedPathByLonLatPath(
-        AProjectionInfo,
-        AData.Line,
-        ATemp
-      );
-    FProjectedCache.Add(VID, Result);
-  end;
-end;
-
-function TBitmapLayerProviderByVectorSubset.GetProjectedPolygon(
-  const AData: IVectorDataItemPoly;
-  const AProjectionInfo: IProjectionInfo;
-  const ATemp: IDoublePointsAggregator
-): IProjectedPolygon;
-var
-  VID: Integer;
-begin
-  VID := Integer(AData);
-  if not Supports(FProjectedCache.GetByID(VID), IProjectedPath, Result) then begin
-    Result :=
-      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
-        AProjectionInfo,
-        AData.Line,
-        ATemp
-      );
-    FProjectedCache.Add(VID, Result);
   end;
 end;
 

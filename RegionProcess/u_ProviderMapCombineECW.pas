@@ -24,6 +24,7 @@ uses
   i_MarkSystem,
   i_MapCalibration,
   i_VectorItemsFactory,
+  i_ProjectedGeometryProvider,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
@@ -44,6 +45,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
@@ -75,6 +77,7 @@ constructor TProviderMapCombineECW.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -93,6 +96,7 @@ begin
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
+      AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,

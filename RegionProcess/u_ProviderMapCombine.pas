@@ -15,6 +15,7 @@ uses
   i_BitmapLayerProvider,
   i_VectorItemProjected,
   i_VectorItemLonLat,
+  i_ProjectedGeometryProvider,
   i_MapTypes,
   i_UseTilePrevZoomConfig,
   i_Bitmap32StaticFactory,
@@ -45,6 +46,7 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
     FVectorItemsFactory: IVectorItemsFactory;
+    FProjectedGeometryProvider: IProjectedGeometryProvider;
     FMarksDB: IMarkSystem;
     FMarksShowConfig: IUsedMarksConfig;
     FMarksDrawConfig: IMarksDrawConfig;
@@ -78,6 +80,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
@@ -126,6 +129,7 @@ constructor TProviderMapCombineBase.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
@@ -158,6 +162,7 @@ begin
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
   FVectorItemsFactory := AVectorItemsFactory;
+  FProjectedGeometryProvider := AProjectedGeometryProvider;
   FUseQuality := AUseQuality;
   FUseAlfa := AUseAlfa;
   FDefaultExt := ADefaultExt;
@@ -274,9 +279,8 @@ begin
         FVectorItemsFactory,
         FBitmapFactory,
         AProjectedPolygon.Projection,
-        TIdCacheSimpleThreadSafe.Create,
+        FProjectedGeometryProvider,
         VMarkerProvider,
-        VLineClipRect,
         VMarksSubset
       );
   end;

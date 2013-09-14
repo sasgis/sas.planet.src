@@ -24,6 +24,7 @@ uses
   i_IdCacheSimple,
   i_FindVectorItems,
   i_VectorItemSubset,
+  i_ProjectedGeometryProvider,
   i_MarkerDrawable,
   i_Mark,
   i_MarkSystem,
@@ -38,11 +39,11 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FMarkDB: IMarkSystem;
     FMarkIconDefault: IMarkerDrawableChangeable;
+    FProjectedCache: IProjectedGeometryProvider;
 
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
 
-    FProjectedCache: IIdCacheSimple;
     FMarkerCache: IIdCacheSimple;
 
     FMarksSubset: IVectorItemSubset;
@@ -78,6 +79,7 @@ type
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItemsFactory: IVectorItemsFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AProjectedCache: IProjectedGeometryProvider;
       const AMarkIconDefault: IMarkerDrawableChangeable;
       const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -116,6 +118,7 @@ constructor TMapLayerMarks.Create(
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItemsFactory: IVectorItemsFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AProjectedCache: IProjectedGeometryProvider;
   const AMarkIconDefault: IMarkerDrawableChangeable;
   const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -149,9 +152,8 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMarkIconDefault := AMarkIconDefault;
   FBitmapFactory := ABitmapFactory;
+  FProjectedCache := AProjectedCache;
 
-
-  FProjectedCache := TIdCacheSimpleThreadSafe.Create;
   FMarkerCache := TIdCacheSimpleThreadSafe.Create;
 
   FMarksSubsetCS := MakeSyncRW_Var(Self);
@@ -202,7 +204,6 @@ begin
   finally
     FGetMarksCounter.FinishOperation(VCounterContext);
   end;
-  FProjectedCache.Clear;
   FMarkerCache.Clear;
   if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
     VMapRect := ALayerConverter.GetRectInMapPixelFloat;
@@ -224,7 +225,6 @@ begin
         ALayerConverter.ProjectionInfo,
         FProjectedCache,
         VMarkerProvider,
-        VLinesClipRect,
         VMarksSubset
       );
   end;
@@ -284,13 +284,15 @@ begin
               Vtmp.add(VMark);
             end else begin
               if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
-                if Supports(FProjectedCache.GetByID(Integer(VMarkLine)), IProjectedPath, VProjectdPath) then begin
+                VProjectdPath := FProjectedCache.GetProjectedPath(AVisualConverter.ProjectionInfo, VMarkLine.Line);
+                if Assigned(VProjectdPath) then begin
                   if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
                     Vtmp.Add(VMark);
                   end;
                 end;
               end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-                if Supports(FProjectedCache.GetByID(Integer(VMarkPoly)), IProjectedPolygon, VProjectdPolygon) then begin
+                VProjectdPolygon := FProjectedCache.GetProjectedPolygon(AVisualConverter.ProjectionInfo, VMarkPoly.Line);
+                if Assigned(VProjectdPolygon) then begin
                   if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
                     VProjectdPolygon.IsPointOnBorder(VPixelPos, 3) then begin
                     Vtmp.Add(VMark);

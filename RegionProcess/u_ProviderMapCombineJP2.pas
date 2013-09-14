@@ -11,6 +11,7 @@ uses
   i_BitmapLayerProvider,
   i_VectorItemProjected,
   i_VectorItemLonLat,
+  i_ProjectedGeometryProvider,
   i_RegionProcessProgressInfo,
   i_MapTypes,
   i_UseTilePrevZoomConfig,
@@ -44,6 +45,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorItemsFactory: IVectorItemsFactory;
+      const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
@@ -75,6 +77,7 @@ constructor TProviderMapCombineJP2.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorItemsFactory: IVectorItemsFactory;
+  const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -93,6 +96,7 @@ begin
       AProjectionFactory,
       ACoordConverterList,
       AVectorItemsFactory,
+      AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,
       AMarksDB,
