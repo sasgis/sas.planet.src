@@ -199,7 +199,6 @@ uses
   i_ConfigDataProvider,
   i_PathConfig,
   u_StringListStatic,
-  u_MapTypeListStatic,
   u_ConfigDataProviderByIniFile,
   u_GlobalState;
 

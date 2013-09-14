@@ -121,7 +121,6 @@ uses
   {$WARN UNIT_PLATFORM ON}
   c_CacheTypeCodes, // for cache types
   i_GUIDListStatic,
-  u_MapTypeListStatic,
   u_MapType;
 
 {$R *.dfm}

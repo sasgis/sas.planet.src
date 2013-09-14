@@ -92,9 +92,6 @@ type
 
 implementation
 
-uses
-  u_MapTypeListStatic;
-
 {$R *.dfm}
 
 constructor TfrExportRMapsSQLite.Create(

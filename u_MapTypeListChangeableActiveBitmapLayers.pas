@@ -36,8 +36,7 @@ implementation
 
 uses
   ActiveX,
-  u_ListenerByEvent,
-  u_MapTypeListStatic;
+  u_ListenerByEvent;
 
 { TMapTypeListChangeableByActiveMapsSet }
 

@@ -109,7 +109,6 @@ uses
   i_ProjectionInfo,
   u_GeoFun,
   u_MarkerProviderForVectorItemForMarkPoints,
-  u_IdCacheSimpleThreadSafe,
   u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,
   u_BitmapLayerProviderInPolygon,

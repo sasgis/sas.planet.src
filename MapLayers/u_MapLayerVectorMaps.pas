@@ -22,7 +22,6 @@ uses
   i_VectorItemSubset,
   i_VectorItemsFactory,
   i_ImageResamplerConfig,
-  i_IdCacheSimple,
   i_VectorItemSubsetBuilder,
   i_VectorItemSubsetChangeable,
   i_FindVectorItems,
@@ -96,7 +95,6 @@ uses
   i_VectorItemDrawConfig,
   u_TileMatrixFactory,
   u_ListenerByEvent,
-  u_IdCacheSimpleThreadSafe,
   u_VectorItemSubsetChangeableForVectorLayers,
   u_BitmapLayerProviderByVectorSubset;
 

@@ -8,7 +8,6 @@ uses
   GR32,
   t_GeoTypes,
   i_CoordConverter,
-  i_ProjectionInfo,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
   i_VectorDataItemSimple,
