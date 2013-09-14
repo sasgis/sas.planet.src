@@ -216,8 +216,6 @@ var
   VMarksConfigStatic: IUsedMarksConfigStatic;
   VList: IInterfaceListStatic;
   VMarksImageProvider: IBitmapLayerProvider;
-  VMapRect: TRect;
-  VLineClipRect: TDoubleRect;
   VRecolorConfig: IBitmapPostProcessing;
   VSourceProvider: IBitmapLayerProvider;
   VUseMarks: Boolean;
@@ -261,11 +259,6 @@ begin
   end;
   VMarksImageProvider := nil;
   if VMarksSubset <> nil then begin
-    VMapRect := RectFromDoubleRect(AProjectedPolygon.Bounds, rrOutside);
-    VLineClipRect.Left := VMapRect.Left - 10;
-    VLineClipRect.Top := VMapRect.Top - 10;
-    VLineClipRect.Right := VMapRect.Right + 10;
-    VLineClipRect.Bottom := VMapRect.Bottom + 10;
     VMarksDrawConfig := FMarksDrawConfig.GetStatic;
     VMarkerProvider :=
       TMarkerProviderForVectorItemForMarkPoints.Create(

@@ -186,8 +186,6 @@ function TMapLayerMarks.CreateLayerProvider(
 var
   VCounterContext: TInternalPerformanceCounterContext;
   VMarksSubset: IVectorItemSubset;
-  VMapRect: TDoubleRect;
-  VLinesClipRect: TDoubleRect;
   VMarksDrawConfig: IMarksDrawConfigStatic;
   VMarkerProvider: IMarkerProviderForVectorItem;
 begin
@@ -206,11 +204,6 @@ begin
   end;
   FMarkerCache.Clear;
   if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
-    VMapRect := ALayerConverter.GetRectInMapPixelFloat;
-    VLinesClipRect.Left := VMapRect.Left - 10;
-    VLinesClipRect.Top := VMapRect.Top - 10;
-    VLinesClipRect.Right := VMapRect.Right + 10;
-    VLinesClipRect.Bottom := VMapRect.Bottom + 10;
     VMarksDrawConfig := FConfig.MarksDrawConfig.GetStatic;
     VMarkerProvider :=
       TMarkerProviderForVectorItemWithCache.Create(
