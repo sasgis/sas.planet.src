@@ -352,6 +352,7 @@
     <DCCReference Include="i_PredicateByTileRequest.pas" />
     <DCCReference Include="i_ProjConverter.pas" />
     <DCCReference Include="i_ProjectedDrawableElement.pas" />
+    <DCCReference Include="i_ProjectedGeometryProvider.pas" />
     <DCCReference Include="i_ProjectionInfo.pas" />
     <DCCReference Include="i_ProxySettings.pas" />
     <DCCReference Include="i_ReadWriteState.pas" />
@@ -1149,6 +1150,7 @@
     <DCCReference Include="u_PredicateByTileInfoBase.pas" />
     <DCCReference Include="u_ProjConverterFactory.pas" />
     <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
+    <DCCReference Include="u_ProjectedGeometryProvider.pas" />
     <DCCReference Include="u_ProjectedSingleLine.pas" />
     <DCCReference Include="u_ProjectionInfo.pas" />
     <DCCReference Include="u_ProjectionInfoFactory.pas" />

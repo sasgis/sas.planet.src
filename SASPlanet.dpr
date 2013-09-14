@@ -165,6 +165,8 @@ uses
   i_ConfigSaveLoadStrategy in 'i_ConfigSaveLoadStrategy.pas',
   u_ConfigSaveLoadStrategyBasicUseProvider in 'u_ConfigSaveLoadStrategyBasicUseProvider.pas',
   u_ConfigSaveLoadStrategyBasicProviderSubItem in 'u_ConfigSaveLoadStrategyBasicProviderSubItem.pas',
+  i_ProjectedGeometryProvider in 'i_ProjectedGeometryProvider.pas',
+  u_ProjectedGeometryProvider in 'u_ProjectedGeometryProvider.pas',
   i_PathConfig in 'i_PathConfig.pas',
   u_PathConfig in 'u_PathConfig.pas',
   i_TileRequest in 'i_TileRequest.pas',
