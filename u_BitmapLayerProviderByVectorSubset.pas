@@ -16,7 +16,6 @@ uses
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_VectorItemProjected,
-  i_VectorItemsFactory,
   i_VectorItemSubsetChangeable,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider,

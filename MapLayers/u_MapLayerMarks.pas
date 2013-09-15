@@ -17,7 +17,6 @@ uses
   i_MarksDrawConfig,
   i_MarksLayerConfig,
   i_VectorDataItemSimple,
-  i_VectorItemsFactory,
   i_VectorItemSubsetBuilder,
   i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
@@ -25,7 +24,6 @@ uses
   i_FindVectorItems,
   i_VectorItemSubset,
   i_ProjectedGeometryProvider,
-  i_MarkerDrawable,
   i_Mark,
   i_MarkSystem,
   u_TiledLayerWithThreadBase;
@@ -95,10 +93,7 @@ uses
   i_InterfaceListStatic,
   u_TileMatrixFactory,
   u_ListenerByEvent,
-  u_IdCacheSimpleThreadSafe,
   u_Synchronizer,
-  u_MarkerProviderForVectorItemWithCache,
-  u_MarkerProviderForVectorItemForMarkPoints,
   u_BitmapLayerProviderByMarksSubset;
 
 { TMapMarksLayerNew }

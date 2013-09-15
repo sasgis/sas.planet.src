@@ -20,7 +20,6 @@ uses
   i_TileError,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
-  i_VectorItemsFactory,
   i_ImageResamplerConfig,
   i_VectorItemSubsetBuilder,
   i_VectorItemSubsetChangeable,

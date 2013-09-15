@@ -36,7 +36,6 @@ uses
   i_MarksDrawConfig,
   i_VectorDataItemSimple,
   i_VectorItemProjected,
-  i_VectorItemsFactory,
   i_VectorItemSubset,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider,
