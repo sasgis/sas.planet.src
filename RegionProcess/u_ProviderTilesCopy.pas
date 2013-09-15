@@ -25,7 +25,7 @@ type
     FTimerNoifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
   protected
     function CreateFrame: TFrame; override;
@@ -40,7 +40,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
@@ -73,7 +73,7 @@ constructor TProviderTilesCopy.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin
@@ -88,7 +88,7 @@ begin
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileNameGenerator := ATileNameGenerator;
 end;
 
@@ -149,7 +149,7 @@ begin
       '', // allow empty value here (if path completely defined)
       VPath,
       FProjectionFactory,
-      FVectorItemsFactory,
+      FVectorGeometryProjectedFactory,
       APolygon,
       VZoomArr,
       VMaps,
@@ -167,7 +167,7 @@ begin
       (VPlaceInSubFolder or (VMaps.Count > 1)),
       (VCacheType = c_File_Cache_Id_BDB_Versioned),
       FProjectionFactory,
-      FVectorItemsFactory,
+      FVectorGeometryProjectedFactory,
       APolygon,
       VZoomArr,
       VMaps,
@@ -182,7 +182,7 @@ begin
       VPath,
       (VPlaceInSubFolder or (VMaps.Count > 1)),
       FProjectionFactory,
-      FVectorItemsFactory,
+      FVectorGeometryProjectedFactory,
       APolygon,
       VZoomArr,
       VMaps,

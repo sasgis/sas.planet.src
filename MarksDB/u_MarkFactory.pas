@@ -47,7 +47,6 @@ type
   private
     FHashFunction: IHashFunction;
     FConfig: IMarkFactoryConfig;
-    FFactory: IVectorItemsFactory;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FHintConverter: IHtmlToHintTextConverter;
 
@@ -139,7 +138,6 @@ type
       const AConfig: IMarkFactoryConfig;
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
-      const AFactory: IVectorItemsFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AHintConverter: IHtmlToHintTextConverter
     );
@@ -162,7 +160,6 @@ constructor TMarkFactory.Create(
   const AConfig: IMarkFactoryConfig;
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
-  const AFactory: IVectorItemsFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AHintConverter: IHtmlToHintTextConverter
 );
@@ -171,7 +168,6 @@ begin
   inherited Create;
   FConfig := AConfig;
   FHashFunction := AHashFunction;
-  FFactory := AFactory;
   FHashFunction := AHashFunction;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FHintConverter := AHintConverter;

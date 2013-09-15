@@ -44,7 +44,7 @@ uses
 type
   TXmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
-    FFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FAllowMultiParts: Boolean;
@@ -58,22 +58,22 @@ type
     function Internal_LoadFromStream_Original(
       AStream: TStream;
       const AIdData: Pointer;
-      const AFactory: IVectorDataFactory
+      const AVectorGeometryLonLatFactory: IVectorDataFactory
     ): IVectorItemSubset;
   private
     function LoadFromStream(
       AStream: TStream;
       const AIdData: Pointer;
-      const AFactory: IVectorDataFactory
+      const AVectorGeometryLonLatFactory: IVectorDataFactory
     ): IVectorItemSubset;
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AFactory: IVectorDataFactory
+      const AVectorGeometryLonLatFactory: IVectorDataFactory
     ): IVectorItemSubset;
   public
     constructor Create(
-      const AFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AAllowMultiParts: Boolean;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -123,7 +123,7 @@ type
     // добавляет объект в список
     procedure AddCoordsToList(
       const AWideStrName, AWideStrDesc: WideString;
-      const AItemsFactory: IVectorItemsFactory
+      const AItemsFactory: IVectorGeometryLonLatFactory
     );
     // определение типа объекта по тэгу при открытии тэга
     procedure ApplyKmlTag(const Atag: Tvsagps_KML_main_tag);
@@ -152,14 +152,14 @@ end;
 { TXmlInfoSimpleParser }
 
 constructor TXmlInfoSimpleParser.Create(
-  const AFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AAllowMultiParts: Boolean;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
-  FFactory := AFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FAllowMultiParts := AAllowMultiParts;
 
@@ -172,7 +172,7 @@ end;
 function TXmlInfoSimpleParser.Internal_LoadFromStream_Original(
   AStream: TStream;
   const AIdData: Pointer;
-  const AFactory: IVectorDataFactory
+  const AVectorGeometryLonLatFactory: IVectorDataFactory
 ): IVectorItemSubset;
 var
   tAux: TParseXML_Aux;
@@ -185,7 +185,7 @@ begin
   // for wpt and trk
   Inc(tAux.opt.gpx_options.bParse_trk);
   Inc(tAux.opt.gpx_options.bParse_wpt);
-  tAux.Factory := AFactory;
+  tAux.Factory := AVectorGeometryLonLatFactory;
   tAux.FVectorItemSubsetBuilderFactory := FVectorItemSubsetBuilderFactory;
   tAux.IdData := AIdData;
   try
@@ -453,7 +453,7 @@ begin
             with PParseXML_Aux(pUserAuxPointer)^ do begin
               AddCoordsToList(
                 VWSName, VWSDesc,
-                FFactory);
+                FVectorGeometryLonLatFactory);
             end;
 
             // clear points
@@ -471,7 +471,7 @@ begin
               // make track segment object
               AddCoordsToList(
                 VWSName, VWSDesc,
-                FFactory);
+                FVectorGeometryLonLatFactory);
 
               // clear points (no segment counter)
               Cleanup_Array;
@@ -521,7 +521,7 @@ begin
               // make track segment object
               AddCoordsToList(
                 VWSName, VWSDesc,
-                FFactory);
+                FVectorGeometryLonLatFactory);
 
               // clear points (no segment counter)
               Cleanup_Array;
@@ -543,7 +543,7 @@ begin
               // make track segment object
               AddCoordsToList(
                 VWSName, VWSDesc,
-                FFactory);
+                FVectorGeometryLonLatFactory);
 
               // clear points (no segment counter)
               Cleanup_Array;
@@ -614,7 +614,7 @@ begin
           // make track object
           AddCoordsToList(
             VWSName, VWSDesc,
-            FFactory
+            FVectorGeometryLonLatFactory
           );
 
           // clear points and segment counter
@@ -637,7 +637,7 @@ begin
           // make track segment object
           AddCoordsToList(
             VWSName, VWSDesc,
-            FFactory
+            FVectorGeometryLonLatFactory
           );
 
           // clear points and increment segment counter
@@ -666,7 +666,7 @@ end;
 function TXmlInfoSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AFactory: IVectorDataFactory
+  const AVectorGeometryLonLatFactory: IVectorDataFactory
 ): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
@@ -674,7 +674,7 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AIdData, AFactory);
+    Result := LoadFromStream(VStream, AIdData, AVectorGeometryLonLatFactory);
   finally
     VStream.Free;
   end;
@@ -683,7 +683,7 @@ end;
 function TXmlInfoSimpleParser.LoadFromStream(
   AStream: TStream;
   const AIdData: Pointer;
-  const AFactory: IVectorDataFactory
+  const AVectorGeometryLonLatFactory: IVectorDataFactory
 ): IVectorItemSubset;
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -693,12 +693,12 @@ begin
     VCounterContext := FLoadXmlStreamCounter.StartOperation;
     try
       // read from single simple source
-      Result := Internal_LoadFromStream_Original(AStream, AIdData, AFactory);
+      Result := Internal_LoadFromStream_Original(AStream, AIdData, AVectorGeometryLonLatFactory);
     finally
       FLoadXmlStreamCounter.FinishOperation(VCounterContext);
     end;
   end else begin
-    Result := Internal_LoadFromStream_Original(AStream, AIdData, AFactory);
+    Result := Internal_LoadFromStream_Original(AStream, AIdData, AVectorGeometryLonLatFactory);
   end;
 end;
 
@@ -746,7 +746,7 @@ end;
 
 procedure TParseXML_Aux.AddCoordsToList(
   const AWideStrName, AWideStrDesc: WideString;
-  const AItemsFactory: IVectorItemsFactory
+  const AItemsFactory: IVectorGeometryLonLatFactory
 );
 var
   trk_obj: IVectorDataItemSimple;

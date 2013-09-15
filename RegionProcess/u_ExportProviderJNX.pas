@@ -22,7 +22,7 @@ type
   private
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
@@ -36,7 +36,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ACoordConverterFactory: ICoordConverterFactory
     );
@@ -65,7 +65,7 @@ constructor TExportProviderJNX.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ACoordConverterFactory: ICoordConverterFactory
 );
@@ -79,7 +79,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
 end;
@@ -145,7 +145,7 @@ begin
     VProgressInfo,
     FCoordConverterFactory,
     FProjectionFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     FBitmapTileSaveLoadFactory,
     VPath,
     APolygon,

@@ -29,7 +29,8 @@ type
   private
     FConfig: IMarkerRingsConfig;
     FGPSRecorder: IGPSRecorder;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
 
     FGpsPosChangeFlag: ISimpleFlag;
 
@@ -63,7 +64,8 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const ATimerNoifier: INotifierTime;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AConfig: IMarkerRingsConfig;
       const AGPSRecorder: IGPSRecorder
     );
@@ -91,7 +93,8 @@ constructor TMapLayerGPSMarkerRings.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const ATimerNoifier: INotifierTime;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AConfig: IMarkerRingsConfig;
   const AGPSRecorder: IGPSRecorder
 );
@@ -105,7 +108,8 @@ begin
   );
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
   FGPSPosCS := MakeSyncRW_Var(Self, False);
@@ -146,14 +150,14 @@ begin
     end;
     VAggreagator.Add(CEmptyDoublePoint);
   end;
-  Result := FVectorItemsFactory.CreateLonLatPolygon(VAggreagator.Points, VAggreagator.Count);
+  Result := FVectorGeometryLonLatFactory.CreateLonLatPolygon(VAggreagator.Points, VAggreagator.Count);
 end;
 
 function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(
   const ASource: ILonLatPolygon;
   const AProjectionInfo: IProjectionInfo): IProjectedPolygon;
 begin
-  Result := FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(AProjectionInfo, ASource);
+  Result := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(AProjectionInfo, ASource);
 end;
 
 procedure TMapLayerGPSMarkerRings.GPSReceiverReceive;

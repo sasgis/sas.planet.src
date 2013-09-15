@@ -35,7 +35,7 @@ type
     FTasks: array of TExportTaskYaMobileV3;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FIsReplace: boolean;
     FExportPath: string;
@@ -66,7 +66,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
@@ -101,7 +101,7 @@ constructor TThreadExportYaMobileV3.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
@@ -124,7 +124,7 @@ begin
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := APath;
   FIsReplace := AReplace;
@@ -344,7 +344,7 @@ begin
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
       VProjectedPolygon :=
-        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );

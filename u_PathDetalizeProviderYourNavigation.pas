@@ -37,7 +37,7 @@ uses
 type
   TPathDetalizeProviderYourNavigation = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
-    FFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FBaseUrl: string;
     FKmlLoader: IVectorDataLoader;
@@ -55,7 +55,7 @@ type
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
       const AVectorDataFactory: IVectorDataFactory;
-      const AFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader;
       const ABaseUrl: string
     );
@@ -81,7 +81,7 @@ constructor TPathDetalizeProviderYourNavigation.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
   const AVectorDataFactory: IVectorDataFactory;
-  const AFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader;
   const ABaseUrl: string
 );
@@ -91,7 +91,7 @@ begin
   FDownloader := ADownloader;
   FInetConfig := AInetConfig;
   FVectorDataFactory := AVectorDataFactory;
-  FFactory := AFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FKmlLoader := AKmlLoader;
 end;
 
@@ -151,7 +151,7 @@ begin
     end;
   end;
   if not conerr then begin
-    Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
+    Result := FVectorGeometryLonLatFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
   end;
 end;
 

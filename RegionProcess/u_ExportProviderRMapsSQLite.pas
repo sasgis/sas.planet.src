@@ -20,7 +20,7 @@ type
   private
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -32,7 +32,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
@@ -59,7 +59,7 @@ constructor TExportProviderRMapsSQLite.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
 );
 begin
   inherited Create(
@@ -71,7 +71,7 @@ begin
   );
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
 end;
 
 function TExportProviderRMapsSQLite.CreateFrame: TFrame;
@@ -120,7 +120,7 @@ begin
     '',
     VPath,
     FProjectionFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     APolygon,
     VZoomArr,
     VMapTypeList,

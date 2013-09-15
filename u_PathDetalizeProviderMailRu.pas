@@ -35,7 +35,7 @@ uses
 type
   TPathDetalizeProviderMailRu = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
-    FFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FBaseUrl: string;
     FDownloader: IDownloader;
     FInetConfig: IInetConfig;
@@ -52,7 +52,7 @@ type
     constructor Create(
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
-      const AFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const ABaseUrl: string
     );
   end;
@@ -78,7 +78,7 @@ uses
 constructor TPathDetalizeProviderMailRu.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
-  const AFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const ABaseUrl: string
 );
 begin
@@ -86,7 +86,7 @@ begin
   FBaseUrl := ABaseUrl;
   FDownloader := ADownloader;
   FInetConfig := AInetConfig;
-  FFactory := AFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 end;
 
 function TPathDetalizeProviderMailRu.GetPath(
@@ -160,7 +160,7 @@ begin
       end;
     except
     end;
-    Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
+    Result := FVectorGeometryLonLatFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
     if meters > 1000 then begin
       AComment := SAS_STR_MarshLen + RoundEx(meters / 1000, 2) + ' ' + SAS_UNITS_km;
     end else begin

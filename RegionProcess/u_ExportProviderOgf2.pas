@@ -25,7 +25,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -37,7 +37,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -68,7 +68,7 @@ constructor TExportProviderOgf2.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -83,7 +83,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
@@ -96,7 +96,7 @@ begin
     TfrExportToOgf2.Create(
       Self.LanguageManager,
       FProjectionFactory,
-      FVectorItemsFactory,
+      FVectorGeometryProjectedFactory,
       FBitmapTileSaveLoadFactory,
       FBitmapFactory,
       Self.MainMapsConfig,
@@ -141,7 +141,7 @@ begin
     FLocalConverterFactory,
     FProjectionFactory,
     FBitmapFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     VTargetFile,
     APolygon,
     VImageProvider,

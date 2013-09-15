@@ -33,7 +33,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     function GetMapPreview(
       const ABitmapSaver: IBitmapTileSaver;
       out AMapPreviewWidth: Integer;
@@ -57,7 +57,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
       const AImageProvider: IBitmapLayerProvider;
@@ -94,7 +94,7 @@ constructor TThreadExportToOgf2.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
   const AImageProvider: IBitmapLayerProvider;
@@ -115,7 +115,7 @@ begin
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileSaver := ATileSaver;
   FOgf2TileWidth := ATileSize.X;
   FOgf2TileHeight := ATileSize.Y;
@@ -212,7 +212,7 @@ begin
     );
 
   VProjected :=
-    FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
       FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
       Self.PolygLL
     );

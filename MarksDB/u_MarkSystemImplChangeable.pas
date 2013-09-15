@@ -27,7 +27,7 @@ type
     FMarkPictureList: IMarkPictureList;
     FHashFunction: IHashFunction;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FMarkFactory: IMarkFactory;
     FHintConverter: IHtmlToHintTextConverter;
@@ -54,7 +54,7 @@ type
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AMarkFactory: IMarkFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
@@ -78,7 +78,7 @@ constructor TMarkSystemImplChangeable.Create(
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AMarkFactory: IMarkFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;
@@ -93,7 +93,7 @@ begin
   FMarkPictureList := AMarkPictureList;
   FHashFunction := AHashFunction;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMarkFactory := AMarkFactory;
   FLoadDbCounter := ALoadDbCounter;
@@ -136,7 +136,7 @@ begin
         FMarkPictureList,
         FHashFunction,
         FAppearanceOfMarkFactory,
-        FVectorItemsFactory,
+        FVectorGeometryLonLatFactory,
         FVectorItemSubsetBuilderFactory,
         FMarkFactory,
         FLoadDbCounter,

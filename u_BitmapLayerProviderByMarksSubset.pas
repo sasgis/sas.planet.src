@@ -47,7 +47,6 @@ type
   private
     FConfig: IMarksDrawConfigStatic;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IVectorItemSubset;
     FProjectionInfo: IProjectionInfo;
@@ -94,7 +93,6 @@ type
   public
     constructor Create(
       const AConfig: IMarksDrawConfigStatic;
-      const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IProjectedGeometryProvider;
@@ -128,7 +126,6 @@ const
 
 constructor TBitmapLayerProviderByMarksSubset.Create(
   const AConfig: IMarksDrawConfigStatic;
-  const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IProjectedGeometryProvider;
@@ -138,7 +135,6 @@ constructor TBitmapLayerProviderByMarksSubset.Create(
 begin
   inherited Create;
   FConfig := AConfig;
-  FVectorItemsFactory := AVectorItemsFactory;
   FBitmapFactory := ABitmapFactory;
   FProjectionInfo := AProjectionInfo;
   FMarksSubset := AMarksSubset;

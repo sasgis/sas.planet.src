@@ -19,7 +19,7 @@ type
   private
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -30,7 +30,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
@@ -58,7 +58,7 @@ constructor TExportProviderCE.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
@@ -70,7 +70,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FCoordConverterFactory := ACoordConverterFactory;
 end;
 
@@ -121,7 +121,7 @@ begin
     VProgressInfo,
     FCoordConverterFactory,
     FProjectionFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     VPath,
     APolygon,
     Zoomarr,

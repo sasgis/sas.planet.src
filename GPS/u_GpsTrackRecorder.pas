@@ -35,7 +35,7 @@ type
   TGpsTrackRecorder = class(TConfigDataElementBaseEmptySaveLoad, IGpsTrackRecorder, IGpsTrackRecorderInternal)
   private
     FDataFile: IPathConfig;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
 
     FTrack: ITrackPointsBlocksListStatic;
     FLastBlock: ITrackPoitnsBlock;
@@ -59,7 +59,7 @@ type
     function GetAllPoints: ILonLatPath;
   public
     constructor Create(
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const ADataFile: IPathConfig
     );
   end;
@@ -424,10 +424,10 @@ const
 { TGpsTrackRecorder }
 
 constructor TGpsTrackRecorder.Create(
-  const AVectorItemsFactory: IVectorItemsFactory; const ADataFile: IPathConfig);
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory; const ADataFile: IPathConfig);
 begin
   inherited Create;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FDataFile := ADataFile;
   FLastPositionOK := False;
   FTrack := TTrackPointsBlocksListStatic.Create;
@@ -534,7 +534,7 @@ begin
       );
     VPointsEnum :=
       TEnumTrackPointsByEnumGPSTrackPoint.Create(VTrackPointsEnum);
-    Result := FVectorItemsFactory.CreateLonLatPathByEnum(VPointsEnum);
+    Result := FVectorGeometryLonLatFactory.CreateLonLatPathByEnum(VPointsEnum);
   finally
     UnlockRead;
   end;

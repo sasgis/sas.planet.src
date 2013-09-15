@@ -34,7 +34,8 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
       const AConfig: ILastSelectionLayerConfig;
       const ALastSelectionInfo: ILastSelectionInfo
     );
@@ -54,7 +55,8 @@ constructor TSelectionLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
   const AConfig: ILastSelectionLayerConfig;
   const ALastSelectionInfo: ILastSelectionInfo
 );
@@ -65,7 +67,8 @@ begin
     AAppClosingNotifier,
     AParentMap,
     AView,
-    AVectorItemsFactory,
+    AVectorGeometryProjectedFactory,
+    AVectorGeometryLocalFactory,
     AConfig
   );
   FConfig := AConfig;

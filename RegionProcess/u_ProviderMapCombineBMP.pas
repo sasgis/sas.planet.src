@@ -44,7 +44,7 @@ type
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
@@ -76,7 +76,7 @@ constructor TProviderMapCombineBMP.Create(
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarkSystem;
@@ -95,7 +95,7 @@ begin
       AUseTilePrevZoomConfig,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,

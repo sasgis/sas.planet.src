@@ -22,7 +22,7 @@ type
   private
     FMapType: TMapType;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FNotSaveNotExists: boolean;
     FPathExport: string;
     FRelativePath: boolean;
@@ -40,7 +40,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       AMapType: TMapType;
@@ -63,7 +63,7 @@ constructor TThreadExportKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   AMapType: TMapType;
@@ -78,7 +78,7 @@ begin
     Self.ClassName
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FPathExport := APath;
   FNotSaveNotExists := ANotSaveNotExists;
   FRelativePath := ARelativePath;
@@ -181,7 +181,7 @@ begin
   if Length(FZooms) > 0 then begin
     VZoom := FZooms[0];
     VProjectedPolygon :=
-      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
         PolygLL
       );
@@ -190,7 +190,7 @@ begin
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
       VProjectedPolygon :=
-        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
           PolygLL
         );

@@ -75,7 +75,7 @@ type
       const AMarkCategoryFactory: IMarkCategoryFactory;
       const AHashFunction: IHashFunction;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
@@ -145,7 +145,7 @@ constructor TMarkSystem.Create(
   const AMarkCategoryFactory: IMarkCategoryFactory;
   const AHashFunction: IHashFunction;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
@@ -171,7 +171,7 @@ begin
       AMarkPictureList,
       AHashFunction,
       AAppearanceOfMarkFactory,
-      AVectorItemsFactory,
+      AVectorGeometryLonLatFactory,
       AVectorItemSubsetBuilderFactory,
       AMarkFactory,
       VLoadDbCounter,

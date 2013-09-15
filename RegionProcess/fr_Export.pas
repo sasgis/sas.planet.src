@@ -45,7 +45,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -91,7 +91,7 @@ constructor TfrExport.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -112,7 +112,7 @@ begin
       ACoordConverterFactory,
       ALocalConverterFactory,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       True
@@ -129,7 +129,7 @@ begin
       ACoordConverterFactory,
       ALocalConverterFactory,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       False
@@ -144,7 +144,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItemsFactory
+      AVectorGeometryProjectedFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
@@ -156,7 +156,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
@@ -172,7 +172,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
@@ -188,7 +188,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItemsFactory
+      AVectorGeometryProjectedFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
@@ -200,7 +200,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       AArchiveReadWriteFactory,
       ATileNameGenerator
     );
@@ -214,7 +214,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       AArchiveReadWriteFactory,
       ATileNameGenerator
     );
@@ -229,7 +229,7 @@ begin
       AGUIConfigList,
       AMapTypeListBuilderFactory,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       ABitmapTileSaveLoadFactory,
       ACoordConverterFactory
     );
@@ -243,7 +243,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       ABitmapFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
@@ -259,7 +259,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -273,7 +273,7 @@ begin
       AGUIConfigList,
       AMapTypeListBuilderFactory,
       AProjectionFactory,
-      AVectorItemsFactory
+      AVectorGeometryProjectedFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 

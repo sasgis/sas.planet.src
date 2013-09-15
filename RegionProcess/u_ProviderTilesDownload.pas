@@ -49,7 +49,8 @@ type
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -62,7 +63,8 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple
     );
@@ -105,7 +107,8 @@ constructor TProviderTilesDownload.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple
 );
@@ -120,7 +123,8 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
 end;
@@ -131,7 +135,7 @@ begin
     TfrTilesDownload.Create(
       Self.LanguageManager,
       FProjectionFactory,
-      FVectorItemsFactory,
+      FVectorGeometryProjectedFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList
@@ -236,7 +240,7 @@ begin
       raise Exception.Create('Unknown zoom');
     end;
   end;
-  VPolygon := ReadPolygon(VSessionSection, FVectorItemsFactory);
+  VPolygon := ReadPolygon(VSessionSection, FVectorGeometryLonLatFactory);
   if VPolygon.Count > 0 then begin
     VProjection :=
       FProjectionFactory.GetByConverterAndZoom(
@@ -244,7 +248,7 @@ begin
         VZoom
       );
     VProjectedPolygon :=
-      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
         VPolygon
       );
@@ -317,7 +321,7 @@ begin
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
 
   VProjectedPolygon :=
-    FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
       FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
       APolygon
     );

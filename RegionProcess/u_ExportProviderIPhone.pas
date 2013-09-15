@@ -26,7 +26,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FNewFormat: Boolean;
   protected
@@ -41,7 +41,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       ANewFormat: Boolean
@@ -73,7 +73,7 @@ constructor TExportProviderIPhone.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   ANewFormat: Boolean
@@ -89,7 +89,7 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapFactory := ABitmapFactory;
   FNewFormat := ANewFormat;
@@ -163,7 +163,7 @@ begin
     FCoordConverterFactory,
     FLocalConverterFactory,
     FProjectionFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     FBitmapFactory,
     FBitmapTileSaveLoadFactory,
     VPath,

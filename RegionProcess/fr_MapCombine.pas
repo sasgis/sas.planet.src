@@ -109,7 +109,7 @@ type
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
-    FVectorFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
@@ -150,7 +150,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
@@ -189,7 +189,7 @@ constructor TfrMapCombine.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -206,7 +206,7 @@ begin
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
-  FVectorFactory := AVectorFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
@@ -286,7 +286,7 @@ begin
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=
-        FVectorFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(Vmt.GeoConvert, VZoom),
           VPolyLL
         );

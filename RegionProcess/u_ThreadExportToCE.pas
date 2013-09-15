@@ -22,7 +22,7 @@ type
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FMaxSize: Integer;
     FComment: string;
     FRecoverInfo: Boolean;
@@ -33,7 +33,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
@@ -63,7 +63,7 @@ constructor TThreadExportToCE.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
@@ -83,7 +83,7 @@ begin
   FMapType := AMapType;
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMaxSize := AMaxSize;
   FComment := AComment;
   FRecoverInfo := ARecoverInfo;
@@ -113,7 +113,7 @@ begin
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
     VProjectedPolygon :=
-      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
         PolygLL
       );

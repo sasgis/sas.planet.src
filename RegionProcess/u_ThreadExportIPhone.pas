@@ -47,7 +47,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     procedure WritePListFile(const AGeoConvert: ICoordConverter);
     procedure WriteTileToSQLite3(
@@ -65,7 +65,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
@@ -102,7 +102,7 @@ constructor TThreadExportIPhone.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
@@ -127,7 +127,7 @@ begin
   FLocalConverterFactory := ALocalConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := IncludeTrailingPathDelimiter(APath);
   ForceDirectories(FExportPath);
@@ -301,7 +301,7 @@ begin
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
       VProjectedPolygon :=
-        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );

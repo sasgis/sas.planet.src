@@ -52,7 +52,7 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FMapTypeArr: IMapTypeListStatic;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FTileNameGen: ITileFileNameGenerator;
     FIsMove: Boolean;
     FDestOverwriteTiles: Boolean;
@@ -79,7 +79,7 @@ type
       const APlaceInSubFolder: Boolean;
       const AIsVersioned: Boolean;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const APolygon: ILonLatPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
@@ -112,7 +112,7 @@ constructor TThreadExportToBerkeleyDB.Create(
   const APlaceInSubFolder: Boolean;
   const AIsVersioned: Boolean;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const APolygon: ILonLatPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;
@@ -131,7 +131,7 @@ begin
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FPathExport := GetFullPathName(APath);
   FPlaceInSubFolder := APlaceInSubFolder;
   FIsVersioned := AIsVersioned;
@@ -250,7 +250,7 @@ begin
       VZoom := FZooms[J];
       VGeoConvert := FMapTypeArr.Items[I].MapType.GeoConvert;
       VProjectedPolygon :=
-        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );

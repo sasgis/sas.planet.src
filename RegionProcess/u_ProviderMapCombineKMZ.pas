@@ -48,7 +48,7 @@ type
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -84,7 +84,7 @@ constructor TProviderMapCombineKMZ.Create(
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -105,7 +105,7 @@ begin
       AUseTilePrevZoomConfig,
       AProjectionFactory,
       ACoordConverterList,
-      AVectorItemsFactory,
+      AVectorGeometryProjectedFactory,
       AProjectedGeometryProvider,
       AMarksShowConfig,
       AMarksDrawConfig,

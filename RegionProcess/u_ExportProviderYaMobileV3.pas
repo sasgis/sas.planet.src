@@ -25,7 +25,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
@@ -38,7 +38,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -69,7 +69,7 @@ constructor TExportProviderYaMobileV3.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -84,7 +84,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
@@ -138,7 +138,7 @@ begin
     FCoordConverterFactory,
     FLocalConverterFactory,
     FProjectionFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     FBitmapFactory,
     FBitmapTileSaveLoadFactory,
     VPath,

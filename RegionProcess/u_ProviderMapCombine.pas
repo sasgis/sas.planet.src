@@ -45,7 +45,7 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FProjectedGeometryProvider: IProjectedGeometryProvider;
     FMarksDB: IMarkSystem;
     FMarksShowConfig: IUsedMarksConfig;
@@ -79,7 +79,7 @@ type
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
@@ -127,7 +127,7 @@ constructor TProviderMapCombineBase.Create(
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
@@ -160,7 +160,7 @@ begin
   FBitmapFactory := ABitmapFactory;
   FProjectionFactory := AProjectionFactory;
   FCoordConverterList := ACoordConverterList;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectedGeometryProvider := AProjectedGeometryProvider;
   FUseQuality := AUseQuality;
   FUseAlfa := AUseAlfa;
@@ -175,7 +175,7 @@ begin
       Self.LanguageManager,
       FProjectionFactory,
       FCoordConverterList,
-      FVectorItemsFactory,
+      FVectorGeometryProjectedFactory,
       FBitmapFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
@@ -267,7 +267,6 @@ begin
     VMarksImageProvider :=
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
-        FVectorItemsFactory,
         FBitmapFactory,
         AProjectedPolygon.Projection,
         FProjectedGeometryProvider,
@@ -309,7 +308,7 @@ begin
   VProjection := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
 
   Result :=
-    FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
       VProjection,
       APolygon
     );

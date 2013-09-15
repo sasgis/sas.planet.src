@@ -18,7 +18,7 @@ type
   TExportProviderAUX = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -29,7 +29,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
@@ -57,7 +57,7 @@ constructor TExportProviderAUX.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
 );
 begin
   inherited Create(
@@ -68,7 +68,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
 end;
 
 function TExportProviderAUX.CreateFrame: TFrame;
@@ -104,7 +104,7 @@ begin
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
   VProjectedPolygon :=
-    FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
       FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
       APolygon
     );

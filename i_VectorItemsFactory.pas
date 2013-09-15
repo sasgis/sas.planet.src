@@ -14,8 +14,8 @@ uses
   i_VectorItemLocal;
 
 type
-  IVectorItemsFactory = interface
-    ['{06CC36BA-1833-4AE8-953F-D003B6D81BB7}']
+  IVectorGeometryLonLatFactory = interface
+    ['{FD69BBD0-2065-43B0-9D7C-900E82C28069}']
     function CreateLonLatPath(
       const APoints: PDoublePointArray;
       ACount: Integer
@@ -33,6 +33,22 @@ type
       const ATemp: IDoublePointsAggregator = nil
     ): ILonLatPolygon;
 
+    function CreateLonLatPolygonByRect(
+      const ARect: TDoubleRect
+    ): ILonLatPolygon;
+    function CreateLonLatPolygonCircleByPoint(
+      const AProjection: IProjectionInfo;
+      const APos: TDoublePoint;
+      const ARadius: double
+    ): ILonLatPolygon;
+    function CreateLonLatPolygonByLonLatPathAndFilter(
+      const ASource: ILonLatPath;
+      const AFilter: ILonLatPointFilter
+    ): ILonLatPolygon;
+  end;
+
+  IVectorGeometryProjectedFactory = interface
+    ['{06CC36BA-1833-4AE8-953F-D003B6D81BB7}']
     function CreateProjectedPath(
       const AProjection: IProjectionInfo;
       const APoints: PDoublePointArray;
@@ -44,33 +60,10 @@ type
       ACount: Integer
     ): IProjectedPolygon;
 
-    function CreateLocalPath(
-      const ALocalConverter: ILocalCoordConverter;
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ): ILocalPath;
-    function CreateLocalPolygon(
-      const ALocalConverter: ILocalCoordConverter;
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ): ILocalPolygon;
-
-    function CreateLonLatPolygonByRect(
-      const ARect: TDoubleRect
-    ): ILonLatPolygon;
     function CreateProjectedPolygonByRect(
       const AProjection: IProjectionInfo;
       const ARect: TDoubleRect
     ): IProjectedPolygon;
-    function CreateLonLatPolygonCircleByPoint(
-      const AProjection: IProjectionInfo;
-      const APos: TDoublePoint;
-      const ARadius: double
-    ): ILonLatPolygon;
-    function CreateLonLatPolygonByLonLatPathAndFilter(
-      const ASource: ILonLatPath;
-      const AFilter: ILonLatPointFilter
-    ): ILonLatPolygon;
 
     function CreateProjectedPathByEnum(
       const AProjection: IProjectionInfo;
@@ -82,17 +75,6 @@ type
       const AEnum: IEnumProjectedPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
-    function CreateLocalPathByEnum(
-      const ALocalConverter: ILocalCoordConverter;
-      const AEnum: IEnumLocalPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): ILocalPath;
-    function CreateLocalPolygonByEnum(
-      const ALocalConverter: ILocalCoordConverter;
-      const AEnum: IEnumLocalPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): ILocalPolygon;
-
     function CreateProjectedPathByLonLatEnum(
       const AProjection: IProjectionInfo;
       const AEnum: IEnumLonLatPoint;
@@ -153,6 +135,31 @@ type
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IProjectedPolygon;
+  end;
+
+  IVectorGeometryLocalFactory = interface
+    ['{E44B8BA5-0443-40CC-8F48-F8B817D0328A}']
+    function CreateLocalPath(
+      const ALocalConverter: ILocalCoordConverter;
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): ILocalPath;
+    function CreateLocalPolygon(
+      const ALocalConverter: ILocalCoordConverter;
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): ILocalPolygon;
+
+    function CreateLocalPathByEnum(
+      const ALocalConverter: ILocalCoordConverter;
+      const AEnum: IEnumLocalPoint;
+      const ATemp: IDoublePointsAggregator = nil
+    ): ILocalPath;
+    function CreateLocalPolygonByEnum(
+      const ALocalConverter: ILocalCoordConverter;
+      const AEnum: IEnumLocalPoint;
+      const ATemp: IDoublePointsAggregator = nil
+    ): ILocalPolygon;
   end;
 
 implementation

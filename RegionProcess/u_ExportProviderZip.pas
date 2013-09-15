@@ -21,7 +21,7 @@ type
   TExportProviderZip = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
   protected
@@ -34,7 +34,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
@@ -63,7 +63,7 @@ constructor TExportProviderZip.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
@@ -76,7 +76,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FTileNameGenerator := ATileNameGenerator;
 end;
@@ -124,7 +124,7 @@ begin
     VProgressInfo,
     FArchiveReadWriteFactory.CreateZipWriterByName(VPath),
     FProjectionFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     APolygon,
     Zoomarr,
     VMapType,

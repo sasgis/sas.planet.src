@@ -16,7 +16,7 @@ type
   TMpSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     procedure ParseCoordinates(
       const AData: string;
       const APointsAggregator: IDoublePointsAggregator
@@ -25,12 +25,12 @@ type
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AFactory: IVectorDataFactory
+      const AVectorGeometryLonLatFactory: IVectorDataFactory
     ): IVectorItemSubset;
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AFactory: IVectorItemsFactory
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
     );
   end;
 
@@ -55,12 +55,12 @@ const
 
 constructor TMpSimpleParser.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AFactory: IVectorItemsFactory
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
 );
 begin
   inherited Create;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FFactory := AFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 end;
 
 procedure TMpSimpleParser.ParseCoordinates(
@@ -110,7 +110,7 @@ end;
 function TMpSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AFactory: IVectorDataFactory
+  const AVectorGeometryLonLatFactory: IVectorDataFactory
 ): IVectorItemSubset;
 var
   VFileStrings: TStringList;
@@ -166,11 +166,11 @@ begin
     end;
   end;
   if VPointsAggregator.Count > 2 then begin
-    VPolygon := FFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+    VPolygon := FVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
   end;
   if VPolygon <> nil then begin
     VItem :=
-      AFactory.BuildPoly(
+      AVectorGeometryLonLatFactory.BuildPoly(
         AIdData,
         nil,
         '',

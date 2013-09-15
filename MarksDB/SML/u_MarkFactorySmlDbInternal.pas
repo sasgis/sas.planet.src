@@ -43,7 +43,7 @@ type
   private
     FDbId: Integer;
     FHashFunction: IHashFunction;
-    FFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMarkFactory: IMarkFactory;
     FCategoryDB: IMarkCategoryDBSmlInternal;
@@ -103,7 +103,7 @@ type
     constructor Create(
       const ADbId: Integer;
       const AMarkPictureList: IMarkPictureList;
-      const AFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const AHashFunction: IHashFunction;
@@ -130,7 +130,7 @@ uses
 constructor TMarkFactorySmlDbInternal.Create(
   const ADbId: Integer;
   const AMarkPictureList: IMarkPictureList;
-  const AFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const AHashFunction: IHashFunction;
@@ -140,7 +140,7 @@ constructor TMarkFactorySmlDbInternal.Create(
 begin
   inherited Create;
   FDbId := ADbId;
-  FFactory := AFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FMarkFactory := AMarkFactory;
   FHashFunction := AHashFunction;
@@ -361,7 +361,7 @@ begin
       end;
     end else begin
       if DoublePointsEqual(APoints[0], APoints[APointCount - 1]) then begin
-        VPolygon := FFactory.CreateLonLatPolygon(APoints, APointCount - 1);
+        VPolygon := FVectorGeometryLonLatFactory.CreateLonLatPolygon(APoints, APointCount - 1);
         if VPolygon.Count <> 0 then begin
           Result :=
             CreatePoly(
@@ -377,7 +377,7 @@ begin
             );
         end;
       end else begin
-        VPath := FFactory.CreateLonLatPath(APoints, APointCount);
+        VPath := FVectorGeometryLonLatFactory.CreateLonLatPath(APoints, APointCount);
         if VPath.Count <> 0 then begin
           Result :=
             CreateLine(

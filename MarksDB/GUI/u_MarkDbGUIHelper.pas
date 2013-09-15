@@ -59,7 +59,7 @@ type
   private
     FMarkSystem: IMarkSystem;
     FMarkFactoryConfig: IMarkFactoryConfig;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
@@ -148,7 +148,7 @@ type
       const AMarkSystem: IMarkSystem;
       const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -180,7 +180,7 @@ constructor TMarkDbGUIHelper.Create(
   const AMarkSystem: IMarkSystem;
   const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
@@ -188,7 +188,7 @@ begin
   inherited Create;
   FMarkSystem := AMarkSystem;
   FImportFileByExt := AImportFileByExt;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FMarkFactoryConfig := AMarkFactoryConfig;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
@@ -586,7 +586,7 @@ begin
       end;
       VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
       Result :=
-        FVectorItemsFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+        FVectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
           VMarkLine.Line,
           VFilter
           );
@@ -602,7 +602,7 @@ begin
           Exit;
         end;
         Result :=
-          FVectorItemsFactory.CreateLonLatPolygonCircleByPoint(
+          FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
             AProjection,
             VMarkPoint.GetPoint,
             VRadius

@@ -32,7 +32,6 @@ type
   TMapLayerVectorMaps = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
     FConfig: IKmlLayerConfig;
-    FVectorItemsFactory: IVectorItemsFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
@@ -73,7 +72,6 @@ type
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
       const AProjectedProvider: IProjectedGeometryProvider;
       const ATimerNoifier: INotifierTime;
       const AErrorLogger: ITileErrorLogger;
@@ -109,7 +107,6 @@ constructor TMapLayerVectorMaps.Create(
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
   const AProjectedProvider: IProjectedGeometryProvider;
   const ATimerNoifier: INotifierTime;
   const AErrorLogger: ITileErrorLogger;
@@ -139,7 +136,6 @@ begin
     AConfig.ThreadConfig
   );
   FConfig := AConfig;
-  FVectorItemsFactory := AVectorItemsFactory;
   FBitmapFactory := ABitmapFactory;
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
@@ -189,7 +185,6 @@ begin
       VConfig.MainColor,
       VConfig.ShadowColor,
       VConfig.PointColor,
-      FVectorItemsFactory,
       FBitmapFactory,
       FProjectedProvider,
       FVectorItems

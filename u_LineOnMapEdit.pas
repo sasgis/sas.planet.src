@@ -33,7 +33,7 @@ uses
 type
   TLineOnMapEdit = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEdit)
   private
-    FFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FPoints: array of TDoublePoint;
     FPointsCount: Integer;
     FSelectedPointIndex: Integer;
@@ -56,7 +56,9 @@ type
     procedure InsertPoint(const APoint: TDoublePoint);
     procedure MoveActivePoint(const APoint: TDoublePoint);
   public
-    constructor Create(const AFactory: IVectorItemsFactory);
+    constructor Create(
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+    );
     procedure AfterConstruction; override;
   end;
 
@@ -159,10 +161,10 @@ type
 
 { TLineOnMapEdit }
 
-constructor TLineOnMapEdit.Create(const AFactory: IVectorItemsFactory);
+constructor TLineOnMapEdit.Create(const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory);
 begin
   inherited Create;
-  FFactory := AFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FPointsCount := 0;
   FSelectedPointIndex := 0;
   SetLength(FPoints, 0);
@@ -575,7 +577,7 @@ end;
 
 procedure TPathOnMapEdit._UpdateLineObject;
 begin
-  FLine := FFactory.CreateLonLatPath(@FPoints[0], FPointsCount);
+  FLine := FVectorGeometryLonLatFactory.CreateLonLatPath(@FPoints[0], FPointsCount);
   _UpdateLineWithSelected;
 end;
 
@@ -692,7 +694,7 @@ end;
 
 procedure TPolygonOnMapEdit._UpdateLineObject;
 begin
-  FLine := FFactory.CreateLonLatPolygon(@FPoints[0], FPointsCount);
+  FLine := FVectorGeometryLonLatFactory.CreateLonLatPolygon(@FPoints[0], FPointsCount);
   _UpdateLineWithSelected;
 end;
 

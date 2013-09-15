@@ -73,7 +73,7 @@ type
     procedure cbbZoomChange(Sender: TObject);
     procedure cbbTileResChange(Sender: TObject);
   private
-    FVectorFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -100,7 +100,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AMainMapsConfig: IMainMapsConfig;
@@ -166,7 +166,7 @@ begin
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=
-        FVectorFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
           VPolyLL
         );
@@ -196,7 +196,7 @@ end;
 constructor TfrExportToOgf2.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AMainMapsConfig: IMainMapsConfig;
@@ -208,7 +208,7 @@ constructor TfrExportToOgf2.Create(
 begin
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
-  FVectorFactory := AVectorFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FBitmapFactory := ABitmapFactory;
   FMainMapsConfig := AMainMapsConfig;

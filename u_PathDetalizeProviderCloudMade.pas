@@ -42,7 +42,7 @@ type
 type
   TPathDetalizeProviderCloudMade = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
-    FFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FBaseUrl: string;
     FVehicle: TRouteVehicle;
     FRouteCalcType: TRouteCalcType;
@@ -61,7 +61,7 @@ type
     constructor Create(
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
-      const AFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       AVehicle: TRouteVehicle;
       ARouteCalcType: TRouteCalcType
     );
@@ -84,7 +84,7 @@ uses
 constructor TPathDetalizeProviderCloudMade.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
-  const AFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   AVehicle: TRouteVehicle;
   ARouteCalcType: TRouteCalcType
 );
@@ -95,7 +95,7 @@ begin
   FRouteCalcType := ARouteCalcType;
   FInetConfig := AInetConfig;
   FDownloader := ADownloader;
-  FFactory := AFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 end;
 
 function TPathDetalizeProviderCloudMade.GetPath(
@@ -195,7 +195,7 @@ begin
   end;
   if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     if not conerr then begin
-      Result := FFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
+      Result := FVectorGeometryLonLatFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
       if meters > 1000 then begin
         AComment := SAS_STR_MarshLen + ' ' + RoundEx(meters / 1000, 2) + ' ' + SAS_UNITS_km;
       end else begin

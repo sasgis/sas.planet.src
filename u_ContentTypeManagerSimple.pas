@@ -45,7 +45,7 @@ type
     function FindConverterWithSynonyms(const ASourceType, ATargetType: AnsiString): IContentConverter;
     procedure UpdateConverterMatrix;
     procedure InitLists(
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALoadPerfCounterList: IInternalPerformanceCounterList;
@@ -53,7 +53,7 @@ type
     );
   public
     constructor Create(
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -78,7 +78,7 @@ uses
 { TContentTypeManagerSimple }
 
 constructor TContentTypeManagerSimple.Create(
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -88,7 +88,7 @@ begin
   inherited Create;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   InitLists(
-    AVectorItemsFactory,
+    AVectorGeometryLonLatFactory,
     AVectorItemSubsetBuilderFactory,
     ABitmapTileSaveLoadFactory,
     APerfCounterList.CreateAndAddNewSubList('TileLoad'),
@@ -97,7 +97,7 @@ begin
 end;
 
 procedure TContentTypeManagerSimple.InitLists(
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALoadPerfCounterList: IInternalPerformanceCounterList;
@@ -156,7 +156,7 @@ begin
     'application/vnd.google-earth.kml+xml',
     '.kml',
     TKmlInfoSimpleParser.Create(
-      AVectorItemsFactory,
+      AVectorGeometryLonLatFactory,
       AVectorItemSubsetBuilderFactory,
       ALoadPerfCounterList
     )
@@ -168,7 +168,7 @@ begin
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      TKmlInfoSimpleParser.Create(AVectorItemsFactory, AVectorItemSubsetBuilderFactory, nil),
+      TKmlInfoSimpleParser.Create(AVectorGeometryLonLatFactory, AVectorItemSubsetBuilderFactory, nil),
       FArchiveReadWriteFactory,
       ALoadPerfCounterList
     )
@@ -180,7 +180,7 @@ begin
     'application/gpx+xml',
     '.gpx',
     TXmlInfoSimpleParser.Create(
-      AVectorItemsFactory,
+      AVectorGeometryLonLatFactory,
       AVectorItemSubsetBuilderFactory,
       False,
       ALoadPerfCounterList

@@ -41,7 +41,7 @@ type
       const AGCNotifier: INotifierTime;
       const AResultFactory: IDownloadResultFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader
     );
   end;
@@ -70,7 +70,7 @@ constructor TPathDetalizeProviderListSimple.Create(
   const AGCNotifier: INotifierTime;
   const AResultFactory: IDownloadResultFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader
 );
 var
@@ -102,7 +102,7 @@ begin
     TPathDetalizeProviderMailRu.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=distance'
     );
   VEntity :=
@@ -135,7 +135,7 @@ begin
     TPathDetalizeProviderMailRu.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=time'
     );
   VEntity :=
@@ -171,7 +171,7 @@ begin
     TPathDetalizeProviderMailRu.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       'http://maps.mail.ru/stamperx/getPath.aspx?mode=deftime'
     );
   VEntity :=
@@ -205,7 +205,7 @@ begin
       AInetConfig,
       VDownloader,
       AVectorDataFactory,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       AKmlLoader,
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
     );
@@ -240,7 +240,7 @@ begin
       AInetConfig,
       VDownloader,
       AVectorDataFactory,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       AKmlLoader,
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
     );
@@ -275,7 +275,7 @@ begin
       AInetConfig,
       VDownloader,
       AVectorDataFactory,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       AKmlLoader,
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
     );
@@ -310,7 +310,7 @@ begin
       AInetConfig,
       VDownloader,
       AVectorDataFactory,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       AKmlLoader,
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'
     );
@@ -344,7 +344,7 @@ begin
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       car,
       fastest
     );
@@ -378,7 +378,7 @@ begin
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       foot,
       fastest
     );
@@ -412,7 +412,7 @@ begin
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       bicycle,
       fastest
     );
@@ -446,7 +446,7 @@ begin
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       car,
       shortest
     );
@@ -480,7 +480,7 @@ begin
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       foot,
       shortest
     );
@@ -514,7 +514,7 @@ begin
     TPathDetalizeProviderCloudMade.Create(
       AInetConfig,
       VDownloader,
-      AFactory,
+      AVectorGeometryLonLatFactory,
       bicycle,
       shortest
     );

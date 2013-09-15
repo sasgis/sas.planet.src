@@ -17,7 +17,7 @@ uses
 function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALonLatRect: TDoubleRect;
@@ -355,7 +355,7 @@ end;
 function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALonLatRect: TDoubleRect;
@@ -501,7 +501,7 @@ begin
 
           if (VPointsAggregator.Count>0) then begin
             // create lonlats
-            VPolygon := AVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+            VPolygon := AVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
             if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
               // make polygon
               if (nil=VAllNewMarks) then begin

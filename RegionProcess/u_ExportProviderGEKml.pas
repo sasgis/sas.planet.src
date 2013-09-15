@@ -19,7 +19,7 @@ type
   TExportProviderGEKml = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -30,7 +30,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
@@ -57,7 +57,7 @@ constructor TExportProviderGEKml.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
 );
 begin
   inherited Create(
@@ -68,7 +68,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
 end;
 
 function TExportProviderGEKml.CreateFrame: TFrame;
@@ -113,7 +113,7 @@ begin
     VProgressInfo,
     VPath,
     FProjectionFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     APolygon,
     VZoomArr,
     VMapType,

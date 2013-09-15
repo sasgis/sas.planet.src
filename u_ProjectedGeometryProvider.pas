@@ -16,7 +16,7 @@ type
   TProjectedGeometryProvider = class(THashCacheWithQueuesAbstract, IProjectedGeometryProvider)
   private
     FHashFunction: IHashFunction;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   private
     function GetProjectedPath(
       const AProjectionInfo: IProjectionInfo;
@@ -34,7 +34,7 @@ type
   public
     constructor Create(
       const AHashFunction: IHashFunction;
-      const AVectorItemsFactory: IVectorItemsFactory
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
     );
   end;
 
@@ -60,12 +60,12 @@ const
 
 constructor TProjectedGeometryProvider.Create(
   const AHashFunction: IHashFunction;
-  const AVectorItemsFactory: IVectorItemsFactory
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
 );
 begin
   inherited Create(14, 1000, 4000, 1000); // 2^14 elements in hash-table
   FHashFunction := AHashFunction;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
 end;
 
 function TProjectedGeometryProvider.CreateByKey(
@@ -96,13 +96,13 @@ begin
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize)
     then begin
       VResultPath :=
-        FVectorItemsFactory.CreateProjectedPathByLonLatPath(
+        FVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
           VData^.ProjectionInfo,
           VData^.Path
         );
     end else begin
       VResultPath :=
-        FVectorItemsFactory.CreateProjectedPath(
+        FVectorGeometryProjectedFactory.CreateProjectedPath(
           VData^.ProjectionInfo,
           nil,
           0
@@ -122,13 +122,13 @@ begin
       (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize)
     then begin
       VResultPolygon :=
-        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           VData^.ProjectionInfo,
           VData^.Polygon
         );
     end else begin
       VResultPolygon :=
-        FVectorItemsFactory.CreateProjectedPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygon(
           VData^.ProjectionInfo,
           nil,
           0

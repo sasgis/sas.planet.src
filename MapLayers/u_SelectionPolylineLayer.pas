@@ -21,6 +21,7 @@ type
     FLineOnMapEdit: IPathOnMapEdit;
     FConfig: ISelectionPolylineShadowLayerConfig;
     FRadius: Double;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FLine: ILonLatPathWithSelected;
     procedure OnLineChange;
   protected
@@ -34,7 +35,9 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
-      const AFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ISelectionPolylineShadowLayerConfig
     );
@@ -55,7 +58,9 @@ constructor TSelectionPolylineShadowLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
-  const AFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ISelectionPolylineShadowLayerConfig
 );
@@ -66,11 +71,13 @@ begin
     AAppClosingNotifier,
     AParentMap,
     AView,
-    AFactory,
+    AVectorGeometryProjectedFactory,
+    AVectorGeometryLocalFactory,
     AConfig
   );
   FConfig := AConfig;
   FLineOnMapEdit := ALineOnMapEdit;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLineChange),
@@ -100,7 +107,7 @@ begin
         ALocalConverter.ProjectionInfo
       );
     Result :=
-      Factory.CreateLonLatPolygonByLonLatPathAndFilter(
+      FVectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
         VLine,
         VFilter
       );

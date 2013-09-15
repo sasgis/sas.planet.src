@@ -34,7 +34,6 @@ type
   TMapLayerMarks = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
     FConfig: IMarksLayerConfig;
-    FVectorItemsFactory: IVectorItemsFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FMarkDB: IMarkSystem;
@@ -75,7 +74,6 @@ type
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AVectorItemsFactory: IVectorItemsFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AProjectedCache: IProjectedGeometryProvider;
       const AMarkerProvider: IMarkerProviderForVectorItem;
@@ -113,7 +111,6 @@ constructor TMapLayerMarks.Create(
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AVectorItemsFactory: IVectorItemsFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AProjectedCache: IProjectedGeometryProvider;
   const AMarkerProvider: IMarkerProviderForVectorItem;
@@ -145,7 +142,6 @@ begin
   );
   FConfig := AConfig;
   FMarkDB := AMarkDB;
-  FVectorItemsFactory := AVectorItemsFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMarkerProvider := AMarkerProvider;
   FBitmapFactory := ABitmapFactory;
@@ -201,7 +197,6 @@ begin
     Result :=
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
-        FVectorItemsFactory,
         FBitmapFactory,
         ALayerConverter.ProjectionInfo,
         FProjectedCache,

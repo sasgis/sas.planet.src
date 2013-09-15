@@ -23,7 +23,7 @@ type
   private
     FMapTypeArr: IMapTypeListStatic;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FConfigPath, FExportPath: string;
     
     FIsMove: boolean;
@@ -42,7 +42,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AConfigPath, AExportPath: string;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const APolygon: ILonLatPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
@@ -71,7 +71,7 @@ constructor TThreadExportToStorage.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AConfigPath, AExportPath: string;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const APolygon: ILonLatPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;
@@ -88,7 +88,7 @@ begin
   );
   FTargetStorage := nil;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FConfigPath := AConfigPath;
   FExportPath := AExportPath;
   FIsMove := AMove;
@@ -128,7 +128,7 @@ begin
       VZoom := FZooms[i];
       VGeoConvert := FMapTypeArr.Items[j].MapType.GeoConvert;
       VProjectedPolygon :=
-        FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
           PolygLL
         );

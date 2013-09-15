@@ -28,7 +28,6 @@ type
     FColorMain: TColor32;
     FColorBG: TColor32;
     FPointColor: TColor32;
-    FVectorItemsFactory: IVectorItemsFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorItems: IVectorItemSubsetChangeable;
     FProjectedCache: IProjectedGeometryProvider;
@@ -84,7 +83,6 @@ type
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32;
-      const AVectorItemsFactory: IVectorItemsFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectedCache: IProjectedGeometryProvider;
       const AVectorItems: IVectorItemSubsetChangeable
@@ -111,7 +109,6 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   AColorMain: TColor32;
   AColorBG: TColor32;
   APointColor: TColor32;
-  const AVectorItemsFactory: IVectorItemsFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectedCache: IProjectedGeometryProvider;
   const AVectorItems: IVectorItemSubsetChangeable
@@ -121,7 +118,6 @@ begin
   FColorMain := AColorMain;
   FColorBG := AColorBG;
   FPointColor := APointColor;
-  FVectorItemsFactory := AVectorItemsFactory;
   FBitmapFactory := ABitmapFactory;
   FProjectedCache := AProjectedCache;
   FVectorItems := AVectorItems;

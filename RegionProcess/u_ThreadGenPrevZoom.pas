@@ -31,7 +31,7 @@ type
     FResamplerFactory: IImageResamplerFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
 
     FTileInProc: integer;
     FBackGroundColor: TColor32;
@@ -42,7 +42,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorItemsFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AZooms: TByteDynArray;
       const APolygLL: ILonLatPolygon;
@@ -71,7 +71,7 @@ uses
 constructor TThreadGenPrevZoom.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorItemsFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AZooms: TByteDynArray;
   const APolygLL: ILonLatPolygon;
@@ -93,7 +93,7 @@ begin
     raise Exception.Create('Не выбрано целевых масштабов');
   end;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorItemsFactory;
   FBitmapFactory := ABitmapFactory;
   FIsReplace := AReplace;
   FIsSaveFullOnly := Asavefull;
@@ -140,7 +140,7 @@ begin
     VZoom := FZooms[i];
 
     VProjectedPolygon :=
-      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
         PolygLL
       );

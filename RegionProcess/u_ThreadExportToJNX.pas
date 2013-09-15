@@ -28,7 +28,7 @@ type
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FProductName: string; // копирайт
     FMapName: string;  // имя карты
@@ -50,7 +50,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
@@ -86,7 +86,7 @@ constructor TThreadExportToJnx.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
@@ -113,7 +113,7 @@ begin
   FTargetFile := ATargetFile;
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FProductName := AProductName;
   FMapName := AMapName;
@@ -167,7 +167,7 @@ begin
     VZoom := FZoomList[i];
     VGeoConvert := FMapList.Items[i].MapType.GeoConvert;
     VProjectedPolygon :=
-      FVectorItemsFactory.CreateProjectedPolygonByLonLatPolygon(
+      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
         PolygLL
       );

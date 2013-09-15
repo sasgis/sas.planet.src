@@ -76,7 +76,7 @@ type
     procedure chkReplaceOlderClick(Sender: TObject);
     procedure cbbZoomChange(Sender: TObject);
   private
-    FVectorFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FPolygLL: ILonLatPolygon;
     FMainMapsConfig: IMainMapsConfig;
@@ -104,7 +104,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
@@ -141,7 +141,7 @@ begin
     VPolyLL := FPolygLL;
     if VPolyLL <> nil then begin
       VProjected :=
-        FVectorFactory.CreateProjectedPolygonByLonLatPolygon(
+        FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           FProjectionFactory.GetByConverterAndZoom(Vmt.GeoConvert, VZoom),
           VPolyLL
         );
@@ -189,7 +189,7 @@ end;
 constructor TfrTilesDownload.Create(
   const ALanguageManager: ILanguageManager;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList
@@ -197,7 +197,7 @@ constructor TfrTilesDownload.Create(
 begin
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
-  FVectorFactory := AVectorFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;

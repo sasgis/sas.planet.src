@@ -17,7 +17,7 @@ type
   private
     FLastSelection: ILastSelectionInfo;
     FFileName: IPathConfig;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
 
     FListener: IListener;
     FNeedReadFlag: ISimpleFlag;
@@ -30,7 +30,7 @@ type
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const ALastSelection: ILastSelectionInfo;
       const AFileName: IPathConfig
     );
@@ -57,7 +57,7 @@ uses
 
 constructor TLastSelectionInfoSaver.Create(
   const AAppClosingNotifier: INotifierOneOperation;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const ALastSelection: ILastSelectionInfo;
   const AFileName: IPathConfig
 );
@@ -69,7 +69,7 @@ begin
   VThreadConfig := TThreadConfig.Create(tpIdle);
   inherited Create(AAppClosingNotifier, Self.ProcessSave, VThreadConfig, Self.ClassName);
 
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FLastSelection := ALastSelection;
   FFileName := AFileName;
 
@@ -144,7 +144,7 @@ begin
           VIniFile.Free;
         end;
         VProvider := VProvider.GetOrCreateSubItem('HIGHLIGHTING');
-        VPolygon := ReadPolygon(VProvider, FVectorItemsFactory);
+        VPolygon := ReadPolygon(VProvider, FVectorGeometryLonLatFactory);
         if VPolygon.Count > 0 then begin
           VZoom := VProvider.Readinteger('Zoom', VZoom);
         end;

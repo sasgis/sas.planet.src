@@ -198,7 +198,7 @@ type
     FMarkDBGUI: TMarkDbGUIHelper;
     FMapSvcScanConfig: IMapSvcScanConfig;
     FMapSvcScanStorage: IMapSvcScanStorage;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
     procedure MakePicsVendors;
@@ -269,7 +269,7 @@ type
       const AMarkDBGUI: TMarkDbGUIHelper;
       const AMapSvcScanConfig: IMapSvcScanConfig;
       const ALanguageManager: ILanguageManager;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AInetConfig: IInetConfig
     ); reintroduce;
@@ -1096,7 +1096,7 @@ begin
 
       if (VPointsAggregator.Count>0) then begin
         // create lonlats
-        VPolygon := FVectorItemsFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+        VPolygon := FVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
           VMark :=
@@ -1613,7 +1613,7 @@ constructor TfrmDGAvailablePic.Create(
   const AMarkDBGUI: TMarkDbGUIHelper;
   const AMapSvcScanConfig: IMapSvcScanConfig;
   const ALanguageManager: ILanguageManager;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AInetConfig: IInetConfig
 );
@@ -1643,7 +1643,7 @@ begin
   FCSAddNode := MakeSync_Tiny(Self, FALSE);
 
   FLocalConverter := nil;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FInetConfig := AInetConfig;
   FMapSvcScanStorage := TMapSvcScanStorage.Create(AMapSvcScanConfig);
   FResultFactory := TDownloadResultFactory.Create;
@@ -1657,7 +1657,7 @@ begin
   KillPicsVendors;
   // interfaces
   FResultFactory:=nil;
-  FVectorItemsFactory:=nil;
+  FVectorGeometryLonLatFactory:=nil;
   FInetConfig:=nil;
   FLocalConverter:=nil;
   FCSAddNode:=nil;

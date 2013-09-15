@@ -161,7 +161,9 @@ type
     FAppStartedNotifierInternal: INotifierOneOperationInternal;
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
@@ -228,7 +230,9 @@ type
     property SensorList: ISensorList read FSensorList;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
-    property VectorItemsFactory: IVectorItemsFactory read FVectorItemsFactory;
+    property VectorGeometryLonLatFactory: IVectorGeometryLonLatFactory read FVectorGeometryLonLatFactory;
+    property VectorGeometryProjectedFactory: IVectorGeometryProjectedFactory read FVectorGeometryProjectedFactory;
+    property VectorGeometryLocalFactory: IVectorGeometryLocalFactory read FVectorGeometryLocalFactory;
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
     property ProjectedGeometryProvider: IProjectedGeometryProvider read FProjectedGeometryProvider;
@@ -453,7 +457,9 @@ begin
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
-  FVectorItemsFactory := TVectorItemsFactorySimple.Create(FHashFunction);
+  FVectorGeometryProjectedFactory := TVectorGeometryProjectedFactory.Create;
+  FVectorGeometryLonLatFactory := TVectorGeometryLonLatFactory.Create(FHashFunction);
+  FVectorGeometryLocalFactory := TVectorGeometryLocalFactory.Create;
 
   FGlobalInternetState := TGlobalInternetState.Create;
 
@@ -506,7 +512,7 @@ begin
 
   FGpsTrackRecorderInternal :=
     TGpsTrackRecorder.Create(
-      FVectorItemsFactory,
+      FVectorGeometryLonLatFactory,
       FGlobalConfig.GpsTrackRecorderFileName
     );
   FGpsTrackRecorder := FGpsTrackRecorderInternal;
@@ -516,7 +522,7 @@ begin
 
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
-      FVectorItemsFactory,
+      FVectorGeometryLonLatFactory,
       FVectorItemSubsetBuilderFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
@@ -529,7 +535,7 @@ begin
   // xml loaders
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
-      FVectorItemsFactory,
+      FVectorGeometryLonLatFactory,
       FVectorItemSubsetBuilderFactory,
       True,
       VMarksKmlLoadCounterList
@@ -538,20 +544,20 @@ begin
   VKmlLoader := VXmlLoader;
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      TXmlInfoSimpleParser.Create(FVectorItemsFactory, FVectorItemSubsetBuilderFactory, True, nil),
+      TXmlInfoSimpleParser.Create(FVectorGeometryLonLatFactory, FVectorItemSubsetBuilderFactory, True, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
 {$else}
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
-      FVectorItemsFactory,
+      FVectorGeometryLonLatFactory,
       FVectorItemSubsetBuilderFactory,
       VMarksKmlLoadCounterList
     );
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      TKmlInfoSimpleParser.Create(FVectorItemsFactory, nil),
+      TKmlInfoSimpleParser.Create(FVectorGeometryLonLatFactory, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
@@ -560,16 +566,16 @@ begin
   FProjectedGeometryProvider :=
     TProjectedGeometryProvider.Create(
       FHashFunction,
-      FVectorItemsFactory
+      FVectorGeometryProjectedFactory
     );
   FImportFileByExt := TImportByFileExt.Create(
     FGlobalConfig.ValueToStringConverterConfig,
     FVectorDataFactory,
-    FVectorItemsFactory,
+    FVectorGeometryLonLatFactory,
     FVectorItemSubsetBuilderFactory,
     VXmlLoader,
     TPLTSimpleParser.Create(
-      FVectorItemsFactory,
+      FVectorGeometryLonLatFactory,
       FVectorItemSubsetBuilderFactory,
       VMarksKmlLoadCounterList
     ),
@@ -623,7 +629,6 @@ begin
       FGlobalConfig.MarksFactoryConfig,
       FMarkPictureList,
       FHashFunction,
-      FVectorItemsFactory,
       FAppearanceOfMarkFactory,
       THtmlToHintTextConverterStuped.Create
     );
@@ -635,7 +640,7 @@ begin
       FMarkCategoryFactory,
       FHashFunction,
       FAppearanceOfMarkFactory,
-      FVectorItemsFactory,
+      FVectorGeometryLonLatFactory,
       FVectorItemSubsetBuilderFactory,
       FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
       FAppStartedNotifier,
@@ -675,7 +680,7 @@ begin
       FBGTimerNotifier,
       TDownloadResultFactory.Create,
       FVectorDataFactory,
-      FVectorItemsFactory,
+      FVectorGeometryLonLatFactory,
       VKmlLoader
     );
 
@@ -702,7 +707,7 @@ begin
   FLastSelectionSaver :=
     TLastSelectionInfoSaver.Create(
       FAppClosingNotifier,
-      FVectorItemsFactory,
+      FVectorGeometryLonLatFactory,
       FGlobalConfig.LastSelectionInfo,
       FGlobalConfig.LastSelectionFileName
     );

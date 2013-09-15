@@ -23,7 +23,7 @@ type
   TProviderTilesGenPrev = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorItemsFactory: IVectorItemsFactory;
+    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FImageResamplerConfig: IImageResamplerConfig;
     FViewConfig: IGlobalViewMainConfig;
@@ -38,7 +38,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AViewConfig: IGlobalViewMainConfig;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorItemsFactory: IVectorItemsFactory;
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AImageResamplerConfig: IImageResamplerConfig
     );
@@ -69,7 +69,7 @@ constructor TProviderTilesGenPrev.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorItemsFactory: IVectorItemsFactory;
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AImageResamplerConfig: IImageResamplerConfig
 );
@@ -82,7 +82,7 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FVectorItemsFactory := AVectorItemsFactory;
+  FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FViewConfig := AViewConfig;
   FImageResamplerConfig := AImageResamplerConfig;
@@ -131,7 +131,7 @@ begin
   TThreadGenPrevZoom.Create(
     VProgressInfo,
     FProjectionFactory,
-    FVectorItemsFactory,
+    FVectorGeometryProjectedFactory,
     FBitmapFactory,
     VInZooms,
     APolygon,
