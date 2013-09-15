@@ -74,15 +74,14 @@ function TGeoCoderByGoogle.ParseResultToPlacemarksList(
 var
   Stream: TMemoryStream;
   Node: IXMLNode;
-  PlacemarkNode, PointNode, AddressNode: IXMLNode;
+  PlacemarkNode, PointNode, CoordNode, AddressNode: IXMLNode;
   i: Integer;
-  StringList: TStringList;
   VPoint: TDoublePoint;
   VPlace: IGeoCodePlacemark;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   XMLDocument: TXMLDocument;
-  VPointStr: string;
+  VLon, VLat: string;
 begin
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
@@ -90,32 +89,37 @@ begin
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceListSimple.Create;
   Stream := TMemoryStream.Create;
-  StringList := TStringList.Create;
   XMLDocument := TXMLDocument.Create(application);
   try
     Stream.Write(AResult.Data.Buffer^, AResult.Data.Size);
     XMLDocument.LoadFromStream(Stream);
     Node := XMLDocument.DocumentElement;
-    Node := Node.ChildNodes.FindNode('Response');
     if (Node <> nil) and (Node.ChildNodes.Count > 0) then begin
       for i := 0 to Node.ChildNodes.Count - 1 do begin
-        if Node.ChildNodes[i].NodeName = 'Placemark' then begin
+        if Node.ChildNodes[i].NodeName = 'status' then begin
+          if Node.ChildNodes[i].Text <> 'OK' then begin
+            Break;
+          end;
+        end else if Node.ChildNodes[i].NodeName = 'result' then begin
           PlacemarkNode := Node.ChildNodes[i];
-          AddressNode := PlacemarkNode.ChildNodes.FindNode('address');
-          PointNode := PlacemarkNode.ChildNodes.FindNode('Point');
-          PointNode := PointNode.ChildNodes.FindNode('coordinates');
+          AddressNode := PlacemarkNode.ChildNodes.FindNode('formatted_address');
+          PointNode := PlacemarkNode.ChildNodes.FindNode('geometry');
+          PointNode := PointNode.ChildNodes.FindNode('location');
           if (AddressNode <> nil) and (PointNode <> nil) then begin
-            VPointStr := PointNode.Text;
-            ExtractStrings([','], [], PChar(VPointStr), StringList);
+            CoordNode := PointNode.ChildNodes.FindNode('lng');
+            Assert(CoordNode <> nil);
+            VLon := CoordNode.Text;
+            CoordNode := PointNode.ChildNodes.FindNode('lat');
+            Assert(CoordNode <> nil);
+            VLat := CoordNode.Text;
             try
-              VPoint.X := StrToFloat(StringList[0], VFormatSettings);
-              VPoint.Y := StrToFloat(StringList[1], VFormatSettings);
+              VPoint.X := StrToFloat(VLon, VFormatSettings);
+              VPoint.Y := StrToFloat(VLat, VFormatSettings);
             except
-              raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [StringList[1], StringList[0]]);
+              raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLon, VLat]);
             end;
             VPlace := PlacemarkFactory.Build(VPoint, AddressNode.Text, '', '', 4);
             VList.Add(VPlace);
-            StringList.Clear;
           end;
         end;
       end;
@@ -123,7 +127,6 @@ begin
     Result := VList;
   finally
     XMLDocument.Free;
-    StringList.free;
     Stream.Free;
   end;
 end;
@@ -153,12 +156,13 @@ begin
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   Result :=
     PrepareRequestByURL(
-      'http://maps.google.com/maps/geo?q=' +
+      'http://maps.googleapis.com/maps/api/geocode/xml?address=' +
       URLEncode(AnsiToUtf8(VSearch)) +
-      '&output=xml' + AnsiString(SAS_STR_GoogleSearchLanguage) +
-      '&key=ABQIAAAA5M1y8mUyWUMmpR1jcFhV0xSHfE-V63071eGbpDusLfXwkeh_OhT9fZIDm0qOTP0Zey_W5qEchxtoeA' +
+      '&sensor=false' +
+      '&language=' + StringReplace(SAS_STR_GoogleSearchLanguage, '&hl=', '', [rfIgnoreCase])
+      {
       '&ll=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
-      '&spn=' + R2AnsiStrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2AnsiStrPoint(VLonLatRect.Top - VLonLatRect.Bottom)
+      '&spn=' + R2AnsiStrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2AnsiStrPoint(VLonLatRect.Top - VLonLatRect.Bottom)}
     );
 end;
 
