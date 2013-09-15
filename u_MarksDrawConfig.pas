@@ -82,8 +82,7 @@ var
 begin
   VStatic :=
     TMarksDrawConfigStatic.Create(
-      FShowPointCaption,
-      FUseSolidCaptionBackground,
+      TCaptionDrawConfigStatic.Create(FShowPointCaption, FUseSolidCaptionBackground),
       FUseSimpleDrawOrder,
       FOverSizeRect
     );

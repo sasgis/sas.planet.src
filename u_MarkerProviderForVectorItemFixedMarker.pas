@@ -5,6 +5,7 @@ interface
 uses
   i_MarkerDrawable,
   i_VectorDataItemSimple,
+  i_MarksDrawConfig,
   i_MarkerProviderForVectorItem,
   u_BaseInterfacedObject;
 
@@ -13,7 +14,10 @@ type
   private
     FMarker: IMarkerDrawableChangeable;
   private
-    function GetMarker(const AItem: IVectorDataItemSimple): IMarkerDrawable;
+    function GetMarker(
+      const AConfig: ICaptionDrawConfigStatic;
+      const AItem: IVectorDataItemSimple
+    ): IMarkerDrawable;
   public
     constructor Create(const AMarker: IMarkerDrawableChangeable);
   end;
@@ -30,7 +34,9 @@ begin
 end;
 
 function TMarkerProviderForVectorItemFixedMarker.GetMarker(
-  const AItem: IVectorDataItemSimple): IMarkerDrawable;
+  const AConfig: ICaptionDrawConfigStatic;
+  const AItem: IVectorDataItemSimple
+): IMarkerDrawable;
 begin
   Result := FMarker.GetStatic;
 end;

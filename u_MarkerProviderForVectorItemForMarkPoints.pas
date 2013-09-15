@@ -17,7 +17,6 @@ type
   TMarkerProviderForVectorItemForMarkPoints = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
     FBitmapFactory: IBitmap32StaticFactory;
-    FConfig: IMarksDrawConfigStatic;
     FMarkerDefault: IMarkerDrawableChangeable;
 
     FBitmapWithText: TBitmap32;
@@ -48,12 +47,14 @@ type
       ASize: Integer
     ): IBitmapMarker;
   private
-    function GetMarker(const AItem: IVectorDataItemSimple): IMarkerDrawable;
+    function GetMarker(
+      const AConfig: ICaptionDrawConfigStatic;
+      const AItem: IVectorDataItemSimple
+    ): IMarkerDrawable;
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AMarkerDefault: IMarkerDrawableChangeable;
-      const AConfig: IMarksDrawConfigStatic
+      const AMarkerDefault: IMarkerDrawableChangeable
     );
     destructor Destroy; override;
   end;
@@ -78,13 +79,11 @@ uses
 
 constructor TMarkerProviderForVectorItemForMarkPoints.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AMarkerDefault: IMarkerDrawableChangeable;
-  const AConfig: IMarksDrawConfigStatic
+  const AMarkerDefault: IMarkerDrawableChangeable
 );
 begin
   inherited Create;
   FBitmapFactory := ABitmapFactory;
-  FConfig := AConfig;
   FMarkerDefault := AMarkerDefault;
 
   FBitmapWithText := TBitmap32.Create;
@@ -102,8 +101,11 @@ begin
 end;
 
 function TMarkerProviderForVectorItemForMarkPoints.GetCaptionBitmap(
-  const ACaption: string; AFontSize: Integer; ATextColor, ATextBgColor: TColor32;
-  ASolidBgDraw: Boolean): IBitmap32Static;
+  const ACaption: string;
+  AFontSize: Integer;
+  ATextColor, ATextBgColor: TColor32;
+  ASolidBgDraw: Boolean
+): IBitmap32Static;
 var
   VTextSize: TSize;
   VBitmap: TBitmap32ByStaticBitmap;
@@ -116,7 +118,7 @@ begin
     VTextSize.cx:=VTextSize.cx+2;
     VTextSize.cy:=VTextSize.cy+2;
     FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
-    if FConfig.UseSolidCaptionBackground then begin
+    if ASolidBgDraw then begin
       FBitmapWithText.Clear(ATextBgColor);
       FBitmapWithText.RenderText(2, 2, ACaption, 1, SetAlpha(ATextColor,255));
     end else begin
@@ -177,7 +179,9 @@ begin
 end;
 
 function TMarkerProviderForVectorItemForMarkPoints.GetMarker(
-  const AItem: IVectorDataItemSimple): IMarkerDrawable;
+  const AConfig: ICaptionDrawConfigStatic;
+  const AItem: IVectorDataItemSimple
+): IMarkerDrawable;
 var
   VMarker: IBitmapMarker;
   VAppearanceIcon: IAppearancePointIcon;
@@ -199,7 +203,7 @@ begin
   end;
 
   VMarkerCaption := nil;
-  if FConfig.ShowPointCaption then begin
+  if AConfig.ShowPointCaption then begin
     if Supports(AItem.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
       VMarkerCaption :=
         GetCaptionMarker(
@@ -207,7 +211,7 @@ begin
           VAppearanceCaption.FontSize,
           VAppearanceCaption.TextColor,
           VAppearanceCaption.TextBgColor,
-          FConfig.UseSolidCaptionBackground,
+          AConfig.UseSolidCaptionBackground,
           VMarkerSize
         );
     end;

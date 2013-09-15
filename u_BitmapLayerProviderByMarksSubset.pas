@@ -374,7 +374,7 @@ var
   VMarker: IMarkerDrawable;
 begin
   Result := False;
-  VMarker := FMarkerProviderForVectorItem.GetMarker(AMarkPoint);
+  VMarker := FMarkerProviderForVectorItem.GetMarker(FConfig.CaptionDrawConfig, AMarkPoint);
   if VMarker <> nil then begin
     VLonLat := AMarkPoint.Point;
     ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);

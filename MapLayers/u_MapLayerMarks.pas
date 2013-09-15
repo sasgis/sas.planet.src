@@ -21,7 +21,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
-  i_IdCacheSimple,
+  i_MarkerProviderForVectorItem,
   i_FindVectorItems,
   i_VectorItemSubset,
   i_ProjectedGeometryProvider,
@@ -38,13 +38,11 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FMarkDB: IMarkSystem;
-    FMarkIconDefault: IMarkerDrawableChangeable;
     FProjectedCache: IProjectedGeometryProvider;
+    FMarkerProvider: IMarkerProviderForVectorItem;
 
     FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
-
-    FMarkerCache: IIdCacheSimple;
 
     FMarksSubset: IVectorItemSubset;
     FMarksSubsetCS: IReadWriteSync;
@@ -80,7 +78,7 @@ type
       const AVectorItemsFactory: IVectorItemsFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AProjectedCache: IProjectedGeometryProvider;
-      const AMarkIconDefault: IMarkerDrawableChangeable;
+      const AMarkerProvider: IMarkerProviderForVectorItem;
       const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AConfig: IMarksLayerConfig;
@@ -97,7 +95,6 @@ uses
   i_TileMatrix,
   i_VectorItemProjected,
   i_InterfaceListStatic,
-  i_MarkerProviderForVectorItem,
   u_TileMatrixFactory,
   u_ListenerByEvent,
   u_IdCacheSimpleThreadSafe,
@@ -119,7 +116,7 @@ constructor TMapLayerMarks.Create(
   const AVectorItemsFactory: IVectorItemsFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AProjectedCache: IProjectedGeometryProvider;
-  const AMarkIconDefault: IMarkerDrawableChangeable;
+  const AMarkerProvider: IMarkerProviderForVectorItem;
   const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AConfig: IMarksLayerConfig;
@@ -150,11 +147,9 @@ begin
   FMarkDB := AMarkDB;
   FVectorItemsFactory := AVectorItemsFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FMarkIconDefault := AMarkIconDefault;
+  FMarkerProvider := AMarkerProvider;
   FBitmapFactory := ABitmapFactory;
   FProjectedCache := AProjectedCache;
-
-  FMarkerCache := TIdCacheSimpleThreadSafe.Create;
 
   FMarksSubsetCS := MakeSyncRW_Var(Self);
   FGetMarksCounter := PerfList.CreateAndAddNewCounter('GetMarks');
@@ -187,7 +182,6 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VMarksSubset: IVectorItemSubset;
   VMarksDrawConfig: IMarksDrawConfigStatic;
-  VMarkerProvider: IMarkerProviderForVectorItem;
 begin
   Result := nil;
   VCounterContext := FGetMarksCounter.StartOperation;
@@ -202,14 +196,8 @@ begin
   finally
     FGetMarksCounter.FinishOperation(VCounterContext);
   end;
-  FMarkerCache.Clear;
   if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
     VMarksDrawConfig := FConfig.MarksDrawConfig.GetStatic;
-    VMarkerProvider :=
-      TMarkerProviderForVectorItemWithCache.Create(
-        FMarkerCache,
-        TMarkerProviderForVectorItemForMarkPoints.Create(FBitmapFactory, FMarkIconDefault, VMarksDrawConfig)
-      );
     Result :=
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
@@ -217,7 +205,7 @@ begin
         FBitmapFactory,
         ALayerConverter.ProjectionInfo,
         FProjectedCache,
-        VMarkerProvider,
+        FMarkerProvider,
         VMarksSubset
       );
   end;

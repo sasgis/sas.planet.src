@@ -24,25 +24,38 @@ interface
 
 uses
   Types,
+  t_Hash,
   i_MarksDrawConfig,
   u_BaseInterfacedObject;
 
 type
-  TMarksDrawConfigStatic = class(TBaseInterfacedObject, IMarksDrawConfigStatic)
+  TCaptionDrawConfigStatic = class(TBaseInterfacedObject, ICaptionDrawConfigStatic)
   private
     FShowPointCaption: Boolean;
     FUseSolidCaptionBackground: Boolean;
+  private
+    function GetHash: THashValue;
+    function GetShowPointCaption: Boolean;
+    function GetUseSolidCaptionBackground: Boolean;
+  public
+    constructor Create(
+      AShowPointCaption: Boolean;
+      AUseSolidCaptionBackground: Boolean
+    );
+  end;
+
+  TMarksDrawConfigStatic = class(TBaseInterfacedObject, IMarksDrawConfigStatic)
+  private
+    FCaptionDrawConfig: ICaptionDrawConfigStatic;
     FUseSimpleDrawOrder: Boolean;
     FOverSizeRect: TRect;
   private
-    function GetShowPointCaption: Boolean;
-    function GetUseSolidCaptionBackground: Boolean;
+    function GetCaptionDrawConfig: ICaptionDrawConfigStatic;
     function GetUseSimpleDrawOrder: Boolean;
     function GetOverSizeRect: TRect;
   public
     constructor Create(
-      AShowPointCaption: Boolean;
-      AUseSolidCaptionBackground: Boolean;
+      const ACaptionDrawConfig: ICaptionDrawConfigStatic;
       AUseSimpleDrawOrder: Boolean;
       AOverSizeRect: TRect
     );
@@ -53,17 +66,20 @@ implementation
 { TMarksDrawConfigStatic }
 
 constructor TMarksDrawConfigStatic.Create(
-  AShowPointCaption: Boolean;
-  AUseSolidCaptionBackground: Boolean;
+  const ACaptionDrawConfig: ICaptionDrawConfigStatic;
   AUseSimpleDrawOrder: Boolean;
   AOverSizeRect: TRect
 );
 begin
   inherited Create;
-  FShowPointCaption := AShowPointCaption;
-  FUseSolidCaptionBackground := AUseSolidCaptionBackground;
+  FCaptionDrawConfig := ACaptionDrawConfig;
   FUseSimpleDrawOrder := AUseSimpleDrawOrder;
   FOverSizeRect := AOverSizeRect;
+end;
+
+function TMarksDrawConfigStatic.GetCaptionDrawConfig: ICaptionDrawConfigStatic;
+begin
+  Result := FCaptionDrawConfig;
 end;
 
 function TMarksDrawConfigStatic.GetOverSizeRect: TRect;
@@ -71,17 +87,45 @@ begin
   Result := FOverSizeRect;
 end;
 
-function TMarksDrawConfigStatic.GetShowPointCaption: Boolean;
-begin
-  Result := FShowPointCaption;
-end;
-
 function TMarksDrawConfigStatic.GetUseSimpleDrawOrder: Boolean;
 begin
   Result := FUseSimpleDrawOrder;
 end;
 
-function TMarksDrawConfigStatic.GetUseSolidCaptionBackground: Boolean;
+{ TCaptionDrawConfigStatic }
+
+constructor TCaptionDrawConfigStatic.Create(
+  AShowPointCaption,
+  AUseSolidCaptionBackground: Boolean
+);
+begin
+  inherited Create;
+  FShowPointCaption := AShowPointCaption;
+  FUseSolidCaptionBackground := AUseSolidCaptionBackground;
+end;
+
+function TCaptionDrawConfigStatic.GetHash: THashValue;
+var
+  VHash: THashValue;
+begin
+  VHash := $162e192b2957163d;
+  if not FShowPointCaption then begin
+    VHash := not VHash;
+  end;
+  Result := VHash;
+  VHash := $f3786a4b25827c1;
+  if not FUseSolidCaptionBackground then begin
+    VHash := not VHash;
+  end;
+  Result := Result xor VHash;
+end;
+
+function TCaptionDrawConfigStatic.GetShowPointCaption: Boolean;
+begin
+  Result := FShowPointCaption;
+end;
+
+function TCaptionDrawConfigStatic.GetUseSolidCaptionBackground: Boolean;
 begin
   Result := FUseSolidCaptionBackground;
 end;

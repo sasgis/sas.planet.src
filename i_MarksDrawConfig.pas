@@ -24,16 +24,26 @@ interface
 
 uses
   Types,
+  t_Hash,
   i_ConfigDataElement;
 
 type
-  IMarksDrawConfigStatic = interface
-    ['{2BC70BD2-74E8-4063-BB70-03445CBCFD00}']
+  ICaptionDrawConfigStatic = interface
+    ['{745D5905-E954-4976-8697-CF2CD65AD55E}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
+
     function GetShowPointCaption: Boolean;
     property ShowPointCaption: Boolean read GetShowPointCaption;
 
     function GetUseSolidCaptionBackground: Boolean;
     property UseSolidCaptionBackground: Boolean read GetUseSolidCaptionBackground;
+  end;
+
+  IMarksDrawConfigStatic = interface
+    ['{2BC70BD2-74E8-4063-BB70-03445CBCFD00}']
+    function GetCaptionDrawConfig: ICaptionDrawConfigStatic;
+    property CaptionDrawConfig: ICaptionDrawConfigStatic read GetCaptionDrawConfig;
 
     function GetUseSimpleDrawOrder: Boolean;
     property UseSimpleDrawOrder: Boolean read GetUseSimpleDrawOrder;

@@ -262,8 +262,7 @@ begin
     VMarkerProvider :=
       TMarkerProviderForVectorItemForMarkPoints.Create(
         FBitmapFactory,
-        nil,
-        VMarksDrawConfig
+        nil
       );
     VMarksImageProvider :=
       TBitmapLayerProviderByMarksSubset.Create(

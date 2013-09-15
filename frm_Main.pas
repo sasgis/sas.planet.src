@@ -768,9 +768,12 @@ uses
   i_PathDetalizeProvider,
   i_StringListChangeable,
   i_AppearanceOfVectorItem,
+  i_MarkerProviderForVectorItem,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
+  u_MarkerProviderForVectorItemWithCache,
+  u_MarkerProviderForVectorItemForMarkPoints,
   u_GeoFun,
   u_GeoToStr,
   u_MapType,
@@ -1420,6 +1423,7 @@ var
   VLicensList: IStringListChangeable;
   VMiniMapConverterChangeable: ILocalCoordConverterChangeable;
   VBitmapChangeable: IBitmapChangeable;
+  VMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
   VLayersList: IInterfaceListSimple;
 begin
   VLayersList := TInterfaceListSimple.Create;
@@ -1508,6 +1512,11 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(VBitmap.Size.X/2, VBitmap.Size.Y))
       );
   end;
+  VMarkerProviderForVectorItem :=
+    TMarkerProviderForVectorItemWithCache.Create(
+      GState.HashFunction,
+      TMarkerProviderForVectorItemForMarkPoints.Create(GState.BitmapFactory, VMarkerChangeable)
+    );
   FLayerMapMarks:=
     TMapLayerMarks.Create(
       GState.PerfCounterList,
@@ -1521,7 +1530,7 @@ begin
       GState.VectorItemsFactory,
       GState.VectorItemSubsetBuilderFactory,
       GState.ProjectedGeometryProvider,
-      VMarkerChangeable,
+      VMarkerProviderForVectorItem,
       GState.GUISyncronizedTimerNotifier,
       GState.BitmapFactory,
       FConfig.LayersConfig.MarksLayerConfig,

@@ -3,22 +3,32 @@ unit u_MarkerProviderForVectorItemWithCache;
 interface
 
 uses
-  i_IdCacheSimple,
+  t_Hash,
+  i_HashFunction,
   i_VectorDataItemSimple,
   i_MarkerDrawable,
+  i_MarksDrawConfig,
   i_MarkerProviderForVectorItem,
-  u_BaseInterfacedObject;
+  u_HashCacheWithQueuesAbstract;
 
 type
-  TMarkerProviderForVectorItemWithCache = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
+  TMarkerProviderForVectorItemWithCache = class(THashCacheWithQueuesAbstract, IMarkerProviderForVectorItem)
   private
-    FCache: IIdCacheSimple;
+    FHashFunction: IHashFunction;
     FProvider: IMarkerProviderForVectorItem;
   private
-    function GetMarker(const AItem: IVectorDataItemSimple): IMarkerDrawable;
+    function GetMarker(
+      const AConfig: ICaptionDrawConfigStatic;
+      const AItem: IVectorDataItemSimple
+    ): IMarkerDrawable;
+  protected
+    function CreateByKey(
+      const AKey: THashValue;
+      AData: Pointer
+    ): IInterface; override;
   public
     constructor Create(
-      const ACache: IIdCacheSimple;
+      const AHashFunction: IHashFunction;
       const AProvider: IMarkerProviderForVectorItem
     );
   end;
@@ -28,28 +38,53 @@ implementation
 uses
   SysUtils;
 
+type
+  PDataRecord = ^TDataRecord;
+  TDataRecord = record
+    Config: ICaptionDrawConfigStatic;
+    Item: IVectorDataItemSimple;
+  end;
+
 { TMarkerProviderForVectorItemWithCache }
 
-constructor TMarkerProviderForVectorItemWithCache.Create(const ACache: IIdCacheSimple;
-  const AProvider: IMarkerProviderForVectorItem);
+constructor TMarkerProviderForVectorItemWithCache.Create(
+  const AHashFunction: IHashFunction;
+  const AProvider: IMarkerProviderForVectorItem
+);
 begin
-  Assert(ACache <> nil);
   Assert(AProvider <> nil);
-  inherited Create;
-  FCache := ACache;
+  inherited Create(14, 1000, 4000, 1000); // 2^14 elements in hash-table
+  FHashFunction := AHashFunction;
   FProvider := AProvider;
 end;
 
-function TMarkerProviderForVectorItemWithCache.GetMarker(
-  const AItem: IVectorDataItemSimple): IMarkerDrawable;
+function TMarkerProviderForVectorItemWithCache.CreateByKey(
+  const AKey: THashValue;
+  AData: Pointer
+): IInterface;
 var
-  VID: Integer;
+  VData: PDataRecord;
 begin
-  VID := Integer(AItem);
-  if not Supports(FCache.GetByID(VID), IMarkerDrawable, Result) then begin
-    Result := FProvider.GetMarker(AItem);
-    FCache.Add(VID, Result);
+  VData := PDataRecord(AData);
+  Result := FProvider.GetMarker(VData^.Config, VData^.Item);
+end;
+
+function TMarkerProviderForVectorItemWithCache.GetMarker(
+  const AConfig: ICaptionDrawConfigStatic;
+  const AItem: IVectorDataItemSimple
+): IMarkerDrawable;
+var
+  VHash: THashValue;
+  VData: TDataRecord;
+begin
+  Assert(Assigned(AItem));
+  VHash := AItem.Hash;
+  if Assigned(AConfig) then begin
+    FHashFunction.UpdateHashByHash(VHash, AConfig.Hash);
   end;
+  VData.Config :=  AConfig;
+  VData.Item := AItem;
+  Result := IMarkerDrawable(GetOrCreateItem(VHash, @VData));
 end;
 
 end.
