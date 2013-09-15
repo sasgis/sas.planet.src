@@ -159,10 +159,10 @@ begin
       'http://maps.googleapis.com/maps/api/geocode/xml?address=' +
       URLEncode(AnsiToUtf8(VSearch)) +
       '&sensor=false' +
-      '&language=' + StringReplace(SAS_STR_GoogleSearchLanguage, '&hl=', '', [rfIgnoreCase])
-      {
-      '&ll=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
-      '&spn=' + R2AnsiStrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2AnsiStrPoint(VLonLatRect.Top - VLonLatRect.Bottom)}
+      '&language=' + StringReplace(SAS_STR_GoogleSearchLanguage, '&hl=', '', [rfIgnoreCase]) +
+      '&bounds=' +
+        R2AnsiStrPoint(VLonLatRect.Bottom) + ',' + R2AnsiStrPoint(VLonLatRect.Left) + '|' +
+        R2AnsiStrPoint(VLonLatRect.Top) + ',' + R2AnsiStrPoint(VLonLatRect.Right)
     );
 end;
 
