@@ -24,6 +24,8 @@ interface
 
 uses
   Classes,
+  ALfcnString,
+  ALStringList,
   t_GeoTypes,
   i_BinaryData,
   i_VectorItemSubsetBuilder,
@@ -39,18 +41,19 @@ uses
 type
   TPLTSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
+    FFormatSettings: TALFormatSettings;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
     procedure ParseStringList(
-      AStringList: TStringList;
+      AStringList: TALStringList;
       const APointsAggregator: IDoublePointsAggregator
     );
     function GetWord(
-      Str: string;
-      const Smb: string;
+      const Str: AnsiString;
+      const Smb: AnsiString;
       WordNmbr: Byte
-    ): string;
+    ): AnsiString;
   private
     function LoadFromStream(
       AStream: TStream;
@@ -89,6 +92,7 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
+  FFormatSettings.DecimalSeparator := '.';
 end;
 
 function TPLTSimpleParser.Load(
@@ -114,7 +118,7 @@ function TPLTSimpleParser.LoadFromStream(
   const AVectorGeometryLonLatFactory: IVectorDataFactory
 ): IVectorItemSubset;
 var
-  pltstr: TStringList;
+  pltstr: TALStringList;
   trackname: string;
   VList: IVectorItemSubsetBuilder;
   VItem: IVectorDataItemSimple;
@@ -122,7 +126,7 @@ var
   VPath: ILonLatPath;
 begin
   Result := nil;
-  pltstr := TStringList.Create;
+  pltstr := TALStringList.Create;
   try
     pltstr.LoadFromStream(AStream);
     if pltstr.Count > 7 then begin
@@ -131,7 +135,7 @@ begin
       if VPointsAggregator.Count > 0 then begin
         VPath := FVectorGeometryLonLatFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
         if Assigned(VPath) then begin
-          trackname := GetWord(pltstr[4], ',', 4);
+          trackname := string(GetWord(pltstr[4], ',', 4));
           VItem :=
             AVectorGeometryLonLatFactory.BuildPath(
               AIdData,
@@ -154,34 +158,26 @@ begin
 end;
 
 procedure TPLTSimpleParser.ParseStringList(
-  AStringList: TStringList;
+  AStringList: TALStringList;
   const APointsAggregator: IDoublePointsAggregator
 );
 var
-  i, j: integer;
-  VStr: string;
+  i: integer;
+  VStr: AnsiString;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
 begin
   for i := 6 to AStringList.Count - 1 do begin
     try
-      j := 1;
       VStr := AStringList[i];
-      while j < length(VStr) do begin
-        if VStr[j] = ' ' then begin
-          delete(VStr, j, 1);
-        end else begin
-          inc(j);
-        end;
-      end;
-      if (GetWord(AStringList[i], ',', 3) = '1') and (i > 6) then begin
+      if (GetWord(VStr, ',', 3) = '1') and (i > 6) then begin
         VPoint := CEmptyDoublePoint;
         APointsAggregator.Add(VPoint);
       end;
       VValidPoint := True;
       try
-        VPoint.y := str2r(GetWord(VStr, ',', 1));
-        VPoint.x := str2r(GetWord(VStr, ',', 2));
+        VPoint.y := ALStrToFloat(GetWord(VStr, ',', 1), FFormatSettings);
+        VPoint.x := ALStrToFloat(GetWord(VStr, ',', 2), FFormatSettings);
       except
         VValidPoint := False;
       end;
@@ -194,28 +190,29 @@ begin
 end;
 
 function TPLTSimpleParser.GetWord(
-  Str: string;
-  const Smb: string;
+  const Str: AnsiString;
+  const Smb: AnsiString;
   WordNmbr: Byte
-): string;
+): AnsiString;
 var
-  SWord: string;
-  StrLen, N: Byte;
+  N: Byte;
+  VCurrPos: Integer;
+  VPrevPos: Integer;
 begin
-  StrLen := Length(Str);
-  N := 1;
-  while ((WordNmbr >= N) and (StrLen <> 0)) do begin
-    StrLen := System.Pos(Smb, str);
-    if StrLen <> 0 then begin
-      SWord := Copy(Str, 1, StrLen - 1);
-      Delete(Str, 1, StrLen);
-      Inc(N);
-    end else begin
-      SWord := Str;
+  VCurrPos := 0;
+  VPrevPos := -1;
+  N := 0;
+  while (WordNmbr > N)  do begin
+    VPrevPos := VCurrPos + 1;
+    VCurrPos := ALPosEx(Smb, Str, VPrevPos);
+    if VCurrPos = 0 then begin
+      VCurrPos := Length(Str);
+      Break;
     end;
+    Inc(N);
   end;
   if WordNmbr <= N then begin
-    Result := SWord;
+    Result := ALCopyStr(Str, VPrevPos, VCurrPos - VPrevPos);
   end else begin
     Result := '';
   end;
