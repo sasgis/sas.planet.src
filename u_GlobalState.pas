@@ -278,7 +278,7 @@ uses
   i_TextByVectorItem,
   u_MapTypeSet,
   u_MapTypeListStatic,
-  i_GlobalAppConfig,
+  i_InternalDebugConfig,
   u_TextByVectorItemHTMLByDescription,
   u_TextByVectorItemMarkInfo,
   u_NotifierTime,
@@ -349,7 +349,7 @@ uses
   u_GlobalConfig,
   u_GlobalInternetState,
   u_GlobalCacheConfig,
-  u_GlobalAppConfig,
+  u_InternalDebugConfig,
   u_MarkFactory,
   u_MarkCategoryFactory,
   u_ProjectedGeometryProvider,
@@ -374,7 +374,7 @@ var
   VProgramPath: string;
   VSleepByClass: IConfigDataProvider;
   VResamplerFactoryList: IImageResamplerFactoryList;
-  VGlobalAppConfig: IGlobalAppConfig;
+  VInternalDebugConfig: IInternalDebugConfig;
 begin
   inherited Create;
   if ModuleIsLib then begin
@@ -390,7 +390,7 @@ begin
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseCahcePath := TPathConfig.Create('', VProgramPath, nil);
 
-  VGlobalAppConfig := TGlobalAppConfig.Create;
+  VInternalDebugConfig := TInternalDebugConfig.Create;
 
   FMainConfigProvider :=
     TSASMainConfigProvider.Create(
@@ -399,9 +399,9 @@ begin
       HInstance
     );
 
-  VGlobalAppConfig.ReadConfig(FMainConfigProvider.GetSubItem('VIEW'));
+  VInternalDebugConfig.ReadConfig(FMainConfigProvider.GetSubItem('Debug'));
 
-  if VGlobalAppConfig.IsShowDebugInfo then begin
+  if VInternalDebugConfig.IsShowDebugInfo then begin
     FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
     if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
       FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
@@ -422,7 +422,7 @@ begin
 
   FGlobalConfig :=
     TGlobalConfig.Create(
-      VGlobalAppConfig,
+      VInternalDebugConfig,
       FAppearanceOfMarkFactory,
       FBaseCahcePath,
       FBaseConfigPath,
@@ -700,7 +700,7 @@ begin
     );
   FDebugInfoWindow :=
     TDebugInfoWindow.Create(
-      FGlobalConfig.GlobalAppConfig,
+      FGlobalConfig.InternalDebugConfig,
       FPerfCounterList
     );
   FBatteryStatus := TBatteryStatus.Create;

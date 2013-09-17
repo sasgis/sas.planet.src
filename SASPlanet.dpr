@@ -908,6 +908,8 @@ uses
   u_PointOnMapEdit in 'u_PointOnMapEdit.pas',
   i_LineOnMapEdit in 'i_LineOnMapEdit.pas',
   u_LineOnMapEdit in 'u_LineOnMapEdit.pas',
+  i_InternalDebugConfig in 'i_InternalDebugConfig.pas',
+  u_InternalDebugConfig in 'u_InternalDebugConfig.pas',
   i_GlobalAppConfig in 'i_GlobalAppConfig.pas',
   u_GlobalAppConfig in 'u_GlobalAppConfig.pas',
   i_StartUpLogoConfig in 'i_StartUpLogoConfig.pas',

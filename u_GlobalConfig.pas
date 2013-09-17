@@ -25,6 +25,7 @@ uses
   i_ZmpConfig,
   i_WindowPositionConfig,
   i_GlobalConfig,
+  i_InternalDebugConfig,
   i_LastSearchResultConfig,
   i_MapSvcScanConfig,
   u_ConfigDataElementComplexBase;
@@ -44,8 +45,9 @@ type
     FGpsRecorderFileName: IPathConfig;
     FGpsTrackRecorderFileName: IPathConfig;
 
-    FGlobalAppConfig: IGlobalAppConfig;
+    FInternalDebugConfig: IInternalDebugConfig;
 
+    FGlobalAppConfig: IGlobalAppConfig;
     FLastSelectionInfo: ILastSelectionInfo;
     FLanguageManager: ILanguageManager;
     FGsmConfig: IGSMGeoCodeConfig;
@@ -83,6 +85,7 @@ type
     function GetLastSelectionFileName: IPathConfig;
     function GetGpsRecorderFileName: IPathConfig;
     function GetGpsTrackRecorderFileName: IPathConfig;
+    function GetInternalDebugConfig: IInternalDebugConfig;
     function GetGlobalAppConfig: IGlobalAppConfig;
     function GetLastSelectionInfo: ILastSelectionInfo;
     function GetLanguageManager: ILanguageManager;
@@ -112,7 +115,7 @@ type
     function GetMapSvcScanConfig: IMapSvcScanConfig;
   public
     constructor Create(
-      const AGlobalAppConfig: IGlobalAppConfig;
+      const AInternalDebugConfig: IInternalDebugConfig;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const ABaseCacheDataPath: IPathConfig;
       const ABaseConfigPath: IPathConfig;
@@ -150,12 +153,13 @@ uses
   u_BitmapPostProcessingConfig,
   u_MarkFactoryConfig,
   u_MarkCategoryFactoryConfig,
+  u_GlobalAppConfig,
   u_PathConfig;
 
 { TGlobalConfig }
 
 constructor TGlobalConfig.Create(
-  const AGlobalAppConfig: IGlobalAppConfig;
+  const AInternalDebugConfig: IInternalDebugConfig;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const ABaseCacheDataPath: IPathConfig;
   const ABaseConfigPath: IPathConfig;
@@ -199,7 +203,9 @@ begin
   FGpsTrackRecorderFileName := TPathConfig.Create('TrackFileName', '.\LastPoints.dat', ABaseDataPath);
   Add(FGpsTrackRecorderFileName, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GpsData'), False, False, False, False);
 
-  FGlobalAppConfig := AGlobalAppConfig;
+  FInternalDebugConfig := AInternalDebugConfig;
+
+  FGlobalAppConfig := TGlobalAppConfig.Create;
   Add(FGlobalAppConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('VIEW'), False, False, False, False);
 
   FLastSelectionInfo := TLastSelectionInfo.Create;
@@ -339,6 +345,11 @@ end;
 function TGlobalConfig.GetInternalBrowserConfig: IWindowPositionConfig;
 begin
   Result := FInternalBrowserConfig;
+end;
+
+function TGlobalConfig.GetInternalDebugConfig: IInternalDebugConfig;
+begin
+  Result := FInternalDebugConfig;
 end;
 
 function TGlobalConfig.GetLanguageManager: ILanguageManager;

@@ -18,100 +18,74 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_GlobalAppConfig;
+unit u_InternalDebugConfig;
 
 interface
 
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_GlobalAppConfig,
+  i_InternalDebugConfig,
   u_ConfigDataElementBase;
 
 type
-  TGlobalAppConfig = class(TConfigDataElementBase, IGlobalAppConfig)
+  TInternalDebugConfig = class(TConfigDataElementBase, IInternalDebugConfig)
   private
-    FIsShowIconInTray: Boolean;
-    FIsSendStatistic: Boolean;
+    FIsShowDebugInfo: Boolean;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetIsShowIconInTray: Boolean;
-    procedure SetIsShowIconInTray(AValue: Boolean);
-
-    function GetIsSendStatistic: Boolean;
-    procedure SetIsSendStatistic(AValue: Boolean);
+    function GetIsShowDebugInfo: Boolean;
+    procedure SetIsShowDebugInfo(AValue: Boolean);
   public
     constructor Create;
   end;
 
 implementation
 
-{ TGlobalAppConfig }
+{ TInternalDebugConfig }
 
-constructor TGlobalAppConfig.Create;
+constructor TInternalDebugConfig.Create;
 begin
   inherited Create;
-  FIsShowIconInTray := False;
-  FIsSendStatistic := True;
+  {$IFDEF DEBUG}
+  FIsShowDebugInfo := True;
+  {$ELSE}
+  FIsShowDebugInfo := False;
+  {$ENDIF}
 end;
 
-procedure TGlobalAppConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+procedure TInternalDebugConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FIsShowIconInTray := AConfigData.ReadBool('ShowIconInTray', FIsShowIconInTray);
-    FIsSendStatistic := AConfigData.ReadBool('SendStatistic', FIsSendStatistic);
+    FIsShowDebugInfo := AConfigData.ReadBool('ShowDebugInfo', FIsShowDebugInfo);
     SetChanged;
   end;
 end;
 
-procedure TGlobalAppConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
+procedure TInternalDebugConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteBool('ShowIconInTray', FIsShowIconInTray);
 end;
 
-function TGlobalAppConfig.GetIsSendStatistic: Boolean;
+function TInternalDebugConfig.GetIsShowDebugInfo: Boolean;
 begin
   LockRead;
   try
-    Result := FIsSendStatistic;
+    Result := FIsShowDebugInfo;
   finally
     UnlockRead;
   end;
 end;
 
-function TGlobalAppConfig.GetIsShowIconInTray: Boolean;
-begin
-  LockRead;
-  try
-    Result := FIsShowIconInTray;
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TGlobalAppConfig.SetIsSendStatistic(AValue: Boolean);
+procedure TInternalDebugConfig.SetIsShowDebugInfo(AValue: Boolean);
 begin
   LockWrite;
   try
-    if FIsSendStatistic <> AValue then begin
-      FIsSendStatistic := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TGlobalAppConfig.SetIsShowIconInTray(AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FIsShowIconInTray <> AValue then begin
-      FIsShowIconInTray := AValue;
+    if FIsShowDebugInfo <> AValue then begin
+      FIsShowDebugInfo := AValue;
       SetChanged;
     end;
   finally

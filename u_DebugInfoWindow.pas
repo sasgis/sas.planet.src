@@ -5,7 +5,7 @@ interface
 uses
   i_DebugInfoWindow,
   i_InternalPerformanceCounter,
-  i_GlobalAppConfig,
+  i_InternalDebugConfig,
   u_BaseInterfacedObject,
   frm_DebugInfo;
 
@@ -13,13 +13,13 @@ type
   TDebugInfoWindow = class(TBaseInterfacedObject, IDebugInfoWindow)
   private
     FPerfCounterList: IInternalPerformanceCounterList;
-    FAppConfig: IGlobalAppConfig;
+    FInternalDebugConfig: IInternalDebugConfig;
     FfrmDebugInfo: TfrmDebugInfo;
   private
     procedure Show;
   public
     constructor Create(
-      const AAppConfig: IGlobalAppConfig;
+      const AInternalDebugConfig: IInternalDebugConfig;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -33,12 +33,12 @@ uses
 { TDebugInfoWindow }
 
 constructor TDebugInfoWindow.Create(
-  const AAppConfig: IGlobalAppConfig;
+  const AInternalDebugConfig: IInternalDebugConfig;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
-  FAppConfig := AAppConfig;
+  FInternalDebugConfig := AInternalDebugConfig;
   FPerfCounterList := APerfCounterList;
 end;
 
@@ -53,7 +53,7 @@ end;
 procedure TDebugInfoWindow.Show;
 begin
   if FfrmDebugInfo = nil then begin
-    if FAppConfig.IsShowDebugInfo then begin
+    if FInternalDebugConfig.IsShowDebugInfo then begin
       FfrmDebugInfo := TfrmDebugInfo.Create(nil, FPerfCounterList);
     end;
   end;

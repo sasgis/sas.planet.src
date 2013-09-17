@@ -14,6 +14,7 @@ uses
   i_ImageResamplerConfig,
   i_MainMemCacheConfig,
   i_GPSConfig,
+  i_InternalDebugConfig,
   i_GlobalViewMainConfig,
   i_MarkFactoryConfig,
   i_MarkCategoryFactoryConfig,
@@ -59,6 +60,9 @@ type
 
     function GetGpsTrackRecorderFileName: IPathConfig;
     property GpsTrackRecorderFileName: IPathConfig read GetGpsTrackRecorderFileName;
+
+    function GetInternalDebugConfig: IInternalDebugConfig;
+    property InternalDebugConfig: IInternalDebugConfig read GetInternalDebugConfig;
 
     function GetGlobalAppConfig: IGlobalAppConfig;
     property GlobalAppConfig: IGlobalAppConfig read GetGlobalAppConfig;

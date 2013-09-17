@@ -289,7 +289,7 @@ begin
   CheckBox1.Checked:=FMapType.GUIConfig.Separator;
   CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
   edtVersion.Text := FMapType.VersionConfig.Version.StoreString;
-  pnlHeader.Visible := GState.Config.GlobalAppConfig.IsShowDebugInfo;
+  pnlHeader.Visible := GState.Config.InternalDebugConfig.IsShowDebugInfo;
   VDownloadState := FMapType.TileDownloadSubsystem.State.GetStatic;
 
   // download availability

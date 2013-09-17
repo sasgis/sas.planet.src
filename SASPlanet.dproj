@@ -265,6 +265,7 @@
     <DCCReference Include="i_InterfaceListStatic.pas" />
     <DCCReference Include="i_InterfaceQueue.pas" />
     <DCCReference Include="i_InternalBrowser.pas" />
+    <DCCReference Include="i_InternalDebugConfig.pas" />
     <DCCReference Include="i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="i_InternalDomainOptions.pas" />
     <DCCReference Include="i_InvisibleBrowser.pas" />
@@ -1005,6 +1006,7 @@
     <DCCReference Include="u_InterfaceListStatic.pas" />
     <DCCReference Include="u_InterfaceQueue.pas" />
     <DCCReference Include="u_InternalBrowserByForm.pas" />
+    <DCCReference Include="u_InternalDebugConfig.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByDataProvider.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByLastSearchResults.pas" />
     <DCCReference Include="u_InternalDomainInfoProviderByMapData.pas" />

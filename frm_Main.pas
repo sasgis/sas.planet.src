@@ -1160,7 +1160,7 @@ begin
       );
     FShortCutManager.Load(GState.MainConfigProvider.GetSubItem('HOTKEY'));
 
-    tbitmShowDebugInfo.Visible := GState.Config.GlobalAppConfig.IsShowDebugInfo;
+    tbitmShowDebugInfo.Visible := GState.Config.InternalDebugConfig.IsShowDebugInfo;
 
     InitGridsMenus;
     
@@ -2309,7 +2309,7 @@ begin
   Result.Add(N006);
   Result.Add(N007);
   Result.Add(NFillMap);
-  if not GState.Config.GlobalAppConfig.IsShowDebugInfo then begin
+  if not GState.Config.InternalDebugConfig.IsShowDebugInfo then begin
     Result.Add(tbitmShowDebugInfo);
   end; 
 end;
