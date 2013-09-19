@@ -106,6 +106,7 @@ begin
       AMapCalibrationList,
       True,
       False,
+      False,
       'jp2',
       gettext_NoExtract('JPEG2000')
   );

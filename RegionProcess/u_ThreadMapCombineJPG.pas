@@ -27,6 +27,7 @@ type
     FQuality: Integer;
     FBgColor: TColor32;
     FLineProvider: IImageLineProvider;
+    FSaveGeoRefInfoToExif: Boolean;
     function GetLine(
       Sender: TObject;
       ALineNumber: Integer;
@@ -52,8 +53,9 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const AFileName: string;
       const ASplitCount: TPoint;
-      ABgColor: TColor32;
-      AQuality: Integer
+      const ABgColor: TColor32;
+      const AQuality: Integer;
+      const ASaveGeoRefInfoToExif: Boolean
     );
   end;
 
@@ -76,8 +78,9 @@ constructor TThreadMapCombineJPG.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const AFileName: string;
   const ASplitCount: TPoint;
-  ABgColor: TColor32;
-  AQuality: Integer
+  const ABgColor: TColor32;
+  const AQuality: Integer;
+  const ASaveGeoRefInfoToExif: Boolean
 );
 begin
   inherited Create(
@@ -93,6 +96,7 @@ begin
   );
   FBgColor := ABgColor;
   FQuality := AQuality;
+  FSaveGeoRefInfoToExif := ASaveGeoRefInfoToExif;
 end;
 
 procedure TThreadMapCombineJPG.SaveRect(
@@ -154,11 +158,13 @@ begin
       VJpegWriter.Height := FHeight;
       VJpegWriter.Quality := FQuality;
       VJpegWriter.AddCommentMarker('Created with SAS.Planet' + #0);
-      VExif := TExifSimple.Create(VCenterLonLat.Y, VCenterLonLat.X);
-      try
-        VJpegWriter.AddExifMarker(VExif.Stream);
-      finally
-        VExif.Free;
+      if FSaveGeoRefInfoToExif then begin  
+        VExif := TExifSimple.Create(VCenterLonLat.Y, VCenterLonLat.X);
+        try
+          VJpegWriter.AddExifMarker(VExif.Stream);
+        finally
+          VExif.Free;
+        end;
       end;
       VJpegWriter.Compress(Self.GetLine);
     finally

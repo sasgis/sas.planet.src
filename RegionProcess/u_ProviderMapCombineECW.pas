@@ -106,6 +106,7 @@ begin
       AMapCalibrationList,
       True,
       False,
+      False,
       'ecw',
       gettext_NoExtract('ECW (Enhanced Compression Wavelet)')
   );

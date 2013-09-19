@@ -106,6 +106,7 @@ begin
       AMapCalibrationList,
       False,
       False,
+      False,
       'bmp',
       gettext_NoExtract('BMP (Bitmap Picture)')
   );

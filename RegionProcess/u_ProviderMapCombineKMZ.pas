@@ -116,6 +116,7 @@ begin
       AMapCalibrationList,
       True,
       False,
+      False,
       'kmz',
       gettext_NoExtract('KMZ for Garmin')
   );

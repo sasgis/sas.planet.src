@@ -105,6 +105,7 @@ begin
       ABitmapPostProcessing,
       AMapCalibrationList,
       False,
+      False,
       True,
       'png',
       gettext_NoExtract('PNG (Portable Network Graphics)')

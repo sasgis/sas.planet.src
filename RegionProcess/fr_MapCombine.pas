@@ -52,6 +52,9 @@ type
     ['{C9A0712B-4456-4F34-8A06-9BA57F21D40A}']
     function GetQuality: Integer;
     property Quality: Integer read GetQuality;
+
+    function GetIsSaveGeoRefInfoToExif: Boolean;
+    property IsSaveGeoRefInfoToExif: Boolean read GetIsSaveGeoRefInfoToExif;
   end;
 
   IRegionProcessParamsFrameMapCombineWithAlfa = interface(IRegionProcessParamsFrameBase)
@@ -106,6 +109,7 @@ type
     lblMapCaption: TLabel;
     pnlLayerFrame: TPanel;
     lblLayerCaption: TLabel;
+    chkSaveGeoRefInfoToJpegExif: TCheckBox;
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private
@@ -121,6 +125,7 @@ type
     FPolygLL: ILonLatPolygon;
     FViewConfig: IGlobalViewMainConfig;
     FUseQuality: Boolean;
+    FUseExif: Boolean;
     FUseAlfa: Boolean;
     FDefaultExt: string;
     FFormatName: string;
@@ -142,6 +147,7 @@ type
     function GetUseRecolor: Boolean;
     function GetSplitCount: TPoint;
     function GetQuality: Integer;
+    function GetIsSaveGeoRefInfoToExif: Boolean;
     function GetIsSaveAlfa: Boolean;
     function GetBGColor: TColor32;
     function GetAllowWrite(AMapType: TMapType): boolean;
@@ -159,6 +165,7 @@ type
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AMapCalibrationList: IMapCalibrationList;
       const AUseQuality: Boolean;
+      const AUseExif: Boolean;
       const AUseAlfa: Boolean;
       const ADefaultExt: string;
       const AFormatName: string
@@ -198,6 +205,7 @@ constructor TfrMapCombine.Create(
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AMapCalibrationList: IMapCalibrationList;
   const AUseQuality: Boolean;
+  const AUseExif: Boolean;
   const AUseAlfa: Boolean;
   const ADefaultExt: string;
   const AFormatName: string
@@ -215,11 +223,13 @@ begin
   FViewConfig := AViewConfig;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
   FUseQuality := AUseQuality;
+  FUseExif := AUseExif;
   FUseAlfa := AUseAlfa;
   FDefaultExt := ADefaultExt;
   FFormatName := AFormatName;
   chkPngWithAlpha.Visible := FUseAlfa;
   flwpnlJpegQuality.Visible := FUseQuality;
+  chkSaveGeoRefInfoToJpegExif.Visible := FUseExif;
   FfrMapSelect :=
     TfrMapSelect.Create(
       ALanguageManager,
@@ -415,6 +425,11 @@ end;
 function TfrMapCombine.GetQuality: Integer;
 begin
   Result := seJpgQuality.Value;
+end;
+
+function TfrMapCombine.GetIsSaveGeoRefInfoToExif: Boolean;
+begin
+  Result := chkSaveGeoRefInfoToJpegExif.Checked;
 end;
 
 function TfrMapCombine.GetSplitCount: TPoint;

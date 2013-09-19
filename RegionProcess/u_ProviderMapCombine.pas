@@ -39,6 +39,7 @@ type
     FDefaultExt: string;
     FFormatName: string;
     FUseQuality: Boolean;
+    FUseExif: Boolean;
     FUseAlfa: Boolean;
     FViewConfig: IGlobalViewMainConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -89,6 +90,7 @@ type
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList;
       const AUseQuality: Boolean;
+      const AUseExif: Boolean;
       const AUseAlfa: Boolean;
       const ADefaultExt: string;
       const AFormatName: string
@@ -137,6 +139,7 @@ constructor TProviderMapCombineBase.Create(
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AMapCalibrationList: IMapCalibrationList;
   const AUseQuality: Boolean;
+  const AUseExif: Boolean;
   const AUseAlfa: Boolean;
   const ADefaultExt: string;
   const AFormatName: string
@@ -163,6 +166,7 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectedGeometryProvider := AProjectedGeometryProvider;
   FUseQuality := AUseQuality;
+  FUseExif := AUseExif;
   FUseAlfa := AUseAlfa;
   FDefaultExt := ADefaultExt;
   FFormatName := AFormatName;
@@ -184,6 +188,7 @@ begin
       FUseTilePrevZoomConfig,
       FMapCalibrationList,
       FUseQuality,
+      FUseExif,
       FUseAlfa,
       FDefaultExt,
       FFormatName

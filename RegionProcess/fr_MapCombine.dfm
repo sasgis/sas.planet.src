@@ -71,7 +71,7 @@ object frMapCombine: TfrMapCombine
       TabOrder = 0
       object chkUseMapMarks: TCheckBox
         Left = 3
-        Top = 37
+        Top = 54
         Width = 204
         Height = 17
         Align = alTop
@@ -89,7 +89,7 @@ object frMapCombine: TfrMapCombine
       end
       object flwpnlJpegQuality: TFlowPanel
         Left = 3
-        Top = 54
+        Top = 71
         Width = 204
         Height = 24
         Align = alTop
@@ -129,6 +129,15 @@ object frMapCombine: TfrMapCombine
         Checked = True
         State = cbChecked
         TabOrder = 3
+      end
+      object chkSaveGeoRefInfoToJpegExif: TCheckBox
+        Left = 3
+        Top = 37
+        Width = 204
+        Height = 17
+        Align = alTop
+        Caption = 'Save GeoRef info to Exif'
+        TabOrder = 4
       end
     end
     object pnlPrTypes: TPanel
@@ -284,7 +293,7 @@ object frMapCombine: TfrMapCombine
     object pnlMapFrame: TPanel
       Left = 3
       Top = -2
-      Width = 468
+      Width = 552
       Height = 38
       Alignment = taLeftJustify
       Anchors = [akLeft, akTop, akRight]
@@ -293,7 +302,7 @@ object frMapCombine: TfrMapCombine
       object lblMapCaption: TLabel
         Left = 0
         Top = 0
-        Width = 468
+        Width = 552
         Height = 13
         Align = alTop
         Caption = 'Map:'
@@ -303,7 +312,7 @@ object frMapCombine: TfrMapCombine
     object pnlLayerFrame: TPanel
       Left = 3
       Top = 32
-      Width = 468
+      Width = 552
       Height = 40
       Alignment = taLeftJustify
       Anchors = [akLeft, akTop, akRight]
@@ -312,7 +321,7 @@ object frMapCombine: TfrMapCombine
       object lblLayerCaption: TLabel
         Left = 0
         Top = 0
-        Width = 468
+        Width = 552
         Height = 13
         Align = alTop
         Caption = 'Overlay layer:'

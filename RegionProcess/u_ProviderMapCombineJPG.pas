@@ -105,6 +105,7 @@ begin
       ABitmapPostProcessing,
       AMapCalibrationList,
       True,
+      True,
       False,
       'jpg',
       gettext_NoExtract('JPEG (Joint Photographic Experts Group)')
@@ -141,7 +142,8 @@ begin
     VFileName,
     VSplitCount,
     VBGColor,
-    (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
+    (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality,
+    (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).IsSaveGeoRefInfoToExif
   );
 end;
 
