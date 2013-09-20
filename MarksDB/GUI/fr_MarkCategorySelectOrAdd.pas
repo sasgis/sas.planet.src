@@ -70,9 +70,11 @@ var
   VCategory: ICategory;
 begin
   AStrings.Clear;
-  for i := 0 to AList.Count - 1 do begin
-    VCategory := ICategory(AList[i]);
-    AStrings.AddObject(VCategory.Name, Pointer(VCategory));
+  if Assigned(AList) then begin
+    for i := 0 to AList.Count - 1 do begin
+      VCategory := ICategory(AList[i]);
+      AStrings.AddObject(VCategory.Name, Pointer(VCategory));
+    end;
   end;
 end;
 
