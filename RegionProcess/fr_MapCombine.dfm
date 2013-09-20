@@ -293,7 +293,7 @@ object frMapCombine: TfrMapCombine
     object pnlMapFrame: TPanel
       Left = 3
       Top = -2
-      Width = 552
+      Width = 468
       Height = 38
       Alignment = taLeftJustify
       Anchors = [akLeft, akTop, akRight]
@@ -302,7 +302,7 @@ object frMapCombine: TfrMapCombine
       object lblMapCaption: TLabel
         Left = 0
         Top = 0
-        Width = 552
+        Width = 468
         Height = 13
         Align = alTop
         Caption = 'Map:'
@@ -312,7 +312,7 @@ object frMapCombine: TfrMapCombine
     object pnlLayerFrame: TPanel
       Left = 3
       Top = 32
-      Width = 552
+      Width = 468
       Height = 40
       Alignment = taLeftJustify
       Anchors = [akLeft, akTop, akRight]
@@ -321,7 +321,7 @@ object frMapCombine: TfrMapCombine
       object lblLayerCaption: TLabel
         Left = 0
         Top = 0
-        Width = 552
+        Width = 468
         Height = 13
         Align = alTop
         Caption = 'Overlay layer:'
