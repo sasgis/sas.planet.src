@@ -548,7 +548,8 @@ function TTileStorageGoogleEarth.GetListOfTileVersions(
   procedure _TileInfoListToListSimple(
     const ATileInfoList: IGoogleEarthTileInfoList;
     const AListSimple: IInterfaceListSimple;
-    const AShowPrevVersion: Boolean
+    const AShowPrevVersion: Boolean;
+    const AIsTmVersion: Boolean
   );
   var
     I: Integer;
@@ -562,7 +563,7 @@ function TTileStorageGoogleEarth.GetListOfTileVersions(
     if Assigned(ATileInfoList) then begin
       for I := 0 to ATileInfoList.Count - 1 do begin
         if ATileInfoList.Get(I, VTileSize, VTileVersion, VTileDate) then begin
-          VVersionStr := BuildVersionStr(VTileVersion, VTileDate, False);
+          VVersionStr := BuildVersionStr(VTileVersion, VTileDate, AIsTmVersion);
           VMapVersionInfo := MapVersionFactory.CreateByStoreString(VVersionStr, AShowPrevVersion);
           AListSimple.Add(VMapVersionInfo);
         end;
@@ -586,12 +587,12 @@ begin
 
     if FCacheProvider <> nil then begin
       VList := FCacheProvider.GetListOfTileVersions(AXY, AZoom, 0, 0);
-      _TileInfoListToListSimple(VList, VListSimple, VShowPrevVersion);
+      _TileInfoListToListSimple(VList, VListSimple, VShowPrevVersion, False);
     end;
 
     if FCacheTmProvider <> nil then begin 
       VList := FCacheTmProvider.GetListOfTileVersions(AXY, AZoom, 0, 0);
-      _TileInfoListToListSimple(VList, VListSimple, VShowPrevVersion);
+      _TileInfoListToListSimple(VList, VListSimple, VShowPrevVersion, True);
     end;
 
     if VListSimple.Count > 0 then begin
