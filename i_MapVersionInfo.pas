@@ -47,6 +47,9 @@ type
 
     function GetItem(AIndex: Integer): IMapVersionInfo;
     property Item[AIndex: Integer]: IMapVersionInfo read GetItem;
+
+    function GetSorted: Boolean;
+    property Sorted: Boolean read GetSorted;
   end;
 
 implementation
