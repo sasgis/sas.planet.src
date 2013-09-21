@@ -3220,9 +3220,10 @@ var
   VMouseMapPoint: TDoublePoint;
   VLonLat: TDoublePoint;
   VMapTile: Tpoint;
-  i: Integer;
+  I: Integer;
   VMenuItem: TTBXItemSelectMapVersion;
   VCurrentVersion: String;
+  VSorted: Boolean;
   VList: IMapVersionListStatic;
   VVersion: IMapVersionInfo;
   VNewIndex: Integer;
@@ -3230,9 +3231,10 @@ var
   VAllowListOfTileVersions: Boolean;
 begin
   // remove all versions
-  for i := (tbpmiVersions.Count-1) downto 0 do begin
-    if (tbpmiVersions.Items[i] is TTBXItemSelectMapVersion) then
-      tbpmiVersions.Delete(i);
+  for I := (tbpmiVersions.Count - 1) downto 0 do begin
+    if (tbpmiVersions.Items[I] is TTBXItemSelectMapVersion) then begin
+      tbpmiVersions.Delete(I);
+    end;
   end;
   VStartingNewIndex := tbpmiVersions.Count;
 
@@ -3240,6 +3242,7 @@ begin
   VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   VAllowListOfTileVersions := VMapType.AllowListOfTileVersions;
   tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions and VMapType.AllowShowPrevVersion;
+
   if VAllowListOfTileVersions then begin
     // to lonlat
     VLocalConverter := FConfig.ViewPortState.View.GetStatic;
@@ -3263,29 +3266,36 @@ begin
     VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VZoomCurr, VVersion);
     VVersion := nil;
     // parse list
-    if Assigned(VList) then
-    for i := 0 to VList.Count-1 do begin
-      VVersion := VList.Item[i];
-      VMenuItem := TTBXItemSelectMapVersion.Create(tbpmiVersions);
-      VMenuItem.MapVersion := VVersion;
-      VMenuItem.Caption := VVersion.Caption;
-      VMenuItem.Checked := ((0<Length(VCurrentVersion)) and (VCurrentVersion = VVersion.StoreString));
-      VMenuItem.OnClick := DoSelectSpecialVersion;
-      VMenuItem.Tag := Integer(VVersion);
-      // get index (for sorting)
-      VNewIndex := VStartingNewIndex;
-      repeat
-        if (VNewIndex>=tbpmiVersions.Count) then
-          Break;
-        if CompareStr(VVersion.Caption, tbpmiVersions.Items[VNewIndex].Caption)>0 then begin
-          break;
+    if Assigned(VList) then begin
+      VSorted := VList.Sorted;
+      for I := 0 to VList.Count - 1 do begin
+        VVersion := VList.Item[I];
+        VMenuItem := TTBXItemSelectMapVersion.Create(tbpmiVersions);
+        VMenuItem.MapVersion := VVersion;
+        VMenuItem.Caption := VVersion.Caption;
+        VMenuItem.Checked := ((Length(VCurrentVersion) > 0) and (VCurrentVersion = VVersion.StoreString));
+        VMenuItem.OnClick := DoSelectSpecialVersion;
+        VMenuItem.Tag := Integer(VVersion);
+
+        if VSorted then begin
+          tbpmiVersions.Add(VMenuItem);
+        end else begin
+          // get index (for sorting)
+          VNewIndex := VStartingNewIndex;
+          repeat
+            if (VNewIndex>=tbpmiVersions.Count) then begin
+              Break;
+            end;
+            if CompareStr(VVersion.Caption, tbpmiVersions.Items[VNewIndex].Caption) > 0 then begin
+              break;
+            end;
+            Inc(VNewIndex);
+          until False;
+          // insert it
+          tbpmiVersions.Insert(VNewIndex, VMenuItem);
         end;
-        Inc(VNewIndex);
-      until FALSE;
-      // insert it
-      tbpmiVersions.Insert(VNewIndex, VMenuItem);
+      end;
     end;
-    //FMapVersionList := VList;
   end;
 end;
 

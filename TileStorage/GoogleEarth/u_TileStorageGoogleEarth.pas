@@ -561,6 +561,11 @@ function TTileStorageGoogleEarth.GetListOfTileVersions(
   begin
     Assert(Assigned(AListSimple));
     if Assigned(ATileInfoList) then begin
+      if AIsTmVersion then begin
+        ATileInfoList.SortByDate;
+      end else begin
+        ATileInfoList.SortByVersion;
+      end;
       for I := 0 to ATileInfoList.Count - 1 do begin
         if ATileInfoList.Get(I, VTileSize, VTileVersion, VTileDate) then begin
           VVersionStr := BuildVersionStr(VTileVersion, VTileDate, AIsTmVersion);
@@ -596,7 +601,7 @@ begin
     end;
 
     if VListSimple.Count > 0 then begin
-      Result := TMapVersionListStatic.Create(VListSimple.MakeStaticAndClear);
+      Result := TMapVersionListStatic.Create(VListSimple.MakeStaticAndClear, True);
     end;
   end;
 end;

@@ -46,6 +46,10 @@ type
 
     function GetCount: Integer; safecall;
     property Count: Integer read GetCount;
+
+    procedure SortByDate; safecall;
+
+    procedure SortByVersion; safecall;
   end;
 
   IGoogleEarthTerrainTileProvider = interface
@@ -97,6 +101,10 @@ type
 
     function GetCount: Integer; safecall;
     property Count: Integer read GetCount;
+
+    procedure SortByDate; safecall;
+
+    procedure SortByVersion; safecall;
   end;
 
   IGoogleEarthCacheProvider = interface
