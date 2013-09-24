@@ -79,8 +79,7 @@ uses
   i_VectorItemLonLat,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
-  u_GeoFun,
-  u_GeoToStr;
+  u_GeoFun;
 
 constructor TPLTSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
