@@ -56,6 +56,9 @@ type
 
     function GetIteratorSubRectSize: TPoint;
     property IteratorSubRectSize: TPoint read GetIteratorSubRectSize;
+
+    function GetRestartDownloadOnMemCacheTTL: Boolean;
+    property RestartDownloadOnMemCacheTTL: Boolean read GetRestartDownloadOnMemCacheTTL;
   end;
 
   ITileDownloaderConfig = interface(IConfigDataElement)
@@ -94,6 +97,10 @@ type
     function GetIteratorSubRectSize: TPoint;
     procedure SetIteratorSubRectSize(const AValue: TPoint);
     property IteratorSubRectSize: TPoint read GetIteratorSubRectSize write SetIteratorSubRectSize;
+
+    function GetRestartDownloadOnMemCacheTTL: Boolean;
+    procedure SetRestartDownloadOnMemCacheTTL(const AValue: Boolean);
+    property RestartDownloadOnMemCacheTTL: Boolean read GetRestartDownloadOnMemCacheTTL write SetRestartDownloadOnMemCacheTTL;
 
     function GetStatic: ITileDownloaderConfigStatic;
   end;

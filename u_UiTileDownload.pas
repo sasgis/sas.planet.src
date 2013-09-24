@@ -41,6 +41,7 @@ type
     FLinksList: IListenerNotifierLinksList;
     FDownloadTask: IBackgroundTask;
     FTTLListener: IListenerTimeWithUsedFlag;
+    FMemCacheTTLListener: IListenerTime;
     FTileDownloadFinishListener: IListenerDisconnectable;
     FDownloadState: ITileDownloaderStateChangeble;
 
@@ -57,6 +58,7 @@ type
     FVisualCoordConverterCS: IReadWriteSync;
 
     procedure OnTTLTrim;
+    procedure OnMemCacheTTLTrim;
     procedure OnPosChange;
     procedure OnMapTypeActiveChange;
     procedure OnConfigChange;
@@ -65,7 +67,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation
     );
-    procedure RetartDownloadIfNeed;
+    procedure RestartDownloadIfNeed;
     procedure OnTileDownloadFinish(const AMsg: IInterface);
     procedure OnAppClosing;
   public
@@ -169,6 +171,19 @@ begin
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 30000);
   FGCNotifier.Add(FTTLListener);
 
+  if
+    FMapTypeActive.GetMapType.MapType.StorageConfig.UseMemCache and
+    FMapTypeActive.GetMapType.MapType.Zmp.TileDownloaderConfig.RestartDownloadOnMemCacheTTL
+  then begin
+    FMemCacheTTLListener := TListenerTimeCheck.Create(
+      Self.OnMemCacheTTLTrim,
+      FMapTypeActive.GetMapType.MapType.StorageConfig.MemCacheTTL
+    );
+    FGCNotifier.Add(FMemCacheTTLListener);
+  end else begin
+    FMemCacheTTLListener := nil;
+  end;
+
   FLinksList.ActivateLinks;
   OnConfigChange;
   OnMapTypeActiveChange;
@@ -182,9 +197,15 @@ begin
     FTileDownloadFinishListener.Disconnect;
   end;
 
-  if Assigned(FGCNotifier) and Assigned(FTTLListener) then begin
-    FGCNotifier.Remove(FTTLListener);
-    FTTLListener := nil;
+  if Assigned(FGCNotifier) then begin
+    if Assigned(FMemCacheTTLListener) then begin
+      FGCNotifier.Remove(FMemCacheTTLListener);
+      FMemCacheTTLListener := nil;
+    end;
+    if Assigned(FTTLListener) then begin
+      FGCNotifier.Remove(FTTLListener);
+      FTTLListener := nil;
+    end;
     FGCNotifier := nil;
   end;
   if Assigned(FLinksList) then begin
@@ -222,6 +243,11 @@ begin
   SetEvent(FCancelEventHandle);
 end;
 
+procedure TUiTileDownload.OnMemCacheTTLTrim;
+begin
+  RestartDownloadIfNeed;
+end;
+
 procedure TUiTileDownload.OnConfigChange;
 begin
   FConfig.LockRead;
@@ -232,7 +258,7 @@ begin
   finally
     FConfig.UnlockRead;
   end;
-  RetartDownloadIfNeed;
+  RestartDownloadIfNeed;
 end;
 
 procedure TUiTileDownload.OnMapTypeActiveChange;
@@ -242,7 +268,7 @@ begin
   end else begin
     FMapActive := False;
   end;
-  RetartDownloadIfNeed;
+  RestartDownloadIfNeed;
 end;
 
 procedure TUiTileDownload.OnPosChange;
@@ -268,7 +294,7 @@ begin
   end;
 
   if VNeedRestart then begin
-    RetartDownloadIfNeed;
+    RestartDownloadIfNeed;
   end;
 end;
 
@@ -460,7 +486,7 @@ begin
   end;
 end;
 
-procedure TUiTileDownload.RetartDownloadIfNeed;
+procedure TUiTileDownload.RestartDownloadIfNeed;
 var
   VDownloadTask: IBackgroundTask;
   VVisualCoordConverter: ILocalCoordConverter;

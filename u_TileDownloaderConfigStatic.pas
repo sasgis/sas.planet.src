@@ -40,6 +40,7 @@ type
     FExpectedMIMETypes: AnsiString;
     FDefaultMIMEType: AnsiString;
     FIteratorSubRectSize: TPoint;
+    FRestartDownloadOnMemCacheTTL: Boolean;
   private
     function GetInetConfigStatic: IInetConfigStatic;
     function GetEnabled: Boolean;
@@ -50,6 +51,7 @@ type
     function GetExpectedMIMETypes: AnsiString;
     function GetDefaultMIMEType: AnsiString;
     function GetIteratorSubRectSize: TPoint;
+    function GetRestartDownloadOnMemCacheTTL: Boolean;
   public
     constructor Create(
       const AInetConfigStatic: IInetConfigStatic;
@@ -60,7 +62,8 @@ type
       AIgnoreMIMEType: Boolean;
       const AExpectedMIMETypes: AnsiString;
       const ADefaultMIMEType: AnsiString;
-      const AIteratorSubRectSize: TPoint
+      const AIteratorSubRectSize: TPoint;
+      const ARestartDownloadOnMemCacheTTL: Boolean
     );
   end;
 
@@ -76,7 +79,8 @@ constructor TTileDownloaderConfigStatic.Create(
   AMaxConnectToServerCount: Cardinal;
   AIgnoreMIMEType: Boolean;
   const AExpectedMIMETypes, ADefaultMIMEType: AnsiString;
-  const AIteratorSubRectSize: TPoint
+  const AIteratorSubRectSize: TPoint;
+  const ARestartDownloadOnMemCacheTTL: Boolean
 );
 begin
   inherited Create;
@@ -89,6 +93,7 @@ begin
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;
   FIteratorSubRectSize := AIteratorSubRectSize;
+  FRestartDownloadOnMemCacheTTL := ARestartDownloadOnMemCacheTTL;
 end;
 
 function TTileDownloaderConfigStatic.GetIteratorSubRectSize: TPoint;
@@ -134,6 +139,11 @@ end;
 function TTileDownloaderConfigStatic.GetWaitInterval: Cardinal;
 begin
   Result := FWaitInterval;
+end;
+
+function TTileDownloaderConfigStatic.GetRestartDownloadOnMemCacheTTL: Boolean;
+begin
+  Result := FRestartDownloadOnMemCacheTTL;
 end;
 
 end.

@@ -43,6 +43,7 @@ type
     FExpectedMIMETypes: AnsiString;
     FDefaultMIMEType: AnsiString;
     FIteratorSubRectSize: TPoint;
+    FRestartDownloadOnMemCacheTTL: Boolean;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -75,6 +76,9 @@ type
     function GetIteratorSubRectSize: TPoint;
     procedure SetIteratorSubRectSize(const AValue: TPoint);
 
+    function GetRestartDownloadOnMemCacheTTL: Boolean;
+    procedure SetRestartDownloadOnMemCacheTTL(const AValue: Boolean);
+
     function GetStatic: ITileDownloaderConfigStatic;
   public
     constructor Create(
@@ -106,6 +110,7 @@ begin
   FDefaultMIMEType := FDefConfig.DefaultMIMEType;
   FExpectedMIMETypes := FDefConfig.ExpectedMIMETypes;
   FIteratorSubRectSize := FDefConfig.IteratorSubRectSize;
+  FRestartDownloadOnMemCacheTTL := FDefConfig.RestartDownloadOnMemCacheTTL;
 
   Add(FIntetConfig, nil, False, False, False, True);
 end;
@@ -124,7 +129,8 @@ begin
       FIgnoreMIMEType,
       FExpectedMIMETypes,
       FDefaultMIMEType,
-      FIteratorSubRectSize
+      FIteratorSubRectSize,
+      FRestartDownloadOnMemCacheTTL
     );
   Result := VStatic;
 end;
@@ -141,6 +147,7 @@ begin
     FExpectedMIMETypes := AConfigData.ReadAnsiString('ContentType', FExpectedMIMETypes);
     FWaitInterval := AConfigData.ReadInteger('Sleep', FWaitInterval);
     SetMaxConnectToServerCount(AConfigData.ReadInteger('MaxConnectToServerCount', FMaxConnectToServerCount));
+    FRestartDownloadOnMemCacheTTL := AConfigData.ReadBool('RestartDownloadOnMemCacheTTL', FRestartDownloadOnMemCacheTTL);
     SetChanged;
   end;
 end;
@@ -248,6 +255,16 @@ begin
   LockRead;
   try
     Result := FWaitInterval;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TTileDownloaderConfig.GetRestartDownloadOnMemCacheTTL: Boolean;
+begin
+  LockRead;
+  try
+    Result := FRestartDownloadOnMemCacheTTL;
   finally
     UnlockRead;
   end;
@@ -367,6 +384,19 @@ begin
   try
     if FWaitInterval <> AValue then begin
       FWaitInterval := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTileDownloaderConfig.SetRestartDownloadOnMemCacheTTL(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FRestartDownloadOnMemCacheTTL <> AValue then begin
+      FRestartDownloadOnMemCacheTTL := AValue;
       SetChanged;
     end;
   finally

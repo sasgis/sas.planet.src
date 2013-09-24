@@ -978,6 +978,7 @@ var
   VWaitInterval: Cardinal;
   VMaxConnectToServerCount: Cardinal;
   VIteratorSubRectSize: TPoint;
+  VRestartDownloaderOnMemCacheTTL: Boolean;
   fL: TStringList;
 begin
   VUseDownload := AConfig.ReadBool('UseDwn', True);
@@ -986,6 +987,7 @@ begin
   VDefaultMIMEType := AConfig.ReadString('DefaultContentType', 'image/jpg');
   VExpectedMIMETypes := AConfig.ReadString('ContentType', 'image/jpg');
   VWaitInterval := AConfig.ReadInteger('Sleep', 0);
+  VRestartDownloaderOnMemCacheTTL := AConfig.ReadBool('RestartDownloadOnMemCacheTTL', False);
   VMaxConnectToServerCount :=
     AConfig.ReadInteger(
       'MaxConnectToServerCount',
@@ -1011,7 +1013,8 @@ begin
       VIgnoreMIMEType,
       VExpectedMIMETypes,
       VDefaultMIMEType,
-      VIteratorSubRectSize
+      VIteratorSubRectSize,
+      VRestartDownloaderOnMemCacheTTL
     );
 end;
 
