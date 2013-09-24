@@ -43,10 +43,7 @@ type
 
     function BuildSatellitesInViewEmpty: IGPSSatellitesInView;
     function BuildSatellitesInView(
-      const AItemsCountGP: Integer;
-      const AItemsGP: PUnknownList;
-      const AItemsCountGL: Integer;
-      const AItemsGL: PUnknownList
+      const AItemsGP, AItemsGL: IGPSSatelliteInfoList
     ): IGPSSatellitesInView;
 
     function BuildPositionEmpty: IGPSPosition;
@@ -70,7 +67,7 @@ uses
 constructor TGPSPositionFactory.Create;
 begin
   inherited Create;
-  FSatellitesInViewEmpty := TGPSSatellitesInView.Create(0, nil, 0, nil);
+  FSatellitesInViewEmpty := TGPSSatellitesInView.Create(nil, nil);
   FPositionEmpty :=
     TGPSPositionStatic.Create(nil, FSatellitesInViewEmpty);
 end;
@@ -105,17 +102,12 @@ begin
 end;
 
 function TGPSPositionFactory.BuildSatellitesInView(
-  const AItemsCountGP: Integer;
-  const AItemsGP: PUnknownList;
-  const AItemsCountGL: Integer;
-  const AItemsGL: PUnknownList
+  const AItemsGP, AItemsGL: IGPSSatelliteInfoList
 ): IGPSSatellitesInView;
 begin
   Result :=
     TGPSSatellitesInView.Create(
-      AItemsCountGP,
       AItemsGP,
-      AItemsCountGL,
       AItemsGL
     );
 end;

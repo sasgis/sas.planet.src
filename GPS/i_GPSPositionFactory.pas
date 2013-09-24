@@ -23,7 +23,6 @@ unit i_GPSPositionFactory;
 interface
 
 uses
-  ActiveX,
   vsagps_public_base,
   vsagps_public_position,
   i_GPS;
@@ -39,10 +38,7 @@ type
     function BuildSatellitesInViewEmpty: IGPSSatellitesInView;
 
     function BuildSatellitesInView(
-      const AItemsCountGP: Integer;
-      const AItemsGP: PUnknownList;
-      const AItemsCountGL: Integer;
-      const AItemsGL: PUnknownList
+      const AItemsGP, AItemsGL: IGPSSatelliteInfoList
     ): IGPSSatellitesInView;
 
     function BuildPositionEmpty: IGPSPosition;

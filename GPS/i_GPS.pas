@@ -33,6 +33,17 @@ type
     procedure GetSkySatelliteParams(AParams: PSingleSatSkyData); stdcall;
   end;
 
+  IGPSSatelliteInfoList = interface
+    ['{38314A05-522B-42AB-A26A-8FFD628E3418}']
+    function GetCount: Integer;
+    procedure SetCount(const ANewCount: Integer);
+    property Count: Integer read GetCount write SetCount;
+
+    function GetItem(const AIndex: Integer): IGPSSatelliteInfo;
+    procedure SetItem(const AIndex: Integer; const AItem: IGPSSatelliteInfo);
+    property Items[const AIndex: Integer]: IGPSSatelliteInfo read GetItem write SetItem; default;
+  end;
+
   IGPSSatellitesInView = interface
     ['{D8744967-74EB-47A1-A8FD-4626B5CD2B20}']
     function GetCount(const ATalkerID: AnsiString): Byte; stdcall;
