@@ -442,23 +442,26 @@ begin
           end else begin
             VColor := FSatNotVisibleColor;
           end;
-
+          Assert(VSatSky.elevation >= 0);
+          Assert(VSatSky.elevation <= 90);
           // sat position
-          VSatAtRadius := ARadius * ((90 - VSatSky.elevation) / 90);
-          VSatPos.x := ACenter.x + VSatAtRadius * cos((VSatSky.azimuth - 90) * (Pi / 180));
-          VSatPos.y := ACenter.y + VSatAtRadius * sin((VSatSky.azimuth - 90) * (Pi / 180));
-          VPoints := Ellipse(VSatPos.X, VSatPos.Y, FSkyMapSatRdius, FSkyMapSatRdius, 20);
-          PolygonFS(ABitmap, VPoints, VColor);
+          if (VSatSky.elevation >= 0) and (VSatSky.elevation <= 90) then begin
+            VSatAtRadius := ARadius * ((90 - VSatSky.elevation) / 90);
+            VSatPos.x := ACenter.x + VSatAtRadius * cos((VSatSky.azimuth - 90) * (Pi / 180));
+            VSatPos.y := ACenter.y + VSatAtRadius * sin((VSatSky.azimuth - 90) * (Pi / 180));
+            VPoints := Ellipse(VSatPos.X, VSatPos.Y, FSkyMapSatRdius, FSkyMapSatRdius, 20);
+            PolygonFS(ABitmap, VPoints, VColor);
 
-          if (VSatFixibility.sat_info.svid > 0) then begin
-            VText := IntToStr(VSatFixibility.sat_info.svid);
-            VTextSize := ABitmap.TextExtent(VText);
-            VTextPos.X := Trunc(VSatPos.X - VTextSize.cx / 2);
-            VTextPos.Y := Trunc(VSatPos.Y - VTextSize.cy / 2);
-            ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, FSkyMapGridColor);
+            if (VSatFixibility.sat_info.svid > 0) then begin
+              VText := IntToStr(VSatFixibility.sat_info.svid);
+              VTextSize := ABitmap.TextExtent(VText);
+              VTextPos.X := Trunc(VSatPos.X - VTextSize.cx / 2);
+              VTextPos.Y := Trunc(VSatPos.Y - VTextSize.cy / 2);
+              ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, FSkyMapGridColor);
+            end;
+
+            PolylineFS(ABitmap, VPoints, FSkyMapGridColor, true);
           end;
-
-          PolylineFS(ABitmap, VPoints, FSkyMapGridColor, true);
         end;
       end;
     end;
