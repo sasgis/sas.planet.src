@@ -46,18 +46,20 @@ type
     procedure SetDelay(const AValue: DWORD);
     property Delay: DWORD read GetDelay write SetDelay;
 
-    function GetNMEALog: Boolean;
-    procedure SetNMEALog(const AValue: Boolean);
-    property NMEALog: Boolean read GetNMEALog write SetNMEALog;
+    // NMEALog
+    function GetLowLevelLog: Boolean;
+    procedure SetLowLevelLog(const AValue: Boolean);
+    property LowLevelLog: Boolean read GetLowLevelLog write SetLowLevelLog;
 
     function GetLogPath: WideString;
     property LogPath: WideString read GetLogPath;
 
     function GetStatic: IGPSModuleByCOMPortSettings;
 
-    function GetUSBGarmin: Boolean;
-    procedure SetUSBGarmin(const AValue: Boolean);
-    property USBGarmin: Boolean read GetUSBGarmin write SetUSBGarmin;
+    // USBGarmin
+    function GetGPSOrigin: TGPSOrigin;
+    procedure SetGPSOrigin(const AValue: TGPSOrigin);
+    property GPSOrigin: TGPSOrigin read GetGPSOrigin write SetGPSOrigin;
 
     function GetAutodetectCOMOnConnect: Boolean;
     procedure SetAutodetectCOMOnConnect(const AValue: Boolean);

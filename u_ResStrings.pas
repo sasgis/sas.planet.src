@@ -48,6 +48,8 @@ ResourceString
   SAS_MSG_FileBeCreateLen = 'The tile size is equal to the existing one, skipping.';
   SAS_MSG_ProcessFilesComplete = 'The task is completed!';
   SAS_MSG_LoadComplete = 'Download completed';
+  SAS_MSG_NoFlyOnTrackSource = 'No source for Fly-on-Track mode';
+  SAS_MSG_UnknownGPSOrigin = 'GPS origin misconfiguration: unknown mode %d';
   SAS_MSG_NoGPSdetected = 'No GPS receiver found';
   SAS_MSG_GarminMax1Mp = 'The number of JPEG files will exceed 100. If your'#13#10 +
     'navigation device split the image using'#13#10 +

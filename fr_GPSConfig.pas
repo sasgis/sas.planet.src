@@ -59,6 +59,8 @@ type
     CBSensorsBarAutoShow: TCheckBox;
     pnlGpsRight: TPanel;
     GroupBox3: TGroupBox;
+    CB_LocationAPI: TCheckBox;
+    CB_FlyOnTrack: TCheckBox;
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure btnGPSSwitchClick(Sender: TObject);
   private
@@ -105,6 +107,7 @@ uses
 {$ifend}
   c_SensorsGUIDSimple,
   i_Sensor,
+  i_GPSModuleByCOMPortSettings,
   u_ListenerByEvent;
 
 {$R *.dfm}
@@ -196,14 +199,22 @@ begin
 
   FGPSConfig.LockWrite;
   try
-    FGPSConfig.ModuleConfig.ConnectionTimeout:=SE_ConnectionTimeout.Value;
-    FGPSConfig.ModuleConfig.NMEALog:=CB_GPSlogNmea.Checked;
-    FGPSConfig.ModuleConfig.Delay:=SpinEdit1.Value;
+    if CB_FlyOnTrack.Checked then begin
+      FGPSConfig.ModuleConfig.GPSOrigin := gpsoFlyOnTrack;
+    end else if CB_LocationAPI.Checked then begin
+      FGPSConfig.ModuleConfig.GPSOrigin := gpsoLocationAPI;
+    end else if CB_USBGarmin.Checked then begin
+      FGPSConfig.ModuleConfig.GPSOrigin := gpsoGarmin;
+    end else begin
+      FGPSConfig.ModuleConfig.GPSOrigin := gpsoNMEA;
+    end;
+    FGPSConfig.ModuleConfig.ConnectionTimeout := SE_ConnectionTimeout.Value;
+    FGPSConfig.ModuleConfig.LowLevelLog := CB_GPSlogNmea.Checked;
+    FGPSConfig.ModuleConfig.Delay := SpinEdit1.Value;
     FGPSConfig.ModuleConfig.Port := GetCOMPortNumber(ComboBoxCOM.Text);
     FGPSConfig.ModuleConfig.BaudRate:=StrToint(ComboBoxBoudRate.Text);
     FGPSConfig.WriteLog[ttPLT]:=CB_GPSlogPLT.Checked;
     FGPSConfig.WriteLog[ttGPX]:=CB_GPSlogGPX.Checked;
-    FGPSConfig.ModuleConfig.USBGarmin:=CB_USBGarmin.Checked;
     FGPSConfig.ModuleConfig.AutodetectCOMOnConnect:=CB_GPSAutodetectCOMOnConnect.Checked;
     FGPSConfig.ModuleConfig.AutodetectCOMFlags:=Self.AutodetectCOMFlags;
   finally
@@ -235,13 +246,15 @@ begin
   FGPSConfig.LockRead;
   try
     SE_ConnectionTimeout.Value:=FGPSConfig.ModuleConfig.ConnectionTimeout;
-    CB_GPSlogNmea.Checked:=FGPSConfig.ModuleConfig.NMEALog;
+    CB_GPSlogNmea.Checked:=FGPSConfig.ModuleConfig.LowLevelLog;
     SpinEdit1.Value:=FGPSConfig.ModuleConfig.Delay;
     ComboBoxCOM.Text:= 'COM' + IntToStr(FGPSConfig.ModuleConfig.Port);
     ComboBoxBoudRate.Text:=inttostr(FGPSConfig.ModuleConfig.BaudRate);
     CB_GPSlogPLT.Checked:=FGPSConfig.WriteLog[ttPLT];
     CB_GPSlogGPX.Checked:=FGPSConfig.WriteLog[ttGPX];
-    CB_USBGarmin.Checked:=FGPSConfig.ModuleConfig.USBGarmin;
+    CB_USBGarmin.Checked := (gpsoGarmin = FGPSConfig.ModuleConfig.GPSOrigin);
+    CB_LocationAPI.Checked := (gpsoLocationAPI = FGPSConfig.ModuleConfig.GPSOrigin);
+    CB_FlyOnTrack.Checked := (gpsoFlyOnTrack = FGPSConfig.ModuleConfig.GPSOrigin);
     CB_GPSAutodetectCOMOnConnect.Checked:=FGPSConfig.ModuleConfig.AutodetectCOMOnConnect;
     VFlags:=FGPSConfig.ModuleConfig.AutodetectCOMFlags;
   finally

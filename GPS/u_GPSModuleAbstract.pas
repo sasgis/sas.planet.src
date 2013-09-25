@@ -251,8 +251,8 @@ end;
 destructor TGPSModuleAbstract.Destroy;
 begin
   //FreeAndNil(FCS);
-  FreeAndNil(FSatellitesGP);
-  FreeAndNil(FSatellitesGL);
+  FSatellitesGP := nil;
+  FSatellitesGL := nil;
 
   FLastStaticPosition := nil;
   FGPSPositionFactory := nil;

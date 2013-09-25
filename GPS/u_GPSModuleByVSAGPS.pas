@@ -47,6 +47,7 @@ uses
   vsagps_public_device,
   vsagps_public_position,
   vsagps_public_trackpoint,
+  vsagps_public_location_api,
   vsagps_public_unit_info;
 
 type
@@ -92,6 +93,12 @@ type
 {$ifend}
     procedure GPSRecv_GARMIN_D800(const AUnitIndex: Byte; const pData: PD800_Pvt_Data_Type);
     procedure GPSRecv_GARMIN_MEAS(const AUnitIndex: Byte; const pData: Pcpo_all_sat_data);
+
+    procedure GPSRecv_LocationApi(
+      const AUnitIndex: Byte;
+      const dwPacketType: DWORD;
+      const APacket: Pointer
+    );
 
     procedure GPSRecv_LowLevel(const AUnitIndex: Byte;
                                const ADevType: DWORD;
@@ -177,9 +184,9 @@ uses
   Classes,
   ALFcnString,
   vsagps_public_sysutils,
+  t_GeoTypes,
   u_ResStrings,
-  u_ListenerByEvent,
-  t_GeoTypes;
+  u_ListenerByEvent;
 
 
 function rVSAGPS_GARMIN_D800_HANDLER(const pUserPointer: Pointer;
@@ -302,6 +309,21 @@ begin
   end;
 end;
 
+function rLocationApi_Handler(
+  const pUserPointer: Pointer;
+  const btUnitIndex: Byte;
+  const dwPacketType: DWORD;
+  const pPacket: Pointer
+): DWORD; stdcall;
+begin
+  Result:=0;
+  if (nil<>pUserPointer) then
+  with TGPSModuleByVSAGPS(pUserPointer) do begin
+    InternalApplyCalcStatsFlag(btUnitIndex, (0<>(dwPacketType and vgpt_Allow_Stats)));
+    GPSRecv_LocationApi(btUnitIndex, dwPacketType, pPacket);
+  end;
+end;
+
 function rVSAGPS_TRACKPOINT_HANDLER(const pUserPointer: Pointer;
                                     const btUnitIndex: Byte;
                                     const dwDeviceType: DWORD;
@@ -399,6 +421,7 @@ begin
   //FGPSGPS_DevParams.dwDeviceFlagsIn:=(dpdfi_ConnectingFromConnect or );
   //FGPSGPS_DevParams.pLowLevelHandler:=nil;
   //FGPSGPS_DevParams.pTrackPointHandler:=nil;
+  FGPSGPS_DevParams.pLocationApi_Handler := rLocationApi_Handler;
   FGPSGPS_DevParams.pGARMIN_D800_HANDLER:=rVSAGPS_GARMIN_D800_HANDLER;
   FGPSGPS_DevParams.pGARMIN_MEAS_HANDLER:=rVSAGPS_GARMIN_MEAS_HANDLER;
   FGPSGPS_DevParams.pNMEA_GGA_HANDLER:=rVSAGPS_NMEA_GGA_HANDLER;
@@ -489,29 +512,26 @@ end;
 procedure TGPSModuleByVSAGPS.Connect(const AConfig: IGPSModuleByCOMPortSettings;
                                      const ALogConfig: IGPSConfig);
 const
-  FlyOnTrackCFG='vsagps_fly-on-track.cfg';
+  CFlyOnTrackCFG = 'vsagps_fly-on-track.cfg';
 var
-  FGPSPortName: AnsiString;
+  VGPSOrigin: TGPSOrigin;
+  VGPSDevType: DWORD;
+  VGPSPortName: AnsiString;
 {$if defined(VSAGPS_AS_DLL)}
-  FszGPSPortName: PAnsiChar;
+  VszGPSPortName: PAnsiChar;
 {$ifend}
-  FGPSDevType: DWORD;
   VTimeout: DWORD;
   VFlyOnTrackSource: WideString;
   VTrackTypes: TVSAGPS_TrackTypes;
 
-  function _IsFlyOnTrackMode: Boolean;
-  begin
-    Result:=(0<Length(VFlyOnTrackSource));
-  end;
-
   procedure _LoadFlyOnTrackSource;
   var sl: TStringList;
   begin
-    if FileExists(FlyOnTrackCFG) then begin
+    if FileExists(CFlyOnTrackCFG) then begin
       sl:=TStringList.Create;
       try
-        sl.LoadFromFile(FlyOnTrackCFG);
+        sl.LoadFromFile(CFlyOnTrackCFG);
+        // TODO: check encoding
         VFlyOnTrackSource:=sl.Text;
       finally
         sl.Free;
@@ -520,26 +540,31 @@ var
   end;
 
 begin
+  Assert(Assigned(AConfig));
+  Assert(Assigned(ALogConfig));
+
+  VGPSOrigin := AConfig.GPSOrigin;
+
   FRecvTimeoutOccured:=FALSE;
   LockConnect;
   try
     if FConnectState <> gs_DoneDisconnected then
       Exit;
 
-{$if defined(VSAGPS_USE_DEBUG_STRING)}
-    VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Connect: begin');
-{$ifend}
-
-    VFlyOnTrackSource:='';
-    _LoadFlyOnTrackSource;
-
 {$if defined(VSAGPS_AS_DLL)}
-    FszGPSPortName:=nil;
+    VszGPSPortName := nil;
 {$ifend}
 
-    // logger (create suspended)
-    if (not _IsFlyOnTrackMode) then
+    VFlyOnTrackSource := '';
+    if (gpsoFlyOnTrack = VGPSOrigin) then begin
+      _LoadFlyOnTrackSource;
+      if (0 = Length(VFlyOnTrackSource)) then begin
+        raise Exception.Create(SAS_MSG_NoFlyOnTrackSource);
+      end;
+    end else begin
+      // logger (create suspended)
       InternalStartLogger(AConfig, ALogConfig);
+    end;
 
     // timeouts
     VTimeout:=AConfig.ConnectionTimeout;
@@ -562,77 +587,87 @@ begin
     if FGPSGPS_DevParams.wWorkerThreadTimeoutMSec>cWorkingThread_MaxDelay_Msec then
       FGPSGPS_DevParams.wWorkerThreadTimeoutMSec:=cWorkingThread_MaxDelay_Msec;
 
-    if _IsFlyOnTrackMode then
-      FGPSGPS_DevParams.pLowLevelHandler:=nil
-    else if InternalGetLoggerState(AConfig, ALogConfig, VTrackTypes) then
-      FGPSGPS_DevParams.pLowLevelHandler:=rLowLevelHandler
-    else
-      FGPSGPS_DevParams.pLowLevelHandler:=nil;
-
     // reserved for fly-on-track mode
-    if _IsFlyOnTrackMode then
-      FGPSGPS_DevParams.pTrackPointHandler:=rVSAGPS_TRACKPOINT_HANDLER
-    else
-      FGPSGPS_DevParams.pTrackPointHandler:=nil;
-
-    if _IsFlyOnTrackMode then begin
-      FGPSDevType:=gdt_FILE_Track;
-{$if not defined(VSAGPS_AS_DLL)}
-      FGPSPortName:='';
-{$ifend}
-      FGPSGPS_DevParams.btAutodetectOnConnect:=0; // no autodetect
-      FGPSGPS_DevParams.dwAutodetectFlags:=0;
-    end else if AConfig.USBGarmin then begin
-      // USB Garmin - always autodetect (check attached usb devices by guid)
-      FGPSDevType:=gdt_USB_Garmin;
-{$if not defined(VSAGPS_AS_DLL)}
-      FGPSPortName:='';
-{$ifend}
-      FGPSGPS_DevParams.btAutodetectOnConnect:=0; // always autodetect by internal algoritm
-      FGPSGPS_DevParams.dwAutodetectFlags:=0;
+    if (gpsoFlyOnTrack = VGPSOrigin) then begin
+      FGPSGPS_DevParams.pLowLevelHandler := nil;
+      FGPSGPS_DevParams.pTrackPointHandler := rVSAGPS_TRACKPOINT_HANDLER;
     end else begin
-      // NMEA via COMx port
-      FGPSDevType:=gdt_COM_NMEA0183;
-      FGPSPortName:='COM' + AnsiString(IntToStr(AConfig.Port));
-{$if defined(VSAGPS_AS_DLL)}
-      FGPSPortName:=FGPSPortName+#0;
-      FszGPSPortName:=PAnsiChar(FGPSPortName);
-{$ifend}
-      FGPSGPS_DevParams.btAutodetectOnConnect:=Ord(AConfig.AutodetectCOMOnConnect<>FALSE);
-      FGPSGPS_DevParams.dwAutodetectFlags:=AConfig.AutodetectCOMFlags;
+      FGPSGPS_DevParams.pTrackPointHandler := nil;
+      if InternalGetLoggerState(AConfig, ALogConfig, VTrackTypes) then
+        FGPSGPS_DevParams.pLowLevelHandler := rLowLevelHandler
+      else
+        FGPSGPS_DevParams.pLowLevelHandler := nil;
     end;
 
-{$if defined(VSAGPS_USE_DEBUG_STRING)}
-    VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Connect: before GPSConnect');
+    if (gpsoNMEA = VGPSOrigin) then begin
+      // COM for NMEA
+      VGPSPortName := 'COM' + AnsiString(IntToStr(AConfig.Port));
+{$if defined(VSAGPS_AS_DLL)}
+      VGPSPortName := VGPSPortName + #0;
+      VszGPSPortName := PAnsiChar(VGPSPortName);
 {$ifend}
+      FGPSGPS_DevParams.btAutodetectOnConnect := Ord(AConfig.AutodetectCOMOnConnect <> False);
+      FGPSGPS_DevParams.dwAutodetectFlags := AConfig.AutodetectCOMFlags;
+    end else begin
+      // no COM
+{$if not defined(VSAGPS_AS_DLL)}
+      VGPSPortName := '';
+{$ifend}
+      // for garmin - always autodetect by internal algoritm
+      FGPSGPS_DevParams.btAutodetectOnConnect := 0;
+      FGPSGPS_DevParams.dwAutodetectFlags := 0;
+    end;
+
+    // switch by device type
+    case VGPSOrigin of
+      gpsoNMEA: begin
+        // NMEA via COMx port
+        VGPSDevType := gdt_COM_NMEA0183;
+      end;
+      gpsoGarmin: begin
+        // USB Garmin - always autodetect (check attached usb devices by guid)
+        VGPSDevType := gdt_USB_Garmin;
+      end;
+      gpsoFlyOnTrack: begin
+        // Fly-on-Track by list of tracks or folders
+        VGPSDevType := gdt_FILE_Track;
+      end;
+      gpsoLocationAPI: begin
+        // Location API (Windows 7+)
+        VGPSDevType := gdt_LocationAPI;
+      end;
+      else begin
+        // unknown
+        raise Exception.CreateFmt(SAS_MSG_UnknownGPSOrigin, [Integer(VGPSOrigin)]);
+      end;
+    end;
 
     try
 {$if defined(VSAGPS_AS_DLL)}
-      if (not VSAGPS_Connect(FVSAGPS_HANDLE,
-                             FGPSDevType,
-                             FszGPSPortName,
-                             PWideChar(VFlyOnTrackSource),
-                             @FGPSGPS_DevParams,
-                             nil,
-                             rVSAGPS_UNIT_INFO_DLL_Proc,
-                             @FConnectedUnitindex,
-                             nil)) then
+      if (not VSAGPS_Connect(
+                FVSAGPS_HANDLE,
+                VGPSDevType,
+                VszGPSPortName,
+                PWideChar(VFlyOnTrackSource),
+                @FGPSGPS_DevParams,
+                nil,
+                rVSAGPS_UNIT_INFO_DLL_Proc,
+                @FConnectedUnitindex,
+                nil
+      )) then
 {$else}
-      if (not FVSAGPS_Object.GPSConnect(FGPSDevType,
-                                        FGPSPortName,
-                                        PWideChar(VFlyOnTrackSource),
-                                        @FGPSGPS_DevParams,
-                                        nil,
-                                        rVSAGPS_UNIT_INFO_DLL_Proc,
-                                        @FConnectedUnitindex,
-                                        nil)) then
+      if (not FVSAGPS_Object.GPSConnect(
+                VGPSDevType,
+                VGPSPortName,
+                PWideChar(VFlyOnTrackSource),
+                @FGPSGPS_DevParams,
+                nil,
+                rVSAGPS_UNIT_INFO_DLL_Proc,
+                @FConnectedUnitindex,
+                nil
+      )) then
 {$ifend}
       begin
-
-{$if defined(VSAGPS_USE_DEBUG_STRING)}
-        VSAGPS_DebugAnsiString('TGPSModuleByVSAGPS.Connect: not connected');
-{$ifend}
-
         // not connected
         raise Exception.Create(SAS_MSG_NoGPSdetected);
       end;
@@ -1086,7 +1121,7 @@ begin
     ATrackTypes := [];
   end;
   if not Result then
-    Result := Assigned(AConfig) and AConfig.NMEALog;
+    Result := Assigned(AConfig) and AConfig.LowLevelLog;
 end;
 
 procedure TGPSModuleByVSAGPS.InternalPrepareLoggerParams;
@@ -1189,11 +1224,18 @@ begin
         VTrackTypes:=[];
       end;
 
-      if AConfig.NMEALog then begin
-        if AConfig.USBGarmin then
-          System.Include(VTrackTypes,ttGarmin)
-        else
-          System.Include(VTrackTypes,ttNMEA);
+      if AConfig.LowLevelLog then begin
+        case AConfig.GPSOrigin of
+          gpsoNMEA: begin
+            System.Include(VTrackTypes, ttNMEA);
+          end;
+          gpsoGarmin: begin
+            System.Include(VTrackTypes, ttGarmin);
+          end;
+          gpsoLocationAPI: begin
+            System.Include(VTrackTypes, ttLocationAPI);
+          end;
+        end;
       end;
 
       // create suspended
@@ -1459,6 +1501,55 @@ begin
   end;
 end;
 
+procedure TGPSModuleByVSAGPS.GPSRecv_LocationApi(
+  const AUnitIndex: Byte;
+  const dwPacketType: DWORD;
+  const APacket: Pointer
+);
+begin
+  if (nil = APacket) then
+    Exit;
+
+  LockGPSData;
+  try
+    with Pvsagps_location_api_packet(APacket)^ do
+    _UpdatePosTime(
+      IsPositionOK,
+      TDoublePoint(LatLong),
+      IsUTCTimeOK,
+      UTCTime
+    );
+
+    with Pvsagps_location_api_packet(APacket)^ do
+    _UpdateUTCDate(
+      IsUTCDateOK,
+      UTCDate
+    );
+
+    with Pvsagps_location_api_packet(APacket)^ do
+    if IsAltitudeOK then begin
+      _UpdateAlt(Altitude);
+    end;
+
+    with Pvsagps_location_api_packet(APacket)^ do
+    if IsHDOPOK then begin
+      if IsVDOPOK then begin
+        _UpdateDOP(ErrorRadius, AltitudeError, 0);
+      end else begin
+        _UpdateHDOP(ErrorRadius);
+      end;
+    end;
+
+    if Pvsagps_location_api_packet(APacket)^.IsPositionOK then begin
+      // set fix mode
+      _UpdateNavMode('A');
+      _UpdateNmea23Mode('A', False, False);
+    end;
+  finally
+    UnLockGPSData(AUnitIndex, True, False);
+  end;
+end;
+
 procedure TGPSModuleByVSAGPS.GPSRecv_LowLevel(const AUnitIndex: Byte;
                                               const ADevType: DWORD;
                                               const APacket: Pointer);
@@ -1500,8 +1591,9 @@ begin
   if (nil<>FVSAGPS_LOGGER) and (nil<>APacket) then
   if _Active then begin
     // get packet for logging
-    if (gdt_USB_Garmin=(ADevType and gdt_USB_Garmin)) then begin
+    if (0 <> (ADevType and (gdt_USB_Garmin or gdt_LocationAPI))) then begin
       // write full dump of binary garmin packets (with header about packet type)
+      // location api packets too
       InternalDumpByDevice;
     end else if (gdt_COM_NMEA0183=(ADevType and gdt_COM_NMEA0183)) then begin
       // write full nmea packets like a strings

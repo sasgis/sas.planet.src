@@ -34,9 +34,9 @@ type
     FBaudRate: DWORD;
     FConnectionTimeout: DWORD;
     FDelay: DWORD;
-    FNMEALog: Boolean;
+    FLowLevelLog: Boolean;
     FLogPath: WideString;
-    FUSBGarmin: Boolean;
+    FGPSOrigin: TGPSOrigin;
     FAutodetectCOMOnConnect: Boolean;
     FAutodetectCOMFlags: DWORD;
   private
@@ -44,9 +44,9 @@ type
     function GetBaudRate: DWORD; safecall;
     function GetConnectionTimeout: DWORD; safecall;
     function GetDelay: DWORD; safecall;
-    function GetNMEALog: Boolean; safecall;
+    function GetLowLevelLog: Boolean; safecall;
     function GetLogPath: WideString; safecall;
-    function GetUSBGarmin: Boolean; safecall;
+    function GetGPSOrigin: TGPSOrigin; safecall;
     function GetAutodetectCOMOnConnect: Boolean; safecall;
     function GetAutodetectCOMFlags: DWORD; safecall;
   public
@@ -55,9 +55,9 @@ type
       const ABaudRate: DWORD;
       const AConnectionTimeout: DWORD;
       const ADelay: DWORD;
-      const ANMEALog: Boolean;
+      const ALowLevelLog: Boolean;
       const ALogPath: WideString;
-      const AUSBGarmin: Boolean;
+      const AGPSOrigin: TGPSOrigin;
       const AAutodetectCOMOnConnect: Boolean;
       const AAutodetectCOMFlags: DWORD
     );
@@ -72,9 +72,9 @@ constructor TGPSModuleByCOMPortSettings.Create(
   const ABaudRate: DWORD;
   const AConnectionTimeout: DWORD;
   const ADelay: DWORD;
-  const ANMEALog: Boolean;
+  const ALowLevelLog: Boolean;
   const ALogPath: WideString;
-  const AUSBGarmin: Boolean;
+  const AGPSOrigin: TGPSOrigin;
   const AAutodetectCOMOnConnect: Boolean;
   const AAutodetectCOMFlags: DWORD
 );
@@ -84,9 +84,9 @@ begin
   FBaudRate := ABaudRate;
   FConnectionTimeout := AConnectionTimeout;
   FDelay := ADelay;
-  FNMEALog := ANMEALog;
+  FLowLevelLog := ALowLevelLog;
   FLogPath := ALogPath;
-  FUSBGarmin := AUSBGarmin;
+  FGPSOrigin := AGPSOrigin;
   FAutodetectCOMOnConnect := AAutodetectCOMOnConnect;
   FAutodetectCOMFlags := AAutodetectCOMFlags;
 end;
@@ -121,9 +121,9 @@ begin
   Result := FLogPath;
 end;
 
-function TGPSModuleByCOMPortSettings.GetNMEALog: Boolean;
+function TGPSModuleByCOMPortSettings.GetLowLevelLog: Boolean;
 begin
-  Result := FNMEALog;
+  Result := FLowLevelLog;
 end;
 
 function TGPSModuleByCOMPortSettings.GetPort: DWORD;
@@ -131,9 +131,9 @@ begin
   Result := FPort;
 end;
 
-function TGPSModuleByCOMPortSettings.GetUSBGarmin: Boolean;
+function TGPSModuleByCOMPortSettings.GetGPSOrigin: TGPSOrigin;
 begin
-  Result := FUSBGarmin;
+  Result := FGPSOrigin;
 end;
 
 end.

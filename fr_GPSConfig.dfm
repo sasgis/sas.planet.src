@@ -41,7 +41,7 @@ object frGPSConfig: TfrGPSConfig
         Top = 3
         Width = 68
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'COM1'
       end
@@ -171,6 +171,26 @@ object frGPSConfig: TfrGPSConfig
         Caption = 'USB Garmin'
         TabOrder = 10
       end
+      object CB_LocationAPI: TCheckBox
+        AlignWithMargins = True
+        Left = 160
+        Top = 50
+        Width = 89
+        Height = 17
+        Hint = 'Use Location API (overrides PREV settings if checked)'
+        Caption = 'Location API'
+        TabOrder = 11
+      end
+      object CB_FlyOnTrack: TCheckBox
+        AlignWithMargins = True
+        Left = 255
+        Top = 50
+        Width = 82
+        Height = 17
+        Hint = 'Use Fly-on-Track mode (overrides ALL settings if checked)'
+        Caption = 'Fly-on-Track'
+        TabOrder = 12
+      end
     end
     object flwpnlGpsParams: TFlowPanel
       Left = 0
@@ -274,9 +294,9 @@ object frGPSConfig: TfrGPSConfig
         AlignWithMargins = True
         Left = 132
         Top = 16
-        Width = 99
+        Width = 168
         Height = 17
-        Caption = '.nmea/.garmin'
+        Caption = '.nmea/.garmin/.locationapi'
         TabOrder = 1
       end
       object CB_GPSlogGPX: TCheckBox

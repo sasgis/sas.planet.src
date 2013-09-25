@@ -38,9 +38,9 @@ type
     FBaudRate: DWORD;
     FConnectionTimeout: DWORD;
     FDelay: DWORD;
-    FNMEALog: Boolean;
+    FLowLevelLog: Boolean;
     FLogPath: IPathConfig;
-    FUSBGarmin: Boolean;
+    FGPSOrigin: TGPSOrigin;
     FAutodetectCOMOnConnect: Boolean;
     FAutodetectCOMFlags: DWORD;
   protected
@@ -61,15 +61,15 @@ type
     function GetDelay: DWORD;
     procedure SetDelay(const AValue: DWORD);
 
-    function GetNMEALog: Boolean;
-    procedure SetNMEALog(const AValue: Boolean);
+    function GetLowLevelLog: Boolean;
+    procedure SetLowLevelLog(const AValue: Boolean);
 
     function GetLogPath: WideString;
 
     function GetStatic: IGPSModuleByCOMPortSettings;
 
-    function GetUSBGarmin: Boolean;
-    procedure SetUSBGarmin(const AValue: Boolean);
+    function GetGPSOrigin: TGPSOrigin;
+    procedure SetGPSOrigin(const AValue: TGPSOrigin);
 
     function GetAutodetectCOMOnConnect: Boolean;
     procedure SetAutodetectCOMOnConnect(const AValue: Boolean);
@@ -95,8 +95,8 @@ begin
   FBaudRate := 4800;
   FConnectionTimeout := 300;
   FDelay := 1000;
-  FNMEALog := False;
-  FUSBGarmin := FALSE;
+  FLowLevelLog := False;
+  FGPSOrigin := gpsoNMEA;
   FAutodetectCOMOnConnect := FALSE;
   FAutodetectCOMFlags := 0;
 end;
@@ -111,9 +111,9 @@ begin
       FBaudRate,
       FConnectionTimeout,
       FDelay,
-      FNMEALog,
+      FLowLevelLog,
       FLogPath.FullPath,
-      FUSBGarmin,
+      FGPSOrigin,
       FAutodetectCOMOnConnect,
       FAutodetectCOMFlags
     );
@@ -130,8 +130,8 @@ begin
     SetBaudRate(AConfigData.ReadInteger('BaudRate', FBaudRate));
     SetConnectionTimeout(AConfigData.ReadInteger('timeout', FConnectionTimeout));
     SetDelay(AConfigData.ReadInteger('update', FDelay));
-    SetNMEALog(AConfigData.ReadBool('NMEAlog', FNMEALog));
-    SetUSBGarmin(AConfigData.ReadBool('USBGarmin', FUSBGarmin));
+    SetLowLevelLog(AConfigData.ReadBool('NMEAlog', FLowLevelLog));
+    SetGPSOrigin(TGPSOrigin(AConfigData.ReadInteger('USBGarmin', Ord(FGPSOrigin))));
     SetAutodetectCOMOnConnect(AConfigData.ReadBool('AutodetectCOMOnConnect', FAutodetectCOMOnConnect));
     SetAutodetectCOMFlags(AConfigData.ReadInteger('AutodetectCOMFlags', FAutodetectCOMFlags));
   end;
@@ -146,8 +146,8 @@ begin
   AConfigData.WriteInteger('BaudRate', FBaudRate);
   AConfigData.WriteInteger('timeout', FConnectionTimeout);
   AConfigData.WriteInteger('update', FDelay);
-  AConfigData.WriteBool('NMEAlog', FNMEALog);
-  AConfigData.WriteBool('USBGarmin', FUSBGarmin);
+  AConfigData.WriteBool('NMEAlog', FLowLevelLog);
+  AConfigData.WriteInteger('USBGarmin', Ord(FGPSOrigin));
   AConfigData.WriteBool('AutodetectCOMOnConnect', FAutodetectCOMOnConnect);
   AConfigData.WriteInteger('AutodetectCOMFlags', FAutodetectCOMFlags);
 end;
@@ -207,11 +207,11 @@ begin
   Result := FLogPath.FullPath;
 end;
 
-function TGPSModuleByCOMPortConfig.GetNMEALog: Boolean;
+function TGPSModuleByCOMPortConfig.GetLowLevelLog: Boolean;
 begin
   LockRead;
   try
-    Result := FNMEALog;
+    Result := FLowLevelLog;
   finally
     UnlockRead;
   end;
@@ -232,11 +232,11 @@ begin
   Result := IGPSModuleByCOMPortSettings(GetStaticInternal);
 end;
 
-function TGPSModuleByCOMPortConfig.GetUSBGarmin: Boolean;
+function TGPSModuleByCOMPortConfig.GetGPSOrigin: TGPSOrigin;
 begin
   LockRead;
   try
-    Result := FUSBGarmin;
+    Result := FGPSOrigin;
   finally
     UnlockRead;
   end;
@@ -313,12 +313,12 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.SetNMEALog(const AValue: Boolean);
+procedure TGPSModuleByCOMPortConfig.SetLowLevelLog(const AValue: Boolean);
 begin
   LockWrite;
   try
-    if FNMEALog <> AValue then begin
-      FNMEALog := AValue;
+    if FLowLevelLog <> AValue then begin
+      FLowLevelLog := AValue;
       SetChanged;
     end;
   finally
@@ -341,12 +341,12 @@ begin
   end;
 end;
 
-procedure TGPSModuleByCOMPortConfig.SetUSBGarmin(const AValue: Boolean);
+procedure TGPSModuleByCOMPortConfig.SetGPSOrigin(const AValue: TGPSOrigin);
 begin
   LockWrite;
   try
-    if FUSBGarmin <> AValue then begin
-      FUSBGarmin := AValue;
+    if FGPSOrigin <> AValue then begin
+      FGPSOrigin := AValue;
       SetChanged;
     end;
   finally

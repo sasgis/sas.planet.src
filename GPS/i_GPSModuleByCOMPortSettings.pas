@@ -26,6 +26,8 @@ uses
   Windows;
 
 type
+  TGPSOrigin = (gpsoNMEA, gpsoGarmin, gpsoFlyOnTrack, gpsoLocationAPI);
+
   IGPSModuleByCOMPortSettings = interface
     ['{1E9AF59D-8988-4747-9952-5D17A0B0DB33}']
     function GetPort: DWORD; safecall;
@@ -40,14 +42,16 @@ type
     function GetDelay: DWORD; safecall;
     property Delay: DWORD read GetDelay;
 
-    function GetNMEALog: Boolean; safecall;
-    property NMEALog: Boolean read GetNMEALog;
+    // NMEALog
+    function GetLowLevelLog: Boolean; safecall;
+    property LowLevelLog: Boolean read GetLowLevelLog;
 
     function GetLogPath: WideString; safecall;
     property LogPath: WideString read GetLogPath;
 
-    function GetUSBGarmin: Boolean; safecall;
-    property USBGarmin: Boolean read GetUSBGarmin;
+    // USBGarmin
+    function GetGPSOrigin: TGPSOrigin; safecall;
+    property GPSOrigin: TGPSOrigin read GetGPSOrigin;
 
     function GetAutodetectCOMOnConnect: Boolean; safecall;
     property AutodetectCOMOnConnect: Boolean read GetAutodetectCOMOnConnect;
