@@ -988,6 +988,7 @@ uses
   i_SatellitesInViewMapDraw in 'i_SatellitesInViewMapDraw.pas',
   u_SatellitesInViewMapDrawSimple in 'u_SatellitesInViewMapDrawSimple.pas',
   u_InetFunc in 'u_InetFunc.pas',
+  u_SortFunc in 'u_SortFunc.pas',
   i_DebugInfoWindow in 'i_DebugInfoWindow.pas',
   u_DebugInfoWindow in 'u_DebugInfoWindow.pas',
   i_MapSvcScanConfig in 'MapSvcScan\i_MapSvcScanConfig.pas',

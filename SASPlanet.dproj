@@ -1185,6 +1185,7 @@
     <DCCReference Include="u_ShortCutSingleConfig.pas" />
     <DCCReference Include="u_SimpleFlagWithInterlock.pas" />
     <DCCReference Include="u_SimpleHttpDownloader.pas" />
+    <DCCReference Include="u_SortFunc.pas" />
     <DCCReference Include="u_StartUpLogoConfig.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_StaticTreeBuilderBase.pas" />
