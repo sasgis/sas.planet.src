@@ -130,21 +130,59 @@ end;
 function TMapMenuGeneratorBasic.GetParentMenuItem(
   const AName: string
 ): TTBCustomItem;
+const
+  CLineBreak = '\';
 var
-  i: Integer;
+  i, j: Integer;
+  VName: string;
+  VParent, Vmenu: TTBCustomItem;
+  VNameParts: TStringList;
 begin
   if (AName = '') then begin
     Result := FRootMenu;
   end else begin
-    Result := nil;
-    for i := 0 to FRootMenu.Count - 1 do begin
-      if SameText(FRootMenu.Items[i].Caption, AName) then begin
-        Result := FRootMenu.Items[i];
+    if Pos(CLineBreak, AName) <> 0 then begin
+      VNameParts := TStringList.Create;
+      try
+        VNameParts.LineBreak := CLineBreak;
+        VNameParts.Text := AName;
+        Vmenu := FRootMenu;
+        for j := 0 to VNameParts.Count - 1 do begin
+          VParent := Vmenu;
+          VName := VNameParts.Strings[j];
+          if Vname = '' then begin
+            Vmenu := VParent; // Fix for multiple LineBreak
+          end else begin
+            Vmenu := nil;
+            for i := 0 to VParent.Count - 1 do begin
+              if SameText(VParent.Items[i].Caption, VName) then begin
+                Vmenu := VParent.Items[i];
+                Break;
+              end;
+            end;
+          end;
+          if Vmenu = nil then begin
+            Vmenu := CreateSubMenuItem(VName);
+            VParent.Add(Vmenu);
+          end;
+        end;
+        Result :=  Vmenu;
+      finally
+        FreeAndNil(VNameParts);
       end;
-    end;
-    if Result = nil then begin
-      Result := CreateSubMenuItem(AName);
-      FRootMenu.Add(Result);
+    end else begin
+      VName := AName;
+      Result := nil;
+      for i := 0 to FRootMenu.Count - 1 do begin
+        if SameText(FRootMenu.Items[i].Caption, VName) then begin
+          Result := FRootMenu.Items[i];
+          Break;
+        end;
+      end;
+      if Result = nil then begin
+        Result := CreateSubMenuItem(VName);
+        FRootMenu.Add(Result);
+      end;
     end;
   end;
 end;
