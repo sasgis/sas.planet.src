@@ -16,8 +16,8 @@ procedure SortInterfaceListByIntegerMeasure(
 );
 
 type
-  TInterfaceListSortCompareFunction = function (Item1, Item2: IInterface): Integer;
-  TInterfaceListSortCompareFunctor = function (Item1, Item2: IInterface): Integer of object;
+  TInterfaceListSortCompareFunction = function (const Item1, Item2: IInterface): Integer;
+  TInterfaceListSortCompareFunctor = function (const Item1, Item2: IInterface): Integer of object;
 
 procedure SortInterfaceListByCompareFunction(
   const AList: IInterfaceListSimple;
