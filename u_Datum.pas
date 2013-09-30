@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -27,6 +27,7 @@ uses
   t_GeoTypes,
   i_Datum,
   i_NotifierOperation,
+  i_EnumDoublePoint,
   u_BaseInterfacedObject;
 
 type
@@ -64,6 +65,12 @@ type
       const AInitialBearing: Double;
       const ADistance: Double
     ): TDoublePoint;
+
+    function GetLinePoints(
+      const AStart: TDoublePoint;
+      const AFinish: TDoublePoint;
+      const APointCount: integer
+    ): IEnumLonLatPoint;
   public
     constructor Create(
       const AHash: THashValue;
@@ -83,7 +90,10 @@ implementation
 uses
   SysUtils,
   Math,
-  gpc;
+  gpc,
+  i_DoublePointsAggregator,
+  u_DoublePointsAggregator,
+  u_EnumDoublePointsByArray;
 
 const
   // Константа для преобразования градусов в радианы
@@ -397,6 +407,37 @@ begin
   AInitialBearing := AInitialBearing / D2R;
   AFinalBearing := AFinalBearing / D2R;
   Result := FRadiusB * A * (Sigma - DeltaSigma);
+end;
+
+function TDatum.GetLinePoints(
+  const AStart: TDoublePoint;
+  const AFinish: TDoublePoint;
+  const APointCount: Integer
+): IEnumLonLatPoint;
+var
+  I: Integer;
+  VDistFull: Double;
+  VDistPart: Double;
+  VInitialBearing: Double;
+  VFinalBearing: Double;
+  VStart, VFinish: TDoublePoint;
+  VPointsAggregator: IDoublePointsAggregator;
+begin
+  Assert(APointCount >= 1);
+
+  VDistFull := CalcDist(AStart, AFinish, VInitialBearing, VFinalBearing);
+  VDistPart := VDistFull / (APointCount + 1);
+
+  VPointsAggregator := TDoublePointsAggregator.Create;
+
+  VStart := AStart;
+  for I := 0 to APointCount - 1 do begin
+    VFinish := CalcFinishPosition(VStart, VInitialBearing, VDistPart);
+    VPointsAggregator.Add(VFinish);
+    VStart := VFinish;
+  end; 
+
+  Result := TEnumDoublePointsByArray.Create(VPointsAggregator) as IEnumLonLatPoint;
 end;
 
 end.

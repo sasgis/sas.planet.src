@@ -5,6 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
+  i_DoublePointsAggregator,
   u_BaseInterfacedObject;
 
 type
@@ -13,13 +14,18 @@ type
     FPoints: PDoublePointArray;
     FCount: Integer;
     FIndex: Integer;
+    FPointsAggregator: IDoublePointsAggregator;
   private
     function Next(out APoint: TDoublePoint): Boolean;
   public
     constructor Create(
       const APoints: PDoublePointArray;
-      ACount: Integer
-    );
+      const ACount: Integer
+    ); overload;
+    constructor Create(
+      const APointsAggregator: IDoublePointsAggregator
+    ); overload;
+    destructor Destroy; override;
   end;
 
   TEnumLonLatPointsByArray = class(TEnumDoublePointsByArray, IEnumLonLatPoint)
@@ -34,13 +40,32 @@ uses
 
 constructor TEnumDoublePointsByArray.Create(
   const APoints: PDoublePointArray;
-  ACount: Integer
+  const ACount: Integer
 );
 begin
   inherited Create;
+  FPointsAggregator := nil;
   FPoints := APoints;
   FCount := ACount;
   FIndex := 0;
+end;
+
+constructor TEnumDoublePointsByArray.Create(
+  const APointsAggregator: IDoublePointsAggregator
+);
+begin
+  Assert(Assigned(APointsAggregator));
+  inherited Create;                   
+  FPointsAggregator := APointsAggregator;
+  FPoints := FPointsAggregator.Points;
+  FCount := FPointsAggregator.Count;
+  FIndex := 0;
+end;
+
+destructor TEnumDoublePointsByArray.Destroy;
+begin
+  FPointsAggregator := nil;
+  inherited;
 end;
 
 function TEnumDoublePointsByArray.Next(out APoint: TDoublePoint): Boolean;
