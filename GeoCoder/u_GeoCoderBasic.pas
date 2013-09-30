@@ -59,11 +59,6 @@ type
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; virtual; abstract;
-    procedure QuickSort(
-      const AList:IInterfaceListSimple;
-      var ADist: array of Double;
-      L, R: Integer
-    );
     procedure SortIt(
       const AList:IInterfaceListSimple;
       const ALocalConverter: ILocalCoordConverter
@@ -93,6 +88,7 @@ uses
   u_InterfaceListSimple,
   u_DownloaderHttpWithTTL,
   u_DownloadRequest,
+  u_SortFunc,
   u_GeoCodeResult;
 
 { TGeoCoderBasic }
@@ -110,43 +106,6 @@ begin
   FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
 end;
 
-procedure TGeoCoderBasic.QuickSort(
-  const AList:IInterfaceListSimple;
-  var ADist: array of Double;
-  L, R: Integer
-  );
-var
-  I, J: Integer;
-  P: Double;
-  TD: Double;
-begin
-  repeat
-    I := L;
-    J := R;
-    P := ADist[(L + R) shr 1];
-    repeat
-      while ADist[I] < P do begin
-        Inc(I);
-      end;
-      while ADist[J] > P do begin
-        Dec(J);
-      end;
-      if I <= J then begin
-        TD := ADist[I];
-        ADist[I] := ADist[J];
-        ADist[J] := TD;
-        AList.Exchange(I,J);
-        Inc(I);
-        Dec(J);
-      end;
-    until I > J;
-    if L < J then begin
-      QuickSort(AList, ADist, L, J);
-    end;
-    L := I;
-  until I >= R;
-end;
-
 procedure TGeoCoderBasic.SortIt(
   const AList:IInterfaceListSimple;
   const ALocalConverter: ILocalCoordConverter
@@ -161,7 +120,7 @@ begin
     VMark := IGeoCodePlacemark(AList.Items[i]);
     VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.GetPoint);
   end;
-  QuickSort(AList, VDistArr, 0, AList.GetCount-1);
+  SortInterfaceListByDoubleMeasure(AList, VDistArr);
 end;
 
 

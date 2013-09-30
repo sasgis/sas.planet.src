@@ -58,49 +58,13 @@ implementation
 
 uses
   u_InterfaceListSimple,
+  u_SortFunc,
   u_GeoCodeResult;
 
 { TGeoCoderLocalBasic }
 
-procedure QuickSort(
-  var AList: IInterfaceListSimple;
-  var ADist: array of Double;
-  L, R: Integer
-  );
-var
-  I, J: Integer;
-  P: Double;
-  TD: Double;
-begin
-  repeat
-    I := L;
-    J := R;
-    P := ADist[(L + R) shr 1];
-    repeat
-      while ADist[I] < P do begin
-        Inc(I);
-      end;
-      while ADist[J] > P do begin
-        Dec(J);
-      end;
-      if I <= J then begin
-        TD := ADist[I];
-        ADist[I] := ADist[J];
-        ADist[J] := TD;
-        AList.Exchange(I,J);
-        Inc(I);
-        Dec(J);
-      end;
-    until I > J;
-    if L < J then begin
-      QuickSort(AList, ADist, L, J);
-    end;
-    L := I;
-  until I >= R;
-end;
-
 procedure SortIt(
-  var AList: IInterfaceListSimple;
+  const AList: IInterfaceListSimple;
   const ALocalConverter: ILocalCoordConverter
 );
 var
@@ -113,7 +77,7 @@ begin
     VMark := IGeoCodePlacemark(AList.Items[i]);
     VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.GetPoint);
   end;
-  QuickSort(AList, VDistArr, 0, AList.GetCount-1);
+  SortInterfaceListByDoubleMeasure(AList, VDistArr);
 end;
 
 constructor TGeoCoderLocalBasic.Create(
