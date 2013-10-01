@@ -36,6 +36,9 @@ implementation
 
 uses
   ActiveX,
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
+  u_SortFunc,
   u_ListenerByEvent;
 
 { TMapTypeListChangeableByActiveMapsSet }
@@ -81,46 +84,6 @@ begin
 end;
 
 function TMapTypeListChangeableByActiveMapsSet.CreateStatic: IInterface;
-  procedure QuickSort(
-    var AMapsList: IMapTypeListBuilder;
-    var AZList: array of Integer;
-    L, R: Integer
-  );
-  var
-    I, J: Integer;
-    P: Integer;
-    TI: Integer;
-    TM: IMapType;
-  begin
-    repeat
-      I := L;
-      J := R;
-      P := AZList[(L + R) shr 1];
-      repeat
-        while AZList[I] < P do begin
-          Inc(I);
-        end;
-        while AZList[J] > P do begin
-          Dec(J);
-        end;
-        if I <= J then begin
-          TI := AZList[I];
-          TM := AMapsList[I];
-
-          AZList[I] := AZList[J];
-          AMapsList[I] := AMapsList[J];
-          AZList[J] := TI;
-          AMapsList[J] := TM;
-          Inc(I);
-          Dec(J);
-        end;
-      until I > J;
-      if L < J then begin
-        QuickSort(AMapsList, AZList, L, J);
-      end;
-      L := I;
-    until I >= R;
-  end;
 var
   VLayers: IMapTypeListBuilder;
   VZArray: array of Integer;
@@ -129,25 +92,31 @@ var
   VCnt: Integer;
   VCount: Integer;
   VMapType: IMapType;
+  VList: IInterfaceListSimple;
 begin
   VLayers := FMapTypeListBuilderFactory.Build;
-  if FLayersSet <> nil then begin
+  if Assigned(FLayersSet) and (FLayersSet.Count > 0) then begin
     VCount := FLayersSet.GetCount;
-    VLayers.Capacity := VCount;
+    VList := TInterfaceListSimple.Create;
+    VList.Capacity := VCount;
     VEnum := FLayersSet.GetMapTypeIterator;
     while VEnum.Next(1, VMapType, @VCnt) = S_OK do begin
       if Assigned(VMapType) then begin
-        VLayers.Add(VMapType);
+        VList.Add(VMapType);
       end;
     end;
-  end;
-  VCount := VLayers.Count;
-  SetLength(VZArray, VCount);
-  for i := 0 to VCount - 1 do begin
-    VZArray[i] := VLayers[i].MapType.LayerDrawConfig.LayerZOrder;
-  end;
-  if VCount > 1 then begin
-    QuickSort(VLayers, VZArray, 0, VCount - 1);
+    VCount := VList.GetCount;
+    if VCount > 1 then begin
+      SetLength(VZArray, VCount);
+      for i := 0 to VCount - 1 do begin
+        VZArray[i] := IMapType(VList[i]).MapType.LayerDrawConfig.LayerZOrder;
+      end;
+      SortInterfaceListByIntegerMeasure(VList, VZArray);
+    end;
+    VLayers.Capacity := VCount;
+    for i := 0 to VList.Count - 1 do begin
+      VLayers.Add(IMapType(VList[i]));
+    end;
   end;
   Result := VLayers.MakeAndClear;
 end;
