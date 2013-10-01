@@ -51,24 +51,30 @@ begin
   OnAdjustFont := Self.AdjustFont;
 end;
 
+function Items_checked(const Aitem : TTBCustomItem): Boolean ;
+  var i:integer;
+begin
+  Result := false;
+  for i := 0 to Aitem.Count - 1 do begin
+    if Aitem.Items[i].count >0  then begin
+      Result := Items_checked(Aitem.Items[i]);
+      if Result then Break;
+    end;
+    if Aitem.Items[i].Checked then begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
 procedure TTBXSubmenuItemWithIndicator.AdjustFont(
   Item: TTBCustomItem;
   Viewer: TTBItemViewer;
   Font: TFont;
   StateFlags: Integer
 );
-var
-  VChildSelected: Boolean;
-  i: Integer;
 begin
-  VChildSelected := False;
-  for i := 0 to Self.Count - 1 do begin
-    if Self.Items[i].Checked then begin
-      VChildSelected := True;
-      Break;
-    end;
-  end;
-  if VChildSelected then begin
+  if Items_checked(Self) then begin
     Self.FontSettings.Bold := tsTrue;
   end else begin
     Self.FontSettings.Bold := tsDefault;
