@@ -114,8 +114,9 @@ end;
 procedure TAvailPicsdg2.AfterConstruction;
 begin
   inherited;
-  FDefaultKey := '/b42d085,`5cd,353/,7`6b,a0ca6644ce/4';
-  // FDefaultKey := '6`d/6dc6,c`1c,3c54,`b/3,711/a1/b0a82';
+//  FDefaultKey := '/b42d085,`5cd,353/,7`6b,a0ca6644ce/4';
+  FDefaultKey := '6`d/6dc6,c`1c,3c54,`b/3,711/a1/b0a82';
+
 end;
 
 function TAvailPicsdg2.ContentType: String;
