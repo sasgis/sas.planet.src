@@ -299,23 +299,17 @@ begin
     if not AConfig.IgnoreCategoriesVisible then begin
       VList := FMarkDB.GetVisibleCategories(VZoom);
     end;
-    try
-      if (VList <> nil) and (VList.Count = 0) then begin
-        Result := nil;
-      end else begin
-        VGeoConverter := ALocalConverter.GetGeoConverter;
-        VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-        VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-        VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-        Result :=
-          FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(
-            VLonLatRect,
-            VList,
-            AConfig.IgnoreMarksVisible
-          );
-      end;
-    finally
-      VList := nil;
+    if AConfig.IgnoreCategoriesVisible or (Assigned(VList) and (VList.Count > 0)) then begin
+      VGeoConverter := ALocalConverter.GetGeoConverter;
+      VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
+      VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
+      VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
+      Result :=
+        FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(
+          VLonLatRect,
+          VList,
+          AConfig.IgnoreMarksVisible
+        );
     end;
   end;
 end;
