@@ -54,7 +54,7 @@ constructor TGlobalAppConfig.Create;
 begin
   inherited Create;
   FIsShowIconInTray := False;
-  FIsSendStatistic := True;
+  FIsSendStatistic := False;
 end;
 
 procedure TGlobalAppConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
