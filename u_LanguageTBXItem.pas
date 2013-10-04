@@ -41,10 +41,10 @@ type
     procedure OnClickItem(Sender: TObject);
   public
     constructor Create(
-      AOwner: TComponent;
-      AParentMenu: TTBCustomItem;
+      const AOwner: TComponent;
+      const AParentMenu: TTBCustomItem;
       const ALanguageManager: ILanguageManager;
-      ALangIndex: Integer
+      const ALangIndex: Integer
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -58,10 +58,10 @@ uses
 { TLanguageTBXItem }
 
 constructor TLanguageTBXItem.Create(
-  AOwner: TComponent;
-  AParentMenu: TTBCustomItem;
+  const AOwner: TComponent;
+  const AParentMenu: TTBCustomItem;
   const ALanguageManager: ILanguageManager;
-  ALangIndex: Integer
+  const ALangIndex: Integer
 );
 begin
   inherited Create(AOwner);
