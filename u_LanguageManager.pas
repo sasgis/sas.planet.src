@@ -100,13 +100,13 @@ end;
 
 procedure TLanguageManager.DoBeforeChangeNotify;
 var
-  i: Integer;
+  I: Integer;
 begin
   inherited;
   // force reloading forms with new selection
-  for i := 0 to application.ComponentCount - 1 do begin
-    if application.Components[i] is TCommonFormParent then begin
-      TCommonFormParent(application.Components[i]).RefreshTranslation;
+  for I := 0 to Application.ComponentCount - 1 do begin
+    if Application.Components[I] is TCommonFormParent then begin
+      TCommonFormParent(Application.Components[I]).RefreshTranslation;
     end;
   end;
 end;
