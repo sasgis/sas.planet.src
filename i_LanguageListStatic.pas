@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -28,8 +28,8 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetCode(AIndex: Integer): string;
-    property Code[AIndex: Integer]: string read GetCode;
+    function GetCode(const AIndex: Integer): string;
+    property Code[const AIndex: Integer]: string read GetCode;
 
     function FindCode(
       const ACode: string;

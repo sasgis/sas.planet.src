@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -34,13 +34,13 @@ type
     property CurrentLanguageCode: string read GetCurrentLanguageCode write SetCurrentLanguageCode;
 
     function GetCurrentLanguageIndex: Integer;
-    procedure SetCurrentLanguageIndex(AValue: Integer);
+    procedure SetCurrentLanguageIndex(const AValue: Integer);
     property CurrentLanguageIndex: Integer read GetCurrentLanguageIndex write SetCurrentLanguageIndex;
 
     function GetLanguageList: ILanguageListStatic;
     property LanguageList: ILanguageListStatic read GetLanguageList;
 
-    function GetLangNameByIndex(AIndex: Integer): string;
+    function GetLangNameByIndex(const AIndex: Integer): string;
   end;
 
 implementation

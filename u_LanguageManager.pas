@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -49,10 +49,10 @@ type
     procedure SetCurrentLanguageCode(const ACode: string);
 
     function GetCurrentLanguageIndex: Integer;
-    procedure SetCurrentLanguageIndex(AValue: Integer);
+    procedure SetCurrentLanguageIndex(const AValue: Integer);
 
     function GetLanguageList: ILanguageListStatic;
-    function GetLangNameByIndex(AIndex: Integer): string;
+    function GetLangNameByIndex(const AIndex: Integer): string;
   public
     constructor Create(const ALangRootPath: string);
     destructor Destroy; override;
@@ -144,7 +144,7 @@ begin
   end;
 end;
 
-function TLanguageManager.GetLangNameByIndex(AIndex: Integer): string;
+function TLanguageManager.GetLangNameByIndex(const AIndex: Integer): string;
 begin
   Result := FNames[AIndex];
 end;
@@ -155,13 +155,14 @@ begin
 end;
 
 procedure TLanguageManager.LoadLangs;
-  procedure Add(ACodes: TStringList; const AName, ACode: string);
+
+  procedure Add(const ACodes: TStringList; const AName, ACode: string);
   begin
     FNames.Add(AName);
     ACodes.Add(ACode);
   end;
 
-  procedure GetListOfLanguages(AList: TStringList);
+  procedure GetListOfLanguages(const AList: TStringList);
   var
     VIterator: IFileNameIterator;
     VFileNameW: WideString;
@@ -219,7 +220,7 @@ begin
   end;
 end;
 
-procedure TLanguageManager.SetCurrentLanguageIndex(AValue: Integer);
+procedure TLanguageManager.SetCurrentLanguageIndex(const AValue: Integer);
 var
   VLastUsedCode: string;
   VCurrCode: string;
