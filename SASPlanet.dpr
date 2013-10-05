@@ -231,6 +231,8 @@ uses
   u_DownloadCheckerStuped in 'u_DownloadCheckerStuped.pas',
   i_StringListChangeable in 'i_StringListChangeable.pas',
   u_ActiveMapsLicenseList in 'u_ActiveMapsLicenseList.pas',
+  i_MapTypeListStatic in 'i_MapTypeListStatic.pas',
+  i_MapTypeListBuilder in 'i_MapTypeListBuilder.pas',
   i_MapTypeListChangeable in 'i_MapTypeListChangeable.pas',
   u_MapTypeListChangeableActiveBitmapLayers in 'u_MapTypeListChangeableActiveBitmapLayers.pas',
   i_ImageLineProvider in 'i_ImageLineProvider.pas',

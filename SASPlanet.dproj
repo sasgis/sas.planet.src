@@ -309,7 +309,9 @@
     <DCCReference Include="i_MapTypeGUIConfigList.pas" />
     <DCCReference Include="i_MapTypeHotKeyListStatic.pas" />
     <DCCReference Include="i_MapTypeIconsList.pas" />
+    <DCCReference Include="i_MapTypeListBuilder.pas" />
     <DCCReference Include="i_MapTypeListChangeable.pas" />
+    <DCCReference Include="i_MapTypeListStatic.pas" />
     <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
     <DCCReference Include="i_MapVersionInfo.pas" />

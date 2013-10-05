@@ -38,7 +38,7 @@ uses
   i_VectorItemsFactory,
   i_TileFileNameGenerator,
   i_GlobalBerkeleyDBHelper,
-  i_MapTypes,
+  i_MapTypeListStatic,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;

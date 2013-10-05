@@ -8,6 +8,7 @@ uses
   i_VectorItemsFactory,
   i_LanguageManager,
   i_MapTypes,
+  i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,
@@ -44,6 +45,7 @@ implementation
 uses
   Types,
   SysUtils,
+  i_MapTypeListStatic,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportToSQLite,

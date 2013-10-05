@@ -8,6 +8,7 @@ uses
   i_LanguageManager,
   i_VectorItemLonLat,
   i_MapTypes,
+  i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
@@ -54,6 +55,7 @@ uses
   Types,
   SysUtils,
   c_CacheTypeCodes, // for cache types
+  i_MapTypeListStatic,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportToFileSystem,

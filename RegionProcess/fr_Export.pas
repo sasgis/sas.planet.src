@@ -18,6 +18,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_Bitmap32StaticFactory,
   i_MapTypes,
+  i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_TileFileNameGeneratorsList,
   i_MapTypeGUIConfigList,

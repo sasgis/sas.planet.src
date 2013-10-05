@@ -13,7 +13,7 @@ uses
   i_VectorItemLonLat,
   i_TileInfoBasic,
   i_TileStorage,
-  i_MapTypes,
+  i_MapTypeListStatic,
   u_MapType,
   u_ResStrings,
   u_ThreadExportAbstract;

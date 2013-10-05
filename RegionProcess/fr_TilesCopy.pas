@@ -13,6 +13,8 @@ uses
   ExtCtrls,
   i_LanguageManager,
   i_MapTypes,
+  i_MapTypeListStatic,
+  i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,

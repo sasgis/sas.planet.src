@@ -9,6 +9,7 @@ uses
   JNXlib,
   t_GeoTypes,
   i_MapTypes,
+  i_MapTypeListStatic,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,

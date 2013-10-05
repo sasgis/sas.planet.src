@@ -4,7 +4,7 @@ interface
 
 uses
   i_Changeable,
-  i_MapTypes;
+  i_MapTypeListStatic;
 
 type
   IMapTypeListChangeable = interface(IChangeable)

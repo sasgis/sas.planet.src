@@ -4,9 +4,7 @@ interface
 
 uses
   i_HashFunction,
-  i_InterfaceListStatic,
-  i_InterfaceListSimple,
-  i_MapTypes,
+  i_MapTypeListBuilder,
   u_BaseInterfacedObject;
 
 type
@@ -23,6 +21,10 @@ implementation
 
 uses
   t_Hash,
+  i_InterfaceListStatic,
+  i_InterfaceListSimple,
+  i_MapTypes,
+  i_MapTypeListStatic,
   u_InterfaceListSimple;
 
 const

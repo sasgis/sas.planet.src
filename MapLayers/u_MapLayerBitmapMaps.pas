@@ -67,6 +67,7 @@ implementation
 
 uses
   i_TileMatrix,
+  i_MapTypeListStatic,
   u_TileMatrixFactory,
   u_ListenerByEvent,
   u_BitmapLayerProviderForViewMaps;

@@ -13,6 +13,7 @@ uses
   i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_MapTypes,
+  i_MapTypeListStatic,
   i_BitmapLayerProvider,
   i_BitmapPostProcessing,
   i_ObjectWithListener,
