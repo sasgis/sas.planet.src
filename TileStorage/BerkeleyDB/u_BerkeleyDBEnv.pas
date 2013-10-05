@@ -93,8 +93,7 @@ uses
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
   u_BerkeleyDBPool,
-  u_BerkeleyDBFactory,
-  u_GlobalBerkeleyDBHelper;
+  u_BerkeleyDBFactory;
 
 const
   cBerkeleyDBEnvSubDir = 'env';

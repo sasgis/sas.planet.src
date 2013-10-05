@@ -24,12 +24,9 @@ interface
 
 uses
   Windows,
-  ActiveX,
-  SysUtils,
   vsagps_public_base,
   i_InterfaceListStatic,
   i_GPS,
-  i_GPSPositionFactory,
   u_BaseInterfacedObject;
 
 type

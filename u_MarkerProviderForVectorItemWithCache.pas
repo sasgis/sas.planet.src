@@ -35,9 +35,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 type
   PDataRecord = ^TDataRecord;
   TDataRecord = record

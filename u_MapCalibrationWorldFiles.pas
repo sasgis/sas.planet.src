@@ -64,7 +64,6 @@ implementation
 uses
   Classes,
   SysUtils,
-  ALfcnString,
   t_GeoTypes,
   u_GeoToStr,
   u_GeoFun;

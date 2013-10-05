@@ -31,7 +31,6 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_BasicMemCache,
-  i_ContentTypeManager,
   i_CoordConverter,
   i_TileStorage,
   i_MapVersionConfig,

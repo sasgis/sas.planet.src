@@ -23,7 +23,6 @@ unit u_GPSPositionFactory;
 interface
 
 uses
-  ActiveX,
   i_GPSPositionFactory,
   i_GPS,
   vsagps_public_base,

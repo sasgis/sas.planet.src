@@ -3,9 +3,8 @@ unit u_SortFunc;
 interface
 
 uses
-  Classes,
   i_InterfaceListSimple;
-
+  
 procedure SortInterfaceListByDoubleMeasure(
   const AList: IInterfaceListSimple;
   var AMeasure: array of Double
