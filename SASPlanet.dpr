@@ -371,6 +371,8 @@ uses
   u_LastSelectionInfoSaver in 'u_LastSelectionInfoSaver.pas',
   u_GeoToStr in 'u_GeoToStr.pas',
   i_VectorDataLoader in 'i_VectorDataLoader.pas',
+  u_XmlVectorObjects in 'VectorLoaders\u_XmlVectorObjects.pas',
+  i_XmlVectorObjects in 'VectorLoaders\i_XmlVectorObjects.pas',
   u_XmlInfoSimpleParser in 'VectorLoaders\u_XmlInfoSimpleParser.pas',
   u_KmlInfoSimpleParser in 'VectorLoaders\u_KmlInfoSimpleParser.pas',
   u_KmzInfoSimpleParser in 'VectorLoaders\u_KmzInfoSimpleParser.pas',

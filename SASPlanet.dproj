@@ -1283,6 +1283,7 @@
     <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
     <DCCReference Include="u_ZmpInfo.pas" />
     <DCCReference Include="u_ZmpInfoSet.pas" />
+    <DCCReference Include="VectorLoaders\i_XmlVectorObjects.pas" />
     <DCCReference Include="VectorLoaders\u_CsvParser.pas" />
     <DCCReference Include="VectorLoaders\u_HlgParser.pas" />
     <DCCReference Include="VectorLoaders\u_KmlInfoSimpleParser.pas" />
@@ -1291,5 +1292,6 @@
     <DCCReference Include="VectorLoaders\u_PLTSimpleParser.pas" />
     <DCCReference Include="VectorLoaders\u_SlsParser.pas" />
     <DCCReference Include="VectorLoaders\u_XmlInfoSimpleParser.pas" />
+    <DCCReference Include="VectorLoaders\u_XmlVectorObjects.pas" />
   </ItemGroup>
 </Project>
