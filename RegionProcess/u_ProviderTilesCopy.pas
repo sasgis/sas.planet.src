@@ -11,6 +11,7 @@ uses
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_ContentTypeManager,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_TileFileNameGeneratorsList,
@@ -28,6 +29,7 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
+    FContentTypeManager: IContentTypeManager;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -40,6 +42,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+      const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -74,6 +77,7 @@ constructor TProviderTilesCopy.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+  const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -89,6 +93,7 @@ begin
   FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
+  FContentTypeManager := AContentTypeManager;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileNameGenerator := ATileNameGenerator;
@@ -150,6 +155,7 @@ begin
       VProgressInfo,
       '', // allow empty value here (if path completely defined)
       VPath,
+      FContentTypeManager,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       APolygon,
@@ -168,6 +174,7 @@ begin
       VPath,
       (VPlaceInSubFolder or (VMaps.Count > 1)),
       (VCacheType = c_File_Cache_Id_BDB_Versioned),
+      FContentTypeManager,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       APolygon,

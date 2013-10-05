@@ -42,6 +42,7 @@ uses
   i_LastSelectionInfo,
   i_CoordConverterFactory,
   i_CoordConverterList,
+  i_ContentTypeManager,
   i_GlobalViewMainConfig,
   i_VectorItemLonLat,
   i_VectorItemsFactory,
@@ -139,6 +140,7 @@ type
       const APosition: ILocalCoordConverterChangeable;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
+      const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList;
       const AViewConfig: IGlobalViewMainConfig;
@@ -195,6 +197,7 @@ constructor TfrmRegionProcess.Create(
   const APosition: ILocalCoordConverterChangeable;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
+  const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList;
   const AViewConfig: IGlobalViewMainConfig;
@@ -288,6 +291,7 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AMapTypeListBuilderFactory,
+      AContentTypeManager,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ATileNameGenerator

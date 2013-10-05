@@ -9,6 +9,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
+  i_ContentTypeManager,
   i_VectorItemsFactory,
   i_VectorItemLonLat,
   i_TileInfoBasic,
@@ -22,10 +23,11 @@ type
   TThreadExportToStorage = class(TThreadExportAbstract)
   private
     FMapTypeArr: IMapTypeListStatic;
+    FContentTypeManager: IContentTypeManager;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FConfigPath, FExportPath: string;
-    
+
     FIsMove: boolean;
     FIsReplace: boolean;
     FSetTargetVersionEnabled: Boolean;
@@ -41,6 +43,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AConfigPath, AExportPath: string;
+      const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const APolygon: ILonLatPolygon;
@@ -70,6 +73,7 @@ uses
 constructor TThreadExportToStorage.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AConfigPath, AExportPath: string;
+  const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const APolygon: ILonLatPolygon;
@@ -87,6 +91,7 @@ begin
     Self.ClassName
   );
   FTargetStorage := nil;
+  FContentTypeManager := AContentTypeManager;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FConfigPath := AConfigPath;
@@ -219,7 +224,7 @@ begin
     FExportPath,
     nil,
     nil,
-    ASourceMapType.ContentTypeManager,
+    FContentTypeManager,
     ASourceMapType.VersionConfig.VersionFactory,
     ASourceMapType.ContentType
   );

@@ -341,7 +341,7 @@ begin
       while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
         VMap := ALayerSet.GetMapTypeByGUID(VGUID);
         if VMap <> nil then begin
-          VNotifier := VMap.MapType.TileNotifier;
+          VNotifier := VMap.MapType.TileStorage.TileNotifier;
           if VNotifier <> nil then begin
             VConverter := VMap.MapType.GeoConvert;
             VMapLonLatRect := VLonLatRect;
@@ -377,7 +377,7 @@ begin
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
       VMap := ALayerSet.GetMapTypeByGUID(VGUID);
       if VMap <> nil then begin
-        VNotifier := VMap.MapType.TileNotifier;
+        VNotifier := VMap.MapType.TileStorage.TileNotifier;
         if VNotifier <> nil then begin
           VNotifier.Remove(IListener(FLayerListeners.Items[i]));
         end;

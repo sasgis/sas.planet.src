@@ -911,6 +911,7 @@ begin
       FConfig.ViewPortState.View,
       GState.MapType.FullMapsSet,
       GState.MapType.GUIConfigList,
+      GState.ContentTypeManager,
       GState.CoordConverterFactory,
       GState.TileNameGenerator,
       GState.Config.ViewConfig,

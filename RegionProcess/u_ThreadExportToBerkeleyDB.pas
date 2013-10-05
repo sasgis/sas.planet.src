@@ -34,6 +34,7 @@ uses
   i_NotifierTime,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
+  i_ContentTypeManager,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_TileFileNameGenerator,
@@ -51,6 +52,7 @@ type
     FDestTileStorage: ITileStorage;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FMapTypeArr: IMapTypeListStatic;
+    FContentTypeManager: IContentTypeManager;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FTileNameGen: ITileFileNameGenerator;
@@ -78,6 +80,7 @@ type
       const APath: string;
       const APlaceInSubFolder: Boolean;
       const AIsVersioned: Boolean;
+      const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const APolygon: ILonLatPolygon;
@@ -111,6 +114,7 @@ constructor TThreadExportToBerkeleyDB.Create(
   const APath: string;
   const APlaceInSubFolder: Boolean;
   const AIsVersioned: Boolean;
+  const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const APolygon: ILonLatPolygon;
@@ -130,6 +134,7 @@ begin
   );
   FTimerNoifier := ATimerNoifier;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
+  FContentTypeManager := AContentTypeManager;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FPathExport := GetFullPathName(APath);
@@ -293,7 +298,7 @@ begin
           FIsVersioned,
           FTimerNoifier,
           nil, // MemCache - not needed here
-          VMapType.ContentTypeManager,
+          FContentTypeManager,
           VMapType.VersionConfig.VersionFactory,
           VMapType.ContentType
         );

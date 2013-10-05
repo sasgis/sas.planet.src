@@ -146,7 +146,6 @@ type
       AUsePre: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    function GetTileNotifier: INotifierTilePyramidUpdate;
   public
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
     procedure ClearMemCache;
@@ -230,8 +229,6 @@ type
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
     property CacheTileInfo: ITileInfoBasicMemCache read FCacheTileInfo;
-    property TileNotifier: INotifierTilePyramidUpdate read GetTileNotifier;
-    property ContentTypeManager: IContentTypeManager read FContentTypeManager;
 
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -526,11 +523,6 @@ begin
   FStorageConfig := nil;
   FStorage := nil;
   inherited;
-end;
-
-function TMapType.GetTileNotifier: INotifierTilePyramidUpdate;
-begin
-  Result := FStorage.TileNotifier;
 end;
 
 function TMapType.GetTileFileName(

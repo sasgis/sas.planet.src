@@ -182,7 +182,7 @@ begin
   FListenerCS.BeginWrite;
   try
     if (FListener <> nil) and (FListenLocalConverter <> nil) then begin
-      VNotifier := FMapType.MapType.TileNotifier;
+      VNotifier := FMapType.MapType.TileStorage.TileNotifier;
       if VNotifier <> nil then begin
         VNotifier.Remove(FMapListener);
       end;
@@ -230,7 +230,7 @@ begin
         VMapRect := ALocalConverter.GetRectInMapPixelFloat;
         VConverter.CheckPixelRectFloat(VMapRect, VZoom);
         VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-        VNotifier := FMapType.MapType.TileNotifier;
+        VNotifier := FMapType.MapType.TileStorage.TileNotifier;
         if VNotifier <> nil then begin
           VConverter := FMapType.MapType.GeoConvert;
           VMapLonLatRect := VLonLatRect;
