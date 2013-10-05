@@ -250,7 +250,7 @@ begin
   AItem.Data := AMapType;
   VValue := AMapType.StorageConfig.NameInCache;
   SetSubItem(AItem, 0, VValue);
-  if AMapType.Abilities.IsLayer then begin
+  if AMapType.Zmp.IsLayer then begin
     VValue := SAS_STR_Layers+'\'+AMapType.GUIConfig.ParentSubMenu.Value;
   end else begin
     VValue := SAS_STR_Maps+'\'+AMapType.GUIConfig.ParentSubMenu.Value;

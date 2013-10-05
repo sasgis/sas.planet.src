@@ -48,8 +48,6 @@ type
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetIsLayer: Boolean;
-
     function GetIsShowOnSmMap: Boolean;
     procedure SetIsShowOnSmMap(AValue: Boolean);
 
@@ -105,7 +103,6 @@ var
 begin
   VStatic :=
     TMapAbilitiesConfigStatic.Create(
-      FDefConfig.IsLayer,
       FIsShowOnSmMap,
       FUseDownload
     );
@@ -136,16 +133,6 @@ begin
     AConfigData.WriteBool('UseDwn', FUseDownload);
   end else begin
     AConfigData.DeleteValue('UseDwn');
-  end;
-end;
-
-function TMapAbilitiesConfig.GetIsLayer: Boolean;
-begin
-  LockRead;
-  try
-    Result := FDefConfig.IsLayer;
-  finally
-    UnlockRead;
   end;
 end;
 

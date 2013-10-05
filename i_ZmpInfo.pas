@@ -74,6 +74,9 @@ type
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
 
+    function GetIsLayer: Boolean;
+    property IsLayer: Boolean read GetIsLayer;
+
     function GetFileName: string;
     property FileName: string read GetFileName;
 

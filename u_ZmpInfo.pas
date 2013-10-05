@@ -118,6 +118,7 @@ type
   TZmpInfo = class(TBaseInterfacedObject, IZmpInfo)
   private
     FGUID: TGUID;
+    FIsLayer: Boolean;
     FLayerZOrder: Integer;
     FLicense: IStringByLanguage;
     FFileName: string;
@@ -167,6 +168,7 @@ type
   private
     { IZmpInfo }
     function GetGUID: TGUID;
+    function GetIsLayer: Boolean;
     function GetGUI: IZmpInfoGUI;
     function GetLayerZOrder: Integer;
     function GetLicense: IStringByLanguage;
@@ -674,6 +676,11 @@ begin
   Result := FGUID;
 end;
 
+function TZmpInfo.GetIsLayer: Boolean;
+begin
+  Result := FIsLayer;
+end;
+
 function TZmpInfo.GetLayerZOrder: Integer;
 begin
   Result := FLayerZOrder;
@@ -721,17 +728,14 @@ end;
 
 procedure TZmpInfo.LoadAbilities(const AConfig: IConfigDataProvider);
 var
-  VIsLayer: Boolean;
   VIsShowOnSmMap: Boolean;
   VUseDownload: Boolean;
 begin
-  VIsLayer := AConfig.ReadBool('asLayer', False);
   VIsShowOnSmMap := AConfig.ReadBool('CanShowOnSmMap', True);
   VUseDownload := AConfig.ReadBool('UseDwn', True);
 
   FAbilities :=
     TMapAbilitiesConfigStatic.Create(
-      VIsLayer,
       VIsShowOnSmMap,
       VUseDownload
     );
@@ -830,6 +834,7 @@ procedure TZmpInfo.LoadConfig(
 );
 begin
   FGUID := LoadGUID(FConfigIniParams);
+  FIsLayer := FConfigIniParams.ReadBool('asLayer', False);
   LoadVersion(FConfigIniParams);
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
   LoadTileRequestBuilderConfig(ACoordConverterFactory, FConfigIniParams);

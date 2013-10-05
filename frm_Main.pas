@@ -2225,7 +2225,7 @@ begin
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
     VIcon18Index := FMapTypeIcons18List.GetIconIndexByGUID(VGUID);
-    if VMapType.Abilities.IsLayer then begin
+    if VMapType.Zmp.IsLayer then begin
       NDwnItem:=TTBXItem.Create(ldm);
       FNDwnItemList.Add(VGUID, NDwnItem);
       NDwnItem.Caption:=VMapType.GUIConfig.Name.Value;
@@ -3044,7 +3044,7 @@ begin
       VMap := FMapHotKeyList.GetMapTypeGUIDByHotKey(VShortCut);
       if VMap <> nil then begin
         VMapType := VMap.MapType;
-        if VMapType.Abilities.IsLayer then begin
+        if VMapType.Zmp.IsLayer then begin
           FConfig.MainMapsConfig.InvertLayerSelectionByGUID(VMap.GUID);
         end else begin
           FConfig.MainMapsConfig.SelectMainByGUID(VMap.GUID);
@@ -3511,7 +3511,7 @@ begin
         if not IsEqualGUID(VGUID, CGUID_Zero) then begin
           VMap := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
           if VMap <> nil then begin
-            if VMap.MapType.Abilities.IsLayer then begin
+            if VMap.MapType.Zmp.IsLayer then begin
               FConfig.MainMapsConfig.LockWrite;
               try
                 if FConfig.MainMapsConfig.GetActiveLayersSet.GetStatic.GetMapTypeByGUID(VMap.GUID) = nil then begin
@@ -6598,7 +6598,7 @@ begin
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.Abilities.IsLayer) then begin
+    if (VMapType.Zmp.IsLayer) then begin
       VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
       TTBXItem(FNDwnItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       TTBXItem(FNDelItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
@@ -6661,7 +6661,7 @@ begin
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
-    if (VMapType.Abilities.IsLayer) then begin
+    if (VMapType.Zmp.IsLayer) then begin
       VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
       TTBXItem(FNLayerParamsItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
       if VLayerIsActive then begin

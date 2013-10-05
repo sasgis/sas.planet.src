@@ -29,16 +29,13 @@ uses
 type
   TMapAbilitiesConfigStatic = class(TBaseInterfacedObject, IMapAbilitiesConfigStatic)
   private
-    FIsLayer: Boolean;
     FIsShowOnSmMap: Boolean;
     FUseDownload: Boolean;
   private
-    function GetIsLayer: Boolean;
     function GetIsShowOnSmMap: Boolean;
     function GetUseDownload: Boolean;
   public
     constructor Create(
-      AIsLayer: Boolean;
       AIsShowOnSmMap: Boolean;
       AUseDownload: Boolean
     );
@@ -49,20 +46,13 @@ implementation
 { TMapAbilitiesConfigStatic }
 
 constructor TMapAbilitiesConfigStatic.Create(
-  AIsLayer,
   AIsShowOnSmMap,
   AUseDownload: boolean
 );
 begin
   inherited Create;
-  FIsLayer := AIsLayer;
   FIsShowOnSmMap := AIsShowOnSmMap;
   FUseDownload := AUseDownload;
-end;
-
-function TMapAbilitiesConfigStatic.GetIsLayer: Boolean;
-begin
-  Result := FIsLayer;
 end;
 
 function TMapAbilitiesConfigStatic.GetIsShowOnSmMap: Boolean;

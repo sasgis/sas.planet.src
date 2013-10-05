@@ -217,14 +217,14 @@ begin
         // check if allow to add map to list
       if VCurMapType.GUIConfig.Enabled or FShowDisabled then begin
         if (FMapSelectFilter = mfAll) or // карты и слои
-          ((FMapSelectFilter = mfMaps) and (not VCurMapType.Abilities.IsLayer)) or //карты и текущая - карта
-          ((FMapSelectFilter = mfLayers) and (VCurMapType.Abilities.IsLayer)) // слои и текущий - слой
+          ((FMapSelectFilter = mfMaps) and (not VCurMapType.Zmp.IsLayer)) or //карты и текущая - карта
+          ((FMapSelectFilter = mfLayers) and (VCurMapType.Zmp.IsLayer)) // слои и текущий - слой
         then begin
           case VMode of
             1: VAdd := True;  // all maps
-            2: VAdd := (not VCurMapType.Abilities.IsLayer); // only maps
-            3: VAdd := (VCurMapType.Abilities.IsLayer);// only layers
-            4: if (VCurMapType.Abilities.IsLayer) then // only visible items: main map or visible layer
+            2: VAdd := (not VCurMapType.Zmp.IsLayer); // only maps
+            3: VAdd := (VCurMapType.Zmp.IsLayer);// only layers
+            4: if (VCurMapType.Zmp.IsLayer) then // only visible items: main map or visible layer
                  VAdd := VLayers.GetMapTypeByGUID(VGUID) <> nil
                else
                  VAdd := IsEqualGUID(VActiveMapGUID, VGUID);
@@ -252,7 +252,7 @@ begin
               cbbMap.ItemIndex := VAddedIndex;
               VCurNewIndex := cbbMap.ItemIndex;
             end;
-            if (VCurMapType.Abilities.IsLayer) then begin // select first active layer
+            if (VCurMapType.Zmp.IsLayer) then begin // select first active layer
               if(VLayers.GetMapTypeByGUID(VGUID) <> nil) and (VCurNewIndex = 0) then begin
                 VCurNewIndex := cbbMap.Items.Count;
                 cbbMap.ItemIndex := VAddedIndex;

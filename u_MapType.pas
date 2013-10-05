@@ -117,7 +117,6 @@ type
 
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
-    function GetIsHybridLayer: Boolean;
     procedure SaveBitmapTileToStorage(
       const AXY: TPoint;
       const AZoom: byte;
@@ -218,7 +217,6 @@ type
     property StorageConfig: ISimpleTileStorageConfig read FStorageConfig;
     property IsBitmapTiles: Boolean read GetIsBitmapTiles;
     property IsKmlTiles: Boolean read GetIsKmlTiles;
-    property IsHybridLayer: Boolean read GetIsHybridLayer;
 
     property TileDownloadSubsystem: ITileDownloadSubsystem read FTileDownloadSubsystem;
     property TileStorage: ITileStorage read FStorage;
@@ -482,7 +480,7 @@ begin
       FStorage
     );
 
-  if FAbilitiesConfig.IsLayer then begin
+  if FZmp.IsLayer then begin
     FLoadPrevMaxZoomDelta := 4;
   end else begin
     FLoadPrevMaxZoomDelta := 6;
@@ -732,11 +730,6 @@ end;
 function TMapType.GetIsKmlTiles: Boolean;
 begin
   Result := FKmlLoaderFromStorage <> nil;
-end;
-
-function TMapType.GetIsHybridLayer: Boolean;
-begin
-  Result := IsBitmapTiles and FAbilitiesConfig.IsLayer;
 end;
 
 function TMapType.LoadTile(

@@ -218,7 +218,7 @@ begin
     VMap := FMapType[i];
     VMapType := TMapTypeBasic.Create(VMap);
     VFullMapsList.Add(VMapType);
-    if VMap.Abilities.IsLayer then begin
+    if VMap.Zmp.IsLayer then begin
       VLayersList.Add(VMapType);
     end else begin
       VMapsList.Add(VMapType);
@@ -270,7 +270,7 @@ begin
   VEnum := FZmpInfoSet.GetIterator;
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
     VZmp := FZmpInfoSet.GetZmpByGUID(VGUID);
-    if not VZmp.Abilities.IsLayer then begin
+    if not VZmp.IsLayer then begin
       Inc(VMapOnlyCount);
     end;
     Inc(VMapTypeCount);
@@ -326,7 +326,7 @@ begin
     if VMapType <> nil then begin
       SetLength(FMapType, VMapTypeCount + 1);
       FMapType[VMapTypeCount] := VMapType;
-      if not VMapType.Abilities.IsLayer then begin
+      if not VMapType.Zmp.IsLayer then begin
         Inc(VMapOnlyCount);
       end;
       inc(VMapTypeCount);

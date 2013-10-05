@@ -120,7 +120,7 @@ begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VInZooms := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VResampler := (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).Resampler;
-  if VMapType.IsHybridLayer then begin
+  if VMapType.Zmp.IsLayer then begin
     VBgColor := 0;
   end else begin
     VBgColor := Color32(FViewConfig.BackGroundColor);
