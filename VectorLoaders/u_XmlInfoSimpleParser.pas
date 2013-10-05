@@ -23,7 +23,6 @@ unit u_XmlInfoSimpleParser;
 interface
 
 uses
-  Windows,
   Classes,
   SysUtils,
   t_GeoTypes,
@@ -32,17 +31,12 @@ uses
   i_VectorItemSubsetBuilder,
   i_VectorItemSubset,
   i_VectorItemsFactory,
-  i_VectorDataItemSimple,
-  i_ArchiveReadWriteFactory,
-  i_ArchiveReadWrite,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
   i_XmlVectorObjects,
-  i_InterfaceListSimple,
   u_BaseInterfacedObject,
   vsagps_public_sysutils,
   vsagps_public_print,
-  vsagps_public_parser,
   vsagps_public_gpx,
   vsagps_public_kml,
   vsagps_public_xml_parser;
@@ -116,8 +110,7 @@ implementation
 
 uses
   u_XmlVectorObjects,
-  u_StreamReadOnlyByBinaryData,
-  u_GeoFun;
+  u_StreamReadOnlyByBinaryData;
 
 procedure rTVSAGPS_ParseXML_UserProc(
   const pUserObjPointer: Pointer;

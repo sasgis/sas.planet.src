@@ -4,10 +4,8 @@ interface
 
 uses
   SysUtils,
-  GR32,
   t_GeoTypes,
   i_Appearance,
-  i_AppearanceOfMarkFactory,
   i_XmlVectorObjects,
   i_VectorItemSubsetBuilder,
   i_VectorItemSubset,
@@ -130,9 +128,7 @@ uses
   vsagps_public_gpx,
   vsagps_public_parser,
   vsagps_public_print,
-  i_MarkPicture,
   i_LonLatRect,
-  i_ImportConfig,
   u_GeoFun,
   u_LonLatRectByPoint,
   u_InterfaceListSimple,
