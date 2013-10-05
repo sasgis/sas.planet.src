@@ -5,7 +5,7 @@ interface
 uses
   Types,
   i_BinaryData,
-  i_MapTypes,
+  i_MapTypeSetChangeable,
   i_TextByVectorItem,
   i_InternalDomainInfoProvider,
   u_BaseInterfacedObject;
@@ -44,6 +44,7 @@ uses
   SysUtils,
   StrUtils,
   c_ZeroGUID,
+  i_MapTypes,
   i_TileStorage,
   i_TileInfoBasic,
   i_VectorDataItemSimple,

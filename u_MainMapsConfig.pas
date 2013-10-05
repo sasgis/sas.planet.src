@@ -24,7 +24,9 @@ interface
 
 uses
   i_ActiveMapsConfig,
-  i_MapTypes,
+  i_MapTypeSet,
+  i_MapTypeSetBuilder,
+  i_MapTypeSetChangeable,
   u_ActivMapWithLayers;
 
 type
@@ -48,6 +50,7 @@ implementation
 
 uses
   ActiveX,
+  i_MapTypes,
   u_ActiveMapsSet;
 
 { TMainMapsConfig }

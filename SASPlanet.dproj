@@ -313,6 +313,9 @@
     <DCCReference Include="i_MapTypeListChangeable.pas" />
     <DCCReference Include="i_MapTypeListStatic.pas" />
     <DCCReference Include="i_MapTypes.pas" />
+    <DCCReference Include="i_MapTypeSet.pas" />
+    <DCCReference Include="i_MapTypeSetBuilder.pas" />
+    <DCCReference Include="i_MapTypeSetChangeable.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
     <DCCReference Include="i_MapVersionInfo.pas" />
     <DCCReference Include="i_MapVersionInfoGE.pas" />

@@ -29,9 +29,9 @@ uses
   i_GUIDListStatic,
   i_MapTypeHotKeyListStatic,
   i_MapTypeGUIConfigList,
+  i_MapTypeSet,
   i_LanguageManager,
-  u_ConfigDataElementComplexBase,
-  i_MapTypes;
+  u_ConfigDataElementComplexBase;
 
 type
   TMapTypeGUIConfigList = class(TConfigDataElementComplexBase, IMapTypeGUIConfigList)
@@ -63,6 +63,7 @@ implementation
 
 uses
   i_InterfaceListSimple,
+  i_MapTypes,
   u_ListenerByEvent,
   u_InterfaceListSimple,
   u_SortFunc,

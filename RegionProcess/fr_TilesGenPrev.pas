@@ -14,7 +14,7 @@ uses
   t_CommonTypes,
   i_LanguageManager,
   i_ImageResamplerFactory,
-  i_MapTypes,
+  i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_ImageResamplerConfig,

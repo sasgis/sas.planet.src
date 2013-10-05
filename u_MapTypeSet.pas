@@ -23,10 +23,8 @@ unit u_MapTypeSet;
 interface
 
 uses
-  ActiveX,
-  i_GUIDSet,
   i_HashFunction,
-  i_MapTypes,
+  i_MapTypeSetBuilder,
   u_BaseInterfacedObject;
 
 type
@@ -42,8 +40,12 @@ type
 implementation
 
 uses
+  ActiveX,
   t_Hash,
   c_ZeroGUID,
+  i_GUIDSet,
+  i_MapTypes,
+  i_MapTypeSet,
   u_GUIDInterfaceSet;
 
 const

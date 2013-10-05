@@ -7,7 +7,7 @@ uses
   Forms,
   i_LanguageManager,
   i_VectorItemLonLat,
-  i_MapTypes,
+  i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,

@@ -23,7 +23,8 @@ unit u_MainFormConfig;
 interface
 
 uses
-  i_MapTypes,
+  i_MapTypeSet,
+  i_MapTypeSetBuilder,
   i_ActiveMapsConfig,
   i_LocalCoordConverterFactorySimpe,
   i_ViewPortState,

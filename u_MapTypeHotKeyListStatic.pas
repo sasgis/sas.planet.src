@@ -25,6 +25,7 @@ interface
 uses
   Classes,
   i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeHotKeyListStatic,
   i_IDList,
   u_BaseInterfacedObject;

@@ -24,6 +24,8 @@ interface
 
 uses
   i_MapTypes,
+  i_MapTypeSet,
+  i_MapTypeSetChangeable,
   i_Changeable,
   i_ConfigDataElement;
 

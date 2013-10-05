@@ -25,7 +25,7 @@ interface
 uses
   i_Notifier,
   i_StaticTreeItem,
-  i_MapTypes,
+  i_MapTypeSet,
   i_TreeChangeable,
   u_BaseInterfacedObject;
 

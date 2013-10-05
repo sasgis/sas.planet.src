@@ -29,6 +29,8 @@ uses
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
   i_MapTypes,
+  i_MapTypeSet,
+  i_MapTypeSetBuilder,
   i_UseTilePrevZoomConfig,
   u_ConfigDataElementComplexBase;
 

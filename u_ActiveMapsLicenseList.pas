@@ -6,7 +6,7 @@ uses
   i_Listener,
   i_StringListStatic,
   i_StringListChangeable,
-  i_MapTypes,
+  i_MapTypeSetChangeable,
   i_LanguageManager,
   u_ConfigDataElementBase;
 
@@ -37,6 +37,8 @@ implementation
 uses
   ActiveX,
   Classes,
+  i_MapTypes,
+  i_MapTypeSet,
   u_ListenerByEvent,
   u_StringListStatic;
 

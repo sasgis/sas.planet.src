@@ -58,7 +58,7 @@ uses
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarkSystem,
-  i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeListBuilder,
   i_RegionProcess,
   i_ActiveMapsConfig,

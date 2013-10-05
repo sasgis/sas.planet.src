@@ -12,7 +12,7 @@ uses
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_VectorItemLonLat,
-  i_MapTypes,
+  i_MapTypeSet,
   i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

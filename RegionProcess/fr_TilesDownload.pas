@@ -11,7 +11,7 @@ uses
   SysUtils,
   StdCtrls,
   Windows,
-  i_MapTypes,
+  i_MapTypeSet,
   i_CoordConverterFactory,
   i_LanguageManager,
   i_VectorItemLonLat,

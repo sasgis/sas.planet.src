@@ -14,7 +14,7 @@ uses
   Spin,
   GR32,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapTypeSet,
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_VectorItemLonLat,

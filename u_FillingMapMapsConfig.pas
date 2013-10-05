@@ -26,6 +26,8 @@ uses
   i_Notifier,
   i_Listener,
   i_MapTypes,
+  i_MapTypeSet,
+  i_MapTypeSetBuilder,
   i_FillingMapLayerConfig,
   u_MainActiveMap;
 

@@ -15,6 +15,8 @@ uses
   i_ThreadConfig,
   i_BackgroundTask,
   i_MapTypes,
+  i_MapTypeSet,
+  i_MapTypeSetChangeable,
   i_SimpleFlag,
   i_NotifierOperation,
   i_VectorDataItemSimple,

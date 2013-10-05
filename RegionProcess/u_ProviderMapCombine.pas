@@ -16,7 +16,7 @@ uses
   i_VectorItemProjected,
   i_VectorItemLonLat,
   i_ProjectedGeometryProvider,
-  i_MapTypes,
+  i_MapTypeSet,
   i_UseTilePrevZoomConfig,
   i_Bitmap32StaticFactory,
   i_ActiveMapsConfig,

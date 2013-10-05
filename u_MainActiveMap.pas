@@ -27,6 +27,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapTypes,
+  i_MapTypeSet,
   i_ActiveMapsConfig,
   u_ConfigDataElementComplexBase,
   u_NotifyWithGUIDEvent;

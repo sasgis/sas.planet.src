@@ -8,7 +8,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_ActiveMapsConfig,
   i_NotifierTime,
-  i_MapTypes,
+  i_MapTypeSet,
   i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,
   i_GlobalInternetState,

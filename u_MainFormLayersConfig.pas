@@ -23,7 +23,7 @@ unit u_MainFormLayersConfig;
 interface
 
 uses
-  i_MapTypes,
+  i_MapTypeSetBuilder,
   i_ActiveMapsConfig,
   i_MapLayerGridsConfig,
   i_StatBarConfig,

@@ -7,7 +7,7 @@ uses
   i_NotifierTime,
   i_LanguageManager,
   i_VectorItemLonLat,
-  i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

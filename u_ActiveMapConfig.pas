@@ -28,6 +28,7 @@ uses
   i_Notifier,
   i_Listener,
   i_MapTypes,
+  i_MapTypeSet,
   u_ConfigDataElementBase;
 
 type

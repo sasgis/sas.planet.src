@@ -13,7 +13,7 @@ uses
   i_VectorItemLonLat,
   i_ProjectedGeometryProvider,
   i_RegionProcessProgressInfo,
-  i_MapTypes,
+  i_MapTypeSet,
   i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

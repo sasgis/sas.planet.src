@@ -743,6 +743,7 @@ uses
   i_InterfaceListSimple,
   i_MarkId,
   i_MapTypes,
+  i_MapTypeSet,
   i_GeoCoderList,
   i_CoordConverter,
   i_ProjectionInfo,

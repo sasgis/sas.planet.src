@@ -4,7 +4,9 @@ interface
 
 uses
   SysUtils,
-  i_MapTypes,
+  i_MapTypeSet,
+  i_MapTypeSetBuilder,
+  i_MapTypeSetChangeable,
   u_ChangeableBase;
 
 type

@@ -17,7 +17,7 @@ uses
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
   i_Bitmap32StaticFactory,
-  i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_TileFileNameGeneratorsList,

@@ -18,7 +18,7 @@ uses
   i_SimpleFlag,
   i_MarkerDrawable,
   i_TileErrorLogProviedrStuped,
-  i_MapTypes,
+  i_MapTypeSet,
   u_MapType,
   u_MapLayerBasic;
 
@@ -68,6 +68,7 @@ uses
   c_ZeroGUID,
   i_CoordConverter,
   i_Bitmap32Static,
+  i_MapTypes,
   u_ListenerByEvent,
   u_ListenerTime,
   u_SimpleFlagWithInterlock,

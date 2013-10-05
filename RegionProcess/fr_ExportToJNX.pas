@@ -14,7 +14,7 @@ uses
   ComCtrls,
   ExtCtrls,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeListStatic,
   i_MapTypeListBuilder,
   i_StringListStatic,
@@ -200,6 +200,7 @@ uses
   RegExprUtils,
   i_ConfigDataProvider,
   i_PathConfig,
+  i_MapTypes,
   u_StringListStatic,
   u_ConfigDataProviderByIniFile,
   u_GlobalState;

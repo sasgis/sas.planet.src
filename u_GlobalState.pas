@@ -66,7 +66,7 @@ uses
   i_VectorDataFactory,
   i_VectorItemSubsetBuilder,
   i_GeoCoder,
-  i_MapTypes,
+  i_MapTypeSetBuilder,
   i_MapTypeListBuilder,
   i_MapCalibration,
   i_ImportFile,

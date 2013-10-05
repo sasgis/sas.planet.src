@@ -9,7 +9,7 @@ uses
   i_VectorItemsFactory,
   i_StringListStatic,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

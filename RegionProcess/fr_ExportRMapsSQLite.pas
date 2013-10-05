@@ -13,7 +13,7 @@ uses
   CheckLst,
   ExtCtrls,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeListStatic,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,

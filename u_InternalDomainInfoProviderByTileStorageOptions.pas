@@ -4,7 +4,7 @@ interface
 
 uses
   i_BinaryData,
-  i_MapTypes,
+  i_MapTypeSetChangeable,
   i_InternalDomainInfoProvider,
   u_BaseInterfacedObject;
 
@@ -41,6 +41,7 @@ uses
   StrUtils,
   c_ZeroGUID,
   c_InternalBrowser,
+  i_MapTypes,
   i_TileStorage,
   i_InternalDomainOptions,
   u_BinaryData;

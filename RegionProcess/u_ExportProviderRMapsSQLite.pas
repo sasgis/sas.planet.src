@@ -7,7 +7,7 @@ uses
   i_VectorItemLonLat,
   i_VectorItemsFactory,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

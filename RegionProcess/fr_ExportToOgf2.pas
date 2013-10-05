@@ -14,7 +14,7 @@ uses
   Spin,
   fr_MapSelect,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapTypeSet,
   i_BitmapTileSaveLoad,
   i_CoordConverterFactory,
   i_VectorItemLonLat,

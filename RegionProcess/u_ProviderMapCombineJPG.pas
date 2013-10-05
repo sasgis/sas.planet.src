@@ -12,7 +12,7 @@ uses
   i_VectorItemProjected,
   i_VectorItemLonLat,
   i_RegionProcessProgressInfo,
-  i_MapTypes,
+  i_MapTypeSet,
   i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

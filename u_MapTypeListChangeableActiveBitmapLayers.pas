@@ -6,6 +6,8 @@ uses
   i_Notifier,
   i_Listener,
   i_MapTypes,
+  i_MapTypeSet,
+  i_MapTypeSetChangeable,
   i_MapTypeListStatic,
   i_MapTypeListBuilder,
   i_MapTypeListChangeable,

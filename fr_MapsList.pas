@@ -15,7 +15,7 @@ uses
   i_MapTypeGUIConfigList,
   i_MapTypeConfigModalEdit,
   i_InternalBrowser,
-  i_MapTypes,
+  i_MapTypeSet,
   u_CommonFormAndFrameParents;
 
 type

@@ -26,7 +26,7 @@ uses
   Windows,
   Forms,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,

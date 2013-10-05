@@ -12,7 +12,7 @@ uses
   CheckLst,
   ExtCtrls,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapTypeSet,
   i_MapTypeListStatic,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
@@ -123,6 +123,7 @@ uses
   {$WARN UNIT_PLATFORM ON}
   c_CacheTypeCodes, // for cache types
   i_GUIDListStatic,
+  i_MapTypes,
   u_MapType;
 
 {$R *.dfm}
