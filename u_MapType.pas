@@ -148,8 +148,6 @@ type
     ): IBitmap32Static;
     function GetTileNotifier: INotifierTilePyramidUpdate;
   public
-    function AllowListOfTileVersions: Boolean;
-    function AllowShowPrevVersion: Boolean;
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
     procedure ClearMemCache;
     function GetTileFileName(
@@ -541,37 +539,6 @@ function TMapType.GetTileFileName(
 ): string;
 begin
   Result := FStorage.GetTileFileName(AXY, AZoom, FVersionConfig.Version);
-end;
-
-function TMapType.AllowListOfTileVersions: Boolean;
-var
-  VTypeCode: Byte;
-begin
-  VTypeCode := FStorageConfig.CacheTypeCode;
-  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
-    VTypeCode := FGlobalCacheConfig.DefCache;
-  end;
-  Result := VTypeCode in [
-    c_File_Cache_Id_GE,
-    c_File_Cache_Id_GC,
-    c_File_Cache_Id_DBMS,
-    c_File_Cache_Id_BDB_Versioned
-  ];
-end;
-
-function TMapType.AllowShowPrevVersion: Boolean;
-var
-  VTypeCode: Byte;
-begin
-  VTypeCode := FStorageConfig.CacheTypeCode;
-  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
-    VTypeCode := FGlobalCacheConfig.DefCache;
-  end;
-  Result := VTypeCode in [
-    c_File_Cache_Id_GE,
-    c_File_Cache_Id_DBMS,
-    c_File_Cache_Id_BDB_Versioned
-  ];
 end;
 
 function TMapType.TileExists(

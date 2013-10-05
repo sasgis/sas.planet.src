@@ -44,6 +44,9 @@ type
     FTileInfoMemCache: ITileInfoBasicMemCache;
   protected
     function GetIsFileCache: Boolean; override;
+    function GetIsCanSaveMultiVersionTiles: Boolean; override;
+    function AllowListOfTileVersions: Boolean; override;
+    function AllowShowPrevVersion: Boolean; override;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -147,6 +150,11 @@ begin
   FMainContentType := nil;
   FTileNotExistsTileInfo := nil;
   inherited;
+end;
+
+function TTileStorageInRAM.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := False;
 end;
 
 function TTileStorageInRAM.GetIsFileCache: Boolean;
@@ -305,6 +313,16 @@ begin
     );
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
+end;
+
+function TTileStorageInRAM.AllowListOfTileVersions: Boolean;
+begin
+  Result := False;
+end;
+
+function TTileStorageInRAM.AllowShowPrevVersion: Boolean;
+begin
+  Result := False;
 end;
 
 procedure TTileStorageInRAM.ClearMemCache;

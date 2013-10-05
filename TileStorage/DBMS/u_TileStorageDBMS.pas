@@ -181,6 +181,8 @@ type
     // base storage interface
     function GetIsFileCache: Boolean; override;
     function GetIsCanSaveMultiVersionTiles: Boolean; override;
+    function AllowListOfTileVersions: Boolean; override;
+    function AllowShowPrevVersion: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -232,7 +234,7 @@ type
       const AIgnoreTNE: Boolean;
       const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
-    
+
   public
     constructor Create(
       const AGeoConverter: ICoordConverter;
@@ -936,6 +938,16 @@ begin
 end;
 
 function TTileStorageETS.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageETS.AllowListOfTileVersions: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageETS.AllowShowPrevVersion: Boolean;
 begin
   Result := True;
 end;

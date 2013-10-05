@@ -62,7 +62,9 @@ type
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean; virtual; abstract;
-    function GetIsCanSaveMultiVersionTiles: Boolean; virtual;
+    function GetIsCanSaveMultiVersionTiles: Boolean; virtual; abstract;
+    function AllowListOfTileVersions: Boolean; virtual; abstract;
+    function AllowShowPrevVersion: Boolean; virtual; abstract;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -149,11 +151,6 @@ begin
   VNotifier := TNotifierTilePyramidUpdate.Create(AGeoConverter);
   FTileNotifier := VNotifier;
   FTileNotifierInternal := VNotifier;
-end;
-
-function TTileStorageAbstract.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
-  Result := False;
 end;
 
 function TTileStorageAbstract.GetCoordConverter: ICoordConverter;

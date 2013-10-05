@@ -61,6 +61,8 @@ type
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean;
     function GetIsCanSaveMultiVersionTiles: Boolean;
+    function AllowListOfTileVersions: Boolean;
+    function AllowShowPrevVersion: Boolean;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -123,6 +125,16 @@ uses
   u_BinaryData;
 
 { TTileStorageArchive }
+
+function TTileStorageArchive.AllowListOfTileVersions: Boolean;
+begin
+  Result := False;
+end;
+
+function TTileStorageArchive.AllowShowPrevVersion: Boolean;
+begin
+  Result := False;
+end;
 
 constructor TTileStorageArchive.Create(
   const AArchiveFileName: string;

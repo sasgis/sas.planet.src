@@ -64,6 +64,8 @@ type
     function GetIsFileCache: Boolean; override;
 
     function GetIsCanSaveMultiVersionTiles: Boolean; override;
+    function AllowListOfTileVersions: Boolean; override;
+    function AllowShowPrevVersion: Boolean; override;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -262,6 +264,16 @@ begin
 end;
 
 function TTileStorageGoogleEarth.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageGoogleEarth.AllowListOfTileVersions: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageGoogleEarth.AllowShowPrevVersion: Boolean;
 begin
   Result := True;
 end;

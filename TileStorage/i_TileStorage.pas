@@ -50,6 +50,8 @@ type
     property IsFileCache: Boolean read GetIsFileCache;
 
     function GetIsCanSaveMultiVersionTiles: Boolean;
+    function AllowListOfTileVersions: Boolean;
+    function AllowShowPrevVersion: Boolean;
 
     function GetTileFileName(
       const AXY: TPoint;

@@ -57,6 +57,9 @@ type
     ): ITileInfoBasic;
   protected
     function GetIsFileCache: Boolean; override;
+    function GetIsCanSaveMultiVersionTiles: Boolean; override;
+    function AllowListOfTileVersions: Boolean; override;
+    function AllowShowPrevVersion: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -207,6 +210,21 @@ begin
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   end;
+end;
+
+function TTileStorageFileSystem.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := False;
+end;
+
+function TTileStorageFileSystem.AllowListOfTileVersions: Boolean;
+begin
+  Result := False;
+end;
+
+function TTileStorageFileSystem.AllowShowPrevVersion: Boolean;
+begin
+  Result := False;
 end;
 
 function TTileStorageFileSystem.GetIsFileCache: Boolean;

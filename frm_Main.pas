@@ -3241,8 +3241,8 @@ begin
 
   // and add view items
   VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
-  VAllowListOfTileVersions := VMapType.AllowListOfTileVersions;
-  tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions and VMapType.AllowShowPrevVersion;
+  VAllowListOfTileVersions := VMapType.TileStorage.AllowListOfTileVersions;
+  tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions and VMapType.TileStorage.AllowShowPrevVersion;
 
   if VAllowListOfTileVersions then begin
     // to lonlat
@@ -6632,7 +6632,7 @@ begin
   tbitmMakeVersionByMark.Visible := (VMark <> nil) and (VInternalDomainOptions <> nil);
   tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;
   // versions submenu
-  tbpmiVersions.Visible := VMapType.AllowListOfTileVersions or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
+  tbpmiVersions.Visible := VMapType.TileStorage.AllowListOfTileVersions or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
 end;
 
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);

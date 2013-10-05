@@ -67,6 +67,8 @@ type
   protected
     function GetIsFileCache: Boolean; override;
     function GetIsCanSaveMultiVersionTiles: Boolean; override;
+    function AllowListOfTileVersions: Boolean; override;
+    function AllowShowPrevVersion: Boolean; override;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -952,6 +954,16 @@ begin
   finally
     VProcessFileMasks.Free;
   end;
+end;
+
+function TTileStorageBerkeleyDB.AllowListOfTileVersions: Boolean;
+begin
+  Result := FVersioned;
+end;
+
+function TTileStorageBerkeleyDB.AllowShowPrevVersion: Boolean;
+begin
+  Result := FVersioned;
 end;
 
 procedure TTileStorageBerkeleyDB.ClearMemCache;

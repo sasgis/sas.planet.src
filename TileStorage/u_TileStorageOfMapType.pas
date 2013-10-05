@@ -86,6 +86,8 @@ type
     function GetCoordConverter: ICoordConverter;
     function GetIsFileCache: Boolean;
     function GetIsCanSaveMultiVersionTiles: Boolean;
+    function AllowListOfTileVersions: Boolean;
+    function AllowShowPrevVersion: Boolean;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -560,6 +562,28 @@ begin
   VStorage := GetStorage;
   if VStorage <> nil then begin
     Result := VStorage.GetIsCanSaveMultiVersionTiles;
+  end;
+end;
+
+function TTileStorageOfMapType.AllowListOfTileVersions: Boolean;
+var
+  VStorage: ITileStorage;
+begin
+  Result := False;
+  VStorage := GetStorage;
+  if VStorage <> nil then begin
+    Result := VStorage.AllowListOfTileVersions;
+  end;
+end;
+
+function TTileStorageOfMapType.AllowShowPrevVersion: Boolean;
+var
+  VStorage: ITileStorage;
+begin
+  Result := False;
+  VStorage := GetStorage;
+  if VStorage <> nil then begin
+    Result := VStorage.AllowShowPrevVersion;
   end;
 end;
 

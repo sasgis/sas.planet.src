@@ -137,6 +137,9 @@ type
 
   TTileStorageGE = class(TTileStorageDLL)
   protected
+    function GetIsCanSaveMultiVersionTiles: Boolean; override;
+    function AllowListOfTileVersions: Boolean; override;
+    function AllowShowPrevVersion: Boolean; override;
     function InternalLib_Initialize: Boolean; override;
     function InternalLib_CheckInitialized: Boolean; override;
     function GetTileFileName(
@@ -148,6 +151,9 @@ type
 
   TTileStorageGC = class(TTileStorageDLL)
   protected
+    function GetIsCanSaveMultiVersionTiles: Boolean; override;
+    function AllowListOfTileVersions: Boolean; override;
+    function AllowShowPrevVersion: Boolean; override;
     function InternalLib_Initialize: Boolean; override;
     function InternalLib_CheckInitialized: Boolean; override;
   end;
@@ -867,6 +873,21 @@ begin
   *)
 end;
 
+function TTileStorageGE.AllowListOfTileVersions: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageGE.AllowShowPrevVersion: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageGE.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := False;
+end;
+
 function  TTileStorageGE.GetTileFileName(
   const AXY: TPoint;
   const AZoom: byte;
@@ -877,6 +898,21 @@ begin
 end;
 
 { TTileStorageGC }
+
+function TTileStorageGC.AllowListOfTileVersions: Boolean;
+begin
+  Result := True;
+end;
+
+function TTileStorageGC.AllowShowPrevVersion: Boolean;
+begin
+  Result := False;
+end;
+
+function TTileStorageGC.GetIsCanSaveMultiVersionTiles: Boolean;
+begin
+  Result := False;
+end;
 
 function TTileStorageGC.InternalLib_CheckInitialized: Boolean;
 begin
