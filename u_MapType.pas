@@ -226,7 +226,6 @@ type
     property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read FTileDownloadRequestBuilderConfig;
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
-    property CacheTileInfo: ITileInfoBasicMemCache read FCacheTileInfo;
 
     constructor Create(
       const ALanguageManager: ILanguageManager;
