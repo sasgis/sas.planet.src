@@ -6180,11 +6180,14 @@ procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
 var
   VImportConfig: IImportConfig;
   VLastMark: IMark;
+  I: Integer;
 begin
-  if (OpenSessionDialog.Execute) then begin
+  if OpenSessionDialog.Execute then begin
     VLastMark := nil;
     VImportConfig := nil;
-    ProcessOpenFile(OpenSessionDialog.FileName, VImportConfig, VLastMark);
+    for I := 0 to OpenSessionDialog.Files.Count - 1 do begin
+      ProcessOpenFile(OpenSessionDialog.Files.Strings[I], VImportConfig, VLastMark);
+    end;
     ShowLastMark(VLastMark);
   end;
 end;

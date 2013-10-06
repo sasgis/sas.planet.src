@@ -1690,6 +1690,7 @@ object frmMain: TfrmMain
       'lt|Google KMZ files (*.kmz)|*.kmz|Download session (*.sls)|*.sls' +
       '|Selection (*.hlg)|*.hlg|GPS Exchange files (*.gpx)|*.gpx|JPEG I' +
       'mage with Exif (*.jpg)|*.jpg'
+    Options = [ofAllowMultiSelect, ofEnableSizing]
     Left = 208
     Top = 208
   end
