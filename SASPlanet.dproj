@@ -224,6 +224,7 @@
     <DCCReference Include="i_CoordConverterFactory.pas" />
     <DCCReference Include="i_CoordConverterList.pas" />
     <DCCReference Include="i_Datum.pas" />
+    <DCCReference Include="i_DebugInfoSubSystem.pas" />
     <DCCReference Include="i_DebugInfoWindow.pas" />
     <DCCReference Include="i_DoublePointFilter.pas" />
     <DCCReference Include="i_DoublePointsAggregator.pas" />
@@ -935,6 +936,7 @@
     <DCCReference Include="u_CoordConverterRoutines.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_Datum.pas" />
+    <DCCReference Include="u_DebugInfoSubSystem.pas" />
     <DCCReference Include="u_DebugInfoWindow.pas" />
     <DCCReference Include="u_DegreeGridConfig.pas" />
     <DCCReference Include="u_DoublePointsAggregator.pas" />

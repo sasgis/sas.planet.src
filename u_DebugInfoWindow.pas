@@ -4,7 +4,7 @@ interface
 
 uses
   i_DebugInfoWindow,
-  i_InternalPerformanceCounter,
+  i_DebugInfoSubSystem,
   i_InternalDebugConfig,
   u_BaseInterfacedObject,
   frm_DebugInfo;
@@ -12,7 +12,7 @@ uses
 type
   TDebugInfoWindow = class(TBaseInterfacedObject, IDebugInfoWindow)
   private
-    FPerfCounterList: IInternalPerformanceCounterList;
+    FDebugInfoSubSystem: IDebugInfoSubSystem;
     FInternalDebugConfig: IInternalDebugConfig;
     FfrmDebugInfo: TfrmDebugInfo;
   private
@@ -20,7 +20,7 @@ type
   public
     constructor Create(
       const AInternalDebugConfig: IInternalDebugConfig;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const ADebugInfoSubSystem: IDebugInfoSubSystem
     );
     destructor Destroy; override;
   end;
@@ -34,12 +34,12 @@ uses
 
 constructor TDebugInfoWindow.Create(
   const AInternalDebugConfig: IInternalDebugConfig;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const ADebugInfoSubSystem: IDebugInfoSubSystem
 );
 begin
   inherited Create;
   FInternalDebugConfig := AInternalDebugConfig;
-  FPerfCounterList := APerfCounterList;
+  FDebugInfoSubSystem := ADebugInfoSubSystem;
 end;
 
 destructor TDebugInfoWindow.Destroy;
@@ -54,7 +54,7 @@ procedure TDebugInfoWindow.Show;
 begin
   if FfrmDebugInfo = nil then begin
     if FInternalDebugConfig.IsShowDebugInfo then begin
-      FfrmDebugInfo := TfrmDebugInfo.Create(nil, FPerfCounterList);
+      FfrmDebugInfo := TfrmDebugInfo.Create(nil, FDebugInfoSubSystem);
     end;
   end;
   if FfrmDebugInfo <> nil then begin

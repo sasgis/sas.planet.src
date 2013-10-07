@@ -23,110 +23,74 @@ unit u_InternalPerformanceCounterList;
 interface
 
 uses
-  Classes,
-  ActiveX,
-  i_IDList,
+  SysUtils,
+  i_InterfaceListSimple,
   i_InternalPerformanceCounter;
 
 type
   TInternalPerformanceCounterList = class(TInterfacedObject, IInternalPerformanceCounterList)
   private
-    FName: string;
+    FListCS: IReadWriteSync;
+    FList: IInterfaceListSimple;
     FFactory: IInternalPerformanceCounterFactory;
-    FList: IInterfaceList;
+    FName: string;
   private
-    function GetName: string;
-
-    function GetStaticDataList: IIDInterfaceList;
-    procedure AppendStaticDataToList(const ADataList: IIDInterfaceList);
-    function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
-    procedure AddSubList(const ASubList: IInternalPerformanceCounterList);
   public
     constructor Create(
       const AName: string;
+      const AListCS: IReadWriteSync;
+      const AList: IInterfaceListSimple;
       const AFactory: IInternalPerformanceCounterFactory
     );
   end;
 
 implementation
 
-uses
-  SysUtils,
-  u_EnumUnknown,
-  u_IDInterfaceList;
+const
+  CNamePartSeparator: string = '/';
 
 { TInternalPerformanceCounterList }
 
 constructor TInternalPerformanceCounterList.Create(
   const AName: string;
+  const AListCS: IReadWriteSync;
+  const AList: IInterfaceListSimple;
   const AFactory: IInternalPerformanceCounterFactory
 );
 begin
   inherited Create;
   FName := AName;
   FFactory := AFactory;
-  FList := TInterfaceList.Create;
+  FList := AList;
+  FListCS := AListCS;
 end;
 
 function TInternalPerformanceCounterList.CreateAndAddNewCounter(
-  const AName: string): IInternalPerformanceCounter;
+  const AName: string
+): IInternalPerformanceCounter;
 begin
-  Result := FFactory.Build(AName);
-  FList.Add(Result);
-end;
-
-function TInternalPerformanceCounterList.CreateAndAddNewSubList(
-  const AName: string): IInternalPerformanceCounterList;
-begin
-  Result := TInternalPerformanceCounterList.Create(AName, FFactory);
-  FList.Add(Result);
-end;
-
-procedure TInternalPerformanceCounterList.AddSubList(const ASubList: IInternalPerformanceCounterList);
-begin
-  Assert(ASubList <> nil);
-  FList.Add(ASubList);
-end;
-
-function TInternalPerformanceCounterList.GetEunm: IEnumUnknown;
-begin
-  Result := TEnumUnknown.Create(FList);
-end;
-
-function TInternalPerformanceCounterList.GetName: string;
-begin
-  Result := FName;
-end;
-
-procedure TInternalPerformanceCounterList.AppendStaticDataToList(
-  const ADataList: IIDInterfaceList);
-var
-  i: Integer;
-  VUnknown: IInterface;
-  VCounter: IInternalPerformanceCounter;
-  VList: IInternalPerformanceCounterList;
-begin
-  FList.Lock;
+  Result := FFactory.Build(FName + CNamePartSeparator + AName);
+  FListCS.BeginWrite;
   try
-    for i := 0 to FList.Count - 1 do begin
-      VUnknown := FList.Items[i];
-      if Supports(VUnknown, IInternalPerformanceCounter, VCounter) then begin
-        ADataList.Add(VCounter.Id, VCounter.GetStaticData);
-      end else if Supports(VUnknown, IInternalPerformanceCounterList, VList) then begin
-        VList.AppendStaticDataToList(ADataList);
-      end;
-    end;
+    FList.Add(Result);
   finally
-    FList.Unlock;
+    FListCS.EndWrite;
   end;
 end;
 
-function TInternalPerformanceCounterList.GetStaticDataList: IIDInterfaceList;
+function TInternalPerformanceCounterList.CreateAndAddNewSubList(
+  const AName: string
+): IInternalPerformanceCounterList;
 begin
-  Result := TIDInterfaceList.Create;
-  AppendStaticDataToList(Result);
+  Result :=
+    TInternalPerformanceCounterList.Create(
+      FName + CNamePartSeparator + AName,
+      FListCS,
+      FList,
+      FFactory
+    );
 end;
 
 end.

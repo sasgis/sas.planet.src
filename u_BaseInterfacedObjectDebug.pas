@@ -3,12 +3,14 @@ unit u_BaseInterfacedObjectDebug;
 interface
 
 uses
+  i_InterfaceListSimple,
   i_InternalPerformanceCounter,
   i_InternalPerformanceCounterListForDebug;
 
 type
   TBaseInterfacedObjectDebug = class(TInterfacedObject)
   private class var
+    FCountersFindCounter: IInternalPerformanceCounter;
     FCounters: IInternalPerformanceCounterListForDebug;
   private
     class function GetCounter: IInternalPerformanceCounterListForDebugOneClass; virtual;
@@ -19,7 +21,7 @@ type
   protected
     function _AddRef: Integer; stdcall;
   public
-    class function GetCounters: IInternalPerformanceCounterList;
+    class procedure AddStaticDataToList(const AList: IInterfaceListSimple);
     class procedure InitCounters;
   public
     procedure AfterConstruction; override;
@@ -45,6 +47,20 @@ const
   cUndefRefCount = -1;
 
 { TBaseInterfacedObjectDebug }
+
+class procedure TBaseInterfacedObjectDebug.AddStaticDataToList(
+  const AList: IInterfaceListSimple
+);
+begin
+  if Assigned(AList) then begin
+    if Assigned(FCountersFindCounter) then begin
+      AList.Add(FCountersFindCounter.GetStaticData);
+    end;
+    if Assigned(FCounters) then begin
+      FCounters.AddStaticDataToList(AList);
+    end;
+  end;
+end;
 
 procedure TBaseInterfacedObjectDebug.AfterConstruction;
 begin
@@ -105,27 +121,40 @@ begin
 end;
 
 class function TBaseInterfacedObjectDebug.GetCounter: IInternalPerformanceCounterListForDebugOneClass;
+var
+  VCounter: IInternalPerformanceCounter;
+  VContext: TInternalPerformanceCounterContext;
 begin
   Result := nil;
-  if FCounters <> nil then begin
-    Result := FCounters.GetCounterByClass(Self);
+  VContext := 0;
+  VCounter := FCountersFindCounter;
+  if Assigned(VCounter) then begin
+    VContext := VCounter.StartOperation;
+  end;
+  try
+    if FCounters <> nil then begin
+      Result := FCounters.GetCounterByClass(Self);
+    end;
+  finally
+    if Assigned(VCounter) then begin
+      VCounter.FinishOperation(VContext);
+    end;
   end;
 end;
 
-class function TBaseInterfacedObjectDebug.GetCounters: IInternalPerformanceCounterList;
-begin
-  Result := FCounters;
-end;
-
 class procedure TBaseInterfacedObjectDebug.InitCounters;
+var
+  VFactory: IInternalPerformanceCounterFactory;
 begin
   if FCounters <> nil then begin
     Assert(False);
   end else begin
+    VFactory := TInternalPerformanceCounterFactory.Create;
+    FCountersFindCounter := VFactory.Build('/ObjectsCountrFind');
     FCounters :=
       TInternalPerformanceCounterListForDebug.Create(
-        'Objects',
-        TInternalPerformanceCounterFactory.Create
+        '/Objects',
+        VFactory
       );
   end;
 end;

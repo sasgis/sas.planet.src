@@ -22,10 +22,6 @@ unit i_InternalPerformanceCounter;
 
 interface
 
-uses
-  ActiveX,
-  i_IDList;
-
 type
   TInternalPerformanceCounterContext = Int64;
 
@@ -52,26 +48,8 @@ type
 
   IInternalPerformanceCounter = interface
     ['{2D5EE758-A5EA-467D-A679-C3CD1B116973}']
-    function GetId: Integer;
-    property Id: Integer read GetId;
-
-    function GetName: string;
-    property Name: string read GetName;
-
     function StartOperation: TInternalPerformanceCounterContext;
     procedure FinishOperation(const AContext: TInternalPerformanceCounterContext);
-
-    function GetCounter: Cardinal;
-    property Counter: Cardinal read GetCounter;
-
-    function GetTotalTime: TDateTime;
-    property TotalTime: TDateTime read GetTotalTime;
-
-    function GetMaxTime: TDateTime;
-    property MaxTime: TDateTime read GetMaxTime;
-
-    function GetMinTime: TDateTime;
-    property MinTime: TDateTime read GetMinTime;
 
     function GetStaticData: IInternalPerformanceCounterStaticData;
   end;
@@ -83,15 +61,8 @@ type
 
   IInternalPerformanceCounterList = interface
     ['{75567269-AD8D-443F-AA45-9336C9890719}']
-    function GetName: string;
-    property Name: string read GetName;
-
-    function GetStaticDataList: IIDInterfaceList;
-    procedure AppendStaticDataToList(const ADataList: IIDInterfaceList);
-    function GetEunm: IEnumUnknown;
     function CreateAndAddNewCounter(const AName: string): IInternalPerformanceCounter;
     function CreateAndAddNewSubList(const AName: string): IInternalPerformanceCounterList;
-    procedure AddSubList(const ASubList: IInternalPerformanceCounterList);
   end;
 
 implementation

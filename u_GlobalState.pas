@@ -57,6 +57,7 @@ uses
   i_GeoCoderList,
   i_MarkPicture,
   i_InternalPerformanceCounter,
+  i_DebugInfoSubSystem,
   i_MarkSystem,
   i_ZmpInfoSet,
   i_Datum,
@@ -151,7 +152,7 @@ type
     FGUISyncronizedTimerNotifier: INotifierTime;
     FGUISyncronizedTimerCounter: IInternalPerformanceCounter;
     FSensorList: ISensorList;
-    FPerfCounterList: IInternalPerformanceCounterList;
+    FDebugInfoSubSystem: IDebugInfoSubSystem;
     FProtocol: TIeEmbeddedProtocolRegistration;
     FMapVersionFactoryList: IMapVersionFactoryList;
     FPathDetalizeList: IPathDetalizeProviderList;
@@ -181,6 +182,7 @@ type
     procedure InitProtocol;
 
     procedure OnGUISyncronizedTimer(Sender: TObject);
+    function GetPerfCounterList: IInternalPerformanceCounterList;
     {$IFDEF SasDebugWithJcl}
     procedure DoException(
       Sender: TObject;
@@ -220,7 +222,7 @@ type
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: INotifierTime read FGUISyncronizedTimerNotifier;
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
-    property PerfCounterList: IInternalPerformanceCounterList read FPerfCounterList;
+    property PerfCounterList: IInternalPerformanceCounterList read GetPerfCounterList;
     property SystemTime: ISystemTimeProvider read FSystemTime;
 
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
@@ -324,11 +326,6 @@ uses
   u_InvisibleBrowserByFormSynchronize,
   u_InternalBrowserByForm,
   u_DebugInfoWindow,
-  u_BaseInterfacedObject,
-  u_BaseInterfacedObjectDebug,
-  u_InternalPerformanceCounter,
-  u_InternalPerformanceCounterList,
-  u_InternalPerformanceCounterFake,
   u_IeEmbeddedProtocolFactory,
   u_VectorItemsFactorySimple,
   u_VectorDataFactorySimple,
@@ -357,6 +354,7 @@ uses
   u_SystemTimeProvider,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
+  u_DebugInfoSubSystem,
   u_BitmapPostProcessingChangeableByConfig,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
@@ -402,19 +400,12 @@ begin
 
   VInternalDebugConfig.ReadConfig(FMainConfigProvider.GetSubItem('Debug'));
 
-  if VInternalDebugConfig.IsShowDebugInfo then begin
-    FPerfCounterList := TInternalPerformanceCounterList.Create('Main', TInternalPerformanceCounterFactory.Create);
-    if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
-      FPerfCounterList.AddSubList(TBaseInterfacedObjectDebug.GetCounters);
-    end;
-  end else begin
-    FPerfCounterList := TInternalPerformanceCounterFake.Create;
-  end;
+  FDebugInfoSubSystem := TDebugInfoSubSystem.Create(VInternalDebugConfig);
 
   FHashFunction :=
     THashFunctionWithCounter.Create(
       THashFunctionCityHash.Create,
-      FPerfCounterList.CreateAndAddNewSubList('HashFunction')
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('HashFunction')
     );
 
   FMapVersionFactoryList := TMapVersionFactoryList.Create;
@@ -482,7 +473,7 @@ begin
 
   FGUISyncronizedTimerNotifierInternal := TNotifierTime.Create;
   FGUISyncronizedTimerNotifier := FGUISyncronizedTimerNotifierInternal;
-  FGUISyncronizedTimerCounter := FPerfCounterList.CreateAndAddNewCounter('GUITimer');
+  FGUISyncronizedTimerCounter := FDebugInfoSubSystem.RootCounterList.CreateAndAddNewCounter('GUITimer');
 
   FGlobalBerkeleyDBHelper := TGlobalBerkeleyDBHelper.Create(FBaseApplicationPath);
 
@@ -527,11 +518,11 @@ begin
       FVectorItemSubsetBuilderFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
-      FPerfCounterList
+      FDebugInfoSubSystem.RootCounterList
     );
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
-  VMarksKmlLoadCounterList := FPerfCounterList.CreateAndAddNewSubList('Import');
+  VMarksKmlLoadCounterList := FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import');
 
   // xml loaders
   VXmlLoader :=
@@ -586,7 +577,7 @@ begin
   FGCThread :=
     TGarbageCollectorThread.Create(
       FAppClosingNotifier,
-      FPerfCounterList.CreateAndAddNewCounter('GCTimer'),
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewCounter('GCTimer'),
       FBGTimerNotifierInternal,
       VSleepByClass.ReadInteger(TGarbageCollectorThread.ClassName, 1000)
     );
@@ -604,7 +595,7 @@ begin
       FGPSRecorderInternal,
       FGpsTrackRecorderInternal,
       GUISyncronizedTimerNotifier,
-      FPerfCounterList
+      FDebugInfoSubSystem.RootCounterList
     );
   FGeoCodePlacemarkFactory := TGeoCodePlacemarkFactory.Create(FHashFunction);
   FGeoCoderList :=
@@ -643,7 +634,7 @@ begin
       FAppearanceOfMarkFactory,
       FVectorGeometryLonLatFactory,
       FVectorItemSubsetBuilderFactory,
-      FPerfCounterList.CreateAndAddNewSubList('MarksSystem'),
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('MarksSystem'),
       FAppStartedNotifier,
       THtmlToHintTextConverterStuped.Create
     );
@@ -671,7 +662,7 @@ begin
       FGlobalConfig.TileGetPrevResamplerConfig,
       FGlobalConfig.TileReprojectResamplerConfig,
       FGlobalConfig.TileDownloadResamplerConfig,
-      FPerfCounterList.CreateAndAddNewSubList('MapType')
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('MapType')
     );
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
   FPathDetalizeList :=
@@ -702,7 +693,7 @@ begin
   FDebugInfoWindow :=
     TDebugInfoWindow.Create(
       FGlobalConfig.InternalDebugConfig,
-      FPerfCounterList
+      FDebugInfoSubSystem
     );
   FBatteryStatus := TBatteryStatus.Create;
   FLastSelectionSaver :=
@@ -740,6 +731,11 @@ begin
   FProjConverterFactory := nil;
   FGlobalBerkeleyDBHelper := nil;
   inherited;
+end;
+
+function TGlobalState.GetPerfCounterList: IInternalPerformanceCounterList;
+begin
+  Result := FDebugInfoSubSystem.RootCounterList;
 end;
 
 procedure TGlobalState.InitProtocol;
@@ -935,7 +931,7 @@ begin
       FMainMapsList.MapsSet,
       FMainMapsList.LayersSet,
       FMainMapsList.FirstMainMapGUID,
-      FPerfCounterList.CreateAndAddNewSubList('ViewState')
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
     );
 
   FSensorList :=

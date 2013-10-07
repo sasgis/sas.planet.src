@@ -29,29 +29,26 @@ type
   TInternalPerformanceCounter = class(TInterfacedObject, IInternalPerformanceCounter)
   private
     FQueryPerfCntrFunc: Pointer;
-
+    FMainThreadID: THandle;
     FId: Integer;
     FName: string;
+
     FCounter: Cardinal;
     FTotal: Int64;
+    FCounterInMain: Cardinal;
+    FTotalInMain: Int64;
     FMin: Int64;
     FMax: Int64;
     FFreq: Int64;
   private
-    function GetId: Integer;
-    function GetName: string;
-
     function StartOperation: TInternalPerformanceCounterContext;
     procedure FinishOperation(const AContext: TInternalPerformanceCounterContext);
 
-    function GetCounter: Cardinal;
-    function GetTotalTime: TDateTime;
-    function GetMaxTime: TDateTime;
-    function GetMinTime: TDateTime;
     function GetStaticData: IInternalPerformanceCounterStaticData;
   public
     constructor Create(
       const AName: string;
+      const AMainThreadID: THandle;
       const AQueryPerfCntrFunc: Pointer
     );
   end;
@@ -59,6 +56,7 @@ type
   TInternalPerformanceCounterFactory = class(TInterfacedObject, IInternalPerformanceCounterFactory)
   private
     FNtQPC: Pointer;
+    FMainThreadID: THandle;
   private
     function Build(const AName: string): IInternalPerformanceCounter;
   public
@@ -68,6 +66,7 @@ type
 implementation
 
 uses
+  Windows,
   u_InternalPerformanceCounterStaticData,
   u_QueryPerfCounter;
 
@@ -75,6 +74,7 @@ uses
 
 constructor TInternalPerformanceCounter.Create(
   const AName: string;
+  const AMainThreadID: THandle;
   const AQueryPerfCntrFunc: Pointer
 );
 var
@@ -82,12 +82,14 @@ var
 begin
   inherited Create;
   FId := Integer(Self);
+  FMainThreadID := AMainThreadID;
   FName := AName;
-
   FQueryPerfCntrFunc := AQueryPerfCntrFunc;
 
   FCounter := 0;
   FTotal := 0;
+  FCounterInMain := 0;
+  FTotalInMain := 0;
   FMin := $7FFFFFFFFFFFFFF;
   FMax := 0;
 
@@ -108,6 +110,10 @@ begin
       Inc(FCounter);
       VOperationCounter := VCounter - AContext;
       FTotal := FTotal + VOperationCounter;
+      if GetCurrentThreadId = FMainThreadID then begin
+        Inc(FCounterInMain);
+        FTotalInMain := FTotalInMain + VOperationCounter;
+      end;
       if VOperationCounter > FMax then begin
         FMax := VOperationCounter;
       end;
@@ -118,58 +124,29 @@ begin
   end;
 end;
 
-function TInternalPerformanceCounter.GetCounter: Cardinal;
-begin
-  Result := FCounter;
-end;
-
-function TInternalPerformanceCounter.GetId: Integer;
-begin
-  Result := FId;
-end;
-
-function TInternalPerformanceCounter.GetTotalTime: TDateTime;
-begin
-  if (FFreq = 0) then begin
-    Result := 0;
-  end else begin
-    Result := FTotal / FFreq / 24 / 60 / 60;
-  end;
-end;
-
-function TInternalPerformanceCounter.GetMaxTime: TDateTime;
-begin
-  if (FFreq = 0) or (FTotal = 0) then begin
-    Result := 0;
-  end else begin
-    Result := FMax / FFreq / 24 / 60 / 60;
-  end;
-end;
-
-function TInternalPerformanceCounter.GetMinTime: TDateTime;
-begin
-  if (FFreq = 0) or (FTotal = 0) then begin
-    Result := 0;
-  end else begin
-    Result := FMin / FFreq / 24 / 60 / 60;
-  end;
-end;
-
-function TInternalPerformanceCounter.GetName: string;
-begin
-  Result := FName;
-end;
-
 function TInternalPerformanceCounter.GetStaticData: IInternalPerformanceCounterStaticData;
+var
+  VTotalTime: Double;
+  VMaxTime: Double;
+  VMinTime: Double;
 begin
+  if (FFreq = 0) or (FTotal = 0) then begin
+    VTotalTime := 0;
+    VMaxTime := 0;
+    VMinTime := 0;
+  end else begin
+    VTotalTime := FTotal / FFreq / 24 / 60 / 60;
+    VMaxTime := FMax / FFreq / 24 / 60 / 60;
+    VMinTime := FMin / FFreq / 24 / 60 / 60;
+  end;
   Result :=
     TInternalPerformanceCounterStaticData.Create(
       FId,
       FName,
       FCounter,
-      GetTotalTime,
-      GetMaxTime,
-      GetMinTime
+      VTotalTime,
+      VMaxTime,
+      VMinTime
     );
 end;
 
@@ -186,6 +163,7 @@ constructor TInternalPerformanceCounterFactory.Create;
 begin
   inherited Create;
 
+  FMainThreadID := GetCurrentThreadId;
   FNtQPC := NtQueryPerformanceCounterPtr;
 end;
 
@@ -193,7 +171,7 @@ function TInternalPerformanceCounterFactory.Build(
   const AName: string
 ): IInternalPerformanceCounter;
 begin
-  Result := TInternalPerformanceCounter.Create(AName, FNtQPC);
+  Result := TInternalPerformanceCounter.Create(AName, FMainThreadID, FNtQPC);
 end;
 
 end.
