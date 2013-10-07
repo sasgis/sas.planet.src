@@ -6,6 +6,7 @@ uses
   Windows,
   SysUtils,
   u_MapType,
+  i_MapVersionInfo,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_VectorItemLonLat,
@@ -16,6 +17,7 @@ type
   TThreadExportToAUX = class(TThreadRegionProcessAbstract)
   private
     FMapType: TMapType;
+    FVersion: IMapVersionInfo;
     FPolyProjected: IProjectedPolygon;
     FFileName: string;
     FZoom: Byte;
@@ -29,6 +31,7 @@ type
       const AProjectedPolygon: IProjectedPolygon;
       AZoom: Byte;
       AMapType: TMapType;
+      const AVersion: IMapVersionInfo;
       const AFileName: string
     );
   end;
@@ -38,6 +41,8 @@ implementation
 uses
   Classes,
   i_CoordConverter,
+  i_TileInfoBasic,
+  i_TileStorage,
   u_ResStrings,
   i_TileIterator,
   u_TileIteratorByPolygon;
@@ -50,6 +55,7 @@ constructor TThreadExportToAUX.Create(
   const AProjectedPolygon: IProjectedPolygon;
   AZoom: Byte;
   AMapType: TMapType;
+  const AVersion: IMapVersionInfo;
   const AFileName: string
 );
 begin
@@ -61,6 +67,7 @@ begin
   FPolyProjected := AProjectedPolygon;
   FZoom := AZoom;
   FMapType := AMapType;
+  FVersion := AVersion;
   FFileName := AFileName;
 end;
 
@@ -77,6 +84,7 @@ var
   VOutPos: TPoint;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
+  VTileInfo: ITileInfoBasic;
 begin
   inherited;
   VGeoConvert := FMapType.GeoConvert;
@@ -96,7 +104,8 @@ begin
         if CancelNotifier.IsOperationCanceled(OperationID) then begin
           exit;
         end;
-        if FMapType.TileExists(VTile, FZoom) then begin
+        VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
+        if VTileInfo.GetIsExists then begin
           VRectOfTilePixels := VGeoConvert.TilePos2PixelRect(VTile, FZoom);
           VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
           VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;

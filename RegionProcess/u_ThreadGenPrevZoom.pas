@@ -13,6 +13,7 @@ uses
   i_Bitmap32StaticFactory,
   i_VectorItemsFactory,
   i_VectorItemLonLat,
+  i_MapVersionInfo,
   u_MapType,
   u_ThreadRegionProcessAbstract,
   i_ImageResamplerFactory,
@@ -28,6 +29,7 @@ type
     FUsePrevTiles: boolean;
     FZooms: TByteDynArray;
     FMapType: TMapType;
+    FVersion: IMapVersionInfo;
     FResamplerFactory: IImageResamplerFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -47,6 +49,7 @@ type
       const AZooms: TByteDynArray;
       const APolygLL: ILonLatPolygon;
       AMapType: TMapType;
+      const AVersion: IMapVersionInfo;
       AReplace: boolean;
       Asavefull: boolean;
       AGenFormFirstZoom: boolean;
@@ -62,6 +65,8 @@ uses
   i_CoordConverter,
   i_Bitmap32Static,
   i_VectorItemProjected,
+  i_TileInfoBasic,
+  i_TileStorage,
   i_TileIterator,
   u_GeoFun,
   u_BitmapFunc,
@@ -76,6 +81,7 @@ constructor TThreadGenPrevZoom.Create(
   const AZooms: TByteDynArray;
   const APolygLL: ILonLatPolygon;
   AMapType: TMapType;
+  const AVersion: IMapVersionInfo;
   AReplace: boolean;
   Asavefull: boolean;
   AGenFormFirstZoom: boolean;
@@ -102,6 +108,7 @@ begin
   FZooms := AZooms;
   FTileInProc := 0;
   FMapType := AMapType;
+  FVersion := AVersion;
   FResamplerFactory := AResamplerFactory;
   FBackGroundColor := ABackGroundColor;
 end;
@@ -131,6 +138,7 @@ var
   VResampler: TCustomResampler;
   VBitmapSourceTile: IBitmap32Static;
   VBitmap: IBitmap32Static;
+  VTileInfo: ITileInfoBasic;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -176,8 +184,9 @@ begin
             exit;
           end;
           VCurrentTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
-          if FMapType.TileExists(VTile, VZoom) then begin
-            if not (FIsReplace) then begin
+          if not (FIsReplace) then begin
+            VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, VZoom, FVersion, gtimAsIs);
+            if VTileInfo.GetIsExists then begin
               continue;
             end;
           end;

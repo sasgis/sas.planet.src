@@ -12,6 +12,7 @@ uses
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_VectorItemLonLat,
+  i_MapVersionInfo,
   u_MapType,
   u_ResStrings,
   t_GeoTypes,
@@ -21,6 +22,7 @@ type
   TThreadExportKML = class(TThreadExportAbstract)
   private
     FMapType: TMapType;
+    FVersion: IMapVersionInfo;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FNotSaveNotExists: boolean;
@@ -44,6 +46,7 @@ type
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
       AMapType: TMapType;
+      const AVersion: IMapVersionInfo;
       ANotSaveNotExists: boolean;
       ARelativePath: boolean
     );
@@ -53,7 +56,9 @@ implementation
 
 uses
   u_GeoToStr,
+  i_TileInfoBasic,
   i_TileIterator,
+  i_TileStorage,
   u_TileIteratorByPolygon,
   u_GeoFun,
   i_VectorItemProjected,
@@ -67,6 +72,7 @@ constructor TThreadExportKML.Create(
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
   AMapType: TMapType;
+  const AVersion: IMapVersionInfo;
   ANotSaveNotExists: boolean;
   ARelativePath: boolean
 );
@@ -83,6 +89,7 @@ begin
   FNotSaveNotExists := ANotSaveNotExists;
   FRelativePath := ARelativePath;
   FMapType := AMapType;
+  FVersion := AVersion;
 end;
 
 procedure TThreadExportKML.KmlFileWrite(
@@ -97,10 +104,14 @@ var
   VText: UTF8String;
   VTileRect: TRect;
   VExtRect: TDoubleRect;
+  VTileInfo: ITileInfoBasic;
 begin
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
-  if (FNotSaveNotExists) and (not (FMapType.TileExists(ATile, AZoom))) then begin
-    exit;
+  if FNotSaveNotExists then begin
+    VTileInfo := FMapType.TileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
+    if not VTileInfo.GetIsExists then begin
+      exit;
+    end;
   end;
   savepath := FMapType.GetTileFileName(ATile, AZoom);
   if FRelativePath then begin

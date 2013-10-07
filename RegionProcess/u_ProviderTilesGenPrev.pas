@@ -136,6 +136,7 @@ begin
     VInZooms,
     APolygon,
     VMapType,
+    VMapType.VersionConfig.Version,
     (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsReplace,
     (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsSaveFullOnly,
     (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsCreateAllFromFirstZoom,

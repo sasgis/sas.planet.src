@@ -117,6 +117,7 @@ begin
     APolygon,
     VZoomArr,
     VMapType,
+    VMapType.VersionConfig.Version,
     NotSaveNotExists,
     RelativePath
   );

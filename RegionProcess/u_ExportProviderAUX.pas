@@ -117,6 +117,7 @@ begin
     VProjectedPolygon,
     VZoom,
     VMapType,
+    VMapType.VersionConfig.Version,
     VPath
   );
 end;

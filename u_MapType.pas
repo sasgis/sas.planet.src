@@ -156,10 +156,6 @@ type
       const AXY: TPoint;
       AZoom: byte
     ): string;
-    function TileExists(
-      const AXY: TPoint;
-      AZoom: byte
-    ): Boolean;
     function LoadTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -527,17 +523,6 @@ function TMapType.GetTileFileName(
 ): string;
 begin
   Result := FStorage.GetTileFileName(AXY, AZoom, FVersionConfig.Version);
-end;
-
-function TMapType.TileExists(
-  const AXY: TPoint;
-  AZoom: byte
-): Boolean;
-var
-  VTileInfo: ITileInfoBasic;
-begin
-  VTileInfo := FStorage.GetTileInfo(AXY, AZoom, FVersionConfig.Version, gtimAsIs);
-  Result := VTileInfo.GetIsExists;
 end;
 
 procedure TMapType.SaveBitmapTileToStorage(

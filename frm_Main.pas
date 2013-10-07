@@ -763,6 +763,8 @@ uses
   i_PointCaptionsLayerConfig,
   i_MapVersionInfo,
   i_InternalDomainOptions,
+  i_TileInfoBasic,
+  i_TileStorage,
   i_GPS,
   i_GeoCoder,
   i_GPSRecorder,
@@ -3806,6 +3808,8 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
+  VVersion: IMapVersionInfo;
+  VTileInfo: ITileInfoBasic;
 begin
   if TMenuItem(Sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(Sender).Tag);
@@ -3827,9 +3831,10 @@ begin
         );
 
       path := VMapType.GetTileShowName(VTile, VZoomCurr);
-
-      if ((not(VMapType.TileExists(VTile, VZoomCurr)))or
-          (MessageBox(handle,pchar(Format(SAS_MSG_TileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES))
+      VVersion := VMapType.VersionConfig.Version;
+      VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VZoomCurr, VVersion, gtimAsIs);
+      if not VTileInfo.GetIsExists or
+        (MessageBox(handle,pchar(Format(SAS_MSG_TileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES)
       then begin
         TTileDownloaderUIOneTile.Create(
           GState.Config.DownloaderThreadConfig,
@@ -3837,6 +3842,7 @@ begin
           VTile,
           VZoomCurr,
           VMapType,
+          VVersion,
           GState.DownloadInfo,
           GState.GlobalInternetState,
           FTileErrorLogger
@@ -5242,6 +5248,7 @@ begin
             VTile,
             VZoomCurr,
             VMapType,
+            VMapType.VersionConfig.Version,
             GState.DownloadInfo,
             GState.GlobalInternetState,
             FTileErrorLogger

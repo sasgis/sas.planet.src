@@ -30,6 +30,7 @@ uses
   i_Listener,
   i_TileError,
   i_ThreadConfig,
+  i_MapVersionInfo,
   i_TileRequestResult,
   i_NotifierOperation,
   i_DownloadInfoSimple,
@@ -44,6 +45,7 @@ type
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
     FMapType: TMapType;
+    FVersion: IMapVersionInfo;
     FTile: TPoint;
     FZoom: Byte;
 
@@ -66,6 +68,7 @@ type
       const AXY: TPoint;
       AZoom: byte;
       AMapType: TMapType;
+      const AVersion: IMapVersionInfo;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
       const AErrorLogger: ITileErrorLogger
@@ -91,6 +94,7 @@ constructor TTileDownloaderUIOneTile.Create(
   const AXY: TPoint;
   AZoom: byte;
   AMapType: TMapType;
+  const AVersion: IMapVersionInfo;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
   const AErrorLogger: ITileErrorLogger
@@ -106,6 +110,7 @@ begin
   FTile := AXY;
   FZoom := AZoom;
   FMapType := AMapType;
+  FVersion := AVersion;
   Priority := AThreadConfig.Priority;
   FreeOnTerminate := True;
 
@@ -154,7 +159,7 @@ begin
         VOperationID,
         FTile,
         FZoom,
-        FMapType.VersionConfig.Version,
+        FVersion,
         False
       );
     if VTask <> nil then begin
