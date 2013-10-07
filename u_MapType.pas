@@ -462,7 +462,6 @@ begin
       FZmp.TileDownloaderConfig,
       AResamplerConfigDownload,
       ABitmapFactory,
-      FVersionConfig,
       FTileDownloaderConfig,
       ADownloaderThreadConfig,
       FTileDownloadRequestBuilderConfig,

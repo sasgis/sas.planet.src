@@ -4758,7 +4758,7 @@ begin
         VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
         prToTopLeft
       );
-    CopyStringToClipboard(VMapType.TileDownloadSubsystem.GetLink(VTile, VZoomCurr));
+    CopyStringToClipboard(VMapType.TileDownloadSubsystem.GetLink(VTile, VZoomCurr, VMapType.VersionConfig.Version));
   end;
 end;
 

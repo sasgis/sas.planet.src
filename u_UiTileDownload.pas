@@ -384,7 +384,15 @@ begin
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
                 Break;
               end;
-              VTask := VMapType.TileDownloadSubsystem.GetRequestTask(ACancelNotifier, AOperationID, VTile, VZoom, False);
+              VTask :=
+                VMapType.TileDownloadSubsystem.GetRequestTask(
+                  ACancelNotifier,
+                  AOperationID,
+                  VTile,
+                  VZoom,
+                  VMapType.VersionConfig.Version,
+                  False
+                );
               if VTask <> nil then begin
                 VTask.FinishNotifier.Add(FTileDownloadFinishListener);
                 FGlobalInternetState.IncQueueCount;

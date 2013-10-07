@@ -148,7 +148,15 @@ begin
   Randomize;
   if FMapType.TileDownloadSubsystem.State.GetStatic.Enabled then begin
     VOperationID := FCancelNotifier.CurrentOperation;
-    VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, VOperationID, FTile, FZoom, False);
+    VTask :=
+      FMapType.TileDownloadSubsystem.GetRequestTask(
+        FCancelNotifier,
+        VOperationID,
+        FTile,
+        FZoom,
+        FMapType.VersionConfig.Version,
+        False
+      );
     if VTask <> nil then begin
       VTask.FinishNotifier.Add(FTileDownloadFinishListener);
       FGlobalInternetState.IncQueueCount;

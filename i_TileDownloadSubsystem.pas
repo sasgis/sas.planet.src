@@ -5,6 +5,7 @@ interface
 uses
   Types,
   i_NotifierOperation,
+  i_MapVersionInfo,
   i_TileRequestTask,
   i_TileDownloaderState;
 
@@ -15,12 +16,14 @@ type
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo;
       ACheckTileSize: Boolean
     ): ITileRequestTask;
     function GetLink(
       const AXY: TPoint;
-      AZoom: byte
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): string;
     procedure Download(
       const ATileRequestTask: ITileRequestTask

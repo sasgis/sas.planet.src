@@ -28,6 +28,7 @@ uses
   Classes,
   i_Listener,
   i_LogSimple,
+  i_MapVersionInfo,
   i_NotifierOperation,
   i_GlobalDownloadConfig,
   i_TileRequestResult,
@@ -44,6 +45,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FMapType: TMapType;
     FZoom: Byte;
+    FVersion: IMapVersionInfo;
     FDownloadInfo: IDownloadInfoSimple;
     FPolyProjected: IProjectedPolygon;
     FSecondLoadTNE: boolean;
@@ -103,6 +105,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
       const AAppClosingNotifier: INotifierOneOperation;
       AMapType: TMapType;
+      const AVersion: IMapVersionInfo;
       AZoom: byte;
       const APolyProjected: IProjectedPolygon;
       const ADownloadConfig: IGlobalDownloadConfig;
@@ -140,6 +143,7 @@ constructor TThreadDownloadTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
   const AAppClosingNotifier: INotifierOneOperation;
   AMapType: TMapType;
+  const AVersion: IMapVersionInfo;
   AZoom: byte;
   const APolyProjected: IProjectedPolygon;
   const ADownloadConfig: IGlobalDownloadConfig;
@@ -181,6 +185,7 @@ begin
   FZoom := AZoom;
   FCheckExistTileSize := ACheckExistTileSize;
   FMapType := AMapType;
+  FVersion := AVersion;
   FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := ACheckExistTileDate;
   FSecondLoadTNE := ASecondLoadTNE;
@@ -350,7 +355,7 @@ begin
                 VGotoNextTile := True;
               end else begin
                 // download tile
-                VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, FOperationID, VTile, FZoom, FCheckExistTileSize);
+                VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, FOperationID, VTile, FZoom, FVersion, FCheckExistTileSize);
                 if VTask <> nil then begin
                   VTask.FinishNotifier.Add(FTileDownloadFinishListener);
                   FMapType.TileDownloadSubsystem.Download(VTask);

@@ -32,7 +32,7 @@ uses
   i_TileDownloadResultSaver,
   i_MapAbilitiesConfig,
   i_ImageResamplerConfig,
-  i_MapVersionConfig,
+  i_MapVersionInfo,
   i_Bitmap32StaticFactory,
   i_InvisibleBrowser,
   i_ProjConverter,
@@ -46,7 +46,6 @@ type
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FCoordConverter: ICoordConverter;
-    FVersionConfig: IMapVersionConfig;
     FAppClosingNotifier: INotifierOneOperation;
 
     FDestroyNotifierInternal: INotifierOperationInternal;
@@ -68,12 +67,14 @@ type
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo;
       ACheckTileSize: Boolean
     ): ITileRequestTask;
     function GetLink(
       const AXY: TPoint;
-      AZoom: byte
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionInfo
     ): string;
     procedure Download(
       const ATileRequestTask: ITileRequestTask
@@ -93,7 +94,6 @@ type
       const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
       const AImageResamplerConfig: IImageResamplerConfig;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AVersionConfig: IMapVersionConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const AThreadConfig: IThreadConfig;
       const ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -153,7 +153,6 @@ constructor TTileDownloadSubsystem.Create(
   const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
   const AImageResamplerConfig: IImageResamplerConfig;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AVersionConfig: IMapVersionConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const AThreadConfig: IThreadConfig;
   const ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -178,7 +177,6 @@ var
 begin
   inherited Create;
   FCoordConverter := ACoordConverter;
-  FVersionConfig := AVersionConfig;
   FTileDownloaderConfig := ATileDownloaderConfig;
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -313,7 +311,8 @@ end;
 
 function TTileDownloadSubsystem.GetLink(
   const AXY: TPoint;
-  AZoom: byte
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionInfo
 ): string;
 var
   VRequest: ITileRequest;
@@ -326,7 +325,7 @@ begin
         TTileRequest.Create(
           AXY,
           AZoom,
-          FVersionConfig.Version
+          AVersionInfo
         );
       VDownloadRequest := nil;
       if VRequest <> nil then begin
@@ -343,7 +342,8 @@ function TTileDownloadSubsystem.GetRequestTask(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
   const AXY: TPoint;
-  AZoom: byte;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionInfo;
   ACheckTileSize: Boolean
 ): ITileRequestTask;
 var
@@ -363,14 +363,14 @@ begin
             TTileRequestWithSizeCheck.Create(
               VTile,
               VZoom,
-              FVersionConfig.Version
+              AVersionInfo
             );
         end else begin
           VRequest :=
             TTileRequest.Create(
               VTile,
               VZoom,
-              FVersionConfig.Version
+              AVersionInfo
             );
         end;
         VCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
