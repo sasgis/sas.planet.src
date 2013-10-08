@@ -25,6 +25,7 @@ interface
 uses
   Types,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_BinaryData;
 

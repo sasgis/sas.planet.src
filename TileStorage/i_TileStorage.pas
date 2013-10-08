@@ -29,6 +29,7 @@ uses
   i_NotifierTilePyramidUpdate,
   i_ContentTypeInfo,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_StorageState,
   i_TileInfoBasic;
 

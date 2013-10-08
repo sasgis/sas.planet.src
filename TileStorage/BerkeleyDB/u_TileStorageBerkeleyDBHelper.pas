@@ -28,6 +28,7 @@ uses
   SysUtils,
   t_BerkeleyDB,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_BinaryData,
   i_MapVersionConfig,

@@ -762,6 +762,7 @@ uses
   i_ConfigDataProvider,
   i_PointCaptionsLayerConfig,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_InternalDomainOptions,
   i_TileInfoBasic,
   i_TileStorage,

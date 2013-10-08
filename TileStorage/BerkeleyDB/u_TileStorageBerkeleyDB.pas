@@ -27,6 +27,7 @@ uses
   SysUtils,
   i_BinaryData,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_BasicMemCache,

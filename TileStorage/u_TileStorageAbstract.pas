@@ -27,6 +27,7 @@ uses
   i_BinaryData,
   i_CoordConverter,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_MapVersionConfig,
   i_ContentTypeInfo,
   i_TileStorageAbilities,

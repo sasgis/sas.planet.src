@@ -31,6 +31,7 @@ uses
   i_TileInfoBasic,
   i_CoordConverter,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_ArchiveReadWrite,
   i_ContentTypeManager,

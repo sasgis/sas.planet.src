@@ -320,6 +320,7 @@
     <DCCReference Include="i_MapVersionConfig.pas" />
     <DCCReference Include="i_MapVersionInfo.pas" />
     <DCCReference Include="i_MapVersionInfoGE.pas" />
+    <DCCReference Include="i_MapVersionListStatic.pas" />
     <DCCReference Include="i_MapViewGoto.pas" />
     <DCCReference Include="i_MapZoomingConfig.pas" />
     <DCCReference Include="i_MarkerDrawable.pas" />

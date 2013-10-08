@@ -100,6 +100,7 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_VectorItemProjected,
+  i_MapVersionListStatic,
   i_TileIterator,
   u_TileStorageBerkeleyDB,
   u_TileFileNameBerkeleyDB,

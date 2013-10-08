@@ -5,6 +5,7 @@ interface
 uses
   i_InterfaceListStatic,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   u_BaseInterfacedObject;
 
 type

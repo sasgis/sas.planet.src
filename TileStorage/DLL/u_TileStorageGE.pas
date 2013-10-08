@@ -32,6 +32,7 @@ uses
   i_ContentTypeInfo,
   i_MapVersionConfig,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_CoordConverter,
   i_TileInfoBasic,
   i_TileStorage,

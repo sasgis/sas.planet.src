@@ -26,6 +26,7 @@ uses
   i_TileInfoBasic,
   i_TileStorage,
   i_MapVersionInfo,
+  i_MapVersionListStatic,
   i_FileNameIterator,
   i_MapVersionConfig,
   i_TileFileNameParser,
