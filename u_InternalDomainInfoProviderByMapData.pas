@@ -117,7 +117,14 @@ begin
   end else begin
     if VSuffix = FDescriptionSuffix then begin
       if VMapType.MapType.IsKmlTiles then begin
-        VVectorTile := VMapType.MapType.LoadTileVector(VTile, VZoom, True, VMapType.MapType.CacheVector);
+        VVectorTile :=
+          VMapType.MapType.LoadTileVector(
+            VTile,
+            VZoom,
+            VMapType.MapType.VersionConfig.Version,
+            True,
+            VMapType.MapType.CacheVector
+          );
         if (VVectorTile <> nil) and (VIndex < VVectorTile.Count) then begin
           VItem := VVectorTile.GetItem(VIndex);
           VText := FVectorDescriptionProvider.GetText(VItem);

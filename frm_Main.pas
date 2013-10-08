@@ -3708,7 +3708,7 @@ begin
       VConverter.PixelPosFloat2TilePosFloat(VMouseMapPoint, VZoomCurr),
       prToTopLeft
     );
-  VBitmapTile := VMapType.LoadTileUni(VTile, VZoomCurr, VConverter, True, True, False);
+  VBitmapTile := VMapType.LoadTileUni(VTile, VZoomCurr, VMapType.VersionConfig.Version, VConverter, True, True, False);
   if VBitmapTile <> nil then begin
     btm := TBitmap32.Create;
     try
@@ -3795,7 +3795,7 @@ begin
       prToTopLeft
     );
 
-  CopyStringToClipboard(VMapType.GetTileFileName(VTile, VZoomCurr));
+  CopyStringToClipboard(VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionConfig.Version));
 end;
 
 procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
@@ -3830,8 +3830,8 @@ begin
           prToTopLeft
         );
 
-      path := VMapType.GetTileShowName(VTile, VZoomCurr);
       VVersion := VMapType.VersionConfig.Version;
+      path := VMapType.GetTileShowName(VTile, VZoomCurr, VVersion);
       VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VZoomCurr, VVersion, gtimAsIs);
       if not VTileInfo.GetIsExists or
         (MessageBox(handle,pchar(Format(SAS_MSG_TileExists, [path])),pchar(SAS_MSG_coution),36)=IDYES)
@@ -3904,6 +3904,7 @@ var
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
   VMapType: TMapType;
+  VFileName: string;
 begin
   VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
   if VMapType.TileStorage.IsFileCache then begin
@@ -3919,7 +3920,8 @@ begin
         VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
         prToTopLeft
       );
-    ShellExecute(0,'open',PChar(VMapType.GetTileFileName(VTile, VZoomCurr)),nil,nil,SW_SHOWNORMAL);
+    VFileName := VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionConfig.Version);
+    ShellExecute(0, 'open', PChar(VFileName), nil, nil, SW_SHOWNORMAL);
   end else begin
     ShowMessage(SAS_MSG_CantGetTileFileName);
   end;
@@ -3955,7 +3957,7 @@ begin
       VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
       prToTopLeft
     );
-  VTileFileName := VMapType.GetTileFileName(VTile, VZoomCurr);
+  VTileFileName := VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionConfig.Version);
   if DirectoryExists(ExtractFilePath(VTileFileName)) then begin
     VCommandLine := 'explorer /select,' + AnsiString(VTileFileName);
     WinExec(PAnsiChar(VCommandLine), SW_SHOWNORMAL);
@@ -4097,6 +4099,7 @@ var
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
   VMessage: string;
+  VVersion: IMapVersionInfo;
 begin
   if TMenuItem(Sender).Tag<>0 then begin
     VMapType := TMapType(TMenuItem(Sender).Tag);
@@ -4116,10 +4119,11 @@ begin
           VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
           prToTopLeft
         );
-      s:=VMapType.GetTileShowName(VTile, VZoomCurr);
+      VVersion := VMapType.VersionConfig.Version;
+      s:=VMapType.GetTileShowName(VTile, VZoomCurr, VVersion);
       VMessage := Format(SAS_MSG_DeleteTileOneTileAsk, [s]);
       if (MessageBox(handle,pchar(VMessage),pchar(SAS_MSG_coution),36)=IDYES) then begin
-        VMapType.TileStorage.DeleteTile(VTile, VZoomCurr, VMapType.VersionConfig.Version);
+        VMapType.TileStorage.DeleteTile(VTile, VZoomCurr, VVersion);
       end;
     end;
   end;

@@ -192,7 +192,7 @@ begin
           end;
           VBitmapSourceTile := nil;
           if FUsePrevTiles then begin
-            VBitmapSourceTile := FMapType.LoadTileUni(VTile, VZoom, VGeoConvert, True, True, True);
+            VBitmapSourceTile := FMapType.LoadTileUni(VTile, VZoom, FVersion, VGeoConvert, True, True, True);
           end;
             if VBitmapSourceTile = nil then begin
               bmp_ex.SetSize(
@@ -214,7 +214,7 @@ begin
             VSubTileCount := VSubTileIterator.TilesTotal;
             VSubTilesSavedCount := 0;
             while VSubTileIterator.Next(VSubTile) do begin
-              VBitmapSourceTile := FMapType.LoadTile(VSubTile, VZoomPrev, True);
+              VBitmapSourceTile := FMapType.LoadTile(VSubTile, VZoomPrev, FVersion, True);
               if VBitmapSourceTile <> nil then begin
                 VSubTileBounds := VGeoConvert.TilePos2PixelRect(VSubTile, VZoomPrev);
                 VSubTileBounds.Right := VSubTileBounds.Right - VSubTileBounds.Left;
@@ -259,7 +259,7 @@ begin
               );
             end;
           if VBitmap <> nil then begin
-            FMapType.SaveTileSimple(VTile, VZoom, VBitmap);
+            FMapType.SaveTileSimple(VTile, VZoom, FVersion, VBitmap);
             inc(FTileInProc);
             VBitmap := nil;
           end;

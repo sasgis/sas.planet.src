@@ -9,6 +9,7 @@ uses
   i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
+  i_MapVersionInfo,
   u_MapType,
   u_BaseInterfacedObject;
 
@@ -17,7 +18,9 @@ type
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FMapTypeMain: TMapType;
+    FMapTypeMainVersion: IMapVersionInfo;
     FMapTypeHybr: TMapType;
+    FMapTypeHybrVersion: IMapVersionInfo;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
   private
@@ -30,7 +33,9 @@ type
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
       AMapTypeMain: TMapType;
+      const AMapTypeMainVersion: IMapVersionInfo;
       AMapTypeHybr: TMapType;
+      const AMapTypeHybrVersion: IMapVersionInfo;
       AUsePrevZoomAtMap: Boolean;
       AUsePrevZoomAtLayer: Boolean
     );
@@ -46,14 +51,19 @@ uses
 
 constructor TBitmapLayerProviderMapWithLayer.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
-  AMapTypeMain, AMapTypeHybr: TMapType;
+  AMapTypeMain: TMapType;
+  const AMapTypeMainVersion: IMapVersionInfo;
+  AMapTypeHybr: TMapType;
+  const AMapTypeHybrVersion: IMapVersionInfo;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
 );
 begin
   inherited Create;
   FBitmapFactory := ABitmapFactory;
   FMapTypeMain := AMapTypeMain;
+  FMapTypeMainVersion := AMapTypeMainVersion;
   FMapTypeHybr := AMapTypeHybr;
+  FMapTypeHybrVersion := AMapTypeHybrVersion;
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;
   FUsePrevZoomAtLayer := AUsePrevZoomAtLayer;
 end;
@@ -70,11 +80,29 @@ begin
   Result := nil;
   VLayer := nil;
   if FMapTypeMain <> nil then begin
-    Result := FMapTypeMain.LoadBitmapUni(ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtMap, True, True);
+    Result :=
+      FMapTypeMain.LoadBitmapUni(
+        ALocalConverter.GetRectInMapPixel,
+        ALocalConverter.GetZoom,
+        FMapTypeMainVersion,
+        ALocalConverter.GetGeoConverter,
+        FUsePrevZoomAtMap,
+        True,
+        True
+      );
   end;
 
   if FMapTypeHybr <> nil then begin
-    VLayer := FMapTypeHybr.LoadBitmapUni(ALocalConverter.GetRectInMapPixel, ALocalConverter.GetZoom, ALocalConverter.GetGeoConverter, FUsePrevZoomAtLayer, True, True);
+    VLayer :=
+      FMapTypeHybr.LoadBitmapUni(
+        ALocalConverter.GetRectInMapPixel,
+        ALocalConverter.GetZoom,
+        FMapTypeHybrVersion,
+        ALocalConverter.GetGeoConverter,
+        FUsePrevZoomAtLayer,
+        True,
+        True
+      );
   end;
 
   if Result <> nil then begin

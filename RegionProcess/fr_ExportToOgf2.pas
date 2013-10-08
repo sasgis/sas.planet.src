@@ -271,7 +271,9 @@ begin
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmapFactory,
       VMap,
+      VMap.VersionConfig.Version,
       VLayer,
+      VLayer.VersionConfig.Version,
       VUsePrevZoom,
       VUsePrevZoom
     );

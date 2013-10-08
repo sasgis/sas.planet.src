@@ -14,6 +14,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_ThreadConfig,
   i_BackgroundTask,
+  i_MapVersionInfo,
   i_MapTypes,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
@@ -84,6 +85,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const AElments: IVectorItemSubsetBuilder;
       Alayer: TMapType;
+      const AVersion: IMapVersionInfo;
       const ALocalConverter: ILocalCoordConverter
     );
 
@@ -480,6 +482,7 @@ procedure TVectorItemSubsetChangeableForVectorLayers.AddElementsFromMap(
   const ACancelNotifier: INotifierOperation;
   const AElments: IVectorItemSubsetBuilder;
   Alayer: TMapType;
+  const AVersion: IMapVersionInfo;
   const ALocalConverter: ILocalCoordConverter
 );
 var
@@ -514,7 +517,7 @@ begin
   while VTileIterator.Next(VTile) do begin
     VErrorString := '';
     try
-      VItems := Alayer.LoadTileVector(VTile, VZoom, False, Alayer.CacheVector);
+      VItems := Alayer.LoadTileVector(VTile, VZoom, AVersion, False, Alayer.CacheVector);
       if VItems <> nil then begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;
@@ -595,7 +598,14 @@ begin
       VItem := ALayerSet.GetMapTypeByGUID(VGUID);
       VMapType := VItem.GetMapType;
       if VMapType.IsKmlTiles then begin
-        AddElementsFromMap(AOperationID, ACancelNotifier, VElements, VMapType, ALocalConverter);
+        AddElementsFromMap(
+          AOperationID,
+          ACancelNotifier,
+          VElements,
+          VMapType,
+          VMapType.VersionConfig.Version,
+          ALocalConverter
+        );
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;
         end;

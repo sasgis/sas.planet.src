@@ -109,7 +109,7 @@ begin
           VRectOfTilePixels := VGeoConvert.TilePos2PixelRect(VTile, FZoom);
           VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
           VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;
-          VFileName := FMapType.GetTileFileName(VTile, FZoom);
+          VFileName := FMapType.TileStorage.GetTileFileName(VTile, FZoom, FVersion);
           VOutString := '"' + VFileName + '" ' + IntToStr(VOutPos.X) + ' ' + IntToStr(VOutPos.Y) + #13#10;
           VFileStream.WriteBuffer(VOutString[1], Length(VOutString));
         end;

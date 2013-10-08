@@ -135,6 +135,7 @@ begin
         ACancelNotifier,
         ALocalConverter,
         VSourceZoom,
+        FMapType.MapType.VersionConfig.Version,
         FColorer
       );
   end;

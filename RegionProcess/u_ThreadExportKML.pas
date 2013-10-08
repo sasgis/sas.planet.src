@@ -113,7 +113,7 @@ begin
       exit;
     end;
   end;
-  savepath := FMapType.GetTileFileName(ATile, AZoom);
+  savepath := FMapType.TileStorage.GetTileFileName(ATile, AZoom, FVersion);
   if FRelativePath then begin
     savepath := ExtractRelativePath(ExtractFilePath(FPathExport), savepath);
   end;

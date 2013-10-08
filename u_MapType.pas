@@ -120,27 +120,30 @@ type
     procedure SaveBitmapTileToStorage(
       const AXY: TPoint;
       const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       const ABitmap: IBitmap32Static
     );
     function LoadBitmapTileFromStorage(
       const AXY: TPoint;
       const AZoom: Byte;
-      var AVersionInfo: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     ): IBitmap32Static;
     function LoadKmlTileFromStorage(
       const AXY: TPoint;
       const AZoom: byte;
-      var AVersionInfo: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     ): IVectorItemSubset;
     function LoadTileFromPreZ(
       const AXY: TPoint;
       const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadTileOrPreZ(
       const AXY: TPoint;
       const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       IgnoreError: Boolean;
       AUsePre: Boolean;
       const ACache: ITileObjCacheBitmap = nil
@@ -148,29 +151,29 @@ type
   public
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
     procedure ClearMemCache;
-    function GetTileFileName(
-      const AXY: TPoint;
-      AZoom: byte
-    ): string;
     function GetTileShowName(
       const AXY: TPoint;
-      AZoom: byte
+      const AZoom: byte;
+      const AVersion: IMapVersionInfo
     ): string;
     function LoadTile(
       const AXY: TPoint;
       const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadTileVector(
       const AXY: TPoint;
       const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
     ): IVectorItemSubset;
     function LoadTileUni(
       const AXY: TPoint;
       const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       const ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
@@ -178,19 +181,22 @@ type
     function LoadBitmap(
       const APixelRectTarget: TRect;
       const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadBitmapUni(
       const APixelRectTarget: TRect;
       const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       const ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     procedure SaveTileSimple(
       const AXY: TPoint;
-      AZoom: byte;
+      const AZoom: byte;
+      const AVersion: IMapVersionInfo;
       const ABitmap: IBitmap32Static
     );
     function GetFillingMapBitmap(
@@ -198,6 +204,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter;
       ASourceZoom: byte;
+      const AVersion: IMapVersionInfo;
       const AColorer: IFillingMapColorer
     ): IBitmap32Static;
 
@@ -517,24 +524,17 @@ begin
   inherited;
 end;
 
-function TMapType.GetTileFileName(
-  const AXY: TPoint;
-  AZoom: byte
-): string;
-begin
-  Result := FStorage.GetTileFileName(AXY, AZoom, FVersionConfig.Version);
-end;
-
 procedure TMapType.SaveBitmapTileToStorage(
   const AXY: TPoint;
   const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   const ABitmap: IBitmap32Static
 );
 var
   VData: IBinaryData;
 begin
   VData := FBitmapSaverToStorage.Save(ABitmap);
-  FStorage.SaveTile(AXY, AZoom, FVersionConfig.Version, Now, FContentType, VData);
+  FStorage.SaveTile(AXY, AZoom, AVersion, Now, FContentType, VData);
 end;
 
 procedure TMapType.SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
@@ -551,34 +551,32 @@ end;
 function TMapType.LoadBitmapTileFromStorage(
   const AXY: TPoint;
   const AZoom: Byte;
-  var AVersionInfo: IMapVersionInfo
+  const AVersion: IMapVersionInfo
 ): IBitmap32Static;
 var
   VTileInfoWithData: ITileInfoWithData;
 begin
   Result := nil;
-  if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
+  if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersion, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
     Result := FBitmapLoaderFromStorage.Load(VTileInfoWithData.TileData);
-    AVersionInfo := VTileInfoWithData.VersionInfo;
   end;
 end;
 
 function TMapType.LoadKmlTileFromStorage(
   const AXY: TPoint;
   const AZoom: byte;
-  var AVersionInfo: IMapVersionInfo
+  const AVersion: IMapVersionInfo
 ): IVectorItemSubset;
 var
   VTileInfoWithData: ITileInfoWithData;
   VIdData: TIdData;
 begin
   Result := nil;
-  if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
+  if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersion, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
     VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FMapDataUrlPrefix, AXY, AZoom);
     try
       VIdData.NextIndex := 0;
       Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, @VIdData, FVectorDataFactory);
-      AVersionInfo := VTileInfoWithData.VersionInfo;
     finally
       VIdData.UrlPrefix := nil;
     end;
@@ -587,11 +585,12 @@ end;
 
 procedure TMapType.SaveTileSimple(
   const AXY: TPoint;
-  AZoom: byte;
+  const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   const ABitmap: IBitmap32Static
 );
 begin
-  SaveBitmapTileToStorage(AXY, AZoom, ABitmap);
+  SaveBitmapTileToStorage(AXY, AZoom, AVersion, ABitmap);
 end;
 
 function TMapType.GetShortFolderName: string;
@@ -601,10 +600,11 @@ end;
 
 function TMapType.GetTileShowName(
   const AXY: TPoint;
-  AZoom: byte
+  const AZoom: byte;
+  const AVersion: IMapVersionInfo
 ): string;
 begin
-  Result := FStorage.GetTileFileName(AXY, AZoom, FVersionConfig.Version);
+  Result := FStorage.GetTileFileName(AXY, AZoom, AVersion);
   if not FStorage.IsFileCache then begin
     Result :=
       IncludeTrailingPathDelimiter(Result) +
@@ -612,8 +612,8 @@ begin
       'x' + IntToStr(AXY.X) + PathDelim +
       'y' + IntToStr(AXY.Y) + FContentType.GetDefaultExt;
   end;
-  if FStorage.GetIsCanSaveMultiVersionTiles and (FVersionConfig.Version.StoreString <> '') then begin
-    Result := Result + PathDelim + 'v' + FVersionConfig.Version.StoreString;
+  if FStorage.GetIsCanSaveMultiVersionTiles and (AVersion.StoreString <> '') then begin
+    Result := Result + PathDelim + 'v' + AVersion.StoreString;
   end;
 end;
 
@@ -622,6 +622,7 @@ function TMapType.GetFillingMapBitmap(
   const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter;
   ASourceZoom: byte;
+  const AVersion: IMapVersionInfo;
   const AColorer: IFillingMapColorer
 ): IBitmap32Static;
 var
@@ -675,7 +676,7 @@ begin
     VSolidDrow :=
       (VSize.X <= (VSourceTileRect.Right - VSourceTileRect.Left) * 2) or
       (VSize.Y <= (VSourceTileRect.Bottom - VSourceTileRect.Top) * 2);
-    VTileRectInfo := FStorage.GetTileRectInfo(VSourceTileRect, ASourceZoom, FVersionConfig.Version);
+    VTileRectInfo := FStorage.GetTileRectInfo(VSourceTileRect, ASourceZoom, AVersion);
     if VTileRectInfo <> nil then begin
       VIterator := TTileIteratorByRect.Create(VSourceTileRect);
       VEnumTileInfo := VTileRectInfo.GetEnum(VIterator);
@@ -718,11 +719,11 @@ end;
 function TMapType.LoadTile(
   const AXY: TPoint;
   const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 var
-  VVersionInfo: IMapVersionInfo;
   VRect: TRect;
   VSize: TPoint;
   VBitmap: TBitmap32ByStaticBitmap;
@@ -730,13 +731,12 @@ var
 begin
   try
     Result := nil;
-    VVersionInfo := FVersionConfig.Version;
     if ACache = nil then begin
-      Result := LoadBitmapTileFromStorage(AXY, AZoom, VVersionInfo);
+      Result := LoadBitmapTileFromStorage(AXY, AZoom, AVersion);
     end else begin
       Result := ACache.TryLoadTileFromCache(AXY, AZoom);
       if Result = nil then begin
-        Result := LoadBitmapTileFromStorage(AXY, AZoom, VVersionInfo);
+        Result := LoadBitmapTileFromStorage(AXY, AZoom, AVersion);
         if Result <> nil then begin
           ACache.AddTileToCache(Result, AXY, AZoom);
         end;
@@ -780,21 +780,19 @@ end;
 function TMapType.LoadTileVector(
   const AXY: TPoint;
   const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   IgnoreError: Boolean;
   const ACache: ITileObjCacheVector
 ): IVectorItemSubset;
-var
-  VVersionInfo: IMapVersionInfo;
 begin
   Result := nil;
   try
-    VVersionInfo := FVersionConfig.Version;
     if ACache = nil then begin
-      Result := LoadKmlTileFromStorage(AXY, AZoom, VVersionInfo);
+      Result := LoadKmlTileFromStorage(AXY, AZoom, AVersion);
     end else begin
       Result := ACache.TryLoadTileFromCache(AXY, AZoom);
       if Result = nil then begin
-        Result := LoadKmlTileFromStorage(AXY, AZoom, VVersionInfo);
+        Result := LoadKmlTileFromStorage(AXY, AZoom, AVersion);
         if Result <> nil then begin
           ACache.AddTileToCache(Result, AXY, AZoom);
         end;
@@ -815,6 +813,7 @@ end;
 function TMapType.LoadTileFromPreZ(
   const AXY: TPoint;
   const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
@@ -843,7 +842,7 @@ begin
     for i := AZoom - 1 downto VMinZoom do begin
       VParentZoom := i;
       VTileParent := PointFromDoublePoint(FCoordConverter.Relative2TilePosFloat(VRelative, i), prToTopLeft);
-      VBmp := LoadTile(VTileParent, VParentZoom, IgnoreError, ACache);
+      VBmp := LoadTile(VTileParent, VParentZoom, AVersion, IgnoreError, ACache);
       if VBmp <> nil then begin
         VTargetTilePixelRect := FCoordConverter.TilePos2PixelRect(AXY, AZoom);
         VRelativeRect := FCoordConverter.PixelRect2RelativeRect(VTargetTilePixelRect, AZoom);
@@ -897,15 +896,16 @@ end;
 function TMapType.LoadTileOrPreZ(
   const AXY: TPoint;
   const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   IgnoreError: Boolean;
   AUsePre: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
 begin
-  Result := LoadTile(AXY, AZoom, IgnoreError, ACache);
+  Result := LoadTile(AXY, AZoom, AVersion, IgnoreError, ACache);
   if Result = nil then begin
     if AUsePre then begin
-      Result := LoadTileFromPreZ(AXY, AZoom, IgnoreError, ACache);
+      Result := LoadTileFromPreZ(AXY, AZoom, AVersion, IgnoreError, ACache);
     end;
   end;
 end;
@@ -913,6 +913,7 @@ end;
 function TMapType.LoadBitmap(
   const APixelRectTarget: TRect;
   const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
@@ -942,7 +943,7 @@ begin
     (VTileRect.Top = VTileRect.Bottom - 1) then begin
     VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTileRect.TopLeft, VZoom);
     if Types.EqualRect(VPixelRectCurrTile, APixelRectTarget) then begin
-      Result := LoadTileOrPreZ(VTileRect.TopLeft, VZoom, IgnoreError, AUsePre, ACache);
+      Result := LoadTileOrPreZ(VTileRect.TopLeft, VZoom, AVersion, IgnoreError, AUsePre, ACache);
       Exit;
     end;
   end;
@@ -955,7 +956,7 @@ begin
       VTile.Y := i;
       for j := VTileRect.Left to VTileRect.Right - 1 do begin
         VTile.X := j;
-        VSpr := LoadTileOrPreZ(VTile, VZoom, IgnoreError, AUsePre, ACache);
+        VSpr := LoadTileOrPreZ(VTile, VZoom, AVersion, IgnoreError, AUsePre, ACache);
         if VSpr <> nil then begin
           VPixelRectCurrTile := FCoordConverter.TilePos2PixelRect(VTile, VZoom);
 
@@ -1031,6 +1032,7 @@ end;
 function TMapType.LoadBitmapUni(
   const APixelRectTarget: TRect;
   const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   const ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
@@ -1049,7 +1051,7 @@ begin
   Result := nil;
 
   if FCoordConverter.IsSameConverter(ACoordConverterTarget) then begin
-    Result := LoadBitmap(APixelRectTarget, AZoom, AUsePre, AAllowPartial, IgnoreError, ACache);
+    Result := LoadBitmap(APixelRectTarget, AZoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
   end else begin
     VZoom := AZoom;
     VTargetImageSize.X := APixelRectTarget.Right - APixelRectTarget.Left;
@@ -1065,7 +1067,7 @@ begin
         rrToTopLeft
       );
     VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, VZoom);
-    VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VZoom, AUsePre, AAllowPartial, IgnoreError, ACache);
+    VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VZoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
     if VSpr <> nil then begin
       VResampler := FResamplerConfigChangeProjection.GetActiveFactory.CreateResampler;
       try
@@ -1094,6 +1096,7 @@ end;
 function TMapType.LoadTileUni(
   const AXY: TPoint;
   const AZoom: byte;
+  const AVersion: IMapVersionInfo;
   const ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
@@ -1102,7 +1105,7 @@ var
   VPixelRect: TRect;
 begin
   VPixelRect := ACoordConverterTarget.TilePos2PixelRect(AXY, AZoom);
-  Result := LoadBitmapUni(VPixelRect, AZoom, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
+  Result := LoadBitmapUni(VPixelRect, AZoom, AVersion, ACoordConverterTarget, AUsePre, AAllowPartial, IgnoreError, ACache);
 end;
 
 end.

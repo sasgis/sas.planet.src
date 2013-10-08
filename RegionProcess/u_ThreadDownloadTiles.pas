@@ -327,7 +327,7 @@ begin
         end;
 
         // notify about current tile
-        FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom)]), 0);
+        FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom, FVersion)]), 0);
         // if gtimWithData - tile will be loaded, so we use gtimAsIs
         VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FMapType.VersionConfig.Version, gtimAsIs);
 

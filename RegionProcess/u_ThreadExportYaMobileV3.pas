@@ -147,7 +147,9 @@ begin
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmapFactory,
         AMapTypeArr[0],
+        AMapTypeArr[0].VersionConfig.Version,
         AMapTypeArr[2],
+        AMapTypeArr[2].VersionConfig.Version,
         False,
         False
       );
@@ -161,6 +163,8 @@ begin
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmapFactory,
         AMapTypeArr[1],
+        AMapTypeArr[1].VersionConfig.Version,
+        nil,
         nil,
         False,
         False
