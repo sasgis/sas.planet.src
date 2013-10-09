@@ -6,7 +6,7 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_ContentTypeManager,
-  i_MapVersionConfig,
+  i_MapVersionFactory,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileInfoBasicMemCache,

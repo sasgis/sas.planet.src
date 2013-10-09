@@ -27,6 +27,7 @@ uses
   Windows,
   i_BinaryData,
   i_MapVersionInfo,
+  i_MapVersionFactory,
   i_MapVersionListStatic,
   i_MapVersionConfig,
   i_BasicMemCache,

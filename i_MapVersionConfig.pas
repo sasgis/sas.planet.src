@@ -24,17 +24,10 @@ interface
 
 uses
   i_ConfigDataElement,
-  i_MapVersionInfo;
+  i_MapVersionInfo,
+  i_MapVersionFactory;
 
 type
-  IMapVersionFactory = interface
-    ['{4E03F54E-C11D-443C-BF0E-D9A2B0D1299C}']
-    function CreateByStoreString(const AValue: string; const AShowPrevVersion: Boolean = False): IMapVersionInfo;
-    function CreateByMapVersion(const AValue: IMapVersionInfo; const AShowPrevVersion: Boolean = False): IMapVersionInfo;
-
-    function IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
-  end;
-
   IMapVersionConfig = interface(IConfigDataElement)
     ['{0D710534-C49F-43BC-8092-A0F5ABB5E107}']
     function GetVersionFactory: IMapVersionFactory;

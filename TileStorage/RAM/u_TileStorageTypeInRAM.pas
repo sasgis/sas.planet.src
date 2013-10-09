@@ -26,7 +26,7 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_TileInfoBasicMemCache,
-  i_MapVersionConfig,
+  i_MapVersionFactory,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileStorageTypeConfig,

@@ -3,7 +3,7 @@ unit i_MapVersionFactoryList;
 interface
 
 uses
-  i_MapVersionConfig;
+  i_MapVersionFactory;
 
 type
   IMapVersionFactoryList = interface

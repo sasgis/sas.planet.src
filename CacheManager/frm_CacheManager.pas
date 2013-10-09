@@ -130,7 +130,6 @@ uses
   c_CacheTypeCodes,
   c_CoordConverter,
   i_MapVersionInfo,
-  i_MapVersionConfig,
   i_ContentTypeInfo,
   i_TileFileNameGenerator,
   i_TileFileNameParser,

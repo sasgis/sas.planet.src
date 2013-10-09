@@ -394,6 +394,7 @@ uses
   u_BitmapTileSaveLoadFactory in 'BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas',
   u_BitmapTileFreeImage in 'BitmapTileSaveLoad\u_BitmapTileFreeImage.pas',
   i_MapVersionInfo in 'i_MapVersionInfo.pas',
+  i_MapVersionFactory in 'i_MapVersionFactory.pas',
   i_MapVersionListStatic in 'i_MapVersionListStatic.pas',
   u_MapVersionInfo in 'u_MapVersionInfo.pas',
   u_MapVersionFactorySimpleString in 'u_MapVersionFactorySimpleString.pas',

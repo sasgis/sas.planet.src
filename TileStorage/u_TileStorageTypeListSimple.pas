@@ -28,7 +28,6 @@ uses
   i_ContentTypeManager,
   i_GlobalBerkeleyDBHelper,
   i_SimpleTileStorageConfig,
-  i_MapVersionConfig,
   i_MapVersionFactoryList,
   i_TileStorageTypeConfig,
   i_TileStorageType,

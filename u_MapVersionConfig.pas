@@ -26,6 +26,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapVersionInfo,
+  i_MapVersionFactory,
   i_MapVersionConfig,
   u_ConfigDataElementBase;
 

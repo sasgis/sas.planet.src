@@ -7,7 +7,7 @@ uses
   i_ContentTypeInfo,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
-  i_MapVersionConfig,
+  i_MapVersionFactory,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileInfoBasicMemCache,

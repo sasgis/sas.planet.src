@@ -28,13 +28,13 @@ uses
   libge,
   i_BinaryData,
   i_MapVersionInfo,
+  i_MapVersionFactory,
   i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_BasicMemCache,
   i_CoordConverter,
   i_TileStorage,
-  i_MapVersionConfig,
   i_TileInfoBasicMemCache,
   u_TileStorageAbstract;
 

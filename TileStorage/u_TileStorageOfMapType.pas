@@ -17,6 +17,7 @@ uses
   i_Listener,
   i_MapVersionConfig,
   i_MapVersionInfo,
+  i_MapVersionFactory,
   i_MapVersionListStatic,
   i_TileInfoBasic,
   i_SimpleFlag,

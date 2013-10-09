@@ -4,7 +4,7 @@ interface
 
 uses
   i_MapVersionInfo,
-  i_MapVersionConfig,
+  i_MapVersionFactory,
   u_BaseInterfacedObject;
 
 type
