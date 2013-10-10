@@ -329,7 +329,7 @@ begin
         // notify about current tile
         FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom, FVersion)]), 0);
         // if gtimWithData - tile will be loaded, so we use gtimAsIs
-        VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FMapType.VersionConfig.Version, gtimAsIs);
+        VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
 
         // for attachments need base tile - but even for existing tile some attachments may not exist
         if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
