@@ -62,9 +62,9 @@ uses
   u_GeoToStr;
 
 const
-  cTabFileExt = '.tap';
+  cTabFileExt = '.tab';
   cCoordFmtStr: AnsiString = '%.8f';
-  cPointFmtStr: AnsiString = '  (%s, %s) (%s, %s) Label "Point %d",' + #13#10;
+  cPointFmtStr: AnsiString = '  (%s, %s) (%d, %d) Label "Point %d",' + #13#10;
 
 resourcestring
   rsTabMapCalibrationDescription = 'Calibration for MapInfo programm (*.tab)';
