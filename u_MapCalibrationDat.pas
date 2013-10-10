@@ -31,15 +31,14 @@ uses
 type
   TMapCalibrationDat = class(TBaseInterfacedObject, IMapCalibration)
   private
-    // Имя для вывода в листбоксе для выбора при экспорте.
+    { IMapCalibration }
     function GetName: WideString; safecall;
-    // Более детальное описание привязки
     function GetDescription: WideString; safecall;
-    // Генерирует привязку для склеенной карты.
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
-      const xy1, xy2: TPoint;
-      AZoom: byte;
+      const ATopLeft: TPoint;
+      const ABottomRight: TPoint;
+      const AZoom: Byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;
@@ -66,8 +65,9 @@ end;
 
 procedure TMapCalibrationDat.SaveCalibrationInfo(
   const AFileName: WideString;
-  const xy1, xy2: TPoint;
-  AZoom: byte;
+  const ATopLeft: TPoint;
+  const ABottomRight: TPoint;
+  const AZoom: Byte;
   const AConverter: ICoordConverter
 );
 var
@@ -81,8 +81,8 @@ begin
   try
     VText := '';
     VText := VText + '2' + #13#10;
-    LL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
-    LL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
+    LL1 := AConverter.PixelPos2LonLat(ATopLeft, AZoom);
+    LL2 := AConverter.PixelPos2LonLat(ABottomRight, AZoom);
     VText := VText + R2AnsiStrPoint(LL1.x) + ',' + R2AnsiStrPoint(LL1.y) + #13#10;
     VText := VText + R2AnsiStrPoint(LL2.x) + ',' + R2AnsiStrPoint(LL1.y) + #13#10;
     VText := VText + R2AnsiStrPoint(LL2.x) + ',' + R2AnsiStrPoint(LL2.y) + #13#10;

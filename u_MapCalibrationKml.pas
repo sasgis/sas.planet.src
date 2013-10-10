@@ -31,15 +31,14 @@ uses
 type
   TMapCalibrationKml = class(TBaseInterfacedObject, IMapCalibration)
   private
-    // Имя для вывода в листбоксе для выбора при экспорте.
+    { IMapCalibration }
     function GetName: WideString; safecall;
-    // Более детальное описание привязки
     function GetDescription: WideString; safecall;
-    // Генерирует привязку для склеенной карты.
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
-      const xy1, xy2: TPoint;
-      AZoom: byte;
+      const ATopLeft: TPoint;
+      const ABottomRight: TPoint;
+      const AZoom: Byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;
@@ -66,8 +65,9 @@ end;
 
 procedure TMapCalibrationKml.SaveCalibrationInfo(
   const AFileName: WideString;
-  const xy1, xy2: TPoint;
-  AZoom: byte;
+  const ATopLeft: TPoint;
+  const ABottomRight: TPoint;
+  const AZoom: Byte;
   const AConverter: ICoordConverter
 );
 var
@@ -77,22 +77,28 @@ var
   VFileNameOnly: string;
   VFileStream: TFileStream;
 begin
+  LL1 := AConverter.PixelPos2LonLat(ATopLeft, AZoom);
+  LL2 := AConverter.PixelPos2LonLat(ABottomRight, AZoom);
+
+  VFileNameOnly := ExtractFileName(AFileName);
+
   VFileName := ChangeFileExt(AFileName, '.kml');
+
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
-    VText := '';
-    VFileNameOnly := ExtractFileName(AFileName);
-    VText := ansiToUTF8('<?xml version="1.0" encoding="UTF-8"?>' + #13#10);
-    VText := VText + ansiToUTF8('<kml><GroundOverlay><name>' + VFileNameOnly + '</name><color>88ffffff</color><Icon>' + #13#10);
-    VText := VText + ansiToUTF8('<href>' + VFileNameOnly + '</href>' + #13#10);
-    VText := VText + ansiToUTF8('<viewBoundScale>0.75</viewBoundScale></Icon><LatLonBox>' + #13#10);
-    LL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
-    LL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
-    VText := VText + ansiToUTF8('<north>' + R2StrPoint(LL1.y) + '</north>' + #13#10);
-    VText := VText + ansiToUTF8('<south>' + R2StrPoint(LL2.y) + '</south>' + #13#10);
-    VText := VText + ansiToUTF8('<east>' + R2StrPoint(LL2.x) + '</east>' + #13#10);
-    VText := VText + ansiToUTF8('<west>' + R2StrPoint(LL1.x) + '</west>' + #13#10);
-    VText := VText + ansiToUTF8('</LatLonBox></GroundOverlay></kml>');
+    VText :=
+      UTF8Encode(
+        '<?xml version="1.0" encoding="UTF-8"?>' + #13#10 +
+        '<kml><GroundOverlay><name>' + VFileNameOnly + '</name><color>88ffffff</color><Icon>' + #13#10 +
+        '<href>' + VFileNameOnly + '</href>' + #13#10 +
+        '<viewBoundScale>0.75</viewBoundScale></Icon><LatLonBox>' + #13#10 +
+        '<north>' + R2StrPoint(LL1.y) + '</north>' + #13#10 +
+        '<south>' + R2StrPoint(LL2.y) + '</south>' + #13#10 +
+        '<east>' + R2StrPoint(LL2.x) + '</east>' + #13#10 +
+        '<west>' + R2StrPoint(LL1.x) + '</west>' + #13#10 +
+        '</LatLonBox></GroundOverlay></kml>'
+      );
+
     VFileStream.WriteBuffer(VText[1], Length(VText));
   finally
     VFileStream.Free;

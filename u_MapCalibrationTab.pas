@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  ALfcnString,
   i_CoordConverter,
   i_MapCalibration,
   u_BaseInterfacedObject;
@@ -31,17 +32,25 @@ uses
 type
   TMapCalibrationTab = class(TBaseInterfacedObject, IMapCalibration)
   private
-    // Имя для вывода в листбоксе для выбора при экспорте.
+    FFormatSettings: TALFormatSettings;
+    function PointToStr(
+      const ANumber: Integer;
+      const ALon, ALat: Double;
+      const X, Y: Integer
+    ): AnsiString;
+  private
+    { IMapCalibration }
     function GetName: WideString; safecall;
-    // Более детальное описание привязки
     function GetDescription: WideString; safecall;
-    // Генерирует привязку для склеенной карты.
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
-      const xy1, xy2: TPoint;
-      AZoom: byte;
+      const ATopLeft: TPoint;
+      const ABottomRight: TPoint;
+      const AZoom: Byte;
       const AConverter: ICoordConverter
     ); safecall;
+  public
+    constructor Create;
   end;
 
 implementation
@@ -49,77 +58,95 @@ implementation
 uses
   Classes,
   SysUtils,
-  ALfcnString,
   t_GeoTypes,
   u_GeoToStr;
 
+const
+  cTabFileExt = '.tap';
+  cCoordFmtStr: AnsiString = '%.8f';
+  cPointFmtStr: AnsiString = '  (%s, %s) (%s, %s) Label "Point %d",' + #13#10;
+
+resourcestring
+  rsTabMapCalibrationDescription = 'Calibration for MapInfo programm (*.tab)';
+
 { TMapCalibrationTab }
+
+constructor TMapCalibrationTab.Create;
+begin
+  inherited Create;
+  FFormatSettings.DecimalSeparator := '.';
+end;
 
 function TMapCalibrationTab.GetDescription: WideString;
 begin
-  Result := 'Привязка *.tab';
+  Result := rsTabMapCalibrationDescription;
 end;
 
 function TMapCalibrationTab.GetName: WideString;
 begin
-  Result := '.tab';
+  Result := cTabFileExt;
+end;
+
+function TMapCalibrationTab.PointToStr(
+  const ANumber: Integer;
+  const ALon, ALat: Double;
+  const X, Y: Integer
+): AnsiString;
+var
+  VLon, VLat: AnsiString;
+begin
+  VLon := ALFormat(cCoordFmtStr, [ALon], FFormatSettings);
+  VLat := ALFormat(cCoordFmtStr, [ALat], FFormatSettings);
+  Result := ALFormat(cPointFmtStr, [VLon, VLat, X, Y, ANumber], FFormatSettings);
 end;
 
 procedure TMapCalibrationTab.SaveCalibrationInfo(
   const AFileName: WideString;
-  const xy1, xy2: TPoint;
-  AZoom: byte;
+  const ATopLeft: TPoint;
+  const ABottomRight: TPoint;
+  const AZoom: Byte;
   const AConverter: ICoordConverter
 );
 var
-  xy: TPoint;
-  lat, lon: array[1..3] of Double;
-  VLL1, VLL2: TDoublePoint;
-  VLL: TDoublePoint;
+  VCenter: TPoint;
+  VLL, VLL1, VLL2: TDoublePoint;
   VLocalRect: TRect;
   VFileName: string;
   VFileStream: TFileStream;
   VText: AnsiString;
 begin
-  VFileName := ChangeFileExt(AFileName, '.tab');
+  VCenter.Y := (ABottomRight.Y - ((ABottomRight.Y - ATopLeft.Y) div 2));
+  VCenter.X := (ABottomRight.X - ((ABottomRight.X - ATopLeft.X) div 2));
+
+  VLL1 := AConverter.PixelPos2LonLat(ATopLeft, AZoom);
+  VLL2 := AConverter.PixelPos2LonLat(ABottomRight, AZoom);
+  VLL := AConverter.PixelPos2LonLat(VCenter, AZoom);
+
+  VLocalRect.TopLeft := Point(0, 0);
+  VLocalRect.BottomRight := Point(ABottomRight.X - ATopLeft.X, ABottomRight.Y - ATopLeft.Y);
+
+  VFileName := ChangeFileExt(AFileName, cTabFileExt);
+
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
-    VText := '';
-    VText := VText + '!table' + #13#10;
-    VText := VText + '!version 300' + #13#10;
-    VText := VText + '!charset WindowsCyrillic' + #13#10 + #13#10;
-    VText := VText + 'Definition Table' + #13#10;
-    VText := VText + 'File "' + UTF8Encode(ExtractFileName(AFileName)) + '"' + #13#10;
-    VText := VText + 'Type "RASTER"' + #13#10;
-
-    VLL1 := AConverter.PixelPos2LonLat(xy1, AZoom);
-    VLL2 := AConverter.PixelPos2LonLat(xy2, AZoom);
-    xy.Y := (xy2.y - ((xy2.Y - xy1.Y) div 2));
-    xy.X := (xy2.x - ((xy2.x - xy1.x) div 2));
-    VLL := AConverter.PixelPos2LonLat(xy, AZoom);
-
-    lon[1] := VLL1.X;
-    lat[1] := VLL1.Y;
-    lon[2] := VLL.X;
-    lat[2] := VLL.Y;
-    lon[3] := VLL2.X;
-    lat[3] := VLL2.Y;
-
-    VLocalRect.TopLeft := Point(0, 0);
-    VLocalRect.BottomRight := Point(xy2.X - xy1.X, xy2.y - xy1.y);
-
-    VText := VText + '(' + R2AnsiStrPoint(lon[1]) + ',' + R2AnsiStrPoint(lat[1]) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 1",' + #13#10;
-    VText := VText + '(' + R2AnsiStrPoint(lon[3]) + ',' + R2AnsiStrPoint(lat[3]) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 2",' + #13#10;
-    VText := VText + '(' + R2AnsiStrPoint(lon[1]) + ',' + R2AnsiStrPoint(lat[3]) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 3",' + #13#10;
-    VText := VText + '(' + R2AnsiStrPoint(lon[3]) + ',' + R2AnsiStrPoint(lat[1]) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 4",' + #13#10;
-    VText := VText + '(' + R2AnsiStrPoint(lon[2]) + ',' + R2AnsiStrPoint(lat[2]) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 5",' + #13#10;
-    VText := VText + '(' + R2AnsiStrPoint(lon[2]) + ',' + R2AnsiStrPoint(lat[1]) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr(VLocalRect.Top) + ') Label "Точка 6",' + #13#10;
-    VText := VText + '(' + R2AnsiStrPoint(lon[1]) + ',' + R2AnsiStrPoint(lat[2]) + ') (' + ALinttostr(VLocalRect.Left) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 7",' + #13#10;
-    VText := VText + '(' + R2AnsiStrPoint(lon[3]) + ',' + R2AnsiStrPoint(lat[2]) + ') (' + ALinttostr(VLocalRect.Right) + ', ' + ALinttostr((VLocalRect.Bottom - VLocalRect.Top) div 2) + ') Label "Точка 8",' + #13#10;
-    VText := VText + '(' + R2AnsiStrPoint(lon[2]) + ',' + R2AnsiStrPoint(lat[3]) + ') (' + ALinttostr((VLocalRect.Right - VLocalRect.Left) div 2) + ', ' + ALinttostr(VLocalRect.Bottom) + ') Label "Точка 9"' + #13#10;
-
-    VText := VText + 'CoordSys Earth Projection 1, 104' + #13#10;
-    VText := VText + 'Units "degree"' + #13#10;
+    VText :=
+      '!table' + #13#10 +
+      '!version 300' + #13#10 +
+      '!charset WindowsCyrillic' + #13#10 + #13#10 +
+      'Definition Table' + #13#10 +
+      '  File "' + UTF8Encode(ExtractFileName(AFileName)) + '"' + #13#10 +
+      '  Type "RASTER"' + #13#10 +
+      PointToStr(1, VLL1.X, VLL1.Y, VLocalRect.Left, VLocalRect.Top) +
+      PointToStr(2, VLL2.X, VLL2.Y, VLocalRect.Right, VLocalRect.Bottom) +
+      PointToStr(3, VLL1.X, VLL2.Y, VLocalRect.Left, VLocalRect.Bottom) +
+      PointToStr(4, VLL2.X, VLL1.Y, VLocalRect.Right, VLocalRect.Top) +
+      PointToStr(5, VLL.X, VLL.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +
+      PointToStr(6, VLL.X, VLL1.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Top) +
+      PointToStr(7, VLL1.X, VLL.Y, VLocalRect.Left, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +
+      PointToStr(8, VLL2.X, VLL.Y, VLocalRect.Right, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +
+      PointToStr(9, VLL.X, VLL2.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Bottom) +
+      ' CoordSys Earth Projection 1, 104' + #13#10 +
+      ' Units "degree"' + #13#10;
 
     VFileStream.WriteBuffer(VText[1], Length(VText));
   finally

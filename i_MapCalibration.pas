@@ -36,8 +36,9 @@ type
     // Генерирует привязку для склеенной карты.
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
-      const xy1, xy2: TPoint;
-      AZoom: byte;
+      const ATopLeft: TPoint;
+      const ABottomRight: TPoint;
+      const AZoom: Byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;

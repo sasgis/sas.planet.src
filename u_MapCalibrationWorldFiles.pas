@@ -46,15 +46,14 @@ type
       const AConverter: ICoordConverter
     );
   private
-    // Имя для вывода в листбоксе для выбора при экспорте.
+    { IMapCalibration }
     function GetName: WideString; safecall;
-    // Более детальное описание привязки
     function GetDescription: WideString; safecall;
-    // Генерирует привязку для склеенной карты.
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
-      const xy1, xy2: TPoint;
-      AZoom: byte;
+      const ATopLeft: TPoint;
+      const ABottomRight: TPoint;
+      const AZoom: Byte;
       const AConverter: ICoordConverter
     ); safecall;
   end;
@@ -189,12 +188,13 @@ end;
 
 procedure TMapCalibrationWorldFiles.SaveCalibrationInfo(
   const AFileName: WideString;
-  const xy1, xy2: TPoint;
-  AZoom: byte;
+  const ATopLeft: TPoint;
+  const ABottomRight: TPoint;
+  const AZoom: Byte;
   const AConverter: ICoordConverter
 );
 begin
-  SaveWFile(AFileName, xy1, xy2, AZoom, AConverter);
+  SaveWFile(AFileName, ATopLeft, ABottomRight, AZoom, AConverter);
   SavePrjFile(AFileName, AConverter);
   SaveAuxXmlFile(AFileName, AConverter);
 end;

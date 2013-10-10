@@ -34,12 +34,14 @@ type
   private
     FFormatSettings: TALFormatSettings;
   private
+    { IMapCalibration }
     function GetName: WideString; safecall;
     function GetDescription: WideString; safecall;
     procedure SaveCalibrationInfo(
       const AFileName: WideString;
-      const XY1, XY2: TPoint;
-      AZoom: Byte;
+      const ATopLeft: TPoint;
+      const ABottomRight: TPoint;
+      const AZoom: Byte;
       const AConverter: ICoordConverter
     ); safecall;
   public
@@ -82,8 +84,9 @@ end;
 
 procedure TMapCalibrationOzi.SaveCalibrationInfo(
   const AFileName: WideString;
-  const XY1, XY2: TPoint;
-  AZoom: Byte;
+  const ATopLeft: TPoint;
+  const ABottomRight: TPoint;
+  const AZoom: Byte;
   const AConverter: ICoordConverter
 );
 
@@ -127,7 +130,7 @@ const
   cDegreeToRadCoeff: Double = 0.017453292519943295769236907684886;
 var
   I: Integer;
-  VXY: TPoint;
+  VCenter: TPoint;
   VRadius: Double;
   VFileName: string;
   VLL, VLL1, VLL2: TDoublePoint;
@@ -137,15 +140,15 @@ var
   VMapName: AnsiString;
   VProjection: AnsiString;
 begin
-  VLL1 := AConverter.PixelPos2LonLat(XY1, AZoom);
-  VLL2 := AConverter.PixelPos2LonLat(XY2, AZoom);
+  VLL1 := AConverter.PixelPos2LonLat(ATopLeft, AZoom);
+  VLL2 := AConverter.PixelPos2LonLat(ABottomRight, AZoom);
 
-  VXY.Y := (XY2.y - ((XY2.Y - XY1.Y) div 2));
-  VXY.X := (XY2.x - ((XY2.x - XY1.x) div 2));
-  VLL := AConverter.PixelPos2LonLat(VXY, AZoom);
+  VCenter.Y := (ABottomRight.Y - ((ABottomRight.Y - ATopLeft.Y) div 2));
+  VCenter.X := (ABottomRight.X - ((ABottomRight.X - ATopLeft.X) div 2));
+  VLL := AConverter.PixelPos2LonLat(VCenter, AZoom);
 
   VLocalRect.TopLeft := Point(0, 0);
-  VLocalRect.BottomRight := Point(XY2.X - XY1.X, XY2.y - XY1.y);
+  VLocalRect.BottomRight := Point(ABottomRight.X - ATopLeft.X, ABottomRight.Y - ATopLeft.Y);
 
   VRadius := AConverter.Datum.GetSpheroidRadiusA;
 
