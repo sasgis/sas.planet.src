@@ -179,6 +179,7 @@ implementation
 uses
   gnugettext,
   t_GeoTypes,
+  i_MapVersionInfo,
   i_InterfaceListSimple,
   i_VectorItemProjected,
   i_CoordConverter,
@@ -409,16 +410,22 @@ function TfrMapCombine.GetProvider: IBitmapLayerProvider;
 var
   VMap: TMapType;
   VLayer: TMapType;
+  VLayerVersion: IMapVersionInfo;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
   VLayer := FfrLayerSelect.GetSelectedMapType;
+  if Assigned(VLayer) then begin
+    VLayerVersion := VLayer.VersionConfig.Version;
+  end else begin
+    VLayerVersion := nil;
+  end;
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmapFactory,
       VMap,
       VMap.VersionConfig.Version,
       VLayer,
-      VLayer.VersionConfig.Version,
+      VLayerVersion,
       FUseTilePrevZoomConfig.UsePrevZoomAtMap,
       FUseTilePrevZoomConfig.UsePrevZoomAtLayer
     );
