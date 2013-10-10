@@ -31,6 +31,8 @@ uses
 type
   TMapCalibrationWorldFiles = class(TBaseInterfacedObject, IMapCalibration)
   private
+    FUseShortExt: Boolean;
+  private
     procedure SavePrjFile(
       const AFileName: WideString;
       const AConverter: ICoordConverter
@@ -45,6 +47,7 @@ type
       AZoom: byte;
       const AConverter: ICoordConverter
     );
+    function GetWorldFileExt(const AFileName: WideString): string;
   private
     { IMapCalibration }
     function GetName: WideString; safecall;
@@ -56,6 +59,8 @@ type
       const AZoom: Byte;
       const AConverter: ICoordConverter
     ); safecall;
+  public
+    constructor Create(const AUseShortExt: Boolean = False);
   end;
 
 implementation
@@ -156,6 +161,12 @@ end;
 
 { TMapCalibrationWorldFiles }
 
+constructor TMapCalibrationWorldFiles.Create(const AUseShortExt: Boolean);
+begin
+  inherited Create;
+  FUseShortExt := AUseShortExt;
+end;
+
 function TMapCalibrationWorldFiles.GetDescription: WideString;
 begin
   Result := 'Привязка при помощи World файла и файлов с описанием проекции';
@@ -163,7 +174,11 @@ end;
 
 function TMapCalibrationWorldFiles.GetName: WideString;
 begin
-  Result := '.w';
+  if FUseShortExt then begin
+    Result := '.w (short ext.)';
+  end else begin
+    Result := '.w';
+  end;
 end;
 
 procedure TMapCalibrationWorldFiles.SaveAuxXmlFile(
@@ -218,6 +233,22 @@ begin
   end;
 end;
 
+function TMapCalibrationWorldFiles.GetWorldFileExt(const AFileName: WideString): string;
+var
+  VExt: string;
+begin
+  if FUseShortExt then begin
+    VExt := ExtractFileExt(AFileName);
+    if Length(VExt) > 3 then begin
+      Result := '.' + VExt[2] + VExt[Length(VExt)] + 'w';
+    end else begin
+      Result := VExt + 'w';
+    end;
+  end else begin
+    Result := ExtractFileExt(AFileName) + 'w';
+  end;
+end;
+
 procedure TMapCalibrationWorldFiles.SaveWFile(
   const AFileName: WideString;
   const xy1, xy2: TPoint;
@@ -231,7 +262,7 @@ var
   VFileName: string;
   VFileStream: TFileStream;
 begin
-  VFileName := AFileName + 'w';
+  VFileName := ChangeFileExt(AFileName, GetWorldFileExt(AFileName));
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
     ll1 := AConverter.PixelPos2LonLat(xy1, AZoom);

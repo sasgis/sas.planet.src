@@ -90,6 +90,7 @@ begin
   VList.Add(IMapCalibration(TMapCalibrationKml.Create));
   VList.Add(IMapCalibration(TMapCalibrationTab.Create));
   VList.Add(IMapCalibration(TMapCalibrationWorldFiles.Create));
+  VList.Add(IMapCalibration(TMapCalibrationWorldFiles.Create(True)));
   inherited Create(VList.MakeStaticAndClear);
 end;
 
