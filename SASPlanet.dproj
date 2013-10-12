@@ -1094,6 +1094,7 @@
     <DCCReference Include="u_MapTypeSetChangeableSimple.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapVersionConfig.pas" />
+    <DCCReference Include="u_MapVersionFactoryChangeable.pas" />
     <DCCReference Include="u_MapVersionFactoryGE.pas" />
     <DCCReference Include="u_MapVersionFactorySimpleString.pas" />
     <DCCReference Include="u_MapVersionInfo.pas" />
