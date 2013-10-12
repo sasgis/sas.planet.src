@@ -394,8 +394,11 @@ end;
 
 function TXmlVectorObjects.GetVectorDataItemsResult: IVectorItemSubset;
 begin
-  Result := FVectorDataItemsResultBuilder.MakeStaticAndClear;
-  FVectorDataItemsResultBuilder := nil;
+  Result := nil;
+  if Assigned(FVectorDataItemsResultBuilder) then begin
+    Result := FVectorDataItemsResultBuilder.MakeStaticAndClear;
+    FVectorDataItemsResultBuilder := nil;
+  end;
 end;
 
 procedure TXmlVectorObjects.InternalAddPoint(const APoint: TDoublePoint);
