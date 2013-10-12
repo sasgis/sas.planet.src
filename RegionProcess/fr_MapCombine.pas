@@ -409,10 +409,16 @@ end;
 function TfrMapCombine.GetProvider: IBitmapLayerProvider;
 var
   VMap: TMapType;
+  VMapVersion: IMapVersionInfo;
   VLayer: TMapType;
   VLayerVersion: IMapVersionInfo;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
+  if Assigned(VMap) then begin
+    VMapVersion := VMap.VersionConfig.Version;
+  end else begin
+    VMapVersion := nil;
+  end;
   VLayer := FfrLayerSelect.GetSelectedMapType;
   if Assigned(VLayer) then begin
     VLayerVersion := VLayer.VersionConfig.Version;
@@ -423,7 +429,7 @@ begin
     TBitmapLayerProviderMapWithLayer.Create(
       FBitmapFactory,
       VMap,
-      VMap.VersionConfig.Version,
+      VMapVersion,
       VLayer,
       VLayerVersion,
       FUseTilePrevZoomConfig.UsePrevZoomAtMap,
