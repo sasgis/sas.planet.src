@@ -299,7 +299,7 @@
     <DCCReference Include="i_MapAbilitiesConfig.pas" />
     <DCCReference Include="i_MapAttachmentsFactory.pas" />
     <DCCReference Include="i_MapAttachmentsInfo.pas" />
-    <DCCReference Include="i_MapCalibration.pas" />
+    <DCCReference Include="MapCalibration\i_MapCalibration.pas" />
     <DCCReference Include="i_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="i_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
@@ -1067,12 +1067,12 @@
     <DCCReference Include="u_MapAbilitiesConfigStatic.pas" />
     <DCCReference Include="u_MapAttachmentsInfo.pas" />
     <DCCReference Include="u_MapAttachmentsPascalScript.pas" />
-    <DCCReference Include="u_MapCalibrationDat.pas" />
-    <DCCReference Include="u_MapCalibrationKml.pas" />
-    <DCCReference Include="u_MapCalibrationListBasic.pas" />
-    <DCCReference Include="u_MapCalibrationOzi.pas" />
-    <DCCReference Include="u_MapCalibrationTab.pas" />
-    <DCCReference Include="u_MapCalibrationWorldFiles.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationDat.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationKml.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationListBasic.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationOzi.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationTab.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="u_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="u_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="u_MapLayerGridsConfig.pas" />
