@@ -187,6 +187,7 @@ type
     function GetSelectedMarkId: IMarkId;
     function GetSelectedMarkFull: IMark;
     function GetSelectedMarksIdList: IInterfaceListStatic;
+    procedure WMGetMinMaxInfo(var Msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
@@ -1052,6 +1053,13 @@ begin
   if Self.WindowState = wsNormal then begin
     FWindowConfig.SetWindowPosition(BoundsRect);
   end;
+end;
+
+procedure TfrmMarksExplorer.WMGetMinMaxInfo(var Msg: TWMGetMinMaxInfo);
+begin
+  inherited;
+  Msg.MinMaxInfo.ptMinTrackSize.X := 406;
+  Msg.MinMaxInfo.ptMinTrackSize.Y := 309;
 end;
 
 procedure TfrmMarksExplorer.FormShow(Sender: TObject);

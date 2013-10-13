@@ -5,8 +5,6 @@ object frmMarksExplorer: TfrmMarksExplorer
   ClientHeight = 483
   ClientWidth = 545
   Color = clBtnFace
-  Constraints.MinHeight = 309
-  Constraints.MinWidth = 406
   ParentFont = True
   OldCreateOrder = False
   PopupMode = pmExplicit
