@@ -2529,6 +2529,7 @@ end;
 procedure TfrmMain.OnStateChange;
 var
   VNewState: TStateEnum;
+  VConfig: IPointCaptionsLayerConfig;
 begin
   VNewState := FState.State;
   if VNewState <> ao_select_rect then begin
@@ -2555,7 +2556,29 @@ begin
   TBEditPathOk.Visible :=
     (VNewState=ao_select_poly)or
     (VNewState=ao_select_line);
+
   TBEditPathLabel.Visible := (VNewState=ao_calc_line) or (VNewState=ao_edit_line);
+  case VNewState of
+    ao_calc_line: begin
+      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
+      VConfig.LockRead;
+      try
+        TBEditPathLabel.Checked := not VConfig.ShowLastPointOnly;
+      finally
+        VConfig.UnlockRead;
+      end;
+    end;
+    ao_edit_line: begin
+      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
+      VConfig.LockRead;
+      try
+        TBEditPathLabel.Checked := VConfig.Visible;
+      finally
+        VConfig.UnlockRead;
+      end;
+    end;
+  end;
+
   TBEditPathMarsh.Visible := (VNewState=ao_edit_line);
   TBEditMagnetDraw.Visible :=
     (VNewState=ao_edit_line)or
@@ -5726,7 +5749,7 @@ begin
       VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
       VConfig.LockWrite;
       try
-        VConfig.Visible := not VConfig.Visible;
+        VConfig.Visible := (Sender as TTBXItem).Checked;
       finally
         VConfig.UnlockWrite;
       end;
@@ -5735,7 +5758,7 @@ begin
       VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
       VConfig.LockWrite;
       try
-        VConfig.ShowLastPointOnly := not VConfig.ShowLastPointOnly;
+        VConfig.ShowLastPointOnly := not (Sender as TTBXItem).Checked;
       finally
         VConfig.UnlockWrite;
       end;

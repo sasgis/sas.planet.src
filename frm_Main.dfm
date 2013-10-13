@@ -1543,6 +1543,8 @@ object frmMain: TfrmMain
         Hint = 'Delete Point'
       end
       object TBEditPathLabel: TTBXItem
+        AutoCheck = True
+        Checked = True
         ImageIndex = 37
         Images = MenusImageList
         OnClick = TBEditPathLabelClick
