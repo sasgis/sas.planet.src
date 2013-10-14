@@ -339,50 +339,52 @@ var
 begin
   VCategory := AImportConfig.RootCategory;
 
-  for i := 0 to ADataItemTree.Items.Count - 1 do begin
-    VMark := nil;
-    VItem := ADataItemTree.Items.Items[i];
-    VName := VItem.Name;
-    if (VName = '') and (ADataItemTree.Name <> '') then begin
-      if ADataItemTree.Items.Count > 1 then begin
-        VName := ADataItemTree.Name + '-' + IntToStr(i + 1);
+  if Assigned(ADataItemTree.Items) then begin
+    for i := 0 to ADataItemTree.Items.Count - 1 do begin
+      VMark := nil;
+      VItem := ADataItemTree.Items.Items[i];
+      VName := VItem.Name;
+      if (VName = '') and (ADataItemTree.Name <> '') then begin
+        if ADataItemTree.Items.Count > 1 then begin
+          VName := ADataItemTree.Name + '-' + IntToStr(i + 1);
+        end else begin
+          VName := ADataItemTree.Name;
+        end;
       end else begin
-        VName := ADataItemTree.Name;
-      end;
-    end else begin
-      if AImportConfig.CategoryParams.IsIgnoreMarkIfExistsWithSameNameInCategory then begin
-        if FMarkDb.GetMarkByName(VName, VCategory) <> nil then begin
-          Continue;
+        if AImportConfig.CategoryParams.IsIgnoreMarkIfExistsWithSameNameInCategory then begin
+          if FMarkDb.GetMarkByName(VName, VCategory) <> nil then begin
+            Continue;
+          end;
         end;
       end;
-    end;
-    if Supports(VItem, IVectorDataItemPoint, VPoint) then begin
-      VMark :=
-        FMarkDb.Factory.PreparePoint(
-          VPoint,
-          VName,
-          AImportConfig.PointParams,
-          VCategory
-        );
-    end else if Supports(VItem, IVectorDataItemLine, VLine) then begin
-      VMark :=
-        FMarkDb.Factory.PrepareLine(
-          VLine,
-          VName,
-          AImportConfig.LineParams,
-          VCategory
-        );
-    end else if Supports(VItem, IVectorDataItemPoly, VPoly) then begin
-      VMark :=
-        FMarkDb.Factory.PreparePoly(
-          VPoly,
-          VName,
-          AImportConfig.PolyParams,
-          VCategory
-        );
-    end;
-    if VMark <> nil then begin
-      AMarkList.Add(VMark);
+      if Supports(VItem, IVectorDataItemPoint, VPoint) then begin
+        VMark :=
+          FMarkDb.Factory.PreparePoint(
+            VPoint,
+            VName,
+            AImportConfig.PointParams,
+            VCategory
+          );
+      end else if Supports(VItem, IVectorDataItemLine, VLine) then begin
+        VMark :=
+          FMarkDb.Factory.PrepareLine(
+            VLine,
+            VName,
+            AImportConfig.LineParams,
+            VCategory
+          );
+      end else if Supports(VItem, IVectorDataItemPoly, VPoly) then begin
+        VMark :=
+          FMarkDb.Factory.PreparePoly(
+            VPoly,
+            VName,
+            AImportConfig.PolyParams,
+            VCategory
+          );
+      end;
+      if VMark <> nil then begin
+        AMarkList.Add(VMark);
+      end;
     end;
   end;
   for i := 0 to ADataItemTree.SubTreeItemCount - 1 do begin
