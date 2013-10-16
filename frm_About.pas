@@ -116,7 +116,6 @@ end;
 procedure TfrmAbout.FormCreate(Sender: TObject);
 var
   VBuildDate: TDateTime;
-  VBitmapSize: TPoint;
   VBitmapStatic: IBitmap32Static;
 begin
   VBuildDate := GetBuildDateTime;
@@ -133,19 +132,8 @@ begin
 
   if VBitmapStatic <> nil then begin
     AssignStaticToBitmap32(imgLogo.Bitmap, VBitmapStatic);
+    imgLogo.Bitmap.SetSize(64, 64);
   end;
-
-  VBitmapSize.X := imgLogo.Bitmap.Width;
-  VBitmapSize.Y := imgLogo.Bitmap.Height;
-
-  if VBitmapSize.X <> 64 then begin
-    VBitmapSize.X := 64;
-  end;
-  if VBitmapSize.Y <> 64 then begin
-    VBitmapSize.Y := 64;
-  end;
-
-  imgLogo.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
 end;
 
 procedure TfrmAbout.lblWebSiteClick(Sender: TObject);
