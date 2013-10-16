@@ -163,7 +163,7 @@ object frmAbout: TfrmAbout
     end
     object btnLicense: TButton
       Left = 8
-      Top = 3
+      Top = 2
       Width = 130
       Height = 25
       Align = alCustom
