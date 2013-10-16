@@ -184,7 +184,7 @@ object frmAbout: TfrmAbout
     Bitmap.ResamplerClassName = 'TNearestResampler'
     BitmapAlign = baTopLeft
     Scale = 1.000000000000000000
-    ScaleMode = smNormal
+    ScaleMode = smResize
     TabOrder = 1
   end
 end

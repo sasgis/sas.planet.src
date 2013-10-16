@@ -132,7 +132,6 @@ begin
 
   if VBitmapStatic <> nil then begin
     AssignStaticToBitmap32(imgLogo.Bitmap, VBitmapStatic);
-    imgLogo.Bitmap.SetSize(64, 64);
   end;
 end;
 
