@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -28,6 +28,7 @@ uses
   Controls,
   StdCtrls,
   ExtCtrls,
+  GR32_Image,
   u_CommonFormAndFrameParents;
 
 type
@@ -35,48 +36,84 @@ type
     Bevel1: TBevel;
     btnClose: TButton;
     lblVersionCatpion: TLabel;
-    lblWebSiteCaption: TLabel;
-    lblEMailCaption: TLabel;
     lblProgramName: TLabel;
     lblVersion: TLabel;
-    lblEMail: TLabel;
     lblWebSite: TLabel;
     pnlBottom: TPanel;
-    Label1: TLabel;
+    lblCopyright: TLabel;
+    lblLicense: TLabel;
+    imgLogo1: TImage32;
+    lblCompiler: TLabel;
+    lblTimeStamp: TLabel;
+    lblBuildInfo: TLabel;
+    lblBuildTimeValue: TLabel;
+    lblBuildInfoValue: TLabel;
+    lblCompilerValue: TLabel;
+    btnLicense: TButton;
     procedure btnCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure lblWebSiteClick(Sender: TObject);
-    procedure lblEMailClick(Sender: TObject);
-  private
-  public
+    procedure btnLicenseClick(Sender: TObject);
   end;
 
 implementation
 
 uses
-  c_SasVersion,
+  SysUtils,
+  ExeInfo,
   u_InetFunc;
+
+const
+  cHomePage = 'http://sasgis.ru/';
+
+resourcestring
+  rsDevelopmentTeam = 'SAS.Planet Development Team';
 
 {$R *.dfm}
 
-procedure TfrmAbout.btnCloseClick(Sender: TObject);
+function GetCompilerInfoStr: string;
 begin
-  Close;
+  {$IFDEF VER185} Result := 'CodeGear' + #153 +' Delphi' + #174 + ' 2007'; {$ENDIF}
+  {$IFDEF VER230} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE2'; {$ENDIF}
+end;
+
+function GetUnicodeInfoStr: string;
+begin
+  {$IF CompilerVersion < 190}
+    Result := 'Non-Unicode';
+  {$ELSE}
+    Result := 'Unicode';
+  {$IFEND}
 end;
 
 procedure TfrmAbout.FormCreate(Sender: TObject);
+var
+  VBuildDate: TDateTime;
 begin
- lblVersion.Caption:=SASVersion;
+  VBuildDate := GetBuildDateTime;
+
+  lblCopyright.Caption := 'Copyright ' + #169 + ' 2007-' + FormatDateTime('yyyy', VBuildDate) + ', ' + rsDevelopmentTeam;
+  lblWebSite.Caption := cHomePage;
+
+  lblVersion.Caption := GetBuildVersionInfo;
+  lblBuildTimeValue.Caption := FormatDateTime('yyyy-mm-dd hh:mm:ss', VBuildDate) + ' UTC';
+  lblBuildInfoValue.Caption := 'Windows, 32-bit, ' + GetUnicodeInfoStr {$IFDEF DEBUG} + ', Debug'{$ENDIF};
+  lblCompilerValue.Caption := GetCompilerInfoStr;
 end;
 
 procedure TfrmAbout.lblWebSiteClick(Sender: TObject);
 begin
-  OpenUrlInBrowser('http://sasgis.ru');
+  OpenUrlInBrowser(cHomePage);
 end;
 
-procedure TfrmAbout.lblEMailClick(Sender: TObject);
+procedure TfrmAbout.btnLicenseClick(Sender: TObject);
 begin
-  OpenUrlInBrowser('mailto:'+lblEMail.Caption);
+  OpenUrlInBrowser('http://www.gnu.org/licenses/gpl.html');
+end;
+
+procedure TfrmAbout.btnCloseClick(Sender: TObject);
+begin
+  Close;
 end;
 
 end.
