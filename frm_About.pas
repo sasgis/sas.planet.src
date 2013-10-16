@@ -23,12 +23,16 @@ unit frm_About;
 interface
 
 uses
+  Types,
   Forms,
   Classes,
   Controls,
   StdCtrls,
   ExtCtrls,
   GR32_Image,
+  i_ContentTypeManager,
+  i_ConfigDataProvider,
+  i_LanguageManager,
   u_CommonFormAndFrameParents;
 
 type
@@ -42,7 +46,7 @@ type
     pnlBottom: TPanel;
     lblCopyright: TLabel;
     lblLicense: TLabel;
-    imgLogo1: TImage32;
+    imgLogo: TImage32;
     lblCompiler: TLabel;
     lblTimeStamp: TLabel;
     lblBuildInfo: TLabel;
@@ -54,6 +58,15 @@ type
     procedure FormCreate(Sender: TObject);
     procedure lblWebSiteClick(Sender: TObject);
     procedure btnLicenseClick(Sender: TObject);
+  private
+    FContentTypeManager: IContentTypeManager;
+    FConfigData: IConfigDataProvider;
+  public
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const AContentTypeManager: IContentTypeManager;
+      const AConfigData: IConfigDataProvider
+    ); reintroduce;
   end;
 
 implementation
@@ -61,6 +74,9 @@ implementation
 uses
   SysUtils,
   ExeInfo,
+  i_Bitmap32Static,
+  u_ConfigProviderHelpers,
+  u_BitmapFunc,
   u_InetFunc;
 
 const
@@ -86,9 +102,22 @@ begin
   {$IFEND}
 end;
 
+constructor TfrmAbout.Create(
+  const ALanguageManager: ILanguageManager;
+  const AContentTypeManager: IContentTypeManager;
+  const AConfigData: IConfigDataProvider
+);
+begin
+  inherited Create(ALanguageManager);
+  FContentTypeManager := AContentTypeManager;
+  FConfigData := AConfigData;
+end;
+
 procedure TfrmAbout.FormCreate(Sender: TObject);
 var
   VBuildDate: TDateTime;
+  VBitmapSize: TPoint;
+  VBitmapStatic: IBitmap32Static;
 begin
   VBuildDate := GetBuildDateTime;
 
@@ -99,6 +128,24 @@ begin
   lblBuildTimeValue.Caption := FormatDateTime('yyyy-mm-dd hh:mm:ss', VBuildDate) + ' UTC';
   lblBuildInfoValue.Caption := 'Windows, 32-bit, ' + GetUnicodeInfoStr {$IFDEF DEBUG} + ', Debug'{$ENDIF};
   lblCompilerValue.Caption := GetCompilerInfoStr;
+
+  VBitmapStatic := ReadBitmapByFileRef(FConfigData, 'sas:\Resource\ABOUTICON.png', FContentTypeManager, nil);
+
+  if VBitmapStatic <> nil then begin
+    AssignStaticToBitmap32(imgLogo.Bitmap, VBitmapStatic);
+  end;
+
+  VBitmapSize.X := imgLogo.Bitmap.Width;
+  VBitmapSize.Y := imgLogo.Bitmap.Height;
+
+  if VBitmapSize.X <> 64 then begin
+    VBitmapSize.X := 64;
+  end;
+  if VBitmapSize.Y <> 64 then begin
+    VBitmapSize.Y := 64;
+  end;
+
+  imgLogo.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
 end;
 
 procedure TfrmAbout.lblWebSiteClick(Sender: TObject);

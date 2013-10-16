@@ -1,3 +1,4 @@
+ABOUTICON RCDATA "icon64.png"
 MAINICON ICON "icon128.ico"
 2 ICON "icon64.ico"
 3 ICON "icon48.ico"

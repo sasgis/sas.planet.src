@@ -4161,7 +4161,11 @@ end;
 procedure TfrmMain.tbitmAboutClick(Sender: TObject);
 begin
   if FfrmAbout = nil then begin
-    FfrmAbout := TfrmAbout.Create(GState.Config.LanguageManager);
+    FfrmAbout := TfrmAbout.Create(
+      GState.Config.LanguageManager,
+      GState.ContentTypeManager,
+      GState.MainConfigProvider
+    );
   end;
   FfrmAbout.ShowModal;
 end;
