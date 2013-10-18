@@ -25,13 +25,21 @@ type
 
     FRectIsEmpty: Boolean;
     FLonLatRect: TDoubleRect;
-    FPoints: array of TGPSTrackPoint;
-    FPointsCount: Integer;
+
+    FPointsLonLat: array of TGPSTrackPoint;
+    FPointsLonLatCount: Integer;
+
+    FPreparedProjection: IProjectionInfo;
+    FPointsProjected: array of TGPSTrackPoint;
+    FPointsProjectedCount: Integer;
+
     FPolygon: TPolygon32;
-    procedure PrepareProjectedPointsByEnum(
+    procedure PrepareLonLatPointsByEnum(
       AMaxPointsCount: Integer;
-      const AProjection: IProjectionInfo;
       const AEnum: IEnumGPSTrackPoint
+    );
+    procedure PrepareProjectedPoints(
+      const AProjection: IProjectionInfo
     );
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
@@ -65,7 +73,6 @@ type
       const ALineWidth: Double;
       const ATrackColorer: ITrackColorerStatic;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AProjection: IProjectionInfo;
       const AEnum: IEnumGPSTrackPoint
     );
     destructor Destroy; override;
@@ -86,7 +93,6 @@ constructor TBitmapLayerProviderByTrackPath.Create(
   const ALineWidth: Double;
   const ATrackColorer: ITrackColorerStatic;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AProjection: IProjectionInfo;
   const AEnum: IEnumGPSTrackPoint
 );
 begin
@@ -96,7 +102,10 @@ begin
   FBitmapFactory := ABitmapFactory;
   Assert(FLineWidth >= 0);
   Assert(FTrackColorer <> nil);
-  PrepareProjectedPointsByEnum(AMaxPointsCount, AProjection, AEnum);
+  SetLength(FPointsLonLat, AMaxPointsCount);
+  SetLength(FPointsProjected, AMaxPointsCount);
+
+  PrepareLonLatPointsByEnum(AMaxPointsCount, AEnum);
 
   FPolygon := TPolygon32.Create;
   FPolygon.Antialiased := true;
@@ -167,7 +176,7 @@ begin
 
   VPointCurrCode := 0;
   VPointPrevCode := 0;
-  VPointPrev := FPoints[APointsCount - 1].Point;
+  VPointPrev := FPointsProjected[APointsCount - 1].Point;
   VPointPrevIsEmpty := PointIsEmpty(VPointPrev);
   if not VPointPrevIsEmpty then begin
     VPointPrevCode := GetCode(VMapPixelRect, VPointPrev);
@@ -177,7 +186,7 @@ begin
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Break;
     end;
-    VPointCurr := FPoints[i].Point;
+    VPointCurr := FPointsProjected[i].Point;
     VPointCurrIsEmpty := PointIsEmpty(VPointCurr);
     if not VPointCurrIsEmpty then begin
       VPointCurrCode := GetCode(VMapPixelRect, VPointCurr);
@@ -188,7 +197,7 @@ begin
             InitBitmap(ATargetBmp, ALocalConverter);
             Result := True;
           end;
-          DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrevLocal, VPointCurrLocal, FPoints[i].Speed);
+          DrawSection(ATargetBmp, ATrackColorer, ALineWidth, VPointPrevLocal, VPointCurrLocal, FPointsProjected[i].Speed);
         end;
       end;
     end;
@@ -255,6 +264,9 @@ begin
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
       VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
       try
+        if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(FPreparedProjection) then begin
+          PrepareProjectedPoints(ALocalConverter.ProjectionInfo);
+        end;
         if
           DrawPath(
             AOperationID,
@@ -263,7 +275,7 @@ begin
             ALocalConverter,
             FTrackColorer,
             FLineWidth,
-            FPointsCount
+            FPointsProjectedCount
           )
         then begin
           Result := VBitmap.BitmapStatic;
@@ -286,10 +298,53 @@ begin
   ATargetBmp.CombineMode := cmMerge;
 end;
 
-procedure TBitmapLayerProviderByTrackPath.PrepareProjectedPointsByEnum(
+procedure TBitmapLayerProviderByTrackPath.PrepareLonLatPointsByEnum(
   AMaxPointsCount: Integer;
-  const AProjection: IProjectionInfo;
   const AEnum: IEnumGPSTrackPoint
+);
+var
+  i: Integer;
+  VIndex: Integer;
+  VPoint: TGPSTrackPoint;
+  VCurrPointIsEmpty: Boolean;
+  VPrevPointIsEmpty: Boolean;
+  VCurrPoint: TDoublePoint;
+  VPrevPoint: TDoublePoint;
+begin
+  FRectIsEmpty := True;
+  FPointsLonLatCount := 0;
+  i := 0;
+  VPrevPointIsEmpty := True;
+  while (i < AMaxPointsCount) and AEnum.Next(VPoint) do begin
+    VCurrPointIsEmpty := PointIsEmpty(VPoint.Point);
+    if not VCurrPointIsEmpty then begin
+      if FRectIsEmpty then begin
+        FLonLatRect.TopLeft := VPoint.Point;
+        FLonLatRect.BottomRight := VPoint.Point;
+        FRectIsEmpty := False;
+      end else begin
+        if FLonLatRect.Left > VPoint.Point.X then begin
+          FLonLatRect.Left := VPoint.Point.X;
+        end;
+        if FLonLatRect.Top < VPoint.Point.Y then begin
+          FLonLatRect.Top := VPoint.Point.Y;
+        end;
+        if FLonLatRect.Right < VPoint.Point.X then begin
+          FLonLatRect.Right := VPoint.Point.X;
+        end;
+        if FLonLatRect.Bottom > VPoint.Point.Y then begin
+          FLonLatRect.Bottom := VPoint.Point.Y;
+        end;
+      end;
+    end;
+    FPointsLonLat[i] := VPoint;
+    Inc(i);
+  end;
+  FPointsLonLatCount := i;
+end;
+
+procedure TBitmapLayerProviderByTrackPath.PrepareProjectedPoints(
+  const AProjection: IProjectionInfo
 );
 var
   i: Integer;
@@ -302,17 +357,15 @@ var
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
 begin
-  FRectIsEmpty := True;
-  FPointsCount := 0;
-  if Length(FPoints) < AMaxPointsCount then begin
-    SetLength(FPoints, AMaxPointsCount);
-  end;
+  FPointsProjectedCount := 0;
+  FPreparedProjection := AProjection;
   VGeoConverter := AProjection.GeoConverter;
   VZoom := AProjection.Zoom;
   i := 0;
   VIndex := 0;
   VPrevPointIsEmpty := True;
-  while (i < AMaxPointsCount) and AEnum.Next(VPoint) do begin
+  while (i < FPointsLonLatCount) do begin
+    VPoint := FPointsLonLat[i];
     VCurrPointIsEmpty := PointIsEmpty(VPoint.Point);
     if not VCurrPointIsEmpty then begin
       VGeoConverter.CheckLonLatPos(VPoint.Point);
@@ -340,21 +393,21 @@ begin
     VCurrPoint := VPoint.Point;
     if VCurrPointIsEmpty then begin
       if not VPrevPointIsEmpty then begin
-        FPoints[VIndex] := VPoint;
+        FPointsProjected[VIndex] := VPoint;
         Inc(VIndex);
         VPrevPointIsEmpty := VCurrPointIsEmpty;
         VPrevPoint := VCurrPoint;
       end;
     end else begin
       if VPrevPointIsEmpty then begin
-        FPoints[VIndex] := VPoint;
+        FPointsProjected[VIndex] := VPoint;
         Inc(VIndex);
         VPrevPointIsEmpty := VCurrPointIsEmpty;
         VPrevPoint := VCurrPoint;
       end else begin
         if (abs(VPrevPoint.X - VCurrPoint.X) > 2) or
           (abs(VPrevPoint.Y - VCurrPoint.Y) > 2) then begin
-          FPoints[VIndex] := VPoint;
+          FPointsProjected[VIndex] := VPoint;
           Inc(VIndex);
           VPrevPointIsEmpty := VCurrPointIsEmpty;
           VPrevPoint := VCurrPoint;
@@ -363,7 +416,7 @@ begin
     end;
     Inc(i);
   end;
-  FPointsCount := VIndex;
+  FPointsProjectedCount := VIndex;
 end;
 
 end.

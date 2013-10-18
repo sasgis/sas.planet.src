@@ -99,7 +99,7 @@ begin
     AView,
     VTileMatrixFactory,
     ATimerNoifier,
-    True,
+    False,
     AConfig.ThreadConfig
   );
   FGPSRecorder := AGpsTrackRecorder;
@@ -158,7 +158,6 @@ begin
         VLineWidth,
         VTrackColorer,
         FBitmapFactory,
-        ALayerConverter.ProjectionInfo,
         VEnum
       );
   end;
