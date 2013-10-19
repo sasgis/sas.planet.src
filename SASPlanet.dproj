@@ -205,6 +205,7 @@
     <DCCReference Include="i_Bitmap32StaticFactory.pas" />
     <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapLayerProvider.pas" />
+    <DCCReference Include="i_BitmapLayerProviderChangeable.pas" />
     <DCCReference Include="i_BitmapMarker.pas" />
     <DCCReference Include="i_BitmapPostProcessing.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
