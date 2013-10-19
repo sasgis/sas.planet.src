@@ -273,7 +273,6 @@ begin
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
         FBitmapFactory,
-        AProjectedPolygon.Projection,
         FProjectedGeometryProvider,
         VMarkerProvider,
         VMarksSubset

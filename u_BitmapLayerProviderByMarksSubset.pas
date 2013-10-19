@@ -48,7 +48,6 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IVectorItemSubset;
-    FProjectionInfo: IProjectionInfo;
     FProjectedCache: IProjectedGeometryProvider;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
@@ -93,7 +92,6 @@ type
     constructor Create(
       const AConfig: IMarksDrawConfigStatic;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AProjectionInfo: IProjectionInfo;
       const AProjectedCache: IProjectedGeometryProvider;
       const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
       const AMarksSubset: IVectorItemSubset
@@ -126,7 +124,6 @@ const
 constructor TBitmapLayerProviderByMarksSubset.Create(
   const AConfig: IMarksDrawConfigStatic;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AProjectionInfo: IProjectionInfo;
   const AProjectedCache: IProjectedGeometryProvider;
   const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
   const AMarksSubset: IVectorItemSubset
@@ -135,7 +132,6 @@ begin
   inherited Create;
   FConfig := AConfig;
   FBitmapFactory := ABitmapFactory;
-  FProjectionInfo := AProjectionInfo;
   FMarksSubset := AMarksSubset;
   FProjectedCache := AProjectedCache;
   FMarkerProviderForVectorItem := AMarkerProviderForVectorItem;
@@ -165,7 +161,7 @@ var
   VAppearanceLine: IAppearanceLine;
 begin
   Result := False;
-  VProjected := FProjectedCache.GetProjectedPath(FProjectionInfo, AMarkLine.Line);
+  VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, AMarkLine.Line);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -274,7 +270,7 @@ var
   VAppearanceFill: IAppearancePolygonFill;
 begin
   Result := False;
-  VProjected := FProjectedCache.GetProjectedPolygon(FProjectionInfo, AMarkPoly.Line);
+  VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, AMarkPoly.Line);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;

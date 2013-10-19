@@ -193,7 +193,6 @@ begin
       TBitmapLayerProviderByMarksSubset.Create(
         VMarksDrawConfig,
         FBitmapFactory,
-        ALayerConverter.ProjectionInfo,
         FProjectedCache,
         FMarkerProvider,
         VMarksSubset
