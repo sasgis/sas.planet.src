@@ -187,7 +187,7 @@ begin
       VConfig.PointColor,
       FBitmapFactory,
       FProjectedProvider,
-      FVectorItems
+      FVectorItems.GetStatic
     );
 end;
 
@@ -288,6 +288,7 @@ procedure TMapLayerVectorMaps.OnItemsUpdated;
 begin
   ViewUpdateLock;
   try
+    SetNeedUpdateLayerProvider;
     DelicateRedrawWithFullUpdate;
   finally
     ViewUpdateUnlock;

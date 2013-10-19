@@ -16,7 +16,6 @@ uses
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_VectorItemProjected,
-  i_VectorItemSubsetChangeable,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
@@ -28,7 +27,7 @@ type
     FColorBG: TColor32;
     FPointColor: TColor32;
     FBitmapFactory: IBitmap32StaticFactory;
-    FVectorItems: IVectorItemSubsetChangeable;
+    FVectorItems: IVectorItemSubset;
     FProjectedCache: IProjectedGeometryProvider;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
@@ -84,7 +83,7 @@ type
       APointColor: TColor32;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectedCache: IProjectedGeometryProvider;
-      const AVectorItems: IVectorItemSubsetChangeable
+      const AVectorItems: IVectorItemSubset
     );
   end;
 
@@ -110,7 +109,7 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   APointColor: TColor32;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectedCache: IProjectedGeometryProvider;
-  const AVectorItems: IVectorItemSubsetChangeable
+  const AVectorItems: IVectorItemSubset
 );
 begin
   inherited Create;
@@ -409,7 +408,6 @@ var
   VBitmapInited: Boolean;
   VBitmap: TBitmap32ByStaticBitmap;
   VIsEmpty: Boolean;
-  VItems: IVectorItemSubset;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
@@ -419,13 +417,12 @@ begin
 
   VBitmapInited := False;
   Result := nil;
-  VItems := FVectorItems.GetStatic;
-  if (VItems <> nil) and (VItems.Count > 0) then begin
+  if (FVectorItems <> nil) and (FVectorItems.Count > 0) then begin
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       VIsEmpty := True;
-      for i := 0 to VItems.Count - 1 do begin
-        VItem := VItems.GetItem(i);
+      for i := 0 to FVectorItems.Count - 1 do begin
+        VItem := FVectorItems.GetItem(i);
         if VItem.LLRect.IsIntersecWithRect(VLLRect) then begin
           if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
             VIsEmpty := False;
