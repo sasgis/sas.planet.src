@@ -44,6 +44,7 @@ type
     function GetSubsetByCategory(const ACategory: ICategory): IVectorItemSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
+    function IsEqual(const ASubset: IVectorItemSubset): Boolean;
 
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IVectorDataItemSimple;
@@ -143,6 +144,29 @@ end;
 function TVectorItemSubset.IsEmpty: Boolean;
 begin
   Result := FList.Count = 0;
+end;
+
+function TVectorItemSubset.IsEqual(const ASubset: IVectorItemSubset): Boolean;
+var
+  i: Integer;
+begin
+  if not Assigned(ASubset) then begin
+    Result := False;
+  end else if ASubset = IVectorItemSubset(Self) then begin
+    Result := True;
+  end else if FList.Count <> ASubset.Count then begin
+    Result := False;
+  end else if (FHash <> 0) and (ASubset.Hash <>0) and (FHash <> ASubset.Hash)  then begin
+    Result := False;
+  end else begin
+    Result := True;
+    for i := 0 to FList.Count - 1 do begin
+      if not IVectorDataItemSimple(FList.Items[i]).IsEqual(ASubset.Items[i]) then begin
+        Result := False;
+        Break;
+      end;
+    end;
+  end;
 end;
 
 end.

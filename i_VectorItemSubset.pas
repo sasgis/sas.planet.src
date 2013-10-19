@@ -16,6 +16,7 @@ type
     function GetSubsetByCategory(const ACategory: ICategory): IVectorItemSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
+    function IsEqual(const ASubset: IVectorItemSubset): Boolean;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
