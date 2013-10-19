@@ -304,20 +304,13 @@ procedure TBitmapLayerProviderByTrackPath.PrepareLonLatPointsByEnum(
 );
 var
   i: Integer;
-  VIndex: Integer;
   VPoint: TGPSTrackPoint;
-  VCurrPointIsEmpty: Boolean;
-  VPrevPointIsEmpty: Boolean;
-  VCurrPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
 begin
   FRectIsEmpty := True;
   FPointsLonLatCount := 0;
   i := 0;
-  VPrevPointIsEmpty := True;
   while (i < AMaxPointsCount) and AEnum.Next(VPoint) do begin
-    VCurrPointIsEmpty := PointIsEmpty(VPoint.Point);
-    if not VCurrPointIsEmpty then begin
+    if not PointIsEmpty(VPoint.Point) then begin
       if FRectIsEmpty then begin
         FLonLatRect.TopLeft := VPoint.Point;
         FLonLatRect.BottomRight := VPoint.Point;
