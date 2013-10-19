@@ -446,6 +446,22 @@ begin
   slat := Copy(VLink, i + 1, j - (i + 1));
  end;
 
+ // http://www.openstreetmap.org/#map=17/45.12333/38.98709
+ // http://www.openstreetmap.org/#map=17/45.12333/38.98576&layers=C
+ if (RegExprGetMatchSubStr(VLink, '(openstreetmap|osm)\..+map=', 0) <> '') then begin
+  sname := 'OpenStreetMap';
+  i := ALPosEx('map=', VLink, 1);
+  i := ALPosEx('/', VLink, i);
+  j := ALPosEx('/', VLink, i + 1);
+  slat := Copy(VLink, i + 1, j - (i + 1));
+
+  i := ALPosEx('/', VLink, j);
+  j := ALPosEx('&', VLink, i);
+
+  if j = 0 then j := length(VLink) + 1;
+  slon := Copy(VLink, i + 1, j - (i + 1));
+ end;
+
  // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
  // http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
  if  (RegExprGetMatchSubStr(VLink,'(openstreetmap|osm)\..+lat=',0)<>'') then begin
