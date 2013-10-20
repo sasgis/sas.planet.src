@@ -138,8 +138,8 @@ end;
 function TBuildInfo.GetDescription: string;
 begin
   Result := 'Windows' + ', ' +
-    {$IFDEF UNICODE} 'Unicode' {$ELSE} 'Non-Unicode' {$ENDIF} + ', ' +
-    {$IFDEF WIN32} '32-bit' {$ELSE} '64-bit' {$ENDIF}
+    {$IFDEF WIN32} '32-bit' {$ELSE} '64-bit' {$ENDIF} + ', ' +
+    {$IFDEF UNICODE} 'Unicode' {$ELSE} 'Non-Unicode' {$ENDIF}
     {$IFDEF DEBUG} + ', ' + 'Debug'{$ENDIF}
   ;
 end;
