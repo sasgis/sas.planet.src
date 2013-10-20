@@ -11,6 +11,8 @@ uses
   MidasLib,
   XPMan,
   u_ReadableThreadNames,
+  i_BuildInfo in 'i_BuildInfo.pas',
+  u_BuildInfo in 'u_BuildInfo.pas',
   u_TileStorageArchive in 'TileStorage\Archive\u_TileStorageArchive.pas',
   u_TileStorageTar in 'TileStorage\Archive\u_TileStorageTar.pas',
   i_GlobalBerkeleyDBHelper in 'TileStorage\BerkeleyDB\i_GlobalBerkeleyDBHelper.pas',
@@ -87,7 +89,6 @@ uses
   u_NotifyWithGUIDEvent in 'u_NotifyWithGUIDEvent.pas',
   i_ListenerNotifierLinksList in 'i_ListenerNotifierLinksList.pas',
   u_ListenerNotifierLinksList in 'u_ListenerNotifierLinksList.pas',
-  c_SasVersion in 'c_SasVersion.pas',
   c_InternalBrowser in 'c_InternalBrowser.pas',
   c_CoordConverter in 'c_CoordConverter.pas',
   c_SensorsGUIDSimple in 'c_SensorsGUIDSimple.pas',
@@ -1129,6 +1130,7 @@ uses
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}
 {$R .\Resources\Common.res}
+{$R .\Resources\BuildInfo.res}
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 
@@ -1144,6 +1146,7 @@ begin
     Application.Title := SAS_STR_ApplicationTitle;
     TfrmStartLogo.ShowLogo(
       GState.Config.LanguageManager,
+      GState.BuildInfo,
       GState.AppStartedNotifier,
       GState.ContentTypeManager,
       GState.MainConfigProvider,

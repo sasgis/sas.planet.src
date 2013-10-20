@@ -34,6 +34,7 @@ uses
   i_ConfigDataProvider,
   i_StartUpLogoConfig,
   i_Listener,
+  i_BuildInfo,
   i_NotifierOperation,
   u_CommonFormAndFrameParents;
 
@@ -48,6 +49,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure imgLogoClick(Sender: TObject);
   private
+    FBuildInfo: IBuildInfo;
     FReadyToHide: Boolean;
     FContentTypeManager: IContentTypeManager;
     FConfigData: IConfigDataProvider;
@@ -57,6 +59,7 @@ type
   private
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const ABuildInfo: IBuildInfo;
       const AAppStartedNotifier: INotifierOneOperation;
       const AContentTypeManager: IContentTypeManager;
       const AConfigData: IConfigDataProvider
@@ -66,6 +69,7 @@ type
 
     class procedure ShowLogo(
       const ALanguageManager: ILanguageManager;
+      const ABuildInfo: IBuildInfo;
       const AAppStartedNotifier: INotifierOneOperation;
       const AContentTypeManager: IContentTypeManager;
       const AConfigData: IConfigDataProvider;
@@ -78,7 +82,6 @@ implementation
 
 uses
   Types,
-  c_SasVersion,
   i_Bitmap32Static,
   u_ConfigProviderHelpers,
   u_ListenerByEvent,
@@ -91,12 +94,17 @@ var
 
 constructor TfrmStartLogo.Create(
   const ALanguageManager: ILanguageManager;
+  const ABuildInfo: IBuildInfo;
   const AAppStartedNotifier: INotifierOneOperation;
   const AContentTypeManager: IContentTypeManager;
   const AConfigData: IConfigDataProvider
 );
 begin
   inherited Create(ALanguageManager);
+
+  FBuildInfo := ABuildInfo;
+  Assert(Assigned(FBuildInfo));
+
   FAppStartedNotifier := AAppStartedNotifier;
   FContentTypeManager := AContentTypeManager;
   FConfigData := AConfigData;
@@ -140,7 +148,7 @@ begin
     VBitmapSize.Y := 276;
   end;
   imgLogo.Bitmap.SetSize(VBitmapSize.X, VBitmapSize.Y);
-  lblVersion.Caption:='v '+SASVersion;
+  lblVersion.Caption := 'v ' + FBuildInfo.GetVersionDetaled;
   FReadyToHide := False;
   if FAppStartedNotifier.IsExecuted then begin
     OnAppStarted;
@@ -169,6 +177,7 @@ end;
 
 class procedure TfrmStartLogo.ShowLogo(
   const ALanguageManager: ILanguageManager;
+  const ABuildInfo: IBuildInfo;
   const AAppStartedNotifier: INotifierOneOperation;
   const AContentTypeManager: IContentTypeManager;
   const AConfigData: IConfigDataProvider;
@@ -178,6 +187,7 @@ begin
   if AConfig.IsShowLogo then begin
     TfrmStartLogo.Create(
       ALanguageManager,
+      ABuildInfo,
       AAppStartedNotifier,
       AContentTypeManager,
       AConfigData

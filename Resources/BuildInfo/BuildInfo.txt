@@ -1,0 +1,11 @@
+Описание формата BuildInfo.csv:
+
+Версия 1.0:
+
+1. Версия формата [Integer]
+2. Дата сборки (yymmdd) [string]
+3. Тип сборки (Nightly/Stable/Custom) [string]
+4. Ревизия исходников (результат команды "hg log --template {rev} -r .") [Integer]
+5. Хэш исходников (результат команды "hg log --template {node} -r .") [string]
+6. Ревизия зависимостей [Integer]
+7. Хэш зависимостей [string]

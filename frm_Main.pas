@@ -735,7 +735,6 @@ uses
   t_CommonTypes,
   t_FillingMapModes,
   c_ZeroGUID,
-  c_SasVersion,
   c_InternalBrowser,
   i_Listener,
   i_NotifierOperation,
@@ -1101,7 +1100,7 @@ var
   VSensorViewGenerator: ISensorViewListGenerator;
 begin
   Application.Title:=Caption;
-  Caption:=Caption+' '+SASVersion;
+  Caption := Caption + ' ' + GState.BuildInfo.GetVersionDetaled;
   TBXSetTheme('SAStbxTheme');
 
   VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
@@ -4163,6 +4162,7 @@ begin
   if FfrmAbout = nil then begin
     FfrmAbout := TfrmAbout.Create(
       GState.Config.LanguageManager,
+      GState.BuildInfo,
       GState.ContentTypeManager,
       GState.MainConfigProvider
     );

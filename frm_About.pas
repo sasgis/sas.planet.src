@@ -30,6 +30,7 @@ uses
   StdCtrls,
   ExtCtrls,
   GR32_Image,
+  i_BuildInfo,
   i_ContentTypeManager,
   i_ConfigDataProvider,
   i_LanguageManager,
@@ -59,11 +60,13 @@ type
     procedure lblWebSiteClick(Sender: TObject);
     procedure btnLicenseClick(Sender: TObject);
   private
+    FBuildInfo: IBuildInfo;
     FContentTypeManager: IContentTypeManager;
     FConfigData: IConfigDataProvider;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const ABuildInfo: IBuildInfo;
       const AContentTypeManager: IContentTypeManager;
       const AConfigData: IConfigDataProvider
     ); reintroduce;
@@ -73,7 +76,6 @@ implementation
 
 uses
   SysUtils,
-  ExeInfo,
   i_Bitmap32Static,
   u_ConfigProviderHelpers,
   u_BitmapFunc,
@@ -87,28 +89,18 @@ resourcestring
 
 {$R *.dfm}
 
-function GetCompilerInfoStr: string;
-begin
-  {$IFDEF VER185} Result := 'CodeGear' + #153 +' Delphi' + #174 + ' 2007'; {$ENDIF}
-  {$IFDEF VER230} Result := 'Embarcadero' + #153 +' Delphi' + #174 + ' XE2'; {$ENDIF}
-end;
-
-function GetUnicodeInfoStr: string;
-begin
-  {$IF CompilerVersion < 190}
-    Result := 'Non-Unicode';
-  {$ELSE}
-    Result := 'Unicode';
-  {$IFEND}
-end;
-
 constructor TfrmAbout.Create(
   const ALanguageManager: ILanguageManager;
+  const ABuildInfo: IBuildInfo;
   const AContentTypeManager: IContentTypeManager;
   const AConfigData: IConfigDataProvider
 );
 begin
   inherited Create(ALanguageManager);
+
+  FBuildInfo := ABuildInfo;
+  Assert(Assigned(FBuildInfo));
+
   FContentTypeManager := AContentTypeManager;
   FConfigData := AConfigData;
 end;
@@ -118,15 +110,15 @@ var
   VBuildDate: TDateTime;
   VBitmapStatic: IBitmap32Static;
 begin
-  VBuildDate := GetBuildDateTime;
+  VBuildDate := FBuildInfo.GetBuildDate;
 
   lblCopyright.Caption := 'Copyright ' + #169 + ' 2007-' + FormatDateTime('yyyy', VBuildDate) + ', ' + rsDevelopmentTeam;
   lblWebSite.Caption := cHomePage;
 
-  lblVersion.Caption := GetBuildVersionInfo;
+  lblVersion.Caption := FBuildInfo.GetVersion + ' ' + FBuildInfo.GetBuildType;
   lblBuildTimeValue.Caption := FormatDateTime('yyyy-mm-dd hh:mm:ss', VBuildDate) + ' UTC';
-  lblBuildInfoValue.Caption := 'Windows, 32-bit, ' + GetUnicodeInfoStr {$IFDEF DEBUG} + ', Debug'{$ENDIF};
-  lblCompilerValue.Caption := GetCompilerInfoStr;
+  lblBuildInfoValue.Caption := FBuildInfo.GetDescription;
+  lblCompilerValue.Caption := FBuildInfo.GetCompilerInfo;
 
   VBitmapStatic := ReadBitmapByFileRef(FConfigData, 'sas:\Resource\ABOUTICON.png', FContentTypeManager, nil);
 

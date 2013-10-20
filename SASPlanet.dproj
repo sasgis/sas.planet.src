@@ -75,7 +75,6 @@
     <DCCReference Include="c_CoordConverter.pas" />
     <DCCReference Include="c_InternalBrowser.pas" />
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
-    <DCCReference Include="c_SasVersion.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
@@ -209,6 +208,7 @@
     <DCCReference Include="i_BitmapMarker.pas" />
     <DCCReference Include="i_BitmapPostProcessing.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
+    <DCCReference Include="i_BuildInfo.pas" />
     <DCCReference Include="i_CalcLineLayerConfig.pas" />
     <DCCReference Include="i_Category.pas" />
     <DCCReference Include="i_CenterScaleConfig.pas" />
@@ -300,7 +300,6 @@
     <DCCReference Include="i_MapAbilitiesConfig.pas" />
     <DCCReference Include="i_MapAttachmentsFactory.pas" />
     <DCCReference Include="i_MapAttachmentsInfo.pas" />
-    <DCCReference Include="MapCalibration\i_MapCalibration.pas" />
     <DCCReference Include="i_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="i_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
@@ -444,6 +443,13 @@
     <DCCReference Include="i_ZmpConfig.pas" />
     <DCCReference Include="i_ZmpInfo.pas" />
     <DCCReference Include="i_ZmpInfoSet.pas" />
+    <DCCReference Include="MapCalibration\i_MapCalibration.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationDat.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationKml.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationListBasic.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationOzi.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationTab.pas" />
+    <DCCReference Include="MapCalibration\u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
     <DCCReference Include="MapLayers\u_FullMapMouseCursorLayer.pas" />
@@ -893,6 +899,7 @@
     <DCCReference Include="u_BitmapPostProcessing.pas" />
     <DCCReference Include="u_BitmapPostProcessingChangeableByConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
+    <DCCReference Include="u_BuildInfo.pas" />
     <DCCReference Include="u_CalcLineLayerConfig.pas" />
     <DCCReference Include="u_Category.pas" />
     <DCCReference Include="u_CenterScaleConfig.pas" />
@@ -1005,9 +1012,9 @@
     <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_ImportByFileExt.pas" />
-    <DCCReference Include="u_ImportJpegWithExif.pas" />
     <DCCReference Include="u_ImportConfig.pas" />
     <DCCReference Include="u_ImportFromArcGIS.pas" />
+    <DCCReference Include="u_ImportJpegWithExif.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InetConfigStatic.pas" />
     <DCCReference Include="u_InetFunc.pas" />
@@ -1068,12 +1075,6 @@
     <DCCReference Include="u_MapAbilitiesConfigStatic.pas" />
     <DCCReference Include="u_MapAttachmentsInfo.pas" />
     <DCCReference Include="u_MapAttachmentsPascalScript.pas" />
-    <DCCReference Include="MapCalibration\u_MapCalibrationDat.pas" />
-    <DCCReference Include="MapCalibration\u_MapCalibrationKml.pas" />
-    <DCCReference Include="MapCalibration\u_MapCalibrationListBasic.pas" />
-    <DCCReference Include="MapCalibration\u_MapCalibrationOzi.pas" />
-    <DCCReference Include="MapCalibration\u_MapCalibrationTab.pas" />
-    <DCCReference Include="MapCalibration\u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="u_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="u_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="u_MapLayerGridsConfig.pas" />

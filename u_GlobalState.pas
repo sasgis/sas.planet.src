@@ -88,6 +88,7 @@ uses
   i_SystemTimeProvider,
   i_MarkCategoryFactory,
   i_MarkFactory,
+  i_BuildInfo,
   i_GlobalConfig,
   i_GlobalCacheConfig,
   u_GarbageCollectorThread,
@@ -177,6 +178,7 @@ type
     FProjectedGeometryProvider: IProjectedGeometryProvider;
     FMarkFactory: IMarkFactory;
     FMarkCategoryFactory: IMarkCategoryFactory;
+    FBuildInfo: IBuildInfo;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -247,6 +249,7 @@ type
     property GlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper read FGlobalBerkeleyDBHelper;
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
     property MapVersionFactoryList: IMapVersionFactoryList read FMapVersionFactoryList;
+    property BuildInfo: IBuildInfo read FBuildInfo;
 
     constructor Create;
     destructor Destroy; override;
@@ -355,6 +358,7 @@ uses
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
   u_DebugInfoSubSystem,
+  u_BuildInfo,
   u_BitmapPostProcessingChangeableByConfig,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
@@ -388,6 +392,8 @@ begin
   FBaseConfigPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseDataPath := TPathConfig.Create('', VProgramPath, nil);
   FBaseCahcePath := TPathConfig.Create('', VProgramPath, nil);
+
+  FBuildInfo := TBuildInfo.Create;
 
   VInternalDebugConfig := TInternalDebugConfig.Create;
 
