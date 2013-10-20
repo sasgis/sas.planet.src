@@ -635,16 +635,24 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   Result := nil;
-  VCounterContext := FLoadXmlStreamCounter.StartOperation;
-  try
-    // read from single simple source
+  if FLoadXmlStreamCounter <> nil then begin
+    VCounterContext := FLoadXmlStreamCounter.StartOperation;
+    try
+      // read from single simple source
+      Result := Internal_LoadFromStream_Original(
+        AStream,
+        AIdData,
+        AVectorGeometryLonLatFactory
+      );
+    finally
+      FLoadXmlStreamCounter.FinishOperation(VCounterContext);
+    end;
+  end else begin
     Result := Internal_LoadFromStream_Original(
       AStream,
       AIdData,
       AVectorGeometryLonLatFactory
     );
-  finally
-    FLoadXmlStreamCounter.FinishOperation(VCounterContext);
   end;
 end;
 
