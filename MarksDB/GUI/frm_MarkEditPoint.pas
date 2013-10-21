@@ -94,6 +94,7 @@ type
     procedure btnShadowColorClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSetAsTemplateClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure imgIconMouseDown(Sender: TObject);
   private
     FSourceMark: IMarkPoint;
@@ -320,6 +321,14 @@ end;
 procedure TfrmMarkEditPoint.btnShadowColorClick(Sender: TObject);
 begin
  if ColorDialog1.Execute then clrbxShadowColor.Selected:=ColorDialog1.Color;
+end;
+
+procedure TfrmMarkEditPoint.FormCloseQuery(Sender: TObject; var CanClose:
+    Boolean);
+begin
+  if ModalResult = mrOk then begin
+    CanClose := frLonLatPoint.Validate;
+  end;
 end;
 
 procedure TfrmMarkEditPoint.imgIconMouseDown(Sender: TObject);

@@ -11,6 +11,7 @@ object frmLonLatRectEdit: TfrmLonLatRectEdit
   OldCreateOrder = False
   Position = poMainFormCenter
   ShowHint = True
+  OnCloseQuery = FormCloseQuery
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

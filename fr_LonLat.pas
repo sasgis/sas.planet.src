@@ -75,6 +75,7 @@ type
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
+    function Validate: Boolean;
   end;
 
 implementation
@@ -193,46 +194,7 @@ var
   XYPoint: TDoublePoint;
   VZoom: Byte;
 begin
-  Result := CEmptyDoublePoint;
-  case cbbCoordType.ItemIndex of
-   0: begin
-        if not(Edit2Digit(edtLat.Text,true,Result.y))or
-           not(Edit2Digit(edtLon.Text,false,Result.x)) then begin
-          ShowMessage(SAS_ERR_CoordinatesInput);
-        end;
-      end;
-   1: begin
-        try
-          XYPoint.X := strtoint(edtX.Text);
-          XYPoint.Y := strtoint(edtY.Text);
-        except
-          ShowMessage(SAS_ERR_CoordinatesInput);
-        end;
-        VLocalConverter :=  FViewPortState.GetStatic;
-        VZoom := cbbZoom.ItemIndex;
-        VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, False);
-        Result := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
-      end;
-   2: begin
-        try
-          VTile.X := strtoint(edtX.Text);
-          VTile.Y := strtoint(edtY.Text);
-        except
-          ShowMessage(SAS_ERR_CoordinatesInput);
-        end;
-        VLocalConverter :=  FViewPortState.GetStatic;
-        VZoom := cbbZoom.ItemIndex;
-
-        case FTileSelectStyle of
-          tssCenter: XYPoint := DoublePoint(VTile.X + 0.5, VTile.Y + 0.5);
-          tssTopLeft: XYPoint := DoublePoint(VTile);
-          tssBottomRight: XYPoint := DoublePoint(VTile.X + 1, VTile.Y + 1);
-        end;
-
-        VLocalConverter.GeoConverter.CheckTilePos(VTile, VZoom, False);
-        Result := VLocalConverter.GeoConverter.TilePosFloat2LonLat(XYPoint, VZoom);
-      end;
-  end;
+  Result := FCoordinates;
 end;
 
 procedure TfrLonLat.SetLonLat(const Value: TDoublePoint);
@@ -242,7 +204,7 @@ var
   CurrZoom:integer;
   VLocalConverter: ILocalCoordConverter;
 begin
-  FCoordinates:=Value;
+  FCoordinates := Value;
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   VLocalConverter :=  FViewPortState.GetStatic;
   CurrZoom := VLocalConverter.Zoom;
@@ -274,6 +236,71 @@ begin
         edtX.Text:=inttostr(XYPoint.x);
         edtY.Text:=inttostr(XYPoint.y);
       end;
+  end;
+end;
+
+function TfrLonLat.Validate: Boolean;
+var
+  VLocalConverter: ILocalCoordConverter;
+  VTile: TPoint;
+  XYPoint: TDoublePoint;
+  VZoom: Byte;
+  VLonLat: TDoublePoint;
+begin
+  VLonLat := CEmptyDoublePoint;
+  Result := True;
+  case cbbCoordType.ItemIndex of
+   0: begin
+        if not(Edit2Digit(edtLat.Text, true, VLonLat.y))or
+           not(Edit2Digit(edtLon.Text, false, VLonLat.x)) then begin
+          ShowMessage(SAS_ERR_CoordinatesInput);
+          Result := False;
+        end;
+        if Result then begin
+          VLocalConverter :=  FViewPortState.GetStatic;
+          VLocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
+        end;
+      end;
+   1: begin
+        try
+          XYPoint.X := strtoint(edtX.Text);
+          XYPoint.Y := strtoint(edtY.Text);
+        except
+          ShowMessage(SAS_ERR_CoordinatesInput);
+          Result := False;
+        end;
+        if Result then  begin
+          VLocalConverter :=  FViewPortState.GetStatic;
+          VZoom := cbbZoom.ItemIndex;
+          VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, False);
+          VLonLat := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
+        end;
+      end;
+   2: begin
+        try
+          VTile.X := strtoint(edtX.Text);
+          VTile.Y := strtoint(edtY.Text);
+        except
+          ShowMessage(SAS_ERR_CoordinatesInput);
+          Result := False;
+        end;
+        if Result then begin
+          VLocalConverter :=  FViewPortState.GetStatic;
+          VZoom := cbbZoom.ItemIndex;
+
+          case FTileSelectStyle of
+            tssCenter: XYPoint := DoublePoint(VTile.X + 0.5, VTile.Y + 0.5);
+            tssTopLeft: XYPoint := DoublePoint(VTile);
+            tssBottomRight: XYPoint := DoublePoint(VTile.X + 1, VTile.Y + 1);
+          end;
+
+          VLocalConverter.GeoConverter.CheckTilePos(VTile, VZoom, False);
+          VLonLat := VLocalConverter.GeoConverter.TilePosFloat2LonLat(XYPoint, VZoom);
+        end;
+      end;
+  end;
+  if Result then begin
+    FCoordinates := VLonLat;
   end;
 end;
 

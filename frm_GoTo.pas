@@ -223,10 +223,12 @@ begin
       ModalResult := mrCancel;
     end;
   end else if pgcSearchType.ActivePage = tsCoordinates then begin
-    VLonLat := frLonLatPoint.LonLat;
-    textsrch := FValueToStringConverterConfig.GetStatic.LonLatConvert(VLonLat);
-    FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
-    ModalResult := mrOk;
+    if frLonLatPoint.Validate then begin
+      VLonLat := frLonLatPoint.LonLat;
+      textsrch := FValueToStringConverterConfig.GetStatic.LonLatConvert(VLonLat);
+      FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
+      ModalResult := mrOk;
+    end;
   end else if pgcSearchType.ActivePage = tsSearch then begin
     textsrch:= Trim(cbbGeoCode.Text);
     VGeoCoderItem := nil;

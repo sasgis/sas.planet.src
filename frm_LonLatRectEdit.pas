@@ -45,6 +45,7 @@ type
     grpBottomRight: TGroupBox;
     pnlBottomButtons: TPanel;
     grdpnlMain: TGridPanel;
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormShow(Sender: TObject);
   private
     FfrLonLatTopLeft: TfrLonLat;
@@ -110,6 +111,17 @@ begin
     end else if (ALonLatRect.Top < ALonLatRect.Bottom)then begin
       ShowMessage(SAS_ERR_LonLat1);
       result:=false;
+    end;
+  end;
+end;
+
+procedure TfrmLonLatRectEdit.FormCloseQuery(Sender: TObject; var CanClose:
+    Boolean);
+begin
+  if ModalResult = mrOk then begin
+    CanClose := FfrLonLatTopLeft.Validate;
+    if CanClose then begin
+      CanClose := FfrLonLatBottomRight.Validate;
     end;
   end;
 end;
