@@ -55,10 +55,16 @@ type
     lblBuildInfoValue: TLabel;
     lblCompilerValue: TLabel;
     btnLicense: TButton;
+    lblSources: TLabel;
+    lblRequires: TLabel;
+    lblSourcesValue: TLabel;
+    lblRequiresValue: TLabel;
     procedure btnCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure lblWebSiteClick(Sender: TObject);
     procedure btnLicenseClick(Sender: TObject);
+    procedure lblSourcesValueClick(Sender: TObject);
+    procedure lblRequiresValueClick(Sender: TObject);
   private
     FBuildInfo: IBuildInfo;
     FContentTypeManager: IContentTypeManager;
@@ -83,6 +89,8 @@ uses
 
 const
   cHomePage = 'http://sasgis.ru/';
+  cSrcRepoLink = 'https://bitbucket.org/sas_team/sas.planet.src/';
+  cReqRepoLink = 'https://bitbucket.org/sas_team/sas.requires/';
 
 resourcestring
   rsDevelopmentTeam = 'SAS.Planet Development Team';
@@ -109,6 +117,8 @@ procedure TfrmAbout.FormCreate(Sender: TObject);
 var
   VBuildDate: TDateTime;
   VBitmapStatic: IBitmap32Static;
+  VRevision: Integer;
+  VNode: string;
 begin
   VBuildDate := FBuildInfo.GetBuildDate;
 
@@ -120,10 +130,50 @@ begin
   lblBuildInfoValue.Caption := FBuildInfo.GetDescription;
   lblCompilerValue.Caption := FBuildInfo.GetCompilerInfo;
 
+  if FBuildInfo.GetBuildSrcInfo(VRevision, VNode) then begin
+    if Length(VNode) > 12 then begin
+      SetLength(VNode, 12);
+    end;
+    lblSourcesValue.Caption := 'rev.' + IntToStr(VRevision) + ' (' + VNode + ')';
+    lblSourcesValue.Hint := cSrcRepoLink;
+  end else begin
+    lblSourcesValue.Caption := 'Unknown';
+  end;
+
+  if FBuildInfo.GetBuildReqInfo(VRevision, VNode) then begin
+    if Length(VNode) > 12 then begin
+      SetLength(VNode, 12);
+    end;
+    lblRequiresValue.Caption := 'rev.' + IntToStr(VRevision) + ' (' + VNode + ')';
+    lblRequiresValue.Hint := cReqRepoLink;
+  end else begin
+    lblRequiresValue.Caption := 'Unknown';
+  end;
+
   VBitmapStatic := ReadBitmapByFileRef(FConfigData, 'sas:\Resource\ABOUTICON.png', FContentTypeManager, nil);
 
   if VBitmapStatic <> nil then begin
     AssignStaticToBitmap32(imgLogo.Bitmap, VBitmapStatic);
+  end;
+end;
+
+procedure TfrmAbout.lblRequiresValueClick(Sender: TObject);
+var
+  VNode: string;
+  VRevision: Integer;
+begin
+  if FBuildInfo.GetBuildReqInfo(VRevision, VNode) then begin
+    OpenUrlInBrowser(cReqRepoLink + 'commits/all?search=0%3A' + VNode);
+  end;
+end;
+
+procedure TfrmAbout.lblSourcesValueClick(Sender: TObject);
+var
+  VNode: string;
+  VRevision: Integer;
+begin
+  if FBuildInfo.GetBuildSrcInfo(VRevision, VNode) then begin
+    OpenUrlInBrowser(cSrcRepoLink + 'commits/all?search=0%3A' + VNode);
   end;
 end;
 

@@ -3,7 +3,7 @@ object frmAbout: TfrmAbout
   Top = 257
   BorderStyle = bsDialog
   Caption = 'About'
-  ClientHeight = 243
+  ClientHeight = 266
   ClientWidth = 336
   Color = clWhite
   ParentFont = True
@@ -14,7 +14,7 @@ object frmAbout: TfrmAbout
   TextHeight = 13
   object Bevel1: TBevel
     Left = 0
-    Top = 209
+    Top = 232
     Width = 336
     Height = 3
     Align = alBottom
@@ -53,6 +53,7 @@ object frmAbout: TfrmAbout
     Top = 128
     Width = 198
     Height = 13
+    AutoSize = False
   end
   object lblWebSite: TLabel
     Left = 99
@@ -66,7 +67,7 @@ object frmAbout: TfrmAbout
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlue
     Font.Height = -11
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Tahoma'
     Font.Style = [fsUnderline]
     ParentFont = False
     OnClick = lblWebSiteClick
@@ -135,9 +136,61 @@ object frmAbout: TfrmAbout
     Height = 13
     AutoSize = False
   end
+  object lblSources: TLabel
+    Left = 16
+    Top = 192
+    Width = 42
+    Height = 13
+    Caption = 'Sources:'
+  end
+  object lblRequires: TLabel
+    Left = 16
+    Top = 208
+    Width = 46
+    Height = 13
+    Caption = 'Requires:'
+  end
+  object lblSourcesValue: TLabel
+    Left = 130
+    Top = 192
+    Width = 198
+    Height = 13
+    Cursor = crHandPoint
+    AutoSize = False
+    Color = clWindow
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsUnderline]
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    OnClick = lblSourcesValueClick
+  end
+  object lblRequiresValue: TLabel
+    Left = 130
+    Top = 208
+    Width = 198
+    Height = 13
+    Cursor = crHandPoint
+    AutoSize = False
+    Color = clWindow
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsUnderline]
+    ParentColor = False
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    OnClick = lblRequiresValueClick
+  end
   object pnlBottom: TPanel
     Left = 0
-    Top = 212
+    Top = 235
     Width = 336
     Height = 31
     Align = alBottom
@@ -145,9 +198,7 @@ object frmAbout: TfrmAbout
     Padding.Bottom = 2
     ParentColor = True
     TabOrder = 0
-    ExplicitLeft = 8
-    ExplicitTop = 132
-    ExplicitWidth = 337
+    ExplicitTop = 212
     object btnClose: TButton
       Left = 198
       Top = 2
@@ -159,7 +210,6 @@ object frmAbout: TfrmAbout
       Caption = 'Close'
       TabOrder = 0
       OnClick = btnCloseClick
-      ExplicitLeft = 209
     end
     object btnLicense: TButton
       Left = 8
