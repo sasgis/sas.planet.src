@@ -11,12 +11,6 @@ function ReadFile( fso, fileName){
 
 var fso = WScript.CreateObject("Scripting.FileSystemObject");
 
-var VersionPostfix = ReadFile(fso, "VersionPostfix.inc");
-VersionPostfix = VersionPostfix + ' -= Debug =-';
-var fileVersionPostfix = fso.OpenTextFile("VersionPostfix.inc", 2, false);
-fileVersionPostfix.write(VersionPostfix);
-fileVersionPostfix.Close();
-
 var dpr = ReadFile(fso, "SASPlanet.dpr");
 var reg = /EurekaLog/i;
 if (!reg.test(dpr)){
