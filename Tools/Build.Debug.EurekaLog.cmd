@@ -17,4 +17,6 @@ cscript .\Tools\eurekalog\Clear.js
 call .\Tools\ResetBuildInfo.cmd %~dp0..\
 del /F /Q EurekaLog.pas
 del /F /Q ".\Tools\revision.txt"
+cd .\Resources
+call Build.Resources.cmd
 pause
