@@ -212,7 +212,6 @@ var
   VZoom: Byte;
   VMark: IMark;
   VMapRect: TDoubleRect;
-  VLocalConverter: ILocalCoordConverter;
   VMarksSubset: IVectorItemSubset;
   VMarksEnum: IEnumUnknown;
   i: Cardinal;
@@ -240,9 +239,8 @@ begin
         VRect.Top := ALocalPoint.Y - 16;
         VRect.Right := ALocalPoint.X + 8;
         VRect.Bottom := ALocalPoint.Y + 16;
-        VLocalConverter := TileMatrix.LocalConverter;
-        VConverter := VLocalConverter.GetGeoConverter;
-        VZoom := VLocalConverter.GetZoom;
+        VConverter := AVisualConverter.GetGeoConverter;
+        VZoom := AVisualConverter.GetZoom;
         VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);
         VConverter.CheckPixelRectFloat(VMapRect, VZoom);
         VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
