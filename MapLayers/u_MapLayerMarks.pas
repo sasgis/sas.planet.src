@@ -143,8 +143,8 @@ begin
   FProjectedCache := AProjectedCache;
 
   FMarksSubsetCS := MakeSyncRW_Var(Self);
-  FGetMarksCounter := PerfList.CreateAndAddNewCounter('GetMarks');
-  FMouseOnRegCounter := PerfList.CreateAndAddNewCounter('MouseOnReg');
+  FGetMarksCounter := APerfList.CreateAndAddNewCounter('GetMarks');
+  FMouseOnRegCounter := APerfList.CreateAndAddNewCounter('MouseOnReg');
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),

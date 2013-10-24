@@ -168,7 +168,6 @@ constructor TWindowLayerWithBitmapBase.Create(
 );
 begin
   inherited Create(
-    APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier
   );
@@ -182,8 +181,8 @@ begin
   FNeedUpdateBitmapSizeFlag := TSimpleFlagWithInterlock.Create;
   FNeedUpdateLayerLocationFlag := TSimpleFlagWithInterlock.Create;
 
-  FResizeCounter := PerfList.CreateAndAddNewCounter('Resize');
-  FRedrawCounter := PerfList.CreateAndAddNewCounter('Redraw');
+  FResizeCounter := APerfList.CreateAndAddNewCounter('Resize');
+  FRedrawCounter := APerfList.CreateAndAddNewCounter('Redraw');
 end;
 
 procedure TWindowLayerWithBitmapBase.DoUpdateBitmapSize(const ASize: TPoint);
@@ -297,7 +296,6 @@ constructor TWindowLayerWithLocationBase.Create(
 );
 begin
   inherited Create(
-    APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier
   );
@@ -309,8 +307,8 @@ begin
   FNeedUpdateLayerLocationFlag := TSimpleFlagWithInterlock.Create;
   FNeedFullRepaintLayerFlag := TSimpleFlagWithInterlock.Create;
 
-  FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
-  FOnMeasuringPaintCounter := PerfList.CreateAndAddNewCounter('OnMeasuringPaint');
+  FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
+  FOnMeasuringPaintCounter := APerfList.CreateAndAddNewCounter('OnMeasuringPaint');
 end;
 
 procedure TWindowLayerWithLocationBase.DoFullRepaintLayer;
@@ -430,7 +428,6 @@ constructor TWindowLayerBasicBase.Create(
 );
 begin
   inherited Create(
-    APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier
   );
@@ -441,8 +438,8 @@ begin
   FNeedUpdateLayerVisibilityFlag := TSimpleFlagWithInterlock.Create;
   FNeedFullRepaintLayerFlag := TSimpleFlagWithInterlock.Create;
 
-  FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
-  FOnMeasuringPaintCounter := PerfList.CreateAndAddNewCounter('OnMeasuringPaint');
+  FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
+  FOnMeasuringPaintCounter := APerfList.CreateAndAddNewCounter('OnMeasuringPaint');
 end;
 
 procedure TWindowLayerBasicBase.DoFullRepaintLayer;

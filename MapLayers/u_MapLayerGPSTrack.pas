@@ -106,7 +106,7 @@ begin
   FConfig := AConfig;
   FBitmapFactory := ABitmapFactory;
 
-  FGetTrackCounter := PerfList.CreateAndAddNewCounter('GetTrack');
+  FGetTrackCounter := APerfList.CreateAndAddNewCounter('GetTrack');
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(

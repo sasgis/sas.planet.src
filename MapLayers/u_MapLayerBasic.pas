@@ -78,20 +78,19 @@ constructor TMapLayerBasicNoBitmap.Create(
 );
 begin
   inherited Create(
-    APerfList,
     AAppStartedNotifier,
     AAppClosingNotifier
   );
 
   FView := AView;
   FLayer := TCustomLayer.Create(AParentMap.Layers);
-  FRedrawCounter := PerfList.CreateAndAddNewCounter('Redraw');
+  FRedrawCounter := APerfList.CreateAndAddNewCounter('Redraw');
 
   FLayer.MouseEvents := false;
   FLayer.Visible := false;
   FVisible := False;
   FNeedRedrawFlag := TSimpleFlagWithInterlock.Create;
-  FOnPaintCounter := PerfList.CreateAndAddNewCounter('OnPaint');
+  FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnViewChange),
     View.ChangeNotifier

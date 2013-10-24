@@ -1434,7 +1434,7 @@ begin
   VLayersList := TInterfaceListSimple.Create;
   VLayersList.Add(
     TMapLayerBitmapMaps.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('MapLayerBitmapMaps'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1454,7 +1454,7 @@ begin
   );
   VLayersList.Add(
     TMapLayerGrids.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGrids'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1470,7 +1470,7 @@ begin
   );
   FWikiLayer :=
     TMapLayerVectorMaps.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerVectorMaps'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1489,7 +1489,7 @@ begin
   VLayersList.Add(FWikiLayer);
   VLayersList.Add(
     TMapLayerFillingMap.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1523,7 +1523,7 @@ begin
     );
   FLayerMapMarks:=
     TMapLayerMarks.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerMarks'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1542,7 +1542,7 @@ begin
   VLayersList.Add(FLayerMapMarks);
   VLayersList.Add(
     TMapLayerGPSTrack.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSTrack'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1568,7 +1568,7 @@ begin
     );
   VLayersList.Add(
     TMapLayerGPSMarker.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSMarker'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1582,7 +1582,7 @@ begin
   );
   VLayersList.Add(
     TMapLayerGPSMarkerRings.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSMarkerRings'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1596,7 +1596,7 @@ begin
   );
   VLayersList.Add(
     TSelectionLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TSelectionLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1609,7 +1609,7 @@ begin
   );
   VLayersList.Add(
     TPathEditLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerCalcLine'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1622,7 +1622,7 @@ begin
   );
   VLayersList.Add(
     TPathEditPointsSetLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerCalcLine'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1636,7 +1636,7 @@ begin
   );
   VLayersList.Add(
     TCalcLineLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TCalcLineLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1648,7 +1648,7 @@ begin
   );
   VLayersList.Add(
     TPathEditLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerEditLine'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1661,7 +1661,7 @@ begin
   );
   VLayersList.Add(
     TPathEditPointsSetLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerEditLine'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1675,7 +1675,7 @@ begin
   );
   VLayersList.Add(
     TCalcLineLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TCalcLineLayerEditLine'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1687,7 +1687,7 @@ begin
   );
   VLayersList.Add(
     TPolygonEditLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditLayerEditPoly'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1700,7 +1700,7 @@ begin
   );
   VLayersList.Add(
     TPolygonEditPointsSetLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditPointsSetLayerEditPoly'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1714,7 +1714,7 @@ begin
   );
   VLayersList.Add(
     TPolygonEditLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditLayerSelection'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1727,7 +1727,7 @@ begin
   );
   VLayersList.Add(
     TPolygonEditPointsSetLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPolygonEditPointsSetLayerSelection'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1742,7 +1742,7 @@ begin
 
   VLayersList.Add(
     TSelectionPolylineShadowLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TSelectionPolylineShadowLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1756,7 +1756,7 @@ begin
   );
   VLayersList.Add(
     TPathEditLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditLayerSelectionLine'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1769,7 +1769,7 @@ begin
   );
   VLayersList.Add(
     TPathEditPointsSetLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPathEditPointsSetLayerSelectionLine'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1784,7 +1784,7 @@ begin
 
   VLayersList.Add(
     TSelectionRectLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TSelectionRectLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1809,7 +1809,7 @@ begin
   end;
   FLayerSearchResults :=
     TSearchResultsLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TSearchResultsLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1835,7 +1835,7 @@ begin
   end;
   VLayersList.Add(
     TGotoLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TGotoLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1859,7 +1859,7 @@ begin
 
   VLayersList.Add(
     TNavToMarkLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TNavToMarkLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1872,7 +1872,7 @@ begin
   );
   VLayersList.Add(
     TTileErrorInfoLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TTileErrorInfoLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1899,7 +1899,7 @@ begin
   end;
   VLayersList.Add(
     TPointOnMapEditLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TPointOnMapEditLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1910,7 +1910,7 @@ begin
   );
   VLayersList.Add(
     TFullMapMouseCursorLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TFullMapMouseCursorLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1927,7 +1927,7 @@ begin
     );
   VLayersList.Add(
     TLayerCenterScale.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TLayerCenterScale'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1939,7 +1939,7 @@ begin
   VLayersList.Add(
     TLayerScaleLine.Create(
       GState.Config.LanguageManager,
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TLayerScaleLine'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1955,7 +1955,7 @@ begin
     );
   VLayersList.Add(
     TLayerLicenseList.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TLayerLicenseList'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1965,7 +1965,7 @@ begin
   VLayersList.Add(
     TLayerStatBar.Create(
       GState.Config.LanguageManager,
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TLayerStatBar'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1991,7 +1991,7 @@ begin
     );
   VLayersList.Add(
     TMiniMapLayer.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2012,7 +2012,7 @@ begin
   );
   VLayersList.Add(
     TMiniMapLayerViewRect.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerViewRect'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2025,7 +2025,7 @@ begin
   );
   VLayersList.Add(
     TMiniMapLayerTopBorder.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerTopBorder'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2035,7 +2035,7 @@ begin
   );
   VLayersList.Add(
     TMiniMapLayerLeftBorder.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerLeftBorder'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2056,7 +2056,7 @@ begin
   end;
   VLayersList.Add(
     TMiniMapLayerMinusButton.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerMinusButton'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -2078,7 +2078,7 @@ begin
   end;
   VLayersList.Add(
     TMiniMapLayerPlusButton.Create(
-      GState.PerfCounterList,
+      GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerPlusButton'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,

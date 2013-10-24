@@ -13,7 +13,6 @@ uses
 type
   TWindowLayerAbstract = class(TBaseInterfacedObject)
   private
-    FPerfList: IInternalPerformanceCounterList;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
 
@@ -32,12 +31,10 @@ type
     procedure SendTerminateToThreads; virtual;
 
     property LinksList: IListenerNotifierLinksList read FLinksList;
-    property PerfList: IInternalPerformanceCounterList read FPerfList;
   public
     procedure AfterConstruction; override;
   public
     constructor Create(
-      const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation
     );
@@ -54,7 +51,6 @@ uses
 { TWindowLayerAbstract }
 
 constructor TWindowLayerAbstract.Create(
-  const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation
 );
@@ -62,7 +58,6 @@ begin
   inherited Create;
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
-  FPerfList := APerfList.CreateAndAddNewSubList(ClassName);
 
   FViewUpdateLockCounter := TCounterInterlock.Create;
   FLinksList := TListenerNotifierLinksList.Create;

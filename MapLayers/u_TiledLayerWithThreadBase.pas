@@ -170,12 +170,12 @@ begin
   FLayerProviderCS := MakeSyncRW_Var(Self);
   FTileMatrixCS := MakeSyncRW_Var(Self);
 
-  FBgDrawCounter := PerfList.CreateAndAddNewCounter('BgDraw');
-  FOneTilePrepareCounter := PerfList.CreateAndAddNewCounter('OneTilePrepare');
-  FOneTilePaintSimpleCounter := PerfList.CreateAndAddNewCounter('OneTilePaintSimple');
-  FOneTilePaintResizeCounter := PerfList.CreateAndAddNewCounter('OneTilePaintResize');
-  FPrepareLayerProviderCounter := PerfList.CreateAndAddNewCounter('PrepareLayerProvider');
-  FTileMatrixUpdateCounter := PerfList.CreateAndAddNewCounter('TileMatrixUpdate');
+  FBgDrawCounter := APerfList.CreateAndAddNewCounter('BgDraw');
+  FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
+  FOneTilePaintSimpleCounter := APerfList.CreateAndAddNewCounter('OneTilePaintSimple');
+  FOneTilePaintResizeCounter := APerfList.CreateAndAddNewCounter('OneTilePaintResize');
+  FPrepareLayerProviderCounter := APerfList.CreateAndAddNewCounter('PrepareLayerProvider');
+  FTileMatrixUpdateCounter := APerfList.CreateAndAddNewCounter('TileMatrixUpdate');
 
   FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
   FLayerChangedFlag := TSimpleFlagWithInterlock.Create;
