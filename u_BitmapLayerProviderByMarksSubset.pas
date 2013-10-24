@@ -26,7 +26,6 @@ uses
   GR32,
   WinTypes,
   t_GeoTypes,
-  i_ProjectionInfo,
   i_MarkerProviderForVectorItem,
   i_ProjectedGeometryProvider,
   i_LocalCoordConverter,

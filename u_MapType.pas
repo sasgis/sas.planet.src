@@ -64,7 +64,6 @@ uses
   i_MainMemCacheConfig,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
-  i_NotifierTilePyramidUpdate,
   i_VectorItemSubset,
   i_VectorDataFactory,
   i_ProjConverter,

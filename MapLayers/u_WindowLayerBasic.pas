@@ -5,7 +5,6 @@ interface
 uses
   i_Listener,
   i_NotifierOperation,
-  i_InternalPerformanceCounter,
   i_SimpleFlag,
   i_ListenerNotifierLinksList,
   u_BaseInterfacedObject;
