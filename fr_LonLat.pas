@@ -188,11 +188,6 @@ begin
 end;
 
 function TfrLonLat.GetLonLat: TDoublePoint;
-var
-  VLocalConverter: ILocalCoordConverter;
-  VTile: TPoint;
-  XYPoint: TDoublePoint;
-  VZoom: Byte;
 begin
   Result := FCoordinates;
 end;
