@@ -105,7 +105,6 @@ type
     procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
     procedure SendTerminateToThreads; override;
-    property TileMatrix: ITileMatrix read GetTileMatrix;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -213,7 +212,7 @@ end;
 
 procedure TTiledLayerWithThreadBase.DelicateRedrawWithFullUpdate;
 begin
-  SetMatrixNotReady(TileMatrix);
+  SetMatrixNotReady(GetTileMatrix);
   FDelicateRedrawFlag.SetFlag;
   FDrawTask.StartExecute;
 end;
@@ -231,7 +230,7 @@ var
   VNewTileMatrix: ITileMatrix;
   VProviderWithListener: IObjectWithListener;
 begin
-  VOldTileMatrix := TileMatrix;
+  VOldTileMatrix := GetTileMatrix;
   if Visible then begin
     VNewTileMatrix := FTileMatrixFactory.BuildNewMatrix(VOldTileMatrix, FPosition.GetStatic);
   end else begin
@@ -319,7 +318,7 @@ begin
   FDelicateRedrawFlag.CheckFlagAndReset;
   VNeedRedraw := True;
   while VNeedRedraw do begin
-    VTileMatrix := TileMatrix;
+    VTileMatrix := GetTileMatrix;
     if VTileMatrix = nil then begin
       Exit;
     end;
@@ -377,7 +376,7 @@ var
   VElement: ITileMatrixElement;
 begin
   if Supports(AMsg, ILonLatRect, VLonLatRect) then begin
-    VTileMatrix := TileMatrix;
+    VTileMatrix := GetTileMatrix;
     if VTileMatrix <> nil then begin
       VMapLonLatRect := VLonLatRect.Rect;
       VConverter := VTileMatrix.LocalConverter.GeoConverter;
@@ -472,7 +471,7 @@ var
   VDstRect: TRect;
 begin
   if FLayerChangedFlag.CheckFlagAndReset then begin
-    VTileMatrix := TileMatrix;
+    VTileMatrix := GetTileMatrix;
     VLocalConverter := FView.GetStatic;
     if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
       if not VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.LocalConverter.ProjectionInfo) then begin
@@ -499,7 +498,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   VLocalConverter := FView.GetStatic;
-  VTileMatrix := TileMatrix;
+  VTileMatrix := GetTileMatrix;
   if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
     PaintLayerFromTileMatrix(ABuffer, VLocalConverter, VTileMatrix);
   end;
@@ -635,7 +634,7 @@ end;
 procedure TTiledLayerWithThreadBase.SetNeedUpdateLayerProvider;
 begin
   FDrawTask.StopExecute;
-  SetMatrixNotReady(TileMatrix);
+  SetMatrixNotReady(GetTileMatrix);
   FUpdateLayerProviderFlag.SetFlag;
 end;
 
