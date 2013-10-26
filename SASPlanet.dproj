@@ -19,10 +19,10 @@
     <DCC_ObjOutput>.\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>.\.dcu</DCC_HppOutput>
     <DCC_Define>RELEASE</DCC_Define>
-    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\FastMM;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage</DCC_UnitSearchPath>
-    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\FastMM;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage</DCC_ResourcePath>
-    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\FastMM;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage</DCC_ObjPath>
-    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\FastMM;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage</DCC_IncludePath>
+    <DCC_UnitSearchPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\FastMM;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage</DCC_UnitSearchPath>
+    <DCC_ResourcePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\FastMM;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage</DCC_ResourcePath>
+    <DCC_ObjPath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\FastMM;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage</DCC_ObjPath>
+    <DCC_IncludePath>Includes;Includes\RarProgressBar;Includes\Fundamentals;Includes\FastMM;Includes\FastCode;Includes\BerkeleyDB;Includes\LibJpeg;Includes\FreeImage</DCC_IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>

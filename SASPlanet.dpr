@@ -4,6 +4,10 @@ program SASPlanet;
 uses
   {$IFDEF RELEASE}
   FastMM4,
+  FastMove,
+    {$IFNDEF UNICODE}
+    FastCode,
+    {$ENDIF}
   {$ENDIF}
   Forms,
   Windows,
