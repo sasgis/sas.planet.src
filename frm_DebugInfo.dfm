@@ -187,5 +187,60 @@ object frmDebugInfo: TfrmDebugInfo
       Hint = 'Reset'
       OnClick = pmiTotalResetClick
     end
+    object pmiSep2: TMenuItem
+      Caption = '-'
+    end
+    object pmiSortBy: TMenuItem
+      Caption = 'Sort by'
+      object pmiSortByName: TMenuItem
+        AutoCheck = True
+        Caption = 'Name'
+        Checked = True
+        RadioItem = True
+        OnClick = SortByClick
+      end
+      object pmiSortByTotalCount: TMenuItem
+        Tag = 1
+        AutoCheck = True
+        Caption = 'Total Count'
+        RadioItem = True
+        OnClick = SortByClick
+      end
+      object pmiSortByTotalAvg: TMenuItem
+        Tag = 2
+        AutoCheck = True
+        Caption = 'Total Average time'
+        RadioItem = True
+        OnClick = SortByClick
+      end
+      object pmiSortByTotalTime: TMenuItem
+        Tag = 3
+        AutoCheck = True
+        Caption = 'Total Time'
+        RadioItem = True
+        OnClick = SortByClick
+      end
+      object pmiSortByUICount: TMenuItem
+        Tag = 4
+        AutoCheck = True
+        Caption = 'UI Count'
+        RadioItem = True
+        OnClick = SortByClick
+      end
+      object pmiSortByUiAvg: TMenuItem
+        Tag = 5
+        AutoCheck = True
+        Caption = 'UI Average time'
+        RadioItem = True
+        OnClick = SortByClick
+      end
+      object pmiSortByUiTime: TMenuItem
+        Tag = 6
+        AutoCheck = True
+        Caption = 'UI Time'
+        RadioItem = True
+        OnClick = SortByClick
+      end
+    end
   end
 end

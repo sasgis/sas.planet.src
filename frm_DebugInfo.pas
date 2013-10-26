@@ -57,6 +57,15 @@ type
     pmiTotalIsGreaterOrEqual: TMenuItem;
     pmiTotalReset: TMenuItem;
     lblFiltering: TLabel;
+    pmiSortBy: TMenuItem;
+    pmiSortByTotalTime: TMenuItem;
+    pmiSortByTotalAvg: TMenuItem;
+    pmiSortByTotalCount: TMenuItem;
+    pmiSortByUiTime: TMenuItem;
+    pmiSortByUICount: TMenuItem;
+    pmiSortByUiAvg: TMenuItem;
+    pmiSortByName: TMenuItem;
+    pmiSep2: TMenuItem;
     procedure btnRefreshClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -71,11 +80,13 @@ type
     procedure pmiTotalResetClick(Sender: TObject);
     procedure pmiCountIsGreaterOrEqualClick(Sender: TObject);
     procedure pmiTotalIsGreaterOrEqualClick(Sender: TObject);
+    procedure SortByClick(Sender: TObject);
   private
     FDebugInfoSubSystem: IDebugInfoSubSystem;
     FPrevStateList: IIDInterfaceList;
     FCurrStateList: IInterfaceListSimple;
   private
+    FSortIndex: Integer;
     FMenuFiltering_MinimumCount: Integer;
     FMenuFiltering_EnabledCount: Boolean;
     FMenuFiltering_MinimumTotal: Double;
@@ -90,6 +101,7 @@ type
       const ACurrData: IInternalPerformanceCounterStaticData
     ): Boolean;
     function GetPopupRow: Integer;
+    procedure SortDataForGrid;
 
     procedure PrepareGridHeader;
     function GetGridLinesText(const ATop, ABottom: Integer): String;
@@ -131,6 +143,7 @@ begin
   FMenuFiltering_EnabledTotal := False;
   FPrevStateList := TIDInterfaceList.Create(False);
   FCurrStateList := TInterfaceListSimple.Create;
+  FSortIndex := 0;
 end;
 
 destructor TfrmDebugInfo.Destroy;
@@ -364,6 +377,93 @@ begin
   UpdateGrid;
 end;
 
+procedure TfrmDebugInfo.SortByClick(Sender: TObject);
+var
+  VSortIndex: Integer;
+begin
+  VSortIndex := FSortIndex;
+  if Assigned(Sender) and (Sender is TComponent) then begin
+    VSortIndex := TComponent(Sender).Tag;
+    if (VSortIndex < 0) or (VSortIndex > 6) then begin
+      VSortIndex := FSortIndex;
+    end;
+  end;
+  if FSortIndex <> VSortIndex then begin
+    FSortIndex := VSortIndex;
+    UpdateGrid;
+  end;
+end;
+
+function CompareDataNames(const Item1, Item2: IInterface): Integer;
+begin
+  Result :=
+    CompareStr(
+      IInternalPerformanceCounterStaticData(Item1).Name,
+      IInternalPerformanceCounterStaticData(Item2).Name
+    );
+end;
+
+procedure TfrmDebugInfo.SortDataForGrid;
+var
+  VSortMeasureInteger: array of Integer;
+  VSortMeasureDouble: array of Double;
+  i: Integer;
+  VPrevData, VCurrData: IInternalPerformanceCounterStaticData;
+  VId: Integer;
+  VValueInteger: Integer;
+  VValueDouble: Double;
+begin
+  if FSortIndex = 0 then begin
+    SortInterfaceListByCompareFunction(
+      FCurrStateList,
+      CompareDataNames
+    );
+  end else begin
+    if FSortIndex in [1, 4] then begin
+      SetLength(VSortMeasureInteger, FCurrStateList.Count);
+    end else begin
+      SetLength(VSortMeasureDouble, FCurrStateList.Count);
+    end;
+    for i := 0 to FCurrStateList.Count - 1 do begin
+      VCurrData := IInternalPerformanceCounterStaticData(FCurrStateList.Items[i]);
+      VId := VCurrData.Id;
+      VPrevData := IInternalPerformanceCounterStaticData(FPrevStateList.GetByID(VId));
+      if FSortIndex in [1, 2, 3] then begin
+        VValueInteger := VCurrData.Counter;
+        VValueDouble := VCurrData.TotalTime;
+      end else begin
+        VValueInteger := VCurrData.CounterInMain;
+        VValueDouble := VCurrData.TotalTimeInMain;
+      end;
+      if Assigned(VPrevData) then begin
+        if FSortIndex in [2, 3] then begin
+          VValueInteger := VValueInteger - Integer(VPrevData.Counter);
+          VValueDouble := VValueDouble - VPrevData.TotalTime;
+        end else begin
+          VValueInteger := VValueInteger - Integer(VPrevData.CounterInMain);
+          VValueDouble := VValueDouble - VPrevData.TotalTimeInMain;
+        end;
+      end;
+      if FSortIndex in [1, 4] then begin
+        VSortMeasureInteger[i] := -VValueInteger;
+      end else if FSortIndex in [2, 5] then begin
+        if VValueInteger <> 0 then begin
+          VSortMeasureDouble[i] := - VValueDouble / VValueInteger;
+        end else begin
+          VSortMeasureDouble[i] := 0;
+        end;
+      end else begin
+        VSortMeasureDouble[i] := -VValueDouble;
+      end;
+    end;
+    if FSortIndex in [1, 4] then begin
+      SortInterfaceListByIntegerMeasure(FCurrStateList, VSortMeasureInteger);
+    end else begin
+      SortInterfaceListByDoubleMeasure(FCurrStateList, VSortMeasureDouble);
+    end;
+  end;
+end;
+
 procedure TfrmDebugInfo.UpdateGrid;
 var
   VCurrStaticData: IInterfaceListStatic;
@@ -372,8 +472,6 @@ var
   VName: string;
   VPrevData, VCurrData: IInternalPerformanceCounterStaticData;
   VId: Integer;
-  VSortMeasure: array of Double;
-  VValue: Double;
 begin
   PrepareGridHeader;
   if FDebugInfoSubSystem = nil then begin
@@ -383,18 +481,7 @@ begin
   VCurrStaticData := FDebugInfoSubSystem.GetStaticDataList;
   FCurrStateList.Clear;
   FCurrStateList.AddListStatic(VCurrStaticData);
-  SetLength(VSortMeasure, FCurrStateList.Count);
-  for i := 0 to VCurrStaticData.Count - 1 do begin
-    VCurrData := IInternalPerformanceCounterStaticData(VCurrStaticData.Items[i]);
-    VId := VCurrData.Id;
-    VPrevData := IInternalPerformanceCounterStaticData(FPrevStateList.GetByID(VId));
-    VValue := VCurrData.TotalTime;
-    if Assigned(VPrevData) then begin
-      VValue := VValue - VPrevData.TotalTime;
-    end;
-    VSortMeasure[i] := VValue;
-  end;
-  SortInterfaceListByDoubleMeasure(FCurrStateList, VSortMeasure);
+  SortDataForGrid;
 
   VLastRow := sgrdDebugInfo.FixedRows;
   for i := 0 to FCurrStateList.Count - 1 do begin
