@@ -339,10 +339,12 @@ var
   i: integer;
 begin
   Result := False;
-  VEnumMarks := AMarksSubset.GetEnum;
-  while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
-    AddMark(VMark, inNode);
-    Result := True;
+  if Assigned(AMarksSubset) then begin
+    VEnumMarks := AMarksSubset.GetEnum;
+    while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
+      AddMark(VMark, inNode);
+      Result := True;
+    end;
   end;
 end;
 
