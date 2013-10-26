@@ -162,7 +162,7 @@ procedure SortInterfaceListByCompareFunction(
         while ACompareFunc(AList[I], P) < 0 do begin
           Inc(I);
         end;
-        while ACompareFunc(AList[I], P) > 0 do begin
+        while ACompareFunc(AList[J], P) > 0 do begin
           Dec(J);
         end;
         if I <= J then begin
@@ -212,7 +212,7 @@ procedure SortInterfaceListByCompareFunctor(
         while ACompareFunc(AList[I], P) < 0 do begin
           Inc(I);
         end;
-        while ACompareFunc(AList[I], P) > 0 do begin
+        while ACompareFunc(AList[J], P) > 0 do begin
           Dec(J);
         end;
         if I <= J then begin
