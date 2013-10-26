@@ -350,10 +350,13 @@ procedure TfrmDebugInfo.PrepareGridHeader;
 begin
   sgrdDebugInfo.Cells[0, 0] := 'Class';
   sgrdDebugInfo.Cells[1, 0] := 'Count';
-  sgrdDebugInfo.Cells[2, 0] := 'Time max, s';
-  sgrdDebugInfo.Cells[3, 0] := 'Time avg, s';
-  sgrdDebugInfo.Cells[4, 0] := 'Time min, s';
-  sgrdDebugInfo.Cells[5, 0] := 'Time total';
+  sgrdDebugInfo.Cells[2, 0] := 'Time avg, s';
+  sgrdDebugInfo.Cells[3, 0] := 'Time total';
+  sgrdDebugInfo.Cells[4, 0] := 'UI Count';
+  sgrdDebugInfo.Cells[5, 0] := 'UI Time avg, s';
+  sgrdDebugInfo.Cells[6, 0] := 'UI Time total';
+  sgrdDebugInfo.Cells[7, 0] := 'Time max, s';
+  sgrdDebugInfo.Cells[8, 0] := 'Time min, s';
 end;
 
 procedure TfrmDebugInfo.tmrRefreshTimer(Sender: TObject);
@@ -417,6 +420,8 @@ function TfrmDebugInfo.UpdateGridRow(
 var
   VCount: Cardinal;
   VTime: TDateTime;
+  VCountInMain: Cardinal;
+  VTimeInMain: TDateTime;
   VMax: TDateTime;
   VMin: TDateTime;
   VAvgTime: Extended;
@@ -425,11 +430,15 @@ begin
   if ACurrData <> nil then begin
     VCount := ACurrData.Counter;
     VTime := ACurrData.TotalTime;
+    VCountInMain := ACurrData.CounterInMain;
+    VTimeInMain := ACurrData.TotalTimeInMain;
     VMax := ACurrData.MaxTime;
     VMin := ACurrData.MinTime;
   end else begin
     VCount := 0;
     VTime := 0;
+    VCountInMain := 0;
+    VTimeInMain := 0;
     VMax := 0;
     VMin := 0;
   end;
@@ -437,6 +446,8 @@ begin
   if APrevData <> nil then begin
     VCount := VCount - APrevData.Counter;
     VTime := VTime - APrevData.TotalTime;
+    VCountInMain := VCountInMain - APrevData.CounterInMain;
+    VTimeInMain := VTimeInMain - APrevData.TotalTimeInMain;
   end;
 
   if not chkHideEmtyRows.Checked or (VCount > 0) then
@@ -449,16 +460,29 @@ begin
     if VCount > 0 then begin
       sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
       VAvgTime := VTime/VCount*24*60*60;
-      sgrdDebugInfo.Cells[2, ARow] := _DoubleToStr(VMax*24*60*60);
-      sgrdDebugInfo.Cells[3, ARow] := _DoubleToStr(VAvgTime);
-      sgrdDebugInfo.Cells[4, ARow] := _DoubleToStr(VMin*24*60*60);
-      sgrdDebugInfo.Cells[5, ARow] := _TimeToStr(VTime);
+      sgrdDebugInfo.Cells[2, ARow] := _DoubleToStr(VAvgTime);
+      sgrdDebugInfo.Cells[3, ARow] := _TimeToStr(VTime);
+      if VCountInMain > 0 then begin
+        sgrdDebugInfo.Cells[4, ARow] := IntToStr(VCountInMain);
+        VAvgTime := VTimeInMain/VCountInMain*24*60*60;
+        sgrdDebugInfo.Cells[5, ARow] := _DoubleToStr(VAvgTime);
+        sgrdDebugInfo.Cells[6, ARow] := _TimeToStr(VTimeInMain);
+      end else begin
+        sgrdDebugInfo.Cells[4, ARow] := '';
+        sgrdDebugInfo.Cells[5, ARow] := '';
+        sgrdDebugInfo.Cells[6, ARow] := '';
+      end;
+      sgrdDebugInfo.Cells[7, ARow] := _DoubleToStr(VMax*24*60*60);
+      sgrdDebugInfo.Cells[8, ARow] := _DoubleToStr(VMin*24*60*60);
     end else begin
       sgrdDebugInfo.Cells[1, ARow] := '';
       sgrdDebugInfo.Cells[2, ARow] := '';
       sgrdDebugInfo.Cells[3, ARow] := '';
       sgrdDebugInfo.Cells[4, ARow] := '';
       sgrdDebugInfo.Cells[5, ARow] := '';
+      sgrdDebugInfo.Cells[6, ARow] := '';
+      sgrdDebugInfo.Cells[7, ARow] := '';
+      sgrdDebugInfo.Cells[8, ARow] := '';
     end;
     Result := True;
   end;

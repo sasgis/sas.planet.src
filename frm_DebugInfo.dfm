@@ -18,7 +18,7 @@ object frmDebugInfo: TfrmDebugInfo
     Width = 792
     Height = 537
     Align = alClient
-    ColCount = 6
+    ColCount = 9
     DefaultColWidth = 80
     DefaultRowHeight = 20
     FixedColor = clWindow
@@ -28,6 +28,9 @@ object frmDebugInfo: TfrmDebugInfo
     TabOrder = 0
     ColWidths = (
       338
+      80
+      80
+      80
       80
       80
       80
@@ -45,8 +48,8 @@ object frmDebugInfo: TfrmDebugInfo
     object lblFiltering: TLabel
       Left = 378
       Top = 0
-      Width = 38
-      Height = 13
+      Width = 93
+      Height = 29
       Hint = 'Filtering'
       Align = alClient
       Caption = 'Filtering'
@@ -57,6 +60,8 @@ object frmDebugInfo: TfrmDebugInfo
       Font.Style = []
       ParentFont = False
       Layout = tlCenter
+      ExplicitWidth = 38
+      ExplicitHeight = 13
     end
     object btnRefresh: TButton
       AlignWithMargins = True
