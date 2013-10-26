@@ -543,7 +543,7 @@ begin
       VElement := ATileMatrix.GetElementByTile(VTile);
       if VElement <> nil then begin
         VDstRect := ALocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel, rrToTopLeft);
-        Types.IntersectRect(VTileRectInClipRect, VDstRect, ABuffer.ClipRect);
+        Types.IntersectRect(VClipedDstRect, VDstRect, ABuffer.ClipRect);
 
         if ABuffer.MeasuringMode or not Types.EqualRect(VDstRect, VClipedDstRect) then begin
           VBitmap := VElement.GetBitmap;

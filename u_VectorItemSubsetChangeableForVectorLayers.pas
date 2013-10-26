@@ -456,7 +456,7 @@ begin
       if FResult = nil then begin
         VNeedNotify := (VResult <> nil) and (not VResult.IsEmpty);
       end else begin
-        VNeedNotify := (VResult <> nil) and (not VResult.IsEmpty) and (not FResult.IsEmpty);
+        VNeedNotify := not FResult.IsEqual(VResult);
       end;
       FResult := VResult;
     finally
