@@ -39,6 +39,12 @@ type
     function GetTotalTime: TDateTime;
     property TotalTime: TDateTime read GetTotalTime;
 
+    function GetCounterInMain: Cardinal;
+    property CounterInMain: Cardinal read GetCounterInMain;
+
+    function GetTotalTimeInMain: TDateTime;
+    property TotalTimeInMain: TDateTime read GetTotalTimeInMain;
+
     function GetMaxTime: TDateTime;
     property MaxTime: TDateTime read GetMaxTime;
 

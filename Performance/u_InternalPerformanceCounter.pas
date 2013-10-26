@@ -127,15 +127,18 @@ end;
 function TInternalPerformanceCounter.GetStaticData: IInternalPerformanceCounterStaticData;
 var
   VTotalTime: Double;
+  VTotalTimeInMain: Double;
   VMaxTime: Double;
   VMinTime: Double;
 begin
   if (FFreq = 0) or (FTotal = 0) then begin
     VTotalTime := 0;
+    VTotalTimeInMain := 0;
     VMaxTime := 0;
     VMinTime := 0;
   end else begin
     VTotalTime := FTotal / FFreq / 24 / 60 / 60;
+    VTotalTimeInMain := FTotalInMain / FFreq / 24 / 60 / 60;
     VMaxTime := FMax / FFreq / 24 / 60 / 60;
     VMinTime := FMin / FFreq / 24 / 60 / 60;
   end;
@@ -145,6 +148,8 @@ begin
       FName,
       FCounter,
       VTotalTime,
+      FCounterInMain,
+      VTotalTimeInMain,
       VMaxTime,
       VMinTime
     );
