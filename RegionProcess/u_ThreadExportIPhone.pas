@@ -89,6 +89,7 @@ uses
   c_CoordConverter,
   i_LocalCoordConverter,
   i_Bitmap32Static,
+  i_MapVersionInfo,
   u_GeoToStr,
   u_ResStrings,
   i_VectorItemProjected,
@@ -116,6 +117,8 @@ constructor TThreadExportIPhone.Create(
 );
 var
   VTaskIndex: Integer;
+  VMapVersion: IMapVersionInfo;
+  VLayerVersion: IMapVersionInfo;
 begin
   inherited Create(
     AProgressInfo,
@@ -191,13 +194,21 @@ begin
     end;
     FTasks[VTaskIndex].FFlag := 6;
     FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Achib);
+    VMapVersion := nil;
+    if Assigned(Atypemaparr[0]) then begin
+      VMapVersion := Atypemaparr[0].VersionConfig.Version;
+    end;
+    VLayerVersion := nil;
+    if Assigned(Atypemaparr[2]) then begin
+      VLayerVersion := Atypemaparr[2].VersionConfig.Version;
+    end;
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmapFactory,
         Atypemaparr[0],
-        Atypemaparr[0].VersionConfig.Version,
+        VMapVersion,
         Atypemaparr[2],
-        Atypemaparr[2].VersionConfig.Version,
+        VLayerVersion,
         False,
         False
       );
