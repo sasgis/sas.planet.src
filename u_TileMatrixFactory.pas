@@ -232,6 +232,10 @@ var
   VConverter: ICoordConverter;
   VMapPixelRect: TDoubleRect;
 begin
+  Result := nil;
+  if not Assigned(ANewConverter) then begin
+    Exit;
+  end;
   VMapPixelRect := ANewConverter.GetRectInMapPixelFloat;
   VZoom := ANewConverter.Zoom;
   VConverter := ANewConverter.GeoConverter;
