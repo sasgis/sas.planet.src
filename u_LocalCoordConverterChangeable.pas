@@ -10,7 +10,7 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TLocalCoordConverterChangeable = class(TConfigDataElementBaseEmptySaveLoad, ILocalCoordConverterChangeable, ILocalCoordConverterChangeableInternal)
+  TLocalCoordConverterChangeable = class(TConfigDataElementWithStaticBaseEmptySaveLoad, ILocalCoordConverterChangeable, ILocalCoordConverterChangeableInternal)
   private
     FConverter: ILocalCoordConverter;
     FChangeCounter: IInternalPerformanceCounter;
@@ -18,6 +18,7 @@ type
     function GetStatic: ILocalCoordConverter;
     procedure SetConverter(const AValue: ILocalCoordConverter);
   protected
+    function CreateStatic: IInterface; override;
     procedure DoChangeNotify; override;
   public
     constructor Create(
@@ -42,6 +43,11 @@ begin
   FChangeCounter := AChangeCounter;
 end;
 
+function TLocalCoordConverterChangeable.CreateStatic: IInterface;
+begin
+  Result := FConverter;
+end;
+
 procedure TLocalCoordConverterChangeable.DoChangeNotify;
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -56,24 +62,17 @@ end;
 
 function TLocalCoordConverterChangeable.GetStatic: ILocalCoordConverter;
 begin
-  LockRead;
-  Try
-    Result := FConverter;
-  Finally
-    UnlockRead;
-  End;
+  Result := ILocalCoordConverter(GetStaticInternal);
 end;
 
 procedure TLocalCoordConverterChangeable.SetConverter(
   const AValue: ILocalCoordConverter);
 begin
-  if AValue = nil then begin
-    Exit;
-  end;
-
   LockWrite;
   try
-    if not FConverter.GetIsSameConverter(AValue) then begin
+    if (Assigned(FConverter) and not FConverter.GetIsSameConverter(AValue))
+      or (Assigned(AValue) and not Assigned(FConverter))
+    then begin
       FConverter := AValue;
       SetChanged;
     end;
