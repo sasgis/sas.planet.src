@@ -584,6 +584,8 @@ uses
   u_BitmapLayerProviderByVectorSubset in 'u_BitmapLayerProviderByVectorSubset.pas',
   u_BitmapLayerProviderByTrackPath in 'u_BitmapLayerProviderByTrackPath.pas',
   u_BitmapLayerProviderMapWithLayer in 'u_BitmapLayerProviderMapWithLayer.pas',
+  u_BitmapLayerProviderByMapType in 'u_BitmapLayerProviderByMapType.pas',
+  u_BitmapLayerProviderCombineTwoProviders in 'u_BitmapLayerProviderCombineTwoProviders.pas',
   u_BitmapLayerProviderForViewMaps in 'u_BitmapLayerProviderForViewMaps.pas',
   u_BitmapLayerProviderFillingMap in 'u_BitmapLayerProviderFillingMap.pas',
   u_BitmapLayerProviderGridTiles in 'u_BitmapLayerProviderGridTiles.pas',
