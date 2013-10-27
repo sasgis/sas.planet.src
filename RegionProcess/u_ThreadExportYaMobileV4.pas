@@ -89,6 +89,7 @@ uses
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
+  i_MapVersionInfo,
   i_VectorItemProjected,
   i_TileIterator,
   u_BitmapFunc,
@@ -117,6 +118,8 @@ constructor TThreadExportYaMobileV4.Create(
 var
   i: integer;
   VTaskIndex: Integer;
+  VMapVersion: IMapVersionInfo;
+  VLayerVersion: IMapVersionInfo;
 begin
   inherited Create(
     AProgressInfo,
@@ -154,13 +157,21 @@ begin
       FTasks[VTaskIndex].FMapName := Atypemaparr[0].GUIConfig.Name.Value;
     end;
     FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Acsat);
+    VMapVersion := nil;
+    if Assigned(Atypemaparr[0]) then begin
+      VMapVersion := Atypemaparr[0].VersionConfig.Version;
+    end;
+    VLayerVersion := nil;
+    if Assigned(Atypemaparr[2]) then begin
+      VLayerVersion := Atypemaparr[2].VersionConfig.Version;
+    end;
     FTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmapFactory,
         Atypemaparr[0],
-        Atypemaparr[0].VersionConfig.Version,
+        VMapVersion,
         Atypemaparr[2],
-        Atypemaparr[2].VersionConfig.Version,
+        VLayerVersion,
         False,
         False
       );
