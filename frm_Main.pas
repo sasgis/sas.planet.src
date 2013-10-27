@@ -1987,7 +1987,7 @@ begin
       GState.PerfCounterList.CreateAndAddNewCounter('MiniMapConverter'),
       GState.LocalConverterFactory,
       FConfig.ViewPortState.View,
-      FConfig.LayersConfig.MiniMapLayerConfig
+      FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig
     );
   VLayersList.Add(
     TMiniMapLayer.Create(
@@ -2384,12 +2384,12 @@ begin
   Showstatus.Checked := FConfig.LayersConfig.StatBar.Visible;
   if Showstatus.Checked then begin
     FConfig.LayersConfig.ScaleLineConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
-    FConfig.LayersConfig.MiniMapLayerConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
+    FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.BottomMargin := FConfig.LayersConfig.StatBar.Height;
   end else begin
     FConfig.LayersConfig.ScaleLineConfig.BottomMargin := 0;
-    FConfig.LayersConfig.MiniMapLayerConfig.BottomMargin := 0;
+    FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.BottomMargin := 0;
   end;
-  ShowMiniMap.Checked := FConfig.LayersConfig.MiniMapLayerConfig.Visible;
+  ShowMiniMap.Checked := FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible;
   ShowLine.Checked := FConfig.LayersConfig.ScaleLineConfig.Visible;
   NShowSelection.Checked := FConfig.LayersConfig.LastSelectionLayerConfig.Visible;
   tbitmGauge.Checked := FConfig.LayersConfig.CenterScaleConfig.Visible;
@@ -4554,7 +4554,7 @@ end;
 
 procedure TfrmMain.ShowMiniMapClick(Sender: TObject);
 begin
-  FConfig.LayersConfig.MiniMapLayerConfig.Visible := TTBXItem(Sender).Checked;
+  FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig.Visible := TTBXItem(Sender).Checked;
 end;
 
 procedure TfrmMain.ShowLineClick(Sender: TObject);

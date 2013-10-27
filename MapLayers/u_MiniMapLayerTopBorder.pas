@@ -136,7 +136,7 @@ procedure TMiniMapLayerTopBorder.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    Visible := FConfig.Visible;
+    Visible := FConfig.LocationConfig.GetStatic.Visible;
     SetNeedUpdateBitmapSize;
     SetNeedUpdateBitmapDraw;
   finally

@@ -125,6 +125,9 @@ var
   VCenterPos: TPoint;
 begin
   inherited;
+  if Layer.Bitmap.Empty then begin
+    Exit;
+  end;
   Layer.Bitmap.Clear(clLightGray32);
   VSize := Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
   Layer.Bitmap.VertLineS(0, 0, VSize.Y - 1, clBlack32);
@@ -201,7 +204,7 @@ begin
     if VNewWidth > VVisibleSize.Y then begin
       VNewWidth := VVisibleSize.Y;
     end;
-    FConfig.Width := VNewWidth;
+    FConfig.LocationConfig.Width := VNewWidth;
   end;
 end;
 
@@ -217,7 +220,7 @@ procedure TMiniMapLayerLeftBorder.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    Visible := FConfig.Visible;
+    Visible := FConfig.LocationConfig.GetStatic.Visible;
     SetNeedUpdateBitmapSize;
     SetNeedUpdateBitmapDraw;
   finally

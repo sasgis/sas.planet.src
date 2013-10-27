@@ -184,7 +184,7 @@ procedure TMiniMapLayer.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    Visible := FConfig.Visible;
+    Visible := FConfig.LocationConfig.GetStatic.Visible;
     SetNeedUpdateLayerProvider;
   finally
     ViewUpdateUnlock;

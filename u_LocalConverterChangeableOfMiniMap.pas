@@ -17,13 +17,16 @@ type
   private
     FInternal: ILocalCoordConverterChangeableInternal;
     FSoruce: ILocalCoordConverterChangeable;
-    FConfig: IMiniMapLayerConfig;
+    FConfig: IMiniMapLayerLocationConfig;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FSourceListener: IListener;
     FConfigListener: IListener;
     procedure OnSourceChange;
     procedure OnConfigChange;
-    function GetActualZoom(const AVisualCoordConverter: ILocalCoordConverter): Byte;
+    function GetActualZoom(
+      AZoomDelta: Integer;
+      const AVisualCoordConverter: ILocalCoordConverter
+    ): Byte;
     function GetConverterForSource(
       const AVisualCoordConverter: ILocalCoordConverter
     ): ILocalCoordConverter;
@@ -37,7 +40,7 @@ type
       const AChangeCounter: IInternalPerformanceCounter;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ASoruce: ILocalCoordConverterChangeable;
-      const AConfig: IMiniMapLayerConfig
+      const AConfig: IMiniMapLayerLocationConfig
     );
     destructor Destroy; override;
   end;
@@ -59,7 +62,7 @@ constructor TLocalConverterChangeableOfMiniMap.Create(
   const AChangeCounter: IInternalPerformanceCounter;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ASoruce: ILocalCoordConverterChangeable;
-  const AConfig: IMiniMapLayerConfig
+  const AConfig: IMiniMapLayerLocationConfig
 );
 begin
   inherited Create;
@@ -96,25 +99,25 @@ begin
 end;
 
 function TLocalConverterChangeableOfMiniMap.GetActualZoom(
-  const AVisualCoordConverter: ILocalCoordConverter): Byte;
+  AZoomDelta: Integer;
+  const AVisualCoordConverter: ILocalCoordConverter
+): Byte;
 var
   VZoom: Byte;
   VGeoConvert: ICoordConverter;
-  VZoomDelta: Integer;
 begin
   VZoom := AVisualCoordConverter.GetZoom;
   VGeoConvert := AVisualCoordConverter.GetGeoConverter;
-  VZoomDelta := FConfig.ZoomDelta;
-  if VZoomDelta = 0 then begin
+  if AZoomDelta = 0 then begin
     Result := VZoom;
-  end else if VZoomDelta > 0 then begin
-    if VZoom > VZoomDelta then begin
-      Result := VZoom - VZoomDelta;
+  end else if AZoomDelta > 0 then begin
+    if VZoom > AZoomDelta then begin
+      Result := VZoom - AZoomDelta;
     end else begin
       Result := 0;
     end;
   end else begin
-    Result := VZoom - VZoomDelta;
+    Result := VZoom - AZoomDelta;
     VGeoConvert.CheckZoom(Result);
   end;
 end;
@@ -138,6 +141,7 @@ function TLocalConverterChangeableOfMiniMap.GetConverterForSource(
   const AVisualCoordConverter: ILocalCoordConverter
 ): ILocalCoordConverter;
 var
+  VConfig: IMiniMapLayerLocationConfigStatic;
   VVisualMapCenter: TDoublePoint;
   VZoom: Byte;
   VSourceZoom: Byte;
@@ -152,35 +156,39 @@ var
   VBottomMargin: Integer;
   VLocalRect: TRect;
 begin
-  VWidth := FConfig.Width;
-  VBottomMargin := FConfig.BottomMargin;
-  VVeiwSize := AVisualCoordConverter.GetLocalRectSize;
-  VLayerSize := Point(VWidth, VWidth);
-  VLocalRect.Right := VVeiwSize.X;
-  VLocalRect.Bottom := VVeiwSize.Y - VBottomMargin;
-  VLocalRect.Left := VLocalRect.Right - VLayerSize.X;
-  VLocalRect.Top := VLocalRect.Bottom - VLayerSize.Y;
+  Result := nil;
+  VConfig := FConfig.GetStatic;
+  if VConfig.Visible then begin
+    VWidth := VConfig.Width;
+    VBottomMargin := VConfig.BottomMargin;
+    VVeiwSize := AVisualCoordConverter.GetLocalRectSize;
+    VLayerSize := Point(VWidth, VWidth);
+    VLocalRect.Right := VVeiwSize.X;
+    VLocalRect.Bottom := VVeiwSize.Y - VBottomMargin;
+    VLocalRect.Left := VLocalRect.Right - VLayerSize.X;
+    VLocalRect.Top := VLocalRect.Bottom - VLayerSize.Y;
 
-  VVisualMapCenter := AVisualCoordConverter.GetCenterMapPixelFloat;
-  VSourceZoom := AVisualCoordConverter.GetZoom;
-  VConverter := AVisualCoordConverter.GetGeoConverter;
-  VConverter.CheckPixelPosFloatStrict(VVisualMapCenter, VSourceZoom, True);
-  VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
-  VZoom := GetActualZoom(AVisualCoordConverter);
-  VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
-  VLocalTopLeftAtMapFloat :=
-    DoublePoint(
-      VVisualMapCenterInLayerMap.X - (VLocalRect.Left + VLayerSize.X / 2),
-      VVisualMapCenterInLayerMap.Y - (VLocalRect.Top + VLayerSize.Y / 2)
+    VVisualMapCenter := AVisualCoordConverter.GetCenterMapPixelFloat;
+    VSourceZoom := AVisualCoordConverter.GetZoom;
+    VConverter := AVisualCoordConverter.GetGeoConverter;
+    VConverter.CheckPixelPosFloatStrict(VVisualMapCenter, VSourceZoom, True);
+    VVisualMapCenterInRelative := VConverter.PixelPosFloat2Relative(VVisualMapCenter, VSourceZoom);
+    VZoom := GetActualZoom(VConfig.ZoomDelta, AVisualCoordConverter);
+    VVisualMapCenterInLayerMap := VConverter.Relative2PixelPosFloat(VVisualMapCenterInRelative, VZoom);
+    VLocalTopLeftAtMapFloat :=
+      DoublePoint(
+        VVisualMapCenterInLayerMap.X - (VLocalRect.Left + VLayerSize.X / 2),
+        VVisualMapCenterInLayerMap.Y - (VLocalRect.Top + VLayerSize.Y / 2)
+      );
+    VMapPixelAtLocalZero := PointFromDoublePoint(VLocalTopLeftAtMapFloat, prToTopLeft);
+
+    Result := FConverterFactory.CreateConverterNoScale(
+      VLocalRect,
+      VZoom,
+      VConverter,
+      VMapPixelAtLocalZero
     );
-  VMapPixelAtLocalZero := PointFromDoublePoint(VLocalTopLeftAtMapFloat, prToTopLeft);
-
-  Result := FConverterFactory.CreateConverterNoScale(
-    VLocalRect,
-    VZoom,
-    VConverter,
-    VMapPixelAtLocalZero
-  );
+  end;
 end;
 
 function TLocalConverterChangeableOfMiniMap.GetStatic: ILocalCoordConverter;

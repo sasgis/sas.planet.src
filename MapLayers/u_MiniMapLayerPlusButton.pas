@@ -188,11 +188,11 @@ begin
   if Button = mbLeft then begin
     if FButtonPressed then begin
       if Layer.HitTest(X, Y) then begin
-        FConfig.LockWrite;
+        FConfig.LocationConfig.LockWrite;
         try
-          FConfig.ZoomDelta := FConfig.ZoomDelta - 1;
+          FConfig.LocationConfig.ZoomDelta := FConfig.LocationConfig.ZoomDelta - 1;
         finally
-          FConfig.UnlockWrite;
+          FConfig.LocationConfig.UnlockWrite;
         end;
       end;
       FButtonPressed := False;
@@ -216,7 +216,7 @@ procedure TMiniMapLayerPlusButton.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    Visible := FConfig.Visible;
+    Visible := FConfig.LocationConfig.GetStatic.Visible;
     SetNeedUpdateLayerLocation;
   finally
     ViewUpdateUnlock;

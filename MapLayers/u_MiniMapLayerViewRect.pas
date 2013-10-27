@@ -238,13 +238,13 @@ var
   VBorderColor: TColor32;
   VDrawRect: TRect;
 begin
-  VWidth := FConfig.Width;
+  VWidth := FConfig.LocationConfig.GetStatic.Width;
   VSize.X := VWidth;
   VSize.Y := VWidth;
   VViewSize := AViewConverter.GetLocalRectSize;
 
   if (AViewConverter <> nil) and (AMiniMapConverter <> nil) then begin
-    VZoomDelta := FConfig.ZoomDelta;
+    VZoomDelta := FConfig.LocationConfig.GetStatic.ZoomDelta;
     if VZoomDelta > 0 then begin
       VViewMapSourceRect := AViewConverter.GetRectInMapPixelFloat;
       VZoomSource := AViewConverter.GetZoom;
@@ -437,7 +437,7 @@ procedure TMiniMapLayerViewRect.OnConfigChange;
 begin
   ViewUpdateLock;
   try
-    Visible := FConfig.Visible;
+    Visible := FConfig.LocationConfig.GetStatic.Visible;
     SetNeedUpdateLayerLocation;
     SetNeedFullRepaintLayer;
   finally
