@@ -483,7 +483,7 @@ begin
         VElement := VTileMatrix.GetElementByTile(VTile);
         if VElement <> nil then begin
           if not VElement.IsRedyWasShown then begin
-            VDstRect := VLocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel, rrOutside);
+            VDstRect := VLocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel, rrClosest);
             Layer.Changed(VDstRect);
           end;
         end;
@@ -542,7 +542,7 @@ begin
     while VTileIterator.Next(VTile) do begin
       VElement := ATileMatrix.GetElementByTile(VTile);
       if VElement <> nil then begin
-        VDstRect := ALocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel, rrToTopLeft);
+        VDstRect := ALocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel, rrClosest);
         Types.IntersectRect(VClipedDstRect, VDstRect, ABuffer.ClipRect);
 
         if ABuffer.MeasuringMode or not Types.EqualRect(VDstRect, VClipedDstRect) then begin
