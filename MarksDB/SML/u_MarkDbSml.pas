@@ -1206,8 +1206,10 @@ begin
   VEnum := ASourceList.GetEnumUnknown;
   while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
     if not AIgnoreVisible then begin
-      if VMarkInternal.Visible then begin
-        AResultList.Add(VMark);
+      if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+        if VMarkInternal.Visible then begin
+          AResultList.Add(VMark);
+        end;
       end;
     end else begin
       AResultList.Add(VMark);
