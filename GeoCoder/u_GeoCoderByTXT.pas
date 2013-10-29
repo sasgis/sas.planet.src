@@ -162,7 +162,7 @@ begin
     while not EOF(VTextFile) do begin
       Readln(VTextFile, VAnsi);
       VLine := Utf8ToAnsi(VAnsi);
-      VLineUpper := UpperCase(VLine);
+      VLineUpper := AnsiUpperCase(VLine);
       if Pos(VSearch, VLineUpper) > 1 then begin
         if ACnt mod 5 = 0 then begin
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
