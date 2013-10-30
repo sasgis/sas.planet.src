@@ -64,6 +64,7 @@ type
 
   IMainMapsConfig = interface(IActivMapWithLayers)
     ['{8A8A42A5-9252-4E85-812C-6A5EEEF98443}']
+    function GetActiveBitmapMapsSet: IMapTypeSetChangeable;
     function GetActiveBitmapLayersSet: IMapTypeSetChangeable;
     function GetActiveKmlLayersSet: IMapTypeSetChangeable;
   end;

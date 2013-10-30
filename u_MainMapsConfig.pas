@@ -33,9 +33,11 @@ type
   TMainMapsConfig = class(TActivMapWithLayers, IMainMapsConfig)
   private
     FDefaultMapGUID: TGUID;
+    FActiveBitmapMapsSet: IMapTypeSetChangeable;
     FActiveBitmapLayersSet: IMapTypeSetChangeable;
     FActiveKmlLayersSet: IMapTypeSetChangeable;
   protected
+    function GetActiveBitmapMapsSet: IMapTypeSetChangeable;
     function GetActiveBitmapLayersSet: IMapTypeSetChangeable;
     function GetActiveKmlLayersSet: IMapTypeSetChangeable;
   public
@@ -87,10 +89,17 @@ begin
 
   FActiveBitmapLayersSet := TLayerSetChangeable.Create(
     AMapTypeSetBuilderFactory,
-    VBitmapLayersList.MakeAndClear,
+    VBitmapLayersList.MakeCopy,
     LayerSetSelectNotyfier,
     LayerSetUnselectNotyfier
   );
+
+  FActiveBitmapMapsSet :=
+    TMapsSetChangeableByMainMapAndLayersSet.Create(
+      AMapTypeSetBuilderFactory,
+      GetActiveMap,
+      FActiveBitmapLayersSet
+    );
 
   FActiveKmlLayersSet := TLayerSetChangeable.Create(
     AMapTypeSetBuilderFactory,
@@ -106,6 +115,11 @@ end;
 function TMainMapsConfig.GetActiveBitmapLayersSet: IMapTypeSetChangeable;
 begin
   Result := FActiveBitmapLayersSet;
+end;
+
+function TMainMapsConfig.GetActiveBitmapMapsSet: IMapTypeSetChangeable;
+begin
+  Result := FActiveBitmapMapsSet;
 end;
 
 function TMainMapsConfig.GetActiveKmlLayersSet: IMapTypeSetChangeable;
