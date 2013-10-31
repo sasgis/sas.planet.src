@@ -71,32 +71,7 @@ uses
   u_ResStrings,
   u_Synchronizer;
 
-type
-  TTabArray = array [1..19] of string;
-
 { TGeoCoderByTXT }
-
-procedure StringToTabArray(const AString: string; var AArray: TTabArray);
-const
-  cTabChar: Char = #09;
-  cTabCharSize = 1;
-var
-  I, J, K: Integer;
-begin
-  I := PosEx(cTabChar, AString);
-  J := 0;
-  K := 1;
-  while I > 0 do begin
-    Inc(J);
-    if J > Length(AArray) then begin
-      Break;
-    end else begin
-      AArray[J] := Copy(AString, K, (I - K));
-      K := I + 1;
-      I := PosEx(cTabChar, AString, K);
-    end;
-  end;
-end;
 
 function ItemExist(
   const AValue: IGeoCodePlacemark;
@@ -141,24 +116,23 @@ var
   VPoint : TDoublePoint;
   slat, slon: string;
   sname, sdesc, sfulldesc : string;
-  i, j, l: integer;
+  j, l: integer;
   VSearch : string;
   VValueConverter: IValueToStringConverter;
   VAnsi: AnsiString;
   VLine: string;
   VLineUpper: string;
-  VTabArray: TTabArray;
+  VTabArray: TStringList;
   VTextFile: Textfile;
 begin
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   VFormatSettings.DecimalSeparator := '.';
   VSearch := AnsiUpperCase(ASearch);
-  for I := Low(VTabArray) to High(VTabArray) do begin
-    VTabArray[I] := '';
-  end;
   Assign(VTextFile, AFile);
   Reset(VTextFile);
+  VTabArray := TStringList.Create;
   try
+    VTabArray.LineBreak := #09;
     while not EOF(VTextFile) do begin
       Readln(VTextFile, VAnsi);
       VLine := Utf8ToAnsi(VAnsi);
@@ -170,17 +144,22 @@ begin
           end;
         end;
 
-        StringToTabArray(VLine, VTabArray);
-
+        VTabArray.Text := VLine;
         sdesc :=
-          VTabArray[18] + #$D#$A +
-          VTabArray[02] + #$D#$A +
-          VTabArray[03] + #$D#$A +
-          VTabArray[04] + #$D#$A +
-          VTabArray[19] + #$D#$A;
+          VTabArray.Strings[17] + #$D#$A +
+          VTabArray.Strings[01] + #$D#$A +
+          VTabArray.Strings[02] + #$D#$A +
+          VTabArray.Strings[03] + #$D#$A +
+          VTabArray.Strings[18] + #$D#$A;
 
-        slat := VTabArray[5];
-        slon := VTabArray[6];
+        slat := VTabArray.Strings[4];
+        slon := VTabArray.Strings[5];
+
+        sname := VTabArray.Strings[3];
+        if sname = '' then begin
+          sname := VTabArray.Strings[2];
+        end;
+        VTabArray.Text := '';
 
         if (slat <> '') and (slon <> '') then begin
           try
@@ -188,11 +167,6 @@ begin
             VPoint.X := StrToFloat(slon, VFormatSettings);
           except
             raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
-          end;
-
-          sname := VTabArray[4];
-          if sname = '' then begin
-            sname := VTabArray[3];
           end;
 
           l := length(sname);
@@ -225,6 +199,7 @@ begin
       end;
     end;
   finally
+    FreeAndNil(VTabArray);
     CloseFile(VTextFile);
   end;
 end;
