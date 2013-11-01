@@ -129,77 +129,81 @@ begin
   VFormatSettings.DecimalSeparator := '.';
   VSearch := AnsiUpperCase(ASearch);
   Assign(VTextFile, AFile);
+  {$I-} // отключение контроля ошибок ввода-вывода
   Reset(VTextFile);
-  VTabArray := TStringList.Create;
-  try
-    VTabArray.LineBreak := #09;
-    while not EOF(VTextFile) do begin
-      Readln(VTextFile, VAnsi);
-      VLine := Utf8ToAnsi(VAnsi);
-      VLineUpper := AnsiUpperCase(VLine);
-      if Pos(VSearch, VLineUpper) > 1 then begin
-        if ACnt mod 5 = 0 then begin
-          if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-            Exit;
-          end;
-        end;
-
-        VTabArray.Text := VLine;
-        sdesc :=
-          VTabArray.Strings[17] + #$D#$A +
-          VTabArray.Strings[01] + #$D#$A +
-          VTabArray.Strings[02] + #$D#$A +
-          VTabArray.Strings[03] + #$D#$A +
-          VTabArray.Strings[18] + #$D#$A;
-
-        slat := VTabArray.Strings[4];
-        slon := VTabArray.Strings[5];
-
-        sname := VTabArray.Strings[3];
-        if sname = '' then begin
-          sname := VTabArray.Strings[2];
-        end;
-        VTabArray.Text := '';
-
-        if (slat <> '') and (slon <> '') then begin
-          try
-            VPoint.Y := StrToFloat(slat, VFormatSettings);
-            VPoint.X := StrToFloat(slon, VFormatSettings);
-          except
-            raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
-          end;
-
-          l := length(sname);
-          while (copy(sname,l,1)<>',') and (l>0) do dec(l);
-          sname := copy(sname,l+1,length(sname)-l);
-
-          if PosEx('?',sname)>0 then begin
-            l := length(sname);
-            while (Copy(sname,l,1)<>#09) and (l>0) do dec(l);
-            j := PosEx(VSearch , VLineUpper);
-            l := PosEx(#09 , VLine, j);
-            sname := Copy(VLine, j, l - j);
-            if  PosEx(',',sname)>0 then begin
-              j := 0;
-              l := PosEx(',' , sname);
-              sname := Copy(sname, j, l - (j+1));
+  {$I+} // включение контроля ошибок ввода-вывода
+  if IOResult = 0 then // если нет ошибка открытия, то
+  begin
+    VTabArray := TStringList.Create;
+    try
+      VTabArray.LineBreak := #09;
+      while not EOF(VTextFile) do begin
+       Readln(VTextFile, VAnsi);
+       VLine := Utf8ToAnsi(VAnsi);
+        VLineUpper := AnsiUpperCase(VLine);
+        if Pos(VSearch, VLineUpper) > 1 then begin
+          if ACnt mod 5 = 0 then begin
+            if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+              Exit;
             end;
           end;
+          VTabArray.Text := VLine;
+          sdesc :=
+            VTabArray.Strings[17] + #$D#$A +
+            VTabArray.Strings[01] + #$D#$A +
+            VTabArray.Strings[02] + #$D#$A +
+            VTabArray.Strings[03] + #$D#$A +
+            VTabArray.Strings[18] + #$D#$A;
 
-          sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
-          sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
-          sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
+          slat := VTabArray.Strings[4];
+          slon := VTabArray.Strings[5];
 
-          VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
-          if not ItemExist(VPlace, AList) then begin
-            Inc(ACnt);
-            AList.Add(VPlace);
+          sname := VTabArray.Strings[3];
+          if sname = '' then begin
+            sname := VTabArray.Strings[2];
+          end;
+          VTabArray.Text := '';
+
+          if (slat <> '') and (slon <> '') then begin
+            try
+              VPoint.Y := StrToFloat(slat, VFormatSettings);
+              VPoint.X := StrToFloat(slon, VFormatSettings);
+            except
+              raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
+            end;
+
+            l := length(sname);
+            while (copy(sname,l,1)<>',') and (l>0) do dec(l);
+            sname := copy(sname,l+1,length(sname)-l);
+
+            if PosEx('?',sname)>0 then begin
+              l := length(sname);
+              while (Copy(sname,l,1)<>#09) and (l>0) do dec(l);
+                j := PosEx(VSearch , VLineUpper);
+                l := PosEx(#09 , VLine, j);
+                sname := Copy(VLine, j, l - j);
+              if  PosEx(',',sname)>0 then begin
+                j := 0;
+                l := PosEx(',' , sname);
+                sname := Copy(sname, j, l - (j+1));
+              end;
+            end;
+
+            sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
+            sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
+            sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
+
+            VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
+            if not ItemExist(VPlace, AList) then begin
+              Inc(ACnt);
+              AList.Add(VPlace);
+            end;
           end;
         end;
       end;
+    finally
+      FreeAndNil(VTabArray);
     end;
-  finally
-    FreeAndNil(VTabArray);
     CloseFile(VTextFile);
   end;
 end;
