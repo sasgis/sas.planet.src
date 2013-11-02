@@ -1004,7 +1004,6 @@
     <DCCReference Include="u_HashFunctionCRC64.pas" />
     <DCCReference Include="u_HashFunctionWithCounter.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
-    <DCCReference Include="u_IdCacheSimpleThreadSafe.pas" />
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />
     <DCCReference Include="u_IeEmbeddedProtocolFactory.pas" />
     <DCCReference Include="u_IeEmbeddedProtocolRegistration.pas" />
