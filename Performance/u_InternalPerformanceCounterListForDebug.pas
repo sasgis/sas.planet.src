@@ -3,6 +3,7 @@ unit u_InternalPerformanceCounterListForDebug;
 interface
 
 uses
+  SysUtils,
   ActiveX,
   i_IDList,
   i_InterfaceListSimple,
@@ -15,6 +16,7 @@ type
     FName: string;
     FFactory: IInternalPerformanceCounterFactory;
     FList: IIDInterfaceList;
+    FCS: IReadWriteSync;
   private
     function GetCounterByClass(AClass: TClass): IInternalPerformanceCounterListForDebugOneClass;
     procedure AddStaticDataToList(const AList: IInterfaceListSimple);
@@ -29,6 +31,7 @@ implementation
 
 uses
   u_IDInterfaceList,
+  u_Synchronizer,
   u_InternalPerformanceCounterListForDebugOneClass;
 
 { TInternalPerformanceCounterListForDebug }
@@ -41,6 +44,7 @@ begin
   inherited Create;
   FName := AName;
   FFactory := AFactory;
+  FCS := MakeSyncRW_Var(Self, False);
   FList := TIDInterfaceList.Create(False, 4000);
 end;
 
@@ -50,10 +54,23 @@ var
   VId: Integer;
 begin
   VId := Integer(AClass);
-  Result := IInternalPerformanceCounterListForDebugOneClass(FList.GetByID(VId));
+  FCS.BeginRead;
+  try
+    Result := IInternalPerformanceCounterListForDebugOneClass(FList.GetByID(VId));
+  finally
+    FCS.EndRead;
+  end;
   if Result = nil then begin
-    Result := TInternalPerformanceCounterListForDebugOneClass.Create(FName + '/' + AClass.ClassName, FFactory);
-    FList.Add(VId, Result);
+    FCS.BeginWrite;
+    try
+      Result := IInternalPerformanceCounterListForDebugOneClass(FList.GetByID(VId));
+      if Result = nil then begin
+        Result := TInternalPerformanceCounterListForDebugOneClass.Create(FName + '/' + AClass.ClassName, FFactory);
+        FList.Add(VId, Result);
+      end;
+    finally
+      FCS.EndWrite;
+    end;
   end;
 end;
 
@@ -66,8 +83,10 @@ var
 begin
   VEnum := FList.GetEnumUnknown;
   while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
-    AList.Add(VItem.CounterCreate.GetStaticData);
-    AList.Add(VItem.CounterDestroy.GetStaticData);
+    if Assigned(VItem) then begin
+      AList.Add(VItem.CounterCreate.GetStaticData);
+      AList.Add(VItem.CounterDestroy.GetStaticData);
+    end;
   end;
 end;
 
