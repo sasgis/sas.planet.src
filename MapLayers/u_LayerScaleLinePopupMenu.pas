@@ -30,11 +30,13 @@ uses
   i_Notifier,
   i_Listener,
   i_LanguageManager,
-  i_ScaleLineConfig;
+  i_PopUp,
+  i_ScaleLineConfig,
+  u_BaseInterfacedObject;
 
 type
-  TLayerScaleLinePopupMenu = class(TObject)
-    private
+  TLayerScaleLinePopupMenu = class(TBaseInterfacedObject, IPopUp)
+  private
     FParentMap: TImage32;
     FPopup: TTBXPopupMenu;
     FConfig: IScaleLineConfig;
@@ -45,6 +47,8 @@ type
     procedure InitItemsState;
     procedure OnMenuItemClick(Sender: TObject);
     procedure OnLangChange;
+  private
+    procedure PopUp;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -53,7 +57,6 @@ type
       const AOnOptionsClick: TNotifyEvent
     );
     destructor Destroy; override;
-    procedure PopUp;
   end;
 
 implementation

@@ -772,6 +772,7 @@ uses
   i_StringListChangeable,
   i_AppearanceOfVectorItem,
   i_MarkerProviderForVectorItem,
+  i_PopUp,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
@@ -1430,7 +1431,7 @@ var
   VBitmapChangeable: IBitmapChangeable;
   VMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
   VLayersList: IInterfaceListSimple;
-  VPopupMenu: TLayerScaleLinePopupMenu;
+  VPopupMenu: IPopUp;
 begin
   VLayersList := TInterfaceListSimple.Create;
   VLayersList.Add(

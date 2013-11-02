@@ -33,8 +33,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_ScaleLineConfig,
-  i_LanguageManager,
-  u_LayerScaleLinePopupMenu,
+  i_PopUp,
   u_WindowLayerWithPos;
 
 type
@@ -43,7 +42,7 @@ type
     FConfig: IScaleLineConfig;
     FView: ILocalCoordConverterChangeable;
     FTmpBitmap: TBitmap32;
-    FPopupMenu: TLayerScaleLinePopupMenu;
+    FPopupMenu: IPopUp;
     procedure OnConfigChange;
     procedure OnPosChange;
     procedure OnMouseDown(
@@ -121,13 +120,12 @@ type
     procedure StartThreads; override;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager;
       const APerfList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
-      const APopupMenu: TLayerScaleLinePopupMenu;
+      const APopupMenu: IPopUp;
       const AConfig: IScaleLineConfig
     );
     destructor Destroy; override;
@@ -219,13 +217,12 @@ end;
 { TLayerScaleLine }
 
 constructor TLayerScaleLine.Create(
-  const ALanguageManager: ILanguageManager;
   const APerfList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
-  const APopupMenu: TLayerScaleLinePopupMenu;
+  const APopupMenu: IPopUp;
   const AConfig: IScaleLineConfig
 );
 begin
@@ -262,7 +259,6 @@ end;
 destructor TLayerScaleLine.Destroy;
 begin
   FreeAndNil(FTmpBitmap);
-  FreeAndNil(FPopupMenu);
   inherited;
 end;
 
