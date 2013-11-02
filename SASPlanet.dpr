@@ -610,6 +610,8 @@ uses
   u_MapLayerNavToMark in 'MapLayers\u_MapLayerNavToMark.pas',
   u_SelectionLayer in 'MapLayers\u_SelectionLayer.pas',
   u_LayerScaleLine in 'MapLayers\u_LayerScaleLine.pas',
+  u_LayerScaleLineVertical in 'MapLayers\u_LayerScaleLineVertical.pas',
+  u_LayerScaleLineHorizontal in 'MapLayers\u_LayerScaleLineHorizontal.pas',
   u_LayerScaleLinePopupMenu in 'MapLayers\u_LayerScaleLinePopupMenu.pas',
   u_MapLayerGPSTrack in 'MapLayers\u_MapLayerGPSTrack.pas',
   u_MapLayerGPSMarkerRings in 'MapLayers\u_MapLayerGPSMarkerRings.pas',

@@ -796,7 +796,8 @@ uses
   u_MapLayerNavToMark,
   u_MapLayerGPSTrack,
   u_SelectionLayer,
-  u_LayerScaleLine,
+  u_LayerScaleLineHorizontal,
+  u_LayerScaleLineVertical,
   u_MapLayerShowError,
   u_CalcLineLayer,
   u_SelectionPolylineLayer,
@@ -1947,9 +1948,19 @@ begin
     );
 
   VLayersList.Add(
-    TLayerScaleLine.Create(
-      GState.Config.LanguageManager,
-      GState.PerfCounterList.CreateAndAddNewSubList('TLayerScaleLine'),
+    TLayerScaleLineHorizontal.Create(
+      GState.PerfCounterList.CreateAndAddNewSubList('TLayerScaleLineHorizontal'),
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      map,
+      FConfig.ViewPortState.View,
+      VPopupMenu,
+      FConfig.LayersConfig.ScaleLineConfig
+    )
+  );
+  VLayersList.Add(
+    TLayerScaleLineVertical.Create(
+      GState.PerfCounterList.CreateAndAddNewSubList('TLayerScaleLineVertical'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
