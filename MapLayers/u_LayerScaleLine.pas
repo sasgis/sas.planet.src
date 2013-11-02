@@ -127,7 +127,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
-      const AOnOptionsClick: TNotifyEvent;
+      const APopupMenu: TLayerScaleLinePopupMenu;
       const AConfig: IScaleLineConfig
     );
     destructor Destroy; override;
@@ -225,7 +225,7 @@ constructor TLayerScaleLine.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
-  const AOnOptionsClick: TNotifyEvent;
+  const APopupMenu: TLayerScaleLinePopupMenu;
   const AConfig: IScaleLineConfig
 );
 begin
@@ -237,13 +237,7 @@ begin
   );
   FConfig := AConfig;
   FView := AView;
-
-  FPopupMenu := TLayerScaleLinePopupMenu.Create(
-    ALanguageManager,
-    AParentMap,
-    AConfig,
-    AOnOptionsClick
-  );
+  FPopupMenu := APopupMenu;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),

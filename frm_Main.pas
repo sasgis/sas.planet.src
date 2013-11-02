@@ -1430,6 +1430,7 @@ var
   VBitmapChangeable: IBitmapChangeable;
   VMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
   VLayersList: IInterfaceListSimple;
+  VPopupMenu: TLayerScaleLinePopupMenu;
 begin
   VLayersList := TInterfaceListSimple.Create;
   VLayersList.Add(
@@ -1936,6 +1937,14 @@ begin
       FConfig.LayersConfig.CenterScaleConfig
     )
   );
+  VPopupMenu :=
+    TLayerScaleLinePopupMenu.Create(
+      GState.Config.LanguageManager,
+      map,
+      FConfig.LayersConfig.ScaleLineConfig,
+      Self.tbitmOnInterfaceOptionsClick
+    );
+
   VLayersList.Add(
     TLayerScaleLine.Create(
       GState.Config.LanguageManager,
@@ -1944,7 +1953,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState.View,
-      Self.tbitmOnInterfaceOptionsClick,
+      VPopupMenu,
       FConfig.LayersConfig.ScaleLineConfig
     )
   );
