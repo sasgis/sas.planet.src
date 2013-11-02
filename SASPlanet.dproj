@@ -356,6 +356,7 @@
     <DCCReference Include="i_PointOnMapEdit.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
+    <DCCReference Include="i_PopUp.pas" />
     <DCCReference Include="i_PredicateByBinaryData.pas" />
     <DCCReference Include="i_PredicateByTileInfo.pas" />
     <DCCReference Include="i_PredicateByTileRequest.pas" />

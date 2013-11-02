@@ -987,6 +987,7 @@ uses
   u_ProjectedDrawableElementByPolygon in 'u_ProjectedDrawableElementByPolygon.pas',
   i_MessageHandler in 'i_MessageHandler.pas',
   u_KeyMovingHandler in 'u_KeyMovingHandler.pas',
+  i_PopUp in 'i_PopUp.pas',
   i_MouseState in 'i_MouseState.pas',
   i_MouseHandler in 'i_MouseHandler.pas',
   u_MouseState in 'u_MouseState.pas',
