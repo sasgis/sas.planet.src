@@ -116,7 +116,7 @@ var
   VPoint : TDoublePoint;
   slat, slon: string;
   sname, sdesc, sfulldesc : string;
-  j, l: integer;
+  i, j, l: integer;
   VSearch : string;
   VValueConverter: IValueToStringConverter;
   VAnsi: AnsiString;
@@ -136,7 +136,6 @@ begin
   begin
     VTabArray := TStringList.Create;
     try
-      VTabArray.LineBreak := #09;
       while not EOF(VTextFile) do begin
        Readln(VTextFile, VAnsi);
        VLine := Utf8ToAnsi(VAnsi);
@@ -147,7 +146,11 @@ begin
               Exit;
             end;
           end;
+          VTabArray.LineBreak := #09;
           VTabArray.Text := VLine;
+
+          if VTabArray.Count < 19 then break;
+
           sdesc :=
             VTabArray.Strings[17] + #$D#$A +
             VTabArray.Strings[01] + #$D#$A +
@@ -162,6 +165,18 @@ begin
           if sname = '' then begin
             sname := VTabArray.Strings[2];
           end;
+
+          VTabArray.Text := '';
+          VTabArray.LineBreak := ',';
+          VTabArray.Text := sname;
+
+          for i := 0 to VTabArray.Count - 1 do begin
+            if length(VTabArray.Strings[i])<>0 then
+              if Pos(VSearch, AnsiUpperCase(VTabArray.Strings[i])) > 0 then begin
+                sname := VTabArray.Strings[i];
+                break;
+            end;
+          end;
           VTabArray.Text := '';
 
           if (slat <> '') and (slon <> '') then begin
@@ -170,23 +185,6 @@ begin
               VPoint.X := StrToFloat(slon, VFormatSettings);
             except
               raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
-            end;
-
-            l := length(sname);
-            while (copy(sname,l,1)<>',') and (l>0) do dec(l);
-            sname := copy(sname,l+1,length(sname)-l);
-
-            if PosEx('?',sname)>0 then begin
-              l := length(sname);
-              while (Copy(sname,l,1)<>#09) and (l>0) do dec(l);
-                j := PosEx(VSearch , VLineUpper);
-                l := PosEx(#09 , VLine, j);
-                sname := Copy(VLine, j, l - j);
-              if  PosEx(',',sname)>0 then begin
-                j := 0;
-                l := PosEx(',' , sname);
-                sname := Copy(sname, j, l - (j+1));
-              end;
             end;
 
             sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
