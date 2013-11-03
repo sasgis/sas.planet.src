@@ -21,23 +21,6 @@ uses
 
 type
   TMapLayerGPSTrack = class(TTiledLayerWithThreadBase)
-  private
-    FConfig: IMapLayerGPSTrackConfig;
-    FBitmapFactory: IBitmap32StaticFactory;
-    FGPSRecorder: IGpsTrackRecorder;
-
-    FGetTrackCounter: IInternalPerformanceCounter;
-    FGpsPosChangeFlag: ISimpleFlag;
-    procedure OnConfigChange;
-    procedure OnGPSRecorderChange;
-    procedure OnTimer;
-  protected
-    function CreateLayerProvider(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALayerConverter: ILocalCoordConverter
-    ): IBitmapLayerProvider; override;
-    procedure StartThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -59,11 +42,12 @@ implementation
 
 uses
   i_TileMatrix,
+  i_BitmapLayerProviderChangeable,
   u_TileMatrixFactory,
   u_ListenerByEvent,
   u_ListenerTime,
   u_SimpleFlagWithInterlock,
-  u_BitmapLayerProviderByTrackPath;
+  u_BitmapLayerProviderChangeableForGpsTrack;
 
 { TMapGPSLayerNew }
 
@@ -83,12 +67,21 @@ constructor TMapLayerGPSTrack.Create(
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;
+  VProvider: IBitmapLayerProviderChangeable;
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
       ABitmapFactory,
       AConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForGpsTrack.Create(
+      APerfList,
+      ATimerNoifier,
+      AConfig,
+      ABitmapFactory,
+      AGpsTrackRecorder
     );
   inherited Create(
     APerfList,
@@ -98,103 +91,11 @@ begin
     APosition,
     AView,
     VTileMatrixFactory,
+    VProvider,
+    nil,
     ATimerNoifier,
-    False,
     AConfig.ThreadConfig
   );
-  FGPSRecorder := AGpsTrackRecorder;
-  FConfig := AConfig;
-  FBitmapFactory := ABitmapFactory;
-
-  FGetTrackCounter := APerfList.CreateAndAddNewCounter('GetTrack');
-  FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
-  );
-  LinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimer, 1000),
-    ATimerNoifier
-  );
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnGPSRecorderChange),
-    FGPSRecorder.GetChangeNotifier
-  );
-end;
-
-function TMapLayerGPSTrack.CreateLayerProvider(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALayerConverter: ILocalCoordConverter
-): IBitmapLayerProvider;
-var
-  VTrackColorer: ITrackColorerStatic;
-  VPointsCount: Integer;
-  VLineWidth: Double;
-  VCounterContext: TInternalPerformanceCounterContext;
-  VEnum: IEnumGPSTrackPoint;
-begin
-  Result := nil;
-  FConfig.LockRead;
-  try
-    VPointsCount := FConfig.LastPointCount;
-    VLineWidth := FConfig.LineWidth;
-    VTrackColorer := FConfig.TrackColorerConfig.GetStatic;
-  finally
-    FConfig.UnlockRead
-  end;
-
-  if (VPointsCount > 1) then begin
-    VCounterContext := FGetTrackCounter.StartOperation;
-    try
-      VEnum := FGPSRecorder.LastPoints(VPointsCount);
-    finally
-      FGetTrackCounter.FinishOperation(VCounterContext);
-    end;
-    Result :=
-      TBitmapLayerProviderByTrackPath.Create(
-        VPointsCount,
-        VLineWidth,
-        VTrackColorer,
-        FBitmapFactory,
-        VEnum
-      );
-  end;
-end;
-
-procedure TMapLayerGPSTrack.OnConfigChange;
-begin
-  ViewUpdateLock;
-  try
-    Visible := FConfig.Visible;
-    SetNeedUpdateLayerProvider;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMapLayerGPSTrack.OnGPSRecorderChange;
-begin
-  FGpsPosChangeFlag.SetFlag;
-end;
-
-procedure TMapLayerGPSTrack.OnTimer;
-begin
-  if FGpsPosChangeFlag.CheckFlagAndReset then begin
-    ViewUpdateLock;
-    try
-      SetNeedUpdateLayerProvider;
-    finally
-      ViewUpdateUnlock;
-    end;
-  end;
-end;
-
-procedure TMapLayerGPSTrack.StartThreads;
-begin
-  inherited;
-  OnConfigChange;
 end;
 
 end.

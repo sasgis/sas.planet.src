@@ -28,9 +28,8 @@ type
     function GetReadyID: Integer;
     function GetExpectedID: Integer;
     function GetShownId: Integer;
-    function GetIsRedyWasShown: Boolean;
+    function CheckForShow: Boolean;
     function GetBitmap: IBitmap32Static;
-    function GetBitmapForShow: IBitmap32Static;
 
     procedure IncExpectedID;
     procedure UpdateBitmap(
@@ -86,17 +85,6 @@ begin
   end;
 end;
 
-function TTileMatrixElement.GetBitmapForShow: IBitmap32Static;
-begin
-  FSync.BeginRead;
-  try
-    Result := FBitmap;
-    FShownID := FReadyID;
-  finally
-    FSync.EndRead;
-  end;
-end;
-
 function TTileMatrixElement.GetExpectedID: Integer;
 begin
   FSync.BeginRead;
@@ -107,11 +95,12 @@ begin
   end;
 end;
 
-function TTileMatrixElement.GetIsRedyWasShown: Boolean;
+function TTileMatrixElement.CheckForShow: Boolean;
 begin
   FSync.BeginRead;
   try
-    Result := FReadyID = FShownID;
+    Result := FReadyID <> FShownID;
+    FShownID := FReadyID;
   finally
     FSync.EndRead;
   end;

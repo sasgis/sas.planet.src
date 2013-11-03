@@ -25,25 +25,6 @@ uses
 
 type
   TMiniMapLayer = class(TTiledLayerWithThreadBase)
-  private
-    FConfig: IMiniMapLayerConfig;
-    FBitmapFactory: IBitmap32StaticFactory;
-    FErrorLogger: ITileErrorLogger;
-    FPostProcessing: IBitmapPostProcessingChangeable;
-    FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-    FMainMap: IMapTypeChangeable;
-    FLayesList: IMapTypeListChangeable;
-
-    procedure OnMainMapChange;
-    procedure OnLayerListChange;
-    procedure OnConfigChange;
-  protected
-    function CreateLayerProvider(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALayerConverter: ILocalCoordConverter
-    ): IBitmapLayerProvider; override;
-    procedure StartThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -71,9 +52,10 @@ implementation
 uses
   i_TileMatrix,
   i_MapTypeListStatic,
+  i_BitmapLayerProviderChangeable,
   u_TileMatrixFactory,
   u_ListenerByEvent,
-  u_BitmapLayerProviderForViewMaps;
+  u_BitmapLayerProviderChangeableForMainLayer;
 
 { TMapMainLayer }
 
@@ -98,12 +80,22 @@ constructor TMiniMapLayer.Create(
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;
+  VProvider: IBitmapLayerProviderChangeable;
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
       ABitmapFactory,
       AConverterFactory
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForMainLayer.Create(
+      AMainMap,
+      ALayesList,
+      APostProcessing,
+      AConfig.UseTilePrevZoomConfig,
+      ABitmapFactory,
+      AErrorLogger
     );
   inherited Create(
     APerfList,
@@ -113,108 +105,11 @@ begin
     APosition,
     AView,
     VTileMatrixFactory,
+    VProvider,
+    nil,
     ATimerNoifier,
-    False,
     AThreadConfig
   );
-  FMainMap := AMainMap;
-  FLayesList := ALayesList;
-  FErrorLogger := AErrorLogger;
-  FBitmapFactory := ABitmapFactory;
-  FPostProcessing := APostProcessing;
-  FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
-  FConfig := AConfig;
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
-    FMainMap.ChangeNotifier
-  );
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLayerListChange),
-    FLayesList.ChangeNotifier
-  );
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FUseTilePrevZoomConfig.GetChangeNotifier
-  );
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
-  );
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FPostProcessing.GetChangeNotifier
-  );
-end;
-
-function TMiniMapLayer.CreateLayerProvider(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALayerConverter: ILocalCoordConverter
-): IBitmapLayerProvider;
-var
-  VMainMap: IMapType;
-  VPostProcessingConfig: IBitmapPostProcessing;
-  VLayersList: IMapTypeListStatic;
-  VUsePrevConfig: IUseTilePrevZoomTileConfigStatic;
-begin
-  VMainMap := FMainMap.GetStatic;
-  VLayersList := FLayesList.List;
-  VUsePrevConfig := FUseTilePrevZoomConfig.GetStatic;
-  VPostProcessingConfig := FPostProcessing.GetStatic;
-
-  Result :=
-    TBitmapLayerProviderForViewMaps.Create(
-      FBitmapFactory,
-      VMainMap,
-      VLayersList,
-      VUsePrevConfig.UsePrevZoomAtMap,
-      VUsePrevConfig.UsePrevZoomAtLayer,
-      True,
-      VPostProcessingConfig,
-      FErrorLogger
-    );
-end;
-
-procedure TMiniMapLayer.OnConfigChange;
-begin
-  ViewUpdateLock;
-  try
-    Visible := FConfig.LocationConfig.GetStatic.Visible;
-    SetNeedUpdateLayerProvider;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMiniMapLayer.OnLayerListChange;
-begin
-  ViewUpdateLock;
-  try
-    SetNeedUpdateLayerProvider;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMiniMapLayer.OnMainMapChange;
-begin
-  ViewUpdateLock;
-  try
-    SetNeedUpdateLayerProvider;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMiniMapLayer.StartThreads;
-begin
-  OnConfigChange;
-  inherited;
 end;
 
 end.

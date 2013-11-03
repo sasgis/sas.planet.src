@@ -30,31 +30,15 @@ uses
 type
   TMapLayerVectorMaps = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
-    FConfig: IKmlLayerConfig;
-    FBitmapFactory: IBitmap32StaticFactory;
-    FLayersSet: IMapTypeSetChangeable;
-    FErrorLogger: ITileErrorLogger;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FProjectedProvider: IProjectedGeometryProvider;
-
     FVectorItems: IVectorItemSubsetChangeable;
-
-    procedure OnConfigChange;
-    procedure OnLayerSetChange;
-    procedure OnItemsUpdated;
 
     function MouseOnElements(
       const AVisualConverter: ILocalCoordConverter;
       const ACopiedElements: IVectorItemSubset;
       const xy: TPoint
     ): IVectorItemSubset;
-  protected
-    function CreateLayerProvider(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALayerConverter: ILocalCoordConverter
-    ): IBitmapLayerProvider; override;
-    procedure StartThreads; override;
   private
     function FindItems(
       const AVisualConverter: ILocalCoordConverter;
@@ -87,6 +71,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_TileMatrix,
+  i_BitmapLayerProviderChangeable,
   i_VectorItemProjected,
   i_LonLatRect,
   i_MapTypeSet,
@@ -94,7 +79,7 @@ uses
   u_TileMatrixFactory,
   u_ListenerByEvent,
   u_VectorItemSubsetChangeableForVectorLayers,
-  u_BitmapLayerProviderByVectorSubset;
+  u_BitmapLayerProviderChangeableForVectorMaps;
 
 { TWikiLayerNew }
 
@@ -116,6 +101,7 @@ constructor TMapLayerVectorMaps.Create(
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;
+  VProvider: IBitmapLayerProviderChangeable;
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
@@ -123,25 +109,6 @@ begin
       ABitmapFactory,
       AConverterFactory
     );
-  inherited Create(
-    APerfList,
-    AAppStartedNotifier,
-    AAppClosingNotifier,
-    AParentMap,
-    APosition,
-    AView,
-    VTileMatrixFactory,
-    ATimerNoifier,
-    False,
-    AConfig.ThreadConfig
-  );
-  FConfig := AConfig;
-  FBitmapFactory := ABitmapFactory;
-  FLayersSet := ALayersSet;
-  FErrorLogger := AErrorLogger;
-  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FProjectedProvider := AProjectedProvider;
-
   FVectorItems :=
     TVectorItemSubsetChangeableForVectorLayers.Create(
       APerfList,
@@ -151,44 +118,33 @@ begin
       ALayersSet,
       AErrorLogger,
       AVectorItemSubsetBuilderFactory,
-      FConfig.ThreadConfig
+      AConfig.ThreadConfig
     );
 
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.GetChangeNotifier
-  );
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
-    FLayersSet.GetChangeNotifier
-  );
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnItemsUpdated),
-    FVectorItems.ChangeNotifier
-  );
-end;
-
-function TMapLayerVectorMaps.CreateLayerProvider(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALayerConverter: ILocalCoordConverter
-): IBitmapLayerProvider;
-var
-  VConfig: IVectorItemDrawConfigStatic;
-begin
-  Result := nil;
-  VConfig := FConfig.DrawConfig.GetStatic;
-
-  Result :=
-    TBitmapLayerProviderByVectorSubset.Create(
-      VConfig.MainColor,
-      VConfig.ShadowColor,
-      VConfig.PointColor,
-      FBitmapFactory,
-      FProjectedProvider,
-      FVectorItems.GetStatic
+  VProvider :=
+    TBitmapLayerProviderChangeableForVectorMaps.Create(
+      AConfig.DrawConfig,
+      ABitmapFactory,
+      ALayersSet,
+      AErrorLogger,
+      AProjectedProvider,
+      FVectorItems
     );
+  inherited Create(
+    APerfList,
+    AAppStartedNotifier,
+    AAppClosingNotifier,
+    AParentMap,
+    APosition,
+    AView,
+    VTileMatrixFactory,
+    VProvider,
+    nil,
+    ATimerNoifier,
+    AConfig.ThreadConfig
+  );
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+  FProjectedProvider := AProjectedProvider;
 end;
 
 function TMapLayerVectorMaps.FindItems(
@@ -268,48 +224,6 @@ begin
     end;
   end;
   Result := Vtmp.MakeStaticAndClear;
-end;
-
-procedure TMapLayerVectorMaps.OnConfigChange;
-var
-  VVectorMapsSet: IMapTypeSet;
-begin
-  VVectorMapsSet := FLayersSet.GetStatic;
-  ViewUpdateLock;
-  try
-    Visible := (VVectorMapsSet <> nil) and (VVectorMapsSet.GetCount > 0);
-    SetNeedUpdateLayerProvider;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMapLayerVectorMaps.OnItemsUpdated;
-begin
-  ViewUpdateLock;
-  try
-    SetNeedUpdateLayerProvider;
-    DelicateRedrawWithFullUpdate;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMapLayerVectorMaps.OnLayerSetChange;
-begin
-  ViewUpdateLock;
-  try
-    OnConfigChange;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMapLayerVectorMaps.StartThreads;
-begin
-  inherited;
-  OnLayerSetChange;
-  OnConfigChange;
 end;
 
 end.

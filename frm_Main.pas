@@ -574,7 +574,6 @@ type
 
     ProgramStart: Boolean;
     FStartedNormal: Boolean;
-    //FMapVersionList: IMapVersionListStatic;
 
     FMapTypeIcons18List: IMapTypeIconsList;
     FMapTypeIcons24List: IMapTypeIconsList;
@@ -609,7 +608,6 @@ type
     FSelectionRect: ISelectionRect;
     FMarkDBGUI: TMarkDbGUIHelper;
     FPlacemarkPlayerPlugin: IPlayerPlugin;
-    //FPlacemarkPlayerTask: IPlayerTask;
 
     FTileErrorLogger: ITileErrorLogger;
     FTileErrorLogProvider: ITileErrorLogProviedrStuped;
@@ -992,7 +990,6 @@ begin
   FCenterToGPSDelta := CEmptyDoublePoint;
 
   FPlacemarkPlayerPlugin := TPlayerPlugin.Create;
-  //FPlacemarkPlayerTask := nil;
 
   TBSMB.Images := FMapTypeIcons24List.GetImageList;
   TBSMB.SubMenuImages := FMapTypeIcons18List.GetImageList;
@@ -1447,6 +1444,7 @@ begin
       GState.LocalConverterFactory,
       FConfig.MainMapsConfig.GetActiveMap,
       TMapTypeListChangeableByActiveMapsSet.Create(GState.MapTypeListBuilderFactory, FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
+      FConfig.MainMapsConfig.GetActiveBitmapMapsSet,
       GState.BitmapPostProcessing,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
@@ -2375,7 +2373,6 @@ end;
 destructor TfrmMain.Destroy;
 begin
   FreeAndNil(FfrmDGAvailablePic);
-  //FPlacemarkPlayerTask := nil;
   FPlacemarkPlayerPlugin := nil;
   FLineOnMapEdit := nil;
   FWinPosition := nil;
@@ -5466,7 +5463,6 @@ end;
 procedure TfrmMain.mapMouseMove(Sender: TObject; Shift: TShiftState; AX, AY: Integer; Layer: TCustomLayer);
 var
   hintrect:TRect;
-  //CState: Integer;
   VZoomCurr: Byte;
   VConverter: ICoordConverter;
   VLonLat: TDoublePoint;

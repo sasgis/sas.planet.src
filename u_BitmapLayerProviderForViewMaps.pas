@@ -4,9 +4,6 @@ interface
 
 uses
   Types,
-  SysUtils,
-  i_Notifier,
-  i_Listener,
   i_NotifierOperation,
   i_CoordConverter,
   i_Bitmap32Static,
@@ -16,36 +13,21 @@ uses
   i_MapTypeListStatic,
   i_BitmapLayerProvider,
   i_BitmapPostProcessing,
-  i_ObjectWithListener,
   i_TileError,
-  u_MapType,
   u_BaseInterfacedObject;
 
 type
-  TBitmapLayerProviderForViewMaps = class(
-    TBaseInterfacedObject,
-    IBitmapLayerProvider,
-    IObjectWithListener
-    )
+  TBitmapLayerProviderForViewMaps = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FMainMap: IMapType;
     FLayersList: IMapTypeListStatic;
     FBitmapFactory: IBitmap32StaticFactory;
-
-    FListener: IListener;
-    FListenLocalConverter: ILocalCoordConverter;
-    FListenerCS: IReadWriteSync;
-    FMainMapListener: IListener;
-    FLayerListeners: array of IListener;
-    FVersionListener: IListener;
-
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     FUseCache: Boolean;
     FPostProcessingConfig: IBitmapPostProcessing;
     FErrorLogger: ITileErrorLogger;
-    procedure OnMapVersionChange;
-    procedure OnTileUpdate(const AMsg: IInterface);
+    
     function GetBitmapByMapType(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
@@ -62,12 +44,6 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter
     ): IBitmap32Static;
-  private
-    procedure SetListener(
-      const AListener: IListener;
-      const ALocalConverter: ILocalCoordConverter
-    );
-    procedure RemoveListener;
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -79,23 +55,16 @@ type
       const APostProcessingConfig: IBitmapPostProcessing;
       const AErrorLogger: ITileErrorLogger
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  SysUtils,
   GR32,
-  t_GeoTypes,
-  i_LonLatRect,
   i_TileObjCache,
-  i_NotifierTilePyramidUpdate,
   u_Bitmap32ByStaticBitmap,
-  u_ListenerByEvent,
-  u_TileUpdateListenerToLonLat,
-  u_Synchronizer,
   u_BitmapFunc,
-  u_GeoFun,
   u_TileErrorInfo;
 
 { TBitmapLayerProviderForViewMaps }
@@ -118,15 +87,6 @@ begin
   FUseCache := AUseCache;
   FPostProcessingConfig := APostProcessingConfig;
   FErrorLogger := AErrorLogger;
-  FListenerCS := MakeSyncRW_Var(Self, False);
-end;
-
-destructor TBitmapLayerProviderForViewMaps.Destroy;
-begin
-  if Assigned(FListenerCS) then begin
-    RemoveListener;
-  end;
-  inherited;
 end;
 
 function TBitmapLayerProviderForViewMaps.GetBitmapByMapType(
@@ -259,200 +219,6 @@ begin
   end;
   if FPostProcessingConfig <> nil then begin
     Result := FPostProcessingConfig.Process(Result);
-  end;
-end;
-
-procedure TBitmapLayerProviderForViewMaps.OnMapVersionChange;
-var
-  VListener: IListener;
-begin
-  FListenerCS.BeginRead;
-  try
-    VListener := FListener;
-  finally
-    FListenerCS.EndRead;
-  end;
-  if VListener <> nil then begin
-    VListener.Notification(nil);
-  end;
-end;
-
-procedure TBitmapLayerProviderForViewMaps.OnTileUpdate(const AMsg: IInterface);
-var
-  VListener: IListener;
-  VLonLatRect: ILonLatRect;
-begin
-  FListenerCS.BeginRead;
-  try
-    VListener := FListener;
-  finally
-    FListenerCS.EndRead;
-  end;
-  if VListener <> nil then begin
-    if Supports(AMsg, ILonLatRect, VLonLatRect) then begin
-      VListener.Notification(VLonLatRect);
-    end else begin
-      VListener.Notification(nil);
-    end;
-  end;
-end;
-
-procedure TBitmapLayerProviderForViewMaps.RemoveListener;
-var
-  VNotifier: INotifierTilePyramidUpdate;
-  i: Integer;
-  VMap: IMapType;
-begin
-  FListenerCS.BeginWrite;
-  try
-    if (FListener <> nil) and (FListenLocalConverter <> nil) then begin
-      VMap := FMainMap;
-      if VMap <> nil then begin
-        VNotifier := VMap.MapType.TileStorage.TileNotifier;
-        if VNotifier <> nil then begin
-          VNotifier.Remove(FMainMapListener);
-        end;
-        VMap.MapType.VersionConfig.ChangeNotifier.Remove(FVersionListener);
-      end;
-      if FLayersList <> nil then begin
-        for i := 0 to FLayersList.Count - 1 do begin
-          VMap := FLayersList.Items[i];
-          if VMap <> nil then begin
-            VNotifier := VMap.MapType.TileStorage.TileNotifier;
-            if VNotifier <> nil then begin
-              VNotifier.Remove(FLayerListeners[i]);
-            end;
-            VMap.MapType.VersionConfig.ChangeNotifier.Remove(FVersionListener);
-          end;
-        end;
-      end;
-    end;
-    FListener := nil;
-    FListenLocalConverter := nil;
-  finally
-    FListenerCS.EndWrite;
-  end;
-end;
-
-procedure TBitmapLayerProviderForViewMaps.SetListener(
-  const AListener: IListener;
-  const ALocalConverter: ILocalCoordConverter
-);
-var
-  VNotifier: INotifierTilePyramidUpdate;
-  i: Integer;
-  VMap: IMapType;
-  VZoom: Byte;
-  VTileRect: TRect;
-  VLonLatRect: TDoubleRect;
-  VMapRect: TRect;
-  VConverter: ICoordConverter;
-  VMapLonLatRect: TDoubleRect;
-begin
-  FListenerCS.BeginWrite;
-  try
-    if (AListener = nil) or (ALocalConverter = nil) then begin
-      RemoveListener;
-    end else begin
-      if (FListener <> nil) and (FListenLocalConverter <> nil) then begin
-        VZoom := FListenLocalConverter.Zoom;
-        if (VZoom <> ALocalConverter.Zoom) then begin
-          VMap := FMainMap;
-          if VMap <> nil then begin
-            VNotifier := VMap.MapType.TileStorage.TileNotifier;
-            if VNotifier <> nil then begin
-              VNotifier.Remove(FMainMapListener);
-            end;
-          end;
-          if FLayersList <> nil then begin
-            for i := 0 to FLayersList.Count - 1 do begin
-              VMap := FLayersList.Items[i];
-              if VMap <> nil then begin
-                VNotifier := VMap.MapType.TileStorage.TileNotifier;
-                if VNotifier <> nil then begin
-                  VNotifier.Remove(FLayerListeners[i]);
-                end;
-              end;
-            end;
-          end;
-        end;
-      end;
-      if (FMainMap <> nil) and (FMainMapListener = nil) then begin
-        VMap := FMainMap;
-        FMainMapListener := TTileUpdateListenerToLonLat.Create(VMap.MapType.GeoConvert, Self.OnTileUpdate);
-      end;
-      if (FLayersList <> nil) and (FLayersList.Count > 0) and (Length(FLayerListeners) = 0) then begin
-        SetLength(FLayerListeners, FLayersList.Count);
-        for i := 0 to FLayersList.Count - 1 do begin
-          VMap := FLayersList.Items[i];
-          if VMap <> nil then begin
-            FLayerListeners[i] := TTileUpdateListenerToLonLat.Create(VMap.MapType.GeoConvert, Self.OnTileUpdate);
-          end;
-        end;
-      end;
-      if FVersionListener = nil then begin
-        FVersionListener := TNotifyNoMmgEventListener.Create(Self.OnMapVersionChange);
-      end;
-      if (FListener = nil) or (FListenLocalConverter = nil) then begin
-        VMap := FMainMap;
-        if VMap <> nil then begin
-          VMap.MapType.VersionConfig.ChangeNotifier.Add(FVersionListener);
-        end;
-        if FLayersList <> nil then begin
-          for i := 0 to FLayersList.Count - 1 do begin
-            VMap := FLayersList.Items[i];
-            if VMap <> nil then begin
-              VMap.MapType.VersionConfig.ChangeNotifier.Add(FVersionListener);
-            end;
-          end;
-        end;
-      end;
-      if not ALocalConverter.GetIsSameConverter(FListenLocalConverter) then begin
-        VZoom := ALocalConverter.Zoom;
-        VConverter := ALocalConverter.GeoConverter;
-        VMapRect := ALocalConverter.GetRectInMapPixel;
-        VConverter.CheckPixelRect(VMapRect, VZoom);
-        VLonLatRect := VConverter.PixelRect2LonLatRect(VMapRect, VZoom);
-        VMap := FMainMap;
-        if VMap <> nil then begin
-          VNotifier := VMap.MapType.TileStorage.TileNotifier;
-          if VNotifier <> nil then begin
-            VConverter := VMap.MapType.GeoConvert;
-            VMapLonLatRect := VLonLatRect;
-            VConverter.CheckLonLatRect(VMapLonLatRect);
-            VTileRect :=
-              RectFromDoubleRect(
-                VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
-                rrToTopLeft
-              );
-            VNotifier.AddListenerByRect(FMainMapListener, VZoom, VTileRect);
-          end;
-        end;
-        if FLayersList <> nil then begin
-          for i := 0 to FLayersList.Count - 1 do begin
-            VMap := FLayersList.Items[i];
-            if VMap <> nil then begin
-              VNotifier := VMap.MapType.TileStorage.TileNotifier;
-              if VNotifier <> nil then begin
-                VConverter := VMap.MapType.GeoConvert;
-                VMapLonLatRect := VLonLatRect;
-                VConverter.CheckLonLatRect(VMapLonLatRect);
-                VTileRect :=
-                  RectFromDoubleRect(
-                    VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
-                    rrToTopLeft
-                  );
-                VNotifier.AddListenerByRect(FLayerListeners[i], VZoom, VTileRect);
-              end;
-            end;
-          end;
-        end;
-      end;
-      FListener := AListener;
-      FListenLocalConverter := ALocalConverter;
-    end;
-  finally
-    FListenerCS.EndWrite;
   end;
 end;
 

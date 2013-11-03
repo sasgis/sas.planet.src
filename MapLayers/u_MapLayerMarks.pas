@@ -23,6 +23,7 @@ uses
   i_MarkerProviderForVectorItem,
   i_FindVectorItems,
   i_VectorItemSubset,
+  i_VectorItemSubsetChangeable,
   i_ProjectedGeometryProvider,
   i_Mark,
   i_MarkSystem,
@@ -31,32 +32,11 @@ uses
 type
   TMapLayerMarks = class(TTiledLayerWithThreadBase, IFindVectorItems)
   private
-    FConfig: IMarksLayerConfig;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FBitmapFactory: IBitmap32StaticFactory;
-    FMarkDB: IMarkSystem;
     FProjectedCache: IProjectedGeometryProvider;
-    FMarkerProvider: IMarkerProviderForVectorItem;
 
-    FGetMarksCounter: IInternalPerformanceCounter;
     FMouseOnRegCounter: IInternalPerformanceCounter;
-
-    FMarksSubset: IVectorItemSubset;
-    FMarksSubsetCS: IReadWriteSync;
-
-    procedure OnConfigChange;
-    procedure OnMarksDbChange;
-    function GetMarksSubset(
-      const AConfig: IUsedMarksConfigStatic;
-      const ALocalConverter: ILocalCoordConverter
-    ): IVectorItemSubset;
-  protected
-    function CreateLayerProvider(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALayerConverter: ILocalCoordConverter
-    ): IBitmapLayerProvider; override;
-    procedure StartThreads; override;
+    FMarksSubset: IVectorItemSubsetChangeable;
   private
     function FindItems(
       const AVisualConverter: ILocalCoordConverter;
@@ -91,10 +71,12 @@ uses
   i_TileMatrix,
   i_VectorItemProjected,
   i_InterfaceListStatic,
+  i_BitmapLayerProviderChangeable,
   u_TileMatrixFactory,
   u_ListenerByEvent,
   u_Synchronizer,
-  u_BitmapLayerProviderByMarksSubset;
+  u_VectorItemSubsetChangeableForMarksLayer,
+  u_BitmapLayerProviderChangeableForMarksLayer;
 
 { TMapMarksLayerNew }
 
@@ -116,12 +98,31 @@ constructor TMapLayerMarks.Create(
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;
+  VProvider: IBitmapLayerProviderChangeable;
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResamplerConfig,
       ABitmapFactory,
       AConverterFactory
+    );
+  FMarksSubset :=
+    TVectorItemSubsetChangeableForMarksLayer.Create(
+      APerfList,
+      AAppStartedNotifier,
+      AAppClosingNotifier,
+      APosition,
+      AMarkDB,
+      AConfig.MarksShowConfig,
+      AConfig.ThreadConfig
+    );
+  VProvider :=
+    TBitmapLayerProviderChangeableForMarksLayer.Create(
+      AConfig.MarksDrawConfig,
+      ABitmapFactory,
+      AProjectedCache,
+      AMarkerProvider,
+      FMarksSubset
     );
   inherited Create(
     APerfList,
@@ -131,73 +132,15 @@ begin
     APosition,
     AView,
     VTileMatrixFactory,
+    VProvider,
+    nil,
     ATimerNoifier,
-    True,
     AConfig.ThreadConfig
   );
-  FConfig := AConfig;
-  FMarkDB := AMarkDB;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FMarkerProvider := AMarkerProvider;
-  FBitmapFactory := ABitmapFactory;
   FProjectedCache := AProjectedCache;
 
-  FMarksSubsetCS := MakeSyncRW_Var(Self);
-  FGetMarksCounter := APerfList.CreateAndAddNewCounter('GetMarks');
   FMouseOnRegCounter := APerfList.CreateAndAddNewCounter('MouseOnReg');
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.MarksShowConfig.GetChangeNotifier
-  );
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.MarksDrawConfig.GetChangeNotifier
-  );
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnMarksDbChange),
-    FMarkDB.MarkDb.ChangeNotifier
-  );
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnMarksDbChange),
-    FMarkDB.CategoryDB.ChangeNotifier
-  );
-end;
-
-function TMapLayerMarks.CreateLayerProvider(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALayerConverter: ILocalCoordConverter
-): IBitmapLayerProvider;
-var
-  VCounterContext: TInternalPerformanceCounterContext;
-  VMarksSubset: IVectorItemSubset;
-  VMarksDrawConfig: IMarksDrawConfigStatic;
-begin
-  Result := nil;
-  VCounterContext := FGetMarksCounter.StartOperation;
-  try
-    VMarksSubset := GetMarksSubset(FConfig.MarksShowConfig.GetStatic, ALayerConverter);
-    FMarksSubsetCS.BeginWrite;
-    try
-      FMarksSubset := VMarksSubset;
-    finally
-      FMarksSubsetCS.EndWrite;
-    end;
-  finally
-    FGetMarksCounter.FinishOperation(VCounterContext);
-  end;
-  if (VMarksSubset <> nil) and (not VMarksSubset.IsEmpty) then begin
-    VMarksDrawConfig := FConfig.MarksDrawConfig.GetStatic;
-    Result :=
-      TBitmapLayerProviderByMarksSubset.Create(
-        VMarksDrawConfig,
-        FBitmapFactory,
-        FProjectedCache,
-        FMarkerProvider,
-        VMarksSubset
-      );
-  end;
 end;
 
 function TMapLayerMarks.FindItems(
@@ -226,12 +169,7 @@ begin
   Vtmp := FVectorItemSubsetBuilderFactory.Build;
   VCounterContext := FMouseOnRegCounter.StartOperation;
   try
-    FMarksSubsetCS.BeginRead;
-    try
-      VMarksSubset := FMarksSubset;
-    finally
-      FMarksSubsetCS.EndRead;
-    end;
+    VMarksSubset := FMarksSubset.GetStatic;
 
     if VMarksSubset <> nil then begin
       if not VMarksSubset.IsEmpty then begin
@@ -276,68 +214,6 @@ begin
     FMouseOnRegCounter.FinishOperation(VCounterContext);
   end;
   Result := Vtmp.MakeStaticAndClear;
-end;
-
-function TMapLayerMarks.GetMarksSubset(
-  const AConfig: IUsedMarksConfigStatic;
-  const ALocalConverter: ILocalCoordConverter
-): IVectorItemSubset;
-var
-  VList: IInterfaceListStatic;
-  VZoom: Byte;
-  VMapPixelRect: TDoubleRect;
-  VLonLatRect: TDoubleRect;
-  VGeoConverter: ICoordConverter;
-begin
-  VList := nil;
-  Result := nil;
-  if AConfig.IsUseMarks then begin
-    VZoom := ALocalConverter.GetZoom;
-    if not AConfig.IgnoreCategoriesVisible then begin
-      VList := FMarkDB.GetVisibleCategories(VZoom);
-    end;
-    if AConfig.IgnoreCategoriesVisible or (Assigned(VList) and (VList.Count > 0)) then begin
-      VGeoConverter := ALocalConverter.GetGeoConverter;
-      VMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
-      VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
-      VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
-      Result :=
-        FMarkDB.MarkDb.GetMarkSubsetByCategoryListInRect(
-          VLonLatRect,
-          VList,
-          AConfig.IgnoreMarksVisible
-        );
-    end;
-  end;
-end;
-
-procedure TMapLayerMarks.OnConfigChange;
-begin
-  ViewUpdateLock;
-  try
-    Visible := FConfig.MarksShowConfig.IsUseMarks;
-    SetNeedUpdateLayerProvider;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMapLayerMarks.OnMarksDbChange;
-begin
-  if Visible then begin
-    ViewUpdateLock;
-    try
-      SetNeedUpdateLayerProvider;
-    finally
-      ViewUpdateUnlock;
-    end;
-  end;
-end;
-
-procedure TMapLayerMarks.StartThreads;
-begin
-  inherited;
-  OnConfigChange;
 end;
 
 end.

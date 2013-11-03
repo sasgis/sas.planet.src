@@ -415,6 +415,7 @@
     <DCCReference Include="i_TileIterator.pas" />
     <DCCReference Include="i_TileKey.pas" />
     <DCCReference Include="i_TileMatrix.pas" />
+    <DCCReference Include="i_TileMatrixChangeable.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
     <DCCReference Include="i_TilePostDownloadCropConfig.pas" />
     <DCCReference Include="i_TileProvider.pas" />
@@ -891,6 +892,13 @@
     <DCCReference Include="u_BitmapLayerProviderByTrackPath.pas" />
     <DCCReference Include="u_BitmapLayerProviderByVectorSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderCombineTwoProviders.pas" />
+    <DCCReference Include="u_BitmapLayerProviderChangeableBase.pas" />
+    <DCCReference Include="u_BitmapLayerProviderChangeableForFillingMap.pas" />
+    <DCCReference Include="u_BitmapLayerProviderChangeableForGpsTrack.pas" />
+    <DCCReference Include="u_BitmapLayerProviderChangeableForGrids.pas" />
+    <DCCReference Include="u_BitmapLayerProviderChangeableForMainLayer.pas" />
+    <DCCReference Include="u_BitmapLayerProviderChangeableForMarksLayer.pas" />
+    <DCCReference Include="u_BitmapLayerProviderChangeableForVectorMaps.pas" />
     <DCCReference Include="u_BitmapLayerProviderComplex.pas" />
     <DCCReference Include="u_BitmapLayerProviderFillingMap.pas" />
     <DCCReference Include="u_BitmapLayerProviderForViewMaps.pas" />
@@ -1204,6 +1212,8 @@
     <DCCReference Include="u_SimpleFlagWithInterlock.pas" />
     <DCCReference Include="u_SimpleHttpDownloader.pas" />
     <DCCReference Include="u_SortFunc.pas" />
+    <DCCReference Include="u_SourceDataUpdateInRectByFillingMap.pas" />
+    <DCCReference Include="u_SourceDataUpdateInRectByMapsSet.pas" />
     <DCCReference Include="u_StartUpLogoConfig.pas" />
     <DCCReference Include="u_StatBarConfig.pas" />
     <DCCReference Include="u_StaticTreeBuilderBase.pas" />
@@ -1250,6 +1260,7 @@
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileKey.pas" />
     <DCCReference Include="u_TileMatrix.pas" />
+    <DCCReference Include="u_TileMatrixChangeableWithThread.pas" />
     <DCCReference Include="u_TileMatrixElement.pas" />
     <DCCReference Include="u_TileMatrixFactory.pas" />
     <DCCReference Include="u_TilePostDownloadCropConfigStatic.pas" />
@@ -1293,6 +1304,7 @@
     <DCCReference Include="u_VectorItemProjected.pas" />
     <DCCReference Include="u_VectorItemsFactorySimple.pas" />
     <DCCReference Include="u_VectorItemSubsetBuilder.pas" />
+    <DCCReference Include="u_VectorItemSubsetChangeableForMarksLayer.pas" />
     <DCCReference Include="u_VectorItemSubsetChangeableForVectorLayers.pas" />
     <DCCReference Include="u_VectorItemTree.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />

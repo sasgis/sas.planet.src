@@ -479,7 +479,7 @@ begin
 
   FGUISyncronizedTimer := TTimer.Create(nil);
   FGUISyncronizedTimer.Enabled := False;
-  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 200);
+  FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 16);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
   FGUISyncronizedTimerNotifierInternal := TNotifierTime.Create;

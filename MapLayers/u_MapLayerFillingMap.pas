@@ -18,16 +18,6 @@ uses
 
 type
   TMapLayerFillingMap = class(TTiledLayerWithThreadBase)
-  private
-    FConfig: IFillingMapLayerConfig;
-    procedure OnConfigChange;
-  protected
-    function CreateLayerProvider(
-      AOperationID: Integer;
-      const ACancelNotifier: INotifierOperation;
-      const ALayerConverter: ILocalCoordConverter
-    ): IBitmapLayerProvider; override;
-    procedure StartThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -48,9 +38,13 @@ implementation
 
 uses
   i_TileMatrix,
+  i_BitmapLayerProviderChangeable,
+  i_MapTypes,
+  i_ObjectWithListener,
   u_TileMatrixFactory,
   u_ListenerByEvent,
-  u_BitmapLayerProviderFillingMap;
+  u_SourceDataUpdateInRectByFillingMap,
+  u_BitmapLayerProviderChangeableForFillingMap;
 
 { TMapLayerFillingMapNew }
 
@@ -69,6 +63,8 @@ constructor TMapLayerFillingMap.Create(
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;
+  VProvider: IBitmapLayerProviderChangeable;
+  VSourceChangeNotifier: IObjectWithListener;
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
@@ -76,6 +72,9 @@ begin
       ABitmapFactory,
       AConverterFactory
     );
+  VProvider :=
+    TBitmapLayerProviderChangeableForFillingMap.Create(AConfig);
+  VSourceChangeNotifier := TSourceDataUpdateInRectByFillingMap.Create(AConfig);
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -84,54 +83,11 @@ begin
     APosition,
     AView,
     VTileMatrixFactory,
+    VProvider,
+    VSourceChangeNotifier,
     ATimerNoifier,
-    False,
     AConfig.ThreadConfig
   );
-  FConfig := AConfig;
-
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(OnConfigChange),
-    FConfig.GetChangeNotifier
-  );
-end;
-
-function TMapLayerFillingMap.CreateLayerProvider(
-  AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation;
-  const ALayerConverter: ILocalCoordConverter
-): IBitmapLayerProvider;
-var
-  VConfig: IFillingMapLayerConfigStatic;
-begin
-  Result := nil;
-  VConfig := FConfig.GetStatic;
-  if VConfig.Visible then begin
-    Result :=
-      TBitmapLayerProviderFillingMap.Create(
-        VConfig.SourceMap,
-        VConfig.UseRelativeZoom,
-        VConfig.Zoom,
-        VConfig.Colorer
-      );
-  end;
-end;
-
-procedure TMapLayerFillingMap.OnConfigChange;
-begin
-  ViewUpdateLock;
-  try
-    Visible := FConfig.GetStatic.Visible;
-    SetNeedUpdateLayerProvider;
-  finally
-    ViewUpdateUnlock;
-  end;
-end;
-
-procedure TMapLayerFillingMap.StartThreads;
-begin
-  inherited;
-  OnConfigChange;
 end;
 
 end.
