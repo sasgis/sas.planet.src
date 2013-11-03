@@ -2043,6 +2043,7 @@ begin
       GState.MapType.GUIConfigList,
       FMapTypeIcons18List,
       VMiniMapConverterChangeable,
+      GState.GUISyncronizedTimerNotifier,
       FConfig.LayersConfig.MiniMapLayerConfig
     )
   );

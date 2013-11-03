@@ -32,8 +32,10 @@ uses
   TBX,
   TB2Item,
   t_GeoTypes,
+  i_NotifierTime,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
+  i_SimpleFlag,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_MiniMapLayerConfig,
@@ -55,8 +57,11 @@ type
 
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
+    FLayerChangeFlag: ISimpleFlag;
 
+    procedure OnTimer;
     procedure OnConfigChange;
+    procedure OnViewChange;
     procedure OnPosChange;
     procedure DrawMainViewRect(
       ABuffer: TBitmap32;
@@ -100,6 +105,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AIconsList: IMapTypeIconsList;
       const APosition: ILocalCoordConverterChangeable;
+      const ATimerNoifier: INotifierTime;
       const AConfig: IMiniMapLayerConfig
     );
   end;
@@ -112,6 +118,8 @@ uses
   i_MapTypes,
   i_ActiveMapsConfig,
   u_ListenerByEvent,
+  u_SimpleFlagWithInterlock,
+  u_ListenerTime,
   u_MapTypeMenuItemsGeneratorBasic,
   u_GeoFun,
   u_ResStrings;
@@ -126,7 +134,9 @@ constructor TMiniMapLayerViewRect.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AIconsList: IMapTypeIconsList;
   const APosition: ILocalCoordConverterChangeable;
-  const AConfig: IMiniMapLayerConfig);
+  const ATimerNoifier: INotifierTime;
+  const AConfig: IMiniMapLayerConfig
+);
 begin
   inherited Create(
     APerfList,
@@ -145,6 +155,8 @@ begin
   Layer.OnMouseUp := LayerMouseUP;
   Layer.OnMouseMove := LayerMouseMove;
 
+  FLayerChangeFlag := TSimpleFlagWithInterlock.Create;
+
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.ChangeNotifier
@@ -152,6 +164,14 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
     FPosition.ChangeNotifier
+  );
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnViewChange),
+    FViewPortState.View.ChangeNotifier
+  );
+  LinksList.Add(
+    TListenerTimeCheck.Create(Self.OnTimer, 100),
+    ATimerNoifier
   );
 
   FPopup := TTBXPopupMenu.Create(AParentMap);
@@ -435,25 +455,33 @@ end;
 
 procedure TMiniMapLayerViewRect.OnConfigChange;
 begin
-  ViewUpdateLock;
-  try
-    Visible := FConfig.LocationConfig.GetStatic.Visible;
-    SetNeedUpdateLayerLocation;
-    SetNeedFullRepaintLayer;
-  finally
-    ViewUpdateUnlock;
-  end;
+  FLayerChangeFlag.SetFlag;
 end;
 
 procedure TMiniMapLayerViewRect.OnPosChange;
 begin
-  ViewUpdateLock;
-  try
-    SetNeedUpdateLayerLocation;
-    SetNeedFullRepaintLayer;
-  finally
-    ViewUpdateUnlock;
+  FLayerChangeFlag.SetFlag;
+end;
+
+procedure TMiniMapLayerViewRect.OnTimer;
+begin
+  if FLayerChangeFlag.CheckFlagAndReset then begin
+    ViewUpdateLock;
+    try
+      if Visible <> FConfig.LocationConfig.GetStatic.Visible then begin
+        Visible := FConfig.LocationConfig.GetStatic.Visible;
+      end;
+      SetNeedUpdateLayerLocation;
+      SetNeedFullRepaintLayer;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
+end;
+
+procedure TMiniMapLayerViewRect.OnViewChange;
+begin
+  FLayerChangeFlag.SetFlag;
 end;
 
 procedure TMiniMapLayerViewRect.PaintLayer(ABuffer: TBitmap32);
