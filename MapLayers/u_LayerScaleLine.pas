@@ -29,6 +29,8 @@ uses
   GR32,
   GR32_Image,
   i_NotifierOperation,
+  i_NotifierTime,
+  i_SimpleFlag,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
@@ -41,17 +43,18 @@ type
   private
     FConfig: IScaleLineConfig;
     FView: ILocalCoordConverterChangeable;
+    FLayerChangeFlag: ISimpleFlag;
     FTmpBitmap: TBitmap32;
     FPopupMenu: IPopUp;
     procedure OnConfigChange;
     procedure OnPosChange;
+    procedure OnTimer;
     procedure OnMouseDown(
       Sender: TObject;
       Button: TMouseButton;
       Shift: TShiftState;
       X, Y: Integer
     );
-
   protected
     procedure DrawOutLinedText(
       X, Y: Integer;
@@ -74,6 +77,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
+      const ATimerNoifier: INotifierTime;
       const APopupMenu: IPopUp;
       const AConfig: IScaleLineConfig
     );
@@ -88,6 +92,8 @@ uses
   GR32_Resamplers,
   i_CoordConverter,
   u_ListenerByEvent,
+  u_SimpleFlagWithInterlock,
+  u_ListenerTime,
   u_ResStrings,
   u_GeoFun,
   t_GeoTypes;
@@ -100,6 +106,7 @@ constructor TLayerScaleLineBase.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
+  const ATimerNoifier: INotifierTime;
   const APopupMenu: IPopUp;
   const AConfig: IScaleLineConfig
 );
@@ -113,6 +120,7 @@ begin
   FConfig := AConfig;
   FView := AView;
   FPopupMenu := APopupMenu;
+  FLayerChangeFlag := TSimpleFlagWithInterlock.Create;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
@@ -121,6 +129,10 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.GetChangeNotifier
+  );
+  LinksList.Add(
+    TListenerTimeCheck.Create(Self.OnTimer, 100),
+    ATimerNoifier
   );
 
   Layer.AlphaHit := True;
@@ -212,30 +224,31 @@ begin
 end;
 
 procedure TLayerScaleLineBase.OnConfigChange;
-var
-  VVisible: Boolean;
 begin
-  ViewUpdateLock;
-  try
-    VVisible := GetNewVisibility;
-    if VVisible <> Visible then begin
-      Visible := VVisible;
-    end;
-    SetNeedUpdateBitmapDraw;
-    SetNeedUpdateLayerLocation;
-  finally
-    ViewUpdateUnlock;
-  end;
+  FLayerChangeFlag.SetFlag;
 end;
 
 procedure TLayerScaleLineBase.OnPosChange;
 begin
-  ViewUpdateLock;
-  try
-    SetNeedUpdateBitmapDraw;
-    SetNeedUpdateLayerLocation;
-  finally
-    ViewUpdateUnlock;
+  FLayerChangeFlag.SetFlag;
+end;
+
+procedure TLayerScaleLineBase.OnTimer;
+var
+  VVisible: Boolean;
+begin
+  if FLayerChangeFlag.CheckFlagAndReset then begin
+    ViewUpdateLock;
+    try
+      VVisible := GetNewVisibility;
+      if VVisible <> Visible then begin
+        Visible := VVisible;
+      end;
+      SetNeedUpdateBitmapDraw;
+      SetNeedUpdateLayerLocation;
+    finally
+      ViewUpdateUnlock;
+    end;
   end;
 end;
 

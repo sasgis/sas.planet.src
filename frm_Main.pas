@@ -1954,6 +1954,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState.View,
+      GState.GUISyncronizedTimerNotifier,
       VPopupMenu,
       FConfig.LayersConfig.ScaleLineConfig
     )
@@ -1965,6 +1966,7 @@ begin
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState.View,
+      GState.GUISyncronizedTimerNotifier,
       VPopupMenu,
       FConfig.LayersConfig.ScaleLineConfig
     )
