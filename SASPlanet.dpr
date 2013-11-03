@@ -431,6 +431,8 @@ uses
   u_LocalCoordConverterChangeable in 'u_LocalCoordConverterChangeable.pas',
   u_LocalConverterChangeableFixedTileRectNoScale in 'u_LocalConverterChangeableFixedTileRectNoScale.pas',
   u_LocalConverterChangeableOfMiniMap in 'u_LocalConverterChangeableOfMiniMap.pas',
+  i_LocalCoordConverterFactory in 'i_LocalCoordConverterFactory.pas',
+  u_LocalCoordConverterFactory in 'u_LocalCoordConverterFactory.pas',
   i_LocalCoordConverterFactorySimpe in 'i_LocalCoordConverterFactorySimpe.pas',
   u_LocalCoordConverterFactorySimpe in 'u_LocalCoordConverterFactorySimpe.pas',
   i_CoordConverterList in 'i_CoordConverterList.pas',

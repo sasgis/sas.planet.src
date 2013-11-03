@@ -358,6 +358,7 @@ uses
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
   u_DebugInfoSubSystem,
+  u_LocalCoordConverterFactory,
   u_BuildInfo,
   u_BitmapPostProcessingChangeableByConfig,
   u_TileFileNameParsersSimpleList,
@@ -466,7 +467,11 @@ begin
   FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction);
   FProjectionFactory := TProjectionInfoFactory.Create(FHashFunction, MakeSyncRW_Var(Self, False));
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
-  FLocalConverterFactory := TLocalCoordConverterFactorySimpe.Create(FHashFunction, FProjectionFactory);
+  FLocalConverterFactory :=
+    TLocalCoordConverterFactorySimpe.Create(
+      TLocalCoordConverterFactory.Create(FHashFunction),
+      FProjectionFactory
+    );
 
   FCacheConfig := TGlobalCacheConfig.Create(FBaseCahcePath);
   FDownloadInfo := TDownloadInfoSimple.Create(nil);

@@ -286,6 +286,7 @@
     <DCCReference Include="i_ListenerTime.pas" />
     <DCCReference Include="i_LocalCoordConverter.pas" />
     <DCCReference Include="i_LocalCoordConverterChangeable.pas" />
+    <DCCReference Include="i_LocalCoordConverterFactory.pas" />
     <DCCReference Include="i_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="i_LogSimple.pas" />
     <DCCReference Include="i_LogSimpleProvider.pas" />
@@ -1057,6 +1058,7 @@
     <DCCReference Include="u_LocalConverterChangeableOfMiniMap.pas" />
     <DCCReference Include="u_LocalCoordConverter.pas" />
     <DCCReference Include="u_LocalCoordConverterChangeable.pas" />
+    <DCCReference Include="u_LocalCoordConverterFactory.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
     <DCCReference Include="u_LocalSingleLine.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
