@@ -89,6 +89,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
   private
     function GetMapType: TMapType;
     function GetZoom: Byte;
@@ -277,6 +278,11 @@ begin
   FfrMapSelect.Show(pnlFrame);
   cbbZoomChange(cbbzoom);
 
+end;
+
+function TfrTilesDownload.Validate: Boolean;
+begin
+  Result := True;
 end;
 
 end.

@@ -73,6 +73,7 @@ type
       AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
   end;
 
 implementation
@@ -332,6 +333,17 @@ begin
   VExportProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[cbbOutputFormat.ItemIndex]);
   if VExportProvider <> nil then begin
     VExportProvider.StartProcess(APolygon);
+  end;
+end;
+
+function TfrCombine.Validate: Boolean;
+var
+  VExportProvider: TExportProviderAbstract;
+begin
+  Result := False;
+  VExportProvider := TExportProviderAbstract(cbbOutputFormat.Items.Objects[cbbOutputFormat.ItemIndex]);
+  if VExportProvider <> nil then begin
+    Result := VExportProvider.Validate;
   end;
 end;
 

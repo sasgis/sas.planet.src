@@ -91,6 +91,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
     procedure UpdateSetTargetVersionState;
   private
     function GetZoomArray: TByteDynArray;
@@ -118,6 +119,8 @@ type
 implementation
 
 uses
+  Dialogs,
+  gnugettext,
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
@@ -321,6 +324,22 @@ end;
 procedure TfrTilesCopy.UpdateSetTargetVersionState;
 begin
   edSetTargetVersionValue.Enabled := chkSetTargetVersionTo.Enabled and chkSetTargetVersionTo.Checked;
+end;
+
+function TfrTilesCopy.Validate: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := 0 to chklstZooms.Count - 1 do begin
+    if chklstZooms.Checked[i] then begin
+      Result := True;
+      Break;
+    end;
+  end;
+  if not Result then begin
+    ShowMessage(_('Please select at least one zoom'));
+  end;
 end;
 
 end.

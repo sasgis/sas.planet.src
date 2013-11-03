@@ -18,6 +18,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
   end;
 
   IRegionProcessParamsFrameOneMap = interface(IRegionProcessParamsFrameBase)

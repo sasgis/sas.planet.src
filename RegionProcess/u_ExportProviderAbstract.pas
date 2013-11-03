@@ -47,6 +47,7 @@ type
       const APolygon: ILonLatPolygon
     );
     procedure Hide;
+    function Validate: Boolean;
     procedure StartProcess(
       const APolygon: ILonLatPolygon
     ); virtual; abstract;
@@ -119,6 +120,11 @@ begin
       VFrame.Init(AZoom, APolygon);
     end;
   end;
+end;
+
+function TExportProviderAbstract.Validate: Boolean;
+begin
+  Result := GetParamsFrame.Validate;
 end;
 
 end.

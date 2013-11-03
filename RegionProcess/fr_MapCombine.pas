@@ -137,6 +137,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
   private
     function GetProvider: IBitmapLayerProvider;
     function GetPath: string;
@@ -511,4 +512,9 @@ begin
   end;
   cbbProjection.ItemIndex := 0;
 end;
+function TfrMapCombine.Validate: Boolean;
+begin
+  Result := True;
+end;
+
 end.

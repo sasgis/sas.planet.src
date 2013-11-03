@@ -68,6 +68,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
   private
     function GetMapType: TMapType;
     function GetZoomArray: TByteDynArray;
@@ -87,6 +88,9 @@ type
 
 implementation
 
+uses
+  gnugettext;
+  
 {$R *.dfm}
 
 constructor TfrExportGEKml.Create(
@@ -184,4 +188,20 @@ begin
   end;
   FfrMapSelect.Show(pnlMap);
 end;
+function TfrExportGEKml.Validate: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := 0 to chklstZooms.Count - 1 do begin
+    if chklstZooms.Checked[i] then begin
+      Result := True;
+      Break;
+    end;
+  end;
+  if not Result then begin
+    ShowMessage(_('Please select at least one zoom'));
+  end;
+end;
+
 end.

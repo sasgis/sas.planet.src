@@ -114,12 +114,12 @@ type
     FMapGoto: IMapViewGoto;
     FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
-    procedure LoadRegion(const APolyLL: ILonLatPolygon);
-    procedure DelRegion(const APolyLL: ILonLatPolygon);
-    procedure genbacksatREG(const APolyLL: ILonLatPolygon);
-    procedure scleitRECT(const APolyLL: ILonLatPolygon);
-    procedure savefilesREG(const APolyLL: ILonLatPolygon);
-    procedure ExportREG(const APolyLL: ILonLatPolygon);
+    function LoadRegion(const APolyLL: ILonLatPolygon): Boolean;
+    function DelRegion(const APolyLL: ILonLatPolygon): Boolean;
+    function genbacksatREG(const APolyLL: ILonLatPolygon): Boolean;
+    function scleitRECT(const APolyLL: ILonLatPolygon): Boolean;
+    function savefilesREG(const APolyLL: ILonLatPolygon): Boolean;
+    function ExportREG(const APolyLL: ILonLatPolygon): Boolean;
   private
     procedure ProcessPolygon(
       const APolygon: ILonLatPolygon
@@ -391,49 +391,72 @@ begin
   Self.Show;
 end;
 
-procedure TfrmRegionProcess.DelRegion(const APolyLL: ILonLatPolygon);
+function TfrmRegionProcess.DelRegion(const APolyLL: ILonLatPolygon): Boolean;
 begin
-  FProviderTilesDelte.StartProcess(APolyLL);
+  Result := FProviderTilesDelte.Validate;
+  if Result then begin
+    FProviderTilesDelte.StartProcess(APolyLL);
+  end;
 end;
 
-procedure TfrmRegionProcess.ExportREG(const APolyLL: ILonLatPolygon);
+function TfrmRegionProcess.ExportREG(const APolyLL: ILonLatPolygon): Boolean;
 begin
-  FfrExport.StartProcess(APolyLL);
+  Result := FfrExport.Validate;
+  if Result then begin
+    FfrExport.StartProcess(APolyLL);
+  end;
 end;
 
-procedure TfrmRegionProcess.savefilesREG(const APolyLL: ILonLatPolygon);
+function TfrmRegionProcess.savefilesREG(const APolyLL: ILonLatPolygon): Boolean;
 begin
-  FProviderTilesCopy.StartProcess(APolyLL);
+  Result := FProviderTilesCopy.Validate;
+  if Result then begin
+    FProviderTilesCopy.StartProcess(APolyLL);
+  end;
 end;
 
-procedure TfrmRegionProcess.LoadRegion(const APolyLL: ILonLatPolygon);
+function TfrmRegionProcess.LoadRegion(const APolyLL: ILonLatPolygon): Boolean;
 begin
-  FProviderTilesDownload.StartProcess(APolyLL);
+  Result := FProviderTilesDownload.Validate;
+  if Result then begin
+    FProviderTilesDownload.StartProcess(APolyLL);
+  end;
 end;
 
-procedure TfrmRegionProcess.genbacksatREG(const APolyLL: ILonLatPolygon);
+function TfrmRegionProcess.genbacksatREG(const APolyLL: ILonLatPolygon): Boolean;
 begin
-  FProviderTilesGenPrev.StartProcess(APolyLL);
+  Result := FProviderTilesGenPrev.Validate;
+  if Result then begin
+    FProviderTilesGenPrev.StartProcess(APolyLL);
+  end;
 end;
 
-procedure TfrmRegionProcess.scleitRECT(const APolyLL: ILonLatPolygon);
+function TfrmRegionProcess.scleitRECT(const APolyLL: ILonLatPolygon): Boolean;
 begin
-  FfrCombine.StartProcess(APolyLL);
+  Result := FfrCombine.Validate;
+  if Result then begin
+    FfrCombine.StartProcess(APolyLL);
+  end;
 end;
 
 
 procedure TfrmRegionProcess.Button1Click(Sender: TObject);
+var
+  VResult: Boolean;
 begin
- case PageControl1.ActivePage.Tag of
-  0: LoadRegion(FPolygonLL);
-  1: scleitRECT(FPolygonLL);
-  2: genbacksatREG(FPolygonLL);
-  3: DelRegion(FPolygonLL);
-  4: ExportREG(FPolygonLL);
-  5: savefilesREG(FPolygonLL);
- end;
-  if CBCloseWithStart.Checked then begin
-    close;
+  VResult := False;
+  case PageControl1.ActivePage.Tag of
+    0: VResult := LoadRegion(FPolygonLL);
+    1: VResult := scleitRECT(FPolygonLL);
+    2: VResult := genbacksatREG(FPolygonLL);
+    3: VResult := DelRegion(FPolygonLL);
+    4: VResult := ExportREG(FPolygonLL);
+    5: VResult := savefilesREG(FPolygonLL);
+  end;
+  if VResult then begin
+    if CBCloseWithStart.Checked then begin
+      close;
+    end;
   end;
 end;
 

@@ -65,6 +65,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
     function GetAllowExport(AMapType: TMapType): boolean;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
@@ -84,6 +85,8 @@ type
 implementation
 
 uses
+  Dialogs,
+  gnugettext,
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl;
   {$WARN UNIT_PLATFORM ON}
@@ -206,4 +209,20 @@ begin
   FfrMapSelect.Show(pnlMap);
   FfrHybSelect.Show(pnlHyb);
 end;
+function TfrExportYaMobileV3.Validate: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := 0 to chklstZooms.Count - 1 do begin
+    if chklstZooms.Checked[i] then begin
+      Result := True;
+      Break;
+    end;
+  end;
+  if not Result then begin
+    ShowMessage(_('Please select at least one zoom'));
+  end;
+end;
+
 end.

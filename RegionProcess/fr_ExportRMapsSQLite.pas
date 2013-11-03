@@ -73,6 +73,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
   private
     function GetMapType: TMapType;
     function GetMapTypeList: IMapTypeListStatic;
@@ -94,6 +95,9 @@ type
 
 implementation
 
+uses
+  gnugettext;
+  
 {$R *.dfm}
 
 constructor TfrExportRMapsSQLite.Create(
@@ -203,6 +207,22 @@ begin
     chklstZooms.Items.Add(inttostr(i));
   end;
   FfrMapSelect.Show(pnlMap);
+end;
+
+function TfrExportRMapsSQLite.Validate: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := 0 to chklstZooms.Count - 1 do begin
+    if chklstZooms.Checked[i] then begin
+      Result := True;
+      Break;
+    end;
+  end;
+  if not Result then begin
+    ShowMessage(_('Please select at least one zoom'));
+  end;
 end;
 
 end.

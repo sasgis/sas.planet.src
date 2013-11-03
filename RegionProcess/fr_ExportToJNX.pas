@@ -164,6 +164,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
   private
     function GetZoomArray: TByteDynArray;
     function GetScaleArray: TByteDynArray;
@@ -688,6 +689,11 @@ begin
   end else begin
     MapsPanel.Visible := true;
   end;
+end;
+
+function TfrExportToJNX.Validate: Boolean;
+begin
+  Result := True;
 end;
 
 function TfrExportToJNX.GetJNXVersion: Integer;

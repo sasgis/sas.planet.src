@@ -88,6 +88,7 @@ type
       const AZoom: byte;
       const APolygon: ILonLatPolygon
     );
+    function Validate: Boolean;
   private
     function GetProvider: IBitmapLayerProvider;
     function GetZoom: Byte;
@@ -351,6 +352,11 @@ begin
   cbbZoomChange(nil);
   FfrMapSelect.Show(pnlMap);
   FfrHybSelect.Show(pnlHyb);
+end;
+
+function TfrExportToOgf2.Validate: Boolean;
+begin
+  Result := True;
 end;
 
 end.
