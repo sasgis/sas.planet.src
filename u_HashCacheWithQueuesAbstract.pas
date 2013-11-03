@@ -486,6 +486,7 @@ begin
   Assert(AHashIndex >= 0);
   Assert(AHashIndex < FHashSize);
   VIndex := FHash[AHashIndex];
+  Assert(VIndex <> AIndex);
   FHash[AHashIndex] := AIndex;
   AItem.CollisionNextIndex := VIndex;
 end;
@@ -508,6 +509,7 @@ begin
       if Result.Key = AKey then begin
         Break;
       end else begin
+        Assert(AIndex <> Result.CollisionNextIndex);
         AIndex := Result.CollisionNextIndex;
         Result := nil;
       end;
@@ -536,6 +538,7 @@ begin
 
   if VIndex = AIndex then begin
     FHash[AHashIndex] := AItem.CollisionNextIndex;
+    AItem.CollisionNextIndex := FItemsCount;
   end else begin
     while VIndex < FItemsCount do begin
       VPrevItem := FItems.GetItemByIndex(VIndex);
