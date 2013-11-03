@@ -116,7 +116,7 @@ var
   VPoint : TDoublePoint;
   slat, slon: string;
   sname, sdesc, sfulldesc : string;
-  i, j, l: integer;
+  i: integer;
   VSearch : string;
   VValueConverter: IValueToStringConverter;
   VAnsi: AnsiString;
@@ -166,7 +166,7 @@ begin
             sname := VTabArray.Strings[2];
           end;
 
-          VTabArray.Text := '';
+          VTabArray.Clear;
           VTabArray.LineBreak := ',';
           VTabArray.Text := sname;
 
@@ -177,7 +177,7 @@ begin
                 break;
             end;
           end;
-          VTabArray.Text := '';
+          VTabArray.Clear;
 
           if (slat <> '') and (slon <> '') then begin
             try
