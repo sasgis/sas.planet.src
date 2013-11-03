@@ -485,6 +485,7 @@ begin
   Assert(FItems.GetItemByIndex(AIndex) = AItem);
   Assert(AHashIndex >= 0);
   Assert(AHashIndex < FHashSize);
+  Assert(AItem.CollisionNextIndex = FItemsCount);
   VIndex := FHash[AHashIndex];
   Assert(VIndex <> AIndex);
   FHash[AHashIndex] := AIndex;
@@ -830,15 +831,19 @@ begin
               MoveItemFromFirstInToFirstOut;
             end else begin
               VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
+              FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
             end;
           end else if FQueueFirstOutMaxCount > 0 then begin
             if FQueueMulti.Count > FQueueMultiMaxCount then begin
               VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
+              FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
             end else begin
               VCurrItem := FQueueFirstOut.PopItemFromTail(VCurrIndex);
+              FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
             end;
           end else begin
             VCurrItem := FQueueMulti.PopItemFromTail(VCurrIndex);
+            FHash.RemoveItem(GetIndexByKey(VCurrItem.Key), VCurrIndex, VCurrItem);
           end;
         end;
         VCurrItem.Key := AKey;
