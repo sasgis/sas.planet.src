@@ -22,6 +22,8 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
+    procedure RemoveDuplicates;
+
     function MakeStaticAndClear: IVectorItemSubset;
     function MakeStaticCopy: IVectorItemSubset;
   end;

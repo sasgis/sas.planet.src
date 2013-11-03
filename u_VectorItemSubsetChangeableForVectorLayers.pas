@@ -612,6 +612,7 @@ begin
       end;
     end;
   end;
+  VElements.RemoveDuplicates;
   Result := VElements.MakeStaticAndClear;
 end;
 

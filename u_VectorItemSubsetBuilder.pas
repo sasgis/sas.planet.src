@@ -27,6 +27,8 @@ type
     procedure SetCapacity(ANewCapacity: Integer);
     function GetCount: Integer;
 
+    procedure RemoveDuplicates;
+
     function MakeStaticAndClear: IVectorItemSubset;
     function MakeStaticCopy: IVectorItemSubset;
   public
@@ -49,6 +51,7 @@ implementation
 
 uses
   u_InterfaceListSimple,
+  u_SortFunc,
   u_VectorDataItemSubset;
 
 { TVectorItemSubsetBuilder }
@@ -139,6 +142,52 @@ begin
           FVectorItemSubsetBuilderFactory,
           FList.MakeStaticCopy
         );
+    end;
+  end;
+end;
+
+function CompareVectorItems(const Item1, Item2: IInterface): Integer;
+var
+  VHash1, VHash2: THashValue;
+begin
+  VHash1 := IVectorDataItemSimple(Item1).Hash;
+  VHash2 := IVectorDataItemSimple(Item2).Hash;
+  if VHash1 = VHash2 then begin
+    Result := 0;
+  end else if VHash1 < VHash2 then begin
+    Result := 1;
+  end else begin
+    Result := -1;
+  end;
+end;
+
+procedure TVectorItemSubsetBuilder.RemoveDuplicates;
+var
+  i: Integer;
+  VPrevIndex: Integer;
+  VItemCurr: IVectorDataItemSimple;
+  VItemPrev: IVectorDataItemSimple;
+  VHash: THashValue;
+begin
+  if Assigned(FList) then begin
+    if FList.Count > 1 then begin
+      SortInterfaceListByCompareFunction(FList, CompareVectorItems);
+      VPrevIndex := 0;
+      VItemPrev := IVectorDataItemSimple(FList.Items[0]);
+      VHash := VItemPrev.Hash;
+      for i := 1 to FList.Count - 1 do begin
+        VItemCurr := IVectorDataItemSimple(FList.Items[i]);
+        if not VItemPrev.IsEqual(VItemCurr) then begin
+          FHashFunction.UpdateHashByHash(VHash, VItemCurr.Hash);
+          VItemPrev := VItemCurr;
+          Inc(VPrevIndex);
+          if VPrevIndex <> i then begin
+            FList.Items[VPrevIndex] := VItemCurr;
+          end;
+        end;
+      end;
+      FList.Count := VPrevIndex + 1;
+      FHash := VHash;
     end;
   end;
 end;
