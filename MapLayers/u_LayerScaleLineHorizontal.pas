@@ -40,8 +40,8 @@ uses
 type
   TLayerScaleLineHorizontal = class(TLayerScaleLineBase)
   private
-    procedure RedrawGorizontalScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
-    procedure DrawGorizontalScaleLegend(
+    procedure RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
+    procedure DrawScaleLegend(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
       ATextColor: TColor32;
@@ -49,7 +49,7 @@ type
       const AHalfValue, AFullValue: string;
       ATargetBitmap: TBitmap32
     );
-    procedure DrawGorizontalScaleMarks(
+    procedure DrawScaleMarks(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
       ATextColor: TColor32;
@@ -57,7 +57,7 @@ type
       AScalePos: Integer;
       ATargetBitmap: TBitmap32
     );
-    function GetMetersPerGorizontalLine(
+    function GetMetersPerLine(
       const AVisualCoordConverter: ILocalCoordConverter;
       ALineWidth: Integer
     ): Double;
@@ -93,11 +93,11 @@ begin
   Layer.Bitmap.Clear(0);
   VVisualCoordConverter := View.GetStatic;
   if VVisualCoordConverter <> nil then begin
-    RedrawGorizontalScaleLegend(VVisualCoordConverter);
+    RedrawScaleLegend(VVisualCoordConverter);
   end;
 end;
 
-procedure TLayerScaleLineHorizontal.RedrawGorizontalScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
+procedure TLayerScaleLineHorizontal.RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
 var
   VUnitsString: string;
   num: Double;
@@ -112,7 +112,7 @@ begin
 
   VValidLegendWidth := (Config.Width div 4) * 4;
 
-  num := GetMetersPerGorizontalLine(AVisualCoordConverter, VValidLegendWidth);
+  num := GetMetersPerLine(AVisualCoordConverter, VValidLegendWidth);
 
   if Config.NumbersFormat = slnfNice then begin
     ModifyLenAndWidth(Num, VValidLegendWidth);
@@ -144,7 +144,7 @@ begin
   end;
   end;
 
-  DrawGorizontalScaleLegend(
+  DrawScaleLegend(
     VColor,
     VOutLineColor,
     VColor,
@@ -155,7 +155,7 @@ begin
   );
 end;
 
-procedure TLayerScaleLineHorizontal.DrawGorizontalScaleLegend(
+procedure TLayerScaleLineHorizontal.DrawScaleLegend(
   ALineColor: TColor32;
   AOutLineColor: TColor32;
   ATextColor: TColor32;
@@ -193,7 +193,7 @@ begin
       VText := '';
     end;
     end;
-    DrawGorizontalScaleMarks(
+    DrawScaleMarks(
       ALineColor,
       AOutLineColor,
       ATextColor,
@@ -206,7 +206,7 @@ begin
   ATargetBitmap.Line(0, VBitmapSize.Y - 1, VWidth + 2, VBitmapSize.Y - 1, AOutLineColor);
 end;
 
-procedure TLayerScaleLineHorizontal.DrawGorizontalScaleMarks(
+procedure TLayerScaleLineHorizontal.DrawScaleMarks(
   ALineColor, AOutLineColor, ATextColor: TColor32;
   const AText: string;
   AScalePos: Integer;
@@ -238,7 +238,7 @@ begin
   ATargetBitmap.Line(AScalePos - 1, VStartY, AScalePos + 1, VStartY, AOutLineColor);
 end;
 
-function TLayerScaleLineHorizontal.GetMetersPerGorizontalLine(
+function TLayerScaleLineHorizontal.GetMetersPerLine(
   const AVisualCoordConverter: ILocalCoordConverter;
   ALineWidth: Integer
 ): Double;

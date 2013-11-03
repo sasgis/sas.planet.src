@@ -40,8 +40,8 @@ uses
 type
   TLayerScaleLineVertical = class(TLayerScaleLineBase)
   private
-    procedure RedrawVerticalScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
-    procedure DrawVerticalScaleLegend(
+    procedure RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
+    procedure DrawScaleLegend(
       ALineColor: TColor32;
       AOutLineColor: TColor32;
       ATextColor: TColor32;
@@ -49,13 +49,13 @@ type
       const AHalfValue, AFullValue: string;
       ATargetBitmap: TBitmap32
     );
-    procedure DrawVerticalScaleMarks(
+    procedure DrawScaleMarks(
       ALineColor, AOutLineColor, ATextColor: TColor32;
       const AText: string;
       AScalePos: Integer;
       ATargetBitmap: TBitmap32
     );
-    procedure GetMetersPerVerticalLine(
+    procedure GetMetersPerLine(
       const AVisualCoordConverter: ILocalCoordConverter;
       ALineHeight: Integer;
       out AHalfLen: Double;
@@ -94,11 +94,11 @@ begin
   Layer.Bitmap.Clear(0);
   VVisualCoordConverter := View.GetStatic;
   if VVisualCoordConverter <> nil then begin
-    RedrawVerticalScaleLegend(VVisualCoordConverter);
+    RedrawScaleLegend(VVisualCoordConverter);
   end;
 end;
 
-procedure TLayerScaleLineVertical.RedrawVerticalScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
+procedure TLayerScaleLineVertical.RedrawScaleLegend(const AVisualCoordConverter: ILocalCoordConverter);
 var
   VUnitsString: string;
   VFullLenght, VHalfLenght: Double;
@@ -112,14 +112,14 @@ begin
 
   VValidLegendHeight := (Config.Width div 4) * 4;
 
-  GetMetersPerVerticalLine(AVisualCoordConverter, VValidLegendHeight, VHalfLenght, VFullLenght);
+  GetMetersPerLine(AVisualCoordConverter, VValidLegendHeight, VHalfLenght, VFullLenght);
 
   if Config.NumbersFormat = slnfNice then begin
     ModifyLenAndHeight(AVisualCoordConverter, VFullLenght, VValidLegendHeight);
   end;
 
   if (VHalfLenght < 0) or (VFullLenght < 0) then begin
-    DrawVerticalScaleLegend(
+    DrawScaleLegend(
       VColor,
       VOutLineColor,
       VColor,
@@ -156,7 +156,7 @@ begin
   end;
   end;
 
-  DrawVerticalScaleLegend(
+  DrawScaleLegend(
     VColor,
     VOutLineColor,
     VColor,
@@ -167,7 +167,7 @@ begin
   );
 end;
 
-procedure TLayerScaleLineVertical.DrawVerticalScaleLegend(
+procedure TLayerScaleLineVertical.DrawScaleLegend(
   ALineColor: TColor32;
   AOutLineColor: TColor32;
   ATextColor: TColor32;
@@ -199,7 +199,7 @@ begin
         VText := '';
       end;
       end;
-      DrawVerticalScaleMarks(
+      DrawScaleMarks(
         ALineColor,
         AOutLineColor,
         ATextColor,
@@ -213,7 +213,7 @@ begin
   end;
 end;
 
-procedure TLayerScaleLineVertical.DrawVerticalScaleMarks(
+procedure TLayerScaleLineVertical.DrawScaleMarks(
   ALineColor, AOutLineColor, ATextColor: TColor32;
   const AText: string;
   AScalePos: Integer;
@@ -243,7 +243,7 @@ begin
   ATargetBitmap.VertLineS(VStartX, AScalePos - 1, AScalePos + 1, AOutLineColor);
 end;
 
-procedure TLayerScaleLineVertical.GetMetersPerVerticalLine(
+procedure TLayerScaleLineVertical.GetMetersPerLine(
   const AVisualCoordConverter: ILocalCoordConverter;
   ALineHeight: Integer;
   out AHalfLen, AFullLen: Double
