@@ -102,7 +102,6 @@ function TLocalConverterChangeableFixedTileRectNoScale.GetConverterForSource(
 var
   VZoom: Byte;
   VConverter: ICoordConverter;
-  VViewSize: TPoint;
   VSourcePixelRect: TRect;
   VTileRect: TRect;
   VResultMapPixelRect: TRect;
@@ -111,8 +110,6 @@ begin
   VConverter := AVisualCoordConverter.GetGeoConverter;
   VZoom := AVisualCoordConverter.GetZoom;
   VSourcePixelRect := AVisualCoordConverter.GetRectInMapPixel;
-  VViewSize.X := VSourcePixelRect.Right - VSourcePixelRect.Left;
-  VViewSize.Y := VSourcePixelRect.Bottom - VSourcePixelRect.Top;
   VConverter.CheckPixelRect(VSourcePixelRect, VZoom);
   VTileRect := VConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
   VResultMapPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
