@@ -672,13 +672,11 @@ type
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
     procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; AZoom:byte; const AMousePos:TPoint);
     procedure ProcessPosChangeMessage;
-    procedure CopyBtmToClipboard(btm: TBitmap);
     function GetIgnoredMenuItemsList: TList;
     procedure MapLayersVisibleChange;
     procedure OnMainFormMainConfigChange;
     procedure OnStateChange;
 
-    procedure CopyStringToClipboard(const s: string);
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange;
@@ -853,6 +851,7 @@ uses
   u_GlobalState,
   u_InetFunc,
   u_BitmapFunc,
+  u_ClipboardFunc,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
@@ -2488,62 +2487,13 @@ begin
   VConverter.CheckLonLatPos(VLonLat);
   VLonLat:=VConverter.LonLat2Metr(VLonLat);
   CopyStringToClipboard(
+    Handle,
     'http://maps.rosreestr.ru/PortalOnline/?' +
     'l=' + IntToStr(VZoom) +
     '&x=' + RoundEx(VLonLat.x, 4) +
     '&y=' + RoundEx(VLonLat.y, 4) +
     '&mls=map|anno&cls=cadastre'
   );
-end;
-
-procedure TfrmMain.CopyBtmToClipboard(btm: TBitmap);
-var hSourcDC, hDestDC, hBM, hbmOld: THandle;
-begin
-  hSourcDC := btm.Canvas.Handle;
-  hDestDC := CreateCompatibleDC(hSourcDC);
-  hBM := CreateCompatibleBitmap(hSourcDC, btm.width, btm.height);
-  hbmold:= SelectObject(hDestDC, hBM);
-  BitBlt(hDestDC, 0, 0, btm.width, btm.height, hSourcDC, 0, 0, SRCCopy);
-  OpenClipBoard(handle);
-  EmptyClipBoard;
-  SetClipBoardData(CF_Bitmap, hBM);
-  CloseClipBoard;
-  SelectObject(hDestDC,hbmold);
-  DeleteObject(hbm);
-  DeleteDC(hDestDC);
-  DeleteDC(hSourcDC);
-end;
-
-procedure TfrmMain.CopyStringToClipboard(const s: string);
-var
-  VStr: WideString;
-  hg: THandle;
-  P: Pointer;
-  VLen: Integer;
-begin
-  if OpenClipboard(Handle) then
-  begin
-    try
-      EmptyClipBoard;
-      VStr := s;
-      VLen := (Length(VStr)+1) * SizeOf(VStr[1]);
-      hg:=GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, VLen);
-      try
-        P:=GlobalLock(hg);
-        try
-          Move(VStr[1], P^, VLen);
-          SetClipboardData(CF_UNICODETEXT, hg);
-        finally
-          GlobalUnlock(hg);
-        end;
-      except
-        GlobalFree(hg);
-        raise
-      end;
-    finally
-      CloseClipboard;
-    end;
-  end
 end;
 
 procedure TfrmMain.OnStateChange;
@@ -3362,6 +3312,7 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
+    Handle,
     'http://www.terraserver.com/view.asp?' +
     'cx=' + RoundEx(VLonLat.x, 4) +
     '&cy=' + RoundEx(VLonLat.y, 4) +
@@ -3730,8 +3681,6 @@ end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapTileClick(Sender: TObject);
 var
-  btm:TBitmap32;
-  btm1:TBitmap;
   VMouseMapPoint: TDoublePoint;
   VZoomCurr: Byte;
   VConverter: ICoordConverter;
@@ -3754,21 +3703,7 @@ begin
     );
   VBitmapTile := VMapType.LoadTileUni(VTile, VZoomCurr, VMapType.VersionConfig.Version, VConverter, True, True, False);
   if VBitmapTile <> nil then begin
-    btm := TBitmap32.Create;
-    try
-      AssignStaticToBitmap32(btm, VBitmapTile);
-      btm1:=TBitmap.Create;
-      try
-        btm1.Width:=btm.Width;
-        btm1.Height:=btm.Height;
-        btm.DrawTo(btm1.Canvas.Handle,0,0);
-        CopyBtmToClipboard(btm1);
-      finally
-        btm1.Free;
-      end;
-    finally
-      btm.Free;
-    end;
+    CopyBitmapToClipboard(Handle, VBitmapTile);
   end;
 end;
 
@@ -3788,7 +3723,7 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
   VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VMouseLonLat);
-  CopyStringToClipboard(VStr);
+  CopyStringToClipboard(Handle, VStr);
 end;
 
 procedure TfrmMain.tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
@@ -3812,7 +3747,7 @@ begin
   if GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Visible then
     VListName := LonLat2GShListName(VMouseLonLat, GetActualGshSCale(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.Scale,VZoomCurr ), 100000000)
     else VListName := '';
-  CopyStringToClipboard(VListName);
+  CopyStringToClipboard(Handle, VListName);
 end;
 
 procedure TfrmMain.tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
@@ -3839,7 +3774,7 @@ begin
       prToTopLeft
     );
 
-  CopyStringToClipboard(VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionConfig.Version));
+  CopyStringToClipboard(Handle, VMapType.TileStorage.GetTileFileName(VTile, VZoomCurr, VMapType.VersionConfig.Version));
 end;
 
 procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
@@ -4817,7 +4752,7 @@ begin
         VMapType.GeoConvert.LonLat2TilePosFloat(VMouseLonLat, VZoomCurr),
         prToTopLeft
       );
-    CopyStringToClipboard(VMapType.TileDownloadSubsystem.GetLink(VTile, VZoomCurr, VMapType.VersionConfig.Version));
+    CopyStringToClipboard(Handle, VMapType.TileDownloadSubsystem.GetLink(VTile, VZoomCurr, VMapType.VersionConfig.Version));
   end;
 end;
 
@@ -5983,6 +5918,7 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
+    Handle,
     'http://maps.nokia.com/mapcreator/?ns=true#|' +
     R2StrPoint(VLonLat.y) + '|' +
     R2StrPoint(VLonLat.x) + '|' +
@@ -6185,6 +6121,7 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
+    Handle,
     'http://www.openstreetmap.org/?lat=' +
     R2StrPoint(VLonLat.y) +
     '&lon=' + R2StrPoint(VLonLat.x) +
@@ -6474,6 +6411,7 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
+    Handle,
     'http://maps.google.com/?ie=UTF8&ll=' +
     R2StrPoint(VLonLat.y) + ',' +
     R2StrPoint(VLonLat.x) +
@@ -6496,6 +6434,7 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
+    Handle,
     'http://maps.yandex.ru/?ll='+
     R2StrPoint(round(VLonLat.x*100000)/100000)+'%2C'+
     R2StrPoint(round(VLonLat.y*100000)/100000)+
@@ -6519,6 +6458,7 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
+    Handle,
     'http://kosmosnimki.ru/?x=' +
     R2StrPoint(VLonLat.x) +
     '&y=' + R2StrPoint(VLonLat.y) +
@@ -6542,6 +6482,7 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   CopyStringToClipboard(
+    Handle,
     'http://www.bing.com/maps/default.aspx?v=2&cp=' +
     R2StrPoint(VLonLat.y) + '~' +
     R2StrPoint(VLonLat.x) +
@@ -6886,7 +6827,7 @@ begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
     VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.GetPoint);
-    CopyStringToClipboard(VStr);
+    CopyStringToClipboard(Handle, VStr);
   end;
 end;
 
@@ -6901,7 +6842,7 @@ begin
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
     end;
-    CopyStringToClipboard(VStr);
+    CopyStringToClipboard(Handle, VStr);
   end;
 end;
 

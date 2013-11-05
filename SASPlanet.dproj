@@ -918,6 +918,7 @@
     <DCCReference Include="u_Category.pas" />
     <DCCReference Include="u_CenterScaleConfig.pas" />
     <DCCReference Include="u_ChangeableBase.pas" />
+    <DCCReference Include="u_ClipboardFunc.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_ConfigDataElementBase.pas" />
     <DCCReference Include="u_ConfigDataElementComplexBase.pas" />

@@ -1064,6 +1064,7 @@ uses
   u_ExportProviderAbstract in 'RegionProcess\u_ExportProviderAbstract.pas',
   u_SearchResults in 'u_SearchResults.pas',
   u_BitmapFunc in 'u_BitmapFunc.pas',
+  u_ClipboardFunc in 'u_ClipboardFunc.pas',
   frm_CacheManager in 'CacheManager\frm_CacheManager.pas' {frmCacheManager},
   frm_ProgressCacheConvrter in 'CacheManager\frm_ProgressCacheConvrter.pas' {frmProgressCacheConvrter},
   u_ThreadCacheConverter in 'CacheManager\u_ThreadCacheConverter.pas',
