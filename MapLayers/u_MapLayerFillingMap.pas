@@ -73,7 +73,7 @@ begin
       AConverterFactory
     );
   VProvider :=
-    TBitmapLayerProviderChangeableForFillingMap.Create(AConfig);
+    TBitmapLayerProviderChangeableForFillingMap.Create(ABitmapFactory, AConfig);
   VSourceChangeNotifier := TSourceDataUpdateInRectByFillingMap.Create(AConfig);
   inherited Create(
     APerfList,
