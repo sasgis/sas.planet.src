@@ -81,6 +81,7 @@ type
     procedure chklstZoomsDblClick(Sender: TObject);
     procedure cbbNamesTypeChange(Sender: TObject);
     procedure chkSetTargetVersionToClick(Sender: TObject);
+    procedure chklstZoomsClick(Sender: TObject);
   private
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FMainMapsConfig: IMainMapsConfig;
@@ -162,9 +163,24 @@ procedure TfrTilesCopy.chkAllZoomsClick(Sender: TObject);
 var
   i: byte;
 begin
-  if chkAllZooms.state<>cbGrayed then
-  for i:=0 to chklstZooms.Count-1 do begin
-    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
+  if chkAllZooms.state<>cbGrayed then begin
+    for i:=0 to chklstZooms.Count-1 do begin
+      chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
+    end;
+  end;
+end;
+
+procedure TfrTilesCopy.chklstZoomsClick(Sender: TObject);
+var
+  i, VCountChecked: Integer;
+begin
+  VCountChecked := 0;
+  for i := 0 to chklstZooms.Count - 1 do if chklstZooms.Checked[i] = true then inc(VCountChecked);
+  if chkAllZooms.state <> cbGrayed then begin
+    if (VCountChecked > 0) and (VCountChecked < chklstZooms.Count) then chkAllZooms.state := cbGrayed;
+  end else begin
+    if VCountChecked = chklstZooms.Count then chkAllZooms.State := cbChecked;
+    if VCountChecked = 0 then chkAllZooms.State := cbUnchecked;
   end;
 end;
 
@@ -172,9 +188,17 @@ procedure TfrTilesCopy.chklstZoomsDblClick(Sender: TObject);
 var
   i: Integer;
 begin
-  for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i]:=true;
-  if chklstZooms.ItemIndex<chklstZooms.count-1 then for i := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i]:=false;
-  if chklstZooms.ItemIndex=chklstZooms.count-1 then chkAllZooms.state:=cbChecked else chkAllZooms.state:=cbGrayed;
+  for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i] := true;
+  if chklstZooms.ItemIndex < chklstZooms.count-1 then begin
+    for i := chklstZooms.ItemIndex + 1 to chklstZooms.count - 1 do begin
+      chklstZooms.Checked[i] := false;
+    end;
+  end;
+  if chklstZooms.ItemIndex = chklstZooms.count-1 then begin
+    chkAllZooms.state := cbChecked
+  end else begin
+    chkAllZooms.state := cbGrayed;
+  end;
 end;
 
 procedure TfrTilesCopy.chkSetTargetVersionToClick(Sender: TObject);
