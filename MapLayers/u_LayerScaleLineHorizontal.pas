@@ -277,7 +277,7 @@ end;
 
 function TLayerScaleLineHorizontal.GetNewBitmapSize: TPoint;
 begin
-  Result.X := Config.Width + 50;
+  Result.X := Config.Width + 100;
   Result.Y := 50;
 end;
 
