@@ -96,17 +96,19 @@ end;
 
 function TGoogleEarthTerrainTileStorage.BuildCacheProvider: Boolean;
 var
+  VOpenErrorMsg: WideString;
   VCacheFactory: IGoogleEarthCacheProviderFactory;
 begin
   FSync.BeginWrite;
   try
+    VOpenErrorMsg := '';
     if FAvailable and (FCacheProvider = nil) then begin
       VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
       if VCacheFactory <> nil then begin
-        FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(PAnsiChar(FCachePath));
+        FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(PAnsiChar(FCachePath), VOpenErrorMsg);
       end;
     end;
-    FAvailable := (FCacheProvider <> nil);
+    FAvailable := (VOpenErrorMsg = '') and (FCacheProvider <> nil);
     Result := FAvailable;
   finally
     FSync.EndWrite;

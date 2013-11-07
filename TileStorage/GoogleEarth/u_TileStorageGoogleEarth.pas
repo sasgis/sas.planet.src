@@ -203,6 +203,7 @@ end;
 function TTileStorageGoogleEarth.LazyBuildProviders: Boolean;
 var
   VCachePath: PAnsiChar;
+  VOpenErrorMsg: WideString;
   VCacheFactory: IGoogleEarthCacheProviderFactory;
 begin
   FLock.BeginRead;
@@ -227,29 +228,30 @@ begin
         if VCacheFactory <> nil then begin
           if (FDatabaseName = '') or SameText(FDatabaseName, 'earth')  then begin
             if not FIsTerrainStorage then begin
-              FCacheProvider := VCacheFactory.CreateEarthProvider(VCachePath);
-              FCacheTmProvider := VCacheFactory.CreateEarthTmProvider(VCachePath);
+              FCacheProvider := VCacheFactory.CreateEarthProvider(VCachePath, VOpenErrorMsg);
+              RaiseGoogleEarthExceptionIfError(VOpenErrorMsg);
+              FCacheTmProvider := VCacheFactory.CreateEarthTmProvider(VCachePath, VOpenErrorMsg);
             end else begin
-              FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(VCachePath);
+              FCacheProvider := VCacheFactory.CreateEarthTerrainProvider(VCachePath, VOpenErrorMsg);
             end;
           end else if SameText(FDatabaseName, 'mars')  then begin
             if not FIsTerrainStorage then begin
-              FCacheProvider := VCacheFactory.CreateMarsProvider(VCachePath);
+              FCacheProvider := VCacheFactory.CreateMarsProvider(VCachePath, VOpenErrorMsg);
             end else begin
-              FCacheProvider := VCacheFactory.CreateMarsTerrainProvider(VCachePath);
+              FCacheProvider := VCacheFactory.CreateMarsTerrainProvider(VCachePath, VOpenErrorMsg);
             end;
           end else if SameText(FDatabaseName, 'moon')  then begin
             if not FIsTerrainStorage then begin
-              FCacheProvider := VCacheFactory.CreateMoonProvider(VCachePath);
+              FCacheProvider := VCacheFactory.CreateMoonProvider(VCachePath, VOpenErrorMsg);
             end else begin
-              FCacheProvider := VCacheFactory.CreateMoonTerrainProvider(VCachePath);
+              FCacheProvider := VCacheFactory.CreateMoonTerrainProvider(VCachePath, VOpenErrorMsg);
             end;
           end else if SameText(FDatabaseName, 'sky')  then begin
             if not FIsTerrainStorage then begin
-              FCacheProvider := VCacheFactory.CreateSkyProvider(VCachePath);
+              FCacheProvider := VCacheFactory.CreateSkyProvider(VCachePath, VOpenErrorMsg);
             end;
           end;
-
+          RaiseGoogleEarthExceptionIfError(VOpenErrorMsg);
           Result := (FCacheProvider <> nil) or (FCacheTmProvider <> nil);
         end;
       end;

@@ -4,9 +4,12 @@ interface
 
 uses
   Types,
+  SysUtils,
   i_BinaryData;
 
 type
+  EGoogleEarthException = class(Exception);
+
   IGoogleEarthImageTileProvider = interface
     ['{94E7D5DC-6601-483B-86AD-366CB10E6EB9}']
     function GetBMP: IBinaryData; safecall;
@@ -128,22 +131,24 @@ type
   end;
 
   IGoogleEarthCacheProviderFactory = interface
-    ['{80C13D8D-0303-48B0-9655-825E50A72E38}']
+    ['{701FE5A0-65EE-4F99-8C75-5C5E06CE011D}']
     // Images
-    function CreateEarthProvider(const APath: PAnsiChar): IGoogleEarthCacheProvider; safecall;
-    function CreateEarthTmProvider(const APath: PAnsiChar): IGoogleEarthCacheProvider; safecall;
-    function CreateSkyProvider(const APath: PAnsiChar): IGoogleEarthCacheProvider; safecall;
-    function CreateMarsProvider(const APath: PAnsiChar): IGoogleEarthCacheProvider; safecall;
-    function CreateMoonProvider(const APath: PAnsiChar): IGoogleEarthCacheProvider; safecall;
+    function CreateEarthProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
+    function CreateEarthTmProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
+    function CreateSkyProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
+    function CreateMarsProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
+    function CreateMoonProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
     // Terrains
-    function CreateEarthTerrainProvider(const APath: PAnsiChar): IGoogleEarthCacheProvider; safecall;
-    function CreateMarsTerrainProvider(const APath: PAnsiChar): IGoogleEarthCacheProvider; safecall;
-    function CreateMoonTerrainProvider(const APath: PAnsiChar): IGoogleEarthCacheProvider; safecall;
+    function CreateEarthTerrainProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
+    function CreateMarsTerrainProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
+    function CreateMoonTerrainProvider(const APath: PAnsiChar; out AErrMsg: WideString): IGoogleEarthCacheProvider; safecall;
   end;
 
 function CreateGoogleEarthCacheProviderFactory: IGoogleEarthCacheProviderFactory;
 function CreateGoogleEarthImageTileProviderFactory: IGoogleEarthImageTileProviderFactory;
 function CreateGoogleEarthTerrainTileProviderFactory: IGoogleEarthTerrainTileProviderFactory;
+
+procedure RaiseGoogleEarthExceptionIfError(const AErrorMsg: WideString);
 
 procedure CheckGoogleEarthTerrainTileZoom(var AZoom: Byte);
 
@@ -151,7 +156,6 @@ implementation
 
 uses
   Windows,
-  SysUtils,
   SyncObjs;
 
 const
@@ -222,6 +226,13 @@ begin
   if libge_LoadLibrary then begin
     VResult := libge_CreateObject(IGoogleEarthTerrainTileProviderFactory);
     Supports(VResult, IGoogleEarthTerrainTileProviderFactory, Result);
+  end;
+end;
+
+procedure RaiseGoogleEarthExceptionIfError(const AErrorMsg: WideString);
+begin
+  if AErrorMsg <> '' then begin
+    raise EGoogleEarthException.Create(AErrorMsg);
   end;
 end;
 
