@@ -620,6 +620,10 @@
       <Form>frMapSelect</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="RegionProcess\fr_ZoomsSelect.pas">
+      <Form>frZoomsSelect</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_Export.pas">
       <Form>frExport</Form>
       <DesignClass>TFrame</DesignClass>

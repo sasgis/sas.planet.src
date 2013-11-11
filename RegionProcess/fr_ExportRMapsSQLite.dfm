@@ -15,68 +15,20 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    object pnlRight: TPanel
-      Left = 376
-      Top = 0
-      Width = 75
-      Height = 277
-      Align = alRight
-      BevelOuter = bvNone
-      BorderWidth = 3
-      TabOrder = 0
-      object lblZooms: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 69
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Zooms:'
-        ExplicitWidth = 35
-      end
-      object chkAllZooms: TCheckBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 257
-        Width = 69
-        Height = 17
-        Margins.Left = 0
-        Margins.Right = 0
-        Margins.Bottom = 0
-        Align = alBottom
-        Caption = 'All'
-        TabOrder = 0
-        OnClick = chkAllZoomsClick
-      end
-      object chklstZooms: TCheckListBox
-        Left = 3
-        Top = 19
-        Width = 69
-        Height = 235
-        Align = alClient
-        ItemHeight = 13
-        TabOrder = 1
-        OnClick = chklstZoomsClick
-        OnDblClick = chklstZoomsDblClick
-      end
-    end
     object pnlMain: TPanel
       Left = 0
       Top = 0
-      Width = 376
+      Width = 368
       Height = 277
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
-      TabOrder = 1
+      TabOrder = 0
       object lblMap: TLabel
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 370
+        Width = 362
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
@@ -84,11 +36,12 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Align = alTop
         AutoSize = False
         Caption = 'Map'
+        ExplicitWidth = 370
       end
       object chkReplaceExistingTiles: TCheckBox
         Left = 3
         Top = 62
-        Width = 370
+        Width = 362
         Height = 17
         Align = alTop
         Caption = 'Replace existing tiles'
@@ -100,7 +53,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         AlignWithMargins = True
         Left = 3
         Top = 45
-        Width = 370
+        Width = 362
         Height = 17
         Margins.Left = 0
         Margins.Right = 0
@@ -114,12 +67,23 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       object pnlMap: TPanel
         Left = 3
         Top = 19
-        Width = 370
+        Width = 362
         Height = 23
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
       end
+    end
+    object PnlZoom: TPanel
+      Left = 368
+      Top = 0
+      Width = 83
+      Height = 277
+      Align = alRight
+      BevelOuter = bvNone
+      BiDiMode = bdLeftToRight
+      ParentBiDiMode = False
+      TabOrder = 1
     end
   end
   object pnlTop: TPanel
