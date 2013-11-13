@@ -542,10 +542,13 @@ function TMapType.LoadBitmapTileFromStorage(
 ): IBitmap32Static;
 var
   VTileInfoWithData: ITileInfoWithData;
+  VContentType: IContentTypeInfoBitmap;
 begin
   Result := nil;
   if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersion, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
-    Result := FBitmapLoaderFromStorage.Load(VTileInfoWithData.TileData);
+    if Supports(VTileInfoWithData.ContentType, IContentTypeInfoBitmap, VContentType) then begin
+      Result := VContentType.GetLoader.Load(VTileInfoWithData.TileData);
+    end;
   end;
 end;
 
@@ -557,15 +560,18 @@ function TMapType.LoadKmlTileFromStorage(
 var
   VTileInfoWithData: ITileInfoWithData;
   VIdData: TIdData;
+  VContentType: IContentTypeInfoVectorData;
 begin
   Result := nil;
   if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersion, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
-    VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FMapDataUrlPrefix, AXY, AZoom);
-    try
-      VIdData.NextIndex := 0;
-      Result := FKmlLoaderFromStorage.Load(VTileInfoWithData.TileData, @VIdData, FVectorDataFactory);
-    finally
-      VIdData.UrlPrefix := nil;
+    if Supports(VTileInfoWithData.ContentType, IContentTypeInfoVectorData, VContentType) then begin
+      VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FMapDataUrlPrefix, AXY, AZoom);
+      try
+        VIdData.NextIndex := 0;
+        Result := VContentType.GetLoader.Load(VTileInfoWithData.TileData, @VIdData, FVectorDataFactory);
+      finally
+        VIdData.UrlPrefix := nil;
+      end;
     end;
   end;
 end;
