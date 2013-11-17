@@ -22,6 +22,7 @@ uses
   i_RegionProcessParamsFrame,
   u_MapType,
   fr_MapSelect,
+  fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -46,30 +47,25 @@ type
       IRegionProcessParamsFrameSQLiteExport
     )
     pnlCenter: TPanel;
-    lblZooms: TLabel;
-    chkAllZooms: TCheckBox;
-    chklstZooms: TCheckListBox;
     pnlTop: TPanel;
     lblTargetFile: TLabel;
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
-    pnlRight: TPanel;
     pnlMain: TPanel;
     chkReplaceExistingTiles: TCheckBox;
     chkForceDropTarget: TCheckBox;
     lblMap: TLabel;
     dlgSaveSQLite: TSaveDialog;
     pnlMap: TPanel;
+    PnlZoom: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
-    procedure chkAllZoomsClick(Sender: TObject);
-    procedure chklstZoomsDblClick(Sender: TObject);
-    procedure chklstZoomsClick(Sender: TObject);
   private
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FfrMapSelect: TfrMapSelect;
+    FfrZoomsSelect: TfrZoomsSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -99,7 +95,7 @@ implementation
 
 uses
   gnugettext;
-  
+
 {$R *.dfm}
 
 constructor TfrExportRMapsSQLite.Create(
@@ -126,11 +122,17 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrZoomsSelect :=
+    TfrZoomsSelect.Create(
+      ALanguageManager
+    );
+  FfrZoomsSelect.Init(1, 24);
 end;
 
 destructor TfrExportRMapsSQLite.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrZoomsSelect);
   inherited;
 end;
 
@@ -143,51 +145,6 @@ end;
 function TfrExportRMapsSQLite.GetAllowExport(AMapType: TMapType): boolean;
 begin
   Result := AMapType.IsBitmapTiles;
-end;
-
-procedure TfrExportRMapsSQLite.chkAllZoomsClick(Sender: TObject);
-var
-  i: byte;
-begin
-  if chkAllZooms.state <> cbGrayed then begin
-    for i:=0 to chklstZooms.Count-1 do begin
-      chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
-    end;
-  end;
-end;
-
-
-procedure TfrExportRMapsSQLite.chklstZoomsClick(Sender: TObject);
-var
-  i, VCountChecked: Integer;
-begin
-  VCountChecked := 0;
-  for i := 0 to chklstZooms.Count - 1 do if chklstZooms.Checked[i] = true then inc(VCountChecked);
-  if chkAllZooms.state <> cbGrayed then begin
-    if (VCountChecked > 0) and (VCountChecked < chklstZooms.Count) then chkAllZooms.state := cbGrayed;
-  end else begin
-    if VCountChecked = chklstZooms.Count then chkAllZooms.State := cbChecked;
-    if VCountChecked = 0 then chkAllZooms.State := cbUnchecked;
-  end;
-end;
-
-
-
-procedure TfrExportRMapsSQLite.chklstZoomsDblClick(Sender: TObject);
-var
-  i: Integer;
-begin
-  for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i] := true;
-  if chklstZooms.ItemIndex < chklstZooms.count-1 then begin
-    for i := chklstZooms.ItemIndex + 1 to chklstZooms.count - 1 do begin
-      chklstZooms.Checked[i] := false;
-    end;
-  end;
-  if chklstZooms.ItemIndex = chklstZooms.count-1 then begin
-    chkAllZooms.state := cbChecked
-  end else begin
-    chkAllZooms.state := cbGrayed;
-  end;
 end;
 
 function TfrExportRMapsSQLite.GetMapType: TMapType;
@@ -220,43 +177,20 @@ begin
 end;
 
 function TfrExportRMapsSQLite.GetZoomArray: TByteDynArray;
-var
-  i: Integer;
-  VCount: Integer;
 begin
   Result := nil;
-  VCount := 0;
-  for i := 0 to 23 do begin
-    if chklstZooms.Checked[i] then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := i;
-      Inc(VCount);
-    end;
-  end;
+  Result := FfrZoomsSelect.GetZoomList;
 end;
 
 procedure TfrExportRMapsSQLite.Init;
-var
-  i: integer;
 begin
-  chklstZooms.Items.Clear;
-  for i := 1 to 24 do begin
-    chklstZooms.Items.Add(inttostr(i));
-  end;
   FfrMapSelect.Show(pnlMap);
+  FfrZoomsSelect.Show(pnlZoom);
 end;
 
 function TfrExportRMapsSQLite.Validate: Boolean;
-var
-  i: Integer;
 begin
-  Result := False;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then begin
-      Result := True;
-      Break;
-    end;
-  end;
+  Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
   end;
