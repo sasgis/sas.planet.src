@@ -15,7 +15,7 @@ object frTilesCopy: TfrTilesCopy
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    object pnlRight: TPanel
+    object pnlZoom: TPanel
       Left = 376
       Top = 0
       Width = 75
@@ -24,44 +24,6 @@ object frTilesCopy: TfrTilesCopy
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      object lblZooms: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 69
-        Height = 14
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        AutoSize = False
-        Caption = 'Zooms:'
-      end
-      object chkAllZooms: TCheckBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 235
-        Width = 69
-        Height = 17
-        Margins.Left = 0
-        Margins.Right = 0
-        Margins.Bottom = 0
-        Align = alBottom
-        Caption = 'All'
-        TabOrder = 0
-        OnClick = chkAllZoomsClick
-      end
-      object chklstZooms: TCheckListBox
-        Left = 3
-        Top = 17
-        Width = 69
-        Height = 215
-        Align = alClient
-        ItemHeight = 13
-        TabOrder = 1
-        OnClick = chklstZoomsClick
-        OnDblClick = chklstZoomsDblClick
-      end
     end
     object pnlMain: TPanel
       Left = 0
@@ -87,7 +49,7 @@ object frTilesCopy: TfrTilesCopy
       end
       object cbbNamesType: TComboBox
         Left = 3
-        Top = 17
+        Top = 20
         Width = 370
         Height = 21
         Align = alTop
@@ -109,7 +71,7 @@ object frTilesCopy: TfrTilesCopy
       object chkDeleteSource: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 58
+        Top = 61
         Width = 370
         Height = 17
         Margins.Left = 0
@@ -118,12 +80,11 @@ object frTilesCopy: TfrTilesCopy
         Align = alTop
         Caption = 'Move'
         TabOrder = 1
-        ExplicitTop = 41
       end
       object chkReplaseTarget: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 75
+        Top = 78
         Width = 370
         Height = 17
         Margins.Left = 0
@@ -132,7 +93,6 @@ object frTilesCopy: TfrTilesCopy
         Align = alTop
         Caption = 'Overwrite if equal'
         TabOrder = 2
-        ExplicitTop = 58
       end
       object chkAllMaps: TCheckBox
         AlignWithMargins = True
@@ -146,20 +106,19 @@ object frTilesCopy: TfrTilesCopy
         Align = alBottom
         Caption = 'All'
         TabOrder = 3
-        OnClick = chkAllMapsClick
       end
       object chklstMaps: TCheckListBox
         Left = 3
-        Top = 139
+        Top = 142
         Width = 370
-        Height = 93
+        Height = 90
         Align = alClient
         ItemHeight = 13
         TabOrder = 4
       end
       object pnSetTargetVersionOptions: TPanel
         Left = 3
-        Top = 95
+        Top = 98
         Width = 370
         Height = 44
         Margins.Left = 0
@@ -170,7 +129,6 @@ object frTilesCopy: TfrTilesCopy
         AutoSize = True
         BevelOuter = bvNone
         TabOrder = 5
-        ExplicitTop = 78
         object chkSetTargetVersionTo: TCheckBox
           Left = 0
           Top = 0
@@ -184,7 +142,6 @@ object frTilesCopy: TfrTilesCopy
           Enabled = False
           TabOrder = 0
           OnClick = chkSetTargetVersionToClick
-          ExplicitTop = 17
         end
         object edSetTargetVersionValue: TEdit
           AlignWithMargins = True
@@ -195,12 +152,11 @@ object frTilesCopy: TfrTilesCopy
           Align = alTop
           Enabled = False
           TabOrder = 1
-          ExplicitTop = 37
         end
       end
       object chkPlaceInNameSubFolder: TCheckBox
         Left = 3
-        Top = 38
+        Top = 41
         Width = 370
         Height = 17
         Align = alTop
@@ -208,7 +164,6 @@ object frTilesCopy: TfrTilesCopy
         Checked = True
         State = cbChecked
         TabOrder = 6
-        ExplicitTop = 55
       end
     end
   end
@@ -226,7 +181,7 @@ object frTilesCopy: TfrTilesCopy
       Left = 3
       Top = 3
       Width = 41
-      Height = 21
+      Height = 18
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft

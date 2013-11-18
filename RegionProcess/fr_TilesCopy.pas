@@ -11,6 +11,7 @@ uses
   StdCtrls,
   CheckLst,
   ExtCtrls,
+  fr_ZoomsSelect,
   i_LanguageManager,
   i_MapTypeSet,
   i_MapTypeListStatic,
@@ -55,10 +56,7 @@ type
       IRegionProcessParamsFrameTilesCopy
     )
     pnlCenter: TPanel;
-    pnlRight: TPanel;
-    lblZooms: TLabel;
-    chkAllZooms: TCheckBox;
-    chklstZooms: TCheckListBox;
+    pnlZoom: TPanel;
     pnlMain: TPanel;
     lblNamesType: TLabel;
     cbbNamesType: TComboBox;
@@ -76,17 +74,14 @@ type
     edSetTargetVersionValue: TEdit;
     pnSetTargetVersionOptions: TPanel;
     procedure btnSelectTargetPathClick(Sender: TObject);
-    procedure chkAllZoomsClick(Sender: TObject);
-    procedure chkAllMapsClick(Sender: TObject);
-    procedure chklstZoomsDblClick(Sender: TObject);
     procedure cbbNamesTypeChange(Sender: TObject);
     procedure chkSetTargetVersionToClick(Sender: TObject);
-    procedure chklstZoomsClick(Sender: TObject);
   private
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FfrZoomsSelect: TfrZoomsSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -114,6 +109,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList
     ); reintroduce;
+    destructor Destroy; override;
     procedure RefreshTranslation; override;
   end;
 
@@ -131,6 +127,33 @@ uses
   u_MapType;
 
 {$R *.dfm}
+
+constructor TfrTilesCopy.Create(
+  const ALanguageManager: ILanguageManager;
+  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
+  const AGUIConfigList: IMapTypeGUIConfigList
+);
+begin
+  inherited Create(ALanguageManager);
+  FMainMapsConfig := AMainMapsConfig;
+  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
+  FFullMapsSet := AFullMapsSet;
+  FGUIConfigList := AGUIConfigList;
+  cbbNamesType.ItemIndex := 1;
+  FfrZoomsSelect :=
+    TfrZoomsSelect.Create(
+      ALanguageManager
+    );
+  FfrZoomsSelect.Init(1, 24);
+end;
+
+destructor TfrTilesCopy.Destroy;
+begin
+  FreeAndNil(FfrZoomsSelect);
+  inherited;
+end;
 
 procedure TfrTilesCopy.btnSelectTargetPathClick(Sender: TObject);
 var
@@ -150,76 +173,9 @@ begin
   UpdateSetTargetVersionState;
 end;
 
-procedure TfrTilesCopy.chkAllMapsClick(Sender: TObject);
-var
-  i: byte;
-begin
-  for i:=0 to chklstMaps.Count-1 do begin
-    chklstMaps.Checked[i] := TCheckBox(Sender).Checked;
-  end;
-end;
-
-procedure TfrTilesCopy.chkAllZoomsClick(Sender: TObject);
-var
-  i: byte;
-begin
-  if chkAllZooms.state<>cbGrayed then begin
-    for i:=0 to chklstZooms.Count-1 do begin
-      chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
-    end;
-  end;
-end;
-
-procedure TfrTilesCopy.chklstZoomsClick(Sender: TObject);
-var
-  i, VCountChecked: Integer;
-begin
-  VCountChecked := 0;
-  for i := 0 to chklstZooms.Count - 1 do if chklstZooms.Checked[i] = true then inc(VCountChecked);
-  if chkAllZooms.state <> cbGrayed then begin
-    if (VCountChecked > 0) and (VCountChecked < chklstZooms.Count) then chkAllZooms.state := cbGrayed;
-  end else begin
-    if VCountChecked = chklstZooms.Count then chkAllZooms.State := cbChecked;
-    if VCountChecked = 0 then chkAllZooms.State := cbUnchecked;
-  end;
-end;
-
-procedure TfrTilesCopy.chklstZoomsDblClick(Sender: TObject);
-var
-  i: Integer;
-begin
-  for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i] := true;
-  if chklstZooms.ItemIndex < chklstZooms.count-1 then begin
-    for i := chklstZooms.ItemIndex + 1 to chklstZooms.count - 1 do begin
-      chklstZooms.Checked[i] := false;
-    end;
-  end;
-  if chklstZooms.ItemIndex = chklstZooms.count-1 then begin
-    chkAllZooms.state := cbChecked
-  end else begin
-    chkAllZooms.state := cbGrayed;
-  end;
-end;
-
 procedure TfrTilesCopy.chkSetTargetVersionToClick(Sender: TObject);
 begin
   UpdateSetTargetVersionState;
-end;
-
-constructor TfrTilesCopy.Create(
-  const ALanguageManager: ILanguageManager;
-  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
-  const AMainMapsConfig: IMainMapsConfig;
-  const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList
-);
-begin
-  inherited Create(ALanguageManager);
-  FMainMapsConfig := AMainMapsConfig;
-  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
-  FFullMapsSet := AFullMapsSet;
-  FGUIConfigList := AGUIConfigList;
-  cbbNamesType.ItemIndex := 1;
 end;
 
 function TfrTilesCopy.GetDeleteSource: Boolean;
@@ -291,19 +247,8 @@ begin
 end;
 
 function TfrTilesCopy.GetZoomArray: TByteDynArray;
-var
-  i: Integer;
-  VCount: Integer;
 begin
-  Result := nil;
-  VCount := 0;
-  for i := 0 to 23 do begin
-    if chklstZooms.Checked[i] then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := i;
-      Inc(VCount);
-    end;
-  end;
+  Result := FfrZoomsSelect.GetZoomList;
 end;
 
 procedure TfrTilesCopy.Init;
@@ -315,11 +260,7 @@ var
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
 begin
-  chklstZooms.Items.Clear;
-  for i:=1 to 24 do begin
-    chklstZooms.Items.Add(inttostr(i));
-  end;
-
+  FfrZoomsSelect.Show(pnlZoom);
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
   chklstMaps.Items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
@@ -351,16 +292,8 @@ begin
 end;
 
 function TfrTilesCopy.Validate: Boolean;
-var
-  i: Integer;
 begin
-  Result := False;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then begin
-      Result := True;
-      Break;
-    end;
-  end;
+  Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
   end;

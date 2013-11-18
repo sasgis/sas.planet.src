@@ -178,7 +178,6 @@ end;
 
 function TfrExportRMapsSQLite.GetZoomArray: TByteDynArray;
 begin
-  Result := nil;
   Result := FfrZoomsSelect.GetZoomList;
 end;
 
