@@ -20,6 +20,7 @@ uses
   i_RegionProcessParamsFrame,
   u_MapType,
   fr_MapSelect,
+  fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -34,9 +35,7 @@ type
     lblTargetPath: TLabel;
     edtTargetPath: TEdit;
     btnSelectTargetPath: TButton;
-    pnlRight: TPanel;
-    lblZooms: TLabel;
-    chklstZooms: TCheckListBox;
+    pnlZoom: TPanel;
     pnlMapsSelect: TPanel;
     grdpnlMaps: TGridPanel;
     lblMapCompress: TLabel;
@@ -61,6 +60,7 @@ type
     FfrSatSelect: TfrMapSelect;
     FfrMapSelect: TfrMapSelect;
     FfrHybSelect: TfrMapSelect;
+    FfrZoomsSelect: TfrZoomsSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -93,16 +93,6 @@ uses
   {$WARN UNIT_PLATFORM ON}
 
 {$R *.dfm}
-
-procedure TfrExportYaMobileV4.btnSelectTargetPathClick(Sender: TObject);
-var
-  TempPath: string;
-begin
-  if SelectDirectory('', '', TempPath) then begin
-    edtTargetPath.Text := IncludeTrailingPathDelimiter(TempPath);
-  end;
-end;
-
 constructor TfrExportYaMobileV4.Create(
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
@@ -147,6 +137,11 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrZoomsSelect :=
+    TfrZoomsSelect.Create(
+      ALanguageManager
+    );
+  FfrZoomsSelect.Init(1, 24);
 end;
 
 destructor TfrExportYaMobileV4.Destroy;
@@ -154,7 +149,17 @@ begin
   FreeAndNil(FfrSatSelect);
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrHybSelect);
+  FreeAndNil(FfrZoomsSelect);
   inherited;
+end;
+
+procedure TfrExportYaMobileV4.btnSelectTargetPathClick(Sender: TObject);
+var
+  TempPath: string;
+begin
+  if SelectDirectory('', '', TempPath) then begin
+    edtTargetPath.Text := IncludeTrailingPathDelimiter(TempPath);
+  end;
 end;
 
 function TfrExportYaMobileV4.GetAllowExport(AMapType: TMapType): boolean;
@@ -168,19 +173,8 @@ begin
 end;
 
 function TfrExportYaMobileV4.GetZoomArray: TByteDynArray;
-var
-  i: Integer;
-  VCount: Integer;
 begin
-  Result := nil;
-  VCount := 0;
-  for i := 0 to 23 do begin
-    if chklstZooms.Checked[i] then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := i;
-      Inc(VCount);
-    end;
-  end;
+  Result := FfrZoomsSelect.GetZoomList;
 end;
 
 function TfrExportYaMobileV4.GetSat: TfrMapSelect;
@@ -199,29 +193,16 @@ begin
 end;
 
 procedure TfrExportYaMobileV4.Init;
-var
-  i: integer;
 begin
-  chklstZooms.Items.Clear;
-  for i:=1 to 24 do begin
-    chklstZooms.Items.Add(inttostr(i));
-  end;
   if rgTileSize.ItemIndex = -1 then rgTileSize.ItemIndex := 0;
   FfrSatSelect.Show(pnlSat);
   FfrMapSelect.Show(pnlMap);
   FfrHybSelect.Show(pnlHyb);
+  FfrZoomsSelect.Show(pnlZoom);
 end;
 function TfrExportYaMobileV4.Validate: Boolean;
-var
-  i: Integer;
 begin
-  Result := False;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then begin
-      Result := True;
-      Break;
-    end;
-  end;
+  Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
   end;

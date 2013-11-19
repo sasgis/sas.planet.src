@@ -15,7 +15,7 @@ object frExportYaMobileV4: TfrExportYaMobileV4
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
-    object pnlRight: TPanel
+    object pnlZoom: TPanel
       Left = 360
       Top = 0
       Width = 91
@@ -24,29 +24,6 @@ object frExportYaMobileV4: TfrExportYaMobileV4
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 0
-      object lblZooms: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 85
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Zooms:'
-        Layout = tlCenter
-        ExplicitWidth = 35
-      end
-      object chklstZooms: TCheckListBox
-        Left = 3
-        Top = 19
-        Width = 85
-        Height = 255
-        Align = alClient
-        ItemHeight = 13
-        TabOrder = 0
-      end
     end
     object pnlMapsSelect: TPanel
       Left = 0
@@ -206,7 +183,6 @@ object frExportYaMobileV4: TfrExportYaMobileV4
           Align = alClient
           Caption = '100..1 max'
           Layout = tlCenter
-          ExplicitLeft = 351
           ExplicitWidth = 55
           ExplicitHeight = 13
         end
@@ -217,7 +193,6 @@ object frExportYaMobileV4: TfrExportYaMobileV4
           Height = 20
           Align = alClient
           Caption = 'Compression:'
-          ExplicitLeft = 301
           ExplicitWidth = 65
           ExplicitHeight = 13
         end

@@ -20,6 +20,7 @@ uses
   i_RegionProcessParamsFrame,
   u_MapType,
   fr_MapSelect,
+  fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -35,9 +36,7 @@ type
     edtTargetPath: TEdit;
     btnSelectTargetPath: TButton;
     chkReplaseTiles: TCheckBox;
-    pnlRight: TPanel;
-    lblZooms: TLabel;
-    chklstZooms: TCheckListBox;
+    pnlZoom: TPanel;
     pnlMapsSelect: TPanel;
     grdpnlMaps: TGridPanel;
     lblMapCompress: TLabel;
@@ -60,6 +59,7 @@ type
     FfrSatSelect: TfrMapSelect;
     FfrMapSelect: TfrMapSelect;
     FfrHybSelect: TfrMapSelect;
+    FfrZoomsSelect: TfrZoomsSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -137,6 +137,11 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrZoomsSelect :=
+    TfrZoomsSelect.Create(
+      ALanguageManager
+    );
+  FfrZoomsSelect.Init(1, 24);
 end;
 
 destructor TfrExportYaMobileV3.Destroy;
@@ -144,6 +149,7 @@ begin
   FreeAndNil(FfrSatSelect);
   FreeAndNil(FfrMapSelect);
   FreeAndNil(FfrHybSelect);
+  FreeAndNil(FfrZoomsSelect);
   inherited;
 end;
 
@@ -182,44 +188,20 @@ begin
 end;
 
 function TfrExportYaMobileV3.GetZoomArray: TByteDynArray;
-var
-  i: Integer;
-  VCount: Integer;
 begin
-  Result := nil;
-  VCount := 0;
-  for i := 0 to 23 do begin
-    if chklstZooms.Checked[i] then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := i;
-      Inc(VCount);
-    end;
-  end;
+  Result := FfrZoomsSelect.GetZoomList;
 end;
 
 procedure TfrExportYaMobileV3.Init;
-var
-  i: integer;
 begin
-  chklstZooms.Items.Clear;
-  for i:=1 to 24 do begin
-    chklstZooms.Items.Add(inttostr(i));
-  end;
   FfrSatSelect.Show(pnlSat);
   FfrMapSelect.Show(pnlMap);
   FfrHybSelect.Show(pnlHyb);
+  FfrZoomsSelect.Show(pnlZoom);
 end;
 function TfrExportYaMobileV3.Validate: Boolean;
-var
-  i: Integer;
 begin
-  Result := False;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then begin
-      Result := True;
-      Break;
-    end;
-  end;
+  Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
   end;
