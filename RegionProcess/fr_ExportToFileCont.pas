@@ -22,6 +22,7 @@ uses
   i_RegionProcessParamsFrame,
   u_MapType,
   fr_MapSelect,
+  fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -41,10 +42,7 @@ type
       IRegionProcessParamsFrameExportToFileCont
     )
     pnlCenter: TPanel;
-    pnlRight: TPanel;
-    lblZooms: TLabel;
-    chkAllZooms: TCheckBox;
-    chklstZooms: TCheckListBox;
+    pnlZoom: TPanel;
     pnlMain: TPanel;
     lblMap: TLabel;
     pnlTop: TPanel;
@@ -56,13 +54,13 @@ type
     lblNamesType: TLabel;
     pnlFrame: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
-    procedure chkAllZoomsClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FTileNameGeneratorList: ITileFileNameGeneratorsList;
     FfrMapSelect: TfrMapSelect;
+    FfrZoomsSelect: TfrZoomsSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -96,22 +94,6 @@ uses
 
 {$R *.dfm}
 
-procedure TfrExportToFileCont.btnSelectTargetFileClick(Sender: TObject);
-begin
-  if dlgSaveTargetFile.Execute then begin
-    edtTargetFile.Text := dlgSaveTargetFile.FileName;
-  end;
-end;
-
-procedure TfrExportToFileCont.chkAllZoomsClick(Sender: TObject);
-var
-  i: byte;
-begin
-  for i:=0 to chklstZooms.Count-1 do begin
-    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
-  end;
-end;
-
 constructor TfrExportToFileCont.Create(
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
@@ -141,14 +123,27 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrZoomsSelect :=
+    TfrZoomsSelect.Create(
+      ALanguageManager
+    );
+  FfrZoomsSelect.Init(1, 24);
 end;
 
 destructor TfrExportToFileCont.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrZoomsSelect);
   inherited;
 end;
- 
+
+procedure TfrExportToFileCont.btnSelectTargetFileClick(Sender: TObject);
+begin
+  if dlgSaveTargetFile.Execute then begin
+    edtTargetFile.Text := dlgSaveTargetFile.FileName;
+  end;
+end;
+
 function TfrExportToFileCont.GetAllowExport(AMapType: TMapType): boolean;
 begin
   Result := True
@@ -171,30 +166,14 @@ begin
 end;
 
 function TfrExportToFileCont.GetZoomArray: TByteDynArray;
-var
-  i: Integer;
-  VCount: Integer;
 begin
-  Result := nil;
-  VCount := 0;
-  for i := 0 to 23 do begin
-    if chklstZooms.Checked[i] then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := i;
-      Inc(VCount);
-    end;
-  end;
+  Result := FfrZoomsSelect.GetZoomList;
 end;
 
 procedure TfrExportToFileCont.Init;
-var
-  i: integer;
 begin
-  chklstZooms.Items.Clear;
-  for i := 1 to 24 do begin
-    chklstZooms.Items.Add(inttostr(i));
-  end;
   FfrMapSelect.Show(pnlFrame);
+  FfrZoomsSelect.Show(pnlZoom);
 end;
 
 procedure TfrExportToFileCont.RefreshTranslation;
@@ -206,16 +185,8 @@ begin
   cbbNamesType.ItemIndex := i;
 end;
 function TfrExportToFileCont.Validate: Boolean;
-var
-  i: Integer;
 begin
-  Result := False;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then begin
-      Result := True;
-      Break;
-    end;
-  end;
+  Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
   end;
