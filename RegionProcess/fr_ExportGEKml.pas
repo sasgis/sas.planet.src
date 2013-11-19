@@ -20,6 +20,7 @@ uses
   i_RegionProcessParamsFrame,
   u_MapType,
   fr_MapSelect,
+  fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -42,14 +43,11 @@ type
       IRegionProcessParamsFrameKmlExport
     )
     pnlCenter: TPanel;
-    lblZooms: TLabel;
-    chkAllZooms: TCheckBox;
-    chklstZooms: TCheckListBox;
     pnlTop: TPanel;
     lblTargetFile: TLabel;
     edtTargetFile: TEdit;
     btnSelectTargetFile: TButton;
-    pnlRight: TPanel;
+    pnlZoom: TPanel;
     pnlMain: TPanel;
     chkNotSaveNotExists: TCheckBox;
     chkUseRelativePath: TCheckBox;
@@ -57,12 +55,12 @@ type
     dlgSaveKML: TSaveDialog;
     pnlMap: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
-    procedure chkAllZoomsClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FfrMapSelect: TfrMapSelect;
+    FfrZoomsSelect: TfrZoomsSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -115,11 +113,17 @@ begin
       False,  // show disabled map
       GetAllowExport
     );
+  FfrZoomsSelect :=
+    TfrZoomsSelect.Create(
+      ALanguageManager
+    );
+  FfrZoomsSelect.Init(1, 24);
 end;
 
 destructor TfrExportGEKml.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrZoomsSelect);
   inherited;
 end;
 
@@ -131,15 +135,6 @@ procedure TfrExportGEKml.btnSelectTargetFileClick(Sender: TObject);
 begin
  if dlgSaveKML.Execute then
   edtTargetFile.Text:=dlgSaveKML.FileName;
-end;
-
-procedure TfrExportGEKml.chkAllZoomsClick(Sender: TObject);
-var
-  i: byte;
-begin
-  for i:=0 to chklstZooms.Count-1 do begin
-    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
-  end;
 end;
 
 function TfrExportGEKml.GetMapType: TMapType;
@@ -163,42 +158,18 @@ begin
 end;
 
 function TfrExportGEKml.GetZoomArray: TByteDynArray;
-var
-  i: Integer;
-  VCount: Integer;
 begin
-  Result := nil;
-  VCount := 0;
-  for i := 0 to 23 do begin
-    if chklstZooms.Checked[i] then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := i;
-      Inc(VCount);
-    end;
-  end;
+  Result := FfrZoomsSelect.GetZoomList;
 end;
 
 procedure TfrExportGEKml.Init;
-var
-  i: integer;
 begin
-  chklstZooms.Items.Clear;
-  for i:=1 to 24 do begin
-    chklstZooms.Items.Add(inttostr(i));
-  end;
   FfrMapSelect.Show(pnlMap);
+  FfrZoomsSelect.Show(pnlZoom);
 end;
 function TfrExportGEKml.Validate: Boolean;
-var
-  i: Integer;
 begin
-  Result := False;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then begin
-      Result := True;
-      Break;
-    end;
-  end;
+  Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
   end;
