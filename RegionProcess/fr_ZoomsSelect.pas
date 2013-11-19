@@ -54,8 +54,14 @@ var
   i: integer;
 begin
   chklstZooms.Items.Clear;
-  for i := AminZoom to AmaxZoom do begin
-    chklstZooms.items.Add(IntToStr(i));
+  if AminZoom <= AmaxZoom then begin
+    for i := AminZoom to AmaxZoom do begin
+      chklstZooms.items.Add(IntToStr(i));
+    end;
+  end else begin
+    for i := AminZoom downto AmaxZoom do begin
+      chklstZooms.items.Add(IntToStr(i));
+    end;
   end;
 end;
 
