@@ -21,13 +21,14 @@ object frExportIPhone: TfrExportIPhone
       Left = 3
       Top = 3
       Width = 41
-      Height = 13
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Margins.Bottom = 0
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
+      ExplicitHeight = 13
     end
     object btnSelectTargetPath: TButton
       Left = 427
@@ -230,7 +231,7 @@ object frExportIPhone: TfrExportIPhone
           Left = 251
           Top = 20
           Width = 49
-          Height = 21
+          Height = 22
           Anchors = []
           MaxValue = 9
           MinValue = 0
@@ -241,7 +242,7 @@ object frExportIPhone: TfrExportIPhone
           Left = 251
           Top = 41
           Width = 49
-          Height = 21
+          Height = 22
           Anchors = []
           MaxValue = 100
           MinValue = 1
@@ -358,7 +359,7 @@ object frExportIPhone: TfrExportIPhone
           Left = 251
           Top = 62
           Width = 49
-          Height = 21
+          Height = 22
           Anchors = []
           MaxValue = 100
           MinValue = 1
@@ -394,7 +395,7 @@ object frExportIPhone: TfrExportIPhone
         end
       end
     end
-    object pnlRight: TPanel
+    object pnlZoom: TPanel
       Left = 376
       Top = 0
       Width = 75
@@ -404,41 +405,6 @@ object frExportIPhone: TfrExportIPhone
       BevelOuter = bvNone
       BorderWidth = 3
       TabOrder = 1
-      object lblZooms: TLabel
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 35
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Margins.Right = 0
-        Align = alTop
-        Caption = 'Zooms:'
-      end
-      object chklstZooms: TCheckListBox
-        Left = 3
-        Top = 19
-        Width = 69
-        Height = 235
-        Align = alClient
-        ItemHeight = 13
-        TabOrder = 0
-      end
-      object chkAllZooms: TCheckBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 257
-        Width = 69
-        Height = 17
-        Margins.Left = 0
-        Margins.Right = 0
-        Margins.Bottom = 0
-        Align = alBottom
-        Caption = 'All'
-        TabOrder = 1
-        OnClick = chkAllZoomsClick
-      end
     end
   end
 end
