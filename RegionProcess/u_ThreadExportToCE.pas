@@ -147,8 +147,8 @@ begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
-          VExt := FMapType.StorageConfig.TileFileExt;
           if Supports(VTileStorage.GetTileInfo(VTile, VZoom, VMapVersionInfo, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+            VExt := VTileInfo.ContentType.GetDefaultExt;
             VSAS4WinCE.Add(
               VZoom + 1,
               VTile.X,

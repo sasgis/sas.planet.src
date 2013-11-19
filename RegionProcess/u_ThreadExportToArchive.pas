@@ -113,13 +113,13 @@ begin
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
     for I := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[I];
-      VExt := FMapType.StorageConfig.TileFileExt;
       VTileIterator := VTileIterators[I];
       while VTileIterator.Next(VTile) do begin
         if CancelNotifier.IsOperationCanceled(OperationID) then begin
           Exit;
         end;
         if Supports(VTileStorage.GetTileInfo(VTile, VZoom, nil, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+          VExt := VTileInfo.ContentType.GetDefaultExt;
           FArchive.AddFile(
             VTileInfo.TileData,
             FTileNameGen.GetTileFileName(VTile, VZoom) + VExt,
