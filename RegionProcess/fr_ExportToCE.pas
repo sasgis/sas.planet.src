@@ -21,6 +21,7 @@ uses
   i_RegionProcessParamsFrame,
   u_MapType,
   fr_MapSelect,
+  fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
 
 type
@@ -44,10 +45,7 @@ type
       IRegionProcessParamsFrameExportToCE
     )
     pnlCenter: TPanel;
-    pnlRight: TPanel;
-    lblZooms: TLabel;
-    chkAllZooms: TCheckBox;
-    chklstZooms: TCheckListBox;
+    pnlZoom: TPanel;
     lblMap: TLabel;
     pnlTop: TPanel;
     lblTargetFile: TLabel;
@@ -59,15 +57,12 @@ type
     lVolSize: TLabel;
     dlgSaveTargetFile: TSaveDialog;
     CComment: TCheckBox;
-    CheckBox1: TCheckBox;
     CMapName: TCheckBox;
     TempPath: TEdit;
     cbbMaxVolSize: TSpinEdit;
     pnlMap: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
-    procedure chkAllZoomsClick(Sender: TObject);
     procedure MapChange(Sender: TObject);
-    procedure chklstZoomsDblClick(Sender: TObject);
     procedure CMapNameClick(Sender: TObject);
     procedure CCommentClick(Sender: TObject);
   private
@@ -75,6 +70,7 @@ type
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
     FfrMapSelect: TfrMapSelect;
+    FfrZoomsSelect: TfrZoomsSelect;
   private
     procedure Init(
       const AZoom: byte;
@@ -137,11 +133,17 @@ begin
       GetAllowExport
     );
   FfrMapSelect.OnMapChange := MapChange;
+  FfrZoomsSelect :=
+    TfrZoomsSelect.Create(
+      ALanguageManager
+    );
+  FfrZoomsSelect.Init(1, 24);
 end;
 
 destructor TfrExportToCE.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrZoomsSelect);
   inherited;
 end;
 
@@ -177,16 +179,8 @@ begin
 end;
 
 function TfrExportToCE.Validate: Boolean;
-var
-  i: Integer;
 begin
-  Result := False;
-  for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then begin
-      Result := True;
-      Break;
-    end;
-  end;
+  Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
   end;
@@ -211,25 +205,6 @@ begin
     EComent.Enabled := false;
     EComent.text := '';
   end;
-end;
-
-procedure TfrExportToCE.chkAllZoomsClick(Sender: TObject);
-var
-  i: byte;
-begin
-  if chkAllZooms.state <> cbGrayed then
-  for i := 0 to chklstZooms.items.Count - 1 do begin
-    chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
-  end;
-end;
-
-procedure TfrExportToCE.chklstZoomsDblClick(Sender: TObject);
-var
-  i: Integer;
-begin
-  for i := 0 to chklstZooms.ItemIndex do chklstZooms.Checked[i] := true;
-  if chklstZooms.ItemIndex < chklstZooms.items.count-1 then for i := chklstZooms.ItemIndex+1 to chklstZooms.count-1 do chklstZooms.Checked[i] := false;
-  if chklstZooms.ItemIndex = chklstZooms.items.count-1 then chkAllZooms.state := cbChecked else chkAllZooms.state := cbGrayed;
 end;
 
 procedure TfrExportToCE.CMapNameClick(Sender: TObject);
@@ -287,34 +262,18 @@ begin
 end;
 
 function TfrExportToCE.GetZoomArray: TByteDynArray;
-var
-  i: Integer;
-  VCount: Integer;
 begin
-  Result := nil;
-  VCount := 0;
-  for i := 0 to 23 do begin
-    if chklstZooms.Checked[i] then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := i;
-      Inc(VCount);
-    end;
-  end;
+  Result := FfrZoomsSelect.GetZoomList;
 end;
 
 procedure TfrExportToCE.Init;
-var
-  i: integer;
 begin
-  if chklstZooms.Items.count=0 then
-  for i:=1 to 24 do begin
-    chklstZooms.Items.Add(inttostr(i));
-  end;
   if CComment.checked then EComent.enabled := true else begin
       EComent.Enabled := false;
       EComent.text := '';
   end;
   FfrMapSelect.Show(pnlMap);
   SetMapName();
+  FfrZoomsSelect.Show(pnlZoom);
 end;
 end.
