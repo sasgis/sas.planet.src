@@ -105,6 +105,8 @@ begin
     if chklstZooms.ItemEnabled[i] then begin // Select only enabled items
       chklstZooms.Checked[i] := true;
       inc(VCountChecked);
+    end else begin
+      chklstZooms.Checked[i] := false;
     end;
     if not chklstZooms.ItemEnabled[i] then inc(VDisabledCut);
   end;
