@@ -42,7 +42,9 @@ var
 begin
   if chkAllZooms.state <> cbGrayed then begin
     for i := 0 to chklstZooms.Count - 1 do begin
-      if chklstZooms.ItemEnabled[i] then begin // Select only enabled items
+      if chklstZooms.ItemEnabled[i]// Select only enabled items
+        or (not TCheckBox(Sender).Checked and chklstZooms.Checked[i]) // deselect disabled items 
+      then begin
         chklstZooms.Checked[i] := TCheckBox(Sender).Checked;
       end;
     end;
