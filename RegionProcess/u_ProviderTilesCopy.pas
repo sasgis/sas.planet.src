@@ -56,6 +56,7 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   c_CacheTypeCodes, // for cache types
   i_MapTypeListStatic,
@@ -131,6 +132,7 @@ var
   VSetTargetVersionEnabled: Boolean;
   VSetTargetVersionValue: String;
   VMaps: IMapTypeListStatic;
+  VThread: TThread;
 begin
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
@@ -150,55 +152,62 @@ begin
     VSetTargetVersionValue := '';
   end;
 
+  VThread := nil;
   if VCacheType = c_File_Cache_Id_DBMS then begin
-    TThreadExportToDBMS.Create(
-      VProgressInfo,
-      '', // allow empty value here (if path completely defined)
-      VPath,
-      FContentTypeManager,
-      FProjectionFactory,
-      FVectorGeometryProjectedFactory,
-      APolygon,
-      VZoomArr,
-      VMaps,
-      VSetTargetVersionEnabled,
-      VSetTargetVersionValue,
-      VDeleteSource,
-      VReplace
-    );
+    VThread :=
+      TThreadExportToDBMS.Create(
+        VProgressInfo,
+        '', // allow empty value here (if path completely defined)
+        VPath,
+        FContentTypeManager,
+        FProjectionFactory,
+        FVectorGeometryProjectedFactory,
+        APolygon,
+        VZoomArr,
+        VMaps,
+        VSetTargetVersionEnabled,
+        VSetTargetVersionValue,
+        VDeleteSource,
+        VReplace
+      );
   end else if VCacheType in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
-    TThreadExportToBerkeleyDB.Create(
-      FTimerNoifier,
-      FGlobalBerkeleyDBHelper,
-      VProgressInfo,
-      VPath,
-      (VPlaceInSubFolder or (VMaps.Count > 1)),
-      (VCacheType = c_File_Cache_Id_BDB_Versioned),
-      FContentTypeManager,
-      FProjectionFactory,
-      FVectorGeometryProjectedFactory,
-      APolygon,
-      VZoomArr,
-      VMaps,
-      VSetTargetVersionEnabled,
-      VSetTargetVersionValue,
-      VDeleteSource,
-      VReplace
-    );
+    VThread :=
+      TThreadExportToBerkeleyDB.Create(
+        FTimerNoifier,
+        FGlobalBerkeleyDBHelper,
+        VProgressInfo,
+        VPath,
+        (VPlaceInSubFolder or (VMaps.Count > 1)),
+        (VCacheType = c_File_Cache_Id_BDB_Versioned),
+        FContentTypeManager,
+        FProjectionFactory,
+        FVectorGeometryProjectedFactory,
+        APolygon,
+        VZoomArr,
+        VMaps,
+        VSetTargetVersionEnabled,
+        VSetTargetVersionValue,
+        VDeleteSource,
+        VReplace
+      );
   end else begin
-    TThreadExportToFileSystem.Create(
-      VProgressInfo,
-      VPath,
-      (VPlaceInSubFolder or (VMaps.Count > 1)),
-      FProjectionFactory,
-      FVectorGeometryProjectedFactory,
-      APolygon,
-      VZoomArr,
-      VMaps,
-      VDeleteSource,
-      VReplace,
-      FTileNameGenerator.GetGenerator(VCacheType)
-    );
+    VThread :=
+      TThreadExportToFileSystem.Create(
+        VProgressInfo,
+        VPath,
+        (VPlaceInSubFolder or (VMaps.Count > 1)),
+        FProjectionFactory,
+        FVectorGeometryProjectedFactory,
+        APolygon,
+        VZoomArr,
+        VMaps,
+        VDeleteSource,
+        VReplace,
+        FTileNameGenerator.GetGenerator(VCacheType)
+      );
+  end;
+  if Assigned(VThread) then begin
+    VThread.Resume;
   end;
 end;
 

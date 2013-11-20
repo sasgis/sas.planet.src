@@ -50,6 +50,7 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
   GR32,
   i_ImageResamplerFactory,
@@ -115,6 +116,7 @@ var
   VResampler: IImageResamplerFactory;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBgColor: TColor32;
+  VThread: TThread;
 begin
   inherited;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -128,22 +130,24 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadGenPrevZoom.Create(
-    VProgressInfo,
-    FProjectionFactory,
-    FVectorGeometryProjectedFactory,
-    FBitmapFactory,
-    VInZooms,
-    APolygon,
-    VMapType,
-    VMapType.VersionConfig.Version,
-    (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsReplace,
-    (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsSaveFullOnly,
-    (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsCreateAllFromFirstZoom,
-    (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsUseTilesFromPrevZoom,
-    VBgColor,
-    VResampler
-  );
+  VThread :=
+    TThreadGenPrevZoom.Create(
+      VProgressInfo,
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
+      FBitmapFactory,
+      VInZooms,
+      APolygon,
+      VMapType,
+      VMapType.VersionConfig.Version,
+      (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsReplace,
+      (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsSaveFullOnly,
+      (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsCreateAllFromFirstZoom,
+      (ParamsFrame as IRegionProcessParamsFrameTilesGenPrev).IsUseTilesFromPrevZoom,
+      VBgColor,
+      VResampler
+    );
+  VThread.Resume;
 end;
 
 end.

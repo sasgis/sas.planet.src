@@ -66,6 +66,7 @@ type
 implementation
 
 uses
+  Classes,
   Dialogs,
   gnugettext,
   i_RegionProcessParamsFrame,
@@ -136,6 +137,7 @@ var
   VMapSize: TPoint;
   VMapPieceSize: TPoint;
   VKmzImgesCount: TPoint;
+  VThread: TThread;
 begin
   VProjectedPolygon := PreparePolygon(APolygon);
   VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
@@ -154,19 +156,21 @@ begin
   end;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
-  TThreadMapCombineKMZ.Create(
-    VProgressInfo,
-    APolygon,
-    VTargetConverter,
-    VImageProvider,
-    LocalConverterFactory,
-    VMapCalibrations,
-    VFileName,
-    VSplitCount,
-    FBitmapTileSaveLoadFactory,
-    FArchiveReadWriteFactory,
-    (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
-  );
+  VThread :=
+    TThreadMapCombineKMZ.Create(
+      VProgressInfo,
+      APolygon,
+      VTargetConverter,
+      VImageProvider,
+      LocalConverterFactory,
+      VMapCalibrations,
+      VFileName,
+      VSplitCount,
+      FBitmapTileSaveLoadFactory,
+      FArchiveReadWriteFactory,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
+    );
+  VThread.Resume;
 end;
 
 end.

@@ -46,6 +46,7 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -111,6 +112,7 @@ var
   VMapType: TMapType;
   VNameGenerator: ITileFileNameGenerator;
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VThread: TThread;
 begin
   inherited;
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -120,16 +122,18 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportToArchive.Create(
-    VProgressInfo,
-    FArchiveReadWriteFactory.CreateZipWriterByName(VPath),
-    FProjectionFactory,
-    FVectorGeometryProjectedFactory,
-    APolygon,
-    Zoomarr,
-    VMapType,
-    VNameGenerator
-  );
+  VThread :=
+    TThreadExportToArchive.Create(
+      VProgressInfo,
+      FArchiveReadWriteFactory.CreateZipWriterByName(VPath),
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
+      APolygon,
+      Zoomarr,
+      VMapType,
+      VNameGenerator
+    );
+  VThread.Resume;
 end;
 
 end.

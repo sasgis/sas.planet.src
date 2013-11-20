@@ -44,6 +44,7 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   i_MapTypeListStatic,
   i_RegionProcessParamsFrame,
@@ -104,6 +105,7 @@ var
   VForceDropTarget: boolean;
   VReplaceExistingTiles: Boolean;
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VThread: TThread;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -117,21 +119,23 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportRMapsSQLite.Create(
-    VProgressInfo,
-    '',
-    VPath,
-    FProjectionFactory,
-    FVectorGeometryProjectedFactory,
-    APolygon,
-    VZoomArr,
-    VMapTypeList,
-    FALSE,
-    '',
-    VForceDropTarget,
-    FALSE,
-    VReplaceExistingTiles
-  );
+  VThread :=
+    TThreadExportRMapsSQLite.Create(
+      VProgressInfo,
+      '',
+      VPath,
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
+      APolygon,
+      VZoomArr,
+      VMapTypeList,
+      FALSE,
+      '',
+      VForceDropTarget,
+      FALSE,
+      VReplaceExistingTiles
+    );
+  VThread.Resume;
 end;
 
 end.

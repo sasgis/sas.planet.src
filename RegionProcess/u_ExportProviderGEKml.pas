@@ -41,6 +41,7 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -99,6 +100,7 @@ var
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VThread: TThread;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -109,18 +111,20 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportKML.Create(
-    VProgressInfo,
-    VPath,
-    FProjectionFactory,
-    FVectorGeometryProjectedFactory,
-    APolygon,
-    VZoomArr,
-    VMapType,
-    VMapType.VersionConfig.Version,
-    NotSaveNotExists,
-    RelativePath
-  );
+  VThread :=
+    TThreadExportKML.Create(
+      VProgressInfo,
+      VPath,
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
+      APolygon,
+      VZoomArr,
+      VMapType,
+      VMapType.VersionConfig.Version,
+      NotSaveNotExists,
+      RelativePath
+    );
+  VThread.Resume;
 end;
 
 end.

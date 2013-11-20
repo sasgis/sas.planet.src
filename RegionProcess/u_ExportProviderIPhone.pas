@@ -55,6 +55,7 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -127,6 +128,7 @@ var
   Replace: boolean;
   VActiveMapIndex: Integer;
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VThread: TThread;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -158,25 +160,27 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportIPhone.Create(
-    VProgressInfo,
-    FCoordConverterFactory,
-    FLocalConverterFactory,
-    FProjectionFactory,
-    FVectorGeometryProjectedFactory,
-    FBitmapFactory,
-    FBitmapTileSaveLoadFactory,
-    VPath,
-    APolygon,
-    VZoomArr,
-    typemaparr,
-    VActiveMapIndex,
-    Replace,
-    FNewFormat,
-    comprSat,
-    comprMap,
-    comprHyb
-  );
+  VThread :=
+    TThreadExportIPhone.Create(
+      VProgressInfo,
+      FCoordConverterFactory,
+      FLocalConverterFactory,
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
+      FBitmapFactory,
+      FBitmapTileSaveLoadFactory,
+      VPath,
+      APolygon,
+      VZoomArr,
+      typemaparr,
+      VActiveMapIndex,
+      Replace,
+      FNewFormat,
+      comprSat,
+      comprMap,
+      comprHyb
+    );
+  VThread.Resume;
 end;
 
 end.

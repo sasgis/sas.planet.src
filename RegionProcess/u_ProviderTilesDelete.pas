@@ -62,6 +62,7 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -120,6 +121,7 @@ var
   VProjectedPolygon: IProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
+  VThread: TThread;
 begin
   inherited;
   if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
@@ -135,15 +137,17 @@ begin
 
     VProgressInfo := ProgressFactory.Build(APolygon);
 
-    TThreadDeleteTiles.Create(
-      VProgressInfo,
-      APolygon,
-      VProjectedPolygon,
-      VZoom,
-      VMapType,
-      VMapType.VersionConfig.Version,
-      VPredicate
-    );
+    VThread :=
+      TThreadDeleteTiles.Create(
+        VProgressInfo,
+        APolygon,
+        VProjectedPolygon,
+        VZoom,
+        VMapType,
+        VMapType.VersionConfig.Version,
+        VPredicate
+      );
+    VThread.Resume;
   end;
 end;
 

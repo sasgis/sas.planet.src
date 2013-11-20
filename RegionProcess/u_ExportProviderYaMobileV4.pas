@@ -52,6 +52,7 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -116,6 +117,7 @@ var
   typemaparr: array of TMapType;
   comprSat, comprMap: byte;
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VThread: TThread;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -129,23 +131,25 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportYaMobileV4.Create(
-    VProgressInfo,
-    FCoordConverterFactory,
-    FLocalConverterFactory,
-    FProjectionFactory,
-    FVectorGeometryProjectedFactory,
-    FBitmapFactory,
-    FBitmapTileSaveLoadFactory,
-    VPath,
-    APolygon,
-    VZoomArr,
-    typemaparr,
-    FFrame.chkReplaseTiles.Checked,
-    TYaMobileV4TileSize(FFrame.rgTileSize.ItemIndex),
-    comprSat,
-    comprMap
-  );
+  VThread :=
+    TThreadExportYaMobileV4.Create(
+      VProgressInfo,
+      FCoordConverterFactory,
+      FLocalConverterFactory,
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
+      FBitmapFactory,
+      FBitmapTileSaveLoadFactory,
+      VPath,
+      APolygon,
+      VZoomArr,
+      typemaparr,
+      FFrame.chkReplaseTiles.Checked,
+      TYaMobileV4TileSize(FFrame.rgTileSize.ItemIndex),
+      comprSat,
+      comprMap
+    );
+  VThread.Resume;
 end;
 
 end.

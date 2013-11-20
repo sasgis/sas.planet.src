@@ -3,6 +3,7 @@ unit u_ExportProviderCE;
 interface
 
 uses
+  Classes,
   Forms,
   i_VectorItemLonLat,
   i_CoordConverterFactory,
@@ -107,6 +108,7 @@ var
   VRecoverInfo: boolean;
 
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VThread: TThread;
 begin
   Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -117,19 +119,21 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportToCE.Create(
-    VProgressInfo,
-    FCoordConverterFactory,
-    FProjectionFactory,
-    FVectorGeometryProjectedFactory,
-    VPath,
-    APolygon,
-    Zoomarr,
-    VMapType,
-    VMaxSize,
-    VComent,
-    VRecoverInfo
-  );
+  VThread :=
+    TThreadExportToCE.Create(
+      VProgressInfo,
+      FCoordConverterFactory,
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
+      VPath,
+      APolygon,
+      Zoomarr,
+      VMapType,
+      VMaxSize,
+      VComent,
+      VRecoverInfo
+    );
+  VThread.Resume;
 end;
 
 end.

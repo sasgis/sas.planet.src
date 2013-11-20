@@ -77,6 +77,7 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
   IniFiles,
   i_VectorItemProjected,
@@ -318,6 +319,7 @@ var
   VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;
   VProgressInfo: TRegionProcessProgressInfoDownload;
+  VThread: TThread;
 begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
@@ -361,25 +363,27 @@ begin
   VForm.Show;
 
   if not VCancelNotifierInternal.IsOperationCanceled(VOperationID) then begin
-    TThreadDownloadTiles.Create(
-      VCancelNotifierInternal,
-      VOperationID,
-      VProgressInfo,
-      FAppClosingNotifier,
-      VMapType,
-      VMapType.VersionConfig.Version,
-      VZoom,
-      VProjectedPolygon,
-      FDownloadConfig,
-      TDownloadInfoSimple.Create(FDownloadInfo),
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
-      (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
-      Point(-1, -1),
-      0
-    );
+    VThread :=
+      TThreadDownloadTiles.Create(
+        VCancelNotifierInternal,
+        VOperationID,
+        VProgressInfo,
+        FAppClosingNotifier,
+        VMapType,
+        VMapType.VersionConfig.Version,
+        VZoom,
+        VProjectedPolygon,
+        FDownloadConfig,
+        TDownloadInfoSimple.Create(FDownloadInfo),
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplace,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfDifSize,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsReplaceIfOlder,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).ReplaceDate,
+        (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
+        Point(-1, -1),
+        0
+      );
+    VThread.Resume;
   end;
 end;
 

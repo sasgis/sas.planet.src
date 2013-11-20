@@ -51,6 +51,7 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -124,6 +125,7 @@ var
   VZoom: Byte;
   VSaver: IBitmapTileSaver;
   VTileSize: TPoint;
+  VThread: TThread;
 begin
   inherited;
 
@@ -135,20 +137,22 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportToOgf2.Create(
-    VProgressInfo,
-    FCoordConverterFactory,
-    FLocalConverterFactory,
-    FProjectionFactory,
-    FBitmapFactory,
-    FVectorGeometryProjectedFactory,
-    VTargetFile,
-    APolygon,
-    VImageProvider,
-    VZoom,
-    VTileSize,
-    VSaver
-  );
+  VThread :=
+    TThreadExportToOgf2.Create(
+      VProgressInfo,
+      FCoordConverterFactory,
+      FLocalConverterFactory,
+      FProjectionFactory,
+      FBitmapFactory,
+      FVectorGeometryProjectedFactory,
+      VTargetFile,
+      APolygon,
+      VImageProvider,
+      VZoom,
+      VTileSize,
+      VSaver
+    );
+  VThread.Resume;
 end;
 
 end.

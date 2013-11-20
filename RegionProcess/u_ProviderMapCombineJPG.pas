@@ -60,6 +60,7 @@ type
 implementation
 
 uses
+  Classes,
   gnugettext,
   i_RegionProcessParamsFrame,
   u_ThreadMapCombineJPG,
@@ -122,6 +123,7 @@ var
   VImageProvider: IBitmapLayerProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBGColor: TColor32;
+  VThread: TThread;
 begin
   VProjectedPolygon := PreparePolygon(APolygon);
   VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
@@ -132,19 +134,21 @@ begin
   VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
-  TThreadMapCombineJPG.Create(
-    VProgressInfo,
-    APolygon,
-    VTargetConverter,
-    VImageProvider,
-    LocalConverterFactory,
-    VMapCalibrations,
-    VFileName,
-    VSplitCount,
-    VBGColor,
-    (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality,
-    (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).IsSaveGeoRefInfoToExif
-  );
+  VThread :=
+    TThreadMapCombineJPG.Create(
+      VProgressInfo,
+      APolygon,
+      VTargetConverter,
+      VImageProvider,
+      LocalConverterFactory,
+      VMapCalibrations,
+      VFileName,
+      VSplitCount,
+      VBGColor,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality,
+      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).IsSaveGeoRefInfoToExif
+    );
+  VThread.Resume;
 end;
 
 end.

@@ -61,7 +61,7 @@ constructor TThreadRegionProcessAbstract.Create(
   const ADebugThreadName: string = ''
 );
 begin
-  inherited Create(false);
+  inherited Create(True);
   FDebugThreadName := ADebugThreadName;
   Priority := tpLowest;
   FreeOnTerminate := true;

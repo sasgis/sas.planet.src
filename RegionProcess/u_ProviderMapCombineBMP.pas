@@ -60,6 +60,7 @@ type
 implementation
 
 uses
+  Classes,
   gnugettext,
   i_RegionProcessParamsFrame,
   u_ThreadMapCombineBMP,
@@ -122,6 +123,7 @@ var
   VImageProvider: IBitmapLayerProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBGColor: TColor32;
+  VThread: TThread;
 begin
   VProjectedPolygon := PreparePolygon(APolygon);
   VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
@@ -132,17 +134,19 @@ begin
   VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
-  TThreadMapCombineBMP.Create(
-    VProgressInfo,
-    APolygon,
-    VTargetConverter,
-    VImageProvider,
-    LocalConverterFactory,
-    VMapCalibrations,
-    VFileName,
-    VSplitCount,
-    VBGColor
-  );
+  VThread :=
+    TThreadMapCombineBMP.Create(
+      VProgressInfo,
+      APolygon,
+      VTargetConverter,
+      VImageProvider,
+      LocalConverterFactory,
+      VMapCalibrations,
+      VFileName,
+      VSplitCount,
+      VBGColor
+    );
+  VThread.Resume;
 end;
 
 end.

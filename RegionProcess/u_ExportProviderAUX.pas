@@ -39,6 +39,7 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -97,6 +98,7 @@ var
   VZoom: byte;
   VProjectedPolygon: IProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
+  VThread: TThread;
 begin
   inherited;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
@@ -111,15 +113,17 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportToAUX.Create(
-    VProgressInfo,
-    APolygon,
-    VProjectedPolygon,
-    VZoom,
-    VMapType,
-    VMapType.VersionConfig.Version,
-    VPath
-  );
+  VThread :=
+    TThreadExportToAUX.Create(
+      VProgressInfo,
+      APolygon,
+      VProjectedPolygon,
+      VZoom,
+      VMapType,
+      VMapType.VersionConfig.Version,
+      VPath
+    );
+  VThread.Resume;
 end;
 
 end.

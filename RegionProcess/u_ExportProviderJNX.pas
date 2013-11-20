@@ -49,6 +49,7 @@ implementation
 
 uses
   Types,
+  Classes,
   SysUtils,
   i_MapTypeListStatic,
   i_RegionProcessParamsFrame,
@@ -124,6 +125,7 @@ var
   VLayerList: IMapTypeListStatic;
   VScaleArr: TByteDynArray;
   VRecompressArr: TBooleanDynArray;
+  VThread: TThread;
 begin
   inherited;
 
@@ -143,27 +145,29 @@ begin
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
-  TThreadExportToJnx.Create(
-    VProgressInfo,
-    FCoordConverterFactory,
-    FProjectionFactory,
-    FVectorGeometryProjectedFactory,
-    FBitmapTileSaveLoadFactory,
-    VPath,
-    APolygon,
-    Zoomarr,
-    VProductName,
-    VMapName,
-    VJNXVersion,
-    VZorder,
-    VProductID,
-    VJpgQuality,
-    VLevelsDesc,
-    VMapList,
-    VLayerList,
-    VScaleArr,
-    VRecompressArr
-  );
+  VThread :=
+    TThreadExportToJnx.Create(
+      VProgressInfo,
+      FCoordConverterFactory,
+      FProjectionFactory,
+      FVectorGeometryProjectedFactory,
+      FBitmapTileSaveLoadFactory,
+      VPath,
+      APolygon,
+      Zoomarr,
+      VProductName,
+      VMapName,
+      VJNXVersion,
+      VZorder,
+      VProductID,
+      VJpgQuality,
+      VLevelsDesc,
+      VMapList,
+      VLayerList,
+      VScaleArr,
+      VRecompressArr
+    );
+  VThread.Resume;
 end;
 
 end.
