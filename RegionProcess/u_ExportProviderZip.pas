@@ -130,7 +130,7 @@ begin
       FVectorGeometryProjectedFactory,
       APolygon,
       Zoomarr,
-      VMapType,
+      VMapType.TileStorage,
       VNameGenerator
     );
   VThread.Resume;
