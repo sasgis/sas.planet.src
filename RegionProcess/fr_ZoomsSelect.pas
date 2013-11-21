@@ -139,7 +139,7 @@ begin
   for i := 0 to chklstZooms.count - 1 do begin
     if chklstZooms.Checked[i] then begin
       SetLength(Result, VCount + 1);
-      Result[VCount] := strtoint(chklstZooms.Items[i]);
+      Result[VCount] := strtoint(chklstZooms.Items[i]) - 1;
       Inc(VCount);
     end;
   end;
