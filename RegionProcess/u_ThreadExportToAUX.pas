@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   SysUtils,
-  u_MapType,
+  i_TileStorage,
   i_MapVersionInfo,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
@@ -16,7 +16,7 @@ uses
 type
   TThreadExportToAUX = class(TThreadRegionProcessAbstract)
   private
-    FMapType: TMapType;
+    FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
     FPolyProjected: IProjectedPolygon;
     FFileName: string;
@@ -30,7 +30,7 @@ type
       const APolygon: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon;
       AZoom: Byte;
-      AMapType: TMapType;
+      const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
       const AFileName: string
     );
@@ -42,7 +42,6 @@ uses
   Classes,
   i_CoordConverter,
   i_TileInfoBasic,
-  i_TileStorage,
   u_ResStrings,
   i_TileIterator,
   u_TileIteratorByPolygon;
@@ -54,7 +53,7 @@ constructor TThreadExportToAUX.Create(
   const APolygon: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon;
   AZoom: Byte;
-  AMapType: TMapType;
+  const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;
   const AFileName: string
 );
@@ -66,7 +65,7 @@ begin
   );
   FPolyProjected := AProjectedPolygon;
   FZoom := AZoom;
-  FMapType := AMapType;
+  FTileStorage := ATileStorage;
   FVersion := AVersion;
   FFileName := AFileName;
 end;
@@ -87,7 +86,7 @@ var
   VTileInfo: ITileInfoBasic;
 begin
   inherited;
-  VGeoConvert := FMapType.GeoConvert;
+  VGeoConvert := FTileStorage.CoordConverter;
   VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
   try
     VTilesToProcess := VTileIterator.TilesTotal;
@@ -104,12 +103,12 @@ begin
         if CancelNotifier.IsOperationCanceled(OperationID) then begin
           exit;
         end;
-        VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
+        VTileInfo := FTileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
         if VTileInfo.GetIsExists then begin
           VRectOfTilePixels := VGeoConvert.TilePos2PixelRect(VTile, FZoom);
           VOutPos.X := VRectOfTilePixels.Left - VPixelRect.Left;
           VOutPos.Y := VPixelRect.Bottom - VRectOfTilePixels.Bottom;
-          VFileName := FMapType.TileStorage.GetTileFileName(VTile, FZoom, FVersion);
+          VFileName := FTileStorage.GetTileFileName(VTile, FZoom, FVersion);
           VOutString := '"' + VFileName + '" ' + IntToStr(VOutPos.X) + ' ' + IntToStr(VOutPos.Y) + #13#10;
           VFileStream.WriteBuffer(VOutString[1], Length(VOutString));
         end;
