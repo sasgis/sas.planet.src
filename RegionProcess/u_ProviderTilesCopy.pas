@@ -152,7 +152,6 @@ begin
     VSetTargetVersionValue := '';
   end;
 
-  VThread := nil;
   if VCacheType = c_File_Cache_Id_DBMS then begin
     VThread :=
       TThreadExportToDBMS.Create(

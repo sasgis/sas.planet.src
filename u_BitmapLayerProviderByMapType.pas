@@ -41,6 +41,7 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   i_CoordConverter,
   u_TileErrorInfo;

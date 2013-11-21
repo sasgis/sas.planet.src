@@ -63,15 +63,8 @@ type
     FVertical: TMovmentByDirection;
     FHorizontal: TMovmentByDirection;
     FKeyboardActive: Boolean;
-
-    FKeyMovingLastTick: Int64;
-    FTimeFromFirstToLast: Double;
-    FWasSecondKeyPress: Boolean;
-    FMapMoveAnimtion: Boolean;
-    FMoveVector: TPoint;
   private
     procedure OnTime;
-    procedure MapMoveAnimate;
     procedure DoMessageEvent(
       var Msg: TMsg;
       var Handled: Boolean
@@ -141,72 +134,6 @@ begin
           OnTime;
         end;
       end;
-    end;
-  end;
-end;
-
-procedure TKeyMovingHandler.MapMoveAnimate;
-var
-  VPointDelta: TDoublePoint;
-  VCurrTick, VFr: Int64;
-  VTimeFromLast: Double;
-  VDrawTimeFromLast: Double;
-  VStep: Double;
-  VStartSpeed: Double;
-  VAcelerateTime: Double;
-  VMaxSpeed: Double;
-  VAcelerate: Double;
-  VAllKeyUp: Boolean;
-begin
-  if not (FMapMoveAnimtion) then begin
-    FMapMoveAnimtion := True;
-    try
-      QueryPerformanceCounter(VCurrTick);
-      QueryPerformanceFrequency(VFr);
-      FWasSecondKeyPress := True;
-      FKeyMovingLastTick := VCurrTick;
-      FTimeFromFirstToLast := 0;
-      VTimeFromLast := 0;
-      FConfig.LockRead;
-      try
-        VStartSpeed := FConfig.MinPixelPerSecond;
-        VMaxSpeed := FConfig.MaxPixelPerSecond;
-        VAcelerateTime := FConfig.SpeedChangeTime;
-      finally
-        FConfig.UnlockRead;
-      end;
-
-      repeat
-        VDrawTimeFromLast := (VCurrTick - FKeyMovingLastTick) / VFr;
-        VTimeFromLast := VTimeFromLast + 0.3 * (VDrawTimeFromLast - VTimeFromLast);
-        if (FTimeFromFirstToLast >= VAcelerateTime) or (VAcelerateTime < 0.01) then begin
-          VStep := VMaxSpeed * VTimeFromLast;
-        end else begin
-          VAcelerate := (VMaxSpeed - VStartSpeed) / VAcelerateTime;
-          VStep := (VStartSpeed + VAcelerate * (FTimeFromFirstToLast + VTimeFromLast / 2)) * VTimeFromLast;
-        end;
-        FKeyMovingLastTick := VCurrTick;
-        FTimeFromFirstToLast := FTimeFromFirstToLast + VTimeFromLast;
-
-        VPointDelta.x := FMoveVector.x * VStep;
-        VPointDelta.y := FMoveVector.y * VStep;
-
-        FViewPortState.ChangeMapPixelByLocalDelta(VPointDelta);
-
-        application.ProcessMessages;
-        QueryPerformanceCounter(VCurrTick);
-        QueryPerformanceFrequency(VFr);
-
-        VAllKeyUp := (GetAsyncKeyState(VK_RIGHT) = 0) and
-          (GetAsyncKeyState(VK_LEFT) = 0) and
-          (GetAsyncKeyState(VK_DOWN) = 0) and
-          (GetAsyncKeyState(VK_UP) = 0);
-        if VAllKeyUp then begin
-          FMoveVector := Point(0, 0);
-        end;
-      until ((FMoveVector.x = 0) and (FMoveVector.y = 0));
-    finally
-      FMapMoveAnimtion := false;
     end;
   end;
 end;
