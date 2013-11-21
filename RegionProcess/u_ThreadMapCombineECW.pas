@@ -17,7 +17,6 @@ uses
   u_ECWWrite,
   u_GeoFun,
   t_GeoTypes,
-  u_ResStrings,
   u_ThreadMapCombineBase;
 
 type
@@ -60,7 +59,8 @@ implementation
 uses
   LibECW,
   i_CoordConverter,
-  u_ImageLineProvider;
+  u_ImageLineProvider,
+  u_ResStrings;
 
 constructor TThreadMapCombineECW.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

@@ -13,7 +13,6 @@ uses
   i_VectorItemsFactory,
   i_MapVersionInfo,
   i_TileStorage,
-  u_ResStrings,
   u_ThreadExportAbstract;
 
 type
@@ -56,7 +55,8 @@ uses
   i_TileInfoBasic,
   i_BinaryData,
   i_VectorItemProjected,
-  u_TileIteratorByPolygon;
+  u_TileIteratorByPolygon,
+  u_ResStrings;
 
 { TThreadExportToCE }
 

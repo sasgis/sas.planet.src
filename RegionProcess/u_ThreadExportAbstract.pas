@@ -7,8 +7,7 @@ uses
   Types,
   i_VectorItemLonLat,
   i_RegionProcessProgressInfo,
-  u_ThreadRegionProcessAbstract,
-  u_ResStrings;
+  u_ThreadRegionProcessAbstract;
 
 type
   TThreadExportAbstract = class(TThreadRegionProcessAbstract)
@@ -29,7 +28,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  u_ResStrings;
 
 constructor TThreadExportAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

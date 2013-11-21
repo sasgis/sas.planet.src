@@ -33,8 +33,7 @@ uses
   i_MapVersionInfo,
   i_PredicateByTileInfo,
   i_TileStorage,
-  u_ThreadRegionProcessAbstract,
-  u_ResStrings;
+  u_ThreadRegionProcessAbstract;
 
 type
   TThreadDeleteTiles = class(TThreadRegionProcessAbstract)
@@ -66,7 +65,8 @@ implementation
 uses
   i_TileIterator,
   i_TileInfoBasic,
-  u_TileIteratorByPolygon;
+  u_TileIteratorByPolygon,
+  u_ResStrings;
 
 constructor TThreadDeleteTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

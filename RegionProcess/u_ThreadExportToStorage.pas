@@ -16,7 +16,6 @@ uses
   i_TileStorage,
   i_MapTypeListStatic,
   u_MapType,
-  u_ResStrings,
   u_ThreadExportAbstract;
 
 type
@@ -68,7 +67,8 @@ uses
   i_MapVersionInfo,
   i_TileIterator,
   u_TileStorageDBMS,
-  u_TileIteratorByPolygon;
+  u_TileIteratorByPolygon,
+  u_ResStrings;
 
 constructor TThreadExportToStorage.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

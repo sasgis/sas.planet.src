@@ -16,7 +16,6 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageLineProvider,
-  u_ResStrings,
   u_ThreadMapCombineBase;
 
 type
@@ -65,7 +64,8 @@ uses
   Exif,
   t_GeoTypes,
   i_CoordConverter,
-  u_ImageLineProvider;
+  u_ImageLineProvider,
+  u_ResStrings;
 
 { TThreadMapCombineJPG }
 

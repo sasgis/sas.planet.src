@@ -13,7 +13,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_VectorItemLonLat,
   i_MapCalibration,
-  u_ResStrings,
   u_ThreadMapCombineBase,
   LibBMP;
 
@@ -49,7 +48,8 @@ implementation
 uses
   gnugettext,
   i_ImageLineProvider,
-  u_ImageLineProvider;
+  u_ImageLineProvider,
+  u_ResStrings;
 
 constructor TThreadMapCombineBMP.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

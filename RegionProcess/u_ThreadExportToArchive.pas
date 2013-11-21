@@ -15,8 +15,6 @@ uses
   i_VectorItemLonLat,
   i_ArchiveReadWrite,
   i_TileStorage,
-  u_MapType,
-  u_ResStrings,
   u_ThreadExportAbstract;
 
 type
@@ -48,7 +46,8 @@ uses
   i_VectorItemProjected,
   i_TileIterator,
   i_TileInfoBasic,
-  u_TileIteratorByPolygon;
+  u_TileIteratorByPolygon,
+  u_ResStrings;
 
 { TThreadExportToArchive }
 
