@@ -224,8 +224,21 @@ begin
 end;
 
 procedure TLayerScaleLineBase.OnConfigChange;
+var
+  VVisible: Boolean;
 begin
-  FLayerChangeFlag.SetFlag;
+  ViewUpdateLock;
+  try
+    VVisible := GetNewVisibility;
+    if VVisible <> Visible then begin
+      Visible := VVisible;
+    end;
+    SetNeedUpdateBitmapSize;
+    SetNeedUpdateBitmapDraw;
+    SetNeedUpdateLayerLocation;
+  finally
+    ViewUpdateUnlock;
+  end;
 end;
 
 procedure TLayerScaleLineBase.OnPosChange;
