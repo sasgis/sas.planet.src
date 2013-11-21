@@ -32,7 +32,7 @@ uses
   i_VectorItemProjected,
   i_MapVersionInfo,
   i_PredicateByTileInfo,
-  u_MapType,
+  i_TileStorage,
   u_ThreadRegionProcessAbstract,
   u_ResStrings;
 
@@ -40,7 +40,7 @@ type
   TThreadDeleteTiles = class(TThreadRegionProcessAbstract)
   private
     FZoom: byte;
-    FMapType: TMapType;
+    FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
     FPolyProjected: IProjectedPolygon;
     FPredicate: IPredicateByTileInfo;
@@ -55,7 +55,7 @@ type
       const APolyLL: ILonLatPolygon;
       const AProjectedPolygon: IProjectedPolygon;
       AZoom: byte;
-      AMapType: TMapType;
+      const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
       const APredicate: IPredicateByTileInfo
     );
@@ -66,7 +66,6 @@ implementation
 uses
   i_TileIterator,
   i_TileInfoBasic,
-  i_TileStorage,
   u_TileIteratorByPolygon;
 
 constructor TThreadDeleteTiles.Create(
@@ -74,7 +73,7 @@ constructor TThreadDeleteTiles.Create(
   const APolyLL: ILonLatPolygon;
   const AProjectedPolygon: IProjectedPolygon;
   AZoom: byte;
-  AMapType: TMapType;
+  const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;
   const APredicate: IPredicateByTileInfo
 );
@@ -86,7 +85,7 @@ begin
   );
   FPolyProjected := AProjectedPolygon;
   FZoom := AZoom;
-  FMapType := AMapType;
+  FTileStorage := ATileStorage;
   FPredicate := APredicate;
   FVersion := AVersion;
 end;
@@ -115,10 +114,10 @@ begin
     if CancelNotifier.IsOperationCanceled(OperationID) then begin
       exit;
     end;
-    VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimWithoutData);
+    VTileInfo := FTileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimWithoutData);
     if (VTileInfo <> nil) then begin
       if FPredicate.Check(VTileInfo, FZoom, VTile) then begin
-        if FMapType.TileStorage.DeleteTile(VTile, FZoom, VTileInfo.VersionInfo) then begin
+        if FTileStorage.DeleteTile(VTile, FZoom, VTileInfo.VersionInfo) then begin
           inc(VDeletedCount);
         end;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess, VDeletedCount);

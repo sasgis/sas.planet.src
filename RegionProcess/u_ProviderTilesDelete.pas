@@ -143,7 +143,7 @@ begin
         APolygon,
         VProjectedPolygon,
         VZoom,
-        VMapType,
+        VMapType.TileStorage,
         VMapType.VersionConfig.Version,
         VPredicate
       );
