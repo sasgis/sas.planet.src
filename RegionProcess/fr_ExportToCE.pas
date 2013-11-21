@@ -137,7 +137,7 @@ begin
     TfrZoomsSelect.Create(
       ALanguageManager
     );
-  FfrZoomsSelect.Init(1, 24);
+  FfrZoomsSelect.Init(0, 23);
 end;
 
 destructor TfrExportToCE.Destroy;

@@ -58,11 +58,11 @@ begin
   chklstZooms.Items.Clear;
   if AminZoom <= AmaxZoom then begin
     for i := AminZoom to AmaxZoom do begin
-      chklstZooms.items.Add(IntToStr(i));
+      chklstZooms.items.Add(IntToStr(i + 1));
     end;
   end else begin
     for i := AminZoom downto AmaxZoom do begin
-      chklstZooms.items.Add(IntToStr(i));
+      chklstZooms.items.Add(IntToStr(i + 1));
     end;
   end;
 end;
@@ -72,7 +72,7 @@ var
   i: integer;
 begin
   for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.items[i] = inttostr(AitemValue) then
+    if chklstZooms.items[i] = inttostr(AitemValue + 1) then
       chklstZooms.ItemEnabled[i] := false;
   end;
 end;
