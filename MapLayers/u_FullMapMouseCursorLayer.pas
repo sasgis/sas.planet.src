@@ -87,7 +87,7 @@ begin
     FMainFormState.ChangeNotifier
   );
   LinksList.Add(
-    TListenerTimeCheck.Create(Self.OnTimerEvent, 100),
+    TListenerTimeCheck.Create(Self.OnTimerEvent, 10),
     ATimerNoifier
   );
 end;
@@ -136,6 +136,7 @@ begin
       VRect.Top := VViewRect.Top;
       VRect.Right := VPos.X + 1;
       VRect.Bottom := VViewRect.Bottom;
+      FLastPos := VPos;
       Layer.Changed(VRect);
     end;
   end;
@@ -147,11 +148,10 @@ var
   VColor: TColor32;
 begin
   inherited;
-  VPos := FMouseState.CurentPos;
+  VPos := FLastPos;
   VColor := FConfig.LineColor;
   ABuffer.VertLineS(VPos.X, 0, ABuffer.Height, VColor);
   ABuffer.HorzLineS(0, VPos.Y, ABuffer.Width, VColor);
-  FLastPos := VPos;
 end;
 
 procedure TFullMapMouseCursorLayer.StartThreads;
