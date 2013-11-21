@@ -13,7 +13,7 @@ uses
   i_VectorItemsFactory,
   i_VectorItemLonLat,
   i_MapVersionInfo,
-  u_MapType,
+  i_TileStorage,
   u_ResStrings,
   t_GeoTypes,
   u_ThreadExportAbstract;
@@ -21,7 +21,7 @@ uses
 type
   TThreadExportKML = class(TThreadExportAbstract)
   private
-    FMapType: TMapType;
+    FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
@@ -45,7 +45,7 @@ type
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
-      AMapType: TMapType;
+      const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
       ANotSaveNotExists: boolean;
       ARelativePath: boolean
@@ -58,7 +58,6 @@ uses
   u_GeoToStr,
   i_TileInfoBasic,
   i_TileIterator,
-  i_TileStorage,
   u_TileIteratorByPolygon,
   u_GeoFun,
   i_VectorItemProjected,
@@ -71,7 +70,7 @@ constructor TThreadExportKML.Create(
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
-  AMapType: TMapType;
+  const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;
   ANotSaveNotExists: boolean;
   ARelativePath: boolean
@@ -88,7 +87,7 @@ begin
   FPathExport := APath;
   FNotSaveNotExists := ANotSaveNotExists;
   FRelativePath := ARelativePath;
-  FMapType := AMapType;
+  FTileStorage := ATileStorage;
   FVersion := AVersion;
 end;
 
@@ -108,16 +107,16 @@ var
 begin
   //TODO: Нужно думать на случай когда тайлы будут в базе данных
   if FNotSaveNotExists then begin
-    VTileInfo := FMapType.TileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
+    VTileInfo := FTileStorage.GetTileInfo(ATile, AZoom, FVersion, gtimAsIs);
     if not VTileInfo.GetIsExists then begin
       exit;
     end;
   end;
-  savepath := FMapType.TileStorage.GetTileFileName(ATile, AZoom, FVersion);
+  savepath := FTileStorage.GetTileFileName(ATile, AZoom, FVersion);
   if FRelativePath then begin
     savepath := ExtractRelativePath(ExtractFilePath(FPathExport), savepath);
   end;
-  VExtRect := FMapType.GeoConvert.TilePos2LonLatRect(ATile, AZoom);
+  VExtRect := FTileStorage.CoordConverter.TilePos2LonLatRect(ATile, AZoom);
 
   north := R2StrPoint(VExtRect.Top);
   south := R2StrPoint(VExtRect.Bottom);
@@ -162,7 +161,7 @@ begin
     VZoom := FZooms[level];
     VTileRect :=
       RectFromDoubleRect(
-        FMapType.GeoConvert.RelativeRect2TileRectFloat(FMapType.GeoConvert.TilePos2RelativeRect(ATile, AZoom), VZoom),
+        FTileStorage.CoordConverter.RelativeRect2TileRectFloat(FTileStorage.CoordConverter.TilePos2RelativeRect(ATile, AZoom), VZoom),
         rrClosest
       );
     for xi := VTileRect.Left to VTileRect.Right - 1 do begin
@@ -193,7 +192,7 @@ begin
     VZoom := FZooms[0];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
+        FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom),
         PolygLL
       );
     VIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);
@@ -202,7 +201,7 @@ begin
       VZoom := FZooms[i];
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
+          FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom),
           PolygLL
         );
       VTempIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);

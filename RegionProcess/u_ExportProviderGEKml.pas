@@ -119,7 +119,7 @@ begin
       FVectorGeometryProjectedFactory,
       APolygon,
       VZoomArr,
-      VMapType,
+      VMapType.TileStorage,
       VMapType.VersionConfig.Version,
       NotSaveNotExists,
       RelativePath
