@@ -11,14 +11,16 @@ uses
   i_VectorItemLonLat,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
-  u_MapType,
+  i_MapVersionInfo,
+  i_TileStorage,
   u_ResStrings,
   u_ThreadExportAbstract;
 
 type
   TThreadExportToCE = class(TThreadExportAbstract)
   private
-    FMapType: TMapType;
+    FTileStorage: ITileStorage;
+    FVersion: IMapVersionInfo;
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -37,7 +39,8 @@ type
       const ATargetFile: string;
       const APolygon: ILonLatPolygon;
       const Azoomarr: TByteDynArray;
-      AMapType: TMapType;
+      const ATileStorage: ITileStorage;
+      const AVersion: IMapVersionInfo;
       AMaxSize: Integer;
       const AComment: string;
       ARecoverInfo: Boolean
@@ -51,10 +54,8 @@ uses
   SAS4WinCE,
   i_TileIterator,
   i_TileInfoBasic,
-  i_TileStorage,
   i_BinaryData,
   i_VectorItemProjected,
-  i_MapVersionInfo,
   u_TileIteratorByPolygon;
 
 { TThreadExportToCE }
@@ -67,7 +68,8 @@ constructor TThreadExportToCE.Create(
   const ATargetFile: string;
   const APolygon: ILonLatPolygon;
   const Azoomarr: TByteDynArray;
-  AMapType: TMapType;
+  const ATileStorage: ITileStorage;
+  const AVersion: IMapVersionInfo;
   AMaxSize: Integer;
   const AComment: string;
   ARecoverInfo: Boolean
@@ -80,7 +82,8 @@ begin
     Self.ClassName
   );
   FTargetFile := ATargetFile;
-  FMapType := AMapType;
+  FTileStorage := ATileStorage;
+  FVersion := AVersion;
   FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -97,13 +100,11 @@ var
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
-  VTileStorage: ITileStorage;
   VSAS4WinCE: TSAS4WinCE;
   VProjectedPolygon: IProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileInfo: ITileInfoWithData;
-  VMapVersionInfo: IMapVersionInfo;
 begin
   inherited;
   VTilesToProcess := 0;
@@ -114,7 +115,7 @@ begin
     VZoom := FZooms[i];
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(FMapType.GeoConvert, VZoom),
+        FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom),
         PolygLL
       );
     VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
@@ -123,8 +124,6 @@ begin
       SAS_STR_Zoom + ': ' + inttostr(VZoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess)
     );
   end;
-
-  VMapVersionInfo := FMapType.VersionConfig.Version;
 
   //Начинает процесс экспорта тайлов в файл fname (без расширения!);
   //maxsize - максимально допустимый размер файлов данных (если <0, то взять
@@ -137,7 +136,6 @@ begin
   try
     try
       ProgressInfo.SetFirstLine(SAS_STR_AllSaves + ' ' + inttostr(VTilesToProcess) + ' ' + SAS_STR_Files);
-      VTileStorage := FMapType.TileStorage;
       VTilesProcessed := 0;
       ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
       for i := 0 to Length(FZooms) - 1 do begin
@@ -147,7 +145,7 @@ begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
-          if Supports(VTileStorage.GetTileInfo(VTile, VZoom, VMapVersionInfo, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+          if Supports(FTileStorage.GetTileInfo(VTile, VZoom, FVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
             VExt := VTileInfo.ContentType.GetDefaultExt;
             VSAS4WinCE.Add(
               VZoom + 1,

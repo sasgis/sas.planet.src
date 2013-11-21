@@ -128,7 +128,8 @@ begin
       VPath,
       APolygon,
       Zoomarr,
-      VMapType,
+      VMapType.TileStorage,
+      VMapType.VersionConfig.Version,
       VMaxSize,
       VComent,
       VRecoverInfo
