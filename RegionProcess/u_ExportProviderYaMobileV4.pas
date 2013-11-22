@@ -54,11 +54,12 @@ uses
   Types,
   Classes,
   SysUtils,
+  i_MapVersionInfo,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportYaMobileV4,
-  u_ResStrings,
-  u_MapType;
+  u_BitmapLayerProviderMapWithLayer,
+  u_ResStrings;
 
 { TExportProviderYaMaps }
 
@@ -114,22 +115,70 @@ procedure TExportProviderYaMobileV4.StartProcess(const APolygon: ILonLatPolygon)
 var
   VPath: string;
   VZoomArr: TByteDynArray;
-  typemaparr: array of TMapType;
   comprSat, comprMap: byte;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
+  VTasks: TExportTaskYaMobileV4Array;
+  VTaskIndex: Integer;
+  VMapVersion: IMapVersionInfo;
+  VLayerVersion: IMapVersionInfo;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
-  setlength(typemaparr, 3);
-  typemaparr[0] := FFrame.GetSat.GetSelectedMapType;
-  typemaparr[1] := FFrame.GetMap.GetSelectedMapType;
-  typemaparr[2] := FFrame.GetHyb.GetSelectedMapType;
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
+
+  VTaskIndex := -1;
+  if (FFrame.GetSat.GetSelectedMapType <> nil) or (FFrame.GetHyb.GetSelectedMapType <> nil) then begin
+    Inc(VTaskIndex);
+    SetLength(VTasks, VTaskIndex + 1);
+    if FFrame.GetHyb.GetSelectedMapType <> nil then begin
+      VTasks[VTaskIndex].FMapId := 12;
+      VTasks[VTaskIndex].FMapName := FFrame.GetHyb.GetSelectedMapType.GUIConfig.Name.Value;
+    end else begin
+      VTasks[VTaskIndex].FMapId := 10;
+      VTasks[VTaskIndex].FMapName := FFrame.GetSat.GetSelectedMapType.GUIConfig.Name.Value;
+    end;
+    VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(comprSat);
+    VMapVersion := nil;
+    if FFrame.GetSat.GetSelectedMapType <> nil then begin
+      VMapVersion := FFrame.GetSat.GetSelectedMapType.VersionConfig.Version;
+    end;
+    VLayerVersion := nil;
+    if FFrame.GetHyb.GetSelectedMapType <> nil then begin
+      VLayerVersion := FFrame.GetHyb.GetSelectedMapType.VersionConfig.Version;
+    end;
+    VTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderMapWithLayer.Create(
+        FBitmapFactory,
+        FFrame.GetSat.GetSelectedMapType,
+        VMapVersion,
+        FFrame.GetHyb.GetSelectedMapType,
+        VLayerVersion,
+        False,
+        False
+      );
+  end;
+  if FFrame.GetMap.GetSelectedMapType <> nil then begin
+    Inc(VTaskIndex);
+    SetLength(VTasks, VTaskIndex + 1);
+    VTasks[VTaskIndex].FMapId := 11;
+    VTasks[VTaskIndex].FMapName := FFrame.GetMap.GetSelectedMapType.GUIConfig.Name.Value;
+    VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, comprMap);
+    VTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderMapWithLayer.Create(
+        FBitmapFactory,
+        FFrame.GetMap.GetSelectedMapType,
+        FFrame.GetMap.GetSelectedMapType.VersionConfig.Version,
+        nil,
+        nil,
+        False,
+        False
+      );
+  end;
 
   VThread :=
     TThreadExportYaMobileV4.Create(
@@ -139,15 +188,12 @@ begin
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FBitmapFactory,
-      FBitmapTileSaveLoadFactory,
       VPath,
       APolygon,
+      VTasks,
       VZoomArr,
-      typemaparr,
       FFrame.chkReplaseTiles.Checked,
-      TYaMobileV4TileSize(FFrame.rgTileSize.ItemIndex),
-      comprSat,
-      comprMap
+      TYaMobileV4TileSize(FFrame.rgTileSize.ItemIndex)
     );
   VThread.Resume;
 end;
