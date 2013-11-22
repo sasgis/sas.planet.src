@@ -20,8 +20,6 @@ uses
   i_VectorItemsFactory,
   i_CoordConverter,
   i_VectorItemLonLat,
-  i_BitmapTileSaveLoadFactory,
-  u_MapType,
   u_GeoFun,
   t_GeoTypes,
   u_ThreadExportAbstract;
@@ -32,11 +30,12 @@ type
     FSaver: IBitmapTileSaver;
     FImageProvider: IBitmapLayerProvider;
   end;
+  TExportTaskIPhoneArray = array of TExportTaskIPhone;
 
   TThreadExportIPhone = class(TThreadExportAbstract)
   private
     FBitmapFactory: IBitmap32StaticFactory;
-    FTasks: array of TExportTaskIPhone;
+    FTasks: TExportTaskIPhoneArray;
     FActiveMapIndex: integer;
     FNewFormat: Boolean;
 
@@ -48,7 +47,6 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     procedure WritePListFile(const AGeoConvert: ICoordConverter);
     procedure WriteTileToSQLite3(
       const ASQLite3DbHandler: PSQLite3DbHandler;
@@ -67,17 +65,13 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
+      const ATasks: TExportTaskIPhoneArray;
       const Azoomarr: TByteDynArray;
-      const Atypemaparr: array of TMapType;
       AActiveMapIndex: Integer;
       AReplace: boolean;
-      ANewFormat: Boolean;
-      Acsat: byte;
-      Acmap: byte;
-      Achib: byte
+      ANewFormat: Boolean
     );
     destructor Destroy; override;
   end;
@@ -89,14 +83,12 @@ uses
   c_CoordConverter,
   i_LocalCoordConverter,
   i_Bitmap32Static,
-  i_MapVersionInfo,
   u_GeoToStr,
   u_ResStrings,
   i_VectorItemProjected,
   i_TileIterator,
   u_BitmapFunc,
-  u_TileIteratorByPolygon,
-  u_BitmapLayerProviderMapWithLayer;
+  u_TileIteratorByPolygon;
 
 constructor TThreadExportIPhone.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
@@ -105,20 +97,14 @@ constructor TThreadExportIPhone.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
+  const ATasks: TExportTaskIPhoneArray;
   const Azoomarr: TByteDynArray;
-  const Atypemaparr: array of TMapType;
   AActiveMapIndex: Integer;
   AReplace: boolean;
-  ANewFormat: Boolean;
-  Acsat, Acmap, Achib: byte
+  ANewFormat: Boolean
 );
-var
-  VTaskIndex: Integer;
-  VMapVersion: IMapVersionInfo;
-  VLayerVersion: IMapVersionInfo;
 begin
   inherited Create(
     AProgressInfo,
@@ -131,89 +117,12 @@ begin
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := IncludeTrailingPathDelimiter(APath);
   ForceDirectories(FExportPath);
+  FTasks := ATasks;
   FNewFormat := ANewFormat;
   FIsReplace := AReplace;
-  FActiveMapIndex := -1;
-
-  if (length(Atypemaparr) <> 3) then begin
-    raise Exception.Create('Not expected maps count');
-  end;
-  if (Atypemaparr[0] = nil) and
-    (Atypemaparr[1] = nil) and
-    (Atypemaparr[2] = nil) then begin
-    raise Exception.Create('Maps are not selected');
-  end;
-
-  VTaskIndex := -1;
-  if Atypemaparr[0] <> nil then begin
-    Inc(VTaskIndex);
-    SetLength(FTasks, VTaskIndex + 1);
-    if AActiveMapIndex = 0 then begin
-      FActiveMapIndex := VTaskIndex;
-    end;
-    FTasks[VTaskIndex].FFlag := 3;
-    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Acsat);
-    FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderMapWithLayer.Create(
-        FBitmapFactory,
-        Atypemaparr[0],
-        Atypemaparr[0].VersionConfig.Version,
-        nil,
-        nil,
-        False,
-        False
-      );
-  end;
-  if Atypemaparr[1] <> nil then begin
-    Inc(VTaskIndex);
-    SetLength(FTasks, VTaskIndex + 1);
-    if AActiveMapIndex = 1 then begin
-      FActiveMapIndex := VTaskIndex;
-    end;
-    FTasks[VTaskIndex].FFlag := 2;
-    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, Acmap);
-    FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderMapWithLayer.Create(
-        FBitmapFactory,
-        Atypemaparr[1],
-        Atypemaparr[1].VersionConfig.Version,
-        nil,
-        nil,
-        False,
-        False
-      );
-  end;
-  if Atypemaparr[2] <> nil then begin
-    Inc(VTaskIndex);
-    SetLength(FTasks, VTaskIndex + 1);
-    if AActiveMapIndex = 2 then begin
-      FActiveMapIndex := VTaskIndex;
-    end;
-    FTasks[VTaskIndex].FFlag := 6;
-    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Achib);
-    VMapVersion := nil;
-    if Assigned(Atypemaparr[0]) then begin
-      VMapVersion := Atypemaparr[0].VersionConfig.Version;
-    end;
-    VLayerVersion := nil;
-    if Assigned(Atypemaparr[2]) then begin
-      VLayerVersion := Atypemaparr[2].VersionConfig.Version;
-    end;
-    FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderMapWithLayer.Create(
-        FBitmapFactory,
-        Atypemaparr[0],
-        VMapVersion,
-        Atypemaparr[2],
-        VLayerVersion,
-        False,
-        False
-      );
-  end;
-
+  FActiveMapIndex := AActiveMapIndex;
 end;
 
 destructor TThreadExportIPhone.Destroy;
