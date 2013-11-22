@@ -261,6 +261,10 @@ begin
   if not VGeoConvert.CheckZoom(VGridZoom) then begin
     Exit;
   end;
+  if VGridZoom > VCurrentZoom + 5 then begin
+    Exit;
+  end;
+
   FCS.BeginWrite;
   try
     InitBitmap(ALocalConverter);
