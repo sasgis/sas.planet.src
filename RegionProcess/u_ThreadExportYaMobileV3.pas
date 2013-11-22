@@ -8,7 +8,6 @@ uses
   SysUtils,
   Classes,
   GR32,
-  u_MapType,
   u_ResStrings,
   i_BinaryData,
   i_Bitmap32StaticFactory,
@@ -17,7 +16,6 @@ uses
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
-  i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,
   i_VectorItemsFactory,
   i_VectorItemLonLat,
@@ -29,14 +27,14 @@ type
     FSaver: IBitmapTileSaver;
     FImageProvider: IBitmapLayerProvider;
   end;
+  TExportTaskYaMobileV3Array = array of TExportTaskYaMobileV3;
 
   TThreadExportYaMobileV3 = class(TThreadExportAbstract)
   private
-    FTasks: array of TExportTaskYaMobileV3;
+    FTasks: TExportTaskYaMobileV3Array;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FIsReplace: boolean;
     FExportPath: string;
     FCoordConverterFactory: ICoordConverterFactory;
@@ -68,14 +66,11 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const APath: string;
       const APolygon: ILonLatPolygon;
+      const ATasks: TExportTaskYaMobileV3Array;
       const AZoomArr: TByteDynArray;
-      const AMapTypeArr: array of TMapType;
-      AReplace: boolean;
-      Acsat: byte;
-      Acmap: byte
+      AReplace: boolean
     );
     destructor Destroy; override;
   end;
@@ -86,13 +81,11 @@ uses
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
-  i_MapVersionInfo,
   i_VectorItemProjected,
   i_TileIterator,
   i_LocalCoordConverter,
   u_BitmapFunc,
-  u_TileIteratorByPolygon,
-  u_BitmapLayerProviderMapWithLayer;
+  u_TileIteratorByPolygon;
 
 const
   YaHeaderSize: integer = 1024;
@@ -104,18 +97,12 @@ constructor TThreadExportYaMobileV3.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const APath: string;
   const APolygon: ILonLatPolygon;
+  const ATasks: TExportTaskYaMobileV3Array;
   const AZoomArr: TByteDynArray;
-  const AMapTypeArr: array of TMapType;
-  AReplace: boolean;
-  Acsat, Acmap: byte
+  AReplace: boolean
 );
-var
-  VTaskIndex: Integer;
-  VMapVersion: IMapVersionInfo;
-  VLayerVersion: IMapVersionInfo;
 begin
   inherited Create(
     AProgressInfo,
@@ -128,59 +115,10 @@ begin
   FProjectionFactory := AProjectionFactory;
   FBitmapFactory := ABitmapFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FExportPath := APath;
   FIsReplace := AReplace;
-  if (length(AMapTypeArr) <> 3) then begin
-    raise Exception.Create('Not expected maps count');
-  end;
-  if (AMapTypeArr[0] = nil) and
-    (AMapTypeArr[1] = nil) and
-    (AMapTypeArr[2] = nil) then begin
-    raise Exception.Create('Maps are not selected');
-  end;
+  FTasks := ATasks;
 
-  VTaskIndex := -1;
-  if (AMapTypeArr[0] <> nil) or (AMapTypeArr[2] <> nil) then begin
-    Inc(VTaskIndex);
-    SetLength(FTasks, VTaskIndex + 1);
-    FTasks[VTaskIndex].FMapId := 2;
-    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(Acsat);
-    VMapVersion := nil;
-    if Assigned(AMapTypeArr[0]) then begin
-      VMapVersion := AMapTypeArr[0].VersionConfig.Version;
-    end;
-    VLayerVersion := nil;
-    if Assigned(AMapTypeArr[2]) then begin
-      VLayerVersion := AMapTypeArr[2].VersionConfig.Version;
-    end;
-    FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderMapWithLayer.Create(
-        FBitmapFactory,
-        AMapTypeArr[0],
-        VMapVersion,
-        AMapTypeArr[2],
-        VLayerVersion,
-        False,
-        False
-      );
-  end;
-  if AMapTypeArr[1] <> nil then begin
-    Inc(VTaskIndex);
-    SetLength(FTasks, VTaskIndex + 1);
-    FTasks[VTaskIndex].FMapId := 1;
-    FTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, Acmap);
-    FTasks[VTaskIndex].FImageProvider :=
-      TBitmapLayerProviderMapWithLayer.Create(
-        FBitmapFactory,
-        AMapTypeArr[1],
-        AMapTypeArr[1].VersionConfig.Version,
-        nil,
-        nil,
-        False,
-        False
-      );
-  end;
 end;
 
 function TThreadExportYaMobileV3.GetMobileFile(

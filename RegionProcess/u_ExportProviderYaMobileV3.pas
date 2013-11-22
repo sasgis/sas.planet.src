@@ -55,11 +55,12 @@ uses
   Types,
   Classes,
   SysUtils,
+  i_MapVersionInfo,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportYaMobileV3,
-  u_ResStrings,
-  u_MapType;
+  u_BitmapLayerProviderMapWithLayer,
+  u_ResStrings;
 
 { TExportProviderYaMobileV3 }
 
@@ -115,25 +116,66 @@ procedure TExportProviderYaMobileV3.StartProcess(const APolygon: ILonLatPolygon)
 var
   VPath: string;
   VZoomArr: TByteDynArray;
-  typemaparr: array of TMapType;
   comprSat, comprMap: byte;
   Replace: boolean;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
+  VTasks: TExportTaskYaMobileV3Array;
+  VTaskIndex: Integer;
+  VMapVersion: IMapVersionInfo;
+  VLayerVersion: IMapVersionInfo;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
-  setlength(typemaparr, 3);
-  typemaparr[0] := FFrame.GetSat.GetSelectedMapType;
-  typemaparr[1] := FFrame.GetMap.GetSelectedMapType;
-  typemaparr[2] := FFrame.GetHyb.GetSelectedMapType;
   comprSat := FFrame.seSatCompress.Value;
   comprMap := FFrame.seMapCompress.Value;
   Replace := FFrame.chkReplaseTiles.Checked;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
+
+  VTaskIndex := -1;
+  if (FFrame.GetSat.GetSelectedMapType <> nil) or (FFrame.GetHyb.GetSelectedMapType <> nil) then begin
+    Inc(VTaskIndex);
+    SetLength(VTasks, VTaskIndex + 1);
+    VTasks[VTaskIndex].FMapId := 2;
+    VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(comprSat);
+    VMapVersion := nil;
+    if FFrame.GetSat.GetSelectedMapType <> nil then begin
+      VMapVersion := FFrame.GetSat.GetSelectedMapType.VersionConfig.Version;
+    end;
+    VLayerVersion := nil;
+    if FFrame.GetHyb.GetSelectedMapType <> nil then begin
+      VLayerVersion := FFrame.GetHyb.GetSelectedMapType.VersionConfig.Version;
+    end;
+    VTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderMapWithLayer.Create(
+        FBitmapFactory,
+        FFrame.GetSat.GetSelectedMapType,
+        VMapVersion,
+        FFrame.GetHyb.GetSelectedMapType,
+        VLayerVersion,
+        False,
+        False
+      );
+  end;
+  if FFrame.GetMap.GetSelectedMapType <> nil then begin
+    Inc(VTaskIndex);
+    SetLength(VTasks, VTaskIndex + 1);
+    VTasks[VTaskIndex].FMapId := 1;
+    VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, comprMap);
+    VTasks[VTaskIndex].FImageProvider :=
+      TBitmapLayerProviderMapWithLayer.Create(
+        FBitmapFactory,
+        FFrame.GetMap.GetSelectedMapType,
+        FFrame.GetMap.GetSelectedMapType.VersionConfig.Version,
+        nil,
+        nil,
+        False,
+        False
+      );
+  end;
 
   VThread :=
     TThreadExportYaMobileV3.Create(
@@ -143,14 +185,11 @@ begin
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FBitmapFactory,
-      FBitmapTileSaveLoadFactory,
       VPath,
       APolygon,
+      VTasks,
       VZoomArr,
-      typemaparr,
-      Replace,
-      comprSat,
-      comprMap
+      Replace
     );
   VThread.Resume;
 end;
