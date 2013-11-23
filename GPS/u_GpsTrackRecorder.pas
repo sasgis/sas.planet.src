@@ -657,16 +657,22 @@ begin
   inherited;
   VFileName := FDataFile.FullPath;
   try
-    VStream := TFileStream.Create(VFileName, fmCreate);
+    VStream := nil;
     try
-      VVersion := CVersionMagicID;
-      VStream.WriteBuffer(VVersion, SizeOf(VVersion));
       VEnum := LastPoints(10000);
       while VEnum.Next(VPoint) do begin
+        if not Assigned(VStream) then begin
+          VStream := TFileStream.Create(VFileName, fmCreate);
+          VVersion := CVersionMagicID;
+          VStream.WriteBuffer(VVersion, SizeOf(VVersion));
+        end;
         VStream.WriteBuffer(VPoint.Point.X, SizeOf(VPoint.Point.X));
         VStream.WriteBuffer(VPoint.Point.Y, SizeOf(VPoint.Point.Y));
         VStream.WriteBuffer(VPoint.Speed, SizeOf(VPoint.Speed));
         VStream.WriteBuffer(VPoint.Time, SizeOf(VPoint.Time));
+      end;
+      if not Assigned(VStream) then begin
+        DeleteFile(VFileName);
       end;
     finally
       VStream.Free;
