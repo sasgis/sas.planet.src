@@ -213,15 +213,19 @@ begin
             VTargetVersionInfo,
             VTileInfoWithData.LoadDate,
             VTileInfoWithData.ContentType,
-            VTileInfoWithData.TileData
+            VTileInfoWithData.TileData,
+            True
           );
         end;
       end else if VSrcTileInfo.IsExistsTNE then begin
-        FDestTileStorage.SaveTNE(
+        FDestTileStorage.SaveTile(
           AXY,
           AZoom,
           VTargetVersionInfo,
-          VSrcTileInfo.LoadDate
+          VSrcTileInfo.LoadDate,
+          nil,
+          nil,
+          True
         );
       end;
       if FIsMove then begin

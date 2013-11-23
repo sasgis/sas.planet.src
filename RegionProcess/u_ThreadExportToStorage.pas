@@ -187,7 +187,7 @@ begin
 
             if VAllowToSave then begin
               // save
-              FTargetStorage.SaveTile(VTile, VZoom, VTargetVersion, VTileInfo.LoadDate, VTileInfo.ContentType, VTileInfo.TileData);
+              FTargetStorage.SaveTile(VTile, VZoom, VTargetVersion, VTileInfo.LoadDate, VTileInfo.ContentType, VTileInfo.TileData, True);
               // saved
               if FIsMove then begin
                 // delete source

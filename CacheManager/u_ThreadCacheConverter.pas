@@ -178,15 +178,19 @@ begin
           VDestVersionInfo,
           ATileInfo.FLoadDate,
           ATileInfo.FContentType,
-          ATileInfo.FData
+          ATileInfo.FData,
+          True
         );
         Result := True;
       end else if ATileInfo.FInfoType = titTneExists then begin
-        FDestTileStorage.SaveTNE(
+        FDestTileStorage.SaveTile(
           ATileInfo.FTile,
           ATileInfo.FZoom,
           VDestVersionInfo,
-          ATileInfo.FLoadDate
+          ATileInfo.FLoadDate,
+          nil,
+          nil,
+          True
         );
         Result := True;
       end;

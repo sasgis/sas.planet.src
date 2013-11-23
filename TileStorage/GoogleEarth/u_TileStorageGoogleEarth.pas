@@ -93,21 +93,15 @@ type
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
-    procedure SaveTile(
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    ); override;
-
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    ); override;
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean; override;
 
     function GetListOfTileVersions(
       const AXY: TPoint;
@@ -677,24 +671,15 @@ begin
   end;
 end;
 
-procedure TTileStorageGoogleEarth.SaveTile(
+function TTileStorageGoogleEarth.SaveTile(
   const AXY: TPoint;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
   const AContentType: IContentTypeInfoBasic;
-  const AData: IBinaryData
-);
-begin
-  Abort;
-end;
-
-procedure TTileStorageGoogleEarth.SaveTNE(
-  const AXY: TPoint;
-  const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo;
-  const ALoadDate: TDateTime
-);
+  const AData: IBinaryData;
+  const AIsOverwrite: Boolean
+): Boolean;
 begin
   Abort;
 end;

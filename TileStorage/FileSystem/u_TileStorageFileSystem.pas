@@ -82,20 +82,15 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
-    procedure SaveTile(
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    ); override;
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    ); override;
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean; override;
 
     function ScanTiles(
       const AIgnoreTNE: Boolean;
@@ -162,7 +157,7 @@ begin
   FFileNameGenerator := ATileNameGenerator;
 
   FFileExt := FMainContentType.GetDefaultExt;
-  FFsLock := MakeSyncRW_Std(Self, False);
+  FFsLock := MakeSyncRW_Std(Self, True);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 end;
 
@@ -469,24 +464,29 @@ begin
   end;
 end;
 
-procedure TTileStorageFileSystem.SaveTile(
+function TTileStorageFileSystem.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
   const AContentType: IContentTypeInfoBasic;
-  const AData: IBinaryData
-);
+  const AData: IBinaryData;
+  const AIsOverwrite: Boolean
+): Boolean;
 var
   VPath: String;
   VFileName: string;
   VTneName: string;
   VHandle: THandle;
   VFileStream: THandleStream;
+  VTileInfo: ITileInfoBasic;
 begin
+  Result := True;
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
-    if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
-      raise Exception.Create('Bad content type for this tile storage');
+    if Assigned(AContentType) then begin
+      if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
+        raise Exception.Create('Bad content type for this tile storage');
+      end;
     end;
     VPath :=
       StoragePath +
@@ -495,74 +495,19 @@ begin
     VTneName := VPath + CTneFileExt;
     FFsLock.BeginWrite;
     try
-      CreateDirIfNotExists(VFileName);
-      VHandle := INVALID_HANDLE_VALUE;
-      try
-        VHandle :=
-          CreateFile(
-            PChar(VFileName),
-            GENERIC_READ or GENERIC_WRITE,
-            0,
-            nil,
-            CREATE_ALWAYS,
-            FILE_ATTRIBUTE_NORMAL,
-            0
-          );
-        if VHandle = INVALID_HANDLE_VALUE then begin
-          RaiseLastOSError;
-        end;
-
-        {$WARN SYMBOL_PLATFORM OFF}
-        FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
-        {$WARN SYMBOL_PLATFORM ON}
-        VFileStream := THandleStream.Create(VHandle);
-        try
-          VFileStream.Size := AData.Size;
-          VFileStream.Position := 0;
-          VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
-        finally
-          VFileStream.Free;
-        end;
-      finally
-        if VHandle <> INVALID_HANDLE_VALUE then begin
-          FileClose(VHandle);
+      if not AIsOverwrite then begin
+        VTileInfo := GetTileInfo(AXY, AZoom, AVersionInfo, gtimAsIs);
+        if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
+          Exit;
         end;
       end;
-      DeleteFile(VTneName);
-    finally
-      FFsLock.EndWrite;
-    end;
-    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-  end;
-end;
-
-procedure TTileStorageFileSystem.SaveTNE(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo;
-  const ALoadDate: TDateTime
-);
-var
-  VPath: String;
-  VFileName: string;
-  VTneName: string;
-  VHandle: THandle;
-begin
-  if GetState.GetStatic.WriteAccess <> asDisabled then begin
-    VPath :=
-      StoragePath +
-      FFileNameGenerator.GetTileFileName(AXY, AZoom);
-    VFileName := VPath + FFileExt;
-    VTneName := VPath + CTneFileExt;
-    FFsLock.BeginWrite;
-    try
-      if not FileExists(VTneName) then begin
-        CreateDirIfNotExists(VTneName);
+      if Assigned(AContentType) and Assigned(AData) then begin
+        CreateDirIfNotExists(VFileName);
         VHandle := INVALID_HANDLE_VALUE;
         try
           VHandle :=
             CreateFile(
-              PChar(VTneName),
+              PChar(VFileName),
               GENERIC_READ or GENERIC_WRITE,
               0,
               nil,
@@ -573,19 +518,59 @@ begin
           if VHandle = INVALID_HANDLE_VALUE then begin
             RaiseLastOSError;
           end;
+
           {$WARN SYMBOL_PLATFORM OFF}
           FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
           {$WARN SYMBOL_PLATFORM ON}
+          VFileStream := THandleStream.Create(VHandle);
+          try
+            VFileStream.Size := AData.Size;
+            VFileStream.Position := 0;
+            VFileStream.WriteBuffer(AData.Buffer^, AData.Size);
+          finally
+            VFileStream.Free;
+          end;
         finally
           if VHandle <> INVALID_HANDLE_VALUE then begin
             FileClose(VHandle);
           end;
         end;
-        DeleteFile(VFileName);
+        DeleteFile(VTneName);
+        Result := True;
+      end else begin
+        if not FileExists(VTneName) then begin
+          CreateDirIfNotExists(VTneName);
+          VHandle := INVALID_HANDLE_VALUE;
+          try
+            VHandle :=
+              CreateFile(
+                PChar(VTneName),
+                GENERIC_READ or GENERIC_WRITE,
+                0,
+                nil,
+                CREATE_ALWAYS,
+                FILE_ATTRIBUTE_NORMAL,
+                0
+              );
+            if VHandle = INVALID_HANDLE_VALUE then begin
+              RaiseLastOSError;
+            end;
+            {$WARN SYMBOL_PLATFORM OFF}
+            FileSetDate(VHandle, DateTimeToFileDate(ALoadDate)); // (!) 'FileSetDate' is specific to a platform
+            {$WARN SYMBOL_PLATFORM ON}
+          finally
+            if VHandle <> INVALID_HANDLE_VALUE then begin
+              FileClose(VHandle);
+            end;
+          end;
+          DeleteFile(VFileName);
+          Result := True;
+        end;
       end;
     finally
       FFsLock.EndWrite;
     end;
+    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
 end;
 

@@ -73,21 +73,15 @@ type
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
-    procedure SaveTile(
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    ); override;
-
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    ); override;
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean; override;
   private
     { IBasicMemCache }
     procedure ClearMemCache;
@@ -252,47 +246,42 @@ begin
   end;
 end;
 
-procedure TTileStorageInRAM.SaveTile(
+function TTileStorageInRAM.SaveTile(
   const AXY: TPoint;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
   const AContentType: IContentTypeInfoBasic;
-  const AData: IBinaryData
-);
+  const AData: IBinaryData;
+  const AIsOverwrite: Boolean
+): Boolean;
 var
   VTileInfo: ITileInfoBasic;
 begin
+  Result := False;
   if GetState.GetStatic.WriteAccess <> asDisabled then begin
-    if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
-      raise ETileStorageInRAM.Create('Bad content type for this tile storage');
+    if not AIsOverwrite then begin
+      VTileInfo := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, gtimAsIs, False);
+      if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
+        Exit;
+      end;
     end;
-    VTileInfo :=
-      TTileInfoBasicExistsWithTile.Create(
-        ALoadDate,
-        AData,
-        AVersionInfo,
-        FMainContentType
-      );
-    FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, VTileInfo);
-    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-  end;
-end;
 
-procedure TTileStorageInRAM.SaveTNE(
-  const AXY: TPoint;
-  const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo;
-  const ALoadDate: TDateTime
-);
-begin
-  if GetState.GetStatic.WriteAccess <> asDisabled then begin
-    FTileInfoMemCache.Add(
-      AXY,
-      AZoom,
-      AVersionInfo,
-      TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
-    );
+    if Assigned(AContentType) and Assigned(AData) then begin
+      if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
+        raise ETileStorageInRAM.Create('Bad content type for this tile storage');
+      end;
+      VTileInfo :=
+        TTileInfoBasicExistsWithTile.Create(
+          ALoadDate,
+          AData,
+          AVersionInfo,
+          FMainContentType
+        );
+    end else begin
+      VTileInfo := TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo);
+    end;
+    FTileInfoMemCache.Add(AXY, AZoom, AVersionInfo, VTileInfo);
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
 end;

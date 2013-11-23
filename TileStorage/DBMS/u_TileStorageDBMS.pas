@@ -139,7 +139,7 @@ type
       const ARoutinePtr: Pointer;
       const ACallForTNE: Boolean
     );
-    
+
   private
     function CallbackLib_SelectTile(
       const ACallbackPointer: Pointer;
@@ -210,21 +210,15 @@ type
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
-    procedure SaveTile(
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    ); override;
-
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    ); override;
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean; override;
 
     function GetListOfTileVersions(
       const AXY: TPoint;
@@ -1736,26 +1730,31 @@ begin
   Result := not (FETS_SERVICE_STORAGE_OPTIONS.malfunction_mode in [ETS_PMM_HAS_COMPLETED,ETS_PMM_ESTABLISHED]);
 end;
 
-procedure TTileStorageETS.SaveTile(
+function TTileStorageETS.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
   const AContentType: IContentTypeInfoBasic;
-  const AData: IBinaryData
-);
+  const AData: IBinaryData;
+  const AIsOverwrite: Boolean
+): Boolean;
+var
+  VTileInfo: ITileInfoBasic;
 begin
-  InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, ALoadDate, AData, FETS_InsertTile, FALSE);
-end;
-
-procedure TTileStorageETS.SaveTNE(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo;
-  const ALoadDate: TDateTime
-);
-begin
-  InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, ALoadDate, nil, FETS_InsertTNE, TRUE);
+  Result := False;
+  if not AIsOverwrite then begin
+    VTileInfo := GetTileInfo(AXY, AZoom, AVersionInfo, gtimAsIs);
+    if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
+      Exit;
+    end;
+  end;
+  if Assigned(AContentType) and Assigned(AData) then begin
+    InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, ALoadDate, AData, FETS_InsertTile, FALSE);
+  end else begin
+    InternalSaveTileOrTNE(AXY, AZoom, AVersionInfo, ALoadDate, nil, FETS_InsertTNE, TRUE);
+  end;
+  Result := True;
 end;
 
 function TTileStorageETS.ScanTiles(

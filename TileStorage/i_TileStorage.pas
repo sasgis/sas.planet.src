@@ -73,21 +73,17 @@ type
       const AVersion: IMapVersionInfo
     ): Boolean;
 
-    procedure SaveTile(
+    // For save tne AContentType = nil or AData = nil
+    // returns True if ok, False if exists and AIsOverwrite = false
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    );
-
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersion: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    );
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean;
 
     function GetListOfTileVersions(
       const AXY: TPoint;

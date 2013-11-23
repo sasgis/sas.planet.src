@@ -80,20 +80,16 @@ type
       const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
-    procedure SaveTile(
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    );
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersion: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    );
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean;
+
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
@@ -217,48 +213,34 @@ begin
   Result := False;
 end;
 
-procedure TTileStorageArchive.SaveTile(
+function TTileStorageArchive.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersion: IMapVersionInfo;
   const ALoadDate: TDateTime;
   const AContentType: IContentTypeInfoBasic;
-  const AData: IBinaryData
-);
-var
-  VTileName: string;
-  VArchiveWriter: IArchiveWriter;
-begin
-  FSync.BeginWrite;
-  try
-    VArchiveWriter := GetArchiveWriter;
-    if Assigned(VArchiveWriter) then begin
-      VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + FContentType.GetDefaultExt;
-      VArchiveWriter.AddFile(AData, VTileName, ALoadDate);
-    end;
-  finally
-    FSync.EndWrite;
-  end;
-end;
-
-procedure TTileStorageArchive.SaveTNE(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersion: IMapVersionInfo;
-  const ALoadDate: TDateTime
-);
+  const AData: IBinaryData;
+  const AIsOverwrite: Boolean
+): Boolean;
 var
   VTileName: string;
   VData: IBinaryData;
   VArchiveWriter: IArchiveWriter;
 begin
+  Result := False;
   FSync.BeginWrite;
   try
     VArchiveWriter := GetArchiveWriter;
     if Assigned(VArchiveWriter) then begin
-      VData := TBinaryData.Create(0, nil);
-      VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + '.tne';
+      if Assigned(AContentType) and Assigned(AData) then begin
+        VData := AData;
+        VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + FContentType.GetDefaultExt;
+      end else begin
+        VData := TBinaryData.Create(0, nil);
+        VTileName := FTileNameGenerator.GetTileFileName(AXY, AZoom) + '.tne';
+      end;
       VArchiveWriter.AddFile(VData, VTileName, ALoadDate);
+      Result := True;
     end;
   finally
     FSync.EndWrite;

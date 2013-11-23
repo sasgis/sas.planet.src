@@ -88,20 +88,15 @@ type
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo
     ): Boolean; virtual; abstract;
-    procedure SaveTile(
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    ); virtual; abstract;
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    ); virtual; abstract;
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean; virtual; abstract;
 
     function GetListOfTileVersions(
       const AXY: TPoint;

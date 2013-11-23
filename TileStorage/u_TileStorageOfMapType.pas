@@ -113,20 +113,15 @@ type
       const AZoom: byte;
       const AVersion: IMapVersionInfo
     ): Boolean;
-    procedure SaveTile(
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: byte;
       const AVersion: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    );
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersion: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    );
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean;
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
@@ -676,48 +671,31 @@ begin
   end;
 end;
 
-procedure TTileStorageOfMapType.SaveTile(
+function TTileStorageOfMapType.SaveTile(
   const AXY: TPoint;
   const AZoom: byte;
   const AVersion: IMapVersionInfo;
   const ALoadDate: TDateTime;
   const AContentType: IContentTypeInfoBasic;
-  const AData: IBinaryData
-);
+  const AData: IBinaryData;
+  const AIsOverwrite: Boolean
+): Boolean;
 var
   VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;
   VStorage: ITileStorage;
 begin
-  VCounter := FSaveTileCounter;
-  VCounterContext := VCounter.StartOperation;
-  try
-    VStorage := GetStorage;
-    if VStorage <> nil then begin
-      VStorage.SaveTile(AXY, AZoom, AVersion, ALoadDate, AContentType, AData);
-    end;
-  finally
-    VCounter.FinishOperation(VCounterContext);
+  Result := False;
+  if Assigned(AContentType) and Assigned(AData) then begin
+    VCounter := FSaveTileCounter;
+  end else begin
+    VCounter := FSaveTNECounter;
   end;
-end;
-
-procedure TTileStorageOfMapType.SaveTNE(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersion: IMapVersionInfo;
-  const ALoadDate: TDateTime
-);
-var
-  VCounter: IInternalPerformanceCounter;
-  VCounterContext: TInternalPerformanceCounterContext;
-  VStorage: ITileStorage;
-begin
-  VCounter := FSaveTNECounter;
   VCounterContext := VCounter.StartOperation;
   try
     VStorage := GetStorage;
     if VStorage <> nil then begin
-      VStorage.SaveTNE(AXY, AZoom, AVersion, ALoadDate);
+      Result := VStorage.SaveTile(AXY, AZoom, AVersion, ALoadDate, AContentType, AData, AIsOverwrite);
     end;
   finally
     VCounter.FinishOperation(VCounterContext);

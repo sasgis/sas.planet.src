@@ -96,21 +96,15 @@ type
       const AVersionInfo: IMapVersionInfo
     ): Boolean; override;
 
-    procedure SaveTile(
+    function SaveTile(
       const AXY: TPoint;
       const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
       const ALoadDate: TDateTime;
       const AContentType: IContentTypeInfoBasic;
-      const AData: IBinaryData
-    ); override;
-
-    procedure SaveTNE(
-      const AXY: TPoint;
-      const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo;
-      const ALoadDate: TDateTime
-    ); override;
+      const AData: IBinaryData;
+      const AIsOverwrite: Boolean
+    ): Boolean; override;
 
     function GetListOfTileVersions(
       const AXY: TPoint;
@@ -381,7 +375,7 @@ begin
       VResult := False;
 
       if FileExists(VPath) then begin
-        VHelper := GetStorageHelper; 
+        VHelper := GetStorageHelper;
         if AMode = gtimWithoutData then begin
           VResult :=
             VHelper.LoadTileInfo(
@@ -689,65 +683,105 @@ begin
   end;
 end;
 
-procedure TTileStorageBerkeleyDB.SaveTile(
+function TTileStorageBerkeleyDB.SaveTile(
   const AXY: TPoint;
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
   const ALoadDate: TDateTime;
   const AContentType: IContentTypeInfoBasic;
-  const AData: IBinaryData
-);
+  const AData: IBinaryData;
+  const AIsOverwrite: Boolean
+): Boolean;
 var
   VPath: string;
-  VResult: Boolean;
   VDoNotifyUpdate: Boolean;
   VTileInfo: ITileInfoBasic;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
+  Result := False;
   VDoNotifyUpdate := False;
   try
     if GetState.GetStatic.WriteAccess <> asDisabled then begin
-      if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
-        raise Exception.Create('Bad content type for this tile storage');
+      VTileInfo := GetTileInfo(AXY, AZoom, AVersionInfo, gtimAsIs);
+      if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
+        if AIsOverwrite then begin
+          DeleteTile(AXY, AZoom, AVersionInfo); // del old tile if exists
+        end else begin
+          Exit;
+        end;
       end;
+      if Assigned(AContentType) and Assigned(AData) then begin
+        if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
+          raise Exception.Create('Bad content type for this tile storage');
+        end;
 
-      Assert(AData <> nil);
-      Assert(AData.Buffer <> nil);
-      Assert(AData.Size > 0);
+        Assert(AData <> nil);
+        Assert(AData.Buffer <> nil);
+        Assert(AData.Size > 0);
 
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        GetStorageFileExtention;
-      if CreateDirIfNotExists(VPath) then begin
-        VHelper := GetStorageHelper;
-        VResult := VHelper.SaveTile(
-          VPath,
-          AXY,
-          AZoom,
-          ALoadDate,
-          AVersionInfo,
-          AContentType,
-          AData,
-          False // ToDo: KeepExisting
-        );
-        if VResult then begin
-          VTileInfo :=
-            TTileInfoBasicExistsWithTile.Create(
-              ALoadDate,
-              AData,
-              AVersionInfo,
-              FMainContentType
-            );
-          if Assigned(FTileInfoMemCache) then begin
-            FTileInfoMemCache.Add(
-              AXY,
-              AZoom,
-              AVersionInfo,
-              VTileInfo
-            );
+        VPath :=
+          StoragePath +
+          FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+          GetStorageFileExtention;
+        if CreateDirIfNotExists(VPath) then begin
+          VHelper := GetStorageHelper;
+          Result := VHelper.SaveTile(
+            VPath,
+            AXY,
+            AZoom,
+            ALoadDate,
+            AVersionInfo,
+            AContentType,
+            AData,
+            not AIsOverwrite // ToDo: KeepExisting
+          );
+          if Result then begin
+            VTileInfo :=
+              TTileInfoBasicExistsWithTile.Create(
+                ALoadDate,
+                AData,
+                AVersionInfo,
+                FMainContentType
+              );
+            if Assigned(FTileInfoMemCache) then begin
+              FTileInfoMemCache.Add(
+                AXY,
+                AZoom,
+                AVersionInfo,
+                VTileInfo
+              );
+            end;
+            VDoNotifyUpdate := True;
           end;
-          VDoNotifyUpdate := True;
+        end;
+      end else begin
+        VPath :=
+          StoragePath +
+          FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+          GetStorageFileExtention(True);
+        if CreateDirIfNotExists(VPath) then begin
+          VHelper := GetStorageHelper;
+          Result := VHelper.SaveTile(
+            VPath,
+            AXY,
+            AZoom,
+            ALoadDate,
+            AVersionInfo,
+            nil,
+            nil,
+            not AIsOverwrite // ToDo: KeepExisting
+          );
+          if Result then begin
+            if Assigned(FTileInfoMemCache) then begin
+              FTileInfoMemCache.Add(
+                AXY,
+                AZoom,
+                AVersionInfo,
+                TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
+              );
+            end;
+            VDoNotifyUpdate := True;
+          end;
         end;
       end;
     end;
@@ -758,67 +792,6 @@ begin
       end;
       TryShowLastExceptionData;
       raise;
-    end;
-  end;
-
-  if VDoNotifyUpdate then begin
-    NotifyTileUpdate(AXY, AZoom, AVersionInfo);
-    OnCommitSync;
-  end;
-end;
-
-procedure TTileStorageBerkeleyDB.SaveTNE(
-  const AXY: TPoint;
-  const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo;
-  const ALoadDate: TDateTime
-);
-var
-  VPath: String;
-  VResult: Boolean;
-  VDoNotifyUpdate: Boolean;
-  VHelper: ITileStorageBerkeleyDBHelper;
-begin
-  VDoNotifyUpdate := False;
-  if GetState.GetStatic.WriteAccess <> asDisabled then begin
-    DeleteTile(AXY, AZoom, AVersionInfo); // del old tile if exists
-    try
-      VPath :=
-        StoragePath +
-        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
-        GetStorageFileExtention(True);
-      if CreateDirIfNotExists(VPath) then begin
-        VHelper := GetStorageHelper;
-        VResult := VHelper.SaveTile(
-          VPath,
-          AXY,
-          AZoom,
-          ALoadDate,
-          AVersionInfo,
-          nil,
-          nil,
-          False // ToDo: KeepExisting
-        );
-        if VResult then begin
-          if Assigned(FTileInfoMemCache) then begin
-            FTileInfoMemCache.Add(
-              AXY,
-              AZoom,
-              AVersionInfo,
-              TTileInfoBasicTNE.Create(ALoadDate, AVersionInfo)
-            );
-          end;
-          VDoNotifyUpdate := True;
-        end;
-      end;
-    except
-      on E: Exception do begin
-        if Assigned(FGlobalBerkeleyDBHelper) then begin
-          FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
-        end;
-        TryShowLastExceptionData;
-        raise;
-      end;
     end;
   end;
 

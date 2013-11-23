@@ -520,8 +520,12 @@ procedure TMapType.SaveBitmapTileToStorage(
 var
   VData: IBinaryData;
 begin
+  Assert(Assigned(ABitmap));
   VData := FBitmapSaverToStorage.Save(ABitmap);
-  FStorage.SaveTile(AXY, AZoom, AVersion, Now, FContentType, VData);
+  Assert(Assigned(VData));
+  if Assigned(VData) then begin
+    FStorage.SaveTile(AXY, AZoom, AVersion, Now, FContentType, VData, True);
+  end;
 end;
 
 procedure TMapType.SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
