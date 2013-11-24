@@ -55,6 +55,14 @@ begin
   FLocalConverter := ALocalConverter;
   FTileRect := ATileRect;
   FTileCount := Point(FTileRect.Right - FTileRect.Left, FTileRect.Bottom - FTileRect.Top);
+  Assert(FTileCount.X > 0);
+  Assert(FTileCount.Y > 0);
+  if FTileCount.X < 0 then begin
+    FTileCount.X := 0;
+  end;
+  if FTileCount.Y < 0 then begin
+    FTileCount.Y := 0;
+  end;
   VItemsCount := FTileCount.X * FTileCount.Y;
   SetLength(FItems, VItemsCount);
   VSourceItems := Length(AItems);
