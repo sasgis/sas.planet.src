@@ -177,7 +177,11 @@ begin
             VElement := VTileMatrix.GetElementByTile(VTile);
             if VElement <> nil then begin
               if VElement.CheckForShow then begin
-                VDstRect := VLocalConverter.MapRect2LocalRect(VElement.LocalConverter.GetRectInMapPixel, rrClosest);
+                VDstRect :=
+                  VLocalConverter.MapRect2LocalRect(
+                    VElement.LocalConverter.GetRectInMapPixel,
+                    rrClosest
+                  );
                 Layer.Changed(VDstRect);
               end;
             end;
