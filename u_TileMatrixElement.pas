@@ -60,7 +60,6 @@ constructor TTileMatrixElement.Create(
 var
   VZoom: Byte;
   VConverter: ICoordConverter;
-  VMapPixelRect: TRect;
 begin
   inherited Create;
   FTile := ATile;
@@ -71,8 +70,7 @@ begin
   FExpectedID := 1;
   VZoom := FLocalConverter.Zoom;
   VConverter := FLocalConverter.GeoConverter;
-  VMapPixelRect := FLocalConverter.GetRectInMapPixel;
-  Assert(EqualRect(VMapPixelRect, VConverter.TilePos2PixelRect(FTile, VZoom)));
+  Assert(EqualRect(FLocalConverter.GetRectInMapPixel, VConverter.TilePos2PixelRect(FTile, VZoom)));
 end;
 
 function TTileMatrixElement.GetBitmap: IBitmap32Static;
