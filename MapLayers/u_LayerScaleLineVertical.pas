@@ -257,7 +257,7 @@ begin
   VZoom := AVisualCoordConverter.GetZoom;
   VConverter := AVisualCoordConverter.GetGeoConverter;
 
-  VCenterPixelXY := RectCenter(AVisualCoordConverter.GetRectInMapPixel);
+  VCenterPixelXY := AVisualCoordConverter.GetCenterMapPixelFloat;
   VConverter.CheckPixelPosFloatStrict(VCenterPixelXY, VZoom, False);
   VStartLonLat := VConverter.PixelPosFloat2LonLat(VCenterPixelXY, VZoom);
 

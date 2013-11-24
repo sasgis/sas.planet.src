@@ -248,7 +248,7 @@ function TBitmapLayerProviderByTrackPath.GetBitmapRect(
   const ALocalConverter: ILocalCoordConverter
 ): IBitmap32Static;
 var
-  VTargetRect: TRect;
+  VTargetRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VConverter: ICoordConverter;
   VZoom: Byte;
@@ -258,9 +258,9 @@ begin
   if not FRectIsEmpty then begin
     VZoom := ALocalConverter.GetZoom;
     VConverter := ALocalConverter.GetGeoConverter;
-    VTargetRect := ALocalConverter.GetRectInMapPixel;
-    VConverter.CheckPixelRect(VTargetRect, VZoom);
-    VLonLatRect := VConverter.PixelRect2LonLatRect(VTargetRect, VZoom);
+    VTargetRect := ALocalConverter.GetRectInMapPixelFloat;
+    VConverter.CheckPixelRectFloat(VTargetRect, VZoom);
+    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
       VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
       try

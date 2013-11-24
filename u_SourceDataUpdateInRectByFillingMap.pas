@@ -218,7 +218,7 @@ var
   VSourceZoom: Byte;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
-  VMapRect: TRect;
+  VMapRect: TDoubleRect;
   VConverter: ICoordConverter;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
@@ -229,9 +229,9 @@ begin
     end;
     VZoom := ALocalConverter.Zoom;
     VConverter := ALocalConverter.GeoConverter;
-    VMapRect := ALocalConverter.GetRectInMapPixel;
-    VConverter.CheckPixelRect(VMapRect, VZoom);
-    VLonLatRect := VConverter.PixelRect2LonLatRect(VMapRect, VZoom);
+    VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+    VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
     VNotifier := AMapListened.MapType.TileStorage.TileNotifier;
     if VNotifier <> nil then begin
       VConverter := AMapListened.MapType.GeoConvert;

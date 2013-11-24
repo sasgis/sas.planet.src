@@ -312,7 +312,7 @@ var
   VNotifier: INotifierTilePyramidUpdate;
   VZoom: Byte;
   VConverter: ICoordConverter;
-  VMapRect: TRect;
+  VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
   VMapLonLatRect: TDoubleRect;
   VTileRect: TRect;
@@ -335,9 +335,9 @@ begin
       end;
       VZoom := ALocalConverter.Zoom;
       VConverter := ALocalConverter.GeoConverter;
-      VMapRect := ALocalConverter.GetRectInMapPixel;
-      VConverter.CheckPixelRect(VMapRect, VZoom);
-      VLonLatRect := VConverter.PixelRect2LonLatRect(VMapRect, VZoom);
+      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+      VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+      VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
       VEnum := ALayerSet.GetIterator;
       i := 0;
       while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin

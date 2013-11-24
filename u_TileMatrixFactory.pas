@@ -90,7 +90,7 @@ procedure TTileMatrixFactory.PrepareCopyRects(
 var
   VConverter: ICoordConverter;
   VSourceMapPixelRect: TRect;
-  VTargetMapPixelRect: TRect;
+  VTargetMapPixelRect: TDoubleRect;
   VTargetAtSourceMapPixelRect: TRect;
   VSourceZoom: Byte;
   VTargetZoom: Byte;
@@ -102,8 +102,8 @@ begin
   Assert(VConverter.IsSameConverter(ATargetConverter.GeoConverter));
   VSourceZoom := ASourceConverter.Zoom;
   VTargetZoom := ATargetConverter.Zoom;
-  VTargetMapPixelRect := ATargetConverter.GetRectInMapPixel;
-  VRelativeRect := VConverter.PixelRect2RelativeRect(VTargetMapPixelRect, VTargetZoom);
+  VTargetMapPixelRect := ATargetConverter.GetRectInMapPixelFloat;
+  VRelativeRect := VConverter.PixelRectFloat2RelativeRect(VTargetMapPixelRect, VTargetZoom);
   VTargetAtSourceMapPixelRect :=
     RectFromDoubleRect(
       VConverter.RelativeRect2PixelRectFloat(VRelativeRect, VSourceZoom),

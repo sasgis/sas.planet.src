@@ -215,7 +215,7 @@ var
   VZoom: Byte;
   VTileRect: TRect;
   VLonLatRect: TDoubleRect;
-  VMapRect: TRect;
+  VMapRect: TDoubleRect;
   VConverter: ICoordConverter;
   VMapLonLatRect: TDoubleRect;
   VNotifier: INotifierTilePyramidUpdate;
@@ -234,9 +234,9 @@ begin
   end;
   VZoom := ALocalConverter.Zoom;
   VConverter := ALocalConverter.GeoConverter;
-  VMapRect := ALocalConverter.GetRectInMapPixel;
-  VConverter.CheckPixelRect(VMapRect, VZoom);
-  VLonLatRect := VConverter.PixelRect2LonLatRect(VMapRect, VZoom);
+  VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+  VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+  VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
   for i := 0 to AMapsListened.Count - 1 do begin
     VMap := AMapsListened.Items[i];
     if VMap <> nil then begin
