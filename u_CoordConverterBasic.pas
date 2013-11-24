@@ -1184,6 +1184,14 @@ begin
   Result.Top := XY.Y shl 8;
   Result.Right := Result.Left + (1 shl 8);
   Result.Bottom := Result.Top + (1 shl 8);
+  if AZoom >= 23 then begin
+    if Result.Right < 0 then begin
+      Result.Right := MaxInt;
+    end;
+    if Result.Bottom < 0 then begin
+      Result.Bottom := MaxInt;
+    end;
+  end;
 end;
 
 function TCoordConverterBasic.TilePos2PixelRectFloatInternal(
@@ -1285,6 +1293,14 @@ begin
   Result.Top := XY.Top shl 8;
   Result.Right := XY.Right shl 8;
   Result.Bottom := XY.Bottom shl 8;
+  if AZoom >= 23 then begin
+    if Result.Right < 0 then begin
+      Result.Right := MaxInt;
+    end;
+    if Result.Bottom < 0 then begin
+      Result.Bottom := MaxInt;
+    end;
+  end;
 end;
 
 function TCoordConverterBasic.TileRect2LonLatRectInternal(

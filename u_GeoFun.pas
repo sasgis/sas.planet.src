@@ -90,6 +90,12 @@ begin
       Result.Y := Ceil(APoint.Y + 0.005);
     end;
   end;
+  if (Result.X < 0) and (APoint.X  > MaxInt - 2) then begin
+    Result.X := MaxInt;
+  end;
+  if (Result.Y < 0) and (APoint.Y  > MaxInt - 2) then begin
+    Result.Y := MaxInt;
+  end;
 end;
 
 function RectFromDoubleRect(
@@ -127,6 +133,19 @@ begin
       Result.Right := Floor(ARect.Right + 0.005);
       Result.Bottom := Floor(ARect.Bottom + 0.005);
     end;
+  end;
+
+  if (Result.Left < 0) and (ARect.Left > MaxInt - 2) then begin
+    Result.Left := MaxInt;
+  end;
+  if (Result.Top < 0) and (ARect.Top > MaxInt - 2) then begin
+    Result.Top := MaxInt;
+  end;
+  if (Result.Right < 0) and (ARect.Right > MaxInt - 2) then begin
+    Result.Right := MaxInt;
+  end;
+  if (Result.Bottom < 0) and (ARect.Bottom > MaxInt - 2) then begin
+    Result.Bottom := MaxInt;
   end;
 end;
 
