@@ -702,15 +702,18 @@ begin
   VDoNotifyUpdate := False;
   try
     if GetState.GetStatic.WriteAccess <> asDisabled then begin
-      VTileInfo := GetTileInfo(AXY, AZoom, AVersionInfo, gtimAsIs);
+
+      VTileInfo := GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithoutData);
       if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
         if AIsOverwrite then begin
-          DeleteTile(AXY, AZoom, AVersionInfo); // del old tile if exists
+          DeleteTile(AXY, AZoom, AVersionInfo); // del old tile or tne if exists
         end else begin
           Exit;
         end;
       end;
+
       if Assigned(AContentType) and Assigned(AData) then begin
+
         if not FMainContentType.CheckOtherForSaveCompatible(AContentType) then begin
           raise Exception.Create('Bad content type for this tile storage');
         end;
@@ -723,6 +726,7 @@ begin
           StoragePath +
           FFileNameGenerator.GetTileFileName(AXY, AZoom) +
           GetStorageFileExtention;
+
         if CreateDirIfNotExists(VPath) then begin
           VHelper := GetStorageHelper;
           Result := VHelper.SaveTile(
@@ -732,8 +736,7 @@ begin
             ALoadDate,
             AVersionInfo,
             AContentType,
-            AData,
-            not AIsOverwrite // ToDo: KeepExisting
+            AData
           );
           if Result then begin
             VTileInfo :=
@@ -759,6 +762,7 @@ begin
           StoragePath +
           FFileNameGenerator.GetTileFileName(AXY, AZoom) +
           GetStorageFileExtention(True);
+
         if CreateDirIfNotExists(VPath) then begin
           VHelper := GetStorageHelper;
           Result := VHelper.SaveTile(
@@ -768,8 +772,7 @@ begin
             ALoadDate,
             AVersionInfo,
             nil,
-            nil,
-            not AIsOverwrite // ToDo: KeepExisting
+            nil
           );
           if Result then begin
             if Assigned(FTileInfoMemCache) then begin
