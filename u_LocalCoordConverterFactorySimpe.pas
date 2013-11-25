@@ -138,9 +138,7 @@ begin
   VConverter := ASource.GeoConverter;
   VLocalRect := ASource.GetLocalRect;
   VScale := ASource.GetScale;
-  VTopLefAtMap := ASource.GetRectInMapPixelFloat.TopLeft;
-  VTopLefAtMap.X := VTopLefAtMap.X + ADelta.X / VScale;
-  VTopLefAtMap.Y := VTopLefAtMap.Y + ADelta.Y / VScale;
+  VTopLefAtMap := ASource.LocalPixelFloat2MapPixelFloat(DoublePoint(VLocalRect.Left + ADelta.X, VLocalRect.Top + ADelta.Y));
   Result :=
     CreateConverter(
       VLocalRect,

@@ -45,7 +45,7 @@ type
     FGeoConverter: ICoordConverter;
   protected
     function GetHash: THashValue;
-    function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean;
+    function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; virtual;
 
     function GetScale: Double; virtual; abstract;
     function GetLocalRect: TRect;
@@ -93,6 +93,7 @@ type
     FMapPixelAtLocalZero: TDoublePoint;
     FMapScale: Double;
   protected
+    function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; override;
     function GetScale: Double; override;
     function LocalPixel2MapPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint; override;
@@ -116,6 +117,7 @@ type
   private
     FMapPixelAtLocalZero: TPoint;
   protected
+    function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; override;
     function GetScale: Double; override;
     function LocalPixel2MapPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint; override;
@@ -138,6 +140,7 @@ type
   private
     FMapPixelAtLocalZero: TDoublePoint;
   protected
+    function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; override;
     function GetScale: Double; override;
     function LocalPixel2MapPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint; override;
@@ -172,6 +175,14 @@ begin
   Assert(Assigned(AProjection));
   Assert(ALocalRect.Left < ALocalRect.Right);
   Assert(ALocalRect.Top < ALocalRect.Bottom);
+  Assert(ARectInMapPixelFloat.Left <= ARectInMapPixelFloat.Right);
+  Assert(ARectInMapPixelFloat.Top <= ARectInMapPixelFloat.Bottom);
+  Assert(ARectInMapPixel.Left <= ARectInMapPixel.Right);
+  Assert(ARectInMapPixel.Top <= ARectInMapPixel.Bottom);
+  Assert(abs(ARectInMapPixelFloat.Left - ARectInMapPixel.Left) < 2);
+  Assert(abs(ARectInMapPixelFloat.Top - ARectInMapPixel.Top) < 2);
+  Assert(abs(ARectInMapPixelFloat.Right - ARectInMapPixel.Right) < 2);
+  Assert(abs(ARectInMapPixelFloat.Bottom - ARectInMapPixel.Bottom) < 2);
   inherited Create;
   FHash := AHash;
   FLocalRect := ALocalRect;
@@ -220,13 +231,9 @@ begin
     Result := False;
   end else begin
     Result := False;
-    if FZoom = AConverter.GetZoom then begin
+    if FProjection.GetIsSameProjectionInfo(AConverter.ProjectionInfo) then  begin
       if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
-        if FGeoConverter.IsSameConverter(AConverter.GetGeoConverter) then begin
-          if EqualRect(AConverter.GetRectInMapPixel, GetRectInMapPixel) then begin
-            Result := True;
-          end;
-        end;
+        Result := True;
       end;
     end;
   end;
@@ -403,6 +410,22 @@ begin
   FMapScale := AMapScale;
 end;
 
+function TLocalCoordConverter.GetIsSameConverter(
+  const AConverter: ILocalCoordConverter
+): Boolean;
+begin
+  Result := inherited GetIsSameConverter(AConverter);
+  if Result then begin
+    if Abs(FMapScale - AConverter.GetScale) < 0.001 then begin
+      Result :=
+        DoublePointsEqual(
+          FMapPixelAtLocalZero,
+          AConverter.LocalPixel2MapPixelFloat(Point(0, 0))
+        );
+    end;
+  end;
+end;
+
 function TLocalCoordConverter.GetScale: Double;
 begin
   Result := FMapScale;
@@ -482,6 +505,23 @@ begin
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;
 end;
 
+function TLocalCoordConverterNoScaleIntDelta.GetIsSameConverter(
+  const AConverter: ILocalCoordConverter
+): Boolean;
+var
+  VMapPixelAtLocalZero: TPoint;
+begin
+  Result := inherited GetIsSameConverter(AConverter);
+  if Result then begin
+    if Abs(AConverter.GetScale - 1) < 0.001 then begin
+      VMapPixelAtLocalZero := AConverter.LocalPixel2MapPixel(Point(0, 0), prClosest);
+      Result :=
+        (FMapPixelAtLocalZero.X = VMapPixelAtLocalZero.X) and
+        (FMapPixelAtLocalZero.Y = VMapPixelAtLocalZero.Y);
+    end;
+  end;
+end;
+
 function TLocalCoordConverterNoScaleIntDelta.GetScale: Double;
 begin
   Result := 1;
@@ -552,6 +592,21 @@ begin
     AProjection
   );
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;
+end;
+
+function TLocalCoordConverterNoScale.GetIsSameConverter(
+  const AConverter: ILocalCoordConverter): Boolean;
+begin
+  Result := inherited GetIsSameConverter(AConverter);
+  if Result then begin
+    if Abs(AConverter.GetScale - 1) < 0.001 then begin
+      Result :=
+        DoublePointsEqual(
+          FMapPixelAtLocalZero,
+          AConverter.LocalPixel2MapPixelFloat(Point(0, 0))
+        );
+    end;
+  end;
 end;
 
 function TLocalCoordConverterNoScale.GetScale: Double;
