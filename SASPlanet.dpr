@@ -113,6 +113,7 @@ uses
   u_HashFunctionWithCounter in 'u_HashFunctionWithCounter.pas',
   i_Datum in 'i_Datum.pas',
   u_Datum in 'u_Datum.pas',
+  u_DatumFactory in 'u_DatumFactory.pas',
   i_SystemTimeProvider in 'i_SystemTimeProvider.pas',
   u_SystemTimeProvider in 'u_SystemTimeProvider.pas',
   u_TimeZoneInfo in 'u_TimeZoneInfo.pas',

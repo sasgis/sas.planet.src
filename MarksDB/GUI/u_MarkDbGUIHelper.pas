@@ -42,6 +42,7 @@ uses
   i_MarkSystem,
   i_ImportConfig,
   i_ImportFile,
+  i_CoordConverterFactory,
   i_AppearanceOfMarkFactory,
   i_MarkFactory,
   i_MarkFactoryConfig,
@@ -146,6 +147,7 @@ type
       const AMarkPictureList: IMarkPictureList;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
+      const ADatumFactory: IDatumFactory;
       const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
@@ -160,10 +162,10 @@ implementation
 uses
   SysUtils,
   gnugettext,
+  c_CoordConverter,
   i_DoublePointFilter,
   i_VectorItemTree,
   i_VectorItemSubset,
-  u_Datum,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
   u_ExportMarks2KML,
@@ -178,6 +180,7 @@ constructor TMarkDbGUIHelper.Create(
   const AMarkPictureList: IMarkPictureList;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
+  const ADatumFactory: IDatumFactory;
   const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
@@ -235,7 +238,7 @@ begin
     TfrmMarkInfo.Create(
       ALanguageManager,
       AValueToStringConverterConfig,
-      TDatum.Create(3395, 6378137, 6356752)
+      ADatumFactory.GetByCode(CYandexDatumEPSG)
     );
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(

@@ -894,6 +894,7 @@ begin
       GState.MarkPictureList,
       GState.AppearanceOfMarkFactory,
       GState.MarksDb,
+      GState.DatumFactory,
       GState.ImportFileByExt,
       FConfig.ViewPortState.View,
       GState.VectorGeometryLonLatFactory,

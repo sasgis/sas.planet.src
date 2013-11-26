@@ -122,6 +122,7 @@ type
     FMapCalibrationList: IMapCalibrationList;
     FCacheConfig: IGlobalCacheConfig;
     FMarkSystem: IMarkSystem;
+    FDatumFactory: IDatumFactory;
     FCoordConverterFactory: ICoordConverterFactory;
     FCoordConverterList: ICoordConverterList;
     FProjConverterFactory: IProjConverterFactory;
@@ -204,6 +205,7 @@ type
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
     property TileNameParser: ITileFileNameParsersList read FTileNameParser;
     property ContentTypeManager: IContentTypeManager read FContentTypeManager;
+    property DatumFactory: IDatumFactory read FDatumFactory;
     property CoordConverterFactory: ICoordConverterFactory read FCoordConverterFactory;
     property CoordConverterList: ICoordConverterList read FCoordConverterList;
     property ProjectionFactory: IProjectionInfoFactory read FProjectionFactory;
@@ -274,6 +276,7 @@ uses
   {$ENDIF}
   u_Notifier,
   u_NotifierOperation,
+  c_CoordConverter,
   c_InternalBrowser,
   u_SASMainConfigProvider,
   u_ConfigDataProviderByIniFile,
@@ -299,7 +302,7 @@ uses
   u_CoordConverterFactorySimple,
   u_CoordConverterListStaticSimple,
   u_DownloadInfoSimple,
-  u_Datum,
+  u_DatumFactory,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_PLTSimpleParser,
@@ -464,7 +467,8 @@ begin
 
   FProjConverterFactory := TProjConverterFactory.Create;
 
-  FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction);
+  FDatumFactory := TDatumFactory.Create(FHashFunction);
+  FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
   FProjectionFactory := TProjectionInfoFactory.Create(FHashFunction, MakeSyncRW_Var(Self, False));
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
   FLocalConverterFactory :=
@@ -500,7 +504,7 @@ begin
   FGlobalConfig.MainThreadConfig.ChangeNotifier.Add(FMainThreadConfigListener);
   OnMainThreadConfigChange;
 
-  FGPSDatum := TDatum.Create(3395, 6378137, 6356752);
+  FGPSDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
 
   VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
 

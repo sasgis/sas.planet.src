@@ -965,6 +965,7 @@
     <DCCReference Include="u_CoordConverterRoutines.pas" />
     <DCCReference Include="u_CoordConverterSimpleLonLat.pas" />
     <DCCReference Include="u_Datum.pas" />
+    <DCCReference Include="u_DatumFactory.pas" />
     <DCCReference Include="u_DebugInfoSubSystem.pas" />
     <DCCReference Include="u_DebugInfoWindow.pas" />
     <DCCReference Include="u_DegreeGridConfig.pas" />
