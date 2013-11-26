@@ -173,8 +173,8 @@ constructor TLocalCoordConverterBase.Create(
 );
 begin
   Assert(Assigned(AProjection));
-  Assert(ALocalRect.Left < ALocalRect.Right);
-  Assert(ALocalRect.Top < ALocalRect.Bottom);
+  Assert(ALocalRect.Left <= ALocalRect.Right);
+  Assert(ALocalRect.Top <= ALocalRect.Bottom);
   Assert(ARectInMapPixelFloat.Left <= ARectInMapPixelFloat.Right);
   Assert(ARectInMapPixelFloat.Top <= ARectInMapPixelFloat.Bottom);
   Assert(ARectInMapPixel.Left <= ARectInMapPixel.Right);
