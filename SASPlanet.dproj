@@ -355,6 +355,7 @@
     <DCCReference Include="i_Point.pas" />
     <DCCReference Include="i_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="i_PointOnMapEdit.pas" />
+    <DCCReference Include="i_PolygonAreaCalculator.pas" />
     <DCCReference Include="i_PolygonLayerConfig.pas" />
     <DCCReference Include="i_PolyLineLayerConfig.pas" />
     <DCCReference Include="i_PopUp.pas" />
@@ -1177,6 +1178,7 @@
     <DCCReference Include="u_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="u_PointOnMapEdit.pas" />
     <DCCReference Include="u_PointsSetLayerConfig.pas" />
+    <DCCReference Include="u_PolygonAreaCalculator.pas" />
     <DCCReference Include="u_PolygonLayerConfig.pas" />
     <DCCReference Include="u_PolyLineLayerConfig.pas" />
     <DCCReference Include="u_PosFromGSM.pas" />

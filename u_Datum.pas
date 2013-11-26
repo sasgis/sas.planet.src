@@ -28,6 +28,7 @@ uses
   i_Datum,
   i_NotifierOperation,
   i_EnumDoublePoint,
+  i_PolygonAreaCalculator,
   u_BaseInterfacedObject;
 
 type
@@ -39,6 +40,7 @@ type
     FRadiusB: Double;
     FExct: Double;
     FFlattening: Double;
+    FCalc: IPolygonAreaCalculator;
   private
     function GetHash: THashValue;
     function GetEPSG: Integer; stdcall;
@@ -90,9 +92,9 @@ implementation
 uses
   SysUtils,
   Math,
-  gpc,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
+  u_PolygonAreaCalculator,
   u_EnumDoublePointsByArray;
 
 const
@@ -114,6 +116,7 @@ begin
   FRadiusB := ARadiusB;
   FExct := sqrt(FRadiusA * FRadiusA - FRadiusB * FRadiusB) / FRadiusA;
   FFlattening := (FRadiusA - FRadiusB) / FRadiusA;
+  FCalc := TPolygonAreaCalculator.Create(FRadiusA, FRadiusB);
 end;
 
 constructor TDatum.Create(
@@ -139,72 +142,8 @@ function TDatum.CalcPolygonArea(
   const ANotifier: INotifierOperation = nil;
   const AOperationID: Integer = 0
 ): Double;
-var
-  I, J, K: Integer;
-  VPolygon: Tgpc_polygon;
-  VTriStrip: Tgpc_tristrip;
-  VVertexList: Tgpc_vertex_list;
-  VRadX, VRadY, VSinRadY: Double;
-  x, y, z: array [0..2] of Double;
-  a12, a23, a13, s, n: Double;
-  VCount: Integer;
-  VDoAbortCheck: Boolean;
 begin
-  Result := 0;
-  VPolygon.num_contours := 0;
-  VPolygon.hole := nil;
-  VPolygon.contour := nil;    
-  VVertexList.num_vertices := ACount;
-  VVertexList.vertex := Pgpc_vertex_array(APoints);
-  // инициализируем полигон нашими точками
-  gpc_add_contour(@VPolygon, @VVertexList, 0);
-  try
-    VTriStrip.num_strips := 0;
-    VTriStrip.strip := nil;
-    // разбиваем полигон на треугольники - потенциально длительная, неотменяемая операция
-    gpc_polygon_to_tristrip(@VPolygon, @VTriStrip);
-    try
-      VCount := 0;
-      VDoAbortCheck := Assigned(ANotifier);
-      n := 4 * Sqr(FRadiusA);
-      for I := 0 to VTriStrip.num_strips - 1 do begin
-        VVertexList := VTriStrip.strip[I];
-        for J := 0 to VVertexList.num_vertices - 2 - 1 do begin
-          // считаем площадь на сфере для каждого треугольника
-          for K := 0 to 2 do begin
-            VRadY := Pi / 2 - VVertexList.vertex[J+K].Y * D2R;
-            VRadX := Pi + VVertexList.vertex[J+K].X * D2R;
-            VSinRadY := Sin(VRadY);
-            x[K] := VSinRadY * Cos(VRadX);
-            y[K] := VSinRadY * Sin(VRadX);
-            z[K] := Cos(VRadY);
-          end;
-          // стороны сферического треугольника
-          a12 := ArcCos(1 - (Sqr(x[0] - x[1]) + Sqr(y[0] - y[1]) + Sqr(z[0] - z[1])) / 2);
-          a23 := ArcCos(1 - (Sqr(x[1] - x[2]) + Sqr(y[1] - y[2]) + Sqr(z[1] - z[2])) / 2);
-          a13 := ArcCos(1 - (Sqr(x[0] - x[2]) + Sqr(y[0] - y[2]) + Sqr(z[0] - z[2])) / 2);
-          s := (a12 + a23 + a13) / 2;
-          s := Tan(s / 2) * Tan((s - a12) / 2) * Tan((s - a23) / 2) * Tan((s - a13) / 2); 
-          if s >= 0 then begin
-            Result := Result + n * ArcTan(Sqrt(s));
-          end else begin
-            // вырожденный треугольник -> площадь равна нулю
-          end;
-          Inc(VCount);
-          if VDoAbortCheck and (VCount mod 32 = 0) then begin
-            if ANotifier.IsOperationCanceled(AOperationID) then begin
-              Result := NAN;
-              Exit;
-            end;
-          end;
-        end;
-      end;
-    finally
-      gpc_free_tristrip(@VTriStrip);
-    end;
-  finally
-    gpc_free_polygon(@VPolygon);
-  end;
+  Result := FCalc.ComputePolygonArea(APoints, ACount, ANotifier, AOperationID);
 end;
 
 function TDatum.GetEPSG: integer;

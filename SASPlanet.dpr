@@ -62,6 +62,8 @@ uses
   u_InterfaceListStatic in 'u_InterfaceListStatic.pas',
   i_InterfaceListSimple in 'i_InterfaceListSimple.pas',
   u_InterfaceListSimple in 'u_InterfaceListSimple.pas',
+  u_PolygonAreaCalculator in 'u_PolygonAreaCalculator.pas',
+  i_PolygonAreaCalculator in 'i_PolygonAreaCalculator.pas',
   i_Synchronizer in 'Synchronize\i_Synchronizer.pas',
   i_ReadWriteSyncFactory in 'Synchronize\i_ReadWriteSyncFactory.pas',
   u_ReadWriteSyncAbstract in 'Synchronize\u_ReadWriteSyncAbstract.pas',
