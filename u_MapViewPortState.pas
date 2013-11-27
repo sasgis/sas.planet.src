@@ -544,7 +544,7 @@ begin
   LockWrite;
   try
     VLocalConverter := FView.GetStatic;
-    if Abs(AScale - 1) < 0.00001 then begin
+    if Abs(AScale - 1) < 0.001 then begin
       VNewMapScale := FBaseScale;
     end else begin
       VNewMapScale := FBaseScale * AScale;
