@@ -189,7 +189,7 @@ var
   Sigma1, TwoSigmaM, c2sm, LastSigma, Lambda, Omega, aa, bb, r0: Extended;
   Lat, Lon, Lat1, Lon1, Azimuth: Double;
 begin
-  if ADistance = 0.0 then begin  // Coincident points
+  if SameValue(ADistance, 0) then begin  // Coincident points
     Result := AStart;
     Exit;
   end;
@@ -291,21 +291,34 @@ begin
   U2 := ArcTan(r0 * Tan(Lat2));
   SinCos(U1, SinU1, CosU1);
   SinCos(U2, SinU2, CosU2);
+
   Lambda := L;
+  LambdaP := 2 * Pi;
+
+  SinLambda := 0;
+  CosLambda := 0;
+  SinSigma := 0;
+  CosSigma := 0;
+  Sigma := 0;
+  CosSqAlpha := 0;
+  Cos2SigmaM := 0;
+
   IterLimit := 100;
 
-  repeat
+  while (Abs(Lambda - LambdaP) > 1E-12) and (IterLimit > 0) do begin
+    Dec(IterLimit);
+
     SinCos(Lambda, SinLambda, CosLambda);
     SinSigma :=
       Sqrt((Sqr(CosU2 * SinLambda)) + Sqr(CosU1 * SinU2 - SinU1 * CosU2 * CosLambda));
-    if SinSigma = 0 then begin // co-incident points
+    if SameValue(SinSigma, 0) then begin // co-incident points
       Exit;
     end;
     CosSigma := SinU1 * SinU2 + CosU1 * CosU2 * CosLambda;
     Sigma := ArcTan2(SinSigma, CosSigma);
     SinAlpha := CosU1 * CosU2 * SinLambda / SinSigma;
     CosSqAlpha := 1 - Sqr(SinAlpha);
-    if CosSqAlpha <> 0 then begin
+    if not SameValue(CosSqAlpha, 0) then begin
       Cos2SigmaM := CosSigma - 2 * SinU1 * SinU2 / CosSqAlpha;
     end else begin
       Cos2SigmaM := 0; // equatorial line: cosSqAlpha=0
@@ -314,16 +327,16 @@ begin
     LambdaP := Lambda;
     Lambda := L + (1 - C) * FFlattening * SinAlpha *
       (Sigma + C * SinSigma * (Cos2SigmaM + C * CosSigma * (-1 + 2 * Sqr(Cos2SigmaM))));
-    Dec(IterLimit);
-    if (IterLimit <= 0) then begin
-      raise Exception.CreateFmt(
-        'Vincenty''s inverse algorithm failed to converge!' + #13#10 +
-        'Start point (lat; lon): %.6f; %.6f' + #13#10 +
-        'Finish point (lat; lon): %.6f; %.6f',
-        [AStart.Y, AStart.X, AFinish.Y, AFinish.X]
-      );
-    end;
-  until not (Abs(Lambda - LambdaP) > 1E-12);
+  end;
+
+  if IterLimit <= 0 then begin // formula failed to converge
+    raise Exception.CreateFmt(
+      'Vincenty''s inverse algorithm failed to converge!' + #13#10 +
+      'Start point (lat; lon): %.6f; %.6f' + #13#10 +
+      'Finish point (lat; lon): %.6f; %.6f',
+      [AStart.Y, AStart.X, AFinish.Y, AFinish.X]
+    );
+  end;
 
   uSq := CosSqAlpha * (aa - bb) / bb;
   A := 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
