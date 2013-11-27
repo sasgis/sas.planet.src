@@ -97,6 +97,7 @@ uses
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_PolygonAreaCalculator,
+  u_DistanceCalculatorByGeodesicLib,
   u_DistanceCalculatorByVincentyAlgorithm,
   u_EnumDoublePointsByArray;
 
@@ -115,7 +116,11 @@ begin
   FRadiusB := ARadiusB;
 
   FAreaCalc := TPolygonAreaCalculator.Create(FRadiusA, FRadiusB);
-  FDistCalc := TDistanceCalculatorByVincentyAlgorithm.Create(FRadiusA, FRadiusB);
+  try
+    FDistCalc := TDistanceCalculatorByGeodesicLib.Create(FRadiusA, FRadiusB)
+  except
+    FDistCalc := TDistanceCalculatorByVincentyAlgorithm.Create(FRadiusA, FRadiusB);
+  end;
 end;
 
 constructor TDatum.Create(
