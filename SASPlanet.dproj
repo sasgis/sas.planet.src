@@ -147,6 +147,8 @@
       <Form>frShortCutList</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="GeoCalc\i_DistanceCalculator.pas" />
+    <DCCReference Include="GeoCalc\u_DistanceCalculatorByVincentyAlgorithm.pas" />
     <DCCReference Include="GeoCoder\c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="GeoCoder\i_GeoCoder.pas" />
     <DCCReference Include="GeoCoder\i_GeoCoderList.pas" />

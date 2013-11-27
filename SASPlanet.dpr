@@ -64,6 +64,8 @@ uses
   u_InterfaceListSimple in 'u_InterfaceListSimple.pas',
   u_PolygonAreaCalculator in 'u_PolygonAreaCalculator.pas',
   i_PolygonAreaCalculator in 'i_PolygonAreaCalculator.pas',
+  u_DistanceCalculatorByVincentyAlgorithm in 'GeoCalc\u_DistanceCalculatorByVincentyAlgorithm.pas',
+  i_DistanceCalculator in 'GeoCalc\i_DistanceCalculator.pas',
   i_Synchronizer in 'Synchronize\i_Synchronizer.pas',
   i_ReadWriteSyncFactory in 'Synchronize\i_ReadWriteSyncFactory.pas',
   u_ReadWriteSyncAbstract in 'Synchronize\u_ReadWriteSyncAbstract.pas',
