@@ -27,10 +27,10 @@ var
 begin
   inherited Create;
   VConverter := AFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);
-  Add(VConverter, gettext_NoOp('Merkator / Google Maps (Sphere Radius 6378137) / EPSG:3785'));
+  Add(VConverter, gettext_NoOp('Mercator / Google Maps (Sphere Radius 6378137) / EPSG:3785'));
 
   VConverter := AFactory.GetCoordConverterByCode(CYandexProjectionEPSG, CTileSplitQuadrate256x256);
-  Add(VConverter, gettext_NoOp('Merkator / WGS84 / EPSG:3395'));
+  Add(VConverter, gettext_NoOp('Mercator / WGS84 / EPSG:3395'));
 
   VConverter := AFactory.GetCoordConverterByCode(CGELonLatProjectionEPSG, CTileSplitQuadrate256x256);
   Add(VConverter, gettext_NoOp('Geographic (Latitude/Longitude) / WGS84 / EPSG:4326'));
