@@ -119,7 +119,7 @@ begin
       False,
       False,
       'kmz',
-      gettext_NoExtract('KMZ for Garmin')
+      gettext_NoExtract('KMZ for Garmin (JPEG Overlays)')
   );
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
