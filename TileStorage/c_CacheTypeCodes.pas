@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit c_CacheTypeCodes;
 
 interface
@@ -20,13 +40,13 @@ const
 
   c_File_Cache_Default_GMV  = 'cache_old';     // for 1
   c_File_Cache_Default_SAS  = 'cache';         // for 2
-  c_File_Cache_Default_ES   = 'cache_ES';      // for 3
+  c_File_Cache_Default_ES   = 'cache_es';      // for 3
   c_File_Cache_Default_GM   = 'cache_gmt';     // for 4x
-  c_File_Cache_Default_GE   = 'cache_GE';      // for 5
+  c_File_Cache_Default_GE   = 'cache_ge';      // for 5
   c_File_Cache_Default_BDB  = 'cache_db';      // for 6
   c_File_Cache_Default_BDBv = 'cache_dbv';     // for 61
   c_File_Cache_Default_DBMS = 'SASGIS_DBMS\$'; // for 7
-  c_File_Cache_Default_GC   = 'cache_GC';      // for 8
+  c_File_Cache_Default_GC   = 'cache_gc';      // for 8
   c_File_Cache_Default_RAM  = '';              // for 9
 
 implementation
