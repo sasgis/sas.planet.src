@@ -163,7 +163,7 @@ end;
 procedure TfrMapSelect.RefreshList(Sender: TObject);
 var
   VMode: Integer; // 1 All  2 Maps  3 Layers  4 Active   5 Filter
-  VCurNewIndex: Integer;
+  VDefaultIndex: Integer;
   VActiveMapGUID: TGUID;
   i: integer;
   VCurMapType: TMapType;
@@ -175,7 +175,7 @@ var
   VMapName: string;
   VFilter: string;
   VHint: string;
-  VmapCount: integer;
+  VMapCount: integer;
   VOrigFilter: string;
 begin
   VMode := 0;
@@ -198,16 +198,20 @@ begin
       end;
     end;
   end;
-  VCurNewIndex := 0;
+
+  VDefaultIndex := -1;
+
   VLayers := nil;
   VFilter := AnsiUpperCase(TBX_AFilter.Text);
+
   // get active map
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
   VLayers := FMainMapsConfig.GetActiveLayersSet.GetStatic;
+
   // refresh list
-  cbbMap.items.BeginUpdate;
+  cbbMap.Items.BeginUpdate;
   try
-    cbbMap.items.Clear;
+    cbbMap.Items.Clear;
     if FNoItemAdd then cbbMap.Items.AddObject(SAS_STR_No,nil);
     VGUIDList := FGUIConfigList.OrderedMapGUIDList;
     for i := 0 to VGUIDList.Count-1 do begin
@@ -248,43 +252,45 @@ begin
           end;
           if VAdd then begin
             VAddedIndex := cbbMap.Items.AddObject(VCurMapType.GUIConfig.Name.Value, VCurMapType);
-            if IsEqualGUID(VCurMapType.Zmp.GUID, VActiveMapGUID) then begin // select current map by default
-              cbbMap.ItemIndex := VAddedIndex;
-              VCurNewIndex := cbbMap.ItemIndex;
-            end;
-            if (VCurMapType.Zmp.IsLayer) then begin // select first active layer
-              if(VLayers.GetMapTypeByGUID(VGUID) <> nil) and (VCurNewIndex = 0) then begin
-                VCurNewIndex := cbbMap.Items.Count;
-                cbbMap.ItemIndex := VAddedIndex;
+            if (VDefaultIndex = -1) then begin
+              if IsEqualGUID(VCurMapType.Zmp.GUID, VActiveMapGUID) then begin
+                // select active map as default
+                VDefaultIndex := VAddedIndex;
+              end else if VCurMapType.Zmp.IsLayer then begin
+                if (VLayers.GetMapTypeByGUID(VGUID) <> nil) then begin
+                  // select first active layer as default
+                  VDefaultIndex := VAddedIndex;
+                end;
               end;
             end;
           end;
         end;
       end;
     end;
-    if (cbbMap.Items.Count > 0) then begin // if not selected - select some item
-      if (cbbMap.ItemIndex < 0) and (VCurNewIndex >= 0) then begin
-        cbbMap.ItemIndex := VCurNewIndex;
-      end;
-      if (cbbMap.ItemIndex < 0) then begin // last chance
-        cbbMap.ItemIndex := 0;
-      end;
-    end;
   finally
-    cbbMap.items.EndUpdate;
+    cbbMap.Items.EndUpdate;
   end;
-  VmapCount := cbbMap.Items.Count;
-  if FNoItemAdd then dec(VmapCount);
+
+  if (cbbMap.Items.Count > 0) then begin
+    if (VDefaultIndex >= 0) then begin
+      cbbMap.ItemIndex := VDefaultIndex;
+    end else begin
+      cbbMap.ItemIndex := 0;
+    end;
+  end;
+
+  VMapCount := cbbMap.Items.Count;
+  if FNoItemAdd then dec(VMapCount);
 
   case VMode of
-    1: VHint := Format(_('All (%d)'), [VmapCount]);
-    2: VHint := Format(_('Maps (%d)'), [VmapCount]);
-    3: VHint := Format(_('Layers (%d)'), [VmapCount]);
+    1: VHint := Format(_('All (%d)'), [VMapCount]);
+    2: VHint := Format(_('Maps (%d)'), [VMapCount]);
+    3: VHint := Format(_('Layers (%d)'), [VMapCount]);
     4: begin
       case FMapSelectFilter of
-        mfAll: VHint := Format(_('Active Maps + Layers (%d)'), [VmapCount]);
-        mfMaps: VHint := Format(_('Active Maps (%d)'), [VmapCount]);
-        mfLayers: VHint := Format(_('Active Layers (%d)'), [VmapCount]);
+        mfAll: VHint := Format(_('Active Maps + Layers (%d)'), [VMapCount]);
+        mfMaps: VHint := Format(_('Active Maps (%d)'), [VMapCount]);
+        mfLayers: VHint := Format(_('Active Layers (%d)'), [VMapCount]);
       end;
     end;
     5: begin
@@ -293,7 +299,7 @@ begin
       end else begin
         VOrigFilter := '*'
       end;
-      VHint := Format(_('Filter: "%s" (%d)'), [VOrigFilter, VmapCount]);
+      VHint := Format(_('Filter: "%s" (%d)'), [VOrigFilter, VMapCount]);
     end;
   end;
   cbbMap.Hint := VHint;

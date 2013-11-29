@@ -131,7 +131,7 @@ type
     FFormatName: string;
     FfrMapSelect: TfrMapSelect;
     FfrLayerSelect: TfrMapSelect;
-    procedure UpdateProjectionsList;
+    procedure UpdateProjectionsList(Sender: TObject);
   private
     procedure Init(
       const AZoom: byte;
@@ -179,7 +179,9 @@ implementation
 
 uses
   gnugettext,
+  t_Hash,
   t_GeoTypes,
+  i_MapTypes,
   i_MapVersionInfo,
   i_InterfaceListSimple,
   i_VectorItemProjected,
@@ -238,9 +240,9 @@ begin
       AMainMapsConfig,
       AGUIConfigList,
       AFullMapsSet,
-      mfMaps, // show maps
-      True,  // add -NO- to combobox
-      False,  // show disabled map
+      mfMaps,    // show Maps
+      True,      // add -NO- to combobox
+      False,     // show disabled maps
       GetAllowWrite
     );
   FfrLayerSelect :=
@@ -249,12 +251,14 @@ begin
       AMainMapsConfig,
       AGUIConfigList,
       AFullMapsSet,
-      mfLayers, // show maps
-      True,  // add -NO- to combobox
-      False,  // show disabled map
+      mfLayers,  // show Layers
+      True,      // add -NO- to combobox
+      False,     // show disabled maps
       GetAllowWrite
     );
-  UpdateProjectionsList;
+  UpdateProjectionsList(Self);
+  FfrMapSelect.OnMapChange := Self.UpdateProjectionsList;
+  FfrLayerSelect.OnMapChange := Self.UpdateProjectionsList;
 end;
 
 destructor TfrMapCombine.Destroy;
@@ -486,6 +490,7 @@ begin
   cbbZoomChange(nil);
   FfrMapSelect.Show(pnlMapFrame);
   FfrLayerSelect.Show(pnlLayerFrame);
+  UpdateProjectionsList(Self);
 end;
 
 procedure TfrMapCombine.RefreshTranslation;
@@ -494,24 +499,58 @@ var
 begin
   VProjectionIndex := cbbProjection.ItemIndex;
   inherited;
-  UpdateProjectionsList;
+  UpdateProjectionsList(Self);
   if VProjectionIndex >= 0 then begin
     cbbProjection.ItemIndex := VProjectionIndex;
   end;
 end;
 
-procedure TfrMapCombine.UpdateProjectionsList;
-var
-  i: Integer;
-begin
-  cbbProjection.Items.Clear;
-  cbbProjection.Items.Add(_('Projection of map'));
-  cbbProjection.Items.Add(_('Projection of layer'));
-  for i := 0 to FCoordConverterList.Count - 1 do begin
-    cbbProjection.Items.Add(_(FCoordConverterList.Captions[i]));
+procedure TfrMapCombine.UpdateProjectionsList(Sender: TObject);
+
+  procedure AddProj(const AMapType: IMapType; const ACaption: string);
+  var
+    I: Integer;
+    VProj: string;
+    VHash: THashValue;
+  begin
+    if Assigned(AMapType) then begin
+      VProj := ACaption;
+      VHash := AMapType.MapType.GeoConvert.Hash;
+      for I := 0 to FCoordConverterList.Count - 1 do begin
+        if FCoordConverterList.Items[I].Hash = VHash then begin
+          VProj := VProj + ' (' + FCoordConverterList.Captions[I] + ')';
+          Break;
+        end;
+      end;
+      cbbProjection.Items.Add(VProj);
+    end;
   end;
-  cbbProjection.ItemIndex := 0;
+
+var
+  I: Integer;
+  VPrevIndex, VPrevCount: Integer;
+begin
+  VPrevIndex := cbbProjection.ItemIndex;
+  VPrevCount := cbbProjection.Items.Count;
+
+  cbbProjection.Items.Clear;
+  AddProj(FfrMapSelect.GetSelectedIMapType, _('Projection of map'));
+  AddProj(FfrLayerSelect.GetSelectedIMapType, _('Projection of layer'));
+
+  for I := 0 to FCoordConverterList.Count - 1 do begin
+    cbbProjection.Items.Add(FCoordConverterList.Captions[I]);
+  end;
+
+  if (VPrevIndex >= 0) and
+     (cbbProjection.Items.Count > VPrevIndex) and
+     (cbbProjection.Items.Count = VPrevCount)
+  then begin
+    cbbProjection.ItemIndex := VPrevIndex;
+  end else begin
+    cbbProjection.ItemIndex := 0;
+  end;
 end;
+
 function TfrMapCombine.Validate: Boolean;
 begin
   Result := True;
