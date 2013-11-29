@@ -162,6 +162,9 @@ begin
   VProgressInfo := ProgressFactory.Build(APolygon);
 
   VTaskIndex := -1;
+  VActiveTaskIndex := VTaskIndex;
+  SetLength(VTasks, 0);
+
   if FFrame.GetSat <> nil then begin
     Inc(VTaskIndex);
     SetLength(VTasks, VTaskIndex + 1);
