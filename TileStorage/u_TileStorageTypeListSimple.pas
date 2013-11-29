@@ -169,20 +169,6 @@ begin
   );
   Add(VItem);
 
-  VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_GE);
-  VStorageType := TTileStorageTypeGE.Create(
-    AContentTypeManager,
-    AMapVersionFactoryList.GetGEVersionFactory,
-    VStorageTypeConfig
-  );
-  VItem := TTileStorageTypeListItem.Create(
-    CTileStorageTypeGE,
-    'GE cache',
-    VStorageType,
-    False
-  );
-  Add(VItem);
-
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_GC);
   VStorageType := TTileStorageTypeGC.Create(
     AContentTypeManager,

@@ -130,20 +130,6 @@ type
     destructor Destroy; override;
   end;
 
-  TTileStorageGE = class(TTileStorageDLL)
-  protected
-    function GetIsCanSaveMultiVersionTiles: Boolean; override;
-    function AllowListOfTileVersions: Boolean; override;
-    function AllowShowPrevVersion: Boolean; override;
-    function InternalLib_Initialize: Boolean; override;
-    function InternalLib_CheckInitialized: Boolean; override;
-    function GetTileFileName(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
-    ): string; override;
-  end;
-
   TTileStorageGC = class(TTileStorageDLL)
   protected
     function GetIsCanSaveMultiVersionTiles: Boolean; override;
@@ -828,59 +814,8 @@ function TTileStorageDLL.SaveTile(
   const AIsOverwrite: Boolean
 ): Boolean;
 begin
-  Abort;
-end;
-
-{ TTileStorageGE }
-
-function TTileStorageGE.InternalLib_CheckInitialized: Boolean;
-begin
-  // common checks
-  Result := inherited InternalLib_CheckInitialized;
-  (*
-  if Result then begin
-    // special checks
-  end;
-  *)
-end;
-
-function TTileStorageGE.InternalLib_Initialize: Boolean;
-begin
-  if (0 = FDLLHandle) then begin
-    FDLLHandle := LoadLibrary('TileStorage_GE.dll');
-  end;
-
-  // common routines
-  Result := inherited InternalLib_Initialize;
-  (*
-  if Result then begin
-    // special routines
-  end;
-  *)
-end;
-
-function TTileStorageGE.AllowListOfTileVersions: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageGE.AllowShowPrevVersion: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageGE.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
   Result := False;
-end;
-
-function  TTileStorageGE.GetTileFileName(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
-): string;
-begin
-  Result := inherited GetTileFileName(AXY, AZoom, AVersionInfo) + 'dbCache.dat';
+  Abort;
 end;
 
 { TTileStorageGC }

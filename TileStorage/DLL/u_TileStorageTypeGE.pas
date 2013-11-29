@@ -14,25 +14,6 @@ uses
   u_TileStorageTypeBase;
 
 type
-  TTileStorageTypeGE = class(TTileStorageTypeBase)
-  private
-    FContentTypeManager: IContentTypeManager;
-  protected
-    function BuildStorageInternal(
-      const AForceAbilities: ITileStorageAbilities;
-      const AGeoConverter: ICoordConverter;
-      const AMainContentType: IContentTypeInfoBasic;
-      const APath: string;
-      const ACacheTileInfo: ITileInfoBasicMemCache
-    ): ITileStorage; override;
-  public
-    constructor Create(
-      const AContentTypeManager: IContentTypeManager;
-      const AMapVersionFactory: IMapVersionFactory;
-      const AConfig: ITileStorageTypeConfig
-    );
-  end;
-
   TTileStorageTypeGC = class(TTileStorageTypeBase)
   private
     FContentTypeManager: IContentTypeManager;
@@ -57,39 +38,6 @@ implementation
 uses
   u_TileStorageTypeAbilities,
   u_TileStorageGE;
-
-{ TTileStorageTypeGE }
-
-constructor TTileStorageTypeGE.Create(
-  const AContentTypeManager: IContentTypeManager;
-  const AMapVersionFactory: IMapVersionFactory;
-  const AConfig: ITileStorageTypeConfig
-);
-begin
-  inherited Create(
-    TTileStorageTypeAbilitiesGE.Create,
-    AMapVersionFactory,
-    AConfig
-  );
-  FContentTypeManager := AContentTypeManager;
-end;
-
-function TTileStorageTypeGE.BuildStorageInternal(
-  const AForceAbilities: ITileStorageAbilities;
-  const AGeoConverter: ICoordConverter;
-  const AMainContentType: IContentTypeInfoBasic;
-  const APath: string;
-  const ACacheTileInfo: ITileInfoBasicMemCache
-): ITileStorage;
-begin
-  Result :=
-    TTileStorageGE.Create(
-      AGeoConverter,
-      APath,
-      GetMapVersionFactory,
-      FContentTypeManager
-    );
-end;
 
 { TTileStorageTypeGC }
 

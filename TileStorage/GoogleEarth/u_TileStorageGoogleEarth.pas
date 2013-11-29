@@ -681,6 +681,7 @@ function TTileStorageGoogleEarth.SaveTile(
   const AIsOverwrite: Boolean
 ): Boolean;
 begin
+  Result := False;
   Abort;
 end;
 

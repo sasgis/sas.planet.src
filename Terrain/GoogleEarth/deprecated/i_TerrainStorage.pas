@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_TerrainStorage;
+unit i_TerrainStorage deprecated;
 
 interface
 
