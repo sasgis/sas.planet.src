@@ -3,6 +3,7 @@ unit u_GpsTrackRecorder;
 interface
 
 uses
+  Windows,
   t_GeoTypes,
   i_VectorItemLonLat,
   i_VectorItemsFactory,
