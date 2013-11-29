@@ -145,7 +145,7 @@ end;
 
 procedure TTerrainProviderByDLL.OnCacheConfigChange;
 begin
-  FStorage.SetPath(FPathConfig.Path);
+  FStorage.SetPath(FPathConfig.FullPath);
   FAvailable := (FStorage.Available and FGoogleEarthLib.Available);
   FStateChangeNotifierInternal.Notify(nil);
 end;
@@ -268,7 +268,7 @@ var
   VConverter: ICoordConverter;
 begin
   VStrorage :=
-    TTileStorageGCTerrain.Create(ACacheConfig.GCCachePath.Path) as ITerrainStorage;
+    TTileStorageGCTerrain.Create(ACacheConfig.GCCachePath.FullPath) as ITerrainStorage;
 
   VConverter :=
     ACoordConverterFactory.GetCoordConverterByCode(

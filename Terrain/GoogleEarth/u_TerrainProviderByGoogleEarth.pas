@@ -121,7 +121,7 @@ end;
 
 procedure TTerrainProviderByGoogleEarth.OnCacheConfigChange;
 begin
-  FStorage.SetPath(FPathConfig.Path);
+  FStorage.SetPath(FPathConfig.FullPath);
   FStateChangeNotifierInternal.Notify(nil);
 end;
 

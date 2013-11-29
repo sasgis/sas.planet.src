@@ -126,7 +126,7 @@ constructor TTileStorageDLLTerrain.Create(
 );
 begin
   inherited Create;
-  FStoragePath := AStoragePath;
+  FStoragePath := IncludeTrailingPathDelimiter(AStoragePath);
   FReadAccess := asUnknown;
   FDLLHandle := 0;
   FDLLCacheHandle := nil;
@@ -214,6 +214,9 @@ var
 begin
   Result := FALSE;
   try
+    if not DirectoryExists(APath) then begin
+      Exit;
+    end;
     if (0 = FDLLHandle) then begin
       InternalLib_Initialize;
     end;
@@ -261,7 +264,7 @@ end;
 
 function TTileStorageDLLTerrain.SetPath(const APath: string): Boolean;
 begin
-  Result := InternalLib_SetPath(PAnsiChar(APath));
+  Result := InternalLib_SetPath(PAnsiChar(IncludeTrailingPathDelimiter(APath)));
 end;
 
 function TTileStorageDLLTerrain.GetTileInfo(
