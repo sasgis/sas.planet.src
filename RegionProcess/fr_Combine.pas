@@ -231,7 +231,32 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
-      AMapCalibrationList
+      AMapCalibrationList,
+      False // Lossless
+    );
+  cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
+
+  VExportProvider :=
+    TProviderMapCombineJP2.Create(
+      AProgressFactory,
+      ALanguageManager,
+      AMainMapsConfig,
+      AFullMapsSet,
+      AGUIConfigList,
+      AViewConfig,
+      AUseTilePrevZoomConfig,
+      AProjectionFactory,
+      ACoordConverterList,
+      AVectorGeometryProjectedFactory,
+      AProjectedGeometryProvider,
+      AMarksShowConfig,
+      AMarksDrawConfig,
+      AMarksDB,
+      ALocalConverterFactory,
+      ABitmapFactory,
+      ABitmapPostProcessing,
+      AMapCalibrationList,
+      True // Lossless
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 

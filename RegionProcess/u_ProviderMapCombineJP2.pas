@@ -33,6 +33,7 @@ uses
 type
   TProviderMapCombineJP2 = class(TProviderMapCombineBase)
   private
+    FLossless: Boolean;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -52,7 +53,8 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-      const AMapCalibrationList: IMapCalibrationList
+      const AMapCalibrationList: IMapCalibrationList;
+      const ALossless: Boolean
     );
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
   end;
@@ -84,8 +86,19 @@ constructor TProviderMapCombineJP2.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
-  const AMapCalibrationList: IMapCalibrationList);
+  const AMapCalibrationList: IMapCalibrationList;
+  const ALossless: Boolean
+);
+var
+  VCaption: string;
 begin
+  FLossless := ALossless;
+
+  VCaption := 'JPEG2000';
+  if FLossless then begin
+    VCaption := VCaption + ' (Lossless Compression)';
+  end;
+
   inherited Create(
       AProgressFactory,
       ALanguageManager,
@@ -105,11 +118,11 @@ begin
       ABitmapFactory,
       ABitmapPostProcessing,
       AMapCalibrationList,
-      True,
-      False,
-      False,
+      not FLossless, // Show Quality option
+      False,         // Show Exif option
+      False,         // Show Alfa chanel option
       'jp2',
-      gettext_NoExtract('JPEG2000')
+      gettext_NoExtract(VCaption)
   );
 end;
 
@@ -124,6 +137,7 @@ var
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBGColor: TColor32;
   VThread: TThread;
+  VQuality: Integer;
 begin
   VProjectedPolygon := PreparePolygon(APolygon);
   VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
@@ -132,6 +146,12 @@ begin
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;
   VBGColor := (ParamsFrame as IRegionProcessParamsFrameMapCombine).BGColor;
+
+  if FLossless then begin
+    VQuality := 100;
+  end else begin
+    VQuality := (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality;
+  end;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
   VThread :=
@@ -145,7 +165,7 @@ begin
       VFileName,
       VSplitCount,
       VBGColor,
-      (ParamsFrame as IRegionProcessParamsFrameMapCombineJpg).Quality
+      VQuality
     );
   VThread.Resume;
 end;
