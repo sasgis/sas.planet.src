@@ -111,7 +111,7 @@ object frMapCombine: TfrMapCombine
           Margins.Left = 0
           Margins.Right = 5
           Alignment = taRightJustify
-          Caption = 'Quality (for JPEG and ECW):'
+          Caption = 'Quality, %'
           Layout = tlCenter
         end
         object seJpgQuality: TSpinEdit
