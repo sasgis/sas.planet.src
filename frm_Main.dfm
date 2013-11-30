@@ -927,6 +927,10 @@ object frmMain: TfrmMain
             Hint = ''
           end
         end
+        object tbxsbmProjection: TTBXSubmenuItem
+          Caption = 'Projection'
+          Hint = ''
+        end
         object TBXSeparatorItem10: TTBXSeparatorItem
           Caption = ''
           Hint = ''

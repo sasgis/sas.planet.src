@@ -399,6 +399,7 @@ type
     Rosreestr: TTBXItem;
     TBXMakeRosreestrPolygon: TTBXItem;
     tbpmiShowPrevVersion: TTBXItem;
+    tbxsbmProjection: TTBXSubmenuItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -645,6 +646,10 @@ type
     procedure CreateMapUILayerSubMenu;
     procedure CreateLangMenu;
 
+    procedure CreateProjectionMenu;
+    procedure OnProjectionMenuItemClick(Sender: TObject);
+    procedure OnProjectionMenuShow(Sender: TObject);
+
     procedure GPSReceiverDisconnect;
     procedure GPSReceiverStateChange;
     procedure GPSReceiverConnect;
@@ -728,6 +733,7 @@ implementation
 
 uses
   StrUtils,
+  t_Hash,
   t_CommonTypes,
   t_FillingMapModes,
   c_ZeroGUID,
@@ -769,6 +775,8 @@ uses
   i_AppearanceOfVectorItem,
   i_MarkerProviderForVectorItem,
   i_PopUp,
+  i_ViewPortState,
+  i_CoordConverterList,
   u_InterfaceListSimple,
   u_ImportFromArcGIS,
   u_LocalConverterChangeableOfMiniMap,
@@ -1369,6 +1377,9 @@ begin
     map.OnMouseMove := Self.mapMouseMove;
     map.OnResize := Self.mapResize;
     TBXMainMenu.ProcessShortCuts:=true;
+
+    CreateProjectionMenu;
+
     FStartedNormal := True;
   finally
     map.SetFocus;
@@ -2162,6 +2173,120 @@ begin
     VTBEditItem.Tag := Integer(VItem);
     VTBEditItem.OnAcceptText := Self.tbiEditSrchAcceptText;
     TBGoTo.Add(VTBEditItem);
+  end;
+end;
+
+procedure TfrmMain.CreateProjectionMenu;
+
+  procedure _AddItem(const ACaption: string; const ATag: Integer; const AChecked: Boolean);
+  var
+    VMenuItem: TTBXItem;
+  begin
+    VMenuItem := TTBXItem.Create(tbxsbmProjection);
+    VMenuItem.Caption := ACaption;
+    VMenuItem.Tag := ATag;
+    VMenuItem.Checked := AChecked;
+    VMenuItem.OnClick := Self.OnProjectionMenuItemClick;
+    VMenuItem.RadioItem := True;
+    VMenuItem.GroupIndex := 1;
+    tbxsbmProjection.Add(VMenuItem);
+  end;
+
+var
+  I: Integer;
+  VProjList: ICoordConverterList;
+  VHash: THashValue;
+  VViewPortState: IViewPortState;
+  VMainCoordConverter: ICoordConverter;
+begin
+  VHash := 0;
+
+  VProjList := GState.CoordConverterList;
+  Assert(VProjList <> nil);
+
+  VViewPortState := FConfig.ViewPortState;
+
+  if Assigned(VViewPortState) then begin
+    VMainCoordConverter := VViewPortState.MainCoordConverter;
+    if Assigned(VMainCoordConverter) then begin
+      VHash := VMainCoordConverter.Hash;
+    end;
+  end;
+
+  for I := 0 to VProjList.Count - 1 do begin
+    _AddItem(VProjList.Captions[I], I, (VHash = VProjList.Items[I].Hash));
+  end;
+
+  _AddItem('Map Original Projection (from zmp)', (VProjList.Count + 1), (VHash = 0));
+
+  tbxsbmProjection.OnClick := Self.OnProjectionMenuShow;
+end;
+
+procedure TfrmMain.OnProjectionMenuItemClick(Sender: TObject);
+var
+  VIndex: Integer;
+  VMenuItem: TTBXItem;
+  VProjList: ICoordConverterList;
+  VViewPortState: IViewPortState;
+  VNewCoordConverter: ICoordConverter;
+  VMainCoordConverter: ICoordConverter;
+begin
+  VMenuItem := Sender as TTBXItem;
+  if Assigned(VMenuItem) then begin
+    VViewPortState := FConfig.ViewPortState;
+    if Assigned(VViewPortState) then begin
+      VIndex := VMenuItem.Tag;
+      VProjList := GState.CoordConverterList;
+      Assert(VProjList <> nil);
+      if (VIndex >= 0) and (VProjList.Count > VIndex) then begin
+        VNewCoordConverter := VProjList.Items[VIndex];
+        if Assigned(VNewCoordConverter) then begin
+          VMainCoordConverter := VViewPortState.MainCoordConverter;
+          if Assigned(VMainCoordConverter) then begin
+            if VMainCoordConverter.Hash <> VNewCoordConverter.Hash then begin
+              VViewPortState.MainCoordConverter := VNewCoordConverter;
+            end;
+          end else begin
+            VViewPortState.MainCoordConverter := VNewCoordConverter;
+          end;
+        end;
+      end else begin
+        VViewPortState.MainCoordConverter := nil; // reset to default
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.OnProjectionMenuShow(Sender: TObject);
+var
+  I: Integer;
+  VProjList: ICoordConverterList;
+  VHash: THashValue;
+  VViewPortState: IViewPortState;
+  VMainCoordConverter: ICoordConverter;
+begin
+  VHash := 0;
+
+  VProjList := GState.CoordConverterList;
+  Assert(VProjList <> nil);
+
+  VViewPortState := FConfig.ViewPortState;
+
+  if Assigned(VViewPortState) then begin
+    VMainCoordConverter := VViewPortState.MainCoordConverter;
+    if Assigned(VMainCoordConverter) then begin
+      VHash := VMainCoordConverter.Hash;
+    end;
+  end;
+
+  if VHash <> 0 then begin
+    for I := 0 to VProjList.Count - 1 do begin
+      if VHash = VProjList.Items[I].Hash then begin
+        tbxsbmProjection.Items[I].Checked := True;
+      end;
+    end;
+  end else begin
+    tbxsbmProjection.Items[tbxsbmProjection.Count - 1].Checked := True;
   end;
 end;
 
