@@ -6274,6 +6274,8 @@ begin
         ALastMark := FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1])); 
       end;
     end;
+  end else begin
+    ShowMessageFmt(_('Can''t open file: %s'), [AFileName]);
   end;
 end;
 
