@@ -513,17 +513,17 @@ procedure TfrMapCombine.UpdateProjectionsList(Sender: TObject);
     VProj: string;
     VHash: THashValue;
   begin
+    VProj := ACaption;
     if Assigned(AMapType) then begin
-      VProj := ACaption;
       VHash := AMapType.MapType.GeoConvert.Hash;
       for I := 0 to FCoordConverterList.Count - 1 do begin
         if FCoordConverterList.Items[I].Hash = VHash then begin
-          VProj := VProj + ' (' + FCoordConverterList.Captions[I] + ')';
+          VProj := VProj + ' - ' + FCoordConverterList.Captions[I];
           Break;
         end;
       end;
-      cbbProjection.Items.Add(VProj);
     end;
+    cbbProjection.Items.Add(VProj);
   end;
 
 var
