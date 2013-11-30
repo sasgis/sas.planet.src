@@ -733,6 +733,7 @@ implementation
 
 uses
   StrUtils,
+  gnugettext,
   t_Hash,
   t_CommonTypes,
   t_FillingMapModes,
@@ -2217,7 +2218,7 @@ begin
     _AddItem(VProjList.Captions[I], I, (VHash = VProjList.Items[I].Hash));
   end;
 
-  _AddItem('Map Original Projection (from zmp)', (VProjList.Count + 1), (VHash = 0));
+  _AddItem(_('Map Original Projection (from zmp)'), (VProjList.Count + 1), (VHash = 0));
 
   tbxsbmProjection.OnClick := Self.OnProjectionMenuShow;
 end;
