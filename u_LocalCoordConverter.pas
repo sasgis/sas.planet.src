@@ -416,6 +416,7 @@ function TLocalCoordConverter.GetIsSameConverter(
 begin
   Result := inherited GetIsSameConverter(AConverter);
   if Result then begin
+    Result := False;
     if Abs(FMapScale - AConverter.GetScale) < 0.001 then begin
       Result :=
         DoublePointsEqual(
@@ -513,6 +514,7 @@ var
 begin
   Result := inherited GetIsSameConverter(AConverter);
   if Result then begin
+    Result := False;
     if Abs(AConverter.GetScale - 1) < 0.001 then begin
       VMapPixelAtLocalZero := AConverter.LocalPixel2MapPixel(Point(0, 0), prClosest);
       Result :=
@@ -599,6 +601,7 @@ function TLocalCoordConverterNoScale.GetIsSameConverter(
 begin
   Result := inherited GetIsSameConverter(AConverter);
   if Result then begin
+    Result := False;
     if Abs(AConverter.GetScale - 1) < 0.001 then begin
       Result :=
         DoublePointsEqual(
