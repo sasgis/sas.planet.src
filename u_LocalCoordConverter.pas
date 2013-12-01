@@ -40,6 +40,7 @@ type
     FLocalCenter: TDoublePoint;
     FRectInMapPixel: TRect;
     FRectInMapPixelFloat: TDoubleRect;
+    FMapPixelCenter: TDoublePoint;
     FProjection: IProjectionInfo;
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
@@ -83,6 +84,7 @@ type
       const ALocalRect: TRect;
       const ARectInMapPixel: TRect;
       const ARectInMapPixelFloat: TDoubleRect;
+      const AMapPixelCenter: TDoublePoint;
       const AProjection: IProjectionInfo
     );
   end;
@@ -107,6 +109,7 @@ type
       const ALocalRect: TRect;
       const ARectInMapPixel: TRect;
       const ARectInMapPixelFloat: TDoubleRect;
+      const AMapPixelCenter: TDoublePoint;
       const AProjection: IProjectionInfo;
       const AMapScale: Double;
       const AMapPixelAtLocalZero: TDoublePoint
@@ -131,6 +134,7 @@ type
       const ALocalRect: TRect;
       const ARectInMapPixel: TRect;
       const ARectInMapPixelFloat: TDoubleRect;
+      const AMapPixelCenter: TDoublePoint;
       const AProjection: IProjectionInfo;
       const AMapPixelAtLocalZero: TPoint
     );
@@ -154,6 +158,7 @@ type
       const ALocalRect: TRect;
       const ARectInMapPixel: TRect;
       const ARectInMapPixelFloat: TDoubleRect;
+      const AMapPixelCenter: TDoublePoint;
       const AProjection: IProjectionInfo;
       const AMapPixelAtLocalZero: TDoublePoint
     );
@@ -169,6 +174,7 @@ constructor TLocalCoordConverterBase.Create(
   const ALocalRect: TRect;
   const ARectInMapPixel: TRect;
   const ARectInMapPixelFloat: TDoubleRect;
+  const AMapPixelCenter: TDoublePoint;
   const AProjection: IProjectionInfo
 );
 begin
@@ -192,6 +198,7 @@ begin
   FLocalCenter.Y := FLocalRect.Left + FLocalSize.Y / 2;
   FRectInMapPixel := ARectInMapPixel;
   FRectInMapPixelFloat := ARectInMapPixelFloat;
+  FMapPixelCenter := AMapPixelCenter;
   FProjection := AProjection;
   FZoom := FProjection.Zoom;
   FGeoConverter := FProjection.GeoConverter;
@@ -206,7 +213,7 @@ end;
 
 function TLocalCoordConverterBase.GetCenterMapPixelFloat: TDoublePoint;
 begin
-  Result := RectCenter(FRectInMapPixelFloat);
+  Result := FMapPixelCenter;
 end;
 
 function TLocalCoordConverterBase.GetGeoConverter: ICoordConverter;
@@ -394,6 +401,7 @@ constructor TLocalCoordConverter.Create(
   const ALocalRect: TRect;
   const ARectInMapPixel: TRect;
   const ARectInMapPixelFloat: TDoubleRect;
+  const AMapPixelCenter: TDoublePoint;
   const AProjection: IProjectionInfo;
   const AMapScale: Double;
   const AMapPixelAtLocalZero: TDoublePoint
@@ -404,6 +412,7 @@ begin
     ALocalRect,
     ARectInMapPixel,
     ARectInMapPixelFloat,
+    AMapPixelCenter,
     AProjection
   );
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;
@@ -492,6 +501,7 @@ constructor TLocalCoordConverterNoScaleIntDelta.Create(
   const ALocalRect: TRect;
   const ARectInMapPixel: TRect;
   const ARectInMapPixelFloat: TDoubleRect;
+  const AMapPixelCenter: TDoublePoint;
   const AProjection: IProjectionInfo;
   const AMapPixelAtLocalZero: TPoint
 );
@@ -501,6 +511,7 @@ begin
     ALocalRect,
     ARectInMapPixel,
     ARectInMapPixelFloat,
+    AMapPixelCenter,
     AProjection
   );
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;
@@ -582,6 +593,7 @@ constructor TLocalCoordConverterNoScale.Create(
   const ALocalRect: TRect;
   const ARectInMapPixel: TRect;
   const ARectInMapPixelFloat: TDoubleRect;
+  const AMapPixelCenter: TDoublePoint;
   const AProjection: IProjectionInfo;
   const AMapPixelAtLocalZero: TDoublePoint
 );
@@ -591,6 +603,7 @@ begin
     ALocalRect,
     ARectInMapPixel,
     ARectInMapPixelFloat,
+    AMapPixelCenter,
     AProjection
   );
   FMapPixelAtLocalZero := AMapPixelAtLocalZero;

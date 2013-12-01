@@ -60,6 +60,7 @@ type
     Projection: IProjectionInfo;
     MapPixelAtLocalZeroDouble: TDoublePoint;
     MapPixelAtLocalZeroInteger: TPoint;
+    MapPixelCenter: TDoublePoint;
     MapScale: Double;
     ConverterType: (ctNoScale, ctNoScaleIntDelta, ctScaled);
   end;
@@ -88,14 +89,15 @@ begin
   case VData.ConverterType of
     ctNoScale: begin
       VResult :=
-      TLocalCoordConverterNoScale.Create(
-        VData.Hash,
-        VData.LocalRect,
-        VData.RectInMapPixel,
-        VData.RectInMapPixelFloat,
-        VData.Projection,
-        VData.MapPixelAtLocalZeroDouble
-      );
+        TLocalCoordConverterNoScale.Create(
+          VData.Hash,
+          VData.LocalRect,
+          VData.RectInMapPixel,
+          VData.RectInMapPixelFloat,
+          VData.MapPixelCenter,
+          VData.Projection,
+          VData.MapPixelAtLocalZeroDouble
+        );
     end;
     ctNoScaleIntDelta: begin
       VResult :=
@@ -104,6 +106,7 @@ begin
           VData.LocalRect,
           VData.RectInMapPixel,
           VData.RectInMapPixelFloat,
+          VData.MapPixelCenter,
           VData.Projection,
           VData.MapPixelAtLocalZeroInteger
         );
@@ -115,6 +118,7 @@ begin
           VData.LocalRect,
           VData.RectInMapPixel,
           VData.RectInMapPixelFloat,
+          VData.MapPixelCenter,
           VData.Projection,
           VData.MapScale,
           VData.MapPixelAtLocalZeroDouble
@@ -134,6 +138,7 @@ var
   VHash: THashValue;
   VData: TDataRecord;
   VZoom: Byte;
+  VLocalCenter: TDoublePoint;
 begin
   VHash := $2eb7867c2318cc59;
   FHashFunction.UpdateHashByRect(VHash, ALocalRect);
@@ -142,12 +147,20 @@ begin
   VData.ConverterType := ctNoScale;
   VData.LocalRect := ALocalRect;
   VZoom := AProjection.Zoom;
+  VLocalCenter := RectCenter(ALocalRect);
+  VData.MapPixelCenter.X := VLocalCenter.X + AMapPixelAtLocalZero.X;
+  VData.MapPixelCenter.Y := VLocalCenter.Y + AMapPixelAtLocalZero.Y;
+  AProjection.GeoConverter.CheckPixelPosFloatStrict(VData.MapPixelCenter, VZoom, False);
+
   VData.RectInMapPixelFloat.Left := ALocalRect.Left + AMapPixelAtLocalZero.X;
   VData.RectInMapPixelFloat.Top := ALocalRect.Top + AMapPixelAtLocalZero.Y;
   VData.RectInMapPixelFloat.Right := ALocalRect.Right + AMapPixelAtLocalZero.X;
   VData.RectInMapPixelFloat.Bottom := ALocalRect.Bottom + AMapPixelAtLocalZero.Y;
   AProjection.GeoConverter.CheckPixelRectFloat(VData.RectInMapPixelFloat, VZoom);
+
   VData.RectInMapPixel := RectFromDoubleRect(VData.RectInMapPixelFloat, rrClosest);
+  AProjection.GeoConverter.CheckPixelRect(VData.RectInMapPixel, VZoom);
+
   VData.Projection := AProjection;
   VData.MapPixelAtLocalZeroDouble := AMapPixelAtLocalZero;
 
@@ -163,6 +176,7 @@ var
   VHash: THashValue;
   VData: TDataRecord;
   VZoom: Byte;
+  VLocalCenter: TDoublePoint;
 begin
   VHash := $801bc862120f6bf5;
   FHashFunction.UpdateHashByRect(VHash, ALocalRect);
@@ -171,12 +185,20 @@ begin
   VData.ConverterType := ctNoScaleIntDelta;
   VData.LocalRect := ALocalRect;
   VZoom := AProjection.Zoom;
-  VData.RectInMapPixelFloat.Left := ALocalRect.Left + AMapPixelAtLocalZero.X;
-  VData.RectInMapPixelFloat.Top := ALocalRect.Top + AMapPixelAtLocalZero.Y;
-  VData.RectInMapPixelFloat.Right := ALocalRect.Right + AMapPixelAtLocalZero.X;
-  VData.RectInMapPixelFloat.Bottom := ALocalRect.Bottom + AMapPixelAtLocalZero.Y;
-  AProjection.GeoConverter.CheckPixelRectFloat(VData.RectInMapPixelFloat, VZoom);
-  VData.RectInMapPixel := RectFromDoubleRect(VData.RectInMapPixelFloat, rrClosest);
+
+  VLocalCenter := RectCenter(ALocalRect);
+  VData.MapPixelCenter.X := VLocalCenter.X + AMapPixelAtLocalZero.X;
+  VData.MapPixelCenter.Y := VLocalCenter.Y + AMapPixelAtLocalZero.Y;
+  AProjection.GeoConverter.CheckPixelPosFloatStrict(VData.MapPixelCenter, VZoom, False);
+
+  VData.RectInMapPixel.Left := ALocalRect.Left + AMapPixelAtLocalZero.X;
+  VData.RectInMapPixel.Top := ALocalRect.Top + AMapPixelAtLocalZero.Y;
+  VData.RectInMapPixel.Right := ALocalRect.Right + AMapPixelAtLocalZero.X;
+  VData.RectInMapPixel.Bottom := ALocalRect.Bottom + AMapPixelAtLocalZero.Y;
+  AProjection.GeoConverter.CheckPixelRect(VData.RectInMapPixel, VZoom);
+
+  VData.RectInMapPixelFloat := DoubleRect(VData.RectInMapPixel);
+
   VData.Projection := AProjection;
   VData.MapPixelAtLocalZeroInteger := AMapPixelAtLocalZero;
 
@@ -193,6 +215,7 @@ var
   VHash: THashValue;
   VData: TDataRecord;
   VZoom: Byte;
+  VLocalCenter: TDoublePoint;
 begin
   VHash := $de6a45ffc3ed1159;
   FHashFunction.UpdateHashByRect(VHash, ALocalRect);
@@ -202,12 +225,21 @@ begin
   VData.ConverterType := ctScaled;
   VData.LocalRect := ALocalRect;
   VZoom := AProjection.Zoom;
+
+  VLocalCenter := RectCenter(ALocalRect);
+  VData.MapPixelCenter.X := VLocalCenter.X / AMapScale + AMapPixelAtLocalZero.X;
+  VData.MapPixelCenter.Y := VLocalCenter.Y / AMapScale + AMapPixelAtLocalZero.Y;
+  AProjection.GeoConverter.CheckPixelPosFloatStrict(VData.MapPixelCenter, VZoom, False);
+
   VData.RectInMapPixelFloat.Left := ALocalRect.Left / AMapScale + AMapPixelAtLocalZero.X;
   VData.RectInMapPixelFloat.Top := ALocalRect.Top / AMapScale + AMapPixelAtLocalZero.Y;
   VData.RectInMapPixelFloat.Right := ALocalRect.Right / AMapScale + AMapPixelAtLocalZero.X;
   VData.RectInMapPixelFloat.Bottom := ALocalRect.Bottom / AMapScale + AMapPixelAtLocalZero.Y;
   AProjection.GeoConverter.CheckPixelRectFloat(VData.RectInMapPixelFloat, VZoom);
+
   VData.RectInMapPixel := RectFromDoubleRect(VData.RectInMapPixelFloat, rrClosest);
+  AProjection.GeoConverter.CheckPixelRect(VData.RectInMapPixel, VZoom);
+
   VData.Projection := AProjection;
   VData.MapScale := AMapScale;
   VData.MapPixelAtLocalZeroDouble := AMapPixelAtLocalZero;
