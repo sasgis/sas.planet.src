@@ -1237,6 +1237,10 @@ function TCoordConverterAbstract.IsSameConverter(
 var
   VSelf: ICoordConverter;
 begin
+  if not Assigned(AOtherMapCoordConv) then begin
+    Result := False;
+    Exit;
+  end;   
   VSelf := Self;
   if VSelf = AOtherMapCoordConv then begin
     Result := True;

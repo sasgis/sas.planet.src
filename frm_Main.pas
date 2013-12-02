@@ -734,7 +734,6 @@ implementation
 uses
   StrUtils,
   gnugettext,
-  t_Hash,
   t_CommonTypes,
   t_FillingMapModes,
   c_ZeroGUID,
@@ -2196,29 +2195,24 @@ procedure TfrmMain.CreateProjectionMenu;
 var
   I: Integer;
   VProjList: ICoordConverterList;
-  VHash: THashValue;
   VViewPortState: IViewPortState;
-  VMainCoordConverter: ICoordConverter;
+  VCoordConverter: ICoordConverter;
 begin
-  VHash := 0;
+  VCoordConverter := nil;
 
   VProjList := GState.CoordConverterList;
   Assert(VProjList <> nil);
 
   VViewPortState := FConfig.ViewPortState;
-
   if Assigned(VViewPortState) then begin
-    VMainCoordConverter := VViewPortState.MainCoordConverter;
-    if Assigned(VMainCoordConverter) then begin
-      VHash := VMainCoordConverter.Hash;
-    end;
+    VCoordConverter := VViewPortState.MainCoordConverter;
   end;
 
   for I := 0 to VProjList.Count - 1 do begin
-    _AddItem(VProjList.Captions[I], I, (VHash = VProjList.Items[I].Hash));
+    _AddItem(VProjList.Captions[I], I, (VProjList.Items[I].IsSameConverter(VCoordConverter)));
   end;
 
-  _AddItem(_('Map Original Projection (from zmp)'), (VProjList.Count + 1), (VHash = 0));
+  _AddItem(_('Map Original Projection (from zmp)'), (VProjList.Count + 1), (VCoordConverter = nil));
 
   tbxsbmProjection.OnClick := Self.OnProjectionMenuShow;
 end;
@@ -2244,7 +2238,7 @@ begin
         if Assigned(VNewCoordConverter) then begin
           VMainCoordConverter := VViewPortState.MainCoordConverter;
           if Assigned(VMainCoordConverter) then begin
-            if VMainCoordConverter.Hash <> VNewCoordConverter.Hash then begin
+            if not VMainCoordConverter.IsSameConverter(VNewCoordConverter) then begin
               VViewPortState.MainCoordConverter := VNewCoordConverter;
             end;
           end else begin
@@ -2262,27 +2256,22 @@ procedure TfrmMain.OnProjectionMenuShow(Sender: TObject);
 var
   I: Integer;
   VProjList: ICoordConverterList;
-  VHash: THashValue;
   VViewPortState: IViewPortState;
-  VMainCoordConverter: ICoordConverter;
+  VCoordConverter: ICoordConverter;
 begin
-  VHash := 0;
+  VCoordConverter := nil;
 
   VProjList := GState.CoordConverterList;
   Assert(VProjList <> nil);
 
   VViewPortState := FConfig.ViewPortState;
-
   if Assigned(VViewPortState) then begin
-    VMainCoordConverter := VViewPortState.MainCoordConverter;
-    if Assigned(VMainCoordConverter) then begin
-      VHash := VMainCoordConverter.Hash;
-    end;
+    VCoordConverter := VViewPortState.MainCoordConverter;
   end;
 
-  if VHash <> 0 then begin
+  if Assigned(VCoordConverter) then begin
     for I := 0 to VProjList.Count - 1 do begin
-      if VHash = VProjList.Items[I].Hash then begin
+      if VProjList.Items[I].IsSameConverter(VCoordConverter) then begin
         tbxsbmProjection.Items[I].Checked := True;
       end;
     end;
