@@ -130,6 +130,7 @@ implementation
 
 uses
   gnugettext,
+  c_CoordConverter,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   u_BitmapLayerProviderMapWithLayer;
@@ -211,8 +212,14 @@ begin
 end;
 
 function TfrExportRMapsSQLite.GetMapType: TMapType;
+var
+  VMapType: TMapType;
 begin
-  Result :=  FfrMapSelect.GetSelectedMapType;
+  VMapType := FfrMapSelect.GetSelectedMapType;
+  if not Assigned(VMapType) then begin
+    VMapType := FfrOverlaySelect.GetSelectedMapType;
+  end;
+  Result := VMapType;
 end;
 
 function TfrExportRMapsSQLite.GetForceDropTarget: Boolean;
@@ -231,8 +238,28 @@ begin
 end;
 
 function TfrExportRMapsSQLite.GetDirectTilesCopy: Boolean;
+var
+  VMap: TMapType;
+  VLayer: TMapType;
 begin
   Result := chkDirectTilesCopy.Checked;
+  if not Result then begin
+    VMap := FfrMapSelect.GetSelectedMapType;
+    VLayer := FfrOverlaySelect.GetSelectedMapType;
+    if Assigned(VMap) and not Assigned(VLayer) then begin
+      if VMap.IsBitmapTiles then begin
+        if VMap.GeoConvert.ProjectionEPSG = CGoogleProjectionEPSG then begin
+          Result := True;
+        end;
+      end;
+    end else if not Assigned(VMap) and Assigned(VLayer) then begin
+      if VLayer.IsBitmapTiles then begin
+        if VLayer.GeoConvert.ProjectionEPSG = CGoogleProjectionEPSG then begin
+          Result := True;
+        end;
+      end;
+    end;
+  end;
 end;
 
 function TfrExportRMapsSQLite.GetZoomArray: TByteDynArray;
@@ -247,11 +274,6 @@ var
   VLayer: TMapType;
   VLayerVersion: IMapVersionInfo;
 begin
-  if chkDirectTilesCopy.Checked then begin
-    Result := nil;
-    Exit;
-  end;
-
   VMap := FfrMapSelect.GetSelectedMapType;
   if Assigned(VMap) then begin
     VMapVersion := VMap.VersionConfig.Version;
@@ -293,11 +315,6 @@ function TfrExportRMapsSQLite.GetBitmapTileSaver: IBitmapTileSaver;
   end;
 
 begin
-  if chkDirectTilesCopy.Checked then begin
-    Result := nil;
-    Exit;
-  end;
-
   Result := _GetSaver(FfrMapSelect.GetSelectedMapType);
 
   if not Assigned(Result) then begin 
