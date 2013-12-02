@@ -160,7 +160,7 @@ var
 begin
   inherited;
 
-  VDoDirectCopy := FDirectTilesCopy and Assigned(FMapType);
+  VDoDirectCopy := FDirectTilesCopy and Assigned(FMapType) and FMapType.IsBitmapTiles;
 
   if not VDoDirectCopy then begin
     Assert(FBitmapProvider <> nil);

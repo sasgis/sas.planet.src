@@ -336,10 +336,22 @@ begin
 end;
 
 function TfrExportRMapsSQLite.Validate: Boolean;
+var
+  VMap: TMapType;
+  VLayer: TMapType;
 begin
   Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
+  end;
+
+  if Result then begin
+    VMap := FfrMapSelect.GetSelectedMapType;
+    VLayer := FfrOverlaySelect.GetSelectedMapType;
+    if not Assigned(VMap) and not Assigned(VLayer) then begin
+      Result := False;
+      ShowMessage(_('Please select at least one map or overlay layer'));
+    end;
   end;
 end;
 
