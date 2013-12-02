@@ -237,7 +237,7 @@ begin
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 
-    VExportProvider :=
+  VExportProvider :=
     TExportProviderOgf2.Create(
       AProgressFactory,
       ALanguageManager,
@@ -273,9 +273,12 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
-      AMapTypeListBuilderFactory,
       AProjectionFactory,
-      AVectorGeometryProjectedFactory
+      AVectorGeometryProjectedFactory,
+      ABitmapFactory,
+      ABitmapTileSaveLoadFactory,
+      ACoordConverterFactory,
+      ALocalConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
 

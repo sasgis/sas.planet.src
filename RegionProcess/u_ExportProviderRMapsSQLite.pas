@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_ExportProviderRMapsSQLite;
 
 interface
@@ -8,20 +28,25 @@ uses
   i_VectorItemsFactory,
   i_LanguageManager,
   i_MapTypeSet,
-  i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_RegionProcessProgressInfoInternalFactory,
   i_CoordConverterFactory,
+  i_LocalCoordConverterFactorySimpe,
+  i_Bitmap32StaticFactory,
+  i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,
   fr_ExportRMapsSQLite;
 
 type
   TExportProviderRMapsSQLite = class(TExportProviderAbstract)
   private
-    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FCoordConverterFactory: ICoordConverterFactory;
+    FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -31,9 +56,12 @@ type
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
-      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
+      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const ACoordConverterFactory: ICoordConverterFactory;
+      const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: ILonLatPolygon); override;
@@ -46,13 +74,15 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_MapTypeListStatic,
+  i_BitmapTileSaveLoad,
+  i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_ThreadExportToSQLite,
+  u_ThreadExportToRMapsSQLite,
+  u_MapType,
   u_ResStrings;
 
-{ TExportProviderKml }
+{ TExportProviderRMapsSQLite }
 
 constructor TExportProviderRMapsSQLite.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -60,9 +90,12 @@ constructor TExportProviderRMapsSQLite.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
-  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
+  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const ACoordConverterFactory: ICoordConverterFactory;
+  const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   inherited Create(
@@ -72,9 +105,12 @@ begin
     AFullMapsSet,
     AGUIConfigList
   );
-  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
+  FBitmapFactory := ABitmapFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FCoordConverterFactory := ACoordConverterFactory;
+  FLocalConverterFactory := ALocalConverterFactory;
 end;
 
 function TExportProviderRMapsSQLite.CreateFrame: TFrame;
@@ -82,14 +118,18 @@ begin
   Result :=
     TfrExportRMapsSQLite.Create(
       Self.LanguageManager,
-      FMapTypeListBuilderFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
-      Self.GUIConfigList
+      Self.GUIConfigList,
+      FBitmapFactory,
+      FBitmapTileSaveLoadFactory
     );
+
   Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
-  Assert(Supports(Result, IRegionProcessParamsFrameSQLiteExport));
+  Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
+  Assert(Supports(Result, IRegionProcessParamsFrameImageProvider));
+  Assert(Supports(Result, IRegionProcessParamsFrameRMapsSQLiteExport));
 end;
 
 function TExportProviderRMapsSQLite.GetCaption: string;
@@ -101,39 +141,47 @@ procedure TExportProviderRMapsSQLite.StartProcess(const APolygon: ILonLatPolygon
 var
   VPath: string;
   VZoomArr: TByteDynArray;
-  VMapTypeList: IMapTypeListStatic;
-  VForceDropTarget: boolean;
+  VForceDropTarget: Boolean;
   VReplaceExistingTiles: Boolean;
+  VDirectTilesCopy: Boolean;
+  VBitmapTileSaver: IBitmapTileSaver;
+  VBitmapProvider: IBitmapLayerProvider;
+  VMapType: TMapType;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
 begin
   inherited;
+
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+  VBitmapProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
 
-  with (ParamsFrame as IRegionProcessParamsFrameSQLiteExport) do begin
+  with (ParamsFrame as IRegionProcessParamsFrameRMapsSQLiteExport) do begin
     VForceDropTarget := ForceDropTarget;
     VReplaceExistingTiles := ReplaceExistingTiles;
-    VMapTypeList := MapTypeList;
+    VDirectTilesCopy := DirectTilesCopy;
+    VBitmapTileSaver := BitmapTileSaver;
   end;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
   VThread :=
-    TThreadExportRMapsSQLite.Create(
+    TThreadExportToRMapsSQLite.Create(
       VProgressInfo,
-      '',
       VPath,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
+      FCoordConverterFactory,
+      FLocalConverterFactory,
       APolygon,
       VZoomArr,
-      VMapTypeList,
-      FALSE,
-      '',
+      VMapType,
+      VBitmapTileSaver,
+      VBitmapProvider,
       VForceDropTarget,
-      FALSE,
-      VReplaceExistingTiles
+      VReplaceExistingTiles,
+      VDirectTilesCopy
     );
   VThread.Resume;
 end;

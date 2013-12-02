@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit fr_ExportRMapsSQLite;
 
 interface
@@ -10,32 +30,36 @@ uses
   Forms,
   Dialogs,
   StdCtrls,
-  CheckLst,
   ExtCtrls,
   i_LanguageManager,
   i_MapTypeSet,
-  i_MapTypeListStatic,
-  i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_VectorItemLonLat,
   i_RegionProcessParamsFrame,
+  i_Bitmap32StaticFactory,
+  i_BitmapLayerProvider,
+  i_BitmapTileSaveLoad,
+  i_BitmapTileSaveLoadFactory,
   u_MapType,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
 
 type
-  IRegionProcessParamsFrameSQLiteExport = interface(IRegionProcessParamsFrameBase)
-    ['{0EB563D9-555A-4BB0-BAA6-B32F0E15E942}']
+  IRegionProcessParamsFrameRMapsSQLiteExport = interface(IRegionProcessParamsFrameBase)
+    ['{AF048EAA-5AE3-45CD-94FD-443DFCB580B6}']
     function GetForceDropTarget: Boolean;
     property ForceDropTarget: Boolean read GetForceDropTarget;
 
     function GetReplaceExistingTiles: Boolean;
     property ReplaceExistingTiles: Boolean read GetReplaceExistingTiles;
 
-    function GetMapTypeList: IMapTypeListStatic;
-    property MapTypeList: IMapTypeListStatic read GetMapTypeList;
+    function GetDirectTilesCopy: Boolean;
+    property DirectTilesCopy: Boolean read GetDirectTilesCopy;
+
+    function GetBitmapTileSaver: IBitmapTileSaver;
+    property BitmapTileSaver: IBitmapTileSaver read GetBitmapTileSaver;
   end;
 
 type
@@ -44,7 +68,9 @@ type
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameZoomArray,
       IRegionProcessParamsFrameTargetPath,
-      IRegionProcessParamsFrameSQLiteExport
+      IRegionProcessParamsFrameOneMap,
+      IRegionProcessParamsFrameImageProvider,
+      IRegionProcessParamsFrameRMapsSQLiteExport
     )
     pnlCenter: TPanel;
     pnlTop: TPanel;
@@ -58,13 +84,19 @@ type
     dlgSaveSQLite: TSaveDialog;
     pnlMap: TPanel;
     PnlZoom: TPanel;
+    chkDirectTilesCopy: TCheckBox;
+    lblOverlay: TLabel;
+    pnlOverlay: TPanel;
     procedure btnSelectTargetFileClick(Sender: TObject);
+    procedure chkDirectTilesCopyClick(Sender: TObject);
   private
-    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FfrMapSelect: TfrMapSelect;
+    FfrOverlaySelect: TfrMapSelect;
     FfrZoomsSelect: TfrZoomsSelect;
   private
     procedure Init(
@@ -74,19 +106,22 @@ type
     function Validate: Boolean;
   private
     function GetMapType: TMapType;
-    function GetMapTypeList: IMapTypeListStatic;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
     function GetForceDropTarget: Boolean;
     function GetReplaceExistingTiles: Boolean;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetDirectTilesCopy: Boolean;
+    function GetAllowExport(AMapType: TMapType): Boolean;
+    function GetProvider: IBitmapLayerProvider;
+    function GetBitmapTileSaver: IBitmapTileSaver;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
-      const AGUIConfigList: IMapTypeGUIConfigList
+      const AGUIConfigList: IMapTypeGUIConfigList;
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -94,34 +129,55 @@ type
 implementation
 
 uses
-  gnugettext;
+  gnugettext,
+  i_MapVersionInfo,
+  i_ContentTypeInfo,
+  u_BitmapLayerProviderMapWithLayer;
 
 {$R *.dfm}
 
 constructor TfrExportRMapsSQLite.Create(
   const ALanguageManager: ILanguageManager;
-  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
-  const AGUIConfigList: IMapTypeGUIConfigList
+  const AGUIConfigList: IMapTypeGUIConfigList;
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
 );
 begin
   inherited Create(ALanguageManager);
+
   FMainMapsConfig := AMainMapsConfig;
-  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+
+  FBitmapFactory := ABitmapFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+
   FfrMapSelect :=
     TfrMapSelect.Create(
       ALanguageManager,
       AMainMapsConfig,
       AGUIConfigList,
       AFullMapsSet,
-      mfAll, // show maps and layers
-      False,  // add -NO- to combobox
-      False,  // show disabled map
+      mfMaps,          // show maps
+      True,            // add -NO- to combobox
+      False,           // show disabled map
       GetAllowExport
     );
+
+  FfrOverlaySelect :=
+    TfrMapSelect.Create(
+      ALanguageManager,
+      AMainMapsConfig,
+      AGUIConfigList,
+      AFullMapsSet,
+      mfLayers,        // show layers
+      True,            // add -NO- to combobox
+      False,           // show disabled map
+      GetAllowExport
+    );
+
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
       ALanguageManager
@@ -132,17 +188,24 @@ end;
 destructor TfrExportRMapsSQLite.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
+  FreeAndNil(FfrOverlaySelect);
   FreeAndNil(FfrZoomsSelect);
   inherited;
 end;
 
-procedure TfrExportRMapsSQLite.btnSelectTargetFileClick(Sender: TObject);
+procedure TfrExportRMapsSQLite.chkDirectTilesCopyClick(Sender: TObject);
 begin
- if dlgSaveSQLite.Execute then
-  edtTargetFile.Text := dlgSaveSQLite.FileName;
+  FfrOverlaySelect.cbbMap.Enabled := not chkDirectTilesCopy.Checked;
 end;
 
-function TfrExportRMapsSQLite.GetAllowExport(AMapType: TMapType): boolean;
+procedure TfrExportRMapsSQLite.btnSelectTargetFileClick(Sender: TObject);
+begin
+  if dlgSaveSQLite.Execute then begin
+    edtTargetFile.Text := dlgSaveSQLite.FileName;
+  end;
+end;
+
+function TfrExportRMapsSQLite.GetAllowExport(AMapType: TMapType): Boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;
@@ -150,15 +213,6 @@ end;
 function TfrExportRMapsSQLite.GetMapType: TMapType;
 begin
   Result :=  FfrMapSelect.GetSelectedMapType;
-end;
-
-function TfrExportRMapsSQLite.GetMapTypeList: IMapTypeListStatic;
-var
-  VMaps: IMapTypeListBuilder;
-begin
-  VMaps := FMapTypeListBuilderFactory.Build;
-  VMaps.Add(FFullMapsSet.GetMapTypeByGUID(GetMapType.Zmp.GUID));
-  Result := VMaps.MakeAndClear;
 end;
 
 function TfrExportRMapsSQLite.GetForceDropTarget: Boolean;
@@ -176,15 +230,92 @@ begin
   Result := chkReplaceExistingTiles.Checked;
 end;
 
+function TfrExportRMapsSQLite.GetDirectTilesCopy: Boolean;
+begin
+  Result := chkDirectTilesCopy.Checked;
+end;
+
 function TfrExportRMapsSQLite.GetZoomArray: TByteDynArray;
 begin
   Result := FfrZoomsSelect.GetZoomList;
 end;
 
+function TfrExportRMapsSQLite.GetProvider: IBitmapLayerProvider;
+var
+  VMap: TMapType;
+  VMapVersion: IMapVersionInfo;
+  VLayer: TMapType;
+  VLayerVersion: IMapVersionInfo;
+begin
+  if chkDirectTilesCopy.Checked then begin
+    Result := nil;
+    Exit;
+  end;
+
+  VMap := FfrMapSelect.GetSelectedMapType;
+  if Assigned(VMap) then begin
+    VMapVersion := VMap.VersionConfig.Version;
+  end else begin
+    VMapVersion := nil;
+  end;
+
+  VLayer := FfrOverlaySelect.GetSelectedMapType;
+  if Assigned(VLayer) then begin
+    VLayerVersion := VLayer.VersionConfig.Version;
+  end else begin
+    VLayerVersion := nil;
+  end;
+
+  Result :=
+    TBitmapLayerProviderMapWithLayer.Create(
+      FBitmapFactory,
+      VMap,
+      VMapVersion,
+      VLayer,
+      VLayerVersion,
+      True,
+      True
+    );
+end;
+
+function TfrExportRMapsSQLite.GetBitmapTileSaver: IBitmapTileSaver;
+
+  function _GetSaver(const AMap: TMapType): IBitmapTileSaver;
+  var
+    VContentType: IContentTypeInfoBitmap;
+  begin
+    Result := nil;
+    if Assigned(AMap) then begin
+      if Supports(AMap.ContentType, IContentTypeInfoBitmap, VContentType) then begin
+        Result := VContentType.GetSaver;
+      end;
+    end;
+  end;
+
+begin
+  if chkDirectTilesCopy.Checked then begin
+    Result := nil;
+    Exit;
+  end;
+
+  Result := _GetSaver(FfrMapSelect.GetSelectedMapType);
+
+  if not Assigned(Result) then begin 
+    Result := _GetSaver(FfrOverlaySelect.GetSelectedMapType);
+  end;
+
+  if not Assigned(Result) then begin
+    // похоже, что собираемся экспортировать векторный слой
+    Result := FBitmapTileSaveLoadFactory.CreatePngSaver;
+  end;
+end;
+
 procedure TfrExportRMapsSQLite.Init;
 begin
   FfrMapSelect.Show(pnlMap);
+  FfrOverlaySelect.Show(pnlOverlay);
   FfrZoomsSelect.Show(pnlZoom);
+  chkDirectTilesCopyClick(chkDirectTilesCopy);
 end;
 
 function TfrExportRMapsSQLite.Validate: Boolean;

@@ -38,9 +38,18 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Caption = 'Map'
         ExplicitWidth = 370
       end
+      object lblOverlay: TLabel
+        Left = 3
+        Top = 42
+        Width = 362
+        Height = 13
+        Align = alTop
+        Caption = 'Overlay layer'
+        ExplicitWidth = 65
+      end
       object chkReplaceExistingTiles: TCheckBox
         Left = 3
-        Top = 62
+        Top = 98
         Width = 362
         Height = 17
         Align = alTop
@@ -48,11 +57,12 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Checked = True
         State = cbChecked
         TabOrder = 0
+        ExplicitTop = 62
       end
       object chkForceDropTarget: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 45
+        Top = 81
         Width = 362
         Height = 17
         Margins.Left = 0
@@ -63,6 +73,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Checked = True
         State = cbChecked
         TabOrder = 1
+        ExplicitTop = 45
       end
       object pnlMap: TPanel
         Left = 3
@@ -72,6 +83,29 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 2
+      end
+      object chkDirectTilesCopy: TCheckBox
+        Left = 3
+        Top = 115
+        Width = 362
+        Height = 17
+        Align = alTop
+        Caption = 'Direct tiles copy (without overlay and reprojection)'
+        TabOrder = 3
+        OnClick = chkDirectTilesCopyClick
+        ExplicitTop = 80
+        ExplicitWidth = 97
+      end
+      object pnlOverlay: TPanel
+        Left = 3
+        Top = 55
+        Width = 362
+        Height = 23
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 4
+        ExplicitLeft = 0
+        ExplicitTop = 60
       end
     end
     object PnlZoom: TPanel
@@ -131,7 +165,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
     DefaultExt = 'sqlitedb'
     Filter = 'sqlitedb|*.sqlitedb'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 184
-    Top = 136
+    Left = 8
+    Top = 176
   end
 end

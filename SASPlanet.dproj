@@ -727,7 +727,6 @@
     <DCCReference Include="RegionProcess\u_ThreadDeleteTiles.pas" />
     <DCCReference Include="RegionProcess\u_ThreadDownloadTiles.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportAbstract.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportEnumerator.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportIPhone.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportKML.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToArchive.pas" />
@@ -737,7 +736,7 @@
     <DCCReference Include="RegionProcess\u_ThreadExportToFileSystem.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToJNX.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToOgf2.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToSQLite.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadExportToRMapsSQLite.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportToStorage.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV3.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV4.pas" />
