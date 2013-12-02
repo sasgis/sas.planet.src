@@ -322,8 +322,8 @@ begin
   end;
 
   if not Assigned(Result) then begin
-    // похоже, что собираемся экспортировать векторный слой
-    Result := FBitmapTileSaveLoadFactory.CreatePngSaver;
+    Assert(False, 'Unexpected result!');
+    Result := FBitmapTileSaveLoadFactory.CreateJpegSaver;
   end;
 end;
 
