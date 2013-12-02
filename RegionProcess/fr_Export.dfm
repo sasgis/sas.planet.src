@@ -38,7 +38,7 @@ object frExport: TfrExport
       Height = 21
       Align = alClient
       Style = csDropDownList
-      DropDownCount = 11
+      DropDownCount = 12
       ItemHeight = 13
       TabOrder = 0
       OnChange = CBFormatChange
