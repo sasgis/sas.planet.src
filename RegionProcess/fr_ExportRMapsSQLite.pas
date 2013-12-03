@@ -31,6 +31,7 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
+  Spin,
   i_LanguageManager,
   i_MapTypeSet,
   i_ActiveMapsConfig,
@@ -87,6 +88,13 @@ type
     chkDirectTilesCopy: TCheckBox;
     lblOverlay: TLabel;
     pnlOverlay: TPanel;
+    pnlImageFormat: TPanel;
+    seJpgQuality: TSpinEdit;
+    lblJpgQulity: TLabel;
+    cbbImageFormat: TComboBox;
+    lblImageFormat: TLabel;
+    seCompression: TSpinEdit;
+    lblCompression: TLabel;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkDirectTilesCopyClick(Sender: TObject);
   private
@@ -197,6 +205,13 @@ end;
 procedure TfrExportRMapsSQLite.chkDirectTilesCopyClick(Sender: TObject);
 begin
   FfrOverlaySelect.cbbMap.Enabled := not chkDirectTilesCopy.Checked;
+  lblOverlay.Enabled := not chkDirectTilesCopy.Checked;
+  lblImageFormat.Enabled := not chkDirectTilesCopy.Checked;
+  cbbImageFormat.Enabled := not chkDirectTilesCopy.Checked;
+  lblJpgQulity.Enabled := not chkDirectTilesCopy.Checked;
+  seJpgQuality.Enabled := not chkDirectTilesCopy.Checked;
+  lblCompression.Enabled := not chkDirectTilesCopy.Checked;
+  seCompression.Enabled := not chkDirectTilesCopy.Checked;
 end;
 
 procedure TfrExportRMapsSQLite.btnSelectTargetFileClick(Sender: TObject);
@@ -315,12 +330,21 @@ function TfrExportRMapsSQLite.GetBitmapTileSaver: IBitmapTileSaver;
   end;
 
 begin
-  Result := _GetSaver(FfrMapSelect.GetSelectedMapType);
-
-  if not Assigned(Result) then begin 
-    Result := _GetSaver(FfrOverlaySelect.GetSelectedMapType);
+  if cbbImageFormat.ItemIndex = 0 then begin
+    Result := _GetSaver(FfrMapSelect.GetSelectedMapType);  
+    if not Assigned(Result) then begin
+      Result := _GetSaver(FfrOverlaySelect.GetSelectedMapType);
+    end;
+  end else begin
+    case cbbImageFormat.ItemIndex of
+      1: Result := FBitmapTileSaveLoadFactory.CreateJpegSaver(seJpgQuality.Value);
+      2: Result := FBitmapTileSaveLoadFactory.CreateBmpSaver;
+      3: Result := FBitmapTileSaveLoadFactory.CreateGifSaver;
+      4: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, seCompression.Value);
+      5: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp, seCompression.Value);
+      6: Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i32bpp, seCompression.Value);
+    end;
   end;
-
   if not Assigned(Result) then begin
     Assert(False, 'Unexpected result!');
     Result := FBitmapTileSaveLoadFactory.CreateJpegSaver;
@@ -333,6 +357,7 @@ begin
   FfrOverlaySelect.Show(pnlOverlay);
   FfrZoomsSelect.Show(pnlZoom);
   chkDirectTilesCopyClick(chkDirectTilesCopy);
+  cbbImageFormat.ItemIndex := 0; // Auto
 end;
 
 function TfrExportRMapsSQLite.Validate: Boolean;

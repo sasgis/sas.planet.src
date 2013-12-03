@@ -107,6 +107,76 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         ExplicitLeft = 0
         ExplicitTop = 60
       end
+      object pnlImageFormat: TPanel
+        Left = 3
+        Top = 129
+        Width = 362
+        Height = 48
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 5
+        object lblJpgQulity: TLabel
+          Left = 151
+          Top = 6
+          Width = 90
+          Height = 13
+          Caption = 'Quality (for JPEG):'
+          Layout = tlCenter
+        end
+        object lblImageFormat: TLabel
+          Left = 0
+          Top = 6
+          Width = 69
+          Height = 13
+          Caption = 'Image format:'
+          Layout = tlCenter
+        end
+        object lblCompression: TLabel
+          Left = 302
+          Top = 6
+          Width = 113
+          Height = 13
+          Caption = 'Compression (for PNG):'
+          Layout = tlCenter
+        end
+        object seJpgQuality: TSpinEdit
+          Left = 151
+          Top = 22
+          Width = 145
+          Height = 22
+          MaxValue = 100
+          MinValue = 1
+          TabOrder = 0
+          Value = 75
+        end
+        object cbbImageFormat: TComboBox
+          Left = 0
+          Top = 22
+          Width = 145
+          Height = 21
+          ItemHeight = 13
+          TabOrder = 1
+          Text = 'JPEG'
+          Items.Strings = (
+            'Auto'
+            'JPEG'
+            'BMP'
+            'GIF'
+            'PNG (8 bit)'
+            'PNG (24 bit)'
+            'PNG (32 bit)')
+        end
+        object seCompression: TSpinEdit
+          Left = 302
+          Top = 22
+          Width = 145
+          Height = 22
+          MaxValue = 9
+          MinValue = 0
+          TabOrder = 2
+          Value = 2
+        end
+      end
     end
     object PnlZoom: TPanel
       Left = 368
@@ -165,7 +235,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
     DefaultExt = 'sqlitedb'
     Filter = 'sqlitedb|*.sqlitedb'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 8
-    Top = 176
+    Left = 416
+    Top = 272
   end
 end
