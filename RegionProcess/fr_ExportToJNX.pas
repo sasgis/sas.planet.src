@@ -469,11 +469,11 @@ begin
   FfrMap4Select.Show(pnlMap4);
   FfrMap5Select.Show(pnlMap5);
 
-  FfrMapSelect.SetEnabled(false);
-  FfrMap2Select.SetEnabled(false);
-  FfrMap3Select.SetEnabled(false);
-  FfrMap4Select.SetEnabled(false);
-  FfrMap5Select.SetEnabled(false);
+  FfrMapSelect.SetEnabled(ChMap1.Checked);
+  FfrMap2Select.SetEnabled(ChMap2.Checked);
+  FfrMap3Select.SetEnabled(ChMap3.Checked);
+  FfrMap4Select.SetEnabled(ChMap4.Checked);
+  FfrMap5Select.SetEnabled(ChMap5.Checked);
 
   if CbbZoom.Items.count=0 then begin
     for i:=1 to 24 do begin
