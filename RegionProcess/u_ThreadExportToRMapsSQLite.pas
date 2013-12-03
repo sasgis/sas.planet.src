@@ -180,7 +180,7 @@ begin
       );
     end;
     VProjectedPolygon := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      FProjectionFactory.GetByConverterAndZoom(VGeoConvert, I),
+      FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[I]),
       PolygLL
     );
     VTileIterators[I] := TTileIteratorByPolygon.Create(VProjectedPolygon);
