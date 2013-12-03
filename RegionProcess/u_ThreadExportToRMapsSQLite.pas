@@ -260,7 +260,9 @@ begin
   if FileExists(FExportPath) then begin
     // база уже есть - будем дописывать или грохнем
     if FForceDropTarget then begin
-      DeleteFile(FExportPath);
+      if not DeleteFile(FExportPath) then begin
+        raise ESQLite3SimpleError.CreateFmt('Can''t delete database: %s', [FExportPath]);
+      end;
       VCreateNewDB := True;
     end else begin
       VCreateNewDB := False;
