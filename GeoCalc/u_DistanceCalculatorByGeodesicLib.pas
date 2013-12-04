@@ -149,8 +149,19 @@ function TDistanceCalculatorByGeodesicLib.ComputeDistance(
   out AInitialBearing: Double;
   out AFinalBearing: Double
 ): Double;
+const
+  DEG2RAD: Double = 0.017453292519943295769236907684886;
 begin
   geod_inverse(@g, ALat1, ALon1, ALat2, ALon2, Result, AInitialBearing, AFinalBearing);
+
+  if AInitialBearing < 0 then begin
+    AInitialBearing := 2 * Pi / DEG2RAD + AInitialBearing;
+  end;
+
+  AFinalBearing := AFinalBearing - Pi / DEG2RAD;
+  if AFinalBearing < 0 then begin
+    AFinalBearing := 2 * Pi / DEG2RAD + AFinalBearing;
+  end;
 end;
 
 end.
