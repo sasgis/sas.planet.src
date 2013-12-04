@@ -95,8 +95,11 @@ type
     lblImageFormat: TLabel;
     seCompression: TSpinEdit;
     lblCompression: TLabel;
+    chkUsePrevZoom: TCheckBox;
     procedure btnSelectTargetFileClick(Sender: TObject);
     procedure chkDirectTilesCopyClick(Sender: TObject);
+    procedure cbbImageFormatChange(Sender: TObject);
+    procedure chkUsePrevZoomClick(Sender: TObject);
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -122,6 +125,8 @@ type
     function GetAllowExport(AMapType: TMapType): Boolean;
     function GetProvider: IBitmapLayerProvider;
     function GetBitmapTileSaver: IBitmapTileSaver;
+    procedure OnDirectTilesCopyChange(const AEnableDirectCopy: Boolean);
+    procedure OnMapChange(Sender: TObject);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -138,6 +143,7 @@ implementation
 
 uses
   gnugettext,
+  Graphics,
   c_CoordConverter,
   i_MapVersionInfo,
   i_ContentTypeInfo,
@@ -174,6 +180,7 @@ begin
       False,           // show disabled map
       GetAllowExport
     );
+  FfrMapSelect.OnMapChange := Self.OnMapChange;
 
   FfrOverlaySelect :=
     TfrMapSelect.Create(
@@ -186,6 +193,7 @@ begin
       False,           // show disabled map
       GetAllowExport
     );
+  FfrOverlaySelect.OnMapChange := Self.OnMapChange;
 
   FfrZoomsSelect :=
     TfrZoomsSelect.Create(
@@ -202,16 +210,87 @@ begin
   inherited;
 end;
 
+procedure TfrExportRMapsSQLite.cbbImageFormatChange(Sender: TObject);
+var
+  VValue: Boolean;
+begin
+  VValue := not (cbbImageFormat.ItemIndex = 0) and cbbImageFormat.Enabled;
+
+  lblJpgQulity.Enabled := VValue;
+  seJpgQuality.Enabled := VValue;
+
+  lblCompression.Enabled := VValue;
+  seCompression.Enabled := VValue;
+
+  if GetDirectTilesCopy then begin
+    chkDirectTilesCopy.Font.Style := [fsBold];
+  end else begin
+    chkDirectTilesCopy.Font.Style := [];
+  end;
+end;
+
+procedure TfrExportRMapsSQLite.OnDirectTilesCopyChange(const AEnableDirectCopy: Boolean);
+var
+  VMap: TMapType;
+  VLayer: TMapType;
+  VItemEnabled: Boolean;
+begin
+  VItemEnabled := not AEnableDirectCopy;
+
+  if chkDirectTilesCopy.Checked then begin
+    VMap := FfrMapSelect.GetSelectedMapType;
+    VLayer := FfrOverlaySelect.GetSelectedMapType;
+
+    if not Assigned(VMap) or not Assigned(VLayer) then begin
+      FfrOverlaySelect.cbbMap.Enabled := not Assigned(VMap);
+      lblOverlay.Enabled := not Assigned(VMap);
+
+      FfrMapSelect.cbbMap.Enabled := not Assigned(VLayer);
+      lblMap.Enabled := not Assigned(VLayer);
+    end else begin
+      FfrOverlaySelect.cbbMap.Enabled := VItemEnabled;
+      lblOverlay.Enabled := VItemEnabled;
+    end;
+
+    chkUsePrevZoom.Enabled := VItemEnabled;
+
+    lblImageFormat.Enabled := VItemEnabled;
+    cbbImageFormat.Enabled := VItemEnabled;
+  end else begin
+    FfrOverlaySelect.cbbMap.Enabled := True;
+    lblOverlay.Enabled := True;
+
+    FfrMapSelect.cbbMap.Enabled := True;
+    lblMap.Enabled := True;
+
+    chkUsePrevZoom.Enabled := True;
+
+    lblImageFormat.Enabled := VItemEnabled or (cbbImageFormat.ItemIndex = 0);
+    cbbImageFormat.Enabled := VItemEnabled or (cbbImageFormat.ItemIndex = 0);
+  end;
+
+  cbbImageFormatChange(cbbImageFormat);
+
+  if AEnableDirectCopy then begin
+    chkDirectTilesCopy.Font.Style := [fsBold];
+  end else begin
+    chkDirectTilesCopy.Font.Style := [];
+  end;
+end;
+
+procedure TfrExportRMapsSQLite.OnMapChange(Sender: TObject);
+begin
+  OnDirectTilesCopyChange(GetDirectTilesCopy);
+end;
+
 procedure TfrExportRMapsSQLite.chkDirectTilesCopyClick(Sender: TObject);
 begin
-  FfrOverlaySelect.cbbMap.Enabled := not chkDirectTilesCopy.Checked;
-  lblOverlay.Enabled := not chkDirectTilesCopy.Checked;
-  lblImageFormat.Enabled := not chkDirectTilesCopy.Checked;
-  cbbImageFormat.Enabled := not chkDirectTilesCopy.Checked;
-  lblJpgQulity.Enabled := not chkDirectTilesCopy.Checked;
-  seJpgQuality.Enabled := not chkDirectTilesCopy.Checked;
-  lblCompression.Enabled := not chkDirectTilesCopy.Checked;
-  seCompression.Enabled := not chkDirectTilesCopy.Checked;
+  OnDirectTilesCopyChange(GetDirectTilesCopy);
+end;
+
+procedure TfrExportRMapsSQLite.chkUsePrevZoomClick(Sender: TObject);
+begin
+  OnDirectTilesCopyChange(GetDirectTilesCopy);
 end;
 
 procedure TfrExportRMapsSQLite.btnSelectTargetFileClick(Sender: TObject);
@@ -274,6 +353,7 @@ begin
         end;
       end;
     end;
+    Result := Result and (cbbImageFormat.ItemIndex = 0) and not chkUsePrevZoom.Checked;    
   end;
 end;
 
@@ -310,8 +390,8 @@ begin
       VMapVersion,
       VLayer,
       VLayerVersion,
-      True,
-      True
+      chkUsePrevZoom.Checked,
+      chkUsePrevZoom.Checked
     );
 end;
 
@@ -356,8 +436,8 @@ begin
   FfrMapSelect.Show(pnlMap);
   FfrOverlaySelect.Show(pnlOverlay);
   FfrZoomsSelect.Show(pnlZoom);
-  chkDirectTilesCopyClick(chkDirectTilesCopy);
   cbbImageFormat.ItemIndex := 0; // Auto
+  OnDirectTilesCopyChange(GetDirectTilesCopy);
 end;
 
 function TfrExportRMapsSQLite.Validate: Boolean;

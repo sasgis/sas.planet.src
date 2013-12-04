@@ -40,7 +40,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object lblOverlay: TLabel
         Left = 3
-        Top = 42
+        Top = 39
         Width = 362
         Height = 13
         Align = alTop
@@ -49,7 +49,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object chkReplaceExistingTiles: TCheckBox
         Left = 3
-        Top = 98
+        Top = 95
         Width = 362
         Height = 17
         Align = alTop
@@ -57,12 +57,11 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Checked = True
         State = cbChecked
         TabOrder = 0
-        ExplicitTop = 62
       end
       object chkForceDropTarget: TCheckBox
         AlignWithMargins = True
         Left = 3
-        Top = 81
+        Top = 78
         Width = 362
         Height = 17
         Margins.Left = 0
@@ -73,11 +72,10 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         Checked = True
         State = cbChecked
         TabOrder = 1
-        ExplicitTop = 45
       end
       object pnlMap: TPanel
         Left = 3
-        Top = 19
+        Top = 16
         Width = 362
         Height = 23
         Align = alTop
@@ -86,37 +84,35 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       end
       object chkDirectTilesCopy: TCheckBox
         Left = 3
-        Top = 115
+        Top = 129
         Width = 362
         Height = 17
         Align = alTop
-        Caption = 'Direct tiles copy (without overlay and reprojection)'
+        Caption = 'Direct tiles copy (without any modifications)'
         TabOrder = 3
         OnClick = chkDirectTilesCopyClick
-        ExplicitTop = 80
-        ExplicitWidth = 97
+        ExplicitTop = 112
       end
       object pnlOverlay: TPanel
         Left = 3
-        Top = 55
+        Top = 52
         Width = 362
         Height = 23
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 4
-        ExplicitLeft = 0
-        ExplicitTop = 60
       end
       object pnlImageFormat: TPanel
         Left = 3
-        Top = 129
+        Top = 146
         Width = 362
         Height = 48
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 5
+        ExplicitTop = 129
         object lblJpgQulity: TLabel
-          Left = 151
+          Left = 156
           Top = 6
           Width = 90
           Height = 13
@@ -132,7 +128,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
           Layout = tlCenter
         end
         object lblCompression: TLabel
-          Left = 302
+          Left = 312
           Top = 6
           Width = 113
           Height = 13
@@ -140,9 +136,9 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
           Layout = tlCenter
         end
         object seJpgQuality: TSpinEdit
-          Left = 151
+          Left = 156
           Top = 22
-          Width = 145
+          Width = 150
           Height = 22
           MaxValue = 100
           MinValue = 1
@@ -152,30 +148,42 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
         object cbbImageFormat: TComboBox
           Left = 0
           Top = 22
-          Width = 145
+          Width = 150
           Height = 21
           ItemHeight = 13
           TabOrder = 1
           Text = 'JPEG'
+          OnChange = cbbImageFormatChange
           Items.Strings = (
             'Auto'
             'JPEG'
             'BMP'
             'GIF'
-            'PNG (8 bit)'
-            'PNG (24 bit)'
-            'PNG (32 bit)')
+            'PNG (Indexed Colors)'
+            'PNG (TrueColor)'
+            'PNG (TrueColor + Alpha)')
         end
         object seCompression: TSpinEdit
-          Left = 302
+          Left = 312
           Top = 22
-          Width = 145
+          Width = 150
           Height = 22
           MaxValue = 9
           MinValue = 0
           TabOrder = 2
           Value = 2
         end
+      end
+      object chkUsePrevZoom: TCheckBox
+        Left = 3
+        Top = 112
+        Width = 362
+        Height = 17
+        Align = alTop
+        Caption = 'Use tiles from lower zooms (on unavalible tile)'
+        TabOrder = 6
+        OnClick = chkUsePrevZoomClick
+        ExplicitLeft = 6
       end
     end
     object PnlZoom: TPanel
@@ -204,7 +212,7 @@ object frExportRMapsSQLite: TfrExportRMapsSQLite
       Left = 3
       Top = 3
       Width = 41
-      Height = 18
+      Height = 21
       Margins.Left = 0
       Margins.Top = 0
       Align = alLeft
