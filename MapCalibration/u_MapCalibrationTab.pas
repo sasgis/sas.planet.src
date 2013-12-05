@@ -64,7 +64,7 @@ uses
 const
   cTabFileExt = '.tab';
   cCoordFmtStr: AnsiString = '%.8f';
-  cPointFmtStr: AnsiString = '  (%s, %s) (%d, %d) Label "Point %d",' + #13#10;
+  cPointFmtStr: AnsiString = '  (%s, %s) (%d, %d) Label "Point %d"';
 
 resourcestring
   rsTabMapCalibrationDescription = 'Calibration for MapInfo programm (*.tab)';
@@ -136,15 +136,15 @@ begin
       'Definition Table' + #13#10 +
       '  File "' + UTF8Encode(ExtractFileName(AFileName)) + '"' + #13#10 +
       '  Type "RASTER"' + #13#10 +
-      PointToStr(1, VLL1.X, VLL1.Y, VLocalRect.Left, VLocalRect.Top) +
-      PointToStr(2, VLL2.X, VLL2.Y, VLocalRect.Right, VLocalRect.Bottom) +
-      PointToStr(3, VLL1.X, VLL2.Y, VLocalRect.Left, VLocalRect.Bottom) +
-      PointToStr(4, VLL2.X, VLL1.Y, VLocalRect.Right, VLocalRect.Top) +
-      PointToStr(5, VLL.X, VLL.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +
-      PointToStr(6, VLL.X, VLL1.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Top) +
-      PointToStr(7, VLL1.X, VLL.Y, VLocalRect.Left, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +
-      PointToStr(8, VLL2.X, VLL.Y, VLocalRect.Right, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +
-      PointToStr(9, VLL.X, VLL2.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Bottom) +
+      PointToStr(1, VLL1.X, VLL1.Y, VLocalRect.Left, VLocalRect.Top) + ',' + #13#10 +
+      PointToStr(2, VLL2.X, VLL2.Y, VLocalRect.Right, VLocalRect.Bottom) + ',' + #13#10 +
+      PointToStr(3, VLL1.X, VLL2.Y, VLocalRect.Left, VLocalRect.Bottom) + ',' + #13#10 +
+      PointToStr(4, VLL2.X, VLL1.Y, VLocalRect.Right, VLocalRect.Top) + ',' + #13#10 +
+      PointToStr(5, VLL.X, VLL.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), ((VLocalRect.Bottom - VLocalRect.Top) div 2)) + ',' + #13#10 +
+      PointToStr(6, VLL.X, VLL1.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Top) + ',' + #13#10 +
+      PointToStr(7, VLL1.X, VLL.Y, VLocalRect.Left, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +  ',' + #13#10 +
+      PointToStr(8, VLL2.X, VLL.Y, VLocalRect.Right, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) + ',' + #13#10 +
+      PointToStr(9, VLL.X, VLL2.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Bottom) + #13#10 +
       ' CoordSys Earth Projection 1, 104' + #13#10 +
       ' Units "degree"' + #13#10;
 
