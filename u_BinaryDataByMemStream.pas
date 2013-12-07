@@ -16,7 +16,7 @@ type
     function GetSize: Integer;
   public
     constructor CreateFromStream(AStream: TStream);
-    constructor CreateWithOwn(AMemStream: TMemoryStream);
+    constructor CreateWithOwn(var AMemStream: TMemoryStream);
     destructor Destroy; override;
   end;
 
@@ -41,10 +41,11 @@ begin
   end;
 end;
 
-constructor TBinaryDataByMemStream.CreateWithOwn(AMemStream: TMemoryStream);
+constructor TBinaryDataByMemStream.CreateWithOwn(var AMemStream: TMemoryStream);
 begin
   inherited Create;
   FMemStream := AMemStream;
+  AMemStream := nil;
 end;
 
 destructor TBinaryDataByMemStream.Destroy;

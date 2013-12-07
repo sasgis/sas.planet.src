@@ -17,7 +17,7 @@ type
     function IndexOf(const S: string): Integer;
   public
     constructor CreateByStrings(AList: TStrings);
-    constructor CreateWithOwn(AList: TStringList);
+    constructor CreateWithOwn(var AList: TStringList);
     destructor Destroy; override;
   end;
 
@@ -42,10 +42,11 @@ begin
   end;
 end;
 
-constructor TStringListStatic.CreateWithOwn(AList: TStringList);
+constructor TStringListStatic.CreateWithOwn(var AList: TStringList);
 begin
   inherited Create;
   FList := AList;
+  AList := nil;
 end;
 
 destructor TStringListStatic.Destroy;
