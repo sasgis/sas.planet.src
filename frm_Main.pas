@@ -1503,7 +1503,9 @@ begin
     TFindVectorItemsForVectorMaps.Create(
       GState.VectorItemSubsetBuilderFactory,
       GState.ProjectedGeometryProvider,
-      VVectorItems
+      VVectorItems,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      6
     );
   VLayersList.Add(
     TMapLayerVectorMaps.Create(

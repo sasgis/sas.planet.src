@@ -4,6 +4,7 @@ interface
 
 uses
   Types,
+  i_InternalPerformanceCounter,
   i_VectorItemSubset,
   i_VectorItemSubsetBuilder,
   i_VectorItemSubsetChangeable,
@@ -18,11 +19,8 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FProjectedProvider: IProjectedGeometryProvider;
     FVectorItems: IVectorItemSubsetChangeable;
-    function MouseOnElements(
-      const AVisualConverter: ILocalCoordConverter;
-      const ACopiedElements: IVectorItemSubset;
-      const xy: TPoint
-    ): IVectorItemSubset;
+    FFindItemsCounter: IInternalPerformanceCounter;
+    FRectHalfSize: Double;
   private
     function FindItems(
       const AVisualConverter: ILocalCoordConverter;
@@ -32,7 +30,9 @@ type
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AProjectedProvider: IProjectedGeometryProvider;
-      const AVectorItems: IVectorItemSubsetChangeable
+      const AVectorItems: IVectorItemSubsetChangeable;
+      const AFindItemsCounter: IInternalPerformanceCounter;
+      const ARectSize: Double
     );
   end;
 
@@ -50,12 +50,23 @@ uses
 constructor TFindVectorItemsForVectorMaps.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AProjectedProvider: IProjectedGeometryProvider;
-  const AVectorItems: IVectorItemSubsetChangeable);
+  const AVectorItems: IVectorItemSubsetChangeable;
+  const AFindItemsCounter: IInternalPerformanceCounter;
+  const ARectSize: Double
+);
 begin
+  Assert(Assigned(AVectorItemSubsetBuilderFactory));
+  Assert(Assigned(AProjectedProvider));
+  Assert(Assigned(AVectorItems));
+  Assert(Assigned(AFindItemsCounter));
+  Assert(ARectSize > 0);
+  Assert(ARectSize < 100);
   inherited Create;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FProjectedProvider := AProjectedProvider;
   FVectorItems := AVectorItems;
+  FFindItemsCounter := AFindItemsCounter;
+  FRectHalfSize := ARectSize / 2;
 end;
 
 function TFindVectorItemsForVectorMaps.FindItems(
@@ -63,22 +74,9 @@ function TFindVectorItemsForVectorMaps.FindItems(
   const ALocalPoint: TPoint
 ): IVectorItemSubset;
 var
+  VCounterContext: TInternalPerformanceCounterContext;
   VElements: IVectorItemSubset;
-begin
-  Result := nil;
-  VElements := FVectorItems.GetStatic;
-  if VElements <> nil then begin
-    Result := MouseOnElements(AVisualConverter, VElements, ALocalPoint);
-  end;
-end;
-
-function TFindVectorItemsForVectorMaps.MouseOnElements(
-  const AVisualConverter: ILocalCoordConverter;
-  const ACopiedElements: IVectorItemSubset;
-  const xy: TPoint
-): IVectorItemSubset;
-var
-  VRect: TRect;
+  VRect: TDoubleRect;
   VConverter: ICoordConverter;
   VZoom: Byte;
   VMapRect: TDoubleRect;
@@ -93,46 +91,54 @@ var
   Vtmp: IVectorItemSubsetBuilder;
 begin
   Result := nil;
-  Vtmp := FVectorItemSubsetBuilderFactory.Build;
+  VCounterContext := FFindItemsCounter.StartOperation;
+  try
+    VElements := FVectorItems.GetStatic;
+    if VElements <> nil then begin
+      if VElements.Count > 0 then begin
+        Vtmp := FVectorItemSubsetBuilderFactory.Build;
+        VRect.Left := ALocalPoint.X - FRectHalfSize;
+        VRect.Top := ALocalPoint.Y - FRectHalfSize;
+        VRect.Right := ALocalPoint.X + FRectHalfSize;
+        VRect.Bottom := ALocalPoint.Y + FRectHalfSize;
 
-  if ACopiedElements.Count > 0 then begin
-    VRect.Left := xy.X - 3;
-    VRect.Top := xy.Y - 3;
-    VRect.Right := xy.X + 3;
-    VRect.Bottom := xy.Y + 3;
+        VConverter := AVisualConverter.GetGeoConverter;
+        VZoom := AVisualConverter.GetZoom;
+        VMapRect := AVisualConverter.LocalRectFloat2MapRectFloat(VRect);
+        VConverter.CheckPixelRectFloat(VMapRect, VZoom);
+        VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
+        VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
 
-    VConverter := AVisualConverter.GetGeoConverter;
-    VZoom := AVisualConverter.GetZoom;
-    VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);
-    VConverter.CheckPixelRectFloat(VMapRect, VZoom);
-    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-    VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(xy);
-
-    // check element
-    for i := 0 to ACopiedElements.Count - 1 do begin
-      VItem := ACopiedElements.GetItem(i);
-      if VItem.LLRect.IsIntersecWithRect(VLonLatRect) then begin
-        if Supports(VItem, IVectorDataItemPoint) then begin
-          Vtmp.add(VItem);
-        end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
-          VProjectdPath := FProjectedProvider.GetProjectedPath(AVisualConverter.ProjectionInfo,  VItemLine.Line);
-          if Assigned(VProjectdPath) then begin
-            if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
+        // check element
+        for i := 0 to VElements.Count - 1 do begin
+          VItem := VElements.GetItem(i);
+          if VItem.LLRect.IsIntersecWithRect(VLonLatRect) then begin
+            if Supports(VItem, IVectorDataItemPoint) then begin
               Vtmp.add(VItem);
-            end;
-          end;
-        end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
-          VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(AVisualConverter.ProjectionInfo,  VItemPoly.Line);
-          if Assigned(VProjectdPolygon) then begin
-            if VProjectdPolygon.IsPointInPolygon(VPixelPos) then begin
-              Vtmp.add(VItem);
+            end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
+              VProjectdPath := FProjectedProvider.GetProjectedPath(AVisualConverter.ProjectionInfo,  VItemLine.Line);
+              if Assigned(VProjectdPath) then begin
+                if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
+                  Vtmp.add(VItem);
+                end;
+              end;
+            end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
+              VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(AVisualConverter.ProjectionInfo,  VItemPoly.Line);
+              if Assigned(VProjectdPolygon) then begin
+                if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
+                  VProjectdPolygon.IsPointOnBorder(VPixelPos, 3) then begin
+                  Vtmp.add(VItem);
+                end;
+              end;
             end;
           end;
         end;
+        Result := Vtmp.MakeStaticAndClear;
       end;
     end;
+  finally
+    FFindItemsCounter.FinishOperation(VCounterContext);
   end;
-  Result := Vtmp.MakeStaticAndClear;
 end;
 
 end.
