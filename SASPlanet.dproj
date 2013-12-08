@@ -460,6 +460,7 @@
     <DCCReference Include="MapCalibration\u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="MapLayers\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\u_CenterScale.pas" />
+    <DCCReference Include="MapLayers\u_FindVectorItemsFromSearchResults.pas" />
     <DCCReference Include="MapLayers\u_FullMapMouseCursorLayer.pas" />
     <DCCReference Include="MapLayers\u_LayerLicenseList.pas" />
     <DCCReference Include="MapLayers\u_LayerScaleLine.pas" />

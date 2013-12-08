@@ -16,17 +16,13 @@ uses
   i_LastSearchResultConfig,
   i_MarkerDrawable,
   i_VectorDataItemSimple,
-  i_VectorItemSubsetBuilder,
-  i_FindVectorItems,
   i_GeoCoder,
-  i_VectorItemSubset,
   u_MapLayerBasic;
 
 type
-  TSearchResultsLayer = class(TMapLayerBasicNoBitmap, IFindVectorItems)
+  TSearchResultsLayer = class(TMapLayerBasicNoBitmap)
   private
     FLastSearchResults: ILastSearchResultConfig;
-    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FMarker: IMarkerDrawableChangeable;
     procedure OnLastSearchResultsChange;
     procedure OnConfigChange;
@@ -36,11 +32,6 @@ type
       const ALocalConverter: ILocalCoordConverter
     ); override;
     procedure StartThreads; override;
-  private
-    function FindItems(
-      const AVisualConverter: ILocalCoordConverter;
-      const ALocalPoint: TPoint
-    ): IVectorItemSubset;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -48,7 +39,6 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ALastSearchResults: ILastSearchResultConfig;
       const AMarker: IMarkerDrawableChangeable
     );
@@ -57,12 +47,8 @@ type
 implementation
 
 uses
-  SysUtils,
-  c_InternalBrowser,
   i_CoordConverter,
-  u_ListenerByEvent,
-  u_GeoCodePlacemarkWithUrlDecorator,
-  u_GeoFun;
+  u_ListenerByEvent;
 
 { TSearchResultsLayer }
 
@@ -72,7 +58,6 @@ constructor TSearchResultsLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALastSearchResults: ILastSearchResultConfig;
   const AMarker: IMarkerDrawableChangeable
 );
@@ -86,7 +71,6 @@ begin
   );
   FLastSearchResults := ALastSearchResults;
   FMarker := AMarker;
-  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -141,55 +125,6 @@ begin
       VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
       VMarker.DrawToBitmap(ABuffer, VFixedOnView);
     end;
-  end;
-end;
-
-function TSearchResultsLayer.FindItems(
-  const AVisualConverter: ILocalCoordConverter;
-  const ALocalPoint: TPoint
-): IVectorItemSubset;
-var
-  VLonLatRect: TDoubleRect;
-  VRect: TRect;
-  VConverter: ICoordConverter;
-  VPixelPos: TDoublePoint;
-  VZoom: Byte;
-  VMapRect: TDoubleRect;
-  i: integer;
-  VEnum: IEnumUnknown;
-  VPlacemark: IGeoCodePlacemark;
-  VSearchResults: IGeoCodeResult;
-  VIndex: Integer;
-  Vtmp: IVectorItemSubsetBuilder;
-  VTempItem: IGeoCodePlacemark;
-begin
-  Result := nil;
-  VSearchResults := FLastSearchResults.GeoCodeResult;
-  if (VSearchResults <> nil) and (VSearchResults.GetPlacemarksCount > 0) then begin
-    Vtmp := FVectorItemSubsetBuilderFactory.Build;
-    VRect.Left := ALocalPoint.X - 5;
-    VRect.Top := ALocalPoint.Y - 5;
-    VRect.Right := ALocalPoint.X + 5;
-    VRect.Bottom := ALocalPoint.Y + 5;
-    VConverter := AVisualConverter.GetGeoConverter;
-    VZoom := AVisualConverter.GetZoom;
-    VMapRect := AVisualConverter.LocalRect2MapRectFloat(VRect);
-    VConverter.CheckPixelRectFloat(VMapRect, VZoom);
-    VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-    VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
-    VIndex := 0;
-    VEnum := VSearchResults.GetPlacemarks;
-    while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      if LonLatPointInRect(VPlacemark.GetPoint, VLonLatRect) then begin
-        VTempItem := TGeoCodePlacemarkWithUrlDecorator.Create(
-            VPlacemark,
-            CLastSearchResultsInternalURL + IntToStr(VIndex) + '/'
-          );
-        Vtmp.add(VTempItem);
-      end;
-      Inc(VIndex);
-    end;
-    Result := Vtmp.MakeStaticAndClear;
   end;
 end;
 

@@ -917,6 +917,7 @@ uses
   u_MarkerRingsConfig in 'u_MarkerRingsConfig.pas',
   i_MapLayerGPSMarkerConfig in 'i_MapLayerGPSMarkerConfig.pas',
   u_MapLayerGPSMarkerConfig in 'u_MapLayerGPSMarkerConfig.pas',
+  u_FindVectorItemsFromSearchResults in 'MapLayers\u_FindVectorItemsFromSearchResults.pas',
   u_MapLayerSearchResults in 'MapLayers\u_MapLayerSearchResults.pas',
   i_BitmapPostProcessingConfig in 'i_BitmapPostProcessingConfig.pas',
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',

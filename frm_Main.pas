@@ -809,6 +809,7 @@ uses
   u_MapLayerGPSMarker,
   u_MapLayerGPSMarkerRings,
   u_MapLayerSearchResults,
+  u_FindVectorItemsFromSearchResults,
   u_MapLayerFillingMap,
   u_MapLayerGoto,
   u_CenterScale,
@@ -1820,17 +1821,21 @@ begin
       );
   end;
   FLayerSearchResults :=
+    TFindVectorItemsFromSearchResults.Create(
+      GState.VectorItemSubsetBuilderFactory,
+      FConfig.LastSearchResultConfig
+    );
+  VLayersList.Add(
     TSearchResultsLayer.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TSearchResultsLayer'),
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
       FConfig.ViewPortState.View,
-      GState.VectorItemSubsetBuilderFactory,
       FConfig.LastSearchResultConfig,
       VMarkerChangeable
-    );
-  VLayersList.Add(FLayerSearchResults);
+    )
+  );
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
