@@ -711,6 +711,10 @@ type
       const ALocalConverter: ILocalCoordConverter
     ): IVectorDataItemSimple;
     function AddToHint(const AHint: string; const AMark: IMark): string;
+    function FindItems(
+      const AVisualConverter: ILocalCoordConverter;
+      const ALocalPoint: TPoint
+    ): IVectorItemSubset;
 
     procedure ProcessOpenFile(
       const AFileName: string;
@@ -760,6 +764,7 @@ uses
   i_DoublePointFilter,
   i_PathDetalizeProviderList,
   i_SensorViewListGenerator,
+  i_VectorItemSubsetBuilder,
   i_VectorItemsFactory,
   i_VectorItemSubsetChangeable,
   i_ConfigDataProvider,
@@ -1152,6 +1157,58 @@ begin
     tbxpmnSearchResult.Tag := 0;
   end;
   FSensorViewList := nil;
+end;
+
+function TfrmMain.FindItems(
+  const AVisualConverter: ILocalCoordConverter;
+  const ALocalPoint: TPoint
+): IVectorItemSubset;
+var
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+  VVectorItems: IVectorItemSubset;
+  VEnumUnknown: IEnumUnknown;
+  VItem: IVectorDataItemSimple;
+  i: Integer;
+begin
+  VSubsetBuilder := GState.VectorItemSubsetBuilderFactory.Build;
+
+  VVectorItems := FWikiLayer.FindItems(AVisualConverter, ALocalPoint);
+  if VVectorItems <> nil then begin
+    if VVectorItems.Count > 0 then begin
+      VEnumUnknown := VVectorItems.GetEnum;
+      if VEnumUnknown <> nil then begin
+        while VEnumUnknown.Next(1, VItem, @i) = S_OK do begin
+          VSubsetBuilder.Add(VItem);
+        end;
+      end;
+    end;
+  end;
+
+  VVectorItems := FLayerSearchResults.FindItems(AVisualConverter, ALocalPoint);
+  if VVectorItems <> nil then begin
+    if VVectorItems.Count > 0 then begin
+      VEnumUnknown := VVectorItems.GetEnum;
+      if VEnumUnknown <> nil then begin
+        while VEnumUnknown.Next(1, VItem, @i) = S_OK do begin
+          VSubsetBuilder.Add(VItem);
+        end;
+      end;
+    end;
+  end;
+
+  VVectorItems := FLayerMapMarks.FindItems(AVisualConverter, ALocalPoint);
+  if VVectorItems <> nil then begin
+    if VVectorItems.Count > 0 then begin
+      VEnumUnknown := VVectorItems.GetEnum;
+      if VEnumUnknown <> nil then begin
+        while VEnumUnknown.Next(1, VItem, @i) = S_OK do begin
+          VSubsetBuilder.Add(VItem);
+        end;
+      end;
+    end;
+  end;
+
+  Result := VSubsetBuilder.MakeStaticAndClear;
 end;
 
 procedure TfrmMain.FormActivate(Sender: TObject);
@@ -5468,7 +5525,8 @@ begin
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
     if (FState.State=ao_movemap)and(Button=mbLeft) then begin
       VVectorItem := nil;
-      VVectorItems := FWikiLayer.FindItems(VLocalConverter, Point(x,y));
+
+      VVectorItems := FindItems(VLocalConverter, Point(x,y));
       if VVectorItems <> nil then begin
         if VVectorItems.Count > 0 then begin
           VEnumUnknown := VVectorItems.GetEnum;
@@ -5480,54 +5538,6 @@ begin
               end else begin
                 VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
                   VMark.GetInfoUrl + '</a><br>';
-              end;
-            end else begin
-              VDescription := VDescription + '<hr>';
-            end;
-            VDescription := VDescription + VMark.Desc;
-            VTitle := VTitle + VMark.Name + '; ';
-            VFound := VFound + 1;
-            VVectorItem := VMark;
-          end;
-        end;
-      end;
-
-      VVectorItems := FLayerSearchResults.FindItems(VLocalConverter, Point(x,y));
-      if VVectorItems <> nil then begin
-        if VVectorItems.Count > 0 then begin
-          VEnumUnknown:=VVectorItems.GetEnum;
-          while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
-            if VMark.GetInfoUrl <> '' then begin
-              if VMark.Name <> '' then begin
-                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
-                  VMark.Name + '</a><br>';
-              end else begin
-                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
-                  VMark.GetInfoUrl + '</a><br>';
-              end;
-            end else begin
-              VDescription := VDescription + '<hr>';
-            end;
-            VDescription := VDescription + VMark.Desc;
-            VTitle := VTitle + VMark.Name + '; ';
-            VFound := VFound + 1;
-            VVectorItem := VMark;
-          end;
-        end;
-      end;
-
-      VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x,y));
-      if VVectorItems <> nil then begin
-        if VVectorItems.Count > 0 then begin
-          VEnumUnknown := VVectorItems.GetEnum;
-          while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
-            if VMark.GetInfoUrl <> '' then begin
-              if VMark.Name <> '' then begin
-                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl +
-                  '">' + VMark.Name + '</a><br>';
-              end else begin
-                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl +
-                  '">' + VMark.GetInfoUrl + '</a><br>';
               end;
             end else begin
               VDescription := VDescription + '<hr>';
@@ -5720,28 +5730,7 @@ begin
     // show hint
     VItemFound := nil;
 
-    VVectorItems := FWikiLayer.FindItems(VLocalConverter,VMousePos);
-    if VVectorItems <> nil then begin
-      if VVectorItems.Count > 0 then begin
-        VEnumUnknown := VVectorItems.GetEnum;
-        if VEnumUnknown <> nil then
-          while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
-            VItemHint := addToHint(VItemHint, VMark);
-          end;
-      end;
-    end;
-
-    VVectorItems := FLayerSearchResults.FindItems(VLocalConverter, VMousePos);
-    if VVectorItems <> nil then begin
-      if VVectorItems.Count > 0 then begin
-        VEnumUnknown := VVectorItems.GetEnum;
-        while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
-            VItemHint := addToHint(VItemHint, VMark);
-        end;
-      end;
-    end;
-
-    VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, VMousePos);
+    VVectorItems := FindItems(VLocalConverter, VMousePos);
     if VVectorItems <> nil then begin
       if VVectorItems.Count > 0 then begin
         VEnumUnknown := VVectorItems.GetEnum;
