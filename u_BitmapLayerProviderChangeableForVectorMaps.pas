@@ -5,12 +5,10 @@ interface
 uses
   i_VectorItemDrawConfig,
   i_Bitmap32StaticFactory,
-  i_TileError,
   i_VectorItemSubsetChangeable,
   i_ProjectedGeometryProvider,
   i_ListenerNotifierLinksList,
   i_BitmapLayerProvider,
-  i_BitmapLayerProviderChangeable,
   u_BitmapLayerProviderChangeableBase;
 
 type
@@ -18,7 +16,6 @@ type
   private
     FConfig: IVectorItemDrawConfig;
     FBitmapFactory: IBitmap32StaticFactory;
-    FErrorLogger: ITileErrorLogger;
     FProjectedProvider: IProjectedGeometryProvider;
     FVectorItems: IVectorItemSubsetChangeable;
 
@@ -30,7 +27,6 @@ type
     constructor Create(
       const AConfig: IVectorItemDrawConfig;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AErrorLogger: ITileErrorLogger;
       const AProjectedProvider: IProjectedGeometryProvider;
       const AVectorItems: IVectorItemSubsetChangeable
     );
@@ -41,7 +37,6 @@ implementation
 uses
   i_VectorItemSubset,
   u_ListenerByEvent,
-  u_ListenerNotifierLinksList,
   u_BitmapLayerProviderByVectorSubset;
 
 { TBitmapLayerProviderChangeableForVectorMaps }
@@ -49,7 +44,6 @@ uses
 constructor TBitmapLayerProviderChangeableForVectorMaps.Create(
   const AConfig: IVectorItemDrawConfig;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AErrorLogger: ITileErrorLogger;
   const AProjectedProvider: IProjectedGeometryProvider;
   const AVectorItems: IVectorItemSubsetChangeable
 );
@@ -57,7 +51,6 @@ begin
   inherited Create;
   FConfig := AConfig;
   FBitmapFactory := ABitmapFactory;
-  FErrorLogger := AErrorLogger;
   FProjectedProvider := AProjectedProvider;
   FVectorItems := AVectorItems;
 

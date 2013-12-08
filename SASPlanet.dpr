@@ -352,6 +352,7 @@ uses
   i_KmlLayerConfig in 'i_KmlLayerConfig.pas',
   u_KmlLayerConfig in 'u_KmlLayerConfig.pas',
   u_MapLayerVectorMaps in 'MapLayers\u_MapLayerVectorMaps.pas',
+  u_FindVectorItemsForVectorMaps in 'MapLayers\u_FindVectorItemsForVectorMaps.pas',
   i_MiniMapLayerConfig in 'i_MiniMapLayerConfig.pas',
   u_MiniMapMapsConfig in 'u_MiniMapMapsConfig.pas',
   u_MiniMapLayerConfig in 'u_MiniMapLayerConfig.pas',

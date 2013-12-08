@@ -742,6 +742,7 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_InterfaceListSimple,
+  i_InternalPerformanceCounter,
   i_MarkId,
   i_MapTypes,
   i_MapTypeSet,
@@ -760,6 +761,7 @@ uses
   i_PathDetalizeProviderList,
   i_SensorViewListGenerator,
   i_VectorItemsFactory,
+  i_VectorItemSubsetChangeable,
   i_ConfigDataProvider,
   i_PointCaptionsLayerConfig,
   i_MapVersionInfo,
@@ -785,6 +787,7 @@ uses
   u_GeoFun,
   u_GeoToStr,
   u_MapType,
+  u_VectorItemSubsetChangeableForVectorLayers,
   u_MapLayerVectorMaps,
   u_MiniMapLayer,
   u_MiniMapLayerViewRect,
@@ -810,6 +813,7 @@ uses
   u_MapLayerGPSMarkerRings,
   u_MapLayerSearchResults,
   u_FindVectorItemsFromSearchResults,
+  u_FindVectorItemsForVectorMaps,
   u_MapLayerFillingMap,
   u_MapLayerGoto,
   u_CenterScale,
@@ -1442,6 +1446,8 @@ var
   VMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
   VLayersList: IInterfaceListSimple;
   VPopupMenu: IPopUp;
+  VVectorItems: IVectorItemSubsetChangeable;
+  VPerfList: IInternalPerformanceCounterList;
 begin
   VLayersList := TInterfaceListSimple.Create;
   VLayersList.Add(
@@ -1481,9 +1487,27 @@ begin
       FConfig.LayersConfig.MapLayerGridsConfig
     )
   );
+  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerVectorMaps');
+  VVectorItems :=
+    TVectorItemSubsetChangeableForVectorLayers.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      FConfig.ViewPortState.Position,
+      FConfig.MainMapsConfig.GetActiveKmlLayersSet,
+      FTileErrorLogger,
+      GState.VectorItemSubsetBuilderFactory,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
+    );
   FWikiLayer :=
+    TFindVectorItemsForVectorMaps.Create(
+      GState.VectorItemSubsetBuilderFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorItems
+    );
+  VLayersList.Add(
     TMapLayerVectorMaps.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerVectorMaps'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1491,15 +1515,13 @@ begin
       FConfig.ViewPortState.View,
       GState.Config.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
-      GState.VectorItemSubsetBuilderFactory,
       GState.ProjectedGeometryProvider,
       GState.GUISyncronizedTimerNotifier,
-      FTileErrorLogger,
+      VVectorItems,
       GState.BitmapFactory,
-      FConfig.LayersConfig.KmlLayerConfig,
-      FConfig.MainMapsConfig.GetActiveKmlLayersSet
-    );
-  VLayersList.Add(FWikiLayer);
+      FConfig.LayersConfig.KmlLayerConfig
+    )
+  );
   VLayersList.Add(
     TMapLayerFillingMap.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerFillingMap'),
