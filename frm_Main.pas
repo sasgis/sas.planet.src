@@ -788,6 +788,7 @@ uses
   u_GeoToStr,
   u_MapType,
   u_VectorItemSubsetChangeableForVectorLayers,
+  u_VectorItemSubsetChangeableForMarksLayer,
   u_MapLayerVectorMaps,
   u_MiniMapLayer,
   u_MiniMapLayerViewRect,
@@ -1558,9 +1559,28 @@ begin
       GState.HashFunction,
       TMarkerProviderForVectorItemForMarkPoints.Create(GState.BitmapFactory, VMarkerChangeable)
     );
+  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerMarks');
+  VVectorItems :=
+    TVectorItemSubsetChangeableForMarksLayer.Create(
+      VPerfList,
+      GState.AppStartedNotifier,
+      GState.AppClosingNotifier,
+      FConfig.ViewPortState.Position,
+      FMarkDBGUI.MarksDb,
+      FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
+      FConfig.LayersConfig.MarksLayerConfig.ThreadConfig
+    );
   FLayerMapMarks:=
+    TFindVectorItemsForVectorMaps.Create(
+      GState.VectorItemSubsetBuilderFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorItems,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      24
+    );
+  VLayersList.Add(
     TMapLayerMarks.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerMarks'),
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
@@ -1568,15 +1588,14 @@ begin
       FConfig.ViewPortState.View,
       GState.Config.TileMatrixDraftResamplerConfig,
       GState.LocalConverterFactory,
-      GState.VectorItemSubsetBuilderFactory,
       GState.ProjectedGeometryProvider,
       VMarkerProviderForVectorItem,
       GState.GUISyncronizedTimerNotifier,
       GState.BitmapFactory,
-      FConfig.LayersConfig.MarksLayerConfig,
-      FMarkDBGUI.MarksDb
-    );
-  VLayersList.Add(FLayerMapMarks);
+      VVectorItems,
+      FConfig.LayersConfig.MarksLayerConfig
+    )
+  );
   VLayersList.Add(
     TMapLayerGPSTrack.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerGPSTrack'),
