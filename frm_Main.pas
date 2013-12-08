@@ -5516,11 +5516,7 @@ begin
         end;
       end;
 
-      VVectorItems := nil;
-      if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
-        VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x,y));
-      end;
-
+      VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x,y));
       if VVectorItems <> nil then begin
         if VVectorItems.Count > 0 then begin
           VEnumUnknown := VVectorItems.GetEnum;
@@ -5724,7 +5720,6 @@ begin
     // show hint
     VItemFound := nil;
 
-    VVectorItem := nil;
     VVectorItems := FWikiLayer.FindItems(VLocalConverter,VMousePos);
     if VVectorItems <> nil then begin
       if VVectorItems.Count > 0 then begin
@@ -5746,11 +5741,7 @@ begin
       end;
     end;
 
-    VVectorItem := nil;
-    VVectorItems := nil;
-    if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks) then begin
-      VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, VMousePos);
-    end;
+    VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, VMousePos);
     if VVectorItems <> nil then begin
       if VVectorItems.Count > 0 then begin
         VEnumUnknown := VVectorItems.GetEnum;
