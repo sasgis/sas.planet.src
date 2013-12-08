@@ -26,6 +26,7 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
   i_Bitmap32StaticFactory,
+  i_Bitmap32To8Converter,
   i_InternalPerformanceCounter,
   u_BaseInterfacedObject;
 
@@ -36,6 +37,7 @@ type
   )
   private
     FBitmapFactory: IBitmap32StaticFactory;
+    FBitmap32To8Converter: IBitmap32To8Converter;
   private
      // BMP
     function CreateBmpLoader(
@@ -84,6 +86,8 @@ implementation
 uses
   u_BitmapTileLibJpeg,
   u_BitmapTileFreeImage,
+  u_Bitmap32To8ConverterByFreeImage,
+  u_Bitmap32To8ConverterByLibImageQuant,
   u_InternalPerformanceCounterFake;
 
 function GetValidPerfCounterList(
@@ -99,10 +103,16 @@ end;
 { TBitmapTileSaveLoadFactory }
 
 constructor TBitmapTileSaveLoadFactory.Create(
-  const ABitmapFactory: IBitmap32StaticFactory);
+  const ABitmapFactory: IBitmap32StaticFactory
+);
 begin
   inherited Create;
   FBitmapFactory := ABitmapFactory;
+  try
+    FBitmap32To8Converter := TBitmap32To8ConverterByLibImageQuant.Create;
+  except
+    FBitmap32To8Converter := TBitmap32To8ConverterByFreeImage.Create;
+  end;
 end;
 
 function TBitmapTileSaveLoadFactory.CreateBmpLoader(
@@ -139,6 +149,7 @@ function TBitmapTileSaveLoadFactory.CreateGifSaver(
 ): IBitmapTileSaver;
 begin
   Result := TBitmapTileFreeImageSaverGif.Create(
+    FBitmap32To8Converter,
     GetValidPerfCounterList(APerfCounterList)
   );
 end;
@@ -165,6 +176,7 @@ begin
         Result := TBitmapTileFreeImageSaverPng.Create(
           ACompressionLevel,
           8,
+          FBitmap32To8Converter,
           GetValidPerfCounterList(APerfCounterList)
         );
       end;
@@ -174,6 +186,7 @@ begin
         Result := TBitmapTileFreeImageSaverPng.Create(
           ACompressionLevel,
           24,
+          nil,
           GetValidPerfCounterList(APerfCounterList)
         );
       end;
@@ -183,6 +196,7 @@ begin
       Result := TBitmapTileFreeImageSaverPng.Create(
         ACompressionLevel,
         32,
+        nil,
         GetValidPerfCounterList(APerfCounterList)
       );
     end;
