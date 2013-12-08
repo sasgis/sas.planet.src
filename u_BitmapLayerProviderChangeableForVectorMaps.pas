@@ -5,7 +5,6 @@ interface
 uses
   i_VectorItemDrawConfig,
   i_Bitmap32StaticFactory,
-  i_MapTypeSetChangeable,
   i_TileError,
   i_VectorItemSubsetChangeable,
   i_ProjectedGeometryProvider,
@@ -19,13 +18,11 @@ type
   private
     FConfig: IVectorItemDrawConfig;
     FBitmapFactory: IBitmap32StaticFactory;
-    FLayersSet: IMapTypeSetChangeable;
     FErrorLogger: ITileErrorLogger;
     FProjectedProvider: IProjectedGeometryProvider;
     FVectorItems: IVectorItemSubsetChangeable;
 
     procedure OnConfigChange;
-    procedure OnLayerSetChange;
     procedure OnItemsUpdated;
   protected
     function CreateStatic: IInterface; override;
@@ -33,7 +30,6 @@ type
     constructor Create(
       const AConfig: IVectorItemDrawConfig;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const ALayersSet: IMapTypeSetChangeable;
       const AErrorLogger: ITileErrorLogger;
       const AProjectedProvider: IProjectedGeometryProvider;
       const AVectorItems: IVectorItemSubsetChangeable
@@ -53,7 +49,6 @@ uses
 constructor TBitmapLayerProviderChangeableForVectorMaps.Create(
   const AConfig: IVectorItemDrawConfig;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const ALayersSet: IMapTypeSetChangeable;
   const AErrorLogger: ITileErrorLogger;
   const AProjectedProvider: IProjectedGeometryProvider;
   const AVectorItems: IVectorItemSubsetChangeable
@@ -62,7 +57,6 @@ begin
   inherited Create;
   FConfig := AConfig;
   FBitmapFactory := ABitmapFactory;
-  FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;
   FProjectedProvider := AProjectedProvider;
   FVectorItems := AVectorItems;
@@ -72,10 +66,6 @@ begin
     FConfig.ChangeNotifier
   );
 
-  LinksList.Add(
-    TNotifyNoMmgEventListener.Create(Self.OnLayerSetChange),
-    FLayersSet.ChangeNotifier
-  );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnItemsUpdated),
     FVectorItems.ChangeNotifier
@@ -117,16 +107,6 @@ begin
 end;
 
 procedure TBitmapLayerProviderChangeableForVectorMaps.OnItemsUpdated;
-begin
-  LockWrite;
-  try
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TBitmapLayerProviderChangeableForVectorMaps.OnLayerSetChange;
 begin
   LockWrite;
   try

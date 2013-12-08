@@ -125,7 +125,6 @@ begin
     TBitmapLayerProviderChangeableForVectorMaps.Create(
       AConfig.DrawConfig,
       ABitmapFactory,
-      ALayersSet,
       AErrorLogger,
       AProjectedProvider,
       FVectorItems
