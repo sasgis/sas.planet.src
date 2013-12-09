@@ -32,6 +32,7 @@ type
     function GetCount: Integer;
     function CalcLength(const ADatum: IDatum): Double;
     function CalcPerimeter(const ADatum: IDatum): Double;
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSamePath(const APath: ILonLatPath): Boolean;
     function IsSamePolygon(const APolygon: ILonLatPolygon): Boolean;
 
@@ -52,6 +53,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_GeoFun;
 
 { TEnumDoublePointEmpty }
@@ -127,6 +129,21 @@ function TLineSetEmpty.GetItemLonLatPolygonLine(
   AIndex: Integer): ILonLatPolygonLine;
 begin
   Result := nil;
+end;
+
+function TLineSetEmpty.IsSameGeometry(
+  const AGeometry: IGeometryLonLat
+): Boolean;
+var
+  VLine: ILonLatPath;
+  VPolygon: ILonLatPolygon;
+begin
+  Result := False;
+  if Supports(AGeometry, ILonLatPolygon, VPolygon) then begin
+    Result := IsSamePolygon(VPolygon);
+  end else if Supports(AGeometry, ILonLatPath, VLine) then begin
+    Result := IsSamePath(VLine);
+  end;
 end;
 
 function TLineSetEmpty.IsSamePath(const APath: ILonLatPath): Boolean;

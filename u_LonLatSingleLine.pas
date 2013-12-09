@@ -34,9 +34,10 @@ type
     ); overload;
   end;
 
-  TLonLatPathLine = class(TLonLatLineBase, ILonLatPathLine)
+  TLonLatPathLine = class(TLonLatLineBase, IGeometryLonLat, ILonLatPathLine)
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const ALine: ILonLatPathLine): Boolean;
     function CalcLength(const ADatum: IDatum): Double;
   public
@@ -48,9 +49,10 @@ type
     );
   end;
 
-  TLonLatPolygonLine = class(TLonLatLineBase, ILonLatPolygonLine)
+  TLonLatPolygonLine = class(TLonLatLineBase, IGeometryLonLat, ILonLatPolygonLine)
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const ALine: ILonLatPolygonLine): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
@@ -70,6 +72,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_GeoFun,
   u_EnumDoublePointBySingleLine;
 
@@ -186,6 +189,29 @@ begin
   end;
 end;
 
+function TLonLatPathLine.IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
+var
+  VLine: ILonLatPathLine;
+begin
+  if AGeometry = nil then begin
+    Result := False;
+    Exit;
+  end;
+  if AGeometry = IGeometryLonLat(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (FHash <> 0) and (AGeometry.Hash <> 0) and (FHash <> AGeometry.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+
+  Result := False;
+  if Supports(AGeometry, ILonLatPathLine, VLine) then begin
+    Result := IsSame(VLine);
+  end;
+end;
+
 { TLonLatPolygonLine }
 
 function TLonLatPolygonLine.CalcArea(
@@ -265,6 +291,31 @@ begin
     end;
 
     Result := True;
+  end;
+end;
+
+function TLonLatPolygonLine.IsSameGeometry(
+  const AGeometry: IGeometryLonLat
+): Boolean;
+var
+  VLine: ILonLatPolygonLine;
+begin
+  if AGeometry = nil then begin
+    Result := False;
+    Exit;
+  end;
+  if AGeometry = IGeometryLonLat(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (FHash <> 0) and (AGeometry.Hash <> 0) and (FHash <> AGeometry.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+
+  Result := False;
+  if Supports(AGeometry, ILonLatPolygonLine, VLine) then begin
+    Result := IsSame(VLine);
   end;
 end;
 

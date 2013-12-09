@@ -123,6 +123,7 @@ type
     FLine: ILonLatPath;
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APath: ILonLatPath): Boolean;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
@@ -141,6 +142,7 @@ type
     FLine: ILonLatPolygon;
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APolygon: ILonLatPolygon): Boolean;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
@@ -819,6 +821,12 @@ begin
   Result := FLine.IsSame(APath);
 end;
 
+function TLonLatPathWithSelected.IsSameGeometry(
+  const AGeometry: IGeometryLonLat): Boolean;
+begin
+  Result := FLine.IsSameGeometry(AGeometry);
+end;
+
 { TLonLatPolygonWithSelected }
 
 constructor TLonLatPolygonWithSelected.Create(
@@ -915,6 +923,13 @@ function TLonLatPolygonWithSelected.IsSame(
   const APolygon: ILonLatPolygon): Boolean;
 begin
   Result := FLine.IsSame(APolygon);
+end;
+
+function TLonLatPolygonWithSelected.IsSameGeometry(
+  const AGeometry: IGeometryLonLat
+): Boolean;
+begin
+  Result := FLine.IsSameGeometry(AGeometry);
 end;
 
 end.

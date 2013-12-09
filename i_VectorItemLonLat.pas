@@ -11,14 +11,30 @@ uses
   i_Datum;
 
 type
-  ILonLatPathLine = interface
-    ['{26634DF5-7845-42C1-8B74-C6F4FFA7E27E}']
-    function GetEnum: IEnumLonLatPoint;
-    function IsSame(const ALine: ILonLatPathLine): Boolean;
+  IGeometryLonLat = interface
+    ['{E53FCF09-DA26-44B1-854C-CC2A1330A3F0}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
 
     function GetBounds: ILonLatRect;
     property Bounds: ILonLatRect read GetBounds;
 
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
+  end;
+
+  IGeometryLonLatPoint = interface(IGeometryLonLat)
+    ['{C52B78AD-2635-48A6-9C8B-E94C4592CFD0}']
+    function IsSame(const ALine: IGeometryLonLatPoint): Boolean;
+
+    function GetPoint: TDoublePoint;
+    property Point: TDoublePoint read GetPoint;
+  end;
+
+  IGeometryLonLatLine = interface(IGeometryLonLat)
+    ['{F309D486-2E2A-4526-8BB8-A38A47E3C8FF}']
+    function IsSame(const ALine: IGeometryLonLatLine): Boolean;
+
+    function GetEnum: IEnumLonLatPoint;
     function CalcLength(const ADatum: IDatum): Double;
 
     function GetCount: Integer;
@@ -26,19 +42,13 @@ type
 
     function GetPoints: PDoublePointArray;
     property Points: PDoublePointArray read GetPoints;
-
-    function GetHash: THashValue;
-    property Hash: THashValue read GetHash;
   end;
 
-  ILonLatPolygonLine = interface
-    ['{A1F32B46-8C0B-46F1-97E9-D2347CF9FF5B}']
+  IGeometryLonLatPolygon = interface(IGeometryLonLat)
+    ['{C9FF5A32-B90D-43D2-9394-9E54A4F29905}']
+    function IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
+
     function GetEnum: IEnumLonLatPoint;
-    function IsSame(const ALine: ILonLatPolygonLine): Boolean;
-
-    function GetBounds: ILonLatRect;
-    property Bounds: ILonLatRect read GetBounds;
-
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
       const ADatum: IDatum;
@@ -51,38 +61,28 @@ type
 
     function GetPoints: PDoublePointArray;
     property Points: PDoublePointArray read GetPoints;
-
-    function GetHash: THashValue;
-    property Hash: THashValue read GetHash;
   end;
 
-  ILonLatPath = interface
-    ['{0E85CB46-D324-4052-BDE3-63F1C4A2665A}']
-    function GetEnum: IEnumLonLatPoint;
-    function IsSame(const APath: ILonLatPath): Boolean;
+  IGeometryLonLatMultiLine = interface(IGeometryLonLat)
+    ['{5BB3E4AF-5420-4EDB-9DE0-D44FFA38519E}']
+    function IsSame(const ALine: IGeometryLonLatMultiLine): Boolean;
 
-    function GetBounds: ILonLatRect;
-    property Bounds: ILonLatRect read GetBounds;
+    function GetEnum: IEnumLonLatPoint;
 
     function CalcLength(const ADatum: IDatum): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): ILonLatPathLine;
-    property Item[AIndex: Integer]: ILonLatPathLine read GetItem;
-
-    function GetHash: THashValue;
-    property Hash: THashValue read GetHash;
+    function GetItem(AIndex: Integer): IGeometryLonLatLine;
+    property Item[AIndex: Integer]: IGeometryLonLatLine read GetItem;
   end;
 
-  ILonLatPolygon = interface
-    ['{04CEBFBE-8FC1-4AB0-8B39-3C283287BF46}']
-    function GetEnum: IEnumLonLatPoint;
-    function IsSame(const APolygon: ILonLatPolygon): Boolean;
+  IGeometryLonLatMultiPolygon = interface(IGeometryLonLat)
+    ['{E71E059B-8FB3-42AD-97BD-7777AC66C8F2}']
+    function IsSame(const ALine: IGeometryLonLatMultiPolygon): Boolean;
 
-    function GetBounds: ILonLatRect;
-    property Bounds: ILonLatRect read GetBounds;
+    function GetEnum: IEnumLonLatPoint;
 
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
@@ -94,12 +94,14 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): ILonLatPolygonLine;
-    property Item[AIndex: Integer]: ILonLatPolygonLine read GetItem;
-
-    function GetHash: THashValue;
-    property Hash: THashValue read GetHash;
+    function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
+    property Item[AIndex: Integer]: IGeometryLonLatPolygon read GetItem;
   end;
+
+  ILonLatPathLine = IGeometryLonLatLine;
+  ILonLatPolygonLine = IGeometryLonLatPolygon;
+  ILonLatPath = IGeometryLonLatMultiLine;
+  ILonLatPolygon = IGeometryLonLatMultiPolygon;
 
 implementation
 
