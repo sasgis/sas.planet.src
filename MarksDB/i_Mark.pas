@@ -24,7 +24,7 @@ interface
 
 uses
   t_GeoTypes,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorDataItemSimple;
 
 type

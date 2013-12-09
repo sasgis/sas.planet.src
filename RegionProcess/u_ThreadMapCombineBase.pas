@@ -8,7 +8,7 @@ uses
   i_NotifierOperation,
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_CoordConverter,
   i_MapCalibration,
   i_LocalCoordConverter,

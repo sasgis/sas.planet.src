@@ -44,7 +44,7 @@ uses
   i_CoordConverterList,
   i_ContentTypeManager,
   i_GlobalViewMainConfig,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_ProjectedGeometryProvider,
   i_ImageResamplerConfig,

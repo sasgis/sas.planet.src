@@ -11,7 +11,7 @@ uses
   YaMobileCache,
   i_BinaryData,
   i_Bitmap32StaticFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_NotifierOperation,
   i_BitmapTileSaveLoad,
   i_RegionProcessProgressInfo,

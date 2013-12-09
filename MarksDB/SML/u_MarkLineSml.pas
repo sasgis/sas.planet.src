@@ -27,7 +27,7 @@ uses
   t_GeoTypes,
   i_Appearance,
   i_LonLatRect,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_Mark,
   i_Category,

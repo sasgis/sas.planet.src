@@ -8,7 +8,7 @@ uses
   Classes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_MapVersionInfo,

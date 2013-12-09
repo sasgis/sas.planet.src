@@ -27,7 +27,7 @@ uses
   t_GeoTypes,
   i_HashFunction,
   i_AppearanceOfMarkFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_MarkPicture,
   i_Category,

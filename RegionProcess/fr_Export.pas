@@ -11,7 +11,7 @@ uses
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_CoordConverterFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,

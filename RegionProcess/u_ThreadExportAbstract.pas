@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   Types,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_RegionProcessProgressInfo,
   u_ThreadRegionProcessAbstract;
 

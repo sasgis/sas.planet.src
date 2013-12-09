@@ -10,7 +10,7 @@ uses
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,
   i_LocalCoordConverter,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_ImageLineProvider,
   i_MapCalibration,
   i_LocalCoordConverterFactorySimpe,

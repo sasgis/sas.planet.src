@@ -12,7 +12,7 @@ uses
   i_BinaryData,
   i_Bitmap32StaticFactory,
   i_RegionProcessProgressInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_CoordConverter,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,

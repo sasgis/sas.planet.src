@@ -11,7 +11,7 @@ uses
   i_CoordConverterFactory,
   i_ContentTypeManager,
   i_VectorItemsFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,
   i_MapTypeListStatic,

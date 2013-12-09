@@ -9,7 +9,7 @@ uses
   i_LonLatRect,
   i_Datum,
   i_NotifierOperation,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_BaseInterfacedObject;
 
 type

@@ -3,7 +3,7 @@ unit u_RegionProcessProgressInfoInternalFactory;
 interface
 
 uses
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_RegionProcessProgressInfo,
   i_MapViewGoto,
   i_RegionProcess,

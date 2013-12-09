@@ -13,7 +13,7 @@ uses
   i_BitmapLayerProvider,
   i_MapCalibration,
   i_LocalCoordConverter,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_LocalCoordConverterFactorySimpe,
   u_ThreadMapCombineBase;
 

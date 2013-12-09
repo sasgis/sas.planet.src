@@ -9,7 +9,7 @@ uses
   i_EnumDoublePoint,
   i_DoublePointFilter,
   i_DoublePointsAggregator,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemProjected,
   i_VectorItemLocal;
 

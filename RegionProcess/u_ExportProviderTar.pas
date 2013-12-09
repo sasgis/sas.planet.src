@@ -5,7 +5,7 @@ interface
 uses
   Forms,
   i_LanguageManager,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

@@ -76,7 +76,7 @@ type
 implementation
 
 uses
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
   u_GeoFun;

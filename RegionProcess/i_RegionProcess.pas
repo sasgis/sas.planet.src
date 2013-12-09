@@ -3,7 +3,7 @@ unit i_RegionProcess;
 interface
 
 uses
-  i_VectorItemLonLat;
+  i_GeometryLonLat;
 
 type
   IRegionProcess = interface

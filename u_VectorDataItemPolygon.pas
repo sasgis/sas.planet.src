@@ -28,7 +28,7 @@ uses
   i_Appearance,
   i_LonLatRect,
   i_VectorDataItemSimple,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_HtmlToHintTextConverter,
   u_VectorDataItemBase;
 

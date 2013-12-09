@@ -30,7 +30,7 @@ uses
   i_NotifierOperation,
   i_InetConfig,
   i_Downloader,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_PathDetalizeProvider,
   u_BaseInterfacedObject;

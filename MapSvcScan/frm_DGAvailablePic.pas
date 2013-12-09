@@ -284,7 +284,7 @@ implementation
 uses
   i_ImportConfig,
   i_Mark,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_CoordConverter,
   i_DoublePointsAggregator,
   u_Clipboard,

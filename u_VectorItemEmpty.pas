@@ -7,7 +7,7 @@ uses
   t_Hash,
   i_LonLatRect,
   i_EnumDoublePoint,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_Datum,
   i_NotifierOperation,
   u_BaseInterfacedObject;

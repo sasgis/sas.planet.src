@@ -34,7 +34,7 @@ uses
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_VectorItemsFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,
   i_BitmapTileSaveLoad,

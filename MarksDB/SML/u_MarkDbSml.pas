@@ -181,7 +181,7 @@ uses
   u_IDInterfaceList,
   u_InterfaceListSimple,
   i_DoublePointsAggregator,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_DoublePointsAggregator,
   u_SimpleFlagWithInterlock,
   u_GeoFun;

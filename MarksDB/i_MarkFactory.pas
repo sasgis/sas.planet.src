@@ -25,7 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_Appearance,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_ImportConfig,
   i_Category,

@@ -41,7 +41,7 @@ uses
   StrUtils,
   Classes,
   t_GeoTypes,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,

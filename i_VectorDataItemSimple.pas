@@ -28,7 +28,7 @@ uses
   i_Appearance,
   i_LonLatRect,
   i_Category,
-  i_VectorItemLonLat;
+  i_GeometryLonLat;
 
 type
   IVectorDataItemSimple = interface
@@ -71,14 +71,14 @@ type
 
   IVectorDataItemLine = interface(IVectorDataItemSimple)
     ['{6EF44536-9F01-4053-AF77-B83F7574773E}']
-    function GetLine: ILonLatPath;
-    property Line: ILonLatPath read GetLine;
+    function GetLine: IGeometryLonLatMultiLine;
+    property Line: IGeometryLonLatMultiLine read GetLine;
   end;
 
   IVectorDataItemPoly = interface(IVectorDataItemSimple)
     ['{8693C9BF-C424-4223-AAD2-8DDEAD2344A1}']
-    function GetLine: ILonLatPolygon;
-    property Line: ILonLatPolygon read GetLine;
+    function GetLine: IGeometryLonLatMultiPolygon;
+    property Line: IGeometryLonLatMultiPolygon read GetLine;
   end;
 
 implementation

@@ -10,7 +10,7 @@ uses
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_MapTypeGUIConfigList,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract;
 

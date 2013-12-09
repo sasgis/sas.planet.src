@@ -36,7 +36,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_PredicateByTileInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
   fr_MapSelect,

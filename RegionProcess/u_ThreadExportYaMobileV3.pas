@@ -18,7 +18,7 @@ uses
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_VectorItemsFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_ThreadExportAbstract;
 
 type

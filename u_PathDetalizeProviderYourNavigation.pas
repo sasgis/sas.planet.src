@@ -28,7 +28,7 @@ uses
   i_InetConfig,
   i_Downloader,
   i_VectorDataLoader,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_VectorDataFactory,
   i_PathDetalizeProvider,

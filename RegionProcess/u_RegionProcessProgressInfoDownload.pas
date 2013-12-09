@@ -7,7 +7,7 @@ uses
   SysUtils,
   i_LogSimple,
   i_LogSimpleProvider,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_ConfigDataWriteProvider,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoDownload,

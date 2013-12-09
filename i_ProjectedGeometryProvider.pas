@@ -4,7 +4,7 @@ interface
 
 uses
   i_ProjectionInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemProjected;
 
 type

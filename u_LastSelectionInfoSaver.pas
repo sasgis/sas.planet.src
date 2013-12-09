@@ -44,7 +44,7 @@ uses
   SysUtils,
   IniFiles,
   i_ThreadConfig,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_ConfigDataWriteProvider,
   i_EnumDoublePoint,
   u_ThreadConfig,

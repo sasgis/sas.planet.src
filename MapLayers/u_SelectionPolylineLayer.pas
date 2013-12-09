@@ -8,7 +8,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,

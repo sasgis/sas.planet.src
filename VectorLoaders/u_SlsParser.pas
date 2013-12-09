@@ -35,7 +35,7 @@ uses
   Classes,
   IniFiles,
   i_ConfigDataProvider,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   u_ConfigProviderHelpers,
   u_StreamReadOnlyByBinaryData,

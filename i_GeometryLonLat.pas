@@ -1,4 +1,4 @@
-unit i_VectorItemLonLat;
+unit i_GeometryLonLat;
 
 interface
 

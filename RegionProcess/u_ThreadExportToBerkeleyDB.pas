@@ -30,7 +30,7 @@ uses
   i_TileStorage,
   i_TileInfoBasic,
   i_MapVersionInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_NotifierTime,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,

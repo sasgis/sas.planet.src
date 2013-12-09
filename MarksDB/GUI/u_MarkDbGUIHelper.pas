@@ -33,7 +33,7 @@ uses
   i_VectorItemsFactory,
   i_ArchiveReadWriteFactory,
   i_ValueToStringConverter,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
   i_Mark,
   i_MarkId,

@@ -36,7 +36,7 @@ uses
   i_ListenerTime,
   i_MapViewGoto,
   i_RegionProcess,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_RegionProcessProgressInfo,
   i_NotifierOperation,
   u_CommonFormAndFrameParents, Buttons;

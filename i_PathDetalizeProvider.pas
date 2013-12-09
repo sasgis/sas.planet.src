@@ -24,7 +24,7 @@ interface
 
 uses
   i_NotifierOperation,
-  i_VectorItemLonLat;
+  i_GeometryLonLat;
 
 type
   IPathDetalizeProvider = interface

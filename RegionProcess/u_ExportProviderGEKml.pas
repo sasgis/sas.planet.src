@@ -4,7 +4,7 @@ interface
 
 uses
   Forms,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_LanguageManager,
   i_MapTypeSet,

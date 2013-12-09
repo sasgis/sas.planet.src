@@ -31,7 +31,7 @@ uses
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_TilesDelete;

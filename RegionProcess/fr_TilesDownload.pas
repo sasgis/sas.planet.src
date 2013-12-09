@@ -14,7 +14,7 @@ uses
   i_MapTypeSet,
   i_CoordConverterFactory,
   i_LanguageManager,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

@@ -41,7 +41,7 @@ uses
   i_NotifierOperation,
   i_DoublePointsAggregator,
   i_CoordConverter,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_DownloadResultFactory,
   u_DownloadRequest,
   u_DownloaderHttp,

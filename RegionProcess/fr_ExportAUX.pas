@@ -14,7 +14,7 @@ uses
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_RegionProcessParamsFrame,
   u_MapType,
   fr_MapSelect,

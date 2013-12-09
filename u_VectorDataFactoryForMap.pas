@@ -10,7 +10,7 @@ uses
   i_Appearance,
   i_StringProvider,
   i_HtmlToHintTextConverter,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_VectorDataFactory,
   u_BaseInterfacedObject;

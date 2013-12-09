@@ -9,7 +9,7 @@ uses
   i_EnumDoublePoint,
   i_Datum,
   i_InterfaceListStatic,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_BaseInterfacedObject;
 
 type

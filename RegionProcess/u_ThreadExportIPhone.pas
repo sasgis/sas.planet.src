@@ -19,7 +19,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_VectorItemsFactory,
   i_CoordConverter,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_GeoFun,
   t_GeoTypes,
   u_ThreadExportAbstract;

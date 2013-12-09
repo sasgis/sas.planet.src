@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   Forms,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
   i_LanguageManager,

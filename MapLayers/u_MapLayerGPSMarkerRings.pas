@@ -18,7 +18,7 @@ uses
   i_SimpleFlag,
   i_ProjectedDrawableElement,
   i_MarkerRingsConfig,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemProjected,
   i_VectorItemsFactory,
   i_GPSRecorder,

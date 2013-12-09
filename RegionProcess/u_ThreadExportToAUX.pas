@@ -9,7 +9,7 @@ uses
   i_MapVersionInfo,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemProjected,
   u_ThreadRegionProcessAbstract;
 

@@ -18,7 +18,7 @@ uses
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_RegionProcessParamsFrame,
   u_CommonFormAndFrameParents;
 

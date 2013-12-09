@@ -118,7 +118,7 @@ implementation
 uses
   ALfcnString,
   cUnicodeCodecs,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
   u_GeoFun;

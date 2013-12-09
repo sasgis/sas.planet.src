@@ -5,7 +5,7 @@ interface
 uses
   t_Hash,
   i_ProjectionInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemProjected,
   i_ProjectedGeometryProvider,
   i_HashFunction,

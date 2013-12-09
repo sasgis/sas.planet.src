@@ -23,7 +23,7 @@ unit i_LastSelectionInfo;
 interface
 
 uses
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_ConfigDataElement;
 
 type

@@ -25,7 +25,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_Appearance,
   i_AppearanceOfMarkFactory,
   i_VectorDataItemSimple,

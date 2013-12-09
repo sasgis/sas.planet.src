@@ -6,7 +6,7 @@ uses
   Forms,
   i_NotifierTime,
   i_LanguageManager,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_MapTypeSet,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,

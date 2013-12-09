@@ -11,7 +11,7 @@ uses
   i_RegionProcessProgressInfo,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_MapCalibration,
   u_ThreadMapCombineBase,
   LibBMP;

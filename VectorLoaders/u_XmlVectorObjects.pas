@@ -11,7 +11,7 @@ uses
   i_VectorItemSubset,
   i_VectorDataItemSimple,
   i_VectorDataFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_InterfaceListSimple,
   i_DoublePointsAggregator,

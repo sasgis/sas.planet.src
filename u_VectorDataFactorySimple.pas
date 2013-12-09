@@ -8,7 +8,7 @@ uses
   i_HashFunction,
   i_Appearance,
   i_HtmlToHintTextConverter,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_VectorDataFactory,
   u_BaseInterfacedObject;

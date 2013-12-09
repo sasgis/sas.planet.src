@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   i_Listener,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_NotifierOperation,
   i_RegionProcessProgressInfo;
 

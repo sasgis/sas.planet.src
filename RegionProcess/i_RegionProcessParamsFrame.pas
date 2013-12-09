@@ -4,7 +4,7 @@ interface
 
 uses
   Types,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_BitmapLayerProvider,
   i_MapCalibration,
   i_ProjectionInfo,

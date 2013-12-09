@@ -220,7 +220,7 @@ uses
   i_ImportConfig,
   i_MarkTemplate,
   i_MarkFactoryConfig,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
   u_ListenerByEvent;

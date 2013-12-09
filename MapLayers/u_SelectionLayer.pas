@@ -10,7 +10,7 @@ uses
   i_InternalPerformanceCounter,
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   u_PolyLineLayerBase;
 

@@ -25,7 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_GPS,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_Changeable;
 
 type

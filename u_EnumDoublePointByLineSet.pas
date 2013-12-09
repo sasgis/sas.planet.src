@@ -5,7 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemProjected,
   i_VectorItemLocal,
   u_BaseInterfacedObject;

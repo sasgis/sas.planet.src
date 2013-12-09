@@ -12,7 +12,7 @@ uses
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_MapCalibration,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
   i_ImageLineProvider,

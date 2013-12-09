@@ -11,7 +11,7 @@ uses
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
   i_MapCalibration,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,

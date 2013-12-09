@@ -11,7 +11,7 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_CoordConverterList,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_MapTypeSet,
   i_UseTilePrevZoomConfig,
   i_ActiveMapsConfig,

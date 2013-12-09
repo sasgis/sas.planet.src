@@ -27,7 +27,7 @@ uses
   Forms,
   i_NotifierOperation,
   i_MapTypeSet,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_CoordConverterFactory,
   i_LanguageManager,

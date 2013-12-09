@@ -28,7 +28,7 @@ uses
   i_StringProvider,
   i_LonLatRect,
   i_VectorDataItemSimple,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_HtmlToHintTextConverter,
   u_VectorDataItemOfMapBase;
 

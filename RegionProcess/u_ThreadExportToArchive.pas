@@ -12,7 +12,7 @@ uses
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_VectorItemsFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_ArchiveReadWrite,
   i_TileStorage,
   u_ThreadExportAbstract;

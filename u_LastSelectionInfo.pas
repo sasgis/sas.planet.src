@@ -24,7 +24,7 @@ interface
 
 uses
   i_LastSelectionInfo,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_ConfigDataElementBase;
 
 type

@@ -26,7 +26,7 @@ uses
   GR32,
   i_ContentTypeManager,
   i_Bitmap32Static,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;

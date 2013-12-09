@@ -12,7 +12,7 @@ uses
   i_CoordConverterFactory,
   i_Bitmap32StaticFactory,
   i_VectorItemsFactory,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_MapVersionInfo,
   u_MapType,
   u_ThreadRegionProcessAbstract,

@@ -5,7 +5,7 @@ interface
 uses
   Windows,
   t_GeoTypes,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_VectorItemsFactory,
   i_PathConfig,
   i_GPS,

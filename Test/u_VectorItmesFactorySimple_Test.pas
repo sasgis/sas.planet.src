@@ -41,7 +41,7 @@ type
 implementation
 
 uses
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   i_ProjectionInfo,
   i_HashFunction,
   i_VectorItemProjected,

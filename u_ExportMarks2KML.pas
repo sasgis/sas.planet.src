@@ -93,7 +93,7 @@ uses
   t_GeoTypes,
   i_BinaryData,
   i_EnumDoublePoint,
-  i_VectorItemLonLat,
+  i_GeometryLonLat,
   u_BinaryDataByMemStream,
   u_StreamReadOnlyByBinaryData;
 
