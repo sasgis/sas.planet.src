@@ -54,7 +54,7 @@ type
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList
     );
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
   end;
 
 implementation
@@ -113,7 +113,7 @@ begin
   );
 end;
 
-procedure TProviderMapCombinePNG.StartProcess(const APolygon: ILonLatPolygon);
+procedure TProviderMapCombinePNG.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;

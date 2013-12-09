@@ -8,11 +8,11 @@ uses
 type
   IRegionProcess = interface
     procedure ProcessPolygon(
-      const APolygon: ILonLatPolygon
+      const APolygon: IGeometryLonLatMultiPolygon
     );
     procedure ProcessPolygonWithZoom(
       const AZoom: Byte;
-      const APolygon: ILonLatPolygon
+      const APolygon: IGeometryLonLatMultiPolygon
     );
   end;
 

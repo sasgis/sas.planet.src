@@ -687,7 +687,7 @@ end;
 procedure TfrmMarksExplorer.btnOpSelectMarkClick(Sender: TObject);
 var
   VMark: IMark;
-  Vpolygon: ILonLatPolygon;
+  Vpolygon: IGeometryLonLatMultiPolygon;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin

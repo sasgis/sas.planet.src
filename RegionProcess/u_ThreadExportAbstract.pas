@@ -18,7 +18,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const AZooms: TByteDynArray;
       const ADebigThreadName: string = ''
     );
@@ -33,7 +33,7 @@ uses
 
 constructor TThreadExportAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const AZooms: TByteDynArray;
   const ADebigThreadName: string = ''
 );

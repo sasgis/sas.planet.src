@@ -83,13 +83,13 @@ type
 
   TPathLayerBase = class(TLineLayerBase)
   private
-    FLine: ILonLatPath;
+    FLine: IGeometryLonLatMultiLine;
     FProjectedLine: IProjectedPath;
     FLocalLine: ILocalPath;
     FPolygon: IDrawablePolygon;
   protected
     procedure ChangedSource;
-    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPath; virtual; abstract;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatMultiLine; virtual; abstract;
   protected
     procedure PaintLayer(
       ABuffer: TBitmap32;
@@ -103,14 +103,14 @@ type
     FFillColor: TColor32;
     FFillVisible: Boolean;
 
-    FLine: ILonLatPolygon;
+    FLine: IGeometryLonLatMultiPolygon;
     FProjectedLine: IProjectedPolygon;
     FLocalLine: ILocalPolygon;
     FPolygonBorder: IDrawablePolygon;
     FPolygonFill: IDrawablePolygon;
   protected
     procedure ChangedSource;
-    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; virtual; abstract;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatMultiPolygon; virtual; abstract;
   protected
     procedure DoConfigChange; override;
     procedure PaintLayer(
@@ -136,7 +136,7 @@ type
     FLine: ILonLatPathWithSelected;
     procedure OnLineChange;
   protected
-    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPath; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatMultiLine; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -157,7 +157,7 @@ type
     FLine: ILonLatPolygonWithSelected;
     procedure OnLineChange;
   protected
-    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatMultiPolygon; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -360,7 +360,7 @@ procedure TPathLayerBase.PaintLayer(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  VLonLatLine: ILonLatPath;
+  VLonLatLine: IGeometryLonLatMultiLine;
   VEnum: IEnumLocalPoint;
   VProjectedLine: IProjectedPath;
   VLocalLine: ILocalPath;
@@ -533,7 +533,7 @@ procedure TPolygonLayerBase.PaintLayer(
   const ALocalConverter: ILocalCoordConverter
 );
 var
-  VLonLatLine: ILonLatPolygon;
+  VLonLatLine: IGeometryLonLatMultiPolygon;
   VEnum: IEnumLocalPoint;
   VProjectedLine: IProjectedPolygon;
   VLocalLine: ILocalPolygon;
@@ -715,7 +715,7 @@ end;
 
 function TPathEditLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
-): ILonLatPath;
+): IGeometryLonLatMultiLine;
 begin
   Result := FLine;
 end;
@@ -771,7 +771,7 @@ end;
 
 function TPolygonEditLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
-): ILonLatPolygon;
+): IGeometryLonLatMultiPolygon;
 begin
   Result := FLine;
 end;
@@ -992,7 +992,7 @@ var
   VPrevPoint: TDoublePoint;
   VProjectedPoint: TDoublePoint;
   i, j: Integer;
-  VSigleLine: ILonLatPathLine;
+  VSigleLine: IGeometryLonLatLine;
   VIndex: Integer;
   VSegmentIndex: Integer;
   VPointIndex: Integer;
@@ -1102,7 +1102,7 @@ var
   VPrevPoint: TDoublePoint;
   VProjectedPoint: TDoublePoint;
   i, j: Integer;
-  VSigleLine: ILonLatPolygonLine;
+  VSigleLine: IGeometryLonLatPolygon;
   VIndex: Integer;
   VSegmentIndex: Integer;
   VPointIndex: Integer;

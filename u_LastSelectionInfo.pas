@@ -31,14 +31,14 @@ type
   TLastSelectionInfo = class(TConfigDataElementBaseEmptySaveLoad, ILastSelectionInfo)
   private
     // Полигон последнего выделения при операциях с областью.
-    FPolygon: ILonLatPolygon;
+    FPolygon: IGeometryLonLatMultiPolygon;
     // Масштаб, на котором было последнее выделение
     FZoom: Byte;
   private
     function GetZoom: Byte;
-    function GetPolygon: ILonLatPolygon;
+    function GetPolygon: IGeometryLonLatMultiPolygon;
     procedure SetPolygon(
-      const ALonLatPolygon: ILonLatPolygon;
+      const ALonLatPolygon: IGeometryLonLatMultiPolygon;
       AZoom: Byte
     );
   public
@@ -56,7 +56,7 @@ begin
   FZoom := 0;
 end;
 
-function TLastSelectionInfo.GetPolygon: ILonLatPolygon;
+function TLastSelectionInfo.GetPolygon: IGeometryLonLatMultiPolygon;
 begin
   LockRead;
   try
@@ -77,7 +77,7 @@ begin
 end;
 
 procedure TLastSelectionInfo.SetPolygon(
-  const ALonLatPolygon: ILonLatPolygon;
+  const ALonLatPolygon: IGeometryLonLatMultiPolygon;
   AZoom: Byte
 );
 begin

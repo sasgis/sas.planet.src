@@ -13,12 +13,12 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TLineSetEmpty = class(TBaseInterfacedObject, ILonLatPath, ILonLatPolygon)
+  TLineSetEmpty = class(TBaseInterfacedObject, IGeometryLonLatMultiLine, IGeometryLonLatMultiPolygon)
   private
     FEnumLonLat: IEnumLonLatPoint;
   private
-    function GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
-    function GetItemLonLatPolygonLine(AIndex: Integer): ILonLatPolygonLine;
+    function GetItemLonLatPathLine(AIndex: Integer): IGeometryLonLatLine;
+    function GetItemLonLatPolygonLine(AIndex: Integer): IGeometryLonLatPolygon;
 
     function GetEnumLonLat: IEnumLonLatPoint;
     function CalcAreaLonLat(
@@ -33,19 +33,19 @@ type
     function CalcLength(const ADatum: IDatum): Double;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSamePath(const APath: ILonLatPath): Boolean;
-    function IsSamePolygon(const APolygon: ILonLatPolygon): Boolean;
+    function IsSamePath(const APath: IGeometryLonLatMultiLine): Boolean;
+    function IsSamePolygon(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
 
-    function ILonLatPolygon.CalcArea = CalcAreaLonLat;
+    function IGeometryLonLatMultiPolygon.CalcArea = CalcAreaLonLat;
 
-    function ILonLatPath.IsSame = IsSamePath;
-    function ILonLatPolygon.IsSame = IsSamePolygon;
+    function IGeometryLonLatMultiLine.IsSame = IsSamePath;
+    function IGeometryLonLatMultiPolygon.IsSame = IsSamePolygon;
 
-    function ILonLatPath.GetEnum = GetEnumLonLat;
-    function ILonLatPolygon.GetEnum = GetEnumLonLat;
+    function IGeometryLonLatMultiLine.GetEnum = GetEnumLonLat;
+    function IGeometryLonLatMultiPolygon.GetEnum = GetEnumLonLat;
 
-    function ILonLatPath.GetItem = GetItemLonLatPathLine;
-    function ILonLatPolygon.GetItem = GetItemLonLatPolygonLine;
+    function IGeometryLonLatMultiLine.GetItem = GetItemLonLatPathLine;
+    function IGeometryLonLatMultiPolygon.GetItem = GetItemLonLatPolygonLine;
   public
     constructor Create;
   end;
@@ -120,13 +120,13 @@ begin
   Result := 0;
 end;
 
-function TLineSetEmpty.GetItemLonLatPathLine(AIndex: Integer): ILonLatPathLine;
+function TLineSetEmpty.GetItemLonLatPathLine(AIndex: Integer): IGeometryLonLatLine;
 begin
   Result := nil;
 end;
 
 function TLineSetEmpty.GetItemLonLatPolygonLine(
-  AIndex: Integer): ILonLatPolygonLine;
+  AIndex: Integer): IGeometryLonLatPolygon;
 begin
   Result := nil;
 end;
@@ -135,23 +135,23 @@ function TLineSetEmpty.IsSameGeometry(
   const AGeometry: IGeometryLonLat
 ): Boolean;
 var
-  VLine: ILonLatPath;
-  VPolygon: ILonLatPolygon;
+  VLine: IGeometryLonLatMultiLine;
+  VPolygon: IGeometryLonLatMultiPolygon;
 begin
   Result := False;
-  if Supports(AGeometry, ILonLatPolygon, VPolygon) then begin
+  if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPolygon) then begin
     Result := IsSamePolygon(VPolygon);
-  end else if Supports(AGeometry, ILonLatPath, VLine) then begin
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
     Result := IsSamePath(VLine);
   end;
 end;
 
-function TLineSetEmpty.IsSamePath(const APath: ILonLatPath): Boolean;
+function TLineSetEmpty.IsSamePath(const APath: IGeometryLonLatMultiLine): Boolean;
 begin
   Result := (APath.Count = 0);
 end;
 
-function TLineSetEmpty.IsSamePolygon(const APolygon: ILonLatPolygon): Boolean;
+function TLineSetEmpty.IsSamePolygon(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
 begin
   Result := (APolygon.Count = 0);
 end;

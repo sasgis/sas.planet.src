@@ -47,7 +47,7 @@ type
     procedure ClearTrack;
     function IsEmpty: Boolean;
     function LastPoints(const AMaxCount: Integer): IEnumGPSTrackPoint;
-    function GetAllPoints: ILonLatPath;
+    function GetAllPoints: IGeometryLonLatMultiLine;
   end;
 
   IGpsTrackRecorderInternal = interface(IGpsTrackRecorder)

@@ -59,7 +59,7 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ATargetFile: string;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const AImageProvider: IBitmapLayerProvider;
       AZoom: Byte;
       const ATileSize: TPoint;
@@ -96,7 +96,7 @@ constructor TThreadExportToOgf2.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ATargetFile: string;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const AImageProvider: IBitmapLayerProvider;
   AZoom: Byte;
   const ATileSize: TPoint;

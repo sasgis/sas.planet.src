@@ -290,10 +290,10 @@ var
   VLonLatRect: ILonLatRect;
   VPointResult: IVectorDataItemPoint;
   // for line
-  VLonLatPath: ILonLatPath;
+  VLonLatPath: IGeometryLonLatMultiLine;
   VLineResult: IVectorDataItemLine;
   // for polygon
-  VLonLatPolygon: ILonLatPolygon;
+  VLonLatPolygon: IGeometryLonLatMultiPolygon;
   VPolygonResult: IVectorDataItemPoly;
 begin
   if (not FInMarkObject) then
@@ -312,13 +312,13 @@ begin
         VPointResult := FDataFactory.BuildPoint(FIdData, VAppearance, VName, VDesc, VLonLatRect.TopLeft);
         SafeAddToResult(VPointResult);
       end;
-    end else if Supports(VObject, ILonLatPath, VLonLatPath) then begin
+    end else if Supports(VObject, IGeometryLonLatMultiLine, VLonLatPath) then begin
       // line
       if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemLine) then begin
         VLineResult := FDataFactory.BuildPath(FIdData, VAppearance, VName, VDesc, VLonLatPath);
         SafeAddToResult(VLineResult);
       end;
-    end else if Supports(VObject, ILonLatPolygon, VLonLatPolygon) then begin
+    end else if Supports(VObject, IGeometryLonLatMultiPolygon, VLonLatPolygon) then begin
       // polygon
       if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemPoly) then begin
         VPolygonResult := FDataFactory.BuildPoly(FIdData, VAppearance, VName, VDesc, VLonLatPolygon);
@@ -432,7 +432,7 @@ end;
 procedure TXmlVectorObjects.InternalMakePolygonObject(
   const AForMultiObject, AInner: Boolean);
 var
-  VLonLatPolygon: ILonLatPolygon;
+  VLonLatPolygon: IGeometryLonLatMultiPolygon;
 begin
   // dont create polygons for every Polygon in MultiGeometry
   // if allow to create multisegment polygons
@@ -460,7 +460,7 @@ end;
 procedure TXmlVectorObjects.InternalMakeTrackObject(
   const AForMultiTrack: Boolean);
 var
-  VLonLatPath: ILonLatPath;
+  VLonLatPath: IGeometryLonLatMultiLine;
 begin
   // dont create tracks for every gx:Track in gx:MultiTrack
   // if allow to create multisegment polylines

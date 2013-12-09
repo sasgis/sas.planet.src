@@ -21,7 +21,7 @@ type
     FRegionProcess: IRegionProcess;
   private
     function Build(
-      const APolygon: ILonLatPolygon
+      const APolygon: IGeometryLonLatMultiPolygon
     ): IRegionProcessProgressInfoInternal;
   public
     constructor Create(
@@ -58,7 +58,7 @@ begin
 end;
 
 function TRegionProcessProgressInfoInternalFactory.Build(
-  const APolygon: ILonLatPolygon
+  const APolygon: IGeometryLonLatMultiPolygon
 ): IRegionProcessProgressInfoInternal;
 var
   VCancelNotifierInternal: INotifierOperationInternal;

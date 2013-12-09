@@ -12,11 +12,11 @@ type
     ['{D16A12D9-29DF-4349-8A3C-05B2BF50BD0D}']
     function GetProjectedPath(
       const AProjectionInfo: IProjectionInfo;
-      const ALine: ILonLatPath
+      const ALine: IGeometryLonLatMultiLine
     ): IProjectedPath;
     function GetProjectedPolygon(
       const AProjectionInfo: IProjectionInfo;
-      const ALine: ILonLatPolygon
+      const ALine: IGeometryLonLatMultiPolygon
     ): IProjectedPolygon;
   end;
 implementation

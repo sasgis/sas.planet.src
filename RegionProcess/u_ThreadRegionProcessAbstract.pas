@@ -15,7 +15,7 @@ type
     FOperationID: Integer;
     FCancelListener: IListener;
     FProgressInfo: IRegionProcessProgressInfoInternal;
-    FPolygLL: ILonLatPolygon;
+    FPolygLL: IGeometryLonLatMultiPolygon;
 
     FMessageForShow: string;
     FCancelNotifier: INotifierOperation;
@@ -34,11 +34,11 @@ type
     property CancelNotifier: INotifierOperation read FCancelNotifier;
     property OperationID: Integer read FOperationID;
     property ProgressInfo: IRegionProcessProgressInfoInternal read FProgressInfo;
-    property PolygLL: ILonLatPolygon read FPolygLL;
+    property PolygLL: IGeometryLonLatMultiPolygon read FPolygLL;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const ADebugThreadName: string = ''
     );
     destructor Destroy; override;
@@ -57,7 +57,7 @@ uses
 
 constructor TThreadRegionProcessAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const ADebugThreadName: string = ''
 );
 begin

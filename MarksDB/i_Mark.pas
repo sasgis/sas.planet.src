@@ -40,14 +40,14 @@ type
 
   IMarkLine = interface(IMark)
     ['{3C400B96-90E1-4ADD-9AA2-56199AC1910F}']
-    function GetLine: ILonLatPath;
-    property Line: ILonLatPath read GetLine;
+    function GetLine: IGeometryLonLatMultiLine;
+    property Line: IGeometryLonLatMultiLine read GetLine;
   end;
 
   IMarkPoly = interface(IMark)
     ['{5C66FCE6-F235-4E34-B32A-AB1DD5F0C5B1}']
-    function GetLine: ILonLatPolygon;
-    property Line: ILonLatPolygon read GetLine;
+    function GetLine: IGeometryLonLatMultiPolygon;
+    property Line: IGeometryLonLatMultiPolygon read GetLine;
   end;
 
 implementation

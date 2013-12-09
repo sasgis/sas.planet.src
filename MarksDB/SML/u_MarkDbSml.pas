@@ -254,7 +254,7 @@ begin
 end;
 
 procedure BlobFromPath(
-  const APath: ILonLatPath;
+  const APath: IGeometryLonLatMultiLine;
   ABlobField: TField
 );
 var
@@ -298,7 +298,7 @@ begin
 end;
 
 procedure BlobFromPolygon(
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   ABlobField: TField
 );
 var
@@ -307,7 +307,7 @@ var
   VPoint: TExtendedPoint;
   VEnum: IEnumDoublePoint;
   VCurrPoint: TDoublePoint;
-  VLine: ILonLatPolygonLine;
+  VLine: IGeometryLonLatPolygon;
 begin
   VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);

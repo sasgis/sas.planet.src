@@ -43,7 +43,7 @@ type
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const Azoomarr: TByteDynArray;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
@@ -68,7 +68,7 @@ constructor TThreadExportKML.Create(
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const Azoomarr: TByteDynArray;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;

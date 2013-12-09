@@ -60,10 +60,10 @@ type
       const AProjectedPolygon: IProjectedPolygon
     ): ILocalCoordConverter;
     function PrepareImageProvider(
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const AProjectedPolygon: IProjectedPolygon
     ): IBitmapLayerProvider;
-    function PreparePolygon(const APolygon: ILonLatPolygon): IProjectedPolygon;
+    function PreparePolygon(const APolygon: IGeometryLonLatMultiPolygon): IProjectedPolygon;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -208,7 +208,7 @@ begin
 end;
 
 function TProviderMapCombineBase.PrepareImageProvider(
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const AProjectedPolygon: IProjectedPolygon
 ): IBitmapLayerProvider;
 var
@@ -304,7 +304,7 @@ begin
 end;
 
 function TProviderMapCombineBase.PreparePolygon(
-  const APolygon: ILonLatPolygon
+  const APolygon: IGeometryLonLatMultiPolygon
 ): IProjectedPolygon;
 var
   VProjection: IProjectionInfo;

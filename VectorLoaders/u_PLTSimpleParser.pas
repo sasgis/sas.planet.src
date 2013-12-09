@@ -122,7 +122,7 @@ var
   VList: IVectorItemSubsetBuilder;
   VItem: IVectorDataItemSimple;
   VPointsAggregator: IDoublePointsAggregator;
-  VPath: ILonLatPath;
+  VPath: IGeometryLonLatMultiLine;
 begin
   Result := nil;
   pltstr := TALStringList.Create;

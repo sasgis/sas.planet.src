@@ -27,7 +27,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const AProjectedPolygon: IProjectedPolygon;
       AZoom: Byte;
       const ATileStorage: ITileStorage;
@@ -50,7 +50,7 @@ uses
 
 constructor TThreadExportToAUX.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const AProjectedPolygon: IProjectedPolygon;
   AZoom: Byte;
   const ATileStorage: ITileStorage;

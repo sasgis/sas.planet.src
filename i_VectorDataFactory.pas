@@ -23,14 +23,14 @@ type
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const ALine: ILonLatPath
+      const ALine: IGeometryLonLatMultiLine
     ): IVectorDataItemLine;
     function BuildPoly(
       const AIdData: Pointer;
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const APoly: ILonLatPolygon
+      const APoly: IGeometryLonLatMultiPolygon
     ): IVectorDataItemPoly;
   end;
 

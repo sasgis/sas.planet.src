@@ -58,13 +58,13 @@ type
       const ATemplate: IMarkTemplatePoint = nil
     ): IMarkPoint;
     function CreateNewLine(
-      const ALine: ILonLatPath;
+      const ALine: IGeometryLonLatMultiLine;
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplateLine = nil
     ): IMarkLine;
     function CreateNewPoly(
-      const ALine: ILonLatPolygon;
+      const ALine: IGeometryLonLatMultiPolygon;
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplatePoly = nil
@@ -78,14 +78,14 @@ type
       const AAppearance: IAppearance
     ): IMarkPoint;
     function CreateLine(
-      const ALine: ILonLatPath;
+      const ALine: IGeometryLonLatMultiLine;
       const AName: string;
       const ADesc: string;
       const ACategory: ICategory;
       const AAppearance: IAppearance
     ): IMarkLine;
     function CreatePoly(
-      const ALine: ILonLatPolygon;
+      const ALine: IGeometryLonLatMultiPolygon;
       const AName: string;
       const ADesc: string;
       const ACategory: ICategory;
@@ -103,12 +103,12 @@ type
     ): IMarkPoint;
     function SimpleModifyLine(
       const ASource: IMarkLine;
-      const ALine: ILonLatPath;
+      const ALine: IGeometryLonLatMultiLine;
       const ADesc: string
     ): IMarkLine;
     function SimpleModifyPoly(
       const ASource: IMarkPoly;
-      const ALine: ILonLatPolygon
+      const ALine: IGeometryLonLatMultiPolygon
     ): IMarkPoly;
 
     function PreparePoint(
@@ -174,7 +174,7 @@ begin
 end;
 
 function TMarkFactory.CreateNewLine(
-  const ALine: ILonLatPath;
+  const ALine: IGeometryLonLatMultiLine;
   const AName, ADesc: string;
   const ATemplate: IMarkTemplateLine
 ): IMarkLine;
@@ -238,7 +238,7 @@ begin
 end;
 
 function TMarkFactory.CreateNewPoly(
-  const ALine: ILonLatPolygon;
+  const ALine: IGeometryLonLatMultiPolygon;
   const AName, ADesc: string;
   const ATemplate: IMarkTemplatePoly
 ): IMarkPoly;
@@ -300,7 +300,7 @@ begin
 end;
 
 function TMarkFactory.CreateLine(
-  const ALine: ILonLatPath;
+  const ALine: IGeometryLonLatMultiLine;
   const AName: string;
   const ADesc: string;
   const ACategory: ICategory;
@@ -329,7 +329,7 @@ begin
 end;
 
 function TMarkFactory.CreatePoly(
-  const ALine: ILonLatPolygon;
+  const ALine: IGeometryLonLatMultiPolygon;
   const AName: string;
   const ADesc: string;
   const ACategory: ICategory;
@@ -359,7 +359,7 @@ end;
 
 function TMarkFactory.SimpleModifyLine(
   const ASource: IMarkLine;
-  const ALine: ILonLatPath;
+  const ALine: IGeometryLonLatMultiLine;
   const ADesc: string
 ): IMarkLine;
 var
@@ -410,7 +410,7 @@ end;
 
 function TMarkFactory.SimpleModifyPoly(
   const ASource: IMarkPoly;
-  const ALine: ILonLatPolygon
+  const ALine: IGeometryLonLatMultiPolygon
 ): IMarkPoly;
 var
   VCategory: ICategory;

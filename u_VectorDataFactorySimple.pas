@@ -31,14 +31,14 @@ type
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const ALine: ILonLatPath
+      const ALine: IGeometryLonLatMultiLine
     ): IVectorDataItemLine;
     function BuildPoly(
       const AIdData: Pointer;
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const APoly: ILonLatPolygon
+      const APoly: IGeometryLonLatMultiPolygon
     ): IVectorDataItemPoly;
   public
     constructor Create(
@@ -72,7 +72,7 @@ function TVectorDataFactorySimple.BuildPath(
   const AIdData: Pointer;
   const AAppearance: IAppearance;
   const AName, ADesc: string;
-  const ALine: ILonLatPath
+  const ALine: IGeometryLonLatMultiLine
 ): IVectorDataItemLine;
 var
   VHash: THashValue;
@@ -126,7 +126,7 @@ function TVectorDataFactorySimple.BuildPoly(
   const AIdData: Pointer;
   const AAppearance: IAppearance;
   const AName, ADesc: string;
-  const APoly: ILonLatPolygon
+  const APoly: IGeometryLonLatMultiPolygon
 ): IVectorDataItemPoly;
 var
   VHash: THashValue;

@@ -37,7 +37,7 @@ uses
 type
   TMarkLineSml = class(TMarkFullBaseSml, IVectorDataItemLine, IMarkLine)
   private
-    FLine: ILonLatPath;
+    FLine: IGeometryLonLatMultiLine;
   protected
     function GetMarkType: TGUID; override;
   protected
@@ -45,7 +45,7 @@ type
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
-    function GetLine: ILonLatPath;
+    function GetLine: IGeometryLonLatMultiLine;
   public
     constructor Create(
       const AHash: THashValue;
@@ -57,7 +57,7 @@ type
       const AAppearance: IAppearance;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: ILonLatPath
+      const ALine: IGeometryLonLatMultiLine
     );
   end;
 
@@ -78,7 +78,7 @@ constructor TMarkLineSml.Create(
   const AAppearance: IAppearance;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: ILonLatPath
+  const ALine: IGeometryLonLatMultiLine
 );
 begin
   Assert(Assigned(ALine));
@@ -128,7 +128,7 @@ begin
   Result := True;
 end;
 
-function TMarkLineSml.GetLine: ILonLatPath;
+function TMarkLineSml.GetLine: IGeometryLonLatMultiLine;
 begin
   Result := FLine;
 end;

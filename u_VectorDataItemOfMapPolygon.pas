@@ -52,10 +52,10 @@ type
 
   TVectorDataItemOfMapPath = class(TVectorDataItemOfMapPolygon, IVectorDataItemLine)
   private
-    FLine: ILonLatPath;
+    FLine: IGeometryLonLatMultiLine;
   protected
     function GetGoToLonLat: TDoublePoint; override;
-    function GetLine: ILonLatPath;
+    function GetLine: IGeometryLonLatMultiLine;
   public
     constructor Create(
       const AHash: THashValue;
@@ -64,16 +64,16 @@ type
       const AIndex: Integer;
       const AName: string;
       const ADesc: string;
-      const ALine: ILonLatPath
+      const ALine: IGeometryLonLatMultiLine
     );
   end;
 
   TVectorDataItemOfMapPoly = class(TVectorDataItemOfMapPolygon, IVectorDataItemPoly)
   private
-    FLine: ILonLatPolygon;
+    FLine: IGeometryLonLatMultiPolygon;
   protected
     function GetGoToLonLat: TDoublePoint; override;
-    function GetLine: ILonLatPolygon;
+    function GetLine: IGeometryLonLatMultiPolygon;
   public
     constructor Create(
       const AHash: THashValue;
@@ -82,7 +82,7 @@ type
       const AIndex: Integer;
       const AName: string;
       const ADesc: string;
-      const ALine: ILonLatPolygon
+      const ALine: IGeometryLonLatMultiPolygon
     );
   end;
 
@@ -127,7 +127,7 @@ constructor TVectorDataItemOfMapPath.Create(
   const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
   const AName, ADesc: string;
-  const ALine: ILonLatPath
+  const ALine: IGeometryLonLatMultiLine
 );
 begin
   Assert(Assigned(ALine));
@@ -148,7 +148,7 @@ begin
   FLine.GetEnum.Next(Result);
 end;
 
-function TVectorDataItemOfMapPath.GetLine: ILonLatPath;
+function TVectorDataItemOfMapPath.GetLine: IGeometryLonLatMultiLine;
 begin
   Result := FLine;
 end;
@@ -161,7 +161,7 @@ constructor TVectorDataItemOfMapPoly.Create(
   const AUrlPrefix: IStringProvider;
   const AIndex: Integer;
   const AName, ADesc: string;
-  const ALine: ILonLatPolygon
+  const ALine: IGeometryLonLatMultiPolygon
 );
 begin
   Assert(Assigned(ALine));
@@ -182,7 +182,7 @@ begin
   Result := RectCenter(FLine.Bounds.Rect);
 end;
 
-function TVectorDataItemOfMapPoly.GetLine: ILonLatPolygon;
+function TVectorDataItemOfMapPoly.GetLine: IGeometryLonLatMultiPolygon;
 begin
   Result := FLine;
 end;

@@ -51,9 +51,9 @@ type
 
   TVectorDataItemPath = class(TVectorDataItemPolygon, IVectorDataItemLine)
   private
-    FLine: ILonLatPath;
+    FLine: IGeometryLonLatMultiLine;
   protected
-    function GetLine: ILonLatPath;
+    function GetLine: IGeometryLonLatMultiLine;
     function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
@@ -62,15 +62,15 @@ type
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
-      const ALine: ILonLatPath
+      const ALine: IGeometryLonLatMultiLine
     );
   end;
 
   TVectorDataItemPoly = class(TVectorDataItemPolygon, IVectorDataItemPoly)
   private
-    FLine: ILonLatPolygon;
+    FLine: IGeometryLonLatMultiPolygon;
   protected
-    function GetLine: ILonLatPolygon;
+    function GetLine: IGeometryLonLatMultiPolygon;
     function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
@@ -79,7 +79,7 @@ type
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
-      const ALine: ILonLatPolygon
+      const ALine: IGeometryLonLatMultiPolygon
     );
   end;
 
@@ -88,7 +88,7 @@ implementation
 
 uses
   u_GeoFun;
-  
+
 { TVectorDataItemPolygon }
 
 constructor TVectorDataItemPolygon.Create(
@@ -115,7 +115,7 @@ constructor TVectorDataItemPath.Create(
   const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
-  const ALine: ILonLatPath
+  const ALine: IGeometryLonLatMultiLine
 );
 begin
   Assert(Assigned(ALine));
@@ -128,7 +128,7 @@ begin
   FLine.GetEnum.Next(Result);
 end;
 
-function TVectorDataItemPath.GetLine: ILonLatPath;
+function TVectorDataItemPath.GetLine: IGeometryLonLatMultiLine;
 begin
   Result := FLine;
 end;
@@ -140,7 +140,7 @@ constructor TVectorDataItemPoly.Create(
   const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
-  const ALine: ILonLatPolygon
+  const ALine: IGeometryLonLatMultiPolygon
 );
 begin
   Assert(Assigned(ALine));
@@ -153,7 +153,7 @@ begin
   Result := RectCenter(FLine.Bounds.Rect);
 end;
 
-function TVectorDataItemPoly.GetLine: ILonLatPolygon;
+function TVectorDataItemPoly.GetLine: IGeometryLonLatMultiPolygon;
 begin
   Result := FLine;
 end;

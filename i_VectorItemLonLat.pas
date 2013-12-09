@@ -98,11 +98,6 @@ type
     property Item[AIndex: Integer]: IGeometryLonLatPolygon read GetItem;
   end;
 
-  ILonLatPathLine = IGeometryLonLatLine;
-  ILonLatPolygonLine = IGeometryLonLatPolygon;
-  ILonLatPath = IGeometryLonLatMultiLine;
-  ILonLatPolygon = IGeometryLonLatMultiPolygon;
-
 implementation
 
 end.

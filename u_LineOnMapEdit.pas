@@ -64,7 +64,7 @@ type
 
   TPathOnMapEdit = class(TLineOnMapEdit, IPathOnMapEdit)
   private
-    FLine: ILonLatPath;
+    FLine: IGeometryLonLatMultiLine;
     FLineWithSelected: ILonLatPathWithSelected;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
@@ -73,12 +73,12 @@ type
     function IsReady: Boolean; override;
     function GetPath: ILonLatPathWithSelected;
     procedure SetPath(const AValue: ILonLatPathWithSelected); overload;
-    procedure SetPath(const AValue: ILonLatPath); overload;
+    procedure SetPath(const AValue: IGeometryLonLatMultiLine); overload;
   end;
 
   TPolygonOnMapEdit = class(TLineOnMapEdit, IPolygonOnMapEdit)
   private
-    FLine: ILonLatPolygon;
+    FLine: IGeometryLonLatMultiPolygon;
     FLineWithSelected: ILonLatPolygonWithSelected;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
@@ -87,7 +87,7 @@ type
     function IsReady: Boolean; override;
     function GetPolygon: ILonLatPolygonWithSelected;
     procedure SetPolygon(const AValue: ILonLatPolygonWithSelected); overload;
-    procedure SetPolygon(const AValue: ILonLatPolygon); overload;
+    procedure SetPolygon(const AValue: IGeometryLonLatMultiPolygon); overload;
   end;
 
 implementation
@@ -120,30 +120,30 @@ type
 
   TLonLatPathWithSelected = class(TLonLatLineWithSelectedBase, ILonLatPathWithSelected)
   private
-    FLine: ILonLatPath;
+    FLine: IGeometryLonLatMultiLine;
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const APath: ILonLatPath): Boolean;
+    function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function CalcLength(const ADatum: IDatum): Double;
     function GetCount: Integer;
-    function GetItem(AIndex: Integer): ILonLatPathLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatLine;
   public
     constructor Create(
-      const ALine: ILonLatPath;
+      const ALine: IGeometryLonLatMultiLine;
       ASelectedPointIndex: Integer
     );
   end;
 
   TLonLatPolygonWithSelected = class(TLonLatLineWithSelectedBase, ILonLatPolygonWithSelected)
   private
-    FLine: ILonLatPolygon;
+    FLine: IGeometryLonLatMultiPolygon;
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const APolygon: ILonLatPolygon): Boolean;
+    function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function CalcPerimeter(const ADatum: IDatum): Double;
@@ -153,10 +153,10 @@ type
       const AOperationID: Integer = 0
     ): Double;
     function GetCount: Integer;
-    function GetItem(AIndex: Integer): ILonLatPolygonLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
   public
     constructor Create(
-      const ALine: ILonLatPolygon;
+      const ALine: IGeometryLonLatMultiPolygon;
       ASelectedPointIndex: Integer
     );
   end;
@@ -486,7 +486,7 @@ end;
 procedure TPathOnMapEdit.SetPath(const AValue: ILonLatPathWithSelected);
 var
   i: Integer;
-  VLine: ILonLatPathLine;
+  VLine: IGeometryLonLatLine;
 begin
   LockWrite;
   try
@@ -546,10 +546,10 @@ begin
   end;
 end;
 
-procedure TPathOnMapEdit.SetPath(const AValue: ILonLatPath);
+procedure TPathOnMapEdit.SetPath(const AValue: IGeometryLonLatMultiLine);
 var
   i: Integer;
-  VLine: ILonLatPathLine;
+  VLine: IGeometryLonLatLine;
 begin
   LockWrite;
   try
@@ -604,7 +604,7 @@ end;
 procedure TPolygonOnMapEdit.SetPolygon(const AValue: ILonLatPolygonWithSelected);
 var
   i: Integer;
-  VLine: ILonLatPolygonLine;
+  VLine: IGeometryLonLatPolygon;
 begin
   LockWrite;
   try
@@ -664,10 +664,10 @@ begin
   end;
 end;
 
-procedure TPolygonOnMapEdit.SetPolygon(const AValue: ILonLatPolygon);
+procedure TPolygonOnMapEdit.SetPolygon(const AValue: IGeometryLonLatMultiPolygon);
 var
   i: Integer;
-  VLine: ILonLatPolygonLine;
+  VLine: IGeometryLonLatPolygon;
 begin
   LockWrite;
   try
@@ -737,14 +737,14 @@ end;
 { TLonLatPathWithSelected }
 
 constructor TLonLatPathWithSelected.Create(
-  const ALine: ILonLatPath;
+  const ALine: IGeometryLonLatMultiLine;
   ASelectedPointIndex: Integer
 );
 var
   VSelectedSegmentIndex: Integer;
   VSelectedPointIndex: Integer;
   VSelectedPoint: TDoublePoint;
-  VLine: ILonLatPathLine;
+  VLine: IGeometryLonLatLine;
   i: Integer;
   VPointExists: Boolean;
 begin
@@ -811,12 +811,12 @@ begin
   Result := FLine.Hash;
 end;
 
-function TLonLatPathWithSelected.GetItem(AIndex: Integer): ILonLatPathLine;
+function TLonLatPathWithSelected.GetItem(AIndex: Integer): IGeometryLonLatLine;
 begin
   Result := FLine.Item[AIndex];
 end;
 
-function TLonLatPathWithSelected.IsSame(const APath: ILonLatPath): Boolean;
+function TLonLatPathWithSelected.IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
 begin
   Result := FLine.IsSame(APath);
 end;
@@ -830,14 +830,14 @@ end;
 { TLonLatPolygonWithSelected }
 
 constructor TLonLatPolygonWithSelected.Create(
-  const ALine: ILonLatPolygon;
+  const ALine: IGeometryLonLatMultiPolygon;
   ASelectedPointIndex: Integer
 );
 var
   VSelectedSegmentIndex: Integer;
   VSelectedPointIndex: Integer;
   VSelectedPoint: TDoublePoint;
-  VLine: ILonLatPolygonLine;
+  VLine: IGeometryLonLatPolygon;
   i: Integer;
   VPointExists: Boolean;
 begin
@@ -914,13 +914,13 @@ begin
 end;
 
 function TLonLatPolygonWithSelected.GetItem(
-  AIndex: Integer): ILonLatPolygonLine;
+  AIndex: Integer): IGeometryLonLatPolygon;
 begin
   Result := FLine.Item[AIndex];
 end;
 
 function TLonLatPolygonWithSelected.IsSame(
-  const APolygon: ILonLatPolygon): Boolean;
+  const APolygon: IGeometryLonLatMultiPolygon): Boolean;
 begin
   Result := FLine.IsSame(APolygon);
 end;

@@ -83,7 +83,7 @@ type
       const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
       const ASetTargetVersionEnabled: Boolean;
@@ -118,7 +118,7 @@ constructor TThreadExportToBerkeleyDB.Create(
   const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;
   const ASetTargetVersionEnabled: Boolean;

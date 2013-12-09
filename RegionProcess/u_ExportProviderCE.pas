@@ -35,7 +35,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
   end;
 
 implementation
@@ -97,7 +97,7 @@ begin
   Result := SAS_STR_ExportCEPackCaption;
 end;
 
-procedure TExportProviderCE.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderCE.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
   VPath: string;
   Zoomarr: TByteDynArray;

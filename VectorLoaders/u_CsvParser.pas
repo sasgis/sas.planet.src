@@ -314,8 +314,8 @@ var
   i: TCSVPointFieldType;
   VPointName, VPointDesc: String;
   VItem: IVectorDataItemSimple;
-  VPath: ILonLatPath;
-  VPoly: ILonLatPolygon;
+  VPath: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
 begin
   if APointsAggregator.Count=0 then
     Exit;

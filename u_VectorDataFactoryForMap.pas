@@ -39,14 +39,14 @@ type
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const ALine: ILonLatPath
+      const ALine: IGeometryLonLatMultiLine
     ): IVectorDataItemLine;
     function BuildPoly(
       const AIdData: Pointer;
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const APoly: ILonLatPolygon
+      const APoly: IGeometryLonLatMultiPolygon
     ): IVectorDataItemPoly;
   public
     constructor Create(
@@ -80,7 +80,7 @@ function TVectorDataFactoryForMap.BuildPath(
   const AIdData: Pointer;
   const AAppearance: IAppearance;
   const AName, ADesc: string;
-  const ALine: ILonLatPath
+  const ALine: IGeometryLonLatMultiLine
 ): IVectorDataItemLine;
 var
   VIndex: Integer;
@@ -142,7 +142,7 @@ function TVectorDataFactoryForMap.BuildPoly(
   const AIdData: Pointer;
   const AAppearance: IAppearance;
   const AName, ADesc: string;
-  const APoly: ILonLatPolygon
+  const APoly: IGeometryLonLatMultiPolygon
 ): IVectorDataItemPoly;
 var
   VIndex: Integer;

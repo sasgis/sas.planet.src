@@ -18,7 +18,7 @@ type
   private
     FGUID: TGUID;
     FZoom: Byte;
-    FPolygon: ILonLatPolygon;
+    FPolygon: IGeometryLonLatMultiPolygon;
 
     FSecondLoadTNE: boolean;
     FReplaceExistTiles: boolean;
@@ -75,7 +75,7 @@ type
       const ALogProvider: ILogSimpleProvider;
       const AGUID: TGUID;
       AZoom: Byte;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       ASecondLoadTNE: boolean;
       AReplaceExistTiles: boolean;
       ACheckExistTileSize: boolean;
@@ -102,7 +102,7 @@ constructor TRegionProcessProgressInfoDownload.Create(
   const ALogProvider: ILogSimpleProvider;
   const AGUID: TGUID;
   AZoom: Byte;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   ASecondLoadTNE: boolean;
   AReplaceExistTiles: boolean;
   ACheckExistTileSize: boolean;

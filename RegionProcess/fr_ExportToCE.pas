@@ -74,7 +74,7 @@ type
   private
     procedure Init(
       const AZoom: byte;
-      const APolygon: ILonLatPolygon
+      const APolygon: IGeometryLonLatMultiPolygon
     );
     function Validate: Boolean;
   private

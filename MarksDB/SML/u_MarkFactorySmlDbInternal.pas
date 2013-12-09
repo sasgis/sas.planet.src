@@ -69,7 +69,7 @@ type
       AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: ILonLatPath;
+      const ALine: IGeometryLonLatMultiLine;
       ALineColor: TColor32;
       ALineWidth: Integer
     ): IMarkLine;
@@ -79,7 +79,7 @@ type
       AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: ILonLatPolygon;
+      const ALine: IGeometryLonLatMultiPolygon;
       ABorderColor, AFillColor: TColor32;
       ALineWidth: Integer
     ): IMarkPoly;
@@ -244,7 +244,7 @@ function TMarkFactorySmlDbInternal.CreateLine(
   AVisible: Boolean;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: ILonLatPath;
+  const ALine: IGeometryLonLatMultiLine;
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IMarkLine;
@@ -284,7 +284,7 @@ function TMarkFactorySmlDbInternal.CreatePoly(
   AVisible: Boolean;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: ILonLatPolygon;
+  const ALine: IGeometryLonLatMultiPolygon;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 ): IMarkPoly;
@@ -331,8 +331,8 @@ function TMarkFactorySmlDbInternal.CreateMark(
   AScale1, AScale2: Integer
 ): IMark;
 var
-  VPolygon: ILonLatPolygon;
-  VPath: ILonLatPath;
+  VPolygon: IGeometryLonLatMultiPolygon;
+  VPath: IGeometryLonLatMultiLine;
   VCategory: ICategory;
 begin
   Result := nil;

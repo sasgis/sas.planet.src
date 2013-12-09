@@ -912,7 +912,7 @@ var
   VPointsAggregator: IDoublePointsAggregator;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
-  VPolygon: ILonLatPolygon;
+  VPolygon: IGeometryLonLatMultiPolygon;
   VMark: IMark;
   VAllNewMarks: IVectorItemSubsetBuilder;
   VAllLinesToDesc: Boolean;

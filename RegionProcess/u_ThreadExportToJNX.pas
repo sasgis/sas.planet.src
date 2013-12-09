@@ -54,7 +54,7 @@ type
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ATargetFile: string;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const Azoomarr: TByteDynArray;
       const AProductName: string;
       const AMapName: string;
@@ -90,7 +90,7 @@ constructor TThreadExportToJnx.Create(
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ATargetFile: string;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const Azoomarr: TByteDynArray;
   const AProductName: string;
   const AMapName: string;

@@ -133,8 +133,8 @@ function TKmlInfoSimpleParser.BuildItem(
 ): IVectorDataItemSimple;
 var
   VPointCount: Integer;
-  VPath: ILonLatPath;
-  VPoly: ILonLatPolygon;
+  VPath: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
 begin
   Result := nil;
   VPointCount := APointsAggregator.Count;

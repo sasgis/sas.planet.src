@@ -20,11 +20,11 @@ type
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
 
-    FLine: ILonLatPolygon;
+    FLine: IGeometryLonLatMultiPolygon;
 
     procedure OnChangeSelection;
   protected
-    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatMultiPolygon; override;
     procedure DoConfigChange; override;
     procedure StartThreads; override;
   public
@@ -92,7 +92,7 @@ end;
 
 function TSelectionLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
-): ILonLatPolygon;
+): IGeometryLonLatMultiPolygon;
 begin
   if Visible then begin
     Result := FLine;

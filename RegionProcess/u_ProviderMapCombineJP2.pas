@@ -56,7 +56,7 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const ALossless: Boolean
     );
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
   end;
 
 implementation
@@ -126,7 +126,7 @@ begin
   );
 end;
 
-procedure TProviderMapCombineJP2.StartProcess(const APolygon: ILonLatPolygon);
+procedure TProviderMapCombineJP2.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;

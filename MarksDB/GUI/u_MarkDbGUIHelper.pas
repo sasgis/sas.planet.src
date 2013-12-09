@@ -90,7 +90,7 @@ type
     function PolygonForOperation(
       const AMark: IMark;
       const AProjection: IProjectionInfo
-    ): ILonLatPolygon;
+    ): IGeometryLonLatMultiPolygon;
     function AddKategory(const Name: string): IMarkCategory;
     procedure ShowMarkInfo(
       const AMark: IMark
@@ -111,12 +111,12 @@ type
     ): Boolean;
     function SavePolyModal(
       const AMark: IMarkPoly;
-      const ALine: ILonLatPolygon;
+      const ALine: IGeometryLonLatMultiPolygon;
       AAsNewMark: Boolean = false
     ): Boolean;
     function SaveLineModal(
       const AMark: IMarkLine;
-      const ALine: ILonLatPath;
+      const ALine: IGeometryLonLatMultiLine;
       const ADescription: string;
       AAsNewMark: Boolean = false
     ): Boolean;
@@ -566,7 +566,7 @@ end;
 function TMarkDbGUIHelper.PolygonForOperation(
   const AMark: IMark;
   const AProjection: IProjectionInfo
-  ): ILonLatPolygon;
+  ): IGeometryLonLatMultiPolygon;
 var
   VMarkPoly: IMarkPoly;
   VMarkLine: IMarkLine;
@@ -617,7 +617,7 @@ end;
 
 function TMarkDbGUIHelper.SaveLineModal(
   const AMark: IMarkLine;
-  const ALine: ILonLatPath;
+  const ALine: IGeometryLonLatMultiLine;
   const ADescription: string;
   AAsNewMark: Boolean
 ): Boolean;
@@ -687,7 +687,7 @@ end;
 
 function TMarkDbGUIHelper.SavePolyModal(
   const AMark: IMarkPoly;
-  const ALine: ILonLatPolygon;
+  const ALine: IGeometryLonLatMultiPolygon;
   AAsNewMark: Boolean
 ): Boolean;
 var

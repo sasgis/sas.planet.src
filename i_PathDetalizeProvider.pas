@@ -32,9 +32,9 @@ type
     function GetPath(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASource: ILonLatPath;
+      const ASource: IGeometryLonLatMultiLine;
       var AComment: string
-    ): ILonLatPath;
+    ): IGeometryLonLatMultiLine;
   end;
 
 implementation

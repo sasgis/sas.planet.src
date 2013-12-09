@@ -36,16 +36,16 @@ type
 
     FGPSPosCS: IReadWriteSync;
     FGPSPosLonLat: TDoublePoint;
-    FCirclesLonLat: ILonLatPolygon;
+    FCirclesLonLat: IGeometryLonLatMultiPolygon;
     FCirclesProjected: IProjectedDrawableElement;
 
     function GetLonLatCirclesByPoint(
       const APos: TDoublePoint;
       const ADatum: IDatum;
       const AConfig: IMarkerRingsConfigStatic
-    ): ILonLatPolygon;
+    ): IGeometryLonLatMultiPolygon;
     function GetProjectedCirclesByLonLat(
-      const ASource: ILonLatPolygon;
+      const ASource: IGeometryLonLatMultiPolygon;
       const AProjectionInfo: IProjectionInfo
     ): IProjectedPolygon;
     procedure GPSReceiverReceive;
@@ -132,7 +132,7 @@ function TMapLayerGPSMarkerRings.GetLonLatCirclesByPoint(
   const APos: TDoublePoint;
   const ADatum: IDatum;
   const AConfig: IMarkerRingsConfigStatic
-): ILonLatPolygon;
+): IGeometryLonLatMultiPolygon;
 var
   VAggreagator: IDoublePointsAggregator;
   i, j: Integer;
@@ -154,7 +154,7 @@ begin
 end;
 
 function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(
-  const ASource: ILonLatPolygon;
+  const ASource: IGeometryLonLatMultiPolygon;
   const AProjectionInfo: IProjectionInfo): IProjectedPolygon;
 begin
   Result := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(AProjectionInfo, ASource);
@@ -221,7 +221,7 @@ procedure TMapLayerGPSMarkerRings.PaintLayer(ABuffer: TBitmap32;
 var
   VLonLat: TDoublePoint;
   VConfig: IMarkerRingsConfigStatic;
-  VCirclesLonLat: ILonLatPolygon;
+  VCirclesLonLat: IGeometryLonLatMultiPolygon;
   VCirclesProjected: IProjectedPolygon;
   VDrawable: IProjectedDrawableElement;
 begin

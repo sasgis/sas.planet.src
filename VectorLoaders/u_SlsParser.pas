@@ -64,7 +64,7 @@ var
   VIniStream: TStream;
   VHLGData: IConfigDataProvider;
   VPolygonSection: IConfigDataProvider;
-  VPolygon: ILonLatPolygon;
+  VPolygon: IGeometryLonLatMultiPolygon;
   VItem: IVectorDataItemSimple;
   VList: IVectorItemSubsetBuilder;
 begin

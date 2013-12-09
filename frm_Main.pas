@@ -2899,8 +2899,8 @@ var
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
   VSaveAviable: Boolean;
-  VPath: ILonLatPath;
-  VPoly: ILonLatPolygon;
+  VPath: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
 begin
   VLineOnMapEdit := FLineOnMapEdit;
   if VLineOnMapEdit <> nil then begin
@@ -4401,7 +4401,7 @@ end;
 procedure TfrmMain.TBPreviousClick(Sender: TObject);
 var
   VZoom: Byte;
-  VPolygon: ILonLatPolygon;
+  VPolygon: IGeometryLonLatMultiPolygon;
 begin
   GState.Config.LastSelectionInfo.LockRead;
   try
@@ -4687,7 +4687,7 @@ end;
 
 procedure TfrmMain.TBCOORDClick(Sender: TObject);
 var
-  VPolygon: ILonLatPolygon;
+  VPolygon: IGeometryLonLatMultiPolygon;
   VSelLonLat: TfrmLonLatRectEdit;
   VLonLatRect: TDoubleRect;
 begin
@@ -4746,7 +4746,7 @@ end;
 
 procedure TfrmMain.tbitmGPSTrackSaveToMarksClick(Sender: TObject);
 var
-  VAllPoints: ILonLatPath;
+  VAllPoints: IGeometryLonLatMultiLine;
 begin
   VAllPoints := GState.GpsTrackRecorder.GetAllPoints;
   if VAllPoints.Count > 0 then begin
@@ -4898,7 +4898,7 @@ procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IMark;
   VSelectedWiki: IVectorDataItemPoly;
-  Vpolygon: ILonLatPolygon;
+  Vpolygon: IGeometryLonLatMultiPolygon;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
@@ -5389,7 +5389,7 @@ var
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
-  VPoly: ILonLatPolygon;
+  VPoly: IGeometryLonLatMultiPolygon;
   VMapMoving: Boolean;
   VMapType: TMapType;
   VValidPoint: Boolean;
@@ -6073,10 +6073,10 @@ end;
 
 procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
 var
-  VPoly: ILonLatPolygon;
-  VPath: ILonLatPath;
+  VPoly: IGeometryLonLatMultiPolygon;
+  VPath: IGeometryLonLatMultiLine;
   VLineOnMapEdit: ILineOnMapEdit;
-  VPathLine: ILonLatPathLine;
+  VPathLine: IGeometryLonLatLine;
   VFilter: ILonLatPointFilter;
 begin
   VLineOnMapEdit := FLineOnMapEdit;
@@ -6347,7 +6347,7 @@ var
   VZoom: Byte;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VPolygon: ILonLatPolygon;
+  VPolygon: IGeometryLonLatMultiPolygon;
 begin
   TBRectSave.ImageIndex:=20;
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
@@ -6824,7 +6824,7 @@ end;
 
 procedure TfrmMain.TBEditPathMarshClick(Sender: TObject);
 var
-  VResult: ILonLatPath;
+  VResult: IGeometryLonLatMultiLine;
   VEntity: IPathDetalizeProviderListEntity;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
@@ -7025,7 +7025,7 @@ end;
 
 procedure TfrmMain.tbitmEditLastSelectionClick(Sender: TObject);
 var
-  VPolygon: ILonLatPolygon;
+  VPolygon: IGeometryLonLatMultiPolygon;
   VLineOnMapEdit: ILineOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
 begin

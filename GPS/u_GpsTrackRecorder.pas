@@ -57,7 +57,7 @@ type
       const AMaxCount: Integer
     ): IEnumGPSTrackPoint;
 
-    function GetAllPoints: ILonLatPath;
+    function GetAllPoints: IGeometryLonLatMultiLine;
   public
     constructor Create(
       const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
@@ -521,7 +521,7 @@ begin
   end;
 end;
 
-function TGpsTrackRecorder.GetAllPoints: ILonLatPath;
+function TGpsTrackRecorder.GetAllPoints: IGeometryLonLatMultiLine;
 var
   VTrackPointsEnum: IEnumGPSTrackPoint;
   VPointsEnum: IEnumLonLatPoint;

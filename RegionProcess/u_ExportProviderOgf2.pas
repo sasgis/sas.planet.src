@@ -44,7 +44,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
   end;
 
 implementation
@@ -117,7 +117,7 @@ begin
   Result := SAS_STR_ExportOgf2PackCaption;
 end;
 
-procedure TExportProviderOgf2.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderOgf2.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
   VTargetFile: string;
   VProgressInfo: IRegionProcessProgressInfoInternal;

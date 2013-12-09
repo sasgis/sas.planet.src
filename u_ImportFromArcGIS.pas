@@ -382,7 +382,7 @@ var
   VMarkName, VMarkDesc: String;
   VPos: Integer;
   VPointsAggregator: IDoublePointsAggregator;
-  VPolygon: ILonLatPolygon;
+  VPolygon: IGeometryLonLatMultiPolygon;
   VAllNewMarks: IVectorItemSubsetBuilder;
 begin
   Result := nil;

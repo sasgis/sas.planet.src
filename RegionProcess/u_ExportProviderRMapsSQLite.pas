@@ -64,7 +64,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: ILonLatPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
   end;
 
 
@@ -137,7 +137,7 @@ begin
   Result := SAS_STR_ExportRMapsSQLiteExportCaption;
 end;
 
-procedure TExportProviderRMapsSQLite.StartProcess(const APolygon: ILonLatPolygon);
+procedure TExportProviderRMapsSQLite.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
   VPath: string;
   VZoomArr: TByteDynArray;

@@ -37,7 +37,7 @@ uses
 type
   TMarkPolySml = class(TMarkFullBaseSml, IMarkPoly, IVectorDataItemPoly)
   private
-    FLine: ILonLatPolygon;
+    FLine: IGeometryLonLatMultiPolygon;
   protected
     function GetMarkType: TGUID; override;
   protected
@@ -45,7 +45,7 @@ type
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
-    function GetLine: ILonLatPolygon;
+    function GetLine: IGeometryLonLatMultiPolygon;
   public
     constructor Create(
       const AHash: THashValue;
@@ -57,7 +57,7 @@ type
       const AAppearance: IAppearance;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: ILonLatPolygon
+      const ALine: IGeometryLonLatMultiPolygon
     );
   end;
 
@@ -78,7 +78,7 @@ constructor TMarkPolySml.Create(
   const AAppearance: IAppearance;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: ILonLatPolygon
+  const ALine: IGeometryLonLatMultiPolygon
 );
 begin
   Assert(Assigned(ALine));
@@ -132,7 +132,7 @@ begin
   Result := True;
 end;
 
-function TMarkPolySml.GetLine: ILonLatPolygon;
+function TMarkPolySml.GetLine: IGeometryLonLatMultiPolygon;
 begin
   Result := FLine;
 end;

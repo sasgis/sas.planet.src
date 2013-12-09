@@ -25,7 +25,7 @@ type
     FLine: ILonLatPathWithSelected;
     procedure OnLineChange;
   protected
-    function GetLine(const ALocalConverter: ILocalCoordConverter): ILonLatPolygon; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatMultiPolygon; override;
   protected
     procedure DoConfigChange; override;
   public
@@ -93,7 +93,7 @@ end;
 
 function TSelectionPolylineShadowLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
-): ILonLatPolygon;
+): IGeometryLonLatMultiPolygon;
 var
   VLine: ILonLatPathWithSelected;
   VFilter: ILonLatPointFilter;

@@ -54,9 +54,9 @@ type
     function GetPath(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASource: ILonLatPath;
+      const ASource: IGeometryLonLatMultiLine;
       var AComment: string
-    ): ILonLatPath;
+    ): IGeometryLonLatMultiLine;
   public
     constructor Create(
       const AInetConfig: IInetConfig;
@@ -101,9 +101,9 @@ end;
 function TPathDetalizeProviderCloudMade.GetPath(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASource: ILonLatPath;
+  const ASource: IGeometryLonLatMultiLine;
   var AComment: string
-): ILonLatPath;
+): IGeometryLonLatMultiLine;
 var
   url: string;
   conerr: boolean;

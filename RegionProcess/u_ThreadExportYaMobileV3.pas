@@ -67,7 +67,7 @@ type
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
-      const APolygon: ILonLatPolygon;
+      const APolygon: IGeometryLonLatMultiPolygon;
       const ATasks: TExportTaskYaMobileV3Array;
       const AZoomArr: TByteDynArray;
       AReplace: boolean
@@ -98,7 +98,7 @@ constructor TThreadExportYaMobileV3.Create(
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
-  const APolygon: ILonLatPolygon;
+  const APolygon: IGeometryLonLatMultiPolygon;
   const ATasks: TExportTaskYaMobileV3Array;
   const AZoomArr: TByteDynArray;
   AReplace: boolean

@@ -30,55 +30,55 @@ type
     );
   end;
 
-  TLonLatPath = class(TLonLatLineSet, IGeometryLonLat, ILonLatPath)
+  TLonLatPath = class(TLonLatLineSet, IGeometryLonLat, IGeometryLonLatMultiLine)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const APath: ILonLatPath): Boolean;
+    function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
     function CalcLength(const ADatum: IDatum): Double;
-    function GetItem(AIndex: Integer): ILonLatPathLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatLine;
   end;
 
-  TLonLatPolygon = class(TLonLatLineSet, IGeometryLonLat, ILonLatPolygon)
+  TLonLatPolygon = class(TLonLatLineSet, IGeometryLonLat, IGeometryLonLatMultiPolygon)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const APolygon: ILonLatPolygon): Boolean;
+    function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
       const ADatum: IDatum;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
-    function GetItem(AIndex: Integer): ILonLatPolygonLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
   end;
 
-  TLonLatPathOneLine = class(TBaseInterfacedObject, IGeometryLonLat, ILonLatPath)
+  TLonLatPathOneLine = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatMultiLine)
   private
-    FLine: ILonLatPathLine;
+    FLine: IGeometryLonLatLine;
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const APath: ILonLatPath): Boolean;
+    function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
     function CalcLength(const ADatum: IDatum): Double;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
-    function GetItem(AIndex: Integer): ILonLatPathLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatLine;
   public
     constructor Create(
-      const ALine: ILonLatPathLine
+      const ALine: IGeometryLonLatLine
     );
   end;
 
-  TLonLatPolygonOneLine = class(TBaseInterfacedObject, IGeometryLonLat, ILonLatPolygon)
+  TLonLatPolygonOneLine = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatMultiPolygon)
   private
-    FLine: ILonLatPolygonLine;
+    FLine: IGeometryLonLatPolygon;
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const APolygon: ILonLatPolygon): Boolean;
+    function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
       const ADatum: IDatum;
@@ -87,10 +87,10 @@ type
     ): Double;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
-    function GetItem(AIndex: Integer): ILonLatPolygonLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
   public
     constructor Create(
-      const ALine: ILonLatPolygonLine
+      const ALine: IGeometryLonLatPolygon
     );
   end;
 
@@ -148,19 +148,19 @@ begin
   Result := TEnumLonLatPointByPath.Create(Self);
 end;
 
-function TLonLatPath.GetItem(AIndex: Integer): ILonLatPathLine;
+function TLonLatPath.GetItem(AIndex: Integer): IGeometryLonLatLine;
 begin
-  if not Supports(FList[AIndex], ILonLatPathLine, Result) then begin
+  if not Supports(FList[AIndex], IGeometryLonLatLine, Result) then begin
     Result := nil;
   end;
 end;
 
-function TLonLatPath.IsSame(const APath: ILonLatPath): Boolean;
+function TLonLatPath.IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
 var
   i: Integer;
-  VLine: ILonLatPathLine;
+  VLine: IGeometryLonLatLine;
 begin
-  if APath = ILonLatPath(Self) then begin
+  if APath = IGeometryLonLatMultiLine(Self) then begin
     Result := True;
     Exit;
   end;
@@ -190,7 +190,7 @@ end;
 
 function TLonLatPath.IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
 var
-  VLine: ILonLatPath;
+  VLine: IGeometryLonLatMultiLine;
 begin
   if AGeometry = nil then begin
     Result := False;
@@ -206,7 +206,7 @@ begin
   end;
 
   Result := False;
-  if Supports(AGeometry, ILonLatPath, VLine) then begin
+  if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
     Result := IsSame(VLine);
   end;
 end;
@@ -242,19 +242,19 @@ begin
   Result := TEnumLonLatPointByPolygon.Create(Self);
 end;
 
-function TLonLatPolygon.GetItem(AIndex: Integer): ILonLatPolygonLine;
+function TLonLatPolygon.GetItem(AIndex: Integer): IGeometryLonLatPolygon;
 begin
-  if not Supports(FList[AIndex], ILonLatPolygonLine, Result) then begin
+  if not Supports(FList[AIndex], IGeometryLonLatPolygon, Result) then begin
     Result := nil;
   end;
 end;
 
-function TLonLatPolygon.IsSame(const APolygon: ILonLatPolygon): Boolean;
+function TLonLatPolygon.IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
 var
   i: Integer;
-  VLine: ILonLatPolygonLine;
+  VLine: IGeometryLonLatPolygon;
 begin
-  if APolygon = ILonLatPolygon(Self) then begin
+  if APolygon = IGeometryLonLatMultiPolygon(Self) then begin
     Result := True;
     Exit;
   end;
@@ -286,7 +286,7 @@ function TLonLatPolygon.IsSameGeometry(
   const AGeometry: IGeometryLonLat
 ): Boolean;
 var
-  VLine: ILonLatPolygon;
+  VLine: IGeometryLonLatMultiPolygon;
 begin
   if AGeometry = nil then begin
     Result := False;
@@ -302,7 +302,7 @@ begin
   end;
 
   Result := False;
-  if Supports(AGeometry, ILonLatPolygon, VLine) then begin
+  if Supports(AGeometry, IGeometryLonLatMultiPolygon, VLine) then begin
     Result := IsSame(VLine);
   end;
 end;
@@ -314,7 +314,7 @@ begin
   Result := FLine.CalcLength(ADatum);
 end;
 
-constructor TLonLatPathOneLine.Create(const ALine: ILonLatPathLine);
+constructor TLonLatPathOneLine.Create(const ALine: IGeometryLonLatLine);
 begin
   inherited Create;
   FLine := ALine;
@@ -340,7 +340,7 @@ begin
   Result := FLine.Hash;
 end;
 
-function TLonLatPathOneLine.GetItem(AIndex: Integer): ILonLatPathLine;
+function TLonLatPathOneLine.GetItem(AIndex: Integer): IGeometryLonLatLine;
 begin
   if AIndex = 0 then begin
     Result := FLine;
@@ -349,7 +349,7 @@ begin
   end;
 end;
 
-function TLonLatPathOneLine.IsSame(const APath: ILonLatPath): Boolean;
+function TLonLatPathOneLine.IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
 begin
   if APath.Count <> 1 then begin
     Result := False;
@@ -362,7 +362,7 @@ function TLonLatPathOneLine.IsSameGeometry(
   const AGeometry: IGeometryLonLat
 ): Boolean;
 var
-  VLine: ILonLatPath;
+  VLine: IGeometryLonLatMultiLine;
 begin
   if AGeometry = nil then begin
     Result := False;
@@ -378,7 +378,7 @@ begin
   end;
 
   Result := False;
-  if Supports(AGeometry, ILonLatPath, VLine) then begin
+  if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
     Result := IsSame(VLine);
   end;
 end;
@@ -399,7 +399,7 @@ begin
   Result := FLine.CalcPerimeter(ADatum);
 end;
 
-constructor TLonLatPolygonOneLine.Create(const ALine: ILonLatPolygonLine);
+constructor TLonLatPolygonOneLine.Create(const ALine: IGeometryLonLatPolygon);
 begin
   inherited Create;
   FLine := ALine;
@@ -425,7 +425,7 @@ begin
   Result := FLine.Hash;
 end;
 
-function TLonLatPolygonOneLine.GetItem(AIndex: Integer): ILonLatPolygonLine;
+function TLonLatPolygonOneLine.GetItem(AIndex: Integer): IGeometryLonLatPolygon;
 begin
   if AIndex = 0 then begin
     Result := FLine;
@@ -434,7 +434,7 @@ begin
   end;
 end;
 
-function TLonLatPolygonOneLine.IsSame(const APolygon: ILonLatPolygon): Boolean;
+function TLonLatPolygonOneLine.IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
 begin
   if APolygon.Count <> 1 then begin
     Result := False;
@@ -447,7 +447,7 @@ function TLonLatPolygonOneLine.IsSameGeometry(
   const AGeometry: IGeometryLonLat
 ): Boolean;
 var
-  VLine: ILonLatPolygon;
+  VLine: IGeometryLonLatMultiPolygon;
 begin
   if AGeometry = nil then begin
     Result := False;
@@ -463,7 +463,7 @@ begin
   end;
 
   Result := False;
-  if Supports(AGeometry, ILonLatPolygon, VLine) then begin
+  if Supports(AGeometry, IGeometryLonLatMultiPolygon, VLine) then begin
     Result := IsSame(VLine);
   end;
 end;

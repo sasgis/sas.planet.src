@@ -114,7 +114,7 @@ var
   VFileName: string;
   VPath: string;
   VZoom: Byte;
-  VPolygon: ILonLatPolygon;
+  VPolygon: IGeometryLonLatMultiPolygon;
   VNeedRead: Boolean;
   VNeedWrite: Boolean;
   VIniFile: TMemIniFile;

@@ -367,10 +367,10 @@ var
   VMarkPoly: IVectorDataItemPoly;
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;
-  VLonLatPolygon: ILonLatPolygon;
-  VLonLatPolygonLine: ILonLatPolygonLine;
-  VLonLatPath: ILonLatPath;
-  VLonLatPathLine: ILonLatPathLine;
+  VLonLatPolygon: IGeometryLonLatMultiPolygon;
+  VLonLatPolygonLine: IGeometryLonLatPolygon;
+  VLonLatPath: IGeometryLonLatMultiLine;
+  VLonLatPathLine: IGeometryLonLatLine;
 begin
   currNode := inNode.AddChild('Placemark');
   currNode.ChildValues['name'] := XMLTextPrepare(Mark.Name);
