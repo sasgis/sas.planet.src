@@ -81,6 +81,7 @@ constructor TMarkId.Create(
 var
   VCategory: IMarkCategorySMLInternal;
 begin
+  Assert(AId >= 0);
   inherited Create;
   FName := AName;
   FId := AId;
@@ -122,10 +123,7 @@ end;
 
 function TMarkId.GetStringID: string;
 begin
-  Result := '';
-  if FId >= 0 then begin
-    Result := IntToStr(FId);
-  end;
+  Result := IntToStr(FId);
 end;
 
 function TMarkId.GetVisible: Boolean;
