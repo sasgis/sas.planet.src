@@ -23,6 +23,9 @@ type
     FEmptyLonLatPath: IGeometryLonLatMultiLine;
     FEmptyLonLatPolygon: IGeometryLonLatMultiPolygon;
   private
+    function CreateLonLatPoint(
+      const APoint: TDoublePoint
+    ): IGeometryLonLatPoint;
     function CreateLonLatPath(
       const APoints: PDoublePointArray;
       ACount: Integer
@@ -458,6 +461,18 @@ begin
     VRect := TLonLatRect.Create(VBounds);
     Result := TGeometryLonLatMultiLine.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
   end;
+end;
+
+function TVectorGeometryLonLatFactory.CreateLonLatPoint(
+  const APoint: TDoublePoint
+): IGeometryLonLatPoint;
+var
+  VHash: THashValue;
+  VRect: ILonLatRect;
+begin
+  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  VRect := TLonLatRectByPoint.Create(APoint);
+  Result := TGeometryLonLatPoint.Create(VHash, VRect);
 end;
 
 function TVectorGeometryLonLatFactory.CreateLonLatPolygon(

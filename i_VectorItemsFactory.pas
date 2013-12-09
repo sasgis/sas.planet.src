@@ -16,6 +16,9 @@ uses
 type
   IVectorGeometryLonLatFactory = interface
     ['{FD69BBD0-2065-43B0-9D7C-900E82C28069}']
+    function CreateLonLatPoint(
+      const APoint: TDoublePoint
+    ): IGeometryLonLatPoint;
     function CreateLonLatPath(
       const APoints: PDoublePointArray;
       ACount: Integer
