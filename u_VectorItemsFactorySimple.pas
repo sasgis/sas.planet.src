@@ -199,7 +199,7 @@ uses
   u_LonLatRect,
   u_LonLatRectByPoint,
   u_VectorItemEmpty,
-  u_VectorItemLonLat,
+  u_GeometryLonLatMulti,
   u_VectorItemProjected,
   u_VectorItemLocal;
 
@@ -346,7 +346,7 @@ begin
     VList.Add(VLine);
     FHashFunction.UpdateHashByHash(VLinesetHash, VLine.Hash);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPath.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
+    Result := TGeometryLonLatMultiLine.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -456,7 +456,7 @@ begin
     VList.Add(VLine);
     FHashFunction.UpdateHashByHash(VLinesetHash, VLine.Hash);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPath.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
+    Result := TGeometryLonLatMultiLine.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -566,7 +566,7 @@ begin
     VList.Add(VLine);
     FHashFunction.UpdateHashByHash(VLinesetHash, VLine.Hash);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPolygon.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
+    Result := TGeometryLonLatMultiPolygon.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -676,7 +676,7 @@ begin
     VList.Add(VLine);
     FHashFunction.UpdateHashByHash(VLinesetHash, VLine.Hash);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPolygon.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
+    Result := TGeometryLonLatMultiPolygon.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -787,7 +787,7 @@ begin
     VList.Add(VLine);
     FHashFunction.UpdateHashByHash(VLinesetHash, VLine.Hash);
     VRect := TLonLatRect.Create(VBounds);
-    Result := TLonLatPolygon.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
+    Result := TGeometryLonLatMultiPolygon.Create(VRect, VLinesetHash, VList.MakeStaticAndClear);
   end;
 end;
 
