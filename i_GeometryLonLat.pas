@@ -24,7 +24,7 @@ type
 
   IGeometryLonLatPoint = interface(IGeometryLonLat)
     ['{C52B78AD-2635-48A6-9C8B-E94C4592CFD0}']
-    function IsSame(const ALine: IGeometryLonLatPoint): Boolean;
+    function IsSame(const APoint: IGeometryLonLatPoint): Boolean;
 
     function GetPoint: TDoublePoint;
     property Point: TDoublePoint read GetPoint;

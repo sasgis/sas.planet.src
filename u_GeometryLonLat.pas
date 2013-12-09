@@ -13,6 +13,23 @@ uses
   u_BaseInterfacedObject;
 
 type
+  TGeometryLonLatPoint = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatPoint)
+  private
+    FBounds: ILonLatRect;
+    FHash: THashValue;
+  private
+    function GetBounds: ILonLatRect;
+    function GetHash: THashValue;
+    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
+    function IsSame(const APoint: IGeometryLonLatPoint): Boolean;
+    function GetPoint: TDoublePoint;
+  public
+    constructor Create(
+      const AHash: THashValue;
+      const ABounds: ILonLatRect
+    );
+  end;
+
   TGeometryLonLatBase = class(TBaseInterfacedObject)
   private
     FCount: Integer;
@@ -316,6 +333,78 @@ begin
   Result := False;
   if Supports(AGeometry, IGeometryLonLatPolygon, VLine) then begin
     Result := IsSame(VLine);
+  end;
+end;
+
+{ TGeometryLonLatPoint }
+
+constructor TGeometryLonLatPoint.Create(
+  const AHash: THashValue;
+  const ABounds: ILonLatRect
+);
+begin
+  Assert(Assigned(ABounds));
+  Assert(DoublePointsEqual(ABounds.TopLeft, ABounds.BottomRight));
+  inherited Create;
+  FHash := AHash;
+  FBounds := ABounds;
+end;
+
+function TGeometryLonLatPoint.GetBounds: ILonLatRect;
+begin
+  Result := FBounds;
+end;
+
+function TGeometryLonLatPoint.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
+function TGeometryLonLatPoint.GetPoint: TDoublePoint;
+begin
+  Result := FBounds.TopLeft;
+end;
+
+function TGeometryLonLatPoint.IsSame(
+  const APoint: IGeometryLonLatPoint
+): Boolean;
+begin
+  if not Assigned(APoint) then begin
+    Result := False;
+    Exit;
+  end;
+  if APoint = IGeometryLonLatPoint(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (FHash <> 0) and (APoint.Hash <> 0) and (FHash <> APoint.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+  Result := FBounds.IsEqual(APoint.Bounds);
+end;
+
+function TGeometryLonLatPoint.IsSameGeometry(
+  const AGeometry: IGeometryLonLat
+): Boolean;
+var
+  VPoint: IGeometryLonLatPoint;
+begin
+  if not Assigned(AGeometry) then begin
+    Result := False;
+    Exit;
+  end;
+  if AGeometry = IGeometryLonLat(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (FHash <> 0) and (AGeometry.Hash <> 0) and (FHash <> AGeometry.Hash) then begin
+    Result := False;
+    Exit;
+  end;
+  Result := False;
+  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    Result := FBounds.IsEqual(VPoint.Bounds);
   end;
 end;
 
