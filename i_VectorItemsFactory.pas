@@ -140,31 +140,6 @@ type
     ): IProjectedPolygon;
   end;
 
-  IVectorGeometryLocalFactory = interface
-    ['{E44B8BA5-0443-40CC-8F48-F8B817D0328A}']
-    function CreateLocalPath(
-      const ALocalConverter: ILocalCoordConverter;
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ): ILocalPath;
-    function CreateLocalPolygon(
-      const ALocalConverter: ILocalCoordConverter;
-      const APoints: PDoublePointArray;
-      ACount: Integer
-    ): ILocalPolygon;
-
-    function CreateLocalPathByEnum(
-      const ALocalConverter: ILocalCoordConverter;
-      const AEnum: IEnumLocalPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): ILocalPath;
-    function CreateLocalPolygonByEnum(
-      const ALocalConverter: ILocalCoordConverter;
-      const AEnum: IEnumLocalPoint;
-      const ATemp: IDoublePointsAggregator = nil
-    ): ILocalPolygon;
-  end;
-
 implementation
 
 end.

@@ -219,6 +219,8 @@ uses
   i_GeometryLonLat in 'i_GeometryLonLat.pas',
   i_VectorItemsFactory in 'i_VectorItemsFactory.pas',
   i_VectorDataFactory in 'i_VectorDataFactory.pas',
+  i_VectorGeometryLocalFactory in 'i_VectorGeometryLocalFactory.pas',
+  u_VectorGeometryLocalFactory in 'u_VectorGeometryLocalFactory.pas',
   u_VectorDataFactorySimple in 'u_VectorDataFactorySimple.pas',
   u_VectorDataFactoryForMap in 'u_VectorDataFactoryForMap.pas',
   i_HtmlToHintTextConverter in 'i_HtmlToHintTextConverter.pas',

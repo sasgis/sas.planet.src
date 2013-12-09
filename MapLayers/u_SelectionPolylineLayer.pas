@@ -10,6 +10,7 @@ uses
   i_InternalPerformanceCounter,
   i_GeometryLonLat,
   i_VectorItemsFactory,
+  i_VectorGeometryLocalFactory,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
   u_PolyLineLayerBase,
