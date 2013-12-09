@@ -10,7 +10,7 @@ uses
   i_ActiveMapsConfig,
   i_Bitmap32StaticFactory,
   i_MapTypeGUIConfigList,
-  i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   i_CoordConverterFactory,
   i_BitmapTileSaveLoadFactory,
   i_LocalCoordConverterFactorySimpe,

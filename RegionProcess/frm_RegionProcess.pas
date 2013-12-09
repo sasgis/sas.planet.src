@@ -46,6 +46,7 @@ uses
   i_GlobalViewMainConfig,
   i_GeometryLonLat,
   i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   i_ProjectedGeometryProvider,
   i_ImageResamplerConfig,
   i_Bitmap32StaticFactory,

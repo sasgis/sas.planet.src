@@ -15,7 +15,7 @@ uses
   i_CoordConverterFactory,
   i_LanguageManager,
   i_GeometryLonLat,
-  i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_RegionProcessParamsFrame,

@@ -16,7 +16,7 @@ uses
   i_CoordConverter,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   u_ResStrings,
   u_ThreadRegionProcessAbstract;
 

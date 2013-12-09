@@ -444,6 +444,7 @@
     <DCCReference Include="i_VectorDataItemSimple.pas" />
     <DCCReference Include="i_VectorDataLoader.pas" />
     <DCCReference Include="i_VectorGeometryLocalFactory.pas" />
+    <DCCReference Include="i_VectorGeometryProjectedFactory.pas" />
     <DCCReference Include="i_VectorItemDrawConfig.pas" />
     <DCCReference Include="i_VectorItemLocal.pas" />
     <DCCReference Include="i_VectorItemProjected.pas" />
@@ -1317,6 +1318,7 @@
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_VectorDataItemSubset.pas" />
     <DCCReference Include="u_VectorGeometryLocalFactory.pas" />
+    <DCCReference Include="u_VectorGeometryProjectedFactory.pas" />
     <DCCReference Include="u_VectorItemDrawConfig.pas" />
     <DCCReference Include="u_VectorItemEmpty.pas" />
     <DCCReference Include="u_VectorItemLocal.pas" />

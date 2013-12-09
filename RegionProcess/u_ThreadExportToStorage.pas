@@ -10,7 +10,7 @@ uses
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_ContentTypeManager,
-  i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,

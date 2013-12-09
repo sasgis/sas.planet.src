@@ -20,6 +20,7 @@ uses
   i_MarkerRingsConfig,
   i_GeometryLonLat,
   i_VectorItemProjected,
+  i_VectorGeometryProjectedFactory,
   i_VectorItemsFactory,
   i_GPSRecorder,
   u_MapLayerBasic;

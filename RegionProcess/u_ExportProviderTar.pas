@@ -10,7 +10,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
-  i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   i_ArchiveReadWriteFactory,
   i_TileFileNameGeneratorsList,
   i_RegionProcessProgressInfoInternalFactory,

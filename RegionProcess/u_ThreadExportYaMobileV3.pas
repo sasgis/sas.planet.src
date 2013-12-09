@@ -17,7 +17,7 @@ uses
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   i_GeometryLonLat,
   u_ThreadExportAbstract;
 

@@ -11,7 +11,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
-  i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   i_GeometryLonLat,
   i_ArchiveReadWrite,
   i_TileStorage,

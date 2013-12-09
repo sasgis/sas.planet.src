@@ -27,7 +27,7 @@ uses
   i_MarksDrawConfig,
   i_MarkSystem,
   i_MapCalibration,
-  i_VectorItemsFactory,
+  i_VectorGeometryProjectedFactory,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
