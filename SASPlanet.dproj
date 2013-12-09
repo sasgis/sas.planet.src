@@ -1018,6 +1018,7 @@
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoCodePlacemarkWithUrlDecorator.pas" />
     <DCCReference Include="u_GeoFun.pas" />
+    <DCCReference Include="u_GeometryLonLat.pas" />
     <DCCReference Include="u_GeometryLonLatMulti.pas" />
     <DCCReference Include="u_GeoToStr.pas" />
     <DCCReference Include="u_GlobalAppConfig.pas" />
@@ -1090,7 +1091,6 @@
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_LonLatRect.pas" />
     <DCCReference Include="u_LonLatRectByPoint.pas" />
-    <DCCReference Include="u_LonLatSingleLine.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="u_MainFormConfig.pas" />

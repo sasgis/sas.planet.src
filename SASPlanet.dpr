@@ -328,7 +328,7 @@ uses
   u_LocalSingleLine in 'u_LocalSingleLine.pas',
   u_EnumDoublePointBySingleLine in 'u_EnumDoublePointBySingleLine.pas',
   u_EnumDoublePointByLineSet in 'u_EnumDoublePointByLineSet.pas',
-  u_LonLatSingleLine in 'u_LonLatSingleLine.pas',
+  u_GeometryLonLat in 'u_GeometryLonLat.pas',
   u_ProjectedSingleLine in 'u_ProjectedSingleLine.pas',
   u_VectorItemEmpty in 'u_VectorItemEmpty.pas',
   u_GeometryLonLatMulti in 'u_GeometryLonLatMulti.pas',

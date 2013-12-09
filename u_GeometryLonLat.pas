@@ -1,4 +1,4 @@
-unit u_LonLatSingleLine;
+unit u_GeometryLonLat;
 
 interface
 
@@ -13,7 +13,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TLonLatLineBase = class(TBaseInterfacedObject)
+  TGeometryLonLatBase = class(TBaseInterfacedObject)
   private
     FCount: Integer;
     FBounds: ILonLatRect;
@@ -34,7 +34,7 @@ type
     ); overload;
   end;
 
-  TLonLatPathLine = class(TLonLatLineBase, IGeometryLonLat, IGeometryLonLatLine)
+  TGeometryLonLatLine = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatLine)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
@@ -49,7 +49,7 @@ type
     );
   end;
 
-  TLonLatPolygonLine = class(TLonLatLineBase, IGeometryLonLat, IGeometryLonLatPolygon)
+  TGeometryLonLatPolygon = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatPolygon)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
@@ -78,7 +78,7 @@ uses
 
 { TLineBase }
 
-constructor TLonLatLineBase.Create(
+constructor TGeometryLonLatBase.Create(
   AClosed: Boolean;
   const ABounds: ILonLatRect;
   const AHash: THashValue;
@@ -100,29 +100,29 @@ begin
   Move(APoints^, FPoints[0], FCount * SizeOf(TDoublePoint));
 end;
 
-function TLonLatLineBase.GetBounds: ILonLatRect;
+function TGeometryLonLatBase.GetBounds: ILonLatRect;
 begin
   Result := FBounds;
 end;
 
-function TLonLatLineBase.GetCount: Integer;
+function TGeometryLonLatBase.GetCount: Integer;
 begin
   Result := FCount;
 end;
 
-function TLonLatLineBase.GetHash: THashValue;
+function TGeometryLonLatBase.GetHash: THashValue;
 begin
   Result := FHash;
 end;
 
-function TLonLatLineBase.GetPoints: PDoublePointArray;
+function TGeometryLonLatBase.GetPoints: PDoublePointArray;
 begin
   Result := @FPoints[0];
 end;
 
 { TLonLatPathLine }
 
-function TLonLatPathLine.CalcLength(const ADatum: IDatum): Double;
+function TGeometryLonLatLine.CalcLength(const ADatum: IDatum): Double;
 var
   VEnum: IEnumLonLatPoint;
   VPrevPoint: TDoublePoint;
@@ -138,7 +138,7 @@ begin
   end;
 end;
 
-constructor TLonLatPathLine.Create(
+constructor TGeometryLonLatLine.Create(
   const ABounds: ILonLatRect;
   const AHash: THashValue;
   const APoints: PDoublePointArray;
@@ -148,12 +148,12 @@ begin
   inherited Create(False, ABounds, AHash, APoints, ACount);
 end;
 
-function TLonLatPathLine.GetEnum: IEnumLonLatPoint;
+function TGeometryLonLatLine.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, False, @FPoints[0], FCount);
 end;
 
-function TLonLatPathLine.IsSame(const ALine: IGeometryLonLatLine): Boolean;
+function TGeometryLonLatLine.IsSame(const ALine: IGeometryLonLatLine): Boolean;
 var
   i: Integer;
   VPoints: PDoublePointArray;
@@ -189,7 +189,7 @@ begin
   end;
 end;
 
-function TLonLatPathLine.IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
+function TGeometryLonLatLine.IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
 var
   VLine: IGeometryLonLatLine;
 begin
@@ -214,7 +214,7 @@ end;
 
 { TLonLatPolygonLine }
 
-function TLonLatPolygonLine.CalcArea(
+function TGeometryLonLatPolygon.CalcArea(
   const ADatum: IDatum;
   const ANotifier: INotifierOperation = nil;
   const AOperationID: Integer = 0
@@ -227,7 +227,7 @@ begin
   end;
 end;
 
-function TLonLatPolygonLine.CalcPerimeter(const ADatum: IDatum): Double;
+function TGeometryLonLatPolygon.CalcPerimeter(const ADatum: IDatum): Double;
 var
   VEnum: IEnumLonLatPoint;
   VPrevPoint: TDoublePoint;
@@ -243,7 +243,7 @@ begin
   end;
 end;
 
-constructor TLonLatPolygonLine.Create(
+constructor TGeometryLonLatPolygon.Create(
   const ABounds: ILonLatRect;
   const AHash: THashValue;
   const APoints: PDoublePointArray;
@@ -253,12 +253,12 @@ begin
   inherited Create(True, ABounds, AHash, APoints, ACount);
 end;
 
-function TLonLatPolygonLine.GetEnum: IEnumLonLatPoint;
+function TGeometryLonLatPolygon.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, True, @FPoints[0], FCount);
 end;
 
-function TLonLatPolygonLine.IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
+function TGeometryLonLatPolygon.IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
 var
   i: Integer;
   VPoints: PDoublePointArray;
@@ -294,7 +294,7 @@ begin
   end;
 end;
 
-function TLonLatPolygonLine.IsSameGeometry(
+function TGeometryLonLatPolygon.IsSameGeometry(
   const AGeometry: IGeometryLonLat
 ): Boolean;
 var
