@@ -22,6 +22,7 @@ type
     function GetHash: THashValue;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APoint: IGeometryLonLatPoint): Boolean;
+    function GetGoToLonLat: TDoublePoint;
     function GetPoint: TDoublePoint;
   public
     constructor Create(
@@ -56,6 +57,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const ALine: IGeometryLonLatLine): Boolean;
+    function GetGoToLonLat: TDoublePoint;
     function CalcLength(const ADatum: IDatum): Double;
   public
     constructor Create(
@@ -71,6 +73,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
+    function GetGoToLonLat: TDoublePoint;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
       const ADatum: IDatum;
@@ -168,6 +171,15 @@ end;
 function TGeometryLonLatLine.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, False, @FPoints[0], FCount);
+end;
+
+function TGeometryLonLatLine.GetGoToLonLat: TDoublePoint;
+begin
+  if GetCount > 0 then begin
+    Result := GetPoints[0];
+  end else begin
+    Result := CEmptyDoublePoint;
+  end;
 end;
 
 function TGeometryLonLatLine.IsSame(const ALine: IGeometryLonLatLine): Boolean;
@@ -275,6 +287,11 @@ begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, True, @FPoints[0], FCount);
 end;
 
+function TGeometryLonLatPolygon.GetGoToLonLat: TDoublePoint;
+begin
+  Result := FBounds.CalcRectCenter;
+end;
+
 function TGeometryLonLatPolygon.IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
 var
   i: Integer;
@@ -353,6 +370,11 @@ end;
 function TGeometryLonLatPoint.GetBounds: ILonLatRect;
 begin
   Result := FBounds;
+end;
+
+function TGeometryLonLatPoint.GetGoToLonLat: TDoublePoint;
+begin
+  Result := GetPoint;
 end;
 
 function TGeometryLonLatPoint.GetHash: THashValue;
