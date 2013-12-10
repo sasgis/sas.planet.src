@@ -54,6 +54,7 @@ type
     FLine: IGeometryLonLatMultiLine;
   protected
     function GetLine: IGeometryLonLatMultiLine;
+    function GetGeometry: IGeometryLonLat; override;
     function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
@@ -71,6 +72,7 @@ type
     FLine: IGeometryLonLatMultiPolygon;
   protected
     function GetLine: IGeometryLonLatMultiPolygon;
+    function GetGeometry: IGeometryLonLat; override;
     function GetGoToLonLat: TDoublePoint; override;
   public
     constructor Create(
@@ -123,6 +125,11 @@ begin
   FLine := ALine;
 end;
 
+function TVectorDataItemPath.GetGeometry: IGeometryLonLat;
+begin
+  Result := FLine;
+end;
+
 function TVectorDataItemPath.GetGoToLonLat: TDoublePoint;
 begin
   FLine.GetEnum.Next(Result);
@@ -146,6 +153,11 @@ begin
   Assert(Assigned(ALine));
   inherited Create(AHash, AAppearance, AHintConverter, AName, ADesc, ALine.Bounds);
   FLine := ALine;
+end;
+
+function TVectorDataItemPoly.GetGeometry: IGeometryLonLat;
+begin
+  Result := FLine;
 end;
 
 function TVectorDataItemPoly.GetGoToLonLat: TDoublePoint;

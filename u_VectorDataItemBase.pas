@@ -28,6 +28,7 @@ uses
   i_LonLatRect,
   i_Appearance,
   i_HtmlToHintTextConverter,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   u_BaseInterfacedObject;
 
@@ -43,6 +44,7 @@ type
     function GetHash: THashValue;
     function GetName: string;
     function GetDesc: string;
+    function GetGeometry: IGeometryLonLat; virtual; abstract;
     function GetLLRect: ILonLatRect; virtual; abstract;
     function GetAppearance: IAppearance;
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;

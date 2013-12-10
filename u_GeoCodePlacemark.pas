@@ -49,6 +49,7 @@ type
     function GetPoint: IGeometryLonLatPoint;
     function GetName: string;
     function GetDesc: string;
+    function GetGeometry: IGeometryLonLat; virtual; abstract;
     function GetLLRect: ILonLatRect;
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
     function GetGoToLonLat: TDoublePoint;

@@ -42,6 +42,9 @@ type
     function GetDesc: string;
     property Desc: string read GetDesc;
 
+    function GetGeometry: IGeometryLonLat;
+    property Geometry: IGeometryLonLat read GetGeometry;
+
     function GetLLRect: ILonLatRect;
     property LLRect: ILonLatRect read GetLLRect;
 

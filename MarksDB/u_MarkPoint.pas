@@ -41,6 +41,7 @@ type
     function GetMarkType: TGUID; override;
   protected
     function GetLLRect: ILonLatRect; override;
+    function GetGeometry: IGeometryLonLat; override;
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
@@ -102,6 +103,11 @@ begin
     Exit;
   end;
   Result := True;
+end;
+
+function TMarkPoint.GetGeometry: IGeometryLonLat;
+begin
+  Result := FPoint;
 end;
 
 function TMarkPoint.GetGoToLonLat: TDoublePoint;

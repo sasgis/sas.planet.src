@@ -29,6 +29,7 @@ uses
   i_Appearance,
   i_StringProvider,
   i_HtmlToHintTextConverter,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   u_BaseInterfacedObject;
 
@@ -47,6 +48,7 @@ type
     function GetAppearance: IAppearance;
     function GetName: string;
     function GetDesc: string;
+    function GetGeometry: IGeometryLonLat; virtual; abstract;
     function GetLLRect: ILonLatRect; virtual; abstract;
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
     function GetGoToLonLat: TDoublePoint; virtual; abstract;

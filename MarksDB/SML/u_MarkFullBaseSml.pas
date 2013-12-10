@@ -28,6 +28,7 @@ uses
   i_Appearance,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_Category,
   u_MarkId;
@@ -43,6 +44,7 @@ type
     function GetHash: THashValue;
     function GetAppearance: IAppearance;
     function GetDesc: string;
+    function GetGeometry: IGeometryLonLat; virtual; abstract;
     function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
     function GetInfoHTML: string;

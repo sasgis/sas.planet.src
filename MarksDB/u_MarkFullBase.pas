@@ -28,6 +28,7 @@ uses
   i_Appearance,
   i_LonLatRect,
   i_HtmlToHintTextConverter,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_Category,
   u_BaseInterfacedObject;
@@ -47,6 +48,7 @@ type
     function GetName: string;
     function GetMarkType: TGUID; virtual; abstract;
     function GetDesc: string;
+    function GetGeometry: IGeometryLonLat; virtual; abstract;
     function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
     function GetInfoHTML: string;

@@ -23,6 +23,7 @@ type
     function GetPoint: IGeometryLonLatPoint;
     function GetName: string;
     function GetDesc: string;
+    function GetGeometry: IGeometryLonLat;
     function GetLLRect: ILonLatRect;
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
     function GetGoToLonLat: TDoublePoint;
@@ -64,6 +65,11 @@ end;
 function TGeoCodePlacemarkWithUrlDecorator.GetDesc: string;
 begin
   Result := FSource.Desc;
+end;
+
+function TGeoCodePlacemarkWithUrlDecorator.GetGeometry: IGeometryLonLat;
+begin
+  Result := FSource.Geometry;
 end;
 
 function TGeoCodePlacemarkWithUrlDecorator.GetGoToLonLat: TDoublePoint;
