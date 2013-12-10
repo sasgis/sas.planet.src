@@ -5,7 +5,7 @@ interface
 uses
   i_BinaryData,
   i_VectorDataLoader,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorItemSubset,
   i_VectorDataFactory,
   i_VectorItemSubsetBuilder,

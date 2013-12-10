@@ -27,7 +27,7 @@ uses
   i_ContentTypeManager,
   i_Bitmap32Static,
   i_GeometryLonLat,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider;
 

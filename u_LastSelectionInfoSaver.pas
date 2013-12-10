@@ -8,7 +8,7 @@ uses
   i_Listener,
   i_PathConfig,
   i_SimpleFlag,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_LastSelectionInfo,
   u_BackgroundTask;
 

@@ -12,7 +12,7 @@ uses
   i_VectorDataItemSimple,
   i_VectorDataFactory,
   i_GeometryLonLat,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_InterfaceListSimple,
   i_DoublePointsAggregator,
   u_BaseInterfacedObject;

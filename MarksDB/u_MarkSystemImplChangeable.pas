@@ -7,7 +7,7 @@ uses
   i_Listener,
   i_MarkPicture,
   i_HashFunction,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorItemSubsetBuilder,
   i_AppearanceOfMarkFactory,
   i_MarkFactory,

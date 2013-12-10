@@ -28,7 +28,7 @@ uses
   i_NotifierTime,
   i_DownloadResultFactory,
   i_VectorDataFactory,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorDataLoader,
   u_PathDetalizeProviderListBase;
 

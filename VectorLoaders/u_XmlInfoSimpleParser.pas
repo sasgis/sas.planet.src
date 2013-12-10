@@ -30,7 +30,7 @@ uses
   i_VectorDataFactory,
   i_VectorItemSubsetBuilder,
   i_VectorItemSubset,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_InternalPerformanceCounter,
   i_VectorDataLoader,
   i_XmlVectorObjects,

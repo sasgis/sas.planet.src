@@ -28,7 +28,7 @@ uses
   i_NotifierOperation,
   i_MapTypeSet,
   i_GeometryLonLat,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorGeometryProjectedFactory,
   i_CoordConverterFactory,
   i_LanguageManager,

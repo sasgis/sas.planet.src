@@ -9,7 +9,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
   i_GeometryLonLat,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorGeometryProjectedFactory,
   i_VectorGeometryLocalFactory,
   i_LineOnMapEdit,

@@ -30,7 +30,7 @@ uses
   i_GeometryLonLat,
   i_HashFunction,
   i_VectorDataItemSimple,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_GeoCoder,
   u_BaseInterfacedObject;
 

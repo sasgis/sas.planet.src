@@ -23,7 +23,7 @@ unit u_ContentTypeManagerSimple;
 interface
 
 uses
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_ContentTypeInfo,
   i_ContentConverter,
   i_VectorItemSubsetBuilder,

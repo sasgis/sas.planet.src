@@ -29,7 +29,7 @@ uses
   i_BinaryData,
   i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_DoublePointsAggregator,

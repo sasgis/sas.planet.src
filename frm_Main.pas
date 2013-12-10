@@ -764,7 +764,7 @@ uses
   i_PathDetalizeProviderList,
   i_SensorViewListGenerator,
   i_VectorItemSubsetBuilder,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorGeometryProjectedFactory,
   i_VectorItemSubsetChangeable,
   i_ConfigDataProvider,

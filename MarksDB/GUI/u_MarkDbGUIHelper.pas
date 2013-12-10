@@ -30,7 +30,7 @@ uses
   i_LanguageManager,
   i_InterfaceListStatic,
   i_ProjectionInfo,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_ArchiveReadWriteFactory,
   i_ValueToStringConverter,
   i_GeometryLonLat,

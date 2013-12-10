@@ -13,7 +13,7 @@ uses
   i_GeometryLonLat,
   i_VectorItemProjected,
   i_VectorItemLocal,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   u_BaseInterfacedObject;
 
 type

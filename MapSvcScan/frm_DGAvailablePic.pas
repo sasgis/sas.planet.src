@@ -40,7 +40,7 @@ uses
   TBX,
   TB2Item,
   i_LanguageManager,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorItemSubsetBuilder,
   i_InetConfig,
   i_LocalCoordConverter,

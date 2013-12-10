@@ -217,7 +217,7 @@ uses
   i_AppearanceOfMarkFactory in 'i_AppearanceOfMarkFactory.pas',
   u_AppearanceOfMarkFactory in 'u_AppearanceOfMarkFactory.pas',
   i_GeometryLonLat in 'i_GeometryLonLat.pas',
-  i_VectorItemsFactory in 'i_VectorItemsFactory.pas',
+  i_GeometryLonLatFactory in 'i_GeometryLonLatFactory.pas',
   i_VectorDataFactory in 'i_VectorDataFactory.pas',
   i_VectorGeometryProjectedFactory in 'i_VectorGeometryProjectedFactory.pas',
   u_VectorGeometryProjectedFactory in 'u_VectorGeometryProjectedFactory.pas',

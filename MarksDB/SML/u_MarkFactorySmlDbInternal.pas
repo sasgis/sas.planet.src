@@ -28,7 +28,7 @@ uses
   i_HashFunction,
   i_AppearanceOfMarkFactory,
   i_GeometryLonLat,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_MarkPicture,
   i_Category,
   i_MarkCategoryDBSmlInternal,

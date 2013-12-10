@@ -24,7 +24,7 @@ interface
 
 uses
   i_HashFunction,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
   i_AppearanceOfMarkFactory,

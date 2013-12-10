@@ -29,7 +29,7 @@ uses
   i_ValueToStringConverter,
   i_ImportConfig,
   i_ImportFile,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorItemTree,
   u_BaseInterfacedObject;
 

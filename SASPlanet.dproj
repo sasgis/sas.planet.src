@@ -255,6 +255,7 @@
     <DCCReference Include="i_FindVectorItems.pas" />
     <DCCReference Include="i_FullMapMouseCursorLayerConfig.pas" />
     <DCCReference Include="i_GeometryLonLat.pas" />
+    <DCCReference Include="i_GeometryLonLatFactory.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
     <DCCReference Include="i_GlobalCacheConfig.pas" />
     <DCCReference Include="i_GlobalConfig.pas" />
@@ -448,7 +449,6 @@
     <DCCReference Include="i_VectorItemDrawConfig.pas" />
     <DCCReference Include="i_VectorItemLocal.pas" />
     <DCCReference Include="i_VectorItemProjected.pas" />
-    <DCCReference Include="i_VectorItemsFactory.pas" />
     <DCCReference Include="i_VectorItemSubset.pas" />
     <DCCReference Include="i_VectorItemSubsetBuilder.pas" />
     <DCCReference Include="i_VectorItemSubsetChangeable.pas" />

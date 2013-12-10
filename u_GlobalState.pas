@@ -78,7 +78,7 @@ uses
   i_SatellitesInViewMapDraw,
   i_SensorList,
   i_TerrainProviderList,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_InvisibleBrowser,
   i_InternalBrowser,
   i_DebugInfoWindow,

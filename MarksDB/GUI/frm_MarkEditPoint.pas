@@ -40,7 +40,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MarkPicture,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_VectorDataItemSimple,
   i_Appearance,
   i_AppearanceOfMarkFactory,

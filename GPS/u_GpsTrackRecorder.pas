@@ -6,7 +6,7 @@ uses
   Windows,
   t_GeoTypes,
   i_GeometryLonLat,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_PathConfig,
   i_GPS,
   i_GPSRecorder,

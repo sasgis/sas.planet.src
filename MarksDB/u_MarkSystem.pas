@@ -20,7 +20,7 @@ uses
   i_StaticTreeItem,
   i_PathConfig,
   i_MarkPicture,
-  i_VectorItemsFactory,
+  i_GeometryLonLatFactory,
   i_InterfaceListSimple,
   i_InternalPerformanceCounter,
   i_NotifierOperation,
