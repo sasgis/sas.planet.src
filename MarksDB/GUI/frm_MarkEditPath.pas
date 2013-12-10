@@ -37,7 +37,6 @@ uses
   u_CommonFormAndFrameParents,
   i_PathConfig,
   i_LanguageManager,
-  i_Mark,
   i_VectorDataItemSimple,
   i_MarkCategoryDB,
   i_Appearance,

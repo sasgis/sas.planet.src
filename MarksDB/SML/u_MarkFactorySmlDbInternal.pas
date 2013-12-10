@@ -32,7 +32,6 @@ uses
   i_MarkPicture,
   i_Category,
   i_MarkCategoryDBSmlInternal,
-  i_Mark,
   i_VectorDataItemSimple,
   i_MarkFactory,
   i_HtmlToHintTextConverter,

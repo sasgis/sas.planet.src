@@ -34,7 +34,6 @@ uses
   i_MarkPicture,
   i_MarkFactoryConfig,
   i_Category,
-  i_Mark,
   i_MarkTemplate,
   i_HtmlToHintTextConverter,
   i_MarkFactory,

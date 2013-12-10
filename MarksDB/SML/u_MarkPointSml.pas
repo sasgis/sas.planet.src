@@ -27,7 +27,6 @@ uses
   t_GeoTypes,
   i_Appearance,
   i_LonLatRect,
-  i_Mark,
   i_VectorDataItemSimple,
   i_Category,
   i_HtmlToHintTextConverter,

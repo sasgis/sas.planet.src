@@ -30,7 +30,6 @@ uses
   i_HtmlToHintTextConverter,
   i_VectorDataItemSimple,
   i_Category,
-  i_Mark,
   u_BaseInterfacedObject;
 
 type

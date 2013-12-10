@@ -29,7 +29,6 @@ uses
   i_LonLatRect,
   i_GeometryLonLat,
   i_VectorDataItemSimple,
-  i_Mark,
   i_Category,
   i_HtmlToHintTextConverter,
   u_MarkFullBase;

@@ -35,7 +35,6 @@ uses
   i_ValueToStringConverter,
   i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
-  i_Mark,
   i_VectorDataItemSimple,
   i_MarkId,
   i_Category,

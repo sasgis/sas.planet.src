@@ -40,7 +40,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MarkPicture,
-  i_Mark,
   i_VectorDataItemSimple,
   i_Appearance,
   i_AppearanceOfMarkFactory,

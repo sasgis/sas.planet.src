@@ -67,7 +67,6 @@ uses
   i_TileErrorLogProviedrStuped,
   i_MapTypeConfigModalEdit,
   i_MapTypeHotKeyListStatic,
-  i_Mark,
   i_VectorDataItemSimple,
   i_MainFormConfig,
   i_SearchResultPresenter,

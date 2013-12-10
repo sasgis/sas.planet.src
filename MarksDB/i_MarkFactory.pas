@@ -31,8 +31,7 @@ uses
   i_Category,
   i_MarkPicture,
   i_MarkFactoryConfig,
-  i_MarkTemplate,
-  i_Mark;
+  i_MarkTemplate;
 
 type
   IMarkFactory = interface

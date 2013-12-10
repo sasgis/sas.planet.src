@@ -39,7 +39,6 @@ uses
   i_AppearanceOfMarkFactory,
   i_PathConfig,
   i_LanguageManager,
-  i_Mark,
   i_VectorDataItemSimple,
   i_MarkFactory,
   i_MarkCategoryDB,
