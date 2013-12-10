@@ -6,18 +6,15 @@ uses
   t_GeoTypes,
   i_HashFunction,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_EnumDoublePoint,
   i_DoublePointFilter,
   i_DoublePointsAggregator,
   i_GeometryLonLat,
-  i_VectorItemProjected,
-  i_VectorItemLocal,
   i_GeometryLonLatFactory,
   u_BaseInterfacedObject;
 
 type
-  TVectorGeometryLonLatFactory = class(TBaseInterfacedObject, IGeometryLonLatFactory)
+  TGeometryLonLatFactory = class(TBaseInterfacedObject, IGeometryLonLatFactory)
   private
     FHashFunction: IHashFunction;
     FEmptyLonLatPath: IGeometryLonLatMultiLine;
@@ -75,21 +72,14 @@ uses
   u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_GeometryLonLat,
-  u_ProjectedSingleLine,
-  u_LocalSingleLine,
-  u_EnumDoublePointLonLatToMapPixel,
-  u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterEqual,
   u_LonLatRect,
   u_LonLatRectByPoint,
   u_VectorItemEmpty,
-  u_GeometryLonLatMulti,
-  u_VectorItemProjected,
-  u_VectorItemLocal;
+  u_GeometryLonLatMulti;
 
 { TVectorGeometryLonLatFactory }
 
-constructor TVectorGeometryLonLatFactory.Create(
+constructor TGeometryLonLatFactory.Create(
   const AHashFunction: IHashFunction);
 var
   VEmpty: TLineSetEmpty;
@@ -102,7 +92,7 @@ begin
   FEmptyLonLatPolygon := VEmpty;
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
+function TGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
   const AProjection: IProjectionInfo;
   const APos: TDoublePoint;
   const ARadius: double
@@ -124,7 +114,7 @@ begin
   Result := CreateLonLatPolygon(VAggreagator.Points, VAggreagator.Count);
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPath(
+function TGeometryLonLatFactory.CreateLonLatPath(
   const APoints: PDoublePointArray;
   ACount: Integer
 ): IGeometryLonLatMultiLine;
@@ -234,7 +224,7 @@ begin
   end;
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPathByEnum(
+function TGeometryLonLatFactory.CreateLonLatPathByEnum(
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
 ): IGeometryLonLatMultiLine;
@@ -344,7 +334,7 @@ begin
   end;
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPoint(
+function TGeometryLonLatFactory.CreateLonLatPoint(
   const APoint: TDoublePoint
 ): IGeometryLonLatPoint;
 var
@@ -356,7 +346,7 @@ begin
   Result := TGeometryLonLatPoint.Create(VHash, VRect);
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPolygon(
+function TGeometryLonLatFactory.CreateLonLatPolygon(
   const APoints: PDoublePointArray;
   ACount: Integer
 ): IGeometryLonLatMultiPolygon;
@@ -466,7 +456,7 @@ begin
   end;
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPolygonByEnum(
+function TGeometryLonLatFactory.CreateLonLatPolygonByEnum(
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
 ): IGeometryLonLatMultiPolygon;
@@ -576,7 +566,7 @@ begin
   end;
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+function TGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
   const ASource: IGeometryLonLatMultiLine;
   const AFilter: ILonLatPointFilter
 ): IGeometryLonLatMultiPolygon;
@@ -687,14 +677,14 @@ begin
   end;
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPolygonByRect(
+function TGeometryLonLatFactory.CreateLonLatPolygonByRect(
   const ARect: TDoubleRect
 ): IGeometryLonLatMultiPolygon;
 begin
   Result := TLonLatPolygonOneLine.Create(CreateLonLatPolygonLineByRect(ARect));
 end;
 
-function TVectorGeometryLonLatFactory.CreateLonLatPolygonLineByRect(
+function TGeometryLonLatFactory.CreateLonLatPolygonLineByRect(
   const ARect: TDoubleRect
 ): IGeometryLonLatPolygon;
 var

@@ -464,7 +464,7 @@ begin
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FVectorGeometryProjectedFactory := TVectorGeometryProjectedFactory.Create;
-  FVectorGeometryLonLatFactory := TVectorGeometryLonLatFactory.Create(FHashFunction);
+  FVectorGeometryLonLatFactory := TGeometryLonLatFactory.Create(FHashFunction);
   FVectorGeometryLocalFactory := TVectorGeometryLocalFactory.Create;
 
   FGlobalInternetState := TGlobalInternetState.Create;
