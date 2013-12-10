@@ -563,7 +563,7 @@ begin
   if AData <> nil then begin
     VSize := ALocalConverter.GetLocalRectSize;
     VConverter := ALocalConverter.GetGeoConverter;
-    VRect := AData.LLRect;
+    VRect := AData.Geometry.Bounds;
     if VRect <> nil then begin
       VLLRect := VRect.Rect;
       VConverter.CheckLonLatRect(VLLRect);

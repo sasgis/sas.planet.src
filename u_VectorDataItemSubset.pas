@@ -134,7 +134,7 @@ begin
   VNewList := FVectorItemSubsetBuilderFactory.Build;
     for i := 0 to FList.Count - 1 do begin
       VItem := IVectorDataItemSimple(FList.Items[i]);
-      if VItem.LLRect.IsIntersecWithRect(ARect) then begin
+      if VItem.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
         VNewList.Add(VItem);
       end;
     end;

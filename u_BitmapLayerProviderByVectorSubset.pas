@@ -423,7 +423,7 @@ begin
       VIsEmpty := True;
       for i := 0 to FVectorItems.Count - 1 do begin
         VItem := FVectorItems.GetItem(i);
-        if VItem.LLRect.IsIntersecWithRect(VLLRect) then begin
+        if VItem.Geometry.Bounds.IsIntersecWithRect(VLLRect) then begin
           if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
             VIsEmpty := False;
           end;

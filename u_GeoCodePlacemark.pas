@@ -49,10 +49,8 @@ type
     function GetPoint: IGeometryLonLatPoint;
     function GetName: string;
     function GetDesc: string;
-    function GetGeometry: IGeometryLonLat; virtual; abstract;
-    function GetLLRect: ILonLatRect;
+    function GetGeometry: IGeometryLonLat;
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
-    function GetGoToLonLat: TDoublePoint;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetInfoUrl: string;
@@ -135,9 +133,9 @@ begin
   Result := FDesc;
 end;
 
-function TGeoCodePlacemark.GetGoToLonLat: TDoublePoint;
+function TGeoCodePlacemark.GetGeometry: IGeometryLonLat;
 begin
-  Result := FPoint.GetGoToLonLat;
+  Result := FPoint;
 end;
 
 function TGeoCodePlacemark.GetHash: THashValue;
@@ -165,11 +163,6 @@ begin
   Result := '';
 end;
 
-function TGeoCodePlacemark.GetLLRect: ILonLatRect;
-begin
-  Result := FPoint.Bounds;
-end;
-
 function TGeoCodePlacemark.GetPoint: IGeometryLonLatPoint;
 begin
   Result := FPoint;
@@ -191,7 +184,7 @@ begin
     Result := False;
     Exit;
   end;
-  if FPoint.Bounds.IsEqual(AItem.LLRect) then begin
+  if not FPoint.IsSameGeometry(AItem.Geometry) then begin
     Result := False;
     Exit;
   end;

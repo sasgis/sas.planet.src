@@ -43,7 +43,7 @@ object frmGoTo: TfrmGoTo
       Width = 39
       Height = 21
       Align = alLeft
-      ItemHeight = 13
+      ItemHeight = 0
       ItemIndex = 0
       TabOrder = 0
       Text = '01'
@@ -117,7 +117,7 @@ object frmGoTo: TfrmGoTo
         Width = 250
         Height = 21
         Align = alClient
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = cbbAllMarksDropDown
         OnDropDown = cbbAllMarksDropDown
@@ -137,7 +137,7 @@ object frmGoTo: TfrmGoTo
         Height = 21
         Style = csDropDownList
         Anchors = [akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 1
       end
       object cbbGeoCode: TComboBox
@@ -147,7 +147,7 @@ object frmGoTo: TfrmGoTo
         Width = 173
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
       end
     end

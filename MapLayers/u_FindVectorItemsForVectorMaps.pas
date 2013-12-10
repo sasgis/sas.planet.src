@@ -112,7 +112,7 @@ begin
         // check element
         for i := 0 to VElements.Count - 1 do begin
           VItem := VElements.GetItem(i);
-          if VItem.LLRect.IsIntersecWithRect(VLonLatRect) then begin
+          if VItem.Geometry.Bounds.IsIntersecWithRect(VLonLatRect) then begin
             if Supports(VItem, IVectorDataItemPoint) then begin
               Vtmp.add(VItem);
             end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin

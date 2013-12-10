@@ -513,7 +513,7 @@ begin
     VMark:=FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
     if VMark <> nil then begin
       if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-        FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FViewPortState.GetStatic.Zoom, False);
+        FMapGoto.GotoPos(VMarkPoint.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, False);
       end;
       if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
         FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
@@ -650,15 +650,15 @@ begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
     if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-      FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
+      FMapGoto.GotoPos(VMarkPoint.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
     end;
     if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
       FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
-      FMapGoto.ShowMarker(VMarkPoly.GetGoToLonLat);
+      FMapGoto.ShowMarker(VMarkPoly.Geometry.GetGoToLonLat);
     end;
     if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
       FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-      FMapGoto.ShowMarker(VMarkLine.GetGoToLonLat);
+      FMapGoto.ShowMarker(VMarkLine.Geometry.GetGoToLonLat);
     end;
   end;
 end;
@@ -672,7 +672,7 @@ begin
   if (btnNavOnMark.Checked) then begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
-      LL := VMark.GetGoToLonLat;
+      LL := VMark.Geometry.GetGoToLonLat;
       VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
       FNavToPoint.StartNavToMark(VMarkStringId, LL);
     end else begin
@@ -1088,13 +1088,13 @@ begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
     if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-      FMapGoto.GotoPos(VMark.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
+      FMapGoto.GotoPos(VMark.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
     end else if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
       FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-      FMapGoto.ShowMarker(VMarkLine.GetGoToLonLat);
+      FMapGoto.ShowMarker(VMarkLine.Geometry.GetGoToLonLat);
     end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-      FMapGoto.FitRectToScreen(VMarkPoly.LLRect.Rect);
-      FMapGoto.ShowMarker(VMarkPoly.GetGoToLonLat);
+      FMapGoto.FitRectToScreen(VMarkPoly.Line.Bounds.Rect);
+      FMapGoto.ShowMarker(VMarkPoly.Geometry.GetGoToLonLat);
     end;
   end;
 end;

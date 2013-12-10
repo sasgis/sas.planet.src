@@ -729,6 +729,7 @@ var
   VFillColor: TColor32;
   VMarkWithCategory: IVectorDataItemWithCategory;
   VCategory: IMarkCategorySMLInternal;
+  VRect: TDoubleRect;
 begin
   VVisible := True;
   VCategoryId := CNotExistCategoryID;
@@ -748,10 +749,11 @@ begin
   FCdsMarks.FieldByName('name').AsString := AMark.Name;
   FCdsMarks.FieldByName('categoryid').AsInteger := VCategoryId;
   FCdsMarks.FieldByName('descr').AsString := AMark.Desc;
-  FCdsMarks.FieldByName('LonL').AsFloat := AMark.LLRect.Left;
-  FCdsMarks.FieldByName('LatT').AsFloat := AMark.LLRect.Top;
-  FCdsMarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
-  FCdsMarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
+  VRect := AMark.Geometry.Bounds.Rect;
+  FCdsMarks.FieldByName('LonL').AsFloat := VRect.Left;
+  FCdsMarks.FieldByName('LatT').AsFloat := VRect.Top;
+  FCdsMarks.FieldByName('LonR').AsFloat := VRect.Right;
+  FCdsMarks.FieldByName('LatB').AsFloat := VRect.Bottom;
 
   if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
     VTextColor := 0;
@@ -1228,7 +1230,7 @@ var
 begin
   VEnum := ASourceList.GetEnumUnknown;
   while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
-    if VMark.LLRect.IsIntersecWithRect(ARect) then begin
+    if VMark.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
       if not AIgnoreVisible then begin
         if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
           if VMarkInternal.Visible then begin

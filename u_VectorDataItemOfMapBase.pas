@@ -49,9 +49,7 @@ type
     function GetName: string;
     function GetDesc: string;
     function GetGeometry: IGeometryLonLat; virtual; abstract;
-    function GetLLRect: ILonLatRect; virtual; abstract;
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
-    function GetGoToLonLat: TDoublePoint; virtual; abstract;
     function GetHintText: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;

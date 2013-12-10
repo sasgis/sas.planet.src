@@ -40,9 +40,7 @@ type
   protected
     function GetMarkType: TGUID; override;
   protected
-    function GetLLRect: ILonLatRect; override;
     function GetGeometry: IGeometryLonLat; override;
-    function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
     function GetLine: IGeometryLonLatMultiLine;
@@ -85,16 +83,6 @@ begin
   Result := FLine;
 end;
 
-function TMarkLine.GetGoToLonLat: TDoublePoint;
-begin
-  FLine.GetEnum.Next(Result);
-end;
-
-function TMarkLine.GetLLRect: ILonLatRect;
-begin
-  Result := FLine.Bounds;
-end;
-
 function TMarkLine.GetMarkType: TGUID;
 begin
   Result := IVectorDataItemLine;
@@ -113,10 +101,6 @@ begin
     Exit;
   end;
   if not Supports(AMark, IVectorDataItemLine, VMarkPath) then begin
-    Result := False;
-    Exit;
-  end;
-  if not FLine.Bounds.IsEqual(VMarkPath.LLRect) then begin
     Result := False;
     Exit;
   end;

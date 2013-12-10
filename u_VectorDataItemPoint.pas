@@ -37,9 +37,7 @@ type
   private
     FPoint: IGeometryLonLatPoint;
   protected
-    function GetLLRect: ILonLatRect; override;
     function GetGeometry: IGeometryLonLat; override;
-    function GetGoToLonLat: TDoublePoint; override;
     function GetPoint: IGeometryLonLatPoint;
   public
     constructor Create(
@@ -81,16 +79,6 @@ end;
 function TVectorDataItemPoint.GetGeometry: IGeometryLonLat;
 begin
   Result := FPoint;
-end;
-
-function TVectorDataItemPoint.GetGoToLonLat: TDoublePoint;
-begin
-  Result := FPoint.Point;
-end;
-
-function TVectorDataItemPoint.GetLLRect: ILonLatRect;
-begin
-  Result := FPoint.Bounds;
 end;
 
 function TVectorDataItemPoint.GetPoint: IGeometryLonLatPoint;

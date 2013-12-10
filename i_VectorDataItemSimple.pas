@@ -45,15 +45,11 @@ type
     function GetGeometry: IGeometryLonLat;
     property Geometry: IGeometryLonLat read GetGeometry;
 
-    function GetLLRect: ILonLatRect;
-    property LLRect: ILonLatRect read GetLLRect;
-
     function GetAppearance: IAppearance;
     property Appearance: IAppearance read GetAppearance;
 
 
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
-    function GetGoToLonLat: TDoublePoint;
     function GetHintText: string;
     function GetInfoUrl: string;
     function GetInfoHTML: string;

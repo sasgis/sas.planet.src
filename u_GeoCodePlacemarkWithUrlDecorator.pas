@@ -24,9 +24,7 @@ type
     function GetName: string;
     function GetDesc: string;
     function GetGeometry: IGeometryLonLat;
-    function GetLLRect: ILonLatRect;
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
-    function GetGoToLonLat: TDoublePoint;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetInfoUrl: string;
@@ -72,11 +70,6 @@ begin
   Result := FSource.Geometry;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetGoToLonLat: TDoublePoint;
-begin
-  Result := FSource.GetGoToLonLat;
-end;
-
 function TGeoCodePlacemarkWithUrlDecorator.GetHash: THashValue;
 begin
   Result := FSource.Hash;
@@ -100,11 +93,6 @@ end;
 function TGeoCodePlacemarkWithUrlDecorator.GetInfoUrl: string;
 begin
   Result := FUrl;
-end;
-
-function TGeoCodePlacemarkWithUrlDecorator.GetLLRect: ILonLatRect;
-begin
-  Result := FSource.LLRect;
 end;
 
 function TGeoCodePlacemarkWithUrlDecorator.GetName: string;

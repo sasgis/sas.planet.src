@@ -45,12 +45,10 @@ type
     function GetAppearance: IAppearance;
     function GetDesc: string;
     function GetGeometry: IGeometryLonLat; virtual; abstract;
-    function GetLLRect: ILonLatRect; virtual; abstract;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;
-    function GetGoToLonLat: TDoublePoint; virtual; abstract;
     function IsEqual(const AMark: IVectorDataItemSimple): Boolean; virtual;
   public
     constructor Create(

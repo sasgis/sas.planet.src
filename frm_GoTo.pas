@@ -216,7 +216,7 @@ begin
     if VIndex >= 0 then begin
       VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
       VMark := FMarksDb.GetMarkByID(VMarkId);
-      VLonLat := VMark.GetGoToLonLat;
+      VLonLat := VMark.Geometry.GetGoToLonLat;
       FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.Name);
       ModalResult := mrOk;
     end else begin

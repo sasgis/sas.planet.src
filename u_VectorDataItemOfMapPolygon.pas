@@ -33,28 +33,10 @@ uses
   u_VectorDataItemOfMapBase;
 
 type
-  TVectorDataItemOfMapPolygon = class(TVectorDataItemOfMapBase)
-  private
-    FLLRect: ILonLatRect;
-  protected
-    function GetLLRect: ILonLatRect; override;
-  public
-    constructor Create(
-      const AHash: THashValue;
-      const AHintConverter: IHtmlToHintTextConverter;
-      const AUrlPrefix: IStringProvider;
-      const AIndex: Integer;
-      const AName: string;
-      const ADesc: string;
-      const ALLRect: ILonLatRect
-    );
-  end;
-
-  TVectorDataItemOfMapPath = class(TVectorDataItemOfMapPolygon, IVectorDataItemLine)
+  TVectorDataItemOfMapPath = class(TVectorDataItemOfMapBase, IVectorDataItemLine)
   private
     FLine: IGeometryLonLatMultiLine;
   protected
-    function GetGoToLonLat: TDoublePoint; override;
     function GetGeometry: IGeometryLonLat; override;
     function GetLine: IGeometryLonLatMultiLine;
   public
@@ -69,11 +51,10 @@ type
     );
   end;
 
-  TVectorDataItemOfMapPoly = class(TVectorDataItemOfMapPolygon, IVectorDataItemPoly)
+  TVectorDataItemOfMapPoly = class(TVectorDataItemOfMapBase, IVectorDataItemPoly)
   private
     FLine: IGeometryLonLatMultiPolygon;
   protected
-    function GetGoToLonLat: TDoublePoint; override;
     function GetGeometry: IGeometryLonLat; override;
     function GetLine: IGeometryLonLatMultiPolygon;
   public
@@ -94,33 +75,6 @@ implementation
 uses
   u_GeoFun;
 
-{ TVectorDataItemPolygon }
-
-constructor TVectorDataItemOfMapPolygon.Create(
-  const AHash: THashValue;
-  const AHintConverter: IHtmlToHintTextConverter;
-  const AUrlPrefix: IStringProvider;
-  const AIndex: Integer;
-  const AName, ADesc: string;
-  const ALLRect: ILonLatRect
-);
-begin
-  inherited Create(
-    AHash,
-    AHintConverter,
-    AUrlPrefix,
-    AIndex,
-    AName,
-    ADesc
-  );
-  FLLRect := ALLRect;
-end;
-
-function TVectorDataItemOfMapPolygon.GetLLRect: ILonLatRect;
-begin
-  Result := FLLRect;
-end;
-
 { TVectorDataItemPath }
 
 constructor TVectorDataItemOfMapPath.Create(
@@ -139,8 +93,7 @@ begin
     AUrlPrefix,
     AIndex,
     AName,
-    ADesc,
-    ALine.Bounds
+    ADesc
   );
   FLine := ALine;
 end;
@@ -148,11 +101,6 @@ end;
 function TVectorDataItemOfMapPath.GetGeometry: IGeometryLonLat;
 begin
   Result := FLine;
-end;
-
-function TVectorDataItemOfMapPath.GetGoToLonLat: TDoublePoint;
-begin
-  FLine.GetEnum.Next(Result);
 end;
 
 function TVectorDataItemOfMapPath.GetLine: IGeometryLonLatMultiLine;
@@ -178,8 +126,7 @@ begin
     AUrlPrefix,
     AIndex,
     AName,
-    ADesc,
-    ALine.Bounds
+    ADesc
   );
   FLine := ALine;
 end;
@@ -187,11 +134,6 @@ end;
 function TVectorDataItemOfMapPoly.GetGeometry: IGeometryLonLat;
 begin
   Result := FLine;
-end;
-
-function TVectorDataItemOfMapPoly.GetGoToLonLat: TDoublePoint;
-begin
-  Result := RectCenter(FLine.Bounds.Rect);
 end;
 
 function TVectorDataItemOfMapPoly.GetLine: IGeometryLonLatMultiPolygon;

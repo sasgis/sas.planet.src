@@ -40,9 +40,7 @@ type
   protected
     function GetMarkType: TGUID; override;
   protected
-    function GetLLRect: ILonLatRect; override;
     function GetGeometry: IGeometryLonLat; override;
-    function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
     function GetLine: IGeometryLonLatMultiPolygon;
@@ -91,20 +89,6 @@ begin
   Result := FLine;
 end;
 
-function TMarkPolySml.GetGoToLonLat: TDoublePoint;
-var
-  VRect: TDoubleRect;
-begin
-  VRect := FLine.Bounds.Rect;
-  Result.X := (VRect.Left + VRect.Right) / 2;
-  Result.Y := (VRect.Top + VRect.Bottom) / 2;
-end;
-
-function TMarkPolySml.GetLLRect: ILonLatRect;
-begin
-  Result := FLine.Bounds;
-end;
-
 function TMarkPolySml.GetMarkType: TGUID;
 begin
   Result := IVectorDataItemPoly;
@@ -123,10 +107,6 @@ begin
     Exit;
   end;
   if not Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
-    Result := False;
-    Exit;
-  end;
-  if not FLine.Bounds.IsEqual(VMarkPoly.LLRect) then begin
     Result := False;
     Exit;
   end;

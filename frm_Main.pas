@@ -4086,7 +4086,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    VLLRect := VMark.LLRect.Rect;
+    VLLRect := VMark.Geometry.Bounds.Rect;
     if not DoublePointsEqual(VLLRect.TopLeft, VLLRect.BottomRight) then begin
       FMapGoto.FitRectToScreen(VLLRect);
     end else begin
@@ -5971,7 +5971,7 @@ begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
-      VLonLat := VMark.GetGoToLonLat;
+      VLonLat := VMark.Geometry.GetGoToLonLat;
       VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
       FConfig.NavToPoint.StartNavToMark(VMarkStringID, VLonLat);
     end else begin
@@ -6306,7 +6306,7 @@ begin
     Exit;
   end;
   if Supports(ALastMark, IVectorDataItemPoint, VMarkPoint) then begin
-    FMapGoto.GotoPos(VMarkPoint.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
+    FMapGoto.GotoPos(VMarkPoint.Geometry.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
     Exit;
   end;
   if Supports(ALastMark, IVectorDataItemPoly, VMarkPoly) then begin
