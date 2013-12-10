@@ -283,7 +283,7 @@ implementation
 
 uses
   i_ImportConfig,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_GeometryLonLat,
   i_CoordConverter,
   i_DoublePointsAggregator,
@@ -913,7 +913,7 @@ var
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
   VPolygon: IGeometryLonLatMultiPolygon;
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VAllNewMarks: IVectorItemSubsetBuilder;
   VAllLinesToDesc: Boolean;
 begin

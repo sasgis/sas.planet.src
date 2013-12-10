@@ -35,7 +35,7 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkPoly = class(TMarkFullBase, IVectorDataItemPoly, IMarkPoly)
+  TMarkPoly = class(TMarkFullBase, IVectorDataItemPoly)
   private
     FLine: IGeometryLonLatMultiPolygon;
   protected
@@ -96,14 +96,14 @@ end;
 
 function TMarkPoly.GetMarkType: TGUID;
 begin
-  Result := IMarkPoly;
+  Result := IVectorDataItemPoly;
 end;
 
 function TMarkPoly.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
 var
-  VMarkPoly: IMarkPoly;
+  VMarkPoly: IVectorDataItemPoly;
 begin
-  if AMark = IMark(Self) then begin
+  if AMark = IVectorDataItemSimple(Self) then begin
     Result := True;
     Exit;
   end;
@@ -111,7 +111,7 @@ begin
     Result := False;
     Exit;
   end;
-  if not Supports(AMark, IMarkPoly, VMarkPoly) then begin
+  if not Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
     Result := False;
     Exit;
   end;

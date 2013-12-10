@@ -7,7 +7,7 @@ uses
   i_ImportConfig,
   i_InterfaceListStatic,
   i_VectorItemTree,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarkDb,
   i_MarkCategoryDB,
@@ -25,8 +25,8 @@ type
     function GetCategoryDB: IMarkCategoryDB;
     property CategoryDB: IMarkCategoryDB read GetCategoryDB;
 
-    function GetStringIdByMark(const AMark: IMark): string;
-    function GetMarkByStringId(const AId: string): IMark;
+    function GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
+    function GetMarkByStringId(const AId: string): IVectorDataItemSimple;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     function ImportItemsTree(

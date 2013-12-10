@@ -33,6 +33,7 @@ uses
   i_Category,
   i_MarkCategoryDBSmlInternal,
   i_Mark,
+  i_VectorDataItemSimple,
   i_MarkFactory,
   i_HtmlToHintTextConverter,
   i_MarkFactorySmlInternal,
@@ -62,7 +63,7 @@ type
       const APoint: TDoublePoint;
       ATextColor, ATextBgColor: TColor32;
       AFontSize, AMarkerSize: Integer
-    ): IMarkPoint;
+    ): IVectorDataItemPoint;
     function CreateLine(
       AId: Integer;
       const AName: string;
@@ -72,7 +73,7 @@ type
       const ALine: IGeometryLonLatMultiLine;
       ALineColor: TColor32;
       ALineWidth: Integer
-    ): IMarkLine;
+    ): IVectorDataItemLine;
     function CreatePoly(
       AId: Integer;
       const AName: string;
@@ -82,7 +83,7 @@ type
       const ALine: IGeometryLonLatMultiPolygon;
       ABorderColor, AFillColor: TColor32;
       ALineWidth: Integer
-    ): IMarkPoly;
+    ): IVectorDataItemPoly;
   private
     function CreateMark(
       AId: Integer;
@@ -97,8 +98,8 @@ type
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ): IMark;
-    function CreateInternalMark(const AMark: IMark): IMark;
+    ): IVectorDataItemSimple;
+    function CreateInternalMark(const AMark: IVectorDataItemSimple): IVectorDataItemSimple;
   public
     constructor Create(
       const ADbId: Integer;
@@ -119,7 +120,6 @@ uses
   t_Hash,
   i_MarkDbSmlInternal,
   i_Appearance,
-  i_VectorDataItemSimple,
   u_GeoFun,
   u_MarkPointSml,
   u_MarkLineSml,
@@ -160,7 +160,7 @@ function TMarkFactorySmlDbInternal.CreatePoint(
   const APoint: TDoublePoint;
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer
-): IMarkPoint;
+): IVectorDataItemPoint;
 var
   VPicIndex: Integer;
   VPic: IMarkPicture;
@@ -208,7 +208,7 @@ begin
     );
 end;
 
-function TMarkFactorySmlDbInternal.CreateInternalMark(const AMark: IMark): IMark;
+function TMarkFactorySmlDbInternal.CreateInternalMark(const AMark: IVectorDataItemSimple): IVectorDataItemSimple;
 var
   VCategory: ICategory;
   VMarkInternal: IMarkSMLInternal;
@@ -247,7 +247,7 @@ function TMarkFactorySmlDbInternal.CreateLine(
   const ALine: IGeometryLonLatMultiLine;
   ALineColor: TColor32;
   ALineWidth: Integer
-): IMarkLine;
+): IVectorDataItemLine;
 var
   VHash: THashValue;
   VAppearance: IAppearance;
@@ -287,7 +287,7 @@ function TMarkFactorySmlDbInternal.CreatePoly(
   const ALine: IGeometryLonLatMultiPolygon;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
-): IMarkPoly;
+): IVectorDataItemPoly;
 var
   VHash: THashValue;
   VAppearance: IAppearance;
@@ -329,7 +329,7 @@ function TMarkFactorySmlDbInternal.CreateMark(
   APointCount: Integer;
   AColor1, AColor2: TColor32;
   AScale1, AScale2: Integer
-): IMark;
+): IVectorDataItemSimple;
 var
   VPolygon: IGeometryLonLatMultiPolygon;
   VPath: IGeometryLonLatMultiLine;

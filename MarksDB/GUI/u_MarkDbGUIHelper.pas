@@ -36,6 +36,7 @@ uses
   i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
   i_Mark,
+  i_VectorDataItemSimple,
   i_MarkId,
   i_Category,
   i_MarkCategory,
@@ -88,41 +89,41 @@ type
       handle: THandle
     ): Boolean;
     function PolygonForOperation(
-      const AMark: IMark;
+      const AMark: IVectorDataItemSimple;
       const AProjection: IProjectionInfo
     ): IGeometryLonLatMultiPolygon;
     function AddKategory(const Name: string): IMarkCategory;
     procedure ShowMarkInfo(
-      const AMark: IMark
+      const AMark: IVectorDataItemSimple
     );
     function EditMarkModal(
-      const AMark: IMark;
+      const AMark: IVectorDataItemSimple;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IMark;
+    ): IVectorDataItemSimple;
     function EditCategoryModal(
       const ACategory: IMarkCategory;
       AIsNewMark: Boolean
     ): IMarkCategory;
     function AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
     function SavePointModal(
-      const AMark: IMarkPoint;
+      const AMark: IVectorDataItemPoint;
       const ALonLat: TDoublePoint
     ): Boolean;
     function SavePolyModal(
-      const AMark: IMarkPoly;
+      const AMark: IVectorDataItemPoly;
       const ALine: IGeometryLonLatMultiPolygon;
       AAsNewMark: Boolean = false
     ): Boolean;
     function SaveLineModal(
-      const AMark: IMarkLine;
+      const AMark: IVectorDataItemLine;
       const ALine: IGeometryLonLatMultiLine;
       const ADescription: string;
       AAsNewMark: Boolean = false
     ): Boolean;
     function EditModalImportConfig: IImportConfig;
     function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
-    procedure ExportMark(const AMark: IMark);
+    procedure ExportMark(const AMark: IVectorDataItemSimple);
     procedure ExportCategory(
       const AMarkCategory: IMarkCategory;
       AIgnoreMarksVisible: Boolean
@@ -282,9 +283,9 @@ end;
 
 function TMarkDbGUIHelper.AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
 var
-  VMark: IMarkPoint;
+  VMark: IVectorDataItemPoint;
   VVisible: Boolean;
-  VResult: IMark;
+  VResult: IVectorDataItemSimple;
 begin
   Result := False;
   VVisible := True;
@@ -321,18 +322,18 @@ function TMarkDbGUIHelper.DeleteMarkModal(
   handle: THandle
 ): Boolean;
 var
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VMessage: string;
 begin
   Result := False;
   if AMarkId <> nil then begin
     VMark := FMarkSystem.MarkDb.GetMarkByID(AMarkId);
     if VMark <> nil then begin
-      if Supports(VMark, IMarkPoint) then begin
+      if Supports(VMark, IVectorDataItemPoint) then begin
         VMessage := SAS_MSG_DeleteMarkPointAsk;
-      end else if Supports(VMark, IMarkLine) then begin
+      end else if Supports(VMark, IVectorDataItemLine) then begin
         VMessage := SAS_MSG_DeleteMarkPathAsk;
-      end else if Supports(VMark, IMarkPoly) then begin
+      end else if Supports(VMark, IVectorDataItemPoly) then begin
         VMessage := SAS_MSG_DeleteMarkPolyAsk;
       end;
       VMessage := Format(VMessage, [AMarkId.Name]);
@@ -376,21 +377,21 @@ begin
 end;
 
 function TMarkDbGUIHelper.EditMarkModal(
-  const AMark: IMark;
+  const AMark: IVectorDataItemSimple;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IMark;
+): IVectorDataItemSimple;
 var
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
+  VMarkPoint: IVectorDataItemPoint;
+  VMarkLine: IVectorDataItemLine;
+  VMarkPoly: IVectorDataItemPoly;
 begin
   Result := nil;
-  if Supports(AMark, IMarkPoint, VMarkPoint) then begin
+  if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
     Result := FfrmMarkEditPoint.EditMark(VMarkPoint, AIsNewMark, AVisible);
-  end else if Supports(AMark, IMarkLine, VMarkLine) then begin
+  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
     Result := FfrmMarkEditPath.EditMark(VMarkLine, AIsNewMark, AVisible);
-  end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
+  end else if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
     Result := FfrmMarkEditPoly.EditMark(VMarkPoly, AIsNewMark, AVisible);
   end;
 end;
@@ -470,7 +471,7 @@ begin
   end;
 end;
 
-procedure TMarkDbGUIHelper.ExportMark(const AMark: IMark);
+procedure TMarkDbGUIHelper.ExportMark(const AMark: IVectorDataItemSimple);
 var
   KMLExport: TExportMarks2KML;
   VFileName: string;
@@ -516,11 +517,11 @@ begin
   if VName = '' then begin
     VName := '(NoName)';
   end;
-  if IsEqualGUID(AMarkId.MarkType, IMarkPoint) then begin
+  if IsEqualGUID(AMarkId.MarkType, IVectorDataItemPoint) then begin
     VFormat := VPointCaptionFormat;
-  end else if IsEqualGUID(AMarkId.MarkType, IMarkLine) then begin
+  end else if IsEqualGUID(AMarkId.MarkType, IVectorDataItemLine) then begin
     VFormat := VPathCaptionFormat;
-  end else if IsEqualGUID(AMarkId.MarkType, IMarkPoly) then begin
+  end else if IsEqualGUID(AMarkId.MarkType, IVectorDataItemPoly) then begin
     VFormat := VPolygonCaptionFormat;
   end else begin
     VFormat := '%0:s';
@@ -554,7 +555,7 @@ begin
 end;
 
 procedure TMarkDbGUIHelper.ShowMarkInfo(
-  const AMark: IMark
+  const AMark: IVectorDataItemSimple
 );
 begin
   if AMark <> nil then begin
@@ -564,21 +565,21 @@ end;
 
 
 function TMarkDbGUIHelper.PolygonForOperation(
-  const AMark: IMark;
+  const AMark: IVectorDataItemSimple;
   const AProjection: IProjectionInfo
   ): IGeometryLonLatMultiPolygon;
 var
-  VMarkPoly: IMarkPoly;
-  VMarkLine: IMarkLine;
-  VMarkPoint: IMarkPoint;
+  VMarkPoly: IVectorDataItemPoly;
+  VMarkLine: IVectorDataItemLine;
+  VMarkPoint: IVectorDataItemPoint;
   VDefRadius: String;
   VRadius: double;
   VFilter: ILonLatPointFilter;
 begin
   Result := nil;
-  if Supports(AMark, IMarkPoly, VMarkPoly) then begin
+  if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
     Result := VMarkPoly.Line;
-  end else if Supports(AMark, IMarkLine, VMarkLine) then begin
+  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
     VDefRadius := '100';
     if InputQuery('', 'Radius , m', VDefRadius) then begin
       try
@@ -595,7 +596,7 @@ begin
           );
     end;
   end else begin
-    if Supports(AMark, IMarkPoint, VMarkPoint) then begin
+    if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
       VDefRadius := '100';
       if InputQuery('', 'Radius , m', VDefRadius) then begin
         try
@@ -616,16 +617,16 @@ begin
 end;
 
 function TMarkDbGUIHelper.SaveLineModal(
-  const AMark: IMarkLine;
+  const AMark: IVectorDataItemLine;
   const ALine: IGeometryLonLatMultiLine;
   const ADescription: string;
   AAsNewMark: Boolean
 ): Boolean;
 var
-  VMark: IMarkLine;
-  VSourceMark: IMarkLine;
+  VMark: IVectorDataItemLine;
+  VSourceMark: IVectorDataItemLine;
   VVisible: Boolean;
-  VResult: IMark;
+  VResult: IVectorDataItemSimple;
 begin
   Result := False;
   VSourceMark := nil;
@@ -654,14 +655,14 @@ begin
 end;
 
 function TMarkDbGUIHelper.SavePointModal(
-  const AMark: IMarkPoint;
+  const AMark: IVectorDataItemPoint;
   const ALonLat: TDoublePoint
 ): Boolean;
 var
-  VMark: IMarkPoint;
+  VMark: IVectorDataItemPoint;
   VVisible: Boolean;
-  VResult: IMark;
-  VSourceMark: IMarkPoint;
+  VResult: IVectorDataItemSimple;
+  VSourceMark: IVectorDataItemPoint;
 begin
   Result := False;
   if AMark <> nil then begin
@@ -686,15 +687,15 @@ begin
 end;
 
 function TMarkDbGUIHelper.SavePolyModal(
-  const AMark: IMarkPoly;
+  const AMark: IVectorDataItemPoly;
   const ALine: IGeometryLonLatMultiPolygon;
   AAsNewMark: Boolean
 ): Boolean;
 var
-  VMark: IMarkPoly;
-  VSourceMark: IMarkPoly;
+  VMark: IVectorDataItemPoly;
+  VSourceMark: IVectorDataItemPoly;
   VVisible: Boolean;
-  VResult: IMark;
+  VResult: IVectorDataItemSimple;
 begin
   Result := False;
   VSourceMark := nil;

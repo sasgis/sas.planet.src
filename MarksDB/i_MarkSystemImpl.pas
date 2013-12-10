@@ -24,7 +24,7 @@ interface
 
 uses
   i_ReadWriteState,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarkDbImpl,
   i_MarkCategoryDBImpl;
@@ -41,8 +41,8 @@ type
     function GetCategoryDB: IMarkCategoryDBImpl;
     property CategoryDB: IMarkCategoryDBImpl read GetCategoryDB;
 
-    function GetStringIdByMark(const AMark: IMark): string;
-    function GetMarkByStringId(const AId: string): IMark;
+    function GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
+    function GetMarkByStringId(const AId: string): IVectorDataItemSimple;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
   end;
 

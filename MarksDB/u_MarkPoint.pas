@@ -34,7 +34,7 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkPoint = class(TMarkFullBase, IVectorDataItemPoint, IMarkPoint)
+  TMarkPoint = class(TMarkFullBase, IVectorDataItemPoint)
   private
     FLLRect: ILonLatRect;
   protected
@@ -83,9 +83,9 @@ end;
 
 function TMarkPoint.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
 var
-  VMarkPoint: IMarkPoint;
+  VMarkPoint: IVectorDataItemPoint;
 begin
-  if AMark = IMark(Self) then begin
+  if AMark = IVectorDataItemSimple(Self) then begin
     Result := True;
     Exit;
   end;
@@ -97,7 +97,7 @@ begin
     Result := False;
     Exit;
   end;
-  if not Supports(AMark, IMarkPoint, VMarkPoint) then begin
+  if not Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
     Result := False;
     Exit;
   end;
@@ -121,7 +121,7 @@ end;
 
 function TMarkPoint.GetMarkType: TGUID;
 begin
-  Result := IMarkPoint;
+  Result := IVectorDataItemPoint;
 end;
 
 end.

@@ -35,7 +35,7 @@ uses
   i_InterfaceListStatic,
   i_InterfaceListSimple,
   i_Category,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_MarkId,
   i_VectorItemSubset,
   i_MarkDbSmlInternal,
@@ -61,9 +61,9 @@ type
     FByCategoryList: IIDInterfaceList;
     FNeedSaveFlag: ISimpleFlag;
 
-    function ReadCurrentMark: IMark;
+    function ReadCurrentMark: IVectorDataItemSimple;
     procedure WriteCurrentMarkId(const AMark: IMarkId);
-    procedure WriteCurrentMark(const AMark: IMark);
+    procedure WriteCurrentMark(const AMark: IVectorDataItemSimple);
 
     function GetMarksBackUpFileName: string;
     procedure InitEmptyDS(ACdsMarks: TClientDataSet);
@@ -72,7 +72,7 @@ type
     function _UpdateMark(
       const AOldMark: IInterface;
       const ANewMark: IInterface
-    ): IMark;
+    ): IVectorDataItemSimple;
     procedure _AddMarksToListByRect(
       const ASourceList: IIDInterfaceList;
       const ARect: TDoubleRect;
@@ -90,26 +90,26 @@ type
     function GetById(AId: Integer): IMarkSMLInternal;
   private
     function UpdateMark(
-      const AOldMark: IMark;
-      const ANewMark: IMark
-    ): IMark;
+      const AOldMark: IVectorDataItemSimple;
+      const ANewMark: IVectorDataItemSimple
+    ): IVectorDataItemSimple;
     function UpdateMarkList(
       const AOldMarkList: IInterfaceListStatic;
       const ANewMarkList: IInterfaceListStatic
     ): IInterfaceListStatic;
 
-    function GetMarkByID(const AMarkId: IMarkId): IMark;
+    function GetMarkByID(const AMarkId: IMarkId): IVectorDataItemSimple;
     function GetMarkByName(
       const AName: string;
       const ACategory: ICategory
-    ): IMark;
+    ): IVectorDataItemSimple;
 
     procedure SetMarkVisibleByID(
       const AMark: IMarkId;
       AVisible: Boolean
     );
     procedure SetMarkVisible(
-      const AMark: IMark;
+      const AMark: IVectorDataItemSimple;
       AVisible: Boolean
     );
     procedure SetMarkVisibleByIDList(
@@ -120,7 +120,7 @@ type
       const AMarkList: IInterfaceListStatic
     );
     function GetMarkVisibleByID(const AMark: IMarkId): Boolean;
-    function GetMarkVisible(const AMark: IMark): Boolean;
+    function GetMarkVisible(const AMark: IVectorDataItemSimple): Boolean;
     function GetAllMarkIdList: IInterfaceListStatic;
     function GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceListStatic;
 
@@ -175,7 +175,6 @@ uses
   GR32,
   t_CommonTypes,
   i_EnumDoublePoint,
-  i_VectorDataItemSimple,
   i_AppearanceOfVectorItem,
   i_MarkCategoryFactoryDbInternal,
   u_IDInterfaceList,
@@ -379,14 +378,14 @@ end;
 function TMarkDbSml.GetMarkByName(
   const AName: string;
   const ACategory: ICategory
-): IMark;
+): IVectorDataItemSimple;
 var
   VCategory: IMarkCategorySMLInternal;
   VList: IIDInterfaceList;
   VEnum: IEnumUnknown;
   VItem: IInterface;
   VCnt: Integer;
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
 begin
   Result := nil;
   if not Supports(ACategory, IMarkCategorySMLInternal, VCategory) then begin
@@ -407,7 +406,7 @@ begin
     if VList <> nil then begin
       VEnum := VList.GetEnumUnknown;
       while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
-        if Supports(VItem, IMark, VMark) then begin
+        if Supports(VItem, IVectorDataItemSimple, VMark) then begin
           if VMark.Name = AName then begin
             Result := VMark;
             Exit;
@@ -423,14 +422,14 @@ end;
 function TMarkDbSml._UpdateMark(
   const AOldMark: IInterface;
   const ANewMark: IInterface
-): IMark;
+): IVectorDataItemSimple;
 var
   VIdOld: Integer;
   VIdNew: Integer;
   VMarkInternal: IMarkSMLInternal;
   VLocated: Boolean;
-  VOldMark: IMark;
-  VNewMark: IMark;
+  VOldMark: IVectorDataItemSimple;
+  VNewMark: IVectorDataItemSimple;
   VList: IIDInterfaceList;
   VCategoryIdOld: Integer;
   VCategoryIdNew: Integer;
@@ -451,7 +450,7 @@ begin
     end;
   end;
 
-  if Supports(ANewMark, IMark, VNewMark) then begin
+  if Supports(ANewMark, IVectorDataItemSimple, VNewMark) then begin
     VNewMark := FFactoryDbInternal.CreateInternalMark(VNewMark);
     Assert(Assigned(VNewMark), 'Error type of new mark object');
     if not Assigned(VNewMark) then begin
@@ -468,7 +467,7 @@ begin
   VLocated := False;
   VOldMark := nil;
   if VIdOld <> CNotExistMarkID then begin
-    VOldMark := IMark(FMarkList.GetByID(VIdOld));
+    VOldMark := IVectorDataItemSimple(FMarkList.GetByID(VIdOld));
     if (VOldMark <> nil) and (VNewMark <> nil) then begin
       if VOldMark.IsEqual(VNewMark) then begin
         Result := VOldMark;
@@ -574,9 +573,9 @@ begin
 end;
 
 function TMarkDbSml.UpdateMark(
-  const AOldMark: IMark;
-  const ANewMark: IMark
-): IMark;
+  const AOldMark: IVectorDataItemSimple;
+  const ANewMark: IVectorDataItemSimple
+): IVectorDataItemSimple;
 begin
   Assert((AOldMark <> nil) or (ANewMark <> nil));
   LockWrite;
@@ -595,7 +594,7 @@ var
   i: Integer;
   VNew: IInterface;
   VOld: IInterface;
-  VResult: IMark;
+  VResult: IVectorDataItemSimple;
   VMinCount: Integer;
   VMaxCount: Integer;
   VTemp: IInterfaceListSimple;
@@ -657,7 +656,7 @@ begin
   end;
 end;
 
-function TMarkDbSml.ReadCurrentMark: IMark;
+function TMarkDbSml.ReadCurrentMark: IVectorDataItemSimple;
 var
   VPicName: string;
   AId: Integer;
@@ -707,15 +706,15 @@ begin
   FCdsMarks.FieldByName('Visible').AsBoolean := GetMarkVisibleByID(AMark);
 end;
 
-procedure TMarkDbSml.WriteCurrentMark(const AMark: IMark);
+procedure TMarkDbSml.WriteCurrentMark(const AMark: IVectorDataItemSimple);
 var
   VMarkSMLInternal: IMarkSMLInternal;
   VPicName: string;
   VCategoryId: Integer;
   VVisible: Boolean;
-  VMarkPoint: IMarkPoint;
-  VMarkLine: IMarkLine;
-  VMarkPoly: IMarkPoly;
+  VMarkPoint: IVectorDataItemPoint;
+  VMarkLine: IVectorDataItemLine;
+  VMarkPoly: IVectorDataItemPoly;
   VPoint: TDoublePoint;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
@@ -755,7 +754,7 @@ begin
   FCdsMarks.FieldByName('LonR').AsFloat := AMark.LLRect.Right;
   FCdsMarks.FieldByName('LatB').AsFloat := AMark.LLRect.Bottom;
 
-  if Supports(AMark, IMarkPoint, VMarkPoint) then begin
+  if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
     VTextColor := 0;
     VTextBgColor := 0;
     VFontSize := 0;
@@ -777,7 +776,7 @@ begin
     FCdsMarks.FieldByName('Color2').AsInteger := VTextBgColor;
     FCdsMarks.FieldByName('Scale1').AsInteger := VFontSize;
     FCdsMarks.FieldByName('Scale2').AsInteger := VMarkerSize;
-  end else if Supports(AMark, IMarkLine, VMarkLine) then begin
+  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
     BlobFromPath(VMarkLine.Line, FCdsMarks.FieldByName('LonLatArr'));
     VLineColor := 0;
@@ -790,7 +789,7 @@ begin
     FCdsMarks.FieldByName('Color2').AsInteger := 0;
     FCdsMarks.FieldByName('Scale1').AsInteger := VLineWidth;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;
-  end else if Supports(AMark, IMarkPoly, VMarkPoly) then begin
+  end else if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
     BlobFromPolygon(VMarkPoly.Line, FCdsMarks.FieldByName('LonLatArr'));
     VLineColor := 0;
@@ -810,7 +809,7 @@ begin
   end;
 end;
 
-function TMarkDbSml.GetMarkByID(const AMarkId: IMarkId): IMark;
+function TMarkDbSml.GetMarkByID(const AMarkId: IMarkId): IVectorDataItemSimple;
 var
   AId: Integer;
   VMarkVisible: IMarkSMLInternal;
@@ -824,7 +823,7 @@ begin
     if AId <> CNotExistMarkID then begin
       LockRead;
       try
-        Result := IMark(FMarkList.GetByID(AId));
+        Result := IVectorDataItemSimple(FMarkList.GetByID(AId));
       finally
         UnlockRead;
       end;
@@ -832,7 +831,7 @@ begin
   end;
 end;
 
-function TMarkDbSml.GetMarkVisible(const AMark: IMark): Boolean;
+function TMarkDbSml.GetMarkVisible(const AMark: IVectorDataItemSimple): Boolean;
 var
   VMarkVisible: IMarkSMLInternal;
 begin
@@ -905,7 +904,7 @@ begin
   end;
 end;
 
-procedure TMarkDbSml.SetMarkVisible(const AMark: IMark; AVisible: Boolean);
+procedure TMarkDbSml.SetMarkVisible(const AMark: IVectorDataItemSimple; AVisible: Boolean);
 var
   VMarkVisible: IMarkSMLInternal;
   AId: Integer;
@@ -1191,7 +1190,7 @@ procedure TMarkDbSml._AddMarksToList(
   const AResultList: IVectorItemSubsetBuilder
 );
 var
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VEnum: IEnumUnknown;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
@@ -1224,7 +1223,7 @@ procedure TMarkDbSml._AddMarksToListByRect(
   const AResultList: IVectorItemSubsetBuilder
 );
 var
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VEnum: IEnumUnknown;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
@@ -1315,7 +1314,7 @@ function TMarkDbSml.GetMarkSubsetByName(
 var
   VResultList: IVectorItemSubsetBuilder;
   VList: IIDInterfaceList;
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VEnum: IEnumUnknown;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
@@ -1406,7 +1405,7 @@ end;
 procedure TMarkDbSml.LoadMarksFromFile;
 var
   VFileName: string;
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VIdNew: Integer;
   VCategoryIdNew: Integer;
   VList: IIDInterfaceList;

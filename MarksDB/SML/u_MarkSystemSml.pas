@@ -29,7 +29,7 @@ uses
   i_InternalPerformanceCounter,
   i_AppearanceOfMarkFactory,
   i_ReadWriteState,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
   i_MarkCategory,
@@ -58,8 +58,8 @@ type
     function GetCategoryDB: IMarkCategoryDBImpl;
     function GetState: IReadWriteStateChangeble;
 
-    function GetStringIdByMark(const AMark: IMark): string;
-    function GetMarkByStringId(const AId: string): IMark;
+    function GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
+    function GetMarkByStringId(const AId: string): IVectorDataItemSimple;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
   public
     constructor Create(
@@ -147,14 +147,14 @@ begin
   Result := FCategoryDBImpl;
 end;
 
-function TMarkSystemSml.GetMarkByStringId(const AId: string): IMark;
+function TMarkSystemSml.GetMarkByStringId(const AId: string): IVectorDataItemSimple;
 var
   VId: Integer;
 begin
   Result := nil;
   if AId <> '' then begin
     if TryStrToInt(AId, VId) then begin
-      if not Supports(FMarkDbInternal.GetById(VId), IMark, Result) then begin
+      if not Supports(FMarkDbInternal.GetById(VId), IVectorDataItemSimple, Result) then begin
         Result := nil;
       end;
     end;
@@ -186,7 +186,7 @@ begin
   Result := FState;
 end;
 
-function TMarkSystemSml.GetStringIdByMark(const AMark: IMark): string;
+function TMarkSystemSml.GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
 var
   VMark: IMarkSMLInternal;
 begin

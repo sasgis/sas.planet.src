@@ -34,8 +34,7 @@ uses
   u_MarkId;
 
 type
-  TMarkFullBaseSml = class(TMarkId, IMark,
-    IVectorDataItemSimple, IVectorDataItemWithCategory)
+  TMarkFullBaseSml = class(TMarkId, IVectorDataItemSimple, IVectorDataItemWithCategory)
   private
     FHash: THashValue;
     FAppearance: IAppearance;

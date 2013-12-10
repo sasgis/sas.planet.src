@@ -41,6 +41,7 @@ uses
   i_ValueToStringConverter,
   i_MarkPicture,
   i_Mark,
+  i_VectorDataItemSimple,
   i_Appearance,
   i_AppearanceOfMarkFactory,
   i_MarkFactory,
@@ -97,7 +98,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure imgIconMouseDown(Sender: TObject);
   private
-    FSourceMark: IMarkPoint;
+    FSourceMark: IVectorDataItemPoint;
     FCategoryDB: IMarkCategoryDB;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FPictureList: IMarkPictureList;
@@ -122,10 +123,10 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IMarkPoint;
+      const AMark: IVectorDataItemPoint;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IMarkPoint;
+    ): IVectorDataItemPoint;
   end;
 
 implementation
@@ -135,7 +136,6 @@ uses
   i_MarkTemplate,
   i_AppearanceOfVectorItem,
   i_Category,
-  i_VectorDataItemSimple,
   i_MarkFactoryConfig,
   u_ResStrings;
 
@@ -191,10 +191,10 @@ begin
 end;
 
 function TfrmMarkEditPoint.EditMark(
-  const AMark: IMarkPoint;
+  const AMark: IVectorDataItemPoint;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IMarkPoint;
+): IVectorDataItemPoint;
 var
   VLonLat:TDoublePoint;
   VAppearanceCaption: IAppearancePointCaption;

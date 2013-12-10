@@ -4,7 +4,7 @@ interface
 
 uses
   Classes,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarkSystem,
   i_ReadWriteState,
@@ -52,8 +52,8 @@ type
     function GetMarkDb: IMarkDb;
     function GetCategoryDB: IMarkCategoryDB;
 
-    function GetStringIdByMark(const AMark: IMark): string;
-    function GetMarkByStringId(const AId: string): IMark;
+    function GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
+    function GetMarkByStringId(const AId: string): IVectorDataItemSimple;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
@@ -89,7 +89,6 @@ implementation
 uses
   SysUtils,
   i_Category,
-  i_VectorDataItemSimple,
   i_MarkSystemImpl,
   u_StaticTreeBuilderBase,
   u_InterfaceListSimple,
@@ -210,7 +209,7 @@ begin
   Result := FCategoryDB;
 end;
 
-function TMarkSystem.GetMarkByStringId(const AId: string): IMark;
+function TMarkSystem.GetMarkByStringId(const AId: string): IVectorDataItemSimple;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -247,7 +246,7 @@ begin
   Result := FSystemImpl.State;
 end;
 
-function TMarkSystem.GetStringIdByMark(const AMark: IMark): string;
+function TMarkSystem.GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -333,7 +332,7 @@ var
   VLine: IVectorDataItemLine;
   VPoly: IVectorDataItemPoly;
   i: Integer;
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VName: string;
   VCategory: ICategory;
 begin

@@ -10,7 +10,7 @@ uses
   i_InterfaceListStatic,
   i_VectorItemSubset,
   i_MarkId,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_MarkFactory,
   i_MarkDb,
   i_MarkSystemImplChangeable,
@@ -34,7 +34,7 @@ type
     function GetMarkByName(
       const AName: string;
       const ACategory: ICategory
-    ): IMark;
+    ): IVectorDataItemSimple;
 
     function GetMarkSubsetByCategoryList(
       const ACategoryList: IInterfaceListStatic;
@@ -61,9 +61,9 @@ type
     ): IVectorItemSubset;
 
     function UpdateMark(
-      const AOldMark: IMark;
-      const ANewMark: IMark
-    ): IMark;
+      const AOldMark: IVectorDataItemSimple;
+      const ANewMark: IVectorDataItemSimple
+    ): IVectorDataItemSimple;
     function UpdateMarkList(
       const AOldMarkList: IInterfaceListStatic;
       const ANewMarkList: IInterfaceListStatic
@@ -72,16 +72,16 @@ type
     function GetAllMarkIdList: IInterfaceListStatic;
     function GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceListStatic;
 
-    function GetMarkByID(const AMarkId: IMarkId): IMark;
+    function GetMarkByID(const AMarkId: IMarkId): IVectorDataItemSimple;
 
     procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
-    procedure SetMarkVisible(const AMark: IMark; AVisible: Boolean);
+    procedure SetMarkVisible(const AMark: IVectorDataItemSimple; AVisible: Boolean);
 
     procedure SetMarkVisibleByIDList(const AMarkList: IInterfaceListStatic; AVisible: Boolean);
     procedure ToggleMarkVisibleByIDList(const AMarkList: IInterfaceListStatic);
 
     function GetMarkVisibleByID(const AMark: IMarkId): Boolean;
-    function GetMarkVisible(const AMark: IMark): Boolean;
+    function GetMarkVisible(const AMark: IVectorDataItemSimple): Boolean;
     procedure SetAllMarksInCategoryVisible(
       const ACategory: ICategory;
       ANewVisible: Boolean
@@ -157,7 +157,7 @@ begin
   Result := FMarkFactory;
 end;
 
-function TMarkDbByImpl.GetMarkByID(const AMarkId: IMarkId): IMark;
+function TMarkDbByImpl.GetMarkByID(const AMarkId: IMarkId): IVectorDataItemSimple;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -169,7 +169,7 @@ begin
 end;
 
 function TMarkDbByImpl.GetMarkByName(const AName: string;
-  const ACategory: ICategory): IMark;
+  const ACategory: ICategory): IVectorDataItemSimple;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -264,7 +264,7 @@ begin
   end;
 end;
 
-function TMarkDbByImpl.GetMarkVisible(const AMark: IMark): Boolean;
+function TMarkDbByImpl.GetMarkVisible(const AMark: IVectorDataItemSimple): Boolean;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -317,7 +317,7 @@ begin
   end;
 end;
 
-procedure TMarkDbByImpl.SetMarkVisible(const AMark: IMark; AVisible: Boolean);
+procedure TMarkDbByImpl.SetMarkVisible(const AMark: IVectorDataItemSimple; AVisible: Boolean);
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -361,7 +361,7 @@ begin
   end;
 end;
 
-function TMarkDbByImpl.UpdateMark(const AOldMark, ANewMark: IMark): IMark;
+function TMarkDbByImpl.UpdateMark(const AOldMark, ANewMark: IVectorDataItemSimple): IVectorDataItemSimple;
 var
   VImpl: IMarkSystemImpl;
 begin

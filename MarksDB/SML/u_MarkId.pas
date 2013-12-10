@@ -24,7 +24,7 @@ interface
 
 uses
   i_MarkId,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_Category,
   i_MarkDbSmlInternal,
   u_BaseInterfacedObject;
@@ -52,7 +52,7 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     function IsSameId(const AMarkId: IMarkId): Boolean;
-    function IsSameMark(const AMark: IMark): Boolean;
+    function IsSameMark(const AMark: IVectorDataItemSimple): Boolean;
   public
     constructor Create(
       const AName: string;
@@ -168,7 +168,7 @@ begin
   end;
 end;
 
-function TMarkId.IsSameMark(const AMark: IMark): Boolean;
+function TMarkId.IsSameMark(const AMark: IVectorDataItemSimple): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin

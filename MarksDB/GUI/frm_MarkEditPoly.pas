@@ -40,6 +40,7 @@ uses
   i_PathConfig,
   i_LanguageManager,
   i_Mark,
+  i_VectorDataItemSimple,
   i_MarkFactory,
   i_MarkCategoryDB,
   fr_MarkDescription,
@@ -100,17 +101,16 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IMarkPoly;
+      const AMark: IVectorDataItemPoly;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IMarkPoly;
+    ): IVectorDataItemPoly;
   end;
 
 implementation
 
 uses
   i_AppearanceOfVectorItem,
-  i_VectorDataItemSimple,
   i_Category,
   i_MarkTemplate,
   i_MarkFactoryConfig,
@@ -147,10 +147,10 @@ begin
 end;
 
 function TfrmMarkEditPoly.EditMark(
-  const AMark: IMarkPoly;
+  const AMark: IVectorDataItemPoly;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IMarkPoly;
+): IVectorDataItemPoly;
 var
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;

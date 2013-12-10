@@ -35,7 +35,7 @@ uses
   u_MarkFullBase;
 
 type
-  TMarkLine = class(TMarkFullBase, IVectorDataItemLine, IMarkLine)
+  TMarkLine = class(TMarkFullBase, IVectorDataItemLine)
   private
     FLine: IGeometryLonLatMultiLine;
   protected
@@ -92,14 +92,14 @@ end;
 
 function TMarkLine.GetMarkType: TGUID;
 begin
-  Result := IMarkLine;
+  Result := IVectorDataItemLine;
 end;
 
 function TMarkLine.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
 var
-  VMarkPath: IMarkLine;
+  VMarkPath: IVectorDataItemLine;
 begin
-  if AMark = IMark(Self) then begin
+  if AMark = IVectorDataItemSimple(Self) then begin
     Result := True;
     Exit;
   end;
@@ -107,7 +107,7 @@ begin
     Result := False;
     Exit;
   end;
-  if not Supports(AMark, IMarkLine, VMarkPath) then begin
+  if not Supports(AMark, IVectorDataItemLine, VMarkPath) then begin
     Result := False;
     Exit;
   end;

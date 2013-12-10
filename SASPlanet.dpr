@@ -537,7 +537,6 @@ uses
   u_MarksLayerConfig in 'u_MarksLayerConfig.pas',
   i_Category in 'i_Category.pas',
   u_Category in 'u_Category.pas',
-  i_Mark in 'MarksDB\i_Mark.pas',
   i_MarkId in 'MarksDB\i_MarkId.pas',
   i_MarkDbImpl in 'MarksDB\i_MarkDbImpl.pas',
   i_MarkCategoryDBImpl in 'MarksDB\i_MarkCategoryDBImpl.pas',

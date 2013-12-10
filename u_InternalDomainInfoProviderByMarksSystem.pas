@@ -61,7 +61,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  i_Mark,
+  i_VectorDataItemSimple,
   u_BinaryData;
 
 { TInternalDomainInfoProviderByMarksSystem }
@@ -108,7 +108,7 @@ function TInternalDomainInfoProviderByMarksSystem.LoadBinaryByFilePath(
   const AFilePath: string; out AContentType: string): IBinaryData;
 var
   VMarkId: string;
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VProvider: ITextByVectorItem;
   VSuffix: string;
   VProviderIndex: Integer;

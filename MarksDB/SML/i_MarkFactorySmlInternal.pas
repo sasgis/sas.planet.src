@@ -25,7 +25,7 @@ interface
 uses
   GR32,
   t_GeoTypes,
-  i_Mark;
+  i_VectorDataItemSimple;
 
 type
   IMarkFactorySmlInternal = interface
@@ -43,8 +43,8 @@ type
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ): IMark;
-    function CreateInternalMark(const AMark: IMark): IMark;
+    ): IVectorDataItemSimple;
+    function CreateInternalMark(const AMark: IVectorDataItemSimple): IVectorDataItemSimple;
   end;
 
 const

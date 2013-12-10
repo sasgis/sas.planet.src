@@ -556,7 +556,6 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="MarksDb\GUI\u_MarkDbGUIHelper.pas" />
-    <DCCReference Include="MarksDB\i_Mark.pas" />
     <DCCReference Include="MarksDB\i_MarkCategory.pas" />
     <DCCReference Include="MarksDB\i_MarkCategoryDB.pas" />
     <DCCReference Include="MarksDB\i_MarkCategoryDBImpl.pas" />

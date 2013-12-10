@@ -104,7 +104,7 @@ uses
   i_InterfaceListSimple,
   i_GeoCoderList,
   i_MarkId,
-  i_Mark,
+  i_VectorDataItemSimple,
   i_LocalCoordConverter,
   i_NotifierOperation,
   u_InterfaceListSimple,
@@ -204,7 +204,7 @@ var
   textsrch:String;
   VIndex: Integer;
   VMarkId: IMarkId;
-  VMark: IMark;
+  VMark: IVectorDataItemSimple;
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;

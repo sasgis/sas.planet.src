@@ -4,7 +4,7 @@ interface
 
 uses
   i_Category,
-  i_Mark;
+  i_VectorDataItemSimple;
 
 type
   IMarkId = interface
@@ -19,7 +19,7 @@ type
     property MarkType: TGUID read GetMarkType;
 
     function IsSameId(const AMarkId: IMarkId): Boolean;
-    function IsSameMark(const AMark: IMark): Boolean;
+    function IsSameMark(const AMark: IVectorDataItemSimple): Boolean;
   end;
 
 implementation

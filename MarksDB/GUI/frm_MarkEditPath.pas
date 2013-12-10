@@ -38,6 +38,7 @@ uses
   i_PathConfig,
   i_LanguageManager,
   i_Mark,
+  i_VectorDataItemSimple,
   i_MarkCategoryDB,
   i_Appearance,
   i_AppearanceOfMarkFactory,
@@ -87,10 +88,10 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IMarkLine;
+      const AMark: IVectorDataItemLine;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IMarkLine;
+    ): IVectorDataItemLine;
   end;
 
 implementation
@@ -99,7 +100,6 @@ uses
   i_MarkTemplate,
   i_AppearanceOfVectorItem,
   i_Category,
-  i_VectorDataItemSimple,
   i_MarkFactoryConfig,
   u_ResStrings;
 
@@ -134,10 +134,10 @@ begin
 end;
 
 function TfrmMarkEditPath.EditMark(
-  const AMark: IMarkLine;
+  const AMark: IVectorDataItemLine;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IMarkLine;
+): IVectorDataItemLine;
 var
   VAppearanceLine: IAppearanceLine;
   VCategory: ICategory;

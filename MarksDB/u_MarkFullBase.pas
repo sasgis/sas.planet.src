@@ -34,8 +34,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TMarkFullBase = class(TBaseInterfacedObject, IMark,
-    IVectorDataItemSimple, IVectorDataItemWithCategory)
+  TMarkFullBase = class(TBaseInterfacedObject, IVectorDataItemSimple, IVectorDataItemWithCategory)
   private
     FHash: THashValue;
     FAppearance: IAppearance;
