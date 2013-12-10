@@ -27,6 +27,7 @@ uses
   t_GeoTypes,
   i_Appearance,
   i_LonLatRect,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_HtmlToHintTextConverter,
   u_VectorDataItemBase;
@@ -34,11 +35,11 @@ uses
 type
   TVectorDataItemPoint = class(TVectorDataItemBase, IVectorDataItemPoint)
   private
-    FLLRect: ILonLatRect;
+    FPoint: IGeometryLonLatPoint;
   protected
     function GetLLRect: ILonLatRect; override;
     function GetGoToLonLat: TDoublePoint; override;
-    function GetPoint: TDoublePoint;
+    function GetPoint: IGeometryLonLatPoint;
   public
     constructor Create(
       const AHash: THashValue;
@@ -46,15 +47,14 @@ type
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ADesc: string;
-      const APoint: TDoublePoint
+      const APoint: IGeometryLonLatPoint
     );
   end;
 
 implementation
 
 uses
-  u_GeoFun,
-  u_LonLatRectByPoint;
+  u_GeoFun;
 
 { TVectorDataItemPoint }
 
@@ -63,10 +63,10 @@ constructor TVectorDataItemPoint.Create(
   const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName, ADesc: string;
-  const APoint: TDoublePoint
+  const APoint: IGeometryLonLatPoint
 );
 begin
-  Assert(not PointIsEmpty(APoint));
+  Assert(Assigned(APoint));
   inherited Create(
     AHash,
     AAppearance,
@@ -74,22 +74,22 @@ begin
     AName,
     ADesc
   );
-  FLLRect := TLonLatRectByPoint.Create(APoint);
+  FPoint := APoint;
 end;
 
 function TVectorDataItemPoint.GetGoToLonLat: TDoublePoint;
 begin
-  Result := FLLRect.TopLeft;
+  Result := FPoint.Point;
 end;
 
 function TVectorDataItemPoint.GetLLRect: ILonLatRect;
 begin
-  Result := FLLRect;
+  Result := FPoint.Bounds;
 end;
 
-function TVectorDataItemPoint.GetPoint: TDoublePoint;
+function TVectorDataItemPoint.GetPoint: IGeometryLonLatPoint;
 begin
-  Result := FLLRect.TopLeft;
+  Result := FPoint;
 end;
 
 end.

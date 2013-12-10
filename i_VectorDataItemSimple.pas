@@ -65,8 +65,8 @@ type
 
   IVectorDataItemPoint = interface(IVectorDataItemSimple)
     ['{C4EF133D-831F-4F8F-BF51-D5B9C89C87D7}']
-    function GetPoint: TDoublePoint;
-    property Point: TDoublePoint read GetPoint;
+    function GetPoint: IGeometryLonLatPoint;
+    property Point: IGeometryLonLatPoint read GetPoint;
   end;
 
   IVectorDataItemLine = interface(IVectorDataItemSimple)

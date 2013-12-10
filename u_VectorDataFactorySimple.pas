@@ -24,7 +24,7 @@ type
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const APoint: TDoublePoint
+      const APoint: IGeometryLonLatPoint
     ): IVectorDataItemPoint;
     function BuildPath(
       const AIdData: Pointer;
@@ -99,13 +99,13 @@ function TVectorDataFactorySimple.BuildPoint(
   const AIdData: Pointer;
   const AAppearance: IAppearance;
   const AName, ADesc: string;
-  const APoint: TDoublePoint
+  const APoint: IGeometryLonLatPoint
 ): IVectorDataItemPoint;
 var
   VHash: THashValue;
 begin
-  Assert(not PointIsEmpty(APoint));
-  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  Assert(Assigned(APoint));
+  VHash := APoint.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
   if Assigned(AAppearance) then begin

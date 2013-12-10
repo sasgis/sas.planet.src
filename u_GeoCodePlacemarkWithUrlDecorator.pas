@@ -7,6 +7,7 @@ uses
   t_GeoTypes,
   i_Appearance,
   i_LonLatRect,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_GeoCoder,
   u_BaseInterfacedObject;
@@ -19,7 +20,7 @@ type
   private
     function GetHash: THashValue;
     function GetAppearance: IAppearance;
-    function GetPoint: TDoublePoint;
+    function GetPoint: IGeometryLonLatPoint;
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: ILonLatRect;
@@ -105,7 +106,7 @@ begin
   Result := FSource.Name;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetPoint: TDoublePoint;
+function TGeoCodePlacemarkWithUrlDecorator.GetPoint: IGeometryLonLatPoint;
 begin
   Result := FSource.Point;
 end;

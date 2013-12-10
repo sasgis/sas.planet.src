@@ -133,6 +133,7 @@ function TKmlInfoSimpleParser.BuildItem(
 ): IVectorDataItemSimple;
 var
   VPointCount: Integer;
+  VPoint: IGeometryLonLatPoint;
   VPath: IGeometryLonLatMultiLine;
   VPoly: IGeometryLonLatMultiPolygon;
 begin
@@ -141,7 +142,8 @@ begin
   if VPointCount > 0 then begin
     if VPointCount = 1 then begin
       if not PointIsEmpty(APointsAggregator.Points[0]) then begin
-        Result := AVectorGeometryLonLatFactory.BuildPoint(AIdData, nil, AName, ADesc, APointsAggregator.Points[0]);
+        VPoint := FVectorGeometryLonLatFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
+        Result := AVectorGeometryLonLatFactory.BuildPoint(AIdData, nil, AName, ADesc, VPoint);
       end;
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin

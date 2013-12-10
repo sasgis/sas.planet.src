@@ -476,8 +476,8 @@ begin
     str2 := copy(AValue.Name,j,length(AValue.Name)-(j+1));
     if str1=str2 then begin
       if
-        abs(VPlacemark.GetPoint.x-AValue.GetPoint.x) +
-        abs(VPlacemark.GetPoint.Y-AValue.GetPoint.Y) < 0.05
+        abs(VPlacemark.GetPoint.Point.x-AValue.GetPoint.Point.x) +
+        abs(VPlacemark.GetPoint.Point.Y-AValue.GetPoint.Point.Y) < 0.05
       then begin
         Result := true;
         Break;

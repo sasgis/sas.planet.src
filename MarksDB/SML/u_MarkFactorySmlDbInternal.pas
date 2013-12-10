@@ -59,7 +59,7 @@ type
       const APic: IMarkPicture;
       const ACategory: ICategory;
       const ADesc: string;
-      const APoint: TDoublePoint;
+      const APoint: IGeometryLonLatPoint;
       ATextColor, ATextBgColor: TColor32;
       AFontSize, AMarkerSize: Integer
     ): IVectorDataItemPoint;
@@ -156,7 +156,7 @@ function TMarkFactorySmlDbInternal.CreatePoint(
   const APic: IMarkPicture;
   const ACategory: ICategory;
   const ADesc: string;
-  const APoint: TDoublePoint;
+  const APoint: IGeometryLonLatPoint;
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer
 ): IVectorDataItemPoint;
@@ -187,7 +187,7 @@ begin
       AMarkerSize
     );
 
-  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  VHash := APoint.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
   FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
@@ -330,6 +330,7 @@ function TMarkFactorySmlDbInternal.CreateMark(
   AScale1, AScale2: Integer
 ): IVectorDataItemSimple;
 var
+  VPoint: IGeometryLonLatPoint;
   VPolygon: IGeometryLonLatMultiPolygon;
   VPath: IGeometryLonLatMultiLine;
   VCategory: ICategory;
@@ -342,6 +343,7 @@ begin
 
     if APointCount = 1 then begin
       if not PointIsEmpty(APoints[0]) then begin
+        VPoint := FVectorGeometryLonLatFactory.CreateLonLatPoint(APoints[0]);
         Result :=
           CreatePoint(
             AId,
@@ -351,7 +353,7 @@ begin
             nil,
             VCategory,
             ADesc,
-            APoints[0],
+            VPoint,
             AColor1,
             AColor2,
             AScale1,

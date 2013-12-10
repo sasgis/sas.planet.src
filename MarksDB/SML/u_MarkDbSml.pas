@@ -233,7 +233,7 @@ begin
 end;
 
 procedure BlobFromPoint(
-  const APoint: TDoublePoint;
+  const APoint: IGeometryLonLatPoint;
   ABlobField: TField
 );
 var
@@ -244,8 +244,8 @@ begin
   VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
   try
-    VPoint.X := APoint.X;
-    VPoint.Y := APoint.Y;
+    VPoint.X := APoint.Point.X;
+    VPoint.Y := APoint.Point.Y;
     VStream.Write(VPoint, SizeOf(VPoint));
   finally
     VStream.Free;
@@ -715,7 +715,6 @@ var
   VMarkPoint: IVectorDataItemPoint;
   VMarkLine: IVectorDataItemLine;
   VMarkPoly: IVectorDataItemPoly;
-  VPoint: TDoublePoint;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
   VAppearanceLine: IAppearanceLine;
@@ -770,8 +769,7 @@ begin
       VPicName := VAppearanceIcon.PicName;
     end;
     FCdsMarks.FieldByName('PicName').AsString := VPicName;
-    VPoint := VMarkPoint.Point;
-    BlobFromPoint(VPoint, FCdsMarks.FieldByName('LonLatArr'));
+    BlobFromPoint(VMarkPoint.Point, FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VTextColor;
     FCdsMarks.FieldByName('Color2').AsInteger := VTextBgColor;
     FCdsMarks.FieldByName('Scale1').AsInteger := VFontSize;

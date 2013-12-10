@@ -157,14 +157,14 @@ end;
 
 procedure TXmlVectorObjects.CloseGPXPoint(const APoint: TDoublePoint);
 var
-  VLonLatRect: ILonLatRect;
+  VPoint: IGeometryLonLatPoint;
 begin
   // check if in multigeometry
   if FInMultiGeometry and FSkipPointInMultiObject then
     Exit;
 
-  VLonLatRect := TLonLatRectByPoint.Create(APoint);
-  FList.Add(VLonLatRect);
+  VPoint := FItemsFactory.CreateLonLatPoint(APoint);
+  FList.Add(VPoint);
 end;
 
 procedure TXmlVectorObjects.CloseKmlLinearRing(
@@ -253,20 +253,17 @@ end;
 procedure TXmlVectorObjects.CloseKmlPoint(const ACoordinates: WideString);
 var
   VData: TCoordLineData;
-  VPoint: TDoublePoint;
-  VLonLatRect: ILonLatRect;
+  VLonLatPoint: IGeometryLonLatPoint;
 begin
   // check if in multigeometry
   if FInMultiGeometry and FSkipPointInMultiObject then
     Exit;
-  
+
   // parse
   if parse_kml_coordinate(ACoordinates, @VData, FFormatPtr^) then begin
     // make point
-    VPoint.X := VData.lon1;
-    VPoint.Y := VData.lat0;
-    VLonLatRect := TLonLatRectByPoint.Create(VPoint);
-    FList.Add(VLonLatRect);
+    VLonLatPoint := FItemsFactory.CreateLonLatPoint(DoublePoint(VData.lon1, VData.lat0));
+    FList.Add(VLonLatPoint);
   end;
 end;
 
@@ -287,7 +284,7 @@ var
   // item
   VObject: IInterface;
   // for point
-  VLonLatRect: ILonLatRect;
+  VLonLatPoint: IGeometryLonLatPoint;
   VPointResult: IVectorDataItemPoint;
   // for line
   VLonLatPath: IGeometryLonLatMultiLine;
@@ -306,10 +303,10 @@ begin
   // get objects
   for i := 0 to FList.Count - 1 do begin
     VObject := FList[i];
-    if Supports(VObject, ILonLatRect, VLonLatRect) then begin
+    if Supports(VObject, IGeometryLonLatPoint, VLonLatPoint) then begin
       // point
       if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemPoint) then begin
-        VPointResult := FDataFactory.BuildPoint(FIdData, VAppearance, VName, VDesc, VLonLatRect.TopLeft);
+        VPointResult := FDataFactory.BuildPoint(FIdData, VAppearance, VName, VDesc, VLonLatPoint);
         SafeAddToResult(VPointResult);
       end;
     end else if Supports(VObject, IGeometryLonLatMultiLine, VLonLatPath) then begin

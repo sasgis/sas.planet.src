@@ -186,7 +186,7 @@ begin
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
-  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point)]) + #13#10;
+  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point.Point)]) + #13#10;
 end;
 
 function TfrmMarkInfo.GetTextForPoly(const AMark: IVectorDataItemPoly; const AArea: Double = -1): string;

@@ -88,7 +88,7 @@ begin
     VIndex := 0;
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      if LonLatPointInRect(VPlacemark.GetPoint, VLonLatRect) then begin
+      if LonLatPointInRect(VPlacemark.GetPoint.Point, VLonLatRect) then begin
         VTempItem := TGeoCodePlacemarkWithUrlDecorator.Create(
             VPlacemark,
             CLastSearchResultsInternalURL + IntToStr(VIndex) + '/'

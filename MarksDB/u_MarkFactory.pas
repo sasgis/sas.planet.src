@@ -51,7 +51,7 @@ type
     FMarkPictureList: IMarkPictureList;
   private
     function CreateNewPoint(
-      const APoint: TDoublePoint;
+      const APoint: IGeometryLonLatPoint;
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplatePoint = nil
@@ -70,7 +70,7 @@ type
     ): IVectorDataItemPoly;
 
     function CreatePoint(
-      const APoint: TDoublePoint;
+      const APoint: IGeometryLonLatPoint;
       const AName: string;
       const ADesc: string;
       const ACategory: ICategory;
@@ -98,7 +98,7 @@ type
 
     function SimpleModifyPoint(
       const ASource: IVectorDataItemPoint;
-      const ALonLat: TDoublePoint
+      const ALonLat: IGeometryLonLatPoint
     ): IVectorDataItemPoint;
     function SimpleModifyLine(
       const ASource: IVectorDataItemLine;
@@ -205,7 +205,7 @@ begin
 end;
 
 function TMarkFactory.CreateNewPoint(
-  const APoint: TDoublePoint;
+  const APoint: IGeometryLonLatPoint;
   const AName, ADesc: string;
   const ATemplate: IMarkTemplatePoint
 ): IVectorDataItemPoint;
@@ -269,7 +269,7 @@ begin
 end;
 
 function TMarkFactory.CreatePoint(
-  const APoint: TDoublePoint;
+  const APoint: IGeometryLonLatPoint;
   const AName: string;
   const ADesc: string;
   const ACategory: ICategory;
@@ -278,10 +278,10 @@ function TMarkFactory.CreatePoint(
 var
   VHash: THashValue;
 begin
-  Assert(not PointIsEmpty(APoint));
+  Assert(Assigned(APoint));
   Assert(Assigned(AAppearance));
 
-  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  VHash := APoint.Hash;
   FHashFunction.UpdateHashByString(VHash, AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
   FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
@@ -387,7 +387,7 @@ end;
 
 function TMarkFactory.SimpleModifyPoint(
   const ASource: IVectorDataItemPoint;
-  const ALonLat: TDoublePoint
+  const ALonLat: IGeometryLonLatPoint
 ): IVectorDataItemPoint;
 var
   VCategory: ICategory;

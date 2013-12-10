@@ -40,6 +40,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MarkPicture,
+  i_VectorItemsFactory,
   i_VectorDataItemSimple,
   i_Appearance,
   i_AppearanceOfMarkFactory,
@@ -97,6 +98,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure imgIconMouseDown(Sender: TObject);
   private
+    FGeometryFactory: IVectorGeometryLonLatFactory;
     FSourceMark: IVectorDataItemPoint;
     FCategoryDB: IMarkCategoryDB;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -113,6 +115,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
+      const AGeometryFactory: IVectorGeometryLonLatFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryDB: IMarkCategoryDB;
@@ -134,6 +137,7 @@ uses
   t_GeoTypes,
   i_MarkTemplate,
   i_AppearanceOfVectorItem,
+  i_GeometryLonLat,
   i_Category,
   i_MarkFactoryConfig,
   u_ResStrings;
@@ -143,6 +147,7 @@ uses
 constructor TfrmMarkEditPoint.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
+  const AGeometryFactory: IVectorGeometryLonLatFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDB;
@@ -153,6 +158,7 @@ constructor TfrmMarkEditPoint.Create(
 begin
   inherited Create(ALanguageManager);
   FCategoryDB := ACategoryDB;
+  FGeometryFactory := AGeometryFactory;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FMarkFactory := AMarkFactory;
   FPictureList := APictureList;
@@ -201,6 +207,7 @@ var
   VPicIndex: Integer;
   VPic: IMarkPicture;
   VCategory: ICategory;
+  VPoint: IGeometryLonLatPoint;
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
   FSourceMark := AMark;
@@ -259,13 +266,14 @@ begin
     end else begin
       Caption:=SAS_STR_EditMark;
     end;
-    frLonLatPoint.LonLat := AMark.Point;
+    frLonLatPoint.LonLat := AMark.Point.Point;
     Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
+      VPoint := FGeometryFactory.CreateLonLatPoint(VLonLat);
       Result :=
         FMarkFactory.CreatePoint(
-          VLonLat,
+          VPoint,
           edtName.Text,
           frMarkDescription.Description,
           frMarkCategory.GetCategory,

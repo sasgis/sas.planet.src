@@ -4857,7 +4857,7 @@ begin
     if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
       FEditMarkPoint := VMarkPoint;
       FState.State := ao_edit_point;
-      FPointOnMapEdit.Point := VMarkPoint.Point;
+      FPointOnMapEdit.Point := VMarkPoint.Point.Point;
     end else if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
       FEditMarkLine := VMarkLine;
       FState.State := ao_edit_line;
@@ -5262,7 +5262,7 @@ begin
           end;
           if VVectorItem <> nil then begin
             if Supports(VVectorItem, IVectorDataItemPoint, VMarkPoint) then begin
-              VMagnetPoint := VMarkPoint.Point;
+              VMagnetPoint := VMarkPoint.Point.Point;
             end;
             if Supports(VVectorItem, IVectorDataItemPoly, VMarkPoly) then begin
               VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VClickLonLat);
@@ -5646,7 +5646,7 @@ begin
         end;
         if VVectorItem <> nil then begin
           if Supports(VVectorItem, IVectorDataItemPoint, VMarkPoint) then begin
-            VMagnetPoint := VMarkPoint.Point;
+            VMagnetPoint := VMarkPoint.Point.Point;
           end else if Supports(VVectorItem, IVectorDataItemPoly, VMarkPoly) then begin
             VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VLonLat);
           end else if Supports(VVectorItem, IVectorDataItemLine, VMarkLine) then begin
@@ -6972,7 +6972,7 @@ var
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
-    VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.GetPoint);
+    VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.GetPoint.Point);
     CopyStringToClipboard(Handle, VStr);
   end;
 end;

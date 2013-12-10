@@ -27,8 +27,10 @@ uses
   t_GeoTypes,
   i_Appearance,
   i_LonLatRect,
+  i_GeometryLonLat,
   i_HashFunction,
   i_VectorDataItemSimple,
+  i_VectorItemsFactory,
   i_GeoCoder,
   u_BaseInterfacedObject;
 
@@ -36,7 +38,7 @@ type
   TGeoCodePlacemark = class(TBaseInterfacedObject, IGeoCodePlacemark, IVectorDataItemPoint, IVectorDataItemSimple)
   private
     FHash: THashValue;
-    FLLRect: ILonLatRect;
+    FPoint: IGeometryLonLatPoint;
     FAddress: string;
     FDesc: string;
     FFullDesc: string;
@@ -44,7 +46,7 @@ type
   private
     function GetHash: THashValue;
     function GetAppearance: IAppearance;
-    function GetPoint: TDoublePoint;
+    function GetPoint: IGeometryLonLatPoint;
     function GetName: string;
     function GetDesc: string;
     function GetLLRect: ILonLatRect;
@@ -59,7 +61,7 @@ type
   public
     constructor Create(
       const AHash: THashValue;
-      const APoint: TDoublePoint;
+      const APoint: IGeometryLonLatPoint;
       const AAddress: string;
       const ADesc: string;
       const AFullDesc: string;
@@ -69,6 +71,7 @@ type
 
   TGeoCodePlacemarkFactory = class(TBaseInterfacedObject, IGeoCodePlacemarkFactory)
   private
+    FGeometryFactory: IVectorGeometryLonLatFactory;
     FHashFunction: IHashFunction;
   private
     function Build(
@@ -80,6 +83,7 @@ type
     ): IGeoCodePlacemark;
   public
     constructor Create(
+      const AGeometryFactory: IVectorGeometryLonLatFactory;
       const AHashFunction: IHashFunction
     );
   end;
@@ -94,7 +98,7 @@ uses
 
 constructor TGeoCodePlacemark.Create(
   const AHash: THashValue;
-  const APoint: TDoublePoint;
+  const APoint: IGeometryLonLatPoint;
   const AAddress: string;
   const ADesc: string;
   const AFullDesc: string;
@@ -106,7 +110,7 @@ begin
   FAddress := AAddress;
   FDesc := ADesc;
   FFullDesc := AFullDesc;
-  FLLRect := TLonLatRectByPoint.Create(APoint);
+  FPoint := APoint;
   FAccuracy := AAccuracy;
 end;
 
@@ -132,7 +136,7 @@ end;
 
 function TGeoCodePlacemark.GetGoToLonLat: TDoublePoint;
 begin
-  Result := FLLRect.TopLeft;
+  Result := FPoint.GetGoToLonLat;
 end;
 
 function TGeoCodePlacemark.GetHash: THashValue;
@@ -162,12 +166,12 @@ end;
 
 function TGeoCodePlacemark.GetLLRect: ILonLatRect;
 begin
-  Result := FLLRect;
+  Result := FPoint.Bounds;
 end;
 
-function TGeoCodePlacemark.GetPoint: TDoublePoint;
+function TGeoCodePlacemark.GetPoint: IGeometryLonLatPoint;
 begin
-  Result := FLLRect.TopLeft;
+  Result := FPoint;
 end;
 
 function TGeoCodePlacemark.IsEqual(const AItem: IVectorDataItemSimple): Boolean;
@@ -186,7 +190,7 @@ begin
     Result := False;
     Exit;
   end;
-  if FLLRect.IsEqual(AItem.LLRect) then begin
+  if FPoint.Bounds.IsEqual(AItem.LLRect) then begin
     Result := False;
     Exit;
   end;
@@ -221,9 +225,13 @@ end;
 
 { TGeoCodePlacemarkFactory }
 
-constructor TGeoCodePlacemarkFactory.Create(const AHashFunction: IHashFunction);
+constructor TGeoCodePlacemarkFactory.Create(
+  const AGeometryFactory: IVectorGeometryLonLatFactory;
+  const AHashFunction: IHashFunction
+);
 begin
   inherited Create;
+  FGeometryFactory := AGeometryFactory;
   FHashFunction := AHashFunction;
 end;
 
@@ -234,15 +242,17 @@ function TGeoCodePlacemarkFactory.Build(
 ): IGeoCodePlacemark;
 var
   VHash: THashValue;
+  VPoint: IGeometryLonLatPoint;
 begin
-  VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+  VPoint := FGeometryFactory.CreateLonLatPoint(APoint);
+  VHash := VPoint.Hash;
   FHashFunction.UpdateHashByString(VHash, AAddress);
   FHashFunction.UpdateHashByString(VHash, ADesc);
   FHashFunction.UpdateHashByString(VHash, AFullDesc);
   Result :=
     TGeoCodePlacemark.Create(
       VHash,
-      APoint,
+      VPoint,
       AAddress,
       ADesc,
       AFullDesc,

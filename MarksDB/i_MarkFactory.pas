@@ -37,7 +37,7 @@ type
   IMarkFactory = interface
     ['{725CB1AC-1393-4889-B621-64C3B4348331}']
     function CreateNewPoint(
-      const APoint: TDoublePoint;
+      const APoint: IGeometryLonLatPoint;
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplatePoint = nil
@@ -61,7 +61,7 @@ type
     ): IVectorDataItemSimple;
 
     function CreatePoint(
-      const APoint: TDoublePoint;
+      const APoint: IGeometryLonLatPoint;
       const AName: string;
       const ADesc: string;
       const ACategory: ICategory;
@@ -84,7 +84,7 @@ type
 
     function SimpleModifyPoint(
       const ASource: IVectorDataItemPoint;
-      const ALonLat: TDoublePoint
+      const ALonLat: IGeometryLonLatPoint
     ): IVectorDataItemPoint;
     function SimpleModifyLine(
       const ASource: IVectorDataItemLine;

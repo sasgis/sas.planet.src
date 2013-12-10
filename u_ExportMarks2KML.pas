@@ -413,7 +413,7 @@ begin
     end;
     currNode := currNode.AddChild('Point');
     currNode.ChildValues['extrude'] := 1;
-    with VMarkPoint.Point do begin
+    with VMarkPoint.Point.Point do begin
       VCoordinates := R2StrPoint(X) + ',' + R2StrPoint(Y) + ',0 ';
     end;
     currNode.ChildValues['coordinates'] := VCoordinates;

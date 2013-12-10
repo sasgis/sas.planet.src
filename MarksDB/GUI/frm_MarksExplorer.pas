@@ -959,9 +959,7 @@ var
   VLonLat: TDoublePoint;
   VPointTemplate: IMarkTemplatePoint;
   VTemplateConfig: IMarkPointTemplateConfig;
-  VMark: IVectorDataItemSimple;
   VCategory: ICategory;
-  VVisible: Boolean;
 begin
   VLonLat := FViewPortState.GetStatic.GetCenterLonLat;
   VCategory := GetSelectedCategory;
@@ -975,16 +973,7 @@ begin
         VCategory
       );
   end;
-
-  VVisible := True;
-  VMark := FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewPoint(VLonLat, '', '', VPointTemplate);
-  VMark := FMarkDBGUI.EditMarkModal(VMark, True, VVisible);
-  if VMark <> nil then begin
-    VMark := FMarkDBGUI.MarksDb.MarkDb.UpdateMark(nil, VMark);
-    if VMark <> nil then begin
-      FMarkDBGUI.MarksDb.MarkDb.SetMarkVisible(VMark, VVisible);
-    end;
-  end;
+  FMarkDBGUI.AddNewPointModal(VLonLat, VPointTemplate);
 end;
 
 procedure TfrmMarksExplorer.tbitmMarkInfoClick(Sender: TObject);

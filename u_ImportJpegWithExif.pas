@@ -29,12 +29,14 @@ uses
   i_ValueToStringConverter,
   i_ImportConfig,
   i_ImportFile,
+  i_VectorItemsFactory,
   i_VectorItemTree,
   u_BaseInterfacedObject;
 
 type
   TImportJpegWithExif = class(TBaseInterfacedObject, IImportFile)
   private
+    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -45,6 +47,7 @@ type
     ): IVectorItemTree;
   public
     constructor Create(
+      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -60,17 +63,20 @@ uses
   t_GeoTypes,
   i_VectorItemSubset,
   i_VectorDataItemSimple,
-  u_VectorItemTree;
+  u_VectorItemTree,
+  u_GeoFun;
 
 { TImportJpegWithExif }
 
 constructor TImportJpegWithExif.Create(
+  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
   inherited Create;
+  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FVectorDataFactory := AVectorDataFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig
@@ -104,6 +110,7 @@ begin
   if not FileExists(AFileName) then Exit;
   VDEsc := '';
   VValueToStringConverter := FValueToStringConverterConfig.GetStatic;
+  VPoint := CEmptyDoublePoint;
   VExifData := TExifData.Create;
   try
     VExifData.LoadFromGraphic(AFileName);
@@ -190,12 +197,15 @@ begin
     VExifData.Free;
   end;
 
+  if PointIsEmpty(VPoint) then begin
+    Exit;
+  end;
   VItem := FVectorDataFactory.BuildPoint(
     nil,
     nil,
     VTitle,
     VDesc,
-    VPoint
+    FVectorGeometryLonLatFactory.CreateLonLatPoint(VPoint)
   );
 
   if VItem <> nil then begin

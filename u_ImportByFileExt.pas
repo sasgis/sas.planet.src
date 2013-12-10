@@ -96,7 +96,7 @@ begin
   FImportHLG := TImportByVectorLoader.Create(AVectorDataFactory, THlgParser.Create(AVectorItemSubsetBuilderFactory, AVectorGeometryLonLatFactory));
   FImportMP := TImportByVectorLoader.Create(AVectorDataFactory, TMpSimpleParser.Create(AVectorItemSubsetBuilderFactory, AVectorGeometryLonLatFactory));
   FImportSLS := TImportByVectorLoader.Create(AVectorDataFactory, TSlsParser.Create(AVectorItemSubsetBuilderFactory, AVectorGeometryLonLatFactory));
-  FImportJPG := TImportJpegWithExif.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AValueToStringConverterConfig);
+  FImportJPG := TImportJpegWithExif.Create(AVectorGeometryLonLatFactory, AVectorItemSubsetBuilderFactory, AVectorDataFactory, AValueToStringConverterConfig);
 end;
 
 function TImportByFileExt.ProcessImport(

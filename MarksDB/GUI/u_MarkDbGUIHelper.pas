@@ -36,6 +36,7 @@ uses
   i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
   i_VectorDataItemSimple,
+  i_MarkTemplate,
   i_MarkId,
   i_Category,
   i_MarkCategory,
@@ -104,7 +105,10 @@ type
       const ACategory: IMarkCategory;
       AIsNewMark: Boolean
     ): IMarkCategory;
-    function AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
+    function AddNewPointModal(
+      const ALonLat: TDoublePoint;
+      const ATemplate: IMarkTemplatePoint = nil
+    ): Boolean;
     function SavePointModal(
       const AMark: IVectorDataItemPoint;
       const ALonLat: TDoublePoint
@@ -199,6 +203,7 @@ begin
     TfrmMarkEditPoint.Create(
       ALanguageManager,
       AMediaPath,
+      AVectorGeometryLonLatFactory,
       AAppearanceOfMarkFactory,
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB,
@@ -280,7 +285,10 @@ begin
   end;
 end;
 
-function TMarkDbGUIHelper.AddNewPointModal(const ALonLat: TDoublePoint): Boolean;
+function TMarkDbGUIHelper.AddNewPointModal(
+  const ALonLat: TDoublePoint;
+  const ATemplate: IMarkTemplatePoint = nil
+): Boolean;
 var
   VMark: IVectorDataItemPoint;
   VVisible: Boolean;
@@ -288,7 +296,13 @@ var
 begin
   Result := False;
   VVisible := True;
-  VMark := FMarkSystem.MarkDb.Factory.CreateNewPoint(ALonLat, '', '');
+  VMark :=
+    FMarkSystem.MarkDb.Factory.CreateNewPoint(
+      FVectorGeometryLonLatFactory.CreateLonLatPoint(ALonLat),
+      '',
+      '',
+      ATemplate
+    );
   VMark := FfrmMarkEditPoint.EditMark(VMark, True, VVisible);
   if VMark <> nil then begin
     VResult := FMarkSystem.MarkDb.UpdateMark(nil, VMark);
@@ -607,7 +621,7 @@ begin
         Result :=
           FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
             AProjection,
-            VMarkPoint.GetPoint,
+            VMarkPoint.GetPoint.Point,
             VRadius
           );
       end;
@@ -667,11 +681,20 @@ begin
   if AMark <> nil then begin
     VVisible := FMarkSystem.MarkDb.GetMarkVisible(AMark);
     VSourceMark := AMark;
-    VMark := FMarkSystem.MarkDb.Factory.SimpleModifyPoint(AMark, ALonLat);
+    VMark :=
+      FMarkSystem.MarkDb.Factory.SimpleModifyPoint(
+        AMark,
+        FVectorGeometryLonLatFactory.CreateLonLatPoint(ALonLat)
+      );
   end else begin
     VVisible := True;
     VSourceMark := nil;
-    VMark := FMarkSystem.MarkDb.Factory.CreateNewPoint(ALonLat, '', '');
+    VMark :=
+      FMarkSystem.MarkDb.Factory.CreateNewPoint(
+        FVectorGeometryLonLatFactory.CreateLonLatPoint(ALonLat),
+        '',
+        ''
+      );
   end;
   if VMark <> nil then begin
     VMark := FfrmMarkEditPoint.EditMark(VMark, VSourceMark = nil, VVisible);

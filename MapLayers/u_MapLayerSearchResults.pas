@@ -122,7 +122,7 @@ begin
     VConverter := ALocalConverter.GetGeoConverter;
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint);
+      VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint.Point);
       VMarker.DrawToBitmap(ABuffer, VFixedOnView);
     end;
   end;

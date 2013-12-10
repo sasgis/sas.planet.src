@@ -123,7 +123,7 @@ begin
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
-  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point)]) + '<br>'#13#10;
+  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point.Point)]) + '<br>'#13#10;
   Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 

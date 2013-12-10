@@ -16,7 +16,7 @@ type
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const APoint: TDoublePoint
+      const APoint: IGeometryLonLatPoint
     ): IVectorDataItemPoint;
     function BuildPath(
       const AIdData: Pointer;

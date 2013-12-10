@@ -366,7 +366,7 @@ begin
   Result := False;
   VMarker := FMarkerProviderForVectorItem.GetMarker(FConfig.CaptionDrawConfig, AMarkPoint);
   if VMarker <> nil then begin
-    VLonLat := AMarkPoint.Point;
+    VLonLat := AMarkPoint.Point.Point;
     ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
     VLocalPoint := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
     if not ABitmapInited then begin

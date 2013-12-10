@@ -75,7 +75,7 @@ begin
   SetLength(VDistArr, AList.Count);
   for i := 0 to AList.GetCount-1 do begin
     VMark := IGeoCodePlacemark(AList.Items[i]);
-    VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.GetPoint);
+    VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.GetPoint.Point);
   end;
   SortInterfaceListByDoubleMeasure(AList, VDistArr);
 end;

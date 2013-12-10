@@ -32,7 +32,7 @@ type
       const AAppearance: IAppearance;
       const AName: string;
       const ADesc: string;
-      const APoint: TDoublePoint
+      const APoint: IGeometryLonLatPoint
     ): IVectorDataItemPoint;
     function BuildPath(
       const AIdData: Pointer;
@@ -111,18 +111,18 @@ function TVectorDataFactoryForMap.BuildPoint(
   const AIdData: Pointer;
   const AAppearance: IAppearance;
   const AName, ADesc: string;
-  const APoint: TDoublePoint
+  const APoint: IGeometryLonLatPoint
 ): IVectorDataItemPoint;
 var
   VIndex: Integer;
   VHash: THashValue;
 begin
-  Assert(not PointIsEmpty(APoint));
+  Assert(Assigned(APoint));
   Assert(AIdData <> nil);
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
-    VHash := FHashFunction.CalcHashByDoublePoint(APoint);
+    VHash := APoint.Hash;
     FHashFunction.UpdateHashByString(VHash, AName);
     FHashFunction.UpdateHashByString(VHash, ADesc);
     Result :=

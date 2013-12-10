@@ -616,7 +616,11 @@ begin
       GUISyncronizedTimerNotifier,
       FDebugInfoSubSystem.RootCounterList
     );
-  FGeoCodePlacemarkFactory := TGeoCodePlacemarkFactory.Create(FHashFunction);
+  FGeoCodePlacemarkFactory :=
+    TGeoCodePlacemarkFactory.Create(
+      FVectorGeometryLonLatFactory,
+      FHashFunction
+    );
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FGlobalConfig.InetConfig,

@@ -27,6 +27,7 @@ uses
   t_GeoTypes,
   i_Appearance,
   i_LonLatRect,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_Category,
   i_HtmlToHintTextConverter,
@@ -35,7 +36,7 @@ uses
 type
   TMarkPointSml = class(TMarkFullBaseSml, IVectorDataItemPoint)
   private
-    FLLRect: ILonLatRect;
+    FPoint: IGeometryLonLatPoint;
   protected
     function GetMarkType: TGUID; override;
   protected
@@ -43,7 +44,7 @@ type
     function GetGoToLonLat: TDoublePoint; override;
     function IsEqual(const AMark: IVectorDataItemSimple): Boolean; override;
   private
-    function GetPoint: TDoublePoint;
+    function GetPoint: IGeometryLonLatPoint;
   public
     constructor Create(
       const AHash: THashValue;
@@ -55,7 +56,7 @@ type
       const AAppearance: IAppearance;
       const ACategory: ICategory;
       const ADesc: string;
-      const APoint: TDoublePoint
+      const APoint: IGeometryLonLatPoint
     );
   end;
 
@@ -78,12 +79,12 @@ constructor TMarkPointSml.Create(
   const AAppearance: IAppearance;
   const ACategory: ICategory;
   const ADesc: string;
-  const APoint: TDoublePoint
+  const APoint: IGeometryLonLatPoint
 );
 begin
-  Assert(not PointIsEmpty(APoint));
+  Assert(Assigned(APoint));
   inherited Create(AHash, AAppearance, AHintConverter, AName, AId, ADbId, ACategory, ADesc, AVisible);
-  FLLRect := TLonLatRectByPoint.Create(APoint);
+  FPoint := APoint;
 end;
 
 function TMarkPointSml.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
@@ -98,7 +99,7 @@ begin
     Result := False;
     Exit;
   end;
-  if not FLLRect.IsEqual(AMark.LLRect) then begin
+  if not FPoint.Bounds.IsEqual(AMark.LLRect) then begin
     Result := False;
     Exit;
   end;
@@ -111,17 +112,17 @@ end;
 
 function TMarkPointSml.GetGoToLonLat: TDoublePoint;
 begin
-  Result := FLLRect.TopLeft;
+  Result := FPoint.GetGoToLonLat;
 end;
 
 function TMarkPointSml.GetLLRect: ILonLatRect;
 begin
-  Result := FLLRect;
+  Result := FPoint.Bounds;
 end;
 
-function TMarkPointSml.GetPoint: TDoublePoint;
+function TMarkPointSml.GetPoint: IGeometryLonLatPoint;
 begin
-  Result := FLLRect.TopLeft;
+  Result := FPoint;
 end;
 
 function TMarkPointSml.GetMarkType: TGUID;

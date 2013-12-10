@@ -247,7 +247,7 @@ var
 begin
   Result := False;
   VConverter := ALocalConverter.GetGeoConverter;
-  VPointLL := AData.Point;
+  VPointLL := AData.Point.Point;
   VConverter.CheckLonLatPos(VPointLL);
   VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL, prToTopLeft);
   VRect.BottomRight := VRect.TopLeft;

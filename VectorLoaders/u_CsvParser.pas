@@ -40,12 +40,12 @@ type
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataFactory: IVectorDataFactory
     ): IVectorItemSubset;
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+      const AVectorDataFactory: IVectorGeometryLonLatFactory
     );
   end;
 
@@ -301,7 +301,7 @@ begin
 end;
 
 procedure _MakeObjectFromArray(
-  const AVectorGeometryLonLatFactory: IVectorDataFactory;
+  const AVectorDataFactory: IVectorDataFactory;
   const AIdData: Pointer;
   const AVectorFactory: IVectorGeometryLonLatFactory;
   const AHead{, AList}: TStrings;
@@ -314,6 +314,7 @@ var
   i: TCSVPointFieldType;
   VPointName, VPointDesc: String;
   VItem: IVectorDataItemSimple;
+  VPoint: IGeometryLonLatPoint;
   VPath: IGeometryLonLatMultiLine;
   VPoly: IGeometryLonLatMultiPolygon;
 begin
@@ -338,19 +339,20 @@ begin
   if APointsAggregator.Count=1 then begin
     // make
     if not PointIsEmpty(APointsAggregator.Points[0]) then begin
-      VItem := AVectorGeometryLonLatFactory.BuildPoint(
+      VPoint := AVectorFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
+      VItem := AVectorDataFactory.BuildPoint(
         AIdData,
         nil,
         VPointName,
         VPointDesc,
-        APointsAggregator.Points[0]
+        VPoint
       );
     end;
   end else if (APointsAggregator.Count>2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count-1]) then begin
     VPoly := AVectorFactory.CreateLonLatPolygon(APointsAggregator.Points, APointsAggregator.Count);
     if Assigned(VPoly) then begin
       // make
-      VItem := AVectorGeometryLonLatFactory.BuildPoly(
+      VItem := AVectorDataFactory.BuildPoly(
         AIdData,
         nil,
         VPointName,
@@ -362,7 +364,7 @@ begin
     VPath := AVectorFactory.CreateLonLatPath(APointsAggregator.Points, APointsAggregator.Count);
     if Assigned(VPath) then begin
       // make
-      VItem := AVectorGeometryLonLatFactory.BuildPath(
+      VItem := AVectorDataFactory.BuildPath(
         AIdData,
         nil,
         VPointName,
@@ -379,7 +381,8 @@ begin
 end;
 
 procedure _MakeNewPointWithFullInfo(
-  const AVectorGeometryLonLatFactory: IVectorDataFactory;
+  const AVectorDataFactory: IVectorDataFactory;
+  const AVectorFactory: IVectorGeometryLonLatFactory;
   const AIdData: Pointer;
   const AHead, AList: TStrings;
   const ACoords: TDoublePoint;
@@ -392,6 +395,7 @@ var
   j: Integer;
   VPointName, VPointDesc, VText: String;
   VItem: IVectorDataItemSimple;
+  VPoint: IGeometryLonLatPoint;
 begin
   // make name
 
@@ -430,13 +434,14 @@ begin
     end;
   end;
 
+  VPoint := AVectorFactory.CreateLonLatPoint(ACoords);
   // make simple point
-  VItem := AVectorGeometryLonLatFactory.BuildPoint(
+  VItem := AVectorDataFactory.BuildPoint(
     AIdData,
     nil,
     VPointName,
     VPointDesc,
-    ACoords
+    VPoint
   );
   if (VItem <> nil) then begin
     // add mark to array
@@ -480,18 +485,18 @@ end;
 
 constructor TCsvParser.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+  const AVectorDataFactory: IVectorGeometryLonLatFactory
 );
 begin
   inherited Create;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+  FVectorGeometryLonLatFactory := AVectorDataFactory;
 end;
 
 function TCsvParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataFactory: IVectorDataFactory
 ): IVectorItemSubset;
 var
   VFileBody, VFileHeader, VParsedLine: TStringList;
@@ -597,7 +602,7 @@ begin
             // changed - make object from previous points (in array)
             if (VPointsAggregator.Count>0) then begin
               _MakeObjectFromArray(
-                AVectorGeometryLonLatFactory,
+                AVectorDataFactory,
                 AIdData,
                 FVectorGeometryLonLatFactory,
                 VFileHeader,
@@ -620,7 +625,8 @@ begin
           // check and create point with external vox link
           if _HasNonEmptyValue(VParsedLine, VIndexVoxField) then begin
             _MakeNewPointWithFullInfo(
-              AVectorGeometryLonLatFactory,
+              AVectorDataFactory,
+              FVectorGeometryLonLatFactory,
               AIdData,
               VFileHeader,
               VParsedLine,
@@ -644,7 +650,7 @@ begin
       end;
       // make
       _MakeObjectFromArray(
-        AVectorGeometryLonLatFactory,
+        AVectorDataFactory,
         AIdData,
         FVectorGeometryLonLatFactory,
         VFileHeader,
