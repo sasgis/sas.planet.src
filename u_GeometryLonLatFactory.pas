@@ -1,4 +1,4 @@
-unit u_VectorItemsFactorySimple;
+unit u_GeometryLonLatFactory;
 
 interface
 

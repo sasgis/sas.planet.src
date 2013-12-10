@@ -335,7 +335,7 @@ uses
   u_InternalBrowserByForm,
   u_DebugInfoWindow,
   u_IeEmbeddedProtocolFactory,
-  u_VectorItemsFactorySimple,
+  u_GeometryLonLatFactory,
   u_VectorDataFactorySimple,
   u_VectorGeometryProjectedFactory,
   u_VectorGeometryLocalFactory,

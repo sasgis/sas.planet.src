@@ -51,7 +51,7 @@ uses
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_InternalPerformanceCounterFake,
-  u_VectorItemsFactorySimple;
+  u_GeometryLonLatFactory;
 
 { TestTVectorItmesFactorySimple }
 

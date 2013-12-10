@@ -337,7 +337,7 @@ uses
   u_VectorItemEmpty in 'u_VectorItemEmpty.pas',
   u_GeometryLonLatMulti in 'u_GeometryLonLatMulti.pas',
   u_VectorItemProjected in 'u_VectorItemProjected.pas',
-  u_VectorItemsFactorySimple in 'u_VectorItemsFactorySimple.pas',
+  u_GeometryLonLatFactory in 'u_GeometryLonLatFactory.pas',
   i_VectorDataItemSimple in 'i_VectorDataItemSimple.pas',
   i_VectorItemSubset in 'i_VectorItemSubset.pas',
   u_VectorDataItemBase in 'u_VectorDataItemBase.pas',
