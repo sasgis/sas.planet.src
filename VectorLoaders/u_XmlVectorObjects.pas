@@ -29,7 +29,7 @@ type
     FFormatPtr: PFormatSettings;
     FIdData: Pointer;
     FDataFactory: IVectorDataFactory;
-    FItemsFactory: IVectorGeometryLonLatFactory;
+    FItemsFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
     // storage for coordinates
@@ -106,7 +106,7 @@ type
       const AAllowMultiParts: Boolean;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const ADataFactory: IVectorDataFactory;
-      const AItemsFactory: IVectorGeometryLonLatFactory
+      const AItemsFactory: IGeometryLonLatFactory
     );
   end;
 
@@ -359,7 +359,7 @@ constructor TXmlVectorObjects.Create(
   const AAllowMultiParts: Boolean;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ADataFactory: IVectorDataFactory;
-  const AItemsFactory: IVectorGeometryLonLatFactory
+  const AItemsFactory: IGeometryLonLatFactory
 );
 begin
   Assert(AVectorItemSubsetBuilderFactory<>nil);

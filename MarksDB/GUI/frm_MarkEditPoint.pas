@@ -98,7 +98,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure imgIconMouseDown(Sender: TObject);
   private
-    FGeometryFactory: IVectorGeometryLonLatFactory;
+    FGeometryFactory: IGeometryLonLatFactory;
     FSourceMark: IVectorDataItemPoint;
     FCategoryDB: IMarkCategoryDB;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
@@ -115,7 +115,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
-      const AGeometryFactory: IVectorGeometryLonLatFactory;
+      const AGeometryFactory: IGeometryLonLatFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const ACategoryDB: IMarkCategoryDB;
@@ -147,7 +147,7 @@ uses
 constructor TfrmMarkEditPoint.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
-  const AGeometryFactory: IVectorGeometryLonLatFactory;
+  const AGeometryFactory: IGeometryLonLatFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const ACategoryDB: IMarkCategoryDB;

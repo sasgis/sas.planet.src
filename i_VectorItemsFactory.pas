@@ -14,7 +14,7 @@ uses
   i_VectorItemLocal;
 
 type
-  IVectorGeometryLonLatFactory = interface
+  IGeometryLonLatFactory = interface
     ['{FD69BBD0-2065-43B0-9D7C-900E82C28069}']
     function CreateLonLatPoint(
       const APoint: TDoublePoint

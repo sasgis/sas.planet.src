@@ -17,7 +17,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorGeometryLonLatFactory = class(TBaseInterfacedObject, IVectorGeometryLonLatFactory)
+  TVectorGeometryLonLatFactory = class(TBaseInterfacedObject, IGeometryLonLatFactory)
   private
     FHashFunction: IHashFunction;
     FEmptyLonLatPath: IGeometryLonLatMultiLine;

@@ -35,7 +35,7 @@ type
   TCsvParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   private
     function Load(
       const AData: IBinaryData;
@@ -45,7 +45,7 @@ type
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AVectorDataFactory: IVectorGeometryLonLatFactory
+      const AVectorDataFactory: IGeometryLonLatFactory
     );
   end;
 
@@ -303,7 +303,7 @@ end;
 procedure _MakeObjectFromArray(
   const AVectorDataFactory: IVectorDataFactory;
   const AIdData: Pointer;
-  const AVectorFactory: IVectorGeometryLonLatFactory;
+  const AVectorFactory: IGeometryLonLatFactory;
   const AHead{, AList}: TStrings;
   const AOldValues: PCSVPointFieldValues;
   const AIndices: PCSVPointFieldIndices;
@@ -382,7 +382,7 @@ end;
 
 procedure _MakeNewPointWithFullInfo(
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorFactory: IVectorGeometryLonLatFactory;
+  const AVectorFactory: IGeometryLonLatFactory;
   const AIdData: Pointer;
   const AHead, AList: TStrings;
   const ACoords: TDoublePoint;
@@ -485,7 +485,7 @@ end;
 
 constructor TCsvParser.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AVectorDataFactory: IVectorGeometryLonLatFactory
+  const AVectorDataFactory: IGeometryLonLatFactory
 );
 begin
   inherited Create;

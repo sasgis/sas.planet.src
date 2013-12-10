@@ -198,7 +198,7 @@ type
     FMarkDBGUI: TMarkDbGUIHelper;
     FMapSvcScanConfig: IMapSvcScanConfig;
     FMapSvcScanStorage: IMapSvcScanStorage;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
     procedure MakePicsVendors;
@@ -269,7 +269,7 @@ type
       const AMarkDBGUI: TMarkDbGUIHelper;
       const AMapSvcScanConfig: IMapSvcScanConfig;
       const ALanguageManager: ILanguageManager;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AInetConfig: IInetConfig
     ); reintroduce;
@@ -1613,7 +1613,7 @@ constructor TfrmDGAvailablePic.Create(
   const AMarkDBGUI: TMarkDbGUIHelper;
   const AMapSvcScanConfig: IMapSvcScanConfig;
   const ALanguageManager: ILanguageManager;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AInetConfig: IInetConfig
 );

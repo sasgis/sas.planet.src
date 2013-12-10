@@ -54,7 +54,7 @@ type
     constructor Create(
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AGpxLoader: IVectorDataLoader;
       const APltLoader: IVectorDataLoader;
@@ -79,7 +79,7 @@ uses
 constructor TImportByFileExt.Create(
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AGpxLoader: IVectorDataLoader;
   const APltLoader: IVectorDataLoader;

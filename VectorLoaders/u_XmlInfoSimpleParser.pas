@@ -44,7 +44,7 @@ uses
 type
   TXmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FAllowMultiParts: Boolean;
@@ -99,7 +99,7 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AAllowMultiParts: Boolean;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -141,7 +141,7 @@ end;
 { TXmlInfoSimpleParser }
 
 constructor TXmlInfoSimpleParser.Create(
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AAllowMultiParts: Boolean;
   const APerfCounterList: IInternalPerformanceCounterList

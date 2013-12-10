@@ -75,7 +75,7 @@ type
       const AMarkCategoryFactory: IMarkCategoryFactory;
       const AHashFunction: IHashFunction;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
@@ -144,7 +144,7 @@ constructor TMarkSystem.Create(
   const AMarkCategoryFactory: IMarkCategoryFactory;
   const AHashFunction: IHashFunction;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;

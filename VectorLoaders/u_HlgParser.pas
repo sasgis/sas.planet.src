@@ -15,7 +15,7 @@ type
   THlgParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   private
     function Load(
       const AData: IBinaryData;
@@ -25,7 +25,7 @@ type
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
   end;
 
@@ -45,7 +45,7 @@ uses
 
 constructor THlgParser.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
 );
 begin
   inherited Create;

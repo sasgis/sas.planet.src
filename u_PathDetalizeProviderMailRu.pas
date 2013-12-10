@@ -35,7 +35,7 @@ uses
 type
   TPathDetalizeProviderMailRu = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FBaseUrl: string;
     FDownloader: IDownloader;
     FInetConfig: IInetConfig;
@@ -52,7 +52,7 @@ type
     constructor Create(
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const ABaseUrl: string
     );
   end;
@@ -78,7 +78,7 @@ uses
 constructor TPathDetalizeProviderMailRu.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const ABaseUrl: string
 );
 begin

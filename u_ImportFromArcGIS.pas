@@ -17,7 +17,7 @@ uses
 function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALonLatRect: TDoubleRect;
@@ -355,7 +355,7 @@ end;
 function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
   const ACoordConverterFactory: ICoordConverterFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALonLatRect: TDoubleRect;

@@ -67,7 +67,7 @@ type
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AMarkFactory: IMarkFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
@@ -93,7 +93,7 @@ constructor TMarkSystemSml.Create(
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AMarkFactory: IMarkFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;

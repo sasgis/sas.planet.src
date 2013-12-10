@@ -51,7 +51,7 @@ type
     FDownloadInfo: IDownloadInfoSimple;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -64,7 +64,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple
@@ -110,7 +110,7 @@ constructor TProviderTilesDownload.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple

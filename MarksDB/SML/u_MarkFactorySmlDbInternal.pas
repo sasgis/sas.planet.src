@@ -43,7 +43,7 @@ type
   private
     FDbId: Integer;
     FHashFunction: IHashFunction;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMarkFactory: IMarkFactory;
     FCategoryDB: IMarkCategoryDBSmlInternal;
@@ -103,7 +103,7 @@ type
     constructor Create(
       const ADbId: Integer;
       const AMarkPictureList: IMarkPictureList;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const AHashFunction: IHashFunction;
@@ -129,7 +129,7 @@ uses
 constructor TMarkFactorySmlDbInternal.Create(
   const ADbId: Integer;
   const AMarkPictureList: IMarkPictureList;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const AHashFunction: IHashFunction;

@@ -61,7 +61,7 @@ type
   private
     FMarkSystem: IMarkSystem;
     FMarkFactoryConfig: IMarkFactoryConfig;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
@@ -154,7 +154,7 @@ type
       const ADatumFactory: IDatumFactory;
       const AImportFileByExt: IImportFile;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -187,7 +187,7 @@ constructor TMarkDbGUIHelper.Create(
   const ADatumFactory: IDatumFactory;
   const AImportFileByExt: IImportFile;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );

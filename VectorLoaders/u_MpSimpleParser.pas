@@ -16,7 +16,7 @@ type
   TMpSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     procedure ParseCoordinates(
       const AData: string;
       const APointsAggregator: IDoublePointsAggregator
@@ -30,7 +30,7 @@ type
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
   end;
 
@@ -55,7 +55,7 @@ const
 
 constructor TMpSimpleParser.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
 );
 begin
   inherited Create;

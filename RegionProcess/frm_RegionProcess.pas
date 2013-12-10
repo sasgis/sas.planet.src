@@ -103,7 +103,7 @@ type
   private
     FfrExport: TfrExport;
     FfrCombine: TfrCombine;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
@@ -154,7 +154,7 @@ type
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
       const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -211,7 +211,7 @@ constructor TfrmRegionProcess.Create(
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
   const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const ABitmapFactory: IBitmap32StaticFactory;

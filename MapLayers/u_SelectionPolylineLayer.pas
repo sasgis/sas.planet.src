@@ -23,7 +23,7 @@ type
     FLineOnMapEdit: IPathOnMapEdit;
     FConfig: ISelectionPolylineShadowLayerConfig;
     FRadius: Double;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FLine: ILonLatPathWithSelected;
     procedure OnLineChange;
   protected
@@ -38,7 +38,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ISelectionPolylineShadowLayerConfig
@@ -61,7 +61,7 @@ constructor TSelectionPolylineShadowLayer.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ISelectionPolylineShadowLayerConfig

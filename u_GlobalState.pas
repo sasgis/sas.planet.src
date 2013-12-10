@@ -169,7 +169,7 @@ type
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
     FVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
@@ -239,7 +239,7 @@ type
     property SensorList: ISensorList read FSensorList;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
-    property VectorGeometryLonLatFactory: IVectorGeometryLonLatFactory read FVectorGeometryLonLatFactory;
+    property VectorGeometryLonLatFactory: IGeometryLonLatFactory read FVectorGeometryLonLatFactory;
     property VectorGeometryProjectedFactory: IVectorGeometryProjectedFactory read FVectorGeometryProjectedFactory;
     property VectorGeometryLocalFactory: IVectorGeometryLocalFactory read FVectorGeometryLocalFactory;
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;

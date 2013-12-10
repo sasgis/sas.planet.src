@@ -43,7 +43,7 @@ type
   private
     FFormatSettings: TALFormatSettings;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
     procedure ParseStringList(
       AStringList: TALStringList;
@@ -67,7 +67,7 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -82,7 +82,7 @@ uses
   u_GeoFun;
 
 constructor TPLTSimpleParser.Create(
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );

@@ -27,7 +27,7 @@ type
     FMarkPictureList: IMarkPictureList;
     FHashFunction: IHashFunction;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FMarkFactory: IMarkFactory;
     FHintConverter: IHtmlToHintTextConverter;
@@ -54,7 +54,7 @@ type
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AMarkFactory: IMarkFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
@@ -78,7 +78,7 @@ constructor TMarkSystemImplChangeable.Create(
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AMarkFactory: IMarkFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;

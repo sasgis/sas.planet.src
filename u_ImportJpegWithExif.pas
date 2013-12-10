@@ -36,7 +36,7 @@ uses
 type
   TImportJpegWithExif = class(TBaseInterfacedObject, IImportFile)
   private
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -47,7 +47,7 @@ type
     ): IVectorItemTree;
   public
     constructor Create(
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -69,7 +69,7 @@ uses
 { TImportJpegWithExif }
 
 constructor TImportJpegWithExif.Create(
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig

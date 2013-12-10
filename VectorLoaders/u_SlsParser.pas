@@ -14,7 +14,7 @@ uses
 type
   TSlsParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
     function Load(
@@ -25,7 +25,7 @@ type
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
   end;
 
@@ -45,7 +45,7 @@ uses
 
 constructor TSlsParser.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
 );
 begin
   inherited Create;

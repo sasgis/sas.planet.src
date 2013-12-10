@@ -70,7 +70,7 @@ type
 
   TGeoCodePlacemarkFactory = class(TBaseInterfacedObject, IGeoCodePlacemarkFactory)
   private
-    FGeometryFactory: IVectorGeometryLonLatFactory;
+    FGeometryFactory: IGeometryLonLatFactory;
     FHashFunction: IHashFunction;
   private
     function Build(
@@ -82,7 +82,7 @@ type
     ): IGeoCodePlacemark;
   public
     constructor Create(
-      const AGeometryFactory: IVectorGeometryLonLatFactory;
+      const AGeometryFactory: IGeometryLonLatFactory;
       const AHashFunction: IHashFunction
     );
   end;
@@ -220,7 +220,7 @@ end;
 { TGeoCodePlacemarkFactory }
 
 constructor TGeoCodePlacemarkFactory.Create(
-  const AGeometryFactory: IVectorGeometryLonLatFactory;
+  const AGeometryFactory: IGeometryLonLatFactory;
   const AHashFunction: IHashFunction
 );
 begin

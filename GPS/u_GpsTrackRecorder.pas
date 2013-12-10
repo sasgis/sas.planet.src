@@ -36,7 +36,7 @@ type
   TGpsTrackRecorder = class(TConfigDataElementBaseEmptySaveLoad, IGpsTrackRecorder, IGpsTrackRecorderInternal)
   private
     FDataFile: IPathConfig;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
 
     FTrack: ITrackPointsBlocksListStatic;
     FLastBlock: ITrackPoitnsBlock;
@@ -60,7 +60,7 @@ type
     function GetAllPoints: IGeometryLonLatMultiLine;
   public
     constructor Create(
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const ADataFile: IPathConfig
     );
   end;
@@ -425,7 +425,7 @@ const
 { TGpsTrackRecorder }
 
 constructor TGpsTrackRecorder.Create(
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory; const ADataFile: IPathConfig);
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory; const ADataFile: IPathConfig);
 begin
   inherited Create;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;

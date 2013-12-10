@@ -42,7 +42,7 @@ type
   TKmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
     FFormat: TFormatSettings;
@@ -106,7 +106,7 @@ type
     ): IVectorItemSubset;
   public
     constructor Create(
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -176,7 +176,7 @@ begin
 end;
 
 constructor TKmlInfoSimpleParser.Create(
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );

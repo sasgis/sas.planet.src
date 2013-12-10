@@ -37,7 +37,7 @@ uses
 type
   TPathDetalizeProviderYourNavigation = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FBaseUrl: string;
     FKmlLoader: IVectorDataLoader;
@@ -55,7 +55,7 @@ type
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader;
       const ABaseUrl: string
     );
@@ -81,7 +81,7 @@ constructor TPathDetalizeProviderYourNavigation.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader;
   const ABaseUrl: string
 );

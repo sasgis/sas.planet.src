@@ -31,7 +31,7 @@ type
     FConfig: IMarkerRingsConfig;
     FGPSRecorder: IGPSRecorder;
     FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
 
     FGpsPosChangeFlag: ISimpleFlag;
 
@@ -66,7 +66,7 @@ type
       const AView: ILocalCoordConverterChangeable;
       const ATimerNoifier: INotifierTime;
       const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AConfig: IMarkerRingsConfig;
       const AGPSRecorder: IGPSRecorder
     );
@@ -95,7 +95,7 @@ constructor TMapLayerGPSMarkerRings.Create(
   const AView: ILocalCoordConverterChangeable;
   const ATimerNoifier: INotifierTime;
   const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AConfig: IMarkerRingsConfig;
   const AGPSRecorder: IGPSRecorder
 );

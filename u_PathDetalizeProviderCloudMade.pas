@@ -42,7 +42,7 @@ type
 type
   TPathDetalizeProviderCloudMade = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
-    FVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FBaseUrl: string;
     FVehicle: TRouteVehicle;
     FRouteCalcType: TRouteCalcType;
@@ -61,7 +61,7 @@ type
     constructor Create(
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       AVehicle: TRouteVehicle;
       ARouteCalcType: TRouteCalcType
     );
@@ -84,7 +84,7 @@ uses
 constructor TPathDetalizeProviderCloudMade.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   AVehicle: TRouteVehicle;
   ARouteCalcType: TRouteCalcType
 );

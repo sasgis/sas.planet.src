@@ -41,7 +41,7 @@ type
       const AGCNotifier: INotifierTime;
       const AResultFactory: IDownloadResultFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader
     );
   end;
@@ -70,7 +70,7 @@ constructor TPathDetalizeProviderListSimple.Create(
   const AGCNotifier: INotifierTime;
   const AResultFactory: IDownloadResultFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorGeometryLonLatFactory: IVectorGeometryLonLatFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader
 );
 var
