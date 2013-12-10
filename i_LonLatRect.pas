@@ -25,6 +25,8 @@ type
     function GetRect: TDoubleRect;
     property Rect: TDoubleRect read GetRect;
 
+    function CalcRectCenter: TDoublePoint;
+
     function IsEqual(const ARect: TDoubleRect): Boolean; overload;
     function IsEqual(const ARect: ILonLatRect): Boolean; overload;
     function IsPointInRect(const APoint: TDoublePoint): Boolean;

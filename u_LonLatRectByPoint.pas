@@ -21,6 +21,7 @@ type
     function GetBottomRight: TDoublePoint;
 
     function GetRect: TDoubleRect;
+    function CalcRectCenter: TDoublePoint;
     function IsEqual(const ARect: TDoubleRect): Boolean; overload;
     function IsEqual(const ARect: ILonLatRect): Boolean; overload;
     function IsPointInRect(const APoint: TDoublePoint): Boolean;
@@ -47,6 +48,11 @@ uses
   u_GeoFun;
 
 { TLonLatRectByPoint }
+
+function TLonLatRectByPoint.CalcRectCenter: TDoublePoint;
+begin
+  Result :=FPoint;
+end;
 
 constructor TLonLatRectByPoint.Create(const APoint: TDoublePoint);
 begin
