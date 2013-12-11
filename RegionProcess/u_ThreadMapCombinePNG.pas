@@ -7,7 +7,7 @@ uses
   SysUtils,
   Classes,
   GR32,
-  LibPNG,
+  i_ImageLineProvider,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,
@@ -22,6 +22,15 @@ type
   private
     FBgColor: TColor32;
     FWithAlpha: Boolean;
+    FLineProvider: IImageLineProvider;
+    FOperationID: Integer;
+    FCancelNotifier: INotifierOperation;
+  private
+    function GetLineCallBack(
+      const ARowNumber: Integer;
+      const ALineSize: Integer;
+      const AUserInfo: Pointer
+    ): Pointer;
   protected
     procedure SaveRect(
       AOperationID: Integer;
@@ -50,50 +59,10 @@ implementation
 
 uses
   gnugettext,
+  LibPngWriter,
   i_CoordConverter,
-  i_ImageLineProvider,
   u_ImageLineProvider,
   u_ResStrings;
-
-type
-  sas_png_rw_io_ptr = ^sas_png_rw_io;
-
-  sas_png_rw_io = record
-    DestStream: TFileStream;
-    DestBuffer: Pointer;
-    DestBufferSize: Cardinal;
-    BufferedDataSize: Cardinal;
-  end;
-
-procedure flash_dest_buffer(rw_io_ptr: sas_png_rw_io_ptr);
-begin
-  if rw_io_ptr^.BufferedDataSize > 0 then begin
-    rw_io_ptr^.DestStream.WriteBuffer(rw_io_ptr^.DestBuffer^, rw_io_ptr^.BufferedDataSize);
-    rw_io_ptr^.BufferedDataSize := 0;
-  end;
-end;
-
-procedure sas_png_write_data(
-  png_ptr: png_structp;
-  data: png_bytep;
-  data_length: png_size_t
-); cdecl;
-var
-  rw_io_ptr: sas_png_rw_io_ptr;
-begin
-  rw_io_ptr := sas_png_rw_io_ptr(png_ptr.io_ptr);
-  if data_length >= rw_io_ptr^.DestBufferSize then begin // buffer is too small
-    flash_dest_buffer(rw_io_ptr);
-    rw_io_ptr^.DestStream.WriteBuffer(data^, data_length);
-  end else if (rw_io_ptr^.BufferedDataSize + data_length) >= rw_io_ptr^.DestBufferSize then begin // buffer is full
-    flash_dest_buffer(rw_io_ptr);
-    CopyMemory(Pointer(Cardinal(rw_io_ptr^.DestBuffer) + rw_io_ptr^.BufferedDataSize), data, data_length);
-    Inc(rw_io_ptr^.BufferedDataSize, data_length);
-  end else begin // (rw_io_ptr^.BufferedDataSize + data_length) < rw_io_ptr^.DestBufferSize  // buffer is OK
-    CopyMemory(Pointer(Cardinal(rw_io_ptr^.DestBuffer) + rw_io_ptr^.BufferedDataSize), data, data_length);
-    Inc(rw_io_ptr^.BufferedDataSize, data_length);
-  end;
-end;
 
 { TThreadMapCombinePNG }
 
@@ -137,23 +106,30 @@ const
   PNG_MAX_HEIGHT = 65536;
   PNG_MAX_WIDTH = 65536;
 var
-  i: integer;
-  png_ptr: png_structp;
-  info_ptr: png_infop;
-  rw_io: sas_png_rw_io;
-  VPngColorType: Integer;
+  VDest: TFileStream;
+  VBitsPerPix: Integer;
   VCurrentPieceRect: TRect;
   VGeoConverter: ICoordConverter;
   VMapPieceSize: TPoint;
-  VLineProvider: IImageLineProvider;
-  VLineRGB: Pointer;
+  VPngWriter: TLibPngWriter;
 begin
+  FOperationID := AOperationID;
+  FCancelNotifier := ACancelNotifier;
+
   VGeoConverter := ALocalConverter.GeoConverter;
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
+
+  if (VMapPieceSize.X >= PNG_MAX_WIDTH) or (VMapPieceSize.Y >= PNG_MAX_HEIGHT) then begin
+    raise Exception.CreateFmt(
+      SAS_ERR_ImageIsTooBig,
+      ['PNG', VMapPieceSize.X, PNG_MAX_WIDTH, VMapPieceSize.Y, PNG_MAX_HEIGHT, 'PNG']
+    );
+  end;
+
   if FWithAlpha then begin
-    VPngColorType := PNG_COLOR_TYPE_RGB_ALPHA;
-    VLineProvider :=
+    VBitsPerPix := 32;
+    FLineProvider :=
       TImageLineProviderRGBA.Create(
         AImageProvider,
         ALocalConverter,
@@ -161,8 +137,8 @@ begin
         FBgColor
       );
   end else begin
-    VPngColorType := PNG_COLOR_TYPE_RGB;
-    VLineProvider :=
+    VBitsPerPix := 24;
+    FLineProvider :=
       TImageLineProviderRGB.Create(
         AImageProvider,
         ALocalConverter,
@@ -171,64 +147,32 @@ begin
       );
   end;
 
-  if (VMapPieceSize.X >= PNG_MAX_WIDTH) or (VMapPieceSize.Y >= PNG_MAX_HEIGHT) then begin
-    raise Exception.CreateFmt(SAS_ERR_ImageIsTooBig, ['PNG', VMapPieceSize.X, PNG_MAX_WIDTH, VMapPieceSize.Y, PNG_MAX_HEIGHT, 'PNG']);
-  end;
-
-  if not Init_LibPNG then begin
-    raise Exception.Create(_('Initialization of LibPNG failed.'));
-  end;
-
-  rw_io.DestStream := TFileStream.Create(AFileName, fmCreate);
-  rw_io.DestBufferSize := 64 * 1024; // 64k
-  GetMem(rw_io.DestBuffer, rw_io.DestBufferSize);
-  rw_io.BufferedDataSize := 0;
+  VDest := TFileStream.Create(AFileName, fmCreate);
   try
-    png_ptr := png_create_write_struct(PNG_LIBPNG_VER_STRING, nil, nil, nil);
-    if Assigned(png_ptr) then begin
-      info_ptr := png_create_info_struct(png_ptr);
-    end else begin
-      raise Exception.Create(_('LibPNG: Failed to Create PngStruct!'));
-    end;
-    if Assigned(info_ptr) then begin
-      try
-        png_set_write_fn(png_ptr, @rw_io, @sas_png_write_data, nil);
-
-        // Write header (8 bit colour depth)
-        png_set_IHDR(png_ptr, info_ptr, VMapPieceSize.X, VMapPieceSize.Y, 8, VPngColorType,
-          PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-        png_write_info(png_ptr, info_ptr);
-        try
-          for i := 0 to info_ptr.height - 1 do begin
-            VLineRGB := VLineProvider.GetLine(AOperationID, ACancelNotifier, i);
-            if VLineRGB <> nil then begin
-              // write row
-              png_write_row(png_ptr, VLineRGB);
-            end;
-
-            if CancelNotifier.IsOperationCanceled(OperationID) then begin
-              Break;
-            end;
-            if i mod 256 = 0 then begin
-              ProgressFormUpdateOnProgress(i / info_ptr.height);
-            end;
-          end;
-        finally
-          // End write
-          png_write_end(png_ptr, info_ptr);
-        end;
-      finally
-        png_free_data(png_ptr, info_ptr, PNG_FREE_ALL);
-
-        png_destroy_write_struct(@png_ptr, @info_ptr);
-      end;
+    VPngWriter := TLibPngWriter.Create;
+    try
+      VPngWriter.Write(
+        VDest,
+        VMapPieceSize.X,
+        VMapPieceSize.Y,
+        VBitsPerPix,
+        Self.GetLineCallBack
+      );
+    finally
+      VPngWriter.Free;
     end;
   finally
-    flash_dest_buffer(@rw_io);
-    FreeMem(rw_io.DestBuffer);
-    rw_io.DestStream.Free;
+    VDest.Free;
   end;
+end;
+
+function TThreadMapCombinePNG.GetLineCallBack(
+  const ARowNumber: Integer;
+  const ALineSize: Integer;
+  const AUserInfo: Pointer
+): Pointer;
+begin
+  Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
 end;
 
 end.
