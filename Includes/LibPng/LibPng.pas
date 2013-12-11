@@ -1,4 +1,4 @@
-unit LibPNG;
+unit LibPng;
 
 {$ALIGN ON}
 
