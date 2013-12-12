@@ -443,6 +443,15 @@ begin
       Assert(False, 'Error type of old mark object');
       Exit;
     end;
+  end else if Supports(AOldMark, IVectorDataItemSimple, VOldMark) then begin
+    if Supports(VOldMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
+      if VMarkInternal.DbId = FDbId then begin
+        VIdOld := VMarkInternal.Id;
+      end else begin
+        Assert(False, 'Error type of old mark object');
+        Exit;
+      end;
+    end;
   end else begin
     Assert(not Assigned(AOldMark), 'Error type of old mark object');
     if Assigned(AOldMark) then begin
@@ -503,13 +512,13 @@ begin
 
   VIdNew := CNotExistMarkID;
   VCategoryIdNew := CNotExistCategoryID;
-  if Supports(Result, IMarkSMLInternal, VMarkInternal) then begin
+  if Assigned(Result) and Supports(Result.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
     VIdNew := VMarkInternal.Id;
     VCategoryIdNew := VMarkInternal.CategoryId;
   end;
 
   VCategoryIdOld := CNotExistCategoryID;
-  if Supports(VOldMark, IMarkSMLInternal, VMarkInternal) then begin
+  if Assigned(VOldMark) and Supports(VOldMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
     VCategoryIdOld := VMarkInternal.CategoryId;
   end;
 
@@ -731,13 +740,14 @@ var
   VCategory: IMarkCategorySMLInternal;
   VRect: TDoubleRect;
 begin
+  Assert(Assigned(AMark));
   VVisible := True;
   VCategoryId := CNotExistCategoryID;
-  if Supports(AMark, IMarkSMLInternal, VMarkSMLInternal) then begin
+  if Supports(AMark.MainInfo, IMarkSMLInternal, VMarkSMLInternal) then begin
     VVisible := VMarkSMLInternal.Visible;
     VCategoryId := VMarkSMLInternal.CategoryId;
   end else begin
-    if Supports(AMark, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+    if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
       if Supports(VMarkWithCategory.Category, IMarkCategorySMLInternal, VCategory) then begin
         VCategoryId := VCategory.Id;
       end;
@@ -837,7 +847,7 @@ var
 begin
   Result := True;
   if AMark <> nil then begin
-    if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
+    if Supports(AMark.MainInfo, IMarkSMLInternal, VMarkVisible) then begin
       Result := VMarkVisible.Visible;
     end;
   end;
@@ -867,7 +877,7 @@ var
   VEnum: IEnumUnknown;
   VCnt: Cardinal;
   VMarkInternal: IMarkSMLInternal;
-  VItem: IInterface;
+  VItem: IVectorDataItemSimple;
 begin
   VFilter := GetFilterTextByCategory(ACategory);
   if VFilter <> '' then begin
@@ -893,7 +903,7 @@ begin
       if VList <> nil then begin
         VEnum := VList.GetEnumUnknown;
         while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
-          if Supports(VItem, IMarkSMLInternal, VMarkInternal) then begin
+          if Supports(VItem.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := ANewVisible;
           end;
         end;
@@ -912,7 +922,7 @@ var
 begin
   if AMark <> nil then begin
     AId := CNotExistMarkID;
-    if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
+    if Supports(AMark.MainInfo, IMarkSMLInternal, VMarkVisible) then begin
       AId := VMarkVisible.Id;
       VMarkVisible.Visible := AVisible;
     end;
@@ -922,12 +932,12 @@ begin
         FCdsMarks.Filtered := false;
         if FCdsMarks.Locate('id', AId, []) then begin
           FCdsMarks.Edit;
-          WriteCurrentMarkId(AMark as IMarkId);
+          WriteCurrentMarkId(AMark.MainInfo as IMarkId);
           FCdsMarks.Post;
           SetChanged;
           FNeedSaveFlag.SetFlag;
         end;
-        if Supports(FMarkList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
+        if Supports(IVectorDataItemSimple(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
           VMarkInternal.Visible := AVisible;
         end;
       finally
@@ -963,7 +973,7 @@ begin
           SetChanged;
           FNeedSaveFlag.SetFlag;
         end;
-        if Supports(FMarkList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
+        if Supports(IVectorDataItemSimple(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
           VMarkInternal.Visible := AVisible;
         end;
       finally
@@ -993,12 +1003,12 @@ begin
           VMarkVisible.Visible := AVisible;
         end;
         if AId <> CNotExistMarkID then begin
-          if Supports(FMarkList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
+          if Supports(IVectorDataItemSimple(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := AVisible;
             FCdsMarks.Filtered := false;
             if FCdsMarks.Locate('id', AId, []) then begin
               FCdsMarks.Edit;
-              WriteCurrentMarkId (VMarkInternal as IMarkId);
+              WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
               SetChanged;
               FNeedSaveFlag.SetFlag;
@@ -1045,7 +1055,7 @@ begin
           VMarkVisible.Visible := VVisible;
         end;
         if AId <> CNotExistMarkID then begin
-          if Supports(FMarkList.GetByID(AId), IMarkSMLInternal, VMarkInternal) then begin
+          if Supports(IVectorDataItemSimple(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := VVisible;
             FCdsMarks.Filtered := false;
             if FCdsMarks.Locate('id', AId, []) then begin
@@ -1068,7 +1078,7 @@ function TMarkDbSml.GetAllMarkIdList: IInterfaceListStatic;
 var
   VEnum: IEnumUnknown;
   VCnt: Cardinal;
-  VItem: IInterface;
+  VItem: IVectorDataItemSimple;
   VMarkId: IMarkId;
   VTemp: IInterfaceListSimple;
 begin
@@ -1078,7 +1088,7 @@ begin
   try
     VEnum := FMarkList.GetEnumUnknown;
     while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
-      if Supports(VItem, IMarkId, VMarkId) then begin
+      if Supports(VItem.MainInfo, IMarkId, VMarkId) then begin
         VTemp.Add(VMarkId);
       end;
     end;
@@ -1094,7 +1104,7 @@ begin
   if AId >= 0 then begin
     LockRead;
     try
-      if not Supports(FMarkList.GetByID(AId), IMarkSMLInternal, Result) then begin
+      if not Supports(IVectorDataItemSimple(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, Result) then begin
        Result := nil;
       end;
     finally
@@ -1121,7 +1131,7 @@ var
   VList: IIDInterfaceList;
   VEnum: IEnumUnknown;
   VCnt: Cardinal;
-  VItem: IUnknown;
+  VItem: IVectorDataItemSimple;
   VTemp: IInterfaceListSimple;
 begin
   Result := nil;
@@ -1131,7 +1141,7 @@ begin
     VTemp.Capacity := VList.Count;
     VEnum := VList.GetEnumUnknown;
     while VEnum.Next(1, VItem, @VCnt) = S_OK do begin
-      if Supports(VItem, IMarkId, VMarkId) then begin
+      if Supports(VItem.MainInfo, IMarkId, VMarkId) then begin
         VTemp.Add(VMarkId);
       end;
     end;
@@ -1205,7 +1215,7 @@ begin
   VEnum := ASourceList.GetEnumUnknown;
   while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
     if not AIgnoreVisible then begin
-      if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+      if Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
         if VMarkInternal.Visible then begin
           AResultList.Add(VMark);
         end;
@@ -1232,7 +1242,7 @@ begin
   while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
     if VMark.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
       if not AIgnoreVisible then begin
-        if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+        if Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
           if VMarkInternal.Visible then begin
             AResultList.Add(VMark);
           end;
@@ -1326,7 +1336,7 @@ begin
   while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
     if ContainsText(VMark.Name, AName) then begin
       if not AIncludeHiddenMarks then begin
-        if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+        if Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
           if VMarkInternal.Visible then begin
             VResultList.Add(VMark);
           end;
@@ -1479,7 +1489,7 @@ begin
               FCdsMarks.First;
               while not FCdsMarks.Eof do begin
                 VMark := ReadCurrentMark;
-                if Supports(VMark, IMarkSMLInternal, VMarkInternal) then begin
+                if Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
                   VIdNew := VMarkInternal.Id;
                   VCategoryIdNew := VMarkInternal.CategoryId;
                   FMarkList.Add(VIdNew, VMark);

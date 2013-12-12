@@ -15,16 +15,18 @@ type
   THlgParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FVectorDataFactory: IVectorDataFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   private
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
   end;
@@ -45,18 +47,20 @@ uses
 
 constructor THlgParser.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
 );
 begin
   inherited Create;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+  FVectorDataFactory := AVectorDataFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 end;
 
 function THlgParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VIniFile: TMemIniFile;
@@ -101,11 +105,9 @@ begin
   end;
   if VPolygon <> nil then begin
     VItem :=
-      AVectorGeometryLonLatFactory.BuildPoly(
-        AIdData,
+      FVectorDataFactory.BuildPoly(
+        AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, '', ''),
         nil,
-        '',
-        '',
         VPolygon
       );
     VList := FVectorItemSubsetBuilderFactory.Build;

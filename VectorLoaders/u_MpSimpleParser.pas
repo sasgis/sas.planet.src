@@ -16,6 +16,7 @@ type
   TMpSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FVectorDataFactory: IVectorDataFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     procedure ParseCoordinates(
       const AData: string;
@@ -25,11 +26,12 @@ type
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AVectorDataFactory: IVectorDataFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
     );
   end;
@@ -55,11 +57,13 @@ const
 
 constructor TMpSimpleParser.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AVectorDataFactory: IVectorDataFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
 );
 begin
   inherited Create;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+  FVectorDataFactory := AVectorDataFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 end;
 
@@ -110,7 +114,7 @@ end;
 function TMpSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VFileStrings: TStringList;
@@ -170,11 +174,9 @@ begin
   end;
   if VPolygon <> nil then begin
     VItem :=
-      AVectorGeometryLonLatFactory.BuildPoly(
-        AIdData,
+      FVectorDataFactory.BuildPoly(
+        AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, '', ''),
         nil,
-        '',
-        '',
         VPolygon
       );
     VList := FVectorItemSubsetBuilderFactory.Build;

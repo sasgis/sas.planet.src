@@ -580,11 +580,7 @@
     <DCCReference Include="MarksDB\SML\u_MarkCategorySmlDbInternal.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkDbSml.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkFactorySmlDbInternal.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkFullBaseSml.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkId.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkLineSml.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkPointSml.pas" />
-    <DCCReference Include="MarksDB\SML\u_MarkPolySml.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkSystemSml.pas" />
     <DCCReference Include="MarksDb\u_ImportByVectorLoader.pas" />
     <DCCReference Include="MarksDB\u_MarkCategory.pas" />
@@ -595,14 +591,11 @@
     <DCCReference Include="MarksDB\u_MarkFactory.pas" />
     <DCCReference Include="MarksDB\u_MarkFactoryConfig.pas" />
     <DCCReference Include="MarksDB\u_MarkFullBase.pas" />
-    <DCCReference Include="MarksDB\u_MarkLine.pas" />
     <DCCReference Include="MarksDB\u_MarkLineTemplateConfig.pas" />
     <DCCReference Include="MarksDB\u_MarkNameGenerator.pas" />
     <DCCReference Include="MarksDB\u_MarkPictureListSimple.pas" />
     <DCCReference Include="MarksDB\u_MarkPictureSimple.pas" />
-    <DCCReference Include="MarksDB\u_MarkPoint.pas" />
     <DCCReference Include="MarksDB\u_MarkPointTemplateConfig.pas" />
-    <DCCReference Include="MarksDB\u_MarkPoly.pas" />
     <DCCReference Include="MarksDB\u_MarkPolyTemplateConfig.pas" />
     <DCCReference Include="MarksDB\u_MarkSystem.pas" />
     <DCCReference Include="MarksDB\u_MarkSystemImplChangeable.pas" />
@@ -1311,9 +1304,6 @@
     <DCCReference Include="u_VectorDataFactoryForMap.pas" />
     <DCCReference Include="u_VectorDataFactorySimple.pas" />
     <DCCReference Include="u_VectorDataItemBase.pas" />
-    <DCCReference Include="u_VectorDataItemOfMapBase.pas" />
-    <DCCReference Include="u_VectorDataItemOfMapPoint.pas" />
-    <DCCReference Include="u_VectorDataItemOfMapPolygon.pas" />
     <DCCReference Include="u_VectorDataItemPoint.pas" />
     <DCCReference Include="u_VectorDataItemPolygon.pas" />
     <DCCReference Include="u_VectorDataItemSubset.pas" />

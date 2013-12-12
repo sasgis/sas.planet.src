@@ -71,6 +71,7 @@ uses
   ALFcnString,
   RegExprUtils,
   t_GeoTypes,
+  i_VectorDataItemSimple,
   i_CoordConverter,
   u_InterfaceListSimple,
   u_ResStrings;
@@ -132,7 +133,7 @@ var
   sname, sdesc, sfulldesc, VtempString: string;
   i, j: integer;
   VPoint: TDoublePoint;
-  VPlace: IGeoCodePlacemark;
+  VPlace: IVectorDataItemPoint;
   VList: IInterfaceListSimple;
   VFormatSettings: TALFormatSettings;
   VValueConverter: IValueToStringConverter;

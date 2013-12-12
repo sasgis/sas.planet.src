@@ -13,27 +13,23 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TGeoCodePlacemarkWithUrlDecorator = class(TBaseInterfacedObject, IGeoCodePlacemark, IVectorDataItemPoint, IVectorDataItemSimple)
+  TGeoCodePlacemarkInfoWithUrlDecorator = class(TBaseInterfacedObject, IGeoCodePlacemarkInfo, IVectorDataItemMainInfo)
   private
-    FSource: IGeoCodePlacemark;
+    FSource: IGeoCodePlacemarkInfo;
     FUrl: string;
   private
     function GetHash: THashValue;
-    function GetAppearance: IAppearance;
-    function GetPoint: IGeometryLonLatPoint;
     function GetName: string;
     function GetDesc: string;
-    function GetGeometry: IGeometryLonLat;
-    function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+    function IsEqual(const AItem: IVectorDataItemMainInfo): Boolean;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;
-  private
     function GetAccuracy: Integer;
   public
     constructor Create(
-      const ASource: IGeoCodePlacemark;
+      const ASource: IGeoCodePlacemarkInfo;
       const AUrl: string
     );
   end;
@@ -42,71 +38,59 @@ implementation
 
 { TGeoCodePlacemarkWithUrlDecorator }
 
-constructor TGeoCodePlacemarkWithUrlDecorator.Create(
-  const ASource: IGeoCodePlacemark; const AUrl: string);
+constructor TGeoCodePlacemarkInfoWithUrlDecorator.Create(
+  const ASource: IGeoCodePlacemarkInfo;
+  const AUrl: string
+);
 begin
   inherited Create;
   FSource := ASource;
   FUrl := AUrl;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetAccuracy: Integer;
+function TGeoCodePlacemarkInfoWithUrlDecorator.GetAccuracy: Integer;
 begin
   Result := FSource.GetAccuracy;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetAppearance: IAppearance;
-begin
-  Result := FSource.Appearance;
-end;
-
-function TGeoCodePlacemarkWithUrlDecorator.GetDesc: string;
+function TGeoCodePlacemarkInfoWithUrlDecorator.GetDesc: string;
 begin
   Result := FSource.Desc;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetGeometry: IGeometryLonLat;
-begin
-  Result := FSource.Geometry;
-end;
-
-function TGeoCodePlacemarkWithUrlDecorator.GetHash: THashValue;
+function TGeoCodePlacemarkInfoWithUrlDecorator.GetHash: THashValue;
 begin
   Result := FSource.Hash;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetHintText: string;
+function TGeoCodePlacemarkInfoWithUrlDecorator.GetHintText: string;
 begin
   Result := FSource.GetHintText;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetInfoCaption: string;
+function TGeoCodePlacemarkInfoWithUrlDecorator.GetInfoCaption: string;
 begin
   Result := FSource.GetInfoCaption;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetInfoHTML: string;
+function TGeoCodePlacemarkInfoWithUrlDecorator.GetInfoHTML: string;
 begin
   Result := FSource.GetInfoHTML;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetInfoUrl: string;
+function TGeoCodePlacemarkInfoWithUrlDecorator.GetInfoUrl: string;
 begin
   Result := FUrl;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetName: string;
+function TGeoCodePlacemarkInfoWithUrlDecorator.GetName: string;
 begin
   Result := FSource.Name;
 end;
 
-function TGeoCodePlacemarkWithUrlDecorator.GetPoint: IGeometryLonLatPoint;
-begin
-  Result := FSource.Point;
-end;
-
-function TGeoCodePlacemarkWithUrlDecorator.IsEqual(
-  const AItem: IVectorDataItemSimple): Boolean;
+function TGeoCodePlacemarkInfoWithUrlDecorator.IsEqual(
+  const AItem: IVectorDataItemMainInfo
+): Boolean;
 begin
   Result := FSource.IsEqual(AItem);
 end;

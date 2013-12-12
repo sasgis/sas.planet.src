@@ -66,6 +66,7 @@ uses
   StrUtils,
   RegExprUtils,
   t_GeoTypes,
+  i_VectorDataItemSimple,
   u_InterfaceListSimple,
   u_GeoToStr;
 
@@ -236,7 +237,7 @@ var
  VBLat1, VBlon1: boolean;
  VBLat2, VBlon2: boolean;
  VDLat, VDLon : Double;
- VPlace : IGeoCodePlacemark;
+ VPlace : IVectorDataItemPoint;
  VPoint : TDoublePoint;
  sname, sdesc, sfulldesc : string;
  VCounter : Integer;
@@ -474,7 +475,7 @@ var
  i, j : integer;
  slat, slon : string;
  VPoint : TDoublePoint;
- VPlace : IGeoCodePlacemark;
+ VPlace : IVectorDataItemPoint;
  VValueConverter: IValueToStringConverter;
 begin
  VValueConverter := FValueToStringConverterConfig.GetStatic;
@@ -696,7 +697,7 @@ function TGeoCoderByCoord.DoSearch(
 var
  V2Search : string;
  i,j : integer;
- VPlace : IGeoCodePlacemark;
+ VPlace : IVectorDataItemPoint;
  VPoint : TDoublePoint;
  sname, sdesc, sfulldesc : string;
  slat , slon : string;

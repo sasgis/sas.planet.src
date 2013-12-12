@@ -56,6 +56,7 @@ uses
   t_GeoTypes,
   i_GeoCoder,
   i_CoordConverter,
+  i_VectorDataItemSimple,
   u_InterfaceListSimple,
   u_GeoToStr,
   u_ResStrings;
@@ -74,7 +75,7 @@ var
   sname, sdesc, sfulldesc: string;
   i, j: integer;
   VPoint: TDoublePoint;
-  VPlace: IGeoCodePlacemark;
+  VPlace: IVectorDataItemPoint;
   VList: IInterfaceListSimple;
   VFormatSettings: TALFormatSettings;
   CurPos:integer;// позиция текущего символа

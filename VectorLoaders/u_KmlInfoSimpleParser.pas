@@ -43,6 +43,7 @@ type
   private
     FLoadKmlStreamCounter: IInternalPerformanceCounter;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+    FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
     FFormat: TFormatSettings;
@@ -73,7 +74,7 @@ type
       const buffer: AnsiString;
       const AList: IVectorItemSubsetBuilder;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): boolean;
     function parseCoordinates(
       AText: PAnsiChar;
@@ -86,27 +87,28 @@ type
       const AName, ADesc: string;
       const APointsAggregator: IDoublePointsAggregator;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorDataItemSimple;
     function LoadFromStreamInternal(
       AStream: TStream;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   private
     function LoadFromStream(
       AStream: TStream;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   public
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AVectorDataFactory: IVectorDataFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -129,7 +131,7 @@ function TKmlInfoSimpleParser.BuildItem(
   const AName, ADesc: string;
   const APointsAggregator: IDoublePointsAggregator;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorDataItemSimple;
 var
   VPointCount: Integer;
@@ -143,18 +145,21 @@ begin
     if VPointCount = 1 then begin
       if not PointIsEmpty(APointsAggregator.Points[0]) then begin
         VPoint := FVectorGeometryLonLatFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
-        Result := AVectorGeometryLonLatFactory.BuildPoint(AIdData, nil, AName, ADesc, VPoint);
+        Result :=
+          FVectorDataFactory.BuildPoint(
+            AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
+            nil,
+            VPoint
+          );
       end;
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin
         VPoly := FVectorGeometryLonLatFactory.CreateLonLatPolygon(APointsAggregator.Points, VPointCount);
         if Assigned(VPoly) then begin
           Result :=
-            AVectorGeometryLonLatFactory.BuildPoly(
-              AIdData,
+            FVectorDataFactory.BuildPoly(
+              AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
               nil,
-              AName,
-              ADesc,
               VPoly
             );
         end;
@@ -162,11 +167,9 @@ begin
         VPath := FVectorGeometryLonLatFactory.CreateLonLatPath(APointsAggregator.Points, VPointCount);
         if Assigned(VPath) then begin
           Result :=
-            AVectorGeometryLonLatFactory.BuildPath(
-              AIdData,
-              nil, 
-              AName,
-              ADesc,
+            FVectorDataFactory.BuildPath(
+              AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
+              nil,
               VPath
             );
         end;
@@ -177,12 +180,14 @@ end;
 
 constructor TKmlInfoSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+  FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   if APerfCounterList <> nil then begin
     FLoadKmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadKmlStream');
@@ -218,7 +223,7 @@ end;
 function TKmlInfoSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
@@ -226,7 +231,7 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AIdData, AVectorGeometryLonLatFactory);
+    Result := LoadFromStream(VStream, AIdData, AVectorDataItemMainInfoFactory);
   finally
     VStream.Free;
   end;
@@ -235,7 +240,7 @@ end;
 function TKmlInfoSimpleParser.LoadFromStream(
   AStream: TStream;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -243,18 +248,18 @@ begin
   if FLoadKmlStreamCounter <> nil then begin
     VCounterContext := FLoadKmlStreamCounter.StartOperation;
     try
-      Result := LoadFromStreamInternal(AStream, AIdData, AVectorGeometryLonLatFactory);
+      Result := LoadFromStreamInternal(AStream, AIdData, AVectorDataItemMainInfoFactory);
     finally
       FLoadKmlStreamCounter.FinishOperation(VCounterContext);
     end;
   end else begin
-    Result := LoadFromStreamInternal(AStream, AIdData, AVectorGeometryLonLatFactory);
+    Result := LoadFromStreamInternal(AStream, AIdData, AVectorDataItemMainInfoFactory);
   end;
 end;
 
 function TKmlInfoSimpleParser.LoadFromStreamInternal(AStream: TStream;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
   function GetAnsiString(AStream: TStream): AnsiString;
   var
@@ -298,7 +303,7 @@ begin
     VKml := GetAnsiString(AStream);
     if VKml <> '' then begin
       VList := FVectorItemSubsetBuilderFactory.Build;
-      parse(VKml, VList, AIdData, AVectorGeometryLonLatFactory);
+      parse(VKml, VList, AIdData, AVectorDataItemMainInfoFactory);
       Result := VList.MakeStaticAndClear;
     end else begin
       Assert(False, 'KML data reader - Unknown error');
@@ -345,7 +350,7 @@ function TKmlInfoSimpleParser.parse(
   const buffer: AnsiString;
   const AList: IVectorItemSubsetBuilder;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): boolean;
 var
   position, PosStartPlace, PosTag1, PosTag2, PosTag3, PosEndPlace, sLen: integer;
@@ -409,7 +414,7 @@ begin
             result := false;
           end;
         end;
-        VItem := BuildItem(VName, VDescription, VPointsAggregator, AIdData, AVectorGeometryLonLatFactory);
+        VItem := BuildItem(VName, VDescription, VPointsAggregator, AIdData, AVectorDataItemMainInfoFactory);
         if VItem <> nil then begin
           AList.Add(VItem);
         end;

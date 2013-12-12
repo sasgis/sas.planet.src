@@ -120,9 +120,10 @@ uses
   i_MarkDbSmlInternal,
   i_Appearance,
   u_GeoFun,
-  u_MarkPointSml,
-  u_MarkLineSml,
-  u_MarkPolySml;
+  u_MarkId,
+  u_VectorDataItemBase,
+  u_VectorDataItemPoint,
+  u_VectorDataItemPolygon;
 
 { TMarkFactorySmlDbInternal }
 
@@ -166,6 +167,7 @@ var
   VPicName: string;
   VHash: THashValue;
   VAppearance: IAppearance;
+  VMainInfo: IVectorDataItemMainInfo;
 begin
   VPic := APic;
   if VPic = nil then begin
@@ -186,23 +188,30 @@ begin
       VPic,
       AMarkerSize
     );
+  VHash := FHashFunction.CalcHashByString(AName);
+  FHashFunction.UpdateHashByString(VHash, ADesc);
+  VMainInfo :=
+    TMarkId.Create(
+      FHintConverter,
+      VHash,
+      midPoint,
+      AName,
+      ADesc,
+      AId,
+      FDbId,
+      ACategory,
+      AVisible
+    );
 
   VHash := APoint.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
-  FHashFunction.UpdateHashByString(VHash, ADesc);
+  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
 
   Result :=
-    TMarkPointSml.Create(
+    TVectorDataItemPoint.Create(
       VHash,
-      FHintConverter,
-      AName,
-      AId,
-      FDbId,
-      AVisible,
       VAppearance,
-      ACategory,
-      ADesc,
+      VMainInfo,
       APoint
     );
 end;
@@ -215,14 +224,14 @@ var
 begin
   Assert(Assigned(AMark));
 
-  if Supports(AMark, IMarkSMLInternal, VMarkInternal) then begin
+  if Assigned(AMark) and Supports(AMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
     if VMarkInternal.DbId = FDbId then begin
       Result := AMark;
       Exit;
     end;
   end;
   VCategory := nil;
-  if Supports(AMark, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+  if Assigned(AMark) and Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
     if Assigned(VCategory) then begin
       if not FCategoryDB.IsCategoryFromThisDb(VCategory) then begin
@@ -250,6 +259,7 @@ function TMarkFactorySmlDbInternal.CreateLine(
 var
   VHash: THashValue;
   VAppearance: IAppearance;
+  VMainInfo: IVectorDataItemMainInfo;
 begin
   Assert(Assigned(ALine));
   VAppearance :=
@@ -258,21 +268,29 @@ begin
       ALineWidth
     );
 
-  VHash := ALine.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
+  VHash := FHashFunction.CalcHashByString(AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
-  Result :=
-    TMarkLineSml.Create(
-      VHash,
+  VMainInfo :=
+    TMarkId.Create(
       FHintConverter,
+      VHash,
+      midLine,
       AName,
+      ADesc,
       AId,
       FDbId,
-      AVisible,
-      VAppearance,
       ACategory,
-      ADesc,
+      AVisible
+    );
+
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
+  FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
+  Result :=
+    TVectorDataItemPath.Create(
+      VHash,
+      VAppearance,
+      VMainInfo,
       ALine
     );
 end;
@@ -290,6 +308,7 @@ function TMarkFactorySmlDbInternal.CreatePoly(
 var
   VHash: THashValue;
   VAppearance: IAppearance;
+  VMainInfo: IVectorDataItemMainInfo;
 begin
   Assert(Assigned(ALine));
   VAppearance :=
@@ -298,21 +317,30 @@ begin
       ALineWidth,
       AFillColor
     );
-  VHash := ALine.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
+
+  VHash := FHashFunction.CalcHashByString(AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
-  Result :=
-    TMarkPolySml.Create(
-      VHash,
+  VMainInfo :=
+    TMarkId.Create(
       FHintConverter,
+      VHash,
+      midPoly,
       AName,
+      ADesc,
       AId,
       FDbId,
-      AVisible,
-      VAppearance,
       ACategory,
-      ADesc,
+      AVisible
+    );
+
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
+  FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
+  Result :=
+    TVectorDataItemPoly.Create(
+      VHash,
+      VAppearance,
+      VMainInfo,
       ALine
     );
 end;

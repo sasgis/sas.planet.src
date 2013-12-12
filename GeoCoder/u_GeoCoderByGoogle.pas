@@ -57,6 +57,7 @@ uses
   XMLDoc,
   t_GeoTypes,
   i_GeoCoder,
+  i_VectorDataItemSimple,
   i_CoordConverter,
   u_InterfaceListSimple,
   u_ResStrings,
@@ -77,7 +78,7 @@ var
   PlacemarkNode, PointNode, CoordNode, AddressNode: IXMLNode;
   i: Integer;
   VPoint: TDoublePoint;
-  VPlace: IGeoCodePlacemark;
+  VPlace: IVectorDataItemPoint;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   XMLDocument: TXMLDocument;

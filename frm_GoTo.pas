@@ -120,7 +120,7 @@ function TfrmGoTo.GeocodeResultFromLonLat(
   const AMessage: WideString
 ): IGeoCodeResult;
 var
-  VPlace: IGeoCodePlacemark;
+  VPlace: IVectorDataItemPoint;
   VList: IInterfaceListSimple;
 begin
   VPlace := FGeoCodePlacemarkFactory.Build(ALonLat, AMessage, '', '', 4);

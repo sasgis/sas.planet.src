@@ -56,6 +56,7 @@ uses
   ALFcnString,
   t_GeoTypes,
   i_GeoCoder,
+  i_VectorDataItemSimple,
   i_CoordConverter,
   u_InterfaceListSimple,
   u_ResStrings;
@@ -76,7 +77,7 @@ var
   osm_type, osm_id: AnsiString;
   i, j, k: integer;
   VPoint: TDoublePoint;
-  VPlace: IGeoCodePlacemark;
+  VPlace: IVectorDataItemPoint;
   VList: IInterfaceListSimple;
   VFormatSettings: TALFormatSettings;
   VStr: AnsiString;

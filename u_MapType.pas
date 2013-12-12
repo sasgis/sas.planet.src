@@ -84,7 +84,7 @@ type
     FBitmapLoaderFromStorage: IBitmapTileLoader;
     FBitmapSaverToStorage: IBitmapTileSaver;
     FKmlLoaderFromStorage: IVectorDataLoader;
-    FVectorDataFactory: IVectorDataFactory;
+    FVectorDataFactory: IVectorDataItemMainInfoFactory;
     FCoordConverter: ICoordConverter;
     FViewCoordConverter: ICoordConverter;
     FLoadPrevMaxZoomDelta: Integer;
@@ -429,7 +429,7 @@ begin
       );
     FMapDataUrlPrefix := CMapDataInternalURL + GUIDToString(FZmp.GUID) + '/';
     FVectorDataFactory :=
-      TVectorDataFactoryForMap.Create(
+      TVectorDataItemMainInfoFactoryForMap.Create(
         AHashFunction,
         THtmlToHintTextConverterStuped.Create
       );

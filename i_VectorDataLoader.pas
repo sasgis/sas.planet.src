@@ -33,7 +33,7 @@ type
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AFactory: IVectorDataFactory
+      const AFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   end;
 

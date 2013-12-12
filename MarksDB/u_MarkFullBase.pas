@@ -34,31 +34,26 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TMarkFullBase = class(TBaseInterfacedObject, IVectorDataItemSimple, IVectorDataItemWithCategory)
+  TMarkMainInfo = class(TBaseInterfacedObject, IVectorDataItemMainInfo, IVectorDataItemWithCategory)
   private
-    FHash: THashValue;
-    FAppearance: IAppearance;
-    FName: string;
     FHintConverter: IHtmlToHintTextConverter;
+    FHash: THashValue;
+    FName: string;
     FDesc: string;
     FCategory: ICategory;
   protected
     function GetHash: THashValue;
-    function GetAppearance: IAppearance;
     function GetName: string;
-    function GetMarkType: TGUID; virtual; abstract;
     function GetDesc: string;
-    function GetGeometry: IGeometryLonLat; virtual; abstract;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;
-    function IsEqual(const AMark: IVectorDataItemSimple): Boolean; virtual;
+    function IsEqual(const AValue: IVectorDataItemMainInfo): Boolean;
     function GetCategory: ICategory;
   public
     constructor Create(
       const AHash: THashValue;
-      const AAppearance: IAppearance;
       const AHintConverter: IHtmlToHintTextConverter;
       const AName: string;
       const ACategory: ICategory;
@@ -71,58 +66,51 @@ implementation
 uses
   SysUtils;
   
-{ TMarkFullBase }
+{ TMarkMainInfo }
 
-constructor TMarkFullBase.Create(
+constructor TMarkMainInfo.Create(
   const AHash: THashValue;
-  const AAppearance: IAppearance;
   const AHintConverter: IHtmlToHintTextConverter;
   const AName: string;
   const ACategory: ICategory;
   const ADesc: string
 );
 begin
-  Assert(Assigned(AAppearance));
+  Assert(Assigned(AHintConverter));
   inherited Create;
   FHash := AHash;
-  FAppearance := AAppearance;
   FName := AName;
   FCategory := ACategory;
   FHintConverter := AHintConverter;
   FDesc := ADesc;
 end;
 
-function TMarkFullBase.GetAppearance: IAppearance;
-begin
-  Result := FAppearance;
-end;
-
-function TMarkFullBase.GetCategory: ICategory;
+function TMarkMainInfo.GetCategory: ICategory;
 begin
   Result := FCategory;
 end;
 
-function TMarkFullBase.GetDesc: string;
+function TMarkMainInfo.GetDesc: string;
 begin
   Result := FDesc;
 end;
 
-function TMarkFullBase.GetHash: THashValue;
+function TMarkMainInfo.GetHash: THashValue;
 begin
   Result := FHash;
 end;
 
-function TMarkFullBase.GetHintText: string;
+function TMarkMainInfo.GetHintText: string;
 begin
   Result := FHintConverter.Convert(GetName, FDesc);
 end;
 
-function TMarkFullBase.GetInfoCaption: string;
+function TMarkMainInfo.GetInfoCaption: string;
 begin
   Result := GetName;
 end;
 
-function TMarkFullBase.GetInfoHTML: string;
+function TMarkMainInfo.GetInfoHTML: string;
 begin
   Result := '';
   if FDesc <> '' then begin
@@ -132,42 +120,44 @@ begin
   end;
 end;
 
-function TMarkFullBase.GetInfoUrl: string;
+function TMarkMainInfo.GetInfoUrl: string;
 begin
   Result := '';
 end;
 
-function TMarkFullBase.GetName: string;
+function TMarkMainInfo.GetName: string;
 begin
   Result := FName;
 end;
 
-function TMarkFullBase.IsEqual(const AMark: IVectorDataItemSimple): Boolean;
+function TMarkMainInfo.IsEqual(const AValue: IVectorDataItemMainInfo): Boolean;
 var
   VVectorDataItemWithCategory: IVectorDataItemWithCategory;
 begin
-  Result := True;
-  if (AMark.Hash <> 0) and (FHash <> 0) and (AMark.Hash <> FHash) then begin
+  if not Assigned(AValue) then begin
     Result := False;
     Exit;
   end;
-  if not FAppearance.IsEqual(AMark.Appearance) then begin
+  if AValue = IVectorDataItemMainInfo(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (AValue.Hash <> 0) and (FHash <> 0) and (AValue.Hash <> FHash) then begin
     Result := False;
     Exit;
   end;
-  if FName <> AMark.Name then begin
+  if FName <> AValue.Name then begin
     Result := False;
     Exit;
   end;
-  if FDesc <> AMark.Desc then begin
+  if FDesc <> AValue.Desc then begin
     Result := False;
     Exit;
   end;
-  if not Supports(AMark, IVectorDataItemWithCategory, VVectorDataItemWithCategory) then begin
+  if not Supports(AValue, IVectorDataItemWithCategory, VVectorDataItemWithCategory) then begin
     Result := False;
     Exit;
   end;
-
   if FCategory <> nil then begin
     if not FCategory.IsSame(VVectorDataItemWithCategory.Category) then begin
       Result := False;
@@ -179,6 +169,7 @@ begin
       Exit;
     end;
   end;
+  Result := True;
 end;
 
 end.

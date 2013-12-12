@@ -69,6 +69,7 @@ uses
   ALFcnString,
   ALStringList,
   t_GeoTypes,
+  i_VectorDataItemSimple,
   u_InterfaceListSimple,
   u_ResStrings,
   u_Synchronizer;
@@ -458,18 +459,18 @@ end;
 end;
 
 function ItemExist(
-  const AValue: IGeoCodePlacemark;
+  const AValue: IVectorDataItemPoint;
   const AList: IInterfaceListSimple
 ):boolean;
 var
   i: Integer;
-  VPlacemark: IGeoCodePlacemark;
+  VPlacemark: IVectorDataItemPoint;
   j : integer;
   str1,str2 : string;
 begin
   Result := false;
   for i := 0 to AList.Count - 1 do begin
-    VPlacemark := IGeoCodePlacemark(AList.Items[i]);
+    VPlacemark := IVectorDataItemPoint(AList.Items[i]);
     j:= posex(')',VPlacemark.Name);
     str1 := copy(VPlacemark.Name,j,length(VPlacemark.Name)-(j+1));
     j:= posex(')',AValue.Name);
@@ -513,7 +514,7 @@ procedure TGeoCoderByPolishMap.SearchInMapFile(
   );
 var
  VFormatSettings : TALFormatSettings;
- VPlace : IGeoCodePlacemark;
+ VPlace : IVectorDataItemPoint;
  VPoint : TDoublePoint;
  slat, slon: AnsiString;
  sname, sdesc, sfulldesc : string;

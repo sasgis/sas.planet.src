@@ -43,9 +43,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const AAppearance: IAppearance;
-      const AHintConverter: IHtmlToHintTextConverter;
-      const AName: string;
-      const ADesc: string;
+      const AMainInfo: IVectorDataItemMainInfo;
       const APoint: IGeometryLonLatPoint
     );
   end;
@@ -60,8 +58,7 @@ uses
 constructor TVectorDataItemPoint.Create(
   const AHash: THashValue;
   const AAppearance: IAppearance;
-  const AHintConverter: IHtmlToHintTextConverter;
-  const AName, ADesc: string;
+  const AMainInfo: IVectorDataItemMainInfo;
   const APoint: IGeometryLonLatPoint
 );
 begin
@@ -69,9 +66,7 @@ begin
   inherited Create(
     AHash,
     AAppearance,
-    AHintConverter,
-    AName,
-    ADesc
+    AMainInfo
   );
   FPoint := APoint;
 end;

@@ -148,9 +148,9 @@ uses
   t_Hash,
   i_AppearanceOfVectorItem,
   u_GeoFun,
-  u_MarkPoint,
-  u_MarkLine,
-  u_MarkPoly;
+  u_MarkFullBase,
+  u_VectorDataItemPoint,
+  u_VectorDataItemPolygon;
 
 { TMarkFactory }
 
@@ -277,23 +277,31 @@ function TMarkFactory.CreatePoint(
 ): IVectorDataItemPoint;
 var
   VHash: THashValue;
+  VMainInfo: IVectorDataItemMainInfo;
 begin
   Assert(Assigned(APoint));
   Assert(Assigned(AAppearance));
 
-  VHash := APoint.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
+  VHash := FHashFunction.CalcHashByString(AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-
-  Result :=
-    TMarkPoint.Create(
+  VMainInfo :=
+    TMarkMainInfo.Create(
       VHash,
       FHintConverter,
       AName,
-      AAppearance,
       ACategory,
-      ADesc,
+      ADesc
+    );
+
+  VHash := APoint.Hash;
+  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
+  FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+
+  Result :=
+    TVectorDataItemPoint.Create(
+      VHash,
+      AAppearance,
+      VMainInfo,
       APoint
     );
 end;
@@ -307,22 +315,30 @@ function TMarkFactory.CreateLine(
 ): IVectorDataItemLine;
 var
   VHash: THashValue;
+  VMainInfo: IVectorDataItemMainInfo;
 begin
   Assert(Assigned(ALine));
   Assert(Assigned(AAppearance));
 
-  VHash := ALine.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
+  VHash := FHashFunction.CalcHashByString(AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  Result :=
-    TMarkLine.Create(
+  VMainInfo :=
+    TMarkMainInfo.Create(
       VHash,
       FHintConverter,
       AName,
-      AAppearance,
       ACategory,
-      ADesc,
+      ADesc
+    );
+
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
+  FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+  Result :=
+    TVectorDataItemPath.Create(
+      VHash,
+      AAppearance,
+      VMainInfo,
       ALine
     );
 end;
@@ -336,22 +352,30 @@ function TMarkFactory.CreatePoly(
 ): IVectorDataItemPoly;
 var
   VHash: THashValue;
+  VMainInfo: IVectorDataItemMainInfo;
 begin
   Assert(Assigned(ALine));
   Assert(Assigned(AAppearance));
 
-  VHash := ALine.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
+  VHash := FHashFunction.CalcHashByString(AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  Result :=
-    TMarkPoly.Create(
+  VMainInfo :=
+    TMarkMainInfo.Create(
       VHash,
       FHintConverter,
       AName,
-      AAppearance,
       ACategory,
-      ADesc,
+      ADesc
+    );
+
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
+  FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+  Result :=
+    TVectorDataItemPoly.Create(
+      VHash,
+      AAppearance,
+      VMainInfo,
       ALine
     );
 end;
@@ -371,7 +395,7 @@ begin
     VDesc := ASource.Desc;
   end;
   VCategory := nil;
-  if Supports(ASource, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+  if Supports(ASource.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
   end;
 
@@ -394,7 +418,7 @@ var
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
   VCategory := nil;
-  if Supports(ASource, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+  if Supports(ASource.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
   end;
   Result :=
@@ -416,7 +440,7 @@ var
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
   VCategory := nil;
-  if Supports(ASource, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+  if Supports(ASource.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
   end;
   Result :=

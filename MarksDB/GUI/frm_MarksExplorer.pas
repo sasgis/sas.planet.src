@@ -510,7 +510,7 @@ begin
     end;
   end;
   if (Vlist <> nil) and (VList.Count > 0) then begin
-    VMark:=FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1]));
+    VMark := IVectorDataItemSimple(VList[VList.Count - 1]);
     if VMark <> nil then begin
       if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
         FMapGoto.GotoPos(VMarkPoint.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, False);

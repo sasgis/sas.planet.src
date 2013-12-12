@@ -110,7 +110,7 @@ begin
   for i := 0 to FList.Count - 1 do begin
     VItem := IVectorDataItemSimple(FList.Items[i]);
     VCategory := nil;
-    if Supports(VItem, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if Supports(VItem.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
       VCategory := VItemWithCategory.Category;
     end;
     if (ACategory <> nil) and (VCategory <> nil) then begin

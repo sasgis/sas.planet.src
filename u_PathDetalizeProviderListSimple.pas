@@ -40,7 +40,7 @@ type
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
       const AResultFactory: IDownloadResultFactory;
-      const AVectorDataFactory: IVectorDataFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader
     );
@@ -69,7 +69,7 @@ constructor TPathDetalizeProviderListSimple.Create(
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
   const AResultFactory: IDownloadResultFactory;
-  const AVectorDataFactory: IVectorDataFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader
 );
@@ -204,7 +204,7 @@ begin
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
       VDownloader,
-      AVectorDataFactory,
+      AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AKmlLoader,
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=1&layer=mapnik'
@@ -239,7 +239,7 @@ begin
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
       VDownloader,
-      AVectorDataFactory,
+      AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AKmlLoader,
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=motorcar&fast=0&layer=mapnik'
@@ -274,7 +274,7 @@ begin
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
       VDownloader,
-      AVectorDataFactory,
+      AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AKmlLoader,
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=1&layer=mapnik'
@@ -309,7 +309,7 @@ begin
     TPathDetalizeProviderYourNavigation.Create(
       AInetConfig,
       VDownloader,
-      AVectorDataFactory,
+      AVectorDataItemMainInfoFactory,
       AVectorGeometryLonLatFactory,
       AKmlLoader,
       'http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&v=bicycle&fast=0&layer=mapnik'

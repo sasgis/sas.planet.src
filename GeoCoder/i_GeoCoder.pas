@@ -39,7 +39,7 @@ type
     function GetPlacemarksCount: integer;
   end;
 
-  IGeoCodePlacemark = interface(IVectorDataItemPoint)
+  IGeoCodePlacemarkInfo = interface(IVectorDataItemMainInfo)
     ['{744CAB70-0466-433A-AF57-00BD5AFD9F45}']
     function GetAccuracy: Integer;
   end;
@@ -52,7 +52,7 @@ type
       const ADesc: string;
       const AFullDesc: string;
       const AAccuracy: Integer
-    ): IGeoCodePlacemark;
+    ): IVectorDataItemPoint;
   end;
 
   IGeoCoder = interface

@@ -59,6 +59,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_GeoCoder,
+  i_VectorDataItemSimple,
   u_InterfaceListSimple,
   u_ResStrings,
   u_GeoTostr;
@@ -80,7 +81,7 @@ var
   VPoint: TDoublePoint;
   VDesc: string;
   VFullDesc: string;
-  VPlace: IGeoCodePlacemark;
+  VPlace: IVectorDataItemPoint;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   XMLDocument: TXMLDocument;

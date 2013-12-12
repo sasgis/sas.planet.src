@@ -37,6 +37,7 @@ type
   TImportJpegWithExif = class(TBaseInterfacedObject, IImportFile)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -48,6 +49,7 @@ type
   public
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -70,6 +72,7 @@ uses
 
 constructor TImportJpegWithExif.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -77,6 +80,7 @@ constructor TImportJpegWithExif.Create(
 begin
   inherited Create;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FVectorDataFactory := AVectorDataFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig
@@ -201,10 +205,8 @@ begin
     Exit;
   end;
   VItem := FVectorDataFactory.BuildPoint(
+    FVectorDataItemMainInfoFactory.BuildMainInfo(nil, VTitle, VDesc),
     nil,
-    nil,
-    VTitle,
-    VDesc,
     FVectorGeometryLonLatFactory.CreateLonLatPoint(VPoint)
   );
 

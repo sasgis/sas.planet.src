@@ -22,32 +22,16 @@ type
     NextIndex: Integer;
   end;
 
-  TVectorDataFactoryForMap = class(TBaseInterfacedObject, IVectorDataFactory)
+  TVectorDataItemMainInfoFactoryForMap = class(TBaseInterfacedObject, IVectorDataItemMainInfoFactory)
   private
     FHashFunction: IHashFunction;
     FHintConverter: IHtmlToHintTextConverter;
   private
-    function BuildPoint(
+    function BuildMainInfo(
       const AIdData: Pointer;
-      const AAppearance: IAppearance;
       const AName: string;
-      const ADesc: string;
-      const APoint: IGeometryLonLatPoint
-    ): IVectorDataItemPoint;
-    function BuildPath(
-      const AIdData: Pointer;
-      const AAppearance: IAppearance;
-      const AName: string;
-      const ADesc: string;
-      const ALine: IGeometryLonLatMultiLine
-    ): IVectorDataItemLine;
-    function BuildPoly(
-      const AIdData: Pointer;
-      const AAppearance: IAppearance;
-      const AName: string;
-      const ADesc: string;
-      const APoly: IGeometryLonLatMultiPolygon
-    ): IVectorDataItemPoly;
+      const ADesc: string
+    ): IVectorDataItemMainInfo;
   public
     constructor Create(
       const AHashFunction: IHashFunction;
@@ -58,13 +42,129 @@ type
 implementation
 
 uses
-  u_GeoFun,
-  u_VectorDataItemOfMapPoint,
-  u_VectorDataItemOfMapPolygon;
+  SysUtils;
 
-{ TVectorDataFactoryForMap }
+type
+  TVectorDataItemMainInfoOfMap = class(TBaseInterfacedObject, IVectorDataItemMainInfo)
+  private
+    FHash: THashValue;
+    FHintConverter: IHtmlToHintTextConverter;
+    FUrlPrefix: IStringProvider;
+    FIndex: Integer;
+    FName: string;
+    FDesc: string;
+  private
+    function GetHash: THashValue;
+    function GetName: string;
+    function GetDesc: string;
+    function IsEqual(const AItem: IVectorDataItemMainInfo): Boolean;
+    function GetHintText: string;
+    function GetInfoUrl: string;
+    function GetInfoCaption: string;
+    function GetInfoHTML: string;
+  public
+    constructor Create(
+      const AHash: THashValue;
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AUrlPrefix: IStringProvider;
+      const AIndex: Integer;
+      const AName: string;
+      const ADesc: string
+    );
+  end;
 
-constructor TVectorDataFactoryForMap.Create(
+{ TVectorDataItemMainInfoOfMap }
+
+constructor TVectorDataItemMainInfoOfMap.Create(
+  const AHash: THashValue;
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AUrlPrefix: IStringProvider;
+  const AIndex: Integer;
+  const AName, ADesc: string
+);
+begin
+  inherited Create;
+  FHintConverter := AHintConverter;
+  FHash := AHash;
+  FUrlPrefix := AUrlPrefix;
+  FIndex := AIndex;
+  FName := AName;
+  FDesc := ADesc;
+end;
+
+function TVectorDataItemMainInfoOfMap.GetDesc: string;
+begin
+  Result := FDesc;
+end;
+
+function TVectorDataItemMainInfoOfMap.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
+function TVectorDataItemMainInfoOfMap.GetHintText: string;
+begin
+  Result := FHintConverter.Convert(FName, '');
+  if Result = '' then begin
+    Result := FHintConverter.Convert(FName, FDesc);
+  end;
+end;
+
+function TVectorDataItemMainInfoOfMap.GetInfoCaption: string;
+begin
+  Result := FName;
+end;
+
+function TVectorDataItemMainInfoOfMap.GetInfoHTML: string;
+begin
+  Result := '';
+  if FDesc <> '' then begin
+    Result := '<HTML><BODY>';
+    Result := Result + FDesc;
+    Result := Result + '</BODY></HTML>';
+  end;
+end;
+
+function TVectorDataItemMainInfoOfMap.GetInfoUrl: string;
+begin
+  Result := FUrlPrefix.GetValue + IntToStr(FIndex) + '/';
+end;
+
+function TVectorDataItemMainInfoOfMap.GetName: string;
+begin
+  Result := FName;
+end;
+
+function TVectorDataItemMainInfoOfMap.IsEqual(
+  const AItem: IVectorDataItemMainInfo
+): Boolean;
+begin
+  if not Assigned(AItem) then begin
+    Result := False;
+    Exit;
+  end;
+  if AItem = IVectorDataItemMainInfo(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (AItem.Hash <> 0) and (FHash <> 0) and (AItem.Hash <> FHash) then begin
+    Result := False;
+    Exit;
+  end;
+  if FName <> AItem.Name then begin
+    Result := False;
+    Exit;
+  end;
+  if FDesc <> AItem.Desc then begin
+    Result := False;
+    Exit;
+  end;
+  Result := True;
+end;
+
+{ TVectorDataItemMainInfoFactory }
+
+constructor TVectorDataItemMainInfoFactoryForMap.Create(
   const AHashFunction: IHashFunction;
   const AHintConverter: IHtmlToHintTextConverter
 );
@@ -76,95 +176,28 @@ begin
   FHintConverter := AHintConverter;
 end;
 
-function TVectorDataFactoryForMap.BuildPath(
+function TVectorDataItemMainInfoFactoryForMap.BuildMainInfo(
   const AIdData: Pointer;
-  const AAppearance: IAppearance;
-  const AName, ADesc: string;
-  const ALine: IGeometryLonLatMultiLine
-): IVectorDataItemLine;
+  const AName, ADesc: string
+): IVectorDataItemMainInfo;
 var
   VIndex: Integer;
   VHash: THashValue;
 begin
   Assert(AIdData <> nil);
-  Assert(Assigned(ALine));
   Result := nil;
   if AIdData <> nil then begin
     VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
-    VHash := ALine.Hash;
-    FHashFunction.UpdateHashByString(VHash, AName);
+    VHash := FHashFunction.CalcHashByString(AName);
     FHashFunction.UpdateHashByString(VHash, ADesc);
     Result :=
-      TVectorDataItemOfMapPath.Create(
+      TVectorDataItemMainInfoOfMap.Create(
         VHash,
         FHintConverter,
         PIdData(AIdData).UrlPrefix,
         VIndex,
         AName,
-        ADesc,
-        ALine
-      );
-  end;
-end;
-
-function TVectorDataFactoryForMap.BuildPoint(
-  const AIdData: Pointer;
-  const AAppearance: IAppearance;
-  const AName, ADesc: string;
-  const APoint: IGeometryLonLatPoint
-): IVectorDataItemPoint;
-var
-  VIndex: Integer;
-  VHash: THashValue;
-begin
-  Assert(Assigned(APoint));
-  Assert(AIdData <> nil);
-  Result := nil;
-  if AIdData <> nil then begin
-    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
-    VHash := APoint.Hash;
-    FHashFunction.UpdateHashByString(VHash, AName);
-    FHashFunction.UpdateHashByString(VHash, ADesc);
-    Result :=
-      TVectorDataItemOfMapPoint.Create(
-        VHash,
-        FHintConverter,
-        PIdData(AIdData).UrlPrefix,
-        VIndex,
-        AName,
-        ADesc,
-        APoint
-      );
-  end;
-end;
-
-function TVectorDataFactoryForMap.BuildPoly(
-  const AIdData: Pointer;
-  const AAppearance: IAppearance;
-  const AName, ADesc: string;
-  const APoly: IGeometryLonLatMultiPolygon
-): IVectorDataItemPoly;
-var
-  VIndex: Integer;
-  VHash: THashValue;
-begin
-  Assert(AIdData <> nil);
-  Assert(Assigned(APoly));
-  Result := nil;
-  if AIdData <> nil then begin
-    VIndex := InterlockedIncrement(PIdData(AIdData).NextIndex) - 1;
-    VHash := APoly.Hash;
-    FHashFunction.UpdateHashByString(VHash, AName);
-    FHashFunction.UpdateHashByString(VHash, ADesc);
-    Result :=
-      TVectorDataItemOfMapPoly.Create(
-        VHash,
-        FHintConverter,
-        PIdData(AIdData).UrlPrefix,
-        VIndex,
-        AName,
-        ADesc,
-        APoly
+        ADesc
       );
   end;
 end;

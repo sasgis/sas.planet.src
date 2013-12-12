@@ -51,7 +51,7 @@ type
     FVersionConfig: IMapVersionConfig;
     FLoaderFromStorage: IVectorDataLoader;
     FStorage: ITileStorage;
-    FVectorDataFactory: IVectorDataFactory;
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FIsIgnoreError: Boolean;
   private
     function GetProjectionInfo: IProjectionInfo;
@@ -60,7 +60,7 @@ type
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
-      const AVectorDataFactory: IVectorDataFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IVectorDataLoader;
       const AProjectionInfo: IProjectionInfo;
@@ -168,13 +168,13 @@ end;
 
 constructor TVectorTileProviderByStorage.Create(
   const AIsIgnoreError: Boolean;
-  const AVectorDataFactory: IVectorDataFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IVectorDataLoader;
   const AProjectionInfo: IProjectionInfo;
   const AStorage: ITileStorage);
 begin
-  Assert(AVectorDataFactory <> nil);
+  Assert(AVectorDataItemMainInfoFactory <> nil);
   Assert(AVersionConfig <> nil);
   Assert(ALoaderFromStorage <> nil);
   Assert(AStorage <> nil);
@@ -182,7 +182,7 @@ begin
   Assert(AStorage.CoordConverter.IsSameConverter(AProjectionInfo.GeoConverter));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
-  FVectorDataFactory := AVectorDataFactory;
+  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FStorage := AStorage;
   FProjectionInfo := AProjectionInfo;
   FVersionConfig := AVersionConfig;
@@ -208,7 +208,7 @@ begin
   try
     VZoom := FProjectionInfo.Zoom;
     if Supports(FStorage.GetTileInfo(ATile, VZoom, FVersionConfig.Version, gtimWithData), ITileInfoWithData, VTileInfo) then begin
-      Result := FLoaderFromStorage.Load(VTileInfo.TileData, nil, FVectorDataFactory);
+      Result := FLoaderFromStorage.Load(VTileInfo.TileData, nil, FVectorDataItemMainInfoFactory);
     end;
   except
     if not FIsIgnoreError then begin

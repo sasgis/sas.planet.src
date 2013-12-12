@@ -54,6 +54,7 @@ type
     constructor Create(
       const AValueToStringConverterConfig: IValueToStringConverterConfig;
       const AVectorDataFactory: IVectorDataFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AGpxLoader: IVectorDataLoader;
@@ -79,6 +80,7 @@ uses
 constructor TImportByFileExt.Create(
   const AValueToStringConverterConfig: IValueToStringConverterConfig;
   const AVectorDataFactory: IVectorDataFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AGpxLoader: IVectorDataLoader;
@@ -88,15 +90,15 @@ constructor TImportByFileExt.Create(
 );
 begin
   inherited Create;
-  FImportGPX := TImportByVectorLoader.Create(AVectorDataFactory, AGpxLoader);
-  FImportKML := TImportByVectorLoader.Create(AVectorDataFactory, AKmlLoader);
-  FImportKMZ := TImportByVectorLoader.Create(AVectorDataFactory, AKmzLoader);
-  FImportPLT := TImportByVectorLoader.Create(AVectorDataFactory, APltLoader);
-  FImportCSV := TImportByVectorLoader.Create(AVectorDataFactory, TCsvParser.Create(AVectorItemSubsetBuilderFactory, AVectorGeometryLonLatFactory));
-  FImportHLG := TImportByVectorLoader.Create(AVectorDataFactory, THlgParser.Create(AVectorItemSubsetBuilderFactory, AVectorGeometryLonLatFactory));
-  FImportMP := TImportByVectorLoader.Create(AVectorDataFactory, TMpSimpleParser.Create(AVectorItemSubsetBuilderFactory, AVectorGeometryLonLatFactory));
-  FImportSLS := TImportByVectorLoader.Create(AVectorDataFactory, TSlsParser.Create(AVectorItemSubsetBuilderFactory, AVectorGeometryLonLatFactory));
-  FImportJPG := TImportJpegWithExif.Create(AVectorGeometryLonLatFactory, AVectorItemSubsetBuilderFactory, AVectorDataFactory, AValueToStringConverterConfig);
+  FImportGPX := TImportByVectorLoader.Create(AVectorDataItemMainInfoFactory, AGpxLoader);
+  FImportKML := TImportByVectorLoader.Create(AVectorDataItemMainInfoFactory, AKmlLoader);
+  FImportKMZ := TImportByVectorLoader.Create(AVectorDataItemMainInfoFactory, AKmzLoader);
+  FImportPLT := TImportByVectorLoader.Create(AVectorDataItemMainInfoFactory, APltLoader);
+  FImportCSV := TImportByVectorLoader.Create(AVectorDataItemMainInfoFactory, TCsvParser.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AVectorGeometryLonLatFactory));
+  FImportHLG := TImportByVectorLoader.Create(AVectorDataItemMainInfoFactory, THlgParser.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AVectorGeometryLonLatFactory));
+  FImportMP := TImportByVectorLoader.Create(AVectorDataItemMainInfoFactory, TMpSimpleParser.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AVectorGeometryLonLatFactory));
+  FImportSLS := TImportByVectorLoader.Create(AVectorDataItemMainInfoFactory, TSlsParser.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AVectorGeometryLonLatFactory));
+  FImportJPG := TImportJpegWithExif.Create(AVectorGeometryLonLatFactory, AVectorDataItemMainInfoFactory, AVectorItemSubsetBuilderFactory, AVectorDataFactory, AValueToStringConverterConfig);
 end;
 
 function TImportByFileExt.ProcessImport(

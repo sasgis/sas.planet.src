@@ -28,8 +28,9 @@ type
     FSkipPointInMultiObject: Boolean;
     FFormatPtr: PFormatSettings;
     FIdData: Pointer;
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FDataFactory: IVectorDataFactory;
-    FItemsFactory: IGeometryLonLatFactory;
+    FGeometryFactory: IGeometryLonLatFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
     // storage for coordinates
@@ -105,8 +106,9 @@ type
       const AIdData: Pointer;
       const AAllowMultiParts: Boolean;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const ADataFactory: IVectorDataFactory;
-      const AItemsFactory: IGeometryLonLatFactory
+      const AGeometryFactory: IGeometryLonLatFactory
     );
   end;
 
@@ -163,7 +165,7 @@ begin
   if FInMultiGeometry and FSkipPointInMultiObject then
     Exit;
 
-  VPoint := FItemsFactory.CreateLonLatPoint(APoint);
+  VPoint := FGeometryFactory.CreateLonLatPoint(APoint);
   FList.Add(VPoint);
 end;
 
@@ -262,7 +264,7 @@ begin
   // parse
   if parse_kml_coordinate(ACoordinates, @VData, FFormatPtr^) then begin
     // make point
-    VLonLatPoint := FItemsFactory.CreateLonLatPoint(DoublePoint(VData.lon1, VData.lat0));
+    VLonLatPoint := FGeometryFactory.CreateLonLatPoint(DoublePoint(VData.lon1, VData.lat0));
     FList.Add(VLonLatPoint);
   end;
 end;
@@ -306,19 +308,34 @@ begin
     if Supports(VObject, IGeometryLonLatPoint, VLonLatPoint) then begin
       // point
       if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemPoint) then begin
-        VPointResult := FDataFactory.BuildPoint(FIdData, VAppearance, VName, VDesc, VLonLatPoint);
+        VPointResult :=
+          FDataFactory.BuildPoint(
+            FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
+            VAppearance,
+            VLonLatPoint
+          );
         SafeAddToResult(VPointResult);
       end;
     end else if Supports(VObject, IGeometryLonLatMultiLine, VLonLatPath) then begin
       // line
       if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemLine) then begin
-        VLineResult := FDataFactory.BuildPath(FIdData, VAppearance, VName, VDesc, VLonLatPath);
+        VLineResult :=
+          FDataFactory.BuildPath(
+            FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
+            VAppearance,
+            VLonLatPath
+          );
         SafeAddToResult(VLineResult);
       end;
     end else if Supports(VObject, IGeometryLonLatMultiPolygon, VLonLatPolygon) then begin
       // polygon
       if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemPoly) then begin
-        VPolygonResult := FDataFactory.BuildPoly(FIdData, VAppearance, VName, VDesc, VLonLatPolygon);
+        VPolygonResult :=
+          FDataFactory.BuildPoly(
+            FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
+            VAppearance,
+            VLonLatPolygon
+          );
         SafeAddToResult(VPolygonResult);
       end;
     end;
@@ -358,13 +375,14 @@ constructor TXmlVectorObjects.Create(
   const AIdData: Pointer;
   const AAllowMultiParts: Boolean;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const ADataFactory: IVectorDataFactory;
-  const AItemsFactory: IGeometryLonLatFactory
+  const AGeometryFactory: IGeometryLonLatFactory
 );
 begin
   Assert(AVectorItemSubsetBuilderFactory<>nil);
+  Assert(AGeometryFactory<>nil);
   Assert(ADataFactory<>nil);
-  Assert(AItemsFactory<>nil);
   inherited Create;
   FList := TInterfaceListSimple.Create;
   FAllowMultiParts := AAllowMultiParts;
@@ -374,7 +392,8 @@ begin
   FIdData := AIdData;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FDataFactory := ADataFactory;
-  FItemsFactory := AItemsFactory;
+  FGeometryFactory := AGeometryFactory;
+  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
 
   FDoublePointsAggregator := TDoublePointsAggregator.Create;
   FClosedSegments := 0;
@@ -441,7 +460,7 @@ begin
     Exit;
 
   // make polygon object
-  VLonLatPolygon := FItemsFactory.CreateLonLatPolygon(
+  VLonLatPolygon := FGeometryFactory.CreateLonLatPolygon(
     FDoublePointsAggregator.Points,
     FDoublePointsAggregator.Count
   );
@@ -469,7 +488,7 @@ begin
     Exit;
 
   // make polyline object
-  VLonLatPath := FItemsFactory.CreateLonLatPath(
+  VLonLatPath := FGeometryFactory.CreateLonLatPath(
     FDoublePointsAggregator.Points,
     FDoublePointsAggregator.Count
   );

@@ -45,6 +45,7 @@ type
   TXmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+    FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FAllowMultiParts: Boolean;
@@ -84,22 +85,23 @@ type
     function Internal_LoadFromStream_Original(
       const AStream: TStream;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
     function LoadFromStream(
       const AStream: TStream;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   private
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   public
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AVectorDataFactory: IVectorDataFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AAllowMultiParts: Boolean;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -142,6 +144,7 @@ end;
 
 constructor TXmlInfoSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AAllowMultiParts: Boolean;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -149,6 +152,7 @@ constructor TXmlInfoSimpleParser.Create(
 begin
   inherited Create;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+  FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FAllowMultiParts := AAllowMultiParts;
 
@@ -270,7 +274,7 @@ end;
 function TXmlInfoSimpleParser.Internal_LoadFromStream_Original(
   const AStream: TStream;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VXmlVectorObjects: IXmlVectorObjects;
@@ -286,7 +290,8 @@ begin
     AIdData,
     FAllowMultiParts,
     FVectorItemSubsetBuilderFactory,
-    AVectorGeometryLonLatFactory,
+    AVectorDataItemMainInfoFactory,
+    FVectorDataFactory,
     FVectorGeometryLonLatFactory
   );
 
@@ -609,7 +614,7 @@ end;
 function TXmlInfoSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
@@ -619,7 +624,7 @@ begin
     Result := LoadFromStream(
       VStream,
       AIdData,
-      AVectorGeometryLonLatFactory
+      AVectorDataItemMainInfoFactory
     );
   finally
     VStream.Free;
@@ -629,7 +634,7 @@ end;
 function TXmlInfoSimpleParser.LoadFromStream(
   const AStream: TStream;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -642,7 +647,7 @@ begin
       Result := Internal_LoadFromStream_Original(
         AStream,
         AIdData,
-        AVectorGeometryLonLatFactory
+        AVectorDataItemMainInfoFactory
       );
     finally
       FLoadXmlStreamCounter.FinishOperation(VCounterContext);
@@ -651,7 +656,7 @@ begin
     Result := Internal_LoadFromStream_Original(
       AStream,
       AIdData,
-      AVectorGeometryLonLatFactory
+      AVectorDataItemMainInfoFactory
     );
   end;
 end;

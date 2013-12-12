@@ -38,7 +38,7 @@ type
   TPathDetalizeProviderYourNavigation = class(TBaseInterfacedObject, IPathDetalizeProvider)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FVectorDataFactory: IVectorDataFactory;
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FBaseUrl: string;
     FKmlLoader: IVectorDataLoader;
     FDownloader: IDownloader;
@@ -54,7 +54,7 @@ type
     constructor Create(
       const AInetConfig: IInetConfig;
       const ADownloader: IDownloader;
-      const AVectorDataFactory: IVectorDataFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AKmlLoader: IVectorDataLoader;
       const ABaseUrl: string
@@ -80,7 +80,7 @@ uses
 constructor TPathDetalizeProviderYourNavigation.Create(
   const AInetConfig: IInetConfig;
   const ADownloader: IDownloader;
-  const AVectorDataFactory: IVectorDataFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AKmlLoader: IVectorDataLoader;
   const ABaseUrl: string
@@ -90,7 +90,7 @@ begin
   FBaseUrl := ABaseUrl;
   FDownloader := ADownloader;
   FInetConfig := AInetConfig;
-  FVectorDataFactory := AVectorDataFactory;
+  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FKmlLoader := AKmlLoader;
 end;
@@ -131,7 +131,7 @@ begin
       VRequest := TDownloadRequest.Create(url, '', FInetConfig.GetStatic);
       VResult := FDownloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
       if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-        kml := FKmlLoader.Load(VResultOk.Data, nil, FVectorDataFactory);
+        kml := FKmlLoader.Load(VResultOk.Data, nil, FVectorDataItemMainInfoFactory);
         if kml <> nil then begin
           if kml.Count > 0 then begin
             if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin

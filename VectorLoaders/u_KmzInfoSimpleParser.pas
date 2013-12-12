@@ -42,13 +42,13 @@ type
     function LoadFromStreamInternal(
       AStream: TStream;
       const AIdData: Pointer;
-      const AFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   private
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   public
     constructor Create(
@@ -86,7 +86,7 @@ end;
 function TKmzInfoSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VCounterContext: TInternalPerformanceCounterContext;
@@ -97,7 +97,7 @@ begin
   try
     VStream := TStreamReadOnlyByBinaryData.Create(AData);
     try
-      Result := LoadFromStreamInternal(VStream, AIdData, AFactory);
+      Result := LoadFromStreamInternal(VStream, AIdData, AVectorDataItemMainInfoFactory);
     finally
       VStream.Free;
     end;
@@ -109,7 +109,7 @@ end;
 function TKmzInfoSimpleParser.LoadFromStreamInternal(
   AStream: TStream;
   const AIdData: Pointer;
-  const AFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VZip: IArchiveReader;
@@ -137,7 +137,7 @@ begin
 
     VCounterContext := FLoadKmzCounter.StartOperation;
     try
-      Result := FKmlParser.Load(VData, AIdData, AFactory);
+      Result := FKmlParser.Load(VData, AIdData, AVectorDataItemMainInfoFactory);
     finally
       FLoadKmzCounter.FinishOperation(VCounterContext);
     end;

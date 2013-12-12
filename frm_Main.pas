@@ -1923,6 +1923,7 @@ begin
   FLayerSearchResults :=
     TFindVectorItemsFromSearchResults.Create(
       GState.VectorItemSubsetBuilderFactory,
+      GState.VectorDataFactory,
       FConfig.LastSearchResultConfig
     );
   VLayersList.Add(
@@ -4890,7 +4891,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    FMarkDBGUI.DeleteMarkModal(VMark as IMarkId, Handle);
+    FMarkDBGUI.DeleteMarkModal(VMark.MainInfo as IMarkId, Handle);
   end;
 end;
 
@@ -6288,7 +6289,7 @@ begin
     end else begin
       VList := FMarkDBGUI.ImportFile(AFileName, AImportConfig);
       if (VList <> nil) and (VList.Count > 0) then begin
-        ALastMark := FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VList[VList.Count-1])); 
+        ALastMark := IVectorDataItemSimple(VList[VList.Count - 1]);
       end;
     end;
   end else begin
@@ -6431,6 +6432,7 @@ begin
     GState.Config.InetConfig,
     GState.CoordConverterFactory,
     GState.VectorGeometryLonLatFactory,
+    GState.VectorDataItemMainInfoFactory,
     GState.VectorDataFactory,
     GState.VectorItemSubsetBuilderFactory,
     VLonLatRect,
@@ -6968,10 +6970,10 @@ end;
 procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IGeoCodePlacemark;
+  VPlacemark: IVectorDataItemPoint;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
+    VPlacemark := IVectorDataItemPoint(tbxpmnSearchResult.Tag);
     VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.GetPoint.Point);
     CopyStringToClipboard(Handle, VStr);
   end;
@@ -6980,10 +6982,10 @@ end;
 procedure TfrmMain.tbitmCopySearchResultDescriptionClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IGeoCodePlacemark;
+  VPlacemark: IVectorDataItemPoint;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
+    VPlacemark := IVectorDataItemPoint(tbxpmnSearchResult.Tag);
     VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
@@ -6995,13 +6997,13 @@ end;
 procedure TfrmMain.tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IGeoCodePlacemark;
+  VPlacemark: IVectorDataItemPoint;
   VMark: IVectorDataItemSimple;
   VVisible: Boolean;
   VResult: IVectorDataItemSimple;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IGeoCodePlacemark(tbxpmnSearchResult.Tag);
+    VPlacemark := IVectorDataItemPoint(tbxpmnSearchResult.Tag);
     VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;

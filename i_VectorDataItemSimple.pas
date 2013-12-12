@@ -31,10 +31,32 @@ uses
   i_GeometryLonLat;
 
 type
+  IVectorDataItemMainInfo = interface
+    ['{0B2B2DFE-E0FB-462B-9C0C-DAE934D59B68}']
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
+
+    function GetName: string;
+    property Name: string read GetName;
+
+    function GetDesc: string;
+    property Desc: string read GetDesc;
+
+    function IsEqual(const AItem: IVectorDataItemMainInfo): Boolean;
+
+    function GetHintText: string;
+    function GetInfoUrl: string;
+    function GetInfoHTML: string;
+    function GetInfoCaption: string;
+  end;
+
   IVectorDataItemSimple = interface
     ['{1242B43D-C878-4AC9-9F29-0A3E258F4670}']
     function GetHash: THashValue;
     property Hash: THashValue read GetHash;
+
+    function GetMainInfo: IVectorDataItemMainInfo;
+    property MainInfo: IVectorDataItemMainInfo read GetMainInfo;
 
     function GetName: string;
     property Name: string read GetName;
@@ -47,7 +69,6 @@ type
 
     function GetAppearance: IAppearance;
     property Appearance: IAppearance read GetAppearance;
-
 
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
     function GetHintText: string;

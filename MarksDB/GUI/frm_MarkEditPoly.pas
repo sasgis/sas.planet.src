@@ -157,7 +157,7 @@ var
   VMarkWithCategory: IVectorDataItemWithCategory;
 begin
   VCategory := nil;
-  if Supports(AMark, IVectorDataItemWithCategory, VMarkWithCategory) then begin
+  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
   end;
   frMarkCategory.Init(VCategory);

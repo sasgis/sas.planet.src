@@ -6,6 +6,7 @@ uses
   Types,
   i_LastSearchResultConfig,
   i_LocalCoordConverter,
+  i_VectorDataFactory,
   i_VectorItemSubset,
   i_VectorItemSubsetBuilder,
   i_FindVectorItems,
@@ -14,6 +15,7 @@ uses
 type
   TFindVectorItemsFromSearchResults = class(TBaseInterfacedObject, IFindVectorItems)
   private
+    FVectorDataFactory: IVectorDataFactory;
     FLastSearchResults: ILastSearchResultConfig;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   private
@@ -24,6 +26,7 @@ type
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AVectorDataFactory: IVectorDataFactory;
       const ALastSearchResults: ILastSearchResultConfig
     );
   end;
@@ -37,6 +40,7 @@ uses
   c_InternalBrowser,
   i_CoordConverter,
   i_GeoCoder,
+  i_VectorDataItemSimple,
   u_GeoCodePlacemarkWithUrlDecorator,
   u_GeoFun;
 
@@ -44,11 +48,13 @@ uses
 
 constructor TFindVectorItemsFromSearchResults.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AVectorDataFactory: IVectorDataFactory;
   const ALastSearchResults: ILastSearchResultConfig
 );
 begin
   inherited Create;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+  FVectorDataFactory := AVectorDataFactory;
   FLastSearchResults := ALastSearchResults;
 end;
 
@@ -65,11 +71,12 @@ var
   VMapRect: TDoubleRect;
   i: integer;
   VEnum: IEnumUnknown;
-  VPlacemark: IGeoCodePlacemark;
+  VPlacemark: IVectorDataItemPoint;
+  VPlacemarkInfo: IGeoCodePlacemarkInfo;
   VSearchResults: IGeoCodeResult;
   VIndex: Integer;
   Vtmp: IVectorItemSubsetBuilder;
-  VTempItem: IGeoCodePlacemark;
+  VTempItem: IVectorDataItemPoint;
 begin
   Result := nil;
   VSearchResults := FLastSearchResults.GeoCodeResult;
@@ -88,12 +95,16 @@ begin
     VIndex := 0;
     VEnum := VSearchResults.GetPlacemarks;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      if LonLatPointInRect(VPlacemark.GetPoint.Point, VLonLatRect) then begin
-        VTempItem := TGeoCodePlacemarkWithUrlDecorator.Create(
-            VPlacemark,
-            CLastSearchResultsInternalURL + IntToStr(VIndex) + '/'
-          );
-        Vtmp.add(VTempItem);
+      if Supports(VPlacemark.MainInfo, IGeoCodePlacemarkInfo, VPlacemarkInfo) then begin
+        if LonLatPointInRect(VPlacemark.GetPoint.Point, VLonLatRect) then begin
+          VTempItem :=
+            FVectorDataFactory.BuildPoint(
+              TGeoCodePlacemarkInfoWithUrlDecorator.Create(VPlacemarkInfo, CLastSearchResultsInternalURL + IntToStr(VIndex) + '/'),
+              VPlacemark.Appearance,
+              VPlacemark.Point
+            );
+          Vtmp.add(VTempItem);
+        end;
       end;
       Inc(VIndex);
     end;

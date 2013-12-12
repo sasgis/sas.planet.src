@@ -110,7 +110,7 @@ procedure TSearchResultsLayer.PaintLayer(
 var
   VConverter: ICoordConverter;
   VEnum: IEnumUnknown;
-  VPlacemark: IGeoCodePlacemark;
+  VPlacemark: IVectorDataItemPoint;
   VFixedOnView: TDoublePoint;
   VMarker: IMarkerDrawable;
   i: integer;

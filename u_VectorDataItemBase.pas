@@ -33,15 +33,38 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItemSimple)
+  TVectorDataItemMainInfo = class(TBaseInterfacedObject, IVectorDataItemMainInfo)
   private
-    FHintConverter: IHtmlToHintTextConverter;
-    FAppearance: IAppearance;
     FHash: THashValue;
+    FHintConverter: IHtmlToHintTextConverter;
     FName: string;
     FDesc: string;
+  private
+    function GetHash: THashValue;
+    function GetName: string;
+    function GetDesc: string;
+    function IsEqual(const AItem: IVectorDataItemMainInfo): Boolean;
+    function GetHintText: string;
+    function GetInfoUrl: string;
+    function GetInfoCaption: string;
+    function GetInfoHTML: string;
+  public
+    constructor Create(
+      const AHash: THashValue;
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AName: string;
+      const ADesc: string
+    );
+  end;
+
+  TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItemSimple)
+  private
+    FHash: THashValue;
+    FMainInfo: IVectorDataItemMainInfo;
+    FAppearance: IAppearance;
   protected
     function GetHash: THashValue;
+    function GetMainInfo: IVectorDataItemMainInfo;
     function GetName: string;
     function GetDesc: string;
     function GetGeometry: IGeometryLonLat; virtual; abstract;
@@ -55,9 +78,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const AAppearance: IAppearance;
-      const AHintConverter: IHtmlToHintTextConverter;
-      const AName: string;
-      const ADesc: string
+      const AMainInfo: IVectorDataItemMainInfo
     );
   end;
 
@@ -68,16 +89,14 @@ implementation
 constructor TVectorDataItemBase.Create(
   const AHash: THashValue;
   const AAppearance: IAppearance;
-  const AHintConverter: IHtmlToHintTextConverter;
-  const AName, ADesc: string
+  const AMainInfo: IVectorDataItemMainInfo
 );
 begin
+  Assert(Assigned(AMainInfo));
   inherited Create;
-  FHintConverter := AHintConverter;
   FAppearance := AAppearance;
   FHash := AHash;
-  FName := AName;
-  FDesc := ADesc;
+  FMainInfo := AMainInfo;
 end;
 
 function TVectorDataItemBase.GetAppearance: IAppearance;
@@ -87,7 +106,7 @@ end;
 
 function TVectorDataItemBase.GetDesc: string;
 begin
-  Result := FDesc;
+  Result := FMainInfo.Desc;
 end;
 
 function TVectorDataItemBase.GetHash: THashValue;
@@ -97,46 +116,53 @@ end;
 
 function TVectorDataItemBase.GetHintText: string;
 begin
-  Result := FHintConverter.Convert(FName, '');
-  if Result = '' then begin
-    Result := FHintConverter.Convert(FName, FDesc);
-  end;
+  Result := FMainInfo.GetHintText;
 end;
 
 function TVectorDataItemBase.GetInfoCaption: string;
 begin
-  Result := FName;
+  Result := FMainInfo.GetInfoCaption;
 end;
 
 function TVectorDataItemBase.GetInfoHTML: string;
 begin
-  Result := '';
-  if FDesc <> '' then begin
-    Result := '<HTML><BODY>';
-    Result := Result + FDesc;
-    Result := Result + '</BODY></HTML>';
-  end;
+  Result := FMainInfo.GetInfoHTML;
 end;
 
 function TVectorDataItemBase.GetInfoUrl: string;
 begin
-  Result := '';
+  Result := FMainInfo.GetInfoUrl;
+end;
+
+function TVectorDataItemBase.GetMainInfo: IVectorDataItemMainInfo;
+begin
+  Result := FMainInfo;
 end;
 
 function TVectorDataItemBase.GetName: string;
 begin
-  Result := FName;
+  Result := FMainInfo.Name;
 end;
 
 function TVectorDataItemBase.IsEqual(
   const AItem: IVectorDataItemSimple
 ): Boolean;
 begin
-  Result := True;
+  if not Assigned(AItem) then begin
+    Result := False;
+    Exit;
+  end;
+
+  if AItem = IVectorDataItemSimple(Self) then begin
+    Result := True;
+    Exit;
+  end;
+
   if (AItem.Hash <> 0) and (FHash <> 0) and (AItem.Hash <> FHash) then begin
     Result := False;
     Exit;
   end;
+
   if Assigned(FAppearance) then begin
     if not FAppearance.IsEqual(AItem.Appearance) then begin
       Result := False;
@@ -148,6 +174,87 @@ begin
       Exit;
     end;
   end;
+  if not FMainInfo.IsEqual(AItem.MainInfo) then begin
+    Result := False;
+    Exit;
+  end;
+  Result := GetGeometry.IsSameGeometry(AItem.Geometry);
+end;
+
+{ TVectorDataItemMainInfo }
+
+constructor TVectorDataItemMainInfo.Create(
+  const AHash: THashValue;
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AName, ADesc: string
+);
+begin
+  inherited Create;
+  FHintConverter := AHintConverter;
+  FHash := AHash;
+  FName := AName;
+  FDesc := ADesc;
+end;
+
+function TVectorDataItemMainInfo.GetDesc: string;
+begin
+  Result := FDesc;
+end;
+
+function TVectorDataItemMainInfo.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
+function TVectorDataItemMainInfo.GetHintText: string;
+begin
+  Result := FHintConverter.Convert(FName, '');
+  if Result = '' then begin
+    Result := FHintConverter.Convert(FName, FDesc);
+  end;
+end;
+
+function TVectorDataItemMainInfo.GetInfoCaption: string;
+begin
+  Result := FName;
+end;
+
+function TVectorDataItemMainInfo.GetInfoHTML: string;
+begin
+  Result := '';
+  if FDesc <> '' then begin
+    Result := '<HTML><BODY>';
+    Result := Result + FDesc;
+    Result := Result + '</BODY></HTML>';
+  end;
+end;
+
+function TVectorDataItemMainInfo.GetInfoUrl: string;
+begin
+  Result := '';
+end;
+
+function TVectorDataItemMainInfo.GetName: string;
+begin
+  Result := FName;
+end;
+
+function TVectorDataItemMainInfo.IsEqual(
+  const AItem: IVectorDataItemMainInfo
+): Boolean;
+begin
+  if not Assigned(AItem) then begin
+    Result := False;
+    Exit;
+  end;
+  if AItem = IVectorDataItemMainInfo(Self) then begin
+    Result := True;
+    Exit;
+  end;
+  if (AItem.Hash <> 0) and (FHash <> 0) and (AItem.Hash <> FHash) then begin
+    Result := False;
+    Exit;
+  end;
   if FName <> AItem.Name then begin
     Result := False;
     Exit;
@@ -156,6 +263,7 @@ begin
     Result := False;
     Exit;
   end;
+  Result := True;
 end;
 
 end.

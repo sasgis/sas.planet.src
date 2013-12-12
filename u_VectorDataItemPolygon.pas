@@ -43,9 +43,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const AAppearance: IAppearance;
-      const AHintConverter: IHtmlToHintTextConverter;
-      const AName: string;
-      const ADesc: string;
+      const AMainInfo: IVectorDataItemMainInfo;
       const ALine: IGeometryLonLatMultiLine
     );
   end;
@@ -60,9 +58,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const AAppearance: IAppearance;
-      const AHintConverter: IHtmlToHintTextConverter;
-      const AName: string;
-      const ADesc: string;
+      const AMainInfo: IVectorDataItemMainInfo;
       const ALine: IGeometryLonLatMultiPolygon
     );
   end;
@@ -78,13 +74,12 @@ uses
 constructor TVectorDataItemPath.Create(
   const AHash: THashValue;
   const AAppearance: IAppearance;
-  const AHintConverter: IHtmlToHintTextConverter;
-  const AName, ADesc: string;
+  const AMainInfo: IVectorDataItemMainInfo;
   const ALine: IGeometryLonLatMultiLine
 );
 begin
   Assert(Assigned(ALine));
-  inherited Create(AHash, AAppearance, AHintConverter, AName, ADesc);
+  inherited Create(AHash, AAppearance, AMainInfo);
   FLine := ALine;
 end;
 
@@ -103,13 +98,12 @@ end;
 constructor TVectorDataItemPoly.Create(
   const AHash: THashValue;
   const AAppearance: IAppearance;
-  const AHintConverter: IHtmlToHintTextConverter;
-  const AName, ADesc: string;
+  const AMainInfo: IVectorDataItemMainInfo;
   const ALine: IGeometryLonLatMultiPolygon
 );
 begin
   Assert(Assigned(ALine));
-  inherited Create(AHash, AAppearance, AHintConverter, AName, ADesc);
+  inherited Create(AHash, AAppearance, AMainInfo);
   FLine := ALine;
 end;
 

@@ -14,32 +14,16 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorDataFactorySimple = class(TBaseInterfacedObject, IVectorDataFactory)
+  TVectorDataItemMainInfoFactory = class(TBaseInterfacedObject, IVectorDataItemMainInfoFactory)
   private
     FHashFunction: IHashFunction;
     FHintConverter: IHtmlToHintTextConverter;
   private
-    function BuildPoint(
+    function BuildMainInfo(
       const AIdData: Pointer;
-      const AAppearance: IAppearance;
       const AName: string;
-      const ADesc: string;
-      const APoint: IGeometryLonLatPoint
-    ): IVectorDataItemPoint;
-    function BuildPath(
-      const AIdData: Pointer;
-      const AAppearance: IAppearance;
-      const AName: string;
-      const ADesc: string;
-      const ALine: IGeometryLonLatMultiLine
-    ): IVectorDataItemLine;
-    function BuildPoly(
-      const AIdData: Pointer;
-      const AAppearance: IAppearance;
-      const AName: string;
-      const ADesc: string;
-      const APoly: IGeometryLonLatMultiPolygon
-    ): IVectorDataItemPoly;
+      const ADesc: string
+    ): IVectorDataItemMainInfo;
   public
     constructor Create(
       const AHashFunction: IHashFunction;
@@ -47,16 +31,123 @@ type
     );
   end;
 
+  TVectorDataFactorySimple = class(TBaseInterfacedObject, IVectorDataFactory)
+  private
+    FHashFunction: IHashFunction;
+  private
+    function BuildPoint(
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AAppearance: IAppearance;
+      const APoint: IGeometryLonLatPoint
+    ): IVectorDataItemPoint;
+    function BuildPath(
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AAppearance: IAppearance;
+      const ALine: IGeometryLonLatMultiLine
+    ): IVectorDataItemLine;
+    function BuildPoly(
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AAppearance: IAppearance;
+      const APoly: IGeometryLonLatMultiPolygon
+    ): IVectorDataItemPoly;
+  public
+    constructor Create(
+      const AHashFunction: IHashFunction
+    );
+  end;
+
 implementation
 
 uses
   u_GeoFun,
+  u_VectorDataItemBase,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon;
 
 { TVectorDataFactorySimple }
 
 constructor TVectorDataFactorySimple.Create(
+  const AHashFunction: IHashFunction
+);
+begin
+  Assert(Assigned(AHashFunction));
+  inherited Create;
+  FHashFunction := AHashFunction;
+end;
+
+function TVectorDataFactorySimple.BuildPath(
+  const AMainInfo: IVectorDataItemMainInfo;
+  const AAppearance: IAppearance;
+  const ALine: IGeometryLonLatMultiLine
+): IVectorDataItemLine;
+var
+  VHash: THashValue;
+begin
+  Assert(Assigned(ALine));
+  Assert(Assigned(AMainInfo));
+  VHash := ALine.Hash;
+  FHashFunction.UpdateHashByHash(VHash, AMainInfo.Hash);
+  if Assigned(AAppearance) then begin
+    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+  end;
+  Result :=
+    TVectorDataItemPath.Create(
+      VHash,
+      AAppearance,
+      AMainInfo,
+      ALine
+    );
+end;
+
+function TVectorDataFactorySimple.BuildPoint(
+  const AMainInfo: IVectorDataItemMainInfo;
+  const AAppearance: IAppearance;
+  const APoint: IGeometryLonLatPoint
+): IVectorDataItemPoint;
+var
+  VHash: THashValue;
+begin
+  Assert(Assigned(APoint));
+  VHash := APoint.Hash;
+  FHashFunction.UpdateHashByHash(VHash, AMainInfo.Hash);
+  if Assigned(AAppearance) then begin
+    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+  end;
+  Result :=
+    TVectorDataItemPoint.Create(
+      VHash,
+      AAppearance,
+      AMainInfo,
+      APoint
+    );
+end;
+
+function TVectorDataFactorySimple.BuildPoly(
+  const AMainInfo: IVectorDataItemMainInfo;
+  const AAppearance: IAppearance;
+  const APoly: IGeometryLonLatMultiPolygon
+): IVectorDataItemPoly;
+var
+  VHash: THashValue;
+begin
+  Assert(Assigned(APoly));
+  VHash := APoly.Hash;
+  FHashFunction.UpdateHashByHash(VHash, AMainInfo.Hash);
+  if Assigned(AAppearance) then begin
+    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
+  end;
+  Result :=
+    TVectorDataItemPoly.Create(
+      VHash,
+      AAppearance,
+      AMainInfo,
+      APoly
+    );
+end;
+
+{ TVectorDataItemMainInfoFactory }
+
+constructor TVectorDataItemMainInfoFactory.Create(
   const AHashFunction: IHashFunction;
   const AHintConverter: IHtmlToHintTextConverter
 );
@@ -68,84 +159,21 @@ begin
   FHintConverter := AHintConverter;
 end;
 
-function TVectorDataFactorySimple.BuildPath(
+function TVectorDataItemMainInfoFactory.BuildMainInfo(
   const AIdData: Pointer;
-  const AAppearance: IAppearance;
-  const AName, ADesc: string;
-  const ALine: IGeometryLonLatMultiLine
-): IVectorDataItemLine;
+  const AName, ADesc: string
+): IVectorDataItemMainInfo;
 var
   VHash: THashValue;
 begin
-  Assert(Assigned(ALine));
-  VHash := ALine.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
+  VHash := FHashFunction.CalcHashByString(AName);
   FHashFunction.UpdateHashByString(VHash, ADesc);
-  if Assigned(AAppearance) then begin
-    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  end;
   Result :=
-    TVectorDataItemPath.Create(
+    TVectorDataItemMainInfo.Create(
       VHash,
-      AAppearance,
       FHintConverter,
       AName,
-      ADesc,
-      ALine
-    );
-end;
-
-function TVectorDataFactorySimple.BuildPoint(
-  const AIdData: Pointer;
-  const AAppearance: IAppearance;
-  const AName, ADesc: string;
-  const APoint: IGeometryLonLatPoint
-): IVectorDataItemPoint;
-var
-  VHash: THashValue;
-begin
-  Assert(Assigned(APoint));
-  VHash := APoint.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
-  FHashFunction.UpdateHashByString(VHash, ADesc);
-  if Assigned(AAppearance) then begin
-    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  end;
-  Result :=
-    TVectorDataItemPoint.Create(
-      VHash,
-      AAppearance,
-      FHintConverter,
-      AName,
-      ADesc,
-      APoint
-    );
-end;
-
-function TVectorDataFactorySimple.BuildPoly(
-  const AIdData: Pointer;
-  const AAppearance: IAppearance;
-  const AName, ADesc: string;
-  const APoly: IGeometryLonLatMultiPolygon
-): IVectorDataItemPoly;
-var
-  VHash: THashValue;
-begin
-  Assert(Assigned(APoly));
-  VHash := APoly.Hash;
-  FHashFunction.UpdateHashByString(VHash, AName);
-  FHashFunction.UpdateHashByString(VHash, ADesc);
-  if Assigned(AAppearance) then begin
-    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  end;
-  Result :=
-    TVectorDataItemPoly.Create(
-      VHash,
-      AAppearance,
-      FHintConverter,
-      AName,
-      ADesc,
-      APoly
+      ADesc
     );
 end;
 

@@ -56,6 +56,7 @@ uses
   RegExprUtils,
   t_GeoTypes,
   i_GeoCoder,
+  i_VectorDataItemSimple,
   i_CoordConverter,
   u_InterfaceListSimple,
   u_ResStrings,
@@ -499,7 +500,7 @@ var
   Navitel_id, Navitel_type, place_id: AnsiString;
   i, j , ii , jj : integer;
   VPoint: TDoublePoint;
-  VPlace: IGeoCodePlacemark;
+  VPlace: IVectorDataItemPoint;
   VList: IInterfaceListSimple;
   VFormatSettings: TALFormatSettings;
 

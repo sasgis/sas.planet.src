@@ -94,7 +94,7 @@ begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
     if VItemWithCategory.Category <> nil then begin
       VCategoryName := VItemWithCategory.Category.Name;
     end;
@@ -116,7 +116,7 @@ begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
     if VItemWithCategory.Category <> nil then begin
       VCategoryName := VItemWithCategory.Category.Name;
     end;
@@ -148,7 +148,7 @@ begin
   VConverter := FValueToStringConverterConfig.GetStatic;
   Result := '';
   VCategoryName := '';
-  if Supports(AMark, IVectorDataItemWithCategory, VItemWithCategory) then begin
+  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
     if VItemWithCategory.Category <> nil then begin
       VCategoryName := VItemWithCategory.Category.Name;
     end;

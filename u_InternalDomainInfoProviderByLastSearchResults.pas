@@ -104,7 +104,7 @@ function TInternalDomainInfoProviderByLastSearchResults.GetItemByIndex(
 var
   VEnum: IEnumUnknown;
   VLastResult: IGeoCodeResult;
-  VItem: IGeoCodePlacemark;
+  VItem: IVectorDataItemPoint;
   VCnt: Integer;
   VIndex: Integer;
 begin

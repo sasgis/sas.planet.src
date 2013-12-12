@@ -18,6 +18,7 @@ function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALonLatRect: TDoubleRect;
@@ -356,6 +357,7 @@ function ImportFromArcGIS(
   const AInetConfig: IInetConfig;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const ALonLatRect: TDoubleRect;
@@ -508,7 +510,7 @@ begin
                 // make result object
                 VAllNewMarks := AVectorItemSubsetBuilderFactory.Build;
               end;
-              VAllNewMarks.Add(AVectorDataFactory.BuildPoly(nil, nil, VMarkName, VMarkDesc, VPolygon));
+              VAllNewMarks.Add(AVectorDataFactory.BuildPoly(AVectorDataItemMainInfoFactory.BuildMainInfo(nil, VMarkName, VMarkDesc), nil, VPolygon));
             end;
           end;
         end;

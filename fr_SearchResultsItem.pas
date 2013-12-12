@@ -30,6 +30,7 @@ uses
   ExtCtrls,
   StdCtrls,
   i_GeoCoder,
+  i_VectorDataItemSimple,
   i_LocalCoordConverterChangeable,
   i_MapViewGoto,
   i_InternalBrowser,
@@ -51,7 +52,7 @@ type
     procedure LabelCaptionClick(Sender: TObject);
     procedure LabelDescDblClick(Sender: TObject);
   private
-    FPlacemark: IGeoCodePlacemark;
+    FPlacemark: IVectorDataItemPoint;
     FViewPortState: ILocalCoordConverterChangeable;
     FMapGoto: IMapViewGoto;
     FIntrnalBrowser: IInternalBrowser;
@@ -61,7 +62,7 @@ type
       AOwner: TComponent;
       AParent:TWinControl;
       APopUp: TPopupMenu;
-      const APlacemark: IGeoCodePlacemark;
+      const APlacemark: IVectorDataItemPoint;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AIntrnalBrowser: IInternalBrowser;
       const AMapGoto: IMapViewGoto
@@ -75,7 +76,7 @@ constructor TfrSearchResultsItem.Create(
   AOwner: TComponent;
   AParent:TWinControl;
   APopUp: TPopupMenu;
-  const APlacemark: IGeoCodePlacemark;
+  const APlacemark: IVectorDataItemPoint;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AIntrnalBrowser: IInternalBrowser;
   const AMapGoto: IMapViewGoto

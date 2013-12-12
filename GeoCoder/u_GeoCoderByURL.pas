@@ -33,6 +33,7 @@ uses
   i_NotifierTime,
   i_DownloadResultFactory,
   i_ValueToStringConverter,
+  i_VectorDataItemSimple,
   i_GeoCoder,
   u_GeoCoderBasic;
 
@@ -43,11 +44,11 @@ type
     function GetPointFromFullLink(
       const Astr: AnsiString;
       const ALocalConverter: ILocalCoordConverter
-      ):IGeoCodePlacemark;
+      ):IVectorDataItemPoint;
     function GetPointFromShortLink(
       const Astr,AhttpData: AnsiString;
       const ACancelNotifier: INotifierOperation; AOperationID: Integer
-      ):IGeoCodePlacemark;
+      ):IVectorDataItemPoint;
   protected
     function PrepareRequest(
       const ASearch: WideString;
@@ -106,9 +107,9 @@ end;
 function TGeoCoderByURL.GetPointFromShortLink(
   const Astr,AhttpData: AnsiString;
   const ACancelNotifier: INotifierOperation; AOperationID: Integer
-  ):IGeoCodePlacemark;
+  ): IVectorDataItemPoint;
 var
- VPlace : IGeoCodePlacemark;
+ VPlace : IVectorDataItemPoint;
  VPoint : TDoublePoint;
  slat, slon: AnsiString;
  sname, sdesc, sfulldesc : string;
@@ -298,10 +299,10 @@ begin
  Result := nil;
 end;
 
-function TGeoCoderByURL.GetPointFromFullLink(const Astr: AnsiString; const ALocalConverter: ILocalCoordConverter):IGeoCodePlacemark;
+function TGeoCoderByURL.GetPointFromFullLink(const Astr: AnsiString; const ALocalConverter: ILocalCoordConverter): IVectorDataItemPoint;
 var
  i, j : integer;
- VPlace : IGeoCodePlacemark;
+ VPlace : IVectorDataItemPoint;
  VPoint : TDoublePoint;
  slat, slon: AnsiString;
  sname, sdesc, sfulldesc : string;
@@ -624,7 +625,7 @@ function TGeoCoderByURL.ParseResultToPlacemarksList(
   const AResult: IDownloadResultOk; const ASearch: WideString;
   const ALocalConverter: ILocalCoordConverter): IInterfaceListSimple;
 var
- VPlace: IGeoCodePlacemark;
+ VPlace: IVectorDataItemPoint;
  VList: IInterfaceListSimple;
  VStr: AnsiString;
  VUrl: AnsiString;

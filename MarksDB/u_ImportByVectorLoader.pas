@@ -34,7 +34,7 @@ uses
 type
   TImportByVectorLoader = class(TBaseInterfacedObject, IImportFile)
   private
-    FVectorDataFactory: IVectorDataFactory;
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FLoader: IVectorDataLoader;
   private
     function ProcessImport(
@@ -43,7 +43,7 @@ type
     ): IVectorItemTree;
   public
     constructor Create(
-      const AVectorDataFactory: IVectorDataFactory;
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const ALoader: IVectorDataLoader
     );
   end;
@@ -60,12 +60,12 @@ uses
 { TImportByVectorLoader }
 
 constructor TImportByVectorLoader.Create(
-  const AVectorDataFactory: IVectorDataFactory;
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const ALoader: IVectorDataLoader
 );
 begin
   inherited Create;
-  FVectorDataFactory := AVectorDataFactory;
+  FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FLoader := ALoader;
 end;
 
@@ -84,7 +84,7 @@ begin
     VMemStream.LoadFromFile(AFileName);
     VData := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
     VMemStream := nil;
-    VVectorData := FLoader.Load(VData, nil, FVectorDataFactory);
+    VVectorData := FLoader.Load(VData, nil, FVectorDataItemMainInfoFactory);
     Result := TVectorItemTree.Create(ExtractFileName(AFileName), VVectorData, nil);
   finally
     VMemStream.Free;

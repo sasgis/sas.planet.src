@@ -73,6 +73,7 @@ implementation
 
 uses
   ActiveX,
+  i_VectorDataItemSimple,
   u_ResStrings;
 
 { TSearchResultPresenterOnPanel }
@@ -121,11 +122,11 @@ procedure TSearchResultPresenterOnPanel.ShowSearchResults(
   AZoom: Byte
 );
 var
-  VPlacemark: IGeoCodePlacemark;
+  VPlacemark: IVectorDataItemPoint;
   VEnum: IEnumUnknown;
   i: Cardinal;
   LengthFSearchItems: integer;
-  VItemForGoTo: IGeoCodePlacemark;
+  VItemForGoTo: IVectorDataItemPoint;
   VCnt: Integer;
 begin
   ClearSearchResults;

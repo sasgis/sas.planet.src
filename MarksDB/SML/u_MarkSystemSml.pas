@@ -191,7 +191,7 @@ var
   VMark: IMarkSMLInternal;
 begin
   Result := '';
-  if Supports(AMark, IMarkSMLInternal, VMark) then begin
+  if Assigned(AMark) and Supports(AMark.MainInfo, IMarkSMLInternal, VMark) then begin
     Result := IntToStr(VMark.Id);
   end;
 end;

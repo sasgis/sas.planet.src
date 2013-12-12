@@ -57,6 +57,7 @@ type
 implementation
 
 uses
+  i_VectorDataItemSimple,
   u_InterfaceListSimple,
   u_SortFunc,
   u_GeoCodeResult;
@@ -69,12 +70,12 @@ procedure SortIt(
 );
 var
   i: integer;
-  VMark: IGeoCodePlacemark;
+  VMark: IVectorDataItemPoint;
   VDistArr: array of Double;
 begin
   SetLength(VDistArr, AList.Count);
   for i := 0 to AList.GetCount-1 do begin
-    VMark := IGeoCodePlacemark(AList.Items[i]);
+    VMark := IVectorDataItemPoint(AList.Items[i]);
     VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.GetPoint.Point);
   end;
   SortInterfaceListByDoubleMeasure(AList, VDistArr);

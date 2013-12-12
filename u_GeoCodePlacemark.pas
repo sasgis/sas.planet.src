@@ -35,32 +35,26 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TGeoCodePlacemark = class(TBaseInterfacedObject, IGeoCodePlacemark, IVectorDataItemPoint, IVectorDataItemSimple)
+  TGeoCodePlacemarkInfo = class(TBaseInterfacedObject, IVectorDataItemMainInfo, IGeoCodePlacemarkInfo)
   private
     FHash: THashValue;
-    FPoint: IGeometryLonLatPoint;
     FAddress: string;
     FDesc: string;
     FFullDesc: string;
     FAccuracy: Integer;
   private
     function GetHash: THashValue;
-    function GetAppearance: IAppearance;
-    function GetPoint: IGeometryLonLatPoint;
     function GetName: string;
     function GetDesc: string;
-    function GetGeometry: IGeometryLonLat;
-    function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+    function IsEqual(const AItem: IVectorDataItemMainInfo): Boolean;
     function GetHintText: string;
     function GetInfoHTML: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;
-  private
     function GetAccuracy: Integer;
   public
     constructor Create(
       const AHash: THashValue;
-      const APoint: IGeometryLonLatPoint;
       const AAddress: string;
       const ADesc: string;
       const AFullDesc: string;
@@ -79,7 +73,7 @@ type
       const ADesc: string;
       const AFullDesc: string;
       const AAccuracy: Integer
-    ): IGeoCodePlacemark;
+    ): IVectorDataItemPoint;
   public
     constructor Create(
       const AGeometryFactory: IGeometryLonLatFactory;
@@ -91,13 +85,13 @@ implementation
 
 uses
   SysUtils,
+  u_VectorDataItemPoint,
   u_LonLatRectByPoint;
 
 { TGeoCodePlacemark }
 
-constructor TGeoCodePlacemark.Create(
+constructor TGeoCodePlacemarkInfo.Create(
   const AHash: THashValue;
-  const APoint: IGeometryLonLatPoint;
   const AAddress: string;
   const ADesc: string;
   const AFullDesc: string;
@@ -109,86 +103,62 @@ begin
   FAddress := AAddress;
   FDesc := ADesc;
   FFullDesc := AFullDesc;
-  FPoint := APoint;
   FAccuracy := AAccuracy;
 end;
 
-function TGeoCodePlacemark.GetAccuracy: Integer;
+function TGeoCodePlacemarkInfo.GetAccuracy: Integer;
 begin
   Result := FAccuracy;
 end;
 
-function TGeoCodePlacemark.GetAppearance: IAppearance;
-begin
-  Result := nil;
-end;
-
-function TGeoCodePlacemark.GetName: string;
+function TGeoCodePlacemarkInfo.GetName: string;
 begin
   Result := FAddress;
 end;
 
-function TGeoCodePlacemark.GetDesc: string;
+function TGeoCodePlacemarkInfo.GetDesc: string;
 begin
   Result := FDesc;
 end;
 
-function TGeoCodePlacemark.GetGeometry: IGeometryLonLat;
-begin
-  Result := FPoint;
-end;
-
-function TGeoCodePlacemark.GetHash: THashValue;
+function TGeoCodePlacemarkInfo.GetHash: THashValue;
 begin
   Result := FHash;
 end;
 
-function TGeoCodePlacemark.GetHintText: string;
+function TGeoCodePlacemarkInfo.GetHintText: string;
 begin
   Result := FDesc;
 end;
 
-function TGeoCodePlacemark.GetInfoCaption: string;
+function TGeoCodePlacemarkInfo.GetInfoCaption: string;
 begin
   Result := FAddress;
 end;
 
-function TGeoCodePlacemark.GetInfoHTML: string;
+function TGeoCodePlacemarkInfo.GetInfoHTML: string;
 begin
   Result := FFullDesc;
 end;
 
-function TGeoCodePlacemark.GetInfoUrl: string;
+function TGeoCodePlacemarkInfo.GetInfoUrl: string;
 begin
   Result := '';
 end;
 
-function TGeoCodePlacemark.GetPoint: IGeometryLonLatPoint;
-begin
-  Result := FPoint;
-end;
-
-function TGeoCodePlacemark.IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+function TGeoCodePlacemarkInfo.IsEqual(const AItem: IVectorDataItemMainInfo): Boolean;
 var
-  VGeoCodePlacemark: IGeoCodePlacemark;
+  VGeoCodePlacemark: IGeoCodePlacemarkInfo;
 begin
   if not Assigned(AItem) then begin
     Result := False;
     Exit;
   end;
-  if AItem = IVectorDataItemSimple(Self) then begin
+  if AItem = IVectorDataItemMainInfo(Self) then begin
     Result := True;
     Exit;
   end;
   if (FHash <> 0) and (AItem.Hash <> 0) and (FHash <> AItem.Hash) then begin
-    Result := False;
-    Exit;
-  end;
-  if not FPoint.IsSameGeometry(AItem.Geometry) then begin
-    Result := False;
-    Exit;
-  end;
-  if Assigned(AItem.Appearance) then begin
     Result := False;
     Exit;
   end;
@@ -200,7 +170,7 @@ begin
     Result := False;
     Exit;
   end;
-  if not Supports(AItem, IGeoCodePlacemark, VGeoCodePlacemark) then begin
+  if not Supports(AItem, IGeoCodePlacemarkInfo, VGeoCodePlacemark) then begin
     Result := False;
     Exit;
   end;
@@ -233,24 +203,34 @@ function TGeoCodePlacemarkFactory.Build(
   const APoint: TDoublePoint;
   const AAddress, ADesc, AFullDesc: string;
   const AAccuracy: Integer
-): IGeoCodePlacemark;
+): IVectorDataItemPoint;
 var
   VHash: THashValue;
   VPoint: IGeometryLonLatPoint;
+  VMainInfo: IVectorDataItemMainInfo;
 begin
   VPoint := FGeometryFactory.CreateLonLatPoint(APoint);
-  VHash := VPoint.Hash;
-  FHashFunction.UpdateHashByString(VHash, AAddress);
+
+  VHash := FHashFunction.CalcHashByString(AAddress);
   FHashFunction.UpdateHashByString(VHash, ADesc);
   FHashFunction.UpdateHashByString(VHash, AFullDesc);
-  Result :=
-    TGeoCodePlacemark.Create(
+  VMainInfo :=
+    TGeoCodePlacemarkInfo.Create(
       VHash,
-      VPoint,
       AAddress,
       ADesc,
       AFullDesc,
       AAccuracy
+    );
+
+  VHash := VPoint.Hash;
+  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
+  Result :=
+    TVectorDataItemPoint.Create(
+      VHash,
+      nil,
+      VMainInfo,
+      VPoint
     );
 end;
 

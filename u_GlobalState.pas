@@ -178,6 +178,7 @@ type
     FLastSelectionSaver: IBackgroundTask;
     FMainThreadConfigListener: IListener;
     FVectorDataFactory: IVectorDataFactory;
+    FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FProjectedGeometryProvider: IProjectedGeometryProvider;
     FMarkFactory: IMarkFactory;
     FMarkCategoryFactory: IMarkCategoryFactory;
@@ -244,6 +245,7 @@ type
     property VectorGeometryLocalFactory: IVectorGeometryLocalFactory read FVectorGeometryLocalFactory;
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
+    property VectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory read FVectorDataItemMainInfoFactory;
     property ProjectedGeometryProvider: IProjectedGeometryProvider read FProjectedGeometryProvider;
     property VectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory read FVectorItemSubsetBuilderFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
@@ -531,9 +533,13 @@ begin
   FTileNameGenerator := TTileFileNameGeneratorsSimpleList.Create;
   FTileNameParser := TTileFileNameParsersSimpleList.Create;
 
+  FVectorDataItemMainInfoFactory := TVectorDataItemMainInfoFactory.Create(FHashFunction, THtmlToHintTextConverterStuped.Create);
+  FVectorDataFactory := TVectorDataFactorySimple.Create(FHashFunction);
+
   FContentTypeManager :=
     TContentTypeManagerSimple.Create(
       FVectorGeometryLonLatFactory,
+      FVectorDataFactory,
       FVectorItemSubsetBuilderFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
@@ -547,6 +553,7 @@ begin
   VXmlLoader :=
     TXmlInfoSimpleParser.Create(
       FVectorGeometryLonLatFactory,
+      FVectorDataFactory,
       FVectorItemSubsetBuilderFactory,
       True,
       VMarksKmlLoadCounterList
@@ -555,7 +562,7 @@ begin
   VKmlLoader := VXmlLoader;
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      TXmlInfoSimpleParser.Create(FVectorGeometryLonLatFactory, FVectorItemSubsetBuilderFactory, True, nil),
+      TXmlInfoSimpleParser.Create(FVectorGeometryLonLatFactory, FVectorDataFactory, FVectorItemSubsetBuilderFactory, True, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
@@ -563,17 +570,17 @@ begin
   VKmlLoader :=
     TKmlInfoSimpleParser.Create(
       FVectorGeometryLonLatFactory,
+      FVectorDataFactory,
       FVectorItemSubsetBuilderFactory,
       VMarksKmlLoadCounterList
     );
   VKmzLoader :=
     TKmzInfoSimpleParser.Create(
-      TKmlInfoSimpleParser.Create(FVectorGeometryLonLatFactory, nil),
+      TKmlInfoSimpleParser.Create(FVectorGeometryLonLatFactory, FVectorDataFactory, FVectorItemSubsetBuilderFactory, nil),
       FArchiveReadWriteFactory,
       VMarksKmlLoadCounterList
     );
 {$ifend}
-  FVectorDataFactory := TVectorDataFactorySimple.Create(FHashFunction, THtmlToHintTextConverterStuped.Create);
   FProjectedGeometryProvider :=
     TProjectedGeometryProvider.Create(
       FHashFunction,
@@ -582,11 +589,13 @@ begin
   FImportFileByExt := TImportByFileExt.Create(
     FGlobalConfig.ValueToStringConverterConfig,
     FVectorDataFactory,
+    FVectorDataItemMainInfoFactory,
     FVectorGeometryLonLatFactory,
     FVectorItemSubsetBuilderFactory,
     VXmlLoader,
     TPLTSimpleParser.Create(
       FVectorGeometryLonLatFactory,
+      FVectorDataFactory,
       FVectorItemSubsetBuilderFactory,
       VMarksKmlLoadCounterList
     ),
@@ -694,7 +703,7 @@ begin
       FGlobalConfig.InetConfig,
       FBGTimerNotifier,
       TDownloadResultFactory.Create,
-      FVectorDataFactory,
+      FVectorDataItemMainInfoFactory,
       FVectorGeometryLonLatFactory,
       VKmlLoader
     );

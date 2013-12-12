@@ -43,6 +43,7 @@ type
   private
     FFormatSettings: TALFormatSettings;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FVectorDataFactory: IVectorDataFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FLoadStreamCounter: IInternalPerformanceCounter;
     procedure ParseStringList(
@@ -58,16 +59,17 @@ type
     function LoadFromStream(
       AStream: TStream;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
-      const AVectorGeometryLonLatFactory: IVectorDataFactory
+      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   public
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AVectorDataFactory: IVectorDataFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList
     );
@@ -83,12 +85,14 @@ uses
 
 constructor TPLTSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
+  FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
   FFormatSettings.DecimalSeparator := '.';
@@ -97,7 +101,7 @@ end;
 function TPLTSimpleParser.Load(
   const AData: IBinaryData;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   VStream: TStreamReadOnlyByBinaryData;
@@ -105,7 +109,7 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AIdData, AVectorGeometryLonLatFactory);
+    Result := LoadFromStream(VStream, AIdData, AVectorDataItemMainInfoFactory);
   finally
     VStream.Free;
   end;
@@ -114,7 +118,7 @@ end;
 function TPLTSimpleParser.LoadFromStream(
   AStream: TStream;
   const AIdData: Pointer;
-  const AVectorGeometryLonLatFactory: IVectorDataFactory
+  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
   pltstr: TALStringList;
@@ -136,11 +140,9 @@ begin
         if Assigned(VPath) then begin
           trackname := string(GetWord(pltstr[4], ',', 4));
           VItem :=
-            AVectorGeometryLonLatFactory.BuildPath(
-              AIdData,
+            FVectorDataFactory.BuildPath(
+              AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, trackname, ''),
               nil,
-              trackname,
-              '',
               VPath
             );
         end;
