@@ -4,10 +4,6 @@ interface
 
 uses
   t_Hash,
-  t_GeoTypes,
-  i_Appearance,
-  i_LonLatRect,
-  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_GeoCoder,
   u_BaseInterfacedObject;

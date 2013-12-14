@@ -4,7 +4,6 @@ interface
 
 uses
   t_Hash,
-  t_GeoTypes,
   i_HashFunction,
   i_Appearance,
   i_HtmlToHintTextConverter,
@@ -59,7 +58,6 @@ type
 implementation
 
 uses
-  u_GeoFun,
   u_VectorDataItemBase,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon;

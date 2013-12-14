@@ -5,14 +5,11 @@ interface
 uses
   i_MarksDrawConfig,
   i_Bitmap32StaticFactory,
-  i_MapTypeSetChangeable,
-  i_TileError,
   i_VectorItemSubsetChangeable,
   i_ProjectedGeometryProvider,
   i_ListenerNotifierLinksList,
   i_MarkerProviderForVectorItem,
   i_BitmapLayerProvider,
-  i_BitmapLayerProviderChangeable,
   u_BitmapLayerProviderChangeableBase;
 
 type
@@ -43,7 +40,6 @@ implementation
 uses
   i_VectorItemSubset,
   u_ListenerByEvent,
-  u_ListenerNotifierLinksList,
   u_BitmapLayerProviderByMarksSubset;
 
 { TBitmapLayerProviderChangeableForMarksLayer }

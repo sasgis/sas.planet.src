@@ -8,7 +8,6 @@ uses
   i_MapTypes,
   i_Bitmap32StaticFactory,
   i_BitmapLayerProvider,
-  i_BitmapLayerProviderChangeable,
   u_BitmapLayerProviderChangeableBase;
 
 type
@@ -35,7 +34,6 @@ implementation
 
 uses
   u_ListenerByEvent,
-  u_ListenerNotifierLinksList,
   u_BitmapLayerProviderFillingMap;
 
 { TBitmapLayerProviderChangeableForFillingMap }

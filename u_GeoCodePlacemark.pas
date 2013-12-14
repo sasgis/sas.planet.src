@@ -25,8 +25,6 @@ interface
 uses
   t_Hash,
   t_GeoTypes,
-  i_Appearance,
-  i_LonLatRect,
   i_GeometryLonLat,
   i_HashFunction,
   i_VectorDataItemSimple,
@@ -85,8 +83,7 @@ implementation
 
 uses
   SysUtils,
-  u_VectorDataItemPoint,
-  u_LonLatRectByPoint;
+  u_VectorDataItemPoint;
 
 { TGeoCodePlacemark }
 

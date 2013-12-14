@@ -12,7 +12,6 @@ uses
   i_MapTypes,
   i_MapTypeListStatic,
   i_MapTypeListChangeable,
-  i_BitmapLayerProviderChangeable,
   i_ListenerNotifierLinksList,
   u_BitmapLayerProviderChangeableBase;
 
@@ -52,7 +51,6 @@ implementation
 
 uses
   u_ListenerByEvent,
-  u_ListenerNotifierLinksList,
   u_BitmapLayerProviderForViewMaps;
 
 { TBitmapLayerProviderChangeableForMainLayer }

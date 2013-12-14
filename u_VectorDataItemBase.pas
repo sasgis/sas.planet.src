@@ -24,8 +24,6 @@ interface
 
 uses
   t_Hash,
-  t_GeoTypes,
-  i_LonLatRect,
   i_Appearance,
   i_HtmlToHintTextConverter,
   i_GeometryLonLat,

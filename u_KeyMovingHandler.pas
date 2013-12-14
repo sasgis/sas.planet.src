@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   Classes,
-  Forms,
   t_GeoTypes,
   i_ViewPortState,
   i_KeyMovingConfig,

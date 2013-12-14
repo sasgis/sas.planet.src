@@ -9,7 +9,6 @@ uses
   Controls,
   Forms,
   StdCtrls,
-  CheckLst,
   Spin,
   ExtCtrls,
   i_LanguageManager,

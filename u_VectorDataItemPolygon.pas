@@ -24,12 +24,9 @@ interface
 
 uses
   t_Hash,
-  t_GeoTypes,
   i_Appearance,
-  i_LonLatRect,
   i_VectorDataItemSimple,
   i_GeometryLonLat,
-  i_HtmlToHintTextConverter,
   u_VectorDataItemBase;
 
 type
@@ -63,11 +60,7 @@ type
     );
   end;
 
-
 implementation
-
-uses
-  u_GeoFun;
 
 { TVectorDataItemPath }
 

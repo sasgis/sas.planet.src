@@ -5,13 +5,10 @@ interface
 uses
   t_GeoTypes,
   i_ProjectionInfo,
-  i_LocalCoordConverter,
   i_EnumDoublePoint,
   i_DoublePointFilter,
   i_DoublePointsAggregator,
-  i_GeometryLonLat,
-  i_VectorItemProjected,
-  i_VectorItemLocal;
+  i_GeometryLonLat;
 
 type
   IGeometryLonLatFactory = interface

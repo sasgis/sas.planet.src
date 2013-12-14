@@ -23,7 +23,6 @@ unit frm_About;
 interface
 
 uses
-  Types,
   Forms,
   Classes,
   Controls,

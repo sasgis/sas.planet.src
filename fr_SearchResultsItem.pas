@@ -24,17 +24,16 @@ interface
 
 uses
   Types,
+  Classes,
   Forms,
   Controls,
   Menus,
   ExtCtrls,
   StdCtrls,
-  i_GeoCoder,
   i_VectorDataItemSimple,
   i_LocalCoordConverterChangeable,
   i_MapViewGoto,
-  i_InternalBrowser,
-  Classes;
+  i_InternalBrowser;
 
 type
   TfrSearchResultsItem = class(TFrame)

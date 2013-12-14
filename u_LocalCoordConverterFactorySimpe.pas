@@ -25,7 +25,6 @@ interface
 uses
   Types,
   t_GeoTypes,
-  i_HashFunction,
   i_CoordConverter,
   i_CoordConverterFactory,
   i_ProjectionInfo,
@@ -107,9 +106,7 @@ type
 implementation
 
 uses
-  t_Hash,
-  u_GeoFun,
-  u_LocalCoordConverter;
+  u_GeoFun;
 
 { TLocalCoordConverterFactorySimpe }
 

@@ -11,7 +11,6 @@ uses
   i_SimpleFlag,
   i_ListenerNotifierLinksList,
   i_BitmapLayerProvider,
-  i_BitmapLayerProviderChangeable,
   u_BitmapLayerProviderChangeableBase;
 
 type
@@ -44,7 +43,6 @@ implementation
 uses
   u_ListenerByEvent,
   u_ListenerTime,
-  u_ListenerNotifierLinksList,
   u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderByTrackPath;
 

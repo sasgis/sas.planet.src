@@ -7,10 +7,8 @@ uses
   i_NotifierTime,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
-  i_BitmapLayerProvider,
   i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
   i_FillingMapLayerConfig,
@@ -39,10 +37,8 @@ implementation
 uses
   i_TileMatrix,
   i_BitmapLayerProviderChangeable,
-  i_MapTypes,
   i_ObjectWithListener,
   u_TileMatrixFactory,
-  u_ListenerByEvent,
   u_SourceDataUpdateInRectByFillingMap,
   u_BitmapLayerProviderChangeableForFillingMap;
 

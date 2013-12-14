@@ -8,7 +8,6 @@ uses
   Classes,
   Controls,
   Forms,
-  CheckLst,
   StdCtrls,
   ExtCtrls,
   Spin,

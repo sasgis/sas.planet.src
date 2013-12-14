@@ -5,12 +5,9 @@ interface
 uses
   Windows,
   t_Hash,
-  t_GeoTypes,
   i_HashFunction,
-  i_Appearance,
   i_StringProvider,
   i_HtmlToHintTextConverter,
-  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_VectorDataFactory,
   u_BaseInterfacedObject;

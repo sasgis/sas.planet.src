@@ -24,7 +24,6 @@ interface
 
 uses
   GR32,
-  t_GeoTypes,
   i_GeometryLonLat,
   i_Appearance,
   i_AppearanceOfMarkFactory,
@@ -147,7 +146,6 @@ uses
   SysUtils,
   t_Hash,
   i_AppearanceOfVectorItem,
-  u_GeoFun,
   u_MarkFullBase,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon;

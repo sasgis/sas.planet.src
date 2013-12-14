@@ -6,11 +6,10 @@ uses
   Classes,
   SysUtils,
   Types,
-  i_LanguageManager,
-  u_CommonFormAndFrameParents,
   CheckLst,
   StdCtrls,
-  Controls;
+  Controls,
+  u_CommonFormAndFrameParents;
 
 type
   TfrZoomsSelect = class(TFrame)

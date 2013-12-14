@@ -24,11 +24,7 @@ interface
 
 uses
   t_Hash,
-  t_GeoTypes,
-  i_Appearance,
-  i_LonLatRect,
   i_HtmlToHintTextConverter,
-  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_Category,
   u_BaseInterfacedObject;
@@ -65,7 +61,7 @@ implementation
 
 uses
   SysUtils;
-  
+
 { TMarkMainInfo }
 
 constructor TMarkMainInfo.Create(

@@ -121,7 +121,6 @@ uses
   i_Appearance,
   u_GeoFun,
   u_MarkId,
-  u_VectorDataItemBase,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon;
 

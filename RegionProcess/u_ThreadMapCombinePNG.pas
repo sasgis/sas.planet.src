@@ -3,7 +3,6 @@ unit u_ThreadMapCombinePNG;
 interface
 
 uses
-  Windows,
   SysUtils,
   Classes,
   GR32,
@@ -58,7 +57,6 @@ type
 implementation
 
 uses
-  gnugettext,
   LibPngWriter,
   i_CoordConverter,
   u_ImageLineProvider,

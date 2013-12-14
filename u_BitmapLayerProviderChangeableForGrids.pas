@@ -7,7 +7,6 @@ uses
   i_Bitmap32StaticFactory,
   i_ValueToStringConverter,
   i_BitmapLayerProvider,
-  i_BitmapLayerProviderChangeable,
   i_ListenerNotifierLinksList,
   u_BitmapLayerProviderChangeableBase;
 
@@ -34,7 +33,6 @@ implementation
 uses
   GR32,
   u_ListenerByEvent,
-  u_ListenerNotifierLinksList,
   u_BitmapLayerProviderComplex,
   u_BitmapLayerProviderGridGenshtab,
   u_BitmapLayerProviderGridDegree,

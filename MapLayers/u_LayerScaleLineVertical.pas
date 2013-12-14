@@ -24,17 +24,10 @@ interface
 
 uses
   Types,
-  Controls,
-  Classes,
   GR32,
-  GR32_Image,
-  i_NotifierOperation,
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
-  i_InternalPerformanceCounter,
   i_ScaleLineConfig,
-  i_LanguageManager,
-  u_LayerScaleLinePopupMenu,
   u_LayerScaleLine;
 
 type
@@ -76,13 +69,10 @@ implementation
 
 uses
   SysUtils,
-  GR32_Layers,
-  GR32_Resamplers,
+  t_GeoTypes,
   i_CoordConverter,
-  u_ListenerByEvent,
   u_ResStrings,
-  u_GeoFun,
-  t_GeoTypes;
+  u_GeoFun;
 
 { TLayerScaleLine }
 

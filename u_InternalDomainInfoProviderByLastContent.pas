@@ -23,7 +23,6 @@ unit u_InternalDomainInfoProviderByLastContent;
 interface
 
 uses
-  Classes,
   i_BinaryData,
   i_InternalBrowserLastContent,
   i_InternalDomainInfoProvider,

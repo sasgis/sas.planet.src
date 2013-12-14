@@ -5,8 +5,6 @@ interface
 uses
   i_Datum,
   i_HashFunction,
-  i_CoordConverter,
-  i_ConfigDataProvider,
   i_CoordConverterFactory,
   u_BaseInterfacedObject;
 

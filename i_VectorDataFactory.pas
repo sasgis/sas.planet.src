@@ -3,7 +3,6 @@ unit i_VectorDataFactory;
 interface
 
 uses
-  t_GeoTypes,
   i_Appearance,
   i_GeometryLonLat,
   i_VectorDataItemSimple;

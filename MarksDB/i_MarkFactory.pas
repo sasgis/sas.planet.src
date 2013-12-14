@@ -23,7 +23,6 @@ unit i_MarkFactory;
 interface
 
 uses
-  t_GeoTypes,
   i_Appearance,
   i_GeometryLonLat,
   i_VectorDataItemSimple,

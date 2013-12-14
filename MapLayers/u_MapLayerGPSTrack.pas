@@ -4,15 +4,11 @@ interface
 
 uses
   GR32_Image,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
-  i_BitmapLayerProvider,
   i_InternalPerformanceCounter,
-  i_SimpleFlag,
   i_MapLayerGPSTrackConfig,
   i_Bitmap32StaticFactory,
   i_GPSRecorder,
@@ -44,9 +40,6 @@ uses
   i_TileMatrix,
   i_BitmapLayerProviderChangeable,
   u_TileMatrixFactory,
-  u_ListenerByEvent,
-  u_ListenerTime,
-  u_SimpleFlagWithInterlock,
   u_BitmapLayerProviderChangeableForGpsTrack;
 
 { TMapGPSLayerNew }

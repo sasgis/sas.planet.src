@@ -4,15 +4,12 @@ interface
 
 uses
   GR32_Image,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   i_TileError,
   i_BitmapPostProcessing,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
-  i_BitmapLayerProvider,
   i_UseTilePrevZoomConfig,
   i_ThreadConfig,
   i_MapTypes,
@@ -51,10 +48,8 @@ implementation
 
 uses
   i_TileMatrix,
-  i_MapTypeListStatic,
   i_BitmapLayerProviderChangeable,
   u_TileMatrixFactory,
-  u_ListenerByEvent,
   u_BitmapLayerProviderChangeableForMainLayer;
 
 { TMapMainLayer }

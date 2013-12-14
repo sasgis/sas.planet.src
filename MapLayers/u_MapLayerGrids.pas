@@ -4,14 +4,11 @@ interface
 
 uses
   GR32_Image,
-  i_Notifier,
   i_NotifierTime,
   i_NotifierOperation,
   i_InternalPerformanceCounter,
-  i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
-  i_BitmapLayerProvider,
   i_ImageResamplerConfig,
   i_ValueToStringConverter,
   i_Bitmap32StaticFactory,
@@ -40,14 +37,9 @@ type
 implementation
 
 uses
-  GR32,
   i_TileMatrix,
   i_BitmapLayerProviderChangeable,
   u_TileMatrixFactory,
-  u_ListenerByEvent,
-  u_BitmapLayerProviderComplex,
-  u_BitmapLayerProviderGridGenshtab,
-  u_BitmapLayerProviderGridDegree,
   u_BitmapLayerProviderChangeableForGrids;
 
 { TMapLayerGridsNew }

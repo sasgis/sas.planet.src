@@ -10,7 +10,6 @@ uses
   Forms,
   Dialogs,
   StdCtrls,
-  CheckLst,
   ExtCtrls,
   i_LanguageManager,
   i_MapTypeSet,

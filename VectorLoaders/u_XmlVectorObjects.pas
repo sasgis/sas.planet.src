@@ -130,9 +130,7 @@ uses
   vsagps_public_gpx,
   vsagps_public_parser,
   vsagps_public_print,
-  i_LonLatRect,
   u_GeoFun,
-  u_LonLatRectByPoint,
   u_InterfaceListSimple,
   u_DoublePointsAggregator;
 

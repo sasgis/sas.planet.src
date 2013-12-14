@@ -58,8 +58,7 @@ implementation
 uses
   Classes,
   SysUtils,
-  t_GeoTypes,
-  u_GeoToStr;
+  t_GeoTypes;
 
 const
   cTabFileExt = '.tab';
