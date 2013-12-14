@@ -48,6 +48,7 @@ uses
   i_CoordConverterList,
   i_ProjConverter,
   i_BatteryStatus,
+  i_InternalBrowserLastContent,
   i_LocalCoordConverterFactorySimpe,
   i_GPSModule,
   i_ProjectedGeometryProvider,
@@ -183,6 +184,7 @@ type
     FMarkFactory: IMarkFactory;
     FMarkCategoryFactory: IMarkCategoryFactory;
     FBuildInfo: IBuildInfo;
+    FInternalBrowserContent: IInternalBrowserLastContent;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -349,6 +351,7 @@ uses
   u_InternalDomainInfoProviderByMarksSystem,
   u_InternalDomainInfoProviderByMapData,
   u_InternalDomainInfoProviderByLastSearchResults,
+  u_InternalDomainInfoProviderByLastContent,
   u_InternalDomainInfoProviderByTileStorageOptions,
   u_Bitmap32StaticFactory,
   u_VectorItemSubsetBuilder,
@@ -370,6 +373,7 @@ uses
   u_LocalCoordConverterFactory,
   u_BuildInfo,
   u_BitmapPostProcessingChangeableByConfig,
+  u_InternalBrowserLastContent,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -427,6 +431,8 @@ begin
   FMapVersionFactoryList := TMapVersionFactoryList.Create;
 
   FAppearanceOfMarkFactory := TAppearanceOfMarkFactory.Create(FHashFunction);
+  FInternalBrowserContent := TInternalBrowserLastContent.Create;
+
 
   FGlobalConfig :=
     TGlobalConfig.Create(
@@ -718,6 +724,7 @@ begin
   FInternalBrowser :=
     TInternalBrowserByForm.Create(
       FGlobalConfig.LanguageManager,
+      FInternalBrowserContent,
       FGlobalConfig.InternalBrowserConfig,
       FGlobalConfig.InetConfig.ProxyConfig,
       FContentTypeManager
@@ -829,6 +836,15 @@ begin
     );
   VInternalDomainInfoProviderList.Add(
     CLastSearchResultsInternalDomain,
+    VInternalDomainInfoProvider
+  );
+
+  VInternalDomainInfoProvider :=
+    TInternalDomainInfoProviderByLastContent.Create(
+      FInternalBrowserContent
+    );
+  VInternalDomainInfoProviderList.Add(
+    CShowMessageDomain,
     VInternalDomainInfoProvider
   );
 

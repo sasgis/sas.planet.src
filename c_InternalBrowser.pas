@@ -8,6 +8,7 @@ const
   CZmpInfoInternalDomain = 'ZmpInfo';
   CMapDataInternalDomain = 'MapData';
   CMediaDataInternalDomain = 'MediaData';
+  CShowMessageDomain = 'ShowMessage';
   CLastSearchResultsInternalDomain = 'SearchResults';
   CMarksSystemInternalDomain = 'Placemarks';
   CTileStorageOptionsInternalDomain = 'TileStorageOptions';
@@ -17,6 +18,7 @@ const
   CLastSearchResultsInternalURL = CSASInternalURLPrefix + CLastSearchResultsInternalDomain + '/';
   CMarksSystemInternalURL = CSASInternalURLPrefix + CMarksSystemInternalDomain + '/';
   CTileStorageOptionsInternalURL = CSASInternalURLPrefix + CTileStorageOptionsInternalDomain + '/';
+  CShowMessageInternalURL = CSASInternalURLPrefix + CShowMessageDomain + '/';
   CVectorItemDescriptionSuffix = 'Description';
   CVectorItemInfoSuffix = 'Info';
 

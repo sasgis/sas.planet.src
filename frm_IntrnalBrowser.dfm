@@ -23,12 +23,17 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
     Height = 306
     Align = alClient
     TabOrder = 0
+    Silent = False
     OnTitleChange = EmbeddedWB1TitleChange
     OnBeforeNavigate2 = EmbeddedWB1BeforeNavigate2
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
     OnAuthenticate = EmbeddedWB1Authenticate
     About = ' EmbeddedWB http://bsalsa.com/'
+    PrintOptions.Margins.Left = 19.050000000000000000
+    PrintOptions.Margins.Right = 19.050000000000000000
+    PrintOptions.Margins.Top = 19.050000000000000000
+    PrintOptions.Margins.Bottom = 19.050000000000000000
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
     PrintOptions.Orientation = poPortrait

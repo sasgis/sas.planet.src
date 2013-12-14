@@ -968,6 +968,7 @@ uses
   u_InternalDomainInfoProviderByMapData in 'u_InternalDomainInfoProviderByMapData.pas',
   u_InternalDomainInfoProviderByLastSearchResults in 'u_InternalDomainInfoProviderByLastSearchResults.pas',
   u_InternalDomainInfoProviderByTileStorageOptions in 'u_InternalDomainInfoProviderByTileStorageOptions.pas',
+  u_InternalDomainInfoProviderByLastContent in 'u_InternalDomainInfoProviderByLastContent.pas',
   i_InternalDomainOptions in 'i_InternalDomainOptions.pas',
   i_SimpleHttpDownloader in 'i_SimpleHttpDownloader.pas',
   u_SimpleHttpDownloader in 'u_SimpleHttpDownloader.pas',

@@ -6,6 +6,7 @@ uses
   i_ProxySettings,
   i_InternalBrowser,
   i_LanguageManager,
+  i_InternalBrowserLastContent,
   i_WindowPositionConfig,
   i_ContentTypeManager,
   u_BaseInterfacedObject,
@@ -18,6 +19,7 @@ type
     FProxyConfig: IProxyConfig;
     FContentTypeManager: IContentTypeManager;
     FConfig: IWindowPositionConfig;
+    FContent: IInternalBrowserLastContent;
     FfrmInternalBrowser: TfrmIntrnalBrowser;
   private
     procedure SafeCreateInternal;
@@ -29,6 +31,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AContent: IInternalBrowserLastContent;
       const AConfig: IWindowPositionConfig;
       const AProxyConfig: IProxyConfig;
       const AContentTypeManager: IContentTypeManager
@@ -39,12 +42,14 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  c_InternalBrowser;
 
 { TInternalBrowserByForm }
 
 constructor TInternalBrowserByForm.Create(
   const ALanguageManager: ILanguageManager;
+  const AContent: IInternalBrowserLastContent;
   const AConfig: IWindowPositionConfig;
   const AProxyConfig: IProxyConfig;
   const AContentTypeManager: IContentTypeManager
@@ -52,6 +57,7 @@ constructor TInternalBrowserByForm.Create(
 begin
   inherited Create;
   FLanguageManager := ALanguageManager;
+  FContent := AContent;
   FConfig := AConfig;
   FProxyConfig := AProxyConfig;
   FContentTypeManager := AContentTypeManager;
@@ -93,7 +99,8 @@ end;
 procedure TInternalBrowserByForm.ShowMessage(const ACaption, AText: string);
 begin
   SafeCreateInternal;
-  FfrmInternalBrowser.showmessage(ACaption, AText);
+  FContent.Content := AText;
+  FfrmInternalBrowser.Navigate(ACaption, CShowMessageInternalURL);
 end;
 
 end.

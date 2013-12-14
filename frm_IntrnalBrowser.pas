@@ -81,7 +81,6 @@ type
       const AContentTypeManager: IContentTypeManager
     ); reintroduce;
 
-    procedure showmessage(const ACaption, AText: string);
     procedure Navigate(const ACaption, AUrl: string);
     procedure NavigatePost(const ACaption, AUrl, AReferer, APostData: string);
   end;
@@ -255,16 +254,6 @@ begin
   end;
   FCurrentCaption := VCaption;
   Self.Caption := VCaption;
-end;
-
-procedure TfrmIntrnalBrowser.showmessage(const ACaption,AText: string);
-begin
-  EmbeddedWB1.GoAboutBlank;
-  Application.ProcessMessages; // sometimes it shows empty window without this line (only for first run)
-  EmbeddedWB1.HTMLCode.Text:=AText;
-  SetGoodCaption(ACaption);
-  ResetImageView(FALSE);
-  show;
 end;
 
 procedure TfrmIntrnalBrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
