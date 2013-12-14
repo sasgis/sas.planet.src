@@ -87,7 +87,7 @@ type
     function SaveMarks2File: boolean;
     procedure LoadMarksFromFile;
   private
-    function GetById(AId: Integer): IMarkSMLInternal;
+    function GetById(AId: Integer): IVectorDataItemSimple;
   private
     function UpdateMark(
       const AOldMark: IVectorDataItemSimple;
@@ -1098,15 +1098,13 @@ begin
   Result := VTemp.MakeStaticAndClear;
 end;
 
-function TMarkDbSml.GetById(AId: Integer): IMarkSMLInternal;
+function TMarkDbSml.GetById(AId: Integer): IVectorDataItemSimple;
 begin
   Result := nil;
   if AId >= 0 then begin
     LockRead;
     try
-      if not Supports(IVectorDataItemSimple(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, Result) then begin
-       Result := nil;
-      end;
+      Result := IVectorDataItemSimple(FMarkList.GetByID(AId));
     finally
       UnlockRead;
     end;

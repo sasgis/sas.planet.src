@@ -22,6 +22,9 @@ unit i_MarkDbSmlInternal;
 
 interface
 
+uses
+  i_VectorDataItemSimple;
+
 type
   IMarkSMLInternal = interface
     ['{2611AAA5-10DA-472B-B3EE-31EA27EDD6CD}']
@@ -53,7 +56,7 @@ type
 
   IMarkDbSmlInternal = interface
     ['{54D17191-A56C-4951-8838-7E492906213A}']
-    function GetById(AId: Integer): IMarkSMLInternal;
+    function GetById(AId: Integer): IVectorDataItemSimple;
   end;
 
 implementation
