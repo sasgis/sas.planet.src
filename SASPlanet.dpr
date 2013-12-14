@@ -273,6 +273,7 @@ uses
   u_ThreadRegionProcessAbstract in 'RegionProcess\u_ThreadRegionProcessAbstract.pas',
   u_ThreadExportAbstract in 'RegionProcess\u_ThreadExportAbstract.pas',
   u_ThreadExportToRMapsSQLite in 'RegionProcess\u_ThreadExportToRMapsSQLite.pas',
+  u_ThreadCopyFromStorageToStorage in 'RegionProcess\u_ThreadCopyFromStorageToStorage.pas',
   u_ThreadExportToStorage in 'RegionProcess\u_ThreadExportToStorage.pas',
   u_ThreadExportToArchive in 'RegionProcess\u_ThreadExportToArchive.pas',
   u_ThreadExportToFileSystem in 'RegionProcess\u_ThreadExportToFileSystem.pas',

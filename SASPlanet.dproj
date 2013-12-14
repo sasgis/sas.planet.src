@@ -726,6 +726,7 @@
     <DCCReference Include="RegionProcess\u_RegionProcessProgressInfo.pas" />
     <DCCReference Include="RegionProcess\u_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas" />
+    <DCCReference Include="RegionProcess\u_ThreadCopyFromStorageToStorage.pas" />
     <DCCReference Include="RegionProcess\u_ThreadDeleteTiles.pas" />
     <DCCReference Include="RegionProcess\u_ThreadDownloadTiles.pas" />
     <DCCReference Include="RegionProcess\u_ThreadExportAbstract.pas" />
