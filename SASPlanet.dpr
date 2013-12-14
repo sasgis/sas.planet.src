@@ -1047,6 +1047,8 @@ uses
   u_AvailPicsGeoFuse in 'MapSvcScan\u_AvailPicsGeoFuse.pas',
   u_AvailPicsRosCosmos in 'MapSvcScan\u_AvailPicsRosCosmos.pas',
   u_AvailPicsKosmosnimki in 'MapSvcScan\u_AvailPicsKosmosnimki.pas',
+  i_InternalBrowserLastContent in 'i_InternalBrowserLastContent.pas',
+  u_InternalBrowserLastContent in 'u_InternalBrowserLastContent.pas',
   i_InternalBrowser in 'i_InternalBrowser.pas',
   u_InternalBrowserByForm in 'u_InternalBrowserByForm.pas',
   i_InvisibleBrowser in 'i_InvisibleBrowser.pas',
