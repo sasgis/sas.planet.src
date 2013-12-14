@@ -88,6 +88,7 @@ uses
   i_RegionProcessParamsFrame,
   i_LogSimple,
   i_LogSimpleProvider,
+  i_MapVersionInfo,
   u_ConfigDataProviderByIniFile,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
@@ -182,6 +183,10 @@ var
   VPolygon: IGeometryLonLatMultiPolygon;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IProjectedPolygon;
+  VVersionForDownload: IMapVersionInfo;
+  VVersionForCheck: IMapVersionInfo;
+  VVersionString: string;
+  VVersionCheckShowPrev: Boolean;
 begin
   VIniFile := TMemIniFile.Create(AFileName);
   try
@@ -212,6 +217,35 @@ begin
     raise Exception.Create('Map GUID is empty');
   end;
   VGuid := StringToGUID(VGuids);
+  VMap := FullMapsSet.GetMapTypeByGUID(VGuid);
+  if VMap = nil then begin
+    raise Exception.CreateFmt('Map with GUID = %s not found', [VGuids]);
+  end else begin
+    VMapType := VMap.MapType;
+    if not VMapType.GeoConvert.CheckZoom(VZoom) then begin
+      raise Exception.Create('Unknown zoom');
+    end;
+  end;
+  VVersionString := VSessionSection.ReadString('VersionDownload', '');
+  if VVersionString <> '' then begin
+    VVersionForDownload :=
+      VMapType.VersionConfig.VersionFactory.CreateByStoreString(
+        VVersionString
+      );
+  end else begin
+    VVersionForDownload := VMapType.VersionConfig.Version;
+  end;
+  VVersionString := VSessionSection.ReadString('VersionCheck', '');
+  if VVersionString <> '' then begin
+    VVersionCheckShowPrev := VSessionSection.ReadBool('VersionCheckPrev', False);
+    VVersionForCheck :=
+      VMapType.VersionConfig.VersionFactory.CreateByStoreString(
+        VVersionString,
+        VVersionCheckShowPrev
+      );
+  end else begin
+    VVersionForDownload := VVersionForDownload;
+  end;
   VZoom := VSessionSection.ReadInteger('Zoom', 0);
   if VZoom > 0 then begin
     Dec(VZoom);
@@ -234,15 +268,6 @@ begin
     VLastProcessedPoint.X := VSessionSection.ReadInteger('StartX', -1);
     VLastProcessedPoint.Y := VSessionSection.ReadInteger('StartY', -1);
   end;
-  VMap := FullMapsSet.GetMapTypeByGUID(VGuid);
-  if VMap = nil then begin
-    raise Exception.CreateFmt('Map with GUID = %s not found', [VGuids]);
-  end else begin
-    VMapType := VMap.MapType;
-    if not VMapType.GeoConvert.CheckZoom(VZoom) then begin
-      raise Exception.Create('Unknown zoom');
-    end;
-  end;
   VPolygon := ReadPolygon(VSessionSection, FVectorGeometryLonLatFactory);
   if VPolygon.Count > 0 then begin
     VProjection :=
@@ -263,6 +288,8 @@ begin
       VLogSimple,
       VLogProvider,
       VGuid,
+      VVersionForCheck,
+      VVersionForDownload,
       VZoom,
       VPolygon,
       VSecondLoadTNE,
@@ -292,7 +319,8 @@ begin
       VProgressInfo,
       FAppClosingNotifier,
       VMapType,
-      VMapType.VersionConfig.Version,
+      VVersionForCheck,
+      VVersionForDownload,
       VZoom,
       VProjectedPolygon,
       FDownloadConfig,
@@ -341,6 +369,8 @@ begin
       VLogSimple,
       VLogProvider,
       VMapType.Zmp.GUID,
+      VMapType.VersionConfig.Version,
+      VMapType.VersionConfig.Version,
       VZoom,
       APolygon,
       (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
@@ -371,6 +401,7 @@ begin
         VProgressInfo,
         FAppClosingNotifier,
         VMapType,
+        VMapType.VersionConfig.Version,
         VMapType.VersionConfig.Version,
         VZoom,
         VProjectedPolygon,

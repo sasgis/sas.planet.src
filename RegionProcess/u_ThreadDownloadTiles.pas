@@ -45,7 +45,8 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FMapType: TMapType;
     FZoom: Byte;
-    FVersion: IMapVersionInfo;
+    FVersionForCheck: IMapVersionInfo;
+    FVersionForDownload: IMapVersionInfo;
     FDownloadInfo: IDownloadInfoSimple;
     FPolyProjected: IProjectedPolygon;
     FSecondLoadTNE: boolean;
@@ -105,7 +106,8 @@ type
       const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
       const AAppClosingNotifier: INotifierOneOperation;
       AMapType: TMapType;
-      const AVersion: IMapVersionInfo;
+      const AVersionForCheck: IMapVersionInfo;
+      const AVersionForDownload: IMapVersionInfo;
       AZoom: byte;
       const APolyProjected: IProjectedPolygon;
       const ADownloadConfig: IGlobalDownloadConfig;
@@ -143,7 +145,8 @@ constructor TThreadDownloadTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
   const AAppClosingNotifier: INotifierOneOperation;
   AMapType: TMapType;
-  const AVersion: IMapVersionInfo;
+  const AVersionForCheck: IMapVersionInfo;
+  const AVersionForDownload: IMapVersionInfo;
   AZoom: byte;
   const APolyProjected: IProjectedPolygon;
   const ADownloadConfig: IGlobalDownloadConfig;
@@ -185,7 +188,8 @@ begin
   FZoom := AZoom;
   FCheckExistTileSize := ACheckExistTileSize;
   FMapType := AMapType;
-  FVersion := AVersion;
+  FVersionForCheck := AVersionForCheck;
+  FVersionForDownload := AVersionForDownload;
   FCheckTileDate := AReplaceOlderDate;
   FCheckExistTileDate := ACheckExistTileDate;
   FSecondLoadTNE := ASecondLoadTNE;
@@ -327,9 +331,9 @@ begin
         end;
 
         // notify about current tile
-        FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom, FVersion)]), 0);
+        FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom, FVersionForDownload)]), 0);
         // if gtimWithData - tile will be loaded, so we use gtimAsIs
-        VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimAsIs);
+        VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersionForCheck, gtimAsIs);
 
         // for attachments need base tile - but even for existing tile some attachments may not exist
         if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
@@ -355,7 +359,7 @@ begin
                 VGotoNextTile := True;
               end else begin
                 // download tile
-                VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, FOperationID, VTile, FZoom, FVersion, FCheckExistTileSize);
+                VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, FOperationID, VTile, FZoom, FVersionForDownload, FCheckExistTileSize);
                 if VTask <> nil then begin
                   VTask.FinishNotifier.Add(FTileDownloadFinishListener);
                   FMapType.TileDownloadSubsystem.Download(VTask);

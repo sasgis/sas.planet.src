@@ -8,6 +8,7 @@ uses
   i_LogSimple,
   i_LogSimpleProvider,
   i_GeometryLonLat,
+  i_MapVersionInfo,
   i_ConfigDataWriteProvider,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoDownload,
@@ -19,6 +20,8 @@ type
     FGUID: TGUID;
     FZoom: Byte;
     FPolygon: IGeometryLonLatMultiPolygon;
+    FVersionForCheck: IMapVersionInfo;
+    FVersionForDownload: IMapVersionInfo;
 
     FSecondLoadTNE: boolean;
     FReplaceExistTiles: boolean;
@@ -74,6 +77,8 @@ type
       const ALog: ILogSimple;
       const ALogProvider: ILogSimpleProvider;
       const AGUID: TGUID;
+      const AVersionForCheck: IMapVersionInfo;
+      const AVersionForDownload: IMapVersionInfo;
       AZoom: Byte;
       const APolygon: IGeometryLonLatMultiPolygon;
       ASecondLoadTNE: boolean;
@@ -101,6 +106,8 @@ constructor TRegionProcessProgressInfoDownload.Create(
   const ALog: ILogSimple;
   const ALogProvider: ILogSimpleProvider;
   const AGUID: TGUID;
+  const AVersionForCheck: IMapVersionInfo;
+  const AVersionForDownload: IMapVersionInfo;
   AZoom: Byte;
   const APolygon: IGeometryLonLatMultiPolygon;
   ASecondLoadTNE: boolean;
@@ -117,6 +124,8 @@ constructor TRegionProcessProgressInfoDownload.Create(
 begin
   inherited Create;
   FGUID := AGUID;
+  FVersionForCheck := AVersionForCheck;
+  FVersionForDownload := AVersionForDownload;
   FZoom := AZoom;
   FPolygon := APolygon;
   FSecondLoadTNE := ASecondLoadTNE;
@@ -346,15 +355,18 @@ procedure TRegionProcessProgressInfoDownload.SaveState(
 var
   VElapsedTime: TDateTime;
 begin
+  ASLSSection.WriteString('MapGUID', GUIDToString(FGUID));
+  ASLSSection.WriteString('VersionDownload', FVersionForDownload.StoreString);
+  ASLSSection.WriteString('VersionCheck', FVersionForCheck.StoreString);
+  ASLSSection.WriteBool('VersionCheckPrev', FVersionForCheck.ShowPrevVersion);
+  ASLSSection.WriteInteger('Zoom', FZoom + 1);
+  ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
+  ASLSSection.WriteBool('CheckExistTileSize', FCheckExistTileSize);
+  ASLSSection.WriteBool('CheckExistTileDate', FCheckExistTileDate);
+  ASLSSection.WriteDate('CheckTileDate', FCheckTileDate);
+  ASLSSection.WriteBool('SecondLoadTNE', FSecondLoadTNE);
   FCS.BeginRead;
   try
-    ASLSSection.WriteString('MapGUID', GUIDToString(FGUID));
-    ASLSSection.WriteInteger('Zoom', FZoom + 1);
-    ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
-    ASLSSection.WriteBool('CheckExistTileSize', FCheckExistTileSize);
-    ASLSSection.WriteBool('CheckExistTileDate', FCheckExistTileDate);
-    ASLSSection.WriteDate('CheckTileDate', FCheckTileDate);
-    ASLSSection.WriteBool('SecondLoadTNE', FSecondLoadTNE);
     ASLSSection.WriteInteger('ProcessedTileCount', FDownloadedCount);
     ASLSSection.WriteInteger('Processed', FProcessed);
     ASLSSection.WriteFloat('ProcessedSize', FDownloadedSize / 1024);
