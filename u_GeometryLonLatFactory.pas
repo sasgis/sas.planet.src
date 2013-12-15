@@ -287,21 +287,40 @@ function TGeometryLonLatFactory.CreateLonLatMultiPolygonCircleByPoint(
   const APos: TDoublePoint;
   const ARadius: double
 ): IGeometryLonLatMultiPolygon;
+const CPointCount = 64;
 var
   VAggreagator: IDoublePointsAggregator;
   j: Integer;
   VDatum : IDatum;
   VAngle: Double;
   VPoint: TDoublePoint;
+  VLine: IGeometryLonLatPolygon;
+  VBounds: TDoubleRect;
 begin
-  VAggreagator := TDoublePointsAggregator.Create;
+  Assert(not PointIsEmpty(APos));
+  VAggreagator := TDoublePointsAggregator.Create(CPointCount);
+  VBounds.TopLeft := APos;
+  VBounds.BottomRight := APos;
   VDatum :=  AProjection.GeoConverter.Datum;
-  for j := 0 to 64 do begin
-    VAngle := j * 360 / 64;
+  for j := 0 to CPointCount - 1 do begin
+    VAngle := j * 360 / CPointCount;
     VPoint := VDatum.CalcFinishPosition(APos, VAngle, ARadius);
     VAggreagator.Add(VPoint);
+    if VBounds.Left > VPoint.X then begin
+      VBounds.Left := VPoint.X;
+    end;
+    if VBounds.Top < VPoint.Y then begin
+      VBounds.Top := VPoint.Y;
+    end;
+    if VBounds.Right < VPoint.X then begin
+      VBounds.Right := VPoint.X;
+    end;
+    if VBounds.Bottom > VPoint.Y then begin
+      VBounds.Bottom := VPoint.Y;
+    end;
   end;
-  Result := CreateLonLatMultiPolygon(VAggreagator.Points, VAggreagator.Count);
+  VLine := CreateLonLatPolygonInternal(VBounds, VAggreagator.Points, VAggreagator.Count);
+  Result := TLonLatPolygonOneLine.Create(VLine);
 end;
 
 function TGeometryLonLatFactory.CreateLonLatLine(
