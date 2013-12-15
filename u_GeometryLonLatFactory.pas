@@ -19,10 +19,28 @@ type
     FHashFunction: IHashFunction;
     FEmptyLonLatPath: IGeometryLonLatMultiLine;
     FEmptyLonLatPolygon: IGeometryLonLatMultiPolygon;
+    function CreateLonLatLineInternal(
+      const ARect: TDoubleRect;
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatLine;
+    function CreateLonLatPolygonInternal(
+      const ARect: TDoubleRect;
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatPolygon;
   private
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
+    function CreateLonLatLine(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatLine;
+    function CreateLonLatPolygon(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatPolygon;
     function CreateLonLatMultiLine(
       const APoints: PDoublePointArray;
       ACount: Integer
@@ -114,6 +132,124 @@ begin
   Result := CreateLonLatMultiPolygon(VAggreagator.Points, VAggreagator.Count);
 end;
 
+function TGeometryLonLatFactory.CreateLonLatLine(
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryLonLatLine;
+var
+  i: Integer;
+  VPoint: TDoublePoint;
+  VBounds: TDoubleRect;
+begin
+  Result := nil;
+  Assert(ACount > 0);
+  if ACount > 0 then begin
+    VPoint := APoints[0];
+    Assert(not PointIsEmpty(VPoint));
+    if PointIsEmpty(VPoint) then begin
+      Exit;
+    end;
+    VBounds.TopLeft := VPoint;
+    VBounds.BottomRight := VPoint;
+    for i := 1 to ACount - 1 do begin
+      VPoint := APoints[i];
+      Assert(not PointIsEmpty(VPoint));
+      if PointIsEmpty(VPoint) then begin
+        Exit;
+      end;
+      if VBounds.Left > VPoint.X then begin
+        VBounds.Left := VPoint.X;
+      end;
+      if VBounds.Top < VPoint.Y then begin
+        VBounds.Top := VPoint.Y;
+      end;
+      if VBounds.Right < VPoint.X then begin
+        VBounds.Right := VPoint.X;
+      end;
+      if VBounds.Bottom > VPoint.Y then begin
+        VBounds.Bottom := VPoint.Y;
+      end;
+    end;
+    Result := CreateLonLatLineInternal(VBounds, APoints, ACount);
+  end;
+end;
+
+function TGeometryLonLatFactory.CreateLonLatPolygon(
+  const APoints: PDoublePointArray; ACount: Integer): IGeometryLonLatPolygon;
+var
+  i: Integer;
+  VPoint: TDoublePoint;
+  VBounds: TDoubleRect;
+begin
+  Result := nil;
+  Assert(ACount > 0);
+  if ACount > 0 then begin
+    VPoint := APoints[0];
+    Assert(not PointIsEmpty(VPoint));
+    if PointIsEmpty(VPoint) then begin
+      Exit;
+    end;
+    VBounds.TopLeft := VPoint;
+    VBounds.BottomRight := VPoint;
+    for i := 1 to ACount - 1 do begin
+      VPoint := APoints[i];
+      Assert(not PointIsEmpty(VPoint));
+      if PointIsEmpty(VPoint) then begin
+        Exit;
+      end;
+      if VBounds.Left > VPoint.X then begin
+        VBounds.Left := VPoint.X;
+      end;
+      if VBounds.Top < VPoint.Y then begin
+        VBounds.Top := VPoint.Y;
+      end;
+      if VBounds.Right < VPoint.X then begin
+        VBounds.Right := VPoint.X;
+      end;
+      if VBounds.Bottom > VPoint.Y then begin
+        VBounds.Bottom := VPoint.Y;
+      end;
+    end;
+    Result := CreateLonLatPolygonInternal(VBounds, APoints, ACount);
+  end;
+end;
+
+function TGeometryLonLatFactory.CreateLonLatLineInternal(
+  const ARect: TDoubleRect;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryLonLatLine;
+var
+  VHash: THashValue;
+  VRect: ILonLatRect;
+begin
+  if ACount > 1 then begin
+    VRect := TLonLatRect.Create(ARect);
+  end else begin
+    VRect := TLonLatRectByPoint.Create(ARect.TopLeft);
+  end;
+  VHash := FHashFunction.CalcHashByBuffer(APoints, ACount * SizeOf(TDoublePoint));
+  Result := TGeometryLonLatLine.Create(VRect, VHash, APoints, ACount);
+end;
+
+function TGeometryLonLatFactory.CreateLonLatPolygonInternal(
+  const ARect: TDoubleRect;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryLonLatPolygon;
+var
+  VHash: THashValue;
+  VRect: ILonLatRect;
+begin
+  if ACount > 1 then begin
+    VRect := TLonLatRect.Create(ARect);
+  end else begin
+    VRect := TLonLatRectByPoint.Create(ARect.TopLeft);
+  end;
+  VHash := FHashFunction.CalcHashByBuffer(APoints, ACount * SizeOf(TDoublePoint));
+  Result := TGeometryLonLatPolygon.Create(VRect, VHash, APoints, ACount);
+end;
+
 function TGeometryLonLatFactory.CreateLonLatMultiLine(
   const APoints: PDoublePointArray;
   ACount: Integer
@@ -129,7 +265,6 @@ var
   VLineBounds: TDoubleRect;
   VBounds: TDoubleRect;
   VRect: ILonLatRect;
-  VHash: THashValue;
   VLinesetHash: THashValue;
 begin
   VLineCount := 0;
@@ -150,13 +285,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        if VLineLen > 1 then begin
-          VRect := TLonLatRect.Create(VLineBounds);
-        end else begin
-          VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-        end;
-        VHash := FHashFunction.CalcHashByBuffer(VStart, VLineLen * SizeOf(TDoublePoint));
-        VLine := TGeometryLonLatLine.Create(VRect, VHash, VStart, VLineLen);
+        VLine := CreateLonLatLineInternal(VLineBounds, VStart, VLineLen);
         if VLineCount > 0 then begin
           VBounds := UnionLonLatRects(VBounds, VLineBounds);
         end else begin
@@ -198,13 +327,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    if VLineLen > 1 then begin
-      VRect := TLonLatRect.Create(VLineBounds);
-    end else begin
-      VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-    end;
-    VHash := FHashFunction.CalcHashByBuffer(VStart, VLineLen * SizeOf(TDoublePoint));
-    VLine := TGeometryLonLatLine.Create(VRect, VHash, VStart, VLineLen);
+    VLine := CreateLonLatLineInternal(VLineBounds, VStart, VLineLen);
     if VLineCount > 0 then begin
       VBounds := UnionLonLatRects(VBounds, VLineBounds);
     end else begin
@@ -237,7 +360,6 @@ var
   VLineBounds: TDoubleRect;
   VBounds: TDoubleRect;
   VRect: ILonLatRect;
-  VHash: THashValue;
   VLinesetHash: THashValue;
 begin
   VLinesetHash := 0;
@@ -260,13 +382,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        if VTemp.Count > 1 then begin
-          VRect := TLonLatRect.Create(VLineBounds);
-        end else begin
-          VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-        end;
-        VHash := FHashFunction.CalcHashByBuffer(VTemp.Points, VTemp.Count * SizeOf(TDoublePoint));
-        VLine := TGeometryLonLatLine.Create(VRect, VHash, VTemp.Points, VTemp.Count);
+        VLine := CreateLonLatLineInternal(VLineBounds, VTemp.Points, VTemp.Count);
         if VLineCount > 0 then begin
           VBounds := UnionLonLatRects(VBounds, VLineBounds);
         end else begin
@@ -307,13 +423,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    if VTemp.Count > 1 then begin
-      VRect := TLonLatRect.Create(VLineBounds);
-    end else begin
-      VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-    end;
-    VHash := FHashFunction.CalcHashByBuffer(VTemp.Points, VTemp.Count * SizeOf(TDoublePoint));
-    VLine := TGeometryLonLatLine.Create(VRect, VHash, VTemp.Points, VTemp.Count);
+    VLine := CreateLonLatLineInternal(VLineBounds, VTemp.Points, VTemp.Count);
     if VLineCount > 0 then begin
       VBounds := UnionLonLatRects(VBounds, VLineBounds);
     end else begin
@@ -361,7 +471,6 @@ var
   VLineBounds: TDoubleRect;
   VBounds: TDoubleRect;
   VRect: ILonLatRect;
-  VHash: THashValue;
   VLinesetHash: THashValue;
 begin
   VLineCount := 0;
@@ -382,13 +491,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        if VLineLen > 1 then begin
-          VRect := TLonLatRect.Create(VLineBounds);
-        end else begin
-          VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-        end;
-        VHash := FHashFunction.CalcHashByBuffer(VStart, VLineLen * SizeOf(TDoublePoint));
-        VLine := TGeometryLonLatPolygon.Create(VRect, VHash, VStart, VLineLen);
+        VLine := CreateLonLatPolygonInternal(VLineBounds, VStart, VLineLen);
         if VLineCount > 0 then begin
           VBounds := UnionLonLatRects(VBounds, VLineBounds);
         end else begin
@@ -430,13 +533,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    if VLineLen > 1 then begin
-      VRect := TLonLatRect.Create(VLineBounds);
-    end else begin
-      VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-    end;
-    VHash := FHashFunction.CalcHashByBuffer(VStart, VLineLen * SizeOf(TDoublePoint));
-    VLine := TGeometryLonLatPolygon.Create(VRect, VHash, VStart, VLineLen);
+    VLine := CreateLonLatPolygonInternal(VLineBounds, VStart, VLineLen);
     if VLineCount > 0 then begin
       VBounds := UnionLonLatRects(VBounds, VLineBounds);
     end else begin
@@ -469,7 +566,6 @@ var
   VLineBounds: TDoubleRect;
   VBounds: TDoubleRect;
   VRect: ILonLatRect;
-  VHash: THashValue;
   VLinesetHash: THashValue;
 begin
   VLinesetHash := 0;
@@ -492,13 +588,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        if VTemp.Count > 1 then begin
-          VRect := TLonLatRect.Create(VLineBounds);
-        end else begin
-          VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-        end;
-        VHash := FHashFunction.CalcHashByBuffer(VTemp.Points, VTemp.Count * SizeOf(TDoublePoint));
-        VLine := TGeometryLonLatPolygon.Create(VRect, VHash, VTemp.Points, VTemp.Count);
+        VLine := CreateLonLatPolygonInternal(VLineBounds, VTemp.Points, VTemp.Count);
         if VLineCount > 0 then begin
           VBounds := UnionLonLatRects(VBounds, VLineBounds);
         end else begin
@@ -539,13 +629,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    if VTemp.Count > 1 then begin
-      VRect := TLonLatRect.Create(VLineBounds);
-    end else begin
-      VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-    end;
-    VHash := FHashFunction.CalcHashByBuffer(VTemp.Points, VTemp.Count * SizeOf(TDoublePoint));
-    VLine := TGeometryLonLatPolygon.Create(VRect, VHash, VTemp.Points, VTemp.Count);
+    VLine := CreateLonLatPolygonInternal(VLineBounds, VTemp.Points, VTemp.Count);
     if VLineCount > 0 then begin
       VBounds := UnionLonLatRects(VBounds, VLineBounds);
     end else begin
@@ -581,7 +665,6 @@ var
   VLineBounds: TDoubleRect;
   VBounds: TDoubleRect;
   VRect: ILonLatRect;
-  VHash: THashValue;
   VLinesetHash: THashValue;
 begin
   VLinesetHash := 0;
@@ -602,13 +685,7 @@ begin
             VList.Add(VLine);
             VLine := nil;
           end;
-          if VTemp.Count > 1 then begin
-            VRect := TLonLatRect.Create(VLineBounds);
-          end else begin
-            VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-          end;
-          VHash := FHashFunction.CalcHashByBuffer(VTemp.Points, VTemp.Count * SizeOf(TDoublePoint));
-          VLine := TGeometryLonLatPolygon.Create(VRect, VHash, VTemp.Points, VTemp.Count);
+          VLine := CreateLonLatPolygonInternal(VLineBounds, VTemp.Points, VTemp.Count);
           if VLineCount > 0 then begin
             VBounds := UnionLonLatRects(VBounds, VLineBounds);
           end else begin
@@ -649,13 +726,7 @@ begin
         VList.Add(VLine);
         VLine := nil;
       end;
-      if VTemp.Count > 1 then begin
-        VRect := TLonLatRect.Create(VLineBounds);
-      end else begin
-        VRect := TLonLatRectByPoint.Create(VLineBounds.TopLeft);
-      end;
-      VHash := FHashFunction.CalcHashByBuffer(VTemp.Points, VTemp.Count * SizeOf(TDoublePoint));
-      VLine := TGeometryLonLatPolygon.Create(VRect, VHash, VTemp.Points, VTemp.Count);
+      VLine := CreateLonLatPolygonInternal(VLineBounds, VTemp.Points, VTemp.Count);
       if VLineCount > 0 then begin
         VBounds := UnionLonLatRects(VBounds, VLineBounds);
       end else begin
@@ -689,8 +760,6 @@ function TGeometryLonLatFactory.CreateLonLatPolygonLineByRect(
 ): IGeometryLonLatPolygon;
 var
   VPoints: array [0..4] of TDoublePoint;
-  VRect: ILonLatRect;
-  VHash: THashValue;
 begin
   VPoints[0] := ARect.TopLeft;
   VPoints[1].X := ARect.Right;
@@ -698,9 +767,7 @@ begin
   VPoints[2] := ARect.BottomRight;
   VPoints[3].X := ARect.Left;
   VPoints[3].Y := ARect.Bottom;
-  VRect := TLonLatRect.Create(ARect);
-  VHash := FHashFunction.CalcHashByBuffer(@VPoints[0], 4 * SizeOf(TDoublePoint));
-  Result := TGeometryLonLatPolygon.Create(VRect, VHash, @VPoints[0], 4);
+  Result := CreateLonLatPolygonInternal(ARect, @VPoints[0], 4);
 end;
 
 end.

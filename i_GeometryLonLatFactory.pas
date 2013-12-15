@@ -16,6 +16,14 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
+    function CreateLonLatLine(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatLine;
+    function CreateLonLatPolygon(
+      const APoints: PDoublePointArray;
+      ACount: Integer
+    ): IGeometryLonLatPolygon;
     function CreateLonLatMultiLine(
       const APoints: PDoublePointArray;
       ACount: Integer
