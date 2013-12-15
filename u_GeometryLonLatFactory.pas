@@ -41,6 +41,10 @@ type
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatPolygon;
+
+    function MakeGeometryLonLatMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
+    function MakeGeometryLonLatMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
+
     function CreateLonLatMultiLine(
       const APoints: PDoublePointArray;
       ACount: Integer
@@ -94,6 +98,174 @@ uses
   u_LonLatRectByPoint,
   u_VectorItemEmpty,
   u_GeometryLonLatMulti;
+
+type
+  TGeometryLonLatMultiLineBuilder = class(TBaseInterfacedObject, IGeometryLonLatMultiLineBuilder)
+  private
+    FHashFunction: IHashFunction;
+    FEmpty: IGeometryLonLatMultiLine;
+    FHash: THashValue;
+    FBounds: TDoubleRect;
+    FLine: IGeometryLonLatLine;
+    FList: IInterfaceListSimple;
+  private
+    procedure Add(const AElement: IGeometryLonLatLine);
+
+    function MakeStaticAndClear: IGeometryLonLatMultiLine;
+    function MakeStaticCopy: IGeometryLonLatMultiLine;
+  public
+    constructor Create(
+      const AEmpty: IGeometryLonLatMultiLine;
+      const AHashFunction: IHashFunction
+    );
+  end;
+
+{ TGeometryLonLatMultiLineBuilder }
+
+constructor TGeometryLonLatMultiLineBuilder.Create(
+  const AEmpty: IGeometryLonLatMultiLine;
+  const AHashFunction: IHashFunction
+);
+begin
+  inherited Create;
+  FEmpty := AEmpty;
+  FHashFunction := AHashFunction;
+end;
+
+procedure TGeometryLonLatMultiLineBuilder.Add(
+  const AElement: IGeometryLonLatLine
+);
+begin
+  Assert(Assigned(AElement));
+  if not Assigned(FLine) then begin
+    FLine := AElement;
+    FHash := FLine.Hash;
+    FBounds := FLine.Bounds.Rect;
+  end else begin
+    if not Assigned(FList) then begin
+      FList := TInterfaceListSimple.Create;
+    end;
+    FList.Add(FLine);
+    FList.Add(AElement);
+    FHashFunction.UpdateHashByHash(FHash, AElement.Hash);
+    FBounds := AElement.Bounds.UnionWithRect(FBounds);
+  end;
+end;
+
+function TGeometryLonLatMultiLineBuilder.MakeStaticAndClear: IGeometryLonLatMultiLine;
+var
+  VRect: ILonLatRect;
+begin
+  Result := FEmpty;
+  if Assigned(FLine) then begin
+    if Assigned(FList) and (FList.Count > 0) then begin
+      VRect := TLonLatRect.Create(FBounds);
+      Result := TGeometryLonLatMultiLine.Create(VRect, FHash, FList.MakeStaticAndClear);
+    end else begin
+      Result := TLonLatPathOneLine.Create(FLine);
+    end;
+    FLine := nil;
+  end;
+end;
+
+function TGeometryLonLatMultiLineBuilder.MakeStaticCopy: IGeometryLonLatMultiLine;
+var
+  VRect: ILonLatRect;
+begin
+  Result := FEmpty;
+  if Assigned(FLine) then begin
+    if Assigned(FList) and (FList.Count > 0) then begin
+      VRect := TLonLatRect.Create(FBounds);
+      Result := TGeometryLonLatMultiLine.Create(VRect, FHash, FList.MakeStaticCopy);
+    end else begin
+      Result := TLonLatPathOneLine.Create(FLine);
+    end;
+  end;
+end;
+
+type
+  TGeometryLonLatMultiPolygonBuilder = class(TBaseInterfacedObject, IGeometryLonLatMultiPolygonBuilder)
+  private
+    FHashFunction: IHashFunction;
+    FEmpty: IGeometryLonLatMultiPolygon;
+    FHash: THashValue;
+    FBounds: TDoubleRect;
+    FLine: IGeometryLonLatPolygon;
+    FList: IInterfaceListSimple;
+  private
+    procedure Add(const AElement: IGeometryLonLatPolygon);
+
+    function MakeStaticAndClear: IGeometryLonLatMultiPolygon;
+    function MakeStaticCopy: IGeometryLonLatMultiPolygon;
+  public
+    constructor Create(
+      const AEmpty: IGeometryLonLatMultiPolygon;
+      const AHashFunction: IHashFunction
+    );
+  end;
+
+{ TGeometryLonLatMultiPolygonBuilder }
+
+constructor TGeometryLonLatMultiPolygonBuilder.Create(
+  const AEmpty: IGeometryLonLatMultiPolygon;
+  const AHashFunction: IHashFunction
+);
+begin
+  inherited Create;
+  FEmpty := AEmpty;
+  FHashFunction := AHashFunction;
+end;
+
+procedure TGeometryLonLatMultiPolygonBuilder.Add(
+  const AElement: IGeometryLonLatPolygon
+);
+begin
+  Assert(Assigned(AElement));
+  if not Assigned(FLine) then begin
+    FLine := AElement;
+    FHash := FLine.Hash;
+    FBounds := FLine.Bounds.Rect;
+  end else begin
+    if not Assigned(FList) then begin
+      FList := TInterfaceListSimple.Create;
+    end;
+    FList.Add(FLine);
+    FList.Add(AElement);
+    FHashFunction.UpdateHashByHash(FHash, AElement.Hash);
+    FBounds := AElement.Bounds.UnionWithRect(FBounds);
+  end;
+end;
+
+function TGeometryLonLatMultiPolygonBuilder.MakeStaticAndClear: IGeometryLonLatMultiPolygon;
+var
+  VRect: ILonLatRect;
+begin
+  Result := FEmpty;
+  if Assigned(FLine) then begin
+    if Assigned(FList) and (FList.Count > 0) then begin
+      VRect := TLonLatRect.Create(FBounds);
+      Result := TGeometryLonLatMultiPolygon.Create(VRect, FHash, FList.MakeStaticAndClear);
+    end else begin
+      Result := TLonLatPolygonOneLine.Create(FLine);
+    end;
+    FLine := nil;
+  end;
+end;
+
+function TGeometryLonLatMultiPolygonBuilder.MakeStaticCopy: IGeometryLonLatMultiPolygon;
+var
+  VRect: ILonLatRect;
+begin
+  Result := FEmpty;
+  if Assigned(FLine) then begin
+    if Assigned(FList) and (FList.Count > 0) then begin
+      VRect := TLonLatRect.Create(FBounds);
+      Result := TGeometryLonLatMultiPolygon.Create(VRect, FHash, FList.MakeStaticCopy);
+    end else begin
+      Result := TLonLatPolygonOneLine.Create(FLine);
+    end;
+  end;
+end;
 
 { TVectorGeometryLonLatFactory }
 
@@ -768,6 +940,16 @@ begin
   VPoints[3].X := ARect.Left;
   VPoints[3].Y := ARect.Bottom;
   Result := CreateLonLatPolygonInternal(ARect, @VPoints[0], 4);
+end;
+
+function TGeometryLonLatFactory.MakeGeometryLonLatMultiLineBuilder: IGeometryLonLatMultiLineBuilder;
+begin
+  Result := TGeometryLonLatMultiLineBuilder.Create(FEmptyLonLatPath, FHashFunction);
+end;
+
+function TGeometryLonLatFactory.MakeGeometryLonLatMultiPolygonBuilder: IGeometryLonLatMultiPolygonBuilder;
+begin
+  Result := TGeometryLonLatMultiPolygonBuilder.Create(FEmptyLonLatPolygon, FHashFunction);
 end;
 
 end.

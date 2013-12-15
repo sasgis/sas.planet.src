@@ -11,6 +11,22 @@ uses
   i_GeometryLonLat;
 
 type
+  IGeometryLonLatMultiLineBuilder = interface
+    ['{19605EB8-E09C-4E69-A86E-B8701F1FB9C9}']
+    procedure Add(const AElement: IGeometryLonLatLine);
+
+    function MakeStaticAndClear: IGeometryLonLatMultiLine;
+    function MakeStaticCopy: IGeometryLonLatMultiLine;
+  end;
+
+  IGeometryLonLatMultiPolygonBuilder = interface
+    ['{993D049C-A360-4185-94CF-E1828503F7F4}']
+    procedure Add(const AElement: IGeometryLonLatPolygon);
+
+    function MakeStaticAndClear: IGeometryLonLatMultiPolygon;
+    function MakeStaticCopy: IGeometryLonLatMultiPolygon;
+  end;
+
   IGeometryLonLatFactory = interface
     ['{FD69BBD0-2065-43B0-9D7C-900E82C28069}']
     function CreateLonLatPoint(
@@ -24,6 +40,10 @@ type
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatPolygon;
+
+    function MakeGeometryLonLatMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
+    function MakeGeometryLonLatMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
+
     function CreateLonLatMultiLine(
       const APoints: PDoublePointArray;
       ACount: Integer
