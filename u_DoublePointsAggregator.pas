@@ -24,7 +24,7 @@ type
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
   public
-    constructor Create;
+    constructor Create(const ACapacity: Integer = 0);
     destructor Destroy; override;
   end;
 
@@ -32,10 +32,13 @@ implementation
 
 { TDoublePointsAggregator }
 
-constructor TDoublePointsAggregator.Create;
+constructor TDoublePointsAggregator.Create(const ACapacity: Integer = 0);
 begin
+  Assert(ACapacity >= 0);
   inherited Create;
   FCount := 0;
+  FCapacity := ACapacity;
+  SetLength(FPoints, FCapacity);
 end;
 
 destructor TDoublePointsAggregator.Destroy;
