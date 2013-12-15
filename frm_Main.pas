@@ -4708,7 +4708,7 @@ begin
       VLonLatRect.BottomRight := VLonLatRect.TopLeft;
     end;
     if VSelLonLat.Execute(VLonLatRect) Then Begin
-      VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
+      VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByRect(VLonLatRect);
       FState.State := ao_movemap;
       FRegionProcess.ProcessPolygon(VPolygon);
       VPolygon := nil;
@@ -5495,7 +5495,7 @@ begin
         FSelectionRect.UnlockWrite;
       end;
       if VSelectionFinished then begin
-        VPoly := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VSelectionRect);
+        VPoly := GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByRect(VSelectionRect);
         FState.State := ao_movemap;
         FRegionProcess.ProcessPolygonWithZoom(VZoomCurr, VPoly);
         VPoly := nil;
@@ -6099,7 +6099,7 @@ begin
                 FConfig.ViewPortState.View.GetStatic.ProjectionInfo
               );
             VPoly :=
-              GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+              GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
                 VPath,
                 VFilter
               );
@@ -6358,7 +6358,7 @@ begin
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
   VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
 
-  VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatPolygonByRect(VLonLatRect);
+  VPolygon := GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByRect(VLonLatRect);
   FState.State := ao_movemap;
   FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
 end;

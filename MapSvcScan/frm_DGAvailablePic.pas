@@ -1096,7 +1096,7 @@ begin
 
       if (VPointsAggregator.Count>0) then begin
         // create lonlats
-        VPolygon := FVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+        VPolygon := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
           VMark :=

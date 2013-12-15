@@ -200,7 +200,7 @@ begin
           if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
             i := 1;
             if not CheckIsValidPoint(AConfigProvider, VIdentLon, VIdentLat, i) then begin
-              Result := AVectorGeometryLonLatFactory.CreateLonLatPolygon(nil, 0);
+              Result := AVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(nil, 0);
               Exit;
             end;
           end;
@@ -219,7 +219,7 @@ begin
       Inc(i);
     end;
   until not VValidPoint;
-  Result := AVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+  Result := AVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
 end;
 
 procedure WritePolygon(

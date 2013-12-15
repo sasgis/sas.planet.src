@@ -458,7 +458,7 @@ begin
     Exit;
 
   // make polygon object
-  VLonLatPolygon := FGeometryFactory.CreateLonLatPolygon(
+  VLonLatPolygon := FGeometryFactory.CreateLonLatMultiPolygon(
     FDoublePointsAggregator.Points,
     FDoublePointsAggregator.Count
   );
@@ -486,7 +486,7 @@ begin
     Exit;
 
   // make polyline object
-  VLonLatPath := FGeometryFactory.CreateLonLatPath(
+  VLonLatPath := FGeometryFactory.CreateLonLatMultiLine(
     FDoublePointsAggregator.Points,
     FDoublePointsAggregator.Count
   );

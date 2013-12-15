@@ -351,7 +351,7 @@ begin
         );
     end;
   end else if (APointsAggregator.Count>2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count-1]) then begin
-    VPoly := AGeometryFactory.CreateLonLatPolygon(APointsAggregator.Points, APointsAggregator.Count);
+    VPoly := AGeometryFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, APointsAggregator.Count);
     if Assigned(VPoly) then begin
       // make
       VItem :=
@@ -362,7 +362,7 @@ begin
         );
     end;
   end else begin
-    VPath := AGeometryFactory.CreateLonLatPath(APointsAggregator.Points, APointsAggregator.Count);
+    VPath := AGeometryFactory.CreateLonLatMultiLine(APointsAggregator.Points, APointsAggregator.Count);
     if Assigned(VPath) then begin
       // make
       VItem :=

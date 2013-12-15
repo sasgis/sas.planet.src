@@ -581,7 +581,7 @@ end;
 
 procedure TPathOnMapEdit._UpdateLineObject;
 begin
-  FLine := FVectorGeometryLonLatFactory.CreateLonLatPath(@FPoints[0], FPointsCount);
+  FLine := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(@FPoints[0], FPointsCount);
   _UpdateLineWithSelected;
 end;
 
@@ -698,7 +698,7 @@ end;
 
 procedure TPolygonOnMapEdit._UpdateLineObject;
 begin
-  FLine := FVectorGeometryLonLatFactory.CreateLonLatPolygon(@FPoints[0], FPointsCount);
+  FLine := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(@FPoints[0], FPointsCount);
   _UpdateLineWithSelected;
 end;
 

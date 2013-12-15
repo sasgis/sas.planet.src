@@ -151,7 +151,7 @@ begin
     end;
   end;
   if not conerr then begin
-    Result := FVectorGeometryLonLatFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
+    Result := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(VPointsAggregator.Points, VPointsAggregator.Count);
   end;
 end;
 

@@ -151,7 +151,7 @@ begin
     end;
     VAggreagator.Add(CEmptyDoublePoint);
   end;
-  Result := FVectorGeometryLonLatFactory.CreateLonLatPolygon(VAggreagator.Points, VAggreagator.Count);
+  Result := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(VAggreagator.Points, VAggreagator.Count);
 end;
 
 function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(

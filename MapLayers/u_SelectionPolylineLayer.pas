@@ -109,7 +109,7 @@ begin
         ALocalConverter.ProjectionInfo
       );
     Result :=
-      FVectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+      FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
         VLine,
         VFilter
       );

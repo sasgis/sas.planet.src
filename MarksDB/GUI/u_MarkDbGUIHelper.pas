@@ -603,7 +603,7 @@ begin
       end;
       VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
       Result :=
-        FVectorGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+        FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
           VMarkLine.Line,
           VFilter
           );
@@ -619,7 +619,7 @@ begin
           Exit;
         end;
         Result :=
-          FVectorGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
+          FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonCircleByPoint(
             AProjection,
             VMarkPoint.GetPoint.Point,
             VRadius

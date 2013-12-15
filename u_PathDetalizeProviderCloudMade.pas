@@ -195,7 +195,7 @@ begin
   end;
   if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     if not conerr then begin
-      Result := FVectorGeometryLonLatFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
+      Result := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(VPointsAggregator.Points, VPointsAggregator.Count);
       if meters > 1000 then begin
         AComment := SAS_STR_MarshLen + ' ' + RoundEx(meters / 1000, 2) + ' ' + SAS_UNITS_km;
       end else begin

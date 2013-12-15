@@ -154,7 +154,7 @@ begin
       end;
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin
-        VPoly := FVectorGeometryLonLatFactory.CreateLonLatPolygon(APointsAggregator.Points, VPointCount);
+        VPoly := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, VPointCount);
         if Assigned(VPoly) then begin
           Result :=
             FVectorDataFactory.BuildPoly(
@@ -164,7 +164,7 @@ begin
             );
         end;
       end else begin
-        VPath := FVectorGeometryLonLatFactory.CreateLonLatPath(APointsAggregator.Points, VPointCount);
+        VPath := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(APointsAggregator.Points, VPointCount);
         if Assigned(VPath) then begin
           Result :=
             FVectorDataFactory.BuildPath(

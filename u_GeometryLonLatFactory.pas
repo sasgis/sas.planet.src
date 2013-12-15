@@ -23,19 +23,19 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
-    function CreateLonLatPath(
+    function CreateLonLatMultiLine(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatMultiLine;
-    function CreateLonLatPolygon(
+    function CreateLonLatMultiPolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatMultiPolygon;
-    function CreateLonLatPathByEnum(
+    function CreateLonLatMultiLineByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLonLatMultiLine;
-    function CreateLonLatPolygonByEnum(
+    function CreateLonLatMultiPolygonByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLonLatMultiPolygon;
@@ -43,17 +43,17 @@ type
     function CreateLonLatPolygonLineByRect(
       const ARect: TDoubleRect
     ): IGeometryLonLatPolygon;
-    function CreateLonLatPolygonByRect(
+    function CreateLonLatMultiPolygonByRect(
       const ARect: TDoubleRect
     ): IGeometryLonLatMultiPolygon;
 
-    function CreateLonLatPolygonCircleByPoint(
+    function CreateLonLatMultiPolygonCircleByPoint(
       const AProjection: IProjectionInfo;
       const APos: TDoublePoint;
       const ARadius: double
     ): IGeometryLonLatMultiPolygon;
 
-    function CreateLonLatPolygonByLonLatPathAndFilter(
+    function CreateLonLatMultiPolygonByLonLatPathAndFilter(
       const ASource: IGeometryLonLatMultiLine;
       const AFilter: ILonLatPointFilter
     ): IGeometryLonLatMultiPolygon;
@@ -92,7 +92,7 @@ begin
   FEmptyLonLatPolygon := VEmpty;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPolygonCircleByPoint(
+function TGeometryLonLatFactory.CreateLonLatMultiPolygonCircleByPoint(
   const AProjection: IProjectionInfo;
   const APos: TDoublePoint;
   const ARadius: double
@@ -111,10 +111,10 @@ begin
     VPoint := VDatum.CalcFinishPosition(APos, VAngle, ARadius);
     VAggreagator.Add(VPoint);
   end;
-  Result := CreateLonLatPolygon(VAggreagator.Points, VAggreagator.Count);
+  Result := CreateLonLatMultiPolygon(VAggreagator.Points, VAggreagator.Count);
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPath(
+function TGeometryLonLatFactory.CreateLonLatMultiLine(
   const APoints: PDoublePointArray;
   ACount: Integer
 ): IGeometryLonLatMultiLine;
@@ -224,7 +224,7 @@ begin
   end;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPathByEnum(
+function TGeometryLonLatFactory.CreateLonLatMultiLineByEnum(
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
 ): IGeometryLonLatMultiLine;
@@ -346,7 +346,7 @@ begin
   Result := TGeometryLonLatPoint.Create(VHash, VRect);
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPolygon(
+function TGeometryLonLatFactory.CreateLonLatMultiPolygon(
   const APoints: PDoublePointArray;
   ACount: Integer
 ): IGeometryLonLatMultiPolygon;
@@ -456,7 +456,7 @@ begin
   end;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPolygonByEnum(
+function TGeometryLonLatFactory.CreateLonLatMultiPolygonByEnum(
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
 ): IGeometryLonLatMultiPolygon;
@@ -566,7 +566,7 @@ begin
   end;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPolygonByLonLatPathAndFilter(
+function TGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
   const ASource: IGeometryLonLatMultiLine;
   const AFilter: ILonLatPointFilter
 ): IGeometryLonLatMultiPolygon;
@@ -677,7 +677,7 @@ begin
   end;
 end;
 
-function TGeometryLonLatFactory.CreateLonLatPolygonByRect(
+function TGeometryLonLatFactory.CreateLonLatMultiPolygonByRect(
   const ARect: TDoubleRect
 ): IGeometryLonLatMultiPolygon;
 begin

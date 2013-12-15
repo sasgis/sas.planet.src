@@ -16,32 +16,32 @@ type
     function CreateLonLatPoint(
       const APoint: TDoublePoint
     ): IGeometryLonLatPoint;
-    function CreateLonLatPath(
+    function CreateLonLatMultiLine(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatMultiLine;
-    function CreateLonLatPolygon(
+    function CreateLonLatMultiPolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLonLatMultiPolygon;
-    function CreateLonLatPathByEnum(
+    function CreateLonLatMultiLineByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLonLatMultiLine;
-    function CreateLonLatPolygonByEnum(
+    function CreateLonLatMultiPolygonByEnum(
       const AEnum: IEnumLonLatPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLonLatMultiPolygon;
 
-    function CreateLonLatPolygonByRect(
+    function CreateLonLatMultiPolygonByRect(
       const ARect: TDoubleRect
     ): IGeometryLonLatMultiPolygon;
-    function CreateLonLatPolygonCircleByPoint(
+    function CreateLonLatMultiPolygonCircleByPoint(
       const AProjection: IProjectionInfo;
       const APos: TDoublePoint;
       const ARadius: double
     ): IGeometryLonLatMultiPolygon;
-    function CreateLonLatPolygonByLonLatPathAndFilter(
+    function CreateLonLatMultiPolygonByLonLatPathAndFilter(
       const ASource: IGeometryLonLatMultiLine;
       const AFilter: ILonLatPointFilter
     ): IGeometryLonLatMultiPolygon;

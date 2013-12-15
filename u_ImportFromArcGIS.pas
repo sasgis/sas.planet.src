@@ -503,7 +503,7 @@ begin
 
           if (VPointsAggregator.Count>0) then begin
             // create lonlats
-            VPolygon := AVectorGeometryLonLatFactory.CreateLonLatPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
+            VPolygon := AVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
             if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
               // make polygon
               if (nil=VAllNewMarks) then begin

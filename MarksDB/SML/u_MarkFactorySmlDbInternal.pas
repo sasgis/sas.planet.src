@@ -389,7 +389,7 @@ begin
       end;
     end else begin
       if DoublePointsEqual(APoints[0], APoints[APointCount - 1]) then begin
-        VPolygon := FVectorGeometryLonLatFactory.CreateLonLatPolygon(APoints, APointCount - 1);
+        VPolygon := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(APoints, APointCount - 1);
         if VPolygon.Count <> 0 then begin
           Result :=
             CreatePoly(
@@ -405,7 +405,7 @@ begin
             );
         end;
       end else begin
-        VPath := FVectorGeometryLonLatFactory.CreateLonLatPath(APoints, APointCount);
+        VPath := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(APoints, APointCount);
         if VPath.Count <> 0 then begin
           Result :=
             CreateLine(

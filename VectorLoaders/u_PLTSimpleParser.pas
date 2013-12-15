@@ -136,7 +136,7 @@ begin
       VPointsAggregator := TDoublePointsAggregator.Create;
       ParseStringList(pltstr, VPointsAggregator);
       if VPointsAggregator.Count > 0 then begin
-        VPath := FVectorGeometryLonLatFactory.CreateLonLatPath(VPointsAggregator.Points, VPointsAggregator.Count);
+        VPath := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(VPointsAggregator.Points, VPointsAggregator.Count);
         if Assigned(VPath) then begin
           trackname := string(GetWord(pltstr[4], ',', 4));
           VItem :=
