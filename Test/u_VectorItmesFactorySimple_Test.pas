@@ -11,12 +11,13 @@ interface
 uses
   TestFramework,
   t_GeoTypes,
+  i_VectorGeometryProjectedFactory,
   i_GeometryLonLatFactory;
 
 type
-  TestTVectorItmesFactorySimple = class(TTestCase)
+  TestTVectorItmesLonLatFactorySimple = class(TTestCase)
   private
-    FFactory: IVectorItemsFactory;
+    FFactory: IGeometryLonLatFactory;
     FPoints: array of TDoublePoint;
   protected
     procedure SetUp; override;
@@ -28,7 +29,15 @@ type
     procedure CreateLonLatPolygonSimple;
     procedure CreateLonLatPolygonTwoLines;
     procedure CreateLonLatPolygonNoLines;
+  end;
 
+  TestTVectorItmesProjectedFactorySimple = class(TTestCase)
+  private
+    FFactory: IVectorGeometryProjectedFactory;
+    FPoints: array of TDoublePoint;
+  protected
+    procedure SetUp; override;
+  published
     procedure CreateProjectedPathSimple;
     procedure CreateProjectedPathTwoLines;
     procedure CreateProjectedPathNoLines;
@@ -51,11 +60,12 @@ uses
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_InternalPerformanceCounterFake,
+  u_VectorGeometryProjectedFactory,
   u_GeometryLonLatFactory;
 
 { TestTVectorItmesFactorySimple }
 
-procedure TestTVectorItmesFactorySimple.SetUp;
+procedure TestTVectorItmesLonLatFactorySimple.SetUp;
 var
   VHashFunction: IHashFunction;
 begin
@@ -64,41 +74,41 @@ begin
       THashFunctionCityHash.Create,
       TInternalPerformanceCounterFake.Create
     );
-  FFactory := TVectorItemsFactorySimple.Create(VHashFunction);
+  FFactory := TGeometryLonLatFactory.Create(VHashFunction);
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateLonLatPathNoLines;
+procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPathNoLines;
 var
-  VResult: ILonLatPath;
+  VResult: IGeometryLonLatMultiLine;
 begin
-  VResult := FFactory.CreateLonLatPath(nil, 0);
+  VResult := FFactory.CreateLonLatMultiLine(nil, 0);
   CheckNotNull(VResult);
   CheckEquals(0, VResult.Count);
   CheckNotNull(VResult.GetEnum);
   SetLength(FPoints, 0);
-  VResult := FFactory.CreateLonLatPath(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(0, VResult.Count);
   CheckNotNull(VResult.GetEnum);
   SetLength(FPoints, 1);
   FPoints[0] := CEmptyDoublePoint;
-  VResult := FFactory.CreateLonLatPath(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(0, VResult.Count);
   CheckNotNull(VResult.GetEnum);
   SetLength(FPoints, 2);
   FPoints[0] := CEmptyDoublePoint;
   FPoints[1] := CEmptyDoublePoint;
-  VResult := FFactory.CreateLonLatPath(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(0, VResult.Count);
   CheckNotNull(VResult.GetEnum);
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateLonLatPathSimple;
+procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPathSimple;
 var
-  VResult: ILonLatPath;
-  VLine: ILonLatPathLine;
+  VResult: IGeometryLonLatMultiLine;
+  VLine: IGeometryLonLatLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -106,7 +116,7 @@ begin
   FPoints[0] := DoublePoint(0, 1);
   FPoints[1] := DoublePoint(1, 1);
   FPoints[2] := DoublePoint(1, 0);
-  VResult := FFactory.CreateLonLatPath(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(1, VResult.Count);
   VEnum := VResult.GetEnum;
@@ -132,10 +142,10 @@ begin
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateLonLatPathTwoLines;
+procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPathTwoLines;
 var
-  VResult: ILonLatPath;
-  VLine: ILonLatPathLine;
+  VResult: IGeometryLonLatMultiLine;
+  VLine: IGeometryLonLatLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -144,7 +154,7 @@ begin
   FPoints[1] := CEmptyDoublePoint;
   FPoints[2] := DoublePoint(1, 1);
   FPoints[3] := DoublePoint(1, 0);
-  VResult := FFactory.CreateLonLatPath(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiLine(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(2, VResult.Count);
   VEnum := VResult.GetEnum;
@@ -178,38 +188,38 @@ begin
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateLonLatPolygonNoLines;
+procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPolygonNoLines;
 var
-  VResult: ILonLatPolygon;
+  VResult: IGeometryLonLatMultiPolygon;
 begin
-  VResult := FFactory.CreateLonLatPolygon(nil, 0);
+  VResult := FFactory.CreateLonLatMultiPolygon(nil, 0);
   CheckNotNull(VResult);
   CheckEquals(0, VResult.Count);
   CheckNotNull(VResult.GetEnum);
   SetLength(FPoints, 0);
-  VResult := FFactory.CreateLonLatPolygon(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(0, VResult.Count);
   CheckNotNull(VResult.GetEnum);
   SetLength(FPoints, 1);
   FPoints[0] := CEmptyDoublePoint;
-  VResult := FFactory.CreateLonLatPolygon(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(0, VResult.Count);
   CheckNotNull(VResult.GetEnum);
   SetLength(FPoints, 2);
   FPoints[0] := CEmptyDoublePoint;
   FPoints[1] := CEmptyDoublePoint;
-  VResult := FFactory.CreateLonLatPolygon(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(0, VResult.Count);
   CheckNotNull(VResult.GetEnum);
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateLonLatPolygonSimple;
+procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPolygonSimple;
 var
-  VResult: ILonLatPolygon;
-  VLine: ILonLatPolygonLine;
+  VResult: IGeometryLonLatMultiPolygon;
+  VLine: IGeometryLonLatPolygon;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -217,7 +227,7 @@ begin
   FPoints[0] := DoublePoint(0, 1);
   FPoints[1] := DoublePoint(1, 1);
   FPoints[2] := DoublePoint(1, 0);
-  VResult := FFactory.CreateLonLatPolygon(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(1, VResult.Count);
   VEnum := VResult.GetEnum;
@@ -247,10 +257,10 @@ begin
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateLonLatPolygonTwoLines;
+procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPolygonTwoLines;
 var
-  VResult: ILonLatPolygon;
-  VLine: ILonLatPolygonLine;
+  VResult: IGeometryLonLatMultiPolygon;
+  VLine: IGeometryLonLatPolygon;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -259,7 +269,7 @@ begin
   FPoints[1] := CEmptyDoublePoint;
   FPoints[2] := DoublePoint(1, 1);
   FPoints[3] := DoublePoint(1, 0);
-  VResult := FFactory.CreateLonLatPolygon(@FPoints[0], Length(FPoints));
+  VResult := FFactory.CreateLonLatMultiPolygon(@FPoints[0], Length(FPoints));
   CheckNotNull(VResult);
   CheckEquals(2, VResult.Count);
   VEnum := VResult.GetEnum;
@@ -297,7 +307,13 @@ begin
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateProjectedPathNoLines;
+procedure TestTVectorItmesProjectedFactorySimple.SetUp;
+begin
+  inherited;
+  FFactory := TVectorGeometryProjectedFactory.Create;
+end;
+
+procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathNoLines;
 var
   VResult: IProjectedPath;
 begin
@@ -325,7 +341,7 @@ begin
   CheckNotNull(VResult.GetEnum);
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateProjectedPathSimple;
+procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathSimple;
 var
   VResult: IProjectedPath;
   VLine: IProjectedPathLine;
@@ -362,7 +378,7 @@ begin
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateProjectedPathTwoLines;
+procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathTwoLines;
 var
   VResult: IProjectedPath;
   VLine: IProjectedPathLine;
@@ -370,7 +386,7 @@ var
   VEnum: IEnumDoublePoint;
   VProjection: IProjectionInfo;
 begin
-  VProjection := TProjectionInfo.Create(nil, 0);
+  VProjection := TProjectionInfo.Create(0, nil, 0);
   SetLength(FPoints, 4);
   FPoints[0] := DoublePoint(0, 1);
   FPoints[1] := CEmptyDoublePoint;
@@ -410,7 +426,7 @@ begin
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateProjectedPolygonNoLines;
+procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonNoLines;
 var
   VResult: IProjectedPolygon;
 begin
@@ -438,7 +454,7 @@ begin
   CheckNotNull(VResult.GetEnum);
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateProjectedPolygonSimple;
+procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonSimple;
 var
   VResult: IProjectedPolygon;
   VLine: IProjectedPolygonLine;
@@ -479,7 +495,7 @@ begin
   CheckFalse(VEnum.Next(VPoint));
 end;
 
-procedure TestTVectorItmesFactorySimple.CreateProjectedPolygonTwoLines;
+procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonTwoLines;
 var
   VResult: IProjectedPolygon;
   VLine: IProjectedPolygonLine;
@@ -487,7 +503,7 @@ var
   VEnum: IEnumDoublePoint;
   VProjection: IProjectionInfo;
 begin
-  VProjection := TProjectionInfo.Create(nil, 0);
+  VProjection := TProjectionInfo.Create(0, nil, 0);
   SetLength(FPoints, 4);
   FPoints[0] := DoublePoint(0, 1);
   FPoints[1] := CEmptyDoublePoint;
@@ -533,5 +549,6 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestTVectorItmesFactorySimple.Suite);
+  RegisterTest(TestTVectorItmesLonLatFactorySimple.Suite);
+  RegisterTest(TestTVectorItmesProjectedFactorySimple.Suite);
 end.

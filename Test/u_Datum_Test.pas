@@ -30,7 +30,7 @@ var
   AFinalBearing: Double;
   VDatum: IDatum;
 begin
-  VDatum := TDatum.Create(CGELonLatProjectionEPSG, 6378137.0000, 6356752.3142);
+  VDatum := TDatum.Create(0, CGELonLatProjectionEPSG, 6378137.0000, 6356752.3142);
 
   AStart.Y := 53.00; // Lat
   AStart.X := 30.00; // Lon
@@ -54,7 +54,7 @@ var
   AStart: TDoublePoint;
   VDatum: IDatum;
 begin
-  VDatum := TDatum.Create(CGELonLatProjectionEPSG, 6378137.0000, 6356752.3142);
+  VDatum := TDatum.Create(0, CGELonLatProjectionEPSG, 6378137.0000, 6356752.3142);
 
   AStart.Y := 53.00; // Lat
   AStart.X := 30.00; // Lon
