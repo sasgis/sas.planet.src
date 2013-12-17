@@ -432,6 +432,9 @@ var
   VHash: THashValue;
   VRect: ILonLatRect;
 begin
+  if (ACount > 1) and DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin
+    Dec(ACount);
+  end;
   if ACount > 1 then begin
     VRect := TLonLatRect.Create(ARect);
   end else begin
