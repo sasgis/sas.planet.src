@@ -405,6 +405,7 @@ uses
   u_ECWWrite in 'u_ECWWrite.pas',
   i_BitmapTileSaveLoad in 'BitmapTileSaveLoad\i_BitmapTileSaveLoad.pas',
   u_BitmapTileLibJpeg in 'BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas',
+  u_BitmapTileLibPng in 'BitmapTileSaveLoad\u_BitmapTileLibPng.pas',
   i_BitmapTileSaveLoadFactory in 'BitmapTileSaveLoad\i_BitmapTileSaveLoadFactory.pas',
   u_BitmapTileSaveLoadFactory in 'BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas',
   u_BitmapTileFreeImage in 'BitmapTileSaveLoad\u_BitmapTileFreeImage.pas',

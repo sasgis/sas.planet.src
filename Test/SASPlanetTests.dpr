@@ -24,6 +24,7 @@ uses
   u_HashCacheWithQueuesAbstract_Test in 'u_HashCacheWithQueuesAbstract_Test.pas',
   u_PathConfig_Test in 'u_PathConfig_Test.pas',
   u_Datum_Test in 'u_Datum_Test.pas',
+  u_BitmapTileLibPng_Test in 'u_BitmapTileLibPng_Test.pas',
   u_BitmapTileSaveLoadFactory_Test in 'u_BitmapTileSaveLoadFactory_Test.pas';
 
 begin

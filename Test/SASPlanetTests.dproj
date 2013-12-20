@@ -26,10 +26,10 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
     <DCC_Define>DEBUG;_CONSOLE_TESTRUNNER</DCC_Define>
-    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\</DCC_UnitSearchPath>
-    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\</DCC_ResourcePath>
-    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\</DCC_ObjPath>
-    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\</DCC_IncludePath>
+    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\;..\Includes\LibPng</DCC_UnitSearchPath>
+    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\;..\Includes\LibPng</DCC_ResourcePath>
+    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\;..\Includes\LibPng</DCC_ObjPath>
+    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\;..\Includes\LibPng</DCC_IncludePath>
     <DCC_ExeOutput>..\.bin\</DCC_ExeOutput>
     <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
@@ -53,6 +53,7 @@
     </DelphiCompile>
     <DCCReference Include="i_IGUIDInterfaceSet_Test.pas" />
     <DCCReference Include="i_IGUIDObjectSet_Test.pas" />
+    <DCCReference Include="u_BitmapTileLibPng_Test.pas" />
     <DCCReference Include="u_BitmapTileSaveLoadFactory_Test.pas" />
     <DCCReference Include="u_Datum_Test.pas" />
     <DCCReference Include="u_EnumDoublePointClosePoly_Test.pas" />

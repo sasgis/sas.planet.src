@@ -185,13 +185,13 @@ begin
   VNumTrans := 0;
 
   for I := 0 to FPaletteSize - 1 do begin
-    VPal[I].red := VPtr^;
+    VPal[I].blue := VPtr^;
     Inc(VPtr);
 
     VPal[I].green := VPtr^;
     Inc(VPtr);
 
-    VPal[I].blue := VPtr^;
+    VPal[I].red := VPtr^;
     Inc(VPtr);
 
     VTrans[VNumTrans] := VPtr^;

@@ -66,6 +66,7 @@
     <DCCReference Include="BitmapTileSaveLoad\u_Bitmap8Static.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileFreeImage.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas" />
+    <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibPng.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas" />
     <DCCReference Include="CacheManager\frm_CacheManager.pas">
       <Form>frmCacheManager</Form>
