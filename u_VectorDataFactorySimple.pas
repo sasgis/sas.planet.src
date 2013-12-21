@@ -34,6 +34,11 @@ type
   private
     FHashFunction: IHashFunction;
   private
+    function BuildItem(
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AAppearance: IAppearance;
+      const AGeometry: IGeometryLonLat
+    ): IVectorDataItemSimple;
     function BuildPoint(
       const AMainInfo: IVectorDataItemMainInfo;
       const AAppearance: IAppearance;
@@ -58,6 +63,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_VectorDataItemBase,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon;
@@ -71,6 +77,28 @@ begin
   Assert(Assigned(AHashFunction));
   inherited Create;
   FHashFunction := AHashFunction;
+end;
+
+function TVectorDataFactorySimple.BuildItem(
+  const AMainInfo: IVectorDataItemMainInfo;
+  const AAppearance: IAppearance;
+  const AGeometry: IGeometryLonLat
+): IVectorDataItemSimple;
+var
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
+begin
+  Result := nil;
+  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    Result := BuildPoint(AMainInfo, AAppearance, VPoint);
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
+    Result := BuildPath(AMainInfo, AAppearance, VLine);
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+    Result := BuildPoly(AMainInfo, AAppearance, VPoly);
+  end else begin
+    Assert(False);
+  end;
 end;
 
 function TVectorDataFactorySimple.BuildPath(

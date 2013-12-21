@@ -19,6 +19,11 @@ type
 
   IVectorDataFactory = interface
     ['{F90BAFE2-B3A5-4C6B-9831-3E460F7771F6}']
+    function BuildItem(
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AAppearance: IAppearance;
+      const AGeometry: IGeometryLonLat
+    ): IVectorDataItemSimple;
     function BuildPoint(
       const AMainInfo: IVectorDataItemMainInfo;
       const AAppearance: IAppearance;
