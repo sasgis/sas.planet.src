@@ -339,18 +339,10 @@ begin
 end;
 
 function TProviderMapCombineBase.PrepareTargetFileName: string;
-var
-  VMsg: string;
 begin
   Result := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   if Result = '' then begin
     raise Exception.Create(_('Please, select output file first!'));
-  end;
-  if FileExists(Result) then begin
-    VMsg := Format(SAS_MSG_FileExists, [Result]);
-    if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
-      raise EAbort.CreateFmt('File %0:s is available on disk.', [Result]);
-    end;
   end;
 end;
 

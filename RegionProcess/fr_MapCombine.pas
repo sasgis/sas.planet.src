@@ -3,6 +3,7 @@ unit fr_MapCombine;
 interface
 
 uses
+  Windows,
   SysUtils,
   Classes,
   Controls,
@@ -552,7 +553,28 @@ begin
 end;
 
 function TfrMapCombine.Validate: Boolean;
+var
+  VPath: string;
+  VMsg: string;
 begin
+  if (FfrMapSelect.GetSelectedMapType = nil) and (FfrLayerSelect.GetSelectedMapType = nil) then begin
+    ShowMessage(_('Please select map or layer'));
+    Result := False;
+    Exit;
+  end;
+  VPath := GetPath;
+  if VPath = '' then begin
+    ShowMessage(_('Please, select output file first!'));
+    Result := False;
+    Exit;
+  end;
+  if FileExists(VPath) then begin
+    VMsg := Format(SAS_MSG_FileExists, [VPath]);
+    if (Application.MessageBox(pchar(VMsg), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
+      Result := False;
+      Exit;
+    end;
+  end;
   Result := True;
 end;
 
