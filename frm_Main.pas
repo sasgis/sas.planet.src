@@ -5401,14 +5401,12 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseDownPos: TPoint;
   VMouseMoveDelta: TPoint;
-  VVectorItem: IVectorDataItemSimple;
   VVectorItems: IVectorItemSubset;
   I: Integer;
   VDescription: string;
   VTitle: string;
   VMark: IVectorDataItemSimple;
-  VEnumUnknown: IEnumUnknown;
-  VFound: integer;
+  VItemTitle: string;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
 
@@ -5522,45 +5520,38 @@ begin
       FMouseState.GetLastUpPos(Button)
     );
   end;
-  VFound:=0;
   if (VMouseMoveDelta.X = 0)and(VMouseMoveDelta.Y = 0) then begin
     if (FState.State=ao_movemap)and(Button=mbLeft) then begin
-      VVectorItem := nil;
-
       VVectorItems := FindItems(VLocalConverter, Point(x,y));
-      if VVectorItems <> nil then begin
-        if VVectorItems.Count > 0 then begin
-          VEnumUnknown := VVectorItems.GetEnum;
-          while VEnumUnknown.Next(1, VMark, @i) = S_OK do begin
-            if VMark.GetInfoUrl <> '' then begin
-              if VMark.Name <> '' then begin
-                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
-                  VMark.Name + '</a><br>';
-              end else begin
-                VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + '">' +
-                  VMark.GetInfoUrl + '</a><br>';
-              end;
+      if (VVectorItems <> nil) and (VVectorItems.Count > 0) then begin
+        if VVectorItems.Count > 1 then begin
+          VDescription := '';
+          for i := 0 to VVectorItems.Count - 1 do begin
+            VMark := VVectorItems.Items[i];
+            VItemTitle := VMark.GetInfoCaption;
+            if VItemTitle = '' then begin
+              VItemTitle := VMark.GetInfoUrl;
             end else begin
-              VDescription := VDescription + '<hr>';
+              VTitle := VTitle + VMark.GetInfoCaption + '; ';
             end;
-            VDescription := VDescription + VMark.Desc;
-            VTitle := VTitle + VMark.Name + '; ';
-            VFound := VFound + 1;
-            VVectorItem := VMark;
+            if VMark.GetInfoUrl <> '' then begin
+              VDescription := VDescription + '<hr><a href="' + VMark.GetInfoUrl + CVectorItemDescriptionSuffix + '">' +
+                VItemTitle + '</a><br>'#13#10;
+            end else begin
+              VDescription := VDescription + '<hr>'#13#10;
+            end;
+            VDescription := VDescription + VMark.Desc + #13#10;
+          end;
+          VDescription := 'Found: '+ inttostr(VVectorItems.Count) + '<br>' + VDescription;
+          GState.InternalBrowser.ShowMessage(VTitle, VDescription);
+        end else begin
+          VMark := VVectorItems.Items[0];
+          if VMark.GetInfoUrl <> '' then begin
+            GState.InternalBrowser.Navigate(VMark.GetInfoCaption, VMark.GetInfoUrl + CVectorItemDescriptionSuffix);
+          end else begin
+            GState.InternalBrowser.ShowMessage(VMark.GetInfoCaption, VMark.Desc);
           end;
         end;
-      end;
-
-      if VFound=1 then begin
-        if VVectorItem.GetInfoUrl <> '' then begin
-          GState.InternalBrowser.Navigate(VVectorItem.GetInfoCaption, VVectorItem.GetInfoUrl +
-            CVectorItemDescriptionSuffix);
-        end else begin
-          GState.InternalBrowser.ShowMessage(VTitle, VDescription);
-        end;
-      end else if VFound>1 then begin
-        GState.InternalBrowser.ShowMessage(VTitle, 'Found: '+ inttostr(VFound) +
-          '<br>' + VDescription);
       end;
     end;
   end;
