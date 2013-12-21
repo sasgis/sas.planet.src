@@ -42,6 +42,7 @@ uses
   SysUtils,
   t_GeoTypes,
   i_CoordConverter,
+  i_GeometryLonLat,
   i_VectorDataItemSimple,
   i_VectorItemProjected;
 
@@ -85,9 +86,10 @@ var
   i: integer;
   VItem: IVectorDataItemSimple;
   VProjectdPath: IProjectedPath;
-  VItemLine: IVectorDataItemLine;
-  VItemPoly: IVectorDataItemPoly;
   VProjectdPolygon: IProjectedPolygon;
+  VGeometry: IGeometryLonLat;
+  VGeometryLine: IGeometryLonLatMultiLine;
+  VGeometryPoly: IGeometryLonLatMultiPolygon;
   Vtmp: IVectorItemSubsetBuilder;
 begin
   Result := nil;
@@ -112,18 +114,19 @@ begin
         // check element
         for i := 0 to VElements.Count - 1 do begin
           VItem := VElements.GetItem(i);
-          if VItem.Geometry.Bounds.IsIntersecWithRect(VLonLatRect) then begin
-            if Supports(VItem, IVectorDataItemPoint) then begin
+          VGeometry := VItem.Geometry;
+          if VGeometry.Bounds.IsIntersecWithRect(VLonLatRect) then begin
+            if Supports(VGeometry, IGeometryLonLatPoint) then begin
               Vtmp.add(VItem);
-            end else if Supports(VItem, IVectorDataItemLine, VItemLine) then begin
-              VProjectdPath := FProjectedProvider.GetProjectedPath(AVisualConverter.ProjectionInfo,  VItemLine.Line);
+            end else if Supports(VGeometry, IGeometryLonLatMultiLine, VGeometryLine) then begin
+              VProjectdPath := FProjectedProvider.GetProjectedPath(AVisualConverter.ProjectionInfo,  VGeometryLine);
               if Assigned(VProjectdPath) then begin
                 if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
                   Vtmp.add(VItem);
                 end;
               end;
-            end else if Supports(VItem, IVectorDataItemPoly, VItemPoly) then begin
-              VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(AVisualConverter.ProjectionInfo,  VItemPoly.Line);
+            end else if Supports(VGeometry, IGeometryLonLatMultiPolygon, VGeometryPoly) then begin
+              VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(AVisualConverter.ProjectionInfo,  VGeometryPoly);
               if Assigned(VProjectdPolygon) then begin
                 if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
                   VProjectdPolygon.IsPointOnBorder(VPixelPos, 3) then begin
