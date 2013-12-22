@@ -234,18 +234,18 @@ function TLayerScaleLineHorizontal.GetMetersPerLine(
 ): Double;
 var
   VStartLonLat, VFinishLonLat: TDoublePoint;
-  VStartPixel, VFinishPixel: TPoint;
+  VStartPixel, VFinishPixel: TDoublePoint;
   VConverter: ICoordConverter;
   VZoom: Byte;
 begin
   VZoom := AVisualCoordConverter.GetZoom;
   VConverter := AVisualCoordConverter.GetGeoConverter;
-  VStartPixel := PointFromDoublePoint(AVisualCoordConverter.GetCenterMapPixelFloat, prToTopLeft);
-  VConverter.CheckPixelPosStrict(VStartPixel, VZoom, True);
-  VFinishPixel := Types.Point(VStartPixel.X + 1, VStartPixel.Y);
-  VConverter.CheckPixelPos(VFinishPixel, VZoom, True);
-  VStartLonLat := VConverter.PixelPos2LonLat(VStartPixel, VZoom);
-  VFinishLonLat := VConverter.PixelPos2LonLat(VFinishPixel, VZoom);
+  VStartPixel := AVisualCoordConverter.GetCenterMapPixelFloat;
+  VConverter.CheckPixelPosFloatStrict(VStartPixel, VZoom, True);
+  VFinishPixel := DoublePoint(VStartPixel.X + 1, VStartPixel.Y);
+  VConverter.CheckPixelPosFloat(VFinishPixel, VZoom, True);
+  VStartLonLat := VConverter.PixelPosFloat2LonLat(VStartPixel, VZoom);
+  VFinishLonLat := VConverter.PixelPosFloat2LonLat(VFinishPixel, VZoom);
   Result := VConverter.Datum.CalcDist(VStartLonLat, VFinishLonLat) * ALineWidth;
 end;
 
