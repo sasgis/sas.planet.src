@@ -868,6 +868,7 @@ uses
   u_ListenerByEvent,
   u_GUIDObjectSet,
   u_GlobalState,
+  u_GeometryFunc,
   u_InetFunc,
   u_BitmapFunc,
   u_ClipboardFunc,
@@ -5125,77 +5126,6 @@ begin
   end;
 end;
 
-function GetPolygonNearesPoint(
-  const AMarkPoly: IVectorDataItemPoly;
-  const AProjection: IProjectionInfo;
-  const ACurrLonLat: TDoublePoint
-): TDoublePoint;
-var
-  r: double;
-  VConverter: ICoordConverter;
-  VZoom: byte;
-  VEnum: IEnumLonLatPoint;
-  VLonLatPoint: TDoublePoint;
-  VMapPoint: TDoublePoint;
-  VCurrPixel: TDoublePoint;
-  VAppearanceBorder: IAppearancePolygonBorder;
-begin
-  Result := CEmptyDoublePoint;
-  VZoom := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
-  if Supports(AMarkPoly.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
-    r := (VAppearanceBorder.LineWidth / 2) + 3;
-  end else begin
-    r := 2;
-  end;
-  VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
-  VEnum := AMarkPoly.Line.GetEnum;
-  while VEnum.Next(VLonLatPoint) do begin
-    VConverter.CheckLonLatPos(VLonLatPoint);
-    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    if (VCurrPixel.x >= VMapPoint.X - r) and (VCurrPixel.x <= VMapPoint.X + r) and
-      (VCurrPixel.y >= VMapPoint.Y - r) and (VCurrPixel.y <= VMapPoint.Y + r) then begin
-      Result := VLonLatPoint;
-      exit;
-    end;
-  end;
-end;
-function GetPathNearesPoint(
-  const AMarkLine: IVectorDataItemLine;
-  const AProjection: IProjectionInfo;
-  const ACurrLonLat: TDoublePoint
-): TDoublePoint;
-var
-  r: double;
-  VConverter: ICoordConverter;
-  VZoom: byte;
-  VEnum: IEnumLonLatPoint;
-  VLonLatPoint: TDoublePoint;
-  VMapPoint: TDoublePoint;
-  VCurrPixel: TDoublePoint;
-  VAppearanceLine: IAppearanceLine;
-begin
-  VZoom := AProjection.Zoom;
-  VConverter := AProjection.GeoConverter;
-  Result := CEmptyDoublePoint;
-  if Supports(AMarkLine.Appearance, IAppearanceLine, VAppearanceLine) then begin
-    r := (VAppearanceLine.LineWidth / 2) + 3;
-  end else begin
-    r := 2;
-  end;
-  VCurrPixel := VConverter.LonLat2PixelPosFloat(ACurrLonLat, VZoom);
-  VEnum := AMarkLine.Line.GetEnum;
-  while VEnum.Next(VLonLatPoint) do begin
-    VConverter.CheckLonLatPos(VLonLatPoint);
-    VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    if (VCurrPixel.x >= VMapPoint.X - r) and (VCurrPixel.x <= VMapPoint.X + r) and
-      (VCurrPixel.y >= VMapPoint.Y - r) and (VCurrPixel.y <= VMapPoint.Y + r) then begin
-      Result := VLonLatPoint;
-      exit;
-    end;
-  end;
-end;
-
 procedure TfrmMain.mapMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
 var
@@ -5210,9 +5140,6 @@ var
   VIsClickInMap: Boolean;
   VVectorItem: IVectorDataItemSimple;
   VVectorItems: IVectorItemSubset;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
   VMagnetPoint: TDoublePoint;
 begin
   if (FHintWindow<>nil) then begin
@@ -5261,15 +5188,13 @@ begin
             end;
           end;
           if VVectorItem <> nil then begin
-            if Supports(VVectorItem, IVectorDataItemPoint, VMarkPoint) then begin
-              VMagnetPoint := VMarkPoint.Point.Point;
-            end;
-            if Supports(VVectorItem, IVectorDataItemPoly, VMarkPoly) then begin
-              VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VClickLonLat);
-            end;
-            if Supports(VVectorItem, IVectorDataItemLine, VMarkLine) then begin
-              VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VClickLonLat);
-            end;
+            VMagnetPoint :=
+              GetGeometryLonLatNearestPoint(
+                VVectorItem.Geometry,
+                VLocalConverter.ProjectionInfo,
+                VMouseMapPoint,
+                10
+              );
           end;
           if not PointIsEmpty(VMagnetPoint) then begin
             VClickLonLat := VMagnetPoint;
@@ -5568,9 +5493,6 @@ var
   VLastMouseMove: TPoint;
   VMousePos: TPoint;
   VVectorItem: IVectorDataItemSimple;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkPoly: IVectorDataItemPoly;
-  VMarkLine: IVectorDataItemLine;
   VMagnetPoint: TDoublePoint;
   VVectorItems: IVectorItemSubset;
   VEnumUnknown: IEnumUnknown;
@@ -5634,13 +5556,13 @@ begin
         VVectorItem:=SelectForEdit(VVectorItems, VLocalConverter);
       end;
       if VVectorItem <> nil then begin
-        if Supports(VVectorItem, IVectorDataItemPoint, VMarkPoint) then begin
-          VMagnetPoint := VMarkPoint.Point.Point;
-        end else if Supports(VVectorItem, IVectorDataItemPoly, VMarkPoly) then begin
-          VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VLonLat);
-        end else if Supports(VVectorItem, IVectorDataItemLine, VMarkLine) then begin
-          VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VLonLat);
-        end;
+        VMagnetPoint :=
+          GetGeometryLonLatNearestPoint(
+            VVectorItem.Geometry,
+            VLocalConverter.ProjectionInfo,
+            VMouseMapPoint,
+            10
+          );
       end;
       if not PointIsEmpty(VMagnetPoint) then begin
         VLonLat := VMagnetPoint;
