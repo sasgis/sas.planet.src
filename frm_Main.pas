@@ -5254,8 +5254,7 @@ begin
         if not FLineOnMapEdit.SelectPointInLonLatRect(VClickLonLatRect) then begin
           VVectorItem := nil;
           VMagnetPoint := CEmptyDoublePoint;
-          if (FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks)and
-             (FConfig.MainConfig.MagnetDraw) then begin
+          if FConfig.MainConfig.MagnetDraw then begin
             VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x, y));
             if((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
               VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
@@ -5299,11 +5298,9 @@ begin
 
   if (VIsClickInMap)and (Button=mbright)and(FState.State=ao_movemap) then begin
     VVectorItem := nil;
-    if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-      VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x, y));
-      if((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
-        VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
-      end;
+    VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, Point(x, y));
+    if((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
+      VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
     end;
     if not Supports(VVectorItem, IVectorDataItemSimple, FSelectedMark) then begin
       FSelectedMark := nil;
@@ -5631,19 +5628,18 @@ begin
         VMagnetPoint := FConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GetPointStickToGrid(VLocalConverter, VLonLat);
       end;
 
-      if FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks then begin
-        VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, VMousePos);
-        if((VVectorItems<>nil)and(VVectorItems.Count>0)) then begin
-          VVectorItem:=SelectForEdit(VVectorItems, VLocalConverter);
-        end;
-        if VVectorItem <> nil then begin
-          if Supports(VVectorItem, IVectorDataItemPoint, VMarkPoint) then begin
-            VMagnetPoint := VMarkPoint.Point.Point;
-          end else if Supports(VVectorItem, IVectorDataItemPoly, VMarkPoly) then begin
-            VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VLonLat);
-          end else if Supports(VVectorItem, IVectorDataItemLine, VMarkLine) then begin
-            VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VLonLat);
-          end;
+      VVectorItem := nil;
+      VVectorItems := FLayerMapMarks.FindItems(VLocalConverter, VMousePos);
+      if((VVectorItems<>nil)and(VVectorItems.Count>0)) then begin
+        VVectorItem:=SelectForEdit(VVectorItems, VLocalConverter);
+      end;
+      if VVectorItem <> nil then begin
+        if Supports(VVectorItem, IVectorDataItemPoint, VMarkPoint) then begin
+          VMagnetPoint := VMarkPoint.Point.Point;
+        end else if Supports(VVectorItem, IVectorDataItemPoly, VMarkPoly) then begin
+          VMagnetPoint := GetPolygonNearesPoint(VMarkPoly, VLocalConverter.ProjectionInfo, VLonLat);
+        end else if Supports(VVectorItem, IVectorDataItemLine, VMarkLine) then begin
+          VMagnetPoint := GetPathNearesPoint(VMarkLine, VLocalConverter.ProjectionInfo, VLonLat);
         end;
       end;
       if not PointIsEmpty(VMagnetPoint) then begin
