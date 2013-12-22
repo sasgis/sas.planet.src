@@ -1015,6 +1015,7 @@
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoCodePlacemarkWithUrlDecorator.pas" />
     <DCCReference Include="u_GeoFun.pas" />
+    <DCCReference Include="u_GeometryFunc.pas" />
     <DCCReference Include="u_GeometryLonLat.pas" />
     <DCCReference Include="u_GeometryLonLatFactory.pas" />
     <DCCReference Include="u_GeometryLonLatMulti.pas" />
