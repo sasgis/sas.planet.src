@@ -5,6 +5,7 @@ interface
 uses
   i_VectorDataItemSimple,
   i_ValueToStringConverter,
+  i_GeometryLonLat,
   i_Datum,
   i_TextByVectorItem,
   u_BaseInterfacedObject;
@@ -14,9 +15,13 @@ type
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FDatum: IDatum;
-    function GetTextForPoint(const AMark: IVectorDataItemPoint): string;
-    function GetTextForPath(const AMark: IVectorDataItemLine): string;
-    function GetTextForPoly(const AMark: IVectorDataItemPoly): string;
+    function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
+
+    function GetTextForGeometryPoint(const AGeometry: IGeometryLonLatPoint): string;
+    function GetTextForGeometryLine(const AGeometry: IGeometryLonLatLine): string;
+    function GetTextForGeometryPolygon(const AGeometry: IGeometryLonLatPolygon): string;
+    function GetTextForGeometryMultiLine(const AGeometry: IGeometryLonLatMultiLine): string;
+    function GetTextForGeometryMultiPolygon(const AGeometry: IGeometryLonLatMultiPolygon): string;
   private
     function GetText(const AItem: IVectorDataItemSimple): string;
   public
@@ -46,22 +51,148 @@ begin
   FDatum := ADatum;
 end;
 
+function TTextByVectorItemMarkInfo.GetTextForGeometry(
+  const AGeometry: IGeometryLonLat
+): string;
+var
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatLine;
+  VPoly: IGeometryLonLatPolygon;
+  VMultiLine: IGeometryLonLatMultiLine;
+  VMultiPoly: IGeometryLonLatMultiPolygon;
+begin
+  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    Result := GetTextForGeometryPoint(VPoint);
+  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+    Result := GetTextForGeometryLine(VLine);
+  end else if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
+    Result := GetTextForGeometryPolygon(VPoly);
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+    Result := GetTextForGeometryMultiLine(VMultiLine);
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPoly) then begin
+    Result := GetTextForGeometryMultiPolygon(VMultiPoly);
+  end else begin
+    Result := 'Unknown geometry type';
+  end;
+end;
+
+function TTextByVectorItemMarkInfo.GetTextForGeometryLine(
+  const AGeometry: IGeometryLonLatLine
+): string;
+var
+  VLength: Double;
+  VPartsCount: Integer;
+  VPointsCount: Integer;
+  VConverter: IValueToStringConverter;
+begin
+  VPartsCount := 1;
+  VPointsCount := AGeometry.Count;
+  VLength := AGeometry.CalcLength(FDatum);
+  VConverter := FValueToStringConverterConfig.GetStatic;
+  Result := '';
+  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
+end;
+
+function TTextByVectorItemMarkInfo.GetTextForGeometryMultiLine(
+  const AGeometry: IGeometryLonLatMultiLine
+): string;
+var
+  VLength: Double;
+  VPartsCount: Integer;
+  VPointsCount: Integer;
+  i: Integer;
+  VConverter: IValueToStringConverter;
+begin
+  VPartsCount := AGeometry.Count;
+  VPointsCount := 0;
+  for i := 0 to VPartsCount - 1 do begin
+    Inc(VPointsCount, AGeometry.Item[i].Count);
+  end;
+  VLength := AGeometry.CalcLength(FDatum);
+  VConverter := FValueToStringConverterConfig.GetStatic;
+  Result := '';
+  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
+end;
+
+function TTextByVectorItemMarkInfo.GetTextForGeometryMultiPolygon(
+  const AGeometry: IGeometryLonLatMultiPolygon): string;
+var
+  VLength: Double;
+  VArea: Double;
+  VPartsCount: Integer;
+  VPointsCount: Integer;
+  i: Integer;
+  VConverter: IValueToStringConverter;
+begin
+  VPartsCount := AGeometry.Count;
+  VPointsCount := 0;
+  for i := 0 to VPartsCount - 1 do begin
+    Inc(VPointsCount, AGeometry.Item[i].Count);
+  end;
+  VLength := AGeometry.CalcPerimeter(FDatum);
+  VArea := AGeometry.CalcArea(FDatum);
+  VConverter := FValueToStringConverterConfig.GetStatic;
+  Result := '';
+  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
+  Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + '<br>'#13#10;
+end;
+
+function TTextByVectorItemMarkInfo.GetTextForGeometryPoint(
+  const AGeometry: IGeometryLonLatPoint
+): string;
+var
+  VConverter: IValueToStringConverter;
+begin
+  VConverter := FValueToStringConverterConfig.GetStatic;
+  Result := '';
+  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AGeometry.Point)]) + '<br>'#13#10;
+end;
+
+function TTextByVectorItemMarkInfo.GetTextForGeometryPolygon(
+  const AGeometry: IGeometryLonLatPolygon
+): string;
+var
+  VLength: Double;
+  VArea: Double;
+  VPartsCount: Integer;
+  VPointsCount: Integer;
+  VConverter: IValueToStringConverter;
+begin
+  VPartsCount := 1;
+  VPointsCount := AGeometry.Count;
+  VLength := AGeometry.CalcPerimeter(FDatum);
+  VArea := AGeometry.CalcArea(FDatum);
+  VConverter := FValueToStringConverterConfig.GetStatic;
+  Result := '';
+  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
+  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
+  Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + '<br>'#13#10;
+end;
+
 function TTextByVectorItemMarkInfo.GetText(
   const AItem: IVectorDataItemSimple): string;
 var
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
+  VItemWithCategory: IVectorDataItemWithCategory;
+  VCategoryName: string;
 begin
-  if Supports(AItem, IVectorDataItemPoint, VMarkPoint) then begin
-    Result := GetTextForPoint(VMarkPoint);
-  end else if Supports(AItem, IVectorDataItemLine, VMarkLine) then begin
-    Result := GetTextForPath(VMarkLine);
-  end else if Supports(AItem, IVectorDataItemPoly, VMarkPoly) then begin
-    Result := GetTextForPoly(VMarkPoly);
-  end else begin
-    Result := 'Unknown mark type';
+  VCategoryName := '';
+  if Supports(AItem.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if VItemWithCategory.Category <> nil then begin
+      VCategoryName := VItemWithCategory.Category.Name;
+    end;
   end;
+  Result := '';
+  Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
+  Result := Result + Format(_('Name: %s'), [AItem.Name]) + '<br>'#13#10;
+  Result := Result + GetTextForGeometry(AItem.Geometry);
+  Result := Result + Format(_('Description:<br>'#13#10'%s'), [AItem.Desc]) + '<br>'#13#10;
   if Result <> '' then begin
     Result :=
       '<html>'#13#10 +
@@ -73,93 +204,6 @@ begin
         '</body>'#13#10 +
         '</html>';
   end;
-end;
-
-function TTextByVectorItemMarkInfo.GetTextForPath(const AMark: IVectorDataItemLine): string;
-var
-  VLength: Double;
-  VPartsCount: Integer;
-  VPointsCount: Integer;
-  i: Integer;
-  VItemWithCategory: IVectorDataItemWithCategory;
-  VConverter: IValueToStringConverter;
-  VCategoryName: string;
-begin
-  VPartsCount := AMark.Line.Count;
-  VPointsCount := 0;
-  for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, AMark.Line.Item[i].Count);
-  end;
-  VLength := AMark.Line.CalcLength(FDatum);
-  VConverter := FValueToStringConverterConfig.GetStatic;
-  Result := '';
-  VCategoryName := '';
-  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
-    if VItemWithCategory.Category <> nil then begin
-      VCategoryName := VItemWithCategory.Category.Name;
-    end;
-  end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
-  Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
-end;
-
-function TTextByVectorItemMarkInfo.GetTextForPoint(const AMark: IVectorDataItemPoint): string;
-var
-  VItemWithCategory: IVectorDataItemWithCategory;
-  VConverter: IValueToStringConverter;
-  VCategoryName: string;
-begin
-  VConverter := FValueToStringConverterConfig.GetStatic;
-  Result := '';
-  VCategoryName := '';
-  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
-    if VItemWithCategory.Category <> nil then begin
-      VCategoryName := VItemWithCategory.Category.Name;
-    end;
-  end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
-  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point.Point)]) + '<br>'#13#10;
-  Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
-end;
-
-function TTextByVectorItemMarkInfo.GetTextForPoly(const AMark: IVectorDataItemPoly): string;
-var
-  VLength: Double;
-  VArea: Double;
-  VPartsCount: Integer;
-  VPointsCount: Integer;
-  i: Integer;
-  VItemWithCategory: IVectorDataItemWithCategory;
-  VConverter: IValueToStringConverter;
-  VCategoryName: string;
-begin
-  VPartsCount := AMark.Line.Count;
-  VPointsCount := 0;
-  for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, AMark.Line.Item[i].Count);
-  end;
-  VLength := AMark.Line.CalcPerimeter(FDatum);
-  VArea := AMark.Line.CalcArea(FDatum);
-  VConverter := FValueToStringConverterConfig.GetStatic;
-  Result := '';
-  VCategoryName := '';
-  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
-    if VItemWithCategory.Category <> nil then begin
-      VCategoryName := VItemWithCategory.Category.Name;
-    end;
-  end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + '<br>'#13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + '<br>'#13#10;
-  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
-  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + '<br>'#13#10;
-  Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(VArea)]) + '<br>'#13#10;
-  Result := Result + Format(_('Description:<br>'#13#10'%s'), [AMark.Desc]) + '<br>'#13#10;
 end;
 
 end.
