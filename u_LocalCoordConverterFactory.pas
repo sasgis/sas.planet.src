@@ -178,6 +178,8 @@ var
   VZoom: Byte;
   VLocalCenter: TDoublePoint;
 begin
+  Assert(ALocalRect.Left <= ALocalRect.Right);
+  Assert(ALocalRect.Top <= ALocalRect.Bottom);
   VHash := $801bc862120f6bf5;
   FHashFunction.UpdateHashByRect(VHash, ALocalRect);
   FHashFunction.UpdateHashByHash(VHash, AProjection.Hash);
