@@ -1751,7 +1751,15 @@ begin
 
   if XY.Left < 0 then begin
     Result := False;
-    XY.Left := 0;
+    if AZoom < 23 then begin
+      XY.Left := 0;
+    end else begin
+      if XY.Left < -(MaxInt div 2) then begin
+        XY.Left := VPixelsAtZoom;
+      end else begin
+        XY.Left := 0;
+      end;
+    end;
   end else begin
     if (AZoom < 23) and (XY.Left > VPixelsAtZoom) then begin
       Result := False;
@@ -1761,7 +1769,15 @@ begin
 
   if XY.Top < 0 then begin
     Result := False;
-    XY.Top := 0;
+    if AZoom < 23 then begin
+      XY.Top := 0;
+    end else begin
+      if XY.Top < -(MaxInt div 2) then begin
+        XY.Top := VPixelsAtZoom;
+      end else begin
+        XY.Top := 0;
+      end;
+    end;
   end else begin
     if (AZoom < 23) and (XY.Top > VPixelsAtZoom) then begin
       Result := False;
@@ -1771,7 +1787,15 @@ begin
 
   if XY.Right < 0 then begin
     Result := False;
-    XY.Right := 0;
+    if AZoom < 23 then begin
+      XY.Right := 0;
+    end else begin
+      if XY.Right < -(MaxInt div 2) then begin
+        XY.Right := VPixelsAtZoom;
+      end else begin
+        XY.Right := 0;
+      end;
+    end;
   end else begin
     if (AZoom < 23) and (XY.Right > VPixelsAtZoom) then begin
       Result := False;
@@ -1781,7 +1805,15 @@ begin
 
   if XY.Bottom < 0 then begin
     Result := False;
-    XY.Bottom := 0;
+    if AZoom < 23 then begin
+      XY.Bottom := 0;
+    end else begin
+      if XY.Bottom < -(MaxInt div 2) then begin
+        XY.Bottom := VPixelsAtZoom;
+      end else begin
+        XY.Bottom := 0;
+      end;
+    end;
   end else begin
     if (AZoom < 23) and (XY.Bottom > VPixelsAtZoom) then begin
       Result := False;
