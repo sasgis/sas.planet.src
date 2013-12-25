@@ -252,11 +252,12 @@ begin
           end;
           if VAdd then begin
             VAddedIndex := cbbMap.Items.AddObject(VCurMapType.GUIConfig.Name.Value, VCurMapType);
+            if IsEqualGUID(VCurMapType.Zmp.GUID, VActiveMapGUID) then begin
+              // select active map as default
+              VDefaultIndex := VAddedIndex;
+            end;
             if (VDefaultIndex = -1) then begin
-              if IsEqualGUID(VCurMapType.Zmp.GUID, VActiveMapGUID) then begin
-                // select active map as default
-                VDefaultIndex := VAddedIndex;
-              end else if VCurMapType.Zmp.IsLayer then begin
+              if VCurMapType.Zmp.IsLayer then begin
                 if (VLayers.GetMapTypeByGUID(VGUID) <> nil) then begin
                   // select first active layer as default
                   VDefaultIndex := VAddedIndex;
