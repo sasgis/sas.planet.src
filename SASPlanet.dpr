@@ -1160,6 +1160,9 @@ uses
   frm_MarkCategoryEdit in 'MarksDb\GUI\frm_MarkCategoryEdit.pas' {frmMarkCategoryEdit},
   frm_DGAvailablePic in 'MapSvcScan\frm_DGAvailablePic.pas' {frmDGAvailablePic},
   frm_MarksMultiEdit in 'MarksDb\GUI\frm_MarksMultiEdit.pas' {frmMarksMultiEdit},
+  frm_UpdateChecker in 'UpdateChecker\frm_UpdateChecker.pas' {frmUpdateChecker},
+  i_UpdateDownloader in 'UpdateChecker\i_UpdateDownloader.pas',
+  u_UpdateDownloader in 'UpdateChecker\u_UpdateDownloader.pas',
   frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
 
 {$R .\Resources\VersionInfo.res}

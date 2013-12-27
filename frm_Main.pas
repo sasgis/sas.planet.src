@@ -99,6 +99,7 @@ uses
   frm_MarksExplorer,
   frm_CacheManager,
   frm_GoTo,
+  frm_UpdateChecker,
   u_CommonFormAndFrameParents;
 
 type
@@ -399,6 +400,8 @@ type
     TBXMakeRosreestrPolygon: TTBXItem;
     tbpmiShowPrevVersion: TTBXItem;
     tbxsbmProjection: TTBXSubmenuItem;
+    tbxSep1: TTBXSeparatorItem;
+    tbitmCheckUpdate: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -554,6 +557,7 @@ type
     procedure RosreestrClick(Sender: TObject);
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowPrevVersionClick(Sender: TObject);
+    procedure tbitmCheckUpdateClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -624,6 +628,7 @@ type
     FfrmCacheManager: TfrmCacheManager;
     FfrmMarksExplorer: TfrmMarksExplorer;
     FfrmAbout: TfrmAbout;
+    FfrmUpdateChecker: TfrmUpdateChecker;
 
     FPathProvidersTree: ITreeChangeable;
     FPathProvidersTreeStatic: IStaticTreeItem;
@@ -986,6 +991,16 @@ begin
       GState.Config.ValueToStringConverterConfig
     );
   FfrmCacheManager.PopupParent := Self;
+
+  FfrmUpdateChecker :=
+    TfrmUpdateChecker.Create(
+      GState.Config.LanguageManager,
+      GState.Config.UpdatesPath,
+      GState.BuildInfo,
+      GState.Config.InetConfig,
+      GState.AppClosingNotifier
+    );
+  FfrmUpdateChecker.PopupParent := Self;
 
   FfrmMapLayersOptions := TfrmMapLayersOptions.Create(
     GState.Config.LanguageManager,
@@ -2617,6 +2632,7 @@ begin
   FreeAndNil(FfrmMarksExplorer);
   FreeAndNil(FFormRegionProcess);
   FreeAndNil(FMarkDBGUI);
+  FreeAndNil(FfrmUpdateChecker);
   inherited;
 end;
 
@@ -6874,6 +6890,11 @@ end;
 procedure TfrmMain.tbitmCacheManagerClick(Sender: TObject);
 begin
   FfrmCacheManager.Show;
+end;
+
+procedure TfrmMain.tbitmCheckUpdateClick(Sender: TObject);
+begin
+  FfrmUpdateChecker.Show;
 end;
 
 procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);

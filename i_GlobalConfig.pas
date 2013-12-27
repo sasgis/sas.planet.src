@@ -52,6 +52,9 @@ type
     function GetTerrainDataPath: IPathConfig;
     property TerrainDataPath: IPathConfig read GetTerrainDataPath;
 
+    function GetUpdatesPath: IPathConfig;
+    property UpdatesPath: IPathConfig read GetUpdatesPath;
+
     function GetLastSelectionFileName: IPathConfig;
     property LastSelectionFileName: IPathConfig read GetLastSelectionFileName;
 

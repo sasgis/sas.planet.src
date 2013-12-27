@@ -1297,6 +1297,15 @@ object frmMain: TfrmMain
           Caption = 'Community  (http://www.sasgis.ru/forum)'
           Hint = ''
         end
+        object tbxSep1: TTBXSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
+        object tbitmCheckUpdate: TTBXItem
+          OnClick = tbitmCheckUpdateClick
+          Caption = 'Check Update...'
+          Hint = ''
+        end
       end
     end
     object TBXToolBarSearch: TTBXToolbar

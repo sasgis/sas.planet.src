@@ -872,6 +872,11 @@
     <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="t_Hash.pas" />
+    <DCCReference Include="UpdateChecker\frm_UpdateChecker.pas">
+      <Form>frmUpdateChecker</Form>
+    </DCCReference>
+    <DCCReference Include="UpdateChecker\i_UpdateDownloader.pas" />
+    <DCCReference Include="UpdateChecker\u_UpdateDownloader.pas" />
     <DCCReference Include="u_ActiveMapConfig.pas" />
     <DCCReference Include="u_ActiveMapSingleAbstract.pas" />
     <DCCReference Include="u_ActiveMapSingleSet.pas" />

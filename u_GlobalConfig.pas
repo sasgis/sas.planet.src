@@ -41,6 +41,7 @@ type
     FMarksIconsPath: IPathConfig;
     FMediaDataPath: IPathConfig;
     FTerrainDataPath: IPathConfig;
+    FUpdatesPath: IPathConfig;
     FLastSelectionFileName: IPathConfig;
     FGpsRecorderFileName: IPathConfig;
     FGpsTrackRecorderFileName: IPathConfig;
@@ -82,6 +83,7 @@ type
     function GetMarksIconsPath: IPathConfig;
     function GetMediaDataPath: IPathConfig;
     function GetTerrainDataPath: IPathConfig;
+    function GetUpdatesPath: IPathConfig;
     function GetLastSelectionFileName: IPathConfig;
     function GetGpsRecorderFileName: IPathConfig;
     function GetGpsTrackRecorderFileName: IPathConfig;
@@ -193,6 +195,9 @@ begin
 
   FTerrainDataPath := TPathConfig.Create('PrimaryPath', '.\TerrainData', ABaseDataPath);
   Add(FTerrainDataPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoTerrainData'), False, False, False, False);
+
+  FUpdatesPath := TPathConfig.Create('PrimaryPath', '.\Updates', ABaseDataPath);
+  Add(FUpdatesPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoUpdates'), False, False, False, False);
 
   FLastSelectionFileName := TPathConfig.Create('FileName', '.\LastSelection.hlg', ABaseDataPath);
   Add(FLastSelectionFileName, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSelection'), False, False, False, False);
@@ -430,6 +435,11 @@ end;
 function TGlobalConfig.GetTerrainDataPath: IPathConfig;
 begin
   Result := FTerrainDataPath;
+end;
+
+function TGlobalConfig.GetUpdatesPath: IPathConfig;
+begin
+  Result := FUpdatesPath;
 end;
 
 function TGlobalConfig.GetTileDownloadResamplerConfig: IImageResamplerConfig;
