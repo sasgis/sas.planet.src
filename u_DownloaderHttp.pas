@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -55,7 +55,7 @@ type
     ProxyPassword: AnsiString;
   end;
 
-  TDownloaderHttp = class(TBaseInterfacedObject, IDownloader)
+  TDownloaderHttp = class(TBaseInterfacedObject, IDownloader, IDownloaderAsync)
   private
     FCS: IReadWriteSync;
     FCancelListener: IListener;
@@ -68,6 +68,8 @@ type
     FDisconnectByUser: Byte;
     FOpeningHandle: HINTERNET;
     FAllowUseCookie: Boolean;
+    FAllowRedirect: Boolean;
+    FOnDownloadProgress: TOnDownloadProgress;
     function InternalMakeResponse(
       const AResultFactory: IDownloadResultFactory;
       const ARequest: IDownloadRequest;
@@ -103,21 +105,38 @@ type
     procedure DoPostRequest(const ARequest: IDownloadPostRequest);
     procedure CheckGraceOff(Sender: Tobject);
   private
+    { ALHttpClient CallBack's }
     procedure DoOnALStatusChange(
       sender: Tobject;
       InternetStatus: DWord;
       StatusInformation: Pointer;
       StatusInformationLength: DWord
     );
+    procedure DoOnALDownloadProgress(
+      sender: Tobject;
+      Read: Integer;
+      Total: Integer
+    );
+  private
+    { IDownloader }
     function DoRequest(
       const ARequest: IDownloadRequest;
       const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer
+      const AOperationID: Integer
     ): IDownloadResult;
+    { IDownloaderAsync }
+    procedure DoRequestAsync(
+      const ARequest: IDownloadRequest;
+      const ACancelNotifier: INotifierOperation;
+      const AOperationID: Integer;
+      const AOnResultCallBack: TRequestAsyncCallBack
+    );
   public
     constructor Create(
       const AResultFactory: IDownloadResultFactory;
-      const AAllowUseCookie: Boolean = FALSE
+      const AAllowUseCookie: Boolean = False;
+      const AAllowRedirect: Boolean = True;
+      const AOnDownloadProgress: TOnDownloadProgress = nil
     );
     destructor Destroy; override;
   end;
@@ -131,8 +150,29 @@ uses
   u_HttpStatusChecker,
   u_StreamReadOnlyByBinaryData,
   u_TileRequestBuilderHelpers,
+  u_ReadableThreadNames,
   u_BinaryData,
   u_BinaryDataByMemStream;
+
+type
+  TAsyncRequestHelperThread = class(TThread)
+  private
+    FDownloader: IDownloader;
+    FRequest: IDownloadRequest;
+    FCancelNotifier: INotifierOperation;
+    FOperationID: Integer;
+    FOnResultCallBack: TRequestAsyncCallBack;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(
+      const ADownloader: IDownloader;
+      const ARequest: IDownloadRequest;
+      const ACancelNotifier: INotifierOperation;
+      const AOperationID: Integer;
+      const AOnResultCallBack: TRequestAsyncCallBack
+    );
+  end;
 
 { TDownloaderHttp }
 
@@ -150,22 +190,36 @@ end;
 
 constructor TDownloaderHttp.Create(
   const AResultFactory: IDownloadResultFactory;
-  const AAllowUseCookie: Boolean
+  const AAllowUseCookie: Boolean;
+  const AAllowRedirect: Boolean;
+  const AOnDownloadProgress: TOnDownloadProgress
 );
 begin
   inherited Create;
+  
+  FResultFactory := AResultFactory;
+  FAllowUseCookie := AAllowUseCookie;
+  FAllowRedirect := AAllowRedirect;
+  FOnDownloadProgress := AOnDownloadProgress;
+  
   FOpeningHandle := nil;
   FDisconnectByUser := 0;
-  FDisconnectByServer := 0;
-  FAllowUseCookie := AAllowUseCookie;
+  FDisconnectByServer := 0;  
+  
   FCS := MakeSyncRW_Big(Self, FALSE);
+  
   FHttpClient := TALWinInetHTTPClient.Create(nil);
-  FHttpClient.OnStatusChange := DoOnALStatusChange;
+  FHttpClient.OnStatusChange := Self.DoOnALStatusChange;
+  if Assigned(FOnDownloadProgress) then begin
+    FHttpClient.OnDownloadProgress := Self.DoOnALDownloadProgress;
+  end;
+  FHttpClient.DisconnectOnError := True;
+  
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
+  
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
-  FResultFactory := AResultFactory;
-
+  
   FHttpClientLastConfig.HttpTimeOut := 0;
   FHttpClientLastConfig.HeaderUserAgent := '';
   FHttpClientLastConfig.HeaderRawText := '';
@@ -268,6 +322,15 @@ begin
   end;
 end;
 
+procedure TDownloaderHttp.DoOnALDownloadProgress(
+  sender: Tobject;
+  Read: Integer;
+  Total: Integer
+);
+begin
+  FOnDownloadProgress(Read, Total);
+end;
+
 procedure TDownloaderHttp.DoPostRequest(const ARequest: IDownloadPostRequest);
 var
   VData: IBinaryData;
@@ -298,7 +361,7 @@ end;
 function TDownloaderHttp.DoRequest(
   const ARequest: IDownloadRequest;
   const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer
+  const AOperationID: Integer
 ): IDownloadResult;
 var
   VPostRequest: IDownloadPostRequest;
@@ -374,6 +437,22 @@ begin
   finally
     FCS.EndWrite;
   end;
+end;
+
+procedure TDownloaderHttp.DoRequestAsync(
+  const ARequest: IDownloadRequest;
+  const ACancelNotifier: INotifierOperation;
+  const AOperationID: Integer;
+  const AOnResultCallBack: TRequestAsyncCallBack
+);
+begin
+  TAsyncRequestHelperThread.Create(
+    (Self as IDownloader),
+    ARequest,
+    ACancelNotifier,
+    AOperationID,
+    AOnResultCallBack
+  );
 end;
 
 procedure TDownloaderHttp.Disconnect;
@@ -502,6 +581,7 @@ var
   VUserAgent: AnsiString;
   VProxyHost: AnsiString;
   VPos: Integer;
+  VOptions: TALWininetHttpClientInternetOptionSet;
 begin
   if (ARawHttpRequestHeader <> '') and
     (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then begin
@@ -526,26 +606,27 @@ begin
     FHttpClient.ReceiveTimeout := FHttpClientLastConfig.HttpTimeOut;
   end;
 
-  // cookie
-  if FAllowUseCookie then begin
-    // allow cookie
-    FHttpClient.InternetOptions :=
+  VOptions :=
     [
       wHttpIo_No_cache_write,
       wHttpIo_Pragma_nocache,
-      wHttpIo_Keep_connection
-    ]
-  end else begin
-    // no cookie
-    FHttpClient.InternetOptions :=
-    [
-      wHttpIo_No_cache_write,
-      wHttpIo_Pragma_nocache,
-      wHttpIo_No_cookies,
-      wHttpIo_Keep_connection
+      wHttpIo_Keep_connection,
+      wHttpIo_Ignore_cert_cn_invalid,
+      wHttpIo_Ignore_cert_date_invalid,
+      wHttpIo_Ignore_redirect_to_http,
+      wHttpIo_Ignore_redirect_to_https
     ];
+
+  if not FAllowUseCookie then begin
+    Include(VOptions, wHttpIo_No_cookies);
   end;
-    
+
+  if not FAllowRedirect then begin
+    Include(VOptions, wHttpIo_No_auto_redirect);
+  end;
+
+  FHttpClient.InternetOptions := VOptions;
+
   VProxyConfig := AInetConfig.ProxyConfigStatic;
   if Assigned(VProxyConfig) then begin
     if (FHttpClientLastConfig.ProxyUseIESettings <> VProxyConfig.UseIESettings) or
@@ -711,6 +792,38 @@ begin
         AResponseBody
       );
     end;
+  end;
+end;
+
+{ TAsyncRequestHelperThread }
+
+constructor TAsyncRequestHelperThread.Create(
+  const ADownloader: IDownloader;
+  const ARequest: IDownloadRequest;
+  const ACancelNotifier: INotifierOperation;
+  const AOperationID: Integer;
+  const AOnResultCallBack: TRequestAsyncCallBack
+);
+begin
+  FDownloader := ADownloader;
+  FRequest := ARequest;
+  FCancelNotifier := ACancelNotifier;
+  FOperationID := AOperationID;
+  FOnResultCallBack := AOnResultCallBack;
+  FreeOnTerminate := True;
+  inherited Create(False);
+end;
+
+procedure TAsyncRequestHelperThread.Execute;
+var
+  VResult: IDownloadResult;
+begin
+  SetCurrentThreadName(Self.ClassName);
+  try
+    VResult := FDownloader.DoRequest(FRequest, FCancelNotifier, FOperationID);
+    FOnResultCallBack(VResult, FOperationID);
+  except
+    //
   end;
 end;
 

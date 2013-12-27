@@ -18,7 +18,7 @@ type
     function DoRequest(
       const ARequest: IDownloadRequest;
       const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer
+      const AOperationID: Integer
     ): IDownloadResult;
   public
     constructor Create(
@@ -40,7 +40,7 @@ end;
 function TDownloaderFaked.DoRequest(
   const ARequest: IDownloadRequest;
   const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer
+  const AOperationID: Integer
 ): IDownloadResult;
 begin
   Result := FResultFactory.BuildCanceled(ARequest);

@@ -28,7 +28,7 @@ type
     function DoRequest(
       const ARequest: IDownloadRequest;
       const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer
+      const AOperationID: Integer
     ): IDownloadResult;
   public
     constructor Create(
@@ -78,7 +78,7 @@ end;
 function TDownloaderHttpWithTTL.DoRequest(
   const ARequest: IDownloadRequest;
   const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer
+  const AOperationID: Integer
 ): IDownloadResult;
 var
   VDownloader: IDownloader;
