@@ -68,7 +68,7 @@ type
     FNewDate: TDateTime;
     FNewRevision: Integer;
     FNewBuildType: string;
-    FSearchProgress: Integer;
+    FSearchProgress: Byte;
     FSearchProgressLastStep: Cardinal;
     FUpdateDownloader: IUpdateDownloader;
     FState: TUpdateDownloaderState;
@@ -111,7 +111,6 @@ resourcestring
   rsDownloadFinished = 'Download completed successfully. You can update the program manually from file: %s';
 
 const
-  cSearchAvailableVersionInfoProgressItems: array[0..2] of string = ('.', '..', '...');
   cSearchAvailableVersionInfoProgressStep: Cardinal = 500; // ms
 
 { TfrmUpdateChecker }
@@ -215,10 +214,8 @@ begin
   pbDownloadProgress.Enabled := False;
 
   FSearchProgressLastStep := GetTickCount;
-  FSearchProgress := Length(cSearchAvailableVersionInfoProgressItems);
-  lblNewVerValue.Caption :=
-    rsSearchAvailableVersionInfo +
-    cSearchAvailableVersionInfoProgressItems[FSearchProgress - 1];
+  FSearchProgress := 0;
+  lblNewVerValue.Caption := rsSearchAvailableVersionInfo + '...';
 
   // start search avilable version
   FState := FUpdateDownloader.SearchAvailableVersionInfoAsync(VOperation);
@@ -280,6 +277,8 @@ procedure TfrmUpdateChecker.tmrCheckStateTimer(Sender: TObject);
 var
   VDone, VTotal: Integer;
   VPercent: Single;
+  VDots: string;
+  I: Integer;
 begin
   case FState of
 
@@ -309,11 +308,12 @@ begin
           // indicate serch progress
           if GetTickCount - FSearchProgressLastStep > cSearchAvailableVersionInfoProgressStep then begin
             FSearchProgressLastStep := GetTickCount;
-            Inc(FSearchProgress);
-            FSearchProgress := FSearchProgress mod Length(cSearchAvailableVersionInfoProgressItems);
-            lblNewVerValue.Caption :=
-              rsSearchAvailableVersionInfo +
-              cSearchAvailableVersionInfoProgressItems[FSearchProgress - 1];
+            FSearchProgress := (FSearchProgress + 1) mod 4;
+            VDots := '';
+            for I := 0 to FSearchProgress - 1 do begin
+              VDots := VDots + '.';
+            end;
+            lblNewVerValue.Caption := rsSearchAvailableVersionInfo + VDots;
           end;
         end;
       else
