@@ -1305,7 +1305,7 @@ object frmMain: TfrmMain
         object tbitmCheckUpdate: TTBXItem
           Images = MenusImageList
           OnClick = tbitmCheckUpdateClick
-          Caption = 'Check Update...'
+          Caption = 'Check for updates...'
           Hint = ''
         end
       end
