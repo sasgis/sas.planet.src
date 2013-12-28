@@ -928,6 +928,7 @@ object frmMain: TfrmMain
           end
         end
         object tbxsbmProjection: TTBXSubmenuItem
+          Images = MenusImageList
           Caption = 'Projection'
           Hint = ''
         end
@@ -1302,6 +1303,7 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmCheckUpdate: TTBXItem
+          Images = MenusImageList
           OnClick = tbitmCheckUpdateClick
           Caption = 'Check Update...'
           Hint = ''
