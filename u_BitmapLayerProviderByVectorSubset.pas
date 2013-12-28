@@ -12,6 +12,7 @@ uses
   i_Bitmap32StaticFactory,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
+  i_GeometryLonLat,
   i_ProjectedGeometryProvider,
   i_LocalCoordConverter,
   i_NotifierOperation,
@@ -42,7 +43,7 @@ type
       ATargetBmp: TCustomBitmap32;
       APointColor: TColor32;
       APointColorBG: TColor32;
-      const AData: IVectorDataItemPoint;
+      const APoint: IGeometryLonLatPoint;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPath(
@@ -50,7 +51,7 @@ type
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
       AColorBG: TColor32;
-      const AData: IVectorDataItemLine;
+      const ALine: IGeometryLonLatMultiLine;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPoly(
@@ -58,7 +59,7 @@ type
       ATargetBmp: TCustomBitmap32;
       AColorMain: TColor32;
       AColorBG: TColor32;
-      const AData: IVectorDataItemPoly;
+      const APoly: IGeometryLonLatMultiPolygon;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawWikiElement(
@@ -67,7 +68,7 @@ type
       AColorMain: TColor32;
       AColorBG: TColor32;
       APointColor: TColor32;
-      const AData: IVectorDataItemSimple;
+      const AData: IGeometryLonLat;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
   private
@@ -127,7 +128,7 @@ function TBitmapLayerProviderByVectorSubset.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   AColorMain, AColorBG: TColor32;
-  const AData: IVectorDataItemLine;
+  const ALine: IGeometryLonLatMultiLine;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
@@ -145,8 +146,8 @@ var
   VIndex: Integer;
 begin
   Result := False;
-  if AData.Line.Count > 0 then begin
-    VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, AData.Line);
+  if ALine.Count > 0 then begin
+    VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, ALine);
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
       if IsIntersecProjectedRect(VMapRect, VProjected.Bounds) then begin
@@ -237,7 +238,7 @@ function TBitmapLayerProviderByVectorSubset.DrawPoint(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   APointColor, APointColorBG: TColor32;
-  const AData: IVectorDataItemPoint;
+  const APoint: IGeometryLonLatPoint;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
@@ -247,7 +248,7 @@ var
 begin
   Result := False;
   VConverter := ALocalConverter.GetGeoConverter;
-  VPointLL := AData.Point.Point;
+  VPointLL := APoint.Point;
   VConverter.CheckLonLatPos(VPointLL);
   VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL, prToTopLeft);
   VRect.BottomRight := VRect.TopLeft;
@@ -274,7 +275,7 @@ function TBitmapLayerProviderByVectorSubset.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   AColorMain, AColorBG: TColor32;
-  const AData: IVectorDataItemPoly;
+  const APoly: IGeometryLonLatMultiPolygon;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
@@ -291,7 +292,7 @@ var
   VLine: IProjectedPolygonLine;
 begin
   Result := False;
-  VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, AData.Line);
+  VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, APoly);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -374,19 +375,19 @@ function TBitmapLayerProviderByVectorSubset.DrawWikiElement(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   AColorMain, AColorBG, APointColor: TColor32;
-  const AData: IVectorDataItemSimple;
+  const AData: IGeometryLonLat;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
-  VItemPoint: IVectorDataItemPoint;
-  VItemLine: IVectorDataItemLine;
-  VItemPoly: IVectorDataItemPoly;
+  VItemPoint: IGeometryLonLatPoint;
+  VItemLine: IGeometryLonLatMultiLine;
+  VItemPoly: IGeometryLonLatMultiPolygon;
 begin
-  if Supports(AData, IVectorDataItemPoint, VItemPoint) then begin
+  if Supports(AData, IGeometryLonLatPoint, VItemPoint) then begin
     Result := DrawPoint(ABitmapInited, ATargetBmp, APointColor, AColorBG, VItemPoint, ALocalConverter);
-  end else if Supports(AData, IVectorDataItemLine, VItemLine) then begin
+  end else if Supports(AData, IGeometryLonLatMultiLine, VItemLine) then begin
     Result := DrawPath(ABitmapInited, ATargetBmp, AColorMain, AColorBG, VItemLine, ALocalConverter);
-  end else if Supports(AData, IVectorDataItemPoly, VItemPoly) then begin
+  end else if Supports(AData, IGeometryLonLatMultiPolygon, VItemPoly) then begin
     Result := DrawPoly(ABitmapInited, ATargetBmp, AColorMain, AColorBG, VItemPoly, ALocalConverter);
   end else begin
     Result := False;
@@ -424,7 +425,7 @@ begin
       for i := 0 to FVectorItems.Count - 1 do begin
         VItem := FVectorItems.GetItem(i);
         if VItem.Geometry.Bounds.IsIntersecWithRect(VLLRect) then begin
-          if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem, ALocalConverter) then begin
+          if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem.Geometry, ALocalConverter) then begin
             VIsEmpty := False;
           end;
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
