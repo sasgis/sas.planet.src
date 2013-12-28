@@ -32,6 +32,7 @@ uses
   i_NotifierOperation,
   i_GeoCoder,
   i_LocalCoordConverter,
+  i_VectorItemSubsetBuilder,
   i_DownloadResultFactory,
   i_ValueToStringConverter,
   u_GeoCoderBasic;
@@ -56,6 +57,7 @@ type
     constructor Create(
       const AInetSettings: IInetConfig;
       const AGCNotifier: INotifierTime;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -109,14 +111,22 @@ begin
    Result := Aptr;
   end;
 end;
-constructor TGeoCoderByRosreestr.Create(const AInetSettings: IInetConfig;
+constructor TGeoCoderByRosreestr.Create(
+  const AInetSettings: IInetConfig;
   const AGCNotifier: INotifierTime;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AInetSettings, AGCNotifier, APlacemarkFactory, AResultFactory);
+  inherited Create(
+    AInetSettings,
+    AGCNotifier,
+    AVectorItemSubsetBuilderFactory,
+    APlacemarkFactory,
+    AResultFactory
+  );
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 
@@ -138,7 +148,6 @@ var
   VFormatSettings: TALFormatSettings;
   VValueConverter: IValueToStringConverter;
   VStr: AnsiString;
-  VNeedSort: boolean;
   VTemp: AnsiString;
   VTemp1: AnsiString;
 begin
@@ -146,7 +155,6 @@ begin
   sfulldesc := '';
   sdesc := '';
   VtempString := '';
-  VNeedSort :=false;
 
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
@@ -192,7 +200,6 @@ begin
     VList.Add(VPlace);
   end;
 
-  if 0 = VList.GetCount then VNeedSort := true;
   // по наименованию
   while (ALPosEx('address', VStr, i) > i) and (i > 0) do begin
     j := i;
@@ -223,7 +230,6 @@ begin
     VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
-  if (VNeedSort) and (VList.GetCount>1) then SortIt(VList ,ALocalConverter); // only for names
 
   Result := VList;
 end;

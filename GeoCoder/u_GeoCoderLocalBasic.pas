@@ -27,12 +27,19 @@ uses
   i_NotifierOperation,
   i_GeoCoder,
   i_LocalCoordConverter,
+  i_VectorItemSubset,
+  i_VectorItemSubsetBuilder,
   u_BaseInterfacedObject;
 
 type
   TGeoCoderLocalBasic = class(TBaseInterfacedObject, IGeoCoder)
   private
     FPlacemarkFactory: IGeoCodePlacemarkFactory;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    function BuildSortedSubset(
+      const AList:IInterfaceListSimple;
+      const ALocalConverter: ILocalCoordConverter
+    ): IVectorItemSubset;
   protected
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
@@ -50,6 +57,7 @@ type
     ): IGeoCodeResult;
   public
     constructor Create(
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory
     );
   end;
@@ -58,35 +66,48 @@ implementation
 
 uses
   i_VectorDataItemSimple,
-  u_InterfaceListSimple,
   u_SortFunc,
   u_GeoCodeResult;
 
 { TGeoCoderLocalBasic }
 
-procedure SortIt(
-  const AList: IInterfaceListSimple;
-  const ALocalConverter: ILocalCoordConverter
-);
-var
-  i: integer;
-  VMark: IVectorDataItemPoint;
-  VDistArr: array of Double;
-begin
-  SetLength(VDistArr, AList.Count);
-  for i := 0 to AList.GetCount-1 do begin
-    VMark := IVectorDataItemPoint(AList.Items[i]);
-    VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.GetPoint.Point);
-  end;
-  SortInterfaceListByDoubleMeasure(AList, VDistArr);
-end;
-
 constructor TGeoCoderLocalBasic.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory
 );
 begin
   inherited Create;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FPlacemarkFactory := APlacemarkFactory;
+end;
+
+function TGeoCoderLocalBasic.BuildSortedSubset(
+  const AList: IInterfaceListSimple;
+  const ALocalConverter: ILocalCoordConverter
+): IVectorItemSubset;
+var
+  i: integer;
+  VMark: IVectorDataItemSimple;
+  VDistArr: array of Double;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+begin
+  Result := nil;
+  if Assigned(AList) then begin
+    if AList.Count > 1 then begin
+      SetLength(VDistArr, AList.Count);
+      for i := 0 to AList.GetCount - 1 do begin
+        VMark := IVectorDataItemSimple(AList.Items[i]);
+        VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.Geometry.Bounds.CalcRectCenter);
+      end;
+      SortInterfaceListByDoubleMeasure(AList, VDistArr);
+    end;
+    VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+    for i := 0 to AList.GetCount - 1 do begin
+      VMark := IVectorDataItemSimple(AList.Items[i]);
+      VSubsetBuilder.Add(VMark);
+    end;
+    Result := VSubsetBuilder.MakeStaticAndClear;
+  end;
 end;
 
 function TGeoCoderLocalBasic.GetLocations(
@@ -98,6 +119,7 @@ function TGeoCoderLocalBasic.GetLocations(
 var
   VList: IInterfaceListSimple;
   VResultCode: Integer;
+  VSubset: IVectorItemSubset;
 begin
   VResultCode := 200;
   VList := nil;
@@ -106,19 +128,14 @@ begin
     Exit;
   end;
   VList :=
-   DoSearch(
-   ACancelNotifier,
-   AOperationID,
-   ASearch,
-   ALocalConverter
-   );
-  if VList = nil then begin
-    VList := TInterfaceListSimple.Create;
-  end;
-
-  if VList.GetCount>1 then SortIt(VList ,ALocalConverter);
-
-  Result := TGeoCodeResult.Create(ASearch, VResultCode,'', VList.MakeStaticAndClear);
+    DoSearch(
+      ACancelNotifier,
+      AOperationID,
+      ASearch,
+      ALocalConverter
+    );
+  VSubset := BuildSortedSubset(VList, ALocalConverter);
+  Result := TGeoCodeResult.Create(ASearch, VResultCode, '', VSubset);
 end;
 
 

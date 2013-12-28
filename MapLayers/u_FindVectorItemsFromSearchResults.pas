@@ -35,13 +35,10 @@ implementation
 
 uses
   ActiveX,
-  SysUtils,
   t_GeoTypes,
-  c_InternalBrowser,
   i_CoordConverter,
   i_GeoCoder,
   i_VectorDataItemSimple,
-  u_GeoCodePlacemarkWithUrlDecorator,
   u_GeoFun;
 
 { TFindVectorItemsFromSearchResults }
@@ -71,16 +68,13 @@ var
   VMapRect: TDoubleRect;
   i: integer;
   VEnum: IEnumUnknown;
-  VPlacemark: IVectorDataItemPoint;
-  VPlacemarkInfo: IGeoCodePlacemarkInfo;
+  VPlacemark: IVectorDataItemSimple;
   VSearchResults: IGeoCodeResult;
-  VIndex: Integer;
   Vtmp: IVectorItemSubsetBuilder;
-  VTempItem: IVectorDataItemPoint;
 begin
   Result := nil;
   VSearchResults := FLastSearchResults.GeoCodeResult;
-  if (VSearchResults <> nil) and (VSearchResults.GetPlacemarksCount > 0) then begin
+  if (VSearchResults <> nil) and (VSearchResults.Count > 0) then begin
     Vtmp := FVectorItemSubsetBuilderFactory.Build;
     VRect.Left := ALocalPoint.X - 5;
     VRect.Top := ALocalPoint.Y - 5;
@@ -92,21 +86,11 @@ begin
     VConverter.CheckPixelRectFloat(VMapRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
     VPixelPos := AVisualConverter.LocalPixel2MapPixelFloat(ALocalPoint);
-    VIndex := 0;
-    VEnum := VSearchResults.GetPlacemarks;
+    VEnum := VSearchResults.GetEnum;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      if Supports(VPlacemark.MainInfo, IGeoCodePlacemarkInfo, VPlacemarkInfo) then begin
-        if LonLatPointInRect(VPlacemark.GetPoint.Point, VLonLatRect) then begin
-          VTempItem :=
-            FVectorDataFactory.BuildPoint(
-              TGeoCodePlacemarkInfoWithUrlDecorator.Create(VPlacemarkInfo, CLastSearchResultsInternalURL + IntToStr(VIndex) + '/'),
-              VPlacemark.Appearance,
-              VPlacemark.Point
-            );
-          Vtmp.add(VTempItem);
-        end;
+      if VPlacemark.Geometry.Bounds.IsIntersecWithRect(VLonLatRect) then begin
+        Vtmp.add(VPlacemark);
       end;
-      Inc(VIndex);
     end;
     Result := Vtmp.MakeStaticAndClear;
   end;

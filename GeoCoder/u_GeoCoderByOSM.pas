@@ -157,7 +157,6 @@ begin
     VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
-  if VList.GetCount>1 then SortIt(VList ,ALocalConverter);
   Result := VList;
 end;
 

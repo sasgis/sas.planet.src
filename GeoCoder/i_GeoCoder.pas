@@ -23,20 +23,18 @@ unit i_GeoCoder;
 interface
 
 uses
-  ActiveX,
   t_GeoTypes,
   i_NotifierOperation,
   i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_LocalCoordConverter;
 
 type
-  IGeoCodeResult = interface
+  IGeoCodeResult = interface(IVectorItemSubset)
     ['{C90929AD-3A6C-4906-A554-E1DA363ED060}']
     function GetSearchText: string;
     function GetResultCode: Integer;
     function GetMessage: string;
-    function GetPlacemarks: IEnumUnknown;
-    function GetPlacemarksCount: integer;
   end;
 
   IGeoCodePlacemarkInfo = interface(IVectorDataItemMainInfo)

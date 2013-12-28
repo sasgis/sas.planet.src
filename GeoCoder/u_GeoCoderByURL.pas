@@ -34,6 +34,7 @@ uses
   i_DownloadResultFactory,
   i_ValueToStringConverter,
   i_VectorDataItemSimple,
+  i_VectorItemSubsetBuilder,
   i_GeoCoder,
   u_GeoCoderBasic;
 
@@ -65,6 +66,7 @@ type
     constructor Create(
       const AInetSettings: IInetConfig;
       const AGCNotifier: INotifierTime;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -93,14 +95,22 @@ begin
   out_Y := ALFloatToStr(((arctan(exp(in_Y/6378137))-pi/4)*360)/pi, AFormatSettings);
 end;
 
-constructor TGeoCoderByURL.Create(const AInetSettings: IInetConfig;
+constructor TGeoCoderByURL.Create(
+  const AInetSettings: IInetConfig;
   const AGCNotifier: INotifierTime;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(AInetSettings, AGCNotifier, APlacemarkFactory, AResultFactory);
+  inherited Create(
+    AInetSettings,
+    AGCNotifier,
+    AVectorItemSubsetBuilderFactory,
+    APlacemarkFactory,
+    AResultFactory
+  );
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 

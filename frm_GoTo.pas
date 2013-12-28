@@ -37,6 +37,7 @@ uses
   i_MarkDb,
   i_MainGeoCoderConfig,
   i_LocalCoordConverterChangeable,
+  i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
   i_GeoCoder,
   u_CommonFormAndFrameParents,
@@ -69,6 +70,7 @@ type
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
     FMarksList: IInterfaceListStatic;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     function GeocodeResultFromLonLat(
       const ASearch: WideString;
       const ALonLat: TDoublePoint;
@@ -84,6 +86,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
       const AMarksDb: IMarkDb;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
@@ -101,13 +104,11 @@ implementation
 
 uses
   ActiveX,
-  i_InterfaceListSimple,
   i_GeoCoderList,
   i_MarkId,
   i_VectorDataItemSimple,
   i_LocalCoordConverter,
   i_NotifierOperation,
-  u_InterfaceListSimple,
   u_Notifier,
   u_NotifierOperation,
   u_GeoCodeResult;
@@ -121,12 +122,12 @@ function TfrmGoTo.GeocodeResultFromLonLat(
 ): IGeoCodeResult;
 var
   VPlace: IVectorDataItemPoint;
-  VList: IInterfaceListSimple;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
   VPlace := FGeoCodePlacemarkFactory.Build(ALonLat, AMessage, '', '', 4);
-  VList := TInterfaceListSimple.Create;
-  VList.Add(VPlace);
-  Result := TGeoCodeResult.Create(ASearch, 203, '', VList.MakeStaticAndClear);
+  VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+  VSubsetBuilder.Add(VPlace);
+  Result := TGeoCodeResult.Create(ASearch, 203, '', VSubsetBuilder.MakeStaticAndClear);
 end;
 
 procedure TfrmGoTo.InitGeoCoders;
@@ -290,6 +291,7 @@ end;
 
 constructor TfrmGoTo.Create(
   const ALanguageManager: ILanguageManager;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
   const AMarksDb: IMarkDb;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
@@ -300,6 +302,7 @@ begin
   inherited Create(ALanguageManager);
   FMarksDb := AMarksDb;
   FGeoCodePlacemarkFactory := AGeoCodePlacemarkFactory;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FViewPortState := AViewPortState;
   FValueToStringConverterConfig := AValueToStringConverterConfig;

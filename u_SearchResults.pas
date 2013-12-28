@@ -122,25 +122,25 @@ procedure TSearchResultPresenterOnPanel.ShowSearchResults(
   AZoom: Byte
 );
 var
-  VPlacemark: IVectorDataItemPoint;
+  VPlacemark: IVectorDataItemSimple;
   VEnum: IEnumUnknown;
   i: Cardinal;
   LengthFSearchItems: integer;
-  VItemForGoTo: IVectorDataItemPoint;
+  VItemForGoTo: IVectorDataItemSimple;
   VCnt: Integer;
 begin
   ClearSearchResults;
   VItemForGoTo := nil;
 
   FLastSearchResults.ClearGeoCodeResult;
-  if ASearchResult.GetPlacemarksCount > 0 then begin
-    if ASearchResult.GetPlacemarksCount > 1 then begin
+  if ASearchResult.Count > 0 then begin
+    if ASearchResult.Count > 1 then begin
       FOnShowResults(Self);
       FLastSearchResults.GeoCodeResult := ASearchResult;
     end;
 
     VCnt := 0;
-    VEnum := ASearchResult.GetPlacemarks;
+    VEnum := ASearchResult.GetEnum;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
       if VItemForGoTo = nil then begin
         VItemForGoTo := VPlacemark;
@@ -171,7 +171,7 @@ begin
     if VItemForGoTo = nil then begin
       ShowMessage(SAS_STR_notfound);
     end else begin
-      FMapGoto.GotoPos(VItemForGoTo.GetPoint.Point, AZoom, True);
+      FMapGoto.GotoPos(VItemForGoTo.Geometry.GetGoToLonLat, AZoom, True);
     end;
   end else begin
     case ASearchResult.GetResultCode of

@@ -29,6 +29,7 @@ uses
   i_InterfaceListSimple,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
   u_GeoCoderLocalBasic;
 
@@ -57,6 +58,7 @@ type
     ): IInterfaceListSimple; override;
   public
     constructor Create(
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -208,11 +210,12 @@ begin
 end;
 
 constructor TGeoCoderByTXT.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(APlacemarkFactory);
+  inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt')) then
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
   FLock := MakeSyncRW_Std(Self, False);

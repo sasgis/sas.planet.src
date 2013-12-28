@@ -640,6 +640,7 @@ begin
     TGeoCoderListSimple.Create(
       FGlobalConfig.InetConfig,
       BGTimerNotifier,
+      FVectorItemSubsetBuilderFactory,
       FGeoCodePlacemarkFactory,
       TDownloadResultFactory.Create,
       FGlobalConfig.ValueToStringConverterConfig

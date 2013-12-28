@@ -136,7 +136,6 @@ begin
     end;
 
   end;
-  if VList.GetCount>1 then SortIt(VList, ALocalConverter);
   Result := VList;
 end;
 

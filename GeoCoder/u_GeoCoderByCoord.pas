@@ -29,6 +29,7 @@ uses
   i_GeoCoder,
   i_NotifierOperation,
   i_LocalCoordConverter,
+  i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
   u_GeoCoderLocalBasic;
 
@@ -53,6 +54,7 @@ type
     ): IInterfaceListSimple; override;
   public
     constructor Create(
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
@@ -453,11 +455,12 @@ begin
 end;
 
 constructor TGeoCoderByCoord.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
-  inherited Create(APlacemarkFactory);
+  inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
 

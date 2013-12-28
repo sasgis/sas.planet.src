@@ -33,6 +33,8 @@ uses
   i_DownloadResult,
   i_Downloader,
   i_GeoCoder,
+  i_VectorItemSubset,
+  i_VectorItemSubsetBuilder,
   i_LocalCoordConverter,
   u_BaseInterfacedObject;
 
@@ -41,7 +43,12 @@ type
   private
     FDownloader: IDownloader;
     FInetSettings: IInetConfig;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FPlacemarkFactory: IGeoCodePlacemarkFactory;
+    function BuildSortedSubset(
+      const AList:IInterfaceListSimple;
+      const ALocalConverter: ILocalCoordConverter
+    ): IVectorItemSubset;
   protected
     property PlacemarkFactory: IGeoCodePlacemarkFactory read FPlacemarkFactory;
     property Downloader: IDownloader read FDownloader;
@@ -59,10 +66,6 @@ type
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
     ): IInterfaceListSimple; virtual; abstract;
-    procedure SortIt(
-      const AList:IInterfaceListSimple;
-      const ALocalConverter: ILocalCoordConverter
-    );
   private
     function GetLocations(
       const ACancelNotifier: INotifierOperation;
@@ -74,6 +77,7 @@ type
     constructor Create(
       const AInetSettings: IInetConfig;
       const AGCNotifier: INotifierTime;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory
     );
@@ -86,7 +90,6 @@ implementation
 
 uses
   i_VectorDataItemSimple,
-  u_InterfaceListSimple,
   u_DownloaderHttpWithTTL,
   u_DownloadRequest,
   u_SortFunc,
@@ -97,31 +100,45 @@ uses
 constructor TGeoCoderBasic.Create(
   const AInetSettings: IInetConfig;
   const AGCNotifier: INotifierTime;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory
 );
 begin
   inherited Create;
   FInetSettings := AInetSettings;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FPlacemarkFactory := APlacemarkFactory;
   FDownloader := TDownloaderHttpWithTTL.Create(AGCNotifier, AResultFactory);
 end;
 
-procedure TGeoCoderBasic.SortIt(
+function TGeoCoderBasic.BuildSortedSubset(
   const AList:IInterfaceListSimple;
   const ALocalConverter: ILocalCoordConverter
-  );
+): IVectorItemSubset;
 var
   i: integer;
-  VMark: IVectorDataItemPoint;
+  VMark: IVectorDataItemSimple;
   VDistArr: array of Double;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
-  SetLength(VDistArr, AList.Count);
-  for i := 0 to AList.GetCount-1 do begin
-    VMark := IVectorDataItemPoint(AList.Items[i]);
-    VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.GetPoint.Point);
+  Result := nil;
+  if Assigned(AList) then begin
+    if AList.Count > 1 then begin
+      SetLength(VDistArr, AList.Count);
+      for i := 0 to AList.GetCount - 1 do begin
+        VMark := IVectorDataItemSimple(AList.Items[i]);
+        VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.Geometry.Bounds.CalcRectCenter);
+      end;
+      SortInterfaceListByDoubleMeasure(AList, VDistArr);
+    end;
+    VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+    for i := 0 to AList.GetCount - 1 do begin
+      VMark := IVectorDataItemSimple(AList.Items[i]);
+      VSubsetBuilder.Add(VMark);
+    end;
+    Result := VSubsetBuilder.MakeStaticAndClear;
   end;
-  SortInterfaceListByDoubleMeasure(AList, VDistArr);
 end;
 
 
@@ -139,6 +156,7 @@ var
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
   VResultError: IDownloadResultError;
+  VSubset: IVectorItemSubset;
 begin
   VResultCode := 200;
   VMessage := '';
@@ -147,7 +165,7 @@ begin
   if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
     Exit;
   end;
-
+  VSubset := nil;
   try
     if not (ASearch = '') then begin
       VRequest := PrepareRequest(ASearch, ALocalConverter);
@@ -186,6 +204,7 @@ begin
             ALocalConverter
           );
       end;
+      VSubset := BuildSortedSubset(VList, ALocalConverter);
     end;
   except
     on E: Exception do begin
@@ -193,14 +212,11 @@ begin
       VMessage := E.Message;
     end;
   end;
-  if VList = nil then begin
-    VList := TInterfaceListSimple.Create;
-  end;
-  if VList.Count = 0 then begin
+  if not (Assigned(VSubset)) or (VSubset.Count = 0) then begin
     VResultCode := 404;
     VMessage := 'Не найдено';
   end;
-  Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VList.MakeStaticAndClear);
+  Result := TGeoCodeResult.Create(ASearch, VResultCode, VMessage, VSubset);
 end;
 
 function TGeoCoderBasic.PrepareRequestByURL(const AUrl: AnsiString): IDownloadRequest;

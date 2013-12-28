@@ -110,19 +110,19 @@ procedure TSearchResultsLayer.PaintLayer(
 var
   VConverter: ICoordConverter;
   VEnum: IEnumUnknown;
-  VPlacemark: IVectorDataItemPoint;
+  VPlacemark: IVectorDataItemSimple;
   VFixedOnView: TDoublePoint;
   VMarker: IMarkerDrawable;
   i: integer;
   VSearchResults: IGeoCodeResult;
 begin
   VSearchResults := FLastSearchResults.GeoCodeResult;
-  if (VSearchResults <> nil) and (VSearchResults.GetPlacemarksCount > 0) then begin
+  if (VSearchResults <> nil) and (VSearchResults.Count > 0) then begin
     VMarker := FMarker.GetStatic;
     VConverter := ALocalConverter.GetGeoConverter;
-    VEnum := VSearchResults.GetPlacemarks;
+    VEnum := VSearchResults.GetEnum;
     while VEnum.Next(1, VPlacemark, @i) = S_OK do begin
-      VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VPlacemark.GetPoint.Point);
+      VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VPlacemark.Geometry.GetGoToLonLat);
       VMarker.DrawToBitmap(ABuffer, VFixedOnView);
     end;
   end;

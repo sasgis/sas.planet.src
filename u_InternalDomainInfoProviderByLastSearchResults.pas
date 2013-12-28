@@ -63,7 +63,6 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  ActiveX,
   i_GeoCoder,
   u_BinaryData;
 
@@ -102,24 +101,12 @@ function TInternalDomainInfoProviderByLastSearchResults.GetItemByIndex(
   const AIndex: Integer
 ): IVectorDataItemSimple;
 var
-  VEnum: IEnumUnknown;
   VLastResult: IGeoCodeResult;
-  VItem: IVectorDataItemPoint;
-  VCnt: Integer;
-  VIndex: Integer;
 begin
   Result := nil;
   VLastResult := FLastSearchResults.GeoCodeResult;
-  if (VLastResult <> nil) and (VLastResult.GetPlacemarksCount > 0) then begin
-    VIndex := 0;
-    VEnum := VLastResult.GetPlacemarks;
-    while VEnum.Next(1, VItem, @VCnt) = S_OK  do begin
-      if VIndex = AIndex then begin
-        Result := VItem;
-        Break;
-      end;
-      Inc(VIndex);
-    end;
+  if (VLastResult <> nil) and (VLastResult.Count > 0) and (AIndex < VLastResult.Count) then begin
+    Result := VLastResult.Items[AIndex];
   end;
 end;
 

@@ -24,35 +24,44 @@ interface
 
 uses
   ActiveX,
-  i_InterfaceListStatic,
+  t_GeoTypes,
+  t_Hash,
+  i_Category,
+  i_VectorDataItemSimple,
+  i_VectorItemSubset,
   i_GeoCoder,
   u_BaseInterfacedObject;
 
 type
-  TGeoCodeResult = class(TBaseInterfacedObject, IGeoCodeResult)
+  TGeoCodeResult = class(TBaseInterfacedObject, IVectorItemSubset, IGeoCodeResult)
   private
     FSearchText: string;
     FMessage: string;
     FResultCode: Integer;
-    FList: IInterfaceListStatic;
+    FList: IVectorItemSubset;
+  private
     function GetSearchText: string;
     function GetResultCode: Integer;
     function GetMessage: string;
-    function GetPlacemarks: IEnumUnknown;
-    function GetPlacemarksCount: integer;
+  private
+    function GetSubsetByLonLatRect(const ARect: TDoubleRect): IVectorItemSubset;
+    function GetSubsetByCategory(const ACategory: ICategory): IVectorItemSubset;
+    function GetEnum: IEnumUnknown;
+    function IsEmpty: Boolean;
+    function IsEqual(const ASubset: IVectorItemSubset): Boolean;
+    function GetCount: Integer;
+    function GetItem(AIndex: Integer): IVectorDataItemSimple;
+    function GetHash: THashValue;
   public
     constructor Create(
       const ASearchText: string;
       AResultCode: integer;
       const AMessage: string;
-      const AList: IInterfaceListStatic
+      const AList: IVectorItemSubset
     );
   end;
 
 implementation
-
-uses
-  u_EnumUnknown;
 
 { TGeoCodeResult }
 
@@ -60,7 +69,7 @@ constructor TGeoCodeResult.Create(
   const ASearchText: string;
   AResultCode: integer;
   const AMessage: string;
-  const AList: IInterfaceListStatic
+  const AList: IVectorItemSubset
 );
 begin
   inherited Create;
@@ -70,27 +79,45 @@ begin
   FResultCode := AResultCode;
 end;
 
-function TGeoCodeResult.GetMessage: string;
-begin
-  Result := FMessage;
-end;
-
-function TGeoCodeResult.GetPlacemarks: IEnumUnknown;
-begin
-  if Assigned(FList) then begin
-    Result := TEnumUnknownByStatic.Create(FList);
-  end else begin
-    Result := nil;
-  end;
-end;
-
-function TGeoCodeResult.GetPlacemarksCount: integer;
+function TGeoCodeResult.GetCount: Integer;
 begin
   if Assigned(FList) then begin
     Result := FList.Count;
   end else begin
     Result := 0;
   end;
+end;
+
+function TGeoCodeResult.GetEnum: IEnumUnknown;
+begin
+  if Assigned(FList) then begin
+    Result := FList.GetEnum;
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TGeoCodeResult.GetHash: THashValue;
+begin
+  if Assigned(FList) then begin
+    Result := FList.Hash;
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TGeoCodeResult.GetItem(AIndex: Integer): IVectorDataItemSimple;
+begin
+  if Assigned(FList) then begin
+    Result := FList.Items[AIndex];
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TGeoCodeResult.GetMessage: string;
+begin
+  Result := FMessage;
 end;
 
 function TGeoCodeResult.GetResultCode: Integer;
@@ -103,5 +130,44 @@ begin
   Result := FSearchText;
 end;
 
+function TGeoCodeResult.GetSubsetByCategory(
+  const ACategory: ICategory
+): IVectorItemSubset;
+begin
+  if Assigned(FList) then begin
+    Result := FList.GetSubsetByCategory(ACategory);
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TGeoCodeResult.GetSubsetByLonLatRect(
+  const ARect: TDoubleRect
+): IVectorItemSubset;
+begin
+  if Assigned(FList) then begin
+    Result := FList.GetSubsetByLonLatRect(ARect);
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TGeoCodeResult.IsEmpty: Boolean;
+begin
+  if Assigned(FList) then begin
+    Result := FList.IsEmpty;
+  end else begin
+    Result := True;
+  end;
+end;
+
+function TGeoCodeResult.IsEqual(const ASubset: IVectorItemSubset): Boolean;
+begin
+  if Assigned(FList) then begin
+    Result := FList.IsEqual(ASubset);
+  end else begin
+    Result := False;
+  end;
+end;
+
 end.
- 
