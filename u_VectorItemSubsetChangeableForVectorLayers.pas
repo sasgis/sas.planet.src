@@ -130,6 +130,7 @@ uses
   i_CoordConverter,
   i_TileIterator,
   i_LonLatRect,
+  i_GeometryLonLat,
   u_InterfaceListSimple,
   u_SimpleFlagWithInterlock,
   u_ListenerNotifierLinksList,
@@ -569,7 +570,7 @@ begin
       VConverter.CheckLonLatRect(VLLRect);
       VBounds := ALocalConverter.LonLatRect2LocalRectFloat(VLLRect);
       if ((VBounds.Top < VSize.Y) and (VBounds.Bottom > 0) and (VBounds.Left < VSize.X) and (VBounds.Right > 0)) then begin
-        if Supports(AData, IVectorDataItemPoint) or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
+        if Supports(AData.Geometry, IGeometryLonLatPoint) or (((VBounds.Right - VBounds.Left) > 1) and ((VBounds.Bottom - VBounds.Top) > 1)) then begin
           AElments.Add(AData);
         end;
       end;
