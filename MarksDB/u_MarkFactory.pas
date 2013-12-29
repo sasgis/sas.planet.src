@@ -49,6 +49,11 @@ type
 
     FMarkPictureList: IMarkPictureList;
   private
+    function CreateNewMark(
+      const AGeometry: IGeometryLonLat;
+      const AName: string;
+      const ADesc: string
+    ): IVectorDataItemSimple;
     function CreateNewPoint(
       const APoint: IGeometryLonLatPoint;
       const AName: string;
@@ -200,6 +205,25 @@ begin
       VCategory,
       VTemplate.Appearance
     );
+end;
+
+function TMarkFactory.CreateNewMark(
+  const AGeometry: IGeometryLonLat;
+  const AName, ADesc: string
+): IVectorDataItemSimple;
+var
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
+begin
+  Result := nil;
+  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    Result := CreateNewPoint(VPoint, AName, ADesc);
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
+    Result := CreateNewLine(VLine, AName, ADesc);
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+    Result := CreateNewPoly(VPoly, AName, ADesc);
+  end;
 end;
 
 function TMarkFactory.CreateNewPoint(

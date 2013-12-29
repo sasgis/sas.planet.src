@@ -35,6 +35,12 @@ uses
 type
   IMarkFactory = interface
     ['{725CB1AC-1393-4889-B621-64C3B4348331}']
+    function CreateNewMark(
+      const AGeometry: IGeometryLonLat;
+      const AName: string;
+      const ADesc: string
+    ): IVectorDataItemSimple;
+
     function CreateNewPoint(
       const APoint: IGeometryLonLatPoint;
       const AName: string;
