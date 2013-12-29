@@ -31,7 +31,6 @@ uses
   ExtCtrls,
   StdCtrls,
   i_VectorDataItemSimple,
-  i_LocalCoordConverterChangeable,
   i_MapViewGoto,
   i_InternalBrowser;
 
@@ -52,7 +51,6 @@ type
     procedure LabelDescDblClick(Sender: TObject);
   private
     FPlacemark: IVectorDataItemSimple;
-    FViewPortState: ILocalCoordConverterChangeable;
     FMapGoto: IMapViewGoto;
     FIntrnalBrowser: IInternalBrowser;
     FPopUp: TPopupMenu;
@@ -62,7 +60,6 @@ type
       AParent:TWinControl;
       APopUp: TPopupMenu;
       const APlacemark: IVectorDataItemSimple;
-      const AViewPortState: ILocalCoordConverterChangeable;
       const AIntrnalBrowser: IInternalBrowser;
       const AMapGoto: IMapViewGoto
     ); reintroduce;
@@ -76,7 +73,6 @@ constructor TfrSearchResultsItem.Create(
   AParent:TWinControl;
   APopUp: TPopupMenu;
   const APlacemark: IVectorDataItemSimple;
-  const AViewPortState: ILocalCoordConverterChangeable;
   const AIntrnalBrowser: IInternalBrowser;
   const AMapGoto: IMapViewGoto
 );
@@ -89,7 +85,6 @@ begin
   LabelCaption.Caption:=FPlacemark.Name;
   LabelDesc.Caption:=FPlacemark.GetDesc;
   FMapGoto:=AMapGoto;
-  FViewPortState := AViewPortState;
   PanelFullDesc.Visible:=FPlacemark.GetInfoHTML<>'';
   PanelDesc.Visible:=FPlacemark.GetDesc<>'';
 end;
@@ -116,12 +111,12 @@ end;
 
 procedure TfrSearchResultsItem.LabelCaptionClick(Sender: TObject);
 begin
-  FMapGoto.GotoPos(FPlacemark.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
+  FMapGoto.GotoLonLat(FPlacemark.Geometry.GetGoToLonLat, True);
 end;
 
 procedure TfrSearchResultsItem.LabelDescDblClick(Sender: TObject);
 begin
-  FMapGoto.GotoPos(FPlacemark.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
+  FMapGoto.GotoLonLat(FPlacemark.Geometry.GetGoToLonLat, True);
 end;
 
 procedure TfrSearchResultsItem.LabelFullDescMouseUp(Sender: TObject;

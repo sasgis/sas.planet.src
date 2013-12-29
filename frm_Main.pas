@@ -2271,8 +2271,7 @@ begin
       tbxpmnSearchResult,
       Self.OnShowSearchResults,
       GState.Config.ValueToStringConverterConfig,
-      FConfig.LastSearchResultConfig,
-      FConfig.ViewPortState.View
+      FConfig.LastSearchResultConfig
     );
 
   VEnum := FConfig.MainGeoCoderConfig.GetList.GetGUIDEnum;

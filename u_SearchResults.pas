@@ -28,7 +28,6 @@ uses
   Controls,
   Menus,
   i_MapViewGoto,
-  i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_LastSearchResultConfig,
   i_GeoCoder,
@@ -41,7 +40,6 @@ type
   TSearchResultPresenterOnPanel = class(TBaseInterfacedObject, ISearchResultPresenter)
   private
     FMapGoto: IMapViewGoto;
-    FViewPortState: ILocalCoordConverterChangeable;
     FIntrnalBrowser: IInternalBrowser;
     FDrawParent: TWinControl;
     FPopUp: TPopupMenu;
@@ -63,8 +61,7 @@ type
       APopUp: TPopupMenu;
       AOnShowResults: TNotifyEvent;
       const AValueConverterConfig: IValueToStringConverterConfig;
-      const ALastSearchResults: ILastSearchResultConfig;
-      const AViewPortState: ILocalCoordConverterChangeable
+      const ALastSearchResults: ILastSearchResultConfig
     );
     destructor Destroy; override;
   end;
@@ -85,8 +82,7 @@ constructor TSearchResultPresenterOnPanel.Create(
   APopUp: TPopupMenu;
   AOnShowResults: TNotifyEvent;
   const AValueConverterConfig: IValueToStringConverterConfig;
-  const ALastSearchResults: ILastSearchResultConfig;
-  const AViewPortState: ILocalCoordConverterChangeable
+  const ALastSearchResults: ILastSearchResultConfig
 );
 begin
   inherited Create;
@@ -94,7 +90,6 @@ begin
   FIntrnalBrowser := AIntrnalBrowser;
   FMapGoto := AMapGoto;
   FValueConverterConfig := AValueConverterConfig;
-  FViewPortState := AViewPortState;
   FDrawParent := ADrawParent;
   FLastSearchResults := ALastSearchResults;
   FOnShowResults := AOnShowResults;
@@ -153,7 +148,6 @@ begin
           FDrawParent,
           FPopUp,
           VPlacemark,
-          FViewPortState,
           FIntrnalBrowser,
           FMapGoto
         );
