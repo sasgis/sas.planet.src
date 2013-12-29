@@ -281,16 +281,8 @@ var
   VName, VDesc: string;
   VAppearance: IAppearance;
   // item
-  VObject: IInterface;
-  // for point
-  VLonLatPoint: IGeometryLonLatPoint;
-  VPointResult: IVectorDataItemPoint;
-  // for line
-  VLonLatPath: IGeometryLonLatMultiLine;
-  VLineResult: IVectorDataItemLine;
-  // for polygon
-  VLonLatPolygon: IGeometryLonLatMultiPolygon;
-  VPolygonResult: IVectorDataItemPoly;
+  VGeometry: IGeometryLonLat;
+  VItem: IVectorDataItemSimple;
 begin
   if (not FInMarkObject) then
     raise EXmlVectorObjectsNotInMark.Create('');
@@ -301,40 +293,15 @@ begin
 
   // get objects
   for i := 0 to FList.Count - 1 do begin
-    VObject := FList[i];
-    if Supports(VObject, IGeometryLonLatPoint, VLonLatPoint) then begin
-      // point
-      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc) then begin
-        VPointResult :=
-          FDataFactory.BuildPoint(
-            FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
-            VAppearance,
-            VLonLatPoint
-          );
-        SafeAddToResult(VPointResult);
-      end;
-    end else if Supports(VObject, IGeometryLonLatMultiLine, VLonLatPath) then begin
-      // line
-      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc) then begin
-        VLineResult :=
-          FDataFactory.BuildPath(
-            FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
-            VAppearance,
-            VLonLatPath
-          );
-        SafeAddToResult(VLineResult);
-      end;
-    end else if Supports(VObject, IGeometryLonLatMultiPolygon, VLonLatPolygon) then begin
-      // polygon
-      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc) then begin
-        VPolygonResult :=
-          FDataFactory.BuildPoly(
-            FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
-            VAppearance,
-            VLonLatPolygon
-          );
-        SafeAddToResult(VPolygonResult);
-      end;
+    VGeometry := FList[i] as IGeometryLonLat;
+    if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc) then begin
+      VItem :=
+        FDataFactory.BuildItem(
+          FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
+          VAppearance,
+          VGeometry
+        );
+      SafeAddToResult(VItem);
     end;
   end;
 
