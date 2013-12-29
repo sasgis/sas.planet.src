@@ -66,8 +66,7 @@ type
       const AMode: TCloseMarkObjectMode;
       out AAppearance: IAppearance;
       out AMarkName: string;
-      out AMarkDesc: string;
-      const AMarkType: TGUID
+      out AMarkDesc: string
     ): Boolean;
   private
     { IXmlVectorObjects }
@@ -305,7 +304,7 @@ begin
     VObject := FList[i];
     if Supports(VObject, IGeometryLonLatPoint, VLonLatPoint) then begin
       // point
-      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemPoint) then begin
+      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc) then begin
         VPointResult :=
           FDataFactory.BuildPoint(
             FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
@@ -316,7 +315,7 @@ begin
       end;
     end else if Supports(VObject, IGeometryLonLatMultiLine, VLonLatPath) then begin
       // line
-      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemLine) then begin
+      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc) then begin
         VLineResult :=
           FDataFactory.BuildPath(
             FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
@@ -327,7 +326,7 @@ begin
       end;
     end else if Supports(VObject, IGeometryLonLatMultiPolygon, VLonLatPolygon) then begin
       // polygon
-      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc, IVectorDataItemPoly) then begin
+      if ParseCloseMarkObjectData(AData, AMode, VAppearance, VName, VDesc) then begin
         VPolygonResult :=
           FDataFactory.BuildPoly(
             FVectorDataItemMainInfoFactory.BuildMainInfo(FIdData, VName, VDesc),
@@ -544,8 +543,7 @@ function TXmlVectorObjects.ParseCloseMarkObjectData(
   const AMode: TCloseMarkObjectMode;
   out AAppearance: IAppearance;
   out AMarkName: string;
-  out AMarkDesc: string;
-  const AMarkType: TGUID
+  out AMarkDesc: string
 ): Boolean;
 
   procedure _AddToDesc(const AParamName, AParamValue: WideString);
