@@ -4921,7 +4921,7 @@ var
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark, FConfig.ViewPortState.View.GetStatic.ProjectionInfo);
+    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry, FConfig.ViewPortState.View.GetStatic.ProjectionInfo);
     if Vpolygon <> nil then FRegionProcess.ProcessPolygon(Vpolygon);
   end else begin
     // no mark - try to select wiki

@@ -89,7 +89,7 @@ type
       handle: THandle
     ): Boolean;
     function PolygonForOperation(
-      const AMark: IVectorDataItemSimple;
+      const AGeometry: IGeometryLonLat;
       const AProjection: IProjectionInfo
     ): IGeometryLonLatMultiPolygon;
     function AddKategory(const Name: string): IMarkCategory;
@@ -578,21 +578,21 @@ end;
 
 
 function TMarkDbGUIHelper.PolygonForOperation(
-  const AMark: IVectorDataItemSimple;
+  const AGeometry: IGeometryLonLat;
   const AProjection: IProjectionInfo
   ): IGeometryLonLatMultiPolygon;
 var
-  VMarkPoly: IVectorDataItemPoly;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoint: IVectorDataItemPoint;
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
   VDefRadius: String;
   VRadius: double;
   VFilter: ILonLatPointFilter;
 begin
   Result := nil;
-  if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
-    Result := VMarkPoly.Line;
-  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
+  if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+    Result := VPoly;
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
     VDefRadius := '100';
     if InputQuery('', 'Radius , m', VDefRadius) then begin
       try
@@ -604,12 +604,12 @@ begin
       VFilter := TLonLatPointFilterLine2Poly.Create(VRadius, AProjection);
       Result :=
         FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
-          VMarkLine.Line,
+          VLine,
           VFilter
           );
     end;
   end else begin
-    if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
+    if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
       VDefRadius := '100';
       if InputQuery('', 'Radius , m', VDefRadius) then begin
         try
@@ -621,7 +621,7 @@ begin
         Result :=
           FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonCircleByPoint(
             AProjection,
-            VMarkPoint.GetPoint.Point,
+            VPoint.Point,
             VRadius
           );
       end;

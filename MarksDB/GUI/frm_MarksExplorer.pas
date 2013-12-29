@@ -690,7 +690,7 @@ var
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark, FViewPortState.GetStatic.ProjectionInfo);
+    Vpolygon := FMarkDBGUI.PolygonForOperation(VMark.Geometry, FViewPortState.GetStatic.ProjectionInfo);
     if Vpolygon <> nil then begin
       FRegionProcess.ProcessPolygon(Vpolygon);
       ModalResult := mrOk;
