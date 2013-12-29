@@ -6901,11 +6901,11 @@ end;
 procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IVectorDataItemPoint;
+  VPlacemark: IVectorDataItemSimple;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IVectorDataItemPoint(tbxpmnSearchResult.Tag);
-    VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.GetPoint.Point);
+    VPlacemark := IVectorDataItemSimple(tbxpmnSearchResult.Tag);
+    VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.Geometry.GetGoToLonLat);
     CopyStringToClipboard(Handle, VStr);
   end;
 end;
@@ -6913,10 +6913,10 @@ end;
 procedure TfrmMain.tbitmCopySearchResultDescriptionClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IVectorDataItemPoint;
+  VPlacemark: IVectorDataItemSimple;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IVectorDataItemPoint(tbxpmnSearchResult.Tag);
+    VPlacemark := IVectorDataItemSimple(tbxpmnSearchResult.Tag);
     VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
@@ -6928,20 +6928,20 @@ end;
 procedure TfrmMain.tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IVectorDataItemPoint;
+  VPlacemark: IVectorDataItemSimple;
   VMark: IVectorDataItemSimple;
   VVisible: Boolean;
   VResult: IVectorDataItemSimple;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IVectorDataItemPoint(tbxpmnSearchResult.Tag);
+    VPlacemark := IVectorDataItemSimple(tbxpmnSearchResult.Tag);
     VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
     end;
     VMark :=
-      FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewPoint(
-        VPlacemark.GetPoint,
+      FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewMark(
+        VPlacemark.Geometry,
         VPlacemark.Name,
         VStr
       );
