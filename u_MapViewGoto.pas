@@ -54,6 +54,10 @@ type
     FLastGotoPos: IGotoPosStatic;
     FChangeNotifier: INotifierInternal;
   private
+    procedure GotoLonLat(
+      const ALonLat: TDoublePoint;
+      const AshowMarker: Boolean
+    );
     procedure GotoPos(
       const ALonLat: TDoublePoint;
       const AZoom: Byte;
@@ -108,6 +112,7 @@ begin
     Exit;
   end;
   if DoublePointsEqual(ALonLatRect.TopLeft, ALonLatRect.BottomRight) then begin
+    GotoLonLat(ALonLatRect.TopLeft, False);
     Exit;
   end;
   VCenterLonLat.X := (ALonLatRect.Left + ALonLatRect.Right) / 2;
@@ -149,6 +154,16 @@ end;
 function TMapViewGoto.GetLastGotoPos: IGotoPosStatic;
 begin
   Result := FLastGotoPos;
+end;
+
+procedure TMapViewGoto.GotoLonLat(
+  const ALonLat: TDoublePoint;
+  const AshowMarker: Boolean
+);
+begin
+  FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.GetCurrentZoom, Now);
+  FViewPortState.ChangeLonLat(ALonLat);
+  if AShowmarker then FChangeNotifier.Notify(nil);
 end;
 
 procedure TMapViewGoto.GotoPos(

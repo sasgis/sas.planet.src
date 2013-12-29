@@ -4093,9 +4093,7 @@ begin
   end else if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolyEdit) then begin
     VLLRect := VPolyEdit.Polygon.Bounds.Rect;
   end;
-  if not DoublePointsEqual(VLLRect.TopLeft, VLLRect.BottomRight) then begin
-    FMapGoto.FitRectToScreen(VLLRect);
-  end;
+  FMapGoto.FitRectToScreen(VLLRect);
 end;
 
 procedure TfrmMain.tbitmFitMarkToScreenClick(Sender: TObject);
@@ -4106,11 +4104,7 @@ begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
     VLLRect := VMark.Geometry.Bounds.Rect;
-    if not DoublePointsEqual(VLLRect.TopLeft, VLLRect.BottomRight) then begin
-      FMapGoto.FitRectToScreen(VLLRect);
-    end else begin
-      FConfig.ViewPortState.ChangeLonLat(VLLRect.TopLeft);
-    end;
+    FMapGoto.FitRectToScreen(VLLRect);
   end;
 end;
 
@@ -6224,26 +6218,11 @@ begin
 end;
 
 procedure TfrmMain.ShowLastMark(const ALastMark: IVectorDataItemSimple);
-var
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
 begin
   if not Assigned(ALastMark) then begin
     Exit;
   end;
-  if Supports(ALastMark, IVectorDataItemPoint, VMarkPoint) then begin
-    FMapGoto.GotoPos(VMarkPoint.Geometry.GetGoToLonLat, FConfig.ViewPortState.View.GetStatic.Zoom, False);
-    Exit;
-  end;
-  if Supports(ALastMark, IVectorDataItemPoly, VMarkPoly) then begin
-    FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
-    Exit;
-  end;
-  if Supports(ALastMark, IVectorDataItemLine, VMarkLine) then begin
-    FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-    Exit;
-  end;
+  FMapGoto.FitRectToScreen(ALastMark.Geometry.Bounds.Rect);
 end;
 
 procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);

@@ -493,9 +493,6 @@ var
   VImportConfig: IImportConfig;
   i: Integer;
   VList: IInterfaceListStatic;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
   VMark: IVectorDataItemSimple;
 begin
   VImportConfig := nil;
@@ -512,15 +509,7 @@ begin
   if (Vlist <> nil) and (VList.Count > 0) then begin
     VMark := IVectorDataItemSimple(VList[VList.Count - 1]);
     if VMark <> nil then begin
-      if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-        FMapGoto.GotoPos(VMarkPoint.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, False);
-      end;
-      if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-        FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
-      end;
-      if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
-        FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-      end;
+      FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
     end;
   end;
 end;
@@ -643,23 +632,11 @@ end;
 procedure TfrmMarksExplorer.btnGoToMarkClick(Sender: TObject);
 var
   VMark: IVectorDataItemSimple;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-      FMapGoto.GotoPos(VMarkPoint.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
-    end;
-    if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-      FMapGoto.FitRectToScreen(VMarkPoly.GetLine.Bounds.Rect);
-      FMapGoto.ShowMarker(VMarkPoly.Geometry.GetGoToLonLat);
-    end;
-    if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
-      FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-      FMapGoto.ShowMarker(VMarkLine.Geometry.GetGoToLonLat);
-    end;
+    FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
+    FMapGoto.ShowMarker(VMark.Geometry.GetGoToLonLat);
   end;
 end;
 
@@ -1081,21 +1058,11 @@ end;
 procedure TfrmMarksExplorer.MarksListBoxDblClick(Sender: TObject);
 var
   VMark: IVectorDataItemSimple;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
-    if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-      FMapGoto.GotoPos(VMark.Geometry.GetGoToLonLat, FViewPortState.GetStatic.Zoom, True);
-    end else if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
-      FMapGoto.FitRectToScreen(VMarkLine.Line.Bounds.Rect);
-      FMapGoto.ShowMarker(VMarkLine.Geometry.GetGoToLonLat);
-    end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-      FMapGoto.FitRectToScreen(VMarkPoly.Line.Bounds.Rect);
-      FMapGoto.ShowMarker(VMarkPoly.Geometry.GetGoToLonLat);
-    end;
+    FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
+    FMapGoto.ShowMarker(VMark.Geometry.GetGoToLonLat);
   end;
 end;
 
