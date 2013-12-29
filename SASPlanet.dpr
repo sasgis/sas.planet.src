@@ -511,7 +511,6 @@ uses
   i_DownloadResultTextProvider in 'i_DownloadResultTextProvider.pas',
   u_DownloadResultTextProvider in 'u_DownloadResultTextProvider.pas',
   u_GeoCodePlacemark in 'u_GeoCodePlacemark.pas',
-  u_GeoCodePlacemarkWithUrlDecorator in 'u_GeoCodePlacemarkWithUrlDecorator.pas',
   u_EnumUnknown in 'u_EnumUnknown.pas',
   u_EnumUnknownTwoItems in 'u_EnumUnknownTwoItems.pas',
   i_ProxySettings in 'i_ProxySettings.pas',
