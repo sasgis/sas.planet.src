@@ -37,6 +37,7 @@ uses
   i_MarkDb,
   i_MainGeoCoderConfig,
   i_LocalCoordConverterChangeable,
+  i_VectorDataItemSimple,
   i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
   i_GeoCoder,
@@ -71,6 +72,10 @@ type
     frLonLatPoint: TfrLonLat;
     FMarksList: IInterfaceListStatic;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    function GeocodeResultFromVectorItem(
+      const ASearch: WideString;
+      const AItem: IVectorDataItemSimple
+    ): IGeoCodeResult;
     function GeocodeResultFromLonLat(
       const ASearch: WideString;
       const ALonLat: TDoublePoint;
@@ -106,7 +111,6 @@ uses
   ActiveX,
   i_GeoCoderList,
   i_MarkId,
-  i_VectorDataItemSimple,
   i_LocalCoordConverter,
   i_NotifierOperation,
   u_Notifier,
@@ -127,6 +131,18 @@ begin
   VPlace := FGeoCodePlacemarkFactory.Build(ALonLat, AMessage, '', '', 4);
   VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
   VSubsetBuilder.Add(VPlace);
+  Result := TGeoCodeResult.Create(ASearch, 203, '', VSubsetBuilder.MakeStaticAndClear);
+end;
+
+function TfrmGoTo.GeocodeResultFromVectorItem(
+  const ASearch: WideString;
+  const AItem: IVectorDataItemSimple
+): IGeoCodeResult;
+var
+  VSubsetBuilder: IVectorItemSubsetBuilder;
+begin
+  VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+  VSubsetBuilder.Add(AItem);
   Result := TGeoCodeResult.Create(ASearch, 203, '', VSubsetBuilder.MakeStaticAndClear);
 end;
 
@@ -217,9 +233,12 @@ begin
     if VIndex >= 0 then begin
       VMarkId := IMarkId(Pointer(cbbAllMarks.Items.Objects[VIndex]));
       VMark := FMarksDb.GetMarkByID(VMarkId);
-      VLonLat := VMark.Geometry.GetGoToLonLat;
-      FResult := GeocodeResultFromLonLat(cbbAllMarks.Text, VLonLat, VMark.Name);
-      ModalResult := mrOk;
+      if Assigned(VMark) then begin
+        FResult := GeocodeResultFromVectorItem(cbbAllMarks.Text, VMark);
+        ModalResult := mrOk;
+      end else begin
+        ModalResult := mrCancel;
+      end;
     end else begin
       ModalResult := mrCancel;
     end;
