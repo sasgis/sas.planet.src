@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -52,7 +52,6 @@ implementation
 
 uses
   SysUtils,
-  ALfcnString,
   superobject,
   t_GeoTypes,
   i_GeoCoder,
@@ -72,23 +71,23 @@ function TGeoCoderByYandex.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 
-  function _PosToPoint(const APos: AnsiString): TDoublePoint; // "27.560573 53.865552"
+  function _PosToPoint(const APos: string): TDoublePoint; // "27.560573 53.865552"
   var
     I: Integer;
     VLat, VLon: AnsiString;
-    VFormatSettings: TALFormatSettings;
+    VFormatSettings: TFormatSettings;
   begin
-    I := ALPos(' ', APos);
+    I := Pos(' ', APos);
     if I > 0 then begin
-      VLon := ALCopyStr(APos, 0, I - 1);
-      VLat := ALCopyStr(APos, I + 1, Length(APos) - I);
+      VLon := Copy(APos, 0, I - 1);
+      VLat := Copy(APos, I + 1, Length(APos) - I);
     end else begin
       raise EParserError.CreateFmt('Can''t parse coordinates from string: "%s"', [APos]);
     end;
     VFormatSettings.DecimalSeparator := '.';
     try
-      Result.Y := ALStrToFloat(VLat, VFormatSettings);
-      Result.X := ALStrToFloat(VLon, VFormatSettings);
+      Result.Y := StrToFloat(VLat, VFormatSettings);
+      Result.X := StrToFloat(VLon, VFormatSettings);
     except
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLat, VLon]);
     end;
@@ -124,6 +123,7 @@ begin
   if Assigned(VJsonArray) then begin
     for I := 0 to VJsonArray.Length - 1 do begin
       VResultItem := VJsonArray.O[I];
+      Assert(VResultItem <> nil);
       VName := Utf8ToAnsi(VResultItem.S['GeoObject.name']);
       VDescription := Utf8ToAnsi(VResultItem.S['GeoObject.description']);
       VPoint := _PosToPoint(Utf8ToAnsi(VResultItem.S['GeoObject.Point.pos']));
@@ -140,11 +140,13 @@ function TGeoCoderByYandex.PrepareRequest(
   const ALocalConverter: ILocalCoordConverter
 ): IDownloadRequest;
 var
+  VSearch: string;
   VConverter: ICoordConverter;
   VZoom: Byte;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
 begin
+  VSearch := StringReplace(ASearch, ' ', '+', [rfReplaceAll]);
   VConverter:=ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
