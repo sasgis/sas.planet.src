@@ -38,8 +38,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_GeoCoder,
-  i_VectorDataItemSimple,
-  u_GeoFun;
+  i_VectorDataItemSimple;
 
 { TFindVectorItemsFromSearchResults }
 

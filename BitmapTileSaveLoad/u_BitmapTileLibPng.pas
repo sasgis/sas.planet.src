@@ -25,12 +25,10 @@ interface
 uses
   Types,
   Classes,
-  SysUtils,
   GR32,
   i_InternalPerformanceCounter,
   i_BinaryData,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
   i_BitmapTileSaveLoad,
   i_Bitmap32To8Converter,
   u_BaseInterfacedObject;

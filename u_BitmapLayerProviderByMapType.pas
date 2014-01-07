@@ -3,7 +3,6 @@ unit u_BitmapLayerProviderByMapType;
 interface
 
 uses
-  GR32,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_LocalCoordConverter,

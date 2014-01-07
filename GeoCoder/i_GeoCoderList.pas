@@ -24,7 +24,6 @@ interface
 
 uses
   ActiveX,
-  i_Notifier,
   i_GeoCoder;
 
 type
@@ -39,9 +38,7 @@ type
     ['{34A0BB9F-8C6B-4664-B299-4F78710E0996}']
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): IGeoCoderListEntity;
-    function GetAddNotifier: INotifier;
   end;
-
 
 implementation
 

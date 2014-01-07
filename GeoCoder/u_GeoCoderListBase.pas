@@ -25,7 +25,6 @@ interface
 uses
   SysUtils,
   ActiveX,
-  i_Notifier,
   i_GeoCoderList,
   i_GUIDSet,
   u_BaseInterfacedObject;
@@ -35,13 +34,11 @@ type
   private
     FList: IGUIDInterfaceSet;
     FCS: IReadWriteSync;
-    FAddNotifier: INotifierInternal;
   protected
     procedure Add(const AItem: IGeoCoderListEntity);
   private
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): IGeoCoderListEntity;
-    function GetAddNotifier: INotifier;
   public
     constructor Create;
   end;
@@ -50,7 +47,6 @@ implementation
 
 uses
   u_Synchronizer,
-  u_Notifier,
   u_GUIDInterfaceSet;
 
 { TGeoCoderListBase }
@@ -60,7 +56,6 @@ begin
   inherited Create;
   FCS := MakeSyncRW_Std(Self, TRUE);
   FList := TGUIDInterfaceSet.Create(False);
-  FAddNotifier := TNotifierBase.Create;
 end;
 
 procedure TGeoCoderListBase.Add(const AItem: IGeoCoderListEntity);
@@ -71,7 +66,6 @@ begin
   finally
     FCS.EndWrite;
   end;
-  FAddNotifier.Notify(nil);
 end;
 
 function TGeoCoderListBase.Get(const AGUID: TGUID): IGeoCoderListEntity;
@@ -82,11 +76,6 @@ begin
   finally
     FCS.EndRead;
   end;
-end;
-
-function TGeoCoderListBase.GetAddNotifier: INotifier;
-begin
-  Result := FAddNotifier;
 end;
 
 function TGeoCoderListBase.GetGUIDEnum: IEnumGUID;

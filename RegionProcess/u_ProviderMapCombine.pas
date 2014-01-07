@@ -114,8 +114,7 @@ uses
   u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,
   u_BitmapLayerProviderInPolygon,
-  u_BitmapLayerProviderWithBGColor,
-  u_ResStrings;
+  u_BitmapLayerProviderWithBGColor;
 
 { TProviderMapCombineBase }
 
