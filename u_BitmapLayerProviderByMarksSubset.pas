@@ -43,7 +43,8 @@ uses
 type
   TBitmapLayerProviderByMarksSubset = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FConfig: IMarksDrawConfigStatic;
+    FDrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
+    FCaptionDrawConfigStatic: ICaptionDrawConfigStatic;
     FBitmapFactory: IBitmap32StaticFactory;
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IVectorItemSubset;
@@ -89,7 +90,8 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const AConfig: IMarksDrawConfigStatic;
+      const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
+      const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectedCache: IProjectedGeometryProvider;
       const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
@@ -121,7 +123,8 @@ const
 { TMapMarksBitmapLayerProviderByMarksSubset }
 
 constructor TBitmapLayerProviderByMarksSubset.Create(
-  const AConfig: IMarksDrawConfigStatic;
+  const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
+  const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectedCache: IProjectedGeometryProvider;
   const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
@@ -129,7 +132,8 @@ constructor TBitmapLayerProviderByMarksSubset.Create(
 );
 begin
   inherited Create;
-  FConfig := AConfig;
+  FDrawOrderConfigStatic := ADrawOrderConfigStatic;
+  FCaptionDrawConfigStatic := ACaptionDrawConfigStatic;
   FBitmapFactory := ABitmapFactory;
   FMarksSubset := AMarksSubset;
   FProjectedCache := AProjectedCache;
@@ -364,7 +368,7 @@ var
   VMarker: IMarkerDrawable;
 begin
   Result := False;
-  VMarker := FMarkerProviderForVectorItem.GetMarker(FConfig.CaptionDrawConfig, AMarkPoint);
+  VMarker := FMarkerProviderForVectorItem.GetMarker(FCaptionDrawConfigStatic, AMarkPoint);
   if VMarker <> nil then begin
     VLonLat := AMarkPoint.Point.Point;
     ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
@@ -396,7 +400,7 @@ begin
   Result := False;
   VBitmapInited := False;
   VEnumMarks := AMarksSubset.GetEnum;
-  if FConfig.UseSimpleDrawOrder then begin
+  if FDrawOrderConfigStatic.UseSimpleDrawOrder then begin
     while (VEnumMarks.Next(1, VMark, @i) = S_OK) do begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
@@ -468,7 +472,7 @@ var
   VBitmap: TBitmap32ByStaticBitmap;
 begin
   VLocalRect := ALocalConverter.GetLocalRect;
-  VDeltaSizeInPixel := FConfig.OverSizeRect;
+  VDeltaSizeInPixel := FDrawOrderConfigStatic.OverSizeRect;
   VRectWithDelta.Left := VLocalRect.Left - VDeltaSizeInPixel.Left;
   VRectWithDelta.Top := VLocalRect.Top - VDeltaSizeInPixel.Top;
   VRectWithDelta.Right := VLocalRect.Right + VDeltaSizeInPixel.Right;

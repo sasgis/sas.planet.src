@@ -80,7 +80,8 @@ begin
   if Assigned(VVectorItems) and not VVectorItems.IsEmpty then begin
     VResult :=
       TBitmapLayerProviderByMarksSubset.Create(
-        FConfig.GetStatic,
+        FConfig.DrawOrderConfig.GetStatic,
+        FConfig.CaptionDrawConfig.GetStatic,
         FBitmapFactory,
         FProjectedProvider,
         FMarkerProvider,

@@ -40,20 +40,8 @@ type
     property UseSolidCaptionBackground: Boolean read GetUseSolidCaptionBackground;
   end;
 
-  IMarksDrawConfigStatic = interface
-    ['{2BC70BD2-74E8-4063-BB70-03445CBCFD00}']
-    function GetCaptionDrawConfig: ICaptionDrawConfigStatic;
-    property CaptionDrawConfig: ICaptionDrawConfigStatic read GetCaptionDrawConfig;
-
-    function GetUseSimpleDrawOrder: Boolean;
-    property UseSimpleDrawOrder: Boolean read GetUseSimpleDrawOrder;
-
-    function GetOverSizeRect: TRect;
-    property OverSizeRect: TRect read GetOverSizeRect;
-  end;
-
-  IMarksDrawConfig = interface(IConfigDataElement)
-    ['{992DD23C-E0AA-4731-99A9-9049F55DFF6E}']
+  ICaptionDrawConfig = interface(IConfigDataElement)
+    ['{60BDB515-27FF-41D5-87DC-151E21DD0C3D}']
     function GetShowPointCaption: Boolean;
     procedure SetShowPointCaption(AValue: Boolean);
     property ShowPointCaption: Boolean read GetShowPointCaption write SetShowPointCaption;
@@ -62,6 +50,20 @@ type
     procedure SetUseSolidCaptionBackground(AValue: Boolean);
     property UseSolidCaptionBackground: Boolean read GetUseSolidCaptionBackground write SetUseSolidCaptionBackground;
 
+    function GetStatic: ICaptionDrawConfigStatic;
+  end;
+
+  IMarksDrawOrderConfigStatic = interface
+    ['{2BC70BD2-74E8-4063-BB70-03445CBCFD00}']
+    function GetUseSimpleDrawOrder: Boolean;
+    property UseSimpleDrawOrder: Boolean read GetUseSimpleDrawOrder;
+
+    function GetOverSizeRect: TRect;
+    property OverSizeRect: TRect read GetOverSizeRect;
+  end;
+
+  IMarksDrawOrderConfig = interface(IConfigDataElement)
+    ['{66D58712-23C7-4796-8A5C-6FA3F762686D}']
     function GetUseSimpleDrawOrder: Boolean;
     procedure SetUseSimpleDrawOrder(AValue: Boolean);
     property UseSimpleDrawOrder: Boolean read GetUseSimpleDrawOrder write SetUseSimpleDrawOrder;
@@ -70,7 +72,16 @@ type
     procedure SetOverSizeRect(AValue: TRect);
     property OverSizeRect: TRect read GetOverSizeRect write SetOverSizeRect;
 
-    function GetStatic: IMarksDrawConfigStatic;
+    function GetStatic: IMarksDrawOrderConfigStatic;
+  end;
+
+  IMarksDrawConfig = interface(IConfigDataElement)
+    ['{992DD23C-E0AA-4731-99A9-9049F55DFF6E}']
+    function GetCaptionDrawConfig: ICaptionDrawConfig;
+    property CaptionDrawConfig: ICaptionDrawConfig read GetCaptionDrawConfig;
+
+    function GetDrawOrderConfig: IMarksDrawOrderConfig;
+    property DrawOrderConfig: IMarksDrawOrderConfig read GetDrawOrderConfig;
   end;
 
 implementation

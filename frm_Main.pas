@@ -2953,7 +2953,7 @@ begin
   TBGPSToPointCenter.Checked:=FConfig.GPSBehaviour.MapMoveCentered;
   tbitmGPSToPointCenter.Checked:=TBGPSToPointCenter.Checked;
   NBlock_toolbars.Checked:=FConfig.ToolbarsLock.GetIsLock;
-  tbitmShowMarkCaption.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption;
+  tbitmShowMarkCaption.Checked := FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption;
 
   TBHideMarks.Checked := not(FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
 
@@ -6164,7 +6164,7 @@ end;
 
 procedure TfrmMain.tbitmShowMarkCaptionClick(Sender: TObject);
 begin
-  FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.ShowPointCaption := (Sender as TTBXItem).Checked;
+  FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig.CaptionDrawConfig.ShowPointCaption := (Sender as TTBXItem).Checked;
 end;
 
 procedure TfrmMain.osmorg1Click(Sender: TObject);

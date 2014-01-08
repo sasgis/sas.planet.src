@@ -44,20 +44,17 @@ type
     );
   end;
 
-  TMarksDrawConfigStatic = class(TBaseInterfacedObject, IMarksDrawConfigStatic)
+  TMarksDrawOrderConfigStatic = class(TBaseInterfacedObject, IMarksDrawOrderConfigStatic)
   private
-    FCaptionDrawConfig: ICaptionDrawConfigStatic;
     FUseSimpleDrawOrder: Boolean;
     FOverSizeRect: TRect;
   private
-    function GetCaptionDrawConfig: ICaptionDrawConfigStatic;
     function GetUseSimpleDrawOrder: Boolean;
     function GetOverSizeRect: TRect;
   public
     constructor Create(
-      const ACaptionDrawConfig: ICaptionDrawConfigStatic;
-      AUseSimpleDrawOrder: Boolean;
-      AOverSizeRect: TRect
+      const AUseSimpleDrawOrder: Boolean;
+      const AOverSizeRect: TRect
     );
   end;
 
@@ -65,29 +62,22 @@ implementation
 
 { TMarksDrawConfigStatic }
 
-constructor TMarksDrawConfigStatic.Create(
-  const ACaptionDrawConfig: ICaptionDrawConfigStatic;
-  AUseSimpleDrawOrder: Boolean;
-  AOverSizeRect: TRect
+constructor TMarksDrawOrderConfigStatic.Create(
+  const AUseSimpleDrawOrder: Boolean;
+  const AOverSizeRect: TRect
 );
 begin
   inherited Create;
-  FCaptionDrawConfig := ACaptionDrawConfig;
   FUseSimpleDrawOrder := AUseSimpleDrawOrder;
   FOverSizeRect := AOverSizeRect;
 end;
 
-function TMarksDrawConfigStatic.GetCaptionDrawConfig: ICaptionDrawConfigStatic;
-begin
-  Result := FCaptionDrawConfig;
-end;
-
-function TMarksDrawConfigStatic.GetOverSizeRect: TRect;
+function TMarksDrawOrderConfigStatic.GetOverSizeRect: TRect;
 begin
   Result := FOverSizeRect;
 end;
 
-function TMarksDrawConfigStatic.GetUseSimpleDrawOrder: Boolean;
+function TMarksDrawOrderConfigStatic.GetUseSimpleDrawOrder: Boolean;
 begin
   Result := FUseSimpleDrawOrder;
 end;

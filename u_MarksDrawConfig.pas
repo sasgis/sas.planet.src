@@ -27,15 +27,14 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MarksDrawConfig,
-  u_ConfigDataElementBase;
+  u_ConfigDataElementBase,
+  u_ConfigDataElementComplexBase;
 
 type
-  TMarksDrawConfig = class(TConfigDataElementWithStaticBase, IMarksDrawConfig)
+  TCaptionDrawConfig = class(TConfigDataElementWithStaticBase, ICaptionDrawConfig)
   private
     FShowPointCaption: Boolean;
     FUseSolidCaptionBackground: Boolean;
-    FUseSimpleDrawOrder: Boolean;
-    FOverSizeRect: TRect;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -48,13 +47,39 @@ type
     function GetUseSolidCaptionBackground: Boolean;
     procedure SetUseSolidCaptionBackground(AValue: Boolean);
 
+    function GetStatic: ICaptionDrawConfigStatic;
+  public
+    constructor Create;
+  end;
+
+  TMarksDrawOrderConfig = class(TConfigDataElementComplexWithStaticBase, IMarksDrawOrderConfig)
+  private
+    FUseSimpleDrawOrder: Boolean;
+    FOverSizeRect: TRect;
+  protected
+    function CreateStatic: IInterface; override;
+  protected
+    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
+    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
+  protected
     function GetUseSimpleDrawOrder: Boolean;
     procedure SetUseSimpleDrawOrder(AValue: Boolean);
 
     function GetOverSizeRect: TRect;
     procedure SetOverSizeRect(AValue: TRect);
 
-    function GetStatic: IMarksDrawConfigStatic;
+    function GetStatic: IMarksDrawOrderConfigStatic;
+  public
+    constructor Create;
+  end;
+
+  TMarksDrawConfig = class(TConfigDataElementComplexBase, IMarksDrawConfig)
+  private
+    FCaptionDrawConfig: ICaptionDrawConfig;
+    FDrawOrderConfig: IMarksDrawOrderConfig;
+  private
+    function GetCaptionDrawConfig: ICaptionDrawConfig;
+    function GetDrawOrderConfig: IMarksDrawOrderConfig;
   public
     constructor Create;
   end;
@@ -62,39 +87,35 @@ type
 implementation
 
 uses
+  u_ConfigSaveLoadStrategyBasicUseProvider,
   u_MarksDrawConfigStatic;
 
 { TMarksDrawConfig }
 
-constructor TMarksDrawConfig.Create;
+constructor TMarksDrawOrderConfig.Create;
 begin
   inherited Create;
 
-  FShowPointCaption := True;
   FUseSimpleDrawOrder := false;
-  FUseSolidCaptionBackground := False;
   FOverSizeRect := Rect(256, 128, 64, 128);
 end;
 
-function TMarksDrawConfig.CreateStatic: IInterface;
+function TMarksDrawOrderConfig.CreateStatic: IInterface;
 var
-  VStatic: IMarksDrawConfigStatic;
+  VStatic: IMarksDrawOrderConfigStatic;
 begin
   VStatic :=
-    TMarksDrawConfigStatic.Create(
-      TCaptionDrawConfigStatic.Create(FShowPointCaption, FUseSolidCaptionBackground),
+    TMarksDrawOrderConfigStatic.Create(
       FUseSimpleDrawOrder,
       FOverSizeRect
     );
   Result := VStatic;
 end;
 
-procedure TMarksDrawConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
+procedure TMarksDrawOrderConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FShowPointCaption := AConfigData.ReadBool('ShowPointCaption', FShowPointCaption);
-    FUseSolidCaptionBackground := AConfigData.ReadBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
     FUseSimpleDrawOrder := AConfigData.ReadBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
     FOverSizeRect.Left := AConfigData.ReadInteger('OverSizeRect.Left', FOverSizeRect.Left);
     FOverSizeRect.Top := AConfigData.ReadInteger('OverSizeRect.Top', FOverSizeRect.Top);
@@ -104,11 +125,9 @@ begin
   end;
 end;
 
-procedure TMarksDrawConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
+procedure TMarksDrawOrderConfig.DoWriteConfig(const AConfigData: IConfigDataWriteProvider);
 begin
   inherited;
-  AConfigData.WriteBool('ShowPointCaption', FShowPointCaption);
-  AConfigData.WriteBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
   AConfigData.WriteBool('UseSimpleDrawOrder', FUseSimpleDrawOrder);
   AConfigData.WriteInteger('OverSizeRect.Left', FOverSizeRect.Left);
   AConfigData.WriteInteger('OverSizeRect.Top', FOverSizeRect.Top);
@@ -116,7 +135,7 @@ begin
   AConfigData.WriteInteger('OverSizeRect.Bottom', FOverSizeRect.Bottom);
 end;
 
-function TMarksDrawConfig.GetOverSizeRect: TRect;
+function TMarksDrawOrderConfig.GetOverSizeRect: TRect;
 begin
   LockRead;
   try
@@ -126,17 +145,7 @@ begin
   end;
 end;
 
-function TMarksDrawConfig.GetShowPointCaption: Boolean;
-begin
-  LockRead;
-  try
-    Result := FShowPointCaption;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMarksDrawConfig.GetUseSimpleDrawOrder: Boolean;
+function TMarksDrawOrderConfig.GetUseSimpleDrawOrder: Boolean;
 begin
   LockRead;
   try
@@ -146,22 +155,12 @@ begin
   end;
 end;
 
-function TMarksDrawConfig.GetUseSolidCaptionBackground: Boolean;
+function TMarksDrawOrderConfig.GetStatic: IMarksDrawOrderConfigStatic;
 begin
-  LockRead;
-  try
-    Result := FUseSolidCaptionBackground;
-  finally
-    UnlockRead;
-  end;
+  Result := IMarksDrawOrderConfigStatic(GetStaticInternal);
 end;
 
-function TMarksDrawConfig.GetStatic: IMarksDrawConfigStatic;
-begin
-  Result := IMarksDrawConfigStatic(GetStaticInternal);
-end;
-
-procedure TMarksDrawConfig.SetOverSizeRect(AValue: TRect);
+procedure TMarksDrawOrderConfig.SetOverSizeRect(AValue: TRect);
 begin
   LockWrite;
   try
@@ -174,20 +173,7 @@ begin
   end;
 end;
 
-procedure TMarksDrawConfig.SetShowPointCaption(AValue: Boolean);
-begin
-  LockWrite;
-  try
-    if FShowPointCaption <> AValue then begin
-      FShowPointCaption := AValue;
-      SetChanged;
-    end;
-  finally
-    UnlockWrite;
-  end;
-end;
-
-procedure TMarksDrawConfig.SetUseSimpleDrawOrder(AValue: Boolean);
+procedure TMarksDrawOrderConfig.SetUseSimpleDrawOrder(AValue: Boolean);
 begin
   LockWrite;
   try
@@ -200,7 +186,108 @@ begin
   end;
 end;
 
-procedure TMarksDrawConfig.SetUseSolidCaptionBackground(AValue: Boolean);
+{ TMarksDrawConfig }
+
+constructor TMarksDrawConfig.Create;
+begin
+  inherited Create;
+  FCaptionDrawConfig := TCaptionDrawConfig.Create;
+  Add(FCaptionDrawConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+
+  FDrawOrderConfig := TMarksDrawOrderConfig.Create;
+  Add(FDrawOrderConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+end;
+
+function TMarksDrawConfig.GetCaptionDrawConfig: ICaptionDrawConfig;
+begin
+  Result := FCaptionDrawConfig;
+end;
+
+function TMarksDrawConfig.GetDrawOrderConfig: IMarksDrawOrderConfig;
+begin
+  Result := FDrawOrderConfig;
+end;
+
+{ TCaptionDrawConfig }
+
+constructor TCaptionDrawConfig.Create;
+begin
+  inherited Create;
+
+  FShowPointCaption := True;
+  FUseSolidCaptionBackground := False;
+end;
+
+function TCaptionDrawConfig.CreateStatic: IInterface;
+var
+  VStatic: ICaptionDrawConfigStatic;
+begin
+  VStatic :=
+    TCaptionDrawConfigStatic.Create(
+      FShowPointCaption,
+      FUseSolidCaptionBackground
+    );
+  Result := VStatic;
+end;
+
+procedure TCaptionDrawConfig.DoReadConfig(
+  const AConfigData: IConfigDataProvider);
+begin
+  inherited;
+  if AConfigData <> nil then begin
+    FShowPointCaption := AConfigData.ReadBool('ShowPointCaption', FShowPointCaption);
+    FUseSolidCaptionBackground := AConfigData.ReadBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
+    SetChanged;
+  end;
+end;
+
+procedure TCaptionDrawConfig.DoWriteConfig(
+  const AConfigData: IConfigDataWriteProvider);
+begin
+  inherited;
+  AConfigData.WriteBool('ShowPointCaption', FShowPointCaption);
+  AConfigData.WriteBool('UseSolidCaptionBackground', FUseSolidCaptionBackground);
+end;
+
+function TCaptionDrawConfig.GetStatic: ICaptionDrawConfigStatic;
+begin
+  Result := ICaptionDrawConfigStatic(GetStaticInternal);
+end;
+
+function TCaptionDrawConfig.GetShowPointCaption: Boolean;
+begin
+  LockRead;
+  try
+    Result := FShowPointCaption;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TCaptionDrawConfig.GetUseSolidCaptionBackground: Boolean;
+begin
+  LockRead;
+  try
+    Result := FUseSolidCaptionBackground;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TCaptionDrawConfig.SetShowPointCaption(AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FShowPointCaption <> AValue then begin
+      FShowPointCaption := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TCaptionDrawConfig.SetUseSolidCaptionBackground(AValue: Boolean);
 begin
   LockWrite;
   try

@@ -224,7 +224,6 @@ var
   VUseMarks: Boolean;
   VUseRecolor: Boolean;
   VMarkerProvider: IMarkerProviderForVectorItem;
-  VMarksDrawConfig: IMarksDrawConfigStatic;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
   VRect := APolygon.Item[0].Bounds;
@@ -262,7 +261,6 @@ begin
   end;
   VMarksImageProvider := nil;
   if VMarksSubset <> nil then begin
-    VMarksDrawConfig := FMarksDrawConfig.GetStatic;
     VMarkerProvider :=
       TMarkerProviderForVectorItemForMarkPoints.Create(
         FBitmapFactory,
@@ -270,7 +268,8 @@ begin
       );
     VMarksImageProvider :=
       TBitmapLayerProviderByMarksSubset.Create(
-        VMarksDrawConfig,
+        FMarksDrawConfig.DrawOrderConfig.GetStatic,
+        FMarksDrawConfig.CaptionDrawConfig.GetStatic,
         FBitmapFactory,
         FProjectedGeometryProvider,
         VMarkerProvider,
