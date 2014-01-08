@@ -135,6 +135,11 @@ end;
 
 destructor TTileDownloaderUIOneTile.Destroy;
 begin
+  if Assigned(FTaskFinishNotifier) then begin
+    FTaskFinishNotifier.Enabled := False;
+    FTaskFinishNotifier := nil;
+  end;
+
   if FFinishEvent <> nil then begin
     FTileRequestResult := nil;
     FFinishEvent.SetEvent;
@@ -182,9 +187,14 @@ end;
 
 procedure TTileDownloaderUIOneTile.OnAppClosing;
 begin
+  if Assigned(FTaskFinishNotifier) then begin
+    FTaskFinishNotifier.Enabled := False;
+  end;
   Terminate;
   FTileRequestResult := nil;
-  FFinishEvent.SetEvent;
+  if Assigned(FFinishEvent) then begin
+    FFinishEvent.SetEvent;
+  end;
 end;
 
 procedure TTileDownloaderUIOneTile.OnTileDownloadFinish(
@@ -193,7 +203,9 @@ procedure TTileDownloaderUIOneTile.OnTileDownloadFinish(
 );
 begin
   FTileRequestResult := AResult;;
-  FFinishEvent.SetEvent;
+  if Assigned(FFinishEvent) then begin
+    FFinishEvent.SetEvent;
+  end;
 end;
 
 procedure TTileDownloaderUIOneTile.ProcessResult(const AResult: ITileRequestResult);

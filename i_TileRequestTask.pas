@@ -28,6 +28,10 @@ type
       const ATask: ITileRequestTask;
       const AResult: ITileRequestResult
     );
+
+    function GetEnabled: Boolean;
+    procedure SetEnabled(const AValue: Boolean);
+    property Enabled: Boolean read GetEnabled write SetEnabled;
   end;
 
 implementation

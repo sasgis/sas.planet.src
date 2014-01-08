@@ -245,6 +245,11 @@ end;
 
 destructor TThreadDownloadTiles.Destroy;
 begin
+  if Assigned(FTaskFinishNotifier) then begin
+    FTaskFinishNotifier.Enabled := False;
+    FTaskFinishNotifier := nil;
+  end;
+
   if FFinishEvent <> nil then begin
     FTileRequestResult := nil;
     FFinishEvent.SetEvent;
@@ -424,8 +429,13 @@ end;
 
 procedure TThreadDownloadTiles.OnAppClosing;
 begin
+  if Assigned(FTaskFinishNotifier) then begin
+    FTaskFinishNotifier.Enabled := False;
+  end;
   Terminate;
-  FFinishEvent.SetEvent;
+  if Assigned(FFinishEvent) then begin
+    FFinishEvent.SetEvent;
+  end;
 end;
 
 procedure TThreadDownloadTiles.OnTileDownloadFinish(
@@ -434,7 +444,9 @@ procedure TThreadDownloadTiles.OnTileDownloadFinish(
 );
 begin
   FTileRequestResult := AResult;
-  FFinishEvent.SetEvent;
+  if Assigned(FFinishEvent) then begin
+    FFinishEvent.SetEvent;
+  end;
 end;
 
 procedure TThreadDownloadTiles.PrepareStrings;

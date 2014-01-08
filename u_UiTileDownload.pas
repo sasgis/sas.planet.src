@@ -44,7 +44,6 @@ type
     FDownloadTask: IBackgroundTask;
     FTTLListener: IListenerTimeWithUsedFlag;
     FMemCacheTTLListener: IListenerTime;
-    FTileDownloadFinishListener: IListenerDisconnectable;
     FDownloadState: ITileDownloaderStateChangeble;
 
     FUseDownload: TTileSource;
@@ -197,8 +196,9 @@ end;
 
 destructor TUiTileDownload.Destroy;
 begin
-  if Assigned(FTileDownloadFinishListener) then begin
-    FTileDownloadFinishListener.Disconnect;
+  if Assigned(FTaskFinishNotifier) then begin
+    FTaskFinishNotifier.Enabled := False;
+    FTaskFinishNotifier := nil;
   end;
 
   if Assigned(FGCNotifier) then begin
@@ -239,6 +239,9 @@ end;
 
 procedure TUiTileDownload.OnAppClosing;
 begin
+  if Assigned(FTaskFinishNotifier) then begin
+    FTaskFinishNotifier.Enabled := False;
+  end;
   OnTTLTrim;
 end;
 

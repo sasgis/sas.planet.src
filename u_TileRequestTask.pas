@@ -3,6 +3,7 @@ unit u_TileRequestTask;
 interface
 
 uses
+  Windows,
   SysUtils,
   i_NotifierOperation,
   i_TileRequest,
@@ -37,12 +38,15 @@ type
 
   TTileRequestTaskFinishNotifier = class(TBaseInterfacedObject, ITileRequestTaskFinishNotifier)
   private
+    FEnabled: Integer;
     FCallBack: TTileRequestTaskFinishNotifierCallBack;
   private
     procedure Notify(
       const ATask: ITileRequestTask;
       const AResult: ITileRequestResult
     );
+    procedure SetEnabled(const AValue: Boolean);
+    function GetEnabled: Boolean;
   public
     constructor Create(const ACallBack: TTileRequestTaskFinishNotifierCallBack);
   end;
@@ -89,6 +93,7 @@ begin
   Assert(Assigned(ACallBack));
   inherited Create;
   FCallBack := ACallBack;
+  FEnabled := 1;
 end;
 
 procedure TTileRequestTaskFinishNotifier.Notify(
@@ -96,7 +101,23 @@ procedure TTileRequestTaskFinishNotifier.Notify(
   const AResult: ITileRequestResult
 );
 begin
-  FCallBack(ATask, AResult);
+  if InterlockedCompareExchange(FEnabled, 0, 0) > 0 then begin
+    FCallBack(ATask, AResult);
+  end;
+end;
+
+procedure TTileRequestTaskFinishNotifier.SetEnabled(const AValue: Boolean);
+begin
+  if AValue then begin
+    InterlockedExchange(FEnabled, 1);
+  end else begin
+    InterlockedExchange(FEnabled, 0);
+  end;
+end;
+
+function TTileRequestTaskFinishNotifier.GetEnabled: Boolean;
+begin
+  Result := InterlockedCompareExchange(FEnabled, 0, 0) > 0;
 end;
 
 end.
