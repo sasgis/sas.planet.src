@@ -31,6 +31,7 @@ uses
   i_MapVersionInfo,
   i_NotifierOperation,
   i_GlobalDownloadConfig,
+  i_TileRequestTask,
   i_TileRequestResult,
   i_VectorItemProjected,
   i_DownloadInfoSimple,
@@ -62,6 +63,8 @@ type
     FProxyAuthErrorSleepTime: Cardinal;
     FDownloadErrorSleepTime: Cardinal;
 
+    FTileRequestResult: ITileRequestResult;
+
     FRES_UserStop: string;
     FRES_ProcessedFile: string;
     FRES_LoadProcessRepl: string;
@@ -87,11 +90,14 @@ type
     FOperationID: Integer;
     FCancelNotifier: INotifierOperation;
     FFinishEvent: TEvent;
-    FTileDownloadFinishListener: IListenerDisconnectable;
+    FTaskFinishNotifier: ITileRequestTaskFinishNotifier;
 
     FAppClosingListener: IListener;
 
-    procedure OnTileDownloadFinish(const AMsg: IInterface);
+    procedure OnTileDownloadFinish(
+      const ATask: ITileRequestTask;
+      const AResult: ITileRequestResult
+    );
     procedure OnAppClosing;
     function ProcessResultAndCheckGotoNextTile(const AResult: ITileRequestResult): Boolean;
     procedure SleepCancelable(ATime: Cardinal);
@@ -129,12 +135,12 @@ uses
   SysUtils,
   Types,
   i_DownloadResult,
-  i_TileRequestTask,
   i_TileInfoBasic,
   i_TileIterator,
   i_TileDownloaderState,
   i_TileStorage,
   u_TileIteratorByPolygon,
+  u_TileRequestTask,
   u_ListenerByEvent,
   u_ReadableThreadNames,
   u_ResStrings;
@@ -226,7 +232,7 @@ begin
 
   FFinishEvent := TEvent.Create;
 
-  FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
+  FTaskFinishNotifier := TTileRequestTaskFinishNotifier.Create(Self.OnTileDownloadFinish);
 
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
@@ -240,12 +246,8 @@ end;
 destructor TThreadDownloadTiles.Destroy;
 begin
   if FFinishEvent <> nil then begin
+    FTileRequestResult := nil;
     FFinishEvent.SetEvent;
-  end;
-
-  if FTileDownloadFinishListener <> nil then begin
-    FTileDownloadFinishListener.Disconnect;
-    FTileDownloadFinishListener := nil;
   end;
 
   if Assigned(FCancelNotifier) and Assigned(FAppClosingListener) then begin
@@ -359,20 +361,26 @@ begin
                 VGotoNextTile := True;
               end else begin
                 // download tile
-                VTask := FMapType.TileDownloadSubsystem.GetRequestTask(FCancelNotifier, FOperationID, VTile, FZoom, FVersionForDownload, FCheckExistTileSize);
+                VTask := FMapType.TileDownloadSubsystem.GetRequestTask(
+                  FCancelNotifier,
+                  FOperationID,
+                  FTaskFinishNotifier,
+                  VTile,
+                  FZoom,
+                  FVersionForDownload,
+                  FCheckExistTileSize
+                );
                 if VTask <> nil then begin
-                  VTask.FinishNotifier.Add(FTileDownloadFinishListener);
+                  FTileRequestResult := nil;
                   FMapType.TileDownloadSubsystem.Download(VTask);
                   if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
                     Exit;
                   end;
-                  if not VTask.FinishNotifier.IsExecuted then begin
-                    FFinishEvent.WaitFor(INFINITE);
-                  end;
+                  FFinishEvent.WaitFor(INFINITE);
                   if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
                     Exit;
                   end;
-                  VGotoNextTile := ProcessResultAndCheckGotoNextTile(VTask.Result);
+                  VGotoNextTile := ProcessResultAndCheckGotoNextTile(FTileRequestResult);
                   if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
                     Exit;
                   end;
@@ -420,8 +428,12 @@ begin
   FFinishEvent.SetEvent;
 end;
 
-procedure TThreadDownloadTiles.OnTileDownloadFinish(const AMsg: IInterface);
+procedure TThreadDownloadTiles.OnTileDownloadFinish(
+  const ATask: ITileRequestTask;
+  const AResult: ITileRequestResult
+);
 begin
+  FTileRequestResult := AResult;
   FFinishEvent.SetEvent;
 end;
 

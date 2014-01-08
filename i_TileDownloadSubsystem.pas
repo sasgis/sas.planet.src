@@ -14,17 +14,20 @@ type
     ['{06FFC386-43A0-4308-B294-58F8CF429BCB}']
     function GetRequestTask(
       const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
+      const AOperationID: Integer;
+      const AFinishNotifier: ITileRequestTaskFinishNotifier;
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      ACheckTileSize: Boolean
+      const ACheckTileSize: Boolean
     ): ITileRequestTask;
+
     function GetLink(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): string;
+
     procedure Download(
       const ATileRequestTask: ITileRequestTask
     );

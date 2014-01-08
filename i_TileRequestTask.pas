@@ -15,17 +15,19 @@ type
 
     function GetCancelNotifier: INotifierOneOperation;
     property CancelNotifier: INotifierOneOperation read GetCancelNotifier;
-
-    function GetResult: ITileRequestResult;
-    property Result: ITileRequestResult read GetResult;
-
-    function GetFinishNotifier: INotifierOneOperation;
-    property FinishNotifier: INotifierOneOperation read GetFinishNotifier;
   end;
 
   ITileRequestTaskInternal = interface(ITileRequestTask)
     ['{1F2A8AAD-A290-4019-8E81-7A33227EF877}']
     procedure SetFinished(const AResult: ITileRequestResult);
+  end;
+
+  ITileRequestTaskFinishNotifier = interface
+    ['{FB5E77BB-C245-4FC2-B5CB-CA968632B67A}']
+    procedure Notify(
+      const ATask: ITileRequestTask;
+      const AResult: ITileRequestResult
+    );
   end;
 
 implementation

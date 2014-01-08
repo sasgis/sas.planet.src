@@ -63,23 +63,24 @@ type
     function GetScriptText(const AConfig: IConfigDataProvider): AnsiString;
     procedure OnAppClosing;
   private
+    { ITileDownloadSubsystem }
     function GetRequestTask(
       const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer;
+      const AOperationID: Integer;
+      const AFinishNotifier: ITileRequestTaskFinishNotifier;
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
-      ACheckTileSize: Boolean
+      const ACheckTileSize: Boolean
     ): ITileRequestTask;
     function GetLink(
       const AXY: TPoint;
-      const AZoom: byte;
+      const AZoom: Byte;
       const AVersionInfo: IMapVersionInfo
     ): string;
     procedure Download(
       const ATileRequestTask: ITileRequestTask
     );
-
     function GetState: ITileDownloaderStateChangeble;
   public
     constructor Create(
@@ -311,7 +312,7 @@ end;
 
 function TTileDownloadSubsystem.GetLink(
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): string;
 var
@@ -340,11 +341,12 @@ end;
 
 function TTileDownloadSubsystem.GetRequestTask(
   const ACancelNotifier: INotifierOperation;
-  AOperationID: Integer;
+  const AOperationID: Integer;
+  const AFinishNotifier: ITileRequestTaskFinishNotifier;
   const AXY: TPoint;
-  const AZoom: byte;
+  const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo;
-  ACheckTileSize: Boolean
+  const ACheckTileSize: Boolean
 ): ITileRequestTask;
 var
   VRequest: ITileRequest;
@@ -378,7 +380,7 @@ begin
           TTileRequestTask.Create(
             VRequest,
             VCancelNotifier,
-            FTileRequestTaskSync
+            AFinishNotifier
           );
       end;
     end;

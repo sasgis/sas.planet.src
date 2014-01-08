@@ -13,72 +13,61 @@ uses
 type
   TTileRequestTask = class(TBaseInterfacedObject, ITileRequestTask, ITileRequestTaskInternal)
   private
-    FSync: IReadWriteSync;
     FTileRequest: ITileRequest;
     FCancelNotifier: INotifierOneOperation;
-
-    FResult: ITileRequestResult;
-    FFinishNotifier: INotifierOneOperation;
-    FFinishNotifierInternal: INotifierOneOperationInternal;
+    FFinishNotifier: ITileRequestTaskFinishNotifier;
   private
+    { ITileRequestTask }
     function GetTileRequest: ITileRequest;
     function GetCancelNotifier: INotifierOneOperation;
-    function GetResult: ITileRequestResult;
-    function GetFinishNotifier: INotifierOneOperation;
-  private
+    { ITileRequestTaskInternal }
     procedure SetFinished(const AResult: ITileRequestResult);
   public
     constructor Create(
       const ATileRequest: ITileRequest;
       const ACancelNotifier: INotifierOneOperation;
-      const ASync: IReadWriteSync
+      const AFinishNotifier: ITileRequestTaskFinishNotifier
     );
+  end;
 
+  TTileRequestTaskFinishNotifierCallBack = procedure(
+    const ATask: ITileRequestTask;
+    const AResult: ITileRequestResult
+  ) of object;
+
+  TTileRequestTaskFinishNotifier = class(TBaseInterfacedObject, ITileRequestTaskFinishNotifier)
+  private
+    FCallBack: TTileRequestTaskFinishNotifierCallBack;
+  private
+    procedure Notify(
+      const ATask: ITileRequestTask;
+      const AResult: ITileRequestResult
+    );
+  public
+    constructor Create(const ACallBack: TTileRequestTaskFinishNotifierCallBack);
   end;
 
 
 implementation
-
-uses
-  u_Notifier,
-  u_NotifierOperation;
 
 { TTileRequestTask }
 
 constructor TTileRequestTask.Create(
   const ATileRequest: ITileRequest;
   const ACancelNotifier: INotifierOneOperation;
-  const ASync: IReadWriteSync
+  const AFinishNotifier: ITileRequestTaskFinishNotifier
 );
 begin
+  Assert(AFinishNotifier <> nil);
   inherited Create;
-  FSync := ASync;
   FTileRequest := ATileRequest;
   FCancelNotifier := ACancelNotifier;
-
-  FResult := nil;
-  FFinishNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);
-  FFinishNotifier := FFinishNotifierInternal;
+  FFinishNotifier := AFinishNotifier;
 end;
 
 function TTileRequestTask.GetCancelNotifier: INotifierOneOperation;
 begin
   Result := FCancelNotifier;
-end;
-
-function TTileRequestTask.GetFinishNotifier: INotifierOneOperation;
-begin
-  Result := FFinishNotifier;
-end;
-
-function TTileRequestTask.GetResult: ITileRequestResult;
-begin
-  FSync.BeginRead;
-  try
-    Result := FResult;
-  finally
-    FSync.EndRead;
-  end;
 end;
 
 function TTileRequestTask.GetTileRequest: ITileRequest;
@@ -88,13 +77,26 @@ end;
 
 procedure TTileRequestTask.SetFinished(const AResult: ITileRequestResult);
 begin
-  FSync.BeginWrite;
-  try
-    FResult := AResult;
-  finally
-    FSync.EndWrite;
-  end;
-  FFinishNotifierInternal.ExecuteOperation(Self);
+  FFinishNotifier.Notify(Self, AResult);
+end;
+
+{ TTileRequestTaskFinishNotifier }
+
+constructor TTileRequestTaskFinishNotifier.Create(
+ const ACallBack: TTileRequestTaskFinishNotifierCallBack
+);
+begin
+  Assert(Assigned(ACallBack));
+  inherited Create;
+  FCallBack := ACallBack;
+end;
+
+procedure TTileRequestTaskFinishNotifier.Notify(
+  const ATask: ITileRequestTask;
+  const AResult: ITileRequestResult
+);
+begin
+  FCallBack(ATask, AResult);
 end;
 
 end.

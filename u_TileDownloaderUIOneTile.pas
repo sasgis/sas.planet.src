@@ -31,6 +31,7 @@ uses
   i_TileError,
   i_ThreadConfig,
   i_MapVersionInfo,
+  i_TileRequestTask,
   i_TileRequestResult,
   i_NotifierOperation,
   i_DownloadInfoSimple,
@@ -48,15 +49,19 @@ type
     FVersion: IMapVersionInfo;
     FTile: TPoint;
     FZoom: Byte;
+    FTileRequestResult: ITileRequestResult;
 
     FCancelNotifier: INotifierOperation;
     FCancelNotifierInternal: INotifierOperationInternal;
     FFinishEvent: TEvent;
-    FTileDownloadFinishListener: IListenerDisconnectable;
+    FTaskFinishNotifier: ITileRequestTaskFinishNotifier;
 
     FAppClosingListener: IListener;
 
-    procedure OnTileDownloadFinish(const AMsg: IInterface);
+    procedure OnTileDownloadFinish(
+      const ATask: ITileRequestTask;
+      const AResult: ITileRequestResult
+    );
     procedure OnAppClosing;
     procedure ProcessResult(const AResult: ITileRequestResult);
   protected
@@ -80,10 +85,10 @@ implementation
 
 uses
   SysUtils,
-  i_TileRequestTask,
   i_DownloadResult,
   u_Notifier,
   u_NotifierOperation,
+  u_TileRequestTask,
   u_ReadableThreadNames,
   u_ListenerByEvent,
   u_TileErrorInfo;
@@ -119,7 +124,8 @@ begin
   FCancelNotifier := VOperationNotifier;
   FFinishEvent := TEvent.Create;
 
-  FTileDownloadFinishListener := TNotifyEventListener.Create(Self.OnTileDownloadFinish);
+  FTaskFinishNotifier := TTileRequestTaskFinishNotifier.Create(Self.OnTileDownloadFinish);
+
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);
   if FAppClosingNotifier.IsExecuted then begin
@@ -129,8 +135,9 @@ end;
 
 destructor TTileDownloaderUIOneTile.Destroy;
 begin
-  if Assigned(FTileDownloadFinishListener) then begin
-    FTileDownloadFinishListener.Disconnect;
+  if FFinishEvent <> nil then begin
+    FTileRequestResult := nil;
+    FFinishEvent.SetEvent;
   end;
 
   if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
@@ -157,31 +164,35 @@ begin
       FMapType.TileDownloadSubsystem.GetRequestTask(
         FCancelNotifier,
         VOperationID,
+        FTaskFinishNotifier,
         FTile,
         FZoom,
         FVersion,
         False
       );
     if VTask <> nil then begin
-      VTask.FinishNotifier.Add(FTileDownloadFinishListener);
       FGlobalInternetState.IncQueueCount;
+      FTileRequestResult := nil;
       FMapType.TileDownloadSubsystem.Download(VTask);
-      if not VTask.FinishNotifier.IsExecuted then begin
-        FFinishEvent.WaitFor(INFINITE);
-      end;
-      ProcessResult(VTask.Result);
+      FFinishEvent.WaitFor(INFINITE);
+      ProcessResult(FTileRequestResult);
     end;
   end;
 end;
 
 procedure TTileDownloaderUIOneTile.OnAppClosing;
 begin
-  FTileDownloadFinishListener.Disconnect;
+  Terminate;
+  FTileRequestResult := nil;
   FFinishEvent.SetEvent;
 end;
 
-procedure TTileDownloaderUIOneTile.OnTileDownloadFinish(const AMsg: IInterface);
+procedure TTileDownloaderUIOneTile.OnTileDownloadFinish(
+  const ATask: ITileRequestTask;
+  const AResult: ITileRequestResult
+);
 begin
+  FTileRequestResult := AResult;;
   FFinishEvent.SetEvent;
 end;
 
