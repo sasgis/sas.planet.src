@@ -9,7 +9,8 @@ uses
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
-  i_KmlLayerConfig,
+  i_ThreadConfig,
+  i_VectorItemDrawConfig,
   i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
   i_MarkerDrawable,
@@ -33,7 +34,9 @@ type
       const ATimerNoifier: INotifierTime;
       const AVectorItems: IVectorItemSubsetChangeable;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AConfig: IKmlLayerConfig
+      const APointMarker: IMarkerDrawableChangeable;
+      const ADrawConfig: IVectorItemDrawConfig;
+      const AThreadConfig: IThreadConfig
     );
   end;
 
@@ -43,8 +46,6 @@ uses
   i_TileMatrix,
   i_BitmapLayerProviderChangeable,
   u_TileMatrixFactory,
-  u_MarkerDrawableSimpleSquare,
-  u_MarkerDrawableChangeableSimple,
   u_BitmapLayerProviderChangeableForVectorMaps;
 
 { TWikiLayerNew }
@@ -61,12 +62,13 @@ constructor TMapLayerVectorMaps.Create(
   const ATimerNoifier: INotifierTime;
   const AVectorItems: IVectorItemSubsetChangeable;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AConfig: IKmlLayerConfig
+  const APointMarker: IMarkerDrawableChangeable;
+  const ADrawConfig: IVectorItemDrawConfig;
+  const AThreadConfig: IThreadConfig
 );
 var
   VTileMatrixFactory: ITileMatrixFactory;
   VProvider: IBitmapLayerProviderChangeable;
-  VPointMarker: IMarkerDrawableChangeable;
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
@@ -74,15 +76,10 @@ begin
       ABitmapFactory,
       AConverterFactory
     );
-  VPointMarker :=
-    TMarkerDrawableChangeableSimple.Create(
-      TMarkerDrawableSimpleSquare,
-      AConfig.PointMarkerConfig
-    );
   VProvider :=
     TBitmapLayerProviderChangeableForVectorMaps.Create(
-      AConfig.DrawConfig,
-      VPointMarker,
+      ADrawConfig,
+      APointMarker,
       ABitmapFactory,
       AProjectedProvider,
       AVectorItems
@@ -98,7 +95,7 @@ begin
     VProvider,
     nil,
     ATimerNoifier,
-    AConfig.ThreadConfig
+    AThreadConfig
   );
 end;
 

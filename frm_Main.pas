@@ -1579,6 +1579,11 @@ begin
       VPerfList.CreateAndAddNewCounter('FindItems'),
       6
     );
+  VMarkerChangeable :=
+    TMarkerDrawableChangeableSimple.Create(
+      TMarkerDrawableSimpleSquare,
+      FConfig.LayersConfig.KmlLayerConfig.PointMarkerConfig
+    );
   VLayersList.Add(
     TMapLayerVectorMaps.Create(
       VPerfList,
@@ -1593,7 +1598,9 @@ begin
       GState.GUISyncronizedTimerNotifier,
       VVectorItems,
       GState.BitmapFactory,
-      FConfig.LayersConfig.KmlLayerConfig
+      VMarkerChangeable,
+      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
     )
   );
   VLayersList.Add(
