@@ -12,9 +12,6 @@ type
     function GetMainColor: TColor32;
     property MainColor: TColor32 read GetMainColor;
 
-    function GetPointColor: TColor32;
-    property PointColor: TColor32 read GetPointColor;
-
     function GetShadowColor: TColor32;
     property ShadowColor: TColor32 read GetShadowColor;
   end;
@@ -24,10 +21,6 @@ type
     function GetMainColor: TColor32;
     procedure SetMainColor(AValue: TColor32);
     property MainColor: TColor32 read GetMainColor write SetMainColor;
-
-    function GetPointColor: TColor32;
-    procedure SetPointColor(AValue: TColor32);
-    property PointColor: TColor32 read GetPointColor write SetPointColor;
 
     function GetShadowColor: TColor32;
     procedure SetShadowColor(AValue: TColor32);

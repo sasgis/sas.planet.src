@@ -12,6 +12,7 @@ uses
   i_KmlLayerConfig,
   i_Bitmap32StaticFactory,
   i_ImageResamplerConfig,
+  i_MarkerDrawable,
   i_VectorItemSubsetChangeable,
   i_ProjectedGeometryProvider,
   u_TiledLayerWithThreadBase;
@@ -42,6 +43,8 @@ uses
   i_TileMatrix,
   i_BitmapLayerProviderChangeable,
   u_TileMatrixFactory,
+  u_MarkerDrawableSimpleSquare,
+  u_MarkerDrawableChangeableSimple,
   u_BitmapLayerProviderChangeableForVectorMaps;
 
 { TWikiLayerNew }
@@ -63,6 +66,7 @@ constructor TMapLayerVectorMaps.Create(
 var
   VTileMatrixFactory: ITileMatrixFactory;
   VProvider: IBitmapLayerProviderChangeable;
+  VPointMarker: IMarkerDrawableChangeable;
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
@@ -70,9 +74,15 @@ begin
       ABitmapFactory,
       AConverterFactory
     );
+  VPointMarker :=
+    TMarkerDrawableChangeableSimple.Create(
+      TMarkerDrawableSimpleSquare,
+      AConfig.PointMarkerConfig
+    );
   VProvider :=
     TBitmapLayerProviderChangeableForVectorMaps.Create(
       AConfig.DrawConfig,
+      VPointMarker,
       ABitmapFactory,
       AProjectedProvider,
       AVectorItems

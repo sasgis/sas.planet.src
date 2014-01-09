@@ -8,6 +8,7 @@ uses
   i_VectorItemSubsetChangeable,
   i_ProjectedGeometryProvider,
   i_ListenerNotifierLinksList,
+  i_MarkerDrawable,
   i_BitmapLayerProvider,
   u_BitmapLayerProviderChangeableBase;
 
@@ -16,6 +17,7 @@ type
   private
     FConfig: IVectorItemDrawConfig;
     FBitmapFactory: IBitmap32StaticFactory;
+    FPointMarker: IMarkerDrawableChangeable;
     FProjectedProvider: IProjectedGeometryProvider;
     FVectorItems: IVectorItemSubsetChangeable;
 
@@ -26,6 +28,7 @@ type
   public
     constructor Create(
       const AConfig: IVectorItemDrawConfig;
+      const APointMarker: IMarkerDrawableChangeable;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectedProvider: IProjectedGeometryProvider;
       const AVectorItems: IVectorItemSubsetChangeable
@@ -43,6 +46,7 @@ uses
 
 constructor TBitmapLayerProviderChangeableForVectorMaps.Create(
   const AConfig: IVectorItemDrawConfig;
+  const APointMarker: IMarkerDrawableChangeable;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectedProvider: IProjectedGeometryProvider;
   const AVectorItems: IVectorItemSubsetChangeable
@@ -50,6 +54,7 @@ constructor TBitmapLayerProviderChangeableForVectorMaps.Create(
 begin
   inherited Create;
   FConfig := AConfig;
+  FPointMarker := APointMarker;
   FBitmapFactory := ABitmapFactory;
   FProjectedProvider := AProjectedProvider;
   FVectorItems := AVectorItems;
@@ -57,6 +62,11 @@ begin
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
     FConfig.ChangeNotifier
+  );
+
+  LinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
+    FPointMarker.ChangeNotifier
   );
 
   LinksList.Add(
@@ -80,7 +90,7 @@ begin
       TBitmapLayerProviderByVectorSubset.Create(
         VConfig.MainColor,
         VConfig.ShadowColor,
-        VConfig.PointColor,
+        FPointMarker.GetStatic,
         FBitmapFactory,
         FProjectedProvider,
         VVectorItems

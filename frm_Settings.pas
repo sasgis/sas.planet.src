@@ -563,11 +563,6 @@ begin
         Color32(CBWFonColor.Selected),
         AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor)
       );
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.PointColor :=
-      SetAlpha(
-        Color32(CBWMainColor.Selected),
-        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.PointColor)
-      );
   finally
     GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockWrite;
   end;

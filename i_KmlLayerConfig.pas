@@ -24,6 +24,7 @@ interface
 
 uses
   i_VectorItemDrawConfig,
+  i_MarkerSimpleConfig,
   i_ThreadConfig,
   i_ConfigDataElement;
 
@@ -32,6 +33,9 @@ type
     ['{6EA3D5D6-3D9D-40DB-AD53-989920190477}']
     function GetDrawConfig: IVectorItemDrawConfig;
     property DrawConfig: IVectorItemDrawConfig read GetDrawConfig;
+
+    function GetPointMarkerConfig: IMarkerSimpleConfig;
+    property PointMarkerConfig: IMarkerSimpleConfig read GetPointMarkerConfig;
 
     function GetThreadConfig: IThreadConfig;
     property ThreadConfig: IThreadConfig read GetThreadConfig;

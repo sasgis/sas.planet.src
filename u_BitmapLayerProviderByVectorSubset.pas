@@ -16,6 +16,7 @@ uses
   i_ProjectedGeometryProvider,
   i_LocalCoordConverter,
   i_NotifierOperation,
+  i_MarkerDrawable,
   i_VectorItemProjected,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider,
@@ -26,7 +27,7 @@ type
   private
     FColorMain: TColor32;
     FColorBG: TColor32;
-    FPointColor: TColor32;
+    FPointMarker: IMarkerDrawable;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorItems: IVectorItemSubset;
     FProjectedCache: IProjectedGeometryProvider;
@@ -41,33 +42,24 @@ type
     function DrawPoint(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      APointColor: TColor32;
-      APointColorBG: TColor32;
       const APoint: IGeometryLonLatPoint;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      AColorMain: TColor32;
-      AColorBG: TColor32;
       const ALine: IGeometryLonLatMultiLine;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      AColorMain: TColor32;
-      AColorBG: TColor32;
       const APoly: IGeometryLonLatMultiPolygon;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawWikiElement(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      AColorMain: TColor32;
-      AColorBG: TColor32;
-      APointColor: TColor32;
       const AData: IGeometryLonLat;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
@@ -81,7 +73,7 @@ type
     constructor Create(
       AColorMain: TColor32;
       AColorBG: TColor32;
-      APointColor: TColor32;
+      const APointMarker: IMarkerDrawable;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AProjectedCache: IProjectedGeometryProvider;
       const AVectorItems: IVectorItemSubset
@@ -107,7 +99,7 @@ uses
 constructor TBitmapLayerProviderByVectorSubset.Create(
   AColorMain: TColor32;
   AColorBG: TColor32;
-  APointColor: TColor32;
+  const APointMarker: IMarkerDrawable;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AProjectedCache: IProjectedGeometryProvider;
   const AVectorItems: IVectorItemSubset
@@ -116,7 +108,7 @@ begin
   inherited Create;
   FColorMain := AColorMain;
   FColorBG := AColorBG;
-  FPointColor := APointColor;
+  FPointMarker := APointMarker;
   FBitmapFactory := ABitmapFactory;
   FProjectedCache := AProjectedCache;
   FVectorItems := AVectorItems;
@@ -127,7 +119,6 @@ end;
 function TBitmapLayerProviderByVectorSubset.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  AColorMain, AColorBG: TColor32;
   const ALine: IGeometryLonLatMultiLine;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
@@ -237,44 +228,33 @@ end;
 function TBitmapLayerProviderByVectorSubset.DrawPoint(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  APointColor, APointColorBG: TColor32;
   const APoint: IGeometryLonLatPoint;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
   VConverter: ICoordConverter;
   VPointLL: TDoublePoint;
+  VLocalPos: TDoublePoint;
   VRect: TRect;
 begin
   Result := False;
   VConverter := ALocalConverter.GetGeoConverter;
   VPointLL := APoint.Point;
   VConverter.CheckLonLatPos(VPointLL);
-  VRect.TopLeft := ALocalConverter.LonLat2LocalPixel(VPointLL, prToTopLeft);
-  VRect.BottomRight := VRect.TopLeft;
-  if Types.PtInRect(ALocalConverter.GetLocalRect, VRect.TopLeft) then begin
+  VLocalPos := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
+  VRect := FPointMarker.GetBoundsForPosition(VLocalPos);
+  if IntersectRect(VRect, ALocalConverter.GetLocalRect, VRect) then begin
     if not ABitmapInited then begin
       InitBitmap(ATargetBmp, ALocalConverter);
       ABitmapInited := True;
     end;
-    Dec(VRect.Left, 3);
-    Dec(VRect.Top, 3);
-    Inc(VRect.Right, 3);
-    Inc(VRect.Bottom, 3);
-    ATargetBmp.FillRectS(VRect, APointColorBG);
-    Inc(VRect.Left);
-    Inc(VRect.Top);
-    Dec(VRect.Right);
-    Dec(VRect.Bottom);
-    ATargetBmp.FillRectS(VRect, APointColor);
-    Result := True;
+    Result := FPointMarker.DrawToBitmap(ATargetBmp, VLocalPos);
   end;
 end;
 
 function TBitmapLayerProviderByVectorSubset.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  AColorMain, AColorBG: TColor32;
   const APoly: IGeometryLonLatMultiPolygon;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
@@ -374,7 +354,6 @@ end;
 function TBitmapLayerProviderByVectorSubset.DrawWikiElement(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  AColorMain, AColorBG, APointColor: TColor32;
   const AData: IGeometryLonLat;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
@@ -384,11 +363,11 @@ var
   VItemPoly: IGeometryLonLatMultiPolygon;
 begin
   if Supports(AData, IGeometryLonLatPoint, VItemPoint) then begin
-    Result := DrawPoint(ABitmapInited, ATargetBmp, APointColor, AColorBG, VItemPoint, ALocalConverter);
+    Result := DrawPoint(ABitmapInited, ATargetBmp, VItemPoint, ALocalConverter);
   end else if Supports(AData, IGeometryLonLatMultiLine, VItemLine) then begin
-    Result := DrawPath(ABitmapInited, ATargetBmp, AColorMain, AColorBG, VItemLine, ALocalConverter);
+    Result := DrawPath(ABitmapInited, ATargetBmp, VItemLine, ALocalConverter);
   end else if Supports(AData, IGeometryLonLatMultiPolygon, VItemPoly) then begin
-    Result := DrawPoly(ABitmapInited, ATargetBmp, AColorMain, AColorBG, VItemPoly, ALocalConverter);
+    Result := DrawPoly(ABitmapInited, ATargetBmp, VItemPoly, ALocalConverter);
   end else begin
     Result := False;
   end;
@@ -425,7 +404,7 @@ begin
       for i := 0 to FVectorItems.Count - 1 do begin
         VItem := FVectorItems.GetItem(i);
         if VItem.Geometry.Bounds.IsIntersecWithRect(VLLRect) then begin
-          if DrawWikiElement(VBitmapInited, VBitmap, FColorMain, FColorBG, FPointColor, VItem.Geometry, ALocalConverter) then begin
+          if DrawWikiElement(VBitmapInited, VBitmap, VItem.Geometry, ALocalConverter) then begin
             VIsEmpty := False;
           end;
           if ACancelNotifier.IsOperationCanceled(AOperationID) then begin

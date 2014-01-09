@@ -25,6 +25,7 @@ interface
 uses
   i_ThreadConfig,
   i_VectorItemDrawConfig,
+  i_MarkerSimpleConfig,
   i_KmlLayerConfig,
   u_ConfigDataElementComplexBase;
 
@@ -32,9 +33,11 @@ type
   TKmlLayerConfig = class(TConfigDataElementComplexBase, IKmlLayerConfig)
   private
     FDrawConfig: IVectorItemDrawConfig;
+    FPointMarkerConfig: IMarkerSimpleConfig;
     FThreadConfig: IThreadConfig;
   private
     function GetDrawConfig: IVectorItemDrawConfig;
+    function GetPointMarkerConfig: IMarkerSimpleConfig;
     function GetThreadConfig: IThreadConfig;
   public
     constructor Create;
@@ -43,18 +46,33 @@ type
 implementation
 
 uses
+  GR32,
   Classes,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ThreadConfig,
+  u_MarkerSimpleConfig,
+  u_MarkerSimpleConfigStatic,
   u_VectorItemDrawConfig;
 
 { TKmlLayerConfig }
 
 constructor TKmlLayerConfig.Create;
+var
+  VPointMarkerDefault: IMarkerSimpleConfigStatic;
 begin
   inherited Create;
   FDrawConfig := TVectorItemDrawConfig.Create;
   Add(FDrawConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
+
+  VPointMarkerDefault :=
+    TMarkerSimpleConfigStatic.Create(
+      6,
+      SetAlpha(clWhite32, 170),
+      clBlack32
+    );
+
+  FPointMarkerConfig := TMarkerSimpleConfig.Create(VPointMarkerDefault);
+  Add(FPointMarkerConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
 
   FThreadConfig := TThreadConfig.Create(tpLowest);
   Add(FThreadConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
@@ -63,6 +81,11 @@ end;
 function TKmlLayerConfig.GetDrawConfig: IVectorItemDrawConfig;
 begin
   Result := FDrawConfig;
+end;
+
+function TKmlLayerConfig.GetPointMarkerConfig: IMarkerSimpleConfig;
+begin
+  Result := FPointMarkerConfig;
 end;
 
 function TKmlLayerConfig.GetThreadConfig: IThreadConfig;
