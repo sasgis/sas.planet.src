@@ -139,6 +139,7 @@ uses
   i_TileIterator,
   i_TileDownloaderState,
   i_TileStorage,
+  u_NotifierOperation,
   u_TileIteratorByPolygon,
   u_TileRequestTask,
   u_ListenerByEvent,
@@ -284,6 +285,7 @@ var
   VGotoNextTile: Boolean;
   VLastSkipped: TPoint;
   VCntSkipped: Cardinal;
+  VSoftCancelNotifier: INotifierOneOperation;
 begin
   try
     if Terminated then begin
@@ -292,6 +294,8 @@ begin
 
     SetCurrentThreadName(Self.ClassName);
     Randomize;
+
+    VSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(FCancelNotifier, FOperationID);
 
     VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
     FProgressInfo.SetTotalToProcess(VTileIterator.TilesTotal);
@@ -367,6 +371,7 @@ begin
               end else begin
                 // download tile
                 VTask := FMapType.TileDownloadSubsystem.GetRequestTask(
+                  VSoftCancelNotifier,
                   FCancelNotifier,
                   FOperationID,
                   FTaskFinishNotifier,

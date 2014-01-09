@@ -12,7 +12,9 @@ type
   ITileDownloader = interface
     ['{79AB7B90-1F22-4B2E-B14A-BBAD3F94E26C}']
     function Download(
-      const ACancelNotifier: INotifierOneOperation;
+      const ASoftCancelNotifier: INotifierOneOperation;
+      const ACancelNotifier: INotifierOperation;
+      const AOperationID: Integer;
       const ATileRequest: ITileRequest
     ): ITileRequestResult;
   end;

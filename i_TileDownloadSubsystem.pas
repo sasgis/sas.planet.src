@@ -13,6 +13,7 @@ type
   ITileDownloadSubsystem = interface
     ['{06FFC386-43A0-4308-B294-58F8CF429BCB}']
     function GetRequestTask(
+      const ASoftCancelNotifier: INotifierOneOperation;
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const AFinishNotifier: ITileRequestTaskFinishNotifier;

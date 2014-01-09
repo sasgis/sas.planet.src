@@ -58,6 +58,8 @@ type
     FVisualCoordConverter: ILocalCoordConverter;
     FVisualCoordConverterCS: IReadWriteSync;
     FTaskFinishNotifier: ITileRequestTaskFinishNotifier;
+    FSoftCancelNotifier: INotifierOneOperation;
+    FHardCancelNotifierInternal: INotifierOperationInternal;
 
     procedure OnTTLTrim;
     procedure OnMemCacheTTLTrim;
@@ -101,6 +103,8 @@ uses
   i_CoordConverter,
   i_TileInfoBasic,
   i_TileStorage,
+  u_Notifier,
+  u_NotifierOperation,
   u_ListenerNotifierLinksList,
   u_ListenerByEvent,
   u_ListenerTime,
@@ -145,6 +149,9 @@ begin
   FSemaphore := CreateSemaphore(nil, FRequestCount, FRequestCount, nil);
   FCancelEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancel);
+
+  FSoftCancelNotifier := nil;
+  FHardCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
 
   FCS := MakeSyncRW_Std(Self, False);
   FTaskFinishNotifier := TTileRequestTaskFinishNotifier.Create(Self.OnTileDownloadFinish);
@@ -239,6 +246,9 @@ end;
 
 procedure TUiTileDownload.OnAppClosing;
 begin
+  if Assigned(FHardCancelNotifierInternal) then begin
+    FHardCancelNotifierInternal.NextOperation;
+  end;
   if Assigned(FTaskFinishNotifier) then begin
     FTaskFinishNotifier.Enabled := False;
   end;
@@ -265,6 +275,11 @@ begin
   finally
     FConfig.UnlockRead;
   end;
+  if not (FUseDownload in [tsInternet, tsCacheInternet]) then begin
+    if Assigned(FHardCancelNotifierInternal) then begin
+      FHardCancelNotifierInternal.NextOperation;
+    end;
+  end;
   RestartDownloadIfNeed;
 end;
 
@@ -274,6 +289,11 @@ begin
     FMapActive := FMapTypeActive.GetIsActive;
   end else begin
     FMapActive := False;
+  end;
+  if not FMapActive then begin
+    if Assigned(FHardCancelNotifierInternal) then begin
+      FHardCancelNotifierInternal.NextOperation;
+    end;
   end;
   RestartDownloadIfNeed;
 end;
@@ -326,6 +346,7 @@ var
   VHandles: array [0..1] of THandle;
   VWaitResult: DWORD;
   VTileInfo: ITileInfoBasic;
+  VCurrentOperation: Integer;
 begin
   FTTLListener.UpdateUseTime;
   VMapType := FMapTypeActive.GetMapType.MapType;
@@ -340,6 +361,8 @@ begin
   if VLocalConverter <> nil then begin
     ResetEvent(FCancelEventHandle);
     ACancelNotifier.AddListener(FCancelListener);
+    FSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
+    VCurrentOperation := FHardCancelNotifierInternal.CurrentOperation;
     try
       VHandles[0] := FCancelEventHandle;
       VHandles[1] := FSemaphore;
@@ -393,8 +416,9 @@ begin
               end;
               VTask :=
                 VMapType.TileDownloadSubsystem.GetRequestTask(
-                  ACancelNotifier,
-                  AOperationID,
+                  FSoftCancelNotifier,
+                  FHardCancelNotifierInternal as INotifierOperation,
+                  VCurrentOperation,
                   FTaskFinishNotifier,
                   VTile,
                   VZoom,

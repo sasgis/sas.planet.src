@@ -160,13 +160,16 @@ procedure TTileDownloaderUIOneTile.Execute;
 var
   VOperationID: Integer;
   VTask: ITileRequestTask;
+  VSoftCancelNotifier: INotifierOneOperation;
 begin
   SetCurrentThreadName(Self.ClassName);
   Randomize;
   if FMapType.TileDownloadSubsystem.State.GetStatic.Enabled then begin
     VOperationID := FCancelNotifier.CurrentOperation;
+    VSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(FCancelNotifier, VOperationID);
     VTask :=
       FMapType.TileDownloadSubsystem.GetRequestTask(
+        VSoftCancelNotifier,
         FCancelNotifier,
         VOperationID,
         FTaskFinishNotifier,

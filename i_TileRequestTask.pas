@@ -13,8 +13,14 @@ type
     function GetTileRequest: ITileRequest;
     property TileRequest: ITileRequest read GetTileRequest;
 
-    function GetCancelNotifier: INotifierOneOperation;
-    property CancelNotifier: INotifierOneOperation read GetCancelNotifier;
+    function GetSoftCancelNotifier: INotifierOneOperation;
+    property SoftCancelNotifier: INotifierOneOperation read GetSoftCancelNotifier;
+
+    function GetCancelNotifier: INotifierOperation;
+    property CancelNotifier: INotifierOperation read GetCancelNotifier;
+
+    function GetOperationID: Integer;
+    property OperationID: Integer read GetOperationID;
   end;
 
   ITileRequestTaskInternal = interface(ITileRequestTask)

@@ -83,7 +83,12 @@ begin
     if Supports(FTileRequestQueue.Pull, ITileRequestTaskInternal, VTileRequestTask) then begin
       VResult := nil;
       try
-        VResult := FTileDownloaderSync.Download(VTileRequestTask.CancelNotifier, VTileRequestTask.TileRequest);
+        VResult := FTileDownloaderSync.Download(
+          VTileRequestTask.SoftCancelNotifier,
+          VTileRequestTask.CancelNotifier,
+          VTileRequestTask.OperationID,
+          VTileRequestTask.TileRequest
+        );
       finally
         VTileRequestTask.SetFinished(VResult);
       end;

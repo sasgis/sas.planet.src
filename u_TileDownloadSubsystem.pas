@@ -65,6 +65,7 @@ type
   private
     { ITileDownloadSubsystem }
     function GetRequestTask(
+      const ASoftCancelNotifier: INotifierOneOperation;
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Integer;
       const AFinishNotifier: ITileRequestTaskFinishNotifier;
@@ -340,6 +341,7 @@ begin
 end;
 
 function TTileDownloadSubsystem.GetRequestTask(
+  const ASoftCancelNotifier: INotifierOneOperation;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Integer;
   const AFinishNotifier: ITileRequestTaskFinishNotifier;
@@ -352,7 +354,6 @@ var
   VRequest: ITileRequest;
   VZoom: Byte;
   VTile: TPoint;
-  VCancelNotifier: INotifierOneOperation;
 begin
   Result := nil;
   if FZmpDownloadEnabled then begin
@@ -375,11 +376,12 @@ begin
               AVersionInfo
             );
         end;
-        VCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
         Result :=
           TTileRequestTask.Create(
             VRequest,
-            VCancelNotifier,
+            ASoftCancelNotifier,
+            ACancelNotifier,
+            AOperationID,
             AFinishNotifier
           );
       end;

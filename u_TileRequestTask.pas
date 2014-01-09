@@ -15,18 +15,24 @@ type
   TTileRequestTask = class(TBaseInterfacedObject, ITileRequestTask, ITileRequestTaskInternal)
   private
     FTileRequest: ITileRequest;
-    FCancelNotifier: INotifierOneOperation;
+    FSoftCancelNotifier: INotifierOneOperation;
+    FCancelNotifier: INotifierOperation;
+    FOperationID: Integer;
     FFinishNotifier: ITileRequestTaskFinishNotifier;
   private
     { ITileRequestTask }
     function GetTileRequest: ITileRequest;
-    function GetCancelNotifier: INotifierOneOperation;
+    function GetSoftCancelNotifier: INotifierOneOperation;
+    function GetCancelNotifier: INotifierOperation;
+    function GetOperationID: Integer;
     { ITileRequestTaskInternal }
     procedure SetFinished(const AResult: ITileRequestResult);
   public
     constructor Create(
       const ATileRequest: ITileRequest;
-      const ACancelNotifier: INotifierOneOperation;
+      const ASoftCancelNotifier: INotifierOneOperation;
+      const ACancelNotifier: INotifierOperation;
+      const AOperationID: Integer;
       const AFinishNotifier: ITileRequestTaskFinishNotifier
     );
   end;
@@ -58,20 +64,34 @@ implementation
 
 constructor TTileRequestTask.Create(
   const ATileRequest: ITileRequest;
-  const ACancelNotifier: INotifierOneOperation;
+  const ASoftCancelNotifier: INotifierOneOperation;
+  const ACancelNotifier: INotifierOperation;
+  const AOperationID: Integer;
   const AFinishNotifier: ITileRequestTaskFinishNotifier
 );
 begin
   Assert(AFinishNotifier <> nil);
   inherited Create;
   FTileRequest := ATileRequest;
+  FSoftCancelNotifier := ASoftCancelNotifier;
   FCancelNotifier := ACancelNotifier;
+  FOperationID := AOperationID;
   FFinishNotifier := AFinishNotifier;
 end;
 
-function TTileRequestTask.GetCancelNotifier: INotifierOneOperation;
+function TTileRequestTask.GetSoftCancelNotifier: INotifierOneOperation;
+begin
+  Result := FSoftCancelNotifier;
+end;
+
+function TTileRequestTask.GetCancelNotifier: INotifierOperation;
 begin
   Result := FCancelNotifier;
+end;
+
+function TTileRequestTask.GetOperationID: Integer;
+begin
+  Result := FOperationID;
 end;
 
 function TTileRequestTask.GetTileRequest: ITileRequest;

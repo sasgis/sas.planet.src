@@ -29,10 +29,6 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FLastResponseInfo: ILastResponseInfo;
 
-    FDestroyNotifierInternal: INotifierOperationInternal;
-    FDestroyNotifier: INotifierOperation;
-    FDestroyOperationID: Integer;
-
     FAppClosingListener: IListener;
     FCS: IReadWriteSync;
     FCancelListener: IListener;
@@ -50,8 +46,11 @@ type
     procedure SleepCancelable(ATime: Cardinal);
     procedure SleepIfConnectErrorOrWaitInterval;
   private
+    { ITileDownloader }
     function Download(
-      const ACancelNotifier: INotifierOneOperation;
+      const ASoftCancelNotifier: INotifierOneOperation;
+      const ACancelNotifier: INotifierOperation;
+      const AOperationID: Integer;
       const ATileRequest: ITileRequest
     ): ITileRequestResult;
   public
@@ -90,8 +89,6 @@ constructor TTileDownloaderSimple.Create(
   const AResultSaver: ITileDownloadResultSaver;
   const ALastResponseInfo: ILastResponseInfo
 );
-var
-  VOperationNotifier: TNotifierOperation;
 begin
   inherited Create;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -101,11 +98,6 @@ begin
   FResultSaver := AResultSaver;
   FLastResponseInfo := ALastResponseInfo;
   Assert(FResultSaver <> nil);
-
-  VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
-  FDestroyNotifierInternal := VOperationNotifier;
-  FDestroyNotifier := VOperationNotifier;
-  FDestroyOperationID := FDestroyNotifier.CurrentOperation;
 
   FCS := MakeSyncRW_Std(Self, FALSE);
   FCancelEvent := TEvent.Create;
@@ -120,10 +112,6 @@ end;
 
 destructor TTileDownloaderSimple.Destroy;
 begin
-  if Assigned(FDestroyNotifierInternal) then begin
-    FDestroyNotifierInternal.NextOperation;
-  end;
-
   if Assigned(FAppClosingNotifier) and Assigned(FAppClosingListener) then begin
     FAppClosingNotifier.Remove(FAppClosingListener);
     FAppClosingListener := nil;
@@ -152,7 +140,9 @@ begin
 end;
 
 function TTileDownloaderSimple.Download(
-  const ACancelNotifier: INotifierOneOperation;
+  const ASoftCancelNotifier: INotifierOneOperation;
+  const ACancelNotifier: INotifierOperation;
+  const AOperationID: Integer;
   const ATileRequest: ITileRequest
 ): ITileRequestResult;
 var
@@ -164,19 +154,19 @@ var
   VResultWithRespond: IDownloadResultWithServerRespond;
 begin
   Result := nil;
-  if not ACancelNotifier.IsExecuted then begin
+  if not ASoftCancelNotifier.IsExecuted then begin
     FCS.BeginWrite;
     try
-      if not ACancelNotifier.IsExecuted then begin
+      if not ASoftCancelNotifier.IsExecuted then begin
         FCancelEvent.ResetEvent;
-        ACancelNotifier.Add(FCancelListener);
+        ASoftCancelNotifier.Add(FCancelListener);
         try
-          if not ACancelNotifier.IsExecuted then begin
+          if not ASoftCancelNotifier.IsExecuted then begin
             VCount := 0;
             VTryCount := FDownloadTryCount;
             repeat
               SleepIfConnectErrorOrWaitInterval;
-              if ACancelNotifier.IsExecuted then begin
+              if ASoftCancelNotifier.IsExecuted then begin
                 Result := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
                 Break;
               end;
@@ -185,8 +175,8 @@ begin
                   FTileDownloadRequestBuilder.BuildRequest(
                     ATileRequest,
                     FLastResponseInfo,
-                    FDestroyNotifier,
-                    FDestroyOperationID
+                    ACancelNotifier,
+                    AOperationID
                   );
               except
                 on E: Exception do begin
@@ -206,15 +196,15 @@ begin
                   );
                 Break;
               end;
-              if ACancelNotifier.IsExecuted then begin
+              if ASoftCancelNotifier.IsExecuted then begin
                 Result := TTileRequestResultCanceledAfterBuildDownloadRequest.Create(VDownloadRequest);
                 Break;
               end;
               VDownloadResult :=
                 FHttpDownloader.DoRequest(
                   VDownloadRequest,
-                  FDestroyNotifier,
-                  FDestroyOperationID
+                  ACancelNotifier,
+                  AOperationID
                 );
               Inc(VCount);
               FLastDownloadTime := GetTickCount;
@@ -256,7 +246,7 @@ begin
             Result := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
           end;
         finally
-          ACancelNotifier.Remove(FCancelListener);
+          ASoftCancelNotifier.Remove(FCancelListener);
         end;
       end else begin
         Result := TTileRequestResultCanceledBeforBuildDownloadRequest.Create(ATileRequest);
@@ -271,7 +261,6 @@ end;
 
 procedure TTileDownloaderSimple.OnAppClosing;
 begin
-  FDestroyNotifierInternal.NextOperation;
   FCancelEvent.SetEvent;
 end;
 
