@@ -111,12 +111,14 @@ end;
 
 procedure TfrSearchResultsItem.LabelCaptionClick(Sender: TObject);
 begin
-  FMapGoto.GotoLonLat(FPlacemark.Geometry.GetGoToLonLat, True);
+  FMapGoto.FitRectToScreen(FPlacemark.Geometry.Bounds.Rect);
+  FMapGoto.ShowMarker(FPlacemark.Geometry.GetGoToLonLat);
 end;
 
 procedure TfrSearchResultsItem.LabelDescDblClick(Sender: TObject);
 begin
-  FMapGoto.GotoLonLat(FPlacemark.Geometry.GetGoToLonLat, True);
+  FMapGoto.FitRectToScreen(FPlacemark.Geometry.Bounds.Rect);
+  FMapGoto.ShowMarker(FPlacemark.Geometry.GetGoToLonLat);
 end;
 
 procedure TfrSearchResultsItem.LabelFullDescMouseUp(Sender: TObject;

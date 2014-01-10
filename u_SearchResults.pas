@@ -70,7 +70,9 @@ implementation
 
 uses
   ActiveX,
+  SysUtils,
   i_VectorDataItemSimple,
+  i_GeometryLonLat,
   u_ResStrings;
 
 { TSearchResultPresenterOnPanel }
@@ -165,7 +167,12 @@ begin
     if VItemForGoTo = nil then begin
       ShowMessage(SAS_STR_notfound);
     end else begin
-      FMapGoto.GotoPos(VItemForGoTo.Geometry.GetGoToLonLat, AZoom, True);
+      if Supports(VItemForGoTo.Geometry, IGeometryLonLatPoint) then begin
+        FMapGoto.GotoPos(VItemForGoTo.Geometry.GetGoToLonLat, AZoom, True);
+      end else begin
+        FMapGoto.FitRectToScreen(VItemForGoTo.Geometry.Bounds.Rect);
+        FMapGoto.ShowMarker(VItemForGoTo.Geometry.GetGoToLonLat);
+      end;
     end;
   end else begin
     case ASearchResult.GetResultCode of
