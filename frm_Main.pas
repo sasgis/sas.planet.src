@@ -796,6 +796,7 @@ uses
   u_MapType,
   u_VectorItemSubsetChangeableForVectorLayers,
   u_VectorItemSubsetChangeableForMarksLayer,
+  u_VectorItemSubsetChangeableBySearchResult,
   u_MapLayerVectorMaps,
   u_MiniMapLayer,
   u_MiniMapLayerViewRect,
@@ -1927,6 +1928,7 @@ begin
       FConfig.LayersConfig.SelectionRectLayerConfig
     )
   );
+  VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TSearchResultsLayer');
   VBitmap :=
     ReadBitmapByFileRef(
       GState.ResourceProvider,
@@ -1941,21 +1943,35 @@ begin
         TMarkerDrawableByBitmap32Static.Create(VBitmap, DoublePoint(8, 8))
       );
   end;
-  FLayerSearchResults :=
-    TFindVectorItemsFromSearchResults.Create(
-      GState.VectorItemSubsetBuilderFactory,
-      GState.VectorDataFactory,
+  VVectorItems :=
+    TVectorItemSubsetChangeableBySearchResult.Create(
       FConfig.LastSearchResultConfig
     );
+  FLayerSearchResults :=
+    TFindVectorItemsForVectorMaps.Create(
+      GState.VectorItemSubsetBuilderFactory,
+      GState.ProjectedGeometryProvider,
+      VVectorItems,
+      VPerfList.CreateAndAddNewCounter('FindItems'),
+      6
+    );
   VLayersList.Add(
-    TSearchResultsLayer.Create(
-      GState.PerfCounterList.CreateAndAddNewSubList('TSearchResultsLayer'),
+    TMapLayerVectorMaps.Create(
+      VPerfList,
       GState.AppStartedNotifier,
       GState.AppClosingNotifier,
       map,
+      FConfig.ViewPortState.Position,
       FConfig.ViewPortState.View,
-      FConfig.LastSearchResultConfig,
-      VMarkerChangeable
+      GState.Config.TileMatrixDraftResamplerConfig,
+      GState.LocalConverterFactory,
+      GState.ProjectedGeometryProvider,
+      GState.GUISyncronizedTimerNotifier,
+      VVectorItems,
+      GState.BitmapFactory,
+      VMarkerChangeable,
+      FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
+      FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
     )
   );
   VBitmap :=

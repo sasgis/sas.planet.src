@@ -364,6 +364,7 @@ uses
   i_VectorItemSubsetChangeable in 'i_VectorItemSubsetChangeable.pas',
   u_VectorItemSubsetChangeableForVectorLayers in 'u_VectorItemSubsetChangeableForVectorLayers.pas',
   u_VectorItemSubsetChangeableForMarksLayer in 'u_VectorItemSubsetChangeableForMarksLayer.pas',
+  u_VectorItemSubsetChangeableBySearchResult in 'u_VectorItemSubsetChangeableBySearchResult.pas',
   u_GeoFun in 'u_GeoFun.pas',
   u_GeometryFunc in 'u_GeometryFunc.pas',
   i_EnumDoublePoint in 'i_EnumDoublePoint.pas',
