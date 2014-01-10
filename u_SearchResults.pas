@@ -129,9 +129,9 @@ begin
 
   FLastSearchResults.ClearGeoCodeResult;
   if ASearchResult.Count > 0 then begin
+    FLastSearchResults.GeoCodeResult := ASearchResult;
     if ASearchResult.Count > 1 then begin
       FOnShowResults(Self);
-      FLastSearchResults.GeoCodeResult := ASearchResult;
     end;
 
     VCnt := 0;
