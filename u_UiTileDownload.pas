@@ -179,7 +179,7 @@ begin
     FAppClosingNotifier
   );
 
-  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 30000);
+  FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 300000);
   FGCNotifier.Add(FTTLListener);
 
   if
@@ -454,6 +454,7 @@ var
 begin
   Assert(ATask <> nil);
 
+  FTTLListener.UpdateUseTime;
   FGlobalInternetState.DecQueueCount;
   ReleaseSemaphore(FSemaphore, 1, nil);
 

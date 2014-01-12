@@ -36,6 +36,7 @@ type
 
     procedure OnTTLTrim;
     procedure OnDownloadersListChange;
+    procedure TerminateDownloaders;
   private
     procedure InitThreadsIfNeed;
   public
@@ -83,13 +84,12 @@ begin
 
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 60000);
   FGCNotifier.Add(FTTLListener);
-
-  OnDownloadersListChange;
 end;
 
 destructor TTileRequestProcessorPool.Destroy;
 begin
-  OnTTLTrim;
+  TerminateDownloaders;
+
   if Assigned(FDownloaderList) and Assigned(FDownloadersListListener) then begin
     FDownloaderList.ChangeNotifier.Remove(FDownloadersListListener);
   end;
@@ -157,14 +157,23 @@ end;
 
 procedure TTileRequestProcessorPool.OnDownloadersListChange;
 begin
-  OnTTLTrim;
+  TerminateDownloaders;
 end;
 
 procedure TTileRequestProcessorPool.OnTTLTrim;
+begin
+  if not FTileRequestQueue.IsEmpty then begin
+    FTTLListener.UpdateUseTime;
+  end else begin
+    TerminateDownloaders;
+  end;
+end;
+
+procedure TTileRequestProcessorPool.TerminateDownloaders;
 var
-  VThreadArray: TArrayOfThread;
-  i: Integer;
+  I: Integer;
   VItem: IThread;
+  VThreadArray: TArrayOfThread;
 begin
   FThreadArrayCS.BeginWrite;
   try
@@ -175,9 +184,9 @@ begin
   end;
 
   if VThreadArray <> nil then begin
-    for i := 0 to Length(VThreadArray) - 1 do begin
-      VItem := VThreadArray[i];
-      VThreadArray[i] := nil;
+    for I := 0 to Length(VThreadArray) - 1 do begin
+      VItem := VThreadArray[I];
+      VThreadArray[I] := nil;
       if VItem <> nil then begin
         VItem.Terminate;
         VItem := nil;

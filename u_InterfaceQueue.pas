@@ -32,8 +32,10 @@ type
 
     procedure OnClosing;
   private
+    { IInterfaceQueue }
     procedure Push(const AObj: IInterface);
     function Pull: IInterface;
+    function GetIsEmpty: Boolean;
   public
     constructor Create(
       const AAppClosingNotifier: INotifierOneOperation;
@@ -163,6 +165,21 @@ begin
       AObj._AddRef;
       ReleaseSemaphore(FReadyRequestSemaphore, 1, nil);
     end;
+  end;
+end;
+
+function TInterfaceQueue.GetIsEmpty: Boolean;
+begin
+  FTailCS.BeginRead;
+  try
+    FHeadCS.BeginRead;
+    try
+      Result := FHeadIndex = FTailIndex;
+    finally
+      FHeadCS.EndRead;
+    end;
+  finally
+    FTailCS.EndRead;
   end;
 end;
 
