@@ -421,7 +421,7 @@ Function ToDosName(FileName:AnsiString):AnsiString;
 implementation
 
 uses
-  ALFcnString;
+  ALString;
 
 Const
   ZL_DEF_COMPRESSIONMETHOD  = $8;  { Deflate }

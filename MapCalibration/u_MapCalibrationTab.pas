@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  ALfcnString,
+  ALString,
   i_CoordConverter,
   i_MapCalibration,
   u_BaseInterfacedObject;

@@ -41,7 +41,7 @@ implementation
 uses
   SysUtils,
   Math,
-  ALfcnString;
+  ALString;
 
 var
   GFormatSettings : TFormatSettings;

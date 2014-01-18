@@ -208,7 +208,7 @@ implementation
 
 uses
   Types,
-  ALfcnString,
+  ALString,
   GR32,
   gnugettext,
   c_ZeroGUID,

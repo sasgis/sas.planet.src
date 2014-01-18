@@ -198,7 +198,7 @@ type
 implementation
 
 uses
-  ALFcnString,
+  ALString,
   vsagps_public_sats_info,
   i_InterfaceListSimple,
   u_InterfaceListSimple,

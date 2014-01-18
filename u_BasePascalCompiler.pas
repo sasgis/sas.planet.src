@@ -1,5 +1,5 @@
 {******************************************************************************}
-{* SAS.Planet (SAS.РџР»Р°РЅРµС‚Р°)                                                   *}
+{* SAS.Planet (SAS.Планета)                                                   *}
 {* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
@@ -87,7 +87,7 @@ implementation
 
 uses
   Math,
-  ALfcnString,
+  ALString,
   RegExprUtils,
   i_SimpleHttpDownloader,
   i_ProjConverter,

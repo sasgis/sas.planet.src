@@ -11,7 +11,7 @@ implementation
 uses
   Windows,
   ShellAPI,
-  ALfcnString;
+  ALString;
 
 procedure OpenUrlInBrowser(const URL: string);
 begin

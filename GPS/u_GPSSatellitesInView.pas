@@ -68,7 +68,7 @@ type
 implementation
 
 uses
-  ALFcnString,
+  ALString,
   i_InterfaceListSimple,
   u_InterfaceListSimple;
 

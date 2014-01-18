@@ -79,7 +79,7 @@ uses
   windows,
   SysUtils,
   StrUtils,
-  ALFcnString,
+  ALString,
   RegExprUtils,
   t_GeoTypes,
   u_InterfaceListSimple,

@@ -53,7 +53,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  ALFcnString,
+  ALString,
   t_GeoTypes,
   i_GeoCoder,
   i_VectorDataItemSimple,

@@ -81,7 +81,7 @@ implementation
 
 uses
   SysUtils,
-  ALfcnString;
+  ALString;
 
 { TTileDownloadRequestBuilderConfig }
 

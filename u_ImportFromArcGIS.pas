@@ -32,7 +32,7 @@ implementation
 uses
   Windows,
   Classes,
-  ALFcnString,
+  ALString,
   ALZLibExGZ,
   c_CoordConverter,
   i_DownloadResultFactory,

@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  ALfcnString,
+  ALString,
   ALStringList,
   t_GeoTypes,
   i_BinaryData,

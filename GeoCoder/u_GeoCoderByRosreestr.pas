@@ -70,7 +70,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
-  ALFcnString,
+  ALString,
   RegExprUtils,
   t_GeoTypes,
   i_VectorDataItemSimple,

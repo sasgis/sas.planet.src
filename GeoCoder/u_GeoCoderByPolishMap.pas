@@ -68,7 +68,7 @@ implementation
 
 uses
   StrUtils,
-  ALFcnString,
+  ALString,
   ALStringList,
   t_GeoTypes,
   i_VectorDataItemSimple,

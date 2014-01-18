@@ -28,7 +28,7 @@ type
 implementation
 
 uses
-  ALfcnString,
+  ALString,
   t_GeoTypes,
   u_Synchronizer;
 

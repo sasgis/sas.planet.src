@@ -79,7 +79,7 @@ type
 implementation
 
 uses
-  ALfcnString,
+  ALString,
   c_CoordConverter,
   i_LocalCoordConverter,
   i_Bitmap32Static,

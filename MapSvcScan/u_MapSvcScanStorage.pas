@@ -55,7 +55,7 @@ type
 implementation
 
 uses
-  ALFcnString,
+  ALString,
   ALSqlite3Wrapper,
   u_ListenerByEvent,
   u_Synchronizer;

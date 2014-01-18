@@ -91,7 +91,7 @@ type
 implementation
 
 uses
-  ALFcnString,
+  ALString,
   ALSqlite3Wrapper,
   c_CoordConverter,
   i_VectorItemProjected,

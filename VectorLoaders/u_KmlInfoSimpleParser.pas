@@ -118,7 +118,7 @@ type
 implementation
 
 uses
-  ALfcnString,
+  ALString,
   cUnicodeCodecs,
   i_GeometryLonLat,
   u_StreamReadOnlyByBinaryData,

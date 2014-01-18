@@ -182,7 +182,7 @@ uses
   DateUtils,
   Math,
   Classes,
-  ALFcnString,
+  ALString,
   vsagps_public_sysutils,
   t_GeoTypes,
   u_ResStrings,

@@ -27,7 +27,6 @@ uses
   Classes,
   SysUtils,
   WinInet,
-  ALHTTPCommon,
   ALHttpClient,
   ALWinInetHttpClient,
   i_Listener,
@@ -144,7 +143,7 @@ type
 implementation
 
 uses
-  ALfcnString,
+  ALString,
   u_ListenerByEvent,
   u_Synchronizer,
   u_HttpStatusChecker,
@@ -208,7 +207,7 @@ begin
   
   FCS := MakeSyncRW_Big(Self, FALSE);
   
-  FHttpClient := TALWinInetHTTPClient.Create(nil);
+  FHttpClient := TALWinInetHTTPClient.Create;
   FHttpClient.OnStatusChange := Self.DoOnALStatusChange;
   if Assigned(FOnDownloadProgress) then begin
     FHttpClient.OnDownloadProgress := Self.DoOnALDownloadProgress;

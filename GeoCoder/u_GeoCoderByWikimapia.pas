@@ -52,7 +52,7 @@ implementation
 
 uses
   SysUtils,
-  ALFcnString,
+  ALString,
   RegExpr,
   t_GeoTypes,
   i_GeoCoder,

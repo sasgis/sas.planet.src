@@ -55,7 +55,7 @@ uses
   XMLIntf,
   XMLDoc,
   SysUtils,
-  ALFcnString,
+  ALString,
   t_GeoTypes,
   i_CoordConverter,
   i_GeoCoder,

@@ -72,7 +72,7 @@ type
 implementation
 
 uses
-  ALfcnString,
+  ALString,
   uPSCompiler,
   u_Synchronizer,
   u_TileDownloadRequestBuilderPascalScript;

@@ -73,7 +73,7 @@ type
 implementation
 
 uses
-  ALfcnString,
+  ALString,
   i_CoordConverter,
   i_Bitmap32Static,
   i_TileIterator,
