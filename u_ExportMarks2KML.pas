@@ -62,7 +62,7 @@ type
       const inNode: iXMLNode
     ): Boolean;
     procedure AddMark(
-      const Mark: IVectorDataItemSimple;
+      const AMark: IVectorDataItemSimple;
       const inNode: iXMLNode
     );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
@@ -82,7 +82,7 @@ type
       const AFileName: string
     );
     procedure ExportMarkToKML(
-      const Mark: IVectorDataItemSimple;
+      const AMark: IVectorDataItemSimple;
       const AFileName: string
     );
   end;
@@ -205,12 +205,12 @@ begin
 end;
 
 procedure TExportMarks2KML.ExportMarkToKML(
-  const Mark: IVectorDataItemSimple;
+  const AMark: IVectorDataItemSimple;
   const AFileName: string
 );
 begin
   PrepareExportToFile(AFileName);
-  AddMark(Mark, FKmlDocumentNode);
+  AddMark(AMark, FKmlDocumentNode);
   SaveToFile;
 end;
 
@@ -316,7 +316,7 @@ begin
 end;
 
 procedure TExportMarks2KML.AddMark(
-  const Mark: IVectorDataItemSimple;
+  const AMark: IVectorDataItemSimple;
   const inNode: iXMLNode
 );
 var
@@ -340,14 +340,14 @@ var
   VLonLatPathLine: IGeometryLonLatLine;
 begin
   currNode := inNode.AddChild('Placemark');
-  currNode.ChildValues['name'] := XMLTextPrepare(Mark.Name);
-  currNode.ChildValues['description'] := XMLTextPrepare(Mark.Desc);
-  if Supports(Mark, IVectorDataItemPoint, VMarkPoint) then begin
+  currNode.ChildValues['name'] := XMLTextPrepare(AMark.Name);
+  currNode.ChildValues['description'] := XMLTextPrepare(AMark.Desc);
+  if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
     // Placemark
-    if not Supports(Mark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+    if not Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
       VAppearanceIcon := nil;
     end;
-    if not Supports(Mark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
+    if not Supports(AMark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
       VAppearanceCaption := nil;
     end;
     if (VAppearanceCaption <> nil) or (VAppearanceIcon <> nil)  then begin
@@ -384,10 +384,10 @@ begin
       VCoordinates := R2StrPoint(X) + ',' + R2StrPoint(Y) + ',0 ';
     end;
     currNode.ChildValues['coordinates'] := VCoordinates;
-  end else if Supports(Mark, IVectorDataItemLine, VMarkLine) then begin
+  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
     // <Placemark><MultiGeometry><LineString></LineString><LineString>...
     // <Placemark><LineString><coordinates>
-    if Supports(Mark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
       with currNode.AddChild('Style') do begin
         with AddChild('LineStyle') do begin
           ChildValues['color'] := Color32toKMLColor(VAppearanceLine.LineColor);
@@ -417,13 +417,13 @@ begin
       VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
       currNode.ChildValues['coordinates'] := VCoordinates;
     end;
-  end else if Supports(Mark, IVectorDataItemPoly, VMarkPoly) then begin
+  end else if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
     // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
     // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
-    if not Supports(Mark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+    if not Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
       VAppearanceBorder := nil;
     end;
-    if not Supports(Mark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
+    if not Supports(AMark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
       VAppearanceFill := nil;
     end;
     if (VAppearanceBorder <> nil) or (VAppearanceFill <> nil) then begin
