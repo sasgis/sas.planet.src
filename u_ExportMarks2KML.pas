@@ -44,7 +44,6 @@ type
   private
     FKmlDoc: IXMLDocument;
     FFileName: string;
-    inKMZ: boolean;
     FKmlNode: iXMLNode;
     FKmlDocumentNode: iXMLNode;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -68,6 +67,8 @@ type
     );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
     function Color32toKMLColor(Color32: TColor32): string;
+    procedure PrepareExportToFile(const AFileName: string);
+    procedure SaveToFile;
   public
     constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
     procedure ExportToKML(
@@ -140,6 +141,11 @@ constructor TExportMarks2KML.Create(
 );
 begin
   inherited Create;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+end;
+
+procedure TExportMarks2KML.PrepareExportToFile(const AFileName: string);
+begin
   FKmlDoc := TXMLDocument.Create(nil);
   FKmlDoc.Options := FKmlDoc.Options + [doNodeAutoIndent];
   FKmlDoc.Active := true;
@@ -148,8 +154,32 @@ begin
   FKmlNode := FKmlDoc.AddChild('kml');
   FKmlNode.Attributes['xmlns'] := 'http://earth.google.com/kml/2.2';
   FKmlDocumentNode := FKmlNode.AddChild('Document');
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
-  FZip := nil;
+  FFileName := AFileName;
+  if ExtractFileExt(FFileName) = '.kmz' then begin
+    FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
+  end else begin
+    FZip := nil;
+  end;
+end;
+
+procedure TExportMarks2KML.SaveToFile;
+var
+  KMLStream: TMemoryStream;
+  VData: IBinaryData;
+begin
+  if Assigned(FZip) then begin
+    KMLStream := TMemoryStream.Create;
+    try
+      FKmlDoc.SaveToStream(KMLStream);
+      KMLStream.Position := 0;
+      VData := TBinaryDataByMemStream.CreateWithOwn(KMLStream);
+      FZip.AddFile(VData, 'doc.kml', Now);
+    finally
+      KMLStream.Free;
+    end;
+  end else begin
+    FKmlDoc.SaveToFile(FFileName);
+  end;
 end;
 
 procedure TExportMarks2KML.ExportToKML(
@@ -157,28 +187,10 @@ procedure TExportMarks2KML.ExportToKML(
   const AMarksSubset: IVectorItemSubset;
   const AFileName: string
 );
-var
-  KMLStream: TMemoryStream;
-  VData: IBinaryData;
 begin
-  FFileName := AFileName;
-  inKMZ := ExtractFileExt(FFileName) = '.kmz';
-  if inKMZ then begin
-    FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
-    AddFolders(AMarksSubset, ACategoryList);
-    KMLStream := TMemoryStream.Create;
-    try
-      FKmlDoc.SaveToStream(KMLStream);
-      KMLStream.Position := 0;
-      VData := TBinaryDataByMemStream.CreateWithOwn(KMLStream);
-      FZip.AddFile(VData, 'doc.kml', Now);
-    finally
-      KMLStream.Free;
-    end;
-  end else begin
-    AddFolders(AMarksSubset, ACategoryList);
-    FKmlDoc.SaveToFile(FFileName);
-  end;
+  PrepareExportToFile(AFileName);
+  AddFolders(AMarksSubset, ACategoryList);
+  SaveToFile;
 end;
 
 procedure TExportMarks2KML.ExportCategoryToKML(
@@ -186,56 +198,20 @@ procedure TExportMarks2KML.ExportCategoryToKML(
   const AMarksSubset: IVectorItemSubset;
   const AFileName: string
 );
-var
-  KMLStream: TMemoryStream;
-  VData: IBinaryData;
 begin
-  FFileName := AFileName;
-  inKMZ := ExtractFileExt(FFileName) = '.kmz';
-  if inKMZ then begin
-    FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
-    AddFolder(FKmlDocumentNode, ACategory.Name, AMarksSubset);
-    KMLStream := TMemoryStream.Create;
-    try
-      FKmlDoc.SaveToStream(KMLStream);
-      KMLStream.Position := 0;
-      VData := TBinaryDataByMemStream.CreateWithOwn(KMLStream);
-      FZip.AddFile(VData, 'doc.kml', Now);
-    finally
-      KMLStream.Free;
-    end;
-  end else begin
-    AddFolder(FKmlDocumentNode, ACategory.Name, AMarksSubset);
-    FKmlDoc.SaveToFile(FFileName);
-  end;
+  PrepareExportToFile(AFileName);
+  AddFolder(FKmlDocumentNode, ACategory.Name, AMarksSubset);
+  SaveToFile;
 end;
 
 procedure TExportMarks2KML.ExportMarkToKML(
   const Mark: IVectorDataItemSimple;
   const AFileName: string
 );
-var
-  KMLStream: TMemoryStream;
-  VData: IBinaryData;
 begin
-  FFileName := AFileName;
-  inKMZ := ExtractFileExt(FFileName) = '.kmz';
-  if inKMZ then begin
-    FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
-    AddMark(Mark, FKmlDocumentNode);
-    KMLStream := TMemoryStream.Create;
-    try
-      FKmlDoc.SaveToStream(KMLStream);
-      KMLStream.Position := 0;
-      VData := TBinaryDataByMemStream.CreateWithOwn(KMLStream);
-      FZip.AddFile(VData, 'doc.kml', Now);
-    finally
-      KMLStream.Free;
-    end;
-  end else begin
-    AddMark(Mark, FKmlDocumentNode);
-    FKmlDoc.SaveToFile(FFileName);
-  end;
+  PrepareExportToFile(AFileName);
+  AddMark(Mark, FKmlDocumentNode);
+  SaveToFile;
 end;
 
 procedure TExportMarks2KML.AddFolders(
@@ -499,7 +475,9 @@ begin
     IntToHex(RedComponent(Color32), 2);
 end;
 
-function TExportMarks2KML.SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
+function TExportMarks2KML.SaveMarkIcon(
+  const AAppearanceIcon: IAppearancePointIcon
+): string;
 var
   VTargetPath: string;
   VTargetFullName: string;
@@ -516,7 +494,7 @@ begin
         VPicName := AAppearanceIcon.Pic.GetName;
         VTargetPath := 'files' + PathDelim;
         Result := VTargetPath + VPicName;
-        if inKMZ then begin
+        if Assigned(FZip)  then begin
           FZip.AddFile(VData, Result, Now);
         end else begin
           VTargetPath := ExtractFilePath(FFileName) + VTargetPath;
