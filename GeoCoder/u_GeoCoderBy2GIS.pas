@@ -51,7 +51,6 @@ type
 implementation
 
 uses
-  forms,
   XMLIntf,
   XMLDoc,
   SysUtils,
@@ -84,15 +83,15 @@ var
   VPlace: IVectorDataItemPoint;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
-  XMLDocument: TXMLDocument;
+  XMLDocument: IXMLDocument;
 begin
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
   end;
   VFormatSettings.DecimalSeparator := '.';
   VList := TInterfaceListSimple.Create;
+  XMLDocument := TXMLDocument.Create(nil);
   Stream := TMemoryStream.Create;
-  XMLDocument := TXMLDocument.Create(application);
   try
     Stream.Write(AResult.Data.Buffer^, AResult.Data.Size);
     XMLDocument.LoadFromStream(Stream);
@@ -122,7 +121,6 @@ begin
     end;
     Result := VList;
   finally
-    XMLDocument.Free;
     Stream.Free;
   end;
 end;

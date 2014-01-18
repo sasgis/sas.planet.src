@@ -23,7 +23,6 @@ unit u_ExportMarks2KML;
 interface
 
 uses
-  Forms,
   Classes,
   SysUtils,
   Windows,
@@ -43,10 +42,11 @@ uses
 type
   TExportMarks2KML = class
   private
-    kmldoc: TXMLDocument;
+    FKmlDoc: IXMLDocument;
     FFileName: string;
     inKMZ: boolean;
-    doc: iXMLNode;
+    FKmlNode: iXMLNode;
+    FKmlDocumentNode: iXMLNode;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FZip: IArchiveWriter;
     procedure AddFolders(
@@ -70,7 +70,6 @@ type
     function Color32toKMLColor(Color32: TColor32): string;
   public
     constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
-    destructor Destroy; override;
     procedure ExportToKML(
       const ACategoryList: IInterfaceListStatic;
       const AMarksSubset: IVectorItemSubset;
@@ -139,26 +138,18 @@ end;
 constructor TExportMarks2KML.Create(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory
 );
-var
-  child: iXMLNode;
 begin
   inherited Create;
-  kmldoc := TXMLDocument.Create(Application);
-  kmldoc.Options := kmldoc.Options + [doNodeAutoIndent];
-  kmldoc.Active := true;
-  kmldoc.Version := '1.0';
-  kmldoc.Encoding := 'UTF-8';
-  child := kmldoc.AddChild('kml');
-  child.Attributes['xmlns'] := 'http://earth.google.com/kml/2.2';
-  doc := child.AddChild('Document');
+  FKmlDoc := TXMLDocument.Create(nil);
+  FKmlDoc.Options := FKmlDoc.Options + [doNodeAutoIndent];
+  FKmlDoc.Active := true;
+  FKmlDoc.Version := '1.0';
+  FKmlDoc.Encoding := 'UTF-8';
+  FKmlNode := FKmlDoc.AddChild('kml');
+  FKmlNode.Attributes['xmlns'] := 'http://earth.google.com/kml/2.2';
+  FKmlDocumentNode := FKmlNode.AddChild('Document');
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FZip := nil;
-end;
-
-destructor TExportMarks2KML.Destroy;
-begin
-  FreeAndNil(kmldoc);
-  inherited;
 end;
 
 procedure TExportMarks2KML.ExportToKML(
@@ -177,16 +168,16 @@ begin
     AddFolders(AMarksSubset, ACategoryList);
     KMLStream := TMemoryStream.Create;
     try
-      kmldoc.SaveToStream(KMLStream);
+      FKmlDoc.SaveToStream(KMLStream);
       KMLStream.Position := 0;
-      VData := TBinaryDataByMemStream.CreateFromStream(KMLStream);
+      VData := TBinaryDataByMemStream.CreateWithOwn(KMLStream);
       FZip.AddFile(VData, 'doc.kml', Now);
     finally
       KMLStream.Free;
     end;
   end else begin
     AddFolders(AMarksSubset, ACategoryList);
-    kmldoc.SaveToFile(FFileName);
+    FKmlDoc.SaveToFile(FFileName);
   end;
 end;
 
@@ -203,19 +194,19 @@ begin
   inKMZ := ExtractFileExt(FFileName) = '.kmz';
   if inKMZ then begin
     FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
-    AddFolder(doc, ACategory.Name, AMarksSubset);
+    AddFolder(FKmlDocumentNode, ACategory.Name, AMarksSubset);
     KMLStream := TMemoryStream.Create;
     try
-      kmldoc.SaveToStream(KMLStream);
+      FKmlDoc.SaveToStream(KMLStream);
       KMLStream.Position := 0;
-      VData := TBinaryDataByMemStream.CreateFromStream(KMLStream);
+      VData := TBinaryDataByMemStream.CreateWithOwn(KMLStream);
       FZip.AddFile(VData, 'doc.kml', Now);
     finally
       KMLStream.Free;
     end;
   end else begin
-    AddFolder(doc, ACategory.Name, AMarksSubset);
-    kmldoc.SaveToFile(FFileName);
+    AddFolder(FKmlDocumentNode, ACategory.Name, AMarksSubset);
+    FKmlDoc.SaveToFile(FFileName);
   end;
 end;
 
@@ -231,19 +222,19 @@ begin
   inKMZ := ExtractFileExt(FFileName) = '.kmz';
   if inKMZ then begin
     FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
-    AddMark(Mark, doc);
+    AddMark(Mark, FKmlDocumentNode);
     KMLStream := TMemoryStream.Create;
     try
-      kmldoc.SaveToStream(KMLStream);
+      FKmlDoc.SaveToStream(KMLStream);
       KMLStream.Position := 0;
-      VData := TBinaryDataByMemStream.CreateFromStream(KMLStream);
+      VData := TBinaryDataByMemStream.CreateWithOwn(KMLStream);
       FZip.AddFile(VData, 'doc.kml', Now);
     finally
       KMLStream.Free;
     end;
   end else begin
-    AddMark(Mark, doc);
-    kmldoc.SaveToFile(FFileName);
+    AddMark(Mark, FKmlDocumentNode);
+    FKmlDoc.SaveToFile(FFileName);
   end;
 end;
 
@@ -259,7 +250,7 @@ begin
   for K := 0 to ACategoryList.Count - 1 do begin
     VCategory := ICategory(Pointer(ACategoryList.Items[K]));
     VMarksSubset := AMarksSet.GetSubsetByCategory(VCategory);
-    AddFolder(doc, VCategory.Name, VMarksSubset);
+    AddFolder(FKmlDocumentNode, VCategory.Name, VMarksSubset);
   end;
 end;
 
