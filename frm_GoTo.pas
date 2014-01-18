@@ -47,9 +47,7 @@ uses
 type
 
   TfrmGoTo = class(TFormWitghLanguageManager)
-    lblZoom: TLabel;
     btnGoTo: TButton;
-    cbbZoom: TComboBox;
     btnCancel: TButton;
     pnlBottomButtons: TPanel;
     cbbGeoCode: TComboBox;
@@ -99,10 +97,7 @@ type
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
     destructor Destroy; override;
-    function ShowGeocodeModal(
-      out AResult: IGeoCodeResult;
-      out AZoom: Byte
-    ): Boolean;
+    function ShowGeocodeModal(): IGeoCodeResult;
   end;
 
 implementation
@@ -268,29 +263,20 @@ begin
   end;
 end;
 
-function TfrmGoTo.ShowGeocodeModal(
-  out AResult: IGeoCodeResult;
-  out AZoom: Byte
-): Boolean;
+function TfrmGoTo.ShowGeocodeModal: IGeoCodeResult;
 var
   VLocalConverter: ILocalCoordConverter;
 begin
-   frLonLatPoint.Parent := tsCoordinates;
+  frLonLatPoint.Parent := tsCoordinates;
   VLocalConverter := FViewPortState.GetStatic;
-  AZoom := VLocalConverter.GetZoom;
-  cbbZoom.ItemIndex := AZoom;
   frLonLatPoint.LonLat := VLocalConverter.GetCenterLonLat;
   InitGeoCoders;
   InitHistory;
   try
     if ShowModal = mrOk then begin
-      Result := true;
-      AResult := FResult;
-      AZoom := cbbZoom.ItemIndex;
+      Result := FResult;
     end else begin
-      Result := False;
-      AResult := nil;
-      AZoom := 0;
+      Result := nil;
     end;
   finally
     EmptyGeoCoders;

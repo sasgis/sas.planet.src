@@ -24,55 +24,6 @@ object frmGoTo: TfrmGoTo
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
-    object lblZoom: TLabel
-      AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 30
-      Height = 20
-      Margins.Bottom = 8
-      Align = alLeft
-      Alignment = taRightJustify
-      Caption = 'Zoom:'
-      Layout = tlCenter
-    end
-    object cbbZoom: TComboBox
-      AlignWithMargins = True
-      Left = 39
-      Top = 3
-      Width = 39
-      Height = 21
-      Align = alLeft
-      ItemHeight = 0
-      ItemIndex = 0
-      TabOrder = 0
-      Text = '01'
-      Items.Strings = (
-        '01'
-        '02'
-        '03'
-        '04'
-        '05'
-        '06'
-        '07'
-        '08'
-        '09'
-        '10'
-        '11'
-        '12'
-        '13'
-        '14'
-        '15'
-        '16'
-        '17'
-        '18'
-        '19'
-        '20'
-        '21'
-        '22'
-        '23'
-        '24')
-    end
     object btnCancel: TButton
       AlignWithMargins = True
       Left = 186
@@ -83,7 +34,7 @@ object frmGoTo: TfrmGoTo
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
-      TabOrder = 1
+      TabOrder = 0
     end
     object btnGoTo: TButton
       AlignWithMargins = True
@@ -96,7 +47,7 @@ object frmGoTo: TfrmGoTo
       Default = True
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 2
+      TabOrder = 1
       OnClick = btnGoToClick
     end
   end

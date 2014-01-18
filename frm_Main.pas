@@ -6388,7 +6388,7 @@ begin
   VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
   FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
-  FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
+  FSearchPresenter.ShowSearchResults(VResult);
 end;
 
 procedure TfrmMain.tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
@@ -6409,7 +6409,7 @@ begin
       VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
       VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
       FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
-      FSearchPresenter.ShowSearchResults(VResult, VLocalConverter.GetZoom);
+      FSearchPresenter.ShowSearchResults(VResult);
     end;
   end;
 end;
@@ -6417,10 +6417,10 @@ end;
 procedure TfrmMain.TBSubmenuItem1Click(Sender: TObject);
 var
   VResult: IGeoCodeResult;
-  VZoom: Byte;
 begin
-  if FfrmGoTo.ShowGeocodeModal(VResult, VZoom) then begin
-    FSearchPresenter.ShowSearchResults(VResult, VZoom);
+  VResult := FfrmGoTo.ShowGeocodeModal;
+  if Assigned(VResult) then begin
+    FSearchPresenter.ShowSearchResults(VResult);
   end;
 end;
 

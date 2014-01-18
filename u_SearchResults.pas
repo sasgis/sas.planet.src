@@ -50,8 +50,7 @@ type
   private
     procedure ClearSearchResults;
     procedure ShowSearchResults(
-      const ASearchResult: IGeoCodeResult;
-      AZoom: Byte
+      const ASearchResult: IGeoCodeResult
     );
   public
     constructor Create(
@@ -115,8 +114,7 @@ begin
 end;
 
 procedure TSearchResultPresenterOnPanel.ShowSearchResults(
-  const ASearchResult: IGeoCodeResult;
-  AZoom: Byte
+  const ASearchResult: IGeoCodeResult
 );
 var
   VPlacemark: IVectorDataItemSimple;
@@ -167,12 +165,8 @@ begin
     if VItemForGoTo = nil then begin
       ShowMessage(SAS_STR_notfound);
     end else begin
-      if Supports(VItemForGoTo.Geometry, IGeometryLonLatPoint) then begin
-        FMapGoto.GotoPos(VItemForGoTo.Geometry.GetGoToLonLat, AZoom, True);
-      end else begin
-        FMapGoto.FitRectToScreen(VItemForGoTo.Geometry.Bounds.Rect);
-        FMapGoto.ShowMarker(VItemForGoTo.Geometry.GetGoToLonLat);
-      end;
+      FMapGoto.FitRectToScreen(VItemForGoTo.Geometry.Bounds.Rect);
+      FMapGoto.ShowMarker(VItemForGoTo.Geometry.GetGoToLonLat);
     end;
   end else begin
     case ASearchResult.GetResultCode of
