@@ -26,7 +26,6 @@ uses
   ActiveX,
   t_GeoTypes,
   t_Hash,
-  i_Category,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_GeoCoder,
@@ -45,7 +44,6 @@ type
     function GetMessage: string;
   private
     function GetSubsetByLonLatRect(const ARect: TDoubleRect): IVectorItemSubset;
-    function GetSubsetByCategory(const ACategory: ICategory): IVectorItemSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
     function IsEqual(const ASubset: IVectorItemSubset): Boolean;
@@ -128,17 +126,6 @@ end;
 function TGeoCodeResult.GetSearchText: string;
 begin
   Result := FSearchText;
-end;
-
-function TGeoCodeResult.GetSubsetByCategory(
-  const ACategory: ICategory
-): IVectorItemSubset;
-begin
-  if Assigned(FList) then begin
-    Result := FList.GetSubsetByCategory(ACategory);
-  end else begin
-    Result := nil;
-  end;
 end;
 
 function TGeoCodeResult.GetSubsetByLonLatRect(

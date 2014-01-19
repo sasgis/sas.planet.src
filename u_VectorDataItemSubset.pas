@@ -27,7 +27,6 @@ uses
   t_Hash,
   t_GeoTypes,
   i_VectorDataItemSimple,
-  i_Category,
   i_InterfaceListStatic,
   i_VectorItemSubsetBuilder,
   i_VectorItemSubset,
@@ -41,7 +40,6 @@ type
     FList: IInterfaceListStatic;
   private
     function GetSubsetByLonLatRect(const ARect: TDoubleRect): IVectorItemSubset;
-    function GetSubsetByCategory(const ACategory: ICategory): IVectorItemSubset;
     function GetEnum: IEnumUnknown;
     function IsEmpty: Boolean;
     function IsEqual(const ASubset: IVectorItemSubset): Boolean;
@@ -60,7 +58,6 @@ type
 implementation
 
 uses
-  SysUtils,
   u_EnumUnknown;
 
 { TVectorItemSubset }
@@ -95,33 +92,6 @@ end;
 function TVectorItemSubset.GetItem(AIndex: Integer): IVectorDataItemSimple;
 begin
   Result := IVectorDataItemSimple(FList.Items[AIndex]);
-end;
-
-function TVectorItemSubset.GetSubsetByCategory(
-  const ACategory: ICategory): IVectorItemSubset;
-var
-  VNewList: IVectorItemSubsetBuilder;
-  i: Integer;
-  VCategory: ICategory;
-  VItem: IVectorDataItemSimple;
-  VItemWithCategory: IVectorDataItemWithCategory;
-begin
-  VNewList := FVectorItemSubsetBuilderFactory.Build;
-  for i := 0 to FList.Count - 1 do begin
-    VItem := IVectorDataItemSimple(FList.Items[i]);
-    VCategory := nil;
-    if Supports(VItem.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
-      VCategory := VItemWithCategory.Category;
-    end;
-    if (ACategory <> nil) and (VCategory <> nil) then begin
-      if VCategory.IsSame(ACategory) then begin
-        VNewList.Add(VItem);
-      end;
-    end else if (ACategory = nil) and (VCategory = nil) then begin
-      VNewList.Add(VItem);
-    end;
-  end;
-  Result := VNewList.MakeStaticAndClear;
 end;
 
 function TVectorItemSubset.GetSubsetByLonLatRect(
