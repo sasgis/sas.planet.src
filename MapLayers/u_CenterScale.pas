@@ -65,7 +65,7 @@ implementation
 
 uses
   u_ListenerByEvent,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TLayerCenterScale }
 

@@ -50,7 +50,7 @@ uses
   xmldom,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 function SkipNodeByLCName(const ANodeNameLC: String): Boolean;
 

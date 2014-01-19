@@ -123,7 +123,7 @@ uses
   i_GeometryLonLat,
   u_StreamReadOnlyByBinaryData,
   u_DoublePointsAggregator,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TKmlInfoSimpleParser }
 

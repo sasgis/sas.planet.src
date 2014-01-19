@@ -21,7 +21,7 @@ uses
   SysUtils,
   i_CoordConverter,
   i_EnumDoublePoint,
-  u_GeoFun;
+  u_GeoFunc;
 
 function GetGeometryLonLatPointNearestPoint(
   const AGeometry: IGeometryLonLatPoint;

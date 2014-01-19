@@ -167,7 +167,7 @@ type
 implementation
 
 uses
-  u_GeoFun;
+  u_GeoFunc;
 
 constructor TLocalCoordConverterBase.Create(
   const AHash: THashValue;

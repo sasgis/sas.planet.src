@@ -97,7 +97,7 @@ uses
   i_Datum,
   i_LonLatRect,
   i_NotifierOperation,
-  u_GeoFun,
+  u_GeoFunc,
   u_BaseInterfacedObject;
 
 type

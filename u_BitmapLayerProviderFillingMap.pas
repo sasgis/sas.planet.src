@@ -59,7 +59,7 @@ uses
   i_CoordConverter,
   i_TileIterator,
   i_TileInfoBasic,
-  u_GeoFun,
+  u_GeoFunc,
   u_TileIteratorByRect,
   u_Bitmap32ByStaticBitmap;
 

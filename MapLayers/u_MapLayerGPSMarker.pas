@@ -62,7 +62,7 @@ implementation
 
 uses
   i_GPS,
-  u_GeoFun,
+  u_GeoFunc,
   u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_ListenerTime,

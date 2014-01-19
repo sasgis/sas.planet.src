@@ -75,8 +75,8 @@ implementation
 uses
   xmldom,
   t_GeoTypes,
-  u_GeoToStr,
-  u_GeoFun,
+  u_GeoToStrFunc,
+  u_GeoFunc,
   u_InetFunc,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData,

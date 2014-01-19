@@ -109,7 +109,7 @@ uses
   i_VectorItemSubset,
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
-  u_GeoFun,
+  u_GeoFunc,
   u_MarkerProviderForVectorItemForMarkPoints,
   u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,

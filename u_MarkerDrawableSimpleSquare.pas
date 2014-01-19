@@ -21,7 +21,7 @@ implementation
 
 uses
   Types,
-  u_GeoFun;
+  u_GeoFunc;
 
 
 { TMarkerDrawableSimpleSquare }

@@ -87,8 +87,8 @@ implementation
 
 uses
   SysUtils,
-  u_GeoFun,
-  u_GeoToStr;
+  u_GeoFunc,
+  u_GeoToStrFunc;
 
 {$IF CompilerVersion < 23}
 function CharInSet(const AChar: AnsiChar; const ASet: TSysCharSet): Boolean; inline;

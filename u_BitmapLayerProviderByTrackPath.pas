@@ -84,7 +84,7 @@ uses
   SysUtils,
   i_CoordConverter,
   u_Bitmap32ByStaticBitmap,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TBitmapLayerProviderByTrackPath }
 

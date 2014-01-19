@@ -183,7 +183,7 @@ uses
   i_GeometryLonLat,
   u_DoublePointsAggregator,
   u_SimpleFlagWithInterlock,
-  u_GeoFun;
+  u_GeoFunc;
 
 type
   TExtendedPoint = record

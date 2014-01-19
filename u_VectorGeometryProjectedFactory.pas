@@ -113,7 +113,7 @@ implementation
 
 uses
   i_InterfaceListSimple,
-  u_GeoFun,
+  u_GeoFunc,
   u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_ProjectedSingleLine,

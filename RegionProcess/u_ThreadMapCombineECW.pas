@@ -15,7 +15,7 @@ uses
   i_MapCalibration,
   i_LocalCoordConverterFactorySimpe,
   u_ECWWrite,
-  u_GeoFun,
+  u_GeoFunc,
   t_GeoTypes,
   u_ThreadMapCombineBase;
 

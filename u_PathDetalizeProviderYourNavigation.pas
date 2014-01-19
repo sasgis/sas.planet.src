@@ -72,7 +72,7 @@ uses
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_DownloadRequest,
-  u_GeoToStr,
+  u_GeoToStrFunc,
   i_VectorDataItemSimple;
 
 { TPathDetalizeProviderYourNavigation }

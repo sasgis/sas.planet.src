@@ -68,7 +68,7 @@ uses
   i_TileInfoBasic,
   i_TileStorage,
   i_TileIterator,
-  u_GeoFun,
+  u_GeoFunc,
   u_BitmapFunc,
   u_TileIteratorByPolygon,
   u_TileIteratorByRect;

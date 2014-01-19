@@ -129,7 +129,7 @@ uses
   vsagps_public_gpx,
   vsagps_public_parser,
   vsagps_public_print,
-  u_GeoFun,
+  u_GeoFunc,
   u_InterfaceListSimple,
   u_DoublePointsAggregator;
 

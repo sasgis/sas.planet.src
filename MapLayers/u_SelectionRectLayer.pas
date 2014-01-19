@@ -53,7 +53,7 @@ uses
   SysUtils,
   i_CoordConverter,
   u_ListenerByEvent,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TSelectionRectLayer }
 

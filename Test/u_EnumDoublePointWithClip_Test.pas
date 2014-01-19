@@ -48,7 +48,7 @@ type
 implementation
 
 uses
-  u_GeoFun,
+  u_GeoFunc,
   u_EnumDoublePointClipInternal,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointsByArray;

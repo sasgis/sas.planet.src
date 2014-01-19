@@ -75,7 +75,7 @@ uses
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
-  u_GeoToStr,
+  u_GeoToStrFunc,
   u_DownloadRequest,
   u_ResStrings;
 

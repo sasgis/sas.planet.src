@@ -58,7 +58,7 @@ uses
   u_DownloaderHttp,
   u_Notifier,
   u_NotifierOperation,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 procedure GenerateAvailPicsRC(
   var ARCs: TAvailPicsRosCosmos;

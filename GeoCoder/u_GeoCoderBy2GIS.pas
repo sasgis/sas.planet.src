@@ -61,7 +61,7 @@ uses
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
   u_ResStrings,
-  u_GeoTostr;
+  u_GeoToStrFunc;
 
 { TGeoCoderBy2GIS }
 

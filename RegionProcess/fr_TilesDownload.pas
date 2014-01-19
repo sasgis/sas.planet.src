@@ -118,7 +118,7 @@ implementation
 uses
   t_GeoTypes,
   i_VectorItemProjected,
-  u_GeoFun,
+  u_GeoFunc,
   u_ResStrings;
 
 {$R *.dfm}

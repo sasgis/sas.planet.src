@@ -32,7 +32,7 @@ implementation
 
 uses
   u_BitmapFunc,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TMarkerDrawableByBitmap32Static }
 

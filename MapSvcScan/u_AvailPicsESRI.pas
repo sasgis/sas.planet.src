@@ -45,7 +45,7 @@ implementation
 
 uses
   u_StreamReadOnlyByBinaryData,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 procedure _InitParams(var AObj: TStrings);
 begin

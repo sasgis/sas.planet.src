@@ -72,7 +72,7 @@ uses
   u_ListenerByEvent,
   u_ListenerTime,
   u_TileIteratorByRect,
-  u_GeoFun,
+  u_GeoFunc,
   u_BitmapFunc,
   u_TileMatrixChangeableWithThread;
 

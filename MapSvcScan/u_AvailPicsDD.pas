@@ -70,7 +70,7 @@ uses
   i_BinaryData,
   i_Downloader,
   i_NotifierOperation,
-  u_GeoToStr,
+  u_GeoToStrFunc,
   u_DownloaderHttp,
   u_BinaryData,
   u_Notifier,

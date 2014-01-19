@@ -58,7 +58,7 @@ uses
   i_CoordConverter,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
-  u_GeoToStr,
+  u_GeoToStrFunc,
   u_ResStrings;
 
 { TGeoCoderByYandex }

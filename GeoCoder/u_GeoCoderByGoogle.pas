@@ -59,7 +59,7 @@ uses
   i_CoordConverter,
   u_InterfaceListSimple,
   u_ResStrings,
-  u_GeoTostr;
+  u_GeoToStrFunc;
 
 { TGeoCoderByGoogle }
 

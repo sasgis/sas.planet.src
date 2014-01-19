@@ -23,7 +23,7 @@ uses
   Types,
   GR32_Polygons,
   GR32_Transforms,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TMarkerDrawableSimpleArrow }
 

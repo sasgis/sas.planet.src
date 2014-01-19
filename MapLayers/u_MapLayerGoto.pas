@@ -56,7 +56,7 @@ uses
   i_CoordConverter,
   u_ListenerTime,
   u_ListenerByEvent,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TGotoLayer }
 

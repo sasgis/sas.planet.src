@@ -90,7 +90,7 @@ uses
   i_LonLatRect,
   i_Datum,
   i_InterfaceListSimple,
-  u_GeoFun,
+  u_GeoFunc,
   u_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_GeometryLonLat,

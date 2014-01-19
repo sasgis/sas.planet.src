@@ -45,7 +45,7 @@ implementation
 
 uses
   Math,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TLonLatRectByPoint }
 

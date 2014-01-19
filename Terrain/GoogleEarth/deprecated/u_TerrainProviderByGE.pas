@@ -83,7 +83,7 @@ uses
   c_TerrainProvider,
   i_TileInfoBasic,
   i_GoogleEarthTerrain,
-  u_GeoFun,
+  u_GeoFunc,
   u_Notifier,
   u_ListenerByEvent,
   u_TileStorageGETerrain;

@@ -64,8 +64,8 @@ uses
   i_VectorDataItemSimple,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
-  u_GeoFun,
-  u_GeoToStr;
+  u_GeoFunc,
+  u_GeoToStrFunc;
 
 type
   TCSVPointFieldType = (

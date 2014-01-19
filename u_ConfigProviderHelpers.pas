@@ -69,7 +69,7 @@ uses
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   i_ContentTypeInfo,
-  u_GeoFun,
+  u_GeoFunc,
   u_DoublePointsAggregator;
 
 function ReadColor32(

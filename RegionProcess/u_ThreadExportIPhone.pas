@@ -20,7 +20,7 @@ uses
   i_VectorGeometryProjectedFactory,
   i_CoordConverter,
   i_GeometryLonLat,
-  u_GeoFun,
+  u_GeoFunc,
   t_GeoTypes,
   u_ThreadExportAbstract;
 
@@ -83,7 +83,7 @@ uses
   c_CoordConverter,
   i_LocalCoordConverter,
   i_Bitmap32Static,
-  u_GeoToStr,
+  u_GeoToStrFunc,
   u_ResStrings,
   i_VectorItemProjected,
   i_TileIterator,

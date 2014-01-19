@@ -62,7 +62,7 @@ implementation
 
 uses
   u_StreamReadOnlyByBinaryData,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 (*
 DG:

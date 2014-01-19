@@ -141,7 +141,7 @@ uses
   u_TileErrorInfo,
   u_ResStrings,
   u_Synchronizer,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TVectorItemSubsetChangeableForVectorLayers }
 

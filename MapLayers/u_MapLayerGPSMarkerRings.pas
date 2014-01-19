@@ -78,7 +78,7 @@ uses
   GR32_Polygons,
   i_GPS,
   i_DoublePointsAggregator,
-  u_GeoFun,
+  u_GeoFunc,
   u_Synchronizer,
   u_SimpleFlagWithInterlock,
   u_DoublePointsAggregator,

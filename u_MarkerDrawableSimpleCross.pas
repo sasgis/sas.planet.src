@@ -22,7 +22,7 @@ implementation
 uses
   Types,
   GR32_Polygons,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TMarkerDrawableSimpleCross }
 

@@ -60,8 +60,8 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   u_SimpleFlagWithInterlock,
-  u_GeoFun,
-  u_GeoToStr,
+  u_GeoFunc,
+  u_GeoToStrFunc,
   u_Synchronizer;
 
 { TBitmapLayerProviderGridGenshtab }

@@ -31,7 +31,7 @@ type
 implementation
 
 uses
-  u_GeoFun,
+  u_GeoFunc,
   c_CoordConverter,
   i_CoordConverterFactory,
   i_HashFunction,

@@ -140,7 +140,7 @@ uses
   t_CommonTypes,
   i_TileIterator,
   i_InterfaceListSimple,
-  u_GeoFun,
+  u_GeoFunc,
   u_InterfaceListSimple,
   u_MapVersionListStatic,
   u_TileRectInfoShort,

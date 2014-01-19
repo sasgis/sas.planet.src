@@ -181,7 +181,7 @@ uses
   u_InterfaceListSimple,
   u_ExportMarks2KML,
   u_FileNameFunc,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 { TMarksDbGUIHelper }
 

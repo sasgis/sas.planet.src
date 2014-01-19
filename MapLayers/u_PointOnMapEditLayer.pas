@@ -45,7 +45,7 @@ uses
   i_Listener,
   i_CoordConverter,
   u_ListenerByEvent,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TPointOnMapEditLayer }
 

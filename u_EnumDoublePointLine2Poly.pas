@@ -58,7 +58,7 @@ implementation
 uses
   Math,
   u_DoublePointsAggregator,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TEnumDoublePointLine2Poly }
 

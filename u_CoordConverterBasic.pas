@@ -339,7 +339,7 @@ implementation
 uses
   SysUtils,
   c_CoordConverter,
-  u_GeoFun;
+  u_GeoFunc;
 
 function TCoordConverterBasic.GetValidLonLatRect: TDoubleRect;
 begin

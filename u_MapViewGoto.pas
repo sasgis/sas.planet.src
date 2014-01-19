@@ -83,7 +83,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   u_Notifier,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TMapViewGoto }
 

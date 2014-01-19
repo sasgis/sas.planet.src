@@ -108,7 +108,7 @@ uses
   u_SimpleFlagWithInterlock,
   u_LocalCoordConverterChangeable,
   u_LocalConverterChangeableFixedTileRectNoScale,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TMapViewPortStateNew }
 

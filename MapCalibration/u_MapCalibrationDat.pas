@@ -49,7 +49,7 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 { TMapCalibrationDat }
 

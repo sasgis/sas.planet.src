@@ -36,7 +36,7 @@ implementation
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TProjectedDrawableElementByPolygonSimpleEdge }
 

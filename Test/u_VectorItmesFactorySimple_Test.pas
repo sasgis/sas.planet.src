@@ -55,7 +55,7 @@ uses
   i_HashFunction,
   i_VectorItemProjected,
   i_EnumDoublePoint,
-  u_GeoFun,
+  u_GeoFunc,
   u_ProjectionInfo,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,

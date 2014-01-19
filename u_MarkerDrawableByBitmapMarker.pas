@@ -30,7 +30,7 @@ implementation
 
 uses
   u_BitmapFunc,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TMarkerDrawableByBitmapMarker }
 

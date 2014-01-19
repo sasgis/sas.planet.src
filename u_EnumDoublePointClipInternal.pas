@@ -76,7 +76,7 @@ type
 implementation
 
 uses
-  u_GeoFun;
+  u_GeoFunc;
 
 { TEnumDoublePointClipByLineAbstract }
 

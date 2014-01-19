@@ -188,7 +188,7 @@ uses
   i_VectorItemProjected,
   i_CoordConverter,
   u_InterfaceListSimple,
-  u_GeoFun,
+  u_GeoFunc,
   u_BitmapLayerProviderMapWithLayer,
   u_MapCalibrationListBasic,
   u_ResStrings;

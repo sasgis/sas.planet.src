@@ -22,7 +22,7 @@ implementation
 
 uses
   t_GeoTypes,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TestTProjectedPolygonLine }
 

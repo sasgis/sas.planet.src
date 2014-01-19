@@ -68,9 +68,9 @@ uses
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
-  u_GeoFun,
+  u_GeoFunc,
   u_DownloadRequest,
-  u_GeoToStr,
+  u_GeoToStrFunc,
   u_ResStrings;
 
 { TPathDetalizeProviderMailRu }

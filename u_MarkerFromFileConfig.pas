@@ -60,7 +60,7 @@ implementation
 
 uses
   u_MarkerFromFileConfigStatic,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TMarkerFromFileConfig }
 

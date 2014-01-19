@@ -58,7 +58,7 @@ uses
   i_BitmapTileSaveLoad,
   i_ArchiveReadWrite,
   u_BinaryDataByMemStream,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 constructor TThreadMapCombineKMZ.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

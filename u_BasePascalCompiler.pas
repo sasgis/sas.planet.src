@@ -93,7 +93,7 @@ uses
   i_ProjConverter,
   i_CoordConverter,
   u_ResStrings,
-  u_GeoToStr,
+  u_GeoToStrFunc,
   u_TileRequestBuilderHelpers;
 
 function CommonAppScriptOnUses(

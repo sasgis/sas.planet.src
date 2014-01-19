@@ -63,7 +63,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   u_SimpleFlagWithInterlock,
-  u_GeoFun,
+  u_GeoFunc,
   u_Synchronizer;
 
 { TBitmapLayerProviderGridGenshtab }

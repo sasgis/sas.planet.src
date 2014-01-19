@@ -82,8 +82,8 @@ implementation
 
 uses
   i_LocalCoordConverter,
-  u_GeoFun,
-  u_GeoToStr,
+  u_GeoFunc,
+  u_GeoToStrFunc,
   u_ResStrings;
 
 {$R *.dfm}

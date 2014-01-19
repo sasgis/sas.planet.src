@@ -55,7 +55,7 @@ implementation
 
 uses
   SysUtils,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TEnumDoublePointEmpty }
 

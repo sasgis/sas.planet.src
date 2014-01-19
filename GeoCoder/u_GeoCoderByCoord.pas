@@ -70,7 +70,7 @@ uses
   t_GeoTypes,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 { TGeoCoderByCoord }
 

@@ -100,7 +100,7 @@ function GetDateCaptionFromParams(const ASLParams: TStrings): String;
 implementation
 
 uses
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 function CheckHiResResolution(const AStrResolution: String): Boolean;
 var VRes: String;

@@ -73,7 +73,7 @@ uses
   u_MarkerDrawableByBitmapMarker,
   u_MarkerDrawableByBitmap32Static,
   u_MarkerDrawableComplex,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TMarkerProviderForVectorItemForMarkPoints }
 

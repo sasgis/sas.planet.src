@@ -54,7 +54,7 @@ uses
   u_SimpleFlagWithInterlock,
   u_ListenerByEvent,
   u_LocalCoordConverterChangeable,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TLocalConverterChangeableOfMiniMap }
 

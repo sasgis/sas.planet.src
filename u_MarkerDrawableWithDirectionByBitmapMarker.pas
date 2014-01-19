@@ -50,7 +50,7 @@ uses
   GR32_Resamplers,
   GR32_Transforms,
   i_Bitmap32Static,
-  u_GeoFun,
+  u_GeoFunc,
   u_BitmapFunc,
   u_Bitmap32ByStaticBitmap,
   u_BitmapMarker,

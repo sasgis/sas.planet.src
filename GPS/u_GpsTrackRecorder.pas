@@ -72,7 +72,7 @@ uses
   SysUtils,
   Classes,
   i_EnumDoublePoint,
-  u_GeoFun,
+  u_GeoFunc,
   u_BaseInterfacedObject;
 
 { TTrackPoitnsBlock }

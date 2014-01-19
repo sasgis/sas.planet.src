@@ -74,7 +74,7 @@ uses
   u_SimpleFlagWithInterlock,
   u_MarkerDrawableByBitmap32Static,
   u_Synchronizer,
-  u_GeoFun;
+  u_GeoFunc;
 
 
 { TTileErrorInfoLayer }

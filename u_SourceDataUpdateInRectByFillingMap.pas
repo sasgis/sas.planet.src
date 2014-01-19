@@ -62,7 +62,7 @@ uses
   i_NotifierTilePyramidUpdate,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,
-  u_GeoFun,
+  u_GeoFunc,
   u_Synchronizer;
 
 { TSourceDataUpdateInRectByMap }

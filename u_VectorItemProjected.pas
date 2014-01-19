@@ -139,7 +139,7 @@ implementation
 
 uses
   SysUtils,
-  u_GeoFun,
+  u_GeoFunc,
   u_EnumDoublePointByLineSet;
 
 { TProjectedLineSet }

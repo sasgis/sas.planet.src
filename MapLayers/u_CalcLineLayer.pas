@@ -84,7 +84,7 @@ uses
   i_CoordConverter,
   i_EnumDoublePoint,
   u_ListenerByEvent,
-  u_GeoFun,
+  u_GeoFunc,
   u_DoublePointsAggregator,
   u_ResStrings;
 

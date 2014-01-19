@@ -117,7 +117,7 @@ uses
   u_ListenerTime,
   u_ListenerByEvent,
   u_ResStrings,
-  u_GeoFun,
+  u_GeoFunc,
   u_TerrainInfo,
   u_MapType;
 

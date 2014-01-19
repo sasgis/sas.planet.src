@@ -81,7 +81,7 @@ uses
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
   u_BitmapFunc,
-  u_GeoFun;
+  u_GeoFunc;
 
 const
   cBackGroundColor = $CCCCCCCC;

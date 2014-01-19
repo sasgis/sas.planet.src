@@ -36,7 +36,7 @@ uses
   i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_VectorItemTree,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 type
   TExportMarks2KML = class

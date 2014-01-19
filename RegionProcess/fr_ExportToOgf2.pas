@@ -119,7 +119,7 @@ uses
   t_GeoTypes,
   i_MapVersionInfo,
   i_VectorItemProjected,
-  u_GeoFun,
+  u_GeoFunc,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
 

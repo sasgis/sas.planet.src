@@ -119,7 +119,7 @@ uses
   t_Hash,
   i_MarkDbSmlInternal,
   i_Appearance,
-  u_GeoFun,
+  u_GeoFunc,
   u_MarkId,
   u_VectorDataItemPoint,
   u_VectorDataItemPolygon;

@@ -69,7 +69,7 @@ implementation
 uses
   i_LocalCoordConverter,
   i_CoordConverter,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TSelectionRect }
 

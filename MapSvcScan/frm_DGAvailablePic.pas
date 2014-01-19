@@ -296,8 +296,8 @@ uses
   u_DoublePointsAggregator,
   u_MapSvcScanStorage,
   u_MultiPoligonParser,
-  u_GeoFun,
-  u_GeoToStr;
+  u_GeoFunc,
+  u_GeoToStrFunc;
 
 const
   c_ALLBox_None        = $00;

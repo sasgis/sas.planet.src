@@ -64,7 +64,7 @@ implementation
 
 uses
   i_CoordConverter,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TTileGridConfig }
 

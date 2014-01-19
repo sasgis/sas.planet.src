@@ -69,8 +69,8 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
-  u_GeoToStr,
-  u_GeoFun;
+  u_GeoToStrFunc,
+  u_GeoFunc;
 
 function GetProj(const AConverter: ICoordConverter): UTF8String;
 begin

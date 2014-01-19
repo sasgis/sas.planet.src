@@ -72,7 +72,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   u_ResStrings,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TLayerScaleLine }
 

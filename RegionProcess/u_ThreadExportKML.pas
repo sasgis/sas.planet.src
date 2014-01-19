@@ -55,11 +55,11 @@ type
 implementation
 
 uses
-  u_GeoToStr,
+  u_GeoToStrFunc,
   i_TileInfoBasic,
   i_TileIterator,
   u_TileIteratorByPolygon,
-  u_GeoFun,
+  u_GeoFunc,
   i_VectorItemProjected,
   i_CoordConverter;
 

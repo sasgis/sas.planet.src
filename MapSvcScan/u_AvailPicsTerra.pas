@@ -44,7 +44,7 @@ type
 implementation
 
 uses
-  u_GeoToStr,
+  u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData,
   u_TileRequestBuilderHelpers;
 

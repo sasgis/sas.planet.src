@@ -112,7 +112,7 @@ uses
   u_TileIteratorSpiralByRect,
   u_BackgroundTask,
   u_MapType,
-  u_GeoFun,
+  u_GeoFunc,
   u_TileErrorInfo;
 
 { TUiTileDownload }

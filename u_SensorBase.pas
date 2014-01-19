@@ -171,7 +171,7 @@ uses
   Math,
   u_ListenerByEvent,
   u_ListenerNotifierLinksList,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TSensorBase }
 

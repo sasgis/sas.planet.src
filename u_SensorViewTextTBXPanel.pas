@@ -307,8 +307,8 @@ uses
   u_ListenerNotifierLinksList,
   u_ListenerTime,
   u_ListenerByEvent,
-  u_GeoFun,
-  u_GeoToStr,
+  u_GeoFunc,
+  u_GeoToStrFunc,
   u_ResStrings;
 
 { TSensorViewTBXPanelBase }

@@ -48,7 +48,7 @@ implementation
 
 uses
   u_LocalCoordConverter,
-  u_GeoFun;
+  u_GeoFunc;
 
 type
   PDataRecord = ^TDataRecord;

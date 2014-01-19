@@ -1020,12 +1020,12 @@
     <DCCReference Include="u_GarbageCollectorThread.pas" />
     <DCCReference Include="u_GenShtabGridConfig.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />
-    <DCCReference Include="u_GeoFun.pas" />
+    <DCCReference Include="u_GeoFunc.pas" />
     <DCCReference Include="u_GeometryFunc.pas" />
     <DCCReference Include="u_GeometryLonLat.pas" />
     <DCCReference Include="u_GeometryLonLatFactory.pas" />
     <DCCReference Include="u_GeometryLonLatMulti.pas" />
-    <DCCReference Include="u_GeoToStr.pas" />
+    <DCCReference Include="u_GeoToStrFunc.pas" />
     <DCCReference Include="u_GlobalAppConfig.pas" />
     <DCCReference Include="u_GlobalConfig.pas" />
     <DCCReference Include="u_GlobalDownloadConfig.pas" />

@@ -64,7 +64,7 @@ uses
   t_GeoTypes,
   i_Bitmap32Static,
   i_CoordConverter,
-  u_GeoFun,
+  u_GeoFunc,
   u_BitmapFunc,
   u_TileMatrixElement,
   u_TileMatrix;

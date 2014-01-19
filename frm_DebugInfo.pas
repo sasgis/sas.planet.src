@@ -118,7 +118,7 @@ uses
   u_IDInterfaceList,
   u_InterfaceListSimple,
   u_SortFunc,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 function _DoubleToStr(const AValue: Double): String;
 begin

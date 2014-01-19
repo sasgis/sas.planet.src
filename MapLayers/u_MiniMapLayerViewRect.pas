@@ -121,7 +121,7 @@ uses
   u_SimpleFlagWithInterlock,
   u_ListenerTime,
   u_MapTypeMenuItemsGeneratorBasic,
-  u_GeoFun,
+  u_GeoFunc,
   u_ResStrings;
 
 { TMiniMapLayerTopBorder }

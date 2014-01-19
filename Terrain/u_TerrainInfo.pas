@@ -70,7 +70,7 @@ uses
   i_Notifier,
   i_TerrainProviderListElement,
   c_TerrainProvider,
-  u_GeoFun,
+  u_GeoFunc,
   u_ListenerByEvent,
   u_ResStrings;
 

@@ -272,7 +272,7 @@ uses
   u_MapVersionConfig,
   u_TileDownloadSubsystem,
   u_Bitmap32ByStaticBitmap,
-  u_GeoFun,
+  u_GeoFunc,
   u_BitmapFunc,
   u_TileStorageOfMapType,
   u_TileInfoBasicMemCache,

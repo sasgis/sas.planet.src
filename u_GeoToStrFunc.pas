@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_GeoToStr;
+unit u_GeoToStrFunc;
 
 interface
 

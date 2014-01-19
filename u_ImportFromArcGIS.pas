@@ -52,7 +52,7 @@ uses
   u_MultiPoligonParser,
   u_StreamReadOnlyByBinaryData,
   u_InetFunc,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 procedure AddWithBR(var AFullDesc: String; const ACaption, AValue: String);
 begin

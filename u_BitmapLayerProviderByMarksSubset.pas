@@ -115,7 +115,7 @@ uses
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,
-  u_GeoFun;
+  u_GeoFunc;
 
 const
   CMaxFontSize = 20;

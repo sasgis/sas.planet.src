@@ -64,7 +64,7 @@ implementation
 uses
   c_CoordConverter,
   c_TerrainProvider,
-  u_GeoFun,
+  u_GeoFunc,
   u_Notifier,
   u_ListenerByEvent,
   u_GoogleEarthTerrainTileStorage;

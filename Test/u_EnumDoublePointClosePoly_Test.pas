@@ -32,7 +32,7 @@ type
 implementation
 
 uses
-  u_GeoFun,
+  u_GeoFunc,
   u_EnumDoublePointClosePoly,
   u_EnumDoublePointsByArray;
 

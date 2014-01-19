@@ -57,7 +57,7 @@ procedure AdjustMinimalBingHiResZoom(var AActualZoom: Byte);
 implementation
 
 uses
-  u_GeoToStr,
+  u_GeoToStrFunc,
   xmldom,
   u_XmlLoaderByVSAGPS,
   u_StreamReadOnlyByBinaryData;

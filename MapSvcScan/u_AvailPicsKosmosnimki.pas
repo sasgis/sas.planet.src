@@ -74,7 +74,7 @@ implementation
 uses
   ALZLibExGZ,
   i_BinaryData,
-  u_GeoToStr,
+  u_GeoToStrFunc,
   u_DownloadRequest,
   u_StreamReadOnlyByBinaryData,
   u_InetFunc,

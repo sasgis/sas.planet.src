@@ -60,7 +60,7 @@ uses
   ALZLibExGZ,
   u_StreamReadOnlyByBinaryData,
   u_InetFunc,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 type
   TGeoFuseWorkingLineType = (gfwlt_StartOfAttributes, gfwlt_StartOfGeometry, gfwlt_Parameter, gfwlt_Value, gfwlt_MultiLine);

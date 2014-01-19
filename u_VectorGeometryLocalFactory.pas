@@ -44,7 +44,7 @@ uses
   u_LocalSingleLine,
   u_VectorItemLocal,
   u_InterfaceListSimple,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TVectorGeometryLocalFactory }
 

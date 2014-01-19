@@ -89,7 +89,7 @@ uses
   u_ListenerByEvent,
   u_TileIteratorSpiralByRect,
   u_BackgroundTask,
-  u_GeoFun,
+  u_GeoFunc,
   u_Synchronizer;
 
 { TTileMatrixChangeableWithThread }

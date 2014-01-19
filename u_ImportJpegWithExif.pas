@@ -66,7 +66,7 @@ uses
   i_VectorItemSubset,
   i_VectorDataItemSimple,
   u_VectorItemTree,
-  u_GeoFun;
+  u_GeoFunc;
 
 { TImportJpegWithExif }
 

@@ -89,7 +89,7 @@ uses
   Math,
   SysUtils,
   IniFiles,
-  u_GeoFun,
+  u_GeoFunc,
   u_ConfigDataProviderByIniFile,
   u_ConfigDataWriteProviderByIniFile;
 

@@ -61,7 +61,7 @@ implementation
 uses
   SysUtils,
   Math,
-  u_GeoToStr;
+  u_GeoToStrFunc;
 
 { TGPSPosition }
 
