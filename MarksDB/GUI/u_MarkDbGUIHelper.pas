@@ -180,6 +180,7 @@ uses
   u_VectorItemTree,
   u_InterfaceListSimple,
   u_ExportMarks2KML,
+  u_FileNameFunc,
   u_GeoToStr;
 
 { TMarksDbGUIHelper }
@@ -436,16 +437,7 @@ var
   VList: IInterfaceListSimple;
 begin
   if AMarkCategory <> nil then begin
-    VFileName := AMarkCategory.Name;
-    VFileName := StringReplace(VFileName, '\', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '/', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, ':', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '*', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '?', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '"', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '>', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '<', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '|', '-', [rfReplaceAll]);
+    VFileName := PrepareFileName(AMarkCategory.Name);
     FExportDialog.FileName := VFileName;
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
@@ -469,7 +461,6 @@ begin
     end;
   end;
 end;
-
 
 procedure TMarkDbGUIHelper.ExportCategoryList(
   const ACategoryList: IInterfaceListStatic;
@@ -506,16 +497,7 @@ var
   VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
   if AMark <> nil then begin
-    VFileName := AMark.Name;
-    VFileName := StringReplace(VFileName, '\', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '/', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, ':', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '*', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '?', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '"', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '>', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '<', '-', [rfReplaceAll]);
-    VFileName := StringReplace(VFileName, '|', '-', [rfReplaceAll]);
+    VFileName := PrepareFileName(AMark.Name);
     FExportDialog.FileName := VFileName;
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;

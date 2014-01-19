@@ -1011,6 +1011,7 @@
     <DCCReference Include="u_EnumUnknownTwoItems.pas" />
     <DCCReference Include="u_ErrorInfoSimple.pas" />
     <DCCReference Include="u_ExportMarks2KML.pas" />
+    <DCCReference Include="u_FileNameFunc.pas" />
     <DCCReference Include="u_FillingMapColorerSimple.pas" />
     <DCCReference Include="u_FillingMapLayerConfig.pas" />
     <DCCReference Include="u_FillingMapLayerConfigStatic.pas" />
