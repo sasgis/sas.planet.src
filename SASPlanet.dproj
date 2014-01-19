@@ -165,10 +165,10 @@
     <DCCReference Include="GeoCoder\u_GeoCoderBy2GIS.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByCoord.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByGoogle.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByGpx.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByNavitel.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByOSM.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByPolishMap.pas" />
-    <DCCReference Include="GeoCoder\u_GeoCoderByGpx.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByRosreestr.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByTXT.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByURL.pas" />
@@ -625,14 +625,6 @@
       <Form>frCombine</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
-    <DCCReference Include="RegionProcess\fr_MapSelect.pas">
-      <Form>frMapSelect</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ZoomsSelect.pas">
-      <Form>frZoomsSelect</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
     <DCCReference Include="RegionProcess\fr_Export.pas">
       <Form>frExport</Form>
       <DesignClass>TFrame</DesignClass>
@@ -681,6 +673,10 @@
       <Form>frMapCombine</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="RegionProcess\fr_MapSelect.pas">
+      <Form>frMapSelect</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesCopy.pas">
       <Form>frTilesCopy</Form>
       <DesignClass>TFrame</DesignClass>
@@ -695,6 +691,10 @@
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_TilesGenPrev.pas">
       <Form>frTilesGenPrev</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\fr_ZoomsSelect.pas">
+      <Form>frZoomsSelect</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\i_RegionProcess.pas" />
@@ -909,7 +909,6 @@
     <DCCReference Include="u_BitmapLayerProviderByMarksSubset.pas" />
     <DCCReference Include="u_BitmapLayerProviderByTrackPath.pas" />
     <DCCReference Include="u_BitmapLayerProviderByVectorSubset.pas" />
-    <DCCReference Include="u_BitmapLayerProviderCombineTwoProviders.pas" />
     <DCCReference Include="u_BitmapLayerProviderChangeableBase.pas" />
     <DCCReference Include="u_BitmapLayerProviderChangeableForFillingMap.pas" />
     <DCCReference Include="u_BitmapLayerProviderChangeableForGpsTrack.pas" />
@@ -917,6 +916,7 @@
     <DCCReference Include="u_BitmapLayerProviderChangeableForMainLayer.pas" />
     <DCCReference Include="u_BitmapLayerProviderChangeableForMarksLayer.pas" />
     <DCCReference Include="u_BitmapLayerProviderChangeableForVectorMaps.pas" />
+    <DCCReference Include="u_BitmapLayerProviderCombineTwoProviders.pas" />
     <DCCReference Include="u_BitmapLayerProviderComplex.pas" />
     <DCCReference Include="u_BitmapLayerProviderFillingMap.pas" />
     <DCCReference Include="u_BitmapLayerProviderForViewMaps.pas" />
