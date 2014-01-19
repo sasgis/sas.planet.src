@@ -30,13 +30,12 @@ uses
   XMLIntf,
   XMLDoc,
   ActiveX,
-  i_InterfaceListStatic,
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
   i_AppearanceOfVectorItem,
-  i_Category,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
+  i_VectorItemTree,
   u_GeoToStr;
 
 type
@@ -48,14 +47,9 @@ type
     FKmlDocumentNode: iXMLNode;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FZip: IArchiveWriter;
-    procedure AddFolders(
-      const AMarksSet: IVectorItemSubset;
-      const ACategoryList: IInterfaceListStatic
-    );
-    function AddFolder(
+    function AddTree(
       const AParentNode: IXMLNode;
-      const ACategoryNamePostfix: string;
-      const AMarksSubset: IVectorItemSubset
+      const ATree: IVectorItemTree
     ): boolean;
     function AddMarks(
       const AMarksSubset: IVectorItemSubset;
@@ -71,18 +65,8 @@ type
     procedure SaveToFile;
   public
     constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
-    procedure ExportToKML(
-      const ACategoryList: IInterfaceListStatic;
-      const AMarksSubset: IVectorItemSubset;
-      const AFileName: string
-    );
-    procedure ExportCategoryToKML(
-      const ACategory: ICategory;
-      const AMarksSubset: IVectorItemSubset;
-      const AFileName: string
-    );
-    procedure ExportMarkToKML(
-      const AMark: IVectorDataItemSimple;
+    procedure ExportTreeToKML(
+      const ATree: IVectorItemTree;
       const AFileName: string
     );
   end;
@@ -182,118 +166,12 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.ExportToKML(
-  const ACategoryList: IInterfaceListStatic;
-  const AMarksSubset: IVectorItemSubset;
-  const AFileName: string
-);
+procedure TExportMarks2KML.ExportTreeToKML(const ATree: IVectorItemTree;
+  const AFileName: string);
 begin
   PrepareExportToFile(AFileName);
-  AddFolders(AMarksSubset, ACategoryList);
+  AddTree(FKmlDocumentNode, ATree);
   SaveToFile;
-end;
-
-procedure TExportMarks2KML.ExportCategoryToKML(
-  const ACategory: ICategory;
-  const AMarksSubset: IVectorItemSubset;
-  const AFileName: string
-);
-begin
-  PrepareExportToFile(AFileName);
-  AddFolder(FKmlDocumentNode, ACategory.Name, AMarksSubset);
-  SaveToFile;
-end;
-
-procedure TExportMarks2KML.ExportMarkToKML(
-  const AMark: IVectorDataItemSimple;
-  const AFileName: string
-);
-begin
-  PrepareExportToFile(AFileName);
-  AddMark(AMark, FKmlDocumentNode);
-  SaveToFile;
-end;
-
-procedure TExportMarks2KML.AddFolders(
-  const AMarksSet: IVectorItemSubset;
-  const ACategoryList: IInterfaceListStatic
-);
-var
-  K: Integer;
-  VCategory: ICategory;
-  VMarksSubset: IVectorItemSubset;
-begin
-  for K := 0 to ACategoryList.Count - 1 do begin
-    VCategory := ICategory(Pointer(ACategoryList.Items[K]));
-    VMarksSubset := AMarksSet.GetSubsetByCategory(VCategory);
-    AddFolder(FKmlDocumentNode, VCategory.Name, VMarksSubset);
-  end;
-end;
-
-function TExportMarks2KML.AddFolder(
-  const AParentNode: IXMLNode;
-  const ACategoryNamePostfix: string;
-  const AMarksSubset: IVectorItemSubset
-): boolean;
-  function FindNodeWithText(
-    AParent: iXMLNode;
-  const ACategoryNameElement: string
-  ): IXMLNode;
-  var
-    i: Integer;
-    tmpNode: IXMLNode;
-  begin
-    Result := nil;
-    if AParent.HasChildNodes then begin
-      for i := 0 to AParent.ChildNodes.Count - 1 do begin
-        tmpNode := AParent.ChildNodes.Get(i);
-        if (tmpNode.NodeName = 'Folder') and (tmpNode.ChildValues['name'] = ACategoryNameElement) then begin
-          Result := tmpNode;
-          break;
-        end;
-      end;
-    end;
-  end;
-
-var
-  VCatgoryNamePrefix: string;
-  VCatgoryNamePostfix: string;
-  VDelimiterPos: Integer;
-  VNode: IXMLNode;
-  VCreatedNode: Boolean;
-begin
-  if ACategoryNamePostfix = '' then begin
-    Result := AddMarks(AMarksSubset, AParentNode);
-  end else begin
-    VDelimiterPos := Pos('\', ACategoryNamePostfix);
-    if VDelimiterPos > 0 then begin
-      VCatgoryNamePrefix := Copy(ACategoryNamePostfix, 1, VDelimiterPos - 1);
-      VCatgoryNamePostfix := Copy(ACategoryNamePostfix, VDelimiterPos + 1, Length(ACategoryNamePostfix));
-    end else begin
-      VCatgoryNamePrefix := ACategoryNamePostfix;
-      VCatgoryNamePostfix := '';
-    end;
-    VCreatedNode := False;
-    if VCatgoryNamePrefix = '' then begin
-      VNode := AParentNode;
-    end else begin
-      VNode := FindNodeWithText(AParentNode, VCatgoryNamePrefix);
-      if (VNode = nil) then begin
-        VNode := AParentNode.AddChild('Folder');
-        VNode.ChildValues['name'] := VCatgoryNamePrefix;
-        VNode.ChildValues['open'] := 1;
-        with VNode.AddChild('Style').AddChild('ListStyle') do begin
-          ChildValues['listItemType'] := 'check';
-          ChildValues['bgColor'] := '00ffffff';
-        end;
-        VCreatedNode := True;
-      end;
-    end;
-    Result := AddFolder(VNode, VCatgoryNamePostfix, AMarksSubset);
-    if (not Result) and (VCreatedNode) then begin
-      AParentNode.ChildNodes.Remove(VNode);
-    end;
-  end;
 end;
 
 function TExportMarks2KML.AddMarks(
@@ -312,6 +190,39 @@ begin
       AddMark(VMark, inNode);
       Result := True;
     end;
+  end;
+end;
+
+function TExportMarks2KML.AddTree(
+  const AParentNode: IXMLNode;
+  const ATree: IVectorItemTree
+): boolean;
+var
+  i: Integer;
+  VNode: IXMLNode;
+  VSubTree: IVectorItemTree;
+begin
+  Result := False;
+  if not Assigned(ATree) then begin
+    Exit;
+  end;
+  for i := 0 to ATree.SubTreeItemCount - 1 do begin
+    VSubTree := ATree.GetSubTreeItem(i);
+    VNode := AParentNode.AddChild('Folder');
+    VNode.ChildValues['name'] := VSubTree.Name;
+    VNode.ChildValues['open'] := 1;
+    with VNode.AddChild('Style').AddChild('ListStyle') do begin
+      ChildValues['listItemType'] := 'check';
+      ChildValues['bgColor'] := '00ffffff';
+    end;
+    if not AddTree(VNode, VSubTree) then begin
+      AParentNode.ChildNodes.Remove(VNode);
+    end else begin
+      Result := True;
+    end;
+  end;
+  if AddMarks(ATree.Items, AParentNode) then begin
+    Result := True;
   end;
 end;
 

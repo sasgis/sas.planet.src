@@ -187,7 +187,7 @@ begin
   if AConfig.IsUseMarks then begin
     VZoom := ALocalConverter.GetZoom;
     if not AConfig.IgnoreCategoriesVisible then begin
-      VList := FMarkDB.GetVisibleCategories(VZoom);
+      VList := FMarkDB.CategoryDB.GetVisibleCategories(VZoom);
     end;
     if AConfig.IgnoreCategoriesVisible or (Assigned(VList) and (VList.Count > 0)) then begin
       VGeoConverter := ALocalConverter.GetGeoConverter;

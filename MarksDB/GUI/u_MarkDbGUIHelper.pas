@@ -36,6 +36,7 @@ uses
   i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
   i_VectorDataItemSimple,
+  i_VectorItemSubsetBuilder,
   i_MarkTemplate,
   i_MarkId,
   i_Category,
@@ -61,6 +62,7 @@ type
   private
     FMarkSystem: IMarkSystem;
     FMarkFactoryConfig: IMarkFactoryConfig;
+    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -156,6 +158,7 @@ type
       const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
     );
     destructor Destroy; override;
@@ -170,8 +173,12 @@ uses
   i_DoublePointFilter,
   i_VectorItemTree,
   i_VectorItemSubset,
+  i_InterfaceListSimple,
+  i_StaticTreeItem,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
+  u_VectorItemTree,
+  u_InterfaceListSimple,
   u_ExportMarks2KML,
   u_GeoToStr;
 
@@ -189,6 +196,7 @@ constructor TMarkDbGUIHelper.Create(
   const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
 );
 begin
@@ -198,6 +206,7 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FMarkFactoryConfig := AMarkFactoryConfig;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
   FfrmMarkEditPoint :=
     TfrmMarkEditPoint.Create(
@@ -420,8 +429,11 @@ procedure TMarkDbGUIHelper.ExportCategory(
 );
 var
   KMLExport: TExportMarks2KML;
-  VMarksSubset: IVectorItemSubset;
   VFileName: string;
+  VSubCategoryList: IInterfaceListStatic;
+  VCategoryTree: IStaticTreeItem;
+  VMarkTree: IVectorItemTree;
+  VList: IInterfaceListSimple;
 begin
   if AMarkCategory <> nil then begin
     VFileName := AMarkCategory.Name;
@@ -440,12 +452,16 @@ begin
       if VFileName <> '' then begin
         KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
         try
-          VMarksSubset :=
-            FMarkSystem.MarkDb.GetMarkSubsetByCategory(
-              AMarkCategory,
-              AIgnoreMarksVisible
-            );
-          KMLExport.ExportCategoryToKML(AMarkCategory, VMarksSubset, VFileName);
+          VSubCategoryList := FMarkSystem.CategoryDB.GetSubCategoryListForCategory(AMarkCategory);
+          if not AIgnoreMarksVisible then begin
+            VSubCategoryList := FMarkSystem.CategoryDB.FilterVisibleCategories(VSubCategoryList);
+          end;
+          VList := TInterfaceListSimple.Create;
+          VList.Add(AMarkCategory);
+          VList.AddListStatic(VSubCategoryList);
+          VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VList.MakeStaticAndClear);
+          VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
+          KMLExport.ExportTreeToKML(VMarkTree, VFileName);
         finally
           KMLExport.free;
         end;
@@ -461,8 +477,9 @@ procedure TMarkDbGUIHelper.ExportCategoryList(
 );
 var
   KMLExport: TExportMarks2KML;
-  VMarksSubset: IVectorItemSubset;
   VFileName: string;
+  VCategoryTree: IStaticTreeItem;
+  VMarkTree: IVectorItemTree;
 begin
   if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
     if FExportDialog.Execute then begin
@@ -470,12 +487,9 @@ begin
       if VFileName <> '' then begin
         KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
         try
-          VMarksSubset :=
-            FMarkSystem.MarkDb.GetMarkSubsetByCategoryList(
-              ACategoryList,
-              AIgnoreMarksVisible
-            );
-          KMLExport.ExportToKML(ACategoryList, VMarksSubset, VFileName);
+          VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(ACategoryList);
+          VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
+          KMLExport.ExportTreeToKML(VMarkTree, VFileName);
         finally
           KMLExport.free;
         end;
@@ -488,6 +502,8 @@ procedure TMarkDbGUIHelper.ExportMark(const AMark: IVectorDataItemSimple);
 var
   KMLExport: TExportMarks2KML;
   VFileName: string;
+  VMarkTree: IVectorItemTree;
+  VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
   if AMark <> nil then begin
     VFileName := AMark.Name;
@@ -506,7 +522,10 @@ begin
       if VFileName <> '' then begin
         KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
         try
-          KMLExport.ExportMarkToKML(AMark, VFileName);
+          VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
+          VSubsetBuilder.Add(AMark);
+          VMarkTree := TVectorItemTree.Create('', VSubsetBuilder.MakeStaticAndClear, nil);
+          KMLExport.ExportTreeToKML(VMarkTree, VFileName);
         finally
           KMLExport.free;
         end;

@@ -26,12 +26,20 @@ uses
   i_Notifier,
   i_InterfaceListStatic,
   i_MarkCategory,
+  i_StaticTreeItem,
   i_MarkCategoryFactory;
 
 type
   IMarkCategoryDB = interface
     ['{F418B319-3B89-4B09-BC9E-0E4FC684BADF}']
     function GetCategoryByName(const AName: string): IMarkCategory;
+    function GetSubCategoryListForCategory(const ACategory: IMarkCategory): IInterfaceListStatic;
+    function GetCategoriesList: IInterfaceListStatic;
+    function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
+    function GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
+    function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
+    function FilterVisibleCategories(const ASourceList: IInterfaceListStatic): IInterfaceListStatic;
+
     function UpdateCategory(
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
@@ -41,7 +49,6 @@ type
       const ANewCategory: IInterfaceListStatic
     ): IInterfaceListStatic;
 
-    function GetCategoriesList: IInterfaceListStatic;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
 
     function GetFactory: IMarkCategoryFactory;

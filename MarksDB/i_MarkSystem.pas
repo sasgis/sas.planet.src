@@ -34,12 +34,12 @@ type
       const AImportConfig: IImportConfig
     ): IInterfaceListStatic;
 
-    function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
-    function GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
-    function CategoryTreeToMarkTree(const ACategoryTree: IStaticTreeItem): IVectorItemTree;
-    function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
+    function CategoryTreeToMarkTree(
+      const ACategoryTree: IStaticTreeItem;
+      const AIncludeHiddenMarks: Boolean
+    ): IVectorItemTree;
   end;
 
 implementation

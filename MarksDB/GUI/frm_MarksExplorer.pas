@@ -355,7 +355,7 @@ var
 begin
   VSelectedCategory := GetSelectedCategory;
   FCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
-  VTree := FMarkDBGUI.MarksDb.CategoryListToStaticTree(FCategoryList);
+  VTree := FMarkDBGUI.MarksDb.CategoryDB.CategoryListToStaticTree(FCategoryList);
   CategoryTreeView.OnChange:=nil;
   try
     CategoryTreeView.Items.BeginUpdate;
@@ -531,7 +531,7 @@ var
 begin
   VOnlyVisible := (TComponent(Sender).tag = 1);
   if VOnlyVisible then begin
-    VCategoryList := FMarkDBGUI.MarksDb.GetVisibleCategoriesIgnoreZoom;
+    VCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetVisibleCategoriesIgnoreZoom;
   end else begin
     VCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
   end;

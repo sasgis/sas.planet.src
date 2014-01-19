@@ -922,6 +922,7 @@ begin
       FConfig.ViewPortState.View,
       GState.VectorGeometryLonLatFactory,
       GState.ArchiveReadWriteFactory,
+      GState.VectorItemSubsetBuilderFactory,
       GState.Config.ValueToStringConverterConfig
     );
   FFormRegionProcess :=

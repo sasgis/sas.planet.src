@@ -3,7 +3,6 @@ unit u_MarkSystem;
 interface
 
 uses
-  Classes,
   i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarkSystem,
@@ -28,7 +27,6 @@ uses
   i_MarkSystemImplChangeable,
   i_MarkFactory,
   i_MarkCategoryFactory,
-  i_StaticTreeBuilder,
   u_BaseInterfacedObject;
 
 type
@@ -40,7 +38,6 @@ type
     FCategoryDB: IMarkCategoryDB;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
 
-    FCategoryTreeBuilder: IStaticTreeBuilder;
     procedure PrepareFromTreeForImport(
       const AMarkList: IInterfaceListSimple;
       const ADataItemTree: IVectorItemTree;
@@ -56,8 +53,6 @@ type
     function GetMarkByStringId(const AId: string): IVectorDataItemSimple;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
-    function GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
-    function GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
 
     function ImportItemsTree(
@@ -65,8 +60,10 @@ type
       const AImportConfig: IImportConfig
     ): IInterfaceListStatic;
 
-    function CategoryTreeToMarkTree(const ACategoryTree: IStaticTreeItem): IVectorItemTree;
-    function CategoryListToStaticTree(const AList: IInterfaceListStatic): IStaticTreeItem;
+    function CategoryTreeToMarkTree(
+      const ACategoryTree: IStaticTreeItem;
+      const AIncludeHiddenMarks: Boolean
+    ): IVectorItemTree;
   public
     constructor Create(
       const ABasePath: IPathConfig;
@@ -81,7 +78,6 @@ type
       const AAppStartedNotifier: INotifierOneOperation;
       const AHintConverter: IHtmlToHintTextConverter
     );
-
   end;
 
 implementation
@@ -90,50 +86,11 @@ uses
   SysUtils,
   i_Category,
   i_MarkSystemImpl,
-  u_StaticTreeBuilderBase,
   u_InterfaceListSimple,
   u_VectorItemTree,
   u_MarkDbByImpl,
   u_MarkCategoryDbByImpl,
   u_MarkSystemImplChangeable;
-
-type
-  TStaticTreeByCategoryListBuilder = class(TStaticTreeBuilderBaseBySlash)
-  protected
-    procedure ProcessItems(
-      const ASource: IInterface;
-      AList: TStringList
-    ); override;
-    function GetNameFromItem(
-      const ASource: IInterface;
-      const AItem: IInterface
-    ): string; override;
-  end;
-
-{ TStaticTreeByCategoryListBuilder }
-
-function TStaticTreeByCategoryListBuilder.GetNameFromItem(
-  const ASource: IInterface;
-  const AItem: IInterface
-): string;
-begin
-  Result := (AItem as ICategory).Name;
-end;
-
-procedure TStaticTreeByCategoryListBuilder.ProcessItems(
-  const ASource: IInterface;
-  AList: TStringList
-);
-var
-  VList: IInterfaceListStatic;
-  i: Integer;
-begin
-  inherited;
-  VList := ASource as IInterfaceListStatic;
-  for i := 0 to VList.Count - 1 do begin
-    ProcessItem(ASource, VList.Items[i], AList);
-  end;
-end;
 
 { TMarkSystem }
 
@@ -180,17 +137,6 @@ begin
     );
   FMarkDb := TMarkDbByImpl.Create(FSystemImpl, AMarkFactory);
   FCategoryDB := TMarkCategoryDbByImpl.Create(FSystemImpl, AMarkCategoryFactory);
-
-  FCategoryTreeBuilder := TStaticTreeByCategoryListBuilder.Create('\', '');
-end;
-
-function TMarkSystem.CategoryListToStaticTree(
-  const AList: IInterfaceListStatic): IStaticTreeItem;
-begin
-  Result := nil;
-  if Assigned(AList) then begin
-    Result := FCategoryTreeBuilder.BuildStatic(AList);
-  end;
 end;
 
 procedure TMarkSystem.DeleteCategoryWithMarks(const ACategory: IMarkCategory);
@@ -256,50 +202,6 @@ begin
     if VImpl <> nil then begin
       Result := VImpl.GetStringIdByMark(AMark);
     end;
-  end;
-end;
-
-function TMarkSystem.GetVisibleCategories(AZoom: Byte): IInterfaceListStatic;
-var
-  VTmp: IInterfaceListSimple;
-  VList: IInterfaceListStatic;
-  VCategory: IMarkCategory;
-  i: Integer;
-begin
-  Result := nil;
-  VList := FCategoryDB.GetCategoriesList;
-  if Assigned(VList) and (VList.Count > 0) then begin
-    VTmp := TInterfaceListSimple.Create;
-    for i := 0 to VList.Count - 1 do begin
-      VCategory := IMarkCategory(VList[i]);
-      if (VCategory.Visible) and
-        (VCategory.AfterScale <= AZoom + 1) and
-        (VCategory.BeforeScale >= AZoom + 1) then begin
-        VTmp.Add(VCategory);
-      end;
-    end;
-    Result := VTmp.MakeStaticAndClear;
-  end;
-end;
-
-function TMarkSystem.GetVisibleCategoriesIgnoreZoom: IInterfaceListStatic;
-var
-  VTmp: IInterfaceListSimple;
-  VList: IInterfaceListStatic;
-  VCategory: IMarkCategory;
-  i: Integer;
-begin
-  Result := nil;
-  VList := FCategoryDB.GetCategoriesList;
-  if Assigned(VList) and (VList.Count > 0) then begin
-    VTmp := TInterfaceListSimple.Create;
-    for i := 0 to VList.Count - 1 do begin
-      VCategory := IMarkCategory(VList[i]);
-      if VCategory.Visible then begin
-        VTmp.Add(VCategory);
-      end;
-    end;
-    Result := VTmp.MakeStaticAndClear;
   end;
 end;
 
@@ -396,7 +298,8 @@ begin
 end;
 
 function TMarkSystem.CategoryTreeToMarkTree(
-  const ACategoryTree: IStaticTreeItem
+  const ACategoryTree: IStaticTreeItem;
+  const AIncludeHiddenMarks: Boolean
 ): IVectorItemTree;
 var
   VCategory: IMarkCategory;
@@ -410,14 +313,14 @@ begin
   VMarkSubset := nil;
   if Assigned(ACategoryTree) then begin
     if Supports(ACategoryTree.Data, IMarkCategory, VCategory) then begin
-      VMarkSubset := FMarkDb.GetMarkSubsetByCategory(VCategory, True);
+      VMarkSubset := FMarkDb.GetMarkSubsetByCategory(VCategory, AIncludeHiddenMarks);
     end;
 
     VSubItems := nil;
     if ACategoryTree.SubItemCount > 0 then begin
       VTemp := TInterfaceListSimple.Create;
       for i := 0 to ACategoryTree.SubItemCount - 1 do begin
-        VTemp.Add(CategoryTreeToMarkTree(ACategoryTree.SubItem[i]));
+        VTemp.Add(CategoryTreeToMarkTree(ACategoryTree.SubItem[i], AIncludeHiddenMarks));
       end;
       VSubItems := VTemp.MakeStaticAndClear;
     end;
