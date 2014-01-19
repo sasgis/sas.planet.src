@@ -168,6 +168,7 @@
     <DCCReference Include="GeoCoder\u_GeoCoderByNavitel.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByOSM.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByPolishMap.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByGpx.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByRosreestr.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByTXT.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByURL.pas" />

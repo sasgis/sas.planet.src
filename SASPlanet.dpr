@@ -744,6 +744,7 @@ uses
   u_GeoCoderByNavitel in 'GeoCoder\u_GeoCoderByNavitel.pas',
   u_GeoCoderByOSM in 'GeoCoder\u_GeoCoderByOSM.pas',
   u_GeoCoderByPolishMap in 'GeoCoder\u_GeoCoderByPolishMap.pas',
+  u_GeoCoderByGpx in 'GeoCoder\u_GeoCoderByGpx.pas',
   u_GeoCoderByRosreestr in 'GeoCoder\u_GeoCoderByRosreestr.pas',
   u_GeoCoderByTXT in 'GeoCoder\u_GeoCoderByTXT.pas',
   u_GeoCoderByURL in 'GeoCoder\u_GeoCoderByURL.pas',

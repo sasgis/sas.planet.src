@@ -59,6 +59,7 @@ uses
   u_GeoCoderByNavitel,
   u_GeoCoderByURL,
   u_GeoCoderByPolishMap,
+  u_GeoCoderByGpx,
   u_GeoCoderByTXT,
   u_GeoCoderByCoord;
 
@@ -139,6 +140,17 @@ begin
       TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverterConfig)
     );
   Add(VItem);
+
+  try
+    VItem :=
+      TGeoCoderListEntity.Create(
+        CGeoCoderGpxGUID,
+        'Offline search (*.gpx)',
+        TGeoCoderByGpx.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverterConfig)
+      );
+    Add(VItem);
+  Except
+  end;
 
   try
     VItem :=
