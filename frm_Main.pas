@@ -6440,10 +6440,11 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   GState.InternalBrowser.Navigate(
-    'http://ws.geonames.org/srtm3',
-    'http://ws.geonames.org/srtm3?lat=' +
-    R2StrPoint(VLonLat.y) +
-    '&lng='+R2StrPoint(VLonLat.x)
+    'http://api.geonames.org/srtm3',
+    'http://api.geonames.org/srtm3?' +
+    'lat=' + R2StrPoint(VLonLat.Y) + '&' +
+    'lng=' + R2StrPoint(VLonLat.X) + '&' +
+    'username=sasgis'
   );
 end;
 
@@ -6462,10 +6463,11 @@ begin
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoom, False);
   VLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoom);
   GState.InternalBrowser.Navigate(
-    'http://ws.geonames.org/gtopo30',
-    'http://ws.geonames.org/gtopo30?lat=' +
-    R2StrPoint(VLonLat.y) +
-    '&lng='+R2StrPoint(VLonLat.x)
+    'http://api.geonames.org/gtopo30',
+    'http://api.geonames.org/gtopo30?' +
+    'lat=' + R2StrPoint(VLonLat.Y) + '&' +
+    'lng=' + R2StrPoint(VLonLat.X) + '&' +
+    'username=sasgis'
   );
 end;
 
