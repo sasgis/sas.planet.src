@@ -314,8 +314,6 @@
     <DCCReference Include="i_MainMemCacheConfig.pas" />
     <DCCReference Include="i_MainWindowPosition.pas" />
     <DCCReference Include="i_MapAbilitiesConfig.pas" />
-    <DCCReference Include="i_MapAttachmentsFactory.pas" />
-    <DCCReference Include="i_MapAttachmentsInfo.pas" />
     <DCCReference Include="i_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="i_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="i_MapLayerGridsConfig.pas" />
@@ -1112,8 +1110,6 @@
     <DCCReference Include="u_MainWindowToolbarsLock.pas" />
     <DCCReference Include="u_MapAbilitiesConfig.pas" />
     <DCCReference Include="u_MapAbilitiesConfigStatic.pas" />
-    <DCCReference Include="u_MapAttachmentsInfo.pas" />
-    <DCCReference Include="u_MapAttachmentsPascalScript.pas" />
     <DCCReference Include="u_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="u_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="u_MapLayerGridsConfig.pas" />

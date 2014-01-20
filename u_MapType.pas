@@ -52,7 +52,6 @@ uses
   i_GlobalDownloadConfig,
   i_MapAbilitiesConfig,
   i_Listener,
-  i_MapAttachmentsFactory,
   i_MapVersionInfo,
   i_SimpleTileStorageConfig,
   i_ZmpInfo,
@@ -103,7 +102,6 @@ type
     FGUIConfig: IMapTypeGUIConfig;
     FLayerDrawConfig: ILayerDrawConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
-    FMapAttachmentsFactory: IMapAttachmentsFactory;
     FStorageConfig: ISimpleTileStorageConfig;
     FGlobalCacheConfig: IGlobalCacheConfig;
     FTileDownloadSubsystem: ITileDownloadSubsystem;
@@ -340,7 +338,6 @@ begin
       FZmp.GUI
     );
   FLayerDrawConfig := TLayerDrawConfig.Create(FZmp);
-  FMapAttachmentsFactory := nil;
   FLanguageManager := ALanguageManager;
   FResamplerConfigLoad := AResamplerConfigLoad;
   FResamplerConfigGetPrev := AResamplerConfigGetPrev;
@@ -503,7 +500,6 @@ begin
   FContentTypeManager := nil;
   FGlobalDownloadConfig := nil;
   FGUIConfig := nil;
-  FMapAttachmentsFactory := nil;
   FAbilitiesConfig := nil;
   FGlobalCacheConfig := nil;
   FStorageConfig := nil;

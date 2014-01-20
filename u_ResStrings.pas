@@ -165,11 +165,6 @@ ResourceString
   SAS_STR_LoadProcess = 'Downloading...';
   SAS_STR_LoadProcessRepl = 'Downloading with overwrite...';
   SAS_STR_ProcessedFile = 'Processing tile: %0:s ...';
-  SAS_STR_LoadAttachmentsBegin = 'Downloading attachments...';
-  SAS_STR_LoadAttachmentsEnd_Skipped = 'Skipped';
-  SAS_STR_LoadAttachmentsEnd_Failed = 'Failed';
-  SAS_STR_LoadAttachmentsEnd_Cancelled = 'Cancelled';
-  SAS_STR_LoadAttachmentsEnd_Nothing = 'No attachments';
   SAS_STR_S = 'Area';
   SAS_STR_L = 'Length';
   SAS_STR_P = 'Perimeter';

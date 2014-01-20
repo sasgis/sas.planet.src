@@ -32,7 +32,6 @@ uses
   i_TilePostDownloadCropConfig,
   i_SimpleTileStorageConfig,
   i_MapAbilitiesConfig,
-  i_MapAttachmentsInfo,
   i_BinaryDataListStatic,
   i_StringByLanguage,
   i_MapVersionInfo,
@@ -124,9 +123,6 @@ type
 
     function GetDataProvider: IConfigDataProvider;
     property DataProvider: IConfigDataProvider read GetDataProvider;
-
-    function GetMapAttachmentsInfo: IMapAttachmentsInfo;
-    property MapAttachmentsInfo: IMapAttachmentsInfo read GetMapAttachmentsInfo;
   end;
 
 implementation

@@ -69,12 +69,6 @@ type
     FRES_ProcessedFile: string;
     FRES_LoadProcessRepl: string;
     FRES_LoadProcess: string;
-    FRES_LoadAttachmentsBegin: string;
-    FRES_LoadAttachmentsEnd_Downloaded: string;
-    FRES_LoadAttachmentsEnd_Skipped: string;
-    FRES_LoadAttachmentsEnd_Failed: string;
-    FRES_LoadAttachmentsEnd_Cancelled: string;
-    FRES_LoadAttachmentsEnd_Nothing: string;
     FRES_FileBeCreateTime: string;
     FRES_FileBeCreateLen: string;
     FRES_Authorization: string;
@@ -345,8 +339,7 @@ begin
         FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom, FVersionForDownload)]), 0);
         // if gtimWithData - tile will be loaded, so we use gtimAsIs
         VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersionForCheck, gtimAsIs);
-
-        // for attachments need base tile - but even for existing tile some attachments may not exist
+        
         if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
           // what to do
           if VTileInfo.IsExists then begin
@@ -355,7 +348,7 @@ begin
             FProgressInfo.Log.WriteText(FRES_LoadProcess, 0);
           end;
           if (FCheckExistTileDate) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) and (VTileInfo.LoadDate >= FCheckTileDate) then begin
-            // skip existing newer tile (but download attachments)
+            // skip existing newer tile
             FProgressInfo.Log.WriteText(FRES_FileBeCreateTime, 0);
             FLastProcessedPoint := VTile;
             VGotoNextTile := True;
@@ -460,12 +453,6 @@ begin
   FRES_ProcessedFile := SAS_STR_ProcessedFile;
   FRES_LoadProcessRepl := SAS_STR_LoadProcessRepl;
   FRES_LoadProcess := SAS_STR_LoadProcess;
-  FRES_LoadAttachmentsBegin := SAS_STR_LoadAttachmentsBegin;
-  FRES_LoadAttachmentsEnd_Downloaded := SAS_STR_load;
-  FRES_LoadAttachmentsEnd_Skipped := SAS_STR_LoadAttachmentsEnd_Skipped;
-  FRES_LoadAttachmentsEnd_Failed := SAS_STR_LoadAttachmentsEnd_Failed;
-  FRES_LoadAttachmentsEnd_Cancelled := SAS_STR_LoadAttachmentsEnd_Cancelled;
-  FRES_LoadAttachmentsEnd_Nothing := SAS_STR_LoadAttachmentsEnd_Nothing;
   FRES_FileBeCreateTime := SAS_MSG_FileBeCreateTime;
   FRES_FileBeCreateLen := SAS_MSG_FileBeCreateLen;
   FRES_Authorization := SAS_ERR_Authorization;

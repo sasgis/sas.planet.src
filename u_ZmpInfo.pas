@@ -41,7 +41,6 @@ uses
   i_CoordConverterFactory,
   i_ContentTypeManager,
   i_MapAbilitiesConfig,
-  i_MapAttachmentsInfo,
   i_SimpleTileStorageConfig,
   i_ZmpConfig,
   i_ZmpInfo,
@@ -133,7 +132,6 @@ type
     FAbilities: IMapAbilitiesConfigStatic;
     FEmptyTileSamples: IBinaryDataListStatic;
     FBanTileSamples: IBinaryDataListStatic;
-    FMapAttachmentsInfo: IMapAttachmentsInfo;
     FStorageConfig: ISimpleTileStorageConfigStatic;
 
     FZmpConfig: IZmpConfig;
@@ -152,10 +150,6 @@ type
     procedure LoadVersion(const AConfig: IConfigDataProvider);
     function GetBinaryListByConfig(const AConfig: IConfigDataProvider): IBinaryDataListStatic;
     procedure LoadSamples(const AConfig: IConfigDataProvider);
-    procedure LoadAttachmentsInfo(
-      const AConfig: IConfigDataProvider;
-      const ALanguageManager: ILanguageManager
-    );
     procedure LoadProjectionInfo(
       const AConfig: IConfigDataProvider;
       const ACoordConverterFactory: ICoordConverterFactory
@@ -185,7 +179,6 @@ type
     function GetBanTileSamples: IBinaryDataListStatic;
     function GetStorageConfig: ISimpleTileStorageConfigStatic;
     function GetDataProvider: IConfigDataProvider;
-    function GetMapAttachmentsInfo: IMapAttachmentsInfo;
   public
     constructor Create(
       const AZmpConfig: IZmpConfig;
@@ -227,7 +220,6 @@ uses
   u_TileStorageAbilities,
   u_SimpleTileStorageConfigStatic,
   u_MapVersionInfo,
-  u_MapAttachmentsInfo,
   u_ResStrings;
 
 // common subroutine
@@ -691,11 +683,6 @@ begin
   Result := FLicense;
 end;
 
-function TZmpInfo.GetMapAttachmentsInfo: IMapAttachmentsInfo;
-begin
-  Result := FMapAttachmentsInfo;
-end;
-
 function TZmpInfo.GetStorageConfig: ISimpleTileStorageConfigStatic;
 begin
   Result := FStorageConfig;
@@ -741,93 +728,6 @@ begin
     );
 end;
 
-procedure TZmpInfo.LoadAttachmentsInfo(
-  const AConfig: IConfigDataProvider;
-  const ALanguageManager: ILanguageManager
-);
-var
-  VParams: IConfigDataProvider;
-  VGUID: TGUID;
-  VSL_Names: TStringList;
-  i, VMaxSubIndex: Integer;
-  VParseNumberAfter: String;
-  VSL_NameInCache, VSL_Ext, VSL_DefUrlBase, VSL_ContentType: TStringList;
-  VStrVal, VNameInCacheDefault: String;
-  VEnabled, VUseDwn, VUseDel: Boolean;
-begin
-  // params in special section
-  VParams := AConfig.GetSubItem('AttachmentsInfo');
-
-  if not Assigned(VParams) then begin
-    FMapAttachmentsInfo := nil;
-    Exit;
-  end;
-
-  // gui params
-  VGUID := LoadGUID(VParams);
-  VSL_Names := InternalMakeStringListByLanguage(ALanguageManager.LanguageList, VParams, 'name', '');
-
-  // count of sub-items for single attachment
-  VMaxSubIndex := VParams.ReadInteger('MaxSubIndex', 0);
-  VParseNumberAfter := VParams.ReadString('ParseNumberAfter', '');
-  VUseDwn := VParams.ReadBool('UseDwn', FALSE);
-  VUseDel := VParams.ReadBool('UseDel', FALSE);
-
-  // noway
-  VSL_NameInCache := nil;
-  VSL_Ext := nil;
-  VSL_DefUrlBase := nil;
-  VSL_ContentType := nil;
-
-  if (VMaxSubIndex >= 0) and (System.Length(VParseNumberAfter) > 0) then begin
-    // make containers and obtain default values
-    VSL_NameInCache := TStringList.Create;
-    VNameInCacheDefault := VParams.ReadString('NameInCache', '');
-    if (System.Length(VNameInCacheDefault) > 0) then begin
-      VNameInCacheDefault := ExpandFileName(VNameInCacheDefault);
-    end;
-    VSL_NameInCache.AddObject(VNameInCacheDefault, TObject(Pointer(Ord(VParams.ReadBool('Enabled', FALSE)))));
-
-    VSL_Ext := TStringList.Create;
-    VSL_Ext.Add(LowerCase(VParams.ReadString('Ext', '')));
-
-    VSL_DefUrlBase := TStringList.Create;
-    VSL_DefUrlBase.Add(VParams.ReadString('DefUrlBase', ''));
-
-    VSL_ContentType := TStringList.Create;
-    VSL_ContentType.Add(VParams.ReadString('ContentType', ''));
-
-    // other values (by index)
-    if VMaxSubIndex > 0 then begin
-      for i := 1 to VMaxSubIndex do begin
-        VStrVal := ExpandFileName(VParams.ReadString('NameInCache' + IntToStr(i), VNameInCacheDefault));
-        VEnabled := VParams.ReadBool('Enabled' + IntToStr(i), (VSL_NameInCache.Objects[0] <> nil));
-        VSL_NameInCache.AddObject(VStrVal, TObject(Pointer(Ord(VEnabled))));
-
-        VStrVal := LowerCase(VParams.ReadString('Ext' + IntToStr(i), VSL_Ext[0]));
-        VSL_Ext.Add(VStrVal);
-
-        VStrVal := VParams.ReadString('DefUrlBase' + IntToStr(i), VSL_DefUrlBase[0]);
-        VSL_DefUrlBase.Add(VStrVal);
-
-        VStrVal := VParams.ReadString('ContentType' + IntToStr(i), VSL_ContentType[0]);
-        VSL_ContentType.Add(VStrVal);
-      end;
-    end;
-  end;
-
-  // make object (VSL_* will be destroyed in object's destructor)
-  FMapAttachmentsInfo := TMapAttachmentsInfo.Create(VGUID,
-    VMaxSubIndex,
-    VParseNumberAfter,
-    VSL_NameInCache,
-    VSL_Ext,
-    VSL_Names,
-    VSL_DefUrlBase,
-    VSL_ContentType,
-    VUseDwn, VUseDel);
-end;
-
 procedure TZmpInfo.LoadConfig(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALanguageManager: ILanguageManager
@@ -843,7 +743,6 @@ begin
   LoadStorageConfig(FConfigIniParams);
   LoadAbilities(FConfigIniParams);
   LoadSamples(FConfig);
-  LoadAttachmentsInfo(FConfigIni, ALanguageManager);
   FContentTypeSubst := TContentTypeSubstByList.Create(FConfigIniParams);
 end;
 
