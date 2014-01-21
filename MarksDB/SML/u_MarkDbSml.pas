@@ -1487,7 +1487,7 @@ begin
               FCdsMarks.First;
               while not FCdsMarks.Eof do begin
                 VMark := ReadCurrentMark;
-                if Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
+                if Assigned(VMark) and Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
                   VIdNew := VMarkInternal.Id;
                   VCategoryIdNew := VMarkInternal.CategoryId;
                   FMarkList.Add(VIdNew, VMark);
