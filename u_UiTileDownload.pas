@@ -412,8 +412,10 @@ begin
           case VWaitResult of
             WAIT_OBJECT_0 + 1: begin
               if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+                ReleaseSemaphore(FSemaphore, 1, nil);
                 Break;
               end;
+
               VTask :=
                 VMapType.TileDownloadSubsystem.GetRequestTask(
                   FSoftCancelNotifier,
@@ -423,11 +425,14 @@ begin
                   VTile,
                   VZoom,
                   VMapType.VersionConfig.Version,
-                  False 
+                  False
                 );
+
               if VTask <> nil then begin
                 FGlobalInternetState.IncQueueCount;
                 VMapType.TileDownloadSubsystem.Download(VTask);
+              end else begin
+                ReleaseSemaphore(FSemaphore, 1, nil);
               end;
             end;
           end;
@@ -455,6 +460,7 @@ begin
   Assert(ATask <> nil);
 
   FTTLListener.UpdateUseTime;
+
   FGlobalInternetState.DecQueueCount;
   ReleaseSemaphore(FSemaphore, 1, nil);
 
