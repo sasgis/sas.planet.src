@@ -112,7 +112,7 @@ var
   VLocalRect: TRect;
   VFileName: string;
   VFileStream: TFileStream;
-  VText: AnsiString;
+  VText, VName: AnsiString;
 begin
   VCenter.Y := (ABottomRight.Y - ((ABottomRight.Y - ATopLeft.Y) div 2));
   VCenter.X := (ABottomRight.X - ((ABottomRight.X - ATopLeft.X) div 2));
@@ -128,12 +128,14 @@ begin
 
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
+    VName := ExtractFileName(AFileName);
+
     VText :=
       '!table' + #13#10 +
       '!version 300' + #13#10 +
-      '!charset WindowsCyrillic' + #13#10 + #13#10 +
+      '!charset Neutral' + #13#10 + #13#10 +
       'Definition Table' + #13#10 +
-      '  File "' + UTF8Encode(ExtractFileName(AFileName)) + '"' + #13#10 +
+      '  File "' + VName + '"' + #13#10 +
       '  Type "RASTER"' + #13#10 +
       PointToStr(1, VLL1.X, VLL1.Y, VLocalRect.Left, VLocalRect.Top) + ',' + #13#10 +
       PointToStr(2, VLL2.X, VLL2.Y, VLocalRect.Right, VLocalRect.Bottom) + ',' + #13#10 +
