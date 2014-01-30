@@ -43,10 +43,10 @@ type
     procedure SearchInMapFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const AFile: string ;
-      const ASearch: widestring;
+      const AFile: String ;
+      const ASearch: Widestring;
       const AList: IInterfaceListSimple;
-      var Acnt: integer
+      var Acnt: Integer
     );
   protected
     function DoSearch(
@@ -79,8 +79,8 @@ uses
 
 function getType(
   const ASection: AnsiString;
-  const AType: integer
-): string;
+  const AType: Integer
+): String;
 begin
   result := '';
   if ASection = 'POI' then begin
@@ -462,21 +462,20 @@ end;
 function ItemExist(
   const AValue: IVectorDataItemPoint;
   const AList: IInterfaceListSimple
-):boolean;
+):Boolean;
 var
-  i: Integer;
+  I, J: Integer;
   VPlacemark: IVectorDataItemPoint;
-  j: integer;
-  str1, str2: string;
+  VStr1, VStr2: String;
 begin
   Result := false;
-  for i := 0 to AList.Count - 1 do begin
-    VPlacemark := IVectorDataItemPoint(AList.Items[i]);
-    j := posex(')', VPlacemark.Name);
-    str1 := copy(VPlacemark.Name, j, length(VPlacemark.Name) - (j + 1));
-    j := posex(')', AValue.Name);
-    str2 := copy(AValue.Name, j, length(AValue.Name) - (j + 1));
-    if str1=str2 then begin
+  for I := 0 to AList.Count - 1 do begin
+    VPlacemark := IVectorDataItemPoint(AList.Items[I]);
+    J := posex(')', VPlacemark.Name);
+    VStr1 := Copy(VPlacemark.Name, J, length(VPlacemark.Name) - (J + 1));
+    J := posex(')', AValue.Name);
+    VStr2 := Copy(AValue.Name, J, length(AValue.Name) - (J + 1));
+    if VStr1 = VStr2 then begin
       if
         abs(VPlacemark.GetPoint.Point.x - AValue.GetPoint.Point.x) +
         abs(VPlacemark.GetPoint.Point.Y - AValue.GetPoint.Point.Y) < 0.05
@@ -494,33 +493,33 @@ function GetParam(
   const ADef: AnsiString = ''
 ): AnsiString;
 var
-  i, j: integer;
+  I, J: Integer;
 begin
   result := ADef;
-  i := ALPosEx(AName, AStr);
-  if (i = 0) then exit;
-  j := ALPosEx(#$A, AStr, i + 1);
-  if (j = 0) then j := length(AStr) + 1;
-  if (j > 1) and (AStr[j - 1] = #$D) then dec(j); // учёт второго варианта конца строки
-  result := Copy(AStr, i + length(AName), j - (i + length(AName)));
+  I := ALPosEx(AName, AStr);
+  if (I = 0) then exit;
+  J := ALPosEx(#$A, AStr, I + 1);
+  if (J = 0) then J := length(AStr) + 1;
+  if (J > 1) and (AStr[J - 1] = #$D) then dec(J); // учёт второго варианта конца строки
+  result := Copy(AStr, I + length(AName), J - (I + length(AName)));
 end;
 
 procedure TGeoCoderByPolishMap.SearchInMapFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile: string ;
-  const ASearch: widestring;
+  const AFile: String ;
+  const ASearch: Widestring;
   const AList: IInterfaceListSimple;
-  var Acnt: integer
+  var Acnt: Integer
 );
 var
- VFormatSettings : TALFormatSettings;
+ VFormatSettings: TALFormatSettings;
  VPlace: IVectorDataItemPoint;
  VPoint: TDoublePoint;
- slat, slon: AnsiString;
- sname, sdesc, sfulldesc: string;
- VLinkErr: boolean;
- Vi, i, j, k, l: integer;
+ Vslat, Vslon: AnsiString;
+ Vsname, Vsdesc, sfulldesc: String;
+ VLinkErr: Boolean;
+ Vi, I, J, k, l: Integer;
  VStr: AnsiString;
  vStr2: AnsiString;
  VSearch: AnsiString;
@@ -534,11 +533,11 @@ var
  V_HouseNumber,
  V_CountryName,
  V_WebPage,
- V_Phone : AnsiString;
- V_Type : integer;
- Skip: boolean;
+ V_Phone: AnsiString;
+ V_Type: Integer;
+ VSkip: Boolean;
  VStream: TFileStream;
- V_EndOfLine : AnsiString;
+ V_EndOfLine: AnsiString;
  VValueConverter: IValueToStringConverter;
 begin
  VFormatSettings.DecimalSeparator := '.';
@@ -548,7 +547,7 @@ begin
   VStream := TFileStream.Create(AFile, fmOpenRead);
    try
     SetLength(Vstr, VStream.Size);
-    i := VStream.Size;
+    I := VStream.Size;
     VStream.ReadBuffer(VStr[1], VStream.Size);
    finally
    VStream.Free;
@@ -556,41 +555,41 @@ begin
   finally
   FLock.EndRead;
  end;
-  if i < 10 then exit; // файл слишком маленький
-  i := ALPosEx(#$A, VStr, 2); // вдруг в самом начале файла пустая строка и лишь с #$A? её пропустим и найдём конец следующей
-  if (i > 1) and (VStr[i - 1] = #$D) then V_EndOfLine := #$D#$A else V_EndOfLine := #$A;
+  if I < 10 then exit; // файл слишком маленький
+  I := ALPosEx(#$A, VStr, 2); // вдруг в самом начале файла пустая строка и лишь с #$A? её пропустим и найдём конец следующей
+  if (I > 1) and (VStr[I - 1] = #$D) then V_EndOfLine := #$D#$A else V_EndOfLine := #$A;
   VCityList := TALStringList.Create;
   try
     Vstr := AlUpperCase(Vstr);
-    i := ALPosEx('[CITIES]', VStr);
-    if i > 0 then begin
-      k :=  ALPosEx('[END', VStr, i);
-      VStr2 := copy(VStr, i, k - i); // вырежем весь первый блок
-      while (ALPosEx('CITY', VStr2, i) > 0) do begin
-        j := i;
-        i := ALPosEx('CITY', VStr2, j);
-        i := ALPosEx('=', VStr2, i);
-        j := ALPosEx(V_EndOfLine, VStr2, i);
-        VCityList.add(Copy(VStr2, i + 1, j - (i + 1)));
+    I := ALPosEx('[CITIES]', VStr);
+    if I > 0 then begin
+      k :=  ALPosEx('[END', VStr, I);
+      VStr2 := Copy(VStr, I, k - I); // вырежем весь первый блок
+      while (ALPosEx('CITY', VStr2, I) > 0) do begin
+        J := I;
+        I := ALPosEx('CITY', VStr2, J);
+        I := ALPosEx('=', VStr2, I);
+        J := ALPosEx(V_EndOfLine, VStr2, I);
+        VCityList.add(Copy(VStr2, I + 1, J - (I + 1)));
       end;// заполнили массив городов, если они заданы в начале файла
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
     end;
-    Vi := i + 1;
+    Vi := I + 1;
     // ищем вхождение, затем бежим назад до начала блока
     while true do begin
       VLinkErr := false;
       Vi := ALPosEx(VSearch, VStr, Vi) + 1;
       if Vi = 1 then break; // больше не нашли?
-      j := Vi - 1;
-      while (j > 0) and (Vstr[j] <> #$A) do dec(j); // начало строки с найденными данными
-      if Vi < j + 7 then continue; // нашлось в имени тега, пропустим
-      if copy(Vstr, j + 1, 6) <> 'LABEL=' then continue; // найденные данные не в теге Label?
+      J := Vi - 1;
+      while (J > 0) and (Vstr[J] <> #$A) do dec(J); // начало строки с найденными данными
+      if Vi < J + 7 then continue; // нашлось в имени тега, пропустим
+      if Copy(Vstr, J + 1, 6) <> 'LABEL=' then continue; // найденные данные не в теге Label?
       k := ALPosEx(#$A'[END]', VStr, Vi); // конец блока найденных данных.
-      l := j;
-      while (l > 0) and (copy(Vstr, l, 2) <> #$A'[') do dec(l); // начало блока с найденными данными
-      VStr2 := copy(VStr, l + 1, k - l); // вырежем весь блок с найденными данными
+      l := J;
+      while (l > 0) and (Copy(Vstr, l, 2) <> #$A'[') do dec(l); // начало блока с найденными данными
+      VStr2 := Copy(VStr, l + 1, k - l); // вырежем весь блок с найденными данными
 
       V_Label := '';
       V_CityName := '';
@@ -601,19 +600,19 @@ begin
       V_WebPage := '';
       V_Phone :='';
 
-      i := ALPosEx(']', VStr2);
-      if i > 0 then begin
-       if i < k then begin
-         V_SectionType := Copy(Vstr2, 2, i - 2);
+      I := ALPosEx(']', VStr2);
+      if I > 0 then begin
+       if I < k then begin
+         V_SectionType := Copy(Vstr2, 2, I - 2);
         end else
          V_SectionType := '';
       end;
 
       V_Label := GetParam(#$A'LABEL=', vStr2);
       V_Label := ALStringReplace(V_Label, '~[0X1F]', ' ', [rfReplaceAll]);
-      i := ALStrToIntDef(GetParam(#$A'CITYIDX=',vStr2), -1);
-      if (i > 0) and (i < VCityList.Count) then
-          V_CityName := VCityList.Strings[i - 1] else  V_CityName := '';
+      I := ALStrToIntDef(GetParam(#$A'CITYIDX=',vStr2), -1);
+      if (I > 0) and (I < VCityList.Count) then
+          V_CityName := VCityList.Strings[I - 1] else  V_CityName := '';
       V_CityName := GetParam(#$A'CITYNAME=', vStr2, V_CityName);
       V_RegionName := GetParam(#$A'REGIONNAME=', vStr2);
       V_CountryName := GetParam(#$A'COUNTRYNAME=', vStr2);
@@ -623,14 +622,14 @@ begin
       V_WebPage := GetParam(#$A'WEBPAGE=', vStr2, '');
       V_Phone := GetParam(#$A'PHONE=', vStr2, '');
 
-      i := ALPosEx('DATA', VStr2);
-      i := ALPosEx('(', VStr2, i);
-      j := ALPosEx(',', VStr2, i);
-      slat := Copy(Vstr2, i + 1, j - (i + 1));
-      i := ALPosEx(')', VStr2, i);
-      slon := Copy(Vstr2, j + 1, i - (j + 1));
+      I := ALPosEx('DATA', VStr2);
+      I := ALPosEx('(', VStr2, I);
+      J := ALPosEx(',', VStr2, I);
+      Vslat := Copy(Vstr2, I + 1, J - (I + 1));
+      I := ALPosEx(')', VStr2, I);
+      Vslon := Copy(Vstr2, J + 1, I - (J + 1));
 
-      if (slat='') or (slon='') then VLinkErr := true;
+      if (Vslat='') or (Vslon='') then VLinkErr := true;
       if V_Label='' then VLinkErr := true;
       if Acnt mod 5 =0 then
        if ACancelNotifier.IsOperationCanceled(AOperationID) then
@@ -638,35 +637,35 @@ begin
 
       if VLinkErr <> true then begin
        try
-         VPoint.Y := ALStrToFloat(slat, VFormatSettings);
-         VPoint.X := ALStrToFloat(slon, VFormatSettings);
+         VPoint.Y := ALStrToFloat(Vslat, VFormatSettings);
+         VPoint.X := ALStrToFloat(Vslon, VFormatSettings);
        except
-         raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
+         raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [Vslat, Vslon]);
        end;
-        sdesc := '';
-        sname := string(V_Label);
-        if V_CountryName <> '' then sdesc := sdesc + string(V_CountryName) + ', ';
-        if V_RegionName <> '' then sdesc := sdesc + string(V_RegionName);
-        if sdesc <> '' then sdesc := sdesc + #$D#$A;
+        Vsdesc := '';
+        Vsname := String(V_Label);
+        if V_CountryName <> '' then Vsdesc := Vsdesc + String(V_CountryName) + ', ';
+        if V_RegionName <> '' then Vsdesc := Vsdesc + String(V_RegionName);
+        if Vsdesc <> '' then Vsdesc := Vsdesc + #$D#$A;
 
-        if V_HouseNumber <>'' then
-          if sname='' then  sname := string(V_StreetDesc) + ' №' + string(V_HouseNumber)
-            else sdesc := string(V_StreetDesc) + ' №'+string(V_HouseNumber) + #$D#$A + sdesc;
-        if V_Type<> -1 then sdesc := getType(V_SectionType, V_Type) + #$D#$A + sdesc;
-        if V_CityName <> '' then sdesc := sdesc +  string(V_CityName) + #$D#$A;
-        if V_Phone<>'' then sdesc := sdesc + 'Phone '+ string(V_Phone) + #$D#$A;
+        if V_HouseNumber <> '' then
+          if Vsname='' then  Vsname := String(V_StreetDesc) + ' №' + String(V_HouseNumber)
+            else Vsdesc := String(V_StreetDesc) + ' №'+String(V_HouseNumber) + #$D#$A + Vsdesc;
+        if V_Type <> -1 then Vsdesc := getType(V_SectionType, V_Type) + #$D#$A + Vsdesc;
+        if V_CityName <> '' then Vsdesc := Vsdesc +  String(V_CityName) + #$D#$A;
+        if V_Phone <> '' then Vsdesc := Vsdesc + 'Phone '+ String(V_Phone) + #$D#$A;
         VValueConverter := FValueToStringConverterConfig.GetStatic;
-        sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
-        sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
-        sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
-        if V_WebPage<>'' then sfulldesc := sfulldesc + '<br><a href=' + string(V_WebPage) + '>' + string(V_WebPage) + '</a>';
-        VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
+        Vsdesc := Vsdesc + '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+        Vsdesc := Vsdesc + #$D#$A + ExtractFileName(AFile);
+        sfulldesc :=  ReplaceStr(Vsname + #$D#$A + Vsdesc, #$D#$A, '<br>');
+        if V_WebPage <> '' then sfulldesc := sfulldesc + '<br><a href=' + String(V_WebPage) + '>' + String(V_WebPage) + '</a>';
+        VPlace := PlacemarkFactory.Build(VPoint, Vsname, Vsdesc, sfulldesc, 4);
 
         // если закометировать условие то не будет производиться фильтрация одинаковых элементов
-        skip := ItemExist(Vplace, AList);
-        if not skip then
+        VSkip := ItemExist(Vplace, AList);
+        if not VSkip then
          begin
-          inc(Acnt);
+          Inc(Acnt);
           AList.Add(VPlace);
          end;
       end;
@@ -696,30 +695,30 @@ function TGeoCoderByPolishMap.DoSearch(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-VList: IInterfaceListSimple;
-vpath: string;
-Vcnt: integer;
-VFolder: string;
-SearchRec: TSearchRec;
-MySearch: string;
+  VList: IInterfaceListSimple;
+  Vpath: String;
+  Vcnt: Integer;
+  VFolder: String;
+  VSearchRec: TSearchRec;
+  VMySearch: String;
 begin
- Vcnt := 1;
- MySearch := ASearch;
- while PosEx('  ', MySearch) > 0 do MySearch := ReplaceStr(MySearch, '  ', ' ');
- VList := TInterfaceListSimple.Create;
- VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\mp\');
- if FindFirst(VFolder + '*.mp', faAnyFile, SearchRec) = 0 then begin
-  repeat
-    if (SearchRec.Attr and faDirectory) = faDirectory then begin
-      continue;
-    end;
-    vpath := VFolder + SearchRec.Name;
-    SearchInMapFile(ACancelNotifier, AOperationID, Vpath, MySearch, vlist, Vcnt);
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      Exit;
-    end;
-  until FindNext(SearchRec) <> 0;
- end;
- Result := VList;
+  Vcnt := 1;
+  VMySearch := ASearch;
+  while PosEx('  ', VMySearch) > 0 do VMySearch := ReplaceStr(VMySearch, '  ', ' ');
+  VList := TInterfaceListSimple.Create;
+  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\mp\');
+  if FindFirst(VFolder + '*.mp', faAnyFile, VSearchRec) = 0 then begin
+    repeat
+      if (VSearchRec.Attr and faDirectory) = faDirectory then begin
+        continue;
+      end;
+      Vpath := VFolder + VSearchRec.Name;
+      SearchInMapFile(ACancelNotifier, AOperationID, Vpath, VMySearch, Vlist, Vcnt);
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+       Exit;
+      end;
+    until FindNext(VSearchRec) <> 0;
+  end;
+  Result := VList;
 end;
 end.

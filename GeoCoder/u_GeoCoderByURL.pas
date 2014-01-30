@@ -45,16 +45,16 @@ type
     function GetPointFromFullLink(
       const Astr: AnsiString;
       const ALocalConverter: ILocalCoordConverter
-      ):IVectorDataItemPoint;
+    ):IVectorDataItemPoint;
     function GetPointFromShortLink(
       const Astr,AhttpData: AnsiString;
       const ACancelNotifier: INotifierOperation; AOperationID: Integer
-      ):IVectorDataItemPoint;
+    ):IVectorDataItemPoint;
   protected
     function PrepareRequest(
       const ASearch: WideString;
       const ALocalConverter: ILocalCoordConverter
-      ): IDownloadRequest; override;
+    ): IDownloadRequest; override;
     function ParseResultToPlacemarksList(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -89,10 +89,14 @@ uses
 { TGeoCoderByExtLink }
 
 
-procedure meters_to_lonlat( in_x,in_y : Double; var out_x, out_y : AnsiString; const AFormatSettings: TALFormatSettings);
+procedure meters_to_lonlat(
+  Ain_x, Ain_y: Double;
+  var Vout_x, Vout_y: AnsiString;
+  const AFormatSettings: TALFormatSettings
+);
 begin
-  out_X := ALFloatToStr(in_X/6378137*180/pi, AFormatSettings);
-  out_Y := ALFloatToStr(((arctan(exp(in_Y/6378137))-pi/4)*360)/pi, AFormatSettings);
+  Vout_X := ALFloatToStr(Ain_X/6378137*180/pi, AFormatSettings);
+  Vout_Y := ALFloatToStr(((arctan(exp(Ain_Y/6378137)) - pi/4)*360)/pi, AFormatSettings);
 end;
 
 constructor TGeoCoderByURL.Create(
@@ -115,164 +119,164 @@ begin
 end;
 
 function TGeoCoderByURL.GetPointFromShortLink(
-  const Astr,AhttpData: AnsiString;
+  const Astr, AhttpData: AnsiString;
   const ACancelNotifier: INotifierOperation; AOperationID: Integer
-  ): IVectorDataItemPoint;
+): IVectorDataItemPoint;
 var
- VPlace : IVectorDataItemPoint;
- VPoint : TDoublePoint;
- slat, slon: AnsiString;
- sname, sdesc, sfulldesc : string;
- VUrl: AnsiString;
- VFormatSettings: TALFormatSettings;
- VLink : AnsiString;
- i, j : integer;
- VHeader: AnsiString;
- VRequest: IDownloadRequest;
- VResult: IDownloadResult;
- VResultOk: IDownloadResultOk;
- VValueConverter: IValueToStringConverter;
+  VPlace: IVectorDataItemPoint;
+  VPoint: TDoublePoint;
+  VSLat, VSLon: AnsiString;
+  VSName, VSDesc, VSFullDesc: String;
+  VUrl: AnsiString;
+  VFormatSettings: TALFormatSettings;
+  VLink: AnsiString;
+  I, J: Integer;
+  VHeader: AnsiString;
+  VRequest: IDownloadRequest;
+  VResult: IDownloadResult;
+  VResultOk: IDownloadResultOk;
+  VValueConverter: IValueToStringConverter;
 begin
- VValueConverter := FValueToStringConverterConfig.GetStatic;
- VLink := ALStringReplace(AStr,'%2C',',', [rfReplaceAll]);
- VFormatSettings.DecimalSeparator := '.';
- sname := '';
- sdesc := '';
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VLink := ALStringReplace(AStr, '%2C', ',', [rfReplaceAll]);
+  VFormatSettings.DecimalSeparator := '.';
+  VSName := '';
+  VSDesc := '';
 
- if ALPosEx('http://g.co/', VLink, 1) > 0 then begin
-  sname := 'google';
-  VLink := AhttpData;
-  i := ALPosEx('ll', VLink, 1);
-  j := ALPosEx(',', VLink, i);
-  slat := Copy(VLink, i + 3, j - (i + 3));
-  i := j;
-  j := ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 1, j - (i + 1));
- end;
+  if ALPosEx('http://g.co/', VLink, 1) > 0 then begin
+    VSName := 'google';
+    VLink := AhttpData;
+    I := ALPosEx('ll', VLink, 1);
+    J := ALPosEx(',', VLink, I);
+    VSLat := Copy(VLink, I + 3, J - (I + 3));
+    I := J;
+    J := ALPosEx('&', VLink, I);
+    VSLon := Copy(VLink, I + 1, J - (I + 1));
+  end;
 
  if ALPosEx('http://goo.gl/maps/', VLink, 1) > 0 then begin
-  sname := 'google';
-  VLink := AhttpData;
-  i := ALPosEx('ll', VLink, 1);
-  j := ALPosEx(',', VLink, i);
-  slat := Copy(VLink, i + 3, j - (i + 3));
-  i := j;
-  j := ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 1, j - (i + 1));
+   VSName := 'google';
+   VLink := AhttpData;
+   I := ALPosEx('ll', VLink, 1);
+   J := ALPosEx(',', VLink, I);
+   VSLat := Copy(VLink, I + 3, J - (I + 3));
+   I := J;
+   J := ALPosEx('&', VLink, I);
+   VSLon := Copy(VLink, I + 1, J - (I + 1));
  end;
 
- if (RegExprGetMatchSubStr(VLink,'\.yandex\..+/-/',0)<>'' ) or
+ if (RegExprGetMatchSubStr(VLink, '\.yandex\..+/-/',0)<>'' ) or
     (ALPosEx('maps.yandex.ru/?oid=', VLink, 1) > 0 )then begin
-  sname := 'yandex';
-  VLink := ALStringReplace(AhttpData,'''','', [rfReplaceAll]);
-  i := ALPosEx('{ll:', VLink, 1);
-  if i=0 then i := ALPosEx(',ll:', VLink, 1);
-  j := ALPosEx(',', VLink, i+1);
-  slon := Copy(VLink, i + 4, j - (i + 4));
-  i := j;
-  j := ALPosEx(',', VLink, i+1);
-  slat := Copy(VLink, i + 1, j - (i + 1));
+   VSName := 'yandex';
+   VLink := ALStringReplace(AhttpData, '''', '', [rfReplaceAll]);
+   I := ALPosEx('{ll:', VLink, 1);
+   if I=0 then I := ALPosEx(',ll:', VLink, 1);
+   J := ALPosEx(',', VLink, I + 1);
+   VSLon := Copy(VLink, I + 4, J - (I + 4));
+   I := J;
+   J := ALPosEx(',', VLink, I + 1);
+   VSLat := Copy(VLink, I + 1, J - (I + 1));
  end;
 
  if (ALPosEx('maps.yandex.ru/?um=', VLink, 1) > 0 ) then begin // need 2 more test
-  sname := 'yandex';
-  VLink := AhttpData;
-  i := ALPosEx('{''bounds'':[[', VLink, 1);
-  if i=0 then i := ALPosEx(',ll:', VLink, 1);
-  j := ALPosEx(',', VLink, i+1);
-  slon := Copy(VLink, i + 12, j - (i + 12));
-  i := j;
-  j := ALPosEx(']', VLink, i+1);
-  slat := Copy(VLink, i + 1, j - (i + 1));
+   VSName := 'yandex';
+   VLink := AhttpData;
+   I := ALPosEx('{''bounds'':[[', VLink, 1);
+   if I=0 then I := ALPosEx(',ll:', VLink, 1);
+   J := ALPosEx(',', VLink, I + 1);
+   VSLon := Copy(VLink, I + 12, J - (I + 12));
+   I := J;
+   J := ALPosEx(']', VLink, I + 1);
+   VSLat := Copy(VLink, I + 1, J - (I + 1));
  end;
 
- if ALPosEx('binged.it', VLink, 1) > 0then begin
-  sname := 'bing';
-  VLink := ALStringReplace(AhttpData,'%2c',',', [rfReplaceAll]);
-  if RegExprGetMatchSubStr(VLink,'bing\.com\..+cp=[0-9]+', 0) <> '' then begin
-   i := ALPosEx('cp=', VLink, 1);
-   j := ALPosEx('~', VLink, i);
-   slat := Copy(VLink, i + 3, j - (i + 3));
-   i := j;
-   j := ALPosEx('&', VLink, i);
-   slon := Copy(VLink, i + 1, j - (i + 1));
-  end;
-  if RegExprGetMatchSubStr(VLink,'where1=[0-9]+', 0) <> '' then begin
-   i := ALPosEx('where1=', VLink, 1);
-   j := ALPosEx(',', VLink, i);
-   slat := Copy(VLink, i + 7, j - (i + 7));
-   i := j+1;
-   j := ALPosEx('"', VLink, i);
-   slon := Copy(VLink, i + 1, j - (i + 1));
-   slon := ALStringReplace(slon,',','.', [rfReplaceAll]);
-   slat := ALStringReplace(slat,',','.', [rfReplaceAll]);
-  end;
+ if ALPosEx('binged.it', VLink, 1) > 0 then begin
+   VSName := 'bing';
+   VLink := ALStringReplace(AhttpData, '%2c',',', [rfReplaceAll]);
+   if RegExprGetMatchSubStr(VLink, 'bing\.com\..+cp=[0-9]+', 0) <> '' then begin
+     I := ALPosEx('cp=', VLink, 1);
+     J := ALPosEx('~', VLink, I);
+     VSLat := Copy(VLink, I + 3, J - (I + 3));
+     I := J;
+     J := ALPosEx('&', VLink, I);
+     VSLon := Copy(VLink, I + 1, J - (I + 1));
+   end;
+   if RegExprGetMatchSubStr(VLink, 'where1=[0-9]+', 0) <> '' then begin
+     I := ALPosEx('where1=', VLink, 1);
+     J := ALPosEx(',', VLink, I);
+     VSLat := Copy(VLink, I + 7, J - (I + 7));
+     I := J + 1;
+     J := ALPosEx('"', VLink, I);
+     VSLon := Copy(VLink, I + 1, J - (I + 1));
+     VSLon := ALStringReplace(VSLon, ',', '.', [rfReplaceAll]);
+     VSLat := ALStringReplace(VSLat, ',', '.', [rfReplaceAll]);
+   end;
  end;
 
  if ALPosEx('osm.org', VLink, 1) > 0then begin
-  sname := 'osm';
-  VLink := AhttpData;
-  i := ALPosEx('LonLat(', VLink, 1);
-  j := ALPosEx(',', VLink, i);
-  slon := Copy(VLink, i + 7, j - (i + 7));
-  i := j+1;
-  j := ALPosEx(')', VLink, i);
-  slat := Copy(VLink, i + 1, j - (i + 1));
+   VSName := 'osm';
+   VLink := AhttpData;
+   I := ALPosEx('LonLat(', VLink, 1);
+   J := ALPosEx(',', VLink, I);
+   VSLon := Copy(VLink, I + 7, J - (I + 7));
+   I := J + 1;
+   J := ALPosEx(')', VLink, I);
+   VSLat := Copy(VLink, I + 1, J - (I + 1));
  end;
 
- if ALPosEx('rambler.ru', VLink, 1) > 0then begin
-  sname := 'rambler';
-  VLink := ALStringReplace(AhttpData,'\"','', [rfReplaceAll]);
-  i := ALPosEx('lon:', VLink, 1);
-  j := ALPosEx(',', VLink, i+1);
-  slon := Copy(VLink, i + 4, j - (i + 4));
-  i := ALPosEx('lat:', VLink, j);
-  j := ALPosEx('}', VLink, i+1);
-  slat := Copy(VLink, i + 4, j - (i + 4));
+ if ALPosEx('rambler.ru', VLink, 1) > 0 then begin
+   VSName := 'rambler';
+   VLink := ALStringReplace(AhttpData, '\"', '', [rfReplaceAll]);
+   I := ALPosEx('lon:', VLink, 1);
+   J := ALPosEx(',', VLink, I + 1);
+   VSLon := Copy(VLink, I + 4, J - (I + 4));
+   I := ALPosEx('lat:', VLink, J);
+   J := ALPosEx('}', VLink, I + 1);
+   VSLat := Copy(VLink, I + 4, J - (I + 4));
  end;
 
- if ALPosEx('permalink.html', VLink, 1) > 0then begin
-  VUrl := 'http://kosmosnimki.ru/TinyReference.ashx?id='+Copy(VLink,38,9);
-  VHeader := 'Referer: '+VLink+' Cookie: TinyReference='+Copy(VLink,38,9);
-  VLink := '';
-  VRequest := TDownloadRequest.Create(VUrl, VHeader, InetSettings.GetStatic);
-  VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
-  if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-    SetLength(VLink, VResultOk.Data.Size);
-    Move(VResultOk.Data.Buffer^, VLink[1], VResultOk.Data.Size);
-    i := ALPosEx('"x":', VLink, 1);
-    j := ALPosEx(',', VLink, i + 4 );
-    slon := Copy(VLink, i + 4, j - (i + 4));
-    i := ALPosEx('"y":', VLink, j);
-    j := ALPosEx(',', VLink, i + 4 );
-    slat := Copy(VLink, i + 4, j - (i + 4));
-    sfulldesc := string(VLink);
-    sname := 'kosmosnimki';
-    meters_to_lonlat(ALStrToFloat(slon, VFormatSettings),ALStrToFloat(slat, VFormatSettings),slon,slat, VFormatSettings);
-  end;
+ if ALPosEx('permalink.html', VLink, 1) > 0 then begin
+   VUrl := 'http://kosmosnimki.ru/TinyReference.ashx?id=' + Copy(VLink, 38, 9);
+   VHeader := 'Referer: ' + VLink + ' Cookie: TinyReference=' + Copy(VLink, 38, 9);
+   VLink := '';
+   VRequest := TDownloadRequest.Create(VUrl, VHeader, InetSettings.GetStatic);
+   VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+   if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+     SetLength(VLink, VResultOk.Data.Size);
+     Move(VResultOk.Data.Buffer^, VLink[1], VResultOk.Data.Size);
+     I := ALPosEx('"x":', VLink, 1);
+     J := ALPosEx(',', VLink, I + 4 );
+     VSLon := Copy(VLink, I + 4, J - (I + 4));
+     I := ALPosEx('"y":', VLink, J);
+     J := ALPosEx(',', VLink, I + 4 );
+     VSLat := Copy(VLink, I + 4, J - (I + 4));
+     VSFullDesc := String(VLink);
+     VSName := 'kosmosnimki';
+     meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
+   end;
  end ;
 
  if ALPosEx('api/index.html?permalink=', VLink, 1) > 0 then begin
-  slat := Copy(VLink,53,5);
-  slon := Copy(VLink,59,5);
-  VUrl := 'http://maps.kosmosnimki.ru/TinyReference/Get.ashx?id='+slat;
-  VHeader := 'Referer: http://maps.kosmosnimki.ru/api/index.html?'+slon;
-  VRequest := TDownloadRequest.Create(VUrl, VHeader, InetSettings.GetStatic);
-  VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
-  if Supports(VResult, IDownloadResultOk, VResultOk) then begin
-    SetLength(VLink, VResultOk.Data.Size);
-    Move(VResultOk.Data.Buffer^, VLink[1], VResultOk.Data.Size);
-    VLink := ALStringReplace(VLink,'\','', [rfReplaceAll]);
-    i := ALPosEx('"x":', VLink, 1);
-    j := ALPosEx(',', VLink, i + 4 );
-    slon := Copy(VLink, i + 4, j - (i + 4));
-    i := ALPosEx('"y":', VLink, j);
-    j := ALPosEx(',', VLink, i + 4 );
-    slat := Copy(VLink, i + 4, j - (i + 4));
-    sfulldesc := string(VLink);
-    sname := 'maps.kosmosnimki';
-    meters_to_lonlat(ALStrToFloat(slon, VFormatSettings),ALStrToFloat(slat, VFormatSettings),slon,slat, VFormatSettings);
-  end;
+   VSLat := Copy(VLink, 53, 5);
+   VSLon := Copy(VLink, 59, 5);
+   VUrl := 'http://maps.kosmosnimki.ru/TinyReference/Get.ashx?id=' + VSLat;
+   VHeader := 'Referer: http://maps.kosmosnimki.ru/api/index.html?' + VSLon;
+   VRequest := TDownloadRequest.Create(VUrl, VHeader, InetSettings.GetStatic);
+   VResult := Downloader.DoRequest(VRequest, ACancelNotifier, AOperationID);
+   if Supports(VResult, IDownloadResultOk, VResultOk) then begin
+     SetLength(VLink, VResultOk.Data.Size);
+     Move(VResultOk.Data.Buffer^, VLink[1], VResultOk.Data.Size);
+     VLink := ALStringReplace(VLink, '\', '', [rfReplaceAll]);
+     I := ALPosEx('"x":', VLink, 1);
+     J := ALPosEx(',', VLink, I + 4 );
+     VSLon := Copy(VLink, I + 4, J - (I + 4));
+     I := ALPosEx('"y":', VLink, J);
+     J := ALPosEx(',', VLink, I + 4 );
+     VSLat := Copy(VLink, I + 4, J - (I + 4));
+     VSFullDesc := String(VLink);
+     VSName := 'maps.kosmosnimki';
+     meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
+   end;
  end;
 
  if ALPosEx('go.2gis.ru', VLink, 1) > 0then begin
@@ -284,370 +288,374 @@ begin
   if Supports(VResult, IDownloadResultOk, VResultOk) then begin
     SetLength(VLink, VResultOk.Data.Size);
     Move(VResultOk.Data.Buffer^, VLink[1], VResultOk.Data.Size);
-    i := ALPosEx('center/', VLink, 1);
-    j := ALPosEx(',', VLink, i );
-    slon := Copy(VLink, i + 7, j - (i + 7));
-    i := j;
-    j := ALPosEx('/', VLink, i );
-    slat := Copy(VLink, i + 1, j - (i + 1));
-    sname := '2gis';
+    I := ALPosEx('center/', VLink, 1);
+    J := ALPosEx(',', VLink, I );
+    VSLon := Copy(VLink, I + 7, J - (I + 7));
+    I := J;
+    J := ALPosEx('/', VLink, I );
+    VSLat := Copy(VLink, I + 1, J - (I + 1));
+    VSName := '2gis';
   end;
  end;
 
- if sname <> '' then begin
-  try
-    VPoint.Y := ALStrToFloat(slat, VFormatSettings);
-    VPoint.X := ALStrToFloat(slon, VFormatSettings);
-  except
-    raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
-  end;
-  sdesc := '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
-  sfulldesc := '<a href=' + string(Astr) + '>' +string(Astr)+ '</a><br>' + ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-  VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
-  Result := VPlace;
- end else
- Result := nil;
+ if VSName <> '' then begin
+   try
+     VPoint.Y := ALStrToFloat(VSLat, VFormatSettings);
+     VPoint.X := ALStrToFloat(VSLon, VFormatSettings);
+   except
+     raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VSLat, VSLon]);
+   end;
+   VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+   VSFullDesc := '<a href=' + String(Astr) + '>' +String(Astr)+ '</a><br>' + ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
+   VPlace := PlacemarkFactory.Build(VPoint, VSName, VSDesc, VSFullDesc, 4);
+   Result := VPlace;
+  end else Result := nil;
 end;
 
-function TGeoCoderByURL.GetPointFromFullLink(const Astr: AnsiString; const ALocalConverter: ILocalCoordConverter): IVectorDataItemPoint;
+function TGeoCoderByURL.GetPointFromFullLink(
+  const Astr: AnsiString;
+  const ALocalConverter: ILocalCoordConverter
+): IVectorDataItemPoint;
 var
- i, j : integer;
- VPlace : IVectorDataItemPoint;
- VPoint : TDoublePoint;
- slat, slon: AnsiString;
- sname, sdesc, sfulldesc : string;
- VLink : AnsiString;
- VFormatSettings: TALFormatSettings;
- VZoom, Vilon, Vilat: integer;
- XYPoint:TPoint;
- XYRect:TRect;
- VValueConverter: IValueToStringConverter;
+  I, J: Integer;
+  VPlace: IVectorDataItemPoint;
+  VPoint: TDoublePoint;
+  VSLat, VSLon: AnsiString;
+  VSName, VSDesc, VSFullDesc: String;
+  VLink: AnsiString;
+  VFormatSettings: TALFormatSettings;
+  VZoom, Vilon, Vilat: Integer;
+  VXYPoint:TPoint;
+  VXYRect:TRect;
+  VValueConverter: IValueToStringConverter;
 begin
- VValueConverter := FValueToStringConverterConfig.GetStatic;
- VLink := ALStringReplace(AStr,'%2C',',', [rfReplaceAll]);
- VFormatSettings.DecimalSeparator := '.';
- sname := '';
- sdesc := '';
- // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
- // http://maps.google.ru/maps?hl=ru&ll=43.460987,39.948606&spn=0.023144,0.038581&t=m&z=15&vpsrc=6
- if RegExprGetMatchSubStr(VLink,'maps\.google\..+ll=[0-9]+', 0) <> '' then begin
-  sname := 'Google';
-  i := ALPosEx('ll', VLink, 1);
-  j := ALPosEx(',', VLink, i);
-  slat := Copy(VLink, i + 3, j - (i + 3));
-  i := j;
-  j := ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 1, j - (i + 1));
- end;
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VLink := ALStringReplace(AStr, '%2C',',', [rfReplaceAll]);
+  VFormatSettings.DecimalSeparator := '.';
+  VSName := '';
+  VSDesc := '';
+  // http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
+  // http://maps.google.ru/maps?hl=ru&ll=43.460987,39.948606&spn=0.023144,0.038581&t=m&z=15&vpsrc=6
+  if RegExprGetMatchSubStr(VLink, 'maps\.google\..+ll=[0-9]+', 0) <> '' then begin
+    VSName := 'Google';
+    I := ALPosEx('ll', VLink, 1);
+    J := ALPosEx(',', VLink, I);
+    VSLat := Copy(VLink, I + 3, J - (I + 3));
+    I := J;
+    J := ALPosEx('&', VLink, I);
+    VSLon := Copy(VLink, I + 1, J - (I + 1));
+  end;
 
- // http://maps.navitel.su/?zoom=16&lat=45.03446&lon=38.96867&fl=J&rId=hN21H5ByVER8e4A%3D&rp=5
- if RegExprGetMatchSubStr(VLink,'maps\.navitel\.su.+lat=.+lon=',0) <> '' then begin
-  sname := 'Navitel';
-  i := ALPosEx('lat=', VLink, 1);
-  j := ALPosEx('&', VLink, i);
-  slat := Copy(VLink, i + 4, j - (i + 4));
-  i := ALPosEx('lon=', VLink, j);
-  j := ALPosEx('&', VLink, i);
-  if j = 0 then j := length(VLink) +1;
-  slon := Copy(VLink, i + 4, j - (i + 4));
- end;
+  // http://maps.navitel.su/?zoom=16&lat=45.03446&lon=38.96867&fl=J&rId=hN21H5ByVER8e4A%3D&rp=5
+  if RegExprGetMatchSubStr(VLink, 'maps\.navitel\.su.+lat=.+lon=',0) <> '' then begin
+    VSName := 'Navitel';
+    I := ALPosEx('lat=', VLink, 1);
+    J := ALPosEx('&', VLink, I);
+    VSLat := Copy(VLink, I + 4, J - (I + 4));
+    I := ALPosEx('lon=', VLink, J);
+    J := ALPosEx('&', VLink, I);
+    if J = 0 then J := length(VLink) + 1;
+    VSLon := Copy(VLink, I + 4, J - (I + 4));
+  end;
 
- // http://kosmosnimki.ru/?x=44.1053254382903&y=45.6876903573303&z=6&fullscreen=false&mode=satellite
- if RegExprGetMatchSubStr(VLink,'kosmosnimki\.ru.+x=.+y=',0) <> '' then begin
-  sname := 'Kosmosnimki';
-  i := ALPosEx('x=', VLink, 1);
-  j := ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 2, j - (i + 2));
-  i := ALPosEx('y=', VLink, j);
-  j := ALPosEx('&', VLink, i);
-  slat := Copy(VLink, i + 2, j - (i + 2));
- end;
+  // http://kosmosnimki.ru/?x=44.1053254382903&y=45.6876903573303&z=6&fullscreen=false&mode=satellite
+  if RegExprGetMatchSubStr(VLink, 'kosmosnimki\.ru.+x=.+y=',0) <> '' then begin
+    VSName := 'Kosmosnimki';
+    I := ALPosEx('x=', VLink, 1);
+    J := ALPosEx('&', VLink, I);
+    VSLon := Copy(VLink, I + 2, J - (I + 2));
+    I := ALPosEx('y=', VLink, J);
+    J := ALPosEx('&', VLink, I);
+    VSLat := Copy(VLink, I + 2, J - (I + 2));
+  end;
 
- // http://www.bing.com/maps/default.aspx?v=2&cp=45.5493750107145~41.6883332507903&style=h&lvl=6
- if RegExprGetMatchSubStr(VLink,'bing\.com.+cp=[0-9]+',0) <> '' then begin
-  sname := 'Bing';
-  i := ALPosEx('cp=', VLink, 1);
-  j := ALPosEx('~', VLink, i);
-  slat := Copy(VLink, i + 3, j - (i + 3));
-  i := j;
-  j :=ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 1, j - (i + 1));
- end;
+  // http://www.bing.com/maps/default.aspx?v=2&cp=45.5493750107145~41.6883332507903&style=h&lvl=6
+  if RegExprGetMatchSubStr(VLink, 'bing\.com.+cp=[0-9]+', 0) <> '' then begin
+    VSName := 'Bing';
+    I := ALPosEx('cp=', VLink, 1);
+    J := ALPosEx('~', VLink, I);
+    VSLat := Copy(VLink, I + 3, J - (I + 3));
+    I := J;
+    J :=ALPosEx('&', VLink, I);
+    VSLon := Copy(VLink, I + 1, J - (I + 1));
+  end;
 
- // http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
- if RegExprGetMatchSubStr(VLink,'wikimapia\.org.+lat=.+lon=',0) <> '' then begin
-  sname := 'WikiMapia';
-  i := ALPosEx('lat=', VLink, 1);
-  j := ALPosEx('&', VLink, i);
-  slat := Copy(VLink, i + 4, j - (i + 4));
-  i := ALPosEx('lon=', VLink, j);
-  j := ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 4, j - (i + 4));
- end;
+  // http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
+  if RegExprGetMatchSubStr(VLink, 'wikimapia\.org.+lat=.+lon=',0) <> '' then begin
+    VSName := 'WikiMapia';
+    I := ALPosEx('lat=', VLink, 1);
+    J := ALPosEx('&', VLink, I);
+    VSLat := Copy(VLink, I + 4, J - (I + 4));
+    I := ALPosEx('lon=', VLink, J);
+    J := ALPosEx('&', VLink, I);
+    VSLon := Copy(VLink, I + 4, J - (I + 4));
+  end;
 
- // http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
- if RegExprGetMatchSubStr(VLink,'maps\.rosreestr\.ru.+x=.+y=',0) <> '' then begin
-  sname := 'Rosreestr';
-  i := ALPosEx('x=', VLink, 1);
-  j := ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 2, j - (i + 2));
-  i := ALPosEx('y=', VLink, j);
-  j := ALPosEx('&', VLink, i);
-  slat := Copy(VLink, i + 2, j - (i + 2));
-  meters_to_lonlat(ALStrToFloat(slon, VFormatSettings),ALStrToFloat(slat, VFormatSettings),slon,slat, VFormatSettings);
- end;
+  // http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
+  if RegExprGetMatchSubStr(VLink, 'maps\.rosreestr\.ru.+x=.+y=',0) <> '' then begin
+    VSName := 'Rosreestr';
+    I := ALPosEx('x=', VLink, 1);
+    J := ALPosEx('&', VLink, I);
+    VSLon := Copy(VLink, I + 2, J - (I + 2));
+    I := ALPosEx('y=', VLink, J);
+    J := ALPosEx('&', VLink, I);
+    VSLat := Copy(VLink, I + 2, J - (I + 2));
+    meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
+  end;
 
- // http://maps.mail.ru/?z=10&ll=37.619948,55.750023&j=1
- if RegExprGetMatchSubStr(VLink,'maps\.mail\.ru.+ll=',0) <> '' then begin
-  sname := 'Mail.ru';
-  i := ALPosEx('ll=', VLink, 1);
-  j := ALPosEx(',', VLink, i);
-  slon := Copy(VLink, i + 3, j - (i + 3));
-  i := j;
-  j := ALPosEx('&', VLink, i);
-  if j = 0 then j := length(VLink) +1;
-  slat := Copy(VLink, i + 1, j - (i + 1));
- end;
+  // http://maps.mail.ru/?z=10&ll=37.619948,55.750023&J=1
+  if RegExprGetMatchSubStr(VLink, 'maps\.mail\.ru.+ll=',0) <> '' then begin
+    VSName := 'Mail.ru';
+    I := ALPosEx('ll=', VLink, 1);
+    J := ALPosEx(',', VLink, I);
+    VSLon := Copy(VLink, I + 3, J - (I + 3));
+    I := J;
+    J := ALPosEx('&', VLink, I);
+    if J = 0 then J := length(VLink) + 1;
+    VSLat := Copy(VLink, I + 1, J - (I + 1));
+  end;
 
- // http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
- // http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
- if RegExprGetMatchSubStr(VLink,'maps\.nokia\.com.+\#\|',0) <> '' then begin
-  i := ALPosEx('#|', VLink, 1);
-  j := ALPosEx('|', VLink, i+2);
-  slat := Copy(VLink, i + 2, j - (i + 2));
-  i := j;
-  j := ALPosEx('|', VLink, i+1);
-  if j = 0 then j := length(VLink) +1;
-  slon := Copy(VLink, i + 1, j - (i + 1));
- end;
+  // http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
+  // http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
+  if RegExprGetMatchSubStr(VLink, 'maps\.nokia\.com.+\#\|',0) <> '' then begin
+    I := ALPosEx('#|', VLink, 1);
+    J := ALPosEx('|', VLink, I + 2);
+    VSLat := Copy(VLink, I + 2, J - (I + 2));
+    I := J;
+    J := ALPosEx('|', VLink, I + 1);
+    if J = 0 then J := length(VLink) +1;
+    VSLon := Copy(VLink, I + 1, J - (I + 1));
+  end;
 
- // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
- // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
- if RegExprGetMatchSubStr(VLink,'\.yandex\..+/\?ll=[0-9]+',0) <> '' then begin
-  sname := 'Yandex';
-  i := ALPosEx('ll', VLink, 1);
-  j := ALPosEx(',', VLink, i);
-  slon := Copy(VLink, i + 3, j - (i + 3));
-  i := j;
-  j := ALPosEx('&', VLink, i);
-  slat := Copy(VLink, i + 1, j - (i + 1));
- end;
+  // http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
+  // http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
+  if RegExprGetMatchSubStr(VLink, '\.yandex\..+/\?ll=[0-9]+',0) <> '' then begin
+    VSName := 'Yandex';
+    I := ALPosEx('ll', VLink, 1);
+    J := ALPosEx(',', VLink, I);
+    VSLon := Copy(VLink, I + 3, J - (I + 3));
+    I := J;
+    J := ALPosEx('&', VLink, I);
+    VSLat := Copy(VLink, I + 1, J - (I + 1));
+  end;
 
- // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
- if RegExprGetMatchSubStr(VLink,'\.yandex\..+lat=.+lon=',0) <> '' then begin
-  sname := 'Yandex';
-  i := ALPosEx('lat=', VLink, 1);
-  j := ALPosEx('&', VLink, i+3);
-  slat := Copy(VLink, i + 4, j - (i + 4));
-  i := ALPosEx('lon=', VLink, j);
-  j := ALPosEx('&', VLink, i);
-  if j = 0 then j := length(VLink) +1;
-  slon := Copy(VLink, i + 4, j - (i + 4));
- end;
+  // http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
+  if RegExprGetMatchSubStr(VLink, '\.yandex\..+lat=.+lon=',0) <> '' then begin
+    VSName := 'Yandex';
+    I := ALPosEx('lat=', VLink, 1);
+    J := ALPosEx('&', VLink, I + 3);
+    VSLat := Copy(VLink, I + 4, J - (I + 4));
+    I := ALPosEx('lon=', VLink, J);
+    J := ALPosEx('&', VLink, I);
+    if J = 0 then J := length(VLink) + 1;
+    VSLon := Copy(VLink, I + 4, J - (I + 4));
+  end;
 
- //http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
- if RegExprGetMatchSubStr(VLink,'maps\.2gis\.ru.+zoom',0) <> '' then begin
-  sname := '2Gis';
-  i := ALPosEx('center/', VLink, 1);
-  j := ALPosEx(',', VLink, i);
-  slon := Copy(VLink, i + 7, j - (i + 7));
-  i:=j;
-  j := ALPosEx('/', VLink, i);
-  if j = 0 then j := length(VLink) +1;
-  slat := Copy(VLink, i + 1, j - (i + 1));
- end;
+  //http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
+  if RegExprGetMatchSubStr(VLink, 'maps\.2gis\.ru.+zoom',0) <> '' then begin
+    VSName := '2Gis';
+    I := ALPosEx('center/', VLink, 1);
+    J := ALPosEx(',', VLink, I);
+    VSLon := Copy(VLink, I + 7, J - (I + 7));
+    I := J;
+    J := ALPosEx('/', VLink, I);
+    if J = 0 then J := length(VLink) +1;
+    VSLat := Copy(VLink, I + 1, J - (I + 1));
+  end;
 
- // http://www.openstreetmap.org/#map=17/45.12333/38.98709
- // http://www.openstreetmap.org/#map=17/45.12333/38.98576&layers=C
- if (RegExprGetMatchSubStr(VLink, '(openstreetmap|osm)\..+map=', 0) <> '') then begin
-  sname := 'OpenStreetMap';
-  i := ALPosEx('map=', VLink, 1);
-  i := ALPosEx('/', VLink, i);
-  j := ALPosEx('/', VLink, i + 1);
-  slat := Copy(VLink, i + 1, j - (i + 1));
+  // http://www.openstreetmap.org/#map=17/45.12333/38.98709
+  // http://www.openstreetmap.org/#map=17/45.12333/38.98576&layers=C
+  if (RegExprGetMatchSubStr(VLink, '(openstreetmap|osm)\..+map=', 0) <> '') then begin
+    VSName := 'OpenStreetMap';
+    I := ALPosEx('map=', VLink, 1);
+    I := ALPosEx('/', VLink, I);
+    J := ALPosEx('/', VLink, I + 1);
+    VSLat := Copy(VLink, I + 1, J - (I + 1));
 
-  i := ALPosEx('/', VLink, j);
-  j := ALPosEx('&', VLink, i);
+    I := ALPosEx('/', VLink, J);
+    J := ALPosEx('&', VLink, I);
 
-  if j = 0 then j := length(VLink) + 1;
-  slon := Copy(VLink, i + 1, j - (i + 1));
- end;
+    if J = 0 then J := length(VLink) + 1;
+    VSLon := Copy(VLink, I + 1, J - (I + 1));
+  end;
 
- // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
- // http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
- if  (RegExprGetMatchSubStr(VLink,'(openstreetmap|osm)\..+lat=',0)<>'') then begin
-  sname := 'OpenStreetMap';
-  i := ALPosEx('lat=', VLink, 1);
-  j := ALPosEx('&', VLink, i);
-  slat := Copy(VLink, i + 4, j - (i + 4));
-  i := ALPosEx('lon=', VLink, j);
-  j := ALPosEx('&', VLink, i);
-  if j = 0 then j := length(VLink) +1;
-  slon := Copy(VLink, i + 4, j - (i + 4));
- end;
+  // http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
+  // http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
+  if  (RegExprGetMatchSubStr(VLink, '(openstreetmap|osm)\..+lat=',0) <> '') then begin
+    VSName := 'OpenStreetMap';
+    I := ALPosEx('lat=', VLink, 1);
+    J := ALPosEx('&', VLink, I);
+    VSLat := Copy(VLink, I + 4, J - (I + 4));
+    I := ALPosEx('lon=', VLink, J);
+    J := ALPosEx('&', VLink, I);
+    if J = 0 then J := length(VLink) + 1;
+    VSLon := Copy(VLink, I + 4, J - (I + 4));
+  end;
 
- // http://khm0.google.com/kh/v=127&src=app&x=24398&s=&y=10570&z=15&s=Gali
- if RegExprGetMatchSubStr(VLink,'khm.+google\..+x=[0-9]+', 0) <> '' then begin
-  sname := 'Google tile';
+  // http://khm0.google.com/kh/v=127&src=app&x=24398&s=&y=10570&z=15&s=Gali
+  if RegExprGetMatchSubStr(VLink, 'khm.+google\..+x=[0-9]+', 0) <> '' then begin
+    VSName := 'Google tile';
 
-  i := ALPosEx('y=', VLink, 1);
-  j := ALPosEx('&', VLink, i);
-  slat := Copy(VLink, i + 2, j - (i + 2));
-  Vilat := ALStrToInt(slat);
+    I := ALPosEx('y=', VLink, 1);
+    J := ALPosEx('&', VLink, I);
+    VSLat := Copy(VLink, I + 2, J - (I + 2));
+    Vilat := ALStrToInt(VSLat);
 
-  i := ALPosEx('x=', VLink, 1);
-  j := ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 2, j - (i + 2));
-  Vilon := ALStrToInt(slon);
+    I := ALPosEx('x=', VLink, 1);
+    J := ALPosEx('&', VLink, I);
+    VSLon := Copy(VLink, I + 2, J - (I + 2));
+    Vilon := ALStrToInt(VSLon);
 
-  i := ALPosEx('z=', VLink, 1);
-  j := ALPosEx('&', VLink, i);
-  slon := Copy(VLink, i + 2, j - (i + 2));
-  VZoom := ALStrToInt(slon);
-  inc(VZoom);
+    I := ALPosEx('z=', VLink, 1);
+    J := ALPosEx('&', VLink, I);
+    VSLon := Copy(VLink, I + 2, J - (I + 2));
+    VZoom := ALStrToInt(VSLon);
+    Inc(VZoom);
 
-  XYPoint.X:=ViLon;
-  XYPoint.Y:=ViLat;
-  sdesc := 'z='+inttostr(VZoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#$D#$A;
-  XYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
-  XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
-  VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
-  slat := ALFloatToStr(VPoint.Y, VFormatSettings);
-  slon := ALFloatToStr(VPoint.X, VFormatSettings);
- end;
+    VXYPoint.X := ViLon;
+    VXYPoint.Y := ViLat;
+    VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
+    VXYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
+    VXYPoint := Point((VXYRect.Right + VXYRect.Left)div 2, (VXYRect.Bottom + VXYRect.top)div 2);
+    VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
+    VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
+    VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+  end;
 
+  // http://c.tile.openstreetmap.org/10/622/367.png
+  if RegExprGetMatchSubStr(VLink, '\.(openstreetmap|opencyclemap|osm).+\.png',0) <> '' then begin
+    VSName := 'OpenStreetMap';
+    I := ALPosEx(RegExprGetMatchSubStr(VLink, '/[0-9]?[0-9]/',0), VLink, 1); // Z значение
+    J := ALPosEx('/', VLink, I + 1);
+    VZoom := (ALStrToInt(Copy(VLink, I + 1, J - (I + 1))));
+    Inc(VZoom);
+    I:= J;
+    J := ALPosEx('/', VLink, I + 1);
+    VSLon := Copy(VLink, I + 1, J - (I + 1));
+    Vilon := ALStrToInt(VSLon);
+    I:= J;
+    J := ALPosEx('.', VLink, I + 1);
+    VSLat := Copy(VLink, I + 1, J - (I + 1));
+    Vilat := ALStrToInt(VSLat);
+    VXYPoint.X := ViLon;
+    VXYPoint.Y := ViLat;
+    VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
+    VXYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
+    VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top)div 2);
+    VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
+    VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
+    VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+  end;
 
- // http://c.tile.openstreetmap.org/10/622/367.png
- if RegExprGetMatchSubStr(VLink,'\.(openstreetmap|opencyclemap|osm).+\.png',0)<>''  then begin
-  sname := 'OpenStreetMap';
-  i := ALPosEx(RegExprGetMatchSubStr(VLink,'/[0-9]?[0-9]/',0), VLink, 1); // Z значение
-  j := ALPosEx('/', VLink, i+1);
-  VZoom := (ALStrToInt(Copy(VLink, i + 1, j - (i + 1))));
-  inc(VZoom);
-  i:= j;
-  j := ALPosEx('/', VLink, i+1);
-  slon := Copy(VLink, i + 1, j - (i + 1));
-  Vilon := ALStrToInt(slon);
-  i:= j;
-  j := ALPosEx('.', VLink, i+1);
-  slat := Copy(VLink, i + 1, j - (i + 1));
-  Vilat := ALStrToInt(slat);
-  XYPoint.X:=ViLon;
-  XYPoint.Y:=ViLat;
-  sdesc := 'z='+inttostr(VZoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#$D#$A;
-  XYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
-  XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
-  VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
-  slat := ALFloatToStr(VPoint.Y, VFormatSettings);
-  slon := ALFloatToStr(VPoint.X, VFormatSettings);
- end;
-
- // http://188.95.188.28/cgi-bin/webfile_mgr.cgi?cmd=cgi_download&path=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&path1=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&name=2506.jpg&type=JPEG+Image&browser=iee)
- if RegExprGetMatchSubStr(VLink,'/z[0-9]+/.+\.(png|jpg)+',0)<>''  then
- if sname = '' then begin
-  sname := string(RegExprGetMatchSubStr(VLink,'http://[0-9a-zа-я\.]+',0));
-  i := ALPosEx('/z', VLink, 1);
-  if i>0 then begin
-   j := ALPosEx('/', VLink, i+1);
-   slat := Copy(VLink, i + 2, j - (i + 2));
-    try
-     VZoom := ALStrToInt(slat);
-    except
-     VZoom := 0 ;
+  // http://188.95.188.28/cgi-bin/webfile_mgr.cgi?cmd=cgi_download&path=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&path1=/mnt/HD/HD_a2/pub/genshtab250m/z12/1302/2506.jpg&name=2506.jpg&type=JPEG+Image&browser=iee)
+  if RegExprGetMatchSubStr(VLink, '/z[0-9]+/.+\.(png|jpg)+',0) <> ''  then begin
+    if VSName = '' then begin
+      VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+      I := ALPosEx('/z', VLink, 1);
+      if I>0 then begin
+        J := ALPosEx('/', VLink, I + 1);
+        VSLat := Copy(VLink, I + 2, J - (I + 2));
+        try
+          VZoom := ALStrToInt(VSLat);
+        except
+          VZoom := 0 ;
+        end;
+        I := ALPosEx('/', VLink, J); // X значение
+        J := ALPosEx('/', VLink, I + 1);
+        VSLon := Copy(VLink, I + 1, J - (I + 1));
+        Vilat := ALStrToInt(VSLon);
+        I := J; // Y значение
+        J := ALPosEx('.', VLink, I + 1);
+        VSLat := Copy(VLink, I + 1, J - (I + 1));
+        Vilon := ALStrToInt(VSLat);
+        Inc(VZoom); // зум отличается на 1
+        VXYPoint.X := ViLon;
+        VXYPoint.Y := ViLat;
+        VSDesc := 'z=' + IntToStr(VZoom) + ' x=' + IntToStr(Vilon) + ' y=' + IntToStr(Vilat) + #$D#$A;
+        VXYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
+        VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top) div 2);
+        VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
+        VSLat := ALFloatToStr(VPoint.Y, VFormatSettings);
+        VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
+      end;
     end;
-   i := ALPosEx('/', VLink, j); // X значение
-   j := ALPosEx('/', VLink, i+1);
-   slon := Copy(VLink, i + 1, j - (i + 1));
-   Vilat := ALStrToInt(slon);
-   i := j; // Y значение
-   j := ALPosEx('.', VLink, i+1);
-   slat := Copy(VLink, i + 1, j - (i + 1));
-   Vilon := ALStrToInt(slat);
-   inc(VZoom); // зум отличается на 1
-   XYPoint.X:=ViLon;
-   XYPoint.Y:=ViLat;
-   sdesc := 'z='+inttostr(VZoom)+' x='+inttostr(Vilon)+' y='+inttostr(Vilat)+#$D#$A;
-   XYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(XYPoint,VZoom-1);
-   XYPoint := Point((XYRect.Right+XYRect.Left)div 2,(XYRect.Bottom+XYRect.top)div 2);
-   VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(XYPoint,VZoom-1);
-   slat := ALFloatToStr(VPoint.Y, VFormatSettings);
-   slon := ALFloatToStr(VPoint.X, VFormatSettings);
   end ;
- end ;
 
- // http://wikimapia.org/d?lng=1&BBOX=42.84668,43.26121,42.89063,43.29320
- // http://www.openstreetmap.org/?box=yes&bbox=41.73729%2C44.25345%2C41.73729%2C44.25345
- if RegExprGetMatchSubStr(AlUpperCase(VLink),'BBOX=([0-9]+.[0-9]+\,)+([0-9]+.[0-9]+)',0)<>''  then
-  if sname = '' then begin
-   sname := string(RegExprGetMatchSubStr(VLink,'http://[0-9a-zа-я\.]+',0));
-   i := ALPosEx('BBOX=', AlUpperCase(VLink))+4;
-   j := ALPosEx(',', VLink, i+1);
-   slon := Copy(VLink, i + 1, j - (i + 1));
-   i := j;
-   j := ALPosEx(',', VLink, i+1);
-   slat := Copy(VLink, i + 1, j - (i + 1));
-   i := j;
-   j := ALPosEx(',', VLink, i+1);
-   slon := ALFloatToStr((ALStrToFloat(Copy(VLink, i + 1, j - (i + 1)),VFormatSettings)+ALStrToFloat(slon,VFormatSettings))/2, VFormatSettings);
-   i := j;
-   j := ALPosEx('&', VLink, i+1);
-   if j=0 then j:=length(VLink);
-   slat := ALFloatToStr((ALStrToFloat(Copy(VLink, i + 1, j - (i + 1)),VFormatSettings)+ALStrToFloat(slat,VFormatSettings))/2, VFormatSettings);
-   slat := ALStringReplace(slat,',','.', [rfReplaceAll]);
-   slon := ALStringReplace(slon,',','.', [rfReplaceAll]);
-   if (ALStrToFloat(slat,VFormatSettings)>360)or(ALStrToFloat(slon,VFormatSettings)>360) then
-   begin
-     meters_to_lonlat(ALStrToFloat(slon, VFormatSettings),ALStrToFloat(slat, VFormatSettings),slon,slat, VFormatSettings);
-   end;
+  // http://wikimapia.org/d?lng=1&BBOX=42.84668,43.26121,42.89063,43.29320
+  // http://www.openstreetmap.org/?box=yes&bbox=41.73729%2C44.25345%2C41.73729%2C44.25345
+  if RegExprGetMatchSubStr(AlUpperCase(VLink), 'BBOX=([0-9]+.[0-9]+\,)+([0-9]+.[0-9]+)', 0) <> ''  then begin
+    if VSName = '' then begin
+      VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+      I := ALPosEx('BBOX=', AlUpperCase(VLink)) + 4;
+      J := ALPosEx(',', VLink, I + 1);
+      VSLon := Copy(VLink, I + 1, J - (I + 1));
+      I := J;
+      J := ALPosEx(',', VLink, I + 1);
+      VSLat := Copy(VLink, I + 1, J - (I + 1));
+      I := J;
+      J := ALPosEx(',', VLink, I + 1);
+      VSLon := ALFloatToStr((ALStrToFloat(Copy(VLink, I + 1, J - (I + 1)), VFormatSettings) + ALStrToFloat(VSLon, VFormatSettings))/2, VFormatSettings);
+      I := J;
+      J := ALPosEx('&', VLink, I + 1);
+      if J=0 then J := length(VLink);
+      VSLat := ALFloatToStr((ALStrToFloat(Copy(VLink, I + 1, J - (I + 1)), VFormatSettings) + ALStrToFloat(VSLat, VFormatSettings))/2, VFormatSettings);
+      VSLat := ALStringReplace(VSLat, ',','.', [rfReplaceAll]);
+      VSLon := ALStringReplace(VSLon, ',','.', [rfReplaceAll]);
+      if (ALStrToFloat(VSLat, VFormatSettings)>360)or(ALStrToFloat(VSLon, VFormatSettings)>360) then begin
+        meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
+      end;
+    end;
   end;
-
  // http://чепецк.net/?zoom=15&lat=43.94165&lon=40.14849&layers=BFFFT
- if  RegExprGetMatchSubStr(AlUpperCase(VLink),'LAT=.+LON=',0)<>''  then
-  if sname = '' then begin
-   sname := string(RegExprGetMatchSubStr(VLink,'http://[0-9a-zа-я\.]+',0));
-   i := ALPosEx('LAT=', AlUpperCase(VLink), 1);
-   j := ALPosEx('&', VLink, i);
-   slat := Copy(VLink, i + 4, j - (i + 4));
-   i := ALPosEx('LON=', AlUpperCase(VLink), j);
-   j := ALPosEx('&', VLink, i);
-   if j = 0 then j := length(VLink) +1;
-   slon := Copy(VLink, i + 4, j - (i + 4));
+  if  RegExprGetMatchSubStr(AlUpperCase(VLink), 'LAT=.+LON=', 0) <> '' then begin
+    if VSName = '' then begin
+      VSName := String(RegExprGetMatchSubStr(VLink, 'http://[0-9a-zа-я\.]+', 0));
+      I := ALPosEx('LAT=', AlUpperCase(VLink), 1);
+      J := ALPosEx('&', VLink, I);
+      VSLat := Copy(VLink, I + 4, J - (I + 4));
+      I := ALPosEx('LON=', AlUpperCase(VLink), J);
+      J := ALPosEx('&', VLink, I);
+      if J = 0 then J := length(VLink) + 1;
+      VSLon := Copy(VLink, I + 4, J - (I + 4));
+    end;
   end;
 
- if sname <> '' then begin
-  try
-    VPoint.Y := ALStrToFloat(slat, VFormatSettings);
-    VPoint.X := ALStrToFloat(slon, VFormatSettings);
-  except
-    raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
-  end;
-  sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
-  sfulldesc := '<a href=' + string(Astr) + '>' +string(Astr)+ '</a><br>' + ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
-  VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
-  Result := VPlace;
- end else
- Result := nil;
-
+  if VSName <> '' then begin
+    try
+      VPoint.Y := ALStrToFloat(VSLat, VFormatSettings);
+      VPoint.X := ALStrToFloat(VSLon, VFormatSettings);
+    except
+      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VSLat, VSLon]);
+    end;
+    VSDesc := VSDesc + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+    VSFullDesc := '<a href=' + String(Astr) + '>' + String(Astr) + '</a><br>' + ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
+    VPlace := PlacemarkFactory.Build(VPoint, VSName, VSDesc, VSFullDesc, 4);
+    Result := VPlace;
+  end else
+    Result := nil;
 end;
 
 function TGeoCoderByURL.ParseResultToPlacemarksList(
-  const ACancelNotifier: INotifierOperation; AOperationID: Integer;
-  const AResult: IDownloadResultOk; const ASearch: WideString;
-  const ALocalConverter: ILocalCoordConverter): IInterfaceListSimple;
+  const ACancelNotifier: INotifierOperation;
+  AOperationID: Integer;
+  const AResult: IDownloadResultOk;
+  const ASearch: WideString;
+  const ALocalConverter: ILocalCoordConverter
+): IInterfaceListSimple;
 var
- VPlace: IVectorDataItemPoint;
- VList: IInterfaceListSimple;
- VStr: AnsiString;
- VUrl: AnsiString;
+  VPlace: IVectorDataItemPoint;
+  VList: IInterfaceListSimple;
+  VStr: AnsiString;
+  VUrl: AnsiString;
 begin
- VUrl := AnsiString(ASearch);
- if AResult = nil then // ничего не скачивали, полная ссылка
-  VPlace := GetPointFromFullLink(VUrl, ALocalConverter)
- else begin // короткая ссылка, и данные уже скачаны
-  SetLength(Vstr, AResult.Data.Size);
-  Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
-  VPlace := GetPointFromShortLink(VUrl,VStr,ACancelNotifier,AOperationID);
- end;
+  VUrl := AnsiString(ASearch);
+  if AResult = nil then // ничего не скачивали, полная ссылка
+    VPlace := GetPointFromFullLink(VUrl, ALocalConverter)
+  else begin // короткая ссылка, и данные уже скачаны
+    SetLength(Vstr, AResult.Data.Size);
+    Move(AResult.Data.Buffer^, Vstr[1], AResult.Data.Size);
+    VPlace := GetPointFromShortLink(VUrl, VStr, ACancelNotifier, AOperationID);
+  end;
 
   if VPlace <> nil then begin
     VList := TInterfaceListSimple.Create;
@@ -676,7 +684,7 @@ begin
      (ALPosEx('api/index.html?permalink=', VUrl, 1) > 0 ) or
      (ALPosEx('rambler.ru/?', VUrl, 1) > 0 ) or
      (ALPosEx('yandex.ru/?um=', VUrl, 1) > 0 ) or
-     (RegExprGetMatchSubStr(VUrl,'\.yandex\..+/-/',0)<>'' )
+     (RegExprGetMatchSubStr(VUrl, '\.yandex\..+/-/',0) <> '' )
   then begin
    Result := PrepareRequestByURL(VUrl);
   end;
