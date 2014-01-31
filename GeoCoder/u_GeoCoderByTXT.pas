@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -41,14 +41,14 @@ type
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     FLock: IReadWriteSync;
-  procedure SearchInTXTFile(
-    const ACancelNotifier: INotifierOperation;
-    AOperationID: Integer;
-    const AFile : string ;
-    const ASearch : widestring;
-    const Alist : IInterfaceListSimple;
-    var Acnt : integer
-  );
+    procedure SearchInTXTFile(
+      const ACancelNotifier: INotifierOperation;
+      AOperationID: Integer;
+      const AFile: string;
+      const ASearch: widestring;
+      const Alist: IInterfaceListSimple;
+      var Acnt: integer
+    );
   protected
     function DoSearch(
       const ACancelNotifier: INotifierOperation;
@@ -76,29 +76,41 @@ uses
 
 { TGeoCoderByTXT }
 
+constructor TGeoCoderByTXT.Create(
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const APlacemarkFactory: IGeoCodePlacemarkFactory;
+  const AValueToStringConverterConfig: IValueToStringConverterConfig
+);
+begin
+  inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
+  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\txt')) then
+    raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
+  FLock := MakeSyncRW_Std(Self, False);
+  FValueToStringConverterConfig := AValueToStringConverterConfig;
+end;
+
 function ItemExist(
   const AValue: IVectorDataItemPoint;
   const AList: IInterfaceListSimple
 ):boolean;
 var
-  i: Integer;
+  I, J: Integer;
   VPlacemark: IVectorDataItemPoint;
-  j : integer;
-  str1,str2 : string;
+  VStr1, VStr2: string;
 begin
-  Result := false;
-  for i := 0 to AList.Count - 1 do begin
-    VPlacemark := IVectorDataItemPoint(AList.Items[i]);
-    j:= posex(')',VPlacemark.Name);
-    str1 := copy(VPlacemark.Name,j,length(VPlacemark.Name)-(j+1));
-    j:= posex(')',AValue.Name);
-    str2 := copy(AValue.Name,j,length(AValue.Name)-(j+1));
-    if str1=str2 then begin
+  Result := False;
+  for I := 0 to AList.Count - 1 do begin
+    VPlacemark := IVectorDataItemPoint(AList.Items[I]);
+    J:= PosEx(')',VPlacemark.Name);
+    VStr1 := copy(VPlacemark.Name, J, Length(VPlacemark.Name) - (J + 1));
+    J:= PosEx(')',AValue.Name);
+    VStr2 := copy(AValue.Name, J, Length(AValue.Name) - (J + 1));
+    if VStr1=VStr2 then begin
       if
-        abs(VPlacemark.GetPoint.Point.x-AValue.GetPoint.Point.x) +
-        abs(VPlacemark.GetPoint.Point.Y-AValue.GetPoint.Point.Y) < 0.05
+        abs(VPlacemark.GetPoint.Point.x - AValue.GetPoint.Point.x) +
+        abs(VPlacemark.GetPoint.Point.Y - AValue.GetPoint.Point.Y) < 0.05
       then begin
-        Result := true;
+        Result := True;
         Break;
       end;
     end;
@@ -108,19 +120,19 @@ end;
 procedure TGeoCoderByTXT.SearchInTXTFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile : string ;
-  const ASearch : WideString;
-  const AList : IInterfaceListSimple;
-  var ACnt : integer
+  const AFile: string ;
+  const ASearch: WideString;
+  const AList: IInterfaceListSimple;
+  var ACnt: integer
 );
 var
-  VFormatSettings : TFormatSettings;
-  VPlace : IVectorDataItemPoint;
-  VPoint : TDoublePoint;
-  slat, slon: string;
-  sname, sdesc, sfulldesc : string;
-  i: integer;
-  VSearch : string;
+  VFormatSettings: TFormatSettings;
+  VPlace: IVectorDataItemPoint;
+  VPoint: TDoublePoint;
+  VLatStr, VLonStr: string;
+  VSName, VSDesc, VSFullDesc: string;
+  I: integer;
+  VSearch: string;
   VValueConverter: IValueToStringConverter;
   VAnsi: AnsiString;
   VLine: string;
@@ -154,47 +166,48 @@ begin
 
           if VTabArray.Count < 19 then break;
 
-          sdesc :=
+          VSDesc :=
             VTabArray.Strings[17] + #$D#$A +
             VTabArray.Strings[01] + #$D#$A +
             VTabArray.Strings[02] + #$D#$A +
             VTabArray.Strings[03] + #$D#$A +
             VTabArray.Strings[18] + #$D#$A;
 
-          slat := VTabArray.Strings[4];
-          slon := VTabArray.Strings[5];
+          VLatStr := VTabArray.Strings[4];
+          VLonStr := VTabArray.Strings[5];
 
-          sname := VTabArray.Strings[3];
-          if sname = '' then begin
-            sname := VTabArray.Strings[2];
+          VSName := VTabArray.Strings[3];
+          if VSName = '' then begin
+            VSName := VTabArray.Strings[2];
           end;
 
           VTabArray.Clear;
           VTabArray.LineBreak := ',';
-          VTabArray.Text := sname;
+          VTabArray.Text := VSName;
 
-          for i := 0 to VTabArray.Count - 1 do begin
-            if length(VTabArray.Strings[i])<>0 then
-              if Pos(VSearch, AnsiUpperCase(VTabArray.Strings[i])) > 0 then begin
-                sname := VTabArray.Strings[i];
+          for I := 0 to VTabArray.Count - 1 do begin
+            if Length(VTabArray.Strings[I])<>0 then begin
+              if Pos(VSearch, AnsiUpperCase(VTabArray.Strings[I])) > 0 then begin
+                VSName := VTabArray.Strings[I];
                 break;
+              end;
             end;
           end;
           VTabArray.Clear;
 
-          if (slat <> '') and (slon <> '') then begin
+          if (VLatStr <> '') and (VLonStr <> '') then begin
             try
-              VPoint.Y := StrToFloat(slat, VFormatSettings);
-              VPoint.X := StrToFloat(slon, VFormatSettings);
+              VPoint.Y := StrToFloat(VLatStr, VFormatSettings);
+              VPoint.X := StrToFloat(VLonStr, VFormatSettings);
             except
-              raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
+              raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLatStr, VLonStr]);
             end;
 
-            sdesc := sdesc + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
-            sdesc := sdesc + #$D#$A + ExtractFileName(AFile);
-            sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
+            VSDesc := VSDesc + '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+            VSDesc := VSDesc + #$D#$A + ExtractFileName(AFile);
+            VSFullDesc :=  ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
 
-            VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
+            VPlace := PlacemarkFactory.Build(VPoint, VSName, VSDesc, VSFullDesc, 4);
             if not ItemExist(VPlace, AList) then begin
               Inc(ACnt);
               AList.Add(VPlace);
@@ -209,19 +222,6 @@ begin
   end;
 end;
 
-constructor TGeoCoderByTXT.Create(
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
-);
-begin
-  inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
-  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt')) then
-    raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
-  FLock := MakeSyncRW_Std(Self, False);
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
-end;
-
 function TGeoCoderByTXT.DoSearch(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
@@ -229,30 +229,30 @@ function TGeoCoderByTXT.DoSearch(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-VList: IInterfaceListSimple;
-vpath : string;
-Vcnt : integer;
-VFolder: string;
-SearchRec: TSearchRec;
-MySearch : string;
+  VList: IInterfaceListSimple;
+  vpath: string;
+  Vcnt: integer;
+  VFolder: string;
+  SearchRec: TSearchRec;
+  MySearch: string;
 begin
- Vcnt := 1;
- MySearch := ASearch;
- while PosEx('  ',MySearch)>0 do MySearch := ReplaceStr(MySearch,'  ',' ');
- VList := TInterfaceListSimple.Create;
- VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\txt\');
- if FindFirst(VFolder + '*.txt', faAnyFile, SearchRec) = 0 then begin
-  repeat
-    if (SearchRec.Attr and faDirectory) = faDirectory then begin
-      continue;
-    end;
-    vpath:= VFolder+SearchRec.Name;
-    SearchInTXTFile(ACancelNotifier, AOperationID, Vpath , MySearch, vlist , Vcnt);
-    if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-      Exit;
-    end;
-  until FindNext(SearchRec) <> 0;
- end;
- Result := VList;
+  Vcnt := 1;
+  MySearch := ASearch;
+  while PosEx('  ',MySearch) > 0 do MySearch := ReplaceStr(MySearch, '  ', ' ');
+  VList := TInterfaceListSimple.Create;
+  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\txt\');
+  if FindFirst(VFolder + '*.txt', faAnyFile, SearchRec) = 0 then begin
+    repeat
+      if (SearchRec.Attr and faDirectory) = faDirectory then begin
+        Continue;
+      end;
+      vpath:= VFolder + SearchRec.Name;
+      SearchInTXTFile(ACancelNotifier, AOperationID, Vpath, MySearch, vlist, Vcnt);
+      if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+        Exit;
+      end;
+    until FindNext(SearchRec) <> 0;
+  end;
+  Result := VList;
 end;
 end.
