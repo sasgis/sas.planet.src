@@ -36,16 +36,15 @@ uses
 type
   EGeoCoderERR = class(Exception);
   EDirNotExist = class(EGeoCoderERR);
-
   TGeoCoderByGpx = class(TGeoCoderLocalBasic)
   private
     FValueToStringConverterConfig: IValueToStringConverterConfig;
     procedure SearchInGpxFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const AFile : string ;
-      const ASearch : widestring;
-      const AList : IInterfaceListSimple;
+      const AFile: String ;
+      const ASearch: WideString;
+      const AList: IInterfaceListSimple;
       const AValueConverter: IValueToStringConverter
     );
   protected
@@ -60,7 +59,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
-      );
+    );
   end;
 
 implementation
@@ -81,7 +80,7 @@ constructor TGeoCoderByGpx.Create(
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
-  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\gpx')) then
+  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\gpx')) then
     raise EDirNotExist.Create('not found .\userdata\gpx\! skip GeoCoderByGpx');
   FValueToStringConverterConfig := AValueToStringConverterConfig;
 end;
@@ -89,23 +88,23 @@ end;
 function ItemExist(
   const AValue: IVectorDataItemPoint;
   const AList: IInterfaceListSimple
-):boolean;
+): Boolean;
 var
-  i, j: Integer;
+  I, J: Integer;
   VPlacemark: IVectorDataItemPoint;
-  str1,str2 : string;
+  VStr1, VStr2: String;
 begin
   Result := false;
-  for i := 0 to AList.Count - 1 do begin
-    VPlacemark := IVectorDataItemPoint(AList.Items[i]);
-    j:= posex(')', VPlacemark.Name);
-    str1 := copy(VPlacemark.Name,j,length(VPlacemark.Name)-(j+1));
-    j:= posex(')', AValue.Name);
-    str2 := copy(AValue.Name, j, length(AValue.Name) - (j+1));
-    if str1 = str2 then begin
+  for I := 0 to AList.Count - 1 do begin
+    VPlacemark := IVectorDataItemPoint(AList.Items[I]);
+    J:= posex(')', VPlacemark.Name);
+    VStr1 := copy(VPlacemark.Name, J, length(VPlacemark.Name) - (J + 1));
+    J:= posex(')', AValue.Name);
+    VStr2 := copy(AValue.Name, J, length(AValue.Name) - (J + 1));
+    if VStr1 = VStr2 then begin
       if
-        abs(VPlacemark.GetPoint.Point.x-AValue.GetPoint.Point.x) +
-        abs(VPlacemark.GetPoint.Point.Y-AValue.GetPoint.Point.Y) < 0.05
+        abs(VPlacemark.GetPoint.Point.x - AValue.GetPoint.Point.x) +
+        abs(VPlacemark.GetPoint.Point.Y - AValue.GetPoint.Point.Y) < 0.05
       then begin
         Result := true;
         Break;
@@ -117,8 +116,8 @@ end;
 procedure TGeoCoderByGpx.SearchInGpxFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile: string ;
-  const ASearch: widestring;
+  const AFile: String ;
+  const ASearch: WideString;
   const AList: IInterfaceListSimple;
   const AValueConverter: IValueToStringConverter
 );
@@ -126,15 +125,15 @@ var
   VNode: IXMLNode;
   VPlacemarkNode: IXMLNode;
   VPoint: TDoublePoint;
-  VAddress: string;
-  VDesc: string;
-  VFullDesc: string;
+  VAddress: String;
+  VDesc: String;
+  VFullDesc: String;
   VPlace: IVectorDataItemPoint;
   VFormatSettings: TFormatSettings;
   VXMLDocument: IXMLDocument;
-  i, j : integer;
-  VSearch : AnsiString;
-  Vskip: boolean;
+  I, J: Integer;
+  VSearch: AnsiString;
+  Vskip: Boolean;
 begin
   VFormatSettings.DecimalSeparator := '.';
   VSearch := AnsiString(AnsiUpperCase(ASearch));
@@ -143,23 +142,23 @@ begin
   VNode := VXMLDocument.DocumentElement;
   try
     if (VNode <> nil) and (VNode.ChildNodes.Count > 0) then begin
-      for i := 0 to VNode.ChildNodes.Count - 1 do begin
-        if VNode.ChildNodes[i].NodeName = 'wpt' then begin
-          VPlacemarkNode := VNode.ChildNodes[i];
-          for j := 0 to VPlacemarkNode.GetAttributeNodes.getcount - 1 do begin
-            if VPlacemarkNode.GetAttributeNodes.get(j).GetNodeName = 'lon' then
-              VPoint.X := StrToFloat(VPlacemarkNode.GetAttributeNodes.get(j).gettext, VFormatSettings);
-            if VPlacemarkNode.GetAttributeNodes.get(j).GetNodeName = 'lat' then
-              VPoint.Y := StrToFloat(VPlacemarkNode.GetAttributeNodes.get(j).gettext, VFormatSettings);
+      for I := 0 to VNode.ChildNodes.Count - 1 do begin
+        if VNode.ChildNodes[I].NodeName = 'wpt' then begin
+          VPlacemarkNode := VNode.ChildNodes[I];
+          for J := 0 to VPlacemarkNode.GetAttributeNodes.getcount - 1 do begin
+            if VPlacemarkNode.GetAttributeNodes.get(J).GetNodeName = 'lon' then
+              VPoint.X := StrToFloat(VPlacemarkNode.GetAttributeNodes.get(J).gettext, VFormatSettings);
+            if VPlacemarkNode.GetAttributeNodes.get(J).GetNodeName = 'lat' then
+              VPoint.Y := StrToFloat(VPlacemarkNode.GetAttributeNodes.get(J).gettext, VFormatSettings);
           end;
           VAddress := VPlacemarkNode.ChildNodes.FindNode('name').Text;
           VDesc := '';
           if VPlacemarkNode.ChildNodes.FindNode('desc') <> nil then
             VDesc := VPlacemarkNode.ChildNodes.FindNode('desc').Text;
           if VPlacemarkNode.ChildNodes.FindNode('ele') <> nil then
-            VDesc := VDesc + #$D#$A +'Elevation '+VPlacemarkNode.ChildNodes.FindNode('ele').Text;
-          VDesc := VDesc + #$D#$A +'[ '+AValueConverter.LonLatConvert(VPoint)+' ]';
-          VFullDesc := VAddress + '<br>' + VDesc + '<br><b>'+ AFile +'</b>';
+            VDesc := VDesc + #$D#$A + 'Elevation '+VPlacemarkNode.ChildNodes.FindNode('ele').Text;
+          VDesc := VDesc + #$D#$A + '[ '+AValueConverter.LonLatConvert(VPoint) + ' ]';
+          VFullDesc := VAddress + '<br>' + VDesc + '<br><b>' + AFile + '</b>';
 
           Vskip := True;
           if Pos(VSearch, AnsiUpperCase(VAddress)) <> 0 then begin
@@ -189,24 +188,24 @@ function TGeoCoderByGpx.DoSearch(
 ): IInterfaceListSimple;
 var
   VList: IInterfaceListSimple;
-  vpath: string;
-  VFolder: string;
+  Vpath: String;
+  VFolder: String;
   VSearchRec: TSearchRec;
-  VMySearch: string;
+  VMySearch: String;
   VValueConverter: IValueToStringConverter;
 begin
   VMySearch := ASearch;
   VValueConverter := FValueToStringConverterConfig.GetStatic;
   while PosEx('  ', VMySearch) > 0 do VMySearch := ReplaceStr(VMySearch, '  ', ' ');
   VList := TInterfaceListSimple.Create;
-  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))+'userdata\gpx\');
+  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\gpx\');
   if FindFirst(VFolder + '*.gpx', faAnyFile, VSearchRec) = 0 then begin
     repeat
       if (VSearchRec.Attr and faDirectory) = faDirectory then begin
-        continue;
+        Continue;
       end;
-      vpath := VFolder + VSearchRec.Name;
-      SearchInGpxFile(ACancelNotifier, AOperationID, Vpath, VMySearch, vlist, VValueConverter);
+      Vpath := VFolder + VSearchRec.Name;
+      SearchInGpxFile(ACancelNotifier, AOperationID, Vpath, VMySearch, Vlist, VValueConverter);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
       end;
