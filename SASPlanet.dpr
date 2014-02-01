@@ -222,7 +222,7 @@ uses
   i_GeometryProjectedFactory in 'i_GeometryProjectedFactory.pas',
   u_GeometryProjectedFactory in 'u_GeometryProjectedFactory.pas',
   i_GeometryLocalFactory in 'i_GeometryLocalFactory.pas',
-  u_VectorGeometryLocalFactory in 'u_VectorGeometryLocalFactory.pas',
+  u_GeometryLocalFactory in 'u_GeometryLocalFactory.pas',
   u_VectorDataFactorySimple in 'u_VectorDataFactorySimple.pas',
   u_VectorDataFactoryForMap in 'u_VectorDataFactoryForMap.pas',
   i_HtmlToHintTextConverter in 'i_HtmlToHintTextConverter.pas',

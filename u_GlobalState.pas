@@ -342,7 +342,7 @@ uses
   u_GeometryLonLatFactory,
   u_VectorDataFactorySimple,
   u_GeometryProjectedFactory,
-  u_VectorGeometryLocalFactory,
+  u_GeometryLocalFactory,
   u_DownloadResultFactory,
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
