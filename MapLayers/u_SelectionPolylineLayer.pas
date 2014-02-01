@@ -39,7 +39,7 @@ type
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-      const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ISelectionPolylineShadowLayerConfig
     );
@@ -62,7 +62,7 @@ constructor TSelectionPolylineShadowLayer.Create(
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ISelectionPolylineShadowLayerConfig
 );

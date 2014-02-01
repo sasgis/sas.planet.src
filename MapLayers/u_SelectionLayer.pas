@@ -36,7 +36,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const AConfig: ILastSelectionLayerConfig;
       const ALastSelectionInfo: ILastSelectionInfo
     );
@@ -57,7 +57,7 @@ constructor TSelectionLayer.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const AConfig: ILastSelectionLayerConfig;
   const ALastSelectionInfo: ILastSelectionInfo
 );

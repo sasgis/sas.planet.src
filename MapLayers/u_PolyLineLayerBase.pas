@@ -29,7 +29,7 @@ type
   TLineLayerBase = class(TMapLayerBasicNoBitmap)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+    FVectorGeometryLocalFactory: IGeometryLocalFactory;
     FConfig: ILineLayerConfig;
 
     FLineVisible: Boolean;
@@ -52,7 +52,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const AConfig: ILineLayerConfig
     );
   end;
@@ -126,7 +126,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const AConfig: IPolygonLayerConfig
     );
   end;
@@ -146,7 +146,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ILineLayerConfig
     );
@@ -167,7 +167,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const ALineOnMapEdit: IPolygonOnMapEdit;
       const AConfig: IPolygonLayerConfig
     );
@@ -284,7 +284,7 @@ constructor TLineLayerBase.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const AConfig: ILineLayerConfig
 );
 begin
@@ -500,7 +500,7 @@ constructor TPolygonLayerBase.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const AConfig: IPolygonLayerConfig
 );
 begin
@@ -691,7 +691,7 @@ constructor TPathEditLayer.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ILineLayerConfig
 );
@@ -747,7 +747,7 @@ constructor TPolygonEditLayer.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
+  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const ALineOnMapEdit: IPolygonOnMapEdit;
   const AConfig: IPolygonLayerConfig
 );

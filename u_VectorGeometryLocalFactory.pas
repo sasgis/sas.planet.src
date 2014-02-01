@@ -12,7 +12,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorGeometryLocalFactory = class(TBaseInterfacedObject, IVectorGeometryLocalFactory)
+  TVectorGeometryLocalFactory = class(TBaseInterfacedObject, IGeometryLocalFactory)
   private
     function CreateLocalPath(
       const ALocalConverter: ILocalCoordConverter;

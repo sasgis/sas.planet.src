@@ -10,7 +10,7 @@ uses
   i_GeometryLocal;
 
 type
-  IVectorGeometryLocalFactory = interface
+  IGeometryLocalFactory = interface
     ['{E44B8BA5-0443-40CC-8F48-F8B817D0328A}']
     function CreateLocalPath(
       const ALocalConverter: ILocalCoordConverter;
