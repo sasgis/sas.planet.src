@@ -116,7 +116,7 @@ uses
   u_GeoFunc,
   u_InterfaceListSimple,
   u_DoublePointsAggregator,
-  u_ProjectedSingleLine,
+  u_GeometryProjected,
   u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,

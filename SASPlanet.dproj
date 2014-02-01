@@ -1014,6 +1014,7 @@
     <DCCReference Include="u_GeometryLonLat.pas" />
     <DCCReference Include="u_GeometryLonLatFactory.pas" />
     <DCCReference Include="u_GeometryLonLatMulti.pas" />
+    <DCCReference Include="u_GeometryProjected.pas" />
     <DCCReference Include="u_GeometryProjectedMulti.pas" />
     <DCCReference Include="u_GeoToStrFunc.pas" />
     <DCCReference Include="u_GlobalAppConfig.pas" />
@@ -1191,7 +1192,6 @@
     <DCCReference Include="u_ProjConverterFactory.pas" />
     <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
     <DCCReference Include="u_ProjectedGeometryProvider.pas" />
-    <DCCReference Include="u_ProjectedSingleLine.pas" />
     <DCCReference Include="u_ProjectionInfo.pas" />
     <DCCReference Include="u_ProjectionInfoFactory.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
