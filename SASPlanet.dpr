@@ -325,7 +325,7 @@ uses
   u_ProjectionInfo in 'u_ProjectionInfo.pas',
   i_GeometryProjected in 'i_GeometryProjected.pas',
   i_GeometryLocal in 'i_GeometryLocal.pas',
-  u_VectorItemLocal in 'u_VectorItemLocal.pas',
+  u_GeometryLocalMulti in 'u_GeometryLocalMulti.pas',
   u_GeometryLocal in 'u_GeometryLocal.pas',
   u_EnumDoublePointBySingleLine in 'u_EnumDoublePointBySingleLine.pas',
   u_EnumDoublePointByLineSet in 'u_EnumDoublePointByLineSet.pas',

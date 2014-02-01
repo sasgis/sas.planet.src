@@ -42,7 +42,7 @@ uses
   i_InterfaceListSimple,
   u_DoublePointsAggregator,
   u_GeometryLocal,
-  u_VectorItemLocal,
+  u_GeometryLocalMulti,
   u_InterfaceListSimple,
   u_GeoFunc;
 
