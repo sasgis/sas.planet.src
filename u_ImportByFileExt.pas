@@ -66,8 +66,8 @@ implementation
 
 uses
   SysUtils,
-  u_ImportByVectorLoader,
-  u_ImportJpegWithExif,
+  u_VectorItemTreeImporterByVectorLoader,
+  u_VectorItemTreeImporterJpegWithExif,
   u_SlsParser,
   u_HlgParser,
   u_MpSimpleParser,

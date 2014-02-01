@@ -575,7 +575,6 @@
     <DCCReference Include="MarksDB\SML\u_MarkFactorySmlDbInternal.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkId.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkSystemSml.pas" />
-    <DCCReference Include="MarksDb\u_ImportByVectorLoader.pas" />
     <DCCReference Include="MarksDB\u_MarkCategory.pas" />
     <DCCReference Include="MarksDB\u_MarkCategoryDbByImpl.pas" />
     <DCCReference Include="MarksDB\u_MarkCategoryFactory.pas" />
@@ -1041,7 +1040,6 @@
     <DCCReference Include="u_ImportByFileExt.pas" />
     <DCCReference Include="u_ImportConfig.pas" />
     <DCCReference Include="u_ImportFromArcGIS.pas" />
-    <DCCReference Include="u_ImportJpegWithExif.pas" />
     <DCCReference Include="u_InetConfig.pas" />
     <DCCReference Include="u_InetConfigStatic.pas" />
     <DCCReference Include="u_InetFunc.pas" />
@@ -1345,5 +1343,7 @@
     <DCCReference Include="Vector\i_VectorItemTreeExporterList.pas" />
     <DCCReference Include="Vector\i_VectorItemTreeImporter.pas" />
     <DCCReference Include="Vector\i_VectorItemTreeImporterList.pas" />
+    <DCCReference Include="Vector\u_VectorItemTreeImporterByVectorLoader.pas" />
+    <DCCReference Include="Vector\u_VectorItemTreeImporterJpegWithExif.pas" />
   </ItemGroup>
 </Project>

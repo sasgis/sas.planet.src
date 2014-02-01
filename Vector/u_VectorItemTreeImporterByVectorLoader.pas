@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_ImportByVectorLoader;
+unit u_VectorItemTreeImporterByVectorLoader;
 
 interface
 

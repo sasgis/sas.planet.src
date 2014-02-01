@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_ImportJpegWithExif;
+unit u_VectorItemTreeImporterJpegWithExif;
 
 interface
 
