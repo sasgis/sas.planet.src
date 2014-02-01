@@ -197,10 +197,10 @@ begin
   if VLineCount = 0 then begin
     Result := TProjectedPolygonEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
-    Result := TProjectedPolygonOneLine.Create(VLine);
+    Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
+    Result := TGeometryProjectedMultiPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -268,10 +268,10 @@ begin
   if VLineCount = 0 then begin
     Result := TProjectedPathEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
-    Result := TProjectedPathOneLine.Create(VLine);
+    Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPath.Create(AProjection, VBounds, VList.MakeStaticAndClear);
+    Result := TGeometryProjectedMultiLine.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -337,10 +337,10 @@ begin
   if VLineCount = 0 then begin
     Result := TProjectedPathEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
-    Result := TProjectedPathOneLine.Create(VLine);
+    Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPath.Create(AProjection, VBounds, VList.MakeStaticAndClear);
+    Result := TGeometryProjectedMultiLine.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -454,10 +454,10 @@ begin
   if VLineCount = 0 then begin
     Result := TProjectedPathEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
-    Result := TProjectedPathOneLine.Create(VLine);
+    Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPath.Create(AProjection, VBounds, VList.MakeStaticAndClear);
+    Result := TGeometryProjectedMultiLine.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -571,10 +571,10 @@ begin
   if VLineCount = 0 then begin
     Result := TProjectedPolygonEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
-    Result := TProjectedPolygonOneLine.Create(VLine);
+    Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
+    Result := TGeometryProjectedMultiPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -640,10 +640,10 @@ begin
   if VLineCount = 0 then begin
     Result := TProjectedPolygonEmpty.Create(AProjection);
   end else if VLineCount = 1 then begin
-    Result := TProjectedPolygonOneLine.Create(VLine);
+    Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TProjectedPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
+    Result := TGeometryProjectedMultiPolygon.Create(AProjection, VBounds, VList.MakeStaticAndClear);
   end;
 end;
 
@@ -690,7 +690,7 @@ function TVectorGeometryProjectedFactory.CreateProjectedPolygonByRect(
   const ARect: TDoubleRect
 ): IGeometryProjectedMultiPolygon;
 begin
-  Result := TProjectedPolygonOneLine.Create(CreateProjectedPolygonLineByRect(AProjection, ARect));
+  Result := TGeometryProjectedMultiPolygonOneLine.Create(CreateProjectedPolygonLineByRect(AProjection, ARect));
 end;
 
 function TVectorGeometryProjectedFactory.CreateProjectedPolygonLineByRect(

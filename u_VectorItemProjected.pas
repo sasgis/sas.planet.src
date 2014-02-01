@@ -11,7 +11,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TProjectedLineSet = class(TBaseInterfacedObject)
+  TGeometryProjectedMultiBase = class(TBaseInterfacedObject, IGeometryProjected)
   private
     FList: IInterfaceListStatic;
     FProjection: IProjectionInfo;
@@ -28,7 +28,7 @@ type
     );
   end;
 
-  TProjectedPath = class(TProjectedLineSet, IGeometryProjectedMultiLine)
+  TGeometryProjectedMultiLine = class(TGeometryProjectedMultiBase, IGeometryProjectedMultiLine)
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(
@@ -39,7 +39,7 @@ type
     function GetItem(AIndex: Integer): IGeometryProjectedLine;
   end;
 
-  TProjectedPolygon = class(TProjectedLineSet, IGeometryProjectedMultiPolygon)
+  TGeometryProjectedMultiPolygon = class(TGeometryProjectedMultiBase, IGeometryProjectedMultiPolygon)
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
@@ -53,7 +53,7 @@ type
     function GetItem(AIndex: Integer): IGeometryProjectedPolygon;
   end;
 
-  TProjectedPathOneLine = class(TBaseInterfacedObject, IGeometryProjectedMultiLine)
+  TGeometryProjectedMultiLineOneLine = class(TBaseInterfacedObject, IGeometryProjectedMultiLine)
   private
     FLine: IGeometryProjectedLine;
   private
@@ -73,7 +73,7 @@ type
     );
   end;
 
-  TProjectedPolygonOneLine = class(TBaseInterfacedObject, IGeometryProjectedMultiPolygon)
+  TGeometryProjectedMultiPolygonOneLine = class(TBaseInterfacedObject, IGeometryProjectedMultiPolygon)
   private
     FLine: IGeometryProjectedPolygon;
   private
@@ -144,7 +144,7 @@ uses
 
 { TProjectedLineSet }
 
-constructor TProjectedLineSet.Create(
+constructor TGeometryProjectedMultiBase.Create(
   const AProjection: IProjectionInfo;
   const ABounds: TDoubleRect;
   const AList: IInterfaceListStatic
@@ -158,36 +158,36 @@ begin
   FProjection := AProjection;
 end;
 
-function TProjectedLineSet.GetBounds: TDoubleRect;
+function TGeometryProjectedMultiBase.GetBounds: TDoubleRect;
 begin
   Result := FBounds;
 end;
 
-function TProjectedLineSet.GetCount: Integer;
+function TGeometryProjectedMultiBase.GetCount: Integer;
 begin
   Result := FList.Count;
 end;
 
-function TProjectedLineSet.GetProjection: IProjectionInfo;
+function TGeometryProjectedMultiBase.GetProjection: IProjectionInfo;
 begin
   Result := FProjection;
 end;
 
 { TProjectedPath }
 
-function TProjectedPath.GetEnum: IEnumProjectedPoint;
+function TGeometryProjectedMultiLine.GetEnum: IEnumProjectedPoint;
 begin
   Result := TEnumProjectedPointByPath.Create(Self);
 end;
 
-function TProjectedPath.GetItem(AIndex: Integer): IGeometryProjectedLine;
+function TGeometryProjectedMultiLine.GetItem(AIndex: Integer): IGeometryProjectedLine;
 begin
   if not Supports(FList[AIndex], IGeometryProjectedLine, Result) then begin
     Result := nil;
   end;
 end;
 
-function TProjectedPath.IsPointOnPath(
+function TGeometryProjectedMultiLine.IsPointOnPath(
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
@@ -205,7 +205,7 @@ begin
   end;
 end;
 
-function TProjectedPath.IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
+function TGeometryProjectedMultiLine.IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
 var
   i: Integer;
   VLine: IGeometryProjectedLine;
@@ -224,7 +224,7 @@ end;
 
 { TProjectedPolygon }
 
-function TProjectedPolygon.CalcArea: Double;
+function TGeometryProjectedMultiPolygon.CalcArea: Double;
 var
   i: Integer;
   VLine: IGeometryProjectedPolygon;
@@ -236,19 +236,19 @@ begin
   end;
 end;
 
-function TProjectedPolygon.GetEnum: IEnumProjectedPoint;
+function TGeometryProjectedMultiPolygon.GetEnum: IEnumProjectedPoint;
 begin
   Result := TEnumProjectedPointByPolygon.Create(Self);
 end;
 
-function TProjectedPolygon.GetItem(AIndex: Integer): IGeometryProjectedPolygon;
+function TGeometryProjectedMultiPolygon.GetItem(AIndex: Integer): IGeometryProjectedPolygon;
 begin
   if not Supports(FList[AIndex], IGeometryProjectedPolygon, Result) then begin
     Result := nil;
   end;
 end;
 
-function TProjectedPolygon.IsPointInPolygon(
+function TGeometryProjectedMultiPolygon.IsPointInPolygon(
   const APoint: TDoublePoint): Boolean;
 var
   i: Integer;
@@ -264,7 +264,7 @@ begin
   end;
 end;
 
-function TProjectedPolygon.IsPointOnBorder(
+function TGeometryProjectedMultiPolygon.IsPointOnBorder(
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
@@ -282,7 +282,7 @@ begin
   end;
 end;
 
-function TProjectedPolygon.IsRectIntersectBorder(
+function TGeometryProjectedMultiPolygon.IsRectIntersectBorder(
   const ARect: TDoubleRect): Boolean;
 var
   i: Integer;
@@ -300,7 +300,7 @@ begin
   end;
 end;
 
-function TProjectedPolygon.IsRectIntersectPolygon(
+function TGeometryProjectedMultiPolygon.IsRectIntersectPolygon(
   const ARect: TDoubleRect
 ): Boolean;
 var
@@ -321,28 +321,28 @@ end;
 
 { TProjectedPathOneLine }
 
-constructor TProjectedPathOneLine.Create(const ALine: IGeometryProjectedLine);
+constructor TGeometryProjectedMultiLineOneLine.Create(const ALine: IGeometryProjectedLine);
 begin
   inherited Create;
   FLine := ALine;
 end;
 
-function TProjectedPathOneLine.GetBounds: TDoubleRect;
+function TGeometryProjectedMultiLineOneLine.GetBounds: TDoubleRect;
 begin
   Result := FLine.Bounds;
 end;
 
-function TProjectedPathOneLine.GetCount: Integer;
+function TGeometryProjectedMultiLineOneLine.GetCount: Integer;
 begin
   Result := 1;
 end;
 
-function TProjectedPathOneLine.GetEnum: IEnumProjectedPoint;
+function TGeometryProjectedMultiLineOneLine.GetEnum: IEnumProjectedPoint;
 begin
   Result := FLine.GetEnum;
 end;
 
-function TProjectedPathOneLine.GetItem(AIndex: Integer): IGeometryProjectedLine;
+function TGeometryProjectedMultiLineOneLine.GetItem(AIndex: Integer): IGeometryProjectedLine;
 begin
   if AIndex = 0 then begin
     Result := FLine;
@@ -351,12 +351,12 @@ begin
   end;
 end;
 
-function TProjectedPathOneLine.GetProjection: IProjectionInfo;
+function TGeometryProjectedMultiLineOneLine.GetProjection: IProjectionInfo;
 begin
   Result := FLine.Projection;
 end;
 
-function TProjectedPathOneLine.IsPointOnPath(
+function TGeometryProjectedMultiLineOneLine.IsPointOnPath(
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
@@ -364,7 +364,7 @@ begin
   Result := FLine.IsPointOnPath(APoint, ADist);
 end;
 
-function TProjectedPathOneLine.IsRectIntersectPath(
+function TGeometryProjectedMultiLineOneLine.IsRectIntersectPath(
   const ARect: TDoubleRect
 ): Boolean;
 begin
@@ -373,33 +373,33 @@ end;
 
 { TProjectedPolygonOneLine }
 
-constructor TProjectedPolygonOneLine.Create(const ALine: IGeometryProjectedPolygon);
+constructor TGeometryProjectedMultiPolygonOneLine.Create(const ALine: IGeometryProjectedPolygon);
 begin
   inherited Create;
   FLine := ALine;
 end;
 
-function TProjectedPolygonOneLine.CalcArea: Double;
+function TGeometryProjectedMultiPolygonOneLine.CalcArea: Double;
 begin
   Result := FLine.CalcArea;
 end;
 
-function TProjectedPolygonOneLine.GetBounds: TDoubleRect;
+function TGeometryProjectedMultiPolygonOneLine.GetBounds: TDoubleRect;
 begin
   Result := FLine.Bounds;
 end;
 
-function TProjectedPolygonOneLine.GetCount: Integer;
+function TGeometryProjectedMultiPolygonOneLine.GetCount: Integer;
 begin
   Result := 1;
 end;
 
-function TProjectedPolygonOneLine.GetEnum: IEnumProjectedPoint;
+function TGeometryProjectedMultiPolygonOneLine.GetEnum: IEnumProjectedPoint;
 begin
   Result := FLine.GetEnum;
 end;
 
-function TProjectedPolygonOneLine.GetItem(
+function TGeometryProjectedMultiPolygonOneLine.GetItem(
   AIndex: Integer): IGeometryProjectedPolygon;
 begin
   if AIndex = 0 then begin
@@ -409,18 +409,18 @@ begin
   end;
 end;
 
-function TProjectedPolygonOneLine.GetProjection: IProjectionInfo;
+function TGeometryProjectedMultiPolygonOneLine.GetProjection: IProjectionInfo;
 begin
   Result := FLine.Projection;
 end;
 
-function TProjectedPolygonOneLine.IsPointInPolygon(
+function TGeometryProjectedMultiPolygonOneLine.IsPointInPolygon(
   const APoint: TDoublePoint): Boolean;
 begin
   Result := FLine.IsPointInPolygon(APoint);
 end;
 
-function TProjectedPolygonOneLine.IsPointOnBorder(
+function TGeometryProjectedMultiPolygonOneLine.IsPointOnBorder(
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
@@ -428,13 +428,13 @@ begin
   Result := FLine.IsPointOnBorder(APoint, ADist);
 end;
 
-function TProjectedPolygonOneLine.IsRectIntersectBorder(
+function TGeometryProjectedMultiPolygonOneLine.IsRectIntersectBorder(
   const ARect: TDoubleRect): Boolean;
 begin
   Result := FLine.IsRectIntersectBorder(ARect);
 end;
 
-function TProjectedPolygonOneLine.IsRectIntersectPolygon(
+function TGeometryProjectedMultiPolygonOneLine.IsRectIntersectPolygon(
   const ARect: TDoubleRect
 ): Boolean;
 begin
