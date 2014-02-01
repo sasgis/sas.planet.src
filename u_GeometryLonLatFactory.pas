@@ -272,12 +272,12 @@ end;
 constructor TGeometryLonLatFactory.Create(
   const AHashFunction: IHashFunction);
 var
-  VEmpty: TLineSetEmpty;
+  VEmpty: TGeometryLonLatMultiEmpty;
 begin
   Assert(Assigned(AHashFunction));
   inherited Create;
   FHashFunction := AHashFunction;
-  VEmpty := TLineSetEmpty.Create;
+  VEmpty := TGeometryLonLatMultiEmpty.Create;
   FEmptyLonLatPath := VEmpty;
   FEmptyLonLatPolygon := VEmpty;
 end;

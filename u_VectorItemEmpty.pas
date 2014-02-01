@@ -13,7 +13,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TLineSetEmpty = class(TBaseInterfacedObject, IGeometryLonLatMultiLine, IGeometryLonLatMultiPolygon)
+  TGeometryLonLatMultiEmpty = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatMultiLine, IGeometryLonLatMultiPolygon)
   private
     FEnumLonLat: IEnumLonLatPoint;
   private
@@ -73,7 +73,7 @@ end;
 
 { TLineSetEmpty }
 
-constructor TLineSetEmpty.Create;
+constructor TGeometryLonLatMultiEmpty.Create;
 var
   VEnum: TEnumDoublePointEmpty;
 begin
@@ -82,7 +82,7 @@ begin
   FEnumLonLat := VEnum;
 end;
 
-function TLineSetEmpty.CalcAreaLonLat(
+function TGeometryLonLatMultiEmpty.CalcAreaLonLat(
   const ADatum: IDatum;
   const ANotifier: INotifierOperation = nil;
   const AOperationID: Integer = 0
@@ -91,53 +91,53 @@ begin
   Result := 0;
 end;
 
-function TLineSetEmpty.CalcLength(const ADatum: IDatum): Double;
+function TGeometryLonLatMultiEmpty.CalcLength(const ADatum: IDatum): Double;
 begin
   Result := 0;
 end;
 
-function TLineSetEmpty.CalcPerimeter(const ADatum: IDatum): Double;
+function TGeometryLonLatMultiEmpty.CalcPerimeter(const ADatum: IDatum): Double;
 begin
   Result := 0;
 end;
 
-function TLineSetEmpty.GetBounds: ILonLatRect;
+function TGeometryLonLatMultiEmpty.GetBounds: ILonLatRect;
 begin
   Result := nil;
 end;
 
-function TLineSetEmpty.GetCount: Integer;
+function TGeometryLonLatMultiEmpty.GetCount: Integer;
 begin
   Result := 0;
 end;
 
-function TLineSetEmpty.GetEnumLonLat: IEnumLonLatPoint;
+function TGeometryLonLatMultiEmpty.GetEnumLonLat: IEnumLonLatPoint;
 begin
   Result := FEnumLonLat;
 end;
 
-function TLineSetEmpty.GetGoToLonLat: TDoublePoint;
+function TGeometryLonLatMultiEmpty.GetGoToLonLat: TDoublePoint;
 begin
   Result := CEmptyDoublePoint;
 end;
 
-function TLineSetEmpty.GetHash: THashValue;
+function TGeometryLonLatMultiEmpty.GetHash: THashValue;
 begin
   Result := 0;
 end;
 
-function TLineSetEmpty.GetItemLonLatPathLine(AIndex: Integer): IGeometryLonLatLine;
+function TGeometryLonLatMultiEmpty.GetItemLonLatPathLine(AIndex: Integer): IGeometryLonLatLine;
 begin
   Result := nil;
 end;
 
-function TLineSetEmpty.GetItemLonLatPolygonLine(
+function TGeometryLonLatMultiEmpty.GetItemLonLatPolygonLine(
   AIndex: Integer): IGeometryLonLatPolygon;
 begin
   Result := nil;
 end;
 
-function TLineSetEmpty.IsSameGeometry(
+function TGeometryLonLatMultiEmpty.IsSameGeometry(
   const AGeometry: IGeometryLonLat
 ): Boolean;
 var
@@ -152,12 +152,12 @@ begin
   end;
 end;
 
-function TLineSetEmpty.IsSamePath(const APath: IGeometryLonLatMultiLine): Boolean;
+function TGeometryLonLatMultiEmpty.IsSamePath(const APath: IGeometryLonLatMultiLine): Boolean;
 begin
   Result := (APath.Count = 0);
 end;
 
-function TLineSetEmpty.IsSamePolygon(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
+function TGeometryLonLatMultiEmpty.IsSamePolygon(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
 begin
   Result := (APolygon.Count = 0);
 end;
