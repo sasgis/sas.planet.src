@@ -326,7 +326,7 @@ uses
   i_GeometryProjected in 'i_GeometryProjected.pas',
   i_GeometryLocal in 'i_GeometryLocal.pas',
   u_VectorItemLocal in 'u_VectorItemLocal.pas',
-  u_LocalSingleLine in 'u_LocalSingleLine.pas',
+  u_GeometryLocal in 'u_GeometryLocal.pas',
   u_EnumDoublePointBySingleLine in 'u_EnumDoublePointBySingleLine.pas',
   u_EnumDoublePointByLineSet in 'u_EnumDoublePointByLineSet.pas',
   u_GeometryLonLat in 'u_GeometryLonLat.pas',

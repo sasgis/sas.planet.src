@@ -1011,6 +1011,7 @@
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoFunc.pas" />
     <DCCReference Include="u_GeometryFunc.pas" />
+    <DCCReference Include="u_GeometryLocal.pas" />
     <DCCReference Include="u_GeometryLonLat.pas" />
     <DCCReference Include="u_GeometryLonLatFactory.pas" />
     <DCCReference Include="u_GeometryLonLatMulti.pas" />
@@ -1085,7 +1086,6 @@
     <DCCReference Include="u_LocalCoordConverterChangeable.pas" />
     <DCCReference Include="u_LocalCoordConverterFactory.pas" />
     <DCCReference Include="u_LocalCoordConverterFactorySimpe.pas" />
-    <DCCReference Include="u_LocalSingleLine.pas" />
     <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_LonLatRect.pas" />
     <DCCReference Include="u_LonLatRectByPoint.pas" />

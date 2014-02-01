@@ -41,7 +41,7 @@ implementation
 uses
   i_InterfaceListSimple,
   u_DoublePointsAggregator,
-  u_LocalSingleLine,
+  u_GeometryLocal,
   u_VectorItemLocal,
   u_InterfaceListSimple,
   u_GeoFunc;
