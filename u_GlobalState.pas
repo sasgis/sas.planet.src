@@ -341,7 +341,7 @@ uses
   u_IeEmbeddedProtocolFactory,
   u_GeometryLonLatFactory,
   u_VectorDataFactorySimple,
-  u_VectorGeometryProjectedFactory,
+  u_GeometryProjectedFactory,
   u_VectorGeometryLocalFactory,
   u_DownloadResultFactory,
   u_PathDetalizeProviderListSimple,
