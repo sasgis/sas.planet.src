@@ -10,7 +10,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TLocalLineBase = class(TBaseInterfacedObject)
+  TGeometryLocalBase = class(TBaseInterfacedObject, IGeometryLocal)
   private
     FCount: Integer;
     FPoints: array of TDoublePoint;
@@ -28,7 +28,7 @@ type
     );
   end;
 
-  TLocalPathLine = class(TLocalLineBase, IGeometryLocalLine)
+  TGeometryLocalLine = class(TGeometryLocalBase, IGeometryLocalLine)
   private
     function GetEnum: IEnumLocalPoint;
   public
@@ -39,7 +39,7 @@ type
     );
   end;
 
-  TLocalPolygonLine = class(TLocalLineBase, IGeometryLocalPolygon)
+  TGeometryLocalPolygon = class(TGeometryLocalBase, IGeometryLocalPolygon)
   private
     function GetEnum: IEnumLocalPoint;
   public
@@ -58,7 +58,7 @@ uses
 
 { TLocalLineBase }
 
-constructor TLocalLineBase.Create(
+constructor TGeometryLocalBase.Create(
   AClosed: Boolean;
   const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
@@ -78,24 +78,24 @@ begin
   Move(APoints^, FPoints[0], FCount * SizeOf(TDoublePoint));
 end;
 
-function TLocalLineBase.GetCount: Integer;
+function TGeometryLocalBase.GetCount: Integer;
 begin
   Result := FCount;
 end;
 
-function TLocalLineBase.GetPoints: PDoublePointArray;
+function TGeometryLocalBase.GetPoints: PDoublePointArray;
 begin
   Result := @FPoints[0];
 end;
 
-function TLocalLineBase.GetLocalConverter: ILocalCoordConverter;
+function TGeometryLocalBase.GetLocalConverter: ILocalCoordConverter;
 begin
   Result := FLocalConverter;
 end;
 
 { TLocalPathLine }
 
-constructor TLocalPathLine.Create(
+constructor TGeometryLocalLine.Create(
   const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
   ACount: Integer
@@ -104,14 +104,14 @@ begin
   inherited Create(False, ALocalConverter, APoints, ACount);
 end;
 
-function TLocalPathLine.GetEnum: IEnumLocalPoint;
+function TGeometryLocalLine.GetEnum: IEnumLocalPoint;
 begin
   Result := TEnumLocalPointBySingleLocalLine.Create(Self, False, @FPoints[0], FCount);
 end;
 
 { TLocalPolygonLine }
 
-constructor TLocalPolygonLine.Create(
+constructor TGeometryLocalPolygon.Create(
   const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
   ACount: Integer
@@ -120,7 +120,7 @@ begin
   inherited Create(True, ALocalConverter, APoints, ACount);
 end;
 
-function TLocalPolygonLine.GetEnum: IEnumLocalPoint;
+function TGeometryLocalPolygon.GetEnum: IEnumLocalPoint;
 begin
   Result := TEnumLocalPointBySingleLocalLine.Create(Self, True, @FPoints[0], FCount);
 end;

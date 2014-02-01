@@ -76,7 +76,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TLocalPathLine.Create(ALocalConverter, VStart, VLineLen);
+        VLine := TGeometryLocalLine.Create(ALocalConverter, VStart, VLineLen);
         Inc(VLineCount);
         VLineLen := 0;
       end;
@@ -95,7 +95,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TLocalPathLine.Create(ALocalConverter, VStart, VLineLen);
+    VLine := TGeometryLocalLine.Create(ALocalConverter, VStart, VLineLen);
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
@@ -137,7 +137,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TLocalPathLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
+        VLine := TGeometryLocalLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
         Inc(VLineCount);
         VTemp.Clear;
       end;
@@ -153,7 +153,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TLocalPathLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
+    VLine := TGeometryLocalLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
     Inc(VLineCount);
     VTemp.Clear;
   end;
@@ -195,7 +195,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TLocalPolygonLine.Create(ALocalConverter, VStart, VLineLen);
+        VLine := TGeometryLocalPolygon.Create(ALocalConverter, VStart, VLineLen);
         Inc(VLineCount);
         VLineLen := 0;
       end;
@@ -214,7 +214,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TLocalPolygonLine.Create(ALocalConverter, VStart, VLineLen);
+    VLine := TGeometryLocalPolygon.Create(ALocalConverter, VStart, VLineLen);
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
@@ -255,7 +255,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TLocalPolygonLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
+        VLine := TGeometryLocalPolygon.Create(ALocalConverter, VTemp.Points, VTemp.Count);
         Inc(VLineCount);
         VTemp.Clear;
       end;
@@ -271,7 +271,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TLocalPolygonLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
+    VLine := TGeometryLocalPolygon.Create(ALocalConverter, VTemp.Points, VTemp.Count);
     Inc(VLineCount);
     VTemp.Clear;
   end;
