@@ -66,7 +66,7 @@ uses
   i_NotifierTime,
   i_Bitmap32StaticFactory,
   i_VectorDataFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_VectorGeometryLocalFactory,
   i_VectorItemSubsetBuilder,
   i_GeoCoder,

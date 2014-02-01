@@ -10,7 +10,7 @@ uses
   i_DoublePointsAggregator,
   i_GeometryLonLat,
   i_GeometryProjected,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   u_BaseInterfacedObject;
 
 type

@@ -6,7 +6,7 @@ uses
   Forms,
   i_GeometryLonLat,
   i_CoordConverterFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_StringListStatic,
   i_LanguageManager,
   i_MapTypeSet,

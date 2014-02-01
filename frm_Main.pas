@@ -768,7 +768,7 @@ uses
   i_SensorViewListGenerator,
   i_VectorItemSubsetBuilder,
   i_GeometryLonLatFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_VectorItemSubsetChangeable,
   i_ConfigDataProvider,
   i_PointCaptionsLayerConfig,

@@ -9,7 +9,7 @@ uses
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_ArchiveReadWriteFactory,
   i_MapTypeGUIConfigList,
   i_TileFileNameGeneratorsList,

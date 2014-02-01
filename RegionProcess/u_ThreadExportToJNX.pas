@@ -14,7 +14,7 @@ uses
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_CoordConverterFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_BitmapTileSaveLoadFactory,
   i_StringListStatic,
   i_TileStorage,

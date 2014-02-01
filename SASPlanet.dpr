@@ -219,7 +219,7 @@ uses
   i_GeometryLonLat in 'i_GeometryLonLat.pas',
   i_GeometryLonLatFactory in 'i_GeometryLonLatFactory.pas',
   i_VectorDataFactory in 'Vector\i_VectorDataFactory.pas',
-  i_VectorGeometryProjectedFactory in 'i_VectorGeometryProjectedFactory.pas',
+  i_GeometryProjectedFactory in 'i_GeometryProjectedFactory.pas',
   u_VectorGeometryProjectedFactory in 'u_VectorGeometryProjectedFactory.pas',
   i_VectorGeometryLocalFactory in 'i_VectorGeometryLocalFactory.pas',
   u_VectorGeometryLocalFactory in 'u_VectorGeometryLocalFactory.pas',

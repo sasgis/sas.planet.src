@@ -28,7 +28,7 @@ uses
   i_CoordConverterFactory,
   i_TileStorage,
   i_GeometryLonLat,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_RegionProcessProgressInfo,
   u_ThreadExportAbstract;
 

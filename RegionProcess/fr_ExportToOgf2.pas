@@ -18,7 +18,7 @@ uses
   i_BitmapTileSaveLoad,
   i_CoordConverterFactory,
   i_GeometryLonLat,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_ActiveMapsConfig,
   i_Bitmap32StaticFactory,
   i_MapTypeGUIConfigList,

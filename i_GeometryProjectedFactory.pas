@@ -1,4 +1,4 @@
-unit i_VectorGeometryProjectedFactory;
+unit i_GeometryProjectedFactory;
 
 interface
 

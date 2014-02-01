@@ -18,7 +18,7 @@ uses
   i_BitmapLayerProvider,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   u_ResStrings,
   u_ThreadExportAbstract;
 

@@ -11,7 +11,7 @@ interface
 uses
   TestFramework,
   t_GeoTypes,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_GeometryLonLatFactory;
 
 type

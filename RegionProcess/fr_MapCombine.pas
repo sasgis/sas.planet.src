@@ -19,7 +19,7 @@ uses
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_GeometryLonLat,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_MapCalibration,

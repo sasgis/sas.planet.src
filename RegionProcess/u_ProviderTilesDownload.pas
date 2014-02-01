@@ -29,7 +29,7 @@ uses
   i_MapTypeSet,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_CoordConverterFactory,
   i_LanguageManager,
   i_ActiveMapsConfig,

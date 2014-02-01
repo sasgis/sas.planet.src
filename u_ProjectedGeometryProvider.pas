@@ -9,7 +9,7 @@ uses
   i_GeometryProjected,
   i_ProjectedGeometryProvider,
   i_HashFunction,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   u_HashCacheWithQueuesAbstract;
 
 type

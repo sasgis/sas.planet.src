@@ -33,7 +33,7 @@ uses
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,

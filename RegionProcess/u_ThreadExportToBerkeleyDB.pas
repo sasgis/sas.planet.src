@@ -36,7 +36,7 @@ uses
   i_RegionProcessProgressInfo,
   i_ContentTypeManager,
   i_CoordConverterFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_TileFileNameGenerator,
   i_GlobalBerkeleyDBHelper,
   i_MapTypeListStatic,

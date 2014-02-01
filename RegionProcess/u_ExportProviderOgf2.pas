@@ -7,7 +7,7 @@ uses
   i_GeometryLonLat,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_Bitmap32StaticFactory,
   i_BitmapTileSaveLoadFactory,
   i_LanguageManager,

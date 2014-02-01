@@ -13,7 +13,7 @@ uses
   i_MapTypeGUIConfigList,
   i_ContentTypeManager,
   i_CoordConverterFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_TileFileNameGeneratorsList,
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,

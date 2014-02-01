@@ -8,7 +8,7 @@ uses
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_CoordConverterFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_RegionProcessProgressInfoInternalFactory,

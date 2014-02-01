@@ -17,7 +17,7 @@ uses
   i_BitmapLayerProvider,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_CoordConverter,
   i_GeometryLonLat,
   u_GeoFunc,

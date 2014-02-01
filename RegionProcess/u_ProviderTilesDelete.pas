@@ -30,7 +30,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,

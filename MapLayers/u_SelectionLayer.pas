@@ -11,7 +11,7 @@ uses
   i_LastSelectionLayerConfig,
   i_LastSelectionInfo,
   i_GeometryLonLat,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_VectorGeometryLocalFactory,
   u_PolyLineLayerBase;
 

@@ -11,7 +11,7 @@ uses
   i_Bitmap32StaticFactory,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessProgressInfoInternalFactory,

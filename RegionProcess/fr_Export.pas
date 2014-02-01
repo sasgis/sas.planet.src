@@ -12,7 +12,7 @@ uses
   i_LanguageManager,
   i_CoordConverterFactory,
   i_GeometryLonLat,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,

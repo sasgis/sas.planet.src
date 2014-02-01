@@ -5,7 +5,7 @@ interface
 uses
   Forms,
   i_GeometryLonLat,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_LanguageManager,
   i_MapTypeSet,
   i_ActiveMapsConfig,

@@ -12,7 +12,7 @@ uses
   i_MapTypeGUIConfigList,
   i_ImageResamplerConfig,
   i_CoordConverterFactory,
-  i_VectorGeometryProjectedFactory,
+  i_GeometryProjectedFactory,
   i_Bitmap32StaticFactory,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
