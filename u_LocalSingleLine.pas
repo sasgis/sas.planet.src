@@ -6,7 +6,7 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_LocalCoordConverter,
-  i_VectorItemLocal,
+  i_GeometryLocal,
   u_BaseInterfacedObject;
 
 type

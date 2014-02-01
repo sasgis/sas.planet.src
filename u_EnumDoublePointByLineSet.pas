@@ -7,7 +7,7 @@ uses
   i_EnumDoublePoint,
   i_GeometryLonLat,
   i_GeometryProjected,
-  i_VectorItemLocal,
+  i_GeometryLocal,
   u_BaseInterfacedObject;
 
 type

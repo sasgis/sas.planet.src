@@ -7,7 +7,7 @@ uses
   i_LocalCoordConverter,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
-  i_VectorItemLocal;
+  i_GeometryLocal;
 
 type
   IVectorGeometryLocalFactory = interface

@@ -1,4 +1,4 @@
-unit i_VectorItemLocal;
+unit i_GeometryLocal;
 
 interface
 

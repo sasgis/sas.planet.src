@@ -5,7 +5,7 @@ interface
 uses
   t_GeoTypes,
   i_LocalCoordConverter,
-  i_VectorItemLocal,
+  i_GeometryLocal,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
   i_VectorGeometryLocalFactory,
