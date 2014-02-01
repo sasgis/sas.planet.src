@@ -96,7 +96,7 @@ uses
   u_GeometryLonLat,
   u_LonLatRect,
   u_LonLatRectByPoint,
-  u_VectorItemEmpty,
+  u_GeometryLonLatMultiEmpty,
   u_GeometryLonLatMulti;
 
 type

@@ -331,7 +331,7 @@ uses
   u_EnumDoublePointByLineSet in 'u_EnumDoublePointByLineSet.pas',
   u_GeometryLonLat in 'u_GeometryLonLat.pas',
   u_GeometryProjected in 'u_GeometryProjected.pas',
-  u_VectorItemEmpty in 'u_VectorItemEmpty.pas',
+  u_GeometryLonLatMultiEmpty in 'u_GeometryLonLatMultiEmpty.pas',
   u_GeometryLonLatMulti in 'u_GeometryLonLatMulti.pas',
   u_GeometryProjectedMulti in 'u_GeometryProjectedMulti.pas',
   u_GeometryLonLatFactory in 'u_GeometryLonLatFactory.pas',
