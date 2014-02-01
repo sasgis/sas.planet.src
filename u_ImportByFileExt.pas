@@ -29,7 +29,6 @@ uses
   i_VectorDataLoader,
   i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
-  i_ImportConfig,
   i_VectorItemTree,
   u_BaseInterfacedObject;
 
@@ -47,8 +46,7 @@ type
     FImportJPG: IVectorItemTreeImporter;
   private
     function ProcessImport(
-      const AFileName: string;
-      const AConfig: IImportConfig
+      const AFileName: string
     ): IVectorItemTree;
   public
     constructor Create(
@@ -102,8 +100,7 @@ begin
 end;
 
 function TImportByFileExt.ProcessImport(
-  const AFileName: string;
-  const AConfig: IImportConfig
+  const AFileName: string
 ): IVectorItemTree;
 var
   VExtLwr: String;
@@ -111,23 +108,23 @@ begin
   Result := nil;
   VExtLwr := LowerCase(ExtractFileExt(AFileName));
   if ('.gpx' = VExtLwr) then begin
-    Result := FImportGPX.ProcessImport(AFileName, AConfig);
+    Result := FImportGPX.ProcessImport(AFileName);
   end else if ('.kml' = VExtLwr) then begin
-    Result := FImportKML.ProcessImport(AFileName, AConfig);
+    Result := FImportKML.ProcessImport(AFileName);
   end else if ('.kmz' = VExtLwr) then begin
-    Result := FImportKMZ.ProcessImport(AFileName, AConfig);
+    Result := FImportKMZ.ProcessImport(AFileName);
   end else if ('.plt' = VExtLwr) then begin
-    Result := FImportPLT.ProcessImport(AFileName, AConfig);
+    Result := FImportPLT.ProcessImport(AFileName);
   end else if ('.csv' = VExtLwr) then begin
-    Result := FImportCSV.ProcessImport(AFileName, AConfig);
+    Result := FImportCSV.ProcessImport(AFileName);
   end else if ('.hlg' = VExtLwr) then begin
-    Result := FImportHLG.ProcessImport(AFileName, AConfig);
+    Result := FImportHLG.ProcessImport(AFileName);
   end else if ('.mp' = VExtLwr) then begin
-    Result := FImportMP.ProcessImport(AFileName, AConfig);
+    Result := FImportMP.ProcessImport(AFileName);
   end else if ('.sls' = VExtLwr) then begin
-    Result := FImportSLS.ProcessImport(AFileName, AConfig);
+    Result := FImportSLS.ProcessImport(AFileName);
   end else if ('.jpg' = VExtLwr) then begin
-    Result := FImportJPG.ProcessImport(AFileName, AConfig);
+    Result := FImportJPG.ProcessImport(AFileName);
   end;
 end;
 

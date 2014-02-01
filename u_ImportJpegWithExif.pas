@@ -27,7 +27,6 @@ uses
   i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
   i_ValueToStringConverter,
-  i_ImportConfig,
   i_ImportFile,
   i_GeometryLonLatFactory,
   i_VectorItemTree,
@@ -43,8 +42,7 @@ type
     FValueToStringConverterConfig: IValueToStringConverterConfig;
   private
     function ProcessImport(
-      const AFileName: string;
-      const AConfig: IImportConfig
+      const AFileName: string
     ): IVectorItemTree;
   public
     constructor Create(
@@ -87,8 +85,7 @@ begin
 end;
 
 function TImportJpegWithExif.ProcessImport(
-  const AFileName: string;
-  const AConfig: IImportConfig
+  const AFileName: string
 ): IVectorItemTree;
 var
   VPoint: TDoublePoint;

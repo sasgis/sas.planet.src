@@ -552,11 +552,11 @@ var
 begin
   Result := nil;
   if (FileExists(AFileNameToImport)) then begin
-    if not Assigned(AImportConfig) then
-      AImportConfig := EditModalImportConfig;
-    if Assigned(AImportConfig) then begin
-      VTree := FImportFileByExt.ProcessImport(AFileNameToImport, AImportConfig);
-      if Assigned(VTree) then begin
+    VTree := FImportFileByExt.ProcessImport(AFileNameToImport);
+    if Assigned(VTree) then begin
+      if not Assigned(AImportConfig) then
+        AImportConfig := EditModalImportConfig;
+      if Assigned(AImportConfig) then begin
         Result := FMarkSystem.ImportItemsTree(VTree, AImportConfig);
       end;
     end;

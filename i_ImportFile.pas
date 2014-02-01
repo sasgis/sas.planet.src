@@ -23,15 +23,13 @@ unit i_ImportFile;
 interface
 
 uses
-  i_VectorItemTree,
-  i_ImportConfig;
+  i_VectorItemTree;
 
 type
   IVectorItemTreeImporter = interface
     ['{0EF61663-09C0-4C71-A6F0-4E26380296E9}']
     function ProcessImport(
-      const AFileName: string;
-      const AConfig: IImportConfig
+      const AFileName: string
     ): IVectorItemTree;
   end;
 

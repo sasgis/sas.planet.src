@@ -26,7 +26,6 @@ uses
   Classes,
   i_VectorDataLoader,
   i_VectorDataFactory,
-  i_ImportConfig,
   i_ImportFile,
   i_VectorItemTree,
   u_BaseInterfacedObject;
@@ -38,8 +37,7 @@ type
     FLoader: IVectorDataLoader;
   private
     function ProcessImport(
-      const AFileName: string;
-      const AConfig: IImportConfig
+      const AFileName: string
     ): IVectorItemTree;
   public
     constructor Create(
@@ -70,8 +68,7 @@ begin
 end;
 
 function TImportByVectorLoader.ProcessImport(
-  const AFileName: string;
-  const AConfig: IImportConfig
+  const AFileName: string
 ): IVectorItemTree;
 var
   VMemStream: TMemoryStream;
