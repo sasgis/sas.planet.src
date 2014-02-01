@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.ѕланета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -89,25 +89,29 @@ begin
   outout.Y := ((arctan(exp(in_Y / 6378137)) - Pi / 4) * 360) / Pi;
 end;
 
-function GetBetween(const ASTR,AFrom,ATo:AnsiString ; var VRes:AnsiString;APtr:integer):integer;
+function GetBetween(
+  const ASTR, AFrom, ATo: AnsiString;
+  var VRes: AnsiString;
+  APtr: integer
+): integer;
 var
- i,j:integer;
+ i, j: integer;
 begin
-  i:=ALPosEx(AFrom, ASTR, Aptr);
+  i := ALPosEx(AFrom, ASTR, Aptr);
   if i>0 then
    begin
-   j:= ALPosEx(ATo, ASTR,i+length(AFrom));
+   j := ALPosEx(ATo, ASTR, i + length(AFrom));
    if j>i then begin
      VRes := Copy(AStr, i + Length(AFrom), j - (i + length(AFrom)));
      Result := j;
    end else
    begin
-     VRes :='';
+     VRes := '';
      Result := Aptr;
    end
   end else
   begin
-   VRes :='';
+   VRes := '';
    Result := Aptr;
   end;
 end;
@@ -173,20 +177,20 @@ begin
     j := ALPosEx('{"attributes"', VStr, i);
     sdesc := '';
     sname := '';
-    j := GetBetween(Vstr,'"CAD_NUM":"','"',VTemp,j);
+    j := GetBetween(Vstr, '"CAD_NUM":"', '"', VTemp, j);
     sname := string(VTemp);
 
-    j := GetBetween(Vstr,'"OBJECT_ADDRESS":"','"',VTemp,j);
+    j := GetBetween(Vstr, '"OBJECT_ADDRESS":"', '"', VTemp, j);
     sdesc := Utf8ToAnsi(VTemp);
 
     if sdesc='' then begin
-      j := GetBetween(Vstr,'"OBJECT_PLACE":"','"',VTemp,j);
-      j := GetBetween(Vstr,'"OBJECT_LOCALITY":"','"',VTemp1,j);
-      sdesc := Utf8ToAnsi(VTemp+ ' ' +VTemp1);
+      j := GetBetween(Vstr, '"OBJECT_PLACE":"', '"', VTemp, j);
+      j := GetBetween(Vstr, '"OBJECT_LOCALITY":"','"', VTemp1, j);
+      sdesc := Utf8ToAnsi(VTemp + ' ' + VTemp1);
     end;
 
-    j := GetBetween(Vstr,'"XC":',',',slon,j);
-    j := GetBetween(Vstr,'"YC":',',',slat,j);
+    j := GetBetween(Vstr, '"XC":', ',', slon, j);
+    j := GetBetween(Vstr, '"YC":', ',', slat, j);
 
     try
       meters_to_lonlat(ALStrToFloat(slon, VFormatSettings), ALStrToFloat(slat, VFormatSettings), Vpoint);
@@ -194,8 +198,8 @@ begin
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
     i := (ALPosEx('}}', VStr, j));
-    sdesc := sdesc + #$D#$A + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
-    sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
+    sdesc := sdesc + #$D#$A + '[ '+ VValueConverter.LonLatConvert(VPoint) + ' ]';
+    sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
     VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
@@ -225,12 +229,11 @@ begin
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
     i := (ALPosEx('}}', VStr, i));
-    sdesc := sdesc + #$D#$A + '[ '+VValueConverter.LonLatConvert(VPoint)+' ]';
-    sfulldesc :=  ReplaceStr( sname + #$D#$A+ sdesc,#$D#$A,'<br>');
+    sdesc := sdesc + #$D#$A + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+    sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
     VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
-
   Result := VList;
 end;
 
@@ -315,20 +318,20 @@ begin
       Result :=
         PrepareRequestByURL(
 //          'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript23._jsonpCallback'
-          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum='+URLEncode(AnsiToUtf8(ASearch))+'&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript24._jsonpCallback'
+          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum=' + URLEncode(AnsiToUtf8(ASearch)) + '&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript24._jsonpCallback'
         );
     end else if i4 = 0 then //  варталы
     begin
       Result :=
         PrepareRequestByURL(
 //          'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/6/query?f=json&where=KVARTALID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript40._jsonpCallback'
-          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/12/query?f=json&where=PKK_ID%20like%20'''+ URLEncode(AnsiToUtf8(VSearch)) +'%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript21._jsonpCallback'
+          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/12/query?f=json&where=PKK_ID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript21._jsonpCallback'
         );
     end else // участки
     begin
       Result :=
         PrepareRequestByURL(
-          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum='+ URLEncode(AnsiToUtf8(ASearch)) +'&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript48._jsonpCallback'
+          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum=' + URLEncode(AnsiToUtf8(ASearch)) + '&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript48._jsonpCallback'
         );
     end;
 

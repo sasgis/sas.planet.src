@@ -147,7 +147,7 @@ var
   VLonLatRect: TDoubleRect;
 begin
   VSearch := StringReplace(ASearch, ' ', '+', [rfReplaceAll]);
-  VConverter:=ALocalConverter.GetGeoConverter;
+  VConverter := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VMapRect := ALocalConverter.GetRectInMapPixelFloat;
   VConverter.CheckPixelRectFloat(VMapRect, VZoom);
@@ -159,7 +159,7 @@ begin
       'http://geocode-maps.yandex.ru/1.x/' +
       '?geocode=' + URLEncode(Utf8Encode(ASearch)) +
       '&ll=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + ',' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
-      '&spn=' + R2AnsiStrPoint(VLonLatRect.Right-VLonLatRect.Left) + ',' + R2AnsiStrPoint(VLonLatRect.Top-VLonLatRect.Bottom) +
+      '&spn=' + R2AnsiStrPoint(VLonLatRect.Right - VLonLatRect.Left) + ',' + R2AnsiStrPoint(VLonLatRect.Top - VLonLatRect.Bottom) +
       '&format=json' +
       '&results=15'
     );

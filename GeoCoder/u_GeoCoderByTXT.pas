@@ -120,10 +120,10 @@ end;
 procedure TGeoCoderByTXT.SearchInTXTFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile: string ;
+  const AFile: string;
   const ASearch: WideString;
   const AList: IInterfaceListSimple;
-  var ACnt: integer
+  var ACnt: Integer
 );
 var
   VFormatSettings: TFormatSettings;
@@ -131,7 +131,7 @@ var
   VPoint: TDoublePoint;
   VLatStr, VLonStr: string;
   VSName, VSDesc, VSFullDesc: string;
-  I: integer;
+  I: Integer;
   VSearch: string;
   VValueConverter: IValueToStringConverter;
   VAnsi: AnsiString;
@@ -186,7 +186,7 @@ begin
           VTabArray.Text := VSName;
 
           for I := 0 to VTabArray.Count - 1 do begin
-            if Length(VTabArray.Strings[I])<>0 then begin
+            if Length(VTabArray.Strings[I]) <> 0 then begin
               if Pos(VSearch, AnsiUpperCase(VTabArray.Strings[I])) > 0 then begin
                 VSName := VTabArray.Strings[I];
                 break;
@@ -231,7 +231,7 @@ function TGeoCoderByTXT.DoSearch(
 var
   VList: IInterfaceListSimple;
   vpath: string;
-  Vcnt: integer;
+  Vcnt: Integer;
   VFolder: string;
   SearchRec: TSearchRec;
   MySearch: string;
@@ -246,7 +246,7 @@ begin
       if (SearchRec.Attr and faDirectory) = faDirectory then begin
         Continue;
       end;
-      vpath:= VFolder + SearchRec.Name;
+      vpath := VFolder + SearchRec.Name;
       SearchInTXTFile(ACancelNotifier, AOperationID, Vpath, MySearch, vlist, Vcnt);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;

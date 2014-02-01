@@ -42,7 +42,7 @@ type
     procedure SearchInGpxFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const AFile: String ;
+      const AFile: String;
       const ASearch: WideString;
       const AList: IInterfaceListSimple;
       const AValueConverter: IValueToStringConverter
@@ -116,7 +116,7 @@ end;
 procedure TGeoCoderByGpx.SearchInGpxFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile: String ;
+  const AFile: String;
   const ASearch: WideString;
   const AList: IInterfaceListSimple;
   const AValueConverter: IValueToStringConverter
@@ -156,8 +156,8 @@ begin
           if VPlacemarkNode.ChildNodes.FindNode('desc') <> nil then
             VDesc := VPlacemarkNode.ChildNodes.FindNode('desc').Text;
           if VPlacemarkNode.ChildNodes.FindNode('ele') <> nil then
-            VDesc := VDesc + #$D#$A + 'Elevation '+VPlacemarkNode.ChildNodes.FindNode('ele').Text;
-          VDesc := VDesc + #$D#$A + '[ '+AValueConverter.LonLatConvert(VPoint) + ' ]';
+            VDesc := VDesc + #$D#$A + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele').Text;
+          VDesc := VDesc + #$D#$A + '[ ' + AValueConverter.LonLatConvert(VPoint) + ' ]';
           VFullDesc := VAddress + '<br>' + VDesc + '<br><b>' + AFile + '</b>';
 
           Vskip := True;

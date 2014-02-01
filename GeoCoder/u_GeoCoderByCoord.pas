@@ -663,7 +663,7 @@ begin
             'D': begin VDLat := VDLat + 1/16; VDLon := VDLon - 1/24 end;
           end;
         end;
-        VSname := VSname +'-'+ VTempString;
+        VSname := VSname + '-' + VTempString;
         V2Search := Copy(V2Search, I, Length(V2Search) - I + 1);
         if Length(V2Search) > 0 then begin
           if Copy(V2Search, 1, 1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search) - 1);
@@ -691,7 +691,7 @@ begin
          'D': begin VDLat := VDLat + 1/32; VDLon := VDLon - 1/48 end;
          end;
         end;
-        VSname := VSname + '-'+ VTempString;
+        VSname := VSname + '-' + VTempString;
         V2Search := Copy(V2Search, I, Length(V2Search) - I + 1);
         if Length(V2Search) > 0 then begin
          if Copy(V2Search, 1, 1) = '-' then  V2Search := Copy(V2Search, 2, Length(V2Search) - 1);
@@ -703,7 +703,7 @@ begin
     VPoint.Y := VDLon;
     VPoint.X := VDLat;
     if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
-      VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+      VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
       VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
       VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
       AAList.Add(VPlace);
@@ -787,11 +787,11 @@ begin
         J := PosEx('\', V2Search, I);
         I := J + 1;
         J := PosEx('.', V2Search, I);
-        VLonStr := Copy(V2Search, I , J - (I));
+        VLonStr := Copy(V2Search, I, J - (I));
         Vilon := strtoint(VLonStr) * 256;
         I := J + 1;
         J := PosEx('.', V2Search, I);
-        VLatStr := Copy(V2Search, I , J - (I));
+        VLatStr := Copy(V2Search, I, J - (I));
         Vilat :=  strtoint(VLatStr) * 256;
         VcoordError := False;
       end else
@@ -817,7 +817,7 @@ begin
         Vilon := strtoint(VLatStr);
         Inc(VZoom); // в GMT зум отличается на 1
         VcoordError := False;
-      end ;
+      end;
 
       if VcoordError then begin // C:\.bin\cache_old\sat\13\trtqsstrrqqtq.jpg
         ViLat := 0;
@@ -849,13 +849,13 @@ begin
       if not VcoordError then begin
         VXYPoint.X := ViLon;
         VXYPoint.Y := ViLat;
-        VSDesc := 'z=' + inttostr(VZoom) + ' x='+inttostr(Vilon) + ' y='+ inttostr(Vilat) + #10#13;
+        VSDesc := 'z=' + inttostr(VZoom) + ' x=' + inttostr(Vilon) + ' y='+ inttostr(Vilat) + #10#13;
         VXYRect := ALocalConverter.GetGeoConverter.TilePos2PixelRect(VXYPoint, VZoom - 1);
         VXYPoint := Point((VXYRect.Right + VXYRect.Left) div 2, (VXYRect.Bottom + VXYRect.top)div 2);
         VPoint := ALocalConverter.GetGeoConverter.PixelPos2LonLat(VXYPoint, VZoom - 1);
         if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
           VSname := ASearch;
-          VSDesc := '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+          VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
           VFullDesc :=  ReplaceStr(VSname + #$D#$A + VSDesc, #$D#$A, '<br>');
           VPlace := PlacemarkFactory.Build(VPoint, VSname, VSDesc, VFullDesc, 4);
           VList.Add(VPlace);
@@ -884,7 +884,7 @@ begin
     VLatStr := Copy(V2Search, 1, J - 1); //первая половина
     VLonStr := Copy(V2Search, J + 1, Length(V2Search) - J + 1); // вторая половина
     if not PosStr2List(VLatStr, VLonStr, VList) then VList := nil;
-  end ;
+  end;
   Result := VList;
 end;
 end.

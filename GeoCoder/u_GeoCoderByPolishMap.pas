@@ -43,7 +43,7 @@ type
     procedure SearchInMapFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const AFile: String ;
+      const AFile: String;
       const ASearch: Widestring;
       const AList: IInterfaceListSimple;
       var Acnt: Integer
@@ -507,7 +507,7 @@ end;
 procedure TGeoCoderByPolishMap.SearchInMapFile(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const AFile: String ;
+  const AFile: String;
   const ASearch: Widestring;
   const AList: IInterfaceListSimple;
   var Acnt: Integer
@@ -650,12 +650,12 @@ begin
 
         if V_HouseNumber <> '' then
           if Vsname='' then  Vsname := String(V_StreetDesc) + ' ¹' + String(V_HouseNumber)
-            else Vsdesc := String(V_StreetDesc) + ' ¹'+String(V_HouseNumber) + #$D#$A + Vsdesc;
+            else Vsdesc := String(V_StreetDesc) + ' ¹' + String(V_HouseNumber) + #$D#$A + Vsdesc;
         if V_Type <> -1 then Vsdesc := getType(V_SectionType, V_Type) + #$D#$A + Vsdesc;
         if V_CityName <> '' then Vsdesc := Vsdesc +  String(V_CityName) + #$D#$A;
         if V_Phone <> '' then Vsdesc := Vsdesc + 'Phone '+ String(V_Phone) + #$D#$A;
         VValueConverter := FValueToStringConverterConfig.GetStatic;
-        Vsdesc := Vsdesc + '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+        Vsdesc := Vsdesc + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
         Vsdesc := Vsdesc + #$D#$A + ExtractFileName(AFile);
         sfulldesc :=  ReplaceStr(Vsname + #$D#$A + Vsdesc, #$D#$A, '<br>');
         if V_WebPage <> '' then sfulldesc := sfulldesc + '<br><a href=' + String(V_WebPage) + '>' + String(V_WebPage) + '</a>';

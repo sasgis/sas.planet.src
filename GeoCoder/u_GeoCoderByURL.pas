@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -47,7 +47,7 @@ type
       const ALocalConverter: ILocalCoordConverter
     ):IVectorDataItemPoint;
     function GetPointFromShortLink(
-      const Astr,AhttpData: AnsiString;
+      const Astr, AhttpData: AnsiString;
       const ACancelNotifier: INotifierOperation; AOperationID: Integer
     ):IVectorDataItemPoint;
   protected
@@ -165,7 +165,7 @@ begin
    VSLon := Copy(VLink, I + 1, J - (I + 1));
  end;
 
- if (RegExprGetMatchSubStr(VLink, '\.yandex\..+/-/',0)<>'' ) or
+ if (RegExprGetMatchSubStr(VLink, '\.yandex\..+/-/',0) <> '' ) or
     (ALPosEx('maps.yandex.ru/?oid=', VLink, 1) > 0 )then begin
    VSName := 'yandex';
    VLink := ALStringReplace(AhttpData, '''', '', [rfReplaceAll]);
@@ -254,7 +254,7 @@ begin
      VSName := 'kosmosnimki';
      meters_to_lonlat(ALStrToFloat(VSLon, VFormatSettings), ALStrToFloat(VSLat, VFormatSettings), VSLon, VSLat, VFormatSettings);
    end;
- end ;
+ end;
 
  if ALPosEx('api/index.html?permalink=', VLink, 1) > 0 then begin
    VSLat := Copy(VLink, 53, 5);
@@ -306,7 +306,7 @@ begin
      raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VSLat, VSLon]);
    end;
    VSDesc := '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
-   VSFullDesc := '<a href=' + String(Astr) + '>' +String(Astr)+ '</a><br>' + ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
+   VSFullDesc := '<a href=' + String(Astr) + '>' + String(Astr) + '</a><br>' + ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
    VPlace := PlacemarkFactory.Build(VPoint, VSName, VSDesc, VSFullDesc, 4);
    Result := VPlace;
   end else Result := nil;
@@ -376,7 +376,7 @@ begin
     J := ALPosEx('~', VLink, I);
     VSLat := Copy(VLink, I + 3, J - (I + 3));
     I := J;
-    J :=ALPosEx('&', VLink, I);
+    J := ALPosEx('&', VLink, I);
     VSLon := Copy(VLink, I + 1, J - (I + 1));
   end;
 
@@ -558,7 +558,7 @@ begin
         try
           VZoom := ALStrToInt(VSLat);
         except
-          VZoom := 0 ;
+          VZoom := 0;
         end;
         I := ALPosEx('/', VLink, J); // X значение
         J := ALPosEx('/', VLink, I + 1);
@@ -579,7 +579,7 @@ begin
         VSLon := ALFloatToStr(VPoint.X, VFormatSettings);
       end;
     end;
-  end ;
+  end;
 
   // http://wikimapia.org/d?lng=1&BBOX=42.84668,43.26121,42.89063,43.29320
   // http://www.openstreetmap.org/?box=yes&bbox=41.73729%2C44.25345%2C41.73729%2C44.25345

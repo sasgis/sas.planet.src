@@ -513,8 +513,8 @@ var
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
 begin
-  VFullDesc:='';
-  VDescStr:='';
+  VFullDesc := '';
+  VDescStr := '';
   vBrLevel := 1;
   if AResult.Data.Size <= 0 then begin
     raise EParserError.Create(SAS_ERR_EmptyServerResponse);
@@ -538,9 +538,9 @@ begin
       if vBrLevel=1 then  begin
         //[848692, ["Москва"], 72, 857666, null],
         //[817088, ["Новая Москва"], 32, null, ["Шкотовский р-н", "Приморский край", "Россия"]],
-        VDescStr:='';
-        VSName:='';
-        VFullDesc:='';
+        VDescStr := '';
+        VSName := '';
+        VFullDesc := '';
         i := ALPosEx('[', VBuffer, 1);
         j := ALPosEx(',', VBuffer, 1);
         VNavitel_ID := Copy(VBuffer, i + 1, j - (i + 1));
@@ -562,7 +562,7 @@ begin
             Vii := Vjj;
             Vjj := ALPosEx(',', VDescStr, Vii + 1 );
             VLatStr := Copy(VDescStr, Vii + 1, Vjj - (Vii + 1));
-            VFullDesc :='';
+            VFullDesc := '';
           end else begin
             Exit;
           end;
@@ -614,7 +614,7 @@ begin
         VPlace := PlacemarkFactory.Build(VPoint, VSName, VDesc, VFullDesc, 4);
         VList.Add(VPlace);
 
-        VBuffer:='';
+        VBuffer := '';
       end;
     end;
   end;
@@ -647,8 +647,8 @@ begin
   //http://maps.navitel.su/webmaps/searchTwoStep?s=%D0%BC%D0%BE%D1%81%D0%BA%D0%B2%D0%B0&lon=37.6&lat=55.8&z=6
   //http://maps.navitel.su/webmaps/searchTwoStepInfo?id=848692
   Result := PrepareRequestByURL(
-   'http://maps.navitel.su/webmaps/searchTwoStep?s=' + URLEncode(AnsiToUtf8(VSearch))+
-   '&lon=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + '&lat=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y)+
+   'http://maps.navitel.su/webmaps/searchTwoStep?s=' + URLEncode(AnsiToUtf8(VSearch)) +
+   '&lon=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.x) + '&lat=' + R2AnsiStrPoint(ALocalConverter.GetCenterLonLat.y) +
    '&z=' + ALIntToStr(VZoom));
 end;
 end.
