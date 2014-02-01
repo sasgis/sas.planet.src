@@ -8,15 +8,18 @@ uses
   i_ProjectionInfo;
 
 type
-  IGeometryProjectedLine = interface
-    ['{0D9B7321-DBA0-494F-959C-5026DB27C681}']
-    function GetEnum: IEnumProjectedPoint;
-
+  IGeometryProjected = interface
+    ['{162D40D7-29D5-44B1-BDB8-7E7616289769}']
     function GetProjection: IProjectionInfo;
     property Projection: IProjectionInfo read GetProjection;
 
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
+  end;
+
+  IGeometryProjectedLine = interface(IGeometryProjected)
+    ['{0D9B7321-DBA0-494F-959C-5026DB27C681}']
+    function GetEnum: IEnumProjectedPoint;
 
     function IsPointOnPath(
       const APoint: TDoublePoint;
@@ -31,15 +34,9 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IGeometryProjectedPolygon = interface
+  IGeometryProjectedPolygon = interface(IGeometryProjected)
     ['{30424113-D148-45EB-A4C8-C0150DB89D22}']
     function GetEnum: IEnumProjectedPoint;
-
-    function GetProjection: IProjectionInfo;
-    property Projection: IProjectionInfo read GetProjection;
-
-    function GetBounds: TDoubleRect;
-    property Bounds: TDoubleRect read GetBounds;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(
@@ -57,15 +54,9 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IGeometryProjectedMultiLine = interface
+  IGeometryProjectedMultiLine = interface(IGeometryProjected)
     ['{781FAF61-C109-4CC9-A861-90CBE807D8E1}']
     function GetEnum: IEnumProjectedPoint;
-
-    function GetProjection: IProjectionInfo;
-    property Projection: IProjectionInfo read GetProjection;
-
-    function GetBounds: TDoubleRect;
-    property Bounds: TDoubleRect read GetBounds;
 
     function IsPointOnPath(
       const APoint: TDoublePoint;
@@ -80,15 +71,9 @@ type
     property Item[AIndex: Integer]: IGeometryProjectedLine read GetItem;
   end;
 
-  IGeometryProjectedMultiPolygon = interface
+  IGeometryProjectedMultiPolygon = interface(IGeometryProjected)
     ['{02C310DE-60C3-4175-8811-367D5C5AC0CE}']
     function GetEnum: IEnumProjectedPoint;
-
-    function GetProjection: IProjectionInfo;
-    property Projection: IProjectionInfo read GetProjection;
-
-    function GetBounds: TDoubleRect;
-    property Bounds: TDoubleRect read GetBounds;
 
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(
