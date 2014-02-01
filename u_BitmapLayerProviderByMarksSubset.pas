@@ -159,7 +159,7 @@ var
   VProjected: IGeometryProjectedMultiLine;
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
-  VLine: IProjectedPathLine;
+  VLine: IGeometryProjectedLine;
   VIndex: Integer;
   VAppearanceLine: IAppearanceLine;
 begin
@@ -268,7 +268,7 @@ var
   VProjected: IGeometryProjectedMultiPolygon;
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
-  VLine: IProjectedPolygonLine;
+  VLine: IGeometryProjectedPolygon;
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;
 begin

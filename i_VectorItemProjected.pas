@@ -8,7 +8,7 @@ uses
   i_ProjectionInfo;
 
 type
-  IProjectedPathLine = interface
+  IGeometryProjectedLine = interface
     ['{0D9B7321-DBA0-494F-959C-5026DB27C681}']
     function GetEnum: IEnumProjectedPoint;
 
@@ -31,7 +31,7 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IProjectedPolygonLine = interface
+  IGeometryProjectedPolygon = interface
     ['{30424113-D148-45EB-A4C8-C0150DB89D22}']
     function GetEnum: IEnumProjectedPoint;
 
@@ -76,8 +76,8 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): IProjectedPathLine;
-    property Item[AIndex: Integer]: IProjectedPathLine read GetItem;
+    function GetItem(AIndex: Integer): IGeometryProjectedLine;
+    property Item[AIndex: Integer]: IGeometryProjectedLine read GetItem;
   end;
 
   IGeometryProjectedMultiPolygon = interface
@@ -102,8 +102,8 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): IProjectedPolygonLine;
-    property Item[AIndex: Integer]: IProjectedPolygonLine read GetItem;
+    function GetItem(AIndex: Integer): IGeometryProjectedPolygon;
+    property Item[AIndex: Integer]: IGeometryProjectedPolygon read GetItem;
   end;
 
 implementation

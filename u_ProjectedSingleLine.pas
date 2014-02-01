@@ -37,7 +37,7 @@ type
     ); overload;
   end;
 
-  TProjectedPathLine = class(TProjectedLineBase, IProjectedPathLine)
+  TProjectedPathLine = class(TProjectedLineBase, IGeometryProjectedLine)
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(
@@ -53,7 +53,7 @@ type
     );
   end;
 
-  TProjectedPolygonLine = class(TProjectedLineBase, IProjectedPolygonLine)
+  TProjectedPolygonLine = class(TProjectedLineBase, IGeometryProjectedPolygon)
   private
     function GetEnum: IEnumProjectedPoint;
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;

@@ -38,9 +38,9 @@ type
     FTilesRect: TRect;
     FTilesTotal: Int64;
     // устанавливается только если один кусок (для скорости)
-    FSingleLine: IProjectedPolygonLine;
+    FSingleLine: IGeometryProjectedPolygon;
     // кэш куска
-    FLastUsedLine: IProjectedPolygonLine;
+    FLastUsedLine: IGeometryProjectedPolygon;
     FZoom: Byte;
     FGeoConverter: ICoordConverter;
   private
@@ -120,7 +120,7 @@ end;
 function TTileIteratorByPolygon.InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
 var
   i: Integer;
-  VLine: IProjectedPolygonLine;
+  VLine: IGeometryProjectedPolygon;
 begin
   if (FSingleLine<>nil) then begin
     // один сегмент - только его и проверяем

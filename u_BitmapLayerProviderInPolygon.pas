@@ -15,7 +15,7 @@ type
   private
     FSourceProvider: IBitmapLayerProvider;
     FPolyProjected: IGeometryProjectedMultiPolygon;
-    FLine: IProjectedPolygonLine;
+    FLine: IGeometryProjectedPolygon;
   private
     function GetBitmapRect(
       AOperationID: Integer;

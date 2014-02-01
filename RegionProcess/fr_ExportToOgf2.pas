@@ -148,7 +148,7 @@ var
   VZoom: byte;
   VPolyLL: IGeometryLonLatMultiPolygon;
   VProjected: IGeometryProjectedMultiPolygon;
-  VLine: IProjectedPolygonLine;
+  VLine: IGeometryProjectedPolygon;
   VBounds: TDoubleRect;
   VPixelRect: TRect;
   VTileRect: TRect;
