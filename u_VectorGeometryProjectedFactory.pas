@@ -167,7 +167,7 @@ begin
         VList.Add(VLine);
         VLine := nil;
       end;
-      VLine := TProjectedPolygonLine.Create(AProjection, VTemp.Points, VTemp.Count);
+      VLine := TGeometryProjectedPolygon.Create(AProjection, VTemp.Points, VTemp.Count);
       if VLineCount > 0 then begin
         VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
       end else begin
@@ -185,7 +185,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TProjectedPolygonLine.Create(AProjection, VTemp.Points, VTemp.Count);
+    VLine := TGeometryProjectedPolygon.Create(AProjection, VTemp.Points, VTemp.Count);
     if VLineCount > 0 then begin
       VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
     end else begin
@@ -233,7 +233,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TProjectedPathLine.Create(AProjection, VStart, VLineLen);
+        VLine := TGeometryProjectedLine.Create(AProjection, VStart, VLineLen);
         if VLineCount > 0 then begin
           VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
         end else begin
@@ -257,7 +257,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TProjectedPathLine.Create(AProjection, VStart, VLineLen);
+    VLine := TGeometryProjectedLine.Create(AProjection, VStart, VLineLen);
     if VLineCount > 0 then begin
       VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
     end else begin
@@ -304,7 +304,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TProjectedPathLine.Create(AProjection, VTemp.Points, VTemp.Count);
+        VLine := TGeometryProjectedLine.Create(AProjection, VTemp.Points, VTemp.Count);
         if VLineCount > 0 then begin
           VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
         end else begin
@@ -325,7 +325,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TProjectedPathLine.Create(AProjection, VTemp.Points, VTemp.Count);
+    VLine := TGeometryProjectedLine.Create(AProjection, VTemp.Points, VTemp.Count);
     if VLineCount > 0 then begin
       VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
     end else begin
@@ -424,7 +424,7 @@ begin
         VList.Add(VLine);
         VLine := nil;
       end;
-      VLine := TProjectedPathLine.Create(AProjection, VTemp.Points, VTemp.Count);
+      VLine := TGeometryProjectedLine.Create(AProjection, VTemp.Points, VTemp.Count);
       if VLineCount > 0 then begin
         VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
       end else begin
@@ -442,7 +442,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TProjectedPathLine.Create(AProjection, VTemp.Points, VTemp.Count);
+    VLine := TGeometryProjectedLine.Create(AProjection, VTemp.Points, VTemp.Count);
     if VLineCount > 0 then begin
       VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
     end else begin
@@ -536,7 +536,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TProjectedPolygonLine.Create(AProjection, VStart, VLineLen);
+        VLine := TGeometryProjectedPolygon.Create(AProjection, VStart, VLineLen);
         if VLineCount > 0 then begin
           VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
         end else begin
@@ -560,7 +560,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TProjectedPolygonLine.Create(AProjection, VStart, VLineLen);
+    VLine := TGeometryProjectedPolygon.Create(AProjection, VStart, VLineLen);
     if VLineCount > 0 then begin
       VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
     end else begin
@@ -607,7 +607,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TProjectedPolygonLine.Create(AProjection, VTemp.Points, VTemp.Count);
+        VLine := TGeometryProjectedPolygon.Create(AProjection, VTemp.Points, VTemp.Count);
         if VLineCount > 0 then begin
           VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
         end else begin
@@ -628,7 +628,7 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TProjectedPolygonLine.Create(AProjection, VTemp.Points, VTemp.Count);
+    VLine := TGeometryProjectedPolygon.Create(AProjection, VTemp.Points, VTemp.Count);
     if VLineCount > 0 then begin
       VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
     end else begin
@@ -706,7 +706,7 @@ begin
   VPoints[2] := ARect.BottomRight;
   VPoints[3].X := ARect.Left;
   VPoints[3].Y := ARect.Bottom;
-  Result := TProjectedPolygonLine.Create(AProjection, @VPoints[0], 4);
+  Result := TGeometryProjectedPolygon.Create(AProjection, @VPoints[0], 4);
 end;
 
 function TVectorGeometryProjectedFactory.CreateProjectedPolygonWithClipByLonLatEnum(
