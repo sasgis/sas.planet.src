@@ -117,7 +117,7 @@ var
   I, J: Integer;
   VZoom: Byte;
   VGeoConvert: ICoordConverter;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTileIterator: ITileIterator;
   VTile: TPoint;
 begin

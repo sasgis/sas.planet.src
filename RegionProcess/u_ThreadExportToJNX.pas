@@ -152,7 +152,7 @@ var
   VTileBounds: TJNXRect;
   VTopLeft: TDoublePoint;
   VBottomRight: TDoublePoint;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VData: IBinaryData;

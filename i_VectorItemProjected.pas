@@ -57,7 +57,7 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IProjectedPath = interface
+  IGeometryProjectedMultiLine = interface
     ['{781FAF61-C109-4CC9-A861-90CBE807D8E1}']
     function GetEnum: IEnumProjectedPoint;
 
@@ -80,7 +80,7 @@ type
     property Item[AIndex: Integer]: IProjectedPathLine read GetItem;
   end;
 
-  IProjectedPolygon = interface
+  IGeometryProjectedMultiPolygon = interface
     ['{02C310DE-60C3-4175-8811-367D5C5AC0CE}']
     function GetEnum: IEnumProjectedPoint;
 

@@ -190,7 +190,7 @@ var
   VWriter: TOgf2Writer;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VProjected: IProjectedPolygon;
+  VProjected: IGeometryProjectedMultiPolygon;
   VLine: IProjectedPolygonLine;
   VBounds: TDoubleRect;
   VPixelRect: TRect;

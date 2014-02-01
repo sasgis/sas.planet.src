@@ -96,7 +96,7 @@ var
   VPath: string;
   VMapType: TMapType;
   VZoom: byte;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
 begin

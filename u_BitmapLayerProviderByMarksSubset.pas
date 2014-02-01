@@ -156,7 +156,7 @@ var
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
-  VProjected: IProjectedPath;
+  VProjected: IGeometryProjectedMultiLine;
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
   VLine: IProjectedPathLine;
@@ -265,7 +265,7 @@ var
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
-  VProjected: IProjectedPolygon;
+  VProjected: IGeometryProjectedMultiPolygon;
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
   VLine: IProjectedPolygonLine;

@@ -85,7 +85,7 @@ type
   TPathLayerBase = class(TLineLayerBase)
   private
     FLine: IGeometryLonLatMultiLine;
-    FProjectedLine: IProjectedPath;
+    FProjectedLine: IGeometryProjectedMultiLine;
     FLocalLine: ILocalPath;
     FPolygon: IDrawablePolygon;
   protected
@@ -105,7 +105,7 @@ type
     FFillVisible: Boolean;
 
     FLine: IGeometryLonLatMultiPolygon;
-    FProjectedLine: IProjectedPolygon;
+    FProjectedLine: IGeometryProjectedMultiPolygon;
     FLocalLine: ILocalPolygon;
     FPolygonBorder: IDrawablePolygon;
     FPolygonFill: IDrawablePolygon;
@@ -363,7 +363,7 @@ procedure TPathLayerBase.PaintLayer(
 var
   VLonLatLine: IGeometryLonLatMultiLine;
   VEnum: IEnumLocalPoint;
-  VProjectedLine: IProjectedPath;
+  VProjectedLine: IGeometryProjectedMultiLine;
   VLocalLine: ILocalPath;
   VLocalRect: TRect;
   VRectWithDelta: TDoubleRect;
@@ -536,7 +536,7 @@ procedure TPolygonLayerBase.PaintLayer(
 var
   VLonLatLine: IGeometryLonLatMultiPolygon;
   VEnum: IEnumLocalPoint;
-  VProjectedLine: IProjectedPolygon;
+  VProjectedLine: IGeometryProjectedMultiPolygon;
   VLocalLine: ILocalPolygon;
   VLocalRect: TRect;
   VRectWithDelta: TDoubleRect;

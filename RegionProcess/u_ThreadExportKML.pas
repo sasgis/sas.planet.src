@@ -180,7 +180,7 @@ var
   i: integer;
   VZoom: Byte;
   VText: UTF8String;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTempIterator: ITileIterator;
   VIterator: ITileIterator;
   VTile: TPoint;

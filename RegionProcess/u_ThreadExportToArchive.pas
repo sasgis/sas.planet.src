@@ -84,7 +84,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileInfo: ITileInfoWithData;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
 begin

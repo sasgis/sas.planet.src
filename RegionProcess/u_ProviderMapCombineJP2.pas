@@ -131,7 +131,7 @@ var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;
   VSplitCount: TPoint;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;

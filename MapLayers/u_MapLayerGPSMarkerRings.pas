@@ -48,7 +48,7 @@ type
     function GetProjectedCirclesByLonLat(
       const ASource: IGeometryLonLatMultiPolygon;
       const AProjectionInfo: IProjectionInfo
-    ): IProjectedPolygon;
+    ): IGeometryProjectedMultiPolygon;
     procedure GPSReceiverReceive;
     procedure OnConfigChange;
     procedure OnTimer;
@@ -156,7 +156,7 @@ end;
 
 function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(
   const ASource: IGeometryLonLatMultiPolygon;
-  const AProjectionInfo: IProjectionInfo): IProjectedPolygon;
+  const AProjectionInfo: IProjectionInfo): IGeometryProjectedMultiPolygon;
 begin
   Result := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(AProjectionInfo, ASource);
 end;
@@ -223,7 +223,7 @@ var
   VLonLat: TDoublePoint;
   VConfig: IMarkerRingsConfigStatic;
   VCirclesLonLat: IGeometryLonLatMultiPolygon;
-  VCirclesProjected: IProjectedPolygon;
+  VCirclesProjected: IGeometryProjectedMultiPolygon;
   VDrawable: IProjectedDrawableElement;
 begin
   inherited;

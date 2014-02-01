@@ -182,7 +182,7 @@ var
   VMapType: TMapType;
   VPolygon: IGeometryLonLatMultiPolygon;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VVersionForDownload: IMapVersionInfo;
   VVersionForCheck: IMapVersionInfo;
   VVersionString: string;
@@ -343,7 +343,7 @@ var
   VLog: TLogSimpleProvider;
   VLogSimple: ILogSimple;
   VLogProvider: ILogSimpleProvider;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VForm: TfrmProgressDownload;
   VCancelNotifierInternal: INotifierOperationInternal;
   VOperationID: Integer;

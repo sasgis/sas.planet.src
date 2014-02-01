@@ -41,7 +41,7 @@ type
     FZoom: byte;
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
-    FPolyProjected: IProjectedPolygon;
+    FPolyProjected: IGeometryProjectedMultiPolygon;
     FPredicate: IPredicateByTileInfo;
   protected
     procedure ProcessRegion; override;
@@ -52,7 +52,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolyLL: IGeometryLonLatMultiPolygon;
-      const AProjectedPolygon: IProjectedPolygon;
+      const AProjectedPolygon: IGeometryProjectedMultiPolygon;
       AZoom: byte;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
@@ -71,7 +71,7 @@ uses
 constructor TThreadDeleteTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolyLL: IGeometryLonLatMultiPolygon;
-  const AProjectedPolygon: IProjectedPolygon;
+  const AProjectedPolygon: IGeometryProjectedMultiPolygon;
   AZoom: byte;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;

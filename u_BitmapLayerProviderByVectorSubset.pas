@@ -126,7 +126,7 @@ var
   i: integer;
   VPoint: TDoublePoint;
   VLineIndex: Integer;
-  VProjected: IProjectedPath;
+  VProjected: IGeometryProjectedMultiLine;
   VLine: IProjectedPathLine;
   VEnum: IEnumLocalPoint;
   VPolygon: TPolygon32;
@@ -266,7 +266,7 @@ var
   VRectWithDelta: TDoubleRect;
   VLocalRect: TDoubleRect;
   VPoint: TDoublePoint;
-  VProjected: IProjectedPolygon;
+  VProjected: IGeometryProjectedMultiPolygon;
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
   VLine: IProjectedPolygonLine;

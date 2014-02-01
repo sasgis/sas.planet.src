@@ -152,7 +152,7 @@ var
   VGeoConvert: ICoordConverter;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTileInfo: ITileInfoWithData;
   VSourceVersion: IMapVersionInfo;
   VBitmapTile: IBitmap32Static;

@@ -57,13 +57,13 @@ type
   protected
     function PrepareTargetFileName: string;
     function PrepareTargetConverter(
-      const AProjectedPolygon: IProjectedPolygon
+      const AProjectedPolygon: IGeometryProjectedMultiPolygon
     ): ILocalCoordConverter;
     function PrepareImageProvider(
       const APolygon: IGeometryLonLatMultiPolygon;
-      const AProjectedPolygon: IProjectedPolygon
+      const AProjectedPolygon: IGeometryProjectedMultiPolygon
     ): IBitmapLayerProvider;
-    function PreparePolygon(const APolygon: IGeometryLonLatMultiPolygon): IProjectedPolygon;
+    function PreparePolygon(const APolygon: IGeometryLonLatMultiPolygon): IGeometryProjectedMultiPolygon;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -208,7 +208,7 @@ end;
 
 function TProviderMapCombineBase.PrepareImageProvider(
   const APolygon: IGeometryLonLatMultiPolygon;
-  const AProjectedPolygon: IProjectedPolygon
+  const AProjectedPolygon: IGeometryProjectedMultiPolygon
 ): IBitmapLayerProvider;
 var
   VRect: ILonLatRect;
@@ -303,7 +303,7 @@ end;
 
 function TProviderMapCombineBase.PreparePolygon(
   const APolygon: IGeometryLonLatMultiPolygon
-): IProjectedPolygon;
+): IGeometryProjectedMultiPolygon;
 var
   VProjection: IProjectionInfo;
 begin
@@ -317,7 +317,7 @@ begin
 end;
 
 function TProviderMapCombineBase.PrepareTargetConverter(
-  const AProjectedPolygon: IProjectedPolygon
+  const AProjectedPolygon: IGeometryProjectedMultiPolygon
 ): ILocalCoordConverter;
 var
   VMapRect: TRect;

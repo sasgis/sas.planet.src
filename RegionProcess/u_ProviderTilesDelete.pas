@@ -118,7 +118,7 @@ procedure TProviderTilesDelete.StartProcess(const APolygon: IGeometryLonLatMulti
 var
   VMapType: TMapType;
   VZoom: byte;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
   VThread: TThread;

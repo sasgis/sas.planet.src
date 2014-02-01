@@ -49,7 +49,7 @@ type
     FVersionForCheck: IMapVersionInfo;
     FVersionForDownload: IMapVersionInfo;
     FDownloadInfo: IDownloadInfoSimple;
-    FPolyProjected: IProjectedPolygon;
+    FPolyProjected: IGeometryProjectedMultiPolygon;
     FSecondLoadTNE: boolean;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
@@ -109,7 +109,7 @@ type
       const AVersionForCheck: IMapVersionInfo;
       const AVersionForDownload: IMapVersionInfo;
       AZoom: byte;
-      const APolyProjected: IProjectedPolygon;
+      const APolyProjected: IGeometryProjectedMultiPolygon;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
       AReplaceExistTiles: Boolean;
@@ -149,7 +149,7 @@ constructor TThreadDownloadTiles.Create(
   const AVersionForCheck: IMapVersionInfo;
   const AVersionForDownload: IMapVersionInfo;
   AZoom: byte;
-  const APolyProjected: IProjectedPolygon;
+  const APolyProjected: IGeometryProjectedMultiPolygon;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
   AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;

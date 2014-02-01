@@ -33,7 +33,7 @@ uses
 type
   TTileIteratorByPolygon = class(TBaseInterfacedObject, ITileIterator)
   private
-    FProjected: IProjectedPolygon;
+    FProjected: IGeometryProjectedMultiPolygon;
     FCurrent: TPoint;
     FTilesRect: TRect;
     FTilesTotal: Int64;
@@ -52,7 +52,7 @@ type
     function InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
   public
     constructor Create(
-      const AProjected: IProjectedPolygon
+      const AProjected: IGeometryProjectedMultiPolygon
     );
   end;
 
@@ -64,7 +64,7 @@ uses
 { TTileIteratorByPolygon }
 
 constructor TTileIteratorByPolygon.Create(
-  const AProjected: IProjectedPolygon
+  const AProjected: IGeometryProjectedMultiPolygon
 );
 var
   VBounds: TDoubleRect;

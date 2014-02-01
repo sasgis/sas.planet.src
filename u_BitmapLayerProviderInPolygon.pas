@@ -14,7 +14,7 @@ type
   TBitmapLayerProviderInPolygon = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FSourceProvider: IBitmapLayerProvider;
-    FPolyProjected: IProjectedPolygon;
+    FPolyProjected: IGeometryProjectedMultiPolygon;
     FLine: IProjectedPolygonLine;
   private
     function GetBitmapRect(
@@ -24,7 +24,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const APolyProjected: IProjectedPolygon;
+      const APolyProjected: IGeometryProjectedMultiPolygon;
       const ASourceProvider: IBitmapLayerProvider
     );
   end;
@@ -34,7 +34,7 @@ implementation
 { TBitmapLayerProviderInPolygon }
 
 constructor TBitmapLayerProviderInPolygon.Create(
-  const APolyProjected: IProjectedPolygon;
+  const APolyProjected: IGeometryProjectedMultiPolygon;
   const ASourceProvider: IBitmapLayerProvider
 );
 begin

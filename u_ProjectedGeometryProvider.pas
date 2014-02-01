@@ -21,11 +21,11 @@ type
     function GetProjectedPath(
       const AProjectionInfo: IProjectionInfo;
       const ALine: IGeometryLonLatMultiLine
-    ): IProjectedPath;
+    ): IGeometryProjectedMultiLine;
     function GetProjectedPolygon(
       const AProjectionInfo: IProjectionInfo;
       const ALine: IGeometryLonLatMultiPolygon
-    ): IProjectedPolygon;
+    ): IGeometryProjectedMultiPolygon;
   protected
     function CreateByKey(
       const AKey: THashValue;
@@ -74,8 +74,8 @@ function TProjectedGeometryProvider.CreateByKey(
 ): IInterface;
 var
   VData: PDataRecord;
-  VResultPath: IProjectedPath;
-  VResultPolygon: IProjectedPolygon;
+  VResultPath: IGeometryProjectedMultiLine;
+  VResultPolygon: IGeometryProjectedMultiPolygon;
   VGeoConverter: ICoordConverter;
   VTestArrLenLonLatRect: TDoubleRect;
   VTestArrLenPixelRect: TDoubleRect;
@@ -141,7 +141,7 @@ end;
 function TProjectedGeometryProvider.GetProjectedPath(
   const AProjectionInfo: IProjectionInfo;
   const ALine: IGeometryLonLatMultiLine
-): IProjectedPath;
+): IGeometryProjectedMultiLine;
 var
   VHash: THashValue;
   VData: TDataRecord;
@@ -153,13 +153,13 @@ begin
   VData.Polygon := nil;
   VData.ProjectionInfo := AProjectionInfo;
 
-  Result := IProjectedPath(GetOrCreateItem(VHash, @VData));
+  Result := IGeometryProjectedMultiLine(GetOrCreateItem(VHash, @VData));
 end;
 
 function TProjectedGeometryProvider.GetProjectedPolygon(
   const AProjectionInfo: IProjectionInfo;
   const ALine: IGeometryLonLatMultiPolygon
-): IProjectedPolygon;
+): IGeometryProjectedMultiPolygon;
 var
   VHash: THashValue;
   VData: TDataRecord;
@@ -171,7 +171,7 @@ begin
   VData.Polygon := ALine;
   VData.ProjectionInfo := AProjectionInfo;
 
-  Result := IProjectedPolygon(GetOrCreateItem(VHash, @VData));
+  Result := IGeometryProjectedMultiPolygon(GetOrCreateItem(VHash, @VData));
 end;
 
 end.

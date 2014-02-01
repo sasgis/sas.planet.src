@@ -276,7 +276,7 @@ var
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
-  VProjectedPolygon: IProjectedPolygon;
+  VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileConverter: ILocalCoordConverter;
