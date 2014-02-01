@@ -11,7 +11,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TLocalLineSet = class(TBaseInterfacedObject)
+  TGeometryLocalMultiBase = class(TBaseInterfacedObject, IGeometryLocal)
   private
     FList: IInterfaceListStatic;
     FLocalConverter: ILocalCoordConverter;
@@ -25,19 +25,19 @@ type
     );
   end;
 
-  TLocalPath = class(TLocalLineSet, IGeometryLocalMultiLine)
+  TGeometryLocalMultiLine = class(TGeometryLocalMultiBase, IGeometryLocalMultiLine)
   private
     function GetEnum: IEnumLocalPoint;
     function GetItem(AIndex: Integer): IGeometryLocalLine;
   end;
 
-  TLocalPolygon = class(TLocalLineSet, IGeometryLocalMultiPolygon)
+  TGeometryLocalMultiPolygon = class(TGeometryLocalMultiBase, IGeometryLocalMultiPolygon)
   private
     function GetEnum: IEnumLocalPoint;
     function GetItem(AIndex: Integer): IGeometryLocalPolygon;
   end;
 
-  TLocalPathOneLine = class(TBaseInterfacedObject, IGeometryLocalMultiLine)
+  TGeometryLocalMultiLineOneLine = class(TBaseInterfacedObject, IGeometryLocalMultiLine)
   private
     FLine: IGeometryLocalLine;
   private
@@ -51,7 +51,7 @@ type
     );
   end;
 
-  TLocalPolygonOneLine = class(TBaseInterfacedObject, IGeometryLocalMultiPolygon)
+  TGeometryLocalMultiPolygonOneLine = class(TBaseInterfacedObject, IGeometryLocalMultiPolygon)
   private
     FLine: IGeometryLocalPolygon;
   private
@@ -65,7 +65,7 @@ type
     );
   end;
 
-  TLocalLineSetEmpty = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumLocalPoint)
+  TGeometryLocalEmpty = class(TBaseInterfacedObject, IGeometryLocal, IEnumDoublePoint, IEnumLocalPoint)
   private
     FLocalConverter: ILocalCoordConverter;
   private
@@ -80,12 +80,12 @@ type
     );
   end;
 
-  TLocalPathEmpty = class(TLocalLineSetEmpty, IGeometryLocalMultiLine)
+  TGeometryLocalMultiLineEmpty = class(TGeometryLocalEmpty, IGeometryLocalMultiLine)
   private
     function GetItem(AIndex: Integer): IGeometryLocalLine;
   end;
 
-  TLocalPolygonEmpty = class(TLocalLineSetEmpty, IGeometryLocalMultiPolygon)
+  TGeometryLocalMultiPolygonEmpty = class(TGeometryLocalEmpty, IGeometryLocalMultiPolygon)
   private
     function GetItem(AIndex: Integer): IGeometryLocalPolygon;
   end;
@@ -99,7 +99,7 @@ uses
 
 { TLocalLineSet }
 
-constructor TLocalLineSet.Create(
+constructor TGeometryLocalMultiBase.Create(
   const ALocalConverter: ILocalCoordConverter;
   const AList: IInterfaceListStatic
 );
@@ -111,24 +111,24 @@ begin
   FLocalConverter := ALocalConverter;
 end;
 
-function TLocalLineSet.GetCount: Integer;
+function TGeometryLocalMultiBase.GetCount: Integer;
 begin
   Result := FList.Count;
 end;
 
-function TLocalLineSet.GetLocalConverter: ILocalCoordConverter;
+function TGeometryLocalMultiBase.GetLocalConverter: ILocalCoordConverter;
 begin
   Result := FLocalConverter;
 end;
 
 { TLocalPath }
 
-function TLocalPath.GetEnum: IEnumLocalPoint;
+function TGeometryLocalMultiLine.GetEnum: IEnumLocalPoint;
 begin
   Result := TEnumLocalPointByPath.Create(Self);
 end;
 
-function TLocalPath.GetItem(AIndex: Integer): IGeometryLocalLine;
+function TGeometryLocalMultiLine.GetItem(AIndex: Integer): IGeometryLocalLine;
 begin
   if not Supports(FList[AIndex], IGeometryLocalLine, Result) then begin
     Result := nil;
@@ -137,12 +137,12 @@ end;
 
 { TLocalPolygon }
 
-function TLocalPolygon.GetEnum: IEnumLocalPoint;
+function TGeometryLocalMultiPolygon.GetEnum: IEnumLocalPoint;
 begin
   Result := TEnumLocalPointByPolygon.Create(Self);
 end;
 
-function TLocalPolygon.GetItem(AIndex: Integer): IGeometryLocalPolygon;
+function TGeometryLocalMultiPolygon.GetItem(AIndex: Integer): IGeometryLocalPolygon;
 begin
   if not Supports(FList[AIndex], IGeometryLocalPolygon, Result) then begin
     Result := nil;
@@ -151,23 +151,23 @@ end;
 
 { TLocalPathOneLine }
 
-constructor TLocalPathOneLine.Create(const ALine: IGeometryLocalLine);
+constructor TGeometryLocalMultiLineOneLine.Create(const ALine: IGeometryLocalLine);
 begin
   inherited Create;
   FLine := ALine;
 end;
 
-function TLocalPathOneLine.GetCount: Integer;
+function TGeometryLocalMultiLineOneLine.GetCount: Integer;
 begin
   Result := 1;
 end;
 
-function TLocalPathOneLine.GetEnum: IEnumLocalPoint;
+function TGeometryLocalMultiLineOneLine.GetEnum: IEnumLocalPoint;
 begin
   Result := FLine.GetEnum;
 end;
 
-function TLocalPathOneLine.GetItem(AIndex: Integer): IGeometryLocalLine;
+function TGeometryLocalMultiLineOneLine.GetItem(AIndex: Integer): IGeometryLocalLine;
 begin
   if AIndex = 0 then begin
     Result := FLine;
@@ -176,30 +176,30 @@ begin
   end;
 end;
 
-function TLocalPathOneLine.GetLocalConverter: ILocalCoordConverter;
+function TGeometryLocalMultiLineOneLine.GetLocalConverter: ILocalCoordConverter;
 begin
   Result := FLine.LocalConverter;
 end;
 
 { TLocalPolygonOneLine }
 
-constructor TLocalPolygonOneLine.Create(const ALine: IGeometryLocalPolygon);
+constructor TGeometryLocalMultiPolygonOneLine.Create(const ALine: IGeometryLocalPolygon);
 begin
   inherited Create;
   FLine := ALine;
 end;
 
-function TLocalPolygonOneLine.GetCount: Integer;
+function TGeometryLocalMultiPolygonOneLine.GetCount: Integer;
 begin
   Result := 1;
 end;
 
-function TLocalPolygonOneLine.GetEnum: IEnumLocalPoint;
+function TGeometryLocalMultiPolygonOneLine.GetEnum: IEnumLocalPoint;
 begin
   Result := FLine.GetEnum;
 end;
 
-function TLocalPolygonOneLine.GetItem(
+function TGeometryLocalMultiPolygonOneLine.GetItem(
   AIndex: Integer): IGeometryLocalPolygon;
 begin
   if AIndex = 0 then begin
@@ -209,35 +209,35 @@ begin
   end;
 end;
 
-function TLocalPolygonOneLine.GetLocalConverter: ILocalCoordConverter;
+function TGeometryLocalMultiPolygonOneLine.GetLocalConverter: ILocalCoordConverter;
 begin
   Result := FLine.LocalConverter;
 end;
 
 { TLocalLineSetEmpty }
 
-constructor TLocalLineSetEmpty.Create(const ALocalConverter: ILocalCoordConverter);
+constructor TGeometryLocalEmpty.Create(const ALocalConverter: ILocalCoordConverter);
 begin
   inherited Create;
   FLocalConverter := ALocalConverter;
 end;
 
-function TLocalLineSetEmpty.GetCount: Integer;
+function TGeometryLocalEmpty.GetCount: Integer;
 begin
   Result := 0;
 end;
 
-function TLocalLineSetEmpty.GetEnum: IEnumLocalPoint;
+function TGeometryLocalEmpty.GetEnum: IEnumLocalPoint;
 begin
   Result := Self;
 end;
 
-function TLocalLineSetEmpty.GetLocalConverter: ILocalCoordConverter;
+function TGeometryLocalEmpty.GetLocalConverter: ILocalCoordConverter;
 begin
   Result := FLocalConverter;
 end;
 
-function TLocalLineSetEmpty.Next(out APoint: TDoublePoint): Boolean;
+function TGeometryLocalEmpty.Next(out APoint: TDoublePoint): Boolean;
 begin
   APoint := CEmptyDoublePoint;
   Result := False;
@@ -245,14 +245,14 @@ end;
 
 { TLocalPathEmpty }
 
-function TLocalPathEmpty.GetItem(AIndex: Integer): IGeometryLocalLine;
+function TGeometryLocalMultiLineEmpty.GetItem(AIndex: Integer): IGeometryLocalLine;
 begin
   Result := nil;
 end;
 
 { TLocalPolygonEmpty }
 
-function TLocalPolygonEmpty.GetItem(AIndex: Integer): IGeometryLocalPolygon;
+function TGeometryLocalMultiPolygonEmpty.GetItem(AIndex: Integer): IGeometryLocalPolygon;
 begin
   Result := nil;
 end;
