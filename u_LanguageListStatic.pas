@@ -84,6 +84,8 @@ function TLanguageListStatic.FindCode(
 ): Boolean;
 begin
   Result := FSortedByCode.Find(ACode, AIndex);
+  if Result then
+    AIndex := Integer(FSortedByCode.Objects[AIndex])
 end;
 
 function TLanguageListStatic.GetCode(const AIndex: Integer): string;
