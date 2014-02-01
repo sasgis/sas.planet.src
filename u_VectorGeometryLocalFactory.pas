@@ -12,7 +12,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorGeometryLocalFactory = class(TBaseInterfacedObject, IGeometryLocalFactory)
+  TGeometryLocalFactory = class(TBaseInterfacedObject, IGeometryLocalFactory)
   private
     function CreateLocalPath(
       const ALocalConverter: ILocalCoordConverter;
@@ -48,7 +48,7 @@ uses
 
 { TVectorGeometryLocalFactory }
 
-function TVectorGeometryLocalFactory.CreateLocalPath(
+function TGeometryLocalFactory.CreateLocalPath(
   const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
   ACount: Integer
@@ -108,7 +108,7 @@ begin
   end;
 end;
 
-function TVectorGeometryLocalFactory.CreateLocalPathByEnum(
+function TGeometryLocalFactory.CreateLocalPathByEnum(
   const ALocalConverter: ILocalCoordConverter;
   const AEnum: IEnumLocalPoint;
   const ATemp: IDoublePointsAggregator
@@ -167,7 +167,7 @@ begin
   end;
 end;
 
-function TVectorGeometryLocalFactory.CreateLocalPolygon(
+function TGeometryLocalFactory.CreateLocalPolygon(
   const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
   ACount: Integer
@@ -227,7 +227,7 @@ begin
   end;
 end;
 
-function TVectorGeometryLocalFactory.CreateLocalPolygonByEnum(
+function TGeometryLocalFactory.CreateLocalPolygonByEnum(
   const ALocalConverter: ILocalCoordConverter;
   const AEnum: IEnumLocalPoint;
   const ATemp: IDoublePointsAggregator
