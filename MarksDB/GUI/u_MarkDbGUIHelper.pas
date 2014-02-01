@@ -43,7 +43,7 @@ uses
   i_MarkCategory,
   i_MarkSystem,
   i_ImportConfig,
-  i_ImportFile,
+  i_VectorItemTreeImporter,
   i_CoordConverterFactory,
   i_AppearanceOfMarkFactory,
   i_MarkFactory,

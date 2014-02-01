@@ -26,7 +26,7 @@ uses
   Classes,
   i_VectorDataLoader,
   i_VectorDataFactory,
-  i_ImportFile,
+  i_VectorItemTreeImporter,
   i_VectorItemTree,
   u_BaseInterfacedObject;
 

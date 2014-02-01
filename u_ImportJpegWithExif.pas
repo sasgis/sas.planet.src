@@ -27,7 +27,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
   i_ValueToStringConverter,
-  i_ImportFile,
+  i_VectorItemTreeImporter,
   i_GeometryLonLatFactory,
   i_VectorItemTree,
   u_BaseInterfacedObject;

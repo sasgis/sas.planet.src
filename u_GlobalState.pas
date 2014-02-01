@@ -73,7 +73,7 @@ uses
   i_MapTypeSetBuilder,
   i_MapTypeListBuilder,
   i_MapCalibration,
-  i_ImportFile,
+  i_VectorItemTreeImporter,
   i_PathDetalizeProviderList,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,

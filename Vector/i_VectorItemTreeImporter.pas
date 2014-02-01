@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit i_ImportFile;
+unit i_VectorItemTreeImporter;
 
 interface
 

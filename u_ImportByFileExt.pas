@@ -23,7 +23,7 @@ unit u_ImportByFileExt;
 interface
 
 uses
-  i_ImportFile,
+  i_VectorItemTreeImporter,
   i_GeometryLonLatFactory,
   i_VectorDataFactory,
   i_VectorDataLoader,
