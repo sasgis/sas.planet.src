@@ -14,7 +14,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorGeometryProjectedFactory = class(TBaseInterfacedObject, IVectorGeometryProjectedFactory)
+  TVectorGeometryProjectedFactory = class(TBaseInterfacedObject, IGeometryProjectedFactory)
   private
     function CreateProjectedPath(
       const AProjection: IProjectionInfo;

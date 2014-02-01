@@ -27,7 +27,7 @@ type
     FTimerNoifier: INotifierTime;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FContentTypeManager: IContentTypeManager;
   protected
@@ -44,7 +44,7 @@ type
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
@@ -80,7 +80,7 @@ constructor TProviderTilesCopy.Create(
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
 begin

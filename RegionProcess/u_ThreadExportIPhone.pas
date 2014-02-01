@@ -46,7 +46,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     procedure WritePListFile(const AGeoConvert: ICoordConverter);
     procedure WriteTileToSQLite3(
       const ASQLite3DbHandler: PSQLite3DbHandler;
@@ -63,7 +63,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
       const APolygon: IGeometryLonLatMultiPolygon;
@@ -95,7 +95,7 @@ constructor TThreadExportIPhone.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
   const APolygon: IGeometryLonLatMultiPolygon;

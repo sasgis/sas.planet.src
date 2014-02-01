@@ -45,7 +45,7 @@ type
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AProjectedGeometryProvider: IProjectedGeometryProvider;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
@@ -79,7 +79,7 @@ constructor TProviderMapCombineJP2.Create(
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IProjectedGeometryProvider;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarkSystem;

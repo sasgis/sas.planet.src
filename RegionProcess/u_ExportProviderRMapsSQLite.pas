@@ -42,7 +42,7 @@ type
   TExportProviderRMapsSQLite = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FCoordConverterFactory: ICoordConverterFactory;
@@ -57,7 +57,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ACoordConverterFactory: ICoordConverterFactory;
@@ -91,7 +91,7 @@ constructor TExportProviderRMapsSQLite.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ACoordConverterFactory: ICoordConverterFactory;

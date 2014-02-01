@@ -46,7 +46,7 @@ type
   TThreadExportToRMapsSQLite = class(TThreadExportAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FExportPath: string;
@@ -74,7 +74,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AExportPath: string;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const APolygon: IGeometryLonLatMultiPolygon;
@@ -108,7 +108,7 @@ constructor TThreadExportToRMapsSQLite.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AExportPath: string;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const APolygon: IGeometryLonLatMultiPolygon;

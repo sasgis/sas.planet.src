@@ -37,7 +37,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
@@ -60,7 +60,7 @@ constructor TSelectionPolylineShadowLayer.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
   const ALineOnMapEdit: IPathOnMapEdit;

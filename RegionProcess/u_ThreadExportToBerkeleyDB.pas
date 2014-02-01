@@ -54,7 +54,7 @@ type
     FMapTypeArr: IMapTypeListStatic;
     FContentTypeManager: IContentTypeManager;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FTileNameGen: ITileFileNameGenerator;
     FIsMove: Boolean;
     FDestOverwriteTiles: Boolean;
@@ -82,7 +82,7 @@ type
       const AIsVersioned: Boolean;
       const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatMultiPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
@@ -117,7 +117,7 @@ constructor TThreadExportToBerkeleyDB.Create(
   const AIsVersioned: Boolean;
   const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatMultiPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;

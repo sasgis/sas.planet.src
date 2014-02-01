@@ -169,7 +169,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
     FVectorGeometryLocalFactory: IVectorGeometryLocalFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FBitmapFactory: IBitmap32StaticFactory;
     FBatteryStatus: IBatteryStatus;
@@ -243,7 +243,7 @@ type
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorGeometryLonLatFactory: IGeometryLonLatFactory read FVectorGeometryLonLatFactory;
-    property VectorGeometryProjectedFactory: IVectorGeometryProjectedFactory read FVectorGeometryProjectedFactory;
+    property VectorGeometryProjectedFactory: IGeometryProjectedFactory read FVectorGeometryProjectedFactory;
     property VectorGeometryLocalFactory: IVectorGeometryLocalFactory read FVectorGeometryLocalFactory;
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;

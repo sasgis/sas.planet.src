@@ -40,7 +40,7 @@ type
   TProviderTilesDelete = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -51,7 +51,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
@@ -81,7 +81,7 @@ constructor TProviderTilesDelete.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
 );
 begin
   inherited Create(

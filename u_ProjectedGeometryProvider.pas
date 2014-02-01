@@ -16,7 +16,7 @@ type
   TProjectedGeometryProvider = class(THashCacheWithQueuesAbstract, IProjectedGeometryProvider)
   private
     FHashFunction: IHashFunction;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   private
     function GetProjectedPath(
       const AProjectionInfo: IProjectionInfo;
@@ -34,7 +34,7 @@ type
   public
     constructor Create(
       const AHashFunction: IHashFunction;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
   end;
 
@@ -60,7 +60,7 @@ const
 
 constructor TProjectedGeometryProvider.Create(
   const AHashFunction: IHashFunction;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
 );
 begin
   inherited Create(14, 1000, 4000, 1000); // 2^14 elements in hash-table

@@ -12,7 +12,7 @@ uses
   i_GeometryProjected;
 
 type
-  IVectorGeometryProjectedFactory = interface
+  IGeometryProjectedFactory = interface
     ['{06CC36BA-1833-4AE8-953F-D003B6D81BB7}']
     function CreateProjectedPath(
       const AProjection: IProjectionInfo;

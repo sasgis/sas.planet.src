@@ -23,7 +23,7 @@ type
   private
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
@@ -37,7 +37,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ACoordConverterFactory: ICoordConverterFactory
     );
@@ -68,7 +68,7 @@ constructor TExportProviderJNX.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ACoordConverterFactory: ICoordConverterFactory
 );

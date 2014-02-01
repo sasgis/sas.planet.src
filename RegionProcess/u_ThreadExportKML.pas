@@ -24,7 +24,7 @@ type
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FNotSaveNotExists: boolean;
     FPathExport: string;
     FRelativePath: boolean;
@@ -42,7 +42,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APath: string;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatMultiPolygon;
       const Azoomarr: TByteDynArray;
       const ATileStorage: ITileStorage;
@@ -67,7 +67,7 @@ constructor TThreadExportKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APath: string;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatMultiPolygon;
   const Azoomarr: TByteDynArray;
   const ATileStorage: ITileStorage;

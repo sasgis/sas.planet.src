@@ -25,7 +25,7 @@ type
     FMapTypeArr: IMapTypeListStatic;
     FTileNameGen: ITileFileNameGenerator;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
 
     FIsMove: boolean;
     FIsReplace: boolean;
@@ -45,7 +45,7 @@ type
       const APath: string;
       const APlaceInSubFolder: Boolean;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatMultiPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
@@ -71,7 +71,7 @@ constructor TThreadExportToFileSystem.Create(
   const APath: string;
   const APlaceInSubFolder: Boolean;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatMultiPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;

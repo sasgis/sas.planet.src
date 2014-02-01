@@ -5297,7 +5297,7 @@ var
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VSize: Double;
   VArea: Double;
-  VVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  VVectorGeometryProjectedFactory: IGeometryProjectedFactory;
 begin
   Result := nil;
   if AList.Count = 1 then begin

@@ -44,7 +44,7 @@ type
   TThreadCopyFromStorageToStorage = class(TThreadExportAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FTasks: TCopyTaskArray;
     FIsMove: Boolean;
     FIsOverwriteDestTiles: Boolean;
@@ -60,7 +60,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatMultiPolygon;
       const ATasks: TCopyTaskArray;
       const AZoomArr: TByteDynArray;
@@ -87,7 +87,7 @@ uses
 constructor TThreadCopyFromStorageToStorage.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatMultiPolygon;
   const ATasks: TCopyTaskArray;
   const AZoomArr: TByteDynArray;

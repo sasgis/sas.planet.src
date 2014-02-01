@@ -24,7 +24,7 @@ type
     FMapTypeArr: IMapTypeListStatic;
     FContentTypeManager: IContentTypeManager;
     FProjectionFactory: IProjectionInfoFactory;
-    FVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+    FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FConfigPath, FExportPath: string;
 
     FIsMove: boolean;
@@ -44,7 +44,7 @@ type
       const AConfigPath, AExportPath: string;
       const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const APolygon: IGeometryLonLatMultiPolygon;
       const AZoomArr: TByteDynArray;
       const AMapTypeArr: IMapTypeListStatic;
@@ -75,7 +75,7 @@ constructor TThreadExportToStorage.Create(
   const AConfigPath, AExportPath: string;
   const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IVectorGeometryProjectedFactory;
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const APolygon: IGeometryLonLatMultiPolygon;
   const AZoomArr: TByteDynArray;
   const AMapTypeArr: IMapTypeListStatic;
