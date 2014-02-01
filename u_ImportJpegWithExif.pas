@@ -33,7 +33,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TImportJpegWithExif = class(TBaseInterfacedObject, IVectorItemTreeImporter)
+  TVectorItemTreeImporterJpegWithExif = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
@@ -66,9 +66,9 @@ uses
   u_VectorItemTree,
   u_GeoFunc;
 
-{ TImportJpegWithExif }
+{ TVectorItemTreeImporterJpegWithExif }
 
-constructor TImportJpegWithExif.Create(
+constructor TVectorItemTreeImporterJpegWithExif.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -84,7 +84,7 @@ begin
   FValueToStringConverterConfig := AValueToStringConverterConfig
 end;
 
-function TImportJpegWithExif.ProcessImport(
+function TVectorItemTreeImporterJpegWithExif.ProcessImport(
   const AFileName: string
 ): IVectorItemTree;
 var
