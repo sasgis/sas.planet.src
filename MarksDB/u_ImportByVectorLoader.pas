@@ -31,7 +31,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TImportByVectorLoader = class(TBaseInterfacedObject, IVectorItemTreeImporter)
+  TVectorItemTreeImporterByVectorLoader = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FLoader: IVectorDataLoader;
@@ -55,9 +55,9 @@ uses
   u_VectorItemTree,
   u_BinaryDataByMemStream;
 
-{ TImportByVectorLoader }
+{ TVectorItemTreeImporterByVectorLoader }
 
-constructor TImportByVectorLoader.Create(
+constructor TVectorItemTreeImporterByVectorLoader.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const ALoader: IVectorDataLoader
 );
@@ -67,7 +67,7 @@ begin
   FLoader := ALoader;
 end;
 
-function TImportByVectorLoader.ProcessImport(
+function TVectorItemTreeImporterByVectorLoader.ProcessImport(
   const AFileName: string
 ): IVectorItemTree;
 var
