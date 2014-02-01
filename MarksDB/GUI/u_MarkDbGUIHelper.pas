@@ -74,7 +74,7 @@ type
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
     FfrmMarkInfo: TfrmMarkInfo;
     FExportDialog: TSaveDialog;
-    FImportFileByExt: IImportFile;
+    FImportFileByExt: IVectorItemTreeImporter;
   public
     function GetMarkIdCaption(const AMarkId: IMarkId): string;
 
@@ -143,7 +143,7 @@ type
     ): IInterfaceListStatic;
 
     property MarksDb: IMarkSystem read FMarkSystem;
-    property ImportFileByExt: IImportFile read FImportFileByExt;
+    property ImportFileByExt: IVectorItemTreeImporter read FImportFileByExt;
     property MarkFactoryConfig: IMarkFactoryConfig read FMarkFactoryConfig;
   public
     constructor Create(
@@ -154,7 +154,7 @@ type
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
       const ADatumFactory: IDatumFactory;
-      const AImportFileByExt: IImportFile;
+      const AImportFileByExt: IVectorItemTreeImporter;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -193,7 +193,7 @@ constructor TMarkDbGUIHelper.Create(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
   const ADatumFactory: IDatumFactory;
-  const AImportFileByExt: IImportFile;
+  const AImportFileByExt: IVectorItemTreeImporter;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;

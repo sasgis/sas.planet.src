@@ -34,7 +34,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TImportJpegWithExif = class(TBaseInterfacedObject, IImportFile)
+  TImportJpegWithExif = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;

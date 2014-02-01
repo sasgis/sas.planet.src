@@ -34,17 +34,17 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TImportByFileExt = class(TBaseInterfacedObject, IImportFile)
+  TImportByFileExt = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
-    FImportGPX: IImportFile;
-    FImportPLT: IImportFile;
-    FImportCSV: IImportFile;
-    FImportKML: IImportFile;
-    FImportKMZ: IImportFile;
-    FImportHLG: IImportFile;
-    FImportMP: IImportFile;
-    FImportSLS: IImportFile;
-    FImportJPG: IImportFile;
+    FImportGPX: IVectorItemTreeImporter;
+    FImportPLT: IVectorItemTreeImporter;
+    FImportCSV: IVectorItemTreeImporter;
+    FImportKML: IVectorItemTreeImporter;
+    FImportKMZ: IVectorItemTreeImporter;
+    FImportHLG: IVectorItemTreeImporter;
+    FImportMP: IVectorItemTreeImporter;
+    FImportSLS: IVectorItemTreeImporter;
+    FImportJPG: IVectorItemTreeImporter;
   private
     function ProcessImport(
       const AFileName: string;

@@ -27,7 +27,7 @@ uses
   i_ImportConfig;
 
 type
-  IImportFile = interface
+  IVectorItemTreeImporter = interface
     ['{0EF61663-09C0-4C71-A6F0-4E26380296E9}']
     function ProcessImport(
       const AFileName: string;

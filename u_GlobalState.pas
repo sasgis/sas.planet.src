@@ -141,7 +141,7 @@ type
     FGeoCoderList: IGeoCoderList;
     FMarkPictureList: IMarkPictureList;
     FGpsSystem: IGPSModule;
-    FImportFileByExt: IImportFile;
+    FImportFileByExt: IVectorItemTreeImporter;
     FGPSDatum: IDatum;
     FGPSRecorder: IGPSRecorder;
     FGPSRecorderInternal: IGPSRecorderInternal;
@@ -227,7 +227,7 @@ type
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property GlobalInternetState: IGlobalInternetState read FGlobalInternetState;
-    property ImportFileByExt: IImportFile read FImportFileByExt;
+    property ImportFileByExt: IVectorItemTreeImporter read FImportFileByExt;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: INotifierTime read FGUISyncronizedTimerNotifier;
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;

@@ -32,7 +32,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TImportByVectorLoader = class(TBaseInterfacedObject, IImportFile)
+  TImportByVectorLoader = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FLoader: IVectorDataLoader;
