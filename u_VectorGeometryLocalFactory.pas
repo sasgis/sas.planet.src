@@ -18,22 +18,22 @@ type
       const ALocalConverter: ILocalCoordConverter;
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): ILocalPath;
+    ): IGeometryLocalMultiLine;
     function CreateLocalPolygon(
       const ALocalConverter: ILocalCoordConverter;
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): ILocalPolygon;
+    ): IGeometryLocalMultiPolygon;
     function CreateLocalPathByEnum(
       const ALocalConverter: ILocalCoordConverter;
       const AEnum: IEnumLocalPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): ILocalPath;
+    ): IGeometryLocalMultiLine;
     function CreateLocalPolygonByEnum(
       const ALocalConverter: ILocalCoordConverter;
       const AEnum: IEnumLocalPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): ILocalPolygon;
+    ): IGeometryLocalMultiPolygon;
   end;
 
 implementation
@@ -52,9 +52,9 @@ function TVectorGeometryLocalFactory.CreateLocalPath(
   const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
   ACount: Integer
-): ILocalPath;
+): IGeometryLocalMultiLine;
 var
-  VLine: ILocalPathLine;
+  VLine: IGeometryLocalLine;
   i: Integer;
   VStart: PDoublePointArray;
   VLineLen: Integer;
@@ -112,10 +112,10 @@ function TVectorGeometryLocalFactory.CreateLocalPathByEnum(
   const ALocalConverter: ILocalCoordConverter;
   const AEnum: IEnumLocalPoint;
   const ATemp: IDoublePointsAggregator
-): ILocalPath;
+): IGeometryLocalMultiLine;
 var
   VPoint: TDoublePoint;
-  VLine: ILocalPathLine;
+  VLine: IGeometryLocalLine;
   VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
@@ -171,9 +171,9 @@ function TVectorGeometryLocalFactory.CreateLocalPolygon(
   const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
   ACount: Integer
-): ILocalPolygon;
+): IGeometryLocalMultiPolygon;
 var
-  VLine: ILocalPolygonLine;
+  VLine: IGeometryLocalPolygon;
   i: Integer;
   VStart: PDoublePointArray;
   VLineLen: Integer;
@@ -231,10 +231,10 @@ function TVectorGeometryLocalFactory.CreateLocalPolygonByEnum(
   const ALocalConverter: ILocalCoordConverter;
   const AEnum: IEnumLocalPoint;
   const ATemp: IDoublePointsAggregator
-): ILocalPolygon;
+): IGeometryLocalMultiPolygon;
 var
   VPoint: TDoublePoint;
-  VLine: ILocalPolygonLine;
+  VLine: IGeometryLocalPolygon;
   VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;

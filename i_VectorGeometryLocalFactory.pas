@@ -16,23 +16,23 @@ type
       const ALocalConverter: ILocalCoordConverter;
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): ILocalPath;
+    ): IGeometryLocalMultiLine;
     function CreateLocalPolygon(
       const ALocalConverter: ILocalCoordConverter;
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): ILocalPolygon;
+    ): IGeometryLocalMultiPolygon;
 
     function CreateLocalPathByEnum(
       const ALocalConverter: ILocalCoordConverter;
       const AEnum: IEnumLocalPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): ILocalPath;
+    ): IGeometryLocalMultiLine;
     function CreateLocalPolygonByEnum(
       const ALocalConverter: ILocalCoordConverter;
       const AEnum: IEnumLocalPoint;
       const ATemp: IDoublePointsAggregator = nil
-    ): ILocalPolygon;
+    ): IGeometryLocalMultiPolygon;
   end;
 
 implementation

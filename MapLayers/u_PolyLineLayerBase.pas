@@ -86,7 +86,7 @@ type
   private
     FLine: IGeometryLonLatMultiLine;
     FProjectedLine: IGeometryProjectedMultiLine;
-    FLocalLine: ILocalPath;
+    FLocalLine: IGeometryLocalMultiLine;
     FPolygon: IDrawablePolygon;
   protected
     procedure ChangedSource;
@@ -106,7 +106,7 @@ type
 
     FLine: IGeometryLonLatMultiPolygon;
     FProjectedLine: IGeometryProjectedMultiPolygon;
-    FLocalLine: ILocalPolygon;
+    FLocalLine: IGeometryLocalMultiPolygon;
     FPolygonBorder: IDrawablePolygon;
     FPolygonFill: IDrawablePolygon;
   protected
@@ -364,7 +364,7 @@ var
   VLonLatLine: IGeometryLonLatMultiLine;
   VEnum: IEnumLocalPoint;
   VProjectedLine: IGeometryProjectedMultiLine;
-  VLocalLine: ILocalPath;
+  VLocalLine: IGeometryLocalMultiLine;
   VLocalRect: TRect;
   VRectWithDelta: TDoubleRect;
   VDrawablePolygon: IDrawablePolygon;
@@ -373,7 +373,7 @@ var
   VPolygonGrow: TPolygon32;
   i: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
-  VLine: ILocalPathLine;
+  VLine: IGeometryLocalLine;
   VIndex: Integer;
   VPoint: TDoublePoint;
 begin
@@ -537,7 +537,7 @@ var
   VLonLatLine: IGeometryLonLatMultiPolygon;
   VEnum: IEnumLocalPoint;
   VProjectedLine: IGeometryProjectedMultiPolygon;
-  VLocalLine: ILocalPolygon;
+  VLocalLine: IGeometryLocalMultiPolygon;
   VLocalRect: TRect;
   VRectWithDelta: TDoubleRect;
   VDrawablePolygonFill: IDrawablePolygon;
@@ -547,7 +547,7 @@ var
   VPolygonGrow: TPolygon32;
   i: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
-  VLine: ILocalPolygonLine;
+  VLine: IGeometryLocalPolygon;
   VIndex: Integer;
   VPoint: TDoublePoint;
 begin

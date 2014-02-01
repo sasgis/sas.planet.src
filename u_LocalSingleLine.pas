@@ -28,7 +28,7 @@ type
     );
   end;
 
-  TLocalPathLine = class(TLocalLineBase, ILocalPathLine)
+  TLocalPathLine = class(TLocalLineBase, IGeometryLocalLine)
   private
     function GetEnum: IEnumLocalPoint;
   public
@@ -39,7 +39,7 @@ type
     );
   end;
 
-  TLocalPolygonLine = class(TLocalLineBase, ILocalPolygonLine)
+  TLocalPolygonLine = class(TLocalLineBase, IGeometryLocalPolygon)
   private
     function GetEnum: IEnumLocalPoint;
   public

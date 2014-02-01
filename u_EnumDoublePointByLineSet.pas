@@ -65,14 +65,14 @@ type
   private
     function GetNextEnum: IEnumDoublePoint; override;
   public
-    constructor Create(const ALineSet: ILocalPath);
+    constructor Create(const ALineSet: IGeometryLocalMultiLine);
   end;
 
   TEnumLocalPointByPolygon = class(TEnumDoublePointByLineSetBase, IEnumLocalPoint)
   private
     function GetNextEnum: IEnumDoublePoint; override;
   public
-    constructor Create(const ALineSet: ILocalPolygon);
+    constructor Create(const ALineSet: IGeometryLocalMultiPolygon);
   end;
 
 implementation
@@ -188,26 +188,26 @@ end;
 
 { TEnumLocalPointByPath }
 
-constructor TEnumLocalPointByPath.Create(const ALineSet: ILocalPath);
+constructor TEnumLocalPointByPath.Create(const ALineSet: IGeometryLocalMultiLine);
 begin
   inherited CreateInternal(ALineSet, ALineSet.Count, False);
 end;
 
 function TEnumLocalPointByPath.GetNextEnum: IEnumDoublePoint;
 begin
-  Result := ILocalPath(FSourceLineSet).Item[FIndex].GetEnum;
+  Result := IGeometryLocalMultiLine(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 { TEnumLocalPointByPolygon }
 
-constructor TEnumLocalPointByPolygon.Create(const ALineSet: ILocalPolygon);
+constructor TEnumLocalPointByPolygon.Create(const ALineSet: IGeometryLocalMultiPolygon);
 begin
   inherited CreateInternal(ALineSet, ALineSet.Count, True);
 end;
 
 function TEnumLocalPointByPolygon.GetNextEnum: IEnumDoublePoint;
 begin
-  Result := ILocalPolygon(FSourceLineSet).Item[FIndex].GetEnum;
+  Result := IGeometryLocalMultiPolygon(FSourceLineSet).Item[FIndex].GetEnum;
 end;
 
 end.
