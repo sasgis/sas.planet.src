@@ -33,7 +33,7 @@ type
 
   TestTVectorItmesProjectedFactorySimple = class(TTestCase)
   private
-    FFactory: IVectorGeometryProjectedFactory;
+    FFactory: IGeometryProjectedFactory;
     FPoints: array of TDoublePoint;
   protected
     procedure SetUp; override;
@@ -315,7 +315,7 @@ end;
 
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathNoLines;
 var
-  VResult: IProjectedPath;
+  VResult: IGeometryProjectedMultiLine;
 begin
   VResult := FFactory.CreateProjectedPath(nil, nil, 0);
   CheckNotNull(VResult);
@@ -343,8 +343,8 @@ end;
 
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathSimple;
 var
-  VResult: IProjectedPath;
-  VLine: IProjectedPathLine;
+  VResult: IGeometryProjectedMultiLine;
+  VLine: IGeometryProjectedLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -380,8 +380,8 @@ end;
 
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathTwoLines;
 var
-  VResult: IProjectedPath;
-  VLine: IProjectedPathLine;
+  VResult: IGeometryProjectedMultiLine;
+  VLine: IGeometryProjectedLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
   VProjection: IProjectionInfo;
@@ -428,7 +428,7 @@ end;
 
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonNoLines;
 var
-  VResult: IProjectedPolygon;
+  VResult: IGeometryProjectedMultiPolygon;
 begin
   VResult := FFactory.CreateProjectedPolygon(nil, nil, 0);
   CheckNotNull(VResult);
@@ -456,8 +456,8 @@ end;
 
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonSimple;
 var
-  VResult: IProjectedPolygon;
-  VLine: IProjectedPolygonLine;
+  VResult: IGeometryProjectedMultiPolygon;
+  VLine: IGeometryProjectedPolygon;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -497,8 +497,8 @@ end;
 
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonTwoLines;
 var
-  VResult: IProjectedPolygon;
-  VLine: IProjectedPolygonLine;
+  VResult: IGeometryProjectedMultiPolygon;
+  VLine: IGeometryProjectedPolygon;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
   VProjection: IProjectionInfo;

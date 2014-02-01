@@ -5,12 +5,12 @@ interface
 uses
   TestFramework,
   i_GeometryProjected,
-  u_ProjectedSingleLine;
+  u_GeometryProjected;
 
 type
   TestTProjectedPolygonLine = class(TTestCase)
   private
-    FPolygon: IProjectedPolygonLine;
+    FPolygon: IGeometryProjectedPolygon;
   protected
     procedure SetUp; override;
   published
@@ -46,7 +46,7 @@ begin
   VPoints[11] := DoublePoint(13, 8);
 
   FPolygon :=
-    TProjectedPolygonLine.Create(
+    TGeometryProjectedPolygon.Create(
       nil,
       Addr(VPoints[0]),
       Length(VPoints)
