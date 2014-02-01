@@ -6,7 +6,7 @@ uses
   i_NotifierOperation,
   i_Bitmap32Static,
   i_LocalCoordConverter,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 

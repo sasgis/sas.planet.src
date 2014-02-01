@@ -84,7 +84,7 @@ uses
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_TileIterator,
   u_BitmapFunc,
   u_TileIteratorByPolygon;

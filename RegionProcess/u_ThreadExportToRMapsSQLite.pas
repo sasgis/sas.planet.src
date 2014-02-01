@@ -94,7 +94,7 @@ uses
   ALString,
   ALSqlite3Wrapper,
   c_CoordConverter,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_CoordConverter,
   i_MapVersionInfo,
   i_TileIterator,

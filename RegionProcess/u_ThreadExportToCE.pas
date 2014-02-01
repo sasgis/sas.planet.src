@@ -54,7 +54,7 @@ uses
   i_TileIterator,
   i_TileInfoBasic,
   i_BinaryData,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_TileIteratorByPolygon,
   u_ResStrings;
 

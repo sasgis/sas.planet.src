@@ -118,7 +118,7 @@ implementation
 uses
   t_GeoTypes,
   i_MapVersionInfo,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_GeoFunc,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;

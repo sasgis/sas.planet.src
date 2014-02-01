@@ -29,7 +29,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_MapVersionInfo,
   i_PredicateByTileInfo,
   i_TileStorage,

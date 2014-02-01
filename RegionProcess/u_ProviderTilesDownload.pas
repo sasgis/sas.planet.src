@@ -81,7 +81,7 @@ uses
   Classes,
   SysUtils,
   IniFiles,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_ConfigDataProvider,
   i_MapTypes,
   i_ProjectionInfo,

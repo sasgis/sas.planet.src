@@ -27,7 +27,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_TileIterator,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_BaseInterfacedObject;
 
 type

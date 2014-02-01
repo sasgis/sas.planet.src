@@ -53,7 +53,7 @@ uses
   i_GeometryLonLat,
   i_ProjectionInfo,
   i_HashFunction,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_EnumDoublePoint,
   u_GeoFunc,
   u_ProjectionInfo,

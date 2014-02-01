@@ -6,7 +6,7 @@ uses
   t_GeoTypes,
   i_EnumDoublePoint,
   i_ProjectionInfo,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_BaseInterfacedObject;
 
 type

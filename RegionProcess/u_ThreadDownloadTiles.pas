@@ -33,7 +33,7 @@ uses
   i_GlobalDownloadConfig,
   i_TileRequestTask,
   i_TileRequestResult,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_DownloadInfoSimple,
   i_RegionProcessProgressInfoDownload,
   u_MapType;

@@ -9,7 +9,7 @@ uses
   i_DoublePointFilter,
   i_DoublePointsAggregator,
   i_GeometryLonLat,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_VectorGeometryProjectedFactory,
   u_BaseInterfacedObject;
 

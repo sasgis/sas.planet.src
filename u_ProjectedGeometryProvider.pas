@@ -6,7 +6,7 @@ uses
   t_Hash,
   i_ProjectionInfo,
   i_GeometryLonLat,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_ProjectedGeometryProvider,
   i_HashFunction,
   i_VectorGeometryProjectedFactory,

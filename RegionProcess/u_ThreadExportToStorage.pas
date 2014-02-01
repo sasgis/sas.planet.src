@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_CoordConverter,
   i_MapVersionInfo,
   i_TileIterator,

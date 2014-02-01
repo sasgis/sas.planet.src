@@ -64,7 +64,7 @@ implementation
 uses
   i_CoordConverter,
   i_Bitmap32Static,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_TileInfoBasic,
   i_TileStorage,
   i_TileIterator,

@@ -757,7 +757,7 @@ uses
   i_GeoCoderList,
   i_CoordConverter,
   i_GeometryLonLat,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_LocalCoordConverterChangeable,
   i_GUIDListStatic,
   i_ActiveMapsConfig,

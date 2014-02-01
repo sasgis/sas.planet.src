@@ -1,4 +1,4 @@
-unit i_VectorItemProjected;
+unit i_GeometryProjected;
 
 interface
 

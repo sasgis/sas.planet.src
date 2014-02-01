@@ -19,7 +19,7 @@ uses
   i_ProjectedDrawableElement,
   i_MarkerRingsConfig,
   i_GeometryLonLat,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_VectorGeometryProjectedFactory,
   i_GeometryLonLatFactory,
   i_GPSRecorder,

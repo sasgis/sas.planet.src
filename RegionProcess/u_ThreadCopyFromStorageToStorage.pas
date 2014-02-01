@@ -76,7 +76,7 @@ uses
   SysUtils,
   i_TileIterator,
   i_CoordConverter,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_TileIteratorByPolygon,
   i_MapVersionListStatic,
   i_TileInfoBasic,

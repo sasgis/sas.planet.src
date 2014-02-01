@@ -60,7 +60,7 @@ uses
   i_TileIterator,
   u_TileIteratorByPolygon,
   u_GeoFunc,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_CoordConverter;
 
 constructor TThreadExportKML.Create(

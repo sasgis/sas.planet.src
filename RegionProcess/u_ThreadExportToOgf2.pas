@@ -77,7 +77,7 @@ uses
   i_MapCalibration,
   i_Bitmap32Static,
   i_TileIterator,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
   u_BitmapFunc,

@@ -34,7 +34,7 @@ uses
   i_Bitmap32StaticFactory,
   i_MarksDrawConfig,
   i_VectorDataItemSimple,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_VectorItemSubset,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider,

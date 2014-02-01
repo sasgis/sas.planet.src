@@ -43,7 +43,7 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_ThreadExportToAUX,
   u_ResStrings,
   u_MapType,

@@ -99,7 +99,7 @@ uses
   ShLwApi,
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_MapVersionListStatic,
   i_TileIterator,
   u_TileStorageBerkeleyDB,

@@ -4,7 +4,7 @@ interface
 
 uses
   TestFramework,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_ProjectedSingleLine;
 
 type

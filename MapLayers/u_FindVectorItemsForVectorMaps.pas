@@ -44,7 +44,7 @@ uses
   i_CoordConverter,
   i_GeometryLonLat,
   i_VectorDataItemSimple,
-  i_VectorItemProjected;
+  i_GeometryProjected;
 
 { TFindVectorItemsForVectorMaps }
 

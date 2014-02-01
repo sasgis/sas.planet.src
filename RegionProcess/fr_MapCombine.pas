@@ -185,7 +185,7 @@ uses
   i_MapTypes,
   i_MapVersionInfo,
   i_InterfaceListSimple,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_CoordConverter,
   u_InterfaceListSimple,
   u_GeoFunc,

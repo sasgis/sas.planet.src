@@ -5,7 +5,7 @@ interface
 uses
   i_ProjectionInfo,
   i_GeometryLonLat,
-  i_VectorItemProjected;
+  i_GeometryProjected;
 
 type
   IProjectedGeometryProvider = interface

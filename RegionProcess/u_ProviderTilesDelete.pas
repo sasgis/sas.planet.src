@@ -67,7 +67,7 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_PredicateByTileInfo,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_ThreadDeleteTiles,
   u_ResStrings,
   u_MapType;

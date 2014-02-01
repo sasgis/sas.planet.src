@@ -19,7 +19,7 @@ uses
   i_VectorGeometryProjectedFactory,
   i_VectorGeometryLocalFactory,
   i_GeometryLonLat,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_VectorItemLocal,
   i_PolyLineLayerConfig,
   i_PolygonLayerConfig,

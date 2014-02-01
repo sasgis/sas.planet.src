@@ -323,7 +323,7 @@ uses
   u_ZmpInfoSet in 'u_ZmpInfoSet.pas',
   i_ProjectionInfo in 'i_ProjectionInfo.pas',
   u_ProjectionInfo in 'u_ProjectionInfo.pas',
-  i_VectorItemProjected in 'i_VectorItemProjected.pas',
+  i_GeometryProjected in 'i_GeometryProjected.pas',
   i_VectorItemLocal in 'i_VectorItemLocal.pas',
   u_VectorItemLocal in 'u_VectorItemLocal.pas',
   u_LocalSingleLine in 'u_LocalSingleLine.pas',

@@ -7,7 +7,7 @@ uses
   i_EnumDoublePoint,
   i_ProjectionInfo,
   i_InterfaceListStatic,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   u_BaseInterfacedObject;
 
 type

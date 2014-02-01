@@ -7,7 +7,7 @@ uses
   GR32_Polygons,
   i_ProjectionInfo,
   i_LocalCoordConverter,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_ProjectedDrawableElement,
   u_BaseInterfacedObject;
 

@@ -17,7 +17,7 @@ uses
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_MarkerDrawable,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_DoublePointsAggregator,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;

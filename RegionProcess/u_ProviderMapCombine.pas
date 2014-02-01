@@ -13,7 +13,7 @@ uses
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_BitmapLayerProvider,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_GeometryLonLat,
   i_ProjectedGeometryProvider,
   i_MapTypeSet,

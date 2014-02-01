@@ -78,7 +78,7 @@ uses
   i_Bitmap32Static,
   i_TileIterator,
   i_BinaryData,
-  i_VectorItemProjected,
+  i_GeometryProjected,
   i_BitmapTileSaveLoad,
   i_MapVersionInfo,
   u_TileIteratorByPolygon;
