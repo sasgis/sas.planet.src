@@ -12,7 +12,7 @@ uses
   i_LastSelectionInfo,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
-  i_VectorGeometryLocalFactory,
+  i_GeometryLocalFactory,
   u_PolyLineLayerBase;
 
 type

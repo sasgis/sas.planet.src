@@ -8,7 +8,7 @@ uses
   i_GeometryLocal,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
-  i_VectorGeometryLocalFactory,
+  i_GeometryLocalFactory,
   u_BaseInterfacedObject;
 
 type

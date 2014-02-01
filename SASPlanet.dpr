@@ -221,7 +221,7 @@ uses
   i_VectorDataFactory in 'Vector\i_VectorDataFactory.pas',
   i_GeometryProjectedFactory in 'i_GeometryProjectedFactory.pas',
   u_VectorGeometryProjectedFactory in 'u_VectorGeometryProjectedFactory.pas',
-  i_VectorGeometryLocalFactory in 'i_VectorGeometryLocalFactory.pas',
+  i_GeometryLocalFactory in 'i_GeometryLocalFactory.pas',
   u_VectorGeometryLocalFactory in 'u_VectorGeometryLocalFactory.pas',
   u_VectorDataFactorySimple in 'u_VectorDataFactorySimple.pas',
   u_VectorDataFactoryForMap in 'u_VectorDataFactoryForMap.pas',

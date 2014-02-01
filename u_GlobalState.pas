@@ -67,7 +67,7 @@ uses
   i_Bitmap32StaticFactory,
   i_VectorDataFactory,
   i_GeometryProjectedFactory,
-  i_VectorGeometryLocalFactory,
+  i_GeometryLocalFactory,
   i_VectorItemSubsetBuilder,
   i_GeoCoder,
   i_MapTypeSetBuilder,

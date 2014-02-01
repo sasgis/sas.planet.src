@@ -11,7 +11,7 @@ uses
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_GeometryProjectedFactory,
-  i_VectorGeometryLocalFactory,
+  i_GeometryLocalFactory,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
   u_PolyLineLayerBase,

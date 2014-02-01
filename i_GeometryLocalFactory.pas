@@ -1,4 +1,4 @@
-unit i_VectorGeometryLocalFactory;
+unit i_GeometryLocalFactory;
 
 interface
 

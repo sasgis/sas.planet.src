@@ -17,7 +17,7 @@ uses
   i_MarkerDrawable,
   i_DoublePointsAggregator,
   i_GeometryProjectedFactory,
-  i_VectorGeometryLocalFactory,
+  i_GeometryLocalFactory,
   i_GeometryLonLat,
   i_GeometryProjected,
   i_GeometryLocal,
