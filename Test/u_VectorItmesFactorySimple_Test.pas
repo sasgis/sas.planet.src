@@ -60,7 +60,7 @@ uses
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_InternalPerformanceCounterFake,
-  u_VectorGeometryProjectedFactory,
+  u_GeometryProjectedFactory,
   u_GeometryLonLatFactory;
 
 { TestTVectorItmesFactorySimple }
@@ -310,7 +310,7 @@ end;
 procedure TestTVectorItmesProjectedFactorySimple.SetUp;
 begin
   inherited;
-  FFactory := TVectorGeometryProjectedFactory.Create;
+  FFactory := TGeometryProjectedFactory.Create;
 end;
 
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathNoLines;
