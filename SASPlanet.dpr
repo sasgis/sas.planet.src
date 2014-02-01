@@ -333,7 +333,7 @@ uses
   u_ProjectedSingleLine in 'u_ProjectedSingleLine.pas',
   u_VectorItemEmpty in 'u_VectorItemEmpty.pas',
   u_GeometryLonLatMulti in 'u_GeometryLonLatMulti.pas',
-  u_VectorItemProjected in 'u_VectorItemProjected.pas',
+  u_GeometryProjectedMulti in 'u_GeometryProjectedMulti.pas',
   u_GeometryLonLatFactory in 'u_GeometryLonLatFactory.pas',
   i_VectorDataItemSimple in 'Vector\i_VectorDataItemSimple.pas',
   i_VectorItemSubset in 'Vector\i_VectorItemSubset.pas',

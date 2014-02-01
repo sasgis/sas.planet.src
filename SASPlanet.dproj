@@ -1014,6 +1014,7 @@
     <DCCReference Include="u_GeometryLonLat.pas" />
     <DCCReference Include="u_GeometryLonLatFactory.pas" />
     <DCCReference Include="u_GeometryLonLatMulti.pas" />
+    <DCCReference Include="u_GeometryProjectedMulti.pas" />
     <DCCReference Include="u_GeoToStrFunc.pas" />
     <DCCReference Include="u_GlobalAppConfig.pas" />
     <DCCReference Include="u_GlobalConfig.pas" />
@@ -1310,7 +1311,6 @@
     <DCCReference Include="u_VectorItemDrawConfig.pas" />
     <DCCReference Include="u_VectorItemEmpty.pas" />
     <DCCReference Include="u_VectorItemLocal.pas" />
-    <DCCReference Include="u_VectorItemProjected.pas" />
     <DCCReference Include="u_VectorItemSubsetBuilder.pas" />
     <DCCReference Include="u_VectorItemSubsetChangeableBySearchResult.pas" />
     <DCCReference Include="u_VectorItemSubsetChangeableForMarksLayer.pas" />

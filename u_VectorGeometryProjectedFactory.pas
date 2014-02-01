@@ -120,7 +120,7 @@ uses
   u_EnumDoublePointLonLatToMapPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual,
-  u_VectorItemProjected;
+  u_GeometryProjectedMulti;
 
 { TVectorGeometryProjectedFactory }
 
