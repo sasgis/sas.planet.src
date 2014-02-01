@@ -14,7 +14,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TVectorGeometryProjectedFactory = class(TBaseInterfacedObject, IGeometryProjectedFactory)
+  TGeometryProjectedFactory = class(TBaseInterfacedObject, IGeometryProjectedFactory)
   private
     function CreateProjectedPath(
       const AProjection: IProjectionInfo;
@@ -122,9 +122,9 @@ uses
   u_EnumDoublePointFilterEqual,
   u_GeometryProjectedMulti;
 
-{ TVectorGeometryProjectedFactory }
+{ TGeometryProjectedFactory }
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygonUseConverter(
+function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygonUseConverter(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatMultiPolygon;
   const AConverter: ILonLatPointConverter;
@@ -204,7 +204,7 @@ begin
   end;
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPath(
+function TGeometryProjectedFactory.CreateProjectedPath(
   const AProjection: IProjectionInfo;
   const APoints: PDoublePointArray;
   ACount: Integer
@@ -275,7 +275,7 @@ begin
   end;
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPathByEnum(
+function TGeometryProjectedFactory.CreateProjectedPathByEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumProjectedPoint;
   const ATemp: IDoublePointsAggregator
@@ -344,7 +344,7 @@ begin
   end;
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPathByLonLatEnum(
+function TGeometryProjectedFactory.CreateProjectedPathByLonLatEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
@@ -367,7 +367,7 @@ begin
     );
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
+function TGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatMultiLine;
   const ATemp: IDoublePointsAggregator
@@ -381,7 +381,7 @@ begin
     );
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPathUseConverter(
+function TGeometryProjectedFactory.CreateProjectedPathByLonLatPathUseConverter(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatMultiLine;
   const AConverter: ILonLatPointConverter;
@@ -461,7 +461,7 @@ begin
   end;
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPathWithClipByLonLatEnum(
+function TGeometryProjectedFactory.CreateProjectedPathWithClipByLonLatEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumLonLatPoint;
   const AMapPixelsClipRect: TDoubleRect;
@@ -491,7 +491,7 @@ begin
     );
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPathWithClipByLonLatPath(
+function TGeometryProjectedFactory.CreateProjectedPathWithClipByLonLatPath(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatMultiLine;
   const AMapPixelsClipRect: TDoubleRect;
@@ -507,7 +507,7 @@ begin
     );
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygon(
+function TGeometryProjectedFactory.CreateProjectedPolygon(
   const AProjection: IProjectionInfo;
   const APoints: PDoublePointArray;
   ACount: Integer
@@ -578,7 +578,7 @@ begin
   end;
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygonByEnum(
+function TGeometryProjectedFactory.CreateProjectedPolygonByEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumProjectedPoint;
   const ATemp: IDoublePointsAggregator
@@ -647,7 +647,7 @@ begin
   end;
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatEnum(
+function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumLonLatPoint;
   const ATemp: IDoublePointsAggregator
@@ -671,7 +671,7 @@ begin
     );
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatMultiPolygon;
   const ATemp: IDoublePointsAggregator
@@ -685,7 +685,7 @@ begin
     );
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygonByRect(
+function TGeometryProjectedFactory.CreateProjectedPolygonByRect(
   const AProjection: IProjectionInfo;
   const ARect: TDoubleRect
 ): IGeometryProjectedMultiPolygon;
@@ -693,7 +693,7 @@ begin
   Result := TGeometryProjectedMultiPolygonOneLine.Create(CreateProjectedPolygonLineByRect(AProjection, ARect));
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygonLineByRect(
+function TGeometryProjectedFactory.CreateProjectedPolygonLineByRect(
   const AProjection: IProjectionInfo;
   const ARect: TDoubleRect
 ): IGeometryProjectedPolygon;
@@ -709,7 +709,7 @@ begin
   Result := TGeometryProjectedPolygon.Create(AProjection, @VPoints[0], 4);
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygonWithClipByLonLatEnum(
+function TGeometryProjectedFactory.CreateProjectedPolygonWithClipByLonLatEnum(
   const AProjection: IProjectionInfo;
   const AEnum: IEnumLonLatPoint;
   const AMapPixelsClipRect: TDoubleRect;
@@ -740,7 +740,7 @@ begin
     );
 end;
 
-function TVectorGeometryProjectedFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
+function TGeometryProjectedFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
   const AProjection: IProjectionInfo;
   const ASource: IGeometryLonLatMultiPolygon;
   const AMapPixelsClipRect: TDoubleRect;

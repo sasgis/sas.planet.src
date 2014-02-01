@@ -471,7 +471,7 @@ begin
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');
 
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
-  FVectorGeometryProjectedFactory := TVectorGeometryProjectedFactory.Create;
+  FVectorGeometryProjectedFactory := TGeometryProjectedFactory.Create;
   FVectorGeometryLonLatFactory := TGeometryLonLatFactory.Create(FHashFunction);
   FVectorGeometryLocalFactory := TVectorGeometryLocalFactory.Create;
 
