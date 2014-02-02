@@ -74,8 +74,6 @@ uses
   i_InetConfig,
   i_DownloadResult,
   i_TileDownloadRequest,
-  u_Notifier,
-  u_NotifierOperation,
   u_ListenerByEvent,
   u_TileRequestResult;
 

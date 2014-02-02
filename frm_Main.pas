@@ -820,8 +820,6 @@ uses
   u_SelectionRectLayer,
   u_MapLayerGPSMarker,
   u_MapLayerGPSMarkerRings,
-  u_MapLayerSearchResults,
-  u_FindVectorItemsFromSearchResults,
   u_FindVectorItemsForVectorMaps,
   u_MapLayerFillingMap,
   u_MapLayerGoto,

@@ -172,7 +172,6 @@ uses
   c_CoordConverter,
   i_DoublePointFilter,
   i_VectorItemTree,
-  i_VectorItemSubset,
   i_InterfaceListSimple,
   i_StaticTreeItem,
   u_ResStrings,
