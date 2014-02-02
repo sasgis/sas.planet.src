@@ -32,11 +32,17 @@ type
   private
     function GetCount: Integer;
     function GetItem(const AIndex: Integer): IVectorItemTreeImporterListItem;
+
+    function GetImporterByExt(const AExt: string): IVectorItemTreeImporter;
   public
     constructor Create(const AList: IInterfaceListStatic);
   end;
 
 implementation
+
+uses
+  SysUtils,
+  StrUtils;
 
 { TVectorItemTreeImporterListItem }
 
@@ -85,6 +91,27 @@ begin
     Result := FList.Count;
   end else begin
     Result := 0;
+  end;
+end;
+
+function TVectorItemTreeImporterListStatic.GetImporterByExt(
+  const AExt: string
+): IVectorItemTreeImporter;
+var
+  VExt: string;
+  i: Integer;
+  VItem: IVectorItemTreeImporterListItem;
+begin
+  Result := nil;
+  VExt := LowerCase(AExt);
+  if VExt[1] = '.' then begin
+    VExt := RightStr(VExt, Length(VExt) - 1);
+  end;
+  for i := 0 to FList.Count - 1 do begin
+    VItem := GetItem(i);
+    if VExt = VItem.DefaultExt then begin
+      Result := VItem.Importer;
+    end;
   end;
 end;
 

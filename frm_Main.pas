@@ -720,12 +720,7 @@ type
       const ALocalPoint: TPoint
     ): IVectorItemSubset;
 
-    procedure ProcessOpenFile(
-      const AFileName: string;
-      var AImportConfig: IImportConfig;
-      var ALastMark: IVectorDataItemSimple
-    );
-    procedure ShowLastMark(const ALastMark: IVectorDataItemSimple);
+    procedure ProcessOpenFiles(AFiles: TStrings);
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -916,7 +911,8 @@ begin
       GState.AppearanceOfMarkFactory,
       GState.MarksDb,
       GState.DatumFactory,
-      GState.ImportFileByExt,
+      GState.ExporterList,
+      GState.ImporterList,
       FConfig.ViewPortState.View,
       GState.VectorGeometryLonLatFactory,
       GState.ArchiveReadWriteFactory,
@@ -3817,6 +3813,7 @@ var
   VFileNameLength: Integer;
   VImportConfig: IImportConfig;
   VLastMark: IVectorDataItemSimple;
+  VFiles: TStringList;
 begin
   inherited;
   Msg.Result := 0;
@@ -3825,15 +3822,20 @@ begin
     VLastMark := nil;
     VImportConfig := nil;
     VDroppedFileCount := DragQueryFile(VDropH, $FFFFFFFF, nil, 0);
-    for I := 0 to Pred(VDroppedFileCount) do begin
-      VFileNameLength := DragQueryFile(VDropH, I, nil, 0);
-      SetLength(VFileName, VFileNameLength);
-      DragQueryFile(VDropH, I, PChar(VFileName), VFileNameLength + 1);
-      ProcessOpenFile(VFileName, VImportConfig, VLastMark);
+    VFiles := TStringList.Create;
+    try
+      for I := 0 to Pred(VDroppedFileCount) do begin
+        VFileNameLength := DragQueryFile(VDropH, I, nil, 0);
+        SetLength(VFileName, VFileNameLength);
+        DragQueryFile(VDropH, I, PChar(VFileName), VFileNameLength + 1);
+        VFiles.Add(VFileName);
+      end;
+      ProcessOpenFiles(VFiles);
+    finally
+      FreeAndNil(VFiles);
     end;
   finally
     DragFinish(VDropH);
-    ShowLastMark(VLastMark);
   end;
 end;
 
@@ -6214,48 +6216,37 @@ begin
   );
 end;
 
-procedure TfrmMain.ProcessOpenFile(const AFileName: string; var AImportConfig: IImportConfig; var ALastMark: IVectorDataItemSimple);
+procedure TfrmMain.ProcessOpenFiles(AFiles: TStrings);
 var
+  VFileName: string;
   VList: IInterfaceListStatic;
+  VLastMark: IVectorDataItemSimple;
 begin
-  FState.State := ao_movemap;
-  if FileExists(AFileName) then begin
-    if ExtractFileExt(AFileName)='.sls' then begin
-      FFormRegionProcess.StartSlsFromFile(AFileName);
-    end else if ExtractFileExt(AFileName)='.hlg' then begin
-      FFormRegionProcess.LoadSelFromFile(AFileName);
-    end else begin
-      VList := FMarkDBGUI.ImportFile(AFileName, AImportConfig);
-      if (VList <> nil) and (VList.Count > 0) then begin
-        ALastMark := IVectorDataItemSimple(VList[VList.Count - 1]);
+  if Assigned(AFiles) and (AFiles.Count > 0) then begin
+    if AFiles.Count = 1 then begin
+      VFileName := AFiles[0];
+      if LowerCase(ExtractFileExt(VFileName)) = '.sls' then begin
+        FFormRegionProcess.StartSlsFromFile(VFileName);
+        Exit;
+      end else if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
+        FFormRegionProcess.LoadSelFromFile(VFileName);
+        Exit;
       end;
     end;
-  end else begin
-    ShowMessageFmt(_('Can''t open file: %s'), [AFileName]);
+    VList := FMarkDBGUI.ImportFilesModal(AFiles);
+    if (VList <> nil) and (VList.Count > 0) then begin
+      VLastMark := IVectorDataItemSimple(VList[VList.Count - 1]);
+      if Assigned(VLastMark) then begin
+        FMapGoto.FitRectToScreen(VLastMark.Geometry.Bounds.Rect);
+      end;
+    end;
   end;
-end;
-
-procedure TfrmMain.ShowLastMark(const ALastMark: IVectorDataItemSimple);
-begin
-  if not Assigned(ALastMark) then begin
-    Exit;
-  end;
-  FMapGoto.FitRectToScreen(ALastMark.Geometry.Bounds.Rect);
 end;
 
 procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
-var
-  VImportConfig: IImportConfig;
-  VLastMark: IVectorDataItemSimple;
-  I: Integer;
 begin
   if OpenSessionDialog.Execute then begin
-    VLastMark := nil;
-    VImportConfig := nil;
-    for I := 0 to OpenSessionDialog.Files.Count - 1 do begin
-      ProcessOpenFile(OpenSessionDialog.Files.Strings[I], VImportConfig, VLastMark);
-    end;
-    ShowLastMark(VLastMark);
+    ProcessOpenFiles(OpenDialog1.Files);
   end;
 end;
 

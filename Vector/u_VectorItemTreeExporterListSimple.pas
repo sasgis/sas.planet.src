@@ -50,14 +50,14 @@ begin
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       'kmz',
-      'Compressed Keyhole Markup Language (kmz)'
+      'Compressed Keyhole Markup Language'
     );
   VList.Add(VItem);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
       VExporter,
       'kml',
-      'Keyhole Markup Language (kml)'
+      'Keyhole Markup Language'
     );
   VList.Add(VItem);
   FList := TVectorItemTreeExporterListStatic.Create(VList.MakeStaticAndClear);

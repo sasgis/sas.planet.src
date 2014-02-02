@@ -73,7 +73,6 @@ uses
   i_MapTypeSetBuilder,
   i_MapTypeListBuilder,
   i_MapCalibration,
-  i_VectorItemTreeImporter,
   i_PathDetalizeProviderList,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
@@ -91,6 +90,8 @@ uses
   i_SystemTimeProvider,
   i_MarkCategoryFactory,
   i_MarkFactory,
+  i_VectorItemTreeImporterList,
+  i_VectorItemTreeExporterList,
   i_BuildInfo,
   i_GlobalConfig,
   i_GlobalCacheConfig,
@@ -141,7 +142,8 @@ type
     FGeoCoderList: IGeoCoderList;
     FMarkPictureList: IMarkPictureList;
     FGpsSystem: IGPSModule;
-    FImportFileByExt: IVectorItemTreeImporter;
+    FImporterList: IVectorItemTreeImporterListChangeable;
+    FExporterList: IVectorItemTreeExporterListChangeable;
     FGPSDatum: IDatum;
     FGPSRecorder: IGPSRecorder;
     FGPSRecorderInternal: IGPSRecorderInternal;
@@ -227,7 +229,8 @@ type
     property ResourceProvider: IConfigDataProvider read FResourceProvider;
     property DownloadInfo: IDownloadInfoSimple read FDownloadInfo;
     property GlobalInternetState: IGlobalInternetState read FGlobalInternetState;
-    property ImportFileByExt: IVectorItemTreeImporter read FImportFileByExt;
+    property ImporterList: IVectorItemTreeImporterListChangeable read FImporterList;
+    property ExporterList: IVectorItemTreeExporterListChangeable read FExporterList;
     property SkyMapDraw: ISatellitesInViewMapDraw read FSkyMapDraw;
     property GUISyncronizedTimerNotifier: INotifierTime read FGUISyncronizedTimerNotifier;
     property BGTimerNotifier: INotifierTime read FBGTimerNotifier;
@@ -312,7 +315,6 @@ uses
   u_GeoCoderListSimple,
   u_MarkPictureListSimple,
   u_ImageResamplerFactoryListStaticSimple,
-  u_ImportByFileExt,
   u_GlobalBerkeleyDBHelper,
   u_GPSRecorder,
   u_GpsTrackRecorder,
@@ -368,6 +370,8 @@ uses
   u_DebugInfoSubSystem,
   u_LocalCoordConverterFactory,
   u_BuildInfo,
+  u_VectorItemTreeExporterListSimple,
+  u_VectorItemTreeImporterListSimple,
   u_BitmapPostProcessingChangeableByConfig,
   u_InternalBrowserLastContent,
   u_TileFileNameParsersSimpleList,
@@ -551,9 +555,13 @@ begin
       FHashFunction,
       FVectorGeometryProjectedFactory
     );
+  FExporterList :=
+    TVectorItemTreeExporterListSimple.Create(
+      FArchiveReadWriteFactory
+    );
 
-  FImportFileByExt :=
-    TImportByFileExt.Create(
+  FImporterList :=
+    TVectorItemTreeImporterListSimple.Create(
       FGlobalConfig.ValueToStringConverterConfig,
       FVectorDataFactory,
       FVectorDataItemMainInfoFactory,
@@ -562,6 +570,7 @@ begin
       FArchiveReadWriteFactory,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')
     );
+
   FGCThread :=
     TGarbageCollectorThread.Create(
       FAppClosingNotifier,

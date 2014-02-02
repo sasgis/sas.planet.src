@@ -3,7 +3,6 @@ unit i_VectorItemTreeExporterList;
 interface
 
 uses
-  i_GUIDListStatic,
   i_Changeable,
   i_VectorItemTreeExporter;
 

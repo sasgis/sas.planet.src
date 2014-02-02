@@ -88,24 +88,6 @@ begin
   VLoader :=
     TVectorDataLoaderWithCounter.Create(
       VKmlLoader,
-      APerfCounterList.CreateAndAddNewCounter('Gpx')
-    );
-  VImporter :=
-    TVectorItemTreeImporterByVectorLoader.Create(
-      AVectorDataItemMainInfoFactory,
-      VLoader
-    );
-  VItem :=
-    TVectorItemTreeImporterListItem.Create(
-      VImporter,
-      'gpx',
-      'GPS Exchange files (*.gpx)'
-    );
-  VList.Add(VItem);
-
-  VLoader :=
-    TVectorDataLoaderWithCounter.Create(
-      VKmlLoader,
       APerfCounterList.CreateAndAddNewCounter('Kml')
     );
   VImporter :=
@@ -117,7 +99,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'kml',
-      'Google KML files (*.kml)'
+      'Google KML files'
     );
   VList.Add(VItem);
 
@@ -145,7 +127,25 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'kmz',
-      'Google KMZ files (*.kmz)'
+      'Google KMZ files'
+    );
+  VList.Add(VItem);
+
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VKmlLoader,
+      APerfCounterList.CreateAndAddNewCounter('Gpx')
+    );
+  VImporter :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VItem :=
+    TVectorItemTreeImporterListItem.Create(
+      VImporter,
+      'gpx',
+      'GPS Exchange files'
     );
   VList.Add(VItem);
 
@@ -169,7 +169,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'plt',
-      'OziExplorer Track Point File Version 2.1 (*.plt)'
+      'OziExplorer Track Point File Version 2.1'
     );
   VList.Add(VItem);
 
@@ -193,7 +193,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'csv',
-      'Universal CSV files (*.csv)'
+      'Universal CSV files'
     );
   VList.Add(VItem);
 
@@ -217,7 +217,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'hlg',
-      'Selection polygone (*.hlg)'
+      'Selection polygone'
     );
   VList.Add(VItem);
 
@@ -241,7 +241,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'mp',
-      'Single polygone from mp file (*.mp)'
+      'Single polygone from mp file'
     );
   VList.Add(VItem);
 
@@ -265,7 +265,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'sls',
-      'Download session polygone(*.sls)'
+      'Download session polygone'
     );
   VList.Add(VItem);
 
@@ -281,7 +281,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'jpg',
-      'JPEG Image whtg GPS Exif (*.jpg)'
+      'JPEG Image whtg GPS Exif'
     );
   VList.Add(VItem);
   FList := TVectorItemTreeImporterListStatic.Create(VList.MakeStaticAndClear);

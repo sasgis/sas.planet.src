@@ -25,6 +25,7 @@ interface
 uses
   Windows,
   Dialogs,
+  Classes,
   t_GeoTypes,
   i_PathConfig,
   i_LanguageManager,
@@ -43,7 +44,8 @@ uses
   i_MarkCategory,
   i_MarkSystem,
   i_ImportConfig,
-  i_VectorItemTreeImporter,
+  i_VectorItemTreeExporterList,
+  i_VectorItemTreeImporterList,
   i_CoordConverterFactory,
   i_AppearanceOfMarkFactory,
   i_MarkFactory,
@@ -74,7 +76,17 @@ type
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
     FfrmMarkInfo: TfrmMarkInfo;
     FExportDialog: TSaveDialog;
-    FImportFileByExt: IVectorItemTreeImporter;
+    FImportDialog: TOpenDialog;
+    FExporterList: IVectorItemTreeExporterListChangeable;
+    FImporterList: IVectorItemTreeImporterListChangeable;
+    procedure PrepareExportDialog(const AExporterList: IVectorItemTreeExporterListStatic);
+    function GetActiveExporter(const AExporterList: IVectorItemTreeExporterListStatic): IVectorItemTreeExporterListItem;
+
+    procedure PrepareImportDialog(const AImporterList: IVectorItemTreeImporterListStatic);
+    function ImportFilesModalInternal(
+      AFiles: TStrings;
+      const AImporterList: IVectorItemTreeImporterListStatic
+    ): IInterfaceListStatic;
   public
     function GetMarkIdCaption(const AMarkId: IMarkId): string;
 
@@ -137,13 +149,12 @@ type
       const ACategoryList: IInterfaceListStatic;
       AIgnoreMarksVisible: Boolean
     );
-    function ImportFile(
-      const AFileNameToImport: String;
-      var AImportConfig: IImportConfig
+    function ImportFilesModal(
+      AFiles: TStrings
     ): IInterfaceListStatic;
+    function ImportModal(ParentWnd: HWND): IInterfaceListStatic;
 
     property MarksDb: IMarkSystem read FMarkSystem;
-    property ImportFileByExt: IVectorItemTreeImporter read FImportFileByExt;
     property MarkFactoryConfig: IMarkFactoryConfig read FMarkFactoryConfig;
   public
     constructor Create(
@@ -154,7 +165,8 @@ type
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
       const ADatumFactory: IDatumFactory;
-      const AImportFileByExt: IVectorItemTreeImporter;
+      const AExporterList: IVectorItemTreeExporterListChangeable;
+      const AImporterList: IVectorItemTreeImporterListChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -174,11 +186,11 @@ uses
   i_VectorItemTree,
   i_InterfaceListSimple,
   i_StaticTreeItem,
+  i_VectorItemTreeImporter,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
   u_VectorItemTree,
   u_InterfaceListSimple,
-  u_ExportMarks2KML,
   u_FileNameFunc,
   u_GeoToStrFunc;
 
@@ -192,7 +204,8 @@ constructor TMarkDbGUIHelper.Create(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
   const ADatumFactory: IDatumFactory;
-  const AImportFileByExt: IVectorItemTreeImporter;
+  const AExporterList: IVectorItemTreeExporterListChangeable;
+  const AImporterList: IVectorItemTreeImporterListChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -202,12 +215,14 @@ constructor TMarkDbGUIHelper.Create(
 begin
   inherited Create;
   FMarkSystem := AMarkSystem;
-  FImportFileByExt := AImportFileByExt;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FMarkFactoryConfig := AMarkFactoryConfig;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FImporterList := AImporterList;
+  FExporterList := AExporterList;
+  
   FfrmMarkEditPoint :=
     TfrmMarkEditPoint.Create(
       ALanguageManager,
@@ -261,13 +276,14 @@ begin
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB
     );
-  FExportDialog := TSaveDialog.Create(nil);
 
-  //ExportDialog
+  FExportDialog := TSaveDialog.Create(nil);
   FExportDialog.Name := 'ExportDialog';
-  FExportDialog.DefaultExt := '.kmz';
-  FExportDialog.Filter := _('Compressed Keyhole Markup Language (kmz)|*.kmz|Keyhole Markup Language (kml)|*.kml');
   FExportDialog.Options := [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing];
+
+  FImportDialog := TOpenDialog.Create(nil);
+  FImportDialog.Name := 'ImportDialog';
+  FImportDialog.Options := [ofAllowMultiSelect, ofEnableSizing];
 end;
 
 destructor TMarkDbGUIHelper.Destroy;
@@ -280,6 +296,7 @@ begin
   FreeAndNil(FfrmMarksMultiEdit);
   FreeAndNil(FfrmMarkInfo);
   FreeAndNil(FExportDialog);
+  FreeAndNil(FImportDialog);
   inherited;
 end;
 
@@ -423,26 +440,65 @@ begin
   Result := FfrmImportConfigEdit.GetImportConfig;
 end;
 
+function TMarkDbGUIHelper.GetActiveExporter(
+  const AExporterList: IVectorItemTreeExporterListStatic
+): IVectorItemTreeExporterListItem;
+var
+  VIndex: Integer;
+begin
+  Result := nil;
+  VIndex := FExportDialog.FilterIndex - 1;
+  if (VIndex >= 0) and (VIndex < AExporterList.Count) then begin
+    Result := AExporterList.Items[VIndex];
+  end;
+end;
+
+procedure TMarkDbGUIHelper.PrepareExportDialog(
+  const AExporterList: IVectorItemTreeExporterListStatic);
+var
+  VSelectedFilter: Integer;
+  VFilterStr: string;
+  i: Integer;
+  VItem: IVectorItemTreeExporterListItem;
+begin
+  VSelectedFilter := FExportDialog.FilterIndex;
+  VFilterStr := '';
+  for i := 0 to AExporterList.Count - 1 do begin
+    VItem := AExporterList.Items[i];
+    if i = 0 then begin
+      FExportDialog.DefaultExt := VItem.DefaultExt;
+    end else begin
+      VFilterStr := VFilterStr + '|';
+    end;
+    VFilterStr := VFilterStr + VItem.Name + ' (*.'+ VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
+  end;
+  FExportDialog.Filter := VFilterStr;
+  FExportDialog.FilterIndex := VSelectedFilter;
+end;
+
 procedure TMarkDbGUIHelper.ExportCategory(
   const AMarkCategory: IMarkCategory;
   AIgnoreMarksVisible: Boolean
 );
 var
-  KMLExport: TExportMarks2KML;
   VFileName: string;
   VSubCategoryList: IInterfaceListStatic;
   VCategoryTree: IStaticTreeItem;
   VMarkTree: IVectorItemTree;
   VList: IInterfaceListSimple;
+  VExporterList: IVectorItemTreeExporterListStatic;
+  VExporterItem: IVectorItemTreeExporterListItem;
 begin
   if AMarkCategory <> nil then begin
     VFileName := PrepareFileName(AMarkCategory.Name);
+    VExporterList := FExporterList.GetStatic;
+    PrepareExportDialog(VExporterList);
     FExportDialog.FileName := VFileName;
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
-        KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
-        try
+        VExporterItem := GetActiveExporter(VExporterList);
+        if Assigned(VExporterItem) then begin
           VSubCategoryList := FMarkSystem.CategoryDB.GetSubCategoryListForCategory(AMarkCategory);
           if not AIgnoreMarksVisible then begin
             VSubCategoryList := FMarkSystem.CategoryDB.FilterVisibleCategories(VSubCategoryList);
@@ -452,9 +508,7 @@ begin
           VList.AddListStatic(VSubCategoryList);
           VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VList.MakeStaticAndClear);
           VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
-          KMLExport.ExportTreeToKML(VMarkTree, VFileName);
-        finally
-          KMLExport.free;
+          VExporterItem.Exporter.ProcessExport(VFileName, VMarkTree);
         end;
       end;
     end;
@@ -466,22 +520,23 @@ procedure TMarkDbGUIHelper.ExportCategoryList(
   AIgnoreMarksVisible: Boolean
 );
 var
-  KMLExport: TExportMarks2KML;
   VFileName: string;
   VCategoryTree: IStaticTreeItem;
   VMarkTree: IVectorItemTree;
+  VExporterList: IVectorItemTreeExporterListStatic;
+  VExporterItem: IVectorItemTreeExporterListItem;
 begin
   if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
+    VExporterList := FExporterList.GetStatic;
+    PrepareExportDialog(VExporterList);
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
-        KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
-        try
+        VExporterItem := GetActiveExporter(VExporterList);
+        if Assigned(VExporterItem) then begin
           VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(ACategoryList);
           VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
-          KMLExport.ExportTreeToKML(VMarkTree, VFileName);
-        finally
-          KMLExport.free;
+          VExporterItem.Exporter.ProcessExport(VFileName, VMarkTree);
         end;
       end;
     end;
@@ -490,25 +545,26 @@ end;
 
 procedure TMarkDbGUIHelper.ExportMark(const AMark: IVectorDataItemSimple);
 var
-  KMLExport: TExportMarks2KML;
   VFileName: string;
   VMarkTree: IVectorItemTree;
   VSubsetBuilder: IVectorItemSubsetBuilder;
+  VExporterList: IVectorItemTreeExporterListStatic;
+  VExporterItem: IVectorItemTreeExporterListItem;
 begin
   if AMark <> nil then begin
     VFileName := PrepareFileName(AMark.Name);
+    VExporterList := FExporterList.GetStatic;
+    PrepareExportDialog(VExporterList);
     FExportDialog.FileName := VFileName;
     if FExportDialog.Execute then begin
       VFileName := FExportDialog.FileName;
       if VFileName <> '' then begin
-        KMLExport := TExportMarks2KML.Create(FArchiveReadWriteFactory);
-        try
+        VExporterItem := GetActiveExporter(VExporterList);
+        if Assigned(VExporterItem) then begin
           VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
           VSubsetBuilder.Add(AMark);
           VMarkTree := TVectorItemTree.Create('', VSubsetBuilder.MakeStaticAndClear, nil);
-          KMLExport.ExportTreeToKML(VMarkTree, VFileName);
-        finally
-          KMLExport.free;
+          VExporterItem.Exporter.ProcessExport(VFileName, VMarkTree);
         end;
       end;
     end;
@@ -542,24 +598,88 @@ begin
   Result := Format(VFormat, [AMarkId.Name]);
 end;
 
-function TMarkDbGUIHelper.ImportFile(
-  const AFileNameToImport: String;
-  var AImportConfig: IImportConfig
+function TMarkDbGUIHelper.ImportFilesModalInternal(
+  AFiles: TStrings;
+  const AImporterList: IVectorItemTreeImporterListStatic
 ): IInterfaceListStatic;
 var
+  VImportConfig: IImportConfig;
+  i: Integer;
+  VFileName: string;
+  VExt: string;
+  VImporter: IVectorItemTreeImporter;
   VTree: IVectorItemTree;
 begin
   Result := nil;
-  if (FileExists(AFileNameToImport)) then begin
-    VTree := FImportFileByExt.ProcessImport(AFileNameToImport);
-    if Assigned(VTree) then begin
-      if not Assigned(AImportConfig) then
-        AImportConfig := EditModalImportConfig;
-      if Assigned(AImportConfig) then begin
-        Result := FMarkSystem.ImportItemsTree(VTree, AImportConfig);
+  if Assigned(AFiles) and (AFiles.Count>0) then begin
+    for i := 0 to AFiles.Count - 1 do begin
+      VFileName := AFiles[i];
+      if (FileExists(VFileName)) then begin
+        VExt := ExtractFileExt(VFileName);
+        VImporter := AImporterList.GetImporterByExt(VExt);
+        if Assigned(VImporter) then begin
+          VTree := VImporter.ProcessImport(VFileName);
+          if Assigned(VTree) then begin
+            if not Assigned(VImportConfig) then
+              VImportConfig := EditModalImportConfig;
+            if Assigned(VImportConfig) then begin
+              Result := FMarkSystem.ImportItemsTree(VTree, VImportConfig);
+            end else begin
+              Break;
+            end;
+          end;
+        end;
+      end else begin
+        ShowMessageFmt(_('Can''t open file: %s'), [VFileName]);
       end;
     end;
   end;
+end;
+
+procedure TMarkDbGUIHelper.PrepareImportDialog(const AImporterList: IVectorItemTreeImporterListStatic);
+var
+  VSelectedFilter: Integer;
+  VFilterStr: string;
+  i: Integer;
+  VItem: IVectorItemTreeImporterListItem;
+  VAllMasks: string;
+begin
+  VSelectedFilter := FImportDialog.FilterIndex;
+  VFilterStr := '';
+  VAllMasks := '';
+  for i := 0 to AImporterList.Count - 1 do begin
+    VItem := AImporterList.Items[i];
+    VFilterStr := VFilterStr + '|' + VItem.Name + ' (*.'+ VItem.DefaultExt + ')|*.' + VItem.DefaultExt;
+    if i > 0 then begin
+      VAllMasks := VAllMasks + ';'
+    end;
+    VAllMasks := VAllMasks + '*.' + VItem.DefaultExt;
+  end;
+  VFilterStr :=  _('All compatible formats') + '(' + VAllMasks + ')|' + VAllMasks + VFilterStr;
+  FImportDialog.Filter := VFilterStr;
+  FImportDialog.FilterIndex := VSelectedFilter;
+end;
+
+function TMarkDbGUIHelper.ImportModal(ParentWnd: HWND): IInterfaceListStatic;
+var
+  VList: IVectorItemTreeImporterListStatic;
+begin
+  Result := nil;
+  VList := FImporterList.GetStatic;
+  PrepareImportDialog(VList);
+  if (FImportDialog.Execute(ParentWnd)) then begin
+    Result := ImportFilesModalInternal(FImportDialog.Files, VList);
+  end;
+end;
+
+function TMarkDbGUIHelper.ImportFilesModal(
+  AFiles: TStrings
+): IInterfaceListStatic;
+var
+  VList: IVectorItemTreeImporterListStatic;
+begin
+  VList := FImporterList.GetStatic;
+  Result := ImportFilesModalInternal(AFiles, VList);
 end;
 
 function TMarkDbGUIHelper.MarksMultiEditModal(const ACategory: ICategory): IImportConfig;

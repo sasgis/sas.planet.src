@@ -26,6 +26,8 @@ type
 
     function GetItem(const AIndex: Integer): IVectorItemTreeImporterListItem;
     property Items[const AIndex: Integer]: IVectorItemTreeImporterListItem read GetItem;
+
+    function GetImporterByExt(const AExt: string): IVectorItemTreeImporter;
   end;
 
   IVectorItemTreeImporterListChangeable = interface(IChangeable)

@@ -168,13 +168,14 @@ type
       const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
-    procedure LoadSelFromFile(const FileName:string);
+    procedure LoadSelFromFile(const AFileName:string);
     procedure StartSlsFromFile(const AFileName:string);
   end;
 
 implementation
 
 uses
+  gnugettext,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   u_ConfigDataProviderByIniFile,
@@ -348,7 +349,7 @@ begin
   inherited;
 end;
 
-procedure TfrmRegionProcess.LoadSelFromFile(const FileName: string);
+procedure TfrmRegionProcess.LoadSelFromFile(const AFileName: string);
 var
   VIniFile:TMemIniFile;
   VHLGData: IConfigDataProvider;
@@ -356,8 +357,8 @@ var
   VPolygon: IGeometryLonLatMultiPolygon;
   VZoom: Byte;
 begin
-  if FileExists(FileName) then begin
-    VIniFile := TMemIniFile.Create(FileName);
+  if FileExists(AFileName) then begin
+    VIniFile := TMemIniFile.Create(AFileName);
     try
       VHLGData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
       VIniFile := nil;
@@ -372,7 +373,9 @@ begin
         Self.ProcessPolygonWithZoom(VZoom, VPolygon);
       end;
     end;
-  end
+  end else begin
+    ShowMessageFmt(_('Can''t open file: %s'), [AFileName]);
+  end;
 end;
 
 procedure TfrmRegionProcess.ProcessPolygon(const APolygon: IGeometryLonLatMultiPolygon);
@@ -527,7 +530,11 @@ end;
 
 procedure TfrmRegionProcess.StartSlsFromFile(const AFileName: string);
 begin
-  FProviderTilesDownload.StartBySLS(AFileName);
+  if FileExists(AFileName) then begin
+    FProviderTilesDownload.StartBySLS(AFileName);
+  end else begin
+    ShowMessageFmt(_('Can''t open file: %s'), [AFileName]);
+  end;
 end;
 
 end.

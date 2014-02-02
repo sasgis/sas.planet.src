@@ -490,22 +490,10 @@ end;
 
 procedure TfrmMarksExplorer.btnImportClick(Sender: TObject);
 var
-  VImportConfig: IImportConfig;
-  i: Integer;
   VList: IInterfaceListStatic;
   VMark: IVectorDataItemSimple;
 begin
-  VImportConfig := nil;
-  if (OpenDialog1.Execute(Self.Handle)) then begin
-    if Assigned(OpenDialog1.Files) and (OpenDialog1.Files.Count>0) then begin
-      // multiple files
-      for i := 0 to OpenDialog1.Files.Count-1 do
-        VList := FMarkDBGUI.ImportFile(OpenDialog1.Files[i], VImportConfig);
-    end else begin
-      // single file
-      VList := FMarkDBGUI.ImportFile(OpenDialog1.FileName, VImportConfig);
-    end;
-  end;
+  VList := FMarkDBGUI.ImportModal(Self.Handle);
   if (Vlist <> nil) and (VList.Count > 0) then begin
     VMark := IVectorDataItemSimple(VList[VList.Count - 1]);
     if VMark <> nil then begin
