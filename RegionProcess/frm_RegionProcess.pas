@@ -156,7 +156,7 @@ type
       const ACoordConverterList: ICoordConverterList;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AProjectedGeometryProvider: IProjectedGeometryProvider;
+      const AProjectedGeometryProvider: IGeometryProjectedProvider;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -213,7 +213,7 @@ constructor TfrmRegionProcess.Create(
   const ACoordConverterList: ICoordConverterList;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AProjectedGeometryProvider: IProjectedGeometryProvider;
+  const AProjectedGeometryProvider: IGeometryProjectedProvider;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;

@@ -180,7 +180,7 @@ type
     FMainThreadConfigListener: IListener;
     FVectorDataFactory: IVectorDataFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
-    FProjectedGeometryProvider: IProjectedGeometryProvider;
+    FProjectedGeometryProvider: IGeometryProjectedProvider;
     FMarkFactory: IMarkFactory;
     FMarkCategoryFactory: IMarkCategoryFactory;
     FBuildInfo: IBuildInfo;
@@ -248,7 +248,7 @@ type
     property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
     property VectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory read FVectorDataItemMainInfoFactory;
-    property ProjectedGeometryProvider: IProjectedGeometryProvider read FProjectedGeometryProvider;
+    property ProjectedGeometryProvider: IGeometryProjectedProvider read FProjectedGeometryProvider;
     property VectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory read FVectorItemSubsetBuilderFactory;
     property BitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory read FBitmapTileSaveLoadFactory;
     property GeoCodePlacemarkFactory: IGeoCodePlacemarkFactory read FGeoCodePlacemarkFactory;

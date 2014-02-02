@@ -17,7 +17,7 @@ type
   TFindVectorItemsForVectorMaps = class(TBaseInterfacedObject, IFindVectorItems)
   private
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FProjectedProvider: IProjectedGeometryProvider;
+    FProjectedProvider: IGeometryProjectedProvider;
     FVectorItems: IVectorItemSubsetChangeable;
     FFindItemsCounter: IInternalPerformanceCounter;
     FRectHalfSize: Double;
@@ -29,7 +29,7 @@ type
   public
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AProjectedProvider: IProjectedGeometryProvider;
+      const AProjectedProvider: IGeometryProjectedProvider;
       const AVectorItems: IVectorItemSubsetChangeable;
       const AFindItemsCounter: IInternalPerformanceCounter;
       const ARectSize: Double
@@ -50,7 +50,7 @@ uses
 
 constructor TFindVectorItemsForVectorMaps.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AProjectedProvider: IProjectedGeometryProvider;
+  const AProjectedProvider: IGeometryProjectedProvider;
   const AVectorItems: IVectorItemSubsetChangeable;
   const AFindItemsCounter: IInternalPerformanceCounter;
   const ARectSize: Double

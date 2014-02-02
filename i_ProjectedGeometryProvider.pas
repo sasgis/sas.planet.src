@@ -8,7 +8,7 @@ uses
   i_GeometryProjected;
 
 type
-  IProjectedGeometryProvider = interface
+  IGeometryProjectedProvider = interface
     ['{D16A12D9-29DF-4349-8A3C-05B2BF50BD0D}']
     function GetProjectedPath(
       const AProjectionInfo: IProjectionInfo;

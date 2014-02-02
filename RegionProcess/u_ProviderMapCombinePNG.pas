@@ -45,7 +45,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const ACoordConverterList: ICoordConverterList;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AProjectedGeometryProvider: IProjectedGeometryProvider;
+      const AProjectedGeometryProvider: IGeometryProjectedProvider;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
@@ -78,7 +78,7 @@ constructor TProviderMapCombinePNG.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const ACoordConverterList: ICoordConverterList;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AProjectedGeometryProvider: IProjectedGeometryProvider;
+  const AProjectedGeometryProvider: IGeometryProjectedProvider;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;

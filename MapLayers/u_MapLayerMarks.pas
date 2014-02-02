@@ -29,7 +29,7 @@ type
       const AView: ILocalCoordConverterChangeable;
       const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AProjectedCache: IProjectedGeometryProvider;
+      const AProjectedCache: IGeometryProjectedProvider;
       const AMarkerProvider: IMarkerProviderForVectorItem;
       const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -56,7 +56,7 @@ constructor TMapLayerMarks.Create(
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AProjectedCache: IProjectedGeometryProvider;
+  const AProjectedCache: IGeometryProjectedProvider;
   const AMarkerProvider: IMarkerProviderForVectorItem;
   const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;

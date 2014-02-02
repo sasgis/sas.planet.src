@@ -13,7 +13,7 @@ uses
   u_HashCacheWithQueuesAbstract;
 
 type
-  TProjectedGeometryProvider = class(THashCacheWithQueuesAbstract, IProjectedGeometryProvider)
+  TProjectedGeometryProvider = class(THashCacheWithQueuesAbstract, IGeometryProjectedProvider)
   private
     FHashFunction: IHashFunction;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;

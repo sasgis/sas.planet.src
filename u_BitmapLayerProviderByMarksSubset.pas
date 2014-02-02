@@ -48,7 +48,7 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IVectorItemSubset;
-    FProjectedCache: IProjectedGeometryProvider;
+    FProjectedCache: IGeometryProjectedProvider;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
@@ -93,7 +93,7 @@ type
       const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
       const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AProjectedCache: IProjectedGeometryProvider;
+      const AProjectedCache: IGeometryProjectedProvider;
       const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
       const AMarksSubset: IVectorItemSubset
     );
@@ -126,7 +126,7 @@ constructor TBitmapLayerProviderByMarksSubset.Create(
   const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
   const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AProjectedCache: IProjectedGeometryProvider;
+  const AProjectedCache: IGeometryProjectedProvider;
   const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
   const AMarksSubset: IVectorItemSubset
 );

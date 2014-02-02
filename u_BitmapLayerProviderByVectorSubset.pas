@@ -30,7 +30,7 @@ type
     FPointMarker: IMarkerDrawable;
     FBitmapFactory: IBitmap32StaticFactory;
     FVectorItems: IVectorItemSubset;
-    FProjectedCache: IProjectedGeometryProvider;
+    FProjectedCache: IGeometryProjectedProvider;
 
     FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
@@ -75,7 +75,7 @@ type
       AColorBG: TColor32;
       const APointMarker: IMarkerDrawable;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AProjectedCache: IProjectedGeometryProvider;
+      const AProjectedCache: IGeometryProjectedProvider;
       const AVectorItems: IVectorItemSubset
     );
   end;
@@ -101,7 +101,7 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   AColorBG: TColor32;
   const APointMarker: IMarkerDrawable;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AProjectedCache: IProjectedGeometryProvider;
+  const AProjectedCache: IGeometryProjectedProvider;
   const AVectorItems: IVectorItemSubset
 );
 begin

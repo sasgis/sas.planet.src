@@ -17,7 +17,7 @@ type
   private
     FConfig: IMarksDrawConfig;
     FBitmapFactory: IBitmap32StaticFactory;
-    FProjectedProvider: IProjectedGeometryProvider;
+    FProjectedProvider: IGeometryProjectedProvider;
     FMarkerProvider: IMarkerProviderForVectorItem;
     FVectorItems: IVectorItemSubsetChangeable;
 
@@ -29,7 +29,7 @@ type
     constructor Create(
       const AConfig: IMarksDrawConfig;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AProjectedProvider: IProjectedGeometryProvider;
+      const AProjectedProvider: IGeometryProjectedProvider;
       const AMarkerProvider: IMarkerProviderForVectorItem;
       const AVectorItems: IVectorItemSubsetChangeable
     );
@@ -47,7 +47,7 @@ uses
 constructor TBitmapLayerProviderChangeableForMarksLayer.Create(
   const AConfig: IMarksDrawConfig;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AProjectedProvider: IProjectedGeometryProvider;
+  const AProjectedProvider: IGeometryProjectedProvider;
   const AMarkerProvider: IMarkerProviderForVectorItem;
   const AVectorItems: IVectorItemSubsetChangeable
 );
