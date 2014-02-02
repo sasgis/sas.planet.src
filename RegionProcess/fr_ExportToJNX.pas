@@ -21,25 +21,21 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
+  i_BitmapTileSaveLoadFactory,
   i_RegionProcessParamsFrame,
   u_MapType,
+  u_ExportToJnxTask,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
 
 type
   IRegionProcessParamsFrameExportToJNX = interface(IRegionProcessParamsFrameBase)
     ['{BBF2A4A5-C6CC-45D0-A010-A122617EFBB6}']
-    function GetLevelsDesc: IStringListStatic;
-    property LevelsDesc: IStringListStatic read GetLevelsDesc;
-
     function GetProductName: string;
     property ProductName: string read GetProductName;
 
     function GetMapName: string;
     property MapName: string read GetMapName;
-
-    function GetJpgQuality: IStringListStatic;
-    property JpgQuality: IStringListStatic read GetJpgQuality;
 
     function GetJNXVersion: Integer;
     property JNXVersion: Integer read GetJNXVersion;
@@ -50,21 +46,14 @@ type
     function GetProductID: Integer;
     property ProductID: Integer read GetProductID;
 
-    function GetScaleArray: TByteDynArray;
-    property ScaleArray: TByteDynArray read GetScaleArray;
-
-    function GetMapList: IMapTypeListStatic;
-    property MapList: IMapTypeListStatic read GetMapList;
-
-    function GetRecompress: TBooleanDynArray;
-    property Recompress: TBooleanDynArray read GetRecompress;
-end;
+    function GetTasks: TExportTaskJnxArray;
+    property Tasks: TExportTaskJnxArray read GetTasks;
+  end;
 
 type
   TfrExportToJNX = class(
       TFrame,
       IRegionProcessParamsFrameBase,
-      IRegionProcessParamsFrameZoomArray,
       IRegionProcessParamsFrameTargetPath,
       IRegionProcessParamsFrameExportToJNX
     )
@@ -150,7 +139,7 @@ type
     procedure Map4Change(Sender: TObject);
     procedure Map5Change(Sender: TObject);
   private
-    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -166,25 +155,20 @@ type
     );
     function Validate: Boolean;
   private
-    function GetZoomArray: TByteDynArray;
-    function GetScaleArray: TByteDynArray;
     function GetPath: string;
     function GetAllowExport(AMapType: TMapType): boolean;
   private
-    function GetLevelsDesc: IStringListStatic;
+    function GetTasks: TExportTaskJnxArray;
     function GetProductName: string;
     function GetMapName: string;
-    function GetJpgQuality: IStringListStatic;
     function GetJNXVersion: Integer;
     function GetZOrder: Integer;
     function GetProductID: Integer;
-    function GetMapList: IMapTypeListStatic;
-    function GetRecompress: TBooleanDynArray;
 
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -209,7 +193,7 @@ uses
 {$R *.dfm}
 constructor TfrExportToJNX.Create(
   const ALanguageManager: ILanguageManager;
-  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
+  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -219,7 +203,7 @@ constructor TfrExportToJNX.Create(
 begin
   inherited Create(ALanguageManager);
   FMainMapsConfig := AMainMapsConfig;
-  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
+  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
   dlgSaveTargetFile.Filter := AFileFilters;
@@ -693,7 +677,7 @@ end;
 
 function TfrExportToJNX.Validate: Boolean;
 begin
-  Result := True;
+  Result := ChMap1.Checked;
 end;
 
 function TfrExportToJNX.GetJNXVersion: Integer;
@@ -702,51 +686,6 @@ begin
     Result := 3;
   end else begin
     Result := 4;
-  end;
-end;
-
-function TfrExportToJNX.GetJpgQuality: IStringListStatic;
-var VJPGList: TStringList;
-begin
-  VJPGList := TStringList.Create;
-  try
-    if ChMap1.Checked then  begin
-      VJPGList.Add(inttostr(EJpgQuality.Value));
-    end;
-    if ChMap2.Checked then  begin
-      VJPGList.Add(inttostr(EJpgQuality2.Value));
-    end;
-    if ChMap3.Checked then  begin
-      VJPGList.Add(inttostr(EJpgQuality3.Value));
-    end;
-    if ChMap4.Checked then  begin
-      VJPGList.Add(inttostr(EJpgQuality4.Value));
-    end;
-    if ChMap5.Checked then  begin
-      VJPGList.Add(inttostr(EJpgQuality5.Value));
-    end;
-
-    Result := TStringListStatic.CreateWithOwn(VJPGList);
-    VJPGList := nil;
-  finally
-    VJPGList.Free;
-  end;
-end;
-
-function TfrExportToJNX.GetLevelsDesc: IStringListStatic;
-var
-  VList: TStringList;
-  i: Integer;
-begin
-  VList := TStringList.Create;
-  try
-    for i := 0 to TreeView1.Items.count - 1 do begin
-      VList.add(TreeView1.Items[i].text);
-    end;
-    Result := TStringListStatic.CreateWithOwn(VList);
-    VList := nil;
-  finally
-    VList.Free;
   end;
 end;
 
@@ -777,105 +716,95 @@ begin
   Result := EProductName.Text;
 end;
 
-function TfrExportToJNX.GetMapList: IMapTypeListStatic;
+function TfrExportToJNX.GetTasks: TExportTaskJnxArray;
 var
-  VMaps: IMapTypeListBuilder;
   VMap: IMapType;
+  VTask: TExportTaskJnx;
 begin
-  VMaps := FMapTypeListBuilderFactory.Build;
-  if ChMap1.Checked then  begin
+  Result := nil;
+  if ChMap1.Checked then begin
     VMap := FfrMapSelect.GetSelectedIMapType;
     if Assigned(VMap) then begin
-      VMaps.Add(VMap);
+      VTask.FTileStorage := VMap.MapType.TileStorage;
+      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FScale := cbbscale.ItemIndex;
+      VTask.FZoom := CbbZoom.ItemIndex;
+      VTask.FRecompress := ChRecompress1.Checked;
+      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality.Value);
+      VTask.FLevelDesc := TreeView1.Items[0].text;
+      VTask.FLevelName := TreeView1.Items[1].text;
+      VTask.FLevelCopyright := TreeView1.Items[2].text;
+      SetLength(Result, Length(Result) + 1);
+      Result[Length(Result) - 1] := VTask;
     end;
   end;
-  if ChMap2.Checked then  begin
+
+  if ChMap2.Checked then begin
     VMap := FfrMap2Select.GetSelectedIMapType;
     if Assigned(VMap) then begin
-      VMaps.Add(VMap);
+      VTask.FTileStorage := VMap.MapType.TileStorage;
+      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FScale := cbbscale2.ItemIndex;
+      VTask.FZoom := CbbZoom2.ItemIndex;
+      VTask.FRecompress := ChRecompress2.Checked;
+      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality2.Value);
+      VTask.FLevelDesc := TreeView1.Items[3].text;
+      VTask.FLevelName := TreeView1.Items[4].text;
+      VTask.FLevelCopyright := TreeView1.Items[5].text;
+      SetLength(Result, Length(Result) + 1);
+      Result[Length(Result) - 1] := VTask;
     end;
   end;
-  if ChMap3.Checked then  begin
+
+  if ChMap3.Checked then begin
     VMap := FfrMap3Select.GetSelectedIMapType;
     if Assigned(VMap) then begin
-      VMaps.Add(VMap);
+      VTask.FTileStorage := VMap.MapType.TileStorage;
+      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FScale := cbbscale3.ItemIndex;
+      VTask.FZoom := CbbZoom3.ItemIndex;
+      VTask.FRecompress := ChRecompress3.Checked;
+      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality3.Value);
+      VTask.FLevelDesc := TreeView1.Items[6].text;
+      VTask.FLevelName := TreeView1.Items[7].text;
+      VTask.FLevelCopyright := TreeView1.Items[8].text;
+      SetLength(Result, Length(Result) + 1);
+      Result[Length(Result) - 1] := VTask;
     end;
   end;
-  if ChMap4.Checked then  begin
+
+  if ChMap4.Checked then begin
     VMap := FfrMap4Select.GetSelectedIMapType;
     if Assigned(VMap) then begin
-      VMaps.Add(VMap);
+      VTask.FTileStorage := VMap.MapType.TileStorage;
+      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FScale := cbbscale4.ItemIndex;
+      VTask.FZoom := CbbZoom4.ItemIndex;
+      VTask.FRecompress := ChRecompress4.Checked;
+      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality4.Value);
+      VTask.FLevelDesc := TreeView1.Items[9].text;
+      VTask.FLevelName := TreeView1.Items[10].text;
+      VTask.FLevelCopyright := TreeView1.Items[11].text;
+      SetLength(Result, Length(Result) + 1);
+      Result[Length(Result) - 1] := VTask;
     end;
   end;
-  if ChMap5.Checked then  begin
+
+  if ChMap5.Checked then begin
     VMap := FfrMap5Select.GetSelectedIMapType;
     if Assigned(VMap) then begin
-      VMaps.Add(VMap);
+      VTask.FTileStorage := VMap.MapType.TileStorage;
+      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FScale := cbbscale5.ItemIndex;
+      VTask.FZoom := CbbZoom5.ItemIndex;
+      VTask.FRecompress := ChRecompress5.Checked;
+      VTask.FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(EJpgQuality5.Value);
+      VTask.FLevelDesc := TreeView1.Items[12].text;
+      VTask.FLevelName := TreeView1.Items[13].text;
+      VTask.FLevelCopyright := TreeView1.Items[14].text;
+      SetLength(Result, Length(Result) + 1);
+      Result[Length(Result) - 1] := VTask;
     end;
-  end;
-  Result := VMaps.MakeAndClear;
-end;
-
-function TfrExportToJNX.GetScaleArray: TByteDynArray;
-var
-  VCount: Integer;
-begin
-  Result := nil;
-  VCount := 0;
-  if ChMap1.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := cbbscale.ItemIndex;
-      Inc(VCount);
-  end;
-  if ChMap2.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := cbbscale2.ItemIndex;
-      Inc(VCount);
-  end;
-  if ChMap3.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := cbbscale3.ItemIndex;
-      Inc(VCount);
-  end;
-  if ChMap4.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := cbbscale4.ItemIndex;
-      Inc(VCount);
-  end;
-  if ChMap5.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := cbbscale5.ItemIndex;
-  end;
-end;
-function TfrExportToJNX.GetZoomArray: TByteDynArray;
-var
-  VCount: Integer;
-begin
-  Result := nil;
-  VCount := 0;
-  if ChMap1.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := CbbZoom.ItemIndex;
-      Inc(VCount);
-  end;
-  if ChMap2.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := CbbZoom2.ItemIndex;
-      Inc(VCount);
-  end;
-  if ChMap3.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := CbbZoom3.ItemIndex;
-      Inc(VCount);
-  end;
-  if ChMap4.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := CbbZoom4.ItemIndex;
-      Inc(VCount);
-  end;
-  if ChMap5.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := CbbZoom5.ItemIndex;
   end;
 end;
 
@@ -885,38 +814,6 @@ begin
     Result := 0;
   end else begin
     Result := EZorder.Value;
-  end;
-end;
-
-function TfrExportToJNX.GetRecompress: TBooleanDynArray;
-var
-  VCount: Integer;
-begin
-  Result := nil;
-  VCount := 0;
-  if ChMap1.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := ChRecompress1.Checked;
-      Inc(VCount);
-  end;
-  if ChMap2.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := ChRecompress2.Checked;
-      Inc(VCount);
-  end;
-  if ChMap3.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := ChRecompress3.Checked;
-      Inc(VCount);
-  end;
-  if ChMap4.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := ChRecompress4.Checked;
-      Inc(VCount);
-  end;
-  if ChMap5.Checked then begin
-      SetLength(Result, VCount + 1);
-      Result[VCount] := ChRecompress5.Checked;
   end;
 end;
 

@@ -1106,6 +1106,7 @@ uses
   u_ExportProviderZip in 'RegionProcess\u_ExportProviderZip.pas',
   u_ExportProviderTar in 'RegionProcess\u_ExportProviderTar.pas',
   u_ExportProviderJNX in 'RegionProcess\u_ExportProviderJNX.pas',
+  u_ExportToJnxTask in 'RegionProcess\u_ExportToJnxTask.pas',
   u_ThreadExportToJNX in 'RegionProcess\u_ThreadExportToJNX.pas',
   fr_ExportToJNX in 'RegionProcess\fr_ExportToJNX.pas' {frExportToJNX: TFrame},
   fr_ExportToOgf2 in 'RegionProcess\fr_ExportToOgf2.pas' {frExportToOgf2: TFrame},

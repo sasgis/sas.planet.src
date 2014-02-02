@@ -3,131 +3,92 @@ unit u_ThreadExportToJNX;
 interface
 
 uses
-  Types,
-  SysUtils,
-  Classes,
-  JNXlib,
   t_GeoTypes,
-  i_MapTypes,
-  i_MapTypeListStatic,
-  i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
-  i_BitmapTileSaveLoadFactory,
-  i_StringListStatic,
-  i_TileStorage,
-  i_TileInfoBasic,
-  i_ContentTypeInfo,
-  u_ResStrings,
-  u_ThreadExportAbstract;
+  u_ExportToJnxTask,
+  u_ThreadRegionProcessAbstract;
 
 type
-  TThreadExportToJnx = class(TThreadExportAbstract)
+  TThreadExportToJnx = class(TThreadRegionProcessAbstract)
   private
+    FTasks: TExportTaskJnxArray;
     FTargetFile: string;
-    FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FProductName: string; // копирайт
     FMapName: string;  // имя карты
     FJNXVersion: byte;  // 3..4
     FZorder: integer;   // для 4 версии
     FProductID: integer; // 0,2,3,4,5,6,7,8,9
-    FJpgQuality: IStringListStatic; // 10..100 TODO
-    FLevelsDesc: IStringListStatic; // Levels Descriptions
-    FMapList: IMapTypeListStatic;
-    FLayersList: IMapTypeListStatic;
-    FZoomList: TByteDynArray;
-    FScaleArr: TByteDynArray;
-    FRecompressArr: TBooleanDynArray;
-
   protected
     procedure ProcessRegion; override;
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const ACoordConverterFactory: ICoordConverterFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ATargetFile: string;
       const APolygon: IGeometryLonLatMultiPolygon;
-      const Azoomarr: TByteDynArray;
+      const ATasks: TExportTaskJnxArray;
       const AProductName: string;
       const AMapName: string;
       AJNXVersion: integer;
       AZorder: integer;
-      AProductID: integer;
-      const AJpgQuality: IStringListStatic;
-      const ALevelsDesc: IStringListStatic;
-      const AMapList: IMapTypeListStatic;
-      const ALayerList: IMapTypeListStatic;
-      const AScaleArr: TByteDynArray;
-      const ARecompressArr: TBooleanDynArray
+      AProductID: integer
     );
   end;
 
 implementation
 
 uses
+  Types,
+  SysUtils,
   ALString,
+  JNXlib,
+  i_TileStorage,
+  i_TileInfoBasic,
+  i_ContentTypeInfo,
   i_CoordConverter,
   i_Bitmap32Static,
   i_TileIterator,
   i_BinaryData,
-  i_GeometryProjected,
-  i_BitmapTileSaveLoad,
   i_MapVersionInfo,
+  i_BitmapTileSaveLoad,
+  i_GeometryProjected,
+  u_ResStrings,
   u_TileIteratorByPolygon;
 
 constructor TThreadExportToJnx.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const ACoordConverterFactory: ICoordConverterFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ATargetFile: string;
   const APolygon: IGeometryLonLatMultiPolygon;
-  const Azoomarr: TByteDynArray;
+  const ATasks: TExportTaskJnxArray;
   const AProductName: string;
   const AMapName: string;
   AJNXVersion: integer;
   AZorder: integer;
-  AProductID: integer;
-  const AJpgQuality: IStringListStatic;
-  const ALevelsDesc: IStringListStatic;
-  const AMapList: IMapTypeListStatic;
-  const ALayerList: IMapTypeListStatic;
-  const AScaleArr: TByteDynArray;
-  const ARecompressArr: TBooleanDynArray
+  AProductID: integer
 );
 begin
   inherited Create(
     AProgressInfo,
     APolygon,
-    Azoomarr,
     Self.ClassName
   );
   FTargetFile := ATargetFile;
-  FCoordConverterFactory := ACoordConverterFactory;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
+  FTasks := ATasks;
   FProductName := AProductName;
   FMapName := AMapName;
   FJNXVersion := AJNXVersion;
   FZorder := AZorder;
   FProductID := AProductID;
-  FJpgQuality := AJpgQuality;
-  FLevelsDesc := ALevelsDesc;
-  FMapList := AMapList;
-  FLayersList := ALayerList;
-  FZoomList := Azoomarr;
-  FScaleArr := AScaleArr;
-  FRecompressArr := ARecompressArr;
 end;
 
 procedure TThreadExportToJnx.ProcessRegion;
@@ -160,13 +121,14 @@ var
   VMapVersionInfo: IMapVersionInfo;
   VTileInfo: ITileInfoWithData;
   VContentTypeInfoBitmap: IContentTypeInfoBitmap;
+  VRecompress: Boolean;
 begin
   inherited;
   VTilesToProcess := 0;
-  SetLength(VTileIterators, Length(FZoomList));
-  for i := 0 to FMapList.Count - 1 do begin
-    VZoom := FZoomList[i];
-    VGeoConvert := FMapList.Items[i].MapType.GeoConvert;
+  SetLength(VTileIterators, Length(FTasks));
+  for i := 0 to Length(FTasks) - 1 do begin
+    VZoom := FTasks[i].FZoom;
+    VGeoConvert := FTasks[i].FTileStorage.CoordConverter;
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
@@ -178,20 +140,20 @@ begin
 
   VWriter := TMultiVolumeJNXWriter.Create(FTargetFile);
   try
-    VWriter.Levels := Length(FZoomList);
+    VWriter.Levels := Length(FTasks);
     VWriter.ProductName := FProductName;
     VWriter.MapName := FMapName;
     VWriter.Version := FJNXVersion;
     VWriter.ZOrder := FZorder;
     VWriter.ProductID := FProductID;
 
-    for i := 0 to FMapList.Count - 1 do begin
-      VWriter.LevelScale[i] := ZoomToScale[FScaleArr[i]];
+    for i := 0 to Length(FTasks) - 1 do begin
+      VWriter.LevelScale[i] := ZoomToScale[FTasks[i].FScale];
       VWriter.TileCount[i] := VTileIterators[i].TilesTotal;
-      VWriter.LevelDescription[i] := FLevelsDesc.items[i * 3];
-      VWriter.LevelName[i] := FLevelsDesc.Items[i * 3 + 1];
-      VWriter.LevelCopyright[i] := FLevelsDesc.items[i * 3 + 2];
-      VWriter.LevelZoom[i] := FZoomList[i];
+      VWriter.LevelDescription[i] := FTasks[i].FLevelDesc;
+      VWriter.LevelName[i] := FTasks[i].FLevelName;
+      VWriter.LevelCopyright[i] := FTasks[i].FLevelCopyright;
+      VWriter.LevelZoom[i] := FTasks[i].FZoom;
     end;
 
     try
@@ -201,13 +163,14 @@ begin
       try
         VTilesProcessed := 0;
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
-        for i := 0 to Length(FZoomList) - 1 do begin
-          VSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(StrToInt(FJpgQuality.Items[i]));
+        for i := 0 to Length(FTasks) - 1 do begin
+          VSaver := FTasks[i].FSaver;
+          VRecompress := FTasks[i].FRecompress;
 
-          VTileStorage := FMapList.Items[i].MapType.TileStorage;
-          VMapVersionInfo := FMapList.Items[i].MapType.VersionConfig.Version;
-          VZoom := FZoomList[i];
-          VGeoConvert := FMapList.Items[i].MapType.GeoConvert;
+          VTileStorage := FTasks[i].FTileStorage;
+          VMapVersionInfo := FTasks[i].FMapVersion;
+          VZoom := FTasks[i].FZoom;
+          VGeoConvert := VTileStorage.CoordConverter;
           VTileIterator := VTileIterators[i];
           while VTileIterator.Next(VTile) do begin
             if CancelNotifier.IsOperationCanceled(OperationID) then begin
@@ -216,7 +179,7 @@ begin
 
             if Supports(VTileStorage.GetTileInfo(VTile, VZoom, VMapVersionInfo, gtimWithData), ITileInfoWithData, VTileInfo) then begin
               VData := Nil;
-              if FRecompressArr[i] or not SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
+              if VRecompress or not SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
                 if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
                   VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
                   if Assigned(VBitmapTile) then begin
@@ -260,7 +223,7 @@ begin
         VStringStream.Free;
       end;
     finally
-      for i := 0 to Length(FZoomList) - 1 do begin
+      for i := 0 to Length(VTileIterators) - 1 do begin
         VTileIterators[i] := nil;
       end;
       VTileIterators := nil;

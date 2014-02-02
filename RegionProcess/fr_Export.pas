@@ -229,7 +229,6 @@ begin
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
-      AMapTypeListBuilderFactory,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapTileSaveLoadFactory,

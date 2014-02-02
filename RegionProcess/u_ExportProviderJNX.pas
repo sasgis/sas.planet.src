@@ -24,7 +24,6 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -35,7 +34,6 @@ type
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
-      const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -54,6 +52,7 @@ uses
   i_MapTypeListStatic,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  u_ExportToJnxTask,
   u_ThreadExportToJNX,
   u_ResStrings;
 
@@ -66,7 +65,6 @@ constructor TExportProviderJNX.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
-  const AMapTypeListBuilderFactory: IMapTypeListBuilderFactory;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -81,7 +79,6 @@ begin
     AGUIConfigList
   );
   FProjectionFactory := AProjectionFactory;
-  FMapTypeListBuilderFactory := AMapTypeListBuilderFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
@@ -92,14 +89,13 @@ begin
   Result :=
     TfrExportToJNX.Create(
       Self.LanguageManager,
-      FMapTypeListBuilderFactory,
+      FBitmapTileSaveLoadFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
       'JNX |*.jnx',
       'jnx'
     );
-  Assert(Supports(Result, IRegionProcessParamsFrameZoomArray));
   Assert(Supports(Result, IRegionProcessParamsFrameTargetPath));
   Assert(Supports(Result, IRegionProcessParamsFrameExportToJNX));
 end;
@@ -112,60 +108,40 @@ end;
 procedure TExportProviderJNX.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
   VPath: string;
-  Zoomarr: TByteDynArray;
   VProductName: string;
   VMapName: string;
   VJNXVersion: integer;
   VZorder: integer;
   VProductID: integer;
-  VJpgQuality: IStringListStatic;
   VProgressInfo: IRegionProcessProgressInfoInternal;
-  VLevelsDesc: IStringListStatic;
-  VMapList: IMapTypeListStatic;
-  VLayerList: IMapTypeListStatic;
-  VScaleArr: TByteDynArray;
-  VRecompressArr: TBooleanDynArray;
+  VTasks: TExportTaskJnxArray;
   VThread: TThread;
 begin
   inherited;
 
-  Zoomarr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
-
-  VLevelsDesc := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).LevelsDesc;
   VProductName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductName;
   VMapName := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapName;
-  VJpgQuality := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JpgQuality;
   VJNXVersion := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).JNXVersion;
   VZorder := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ZOrder;
   VProductID := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductID;
-  VScaleArr := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ScaleArray;
-  VMapList := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).MapList;
-  VRecompressArr := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).Recompress;
+  VTasks := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).Tasks;
 
   VProgressInfo := ProgressFactory.Build(APolygon);
 
   VThread :=
     TThreadExportToJnx.Create(
       VProgressInfo,
-      FCoordConverterFactory,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
-      FBitmapTileSaveLoadFactory,
       VPath,
       APolygon,
-      Zoomarr,
+      VTasks,
       VProductName,
       VMapName,
       VJNXVersion,
       VZorder,
-      VProductID,
-      VJpgQuality,
-      VLevelsDesc,
-      VMapList,
-      VLayerList,
-      VScaleArr,
-      VRecompressArr
+      VProductID
     );
   VThread.Resume;
 end;

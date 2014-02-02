@@ -727,6 +727,7 @@
     <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV3.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV4.pas" />
     <DCCReference Include="RegionProcess\u_ExportProviderZip.pas" />
+    <DCCReference Include="RegionProcess\u_ExportToJnxTask.pas" />
     <DCCReference Include="RegionProcess\u_ProviderMapCombine.pas" />
     <DCCReference Include="RegionProcess\u_ProviderMapCombineBMP.pas" />
     <DCCReference Include="RegionProcess\u_ProviderMapCombineECW.pas" />
