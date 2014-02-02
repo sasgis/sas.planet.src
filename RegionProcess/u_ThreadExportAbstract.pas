@@ -13,7 +13,6 @@ type
   TThreadExportAbstract = class(TThreadRegionProcessAbstract)
   protected
     FZooms: TByteDynArray;
-    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
     procedure ProcessRegion; override;
   public
     constructor Create(
@@ -86,12 +85,6 @@ begin
   if Length(FZooms) <= 0 then begin
     raise Exception.Create('Не выбрано ни одного зума');
   end;
-end;
-
-procedure TThreadExportAbstract.ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
-begin
-  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
-  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
 end;
 
 end.

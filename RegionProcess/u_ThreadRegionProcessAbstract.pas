@@ -28,6 +28,7 @@ type
     procedure ShowMessageSync(const AMessage: string);
     {$HINTS ON}
   protected
+    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
     procedure ProcessRegion; virtual; abstract;
     procedure Execute; override;
 
@@ -52,6 +53,7 @@ uses
   {$ENDIF}
   SysUtils,
   Dialogs,
+  u_ResStrings,
   u_ReadableThreadNames,
   u_ListenerByEvent;
 
@@ -112,6 +114,13 @@ end;
 procedure TThreadRegionProcessAbstract.OnCancel;
 begin
   Terminate;
+end;
+
+procedure TThreadRegionProcessAbstract.ProgressFormUpdateOnProgress(AProcessed,
+  AToProcess: Int64);
+begin
+  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
+  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
 end;
 
 procedure TThreadRegionProcessAbstract.ShowMessageSync(const AMessage: string);
