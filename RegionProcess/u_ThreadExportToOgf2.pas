@@ -47,7 +47,6 @@ type
       const APixelRect: TRect;
       const AZoom: Byte
     );
-    procedure ProgressFormUpdateOnProgress(AProcessed, AToProcess: Int64);
   protected
     procedure ProcessRegion; override;
   public
@@ -343,13 +342,6 @@ begin
   finally
     VTileIterator := nil;
   end;
-end;
-
-procedure TThreadExportToOgf2.ProgressFormUpdateOnProgress(AProcessed,
-  AToProcess: Int64);
-begin
-  ProgressInfo.SetProcessedRatio(AProcessed / AToProcess);
-  ProgressInfo.SetSecondLine(SAS_STR_Processed + ' ' + inttostr(AProcessed));
 end;
 
 end.
