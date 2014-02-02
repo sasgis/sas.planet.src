@@ -1319,6 +1319,7 @@
     <DCCReference Include="VectorLoaders\u_MpSimpleParser.pas" />
     <DCCReference Include="VectorLoaders\u_PLTSimpleParser.pas" />
     <DCCReference Include="VectorLoaders\u_SlsParser.pas" />
+    <DCCReference Include="VectorLoaders\u_VectorDataLoaderWithCounter.pas" />
     <DCCReference Include="VectorLoaders\u_XmlInfoSimpleParser.pas" />
     <DCCReference Include="VectorLoaders\u_XmlVectorObjects.pas" />
     <DCCReference Include="Vector\i_VectorDataFactory.pas" />

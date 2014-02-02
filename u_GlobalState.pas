@@ -295,7 +295,6 @@ uses
   u_MapTypeListStatic,
   i_InternalDebugConfig,
   u_TextByVectorItemHTMLByDescription,
-  u_TextByVectorItemMarkInfo,
   u_NotifierTime,
   i_FileNameIterator,
   u_AppearanceOfMarkFactory,
@@ -303,15 +302,12 @@ uses
   u_MarkSystem,
   u_MapCalibrationListBasic,
   u_XmlInfoSimpleParser,
-  u_KmzInfoSimpleParser,
-  u_KmlInfoSimpleParser,
   u_CoordConverterFactorySimple,
   u_CoordConverterListStaticSimple,
   u_DownloadInfoSimple,
   u_DatumFactory,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
-  u_PLTSimpleParser,
   u_MapVersionFactoryList,
   u_GeoCoderListSimple,
   u_MarkPictureListSimple,
@@ -382,10 +378,7 @@ uses
 constructor TGlobalState.Create;
 var
   VViewCnonfig: IConfigDataProvider;
-  VMarksKmlLoadCounterList: IInternalPerformanceCounterList;
-  VXmlLoader: IVectorDataLoader;
   VKmlLoader: IVectorDataLoader;
-  VKmzLoader: IVectorDataLoader;
   VFilesIteratorFactory: IFileNameIteratorFactory;
   VFilesIterator: IFileNameIterator;
   VProgramPath: string;
@@ -549,65 +542,26 @@ begin
       FVectorItemSubsetBuilderFactory,
       FBitmapTileSaveLoadFactory,
       FArchiveReadWriteFactory,
-      FDebugInfoSubSystem.RootCounterList
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Content')
     );
 
   FMapCalibrationList := TMapCalibrationListBasic.Create;
-  VMarksKmlLoadCounterList := FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import');
-
-  // xml loaders
-  VXmlLoader :=
-    TXmlInfoSimpleParser.Create(
-      FVectorGeometryLonLatFactory,
-      FVectorDataFactory,
-      FVectorItemSubsetBuilderFactory,
-      True,
-      VMarksKmlLoadCounterList
-    );
-{$if defined(VSAGPS_ALLOW_IMPORT_KML)}
-  VKmlLoader := VXmlLoader;
-  VKmzLoader :=
-    TKmzInfoSimpleParser.Create(
-      TXmlInfoSimpleParser.Create(FVectorGeometryLonLatFactory, FVectorDataFactory, FVectorItemSubsetBuilderFactory, True, nil),
-      FArchiveReadWriteFactory,
-      VMarksKmlLoadCounterList
-    );
-{$else}
-  VKmlLoader :=
-    TKmlInfoSimpleParser.Create(
-      FVectorGeometryLonLatFactory,
-      FVectorDataFactory,
-      FVectorItemSubsetBuilderFactory,
-      VMarksKmlLoadCounterList
-    );
-  VKmzLoader :=
-    TKmzInfoSimpleParser.Create(
-      TKmlInfoSimpleParser.Create(FVectorGeometryLonLatFactory, FVectorDataFactory, FVectorItemSubsetBuilderFactory, nil),
-      FArchiveReadWriteFactory,
-      VMarksKmlLoadCounterList
-    );
-{$ifend}
   FProjectedGeometryProvider :=
     TGeometryProjectedProvider.Create(
       FHashFunction,
       FVectorGeometryProjectedFactory
     );
-  FImportFileByExt := TImportByFileExt.Create(
-    FGlobalConfig.ValueToStringConverterConfig,
-    FVectorDataFactory,
-    FVectorDataItemMainInfoFactory,
-    FVectorGeometryLonLatFactory,
-    FVectorItemSubsetBuilderFactory,
-    VXmlLoader,
-    TPLTSimpleParser.Create(
-      FVectorGeometryLonLatFactory,
+
+  FImportFileByExt :=
+    TImportByFileExt.Create(
+      FGlobalConfig.ValueToStringConverterConfig,
       FVectorDataFactory,
+      FVectorDataItemMainInfoFactory,
+      FVectorGeometryLonLatFactory,
       FVectorItemSubsetBuilderFactory,
-      VMarksKmlLoadCounterList
-    ),
-    VKmlLoader,
-    VKmzLoader
-  );
+      FArchiveReadWriteFactory,
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')
+    );
   FGCThread :=
     TGarbageCollectorThread.Create(
       FAppClosingNotifier,
@@ -704,6 +658,14 @@ begin
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('MapType')
     );
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;
+
+  VKmlLoader :=
+    TXmlInfoSimpleParser.Create(
+      FVectorGeometryLonLatFactory,
+      FVectorDataFactory,
+      FVectorItemSubsetBuilderFactory,
+      True
+    );
   FPathDetalizeList :=
     TPathDetalizeProviderListSimple.Create(
       FGlobalConfig.LanguageManager,

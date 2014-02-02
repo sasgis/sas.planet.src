@@ -28,7 +28,9 @@ uses
   i_VectorDataFactory,
   i_VectorDataLoader,
   i_VectorItemSubsetBuilder,
+  i_ArchiveReadWriteFactory,
   i_ValueToStringConverter,
+  i_InternalPerformanceCounter,
   i_VectorItemTree,
   u_BaseInterfacedObject;
 
@@ -55,10 +57,8 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AGpxLoader: IVectorDataLoader;
-      const APltLoader: IVectorDataLoader;
-      const AKmlLoader: IVectorDataLoader;
-      const AKmzLoader: IVectorDataLoader
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
 
@@ -68,6 +68,10 @@ uses
   SysUtils,
   u_VectorItemTreeImporterByVectorLoader,
   u_VectorItemTreeImporterJpegWithExif,
+  u_VectorDataLoaderWithCounter,
+  u_XmlInfoSimpleParser,
+  u_KmzInfoSimpleParser,
+  u_PLTSimpleParser,
   u_SlsParser,
   u_HlgParser,
   u_MpSimpleParser,
@@ -81,22 +85,150 @@ constructor TImportByFileExt.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AGpxLoader: IVectorDataLoader;
-  const APltLoader: IVectorDataLoader;
-  const AKmlLoader: IVectorDataLoader;
-  const AKmzLoader: IVectorDataLoader
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
+var
+  VKmlLoader: IVectorDataLoader;
+  VLoader: IVectorDataLoader;
 begin
   inherited Create;
-  FImportGPX := TVectorItemTreeImporterByVectorLoader.Create(AVectorDataItemMainInfoFactory, AGpxLoader);
-  FImportKML := TVectorItemTreeImporterByVectorLoader.Create(AVectorDataItemMainInfoFactory, AKmlLoader);
-  FImportKMZ := TVectorItemTreeImporterByVectorLoader.Create(AVectorDataItemMainInfoFactory, AKmzLoader);
-  FImportPLT := TVectorItemTreeImporterByVectorLoader.Create(AVectorDataItemMainInfoFactory, APltLoader);
-  FImportCSV := TVectorItemTreeImporterByVectorLoader.Create(AVectorDataItemMainInfoFactory, TCsvParser.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AVectorGeometryLonLatFactory));
-  FImportHLG := TVectorItemTreeImporterByVectorLoader.Create(AVectorDataItemMainInfoFactory, THlgParser.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AVectorGeometryLonLatFactory));
-  FImportMP := TVectorItemTreeImporterByVectorLoader.Create(AVectorDataItemMainInfoFactory, TMpSimpleParser.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AVectorGeometryLonLatFactory));
-  FImportSLS := TVectorItemTreeImporterByVectorLoader.Create(AVectorDataItemMainInfoFactory, TSlsParser.Create(AVectorItemSubsetBuilderFactory, AVectorDataFactory, AVectorGeometryLonLatFactory));
-  FImportJPG := TVectorItemTreeImporterJpegWithExif.Create(AVectorGeometryLonLatFactory, AVectorDataItemMainInfoFactory, AVectorItemSubsetBuilderFactory, AVectorDataFactory, AValueToStringConverterConfig);
+  VKmlLoader :=
+    TXmlInfoSimpleParser.Create(
+      AVectorGeometryLonLatFactory,
+      AVectorDataFactory,
+      AVectorItemSubsetBuilderFactory,
+      True
+    );
+
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VKmlLoader,
+      APerfCounterList.CreateAndAddNewCounter('Gpx')
+    );
+  FImportGPX :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VKmlLoader,
+      APerfCounterList.CreateAndAddNewCounter('Kml')
+    );
+  FImportKML :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VKmlLoader,
+      APerfCounterList.CreateAndAddNewCounter('KmlFromKmz')
+    );
+  VLoader :=
+    TKmzInfoSimpleParser.Create(
+      VLoader,
+      AArchiveReadWriteFactory
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VLoader,
+      APerfCounterList.CreateAndAddNewCounter('Kmz')
+    );
+  FImportKMZ :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VLoader :=
+    TPLTSimpleParser.Create(
+      AVectorGeometryLonLatFactory,
+      AVectorDataFactory,
+      AVectorItemSubsetBuilderFactory
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VLoader,
+      APerfCounterList.CreateAndAddNewCounter('Plt')
+    );
+  FImportPLT :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VLoader :=
+    TCsvParser.Create(
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AVectorGeometryLonLatFactory
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VLoader,
+      APerfCounterList.CreateAndAddNewCounter('Csv')
+    );
+  FImportCSV :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VLoader :=
+    THlgParser.Create(
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AVectorGeometryLonLatFactory
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VLoader,
+      APerfCounterList.CreateAndAddNewCounter('Hlg')
+    );
+  FImportHLG :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VLoader :=
+    TMpSimpleParser.Create(
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AVectorGeometryLonLatFactory
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VLoader,
+      APerfCounterList.CreateAndAddNewCounter('Mp')
+    );
+  FImportMP :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VLoader :=
+    TSlsParser.Create(
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AVectorGeometryLonLatFactory
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VLoader,
+      APerfCounterList.CreateAndAddNewCounter('Sls')
+    );
+  FImportSLS :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  FImportJPG :=
+    TVectorItemTreeImporterJpegWithExif.Create(
+      AVectorGeometryLonLatFactory,
+      AVectorDataItemMainInfoFactory,
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AValueToStringConverterConfig
+    );
 end;
 
 function TImportByFileExt.ProcessImport(

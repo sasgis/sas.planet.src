@@ -164,8 +164,7 @@ begin
     TKmlInfoSimpleParser.Create(
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
-      AVectorItemSubsetBuilderFactory,
-      ALoadPerfCounterList
+      AVectorItemSubsetBuilderFactory
     )
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -175,9 +174,8 @@ begin
     'application/vnd.google-earth.kmz',
     '.kmz',
     TKmzInfoSimpleParser.Create(
-      TKmlInfoSimpleParser.Create(AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorItemSubsetBuilderFactory, nil),
-      FArchiveReadWriteFactory,
-      ALoadPerfCounterList
+      TKmlInfoSimpleParser.Create(AVectorGeometryLonLatFactory, AVectorDataFactory, AVectorItemSubsetBuilderFactory),
+      FArchiveReadWriteFactory
     )
   );
   AddByType(VContentType, VContentType.GetContentType);
@@ -190,8 +188,7 @@ begin
       AVectorGeometryLonLatFactory,
       AVectorDataFactory,
       AVectorItemSubsetBuilderFactory,
-      False,
-      ALoadPerfCounterList
+      False
     )
   );
   AddByType(VContentType, VContentType.GetContentType);

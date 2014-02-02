@@ -33,7 +33,6 @@ uses
   i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_DoublePointsAggregator,
-  i_InternalPerformanceCounter,
   i_VectorDataLoader,
   BMSEARCH,
   u_BaseInterfacedObject;
@@ -41,7 +40,6 @@ uses
 type
   TKmlInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
-    FLoadKmlStreamCounter: IInternalPerformanceCounter;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -95,11 +93,6 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
   private
-    function LoadFromStream(
-      AStream: TStream;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
-    ): IVectorItemSubset;
     function Load(
       const AData: IBinaryData;
       const AIdData: Pointer;
@@ -109,8 +102,7 @@ type
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
     );
     destructor Destroy; override;
   end;
@@ -181,17 +173,14 @@ end;
 constructor TKmlInfoSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
 );
 begin
   inherited Create;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  if APerfCounterList <> nil then begin
-    FLoadKmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadKmlStream');
-  end;
+
   FFormat.DecimalSeparator := '.';
   FBMSrchPlacemark := TSearchBM.Create('<Placemark');
   FBMSrchPlacemarkE := TSearchBM.Create('</Placemark');
@@ -231,29 +220,9 @@ begin
   Result := nil;
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(VStream, AIdData, AVectorDataItemMainInfoFactory);
+    Result := LoadFromStreamInternal(VStream, AIdData, AVectorDataItemMainInfoFactory);
   finally
     VStream.Free;
-  end;
-end;
-
-function TKmlInfoSimpleParser.LoadFromStream(
-  AStream: TStream;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
-): IVectorItemSubset;
-var
-  VCounterContext: TInternalPerformanceCounterContext;
-begin
-  if FLoadKmlStreamCounter <> nil then begin
-    VCounterContext := FLoadKmlStreamCounter.StartOperation;
-    try
-      Result := LoadFromStreamInternal(AStream, AIdData, AVectorDataItemMainInfoFactory);
-    finally
-      FLoadKmlStreamCounter.FinishOperation(VCounterContext);
-    end;
-  end else begin
-    Result := LoadFromStreamInternal(AStream, AIdData, AVectorDataItemMainInfoFactory);
   end;
 end;
 

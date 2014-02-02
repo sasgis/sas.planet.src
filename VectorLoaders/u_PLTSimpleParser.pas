@@ -34,7 +34,6 @@ uses
   i_VectorDataLoader,
   i_VectorItemSubset,
   i_DoublePointsAggregator,
-  i_InternalPerformanceCounter,
   i_VectorDataItemSimple,
   u_BaseInterfacedObject;
 
@@ -45,7 +44,6 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FLoadStreamCounter: IInternalPerformanceCounter;
     procedure ParseStringList(
       AStringList: TALStringList;
       const APointsAggregator: IDoublePointsAggregator
@@ -70,8 +68,7 @@ type
     constructor Create(
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
     );
   end;
 
@@ -86,15 +83,13 @@ uses
 constructor TPLTSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory
 );
 begin
   inherited Create;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataFactory := AVectorDataFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadPltStream');
   FFormatSettings.DecimalSeparator := '.';
 end;
 

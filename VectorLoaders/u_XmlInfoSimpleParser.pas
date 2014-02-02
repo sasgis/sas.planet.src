@@ -31,7 +31,6 @@ uses
   i_VectorItemSubsetBuilder,
   i_VectorItemSubset,
   i_GeometryLonLatFactory,
-  i_InternalPerformanceCounter,
   i_VectorDataLoader,
   i_XmlVectorObjects,
   u_BaseInterfacedObject,
@@ -47,7 +46,6 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataFactory: IVectorDataFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FLoadXmlStreamCounter: IInternalPerformanceCounter;
     FAllowMultiParts: Boolean;
     FFormat: TFormatSettings;
   private
@@ -87,11 +85,6 @@ type
       const AIdData: Pointer;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
     ): IVectorItemSubset;
-    function LoadFromStream(
-      const AStream: TStream;
-      const AIdData: Pointer;
-      const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
-    ): IVectorItemSubset;
   private
     function Load(
       const AData: IBinaryData;
@@ -103,8 +96,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AAllowMultiParts: Boolean;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const AAllowMultiParts: Boolean
     );
   end;
 
@@ -146,8 +138,7 @@ constructor TXmlInfoSimpleParser.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AAllowMultiParts: Boolean;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const AAllowMultiParts: Boolean
 );
 begin
   inherited Create;
@@ -156,9 +147,6 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FAllowMultiParts := AAllowMultiParts;
 
-  if APerfCounterList <> nil then begin
-    FLoadXmlStreamCounter := APerfCounterList.CreateAndAddNewCounter('LoadXmlStream');
-  end;
   VSAGPS_PrepareFormatSettings(FFormat);
 end;
 
@@ -621,43 +609,14 @@ var
 begin
   VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    Result := LoadFromStream(
-      VStream,
-      AIdData,
-      AVectorDataItemMainInfoFactory
-    );
-  finally
-    VStream.Free;
-  end;
-end;
-
-function TXmlInfoSimpleParser.LoadFromStream(
-  const AStream: TStream;
-  const AIdData: Pointer;
-  const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
-): IVectorItemSubset;
-var
-  VCounterContext: TInternalPerformanceCounterContext;
-begin
-  Result := nil;
-  if FLoadXmlStreamCounter <> nil then begin
-    VCounterContext := FLoadXmlStreamCounter.StartOperation;
-    try
-      // read from single simple source
-      Result := Internal_LoadFromStream_Original(
-        AStream,
+    Result :=
+      Internal_LoadFromStream_Original(
+        VStream,
         AIdData,
         AVectorDataItemMainInfoFactory
       );
-    finally
-      FLoadXmlStreamCounter.FinishOperation(VCounterContext);
-    end;
-  end else begin
-    Result := Internal_LoadFromStream_Original(
-      AStream,
-      AIdData,
-      AVectorDataItemMainInfoFactory
-    );
+  finally
+    VStream.Free;
   end;
 end;
 

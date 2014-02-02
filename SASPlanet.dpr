@@ -394,6 +394,7 @@ uses
   u_XmlInfoSimpleParser in 'VectorLoaders\u_XmlInfoSimpleParser.pas',
   u_KmlInfoSimpleParser in 'VectorLoaders\u_KmlInfoSimpleParser.pas',
   u_KmzInfoSimpleParser in 'VectorLoaders\u_KmzInfoSimpleParser.pas',
+  u_VectorDataLoaderWithCounter in 'VectorLoaders\u_VectorDataLoaderWithCounter.pas',
   u_HlgParser in 'VectorLoaders\u_HlgParser.pas',
   u_SlsParser in 'VectorLoaders\u_SlsParser.pas',
   u_MpSimpleParser in 'VectorLoaders\u_MpSimpleParser.pas',

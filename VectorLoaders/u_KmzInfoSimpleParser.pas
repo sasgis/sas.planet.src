@@ -28,7 +28,6 @@ uses
   i_VectorDataFactory,
   i_VectorItemSubset,
   i_ArchiveReadWriteFactory,
-  i_InternalPerformanceCounter,
   i_VectorDataLoader,
   u_BaseInterfacedObject;
 
@@ -36,8 +35,6 @@ type
   TKmzInfoSimpleParser = class(TBaseInterfacedObject, IVectorDataLoader)
   private
     FKmlParser: IVectorDataLoader;
-    FLoadKmzStreamCounter: IInternalPerformanceCounter;
-    FLoadKmzCounter: IInternalPerformanceCounter;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     function LoadFromStreamInternal(
       AStream: TStream;
@@ -53,8 +50,7 @@ type
   public
     constructor Create(
       const AKmlParser: IVectorDataLoader;
-      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory
     );
   end;
 
@@ -69,17 +65,11 @@ uses
 
 constructor TKmzInfoSimpleParser.Create(
   const AKmlParser: IVectorDataLoader;
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
 );
-var
-  VPerfCounterList: IInternalPerformanceCounterList;
 begin
   inherited Create;
   FKmlParser := AKmlParser;
-  VPerfCounterList := APerfCounterList.CreateAndAddNewSubList('KmzLoader');
-  FLoadKmzCounter := VPerfCounterList.CreateAndAddNewCounter('LoadKmz');
-  FLoadKmzStreamCounter := VPerfCounterList.CreateAndAddNewCounter('LoadZip');
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
@@ -89,20 +79,14 @@ function TKmzInfoSimpleParser.Load(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
 var
-  VCounterContext: TInternalPerformanceCounterContext;
   VStream: TStreamReadOnlyByBinaryData;
 begin
   Result := nil;
-  VCounterContext := FLoadKmzStreamCounter.StartOperation;
+  VStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    VStream := TStreamReadOnlyByBinaryData.Create(AData);
-    try
-      Result := LoadFromStreamInternal(VStream, AIdData, AVectorDataItemMainInfoFactory);
-    finally
-      VStream.Free;
-    end;
+    Result := LoadFromStreamInternal(VStream, AIdData, AVectorDataItemMainInfoFactory);
   finally
-    FLoadKmzStreamCounter.FinishOperation(VCounterContext);
+    VStream.Free;
   end;
 end;
 
@@ -118,7 +102,6 @@ var
   VIndex: Integer;
   I: Integer;
   VFileName: string;
-  VCounterContext: TInternalPerformanceCounterContext;
 begin
   VZip := FArchiveReadWriteFactory.CreateZipReaderByStream(AStream);
   VItemsCount := VZip.GetItemsCount;
@@ -135,12 +118,7 @@ begin
       VData := VZip.GetItemByIndex(VIndex, VFileName);
     end;
 
-    VCounterContext := FLoadKmzCounter.StartOperation;
-    try
-      Result := FKmlParser.Load(VData, AIdData, AVectorDataItemMainInfoFactory);
-    finally
-      FLoadKmzCounter.FinishOperation(VCounterContext);
-    end;
+    Result := FKmlParser.Load(VData, AIdData, AVectorDataItemMainInfoFactory);
   end;
 end;
 
