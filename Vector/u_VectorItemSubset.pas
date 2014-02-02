@@ -18,7 +18,7 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_VectorDataItemSubset;
+unit u_VectorItemSubset;
 
 interface
 

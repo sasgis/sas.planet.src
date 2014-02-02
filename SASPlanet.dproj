@@ -1304,17 +1304,7 @@
     <DCCReference Include="u_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
-    <DCCReference Include="u_VectorDataFactoryForMap.pas" />
-    <DCCReference Include="u_VectorDataFactorySimple.pas" />
-    <DCCReference Include="u_VectorDataItemBase.pas" />
-    <DCCReference Include="u_VectorDataItemPoint.pas" />
-    <DCCReference Include="u_VectorDataItemPolygon.pas" />
-    <DCCReference Include="u_VectorDataItemSubset.pas" />
     <DCCReference Include="u_VectorItemDrawConfig.pas" />
-    <DCCReference Include="u_VectorItemSubsetBuilder.pas" />
-    <DCCReference Include="u_VectorItemSubsetChangeableBySearchResult.pas" />
-    <DCCReference Include="u_VectorItemSubsetChangeableForMarksLayer.pas" />
-    <DCCReference Include="u_VectorItemSubsetChangeableForVectorLayers.pas" />
     <DCCReference Include="u_VectorItemTree.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />
     <DCCReference Include="u_XmlLoaderByVSAGPS.pas" />
@@ -1343,6 +1333,16 @@
     <DCCReference Include="Vector\i_VectorItemTreeExporterList.pas" />
     <DCCReference Include="Vector\i_VectorItemTreeImporter.pas" />
     <DCCReference Include="Vector\i_VectorItemTreeImporterList.pas" />
+    <DCCReference Include="Vector\u_VectorDataFactoryForMap.pas" />
+    <DCCReference Include="Vector\u_VectorDataFactorySimple.pas" />
+    <DCCReference Include="Vector\u_VectorDataItemBase.pas" />
+    <DCCReference Include="Vector\u_VectorDataItemPoint.pas" />
+    <DCCReference Include="Vector\u_VectorDataItemPolygon.pas" />
+    <DCCReference Include="Vector\u_VectorItemSubset.pas" />
+    <DCCReference Include="Vector\u_VectorItemSubsetBuilder.pas" />
+    <DCCReference Include="Vector\u_VectorItemSubsetChangeableBySearchResult.pas" />
+    <DCCReference Include="Vector\u_VectorItemSubsetChangeableForMarksLayer.pas" />
+    <DCCReference Include="Vector\u_VectorItemSubsetChangeableForVectorLayers.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeImporterByVectorLoader.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeImporterJpegWithExif.pas" />
   </ItemGroup>

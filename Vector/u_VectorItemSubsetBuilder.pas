@@ -52,7 +52,7 @@ implementation
 uses
   u_InterfaceListSimple,
   u_SortFunc,
-  u_VectorDataItemSubset;
+  u_VectorItemSubset;
 
 { TVectorItemSubsetBuilder }
 
