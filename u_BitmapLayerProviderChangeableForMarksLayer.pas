@@ -6,7 +6,7 @@ uses
   i_MarksDrawConfig,
   i_Bitmap32StaticFactory,
   i_VectorItemSubsetChangeable,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_ListenerNotifierLinksList,
   i_MarkerProviderForVectorItem,
   i_BitmapLayerProvider,

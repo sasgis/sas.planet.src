@@ -51,7 +51,7 @@ uses
   i_InternalBrowserLastContent,
   i_LocalCoordConverterFactorySimpe,
   i_GPSModule,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_MainFormConfig,
   i_DownloadInfoSimple,
   i_ImageResamplerConfig,

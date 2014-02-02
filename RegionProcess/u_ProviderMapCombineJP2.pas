@@ -11,7 +11,7 @@ uses
   i_BitmapLayerProvider,
   i_GeometryProjected,
   i_GeometryLonLat,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_RegionProcessProgressInfo,
   i_MapTypeSet,
   i_UseTilePrevZoomConfig,

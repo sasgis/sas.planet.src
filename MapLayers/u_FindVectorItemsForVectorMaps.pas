@@ -9,7 +9,7 @@ uses
   i_VectorItemSubsetBuilder,
   i_VectorItemSubsetChangeable,
   i_LocalCoordConverter,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_FindVectorItems,
   u_BaseInterfacedObject;
 

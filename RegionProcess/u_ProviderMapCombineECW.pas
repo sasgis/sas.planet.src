@@ -24,7 +24,7 @@ uses
   i_MarkSystem,
   i_MapCalibration,
   i_GeometryProjectedFactory,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,

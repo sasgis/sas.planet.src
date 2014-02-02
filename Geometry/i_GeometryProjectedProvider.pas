@@ -1,4 +1,4 @@
-unit i_ProjectedGeometryProvider;
+unit i_GeometryProjectedProvider;
 
 interface
 
@@ -19,6 +19,7 @@ type
       const ALine: IGeometryLonLatMultiPolygon
     ): IGeometryProjectedMultiPolygon;
   end;
+  
 implementation
 
 end.

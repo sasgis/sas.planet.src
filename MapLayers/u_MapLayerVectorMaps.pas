@@ -15,7 +15,7 @@ uses
   i_ImageResamplerConfig,
   i_MarkerDrawable,
   i_VectorItemSubsetChangeable,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   u_TiledLayerWithThreadBase;
 
 type

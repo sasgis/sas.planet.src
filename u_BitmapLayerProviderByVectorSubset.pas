@@ -13,7 +13,7 @@ uses
   i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_GeometryLonLat,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_MarkerDrawable,

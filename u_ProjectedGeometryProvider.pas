@@ -7,7 +7,7 @@ uses
   i_ProjectionInfo,
   i_GeometryLonLat,
   i_GeometryProjected,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_HashFunction,
   i_GeometryProjectedFactory,
   u_HashCacheWithQueuesAbstract;

@@ -47,7 +47,7 @@ uses
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_GeometryProjectedFactory,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_ImageResamplerConfig,
   i_Bitmap32StaticFactory,
   i_BitmapTileSaveLoadFactory,

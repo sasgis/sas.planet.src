@@ -27,7 +27,7 @@ uses
   WinTypes,
   t_GeoTypes,
   i_MarkerProviderForVectorItem,
-  i_ProjectedGeometryProvider,
+  i_GeometryProjectedProvider,
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_Bitmap32Static,

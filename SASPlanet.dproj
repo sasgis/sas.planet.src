@@ -188,6 +188,7 @@
     <DCCReference Include="Geometry\i_GeometryLonLatFactory.pas" />
     <DCCReference Include="Geometry\i_GeometryProjected.pas" />
     <DCCReference Include="Geometry\i_GeometryProjectedFactory.pas" />
+    <DCCReference Include="Geometry\i_GeometryProjectedProvider.pas" />
     <DCCReference Include="Geometry\u_DoublePointsAggregator.pas" />
     <DCCReference Include="Geometry\u_EnumDoublePointByLineSet.pas" />
     <DCCReference Include="Geometry\u_EnumDoublePointBySingleLine.pas" />
@@ -402,7 +403,6 @@
     <DCCReference Include="i_PredicateByTileRequest.pas" />
     <DCCReference Include="i_ProjConverter.pas" />
     <DCCReference Include="i_ProjectedDrawableElement.pas" />
-    <DCCReference Include="i_ProjectedGeometryProvider.pas" />
     <DCCReference Include="i_ProjectionInfo.pas" />
     <DCCReference Include="i_ProxySettings.pas" />
     <DCCReference Include="i_ReadWriteState.pas" />
