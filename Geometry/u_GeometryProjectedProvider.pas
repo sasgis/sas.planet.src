@@ -1,4 +1,4 @@
-unit u_ProjectedGeometryProvider;
+unit u_GeometryProjectedProvider;
 
 interface
 

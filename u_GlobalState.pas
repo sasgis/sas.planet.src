@@ -365,7 +365,7 @@ uses
   u_InternalDebugConfig,
   u_MarkFactory,
   u_MarkCategoryFactory,
-  u_ProjectedGeometryProvider,
+  u_GeometryProjectedProvider,
   u_SystemTimeProvider,
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,

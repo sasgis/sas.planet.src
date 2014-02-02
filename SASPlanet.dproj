@@ -212,6 +212,7 @@
     <DCCReference Include="Geometry\u_GeometryProjected.pas" />
     <DCCReference Include="Geometry\u_GeometryProjectedFactory.pas" />
     <DCCReference Include="Geometry\u_GeometryProjectedMulti.pas" />
+    <DCCReference Include="Geometry\u_GeometryProjectedProvider.pas" />
     <DCCReference Include="GPS\i_GPS.pas" />
     <DCCReference Include="GPS\i_GPSConfig.pas" />
     <DCCReference Include="GPS\i_GPSModule.pas" />
@@ -1195,7 +1196,6 @@
     <DCCReference Include="u_PredicateByTileInfoBase.pas" />
     <DCCReference Include="u_ProjConverterFactory.pas" />
     <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
-    <DCCReference Include="u_ProjectedGeometryProvider.pas" />
     <DCCReference Include="u_ProjectionInfo.pas" />
     <DCCReference Include="u_ProjectionInfoFactory.pas" />
     <DCCReference Include="u_ProxyConfig.pas" />
