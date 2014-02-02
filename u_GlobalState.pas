@@ -588,7 +588,7 @@ begin
     );
 {$ifend}
   FProjectedGeometryProvider :=
-    TProjectedGeometryProvider.Create(
+    TGeometryProjectedProvider.Create(
       FHashFunction,
       FVectorGeometryProjectedFactory
     );

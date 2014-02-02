@@ -13,7 +13,7 @@ uses
   u_HashCacheWithQueuesAbstract;
 
 type
-  TProjectedGeometryProvider = class(THashCacheWithQueuesAbstract, IGeometryProjectedProvider)
+  TGeometryProjectedProvider = class(THashCacheWithQueuesAbstract, IGeometryProjectedProvider)
   private
     FHashFunction: IHashFunction;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -58,7 +58,7 @@ type
 const
   CMinProjectedSize = 10;
 
-constructor TProjectedGeometryProvider.Create(
+constructor TGeometryProjectedProvider.Create(
   const AHashFunction: IHashFunction;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
 );
@@ -68,7 +68,7 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
 end;
 
-function TProjectedGeometryProvider.CreateByKey(
+function TGeometryProjectedProvider.CreateByKey(
   const AKey: THashValue;
   AData: Pointer
 ): IInterface;
@@ -138,7 +138,7 @@ begin
   end;
 end;
 
-function TProjectedGeometryProvider.GetProjectedPath(
+function TGeometryProjectedProvider.GetProjectedPath(
   const AProjectionInfo: IProjectionInfo;
   const ALine: IGeometryLonLatMultiLine
 ): IGeometryProjectedMultiLine;
@@ -156,7 +156,7 @@ begin
   Result := IGeometryProjectedMultiLine(GetOrCreateItem(VHash, @VData));
 end;
 
-function TProjectedGeometryProvider.GetProjectedPolygon(
+function TGeometryProjectedProvider.GetProjectedPolygon(
   const AProjectionInfo: IProjectionInfo;
   const ALine: IGeometryLonLatMultiPolygon
 ): IGeometryProjectedMultiPolygon;
