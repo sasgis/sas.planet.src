@@ -78,6 +78,8 @@ uses
   i_BitmapLayerProvider,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  i_TileStorage,
+  i_MapVersionInfo,
   u_ThreadExportToRMapsSQLite,
   u_MapType,
   u_ResStrings;
@@ -149,6 +151,8 @@ var
   VMapType: TMapType;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
+  VMapVersion: IMapVersionInfo;
+  VTileStorage: ITileStorage;
 begin
   inherited;
 
@@ -156,6 +160,13 @@ begin
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VBitmapProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
+
+  VTileStorage := nil;
+  VMapVersion := nil;
+  if Assigned(VMapType) then begin
+    VMapVersion := VMapType.VersionConfig.Version;
+    VTileStorage := VMapType.TileStorage;
+  end;
 
   with (ParamsFrame as IRegionProcessParamsFrameRMapsSQLiteExport) do begin
     VForceDropTarget := ForceDropTarget;
@@ -176,7 +187,8 @@ begin
       FLocalConverterFactory,
       APolygon,
       VZoomArr,
-      VMapType,
+      VTileStorage,
+      VMapVersion,
       VBitmapTileSaver,
       VBitmapProvider,
       VForceDropTarget,

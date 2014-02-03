@@ -37,9 +37,9 @@ uses
   i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,
+  i_MapVersionInfo,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
-  u_MapType,
   u_ThreadExportAbstract;
 
 type
@@ -50,7 +50,8 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FExportPath: string;
-    FMapType: TMapType;
+    FTileStorage: ITileStorage;
+    FMapVersion: IMapVersionInfo;
     FBitmapTileSaver: IBitmapTileSaver;
     FBitmapProvider: IBitmapLayerProvider;
     FForceDropTarget: Boolean;
@@ -79,7 +80,8 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const APolygon: IGeometryLonLatMultiPolygon;
       const AZoomArr: TByteDynArray;
-      const AMapType: TMapType;
+      const ATileStorage: ITileStorage;
+      const AMapVersion: IMapVersionInfo;
       const ABitmapTileSaver: IBitmapTileSaver;
       const ABitmapProvider: IBitmapLayerProvider;
       const AForceDropTarget: Boolean;
@@ -96,7 +98,6 @@ uses
   c_CoordConverter,
   i_GeometryProjected,
   i_CoordConverter,
-  i_MapVersionInfo,
   i_TileIterator,
   i_Bitmap32Static,
   u_TileIteratorByPolygon,
@@ -113,7 +114,8 @@ constructor TThreadExportToRMapsSQLite.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const APolygon: IGeometryLonLatMultiPolygon;
   const AZoomArr: TByteDynArray;
-  const AMapType: TMapType;
+  const ATileStorage: ITileStorage;
+  const AMapVersion: IMapVersionInfo;
   const ABitmapTileSaver: IBitmapTileSaver;
   const ABitmapProvider: IBitmapLayerProvider;
   const AForceDropTarget: Boolean;
@@ -132,7 +134,8 @@ begin
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
   FExportPath := AExportPath;
-  FMapType := AMapType;
+  FTileStorage := ATileStorage;
+  FMapVersion := AMapVersion;
   FBitmapTileSaver := ABitmapTileSaver;
   FBitmapProvider := ABitmapProvider;
   FForceDropTarget := AForceDropTarget;
@@ -154,13 +157,12 @@ var
   VTileIterator: ITileIterator;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTileInfo: ITileInfoWithData;
-  VSourceVersion: IMapVersionInfo;
   VBitmapTile: IBitmap32Static;
   VTileData: IBinaryData;
 begin
   inherited;
 
-  VDoDirectCopy := FDirectTilesCopy and Assigned(FMapType) and FMapType.IsBitmapTiles;
+  VDoDirectCopy := FDirectTilesCopy and Assigned(FTileStorage);
 
   if not VDoDirectCopy then begin
     Assert(FBitmapProvider <> nil);
@@ -172,7 +174,7 @@ begin
 
   for I := 0 to Length(FZooms) - 1 do begin
     if VDoDirectCopy then begin
-      VGeoConvert := FMapType.GeoConvert;
+      VGeoConvert := FTileStorage.CoordConverter;
     end else begin
       VGeoConvert := FCoordConverterFactory.GetCoordConverterByCode(
         CGoogleProjectionEPSG,
@@ -196,10 +198,6 @@ begin
     VTilesProcessed := 0;
     ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
 
-    if VDoDirectCopy then begin
-      VSourceVersion := FMapType.VersionConfig.Version;
-    end;
-
     for I := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[I];
       VTileIterator := VTileIterators[I];
@@ -210,7 +208,7 @@ begin
           end;
 
           if VDoDirectCopy then begin
-            if Supports(FMapType.TileStorage.GetTileInfo(VTile, VZoom, VSourceVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+            if Supports(FTileStorage.GetTileInfo(VTile, VZoom, FMapVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
               // save tile as is
               SaveTileToSQLiteStorage(VTile, VZoom, VTileInfo.TileData);
             end;
@@ -221,7 +219,7 @@ begin
                 Self.CancelNotifier,
                 FLocalConverterFactory.CreateForTile(VTile, VZoom, VGeoConvert)
               );
-            if Assigned(VBitmapTile) then begin  
+            if Assigned(VBitmapTile) then begin
               VTileData := FBitmapTileSaver.Save(VBitmapTile);
               // save reprojected tile with overlay
               SaveTileToSQLiteStorage(VTile, VZoom, VTileData);
