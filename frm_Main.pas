@@ -934,6 +934,7 @@ begin
       GState.ContentTypeManager,
       GState.CoordConverterFactory,
       GState.TileNameGenerator,
+      GState.TileNameParser,
       GState.Config.ViewConfig,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       GState.Config.ImageResamplerConfig,

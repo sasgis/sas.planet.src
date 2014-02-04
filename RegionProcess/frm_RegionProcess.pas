@@ -66,6 +66,7 @@ uses
   i_ActiveMapsConfig,
   i_MapCalibration,
   i_TileFileNameGeneratorsList,
+  i_TileFileNameParsersList,
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
@@ -144,6 +145,7 @@ type
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList;
+      const AFileNameParsersList: ITileFileNameParsersList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AImageResamplerConfig: IImageResamplerConfig;
@@ -202,6 +204,7 @@ constructor TfrmRegionProcess.Create(
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList;
+  const AFileNameParsersList: ITileFileNameParsersList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AImageResamplerConfig: IImageResamplerConfig;
@@ -296,6 +299,7 @@ begin
       AContentTypeManager,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
+      AFileNameParsersList,
       ATileNameGenerator
     );
   FProviderTilesDownload :=
