@@ -292,10 +292,19 @@ begin
 end;
 
 function TfrTilesCopy.Validate: Boolean;
+var
+  VMaps: IMapTypeListStatic;
 begin
   Result := FfrZoomsSelect.Validate;
   if not Result then begin
     ShowMessage(_('Please select at least one zoom'));
+    Exit;
+  end;
+  VMaps := GetMapTypeList;
+  Result := Assigned(VMaps) and (VMaps.Count > 0);
+  if not Result then begin
+    ShowMessage(_('Please select at least one map'));
+    Exit;
   end;
 end;
 
