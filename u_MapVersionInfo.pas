@@ -36,8 +36,7 @@ type
     function GetStoreString: string;
     function GetCaption: string;
     function GetShowPrevVersion: Boolean;
-
-    //function IsSame(const AValue: IMapVersionInfo): Boolean;
+    function IsSame(const AValue: IMapVersionInfo): Boolean;
   public
     constructor Create(
       const AVersion: string;
@@ -79,10 +78,8 @@ begin
   Result := FVersion;
 end;
 
-(*
 function TMapVersionInfo.IsSame(const AValue: IMapVersionInfo): Boolean;
 begin
-  // not used!
   if AValue = nil then begin
     Result := False;
   end else begin
@@ -94,6 +91,5 @@ begin
     end;
   end;
 end;
-*)
 
 end.

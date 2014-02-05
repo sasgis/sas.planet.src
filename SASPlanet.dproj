@@ -1296,6 +1296,7 @@
     <DCCReference Include="u_TreeChangeableBase.pas" />
     <DCCReference Include="u_UiTileDownload.pas" />
     <DCCReference Include="u_UITileDownloadList.pas" />
+    <DCCReference Include="u_UiTileRequestManager.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_UserInterfaceItemBase.pas" />

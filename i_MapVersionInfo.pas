@@ -37,7 +37,7 @@ type
     function GetShowPrevVersion: Boolean;
     property ShowPrevVersion: Boolean read GetShowPrevVersion;
 
-    //function IsSame(const AValue: IMapVersionInfo): Boolean;
+    function IsSame(const AValue: IMapVersionInfo): Boolean;
   end;
 
 implementation

@@ -287,6 +287,7 @@ uses
   u_DownloaderHttp in 'u_DownloaderHttp.pas',
   u_UiTileDownload in 'u_UiTileDownload.pas',
   u_UITileDownloadList in 'u_UITileDownloadList.pas',
+  u_UiTileRequestManager in 'u_UiTileRequestManager.pas',
   u_TileDownloaderUIOneTile in 'u_TileDownloaderUIOneTile.pas',
   u_LogForTaskThread in 'u_LogForTaskThread.pas',
   i_InternalPerformanceCounter in 'Performance\i_InternalPerformanceCounter.pas',

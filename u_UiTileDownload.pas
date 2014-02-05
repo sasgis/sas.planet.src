@@ -1,12 +1,30 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.ru                                                           *}
+{* az@sasgis.ru                                                               *}
+{******************************************************************************}
+
 unit u_UiTileDownload;
 
 interface
 
 uses
-  Windows,
   SysUtils,
   i_Notifier,
-  i_Listener,
   t_CommonTypes,
   i_NotifierOperation,
   i_NotifierTime,
@@ -24,6 +42,7 @@ uses
   i_ListenerNotifierLinksList,
   i_ActiveMapsConfig,
   i_LocalCoordConverter,
+  u_UiTileRequestManager,
   u_BaseInterfacedObject;
 
 type
@@ -49,11 +68,9 @@ type
     FUseDownload: TTileSource;
     FTileMaxAgeInInternet: TDateTime;
     FTilesOut: Integer;
-    FRequestCount: Integer;
 
-    FSemaphore: THandle;
-    FCancelEventHandle: THandle;
-    FCancelListener: IListener;
+    FRequestManager: TUiTileRequestManager;
+
     FMapActive: Boolean;
     FVisualCoordConverter: ILocalCoordConverter;
     FVisualCoordConverterCS: IReadWriteSync;
@@ -66,7 +83,6 @@ type
     procedure OnPosChange;
     procedure OnMapTypeActiveChange;
     procedure OnConfigChange;
-    procedure OnCancel;
     procedure DoProcessDownloadRequests(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation
@@ -103,6 +119,8 @@ uses
   i_CoordConverter,
   i_TileInfoBasic,
   i_TileStorage,
+  i_TileRequest,
+  i_MapVersionInfo,
   u_Notifier,
   u_NotifierOperation,
   u_ListenerNotifierLinksList,
@@ -144,11 +162,7 @@ begin
 
   FDownloadState := FMapTypeActive.GetMapType.MapType.TileDownloadSubsystem.State;
 
-  FRequestCount := FConfig.MapUiRequestCount;
-
-  FSemaphore := CreateSemaphore(nil, FRequestCount, FRequestCount, nil);
-  FCancelEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
-  FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancel);
+  FRequestManager := TUiTileRequestManager.Create(FConfig.MapUiRequestCount);
 
   FSoftCancelNotifier := nil;
   FHardCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
@@ -234,9 +248,9 @@ begin
     finally
       FCS.EndWrite;
     end;
-    CloseHandle(FSemaphore);
-    CloseHandle(FCancelEventHandle);
   end;
+
+  FreeAndNil(FRequestManager);
 
   FCS := nil;
   FVisualCoordConverterCS := nil;
@@ -253,11 +267,6 @@ begin
     FTaskFinishNotifier.Enabled := False;
   end;
   OnTTLTrim;
-end;
-
-procedure TUiTileDownload.OnCancel;
-begin
-  SetEvent(FCancelEventHandle);
 end;
 
 procedure TUiTileDownload.OnMemCacheTTLTrim;
@@ -330,7 +339,6 @@ procedure TUiTileDownload.DoProcessDownloadRequests(
   const ACancelNotifier: INotifierOperation
 );
 var
-  VIterator: ITileIterator;
   VTile: TPoint;
   VLocalConverter: ILocalCoordConverter;
   VGeoConverter: ICoordConverter;
@@ -343,8 +351,7 @@ var
   VMapType: TMapType;
   VNeedDownload: Boolean;
   VTask: ITileRequestTask;
-  VHandles: array [0..1] of THandle;
-  VWaitResult: DWORD;
+  VVersion: IMapVersionInfo;
   VTileInfo: ITileInfoBasic;
   VCurrentOperation: Integer;
 begin
@@ -359,13 +366,10 @@ begin
   end;
 
   if VLocalConverter <> nil then begin
-    ResetEvent(FCancelEventHandle);
-    ACancelNotifier.AddListener(FCancelListener);
+    ACancelNotifier.AddListener(FRequestManager.SessionCancelListener);
     FSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(ACancelNotifier, AOperationID);
     VCurrentOperation := FHardCancelNotifierInternal.CurrentOperation;
     try
-      VHandles[0] := FCancelEventHandle;
-      VHandles[1] := FSemaphore;
       VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
       VZoom := VLocalConverter.GetZoom;
       VGeoConverter := VLocalConverter.GetGeoConverter;
@@ -386,11 +390,14 @@ begin
       Inc(VMapTileRect.Right, FTilesOut);
       Inc(VMapTileRect.Bottom, FTilesOut);
       VMapGeoConverter.CheckTileRect(VMapTileRect, VZoom);
-      VIterator := TTileIteratorSpiralByRect.Create(VMapTileRect);
+      VVersion := VMapType.VersionConfig.Version;
 
-      while VIterator.Next(VTile) do begin
+      FRequestManager.InitSession(VZoom, VMapTileRect, VVersion);
+
+      while FRequestManager.Acquire(VTile) do begin
         VNeedDownload := False;
-        VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VZoom, VMapType.VersionConfig.Version, gtimAsIs);
+        VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VZoom, VVersion, gtimWithoutData);
+
         if VTileInfo.IsExists then begin
           if FUseDownload = tsInternet then begin
             if Now - VTileInfo.LoadDate > FTileMaxAgeInInternet then begin
@@ -404,42 +411,36 @@ begin
             end;
           end;
         end;
+
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+          FRequestManager.Release(VTile, VZoom, VVersion, True);
           Break;
         end;
+
+        VTask := nil;
         if VNeedDownload then begin
-          VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
-          case VWaitResult of
-            WAIT_OBJECT_0 + 1: begin
-              if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-                ReleaseSemaphore(FSemaphore, 1, nil);
-                Break;
-              end;
+          VTask :=
+            VMapType.TileDownloadSubsystem.GetRequestTask(
+              FSoftCancelNotifier,
+              FHardCancelNotifierInternal as INotifierOperation,
+              VCurrentOperation,
+              FTaskFinishNotifier,
+              VTile,
+              VZoom,
+              VVersion,
+              False
+            );
+        end;
 
-              VTask :=
-                VMapType.TileDownloadSubsystem.GetRequestTask(
-                  FSoftCancelNotifier,
-                  FHardCancelNotifierInternal as INotifierOperation,
-                  VCurrentOperation,
-                  FTaskFinishNotifier,
-                  VTile,
-                  VZoom,
-                  VMapType.VersionConfig.Version,
-                  False
-                );
-
-              if VTask <> nil then begin
-                FGlobalInternetState.IncQueueCount;
-                VMapType.TileDownloadSubsystem.Download(VTask);
-              end else begin
-                ReleaseSemaphore(FSemaphore, 1, nil);
-              end;
-            end;
-          end;
+        if VTask <> nil then begin
+          FGlobalInternetState.IncQueueCount;
+          VMapType.TileDownloadSubsystem.Download(VTask);
+        end else begin
+          FRequestManager.Release(VTile, VZoom, VVersion, VNeedDownload);
         end;
       end;
     finally
-      ACancelNotifier.RemoveListener(FCancelListener);
+      ACancelNotifier.RemoveListener(FRequestManager.SessionCancelListener);
     end;
   end;
 end;
@@ -456,13 +457,23 @@ var
   VResultDataNotExists: IDownloadResultDataNotExists;
   VRequestError: ITileRequestResultError;
   VError: ITileErrorInfo;
+  VTileRequest: ITileRequest;
 begin
   Assert(ATask <> nil);
 
   FTTLListener.UpdateUseTime;
 
   FGlobalInternetState.DecQueueCount;
-  ReleaseSemaphore(FSemaphore, 1, nil);
+
+  Assert(Assigned(FRequestManager));
+
+  VTileRequest := ATask.TileRequest;
+  FRequestManager.Release(
+    VTileRequest.Tile,
+    VTileRequest.Zoom,
+    VTileRequest.VersionInfo,
+    Supports(AResult, ITileRequestResultCanceled)
+  );
 
   VError := nil;
   if Supports(AResult, ITileRequestResultError, VRequestError) then begin
