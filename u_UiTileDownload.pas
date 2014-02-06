@@ -83,6 +83,7 @@ type
     procedure OnPosChange;
     procedure OnMapTypeActiveChange;
     procedure OnConfigChange;
+    procedure OnVersionConfigChange;
     procedure DoProcessDownloadRequests(
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation
@@ -146,8 +147,11 @@ constructor TUiTileDownload.Create(
   const AGlobalInternetState: IGlobalInternetState;
   const AErrorLogger: ITileErrorLogger
 );
+var
+  VMapType: TMapType;
 begin
   inherited Create;
+
   FConfig := AConfig;
   FGCNotifier := AGCNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
@@ -160,7 +164,9 @@ begin
 
   FVisualCoordConverterCS := MakeSyncRW_Var(Self);
 
-  FDownloadState := FMapTypeActive.GetMapType.MapType.TileDownloadSubsystem.State;
+  VMapType := FMapTypeActive.GetMapType.MapType;
+
+  FDownloadState := VMapType.TileDownloadSubsystem.State;
 
   FRequestManager := TUiTileRequestManager.Create(FConfig.MapUiRequestCount);
 
@@ -192,17 +198,21 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnAppClosing),
     FAppClosingNotifier
   );
+  FLinksList.Add(
+    TNotifyNoMmgEventListener.Create(Self.OnVersionConfigChange),
+    VMapType.VersionConfig.ChangeNotifier
+  );
 
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 300000);
   FGCNotifier.Add(FTTLListener);
 
   if
-    FMapTypeActive.GetMapType.MapType.StorageConfig.UseMemCache and
-    FMapTypeActive.GetMapType.MapType.Zmp.TileDownloaderConfig.RestartDownloadOnMemCacheTTL
+    VMapType.StorageConfig.UseMemCache and
+    VMapType.Zmp.TileDownloaderConfig.RestartDownloadOnMemCacheTTL
   then begin
     FMemCacheTTLListener := TListenerTimeCheck.Create(
       Self.OnMemCacheTTLTrim,
-      FMapTypeActive.GetMapType.MapType.StorageConfig.MemCacheTTL
+      VMapType.StorageConfig.MemCacheTTL
     );
     FGCNotifier.Add(FMemCacheTTLListener);
   end else begin
@@ -271,6 +281,14 @@ end;
 
 procedure TUiTileDownload.OnMemCacheTTLTrim;
 begin
+  RestartDownloadIfNeed;
+end;
+
+procedure TUiTileDownload.OnVersionConfigChange;
+begin
+  if Assigned(FHardCancelNotifierInternal) then begin
+    FHardCancelNotifierInternal.NextOperation;
+  end;
   RestartDownloadIfNeed;
 end;
 
@@ -351,12 +369,16 @@ var
   VMapType: TMapType;
   VNeedDownload: Boolean;
   VTask: ITileRequestTask;
-  VVersion: IMapVersionInfo;
+  VVersionInfo: IMapVersionInfo;
   VTileInfo: ITileInfoBasic;
   VCurrentOperation: Integer;
+  VStorage: ITileStorage;
 begin
   FTTLListener.UpdateUseTime;
+
   VMapType := FMapTypeActive.GetMapType.MapType;
+  VStorage := VMapType.TileStorage;
+  VVersionInfo := VMapType.VersionConfig.Version;
 
   FVisualCoordConverterCS.BeginRead;
   try
@@ -390,13 +412,12 @@ begin
       Inc(VMapTileRect.Right, FTilesOut);
       Inc(VMapTileRect.Bottom, FTilesOut);
       VMapGeoConverter.CheckTileRect(VMapTileRect, VZoom);
-      VVersion := VMapType.VersionConfig.Version;
 
-      FRequestManager.InitSession(VZoom, VMapTileRect, VVersion);
+      FRequestManager.InitSession(VZoom, VMapTileRect, VVersionInfo);
 
       while FRequestManager.Acquire(VTile) do begin
         VNeedDownload := False;
-        VTileInfo := VMapType.TileStorage.GetTileInfo(VTile, VZoom, VVersion, gtimWithoutData);
+        VTileInfo := VStorage.GetTileInfo(VTile, VZoom, VVersionInfo, gtimWithoutData);
 
         if VTileInfo.IsExists then begin
           if FUseDownload = tsInternet then begin
@@ -413,7 +434,7 @@ begin
         end;
 
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          FRequestManager.Release(VTile, VZoom, VVersion, True);
+          FRequestManager.Release(VTile, VZoom, VVersionInfo, True);
           Break;
         end;
 
@@ -427,7 +448,7 @@ begin
               FTaskFinishNotifier,
               VTile,
               VZoom,
-              VVersion,
+              VVersionInfo,
               False
             );
         end;
@@ -436,7 +457,7 @@ begin
           FGlobalInternetState.IncQueueCount;
           VMapType.TileDownloadSubsystem.Download(VTask);
         end else begin
-          FRequestManager.Release(VTile, VZoom, VVersion, VNeedDownload);
+          FRequestManager.Release(VTile, VZoom, VVersionInfo, VNeedDownload);
         end;
       end;
     finally
