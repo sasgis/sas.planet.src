@@ -67,7 +67,6 @@ type
     FMissedTaskEventHandle: THandle;
 
     FActiveWaitingTaskCount: Integer;
-    FNoActiveWaitingTasksEventHandle: THandle;
   private
     procedure OnCancelSession;
 
@@ -148,7 +147,6 @@ begin
   FMissedTaskEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
 
   FActiveWaitingTaskCount := 0;
-  FNoActiveWaitingTasksEventHandle := CreateEvent(nil, TRUE, FALSE, nil);
 
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelSession);
 
@@ -178,8 +176,6 @@ begin
   CloseHandle(FConcurrentCoutLimiter);
   CloseHandle(FCancelEventHandle);
   CloseHandle(FMissedTaskEventHandle);
-
-  CloseHandle(FNoActiveWaitingTasksEventHandle);
 
   FCancelListener := nil;
 
@@ -230,7 +226,7 @@ begin
           tsMissed: begin
             FTaskArray[I].State := tsNone;
             FTaskArray[I].Version := nil;
-            InterlockedDecrement(FMissedTaskCount);
+            Dec(FMissedTaskCount);
           end;
           tsActive: begin
             if (FTaskArray[I].Zoom = FSessionZoom) and
@@ -239,7 +235,7 @@ begin
             begin
               FTaskArray[I].State := tsActiveWaiting;
               FTaskArray[I].SessionID := VSessionID;
-              InterlockedIncrement(FActiveWaitingTaskCount);
+              Inc(FActiveWaitingTaskCount);
             end;
           end;
           tsActiveWaiting: begin
@@ -250,15 +246,19 @@ begin
               FTaskArray[I].SessionID := VSessionID;
             end else begin
               FTaskArray[I].State := tsActive;
-              InterlockedDecrement(FActiveWaitingTaskCount);
+              Dec(FActiveWaitingTaskCount);
             end;
           end;
         end;
       end;
 
-      ResetEvent(FMissedTaskEventHandle);
-      ResetEvent(FNoActiveWaitingTasksEventHandle);
+      Assert(FMissedTaskCount = 0);
 
+      if FActiveWaitingTaskCount > 0 then begin
+        ResetEvent(FMissedTaskEventHandle);
+      end else begin
+        SetEvent(FMissedTaskEventHandle);
+      end;
     finally
       FTaskArrayLock.Release;
     end;
@@ -318,6 +318,8 @@ begin
             end;
             tsMissed: begin
               Assert(FTaskArray[I].SessionID = ASessionID);
+              FTaskArray[I].State := tsActive;
+              Dec(FMissedTaskCount);
             end;
           end;
           VState := FTaskArray[I].State;
@@ -358,7 +360,7 @@ function TUiTileRequestManager.AcquireByMissedTasks(
 var
   I: Integer;
   VWaitResult: DWORD;
-  VHandles: array [0..2] of THandle;
+  VHandles: array [0..1] of THandle;
 begin
   Result := False;
 
@@ -367,8 +369,7 @@ begin
   end;
 
   VHandles[0] := FMissedTaskEventHandle;
-  VHandles[1] := FNoActiveWaitingTasksEventHandle;
-  VHandles[2] := FCancelEventHandle;
+  VHandles[1] := FCancelEventHandle;
 
   VWaitResult := WaitForMultipleObjects(Length(VHandles), @VHandles[0], False, INFINITE);
 
@@ -376,6 +377,10 @@ begin
     WAIT_OBJECT_0: begin
       FTaskArrayLock.Acquire;
       try
+        if FMissedTaskCount = 0 then begin
+          Exit;
+        end;
+
         for I := 0 to Length(FTaskArray) - 1 do begin
           if not IsValidSession(ASessionID) then begin
             Exit;
@@ -388,39 +393,23 @@ begin
             ATile := FTaskArray[I].Tile;
             FTaskArray[I].State := tsActive;
 
-            InterlockedDecrement(FMissedTaskCount);
+            Dec(FMissedTaskCount);
 
             Result := True;
             Break;
           end;
         end;
 
-        if Result and (InterlockedCompareExchange(FMissedTaskCount, 0, 0) > 0) then begin
-          SetEvent(FMissedTaskEventHandle);
-        end;
+        SetEvent(FMissedTaskEventHandle);
 
-        if not Result then begin // for debug only
+        {$IFDEF DEBUG}
+        if not Result then begin
           for I := 0 to Length(FTaskArray) - 1 do begin
-            if not IsValidSession(ASessionID) then begin
-              Exit;
-            end;
             Assert(FTaskArray[I].State in [tsNone, tsActive]);
           end;
-        end; 
-      finally
-        FTaskArrayLock.Release;
-      end;
-    end;
-
-    WAIT_OBJECT_0 + 1: begin // for debug only
-      FTaskArrayLock.Acquire;
-      try
-        for I := 0 to Length(FTaskArray) - 1 do begin
-          if not IsValidSession(ASessionID) then begin
-            Exit;
-          end;
-          Assert(FTaskArray[I].State in [tsNone, tsActive]);
         end;
+        {$ENDIF}
+
       finally
         FTaskArrayLock.Release;
       end;
@@ -481,7 +470,6 @@ procedure TUiTileRequestManager.Release(
 );
 var
   I: Integer;
-  VCount: Integer;
   VResult: Boolean;
 begin
   try
@@ -497,31 +485,21 @@ begin
           (FTaskArray[I].Tile.Y = ATile.Y) and
           IsEqualVersionInfo(FTaskArray[I].Version, AVersionInfo) then
         begin
-          VCount := -1;
-
           if FTaskArray[I].State = tsActiveWaiting then begin
-
-            VCount := InterlockedDecrement(FActiveWaitingTaskCount);
-
             if ACanceled then begin
               FTaskArray[I].State := tsMissed;
-              InterlockedIncrement(FMissedTaskCount);
+              Inc(FMissedTaskCount);
             end;
+            Dec(FActiveWaitingTaskCount);
           end;
-
-          if (VCount = 0) and (InterlockedCompareExchange(FMissedTaskCount, 0, 0) > 0) then begin
-            SetEvent(FMissedTaskEventHandle);
-          end;
-
 
           if FTaskArray[I].State <> tsMissed then begin
-
             FTaskArray[I].State := tsNone;
             FTaskArray[I].Version := nil;
+          end;
 
-            if VCount = 0 then begin // for debug only
-              SetEvent(FNoActiveWaitingTasksEventHandle);
-            end;
+          if FActiveWaitingTaskCount = 0 then begin
+            SetEvent(FMissedTaskEventHandle);
           end;
 
           VResult := True;
