@@ -28,6 +28,7 @@ uses
   i_BinaryData,
   i_MapVersionInfo,
   i_MapVersionFactory,
+  i_MapVersionRequest,
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_BasicMemCache,
@@ -61,10 +62,17 @@ type
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
 
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AVersionInfo: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic; override;
+
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo; override;
 
     function DeleteTile(
@@ -179,10 +187,27 @@ begin
   end;
 end;
 
+function TTileStorageInRAM.GetTileInfoEx(const AXY: TPoint; const AZoom: Byte;
+  const AVersionInfo: IMapVersionRequest;
+  const AMode: TGetTileInfoMode): ITileInfoBasic;
+var
+  VVersionInfo: IMapVersionInfo;
+begin
+  VVersionInfo := nil;
+  if Assigned(AVersionInfo) then begin
+    VVersionInfo := AVersionInfo.BaseVersion;
+  end;
+  Result := FTileInfoMemCache.Get(AXY, AZoom, VVersionInfo, AMode, False);
+  if Result = nil then begin
+    Result := FTileNotExistsTileInfo;
+    FTileInfoMemCache.Add(AXY, AZoom, VVersionInfo, FTileNotExistsTileInfo);
+  end;
+end;
+
 function TTileStorageInRAM.GetTileRectInfo(
   const ARect: TRect;
   const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): ITileRectInfo;
 var
   VRect: TRect;
@@ -208,7 +233,7 @@ begin
         VIndex := TTileRectInfoShort.TileInRectToIndex(VTile, VRect);
         Assert(VIndex >=0);
         if VIndex >= 0 then begin
-          VTileInfo := GetTileInfo(VTile, VZoom, AVersionInfo, gtimWithoutData);
+          VTileInfo := GetTileInfoEx(VTile, VZoom, AVersionInfo, gtimWithoutData);
           if VTileInfo.IsExists then begin
             // tile exists
             VItems[VIndex].FLoadDate := VTileInfo.LoadDate;

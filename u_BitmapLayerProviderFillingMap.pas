@@ -8,7 +8,7 @@ uses
   i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_TileStorage,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_BitmapLayerProvider,
   i_FillingMapColorer,
   u_BaseInterfacedObject;
@@ -18,7 +18,7 @@ type
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FStorage: ITileStorage;
-    FVersion: IMapVersionInfo;
+    FVersion: IMapVersionRequest;
     FUseRelativeZoom: Boolean;
     FZoom: Integer;
     FColorer: IFillingMapColorer;
@@ -31,7 +31,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const ALocalConverter: ILocalCoordConverter;
       ASourceZoom: byte;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       const AColorer: IFillingMapColorer
     ): IBitmap32Static;
   private
@@ -44,7 +44,7 @@ type
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
       const AStorage: ITileStorage;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       AUseRelativeZoom: Boolean;
       AZoom: Integer;
       const AColorer: IFillingMapColorer
@@ -68,7 +68,7 @@ uses
 constructor TBitmapLayerProviderFillingMap.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   const AStorage: ITileStorage;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   AUseRelativeZoom: Boolean;
   AZoom: Integer;
   const AColorer: IFillingMapColorer
@@ -132,8 +132,9 @@ end;
 function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
   AOperationID: Integer; const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter; ASourceZoom: byte;
-  const AVersion: IMapVersionInfo;
-  const AColorer: IFillingMapColorer): IBitmap32Static;
+  const AVersion: IMapVersionRequest;
+  const AColorer: IFillingMapColorer
+): IBitmap32Static;
 var
   VBitmap: TBitmap32ByStaticBitmap;
   VSize: TPoint;

@@ -29,6 +29,7 @@ uses
   i_MapVersionInfo,
   i_MapVersionFactory,
   i_MapVersionListStatic,
+  i_MapVersionRequest,
   i_MapVersionConfig,
   i_BasicMemCache,
   i_ContentTypeInfo,
@@ -47,7 +48,6 @@ uses
 type
   TTileStorageETS = class(TTileStorageAbstract
                         , IInternalDomainOptions
-                        , IMapVersionChanger
                         , IBasicMemCache)
   // base interface
   private
@@ -165,9 +165,6 @@ type
     ): Byte;
 
   private
-    { IMapVersionChanger }
-    procedure SetMapVersionConfig(const AMapVersionConfig: IMapVersionConfig);
-  private
     { IInternalDomainOptions }
     function DomainHtmlOptions(
       const AFullPrefix, ARequest: String;
@@ -198,10 +195,17 @@ type
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
 
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic; override;
+
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo; override;
 
     function DeleteTile(
@@ -223,7 +227,7 @@ type
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): IMapVersionListStatic; override;
 
     function ScanTiles(
@@ -951,7 +955,7 @@ end;
 function TTileStorageETS.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): IMapVersionListStatic;
 var
   VLockedExclusively: Boolean;
@@ -982,7 +986,10 @@ begin
           // make flags
           VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
           // make version
-          VVersionString := AVersionInfo.StoreString;
+          VVersionString := '';
+          if Assigned(AVersionInfo) then begin
+            VVersionString := AVersionInfo.BaseVersion.StoreString;
+          end;
           VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
           if SizeOf(Char)=SizeOf(AnsiChar) then begin
             // AnsiString
@@ -1025,7 +1032,7 @@ begin
       end;
     end;
   until FALSE;
-  
+
   // make result
   Result := TMapVersionListStatic.Create(VObj.TileVersionsList.MakeStaticAndClear);
 end;
@@ -1095,10 +1102,6 @@ begin
           if (AVersionInfo<>nil) then begin
             VVersionString := AVersionInfo.StoreString;
             VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
-            // ShowPrevVersion mode
-            if AVersionInfo.ShowPrevVersion then begin
-              VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SHOW_PREV_VERSION);
-            end;
           end else begin
             VBufferIn.szVersionIn := nil;
           end;
@@ -1161,10 +1164,143 @@ begin
   end;
 end;
 
+function TTileStorageETS.GetTileInfoEx(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionRequest;
+  const AMode: TGetTileInfoMode
+): ITileInfoBasic;
+var
+  VLockedExclusively: Boolean;
+  VResult: Byte;
+  VVersionString: String;
+  VObj: TSelectTileCallbackInfo;
+  VTileID: TTILE_ID_XYZ;
+  VBufferIn: TETS_SELECT_TILE_IN;
+  VVersion: IMapVersionInfo;
+  VShowPrev: Boolean;
+begin
+  VVersion := nil;
+  VShowPrev := True;
+  if Assigned(AVersionInfo) then begin
+    VShowPrev := AVersionInfo.ShowPrevVersion;
+    VVersion := AVersionInfo.BaseVersion;
+  end;
+  // try to read from cache
+  if Assigned(FTileInfoMemCache) then begin
+    Result := FTileInfoMemCache.Get(AXY, AZoom, VVersion, AMode, True);
+    if Result <> nil then begin
+      Exit;
+    end;
+  end;
+
+  Result := FTileNotExistsTileInfo;
+
+  if MalfunctionDetected then
+    Exit;
+
+  VResult := ETS_RESULT_OK;
+
+  FillChar(VObj, SizeOf(VObj), 0);
+  VObj.AllowSaveToMemCache := Assigned(FTileInfoMemCache);
+  //VObj.UseGetTileInfoMode := AMode;
+
+  VTileID.z := 0;
+  VBufferIn.dwOptionsIn := GetInitialExclusiveFlag(TRUE);
+  repeat
+    // let us go
+    DoBeginWork(VBufferIn.dwOptionsIn, VLockedExclusively);
+    try
+      if StorageStateInternal.ReadAccess <> asDisabled then begin
+        // has access
+
+        // initialize buffers
+        if (0=VTileID.z) then begin
+          VTileID.xy := AXY;
+          VTileID.z := AZoom+1; // zoom from 1
+          VBufferIn.XYZ := @VTileID;
+          // make flags (all except ETS_STI_CHECK_EXISTS, ContentType is AnsiString)
+          VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
+          if (AMode=gtimWithData) then begin
+            VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SELECT_TILE_BODY);
+          end;
+          // make version
+          if (AVersionInfo<>nil) then begin
+            VVersionString := '';
+            if Assigned(VVersion) then begin
+              VVersionString := VVersion.StoreString;
+            end;
+            VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
+            // ShowPrevVersion mode
+            if VShowPrev then begin
+              VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_SHOW_PREV_VERSION);
+            end;
+          end else begin
+            VBufferIn.szVersionIn := nil;
+          end;
+          if SizeOf(Char)=SizeOf(AnsiChar) then begin
+            // AnsiString
+            VBufferIn.dwOptionsIn := (VBufferIn.dwOptionsIn or ETS_ROI_ANSI_VERSION_IN or ETS_ROI_ANSI_VERSION_OUT);
+          end;
+        end;
+
+        // request to storage
+        VResult := TETS_SelectTile(FETS_SelectTile)(
+          @FDLLProvHandle,
+          @VObj,
+          @VBufferIn);
+      end else begin
+        // no access
+        Exit;
+      end;
+    finally
+      DoEndWork(VLockedExclusively);
+    end;
+
+    // check response
+    case VResult of
+      ETS_RESULT_DISCONNECTED: begin
+        // repeat exclusively
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
+      end;
+      ETS_RESULT_NEED_EXCLUSIVE: begin
+        // repeat exclusively
+        if ExclusiveFlagWasSetUp(VBufferIn.dwOptionsIn) then begin
+          raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
+          //Exit;
+        end;
+        SetUpExclusiveFlag(VBufferIn.dwOptionsIn);
+      end;
+      ETS_RESULT_OK: begin
+        // success - output result object
+        if (VObj.TileResult<>nil) then begin
+          Result := VObj.TileResult;
+        end;
+        // break to exit loop and write to cache
+        break;
+      end;
+      ETS_RESULT_UNKNOWN_VERSION: begin
+        // version not found - i.e. no tile
+        break;
+      end
+      else begin
+        // failed
+        raise EETSCriticalError.Create(SAS_ERR_ETS_CriticalError);
+        Exit;
+      end;
+    end;
+  until FALSE;
+
+  // write to cache
+  if VObj.AllowSaveToMemCache and Assigned(FTileInfoMemCache) then begin
+    FTileInfoMemCache.Add(AXY, AZoom, VVersion, Result);
+  end;
+end;
+
 function TTileStorageETS.GetTileRectInfo(
   const ARect: TRect;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): ITileRectInfo;
 var
   VLockedExclusively: Boolean;
@@ -1172,7 +1308,12 @@ var
   VVersionString: String;
   VObj: TGetTileRectCallbackInfo;
   VBufferIn: TETS_GET_TILE_RECT_IN;
+  VVersion: IMapVersionInfo;
 begin
+  VVersion := nil;
+  if Assigned(AVersionInfo) then begin
+    VVersion := AVersionInfo.BaseVersion;
+  end;
   VResult := ETS_RESULT_OK;
   FillChar(VObj, SizeOf(VObj), 0);
   VBufferIn.btTileZoom := 0;
@@ -1204,7 +1345,7 @@ begin
           VBufferIn.dwOptionsIn := VBufferIn.dwOptionsIn or (ETS_ROI_ANSI_CONTENTTYPE_IN or ETS_ROI_ANSI_CONTENTTYPE_OUT);
           // make version
           if (AVersionInfo<>nil) then begin
-            VVersionString := AVersionInfo.StoreString;
+            VVersionString := AVersionInfo.BaseVersion.StoreString;
             VBufferIn.szVersionIn := PChar(VVersionString); // Pointer to VersionString with the same type of char
             // ShowPrevVersion mode
             if AVersionInfo.ShowPrevVersion then begin
@@ -1259,7 +1400,7 @@ begin
   Result := TTileRectInfoShort.CreateWithOwn(
     ARect,
     AZoom,
-    AVersionInfo,
+    VVersion,
     FMainContentType,
     VObj.InfoArray
   );
@@ -1776,11 +1917,6 @@ begin
     // not available
     Result := nil;
   end;
-end;
-
-procedure TTileStorageETS.SetMapVersionConfig(const AMapVersionConfig: IMapVersionConfig);
-begin
-  FMapVersionConfig := AMapVersionConfig;
 end;
 
 { TTileStorageDBMS }

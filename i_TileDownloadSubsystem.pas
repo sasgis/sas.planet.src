@@ -19,14 +19,14 @@ type
       const AFinishNotifier: ITileRequestTaskFinishNotifier;
       const AXY: TPoint;
       const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo;
+      const AVersion: IMapVersionInfo;
       const ACheckTileSize: Boolean
     ): ITileRequestTask;
 
     function GetLink(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     ): string;
 
     procedure Download(

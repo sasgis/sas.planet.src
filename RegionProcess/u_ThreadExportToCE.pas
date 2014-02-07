@@ -11,7 +11,7 @@ uses
   i_GeometryLonLat,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_TileStorage,
   u_ThreadExportAbstract;
 
@@ -19,7 +19,7 @@ type
   TThreadExportToCE = class(TThreadExportAbstract)
   private
     FTileStorage: ITileStorage;
-    FVersion: IMapVersionInfo;
+    FVersion: IMapVersionRequest;
     FTargetFile: string;
     FCoordConverterFactory: ICoordConverterFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -39,7 +39,7 @@ type
       const APolygon: IGeometryLonLatMultiPolygon;
       const Azoomarr: TByteDynArray;
       const ATileStorage: ITileStorage;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       AMaxSize: Integer;
       const AComment: string;
       ARecoverInfo: Boolean
@@ -69,7 +69,7 @@ constructor TThreadExportToCE.Create(
   const APolygon: IGeometryLonLatMultiPolygon;
   const Azoomarr: TByteDynArray;
   const ATileStorage: ITileStorage;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   AMaxSize: Integer;
   const AComment: string;
   ARecoverInfo: Boolean
@@ -145,7 +145,7 @@ begin
           if CancelNotifier.IsOperationCanceled(OperationID) then begin
             exit;
           end;
-          if Supports(FTileStorage.GetTileInfo(VTile, VZoom, FVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+          if Supports(FTileStorage.GetTileInfoEx(VTile, VZoom, FVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
             VExt := VTileInfo.ContentType.GetDefaultExt;
             VSAS4WinCE.Add(
               VZoom + 1,

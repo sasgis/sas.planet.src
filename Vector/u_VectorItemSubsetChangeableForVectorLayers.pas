@@ -14,7 +14,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_ThreadConfig,
   i_BackgroundTask,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_MapTypes,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
@@ -85,7 +85,7 @@ type
       const ACancelNotifier: INotifierOperation;
       const AElments: IVectorItemSubsetBuilder;
       Alayer: TMapType;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       const ALocalConverter: ILocalCoordConverter
     );
 
@@ -292,7 +292,7 @@ begin
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
       VMap := ALayerSet.GetMapTypeByGUID(VGUID);
       if VMap <> nil then begin
-        VMap.MapType.VersionConfig.ChangeNotifier.Add(FVersionListener);
+        VMap.MapType.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
       end;
     end;
   end;
@@ -403,7 +403,7 @@ begin
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
       VMap := ALayerSet.GetMapTypeByGUID(VGUID);
       if VMap <> nil then begin
-        VMap.MapType.VersionConfig.ChangeNotifier.Remove(FVersionListener);
+        VMap.MapType.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
       end;
     end;
   end;
@@ -483,7 +483,7 @@ procedure TVectorItemSubsetChangeableForVectorLayers.AddElementsFromMap(
   const ACancelNotifier: INotifierOperation;
   const AElments: IVectorItemSubsetBuilder;
   Alayer: TMapType;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   const ALocalConverter: ILocalCoordConverter
 );
 var
@@ -604,7 +604,7 @@ begin
           ACancelNotifier,
           VElements,
           VMapType,
-          VMapType.VersionConfig.Version,
+          VMapType.VersionRequestConfig.GetStatic,
           ALocalConverter
         );
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin

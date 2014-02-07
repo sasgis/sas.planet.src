@@ -89,6 +89,8 @@ uses
   i_LogSimple,
   i_LogSimpleProvider,
   i_MapVersionInfo,
+  i_MapVersionRequest,
+  u_MapVersionRequest,
   u_ConfigDataProviderByIniFile,
   u_LogForTaskThread,
   u_ThreadDownloadTiles,
@@ -184,7 +186,7 @@ var
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VVersionForDownload: IMapVersionInfo;
-  VVersionForCheck: IMapVersionInfo;
+  VVersionForCheck: IMapVersionRequest;
   VVersionString: string;
   VVersionCheckShowPrev: Boolean;
 begin
@@ -229,18 +231,18 @@ begin
   VVersionString := VSessionSection.ReadString('VersionDownload', '');
   if VVersionString <> '' then begin
     VVersionForDownload :=
-      VMapType.VersionConfig.VersionFactory.CreateByStoreString(
+      VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(
         VVersionString
       );
   end else begin
-    VVersionForDownload := VMapType.VersionConfig.Version;
+    VVersionForDownload := VMapType.VersionRequestConfig.GetStatic.BaseVersion;
   end;
   VVersionString := VSessionSection.ReadString('VersionCheck', '');
   if VVersionString <> '' then begin
     VVersionCheckShowPrev := VSessionSection.ReadBool('VersionCheckPrev', False);
     VVersionForCheck :=
-      VMapType.VersionConfig.VersionFactory.CreateByStoreString(
-        VVersionString,
+      TMapVersionRequest.Create(
+        VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(VVersionString),
         VVersionCheckShowPrev
       );
   end else begin
@@ -369,8 +371,8 @@ begin
       VLogSimple,
       VLogProvider,
       VMapType.Zmp.GUID,
-      VMapType.VersionConfig.Version,
-      VMapType.VersionConfig.Version,
+      VMapType.VersionRequestConfig.GetStatic,
+      VMapType.VersionRequestConfig.GetStatic.BaseVersion,
       VZoom,
       APolygon,
       (ParamsFrame as IRegionProcessParamsFrameTilesDownload).IsIgnoreTne,
@@ -401,8 +403,8 @@ begin
         VProgressInfo,
         FAppClosingNotifier,
         VMapType,
-        VMapType.VersionConfig.Version,
-        VMapType.VersionConfig.Version,
+        VMapType.VersionRequestConfig.GetStatic,
+        VMapType.VersionRequestConfig.GetStatic.BaseVersion,
         VZoom,
         VProjectedPolygon,
         FDownloadConfig,

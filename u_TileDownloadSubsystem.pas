@@ -71,13 +71,13 @@ type
       const AFinishNotifier: ITileRequestTaskFinishNotifier;
       const AXY: TPoint;
       const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo;
+      const AVersion: IMapVersionInfo;
       const ACheckTileSize: Boolean
     ): ITileRequestTask;
     function GetLink(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersion: IMapVersionInfo
     ): string;
     procedure Download(
       const ATileRequestTask: ITileRequestTask
@@ -314,7 +314,7 @@ end;
 function TTileDownloadSubsystem.GetLink(
   const AXY: TPoint;
   const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersion: IMapVersionInfo
 ): string;
 var
   VRequest: ITileRequest;
@@ -327,7 +327,7 @@ begin
         TTileRequest.Create(
           AXY,
           AZoom,
-          AVersionInfo
+          AVersion
         );
       VDownloadRequest := nil;
       if VRequest <> nil then begin
@@ -347,7 +347,7 @@ function TTileDownloadSubsystem.GetRequestTask(
   const AFinishNotifier: ITileRequestTaskFinishNotifier;
   const AXY: TPoint;
   const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo;
+  const AVersion: IMapVersionInfo;
   const ACheckTileSize: Boolean
 ): ITileRequestTask;
 var
@@ -366,14 +366,14 @@ begin
             TTileRequestWithSizeCheck.Create(
               VTile,
               VZoom,
-              AVersionInfo
+              AVersion
             );
         end else begin
           VRequest :=
             TTileRequest.Create(
               VTile,
               VZoom,
-              AVersionInfo
+              AVersion
             );
         end;
         Result :=

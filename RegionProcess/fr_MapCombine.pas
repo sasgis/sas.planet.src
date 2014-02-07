@@ -180,10 +180,9 @@ implementation
 
 uses
   gnugettext,
-  t_Hash,
   t_GeoTypes,
   i_MapTypes,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_InterfaceListSimple,
   i_GeometryProjected,
   i_CoordConverter,
@@ -415,19 +414,19 @@ end;
 function TfrMapCombine.GetProvider: IBitmapLayerProvider;
 var
   VMap: TMapType;
-  VMapVersion: IMapVersionInfo;
+  VMapVersion: IMapVersionRequest;
   VLayer: TMapType;
-  VLayerVersion: IMapVersionInfo;
+  VLayerVersion: IMapVersionRequest;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
   if Assigned(VMap) then begin
-    VMapVersion := VMap.VersionConfig.Version;
+    VMapVersion := VMap.VersionRequestConfig.GetStatic;
   end else begin
     VMapVersion := nil;
   end;
   VLayer := FfrLayerSelect.GetSelectedMapType;
   if Assigned(VLayer) then begin
-    VLayerVersion := VLayer.VersionConfig.Version;
+    VLayerVersion := VLayer.VersionRequestConfig.GetStatic;
   end else begin
     VLayerVersion := nil;
   end;
@@ -512,13 +511,13 @@ procedure TfrMapCombine.UpdateProjectionsList(Sender: TObject);
   var
     I: Integer;
     VProj: string;
-    VHash: THashValue;
+    VConverter: ICoordConverter;
   begin
     VProj := ACaption;
     if Assigned(AMapType) then begin
-      VHash := AMapType.MapType.GeoConvert.Hash;
+      VConverter := AMapType.MapType.GeoConvert;
       for I := 0 to FCoordConverterList.Count - 1 do begin
-        if FCoordConverterList.Items[I].Hash = VHash then begin
+        if FCoordConverterList.Items[I].IsSameConverter(VConverter) then begin
           VProj := VProj + ' - ' + FCoordConverterList.Captions[I];
           Break;
         end;

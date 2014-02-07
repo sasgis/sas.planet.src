@@ -69,6 +69,7 @@ uses
   Types,
   SysUtils,
   i_BinaryData,
+  u_MapVersionRequest,
   u_GlobalBerkeleyDBHelper;
 
 { TEnumTileInfoByBerkeleyDB }
@@ -90,7 +91,7 @@ begin
   FIgnoreMultiVersionTiles := AIgnoreMultiVersionTiles;
   FFilesIterator := AFilesIterator;
   FTileFileNameParser := ATileFileNameParser;
-  FEmptyVersionInfo := AMapVersionFactory.CreateByStoreString('', True);
+  FEmptyVersionInfo := AMapVersionFactory.CreateByStoreString('');
   FStorage := AStorage;
   FHelper := AHelper;
   FCurFileIndex := 0;
@@ -124,7 +125,7 @@ begin
           if Assigned(FCurMapVersionList) and (FCurMapVersionIndex < FCurMapVersionList.Count) then begin
             // process tile with version
             VVersionInfo := FCurMapVersionList.Item[FCurMapVersionIndex];
-            VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, VVersionInfo, gtimWithData);
+            VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile,  FCurFileZoom, VVersionInfo, gtimWithData);
             // prepare process for next version of same tile
             Inc(FCurMapVersionIndex);
           end else begin

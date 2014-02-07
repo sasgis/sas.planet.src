@@ -109,11 +109,11 @@ begin
   VMainMap := FMainMap.GetStatic;
   if FMainMapLast <> VMainMap then begin
     if Assigned(FMainMapLast) then begin
-      FMainMapLast.MapType.VersionConfig.ChangeNotifier.Remove(FVersionListener);
+      FMainMapLast.MapType.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
     end;
     FMainMapLast := VMainMap;
     if Assigned(FMainMapLast) then begin
-      FMainMapLast.MapType.VersionConfig.ChangeNotifier.Add(FVersionListener);
+      FMainMapLast.MapType.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
     end;
   end;
   VLayersList := FLayesList.List;
@@ -123,14 +123,14 @@ begin
     if Assigned(FLayesListLast) then begin
       for i := 0 to FLayesListLast.Count - 1 do begin
         VMap := FLayesListLast.Items[i];
-        VMap.MapType.VersionConfig.ChangeNotifier.Remove(FVersionListener);
+        VMap.MapType.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
       end;
     end;
     FLayesListLast := VLayersList;
     if Assigned(FLayesListLast) then begin
       for i := 0 to FLayesListLast.Count - 1 do begin
         VMap := FLayesListLast.Items[i];
-        VMap.MapType.VersionConfig.ChangeNotifier.Add(FVersionListener);
+        VMap.MapType.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
       end;
     end;
   end;
@@ -157,13 +157,13 @@ var
   VMap: IMapType;
 begin
   if Assigned(FMainMapLast) and Assigned(FVersionListener) then begin
-    FMainMapLast.MapType.VersionConfig.ChangeNotifier.Remove(FVersionListener);
+    FMainMapLast.MapType.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
     FMainMapLast := nil;
   end;
   if Assigned(FLayesListLast) and Assigned(FVersionListener) then begin
     for i := 0 to FLayesListLast.Count - 1 do begin
       VMap := FLayesListLast.Items[i];
-      VMap.MapType.VersionConfig.ChangeNotifier.Remove(FVersionListener);
+      VMap.MapType.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
     end;
     FLayesListLast := nil;
   end;

@@ -25,6 +25,7 @@ interface
 uses
   Types,
   i_MapVersionInfo,
+  i_MapVersionRequest,
   i_CoordConverterFactory,
   i_TileStorage,
   i_GeometryLonLat,
@@ -35,7 +36,7 @@ uses
 type
   TCopyTask = record
     FSource: ITileStorage;
-    FSourceVersion: IMapVersionInfo;
+    FSourceVersion: IMapVersionRequest;
     FTarget: ITileStorage;
     FTargetVersionForce: IMapVersionInfo;
   end;
@@ -188,7 +189,7 @@ var
 begin
   if Assigned(ATask.FSourceVersion) then begin
     // will copy only one (current) version from source and save it with a ATargetVersionInfo
-    VSrcTileInfo := ATask.FSource.GetTileInfo(AXY, AZoom, ATask.FSourceVersion, gtimWithData);
+    VSrcTileInfo := ATask.FSource.GetTileInfoEx(AXY, AZoom, ATask.FSourceVersion, gtimWithData);
     if Assigned(VSrcTileInfo) then begin
       if VSrcTileInfo.IsExists then begin
         if Supports(VSrcTileInfo, ITileInfoWithData, VTileInfoWithData) then begin

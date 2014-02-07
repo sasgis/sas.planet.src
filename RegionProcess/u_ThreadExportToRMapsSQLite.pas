@@ -37,7 +37,7 @@ uses
   i_GeometryLonLat,
   i_TileInfoBasic,
   i_TileStorage,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   u_ThreadExportAbstract;
@@ -51,7 +51,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FExportPath: string;
     FTileStorage: ITileStorage;
-    FMapVersion: IMapVersionInfo;
+    FMapVersion: IMapVersionRequest;
     FBitmapTileSaver: IBitmapTileSaver;
     FBitmapProvider: IBitmapLayerProvider;
     FForceDropTarget: Boolean;
@@ -81,7 +81,7 @@ type
       const APolygon: IGeometryLonLatMultiPolygon;
       const AZoomArr: TByteDynArray;
       const ATileStorage: ITileStorage;
-      const AMapVersion: IMapVersionInfo;
+      const AMapVersion: IMapVersionRequest;
       const ABitmapTileSaver: IBitmapTileSaver;
       const ABitmapProvider: IBitmapLayerProvider;
       const AForceDropTarget: Boolean;
@@ -115,7 +115,7 @@ constructor TThreadExportToRMapsSQLite.Create(
   const APolygon: IGeometryLonLatMultiPolygon;
   const AZoomArr: TByteDynArray;
   const ATileStorage: ITileStorage;
-  const AMapVersion: IMapVersionInfo;
+  const AMapVersion: IMapVersionRequest;
   const ABitmapTileSaver: IBitmapTileSaver;
   const ABitmapProvider: IBitmapLayerProvider;
   const AForceDropTarget: Boolean;
@@ -208,7 +208,7 @@ begin
           end;
 
           if VDoDirectCopy then begin
-            if Supports(FTileStorage.GetTileInfo(VTile, VZoom, FMapVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+            if Supports(FTileStorage.GetTileInfoEx(VTile, VZoom, FMapVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
               // save tile as is
               SaveTileToSQLiteStorage(VTile, VZoom, VTileInfo.TileData);
             end;

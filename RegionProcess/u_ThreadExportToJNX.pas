@@ -55,7 +55,7 @@ uses
   i_Bitmap32Static,
   i_TileIterator,
   i_BinaryData,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_BitmapTileSaveLoad,
   i_GeometryProjected,
   u_ResStrings,
@@ -118,7 +118,7 @@ var
   VTilesProcessed: Int64;
   VData: IBinaryData;
   VTileStorage: ITileStorage;
-  VMapVersionInfo: IMapVersionInfo;
+  VVersion: IMapVersionRequest;
   VTileInfo: ITileInfoWithData;
   VContentTypeInfoBitmap: IContentTypeInfoBitmap;
   VRecompress: Boolean;
@@ -168,7 +168,7 @@ begin
           VRecompress := FTasks[i].FRecompress;
 
           VTileStorage := FTasks[i].FTileStorage;
-          VMapVersionInfo := FTasks[i].FMapVersion;
+          VVersion := FTasks[i].FMapVersion;
           VZoom := FTasks[i].FZoom;
           VGeoConvert := VTileStorage.CoordConverter;
           VTileIterator := VTileIterators[i];
@@ -177,7 +177,7 @@ begin
               exit;
             end;
 
-            if Supports(VTileStorage.GetTileInfo(VTile, VZoom, VMapVersionInfo, gtimWithData), ITileInfoWithData, VTileInfo) then begin
+            if Supports(VTileStorage.GetTileInfoEx(VTile, VZoom, VVersion, gtimWithData), ITileInfoWithData, VTileInfo) then begin
               VData := Nil;
               if VRecompress or not SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
                 if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin

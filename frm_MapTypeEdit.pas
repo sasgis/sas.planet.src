@@ -182,7 +182,7 @@ begin
   finally
     FMapType.StorageConfig.UnlockWrite;
   end;
-  FMapType.VersionConfig.Version := FMapType.VersionConfig.VersionFactory.CreateByStoreString(edtVersion.Text);
+  FMapType.VersionRequestConfig.Version := FMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(edtVersion.Text);
   FMapType.Abilities.UseDownload := chkDownloadEnabled.Checked;
 
   ModalResult := mrOk;
@@ -288,7 +288,7 @@ begin
   end;
   CheckBox1.Checked:=FMapType.GUIConfig.Separator;
   CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
-  edtVersion.Text := FMapType.VersionConfig.Version.StoreString;
+  edtVersion.Text := FMapType.VersionRequestConfig.Version.StoreString;
   pnlHeader.Visible := GState.Config.InternalDebugConfig.IsShowDebugInfo;
   VDownloadState := FMapType.TileDownloadSubsystem.State.GetStatic;
 

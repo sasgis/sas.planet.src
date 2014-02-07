@@ -121,7 +121,7 @@ uses
   i_TileInfoBasic,
   i_TileStorage,
   i_TileRequest,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   u_Notifier,
   u_NotifierOperation,
   u_ListenerNotifierLinksList,
@@ -200,7 +200,7 @@ begin
   );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnVersionConfigChange),
-    VMapType.VersionConfig.ChangeNotifier
+    VMapType.VersionRequestConfig.ChangeNotifier
   );
 
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 300000);
@@ -369,7 +369,7 @@ var
   VMapType: TMapType;
   VNeedDownload: Boolean;
   VTask: ITileRequestTask;
-  VVersionInfo: IMapVersionInfo;
+  VVersionInfo: IMapVersionRequest;
   VTileInfo: ITileInfoBasic;
   VCurrentOperation: Integer;
   VStorage: ITileStorage;
@@ -378,7 +378,7 @@ begin
 
   VMapType := FMapTypeActive.GetMapType.MapType;
   VStorage := VMapType.TileStorage;
-  VVersionInfo := VMapType.VersionConfig.Version;
+  VVersionInfo := VMapType.VersionRequestConfig.GetStatic;
 
   FVisualCoordConverterCS.BeginRead;
   try
@@ -413,11 +413,11 @@ begin
       Inc(VMapTileRect.Bottom, FTilesOut);
       VMapGeoConverter.CheckTileRect(VMapTileRect, VZoom);
 
-      FRequestManager.InitSession(VZoom, VMapTileRect, VVersionInfo);
+      FRequestManager.InitSession(VZoom, VMapTileRect, VVersionInfo.BaseVersion);
 
       while FRequestManager.Acquire(VTile) do begin
         VNeedDownload := False;
-        VTileInfo := VStorage.GetTileInfo(VTile, VZoom, VVersionInfo, gtimWithoutData);
+        VTileInfo := VStorage.GetTileInfoEx(VTile, VZoom, VVersionInfo, gtimWithoutData);
 
         if VTileInfo.IsExists then begin
           if FUseDownload = tsInternet then begin
@@ -434,7 +434,7 @@ begin
         end;
 
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
-          FRequestManager.Release(VTile, VZoom, VVersionInfo, True);
+          FRequestManager.Release(VTile, VZoom, VVersionInfo.BaseVersion, True);
           Break;
         end;
 
@@ -448,7 +448,7 @@ begin
               FTaskFinishNotifier,
               VTile,
               VZoom,
-              VVersionInfo,
+              VVersionInfo.BaseVersion,
               False
             );
         end;
@@ -457,7 +457,7 @@ begin
           FGlobalInternetState.IncQueueCount;
           VMapType.TileDownloadSubsystem.Download(VTask);
         end else begin
-          FRequestManager.Release(VTile, VZoom, VVersionInfo, VNeedDownload);
+          FRequestManager.Release(VTile, VZoom, VVersionInfo.BaseVersion, VNeedDownload);
         end;
       end;
     finally

@@ -120,7 +120,7 @@ begin
       VProjectedPolygon,
       VZoom,
       VMapType.TileStorage,
-      VMapType.VersionConfig.Version,
+      VMapType.VersionRequestConfig.GetStatic.BaseVersion,
       VPath
     );
   VThread.Resume;

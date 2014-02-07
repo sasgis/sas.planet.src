@@ -79,7 +79,7 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_TileStorage,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   u_ThreadExportToRMapsSQLite,
   u_MapType,
   u_ResStrings;
@@ -151,7 +151,7 @@ var
   VMapType: TMapType;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
-  VMapVersion: IMapVersionInfo;
+  VMapVersion: IMapVersionRequest;
   VTileStorage: ITileStorage;
 begin
   inherited;
@@ -164,7 +164,7 @@ begin
   VTileStorage := nil;
   VMapVersion := nil;
   if Assigned(VMapType) then begin
-    VMapVersion := VMapType.VersionConfig.Version;
+    VMapVersion := VMapType.VersionRequestConfig.GetStatic;
     VTileStorage := VMapType.TileStorage;
   end;
 

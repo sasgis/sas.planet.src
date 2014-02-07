@@ -120,7 +120,7 @@ begin
       APolygon,
       VZoomArr,
       VMapType.TileStorage,
-      VMapType.VersionConfig.Version,
+      VMapType.VersionRequestConfig.GetStatic.BaseVersion,
       NotSaveNotExists,
       RelativePath
     );

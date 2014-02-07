@@ -129,7 +129,7 @@ begin
       APolygon,
       Zoomarr,
       VMapType.TileStorage,
-      VMapType.VersionConfig.Version,
+      VMapType.VersionRequestConfig.GetStatic,
       VMaxSize,
       VComent,
       VRecoverInfo

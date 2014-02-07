@@ -28,6 +28,7 @@ uses
   i_CoordConverter,
   i_MapVersionInfo,
   i_MapVersionFactory,
+  i_MapVersionRequest,
   i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_TileStorageAbilities,
@@ -78,10 +79,16 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; virtual; abstract;
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic; virtual; abstract;
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo; virtual; abstract;
     function DeleteTile(
       const AXY: TPoint;
@@ -101,7 +108,7 @@ type
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): IMapVersionListStatic; virtual;
 
     function ScanTiles(
@@ -157,7 +164,7 @@ end;
 function TTileStorageAbstract.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): IMapVersionListStatic;
 begin
   Result := nil;

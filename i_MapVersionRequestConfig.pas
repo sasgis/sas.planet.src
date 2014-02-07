@@ -18,82 +18,33 @@
 {* az@sasgis.ru                                                               *}
 {******************************************************************************}
 
-unit u_MapVersionInfo;
+unit i_MapVersionRequestConfig;
 
 interface
 
 uses
-  t_Hash,
   i_MapVersionInfo,
-  u_BaseInterfacedObject;
+  i_MapVersionRequest,
+  i_MapVersionFactory,
+  i_ConfigDataElement;
 
 type
-  TMapVersionInfo = class(TBaseInterfacedObject, IMapVersionInfo)
-  private
-    FHash: THashValue;
-    FVersion: string;
-  private
-    function GetHash: THashValue;
-    function GetUrlString: string;
-    function GetStoreString: string;
-    function GetCaption: string;
-    function IsSame(const AValue: IMapVersionInfo): Boolean;
-  public
-    constructor Create(
-      const AHash: THashValue;
-      const AVersion: string
-    );
+  IMapVersionRequestConfig = interface(IConfigDataElement)
+    ['{0D710534-C49F-43BC-8092-A0F5ABB5E107}']
+    function GetVersionFactory: IMapVersionFactoryChangeable;
+    property VersionFactory: IMapVersionFactoryChangeable read GetVersionFactory;
+
+    function GetVersion: IMapVersionInfo;
+    procedure SetVersion(const AValue: IMapVersionInfo);
+    property Version: IMapVersionInfo read GetVersion write SetVersion;
+
+    function GetShowPrevVersion: Boolean;
+    procedure SetShowPrevVersion(const AValue: Boolean);
+    property ShowPrevVersion: Boolean read GetShowPrevVersion write SetShowPrevVersion;
+
+    function GetStatic: IMapVersionRequest;
   end;
 
 implementation
-
-{ TMapVersionInfo }
-
-constructor TMapVersionInfo.Create(
-  const AHash: THashValue;
-  const AVersion: string
-);
-begin
-  inherited Create;
-  FHash := AHash;
-  FVersion := AVersion;
-end;
-
-function TMapVersionInfo.GetCaption: string;
-begin
-  Result := FVersion;
-end;
-
-function TMapVersionInfo.GetHash: THashValue;
-begin
-  Result := FHash;
-end;
-
-function TMapVersionInfo.GetStoreString: string;
-begin
-  Result := FVersion;
-end;
-
-function TMapVersionInfo.GetUrlString: string;
-begin
-  Result := FVersion;
-end;
-
-function TMapVersionInfo.IsSame(const AValue: IMapVersionInfo): Boolean;
-begin
-  if AValue = nil then begin
-    Result := False;
-  end else begin
-    if AValue = IMapVersionInfo(Self) then begin
-      Result := True;
-    end else begin
-      if (FHash <> 0) and (AValue.Hash <> 0) and (FHash <> AValue.Hash) then begin
-        Result := False;
-      end else begin
-        Result := AValue.StoreString = FVersion;
-      end;
-    end;
-  end;
-end;
 
 end.

@@ -38,7 +38,9 @@ uses
   i_TileDownloaderConfig,
   i_LanguageManager,
   i_CoordConverter,
+  i_MapVersionRequest,
   i_MapVersionConfig,
+  i_MapVersionRequestConfig,
   i_MapVersionFactoryList,
   i_TileDownloadRequestBuilderConfig,
   i_HashFunction,
@@ -89,7 +91,7 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
     FLanguageManager: ILanguageManager;
-    FVersionConfig: IMapVersionConfig;
+    FVersionRequestConfig: IMapVersionRequestConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
     FDownloadResultFactory: IDownloadResultFactory;
@@ -121,24 +123,24 @@ type
     function LoadBitmapTileFromStorage(
       const AXY: TPoint;
       const AZoom: Byte;
-      const AVersion: IMapVersionInfo
+      const AVersion: IMapVersionRequest
     ): IBitmap32Static;
     function LoadKmlTileFromStorage(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo
+      const AVersion: IMapVersionRequest
     ): IVectorItemSubset;
     function LoadTileFromPreZ(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadTileOrPreZ(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       IgnoreError: Boolean;
       AUsePre: Boolean;
       const ACache: ITileObjCacheBitmap = nil
@@ -154,21 +156,21 @@ type
     function LoadTile(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadTileVector(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       IgnoreError: Boolean;
       const ACache: ITileObjCacheVector = nil
     ): IVectorItemSubset;
     function LoadTileUni(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       const ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
@@ -176,14 +178,14 @@ type
     function LoadBitmap(
       const APixelRectTarget: TRect;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
     function LoadBitmapUni(
       const APixelRectTarget: TRect;
       const AZoom: byte;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       const ACoordConverterTarget: ICoordConverter;
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
@@ -200,7 +202,7 @@ type
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
-    property VersionConfig: IMapVersionConfig read FVersionConfig;
+    property VersionRequestConfig: IMapVersionRequestConfig read FVersionRequestConfig;
     property ContentType: IContentTypeInfoBasic read FContentType;
 
     property Abilities: IMapAbilitiesConfig read FAbilitiesConfig;
@@ -256,6 +258,7 @@ uses
   i_BasicMemCache,
   i_BinaryData,
   i_TileInfoBasic,
+  i_MapVersionFactory,
   u_StringProviderForMapTileItem,
   u_LayerDrawConfig,
   u_TileDownloaderConfig,
@@ -268,6 +271,8 @@ uses
   u_HtmlToHintTextConverterStuped,
   u_MapTypeGUIConfig,
   u_MapVersionConfig,
+  u_MapVersionFactoryChangeable,
+  u_MapVersionRequestConfig,
   u_TileDownloadSubsystem,
   u_Bitmap32ByStaticBitmap,
   u_GeoFunc,
@@ -324,10 +329,9 @@ constructor TMapType.Create(
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
-  VTypeCode: Byte;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
-  VMapVersionChanger: IMapVersionChanger;
+  VVersionFactory: IMapVersionFactoryChangeableInternal;
 begin
   inherited Create;
   FZmp := AZmp;
@@ -349,14 +353,17 @@ begin
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
 
-  VTypeCode := FZmp.StorageConfig.CacheTypeCode;
-  if VTypeCode = c_File_Cache_Id_DEFAULT then begin
-    VTypeCode := FGlobalCacheConfig.DefCache;
-  end;
-
-  FVersionConfig := TMapVersionConfig.Create(FZmp.VersionConfig, AMapVersionFactoryList.GetVersionFactoryByCode(VTypeCode));
+  VVersionFactory :=
+    TMapVersionFactoryChangeable.Create(
+      AMapVersionFactoryList.GetSimpleVersionFactory
+    );
+  FVersionRequestConfig :=
+    TMapVersionRequestConfig.Create(
+      FZmp.VersionConfig,
+      VVersionFactory
+    );
   FVersionChangeListener := TNotifyNoMmgEventListener.Create(Self.OnVersionChange);
-  FVersionConfig.ChangeNotifier.Add(FVersionChangeListener);
+  FVersionRequestConfig.ChangeNotifier.Add(FVersionChangeListener);
 
   FStorageConfig := TSimpleTileStorageConfig.Create(FZmp.StorageConfig);
   FAbilitiesConfig :=
@@ -370,7 +377,7 @@ begin
   FLayerDrawConfig.ReadConfig(AConfig);
   FStorageConfig.ReadConfig(AConfig);
   FAbilitiesConfig.ReadConfig(AConfig);
-  FVersionConfig.ReadConfig(AConfig);
+  FVersionRequestConfig.ReadConfig(AConfig);
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
   FContentType := FContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
@@ -396,7 +403,7 @@ begin
       AGlobalBerkeleyDBHelper,
       FStorageConfig,
       FCacheTileInfo,
-      FVersionConfig,
+      VVersionFactory,
       AGCNotifier,
       AContentTypeManager,
       ATileNameGeneratorList,
@@ -430,10 +437,6 @@ begin
         AHashFunction,
         THtmlToHintTextConverterStuped.Create
       );
-  end;
-
-  if Supports(FStorage, IMapVersionChanger, VMapVersionChanger) then begin
-    VMapVersionChanger.SetMapVersionConfig(FVersionConfig);
   end;
 
   FTileDownloadSubsystem :=
@@ -474,9 +477,9 @@ end;
 
 destructor TMapType.Destroy;
 begin
-  if Assigned(FVersionConfig) and Assigned(FVersionChangeListener) then begin
-    FVersionConfig.ChangeNotifier.Remove(FVersionChangeListener);
-    FVersionConfig := nil;
+  if Assigned(FVersionRequestConfig) and Assigned(FVersionChangeListener) then begin
+    FVersionRequestConfig.ChangeNotifier.Remove(FVersionChangeListener);
+    FVersionRequestConfig := nil;
     FVersionChangeListener := nil;
   end;
 
@@ -530,7 +533,7 @@ begin
   FLayerDrawConfig.WriteConfig(ALocalConfig);
   FTileDownloadRequestBuilderConfig.WriteConfig(ALocalConfig);
   FTileDownloaderConfig.WriteConfig(ALocalConfig);
-  FVersionConfig.WriteConfig(ALocalConfig);
+  FVersionRequestConfig.WriteConfig(ALocalConfig);
   FStorageConfig.WriteConfig(ALocalConfig);
   FAbilitiesConfig.WriteConfig(ALocalConfig);
 end;
@@ -538,14 +541,14 @@ end;
 function TMapType.LoadBitmapTileFromStorage(
   const AXY: TPoint;
   const AZoom: Byte;
-  const AVersion: IMapVersionInfo
+  const AVersion: IMapVersionRequest
 ): IBitmap32Static;
 var
   VTileInfoWithData: ITileInfoWithData;
   VContentType: IContentTypeInfoBitmap;
 begin
   Result := nil;
-  if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersion, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
+  if Supports(FStorage.GetTileInfoEx(AXY, AZoom, AVersion, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
     if Supports(VTileInfoWithData.ContentType, IContentTypeInfoBitmap, VContentType) then begin
       Result := VContentType.GetLoader.Load(VTileInfoWithData.TileData);
     end;
@@ -555,7 +558,7 @@ end;
 function TMapType.LoadKmlTileFromStorage(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersion: IMapVersionInfo
+  const AVersion: IMapVersionRequest
 ): IVectorItemSubset;
 var
   VTileInfoWithData: ITileInfoWithData;
@@ -563,7 +566,7 @@ var
   VContentType: IContentTypeInfoVectorData;
 begin
   Result := nil;
-  if Supports(FStorage.GetTileInfo(AXY, AZoom, AVersion, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
+  if Supports(FStorage.GetTileInfoEx(AXY, AZoom, AVersion, gtimWithData), ITileInfoWithData, VTileInfoWithData) then begin
     if Supports(VTileInfoWithData.ContentType, IContentTypeInfoVectorData, VContentType) then begin
       VIdData.UrlPrefix := TStringProviderForMapTileItem.Create(FMapDataUrlPrefix, AXY, AZoom);
       try
@@ -623,7 +626,7 @@ end;
 function TMapType.LoadTile(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
@@ -684,7 +687,7 @@ end;
 function TMapType.LoadTileVector(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   IgnoreError: Boolean;
   const ACache: ITileObjCacheVector
 ): IVectorItemSubset;
@@ -717,7 +720,7 @@ end;
 function TMapType.LoadTileFromPreZ(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
@@ -800,7 +803,7 @@ end;
 function TMapType.LoadTileOrPreZ(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   IgnoreError: Boolean;
   AUsePre: Boolean;
   const ACache: ITileObjCacheBitmap
@@ -817,7 +820,7 @@ end;
 function TMapType.LoadBitmap(
   const APixelRectTarget: TRect;
   const AZoom: byte;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
 ): IBitmap32Static;
@@ -936,7 +939,7 @@ end;
 function TMapType.LoadBitmapUni(
   const APixelRectTarget: TRect;
   const AZoom: byte;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   const ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap
@@ -1000,7 +1003,7 @@ end;
 function TMapType.LoadTileUni(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   const ACoordConverterTarget: ICoordConverter;
   AUsePre, AAllowPartial, IgnoreError: Boolean;
   const ACache: ITileObjCacheBitmap

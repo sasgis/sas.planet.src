@@ -28,6 +28,7 @@ uses
   i_BinaryData,
   i_MapVersionInfo,
   i_MapVersionFactory,
+  i_MapVersionRequest,
   i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_TileInfoBasic,
@@ -83,11 +84,17 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic; override;
 
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo; override;
 
     function DeleteTile(
@@ -109,7 +116,7 @@ type
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): IMapVersionListStatic; override;
 
     function ScanTiles(
@@ -383,6 +390,7 @@ begin
               AXY,
               AZoom,
               AVersionInfo,
+              False,
               True, // will get single tile info
               VList,
               VTileVersion,
@@ -406,6 +414,7 @@ begin
               AXY,
               AZoom,
               AVersionInfo,
+              False,
               VTileBinaryData,
               VTileVersion,
               VTileContentType,
@@ -434,6 +443,7 @@ begin
             AXY,
             AZoom,
             AVersionInfo,
+            False,
             VTileDate
           );
           if VResult then begin
@@ -461,14 +471,32 @@ begin
   end;
 end;
 
+function TTileStorageBerkeleyDB.GetTileInfoEx(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionRequest;
+  const AMode: TGetTileInfoMode
+): ITileInfoBasic;
+var
+  VVersionInfo: IMapVersionInfo;
+begin
+  VVersionInfo := nil;
+  if Assigned(AVersionInfo) then  begin
+    VVersionInfo := AVersionInfo.BaseVersion;
+  end;
+  Result := GetTileInfo(AXY, AZoom, VVersionInfo, AMode);
+end;
+
 function TTileStorageBerkeleyDB.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): IMapVersionListStatic;
 var
   VPath: string;
   VResult: Boolean;
+  VVersion: IMapVersionInfo;
+  VShowPrev: Boolean;
   VTileVersion: WideString;
   VTileContentType: WideString;
   VTileDate: TDateTime;
@@ -476,6 +504,12 @@ var
   VList: IMapVersionListStatic;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
+  VShowPrev := True;
+  VVersion := nil;
+  if Assigned(AVersionInfo) then begin
+    VVersion := AVersionInfo.BaseVersion;
+    VShowPrev := AVersionInfo.ShowPrevVersion;
+  end;
   Result := nil;
   try
     if GetState.GetStatic.ReadAccess <> asDisabled then begin
@@ -487,7 +521,8 @@ begin
             VPath,
             AXY,
             AZoom,
-            AVersionInfo,
+            VVersion,
+            VShowPrev,
             False, // will get multi-versions tile info
             VList,
             VTileVersion,
@@ -514,7 +549,7 @@ end;
 function TTileStorageBerkeleyDB.GetTileRectInfo(
   const ARect: TRect;
   const AZoom: Byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): ITileRectInfo;
 
 type
@@ -544,6 +579,8 @@ var
   VFolderInfo: TInfo;
   VFileInfo: TInfo;
   VTneFileInfo: TInfo;
+  VVersion: IMapVersionInfo;
+  VShowPrev: Boolean;
   VTileExists: Boolean;
   VTileBinaryData: IBinaryData;
   VTileVersion: WideString;
@@ -551,6 +588,12 @@ var
   VTileDate: TDateTime;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
+  VShowPrev := True;
+  VVersion := nil;
+  if Assigned(AVersionInfo) then begin
+    VVersion := AVersionInfo.BaseVersion;
+    VShowPrev := AVersionInfo.ShowPrevVersion;
+  end;
   Result := nil;
   try
     if GetState.GetStatic.ReadAccess <> asDisabled then begin
@@ -613,7 +656,8 @@ begin
                   VFileInfo.Name,
                   VTile,
                   VZoom,
-                  AVersionInfo,
+                  VVersion,
+                  VShowPrev,
                   VTileBinaryData,
                   VTileVersion,
                   VTileContentType,
@@ -633,7 +677,8 @@ begin
                   VTneFileInfo.Name,
                   VTile,
                   VZoom,
-                  AVersionInfo,
+                  VVersion,
+                  VShowPrev,
                   VTileDate
                 );
                 if VTileExists then begin

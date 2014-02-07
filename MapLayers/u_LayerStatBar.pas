@@ -435,7 +435,7 @@ begin
     if FConfig.ViewTilePathInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VTileNameWidthAviable := Layer.Bitmap.Width - VOffset.X;
-      VTileName := VMapType.GetTileShowName(VTile, VZoomCurr, VMapType.VersionConfig.Version);
+      VTileName := VMapType.GetTileShowName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
       if Length(VTileName) > 0 then begin
         if VTileNameWidthAviable > 30 then begin
           VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);

@@ -54,7 +54,7 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportYaMobileV4,
@@ -120,8 +120,8 @@ var
   VThread: TThread;
   VTasks: TExportTaskYaMobileV4Array;
   VTaskIndex: Integer;
-  VMapVersion: IMapVersionInfo;
-  VLayerVersion: IMapVersionInfo;
+  VMapVersion: IMapVersionRequest;
+  VLayerVersion: IMapVersionRequest;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -145,11 +145,11 @@ begin
     VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(comprSat);
     VMapVersion := nil;
     if FFrame.GetSat.GetSelectedMapType <> nil then begin
-      VMapVersion := FFrame.GetSat.GetSelectedMapType.VersionConfig.Version;
+      VMapVersion := FFrame.GetSat.GetSelectedMapType.VersionRequestConfig.GetStatic;
     end;
     VLayerVersion := nil;
     if FFrame.GetHyb.GetSelectedMapType <> nil then begin
-      VLayerVersion := FFrame.GetHyb.GetSelectedMapType.VersionConfig.Version;
+      VLayerVersion := FFrame.GetHyb.GetSelectedMapType.VersionRequestConfig.GetStatic;
     end;
     VTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
@@ -172,7 +172,7 @@ begin
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmapFactory,
         FFrame.GetMap.GetSelectedMapType,
-        FFrame.GetMap.GetSelectedMapType.VersionConfig.Version,
+        FFrame.GetMap.GetSelectedMapType.VersionRequestConfig.GetStatic,
         nil,
         nil,
         False,

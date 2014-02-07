@@ -9,7 +9,7 @@ uses
   i_Bitmap32StaticFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   u_MapType,
   u_BaseInterfacedObject;
 
@@ -18,9 +18,9 @@ type
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FMapTypeMain: TMapType;
-    FMapTypeMainVersion: IMapVersionInfo;
+    FMapTypeMainVersion: IMapVersionRequest;
     FMapTypeHybr: TMapType;
-    FMapTypeHybrVersion: IMapVersionInfo;
+    FMapTypeHybrVersion: IMapVersionRequest;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
   private
@@ -33,9 +33,9 @@ type
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
       AMapTypeMain: TMapType;
-      const AMapTypeMainVersion: IMapVersionInfo;
+      const AMapTypeMainVersion: IMapVersionRequest;
       AMapTypeHybr: TMapType;
-      const AMapTypeHybrVersion: IMapVersionInfo;
+      const AMapTypeHybrVersion: IMapVersionRequest;
       AUsePrevZoomAtMap: Boolean;
       AUsePrevZoomAtLayer: Boolean
     );
@@ -52,9 +52,9 @@ uses
 constructor TBitmapLayerProviderMapWithLayer.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   AMapTypeMain: TMapType;
-  const AMapTypeMainVersion: IMapVersionInfo;
+  const AMapTypeMainVersion: IMapVersionRequest;
   AMapTypeHybr: TMapType;
-  const AMapTypeHybrVersion: IMapVersionInfo;
+  const AMapTypeHybrVersion: IMapVersionRequest;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
 );
 begin

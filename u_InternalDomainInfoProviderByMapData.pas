@@ -103,10 +103,10 @@ begin
   end;
   if VSuffix = '' then begin
     VTileInfo :=
-      VMapType.MapType.TileStorage.GetTileInfo(
+      VMapType.MapType.TileStorage.GetTileInfoEx(
         VTile,
         VZoom,
-        VMapType.MapType.VersionConfig.Version,
+        VMapType.MapType.VersionRequestConfig.GetStatic,
         gtimWithData
       );
     if not Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
@@ -121,7 +121,7 @@ begin
           VMapType.MapType.LoadTileVector(
             VTile,
             VZoom,
-            VMapType.MapType.VersionConfig.Version,
+            VMapType.MapType.VersionRequestConfig.GetStatic,
             True,
             VMapType.MapType.CacheVector
           );

@@ -3,6 +3,7 @@ unit u_MapVersionFactoryList;
 interface
 
 uses
+  i_HashFunction,
   i_MapVersionFactory,
   i_MapVersionFactoryList,
   u_BaseInterfacedObject;
@@ -16,9 +17,10 @@ type
   private
     function GetSimpleVersionFactory: IMapVersionFactory;
     function GetGEVersionFactory: IMapVersionFactory; deprecated;
-    function GetVersionFactoryByCode(const ACacheTypeCode: Integer): IMapVersionFactory;
   public
-    constructor Create;
+    constructor Create(
+      const AHashFunction: IHashFunction
+    );
   end;
 
 implementation
@@ -30,10 +32,12 @@ uses
 
 { TMapVersionFactoryList }
 
-constructor TMapVersionFactoryList.Create;
+constructor TMapVersionFactoryList.Create(
+  const AHashFunction: IHashFunction
+);
 begin
   inherited Create;
-  FSimpleVersionFactory := TMapVersionFactorySimpleString.Create;
+  FSimpleVersionFactory := TMapVersionFactorySimpleString.Create(AHashFunction);
   FGEVersionFactory := TMapVersionFactoryGE.Create;
 end;
 
@@ -45,18 +49,6 @@ end;
 function TMapVersionFactoryList.GetSimpleVersionFactory: IMapVersionFactory;
 begin
   Result := FSimpleVersionFactory;
-end;
-
-function TMapVersionFactoryList.GetVersionFactoryByCode(const ACacheTypeCode: Integer): IMapVersionFactory;
-begin
-  case ACacheTypeCode of
-    c_File_Cache_Id_GC: begin
-      Result := FGEVersionFactory;
-    end;
-    else begin
-      Result := FSimpleVersionFactory;
-    end;
-  end;
 end;
 
 end.

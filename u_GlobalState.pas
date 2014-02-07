@@ -425,7 +425,7 @@ begin
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('HashFunction')
     );
 
-  FMapVersionFactoryList := TMapVersionFactoryList.Create;
+  FMapVersionFactoryList := TMapVersionFactoryList.Create(FHashFunction);
 
   FAppearanceOfMarkFactory := TAppearanceOfMarkFactory.Create(FHashFunction);
   FInternalBrowserContent := TInternalBrowserLastContent.Create;

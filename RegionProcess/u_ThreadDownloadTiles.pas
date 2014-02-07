@@ -29,6 +29,7 @@ uses
   i_Listener,
   i_LogSimple,
   i_MapVersionInfo,
+  i_MapVersionRequest,
   i_NotifierOperation,
   i_GlobalDownloadConfig,
   i_TileRequestTask,
@@ -46,7 +47,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FMapType: TMapType;
     FZoom: Byte;
-    FVersionForCheck: IMapVersionInfo;
+    FVersionForCheck: IMapVersionRequest;
     FVersionForDownload: IMapVersionInfo;
     FDownloadInfo: IDownloadInfoSimple;
     FPolyProjected: IGeometryProjectedMultiPolygon;
@@ -106,7 +107,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
       const AAppClosingNotifier: INotifierOneOperation;
       AMapType: TMapType;
-      const AVersionForCheck: IMapVersionInfo;
+      const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
       AZoom: byte;
       const APolyProjected: IGeometryProjectedMultiPolygon;
@@ -146,7 +147,7 @@ constructor TThreadDownloadTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
   const AAppClosingNotifier: INotifierOneOperation;
   AMapType: TMapType;
-  const AVersionForCheck: IMapVersionInfo;
+  const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
   AZoom: byte;
   const APolyProjected: IGeometryProjectedMultiPolygon;
@@ -338,7 +339,7 @@ begin
         // notify about current tile
         FProgressInfo.Log.WriteText(Format(FRES_ProcessedFile, [FMapType.GetTileShowName(VTile, FZoom, FVersionForDownload)]), 0);
         // if gtimWithData - tile will be loaded, so we use gtimAsIs
-        VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, FZoom, FVersionForCheck, gtimAsIs);
+        VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, FZoom, FVersionForCheck, gtimAsIs);
         
         if (FReplaceExistTiles) or not (VTileInfo.IsExists) then begin
           // what to do

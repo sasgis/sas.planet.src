@@ -9,6 +9,7 @@ uses
   i_LogSimpleProvider,
   i_GeometryLonLat,
   i_MapVersionInfo,
+  i_MapVersionRequest,
   i_ConfigDataWriteProvider,
   i_RegionProcessProgressInfo,
   i_RegionProcessProgressInfoDownload,
@@ -20,7 +21,7 @@ type
     FGUID: TGUID;
     FZoom: Byte;
     FPolygon: IGeometryLonLatMultiPolygon;
-    FVersionForCheck: IMapVersionInfo;
+    FVersionForCheck: IMapVersionRequest;
     FVersionForDownload: IMapVersionInfo;
 
     FSecondLoadTNE: boolean;
@@ -77,7 +78,7 @@ type
       const ALog: ILogSimple;
       const ALogProvider: ILogSimpleProvider;
       const AGUID: TGUID;
-      const AVersionForCheck: IMapVersionInfo;
+      const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
       AZoom: Byte;
       const APolygon: IGeometryLonLatMultiPolygon;
@@ -106,7 +107,7 @@ constructor TRegionProcessProgressInfoDownload.Create(
   const ALog: ILogSimple;
   const ALogProvider: ILogSimpleProvider;
   const AGUID: TGUID;
-  const AVersionForCheck: IMapVersionInfo;
+  const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
   AZoom: Byte;
   const APolygon: IGeometryLonLatMultiPolygon;
@@ -357,7 +358,7 @@ var
 begin
   ASLSSection.WriteString('MapGUID', GUIDToString(FGUID));
   ASLSSection.WriteString('VersionDownload', FVersionForDownload.StoreString);
-  ASLSSection.WriteString('VersionCheck', FVersionForCheck.StoreString);
+  ASLSSection.WriteString('VersionCheck', FVersionForCheck.BaseVersion.StoreString);
   ASLSSection.WriteBool('VersionCheckPrev', FVersionForCheck.ShowPrevVersion);
   ASLSSection.WriteInteger('Zoom', FZoom + 1);
   ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);

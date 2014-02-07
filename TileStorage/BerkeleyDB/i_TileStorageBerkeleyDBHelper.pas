@@ -56,6 +56,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
+      const AShowPrevVersion: Boolean;
       out ATileBinaryData: IBinaryData;
       out ATileVersion: WideString;
       out ATileContentType: WideString;
@@ -67,6 +68,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
+      const AShowPrevVersion: Boolean;
       const ASingleTileInfo: Boolean;
       out ATileVersionListStatic: IMapVersionListStatic;
       out ATileVersion: WideString;
@@ -79,7 +81,8 @@ type
       const ADatabaseFileName: string;
       const ATileXY: TPoint;
       const ATileZoom: Byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionInfo;
+      const AShowPrevVersion: Boolean
     ): Boolean;
 
     function IsTNEFound(
@@ -87,6 +90,7 @@ type
       const ATileXY: TPoint;
       const ATileZoom: Byte;
       const AVersionInfo: IMapVersionInfo;
+      const AShowPrevVersion: Boolean;
       out ATileDate: TDateTime
     ): Boolean;
 

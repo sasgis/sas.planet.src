@@ -4,7 +4,7 @@ interface
 
 uses
   i_TileStorage,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_BitmapTileSaveLoad;
 
 type
@@ -12,7 +12,7 @@ type
     FScale: Byte;
     FZoom: Byte;
     FTileStorage: ITileStorage;
-    FMapVersion: IMapVersionInfo;
+    FMapVersion: IMapVersionRequest;
     FLevelDesc: String;
     FLevelName: String;
     FLevelCopyright: String;

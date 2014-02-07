@@ -18,6 +18,7 @@ uses
   i_MapVersionConfig,
   i_MapVersionInfo,
   i_MapVersionFactory,
+  i_MapVersionRequest,
   i_MapVersionListStatic,
   i_TileInfoBasic,
   i_SimpleFlag,
@@ -37,7 +38,7 @@ type
     FGlobalCacheConfig: IGlobalCacheConfig;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FConfig: ISimpleTileStorageConfig;
-    FVersionConfig: IMapVersionConfig;
+    FVersionFactory: IMapVersionFactoryChangeableInternal;
     FGCNotifier: INotifierTime;
     FContentTypeManager: IContentTypeManager;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -46,7 +47,6 @@ type
     FActualPath: IPathConfig;
     FStorageState: IStorageStateChangeble;
     FStorageStateProxy: IStorageStateProxy;
-    FMapVersionFactoryDefault: IMapVersionFactory;
 
     FStorageChangeCS: IReadWriteSync;
 
@@ -102,10 +102,16 @@ type
       const AVersion: IMapVersionInfo;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic;
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersion: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic;
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo;
 
     function DeleteTile(
@@ -125,7 +131,7 @@ type
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): IMapVersionListStatic;
 
     function ScanTiles(
@@ -140,7 +146,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
-      const AVersionConfig: IMapVersionConfig;
+      const AVersionFactory: IMapVersionFactoryChangeableInternal;
       const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -176,7 +182,7 @@ constructor TTileStorageOfMapType.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
-  const AVersionConfig: IMapVersionConfig;
+  const AVersionFactory: IMapVersionFactoryChangeableInternal;
   const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
@@ -191,7 +197,7 @@ begin
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FConfig := AConfig;
   FCacheTileInfo := ACacheTileInfo;
-  FVersionConfig := AVersionConfig;
+  FVersionFactory := AVersionFactory;
   FGCNotifier := AGCNotifier;
   FContentTypeManager := AContentTypeManager;
   FFileNameGeneratorsList := AFileNameGeneratorsList;
@@ -202,7 +208,6 @@ begin
   VState := TStorageStateProxy.Create;
   FStorageState := VState;
   FStorageStateProxy := VState;
-  FMapVersionFactoryDefault := FVersionConfig.VersionFactory;
   FStorageLock := TCounterInterlock.Create;
   FStorageNeedUpdate := TSimpleFlagWithInterlock.Create;
 
@@ -277,7 +282,7 @@ begin
             FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
-            FVersionConfig.VersionFactory,
+            FVersionFactory.GetStatic,
             VMainContentType
           );
       end;
@@ -292,7 +297,7 @@ begin
             FGCNotifier,
             FCacheTileInfo,
             FContentTypeManager,
-            FVersionConfig.VersionFactory,
+            FVersionFactory.GetStatic,
             VMainContentType
           );
       end;
@@ -310,7 +315,7 @@ begin
               AConfig.NameInCache,
               ATypeCode in [c_File_Cache_Id_GEt],
               FCacheTileInfo,
-              FVersionConfig.VersionFactory,
+              FVersionFactory.GetStatic,
               VMainContentType
             );
         end;
@@ -324,7 +329,7 @@ begin
           TTileStorageGC.Create(
             VCoordConverter,
             FCurrentPath,
-            FVersionConfig.VersionFactory,
+            FVersionFactory.GetStatic,
             FContentTypeManager
           );
       end;
@@ -338,7 +343,7 @@ begin
             VCoordConverter,
             FCurrentPath,
             VMainContentType,
-            FVersionConfig.VersionFactory,
+            FVersionFactory.GetStatic,
             VFileNameGenerator,
             VFileNameParser
           );
@@ -350,7 +355,7 @@ begin
           TTileStorageInRAM.Create(
             FCacheTileInfo,
             VCoordConverter,
-            FVersionConfig.VersionFactory,
+            FVersionFactory.GetStatic,
             VMainContentType
           );
       end;
@@ -587,7 +592,7 @@ end;
 function TTileStorageOfMapType.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): IMapVersionListStatic;
 var
   VStorage: ITileStorage;
@@ -651,8 +656,35 @@ begin
   end;
 end;
 
-function TTileStorageOfMapType.GetTileRectInfo(const ARect: TRect;
-  const AZoom: byte; const AVersionInfo: IMapVersionInfo): ITileRectInfo;
+function TTileStorageOfMapType.GetTileInfoEx(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersion: IMapVersionRequest;
+  const AMode: TGetTileInfoMode
+): ITileInfoBasic;
+var
+  VCounter: IInternalPerformanceCounter;
+  VCounterContext: TInternalPerformanceCounterContext;
+  VStorage: ITileStorage;
+begin
+  Result := nil;
+  VCounter := FGetTileInfoCounter;
+  VCounterContext := VCounter.StartOperation;
+  try
+    VStorage := GetStorage;
+    if VStorage <> nil then begin
+      Result := VStorage.GetTileInfoEx(AXY, AZoom, AVersion, AMode);
+    end;
+  finally
+    VCounter.FinishOperation(VCounterContext);
+  end;
+end;
+
+function TTileStorageOfMapType.GetTileRectInfo(
+  const ARect: TRect;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionRequest
+): ITileRectInfo;
 var
   VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;

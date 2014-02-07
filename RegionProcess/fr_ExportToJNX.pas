@@ -726,7 +726,7 @@ begin
     VMap := FfrMapSelect.GetSelectedIMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale.ItemIndex;
       VTask.FZoom := CbbZoom.ItemIndex;
       VTask.FRecompress := ChRecompress1.Checked;
@@ -743,7 +743,7 @@ begin
     VMap := FfrMap2Select.GetSelectedIMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale2.ItemIndex;
       VTask.FZoom := CbbZoom2.ItemIndex;
       VTask.FRecompress := ChRecompress2.Checked;
@@ -760,7 +760,7 @@ begin
     VMap := FfrMap3Select.GetSelectedIMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale3.ItemIndex;
       VTask.FZoom := CbbZoom3.ItemIndex;
       VTask.FRecompress := ChRecompress3.Checked;
@@ -777,7 +777,7 @@ begin
     VMap := FfrMap4Select.GetSelectedIMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale4.ItemIndex;
       VTask.FZoom := CbbZoom4.ItemIndex;
       VTask.FRecompress := ChRecompress4.Checked;
@@ -794,7 +794,7 @@ begin
     VMap := FfrMap5Select.GetSelectedIMapType;
     if Assigned(VMap) then begin
       VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionConfig.Version;
+      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale5.ItemIndex;
       VTask.FZoom := CbbZoom5.ItemIndex;
       VTask.FRecompress := ChRecompress5.Checked;

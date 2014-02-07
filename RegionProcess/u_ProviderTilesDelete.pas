@@ -144,7 +144,7 @@ begin
         VProjectedPolygon,
         VZoom,
         VMapType.TileStorage,
-        VMapType.VersionConfig.Version,
+        VMapType.VersionRequestConfig.GetStatic,
         VPredicate
       );
     VThread.Resume;

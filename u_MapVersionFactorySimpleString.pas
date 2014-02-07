@@ -3,6 +3,7 @@ unit u_MapVersionFactorySimpleString;
 interface
 
 uses
+  i_HashFunction,
   i_MapVersionInfo,
   i_MapVersionFactory,
   u_BaseInterfacedObject;
@@ -14,41 +15,54 @@ type
 
   TMapVersionFactorySimpleString = class(TBaseInterfacedObject, IMapVersionFactory, IMapVersionFactorySimpleInternal)
   private
+    FHashFunction: IHashFunction;
+  private
     { IMapVersionFactory }
-    function CreateByStoreString(const AValue: string; const AShowPrevVersion: Boolean = False): IMapVersionInfo;
-    function CreateByMapVersion(const AValue: IMapVersionInfo; const AShowPrevVersion: Boolean = False): IMapVersionInfo;
+    function CreateByStoreString(const AValue: string): IMapVersionInfo;
+    function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
     function IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
+  public
+    constructor Create(
+      const AHashFunction: IHashFunction
+    );
   end;
 
 implementation
 
 uses
   SysUtils,
+  t_Hash,
   u_MapVersionInfo;
 
 { TMapVersionFactorySimpleString }
 
+constructor TMapVersionFactorySimpleString.Create(
+  const AHashFunction: IHashFunction);
+begin
+  Assert(Assigned(AHashFunction));
+  inherited Create;
+  FHashFunction := AHashFunction;
+end;
+
 function TMapVersionFactorySimpleString.CreateByMapVersion(
-  const AValue: IMapVersionInfo;
-  const AShowPrevVersion: Boolean
+  const AValue: IMapVersionInfo
 ): IMapVersionInfo;
 begin
   if AValue <> nil then begin
-    if (AValue.ShowPrevVersion = AShowPrevVersion) then
-      Result := AValue
-    else
-      Result := CreateByStoreString(AValue.StoreString, AShowPrevVersion);
+    Result := CreateByStoreString(AValue.StoreString);
   end else begin
-    Result := CreateByStoreString('', AShowPrevVersion);
+    Result := CreateByStoreString('');
   end;
 end;
 
 function TMapVersionFactorySimpleString.CreateByStoreString(
-  const AValue: string;
-  const AShowPrevVersion: Boolean
+  const AValue: string
 ): IMapVersionInfo;
+var
+  VHash: THashValue;
 begin
-  Result := TMapVersionInfo.Create(AValue, AShowPrevVersion);
+  VHash := FHashFunction.CalcHashByString(AValue);
+  Result := TMapVersionInfo.Create(VHash, AValue);
 end;
 
 function TMapVersionFactorySimpleString.IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;

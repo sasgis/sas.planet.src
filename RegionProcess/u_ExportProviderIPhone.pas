@@ -57,7 +57,7 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportIPhone,
@@ -132,8 +132,8 @@ var
   VThread: TThread;
   VTasks: TExportTaskIPhoneArray;
   VTaskIndex: Integer;
-  VMapVersion: IMapVersionInfo;
-  VLayerVersion: IMapVersionInfo;
+  VMapVersion: IMapVersionRequest;
+  VLayerVersion: IMapVersionRequest;
 begin
   inherited;
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
@@ -177,7 +177,7 @@ begin
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmapFactory,
         FFrame.GetSat,
-        FFrame.GetSat.VersionConfig.Version,
+        FFrame.GetSat.VersionRequestConfig.GetStatic,
         nil,
         nil,
         False,
@@ -196,7 +196,7 @@ begin
       TBitmapLayerProviderMapWithLayer.Create(
         FBitmapFactory,
         FFrame.GetMap,
-        FFrame.GetMap.VersionConfig.Version,
+        FFrame.GetMap.VersionRequestConfig.GetStatic,
         nil,
         nil,
         False,
@@ -213,11 +213,11 @@ begin
     VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(comprHyb);
     VMapVersion := nil;
     if FFrame.GetSat <> nil then begin
-      VMapVersion := FFrame.GetSat.VersionConfig.Version;
+      VMapVersion := FFrame.GetSat.VersionRequestConfig.GetStatic;
     end;
     VLayerVersion := nil;
     if FFrame.GetHyb <> nil then begin
-      VLayerVersion := FFrame.GetHyb.VersionConfig.Version;
+      VLayerVersion := FFrame.GetHyb.VersionRequestConfig.GetStatic;
     end;
     VTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(

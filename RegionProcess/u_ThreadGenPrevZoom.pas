@@ -13,7 +13,7 @@ uses
   i_Bitmap32StaticFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   u_MapType,
   u_ThreadRegionProcessAbstract,
   i_ImageResamplerFactory,
@@ -29,7 +29,7 @@ type
     FUsePrevTiles: boolean;
     FZooms: TByteDynArray;
     FMapType: TMapType;
-    FVersion: IMapVersionInfo;
+    FVersion: IMapVersionRequest;
     FResamplerFactory: IImageResamplerFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapFactory: IBitmap32StaticFactory;
@@ -49,7 +49,7 @@ type
       const AZooms: TByteDynArray;
       const APolygLL: IGeometryLonLatMultiPolygon;
       AMapType: TMapType;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       AReplace: boolean;
       Asavefull: boolean;
       AGenFormFirstZoom: boolean;
@@ -81,7 +81,7 @@ constructor TThreadGenPrevZoom.Create(
   const AZooms: TByteDynArray;
   const APolygLL: IGeometryLonLatMultiPolygon;
   AMapType: TMapType;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   AReplace: boolean;
   Asavefull: boolean;
   AGenFormFirstZoom: boolean;
@@ -185,7 +185,7 @@ begin
           end;
           VCurrentTilePixelRect := VGeoConvert.TilePos2PixelRect(VTile, VZoom);
           if not (FIsReplace) then begin
-            VTileInfo := FMapType.TileStorage.GetTileInfo(VTile, VZoom, FVersion, gtimAsIs);
+            VTileInfo := FMapType.TileStorage.GetTileInfoEx(VTile, VZoom, FVersion, gtimAsIs);
             if VTileInfo.GetIsExists then begin
               continue;
             end;
@@ -259,7 +259,7 @@ begin
               );
             end;
           if VBitmap <> nil then begin
-            FMapType.SaveTileSimple(VTile, VZoom, FVersion, VBitmap);
+            FMapType.SaveTileSimple(VTile, VZoom, FVersion.BaseVersion, VBitmap);
             inc(FTileInProc);
             VBitmap := nil;
           end;

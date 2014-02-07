@@ -30,7 +30,7 @@ uses
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_GeometryProjected,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_PredicateByTileInfo,
   i_TileStorage,
   u_ThreadRegionProcessAbstract;
@@ -40,7 +40,7 @@ type
   private
     FZoom: byte;
     FTileStorage: ITileStorage;
-    FVersion: IMapVersionInfo;
+    FVersion: IMapVersionRequest;
     FPolyProjected: IGeometryProjectedMultiPolygon;
     FPredicate: IPredicateByTileInfo;
   protected
@@ -55,7 +55,7 @@ type
       const AProjectedPolygon: IGeometryProjectedMultiPolygon;
       AZoom: byte;
       const ATileStorage: ITileStorage;
-      const AVersion: IMapVersionInfo;
+      const AVersion: IMapVersionRequest;
       const APredicate: IPredicateByTileInfo
     );
   end;
@@ -74,7 +74,7 @@ constructor TThreadDeleteTiles.Create(
   const AProjectedPolygon: IGeometryProjectedMultiPolygon;
   AZoom: byte;
   const ATileStorage: ITileStorage;
-  const AVersion: IMapVersionInfo;
+  const AVersion: IMapVersionRequest;
   const APredicate: IPredicateByTileInfo
 );
 begin
@@ -114,7 +114,7 @@ begin
     if CancelNotifier.IsOperationCanceled(OperationID) then begin
       exit;
     end;
-    VTileInfo := FTileStorage.GetTileInfo(VTile, FZoom, FVersion, gtimWithoutData);
+    VTileInfo := FTileStorage.GetTileInfoEx(VTile, FZoom, FVersion, gtimWithoutData);
     if (VTileInfo <> nil) then begin
       if FPredicate.Check(VTileInfo, FZoom, VTile) then begin
         if FTileStorage.DeleteTile(VTile, FZoom, VTileInfo.VersionInfo) then begin

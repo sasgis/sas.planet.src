@@ -29,6 +29,7 @@ uses
   i_NotifierTilePyramidUpdate,
   i_ContentTypeInfo,
   i_MapVersionInfo,
+  i_MapVersionRequest,
   i_MapVersionListStatic,
   i_StorageState,
   i_TileInfoBasic;
@@ -67,6 +68,13 @@ type
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic;
 
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic;
+
     function DeleteTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -88,13 +96,13 @@ type
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): IMapVersionListStatic;
 
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo;
 
     function ScanTiles(

@@ -31,6 +31,7 @@ uses
   i_TileInfoBasic,
   i_CoordConverter,
   i_MapVersionInfo,
+  i_MapVersionRequest,
   i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_ArchiveReadWrite,
@@ -75,6 +76,12 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic;
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic;
     function DeleteTile(
       const AXY: TPoint;
       const AZoom: byte;
@@ -93,12 +100,12 @@ type
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): IMapVersionListStatic;
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo;
     function ScanTiles(
       const AIgnoreTNE: Boolean;
@@ -204,6 +211,16 @@ begin
   Result := nil;
 end;
 
+function TTileStorageArchive.GetTileInfoEx(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionRequest;
+  const AMode: TGetTileInfoMode
+): ITileInfoBasic;
+begin
+  Result := nil;
+end;
+
 function TTileStorageArchive.DeleteTile(
   const AXY: TPoint;
   const AZoom: byte;
@@ -250,7 +267,7 @@ end;
 function TTileStorageArchive.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): IMapVersionListStatic;
 begin
   Result := nil;
@@ -259,7 +276,7 @@ end;
 function TTileStorageArchive.GetTileRectInfo(
   const ARect: TRect;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): ITileRectInfo;
 begin
   Result := nil;

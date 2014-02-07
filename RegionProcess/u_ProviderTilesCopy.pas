@@ -168,7 +168,7 @@ begin
   for i := 0 to VMaps.Count - 1 do begin
     VMapType := VMaps.Items[i].MapType;
     VTasks[i].FSource := VMapType.TileStorage;
-    VTasks[i].FSourceVersion := VMapType.VersionConfig.Version;
+    VTasks[i].FSourceVersion := VMapType.VersionRequestConfig.GetStatic;
     VTargetStoragePath := IncludeTrailingPathDelimiter(VPath);
     if VPlaceInSubFolder then begin
       VTargetStoragePath := IncludeTrailingPathDelimiter(VPath + VMapType.GetShortFolderName);
@@ -182,7 +182,7 @@ begin
           nil,
           nil,
           FContentTypeManager,
-          VMapType.VersionConfig.VersionFactory,
+          VMapType.VersionRequestConfig.VersionFactory.GetStatic,
           VMapType.ContentType
         );
     end else if VCacheType in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
@@ -195,7 +195,7 @@ begin
           FTimerNoifier,
           nil, // MemCache - not needed here
           FContentTypeManager,
-          VMapType.VersionConfig.VersionFactory,
+          VMapType.VersionRequestConfig.VersionFactory.GetStatic,
           VMapType.ContentType
         );
     end else begin
@@ -204,13 +204,13 @@ begin
           VTasks[i].FSource.CoordConverter,
           VTargetStoragePath,
           VMapType.ContentType,
-          VMapType.VersionConfig.VersionFactory,
+          VMapType.VersionRequestConfig.VersionFactory.GetStatic,
           FTileNameGenerator.GetGenerator(VCacheType),
           FFileNameParsersList.GetParser(VCacheType)
         );
     end;
     if VSetTargetVersionEnabled then begin
-      VTasks[i].FTargetVersionForce := VMapType.VersionConfig.VersionFactory.CreateByStoreString(VSetTargetVersionValue);
+      VTasks[i].FTargetVersionForce := VMapType.VersionRequestConfig.VersionFactory.GetStatic.CreateByStoreString(VSetTargetVersionValue);
     end else begin
       VTasks[i].FTargetVersionForce := nil;
     end;

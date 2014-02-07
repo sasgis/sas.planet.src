@@ -145,7 +145,7 @@ uses
   gnugettext,
   Graphics,
   c_CoordConverter,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_ContentTypeInfo,
   u_BitmapLayerProviderMapWithLayer;
 
@@ -365,20 +365,20 @@ end;
 function TfrExportRMapsSQLite.GetProvider: IBitmapLayerProvider;
 var
   VMap: TMapType;
-  VMapVersion: IMapVersionInfo;
+  VMapVersion: IMapVersionRequest;
   VLayer: TMapType;
-  VLayerVersion: IMapVersionInfo;
+  VLayerVersion: IMapVersionRequest;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
   if Assigned(VMap) then begin
-    VMapVersion := VMap.VersionConfig.Version;
+    VMapVersion := VMap.VersionRequestConfig.GetStatic;
   end else begin
     VMapVersion := nil;
   end;
 
   VLayer := FfrOverlaySelect.GetSelectedMapType;
   if Assigned(VLayer) then begin
-    VLayerVersion := VLayer.VersionConfig.Version;
+    VLayerVersion := VLayer.VersionRequestConfig.GetStatic;
   end else begin
     VLayerVersion := nil;
   end;

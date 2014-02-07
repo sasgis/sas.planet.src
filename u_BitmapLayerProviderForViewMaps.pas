@@ -116,7 +116,7 @@ begin
       AMapType.MapType.LoadTileUni(
         ATile,
         AZoom,
-        AMapType.MapType.VersionConfig.Version,
+        AMapType.MapType.VersionRequestConfig.GetStatic,
         ACoordConverterTarget,
         AUsePrevZoom,
         True,

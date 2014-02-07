@@ -31,6 +31,7 @@ uses
   i_CoordConverter,
   i_MapVersionInfo,
   i_MapVersionFactory,
+  i_MapVersionRequest,
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_TileStorage,
@@ -71,10 +72,16 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic; override;
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo; override;
 
     function DeleteTile(
@@ -357,10 +364,17 @@ begin
   end;
 end;
 
+function TTileStorageFileSystem.GetTileInfoEx(const AXY: TPoint;
+  const AZoom: byte; const AVersionInfo: IMapVersionRequest;
+  const AMode: TGetTileInfoMode): ITileInfoBasic;
+begin
+  Result := GetTileInfo(AXY, AZoom, nil, AMode);
+end;
+
 function TTileStorageFileSystem.GetTileRectInfo(
   const ARect: TRect;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): ITileRectInfo;
 var
   VTileInfo: TTileInfo;

@@ -33,6 +33,7 @@ uses
   i_MapVersionInfo,
   i_MapVersionFactory,
   i_MapVersionListStatic,
+  i_MapVersionRequest,
   i_CoordConverter,
   i_TileInfoBasic,
   i_TileStorage,
@@ -86,11 +87,17 @@ type
       const AVersionInfo: IMapVersionInfo;
       const AMode: TGetTileInfoMode
     ): ITileInfoBasic; override;
+    function GetTileInfoEx(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersionInfo: IMapVersionRequest;
+      const AMode: TGetTileInfoMode
+    ): ITileInfoBasic; override;
 
     function GetTileRectInfo(
       const ARect: TRect;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): ITileRectInfo; override;
 
     function GetTileFileName(
@@ -118,7 +125,7 @@ type
     function GetListOfTileVersions(
       const AXY: TPoint;
       const AZoom: byte;
-      const AVersionInfo: IMapVersionInfo
+      const AVersionInfo: IMapVersionRequest
     ): IMapVersionListStatic; override;
   public
     constructor Create(
@@ -413,7 +420,7 @@ end;
 function TTileStorageDLL.GetListOfTileVersions(
   const AXY: TPoint;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): IMapVersionListStatic;
 var
   VEnumInfo: TEnumTileVersionsInfo;
@@ -427,7 +434,10 @@ begin
   FDLLSync.BeginRead;
   try
     if StorageStateInternal.ReadAccess <> asDisabled then begin
-      VVersionStoreString := AVersionInfo.StoreString;
+      VVersionStoreString := '';
+      if Assigned(AVersionInfo) then begin
+        VVersionStoreString := AVersionInfo.BaseVersion.StoreString;
+      end;
       // init
       FillChar(VEnumInfo, sizeof(VEnumInfo), #0);
       VEnumInfo.Common.Size := SizeOf(VEnumInfo);
@@ -496,10 +506,26 @@ begin
   Result := QueryTileInternal(AXY, AZoom, AVersionInfo, AMode = gtimWithData);
 end;
 
+function TTileStorageDLL.GetTileInfoEx(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersionInfo: IMapVersionRequest;
+  const AMode: TGetTileInfoMode
+): ITileInfoBasic;
+var
+  VVersion: IMapVersionInfo;
+begin
+  VVersion := nil;
+  if Assigned(AVersionInfo) then begin
+    VVersion := AVersionInfo.BaseVersion;
+  end;
+  Result := QueryTileInternal(AXY, AZoom, VVersion, AMode = gtimWithData);
+end;
+
 function TTileStorageDLL.GetTileRectInfo(
   const ARect: TRect;
   const AZoom: byte;
-  const AVersionInfo: IMapVersionInfo
+  const AVersionInfo: IMapVersionRequest
 ): ITileRectInfo;
 var
   VObj: TGetTileRectFullInfo;
@@ -524,6 +550,8 @@ var
       sl.Free;
     end;
   end;
+var
+  VVersion: IMapVersionInfo;
 begin
   Result := nil;
   //Exit;
@@ -539,7 +567,12 @@ begin
   FDLLSync.BeginRead;
   try
     if StorageStateInternal.ReadAccess <> asDisabled then begin
-      VVersionStoreString := AVersionInfo.StoreString;
+      VVersionStoreString := '';
+      VVersion := nil;
+      if Assigned(AVersionInfo) then begin
+        VVersion := AVersionInfo.BaseVersion;
+        VVersionStoreString := VVersion.StoreString;
+      end;
       // init
       FillChar(VObj, sizeof(VObj), #0);
       VObj.Base.Common.Size := SizeOf(VObj);
@@ -565,7 +598,7 @@ begin
       Result := TTileRectInfoShort.CreateWithOwn(
         ARect,
         AZoom,
-        AVersionInfo,
+        VVersion,
         FMainContentType,
         VObj.InfoArray
       );

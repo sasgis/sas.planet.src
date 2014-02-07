@@ -117,7 +117,7 @@ implementation
 
 uses
   t_GeoTypes,
-  i_MapVersionInfo,
+  i_MapVersionRequest,
   i_GeometryProjected,
   u_GeoFunc,
   u_BitmapLayerProviderMapWithLayer,
@@ -262,22 +262,20 @@ end;
 function TfrExportToOgf2.GetProvider: IBitmapLayerProvider;
 var
   VMap: TMapType;
-  VMapVersion: IMapVersionInfo;
+  VMapVersion: IMapVersionRequest;
   VLayer: TMapType;
-  VLayerVersion: IMapVersionInfo;
+  VLayerVersion: IMapVersionRequest;
   VUsePrevZoom: Boolean;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
+  VMapVersion := nil;
   if Assigned(VMap) then begin
-    VMapVersion := VMap.VersionConfig.Version;
-  end else begin
-    VMapVersion := nil;
+    VMapVersion := VMap.VersionRequestConfig.GetStatic;
   end;
   VLayer := FfrHybSelect.GetSelectedMapType;
+  VLayerVersion := nil;
   if Assigned(VLayer) then begin
-    VLayerVersion := VLayer.VersionConfig.Version;
-  end else begin
-    VLayerVersion := nil;
+    VLayerVersion := VLayer.VersionRequestConfig.GetStatic;
   end;
   VUsePrevZoom := chkUsePrevZoom.Checked;
 
