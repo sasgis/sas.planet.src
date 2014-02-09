@@ -506,7 +506,8 @@ begin
       FProjConverterFactory,
       FCoordConverterFactory,
       FGlobalConfig.TerrainDataPath,
-      FCacheConfig
+      FCacheConfig.GECachePath,
+      FCacheConfig.GCCachePath
     );
 
   FMainThreadConfigListener := TNotifyEventListenerSync.Create(FGUISyncronizedTimerNotifier, 1000, Self.OnMainThreadConfigChange);

@@ -32,7 +32,6 @@ uses
   i_TerrainProviderListElement,
   i_PathConfig,
   i_ProjConverter,
-  i_GlobalCacheConfig,
   u_BaseInterfacedObject;
 
 type
@@ -62,7 +61,8 @@ type
       const AProjConverterFactory: IProjConverterFactory;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ATerrainDataPath: IPathConfig;
-      const ACacheConfig: IGlobalCacheConfig
+      const AGECachePath: IPathConfig;
+      const AGCCachePath: IPathConfig
     );
   end;
 
@@ -86,7 +86,8 @@ constructor TTerrainProviderListSimple.Create(
   const AProjConverterFactory: IProjConverterFactory;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ATerrainDataPath: IPathConfig;
-  const ACacheConfig: IGlobalCacheConfig
+  const AGECachePath: IPathConfig;
+  const AGCCachePath: IPathConfig
 );
 var
   VItem: ITerrainProviderListElement;
@@ -100,7 +101,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGoogleEarthGUID,
       'GoogleEarth',
-      TTerrainProviderByGoogleEarth.Create(ACoordConverterFactory, ACacheConfig.GECachePath)
+      TTerrainProviderByGoogleEarth.Create(ACoordConverterFactory, AGECachePath)
     );
   Add(VItem);
 
@@ -108,7 +109,7 @@ begin
     TTerrainProviderListElement.Create(
       cTerrainProviderGeoCacherGUID,
       'GeoCacher',
-      TTerrainProviderByGeoCacher.Create(ACoordConverterFactory, ACacheConfig)
+      TTerrainProviderByGeoCacher.Create(ACoordConverterFactory, AGCCachePath)
     );
   Add(VItem);
 

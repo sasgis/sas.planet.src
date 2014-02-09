@@ -32,7 +32,6 @@ uses
   i_CoordConverterFactory,
   i_TerrainStorage,
   i_TerrainProvider,
-  i_GlobalCacheConfig,
   u_GoogleEarthLibrary,
   u_TerrainProviderByGEMemCache,
   u_BaseInterfacedObject;
@@ -71,7 +70,7 @@ type
   public
     constructor Create(
       const ACoordConverterFactory: ICoordConverterFactory;
-      const ACacheConfig: IGlobalCacheConfig
+      const ACachePath: IPathConfig
     );
   end;
 
@@ -262,13 +261,14 @@ end;
 
 constructor TTerrainProviderByGeoCacher.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
-  const ACacheConfig: IGlobalCacheConfig);
+  const ACachePath: IPathConfig
+);
 var
   VStrorage: ITerrainStorage;
   VConverter: ICoordConverter;
 begin
   VStrorage :=
-    TTileStorageGCTerrain.Create(ACacheConfig.GCCachePath.FullPath) as ITerrainStorage;
+    TTileStorageGCTerrain.Create(ACachePath.FullPath) as ITerrainStorage;
 
   VConverter :=
     ACoordConverterFactory.GetCoordConverterByCode(
@@ -276,7 +276,7 @@ begin
       CTileSplitQuadrate256x256
     );
 
-  inherited Create(ACacheConfig.GCCachePath, VStrorage, VConverter);
+  inherited Create(ACachePath, VStrorage, VConverter);
 end;
 
 end.
