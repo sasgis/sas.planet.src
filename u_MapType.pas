@@ -90,24 +90,18 @@ type
     FViewCoordConverter: ICoordConverter;
     FLoadPrevMaxZoomDelta: Integer;
     FContentType: IContentTypeInfoBasic;
-    FLanguageManager: ILanguageManager;
     FVersionRequestConfig: IMapVersionRequestConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-    FDownloadResultFactory: IDownloadResultFactory;
     FResamplerConfigLoad: IImageResamplerConfig;
     FResamplerConfigGetPrev: IImageResamplerConfig;
     FResamplerConfigChangeProjection: IImageResamplerConfig;
     FBitmapFactory: IBitmap32StaticFactory;
-    FContentTypeManager: IContentTypeManager;
-    FGlobalDownloadConfig: IGlobalDownloadConfig;
     FGUIConfig: IMapTypeGUIConfig;
     FLayerDrawConfig: ILayerDrawConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
     FStorageConfig: ISimpleTileStorageConfig;
-    FGlobalCacheConfig: IGlobalCacheConfig;
     FTileDownloadSubsystem: ITileDownloadSubsystem;
-    FPerfCounterList: IInternalPerformanceCounterList;
 
     FVersionChangeListener: IListener;
     procedure OnVersionChange;
@@ -332,24 +326,21 @@ var
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VContentTypeKml: IContentTypeInfoVectorData;
   VVersionFactory: IMapVersionFactoryChangeableInternal;
+  VPerfCounterList: IInternalPerformanceCounterList;
 begin
   inherited Create;
   FZmp := AZmp;
-  FPerfCounterList := APerfCounterList.CreateAndAddNewSubList(FZmp.GUI.Name.GetDefault);
+  VPerfCounterList := APerfCounterList.CreateAndAddNewSubList(FZmp.GUI.Name.GetDefault);
   FGUIConfig :=
     TMapTypeGUIConfig.Create(
       ALanguageManager,
       FZmp.GUI
     );
   FLayerDrawConfig := TLayerDrawConfig.Create(FZmp);
-  FLanguageManager := ALanguageManager;
   FResamplerConfigLoad := AResamplerConfigLoad;
   FResamplerConfigGetPrev := AResamplerConfigGetPrev;
   FResamplerConfigChangeProjection := AResamplerConfigChangeProjection;
-  FGlobalCacheConfig := AGlobalCacheConfig;
-  FGlobalDownloadConfig := ADownloadConfig;
   FBitmapFactory := ABitmapFactory;
-  FContentTypeManager := AContentTypeManager;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
 
@@ -371,7 +362,6 @@ begin
       FZmp.Abilities,
       FStorageConfig
     );
-  FDownloadResultFactory := TDownloadResultFactory.Create;
 
   FGUIConfig.ReadConfig(AConfig);
   FLayerDrawConfig.ReadConfig(AConfig);
@@ -380,7 +370,7 @@ begin
   FVersionRequestConfig.ReadConfig(AConfig);
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
-  FContentType := FContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
+  FContentType := AContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
   FCoordConverter := FStorageConfig.CoordConverter;
   FViewCoordConverter := FZmp.ViewGeoConvert;
 
@@ -391,7 +381,7 @@ begin
         FStorageConfig.MemCacheTTL,
         FStorageConfig.MemCacheClearStrategy,
         AGCNotifier,
-        FPerfCounterList.CreateAndAddNewSubList('TileInfoInMem')
+        VPerfCounterList.CreateAndAddNewSubList('TileInfoInMem')
       );
   end else begin
     FCacheTileInfo := nil;
@@ -399,7 +389,7 @@ begin
 
   FStorage :=
     TTileStorageOfMapType.Create(
-      FGlobalCacheConfig,
+      AGlobalCacheConfig,
       AGlobalBerkeleyDBHelper,
       FStorageConfig,
       FCacheTileInfo,
@@ -408,7 +398,7 @@ begin
       AContentTypeManager,
       ATileNameGeneratorList,
       ATileNameParserList,
-      FPerfCounterList
+      VPerfCounterList
     );
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
     FBitmapLoaderFromStorage := VContentTypeBitmap.GetLoader;
@@ -419,7 +409,7 @@ begin
         FStorage,
         FStorageConfig.CoordConverter,
         AMainMemCacheConfig,
-        FPerfCounterList.CreateAndAddNewSubList('BmpInMem')
+        VPerfCounterList.CreateAndAddNewSubList('BmpInMem')
       );
   end else if Supports(FContentType, IContentTypeInfoVectorData, VContentTypeKml) then begin
     FKmlLoaderFromStorage := VContentTypeKml.GetLoader;
@@ -429,7 +419,7 @@ begin
         FStorage,
         FStorageConfig.CoordConverter,
         AMainMemCacheConfig,
-        FPerfCounterList.CreateAndAddNewSubList('VectorInMem')
+        VPerfCounterList.CreateAndAddNewSubList('VectorInMem')
       );
     FMapDataUrlPrefix := CMapDataInternalURL + GUIDToString(FZmp.GUID) + '/';
     FVectorDataFactory :=
@@ -445,17 +435,17 @@ begin
       AAppClosingNotifier,
       FCoordConverter,
       ACoordConverterFactory,
-      FLanguageManager,
-      FGlobalDownloadConfig,
+      ALanguageManager,
+      ADownloadConfig,
       AInvisibleBrowser,
-      FDownloadResultFactory,
+      TDownloadResultFactory.Create,
       FZmp.TileDownloaderConfig,
       AResamplerConfigDownload,
       ABitmapFactory,
       FTileDownloaderConfig,
       ADownloaderThreadConfig,
       FTileDownloadRequestBuilderConfig,
-      FContentTypeManager,
+      AContentTypeManager,
       FZmp.ContentTypeSubst,
       FContentType,
       FZmp.TilePostDownloadCropConfig,
@@ -493,18 +483,13 @@ begin
   FKmlLoaderFromStorage := nil;
   FViewCoordConverter := nil;
   FContentType := nil;
-  FLanguageManager := nil;
   FTileDownloaderConfig := nil;
   FTileDownloadRequestBuilderConfig := nil;
-  FDownloadResultFactory := nil;
   FResamplerConfigLoad := nil;
   FResamplerConfigGetPrev := nil;
   FResamplerConfigChangeProjection := nil;
-  FContentTypeManager := nil;
-  FGlobalDownloadConfig := nil;
   FGUIConfig := nil;
   FAbilitiesConfig := nil;
-  FGlobalCacheConfig := nil;
   FStorageConfig := nil;
   FStorage := nil;
   inherited;
