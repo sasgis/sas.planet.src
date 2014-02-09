@@ -51,6 +51,8 @@ implementation
 
 uses
   c_CacheTypeCodes, // for default path
+  i_InterfaceListSimple,
+  u_InterfaceListSimple,
   u_TileFileNameSAS,
   u_TileFileNameGMV,
   u_TileFileNameES,
@@ -91,7 +93,10 @@ var
   VItem: ITileStorageTypeListItem;
   VStorageTypeConfig: ITileStorageTypeConfig;
   VStorageType: ITileStorageType;
+  VList: IInterfaceListSimple;
 begin
+  VList := TInterfaceListSimple.Create;
+
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_SAS);
   VStorageType :=
     TTileStorageTypeFileSystemSimple.Create(
@@ -103,11 +108,12 @@ begin
   VItem :=
     TTileStorageTypeListItem.Create(
       CTileStorageTypeFileSystemSAS,
+      c_File_Cache_Id_SAS,
       'Files SAS.Planet',
       VStorageType,
       True
     );
-  inherited Create(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_GMV);
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
@@ -118,11 +124,12 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeFileSystemGMV,
+    c_File_Cache_Id_GMV,
     'Files GMV',
     VStorageType,
     True
   );
-  Add(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_ES);
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
@@ -133,11 +140,12 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeFileSystemES,
+    c_File_Cache_Id_ES,
     'Files ES',
     VStorageType,
     True
   );
-  Add(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_GM);
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
@@ -148,11 +156,12 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeFileSystemGM1,
+    c_File_Cache_Id_GM,
     'Files GM',
     VStorageType,
     True
   );
-  Add(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_GM);
   VStorageType := TTileStorageTypeFileSystemSimple.Create(
@@ -163,11 +172,12 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeFileSystemGM2,
+    c_File_Cache_Id_GM_Aux,
     'Files GM aux',
     VStorageType,
     False
   );
-  Add(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_GC);
   VStorageType := TTileStorageTypeGC.Create(
@@ -177,11 +187,12 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeGC,
+    c_File_Cache_Id_GC,
     'GC cache',
     VStorageType,
     False
   );
-  Add(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_BDB);
   VStorageType := TTileStorageTypeBerkeleyDB.Create(
@@ -194,11 +205,12 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeBerkeleyDB,
+    c_File_Cache_Id_BDB,
     'Berkeley DB',
     VStorageType,
     True
   );
-  Add(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_BDB);
   VStorageType := TTileStorageTypeBerkeleyDB.Create(
@@ -211,11 +223,12 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeBerkeleyDB,
+    c_File_Cache_Id_BDB_Versioned,
     'Berkeley DB (Versioned)',
     VStorageType,
     True
   );
-  Add(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_DBMS);
   VStorageType := TTileStorageTypeDBMS.Create(
@@ -226,11 +239,12 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeDBMS,
+    c_File_Cache_Id_DBMS,
     'DBMS',
     VStorageType,
     False
   );
-  Add(VItem);
+  VList.Add(VItem);
 
   VStorageTypeConfig := TTileStorageTypeConfig.Create(ABasePath, c_File_Cache_Default_RAM);
   VStorageType := TTileStorageTypeInRAM.Create(
@@ -239,11 +253,13 @@ begin
   );
   VItem := TTileStorageTypeListItem.Create(
     CTileStorageTypeInRAM,
+    c_File_Cache_Id_RAM,
     'RAM',
     VStorageType,
     True
   );
-  Add(VItem);
+  VList.Add(VItem);
+  inherited Create(VList.MakeStaticAndClear);
 end;
 
 end.

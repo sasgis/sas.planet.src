@@ -23,19 +23,16 @@ unit i_TileStorageTypeList;
 interface
 
 uses
-  ActiveX,
-  i_ConfigDataElement,
-  i_TileStorageType;
+  i_TileStorageTypeListItem;
 
 type
-  ITileStorageTypeList = interface(IConfigDataElement)
-    ['{42BD0720-3B8A-4F19-8208-C6E4105377DE}']
-    function GetDefault: ITileStorageType;
-    procedure SetDefaultByGUID(const AGUID: TGUID);
+  ITileStorageTypeListStatic = interface
+    ['{ED68474F-2167-419E-B812-7AF0E3B4E461}']
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
 
-    function Get(const AGUID: TGUID): ITileStorageType;
-    function GetCanUseAsDefault(const AGUID: TGUID): Boolean;
-    function GetEnum: IEnumGUID;
+    function GetItem(AIndex: Integer): ITileStorageTypeListItem;
+    property Items[AIndex: Integer]: ITileStorageTypeListItem read GetItem;
   end;
 
 implementation

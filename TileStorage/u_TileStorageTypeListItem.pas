@@ -31,17 +31,20 @@ type
   TTileStorageTypeListItem = class(TBaseInterfacedObject, ITileStorageTypeListItem)
   private
     FGUID: TGUID;
+    FIntCode: Integer;
     FCaption: string;
     FStorageType: ITileStorageType;
     FCanUseAsDefault: Boolean;
   private
     function GetGUID: TGUID;
+    function GetIntCode: Integer;
     function GetCaption: string;
     function GetStorageType: ITileStorageType;
     function GetCanUseAsDefault: Boolean;
   public
     constructor Create(
       const AGUID: TGUID;
+      const AIntCode: Integer;
       const ACaption: string;
       const AStorageType: ITileStorageType;
       ACanUseAsDefault: Boolean
@@ -54,6 +57,7 @@ implementation
 
 constructor TTileStorageTypeListItem.Create(
   const AGUID: TGUID;
+  const AIntCode: Integer;
   const ACaption: string;
   const AStorageType: ITileStorageType;
   ACanUseAsDefault: Boolean
@@ -61,6 +65,7 @@ constructor TTileStorageTypeListItem.Create(
 begin
   inherited Create;
   FGUID := AGUID;
+  FIntCode := AIntCode;
   FCaption := ACaption;
   FStorageType := AStorageType;
   FCanUseAsDefault := ACanUseAsDefault;
@@ -79,6 +84,11 @@ end;
 function TTileStorageTypeListItem.GetGUID: TGUID;
 begin
   Result := FGUID;
+end;
+
+function TTileStorageTypeListItem.GetIntCode: Integer;
+begin
+  Result := FIntCode;
 end;
 
 function TTileStorageTypeListItem.GetStorageType: ITileStorageType;

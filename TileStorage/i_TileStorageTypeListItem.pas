@@ -31,6 +31,9 @@ type
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
 
+    function GetIntCode: Integer;
+    property IntCode: Integer read GetIntCode;
+
     function GetCaption: string;
     property Caption: string read GetCaption;
 
