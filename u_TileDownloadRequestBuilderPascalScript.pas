@@ -320,7 +320,7 @@ var
   VLonLat: TDoublePoint;
   VTile: TPoint;
   VZoom: Byte;
-  VAccept, VUserAgent: AnsiString;
+  VUserAgent: AnsiString;
   VUseDownloader: Boolean;
   VSimpleDownloader: ISimpleHttpDownloader;
 begin
@@ -357,14 +357,8 @@ begin
     Config.UnlockRead;
   end;
 
-  // TODO:  Заменить DefaultMIMEType на отдельную настройку
-  if ADownloaderConfig.DefaultMIMEType <> '' then begin
-    VAccept := ADownloaderConfig.DefaultMIMEType;
-  end else begin
-    VAccept := '*/*';
-  end;
+  FpRequestHead.Data := SetHeaderValue(FpRequestHead.Data, 'Accept', '*/*');
 
-  FpRequestHead.Data := SetHeaderValue(FpRequestHead.Data, 'Accept', VAccept);
   VUserAgent := GetHeaderValue(FpRequestHead.Data, 'User-Agent');
   if VUserAgent = '' then begin
     FpRequestHead.Data := SetHeaderValue(FpRequestHead.Data, 'User-Agent', ADownloaderConfig.InetConfigStatic.UserAgentString);
