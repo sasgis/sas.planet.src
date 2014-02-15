@@ -35,37 +35,29 @@ type
     function GetBasePath: IPathConfig;
   public
     constructor Create(
-      const ABasePath: IPathConfig;
-      const ADefaultPath: string
+      const APath: IPathConfig
     );
   end;
 
 implementation
 
 uses
-  u_ConfigSaveLoadStrategyBasicUseProvider,
-  u_PathConfig;
+  u_ConfigSaveLoadStrategyBasicUseProvider;
 
 { TTileStorageTypeConfig }
 
 constructor TTileStorageTypeConfig.Create(
-  const ABasePath: IPathConfig;
-  const ADefaultPath: string
+  const APath: IPathConfig
 );
 begin
   inherited Create;
-  FPath := TPathConfig.Create('Path', ADefaultPath, ABasePath);
+  FPath := APath;
   Add(FPath, TConfigSaveLoadStrategyBasicUseProvider.Create);
 end;
 
 function TTileStorageTypeConfig.GetBasePath: IPathConfig;
 begin
-  LockRead;
-  try
-    Result := FPath;
-  finally
-    UnlockRead;
-  end;
+  Result := FPath;
 end;
 
 end.

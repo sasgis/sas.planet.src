@@ -42,6 +42,7 @@ type
   private
     function GetCount: Integer;
     function GetItem(AIndex: Integer): ITileStorageTypeListItem;
+    function GetItemByCode(const ACode: Integer): ITileStorageTypeListItem;
   public
     constructor Create(const AList: IInterfaceListStatic);
   end;
@@ -72,6 +73,25 @@ function TTileStorageTypeList.GetItem(
 ): ITileStorageTypeListItem;
 begin
   Result := ITileStorageTypeListItem(FList.Items[AIndex]);
+end;
+
+function TTileStorageTypeList.GetItemByCode(
+  const ACode: Integer
+): ITileStorageTypeListItem;
+var
+  i: Integer;
+  VItem: ITileStorageTypeListItem;
+begin
+  Result := nil;
+  if Assigned(FList) then begin
+    for i := 0 to FList.Count - 1 do begin
+      VItem := ITileStorageTypeListItem(FList.Items[i]);
+      if VItem.IntCode = ACode then begin
+        Result := VItem;
+        Break;
+      end;
+    end;
+  end;
 end;
 
 end.

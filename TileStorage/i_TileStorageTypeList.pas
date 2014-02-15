@@ -33,6 +33,8 @@ type
 
     function GetItem(AIndex: Integer): ITileStorageTypeListItem;
     property Items[AIndex: Integer]: ITileStorageTypeListItem read GetItem;
+
+    function GetItemByCode(const ACode: Integer): ITileStorageTypeListItem;
   end;
 
 implementation
