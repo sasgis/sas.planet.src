@@ -713,6 +713,7 @@ uses
   u_TileStorageGETerrain in 'TileStorage\DLL\u_TileStorageGETerrain.pas',
   u_TileStorageTypeGE in 'TileStorage\DLL\u_TileStorageTypeGE.pas',
   u_TileStorageGoogleEarth in 'TileStorage\GoogleEarth\u_TileStorageGoogleEarth.pas',
+  u_TileStorageTypeGoogleEarth in 'TileStorage\GoogleEarth\u_TileStorageTypeGoogleEarth.pas',
   u_ExternalTerrainAPI in 'Terrain\External\u_ExternalTerrainAPI.pas',
   u_ExternalTerrainsProvider in 'Terrain\External\u_ExternalTerrainsProvider.pas',
   i_GoogleEarthTerrainTileStorage in 'Terrain\GoogleEarth\i_GoogleEarthTerrainTileStorage.pas',

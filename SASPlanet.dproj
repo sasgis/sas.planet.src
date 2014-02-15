@@ -846,6 +846,7 @@
     <DCCReference Include="TileStorage\FileSystem\u_TileStorageFileSystem.pas" />
     <DCCReference Include="TileStorage\FileSystem\u_TileStorageTypeFileSystemSimple.pas" />
     <DCCReference Include="TileStorage\GoogleEarth\u_TileStorageGoogleEarth.pas" />
+    <DCCReference Include="TileStorage\GoogleEarth\u_TileStorageTypeGoogleEarth.pas" />
     <DCCReference Include="TileStorage\i_SimpleTileStorageConfig.pas" />
     <DCCReference Include="TileStorage\i_StorageState.pas" />
     <DCCReference Include="TileStorage\i_StorageStateInternal.pas" />
