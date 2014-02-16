@@ -5,7 +5,7 @@ interface
 uses
   i_Bitmap32Static;
 
-procedure CopyBitmapToClipboard(AHandle: THandle; ABitmap: IBitmap32Static);
+procedure CopyBitmapToClipboard(AHandle: THandle; const ABitmap: IBitmap32Static);
 procedure CopyStringToClipboard(AHandle: THandle; const s: string);
 
 implementation
@@ -16,7 +16,7 @@ uses
   GR32,
   u_BitmapFunc;
 
-procedure CopyBitmapToClipboard(AHandle: THandle; ABitmap: IBitmap32Static);
+procedure CopyBitmapToClipboard(AHandle: THandle; const ABitmap: IBitmap32Static);
 var
   btm:TBitmap32;
   btm1:TBitmap;
