@@ -60,6 +60,7 @@ type
     FList: IGUIDInterfaceSet;
     function GetHash: THashValue;
     function IsEqual(const AValue: IMapTypeSet): Boolean;
+    function IsExists(const AGUID: TGUID): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
     function GetMapTypeIterator: IEnumUnknown;
@@ -141,6 +142,11 @@ begin
     end;
   end;
   Result := True;
+end;
+
+function TMapTypeSet.IsExists(const AGUID: TGUID): Boolean;
+begin
+  Result := FList.GetByGUID(AGUID) <> nil;
 end;
 
 { TMapTypeSetBuilder }

@@ -34,6 +34,7 @@ uses
 type
   TMapTypeChangeableByNotifier = class(TConfigDataElementBaseEmptySaveLoad, IMapTypeChangeable)
   private
+    FIsAllowNil: Boolean;
     FMapsSet: IMapTypeSet;
     FStatic: IMapType;
   private
@@ -44,6 +45,7 @@ type
     function GetStatic: IMapType;
   public
     constructor Create(
+      const AIsAllowNil: Boolean;
       const AMainMapChangeNotyfier: INotifier;
       const AMapsSet: IMapTypeSet
     );
@@ -54,11 +56,13 @@ implementation
 
 uses
   ActiveX,
+  c_ZeroGUID,
   u_NotifyWithGUIDEvent;
 
 { TActiveMapConfigNew }
 
 constructor TMapTypeChangeableByNotifier.Create(
+  const AIsAllowNil: Boolean;
   const AMainMapChangeNotyfier: INotifier;
   const AMapsSet: IMapTypeSet
 );
@@ -69,14 +73,19 @@ begin
   Assert(AMainMapChangeNotyfier <> nil);
   Assert(AMapsSet <> nil);
   inherited Create;
+  FIsAllowNil := AIsAllowNil;
   FMapsSet := AMapsSet;
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
   FMainMapListener := TNotifyWithGUIDEventListener.Create(Self.OnMainMapChange);
   FMainMapChangeNotyfier.Add(FMainMapListener);
-  if FMapsSet.GetIterator.Next(1, VGUID, i) <> S_OK then begin
-    raise Exception.Create('Empty maps list');
+  if FIsAllowNil then begin
+    FStatic := nil;
+  end else begin
+    if FMapsSet.GetIterator.Next(1, VGUID, i) <> S_OK then begin
+      raise Exception.Create('Empty maps list');
+    end;
+    FStatic := FMapsSet.GetMapTypeByGUID(VGUID);
   end;
-  FStatic := FMapsSet.GetMapTypeByGUID(VGUID);
 end;
 
 destructor TMapTypeChangeableByNotifier.Destroy;
@@ -107,10 +116,16 @@ var
 begin
   LockWrite;
   try
-    VGUID := FStatic.GUID;
+    VGUID := CGUID_Zero;
+    if Assigned(FStatic) then begin
+      VGUID := FStatic.GUID;
+    end;
     if not IsEqualGUID(VGUID, AGUID) then begin
-      VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
-      if VMapType <> nil then begin
+      if IsEqualGUID(AGUID, CGUID_Zero) then begin
+        FStatic := nil;
+        SetChanged;
+      end else begin
+        VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
         FStatic := VMapType;
         SetChanged;
       end;

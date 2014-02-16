@@ -20,6 +20,7 @@ type
     property Items[AIndex: Integer]: IMapType read GetItem;
 
     function IsEqual(const AValue: IMapTypeSet): Boolean;
+    function IsExists(const AGUID: TGUID): Boolean;
     function GetMapTypeByGUID(const AGUID: TGUID): IMapType;
     function GetIterator: IEnumGUID;
     function GetMapTypeIterator: IEnumUnknown;

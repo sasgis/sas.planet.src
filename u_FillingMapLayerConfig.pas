@@ -93,7 +93,6 @@ type
     function GetThreadConfig: IThreadConfig;
   public
     constructor Create(
-      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMainMap: IMapTypeChangeable;
       const AMapsSet: IMapTypeSet
     );
@@ -112,7 +111,6 @@ uses
 { TFillingMapLayerConfig }
 
 constructor TFillingMapLayerConfig.Create(
-  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMainMap: IMapTypeChangeable;
   const AMapsSet: IMapTypeSet
 );
@@ -130,7 +128,6 @@ begin
   FFillLastDay := DateOf(Now);
   FSourceMap :=
     TFillingMapMapsConfig.Create(
-      AMapTypeSetBuilderFactory,
       AMainMap,
       AMapsSet
     );

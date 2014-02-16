@@ -9,6 +9,7 @@ uses
   i_ActiveMapsConfig,
   i_NotifierTime,
   i_MapTypeSet,
+  i_MapTypeSetChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_DownloadInfoSimple,
   i_GlobalInternetState,
@@ -28,7 +29,7 @@ type
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AMapsSet: IMapTypeSet;
-      const AMapsSingleSet: IActiveMapSingleSet;
+      const AActiveMaps: IMapTypeSetChangeable;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
       const AErrorLogger: ITileErrorLogger
@@ -40,6 +41,7 @@ implementation
 uses
   ActiveX,
   i_InterfaceListSimple,
+  i_MapTypes,
   u_InterfaceListSimple,
   u_UiTileDownload;
 
@@ -52,25 +54,23 @@ constructor TUITileDownloadList.Create(
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AMapsSet: IMapTypeSet;
-  const AMapsSingleSet: IActiveMapSingleSet;
+  const AActiveMaps: IMapTypeSetChangeable;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
   const AErrorLogger: ITileErrorLogger
 );
 var
-  VEnum: IEnumGUID;
-  i: Cardinal;
-  VGUID: TGUID;
-  VMapTypeActive: IActiveMapSingle;
+  VEnum: IEnumUnknown;
+  VCnt: Integer;
   VDownload: IInterface;
   VList: IInterfaceListSimple;
+  VMapType: IMapType;
 begin
   inherited Create;
   VList := TInterfaceListSimple.Create;
-  VEnum := AMapsSet.GetIterator;
-  while VEnum.Next(1, VGUID, i) = S_OK do begin
-    VMapTypeActive := AMapsSingleSet.GetMapSingle(VGUID);
-    if VMapTypeActive.GetMapType.MapType.Zmp.TileDownloaderConfig.Enabled then begin
+  VEnum := AMapsSet.GetMapTypeIterator;
+  while VEnum.Next(1, VMapType, @VCnt) = S_OK do begin
+    if VMapType.MapType.Zmp.TileDownloaderConfig.Enabled then begin
       VDownload :=
         TUiTileDownload.Create(
           AConfig,
@@ -78,7 +78,8 @@ begin
           AAppClosingNotifier,
           ACoordConverterFactory,
           AViewPortState,
-          VMapTypeActive,
+          VMapType,
+          AActiveMaps,
           ADownloadInfo,
           AGlobalInternetState,
           AErrorLogger

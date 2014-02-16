@@ -30,22 +30,10 @@ uses
   i_ConfigDataElement;
 
 type
-  IActiveMapSingle = interface(IChangeable)
-    ['{12F47503-E574-4F4F-A30C-7304D38410C7}']
-    function GetMapType: IMapType;
-    function GetIsActive: Boolean;
-  end;
-
-  IActiveMapSingleSet = interface
-    ['{4F39120B-56F6-4794-93D1-618287A72D59}']
-    function GetMapSingle(const AMapGUID: TGUID): IActiveMapSingle;
-  end;
-
   IMainActiveMap = interface(IConfigDataElement)
     procedure SelectMainByGUID(const AMapGUID: TGUID);
     function GetActiveMap: IMapTypeChangeable;
 
-    function GetMapSingleSet: IActiveMapSingleSet;
     function GetMapsSet: IMapTypeSet;
   end;
 

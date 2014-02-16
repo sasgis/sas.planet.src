@@ -32,6 +32,8 @@ uses
   i_DownloadUIConfig,
   i_DownloadInfoSimple,
   i_BackgroundTask,
+  i_MapTypes,
+  i_MapTypeSetChangeable,
   i_TileError,
   i_TileRequestTask,
   i_TileRequestResult,
@@ -53,7 +55,8 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FConverterFactory: ILocalCoordConverterFactorySimpe;
     FViewPortState: ILocalCoordConverterChangeable;
-    FMapTypeActive: IActiveMapSingle;
+    FMapType: IMapType;
+    FActiveMaps: IMapTypeSetChangeable;
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
     FErrorLogger: ITileErrorLogger;
@@ -101,7 +104,8 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AMapTypeActive: IActiveMapSingle;
+      const AMapType: IMapType;
+      const AActiveMaps: IMapTypeSetChangeable;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
       const AErrorLogger: ITileErrorLogger
@@ -142,7 +146,8 @@ constructor TUiTileDownload.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AMapTypeActive: IActiveMapSingle;
+  const AMapType: IMapType;
+  const AActiveMaps: IMapTypeSetChangeable;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
   const AErrorLogger: ITileErrorLogger
@@ -157,14 +162,15 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FConverterFactory := ACoordConverterFactory;
   FViewPortState := AViewPortState;
-  FMapTypeActive := AMapTypeActive;
+  FMapType := AMapType;
+  FActiveMaps := AActiveMaps;
   FDownloadInfo := ADownloadInfo;
   FGlobalInternetState := AGlobalInternetState;
   FErrorLogger := AErrorLogger;
 
   FVisualCoordConverterCS := MakeSyncRW_Var(Self);
 
-  VMapType := FMapTypeActive.GetMapType.MapType;
+  VMapType := FMapType.MapType;
 
   FDownloadState := VMapType.TileDownloadSubsystem.State;
 
@@ -184,7 +190,7 @@ begin
   );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMapTypeActiveChange),
-    FMapTypeActive.ChangeNotifier
+    FActiveMaps.ChangeNotifier
   );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnMapTypeActiveChange),
@@ -313,7 +319,7 @@ end;
 procedure TUiTileDownload.OnMapTypeActiveChange;
 begin
   if FDownloadState.GetStatic.Enabled then begin
-    FMapActive := FMapTypeActive.GetIsActive;
+    FMapActive := FActiveMaps.GetStatic.IsExists(FMapType.GUID);
   end else begin
     FMapActive := False;
   end;
@@ -333,7 +339,7 @@ begin
   VConverter :=
     FConverterFactory.CreateBySourceWithTileRectAndOtherGeo(
       FViewPortState.GetStatic,
-      FMapTypeActive.GetMapType.MapType.GeoConvert
+      FMapType.MapType.GeoConvert
     );
   VNeedRestart := False;
 
@@ -376,7 +382,7 @@ var
 begin
   FTTLListener.UpdateUseTime;
 
-  VMapType := FMapTypeActive.GetMapType.MapType;
+  VMapType := FMapType.MapType;
   VStorage := VMapType.TileStorage;
   VVersionInfo := VMapType.VersionRequestConfig.GetStatic;
 
@@ -500,7 +506,7 @@ begin
   if Supports(AResult, ITileRequestResultError, VRequestError) then begin
     VError :=
       TTileErrorInfoByTileRequestResult.Create(
-        FMapTypeActive.GetMapType.GUID,
+        FMapType.GUID,
         VRequestError
       );
   end else if Supports(AResult, ITileRequestResultWithDownloadResult, VResultWithDownload) then begin
@@ -511,7 +517,7 @@ begin
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultDataNotExists, VResultDataNotExists) then begin
       VError :=
         TTileErrorInfoByDataNotExists.Create(
-          FMapTypeActive.GetMapType.GUID,
+          FMapType.GUID,
           ATask.TileRequest.Zoom,
           ATask.TileRequest.Tile,
           VResultDataNotExists
@@ -519,7 +525,7 @@ begin
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultError, VResultDownloadError) then begin
       VError :=
         TTileErrorInfoByDownloadResultError.Create(
-          FMapTypeActive.GetMapType.GUID,
+          FMapType.GUID,
           ATask.TileRequest.Zoom,
           ATask.TileRequest.Tile,
           VResultDownloadError
@@ -527,7 +533,7 @@ begin
     end else if Supports(VResultWithDownload.DownloadResult, IDownloadResultNotNecessary, VResultNotNecessary) then begin
       VError :=
         TTileErrorInfoByNotNecessary.Create(
-          FMapTypeActive.GetMapType.GUID,
+          FMapType.GUID,
           ATask.TileRequest.Zoom,
           ATask.TileRequest.Tile,
           VResultNotNecessary
@@ -535,7 +541,7 @@ begin
     end else begin
       VError :=
         TTileErrorInfo.Create(
-          FMapTypeActive.GetMapType.GUID,
+          FMapType.GUID,
           ATask.TileRequest.Zoom,
           ATask.TileRequest.Tile,
           'Unexpected error'

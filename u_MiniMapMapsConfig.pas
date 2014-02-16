@@ -75,7 +75,7 @@ constructor TMiniMapMapsConfig.Create(
 begin
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FMainMap := AMainMap;
-  inherited Create(AMapTypeSetBuilderFactory, CreateMiniMapMapsSet(AMapsSet), CreateMiniMapLayersSet(ALayersSet));
+  inherited Create(True, AMapTypeSetBuilderFactory, CreateMiniMapMapsSet(AMapsSet), CreateMiniMapLayersSet(ALayersSet));
 
   FMainMapChangeListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
   FMainMap.ChangeNotifier.Add(FMainMapChangeListener);
@@ -83,7 +83,7 @@ begin
   FSelectedMapChangeListener := TNotifyWithGUIDEventListener.Create(Self.OnSelectedChange);
   MainMapChangeNotyfier.Add(FSelectedMapChangeListener);
 
-  OnSelectedChange(GetActiveMap.GetStatic.GUID);
+  OnSelectedChange(CGUID_Zero);
 end;
 
 destructor TMiniMapMapsConfig.Destroy;
@@ -140,7 +140,6 @@ var
   i: Cardinal;
 begin
   VList := FMapTypeSetBuilderFactory.Build(True);
-  VList.Add(TMapTypeBasic.Create(nil));
   VEnun := ASourceMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMap := ASourceMapsSet.GetMapTypeByGUID(VGUID);
@@ -156,7 +155,7 @@ var
   VMapType: IMapType;
 begin
   VMapType := GetActiveMap.GetStatic;
-  if IsEqualGUID(VMapType.GUID, CGUID_Zero) then begin
+  if not Assigned(VMapType) then begin
     SetActiveMiniMap(FMainMap.GetStatic);
   end;
 end;
@@ -172,6 +171,7 @@ end;
 
 procedure TMiniMapMapsConfig.SetActiveMiniMap(const AValue: IMapType);
 begin
+  Assert(Assigned(AValue));
   LockWrite;
   try
     if FStatic <> AValue then begin

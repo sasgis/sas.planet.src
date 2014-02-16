@@ -173,7 +173,7 @@ begin
   Add(FMarkPolygonLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolygon'));
   FMarkPolyLineLayerConfig := TMarkPolyLineLayerConfig.Create;
   Add(FMarkPolyLineLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('EditMarkPolyLine'));
-  FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapTypeSetBuilderFactory, AMapsConfig.GetActiveMap, AMapsConfig.GetAllMapsSet);
+  FFillingMapLayerConfig := TFillingMapLayerConfig.Create(AMapsConfig.GetActiveMap, AMapsConfig.GetAllMapsSet);
   Add(FFillingMapLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('FillingLayer'));
   FGotoLayerConfig := TGotoLayerConfig.Create;
   Add(FGotoLayerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('GotoMarker'));

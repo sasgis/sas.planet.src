@@ -71,7 +71,7 @@ var
   VKmlLayersList: IMapTypeSetBuilder;
 begin
   FDefaultMapGUID := ADefaultMapGUID;
-  inherited Create(AMapTypeSetBuilderFactory, AMapsSet, ALayersSet);
+  inherited Create(False, AMapTypeSetBuilderFactory, AMapsSet, ALayersSet);
 
   VBitmapLayersList := AMapTypeSetBuilderFactory.Build(True);
   VKmlLayersList := AMapTypeSetBuilderFactory.Build(True);

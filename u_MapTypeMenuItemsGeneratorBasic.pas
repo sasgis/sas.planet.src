@@ -28,9 +28,10 @@ uses
   TBX,
   i_MapTypeSet,
   i_ActiveMapsConfig,
+  i_MapTypes,
+  i_MapTypeSetChangeable,
   i_MapTypeGUIConfigList,
-  i_MapTypeIconsList,
-  u_MapType;
+  i_MapTypeIconsList;
 
 type
   TMapMenuGeneratorBasic = class
@@ -39,19 +40,21 @@ type
     FIconsList: IMapTypeIconsList;
     FRootMenu: TTBCustomItem;
     FMapsSet: IMapTypeSet;
-    FSingleSet: IActiveMapSingleSet;
+    FActiveMap: IMapTypeChangeable;
+    FActiveLayers: IMapTypeSetChangeable;
     FOnClick: TNotifyEvent;
     procedure ClearLists; virtual;
     procedure ProcessSubItemsCreate; virtual;
     procedure ProcessSubItemGUID(const AGUID: TGUID); virtual;
     function CreateSubMenuItem(const AName: string): TTBCustomItem; virtual;
     function GetParentMenuItem(const AName: string): TTBCustomItem; virtual;
-    function CreateMenuItem(const AMapActive: IActiveMapSingle): TTBXCustomItem; virtual;
+    function CreateMenuItem(const AMapType: IMapType): TTBXCustomItem; virtual;
   public
     constructor Create(
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AMapsSet: IMapTypeSet;
-      const ASingleSet: IActiveMapSingleSet;
+      const AActiveMap: IMapTypeChangeable;
+      const AActiveLayers: IMapTypeSetChangeable;
       ARootMenu: TTBCustomItem;
       AOnClick: TNotifyEvent;
       const AIconsList: IMapTypeIconsList
@@ -67,6 +70,7 @@ uses
   i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator,
   u_ActiveMapTBXItem,
+  u_MapType,
   u_ResStrings;
 
 { TMapMenuGeneratorBasic }
@@ -74,7 +78,8 @@ uses
 constructor TMapMenuGeneratorBasic.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AMapsSet: IMapTypeSet;
-  const ASingleSet: IActiveMapSingleSet;
+  const AActiveMap: IMapTypeChangeable;
+  const AActiveLayers: IMapTypeSetChangeable;
   ARootMenu: TTBCustomItem;
   AOnClick: TNotifyEvent;
   const AIconsList: IMapTypeIconsList
@@ -82,38 +87,40 @@ constructor TMapMenuGeneratorBasic.Create(
 begin
   Assert(AGUIConfigList <> nil);
   Assert(AMapsSet <> nil);
-  Assert(ASingleSet <> nil);
+  Assert(Assigned(AActiveLayers) or Assigned(AActiveMap));
   Assert(AIconsList <> nil);
   inherited Create;
   FGUIConfigList := AGUIConfigList;
   FMapsSet := AMapsSet;
-  FSingleSet := ASingleSet;
+  FActiveMap := AActiveMap;
+  FActiveLayers := AActiveLayers;
   FRootMenu := ARootMenu;
   FIconsList := AIconsList;
   FOnClick := AOnClick;
 end;
 
 function TMapMenuGeneratorBasic.CreateMenuItem(
-  const AMapActive: IActiveMapSingle
+  const AMapType: IMapType
 ): TTBXCustomItem;
 var
   VGUID: TGUID;
   VMapType: TMapType;
 begin
-  Result := TActiveMapTBXItem.Create(FRootMenu, AMapActive);
-  VMapType := nil;
-  if AMapActive.GetMapType <> nil then begin
-    VMapType := AMapActive.GetMapType.MapType;
-  end;
-  if VMapType <> nil then begin
-    VGUID := VMapType.Zmp.GUID;
-    Result.Caption := VMapType.GUIConfig.Name.Value;
+  if Assigned(FActiveMap) then begin
+    Result := TActiveMapTBXItem.Create(FRootMenu, AMapType, FActiveMap);
   end else begin
-    VGUID := CGUID_Zero;
-    Result.Caption := SAS_STR_MiniMapAsMainMap;
+    Result := TActiveLayerTBXItem.Create(FRootMenu, AMapType, FActiveLayers);
+  end;
+  VMapType := nil;
+  if AMapType <> nil then begin
+    VMapType := AMapType.MapType;
+  end;
+  VGUID := AMapType.GUID;
+  if VMapType <> nil then begin
+    Result.Caption := VMapType.GUIConfig.Name.Value;
   end;
   Result.ImageIndex := FIconsList.GetIconIndexByGUID(VGUID);
-  Result.Tag := Integer(AMapActive);
+  Result.Tag := Integer(AMapType);
   Result.OnClick := FOnClick;
 end;
 
@@ -206,34 +213,28 @@ end;
 
 procedure TMapMenuGeneratorBasic.ProcessSubItemGUID(const AGUID: TGUID);
 var
-  VActiveMap: IActiveMapSingle;
+  VMapType: IMapType;
   VSubMenu: TTBCustomItem;
   VMenuItem: TTBXCustomItem;
   VSubMenuName: string;
-  VMapType: TMapType;
   VEnabled: Boolean;
 begin
-  if FMapsSet.GetMapTypeByGUID(AGUID) <> nil then begin
-    VActiveMap := FSingleSet.GetMapSingle(AGUID);
-    if VActiveMap <> nil then begin
-      VSubMenuName := '';
-      VEnabled := True;
-      if VActiveMap.GetMapType <> nil then begin
-        if VActiveMap.GetMapType.MapType <> nil then begin
-          VEnabled := VActiveMap.GetMapType.MapType.GUIConfig.Enabled;
-          VSubMenuName := VActiveMap.GetMapType.MapType.GUIConfig.ParentSubMenu.Value;
-        end;
-      end;
-      if VEnabled then begin
-        VSubMenu := GetParentMenuItem(VSubMenuName);
-        Assert(VSubMenu <> nil);
-        VMenuItem := CreateMenuItem(VActiveMap);
-        VSubMenu.Add(VMenuItem);
-        VMapType := nil;
-        if VActiveMap.GetMapType <> nil then begin
-          VMapType := VActiveMap.GetMapType.MapType;
-        end;
-        if (VMapType <> nil) and (VActiveMap.GetMapType.MapType.GUIConfig.Separator) then begin
+  VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
+  if VMapType <> nil then begin
+    VSubMenuName := '';
+    VEnabled := True;
+    if VMapType.MapType <> nil then begin
+      VEnabled := VMapType.MapType.GUIConfig.Enabled;
+      VSubMenuName := VMapType.MapType.GUIConfig.ParentSubMenu.Value;
+    end;
+    if VEnabled then begin
+      VSubMenu := GetParentMenuItem(VSubMenuName);
+      Assert(Assigned(VSubMenu));
+      VMenuItem := CreateMenuItem(VMapType);
+      Assert(Assigned(VMenuItem));
+      VSubMenu.Add(VMenuItem);
+      if VMapType.MapType <> nil then begin
+        if VMapType.MapType.GUIConfig.Separator then begin
           VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
         end;
       end;
@@ -246,7 +247,6 @@ var
   i: Integer;
   VStaticList: IGUIDListStatic;
 begin
-  ProcessSubItemGUID(CGUID_Zero);
   VStaticList := FGUIConfigList.OrderedMapGUIDList;
   for i := 0 to VStaticList.Count - 1 do begin
     ProcessSubItemGUID(VStaticList.Items[i]);

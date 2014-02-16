@@ -872,6 +872,7 @@ uses
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
+  u_ActiveMapTBXItem,
   frm_LonLatRectEdit;
 
 type
@@ -1430,7 +1431,7 @@ begin
         GState.LocalConverterFactory,
         FConfig.ViewPortState.Position,
         FConfig.MainMapsConfig.GetAllMapsSet,
-        FConfig.MainMapsConfig.GetMapSingleSet,
+        FConfig.MainMapsConfig.GetAllActiveMapsSet,
         GState.DownloadInfo,
         GState.GlobalInternetState,
         FTileErrorLogger
@@ -2437,7 +2438,8 @@ begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     GState.MapType.GUIConfigList,
     FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapsSet,
-    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetMapSingleSet,
+    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetActiveMap,
+    nil,
     TBFillingTypeMap,
     Self.TBfillMapAsMainClick,
     FMapTypeIcons18List
@@ -2456,7 +2458,8 @@ begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     GState.MapType.GUIConfigList,
     FConfig.MainMapsConfig.GetLayersSet,
-    FConfig.MainMapsConfig.GetMapSingleSet,
+    nil,
+    FConfig.MainMapsConfig.GetActiveLayersSet,
     TBLayerSel,
     Self.OnClickLayerItem,
     FMapTypeIcons18List
@@ -2562,7 +2565,8 @@ begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     GState.MapType.GUIConfigList,
     FConfig.MainMapsConfig.GetMapsSet,
-    FConfig.MainMapsConfig.GetMapSingleSet,
+    FConfig.MainMapsConfig.GetActiveMap,
+    nil,
     TBSMB,
     Self.OnClickMapItem,
     FMapTypeIcons18List
@@ -2861,26 +2865,13 @@ end;
 procedure TfrmMain.OnClickLayerItem(Sender: TObject);
 var
   VSender: TTBCustomItem;
-  VAtiveMap: IActiveMapSingle;
   VMapType: IMapType;
 begin
   if Sender is TTBCustomItem then begin
     VSender := TTBCustomItem(Sender);
-    VAtiveMap := IActiveMapSingle(VSender.Tag);
-    if VAtiveMap <> nil then begin
-      VMapType := VAtiveMap.GetMapType;
-      if VMapType <> nil then begin
-        FConfig.MainMapsConfig.LockWrite;
-        try
-          if VAtiveMap.GetIsActive then begin
-            FConfig.MainMapsConfig.UnSelectLayerByGUID(VMapType.GUID);
-          end else begin
-            FConfig.MainMapsConfig.SelectLayerByGUID(VMapType.GUID);
-          end;
-        finally
-          FConfig.MainMapsConfig.UnlockWrite;
-        end;
-      end;
+    VMapType := IMapType(VSender.Tag);
+    if VMapType <> nil then begin
+      FConfig.MainMapsConfig.InvertLayerSelectionByGUID(VMapType.GUID);
     end;
   end;
 end;
@@ -2888,17 +2879,13 @@ end;
 procedure TfrmMain.OnClickMapItem(Sender: TObject);
 var
   VSender: TComponent;
-  VActiveMap: IActiveMapSingle;
   VMapType: IMapType;
 begin
   if Sender is TComponent then begin
     VSender := TComponent(Sender);
-    VActiveMap := IActiveMapSingle(VSender.Tag);
-    if VActiveMap <> nil then begin
-      VMapType := VActiveMap.GetMapType;
-      if VMapType <> nil then begin
-        FConfig.MainMapsConfig.SelectMainByGUID(VMapType.GUID);
-      end;
+    VMapType := IMapType(VSender.Tag);
+    if VMapType <> nil then begin
+      FConfig.MainMapsConfig.SelectMainByGUID(VMapType.GUID);
     end;
   end;
 end;
@@ -3016,7 +3003,18 @@ begin
 end;
 
 procedure TfrmMain.OnMapGUIChange;
+var
+  VMenuItemAsMainMap: TTBXCustomItem;
 begin
+  if TBFillingTypeMap.Count = 0 then begin
+    VMenuItemAsMainMap := TActiveMapTBXItem.Create(TBFillingTypeMap, nil, FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetActiveMap);
+    VMenuItemAsMainMap.Name := 'MiniMapLayers';
+    VMenuItemAsMainMap.Caption := SAS_STR_MiniMapAsMainMap;
+    VMenuItemAsMainMap.Hint := '';
+    VMenuItemAsMainMap.OnClick := Self.TBfillMapAsMainClick;
+    TBFillingTypeMap.Add(VMenuItemAsMainMap);
+  end;
+
   FMapHotKeyList := GState.MapType.GUIConfigList.HotKeyList;
   CreateMapUIMapsList;
   CreateMapUILayersList;
@@ -5972,21 +5970,17 @@ end;
 procedure TfrmMain.TBfillMapAsMainClick(Sender: TObject);
 var
   VSender: TComponent;
-  VAtiveMap: IActiveMapSingle;
   VMapType: IMapType;
   VGUID: TGUID;
 begin
   if Sender is TComponent then begin
     VSender := TComponent(Sender);
-    VAtiveMap := IActiveMapSingle(VSender.Tag);
-    if VAtiveMap <> nil then begin
-      VMapType := VAtiveMap.GetMapType;
-      VGUID := CGUID_Zero;
-      if VMapType <> nil then begin
-        VGUID := VMapType.GUID;
-      end;
-      FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.SelectMainByGUID(VGUID);
+    VMapType := IMapType(VSender.Tag);
+    VGUID := CGUID_Zero;
+    if VMapType <> nil then begin
+      VGUID := VMapType.GUID;
     end;
+    FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.SelectMainByGUID(VGUID);
   end;
 end;
 

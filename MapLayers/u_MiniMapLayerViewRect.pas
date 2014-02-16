@@ -108,11 +108,13 @@ type
       const ATimerNoifier: INotifierTime;
       const AConfig: IMiniMapLayerConfig
     );
+    destructor Destroy; override;
   end;
 
 implementation
 
 uses
+  SysUtils,
   c_ZeroGUID,
   i_CoordConverter,
   i_MapTypes,
@@ -121,6 +123,7 @@ uses
   u_SimpleFlagWithInterlock,
   u_ListenerTime,
   u_MapTypeMenuItemsGeneratorBasic,
+  u_ActiveMapTBXItem,
   u_GeoFunc,
   u_ResStrings;
 
@@ -174,11 +177,13 @@ begin
     ATimerNoifier
   );
 
-  FPopup := TTBXPopupMenu.Create(AParentMap);
-  FPopup.Name := 'PopupMiniMap';
-  FPopup.Images := FIconsList.GetImageList;
-
   BuildPopUpMenu;
+end;
+
+destructor TMiniMapLayerViewRect.Destroy;
+begin
+  FreeAndNil(FPopup);
+  inherited;
 end;
 
 procedure TMiniMapLayerViewRect.BuildMapsListUI(
@@ -190,7 +195,8 @@ begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     FGUIConfigList,
     FConfig.MapsConfig.GetMapsSet,
-    FConfig.MapsConfig.GetMapSingleSet,
+    FConfig.MapsConfig.GetActiveMap,
+    nil,
     AMapssSubMenu,
     Self.OnClickMapItem,
     FIconsList
@@ -203,7 +209,8 @@ begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     FGUIConfigList,
     FConfig.MapsConfig.GetLayersSet,
-    FConfig.MapsConfig.GetMapSingleSet,
+    nil,
+    FConfig.MapsConfig.GetActiveLayersSet,
     ALayersSubMenu,
     Self.OnClickLayerItem,
     FIconsList
@@ -219,7 +226,12 @@ procedure TMiniMapLayerViewRect.BuildPopUpMenu;
 var
   VSubMenuItem: TTBXSubmenuItem;
   VLayersSubMenu: TTBXSubmenuItem;
+  VMenuItemAsMainMap: TTBXCustomItem;
 begin
+  FPopup := TTBXPopupMenu.Create(nil);
+  FPopup.Name := 'PopupMiniMap';
+  FPopup.Images := FIconsList.GetImageList;
+
   VSubMenuItem := TTBXSubmenuItem.Create(FPopup);
   VSubMenuItem.Name := 'MiniMapLayers';
   VSubMenuItem.Caption := SAS_STR_Layers;
@@ -227,6 +239,13 @@ begin
   VSubMenuItem.SubMenuImages := FPopup.Images;
   FPopup.Items.Add(VSubMenuItem);
   VLayersSubMenu := VSubMenuItem;
+
+  VMenuItemAsMainMap := TActiveMapTBXItem.Create(FPopup, nil, FConfig.MapsConfig.GetActiveMap);
+  VMenuItemAsMainMap.Name := 'MapAsMainLayer';
+  VMenuItemAsMainMap.Caption := SAS_STR_MiniMapAsMainMap;
+  VMenuItemAsMainMap.Hint := '';
+  VMenuItemAsMainMap.OnClick := Self.OnClickMapItem;
+  FPopup.Items.Add(VMenuItemAsMainMap);
 
   BuildMapsListUI(FPopup.Items, VLayersSubMenu);
 end;
@@ -409,26 +428,13 @@ end;
 procedure TMiniMapLayerViewRect.OnClickLayerItem(Sender: TObject);
 var
   VSender: TTBCustomItem;
-  VAtiveMap: IActiveMapSingle;
-  VMap: IMapType;
+  VMapType: IMapType;
 begin
   if Sender is TTBCustomItem then begin
     VSender := TTBCustomItem(Sender);
-    VAtiveMap := IActiveMapSingle(VSender.Tag);
-    if VAtiveMap <> nil then begin
-      VMap := VAtiveMap.GetMapType;
-      if VMap <> nil then begin
-        FConfig.MapsConfig.LockWrite;
-        try
-          if VAtiveMap.GetIsActive then begin
-            FConfig.MapsConfig.UnSelectLayerByGUID(VMap.GUID);
-          end else begin
-            FConfig.MapsConfig.SelectLayerByGUID(VMap.GUID);
-          end;
-        finally
-          FConfig.MapsConfig.UnlockWrite;
-        end;
-      end;
+    VMapType := IMapType(VSender.Tag);
+    if VMapType <> nil then begin
+      FConfig.MapsConfig.InvertLayerSelectionByGUID(VMapType.GUID);
     end;
   end;
 end;
@@ -436,20 +442,17 @@ end;
 procedure TMiniMapLayerViewRect.OnClickMapItem(Sender: TObject);
 var
   VSender: TComponent;
-  VAtiveMap: IActiveMapSingle;
-  VMap: IMapType;
+  VMapType: IMapType;
+  VGUID: TGUID;
 begin
   if Sender is TComponent then begin
+    VGUID := CGUID_Zero;
     VSender := TComponent(Sender);
-    VAtiveMap := IActiveMapSingle(VSender.Tag);
-    if VAtiveMap <> nil then begin
-      VMap := VAtiveMap.GetMapType;
-      if VMap <> nil then begin
-        FConfig.MapsConfig.SelectMainByGUID(VMap.GUID);
-      end else begin
-        FConfig.MapsConfig.SelectMainByGUID(CGUID_Zero);
-      end;
+    VMapType := IMapType(VSender.Tag);
+    if VMapType <> nil then begin
+      VGUID := VMapType.GUID;
     end;
+    FConfig.MapsConfig.SelectMainByGUID(VGUID);
   end;
 end;
 

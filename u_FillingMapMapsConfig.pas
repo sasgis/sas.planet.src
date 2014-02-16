@@ -34,12 +34,10 @@ uses
 type
   TFillingMapMapsConfig = class(TMainActiveMap, IFillingMapMapsConfig)
   private
-    FMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
     FActualMap: IMapType;
     FSelectedMapChangeListener: IListener;
     FMainMap: IMapTypeChangeable;
     FMainMapChangeListener: IListener;
-    function CreateMapsSet(const ASourceMapsSet: IMapTypeSet): IMapTypeSet;
     procedure OnMainMapChange;
     procedure OnSelectedChange(const AGUID: TGUID);
     procedure SetActualMap(const AValue: IMapType);
@@ -47,7 +45,6 @@ type
     function GetActualMap: IMapType;
   public
     constructor Create(
-      const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMainMap: IMapTypeChangeable;
       const AMapsSet: IMapTypeSet
     );
@@ -66,14 +63,12 @@ uses
 { TFillingMapMapsConfig }
 
 constructor TFillingMapMapsConfig.Create(
-  const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMainMap: IMapTypeChangeable;
   const AMapsSet: IMapTypeSet
 );
 begin
-  FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FMainMap := AMainMap;
-  inherited Create(CreateMapsSet(AMapsSet));
+  inherited Create(True, AMapsSet);
 
   FMainMapChangeListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
   FMainMap.ChangeNotifier.Add(FMainMapChangeListener);
@@ -100,25 +95,6 @@ begin
   inherited;
 end;
 
-function TFillingMapMapsConfig.CreateMapsSet(const ASourceMapsSet: IMapTypeSet): IMapTypeSet;
-var
-  VMap: IMapType;
-  VList: IMapTypeSetBuilder;
-  VEnun: IEnumGUID;
-  VGUID: TGUID;
-  i: Cardinal;
-begin
-  VList := FMapTypeSetBuilderFactory.Build(True);
-  VList.Capacity := ASourceMapsSet.Count + 1;
-  VList.Add(TMapTypeBasic.Create(nil));
-  VEnun := ASourceMapsSet.GetIterator;
-  while VEnun.Next(1, VGUID, i) = S_OK do begin
-    VMap := ASourceMapsSet.GetMapTypeByGUID(VGUID);
-    VList.Add(VMap);
-  end;
-  Result := VList.MakeAndClear;
-end;
-
 function TFillingMapMapsConfig.GetActualMap: IMapType;
 begin
   LockRead;
@@ -134,7 +110,7 @@ var
   VMapType: IMapType;
 begin
   VMapType := GetActiveMap.GetStatic;
-  if IsEqualGUID(VMapType.GUID, CGUID_Zero) then begin
+  if not Assigned(VMapType) then begin
     SetActualMap(FMainMap.GetStatic);
   end;
 end;
@@ -150,6 +126,7 @@ end;
 
 procedure TFillingMapMapsConfig.SetActualMap(const AValue: IMapType);
 begin
+  Assert(Assigned(AValue));
   LockWrite;
   try
     if FActualMap <> AValue then begin

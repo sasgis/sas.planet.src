@@ -64,6 +64,7 @@ type
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   public
     constructor Create(
+      const AIsAllowNilMap: Boolean;
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AMapsSet, ALayersSet: IMapTypeSet
     );
@@ -78,8 +79,6 @@ uses
   c_ZeroGUID,
   i_StringListStatic,
   u_GUIDInterfaceSet,
-  u_ActiveMapSingleAbstract,
-  u_ActiveMapSingleSet,
   u_ActiveMapsSet;
 
 const
@@ -88,6 +87,7 @@ const
 { TActivMapWithLayers }
 
 constructor TActivMapWithLayers.Create(
+  const AIsAllowNilMap: Boolean;
   const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AMapsSet, ALayersSet: IMapTypeSet
 );
@@ -96,9 +96,7 @@ var
   VGUID: TGUID;
   i: Cardinal;
   VMapType: IMapType;
-  VSingleMap: IActiveMapSingle;
   VAllMapsList: IMapTypeSetBuilder;
-  VSingleSet: IGUIDInterfaceSet;
   VMainMapChangeNotyfier: INotifierWithGUID;
 begin
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
@@ -107,7 +105,6 @@ begin
   FLayerSetUnselectNotyfier := TNotifierWithGUID.Create;
   FLayersSet := ALayersSet;
 
-  VSingleSet := TGUIDInterfaceSet.Create(False);
   VAllMapsList := FMapTypeSetBuilderFactory.Build(True);
   VAllMapsList.Capacity := AMapsSet.Count + ALayersSet.Count;
 
@@ -115,22 +112,14 @@ begin
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMapType := AMapsSet.GetMapTypeByGUID(VGUID);
     VAllMapsList.Add(VMapType);
-    VSingleMap := TActiveMapSingleMainMap.Create(VMapType, False, VMainMapChangeNotyfier);
-    VSingleSet.Add(VGUID, VSingleMap);
   end;
 
   VEnun := FLayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMapType := FLayersSet.GetMapTypeByGUID(VGUID);
     VAllMapsList.Add(VMapType);
-    VSingleMap := TActiveMapSingleLayer.Create(
-      VMapType,
-      FLayerSetSelectNotyfier,
-      FLayerSetUnselectNotyfier
-    );
-    VSingleSet.Add(VGUID, VSingleMap);
   end;
-  inherited Create(AMapsSet, VMainMapChangeNotyfier, TActiveMapSingleSet.Create(VSingleSet));
+  inherited Create(AIsAllowNilMap, AMapsSet, VMainMapChangeNotyfier);
 
   FAllMapsSet := VAllMapsList.MakeAndClear;
 

@@ -28,12 +28,15 @@ uses
   TB2Item,
   TBX,
   i_Listener,
+  i_MapTypes,
+  i_MapTypeSetChangeable,
   i_ActiveMapsConfig;
 
 type
   TActiveMapTBXItem = class(TTBXCustomItem)
   private
-    FMapActive: IActiveMapSingle;
+    FMapType: IMapType;
+    FActiveMap: IMapTypeChangeable;
     FListener: IListener;
     procedure OnMapChangeState;
     procedure AdjustFont(
@@ -45,7 +48,29 @@ type
   public
     constructor Create(
       AOwner: TComponent;
-      const AMapActive: IActiveMapSingle
+      const AMapType: IMapType;
+      const AActiveMap: IMapTypeChangeable
+    ); reintroduce;
+    destructor Destroy; override;
+  end;
+
+  TActiveLayerTBXItem = class(TTBXCustomItem)
+  private
+    FMapType: IMapType;
+    FActiveLayers: IMapTypeSetChangeable;
+    FListener: IListener;
+    procedure OnMapChangeState;
+    procedure AdjustFont(
+      Item: TTBCustomItem;
+      Viewer: TTBItemViewer;
+      Font: TFont;
+      StateFlags: Integer
+    );
+  public
+    constructor Create(
+      AOwner: TComponent;
+      const AMapType: IMapType;
+      const AActiveLayers: IMapTypeSetChangeable
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -55,26 +80,28 @@ implementation
 uses
   u_ListenerByEvent;
 
-{ TMiniMapTBXITem }
+{ TActiveMapTBXItem }
 
 constructor TActiveMapTBXItem.Create(
   AOwner: TComponent;
-  const AMapActive: IActiveMapSingle
+  const AMapType: IMapType;
+  const AActiveMap: IMapTypeChangeable
 );
 begin
-  Assert(AMapActive <> nil);
+  Assert(Assigned(AActiveMap));
   inherited Create(AOwner);
-  FMapActive := AMapActive;
+  FMapType := AMapType;
+  FActiveMap := AActiveMap;
   OnAdjustFont := Self.AdjustFont;
   FListener := TNotifyNoMmgEventListener.Create(Self.OnMapChangeState);
-  FMapActive.GetChangeNotifier.Add(FListener);
+  FActiveMap.ChangeNotifier.Add(FListener);
   OnMapChangeState;
 end;
 
 destructor TActiveMapTBXItem.Destroy;
 begin
-  if Assigned(FMapActive) and Assigned(FListener) then begin
-    FMapActive.GetChangeNotifier.Remove(FListener);
+  if Assigned(FActiveMap) and Assigned(FListener) then begin
+    FActiveMap.ChangeNotifier.Remove(FListener);
     FListener := nil;
   end;
   inherited;
@@ -96,7 +123,54 @@ end;
 
 procedure TActiveMapTBXItem.OnMapChangeState;
 begin
-  Self.Checked := FMapActive.GetIsActive;
+  Self.Checked := FActiveMap.GetStatic = FMapType;
+end;
+
+{ TActiveLayerTBXItem }
+
+constructor TActiveLayerTBXItem.Create(
+  AOwner: TComponent;
+  const AMapType: IMapType;
+  const AActiveLayers: IMapTypeSetChangeable
+);
+begin
+  Assert(Assigned(AMapType));
+  Assert(Assigned(AActiveLayers));
+  inherited Create(AOwner);
+  FMapType := AMapType;
+  FActiveLayers := AActiveLayers;
+  OnAdjustFont := Self.AdjustFont;
+  FListener := TNotifyNoMmgEventListener.Create(Self.OnMapChangeState);
+  FActiveLayers.GetChangeNotifier.Add(FListener);
+  OnMapChangeState;
+end;
+
+destructor TActiveLayerTBXItem.Destroy;
+begin
+  if Assigned(FActiveLayers) and Assigned(FListener) then begin
+    FActiveLayers.ChangeNotifier.Remove(FListener);
+    FListener := nil;
+  end;
+  inherited;
+end;
+
+procedure TActiveLayerTBXItem.AdjustFont(
+  Item: TTBCustomItem;
+  Viewer: TTBItemViewer;
+  Font: TFont;
+  StateFlags: Integer
+);
+begin
+  if Self.Checked then begin
+    Self.FontSettings.Bold := tsTrue;
+  end else begin
+    Self.FontSettings.Bold := tsDefault;
+  end;
+end;
+
+procedure TActiveLayerTBXItem.OnMapChangeState;
+begin
+  Self.Checked := FActiveLayers.GetStatic.IsExists(FMapType.GUID);
 end;
 
 end.
