@@ -35,19 +35,22 @@ type
     FCaption: string;
     FStorageType: ITileStorageType;
     FCanUseAsDefault: Boolean;
+    FIsChangeable: Boolean;
   private
     function GetGUID: TGUID;
     function GetIntCode: Integer;
     function GetCaption: string;
     function GetStorageType: ITileStorageType;
     function GetCanUseAsDefault: Boolean;
+    function GetIsChangeable: Boolean;
   public
     constructor Create(
       const AGUID: TGUID;
       const AIntCode: Integer;
       const ACaption: string;
       const AStorageType: ITileStorageType;
-      ACanUseAsDefault: Boolean
+      ACanUseAsDefault: Boolean;
+      AIsChangeable: Boolean
     );
   end;
 
@@ -60,7 +63,8 @@ constructor TTileStorageTypeListItem.Create(
   const AIntCode: Integer;
   const ACaption: string;
   const AStorageType: ITileStorageType;
-  ACanUseAsDefault: Boolean
+  ACanUseAsDefault: Boolean;
+  AIsChangeable: Boolean
 );
 begin
   inherited Create;
@@ -69,6 +73,7 @@ begin
   FCaption := ACaption;
   FStorageType := AStorageType;
   FCanUseAsDefault := ACanUseAsDefault;
+  FIsChangeable := AIsChangeable;
 end;
 
 function TTileStorageTypeListItem.GetCanUseAsDefault: Boolean;
@@ -89,6 +94,11 @@ end;
 function TTileStorageTypeListItem.GetIntCode: Integer;
 begin
   Result := FIntCode;
+end;
+
+function TTileStorageTypeListItem.GetIsChangeable: Boolean;
+begin
+  Result := FIsChangeable;
 end;
 
 function TTileStorageTypeListItem.GetStorageType: ITileStorageType;

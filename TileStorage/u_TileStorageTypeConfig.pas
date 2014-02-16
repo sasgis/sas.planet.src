@@ -52,7 +52,9 @@ constructor TTileStorageTypeConfig.Create(
 begin
   inherited Create;
   FPath := APath;
-  Add(FPath, TConfigSaveLoadStrategyBasicUseProvider.Create);
+  if Assigned(FPath) then begin
+    Add(FPath, TConfigSaveLoadStrategyBasicUseProvider.Create);
+  end;
 end;
 
 function TTileStorageTypeConfig.GetBasePath: IPathConfig;

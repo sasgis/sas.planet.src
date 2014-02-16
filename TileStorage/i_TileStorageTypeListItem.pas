@@ -42,6 +42,9 @@ type
 
     function GetCanUseAsDefault: Boolean;
     property CanUseAsDefault: Boolean read GetCanUseAsDefault;
+
+    function GetIsChangeable: Boolean;
+    property IsChangeable: Boolean read GetIsChangeable;
   end;
 
 
