@@ -23,7 +23,6 @@ unit u_MainActiveMap;
 interface
 
 uses
-  i_GUIDSet,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapTypes,
@@ -63,7 +62,6 @@ uses
   SysUtils,
   ActiveX,
   c_ZeroGUID,
-  u_GUIDInterfaceSet,
   u_ActiveMapConfig;
 
 const

@@ -23,8 +23,7 @@ unit u_GeoCoderByGpx;
 interface
 
 uses
-  Classes,
-  sysutils,
+  SysUtils,
   i_GeoCoder,
   i_InterfaceListSimple,
   i_NotifierOperation,

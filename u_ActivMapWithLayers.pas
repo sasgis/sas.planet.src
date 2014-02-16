@@ -23,7 +23,6 @@ unit u_ActivMapWithLayers;
 interface
 
 uses
-  i_GUIDSet,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapTypes,
@@ -78,7 +77,6 @@ uses
   ActiveX,
   c_ZeroGUID,
   i_StringListStatic,
-  u_GUIDInterfaceSet,
   u_ActiveMapsSet;
 
 const

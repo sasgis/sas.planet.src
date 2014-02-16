@@ -29,8 +29,7 @@ uses
   TBX,
   i_Listener,
   i_MapTypes,
-  i_MapTypeSetChangeable,
-  i_ActiveMapsConfig;
+  i_MapTypeSetChangeable;
 
 type
   TActiveMapTBXItem = class(TTBXCustomItem)

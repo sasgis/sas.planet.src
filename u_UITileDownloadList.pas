@@ -6,7 +6,6 @@ uses
   i_NotifierOperation,
   i_DownloadUIConfig,
   i_LocalCoordConverterChangeable,
-  i_ActiveMapsConfig,
   i_NotifierTime,
   i_MapTypeSet,
   i_MapTypeSetChangeable,

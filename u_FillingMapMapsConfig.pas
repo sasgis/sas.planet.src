@@ -27,7 +27,6 @@ uses
   i_Listener,
   i_MapTypes,
   i_MapTypeSet,
-  i_MapTypeSetBuilder,
   i_FillingMapLayerConfig,
   u_MainActiveMap;
 
@@ -57,8 +56,7 @@ uses
   ActiveX,
   c_ZeroGUID,
   u_ListenerByEvent,
-  u_NotifyWithGUIDEvent,
-  u_MapTypeBasic;
+  u_NotifyWithGUIDEvent;
 
 { TFillingMapMapsConfig }
 

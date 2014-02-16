@@ -15,9 +15,6 @@ uses
   ExtCtrls,
   i_LanguageManager,
   i_MapTypeSet,
-  i_MapTypeListStatic,
-  i_MapTypeListBuilder,
-  i_StringListStatic,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
@@ -186,7 +183,6 @@ uses
   i_ConfigDataProvider,
   i_PathConfig,
   i_MapTypes,
-  u_StringListStatic,
   u_ConfigDataProviderByIniFile,
   u_GlobalState;
 

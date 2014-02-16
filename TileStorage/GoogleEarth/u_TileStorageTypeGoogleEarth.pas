@@ -5,8 +5,6 @@ interface
 uses
   i_CoordConverter,
   i_ContentTypeInfo,
-  i_TileFileNameGenerator,
-  i_TileFileNameParser,
   i_MapVersionFactory,
   i_TileStorage,
   i_TileStorageAbilities,

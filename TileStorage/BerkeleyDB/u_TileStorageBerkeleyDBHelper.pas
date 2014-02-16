@@ -180,7 +180,6 @@ uses
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
   u_MapVersionInfo,
-  u_MapVersionRequest,
   u_MapVersionListStatic,
   u_BinaryDataByBerkeleyDBValue;
 

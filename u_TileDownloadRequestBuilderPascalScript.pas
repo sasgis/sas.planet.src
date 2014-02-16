@@ -126,7 +126,6 @@ uses
   u_ListenerByEvent,
   u_TileDownloadRequest,
   u_SimpleHttpDownloader,
-  u_TileRequestBuilderHelpers,
   u_SimpleFlagWithInterlock,
   u_ResStrings;
 

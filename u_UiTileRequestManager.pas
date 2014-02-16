@@ -24,7 +24,6 @@ interface
 
 uses  
   Windows,
-  Classes,
   SyncObjs,
   i_Listener,
   i_TileIterator,

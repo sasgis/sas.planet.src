@@ -23,11 +23,9 @@ unit u_TileStorageTypeListSimple;
 interface
 
 uses
-  i_PathConfig,
   i_NotifierTime,
   i_ContentTypeManager,
   i_GlobalBerkeleyDBHelper,
-  i_SimpleTileStorageConfig,
   i_GlobalCacheConfig,
   i_MapVersionFactoryList,
   i_TileStorageTypeConfig,

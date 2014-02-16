@@ -42,7 +42,6 @@ uses
   i_GlobalInternetState,
   i_LocalCoordConverterChangeable,
   i_ListenerNotifierLinksList,
-  i_ActiveMapsConfig,
   i_LocalCoordConverter,
   u_UiTileRequestManager,
   u_BaseInterfacedObject;
@@ -119,7 +118,6 @@ uses
   Types,
   u_Synchronizer,
   t_GeoTypes,
-  i_TileIterator,
   i_DownloadResult,
   i_CoordConverter,
   i_TileInfoBasic,
@@ -132,7 +130,6 @@ uses
   u_ListenerByEvent,
   u_ListenerTime,
   u_TileRequestTask,
-  u_TileIteratorSpiralByRect,
   u_BackgroundTask,
   u_MapType,
   u_GeoFunc,

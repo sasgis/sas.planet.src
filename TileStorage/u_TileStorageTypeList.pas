@@ -23,13 +23,6 @@ unit u_TileStorageTypeList;
 interface
 
 uses
-  ActiveX,
-  i_GUIDSet,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
-  i_ConfigDataElement,
-  i_TileStorageTypeConfig,
-  i_TileStorageType,
   i_TileStorageTypeList,
   i_TileStorageTypeListItem,
   i_InterfaceListStatic,

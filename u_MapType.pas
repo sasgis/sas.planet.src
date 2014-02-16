@@ -39,7 +39,6 @@ uses
   i_LanguageManager,
   i_CoordConverter,
   i_MapVersionRequest,
-  i_MapVersionConfig,
   i_MapVersionRequestConfig,
   i_MapVersionFactoryList,
   i_TileDownloadRequestBuilderConfig,
@@ -47,7 +46,6 @@ uses
   i_BitmapTileSaveLoad,
   i_VectorDataLoader,
   i_NotifierTime,
-  i_DownloadResultFactory,
   i_InetConfig,
   i_ImageResamplerConfig,
   i_ContentTypeManager,
@@ -247,7 +245,6 @@ implementation
 
 uses
   Types,
-  c_CacheTypeCodes,
   c_InternalBrowser,
   i_BasicMemCache,
   i_BinaryData,
@@ -264,7 +261,6 @@ uses
   u_VectorDataFactoryForMap,
   u_HtmlToHintTextConverterStuped,
   u_MapTypeGUIConfig,
-  u_MapVersionConfig,
   u_MapVersionFactoryChangeable,
   u_MapVersionRequestConfig,
   u_TileDownloadSubsystem,

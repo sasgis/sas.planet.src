@@ -15,7 +15,6 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_Listener,
-  i_MapVersionConfig,
   i_MapVersionInfo,
   i_MapVersionFactory,
   i_MapVersionRequest,

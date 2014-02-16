@@ -69,7 +69,6 @@ uses
   Types,
   SysUtils,
   i_BinaryData,
-  u_MapVersionRequest,
   u_GlobalBerkeleyDBHelper;
 
 { TEnumTileInfoByBerkeleyDB }

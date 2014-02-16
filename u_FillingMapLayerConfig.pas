@@ -30,7 +30,6 @@ uses
   i_ThreadConfig,
   i_MapTypes,
   i_MapTypeSet,
-  i_MapTypeSetBuilder,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_FillingMapLayerConfig,

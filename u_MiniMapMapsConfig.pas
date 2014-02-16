@@ -61,8 +61,7 @@ uses
   ActiveX,
   c_ZeroGUID,
   u_ListenerByEvent,
-  u_NotifyWithGUIDEvent,
-  u_MapTypeBasic;
+  u_NotifyWithGUIDEvent;
 
 { TMiniMapMapsConfig }
 

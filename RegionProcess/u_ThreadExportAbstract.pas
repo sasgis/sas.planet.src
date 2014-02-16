@@ -27,8 +27,7 @@ type
 implementation
 
 uses
-  SysUtils,
-  u_ResStrings;
+  SysUtils;
 
 constructor TThreadExportAbstract.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

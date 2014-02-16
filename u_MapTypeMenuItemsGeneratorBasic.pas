@@ -27,7 +27,6 @@ uses
   TB2Item,
   TBX,
   i_MapTypeSet,
-  i_ActiveMapsConfig,
   i_MapTypes,
   i_MapTypeSetChangeable,
   i_MapTypeGUIConfigList,
@@ -66,12 +65,10 @@ implementation
 
 uses
   SysUtils,
-  c_ZeroGUID,
   i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator,
   u_ActiveMapTBXItem,
-  u_MapType,
-  u_ResStrings;
+  u_MapType;
 
 { TMapMenuGeneratorBasic }
 
