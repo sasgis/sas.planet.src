@@ -63,7 +63,7 @@ begin
   VEnum := AMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
     VMap := AMapsSet.GetMapTypeByGUID(VGUID);
-    VHotKey := VMap.MapType.GUIConfig.HotKey;
+    VHotKey := VMap.GUIConfig.HotKey;
     if VHotKey <> 0 then begin
       FList.Add(VHotKey, VMap);
     end;

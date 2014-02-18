@@ -79,7 +79,7 @@ begin
     while VEnum.Next(1, VGuid, VCnt) = S_OK do begin
       VMapType := FLayersSet.GetMapTypeByGUID(VGuid);
       if VMapType <> nil then begin
-        VMapType.MapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
+        VMapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
       end;
     end;
     FLayersSet := nil;
@@ -113,7 +113,7 @@ begin
     if VCount > 1 then begin
       SetLength(VZArray, VCount);
       for i := 0 to VCount - 1 do begin
-        VZArray[i] := IMapType(VList[i]).MapType.LayerDrawConfig.LayerZOrder;
+        VZArray[i] := IMapType(VList[i]).LayerDrawConfig.LayerZOrder;
       end;
       SortInterfaceListByIntegerMeasure(VList, VZArray);
     end;
@@ -150,7 +150,7 @@ begin
         if (VNewSet = nil) or (VNewSet.GetMapTypeByGUID(VGuid) = nil) then begin
           VMapType := FLayersSet.GetMapTypeByGUID(VGuid);
           if VMapType <> nil then begin
-            VMapType.MapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
+            VMapType.LayerDrawConfig.ChangeNotifier.Remove(FZOrderListener);
           end;
         end;
       end;
@@ -161,7 +161,7 @@ begin
         if (FLayersSet = nil) or (FLayersSet.GetMapTypeByGUID(VGuid) = nil) then begin
           VMapType := VNewSet.GetMapTypeByGUID(VGuid);
           if VMapType <> nil then begin
-            VMapType.MapType.LayerDrawConfig.ChangeNotifier.Add(FZOrderListener);
+            VMapType.LayerDrawConfig.ChangeNotifier.Add(FZOrderListener);
           end;
         end;
       end;

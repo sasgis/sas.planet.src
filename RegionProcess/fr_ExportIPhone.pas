@@ -16,8 +16,8 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -73,11 +73,11 @@ type
   private
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
   public
-    function GetSat(): TMapType;
-    function GetMap(): TMapType;
-    function GetHyb(): TMapType;
+    function GetSat(): IMapType;
+    function GetMap(): IMapType;
+    function GetHyb(): IMapType;
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AMainMapsConfig: IMainMapsConfig;
@@ -158,7 +158,7 @@ begin
   inherited;
 end;
 
-function TfrExportIPhone.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportIPhone.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;
@@ -182,17 +182,17 @@ begin
   Result := FfrZoomsSelect.GetZoomList;
 end;
 
-function TfrExportIPhone.GetSat: TMapType;
+function TfrExportIPhone.GetSat: IMapType;
 begin
   Result := FfrSatSelect.GetSelectedMapType;
 end;
 
-function TfrExportIPhone.GetMap: TMapType;
+function TfrExportIPhone.GetMap: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
 end;
 
-function TfrExportIPhone.GetHyb: TMapType;
+function TfrExportIPhone.GetHyb: IMapType;
 begin
   Result := FfrHybSelect.GetSelectedMapType;
 end;

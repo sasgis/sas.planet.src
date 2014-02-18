@@ -32,13 +32,13 @@ uses
   Spin,
   t_CommonTypes,
   i_LanguageManager,
+  i_MapTypes,
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_PredicateByTileInfo,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
 
@@ -77,9 +77,9 @@ type
     );
     function Validate: Boolean;
   private
-    function GetMapType: TMapType;
+    function GetMapType: IMapType;
     function GetZoom: Byte;
-    function CheckIsDeleteable(AMapType: TMapType): boolean;
+    function CheckIsDeleteable(const AMapType: IMapType): boolean;
   private
     function GetPredicate: IPredicateByTileInfo;
   public
@@ -132,7 +132,7 @@ begin
   inherited;
 end;
 
-function TfrTilesDelete.GetMapType: TMapType;
+function TfrTilesDelete.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
 end;
@@ -172,7 +172,7 @@ begin
   Result := cbbZoom.ItemIndex;
 end;
 
-function TfrTilesDelete.CheckIsDeleteable(AMapType: TMapType): boolean;
+function TfrTilesDelete.CheckIsDeleteable(const AMapType: IMapType): boolean;
 begin
   Result := (AMapType.StorageConfig.AllowDelete) and (AMapType.TileStorage.State.GetStatic.WriteAccess <> asDisabled);
 end;

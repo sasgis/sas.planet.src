@@ -79,10 +79,10 @@ begin
   VEnun := ALayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMapType := ALayersSet.GetMapTypeByGUID(VGUID);
-    if VMapType.MapType.IsBitmapTiles then begin
+    if VMapType.IsBitmapTiles then begin
       VBitmapLayersList.Add(VMapType);
     end;
-    if VMapType.MapType.IsKmlTiles then begin
+    if VMapType.IsKmlTiles then begin
       VKmlLayersList.Add(VMapType);
     end;
   end;

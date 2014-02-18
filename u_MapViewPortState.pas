@@ -473,15 +473,15 @@ end;
 
 function TMapViewPortState._GetActiveCoordConverter: ICoordConverter;
 var
-  VMap: IMapType;
+  VMapType: IMapType;
 begin
   Result := nil;
   if FMainCoordConverter <> nil then begin
     Result := FMainCoordConverter;
   end else begin
-    VMap := FMainMapConfig.GetActiveMap.GetStatic;
-    if VMap <> nil then begin
-      Result := VMap.MapType.ViewGeoConvert;
+    VMapType := FMainMapConfig.GetActiveMap.GetStatic;
+    if VMapType <> nil then begin
+      Result := VMapType.ViewGeoConvert;
     end;
   end;
 end;

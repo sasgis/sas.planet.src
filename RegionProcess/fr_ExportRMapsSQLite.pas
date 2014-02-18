@@ -42,7 +42,7 @@ uses
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
-  u_MapType,
+  i_MapTypes,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -116,13 +116,13 @@ type
     );
     function Validate: Boolean;
   private
-    function GetMapType: TMapType;
+    function GetMapType: IMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
     function GetForceDropTarget: Boolean;
     function GetReplaceExistingTiles: Boolean;
     function GetDirectTilesCopy: Boolean;
-    function GetAllowExport(AMapType: TMapType): Boolean;
+    function GetAllowExport(const AMapType: IMapType): Boolean;
     function GetProvider: IBitmapLayerProvider;
     function GetBitmapTileSaver: IBitmapTileSaver;
     procedure OnDirectTilesCopyChange(const AEnableDirectCopy: Boolean);
@@ -231,8 +231,8 @@ end;
 
 procedure TfrExportRMapsSQLite.OnDirectTilesCopyChange(const AEnableDirectCopy: Boolean);
 var
-  VMap: TMapType;
-  VLayer: TMapType;
+  VMap: IMapType;
+  VLayer: IMapType;
   VItemEnabled: Boolean;
 begin
   VItemEnabled := not AEnableDirectCopy;
@@ -300,14 +300,14 @@ begin
   end;
 end;
 
-function TfrExportRMapsSQLite.GetAllowExport(AMapType: TMapType): Boolean;
+function TfrExportRMapsSQLite.GetAllowExport(const AMapType: IMapType): Boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;
 
-function TfrExportRMapsSQLite.GetMapType: TMapType;
+function TfrExportRMapsSQLite.GetMapType: IMapType;
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   VMapType := FfrMapSelect.GetSelectedMapType;
   if not Assigned(VMapType) then begin
@@ -333,8 +333,8 @@ end;
 
 function TfrExportRMapsSQLite.GetDirectTilesCopy: Boolean;
 var
-  VMap: TMapType;
-  VLayer: TMapType;
+  VMap: IMapType;
+  VLayer: IMapType;
 begin
   Result := chkDirectTilesCopy.Checked;
   if not Result then begin
@@ -364,9 +364,9 @@ end;
 
 function TfrExportRMapsSQLite.GetProvider: IBitmapLayerProvider;
 var
-  VMap: TMapType;
+  VMap: IMapType;
   VMapVersion: IMapVersionRequest;
-  VLayer: TMapType;
+  VLayer: IMapType;
   VLayerVersion: IMapVersionRequest;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
@@ -397,7 +397,7 @@ end;
 
 function TfrExportRMapsSQLite.GetBitmapTileSaver: IBitmapTileSaver;
 
-  function _GetSaver(const AMap: TMapType): IBitmapTileSaver;
+  function _GetSaver(const AMap: IMapType): IBitmapTileSaver;
   var
     VContentType: IContentTypeInfoBitmap;
   begin
@@ -442,8 +442,8 @@ end;
 
 function TfrExportRMapsSQLite.Validate: Boolean;
 var
-  VMap: TMapType;
-  VLayer: TMapType;
+  VMap: IMapType;
+  VLayer: IMapType;
 begin
   Result := FfrZoomsSelect.Validate;
   if not Result then begin

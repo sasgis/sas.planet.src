@@ -43,11 +43,11 @@ implementation
 uses
   Types,
   SysUtils,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportToCE,
   u_ResStrings,
-  u_MapType,
   fr_ExportToCE;
 
 { TExportProviderCE }
@@ -101,7 +101,7 @@ procedure TExportProviderCE.StartProcess(const APolygon: IGeometryLonLatMultiPol
 var
   VPath: string;
   Zoomarr: TByteDynArray;
-  VMapType: TMapType;
+  VMapType: IMapType;
 
   VMaxSize: integer;
   VComent: string;

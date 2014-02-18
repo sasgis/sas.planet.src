@@ -36,8 +36,8 @@ uses
   i_TileRequestResult,
   i_GeometryProjected,
   i_DownloadInfoSimple,
-  i_RegionProcessProgressInfoDownload,
-  u_MapType;
+  i_MapTypes,
+  i_RegionProcessProgressInfoDownload;
 
 type
   TThreadDownloadTiles = class(TThread)
@@ -45,7 +45,7 @@ type
     FProgressInfo: IRegionProcessProgressInfoDownloadInternal;
 
     FAppClosingNotifier: INotifierOneOperation;
-    FMapType: TMapType;
+    FMapType: IMapType;
     FZoom: Byte;
     FVersionForCheck: IMapVersionRequest;
     FVersionForDownload: IMapVersionInfo;
@@ -106,7 +106,7 @@ type
       AOperationID: Integer;
       const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
       const AAppClosingNotifier: INotifierOneOperation;
-      AMapType: TMapType;
+      const AMapType: IMapType;
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
       AZoom: byte;
@@ -146,7 +146,7 @@ constructor TThreadDownloadTiles.Create(
   AOperationID: Integer;
   const AProgressInfo: IRegionProcessProgressInfoDownloadInternal;
   const AAppClosingNotifier: INotifierOneOperation;
-  AMapType: TMapType;
+  const AMapType: IMapType;
   const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
   AZoom: byte;

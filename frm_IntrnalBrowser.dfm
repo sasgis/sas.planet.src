@@ -23,6 +23,7 @@ object frmIntrnalBrowser: TfrmIntrnalBrowser
     Height = 306
     Align = alClient
     TabOrder = 0
+    Silent = False
     OnTitleChange = EmbeddedWB1TitleChange
     OnBeforeNavigate2 = EmbeddedWB1BeforeNavigate2
     DisableCtrlShortcuts = 'N'

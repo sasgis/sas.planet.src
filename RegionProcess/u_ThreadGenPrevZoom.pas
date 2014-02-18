@@ -7,6 +7,7 @@ uses
   SysUtils,
   Classes,
   GR32,
+  t_GeoTypes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
@@ -14,11 +15,9 @@ uses
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_MapVersionRequest,
-  u_MapType,
-  u_ThreadRegionProcessAbstract,
   i_ImageResamplerFactory,
-  u_ResStrings,
-  t_GeoTypes;
+  i_MapTypes,
+  u_ThreadRegionProcessAbstract;
 
 type
   TThreadGenPrevZoom = class(TThreadRegionProcessAbstract)
@@ -28,7 +27,7 @@ type
     FGenFormFirstZoom: boolean;
     FUsePrevTiles: boolean;
     FZooms: TByteDynArray;
-    FMapType: TMapType;
+    FMapType: IMapType;
     FVersion: IMapVersionRequest;
     FResamplerFactory: IImageResamplerFactory;
     FProjectionFactory: IProjectionInfoFactory;
@@ -48,7 +47,7 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       const AZooms: TByteDynArray;
       const APolygLL: IGeometryLonLatMultiPolygon;
-      AMapType: TMapType;
+      const AMapType: IMapType;
       const AVersion: IMapVersionRequest;
       AReplace: boolean;
       Asavefull: boolean;
@@ -70,6 +69,7 @@ uses
   i_TileIterator,
   u_GeoFunc,
   u_BitmapFunc,
+  u_ResStrings,
   u_TileIteratorByPolygon,
   u_TileIteratorByRect;
 
@@ -80,7 +80,7 @@ constructor TThreadGenPrevZoom.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   const AZooms: TByteDynArray;
   const APolygLL: IGeometryLonLatMultiPolygon;
-  AMapType: TMapType;
+  const AMapType: IMapType;
   const AVersion: IMapVersionRequest;
   AReplace: boolean;
   Asavefull: boolean;

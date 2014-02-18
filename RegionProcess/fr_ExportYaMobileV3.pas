@@ -16,8 +16,8 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -65,7 +65,7 @@ type
       const APolygon: IGeometryLonLatMultiPolygon
     );
     function Validate: Boolean;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
   public
@@ -152,7 +152,7 @@ begin
   inherited;
 end;
 
-function TfrExportYaMobileV3.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportYaMobileV3.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;

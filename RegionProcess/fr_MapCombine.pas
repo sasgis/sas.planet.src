@@ -15,6 +15,7 @@ uses
   Spin,
   GR32,
   i_LanguageManager,
+  i_MapTypes,
   i_MapTypeSet,
   i_CoordConverterFactory,
   i_CoordConverterList,
@@ -29,7 +30,6 @@ uses
   i_ProjectionInfo,
   i_BitmapLayerProvider,
   i_Bitmap32StaticFactory,
-  u_MapType,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
 
@@ -152,7 +152,7 @@ type
     function GetIsSaveGeoRefInfoToExif: Boolean;
     function GetIsSaveAlfa: Boolean;
     function GetBGColor: TColor32;
-    function GetAllowWrite(AMapType: TMapType): boolean;
+    function GetAllowWrite(const AMapType: IMapType): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -181,7 +181,6 @@ implementation
 uses
   gnugettext,
   t_GeoTypes,
-  i_MapTypes,
   i_MapVersionRequest,
   i_InterfaceListSimple,
   i_GeometryProjected,
@@ -268,7 +267,7 @@ begin
   inherited;
 end;
 
-function TfrMapCombine.GetAllowWrite(AMapType: TMapType): boolean;
+function TfrMapCombine.GetAllowWrite(const AMapType: IMapType): boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;
@@ -285,7 +284,7 @@ end;
 procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
 var
   numd: int64 ;
-  Vmt: TMapType;
+  Vmt: IMapType;
   VZoom: byte;
   VPolyLL: IGeometryLonLatMultiPolygon;
   VProjected: IGeometryProjectedMultiPolygon;
@@ -328,7 +327,7 @@ end;
 
 function TfrMapCombine.GetBGColor: TColor32;
 var
-  VMap: TMapType;
+  VMap: IMapType;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
   if VMap = nil then begin
@@ -364,9 +363,9 @@ end;
 
 function TfrMapCombine.GetProjection: IProjectionInfo;
 var
-  VMap: TMapType;
-  VLayer: TMapType;
-  VMainMapType: TMapType;
+  VMap: IMapType;
+  VLayer: IMapType;
+  VMainMapType: IMapType;
   VZoom: Byte;
   VGeoConverter: ICoordConverter;
   VIndex: Integer;
@@ -413,9 +412,9 @@ end;
 
 function TfrMapCombine.GetProvider: IBitmapLayerProvider;
 var
-  VMap: TMapType;
+  VMap: IMapType;
   VMapVersion: IMapVersionRequest;
-  VLayer: TMapType;
+  VLayer: IMapType;
   VLayerVersion: IMapVersionRequest;
 begin
   VMap := FfrMapSelect.GetSelectedMapType;
@@ -515,7 +514,7 @@ procedure TfrMapCombine.UpdateProjectionsList(Sender: TObject);
   begin
     VProj := ACaption;
     if Assigned(AMapType) then begin
-      VConverter := AMapType.MapType.GeoConvert;
+      VConverter := AMapType.GeoConvert;
       for I := 0 to FCoordConverterList.Count - 1 do begin
         if FCoordConverterList.Items[I].IsSameConverter(VConverter) then begin
           VProj := VProj + ' - ' + FCoordConverterList.Captions[I];
@@ -534,8 +533,8 @@ begin
   VPrevCount := cbbProjection.Items.Count;
 
   cbbProjection.Items.Clear;
-  AddProj(FfrMapSelect.GetSelectedIMapType, _('Projection of map'));
-  AddProj(FfrLayerSelect.GetSelectedIMapType, _('Projection of layer'));
+  AddProj(FfrMapSelect.GetSelectedMapType, _('Projection of map'));
+  AddProj(FfrLayerSelect.GetSelectedMapType, _('Projection of layer'));
 
   for I := 0 to FCoordConverterList.Count - 1 do begin
     cbbProjection.Items.Add(FCoordConverterList.Captions[I]);

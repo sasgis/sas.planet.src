@@ -166,7 +166,7 @@ begin
       VMap := AMapsListened.Items[i];
       VListener := IListener(FMapListeners.Items[i]);
       if Assigned(VMap) and Assigned(VListener) then begin
-        VNotifier := VMap.MapType.TileStorage.TileNotifier;
+        VNotifier := VMap.TileStorage.TileNotifier;
         if VNotifier <> nil then begin
           VNotifier.Remove(VListener);
         end;
@@ -226,7 +226,7 @@ begin
     for i := 0 to AMapsListened.Count - 1 do begin
       VMap := AMapsListened.Items[i];
       if VMap <> nil then begin
-        VListener := TTileUpdateListenerToLonLat.Create(VMap.MapType.GeoConvert, Self.OnTileUpdate);
+        VListener := TTileUpdateListenerToLonLat.Create(VMap.GeoConvert, Self.OnTileUpdate);
         VListeners.Add(VListener);
       end;
     end;
@@ -240,9 +240,9 @@ begin
   for i := 0 to AMapsListened.Count - 1 do begin
     VMap := AMapsListened.Items[i];
     if VMap <> nil then begin
-      VNotifier := VMap.MapType.TileStorage.TileNotifier;
+      VNotifier := VMap.TileStorage.TileNotifier;
       if VNotifier <> nil then begin
-        VConverter := VMap.MapType.GeoConvert;
+        VConverter := VMap.GeoConvert;
         VMapLonLatRect := VLonLatRect;
         VConverter.CheckLonLatRect(VMapLonLatRect);
         VTileRect :=

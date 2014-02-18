@@ -15,8 +15,8 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
 
@@ -53,10 +53,10 @@ type
     );
     function Validate: Boolean;
   private
-    function GetMapType: TMapType;
+    function GetMapType: IMapType;
     function GetZoom: Byte;
     function GetPath: string;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -110,7 +110,7 @@ begin
   end;
 end;
 
-function TfrExportAUX.GetMapType: TMapType;
+function TfrExportAUX.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
   Assert(Result <> nil);
@@ -129,7 +129,7 @@ begin
   Result := cbbZoom.ItemIndex;
 end;
 
-function TfrExportAUX.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportAUX.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := (AMapType.IsBitmapTiles) and (AMapType.TileStorage.IsFileCache);
 end;

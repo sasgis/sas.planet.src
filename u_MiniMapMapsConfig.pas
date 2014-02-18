@@ -123,7 +123,7 @@ begin
   VEnun := ASourceLayersSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMap := ASourceLayersSet.GetMapTypeByGUID(VGUID);
-    if VMap.MapType.Abilities.IsShowOnSmMap and VMap.MapType.IsBitmapTiles then begin
+    if VMap.Abilities.IsShowOnSmMap and VMap.IsBitmapTiles then begin
       VList.Add(VMap);
     end;
   end;
@@ -142,7 +142,7 @@ begin
   VEnun := ASourceMapsSet.GetIterator;
   while VEnun.Next(1, VGUID, i) = S_OK do begin
     VMap := ASourceMapsSet.GetMapTypeByGUID(VGUID);
-    if VMap.MapType.Abilities.IsShowOnSmMap and VMap.MapType.IsBitmapTiles then begin
+    if VMap.Abilities.IsShowOnSmMap and VMap.IsBitmapTiles then begin
       VList.Add(VMap);
     end;
   end;

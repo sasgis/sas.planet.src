@@ -103,10 +103,10 @@ begin
   end;
   if VSuffix = '' then begin
     VTileInfo :=
-      VMapType.MapType.TileStorage.GetTileInfoEx(
+      VMapType.TileStorage.GetTileInfoEx(
         VTile,
         VZoom,
-        VMapType.MapType.VersionRequestConfig.GetStatic,
+        VMapType.VersionRequestConfig.GetStatic,
         gtimWithData
       );
     if not Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
@@ -116,14 +116,14 @@ begin
     AContentType := VTileInfoWithData.ContentType.GetContentType;
   end else begin
     if VSuffix = FDescriptionSuffix then begin
-      if VMapType.MapType.IsKmlTiles then begin
+      if VMapType.IsKmlTiles then begin
         VVectorTile :=
-          VMapType.MapType.LoadTileVector(
+          VMapType.LoadTileVector(
             VTile,
             VZoom,
-            VMapType.MapType.VersionRequestConfig.GetStatic,
+            VMapType.VersionRequestConfig.GetStatic,
             True,
-            VMapType.MapType.CacheVector
+            VMapType.CacheVector
           );
         if (VVectorTile <> nil) and (VIndex < VVectorTile.Count) then begin
           VItem := VVectorTile.GetItem(VIndex);

@@ -64,13 +64,13 @@ implementation
 uses
   Classes,
   SysUtils,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_PredicateByTileInfo,
   i_GeometryProjected,
   u_ThreadDeleteTiles,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 { TProviderTilesDelete }
 
@@ -116,7 +116,7 @@ end;
 
 procedure TProviderTilesDelete.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VZoom: byte;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;

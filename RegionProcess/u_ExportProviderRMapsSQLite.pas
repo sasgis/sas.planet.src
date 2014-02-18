@@ -80,8 +80,8 @@ uses
   i_RegionProcessProgressInfo,
   i_TileStorage,
   i_MapVersionRequest,
+  i_MapTypes,
   u_ThreadExportToRMapsSQLite,
-  u_MapType,
   u_ResStrings;
 
 { TExportProviderRMapsSQLite }
@@ -148,7 +148,7 @@ var
   VDirectTilesCopy: Boolean;
   VBitmapTileSaver: IBitmapTileSaver;
   VBitmapProvider: IBitmapLayerProvider;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
   VMapVersion: IMapVersionRequest;

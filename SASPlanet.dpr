@@ -815,7 +815,6 @@ uses
   u_SensorViewConfigSimple in 'u_SensorViewConfigSimple.pas',
   u_SensorViewListGeneratorStuped in 'u_SensorViewListGeneratorStuped.pas',
   i_MapTypes in 'i_MapTypes.pas',
-  u_MapTypeBasic in 'u_MapTypeBasic.pas',
   u_MapTypeSet in 'u_MapTypeSet.pas',
   u_MapTypeSetChangeableSimple in 'u_MapTypeSetChangeableSimple.pas',
   u_MapTypeSetChangeableBySourceSetWithFilter in 'u_MapTypeSetChangeableBySourceSetWithFilter.pas',

@@ -30,8 +30,8 @@ uses
   ExtCtrls,
   ComCtrls,
   Spin,
-  u_CommonFormAndFrameParents,
-  u_MapType;
+  i_MapTypes,
+  u_CommonFormAndFrameParents;
 
 type
   TfrmMapTypeEdit = class(TFormWitghLanguageManager)
@@ -96,9 +96,9 @@ type
     procedure btnResetVersionClick(Sender: TObject);
     procedure btnResetHeaderClick(Sender: TObject);
   private
-    FMapType: TMapType;
+    FMapType: IMapType;
   public
-    function EditMapModadl(AMapType: TMapType): Boolean;
+    function EditMapModadl(const AMapType: IMapType): Boolean;
   end;
 
 implementation
@@ -249,7 +249,7 @@ begin
   end;
 end;
 
-function TfrmMapTypeEdit.EditMapModadl(AMapType: TMapType): Boolean;
+function TfrmMapTypeEdit.EditMapModadl(const AMapType: IMapType): Boolean;
 var
   VDownloadState: ITileDownloaderStateStatic;
 begin

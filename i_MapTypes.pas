@@ -23,128 +23,124 @@ unit i_MapTypes;
 interface
 
 uses
+  Types,
   i_Changeable,
-  u_MapType;
+  i_MapVersionInfo,
+  i_MapVersionRequest,
+  i_TileObjCache,
+  i_Bitmap32Static,
+  i_VectorItemSubset,
+  i_CoordConverter,
+  i_ZmpInfo,
+  i_MapVersionRequestConfig,
+  i_ContentTypeInfo,
+  i_MapAbilitiesConfig,
+  i_SimpleTileStorageConfig,
+  i_TileDownloadSubsystem,
+  i_TileStorage,
+  i_MapTypeGUIConfig,
+  i_LayerDrawConfig,
+  i_TileDownloaderConfig,
+  i_TileDownloadRequestBuilderConfig,
+  i_ConfigDataWriteProvider;
 
 type
   IMapType = interface
     ['{85957D2C-19D7-4F44-A183-F3679B2A5973}']
-    function GetMapType: TMapType;
-    property MapType: TMapType read GetMapType;
+    procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
 
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
 
-//    procedure ClearMemCache;
-//    function GetTileFileName(
-//      const AXY: TPoint;
-//      AZoom: byte
-//    ): string;
-//    function GetTileShowName(
-//      const AXY: TPoint;
-//      AZoom: byte
-//    ): string;
-//    function TileExists(
-//      const AXY: TPoint;
-//      AZoom: byte
-//    ): Boolean;
-//    function LoadTile(
-//      const AXY: TPoint;
-//      const AZoom: byte;
-//      IgnoreError: Boolean;
-//      const ACache: ITileObjCacheBitmap = nil
-//    ): IBitmap32Static;
-//    function LoadTileVector(
-//      const AXY: TPoint;
-//      const AZoom: byte;
-//      IgnoreError: Boolean;
-//      const ACache: ITileObjCacheVector = nil
-//    ): IVectorItemSubset;
-//    function LoadTileUni(
-//      const AXY: TPoint;
-//      const AZoom: byte;
-//      const ACoordConverterTarget: ICoordConverter;
-//      AUsePre, AAllowPartial, IgnoreError: Boolean;
-//      const ACache: ITileObjCacheBitmap = nil
-//    ): IBitmap32Static;
-//    function LoadBitmap(
-//      const APixelRectTarget: TRect;
-//      const AZoom: byte;
-//      AUsePre, AAllowPartial, IgnoreError: Boolean;
-//      const ACache: ITileObjCacheBitmap = nil
-//    ): IBitmap32Static;
-//    function LoadBitmapUni(
-//      const APixelRectTarget: TRect;
-//      const AZoom: byte;
-//      const ACoordConverterTarget: ICoordConverter;
-//      AUsePre, AAllowPartial, IgnoreError: Boolean;
-//      const ACache: ITileObjCacheBitmap = nil
-//    ): IBitmap32Static;
-//    procedure SaveTileSimple(
-//      const AXY: TPoint;
-//      AZoom: byte;
-//      const ABitmap: IBitmap32Static
-//    );
-//    function GetFillingMapBitmap(
-//      AOperationID: Integer;
-//      const ACancelNotifier: INotifierOperation;
-//      const ALocalConverter: ILocalCoordConverter;
-//      ASourceZoom: byte;
-//      const AColorer: IFillingMapColorer
-//    ): IBitmap32Static;
-//
-//    function GetShortFolderName: string;
-//
-//    function GetZmp: IZmpInfo;
-//    property Zmp: IZmpInfo read GetZmp;
-//
-//    function GetGeoConvert: ICoordConverter;
-//    property GeoConvert: ICoordConverter read GetCoordConverter;
-//
-//    function GetViewGeoConvert: ICoordConverter;
-//    property ViewGeoConvert: ICoordConverter read GetViewCoordConverter;
-//
-//    function GetVersionConfig: IMapVersionConfig;
-//    property VersionConfig: IMapVersionConfig read GetVersionConfig;
-//
-//    function GetContentType: IContentTypeInfoBasic;
-//    property ContentType: IContentTypeInfoBasic read GetContentType;
-//
-//    function GetAbilities: IMapAbilitiesConfig;
-//    property Abilities: IMapAbilitiesConfig read GetAbilitiesConfig;
-//
-//    function GetStorageConfig: ISimpleTileStorageConfig;
-//    property StorageConfig: ISimpleTileStorageConfig read GetStorageConfig;
-//
-//    function GetIsBitmapTiles: Boolean;
-//    property IsBitmapTiles: Boolean read GetIsBitmapTiles;
-//
-//    function GetIsKmlTiles: Boolean;
-//    property IsKmlTiles: Boolean read GetIsKmlTiles;
-//
-//    function GetTileDownloadSubsystem: ITileDownloadSubsystem;
-//    property TileDownloadSubsystem: ITileDownloadSubsystem read GetTileDownloadSubsystem;
-//
-//    function GetTileStorage: ITileStorage;
-//    property TileStorage: ITileStorage read GetStorage;
-//
-//    function GetGUIConfig: IMapTypeGUIConfig;
-//    property GUIConfig: IMapTypeGUIConfig read GetGUIConfig;
-//
-//    function GetLayerDrawConfig: ILayerDrawConfig;
-//    property LayerDrawConfig: ILayerDrawConfig read GetLayerDrawConfig;
-//
-//    function GetTileDownloaderConfig: ITileDownloaderConfig;
-//    property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
-//
-//    function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-//    property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read GetTileDownloadRequestBuilderConfig;
-//
-//    function GetCacheBitmap: ITileObjCacheBitmap;
-//    property CacheBitmap: ITileObjCacheBitmap read GetCacheBitmap;
-//
-//    function GetCacheVector: ITileObjCacheVector;
-//    property CacheVector: ITileObjCacheVector read GetCacheVector;
+    procedure ClearMemCache;
+    function GetTileShowName(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersion: IMapVersionInfo
+    ): string;
+    function LoadTile(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersion: IMapVersionRequest;
+      IgnoreError: Boolean;
+      const ACache: ITileObjCacheBitmap = nil
+    ): IBitmap32Static;
+    function LoadTileVector(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersion: IMapVersionRequest;
+      IgnoreError: Boolean;
+      const ACache: ITileObjCacheVector = nil
+    ): IVectorItemSubset;
+    function LoadTileUni(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersion: IMapVersionRequest;
+      const ACoordConverterTarget: ICoordConverter;
+      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const ACache: ITileObjCacheBitmap = nil
+    ): IBitmap32Static;
+    function LoadBitmap(
+      const APixelRectTarget: TRect;
+      const AZoom: byte;
+      const AVersion: IMapVersionRequest;
+      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const ACache: ITileObjCacheBitmap = nil
+    ): IBitmap32Static;
+    function LoadBitmapUni(
+      const APixelRectTarget: TRect;
+      const AZoom: byte;
+      const AVersion: IMapVersionRequest;
+      const ACoordConverterTarget: ICoordConverter;
+      AUsePre, AAllowPartial, IgnoreError: Boolean;
+      const ACache: ITileObjCacheBitmap = nil
+    ): IBitmap32Static;
+    procedure SaveTileSimple(
+      const AXY: TPoint;
+      const AZoom: byte;
+      const AVersion: IMapVersionInfo;
+      const ABitmap: IBitmap32Static
+    );
+
+    function GetShortFolderName: string;
+
+    function GetZmp: IZmpInfo;
+    property Zmp: IZmpInfo read GetZmp;
+
+    function GetGeoConvert: ICoordConverter;
+    property GeoConvert: ICoordConverter read GetGeoConvert;
+    function GetViewGeoConvert: ICoordConverter;
+    property ViewGeoConvert: ICoordConverter read GetViewGeoConvert;
+    function GetVersionRequestConfig: IMapVersionRequestConfig;
+    property VersionRequestConfig: IMapVersionRequestConfig read GetVersionRequestConfig;
+    function GetContentType: IContentTypeInfoBasic;
+    property ContentType: IContentTypeInfoBasic read GetContentType;
+
+    function GetAbilities: IMapAbilitiesConfig;
+    property Abilities: IMapAbilitiesConfig read GetAbilities;
+    function GetStorageConfig: ISimpleTileStorageConfig;
+    property StorageConfig: ISimpleTileStorageConfig read GetStorageConfig;
+    function GetIsBitmapTiles: Boolean;
+    property IsBitmapTiles: Boolean read GetIsBitmapTiles;
+    function GetIsKmlTiles: Boolean;
+    property IsKmlTiles: Boolean read GetIsKmlTiles;
+
+    function GetTileDownloadSubsystem: ITileDownloadSubsystem;
+    property TileDownloadSubsystem: ITileDownloadSubsystem read GetTileDownloadSubsystem;
+    function GetTileStorage: ITileStorage;
+    property TileStorage: ITileStorage read GetTileStorage;
+    function GetGUIConfig: IMapTypeGUIConfig;
+    property GUIConfig: IMapTypeGUIConfig read GetGUIConfig;
+    function GetLayerDrawConfig: ILayerDrawConfig;
+    property LayerDrawConfig: ILayerDrawConfig read GetLayerDrawConfig;
+    function GetTileDownloaderConfig: ITileDownloaderConfig;
+    property TileDownloaderConfig: ITileDownloaderConfig read GetTileDownloaderConfig;
+    function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
+    property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read GetTileDownloadRequestBuilderConfig;
+    function GetCacheBitmap: ITileObjCacheBitmap;
+    property CacheBitmap: ITileObjCacheBitmap read GetCacheBitmap;
+    function GetCacheVector: ITileObjCacheVector;
+    property CacheVector: ITileObjCacheVector read GetCacheVector;
   end;
 
   IMapTypeChangeable = interface(IChangeable)

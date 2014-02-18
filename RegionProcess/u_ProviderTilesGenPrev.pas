@@ -53,12 +53,12 @@ uses
   Classes,
   SysUtils,
   GR32,
+  i_MapTypes,
   i_ImageResamplerFactory,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadGenPrevZoom,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 { TProviderTilesGenPrev }
 
@@ -112,7 +112,7 @@ end;
 procedure TProviderTilesGenPrev.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
   VInZooms: TByteDynArray;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VResampler: IImageResamplerFactory;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VBgColor: TColor32;

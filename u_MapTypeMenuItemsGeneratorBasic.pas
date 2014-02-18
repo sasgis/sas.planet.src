@@ -67,8 +67,7 @@ uses
   SysUtils,
   i_GUIDListStatic,
   u_TBXSubmenuItemWithIndicator,
-  u_ActiveMapTBXItem,
-  u_MapType;
+  u_ActiveMapTBXItem;
 
 { TMapMenuGeneratorBasic }
 
@@ -101,21 +100,14 @@ function TMapMenuGeneratorBasic.CreateMenuItem(
 ): TTBXCustomItem;
 var
   VGUID: TGUID;
-  VMapType: TMapType;
 begin
   if Assigned(FActiveMap) then begin
     Result := TActiveMapTBXItem.Create(FRootMenu, AMapType, FActiveMap);
   end else begin
     Result := TActiveLayerTBXItem.Create(FRootMenu, AMapType, FActiveLayers);
   end;
-  VMapType := nil;
-  if AMapType <> nil then begin
-    VMapType := AMapType.MapType;
-  end;
   VGUID := AMapType.GUID;
-  if VMapType <> nil then begin
-    Result.Caption := VMapType.GUIConfig.Name.Value;
-  end;
+  Result.Caption := AMapType.GUIConfig.Name.Value;
   Result.ImageIndex := FIconsList.GetIconIndexByGUID(VGUID);
   Result.Tag := Integer(AMapType);
   Result.OnClick := FOnClick;
@@ -218,22 +210,16 @@ var
 begin
   VMapType := FMapsSet.GetMapTypeByGUID(AGUID);
   if VMapType <> nil then begin
-    VSubMenuName := '';
-    VEnabled := True;
-    if VMapType.MapType <> nil then begin
-      VEnabled := VMapType.MapType.GUIConfig.Enabled;
-      VSubMenuName := VMapType.MapType.GUIConfig.ParentSubMenu.Value;
-    end;
+    VEnabled := VMapType.GUIConfig.Enabled;
+    VSubMenuName := VMapType.GUIConfig.ParentSubMenu.Value;
     if VEnabled then begin
       VSubMenu := GetParentMenuItem(VSubMenuName);
       Assert(Assigned(VSubMenu));
       VMenuItem := CreateMenuItem(VMapType);
       Assert(Assigned(VMenuItem));
       VSubMenu.Add(VMenuItem);
-      if VMapType.MapType <> nil then begin
-        if VMapType.MapType.GUIConfig.Separator then begin
-          VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
-        end;
+      if VMapType.GUIConfig.Separator then begin
+        VSubMenu.Add(TTBSeparatorItem.Create(FRootMenu));
       end;
     end;
   end;

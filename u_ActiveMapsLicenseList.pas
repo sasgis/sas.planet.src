@@ -97,7 +97,7 @@ begin
     while VEnum.Next(1, VGUID, VCnt) = S_OK do begin
       VMapType := VMapsSet.GetMapTypeByGUID(VGUID);
       if VMapType <> nil then begin
-        VLicense := VMapType.MapType.Zmp.License.GetString(VLangIndex);
+        VLicense := VMapType.Zmp.License.GetString(VLangIndex);
         if VLicense <> '' then begin
           VStringList.Add(VLicense);
         end;

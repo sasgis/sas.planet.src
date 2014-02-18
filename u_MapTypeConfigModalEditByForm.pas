@@ -25,8 +25,8 @@ interface
 uses
   Windows,
   i_LanguageManager,
+  i_MapTypes,
   i_MapTypeConfigModalEdit,
-  u_MapType,
   u_BaseInterfacedObject,
   frm_MapTypeEdit;
 
@@ -37,7 +37,7 @@ type
     FEditCounter: Longint;
     FfrmMapTypeEdit: TfrmMapTypeEdit;
   private
-    function EditMap(AMapType: TMapType): Boolean;
+    function EditMap(const AMapType: IMapType): Boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager
@@ -71,7 +71,7 @@ begin
   inherited;
 end;
 
-function TMapTypeConfigModalEditByForm.EditMap(AMapType: TMapType): Boolean;
+function TMapTypeConfigModalEditByForm.EditMap(const AMapType: IMapType): Boolean;
 var
   VCounter: Longint;
 begin

@@ -176,7 +176,7 @@ var
 begin
   Assert(Assigned(FMapListener));
   if Assigned(AMapListened) and Assigned(FMapListener)then begin
-    VNotifier := AMapListened.MapType.TileStorage.TileNotifier;
+    VNotifier := AMapListened.TileStorage.TileNotifier;
     if VNotifier <> nil then begin
       VNotifier.Remove(FMapListener);
     end;
@@ -225,16 +225,16 @@ var
 begin
   if AMapListened <> nil then begin
     if not Assigned(FMapListener) then begin
-      FMapListener := TTileUpdateListenerToLonLat.Create(AMapListened.MapType.GeoConvert, Self.OnTileUpdate);
+      FMapListener := TTileUpdateListenerToLonLat.Create(AMapListened.GeoConvert, Self.OnTileUpdate);
     end;
     VZoom := ALocalConverter.Zoom;
     VConverter := ALocalConverter.GeoConverter;
     VMapRect := ALocalConverter.GetRectInMapPixelFloat;
     VConverter.CheckPixelRectFloat(VMapRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VMapRect, VZoom);
-    VNotifier := AMapListened.MapType.TileStorage.TileNotifier;
+    VNotifier := AMapListened.TileStorage.TileNotifier;
     if VNotifier <> nil then begin
-      VConverter := AMapListened.MapType.GeoConvert;
+      VConverter := AMapListened.GeoConvert;
       VMapLonLatRect := VLonLatRect;
       VConverter.CheckLonLatRect(VMapLonLatRect);
       VSourceZoom := GetActualZoom(ALocalConverter);

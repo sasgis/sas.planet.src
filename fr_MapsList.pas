@@ -61,7 +61,7 @@ uses
   Menus,
   c_InternalBrowser,
   i_GUIDListStatic,
-  u_MapType,
+  i_MapTypes,
   u_ResStrings;
 
 {$R *.dfm}
@@ -91,12 +91,12 @@ end;
 procedure TfrMapsList.ApplyChanges;
 var
   i: Integer;
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   FGUIConfigList.LockWrite;
   try
     For i:=0 to MapList.Items.Count-1 do begin
-      VMapType := TMapType(MapList.Items.Item[i].data);
+      VMapType := IMapType(MapList.Items.Item[i].data);
       if VMapType <> nil then begin
         VMapType.GUIConfig.SortIndex := i+1;
       end;
@@ -108,13 +108,13 @@ end;
 
 procedure TfrMapsList.btnMapInfoClick(Sender: TObject);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VUrl: string;
   VItem: TListItem;
 begin
   VItem := MapList.Selected;
   if VItem <> nil then begin
-    VMapType := TMapType(VItem.Data);
+    VMapType := IMapType(VItem.Data);
     if VMapType <> nil then begin
       VUrl := VMapType.GUIConfig.InfoUrl.Value;
       if VUrl <> '' then begin
@@ -141,12 +141,12 @@ end;
 
 procedure TfrMapsList.Button15Click(Sender: TObject);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VItem: TListItem;
 begin
   VItem := MapList.Selected;
   if VItem <> nil then begin
-    VMapType := TMapType(VItem.Data);
+    VMapType := IMapType(VItem.Data);
     if VMapType <> nil then begin
       if FMapTypeEditor.EditMap(VMapType) then begin
         UpdateList;
@@ -195,10 +195,10 @@ end;
 procedure TfrMapsList.MapListChange(Sender: TObject; Item: TListItem;
   Change: TItemChange);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   if Self.Visible then begin
-    VMapType := TMapType(Item.Data);
+    VMapType := IMapType(Item.Data);
     if VMapType <> nil then begin
       btnMapInfo.Enabled:=VMapType.GUIConfig.InfoUrl.Value<>'';
     end;
@@ -209,10 +209,10 @@ procedure TfrMapsList.MapListCustomDrawSubItem(Sender: TCustomListView;
   Item: TListItem; SubItem: Integer; State: TCustomDrawState;
   var DefaultDraw: Boolean);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   if Item = nil then EXIT;
-  VMapType := TMapType(Item.Data);
+  VMapType := IMapType(Item.Data);
   if VMapType <> nil then begin
     if Item.Index mod 2 = 1 then begin
       Sender.canvas.brush.Color := cl3DLight;
@@ -242,12 +242,12 @@ begin
   end;
 end;
 
-procedure UpdateItem(AItem: TListItem; AMapType: TMapType);
+procedure UpdateItem(AItem: TListItem; const AMapType: IMapType);
 var
   VValue: string;
 begin
   AItem.Caption := AMapType.GUIConfig.Name.Value;
-  AItem.Data := AMapType;
+  AItem.Data := Pointer(AMapType);
   VValue := AMapType.StorageConfig.NameInCache;
   SetSubItem(AItem, 0, VValue);
   if AMapType.Zmp.IsLayer then begin
@@ -271,7 +271,7 @@ end;
 var
   VPrevSelectedIndex: Integer;
   i: integer;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
   VItem: TListItem;
@@ -282,7 +282,7 @@ begin
     VGUIDList := FGUIConfigList.OrderedMapGUIDList;
     for i := 0 to VGUIDList.Count - 1 do begin
       VGUID := VGUIDList.Items[i];
-      VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
       if i < MapList.Items.Count then begin
         VItem := MapList.Items[i];
       end else begin

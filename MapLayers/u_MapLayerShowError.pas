@@ -18,8 +18,8 @@ uses
   i_SimpleFlag,
   i_MarkerDrawable,
   i_TileErrorLogProviedrStuped,
+  i_MapTypes,
   i_MapTypeSet,
-  u_MapType,
   u_MapLayerBasic;
 
 type
@@ -38,7 +38,7 @@ type
     procedure OnTimer;
     procedure OnErrorRecive;
     function CreateMarkerByError(
-      const AMapType: TMapType;
+      const AMapType: IMapType;
       const AErrorInfo: ITileErrorInfo
     ): IMarkerDrawable;
   protected
@@ -68,7 +68,6 @@ uses
   c_ZeroGUID,
   i_CoordConverter,
   i_Bitmap32Static,
-  i_MapTypes,
   u_ListenerByEvent,
   u_ListenerTime,
   u_SimpleFlagWithInterlock,
@@ -116,7 +115,7 @@ begin
 end;
 
 function TTileErrorInfoLayer.CreateMarkerByError(
-  const AMapType: TMapType;
+  const AMapType: IMapType;
   const AErrorInfo: ITileErrorInfo
 ): IMarkerDrawable;
 var
@@ -242,8 +241,7 @@ var
   VErrorInfo: ITileErrorInfo;
   VConverter: ICoordConverter;
   VGUID: TGUID;
-  VMap: IMapType;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VZoom: Byte;
   VTile: TPoint;
   VFixedLonLat: TDoublePoint;
@@ -258,10 +256,7 @@ begin
     VGUID := VErrorInfo.MapTypeGUID;
     VMapType := nil;
     if not IsEqualGUID(VGUID, CGUID_Zero) then begin
-      VMap := FMapsSet.GetMapTypeByGUID(VGUID);
-      if VMap <> nil then begin
-        VMapType := VMap.MapType;
-      end;
+      VMapType := FMapsSet.GetMapTypeByGUID(VGUID);
     end;
     VConverter := VMapType.GeoConvert;
     VZoom := VErrorInfo.Zoom;

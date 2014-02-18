@@ -102,7 +102,7 @@ begin
     Exit;
   end;
 
-  VTileStorage := VMapType.MapType.TileStorage;
+  VTileStorage := VMapType.TileStorage;
 
   if VTileStorage = nil then begin
     // no storage
@@ -133,7 +133,7 @@ begin
   end;
 
   if (dorf_ClearMemCache in VResponseFlags) then begin
-    VMapType.MapType.ClearMemCache;
+    VMapType.ClearMemCache;
   end;
 
   Result := BuildBinaryDataByText(VResponse);

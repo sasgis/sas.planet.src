@@ -14,13 +14,13 @@ uses
   t_CommonTypes,
   i_LanguageManager,
   i_ImageResamplerFactory,
+  i_MapTypes,
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_ImageResamplerConfig,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
 
@@ -91,9 +91,9 @@ type
     );
     function Validate: Boolean;
   private
-    function GetMapType: TMapType;
+    function GetMapType: IMapType;
     function GetZoomArray: TByteDynArray;
-    function GetAllowGenPrev(AMapType: TMapType): boolean;
+    function GetAllowGenPrev(const AMapType: IMapType): boolean;
     function GetIsReplace: Boolean;
     function GetIsSaveFullOnly: Boolean;
     function GetIsUseTilesFromPrevZoom: Boolean;
@@ -155,7 +155,7 @@ begin
   inherited;
 end;
 
-function TfrTilesGenPrev.GetAllowGenPrev(AMapType: TMapType): boolean;
+function TfrTilesGenPrev.GetAllowGenPrev(const AMapType: IMapType): boolean;
 begin
   Result := (AMapType.IsBitmapTiles) and (AMapType.TileStorage.State.GetStatic.WriteAccess <> asDisabled);
 end;
@@ -270,7 +270,7 @@ begin
   Result := chkUsePrevTiles.Checked;
 end;
 
-function TfrTilesGenPrev.GetMapType: TMapType;
+function TfrTilesGenPrev.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
 end;

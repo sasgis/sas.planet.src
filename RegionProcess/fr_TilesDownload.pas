@@ -11,6 +11,7 @@ uses
   SysUtils,
   StdCtrls,
   Windows,
+  i_MapTypes,
   i_MapTypeSet,
   i_CoordConverterFactory,
   i_LanguageManager,
@@ -19,7 +20,6 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
 
@@ -91,7 +91,7 @@ type
     );
     function Validate: Boolean;
   private
-    function GetMapType: TMapType;
+    function GetMapType: IMapType;
     function GetZoom: Byte;
   private
     function GetIsStartPaused: Boolean;
@@ -100,7 +100,7 @@ type
     function GetIsReplaceIfDifSize: Boolean;
     function GetIsReplaceIfOlder: Boolean;
     function GetReplaceDate: TDateTime;
-    function GetAllowDownload(AMapType: TMapType): boolean; // чисто для проверки
+    function GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -126,7 +126,7 @@ uses
 procedure TfrTilesDownload.cbbZoomChange(Sender: TObject);
 var
   numd:int64 ;
-  Vmt: TMapType;
+  Vmt: IMapType;
   VZoom: byte;
   VPolyLL: IGeometryLonLatMultiPolygon;
   VProjected: IGeometryProjectedMultiPolygon;
@@ -215,7 +215,7 @@ begin
     );
 end;
 
-function TfrTilesDownload.GetAllowDownload(AMapType: TMapType): boolean; // чисто для проверки
+function TfrTilesDownload.GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
 begin
    Result := (AMapType.StorageConfig.GetAllowAdd) and (AMapType.TileDownloadSubsystem.State.GetStatic.Enabled);
 end;
@@ -245,7 +245,7 @@ begin
   Result := chkStartPaused.Checked;
 end;
 
-function TfrTilesDownload.GetMapType: TMapType;
+function TfrTilesDownload.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
 end;

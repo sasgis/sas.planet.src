@@ -69,10 +69,12 @@ uses
   i_GlobalBerkeleyDBHelper,
   i_TileInfoBasicMemCache,
   i_GlobalCacheConfig,
-  i_TileStorage;
+  i_TileStorage,
+  i_MapTypes,
+  u_BaseInterfacedObject;
 
 type
-  TMapType = class
+  TMapType = class(TBaseInterfacedObject, IMapType)
   private
     FZmp: IZmpInfo;
     FMapDataUrlPrefix: string;
@@ -191,6 +193,8 @@ type
 
     function GetShortFolderName: string;
 
+    function GetGUID: TGUID;
+
     property Zmp: IZmpInfo read FZmp;
     property GeoConvert: ICoordConverter read FCoordConverter;
     property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
@@ -210,6 +214,24 @@ type
     property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read FTileDownloadRequestBuilderConfig;
     property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
     property CacheVector: ITileObjCacheVector read FCacheVector;
+
+    function GetZmp: IZmpInfo;
+    function GetGeoConvert: ICoordConverter;
+    function GetViewGeoConvert: ICoordConverter;
+    function GetVersionRequestConfig: IMapVersionRequestConfig;
+    function GetContentType: IContentTypeInfoBasic;
+
+    function GetAbilities: IMapAbilitiesConfig;
+    function GetStorageConfig: ISimpleTileStorageConfig;
+
+    function GetTileDownloadSubsystem: ITileDownloadSubsystem;
+    function GetTileStorage: ITileStorage;
+    function GetGUIConfig: IMapTypeGUIConfig;
+    function GetLayerDrawConfig: ILayerDrawConfig;
+    function GetTileDownloaderConfig: ITileDownloaderConfig;
+    function GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
+    function GetCacheBitmap: ITileObjCacheBitmap;
+    function GetCacheVector: ITileObjCacheVector;
 
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -575,6 +597,26 @@ begin
   Result := ExtractFileName(ExtractFileDir(IncludeTrailingPathDelimiter(FStorageConfig.NameInCache)));
 end;
 
+function TMapType.GetStorageConfig: ISimpleTileStorageConfig;
+begin
+  Result := FStorageConfig;
+end;
+
+function TMapType.GetTileDownloaderConfig: ITileDownloaderConfig;
+begin
+  Result := FTileDownloaderConfig;
+end;
+
+function TMapType.GetTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
+begin
+  Result := FTileDownloadRequestBuilderConfig;
+end;
+
+function TMapType.GetTileDownloadSubsystem: ITileDownloadSubsystem;
+begin
+  Result := FTileDownloadSubsystem;
+end;
+
 function TMapType.GetTileShowName(
   const AXY: TPoint;
   const AZoom: byte;
@@ -594,6 +636,61 @@ begin
   end;
 end;
 
+function TMapType.GetAbilities: IMapAbilitiesConfig;
+begin
+  Result := FAbilitiesConfig;
+end;
+
+function TMapType.GetCacheBitmap: ITileObjCacheBitmap;
+begin
+  Result := FCacheBitmap;
+end;
+
+function TMapType.GetCacheVector: ITileObjCacheVector;
+begin
+  Result := FCacheVector;
+end;
+
+function TMapType.GetContentType: IContentTypeInfoBasic;
+begin
+  Result := FContentType;
+end;
+
+function TMapType.GetGeoConvert: ICoordConverter;
+begin
+  Result := FCoordConverter;
+end;
+
+function TMapType.GetGUIConfig: IMapTypeGUIConfig;
+begin
+  Result := FGUIConfig;
+end;
+
+function TMapType.GetGUID: TGUID;
+begin
+  Result := FZmp.GUID;
+end;
+
+function TMapType.GetTileStorage: ITileStorage;
+begin
+  Result := FStorage;
+end;
+
+function TMapType.GetVersionRequestConfig: IMapVersionRequestConfig;
+begin
+  Result := FVersionRequestConfig;
+end;
+
+function TMapType.GetViewGeoConvert: ICoordConverter;
+begin
+  Result := FViewCoordConverter;
+end;
+
+function TMapType.GetZmp: IZmpInfo;
+begin
+  Result := FZmp;
+end;
+
 function TMapType.GetIsBitmapTiles: Boolean;
 begin
   Result := FBitmapLoaderFromStorage <> nil;
@@ -602,6 +699,11 @@ end;
 function TMapType.GetIsKmlTiles: Boolean;
 begin
   Result := FKmlLoaderFromStorage <> nil;
+end;
+
+function TMapType.GetLayerDrawConfig: ILayerDrawConfig;
+begin
+  Result := FLayerDrawConfig;
 end;
 
 function TMapType.LoadTile(

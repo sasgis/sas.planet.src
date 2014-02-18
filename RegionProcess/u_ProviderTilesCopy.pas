@@ -62,6 +62,7 @@ uses
   Classes,
   SysUtils,
   c_CacheTypeCodes, // for cache types
+  i_MapTypes,
   i_MapTypeListStatic,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
@@ -69,7 +70,6 @@ uses
   u_TileStorageBerkeleyDB,
   u_TileStorageFileSystem,
   u_ThreadCopyFromStorageToStorage,
-  u_MapType,
   u_ResStrings;
 
 { TProviderTilesCopy }
@@ -143,7 +143,7 @@ var
   VTasks: TCopyTaskArray;
   i: Integer;
   VTargetStoragePath: string;
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
@@ -166,7 +166,7 @@ begin
 
   SetLength(VTasks, VMaps.Count);
   for i := 0 to VMaps.Count - 1 do begin
-    VMapType := VMaps.Items[i].MapType;
+    VMapType := VMaps.Items[i];
     VTasks[i].FSource := VMapType.TileStorage;
     VTasks[i].FSourceVersion := VMapType.VersionRequestConfig.GetStatic;
     VTargetStoragePath := IncludeTrailingPathDelimiter(VPath);

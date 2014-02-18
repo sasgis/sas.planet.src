@@ -118,8 +118,7 @@ uses
   u_ListenerByEvent,
   u_ResStrings,
   u_GeoFunc,
-  u_TerrainInfo,
-  u_MapType;
+  u_TerrainInfo;
 
 const
   //  онстанта дл€ преобразовани€ градусов в радианы
@@ -334,7 +333,7 @@ var
   VSize: TPoint;
   VRad: Extended;
   VTile: TPoint;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VConverter: ICoordConverter;
   VPixelsAtZoom: Double;
   VCurrentTick: DWORD;
@@ -357,7 +356,7 @@ begin
     VZoomCurr := VVisualCoordConverter.GetZoom;
     VConverter := VVisualCoordConverter.GetGeoConverter;
     VSize := Types.Point(Layer.Bitmap.Width, Layer.Bitmap.Height);
-    VMapType := FMainMap.GetStatic.MapType;
+    VMapType := FMainMap.GetStatic;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
     VMapType.GeoConvert.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);

@@ -110,13 +110,13 @@ begin
   try
     VCache := nil;
     if FUseCache then begin
-      VCache := AMapType.MapType.CacheBitmap;
+      VCache := AMapType.CacheBitmap;
     end;
     VLayer :=
-      AMapType.MapType.LoadTileUni(
+      AMapType.LoadTileUni(
         ATile,
         AZoom,
-        AMapType.MapType.VersionRequestConfig.GetStatic,
+        AMapType.VersionRequestConfig.GetStatic,
         ACoordConverterTarget,
         AUsePrevZoom,
         True,
@@ -128,7 +128,7 @@ begin
       if FErrorLogger <> nil then begin
         VError :=
           TTileErrorInfo.Create(
-            AMapType.MapType.Zmp.GUID,
+            AMapType.Zmp.GUID,
             AZoom,
             ATile,
             E.Message
@@ -141,7 +141,7 @@ begin
     else if FErrorLogger <> nil then begin
         FErrorLogger.LogError(
           TTileErrorInfo.Create(
-          AMapType.MapType.Zmp.GUID,
+          AMapType.Zmp.GUID,
           AZoom,
           ATile,
           'Unexpected read tile error'

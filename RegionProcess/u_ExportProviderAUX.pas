@@ -43,10 +43,10 @@ uses
   SysUtils,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
+  i_MapTypes,
   i_GeometryProjected,
   u_ThreadExportToAUX,
   u_ResStrings,
-  u_MapType,
   fr_ExportAUX;
 
 { TExportProviderKml }
@@ -94,7 +94,7 @@ end;
 procedure TExportProviderAUX.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
   VPath: string;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VZoom: byte;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;

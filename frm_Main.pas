@@ -789,7 +789,6 @@ uses
   u_MarkerProviderForVectorItemForMarkPoints,
   u_GeoFunc,
   u_GeoToStrFunc,
-  u_MapType,
   u_VectorItemSubsetChangeableForVectorLayers,
   u_VectorItemSubsetChangeableForMarksLayer,
   u_VectorItemSubsetChangeableBySearchResult,
@@ -2474,7 +2473,7 @@ end;
 procedure TfrmMain.CreateMapUILayerSubMenu;
 var
   i: integer;
-  VMapType: TMapType;
+  VMapType: IMapType;
 
   NLayerParamsItem: TTBXItem; //Пункт гланого меню Параметры/Параметры слоя
   NDwnItem: TTBXItem; //Пункт контекстного меню Загрузить тайл слоя
@@ -2504,7 +2503,7 @@ begin
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
-    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     VIcon18Index := FMapTypeIcons18List.GetIconIndexByGUID(VGUID);
     if VMapType.Zmp.IsLayer then begin
       NDwnItem:=TTBXItem.Create(ldm);
@@ -2965,7 +2964,7 @@ begin
   TBHideMarks.Checked := not(FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks);
 
   if FConfig.MainConfig.ShowMapName then begin
-    TBSMB.Caption := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType.GUIConfig.Name.Value;
+    TBSMB.Caption := FConfig.MainMapsConfig.GetActiveMap.GetStatic.GUIConfig.Name.Value;
   end else begin
     TBSMB.Caption := '';
   end;
@@ -2995,8 +2994,8 @@ begin
   VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   VGUID := VMapType.GUID;
   TBSMB.ImageIndex := FMapTypeIcons24List.GetIconIndexByGUID(VGUID);
-  if FConfig.MainConfig.ShowMapName and (VMapType.MapType <> nil) then begin
-    TBSMB.Caption := VMapType.MapType.GUIConfig.Name.Value;
+  if FConfig.MainConfig.ShowMapName and (VMapType <> nil) then begin
+    TBSMB.Caption := VMapType.GUIConfig.Name.Value;
   end else begin
     TBSMB.Caption := '';
   end;
@@ -3022,7 +3021,7 @@ begin
   CreateMapUILayerSubMenu;
 
   if FConfig.MainConfig.ShowMapName then begin
-    TBSMB.Caption := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType.GUIConfig.Name.Value;
+    TBSMB.Caption := FConfig.MainMapsConfig.GetActiveMap.GetStatic.GUIConfig.Name.Value;
   end else begin
     TBSMB.Caption := '';
   end;
@@ -3126,7 +3125,7 @@ end;
 procedure TfrmMain.DoSelectSpecialVersion(Sender: TObject);
 var
   VVersion: IMapVersionInfo;
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   if (nil<>Sender) and (Sender is TTBXItemSelectMapVersion) then begin
     if TTBXItemSelectMapVersion(Sender).Checked then begin
@@ -3140,7 +3139,7 @@ begin
   end;
 
   // for current map
-  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
 
   // apply this version or clear (uncheck) version
   VMapType.VersionRequestConfig.Version := VVersion;
@@ -3149,8 +3148,7 @@ end;
 procedure TfrmMain.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
   VShortCut: TShortCut;
-  VMap: IMapType;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VCancelSelection: Boolean;
   VLineOnMapEdit: ILineOnMapEdit;
   VLonLat: TDoublePoint;
@@ -3291,13 +3289,12 @@ begin
         Handled := True;
       end;
     else
-      VMap := FMapHotKeyList.GetMapTypeGUIDByHotKey(VShortCut);
-      if VMap <> nil then begin
-        VMapType := VMap.MapType;
+      VMapType := FMapHotKeyList.GetMapTypeGUIDByHotKey(VShortCut);
+      if VMapType <> nil then begin
         if VMapType.Zmp.IsLayer then begin
-          FConfig.MainMapsConfig.InvertLayerSelectionByGUID(VMap.GUID);
+          FConfig.MainMapsConfig.InvertLayerSelectionByGUID(VMapType.GUID);
         end else begin
-          FConfig.MainMapsConfig.SelectMainByGUID(VMap.GUID);
+          FConfig.MainMapsConfig.SelectMainByGUID(VMapType.GUID);
         end;
         Handled := True;
       end;
@@ -3453,10 +3450,10 @@ end;
 
 procedure TfrmMain.tbpmiShowPrevVersionClick(Sender: TObject);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   // for current map
-  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic;
 
   // apply this version or clear (uncheck) version
   VMapType.VersionRequestConfig.ShowPrevVersion := tbpmiShowPrevVersion.Checked;
@@ -3464,7 +3461,7 @@ end;
 
 procedure TfrmMain.tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
   VZoomCurr: Byte;
@@ -3492,7 +3489,7 @@ begin
   VStartingNewIndex := tbpmiVersions.Count;
 
   // and add view items
-  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   VAllowListOfTileVersions := VMapType.TileStorage.AllowListOfTileVersions;
   tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions and VMapType.TileStorage.AllowShowPrevVersion;
 
@@ -3763,7 +3760,7 @@ begin
         if not IsEqualGUID(VGUID, CGUID_Zero) then begin
           VMap := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
           if VMap <> nil then begin
-            if VMap.MapType.Zmp.IsLayer then begin
+            if VMap.Zmp.IsLayer then begin
               FConfig.MainMapsConfig.LockWrite;
               try
                 if FConfig.MainMapsConfig.GetActiveLayersSet.GetStatic.GetMapTypeByGUID(VMap.GUID) = nil then begin
@@ -3945,7 +3942,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VZoomCurr: Byte;
   VConverter: ICoordConverter;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VTile: TPoint;
   VBitmapTile: IBitmap32Static;
@@ -3954,7 +3951,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
   VConverter := VLocalConverter.GetGeoConverter;
-  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
 
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VTile :=
@@ -3990,14 +3987,14 @@ end;
 procedure TfrmMain.tbitmCopyToClipboardGenshtabNameClick(Sender: TObject);
 var
   VZoomCurr: Byte;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VListName: Widestring;
 begin
-  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
@@ -4014,14 +4011,14 @@ end;
 procedure TfrmMain.tbitmCopyToClipboardMainMapTileFileNameClick(Sender: TObject);
 var
   VZoomCurr: Byte;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
 begin
-  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VZoomCurr := VLocalConverter.GetZoom;
@@ -4041,7 +4038,7 @@ end;
 procedure TfrmMain.tbitmDownloadMainMapTileClick(Sender: TObject);
 var
   path:string;
-  VMapType:TMapType;
+  VMapType: IMapType;
   VZoomCurr: Byte;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -4052,9 +4049,9 @@ var
   VTileInfo: ITileInfoBasic;
 begin
   if TMenuItem(Sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(Sender).Tag);
+    VMapType := IMapType(TMenuItem(Sender).Tag);
   end else begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   end;
 
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
@@ -4137,10 +4134,10 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VFileName: string;
 begin
-  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   if VMapType.TileStorage.IsFileCache then begin
     VLocalConverter := FConfig.ViewPortState.View.GetStatic;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
@@ -4170,13 +4167,13 @@ var
   VMouseMapPoint: TDoublePoint;
   VMouseLonLat: TDoublePoint;
   VTile: TPoint;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VCommandLine: AnsiString;
 begin
   if TMenuItem(Sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(Sender).Tag);
+    VMapType := IMapType(TMenuItem(Sender).Tag);
   end else begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   end;
 
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
@@ -4325,7 +4322,7 @@ end;
 procedure TfrmMain.NDelClick(Sender: TObject);
 var
   s:string;
-  VMapType:TMapType;
+  VMapType: IMapType;
   VZoomCurr: Byte;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
@@ -4336,9 +4333,9 @@ var
   VVersion: IMapVersionInfo;
 begin
   if TMenuItem(Sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(Sender).Tag);
+    VMapType := IMapType(TMenuItem(Sender).Tag);
   end else begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   end;
 
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
@@ -4982,7 +4979,7 @@ end;
 procedure TfrmMain.tbitmCopyToClipboardMainMapUrlClick(Sender: TObject);
 var
   VZoomCurr: Byte;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;
   VMouseMapPoint: TDoublePoint;
@@ -4990,9 +4987,9 @@ var
   VTile: TPoint;
 begin
   if TMenuItem(Sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(Sender).Tag);
+    VMapType := IMapType(TMenuItem(Sender).Tag);
   end else begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   end;
   if VMapType.Zmp.TileDownloaderConfig.Enabled then begin
     VLocalConverter := FConfig.ViewPortState.View.GetStatic;
@@ -5132,24 +5129,24 @@ end;
 
 procedure TfrmMain.NMapParamsClick(Sender: TObject);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   if TTBXItem(Sender).Tag=0 then begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   end else begin
-    VMapType := TMapType(TTBXItem(Sender).Tag);
+    VMapType := IMapType(TTBXItem(Sender).Tag);
   end;
   FMapTypeEditor.EditMap(VMapType);
 end;
 
 procedure TfrmMain.NMapStorageInfoClick(Sender: TObject);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VInternalDomainOptions: IInternalDomainOptions;
   VUrl: string;
 begin
   // show storage options
-  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   if Assigned(VMapType) then
   if Assigned(VMapType.TileStorage) then
   if Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions) then begin
@@ -5346,7 +5343,7 @@ var
   VSelectionFinished: Boolean;
   VPoly: IGeometryLonLatMultiPolygon;
   VMapMoving: Boolean;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VValidPoint: Boolean;
   VConverter: ICoordConverter;
   VTile: TPoint;
@@ -5385,7 +5382,7 @@ begin
 
   VLocalConverter := FConfig.ViewPortState.View.GetStatic;
   if not VMapMoving and (Button = mbLeft) then begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
     VConverter := VLocalConverter.GetGeoConverter;
     VZoomCurr := VLocalConverter.GetZoom;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(Point(x, y));
@@ -5740,11 +5737,11 @@ var
   VLonLat:TDoublePoint;
   param:string;
   VZoomCurr: Byte;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
 begin
   if SaveLink.Execute then begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
     VLocalConverter := FConfig.ViewPortState.View.GetStatic;
     VZoomCurr := VLocalConverter.GetZoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
@@ -5862,7 +5859,7 @@ end;
 procedure TfrmMain.tbitmSelectVersionByMarkClick(Sender: TObject);
 var
   VMark: IVectorDataItemSimple;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VInternalDomainOptions: IInternalDomainOptions;
   VBase, VDesc, VVersionStr: String;
   VFlags: TDomainOptionsResponseFlags;
@@ -5870,7 +5867,7 @@ begin
   // select version by selected placemark description
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
     if Assigned(VMapType) then
     if Assigned(VMapType.TileStorage) then
     if Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions) then begin
@@ -6050,13 +6047,13 @@ end;
 
 procedure TfrmMain.NMapInfoClick(Sender: TObject);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VUrl: string;
 begin
   if TMenuItem(Sender).Tag<>0 then begin
-    VMapType := TMapType(TMenuItem(Sender).Tag);
+    VMapType := IMapType(TMenuItem(Sender).Tag);
   end else begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   end;
   VUrl := VMapType.GUIConfig.InfoUrl.Value;
   if VUrl <> '' then begin
@@ -6552,7 +6549,7 @@ end;
 
 procedure TfrmMain.LoadMapIconsList;
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VList18: TMapTypeIconsList;
   VList24: TMapTypeIconsList;
   VEnum: IEnumGUID;
@@ -6567,7 +6564,7 @@ begin
 
   VEnum := GState.MapType.FullMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
-    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     VList18.Add(VGUID, VMapType.GUIConfig.Bmp18);
     VList24.Add(VGUID, VMapType.GUIConfig.Bmp24);
   end;
@@ -6610,7 +6607,7 @@ end;
 procedure TfrmMain.MainPopupMenuPopup(Sender: TObject);
 var
   i:Integer;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VLayerIsActive: Boolean;
   VActiveLayersSet: IMapTypeSet;
   VMenuItem: TTBXItem;
@@ -6657,7 +6654,7 @@ begin
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
-    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.Zmp.IsLayer) then begin
       VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
       TTBXItem(FNDwnItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
@@ -6679,7 +6676,7 @@ begin
     end;
   end;
   // current map
-  VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
   // allow to view map info
   NMapInfo.Enabled:=VMapType.GUIConfig.InfoUrl.Value<>'';
 
@@ -6709,7 +6706,7 @@ end;
 procedure TfrmMain.NParamsPopup(Sender: TTBCustomItem; FromLink: Boolean);
 var
   i:Integer;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VLayerIsActive: Boolean;
   VActiveLayersSet: IMapTypeSet;
   VGUIDList: IGUIDListStatic;
@@ -6720,7 +6717,7 @@ begin
   VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
-    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.Zmp.IsLayer) then begin
       VLayerIsActive := VActiveLayersSet.GetMapTypeByGUID(VGUID) <> nil;
       TTBXItem(FNLayerParamsItemList.GetByGUID(VGUID)).Visible := VLayerIsActive;
@@ -6964,7 +6961,7 @@ end;
 procedure TfrmMain.tbitmMakeVersionByMarkClick(Sender: TObject);
 var
   VMark: IVectorDataItemSimple;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VInternalDomainOptions: IInternalDomainOptions;
   VBase, VDesc, VUrl: String;
   VFlags: TDomainOptionsResponseFlags;
@@ -6972,7 +6969,7 @@ begin
   // make version by selected placemark description
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic.MapType;
+    VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
     if Assigned(VMapType) then
     if Assigned(VMapType.TileStorage) then
     if Supports(VMapType.TileStorage, IInternalDomainOptions, VInternalDomainOptions) then begin

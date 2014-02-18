@@ -18,12 +18,11 @@ uses
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
-  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
   TMapSelectFilter = (mfAll=0, mfMaps=1, mfLayers=2);
-  TMapSelectPredicate =  function(AMapType: TMapType): boolean of object;
+  TMapSelectPredicate =  function(const AMapType: IMapType): boolean of object;
   TfrMapSelect = class(TFrame)
     cbbMap: TComboBox;
     FilterPopupMenu: TTBXPopupMenu;
@@ -60,8 +59,7 @@ type
       const AShowDisabled: boolean;
       AMapSelectPredicate: TMapSelectPredicate
     ); reintroduce;
-    function GetSelectedMapType: TMapType;
-    function GetSelectedIMapType: IMapType;
+    function GetSelectedMapType: IMapType;
     function Text: TCaption;
     procedure SetEnabled(Amode: boolean);reintroduce;
     procedure Show(AParent: TWinControl);
@@ -123,24 +121,11 @@ begin
   Result := cbbMap.Text;
 end;
 
-function TfrMapSelect.GetSelectedMapType: TMapType;
+function TfrMapSelect.GetSelectedMapType: IMapType;
 begin
   Result := nil;
   if cbbMap.ItemIndex >= 0 then begin
-    Result := TMapType(cbbMap.Items.Objects[cbbMap.ItemIndex]);
-  end;
-end;
-
-function TfrMapSelect.GetSelectedIMapType: IMapType;
-var
-  VMapType: TMapType;
-begin
-  Result := nil;
-  if cbbMap.ItemIndex >= 0 then begin
-    VMapType := GetSelectedMapType;
-    if VMapType <> nil then begin
-      Result := FFullMapsSet.GetMapTypeByGUID(VMapType.Zmp.GUID);
-    end;
+    Result := IMapType(Pointer(cbbMap.Items.Objects[cbbMap.ItemIndex]));
   end;
 end;
 
@@ -166,7 +151,7 @@ var
   VDefaultIndex: Integer;
   VActiveMapGUID: TGUID;
   i: integer;
-  VCurMapType: TMapType;
+  VCurMapType: IMapType;
   VAddedIndex: Integer;
   VGUIDList: IGUIDListStatic;
   VGUID: TGUID;
@@ -217,7 +202,7 @@ begin
     for i := 0 to VGUIDList.Count-1 do begin
       VGUID := VGUIDList.Items[i];
       VAdd := false;
-      VCurMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      VCurMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
         // check if allow to add map to list
       if VCurMapType.GUIConfig.Enabled or FShowDisabled then begin
         if (FMapSelectFilter = mfAll) or // карты и слои
@@ -251,7 +236,7 @@ begin
             end;
           end;
           if VAdd then begin
-            VAddedIndex := cbbMap.Items.AddObject(VCurMapType.GUIConfig.Name.Value, VCurMapType);
+            VAddedIndex := cbbMap.Items.AddObject(VCurMapType.GUIConfig.Name.Value, TObject(VCurMapType));
             if IsEqualGUID(VCurMapType.Zmp.GUID, VActiveMapGUID) then begin
               // select active map as default
               VDefaultIndex := VAddedIndex;

@@ -69,7 +69,7 @@ begin
   VList := TInterfaceListSimple.Create;
   VEnum := AMapsSet.GetMapTypeIterator;
   while VEnum.Next(1, VMapType, @VCnt) = S_OK do begin
-    if VMapType.MapType.Zmp.TileDownloaderConfig.Enabled then begin
+    if VMapType.Zmp.TileDownloaderConfig.Enabled then begin
       VDownload :=
         TUiTileDownload.Create(
           AConfig,

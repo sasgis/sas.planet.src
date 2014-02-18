@@ -1112,7 +1112,6 @@
     <DCCReference Include="u_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="u_MapMovingConfig.pas" />
     <DCCReference Include="u_MapType.pas" />
-    <DCCReference Include="u_MapTypeBasic.pas" />
     <DCCReference Include="u_MapTypeConfigModalEditByForm.pas" />
     <DCCReference Include="u_MapTypeGUIConfig.pas" />
     <DCCReference Include="u_MapTypeGUIConfigList.pas" />

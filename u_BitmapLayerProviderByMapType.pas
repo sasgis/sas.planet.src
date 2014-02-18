@@ -9,15 +9,15 @@ uses
   i_TileObjCache,
   i_BitmapLayerProvider,
   i_TileError,
+  i_MapTypes,
   i_MapVersionRequest,
-  u_MapType,
   u_BaseInterfacedObject;
 
 type
   TBitmapLayerProviderByMapType = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FErrorLogger: ITileErrorLogger;
-    FMapType: TMapType;
+    FMapType: IMapType;
     FVersion: IMapVersionRequest;
     FCache: ITileObjCacheBitmap;
     FUsePrevZoom: Boolean;
@@ -30,7 +30,7 @@ type
   public
     constructor Create(
       const AErrorLogger: ITileErrorLogger;
-      AMapType: TMapType;
+      const AMapType: IMapType;
       const AVersion: IMapVersionRequest;
       const ACache: ITileObjCacheBitmap;
       AUsePrevZoom: Boolean
@@ -49,7 +49,7 @@ uses
 
 constructor TBitmapLayerProviderByMapType.Create(
   const AErrorLogger: ITileErrorLogger;
-  AMapType: TMapType;
+  const AMapType: IMapType;
   const AVersion: IMapVersionRequest;
   const ACache: ITileObjCacheBitmap;
   AUsePrevZoom: Boolean

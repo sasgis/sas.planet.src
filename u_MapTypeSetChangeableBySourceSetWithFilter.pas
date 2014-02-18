@@ -175,7 +175,7 @@ function TMapTypeSetChangeableBySourceSetWithFilterBitmap.IsValidMapType(
   const AMapType: IMapType
 ): Boolean;
 begin
-  Result := (AMapType <> nil) and (AMapType.MapType.IsBitmapTiles);
+  Result := (AMapType <> nil) and (AMapType.IsBitmapTiles);
 end;
 
 { TMapTypeSetChangeableBySourceSetWithFilterVector }
@@ -184,7 +184,7 @@ function TMapTypeSetChangeableBySourceSetWithFilterVector.IsValidMapType(
   const AMapType: IMapType
 ): Boolean;
 begin
-  Result := (AMapType <> nil) and (AMapType.MapType.IsKmlTiles);
+  Result := (AMapType <> nil) and (AMapType.IsKmlTiles);
 end;
 
 { TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty }
@@ -194,7 +194,7 @@ function TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty.IsValidMapTyp
 begin
   Result := False;
   if AMapType <> nil then begin
-    Result := AMapType.MapType.Zmp.License.GetDefault <> '';
+    Result := AMapType.Zmp.License.GetDefault <> '';
   end;
 end;
 

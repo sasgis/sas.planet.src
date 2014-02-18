@@ -10,16 +10,16 @@ uses
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_MapVersionRequest,
-  u_MapType,
+  i_MapTypes,
   u_BaseInterfacedObject;
 
 type
   TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FBitmapFactory: IBitmap32StaticFactory;
-    FMapTypeMain: TMapType;
+    FMapTypeMain: IMapType;
     FMapTypeMainVersion: IMapVersionRequest;
-    FMapTypeHybr: TMapType;
+    FMapTypeHybr: IMapType;
     FMapTypeHybrVersion: IMapVersionRequest;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
@@ -32,9 +32,9 @@ type
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
-      AMapTypeMain: TMapType;
+      const AMapTypeMain: IMapType;
       const AMapTypeMainVersion: IMapVersionRequest;
-      AMapTypeHybr: TMapType;
+      const AMapTypeHybr: IMapType;
       const AMapTypeHybrVersion: IMapVersionRequest;
       AUsePrevZoomAtMap: Boolean;
       AUsePrevZoomAtLayer: Boolean
@@ -51,9 +51,9 @@ uses
 
 constructor TBitmapLayerProviderMapWithLayer.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
-  AMapTypeMain: TMapType;
+  const AMapTypeMain: IMapType;
   const AMapTypeMainVersion: IMapVersionRequest;
-  AMapTypeHybr: TMapType;
+  const AMapTypeHybr: IMapType;
   const AMapTypeHybrVersion: IMapVersionRequest;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
 );

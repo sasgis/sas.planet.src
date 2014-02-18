@@ -43,11 +43,11 @@ uses
   Types,
   Classes,
   SysUtils,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportKML,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 { TExportProviderKml }
 
@@ -96,7 +96,7 @@ procedure TExportProviderGEKml.StartProcess(const APolygon: IGeometryLonLatMulti
 var
   VPath: string;
   VZoomArr: TByteDynArray;
-  VMapType: TMapType;
+  VMapType: IMapType;
   NotSaveNotExists: boolean;
   RelativePath: Boolean;
   VProgressInfo: IRegionProcessProgressInfoInternal;

@@ -131,7 +131,6 @@ uses
   u_ListenerTime,
   u_TileRequestTask,
   u_BackgroundTask,
-  u_MapType,
   u_GeoFunc,
   u_TileErrorInfo;
 
@@ -149,8 +148,6 @@ constructor TUiTileDownload.Create(
   const AGlobalInternetState: IGlobalInternetState;
   const AErrorLogger: ITileErrorLogger
 );
-var
-  VMapType: TMapType;
 begin
   inherited Create;
 
@@ -167,9 +164,7 @@ begin
 
   FVisualCoordConverterCS := MakeSyncRW_Var(Self);
 
-  VMapType := FMapType.MapType;
-
-  FDownloadState := VMapType.TileDownloadSubsystem.State;
+  FDownloadState := FMapType.TileDownloadSubsystem.State;
 
   FRequestManager := TUiTileRequestManager.Create(FConfig.MapUiRequestCount);
 
@@ -203,19 +198,19 @@ begin
   );
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnVersionConfigChange),
-    VMapType.VersionRequestConfig.ChangeNotifier
+    FMapType.VersionRequestConfig.ChangeNotifier
   );
 
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 300000);
   FGCNotifier.Add(FTTLListener);
 
   if
-    VMapType.StorageConfig.UseMemCache and
-    VMapType.Zmp.TileDownloaderConfig.RestartDownloadOnMemCacheTTL
+    FMapType.StorageConfig.UseMemCache and
+    FMapType.Zmp.TileDownloaderConfig.RestartDownloadOnMemCacheTTL
   then begin
     FMemCacheTTLListener := TListenerTimeCheck.Create(
       Self.OnMemCacheTTLTrim,
-      VMapType.StorageConfig.MemCacheTTL
+      FMapType.StorageConfig.MemCacheTTL
     );
     FGCNotifier.Add(FMemCacheTTLListener);
   end else begin
@@ -336,7 +331,7 @@ begin
   VConverter :=
     FConverterFactory.CreateBySourceWithTileRectAndOtherGeo(
       FViewPortState.GetStatic,
-      FMapType.MapType.GeoConvert
+      FMapType.GeoConvert
     );
   VNeedRestart := False;
 
@@ -369,7 +364,6 @@ var
   VLonLatRectInMap: TDoubleRect;
   VMapTileRect: TRect;
   VZoom: Byte;
-  VMapType: TMapType;
   VNeedDownload: Boolean;
   VTask: ITileRequestTask;
   VVersionInfo: IMapVersionRequest;
@@ -379,9 +373,8 @@ var
 begin
   FTTLListener.UpdateUseTime;
 
-  VMapType := FMapType.MapType;
-  VStorage := VMapType.TileStorage;
-  VVersionInfo := VMapType.VersionRequestConfig.GetStatic;
+  VStorage := FMapType.TileStorage;
+  VVersionInfo := FMapType.VersionRequestConfig.GetStatic;
 
   FVisualCoordConverterCS.BeginRead;
   try
@@ -401,7 +394,7 @@ begin
       VGeoConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
       VLonLatRect := VGeoConverter.PixelRectFloat2LonLatRect(VMapPixelRect, VZoom);
 
-      VMapGeoConverter := VMapType.GeoConvert;
+      VMapGeoConverter := FMapType.GeoConvert;
       VLonLatRectInMap := VLonLatRect;
       VMapGeoConverter.CheckLonLatRect(VLonLatRectInMap);
 
@@ -444,7 +437,7 @@ begin
         VTask := nil;
         if VNeedDownload then begin
           VTask :=
-            VMapType.TileDownloadSubsystem.GetRequestTask(
+            FMapType.TileDownloadSubsystem.GetRequestTask(
               FSoftCancelNotifier,
               FHardCancelNotifierInternal as INotifierOperation,
               VCurrentOperation,
@@ -458,7 +451,7 @@ begin
 
         if VTask <> nil then begin
           FGlobalInternetState.IncQueueCount;
-          VMapType.TileDownloadSubsystem.Download(VTask);
+          FMapType.TileDownloadSubsystem.Download(VTask);
         end else begin
           FRequestManager.Release(VTile, VZoom, VVersionInfo.BaseVersion, VNeedDownload);
         end;

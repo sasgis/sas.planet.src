@@ -25,7 +25,6 @@ uses
   i_InternalPerformanceCounter,
   i_ListenerNotifierLinksList,
   i_TileError,
-  u_MapType,
   u_ChangeableBase;
 
 type
@@ -84,7 +83,7 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation;
       const AElments: IVectorItemSubsetBuilder;
-      Alayer: TMapType;
+      const AAlayer: IMapType;
       const AVersion: IMapVersionRequest;
       const ALocalConverter: ILocalCoordConverter
     );
@@ -292,7 +291,7 @@ begin
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
       VMap := ALayerSet.GetMapTypeByGUID(VGUID);
       if VMap <> nil then begin
-        VMap.MapType.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
+        VMap.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
       end;
     end;
   end;
@@ -328,7 +327,7 @@ begin
           VMap := ALayerSet.GetMapTypeByGUID(VGUID);
           Assert(Assigned(VMap));
           if VMap <> nil then begin
-            VListener := TTileUpdateListenerToLonLat.Create(VMap.MapType.GeoConvert, Self.OnTileUpdate);
+            VListener := TTileUpdateListenerToLonLat.Create(VMap.GeoConvert, Self.OnTileUpdate);
             VListeners.Add(VListener);
           end;
         end;
@@ -344,9 +343,9 @@ begin
       while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
         VMap := ALayerSet.GetMapTypeByGUID(VGUID);
         if VMap <> nil then begin
-          VNotifier := VMap.MapType.TileStorage.TileNotifier;
+          VNotifier := VMap.TileStorage.TileNotifier;
           if VNotifier <> nil then begin
-            VConverter := VMap.MapType.GeoConvert;
+            VConverter := VMap.GeoConvert;
             VMapLonLatRect := VLonLatRect;
             VConverter.CheckLonLatRect(VMapLonLatRect);
             VTileRect :=
@@ -380,7 +379,7 @@ begin
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
       VMap := ALayerSet.GetMapTypeByGUID(VGUID);
       if VMap <> nil then begin
-        VNotifier := VMap.MapType.TileStorage.TileNotifier;
+        VNotifier := VMap.TileStorage.TileNotifier;
         if VNotifier <> nil then begin
           VNotifier.Remove(IListener(FLayerListeners.Items[i]));
         end;
@@ -403,7 +402,7 @@ begin
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
       VMap := ALayerSet.GetMapTypeByGUID(VGUID);
       if VMap <> nil then begin
-        VMap.MapType.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
+        VMap.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
       end;
     end;
   end;
@@ -482,7 +481,7 @@ procedure TVectorItemSubsetChangeableForVectorLayers.AddElementsFromMap(
   AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const AElments: IVectorItemSubsetBuilder;
-  Alayer: TMapType;
+  const AAlayer: IMapType;
   const AVersion: IMapVersionRequest;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -501,7 +500,7 @@ var
   VError: ITileErrorInfo;
 begin
   VZoom := ALocalConverter.GetZoom;
-  VSourceGeoConvert := Alayer.GeoConvert;
+  VSourceGeoConvert := AAlayer.GeoConvert;
   VGeoConvert := ALocalConverter.GetGeoConverter;
 
   VBitmapOnMapPixelRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -518,7 +517,7 @@ begin
   while VTileIterator.Next(VTile) do begin
     VErrorString := '';
     try
-      VItems := Alayer.LoadTileVector(VTile, VZoom, AVersion, False, Alayer.CacheVector);
+      VItems := AAlayer.LoadTileVector(VTile, VZoom, AVersion, False, AAlayer.CacheVector);
       if VItems <> nil then begin
         if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
           Break;
@@ -538,7 +537,7 @@ begin
     if VErrorString <> '' then begin
       VError :=
         TTileErrorInfo.Create(
-          Alayer.Zmp.GUID,
+          AAlayer.Zmp.GUID,
           VZoom,
           VTile,
           VErrorString
@@ -588,16 +587,14 @@ var
   VEnum: IEnumGUID;
   VGUID: TGUID;
   Vcnt: Cardinal;
-  VItem: IMapType;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VElements: IVectorItemSubsetBuilder;
 begin
   VElements := FVectorItemSubsetBuilderFactory.Build;
   if ALayerSet <> nil then begin
     VEnum := ALayerSet.GetIterator;
     while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-      VItem := ALayerSet.GetMapTypeByGUID(VGUID);
-      VMapType := VItem.GetMapType;
+      VMapType := ALayerSet.GetMapTypeByGUID(VGUID);
       if VMapType.IsKmlTiles then begin
         AddElementsFromMap(
           AOperationID,

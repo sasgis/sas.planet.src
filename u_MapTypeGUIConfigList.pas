@@ -90,7 +90,7 @@ begin
   VEnum := FMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
     VMap := FMapsSet.GetMapTypeByGUID(VGUID);
-    Add(VMap.MapType.GUIConfig, nil);
+    Add(VMap.GUIConfig, nil);
   end;
   FBeforeLangChangeListener := TNotifyNoMmgEventListener.Create(Self.OnBeforeLangChange);
   FLanguageManager.BeforeChangeNotifier.Add(FBeforeLangChangeListener);
@@ -147,14 +147,14 @@ begin
     if VCount > 1 then begin
       SetLength(VIndexList, VCount);
       for i := 0 to VCount - 1 do begin
-        VIndexList[i] := IMapType(VList[i]).MapType.GUIConfig.SortIndex;
+        VIndexList[i] := IMapType(VList[i]).GUIConfig.SortIndex;
       end;
       SortInterfaceListByIntegerMeasure(VList, VIndexList);
     end;
     if VCount > 0 then begin
       SetLength(VGUIDList, VCount);
       for i := 0 to VCount - 1 do begin
-        VGUIDList[i] := IMapType(VList[i]).MapType.Zmp.GUID;
+        VGUIDList[i] := IMapType(VList[i]).Zmp.GUID;
       end;
       Result := TGUIDListStatic.Create(VGUIDList, VCount);
     end;

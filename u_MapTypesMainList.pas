@@ -71,7 +71,6 @@ type
     FTileReprojectResamplerConfig: IImageResamplerConfig;
     FTileDownloadResamplerConfig: IImageResamplerConfig;
 
-    FMapType: array of TMapType;
     FFullMapsSet: IMapTypeSet;
     FFullMapsSetChangeable: IMapTypeSetChangeable;
     FFullMapsSetChangeableInternal: IMapTypeSetChangeableSimpleInternal;
@@ -90,7 +89,6 @@ type
       const ATileDownloadResamplerConfig: IImageResamplerConfig;
       const APerfCounterList: IInternalPerformanceCounterList
     );
-    destructor Destroy; override;
     property FullMapsSetChangeable: IMapTypeSetChangeable read FFullMapsSetChangeable;
     property FullMapsSet: IMapTypeSet read FFullMapsSet;
     property MapsSet: IMapTypeSet read FMapsSet;
@@ -137,7 +135,6 @@ uses
   i_GUIDListStatic,
   i_ZmpInfo,
   u_MapTypeGUIConfigList,
-  u_MapTypeBasic,
   u_ResStrings;
 
 { TMapTypesMainList }
@@ -168,17 +165,6 @@ begin
   FFullMapsSetChangeable := FFullMapsSetChangeableInternal;
 end;
 
-destructor TMapTypesMainList.Destroy;
-var
-  i: integer;
-begin
-  for i := 0 to Length(FMapType) - 1 do begin
-    FreeAndNil(FMapType[i]);
-  end;
-  FMapType := nil;
-  inherited;
-end;
-
 function TMapTypesMainList.GetFirstMainMapGUID: TGUID;
 var
   i: integer;
@@ -204,21 +190,15 @@ end;
 procedure TMapTypesMainList.BuildMapsLists;
 var
   i: Integer;
-  VMap: TMapType;
   VMapType: IMapType;
-  VFullMapsList: IMapTypeSetBuilder;
   VMapsList: IMapTypeSetBuilder;
   VLayersList: IMapTypeSetBuilder;
 begin
-  VFullMapsList := FMapTypeSetBuilderFactory.Build(False);
-  VFullMapsList.Capacity := Length(FMapType);
   VMapsList := FMapTypeSetBuilderFactory.Build(False);
   VLayersList := FMapTypeSetBuilderFactory.Build(False);
-  for i := 0 to Length(FMapType) - 1 do begin
-    VMap := FMapType[i];
-    VMapType := TMapTypeBasic.Create(VMap);
-    VFullMapsList.Add(VMapType);
-    if VMap.Zmp.IsLayer then begin
+  for i := 0 to FFullMapsSet.Count - 1 do begin
+    VMapType := FFullMapsSet.Items[i];
+    if VMapType.Zmp.IsLayer then begin
       VLayersList.Add(VMapType);
     end else begin
       VMapsList.Add(VMapType);
@@ -226,7 +206,6 @@ begin
   end;
   FMapsSet := VMapsList.MakeAndClear;
   FLayersSet := VLayersList.MakeAndClear;
-  FFullMapsSet := VFullMapsList.MakeAndClear;
   FFullMapsSetChangeableInternal.SetStatic(FFullMapsSet);
 end;
 
@@ -252,7 +231,7 @@ procedure TMapTypesMainList.LoadMaps(
   const ALocalMapsConfig: IConfigDataProvider
 );
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VMapOnlyCount: integer;
   VLocalMapConfig: IConfigDataProvider;
   VMapTypeCount: integer;
@@ -262,8 +241,8 @@ var
   VGetCount: Cardinal;
   VGUIDList: IGUIDListStatic;
   i: Integer;
+  VFullMapsList: IMapTypeSetBuilder;
 begin
-  SetLength(FMapType, 0);
   VMapOnlyCount := 0;
   VMapTypeCount := 0;
 
@@ -283,6 +262,9 @@ begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
   VEnum.Reset;
+  VFullMapsList := FMapTypeSetBuilderFactory.Build(False);
+  VFullMapsList.Capacity := VMapTypeCount;
+
   VMapOnlyCount := 0;
   VMapTypeCount := 0;
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
@@ -317,6 +299,7 @@ begin
           VLocalMapConfig,
           FPerfCounterList
         );
+      VFullMapsList.Add(VMapType);
     except
       if ExceptObject <> nil then begin
         ShowMessage((ExceptObject as Exception).Message);
@@ -324,8 +307,6 @@ begin
       VMapType := nil;
     end;
     if VMapType <> nil then begin
-      SetLength(FMapType, VMapTypeCount + 1);
-      FMapType[VMapTypeCount] := VMapType;
       if not VMapType.Zmp.IsLayer then begin
         Inc(VMapOnlyCount);
       end;
@@ -339,6 +320,7 @@ begin
   if VMapOnlyCount = 0 then begin
     raise Exception.Create(SAS_ERR_MainMapNotExists);
   end;
+  FFullMapsSet := VFullMapsList.MakeAndClear;
 
   BuildMapsLists;
   FGUIConfigList :=
@@ -352,7 +334,7 @@ begin
   try
     for i := 0 to VGUIDList.Count - 1 do begin
       VGUID := VGUIDList.Items[i];
-      VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+      VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
       VMapType.GUIConfig.SortIndex := i + 1;
     end;
   finally
@@ -366,7 +348,7 @@ procedure TMapTypesMainList.SaveMaps(
 var
   i: integer;
   VGUIDString: string;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VSubItem: IConfigDataWriteProvider;
   VGUID: TGUID;
   VGUIDList: IGUIDListStatic;
@@ -374,7 +356,7 @@ begin
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   for i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
     VGUIDString := GUIDToString(VGUID);
     VSubItem := ALocalMapsConfig.GetOrCreateSubItem(VGUIDString);
     VMapType.SaveConfig(VSubItem);

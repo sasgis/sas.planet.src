@@ -16,10 +16,10 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
+  i_MapTypes,
   i_TileFileNameGenerator,
   i_TileFileNameGeneratorsList,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -67,11 +67,11 @@ type
     );
     function Validate: Boolean;
   private
-    function GetMapType: TMapType;
+    function GetMapType: IMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
     function GetNameGenerator: ITileFileNameGenerator;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -143,12 +143,12 @@ begin
   end;
 end;
 
-function TfrExportToFileCont.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportToFileCont.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := True
 end;
 
-function TfrExportToFileCont.GetMapType: TMapType;
+function TfrExportToFileCont.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
   Assert(Result <> nil);

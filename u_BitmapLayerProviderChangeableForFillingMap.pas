@@ -58,7 +58,7 @@ end;
 destructor TBitmapLayerProviderChangeableForFillingMap.Destroy;
 begin
   if Assigned(FSourceMapLast) and Assigned(FVersionListener) then begin
-    FSourceMapLast.MapType.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
+    FSourceMapLast.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
     FSourceMapLast := nil;
     FVersionListener := nil;
   end;
@@ -77,18 +77,18 @@ begin
     VMap := VConfig.SourceMap;
     if FSourceMapLast <> VMap then begin
       if Assigned(FSourceMapLast) then begin
-        FSourceMapLast.MapType.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
+        FSourceMapLast.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);
       end;
       FSourceMapLast := VMap;
       if Assigned(FSourceMapLast) then begin
-        FSourceMapLast.MapType.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
+        FSourceMapLast.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
       end;
     end;
     VResult :=
       TBitmapLayerProviderFillingMap.Create(
         FBitmapFactory,
-        VMap.MapType.TileStorage,
-        VMap.MapType.VersionRequestConfig.GetStatic,
+        VMap.TileStorage,
+        VMap.VersionRequestConfig.GetStatic,
         VConfig.UseRelativeZoom,
         VConfig.Zoom,
         VConfig.Colorer

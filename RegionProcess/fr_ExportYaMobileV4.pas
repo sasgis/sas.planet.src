@@ -16,8 +16,8 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -68,7 +68,7 @@ type
     function Validate: Boolean;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
   public
     function GetSat(): TfrMapSelect;
     function GetMap(): TfrMapSelect;
@@ -161,7 +161,7 @@ begin
   end;
 end;
 
-function TfrExportYaMobileV4.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportYaMobileV4.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;

@@ -38,7 +38,6 @@ uses
   i_GlobalDownloadConfig,
   i_DownloadInfoSimple,
   i_RegionProcessProgressInfoInternalFactory,
-  u_MapType,
   u_ExportProviderAbstract,
   fr_TilesDownload;
 
@@ -170,7 +169,6 @@ var
   VProgressInfo: TRegionProcessProgressInfoDownload;
   VGuids: string;
   VGuid: TGUID;
-  VMap: IMapType;
   VZoom: Byte;
   VReplaceExistTiles: Boolean;
   VCheckExistTileSize: Boolean;
@@ -181,7 +179,7 @@ var
   VSecondLoadTNE: Boolean;
   VLastProcessedPoint: TPoint;
   VElapsedTime: TDateTime;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VPolygon: IGeometryLonLatMultiPolygon;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
@@ -219,11 +217,10 @@ begin
     raise Exception.Create('Map GUID is empty');
   end;
   VGuid := StringToGUID(VGuids);
-  VMap := FullMapsSet.GetMapTypeByGUID(VGuid);
-  if VMap = nil then begin
+  VMapType := FullMapsSet.GetMapTypeByGUID(VGuid);
+  if VMapType = nil then begin
     raise Exception.CreateFmt('Map with GUID = %s not found', [VGuids]);
   end else begin
-    VMapType := VMap.MapType;
     if not VMapType.GeoConvert.CheckZoom(VZoom) then begin
       raise Exception.Create('Unknown zoom');
     end;
@@ -340,7 +337,7 @@ end;
 
 procedure TProviderTilesDownload.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
   VZoom: byte;
   VLog: TLogSimpleProvider;
   VLogSimple: ILogSimple;

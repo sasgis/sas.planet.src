@@ -16,8 +16,8 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -67,12 +67,12 @@ type
     );
     function Validate: Boolean;
   private
-    function GetMapType: TMapType;
+    function GetMapType: IMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
     function GetNotSaveNotExists: Boolean;
     function GetRelativePath: Boolean;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -126,7 +126,7 @@ begin
   inherited;
 end;
 
-function TfrExportGEKml.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportGEKml.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := (AMapType.IsBitmapTiles) and (AMapType.TileStorage.IsFileCache);
 end;
@@ -136,7 +136,7 @@ begin
   edtTargetFile.Text:=dlgSaveKML.FileName;
 end;
 
-function TfrExportGEKml.GetMapType: TMapType;
+function TfrExportGEKml.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
 end;

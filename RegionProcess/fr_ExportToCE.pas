@@ -13,12 +13,12 @@ uses
   Spin,
   Dialogs,
   i_LanguageManager,
+  i_MapTypes,
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
-  u_MapType,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;
@@ -77,10 +77,10 @@ type
     );
     function Validate: Boolean;
   private
-    function GetMapType: TMapType;
+    function GetMapType: IMapType;
     function GetZoomArray: TByteDynArray;
     function GetPath: string;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
     function GetComent: string;
     function GetIsAddRecoverInfo: boolean;
     function GetMaxSize: integer;
@@ -146,7 +146,7 @@ begin
   inherited;
 end;
 
-function TfrExportToCE.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportToCE.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;
@@ -213,7 +213,7 @@ end;
 
 function TfrExportToCE.GetComent: string;
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   Result := EMapName.Text;
   if Result <> '' then begin
@@ -233,7 +233,7 @@ begin
   Result := SaveRecoverInfo.Checked;
 end;
 
-function TfrExportToCE.GetMapType: TMapType;
+function TfrExportToCE.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
 end;
@@ -245,7 +245,7 @@ end;
 
 function TfrExportToCE.GetPath: string;
 var
-  VMapType: TMapType;
+  VMapType: IMapType;
 begin
   Result := '';
   if TempPath.Text <> '' then begin

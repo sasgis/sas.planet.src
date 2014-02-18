@@ -14,13 +14,13 @@ uses
   ComCtrls,
   ExtCtrls,
   i_LanguageManager,
+  i_MapTypes,
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessParamsFrame,
-  u_MapType,
   u_ExportToJnxTask,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
@@ -153,7 +153,7 @@ type
     function Validate: Boolean;
   private
     function GetPath: string;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
   private
     function GetTasks: TExportTaskJnxArray;
     function GetProductName: string;
@@ -182,7 +182,6 @@ uses
   RegExprUtils,
   i_ConfigDataProvider,
   i_PathConfig,
-  i_MapTypes,
   u_ConfigDataProviderByIniFile,
   u_GlobalState;
 
@@ -499,7 +498,7 @@ begin
   end;
 end;
 
-function TfrExportToJNX.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportToJNX.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;
@@ -719,10 +718,10 @@ var
 begin
   Result := nil;
   if ChMap1.Checked then begin
-    VMap := FfrMapSelect.GetSelectedIMapType;
+    VMap := FfrMapSelect.GetSelectedMapType;
     if Assigned(VMap) then begin
-      VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
+      VTask.FTileStorage := VMap.TileStorage;
+      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale.ItemIndex;
       VTask.FZoom := CbbZoom.ItemIndex;
       VTask.FRecompress := ChRecompress1.Checked;
@@ -736,10 +735,10 @@ begin
   end;
 
   if ChMap2.Checked then begin
-    VMap := FfrMap2Select.GetSelectedIMapType;
+    VMap := FfrMap2Select.GetSelectedMapType;
     if Assigned(VMap) then begin
-      VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
+      VTask.FTileStorage := VMap.TileStorage;
+      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale2.ItemIndex;
       VTask.FZoom := CbbZoom2.ItemIndex;
       VTask.FRecompress := ChRecompress2.Checked;
@@ -753,10 +752,10 @@ begin
   end;
 
   if ChMap3.Checked then begin
-    VMap := FfrMap3Select.GetSelectedIMapType;
+    VMap := FfrMap3Select.GetSelectedMapType;
     if Assigned(VMap) then begin
-      VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
+      VTask.FTileStorage := VMap.TileStorage;
+      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale3.ItemIndex;
       VTask.FZoom := CbbZoom3.ItemIndex;
       VTask.FRecompress := ChRecompress3.Checked;
@@ -770,10 +769,10 @@ begin
   end;
 
   if ChMap4.Checked then begin
-    VMap := FfrMap4Select.GetSelectedIMapType;
+    VMap := FfrMap4Select.GetSelectedMapType;
     if Assigned(VMap) then begin
-      VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
+      VTask.FTileStorage := VMap.TileStorage;
+      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale4.ItemIndex;
       VTask.FZoom := CbbZoom4.ItemIndex;
       VTask.FRecompress := ChRecompress4.Checked;
@@ -787,10 +786,10 @@ begin
   end;
 
   if ChMap5.Checked then begin
-    VMap := FfrMap5Select.GetSelectedIMapType;
+    VMap := FfrMap5Select.GetSelectedMapType;
     if Assigned(VMap) then begin
-      VTask.FTileStorage := VMap.MapType.TileStorage;
-      VTask.FMapVersion := VMap.MapType.VersionRequestConfig.GetStatic;
+      VTask.FTileStorage := VMap.TileStorage;
+      VTask.FMapVersion := VMap.VersionRequestConfig.GetStatic;
       VTask.FScale := cbbscale5.ItemIndex;
       VTask.FZoom := CbbZoom5.ItemIndex;
       VTask.FRecompress := ChRecompress5.Checked;

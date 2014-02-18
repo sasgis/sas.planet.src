@@ -35,8 +35,8 @@ uses
   i_TileRequestResult,
   i_NotifierOperation,
   i_DownloadInfoSimple,
-  i_GlobalInternetState,
-  u_MapType;
+  i_MapTypes,
+  i_GlobalInternetState;
 
 type
   TTileDownloaderUIOneTile = class(TThread)
@@ -45,7 +45,7 @@ type
     FErrorLogger: ITileErrorLogger;
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
-    FMapType: TMapType;
+    FMapType: IMapType;
     FVersion: IMapVersionInfo;
     FTile: TPoint;
     FZoom: Byte;
@@ -72,7 +72,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AXY: TPoint;
       AZoom: byte;
-      AMapType: TMapType;
+      const AMapType: IMapType;
       const AVersion: IMapVersionInfo;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
@@ -98,7 +98,7 @@ constructor TTileDownloaderUIOneTile.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AXY: TPoint;
   AZoom: byte;
-  AMapType: TMapType;
+  const AMapType: IMapType;
   const AVersion: IMapVersionInfo;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;

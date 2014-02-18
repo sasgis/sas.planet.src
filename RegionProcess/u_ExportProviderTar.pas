@@ -48,12 +48,12 @@ uses
   Types,
   Classes,
   SysUtils,
+  i_MapTypes,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_TileFileNameGenerator,
   u_ThreadExportToArchive,
-  u_ResStrings,
-  u_MapType;
+  u_ResStrings;
 
 { TExportProviderTar }
 
@@ -109,7 +109,7 @@ procedure TExportProviderTar.StartProcess(const APolygon: IGeometryLonLatMultiPo
 var
   VPath: string;
   Zoomarr: TByteDynArray;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VNameGenerator: ITileFileNameGenerator;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;

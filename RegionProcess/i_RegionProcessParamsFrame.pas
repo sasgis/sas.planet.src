@@ -9,7 +9,7 @@ uses
   i_MapCalibration,
   i_ProjectionInfo,
   i_PredicateByTileInfo,
-  u_MapType;
+  i_MapTypes;
 
 type
   IRegionProcessParamsFrameBase = interface
@@ -23,8 +23,8 @@ type
 
   IRegionProcessParamsFrameOneMap = interface(IRegionProcessParamsFrameBase)
     ['{240B7587-DDC0-4471-BDF4-AD2EE0040526}']
-    function GetMapType: TMapType;
-    property MapType: TMapType read GetMapType;
+    function GetMapType: IMapType;
+    property MapType: IMapType read GetMapType;
   end;
 
   IRegionProcessParamsFrameOneZoom = interface(IRegionProcessParamsFrameBase)

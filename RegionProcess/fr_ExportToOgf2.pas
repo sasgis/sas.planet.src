@@ -14,6 +14,7 @@ uses
   Spin,
   fr_MapSelect,
   i_LanguageManager,
+  i_MapTypes,
   i_MapTypeSet,
   i_BitmapTileSaveLoad,
   i_CoordConverterFactory,
@@ -25,7 +26,6 @@ uses
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoadFactory,
   i_RegionProcessParamsFrame,
-  u_MapType,
   u_CommonFormAndFrameParents;
 
 type
@@ -96,7 +96,7 @@ type
   private
     function GetSaver: IBitmapTileSaver;
     function GetTileSize: TPoint;
-    function GetAllowExport(AMapType: TMapType): boolean;
+    function GetAllowExport(const AMapType: IMapType): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -144,7 +144,7 @@ var
   VTilesCountRow: Int64;
   VTilesCountCol: Int64;
   VTilesCountTotal: Int64;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VZoom: byte;
   VPolyLL: IGeometryLonLatMultiPolygon;
   VProjected: IGeometryProjectedMultiPolygon;
@@ -249,7 +249,7 @@ begin
   inherited;
 end;
 
-function TfrExportToOgf2.GetAllowExport(AMapType: TMapType): boolean;
+function TfrExportToOgf2.GetAllowExport(const AMapType: IMapType): boolean;
 begin
   Result := AMapType.IsBitmapTiles;
 end;
@@ -261,9 +261,9 @@ end;
 
 function TfrExportToOgf2.GetProvider: IBitmapLayerProvider;
 var
-  VMap: TMapType;
+  VMap: IMapType;
   VMapVersion: IMapVersionRequest;
-  VLayer: TMapType;
+  VLayer: IMapType;
   VLayerVersion: IMapVersionRequest;
   VUsePrevZoom: Boolean;
 begin

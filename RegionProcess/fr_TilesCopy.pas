@@ -123,8 +123,7 @@ uses
   {$WARN UNIT_PLATFORM ON}
   c_CacheTypeCodes, // for cache types
   i_GUIDListStatic,
-  i_MapTypes,
-  u_MapType;
+  i_MapTypes;
 
 {$R *.dfm}
 
@@ -185,21 +184,16 @@ end;
 
 function TfrTilesCopy.GetMapTypeList: IMapTypeListStatic;
 var
-  VMap: IMapType;
   VMaps: IMapTypeListBuilder;
-  VMapType: TMapType;
+  VMapType: IMapType;
   i: Integer;
 begin
   VMaps := FMapTypeListBuilderFactory.Build;
   for i := 0 to chklstMaps.Items.Count - 1 do begin
     if chklstMaps.Checked[i] then begin
-      VMap := nil;
-      VMapType := TMapType(chklstMaps.Items.Objects[i]);
+      VMapType := IMapType(Pointer(chklstMaps.Items.Objects[i]));
       if VMapType <> nil then begin
-        VMap := FFullMapsSet.GetMapTypeByGUID(VMapType.Zmp.GUID);
-      end;
-      if VMap <> nil then begin
-        VMaps.Add(VMap);
+        VMaps.Add(VMapType);
       end;
     end;
   end;
@@ -254,7 +248,7 @@ end;
 procedure TfrTilesCopy.Init;
 var
   i: integer;
-  VMapType: TMapType;
+  VMapType: IMapType;
   VActiveMapGUID: TGUID;
   VAddedIndex: Integer;
   VGUIDList: IGUIDListStatic;
@@ -266,9 +260,9 @@ begin
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
   For i := 0 to VGUIDList.Count-1 do begin
     VGUID := VGUIDList.Items[i];
-    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID).MapType;
+    VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.GUIConfig.Enabled) then begin
-      VAddedIndex := chklstMaps.Items.AddObject(VMapType.GUIConfig.Name.Value, VMapType);
+      VAddedIndex := chklstMaps.Items.AddObject(VMapType.GUIConfig.Name.Value, TObject(VMapType));
       if IsEqualGUID(VMapType.Zmp.GUID, VActiveMapGUID) then begin
         chklstMaps.ItemIndex := VAddedIndex;
         chklstMaps.Checked[VAddedIndex] := True;
