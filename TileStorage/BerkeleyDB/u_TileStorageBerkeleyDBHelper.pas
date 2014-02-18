@@ -179,7 +179,6 @@ uses
   u_Synchronizer,
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
-  u_MapVersionInfo,
   u_MapVersionListStatic,
   u_BinaryDataByBerkeleyDBValue;
 
@@ -242,7 +241,7 @@ function TTileStorageBerkeleyDBHelper.CheckVersionInfo(
 begin
   Result := AVersionInfo;
   if not Assigned(Result) then begin
-    Result := TMapVersionInfo.Create(0, '');
+    Result := FMapVersionFactory.CreateByStoreString('');
   end;
 end;
 
