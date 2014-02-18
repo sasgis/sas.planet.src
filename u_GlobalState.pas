@@ -649,6 +649,7 @@ begin
       FCoordConverterFactory,
       FArchiveReadWriteFactory,
       FContentTypeManager,
+      FMapVersionFactoryList.GetSimpleVersionFactory,
       FBitmapFactory,
       FGlobalConfig.LanguageManager,
       VFilesIterator

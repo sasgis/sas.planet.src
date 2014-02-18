@@ -30,6 +30,7 @@ uses
   i_ConfigDataProvider,
   i_LanguageListStatic,
   i_MapVersionInfo,
+  i_MapVersionFactory,
   i_BinaryDataListStatic,
   i_Bitmap32StaticFactory,
   i_ContentTypeSubst,
@@ -141,13 +142,17 @@ type
   private
     procedure LoadConfig(
       const ACoordConverterFactory: ICoordConverterFactory;
+      const AVersionFactory: IMapVersionFactory;
       const ALanguageManager: ILanguageManager
     );
     procedure LoadCropConfig(const AConfig: IConfigDataProvider);
     procedure LoadAbilities(const AConfig: IConfigDataProvider);
     procedure LoadStorageConfig(const AConfig: IConfigDataProvider);
     function LoadGUID(const AConfig: IConfigDataProvider): TGUID;
-    procedure LoadVersion(const AConfig: IConfigDataProvider);
+    procedure LoadVersion(
+      const AFactory: IMapVersionFactory;
+      const AConfig: IConfigDataProvider
+    );
     function GetBinaryListByConfig(const AConfig: IConfigDataProvider): IBinaryDataListStatic;
     procedure LoadSamples(const AConfig: IConfigDataProvider);
     procedure LoadProjectionInfo(
@@ -185,6 +190,7 @@ type
       const ALanguageManager: ILanguageManager;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AContentTypeManager: IContentTypeManager;
+      const AVersionFactory: IMapVersionFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AFileName: string;
       const AConfig: IConfigDataProvider;
@@ -219,7 +225,6 @@ uses
   u_MapAbilitiesConfigStatic,
   u_TileStorageAbilities,
   u_SimpleTileStorageConfigStatic,
-  u_MapVersionInfo,
   u_ResStrings;
 
 // common subroutine
@@ -560,6 +565,7 @@ constructor TZmpInfo.Create(
   const ALanguageManager: ILanguageManager;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AContentTypeManager: IContentTypeManager;
+  const AVersionFactory: IMapVersionFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AFileName: string;
   const AConfig: IConfigDataProvider;
@@ -578,7 +584,7 @@ begin
   if FConfigIniParams = nil then begin
     raise EZmpParamsNotFound.Create(_('Not found PARAMS section in zmp'));
   end;
-  LoadConfig(ACoordConverterFactory, ALanguageManager);
+  LoadConfig(ACoordConverterFactory, AVersionFactory, ALanguageManager);
   FGUI :=
     TZmpInfoGUI.Create(
       FGUID,
@@ -730,12 +736,13 @@ end;
 
 procedure TZmpInfo.LoadConfig(
   const ACoordConverterFactory: ICoordConverterFactory;
+  const AVersionFactory: IMapVersionFactory;
   const ALanguageManager: ILanguageManager
 );
 begin
   FGUID := LoadGUID(FConfigIniParams);
   FIsLayer := FConfigIniParams.ReadBool('asLayer', False);
-  LoadVersion(FConfigIniParams);
+  LoadVersion(AVersionFactory, FConfigIniParams);
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
   LoadTileRequestBuilderConfig(ACoordConverterFactory, FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
@@ -951,12 +958,15 @@ begin
     );
 end;
 
-procedure TZmpInfo.LoadVersion(const AConfig: IConfigDataProvider);
+procedure TZmpInfo.LoadVersion(
+  const AFactory: IMapVersionFactory;
+  const AConfig: IConfigDataProvider
+);
 var
   VVersion: String;
 begin
   VVersion := AConfig.ReadString('Version', '');
-  FVersionConfig := TMapVersionInfo.Create(0, VVersion);
+  FVersionConfig := AFactory.CreateByStoreString(VVersion);
 end;
 
 end.
