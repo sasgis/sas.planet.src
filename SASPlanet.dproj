@@ -361,6 +361,7 @@
     <DCCReference Include="i_MapTypeSetChangeable.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
     <DCCReference Include="i_MapVersionFactory.pas" />
+    <DCCReference Include="i_MapVersionFactoryList.pas" />
     <DCCReference Include="i_MapVersionInfo.pas" />
     <DCCReference Include="i_MapVersionInfoGE.pas" />
     <DCCReference Include="i_MapVersionListStatic.pas" />
@@ -1128,6 +1129,7 @@
     <DCCReference Include="u_MapVersionConfig.pas" />
     <DCCReference Include="u_MapVersionFactoryChangeable.pas" />
     <DCCReference Include="u_MapVersionFactoryGE.pas" />
+    <DCCReference Include="u_MapVersionFactoryList.pas" />
     <DCCReference Include="u_MapVersionFactorySimpleString.pas" />
     <DCCReference Include="u_MapVersionInfo.pas" />
     <DCCReference Include="u_MapVersionListStatic.pas" />

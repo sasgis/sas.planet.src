@@ -413,6 +413,8 @@ uses
   u_Bitmap8Static in 'BitmapTileSaveLoad\u_Bitmap8Static.pas',
   i_MapVersionInfo in 'i_MapVersionInfo.pas',
   i_MapVersionFactory in 'i_MapVersionFactory.pas',
+  i_MapVersionFactoryList in 'i_MapVersionFactoryList.pas',
+  u_MapVersionFactoryList in 'u_MapVersionFactoryList.pas',
   u_MapVersionFactoryChangeable in 'u_MapVersionFactoryChangeable.pas',
   i_MapVersionListStatic in 'i_MapVersionListStatic.pas',
   i_MapVersionRequest in 'i_MapVersionRequest.pas',
