@@ -3,17 +3,18 @@ unit u_MapVersionFactorySimpleString;
 interface
 
 uses
+  t_Hash,
   i_HashFunction,
   i_MapVersionInfo,
   i_MapVersionFactory,
-  u_BaseInterfacedObject;
+  u_HashCacheWithQueuesAbstract;
 
 type
   IMapVersionFactorySimpleInternal = interface
     ['{AF11A02B-BB29-47FE-A2DC-FC72568827C5}']
   end;
 
-  TMapVersionFactorySimpleString = class(TBaseInterfacedObject, IMapVersionFactory, IMapVersionFactorySimpleInternal)
+  TMapVersionFactorySimpleString = class(THashCacheWithQueuesAbstract, IMapVersionFactory, IMapVersionFactorySimpleInternal)
   private
     FHashFunction: IHashFunction;
   private
@@ -21,6 +22,11 @@ type
     function CreateByStoreString(const AValue: string): IMapVersionInfo;
     function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
     function IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
+  protected
+    function CreateByKey(
+      const AKey: THashValue;
+      AData: Pointer
+    ): IInterface; override;
   public
     constructor Create(
       const AHashFunction: IHashFunction
@@ -31,7 +37,6 @@ implementation
 
 uses
   SysUtils,
-  t_Hash,
   u_MapVersionInfo;
 
 { TMapVersionFactorySimpleString }
@@ -40,8 +45,19 @@ constructor TMapVersionFactorySimpleString.Create(
   const AHashFunction: IHashFunction);
 begin
   Assert(Assigned(AHashFunction));
-  inherited Create;
+  inherited Create(10, 256, 512, 256);
   FHashFunction := AHashFunction;
+end;
+
+function TMapVersionFactorySimpleString.CreateByKey(
+  const AKey: THashValue;
+  AData: Pointer
+): IInterface;
+var
+  VResult: IMapVersionInfo;
+begin
+  VResult := TMapVersionInfo.Create(AKey, string(AData));
+  Result := VResult;
 end;
 
 function TMapVersionFactorySimpleString.CreateByMapVersion(
@@ -62,16 +78,15 @@ var
   VHash: THashValue;
 begin
   VHash := FHashFunction.CalcHashByString(AValue);
-  Result := TMapVersionInfo.Create(VHash, AValue);
+  Result := IMapVersionInfo(GetOrCreateItem(VHash, Pointer(AValue)));
 end;
 
 function TMapVersionFactorySimpleString.IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
-var V: IMapVersionFactorySimpleInternal;
 begin
   if (nil=AMapVersionFactory) then begin
     Result := False;
   end else begin
-    Result := Supports(AMapVersionFactory, IMapVersionFactorySimpleInternal, V);
+    Result := Supports(AMapVersionFactory, IMapVersionFactorySimpleInternal);
   end;
 end;
 
