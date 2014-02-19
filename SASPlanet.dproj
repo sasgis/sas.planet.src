@@ -146,8 +146,8 @@
       <Form>frmStartLogo</Form>
     </DCCReference>
     <DCCReference Include="fr_GPSConfig.pas">
-      <DesignClass>TFrame</DesignClass>
       <Form>frGPSConfig</Form>
+      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_GpsSatellites.pas">
       <Form>frGpsSatellites</Form>
@@ -1030,7 +1030,6 @@
     <DCCReference Include="u_ExportMarks2KML.pas" />
     <DCCReference Include="u_FileNameFunc.pas" />
     <DCCReference Include="u_FindVectorItemsForVectorMaps.pas" />
-    <DCCReference Include="u_FindVectorItemsFromSearchResults.pas" />
     <DCCReference Include="u_GarbageCollectorThread.pas" />
     <DCCReference Include="u_GeoCodePlacemark.pas" />
     <DCCReference Include="u_GeoFunc.pas" />
