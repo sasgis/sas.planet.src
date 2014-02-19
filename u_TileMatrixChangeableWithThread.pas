@@ -71,7 +71,8 @@ type
       const ATileMatrixFactory: ITileMatrixFactory;
       const ALayerProvider: IBitmapLayerProviderChangeable;
       const ASourcUpdateNotyfier: IObjectWithListener;
-      const AThreadConfig: IThreadConfig
+      const AThreadConfig: IThreadConfig;
+      const ADebugThreadName: string = ''
     );
     destructor Destroy; override;
   end;
@@ -101,8 +102,11 @@ constructor TTileMatrixChangeableWithThread.Create(
   const ATileMatrixFactory: ITileMatrixFactory;
   const ALayerProvider: IBitmapLayerProviderChangeable;
   const ASourcUpdateNotyfier: IObjectWithListener;
-  const AThreadConfig: IThreadConfig
+  const AThreadConfig: IThreadConfig;
+  const ADebugThreadName: string = ''
 );
+var
+  VDebugThreadName: string;
 begin
   Assert(Assigned(AAppStartedNotifier));
   Assert(Assigned(AAppClosingNotifier));
@@ -128,12 +132,17 @@ begin
 
   FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
 
+  VDebugThreadName := ADebugThreadName;
+  if VDebugThreadName = '' then begin
+    VDebugThreadName := Self.ClassName;
+  end;
+
   FDrawTask :=
     TBackgroundTask.Create(
       AAppClosingNotifier,
       OnPrepareTileMatrix,
       AThreadConfig,
-      Self.ClassName
+      VDebugThreadName
     );
 
   FLinksList.Add(

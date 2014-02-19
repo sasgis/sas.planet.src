@@ -48,7 +48,7 @@ uses
   u_TileMatrixFactory,
   u_BitmapLayerProviderChangeableForVectorMaps;
 
-{ TWikiLayerNew }
+{ TMapLayerVectorMaps }
 
 constructor TMapLayerVectorMaps.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -95,7 +95,8 @@ begin
     VProvider,
     nil,
     ATimerNoifier,
-    AThreadConfig
+    AThreadConfig,
+    Self.ClassName
   );
 end;
 

@@ -52,7 +52,7 @@ uses
   u_TileMatrixFactory,
   u_BitmapLayerProviderChangeableForMainLayer;
 
-{ TMapMainLayer }
+{ TMiniMapLayer }
 
 constructor TMiniMapLayer.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -103,7 +103,8 @@ begin
     VProvider,
     nil,
     ATimerNoifier,
-    AThreadConfig
+    AThreadConfig,
+    Self.ClassName
   );
 end;
 

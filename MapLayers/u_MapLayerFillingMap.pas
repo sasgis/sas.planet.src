@@ -42,7 +42,7 @@ uses
   u_SourceDataUpdateInRectByFillingMap,
   u_BitmapLayerProviderChangeableForFillingMap;
 
-{ TMapLayerFillingMapNew }
+{ TMapLayerFillingMap }
 
 constructor TMapLayerFillingMap.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -82,7 +82,8 @@ begin
     VProvider,
     VSourceChangeNotifier,
     ATimerNoifier,
-    AConfig.ThreadConfig
+    AConfig.ThreadConfig,
+    Self.ClassName
   );
 end;
 

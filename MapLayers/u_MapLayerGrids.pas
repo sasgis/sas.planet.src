@@ -42,7 +42,7 @@ uses
   u_TileMatrixFactory,
   u_BitmapLayerProviderChangeableForGrids;
 
-{ TMapLayerGridsNew }
+{ TMapLayerGrids }
 
 constructor TMapLayerGrids.Create(
   const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
@@ -82,7 +82,8 @@ begin
     VProvider,
     nil,
     ATimerNoifier,
-    AConfig.ThreadConfig
+    AConfig.ThreadConfig,
+    Self.ClassName
   );
 end;
 

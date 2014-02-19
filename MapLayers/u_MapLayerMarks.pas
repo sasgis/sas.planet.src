@@ -46,7 +46,7 @@ uses
   u_TileMatrixFactory,
   u_BitmapLayerProviderChangeableForMarksLayer;
 
-{ TMapMarksLayerNew }
+{ TMapLayerMarks }
 
 constructor TMapLayerMarks.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -92,7 +92,8 @@ begin
     VProvider,
     nil,
     ATimerNoifier,
-    AConfig.ThreadConfig
+    AConfig.ThreadConfig,
+    Self.ClassName
   );
 end;
 

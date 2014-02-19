@@ -54,7 +54,7 @@ uses
   u_SourceDataUpdateInRectByMapsSet,
   u_BitmapLayerProviderChangeableForMainLayer;
 
-{ TMapMainLayerNew }
+{ TMapLayerBitmapMaps }
 
 constructor TMapLayerBitmapMaps.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -109,7 +109,8 @@ begin
     VProvider,
     VSourceChangeNotifier,
     ATimerNoifier,
-    AThreadConfig
+    AThreadConfig,
+    Self.ClassName
   );
 end;
 

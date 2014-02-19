@@ -42,7 +42,7 @@ uses
   u_TileMatrixFactory,
   u_BitmapLayerProviderChangeableForGpsTrack;
 
-{ TMapGPSLayerNew }
+{ TMapLayerGPSTrack }
 
 constructor TMapLayerGPSTrack.Create(
   const APerfList: IInternalPerformanceCounterList;
@@ -87,7 +87,8 @@ begin
     VProvider,
     nil,
     ATimerNoifier,
-    AConfig.ThreadConfig
+    AConfig.ThreadConfig,
+    Self.ClassName
   );
 end;
 

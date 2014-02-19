@@ -56,7 +56,8 @@ type
       const ALayerProvider: IBitmapLayerProviderChangeable;
       const ASourcUpdateNotyfier: IObjectWithListener;
       const ATimerNoifier: INotifierTime;
-      const AThreadConfig: IThreadConfig
+      const AThreadConfig: IThreadConfig;
+      const ADebugThreadName: string = ''
     );
   end;
 
@@ -90,7 +91,8 @@ constructor TTiledLayerWithThreadBase.Create(
   const ALayerProvider: IBitmapLayerProviderChangeable;
   const ASourcUpdateNotyfier: IObjectWithListener;
   const ATimerNoifier: INotifierTime;
-  const AThreadConfig: IThreadConfig
+  const AThreadConfig: IThreadConfig;
+  const ADebugThreadName: string = ''
 );
 begin
   inherited Create(
@@ -114,7 +116,8 @@ begin
       ATileMatrixFactory,
       ALayerProvider,
       ASourcUpdateNotyfier,
-      AThreadConfig
+      AThreadConfig,
+      ADebugThreadName
     );
 
   LinksList.Add(
