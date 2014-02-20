@@ -319,7 +319,6 @@
     <DCCReference Include="i_InternalDomainOptions.pas" />
     <DCCReference Include="i_InvisibleBrowser.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
-    <DCCReference Include="i_KmlLayerConfig.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_LanguageManager.pas" />
     <DCCReference Include="i_LastSearchResultConfig.pas" />
@@ -456,6 +455,7 @@
     <DCCReference Include="MapCalibration\u_MapCalibrationOzi.pas" />
     <DCCReference Include="MapCalibration\u_MapCalibrationTab.pas" />
     <DCCReference Include="MapCalibration\u_MapCalibrationWorldFiles.pas" />
+    <DCCReference Include="MapLayers\i_KmlLayerConfig.pas" />
     <DCCReference Include="MapLayers\i_MainFormLayersConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapColorer.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapLayerConfig.pas" />
@@ -494,6 +494,7 @@
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixChangeableWithThread.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixElement.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixFactory.pas" />
+    <DCCReference Include="MapLayers\u_KmlLayerConfig.pas" />
     <DCCReference Include="MapLayers\u_MainFormLayersConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\i_CalcLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas" />
@@ -529,8 +530,11 @@
     <DCCReference Include="MapLayers\WindowLayers\Selection\i_SelectionPolylineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\i_SelectionRectLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionLayer.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionPolylineLayer.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionPolylineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionRectLayer.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\StatusBar\i_StatBarConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\StatusBar\u_LayerStatBar.pas" />
     <DCCReference Include="MapLayers\WindowLayers\StatusBar\u_LayerStatBarPopupMenu.pas" />
@@ -684,6 +688,7 @@
     <DCCReference Include="Network\u_InetConfig.pas" />
     <DCCReference Include="Network\u_InetConfigStatic.pas" />
     <DCCReference Include="Network\u_InetFunc.pas" />
+    <DCCReference Include="Network\u_LastResponseInfo.pas" />
     <DCCReference Include="Network\u_ProxyConfig.pas" />
     <DCCReference Include="Network\u_SimpleHttpDownloader.pas" />
     <DCCReference Include="Network\u_TileDownloaderConfig.pas" />
@@ -1116,12 +1121,10 @@
     <DCCReference Include="u_InvisibleBrowserByFormSynchronize.pas" />
     <DCCReference Include="u_KeyMovingConfig.pas" />
     <DCCReference Include="u_KeyMovingHandler.pas" />
-    <DCCReference Include="u_KmlLayerConfig.pas" />
     <DCCReference Include="u_LanguageListStatic.pas" />
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LanguageTBXItem.pas" />
-    <DCCReference Include="u_LastResponseInfo.pas" />
     <DCCReference Include="u_LastSearchResultConfig.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_LastSelectionInfoSaver.pas" />
@@ -1245,10 +1248,7 @@
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_SearchResults.pas" />
-    <DCCReference Include="u_SelectionPolygonLayerConfig.pas" />
-    <DCCReference Include="u_SelectionPolylineLayerConfig.pas" />
     <DCCReference Include="u_SelectionRect.pas" />
-    <DCCReference Include="u_SelectionRectLayerConfig.pas" />
     <DCCReference Include="u_SensorBase.pas" />
     <DCCReference Include="u_SensorBatteryStatus.pas" />
     <DCCReference Include="u_SensorFromGPSRecorderBase.pas" />
