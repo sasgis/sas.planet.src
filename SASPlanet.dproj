@@ -299,7 +299,6 @@
     <DCCReference Include="i_GlobalCacheConfig.pas" />
     <DCCReference Include="i_GlobalConfig.pas" />
     <DCCReference Include="i_GlobalViewMainConfig.pas" />
-    <DCCReference Include="i_GotoLayerConfig.pas" />
     <DCCReference Include="i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="i_GUIDListStatic.pas" />
     <DCCReference Include="i_HashFunction.pas" />
@@ -436,8 +435,6 @@
     <DCCReference Include="i_TileInfoBasicMemCache.pas" />
     <DCCReference Include="i_TileIterator.pas" />
     <DCCReference Include="i_TileKey.pas" />
-    <DCCReference Include="i_TileMatrix.pas" />
-    <DCCReference Include="i_TileMatrixChangeable.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
     <DCCReference Include="i_TileProvider.pas" />
     <DCCReference Include="i_TileRect.pas" />
@@ -459,6 +456,7 @@
     <DCCReference Include="MapCalibration\u_MapCalibrationOzi.pas" />
     <DCCReference Include="MapCalibration\u_MapCalibrationTab.pas" />
     <DCCReference Include="MapCalibration\u_MapCalibrationWorldFiles.pas" />
+    <DCCReference Include="MapLayers\i_MainFormLayersConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapColorer.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapLayerConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapColorerSimple.pas" />
@@ -475,6 +473,8 @@
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGrids.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGridsConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_TileGridConfig.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\i_TileMatrix.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\i_TileMatrixChangeable.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Marks\i_MarksLayerConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Marks\u_MapLayerMarks.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Marks\u_MarksLayerConfig.pas" />
@@ -490,6 +490,11 @@
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_MapLayerBitmapMaps.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_MapLayerVectorMaps.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TiledLayerWithThreadBase.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrix.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixChangeableWithThread.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixElement.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixFactory.pas" />
+    <DCCReference Include="MapLayers\u_MainFormLayersConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\i_CalcLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayerConfig.pas" />
@@ -499,6 +504,9 @@
     <DCCReference Include="MapLayers\WindowLayers\FullMapMouseCursor\i_FullMapMouseCursorLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayer.pas" />
     <DCCReference Include="MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayerConfig.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\GoTo\i_GotoLayerConfig.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\GoTo\u_GotoLayerConfig.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarker.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerConfig.pas" />
@@ -529,7 +537,6 @@
     <DCCReference Include="MapLayers\WindowLayers\StatusBar\u_StatBarConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_LayerLicenseList.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_MapLayerBasic.pas" />
-    <DCCReference Include="MapLayers\WindowLayers\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_MapLayerSearchResults.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_PointOnMapEditLayer.pas" />
@@ -1073,7 +1080,6 @@
     <DCCReference Include="u_GlobalConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
-    <DCCReference Include="u_GotoLayerConfig.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_GUIDListStatic.pas" />
     <DCCReference Include="u_HashCacheWithQueuesAbstract.pas" />
@@ -1137,7 +1143,6 @@
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="u_MainFormConfig.pas" />
-    <DCCReference Include="u_MainFormLayersConfig.pas" />
     <DCCReference Include="u_MainFormMainConfig.pas" />
     <DCCReference Include="u_MainFormState.pas" />
     <DCCReference Include="u_MainGeoCoderConfig.pas" />
@@ -1286,10 +1291,6 @@
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileKey.pas" />
-    <DCCReference Include="u_TileMatrix.pas" />
-    <DCCReference Include="u_TileMatrixChangeableWithThread.pas" />
-    <DCCReference Include="u_TileMatrixElement.pas" />
-    <DCCReference Include="u_TileMatrixFactory.pas" />
     <DCCReference Include="u_TileProviderByStorage.pas" />
     <DCCReference Include="u_TileProviderWithCache.pas" />
     <DCCReference Include="u_TileRect.pas" />

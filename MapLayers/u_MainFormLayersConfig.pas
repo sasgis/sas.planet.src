@@ -46,7 +46,7 @@ uses
   i_MainMapLayerConfig,
   i_GotoLayerConfig,
   i_FullMapMouseCursorLayerConfig,
-  i_MainFormConfig,
+  i_MainFormLayersConfig,
   u_ConfigDataElementComplexBase;
 
 type

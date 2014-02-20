@@ -32,6 +32,7 @@ uses
   i_MainFormConfig,
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
+  i_MainFormLayersConfig,
   i_KeyMovingConfig,
   i_MapMovingConfig,
   i_MapZoomingConfig,
