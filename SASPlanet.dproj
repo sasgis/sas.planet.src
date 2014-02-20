@@ -669,144 +669,144 @@
     <DCCReference Include="Performance\u_InternalPerformanceCounterListForDebug.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterListForDebugOneClass.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterStaticData.pas" />
-    <DCCReference Include="RegionProcess\frm_ProgressDownload.pas">
+    <DCCReference Include="RegionProcess\Combine\fr_Combine.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frCombine</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Combine\fr_MapCombine.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frMapCombine</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombine.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineBMP.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineECW.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineJP2.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineJPG.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineKMZ.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombinePNG.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ThreadMapCombineBase.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ThreadMapCombineBMP.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ThreadMapCombineECW.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ThreadMapCombineJPG.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ThreadMapCombineKMZ.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ThreadMapCombinePNG.pas" />
+    <DCCReference Include="RegionProcess\Copy\fr_TilesCopy.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frTilesCopy</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Copy\u_ProviderTilesCopy.pas" />
+    <DCCReference Include="RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas" />
+    <DCCReference Include="RegionProcess\Delete\fr_TilesDelete.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frTilesDelete</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Delete\u_ProviderTilesDelete.pas" />
+    <DCCReference Include="RegionProcess\Delete\u_ThreadDeleteTiles.pas" />
+    <DCCReference Include="RegionProcess\Download\frm_ProgressDownload.pas">
       <Form>frmProgressDownload</Form>
     </DCCReference>
+    <DCCReference Include="RegionProcess\Download\fr_TilesDownload.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frTilesDownload</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Download\u_ProviderTilesDownload.pas" />
+    <DCCReference Include="RegionProcess\Download\u_ThreadDownloadTiles.pas" />
+    <DCCReference Include="RegionProcess\Export\Archive\fr_ExportToFileCont.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportToFileCont</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\Archive\u_ExportProviderTar.pas" />
+    <DCCReference Include="RegionProcess\Export\Archive\u_ExportProviderZip.pas" />
+    <DCCReference Include="RegionProcess\Export\Archive\u_ThreadExportToArchive.pas" />
+    <DCCReference Include="RegionProcess\Export\GeoExpressAUX\fr_ExportAUX.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportAUX</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\GeoExpressAUX\u_ExportProviderAUX.pas" />
+    <DCCReference Include="RegionProcess\Export\GeoExpressAUX\u_ThreadExportToAUX.pas" />
+    <DCCReference Include="RegionProcess\Export\fr_Export.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExport</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\IPhone\fr_ExportIPhone.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportIPhone</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\IPhone\u_ExportProviderIPhone.pas" />
+    <DCCReference Include="RegionProcess\Export\IPhone\u_ThreadExportIPhone.pas" />
+    <DCCReference Include="RegionProcess\Export\JNX\fr_ExportToJNX.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportToJNX</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\JNX\u_ExportProviderJNX.pas" />
+    <DCCReference Include="RegionProcess\Export\JNX\u_ExportToJnxTask.pas" />
+    <DCCReference Include="RegionProcess\Export\JNX\u_ThreadExportToJNX.pas" />
+    <DCCReference Include="RegionProcess\Export\KML\fr_ExportGEKml.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportGEKml</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\KML\u_ExportProviderGEKml.pas" />
+    <DCCReference Include="RegionProcess\Export\KML\u_ThreadExportKML.pas" />
+    <DCCReference Include="RegionProcess\Export\OGF2\fr_ExportToOgf2.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportToOgf2</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\OGF2\u_ExportProviderOgf2.pas" />
+    <DCCReference Include="RegionProcess\Export\OGF2\u_ThreadExportToOgf2.pas" />
+    <DCCReference Include="RegionProcess\Export\RMaps\fr_ExportRMapsSQLite.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportRMapsSQLite</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\RMaps\u_ExportProviderRMapsSQLite.pas" />
+    <DCCReference Include="RegionProcess\Export\RMaps\u_ThreadExportToRMapsSQLite.pas" />
+    <DCCReference Include="RegionProcess\Export\SAS4Android\fr_ExportToCE.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportToCE</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\SAS4Android\u_ExportProviderCE.pas" />
+    <DCCReference Include="RegionProcess\Export\SAS4Android\u_ThreadExportToCE.pas" />
+    <DCCReference Include="RegionProcess\Export\u_ExportProviderAbstract.pas" />
+    <DCCReference Include="RegionProcess\Export\u_ThreadExportAbstract.pas" />
+    <DCCReference Include="RegionProcess\Export\YandexMobile\fr_ExportYaMobileV3.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportYaMobileV3</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\YandexMobile\fr_ExportYaMobileV4.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frExportYaMobileV4</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV3.pas" />
+    <DCCReference Include="RegionProcess\Export\YandexMobile\u_ExportProviderYaMobileV4.pas" />
+    <DCCReference Include="RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV3.pas" />
+    <DCCReference Include="RegionProcess\Export\YandexMobile\u_ThreadExportYaMobileV4.pas" />
     <DCCReference Include="RegionProcess\frm_ProgressSimple.pas">
       <Form>frmProgressSimple</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\frm_RegionProcess.pas">
       <Form>frmRegionProcess</Form>
     </DCCReference>
-    <DCCReference Include="RegionProcess\fr_Combine.pas">
-      <Form>frCombine</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_Export.pas">
-      <Form>frExport</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportAUX.pas">
-      <Form>frExportAUX</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportGEKml.pas">
-      <Form>frExportGEKml</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportIPhone.pas">
-      <Form>frExportIPhone</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportRMapsSQLite.pas">
-      <Form>frExportRMapsSQLite</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportToCE.pas">
-      <Form>frExportToCE</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportToFileCont.pas">
-      <Form>frExportToFileCont</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportToJNX.pas">
-      <Form>frExportToJNX</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportToOgf2.pas">
-      <Form>frExportToOgf2</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportYaMobileV3.pas">
-      <Form>frExportYaMobileV3</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_ExportYaMobileV4.pas">
-      <Form>frExportYaMobileV4</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_MapCombine.pas">
-      <Form>frMapCombine</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
     <DCCReference Include="RegionProcess\fr_MapSelect.pas">
+      <DesignClass>TFrame</DesignClass>
       <Form>frMapSelect</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_TilesCopy.pas">
-      <Form>frTilesCopy</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_TilesDelete.pas">
-      <Form>frTilesDelete</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_TilesDownload.pas">
-      <Form>frTilesDownload</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="RegionProcess\fr_TilesGenPrev.pas">
-      <Form>frTilesGenPrev</Form>
-      <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="RegionProcess\fr_ZoomsSelect.pas">
-      <Form>frZoomsSelect</Form>
       <DesignClass>TFrame</DesignClass>
+      <Form>frZoomsSelect</Form>
     </DCCReference>
+    <DCCReference Include="RegionProcess\GenPrev\fr_TilesGenPrev.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frTilesGenPrev</Form>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\GenPrev\u_ProviderTilesGenPrev.pas" />
+    <DCCReference Include="RegionProcess\GenPrev\u_ThreadGenPrevZoom.pas" />
     <DCCReference Include="RegionProcess\i_RegionProcess.pas" />
     <DCCReference Include="RegionProcess\i_RegionProcessParamsFrame.pas" />
     <DCCReference Include="RegionProcess\i_RegionProcessProgressInfo.pas" />
     <DCCReference Include="RegionProcess\i_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="RegionProcess\i_RegionProcessProgressInfoInternalFactory.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderAbstract.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderAUX.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderCE.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderGEKml.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderIPhone.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderJNX.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderOgf2.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderRMapsSQLite.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderTar.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV3.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderYaMobileV4.pas" />
-    <DCCReference Include="RegionProcess\u_ExportProviderZip.pas" />
-    <DCCReference Include="RegionProcess\u_ExportToJnxTask.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderMapCombine.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderMapCombineBMP.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderMapCombineECW.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderMapCombineJP2.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderMapCombineJPG.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderMapCombineKMZ.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderMapCombinePNG.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderTilesCopy.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderTilesDelete.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderTilesDownload.pas" />
-    <DCCReference Include="RegionProcess\u_ProviderTilesGenPrev.pas" />
     <DCCReference Include="RegionProcess\u_RegionProcessProgressInfo.pas" />
     <DCCReference Include="RegionProcess\u_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadCopyFromStorageToStorage.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadDeleteTiles.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadDownloadTiles.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportAbstract.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportIPhone.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportKML.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToArchive.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToAUX.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToCE.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToJNX.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToOgf2.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportToRMapsSQLite.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV3.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadExportYaMobileV4.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadGenPrevZoom.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadMapCombineBase.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadMapCombineBMP.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadMapCombineECW.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadMapCombineJPG.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadMapCombineKMZ.pas" />
-    <DCCReference Include="RegionProcess\u_ThreadMapCombinePNG.pas" />
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
     <DCCReference Include="Synchronize\i_ReadWriteSyncFactory.pas" />
     <DCCReference Include="Synchronize\i_Synchronizer.pas" />
