@@ -480,26 +480,6 @@ begin
     FVersionRequestConfig := nil;
     FVersionChangeListener := nil;
   end;
-
-  FCoordConverter := nil;
-  FCacheBitmap := nil;
-  FCacheVector := nil;
-  FCacheTileInfo := nil;
-  FTileDownloadSubsystem := nil;
-  FBitmapLoaderFromStorage := nil;
-  FBitmapSaverToStorage := nil;
-  FKmlLoaderFromStorage := nil;
-  FViewCoordConverter := nil;
-  FContentType := nil;
-  FTileDownloaderConfig := nil;
-  FTileDownloadRequestBuilderConfig := nil;
-  FResamplerConfigLoad := nil;
-  FResamplerConfigGetPrev := nil;
-  FResamplerConfigChangeProjection := nil;
-  FGUIConfig := nil;
-  FAbilitiesConfig := nil;
-  FStorageConfig := nil;
-  FStorage := nil;
   inherited;
 end;
 
