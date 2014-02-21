@@ -541,7 +541,6 @@
     <DCCReference Include="MapLayers\WindowLayers\StatusBar\u_StatBarConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_LayerLicenseList.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_MapLayerBasic.pas" />
-    <DCCReference Include="MapLayers\WindowLayers\u_MapLayerSearchResults.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_MapLayerShowError.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_PointOnMapEditLayer.pas" />
     <DCCReference Include="MapLayers\WindowLayers\u_WindowLayerBasic.pas" />

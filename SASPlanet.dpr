@@ -926,7 +926,6 @@ uses
   u_MarkerRingsConfig in 'u_MarkerRingsConfig.pas',
   i_MapLayerGPSMarkerConfig in 'MapLayers\WindowLayers\GPSMarker\i_MapLayerGPSMarkerConfig.pas',
   u_MapLayerGPSMarkerConfig in 'MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerConfig.pas',
-  u_MapLayerSearchResults in 'MapLayers\WindowLayers\u_MapLayerSearchResults.pas',
   i_BitmapPostProcessingConfig in 'i_BitmapPostProcessingConfig.pas',
   u_BitmapPostProcessingConfig in 'u_BitmapPostProcessingConfig.pas',
   i_BitmapPostProcessing in 'i_BitmapPostProcessing.pas',
