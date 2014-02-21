@@ -40,6 +40,10 @@ type
     FAbilities: ITileStorageTypeAbilities;
     FMapVersionFactory: IMapVersionFactory;
     FConfig: ITileStorageTypeConfig;
+    function GetStorageAbilitiesByConfig(
+      const AForceAbilities: ITileStorageAbilities;
+      const AStorageConfigData: IConfigDataProvider
+    ): ITileStorageAbilities;
   protected
     function BuildStorageInternal(
       const AStorageConfigData: IConfigDataProvider;
@@ -81,6 +85,45 @@ const
 
 { TTileStorageTypeBase }
 
+function TTileStorageTypeBase.GetStorageAbilitiesByConfig(
+  const AForceAbilities: ITileStorageAbilities;
+  const AStorageConfigData: IConfigDataProvider
+): ITileStorageAbilities;
+var
+  VIsReadOnly: Boolean;
+  VAllowAdd: Boolean;
+  VAllowDelete: Boolean;
+  VAllowReplace: Boolean;
+  VStorageConfigData: IConfigDataProvider;
+begin
+  Result := FAbilities.BaseStorageAbilities;
+  if Assigned(AStorageConfigData) then begin
+    VStorageConfigData := AStorageConfigData.GetSubItem('Common');
+    if Assigned(VStorageConfigData) then begin
+      VIsReadOnly := VStorageConfigData.ReadBool('IsReadOnly', Result.IsReadOnly);
+      VAllowAdd := VStorageConfigData.ReadBool('IsReadOnly', Result.AllowAdd);
+      VAllowDelete := VStorageConfigData.ReadBool('IsReadOnly', Result.AllowDelete);
+      VAllowReplace := VStorageConfigData.ReadBool('IsReadOnly', Result.AllowReplace);
+      Result :=
+        TTileStorageAbilities.Create(
+          Result.IsReadOnly or VIsReadOnly,
+          Result.AllowAdd and VAllowAdd,
+          Result.AllowDelete and VAllowDelete,
+          Result.AllowReplace and VAllowReplace
+        );
+    end;
+  end;
+  if Assigned(AForceAbilities) then begin
+    Result :=
+      TTileStorageAbilities.Create(
+        Result.IsReadOnly or AForceAbilities.IsReadOnly,
+        Result.AllowAdd and AForceAbilities.AllowAdd,
+        Result.AllowDelete and AForceAbilities.AllowDelete,
+        Result.AllowReplace and AForceAbilities.AllowReplace
+      );
+  end;
+end;
+
 function TTileStorageTypeBase.BuildStorage(
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
@@ -94,17 +137,6 @@ var
   VConfigData: IConfigDataProvider;
   VIniFile: TMemIniFile;
 begin
-  if Assigned(AForceAbilities) then begin
-    VAbilities :=
-      TTileStorageAbilities.Create(
-        FAbilities.BaseStorageAbilities.IsReadOnly or AForceAbilities.IsReadOnly,
-        FAbilities.BaseStorageAbilities.AllowAdd and AForceAbilities.AllowAdd,
-        FAbilities.BaseStorageAbilities.AllowDelete and AForceAbilities.AllowDelete,
-        FAbilities.BaseStorageAbilities.AllowReplace and AForceAbilities.AllowReplace
-      );
-  end else begin
-    VAbilities := FAbilities.BaseStorageAbilities;
-  end;
   VConfigFileName := APath + CStorageConfFileName;
   VConfigData := nil;
   if FileExists(VConfigFileName) then begin
@@ -116,7 +148,7 @@ begin
       VIniFile.Free;
     end;
   end;
-
+  VAbilities := GetStorageAbilitiesByConfig(AForceAbilities, VConfigData);
   Result :=
     BuildStorageInternal(
       VConfigData,
