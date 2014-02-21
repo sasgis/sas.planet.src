@@ -977,7 +977,6 @@
     <DCCReference Include="TileStorage\u_TileStorageAbstract.pas" />
     <DCCReference Include="TileStorage\u_TileStorageInfo.pas" />
     <DCCReference Include="TileStorage\u_TileStorageOfMapType.pas" />
-    <DCCReference Include="TileStorage\u_TileStorageTypeAbilities.pas" />
     <DCCReference Include="TileStorage\u_TileStorageTypeBase.pas" />
     <DCCReference Include="TileStorage\u_TileStorageTypeConfig.pas" />
     <DCCReference Include="TileStorage\u_TileStorageTypeList.pas" />

@@ -703,7 +703,6 @@ uses
   u_TileStorageAbstract in 'TileStorage\u_TileStorageAbstract.pas',
   u_TileStorageInfo in 'TileStorage\u_TileStorageInfo.pas',
   u_TileStorageOfMapType in 'TileStorage\u_TileStorageOfMapType.pas',
-  u_TileStorageTypeAbilities in 'TileStorage\u_TileStorageTypeAbilities.pas',
   u_TileStorageTypeBase in 'TileStorage\u_TileStorageTypeBase.pas',
   u_TileStorageTypeConfig in 'TileStorage\u_TileStorageTypeConfig.pas',
   u_TileStorageTypeList in 'TileStorage\u_TileStorageTypeList.pas',
