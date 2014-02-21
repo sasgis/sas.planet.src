@@ -101,9 +101,9 @@ begin
     VStorageConfigData := AStorageConfigData.GetSubItem('Common');
     if Assigned(VStorageConfigData) then begin
       VIsReadOnly := VStorageConfigData.ReadBool('IsReadOnly', Result.IsReadOnly);
-      VAllowAdd := VStorageConfigData.ReadBool('IsReadOnly', Result.AllowAdd);
-      VAllowDelete := VStorageConfigData.ReadBool('IsReadOnly', Result.AllowDelete);
-      VAllowReplace := VStorageConfigData.ReadBool('IsReadOnly', Result.AllowReplace);
+      VAllowAdd := VStorageConfigData.ReadBool('AllowAdd', Result.AllowAdd);
+      VAllowDelete := VStorageConfigData.ReadBool('AllowDelete', Result.AllowDelete);
+      VAllowReplace := VStorageConfigData.ReadBool('AllowReplace', Result.AllowReplace);
       Result :=
         TTileStorageAbilities.Create(
           Result.IsReadOnly or VIsReadOnly,
