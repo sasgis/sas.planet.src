@@ -471,12 +471,127 @@ function TTileStorageBerkeleyDB.GetTileInfoEx(
 ): ITileInfoBasic;
 var
   VVersionInfo: IMapVersionInfo;
+  VShowPrevVersion: Boolean;
+  VPath: string;
+  VResult: Boolean;
+  VTileBinaryData: IBinaryData;
+  VTileVersion: WideString;
+  VTileContentType: WideString;
+  VTileDate: TDateTime;
+  VTileSize: Integer;
+  VList: IMapVersionListStatic;
+  VHelper: ITileStorageBerkeleyDBHelper;
 begin
   VVersionInfo := nil;
+  VShowPrevVersion := True;
   if Assigned(AVersionInfo) then  begin
     VVersionInfo := AVersionInfo.BaseVersion;
+    VShowPrevVersion := AVersionInfo.ShowPrevVersion;
   end;
-  Result := GetTileInfo(AXY, AZoom, VVersionInfo, AMode);
+  try
+    if Assigned(FTileInfoMemCache) then begin
+      Result := FTileInfoMemCache.Get(AXY, AZoom, VVersionInfo, AMode, True);
+      if Result <> nil then begin
+        Exit;
+      end;
+    end;
+    Result := FTileNotExistsTileInfo;
+    if GetState.GetStatic.ReadAccess <> asDisabled then begin
+      VPath :=
+        StoragePath +
+        FFileNameGenerator.GetTileFileName(AXY, AZoom) +
+        GetStorageFileExtention;
+
+      VResult := False;
+
+      if FileExists(VPath) then begin
+        VHelper := GetStorageHelper;
+        if AMode = gtimWithoutData then begin
+          VResult :=
+            VHelper.LoadTileInfo(
+              VPath,
+              AXY,
+              AZoom,
+              VVersionInfo,
+              VShowPrevVersion,
+              True, // will get single tile info
+              VList,
+              VTileVersion,
+              VTileContentType,
+              VTileSize,
+              VTileDate
+            );
+          if VResult then begin
+            Result :=
+              TTileInfoBasicExists.Create(
+                VTileDate,
+                VTileSize,
+                MapVersionFactory.CreateByStoreString(VTileVersion),
+                FContentTypeManager.GetInfo(VTileContentType)
+              );
+          end;
+        end else begin
+          VResult :=
+            VHelper.LoadTile(
+              VPath,
+              AXY,
+              AZoom,
+              VVersionInfo,
+              VShowPrevVersion,
+              VTileBinaryData,
+              VTileVersion,
+              VTileContentType,
+              VTileDate
+            );
+          if VResult then begin
+            Result :=
+              TTileInfoBasicExistsWithTile.Create(
+                VTileDate,
+                VTileBinaryData,
+                MapVersionFactory.CreateByStoreString(VTileVersion),
+                FContentTypeManager.GetInfo(VTileContentType)
+              );
+          end;
+        end;
+      end;
+
+      if not VResult then begin
+        VPath := ChangeFileExt(VPath, GetStorageFileExtention(True));
+        if FileExists(VPath) then begin
+          if not Assigned(VHelper) then begin
+            VHelper := GetStorageHelper;
+          end;
+          VResult := VHelper.IsTNEFound(
+            VPath,
+            AXY,
+            AZoom,
+            VVersionInfo,
+            VShowPrevVersion,
+            VTileDate
+          );
+          if VResult then begin
+            Result := TTileInfoBasicTNE.Create(VTileDate, VVersionInfo);
+          end;
+        end;
+      end;
+
+      if not VResult then begin
+        Result := TTileInfoBasicNotExists.Create(0, VVersionInfo);
+      end;
+    end;
+
+    if Assigned(FTileInfoMemCache) then begin
+      FTileInfoMemCache.Add(AXY, AZoom, VVersionInfo, Result);
+    end;
+  except
+    on E: Exception do begin
+      if Assigned(FGlobalBerkeleyDBHelper) then begin
+        FGlobalBerkeleyDBHelper.LogException(E.ClassName + ': ' + E.Message);
+      end;
+      TryShowLastExceptionData;
+      raise;
+    end;
+  end;
 end;
 
 function TTileStorageBerkeleyDB.GetListOfTileVersions(
