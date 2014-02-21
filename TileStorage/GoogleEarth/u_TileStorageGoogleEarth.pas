@@ -35,6 +35,7 @@ uses
   i_TileInfoBasic,
   i_BasicMemCache,
   i_CoordConverter,
+  i_TileStorageAbilities,
   i_TileStorage,
   i_TileInfoBasicMemCache,
   u_TileStorageAbstract;
@@ -64,12 +65,6 @@ type
     function LazyBuildProviders: Boolean;
   protected
     { ITileStorage }
-    function GetIsFileCache: Boolean; override;
-
-    function GetIsCanSaveMultiVersionTiles: Boolean; override;
-    function AllowListOfTileVersions: Boolean; override;
-    function AllowShowPrevVersion: Boolean; override;
-
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -131,6 +126,8 @@ type
     function Next(var ATileInfo: TTileInfo): Boolean;
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
+      const AStorageForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
       const ANameInCache: string;
@@ -154,13 +151,14 @@ uses
   u_MapVersionListStatic,
   u_TileRectInfoShort,
   u_TileIteratorByRect,
-  u_TileStorageTypeAbilities,
   u_TileInfoBasic,
   u_Synchronizer;
 
 { TTileStorageGoogleEarth }
 
 constructor TTileStorageGoogleEarth.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
+  const AStorageForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
   const ANameInCache: string;
@@ -171,7 +169,8 @@ constructor TTileStorageGoogleEarth.Create(
 );
 begin
   inherited Create(
-    TTileStorageTypeAbilitiesGE.Create,
+    AStorageTypeAbilities,
+    AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
     AStoragePath
@@ -262,26 +261,6 @@ begin
       FLock.EndWrite;
     end;
   end;
-end;
-
-function TTileStorageGoogleEarth.GetIsFileCache: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageGoogleEarth.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageGoogleEarth.AllowListOfTileVersions: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageGoogleEarth.AllowShowPrevVersion: Boolean;
-begin
-  Result := True;
 end;
 
 function TTileStorageGoogleEarth.GetTileFileName(

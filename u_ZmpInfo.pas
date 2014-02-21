@@ -842,20 +842,11 @@ begin
   VMemCacheCapacity := AConfig.ReadInteger('MemCacheCapacity', FZmpConfig.MemCacheCapacity);
   VMemCacheTTL := AConfig.ReadInteger('MemCacheTTL', FZmpConfig.MemCacheTTL);
   VMemCacheClearStrategy := AConfig.ReadInteger('MemCacheClearStrategy', FZmpConfig.MemCacheClearStrategy);
-  // c_File_Cache_Id_GE and c_File_Cache_Id_GC
-  if (VCacheTypeCode = 5) or (VCacheTypeCode = 8) then begin
-    VTileFileExt := '.jpg';
-    VIsReadOnly := True;
-    VAllowDelete := False;
-    VAllowAdd := False;
-    VAllowReplace := False;
-  end else begin
-    VTileFileExt := LowerCase(AConfig.ReadString('Ext', '.jpg'));
-    VIsReadOnly := False;
-    VAllowDelete := True;
-    VAllowAdd := True;
-    VAllowReplace := True;
-  end;
+  VTileFileExt := LowerCase(AConfig.ReadString('Ext', '.jpg'));
+  VIsReadOnly := AConfig.ReadBool('IsReadOnly', False);
+  VAllowDelete := not VIsReadOnly;
+  VAllowAdd := not VIsReadOnly;
+  VAllowReplace := not VIsReadOnly;
 
   VStorageAbilities :=
     TTileStorageAbilities.Create(

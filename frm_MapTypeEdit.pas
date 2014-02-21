@@ -31,6 +31,8 @@ uses
   ComCtrls,
   Spin,
   i_MapTypes,
+  i_LanguageManager,
+  i_TileStorageTypeList,
   u_CommonFormAndFrameParents;
 
 type
@@ -96,9 +98,15 @@ type
     procedure btnResetVersionClick(Sender: TObject);
     procedure btnResetHeaderClick(Sender: TObject);
   private
+    FTileStorageTypeList: ITileStorageTypeListStatic;
     FMapType: IMapType;
   public
     function EditMapModadl(const AMapType: IMapType): Boolean;
+  public
+    constructor Create(
+      const ALanguageManager: ILanguageManager;
+      const ATileStorageTypeList: ITileStorageTypeListStatic
+    );
   end;
 
 implementation
@@ -111,6 +119,15 @@ uses
   u_ResStrings;
 
 {$R *.dfm}
+
+constructor TfrmMapTypeEdit.Create(
+  const ALanguageManager: ILanguageManager;
+  const ATileStorageTypeList: ITileStorageTypeListStatic
+);
+begin
+  inherited Create(ALanguageManager);
+  FTileStorageTypeList := ATileStorageTypeList;
+end;
 
 function GetCacheIdFromIndex(const AIndex: Integer): Byte;
 begin

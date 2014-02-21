@@ -54,6 +54,7 @@ type
   private
     { IGlobalBerkeleyDBHelper }
     function AllocateEnvironment(
+      const AIsReadOnly: Boolean;
       const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
       const AStorageEPSG: Integer;
       const AEnvRootPath: string
@@ -140,6 +141,7 @@ begin
 end;
 
 function TGlobalBerkeleyDBHelper.AllocateEnvironment(
+  const AIsReadOnly: Boolean;
   const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
   const AStorageEPSG: Integer;
   const AEnvRootPath: string
@@ -167,6 +169,7 @@ begin
     if not Assigned(Result) then begin
       VEnv := TBerkeleyDBEnv.Create(
         (Self as IGlobalBerkeleyDBHelper),
+        AIsReadOnly,
         AStorageConfig,
         AStorageEPSG,
         VPath

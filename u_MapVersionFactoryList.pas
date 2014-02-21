@@ -26,7 +26,6 @@ type
 implementation
 
 uses
-  c_CacheTypeCodes,
   u_MapVersionFactoryGE,
   u_MapVersionFactorySimpleString;
 

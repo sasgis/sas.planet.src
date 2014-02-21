@@ -31,6 +31,7 @@ uses
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_MapVersionListStatic,
+  i_TileStorageAbilities,  
   i_StorageState,
   i_TileInfoBasic;
 
@@ -42,18 +43,14 @@ type
     function GetTileNotifier: INotifierTilePyramidUpdate;
     property TileNotifier: INotifierTilePyramidUpdate read GetTileNotifier;
 
+    function GetStorageTypeAbilities: ITileStorageTypeAbilities;
+    property StorageTypeAbilities: ITileStorageTypeAbilities read GetStorageTypeAbilities;
+
     function GetState: IStorageStateChangeble;
     property State: IStorageStateChangeble read GetState;
 
     function GetCoordConverter: ICoordConverter;
     property CoordConverter: ICoordConverter read GetCoordConverter;
-
-    function GetIsFileCache: Boolean;
-    property IsFileCache: Boolean read GetIsFileCache;
-
-    function GetIsCanSaveMultiVersionTiles: Boolean;
-    function AllowListOfTileVersions: Boolean;
-    function AllowShowPrevVersion: Boolean;
 
     function GetTileFileName(
       const AXY: TPoint;

@@ -25,6 +25,9 @@ interface
 type
   ITileStorageAbilities = interface
     ['{EBB122FB-5382-49CA-A265-3BEA89694B0E}']
+    function GetAllowRead: Boolean;
+    property AllowRead: Boolean read GetAllowRead;
+
     function GetIsReadOnly: boolean;
     property IsReadOnly: boolean read GetIsReadOnly;
 
@@ -36,6 +39,18 @@ type
 
     function GetAllowReplace: boolean;
     property AllowReplace: boolean read GetAllowReplace;
+  end;
+
+  ITileStorageTypeAbilities = interface
+    ['{EEB09E02-E81A-4566-866F-356008CC808D}']
+    function GetBaseStorageAbilities: ITileStorageAbilities;
+    property BaseStorageAbilities: ITileStorageAbilities read GetBaseStorageAbilities;
+
+    function GetIsVersioned: Boolean;
+    property IsVersioned: Boolean read GetIsVersioned;
+
+    function GetIsFileCache: Boolean;
+    property IsFileCache: Boolean read GetIsFileCache;
   end;
 
 implementation

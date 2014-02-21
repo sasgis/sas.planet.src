@@ -25,9 +25,6 @@ interface
 type
   ITileStorageBerkeleyDBConfigStatic = interface
     ['{7891C139-B5C4-444E-8AF1-0668510000FB}']
-    function GetIsReadOnly: Boolean;
-    property IsReadOnly: Boolean read GetIsReadOnly;
-
     function GetSyncInterval: Cardinal;
     property SyncInterval: Cardinal read GetSyncInterval;
 

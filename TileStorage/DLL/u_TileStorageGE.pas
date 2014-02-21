@@ -36,6 +36,7 @@ uses
   i_MapVersionRequest,
   i_CoordConverter,
   i_TileInfoBasic,
+  i_TileStorageAbilities,
   i_TileStorage,
   i_ContentTypeManager,
   u_TileStorageAbstract;
@@ -80,7 +81,6 @@ type
     ): ITileInfoBasic;
   protected
     // common tile storage interface
-    function GetIsFileCache: Boolean; override;
     function GetTileInfo(
       const AXY: TPoint;
       const AZoom: byte;
@@ -129,6 +129,8 @@ type
     ): IMapVersionListStatic; override;
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
+      const AStorageForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
       const AMapVersionFactory: IMapVersionFactory;
@@ -139,9 +141,6 @@ type
 
   TTileStorageGC = class(TTileStorageDLL)
   protected
-    function GetIsCanSaveMultiVersionTiles: Boolean; override;
-    function AllowListOfTileVersions: Boolean; override;
-    function AllowShowPrevVersion: Boolean; override;
     function InternalLib_Initialize: Boolean; override;
     function InternalLib_CheckInitialized: Boolean; override;
   end;
@@ -156,8 +155,7 @@ uses
   u_AvailPicsNMC,
   u_Synchronizer,
   u_TileInfoBasic,
-  u_TileRectInfoShort,
-  u_TileStorageTypeAbilities;
+  u_TileRectInfoShort;
 
 function DLLCache_ConvertImage_Callback(
   const AConvertImage_Context: Pointer;
@@ -356,6 +354,8 @@ end;
 { TTileStorageDLL }
 
 constructor TTileStorageDLL.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
+  const AStorageForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
   const AMapVersionFactory: IMapVersionFactory;
@@ -365,7 +365,8 @@ var
   VStoragePath: AnsiString;
 begin
   inherited Create(
-    TTileStorageTypeAbilitiesGE.Create,
+    AStorageTypeAbilities,
+    AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
     AStoragePath
@@ -410,11 +411,6 @@ begin
   FDLLSync := nil;
 
   inherited;
-end;
-
-function TTileStorageDLL.GetIsFileCache: Boolean;
-begin
-  Result := False;
 end;
 
 function TTileStorageDLL.GetListOfTileVersions(
@@ -852,21 +848,6 @@ begin
 end;
 
 { TTileStorageGC }
-
-function TTileStorageGC.AllowListOfTileVersions: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageGC.AllowShowPrevVersion: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageGC.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
-  Result := False;
-end;
 
 function TTileStorageGC.InternalLib_CheckInitialized: Boolean;
 begin

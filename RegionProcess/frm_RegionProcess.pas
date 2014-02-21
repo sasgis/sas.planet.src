@@ -67,6 +67,7 @@ uses
   i_MapCalibration,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
+  i_TileStorageTypeList,
   i_LocalCoordConverterChangeable,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
@@ -144,6 +145,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const ATileNameGenerator: ITileFileNameGeneratorsList;
       const AFileNameParsersList: ITileFileNameParsersList;
       const AViewConfig: IGlobalViewMainConfig;
@@ -203,6 +205,7 @@ constructor TfrmRegionProcess.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const ATileNameGenerator: ITileFileNameGeneratorsList;
   const AFileNameParsersList: ITileFileNameParsersList;
   const AViewConfig: IGlobalViewMainConfig;
@@ -299,6 +302,7 @@ begin
       AContentTypeManager,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
+      ATileStorageTypeList,
       AFileNameParsersList,
       ATileNameGenerator
     );

@@ -58,11 +58,15 @@ begin
   Assert(AStorageForceAbilities <> nil);
   inherited Create;
   FStorageForceAbilities := AStorageForceAbilities;
+
   FReadAccess := asUnknown;
   FWriteAccess := asUnknown;
   FDeleteAccess := asUnknown;
   FAddAccess := asUnknown;
   FReplaceAccess := asUnknown;
+  if not FStorageForceAbilities.AllowRead then begin
+    FReadAccess := asDisabled;
+  end;
 
   if FStorageForceAbilities.IsReadOnly then begin
     FWriteAccess := asDisabled;

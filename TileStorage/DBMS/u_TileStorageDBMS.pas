@@ -35,6 +35,7 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasic,
   i_TileStorage,
+  i_TileStorageAbilities,
   i_InternalDomainOptions,
   i_CoordConverter,
   i_ContentTypeManager,
@@ -178,10 +179,6 @@ type
     procedure IBasicMemCache.Clear = ClearMemCache;
   protected
     // base storage interface
-    function GetIsFileCache: Boolean; override;
-    function GetIsCanSaveMultiVersionTiles: Boolean; override;
-    function AllowListOfTileVersions: Boolean; override;
-    function AllowShowPrevVersion: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -237,6 +234,8 @@ type
 
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
+      const AStorageForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AGlobalStorageIdentifier, AStoragePath: String;
       const AGCNotifier: INotifierTime;
@@ -278,7 +277,6 @@ uses
   u_MapVersionListStatic,
   u_Synchronizer,
   u_ListenerTime,
-  u_TileStorageTypeAbilities,
   u_TileRectInfoShort,
   u_TileInfoBasic,
   u_ResStrings,
@@ -624,6 +622,8 @@ begin
 end;
 
 constructor TTileStorageETS.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
+  const AStorageForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AGlobalStorageIdentifier, AStoragePath: String;
   const AGCNotifier: INotifierTime;
@@ -642,7 +642,8 @@ begin
   end;
 
   inherited Create(
-    TTileStorageTypeAbilitiesDBMS.Create,
+    AStorageTypeAbilities,
+    AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
     VCorrectPath
@@ -930,26 +931,6 @@ begin
         SetUpExclusiveFlag(Result);
     end;
   end;
-end;
-
-function TTileStorageETS.GetIsFileCache: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageETS.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageETS.AllowListOfTileVersions: Boolean;
-begin
-  Result := True;
-end;
-
-function TTileStorageETS.AllowShowPrevVersion: Boolean;
-begin
-  Result := True;
 end;
 
 function TTileStorageETS.GetListOfTileVersions(

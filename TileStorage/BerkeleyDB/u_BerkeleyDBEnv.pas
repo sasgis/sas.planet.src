@@ -76,6 +76,7 @@ type
   public
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const AIsReadOnly: Boolean;
       const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
       const AStorageEPSG: Integer;
       const AEnvRootPath: string
@@ -131,6 +132,7 @@ end;
 
 constructor TBerkeleyDBEnv.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const AIsReadOnly: Boolean;
   const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
   const AStorageEPSG: Integer;
   const AEnvRootPath: string
@@ -153,7 +155,7 @@ begin
   VDatabaseFactory := TBerkeleyDBFactory.Create(
     AStorageConfig.DatabasePageSize,
     AStorageConfig.OnDeadLockRetryCount,
-    AStorageConfig.IsReadOnly,
+    AIsReadOnly,
     TBerkeleyDBMetaKey.Create as IBinaryData,
     TBerkeleyDBMetaValue.Create(AStorageEPSG) as IBinaryData
   );

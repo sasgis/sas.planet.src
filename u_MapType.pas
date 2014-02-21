@@ -59,14 +59,12 @@ uses
   i_MapTypeGUIConfig,
   i_CoordConverterFactory,
   i_MainMemCacheConfig,
-  i_TileFileNameGeneratorsList,
-  i_TileFileNameParsersList,
   i_VectorItemSubset,
   i_VectorDataFactory,
   i_ProjConverter,
   i_TileDownloadSubsystem,
   i_InternalPerformanceCounter,
-  i_GlobalBerkeleyDBHelper,
+  i_TileStorageTypeList,
   i_TileInfoBasicMemCache,
   i_GlobalCacheConfig,
   i_TileStorage,
@@ -239,9 +237,7 @@ type
       const AMapVersionFactoryList: IMapVersionFactoryList;
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: IGlobalCacheConfig;
-      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-      const ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      const ATileNameParserList: ITileFileNameParsersList;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const AInetConfig: IInetConfig;
@@ -319,9 +315,7 @@ constructor TMapType.Create(
   const AMapVersionFactoryList: IMapVersionFactoryList;
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: IGlobalCacheConfig;
-  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-  const ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  const ATileNameParserList: ITileFileNameParsersList;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const AInetConfig: IInetConfig;
@@ -408,14 +402,10 @@ begin
   FStorage :=
     TTileStorageOfMapType.Create(
       AGlobalCacheConfig,
-      AGlobalBerkeleyDBHelper,
+      ATileStorageTypeList,
       FStorageConfig,
       FCacheTileInfo,
-      VVersionFactory,
-      AGCNotifier,
       AContentTypeManager,
-      ATileNameGeneratorList,
-      ATileNameParserList,
       VPerfCounterList
     );
   if Supports(FContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
@@ -624,14 +614,14 @@ function TMapType.GetTileShowName(
 ): string;
 begin
   Result := FStorage.GetTileFileName(AXY, AZoom, AVersion);
-  if not FStorage.IsFileCache then begin
+  if not FStorage.StorageTypeAbilities.IsFileCache then begin
     Result :=
       IncludeTrailingPathDelimiter(Result) +
       'z' + IntToStr(AZoom + 1) + PathDelim +
       'x' + IntToStr(AXY.X) + PathDelim +
       'y' + IntToStr(AXY.Y) + FContentType.GetDefaultExt;
   end;
-  if FStorage.GetIsCanSaveMultiVersionTiles and (AVersion.StoreString <> '') then begin
+  if FStorage.StorageTypeAbilities.IsVersioned and (AVersion.StoreString <> '') then begin
     Result := Result + PathDelim + 'v' + AVersion.StoreString;
   end;
 end;

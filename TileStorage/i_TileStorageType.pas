@@ -34,8 +34,8 @@ uses
 type
   ITileStorageType = interface
     ['{EBB122FB-5382-49CA-A265-3BEA89694B0E}']
-    function GetAbilities: ITileStorageAbilities;
-    property Abilities: ITileStorageAbilities read GetAbilities;
+    function GetAbilities: ITileStorageTypeAbilities;
+    property Abilities: ITileStorageTypeAbilities read GetAbilities;
 
     function GetConfig: ITileStorageTypeConfig;
     property Config: ITileStorageTypeConfig read GetConfig;

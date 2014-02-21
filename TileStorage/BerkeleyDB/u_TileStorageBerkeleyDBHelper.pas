@@ -158,6 +158,7 @@ type
     constructor Create(
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AMapVersionFactory: IMapVersionFactory;
+      const AIsReadOnly: Boolean;
       const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
       const AStorageRootPath: string;
       const AIsVersioned: Boolean;
@@ -196,6 +197,7 @@ end;
 constructor TTileStorageBerkeleyDBHelper.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AMapVersionFactory: IMapVersionFactory;
+  const AIsReadOnly: Boolean;
   const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
   const AStorageRootPath: string;
   const AIsVersioned: Boolean;
@@ -209,7 +211,7 @@ begin
   inherited Create;
 
   FMapVersionFactory := AMapVersionFactory;
-  FIsReadOnly := AStorageConfig.IsReadOnly;
+  FIsReadOnly := AIsReadOnly;
   FIsVersioned := AIsVersioned;
   FOnDeadLockRetryCount := AStorageConfig.OnDeadLockRetryCount;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
@@ -217,6 +219,7 @@ begin
   FSyncLock := MakeSyncRW_Std(Self, False);
 
   FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(
+    FIsReadOnly,
     AStorageConfig,
     AStorageEPSG,
     AStorageRootPath

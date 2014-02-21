@@ -40,6 +40,7 @@ uses
   i_ListenerTime,
   i_TileFileNameGenerator,
   i_GlobalBerkeleyDBHelper,
+  i_TileStorageAbilities,
   i_TileInfoBasicMemCache,
   i_TileStorageBerkeleyDBHelper,
   i_TileStorageBerkeleyDBConfigStatic,
@@ -60,6 +61,8 @@ type
     FTileInfoMemCache: ITileInfoBasicMemCache;
     FFileNameGenerator: ITileFileNameGenerator;
     FVersioned: Boolean;
+    FIsReadOnly: Boolean;
+
     FCommitsCountToSync: Integer;
     FStorageConfig: ITileStorageBerkeleyDBConfigStatic;
     procedure OnSyncCall;
@@ -67,11 +70,6 @@ type
     function GetStorageHelper: ITileStorageBerkeleyDBHelper;
     function GetStorageFileExtention(const AIsForTneStore: Boolean = False): string;
   protected
-    function GetIsFileCache: Boolean; override;
-    function GetIsCanSaveMultiVersionTiles: Boolean; override;
-    function AllowListOfTileVersions: Boolean; override;
-    function AllowShowPrevVersion: Boolean; override;
-
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -129,9 +127,12 @@ type
     procedure IBasicMemCache.Clear = ClearMemCache;
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
+      const AStorageForceAbilities: ITileStorageAbilities;
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
+      const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
       const AIsVersioned: Boolean;
       const AGCNotifier: INotifierTime;
       const ATileInfoMemCache: ITileInfoBasicMemCache;
@@ -154,7 +155,6 @@ uses
   u_TileRectInfoShort,
   u_TileFileNameBerkeleyDB,
   u_TileIteratorByRect,
-  u_TileStorageTypeAbilities,
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
   u_FileNameIteratorInFolderByMaskList,
@@ -162,7 +162,6 @@ uses
   u_Synchronizer,
   u_GlobalBerkeleyDBHelper,
   u_TileStorageBerkeleyDBHelper,
-  u_TileStorageBerkeleyDBConfigStatic,
   u_EnumTileInfoByBerkeleyDB;
 
 const
@@ -174,9 +173,12 @@ const
 { TTileStorageBerkeleyDB }
 
 constructor TTileStorageBerkeleyDB.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
+  const AStorageForceAbilities: ITileStorageAbilities;
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
+  const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
   const AIsVersioned: Boolean;
   const AGCNotifier: INotifierTime;
   const ATileInfoMemCache: ITileInfoBasicMemCache;
@@ -187,15 +189,15 @@ constructor TTileStorageBerkeleyDB.Create(
 begin
   Assert(AGlobalBerkeleyDBHelper <> nil);
 
-  FStorageConfig := TTileStorageBerkeleyDBConfigStatic.Create(AStoragePath);    // ToDo: get StorageConfig as param
-
   inherited Create(
-    TTileStorageTypeAbilitiesBerkeleyDB.Create(FStorageConfig.IsReadOnly),
+    AStorageTypeAbilities,
+    AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
     AStoragePath
   );
-
+  FStorageConfig := AStorageConfig;
+  FIsReadOnly := AStorageForceAbilities.IsReadOnly;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
@@ -306,16 +308,6 @@ begin
   if VDoSyncCall then begin
     Self.OnSyncCall;
   end;
-end;
-
-function TTileStorageBerkeleyDB.GetIsFileCache: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageBerkeleyDB.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
-  Result := FVersioned;
 end;
 
 function TTileStorageBerkeleyDB.GetStorageFileExtention(const AIsForTneStore: Boolean = False): string;
@@ -978,16 +970,6 @@ begin
   end;
 end;
 
-function TTileStorageBerkeleyDB.AllowListOfTileVersions: Boolean;
-begin
-  Result := FVersioned;
-end;
-
-function TTileStorageBerkeleyDB.AllowShowPrevVersion: Boolean;
-begin
-  Result := FVersioned;
-end;
-
 procedure TTileStorageBerkeleyDB.ClearMemCache;
 begin
   if Assigned(FTileInfoMemCache) then begin
@@ -1011,6 +993,7 @@ begin
         FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
           FGlobalBerkeleyDBHelper,
           MapVersionFactory,
+          FIsReadOnly,
           FStorageConfig,
           StoragePath,
           FVersioned,

@@ -34,6 +34,7 @@ uses
   i_MapVersionRequest,
   i_ContentTypeInfo,
   i_TileInfoBasic,
+  i_TileStorageAbilities,
   i_TileStorage,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
@@ -57,10 +58,6 @@ type
       AIsLoadIfExists: Boolean
     ): ITileInfoBasic;
   protected
-    function GetIsFileCache: Boolean; override;
-    function GetIsCanSaveMultiVersionTiles: Boolean; override;
-    function AllowListOfTileVersions: Boolean; override;
-    function AllowShowPrevVersion: Boolean; override;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -105,6 +102,8 @@ type
     ): IEnumTileInfo; override;
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
+      const AStorageForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AStoragePath: string;
       const AMainContentType: IContentTypeInfoBasic;
@@ -125,7 +124,6 @@ uses
   i_StorageState,
   u_TileRectInfoShort,
   u_BinaryDataByMemStream,
-  u_TileStorageTypeAbilities,
   u_TileIteratorByRect,
   u_FileNameIteratorFolderWithSubfolders,
   u_FoldersIteratorRecursiveByLevels,
@@ -140,6 +138,8 @@ const
 { TTileStorageFileSystem }
 
 constructor TTileStorageFileSystem.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
+  const AStorageForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AStoragePath: string;
   const AMainContentType: IContentTypeInfoBasic;
@@ -154,7 +154,8 @@ begin
   Assert(ATileNameGenerator <> nil);
   Assert(ATileNameParser <> nil);
   inherited Create(
-    TTileStorageTypeAbilitiesFileFolder.Create,
+    AStorageTypeAbilities,
+    AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
     AStoragePath
@@ -212,26 +213,6 @@ begin
       NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     end;
   end;
-end;
-
-function TTileStorageFileSystem.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageFileSystem.AllowListOfTileVersions: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageFileSystem.AllowShowPrevVersion: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageFileSystem.GetIsFileCache: Boolean;
-begin
-  Result := True;
 end;
 
 function TTileStorageFileSystem.GetTileFileName(

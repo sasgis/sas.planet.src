@@ -8,6 +8,7 @@ uses
   i_ContentTypeManager,
   i_NotifierTime,
   i_MapVersionFactory,
+  i_ConfigDataProvider,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileStorageTypeConfig,
@@ -21,6 +22,7 @@ type
     FContentTypeManager: IContentTypeManager;
   protected
     function BuildStorageInternal(
+      const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
@@ -39,7 +41,8 @@ type
 implementation
 
 uses
-  u_TileStorageTypeAbilities,
+  SysUtils,
+  u_TileStorageAbilities,
   u_TileStorageDBMS;
 
 { TTileStorageTypeDBMS }
@@ -50,9 +53,17 @@ constructor TTileStorageTypeDBMS.Create(
   const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
+var
+  VAbilities: ITileStorageTypeAbilities;
 begin
+  VAbilities :=
+    TTileStorageTypeAbilities.Create(
+      TTileStorageAbilities.Create(False, True, True, True),
+      True,
+      False
+    );
   inherited Create(
-    TTileStorageTypeAbilitiesDBMS.Create,
+    VAbilities,
     AMapVersionFactory,
     AConfig
   );
@@ -61,6 +72,7 @@ begin
 end;
 
 function TTileStorageTypeDBMS.BuildStorageInternal(
+  const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
@@ -70,9 +82,11 @@ function TTileStorageTypeDBMS.BuildStorageInternal(
 begin
   Result :=
     TTileStorageDBMS.Create(
+      GetAbilities,
+      AForceAbilities,
       AGeoConverter,
       GetConfig.BasePath.Path,
-      APath,
+      ExcludeTrailingPathDelimiter(APath),
       FGCNotifier,
       ACacheTileInfo,
       FContentTypeManager,

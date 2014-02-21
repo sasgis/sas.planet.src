@@ -27,6 +27,7 @@ uses
   i_ContentTypeInfo,
   i_TileInfoBasicMemCache,
   i_MapVersionFactory,
+  i_ConfigDataProvider,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileStorageTypeConfig,
@@ -36,6 +37,7 @@ type
   TTileStorageTypeInRAM = class(TTileStorageTypeBase)
   protected
     function BuildStorageInternal(
+      const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
@@ -52,7 +54,7 @@ type
 implementation
 
 uses
-  u_TileStorageTypeAbilities,
+  u_TileStorageAbilities,
   u_TileStorageInRAM;
 
 { TTileStorageTypeInRAM }
@@ -61,15 +63,24 @@ constructor TTileStorageTypeInRAM.Create(
   const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
+var
+  VAbilities: ITileStorageTypeAbilities;
 begin
+  VAbilities :=
+    TTileStorageTypeAbilities.Create(
+      TTileStorageAbilities.Create(False, True, True, True),
+      False,
+      False
+    );
   inherited Create(
-    TTileStorageTypeAbilitiesFileFolder.Create,
+    VAbilities,
     AMapVersionFactory,
     AConfig
   );
 end;
 
 function TTileStorageTypeInRAM.BuildStorageInternal(
+  const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
@@ -79,6 +90,8 @@ function TTileStorageTypeInRAM.BuildStorageInternal(
 begin
   Result :=
     TTileStorageInRAM.Create(
+      GetAbilities,
+      AForceAbilities,
       ACacheTileInfo,
       AGeoConverter,
       GetMapVersionFactory,

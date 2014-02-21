@@ -16,6 +16,7 @@ uses
   i_GeometryProjectedFactory,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
+  i_TileStorageTypeList,
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
@@ -32,6 +33,7 @@ type
     FTileNameGenerator: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
     FContentTypeManager: IContentTypeManager;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -47,6 +49,7 @@ type
       const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AFileNameParsersList: ITileFileNameParsersList;
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
@@ -61,14 +64,11 @@ uses
   Types,
   Classes,
   SysUtils,
-  c_CacheTypeCodes, // for cache types
   i_MapTypes,
   i_MapTypeListStatic,
+  i_TileStorageTypeListItem,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
-  u_TileStorageDBMS,
-  u_TileStorageBerkeleyDB,
-  u_TileStorageFileSystem,
   u_ThreadCopyFromStorageToStorage,
   u_ResStrings;
 
@@ -86,6 +86,7 @@ constructor TProviderTilesCopy.Create(
   const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AFileNameParsersList: ITileFileNameParsersList;
   const ATileNameGenerator: ITileFileNameGeneratorsList
 );
@@ -103,6 +104,7 @@ begin
   FContentTypeManager := AContentTypeManager;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
+  FTileStorageTypeList := ATileStorageTypeList;
   FFileNameParsersList := AFileNameParsersList;
   FTileNameGenerator := ATileNameGenerator;
 end;
@@ -144,6 +146,7 @@ var
   i: Integer;
   VTargetStoragePath: string;
   VMapType: IMapType;
+  VStorageType: ITileStorageTypeListItem;
 begin
   VZoomArr := (ParamsFrame as IRegionProcessParamsFrameZoomArray).ZoomArray;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
@@ -173,40 +176,15 @@ begin
     if VPlaceInSubFolder then begin
       VTargetStoragePath := IncludeTrailingPathDelimiter(VPath + VMapType.GetShortFolderName);
     end;
-    if VCacheType = c_File_Cache_Id_DBMS then begin
+    VStorageType := FTileStorageTypeList.GetItemByCode(VCacheType);
+    if Assigned(VStorageType) then begin
       VTasks[i].FTarget :=
-        TTileStorageDBMS.Create(
-          VTasks[i].FSource.CoordConverter,
-          '',
-          VTargetStoragePath,
+        VStorageType.StorageType.BuildStorage(
           nil,
-          nil,
-          FContentTypeManager,
-          VMapType.VersionRequestConfig.VersionFactory.GetStatic,
-          VMapType.ContentType
-        );
-    end else if VCacheType in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
-      VTasks[i].FTarget :=
-        TTileStorageBerkeleyDB.Create(
-          FGlobalBerkeleyDBHelper,
           VTasks[i].FSource.CoordConverter,
-          VTargetStoragePath,
-          (VCacheType = c_File_Cache_Id_BDB_Versioned),
-          FTimerNoifier,
-          nil, // MemCache - not needed here
-          FContentTypeManager,
-          VMapType.VersionRequestConfig.VersionFactory.GetStatic,
-          VMapType.ContentType
-        );
-    end else begin
-      VTasks[i].FTarget :=
-        TTileStorageFileSystem.Create(
-          VTasks[i].FSource.CoordConverter,
-          VTargetStoragePath,
           VMapType.ContentType,
-          VMapType.VersionRequestConfig.VersionFactory.GetStatic,
-          FTileNameGenerator.GetGenerator(VCacheType),
-          FFileNameParsersList.GetParser(VCacheType)
+          VTargetStoragePath,
+          nil
         );
     end;
     if VSetTargetVersionEnabled then begin

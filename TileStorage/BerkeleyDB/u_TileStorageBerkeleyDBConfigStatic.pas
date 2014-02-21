@@ -29,9 +29,6 @@ uses
 type
   TTileStorageBerkeleyDBConfigStatic = class(TBaseInterfacedObject, ITileStorageBerkeleyDBConfigStatic)
   private
-    FStoragePath: string;
-    FConfigFileName: string;
-    FIsReadOnly: Boolean;
     FSyncInterval: Cardinal;
     FCommitsCountToSync: Cardinal;
     FPoolSize: Cardinal;
@@ -40,10 +37,7 @@ type
     FOnDeadLockRetryCount: Integer;
     FIsFullVerboseMode: Boolean;
   private
-    procedure DoReadConfig;
-  private
     { ITileStorageBerkeleyDBConfigStatic }
-    function GetIsReadOnly: Boolean;
     function GetSyncInterval: Cardinal;
     function GetCommitsCountToSync: Cardinal;
     function GetPoolSize: Cardinal;
@@ -52,41 +46,39 @@ type
     function GetOnDeadLockRetryCount: Integer;
     function GetIsFullVerboseMode: Boolean;
   public
-    constructor Create(const AStoragePath: string);
+    constructor Create(
+      const ASyncInterval: Cardinal;
+      const ACommitsCountToSync: Cardinal;
+      const APoolSize: Cardinal;
+      const APoolObjectTTL: Cardinal;
+      const ADatabasePageSize: Cardinal;
+      const AOnDeadLockRetryCount: Integer;
+      const AIsFullVerboseMode: Boolean
+    );
   end;
 
 implementation
 
-uses
-  SysUtils,
-  IniFiles;
-
-const
-  cBerkeleyDBStorageConfFileName = 'StorageConfig.ini';
-
 { TTileStorageBerkeleyDBConfigStatic }
 
-constructor TTileStorageBerkeleyDBConfigStatic.Create(const AStoragePath: string);
+constructor TTileStorageBerkeleyDBConfigStatic.Create(
+  const ASyncInterval: Cardinal;
+  const ACommitsCountToSync: Cardinal;
+  const APoolSize: Cardinal;
+  const APoolObjectTTL: Cardinal;
+  const ADatabasePageSize: Cardinal;
+  const AOnDeadLockRetryCount: Integer;
+  const AIsFullVerboseMode: Boolean
+);
 begin
   inherited Create;
-  FStoragePath := IncludeTrailingPathDelimiter(AStoragePath);
-  FConfigFileName := FStoragePath + cBerkeleyDBStorageConfFileName;
-
-  FIsReadOnly := False;
-  FSyncInterval := 300000;
-  FCommitsCountToSync := 1000;
-  FPoolSize := 32;
-  FPoolObjectTTL := 60000;
-  FDatabasePageSize := 1024;
-  FOnDeadLockRetryCount := 3;
-  FIsFullVerboseMode := False;
-
-  DoReadConfig;
-end;
-
-function TTileStorageBerkeleyDBConfigStatic.GetIsReadOnly: Boolean;
-begin
-  Result := FIsReadOnly;
+  FSyncInterval := ASyncInterval;
+  FCommitsCountToSync := ACommitsCountToSync;
+  FPoolSize := APoolSize;
+  FPoolObjectTTL := APoolObjectTTL;
+  FDatabasePageSize := ADatabasePageSize;
+  FOnDeadLockRetryCount := AOnDeadLockRetryCount;
+  FIsFullVerboseMode := AIsFullVerboseMode;
 end;
 
 function TTileStorageBerkeleyDBConfigStatic.GetSyncInterval: Cardinal;
@@ -122,27 +114,6 @@ end;
 function TTileStorageBerkeleyDBConfigStatic.GetIsFullVerboseMode: Boolean;
 begin
   Result := FIsFullVerboseMode;
-end;
-
-procedure TTileStorageBerkeleyDBConfigStatic.DoReadConfig;
-var
-  VIni: TIniFile;
-begin
-  if FileExists(FConfigFileName) then begin
-    VIni := TIniFile.Create(FConfigFileName);
-    try
-      FIsReadOnly := VIni.ReadBool('BerkeleyDB', 'IsReadOnly', FIsReadOnly); 
-      FSyncInterval := VIni.ReadInteger('BerkeleyDB', 'SyncInterval', FSyncInterval);
-      FCommitsCountToSync := VIni.ReadInteger('BerkeleyDB', 'CommitsCountToSync', FCommitsCountToSync);
-      FPoolSize := VIni.ReadInteger('BerkeleyDB', 'PoolSize', FPoolSize);
-      FPoolObjectTTL := VIni.ReadInteger('BerkeleyDB', 'PoolObjectTTL', FPoolObjectTTL);
-      FDatabasePageSize := VIni.ReadInteger('BerkeleyDB', 'DatabasePageSize', FDatabasePageSize);
-      FOnDeadLockRetryCount := VIni.ReadInteger('BerkeleyDB', 'OnDeadLockRetryCount', FOnDeadLockRetryCount);
-      FIsFullVerboseMode := VIni.ReadBool('BerkeleyDB', 'IsFullVerboseMode', FIsFullVerboseMode);
-    finally
-      VIni.Free;
-    end;
-  end;
 end;
 
 end.

@@ -33,6 +33,7 @@ uses
   i_TileInfoBasic,
   i_BasicMemCache,
   i_CoordConverter,
+  i_TileStorageAbilities,
   i_TileStorage,
   i_TileInfoBasicMemCache,
   u_TileStorageAbstract;
@@ -44,11 +45,6 @@ type
     FTileNotExistsTileInfo: ITileInfoBasic;
     FTileInfoMemCache: ITileInfoBasicMemCache;
   protected
-    function GetIsFileCache: Boolean; override;
-    function GetIsCanSaveMultiVersionTiles: Boolean; override;
-    function AllowListOfTileVersions: Boolean; override;
-    function AllowShowPrevVersion: Boolean; override;
-
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -96,6 +92,8 @@ type
     procedure IBasicMemCache.Clear = ClearMemCache;
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
+      const AStorageForceAbilities: ITileStorageAbilities;
       const ATileInfoMemCache: ITileInfoBasicMemCache;
       const AGeoConverter: ICoordConverter;
       const AMapVersionFactory: IMapVersionFactory;
@@ -108,10 +106,9 @@ implementation
 
 uses
   t_CommonTypes,
-  i_TileIterator,   
+  i_TileIterator,
   u_TileRectInfoShort,
   u_TileIteratorByRect,
-  u_TileStorageTypeAbilities,
   u_TileInfoBasic;
 
 type
@@ -124,6 +121,8 @@ resourcestring
 { TTileStorageInRAM }
 
 constructor TTileStorageInRAM.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
+  const AStorageForceAbilities: ITileStorageAbilities;
   const ATileInfoMemCache: ITileInfoBasicMemCache;
   const AGeoConverter: ICoordConverter;
   const AMapVersionFactory: IMapVersionFactory;
@@ -135,7 +134,8 @@ begin
   end;
 
   inherited Create(
-    TTileStorageTypeAbilitiesRAM.Create,
+    AStorageTypeAbilities,
+    AStorageForceAbilities,
     AMapVersionFactory,
     AGeoConverter,
     ''
@@ -152,16 +152,6 @@ begin
   FMainContentType := nil;
   FTileNotExistsTileInfo := nil;
   inherited;
-end;
-
-function TTileStorageInRAM.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageInRAM.GetIsFileCache: Boolean;
-begin
-  Result := False;
 end;
 
 function TTileStorageInRAM.GetTileFileName(
@@ -327,16 +317,6 @@ begin
     );
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
   end;
-end;
-
-function TTileStorageInRAM.AllowListOfTileVersions: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageInRAM.AllowShowPrevVersion: Boolean;
-begin
-  Result := False;
 end;
 
 procedure TTileStorageInRAM.ClearMemCache;

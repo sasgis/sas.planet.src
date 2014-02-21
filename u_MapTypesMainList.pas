@@ -41,8 +41,6 @@ uses
   i_GlobalDownloadConfig,
   i_ContentTypeManager,
   i_InvisibleBrowser,
-  i_TileFileNameGeneratorsList,
-  i_TileFileNameParsersList,
   i_ProjConverter,
   i_MapVersionFactoryList,
   i_MainMemCacheConfig,
@@ -51,10 +49,9 @@ uses
   i_MapTypeSet,
   i_MapTypeSetBuilder,
   i_MapTypeSetChangeable,
-  i_GlobalBerkeleyDBHelper,
-  u_MapTypeSetChangeableSimple,
+  i_TileStorageTypeList,
   i_GlobalCacheConfig,
-  u_MapType;
+  u_MapTypeSetChangeableSimple;
 
 type
   EMapTypesNoMaps = class(Exception);
@@ -100,9 +97,7 @@ type
       const AMapVersionFactoryList: IMapVersionFactoryList;
       const AMainMemCacheConfig: IMainMemCacheConfig;
       const AGlobalCacheConfig: IGlobalCacheConfig;
-      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-      const ATileNameGeneratorList: ITileFileNameGeneratorsList;
-      const ATileNameParserList: ITileFileNameParsersList;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AHashFunction: IHashFunction;
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
@@ -135,6 +130,7 @@ uses
   i_GUIDListStatic,
   i_ZmpInfo,
   u_MapTypeGUIConfigList,
+  u_MapType,
   u_ResStrings;
 
 { TMapTypesMainList }
@@ -214,9 +210,7 @@ procedure TMapTypesMainList.LoadMaps(
   const AMapVersionFactoryList: IMapVersionFactoryList;
   const AMainMemCacheConfig: IMainMemCacheConfig;
   const AGlobalCacheConfig: IGlobalCacheConfig;
-  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-  const ATileNameGeneratorList: ITileFileNameGeneratorsList;
-  const ATileNameParserList: ITileFileNameParsersList;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AHashFunction: IHashFunction;
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
@@ -278,9 +272,7 @@ begin
           AMapVersionFactoryList,
           AMainMemCacheConfig,
           AGlobalCacheConfig,
-          AGlobalBerkeleyDBHelper,
-          ATileNameGeneratorList,
-          ATileNameParserList,
+          ATileStorageTypeList,
           AGCNotifier,
           AAppClosingNotifier,
           AInetConfig,

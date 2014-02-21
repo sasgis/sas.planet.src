@@ -26,6 +26,7 @@ uses
   Windows,
   i_LanguageManager,
   i_MapTypes,
+  i_TileStorageTypeList,
   i_MapTypeConfigModalEdit,
   u_BaseInterfacedObject,
   frm_MapTypeEdit;
@@ -34,13 +35,15 @@ type
   TMapTypeConfigModalEditByForm = class(TBaseInterfacedObject, IMapTypeConfigModalEdit)
   private
     FLanguageManager: ILanguageManager;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
     FEditCounter: Longint;
     FfrmMapTypeEdit: TfrmMapTypeEdit;
   private
     function EditMap(const AMapType: IMapType): Boolean;
   public
     constructor Create(
-      const ALanguageManager: ILanguageManager
+      const ALanguageManager: ILanguageManager;
+      const ATileStorageTypeList: ITileStorageTypeListStatic
     );
     destructor Destroy; override;
   end;
@@ -53,11 +56,13 @@ uses
 { TMapTypeConfigModalEditByForm }
 
 constructor TMapTypeConfigModalEditByForm.Create(
-  const ALanguageManager: ILanguageManager
+  const ALanguageManager: ILanguageManager;
+  const ATileStorageTypeList: ITileStorageTypeListStatic
 );
 begin
   inherited Create;
   FLanguageManager := ALanguageManager;
+  FTileStorageTypeList := ATileStorageTypeList;
   FEditCounter := 0;
 end;
 
@@ -79,7 +84,11 @@ begin
   try
     if VCounter = 1 then begin
       if FfrmMapTypeEdit = nil then begin
-        FfrmMapTypeEdit := TfrmMapTypeEdit.Create(FLanguageManager);
+        FfrmMapTypeEdit :=
+          TfrmMapTypeEdit.Create(
+            FLanguageManager,
+            FTileStorageTypeList
+          );
       end;
       Result := FfrmMapTypeEdit.EditMapModadl(AMapType);
     end else begin

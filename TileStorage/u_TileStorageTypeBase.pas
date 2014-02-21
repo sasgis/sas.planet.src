@@ -26,6 +26,7 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_TileStorageAbilities,
+  i_ConfigDataProvider,
   i_MapVersionFactory,
   i_TileInfoBasicMemCache,
   i_TileStorageTypeConfig,
@@ -36,11 +37,12 @@ uses
 type
   TTileStorageTypeBase = class(TBaseInterfacedObject, ITileStorageType)
   private
-    FAbilities: ITileStorageAbilities;
+    FAbilities: ITileStorageTypeAbilities;
     FMapVersionFactory: IMapVersionFactory;
     FConfig: ITileStorageTypeConfig;
   protected
     function BuildStorageInternal(
+      const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
@@ -48,7 +50,7 @@ type
       const ACacheTileInfo: ITileInfoBasicMemCache
     ): ITileStorage; virtual; abstract;
   protected
-    function GetAbilities: ITileStorageAbilities;
+    function GetAbilities: ITileStorageTypeAbilities;
     function GetConfig: ITileStorageTypeConfig;
     function GetMapVersionFactory: IMapVersionFactory;
     function BuildStorage(
@@ -60,7 +62,7 @@ type
     ): ITileStorage;
   public
     constructor Create(
-      const AAbilities: ITileStorageAbilities;
+      const AAbilities: ITileStorageTypeAbilities;
       const AMapVersionFactory: IMapVersionFactory;
       const AConfig: ITileStorageTypeConfig
     );
@@ -69,7 +71,13 @@ type
 implementation
 
 uses
+  SysUtils,
+  IniFiles,
+  u_ConfigDataProviderByIniFile,
   u_TileStorageAbilities;
+
+const
+  CStorageConfFileName = 'StorageConfig.ini';
 
 { TTileStorageTypeBase }
 
@@ -82,17 +90,36 @@ function TTileStorageTypeBase.BuildStorage(
 ): ITileStorage;
 var
   VAbilities: ITileStorageAbilities;
+  VConfigFileName: string;
+  VConfigData: IConfigDataProvider;
+  VIniFile: TMemIniFile;
 begin
-  VAbilities :=
-    TTileStorageAbilities.Create(
-      FAbilities.IsReadOnly or AForceAbilities.IsReadOnly,
-      FAbilities.AllowAdd and AForceAbilities.AllowAdd,
-      FAbilities.AllowDelete and AForceAbilities.AllowDelete,
-      FAbilities.AllowReplace and AForceAbilities.AllowReplace
-    );
+  if Assigned(AForceAbilities) then begin
+    VAbilities :=
+      TTileStorageAbilities.Create(
+        FAbilities.BaseStorageAbilities.IsReadOnly or AForceAbilities.IsReadOnly,
+        FAbilities.BaseStorageAbilities.AllowAdd and AForceAbilities.AllowAdd,
+        FAbilities.BaseStorageAbilities.AllowDelete and AForceAbilities.AllowDelete,
+        FAbilities.BaseStorageAbilities.AllowReplace and AForceAbilities.AllowReplace
+      );
+  end else begin
+    VAbilities := FAbilities.BaseStorageAbilities;
+  end;
+  VConfigFileName := APath + CStorageConfFileName;
+  VConfigData := nil;
+  if FileExists(VConfigFileName) then begin
+    VIniFile := TMemIniFile.Create(VConfigFileName);
+    try
+      VConfigData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
+      VIniFile :=  nil;
+    finally
+      VIniFile.Free;
+    end;
+  end;
 
   Result :=
     BuildStorageInternal(
+      VConfigData,
       VAbilities,
       AGeoConverter,
       AMainContentType,
@@ -102,7 +129,7 @@ begin
 end;
 
 constructor TTileStorageTypeBase.Create(
-  const AAbilities: ITileStorageAbilities;
+  const AAbilities: ITileStorageTypeAbilities;
   const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
@@ -118,7 +145,7 @@ begin
   Result := FConfig;
 end;
 
-function TTileStorageTypeBase.GetAbilities: ITileStorageAbilities;
+function TTileStorageTypeBase.GetAbilities: ITileStorageTypeAbilities;
 begin
   Result := FAbilities;
 end;

@@ -30,6 +30,7 @@ type
   IGlobalBerkeleyDBHelper = interface
     ['{01EDEF03-9DCE-42A9-AB26-40A6C1C7104D}']
     function AllocateEnvironment(
+      const AIsReadOnly: Boolean;
       const AStorageConfig: ITileStorageBerkeleyDBConfigStatic;
       const AStorageEPSG: Integer;
       const AEnvRootPath: string

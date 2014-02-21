@@ -6,6 +6,7 @@ uses
   i_CoordConverter,
   i_ContentTypeInfo,
   i_MapVersionFactory,
+  i_ConfigDataProvider,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileInfoBasicMemCache,
@@ -18,6 +19,7 @@ type
     FIsTerrainStorage: Boolean;
   protected
     function BuildStorageInternal(
+      const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
@@ -37,7 +39,7 @@ implementation
 uses
   SysUtils,
   c_CoordConverter,
-  u_TileStorageTypeAbilities,
+  u_TileStorageAbilities,
   u_TileStorageGoogleEarth;
 
 { TTileStorageTypeGoogleEarth }
@@ -47,9 +49,17 @@ constructor TTileStorageTypeGoogleEarth.Create(
   const AIsTerrainStorage: Boolean;
   const AConfig: ITileStorageTypeConfig
 );
+var
+  VAbilities: ITileStorageTypeAbilities;
 begin
+  VAbilities :=
+    TTileStorageTypeAbilities.Create(
+      TTileStorageAbilities.Create(True, False, False, False),
+      True,
+      False
+    );
   inherited Create(
-    TTileStorageTypeAbilitiesGE.Create,
+    VAbilities,
     AMapVersionFactory,
     AConfig
   );
@@ -57,6 +67,7 @@ begin
 end;
 
 function TTileStorageTypeGoogleEarth.BuildStorageInternal(
+  const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
@@ -86,6 +97,8 @@ begin
 
     Result :=
       TTileStorageGoogleEarth.Create(
+        GetAbilities,
+        AForceAbilities,
         AGeoConverter,
         GetConfig.BasePath.FullPath,
         VNameInCache,

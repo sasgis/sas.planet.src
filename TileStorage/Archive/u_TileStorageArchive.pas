@@ -38,6 +38,7 @@ uses
   i_ContentTypeManager,
   i_TileFileNameParser,
   i_TileFileNameGenerator,
+  i_TileStorageAbilities,
   i_NotifierTilePyramidUpdate,
   u_BaseInterfacedObject;
 
@@ -58,13 +59,10 @@ type
     function GetArchiveWriter: IArchiveWriter; virtual;
   protected
     { ITileStorage }
+    function GetStorageTypeAbilities: ITileStorageTypeAbilities;
     function GetTileNotifier: INotifierTilePyramidUpdate;
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
-    function GetIsFileCache: Boolean;
-    function GetIsCanSaveMultiVersionTiles: Boolean;
-    function AllowListOfTileVersions: Boolean;
-    function AllowShowPrevVersion: Boolean;
     function GetTileFileName(
       const AXY: TPoint;
       const AZoom: byte;
@@ -130,16 +128,6 @@ uses
 
 { TTileStorageArchive }
 
-function TTileStorageArchive.AllowListOfTileVersions: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageArchive.AllowShowPrevVersion: Boolean;
-begin
-  Result := False;
-end;
-
 constructor TTileStorageArchive.Create(
   const AArchiveFileName: string;
   const AContentType: IContentTypeInfoBasic;
@@ -177,19 +165,14 @@ begin
   Result := FState;
 end;
 
+function TTileStorageArchive.GetStorageTypeAbilities: ITileStorageTypeAbilities;
+begin
+  Result := nil;
+end;
+
 function TTileStorageArchive.GetCoordConverter: ICoordConverter;
 begin
   Result := FCoordConverter;
-end;
-
-function TTileStorageArchive.GetIsFileCache: Boolean;
-begin
-  Result := False;
-end;
-
-function TTileStorageArchive.GetIsCanSaveMultiVersionTiles: Boolean;
-begin
-  Result := False;
 end;
 
 function TTileStorageArchive.GetTileFileName(

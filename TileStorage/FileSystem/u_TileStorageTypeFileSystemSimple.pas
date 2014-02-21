@@ -8,6 +8,7 @@ uses
   i_TileFileNameGenerator,
   i_TileFileNameParser,
   i_MapVersionFactory,
+  i_ConfigDataProvider,
   i_TileStorage,
   i_TileStorageAbilities,
   i_TileInfoBasicMemCache,
@@ -21,6 +22,7 @@ type
     FTileNameParser: ITileFileNameParser;
   protected
     function BuildStorageInternal(
+      const AStorageConfigData: IConfigDataProvider;
       const AForceAbilities: ITileStorageAbilities;
       const AGeoConverter: ICoordConverter;
       const AMainContentType: IContentTypeInfoBasic;
@@ -39,7 +41,7 @@ type
 implementation
 
 uses
-  u_TileStorageTypeAbilities,
+  u_TileStorageAbilities,
   u_TileStorageFileSystem;
 
 { TTileStorageTypeFileSystemSimple }
@@ -50,9 +52,17 @@ constructor TTileStorageTypeFileSystemSimple.Create(
   const AMapVersionFactory: IMapVersionFactory;
   const AConfig: ITileStorageTypeConfig
 );
+var
+  VAbilities: ITileStorageTypeAbilities;
 begin
+  VAbilities :=
+    TTileStorageTypeAbilities.Create(
+      TTileStorageAbilities.Create(False, True, True, True),
+      False,
+      True
+    );
   inherited Create(
-    TTileStorageTypeAbilitiesFileFolder.Create,
+    VAbilities,
     AMapVersionFactory,
     AConfig
   );
@@ -61,6 +71,7 @@ begin
 end;
 
 function TTileStorageTypeFileSystemSimple.BuildStorageInternal(
+  const AStorageConfigData: IConfigDataProvider;
   const AForceAbilities: ITileStorageAbilities;
   const AGeoConverter: ICoordConverter;
   const AMainContentType: IContentTypeInfoBasic;
@@ -70,6 +81,8 @@ function TTileStorageTypeFileSystemSimple.BuildStorageInternal(
 begin
   Result :=
     TTileStorageFileSystem.Create(
+      GetAbilities,
+      AForceAbilities,
       AGeoConverter,
       APath,
       AMainContentType,

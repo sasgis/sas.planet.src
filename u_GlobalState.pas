@@ -92,6 +92,7 @@ uses
   i_MarkFactory,
   i_VectorItemTreeImporterList,
   i_VectorItemTreeExporterList,
+  i_TileStorageTypeList,
   i_BuildInfo,
   i_GlobalConfig,
   i_GlobalCacheConfig,
@@ -187,6 +188,7 @@ type
     FMarkCategoryFactory: IMarkCategoryFactory;
     FBuildInfo: IBuildInfo;
     FInternalBrowserContent: IInternalBrowserLastContent;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -261,6 +263,7 @@ type
     property MarkPictureList: IMarkPictureList read FMarkPictureList;
     property MapVersionFactoryList: IMapVersionFactoryList read FMapVersionFactoryList;
     property BuildInfo: IBuildInfo read FBuildInfo;
+    property TileStorageTypeList: ITileStorageTypeListStatic read FTileStorageTypeList;
 
     constructor Create;
     destructor Destroy; override;
@@ -374,6 +377,7 @@ uses
   u_VectorItemTreeImporterListSimple,
   u_BitmapPostProcessingChangeableByConfig,
   u_InternalBrowserLastContent,
+  u_TileStorageTypeListSimple,
   u_TileFileNameParsersSimpleList,
   u_TileFileNameGeneratorsSimpleList;
 
@@ -716,6 +720,14 @@ begin
       FGlobalConfig.LastSelectionInfo,
       FGlobalConfig.LastSelectionFileName
     );
+  FTileStorageTypeList :=
+    TTileStorageTypeListSimple.Create(
+      FMapVersionFactoryList,
+      FContentTypeManager,
+      FCacheConfig,
+      FGlobalBerkeleyDBHelper,
+      FBGTimerNotifier
+    );
 end;
 
 destructor TGlobalState.Destroy;
@@ -927,9 +939,7 @@ begin
     FMapVersionFactoryList,
     FGlobalConfig.MainMemCacheConfig,
     FCacheConfig,
-    FGlobalBerkeleyDBHelper,
-    FTileNameGenerator,
-    FTileNameParser,
+    FTileStorageTypeList,
     FHashFunction,
     FBGTimerNotifier,
     FAppClosingNotifier,

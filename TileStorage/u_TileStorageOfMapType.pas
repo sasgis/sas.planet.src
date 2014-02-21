@@ -7,7 +7,6 @@ uses
   SysUtils,
   i_SimpleTileStorageConfig,
   i_TileStorage,
-  i_NotifierTime,
   i_ContentTypeManager,
   i_InternalPerformanceCounter,
   i_NotifierTilePyramidUpdate,
@@ -16,7 +15,6 @@ uses
   i_ContentTypeInfo,
   i_Listener,
   i_MapVersionInfo,
-  i_MapVersionFactory,
   i_MapVersionRequest,
   i_MapVersionListStatic,
   i_TileInfoBasic,
@@ -24,10 +22,9 @@ uses
   i_PathConfig,
   i_StorageStateProxy,
   i_BinaryData,
-  i_TileFileNameGeneratorsList,
-  i_TileFileNameParsersList,
-  i_GlobalBerkeleyDBHelper,
   i_TileInfoBasicMemCache,
+  i_TileStorageAbilities,
+  i_TileStorageTypeList,
   i_GlobalCacheConfig,
   u_BaseInterfacedObject;
 
@@ -35,17 +32,14 @@ type
   TTileStorageOfMapType = class(TBaseInterfacedObject, ITileStorage)
   private
     FGlobalCacheConfig: IGlobalCacheConfig;
-    FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
     FConfig: ISimpleTileStorageConfig;
-    FVersionFactory: IMapVersionFactoryChangeableInternal;
-    FGCNotifier: INotifierTime;
     FContentTypeManager: IContentTypeManager;
-    FFileNameGeneratorsList: ITileFileNameGeneratorsList;
-    FFileNameParsersList: ITileFileNameParsersList;
     FCacheTileInfo: ITileInfoBasicMemCache;
     FActualPath: IPathConfig;
     FStorageState: IStorageStateChangeble;
     FStorageStateProxy: IStorageStateProxy;
+    FAbilitiesNoStorage: ITileStorageTypeAbilities;
 
     FStorageChangeCS: IReadWriteSync;
 
@@ -83,12 +77,9 @@ type
     );
   private
     function GetTileNotifier: INotifierTilePyramidUpdate;
+    function GetStorageTypeAbilities: ITileStorageTypeAbilities;
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
-    function GetIsFileCache: Boolean;
-    function GetIsCanSaveMultiVersionTiles: Boolean;
-    function AllowListOfTileVersions: Boolean;
-    function AllowShowPrevVersion: Boolean;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -142,14 +133,10 @@ type
   public
     constructor Create(
       const AGlobalCacheConfig: IGlobalCacheConfig;
-      const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
-      const AVersionFactory: IMapVersionFactoryChangeableInternal;
-      const AGCNotifier: INotifierTime;
       const AContentTypeManager: IContentTypeManager;
-      const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
-      const AFileNameParsersList: ITileFileNameParsersList;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -159,33 +146,22 @@ implementation
 
 uses
   c_CacheTypeCodes,
-  c_CoordConverter,
-  i_TileFileNameGenerator,
-  i_TileFileNameParser,
+  i_TileStorageTypeListItem,
   u_ListenerByEvent,
   u_PathConfig,
   u_StorageStateProxy,
+  u_TileStorageAbilities,
   u_SimpleFlagWithInterlock,
-  u_TileStorageBerkeleyDB,
-  u_TileStorageFileSystem,
-  u_TileStorageGE,
-  u_TileStorageGoogleEarth,
-  u_TileStorageDBMS,
-  u_TileStorageInRAM,
   u_Synchronizer;
 
 { TTileStorageOfMapType }
 
 constructor TTileStorageOfMapType.Create(
   const AGlobalCacheConfig: IGlobalCacheConfig;
-  const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
-  const AVersionFactory: IMapVersionFactoryChangeableInternal;
-  const AGCNotifier: INotifierTime;
   const AContentTypeManager: IContentTypeManager;
-  const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
-  const AFileNameParsersList: ITileFileNameParsersList;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -193,15 +169,12 @@ var
 begin
   inherited Create;
   FGlobalCacheConfig := AGlobalCacheConfig;
-  FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
+  FTileStorageTypeList := ATileStorageTypeList;
   FConfig := AConfig;
   FCacheTileInfo := ACacheTileInfo;
-  FVersionFactory := AVersionFactory;
-  FGCNotifier := AGCNotifier;
   FContentTypeManager := AContentTypeManager;
-  FFileNameGeneratorsList := AFileNameGeneratorsList;
-  FFileNameParsersList := AFileNameParsersList;
 
+  FAbilitiesNoStorage := TTileStorageTypeAbilitiesNoAccess.Create;
   FStorageCS := MakeSyncRW_Var(Self, False);
   FStorageChangeCS := MakeSyncRW_Sym(Self, False);
   VState := TStorageStateProxy.Create;
@@ -260,102 +233,25 @@ procedure TTileStorageOfMapType.BuildStorage(
 );
 var
   VMainContentType: IContentTypeInfoBasic;
-  VFileNameGenerator: ITileFileNameGenerator;
-  VFileNameParser: ITileFileNameParser;
   VCoordConverter: ICoordConverter;
+  VStroageType: ITileStorageTypeListItem;
 begin
   FStorage := nil;
   try
     FCurrentTypeCode := ATypeCode;
     FCurrentPath := APath;
     VCoordConverter := AConfig.CoordConverter;
-    if ATypeCode in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
-      VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
-      if VMainContentType <> nil then begin
+    VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
+    if VMainContentType <> nil then begin
+      VStroageType := FTileStorageTypeList.GetItemByCode(ATypeCode);
+      if VStroageType <> nil then begin
         FStorage :=
-          TTileStorageBerkeleyDB.Create(
-            FGlobalBerkeleyDBHelper,
+          VStroageType.StorageType.BuildStorage(
+            AConfig.Abilities,
             VCoordConverter,
-            FCurrentPath,
-            (ATypeCode = c_File_Cache_Id_BDB_Versioned),
-            FGCNotifier,
-            FCacheTileInfo,
-            FContentTypeManager,
-            FVersionFactory.GetStatic,
-            VMainContentType
-          );
-      end;
-    end else if ATypeCode = c_File_Cache_Id_DBMS then begin
-      VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
-      if VMainContentType <> nil then begin
-        FStorage :=
-          TTileStorageDBMS.Create(
-            VCoordConverter,
-            FGlobalCacheConfig.DBMSCachePath.Path,
-            FCurrentPath,
-            FGCNotifier,
-            FCacheTileInfo,
-            FContentTypeManager,
-            FVersionFactory.GetStatic,
-            VMainContentType
-          );
-      end;
-    end else if ATypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GEt] then begin
-      if
-        (VCoordConverter.GetProjectionEPSG = CGELonLatProjectionEPSG) and
-        (VCoordConverter.GetTileSplitCode = CTileSplitQuadrate256x256)
-      then begin
-        VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
-        if VMainContentType <> nil then begin
-          FStorage :=
-            TTileStorageGoogleEarth.Create(
-              VCoordConverter,
-              FGlobalCacheConfig.GECachePath.FullPath,
-              AConfig.NameInCache,
-              ATypeCode in [c_File_Cache_Id_GEt],
-              FCacheTileInfo,
-              FVersionFactory.GetStatic,
-              VMainContentType
-            );
-        end;
-      end;
-    end else if ATypeCode = c_File_Cache_Id_GC then begin
-      if
-        (VCoordConverter.GetProjectionEPSG = CGELonLatProjectionEPSG) and
-        (VCoordConverter.GetTileSplitCode = CTileSplitQuadrate256x256)
-      then begin
-        FStorage :=
-          TTileStorageGC.Create(
-            VCoordConverter,
-            FCurrentPath,
-            FVersionFactory.GetStatic,
-            FContentTypeManager
-          );
-      end;
-    end else if ATypeCode in [c_File_Cache_Id_GMV, c_File_Cache_Id_SAS, c_File_Cache_Id_ES, c_File_Cache_Id_GM, c_File_Cache_Id_GM_Aux, c_File_Cache_Id_GM_Bing] then begin
-      VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
-      VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(ATypeCode);
-      VFileNameParser := FFileNameParsersList.GetParser(ATypeCode);
-      if (VMainContentType <> nil) and (VFileNameGenerator <> nil) and (VFileNameParser <> nil) then begin
-        FStorage :=
-          TTileStorageFileSystem.Create(
-            VCoordConverter,
-            FCurrentPath,
             VMainContentType,
-            FVersionFactory.GetStatic,
-            VFileNameGenerator,
-            VFileNameParser
-          );
-      end;
-    end else if ATypeCode = c_File_Cache_Id_RAM then begin
-      VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
-      if VMainContentType <> nil then begin
-        FStorage :=
-          TTileStorageInRAM.Create(
-            FCacheTileInfo,
-            VCoordConverter,
-            FVersionFactory.GetStatic,
-            VMainContentType
+            FCurrentPath,
+            FCacheTileInfo
           );
       end;
     end;
@@ -382,11 +278,7 @@ begin
     if VTypeCode = c_File_Cache_Id_DEFAULT then begin
       VTypeCode := FGlobalCacheConfig.DefCache;
     end;
-    // for DBMS use only defined Path
-    if (c_File_Cache_Id_DBMS=VTypeCode) then
-      VPath := FActualPath.Path
-    else
-      VPath := IncludeTrailingPathDelimiter(FActualPath.FullPath);
+    VPath := IncludeTrailingPathDelimiter(FActualPath.FullPath);
     // build
     if (FCurrentTypeCode <> VTypeCode) or (FCurrentPath <> VPath) then begin
       BuildStorage(VConfig, VTypeCode, VPath);
@@ -403,6 +295,18 @@ begin
     Result := FStorage;
   finally
     FStorageCS.EndRead;
+  end;
+end;
+
+function TTileStorageOfMapType.GetStorageTypeAbilities: ITileStorageTypeAbilities;
+var
+  VStorage: ITileStorage;
+begin
+  VStorage := GetStorage;
+  if VStorage <> nil then begin
+    Result := VStorage.StorageTypeAbilities;
+  end else begin
+    Result := FAbilitiesNoStorage;
   end;
 end;
 
@@ -450,6 +354,7 @@ var
   VConfig: ISimpleTileStorageConfigStatic;
   VTypeCode: Byte;
   VBasePath: IPathConfig;
+  VStorageType: ITileStorageTypeListItem;
 begin
   VConfig := FConfig.GetStatic;
   VTypeCode := VConfig.CacheTypeCode;
@@ -457,40 +362,9 @@ begin
     VTypeCode := FGlobalCacheConfig.DefCache;
   end;
   VBasePath := nil;
-  case VTypeCode of
-    c_File_Cache_Id_GMV: begin
-      VBasePath := FGlobalCacheConfig.OldCPath;
-    end;
-    c_File_Cache_Id_SAS: begin
-      VBasePath := FGlobalCacheConfig.NewCPath;
-    end;
-    c_File_Cache_Id_ES: begin
-      VBasePath := FGlobalCacheConfig.ESCPath;
-    end;
-    c_File_Cache_Id_GM: begin
-      VBasePath := FGlobalCacheConfig.GMTilesPath;
-    end;
-    c_File_Cache_Id_GM_Aux: begin
-      VBasePath := FGlobalCacheConfig.GMTilesPath;
-    end;
-    c_File_Cache_Id_GM_Bing: begin
-      VBasePath := FGlobalCacheConfig.GMTilesPath;
-    end;
-    c_File_Cache_Id_GE, c_File_Cache_Id_GEt: begin
-      VBasePath := FGlobalCacheConfig.GECachePath;
-    end;
-    c_File_Cache_Id_BDB: begin
-      VBasePath := FGlobalCacheConfig.BDBCachePath;
-    end;
-    c_File_Cache_Id_BDB_Versioned: begin
-      VBasePath := FGlobalCacheConfig.BDBVerCachePath;
-    end;
-    c_File_Cache_Id_DBMS: begin
-      VBasePath := FGlobalCacheConfig.DBMSCachePath;
-    end;
-    c_File_Cache_Id_GC: begin
-      VBasePath := FGlobalCacheConfig.GCCachePath;
-    end;
+  VStorageType := FTileStorageTypeList.GetItemByCode(VTypeCode);
+  if Assigned(VStorageType) then begin
+    VBasePath := VStorageType.StorageType.Config.BasePath;
   end;
   FActualPath.LockWrite;
   try
@@ -542,50 +416,6 @@ end;
 function TTileStorageOfMapType.GetCoordConverter: ICoordConverter;
 begin
   Result := FConfig.CoordConverter;
-end;
-
-function TTileStorageOfMapType.GetIsFileCache: Boolean;
-var
-  VStorage: ITileStorage;
-begin
-  Result := False;
-  VStorage := GetStorage;
-  if VStorage <> nil then begin
-    Result := VStorage.IsFileCache;
-  end;
-end;
-
-function TTileStorageOfMapType.GetIsCanSaveMultiVersionTiles: Boolean;
-var
-  VStorage: ITileStorage;
-begin
-  Result := False;
-  VStorage := GetStorage;
-  if VStorage <> nil then begin
-    Result := VStorage.GetIsCanSaveMultiVersionTiles;
-  end;
-end;
-
-function TTileStorageOfMapType.AllowListOfTileVersions: Boolean;
-var
-  VStorage: ITileStorage;
-begin
-  Result := False;
-  VStorage := GetStorage;
-  if VStorage <> nil then begin
-    Result := VStorage.AllowListOfTileVersions;
-  end;
-end;
-
-function TTileStorageOfMapType.AllowShowPrevVersion: Boolean;
-var
-  VStorage: ITileStorage;
-begin
-  Result := False;
-  VStorage := GetStorage;
-  if VStorage <> nil then begin
-    Result := VStorage.AllowShowPrevVersion;
-  end;
 end;
 
 function TTileStorageOfMapType.GetListOfTileVersions(

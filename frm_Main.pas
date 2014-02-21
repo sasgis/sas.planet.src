@@ -934,6 +934,7 @@ begin
       GState.MapType.GUIConfigList,
       GState.ContentTypeManager,
       GState.CoordConverterFactory,
+      GState.TileStorageTypeList,
       GState.TileNameGenerator,
       GState.TileNameParser,
       GState.Config.ViewConfig,
@@ -982,6 +983,7 @@ begin
       GState.GlobalBerkeleyDBHelper,
       GState.ContentTypeManager,
       GState.CoordConverterFactory,
+      GState.TileStorageTypeList,
       GState.TileNameGenerator,
       GState.TileNameParser,
       GState.Config.ValueToStringConverterConfig
@@ -1006,7 +1008,11 @@ begin
     GState.TerrainProviderList
   );
 
-  FMapTypeEditor := TMapTypeConfigModalEditByForm.Create(GState.Config.LanguageManager);
+  FMapTypeEditor :=
+    TMapTypeConfigModalEditByForm.Create(
+      GState.Config.LanguageManager,
+      GState.TileStorageTypeList
+    );
 
   LoadMapIconsList;
 
@@ -3490,8 +3496,8 @@ begin
 
   // and add view items
   VMapType:=FConfig.MainMapsConfig.GetActiveMap.GetStatic;
-  VAllowListOfTileVersions := VMapType.TileStorage.AllowListOfTileVersions;
-  tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions and VMapType.TileStorage.AllowShowPrevVersion;
+  VAllowListOfTileVersions := VMapType.TileStorage.StorageTypeAbilities.IsVersioned;
+  tbpmiShowPrevVersion.Visible := VAllowListOfTileVersions;
 
   if VAllowListOfTileVersions then begin
     // to lonlat
@@ -4138,7 +4144,7 @@ var
   VFileName: string;
 begin
   VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
-  if VMapType.TileStorage.IsFileCache then begin
+  if VMapType.TileStorage.StorageTypeAbilities.IsFileCache then begin
     VLocalConverter := FConfig.ViewPortState.View.GetStatic;
     VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
     VZoomCurr := VLocalConverter.GetZoom;
@@ -6690,7 +6696,7 @@ begin
   tbitmMakeVersionByMark.Visible := (VMark <> nil) and (VInternalDomainOptions <> nil);
   tbitmSelectVersionByMark.Visible := tbitmMakeVersionByMark.Visible;
   // versions submenu
-  tbpmiVersions.Visible := VMapType.TileStorage.AllowListOfTileVersions or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
+  tbpmiVersions.Visible := VMapType.TileStorage.StorageTypeAbilities.IsVersioned or tbpmiClearVersion.Visible or tbitmMakeVersionByMark.Visible;
 end;
 
 procedure TfrmMain.tbitmOnlineForumClick(Sender: TObject);

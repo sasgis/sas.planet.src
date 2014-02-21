@@ -44,6 +44,7 @@ uses
   i_ContentTypeManager,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
+  i_TileStorageTypeList,
   i_ValueToStringConverter,
   i_MapVersionFactoryList,
   i_GlobalBerkeleyDBHelper,
@@ -94,6 +95,7 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
     FCoordConverterFactory: ICoordConverterFactory;
+    FTileStorageTypeList: ITileStorageTypeListStatic;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
     FValueToStringConverterConfig: IValueToStringConverterConfig;
@@ -115,6 +117,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
+      const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
       const AFileNameParsersList: ITileFileNameParsersList;
       const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -133,14 +136,11 @@ uses
   i_ContentTypeInfo,
   i_TileFileNameGenerator,
   i_TileFileNameParser,
+  i_TileStorageTypeListItem,
   i_CacheConverterProgressInfo,
   u_Notifier,
   u_NotifierOperation,
   u_ThreadCacheConverter,
-  u_TileStorageFileSystem,
-  u_TileStorageBerkeleyDB,
-  u_TileStorageDBMS,
-  //u_TileStorageGE,
   u_TileStorageTar,
   u_CacheConverterProgressInfo,
   frm_ProgressCacheConvrter;
@@ -158,6 +158,7 @@ constructor TfrmCacheManager.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
+  const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
   const AFileNameParsersList: ITileFileNameParsersList;
   const AValueToStringConverterConfig: IValueToStringConverterConfig
@@ -191,77 +192,28 @@ var
   VContentType: IContentTypeInfoBasic;
   VFileNameGenerator: ITileFileNameGenerator;
   VFileNameParser: ITileFileNameParser;
+  VStorageType: ITileStorageTypeListItem;
 begin
   Result := nil;
 
-  if (AArchiveType <> atNoArch) and
-     (AFormatID in [
+  VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
+  if VContentType = nil then begin
+    Exit;
+  end;
+
+  if AArchiveType <> atNoArch then begin
+     if (AFormatID in [
       c_File_Cache_Id_BDB,
       c_File_Cache_Id_BDB_Versioned,
       c_File_Cache_Id_DBMS,
       c_File_Cache_Id_GE,
       c_File_Cache_Id_GC
     ]) then begin
-    Exit;
-  end;
-
-  VContentType := FContentTypeManager.GetInfoByExt(ADefExtention);
-  if AFormatID in [c_File_Cache_Id_BDB, c_File_Cache_Id_BDB_Versioned] then begin
-    Result :=
-      TTileStorageBerkeleyDB.Create(
-        FGlobalBerkeleyDBHelper,
-        ACoordConverter,
-        ARootPath,
-        (AFormatID = c_File_Cache_Id_BDB_Versioned),
-        FGCNotifier,
-        nil,
-        FContentTypeManager,
-        FMapVersionFactoryList.GetSimpleVersionFactory,
-        VContentType
-      );
-  end else if AFormatID = c_File_Cache_Id_DBMS then begin
-    Result :=
-      TTileStorageDBMS.Create(
-        ACoordConverter,
-        '', // TODO: add global DBMS Root here
-        ARootPath,
-        FGCNotifier,
-        nil,
-        FContentTypeManager,
-        FMapVersionFactoryList.GetSimpleVersionFactory,
-        VContentType
-      );
-  end else if AFormatID = c_File_Cache_Id_GE then begin
-//    Result :=
-//      TTileStorageGE.Create(
-//        VStorageConfig,
-//        VGlobalCacheConfig,
-//        FMapVersionFactoryList.GetGEVersionFactory
-//        FContentTypeManager
-//      );
-  end else if AFormatID = c_File_Cache_Id_GC then begin
-//    Result :=
-//      TTileStorageGC.Create(
-//        VStorageConfig,
-//        VGlobalCacheConfig,
-//        FMapVersionFactoryList.GetGEVersionFactory
-//        FContentTypeManager
-//      );
-  end else if AFormatID in [c_File_Cache_Id_GMV, c_File_Cache_Id_SAS, c_File_Cache_Id_ES, c_File_Cache_Id_GM, c_File_Cache_Id_GM_Aux, c_File_Cache_Id_GM_Bing] then begin
+      Exit;
+    end;
     VFileNameGenerator := FFileNameGeneratorsList.GetGenerator(AFormatID);
     VFileNameParser := FFileNameParsersList.GetParser(AFormatID);
     case AArchiveType of
-      atNoArch: begin
-        Result :=
-          TTileStorageFileSystem.Create(
-            ACoordConverter,
-            ARootPath,
-            VContentType,
-            FMapVersionFactoryList.GetSimpleVersionFactory,
-            VFileNameGenerator,
-            VFileNameParser
-          );
-      end;
       atTar: begin
         Result :=
           TTileStorageTar.Create(
@@ -278,6 +230,18 @@ begin
       end;
     else
       // Error
+    end;
+  end else begin
+    VStorageType := FTileStorageTypeList.GetItemByCode(AFormatID);
+    if VStorageType <> nil then begin
+      Result :=
+        VStorageType.StorageType.BuildStorage(
+          nil,
+          ACoordConverter,
+          VContentType,
+          ARootPath,
+          nil
+        );
     end;
   end;
 end;

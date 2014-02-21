@@ -128,8 +128,9 @@ end;
 
 function TfrExportGEKml.GetAllowExport(const AMapType: IMapType): boolean;
 begin
-  Result := (AMapType.IsBitmapTiles) and (AMapType.TileStorage.IsFileCache);
+  Result := (AMapType.IsBitmapTiles) and (AMapType.TileStorage.StorageTypeAbilities.IsFileCache);
 end;
+
 procedure TfrExportGEKml.btnSelectTargetFileClick(Sender: TObject);
 begin
  if dlgSaveKML.Execute then

@@ -42,6 +42,7 @@ uses
 type
   TTileStorageAbstract = class(TBaseInterfacedObject, ITileStorage)
   private
+    FStorageTypeAbilities: ITileStorageTypeAbilities;
     FGeoConverter: ICoordConverter;
     FMapVersionFactory: IMapVersionFactory;
     FTileNotifier: INotifierTilePyramidUpdate;
@@ -60,13 +61,10 @@ type
     property GeoConverter: ICoordConverter read FGeoConverter;
     property MapVersionFactory: IMapVersionFactory read FMapVersionFactory;
   protected
+    function GetStorageTypeAbilities: ITileStorageTypeAbilities;
     function GetTileNotifier: INotifierTilePyramidUpdate;
     function GetState: IStorageStateChangeble;
     function GetCoordConverter: ICoordConverter;
-    function GetIsFileCache: Boolean; virtual; abstract;
-    function GetIsCanSaveMultiVersionTiles: Boolean; virtual; abstract;
-    function AllowListOfTileVersions: Boolean; virtual; abstract;
-    function AllowShowPrevVersion: Boolean; virtual; abstract;
 
     function GetTileFileName(
       const AXY: TPoint;
@@ -117,6 +115,7 @@ type
     ): IEnumTileInfo; virtual;
   public
     constructor Create(
+      const AStorageTypeAbilities: ITileStorageTypeAbilities;
       const AStorageForceAbilities: ITileStorageAbilities;
       const AMapVersionFactory: IMapVersionFactory;
       const AGeoConverter: ICoordConverter;
@@ -133,6 +132,7 @@ uses
 { TTileStorageAbstract }
 
 constructor TTileStorageAbstract.Create(
+  const AStorageTypeAbilities: ITileStorageTypeAbilities;
   const AStorageForceAbilities: ITileStorageAbilities;
   const AMapVersionFactory: IMapVersionFactory;
   const AGeoConverter: ICoordConverter;
@@ -143,6 +143,7 @@ var
   VState: TStorageStateInternal;
 begin
   inherited Create;
+  FStorageTypeAbilities := AStorageTypeAbilities;
   FMapVersionFactory := AMapVersionFactory;
   FStoragePath := AStoragePath;
   FGeoConverter := AGeoConverter;
@@ -178,6 +179,11 @@ end;
 function TTileStorageAbstract.GetState: IStorageStateChangeble;
 begin
   Result := FStorageState;
+end;
+
+function TTileStorageAbstract.GetStorageTypeAbilities: ITileStorageTypeAbilities;
+begin
+  Result := FStorageTypeAbilities;
 end;
 
 procedure TTileStorageAbstract.NotifyTileUpdate(
