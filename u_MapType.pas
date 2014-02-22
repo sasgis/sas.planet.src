@@ -268,6 +268,7 @@ uses
   i_BinaryData,
   i_TileInfoBasic,
   i_MapVersionFactory,
+  i_DownloadResultFactory,
   u_StringProviderForMapTileItem,
   u_LayerDrawConfig,
   u_TileDownloaderConfig,
@@ -339,6 +340,7 @@ var
   VContentTypeKml: IContentTypeInfoVectorData;
   VVersionFactory: IMapVersionFactoryChangeableInternal;
   VPerfCounterList: IInternalPerformanceCounterList;
+  VDownloadResultFactory: IDownloadResultFactory;
 begin
   inherited Create;
   FZmp := AZmp;
@@ -437,6 +439,7 @@ begin
       );
   end;
 
+  VDownloadResultFactory := TDownloadResultFactory.Create;
   FTileDownloadSubsystem :=
     TTileDownloadSubsystem.Create(
       AGCNotifier,
@@ -446,7 +449,7 @@ begin
       ALanguageManager,
       ADownloadConfig,
       AInvisibleBrowser,
-      TDownloadResultFactory.Create,
+      VDownloadResultFactory,
       FZmp.TileDownloaderConfig,
       AResamplerConfigDownload,
       ABitmapFactory,
