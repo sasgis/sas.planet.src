@@ -16,7 +16,6 @@ uses
   i_ContentTypeManager,
   i_ContentTypeSubst,
   i_TilePostDownloadCropConfig,
-  i_SimpleTileStorageConfig,
   i_DownloadResultFactory,
   i_LanguageManager,
   i_GlobalDownloadConfig,
@@ -108,7 +107,6 @@ type
       const AMapAbilitiesConfig: IMapAbilitiesConfig;
       const AZmpData: IConfigDataProvider;
       const AProjFactory: IProjConverterFactory;
-      const AStorageConfig: ISimpleTileStorageConfig;
       const AStorage: ITileStorage
     );
     destructor Destroy; override;
@@ -167,7 +165,6 @@ constructor TTileDownloadSubsystem.Create(
   const AMapAbilitiesConfig: IMapAbilitiesConfig;
   const AZmpData: IConfigDataProvider;
   const AProjFactory: IProjConverterFactory;
-  const AStorageConfig: ISimpleTileStorageConfig;
   const AStorage: ITileStorage
 );
 var
@@ -230,7 +227,6 @@ begin
         AContentTypeSubst,
         ASaveContentType,
         ATilePostDownloadCropConfig,
-        AStorageConfig,
         AStorage
       );
 

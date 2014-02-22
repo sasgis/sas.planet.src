@@ -22,7 +22,6 @@ uses
   i_TileRequestResult,
   i_TileDownloaderState,
   i_TileDownloadResultSaver,
-  i_SimpleTileStorageConfig,
   i_TileStorage,
   u_TileDownloaderStateInternal,
   u_BaseInterfacedObject;
@@ -35,7 +34,6 @@ type
     FContentTypeSubst: IContentTypeSubst;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     FStorage: ITileStorage;
-    FStorageConfig: ISimpleTileStorageConfig;
     FBitmapFactory: IBitmap32StaticFactory;
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
@@ -71,7 +69,6 @@ type
       const AContentTypeSubst: IContentTypeSubst;
       const ASaveContentType: IContentTypeInfoBasic;
       const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
-      const AStorageConfig: ISimpleTileStorageConfig;
       const AStorage: ITileStorage
     );
     destructor Destroy; override;
@@ -85,6 +82,7 @@ uses
   t_CommonTypes,
   i_ContentConverter,
   i_BitmapTileSaveLoad,
+  i_CoordConverter,
   i_TileRequest,
   i_TileDownloadRequest,
   u_ListenerByEvent,
@@ -103,7 +101,6 @@ constructor TTileDownloadResultSaverStuped.Create(
   const AContentTypeSubst: IContentTypeSubst;
   const ASaveContentType: IContentTypeInfoBasic;
   const ATilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
-  const AStorageConfig: ISimpleTileStorageConfig;
   const AStorage: ITileStorage
 );
 var
@@ -116,7 +113,6 @@ begin
   FContentTypeManager := AContentTypeManager;
   FContentTypeSubst := AContentTypeSubst;
   FTilePostDownloadCropConfig := ATilePostDownloadCropConfig;
-  FStorageConfig := AStorageConfig;
   FStorage := AStorage;
   FContentType := ASaveContentType;
 
@@ -257,8 +253,10 @@ var
   i, j: Integer;
   VPos: TPoint;
   VCutBitmapStatic: IBitmap32Static;
+  VCoordConverter: ICoordConverter;
 begin
-  if FStorageConfig.AllowAdd then begin
+  if FStorage.State.GetStatic.AddAccess <> asDisabled then begin
+    VCoordConverter := FStorage.CoordConverter;
     if Supports(FContentType, IContentTypeInfoBitmap, VTargetContentTypeBitmap) and
       (FTilePostDownloadCropConfig.IsCropOnDownload or FTilePostDownloadCropConfig.IsCutOnDownload) then begin
       VContentTypeInfo := FContentTypeManager.GetInfo(AContenType);
@@ -277,7 +275,7 @@ begin
               VCutTile := FTilePostDownloadCropConfig.CutTile;
 
               if (0 = VCutSize.X) or (0 = VCutSize.Y) then begin
-                VCutSize := FStorageConfig.CoordConverter.GetTileSize(AXY, AZoom);
+                VCutSize := VCoordConverter.GetTileSize(AXY, AZoom);
               end;
 
               // define counts
@@ -315,7 +313,7 @@ begin
                         CropOnDownload(
                           VBitmapStatic,
                           Rect(VCutSize.X * i, VCutSize.Y * j, VCutSize.X * (i + 1), VCutSize.Y * (j + 1)),
-                          FStorageConfig.CoordConverter.GetTileSize(VPos, AZoom)
+                          VCoordConverter.GetTileSize(VPos, AZoom)
                         );
 
                       // save
@@ -331,7 +329,7 @@ begin
                 CropOnDownload(
                   VBitmapStatic,
                   FTilePostDownloadCropConfig.CropRect,
-                  FStorageConfig.CoordConverter.GetTileSize(AXY, AZoom)
+                  VCoordConverter.GetTileSize(AXY, AZoom)
                 );
               VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
               FStorage.SaveTile(AXY, AZoom, AVersionInfo, Now, FContentType, VData, True);

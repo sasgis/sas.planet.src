@@ -462,7 +462,6 @@ begin
       FAbilitiesConfig,
       FZmp.DataProvider,
       AProjFactory,
-      FStorageConfig,
       FStorage
     );
 
