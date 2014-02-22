@@ -70,28 +70,23 @@ type
     FAllowRedirect: Boolean;
     FOnDownloadProgress: TOnDownloadProgress;
     function InternalMakeResponse(
-      const AResultFactory: IDownloadResultFactory;
       const ARequest: IDownloadRequest;
       const AResponseBody: IBinaryData;
       var AStatusCode: Cardinal;
       var AContentType, ARawHeaderText: AnsiString
     ): IDownloadResult;
     function ProcessFileSystemRequest(
-      const ARequest: IDownloadRequest;
-      const AResultFactory: IDownloadResultFactory
+      const ARequest: IDownloadRequest
     ): IDownloadResult;
     function OnBeforeRequest(
-      const ARequest: IDownloadRequest;
-      const AResultFactory: IDownloadResultFactory
+      const ARequest: IDownloadRequest
     ): IDownloadResult;
     function OnOSError(
       const ARequest: IDownloadRequest;
-      const AResultFactory: IDownloadResultFactory;
       AErrorCode: Cardinal
     ): IDownloadResult;
     function OnAfterResponse(
-      const ARequest: IDownloadRequest;
-      const AResultFactory: IDownloadResultFactory
+      const ARequest: IDownloadRequest
     ): IDownloadResult;
     procedure PreConfigHttpClient(
       const ARawHttpRequestHeader: AnsiString;
@@ -383,16 +378,10 @@ begin
           Result := FResultFactory.BuildCanceled(ARequest);
         end;
         if Result = nil then begin
-          Result := ProcessFileSystemRequest(
-            ARequest,
-            FResultFactory
-          );
+          Result := ProcessFileSystemRequest(ARequest);
         end;
         if Result = nil then begin
-          Result := OnBeforeRequest(
-            ARequest,
-            FResultFactory
-          );
+          Result := OnBeforeRequest(ARequest);
         end;
         if Result = nil then begin
           try
@@ -414,19 +403,12 @@ begin
               end;
             end;
             on E: EOSError do begin
-              Result := OnOSError(
-                ARequest,
-                FResultFactory,
-                E.ErrorCode
-              );
+              Result := OnOSError(ARequest, E.ErrorCode);
             end;
           end;
         end;
         if Result = nil then begin
-          Result := OnAfterResponse(
-            ARequest,
-            FResultFactory
-          );
+          Result := OnAfterResponse(ARequest);
         end;
       finally
         FOpeningHandle := nil;
@@ -467,8 +449,7 @@ begin
 end;
 
 function TDownloaderHttp.OnBeforeRequest(
-  const ARequest: IDownloadRequest;
-  const AResultFactory: IDownloadResultFactory
+  const ARequest: IDownloadRequest
 ): IDownloadResult;
 var
   VRequestWithChecker: IRequestWithChecker;
@@ -477,7 +458,7 @@ begin
   FHttpResponseBody.Clear;
 
   if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
-    VRequestWithChecker.Checker.BeforeRequest(AResultFactory, ARequest);
+    VRequestWithChecker.Checker.BeforeRequest(FResultFactory, ARequest);
   end;
 
   if ARequest <> nil then begin
@@ -497,24 +478,23 @@ end;
 
 function TDownloaderHttp.OnOSError(
   const ARequest: IDownloadRequest;
-  const AResultFactory: IDownloadResultFactory;
   AErrorCode: Cardinal
 ): IDownloadResult;
 begin
   Result := nil;
-  if AResultFactory <> nil then begin
+  if FResultFactory <> nil then begin
     if IsConnectError(AErrorCode) then begin
-      Result := AResultFactory.BuildNoConnetctToServerByErrorCode(
+      Result := FResultFactory.BuildNoConnetctToServerByErrorCode(
         ARequest,
         AErrorCode
       );
     end else if IsDownloadError(AErrorCode) then begin
-      Result := AResultFactory.BuildLoadErrorByErrorCode(
+      Result := FResultFactory.BuildLoadErrorByErrorCode(
         ARequest,
         AErrorCode
       );
     end else begin
-      Result := AResultFactory.BuildNoConnetctToServerByErrorCode(
+      Result := FResultFactory.BuildNoConnetctToServerByErrorCode(
         ARequest,
         AErrorCode
       );
@@ -523,8 +503,7 @@ begin
 end;
 
 function TDownloaderHttp.OnAfterResponse(
-  const ARequest: IDownloadRequest;
-  const AResultFactory: IDownloadResultFactory
+  const ARequest: IDownloadRequest
 ): IDownloadResult;
 var
   VResponseBody: IBinaryData;
@@ -533,7 +512,7 @@ var
   VContentType: AnsiString;
 begin
   Result := nil;
-  if AResultFactory <> nil then begin
+  if FResultFactory <> nil then begin
     VRawHeaderText := FHttpResponseHeader.RawHeaderText;
     VStatusCode := ALStrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
@@ -544,7 +523,6 @@ begin
           FHttpResponseBody.Memory
         );
       Result := InternalMakeResponse(
-        AResultFactory,
         ARequest,
         VResponseBody,
         VStatusCode,
@@ -552,18 +530,18 @@ begin
         VRawHeaderText
       );
     end else if IsDownloadErrorStatus(VStatusCode) then begin
-      Result := AResultFactory.BuildLoadErrorByStatusCode(
+      Result := FResultFactory.BuildLoadErrorByStatusCode(
         ARequest,
         VStatusCode
       );
     end else if IsContentNotExistStatus(VStatusCode) then begin
-      Result := AResultFactory.BuildDataNotExistsByStatusCode(
+      Result := FResultFactory.BuildDataNotExistsByStatusCode(
         ARequest,
         VRawHeaderText,
         VStatusCode
       );
     end else begin
-      Result := AResultFactory.BuildLoadErrorByUnknownStatusCode(
+      Result := FResultFactory.BuildLoadErrorByUnknownStatusCode(
         ARequest,
         VStatusCode
       );
@@ -668,8 +646,7 @@ begin
 end;
 
 function TDownloaderHttp.ProcessFileSystemRequest(
-  const ARequest: IDownloadRequest;
-  const AResultFactory: IDownloadResultFactory
+  const ARequest: IDownloadRequest
 ): IDownloadResult;
 var
   VUrl: String;
@@ -679,7 +656,7 @@ var
   VResponseBody: IBinaryData;
 begin
   Result := nil;
-  if (nil=AResultFactory) then
+  if (nil = FResultFactory) then
     Exit;
 
   // check filename
@@ -732,7 +709,6 @@ begin
     VContentType := '';
     VStatusCode := HTTP_STATUS_OK;
     Result := InternalMakeResponse(
-      AResultFactory,
       ARequest,
       VResponseBody,
       VStatusCode,
@@ -743,7 +719,7 @@ begin
 
   // no file
   if (nil=Result) then begin
-    Result := AResultFactory.BuildDataNotExistsByStatusCode(
+    Result := FResultFactory.BuildDataNotExistsByStatusCode(
       ARequest,
       VRawResponseHeader,
       HTTP_STATUS_NOT_FOUND
@@ -752,7 +728,6 @@ begin
 end;
 
 function TDownloaderHttp.InternalMakeResponse(
-  const AResultFactory: IDownloadResultFactory;
   const ARequest: IDownloadRequest;
   const AResponseBody: IBinaryData;
   var AStatusCode: Cardinal;
@@ -766,7 +741,7 @@ begin
   // if has checker
   if Supports(ARequest, IRequestWithChecker, VRequestWithChecker) then begin
     Result := VRequestWithChecker.Checker.AfterReciveData(
-      AResultFactory,
+      FResultFactory,
       ARequest,
       AResponseBody,
       AStatusCode,
@@ -777,13 +752,13 @@ begin
 
   if Result = nil then begin
     if AResponseBody.Size = 0 then begin
-      Result := AResultFactory.BuildDataNotExistsZeroSize(
+      Result := FResultFactory.BuildDataNotExistsZeroSize(
         ARequest,
         AStatusCode,
         ARawHeaderText
       );
     end else begin
-      Result := AResultFactory.BuildOk(
+      Result := FResultFactory.BuildOk(
         ARequest,
         AStatusCode,
         ARawHeaderText,
