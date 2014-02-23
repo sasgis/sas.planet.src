@@ -241,7 +241,7 @@ begin
       VTileRect :=
         RectFromDoubleRect(
           VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VSourceZoom),
-          rrToTopLeft
+          rrOutside
         );
       VNotifier.AddListenerByRect(FMapListener, VSourceZoom, VTileRect);
     end;
