@@ -248,7 +248,7 @@ begin
         VTileRect :=
           RectFromDoubleRect(
             VConverter.LonLatRect2TileRectFloat(VMapLonLatRect, VZoom),
-            rrToTopLeft
+            rrOutside
           );
         VListener := IListener(FMapListeners[i]);
         VNotifier.AddListenerByRect(VListener, VZoom, VTileRect);
