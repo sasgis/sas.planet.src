@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_ArchiveReadWrite7Zip;
@@ -163,7 +163,7 @@ begin
       Result := GetItemByIndex(I, VItemName);
       Break;
     end;
-  end; 
+  end;
 end;
 
 function TArchiveReadBy7Zip.GetItemNameByIndex(const AItemIndex: Integer): string;
