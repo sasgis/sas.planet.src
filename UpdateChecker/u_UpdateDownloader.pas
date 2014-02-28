@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_UpdateDownloader;
@@ -50,7 +50,7 @@ type
     FUpdateChannel: TUpdateChannel;
     FFileName: string;
     FSavePath: string;
-    FCancelNotifier: INotifierOperation;    
+    FCancelNotifier: INotifierOperation;
     FSync: IReadWriteSync;
   private
     procedure SearchVersionInfoCallBack(
@@ -96,8 +96,8 @@ uses
   u_DownloadResultFactory;
 
 const
-  cNightlyChannel = 'http://sasgis.ru/programs/sasplanet/nightly.php';
-  cStableChannel = 'http://sasgis.ru/programs/sasplanet/stable.php';
+  cNightlyChannel = 'http://sasgis.org/programs/sasplanet/nightly.php';
+  cStableChannel = 'http://sasgis.org/programs/sasplanet/stable.php';
 
   cSearchVersionInfoRegExpr = 'SAS\.Planet\.(Stable|Release|Nightly)\.(\d\d)(\d\d)(\d\d)\.(\d+)\.(zip|rar|7z)';
   cSearchAvailableVersionUrlRegExpr = '<a href="(.*?)">' + cSearchVersionInfoRegExpr + '</a>';

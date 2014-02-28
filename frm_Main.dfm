@@ -325,7 +325,7 @@ object frmMain: TfrmMain
             ShortCut = 32850
             OnClick = TBRECTClick
             Caption = 'Rectangular Selection'
-            Hint = 
+            Hint =
               'Alt - snap to Lat/Lon grid (if enabled)'#13#10'Ctrl - snap to tile bou' +
               'ndaries'#13#10'Shift - snap to GenShtab boundaries (if enabled)'
           end
@@ -1266,7 +1266,7 @@ object frmMain: TfrmMain
           Images = MenusImageList
           ShortCut = 112
           OnClick = tbitmOnlineHelpClick
-          Caption = 'Online Help (http://sasgis.ru/wikisasiya)'
+          Caption = 'Online Help (http://sasgis.org/wikisasiya)'
           Hint = ''
         end
         object tbitmAbout: TTBXItem
@@ -1283,19 +1283,19 @@ object frmMain: TfrmMain
         object tbitmOnlineHome: TTBXItem
           Images = MenusImageList
           OnClick = tbitmOnlineHomeClick
-          Caption = 'Web Site (http://www.sasgis.ru)'
+          Caption = 'Web Site (http://www.sasgis.org)'
           Hint = ''
         end
         object tbtmHelpBugTrack: TTBXItem
           Images = MenusImageList
           OnClick = tbtmHelpBugTrackClick
-          Caption = 'Issue Tracker (http://sasgis.ru/mantis)'
+          Caption = 'Issue Tracker (http://sasgis.org/mantis)'
           Hint = ''
         end
         object tbitmOnlineForum: TTBXItem
           Images = MenusImageList
           OnClick = tbitmOnlineForumClick
-          Caption = 'Community  (http://www.sasgis.ru/forum)'
+          Caption = 'Community  (http://www.sasgis.org/forum)'
           Hint = ''
         end
         object tbxSep1: TTBXSeparatorItem
@@ -1700,7 +1700,7 @@ object frmMain: TfrmMain
   end
   object OpenSessionDialog: TOpenDialog
     DefaultExt = '*.sls'
-    Filter = 
+    Filter =
       'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx,*.jp' +
       'g)|*.kml;*.plt;*.kmz;*.sls;*.hlg;*.gpx;*.jpg|Google KML files (*' +
       '.kml)|*.kml|OziExplorer Track Point File Version 2.1 (*.plt)|*.p' +

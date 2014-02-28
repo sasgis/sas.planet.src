@@ -4,7 +4,7 @@ interface
 
 uses
   ExceptionLog,
-  ECore, 
+  ECore,
   ETypes,
   Windows,
   ShellAPI;
@@ -16,7 +16,7 @@ implementation
 procedure EurekaHelpButtonClickNotify(EurekaExceptionRecord: TEurekaExceptionRecord; var CloseDialog: Boolean);
 begin
   // За хелпом отправляем на форум, в тему "SASPlanet - отладочные версии"
-  ShellExecute(0, 'open', 'http://sasgis.ru/forum/viewtopic.php?f=47&t=1508', nil, nil, SW_SHOW)
+  ShellExecute(0, 'open', 'http://sasgis.org/forum/viewtopic.php?f=47&t=1508', nil, nil, SW_SHOW)
 end;
 
 initialization

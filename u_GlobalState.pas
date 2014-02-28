@@ -897,7 +897,7 @@ procedure TGlobalState.StartThreads;
 begin
   FAppStartedNotifierInternal.ExecuteOperation;
   if FGlobalConfig.GlobalAppConfig.IsSendStatistic then begin
-    FInvisibleBrowser.NavigateAndWait('http://sasgis.ru/stat/index.html');
+    FInvisibleBrowser.NavigateAndWait('http://sasgis.org/stat/index.html');
   end;
   FLastSelectionSaver.Start;
   FGUISyncronizedTimer.Enabled := True;

@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_GeoCoderBy2GIS;
@@ -107,7 +107,7 @@ begin
             VPoint.Y := StrToFloat(PlacemarkNode.ChildNodes.FindNode('lat').Text, VFormatSettings);
             VDesc := PlacemarkNode.ChildNodes.FindNode('city_name').Text + ', ' +
               PlacemarkNode.ChildNodes.FindNode('address').text;
-            VFullDesc := 'http://sasgis.ru/stat/2GIS/2gis.php?id=' + PlacemarkNode.ChildNodes.FindNode('id').Text +
+            VFullDesc := 'http://sasgis.org/stat/2GIS/2gis.php?id=' + PlacemarkNode.ChildNodes.FindNode('id').Text +
               '&hash=' + PlacemarkNode.ChildNodes.FindNode('hash').Text;
             if (AddressNode <> nil) then begin
               VPlace := PlacemarkFactory.Build(VPoint, AddressNode.Text, VDesc, VFullDesc, 4);
