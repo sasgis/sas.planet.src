@@ -25,10 +25,10 @@ msgstr ""
 msgid "Zip |*.zip"
 msgstr ""
 
-msgid "az@sasgis.ru"
+msgid "info@sasgis.org"
 msgstr ""
 
-msgid "http://sasgis.ru"
+msgid "http://sasgis.org"
 msgstr ""
 
 msgid "Debug Info"
