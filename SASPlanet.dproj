@@ -305,7 +305,6 @@
     <DCCReference Include="i_HashFunction.pas" />
     <DCCReference Include="i_HashFunctionImpl.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
-    <DCCReference Include="i_IdCacheSimple.pas" />
     <DCCReference Include="i_ImageLineProvider.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
     <DCCReference Include="i_ImageResamplerFactory.pas" />

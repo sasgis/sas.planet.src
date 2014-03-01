@@ -206,7 +206,6 @@ uses
   u_TileKey in 'u_TileKey.pas',
   i_TileRect in 'i_TileRect.pas',
   u_TileRect in 'u_TileRect.pas',
-  i_IdCacheSimple in 'i_IdCacheSimple.pas',
   i_TileObjCache in 'i_TileObjCache.pas',
   u_MemTileCache in 'u_MemTileCache.pas',
   i_Appearance in 'i_Appearance.pas',
