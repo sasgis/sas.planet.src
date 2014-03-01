@@ -68,6 +68,7 @@
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForGpsTrack.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForGrids.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForMainLayer.pas" />
+    <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForMapType.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForMarksLayer.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForVectorMaps.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderCombineTwoProviders.pas" />

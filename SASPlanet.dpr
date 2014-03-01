@@ -613,6 +613,7 @@ uses
   u_BitmapLayerProviderChangeableForGpsTrack in 'BitmapLayerProvider\u_BitmapLayerProviderChangeableForGpsTrack.pas',
   u_BitmapLayerProviderChangeableForGrids in 'BitmapLayerProvider\u_BitmapLayerProviderChangeableForGrids.pas',
   u_BitmapLayerProviderChangeableForFillingMap in 'BitmapLayerProvider\u_BitmapLayerProviderChangeableForFillingMap.pas',
+  u_BitmapLayerProviderChangeableForMapType in 'BitmapLayerProvider\u_BitmapLayerProviderChangeableForMapType.pas',
   u_WindowLayerBasic in 'MapLayers\WindowLayers\u_WindowLayerBasic.pas',
   u_WindowLayerWithPos in 'MapLayers\WindowLayers\u_WindowLayerWithPos.pas',
   u_TiledLayerWithThreadBase in 'MapLayers\LayersWithThreadAndProvider\u_TiledLayerWithThreadBase.pas',
