@@ -137,7 +137,6 @@ type
       AUsePre: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-  public
     procedure SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
     procedure ClearMemCache;
     function GetTileShowName(
@@ -193,26 +192,6 @@ type
 
     function GetGUID: TGUID;
 
-    property Zmp: IZmpInfo read FZmp;
-    property GeoConvert: ICoordConverter read FCoordConverter;
-    property ViewGeoConvert: ICoordConverter read FViewCoordConverter;
-    property VersionRequestConfig: IMapVersionRequestConfig read FVersionRequestConfig;
-    property ContentType: IContentTypeInfoBasic read FContentType;
-
-    property Abilities: IMapAbilitiesConfig read FAbilitiesConfig;
-    property StorageConfig: ISimpleTileStorageConfig read FStorageConfig;
-    property IsBitmapTiles: Boolean read GetIsBitmapTiles;
-    property IsKmlTiles: Boolean read GetIsKmlTiles;
-
-    property TileDownloadSubsystem: ITileDownloadSubsystem read FTileDownloadSubsystem;
-    property TileStorage: ITileStorage read FStorage;
-    property GUIConfig: IMapTypeGUIConfig read FGUIConfig;
-    property LayerDrawConfig: ILayerDrawConfig read FLayerDrawConfig;
-    property TileDownloaderConfig: ITileDownloaderConfig read FTileDownloaderConfig;
-    property TileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig read FTileDownloadRequestBuilderConfig;
-    property CacheBitmap: ITileObjCacheBitmap read FCacheBitmap;
-    property CacheVector: ITileObjCacheVector read FCacheVector;
-
     function GetZmp: IZmpInfo;
     function GetGeoConvert: ICoordConverter;
     function GetViewGeoConvert: ICoordConverter;
@@ -231,6 +210,7 @@ type
     function GetCacheBitmap: ITileObjCacheBitmap;
     function GetCacheVector: ITileObjCacheVector;
 
+  public
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AZmp: IZmpInfo;
