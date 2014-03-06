@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_GPSPositionStatic;
@@ -81,9 +81,9 @@ begin
 
   FSingleGPSData.PositionOK :=
     FSingleGPSData.PositionOK and
-    not NoData_Float64(FSingleGPSData.PositionLon) and 
+    not NoData_Float64(FSingleGPSData.PositionLon) and
     not NoData_Float64(FSingleGPSData.PositionLat);
-    
+
   if not FSingleGPSData.PositionOK then begin
     FSingleGPSData.PositionLon := NaN;
     FSingleGPSData.PositionLat := NaN;
@@ -98,7 +98,7 @@ begin
     FSingleGPSData.Heading := NaN;
   end;
 
-  FSingleGPSData.UTCTimeOK := 
+  FSingleGPSData.UTCTimeOK :=
     FSingleGPSData.UTCTimeOK and
     FSingleGPSData.UTCDateOK and
     not NoData_Float64(FSingleGPSData.UTCDate)and
@@ -113,7 +113,7 @@ begin
   if NoData_Float64(FSingleGPSData.Altitude) then begin
     FSingleGPSData.Altitude := NaN;
   end;
-  
+
   if NoData_Float64(FSingleGPSData.GeoidHeight) then begin
     FSingleGPSData.GeoidHeight := NaN;
   end;
