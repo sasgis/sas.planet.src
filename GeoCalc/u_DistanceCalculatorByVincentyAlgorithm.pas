@@ -200,7 +200,6 @@ begin
   Sigma := 0;
   CosSqAlpha := 0;
   Cos2SigmaM := 0;
-
   VIterLimit := 100;
 
   while (Abs(Lambda - LambdaP) > 1E-12) and (VIterLimit > 0) do begin

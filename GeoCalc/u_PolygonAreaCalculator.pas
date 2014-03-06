@@ -93,7 +93,6 @@ var
 begin
   sinx := sin(x);
   sinx2 := sinx * sinx;
-
   Result := sinx * (1 + sinx2 * (m_QA + sinx2 * (m_QB + sinx2 * m_QC)));
 end;
 
@@ -103,7 +102,6 @@ var
 begin
   cosx := cos(x);
   cosx2 := cosx * cosx;
-
   Result := cosx * (m_QbarA + cosx2 * (m_QbarB + cosx2 * (m_QbarC + cosx2 * m_QbarD)));
 end;
 
@@ -115,12 +113,9 @@ begin
   e2 := 1 - (a2 / (FRadiusB * FRadiusB));
 
   m_TwoPI := Pi + Pi;
-
   e4 := e2 * e2;
   e6 := e4 * e2;
-
   m_AE := a2 * ( 1 - e2 );
-
   m_QA := ( 2.0 / 3.0 ) * e2;
   m_QB := ( 3.0 / 5.0 ) * e4;
   m_QC := ( 4.0 / 7.0 ) * e6;
@@ -129,7 +124,6 @@ begin
   m_QbarB := ( 2.0 / 9.0 ) * e2 + ( 2.0 / 5.0 ) * e4  + ( 4.0 / 7.0 ) * e6;
   m_QbarC := - ( 3.0 / 25.0 ) * e4 - ( 12.0 / 35.0 ) * e6;
   m_QbarD := ( 4.0 / 49.0 ) * e6;
-
   m_Qp := GetQ(Pi/2);
   m_E := 4 * Pi * m_Qp * m_AE;
   if m_E < 0.0 then begin
@@ -138,8 +132,7 @@ begin
 end;
 
 // stuff for measuring areas - copied from GRASS
-// don't know how does it work, but it's working .)
-// see G_begin_ellipsoid_polygon_area() in area_poly1.c
+// don't know how does it work, but it's working .)// see G_begin_ellipsoid_polygon_area() in area_poly1.c
 
 function TPolygonAreaCalculator.ComputePolygonArea(
   const APoints: PDoublePointArray;
@@ -149,8 +142,7 @@ function TPolygonAreaCalculator.ComputePolygonArea(
 ): Double;
 var
   x1, y1, x2, y2, dx, dy: Double;
-  Qbar1, Qbar2: Double;
-  area: Double;
+  Qbar1, Qbar2: Double;  area: Double;
   n, i: Integer;
   VCount: Integer;
   VDoAbortCheck: Boolean;
@@ -168,66 +160,41 @@ begin
 
   x2 := DEG2RAD * APoints[n-1].x;
   y2 := DEG2RAD * APoints[n-1].y;
-
   Qbar2 := GetQbar( y2 );
-
   area := 0;
-
   for i := 0 to n - 1 do begin
     x1 := x2;
     y1 := y2;
     Qbar1 := Qbar2;
-
     x2 := DEG2RAD * APoints[i].x;
     y2 := DEG2RAD * APoints[i].y;
-
     Qbar2 := GetQbar( y2 );
-
     if ( x1 > x2 ) then begin
       while ( x1 - x2 > Pi ) do begin
         x2 := x2 + m_TwoPI;
       end;
     end else if ( x2 > x1 ) then begin
       while ( x2 - x1 > Pi ) do begin
-        x1 := x1 + m_TwoPI;
+          x1 := x1 + m_TwoPI;
+        end;
+      end;    dx := x2 - x1;
+      area := area + dx * ( m_Qp - GetQ( y2 ) );
+      dy := y2 - y1;
+      if not SameValue(dy, 0) then begin
+        area := area + dx * GetQ( y2 ) - ( dx / dy ) * ( Qbar2 - Qbar1 );
       end;
-    end;
-
-    dx := x2 - x1;
-    area := area + dx * ( m_Qp - GetQ( y2 ) );
-
-    dy := y2 - y1;
-    if not SameValue(dy, 0) then begin
-      area := area + dx * GetQ( y2 ) - ( dx / dy ) * ( Qbar2 - Qbar1 );
-    end;
-
-    Inc(VCount);
-    if VDoAbortCheck and (VCount mod 32 = 0) then begin
-      if ANotifier.IsOperationCanceled(AOperationID) then begin
+      Inc(VCount);
+      if VDoAbortCheck and (VCount mod 32 = 0) then begin
+        if ANotifier.IsOperationCanceled(AOperationID) then begin
         Result := NAN;
         Exit;
       end;
     end;
-
   end;
-
   area := area * m_AE;
   if area < 0 then begin
     area := -area;
-  end;
-
-  (* kludge - if polygon circles the south pole the area will be
-  * computed as if it cirlced the north pole. The correction is
-  * the difference between total surface area of the earth and
-  * the "north pole" area.
-  *)
-
-  if ( area > m_E ) then
-    area := m_E;
-  if ( area > m_E / 2 ) then
-    area := m_E - area;
-
-  Result := area;
+  end;  (* kludge - if polygon circles the south pole the area will be  * computed as if it cirlced the north pole. The correction is  * the difference between total surface area of the earth and  * the "north pole" area.  *)  if ( area > m_E ) then    area := m_E;  if ( area > m_E / 2 ) then    area := m_E - area;  Result := area;
 end;
 
 function TPolygonAreaCalculator.ComputePolygonFlatArea(
@@ -247,10 +214,8 @@ begin
 
   // Normal plane area calculations.
   area := 0;
-
   for i := 0 to ACount - 1 do begin
     area := area + APoints[i].x * APoints[(i+1) mod ACount].y - APoints[(i+1) mod ACount].x * APoints[i].y;
-
     Inc(VCount);
     if VDoAbortCheck and (VCount mod 32 = 0) then begin
       if ANotifier.IsOperationCanceled(AOperationID) then begin
@@ -259,9 +224,7 @@ begin
       end;
     end;
   end;
-
   area := area / 2.0;
-
   Result := Abs(area); // All areas are positive!
 end;
 
