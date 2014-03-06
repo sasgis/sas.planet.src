@@ -77,7 +77,6 @@ begin
   try
     VRowSize := VFreeBitmap.GetScanWidth;
     Assert(VRowSize = VWidth * 4);
-
     // initialize bitmap with image data
     VData := ABitmap32.Data;
     for I := 0 to VHeight - 1 do begin

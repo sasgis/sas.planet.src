@@ -328,7 +328,6 @@ begin
           VScanLineSize := VFreeBitmap.GetScanWidth;
           Assert(VScanLineSize >= VSize.X);
           VScanLineSize := VSize.X;
-
           VData := VBitmap8.Data;
           for I := 0 to VSize.Y - 1 do begin
             Move(
@@ -392,7 +391,6 @@ begin
       try
         VScanLineSize := VFreeBitmap.GetScanWidth;
         Assert(VScanLineSize = VSize.X * 4);
-
         for I := 0 to VSize.Y - 1 do begin
           Move(
             ABitmap.Data[I * VSize.X],
@@ -400,7 +398,6 @@ begin
             VScanLineSize
           );
         end;
-
         if FBitPerPixel = 24 then begin // PNG without alfa
           if not VFreeBitmap.ConvertTo24Bits then begin
             raise EBitmapTileFreeImageSaver.Create(

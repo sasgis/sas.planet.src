@@ -214,7 +214,6 @@ begin
       VAppData.Size := ABitmap.Size;
       VAppData.Data := ABitmap.Data;
       VAppData.BGRAColorSpace := cUseBGRAColorSpace;
-
       VJpeg := TJpegWriter.Create(VMemStream, VAppData.BGRAColorSpace, cUseLibJpeg8);
       try
         if VAppData.BGRAColorSpace then begin
@@ -222,7 +221,6 @@ begin
         end else begin
           VAppData.LineSize := VAppData.Size.X * 3;
         end;
-
         GetMem(VAppData.Line, VAppData.LineSize);
         try
           VJpeg.Width := VAppData.Size.X;

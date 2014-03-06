@@ -41,14 +41,12 @@ type
     magic_header: PAnsiChar;
     alloc: alloc_mem_t;
     free: free_mem_t;
-
     target_mse, max_mse, voronoi_iteration_limit: double;
     min_opaque_val: single;
     max_colors, max_histogram_entries: integer;
     min_posterization_output, min_posterization_input: Integer;
     voronoi_iterations, feedback_loop_trials: integer;
     last_index_transparent, use_contrast_maps, use_dither_map, fast_palette: Boolean;
-
     log_callback: pointer;
     log_callback_user_info: pointer;
     log_flush_callback: pointer;
@@ -65,7 +63,6 @@ type
     magic_header: PAnsiChar;
     alloc: alloc_mem_t;
     free: free_mem_t;
-
     f_pixels: pointer;
     rows: PPointer;
     gamma: double;
@@ -89,24 +86,22 @@ type
   liq_error = (
     LIQ_OK = 0,
     LIQ_VALUE_OUT_OF_RANGE = 100,
-    LIQ_OUT_OF_MEMORY,
-    LIQ_NOT_READY,
-    LIQ_BITMAP_NOT_AVAILABLE,
-    LIQ_BUFFER_TOO_SMALL,
-    LIQ_INVALID_POINTER
+   LIQ_OUT_OF_MEMORY,
+   LIQ_NOT_READY,
+   LIQ_BITMAP_NOT_AVAILABLE,
+   LIQ_BUFFER_TOO_SMALL,
+   LIQ_INVALID_POINTER
   );
 
   liq_color = record
     r, g, b, a: Byte;
-  end;
-  liq_color_ptr = ^liq_color;
-
-  liq_palette = record
-    count: Cardinal;
-    entries: array [0..255] of liq_color;
-  end;
+ end;
+ liq_color_ptr = ^liq_color;
+ liq_palette = record
+   count: Cardinal;
+   entries: array [0..255] of liq_color;
+ end;
   liq_palette_ptr = ^liq_palette;
-
   liq_attr_create_t = function(): liq_attr_ptr; cdecl;
   liq_attr_create_with_allocator_t = function(alloc: alloc_mem_t; free: free_mem_t): liq_attr_ptr; cdecl;
 
@@ -176,10 +171,10 @@ begin
   case ret of
     LIQ_VALUE_OUT_OF_RANGE: raise ELibImageQuantError.Create('LIQ_VALUE_OUT_OF_RANGE');
     LIQ_OUT_OF_MEMORY: raise ELibImageQuantError.Create('LIQ_OUT_OF_MEMORY');
-    LIQ_NOT_READY: raise ELibImageQuantError.Create('LIQ_NOT_READY');
-    LIQ_BITMAP_NOT_AVAILABLE: raise ELibImageQuantError.Create('LIQ_BITMAP_NOT_AVAILABLE');
-    LIQ_BUFFER_TOO_SMALL: raise ELibImageQuantError.Create('LIQ_BUFFER_TOO_SMALL');
-    LIQ_INVALID_POINTER: raise ELibImageQuantError.Create('LIQ_INVALID_POINTER');
+   LIQ_NOT_READY: raise ELibImageQuantError.Create('LIQ_NOT_READY');
+   LIQ_BITMAP_NOT_AVAILABLE: raise ELibImageQuantError.Create('LIQ_BITMAP_NOT_AVAILABLE');
+   LIQ_BUFFER_TOO_SMALL: raise ELibImageQuantError.Create('LIQ_BUFFER_TOO_SMALL');
+   LIQ_INVALID_POINTER: raise ELibImageQuantError.Create('LIQ_INVALID_POINTER');
   end;
 end;
 
@@ -318,7 +313,7 @@ begin
       if not (ret = LIQ_OK) then begin
         liq_ret_code_check(ret); // raise Error
       end;
-      
+
       {$IFDEF DO_BGRA_TO_RGBA_CONVERTIONS}
       image := liq_image_create_custom(attr, @bgra_to_rgba_callback, ABitmap32.Data, width, height, 0);
       {$ELSE}
@@ -363,7 +358,7 @@ begin
       end;
     finally
       liq_attr_destroy(attr);
-    end;   
+    end;
   {$IFDEF DISABLE_FP_EXCEPTION}
   finally
     Set8087CW(CW); // Enable "Floating point division by zero" exception

@@ -129,7 +129,6 @@ begin
         VPalette := nil;
         VPaletteSize := 0;
       end;
-
       VInfo.FLineSize := VInfo.FSize.X * (FBitsPerPixel div 8);
       VInfo.FLine := GetMemory(VInfo.FLineSize);
       try
