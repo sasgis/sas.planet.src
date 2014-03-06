@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit i_BitmapTileSaveLoad;
@@ -28,7 +28,7 @@ uses
 
 type
 
-  ///	<summary>Интерфейс загрузчика растровых тайлов</summary>
+  ///   <summary>Интерфейс загрузчика растровых тайлов</summary>
   IBitmapTileLoader = interface
     ['{07D84005-DD59-4750-BCCE-A02330734539}']
     function Load(const AData: IBinaryData): IBitmap32Static;
