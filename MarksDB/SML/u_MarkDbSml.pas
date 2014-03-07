@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_MarkDbSml;
@@ -1153,27 +1153,27 @@ begin
   ACdsMarks.XMLData :=
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     '<DATAPACKET Version="2.0">' +
-    '	<METADATA>' +
-    '		<FIELDS>' +
-    '			<FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
-    '			<FIELD attrname="name" fieldtype="string" WIDTH="255"/>' +
-    '			<FIELD attrname="descr" fieldtype="bin.hex" SUBTYPE="Text"/>' +
-    '			<FIELD attrname="scale1" fieldtype="i4"/>' +
-    ' 		<FIELD attrname="scale2" fieldtype="i4"/>' +
-    '			<FIELD attrname="lonlatarr" fieldtype="bin.hex" SUBTYPE="Binary"/>' +
-    '			<FIELD attrname="lonL" fieldtype="r8"/>' +
-    '			<FIELD attrname="latT" fieldtype="r8"/>' +
-    '			<FIELD attrname="LonR" fieldtype="r8"/>' +
-    '			<FIELD attrname="LatB" fieldtype="r8"/>' +
-    '			<FIELD attrname="color1" fieldtype="i4"/>' +
-    '			<FIELD attrname="color2" fieldtype="i4"/>' +
-    '			<FIELD attrname="visible" fieldtype="boolean"/>' +
-    '			<FIELD attrname="picname" fieldtype="string" WIDTH="20"/>' +
-    '			<FIELD attrname="categoryid" fieldtype="i4"/>' +
-    '		</FIELDS>' +
-    '		<PARAMS AUTOINCVALUE="1"/>' +
-    '	</METADATA>' +
-    '	<ROWDATA/>' +
+    '   <METADATA>' +
+    '           <FIELDS>' +
+    '                   <FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
+    '                   <FIELD attrname="name" fieldtype="string" WIDTH="255"/>' +
+    '                   <FIELD attrname="descr" fieldtype="bin.hex" SUBTYPE="Text"/>' +
+    '                   <FIELD attrname="scale1" fieldtype="i4"/>' +
+    '           <FIELD attrname="scale2" fieldtype="i4"/>' +
+    '                   <FIELD attrname="lonlatarr" fieldtype="bin.hex" SUBTYPE="Binary"/>' +
+    '                   <FIELD attrname="lonL" fieldtype="r8"/>' +
+    '                   <FIELD attrname="latT" fieldtype="r8"/>' +
+    '                   <FIELD attrname="LonR" fieldtype="r8"/>' +
+    '                   <FIELD attrname="LatB" fieldtype="r8"/>' +
+    '                   <FIELD attrname="color1" fieldtype="i4"/>' +
+    '                   <FIELD attrname="color2" fieldtype="i4"/>' +
+    '                   <FIELD attrname="visible" fieldtype="boolean"/>' +
+    '                   <FIELD attrname="picname" fieldtype="string" WIDTH="20"/>' +
+    '                   <FIELD attrname="categoryid" fieldtype="i4"/>' +
+    '           </FIELDS>' +
+    '           <PARAMS AUTOINCVALUE="1"/>' +
+    '   </METADATA>' +
+    '   <ROWDATA/>' +
     '</DATAPACKET>';
   ACdsMarks.IndexFieldNames := 'categoryid;LonR;LonL;LatT;LatB;visible';
   ACdsMarks.Open;
