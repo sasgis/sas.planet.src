@@ -67,16 +67,16 @@ begin
   //  do not check for small zooms
   // check decremented
   if (AActualZoom<14) then
-    AActualZoom:=14;
+    AActualZoom := 14;
 end;
 
 { TAvailPicsBing }
 
 procedure TAvailPicsBing.AdjustCustomBingHiResZoom(var AActualZoom: Byte);
 begin
-  if (FForceZoom24<>0) then begin
+  if (FForceZoom24 <> 0) then begin
     // for special zoom
-    AActualZoom := FForceZoom24-1;
+    AActualZoom := FForceZoom24 - 1;
   end else begin
     // default
     AdjustMinimalBingHiResZoom(AActualZoom);
@@ -114,7 +114,7 @@ var
   VSLParams: TStrings;
   VZoom: Byte;
 begin
-  Result:=0;
+  Result := 0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
@@ -162,10 +162,10 @@ begin
           VNodeValue := GetXmlNodeText(VParam);
           VSLParams.Values[VNodeName] := VNodeValue;
           // save some values
-          if SameText(VNodeName,'VintageStart') then
-            VVintageStart:=VNodeValue;
-          if SameText(VNodeName,'VintageEnd') then
-            VVintageEnd:=VNodeValue;
+          if SameText(VNodeName, 'VintageStart') then
+            VVintageStart := VNodeValue;
+          if SameText(VNodeName, 'VintageEnd') then
+            VVintageEnd := VNodeValue;
           end;
         // next
         VParam := VParam.nextSibling;
@@ -188,7 +188,7 @@ begin
         if FTileInfoPtr.AddImageProc(
             Self,
             VVintageStart,
-            'Bing (z'+inttostr(VZoom+1)+')',
+            'Bing (z' + inttostr(VZoom + 1) + ')',
             False, // cannot check image identifier for BING
             0,
             VSLParams
@@ -211,8 +211,8 @@ begin
  VZoom := FTileInfoPtr.Zoom;
  AdjustCustomBingHiResZoom(VZoom);
  VLink := 'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Aerial/'+
-            RoundEx(FTileInfoPtr.LonLat.Y, 6)+','+RoundEx(FTileInfoPtr.LonLat.X, 6)+
-            '?zl='+IntToStr(VZoom)+'&o=xml&key='+FDefaultKey;
+            RoundEx(FTileInfoPtr.LonLat.Y, 6) + ',' + RoundEx(FTileInfoPtr.LonLat.X, 6)+
+            '?zl=' + IntToStr(VZoom) + '&o=xml&key=' + FDefaultKey;
 
  Result := TDownloadRequest.Create(
            VLink,

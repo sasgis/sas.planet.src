@@ -117,7 +117,7 @@ DG:
 *)
 
 var
-  Stacks : array [0..13,0..3] of string =
+  Stacks: array [0..13,0..3] of string =
             (
              ('227400001','1','GlobeXplorer Premium Stack','020100S'),
              ('227400001','2','USGS 1:24k Topo Stack','020100S'),
@@ -179,7 +179,7 @@ procedure GenerateAvailPicsDG(
   const ATileInfoPtr: PAvailPicsTileInfo;
   const AMapSvcScanStorage: IMapSvcScanStorage
 );
-var i,k: Integer;
+var i, k: Integer;
 begin
   k := length(Stacks);
 
@@ -187,16 +187,16 @@ begin
   SetLength(ADGs, k);
 
   // create objects
-  for i:=0 to k-1 do begin
+  for i := 0 to k - 1 do begin
     ADGs[i] := TAvailPicsDG.Create(
       ATileInfoPtr,
       AMapSvcScanStorage
     );
     with ADGs[i] do begin
-      FStack_Key       := Stacks[i,0];
-      FStack_Number    := Stacks[i,1];
-      FStack_Descript  := Stacks[i,2];
-      FStack_AppId     := Stacks[i,3];
+      FStack_Key       := Stacks[i, 0];
+      FStack_Number    := Stacks[i, 1];
+      FStack_Descript  := Stacks[i, 2];
+      FStack_AppId     := Stacks[i, 3];
       FBaseStorageName := FBaseStorageName + '_' + FStack_Number;
     end;
   end;
@@ -205,14 +205,14 @@ end;
 function EncodeDG(const S: String): String;
 var i: integer;
 begin
-  Result:=S;
+  Result := S;
 
   if (0<Length(S)) then
-  for i:=1 to Length(S) do begin
+  for i := 1 to Length(S) do begin
     if (0 = (Ord(S[i]) mod 2)) then
-      Result[i]:=Chr(Ord(S[i])+1)
+      Result[i] := Chr(Ord(S[i]) + 1)
     else
-      Result[i]:=Chr(Ord(S[i])-1);
+      Result[i] := Chr(Ord(S[i]) - 1);
   end;
 end;
 
@@ -220,21 +220,21 @@ function Encode64(const S: String): String;
 const
   Codes64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 var
-  i,a,x,b: Integer;
+  i, a, x, b: Integer;
 begin
   Result:='';
-  a:=0;
-  b:=0;
+  a := 0;
+  b := 0;
 
   if (0<Length(S)) then
   for i := 1 to Length(S) do
   begin
-    x:=Ord(S[i]);
-    b:=b*256+x;
-    a:=a+8;
+    x := Ord(S[i]);
+    b := b*256 + x;
+    a := a + 8;
 
     while (a >= 6) do begin
-      a := a-6;
+      a := a - 6;
       x := b div (1 shl a);
       b := b mod (1 shl a);
       Result := Result + Codes64[x + 1];
@@ -242,7 +242,7 @@ begin
   end;
 
   if a>0 then begin
-    Result := Result + Codes64[(b shl (6-a))+1];
+    Result := Result + Codes64[(b shl (6 - a)) + 1];
   end;
 end;
 
@@ -277,9 +277,9 @@ end;
 procedure TrimQuotes(var S: String);
 begin
   if (0<Length(S)) and ('"'=S[1]) then
-    System.Delete(S,1,1);
+    System.Delete(S, 1, 1);
   if (0<Length(S)) and ('"'=S[Length(S)]) then
-    SetLength(S,(Length(S)-1));
+    SetLength(S, (Length(S) - 1));
 end;
 
 
@@ -292,7 +292,7 @@ end;
 
 function TAvailPicsDG.GUI_Name: String;
 begin
-  Result:=FStack_Number+', '+FStack_Descript;
+  Result := FStack_Number + ', '+FStack_Descript;
 end;
 
 function TAvailPicsDG.ParseResponse(const AResultOk: IDownloadResultOk): Integer;
@@ -307,7 +307,7 @@ var
   VItemExists: Boolean;
   VItemFetched: TDateTime;
 begin
-  Result:=0;
+  Result := 0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
@@ -396,14 +396,14 @@ var
   VLink: string;
   VEncrypt: String;
 begin
-  VEncrypt:= Encode64(EncodeDG('cmd=info&id='+FStack_Key+
-                               '&appid='+FStack_AppId+
-                               '&ls='+FStack_Number+
-                               '&xc='+RoundEx(FTileInfoPtr.LonLat.X, 6)+
-                               '&yc='+RoundEx(FTileInfoPtr.LonLat.y, 6)+
-                               '&mpp='+R2StrPoint(FTileInfoPtr.mpp)+
-                               '&iw='+inttostr(FTileInfoPtr.wi)+
-                               '&ih='+inttostr(FTileInfoPtr.hi)+
+  VEncrypt:= Encode64(EncodeDG('cmd=info&id=' + FStack_Key+
+                               '&appid=' + FStack_AppId+
+                               '&ls=' + FStack_Number+
+                               '&xc=' + RoundEx(FTileInfoPtr.LonLat.X, 6)+
+                               '&yc=' + RoundEx(FTileInfoPtr.LonLat.y, 6)+
+                               '&mpp=' + R2StrPoint(FTileInfoPtr.mpp)+
+                               '&iw=' + inttostr(FTileInfoPtr.wi)+
+                               '&ih=' + inttostr(FTileInfoPtr.hi)+
                                '&extentset=all'));
   VLink := 'http://image.globexplorer.com/gexservlets/gex?encrypt=' + VEncrypt;
   Result := TDownloadRequest.Create(

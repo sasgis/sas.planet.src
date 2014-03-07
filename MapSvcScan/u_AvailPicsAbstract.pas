@@ -107,17 +107,17 @@ var VRes: String;
 begin
   if (0=Length(AStrResolution)) then begin
     // if no resolution info - show image
-    Result:=TRUE;
+    Result := TRUE;
   end else begin
     // try co check landsat
-    VRes:=AStrResolution;
+    VRes := AStrResolution;
     try
-      if (DecimalSeparator<>'.') and (System.Pos(DecimalSeparator,VRes)>0) then
-        VRes:=StringReplace(VRes, DecimalSeparator, '.', []);
+      if (DecimalSeparator<>'.') and (System.Pos(DecimalSeparator, VRes)>0) then
+        VRes := StringReplace(VRes, DecimalSeparator, '.', []);
       // do not show "landsat" with 15 and 25 meters
-      Result:=(StrPointToFloat(VRes)<=14);
+      Result := (StrPointToFloat(VRes)<=14);
     except
-      Result:=TRUE;
+      Result := TRUE;
     end;
   end;
 end;
@@ -171,7 +171,7 @@ end;
 
 destructor TAvailPicsAbstract.Destroy;
 begin
-  FLocalConverter:=nil;
+  FLocalConverter := nil;
   inherited;
 end;
 

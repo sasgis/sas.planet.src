@@ -80,7 +80,7 @@ begin
   end;
 
   // *Unit
-  if (Length(ANodeNameLC) > 4) and (Copy(ANodeNameLC, Length(ANodeNameLC)-3, 4) = 'unit') then begin
+  if (Length(ANodeNameLC) > 4) and (Copy(ANodeNameLC, Length(ANodeNameLC) - 3, 4) = 'unit') then begin
     Inc(Result);
     Exit;
   end;
@@ -139,14 +139,14 @@ var
   VDate, VfeatureId, VlegacyId: String;
   //VSampleDistance, VcompanyName : String;
   //Vsource, VproductType, VdataLayer : String;
-  VposList : String;
+  VposList: String;
   VAddResult: Boolean;
   VParams: TStrings;
   VItemIdentifier: String;
   VItemExisting: Boolean;
   VItemFetched: TDateTime;
 begin
-  Result:=0;
+  Result := 0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
@@ -225,8 +225,8 @@ begin
 
             // add urls
             if (0 < Length(VlegacyId)) then begin
-              VParams.Values['IMAGE_FILE_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseImage?catalogId='+VlegacyId+'&imageHeight=1024&imageWidth=1024';
-              VParams.Values['METADATA_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseMetadata?buffer=1.0&catalogId='+VlegacyId+'&imageHeight=natres&imageWidth=natres';
+              VParams.Values['IMAGE_FILE_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseImage?catalogId=' + VlegacyId + '&imageHeight=1024&imageWidth=1024';
+              VParams.Values['METADATA_URL'] := 'https://browse.digitalglobe.com/imagefinder/showBrowseMetadata?buffer=1.0&catalogId=' + VlegacyId + '&imageHeight=natres&imageWidth=natres';
             end;
 
             // replace some node names
@@ -271,7 +271,7 @@ var
 begin
   Key:= FDefaultKey;
   for i := 1 to Length(Key) do begin
-    Key[i] := Chr(Ord(Key[i])+1);
+    Key[i] := Chr(Ord(Key[i]) + 1);
   end;
 
   // zoom 15 - 256x256
@@ -283,11 +283,11 @@ begin
   end;
   VLink := IntToStr(i);
 
-  VLink  := 'https://services.digitalglobe.com/catalogservice/wfsaccess?WIDTH='+VLink+'&HEIGHT='+VLink+'&CONNECTID='+Key+
+  VLink  := 'https://services.digitalglobe.com/catalogservice/wfsaccess?WIDTH=' + VLink + '&HEIGHT=' + VLink + '&CONNECTID=' + Key +
             '&MAXFEATURES=500&SERVICE=WFS&REQUEST=GetFeature&TYPENAME=DigitalGlobe:FinishedFeature&VERSION=1.1.0&BBOX='+
-            RoundEx(FTileInfoPtr.TileRect.Bottom, 8)+','+
-            RoundEx(FTileInfoPtr.TileRect.Left, 8)+','+
-            RoundEx(FTileInfoPtr.TileRect.Top, 8)+','+
+            RoundEx(FTileInfoPtr.TileRect.Bottom, 8) + ','+
+            RoundEx(FTileInfoPtr.TileRect.Left, 8) + ','+
+            RoundEx(FTileInfoPtr.TileRect.Top, 8) + ','+
             RoundEx(FTileInfoPtr.TileRect.Right, 8);
 
  Result := TDownloadRequest.Create(

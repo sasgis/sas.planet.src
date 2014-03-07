@@ -129,7 +129,7 @@ var
   VItemExists: Boolean;
   VItemFetched: TDateTime;
 begin
-  Result:=0;
+  Result := 0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
@@ -151,7 +151,7 @@ begin
       // very simple JSON parser for ESRI
       // TODO: make JSON parser
       if (0 < VList.Count) then
-      for i := 0 to VList.Count-1 do
+      for i := 0 to VList.Count - 1 do
       try
         VLine := Trim(VList[i]);
         // iteration
@@ -161,7 +161,7 @@ begin
             // end of attributes
             VInAttributes := FALSE;
             // check
-            VItemExists := ItemExists(FBaseStorageName, VId+'_'+VDate, @VItemFetched);
+            VItemExists := ItemExists(FBaseStorageName, VId + '_' + VDate, @VItemFetched);
             // Добавляем строку geometry
             VParams.Values[c_geometry] := VGeometry;
             //Добавляем имя провайдера
@@ -351,10 +351,10 @@ begin
            '0'+
            '/query?text=&geometry='+
            // 26,40,74,80 = lon_min,lat_min,lon_max,lat_max
-           RoundEx(FTileInfoPtr.TileRect.Left, 6)+'%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Bottom, 6)+'%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Right, 6)+'%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Top, 6)+
+           RoundEx(FTileInfoPtr.TileRect.Left, 6) + '%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Bottom, 6) + '%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Right, 6) + '%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Top, 6) +
            '&geometryType=esriGeometryEnvelope&inSR=4326'+
            '&spatialRel=esriSpatialRelEnvelopeIntersects&relationParam=&objectIds=&where=&time='+
            '&returnCountOnly=false'+ // true

@@ -95,7 +95,7 @@ const
   begin
     if (ALine[1]=':') then begin
       // as value
-      System.Delete(ALine,1,1);
+      System.Delete(ALine, 1, 1);
       Result := gfwlt_Value;
     end else begin
       // as parameter
@@ -115,20 +115,20 @@ const
       // check ':'
       if (System.Pos(':', ALine) > p) then begin
         Result := gfwlt_StartOfAttributes;
-        System.Delete(ALine, 1, p+Length(c_attributes_quoted));
+        System.Delete(ALine, 1, p + Length(c_attributes_quoted));
       end
     end;
 
     // check if quoted multilines for value
     if (gfwlt_Value=Result) then
     if (0<Length(ALine)) and (ALine[1]='"') then begin
-      System.Delete(ALine,1,1);
+      System.Delete(ALine, 1, 1);
       if (0=Length(ALine)) then begin
         // unclosed quote (empty line)
         Result := gfwlt_MultiLine;
       end else if (ALine[Length(ALine)]='"') then begin
         // simple value
-        SetLength(ALine, Length(ALine)-1);
+        SetLength(ALine, Length(ALine) - 1);
       end else begin
         // unclosed quote (with text)
         Result := gfwlt_MultiLine;
@@ -149,7 +149,7 @@ const
     if (VPos>0) then begin
       // line as ':{"rings":[[[58.051913790000071'
       // get last number as first part of coordinates
-      VTrimmed := System.Copy(AGeoLineSrc, VPos+Length(c_rings_quoted), Length(AGeoLineSrc));
+      VTrimmed := System.Copy(AGeoLineSrc, VPos + Length(c_rings_quoted), Length(AGeoLineSrc));
       while (0<Length(VTrimmed)) and (VTrimmed[1] in ['[',':','{',' ']) do begin
         System.Delete(VTrimmed, 1, 1);
       end;
@@ -168,7 +168,7 @@ const
       VPos := System.Pos(']]]', AGeoLineSrc);
       if (VPos>0) then begin
         // very last line of geometry
-        VTrimmed := System.Copy(AGeoLineSrc, 1, (VPos-1));
+        VTrimmed := System.Copy(AGeoLineSrc, 1, (VPos - 1));
         // cleanup start of geometry
         while (0<Length(AFullGeoLine)) and (AFullGeoLine[1] in ['[',':','{',' ']) do begin
           System.Delete(AFullGeoLine, 1, 1);
@@ -178,7 +178,7 @@ const
         VTrimmed := AGeoLineSrc;
       end;
       while (0<Length(VTrimmed)) and (VTrimmed[Length(VTrimmed)] in [']',':','}',' ']) do begin
-        SetLength(VTrimmed, Length(VTrimmed)-1);
+        SetLength(VTrimmed, Length(VTrimmed) - 1);
       end;
     end;
 
@@ -202,8 +202,8 @@ const
     // add item
     VID := AParams.Values['IMAGE_ID'];
     VColl := AParams.Values['COLLECTION_VEHICLE_LONG'];
-    VItemExisting := ItemExists(FBaseStorageName+'_'+VColl, VID, @VItemFetched);
-    VDate := System.Copy(VID,1,4) + DateSeparator + System.Copy(VID,5,2) + DateSeparator + System.Copy(VID,7,2);
+    VItemExisting := ItemExists(FBaseStorageName + '_' + VColl, VID, @VItemFetched);
+    VDate := System.Copy(VID, 1, 4) + DateSeparator + System.Copy(VID, 5, 2) + DateSeparator + System.Copy(VID, 7, 2);
     // add date to params
     AParams.Values['Date'] := VDate;
     Result := FTileInfoPtr.AddImageProc(
@@ -230,20 +230,20 @@ var
   VParams: TStrings;
   VHasFeatures: Boolean;
 begin
-  Result:=0;
+  Result := 0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
-  VHasFeatures:=FALSE;
+  VHasFeatures := FALSE;
 
-  VParams:=nil;
-  VList:=TStringList.Create;
+  VParams := nil;
+  VList := TStringList.Create;
   try
     // try to get plain text (unzip if gzipped)
     if not GetPlainJsonGeoFuseText(AResultOk, VList) then
       Exit;
-    
+
     // full JSON parser for GeoFuse.GeoEye
     VIndex := 0;
     VJSonParameter := '';
@@ -295,7 +295,7 @@ begin
           gfwlt_Value: begin
             // simple value
             while (0<Length(VLine)) and (VLine[Length(VLine)] in [']','}']) do begin
-              SetLength(VLine, Length(VLine)-1);
+              SetLength(VLine, Length(VLine) - 1);
             end;
             if (0<Length(VLine)) and (0<Length(VJSonParameter)) then begin
               _InitParams(VParams, FALSE);
@@ -313,7 +313,7 @@ begin
               end;
               VLine := VLine + ' ' + Trim(VList[VIndex]);
               if VLine[Length(VLine)]='"' then begin
-                SetLength(VLine, Length(VLine)-1);
+                SetLength(VLine, Length(VLine) - 1);
                 break;
               end;
             until FALSE;
@@ -383,13 +383,13 @@ begin
  VLink := 'http://geofuse.geoeye.com/ArcGIS/rest/services/GeoEyeCatalogFeatures/MapServer/exts/CatalogServer//query?'+
            'geometryType=esriGeometryEnvelope&geometry='+
            // 26,40,74,80 = lon_min,lat_min,lon_max,lat_max
-           RoundEx(FTileInfoPtr.TileRect.Left, 6)+'%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Bottom, 6)+'%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Right, 6)+'%2C'+
-           RoundEx(FTileInfoPtr.TileRect.Top, 6)+
-           '&inSR=4326&outSR=4326'+
-           '&spatialRel=esriSpatialRelEnvelopeIntersects&returnGeometry=true'+
-           '&where=COLLECTION_ANGLE_ELEV%20BETWEEN%200%20AND%2090&outFields=*'+
+           RoundEx(FTileInfoPtr.TileRect.Left, 6) + '%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Bottom, 6) + '%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Right, 6) + '%2C'+
+           RoundEx(FTileInfoPtr.TileRect.Top, 6) +
+           '&inSR=4326&outSR=4326' +
+           '&spatialRel=esriSpatialRelEnvelopeIntersects&returnGeometry=true' +
+           '&where=COLLECTION_ANGLE_ELEV%20BETWEEN%200%20AND%2090&outFields=*' +
            '&pageStart=1&pageSize=200&spatialRank=false&sort=true&f=json'; // json // kmz // html
 
  Result := TDownloadRequest.Create(

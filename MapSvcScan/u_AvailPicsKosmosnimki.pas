@@ -36,11 +36,11 @@ type
   TAvailPicsKS = class(TAvailPicsAbstract)
   private
     FKSMode: Byte;
-    FMinDate : string;
-    FMaxDate : string;
-    FMaxCloudCover : Byte;
-    FEveryYear : string;
-    FMaxOfNadir : Byte;
+    FMinDate: string;
+    FMaxDate: string;
+    FMaxCloudCover: Byte;
+    FEveryYear: string;
+    FMaxOfNadir: Byte;
     FResultFactory: IDownloadResultFactory;
     function GetPlainJsonKosmosnimkiText(
       const AResultOk: IDownloadResultOk;
@@ -155,10 +155,10 @@ function TAvailPicsKS.ParseResponse(const AResultOk: IDownloadResultOk): Integer
   begin
     Result := AParams.Values['x1'] + ' ' + AParams.Values['y1'];
     VFirst := Result;
-    
+
     for i := 2 to 4 do begin
-      Result := Result + ' ' + AParams.Values['x'+IntToStr(i)] +
-                         ' ' + AParams.Values['y'+IntToStr(i)];
+      Result := Result + ' ' + AParams.Values['x' + IntToStr(i)] +
+                         ' ' + AParams.Values['y' + IntToStr(i)];
     end;
 
     Result := Result + ' ' + VFirst;
@@ -180,11 +180,11 @@ function TAvailPicsKS.ParseResponse(const AResultOk: IDownloadResultOk): Integer
     VOutParams := TStringList.Create;
     try
       // copy params
-      for i := 0 to AParams.Count-1 do begin
+      for i := 0 to AParams.Count - 1 do begin
         VName := AParams.Names[i];
         VOutParams.Values[VName] := AParams.ValueFromIndex[i];
       end;
-      
+
       // add some fields
       VOutParams.Values['ProviderName'] := 'Kosmosnimki';
 
@@ -196,7 +196,7 @@ function TAvailPicsKS.ParseResponse(const AResultOk: IDownloadResultOk): Integer
         VDate[8] := DateSeparator;
       end;
       VRealID := VOutParams.Values['id'];
-      VID := VDate+' ['+VRealID+'] '+VItemSubStorage;
+      VID := VDate + ' [' + VRealID + '] '+VItemSubStorage;
 
       // check SPOT 5 order
       VName := VOutParams.Values['prod_order'];
@@ -221,7 +221,7 @@ function TAvailPicsKS.ParseResponse(const AResultOk: IDownloadResultOk): Integer
 
       // check if new
       VItemExisting := ItemExists(
-        FBaseStorageName+'_'+VItemSubStorage,
+        FBaseStorageName + '_' + VItemSubStorage,
         VRealID,
         @VItemFetched
       );
@@ -252,7 +252,7 @@ var
   VLine: String;
   VParams: TStrings;
 begin
-  Result:=0;
+  Result := 0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
@@ -269,7 +269,7 @@ begin
 
     while VIndex<VList.Count do begin
       VLine :=VList[VIndex];
-      VLine := System.Copy(VLine, 2, Length(VLine)-2);
+      VLine := System.Copy(VLine, 2, Length(VLine) - 2);
       VLine := StringReplace(VLine, '"', '', [rfReplaceAll]);
 
       _InitParams(VParams, VLine);
@@ -293,14 +293,14 @@ var
   VText: String;
 begin
 (*
-satellites	GE-1,WV01,WV02,QB02,EROS-B,IK-2,EROS-A1,Pleiades,SPOT 5
-spot5products	5,3,1,4,2
-min_date	2003-01-01
-max_date	2013-02-12
-max_cloud_cover	50
-every_year	false
-max_off_nadir	90
-wkt	POLYGON((56.60156 61.20494,56.75537 61.20494,56.75537 61.09875,56.60156 61.09875,56.60156 61.20494));
+satellites      GE-1,WV01,WV02,QB02,EROS-B,IK-2,EROS-A1,Pleiades,SPOT 5
+spot5products   5,3,1,4,2
+min_date        2003-01-01
+max_date        2013-02-12
+max_cloud_cover 50
+every_year      false
+max_off_nadir   90
+wkt     POLYGON((56.60156 61.20494,56.75537 61.20494,56.75537 61.09875,56.60156 61.09875,56.60156 61.20494));
 *)
   VText := '';
   case FKSMode of
@@ -314,7 +314,7 @@ wkt	POLYGON((56.60156 61.20494,56.75537 61.20494,56.75537 61.09875,56.60156 61.0
     8: Result := 'Pleiades';
     else begin
       Result := 'SPOT 5';
-      VText := IntToStr(FKSMode-8);
+      VText := IntToStr(FKSMode - 8);
     end;
   end;
 
@@ -331,14 +331,14 @@ wkt	POLYGON((56.60156 61.20494,56.75537 61.20494,56.75537 61.09875,56.60156 61.0
   Result := Result + '&max_off_nadir=' + IntToStr(FMaxOfNadir);
 
   // first=last
-  VText := RoundEx(FTileInfoPtr.TileRect.Left, 8)+' '+RoundEx(FTileInfoPtr.TileRect.Top, 8);
+  VText := RoundEx(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Top, 8);
 
   Result := Result +  '&wkt=POLYGON((' +
-    VText+','+
-    RoundEx(FTileInfoPtr.TileRect.Left, 8)+' '+RoundEx(FTileInfoPtr.TileRect.Bottom, 8)+','+
-    RoundEx(FTileInfoPtr.TileRect.Right, 8)+' '+RoundEx(FTileInfoPtr.TileRect.Top, 8)+','+
-    RoundEx(FTileInfoPtr.TileRect.Right, 8)+' '+RoundEx(FTileInfoPtr.TileRect.Bottom, 8)+','+
-    VText+
+    VText + ','+
+    RoundEx(FTileInfoPtr.TileRect.Left, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Bottom, 8) + ','+
+    RoundEx(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Top, 8) + ','+
+    RoundEx(FTileInfoPtr.TileRect.Right, 8) + ' '+RoundEx(FTileInfoPtr.TileRect.Bottom, 8) + ','+
+    VText +
     '));';
 end;
 
@@ -462,7 +462,7 @@ begin
     Exit;
   end;
   //убираем [ в начале и ] в конце
-  Result := System.Copy(AStrValue, 2, Length(AStrValue)-2);
+  Result := System.Copy(AStrValue, 2, Length(AStrValue) - 2);
   Result := StringReplace(Result, ' ', '_', [rfReplaceAll]);
   Result := StringReplace(Result, '},{', '|*|', [rfReplaceAll]);
   if (0<Length(Result)) then begin

@@ -144,30 +144,30 @@ var
 begin
   // Переводим BBox из LonLat в метры и сразу формируем нужный формат для запроса
   VGeoConverter := FLocalConverter.GeoConverter;
-  
+
   // TopLeft
   VLonLatPoint := FTileInfoPtr^.TileRect.TopLeft;
   VLonLatMetr := VGeoConverter.LonLat2Metr(VLonLatPoint);
-  Result := RoundEx(VLonLatMetr.X, c_Roscosmos_Precision)+' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
+  Result := RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
   VStartingPoint := Result;
-  
+
   // TopRight
   VLonLatPoint.X := FTileInfoPtr.TileRect.Right;
   VLonLatMetr := VGeoConverter.LonLat2Metr(VLonLatPoint);
-  Result := Result+','+RoundEx(VLonLatMetr.X, c_Roscosmos_Precision)+' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
+  Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // BottomRight
   VLonLatPoint.Y := FTileInfoPtr.TileRect.Bottom;
   VLonLatMetr := VGeoConverter.LonLat2Metr(VLonLatPoint);
-  Result := Result+','+RoundEx(VLonLatMetr.X, c_Roscosmos_Precision)+' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
+  Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // BottomLeft
   VLonLatPoint.X := FTileInfoPtr.TileRect.Left;
   VLonLatMetr := VGeoConverter.LonLat2Metr(VLonLatPoint);
-  Result := Result+','+RoundEx(VLonLatMetr.X, c_Roscosmos_Precision)+' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
+  Result := Result + ',' + RoundEx(VLonLatMetr.X, c_Roscosmos_Precision) + ' '+RoundEx(VLonLatMetr.Y, c_Roscosmos_Precision);
 
   // TopLeft
-  Result := Result+','+VStartingPoint;
+  Result := Result + ',' + VStartingPoint;
 end;
 
 
@@ -203,16 +203,16 @@ var
   VId,
   VDateTime,
   VGeometry,
-  VSurvayDate : String;
+  VSurvayDate: String;
   VAddResult: Boolean;
-  i : Integer;
+  i: Integer;
   VParams: TStrings;
   VMemoryStream: TMemoryStream;
-  VUnZipped : TMemoryStream;
+  VUnZipped: TMemoryStream;
   VItemExists: Boolean;
   VItemFetched: TDateTime;
 begin
-  Result:=0;
+  Result := 0;
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
 
@@ -226,7 +226,7 @@ begin
 
     XMLDocument := TXMLDocument.Create(Application);
 
-    VParams:=TStringList.Create;
+    VParams := TStringList.Create;
     try
       VParams.NameValueSeparator := ':';
       VParams.Text := AResultOk.RawResponseHeader;
@@ -283,9 +283,9 @@ begin
         VSurvayDate := PlacemarkNode.GetAttribute('survaydate');
 
         try
-          VParams:=nil;
-          VParams:=TStringList.Create;
-          VDate := copy(VSurvayDate,1,10);
+          VParams := nil;
+          VParams := TStringList.Create;
+          VDate := copy(VSurvayDate, 1, 10);
           VDate[5] := DateSeparator;
           VDate[8] := DateSeparator;
           VParams.Values['id'] := VId;
@@ -304,13 +304,13 @@ begin
           VParams.Values['Provider'] := 'geoportal.ntsomz.ru';
 
           // формируем имя снимка (первую часть)
-          VPosList := VDateTime+' ['+Vid+'] ';
+          VPosList := VDateTime + ' [' + Vid + '] ';
 
           // про поиске в хранилище не будем закладываться на возвращённое имя спутника
           VItemExists := ItemExists(FBaseStorageName, (VPosList + FSatName), @VItemFetched);
 
           // а выхлоп будет с возвращённым именем спутника
-          VPosList := VPosList+VParams.Values['satellite'];
+          VPosList := VPosList + VParams.Values['satellite'];
           VAddResult := FTileInfoPtr.AddImageProc(
             Self,
             VDate,
@@ -332,7 +332,7 @@ begin
             except
 
             end;
-            VParams:=nil;
+            VParams := nil;
           end;
         end;
       end;
@@ -348,7 +348,7 @@ var
   VPostData: IBinaryData;
   VPostdataStr: Ansistring;
   VDownloader: IDownloader; // TDownloaderHttp;
-  VPostRequest : IDownloadPostRequest; // POST
+  VPostRequest: IDownloadPostRequest; // POST
   VHeader: Ansistring;
   VLink: Ansistring;
   VResult: IDownloadResult;
@@ -379,7 +379,7 @@ begin
                    AInetConfig.GetStatic
                   );
 
-  VDownloader:=TDownloaderHttp.Create(FResultFactory, TRUE);
+  VDownloader := TDownloaderHttp.Create(FResultFactory, TRUE);
   VCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
   VResult := VDownloader.DoRequest(
               VPostRequest,

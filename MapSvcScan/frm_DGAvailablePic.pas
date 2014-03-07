@@ -314,7 +314,7 @@ type
     FDownloaderHttp: IDownloader; // TDownloaderHttp;
     FHttpErrorCode: Cardinal;
     FHttpErrorText: String;
-    
+
   private
     FInetConfig: IInetConfig;
     FForm: TfrmDGAvailablePic;
@@ -356,16 +356,16 @@ constructor TGetList.Create(
 );
 begin
   inherited Create(True);
-  FHttpErrorCode:=0;
+  FHttpErrorCode := 0;
   FHttpErrorText:='';
   FInetConfig := AInetConfig;
-  FreeOnTerminate:=true;
-  Priority:=tpLower;
-  FAvailPicsSrc:=AAvailPicsSrc;
+  FreeOnTerminate := True;
+  Priority := tpLower;
+  FAvailPicsSrc := AAvailPicsSrc;
   FForm := AForm;
   FChkBox := AChkBox;
   FCallIndex := AForm.FCallIndex;
-  FDownloaderHttp:=TDownloaderHttp.Create(AForm.FResultFactory, TRUE);
+  FDownloaderHttp := TDownloaderHttp.Create(AForm.FResultFactory, TRUE);
 end;
 
 procedure TGetList.ShowError;
@@ -374,9 +374,9 @@ begin
   if (0=FHttpErrorCode) then
     s1:='ERROR'
   else
-    s1:=IntToStr(FHttpErrorCode);
+    s1 := IntToStr(FHttpErrorCode);
   // add to params
-  FForm.veImageParams.Strings.Add(s1+'='+FHttpErrorText);
+  FForm.veImageParams.Strings.Add(s1 + '=' + FHttpErrorText);
 end;
 
 
@@ -412,15 +412,15 @@ var
   VCancelNotifier: INotifierOperation;
 begin
   try
-   Result:=FALSE;
+   Result := FALSE;
    try
-     VRequest:=FAvailPicsSrc.GetRequest(FInetConfig);
-     VCancelNotifier:=TNotifierOperation.Create(TNotifierBase.Create);
-     VResult:=FDownloaderHttp.DoRequest(
-                  VRequest,
-                  VCancelNotifier,
-                  VCancelNotifier.CurrentOperation
-              );
+     VRequest := FAvailPicsSrc.GetRequest(FInetConfig);
+     VCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+     VResult := FDownloaderHttp.DoRequest(
+       VRequest,
+       VCancelNotifier,
+       VCancelNotifier.CurrentOperation
+       );
 
      // check result
      if not Assigned(VResult) then begin
@@ -433,18 +433,18 @@ begin
          // save to stream
          FResultOk := VResultOk;
          if (System.Pos(FAvailPicsSrc.ContentType, VResultOk.ContentType)>0) then
-           Result:=TRUE;           // ok
+           Result := TRUE;           // ok
        end;
      end else if Supports(VResult, IDownloadResultError, VDownloadResultError) then begin
        // error
-       FHttpErrorText:=VDownloadResultError.ErrorText;
+       FHttpErrorText := VDownloadResultError.ErrorText;
      end else if Supports(VResult, IDownloadResultDataNotExists, VDownloadResultDataNotExists) then begin
        // no data
-       FHttpErrorText:=VDownloadResultDataNotExists.ReasonText;
+       FHttpErrorText := VDownloadResultDataNotExists.ReasonText;
      end;
    finally
-     VRequest:=nil;
-     VCancelNotifier:=nil;
+     VRequest := nil;
+     VCancelNotifier := nil;
    end;
 
     if Result then begin
@@ -573,20 +573,20 @@ begin
   VRad := VConverter.Datum.GetSpheroidRadiusA;
   VPixelsAtZoom := VConverter.PixelsAtZoomFloat(FAvailPicsTileInfo.Zoom);
 
-  FAvailPicsTileInfo.mpp:=1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FAvailPicsTileInfo.LonLat.y*D2R)));
-  FAvailPicsTileInfo.hi:=round(FAvailPicsTileInfo.mpp*15);
-  FAvailPicsTileInfo.wi:=round(FAvailPicsTileInfo.mpp*15);
+  FAvailPicsTileInfo.mpp := 1/((VPixelsAtZoom/(2*PI))/(VRad*cos(FAvailPicsTileInfo.LonLat.y*D2R)));
+  FAvailPicsTileInfo.hi := round(FAvailPicsTileInfo.mpp*15);
+  FAvailPicsTileInfo.wi := round(FAvailPicsTileInfo.mpp*15);
 
   if FAvailPicsTileInfo.hi>maxReqSize then
-    FAvailPicsTileInfo.hi:=maxReqSize;
+    FAvailPicsTileInfo.hi := maxReqSize;
   if FAvailPicsTileInfo.wi>maxReqSize then
-    FAvailPicsTileInfo.wi:=maxReqSize;
+    FAvailPicsTileInfo.wi := maxReqSize;
   if FAvailPicsTileInfo.hi<VSize.Y then
-    FAvailPicsTileInfo.hi:=256;
+    FAvailPicsTileInfo.hi := 256;
   if FAvailPicsTileInfo.wi<VSize.X then
-    FAvailPicsTileInfo.wi:=256;
+    FAvailPicsTileInfo.wi := 256;
   if FAvailPicsTileInfo.mpp>8 then
-    FAvailPicsTileInfo.mpp:=8;
+    FAvailPicsTileInfo.mpp := 8;
 
   // refresh
   btnRefreshClick(nil);
@@ -595,9 +595,9 @@ end;
 procedure TfrmDGAvailablePic.spltDescCanResize(Sender: TObject; var NewSize: Integer; var Accept: Boolean);
 begin
   if (NewSize<gbImageParams.Constraints.MinHeight) then
-    Accept:=FALSE
-  else if (NewSize>ClientHeight-gbAvailImages.Top-gbAvailImages.Constraints.MinHeight-spltDesc.Height) then
-    Accept:=FALSE;
+    Accept := FALSE
+  else if (NewSize>ClientHeight - gbAvailImages.Top - gbAvailImages.Constraints.MinHeight - spltDesc.Height) then
+    Accept := FALSE;
 end;
 
 function TfrmDGAvailablePic.AddAvailImageItem(
@@ -611,7 +611,7 @@ function TfrmDGAvailablePic.AddAvailImageItem(
   procedure _CopyNewLines(dst: TStrings; const src: TStrings);
   var
     i: Integer;
-    v,s: String;
+    v, s: String;
   begin
     for i := 0 to src.Count - 1 do begin
       s := src.Names[i];
@@ -620,17 +620,17 @@ function TfrmDGAvailablePic.AddAvailImageItem(
         dst.Values[s] := src.ValueFromIndex[i];
     end;
   end;
-  
+
 var
   //VImageService: String;
   // VVendorNode: TTreeNode;
   VDateNode, VItemNode: TTreeNode;
   VExistDiff: Integer;
 begin
-  Result:=FALSE;
+  Result := FALSE;
 
   if AExisting then begin
-    VExistDiff := Trunc(FStartRefresh-AFetched);
+    VExistDiff := Trunc(FStartRefresh - AFetched);
     // if do not show OLD items
     if chkShowOnlyNew.Checked then
     if VExistDiff >= FOldImgDiff then
@@ -640,7 +640,7 @@ begin
   end else begin
     VExistDiff := 0;
   end;
- 
+
   FCSAddNode.BeginWrite;
   try
     // lookup for node as "2011/12/30" -> "DG" -> NODE (TID + PARAMS)
@@ -650,9 +650,9 @@ begin
       // find existing node or create new one
       if GetImagesNode(VDateNode, AId, AExisting, VExistDiff, VItemNode) then begin
         if (VItemNode.Data<>nil) then begin
-        // check for 2 images on 1 day 
+        // check for 2 images on 1 day
           if TStrings(VItemNode.Data).Values['Date'] <> TStrings(AParams).Values['Date'] then begin
-            VItemNode := tvFound.Items.AddChild(VDateNode, AID+' ('+copy(TStrings(AParams).Values['Date'],12,8)+')');
+            VItemNode := tvFound.Items.AddChild(VDateNode, AID + ' (' + copy(TStrings(AParams).Values['Date'], 12, 8) + ')');
             CheckNodeIsNewImage(VItemNode, AExisting, VExistDiff);
             VItemNode.Data := AParams;
             AParams := nil; // own object
@@ -749,9 +749,9 @@ begin
   RunImageThread(chkGeoFuse, FGeoFuse);
 
   // for DG - for current stack
-  VDGstack:=nil;
+  VDGstack := nil;
   if (0<cbDGstacks.Items.Count) and (0<=cbDGstacks.ItemIndex) and (cbDGstacks.ItemIndex<cbDGstacks.Items.Count) then
-    VDGstack:=FDGStacks[cbDGstacks.ItemIndex];
+    VDGstack := FDGStacks[cbDGstacks.ItemIndex];
   RunImageThread(chkDG, VDGstack);
 end;
 
@@ -760,10 +760,10 @@ begin
  if tvFound.Selected<>nil then
  if tvFound.Selected.HasChildren
   then if tvFound.Selected.GetPrev<>nil
-        then tvFound.Selected.MoveTo(tvFound.Selected.getPrevSibling,naInsert)
+        then tvFound.Selected.MoveTo(tvFound.Selected.getPrevSibling, naInsert)
         else
   else if tvFound.Selected.Parent<>tvFound.Selected.GetPrev
-        then tvFound.Selected.MoveTo(tvFound.Selected.GetPrev,naInsert)
+        then tvFound.Selected.MoveTo(tvFound.Selected.GetPrev, naInsert)
 end;
 
 procedure TfrmDGAvailablePic.CheckNodeIsNewImage(
@@ -794,7 +794,7 @@ begin
   if chkALLImages.state<>cbGrayed then
   if tvFound.Items.Count>0 then
   with tvFound.Items do
-  for i := 0 to Count-1 do
+  for i := 0 to Count - 1 do
   SetTreeNodeChecked(Item[i], VChecked);
 end;
 
@@ -843,21 +843,21 @@ begin
  then
  if tvFound.Selected.GetNextSibling<>nil then
   if tvFound.Selected.GetNextSibling.GetNextSibling<>nil
-   then tvFound.Selected.MoveTo(tvFound.Selected.GetNextSibling.GetNextSibling,naInsert)
-   else tvFound.Selected.MoveTo(tvFound.Selected.GetNextSibling,naAdd)
+   then tvFound.Selected.MoveTo(tvFound.Selected.GetNextSibling.GetNextSibling, naInsert)
+   else tvFound.Selected.MoveTo(tvFound.Selected.GetNextSibling, naAdd)
   else
  else
  if tvFound.Selected.Parent.GetLastChild<>tvFound.Selected then
   if tvFound.Selected.GetNext<>tvFound.Selected.Parent.GetLastChild
-   then tvFound.Selected.MoveTo(tvFound.Selected.GetNext.GetNext,naInsert)
-   else tvFound.Selected.MoveTo(tvFound.Selected.GetNext,naAdd)
+   then tvFound.Selected.MoveTo(tvFound.Selected.GetNext.GetNext, naInsert)
+   else tvFound.Selected.MoveTo(tvFound.Selected.GetNext, naAdd)
 end;
 
 procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
 
   function _ExtractFloat(var AParsedText: String; const ACommaAsDelimiter: Boolean): Double;
   var
-    p,q: Integer;
+    p, q: Integer;
     s: String;
   begin
     if (0=Length(AParsedText)) then
@@ -867,11 +867,11 @@ procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
       // check if comma before space
       q := System.Pos(',', AParsedText);
       if (q>0) and (q<p) then
-        p:=q;
+        p := q;
     end;
     if (p>0) then begin
       // found
-      s := System.Copy(AParsedText,1,p-1);
+      s := System.Copy(AParsedText, 1, p - 1);
       System.Delete(AParsedText, 1, p);
     end else begin
       // not found
@@ -903,7 +903,7 @@ procedure TfrmDGAvailablePic.btnMakePolyClick(Sender: TObject);
   end;
 
 var
-  i,k: Integer;
+  i, k: Integer;
   j: Integer;
   VXCommaY, VCommaAsDelimiter: Boolean;
   VUseMultiPoligonParser, VInMetr: Boolean;
@@ -923,7 +923,7 @@ begin
   k := tvFound.Items.Count;
 
   if (0<k) then
-  for i := 0 to k-1 do
+  for i := 0 to k - 1 do
   if (nil<>tvFound.Items.Item[i].Data) then
   if GetTreeNodeChecked(tvFound.Items.Item[i]) then begin
     // prepare values
@@ -939,7 +939,7 @@ begin
 
       VDate := Values['ProviderName'];
 
-      if SameText(VDate,'RosCosmos') then begin
+      if SameText(VDate, 'RosCosmos') then begin
         VUseMultiPoligonParser := TRUE;
         VInMetr := TRUE;
         VAllLinesToDesc := TRUE;
@@ -953,9 +953,9 @@ begin
         Vname := tvFound.Items.Item[i].Text;
         VDesc := '';
         // loop through all other lines
-        for j := 0 to Count-1 do begin
+        for j := 0 to Count - 1 do begin
           VDate := Names[j];
-          if SameText(VDate,'Geometry') then begin
+          if SameText(VDate, 'Geometry') then begin
             // coordinates
             VGeometry := Values[VDate];
           end else begin
@@ -983,16 +983,16 @@ begin
           // has geometry - OK
           VDesc := Values['FeatureId'];
           if 0<length(VDesc)then begin
-            Vname := copy(VDate,1,10)+' '+VDesc;
-            VDesc := 'FeatureId:'+VDesc;
+            Vname := copy(VDate, 1, 10) + ' '+VDesc;
+            VDesc := 'FeatureId:' + VDesc;
           end;
 
            if 0=length(VDesc) then begin
             VDesc := Values['uid'];
             if 0=length(VDesc) then
               VDesc := Values['IMAGE_ID'];
-            Vname := copy(VDate,1,10)+' '+VDesc;
-            VDesc := 'uid:'+VDesc;
+            Vname := copy(VDate, 1, 10) + ' '+VDesc;
+            VDesc := 'uid:' + VDesc;
            end;
           // add Date
           _AddWithBR(VDesc, 'Date', VDate);
@@ -1041,13 +1041,13 @@ begin
           // add Preview (from more info to less info)
           VDate := Values['IMAGE_FILE_URL'];
           if (0<>Length(VDate)) then
-            _AddWithBR(VDesc, 'PreviewLink', '<a href='+VDate+'>'+VDate+'</a>');
+            _AddWithBR(VDesc, 'PreviewLink', '<a href=' + VDate + '>' + VDate + '</a>');
 
           VDate := Values['FULL_METADATA_URL'];
           if (0=Length(VDate)) then
             VDate := Values['METADATA_URL'];
           if (0<>Length(VDate)) then
-            _AddWithBR(VDesc, 'MetadataLink', '<a href='+VDate+'>'+VDate+'</a>');
+            _AddWithBR(VDesc, 'MetadataLink', '<a href=' + VDate + '>' + VDate + '</a>');
         end;
       end;
     except
@@ -1131,7 +1131,7 @@ end;
 function TfrmDGAvailablePic.GetImageParamsValue(const ACol, ARow: Integer): String;
 begin
   if (ACol>0) and (ARow>0) and (ARow<veImageParams.RowCount) then
-    Result := veImageParams.Cells[ACol,ARow] // +1 {veImageParams.FixedRows}
+    Result := veImageParams.Cells[ACol, ARow] // +1 {veImageParams.FixedRows}
   else
     Result := '';
 end;
@@ -1144,23 +1144,23 @@ function TfrmDGAvailablePic.GetImagesNode(
   var AResultNode: TTreeNode
 ): Boolean;
 var
-  i,k: Integer;
+  i, k: Integer;
 begin
-  Result:=FALSE;
-  AResultNode:=nil;
+  Result := FALSE;
+  AResultNode := nil;
 
   if (nil=AParentNode) then
-    k:=tvFound.Items.Count
+    k := tvFound.Items.Count
   else
-    k:=AParentNode.Count;
+    k := AParentNode.Count;
 
-  if (0<k) then
-  for i := 0 to k-1 do begin
+  if (0 < k) then
+  for i := 0 to k - 1 do begin
     // get item
     if (nil=AParentNode) then
-      AResultNode:=tvFound.Items.Item[i]
+      AResultNode := tvFound.Items.Item[i]
     else
-      AResultNode:=AParentNode.Item[i];
+      AResultNode := AParentNode.Item[i];
 
     // check text
     if (nil<>AResultNode) then
@@ -1190,13 +1190,13 @@ end;
 
 function TfrmDGAvailablePic.Get_DG_tid_List: String;
 var
-  i,k: Integer;
+  i, k: Integer;
   single_tid: String;
 begin
   Result := '';
   k := tvFound.Items.Count;
   if (0<k) then
-  for i := 0 to k-1 do
+  for i := 0 to k - 1 do
   if (nil<>tvFound.Items.Item[i].Data) then
   if GetTreeNodeChecked(tvFound.Items.Item[i]) then
   try
@@ -1206,8 +1206,8 @@ begin
     if single_tid = '' then single_tid := TStrings(tvFound.Items.Item[i].Data).Values['layer'];
     if (0<Length(single_tid)) then begin
       if (0<Length(Result)) then
-        Result:=Result+',';
-      Result:=Result+single_tid;
+        Result := Result + ',';
+      Result := Result + single_tid;
     end;
   except
   end;
@@ -1223,7 +1223,7 @@ end;
 
 procedure TfrmDGAvailablePic.KillPicsVendors;
 var
-  i,k: Integer;
+  i, k: Integer;
   j: TAvailPicsNMCZoom;
   jj: TAvailPicsDataDoorsID;
   kk: TAvailPicsRosCosmosID;
@@ -1258,9 +1258,9 @@ begin
   if Assigned(cbDGstacks) then begin
     cbDGstacks.Items.Clear;
   end;
-  k:=Length(FDGStacks);
-  if (0<k) then begin
-    for i := k-1 downto 0 do begin
+  k := Length(FDGStacks);
+  if (0 < k) then begin
+    for i := k - 1 downto 0 do begin
       FreeAndNil(FDGStacks[i]);
     end;
     setLength(FDGStacks, 0);
@@ -1327,7 +1327,7 @@ begin
 end;
 
 procedure TfrmDGAvailablePic.MakePicsVendors;
-var i,k: Integer;
+var i, k: Integer;
 begin
   // make for bing
   if (nil=FBing) then
@@ -1367,20 +1367,20 @@ begin
 
   // fill cbDGstacks
   cbDGstacks.Items.Clear;
-  k:=Length(FDGStacks);
+  k := Length(FDGStacks);
   if (0<k) then
-  for i := 0 to k-1 do begin
+  for i := 0 to k - 1 do begin
     cbDGstacks.Items.Add(FDGStacks[i].GUI_Name);
   end;
 
   // select last item
   if (0<cbDGstacks.Items.Count) and (0>cbDGstacks.ItemIndex) then
-    cbDGstacks.ItemIndex:=(cbDGstacks.Items.Count-1);
+    cbDGstacks.ItemIndex := (cbDGstacks.Items.Count - 1);
 end;
 
 function TfrmDGAvailablePic.OpenFromImageParams(const AItemValue: String): Boolean;
 begin
-  Result := (Length(AItemValue)>4) and SameText(System.Copy(AItemValue,1,4),'http');
+  Result := (Length(AItemValue)>4) and SameText(System.Copy(AItemValue, 1, 4), 'http');
 end;
 
 procedure TfrmDGAvailablePic.PrepareImageChecker;
@@ -1391,7 +1391,7 @@ end;
 
 procedure TfrmDGAvailablePic.PropagateLocalConverter;
 var
-  i,k: Integer;
+  i, k: Integer;
   j: TAvailPicsNMCZoom;
   r: Boolean;
   jj: TAvailPicsDataDoorsID;
@@ -1406,8 +1406,8 @@ begin
 
   for r := FALSE to TRUE do
   for j := Low(TAvailPicsNMCZoom) to High(TAvailPicsNMCZoom) do begin
-    if (FNMCs[j,r]<>nil) then
-      FNMCs[j,r].SetLocalConverter(FLocalConverter);
+    if (FNMCs[j, r]<>nil) then
+      FNMCs[j, r].SetLocalConverter(FLocalConverter);
   end;
 
   for jj := Low(TAvailPicsDataDoorsID) to High(TAvailPicsDataDoorsID) do begin
@@ -1434,9 +1434,9 @@ begin
   if (nil<>FGeoFuse) then
     FGeoFuse.SetLocalConverter(FLocalConverter);
 
-  k:=Length(FDGStacks);
-  if (0<k) then
-  for i := 0 to k-1 do begin
+  k := Length(FDGStacks);
+  if (0 < k) then
+  for i := 0 to k - 1 do begin
     FDGStacks[i].SetLocalConverter(FLocalConverter);
   end;
 end;
@@ -1478,7 +1478,7 @@ begin
     if (nil<>Node.Data) then begin
       obj := TObject(Node.Data);
       FreeAndNil(obj);
-      Node.Data:=nil;
+      Node.Data := nil;
     end;
   except
   end;
@@ -1491,14 +1491,14 @@ var
   i:integer;
   VNewChecked: Boolean;
 begin
-  MH:= tvFound.GetHitTestInfoAt(X,Y);
+  MH:= tvFound.GetHitTestInfoAt(X, Y);
 
   if (htOnStateIcon in MH) then begin
-    VNode:= tvFound.GetNodeAt(X,Y);
+    VNode:= tvFound.GetNodeAt(X, Y);
 
     if (nil=VNode) then
       Exit;
-      
+
 
     // toggle
     VNewChecked := not GetTreeNodeChecked(VNode);
@@ -1506,12 +1506,12 @@ begin
     SetTreeNodeChecked(VNode, VNewChecked);
 
     with VNode do
-    for i:=0 to Count-1 do
+    for i := 0 to Count - 1 do
       SetTreeNodeChecked(Item[i], VNewChecked);
   end;
-  
+
   if (htOnLabel in MH) then begin
-    UpdateInfoByNode(tvFound.GetNodeAt(X,Y));
+    UpdateInfoByNode(tvFound.GetNodeAt(X, Y));
   end;
 end;
 
@@ -1523,7 +1523,7 @@ begin
   // obtain ALLImages checkbox state
   VHasState := c_ALLBox_None;
   if tvFound.Items.Count>0 then
-  for i := 0 to tvFound.Items.Count-1 do begin
+  for i := 0 to tvFound.Items.Count - 1 do begin
     // keep state
     if GetTreeNodeChecked(tvFound.Items.Item[i]) then
       VHasState := (VHasState or c_ALLBox_Checked) // checked
@@ -1554,7 +1554,7 @@ begin
   veImageParams.Strings.BeginUpdate;
   try
     ClearInfoByNode;
-    
+
     if (nil<>ANode) then
     if (nil<>ANode.Data) then begin
       // update info
@@ -1575,14 +1575,14 @@ var
 begin
   // Bing minimal zoom
   if Assigned(FLocalConverter) then begin
-    VActualZoom:=FLocalConverter.Zoom;
+    VActualZoom := FLocalConverter.Zoom;
     AdjustMinimalBingHiResZoom(VActualZoom);
     Inc(VActualZoom);
-    VZoomStr:=IntToStr(VActualZoom);
+    VZoomStr := IntToStr(VActualZoom);
   end else begin
     VZoomStr:='-';
   end;
-  lbZoom.Caption:=StringReplace(lbZoom.Hint,'%',VZoomStr,[]);
+  lbZoom.Caption := StringReplace(lbZoom.Hint, '%', VZoomStr, []);
 end;
 
 procedure TfrmDGAvailablePic.veImageParamsDblClick(Sender: TObject);
@@ -1622,17 +1622,17 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMapSvcScanConfig := AMapSvcScanConfig;
   FALLClicking := FALSE;
-  FVertResizeFactor:=0;
-  FCallIndex:=0;
-  FBing:=nil;
-  FDG2:=nil;
+  FVertResizeFactor := 0;
+  FCallIndex := 0;
+  FBing := nil;
+  FDG2 := nil;
   FillChar(FNMCs, sizeof(FNMCs), 0);
   FillChar(FDDs, sizeof(FDDs), 0);
   FillChar(FRCs, sizeof(FRCs), 0);
   FillChar(FKSs, sizeof(FKSs), 0);
-  FTerraserver:=nil;
-  FESRI:=nil;
-  FGeoFuse:=nil;
+  FTerraserver := nil;
+  FESRI := nil;
+  FGeoFuse := nil;
   SetLength(FDGStacks, 0);
 
   ZeroMemory(@FAvailPicsTileInfo, sizeof(FAvailPicsTileInfo));
@@ -1652,17 +1652,17 @@ end;
 
 destructor TfrmDGAvailablePic.Destroy;
 begin
-  FMarkDBGUI:=nil;
+  FMarkDBGUI := nil;
   // kill vendors objects
   KillPicsVendors;
   // interfaces
-  FResultFactory:=nil;
-  FVectorGeometryLonLatFactory:=nil;
-  FInetConfig:=nil;
-  FLocalConverter:=nil;
-  FCSAddNode:=nil;
-  FMapSvcScanStorage:=nil;
-  FMapSvcScanConfig:=nil;
+  FResultFactory := nil;
+  FVectorGeometryLonLatFactory := nil;
+  FInetConfig := nil;
+  FLocalConverter := nil;
+  FCSAddNode := nil;
+  FMapSvcScanStorage := nil;
+  FMapSvcScanConfig := nil;
   inherited;
 end;
 
@@ -1728,7 +1728,7 @@ begin
   // else SET STATE to all checkboxes
   Result := c_ALLBox_None;
 
-  for i := 0 to tsImageServices.ControlCount-1 do begin
+  for i := 0 to tsImageServices.ControlCount - 1 do begin
     VPanel := tsImageServices.Controls[i];
     if IsCommonServiceCheckbox(VPanel) then begin
       // common checkbox
@@ -1772,7 +1772,7 @@ end;
 procedure TfrmDGAvailablePic.FormCreate(Sender: TObject);
 begin
   // make checkboxes in list
-  SetWindowLong(tvFound.Handle,GWL_STYLE,GetWindowLong(tvFound.Handle,GWL_STYLE) or TVS_CHECKBOXES);
+  SetWindowLong(tvFound.Handle, GWL_STYLE, GetWindowLong(tvFound.Handle, GWL_STYLE) or TVS_CHECKBOXES);
   // make vendors and fill list of dg stacks
   MakePicsVendors;
 end;
@@ -1782,7 +1782,7 @@ begin
   LoadOptions;
 
   // others
-  FVertResizeFactor:=Height-gbAvailImages.Top-gbAvailImages.Height-spltDesc.Height-gbImageParams.Height;
+  FVertResizeFactor := Height - gbAvailImages.Top - gbAvailImages.Height - spltDesc.Height - gbImageParams.Height;
   ApplyServicesCheckboxHandlers;
 end;
 

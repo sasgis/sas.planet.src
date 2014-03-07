@@ -69,7 +69,7 @@ begin
   // get m[m]
   VSepPos := System.Pos(ASep, Vyyyy);
   if VSepPos>0 then begin
-    Vmm := System.Copy(Vyyyy, 1, VSepPos-1);
+    Vmm := System.Copy(Vyyyy, 1, VSepPos - 1);
     System.Delete(Vyyyy, 1, VSepPos);
     while Length(Vmm)<2 do
       Vmm := '0' + Vmm;
@@ -78,7 +78,7 @@ begin
   // get d[d]
   VSepPos := System.Pos(ASep, Vyyyy);
   if VSepPos>0 then begin
-    Vdd := System.Copy(Vyyyy, 1, VSepPos-1);
+    Vdd := System.Copy(Vyyyy, 1, VSepPos - 1);
     System.Delete(Vyyyy, 1, VSepPos);
     while Length(Vdd)<2 do
       Vdd := '0' + Vdd;
@@ -189,7 +189,7 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
           'cx=' + RoundEx(FTileInfoPtr.LonLat.X, 4) +
           '&cy=' + RoundEx(FTileInfoPtr.LonLat.Y, 4) +
           '&mpp=5' +
-          '&proj=4326&pic=img&prov='+VValue+'&stac='+VLayer+'&ovrl=-1&drwl=' +
+          '&proj=4326&pic=img&prov=' + VValue + '&stac=' + VLayer + '&ovrl=-1&drwl=' +
           '&lgin=' + _RandInt5 +
           '&styp=&vic=';
 
@@ -210,7 +210,7 @@ var
   VSLParams: TStrings;
   S: String;
 begin
-  Result:=0;
+  Result := 0;
 
   if (not Assigned(FTileInfoPtr.AddImageProc)) then
     Exit;
