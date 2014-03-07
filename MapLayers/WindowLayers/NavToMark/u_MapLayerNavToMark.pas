@@ -145,6 +145,7 @@ procedure TNavToMarkLayer.PaintLayer(
   const ALocalConverter: ILocalCoordConverter
 );
 var
+  VLonLat: TDoublePoint;
   VMarkMapPos: TDoublePoint;
   VScreenCenterMapPos: TDoublePoint;
   VDelta: TDoublePoint;
@@ -159,7 +160,9 @@ begin
   VConverter := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
   VScreenCenterMapPos := ALocalConverter.GetCenterMapPixelFloat;
-  VMarkMapPos := VConverter.LonLat2PixelPosFloat(FMarkPoint, VZoom);
+  VLonLat := FMarkPoint;
+  VConverter.CheckLonLatPos(VLonLat);
+  VMarkMapPos := VConverter.LonLat2PixelPosFloat(VLonLat, VZoom);
   VDelta.X := VMarkMapPos.X - VScreenCenterMapPos.X;
   VDelta.Y := VMarkMapPos.Y - VScreenCenterMapPos.Y;
   VDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
