@@ -107,6 +107,7 @@
     <DCCReference Include="ConfigData\i_ConfigDataProvider.pas" />
     <DCCReference Include="ConfigData\i_ConfigDataWriteProvider.pas" />
     <DCCReference Include="ConfigData\i_ConfigSaveLoadStrategy.pas" />
+    <DCCReference Include="ConfigData\i_StringConfigDataElement.pas" />
     <DCCReference Include="ConfigData\u_ConfigDataElementBase.pas" />
     <DCCReference Include="ConfigData\u_ConfigDataElementComplexBase.pas" />
     <DCCReference Include="ConfigData\u_ConfigDataProviderByFolder.pas" />
@@ -127,6 +128,10 @@
     <DCCReference Include="ConfigData\u_ConfigProviderHelpers.pas" />
     <DCCReference Include="ConfigData\u_ConfigSaveLoadStrategyBasicProviderSubItem.pas" />
     <DCCReference Include="ConfigData\u_ConfigSaveLoadStrategyBasicUseProvider.pas" />
+    <DCCReference Include="ConfigData\u_StringConfigDataElementWithDefBase.pas" />
+    <DCCReference Include="ConfigData\u_StringConfigDataElementWithDefByGetText.pas" />
+    <DCCReference Include="ConfigData\u_StringConfigDataElementWithDefByStringRec.pas" />
+    <DCCReference Include="ConfigData\u_StringConfigDataElementWithLanguage.pas" />
     <DCCReference Include="CoordConvert\c_CoordConverter.pas" />
     <DCCReference Include="CoordConvert\i_CoordConverter.pas" />
     <DCCReference Include="CoordConvert\i_CoordConverterFactory.pas" />
@@ -459,7 +464,6 @@
     <DCCReference Include="i_StaticTreeBuilder.pas" />
     <DCCReference Include="i_StaticTreeItem.pas" />
     <DCCReference Include="i_StringByLanguage.pas" />
-    <DCCReference Include="i_StringConfigDataElement.pas" />
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_StringListChangeable.pas" />
     <DCCReference Include="i_StringListStatic.pas" />
@@ -1269,10 +1273,6 @@
     <DCCReference Include="u_StaticTreeItem.pas" />
     <DCCReference Include="u_StreamReadOnlyByBinaryData.pas" />
     <DCCReference Include="u_StringByLanguageWithStaticList.pas" />
-    <DCCReference Include="u_StringConfigDataElementWithDefBase.pas" />
-    <DCCReference Include="u_StringConfigDataElementWithDefByGetText.pas" />
-    <DCCReference Include="u_StringConfigDataElementWithDefByStringRec.pas" />
-    <DCCReference Include="u_StringConfigDataElementWithLanguage.pas" />
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_StringListStatic.pas" />
     <DCCReference Include="u_StringProviderForMapTileItem.pas" />
