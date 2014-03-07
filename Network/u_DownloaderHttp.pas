@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_DownloaderHttp;
@@ -190,30 +190,30 @@ constructor TDownloaderHttp.Create(
 );
 begin
   inherited Create;
-  
+
   FResultFactory := AResultFactory;
   FAllowUseCookie := AAllowUseCookie;
   FAllowRedirect := AAllowRedirect;
   FOnDownloadProgress := AOnDownloadProgress;
-  
+
   FOpeningHandle := nil;
   FDisconnectByUser := 0;
-  FDisconnectByServer := 0;  
-  
+  FDisconnectByServer := 0;
+
   FCS := MakeSyncRW_Big(Self, FALSE);
-  
+
   FHttpClient := TALWinInetHTTPClient.Create;
   FHttpClient.OnStatusChange := Self.DoOnALStatusChange;
   if Assigned(FOnDownloadProgress) then begin
     FHttpClient.OnDownloadProgress := Self.DoOnALDownloadProgress;
   end;
   FHttpClient.DisconnectOnError := True;
-  
+
   FHttpResponseHeader := TALHTTPResponseHeader.Create;
   FHttpResponseBody := TMemoryStream.Create;
-  
+
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
-  
+
   FHttpClientLastConfig.HttpTimeOut := 0;
   FHttpClientLastConfig.HeaderUserAgent := '';
   FHttpClientLastConfig.HeaderRawText := '';
@@ -696,7 +696,7 @@ begin
   // check
   if FileExists(VUrl) then begin
     // found
-    VMemStream:=TMemoryStream.Create;
+    VMemStream := TMemoryStream.Create;
     try
       // read file
       VMemStream.LoadFromFile(VUrl);

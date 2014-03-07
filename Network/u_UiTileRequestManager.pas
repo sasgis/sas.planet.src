@@ -14,15 +14,15 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_UiTileRequestManager;
 
 interface
 
-uses  
+uses
   Windows,
   SyncObjs,
   i_Listener,
@@ -387,7 +387,7 @@ begin
           if FTaskArray[I].State = tsMissed then begin
             Assert(FTaskArray[I].SessionID = ASessionID);
             Assert(FTaskArray[I].Zoom = AZoom);
-            Assert( IsEqualVersionInfo(FTaskArray[I].Version, AVersionInfo) );
+            Assert(IsEqualVersionInfo(FTaskArray[I].Version, AVersionInfo) );
 
             ATile := FTaskArray[I].Tile;
             FTaskArray[I].State := tsActive;
@@ -458,7 +458,7 @@ begin
         ReleaseSemaphore(FConcurrentCoutLimiter, 1, nil);
       end;
     end;
-  end; 
+  end;
 end;
 
 procedure TUiTileRequestManager.Release(
