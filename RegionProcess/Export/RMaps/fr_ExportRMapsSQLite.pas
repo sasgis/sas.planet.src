@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit fr_ExportRMapsSQLite;
@@ -353,7 +353,7 @@ begin
         end;
       end;
     end;
-    Result := Result and (cbbImageFormat.ItemIndex = 0) and not chkUsePrevZoom.Checked;    
+    Result := Result and (cbbImageFormat.ItemIndex = 0) and not chkUsePrevZoom.Checked;
   end;
 end;
 
@@ -411,7 +411,7 @@ function TfrExportRMapsSQLite.GetBitmapTileSaver: IBitmapTileSaver;
 
 begin
   if cbbImageFormat.ItemIndex = 0 then begin
-    Result := _GetSaver(FfrMapSelect.GetSelectedMapType);  
+    Result := _GetSaver(FfrMapSelect.GetSelectedMapType);
     if not Assigned(Result) then begin
       Result := _GetSaver(FfrOverlaySelect.GetSelectedMapType);
     end;
