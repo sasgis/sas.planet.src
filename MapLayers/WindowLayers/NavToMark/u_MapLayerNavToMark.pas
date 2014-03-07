@@ -168,7 +168,7 @@ begin
   VDistInPixel := Sqrt(Sqr(VDelta.X) + Sqr(VDelta.Y));
   VCrossDist := FConfig.CrossDistInPixels;
   if VDistInPixel < VCrossDist then begin
-    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(FMarkPoint);
+    VFixedOnView := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
     FReachedMarkerChangeable.GetStatic.DrawToBitmap(ABuffer, VFixedOnView);
   end else begin
     VDeltaNormed.X := VDelta.X / VDistInPixel * VCrossDist;
