@@ -101,7 +101,7 @@ begin
         Result,
         dmBlend
       );
-      Result := VTargetBmp.BitmapStatic;
+      Result := VTargetBmp.MakeAndClear;
     finally
       VTargetBmp.Free;
     end;

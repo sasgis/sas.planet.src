@@ -228,7 +228,7 @@ begin
         VRasterizer.Free;
       end;
       VFixedOnBitmap := VTransform.Transform(FloatPoint(ASourceMarker.AnchorPoint.X, ASourceMarker.AnchorPoint.Y));
-      VBitmapStatic := VBitmap.BitmapStatic;
+      VBitmapStatic := VBitmap.MakeAndClear;
     finally
       VBitmap.Free;
     end;

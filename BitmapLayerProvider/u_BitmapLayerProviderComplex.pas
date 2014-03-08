@@ -101,7 +101,7 @@ begin
           dmBlend,
           cmMerge
         );
-        Result := VBitmap.BitmapStatic;
+        Result := VBitmap.MakeAndClear;
       finally
         VBitmap.Free;
       end;

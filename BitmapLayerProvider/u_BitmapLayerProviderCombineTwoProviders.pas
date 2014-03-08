@@ -109,7 +109,7 @@ begin
           VLayer,
           dmBlend
         );
-        Result := VBitmap.BitmapStatic;
+        Result := VBitmap.MakeAndClear;
       finally
         VBitmap.Free;
       end;

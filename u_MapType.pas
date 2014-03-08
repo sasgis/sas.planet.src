@@ -701,7 +701,7 @@ begin
               VResampler,
               dmOpaque
             );
-            Result := VBitmap.BitmapStatic;
+            Result := VBitmap.MakeAndClear;
           finally
             VBitmap.Free;
           end;
@@ -817,7 +817,7 @@ begin
                 VResampler,
                 dmOpaque
               );
-              Result := VBitmap.BitmapStatic;
+              Result := VBitmap.MakeAndClear;
             finally
               VBitmap.Free;
             end;
@@ -965,7 +965,7 @@ begin
         end;
       end;
     end;
-    Result := VBitmap.BitmapStatic;
+    Result := VBitmap.MakeAndClear;
   finally
     VBitmap.Free;
   end;
@@ -1024,7 +1024,7 @@ begin
             VResampler,
             dmOpaque
           );
-          Result := VBitmap.BitmapStatic;
+          Result := VBitmap.MakeAndClear;
         finally
           VBitmap.Free;
         end;

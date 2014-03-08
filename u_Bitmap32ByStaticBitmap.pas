@@ -23,12 +23,11 @@ type
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FBackEndByStatic: TStaticBitmapBackend;
-    function GetBitmapStatic: IBitmap32Static;
   protected
     procedure InitializeBackend; override;
     procedure SetBackend(const Backend: TCustomBackend); override;
   public
-    property BitmapStatic: IBitmap32Static read GetBitmapStatic;
+    function MakeAndClear: IBitmap32Static;
   public
     constructor Create(const ABitmapFactory: IBitmap32StaticFactory); reintroduce;
   end;
@@ -82,14 +81,15 @@ begin
   inherited Create;
 end;
 
-function TBitmap32ByStaticBitmap.GetBitmapStatic: IBitmap32Static;
-begin
-  Result := FBackEndByStatic.FBitmapStatic;
-end;
-
 procedure TBitmap32ByStaticBitmap.InitializeBackend;
 begin
   TStaticBitmapBackend.Create(Self, FBitmapFactory);
+end;
+
+function TBitmap32ByStaticBitmap.MakeAndClear: IBitmap32Static;
+begin
+  Result := FBackEndByStatic.FBitmapStatic;
+  Delete;
 end;
 
 procedure TBitmap32ByStaticBitmap.SetBackend(const Backend: TCustomBackend);

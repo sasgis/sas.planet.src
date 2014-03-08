@@ -131,7 +131,7 @@ begin
       VBitmap.SetSizeFrom(FBitmapWithText);
       VBitmap.Clear(0);
       VBitmap.Draw(0, 0, FBitmapWithText);
-      Result := VBitmap.BitmapStatic;
+      Result := VBitmap.MakeAndClear;
     finally
       VBitmap.Free;
     end;
@@ -258,7 +258,7 @@ begin
       finally
         VSampler.Free;
       end;
-      VBitmapStatic := VBitmap.BitmapStatic;
+      VBitmapStatic := VBitmap.MakeAndClear;
     finally
       VBitmap.Free;
     end;

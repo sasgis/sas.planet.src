@@ -433,7 +433,7 @@ begin
         end;
       end;
       if not VIsEmpty then begin
-        Result := VBitmap.BitmapStatic;
+        Result := VBitmap.MakeAndClear;
       end;
     finally
       VBitmap.Free;

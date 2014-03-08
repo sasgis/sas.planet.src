@@ -298,7 +298,7 @@ begin
             FPointsProjectedCount
           )
         then begin
-          Result := VBitmap.BitmapStatic;
+          Result := VBitmap.MakeAndClear;
         end;
       finally
         VBitmap.Free;

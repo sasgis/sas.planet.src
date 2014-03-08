@@ -230,7 +230,7 @@ begin
         end;
       end;
     end;
-    Result := VBitmap.BitmapStatic;
+    Result := VBitmap.MakeAndClear;
   finally
     VBitmap.Free;
   end;

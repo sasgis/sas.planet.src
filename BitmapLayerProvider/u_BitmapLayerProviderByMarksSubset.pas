@@ -488,7 +488,7 @@ begin
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
     try
       if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter) then begin
-        Result := VBitmap.BitmapStatic;
+        Result := VBitmap.MakeAndClear;
       end;
     finally
       VBitmap.Free;

@@ -186,7 +186,7 @@ begin
     finally
       VResampler.Free;
     end;
-    Result := VBitmap.BitmapStatic;
+    Result := VBitmap.MakeAndClear;
   finally
     VBitmap.Free;
   end;
