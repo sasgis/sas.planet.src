@@ -95,12 +95,6 @@ type
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    procedure SaveTileSimple(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersion: IMapVersionInfo;
-      const ABitmap: IBitmap32Static
-    );
 
     function GetShortFolderName: string;
 

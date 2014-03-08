@@ -106,12 +106,6 @@ type
 
     function GetIsBitmapTiles: Boolean;
     function GetIsKmlTiles: Boolean;
-    procedure SaveBitmapTileToStorage(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersion: IMapVersionInfo;
-      const ABitmap: IBitmap32Static
-    );
     function LoadBitmapTileFromStorage(
       const AXY: TPoint;
       const AZoom: Byte;
@@ -181,12 +175,6 @@ type
       AUsePre, AAllowPartial, IgnoreError: Boolean;
       const ACache: ITileObjCacheBitmap = nil
     ): IBitmap32Static;
-    procedure SaveTileSimple(
-      const AXY: TPoint;
-      const AZoom: byte;
-      const AVersion: IMapVersionInfo;
-      const ABitmap: IBitmap32Static
-    );
 
     function GetShortFolderName: string;
 
@@ -465,23 +453,6 @@ begin
   inherited;
 end;
 
-procedure TMapType.SaveBitmapTileToStorage(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersion: IMapVersionInfo;
-  const ABitmap: IBitmap32Static
-);
-var
-  VData: IBinaryData;
-begin
-  Assert(Assigned(ABitmap));
-  VData := FBitmapSaverToStorage.Save(ABitmap);
-  Assert(Assigned(VData));
-  if Assigned(VData) then begin
-    FStorage.SaveTile(AXY, AZoom, AVersion, Now, FContentType, VData, True);
-  end;
-end;
-
 procedure TMapType.SaveConfig(const ALocalConfig: IConfigDataWriteProvider);
 begin
   FGUIConfig.WriteConfig(ALocalConfig);
@@ -532,16 +503,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TMapType.SaveTileSimple(
-  const AXY: TPoint;
-  const AZoom: byte;
-  const AVersion: IMapVersionInfo;
-  const ABitmap: IBitmap32Static
-);
-begin
-  SaveBitmapTileToStorage(AXY, AZoom, AVersion, ABitmap);
 end;
 
 function TMapType.GetShortFolderName: string;

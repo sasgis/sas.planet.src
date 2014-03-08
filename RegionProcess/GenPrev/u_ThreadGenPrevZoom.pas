@@ -31,6 +31,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
+  i_ContentTypeInfo,
   i_Bitmap32StaticFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
@@ -47,6 +48,7 @@ type
     FGenFormFirstZoom: boolean;
     FUsePrevTiles: boolean;
     FZooms: TByteDynArray;
+    FContentType: IContentTypeInfoBitmap;
     FMapType: IMapType;
     FVersion: IMapVersionRequest;
     FResamplerFactory: IImageResamplerFactory;
@@ -67,6 +69,7 @@ type
       const ABitmapFactory: IBitmap32StaticFactory;
       const AZooms: TByteDynArray;
       const APolygLL: IGeometryLonLatMultiPolygon;
+      const AContentType: IContentTypeInfoBitmap;
       const AMapType: IMapType;
       const AVersion: IMapVersionRequest;
       AReplace: boolean;
@@ -84,6 +87,8 @@ uses
   i_CoordConverter,
   i_Bitmap32Static,
   i_GeometryProjected,
+  i_BinaryData,
+  i_BitmapTileSaveLoad,
   i_TileInfoBasic,
   i_TileStorage,
   i_TileIterator,
@@ -100,6 +105,7 @@ constructor TThreadGenPrevZoom.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
   const AZooms: TByteDynArray;
   const APolygLL: IGeometryLonLatMultiPolygon;
+  const AContentType: IContentTypeInfoBitmap;
   const AMapType: IMapType;
   const AVersion: IMapVersionRequest;
   AReplace: boolean;
@@ -127,6 +133,7 @@ begin
   FUsePrevTiles := AUsePrevTiles;
   FZooms := AZooms;
   FTileInProc := 0;
+  FContentType := AContentType;
   FMapType := AMapType;
   FVersion := AVersion;
   FResamplerFactory := AResamplerFactory;
@@ -159,9 +166,12 @@ var
   VBitmapSourceTile: IBitmap32Static;
   VBitmap: IBitmap32Static;
   VTileInfo: ITileInfoBasic;
+  VResultData: IBinaryData;
+  VTileSaver: IBitmapTileSaver;
 begin
   inherited;
   VTilesToProcess := 0;
+  VTileSaver := FContentType.GetSaver;
   VGeoConvert := FMapType.GeoConvert;
   SetLength(VTileIterators, Length(FZooms) - 1);
   for i := 1 to Length(FZooms) - 1 do begin
@@ -279,8 +289,20 @@ begin
               );
             end;
           if VBitmap <> nil then begin
-            FMapType.SaveTileSimple(VTile, VZoom, FVersion.BaseVersion, VBitmap);
-            inc(FTileInProc);
+            VResultData := VTileSaver.Save(VBitmap);
+            if Assigned(VResultData) then begin
+              FMapType.TileStorage.SaveTile(
+                VTile,
+                VZoom,
+                FVersion.BaseVersion,
+                Now,
+                FContentType,
+                VResultData,
+                True
+              );
+              VResultData := nil;
+              inc(FTileInProc);
+            end;
             VBitmap := nil;
           end;
         end;
