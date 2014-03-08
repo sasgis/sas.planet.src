@@ -52,8 +52,8 @@ begin
     TObjectPoolBitmap32Standart.Create(
       ATTLNotifier,
       ASync,
-      10,
-      100
+      100,
+      200
     );
   FFactorySimple := TBitmap32StaticFactorySimple.Create;
 end;
