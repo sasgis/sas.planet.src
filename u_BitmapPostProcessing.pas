@@ -50,6 +50,19 @@ type
     );
   end;
 
+  TBitmapPostProcessingMakeTransparetnByColor = class(TBaseInterfacedObject, IBitmapPostProcessing)
+  private
+    FBitmapFactory: IBitmap32StaticFactory;
+    FMaskColor: TColor32;
+  private
+    function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
+  public
+    constructor Create(
+      const ABitmapFactory: IBitmap32StaticFactory;
+      const AMaskColor: TColor32
+    );
+  end;
+
 implementation
 
 { TBitmapPostProcessingSimple }
@@ -98,6 +111,51 @@ begin
             FTable[VColorEntry.B],
             VColorEntry.A
           );
+      end;
+    end;
+  end;
+end;
+
+{ TBitmapPostProcessingMakeTransparetnByColor }
+
+constructor TBitmapPostProcessingMakeTransparetnByColor.Create(
+  const ABitmapFactory: IBitmap32StaticFactory;
+  const AMaskColor: TColor32
+);
+begin
+  inherited Create;
+  FBitmapFactory := ABitmapFactory;
+  FMaskColor := AMaskColor;
+end;
+
+function TBitmapPostProcessingMakeTransparetnByColor.Process(
+  const ABitmap: IBitmap32Static
+): IBitmap32Static;
+var
+  VSourceLine: PColor32Array;
+  VTargetLine: PColor32Array;
+  i: Integer;
+  VSize: TPoint;
+  VIsChanged: Boolean;
+begin
+  Result := nil;
+  if ABitmap <> nil then begin
+    VSize := ABitmap.Size;
+    Result := FBitmapFactory.BuildEmpty(VSize);
+    if Result <> nil then begin
+      VIsChanged := False;
+      VSourceLine := ABitmap.Data;
+      VTargetLine := Result.Data;
+      for i := 0 to VSize.X * VSize.Y - 1 do begin
+        if VSourceLine[i] = FMaskColor then begin
+          VTargetLine[i] := 0;
+          VIsChanged := True;
+        end else begin
+          VTargetLine[i] := VSourceLine[i];
+        end;
+      end;
+      if not VIsChanged then begin
+        Result := ABitmap;
       end;
     end;
   end;
