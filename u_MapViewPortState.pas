@@ -35,7 +35,7 @@ uses
   i_ConfigDataWriteProvider,
   i_InternalPerformanceCounter,
   i_ViewPortState,
-  i_ActiveMapsConfig,
+  i_MapTypes,
   i_LocalCoordConverterFactorySimpe,
   u_ConfigDataElementBase;
 
@@ -43,7 +43,7 @@ type
   TMapViewPortState = class(TConfigDataElementBase, IViewPortState)
   private
     FVisibleCoordConverterFactory: ILocalCoordConverterFactorySimpe;
-    FMainMapConfig: IMainActiveMap;
+    FMainMap: IMapTypeChangeable;
     FBaseScale: Double;
 
     FPosition: ILocalCoordConverterChangeable;
@@ -93,7 +93,7 @@ type
   public
     constructor Create(
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AMainMapConfig: IMainActiveMap;
+      const AMainMap: IMapTypeChangeable;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     destructor Destroy; override;
@@ -103,7 +103,6 @@ implementation
 
 uses
   SysUtils,
-  i_MapTypes,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_LocalCoordConverterChangeable,
@@ -114,7 +113,7 @@ uses
 
 constructor TMapViewPortState.Create(
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AMainMapConfig: IMainActiveMap;
+  const AMainMap: IMapTypeChangeable;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -129,7 +128,7 @@ begin
   inherited Create;
 
   FVisibleCoordConverterFactory := ACoordConverterFactory;
-  FMainMapConfig := AMainMapConfig;
+  FMainMap := AMainMap;
   FMainCoordConverter := nil;
 
   FMainMapChangeListener := TNotifyNoMmgEventListener.Create(Self.OnMainMapChange);
@@ -163,15 +162,15 @@ begin
       FVisibleCoordConverterFactory,
       FView
     );
-  FMainMapConfig.GetChangeNotifier.Add(FMainMapChangeListener);
+  FMainMap.ChangeNotifier.Add(FMainMapChangeListener);
 end;
 
 destructor TMapViewPortState.Destroy;
 begin
-  if Assigned(FMainMapConfig) and Assigned(FMainMapChangeListener) then begin
-    FMainMapConfig.GetChangeNotifier.Remove(FMainMapChangeListener);
+  if Assigned(FMainMap) and Assigned(FMainMapChangeListener) then begin
+    FMainMap.ChangeNotifier.Remove(FMainMapChangeListener);
     FMainMapChangeListener := nil;
-    FMainMapConfig := nil;
+    FMainMap := nil;
   end;
   FVisibleCoordConverterFactory := nil;
   inherited;
@@ -479,7 +478,7 @@ begin
   if FMainCoordConverter <> nil then begin
     Result := FMainCoordConverter;
   end else begin
-    VMapType := FMainMapConfig.GetActiveMap.GetStatic;
+    VMapType := FMainMap.GetStatic;
     if VMapType <> nil then begin
       Result := VMapType.ViewGeoConvert;
     end;
