@@ -23,6 +23,7 @@ unit i_GUIDListStatic;
 interface
 
 type
+  // Ќеизмен€емый массив GUID-ов, пор€док играет роль, нет быстрой проверки наличи€
   IGUIDListStatic = interface
     ['{0197E18E-381E-426B-8575-4C50C6B7E11F}']
     function GetItem(AIndex: Integer): TGUID;
@@ -30,6 +31,19 @@ type
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
+  end;
+
+  // Ќабор GUID-ов пор€док несущественный, дублей быть не может, быстра€ проверка наличи€
+  IGUIDSetStatic = interface
+    ['{C4A0FDB6-8517-4CBE-8225-3ABE94127193}']
+    function GetItem(AIndex: Integer): TGUID;
+    property Items[AIndex: Integer]: TGUID read GetItem;
+
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    // ѕроверка наличи€ GUID в списке
+    function IsExists(const AGUID: TGUID): boolean;
   end;
 
 implementation
