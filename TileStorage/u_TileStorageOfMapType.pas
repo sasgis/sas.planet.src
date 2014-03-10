@@ -32,6 +32,7 @@ type
   TTileStorageOfMapType = class(TBaseInterfacedObject, ITileStorage)
   private
     FGlobalCacheConfig: IGlobalCacheConfig;
+    FCoordConverter: ICoordConverter;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FConfig: ISimpleTileStorageConfig;
     FContentTypeManager: IContentTypeManager;
@@ -133,6 +134,7 @@ type
   public
     constructor Create(
       const AGlobalCacheConfig: IGlobalCacheConfig;
+      const ACoordConverter: ICoordConverter;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AConfig: ISimpleTileStorageConfig;
       const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -158,6 +160,7 @@ uses
 
 constructor TTileStorageOfMapType.Create(
   const AGlobalCacheConfig: IGlobalCacheConfig;
+  const ACoordConverter: ICoordConverter;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AConfig: ISimpleTileStorageConfig;
   const ACacheTileInfo: ITileInfoBasicMemCache;
@@ -169,6 +172,7 @@ var
 begin
   inherited Create;
   FGlobalCacheConfig := AGlobalCacheConfig;
+  FCoordConverter := ACoordConverter;
   FTileStorageTypeList := ATileStorageTypeList;
   FConfig := AConfig;
   FCacheTileInfo := ACacheTileInfo;
@@ -240,7 +244,7 @@ begin
   try
     FCurrentTypeCode := ATypeCode;
     FCurrentPath := APath;
-    VCoordConverter := AConfig.CoordConverter;
+    VCoordConverter := FCoordConverter;
     VMainContentType := FContentTypeManager.GetInfoByExt(AConfig.TileFileExt);
     if VMainContentType <> nil then begin
       VStroageType := FTileStorageTypeList.GetItemByCode(ATypeCode);
@@ -415,7 +419,7 @@ end;
 
 function TTileStorageOfMapType.GetCoordConverter: ICoordConverter;
 begin
-  Result := FConfig.CoordConverter;
+  Result := FCoordConverter;
 end;
 
 function TTileStorageOfMapType.GetListOfTileVersions(

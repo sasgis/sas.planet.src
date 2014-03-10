@@ -24,14 +24,12 @@ interface
 
 uses
   i_TileStorageAbilities,
-  i_CoordConverter,
   i_SimpleTileStorageConfig,
   u_BaseInterfacedObject;
 
 type
   TSimpleTileStorageConfigStatic = class(TBaseInterfacedObject, ISimpleTileStorageConfigStatic)
   private
-    FCoordConverter: ICoordConverter;
     FCacheTypeCode: Integer;
     FNameInCache: string;
     FTileFileExt: string;
@@ -41,7 +39,6 @@ type
     FMemCacheTTL: Cardinal;
     FMemCacheClearStrategy: Integer;
   private
-    function GetCoordConverter: ICoordConverter;
     function GetCacheTypeCode: Integer;
     function GetNameInCache: string;
     function GetTileFileExt: string;
@@ -52,7 +49,6 @@ type
     function GetMemCacheClearStrategy: Integer;
   public
     constructor Create(
-      const ACoordConverter: ICoordConverter;
       const ACacheTypeCode: Integer;
       const ANameInCache: string;
       const ATileFileExt: string;
@@ -69,7 +65,6 @@ implementation
 { TSimpleTileStorageConfigStatic }
 
 constructor TSimpleTileStorageConfigStatic.Create(
-  const ACoordConverter: ICoordConverter;
   const ACacheTypeCode: Integer;
   const ANameInCache: string;
   const ATileFileExt: string;
@@ -81,7 +76,6 @@ constructor TSimpleTileStorageConfigStatic.Create(
 );
 begin
   inherited Create;
-  FCoordConverter := ACoordConverter;
   FCacheTypeCode := ACacheTypeCode;
   FNameInCache := ANameInCache;
   FTileFileExt := ATileFileExt;
@@ -100,11 +94,6 @@ end;
 function TSimpleTileStorageConfigStatic.GetCacheTypeCode: Integer;
 begin
   Result := FCacheTypeCode;
-end;
-
-function TSimpleTileStorageConfigStatic.GetCoordConverter: ICoordConverter;
-begin
-  Result := FCoordConverter;
 end;
 
 function TSimpleTileStorageConfigStatic.GetNameInCache: string;

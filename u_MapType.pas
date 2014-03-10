@@ -233,7 +233,6 @@ uses
   Types,
   c_InternalBrowser,
   i_BasicMemCache,
-  i_BinaryData,
   i_TileInfoBasic,
   i_MapVersionFactory,
   i_DownloadResultFactory,
@@ -353,7 +352,7 @@ begin
   FTileDownloaderConfig.ReadConfig(AConfig);
   FTileDownloadRequestBuilderConfig.ReadConfig(AConfig);
   FContentType := AContentTypeManager.GetInfoByExt(FStorageConfig.TileFileExt);
-  FCoordConverter := FStorageConfig.CoordConverter;
+  FCoordConverter := FZmp.GeoConvert;
   FViewCoordConverter := FZmp.ViewGeoConvert;
 
   if FStorageConfig.UseMemCache then begin
@@ -372,6 +371,7 @@ begin
   FStorage :=
     TTileStorageOfMapType.Create(
       AGlobalCacheConfig,
+      FCoordConverter,
       ATileStorageTypeList,
       FStorageConfig,
       FCacheTileInfo,
@@ -385,7 +385,7 @@ begin
       TMemTileCacheBitmap.Create(
         AGCNotifier,
         FStorage,
-        FStorageConfig.CoordConverter,
+        FCoordConverter,
         AMainMemCacheConfig,
         VPerfCounterList.CreateAndAddNewSubList('BmpInMem')
       );
@@ -395,7 +395,7 @@ begin
       TMemTileCacheVector.Create(
         AGCNotifier,
         FStorage,
-        FStorageConfig.CoordConverter,
+        FCoordConverter,
         AMainMemCacheConfig,
         VPerfCounterList.CreateAndAddNewSubList('VectorInMem')
       );

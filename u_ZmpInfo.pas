@@ -857,7 +857,6 @@ begin
 
   FStorageConfig :=
     TSimpleTileStorageConfigStatic.Create(
-      FGeoConvert,
       VCacheTypeCode,
       VNameInCache,
       VTileFileExt,
