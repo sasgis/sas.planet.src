@@ -23,8 +23,7 @@ unit i_TileDownloadRequestBuilderConfig;
 interface
 
 uses
-  i_ConfigDataElement,
-  i_CoordConverter;
+  i_ConfigDataElement;
 
 type
   ITileDownloadRequestBuilderConfigStatic = interface
@@ -40,9 +39,6 @@ type
 
     function GetDefaultProjConverterArgs: AnsiString;
     property DefaultProjConverterArgs: AnsiString read GetDefaultProjConverterArgs;
-
-    function GetGeoCoder: ICoordConverter;
-    property GeoCoder: ICoordConverter read GetGeoCoder;
   end;
 
 
@@ -61,9 +57,6 @@ type
 
     function GetDefaultProjConverterArgs: AnsiString;
     property DefaultProjConverterArgs: AnsiString read GetDefaultProjConverterArgs;
-
-    function GetGeoCoder: ICoordConverter;
-    property GeoCoder: ICoordConverter read GetGeoCoder;
   end;
 
 implementation

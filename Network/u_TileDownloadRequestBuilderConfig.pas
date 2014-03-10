@@ -25,7 +25,6 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_CoordConverter,
   i_TileDownloadRequestBuilderConfig,
   u_ConfigDataElementBase,
   u_BaseInterfacedObject;
@@ -37,20 +36,17 @@ type
     FRequestHeader: AnsiString;
     FIsUseDownloader: Boolean;
     FDefaultProjConverterArgs: AnsiString;
-    FGeoCoder: ICoordConverter;
   private
     function GetUrlBase: AnsiString;
     function GetRequestHeader: AnsiString;
     function GetIsUseDownloader: Boolean;
     function GetDefaultProjConverterArgs: AnsiString;
-    function GetGeoCoder: ICoordConverter;
   public
     constructor Create(
       const AUrlBase: AnsiString;
       const ARequestHeader: AnsiString;
       const AIsUseDownloader: Boolean;
-      const ADefaultProjConverterArgs: AnsiString;
-      const AGeoCoder: ICoordConverter
+      const ADefaultProjConverterArgs: AnsiString
     );
   end;
 
@@ -59,7 +55,6 @@ type
     FDefConfig: ITileDownloadRequestBuilderConfigStatic;
     FUrlBase: AnsiString;
     FRequestHeader: AnsiString;
-    FGeoCoder: ICoordConverter;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -72,7 +67,6 @@ type
 
     function GetIsUseDownloader: Boolean;
     function GetDefaultProjConverterArgs: AnsiString;
-    function GetGeoCoder: ICoordConverter;
   public
     constructor Create(const ADefConfig: ITileDownloadRequestBuilderConfigStatic);
   end;
@@ -93,7 +87,6 @@ begin
   FDefConfig := ADefConfig;
   FUrlBase := FDefConfig.UrlBase;
   FRequestHeader := FDefConfig.RequestHeader;
-  FGeoCoder := ADefConfig.GeoCoder;
 end;
 
 procedure TTileDownloadRequestBuilderConfig.DoReadConfig(
@@ -146,11 +139,6 @@ end;
 function TTileDownloadRequestBuilderConfig.GetDefaultProjConverterArgs: AnsiString;
 begin
   Result := FDefConfig.DefaultProjConverterArgs;
-end;
-
-function TTileDownloadRequestBuilderConfig.GetGeoCoder: ICoordConverter;
-begin
-  Result := FGeoCoder;
 end;
 
 function TTileDownloadRequestBuilderConfig.GetIsUseDownloader: Boolean;
@@ -209,8 +197,7 @@ end;
 constructor TTileDownloadRequestBuilderConfigStatic.Create(
   const AUrlBase, ARequestHeader: AnsiString;
   const AIsUseDownloader: Boolean;
-  const ADefaultProjConverterArgs: AnsiString;
-  const AGeoCoder: ICoordConverter
+  const ADefaultProjConverterArgs: AnsiString
 );
 begin
   inherited Create;
@@ -218,17 +205,11 @@ begin
   FRequestHeader := ARequestHeader;
   FIsUseDownloader := AIsUseDownloader;
   FDefaultProjConverterArgs := ADefaultProjConverterArgs;
-  FGeoCoder := AGeoCoder;
 end;
 
 function TTileDownloadRequestBuilderConfigStatic.GetDefaultProjConverterArgs: AnsiString;
 begin
   Result := FDefaultProjConverterArgs;
-end;
-
-function TTileDownloadRequestBuilderConfigStatic.GetGeoCoder: ICoordConverter;
-begin
-  Result := FGeoCoder;
 end;
 
 function TTileDownloadRequestBuilderConfigStatic.GetIsUseDownloader: Boolean;

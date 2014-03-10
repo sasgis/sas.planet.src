@@ -107,6 +107,7 @@ type
       const ACompiledData: TbtString;
       const AConfig: ITileDownloadRequestBuilderConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
+      const ACoordConverter: ICoordConverter;
       const ADownloader: IDownloader;
       const ACheker: IDownloadChecker;
       const ADefProjConverter: IProjConverter;
@@ -135,6 +136,7 @@ constructor TTileDownloadRequestBuilderPascalScript.Create(
   const ACompiledData: TbtString;
   const AConfig: ITileDownloadRequestBuilderConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
+  const ACoordConverter: ICoordConverter;
   const ADownloader: IDownloader;
   const ACheker: IDownloadChecker;
   const ADefProjConverter: IProjConverter;
@@ -156,7 +158,7 @@ begin
   FLangListener := TNotifyNoMmgEventListener.Create(Self.OnLangChange);
   FLangManager.GetChangeNotifier.Add(FLangListener);
 
-  FCoordConverter := Config.GeoCoder as ICoordConverterSimple;
+  FCoordConverter := ACoordConverter as ICoordConverterSimple;
   PrepareCompiledScript(ACompiledData);
 
   OnLangChange;

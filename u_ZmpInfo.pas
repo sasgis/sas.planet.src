@@ -160,7 +160,6 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     procedure LoadTileRequestBuilderConfig(
-      const ACoordConverterFactory: ICoordConverterFactory;
       const AConfig: IConfigDataProvider
     );
     procedure LoadTileDownloaderConfig(const AConfig: IConfigDataProvider);
@@ -744,7 +743,7 @@ begin
   FIsLayer := FConfigIniParams.ReadBool('asLayer', False);
   LoadVersion(AVersionFactory, FConfigIniParams);
   LoadProjectionInfo(FConfigIni, ACoordConverterFactory);
-  LoadTileRequestBuilderConfig(ACoordConverterFactory, FConfigIniParams);
+  LoadTileRequestBuilderConfig(FConfigIniParams);
   LoadTileDownloaderConfig(FConfigIniParams);
   LoadCropConfig(FConfigIniParams);
   LoadStorageConfig(FConfigIniParams);
@@ -921,13 +920,11 @@ begin
 end;
 
 procedure TZmpInfo.LoadTileRequestBuilderConfig(
-  const ACoordConverterFactory: ICoordConverterFactory;
   const AConfig: IConfigDataProvider
 );
 var
   VUrlBase: AnsiString;
   VRequestHead: AnsiString;
-  VCoordConverter: ICoordConverter;
   VIsUseDownloader: Boolean;
   VDefaultProjConverterArgs: AnsiString;
 begin
@@ -935,7 +932,6 @@ begin
   VUrlBase := AConfig.ReadAnsiString('URLBase', VUrlBase);
   VRequestHead := AConfig.ReadAnsiString('RequestHead', '');
   VRequestHead := ALStringReplace(VRequestHead, '\r\n', #13#10, [rfIgnoreCase, rfReplaceAll]);
-  VCoordConverter := ACoordConverterFactory.GetCoordConverterByConfig(AConfig);
   VIsUseDownloader := AConfig.ReadBool('IsUseDownloaderInScript', False);
   VDefaultProjConverterArgs := AConfig.ReadAnsiString('Proj4Args', '');
 
@@ -944,8 +940,7 @@ begin
       VUrlBase,
       VRequestHead,
       VIsUseDownloader,
-      VDefaultProjConverterArgs,
-      VCoordConverter
+      VDefaultProjConverterArgs
     );
 end;
 

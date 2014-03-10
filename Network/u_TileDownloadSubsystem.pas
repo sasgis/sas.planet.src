@@ -228,6 +228,7 @@ begin
         GetScriptText(AZmpData),
         FTileDownloadRequestBuilderConfig,
         FTileDownloaderConfig,
+        FCoordConverter,
         VDownloadChecker,
         AProjFactory,
         ALanguageManager

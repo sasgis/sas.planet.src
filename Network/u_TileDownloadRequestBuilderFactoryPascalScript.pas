@@ -27,6 +27,7 @@ uses
   uPSUtils,
   i_LanguageManager,
   i_Downloader,
+  i_CoordConverter,
   i_DownloadChecker,
   i_ProjConverter,
   i_TileDownloaderConfig,
@@ -43,6 +44,7 @@ type
     FState: ITileDownloaderStateChangeble;
     FStateInternal: ITileDownloaderStateInternal;
     FConfig: ITileDownloadRequestBuilderConfig;
+    FCoordConverter: ICoordConverter;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FCheker: IDownloadChecker;
     FLangManager: ILanguageManager;
@@ -63,6 +65,7 @@ type
       const AScriptText: AnsiString;
       const AConfig: ITileDownloadRequestBuilderConfig;
       const ATileDownloaderConfig: ITileDownloaderConfig;
+      const ACoordConverter: ICoordConverter;
       const ACheker: IDownloadChecker;
       const AProjFactory: IProjConverterFactory;
       const ALangManager: ILanguageManager
@@ -83,6 +86,7 @@ constructor TTileDownloadRequestBuilderFactoryPascalScript.Create(
   const AScriptText: AnsiString;
   const AConfig: ITileDownloadRequestBuilderConfig;
   const ATileDownloaderConfig: ITileDownloaderConfig;
+  const ACoordConverter: ICoordConverter;
   const ACheker: IDownloadChecker;
   const AProjFactory: IProjConverterFactory;
   const ALangManager: ILanguageManager
@@ -96,6 +100,7 @@ begin
   FCheker := ACheker;
   FLangManager := ALangManager;
   FTileDownloaderConfig := ATileDownloaderConfig;
+  FCoordConverter := ACoordConverter;
   FProjFactory := AProjFactory;
 
   FCS := MakeSyncRW_Std(Self, False);
@@ -202,6 +207,7 @@ begin
           CompiledData,
           FConfig,
           FTileDownloaderConfig,
+          FCoordConverter,
           ADownloader,
           FCheker,
           FDefProjConverter,
