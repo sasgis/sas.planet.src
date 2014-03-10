@@ -925,7 +925,7 @@ begin
       GState.Config.LanguageManager,
       GState.AppClosingNotifier,
       GState.GUISyncronizedTimerNotifier,
-      GState.Config.LastSelectionInfo,
+      GState.LastSelectionInfo,
       FConfig.MainMapsConfig,
       GState.MapTypeListBuilderFactory,
       GState.GlobalBerkeleyDBHelper,
@@ -1742,7 +1742,7 @@ begin
       GState.VectorGeometryProjectedFactory,
       GState.VectorGeometryLocalFactory,
       FConfig.LayersConfig.LastSelectionLayerConfig,
-      GState.Config.LastSelectionInfo
+      GState.LastSelectionInfo
     )
   );
   VLayersList.Add(
@@ -4440,13 +4440,8 @@ var
   VZoom: Byte;
   VPolygon: IGeometryLonLatMultiPolygon;
 begin
-  GState.Config.LastSelectionInfo.LockRead;
-  try
-    VZoom := GState.Config.LastSelectionInfo.Zoom;
-    VPolygon := GState.Config.LastSelectionInfo.Polygon;
-  finally
-    GState.Config.LastSelectionInfo.UnlockRead;
-  end;
+  VZoom := GState.LastSelectionInfo.Zoom;
+  VPolygon := GState.LastSelectionInfo.Polygon;
   if (VPolygon<> nil) and (VPolygon.Count > 0) then begin
     FState.State := ao_movemap;
     FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
@@ -4736,7 +4731,7 @@ begin
       GState.Config.ValueToStringConverterConfig
     );
   Try
-    VPolygon := GState.Config.LastSelectionInfo.Polygon;
+    VPolygon := GState.LastSelectionInfo.Polygon;
     if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
       VLonLatRect := VPolygon.Item[0].Bounds.Rect;
     end else begin
@@ -6951,7 +6946,7 @@ var
   VLineOnMapEdit: ILineOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
 begin
-  VPolygon := GState.Config.LastSelectionInfo.Polygon;
+  VPolygon := GState.LastSelectionInfo.Polygon;
   FState.State := ao_select_poly;
   TBRectSave.ImageIndex := 13;
   if VPolygon <> nil then begin

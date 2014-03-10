@@ -5,7 +5,6 @@ interface
 uses
   i_PathConfig,
   i_GlobalAppConfig,
-  i_LastSelectionInfo,
   i_LanguageManager,
   i_GSMGeoCodeConfig,
   i_InetConfig,
@@ -69,9 +68,6 @@ type
 
     function GetGlobalAppConfig: IGlobalAppConfig;
     property GlobalAppConfig: IGlobalAppConfig read GetGlobalAppConfig;
-
-    function GetLastSelectionInfo: ILastSelectionInfo;
-    property LastSelectionInfo: ILastSelectionInfo read GetLastSelectionInfo;
 
     function GetLanguageManager: ILanguageManager;
     property LanguageManager: ILanguageManager read GetLanguageManager;

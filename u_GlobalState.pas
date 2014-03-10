@@ -57,6 +57,7 @@ uses
   i_ImageResamplerConfig,
   i_GeoCoderList,
   i_MarkPicture,
+  i_LastSelectionInfo,
   i_InternalPerformanceCounter,
   i_DebugInfoSubSystem,
   i_MarkSystem,
@@ -189,6 +190,7 @@ type
     FBuildInfo: IBuildInfo;
     FInternalBrowserContent: IInternalBrowserLastContent;
     FTileStorageTypeList: ITileStorageTypeListStatic;
+    FLastSelectionInfo: ILastSelectionInfo;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -239,6 +241,7 @@ type
     property PerfCounterList: IInternalPerformanceCounterList read GetPerfCounterList;
     property SystemTime: ISystemTimeProvider read FSystemTime;
 
+    property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
     property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessing: IBitmapPostProcessingChangeable read FBitmapPostProcessing;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
@@ -371,6 +374,7 @@ uses
   u_BitmapTileSaveLoadFactory,
   u_ArchiveReadWriteFactory,
   u_DebugInfoSubSystem,
+  u_LastSelectionInfo,
   u_LocalCoordConverterFactory,
   u_BuildInfo,
   u_VectorItemTreeExporterListSimple,
@@ -479,6 +483,7 @@ begin
   FGlobalInternetState := TGlobalInternetState.Create;
 
   FProjConverterFactory := TProjConverterFactory.Create;
+  FLastSelectionInfo := TLastSelectionInfo.Create;
 
   FDatumFactory := TDatumFactory.Create(FHashFunction);
   FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
@@ -717,7 +722,7 @@ begin
     TLastSelectionInfoSaver.Create(
       FAppClosingNotifier,
       FVectorGeometryLonLatFactory,
-      FGlobalConfig.LastSelectionInfo,
+      FLastSelectionInfo,
       FGlobalConfig.LastSelectionFileName
     );
   FTileStorageTypeList :=

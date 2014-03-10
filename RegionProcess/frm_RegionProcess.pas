@@ -499,13 +499,8 @@ var
 begin
   if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then begin
     If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
-    FLastSelectionInfo.LockRead;
-    try
-      VZoom := FLastSelectionInfo.Zoom;
-      VPolygon := FLastSelectionInfo.Polygon;
-    finally
-      FLastSelectionInfo.UnlockRead;
-    end;
+    VZoom := FLastSelectionInfo.Zoom;
+    VPolygon := FLastSelectionInfo.Polygon;
     if VPolygon <> nil then begin
       VIniFile := TIniFile.Create(SaveSelDialog.FileName);
       try

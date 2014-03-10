@@ -49,7 +49,6 @@ type
     FInternalDebugConfig: IInternalDebugConfig;
 
     FGlobalAppConfig: IGlobalAppConfig;
-    FLastSelectionInfo: ILastSelectionInfo;
     FLanguageManager: ILanguageManager;
     FGsmConfig: IGSMGeoCodeConfig;
     FInetConfig: IInetConfig;
@@ -89,7 +88,6 @@ type
     function GetGpsTrackRecorderFileName: IPathConfig;
     function GetInternalDebugConfig: IInternalDebugConfig;
     function GetGlobalAppConfig: IGlobalAppConfig;
-    function GetLastSelectionInfo: ILastSelectionInfo;
     function GetLanguageManager: ILanguageManager;
     function GetGsmConfig: IGSMGeoCodeConfig;
     function GetInetConfig: IInetConfig;
@@ -134,7 +132,6 @@ uses
   i_ImageResamplerFactory,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
-  u_LastSelectionInfo,
   u_LanguageManager,
   u_GSMGeoCodeConfig,
   u_InetConfig,
@@ -212,8 +209,6 @@ begin
 
   FGlobalAppConfig := TGlobalAppConfig.Create;
   Add(FGlobalAppConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('VIEW'), False, False, False, False);
-
-  FLastSelectionInfo := TLastSelectionInfo.Create;
 
   FLanguageManager := TLanguageManager.Create(IncludeTrailingPathDelimiter(ABaseApplicationPath.FullPath) + 'lang');
   Add(FLanguageManager, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
@@ -370,11 +365,6 @@ end;
 function TGlobalConfig.GetLastSelectionFileName: IPathConfig;
 begin
   Result := FLastSelectionFileName;
-end;
-
-function TGlobalConfig.GetLastSelectionInfo: ILastSelectionInfo;
-begin
-  Result := FLastSelectionInfo;
 end;
 
 function TGlobalConfig.GetMainMemCacheConfig: IMainMemCacheConfig;

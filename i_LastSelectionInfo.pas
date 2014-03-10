@@ -24,10 +24,10 @@ interface
 
 uses
   i_GeometryLonLat,
-  i_ConfigDataElement;
+  i_Changeable;
 
 type
-  ILastSelectionInfo = interface(IConfigDataElement)
+  ILastSelectionInfo = interface(IChangeable)
     ['{8F34A418-0320-4B19-A569-B44FA73146F4}']
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;

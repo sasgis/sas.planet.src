@@ -158,13 +158,8 @@ begin
     end;
   end;
   if VNeedWrite then begin
-    FLastSelection.LockRead;
-    try
-      VZoom := FLastSelection.Zoom;
-      VPolygon := FLastSelection.Polygon;
-    finally
-      FLastSelection.UnlockRead;
-    end;
+    VZoom := FLastSelection.Zoom;
+    VPolygon := FLastSelection.Polygon;
     if VPolygon = nil then begin
       Exit;
     end;
