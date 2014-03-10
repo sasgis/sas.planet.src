@@ -987,7 +987,7 @@ begin
 
   if (not ModuleIsLib) then begin
     FMainFormConfig.ReadConfig(MainConfigProvider);
-    FMarkPictureList.ReadConfig(MainConfigProvider);
+    FMarkPictureList.LoadList;
   end;
 end;
 
@@ -1038,7 +1038,6 @@ begin
   FGpsTrackRecorderInternal.Save;
   FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.WriteConfig(FMainConfigProvider);
-  FMarkPictureList.WriteConfig(MainConfigProvider);
   FGlobalConfig.WriteConfig(MainConfigProvider);
 end;
 

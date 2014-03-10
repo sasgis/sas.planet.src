@@ -33,17 +33,15 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TMarkPictureListSimple = class(TConfigDataElementBase, IMarkPictureList)
+  TMarkPictureListSimple = class(TConfigDataElementBaseEmptySaveLoad, IMarkPictureList)
   private
     FHashFunction: IHashFunction;
     FList: TStringList;
     FBasePath: IPathConfig;
     FContentTypeManager: IContentTypeManager;
     procedure Clear;
-  protected
-    procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
-    procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
+    procedure LoadList;
     function GetCount: Integer;
 
     function Get(AIndex: Integer): IMarkPicture;
@@ -104,7 +102,7 @@ begin
   end;
 end;
 
-procedure TMarkPictureListSimple.DoReadConfig(const AConfigData: IConfigDataProvider);
+procedure TMarkPictureListSimple.LoadList;
 var
   SearchRec: TSearchRec;
   VLoader: IBitmapTileLoader;
@@ -139,13 +137,6 @@ begin
       FindClose(SearchRec);
     end;
   end;
-end;
-
-procedure TMarkPictureListSimple.DoWriteConfig(
-  const AConfigData: IConfigDataWriteProvider
-);
-begin
-  inherited;
 end;
 
 function TMarkPictureListSimple.FindByNameOrDefault(

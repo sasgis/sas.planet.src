@@ -46,8 +46,10 @@ type
     property Hash: THashValue read GetHash;
   end;
 
-  IMarkPictureList = interface(IConfigDataElement)
+  IMarkPictureList = interface
     ['{C080A087-C571-4654-8B3E-63D6E6A5542F}']
+    procedure LoadList;
+
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
