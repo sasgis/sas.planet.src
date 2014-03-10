@@ -6245,7 +6245,7 @@ end;
 procedure TfrmMain.tbitmOpenFileClick(Sender: TObject);
 begin
   if OpenSessionDialog.Execute then begin
-    ProcessOpenFiles(OpenDialog1.Files);
+    ProcessOpenFiles(OpenSessionDialog.Files);
   end;
 end;
 
