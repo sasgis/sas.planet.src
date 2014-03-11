@@ -1,8 +1,8 @@
-unit JNXLib;
+unit {$IFNDEF JNXLIB_DLL} JNXLib {$ELSE} uJNXLib {$ENDIF};
 { Unit:    JNXLib
   Author:  Alex Whiter
-  Version: 1.7
-  Date:    2012.08.29
+  Version: 1.11
+  Date:    2014.03.10
 
   Description: This unit provides the necessary classes and routines to read
     and write JNX raster maps files.
@@ -114,8 +114,9 @@ type
     FLevels: array of TJNXLevelInfo;
     FTiles: array of array of TJNXTileInfo;
     FMeta: TJNXMapMeta;
+    FFileOpened: Boolean;
 
-    procedure OpenFile(const Path: String); virtual;
+    function OpenFile(const Path: String): Boolean; virtual;
     procedure CloseFile; virtual;
 
     function GetLevelInfo(l: integer): PJNXLevelInfo; virtual;
@@ -172,7 +173,7 @@ type
 
     function GetJPEGStream(l, t: integer): AnsiString;
 
-    procedure OpenFile(const Path: String); override;
+    function OpenFile(const Path: String): Boolean; override;
     procedure CloseFile; override;
 
     procedure ReadFileHeaders; virtual;
@@ -187,7 +188,7 @@ type
 
   TBaseJNXWriter = class(TJNXMapFile)
   protected
-    procedure OpenFile(const Path: String); override;
+    function OpenFile(const Path: String): Boolean; override;
 
     procedure InitHeader;
   public
@@ -206,7 +207,7 @@ type
     FNextPictureOffset: longword;
     FFirstTile: boolean;
 
-    procedure OpenFile(const Path: String); override;
+    function OpenFile(const Path: String): Boolean; override;
     procedure CloseFile; override;
 
     procedure SetLevelCount(Value: integer); override;
@@ -219,6 +220,8 @@ type
     procedure WriteLevelsInfo;
     procedure WriteMeta;
     procedure WriteTilesInfo;
+
+    procedure ValidateZoomValues;
   public
     procedure WriteTile(Level, PicWidth, PicHeight: integer; const Bounds: TJNXRect; const JpegString: AnsiString; AdjustMapBounds: boolean = True); override;
     function CanAcceptTile(LevelIndex, TileLength: integer): boolean; override;
@@ -235,7 +238,7 @@ type
     FCurrentVolumeIndex: array [0..MAX_LEVELS-1] of integer;
     FFirstVolumePath: String;
 
-    procedure OpenFile(const Path: String); override;
+    function OpenFile(const Path: String): Boolean; override;
 
     function GetLevelInfo(l: integer): PJNXLevelInfo; override;
     function GetTileInfo(l, t: integer): PJNXTileInfo; override;
@@ -264,13 +267,17 @@ function CreateGUID: AnsiString;
 
 function JNXRect(northern_lat, eastern_lon, southern_lat, western_lon: integer): TJNXRect;
 
-function DigitalGlobeZoomToScale(z: integer): integer;
+function DigitalGlobeZoomToScale(z: integer): integer; {$IFDEF JNXLIB_DLL} stdcall; {$ENDIF}
 function MetersPerPixelToScale(d: double): integer;
 
 implementation
 
+{$IFDEF CONDITIONALEXPRESSIONS}
+  {$DEFINE NO_UTF8_UNIT}
+{$ENDIF}
+
 uses
-  Windows, Math;
+  Windows, Math {$IFNDEF NO_UTF8_UNIT}, UTF8 {$ENDIF};
 
 function ReadUTFString(var f: File): WideString;
 var
@@ -376,12 +383,13 @@ constructor TJNXMapFile.Create(const Path: String);
 begin
   inherited Create;
 
-  OpenFile(Path);
+  FFileOpened := OpenFile(Path);
 end;
 
 destructor TJNXMapFile.Destroy;
 begin
-  CloseFile;
+  if FFileOpened then
+    CloseFile;
 
   inherited;
 end;
@@ -491,9 +499,10 @@ begin
   // do nothing
 end;
 
-procedure TJNXMapFile.OpenFile(const Path: String);
+function TJNXMapFile.OpenFile(const Path: String): Boolean;
 begin
   // do nothing
+  Result := False;
 end;
 
 { TJNXReader }
@@ -508,12 +517,14 @@ begin
   BlockRead(FFile, Result[3], TileInfo[l, t].PicSize);
 end;
 
-procedure TJNXReader.OpenFile(const Path: String);
+function TJNXReader.OpenFile(const Path: String): Boolean;
 begin
   AssignFile(FFile, Path);
   Reset(FFile, 1);
 
   ReadFileHeaders;
+
+  Result := True;
 end;
 
 procedure TJNXReader.ReadFileHeaders;
@@ -566,13 +577,26 @@ procedure TJNXReader.ReadMeta;
 var
   Dummy1: array [1..3] of byte;
   i: integer;
+  Dummy2: String;
+  Dummy3: Word;
 begin
   with FMeta do
   begin
+    {2012.09.07 Whiter: In some of the maps, the signature can reside right after the level info block.
+      In this case, we should skip it.}
+    if Header.SigOffset = LongWord(FilePos(FFile)) then
+      Seek64(FFile, Header.SigOffset + $314);
+
     BlockRead(FFile, Version, SizeOf(Version));
     GUID := AnsiString(ReadUTFString(FFile));
     ProductName := ReadUTFString(FFile);
-    BlockRead(FFile, Dummy1, SizeOf(Dummy1));
+    if Version = 3 then
+    begin
+      Dummy2 := ReadUTFString(FFile);
+      BlockRead(FFile, Dummy3, SizeOf(Dummy3));      
+    end
+    else
+      BlockRead(FFile, Dummy1, SizeOf(Dummy1));
     MapName := ReadUTFString(FFile);
     BlockRead(FFile, LevelMetaCount, SizeOf(LevelMetaCount));
 
@@ -637,9 +661,11 @@ begin
   FillChar(FMeta.RawTailData[1], META_BLOCK_MINSIZE, 0);
 end;
 
-procedure TBaseJNXWriter.OpenFile(const Path: String);
+function TBaseJNXWriter.OpenFile(const Path: String): Boolean;
 begin
   InitHeader;
+
+  Result := True;
 end;
 
 
@@ -656,9 +682,9 @@ begin
   end;
 end;
 
-procedure TSimpleJNXWriter.OpenFile(const Path: String);
+function TSimpleJNXWriter.OpenFile(const Path: String): Boolean;
 begin
-  inherited;
+  Result := inherited OpenFile(Path);
 
   FPath := Path;
 end;
@@ -772,13 +798,20 @@ begin
     WriteUTFString(FFile, GUID);
     WriteUTFString(FFile, ProductName);
 
+    {2014.03.10 Whiter: Dummy[2] is not so dummy anymore. It seems to hold the ProductID,
+      and unless it is set to a correct value, BaseCamp activates the map as ProductID
+      was set to 0.}
     Dummy[1] := 0;
-    Dummy[2] := 0;
+    Dummy[2] := FHeader.ProductID;
     Dummy[3] := 0;
     BlockWrite(FFile, Dummy, SizeOf(Dummy));
 
     WriteUTFString(FFile, MapName);
     BlockWrite(FFile, LevelMetaCount, SizeOf(LevelMetaCount));
+
+    {2014.03.10 Whiter: The level zooms should be unique for the map
+      to be accepted by BaseCamp.}
+    ValidateZoomValues;
 
     for i:=0 to LevelMetaCount - 1 do
     begin
@@ -822,6 +855,7 @@ var
 begin
   WriteFileHeaders(True);
 
+  {2013.06.25 Whiter: Silently skipping empty tiles.}
   if Length(JpegString) < 3 then
     exit;
 
@@ -858,6 +892,26 @@ begin
   Result :=
     (LevelIndex < Levels) and (LevelInfo[LevelIndex].TileCount < TileCount[LevelIndex]) and
     (int64(FNextPictureOffset) + int64(TileLength - 2 + Length(JNX_EOF_SIGNATURE)) < MAX_FILE_SIZE);
+end;
+
+procedure TSimpleJNXWriter.ValidateZoomValues;
+var
+  i, j: integer;
+  NeedToFix: boolean;
+begin
+  NeedToFix := False;
+
+  for i:=0 to FMeta.LevelMetaCount - 2 do
+    for j:=i + 1 to FMeta.LevelMetaCount - 1 do
+      if FMeta.LevelMetas[i].Zoom = FMeta.LevelMetas[j].Zoom then
+      begin
+        NeedToFix := True;
+        Break;
+      end;
+
+  if NeedToFix then
+    for i:=0 to FMeta.LevelMetaCount - 1 do
+      FMeta.LevelMetas[i].Zoom := i + 1; 
 end;
 
 { TMultiVolumeJNXWriter }
@@ -954,9 +1008,9 @@ begin
   Result := FBasePath + '_Part' + Format('%.2d', [Index + 1]) + '.jnx';
 end;
 
-procedure TMultiVolumeJNXWriter.OpenFile(const Path: String);
+function TMultiVolumeJNXWriter.OpenFile(const Path: String): Boolean;
 begin
-  inherited;
+  Result := inherited OpenFile(Path);
 
   FBasePath := ChangeFileExt(Path, '');
   FFirstVolumePath := FBasePath + '.jnx';
