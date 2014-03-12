@@ -153,14 +153,19 @@ begin
 end;
 
 function TDatum.IsSameDatum(const ADatum: IDatum): Boolean;
-var
-  VSelf: IDatum;
 begin
-  VSelf := Self;
-  if VSelf = ADatum then begin
+  if IDatum(Self) = ADatum then begin
     Result := True;
+  end else if ADatum = nil then begin
+    Result := False;
+  end else if (FHash <> 0) and (ADatum.Hash <> 0) and (FHash <> ADatum.Hash) then begin
+    Result := False;
   end else begin
-    Result := (ADatum.EPSG <> 0) and (FEPSG <> 0) and (FEPSG = ADatum.EPSG);
+    if (ADatum.EPSG <> 0) or (FEPSG <> 0) then begin
+      Result := FEPSG = ADatum.EPSG;
+      Exit;
+    end;
+    Result := (FRadiusA = ADatum.GetSpheroidRadiusA) and (FRadiusB = ADatum.GetSpheroidRadiusB);
   end;
 end;
 
