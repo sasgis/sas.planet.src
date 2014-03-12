@@ -246,7 +246,7 @@ function TTileMatrixFactory.BuildNewMatrix(
   const ANewConverter: ILocalCoordConverter
 ): ITileMatrix;
 var
-  VLocalConverter: ILocalCoordConverter;
+  VNewConverter: ILocalCoordConverter;
   VTileRect: TRect;
   VZoom: Byte;
   VConverter: ICoordConverter;
@@ -262,27 +262,27 @@ begin
   VConverter.CheckPixelRectFloat(VMapPixelRect, VZoom);
   VTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoom), rrOutside);
   if DoubleRectsEqual(VMapPixelRect, DoubleRect(VConverter.TileRect2PixelRect(VTileRect, VZoom))) then begin
-    VLocalConverter := ANewConverter;
+    VNewConverter := ANewConverter;
   end else begin
-    VLocalConverter := FLocalConverterFactory.CreateBySourceWithTileRect(ANewConverter);
-    VMapPixelRect := VLocalConverter.GetRectInMapPixelFloat;
+    VNewConverter := FLocalConverterFactory.CreateBySourceWithTileRect(ANewConverter);
+    VMapPixelRect := VNewConverter.GetRectInMapPixelFloat;
     VTileRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoom), rrOutside);
   end;
 
   if ASource = nil then begin
-    Result := BuildEmpty(VTileRect, VLocalConverter);
-  end else if VLocalConverter.GetIsSameConverter(ASource.LocalConverter) then begin
+    Result := BuildEmpty(VTileRect, VNewConverter);
+  end else if VNewConverter.GetIsSameConverter(ASource.LocalConverter) then begin
     Result := ASource;
-  end else if not VLocalConverter.GeoConverter.IsSameConverter(ASource.LocalConverter.GeoConverter) then begin
-    Result := BuildEmpty(VTileRect, VLocalConverter);
-  end else if VLocalConverter.Zoom = ASource.LocalConverter.Zoom then begin
-    Result := BuildSameProjection(ASource, VTileRect, VLocalConverter);
-  end else if VLocalConverter.Zoom + 1 = ASource.LocalConverter.Zoom then begin
-    Result := BuildZoomChange(ASource, VTileRect, VLocalConverter);
-  end else if VLocalConverter.Zoom = ASource.LocalConverter.Zoom + 1 then begin
-    Result := BuildZoomChange(ASource, VTileRect, VLocalConverter);
+  end else if not VNewConverter.GeoConverter.IsSameConverter(ASource.LocalConverter.GeoConverter) then begin
+    Result := BuildEmpty(VTileRect, VNewConverter);
+  end else if VNewConverter.Zoom = ASource.LocalConverter.Zoom then begin
+    Result := BuildSameProjection(ASource, VTileRect, VNewConverter);
+  end else if VNewConverter.Zoom + 1 = ASource.LocalConverter.Zoom then begin
+    Result := BuildZoomChange(ASource, VTileRect, VNewConverter);
+  end else if VNewConverter.Zoom = ASource.LocalConverter.Zoom + 1 then begin
+    Result := BuildZoomChange(ASource, VTileRect, VNewConverter);
   end else begin
-    Result := BuildEmpty(VTileRect, VLocalConverter);
+    Result := BuildEmpty(VTileRect, VNewConverter);
   end;
 end;
 
@@ -365,7 +365,9 @@ var
   VResampler: TCustomResampler;
   VBitmap: TCustomBitmap32;
 begin
+  Assert(Assigned(ASource));
   VConverter := ANewConverter.GeoConverter;
+  Assert(VConverter.IsSameConverter(ASource.LocalConverter.GeoConverter));
   VZoom := ANewConverter.Zoom;
   VZoomSource := ASource.LocalConverter.Zoom;
   VRelativeRectSource := VConverter.TileRect2RelativeRect(ASource.TileRect, VZoomSource);
