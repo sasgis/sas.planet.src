@@ -1234,16 +1234,19 @@ end;
 function TCoordConverterAbstract.IsSameConverter(
   const AOtherMapCoordConv: ICoordConverter
 ): Boolean;
-var
-  VSelf: ICoordConverter;
 begin
   if not Assigned(AOtherMapCoordConv) then begin
     Result := False;
     Exit;
-  end;   
-  VSelf := Self;
-  if VSelf = AOtherMapCoordConv then begin
+  end;
+  if ICoordConverter(Self) = AOtherMapCoordConv then begin
     Result := True;
+  end else if AOtherMapCoordConv = nil then begin
+    Result := False;
+  end else if (FHash <> 0) and (AOtherMapCoordConv.Hash <> 0) and (FHash <> AOtherMapCoordConv.Hash) then begin
+    Result := False;
+  end else if not FDatum.IsSameDatum(AOtherMapCoordConv.Datum) then begin
+    Result := False;
   end else begin
     Result :=
       (Self.GetTileSplitCode <> 0) and
