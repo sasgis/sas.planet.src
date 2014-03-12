@@ -451,7 +451,7 @@ begin
     Result := Length(AKeyArray) > 0;
   finally
     CheckBDBandNil(dbc.close(dbc), dbc);
-  end; 
+  end;
 end;
 
 procedure TBerkeleyDB.ReleaseExistsKeyArray(var AKeyArray: TExistsKeyArray);

@@ -306,7 +306,7 @@ type
     FETSEnumTilesHandle: TETS_EnumTiles_Handle;
     FETSAllEnumInfo: TETS_GET_TILE_RECT_IN;
     FETSResult: Byte;
-   
+
   private
     function InternalMake: Byte;
     function InternalKill: Byte;
@@ -851,7 +851,7 @@ begin
       VOptionIn.dwRequestType := ARequestType;
       VOptionIn.dwOptionsIn := VOptionIn.dwOptionsIn or ETS_EOI_REQUEST_TYPE;
     end;
-    
+
     // call
     TETS_ExecOption(FETS_ExecOption)(
       @FDLLProvHandle,
@@ -1501,7 +1501,7 @@ end;
 function TTileStorageETS.InternalLib_CleanupProc: Boolean;
 begin
   Result := FALSE;
-  
+
   FETS_Sync       := nil;
 
   FETS_SelectTile := nil;
@@ -1537,7 +1537,7 @@ begin
       PAnsiChar(VPrimContentType),
       nil
     );
-    
+
     // complete initialization
     p := GetProcAddress(FDLLHandle, 'ETS_Complete');
     if (nil <> p) then begin
@@ -1926,7 +1926,7 @@ function TEnumTileInfoByETS.CallbackLib_NextTileEnum(
 ): Byte;
 begin
   Result := ETS_RESULT_OK;
-  
+
   // ACallbackPointer is PTileInfo
   with PTileInfo(ACallbackPointer)^ do begin
     // base values

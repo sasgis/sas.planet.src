@@ -42,7 +42,7 @@ var
 
   procedure _AddChar(const AChr: AnsiChar);
   begin
-    Result:=Result+AChr;
+    Result := Result + AChr;
   end;
 
 begin
@@ -52,31 +52,31 @@ begin
   if (1<AZoom) and (AZoom<=24) then begin
     // correct zoom
     //osX:=round(intpower(2,pXYZ^.z-1)) div 2;
-    osX:=(1 shl (AZoom-2));
-    osY:=osX;
-    prX:=osX;
-    prY:=osY;
+    osX := (1 shl (AZoom - 2));
+    osY := osX;
+    prX := osX;
+    prY := osY;
     // loop
-    for i:=2 to AZoom do
+    for i := 2 to AZoom do
     begin
-      prX:=prX div 2;
-      prY:=prY div 2;
+      prX := prX div 2;
+      prY := prY div 2;
       if (AXY.x<osX) then begin
-        osX:=osX-prX;
+        osX := osX - prX;
         if (AXY.y<osY) then begin
-          osY:=osY-prY;
+          osY := osY - prY;
           _AddChar('0');
         end else begin
-          osY:=osY+prY;
+          osY := osY + prY;
           _AddChar('2');
         end;
       end else begin
-        osX:=osX+prX;
+        osX := osX + prX;
         if (AXY.y<osY) then begin
-          osY:=osY-prY;
+          osY := osY - prY;
           _AddChar('1');
         end else begin
-          osY:=osY+prY;
+          osY := osY + prY;
           _AddChar('3');
         end;
       end;

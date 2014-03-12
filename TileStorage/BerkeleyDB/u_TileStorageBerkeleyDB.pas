@@ -757,7 +757,7 @@ begin
               if not Assigned(VHelper) then begin
                 VHelper := GetStorageHelper;
               end;
-              
+
               if VFileInfo.Exists then begin
                 VTileExists := VHelper.LoadTile(
                   VFileInfo.Name,
@@ -1104,7 +1104,7 @@ begin
   if not Assigned(Result) then begin
     FStorageHelperLock.BeginWrite;
     try
-      if not Assigned(FStorageHelper) then begin    
+      if not Assigned(FStorageHelper) then begin
         FStorageHelper := TTileStorageBerkeleyDBHelper.Create(
           FGlobalBerkeleyDBHelper,
           MapVersionFactory,
@@ -1121,7 +1121,7 @@ begin
     end;
   end;
 
-  FSyncCallListener.CheckUseTimeUpdated; 
+  FSyncCallListener.CheckUseTimeUpdated;
 
   Assert(Result <> nil);
 end;

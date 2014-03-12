@@ -73,7 +73,7 @@ type
   protected
     function InternalLib_Initialize: Boolean; override;
   end;
-  
+
 implementation
 
 uses
@@ -112,7 +112,7 @@ begin
           WriteBuffer(ATileBuffer^, ATileInfo^.TileSize);
           Position := 0;
         end;
-        Result := TRUE;                                                                                    
+        Result := TRUE;
       end;
     except
     end;

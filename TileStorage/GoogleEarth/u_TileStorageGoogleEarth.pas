@@ -215,7 +215,7 @@ begin
     FLock.EndRead;
   end;
 
-  if not Result then begin  
+  if not Result then begin
     FLock.BeginWrite;
     try
       if not FIsProvidersCreated then begin
@@ -506,7 +506,7 @@ begin
           FMainContentType
         );
     end;
-  end; 
+  end;
 end;
 
 function TTileStorageGoogleEarth.GetTileInfo(

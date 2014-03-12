@@ -24,7 +24,7 @@ interface
 
 uses
   t_ETS_Path;
-  
+
 implementation
 
 uses

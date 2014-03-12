@@ -396,7 +396,7 @@ var
   VMetaElement: IBerkeleyDBVersionedMetaValueElement;
 begin
   Result := False;
-  
+
   FSyncLock.BeginRead;
   try
     VDatabase := FEnvironment.Acquire(ADatabaseFileName);

@@ -33,7 +33,7 @@ type
       out ATileXY: TPoint;
       out ATileZoom: Byte
     ): Boolean;
-  end;   
+  end;
 
 implementation
 

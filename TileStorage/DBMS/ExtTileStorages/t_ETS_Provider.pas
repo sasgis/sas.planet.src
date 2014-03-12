@@ -69,7 +69,7 @@ type
     const AProvider_Handle: PETS_Provider_Handle;
     const AInsertBuffer: PETS_INSERT_TILE_IN
   ): Byte; stdcall;
-  
+
   // delete tile and TNE marker (supported by provider)
   // name 'ETS_DeleteTile' (MANDATORY)
   TETS_DeleteTile = function(

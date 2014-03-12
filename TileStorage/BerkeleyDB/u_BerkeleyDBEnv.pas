@@ -114,7 +114,7 @@ begin
     if Assigned(VEnvPrivate.FHelper) then begin
       VEnvPrivate.FHelper.LogException('[BDB ErrCall] ' + VMsg);
     end;
-  end;                                       
+  end;
   raise EBerkeleyDBExeption.Create(VMsg);
 end;
 

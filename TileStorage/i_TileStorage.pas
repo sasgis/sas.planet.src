@@ -31,7 +31,7 @@ uses
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_MapVersionListStatic,
-  i_TileStorageAbilities,  
+  i_TileStorageAbilities,
   i_StorageState,
   i_TileInfoBasic;
 

@@ -71,7 +71,7 @@ begin
     ZDecompress(VPtr, (AInSize - 8), AOutData, AOutSize, VUnconpressSize);
     Result := True;
   end else begin
-    // error     
+    // error
   end;
 end;
 

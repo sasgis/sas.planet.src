@@ -28,7 +28,7 @@ const
 type
   PETS_Path_Divided_W = ^TETS_Path_Divided_W;
   TETS_Path_Divided_W = record
-    Path_Items: array [0..c_ETS_Path_Items_Count-1] of WideString;
+    Path_Items: array [0..c_ETS_Path_Items_Count - 1] of WideString;
     // 0 - ServerName: WideString;
     // 1 - DatabaseName: WideString;
     // 2 - TableName: WideString;
@@ -52,7 +52,7 @@ uses
 
 type
   TETS_Path_DelimPos = packed record
-    pos_found: array [0..c_ETS_Path_Items_Count-1] of Integer; // 0 - no item
+    pos_found: array [0..c_ETS_Path_Items_Count - 1] of Integer; // 0 - no item
     count_found: Byte;
   private
     procedure Get3Parts(
@@ -68,7 +68,7 @@ type
 procedure TETS_Path_Divided_W.ApplyFrom(const AGlobalStorageIdentifier, AServiceName: WideString);
 var
   t3pos: TETS_Path_DelimPos;
-  i,result_items_defined: Byte;
+  i, result_items_defined: Byte;
   copy_count: Integer;
   s: WideString;
 begin
@@ -90,7 +90,7 @@ begin
   // b) get up to 3 items from AServiceName (from end to begin)
   // c) if got less then 3 items - get remains from AGlobalStorageIdentifier (from start)
 
-  result_items_defined:=0;
+  result_items_defined := 0;
   Self.Clear;
 
   // parse AServiceName
@@ -101,20 +101,20 @@ begin
     // add very first (2 delimiters - 3 parts)
     //if (0<=t3pos.count_found) then begin
       // add first text
-      t3pos.pos_found[t3pos.count_found]:=0;
+      t3pos.pos_found[t3pos.count_found] := 0;
       Inc(t3pos.count_found);
     //end;
 
     // loop through found parts
     if (0<t3pos.count_found) then
-    for i := 0 to t3pos.count_found-1 do begin
+    for i := 0 to t3pos.count_found - 1 do begin
       // extract string from start+1 to end-1 (start and end are markers of delimiters)
       if (0=i) then
-        copy_count:=Length(AServiceName) // 'til the end
+        copy_count := Length(AServiceName) // 'til the end
       else
-        copy_count:=t3pos.pos_found[i-1]-t3pos.pos_found[i]-1;
-      s:=System.Copy(AServiceName, t3pos.pos_found[i]+1, copy_count);
-      Self.Path_Items[(c_ETS_Path_Items_Count-1)-result_items_defined]:=s;
+        copy_count := t3pos.pos_found[i - 1] - t3pos.pos_found[i] - 1;
+      s := System.Copy(AServiceName, t3pos.pos_found[i] + 1, copy_count);
+      Self.Path_Items[(c_ETS_Path_Items_Count - 1) - result_items_defined] := s;
       Inc(result_items_defined);
     end;
   end;
@@ -122,25 +122,25 @@ begin
   // remains
   if (result_items_defined<c_ETS_Path_Items_Count) and (0<Length(AGlobalStorageIdentifier)) then begin
     // get from global string
-    t3pos.Get3Parts(AGlobalStorageIdentifier, (c_ETS_Path_Items_Count-result_items_defined), FALSE);
+    t3pos.Get3Parts(AGlobalStorageIdentifier, (c_ETS_Path_Items_Count - result_items_defined), FALSE);
 
     // add very last (0 delimiters - 1 part)
     if (0<t3pos.count_found) then begin
       // add last text
-      t3pos.pos_found[t3pos.count_found]:=Length(AGlobalStorageIdentifier)+1;
+      t3pos.pos_found[t3pos.count_found] := Length(AGlobalStorageIdentifier) + 1;
       Inc(t3pos.count_found);
     end;
 
     // loop through found parts
     if (0<t3pos.count_found) then
-    for i := 0 to t3pos.count_found-1 do begin
+    for i := 0 to t3pos.count_found - 1 do begin
       // extract string from start+1 to end-1 (start and end are markers of delimiters)
       if (0=i) then
-        copy_count:=0 // from the start
+        copy_count := 0 // from the start
       else
-        copy_count:=t3pos.pos_found[i-1];
-      s:=System.Copy(AGlobalStorageIdentifier, copy_count+1, t3pos.pos_found[i]-copy_count-1);
-      Self.Path_Items[i]:=s;
+        copy_count := t3pos.pos_found[i - 1];
+      s := System.Copy(AGlobalStorageIdentifier, copy_count + 1, t3pos.pos_found[i] - copy_count - 1);
+      Self.Path_Items[i] := s;
       Inc(result_items_defined);
       if (result_items_defined>=c_ETS_Path_Items_Count) then
         Exit;
@@ -163,7 +163,7 @@ end;
 procedure TETS_Path_Divided_W.Clear;
 var i: Byte;
 begin
-  for i := 0 to c_ETS_Path_Items_Count-1 do
+  for i := 0 to c_ETS_Path_Items_Count - 1 do
     Path_Items[i]:='';
 end;
 
@@ -174,9 +174,9 @@ begin
     Clear;
     Exit;
   end;
-  
-  for i := 0 to c_ETS_Path_Items_Count-1 do
-    Path_Items[i]:=ASrc^.Path_Items[i];
+
+  for i := 0 to c_ETS_Path_Items_Count - 1 do
+    Path_Items[i] := ASrc^.Path_Items[i];
 end;
 
 function TETS_Path_Divided_W.ServerName: WideString;
@@ -202,9 +202,9 @@ begin
   FillChar(Self, sizeof(Self), 0);
   // init
   if AFromEnd then
-    i:=Length(ASrc)
+    i := Length(ASrc)
   else
-    i:=1;
+    i := 1;
   // loop
   repeat
     // check bounds
@@ -215,10 +215,10 @@ begin
     // work
     if (PathDelim=ASrc[i]) then begin
       // save positions of delimiter
-      Self.pos_found[Self.count_found]:=i;
+      Self.pos_found[Self.count_found] := i;
       Inc(Self.count_found);
       // found all requested items
-      if (Self.count_found>=AMaxItemsToScan) then
+      if (Self.count_found >= AMaxItemsToScan) then
         Exit;
     end;
     // next

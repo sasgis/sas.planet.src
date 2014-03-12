@@ -91,7 +91,7 @@ var
   VTransaction: PBerkeleyTxn;
 begin
   Result := nil;
-  
+
   VDatabase := TBerkeleyDB.Create(
     AEnvironment,
     FIsReadOnly,

@@ -34,7 +34,7 @@ type
       const ASize: Integer;
       const AOwnMem: Boolean
     ): Boolean;
-    
+
     function GetData: Pointer;
     property Data: Pointer read GetData;
 

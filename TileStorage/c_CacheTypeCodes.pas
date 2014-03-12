@@ -36,7 +36,7 @@ const
   c_File_Cache_Id_BDB_Versioned = 61;
   c_File_Cache_Id_DBMS = 7;
   c_File_Cache_Id_GC = 8;  // GeoCacher.LOCAL direct access
-  c_File_Cache_Id_RAM = 9; // only in-memory cache    
+  c_File_Cache_Id_RAM = 9; // only in-memory cache
 
   c_File_Cache_Default_GMV  = 'cache_old';     // for 1
   c_File_Cache_Default_SAS  = 'cache';         // for 2
