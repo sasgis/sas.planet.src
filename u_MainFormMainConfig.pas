@@ -23,29 +23,20 @@ unit u_MainFormMainConfig;
 interface
 
 uses
-  i_Bitmap32Static,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ContentTypeManager,
   i_MainFormConfig,
   u_ConfigDataElementBase;
 
 type
   TMainFormMainConfig = class(TConfigDataElementBase, IMainFormMainConfig)
   private
-    FContentTypeManager: IContentTypeManager;
     FShowMapName: Boolean;
     FDisableZoomingByMouseScroll: Boolean;
     FMouseScrollInvert: Boolean;
     FShowHintOnMarks: Boolean;
     FShowHintOnlyInMapMoveMode: Boolean;
-    FUseNewMainLayer: Boolean;
     FMagnetDraw: Boolean;
-
-    FRullerFileName: string;
-    FRuller: IBitmap32Static;
-    FTumblerFileName: string;
-    FTumbler: IBitmap32Static;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -67,15 +58,8 @@ type
 
     function GetMagnetDraw: Boolean;
     procedure SetMagnetDraw(AValue: Boolean);
-
-    function GetUseNewMainLayer: Boolean;
-
-    function GetRuller: IBitmap32Static;
-    function GetTumbler: IBitmap32Static;
   public
-    constructor Create(
-      const AContentTypeManager: IContentTypeManager
-    );
+    constructor Create;
   end;
 
 implementation
@@ -85,24 +69,15 @@ uses
 
 { TMainFormMainConfig }
 
-constructor TMainFormMainConfig.Create(
-  const AContentTypeManager: IContentTypeManager
-);
+constructor TMainFormMainConfig.Create;
 begin
   inherited Create;
   FMagnetDraw := True;
-  FContentTypeManager := AContentTypeManager;
   FShowMapName := True;
   FMouseScrollInvert := False;
   FMouseScrollInvert := False;
   FShowHintOnMarks := True;
   FShowHintOnlyInMapMoveMode := False;
-  FUseNewMainLayer := True;
-  FRuller := nil;
-  FTumbler := nil;
-
-  FRullerFileName := 'sas:\Resource\VRULLER.png';
-  FTumblerFileName := 'sas:\Resource\VTUMBLER.png';
 end;
 
 procedure TMainFormMainConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
@@ -114,11 +89,7 @@ begin
     FMouseScrollInvert := AConfigData.ReadBool('MouseScrollInvert', FMouseScrollInvert);
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
     FShowHintOnlyInMapMoveMode := AConfigData.ReadBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
-    FUseNewMainLayer := not AConfigData.ReadBool('UseOldLayers', not FUseNewMainLayer);
     FMagnetDraw := AConfigData.ReadBool('MagnetDraw', FMagnetDraw);
-
-    FRuller := ReadBitmapByFileRef(AConfigData, FRullerFileName, FContentTypeManager, FRuller);
-    FTumbler := ReadBitmapByFileRef(AConfigData, FTumblerFileName, FContentTypeManager, FTumbler);
 
     SetChanged;
   end;
@@ -167,16 +138,6 @@ begin
   end;
 end;
 
-function TMainFormMainConfig.GetRuller: IBitmap32Static;
-begin
-  LockRead;
-  try
-    Result := FRuller;
-  finally
-    UnlockRead;
-  end;
-end;
-
 function TMainFormMainConfig.GetShowHintOnlyInMapMoveMode: Boolean;
 begin
   LockRead;
@@ -202,26 +163,6 @@ begin
   LockRead;
   try
     Result := FShowMapName;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMainFormMainConfig.GetTumbler: IBitmap32Static;
-begin
-  LockRead;
-  try
-    Result := FTumbler;
-  finally
-    UnlockRead;
-  end;
-end;
-
-function TMainFormMainConfig.GetUseNewMainLayer: Boolean;
-begin
-  LockRead;
-  try
-    Result := FUseNewMainLayer;
   finally
     UnlockRead;
   end;

@@ -36,7 +36,6 @@ uses
   i_KeyMovingConfig,
   i_MapMovingConfig,
   i_MapZoomingConfig,
-  i_ContentTypeManager,
   i_GeoCoderList,
   i_DownloadUIConfig,
   i_WindowPositionConfig,
@@ -80,7 +79,6 @@ type
     constructor Create(
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-      const AContentTypeManager: IContentTypeManager;
       const AGeoCoderList: IGeoCoderList;
       const ALastSearchResultConfig: ILastSearchResultConfig;
       const AMapsSet, ALayersSet: IMapTypeSet;
@@ -113,7 +111,6 @@ uses
 constructor TMainFormConfig.Create(
   const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
-  const AContentTypeManager: IContentTypeManager;
   const AGeoCoderList: IGeoCoderList;
   const ALastSearchResultConfig: ILastSearchResultConfig;
   const AMapsSet, ALayersSet: IMapTypeSet;
@@ -122,7 +119,7 @@ constructor TMainFormConfig.Create(
 );
 begin
   inherited Create;
-  FMainConfig := TMainFormMainConfig.Create(AContentTypeManager);
+  FMainConfig := TMainFormMainConfig.Create;
   Add(FMainConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'));
   FToolbarsLock := TMainWindowToolbarsLock.Create;
   Add(FToolbarsLock, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PANEL'));

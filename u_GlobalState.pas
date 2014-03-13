@@ -962,7 +962,6 @@ begin
     TMainFormConfig.Create(
       FMapTypeSetBuilderFactory,
       FLocalConverterFactory,
-      FContentTypeManager,
       FGeoCoderList,
       FGlobalConfig.LastSearchResultConfig,
       FMainMapsList.MapsSet,

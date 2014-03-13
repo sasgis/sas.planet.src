@@ -1101,12 +1101,24 @@ begin
   );
 
   FRuller := TBitmap32.Create;
-  VBitmapStatic := FConfig.MainConfig.Ruller;
+  VBitmapStatic :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'VRULLER.png',
+      GState.ContentTypeManager,
+      nil
+    );
   if VBitmapStatic <> nil then begin
     AssignStaticToBitmap32(FRuller, VBitmapStatic);
   end;
   FTumbler := TBitmap32.Create;
-  VBitmapStatic := FConfig.MainConfig.Tumbler;
+  VBitmapStatic :=
+    ReadBitmapByFileRef(
+      GState.ResourceProvider,
+      'VTUMBLER.png',
+      GState.ContentTypeManager,
+      nil
+    );
   if VBitmapStatic <> nil then begin
     AssignStaticToBitmap32(FTumbler, VBitmapStatic);
   end;
