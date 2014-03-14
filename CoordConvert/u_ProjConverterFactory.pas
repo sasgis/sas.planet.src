@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
+{******************************************************************************}
+
 unit u_ProjConverterFactory;
 
 interface
@@ -216,7 +236,7 @@ function TProjConverterByDll.LonLat2XY(
   const AProjLP: TDoublePoint): TDoublePoint;
 const
  { Scaling value decimal degree to radiant }
- DEG_TO_RAD   =	0.0174532925199432958;
+ DEG_TO_RAD   = 0.0174532925199432958;
 var
   VProjLP: TProjLP;
 begin
@@ -229,7 +249,7 @@ function TProjConverterByDll.XY2LonLat(
   const AProjXY: TDoublePoint): TDoublePoint;
 const
  { Scaling value radiant to decimal degree }
- RAD_TO_DEG   =	57.29577951308232;
+ RAD_TO_DEG   = 57.29577951308232;
 var
   VProjLP: TProjLP;
 begin
@@ -347,7 +367,7 @@ begin
     if VDll <> nil  then begin
       VProj := VDll.ProjInit(PAnsiChar(AArgs));
       if VProj <> nil then begin
-        Result := TProjConverterByDll.Create(VDll, VProj);      
+        Result := TProjConverterByDll.Create(VDll, VProj);
       end;
     end;
   end;
