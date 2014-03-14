@@ -114,7 +114,7 @@ implementation
 
 uses
   Dialogs,
-  u_Clipboard,
+  u_ClipboardFunc,
   u_IDInterfaceList,
   u_InterfaceListSimple,
   u_SortFunc,

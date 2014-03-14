@@ -287,7 +287,7 @@ uses
   i_GeometryLonLat,
   i_CoordConverter,
   i_DoublePointsAggregator,
-  u_Clipboard,
+  u_ClipboardFunc,
   u_Synchronizer,
   u_Notifier,
   u_NotifierOperation,
