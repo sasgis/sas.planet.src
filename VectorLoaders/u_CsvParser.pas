@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2013, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_CsvParser;
@@ -517,9 +517,9 @@ var
 begin
   Result := nil;
 
-  VFileBody:=TStringList.Create;
-  VFileHeader:=TStringList.Create;
-  VParsedLine:=TStringList.Create;
+  VFileBody := TStringList.Create;
+  VFileHeader := TStringList.Create;
+  VParsedLine := TStringList.Create;
   try
     // read file (do not use LoadFromFile because of #0 chars)
     // VFileBody.LoadFromFile(AFileName);
@@ -590,7 +590,7 @@ begin
     VAllItems := FVectorItemSubsetBuilderFactory.Build;
 
     // loop through
-    for i := 1 to VFileBody.Count-1 do begin
+    for i := 1 to VFileBody.Count - 1 do begin
       // parse line by specified delimiter
       VParsedLine.DelimitedText := VFileBody[i];
 

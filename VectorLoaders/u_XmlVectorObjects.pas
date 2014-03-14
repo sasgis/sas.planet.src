@@ -1,4 +1,24 @@
-Ôªøunit u_XmlVectorObjects;
+{******************************************************************************}
+{* SAS.Planet (SAS.œÎ‡ÌÂÚ‡)                                                   *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
+{******************************************************************************}
+
+unit u_XmlVectorObjects;
 
 interface
 
@@ -44,7 +64,7 @@ type
     FInMultiTrack: Boolean;
     // check if in placemark object
     FInMarkObject: Boolean;
-    
+
     // count of segments in array
     FClosedSegments: Integer;
     FOpenedSegments: Integer;
@@ -138,10 +158,10 @@ function FindNextDelimiterPos(
   const ASource: WideString
 ): Integer;
 begin
-  Result := APrevDelimiterPos+1;
+  Result := APrevDelimiterPos + 1;
   while (Result <= Length(ASource)) do begin
     case Ord(ASource[Result]) of
-      9,10,13,32,160: Exit;
+      9, 10, 13, 32, 160: Exit;
     end;
     Inc(Result);
   end;
@@ -181,7 +201,7 @@ begin
 
   // count of existing points
   VOldCount := PrepareArrayOfPoints;
-  
+
   // parse coordinates and add it to array
   VAdded := ParseKmlCoordinatesToArray(ACoordinates, True);
 
@@ -222,7 +242,7 @@ begin
 
   // count of existing points
   VOldCount := PrepareArrayOfPoints;
-  
+
   // parse coordinates and add it to array
   VAdded := ParseKmlCoordinatesToArray(ACoordinates, False);
 
@@ -473,7 +493,7 @@ begin
   VArray := FDoublePointsAggregator.Points;
   Result := DoublePointsEqual(
     VArray^[AFirstIndexOfLastSegment],
-    VArray^[FDoublePointsAggregator.Count-1]
+    VArray^[FDoublePointsAggregator.Count - 1]
   );
 end;
 
@@ -629,7 +649,7 @@ begin
             // time
             if (wpt_time in fAvail_wpt_params) and UTCDateOK and UTCTimeOK then begin
               VParamName := 'time';
-              VParamValue := DateTime_To_ISO8601(UTCDate+UTCTime, False);
+              VParamValue := DateTime_To_ISO8601(UTCDate + UTCTime, False);
               // add to description
               _AddToDesc(VParamName, VParamValue);
             end;
@@ -691,8 +711,8 @@ begin
     VPosCur := FindNextDelimiterPos(VPosPrev, ACoordinates);
     VCoordLine := System.Copy(
       ACoordinates,
-      (VPosPrev+1),
-      (VPosCur-VPosPrev-1)
+      (VPosPrev + 1),
+      (VPosCur - VPosPrev - 1)
     );
 
     // parse and add
