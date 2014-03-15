@@ -1247,14 +1247,14 @@ begin
     Result := False;
   end else if not FDatum.IsSameDatum(AOtherMapCoordConv.Datum) then begin
     Result := False;
+  end else if AOtherMapCoordConv.GetTileSplitCode <> Self.GetTileSplitCode then begin
+    Result := False;
+  end else if AOtherMapCoordConv.GetProjectionEPSG <> Self.GetProjectionEPSG then begin
+    Result := False;
+  end else if AOtherMapCoordConv.GetCellSizeUnits <> Self.GetCellSizeUnits then begin
+    Result := False;
   end else begin
-    Result :=
-      (Self.GetTileSplitCode <> 0) and
-      (AOtherMapCoordConv.GetTileSplitCode <> 0) and
-      (AOtherMapCoordConv.GetTileSplitCode = Self.GetTileSplitCode) and
-      (AOtherMapCoordConv.GetProjectionEPSG <> 0) and
-      (Self.GetProjectionEPSG <> 0) and
-      (AOtherMapCoordConv.GetProjectionEPSG = Self.GetProjectionEPSG);
+    Result := True;
   end;
 end;
 
