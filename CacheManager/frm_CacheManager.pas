@@ -176,6 +176,7 @@ begin
   FContentTypeManager := AContentTypeManager;
   FCoordConverterFactory := ACoordConverterFactory;
   FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FTileStorageTypeList := ATileStorageTypeList;
 
   cbbCacheTypes.ItemIndex := 1; // SAS.Planet
   cbbDestCacheTypes.ItemIndex := 5; // BerkeleyDB
