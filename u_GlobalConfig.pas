@@ -25,7 +25,6 @@ interface
 uses
   i_PathConfig,
   i_GlobalAppConfig,
-  i_LastSelectionInfo,
   i_LanguageManager,
   i_AppearanceOfMarkFactory,
   i_GSMGeoCodeConfig,

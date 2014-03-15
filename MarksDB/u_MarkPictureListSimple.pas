@@ -26,8 +26,6 @@ uses
   Classes,
   i_HashFunction,
   i_PathConfig,
-  i_ConfigDataProvider,
-  i_ConfigDataWriteProvider,
   i_ContentTypeManager,
   i_MarkPicture,
   u_ConfigDataElementBase;

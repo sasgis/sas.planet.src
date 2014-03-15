@@ -64,9 +64,6 @@ type
 
 implementation
 
-uses
-  u_ConfigProviderHelpers;
-
 { TMainFormMainConfig }
 
 constructor TMainFormMainConfig.Create;

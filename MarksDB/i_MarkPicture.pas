@@ -26,8 +26,7 @@ uses
   Classes,
   t_Hash,
   i_BinaryData,
-  i_BitmapMarker,
-  i_ConfigDataElement;
+  i_BitmapMarker;
 
 type
   IMarkPicture = interface
