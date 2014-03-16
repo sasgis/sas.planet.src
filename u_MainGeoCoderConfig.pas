@@ -54,6 +54,7 @@ implementation
 uses
   SysUtils,
   c_ZeroGUID,
+  u_ConfigProviderHelpers,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_StringHistory;
 
@@ -73,22 +74,10 @@ begin
 end;
 
 procedure TMainGeoCoderConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
-var
-  VGUID: TGUID;
-  VGUIDStr: string;
 begin
   inherited;
   if AConfigData <> nil then begin
-    VGUID := CGUID_Zero;
-    VGUIDStr := AConfigData.ReadString('GeoCoderGUID', '');
-    if VGUIDStr <> '' then begin
-      try
-        VGUID := StringToGUID(VGUIDStr);
-      except
-        VGUID := CGUID_Zero;
-      end;
-    end;
-    SetActiveGeoCoderGUID(VGUID);
+    SetActiveGeoCoderGUID(ReadGUID(AConfigData, 'GeoCoderGUID', CGUID_Zero));
   end;
 end;
 
@@ -97,7 +86,7 @@ procedure TMainGeoCoderConfig.DoWriteConfig(
 );
 begin
   inherited;
-  AConfigData.WriteString('GeoCoderGUID', GUIDToString(FActiveGeoCoderGUID));
+  WriteGUID(AConfigData, 'GeoCoderGUID', FActiveGeoCoderGUID);
 end;
 
 function TMainGeoCoderConfig.GetActiveGeoCoder: IGeoCoderListEntity;

@@ -42,6 +42,17 @@ function ReadColor32(
   ADefault: TColor32
 ): TColor32;
 
+procedure WriteGUID(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AIdent: string;
+  AValue: TGUID
+);
+function ReadGUID(
+  const AConfigProvider: IConfigDataProvider;
+  const AIdent: string;
+  ADefault: TGUID
+): TGUID;
+
 function ReadBitmapByFileRef(
   const AConfigProvider: IConfigDataProvider;
   const AFullFileName: string;
@@ -238,6 +249,36 @@ begin
       AConfigProvider.WriteFloat('PointLon_' + IntToStr(i), VPoint.x);
       AConfigProvider.WriteFloat('PointLat_' + IntToStr(i), VPoint.y);
       Inc(i);
+    end;
+  end;
+end;
+
+procedure WriteGUID(
+  const AConfigProvider: IConfigDataWriteProvider;
+  const AIdent: string;
+  AValue: TGUID
+);
+begin
+  AConfigProvider.WriteString(AIdent, GUIDToString(AValue));
+end;
+
+function ReadGUID(
+  const AConfigProvider: IConfigDataProvider;
+  const AIdent: string;
+  ADefault: TGUID
+): TGUID;
+var
+  VGUIDStr: string;
+begin
+  Result := ADefault;
+  if AConfigProvider <> nil then begin
+    VGUIDStr := AConfigProvider.ReadString(AIdent, '');
+    if VGUIDStr <> '' then begin
+      try
+        Result := StringToGUID(VGUIDStr);
+      except
+        Result := ADefault;
+      end;
     end;
   end;
 end;
