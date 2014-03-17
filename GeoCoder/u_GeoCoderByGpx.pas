@@ -123,6 +123,7 @@ procedure TGeoCoderByGpx.SearchInGpxFile(
 var
   VNode: IXMLNode;
   VPlacemarkNode: IXMLNode;
+  VPlacemarkSubNode: IXMLNode;
   VPoint: TDoublePoint;
   VAddress: String;
   VDesc: String;
@@ -150,6 +151,7 @@ begin
             if VPlacemarkNode.GetAttributeNodes.get(J).GetNodeName = 'lat' then
               VPoint.Y := StrToFloat(VPlacemarkNode.GetAttributeNodes.get(J).gettext, VFormatSettings);
           end;
+
           VAddress := VPlacemarkNode.ChildNodes.FindNode('name').Text;
           VDesc := '';
           if VPlacemarkNode.ChildNodes.FindNode('desc') <> nil then
@@ -157,12 +159,29 @@ begin
           if VPlacemarkNode.ChildNodes.FindNode('ele') <> nil then
             VDesc := VDesc + #$D#$A + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele').Text;
           VDesc := VDesc + #$D#$A + '[ ' + AValueConverter.LonLatConvert(VPoint) + ' ]';
-          VFullDesc := VAddress + '<br>' + VDesc + '<br><b>' + AFile + '</b>';
+          VFullDesc := VAddress + '<br>' + VDesc ;
+
+          if VPlacemarkNode.ChildNodes.FindNode('url') <> nil then
+            VFullDesc := VFullDesc + '<br><a href=' + VPlacemarkNode.ChildNodes.FindNode('url').Text + '>' + VPlacemarkNode.ChildNodes.FindNode('url').Text + '</a>';
+
+          for J := 0 to VPlacemarkNode.ChildNodes.Count - 1 do begin
+            VPlacemarkSubNode := VPlacemarkNode.ChildNodes[J];
+            if VPlacemarkSubNode.NodeName ='groundspeak:cache' then begin
+              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:short_description') <> nil then
+                VFullDesc := VFullDesc + '<br>' + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:short_description').Text;
+              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:difficulty') <> nil then
+                VFullDesc := VFullDesc + '<br>Difficulty:' + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:difficulty').Text;
+              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:long_description') <> nil then
+                VFullDesc := VFullDesc + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:long_description').Text;
+            end;
+          end;
+
+          VFullDesc := VFullDesc + '<br><b>' + AFile + '</b>';
 
           Vskip := True;
           if Pos(VSearch, AnsiUpperCase(VAddress)) <> 0 then begin
             Vskip := False
-          end else if Pos(VSearch, AnsiUpperCase(VDesc)) <> 0 then begin
+          end else if Pos(VSearch, AnsiUpperCase(VFullDesc)) <> 0 then begin
             Vskip := False
           end;
           if not Vskip then begin
