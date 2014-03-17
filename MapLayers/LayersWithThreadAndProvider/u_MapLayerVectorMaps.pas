@@ -32,7 +32,7 @@ uses
   i_ThreadConfig,
   i_VectorItemDrawConfig,
   i_Bitmap32StaticFactory,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_MarkerDrawable,
   i_VectorItemSubsetChangeable,
   i_GeometryProjectedProvider,
@@ -48,7 +48,7 @@ type
       AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AView: ILocalCoordConverterChangeable;
-      const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectedProvider: IGeometryProjectedProvider;
       const ATimerNoifier: INotifierTime;
@@ -76,7 +76,7 @@ constructor TMapLayerVectorMaps.Create(
   AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AView: ILocalCoordConverterChangeable;
-  const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectedProvider: IGeometryProjectedProvider;
   const ATimerNoifier: INotifierTime;
@@ -92,7 +92,7 @@ var
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
-      ATileMatrixDraftResamplerConfig,
+      ATileMatrixDraftResampler,
       ABitmapFactory,
       AConverterFactory
     );

@@ -29,7 +29,7 @@ uses
   i_InternalPerformanceCounter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_ValueToStringConverter,
   i_Bitmap32StaticFactory,
   i_MapLayerGridsConfig,
@@ -45,7 +45,7 @@ type
       AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AView: ILocalCoordConverterChangeable;
-      const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
@@ -69,7 +69,7 @@ constructor TMapLayerGrids.Create(
   AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AView: ILocalCoordConverterChangeable;
-  const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
@@ -81,7 +81,7 @@ var
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
-      ATileMatrixDraftResamplerConfig,
+      ATileMatrixDraftResampler,
       ABitmapFactory,
       AConverterFactory
     );

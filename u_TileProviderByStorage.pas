@@ -34,7 +34,7 @@ uses
   i_ProjectionInfo,
   i_TileProvider,
   i_VectorDataLoader,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_VectorDataFactory,
   i_TileStorage,
   u_BaseInterfacedObject;
@@ -48,7 +48,7 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FStorage: ITileStorage;
     FIsIgnoreError: Boolean;
-    FImageResamplerConfig: IImageResamplerConfig;
+    FImageResampler: IImageResamplerFactoryChangeable;
   private
     function GetProjectionInfo: IProjectionInfo;
     function GetTile(const ATile: TPoint): IBitmap32Static;
@@ -56,7 +56,7 @@ type
   public
     constructor Create(
       const AIsIgnoreError: Boolean;
-      const AImageResamplerConfig: IImageResamplerConfig;
+      const AImageResampler: IImageResamplerFactoryChangeable;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IBitmapTileLoader;
@@ -100,7 +100,7 @@ uses
 
 constructor TBitmapTileProviderByStorage.Create(
   const AIsIgnoreError: Boolean;
-  const AImageResamplerConfig: IImageResamplerConfig;
+  const AImageResampler: IImageResamplerFactoryChangeable;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IBitmapTileLoader;
@@ -108,7 +108,7 @@ constructor TBitmapTileProviderByStorage.Create(
   const AStorage: ITileStorage
 );
 begin
-  Assert(AImageResamplerConfig <> nil);
+  Assert(AImageResampler <> nil);
   Assert(AVersionConfig <> nil);
   Assert(ALoaderFromStorage <> nil);
   Assert(AStorage <> nil);
@@ -116,7 +116,7 @@ begin
   Assert(AStorage.CoordConverter.IsSameConverter(AProjectionInfo.GeoConverter));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
-  FImageResamplerConfig := AImageResamplerConfig;
+  FImageResampler := AImageResampler;
   FStorage := AStorage;
   FBitmapFactory := ABitmapFactory;
   FProjectionInfo := AProjectionInfo;
@@ -154,7 +154,7 @@ begin
       VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if (Result.Size.X <> VSize.X) or
         (Result.Size.Y <> VSize.Y) then begin
-        VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+        VResampler := FImageResampler.GetStatic.CreateResampler;
         try
           VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
           try

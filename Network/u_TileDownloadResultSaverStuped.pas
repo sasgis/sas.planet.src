@@ -36,7 +36,7 @@ uses
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
   i_GlobalDownloadConfig,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_TilePostDownloadCropConfig,
   i_DownloadResult,
   i_TileRequestResult,
@@ -50,7 +50,7 @@ type
   TTileDownloadResultSaverStuped = class(TBaseInterfacedObject, ITileDownloadResultSaver)
   private
     FDownloadConfig: IGlobalDownloadConfig;
-    FImageResamplerConfig: IImageResamplerConfig;
+    FImageResampler: IImageResamplerFactoryChangeable;
     FContentTypeSubst: IContentTypeSubst;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     FStorage: ITileStorage;
@@ -83,7 +83,7 @@ type
   public
     constructor Create(
       const ADownloadConfig: IGlobalDownloadConfig;
-      const AImageResamplerConfig: IImageResamplerConfig;
+      const AImageResampler: IImageResamplerFactoryChangeable;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AContentTypeManager: IContentTypeManager;
       const AContentTypeSubst: IContentTypeSubst;
@@ -115,7 +115,7 @@ uses
 
 constructor TTileDownloadResultSaverStuped.Create(
   const ADownloadConfig: IGlobalDownloadConfig;
-  const AImageResamplerConfig: IImageResamplerConfig;
+  const AImageResampler: IImageResamplerFactoryChangeable;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AContentTypeManager: IContentTypeManager;
   const AContentTypeSubst: IContentTypeSubst;
@@ -128,7 +128,7 @@ var
 begin
   inherited Create;
   FDownloadConfig := ADownloadConfig;
-  FImageResamplerConfig := AImageResamplerConfig;
+  FImageResampler := AImageResampler;
   FBitmapFactory := ABitmapFactory;
   FContentTypeManager := AContentTypeManager;
   FContentTypeSubst := AContentTypeSubst;
@@ -173,7 +173,7 @@ begin
   VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
   try
     VBitmap.SetSize(ATileSize.X, ATileSize.Y);
-    VResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+    VResampler := FImageResampler.GetStatic.CreateResampler;
     try
       StretchTransfer(
         VBitmap,

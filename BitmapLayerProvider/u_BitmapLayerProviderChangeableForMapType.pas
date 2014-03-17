@@ -27,7 +27,7 @@ uses
   i_TileStorage,
   i_BitmapLayerProvider,
   i_UseTilePrevZoomConfig,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_Bitmap32StaticFactory,
   i_MapVersionRequestConfig,
   i_TileObjCache,
@@ -45,9 +45,9 @@ type
     FBitmapFactory: IBitmap32StaticFactory;
     FErrorLogger: ITileErrorLogger;
 
-    FResamplerChangeProjection: IImageResamplerConfig;
-    FResamplerGetPrev: IImageResamplerConfig;
-    FResamplerLoad: IImageResamplerConfig;
+    FResamplerChangeProjection: IImageResamplerFactoryChangeable;
+    FResamplerGetPrev: IImageResamplerFactoryChangeable;
+    FResamplerLoad: IImageResamplerFactoryChangeable;
     FVersion: IMapVersionRequestConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     procedure OnConfigChange;
@@ -62,9 +62,9 @@ type
       const ACache: ITileObjCacheBitmap;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AErrorLogger: ITileErrorLogger;
-      const AResamplerChangeProjection: IImageResamplerConfig;
-      const AResamplerGetPrev: IImageResamplerConfig;
-      const AResamplerLoad: IImageResamplerConfig;
+      const AResamplerChangeProjection: IImageResamplerFactoryChangeable;
+      const AResamplerGetPrev: IImageResamplerFactoryChangeable;
+      const AResamplerLoad: IImageResamplerFactoryChangeable;
       const AVersion: IMapVersionRequestConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig
     );
@@ -87,7 +87,7 @@ constructor TBitmapLayerProviderChangeableForMapType.Create(
   const ACache: ITileObjCacheBitmap;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AErrorLogger: ITileErrorLogger;
-  const AResamplerChangeProjection, AResamplerGetPrev, AResamplerLoad: IImageResamplerConfig;
+  const AResamplerChangeProjection, AResamplerGetPrev, AResamplerLoad: IImageResamplerFactoryChangeable;
   const AVersion: IMapVersionRequestConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig
 );
@@ -156,9 +156,9 @@ begin
       FGuid,
       FErrorLogger,
       FTileStorage,
-      FResamplerChangeProjection.GetActiveFactory,
-      FResamplerGetPrev.GetActiveFactory,
-      FResamplerLoad.GetActiveFactory,
+      FResamplerChangeProjection.GetStatic,
+      FResamplerGetPrev.GetStatic,
+      FResamplerLoad.GetStatic,
       FBitmapFactory,
       FLoadPrevMaxZoomDelta,
       FVersion.GetStatic,

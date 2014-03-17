@@ -767,6 +767,7 @@ uses
   i_VectorItemSubsetChangeable,
   i_ConfigDataProvider,
   i_PointCaptionsLayerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_MapVersionListStatic,
@@ -868,6 +869,7 @@ uses
   u_InetFunc,
   u_BitmapFunc,
   u_ClipboardFunc,
+  u_ImageResamplerFactoryChangeableByConfig,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
@@ -939,6 +941,7 @@ begin
       GState.TileNameParser,
       GState.Config.ViewConfig,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
+      GState.ImageResamplerFactoryList,
       GState.Config.ImageResamplerConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig,
       FConfig.LayersConfig.MarksLayerConfig.MarksDrawConfig,
@@ -1536,7 +1539,14 @@ var
   VPopupMenu: IPopUp;
   VVectorItems: IVectorItemSubsetChangeable;
   VPerfList: IInternalPerformanceCounterList;
+  VTileMatrixDraftResampler: IImageResamplerFactoryChangeable;
 begin
+  VTileMatrixDraftResampler :=
+    TImageResamplerFactoryChangeableByConfig.Create(
+      GState.Config.TileMatrixDraftResamplerConfig,
+      GState.ImageResamplerFactoryList
+    );
+
   VLayersList := TInterfaceListSimple.Create;
   VLayersList.Add(
     TMapLayerBitmapMaps.Create(
@@ -1546,7 +1556,7 @@ begin
       map,
       FConfig.ViewPortState.Position,
       FConfig.ViewPortState.View,
-      GState.Config.TileMatrixDraftResamplerConfig,
+      VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       FConfig.MainMapsConfig.GetActiveMap,
       TMapTypeListChangeableByActiveMapsSet.Create(GState.MapTypeListBuilderFactory, FConfig.MainMapsConfig.GetActiveBitmapLayersSet),
@@ -1567,7 +1577,7 @@ begin
       map,
       FConfig.ViewPortState.Position,
       FConfig.ViewPortState.View,
-      GState.Config.TileMatrixDraftResamplerConfig,
+      VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
       GState.BitmapFactory,
@@ -1608,7 +1618,7 @@ begin
       map,
       FConfig.ViewPortState.Position,
       FConfig.ViewPortState.View,
-      GState.Config.TileMatrixDraftResamplerConfig,
+      VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.ProjectedGeometryProvider,
       GState.GUISyncronizedTimerNotifier,
@@ -1627,7 +1637,7 @@ begin
       map,
       FConfig.ViewPortState.Position,
       FConfig.ViewPortState.View,
-      GState.Config.TileMatrixDraftResamplerConfig,
+      VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
       GState.BitmapFactory,
@@ -1680,7 +1690,7 @@ begin
       map,
       FConfig.ViewPortState.Position,
       FConfig.ViewPortState.View,
-      GState.Config.TileMatrixDraftResamplerConfig,
+      VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.ProjectedGeometryProvider,
       VMarkerProviderForVectorItem,
@@ -1698,7 +1708,7 @@ begin
       map,
       FConfig.ViewPortState.Position,
       FConfig.ViewPortState.View,
-      GState.Config.TileMatrixDraftResamplerConfig,
+      VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
       GState.BitmapFactory,
@@ -1978,7 +1988,7 @@ begin
       map,
       FConfig.ViewPortState.Position,
       FConfig.ViewPortState.View,
-      GState.Config.TileMatrixDraftResamplerConfig,
+      VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.ProjectedGeometryProvider,
       GState.GUISyncronizedTimerNotifier,
@@ -2187,7 +2197,7 @@ begin
       map,
       VMiniMapConverterChangeable,
       VMiniMapConverterChangeable,
-      GState.Config.TileMatrixDraftResamplerConfig,
+      VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       FConfig.LayersConfig.MiniMapLayerConfig,
       FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig as IMapTypeChangeable,

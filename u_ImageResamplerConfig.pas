@@ -25,48 +25,48 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ImageResamplerFactory,
   i_ImageResamplerConfig,
   u_ConfigDataElementBase;
 
 type
   TImageResamplerConfig = class(TConfigDataElementBase, IImageResamplerConfig)
   private
-    FList: IImageResamplerFactoryList;
-    FActiveIndex: Integer;
+    FDefGUID: TGUID;
+    FActiveGUID: TGUID;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetList: IImageResamplerFactoryList;
-    function GetActiveIndex: Integer;
-    procedure SetActiveIndex(AValue: Integer);
-    function GetActiveFactory: IImageResamplerFactory;
+    function GetDefaultGUID: TGUID;
+    function GetActiveGUID: TGUID;
+    procedure SetActiveGUID(const AValue: TGUID);
   public
-    constructor Create(const AList: IImageResamplerFactoryList);
+    constructor Create(
+      const ADefGUID: TGUID
+    );
   end;
 
 implementation
 
+uses
+  SysUtils,
+  u_ConfigProviderHelpers;
+
 { TMainFormMainConfig }
 
-constructor TImageResamplerConfig.Create(const AList: IImageResamplerFactoryList);
+constructor TImageResamplerConfig.Create(
+  const ADefGUID: TGUID
+);
 begin
   inherited Create;
-  FList := AList;
+  FActiveGUID := ADefGUID;
 end;
 
 procedure TImageResamplerConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    FActiveIndex := AConfigData.ReadInteger('ResamplingType', FActiveIndex);
-    if FActiveIndex < 0 then begin
-      FActiveIndex := 0;
-    end else if FActiveIndex >= FList.Count then begin
-      FActiveIndex := FList.Count - 1;
-    end;
-    SetChanged;
+    SetActiveGUID(ReadGUID(AConfigData, 'ResamplingType', FActiveGUID));
   end;
 end;
 
@@ -75,45 +75,30 @@ procedure TImageResamplerConfig.DoWriteConfig(
 );
 begin
   inherited;
-  AConfigData.WriteInteger('ResamplingType', FActiveIndex);
+  WriteGUID(AConfigData, 'ResamplingType', FActiveGUID);
 end;
 
-function TImageResamplerConfig.GetActiveFactory: IImageResamplerFactory;
+function TImageResamplerConfig.GetActiveGUID: TGUID;
 begin
   LockRead;
   try
-    Result := FList.Items[FActiveIndex];
+    Result := FActiveGUID;
   finally
     UnlockRead;
   end;
 end;
 
-function TImageResamplerConfig.GetActiveIndex: Integer;
+function TImageResamplerConfig.GetDefaultGUID: TGUID;
 begin
-  LockRead;
-  try
-    Result := FActiveIndex;
-  finally
-    UnlockRead;
-  end;
+  Result := FDefGUID;
 end;
 
-function TImageResamplerConfig.GetList: IImageResamplerFactoryList;
-begin
-  Result := FList;
-end;
-
-procedure TImageResamplerConfig.SetActiveIndex(AValue: Integer);
+procedure TImageResamplerConfig.SetActiveGUID(const AValue: TGUID);
 begin
   LockWrite;
   try
-    if FActiveIndex <> AValue then begin
-      FActiveIndex := AValue;
-      if FActiveIndex < 0 then begin
-        FActiveIndex := 0;
-      end else if FActiveIndex >= FList.Count then begin
-        FActiveIndex := FList.Count - 1;
-      end;
+    if not IsEqualGUID(FActiveGUID, AValue) then begin
+      FActiveGUID := AValue;
       SetChanged;
     end;
   finally

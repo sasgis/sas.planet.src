@@ -37,7 +37,7 @@ uses
   i_MapTypeSetChangeable,
   i_MapTypeListChangeable,
   i_InternalPerformanceCounter,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   u_TiledLayerWithThreadBase;
 
 type
@@ -50,7 +50,7 @@ type
       AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AView: ILocalCoordConverterChangeable;
-      const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMainMap: IMapTypeChangeable;
       const ALayesList: IMapTypeListChangeable;
@@ -83,7 +83,7 @@ constructor TMapLayerBitmapMaps.Create(
   AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AView: ILocalCoordConverterChangeable;
-  const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMainMap: IMapTypeChangeable;
   const ALayesList: IMapTypeListChangeable;
@@ -102,7 +102,7 @@ var
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
-      ATileMatrixDraftResamplerConfig,
+      ATileMatrixDraftResampler,
       ABitmapFactory,
       AConverterFactory
     );

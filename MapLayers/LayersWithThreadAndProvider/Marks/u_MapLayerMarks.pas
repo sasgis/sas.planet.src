@@ -31,7 +31,7 @@ uses
   i_InternalPerformanceCounter,
   i_MarksLayerConfig,
   i_Bitmap32StaticFactory,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_MarkerProviderForVectorItem,
   i_VectorItemSubsetChangeable,
   i_GeometryProjectedProvider,
@@ -47,7 +47,7 @@ type
       AParentMap: TImage32;
       const APosition: ILocalCoordConverterChangeable;
       const AView: ILocalCoordConverterChangeable;
-      const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
+      const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectedCache: IGeometryProjectedProvider;
       const AMarkerProvider: IMarkerProviderForVectorItem;
@@ -74,7 +74,7 @@ constructor TMapLayerMarks.Create(
   AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AView: ILocalCoordConverterChangeable;
-  const ATileMatrixDraftResamplerConfig: IImageResamplerConfig;
+  const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectedCache: IGeometryProjectedProvider;
   const AMarkerProvider: IMarkerProviderForVectorItem;
@@ -89,7 +89,7 @@ var
 begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
-      ATileMatrixDraftResamplerConfig,
+      ATileMatrixDraftResampler,
       ABitmapFactory,
       AConverterFactory
     );

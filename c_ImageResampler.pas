@@ -18,47 +18,26 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ImageResamplerFactory;
+unit c_ImageResampler;
 
 interface
 
-uses
-  GR32;
-
-type
-  IImageResamplerFactory = interface
-    ['{4829EE36-667A-4A25-8CE0-1DAFDDC9B3D9}']
-    function CreateResampler: TCustomResampler;
-  end;
-
-  IImageResamplerFactoryListEntry = interface
-    ['{2B9A419E-5C26-4641-AEAE-A02E495592F3}']
-    function GetFactory: IImageResamplerFactory;
-    property Factory: IImageResamplerFactory read GetFactory;
-
-    function GetCaption: string;
-    property Caption: string read GetCaption;
-
-    function GetGUID: TGUID;
-    property GUID: TGUID read GetGUID;
-  end;
-
-  IImageResamplerFactoryList = interface
-    ['{CC888F5D-5DDA-427F-8127-93B0F1BD8CA5}']
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function Get(AIndex: Integer): IImageResamplerFactory;
-    property Items[Index: Integer]: IImageResamplerFactory read Get; default;
-
-    function GetCaption(AIndex: Integer): string;
-    property Captions[Index: Integer]: string read GetCaption;
-
-    function GetGUID(AIndex: Integer): TGUID;
-    property GUIDs[Index: Integer]: TGUID read GetGUID;
-
-    function GetIndexByGUID(const AGUID: TGUID): Integer;
-  end;
+const
+  CResamplerNearestGUID: TGUID = '{1CCCFBD8-3DB5-4387-A86B-3690D6E21914}';
+  CResamplerLinearGUID: TGUID = '{39AE1D08-B463-4CFB-A040-EB1CCB0A8F35}';
+  CResamplerBoxGUID: TGUID = '{939FAFBA-D34A-4941-AF6B-50A6F431BDA2}';
+  CResamplerCosineGUID: TGUID = '{554E2271-BD61-4EA7-AD3E-7BED8FD8B145}';
+  CResamplerSplineGUID: TGUID = '{653C8817-CCD7-45CB-A1DC-D12F7FA9A890}';
+  CResamplerCubicGUID: TGUID = '{5081A8A4-887F-4035-9D0F-173A92022C1B}';
+  CResamplerMitchellGUID: TGUID = '{3B24A711-6D96-40CE-82A1-F710ED5DBA1B}';
+  CResamplerAlbrechtGUID: TGUID = '{1B4DC573-9C60-4107-977D-F1AC4B4D9AC5}';
+  CResamplerLanczosGUID: TGUID = '{77533101-C009-4A79-8D90-293D83E88337}';
+  CResamplerGaussianGUID: TGUID = '{310E83A1-4F3A-4AB3-8390-0F512C27A467}';
+  CResamplerBlackmanGUID: TGUID = '{1BBD612B-0FCF-4EAE-AE46-65BDAF63FB54}';
+  CResamplerHannGUID: TGUID = '{1439CA42-F813-4FC4-8E5E-6C3A72165E1B}';
+  CResamplerHammingGUID: TGUID = '{B377031D-E87A-4C95-8F68-863322791A64}';
+  CResamplerSinshGUID: TGUID = '{6C73B7A8-7AC5-440C-89E8-3D4D73EFD828}';
+  CResamplerHermiteGUID: TGUID = '{2F694E07-5121-405A-9A06-E07DADF46BD2}';
 
 implementation
 

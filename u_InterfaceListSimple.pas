@@ -58,6 +58,7 @@ type
     function MakeStaticAndClear: IInterfaceListStatic;
     function MakeStaticCopy: IInterfaceListStatic;
   public
+    constructor Create;
     destructor Destroy; override;
   end;
 
@@ -68,6 +69,12 @@ uses
   u_InterfaceListStatic;
 
 { TInterfaceListSimple }
+
+constructor TInterfaceListSimple.Create;
+begin
+  inherited Create;
+  FList := nil;
+end;
 
 destructor TInterfaceListSimple.Destroy;
 var

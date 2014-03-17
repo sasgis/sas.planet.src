@@ -101,6 +101,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
+    FImageResamplerFactoryList: IImageResamplerFactoryList;
     FImageResamplerConfig: IImageResamplerConfig;
     FfrMapSelect: TfrMapSelect;
     procedure InitResamplersList(const AList: IImageResamplerFactoryList; ABox: TComboBox);
@@ -125,6 +126,7 @@ type
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
+      const AImageResamplerFactoryList: IImageResamplerFactoryList;
       const AImageResamplerConfig: IImageResamplerConfig
     ); reintroduce;
     destructor Destroy; override;
@@ -146,6 +148,7 @@ constructor TfrTilesGenPrev.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
+  const AImageResamplerFactoryList: IImageResamplerFactoryList;
   const AImageResamplerConfig: IImageResamplerConfig
 );
 begin
@@ -155,6 +158,7 @@ begin
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
+  FImageResamplerFactoryList := AImageResamplerFactoryList;
   FImageResamplerConfig := AImageResamplerConfig;
   FfrMapSelect :=
     TfrMapSelect.Create(
@@ -299,12 +303,12 @@ function TfrTilesGenPrev.GetResampler: IImageResamplerFactory;
 begin
   try
     if cbbResampler.ItemIndex >= 0 then begin
-      Result := FImageResamplerConfig.GetList.Items[cbbResampler.ItemIndex];
+      Result := FImageResamplerFactoryList.Items[cbbResampler.ItemIndex];
     end else begin
-      Result := FImageResamplerConfig.GetActiveFactory;
+      Result := FImageResamplerFactoryList.Items[0];
     end;
   except
-    Result := FImageResamplerConfig.GetActiveFactory;
+    Result := FImageResamplerFactoryList.Items[0];
   end;
 end;
 
@@ -349,8 +353,8 @@ begin
     cbbFromZoom.ItemIndex := 0;
   end;
   cbbFromZoomChange(cbbFromZoom);
-  InitResamplersList(FImageResamplerConfig.GetList, cbbResampler);
-  cbbResampler.ItemIndex := FImageResamplerConfig.ActiveIndex;
+  InitResamplersList(FImageResamplerFactoryList, cbbResampler);
+  cbbResampler.ItemIndex := FImageResamplerFactoryList.GetIndexByGUID(FImageResamplerConfig.ActiveGUID);
   FfrMapSelect.Show(pnlFrame);
 end;
 

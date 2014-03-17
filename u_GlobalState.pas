@@ -94,6 +94,7 @@ uses
   i_VectorItemTreeImporterList,
   i_VectorItemTreeExporterList,
   i_TileStorageTypeList,
+  i_ImageResamplerFactory,
   i_BuildInfo,
   i_GlobalConfig,
   i_GlobalCacheConfig,
@@ -191,6 +192,7 @@ type
     FInternalBrowserContent: IInternalBrowserLastContent;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FLastSelectionInfo: ILastSelectionInfo;
+    FImageResamplerFactoryList: IImageResamplerFactoryList;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -267,6 +269,7 @@ type
     property MapVersionFactoryList: IMapVersionFactoryList read FMapVersionFactoryList;
     property BuildInfo: IBuildInfo read FBuildInfo;
     property TileStorageTypeList: ITileStorageTypeListStatic read FTileStorageTypeList;
+    property ImageResamplerFactoryList: IImageResamplerFactoryList read FImageResamplerFactoryList;
 
     constructor Create;
     destructor Destroy; override;
@@ -298,8 +301,8 @@ uses
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigDataProviderByPathConfig,
   i_InternalDomainInfoProvider,
-  i_ImageResamplerFactory,
   i_TextByVectorItem,
+  i_ImageResamplerFactoryChangeable,
   u_MapTypeSet,
   u_MapTypeListStatic,
   i_InternalDebugConfig,
@@ -376,6 +379,7 @@ uses
   u_DebugInfoSubSystem,
   u_LastSelectionInfo,
   u_LocalCoordConverterFactory,
+  u_ImageResamplerFactoryChangeableByConfig,
   u_BuildInfo,
   u_VectorItemTreeExporterListSimple,
   u_VectorItemTreeImporterListSimple,
@@ -397,6 +401,10 @@ var
   VSleepByClass: IConfigDataProvider;
   VResamplerFactoryList: IImageResamplerFactoryList;
   VInternalDebugConfig: IInternalDebugConfig;
+  VTileLoadResampler: IImageResamplerFactoryChangeable;
+  VTileGetPrevResampler: IImageResamplerFactoryChangeable;
+  VTileReprojectResampler: IImageResamplerFactoryChangeable;
+  VTileDownloadResampler: IImageResamplerFactoryChangeable;
 begin
   inherited Create;
   if ModuleIsLib then begin
@@ -433,6 +441,7 @@ begin
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('HashFunction')
     );
 
+  FImageResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;  
   FMapVersionFactoryList := TMapVersionFactoryList.Create(FHashFunction);
 
   FAppearanceOfMarkFactory := TAppearanceOfMarkFactory.Create(FHashFunction);
@@ -666,15 +675,35 @@ begin
 
   FMapTypeSetBuilderFactory := TMapTypeSetBuilderFactory.Create(FHashFunction);
   FMapTypeListBuilderFactory := TMapTypeListBuilderFactory.Create(FHashFunction);
+  VTileLoadResampler :=
+    TImageResamplerFactoryChangeableByConfig.Create(
+      FGlobalConfig.TileLoadResamplerConfig,
+      FImageResamplerFactoryList
+    );
+  VTileGetPrevResampler :=
+    TImageResamplerFactoryChangeableByConfig.Create(
+      FGlobalConfig.TileGetPrevResamplerConfig,
+      FImageResamplerFactoryList
+    );
+  VTileReprojectResampler :=
+    TImageResamplerFactoryChangeableByConfig.Create(
+      FGlobalConfig.TileReprojectResamplerConfig,
+      FImageResamplerFactoryList
+    );
+  VTileDownloadResampler :=
+    TImageResamplerFactoryChangeableByConfig.Create(
+      FGlobalConfig.TileDownloadResamplerConfig,
+      FImageResamplerFactoryList
+    );
 
   FMainMapsList :=
     TMapTypesMainList.Create(
       FMapTypeSetBuilderFactory,
       FZmpInfoSet,
-      FGlobalConfig.TileLoadResamplerConfig,
-      FGlobalConfig.TileGetPrevResamplerConfig,
-      FGlobalConfig.TileReprojectResamplerConfig,
-      FGlobalConfig.TileDownloadResamplerConfig,
+      VTileLoadResampler,
+      VTileGetPrevResampler,
+      VTileReprojectResampler,
+      VTileDownloadResampler,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('MapType')
     );
   FSkyMapDraw := TSatellitesInViewMapDrawSimple.Create;

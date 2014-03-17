@@ -148,6 +148,7 @@ implementation
 uses
   SysUtils,
   Classes,
+  c_ImageResampler,
   i_ImageResamplerFactory,
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
@@ -184,8 +185,6 @@ constructor TGlobalConfig.Create(
   const ABaseDataPath: IPathConfig;
   const ABaseApplicationPath: IPathConfig
 );
-var
-  VResamplerFactoryList: IImageResamplerFactoryList;
 begin
   inherited Create;
   FBaseCahcePath := TPathConfig.Create('PrimaryPath', '.', ABaseCacheDataPath);
@@ -244,27 +243,25 @@ begin
   FMainThreadConfig := TThreadConfig.Create(tpHigher);
   Add(FMainThreadConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
 
-  VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
-
-  FTileLoadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileLoadResamplerConfig := TImageResamplerConfig.Create(CResamplerLinearGUID);
   Add(FTileLoadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Load'), False, False, False, False);
 
-  FTileGetPrevResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileGetPrevResamplerConfig := TImageResamplerConfig.Create(CResamplerLinearGUID);
   Add(FTileGetPrevResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_GetPrev'), False, False, False, False);
 
-  FTileReprojectResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileReprojectResamplerConfig := TImageResamplerConfig.Create(CResamplerLinearGUID);
   Add(FTileReprojectResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Reproject'), False, False, False, False);
 
-  FTileDownloadResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileDownloadResamplerConfig := TImageResamplerConfig.Create(CResamplerLinearGUID);
   Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Download'), False, False, False, False);
 
   FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
   Add(FValueToStringConverterConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ValueFormats'), False, False, False, False);
 
-  FImageResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FImageResamplerConfig := TImageResamplerConfig.Create(CResamplerLinearGUID);
   Add(FImageResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View'), False, False, False, False);
 
-  FTileMatrixDraftResamplerConfig := TImageResamplerConfig.Create(VResamplerFactoryList);
+  FTileMatrixDraftResamplerConfig := TImageResamplerConfig.Create(CResamplerNearestGUID);
   Add(FTileMatrixDraftResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('View_TilesDrafts'), False, False, False, False);
 
   FMainMemCacheConfig := TMainMemCacheConfig.Create;

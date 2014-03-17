@@ -18,46 +18,18 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_ImageResamplerFactory;
+unit i_ImageResamplerFactoryChangeable;
 
 interface
 
 uses
-  GR32;
+  i_ImageResamplerFactory,
+  i_Changeable;
 
 type
-  IImageResamplerFactory = interface
-    ['{4829EE36-667A-4A25-8CE0-1DAFDDC9B3D9}']
-    function CreateResampler: TCustomResampler;
-  end;
-
-  IImageResamplerFactoryListEntry = interface
-    ['{2B9A419E-5C26-4641-AEAE-A02E495592F3}']
-    function GetFactory: IImageResamplerFactory;
-    property Factory: IImageResamplerFactory read GetFactory;
-
-    function GetCaption: string;
-    property Caption: string read GetCaption;
-
-    function GetGUID: TGUID;
-    property GUID: TGUID read GetGUID;
-  end;
-
-  IImageResamplerFactoryList = interface
-    ['{CC888F5D-5DDA-427F-8127-93B0F1BD8CA5}']
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function Get(AIndex: Integer): IImageResamplerFactory;
-    property Items[Index: Integer]: IImageResamplerFactory read Get; default;
-
-    function GetCaption(AIndex: Integer): string;
-    property Captions[Index: Integer]: string read GetCaption;
-
-    function GetGUID(AIndex: Integer): TGUID;
-    property GUIDs[Index: Integer]: TGUID read GetGUID;
-
-    function GetIndexByGUID(const AGUID: TGUID): Integer;
+  IImageResamplerFactoryChangeable = interface(IChangeable)
+    ['{70049E82-1C8C-4CD7-A66A-198BB16FF9F3}']
+    function GetStatic: IImageResamplerFactory;
   end;
 
 implementation

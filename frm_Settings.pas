@@ -488,12 +488,12 @@ begin
     GState.Config.ValueToStringConverterConfig.UnlockWrite;
   end;
 
-  GState.Config.ImageResamplerConfig.ActiveIndex := cbbResizeMethod.ItemIndex;
-  GState.MapType.TileLoadResamplerConfig.ActiveIndex := cbbResizeOnLoad.ItemIndex;
-  GState.MapType.TileGetPrevResamplerConfig.ActiveIndex := cbbResizeGetPre.ItemIndex;
-  GState.MapType.TileReprojectResamplerConfig.ActiveIndex := cbbProjectionChange.ItemIndex;
-  GState.MapType.TileDownloadResamplerConfig.ActiveIndex := cbbDownloadResize.ItemIndex;
-  GState.Config.TileMatrixDraftResamplerConfig.ActiveIndex := cbbResizeTileMatrixDraft.ItemIndex;
+  GState.Config.ImageResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbResizeMethod.ItemIndex];
+  GState.Config.TileLoadResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbResizeOnLoad.ItemIndex];
+  GState.Config.TileGetPrevResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbResizeGetPre.ItemIndex];
+  GState.Config.TileReprojectResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbProjectionChange.ItemIndex];
+  GState.Config.TileDownloadResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbDownloadResize.ItemIndex];
+  GState.Config.TileMatrixDraftResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbResizeTileMatrixDraft.ItemIndex];
 
   GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
   try
@@ -803,23 +803,23 @@ begin
     GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
   end;
 
-  InitResamplersList(GState.Config.ImageResamplerConfig.GetList, cbbResizeMethod);
-  cbbResizeMethod.ItemIndex := GState.Config.ImageResamplerConfig.ActiveIndex;
+  InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeMethod);
+  cbbResizeMethod.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.ImageResamplerConfig.ActiveGUID);
 
-  InitResamplersList(GState.MapType.TileLoadResamplerConfig.GetList, cbbResizeOnLoad);
-  cbbResizeOnLoad.ItemIndex := GState.MapType.TileLoadResamplerConfig.ActiveIndex;
+  InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeOnLoad);
+  cbbResizeOnLoad.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.TileLoadResamplerConfig.ActiveGUID);
 
-  InitResamplersList(GState.MapType.TileGetPrevResamplerConfig.GetList, cbbResizeGetPre);
-  cbbResizeGetPre.ItemIndex := GState.MapType.TileGetPrevResamplerConfig.ActiveIndex;
+  InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeGetPre);
+  cbbResizeGetPre.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.TileGetPrevResamplerConfig.ActiveGUID);
 
-  InitResamplersList(GState.MapType.TileReprojectResamplerConfig.GetList, cbbProjectionChange);
-  cbbProjectionChange.ItemIndex := GState.MapType.TileReprojectResamplerConfig.ActiveIndex;
+  InitResamplersList(GState.ImageResamplerFactoryList, cbbProjectionChange);
+  cbbProjectionChange.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.TileReprojectResamplerConfig.ActiveGUID);
 
-  InitResamplersList(GState.MapType.TileDownloadResamplerConfig.GetList, cbbDownloadResize);
-  cbbDownloadResize.ItemIndex := GState.MapType.TileDownloadResamplerConfig.ActiveIndex;
+  InitResamplersList(GState.ImageResamplerFactoryList, cbbDownloadResize);
+  cbbDownloadResize.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.TileDownloadResamplerConfig.ActiveGUID);
 
-  InitResamplersList(GState.Config.TileMatrixDraftResamplerConfig.GetList, cbbResizeTileMatrixDraft);
-  cbbResizeTileMatrixDraft.ItemIndex := GState.Config.TileMatrixDraftResamplerConfig.ActiveIndex;
+  InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeTileMatrixDraft);
+  cbbResizeTileMatrixDraft.ItemIndex := GState.ImageResamplerFactoryList.GetIndexByGUID(GState.Config.TileMatrixDraftResamplerConfig.ActiveGUID);
 
   GState.Config.ValueToStringConverterConfig.LockRead;
   try

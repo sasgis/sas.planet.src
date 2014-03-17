@@ -163,6 +163,7 @@
     <DCCReference Include="CoordConvert\u_ProjConverterFactory.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfo.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfoFactory.pas" />
+    <DCCReference Include="c_ImageResampler.pas" />
     <DCCReference Include="c_InternalBrowser.pas" />
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
     <DCCReference Include="c_SensorsGUIDSimple.pas" />
@@ -359,6 +360,7 @@
     <DCCReference Include="i_ImageLineProvider.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
     <DCCReference Include="i_ImageResamplerFactory.pas" />
+    <DCCReference Include="i_ImageResamplerFactoryChangeable.pas" />
     <DCCReference Include="i_ImportConfig.pas" />
     <DCCReference Include="i_InterfaceListSimple.pas" />
     <DCCReference Include="i_InterfaceListStatic.pas" />
@@ -1109,6 +1111,7 @@
     <DCCReference Include="u_ImageLineProvider.pas" />
     <DCCReference Include="u_ImageResamplerConfig.pas" />
     <DCCReference Include="u_ImageResamplerFactory.pas" />
+    <DCCReference Include="u_ImageResamplerFactoryChangeableByConfig.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
     <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_ImportByFileExt.pas" />

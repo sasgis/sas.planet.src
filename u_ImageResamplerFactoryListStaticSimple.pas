@@ -35,28 +35,141 @@ implementation
 
 uses
   GR32_Resamplers,
+  c_ImageResampler,
+  i_InterfaceListSimple,
+  i_ImageResamplerFactory,
+  u_InterfaceListSimple,
   u_ImageResamplerFactory;
 
 { TImageResamplerFactoryListStaticSimple }
 
 constructor TImageResamplerFactoryListStaticSimple.Create;
+var
+  VList: IInterfaceListSimple;
+  VItem: IImageResamplerFactoryListEntry;
 begin
-  inherited;
-  Add(TImageResamplerFactoryNearest.Create, 'Nearest');
-  Add(TImageResamplerFactoryLinear.Create, 'Linear');
-  Add(TImageResamplerFactoryKernel.Create(nil), 'Box');
-  Add(TImageResamplerFactoryKernel.Create(TCosineKernel), 'Cosine');
-  Add(TImageResamplerFactoryKernel.Create(TSplineKernel), 'Spline');
-  Add(TImageResamplerFactoryKernel.Create(TCubicKernel), 'Cubic');
-  Add(TImageResamplerFactoryKernel.Create(TMitchellKernel), 'Mitchell');
-  Add(TImageResamplerFactoryKernel.Create(TAlbrechtKernel), 'Albrecht');
-  Add(TImageResamplerFactoryKernel.Create(TLanczosKernel), 'Lanczos');
-  Add(TImageResamplerFactoryKernel.Create(TGaussianKernel), 'Gaussian');
-  Add(TImageResamplerFactoryKernel.Create(TBlackmanKernel), 'Blackman');
-  Add(TImageResamplerFactoryKernel.Create(THannKernel), 'Hann');
-  Add(TImageResamplerFactoryKernel.Create(THammingKernel), 'Hamming');
-  Add(TImageResamplerFactoryKernel.Create(TSinshKernel), 'Sinsh');
-  Add(TImageResamplerFactoryKernel.Create(THermiteKernel), 'Hermite');
+  VList := TInterfaceListSimple.Create;
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryNearest.Create,
+      'Nearest',
+      CResamplerNearestGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryLinear.Create,
+      'Linear',
+      CResamplerLinearGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(nil),
+      'Box',
+      CResamplerBoxGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TCosineKernel),
+      'Cosine',
+      CResamplerCosineGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TSplineKernel),
+      'Spline',
+      CResamplerSplineGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TCubicKernel),
+      'Cubic',
+      CResamplerCubicGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TMitchellKernel),
+      'Mitchell',
+      CResamplerMitchellGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TAlbrechtKernel),
+      'Albrecht',
+      CResamplerAlbrechtGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TLanczosKernel),
+      'Lanczos',
+      CResamplerLanczosGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TGaussianKernel),
+      'Gaussian',
+      CResamplerGaussianGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TBlackmanKernel),
+      'Blackman',
+      CResamplerBlackmanGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(THannKernel),
+      'Hann',
+      CResamplerHannGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(THammingKernel),
+      'Hamming',
+      CResamplerHammingGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(TSinshKernel),
+      'Sinsh',
+      CResamplerSinshGUID
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TImageResamplerFactoryListStaticEntry.Create(
+      TImageResamplerFactoryKernel.Create(THermiteKernel),
+      'Hermite',
+      CResamplerHermiteGUID
+    );
+  VList.Add(VItem);
+
+  inherited Create(VList.MakeStaticAndClear);
 end;
 
 end.

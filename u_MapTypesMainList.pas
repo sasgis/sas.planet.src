@@ -37,7 +37,7 @@ uses
   i_NotifierTime,
   i_InetConfig,
   i_Bitmap32StaticFactory,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_GlobalDownloadConfig,
   i_ContentTypeManager,
   i_InvisibleBrowser,
@@ -63,10 +63,10 @@ type
     FZmpInfoSet: IZmpInfoSet;
     FPerfCounterList: IInternalPerformanceCounterList;
 
-    FTileLoadResamplerConfig: IImageResamplerConfig;
-    FTileGetPrevResamplerConfig: IImageResamplerConfig;
-    FTileReprojectResamplerConfig: IImageResamplerConfig;
-    FTileDownloadResamplerConfig: IImageResamplerConfig;
+    FTileLoadResampler: IImageResamplerFactoryChangeable;
+    FTileGetPrevResampler: IImageResamplerFactoryChangeable;
+    FTileReprojectResampler: IImageResamplerFactoryChangeable;
+    FTileDownloadResampler: IImageResamplerFactoryChangeable;
 
     FFullMapsSet: IMapTypeSet;
     FFullMapsSetChangeable: IMapTypeSetChangeable;
@@ -80,10 +80,10 @@ type
     constructor Create(
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const AZmpInfoSet: IZmpInfoSet;
-      const ATileLoadResamplerConfig: IImageResamplerConfig;
-      const ATileGetPrevResamplerConfig: IImageResamplerConfig;
-      const ATileReprojectResamplerConfig: IImageResamplerConfig;
-      const ATileDownloadResamplerConfig: IImageResamplerConfig;
+      const ATileLoadResamplerConfig: IImageResamplerFactoryChangeable;
+      const ATileGetPrevResamplerConfig: IImageResamplerFactoryChangeable;
+      const ATileReprojectResamplerConfig: IImageResamplerFactoryChangeable;
+      const ATileDownloadResamplerConfig: IImageResamplerFactoryChangeable;
       const APerfCounterList: IInternalPerformanceCounterList
     );
     property FullMapsSetChangeable: IMapTypeSetChangeable read FFullMapsSetChangeable;
@@ -115,11 +115,6 @@ type
 
     function GetGUIConfigList: IMapTypeGUIConfigList;
     property GUIConfigList: IMapTypeGUIConfigList read GetGUIConfigList;
-
-    property TileLoadResamplerConfig: IImageResamplerConfig read FTileLoadResamplerConfig;
-    property TileGetPrevResamplerConfig: IImageResamplerConfig read FTileGetPrevResamplerConfig;
-    property TileReprojectResamplerConfig: IImageResamplerConfig read FTileReprojectResamplerConfig;
-    property TileDownloadResamplerConfig: IImageResamplerConfig read FTileDownloadResamplerConfig;
   end;
 
 implementation
@@ -138,20 +133,20 @@ uses
 constructor TMapTypesMainList.Create(
   const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const AZmpInfoSet: IZmpInfoSet;
-  const ATileLoadResamplerConfig: IImageResamplerConfig;
-  const ATileGetPrevResamplerConfig: IImageResamplerConfig;
-  const ATileReprojectResamplerConfig: IImageResamplerConfig;
-  const ATileDownloadResamplerConfig: IImageResamplerConfig;
+  const ATileLoadResamplerConfig: IImageResamplerFactoryChangeable;
+  const ATileGetPrevResamplerConfig: IImageResamplerFactoryChangeable;
+  const ATileReprojectResamplerConfig: IImageResamplerFactoryChangeable;
+  const ATileDownloadResamplerConfig: IImageResamplerFactoryChangeable;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 begin
   inherited Create;
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FZmpInfoSet := AZmpInfoSet;
-  FTileLoadResamplerConfig := ATileLoadResamplerConfig;
-  FTileGetPrevResamplerConfig := ATileGetPrevResamplerConfig;
-  FTileReprojectResamplerConfig := ATileReprojectResamplerConfig;
-  FTileDownloadResamplerConfig := ATileDownloadResamplerConfig;
+  FTileLoadResampler := ATileLoadResamplerConfig;
+  FTileGetPrevResampler := ATileGetPrevResamplerConfig;
+  FTileReprojectResampler := ATileReprojectResamplerConfig;
+  FTileDownloadResampler := ATileDownloadResamplerConfig;
   FPerfCounterList := APerfCounterList;
   FFullMapsSetChangeableInternal :=
     TMapTypeSetChangeableSimple.Create(
@@ -276,10 +271,10 @@ begin
           AGCNotifier,
           AAppClosingNotifier,
           AInetConfig,
-          FTileLoadResamplerConfig,
-          FTileGetPrevResamplerConfig,
-          FTileReprojectResamplerConfig,
-          FTileDownloadResamplerConfig,
+          FTileLoadResampler,
+          FTileGetPrevResampler,
+          FTileReprojectResampler,
+          FTileDownloadResampler,
           ABitmapFactory,
           AHashFunction,
           ADownloadConfig,

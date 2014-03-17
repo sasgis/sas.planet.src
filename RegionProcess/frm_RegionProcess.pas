@@ -48,6 +48,7 @@ uses
   i_GeometryLonLatFactory,
   i_GeometryProjectedFactory,
   i_GeometryProjectedProvider,
+  i_ImageResamplerFactory,
   i_ImageResamplerConfig,
   i_Bitmap32StaticFactory,
   i_BitmapTileSaveLoadFactory,
@@ -150,6 +151,7 @@ type
       const AFileNameParsersList: ITileFileNameParsersList;
       const AViewConfig: IGlobalViewMainConfig;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+      const AImageResamplerFactoryList: IImageResamplerFactoryList;
       const AImageResamplerConfig: IImageResamplerConfig;
       const AMarksShowConfig: IUsedMarksConfig;
       const AMarksDrawConfig: IMarksDrawConfig;
@@ -210,6 +212,7 @@ constructor TfrmRegionProcess.Create(
   const AFileNameParsersList: ITileFileNameParsersList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
+  const AImageResamplerFactoryList: IImageResamplerFactoryList;
   const AImageResamplerConfig: IImageResamplerConfig;
   const AMarksShowConfig: IUsedMarksConfig;
   const AMarksDrawConfig: IMarksDrawConfig;
@@ -287,6 +290,7 @@ begin
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapFactory,
+      AImageResamplerFactoryList,
       AImageResamplerConfig
     );
   FProviderTilesCopy :=

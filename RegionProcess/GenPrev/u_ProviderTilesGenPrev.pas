@@ -30,6 +30,7 @@ uses
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
+  i_ImageResamplerFactory,
   i_ImageResamplerConfig,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
@@ -45,6 +46,7 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapFactory: IBitmap32StaticFactory;
+    FImageResamplerFactoryList: IImageResamplerFactoryList;
     FImageResamplerConfig: IImageResamplerConfig;
     FViewConfig: IGlobalViewMainConfig;
   protected
@@ -60,6 +62,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
+      const AImageResamplerFactoryList: IImageResamplerFactoryList;
       const AImageResamplerConfig: IImageResamplerConfig
     );
     function GetCaption: string; override;
@@ -75,7 +78,6 @@ uses
   GR32,
   i_MapTypes,
   i_ContentTypeInfo,
-  i_ImageResamplerFactory,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadGenPrevZoom,
@@ -93,6 +95,7 @@ constructor TProviderTilesGenPrev.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
+  const AImageResamplerFactoryList: IImageResamplerFactoryList;
   const AImageResamplerConfig: IImageResamplerConfig
 );
 begin
@@ -107,6 +110,7 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapFactory := ABitmapFactory;
   FViewConfig := AViewConfig;
+  FImageResamplerFactoryList := AImageResamplerFactoryList;
   FImageResamplerConfig := AImageResamplerConfig;
 end;
 
@@ -118,6 +122,7 @@ begin
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
+      FImageResamplerFactoryList,
       FImageResamplerConfig
     );
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));

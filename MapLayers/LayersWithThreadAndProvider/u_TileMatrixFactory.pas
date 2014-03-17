@@ -27,7 +27,7 @@ uses
   GR32,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactorySimpe,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_Bitmap32StaticFactory,
   i_TileMatrix,
   u_BaseInterfacedObject;
@@ -37,7 +37,7 @@ type
   private
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapFactory: IBitmap32StaticFactory;
-    FImageResamplerConfig: IImageResamplerConfig;
+    FImageResampler: IImageResamplerFactoryChangeable;
     function BuildEmpty(
       const ATileRect: TRect;
       const ANewConverter: ILocalCoordConverter
@@ -71,7 +71,7 @@ type
     ): ITileMatrix;
   public
     constructor Create(
-      const AImageResamplerConfig: IImageResamplerConfig;
+      const AImageResampler: IImageResamplerFactoryChangeable;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
     );
@@ -92,13 +92,13 @@ uses
 { TTileMatrixFactory }
 
 constructor TTileMatrixFactory.Create(
-  const AImageResamplerConfig: IImageResamplerConfig;
+  const AImageResampler: IImageResamplerFactoryChangeable;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
   inherited Create;
-  FImageResamplerConfig := AImageResamplerConfig;
+  FImageResampler := AImageResampler;
   FLocalConverterFactory := ALocalConverterFactory;
   FBitmapFactory := ABitmapFactory;
 end;
@@ -213,7 +213,7 @@ begin
               VDstCopyRect
             );
             if AResampler = nil then begin
-              AResampler := FImageResamplerConfig.GetActiveFactory.CreateResampler;
+              AResampler := FImageResampler.GetStatic.CreateResampler;
             end;
             Assert(AResampler <> nil);
 

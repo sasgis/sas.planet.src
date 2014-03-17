@@ -47,7 +47,7 @@ uses
   i_VectorDataLoader,
   i_NotifierTime,
   i_InetConfig,
-  i_ImageResamplerConfig,
+  i_ImageResamplerFactoryChangeable,
   i_ContentTypeManager,
   i_GlobalDownloadConfig,
   i_MapAbilitiesConfig,
@@ -91,9 +91,9 @@ type
     FVersionRequestConfig: IMapVersionRequestConfig;
     FTileDownloaderConfig: ITileDownloaderConfig;
     FTileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
-    FResamplerConfigLoad: IImageResamplerConfig;
-    FResamplerConfigGetPrev: IImageResamplerConfig;
-    FResamplerConfigChangeProjection: IImageResamplerConfig;
+    FResamplerLoad: IImageResamplerFactoryChangeable;
+    FResamplerGetPrev: IImageResamplerFactoryChangeable;
+    FResamplerChangeProjection: IImageResamplerFactoryChangeable;
     FBitmapFactory: IBitmap32StaticFactory;
     FGUIConfig: IMapTypeGUIConfig;
     FLayerDrawConfig: ILayerDrawConfig;
@@ -209,10 +209,10 @@ type
       const AGCNotifier: INotifierTime;
       const AAppClosingNotifier: INotifierOneOperation;
       const AInetConfig: IInetConfig;
-      const AResamplerConfigLoad: IImageResamplerConfig;
-      const AResamplerConfigGetPrev: IImageResamplerConfig;
-      const AResamplerConfigChangeProjection: IImageResamplerConfig;
-      const AResamplerConfigDownload: IImageResamplerConfig;
+      const AResamplerLoad: IImageResamplerFactoryChangeable;
+      const AResamplerGetPrev: IImageResamplerFactoryChangeable;
+      const AResamplerChangeProjection: IImageResamplerFactoryChangeable;
+      const AResamplerDownload: IImageResamplerFactoryChangeable;
       const ABitmapFactory: IBitmap32StaticFactory;
       const AHashFunction: IHashFunction;
       const ADownloadConfig: IGlobalDownloadConfig;
@@ -287,10 +287,10 @@ constructor TMapType.Create(
   const AGCNotifier: INotifierTime;
   const AAppClosingNotifier: INotifierOneOperation;
   const AInetConfig: IInetConfig;
-  const AResamplerConfigLoad: IImageResamplerConfig;
-  const AResamplerConfigGetPrev: IImageResamplerConfig;
-  const AResamplerConfigChangeProjection: IImageResamplerConfig;
-  const AResamplerConfigDownload: IImageResamplerConfig;
+  const AResamplerLoad: IImageResamplerFactoryChangeable;
+  const AResamplerGetPrev: IImageResamplerFactoryChangeable;
+  const AResamplerChangeProjection: IImageResamplerFactoryChangeable;
+  const AResamplerDownload: IImageResamplerFactoryChangeable;
   const ABitmapFactory: IBitmap32StaticFactory;
   const AHashFunction: IHashFunction;
   const ADownloadConfig: IGlobalDownloadConfig;
@@ -318,9 +318,9 @@ begin
       FZmp.GUI
     );
   FLayerDrawConfig := TLayerDrawConfig.Create(FZmp);
-  FResamplerConfigLoad := AResamplerConfigLoad;
-  FResamplerConfigGetPrev := AResamplerConfigGetPrev;
-  FResamplerConfigChangeProjection := AResamplerConfigChangeProjection;
+  FResamplerLoad := AResamplerLoad;
+  FResamplerGetPrev := AResamplerGetPrev;
+  FResamplerChangeProjection := AResamplerChangeProjection;
   FBitmapFactory := ABitmapFactory;
   FTileDownloaderConfig := TTileDownloaderConfig.Create(AInetConfig, FZmp.TileDownloaderConfig);
   FTileDownloadRequestBuilderConfig := TTileDownloadRequestBuilderConfig.Create(FZmp.TileDownloadRequestBuilderConfig);
@@ -419,7 +419,7 @@ begin
       AInvisibleBrowser,
       VDownloadResultFactory,
       FZmp.TileDownloaderConfig,
-      AResamplerConfigDownload,
+      AResamplerDownload,
       ABitmapFactory,
       FTileDownloaderConfig,
       ADownloaderThreadConfig,
@@ -650,7 +650,7 @@ begin
       VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if (Result.Size.X <> VSize.X) or
         (Result.Size.Y <> VSize.Y) then begin
-        VResampler := FResamplerConfigLoad.GetActiveFactory.CreateResampler;
+        VResampler := FResamplerLoad.GetStatic.CreateResampler;
         try
           VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
           try
@@ -764,7 +764,7 @@ begin
         VTileSourceBounds.Top := VTargetTilePixelRect.Top - VSourceTilePixelRect.Top;
         VTileSourceBounds.Right := VTargetTilePixelRect.Right - VSourceTilePixelRect.Left;
         VTileSourceBounds.Bottom := VTargetTilePixelRect.Bottom - VSourceTilePixelRect.Top;
-        VResampler := FResamplerConfigGetPrev.GetActiveFactory.CreateResampler;
+        VResampler := FResamplerGetPrev.GetStatic.CreateResampler;
         try
           try
             VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
@@ -972,7 +972,7 @@ begin
     VTileRectInSource := FCoordConverter.PixelRect2TileRect(VPixelRectOfTargetPixelRectInSource, VZoom);
     VSpr := LoadBitmap(VPixelRectOfTargetPixelRectInSource, VZoom, AVersion, AUsePre, AAllowPartial, IgnoreError, ACache);
     if VSpr <> nil then begin
-      VResampler := FResamplerConfigChangeProjection.GetActiveFactory.CreateResampler;
+      VResampler := FResamplerChangeProjection.GetStatic.CreateResampler;
       try
         VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
         try
