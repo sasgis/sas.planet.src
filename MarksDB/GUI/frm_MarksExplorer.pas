@@ -352,6 +352,7 @@ procedure TfrmMarksExplorer.UpdateCategoryTree;
 var
   VTree: IStaticTreeItem;
   VSelectedCategory: ICategory;
+  VNode: TTreeNode;
 begin
   VSelectedCategory := GetSelectedCategory;
   FCategoryList := FMarkDBGUI.MarksDb.CategoryDB.GetCategoriesList;
@@ -362,6 +363,13 @@ begin
     try
       UpdateTreeSubItems(VTree, VSelectedCategory, nil, CategoryTreeView.Items);
       CategoryTreeView.CustomSort(TreeViewCompare, 0);
+      VSelectedCategory := GetSelectedCategory;
+      if not Assigned(VSelectedCategory) then begin
+        VNode := CategoryTreeView.Items.GetFirstNode;
+        if Assigned(VNode) then begin
+          VNode.Selected := True;
+        end;
+      end;
     finally
       CategoryTreeView.Items.EndUpdate;
     end;
