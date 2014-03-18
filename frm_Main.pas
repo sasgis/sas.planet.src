@@ -4833,14 +4833,6 @@ begin
   FConfig.ViewPortState.ChangeViewSize(Point(map.Width, map.Height));
 end;
 
-procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
-begin
-  if (OpenDialog1.Execute) then begin
-    FState.State := ao_movemap;
-    FFormRegionProcess.LoadSelFromFile(OpenDialog1.FileName);
-  end
-end;
-
 procedure TfrmMain.NinvertcolorClick(Sender: TObject);
 begin
   GState.Config.BitmapPostProcessingConfig.InvertColor := (Sender as TTBXItem).Checked;
@@ -6237,6 +6229,7 @@ var
   VFileName: string;
   VList: IInterfaceListStatic;
   VLastMark: IVectorDataItemSimple;
+  VPolygon: IGeometryLonLatMultiPolygon;
 begin
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
     if AFiles.Count = 1 then begin
@@ -6245,7 +6238,10 @@ begin
         FFormRegionProcess.StartSlsFromFile(VFileName);
         Exit;
       end else if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
-        FFormRegionProcess.LoadSelFromFile(VFileName);
+        FFormRegionProcess.LoadSelFromFile(VFileName, VPolygon);
+        if Assigned(VPolygon) and (VPolygon.Count > 0) then begin
+          FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
+        end;
         Exit;
       end;
     end;
@@ -6264,6 +6260,14 @@ begin
   if OpenSessionDialog.Execute then begin
     ProcessOpenFiles(OpenSessionDialog.Files);
   end;
+end;
+
+procedure TfrmMain.TBLoadSelFromFileClick(Sender: TObject);
+begin
+  if (OpenDialog1.Execute) then begin
+    FState.State := ao_movemap;
+    ProcessOpenFiles(OpenDialog1.Files);
+  end
 end;
 
 procedure TfrmMain.tbitmGPSOptionsClick(Sender: TObject);

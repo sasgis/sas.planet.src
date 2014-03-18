@@ -174,7 +174,7 @@ type
       const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
-    procedure LoadSelFromFile(const AFileName:string);
+    procedure LoadSelFromFile(const AFileName:string; out APolygon: IGeometryLonLatMultiPolygon);
     procedure StartSlsFromFile(const AFileName:string);
   end;
 
@@ -361,12 +361,14 @@ begin
   inherited;
 end;
 
-procedure TfrmRegionProcess.LoadSelFromFile(const AFileName: string);
+procedure TfrmRegionProcess.LoadSelFromFile(
+  const AFileName: string;
+  out APolygon: IGeometryLonLatMultiPolygon
+);
 var
   VIniFile:TMemIniFile;
   VHLGData: IConfigDataProvider;
   VPolygonSection: IConfigDataProvider;
-  VPolygon: IGeometryLonLatMultiPolygon;
   VZoom: Byte;
 begin
   if FileExists(AFileName) then begin
@@ -379,10 +381,10 @@ begin
     end;
     VPolygonSection := VHLGData.GetSubItem('HIGHLIGHTING');
     if VPolygonSection <> nil then begin
-      VPolygon := ReadPolygon(VPolygonSection, FVectorGeometryLonLatFactory);
-      if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
+      APolygon := ReadPolygon(VPolygonSection, FVectorGeometryLonLatFactory);
+      if (APolygon <> nil) and (APolygon.Count > 0) then begin
         VZoom := VPolygonSection.ReadInteger('zoom', 1) - 1;
-        Self.ProcessPolygonWithZoom(VZoom, VPolygon);
+        Self.ProcessPolygonWithZoom(VZoom, APolygon);
       end;
     end;
   end else begin
