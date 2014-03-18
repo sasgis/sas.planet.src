@@ -39,6 +39,8 @@ uses
 type
   TThreadMapCombinePNG = class(TThreadMapCombineBase)
   private
+    FWidth: Integer;
+    FHeight: Integer;
     FBgColor: TColor32;
     FWithAlpha: Boolean;
     FLineProvider: IImageLineProvider;
@@ -138,10 +140,13 @@ begin
   VCurrentPieceRect := ALocalConverter.GetRectInMapPixel;
   VMapPieceSize := ALocalConverter.GetLocalRectSize;
 
-  if (VMapPieceSize.X >= PNG_MAX_WIDTH) or (VMapPieceSize.Y >= PNG_MAX_HEIGHT) then begin
+  FWidth := VMapPieceSize.X;
+  FHeight := VMapPieceSize.Y;
+
+  if (FWidth >= PNG_MAX_WIDTH) or (FHeight >= PNG_MAX_HEIGHT) then begin
     raise Exception.CreateFmt(
       SAS_ERR_ImageIsTooBig,
-      ['PNG', VMapPieceSize.X, PNG_MAX_WIDTH, VMapPieceSize.Y, PNG_MAX_HEIGHT, 'PNG']
+      ['PNG', FWidth, PNG_MAX_WIDTH, FHeight, PNG_MAX_HEIGHT, 'PNG']
     );
   end;
 
@@ -171,8 +176,8 @@ begin
     try
       VPngWriter.Write(
         VDest,
-        VMapPieceSize.X,
-        VMapPieceSize.Y,
+        FWidth,
+        FHeight,
         VBitsPerPix,
         Self.GetLineCallBack
       );
@@ -190,7 +195,14 @@ function TThreadMapCombinePNG.GetLineCallBack(
   const AUserInfo: Pointer
 ): Pointer;
 begin
-  Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
+  if ARowNumber mod 256 = 0 then begin
+    ProgressFormUpdateOnProgress(ARowNumber / FHeight);
+  end;
+  if not CancelNotifier.IsOperationCanceled(OperationID) then begin
+    Result := FLineProvider.GetLine(FOperationID, FCancelNotifier, ARowNumber);
+  end else begin
+    Result := nil;
+  end;
 end;
 
 end.
