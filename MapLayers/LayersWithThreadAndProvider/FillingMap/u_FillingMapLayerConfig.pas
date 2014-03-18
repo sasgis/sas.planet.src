@@ -168,6 +168,9 @@ begin
     FNoTileColor := ReadColor32(AConfigData, 'NoTileColor', FNoTileColor);
     FTNEColor := ReadColor32(AConfigData, 'TNEColor', FTNEColor);
     FFillMode := TFillMode(AConfigData.ReadInteger('FillingMapMode', Ord(FFillMode)));
+    FFilterMode := AConfigData.ReadBool('DateFilter', FFilterMode);
+    FFillFirstDay := AConfigData.ReadDate('FirstDay', FFillFirstDay);
+    FFillLastDay := AConfigData.ReadDate('LastDay', FFillLastDay);
 
     SetChanged;
   end;
@@ -185,6 +188,13 @@ begin
   WriteColor32(AConfigData, 'NoTileColor', FNoTileColor);
   WriteColor32(AConfigData, 'TNEColor', FTNEColor);
   AConfigData.WriteInteger('FillingMapMode', Ord(FFillMode));
+  AConfigData.WriteBool('DateFilter', FFilterMode);
+  AConfigData.WriteDate('FirstDay', FFillFirstDay);
+  if abs(FFillLastDay - DateOf(Now)) > 0.001 then begin
+    AConfigData.WriteDate('LastDay', FFillLastDay);
+  end else begin
+    AConfigData.DeleteValue('LastDay');
+  end;
 end;
 
 function TFillingMapLayerConfig.GetNoTileColor: TColor32;
