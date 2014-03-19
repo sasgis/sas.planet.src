@@ -25,7 +25,7 @@ interface
 uses
   t_GeoTypes,
   i_GeometryLonLat,
-  i_ConfigDataElement;
+  i_Changeable;
 
 type
   ILonLatPathWithSelected = interface(IGeometryLonLatMultiLine)
@@ -42,7 +42,7 @@ type
     function GetSelectedPointIndex: Integer;
   end;
 
-  ILineOnMapEdit = interface(IConfigDataElement)
+  ILineOnMapEdit = interface(IChangeable)
     ['{BD78781E-F5E0-406B-AE16-E5015BA87743}']
     procedure SetSelectedPoint(
       ASegmentIndex: Integer;

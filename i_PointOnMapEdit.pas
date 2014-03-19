@@ -24,10 +24,10 @@ interface
 
 uses
   t_GeoTypes,
-  i_ConfigDataElement;
+  i_Changeable;
 
 type
-  IPointOnMapEdit = interface(IConfigDataElement)
+  IPointOnMapEdit = interface(IChangeable)
     ['{EAC4A38A-50A4-4FAC-94E4-1F5493F70376}']
     function GetPoint: TDoublePoint;
     procedure SetPoint(const AValue: TDoublePoint);

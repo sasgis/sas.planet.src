@@ -25,10 +25,11 @@ interface
 uses
   t_GeoTypes,
   i_GPS,
+  i_Changeable,
   i_ConfigDataElement;
 
 type
-  ISensor = interface(IConfigDataElement)
+  ISensor = interface(IChangeable)
     ['{EFD30054-5F65-49DF-8EB9-A4EF816D05D2}']
     function GetSensorTypeIID: TGUID;
     property SensorTypeIID: TGUID read GetSensorTypeIID;

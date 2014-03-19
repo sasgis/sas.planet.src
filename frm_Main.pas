@@ -3215,15 +3215,10 @@ begin
         case FState.State of
           ao_select_rect: begin
             VCancelSelection := False;
-            FSelectionRect.LockWrite;
-            try
-              if FSelectionRect.IsEmpty then begin
-                VCancelSelection := True;
-              end;
-              FSelectionRect.Reset;
-            finally
-              FSelectionRect.UnlockWrite;
+            if FSelectionRect.IsEmpty then begin
+              VCancelSelection := True;
             end;
+            FSelectionRect.Reset;
             if VCancelSelection then begin
               FState.State := ao_movemap;
             end;
@@ -5248,13 +5243,8 @@ begin
       end;
     end;
     if (FState.State=ao_select_rect)then begin
-      FSelectionRect.LockWrite;
-      try
-        if not FSelectionRect.IsEmpty then begin
-          FSelectionRect.SetNextPoint(VClickLonLat, Shift);
-        end;
-      finally
-        FSelectionRect.UnlockWrite;
+      if not FSelectionRect.IsEmpty then begin
+        FSelectionRect.SetNextPoint(VClickLonLat, Shift);
       end;
     end;
     if (FState.State = ao_edit_point) then begin
@@ -5445,18 +5435,13 @@ begin
     end;
     if FState.State=ao_select_rect then begin
       VSelectionFinished := False;
-      FSelectionRect.LockWrite;
-      try
-        if not FSelectionRect.IsEmpty then begin
-          VSelectionFinished := True;
-        end;
-        FSelectionRect.SetNextPoint(VLonLat, Shift);
-        VSelectionRect := FSelectionRect.GetRect;
-        if VSelectionFinished then begin
-          FSelectionRect.Reset;
-        end;
-      finally
-        FSelectionRect.UnlockWrite;
+      if not FSelectionRect.IsEmpty then begin
+        VSelectionFinished := True;
+      end;
+      FSelectionRect.SetNextPoint(VLonLat, Shift);
+      VSelectionRect := FSelectionRect.GetRect;
+      if VSelectionFinished then begin
+        FSelectionRect.Reset;
       end;
       if VSelectionFinished then begin
         VPoly := GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByRect(VSelectionRect);
@@ -5619,13 +5604,8 @@ begin
     FPointOnMapEdit.Point := VLonLat;
   end;
   if (FState.State=ao_select_rect) then begin
-    FSelectionRect.LockWrite;
-    try
-      if not FSelectionRect.IsEmpty then begin
-        FSelectionRect.SetNextPoint(VLonLat, Shift);
-      end;
-    finally
-      FSelectionRect.UnlockWrite;
+    if not FSelectionRect.IsEmpty then begin
+      FSelectionRect.SetNextPoint(VLonLat, Shift);
     end;
   end;
 
