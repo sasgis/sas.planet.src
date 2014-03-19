@@ -1,6 +1,6 @@
 {******************************************************************************}
 {* SAS.Planet (SAS.Планета)                                                   *}
-{* Copyright (C) 2007-2012, SAS.Planet development team.                      *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
 {* This program is free software: you can redistribute it and/or modify       *}
 {* it under the terms of the GNU General Public License as published by       *}
 {* the Free Software Foundation, either version 3 of the License, or          *}
@@ -14,8 +14,8 @@
 {* You should have received a copy of the GNU General Public License          *}
 {* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
 {*                                                                            *}
-{* http://sasgis.ru                                                           *}
-{* az@sasgis.ru                                                               *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
 {******************************************************************************}
 
 unit u_Synchronizer;
@@ -203,7 +203,7 @@ type
     EventPairHandle: PHandle;
     DesiredAccess: ACCESS_MASK;
     ObjectAttributes: POBJECT_ATTRIBUTES): LongInt; stdcall;
-  
+
   TNtEventPairFunc = function(EventPairHandle: THandle): LongInt; stdcall;
   // NtSetHighEventPair
   // NtSetHighWaitLowEventPair
@@ -211,7 +211,7 @@ type
   // NtSetLowWaitHighEventPair
   // NtWaitHighEventPair
   // NtWaitLowEventPair
-  
+
   ISynchronizerFactory = interface
   ['{89031A22-CE84-4B4E-A8CE-F9B86BC1836C}']
     function GetSyncResInitData: PSyncTypeInitData;
@@ -540,7 +540,7 @@ begin
 {$ifend}
 
   EnterCriticalSection(FLock);
-  
+
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'BeginRead', 'OUT');
 {$ifend}
@@ -551,10 +551,10 @@ begin
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'BeginWrite', 'IN');
 {$ifend}
-  
+
   EnterCriticalSection(FLock);
   Result := TRUE;
-  
+
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'BeginWrite', 'OUT');
 {$ifend}
@@ -578,9 +578,9 @@ begin
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'EndRead', 'IN');
 {$ifend}
-  
+
   LeaveCriticalSection(FLock);
-  
+
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'EndRead', 'OUT');
 {$ifend}
@@ -591,9 +591,9 @@ begin
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'EndWrite', 'IN');
 {$ifend}
-  
+
   LeaveCriticalSection(FLock);
-  
+
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'EndWrite', 'OUT');
 {$ifend}
@@ -606,9 +606,9 @@ begin
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'BeginRead', 'IN');
 {$ifend}
-  
+
   EnterCriticalSection(FLock);
-  
+
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'BeginRead', 'OUT');
 {$ifend}
@@ -619,10 +619,10 @@ begin
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'BeginWrite', 'IN');
 {$ifend}
-  
+
   EnterCriticalSection(FLock);
   Result := True;
-  
+
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'BeginWrite', 'OUT');
 {$ifend}
@@ -646,9 +646,9 @@ begin
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'EndRead', 'IN');
 {$ifend}
-  
+
   LeaveCriticalSection(FLock);
-  
+
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'EndRead', 'OUT');
 {$ifend}
@@ -659,9 +659,9 @@ begin
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'EndWrite', 'IN');
 {$ifend}
-  
+
   LeaveCriticalSection(FLock);
-  
+
 {$if defined(DEBUG_GLOBAL_LOCKS)}
   DoDebugGlobalLocks(Self, 'EndWrite', 'OUT');
 {$ifend}
