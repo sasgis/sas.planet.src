@@ -163,7 +163,7 @@ uses
   u_GlobalDownloadConfig,
   u_TerrainConfig,
   u_ZmpConfig,
-  u_LastSearchResultConfig,
+  u_LastSearchResult,
   u_MapSvcScanConfig,
   u_StartUpLogoConfig,
   u_BitmapPostProcessingConfig,

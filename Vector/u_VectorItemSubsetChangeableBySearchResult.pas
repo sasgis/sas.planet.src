@@ -27,7 +27,7 @@ uses
   SysUtils,
   i_VectorItemSubset,
   i_VectorItemSubsetChangeable,
-  i_LastSearchResultConfig,
+  i_LastSearchResult,
   i_Listener,
   u_ChangeableBase;
 

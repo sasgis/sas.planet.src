@@ -18,24 +18,60 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_LastSearchResultConfig;
+unit u_LastSearchResult;
 
 interface
 
 uses
+  i_LastSearchResult,
   i_GeoCoder,
-  i_Changeable;
+  u_ConfigDataElementBase;
 
 type
-  ILastSearchResult = interface(IChangeable)
-    ['{BB987DBD-8DC2-409E-BFD9-145478AAAF8F}']
+  TLastSearchResult = class(TConfigDataElementBaseEmptySaveLoad, ILastSearchResult)
+  private
+    FGeoCodeResult: IGeoCodeResult;
+  private
     function GetGeoCodeResult: IGeoCodeResult;
     procedure SetGeoCodeResult(const AValue: IGeoCodeResult);
-    property GeoCodeResult: IGeoCodeResult read GetGeoCodeResult write SetGeoCodeResult;
-
     procedure ClearGeoCodeResult;
   end;
 
 implementation
+
+function TLastSearchResult.GetGeoCodeResult: IGeoCodeResult;
+begin
+  LockRead;
+  try
+    Result := FGeoCodeResult;
+  finally
+    UnlockRead;
+  end;
+end;
+
+procedure TLastSearchResult.SetGeoCodeResult(const AValue: IGeoCodeResult);
+begin
+  LockWrite;
+  try
+    if FGeoCodeResult <> AValue then begin
+      FGeoCodeResult := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TLastSearchResult.ClearGeoCodeResult;
+begin
+  LockWrite;
+  try
+    FGeoCodeResult := nil;
+    SetChanged;
+  finally
+    UnlockWrite;
+  end;
+end;
+
 
 end.

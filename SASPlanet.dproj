@@ -374,7 +374,7 @@
     <DCCReference Include="i_KeyMovingConfig.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_LanguageManager.pas" />
-    <DCCReference Include="i_LastSearchResultConfig.pas" />
+    <DCCReference Include="i_LastSearchResult.pas" />
     <DCCReference Include="i_LastSelectionInfo.pas" />
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="i_LayerDrawConfig.pas" />
@@ -1139,7 +1139,7 @@
     <DCCReference Include="u_LanguageManager.pas" />
     <DCCReference Include="u_LanguagesEx.pas" />
     <DCCReference Include="u_LanguageTBXItem.pas" />
-    <DCCReference Include="u_LastSearchResultConfig.pas" />
+    <DCCReference Include="u_LastSearchResult.pas" />
     <DCCReference Include="u_LastSelectionInfo.pas" />
     <DCCReference Include="u_LastSelectionInfoSaver.pas" />
     <DCCReference Include="u_LastSelectionLayerConfig.pas" />

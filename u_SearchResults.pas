@@ -29,7 +29,7 @@ uses
   Menus,
   i_MapViewGoto,
   i_ValueToStringConverter,
-  i_LastSearchResultConfig,
+  i_LastSearchResult,
   i_GeoCoder,
   i_InternalBrowser,
   i_SearchResultPresenter,

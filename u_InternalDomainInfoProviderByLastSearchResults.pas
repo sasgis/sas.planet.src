@@ -26,7 +26,7 @@ uses
   Classes,
   i_BinaryData,
   i_VectorDataItemSimple,
-  i_LastSearchResultConfig,
+  i_LastSearchResult,
   i_TextByVectorItem,
   i_InternalDomainInfoProvider,
   u_BaseInterfacedObject;
