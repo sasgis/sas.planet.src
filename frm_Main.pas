@@ -6572,8 +6572,8 @@ begin
   VEnum := GState.MapType.FullMapsSet.GetIterator;
   while VEnum.Next(1, VGUID, VGetCount) = S_OK do begin
     VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
-    VList18.Add(VGUID, VMapType.GUIConfig.Bmp18);
-    VList24.Add(VGUID, VMapType.GUIConfig.Bmp24);
+    VList18.Add(VGUID, VMapType.Zmp.GUI.Bmp18);
+    VList24.Add(VGUID, VMapType.Zmp.GUI.Bmp24);
   end;
 end;
 

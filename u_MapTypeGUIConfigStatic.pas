@@ -24,7 +24,6 @@ interface
 
 uses
   Classes,
-  i_Bitmap32Static,
   i_MapTypeGUIConfig,
   u_BaseInterfacedObject;
 
@@ -38,8 +37,6 @@ type
     FParentSubMenu: string;
     FEnabled: Boolean;
     FInfoUrl: string;
-    FBmp18: IBitmap32Static;
-    FBmp24: IBitmap32Static;
   private
     function GetName: string;
     function GetSortIndex: Integer;
@@ -48,8 +45,6 @@ type
     function GetParentSubMenu: string;
     function GetEnabled: Boolean;
     function GetInfoUrl: string;
-    function GetBmp18: IBitmap32Static;
-    function GetBmp24: IBitmap32Static;
   public
     constructor Create(
       const AName: string;
@@ -58,9 +53,7 @@ type
       ASeparator: Boolean;
       const AParentSubMenu: string;
       AEnabled: Boolean;
-      const AInfoUrl: string;
-      const ABmp18: IBitmap32Static;
-      const ABmp24: IBitmap32Static
+      const AInfoUrl: string
     );
   end;
 
@@ -75,9 +68,7 @@ constructor TMapTypeGUIConfigStatic.Create(
   ASeparator: Boolean;
   const AParentSubMenu: string;
   AEnabled: Boolean;
-  const AInfoUrl: string;
-  const ABmp18: IBitmap32Static;
-  const ABmp24: IBitmap32Static
+  const AInfoUrl: string
 );
 begin
   inherited Create;
@@ -88,18 +79,6 @@ begin
   FParentSubMenu := AParentSubMenu;
   FEnabled := AEnabled;
   FInfoUrl := AInfoUrl;
-  FBmp18 := ABmp18;
-  FBmp24 := ABmp24;
-end;
-
-function TMapTypeGUIConfigStatic.GetBmp18: IBitmap32Static;
-begin
-  Result := FBmp18;
-end;
-
-function TMapTypeGUIConfigStatic.GetBmp24: IBitmap32Static;
-begin
-  Result := FBmp24;
 end;
 
 function TMapTypeGUIConfigStatic.GetEnabled: Boolean;

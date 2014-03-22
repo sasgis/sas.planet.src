@@ -24,7 +24,6 @@ interface
 
 uses
   Classes,
-  i_Bitmap32Static,
   i_StringConfigDataElement,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -66,9 +65,6 @@ type
     procedure SetEnabled(const AValue: Boolean);
 
     function GetInfoUrl: IStringConfigDataElement;
-
-    function GetBmp18: IBitmap32Static;
-    function GetBmp24: IBitmap32Static;
 
     function GetStatic: IMapTypeGUIConfigStatic;
   public
@@ -145,9 +141,7 @@ begin
       FSeparator,
       FParentSubMenu.Value,
       FEnabled,
-      FInfoUrl.Value,
-      FDefConfig.Bmp18,
-      FDefConfig.Bmp24
+      FInfoUrl.Value
     );
   Result := VStatic;
 end;
@@ -189,16 +183,6 @@ begin
   end else begin
     AConfigData.DeleteValue('HotKey');
   end;
-end;
-
-function TMapTypeGUIConfig.GetBmp18: IBitmap32Static;
-begin
-  Result := FDefConfig.Bmp18;
-end;
-
-function TMapTypeGUIConfig.GetBmp24: IBitmap32Static;
-begin
-  Result := FDefConfig.Bmp24;
 end;
 
 function TMapTypeGUIConfig.GetEnabled: Boolean;
