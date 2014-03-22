@@ -34,7 +34,6 @@ uses
   i_MapZoomingConfig,
   i_DownloadUIConfig,
   i_WindowPositionConfig,
-  i_LastSearchResultConfig,
   i_MainFormLayersConfig;
 
 type
@@ -110,9 +109,6 @@ type
 
     function GetMapMovingConfig: IMapMovingConfig;
     property MapMovingConfig: IMapMovingConfig read GetMapMovingConfig;
-
-    function GetLastSearchResultConfig: ILastSearchResultConfig;
-    property LastSearchResultConfig: ILastSearchResultConfig read GetLastSearchResultConfig;
 
     function GetMarksExplorerWindowConfig: IWindowPositionConfig;
     property MarksExplorerWindowConfig: IWindowPositionConfig read GetMarksExplorerWindowConfig;

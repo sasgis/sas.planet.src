@@ -34,7 +34,7 @@ uses
 type
   TVectorItemSubsetChangeableBySearchResult = class(TChangeableBase, IVectorItemSubsetChangeable)
   private
-    FLastSearchResults: ILastSearchResultConfig;
+    FLastSearchResults: ILastSearchResult;
     FSearchResultListener: IListener;
 
     FResultCS: IReadWriteSync;
@@ -44,7 +44,7 @@ type
     function GetStatic: IVectorItemSubset;
   public
     constructor Create(
-      const ALastSearchResults: ILastSearchResultConfig
+      const ALastSearchResults: ILastSearchResult
     );
     destructor Destroy; override;
   end;
@@ -58,7 +58,7 @@ uses
 { TVectorItemSubsetChangeableBySearchResult }
 
 constructor TVectorItemSubsetChangeableBySearchResult.Create(
-  const ALastSearchResults: ILastSearchResultConfig
+  const ALastSearchResults: ILastSearchResult
 );
 begin
   Assert(Assigned(ALastSearchResults));
@@ -97,14 +97,7 @@ var
   VNeedNotify: Boolean;
 begin
   VNewResult := nil;
-  FLastSearchResults.LockRead;
-  try
-    if FLastSearchResults.IsActive then begin
-      VNewResult := FLastSearchResults.GeoCodeResult;
-    end;
-  finally
-    FLastSearchResults.UnlockRead;
-  end;
+  VNewResult := FLastSearchResults.GeoCodeResult;
 
   FResultCS.BeginWrite;
   try

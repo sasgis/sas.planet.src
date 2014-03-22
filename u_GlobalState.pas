@@ -94,6 +94,7 @@ uses
   i_VectorItemTreeImporterList,
   i_VectorItemTreeExporterList,
   i_TileStorageTypeList,
+  i_LastSearchResultConfig,
   i_ImageResamplerFactory,
   i_BuildInfo,
   i_GlobalConfig,
@@ -193,6 +194,7 @@ type
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FLastSelectionInfo: ILastSelectionInfo;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
+    FLastSearchResult: ILastSearchResult;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -270,6 +272,8 @@ type
     property BuildInfo: IBuildInfo read FBuildInfo;
     property TileStorageTypeList: ITileStorageTypeListStatic read FTileStorageTypeList;
     property ImageResamplerFactoryList: IImageResamplerFactoryList read FImageResamplerFactoryList;
+    property LastSearchResult: ILastSearchResult read FLastSearchResult;
+
 
     constructor Create;
     destructor Destroy; override;
@@ -379,6 +383,7 @@ uses
   u_DebugInfoSubSystem,
   u_LastSelectionInfo,
   u_LocalCoordConverterFactory,
+  u_LastSearchResultConfig,
   u_ImageResamplerFactoryChangeableByConfig,
   u_BuildInfo,
   u_VectorItemTreeExporterListSimple,
@@ -493,6 +498,7 @@ begin
 
   FProjConverterFactory := TProjConverterFactory.Create;
   FLastSelectionInfo := TLastSelectionInfo.Create;
+  FLastSearchResult := TLastSearchResult.Create;
 
   FDatumFactory := TDatumFactory.Create(FHashFunction);
   FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
@@ -850,7 +856,7 @@ begin
 
   VInternalDomainInfoProvider :=
     TInternalDomainInfoProviderByLastSearchResults.Create(
-      FGlobalConfig.LastSearchResultConfig,
+      FLastSearchResult,
       VTextProivder,
       nil
     );
@@ -992,7 +998,6 @@ begin
       FMapTypeSetBuilderFactory,
       FLocalConverterFactory,
       FGeoCoderList,
-      FGlobalConfig.LastSearchResultConfig,
       FMainMapsList.MapsSet,
       FMainMapsList.LayersSet,
       FMainMapsList.FirstMainMapGUID,

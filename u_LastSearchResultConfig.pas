@@ -28,12 +28,10 @@ uses
   u_ConfigDataElementBase;
 
 type
-  TLastSearchResultConfig = class(TConfigDataElementBaseEmptySaveLoad, ILastSearchResultConfig)
+  TLastSearchResult = class(TConfigDataElementBaseEmptySaveLoad, ILastSearchResult)
   private
-    FIsActive: Boolean;
     FGeoCodeResult: IGeoCodeResult;
   private
-    function GetIsActive: Boolean;
     function GetGeoCodeResult: IGeoCodeResult;
     procedure SetGeoCodeResult(const AValue: IGeoCodeResult);
     procedure ClearGeoCodeResult;
@@ -41,7 +39,7 @@ type
 
 implementation
 
-function TLastSearchResultConfig.GetGeoCodeResult: IGeoCodeResult;
+function TLastSearchResult.GetGeoCodeResult: IGeoCodeResult;
 begin
   LockRead;
   try
@@ -51,22 +49,11 @@ begin
   end;
 end;
 
-function TLastSearchResultConfig.GetIsActive: Boolean;
-begin
-  LockRead;
-  try
-    Result := FIsActive;
-  finally
-    UnlockRead;
-  end;
-end;
-
-procedure TLastSearchResultConfig.SetGeoCodeResult(const AValue: IGeoCodeResult);
+procedure TLastSearchResult.SetGeoCodeResult(const AValue: IGeoCodeResult);
 begin
   LockWrite;
   try
     if FGeoCodeResult <> AValue then begin
-      FIsActive := True;
       FGeoCodeResult := AValue;
       SetChanged;
     end;
@@ -75,11 +62,10 @@ begin
   end;
 end;
 
-procedure TLastSearchResultConfig.ClearGeoCodeResult;
+procedure TLastSearchResult.ClearGeoCodeResult;
 begin
   LockWrite;
   try
-    FIsActive := false;
     FGeoCodeResult := nil;
     SetChanged;
   finally

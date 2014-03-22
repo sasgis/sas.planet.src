@@ -1970,7 +1970,7 @@ begin
   end;
   VVectorItems :=
     TVectorItemSubsetChangeableBySearchResult.Create(
-      FConfig.LastSearchResultConfig
+      GState.LastSearchResult
     );
   FLayerSearchResults :=
     TFindVectorItemsForVectorMaps.Create(
@@ -2316,7 +2316,7 @@ begin
       tbxpmnSearchResult,
       Self.OnShowSearchResults,
       GState.Config.ValueToStringConverterConfig,
-      FConfig.LastSearchResultConfig
+      GState.LastSearchResult
     );
 
   VEnum := FConfig.MainGeoCoderConfig.GetList.GetGUIDEnum;
@@ -6279,7 +6279,7 @@ end;
 
 procedure TfrmMain.TBSearchWindowClose(Sender: TObject);
 begin
-  FConfig.LastSearchResultConfig.ClearGeoCodeResult;
+  GState.LastSearchResult.ClearGeoCodeResult;
   if tbxpmnSearchResult.Tag <> 0 then begin
     IInterface(tbxpmnSearchResult.Tag)._Release;
     tbxpmnSearchResult.Tag := 0;

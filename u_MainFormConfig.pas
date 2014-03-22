@@ -40,7 +40,6 @@ uses
   i_DownloadUIConfig,
   i_WindowPositionConfig,
   i_InternalPerformanceCounter,
-  I_LastSearchResultConfig,
   u_ConfigDataElementComplexBase;
 
 type
@@ -58,7 +57,6 @@ type
     FKeyMovingConfig: IKeyMovingConfig;
     FMapZoomingConfig: IMapZoomingConfig;
     FMapMovingConfig: IMapMovingConfig;
-    FLastSearchResultConfig: ILastSearchResultConfig;
     FMarksExplorerWindowConfig: IWindowPositionConfig;
   private
     function GetMainConfig: IMainFormMainConfig;
@@ -73,14 +71,12 @@ type
     function GetKeyMovingConfig: IKeyMovingConfig;
     function GetMapZoomingConfig: IMapZoomingConfig;
     function GetMapMovingConfig: IMapMovingConfig;
-    function GetLastSearchResultConfig: ILastSearchResultConfig;
     function GetMarksExplorerWindowConfig: IWindowPositionConfig;
   public
     constructor Create(
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
       const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AGeoCoderList: IGeoCoderList;
-      const ALastSearchResultConfig: ILastSearchResultConfig;
       const AMapsSet, ALayersSet: IMapTypeSet;
       const ADefaultMapGUID: TGUID;
       const APerfCounterList: IInternalPerformanceCounterList
@@ -112,7 +108,6 @@ constructor TMainFormConfig.Create(
   const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
   const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AGeoCoderList: IGeoCoderList;
-  const ALastSearchResultConfig: ILastSearchResultConfig;
   const AMapsSet, ALayersSet: IMapTypeSet;
   const ADefaultMapGUID: TGUID;
   const APerfCounterList: IInternalPerformanceCounterList
@@ -143,8 +138,6 @@ begin
   Add(FMapZoomingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Zooming'));
   FMapMovingConfig := TMapMovingConfig.Create;
   Add(FMapMovingConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MouseMoving'));
-  FLastSearchResultConfig := ALastSearchResultConfig;
-  Add(FLastSearchResultConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('LastSearchResult'));
   FMarksExplorerWindowConfig := TWindowPositionConfig.Create;
   Add(FMarksExplorerWindowConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksExplorerWindow'));
 end;
@@ -197,11 +190,6 @@ end;
 function TMainFormConfig.GetMapMovingConfig: IMapMovingConfig;
 begin
   Result := FMapMovingConfig;
-end;
-
-function TMainFormConfig.GetLastSearchResultConfig: ILastSearchResultConfig;
-begin
-  Result := FLastSearchResultConfig;
 end;
 
 function TMainFormConfig.GetNavToPoint: INavigationToPoint;

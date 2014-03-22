@@ -34,7 +34,7 @@ uses
 type
   TInternalDomainInfoProviderByLastSearchResults = class(TBaseInterfacedObject, IInternalDomainInfoProvider)
   private
-    FLastSearchResults: ILastSearchResultConfig;
+    FLastSearchResults: ILastSearchResult;
     FTextProviders: TStringList;
     FDefaultProvider: ITextByVectorItem;
     function GetItemByIndex(const AIndex: Integer): IVectorDataItemSimple;
@@ -51,7 +51,7 @@ type
     ): IBinaryData;
   public
     constructor Create(
-      const ALastSearchResults: ILastSearchResultConfig;
+      const ALastSearchResults: ILastSearchResult;
       const ADefaultProvider: ITextByVectorItem;
       ATextProviders: TStringList
     );
@@ -69,7 +69,7 @@ uses
 { TInternalDomainInfoProviderByMarksSystem }
 
 constructor TInternalDomainInfoProviderByLastSearchResults.Create(
-  const ALastSearchResults: ILastSearchResultConfig;
+  const ALastSearchResults: ILastSearchResult;
   const ADefaultProvider: ITextByVectorItem;
   ATextProviders: TStringList
 );

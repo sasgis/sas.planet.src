@@ -43,7 +43,6 @@ uses
   i_WindowPositionConfig,
   i_TerrainConfig,
   i_ZmpConfig,
-  i_LastSearchResultConfig,
   i_MapSvcScanConfig,
   i_ConfigDataElement;
 
@@ -157,9 +156,6 @@ type
 
     function GetZmpConfig: IZmpConfig;
     property ZmpConfig: IZmpConfig read GetZmpConfig;
-
-    function GetLastSearchResultConfig: ILastSearchResultConfig;
-    property LastSearchResultConfig: ILastSearchResultConfig read GetLastSearchResultConfig;
 
     function GetMapSvcScanConfig: IMapSvcScanConfig;
     property MapSvcScanConfig: IMapSvcScanConfig read GetMapSvcScanConfig;

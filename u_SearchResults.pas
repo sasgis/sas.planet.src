@@ -44,7 +44,7 @@ type
     FDrawParent: TWinControl;
     FPopUp: TPopupMenu;
     FValueConverterConfig: IValueToStringConverterConfig;
-    FLastSearchResults: ILastSearchResultConfig;
+    FLastSearchResults: ILastSearchResult;
     FOnShowResults: TNotifyEvent;
     FSearchItems: array of TfrSearchResultsItem;
   private
@@ -60,7 +60,7 @@ type
       APopUp: TPopupMenu;
       AOnShowResults: TNotifyEvent;
       const AValueConverterConfig: IValueToStringConverterConfig;
-      const ALastSearchResults: ILastSearchResultConfig
+      const ALastSearchResults: ILastSearchResult
     );
     destructor Destroy; override;
   end;
@@ -83,7 +83,7 @@ constructor TSearchResultPresenterOnPanel.Create(
   APopUp: TPopupMenu;
   AOnShowResults: TNotifyEvent;
   const AValueConverterConfig: IValueToStringConverterConfig;
-  const ALastSearchResults: ILastSearchResultConfig
+  const ALastSearchResults: ILastSearchResult
 );
 begin
   inherited Create;
