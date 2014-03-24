@@ -359,14 +359,6 @@ begin
     VMapType := FMainMap.GetStatic;
 
     VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
-    VMapType.GeoConvert.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
-    VTile :=
-      PointFromDoublePoint(
-        VMapType.GeoConvert.PixelPosFloat2TilePosFloat(VMapPoint, VZoomCurr),
-        prToTopLeft
-      );
-
-    VMapPoint := VVisualCoordConverter.LocalPixel2MapPixelFloat(VMousePos);
     VConverter.CheckPixelPosFloatStrict(VMapPoint, VZoomCurr, True);
     VLonLat := VConverter.PixelPosFloat2LonLat(VMapPoint, VZoomCurr);
 
@@ -434,27 +426,36 @@ begin
     if FConfig.ViewTilePathInfo then begin
       VOffset.X := VOffset.X + Layer.Bitmap.TextWidth(VString) + 20;
       VTileNameWidthAviable := Layer.Bitmap.Width - VOffset.X;
-      VTileName := VMapType.GetTileShowName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
-      if Length(VTileName) > 0 then begin
-        if VTileNameWidthAviable > 30 then begin
-          VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);
-          if VTileNameWidthAviable < VTileNameWidth + 40 then begin
-            SetLength(VShortTileName, 6);
-            StrLCopy(PChar(VShortTileName), PChar(VTileName), 6);
-            VShortTileName :=
-              VShortTileName + '...' +
-              RightStr(
-              VTileName,
-              Trunc(
-                (Length(VTileName) / VTileNameWidth) * (VTileNameWidthAviable - Layer.Bitmap.TextWidth(VShortTileName) - 40)
-              )
-            );
-            VTileName := VShortTileName;
+
+      if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
+        VTile :=
+          PointFromDoublePoint(
+            VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
+            prToTopLeft
+          );
+
+        VTileName := VMapType.GetTileShowName(VTile, VZoomCurr, VMapType.VersionRequestConfig.GetStatic.BaseVersion);
+        if Length(VTileName) > 0 then begin
+          if VTileNameWidthAviable > 30 then begin
+            VTileNameWidth := Layer.Bitmap.TextWidth(VTileName);
+            if VTileNameWidthAviable < VTileNameWidth + 40 then begin
+              SetLength(VShortTileName, 6);
+              StrLCopy(PChar(VShortTileName), PChar(VTileName), 6);
+              VShortTileName :=
+                VShortTileName + '...' +
+                RightStr(
+                VTileName,
+                Trunc(
+                  (Length(VTileName) / VTileNameWidth) * (VTileNameWidthAviable - Layer.Bitmap.TextWidth(VShortTileName) - 40)
+                )
+              );
+              VTileName := VShortTileName;
+            end;
           end;
         end;
+        VString := SAS_STR_File + ' ' + VTileName;
+        RenderText(VOffset, VString, VNeedSeparator);
       end;
-      VString := SAS_STR_File + ' ' + VTileName;
-      RenderText(VOffset, VString, VNeedSeparator);
     end;
 
     FLastUpdateTick := GetTickCount;
