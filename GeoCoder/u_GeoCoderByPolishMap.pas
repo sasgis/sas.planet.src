@@ -68,7 +68,6 @@ implementation
 uses
   StrUtils,
   ALString,
-  ALStringList,
   t_GeoTypes,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
@@ -78,7 +77,7 @@ uses
 { TGeoCoderByPolishMap }
 
 function getType(
-  const ASection: AnsiString;
+  const ASection: String;
   const AType: Integer
 ): String;
 begin
@@ -488,17 +487,17 @@ begin
 end;
 
 function GetParam(
-  const AName: AnsiString;
-  const AStr: AnsiString;
-  const ADef: AnsiString = ''
-): AnsiString;
+  const AName: String;
+  const AStr: String;
+  const ADef: String = ''
+): String;
 var
   I, J: Integer;
 begin
   result := ADef;
-  I := ALPosEx(AName, AStr);
+  I := PosEx(AName, AStr);
   if (I = 0) then exit;
-  J := ALPosEx(#$A, AStr, I + 1);
+  J := PosEx(#$A, AStr, I + 1);
   if (J = 0) then J := length(AStr) + 1;
   if (J > 1) and (AStr[J - 1] = #$D) then dec(J); // учёт второго варианта конца строки
   result := Copy(AStr, I + length(AName), J - (I + length(AName)));
@@ -513,17 +512,18 @@ procedure TGeoCoderByPolishMap.SearchInMapFile(
   var Acnt: Integer
 );
 var
- VFormatSettings: TALFormatSettings;
+ VFormatSettings: TFormatSettings;
  VPlace: IVectorDataItemPoint;
  VPoint: TDoublePoint;
- Vslat, Vslon: AnsiString;
+ Vslat, Vslon: String;
  Vsname, Vsdesc, sfulldesc: String;
  VLinkErr: Boolean;
  Vi, I, J, k, l: Integer;
- VStr: AnsiString;
- vStr2: AnsiString;
- VSearch: AnsiString;
- VCityList: TALStringList;
+ VAStr: AnsiString;
+ VStr: String;
+ vStr2: String;
+ VSearch: String;
+ VCityList: TStringList;
 
  V_SectionType,
  V_Label,
@@ -533,11 +533,11 @@ var
  V_HouseNumber,
  V_CountryName,
  V_WebPage,
- V_Phone: AnsiString;
+ V_Phone: String;
  V_Type: Integer;
  VSkip: Boolean;
  VStream: TFileStream;
- V_EndOfLine: AnsiString;
+ V_EndOfLine: String;
  VValueConverter: IValueToStringConverter;
 begin
  VFormatSettings.DecimalSeparator := '.';
@@ -546,9 +546,9 @@ begin
  try
   VStream := TFileStream.Create(AFile, fmOpenRead);
    try
-    SetLength(Vstr, VStream.Size);
+    SetLength(VAStr, VStream.Size);
     I := VStream.Size;
-    VStream.ReadBuffer(VStr[1], VStream.Size);
+    VStream.ReadBuffer(VAStr[1], VStream.Size);
    finally
    VStream.Free;
    end;
@@ -556,20 +556,25 @@ begin
   FLock.EndRead;
  end;
   if I < 10 then exit; // файл слишком маленький
-  I := ALPosEx(#$A, VStr, 2); // вдруг в самом начале файла пустая строка и лишь с #$A? её пропустим и найдём конец следующей
+  if ALPosEx('CodePage=65001', VAStr) > 0 then begin
+    VStr := AnsiUpperCase(Utf8ToAnsi(VAStr))
+  end else begin
+    VStr := AnsiUpperCase(VAStr);
+  end;
+
+  I := PosEx(#$A, VStr, 2); // вдруг в самом начале файла пустая строка и лишь с #$A? её пропустим и найдём конец следующей
   if (I > 1) and (VStr[I - 1] = #$D) then V_EndOfLine := #$D#$A else V_EndOfLine := #$A;
-  VCityList := TALStringList.Create;
+  VCityList := TStringList.Create;
   try
-    Vstr := AlUpperCase(Vstr);
-    I := ALPosEx('[CITIES]', VStr);
+    I := PosEx('[CITIES]', VStr);
     if I > 0 then begin
-      k :=  ALPosEx('[END', VStr, I);
+      k :=  PosEx('[END', VStr, I);
       VStr2 := Copy(VStr, I, k - I); // вырежем весь первый блок
-      while (ALPosEx('CITY', VStr2, I) > 0) do begin
+      while (PosEx('CITY', VStr2, I) > 0) do begin
         J := I;
-        I := ALPosEx('CITY', VStr2, J);
-        I := ALPosEx('=', VStr2, I);
-        J := ALPosEx(V_EndOfLine, VStr2, I);
+        I := PosEx('CITY', VStr2, J);
+        I := PosEx('=', VStr2, I);
+        J := PosEx(V_EndOfLine, VStr2, I);
         VCityList.add(Copy(VStr2, I + 1, J - (I + 1)));
       end;// заполнили массив городов, если они заданы в начале файла
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -580,13 +585,13 @@ begin
     // ищем вхождение, затем бежим назад до начала блока
     while true do begin
       VLinkErr := false;
-      Vi := ALPosEx(VSearch, VStr, Vi) + 1;
+      Vi := PosEx(VSearch, VStr, Vi) + 1;
       if Vi = 1 then break; // больше не нашли?
       J := Vi - 1;
       while (J > 0) and (Vstr[J] <> #$A) do dec(J); // начало строки с найденными данными
       if Vi < J + 7 then continue; // нашлось в имени тега, пропустим
       if Copy(Vstr, J + 1, 6) <> 'LABEL=' then continue; // найденные данные не в теге Label?
-      k := ALPosEx(#$A'[END]', VStr, Vi); // конец блока найденных данных.
+      k := PosEx(#$A'[END]', VStr, Vi); // конец блока найденных данных.
       l := J;
       while (l > 0) and (Copy(Vstr, l, 2) <> #$A'[') do dec(l); // начало блока с найденными данными
       VStr2 := Copy(VStr, l + 1, k - l); // вырежем весь блок с найденными данными
@@ -600,7 +605,7 @@ begin
       V_WebPage := '';
       V_Phone :='';
 
-      I := ALPosEx(']', VStr2);
+      I := PosEx(']', VStr2);
       if I > 0 then begin
        if I < k then begin
          V_SectionType := Copy(Vstr2, 2, I - 2);
@@ -609,24 +614,24 @@ begin
       end;
 
       V_Label := GetParam(#$A'LABEL=', vStr2);
-      V_Label := ALStringReplace(V_Label, '~[0X1F]', ' ', [rfReplaceAll]);
-      I := ALStrToIntDef(GetParam(#$A'CITYIDX=',vStr2), -1);
+      V_Label := StringReplace(V_Label, '~[0X1F]', ' ', [rfReplaceAll]);
+      I := StrToIntDef(GetParam(#$A'CITYIDX=',vStr2), -1);
       if (I > 0) and (I < VCityList.Count) then
           V_CityName := VCityList.Strings[I - 1] else  V_CityName := '';
       V_CityName := GetParam(#$A'CITYNAME=', vStr2, V_CityName);
       V_RegionName := GetParam(#$A'REGIONNAME=', vStr2);
       V_CountryName := GetParam(#$A'COUNTRYNAME=', vStr2);
-      V_Type := ALStrToIntDef(GetParam(#$A'TYPE=', VStr2), -1);
+      V_Type := StrToIntDef(GetParam(#$A'TYPE=', VStr2), -1);
       V_StreetDesc := GetParam(#$A'STREETDESC=', vStr2);
       V_HouseNumber := GetParam(#$A'HOUSENUMBER=', vStr2);
       V_WebPage := GetParam(#$A'WEBPAGE=', vStr2, '');
       V_Phone := GetParam(#$A'PHONE=', vStr2, '');
 
-      I := ALPosEx('DATA', VStr2);
-      I := ALPosEx('(', VStr2, I);
-      J := ALPosEx(',', VStr2, I);
+      I := PosEx('DATA', VStr2);
+      I := PosEx('(', VStr2, I);
+      J := PosEx(',', VStr2, I);
       Vslat := Copy(Vstr2, I + 1, J - (I + 1));
-      I := ALPosEx(')', VStr2, I);
+      I := PosEx(')', VStr2, I);
       Vslon := Copy(Vstr2, J + 1, I - (J + 1));
 
       if (Vslat='') or (Vslon='') then VLinkErr := true;
@@ -637,8 +642,8 @@ begin
 
       if VLinkErr <> true then begin
        try
-         VPoint.Y := ALStrToFloat(Vslat, VFormatSettings);
-         VPoint.X := ALStrToFloat(Vslon, VFormatSettings);
+         VPoint.Y := StrToFloat(Vslat, VFormatSettings);
+         VPoint.X := StrToFloat(Vslon, VFormatSettings);
        except
          raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [Vslat, Vslon]);
        end;
