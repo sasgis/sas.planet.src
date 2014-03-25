@@ -166,7 +166,6 @@
     <DCCReference Include="c_ImageResampler.pas" />
     <DCCReference Include="c_InternalBrowser.pas" />
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
-    <DCCReference Include="c_SensorsGUIDSimple.pas" />
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
     </DCCReference>
@@ -455,9 +454,6 @@
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_SearchResultPresenter.pas" />
     <DCCReference Include="i_SelectionRect.pas" />
-    <DCCReference Include="i_Sensor.pas" />
-    <DCCReference Include="i_SensorList.pas" />
-    <DCCReference Include="i_SensorViewListGenerator.pas" />
     <DCCReference Include="i_ShortCutModalEdit.pas" />
     <DCCReference Include="i_ShortCutSingleConfig.pas" />
     <DCCReference Include="i_SimpleFactory.pas" />
@@ -911,6 +907,20 @@
     <DCCReference Include="RegionProcess\u_RegionProcessProgressInfoDownload.pas" />
     <DCCReference Include="RegionProcess\u_RegionProcessProgressInfoInternalFactory.pas" />
     <DCCReference Include="RegionProcess\u_ThreadRegionProcessAbstract.pas" />
+    <DCCReference Include="Sensor\c_SensorsGUIDSimple.pas" />
+    <DCCReference Include="Sensor\i_Sensor.pas" />
+    <DCCReference Include="Sensor\i_SensorList.pas" />
+    <DCCReference Include="Sensor\i_SensorViewListGenerator.pas" />
+    <DCCReference Include="Sensor\u_SensorBase.pas" />
+    <DCCReference Include="Sensor\u_SensorBatteryStatus.pas" />
+    <DCCReference Include="Sensor\u_SensorFromGPSRecorderBase.pas" />
+    <DCCReference Include="Sensor\u_SensorListBase.pas" />
+    <DCCReference Include="Sensor\u_SensorListStuped.pas" />
+    <DCCReference Include="Sensor\u_SensorsFromGPSRecorder.pas" />
+    <DCCReference Include="Sensor\u_SensorTextFromNavToPoint.pas" />
+    <DCCReference Include="Sensor\u_SensorViewConfigSimple.pas" />
+    <DCCReference Include="Sensor\u_SensorViewListGeneratorStuped.pas" />
+    <DCCReference Include="Sensor\u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="Synchronize\i_ReadWriteSyncFactory.pas" />
     <DCCReference Include="Synchronize\i_Synchronizer.pas" />
     <DCCReference Include="Synchronize\u_ReadWriteSyncAbstract.pas" />
@@ -1254,16 +1264,6 @@
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="u_SearchResults.pas" />
     <DCCReference Include="u_SelectionRect.pas" />
-    <DCCReference Include="u_SensorBase.pas" />
-    <DCCReference Include="u_SensorBatteryStatus.pas" />
-    <DCCReference Include="u_SensorFromGPSRecorderBase.pas" />
-    <DCCReference Include="u_SensorListBase.pas" />
-    <DCCReference Include="u_SensorListStuped.pas" />
-    <DCCReference Include="u_SensorsFromGPSRecorder.pas" />
-    <DCCReference Include="u_SensorTextFromNavToPoint.pas" />
-    <DCCReference Include="u_SensorViewConfigSimple.pas" />
-    <DCCReference Include="u_SensorViewListGeneratorStuped.pas" />
-    <DCCReference Include="u_SensorViewTextTBXPanel.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_ShortCutModalEditByForm.pas" />
     <DCCReference Include="u_ShortCutSingleConfig.pas" />
