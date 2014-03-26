@@ -23,7 +23,7 @@ unit u_BaseGridConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   t_GeoTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
@@ -65,6 +65,7 @@ type
 implementation
 
 uses
+  GR32,
   u_ConfigProviderHelpers;
 
 { TBaseGridConfig }

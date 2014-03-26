@@ -23,7 +23,7 @@ unit u_StatBarConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_StatBarConfig,
@@ -103,6 +103,7 @@ type
 implementation
 
 uses
+  GR32,
   u_ConfigProviderHelpers;
 
 { TMapLayerStatBarConfig }

@@ -23,7 +23,6 @@ unit u_TileGridConfig;
 interface
 
 uses
-  GR32,
   t_GeoTypes,
   i_LocalCoordConverter,
   i_ConfigDataProvider,
@@ -63,6 +62,7 @@ type
 implementation
 
 uses
+  Types,
   i_CoordConverter,
   u_GeoFunc;
 

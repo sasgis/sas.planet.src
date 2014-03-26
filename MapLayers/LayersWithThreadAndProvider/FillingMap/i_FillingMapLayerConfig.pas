@@ -23,7 +23,7 @@ unit i_FillingMapLayerConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   t_FillingMapModes,
   i_FillingMapColorer,
   i_MapTypes,

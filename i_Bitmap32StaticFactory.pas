@@ -23,7 +23,8 @@ unit i_Bitmap32StaticFactory;
 interface
 
 uses
-  GR32,
+  Types,
+  t_Bitmap32,
   i_Bitmap32Static;
 
 type

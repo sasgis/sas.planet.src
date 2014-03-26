@@ -23,7 +23,7 @@ unit i_MapLayerGPSTrackConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ThreadConfig,
   i_ConfigDataElement;
 

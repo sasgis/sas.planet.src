@@ -23,7 +23,6 @@ unit u_CalcLineLayerConfig;
 interface
 
 uses
-  GR32,
   i_PolyLineLayerConfig,
   i_PointCaptionsLayerConfig,
   i_CalcLineLayerConfig,
@@ -47,6 +46,7 @@ type
 implementation
 
 uses
+  GR32,
   i_MarkerSimpleConfig,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_PointsSetLayerConfig,

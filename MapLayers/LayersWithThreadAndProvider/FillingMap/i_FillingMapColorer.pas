@@ -23,7 +23,7 @@ unit i_FillingMapColorer;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_TileInfoBasic;
 
 type

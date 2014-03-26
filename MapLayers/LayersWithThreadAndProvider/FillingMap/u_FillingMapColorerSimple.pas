@@ -23,7 +23,7 @@ unit u_FillingMapColorerSimple;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   t_FillingMapModes,
   i_TileInfoBasic,
   i_FillingMapColorer,
@@ -60,7 +60,8 @@ implementation
 uses
   Types,
   SysUtils,
-  DateUtils;
+  DateUtils,
+  GR32;
 
 { TFillingMapColorerSimple }
 

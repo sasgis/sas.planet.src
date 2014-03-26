@@ -23,7 +23,6 @@ unit u_BitmapLayerProviderCombineTwoProviders;
 interface
 
 uses
-  GR32,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
@@ -54,6 +53,7 @@ type
 implementation
 
 uses
+  GR32,
   u_BitmapFunc,
   u_Bitmap32ByStaticBitmap;
 

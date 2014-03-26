@@ -23,12 +23,10 @@ unit u_LastSelectionLayerConfig;
 interface
 
 uses
-  GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_LastSelectionLayerConfig,
-  u_PolygonLayerConfig,
-  u_ConfigDataElementBase;
+  u_PolygonLayerConfig;
 
 type
   TLastSelectionLayerConfig = class(TPolygonLayerConfig, ILastSelectionLayerConfig)
@@ -46,6 +44,9 @@ type
 
 implementation
 
+uses
+  GR32;
+  
 { TLastSelectionLayerConfig }
 
 constructor TLastSelectionLayerConfig.Create;

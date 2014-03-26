@@ -23,7 +23,7 @@ unit u_PointCaptionsLayerConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_PointCaptionsLayerConfig,
@@ -104,6 +104,7 @@ type
 implementation
 
 uses
+  GR32,
   u_ConfigProviderHelpers;
 
 { TPointCaptionsLayerConfigStatic }

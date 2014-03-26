@@ -23,9 +23,9 @@ unit u_FillingMapLayerConfig;
 interface
 
 uses
-  GR32,
   DateUtils,
   SysUtils,
+  t_Bitmap32,
   t_FillingMapModes,
   i_ThreadConfig,
   i_MapTypes,
@@ -101,6 +101,7 @@ implementation
 
 uses
   Classes,
+  GR32,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_ConfigProviderHelpers,
   u_ThreadConfig,

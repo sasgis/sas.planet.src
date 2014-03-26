@@ -23,7 +23,7 @@ unit u_PolyLineLayerConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_PolyLineLayerConfig,
@@ -51,6 +51,7 @@ type
 implementation
 
 uses
+  GR32,
   u_ConfigProviderHelpers;
 
 { TLineLayerConfig }

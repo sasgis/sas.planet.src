@@ -23,7 +23,7 @@ unit u_BitmapPostProcessing;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
   i_BitmapPostProcessing,
@@ -65,6 +65,9 @@ type
 
 implementation
 
+uses
+  GR32;
+  
 { TBitmapPostProcessingSimple }
 
 function TBitmapPostProcessingSimple.Process(

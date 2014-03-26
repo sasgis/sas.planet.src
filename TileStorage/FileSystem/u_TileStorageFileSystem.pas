@@ -26,7 +26,6 @@ uses
   Windows,
   Classes,
   SysUtils,
-  GR32,
   i_BinaryData,
   i_CoordConverter,
   i_MapVersionInfo,

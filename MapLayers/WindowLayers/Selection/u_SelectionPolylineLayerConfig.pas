@@ -23,7 +23,7 @@ unit u_SelectionPolylineLayerConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_PolylineLayerConfig,
@@ -66,6 +66,7 @@ type
 implementation
 
 uses
+  GR32,
   i_MarkerSimpleConfig,
   u_MarkerSimpleConfigStatic,
   u_PointsSetLayerConfig,

@@ -24,7 +24,8 @@ interface
 
 uses
   SysUtils,
-  GR32,
+  Types,
+  t_Bitmap32,
   i_NotifierTime,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
@@ -55,7 +56,6 @@ type
 implementation
 
 uses
-  Types,
   GR32_LowLevel,
   u_Bitmap32StaticFactorySimple,
   u_ObjectPoolBitmap32Standart;

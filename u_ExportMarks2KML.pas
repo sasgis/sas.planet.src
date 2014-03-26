@@ -26,17 +26,16 @@ uses
   Classes,
   SysUtils,
   Windows,
-  GR32,
   XMLIntf,
   XMLDoc,
   ActiveX,
+  t_Bitmap32,
   i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
   i_AppearanceOfVectorItem,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
-  i_VectorItemTree,
-  u_GeoToStrFunc;
+  i_VectorItemTree;
 
 type
   TExportMarks2KML = class
@@ -74,11 +73,13 @@ type
 implementation
 
 uses
+  GR32,
   t_GeoTypes,
   i_BinaryData,
   i_EnumDoublePoint,
   i_GeometryLonLat,
   u_BinaryDataByMemStream,
+  u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData;
 
 function XMLTextPrepare(const Src: AnsiString): AnsiString;

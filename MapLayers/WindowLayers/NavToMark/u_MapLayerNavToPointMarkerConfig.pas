@@ -23,7 +23,6 @@ unit u_MapLayerNavToPointMarkerConfig;
 interface
 
 uses
-  GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerNavToPointMarkerConfig,
@@ -52,6 +51,7 @@ type
 implementation
 
 uses
+  GR32,
   u_MarkerSimpleConfig,
   u_MarkerSimpleConfigStatic,
   u_ConfigSaveLoadStrategyBasicProviderSubItem;

@@ -23,7 +23,7 @@ unit u_ScaleLineConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ScaleLineConfig,
@@ -78,6 +78,7 @@ type
 implementation
 
 uses
+  GR32,
   u_ConfigProviderHelpers;
 
 const

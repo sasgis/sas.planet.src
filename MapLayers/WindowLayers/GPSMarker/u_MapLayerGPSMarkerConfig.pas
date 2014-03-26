@@ -23,7 +23,6 @@ unit u_MapLayerGPSMarkerConfig;
 interface
 
 uses
-  GR32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_MapLayerGPSMarkerConfig,
@@ -55,6 +54,7 @@ type
 implementation
 
 uses
+  GR32,
   u_MarkerSimpleConfig,
   u_MarkerSimpleConfigStatic,
   u_MarkerRingsConfig,

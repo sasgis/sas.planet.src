@@ -23,7 +23,7 @@ unit i_StatBarConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataElement;
 
 type
