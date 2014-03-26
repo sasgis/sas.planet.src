@@ -129,8 +129,8 @@ uses
   Types,
   Classes,
   SysUtils,
-  GR32,
   FreeBitmap,
+  t_Bitmap32,
   i_Bitmap8Static,
   u_BinaryDataByMemStream;
 

@@ -28,7 +28,8 @@ uses
   SysUtils,
   Classes,
   SQLite3Handler,
-  GR32,
+  t_Bitmap32,
+  t_GeoTypes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BinaryData,
@@ -40,8 +41,6 @@ uses
   i_GeometryProjectedFactory,
   i_CoordConverter,
   i_GeometryLonLat,
-  u_GeoFunc,
-  t_GeoTypes,
   u_ThreadExportAbstract;
 
 type
@@ -99,6 +98,7 @@ type
 implementation
 
 uses
+  GR32,
   ALString,
   c_CoordConverter,
   i_LocalCoordConverter,
@@ -107,6 +107,7 @@ uses
   u_ResStrings,
   i_GeometryProjected,
   i_TileIterator,
+  u_GeoFunc,
   u_BitmapFunc,
   u_TileIteratorByPolygon;
 

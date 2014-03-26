@@ -23,7 +23,7 @@ unit u_MarkFactorySmlDbInternal;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   t_GeoTypes,
   i_HashFunction,
   i_AppearanceOfMarkFactory,

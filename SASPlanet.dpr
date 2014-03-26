@@ -15,6 +15,8 @@ uses
   MidasLib,
   XPMan,
   u_ReadableThreadNames,
+  t_Bitmap32 in 't_Bitmap32.pas',
+  c_Bitmap32 in 'c_Bitmap32.pas',
   i_BuildInfo in 'i_BuildInfo.pas',
   u_BuildInfo in 'u_BuildInfo.pas',
   u_TileStorageArchive in 'TileStorage\Archive\u_TileStorageArchive.pas',

@@ -163,6 +163,7 @@
     <DCCReference Include="CoordConvert\u_ProjConverterFactory.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfo.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfoFactory.pas" />
+    <DCCReference Include="c_Bitmap32.pas" />
     <DCCReference Include="c_ImageResampler.pas" />
     <DCCReference Include="c_InternalBrowser.pas" />
     <DCCReference Include="c_PathDetalizeProvidersGUID.pas" />
@@ -1037,6 +1038,7 @@
     <DCCReference Include="TileStorage\u_TileStorageTypeList.pas" />
     <DCCReference Include="TileStorage\u_TileStorageTypeListItem.pas" />
     <DCCReference Include="TileStorage\u_TileStorageTypeListSimple.pas" />
+    <DCCReference Include="t_Bitmap32.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
     <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />

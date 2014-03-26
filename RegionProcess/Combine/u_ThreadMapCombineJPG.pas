@@ -27,7 +27,7 @@ uses
   SysUtils,
   Classes,
   LibJpegWrite,
-  GR32,
+  t_Bitmap32,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BitmapLayerProvider,

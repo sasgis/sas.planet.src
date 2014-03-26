@@ -23,7 +23,7 @@ unit u_FullMapMouseCursorLayerConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_FullMapMouseCursorLayerConfig,
@@ -54,7 +54,9 @@ type
 implementation
 
 uses
+  c_Bitmap32,
   u_ConfigProviderHelpers;
+  
 { TFullMapMouseCursorLayerConfig }
 
 constructor TFullMapMouseCursorLayerConfig.Create;

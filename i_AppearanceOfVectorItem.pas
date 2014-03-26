@@ -23,7 +23,7 @@ unit i_AppearanceOfVectorItem;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_MarkPicture,
   i_Appearance;
 

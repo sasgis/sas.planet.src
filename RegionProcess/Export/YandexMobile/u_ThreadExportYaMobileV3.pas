@@ -27,8 +27,7 @@ uses
   Types,
   SysUtils,
   Classes,
-  GR32,
-  u_ResStrings,
+  t_Bitmap32,
   i_BinaryData,
   i_Bitmap32StaticFactory,
   i_NotifierOperation,
@@ -98,6 +97,7 @@ type
 implementation
 
 uses
+  GR32,
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
@@ -105,6 +105,7 @@ uses
   i_TileIterator,
   i_LocalCoordConverter,
   u_BitmapFunc,
+  u_ResStrings,
   u_TileIteratorByPolygon;
 
 const

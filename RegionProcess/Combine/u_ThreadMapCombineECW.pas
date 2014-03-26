@@ -25,7 +25,8 @@ interface
 uses
   SysUtils,
   Classes,
-  GR32,
+  Types,
+  t_Bitmap32,
   i_NotifierOperation,
   i_BitmapLayerProvider,
   i_RegionProcessProgressInfo,

@@ -38,10 +38,10 @@ type
 implementation
 
 uses
-  GR32,
   SysUtils,
   FreeImage,
   FreeBitmap,
+  t_Bitmap32,
   u_Bitmap8Static;
 
 type

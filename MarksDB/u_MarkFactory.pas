@@ -23,7 +23,7 @@ unit u_MarkFactory;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_GeometryLonLat,
   i_Appearance,
   i_AppearanceOfMarkFactory,

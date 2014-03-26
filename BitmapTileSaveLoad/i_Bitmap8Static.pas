@@ -23,7 +23,8 @@ unit i_Bitmap8Static;
 interface
 
 uses
-  GR32;
+  Types,
+  t_Bitmap32;
 
 type
   IBitmap8Static = interface

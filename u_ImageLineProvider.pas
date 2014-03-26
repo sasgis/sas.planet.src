@@ -24,7 +24,7 @@ interface
 
 uses
   Types,
-  GR32,
+  t_Bitmap32,
   i_NotifierOperation,
   i_Bitmap32Static,
   i_CoordConverter,

@@ -148,8 +148,9 @@ type
 implementation
 
 uses
-  GR32,
+  Types,
   SysUtils,
+  t_Bitmap32,
   u_Bitmap8Static;
 
 {$DEFINE DISABLE_FP_EXCEPTION}

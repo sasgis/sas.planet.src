@@ -23,7 +23,7 @@ unit u_MarkPolyTemplateConfig;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_Appearance,
@@ -59,6 +59,7 @@ type
 implementation
 
 uses
+  GR32,
   i_StringConfigDataElement,
   u_StringConfigDataElementWithDefByStringRec,
   u_ConfigProviderHelpers,

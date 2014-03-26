@@ -25,7 +25,7 @@ interface
 uses
   Types,
   Classes,
-  GR32,
+  t_Bitmap32,
   i_InternalPerformanceCounter,
   i_BinaryData,
   i_Bitmap32Static,

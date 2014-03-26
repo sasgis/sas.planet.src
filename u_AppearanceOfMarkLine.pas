@@ -23,7 +23,7 @@ unit u_AppearanceOfMarkLine;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   t_Hash,
   i_Appearance,
   i_AppearanceOfVectorItem,

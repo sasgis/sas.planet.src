@@ -27,8 +27,8 @@ uses
   Types,
   SysUtils,
   Classes,
-  GR32,
   YaMobileCache,
+  t_Bitmap32,
   i_BinaryData,
   i_Bitmap32StaticFactory,
   i_GeometryLonLat,
@@ -39,7 +39,6 @@ uses
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
-  u_ResStrings,
   u_ThreadExportAbstract;
 
 type
@@ -101,12 +100,14 @@ type
 implementation
 
 uses
+  GR32,
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
   i_GeometryProjected,
   i_TileIterator,
   u_BitmapFunc,
+  u_ResStrings,
   u_TileIteratorByPolygon;
 
 { TThreadExportYaMobileV4 }

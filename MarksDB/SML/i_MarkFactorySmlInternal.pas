@@ -23,7 +23,7 @@ unit i_MarkFactorySmlInternal;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   t_GeoTypes,
   i_VectorDataItemSimple;
 

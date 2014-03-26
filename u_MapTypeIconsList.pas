@@ -26,7 +26,7 @@ uses
   ActiveX,
   ImgList,
   TBXGraphics,
-  GR32,
+  t_Bitmap32,
   i_Bitmap32Static,
   i_GUIDSet,
   i_MapTypeIconsList,
@@ -53,6 +53,7 @@ implementation
 
 uses
   SysUtils,
+  GR32,
   GR32_Resamplers,
   u_BitmapFunc,
   u_GUIDObjectSet;

@@ -24,7 +24,8 @@ interface
 
 uses
   SysUtils,
-  GR32,
+  Types,
+  t_Bitmap32,
   t_GeoTypes,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
@@ -230,7 +231,7 @@ type
 implementation
 
 uses
-  Types,
+  GR32,
   c_InternalBrowser,
   i_BasicMemCache,
   i_TileInfoBasic,

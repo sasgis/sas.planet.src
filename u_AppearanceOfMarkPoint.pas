@@ -23,7 +23,7 @@ unit u_AppearanceOfMarkPoint;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   t_Hash,
   i_MarkPicture,
   i_Appearance,

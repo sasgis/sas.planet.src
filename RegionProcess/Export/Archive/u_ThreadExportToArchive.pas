@@ -26,7 +26,7 @@ uses
   Types,
   SysUtils,
   Classes,
-  GR32,
+  t_Bitmap32,
   i_TileFileNameGenerator,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,

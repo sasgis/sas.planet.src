@@ -26,7 +26,7 @@ uses
   Types,
   SysUtils,
   Classes,
-  GR32,
+  t_Bitmap32,
   t_GeoTypes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
@@ -84,6 +84,7 @@ type
 implementation
 
 uses
+  GR32,
   i_CoordConverter,
   i_Bitmap32Static,
   i_GeometryProjected,

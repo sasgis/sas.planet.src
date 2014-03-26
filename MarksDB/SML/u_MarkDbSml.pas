@@ -172,7 +172,7 @@ uses
   DB,
   Math,
   StrUtils,
-  GR32,
+  t_Bitmap32,
   t_CommonTypes,
   i_EnumDoublePoint,
   i_AppearanceOfVectorItem,

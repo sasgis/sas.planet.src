@@ -26,7 +26,8 @@ uses
   Types,
   SysUtils,
   Classes,
-  GR32,
+  t_Bitmap32,
+  t_GeoTypes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
@@ -34,8 +35,6 @@ uses
   i_GeometryLonLat,
   i_MapVersionInfo,
   i_TileStorage,
-  u_ResStrings,
-  t_GeoTypes,
   u_ThreadExportAbstract;
 
 type
@@ -75,13 +74,14 @@ type
 implementation
 
 uses
-  u_GeoToStrFunc,
+  i_GeometryProjected,
+  i_CoordConverter,
   i_TileInfoBasic,
   i_TileIterator,
   u_TileIteratorByPolygon,
+  u_GeoToStrFunc,
   u_GeoFunc,
-  i_GeometryProjected,
-  i_CoordConverter;
+  u_ResStrings;
 
 constructor TThreadExportKML.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;

@@ -23,7 +23,7 @@ unit u_ConfigProviderHelpers;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_ContentTypeManager,
   i_Bitmap32Static,
   i_GeometryLonLat,
@@ -75,6 +75,7 @@ implementation
 uses
   SysUtils,
   Graphics,
+  GR32,
   t_GeoTypes,
   i_BinaryData,
   i_EnumDoublePoint,

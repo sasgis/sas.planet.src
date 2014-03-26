@@ -25,7 +25,7 @@ interface
 uses
   Types,
   SysUtils,
-  GR32,
+  t_Bitmap32,
   i_Notifier,
   i_Listener,
   i_BinaryData,
@@ -99,6 +99,7 @@ type
 implementation
 
 uses
+  GR32,
   t_CommonTypes,
   i_ContentConverter,
   i_BitmapTileSaveLoad,
