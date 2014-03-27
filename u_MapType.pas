@@ -25,7 +25,6 @@ interface
 uses
   SysUtils,
   Types,
-  t_Bitmap32,
   t_GeoTypes,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,

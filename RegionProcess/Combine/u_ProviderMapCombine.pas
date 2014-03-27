@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   Forms,
-  GR32,
   t_GeoTypes,
   i_LanguageManager,
   i_CoordConverter,

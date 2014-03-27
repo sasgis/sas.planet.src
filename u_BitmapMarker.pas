@@ -23,7 +23,8 @@ unit u_BitmapMarker;
 interface
 
 uses
-  GR32,
+  Types,
+  t_Bitmap32,
   t_GeoTypes,
   i_Bitmap32Static,
   i_BitmapMarker,

@@ -32,7 +32,6 @@ uses
   Spin,
   ExtCtrls,
   Buttons,
-  GR32,
   i_Category,
   i_ImportConfig,
   i_AppearanceOfMarkFactory,
@@ -133,6 +132,7 @@ implementation
 
 uses
   SysUtils,
+  GR32,
   i_Appearance,
   i_MarkTemplate,
   i_MarkPicture,

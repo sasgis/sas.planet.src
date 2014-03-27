@@ -64,7 +64,6 @@ type
 implementation
 
 uses
-  Types,
   Classes,
   SysUtils,
   i_RegionProcessParamsFrame,

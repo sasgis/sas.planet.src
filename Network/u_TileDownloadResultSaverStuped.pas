@@ -25,7 +25,6 @@ interface
 uses
   Types,
   SysUtils,
-  t_Bitmap32,
   i_Notifier,
   i_Listener,
   i_BinaryData,

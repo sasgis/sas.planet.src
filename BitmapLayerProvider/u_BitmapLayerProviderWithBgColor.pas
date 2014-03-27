@@ -54,7 +54,6 @@ type
 implementation
 
 uses
-  Types,
   GR32,
   u_BitmapFunc,
   u_Bitmap32ByStaticBitmap;

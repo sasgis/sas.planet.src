@@ -69,7 +69,6 @@ type
 implementation
 
 uses
-  GR32,
   SAS4WinCE,
   i_TileIterator,
   i_TileInfoBasic,

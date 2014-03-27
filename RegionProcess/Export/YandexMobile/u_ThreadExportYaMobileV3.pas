@@ -27,7 +27,6 @@ uses
   Types,
   SysUtils,
   Classes,
-  t_Bitmap32,
   i_BinaryData,
   i_Bitmap32StaticFactory,
   i_NotifierOperation,

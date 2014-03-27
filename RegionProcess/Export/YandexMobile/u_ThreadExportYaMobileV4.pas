@@ -28,7 +28,6 @@ uses
   SysUtils,
   Classes,
   YaMobileCache,
-  t_Bitmap32,
   i_BinaryData,
   i_Bitmap32StaticFactory,
   i_GeometryLonLat,

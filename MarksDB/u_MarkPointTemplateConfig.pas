@@ -23,7 +23,6 @@ unit u_MarkPointTemplateConfig;
 interface
 
 uses
-  t_Bitmap32,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_Appearance,

@@ -23,7 +23,6 @@ unit u_ProviderMapCombineBMP;
 interface
 
 uses
-  GR32,
   i_LanguageManager,
   i_LocalCoordConverter,
   i_CoordConverterFactory,
@@ -81,7 +80,9 @@ implementation
 
 uses
   Classes,
+  Types,
   gnugettext,
+  t_Bitmap32,
   i_RegionProcessParamsFrame,
   u_ThreadMapCombineBMP,
   fr_MapCombine;

@@ -23,7 +23,6 @@ unit u_ProviderMapCombineJP2;
 interface
 
 uses
-  GR32,
   i_LanguageManager,
   i_LocalCoordConverter,
   i_CoordConverterFactory,
@@ -83,7 +82,9 @@ implementation
 
 uses
   Classes,
+  Types,
   gnugettext,
+  t_Bitmap32,
   i_RegionProcessParamsFrame,
   u_ThreadMapCombineECW,
   fr_MapCombine;

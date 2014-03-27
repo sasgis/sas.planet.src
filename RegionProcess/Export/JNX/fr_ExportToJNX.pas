@@ -23,7 +23,6 @@ unit fr_ExportToJNX;
 interface
 
 uses
-  Types,
   SysUtils,
   Classes,
   Controls,

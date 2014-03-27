@@ -28,7 +28,6 @@ uses
   SysUtils,
   Classes,
   SQLite3Handler,
-  t_Bitmap32,
   t_GeoTypes,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,

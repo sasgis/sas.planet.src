@@ -23,7 +23,6 @@ unit u_ProviderMapCombineKMZ;
 interface
 
 uses
-  GR32,
   i_LanguageManager,
   i_LocalCoordConverter,
   i_CoordConverterFactory,
@@ -88,6 +87,7 @@ implementation
 uses
   Classes,
   Dialogs,
+  Types,
   gnugettext,
   i_RegionProcessParamsFrame,
   u_ThreadMapCombineKMZ,

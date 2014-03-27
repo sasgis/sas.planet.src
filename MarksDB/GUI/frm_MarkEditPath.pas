@@ -33,7 +33,6 @@ uses
   Spin,
   StdCtrls,
   ExtCtrls,
-  GR32,
   u_CommonFormAndFrameParents,
   i_PathConfig,
   i_LanguageManager,
@@ -96,6 +95,7 @@ type
 implementation
 
 uses
+  GR32,
   i_MarkTemplate,
   i_AppearanceOfVectorItem,
   i_Category,

@@ -33,7 +33,7 @@ uses
   StdCtrls,
   CheckLst,
   Spin,
-  GR32,
+  t_Bitmap32,
   i_LanguageManager,
   i_MapTypes,
   i_MapTypeSet,
@@ -199,6 +199,7 @@ type
 implementation
 
 uses
+  GR32,
   gnugettext,
   t_GeoTypes,
   i_MapVersionRequest,

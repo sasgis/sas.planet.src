@@ -23,7 +23,8 @@ unit u_Bitmap32StaticFactorySimple;
 interface
 
 uses
-  GR32,
+  Types,
+  t_Bitmap32,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
   u_BaseInterfacedObject;
@@ -45,7 +46,6 @@ type
 implementation
 
 uses
-  Types,
   GR32_LowLevel;
 
 type

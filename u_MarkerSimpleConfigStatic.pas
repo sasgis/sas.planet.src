@@ -23,7 +23,7 @@ unit u_MarkerSimpleConfigStatic;
 interface
 
 uses
-  GR32,
+  t_Bitmap32,
   i_MarkerSimpleConfig,
   u_BaseInterfacedObject;
 

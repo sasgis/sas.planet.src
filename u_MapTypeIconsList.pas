@@ -26,7 +26,6 @@ uses
   ActiveX,
   ImgList,
   TBXGraphics,
-  t_Bitmap32,
   i_Bitmap32Static,
   i_GUIDSet,
   i_MapTypeIconsList,

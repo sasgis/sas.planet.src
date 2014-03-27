@@ -33,7 +33,6 @@ uses
   StdCtrls,
   ExtCtrls,
   Buttons,
-  GR32,
   u_CommonFormAndFrameParents,
   i_Appearance,
   i_AppearanceOfMarkFactory,
@@ -109,6 +108,7 @@ type
 implementation
 
 uses
+  GR32,
   i_AppearanceOfVectorItem,
   i_Category,
   i_MarkTemplate,

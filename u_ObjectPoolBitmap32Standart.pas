@@ -41,7 +41,7 @@ type
 implementation
 
 uses
-  GR32,
+  t_Bitmap32,
   u_ObjectFromPoolBase;
 
 const

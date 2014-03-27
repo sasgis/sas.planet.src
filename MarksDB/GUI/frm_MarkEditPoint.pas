@@ -33,7 +33,6 @@ uses
   StdCtrls,
   Buttons,
   Spin,
-  GR32,
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_PathConfig,
@@ -134,6 +133,7 @@ type
 implementation
 
 uses
+  GR32,
   t_GeoTypes,
   i_MarkTemplate,
   i_AppearanceOfVectorItem,
