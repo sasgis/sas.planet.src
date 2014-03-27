@@ -743,6 +743,7 @@ uses
   u_GeoCoderBasic in 'GeoCoder\u_GeoCoderBasic.pas',
   u_GeoCoderBy2GIS in 'GeoCoder\u_GeoCoderBy2GIS.pas',
   u_GeoCoderByCoord in 'GeoCoder\u_GeoCoderByCoord.pas',
+  u_GeoCoderByMarks in 'GeoCoder\u_GeoCoderByMarks.pas',
   u_GeoCoderByGoogle in 'GeoCoder\u_GeoCoderByGoogle.pas',
   u_GeoCoderByNavitel in 'GeoCoder\u_GeoCoderByNavitel.pas',
   u_GeoCoderByOSM in 'GeoCoder\u_GeoCoderByOSM.pas',

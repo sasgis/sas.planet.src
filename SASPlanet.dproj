@@ -249,6 +249,7 @@
     <DCCReference Include="GeoCoder\u_GeoCoderBasic.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderBy2GIS.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByCoord.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByMarks.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByGoogle.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByGpx.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByNavitel.pas" />

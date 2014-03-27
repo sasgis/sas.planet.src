@@ -446,7 +446,7 @@ begin
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('HashFunction')
     );
 
-  FImageResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;  
+  FImageResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
   FMapVersionFactoryList := TMapVersionFactoryList.Create(FHashFunction);
 
   FAppearanceOfMarkFactory := TAppearanceOfMarkFactory.Create(FHashFunction);
@@ -624,15 +624,6 @@ begin
       FVectorGeometryLonLatFactory,
       FHashFunction
     );
-  FGeoCoderList :=
-    TGeoCoderListSimple.Create(
-      FGlobalConfig.InetConfig,
-      BGTimerNotifier,
-      FVectorItemSubsetBuilderFactory,
-      FGeoCodePlacemarkFactory,
-      TDownloadResultFactory.Create,
-      FGlobalConfig.ValueToStringConverterConfig
-    );
   FMarkPictureList :=
     TMarkPictureListSimple.Create(
       FHashFunction,
@@ -664,6 +655,16 @@ begin
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('MarksSystem'),
       FAppStartedNotifier,
       THtmlToHintTextConverterStuped.Create
+    );
+  FGeoCoderList :=
+    TGeoCoderListSimple.Create(
+      FGlobalConfig.InetConfig,
+      BGTimerNotifier,
+      FVectorItemSubsetBuilderFactory,
+      FGeoCodePlacemarkFactory,
+      TDownloadResultFactory.Create,
+      FGlobalConfig.ValueToStringConverterConfig,
+      FMarkSystem.MarkDb
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
   VFilesIterator := VFilesIteratorFactory.CreateIterator(FGlobalConfig.MapsPath.FullPath, '');

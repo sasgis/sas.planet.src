@@ -26,6 +26,7 @@ uses
   i_NotifierTime,
   i_InetConfig,
   i_GeoCoder,
+  i_MarkDb,
   i_VectorItemSubsetBuilder,
   i_DownloadResultFactory,
   i_ValueToStringConverter,
@@ -40,7 +41,8 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AMarksDb: IMarkDb
     );
   end;
 
@@ -61,7 +63,8 @@ uses
   u_GeoCoderByPolishMap,
   u_GeoCoderByGpx,
   u_GeoCoderByTXT,
-  u_GeoCoderByCoord;
+  u_GeoCoderByCoord,
+  u_GeoCoderByMarks;
 
 { TGeoCoderListSimple }
 
@@ -71,7 +74,8 @@ constructor TGeoCoderListSimple.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AMarksDb: IMarkDb
 );
 var
   VItem: IGeoCoderListEntity;
@@ -179,6 +183,14 @@ begin
       CGeoCoderCoordGUID,
       'Coordinates',
       TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverterConfig)
+    );
+  Add(VItem);
+
+  VItem :=
+    TGeoCoderListEntity.Create(
+      CGeoCoderMarksGUID,
+      'Marks',
+      TGeoCoderByMarks.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AMarksDb)
     );
   Add(VItem);
 
