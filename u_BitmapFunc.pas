@@ -53,7 +53,7 @@ procedure StretchTransfer(
   AMasterAlpha: Cardinal = 255;
   AOuterColor: TColor32 = 0
 );
-
+       
 procedure BlockTransferFull(
   ADst: TCustomBitmap32;
   ADstX: Integer;
@@ -77,10 +77,16 @@ procedure BlockTransfer(
   AOuterColor: TColor32 = 0
 );
 
+procedure CopyBitmap32StaticToBitmap32(
+  const ASourceBitmap: IBitmap32Static;
+  ATarget: TCustomBitmap32
+);
+
 implementation
 
 uses
   Types,
+  Math,
   GR32_LowLevel,
   GR32_Resamplers;
 
@@ -216,6 +222,46 @@ begin
     AMasterAlpha,
     AOuterColor
   );
+end;
+
+procedure CopyBitmap32StaticToBitmap32(
+  const ASourceBitmap: IBitmap32Static;
+  ATarget: TCustomBitmap32
+);
+var
+  VSourceSize: TPoint;
+  VScale: Double;
+  VSourceRect: TRect;
+  VDstRect: TRect;
+  VResampler: TCustomResampler;
+begin
+  VSourceSize := ASourceBitmap.Size;
+  if (VSourceSize.X > 0) and (VSourceSize.Y > 0) then begin
+    ATarget.Clear(clWhite32);
+    VScale := Min(ATarget.Width / VSourceSize.X, ATarget.Height / VSourceSize.Y);
+    VSourceRect := Rect(0, 0, VSourceSize.X, VSourceSize.Y);
+    VDstRect :=
+      Rect(
+        Trunc((ATarget.Width - VSourceSize.X * VScale) / 2),
+        Trunc((ATarget.Height - VSourceSize.Y * VScale) / 2),
+        Trunc((ATarget.Width + VSourceSize.X * VScale) / 2),
+        Trunc((ATarget.Height + VSourceSize.Y * VScale) / 2)
+      );
+    VResampler := TLinearResampler.Create;
+    try
+      StretchTransfer(
+        ATarget,
+        VDstRect,
+        ASourceBitmap,
+        VSourceRect,
+        VResampler,
+        dmBlend,
+        cmBlend
+      );
+    finally
+      VResampler.Free;
+    end;
+  end;
 end;
 
 end.

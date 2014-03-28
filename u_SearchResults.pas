@@ -149,7 +149,8 @@ begin
           FPopUp,
           VPlacemark,
           FIntrnalBrowser,
-          FMapGoto
+          FMapGoto,
+          FValueConverterConfig
         );
       if LengthFSearchItems > 0 then begin
         FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;

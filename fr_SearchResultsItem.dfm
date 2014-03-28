@@ -2,7 +2,7 @@ object frSearchResultsItem: TfrSearchResultsItem
   Left = 0
   Top = 0
   Width = 451
-  Height = 70
+  Height = 110
   Align = alTop
   AutoSize = True
   Color = clWhite
@@ -13,12 +13,15 @@ object frSearchResultsItem: TfrSearchResultsItem
   object Bevel1: TBevel
     AlignWithMargins = True
     Left = 3
-    Top = 65
+    Top = 105
     Width = 445
     Height = 5
     Margins.Bottom = 0
     Align = alTop
     Shape = bsTopLine
+    ExplicitLeft = 53
+    ExplicitTop = 3
+    ExplicitWidth = 69
   end
   object PanelCaption: TPanel
     Left = 0
@@ -38,7 +41,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       Cursor = crHandPoint
       Align = alTop
       Caption = '_'
-      Font.Charset = RUSSIAN_CHARSET
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Arial'
@@ -48,16 +51,43 @@ object frSearchResultsItem: TfrSearchResultsItem
       OnClick = LabelCaptionClick
     end
   end
-  object PanelFullDesc: TPanel
+  object PanelDesc: TPanel
     Left = 0
-    Top = 42
+    Top = 22
     Width = 451
     Height = 20
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
-    object LabelFullDesc: TLabel
+    object LabelDesc: TLabel
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 6
+      Height = 14
+      Align = alTop
+      Caption = '_'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clGray
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      WordWrap = True
+      OnDblClick = LabelDescDblClick
+    end
+  end
+  object PanelFullDescImg: TPanel
+    Left = 0
+    Top = 42
+    Width = 451
+    Height = 40
+    Align = alTop
+    AutoSize = True
+    BevelOuter = bvNone
+    TabOrder = 2
+    object LabelFullDescImg: TLabel
       AlignWithMargins = True
       Left = 376
       Top = 3
@@ -73,34 +103,76 @@ object frSearchResultsItem: TfrSearchResultsItem
       Font.Name = 'Tahoma'
       Font.Style = [fsUnderline]
       ParentFont = False
-      OnMouseUp = LabelFullDescMouseUp
+      Layout = tlBottom
+      WordWrap = True
+      OnMouseUp = LabelFullDescImgMouseUp
     end
-  end
-  object PanelDesc: TPanel
-    Left = 0
-    Top = 22
-    Width = 451
-    Height = 20
-    Align = alTop
-    AutoSize = True
-    BevelOuter = bvNone
-    TabOrder = 2
-    object LabelDesc: TLabel
+    object LabelMarkInfo: TLabel
       AlignWithMargins = True
-      Left = 3
+      Left = 43
       Top = 3
-      Width = 6
+      Width = 3
       Height = 14
-      Align = alTop
-      Caption = '_'
-      Font.Charset = RUSSIAN_CHARSET
+      Cursor = crHandPoint
+      Align = alClient
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clGray
       Font.Height = -11
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
       WordWrap = True
+      OnClick = LabelCaptionClick
       OnDblClick = LabelDescDblClick
+    end
+    object imgIcon: TImage32
+      Left = 0
+      Top = 0
+      Width = 40
+      Height = 40
+      Cursor = crHandPoint
+      Align = alLeft
+      AutoSize = True
+      Bitmap.CombineMode = cmMerge
+      Bitmap.ResamplerClassName = 'TLinearResampler'
+      BitmapAlign = baCenter
+      Color = clBtnFace
+      ParentColor = False
+      Scale = 1.000000000000000000
+      ScaleMode = smOptimal
+      TabOrder = 0
+      Visible = False
+      OnClick = LabelCaptionClick
+      OnDblClick = LabelDescDblClick
+    end
+  end
+  object PanelFullDescShort: TPanel
+    Left = 0
+    Top = 82
+    Width = 451
+    Height = 20
+    Align = alTop
+    AutoSize = True
+    BevelOuter = bvNone
+    TabOrder = 3
+    object LabelFullDescShort: TLabel
+      AlignWithMargins = True
+      Left = 376
+      Top = 3
+      Width = 72
+      Height = 13
+      Cursor = crHandPoint
+      Align = alRight
+      Alignment = taRightJustify
+      Caption = 'Full Description'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsUnderline]
+      ParentFont = False
+      Layout = tlBottom
+      OnMouseUp = LabelFullDescImgMouseUp
     end
   end
 end

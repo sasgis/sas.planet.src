@@ -30,26 +30,34 @@ uses
   Menus,
   ExtCtrls,
   StdCtrls,
+  SysUtils,
+  GR32_Image,
   i_VectorDataItemSimple,
+  i_ValueToStringConverter,
   i_MapViewGoto,
   i_InternalBrowser;
 
 type
   TfrSearchResultsItem = class(TFrame)
     PanelCaption: TPanel;
-    PanelFullDesc: TPanel;
+    PanelFullDescImg: TPanel;
     PanelDesc: TPanel;
     LabelDesc: TLabel;
-    LabelFullDesc: TLabel;
+    LabelFullDescImg: TLabel;
     Bevel1: TBevel;
     LabelCaption: TLabel;
+    imgIcon: TImage32;
+    LabelMarkInfo: TLabel;
+    PanelFullDescShort: TPanel;
+    LabelFullDescShort: TLabel;
     procedure FrameContextPopup(Sender: TObject; MousePos: TPoint; var Handled:
         Boolean);
-    procedure LabelFullDescMouseUp(Sender: TObject; Button: TMouseButton;
+    procedure LabelFullDescImgMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure LabelCaptionClick(Sender: TObject);
     procedure LabelDescDblClick(Sender: TObject);
   private
+    FValueToStringConverterConfig: IValueToStringConverterConfig;
     FPlacemark: IVectorDataItemSimple;
     FMapGoto: IMapViewGoto;
     FIntrnalBrowser: IInternalBrowser;
@@ -61,11 +69,16 @@ type
       APopUp: TPopupMenu;
       const APlacemark: IVectorDataItemSimple;
       const AIntrnalBrowser: IInternalBrowser;
-      const AMapGoto: IMapViewGoto
+      const AMapGoto: IMapViewGoto;
+      const AValueConverterConfig: IValueToStringConverterConfig
     ); reintroduce;
   end;
 
 implementation
+uses
+  t_GeoTypes,
+  i_AppearanceOfVectorItem,
+  u_BitmapFunc;
 
 {$R *.dfm}
 constructor TfrSearchResultsItem.Create(
@@ -74,10 +87,16 @@ constructor TfrSearchResultsItem.Create(
   APopUp: TPopupMenu;
   const APlacemark: IVectorDataItemSimple;
   const AIntrnalBrowser: IInternalBrowser;
-  const AMapGoto: IMapViewGoto
+  const AMapGoto: IMapViewGoto;
+  const AValueConverterConfig: IValueToStringConverterConfig
 );
+var
+  VAppearanceIcon: IAppearancePointIcon;
+  VGotoLonLat: TDoublePoint;
+  VValueConverter: IValueToStringConverter;
 begin
   inherited Create(AOwner);
+  FValueToStringConverterConfig := AValueConverterConfig;
   Parent:=AParent;
   FPlacemark:=APlacemark;
   FPopUp := APopUp;
@@ -85,8 +104,27 @@ begin
   LabelCaption.Caption:=FPlacemark.Name;
   LabelDesc.Caption:=FPlacemark.GetDesc;
   FMapGoto:=AMapGoto;
-  PanelFullDesc.Visible:=FPlacemark.GetInfoHTML<>'';
-  PanelDesc.Visible:=FPlacemark.GetDesc<>'';
+  PanelDesc.Visible:=FPlacemark.GetDesc <> '';
+  LabelFullDescImg.Visible := FPlacemark.GetInfoHTML <> ''; // есть ли вообще доп инфо...
+  LabelFullDescShort.Visible := FPlacemark.GetInfoHTML <> '';
+  VValueConverter := FValueToStringConverterConfig.GetStatic;
+
+  if Supports(FPlacemark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
+    if Assigned(VAppearanceIcon.Pic) then begin
+      imgIcon.Bitmap.SetSizeFrom(imgIcon);
+      imgIcon.Visible := True;
+      CopyBitmap32StaticToBitmap32(VAppearanceIcon.Pic.GetMarker, imgIcon.Bitmap);
+      VGotoLonLat := FPlacemark.Geometry.GetGoToLonLat;
+      LabelMarkInfo.Caption := '[ '+VValueConverter.LonLatConvert(VGotoLonLat) + ' ]';
+    end;
+  end;
+  PanelFullDescImg.Visible := imgIcon.Visible;
+
+  if imgIcon.Visible then begin // если еть картинка - вырубаем тонкую панель Full Description
+    PanelFullDescShort.Visible := False;
+  end else begin // иначе показываем панель при наличии ссылки
+    PanelFullDescShort.Visible := LabelFullDescShort.Visible;
+  end;
 end;
 
 procedure TfrSearchResultsItem.FrameContextPopup(
@@ -121,7 +159,7 @@ begin
   FMapGoto.ShowMarker(FPlacemark.Geometry.GetGoToLonLat);
 end;
 
-procedure TfrSearchResultsItem.LabelFullDescMouseUp(Sender: TObject;
+procedure TfrSearchResultsItem.LabelFullDescImgMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   FIntrnalBrowser.ShowMessage(FPlacemark.GetInfoCaption, FPlacemark.GetInfoHTML);
