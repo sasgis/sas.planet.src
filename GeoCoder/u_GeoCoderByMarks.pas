@@ -85,7 +85,7 @@ var
 begin
   VList := TInterfaceListSimple.Create;
   if ACancelNotifier.IsOperationCanceled(AOperationID) then Exit;
-  VVectorItems := FMarksDb.GetMarkSubsetByName(ASearch, 100, True);
+  VVectorItems := FMarksDb.FindMarks(ASearch, 100, True, True);
 
   if VVectorItems <> nil then begin
     for I := 0 to VVectorItems.Count - 1 do begin

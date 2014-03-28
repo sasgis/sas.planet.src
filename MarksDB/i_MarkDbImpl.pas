@@ -57,10 +57,11 @@ type
       const ACategory: ICategory;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
-    function GetMarkSubsetByName(
-      const AName: string;
+    function FindMarks(
+      const ASearch: string;
       const AMaxCount: Integer;
-      const AIncludeHiddenMarks: Boolean
+      const AIncludeHiddenMarks: Boolean;
+      const ASearchInDescription: Boolean
     ): IVectorItemSubset;
 
     function UpdateMark(

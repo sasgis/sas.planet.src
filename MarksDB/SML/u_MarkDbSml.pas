@@ -147,10 +147,11 @@ type
       const ACategory: ICategory;
       const AIncludeHiddenMarks: Boolean
     ): IVectorItemSubset;
-    function GetMarkSubsetByName(
-      const AName: string;
+    function FindMarks(
+      const ASearch: string;
       const AMaxCount: Integer;
-      const AIncludeHiddenMarks: Boolean
+      const AIncludeHiddenMarks: Boolean;
+      const ASearchInDescription: Boolean
     ): IVectorItemSubset;
   public
     constructor Create(
@@ -1314,10 +1315,11 @@ begin
   Result := VResultList.MakeStaticAndClear;
 end;
 
-function TMarkDbSml.GetMarkSubsetByName(
-  const AName: string;
+function TMarkDbSml.FindMarks(
+  const ASearch: string;
   const AMaxCount: Integer;
-  const AIncludeHiddenMarks: Boolean
+  const AIncludeHiddenMarks: Boolean;
+  const ASearchInDescription: Boolean
 ): IVectorItemSubset;
 var
   VResultList: IVectorItemSubsetBuilder;
@@ -1332,7 +1334,7 @@ begin
   VList := FMarkList;
   VEnum := VList.GetEnumUnknown;
   while VEnum.Next(1, VMark, @VCnt) = S_OK do begin
-    if ContainsText(VMark.Name, AName) then begin
+    if ContainsText(VMark.Name, ASearch) or (ASearchInDescription) and ContainsText(VMark.Desc, ASearch) then begin
       if not AIncludeHiddenMarks then begin
         if Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
           if VMarkInternal.Visible then begin
