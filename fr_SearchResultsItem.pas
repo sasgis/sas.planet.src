@@ -97,7 +97,6 @@ var
   VGotoLonLat: TDoublePoint;
   VValueConverter: IValueToStringConverter;
   VItemWithCategory: IVectorDataItemWithCategory;
-  VCategoryName: string;
 begin
   inherited Create(AOwner);
   FValueToStringConverterConfig := AValueConverterConfig;
