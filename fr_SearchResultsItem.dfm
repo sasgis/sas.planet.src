@@ -2,7 +2,7 @@ object frSearchResultsItem: TfrSearchResultsItem
   Left = 0
   Top = 0
   Width = 451
-  Height = 110
+  Height = 129
   Align = alTop
   AutoSize = True
   Color = clWhite
@@ -13,7 +13,7 @@ object frSearchResultsItem: TfrSearchResultsItem
   object Bevel1: TBevel
     AlignWithMargins = True
     Left = 3
-    Top = 105
+    Top = 124
     Width = 445
     Height = 5
     Margins.Bottom = 0
@@ -36,10 +36,10 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 7
+      Width = 445
       Height = 16
       Cursor = crHandPoint
-      Align = alTop
+      Align = alClient
       Caption = '_'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -49,22 +49,24 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnClick = LabelCaptionClick
+      ExplicitWidth = 7
     end
   end
   object PanelDesc: TPanel
     Left = 0
-    Top = 22
+    Top = 41
     Width = 451
     Height = 20
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitTop = 22
     object LabelDesc: TLabel
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 6
+      Width = 445
       Height = 14
       Align = alTop
       Caption = '_'
@@ -76,23 +78,25 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnDblClick = LabelDescDblClick
+      ExplicitWidth = 6
     end
   end
   object PanelFullDescImg: TPanel
     Left = 0
-    Top = 42
+    Top = 61
     Width = 451
     Height = 40
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitTop = 42
     object LabelFullDescImg: TLabel
       AlignWithMargins = True
       Left = 376
       Top = 3
       Width = 72
-      Height = 13
+      Height = 34
       Cursor = crHandPoint
       Align = alRight
       Alignment = taRightJustify
@@ -106,13 +110,14 @@ object frSearchResultsItem: TfrSearchResultsItem
       Layout = tlBottom
       WordWrap = True
       OnMouseUp = LabelFullDescImgMouseUp
+      ExplicitHeight = 13
     end
     object LabelMarkInfo: TLabel
       AlignWithMargins = True
       Left = 43
       Top = 3
-      Width = 3
-      Height = 14
+      Width = 327
+      Height = 34
       Cursor = crHandPoint
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
@@ -124,6 +129,8 @@ object frSearchResultsItem: TfrSearchResultsItem
       WordWrap = True
       OnClick = LabelCaptionClick
       OnDblClick = LabelDescDblClick
+      ExplicitWidth = 3
+      ExplicitHeight = 14
     end
     object imgIcon: TImage32
       Left = 0
@@ -148,19 +155,20 @@ object frSearchResultsItem: TfrSearchResultsItem
   end
   object PanelFullDescShort: TPanel
     Left = 0
-    Top = 82
+    Top = 101
     Width = 451
     Height = 20
     Align = alTop
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitTop = 82
     object LabelFullDescShort: TLabel
       AlignWithMargins = True
       Left = 376
       Top = 3
       Width = 72
-      Height = 13
+      Height = 14
       Cursor = crHandPoint
       Align = alRight
       Alignment = taRightJustify
@@ -173,6 +181,36 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       Layout = tlBottom
       OnMouseUp = LabelFullDescImgMouseUp
+      ExplicitHeight = 13
+    end
+  end
+  object PanelCategory: TPanel
+    Left = 0
+    Top = 22
+    Width = 451
+    Height = 19
+    Align = alTop
+    AutoSize = True
+    BevelOuter = bvNone
+    TabOrder = 4
+    ExplicitTop = 36
+    object LabelCategory: TLabel
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 445
+      Height = 13
+      Cursor = crHandPoint
+      Align = alClient
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = [fsBold, fsItalic]
+      ParentFont = False
+      WordWrap = True
+      OnClick = LabelCaptionClick
+      ExplicitLeft = 0
     end
   end
 end

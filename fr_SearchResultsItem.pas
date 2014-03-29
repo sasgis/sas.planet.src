@@ -50,6 +50,8 @@ type
     LabelMarkInfo: TLabel;
     PanelFullDescShort: TPanel;
     LabelFullDescShort: TLabel;
+    PanelCategory: TPanel;
+    LabelCategory: TLabel;
     procedure FrameContextPopup(Sender: TObject; MousePos: TPoint; var Handled:
         Boolean);
     procedure LabelFullDescImgMouseUp(Sender: TObject; Button: TMouseButton;
@@ -94,6 +96,8 @@ var
   VAppearanceIcon: IAppearancePointIcon;
   VGotoLonLat: TDoublePoint;
   VValueConverter: IValueToStringConverter;
+  VItemWithCategory: IVectorDataItemWithCategory;
+  VCategoryName: string;
 begin
   inherited Create(AOwner);
   FValueToStringConverterConfig := AValueConverterConfig;
@@ -101,13 +105,20 @@ begin
   FPlacemark:=APlacemark;
   FPopUp := APopUp;
   FIntrnalBrowser := AIntrnalBrowser;
-  LabelCaption.Caption:=FPlacemark.Name;
-  LabelDesc.Caption:=FPlacemark.GetDesc;
-  FMapGoto:=AMapGoto;
-  PanelDesc.Visible:=FPlacemark.GetDesc <> '';
+  LabelCaption.Caption := FPlacemark.Name;
+  LabelDesc.Caption := FPlacemark.GetDesc;
+  FMapGoto := AMapGoto;
+  PanelDesc.Visible := FPlacemark.GetDesc <> '';
   LabelFullDescImg.Visible := FPlacemark.GetInfoHTML <> ''; // есть ли вообще доп инфо...
   LabelFullDescShort.Visible := FPlacemark.GetInfoHTML <> '';
   VValueConverter := FValueToStringConverterConfig.GetStatic;
+
+  if Supports(FPlacemark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
+    if VItemWithCategory.Category <> nil then begin
+      LabelCategory.Caption := VItemWithCategory.Category.Name;
+    end;
+  end;
+  PanelCategory.Visible := LabelCategory.Caption <> '';
 
   if Supports(FPlacemark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
     if Assigned(VAppearanceIcon.Pic) then begin
