@@ -332,16 +332,11 @@ begin
   FDefaultDoc.BeginUpdate;
   try
     Result := TGUIDInterfaceSet.Create;
-    ASensorList.LockRead;
-    try
-      AddSensorsInFixedOrder(ASensorList, Result);
-      VEnum := ASensorList.GetGUIDEnum;
-      while VEnum.Next(1, VGUID, i) = S_OK do begin
-        VSensor := ASensorList.Get(VGUID);
-        AddSensor(VSensor, Result);
-      end;
-    finally
-      ASensorList.UnlockRead;
+    AddSensorsInFixedOrder(ASensorList, Result);
+    VEnum := ASensorList.GetGUIDEnum;
+    while VEnum.Next(1, VGUID, i) = S_OK do begin
+      VSensor := ASensorList.Get(VGUID);
+      AddSensor(VSensor, Result);
     end;
   finally
     FDefaultDoc.EndUpdate;

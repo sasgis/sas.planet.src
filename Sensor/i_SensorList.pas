@@ -24,11 +24,11 @@ interface
 
 uses
   ActiveX,
-  i_ConfigDataElement,
+  i_Changeable,
   i_Sensor;
 
 type
-  ISensorListEntity = interface(IConfigDataElement)
+  ISensorListEntity = interface(IChangeable)
     ['{26BB13C7-C30E-472D-874E-997122427990}']
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
@@ -49,7 +49,7 @@ type
     property Sensor: ISensor read GetSensor;
   end;
 
-  ISensorList = interface(IConfigDataElement)
+  ISensorList = interface(IChangeable)
     ['{69F7AA17-D6B4-4F49-891E-72AEA4DC053F}']
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): ISensorListEntity;
