@@ -169,7 +169,7 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapGoto: IMapViewGoto;
       const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
@@ -230,7 +230,7 @@ constructor TfrmRegionProcess.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapGoto: IMapViewGoto;
   const AMarkDBGUI: TMarkDbGUIHelper
 );
@@ -315,7 +315,7 @@ begin
       AAppClosingNotifier,
       VProgressFactory,
       ALanguageManager,
-      AValueToStringConverterConfig,
+      AValueToStringConverter,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,

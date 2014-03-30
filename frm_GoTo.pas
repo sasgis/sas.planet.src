@@ -65,7 +65,7 @@ type
     FMainGeoCoderConfig: IMainGeoCoderConfig;
     FGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
     FViewPortState: ILocalCoordConverterChangeable;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FResult: IGeoCodeResult;
     frLonLatPoint: TfrLonLat;
     FMarksList: IInterfaceListStatic;
@@ -94,7 +94,7 @@ type
       const AMarksDb: IMarkDb;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     ); reintroduce;
     destructor Destroy; override;
     function ShowGeocodeModal(): IGeoCodeResult;
@@ -240,7 +240,7 @@ begin
   end else if pgcSearchType.ActivePage = tsCoordinates then begin
     if frLonLatPoint.Validate then begin
       VLonLat := frLonLatPoint.LonLat;
-      textsrch := FValueToStringConverterConfig.GetStatic.LonLatConvert(VLonLat);
+      textsrch := FValueToStringConverter.GetStatic.LonLatConvert(VLonLat);
       FResult := GeocodeResultFromLonLat(textsrch, VLonLat, textsrch);
       ModalResult := mrOk;
     end;
@@ -301,7 +301,7 @@ constructor TfrmGoTo.Create(
   const AMarksDb: IMarkDb;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(ALanguageManager);
@@ -310,8 +310,8 @@ begin
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FViewPortState := AViewPortState;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
-  frLonLatPoint := TfrLonLat.Create(ALanguageManager, FViewPortState, FValueToStringConverterConfig, tssCenter);
+  FValueToStringConverter := AValueToStringConverter;
+  frLonLatPoint := TfrLonLat.Create(ALanguageManager, FViewPortState, FValueToStringConverter, tssCenter);
   frLonLatPoint.Width:= tsCoordinates.Width;
   frLonLatPoint.Height:= tsCoordinates.Height;
 end;

@@ -49,7 +49,7 @@ type
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifierTime;
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AConfig: IMapLayerGridsConfig
     );
   end;
@@ -73,7 +73,7 @@ constructor TMapLayerGrids.Create(
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifierTime;
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AConfig: IMapLayerGridsConfig);
 var
   VTileMatrixFactory: ITileMatrixFactory;
@@ -88,7 +88,7 @@ begin
   VProvider :=
     TBitmapLayerProviderChangeableForGrids.Create(
       ABitmapFactory,
-      AValueToStringConverterConfig,
+      AValueToStringConverter,
       AConfig
     );
   inherited Create(

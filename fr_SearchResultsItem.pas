@@ -59,7 +59,7 @@ type
     procedure LabelCaptionClick(Sender: TObject);
     procedure LabelDescDblClick(Sender: TObject);
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FPlacemark: IVectorDataItemSimple;
     FMapGoto: IMapViewGoto;
     FIntrnalBrowser: IInternalBrowser;
@@ -72,7 +72,7 @@ type
       const APlacemark: IVectorDataItemSimple;
       const AIntrnalBrowser: IInternalBrowser;
       const AMapGoto: IMapViewGoto;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const AValueConverter: IValueToStringConverterChangeable
     ); reintroduce;
   end;
 
@@ -90,7 +90,7 @@ constructor TfrSearchResultsItem.Create(
   const APlacemark: IVectorDataItemSimple;
   const AIntrnalBrowser: IInternalBrowser;
   const AMapGoto: IMapViewGoto;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const AValueConverter: IValueToStringConverterChangeable
 );
 var
   VAppearanceIcon: IAppearancePointIcon;
@@ -99,7 +99,7 @@ var
   VItemWithCategory: IVectorDataItemWithCategory;
 begin
   inherited Create(AOwner);
-  FValueToStringConverterConfig := AValueConverterConfig;
+  FValueToStringConverter := AValueConverter;
   Parent:=AParent;
   FPlacemark:=APlacemark;
   FPopUp := APopUp;
@@ -110,7 +110,7 @@ begin
   PanelDesc.Visible := FPlacemark.GetDesc <> '';
   LabelFullDescImg.Visible := FPlacemark.GetInfoHTML <> ''; // есть ли вообще доп инфо...
   LabelFullDescShort.Visible := FPlacemark.GetInfoHTML <> '';
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
 
   if Supports(FPlacemark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
     if VItemWithCategory.Category <> nil then begin

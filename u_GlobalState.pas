@@ -91,6 +91,7 @@ uses
   i_SystemTimeProvider,
   i_MarkCategoryFactory,
   i_MarkFactory,
+  i_ValueToStringConverter,
   i_VectorItemTreeImporterList,
   i_VectorItemTreeExporterList,
   i_TileStorageTypeList,
@@ -195,6 +196,7 @@ type
     FLastSelectionInfo: ILastSelectionInfo;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FLastSearchResult: ILastSearchResult;
+    FValueToStringConverter: IValueToStringConverterChangeable;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -273,6 +275,7 @@ type
     property TileStorageTypeList: ITileStorageTypeListStatic read FTileStorageTypeList;
     property ImageResamplerFactoryList: IImageResamplerFactoryList read FImageResamplerFactoryList;
     property LastSearchResult: ILastSearchResult read FLastSearchResult;
+    property ValueToStringConverter: IValueToStringConverterChangeable read FValueToStringConverter;
 
 
     constructor Create;
@@ -389,6 +392,7 @@ uses
   u_VectorItemTreeExporterListSimple,
   u_VectorItemTreeImporterListSimple,
   u_BitmapPostProcessingChangeableByConfig,
+  u_ValueToStringConverter,
   u_InternalBrowserLastContent,
   u_TileStorageTypeListSimple,
   u_TileFileNameParsersSimpleList,
@@ -585,9 +589,14 @@ begin
       FArchiveReadWriteFactory
     );
 
+  FValueToStringConverter :=
+    TValueToStringConverterChangeable.Create(
+      FGlobalConfig.ValueToStringConverterConfig,
+      FGlobalConfig.LanguageManager.ChangeNotifier
+    );
   FImporterList :=
     TVectorItemTreeImporterListSimple.Create(
-      FGlobalConfig.ValueToStringConverterConfig,
+      FValueToStringConverter,
       FVectorDataFactory,
       FVectorDataItemMainInfoFactory,
       FVectorGeometryLonLatFactory,
@@ -663,7 +672,7 @@ begin
       FVectorItemSubsetBuilderFactory,
       FGeoCodePlacemarkFactory,
       TDownloadResultFactory.Create,
-      FGlobalConfig.ValueToStringConverterConfig,
+      FValueToStringConverter,
       FMarkSystem.MarkDb
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;

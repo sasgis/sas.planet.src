@@ -98,7 +98,7 @@ type
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     procedure ProcessCacheConverter;
     function CreateSimpleTileStorage(
       const ARootPath: string;
@@ -120,7 +120,7 @@ type
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
       const AFileNameParsersList: ITileFileNameParsersList;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     ); reintroduce;
   end;
 
@@ -161,7 +161,7 @@ constructor TfrmCacheManager.Create(
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
   const AFileNameParsersList: ITileFileNameParsersList;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(ALanguageManager);
@@ -175,7 +175,7 @@ begin
   FFileNameParsersList := AFileNameParsersList;
   FContentTypeManager := AContentTypeManager;
   FCoordConverterFactory := ACoordConverterFactory;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
   FTileStorageTypeList := ATileStorageTypeList;
 
   cbbCacheTypes.ItemIndex := 1; // SAS.Planet
@@ -409,7 +409,7 @@ begin
     FTimerNoifier,
     VCancelNotifierInternal,
     VProgressInfo,
-    FValueToStringConverterConfig
+    FValueToStringConverter
   );
 end;
 

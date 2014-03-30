@@ -41,7 +41,7 @@ uses
 type
   TGeoCoderByURL = class(TGeoCoderBasic)
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     function GetPointFromFullLink(
       const Astr: AnsiString;
       const ALocalConverter: ILocalCoordConverter
@@ -69,7 +69,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
   end;
 
@@ -105,7 +105,7 @@ constructor TGeoCoderByURL.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(
@@ -115,7 +115,7 @@ begin
     APlacemarkFactory,
     AResultFactory
   );
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 end;
 
 function TGeoCoderByURL.GetPointFromShortLink(
@@ -137,7 +137,7 @@ var
   VResultOk: IDownloadResultOk;
   VValueConverter: IValueToStringConverter;
 begin
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   VLink := ALStringReplace(AStr, '%2C', ',', [rfReplaceAll]);
   VFormatSettings.DecimalSeparator := '.';
   VSName := '';
@@ -329,7 +329,7 @@ var
   VXYRect:TRect;
   VValueConverter: IValueToStringConverter;
 begin
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   VLink := ALStringReplace(AStr, '%2C',',', [rfReplaceAll]);
   VFormatSettings.DecimalSeparator := '.';
   VSName := '';

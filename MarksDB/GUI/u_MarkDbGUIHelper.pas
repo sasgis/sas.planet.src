@@ -67,7 +67,7 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverterConfig: IValueToStringConverterChangeable;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
     FfrmMarkEditPath: TfrmMarkEditPath;
     FfrmMarkEditPoly: TfrmMarkEditPoly;
@@ -171,7 +171,7 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
     destructor Destroy; override;
   end;
@@ -210,7 +210,7 @@ constructor TMarkDbGUIHelper.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create;
@@ -219,7 +219,7 @@ begin
   FMarkFactoryConfig := AMarkFactoryConfig;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverterConfig := AValueToStringConverter;
   FImporterList := AImporterList;
   FExporterList := AExporterList;
 
@@ -233,7 +233,7 @@ begin
       FMarkSystem.CategoryDB,
       FMarkSystem.MarkDb.Factory.MarkPictureList,
       AViewPortState,
-      AValueToStringConverterConfig
+      AValueToStringConverter
     );
   FfrmMarkEditPath :=
     TfrmMarkEditPath.Create(
@@ -266,7 +266,7 @@ begin
   FfrmMarkInfo :=
     TfrmMarkInfo.Create(
       ALanguageManager,
-      AValueToStringConverterConfig,
+      AValueToStringConverter,
       ADatumFactory.GetByCode(CYandexDatumEPSG)
     );
   FfrmMarksMultiEdit :=

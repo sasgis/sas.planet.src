@@ -62,7 +62,7 @@ type
   private
     FCoordinates: TDoublePoint;
     FViewPortState: ILocalCoordConverterChangeable;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
@@ -71,7 +71,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       ATileSelectStyle: TTileSelectStyle
     ); reintroduce;
     property LonLat: TDoublePoint read GetLonLat write SetLonLat;
@@ -109,13 +109,13 @@ end;
 constructor TfrLonLat.Create(
   const ALanguageManager: ILanguageManager;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   ATileSelectStyle: TTileSelectStyle
 );
 begin
   inherited Create(ALanguageManager);
   FViewPortState := AViewPortState;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
   FTileSelectStyle:=ATileSelectStyle;
 end;
 
@@ -200,7 +200,7 @@ var
   VLocalConverter: ILocalCoordConverter;
 begin
   FCoordinates := Value;
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   VLocalConverter :=  FViewPortState.GetStatic;
   CurrZoom := VLocalConverter.Zoom;
   cbbZoom.ItemIndex:=CurrZoom;

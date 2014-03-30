@@ -40,7 +40,7 @@ uses
 type
   TGeoCoderByRosreestr = class(TGeoCoderBasic)
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
   protected
     function PrepareRequest(
       const ASearch: WideString;
@@ -60,7 +60,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
 
   end;
@@ -121,7 +121,7 @@ constructor TGeoCoderByRosreestr.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(
@@ -131,7 +131,7 @@ begin
     APlacemarkFactory,
     AResultFactory
   );
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 end;
 
 
@@ -155,7 +155,7 @@ var
   VTemp: AnsiString;
   VTemp1: AnsiString;
 begin
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   sfulldesc := '';
   sdesc := '';
   VtempString := '';

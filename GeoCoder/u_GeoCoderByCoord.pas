@@ -36,7 +36,7 @@ uses
 type
   TGeoCoderByCoord = class(TGeoCoderLocalBasic)
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     function PosStr2List(
       const APos1,APos2: string;
       const AAList: IInterfaceListSimple
@@ -56,7 +56,7 @@ type
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
 end;
 
@@ -248,7 +248,7 @@ var
   VCounter: Integer;
   VValueConverter: IValueToStringConverter;
 begin
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   Result := True;
   VCounter := 0;
   Str2Degree(APos1, VBlat1, VBlon1, VDLat);
@@ -339,11 +339,8 @@ begin
   end;
 
   if not (VBLat1 or VBLat2 or VBLon1 or Vblon2) then begin // все 4 координаты не заданы конкретно
-    if FValueToStringConverterConfig.IsLatitudeFirst then begin
-      VPoint.X := VDLon ; VPoint.Y := VDLat ;
-    end else begin
-      VPoint.Y := VDLon ; VPoint.X := VDLat ;
-    end;
+    VPoint.X := VDLon;
+    VPoint.Y := VDLat;
 
     if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
       if not(((VDLat < 0) or (VDLon < 0)) and (VPoint.y > 0)and (VPoint.X > 0) or
@@ -401,11 +398,8 @@ begin
     end;
     //  и наоборот
     if VDLat <> VDLon  then begin
-      if FValueToStringConverterConfig.IsLatitudeFirst then begin
-        VPoint.Y := VDLon ; VPoint.X := VDLat ;
-      end else begin
-        VPoint.X := VDLon ; VPoint.Y := VDLat
-      end;
+      VPoint.X := VDLat;
+      VPoint.Y := VDLon;
       if (abs(VPoint.y) <= 90) and (abs(VPoint.x) <= 180) then begin
         if not(((VDLat < 0) or (VDLon < 0)) and (VPoint.y > 0)and (VPoint.X > 0) or
          ((VDLat < 0) and (VDLon < 0) and ((VPoint.y > 0)or(VPoint.X > 0)))) then begin
@@ -469,11 +463,11 @@ end;
 constructor TGeoCoderByCoord.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 end;
 
 function TGeoCoderByCoord.GenShtab2Pos(
@@ -493,7 +487,7 @@ var
   VPlace: IVectorDataItemPoint;
   VValueConverter: IValueToStringConverter;
 begin
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   Result := False;
   // X-XX-XXX-X-X-X
   // C-II-III-C-C-I  char/integer
@@ -735,7 +729,7 @@ var
   VList: IInterfaceListSimple;
   VValueConverter: IValueToStringConverter;
 begin
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   VList := TInterfaceListSimple.Create;
   if ACancelNotifier.IsOperationCanceled(AOperationID) then Exit;
   VcoordError := True;

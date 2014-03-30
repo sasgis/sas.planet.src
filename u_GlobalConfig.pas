@@ -249,7 +249,7 @@ begin
   FTileDownloadResamplerConfig := TImageResamplerConfig.Create(CResamplerLinearGUID);
   Add(FTileDownloadResamplerConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps_Download'), False, False, False, False);
 
-  FValueToStringConverterConfig := TValueToStringConverterConfig.Create(FLanguageManager);
+  FValueToStringConverterConfig := TValueToStringConverterConfig.Create;
   Add(FValueToStringConverterConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('ValueFormats'), False, False, False, False);
 
   FImageResamplerConfig := TImageResamplerConfig.Create(CResamplerLinearGUID);

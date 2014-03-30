@@ -54,7 +54,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     ); reintroduce;
     destructor Destroy; override;
     function Execute(var ALonLatRect: TDoubleRect): Boolean;
@@ -70,7 +70,7 @@ uses
 constructor TfrmLonLatRectEdit.Create(
   const ALanguageManager: ILanguageManager;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(ALanguageManager);
@@ -78,14 +78,14 @@ begin
     TfrLonLat.Create(
       ALanguageManager,
       AViewPortState,
-      AValueToStringConverterConfig,
+      AValueToStringConverter,
       tssTopLeft
     );
   FfrLonLatBottomRight :=
     TfrLonLat.Create(
       ALanguageManager,
       AViewPortState,
-      AValueToStringConverterConfig,
+      AValueToStringConverter,
       tssBottomRight
     );
 end;

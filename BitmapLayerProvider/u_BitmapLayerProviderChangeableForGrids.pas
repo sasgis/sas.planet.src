@@ -35,7 +35,7 @@ type
   private
     FBitmapFactory: IBitmap32StaticFactory;
     FConfig: IMapLayerGridsConfig;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
 
     procedure OnConfigChange;
   protected
@@ -43,7 +43,7 @@ type
   public
     constructor Create(
       const ABitmapFactory: IBitmap32StaticFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AConfig: IMapLayerGridsConfig
     );
   end;
@@ -62,13 +62,13 @@ uses
 
 constructor TBitmapLayerProviderChangeableForGrids.Create(
   const ABitmapFactory: IBitmap32StaticFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AConfig: IMapLayerGridsConfig);
 begin
   inherited Create;
   FBitmapFactory := ABitmapFactory;
   FConfig := AConfig;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(OnConfigChange),
@@ -84,7 +84,7 @@ begin
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(OnConfigChange),
-    FValueToStringConverterConfig.ChangeNotifier
+    FValueToStringConverter.ChangeNotifier
   );
 end;
 
@@ -168,7 +168,7 @@ begin
         VScaleDegree,
         VShowText,
         VShowLines,
-        FValueToStringConverterConfig.GetStatic
+        FValueToStringConverter.GetStatic
       );
     if VResult <> nil then begin
       VResult := TBitmapLayerProviderComplex.Create(FBitmapFactory, VResult, VProvider);

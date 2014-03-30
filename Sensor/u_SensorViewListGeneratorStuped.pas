@@ -39,7 +39,7 @@ type
   TSensorViewListGeneratorStuped = class(TBaseInterfacedObject, ISensorViewListGenerator)
   private
     FTimerNoifier: INotifierTime;
-    FValueConverterConfig: IValueToStringConverterConfig;
+    FValueConverter: IValueToStringConverterChangeable;
     FLanguageManager: ILanguageManager;
     FOwner: TComponent;
     FDefaultDoc: TTBDock;
@@ -59,7 +59,7 @@ type
   public
     constructor Create(
       const ATimerNoifier: INotifierTime;
-      const AValueConverterConfig: IValueToStringConverterConfig;
+      const AValueConverter: IValueToStringConverterChangeable;
       const ALanguageManager: ILanguageManager;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
@@ -119,7 +119,7 @@ begin
             ASensor,
             VSensorViewConfig,
             FTimerNoifier,
-            FValueConverterConfig,
+            FValueConverter,
             FOwner,
             FDefaultDoc,
             FParentMenu,
@@ -137,7 +137,7 @@ begin
             ASensor,
             VSensorViewConfig,
             FTimerNoifier,
-            FValueConverterConfig,
+            FValueConverter,
             FOwner,
             FDefaultDoc,
             FParentMenu,
@@ -207,7 +207,7 @@ begin
             ASensor,
             VSensorViewConfig,
             FTimerNoifier,
-            FValueConverterConfig,
+            FValueConverter,
             FOwner,
             FDefaultDoc,
             FParentMenu,
@@ -225,7 +225,7 @@ begin
             ASensor,
             VSensorViewConfig,
             FTimerNoifier,
-            FValueConverterConfig,
+            FValueConverter,
             FOwner,
             FDefaultDoc,
             FParentMenu,
@@ -300,7 +300,7 @@ end;
 
 constructor TSensorViewListGeneratorStuped.Create(
   const ATimerNoifier: INotifierTime;
-  const AValueConverterConfig: IValueToStringConverterConfig;
+  const AValueConverter: IValueToStringConverterChangeable;
   const ALanguageManager: ILanguageManager;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
@@ -311,7 +311,7 @@ constructor TSensorViewListGeneratorStuped.Create(
 begin
   inherited Create;
   FTimerNoifier := ATimerNoifier;
-  FValueConverterConfig := AValueConverterConfig;
+  FValueConverter := AValueConverter;
   FLanguageManager := ALanguageManager;
   FOwner := AOwner;
   FDefaultDoc := ADefaultDoc;

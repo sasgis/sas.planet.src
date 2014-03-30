@@ -76,7 +76,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Panel1Resize(Sender: TObject);
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FCancelNotifier: INotifierOperationInternal;
     FProgressInfo: IRegionProcessProgressInfoDownload;
     FLastLogID: Cardinal;
@@ -96,7 +96,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const ACancelNotifier: INotifierOperationInternal;
       const AProgressInfo: IRegionProcessProgressInfoDownload
     ); reintroduce;
@@ -117,16 +117,16 @@ uses
 
 constructor TfrmProgressDownload.Create(
   const ALanguageManager: ILanguageManager;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const ACancelNotifier: INotifierOperationInternal;
   const AProgressInfo: IRegionProcessProgressInfoDownload
 );
 begin
-  Assert(AValueToStringConverterConfig <> nil);
+  Assert(AValueToStringConverter <> nil);
   Assert(ACancelNotifier <> nil);
   Assert(AProgressInfo <> nil);
   inherited Create(ALanguageManager);
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
   FProgressInfo := AProgressInfo;
   FCancelNotifier := ACancelNotifier;
   FProgress := TRarProgress.Create(Self);
@@ -219,7 +219,7 @@ begin
     VComplete := '~%';
   end;
   VDownloadSize := FProgressInfo.DownloadSize / 1024;
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   if FProgressInfo.Finished then begin
     if not FFinished then begin
       FFinished := True;
@@ -283,7 +283,7 @@ begin
   if loaded=0 then begin
     result:='~ Κα';
   end else begin
-    VValueConverter := FValueToStringConverterConfig.GetStatic;
+    VValueConverter := FValueToStringConverter.GetStatic;
     Result:= VValueConverter.DataSizeConvert((len/loaded)*(loadAll-obrab));
   end;
 end;

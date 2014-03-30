@@ -37,7 +37,7 @@ type
   EDirNotExist = class(EGeoCoderERR);
   TGeoCoderByGpx = class(TGeoCoderLocalBasic)
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     procedure SearchInGpxFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -57,7 +57,7 @@ type
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
   end;
 
@@ -75,13 +75,13 @@ uses
 constructor TGeoCoderByGpx.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\gpx')) then
     raise EDirNotExist.Create('not found .\userdata\gpx\! skip GeoCoderByGpx');
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 end;
 
 function ItemExist(
@@ -213,7 +213,7 @@ var
   VValueConverter: IValueToStringConverter;
 begin
   VMySearch := ASearch;
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   while PosEx('  ', VMySearch) > 0 do VMySearch := ReplaceStr(VMySearch, '  ', ' ');
   VList := TInterfaceListSimple.Create;
   VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\gpx\');

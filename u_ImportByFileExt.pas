@@ -52,7 +52,7 @@ type
     ): IVectorItemTree;
   public
     constructor Create(
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -80,7 +80,7 @@ uses
 { TImportByFileExt }
 
 constructor TImportByFileExt.Create(
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -227,7 +227,7 @@ begin
       AVectorDataItemMainInfoFactory,
       AVectorItemSubsetBuilderFactory,
       AVectorDataFactory,
-      AValueToStringConverterConfig
+      AValueToStringConverter
     );
 end;
 

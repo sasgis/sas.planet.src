@@ -30,19 +30,36 @@ uses
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
   i_ValueToStringConverter,
+  u_BaseInterfacedObject,
   u_ConfigDataElementBase;
 
 type
-  TValueToStringConverterConfig = class(TConfigDataElementWithStaticBase, IValueToStringConverterConfig)
+  TValueToStringConverterConfigStatic = class(TBaseInterfacedObject, IValueToStringConverterConfigStatic)
   private
-    FDependentOnElement: IConfigDataElement;
-    FDependentOnElementListener: IListener;
-
     FDistStrFormat: TDistStrFormat;
     FIsLatitudeFirst: Boolean;
     FDegrShowFormat: TDegrShowFormat;
     FAreaShowFormat: TAreaStrFormat;
-    procedure OnDependentOnElementChange;
+  private
+    function GetDistStrFormat: TDistStrFormat;
+    function GetIsLatitudeFirst: Boolean;
+    function GetDegrShowFormat: TDegrShowFormat;
+    function GetAreaShowFormat: TAreaStrFormat;
+  public
+    constructor Create(
+      const ADistStrFormat: TDistStrFormat;
+      const AIsLatitudeFirst: Boolean;
+      const ADegrShowFormat: TDegrShowFormat;
+      const AAreaShowFormat: TAreaStrFormat
+    );
+  end;
+
+  TValueToStringConverterConfig = class(TConfigDataElementWithStaticBase, IValueToStringConverterConfig)
+  private
+    FDistStrFormat: TDistStrFormat;
+    FIsLatitudeFirst: Boolean;
+    FDegrShowFormat: TDegrShowFormat;
+    FAreaShowFormat: TAreaStrFormat;
   protected
     function CreateStatic: IInterface; override;
   protected
@@ -61,10 +78,9 @@ type
     function GetAreaShowFormat: TAreaStrFormat;
     procedure SetAreaShowFormat(AValue: TAreaStrFormat);
 
-    function GetStatic: IValueToStringConverter;
+    function GetStatic: IValueToStringConverterConfigStatic;
   public
-    constructor Create(const ADependentOnElement: IConfigDataElement);
-    destructor Destroy; override;
+    constructor Create;
   end;
 
 
@@ -76,34 +92,21 @@ uses
 
 { TValueToStringConverterConfig }
 
-constructor TValueToStringConverterConfig.Create(const ADependentOnElement: IConfigDataElement);
+constructor TValueToStringConverterConfig.Create;
 begin
   inherited Create;
   FIsLatitudeFirst := True;
   FDistStrFormat := dsfKmAndM;
   FDegrShowFormat := dshCharDegrMinSec;
   FAreaShowFormat := asfAuto;
-  FDependentOnElement := ADependentOnElement;
-  FDependentOnElementListener := TNotifyNoMmgEventListener.Create(Self.OnDependentOnElementChange);
-  FDependentOnElement.GetChangeNotifier.Add(FDependentOnElementListener);
-end;
-
-destructor TValueToStringConverterConfig.Destroy;
-begin
-  if Assigned(FDependentOnElement) and Assigned(FDependentOnElementListener) then begin
-    FDependentOnElement.GetChangeNotifier.Remove(FDependentOnElementListener);
-    FDependentOnElementListener := nil;
-    FDependentOnElement := nil;
-  end;
-  inherited;
 end;
 
 function TValueToStringConverterConfig.CreateStatic: IInterface;
 var
-  VStatic: IValueToStringConverter;
+  VStatic: IValueToStringConverterConfigStatic;
 begin
   VStatic :=
-    TValueToStringConverter.Create(
+    TValueToStringConverterConfigStatic.Create(
       FDistStrFormat,
       FIsLatitudeFirst,
       FDegrShowFormat,
@@ -177,19 +180,9 @@ begin
   end;
 end;
 
-function TValueToStringConverterConfig.GetStatic: IValueToStringConverter;
+function TValueToStringConverterConfig.GetStatic: IValueToStringConverterConfigStatic;
 begin
-  Result := IValueToStringConverter(GetStaticInternal);
-end;
-
-procedure TValueToStringConverterConfig.OnDependentOnElementChange;
-begin
-  LockWrite;
-  try
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
+  Result := IValueToStringConverterConfigStatic(GetStaticInternal);
 end;
 
 procedure TValueToStringConverterConfig.SetAreaShowFormat(
@@ -245,6 +238,42 @@ begin
   finally
     UnlockWrite;
   end;
+end;
+
+{ TValueToStringConverterConfigStatic }
+
+constructor TValueToStringConverterConfigStatic.Create(
+  const ADistStrFormat: TDistStrFormat;
+  const AIsLatitudeFirst: Boolean;
+  const ADegrShowFormat: TDegrShowFormat;
+  const AAreaShowFormat: TAreaStrFormat
+);
+begin
+  inherited Create;
+  FDistStrFormat := ADistStrFormat;
+  FIsLatitudeFirst := AIsLatitudeFirst;
+  FDegrShowFormat := ADegrShowFormat;
+  FAreaShowFormat := AAreaShowFormat;
+end;
+
+function TValueToStringConverterConfigStatic.GetAreaShowFormat: TAreaStrFormat;
+begin
+  Result := FAreaShowFormat;
+end;
+
+function TValueToStringConverterConfigStatic.GetDegrShowFormat: TDegrShowFormat;
+begin
+  Result := FDegrShowFormat;
+end;
+
+function TValueToStringConverterConfigStatic.GetDistStrFormat: TDistStrFormat;
+begin
+  Result := FDistStrFormat;
+end;
+
+function TValueToStringConverterConfigStatic.GetIsLatitudeFirst: Boolean;
+begin
+  Result := FIsLatitudeFirst;
 end;
 
 end.

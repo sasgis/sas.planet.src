@@ -124,7 +124,7 @@ type
 
   TSensorViewSpeedTBXPanel = class(TSensorViewTBXPanelBase)
   private
-    FValueConverterConfig: IValueToStringConverterConfig;
+    FValueConverter: IValueToStringConverterChangeable;
     FSensor: ISensorSpeed;
     FlblValue: TTBXLabel;
   protected
@@ -135,7 +135,7 @@ type
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
-      const AValueConverterConfig: IValueToStringConverterConfig;
+      const AValueConverter: IValueToStringConverterChangeable;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -167,7 +167,7 @@ type
 
   TSensorViewLengthTBXPanel = class(TSensorViewTBXPanelBase)
   private
-    FValueConverterConfig: IValueToStringConverterConfig;
+    FValueConverter: IValueToStringConverterChangeable;
     FSensor: ISensorDistance;
     FlblValue: TTBXLabel;
   protected
@@ -178,7 +178,7 @@ type
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
-      const AValueConverterConfig: IValueToStringConverterConfig;
+      const AValueConverter: IValueToStringConverterChangeable;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -229,7 +229,7 @@ type
 
   TSensorViewTimeTBXPanel = class(TSensorViewTBXPanelBase)
   private
-    FValueConverterConfig: IValueToStringConverterConfig;
+    FValueConverter: IValueToStringConverterChangeable;
     FSensor: ISensorTime;
     FlblValue: TTBXLabel;
   protected
@@ -240,7 +240,7 @@ type
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
-      const AValueConverterConfig: IValueToStringConverterConfig;
+      const AValueConverter: IValueToStringConverterChangeable;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -251,7 +251,7 @@ type
 
   TSensorViewPositionTBXPanel = class(TSensorViewTBXPanelBase)
   private
-    FValueConverterConfig: IValueToStringConverterConfig;
+    FValueConverter: IValueToStringConverterChangeable;
     FSensor: ISensorPosition;
     FlblValue: TTBXLabel;
   protected
@@ -262,7 +262,7 @@ type
       const AListEntity: ISensorListEntity;
       const AConfig: ISensorViewConfig;
       const ATimerNoifier: INotifierTime;
-      const AValueConverterConfig: IValueToStringConverterConfig;
+      const AValueConverter: IValueToStringConverterChangeable;
       AOwner: TComponent;
       ADefaultDoc: TTBDock;
       AParentMenu: TTBCustomItem;
@@ -672,7 +672,7 @@ constructor TSensorViewSpeedTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
-  const AValueConverterConfig: IValueToStringConverterConfig;
+  const AValueConverter: IValueToStringConverterChangeable;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -681,13 +681,13 @@ constructor TSensorViewSpeedTBXPanel.Create(
 );
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
-  FValueConverterConfig := AValueConverterConfig;
+  FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorSpeed, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
-    FValueConverterConfig.ChangeNotifier
+    FValueConverter.ChangeNotifier
   );
 end;
 
@@ -722,7 +722,7 @@ begin
   if IsNan(VValue) then begin
     VText := '~';
   end else begin
-    VText := FValueConverterConfig.GetStatic.SpeedConvert(VValue);
+    VText := FValueConverter.GetStatic.SpeedConvert(VValue);
   end;
   FlblValue.Caption := VText;
 end;
@@ -733,7 +733,7 @@ constructor TSensorViewLengthTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
-  const AValueConverterConfig: IValueToStringConverterConfig;
+  const AValueConverter: IValueToStringConverterChangeable;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -742,13 +742,13 @@ constructor TSensorViewLengthTBXPanel.Create(
 );
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
-  FValueConverterConfig := AValueConverterConfig;
+  FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorDistance, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
-    FValueConverterConfig.ChangeNotifier
+    FValueConverter.ChangeNotifier
   );
 end;
 
@@ -783,7 +783,7 @@ begin
   if IsNan(VValue) then begin
     VText := '~';
   end else begin
-    VText := FValueConverterConfig.GetStatic.DistConvert(FSensor.GetValue);
+    VText := FValueConverter.GetStatic.DistConvert(FSensor.GetValue);
   end;
   FlblValue.Caption := VText;
 end;
@@ -849,7 +849,7 @@ constructor TSensorViewTimeTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
-  const AValueConverterConfig: IValueToStringConverterConfig;
+  const AValueConverter: IValueToStringConverterChangeable;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -858,13 +858,13 @@ constructor TSensorViewTimeTBXPanel.Create(
 );
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
-  FValueConverterConfig := AValueConverterConfig;
+  FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorTime, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
-    FValueConverterConfig.ChangeNotifier
+    FValueConverter.ChangeNotifier
   );
 end;
 
@@ -910,7 +910,7 @@ constructor TSensorViewPositionTBXPanel.Create(
   const AListEntity: ISensorListEntity;
   const AConfig: ISensorViewConfig;
   const ATimerNoifier: INotifierTime;
-  const AValueConverterConfig: IValueToStringConverterConfig;
+  const AValueConverter: IValueToStringConverterChangeable;
   AOwner: TComponent;
   ADefaultDoc: TTBDock;
   AParentMenu: TTBCustomItem;
@@ -919,13 +919,13 @@ constructor TSensorViewPositionTBXPanel.Create(
 );
 begin
   inherited Create(AListEntity, AConfig, ATimerNoifier, AOwner, ADefaultDoc, AParentMenu, AImages, AImageIndexReset);
-  FValueConverterConfig := AValueConverterConfig;
+  FValueConverter := AValueConverter;
   if not Supports(FListEntity.GetSensor, ISensorPosition, FSensor) then begin
     raise Exception.Create('Неподдерживаемый тип сенсора');
   end;
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnSensorDataUpdate),
-    FValueConverterConfig.ChangeNotifier
+    FValueConverter.ChangeNotifier
   );
 end;
 
@@ -960,7 +960,7 @@ begin
   if PointIsEmpty(VValue) then begin
     VText := '~';
   end else begin
-    VText := FValueConverterConfig.GetStatic.LonLatConvert(FSensor.GetValue);
+    VText := FValueConverter.GetStatic.LonLatConvert(FSensor.GetValue);
   end;
   FlblValue.Caption := VText;
 end;

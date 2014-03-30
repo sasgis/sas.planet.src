@@ -33,7 +33,7 @@ uses
 type
   TTextByVectorItemMarkInfo = class(TBaseInterfacedObject, ITextByVectorItem)
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FDatum: IDatum;
     function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
 
@@ -46,7 +46,7 @@ type
     function GetText(const AItem: IVectorDataItemSimple): string;
   public
     constructor Create(
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const ADatum: IDatum
     );
   end;
@@ -61,13 +61,13 @@ uses
 { TTextByVectorItemMarkInfo }
 
 constructor TTextByVectorItemMarkInfo.Create(
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const ADatum: IDatum);
 begin
-  Assert(AValueToStringConverterConfig <> nil);
+  Assert(AValueToStringConverter <> nil);
   Assert(ADatum <> nil);
   inherited Create;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
   FDatum := ADatum;
 end;
 
@@ -108,7 +108,7 @@ begin
   VPartsCount := 1;
   VPointsCount := AGeometry.Count;
   VLength := AGeometry.CalcLength(FDatum);
-  VConverter := FValueToStringConverterConfig.GetStatic;
+  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
@@ -131,7 +131,7 @@ begin
     Inc(VPointsCount, AGeometry.Item[i].Count);
   end;
   VLength := AGeometry.CalcLength(FDatum);
-  VConverter := FValueToStringConverterConfig.GetStatic;
+  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
@@ -155,7 +155,7 @@ begin
   end;
   VLength := AGeometry.CalcPerimeter(FDatum);
   VArea := AGeometry.CalcArea(FDatum);
-  VConverter := FValueToStringConverterConfig.GetStatic;
+  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;
@@ -169,7 +169,7 @@ function TTextByVectorItemMarkInfo.GetTextForGeometryPoint(
 var
   VConverter: IValueToStringConverter;
 begin
-  VConverter := FValueToStringConverterConfig.GetStatic;
+  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AGeometry.Point)]) + '<br>'#13#10;
 end;
@@ -188,7 +188,7 @@ begin
   VPointsCount := AGeometry.Count;
   VLength := AGeometry.CalcPerimeter(FDatum);
   VArea := AGeometry.CalcArea(FDatum);
-  VConverter := FValueToStringConverterConfig.GetStatic;
+  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + '<br>'#13#10;

@@ -45,7 +45,7 @@ type
   TProviderTilesDownload = class(TExportProviderAbstract)
   private
     FAppClosingNotifier: INotifierOneOperation;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloadInfo: IDownloadInfoSimple;
     FProjectionFactory: IProjectionInfoFactory;
@@ -58,7 +58,7 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
       const ALanguageManager: ILanguageManager;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -107,7 +107,7 @@ constructor TProviderTilesDownload.Create(
   const AAppClosingNotifier: INotifierOneOperation;
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -126,7 +126,7 @@ begin
     AGUIConfigList
   );
   FAppClosingNotifier := AAppClosingNotifier;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
@@ -304,7 +304,7 @@ begin
     );
   VForm := TfrmProgressDownload.Create(
     LanguageManager,
-    FValueToStringConverterConfig,
+    FValueToStringConverter,
     VCancelNotifierInternal,
     VProgressInfo
   );
@@ -385,7 +385,7 @@ begin
     );
   VForm := TfrmProgressDownload.Create(
     LanguageManager,
-    FValueToStringConverterConfig,
+    FValueToStringConverter,
     VCancelNotifierInternal,
     VProgressInfo
   );

@@ -38,7 +38,7 @@ type
   EDirNotExist = class(EGeoCoderERR);
   TGeoCoderByPolishMap = class(TGeoCoderLocalBasic)
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FLock: IReadWriteSync;
     procedure SearchInMapFile(
       const ACancelNotifier: INotifierOperation;
@@ -59,7 +59,7 @@ type
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
   end;
 
@@ -659,7 +659,7 @@ begin
         if V_Type <> -1 then Vsdesc := getType(V_SectionType, V_Type) + #$D#$A + Vsdesc;
         if V_CityName <> '' then Vsdesc := Vsdesc +  String(V_CityName) + #$D#$A;
         if V_Phone <> '' then Vsdesc := Vsdesc + 'Phone '+ String(V_Phone) + #$D#$A;
-        VValueConverter := FValueToStringConverterConfig.GetStatic;
+        VValueConverter := FValueToStringConverter.GetStatic;
         Vsdesc := Vsdesc + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
         Vsdesc := Vsdesc + #$D#$A + ExtractFileName(AFile);
         sfulldesc :=  ReplaceStr(Vsname + #$D#$A + Vsdesc, #$D#$A, '<br>');
@@ -683,14 +683,14 @@ end;
 constructor TGeoCoderByPolishMap.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\mp')) then
     raise EDirNotExist.Create('not found .\userdata\mp\! skip GeoCoderByPolishMap');
   FLock := MakeSyncRW_Std(Self, False);
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 end;
 
 function TGeoCoderByPolishMap.DoSearch(

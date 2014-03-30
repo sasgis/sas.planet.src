@@ -920,7 +920,7 @@ begin
       GState.VectorGeometryLonLatFactory,
       GState.ArchiveReadWriteFactory,
       GState.VectorItemSubsetBuilderFactory,
-      GState.Config.ValueToStringConverterConfig
+      GState.ValueToStringConverter
     );
   FFormRegionProcess :=
     TfrmRegionProcess.Create(
@@ -959,7 +959,7 @@ begin
       GState.MapCalibrationList,
       GState.Config.DownloadConfig,
       GState.DownloadInfo,
-      GState.Config.ValueToStringConverterConfig,
+      GState.ValueToStringConverter,
       FMapGoto,
       FMarkDBGUI
     );
@@ -973,7 +973,7 @@ begin
       GState.MarksDb.MarkDb,
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState.View,
-      GState.Config.ValueToStringConverterConfig
+      GState.ValueToStringConverter
     );
 
   FfrmCacheManager :=
@@ -989,7 +989,7 @@ begin
       GState.TileStorageTypeList,
       GState.TileNameGenerator,
       GState.TileNameParser,
-      GState.Config.ValueToStringConverterConfig
+      GState.ValueToStringConverter
     );
   FfrmCacheManager.PopupParent := Self;
 
@@ -1166,7 +1166,7 @@ begin
   VSensorViewGenerator :=
     TSensorViewListGeneratorStuped.Create(
       GState.GUISyncronizedTimerNotifier,
-      GState.Config.ValueToStringConverterConfig,
+      GState.ValueToStringConverter,
       GState.Config.LanguageManager,
       Self,
       TBXDock1,
@@ -1581,7 +1581,7 @@ begin
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
       GState.BitmapFactory,
-      GState.Config.ValueToStringConverterConfig,
+      GState.ValueToStringConverter,
       FConfig.LayersConfig.MapLayerGridsConfig
     )
   );
@@ -1803,7 +1803,7 @@ begin
       FConfig.ViewPortState.View,
       FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
       FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig,
-      GState.Config.ValueToStringConverterConfig
+      GState.ValueToStringConverter
     )
   );
   VLayersList.Add(
@@ -1842,7 +1842,7 @@ begin
       FConfig.ViewPortState.View,
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
       FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig,
-      GState.Config.ValueToStringConverterConfig
+      GState.ValueToStringConverter
     )
   );
   VLayersList.Add(
@@ -2171,7 +2171,7 @@ begin
       map,
       FConfig.ViewPortState.View,
       FConfig.LayersConfig.StatBar,
-      GState.Config.ValueToStringConverterConfig,
+      GState.ValueToStringConverter,
       FMouseState,
       GState.GUISyncronizedTimerNotifier,
       GState.TerrainProviderList,
@@ -2315,7 +2315,7 @@ begin
       ScrollBoxSearchWindow,
       tbxpmnSearchResult,
       Self.OnShowSearchResults,
-      GState.Config.ValueToStringConverterConfig,
+      GState.ValueToStringConverter,
       GState.LastSearchResult
     );
 
@@ -4003,7 +4003,7 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VMouseLonLat);
+  VStr := GState.ValueToStringConverter.GetStatic.LonLatConvert(VMouseLonLat);
   CopyStringToClipboard(Handle, VStr);
 end;
 
@@ -4745,7 +4745,7 @@ begin
     TfrmLonLatRectEdit.Create(
       GState.Config.LanguageManager,
       FConfig.ViewPortState.View,
-      GState.Config.ValueToStringConverterConfig
+      GState.ValueToStringConverter
     );
   Try
     VPolygon := GState.LastSelectionInfo.Polygon;
@@ -6895,7 +6895,7 @@ var
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IVectorDataItemSimple(tbxpmnSearchResult.Tag);
-    VStr := GState.Config.ValueToStringConverterConfig.GetStatic.LonLatConvert(VPlacemark.Geometry.GetGoToLonLat);
+    VStr := GState.ValueToStringConverter.GetStatic.LonLatConvert(VPlacemark.Geometry.GetGoToLonLat);
     CopyStringToClipboard(Handle, VStr);
   end;
 end;

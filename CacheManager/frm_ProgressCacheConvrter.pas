@@ -72,7 +72,7 @@ type
     FTimerListener: IListenerTime;
     FCancelNotifierInternal: INotifierOperationInternal;
     FProgressInfo: ICacheConverterProgressInfo;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FThreadPaused: Boolean;
     FFinished: Boolean;
     procedure OnAppClosing;
@@ -86,7 +86,7 @@ type
       const ATimerNoifier: INotifierTime;
       const ACancelNotifierInternal: INotifierOperationInternal;
       const AProgressInfo: ICacheConverterProgressInfo;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -109,7 +109,7 @@ constructor TfrmProgressCacheConverter.Create(
   const ATimerNoifier: INotifierTime;
   const ACancelNotifierInternal: INotifierOperationInternal;
   const AProgressInfo: ICacheConverterProgressInfo;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(ALanguageManager);
@@ -118,7 +118,7 @@ begin
   FTimerNoifier := ATimerNoifier;
   FCancelNotifierInternal := ACancelNotifierInternal;
   FProgressInfo := AProgressInfo;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 
   FTimerListener := TListenerTimeCheck.Create(Self.OnTimerTick, 1000);
   FTimerNoifier.Add(FTimerListener);
@@ -217,7 +217,7 @@ var
   VValueConverter: IValueToStringConverter;
 begin
   if (FProgressInfo <> nil) and (not FFinished) then begin
-    VValueConverter := FValueToStringConverterConfig.GetStatic;
+    VValueConverter := FValueToStringConverter.GetStatic;
     lblProcessedValue.Caption := FloatToStrF(FProgressInfo.TilesProcessed, ffNumber, 12, 0);
     lblSkippedValue.Caption := FloatToStrF(FProgressInfo.TilesSkipped, ffNumber, 12, 0);
     lblSizeValue.Caption := VValueConverter.DataSizeConvert(FProgressInfo.TilesSize / 1024);

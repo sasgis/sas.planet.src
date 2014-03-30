@@ -39,7 +39,7 @@ type
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
   private
     function ProcessImport(
       const AFileName: string
@@ -50,7 +50,7 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataFactory: IVectorDataFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
   end;
 
@@ -73,7 +73,7 @@ constructor TVectorItemTreeImporterJpegWithExif.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataFactory: IVectorDataFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create;
@@ -81,7 +81,7 @@ begin
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FVectorDataFactory := AVectorDataFactory;
-  FValueToStringConverterConfig := AValueToStringConverterConfig
+  FValueToStringConverter := AValueToStringConverter
 end;
 
 function TVectorItemTreeImporterJpegWithExif.ProcessImport(
@@ -110,7 +110,7 @@ begin
   Result := nil;
   if not FileExists(AFileName) then Exit;
   VDEsc := '';
-  VValueToStringConverter := FValueToStringConverterConfig.GetStatic;
+  VValueToStringConverter := FValueToStringConverter.GetStatic;
   VPoint := CEmptyDoublePoint;
   VExifData := TExifData.Create;
   try

@@ -43,7 +43,7 @@ type
     FIntrnalBrowser: IInternalBrowser;
     FDrawParent: TWinControl;
     FPopUp: TPopupMenu;
-    FValueConverterConfig: IValueToStringConverterConfig;
+    FValueConverter: IValueToStringConverterChangeable;
     FLastSearchResults: ILastSearchResult;
     FOnShowResults: TNotifyEvent;
     FSearchItems: array of TfrSearchResultsItem;
@@ -59,7 +59,7 @@ type
       ADrawParent: TWinControl;
       APopUp: TPopupMenu;
       AOnShowResults: TNotifyEvent;
-      const AValueConverterConfig: IValueToStringConverterConfig;
+      const AValueConverter: IValueToStringConverterChangeable;
       const ALastSearchResults: ILastSearchResult
     );
     destructor Destroy; override;
@@ -82,7 +82,7 @@ constructor TSearchResultPresenterOnPanel.Create(
   ADrawParent: TWinControl;
   APopUp: TPopupMenu;
   AOnShowResults: TNotifyEvent;
-  const AValueConverterConfig: IValueToStringConverterConfig;
+  const AValueConverter: IValueToStringConverterChangeable;
   const ALastSearchResults: ILastSearchResult
 );
 begin
@@ -90,7 +90,7 @@ begin
   FPopUp := APopUp;
   FIntrnalBrowser := AIntrnalBrowser;
   FMapGoto := AMapGoto;
-  FValueConverterConfig := AValueConverterConfig;
+  FValueConverter := AValueConverter;
   FDrawParent := ADrawParent;
   FLastSearchResults := ALastSearchResults;
   FOnShowResults := AOnShowResults;
@@ -150,7 +150,7 @@ begin
           VPlacemark,
           FIntrnalBrowser,
           FMapGoto,
-          FValueConverterConfig
+          FValueConverter
         );
       if LengthFSearchItems > 0 then begin
         FSearchItems[LengthFSearchItems].Top := FSearchItems[LengthFSearchItems - 1].Top + 1;

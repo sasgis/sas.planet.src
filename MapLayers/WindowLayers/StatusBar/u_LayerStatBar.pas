@@ -61,7 +61,7 @@ type
     FTimeZoneInfo: TTimeZoneInfo;
     FTerrainInfo: ITerrainInfo;
     FTerrainConfig: ITerrainConfig;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FView: ILocalCoordConverterChangeable;
     FPopupMenu: TLayerStatBarPopupMenu;
     FLastUpdateTick: DWORD;
@@ -93,7 +93,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AConfig: IStatBarConfig;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMouseState: IMouseState;
       const ATimerNoifier: INotifierTime;
       const ATerrainProviderList: ITerrainProviderList;
@@ -134,7 +134,7 @@ constructor TLayerStatBar.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AConfig: IStatBarConfig;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMouseState: IMouseState;
   const ATimerNoifier: INotifierTime;
   const ATerrainProviderList: ITerrainProviderList;
@@ -154,7 +154,7 @@ begin
   FConfig := AConfig;
   FTerrainConfig := ATerrainConfig;
   FGlobalInternetState := AGlobalInternetState;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 
   FTimeZoneInfo := TTimeZoneInfo.Create;
   FConfig.TimeZoneInfoAvailable := FTimeZoneInfo.Available;
@@ -350,7 +350,7 @@ begin
   inherited;
   VCurrentTick := GetTickCount;
   if (VCurrentTick < FLastUpdateTick) or (VCurrentTick > FLastUpdateTick + FMinUpdate) then begin
-    VValueConverter := FValueToStringConverterConfig.GetStatic;
+    VValueConverter := FValueToStringConverter.GetStatic;
     VVisualCoordConverter := FView.GetStatic;
     VMousePos := FMouseState.CurentPos;
     VZoomCurr := VVisualCoordConverter.GetZoom;

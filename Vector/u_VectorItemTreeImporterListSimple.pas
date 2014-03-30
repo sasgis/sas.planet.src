@@ -47,7 +47,7 @@ type
     function GetStatic: IVectorItemTreeImporterListStatic;
   public
     constructor Create(
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AVectorDataFactory: IVectorDataFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -79,7 +79,7 @@ uses
 { TVectorItemTreeImporterListSimple }
 
 constructor TVectorItemTreeImporterListSimple.Create(
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AVectorDataFactory: IVectorDataFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -295,7 +295,7 @@ begin
       AVectorDataItemMainInfoFactory,
       AVectorItemSubsetBuilderFactory,
       AVectorDataFactory,
-      AValueToStringConverterConfig
+      AValueToStringConverter
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(

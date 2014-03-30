@@ -43,7 +43,7 @@ type
   TCalcLineLayer = class(TMapLayerBasicNoBitmap)
   private
     FConfig: IPointCaptionsLayerConfig;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FLineOnMapEdit: IPathOnMapEdit;
 
     FTempBitmap: TBitmap32;
@@ -91,7 +91,7 @@ type
       const AView: ILocalCoordConverterChangeable;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: IPointCaptionsLayerConfig;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
     destructor Destroy; override;
   end;
@@ -118,7 +118,7 @@ constructor TCalcLineLayer.Create(
   const AView: ILocalCoordConverterChangeable;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: IPointCaptionsLayerConfig;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(
@@ -129,7 +129,7 @@ begin
     AView
   );
   FConfig := AConfig;
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
   FLineOnMapEdit := ALineOnMapEdit;
 
   LinksList.Add(
@@ -138,7 +138,7 @@ begin
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FValueToStringConverterConfig.GetChangeNotifier
+    FValueToStringConverter.GetChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnLineChange),
@@ -351,7 +351,7 @@ begin
   VLine := FLine;
   if VLine <> nil then begin
     VTotalDist := 0;
-    VValueConverter := FValueToStringConverterConfig.GetStatic;
+    VValueConverter := FValueToStringConverter.GetStatic;
     VConverter := AProjection.GeoConverter;
     VZoom := AProjection.Zoom;
     VDatum := VConverter.Datum;

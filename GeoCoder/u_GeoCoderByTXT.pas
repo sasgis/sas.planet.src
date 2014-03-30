@@ -39,7 +39,7 @@ type
 
   TGeoCoderByTXT = class(TGeoCoderLocalBasic)
   private
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FLock: IReadWriteSync;
     procedure SearchInTXTFile(
       const ACancelNotifier: INotifierOperation;
@@ -60,7 +60,7 @@ type
     constructor Create(
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     );
   end;
 
@@ -79,14 +79,14 @@ uses
 constructor TGeoCoderByTXT.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\txt')) then
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
   FLock := MakeSyncRW_Std(Self, False);
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
 end;
 
 function ItemExist(
@@ -140,7 +140,7 @@ var
   VTabArray: TStringList;
   VTextFile: Textfile;
 begin
-  VValueConverter := FValueToStringConverterConfig.GetStatic;
+  VValueConverter := FValueToStringConverter.GetStatic;
   VFormatSettings.DecimalSeparator := '.';
   VSearch := AnsiUpperCase(ASearch);
   Assign(VTextFile, AFile);

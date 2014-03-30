@@ -120,7 +120,7 @@ type
       const ACategoryDB: IMarkCategoryDB;
       const APictureList: IMarkPictureList;
       const AViewPortState: ILocalCoordConverterChangeable;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig
+      const AValueToStringConverter: IValueToStringConverterChangeable
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
@@ -153,7 +153,7 @@ constructor TfrmMarkEditPoint.Create(
   const ACategoryDB: IMarkCategoryDB;
   const APictureList: IMarkPictureList;
   const AViewPortState: ILocalCoordConverterChangeable;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig
+  const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(ALanguageManager);
@@ -168,7 +168,7 @@ begin
     TfrLonLat.Create(
       ALanguageManager,
       AViewPortState,
-      AValueToStringConverterConfig,
+      AValueToStringConverter,
       tssCenter
     );
   frMarkCategory :=

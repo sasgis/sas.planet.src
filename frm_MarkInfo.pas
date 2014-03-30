@@ -48,7 +48,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FCancelNotifier: INotifierOperationInternal;
-    FValueToStringConverterConfig: IValueToStringConverterConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
     FDatum: IDatum;
     procedure OnAreaCalc(const APoly: IVectorDataItemPoly; const AArea: Double);
     function GetTextForPoint(const AMark: IVectorDataItemPoint): string;
@@ -59,7 +59,7 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const ADatum: IDatum
     ); reintroduce;
   end;
@@ -141,15 +141,15 @@ end;
 
 constructor TfrmMarkInfo.Create(
   const ALanguageManager: ILanguageManager;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const ADatum: IDatum
 );
 begin
   TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'StatusText');
-  Assert(AValueToStringConverterConfig <> nil);
+  Assert(AValueToStringConverter <> nil);
   Assert(ADatum <> nil);
   inherited Create(ALanguageManager);
-  FValueToStringConverterConfig := AValueToStringConverterConfig;
+  FValueToStringConverter := AValueToStringConverter;
   FDatum := ADatum;
   FCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
 end;
@@ -175,7 +175,7 @@ begin
     Inc(VPointsCount, AMark.Line.Item[i].Count);
   end;
   VLength := AMark.Line.CalcLength(FDatum);
-  VConverter := FValueToStringConverterConfig.GetStatic;
+  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   VCategoryName := '';
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
@@ -196,7 +196,7 @@ var
   VItemWithCategory: IVectorDataItemWithCategory;
   VCategoryName: string;
 begin
-  VConverter := FValueToStringConverterConfig.GetStatic;
+  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   VCategoryName := '';
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
@@ -225,7 +225,7 @@ begin
     Inc(VPointsCount, AMark.Line.Item[i].Count);
   end;
   VLength := AMark.Line.CalcPerimeter(FDatum);
-  VConverter := FValueToStringConverterConfig.GetStatic;
+  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   VCategoryName := '';
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin

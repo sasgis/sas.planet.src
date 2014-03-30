@@ -41,7 +41,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
-      const AValueToStringConverterConfig: IValueToStringConverterConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMarksDb: IMarkDb
     );
   end;
@@ -74,7 +74,7 @@ constructor TGeoCoderListSimple.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
-  const AValueToStringConverterConfig: IValueToStringConverterConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMarksDb: IMarkDb
 );
 var
@@ -125,7 +125,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderRosreestrGUID,
       'Rosreestr',
-      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverterConfig)
+      TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverter)
     );
   Add(VItem);
 
@@ -141,7 +141,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderURLGUID,
       'URL',
-      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverterConfig)
+      TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverter)
     );
   Add(VItem);
 
@@ -150,7 +150,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderGpxGUID,
         'Offline search (*.gpx)',
-        TGeoCoderByGpx.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverterConfig)
+        TGeoCoderByGpx.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
     Add(VItem);
   Except
@@ -161,7 +161,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderPolishMapGUID,
         'Offline search (*.mp)',
-        TGeoCoderByPolishMap.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverterConfig)
+        TGeoCoderByPolishMap.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
     Add(VItem);
   Except
@@ -172,7 +172,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderGeonamesTXTGUID,
         'Offline search (*.txt)',
-        TGeoCoderByTXT.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverterConfig)
+        TGeoCoderByTXT.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
     Add(VItem);
   Except
@@ -182,7 +182,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderCoordGUID,
       'Coordinates',
-      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverterConfig)
+      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
     );
   Add(VItem);
 

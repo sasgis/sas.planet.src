@@ -25,6 +25,7 @@ interface
 uses
   t_GeoTypes,
   t_CommonTypes,
+  i_Changeable,
   i_ConfigDataElement;
 
 type
@@ -47,6 +48,26 @@ type
     ): string;
   end;
 
+  IValueToStringConverterChangeable = interface(IChangeable)
+    ['{3204C996-689A-4F5D-92FE-7E942AF1822A}']
+    function GetStatic: IValueToStringConverter;
+  end;
+
+  IValueToStringConverterConfigStatic = interface
+    ['{DFD404AC-DB7D-4108-9822-A0DD2943A5C7}']
+    function GetDistStrFormat: TDistStrFormat;
+    property DistStrFormat: TDistStrFormat read GetDistStrFormat;
+
+    function GetIsLatitudeFirst: Boolean;
+    property IsLatitudeFirst: Boolean read GetIsLatitudeFirst;
+
+    function GetDegrShowFormat: TDegrShowFormat;
+    property DegrShowFormat: TDegrShowFormat read GetDegrShowFormat;
+
+    function GetAreaShowFormat: TAreaStrFormat;
+    property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat;
+  end;
+
   IValueToStringConverterConfig = interface(IConfigDataElement)
     ['{DDC4DF45-A387-43DC-AED7-33935241C718}']
     function GetDistStrFormat: TDistStrFormat;
@@ -65,7 +86,7 @@ type
     procedure SetAreaShowFormat(AValue: TAreaStrFormat);
     property AreaShowFormat: TAreaStrFormat read GetAreaShowFormat write SetAreaShowFormat;
 
-    function GetStatic: IValueToStringConverter;
+    function GetStatic: IValueToStringConverterConfigStatic;
   end;
 
 implementation
