@@ -28,6 +28,7 @@ uses
   i_Notifier,
   i_Listener,
   i_ValueToStringConverter,
+  i_ValueToStringConverterConfig,
   u_BaseInterfacedObject,
   u_ConfigDataElementBase;
 

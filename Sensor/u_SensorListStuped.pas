@@ -43,8 +43,7 @@ type
       const ASystemTime: ISystemTimeProvider;
       const AGPSRecorder: IGPSRecorder;
       const AGPSModule: IGPSModule;
-      const ABatteryStatus: IBatteryStatus;
-      const AValueConverterConfig: IValueToStringConverterConfig
+      const ABatteryStatus: IBatteryStatus
     );
   end;
 
@@ -72,8 +71,7 @@ constructor TSensorListStuped.Create(
   const ASystemTime: ISystemTimeProvider;
   const AGPSRecorder: IGPSRecorder;
   const AGPSModule: IGPSModule;
-  const ABatteryStatus: IBatteryStatus;
-  const AValueConverterConfig: IValueToStringConverterConfig
+  const ABatteryStatus: IBatteryStatus
 );
 var
   VCaption: IStringConfigDataElement;

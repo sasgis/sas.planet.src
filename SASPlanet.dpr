@@ -879,6 +879,7 @@ uses
   u_MainFormBehaviourByGPSConfig in 'u_MainFormBehaviourByGPSConfig.pas',
   i_MainFormState in 'i_MainFormState.pas',
   u_MainFormState in 'u_MainFormState.pas',
+  i_ValueToStringConverterConfig in 'i_ValueToStringConverterConfig.pas',
   i_ValueToStringConverter in 'i_ValueToStringConverter.pas',
   u_ValueToStringConverter in 'u_ValueToStringConverter.pas',
   u_ValueToStringConverterConfig in 'u_ValueToStringConverterConfig.pas',

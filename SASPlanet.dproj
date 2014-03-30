@@ -249,9 +249,9 @@
     <DCCReference Include="GeoCoder\u_GeoCoderBasic.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderBy2GIS.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByCoord.pas" />
-    <DCCReference Include="GeoCoder\u_GeoCoderByMarks.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByGoogle.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByGpx.pas" />
+    <DCCReference Include="GeoCoder\u_GeoCoderByMarks.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByNavitel.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByOSM.pas" />
     <DCCReference Include="GeoCoder\u_GeoCoderByPolishMap.pas" />
@@ -486,6 +486,7 @@
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
+    <DCCReference Include="i_ValueToStringConverterConfig.pas" />
     <DCCReference Include="i_VectorItemDrawConfig.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_WindowPositionConfig.pas" />

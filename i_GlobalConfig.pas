@@ -29,7 +29,7 @@ uses
   i_GSMGeoCodeConfig,
   i_InetConfig,
   i_BitmapPostProcessingConfig,
-  i_ValueToStringConverter,
+  i_ValueToStringConverterConfig,
   i_ImageResamplerConfig,
   i_MainMemCacheConfig,
   i_GPSConfig,

@@ -1022,8 +1022,7 @@ begin
       FSystemTime,
       FGPSRecorder,
       FGpsSystem,
-      FBatteryStatus,
-      FGlobalConfig.ValueToStringConverterConfig
+      FBatteryStatus
     );
   FGPSRecorderInternal.Load;
   FGpsTrackRecorderInternal.Load;

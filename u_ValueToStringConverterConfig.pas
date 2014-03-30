@@ -29,7 +29,7 @@ uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ConfigDataElement,
-  i_ValueToStringConverter,
+  i_ValueToStringConverterConfig,
   u_BaseInterfacedObject,
   u_ConfigDataElementBase;
 
