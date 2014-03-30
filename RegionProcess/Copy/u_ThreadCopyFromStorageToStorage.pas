@@ -207,7 +207,7 @@ begin
               VTileInfoWithData.LoadDate,
               VTileInfoWithData.ContentType,
               VTileInfoWithData.TileData,
-              True
+              FIsOverwriteDestTiles
             );
           if FIsMove and VResult then begin
             ATask.FSource.DeleteTile(AXY, AZoom, VSrcVersionInfo);
@@ -228,7 +228,7 @@ begin
             VSrcTileInfo.LoadDate,
             nil,
             nil,
-            True
+            FIsOverwriteDestTiles
           );
         if FIsMove and VResult then begin
           ATask.FSource.DeleteTile(AXY, AZoom, VSrcVersionInfo);
@@ -257,7 +257,7 @@ begin
                   VTileInfoWithData.LoadDate,
                   VTileInfoWithData.ContentType,
                   VTileInfoWithData.TileData,
-                  True
+                  FIsOverwriteDestTiles
                 );
               if FIsMove and VResult then begin
                 ATask.FSource.DeleteTile(AXY, AZoom, VSrcVersionInfo);
@@ -272,7 +272,7 @@ begin
                 VSrcTileInfo.LoadDate,
                 nil,
                 nil,
-                True
+                FIsOverwriteDestTiles
               );
             if FIsMove and VResult then begin
               ATask.FSource.DeleteTile(AXY, AZoom, VSrcVersionInfo);
@@ -284,4 +284,4 @@ begin
   end;
 end;
 
-end.
+end.                                 
