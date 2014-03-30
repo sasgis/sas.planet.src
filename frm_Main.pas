@@ -971,6 +971,8 @@ begin
       GState.VectorItemSubsetBuilderFactory,
       GState.GeoCodePlacemarkFactory,
       GState.MarksDb.MarkDb,
+      Gstate.GeoCoderList,
+      FConfig.SearchHistory,
       FConfig.MainGeoCoderConfig,
       FConfig.ViewPortState.View,
       GState.ValueToStringConverter
@@ -1392,7 +1394,7 @@ begin
 
     FLinksList.Add(
       TNotifyNoMmgEventListener.Create(Self.OnSearchhistoryChange),
-      FConfig.MainGeoCoderConfig.SearchHistory.GetChangeNotifier
+      FConfig.SearchHistory.GetChangeNotifier
     );
 
     FLinksList.Add(
@@ -2304,9 +2306,7 @@ var
   VItem: IGeoCoderListEntity;
   VTBXItem: TTBXItem;
   VTBEditItem: TTBEditItem;
-  VEnum: IEnumGUID;
-  Vcnt: Cardinal;
-  VGUID: TGUID;
+  i: Integer;
 begin
   FSearchPresenter :=
     TSearchResultPresenterOnPanel.Create(
@@ -2318,10 +2318,8 @@ begin
       GState.ValueToStringConverter,
       GState.LastSearchResult
     );
-
-  VEnum := FConfig.MainGeoCoderConfig.GetList.GetGUIDEnum;
-  while VEnum.Next(1, VGUID, Vcnt) = S_OK do begin
-    VItem := FConfig.MainGeoCoderConfig.GetList.Get(VGUID);
+  for i := 0 to GState.GeoCoderList.Count - 1 do begin
+    VItem := GState.GeoCoderList.Items[i];
 
     VTBXItem := TTBXItem.Create(Self);
     VTBXItem.GroupIndex := 1;
@@ -6371,14 +6369,22 @@ var
   VLocalConverter: ILocalCoordConverter;
   VText: string;
   VNotifier: INotifierOperation;
+  VIndex: Integer;
 begin
-  VLocalConverter := FConfig.ViewPortState.View.GetStatic;
-  VItem := FConfig.MainGeoCoderConfig.GetActiveGeoCoder;
   VText := Trim(NewText);
-  VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
-  VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
-  FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
-  FSearchPresenter.ShowSearchResults(VResult);
+  if VText <> '' then begin
+    VIndex := GState.GeoCoderList.GetIndexByGUID(FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID);
+    if VIndex >= 0 then begin
+      VItem := GState.GeoCoderList.Items[VIndex];
+      if Assigned(VItem) then begin
+        VLocalConverter := FConfig.ViewPortState.View.GetStatic;
+        VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+        VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
+        FConfig.SearchHistory.AddItem(VText);
+        FSearchPresenter.ShowSearchResults(VResult);
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
@@ -6398,7 +6404,7 @@ begin
       VText := Trim(NewText);
       VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
       VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
-      FConfig.MainGeoCoderConfig.SearchHistory.AddItem(VText);
+      FConfig.SearchHistory.AddItem(VText);
       FSearchPresenter.ShowSearchResults(VResult);
     end;
   end;
@@ -6846,13 +6852,13 @@ var
   i: Integer;
 begin
   tbiSearch.Lines.Clear;
-  FConfig.MainGeoCoderConfig.SearchHistory.LockRead;
+  FConfig.SearchHistory.LockRead;
   try
-    for i := 0 to FConfig.MainGeoCoderConfig.SearchHistory.Count - 1 do begin
-      tbiSearch.Lines.Add(FConfig.MainGeoCoderConfig.SearchHistory.GetItem(i));
+    for i := 0 to FConfig.SearchHistory.Count - 1 do begin
+      tbiSearch.Lines.Add(FConfig.SearchHistory.GetItem(i));
     end;
   finally
-    FConfig.MainGeoCoderConfig.SearchHistory.UnlockRead;
+    FConfig.SearchHistory.UnlockRead;
   end;
 end;
 

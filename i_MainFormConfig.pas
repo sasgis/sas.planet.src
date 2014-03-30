@@ -29,6 +29,7 @@ uses
   i_NavigationToPoint,
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
+  i_StringHistory,
   i_KeyMovingConfig,
   i_MapMovingConfig,
   i_MapZoomingConfig,
@@ -91,6 +92,9 @@ type
 
     function GetMainGeoCoderConfig: IMainGeoCoderConfig;
     property MainGeoCoderConfig: IMainGeoCoderConfig read GetMainGeoCoderConfig;
+
+    function GetSearchHistory: IStringHistory;
+    property SearchHistory: IStringHistory read GetSearchHistory;
 
     function GetMainMapsConfig: IMainMapsConfig;
     property MainMapsConfig: IMainMapsConfig read GetMainMapsConfig;

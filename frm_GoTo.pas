@@ -35,6 +35,8 @@ uses
   i_LanguageManager,
   i_InterfaceListStatic,
   i_MarkDb,
+  i_StringHistory,
+  i_GeoCoderList,
   i_MainGeoCoderConfig,
   i_LocalCoordConverterChangeable,
   i_VectorDataItemSimple,
@@ -63,6 +65,8 @@ type
   private
     FMarksDb: IMarkDb;
     FMainGeoCoderConfig: IMainGeoCoderConfig;
+    FSearchHistory: IStringHistory;
+    FGeoCoderList: IGeoCoderListStatic;
     FGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
     FViewPortState: ILocalCoordConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
@@ -92,6 +96,8 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
       const AMarksDb: IMarkDb;
+      const AGeoCoderList: IGeoCoderListStatic;
+      const AFSearchHistory: IStringHistory;
       const AMainGeoCoderConfig: IMainGeoCoderConfig;
       const AViewPortState: ILocalCoordConverterChangeable;
       const AValueToStringConverter: IValueToStringConverterChangeable
@@ -104,7 +110,6 @@ implementation
 
 uses
   ActiveX,
-  i_GeoCoderList,
   i_MarkId,
   i_LocalCoordConverter,
   i_NotifierOperation,
@@ -143,51 +148,52 @@ end;
 
 procedure TfrmGoTo.InitGeoCoders;
 var
-  VEnum: IEnumGUID;
-  VGUID: TGUID;
-  i: Cardinal;
+  i: Integer;
   VItem: IGeoCoderListEntity;
   VIndex: Integer;
   VActiveGUID: TGUID;
   VActiveIndex: Integer;
 begin
-  VEnum := FMainGeoCoderConfig.GetList.GetGUIDEnum;
   VActiveGUID := FMainGeoCoderConfig.ActiveGeoCoderGUID;
   VActiveIndex := -1;
-  while VEnum.Next(1, VGUID, i) = S_OK do begin
-    VItem := FMainGeoCoderConfig.GetList.Get(VGUID);
-    VItem._AddRef;
-    VIndex := cbbSearcherType.Items.AddObject(VItem.GetCaption, Pointer(VItem));
-    if IsEqualGUID(VGUID, VActiveGUID) then begin
-      VActiveIndex := VIndex;
+
+  cbbSearcherType.Items.BeginUpdate;
+  try
+    for i := 0 to FGeoCoderList.Count - 1 do begin
+      VItem := FGeoCoderList.Items[i];
+      VItem._AddRef;
+      VIndex := cbbSearcherType.Items.AddObject(VItem.GetCaption, Pointer(VItem));
+      if IsEqualGUID(VItem.GUID, VActiveGUID) then begin
+        VActiveIndex := VIndex;
+      end;
     end;
+    if VActiveIndex < 0 then begin
+      VActiveIndex := 0;
+    end;
+    cbbSearcherType.ItemIndex := VActiveIndex;
+  finally
+    cbbSearcherType.Items.EndUpdate;
   end;
-  if VActiveIndex < 0 then begin
-    VActiveIndex := 0;
-  end;
-  cbbSearcherType.ItemIndex := VActiveIndex;
 end;
 
 procedure TfrmGoTo.InitHistory;
 var
   i: Integer;
 begin
-  with FMainGeoCoderConfig.SearchHistory do begin
-    LockRead;
-    try
-      if (Count>0) then begin
-        cbbGeoCode.Items.BeginUpdate;
-        try
-          for i := 0 to Count-1 do begin
-            cbbGeoCode.Items.Add(GetItem(i));
-          end;
-        finally
-          cbbGeoCode.Items.EndUpdate;
+  FSearchHistory.LockRead;
+  try
+    if (FSearchHistory.Count>0) then begin
+      cbbGeoCode.Items.BeginUpdate;
+      try
+        for i := 0 to FSearchHistory.Count-1 do begin
+          cbbGeoCode.Items.Add(FSearchHistory.GetItem(i));
         end;
+      finally
+        cbbGeoCode.Items.EndUpdate;
       end;
-    finally
-      UnlockRead;
     end;
+  finally
+    FSearchHistory.UnlockRead;
   end;
 end;
 
@@ -254,7 +260,7 @@ begin
     if VGeoCoderItem <> nil then begin
       VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
       FResult := VGeoCoderItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, textsrch, VLocalConverter);
-      FMainGeoCoderConfig.SearchHistory.AddItem(textsrch);
+      FSearchHistory.AddItem(textsrch);
       FMainGeoCoderConfig.ActiveGeoCoderGUID := VGeoCoderItem.GetGUID;
       ModalResult := mrOk;
     end else begin
@@ -299,6 +305,8 @@ constructor TfrmGoTo.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
   const AMarksDb: IMarkDb;
+  const AGeoCoderList: IGeoCoderListStatic;
+  const AFSearchHistory: IStringHistory;
   const AMainGeoCoderConfig: IMainGeoCoderConfig;
   const AViewPortState: ILocalCoordConverterChangeable;
   const AValueToStringConverter: IValueToStringConverterChangeable
@@ -308,6 +316,8 @@ begin
   FMarksDb := AMarksDb;
   FGeoCodePlacemarkFactory := AGeoCodePlacemarkFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
+  FGeoCoderList := AGeoCoderList;
+  FSearchHistory := AFSearchHistory;
   FMainGeoCoderConfig := AMainGeoCoderConfig;
   FViewPortState := AViewPortState;
   FValueToStringConverter := AValueToStringConverter;

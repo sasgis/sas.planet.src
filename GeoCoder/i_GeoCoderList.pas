@@ -24,20 +24,36 @@ interface
 
 uses
   ActiveX,
-  i_GeoCoder;
+  i_GeoCoder,
+  i_Changeable;
 
 type
   IGeoCoderListEntity = interface
     ['{FB6DA76B-1706-4F85-A2A0-53E61F4AED2F}']
     function GetGUID: TGUID;
+    property GUID: TGUID read GetGUID;
+
     function GetCaption: WideString;
+    property Caption: WideString read GetCaption;
+
     function GetGeoCoder: IGeoCoder;
+    property GeoCoder: IGeoCoder read GetGeoCoder;
   end;
 
-  IGeoCoderList = interface
-    ['{34A0BB9F-8C6B-4664-B299-4F78710E0996}']
-    function GetGUIDEnum: IEnumGUID;
-    function Get(const AGUID: TGUID): IGeoCoderListEntity;
+  IGeoCoderChangeable = interface(IChangeable)
+    ['{342F0234-F74E-4CDD-A6A6-ACF58AD42968}']
+    function GetStatic: IGeoCoderListEntity;
+  end;
+
+  IGeoCoderListStatic = interface
+    ['{FA67ADC7-97A5-4653-BA15-D3BB9C2C9D10}']
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetItem(const AIndex: Integer): IGeoCoderListEntity;
+    property Items[const AIndex: Integer]: IGeoCoderListEntity read GetItem;
+
+    function GetIndexByGUID(const AGUID: TGUID): Integer;
   end;
 
 implementation

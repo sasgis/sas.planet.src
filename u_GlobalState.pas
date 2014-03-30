@@ -144,7 +144,7 @@ type
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
-    FGeoCoderList: IGeoCoderList;
+    FGeoCoderList: IGeoCoderListStatic;
     FMarkPictureList: IMarkPictureList;
     FGpsSystem: IGPSModule;
     FImporterList: IVectorItemTreeImporterListChangeable;
@@ -276,6 +276,7 @@ type
     property ImageResamplerFactoryList: IImageResamplerFactoryList read FImageResamplerFactoryList;
     property LastSearchResult: ILastSearchResult read FLastSearchResult;
     property ValueToStringConverter: IValueToStringConverterChangeable read FValueToStringConverter;
+    property GeoCoderList: IGeoCoderListStatic read FGeoCoderList;
 
 
     constructor Create;
@@ -1007,7 +1008,6 @@ begin
     TMainFormConfig.Create(
       FMapTypeSetBuilderFactory,
       FLocalConverterFactory,
-      FGeoCoderList,
       FMainMapsList.MapsSet,
       FMainMapsList.LayersSet,
       FMainMapsList.FirstMainMapGUID,

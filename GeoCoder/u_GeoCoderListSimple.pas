@@ -33,7 +33,7 @@ uses
   u_GeoCoderListBase;
 
 type
-  TGeoCoderListSimple = class(TGeoCoderListBase)
+  TGeoCoderListSimple = class(TGeoCoderListStatic)
   public
     constructor Create(
       const AInetConfig: IInetConfig;
@@ -50,7 +50,9 @@ implementation
 
 uses
   c_GeoCoderGUIDSimple,
+  i_InterfaceListSimple,                                                                     
   i_GeoCoderList,
+  u_InterfaceListSimple,
   u_GeoCoderListEntity,
   u_GeoCoderByGoogle,
   u_GeoCoderByYandex,
@@ -79,15 +81,17 @@ constructor TGeoCoderListSimple.Create(
 );
 var
   VItem: IGeoCoderListEntity;
+  VList: IInterfaceListSimple;
 begin
-  inherited Create;
+  VList := TInterfaceListSimple.Create;
+
   VItem :=
     TGeoCoderListEntity.Create(
       CGeoCoderGoogleGUID,
       'Google',
       TGeoCoderByGoogle.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
@@ -95,7 +99,7 @@ begin
       'Yandex',
       TGeoCoderByYandex.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
@@ -103,7 +107,7 @@ begin
       '2GIS',
       TGeoCoderBy2GIS.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
@@ -111,7 +115,7 @@ begin
       'OSM',
       TGeoCoderByOSM.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
@@ -119,7 +123,7 @@ begin
       'WikiMapia',
       TGeoCoderByWikiMapia.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
@@ -127,7 +131,7 @@ begin
       'Rosreestr',
       TGeoCoderByRosreestr.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverter)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
@@ -135,7 +139,7 @@ begin
       'Navitel',
       TGeoCoderByNavitel.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
@@ -143,7 +147,7 @@ begin
       'URL',
       TGeoCoderByURL.Create(AInetConfig, AGCNotifier, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AResultFactory, AValueToStringConverter)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   try
     VItem :=
@@ -152,7 +156,7 @@ begin
         'Offline search (*.gpx)',
         TGeoCoderByGpx.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
-    Add(VItem);
+    VList.Add(VItem);
   Except
   end;
 
@@ -163,7 +167,7 @@ begin
         'Offline search (*.mp)',
         TGeoCoderByPolishMap.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
-    Add(VItem);
+    VList.Add(VItem);
   Except
   end;
 
@@ -174,7 +178,7 @@ begin
         'Offline search (*.txt)',
         TGeoCoderByTXT.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
-    Add(VItem);
+    VList.Add(VItem);
   Except
   end;
 
@@ -184,7 +188,7 @@ begin
       'Coordinates',
       TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
   VItem :=
     TGeoCoderListEntity.Create(
@@ -192,8 +196,9 @@ begin
       'Marks',
       TGeoCoderByMarks.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AMarksDb)
     );
-  Add(VItem);
+  VList.Add(VItem);
 
+  inherited Create(VList.MakeStaticAndClear);
 end;
 
 end.

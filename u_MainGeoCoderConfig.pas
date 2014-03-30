@@ -25,59 +25,43 @@ interface
 uses
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_GeoCoderList,
-  i_StringHistory,
   i_MainGeoCoderConfig,
-  u_ConfigDataElementComplexBase;
+  u_ConfigDataElementBase;
 
 type
-  TMainGeoCoderConfig = class(TConfigDataElementComplexBase, IMainGeoCoderConfig)
+  TMainGeoCoderConfig = class(TConfigDataElementBase, IMainGeoCoderConfig)
   private
-    FList: IGeoCoderList;
     FActiveGeoCoderGUID: TGUID;
-    FSearchHistory: IStringHistory;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
   private
-    function GetSearchHistory: IStringHistory;
-    function GetList: IGeoCoderList;
     function GetActiveGeoCoderGUID: TGUID;
     procedure SetActiveGeoCoderGUID(const AValue: TGUID);
-    function GetActiveGeoCoder: IGeoCoderListEntity;
   public
-    constructor Create(const AList: IGeoCoderList);
+    constructor Create;
   end;
 
 implementation
 
 uses
   SysUtils,
-  c_ZeroGUID,
-  u_ConfigProviderHelpers,
-  u_ConfigSaveLoadStrategyBasicProviderSubItem,
-  u_StringHistory;
+  c_GeoCoderGUIDSimple,
+  u_ConfigProviderHelpers;
 
 { TMainGeoCoderConfig }
 
-constructor TMainGeoCoderConfig.Create(const AList: IGeoCoderList);
-var
-  i: Cardinal;
+constructor TMainGeoCoderConfig.Create;
 begin
   inherited Create;
-  FList := AList;
-  if FList.GetGUIDEnum.Next(1, FActiveGeoCoderGUID, i) <> S_OK then begin
-    raise Exception.Create('В списке геокодеров пусто');
-  end;
-  FSearchHistory := TStringHistory.Create;
-  Add(FSearchHistory, TConfigSaveLoadStrategyBasicProviderSubItem.Create('History'));
+  FActiveGeoCoderGUID := CGeoCoderGoogleGUID;
 end;
 
 procedure TMainGeoCoderConfig.DoReadConfig(const AConfigData: IConfigDataProvider);
 begin
   inherited;
   if AConfigData <> nil then begin
-    SetActiveGeoCoderGUID(ReadGUID(AConfigData, 'GeoCoderGUID', CGUID_Zero));
+    SetActiveGeoCoderGUID(ReadGUID(AConfigData, 'GeoCoderGUID', FActiveGeoCoderGUID));
   end;
 end;
 
@@ -87,16 +71,6 @@ procedure TMainGeoCoderConfig.DoWriteConfig(
 begin
   inherited;
   WriteGUID(AConfigData, 'GeoCoderGUID', FActiveGeoCoderGUID);
-end;
-
-function TMainGeoCoderConfig.GetActiveGeoCoder: IGeoCoderListEntity;
-begin
-  LockRead;
-  try
-    Result := FList.Get(FActiveGeoCoderGUID);
-  finally
-    UnlockRead;
-  end;
 end;
 
 function TMainGeoCoderConfig.GetActiveGeoCoderGUID: TGUID;
@@ -109,30 +83,16 @@ begin
   end;
 end;
 
-function TMainGeoCoderConfig.GetList: IGeoCoderList;
-begin
-  Result := FList;
-end;
-
-function TMainGeoCoderConfig.GetSearchHistory: IStringHistory;
-begin
-  Result := FSearchHistory;
-end;
-
 procedure TMainGeoCoderConfig.SetActiveGeoCoderGUID(const AValue: TGUID);
 begin
-  if not IsEqualGUID(AValue, CGUID_Zero) then begin
-    LockWrite;
-    try
-      if FList.Get(AValue) <> nil then begin
-        if not IsEqualGUID(FActiveGeoCoderGUID, AValue) then begin
-          FActiveGeoCoderGUID := AValue;
-          SetChanged;
-        end;
-      end;
-    finally
-      UnlockWrite;
+  LockWrite;
+  try
+    if not IsEqualGUID(FActiveGeoCoderGUID, AValue) then begin
+      FActiveGeoCoderGUID := AValue;
+      SetChanged;
     end;
+  finally
+    UnlockWrite;
   end;
 end;
 

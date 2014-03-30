@@ -24,68 +24,59 @@ interface
 
 uses
   SysUtils,
-  ActiveX,
   i_GeoCoderList,
-  i_GUIDSet,
+  i_InterfaceListStatic,
   u_BaseInterfacedObject;
 
 type
-  TGeoCoderListBase = class(TBaseInterfacedObject, IGeoCoderList)
+  TGeoCoderListStatic = class(TBaseInterfacedObject, IGeoCoderListStatic)
   private
-    FList: IGUIDInterfaceSet;
-    FCS: IReadWriteSync;
-  protected
-    procedure Add(const AItem: IGeoCoderListEntity);
+    FList: IInterfaceListStatic;
   private
-    function GetGUIDEnum: IEnumGUID;
-    function Get(const AGUID: TGUID): IGeoCoderListEntity;
+    function GetCount: Integer;
+    function GetItem(const AIndex: Integer): IGeoCoderListEntity;
+    function GetIndexByGUID(const AGUID: TGUID): Integer;
   public
-    constructor Create;
+    constructor Create(
+      const AList: IInterfaceListStatic
+    );
   end;
 
 implementation
 
-uses
-  u_Synchronizer,
-  u_GUIDInterfaceSet;
+{ TGeoCoderListStatic }
 
-{ TGeoCoderListBase }
-
-constructor TGeoCoderListBase.Create;
+constructor TGeoCoderListStatic.Create(const AList: IInterfaceListStatic);
 begin
+  Assert(Assigned(AList));
+  Assert(AList.Count > 0);
   inherited Create;
-  FCS := MakeSyncRW_Std(Self, TRUE);
-  FList := TGUIDInterfaceSet.Create(False);
+  FList := AList;
 end;
 
-procedure TGeoCoderListBase.Add(const AItem: IGeoCoderListEntity);
+function TGeoCoderListStatic.GetCount: Integer;
 begin
-  FCS.BeginWrite;
-  try
-    FList.Add(AItem.GetGUID, AItem);
-  finally
-    FCS.EndWrite;
+  Result := FList.Count;
+end;
+
+function TGeoCoderListStatic.GetIndexByGUID(const AGUID: TGUID): Integer;
+var
+  i: Integer;
+begin
+  Result := -1;
+  for i := 0 to FList.Count - 1 do begin
+    if IsEqualGUID(IGeoCoderListEntity(FList.Items[i]).GUID, AGUID) then begin
+      Result := i;
+      Break;
+    end;
   end;
 end;
 
-function TGeoCoderListBase.Get(const AGUID: TGUID): IGeoCoderListEntity;
+function TGeoCoderListStatic.GetItem(
+  const AIndex: Integer
+): IGeoCoderListEntity;
 begin
-  FCS.BeginRead;
-  try
-    Result := IGeoCoderListEntity(FList.GetByGUID(AGUID));
-  finally
-    FCS.EndRead;
-  end;
-end;
-
-function TGeoCoderListBase.GetGUIDEnum: IEnumGUID;
-begin
-  FCS.BeginRead;
-  try
-    Result := FList.GetGUIDEnum;
-  finally
-    FCS.EndRead;
-  end;
+  Result := IGeoCoderListEntity(FList.Items[AIndex]);
 end;
 
 end.
