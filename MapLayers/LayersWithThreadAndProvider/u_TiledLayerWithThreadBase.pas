@@ -42,7 +42,7 @@ uses
   u_WindowLayerWithPos;
 
 type
-  TTiledLayerWithThreadBase = class(TWindowLayerBasicBase)
+  TTiledLayerWithThreadBase = class(TWindowLayerWithLocationBase)
   private
     FTileMatrix: ITileMatrixChangeable;
     FView: ILocalCoordConverterChangeable;
@@ -64,6 +64,7 @@ type
     procedure OnTileMatrixChange;
   protected
     procedure PaintLayer(ABuffer: TBitmap32); override;
+    function GetNewLayerLocation: TFloatRect; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -152,6 +153,18 @@ begin
     TNotifyNoMmgEventListener.Create(Self.OnTileMatrixChange),
     FTileMatrix.ChangeNotifier
   );
+end;
+
+function TTiledLayerWithThreadBase.GetNewLayerLocation: TFloatRect;
+var
+  VLocalConverter: ILocalCoordConverter;
+begin
+  VLocalConverter := FView.GetStatic;
+  if Visible and (VLocalConverter <> nil) then begin
+    Result := FloatRect(VLocalConverter.GetLocalRect);
+  end else begin
+    Result := FloatRect(0, 0, 0, 0);
+  end;
 end;
 
 procedure TTiledLayerWithThreadBase.OnScaleChange;
