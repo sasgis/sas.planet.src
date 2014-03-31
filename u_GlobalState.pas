@@ -477,7 +477,7 @@ begin
   FBGTimerNotifierInternal := TNotifierTime.Create;
   FBGTimerNotifier := FBGTimerNotifierInternal;
   FBitmapFactory :=
-    TBitmap32StaticFactory.Create(
+    TBitmap32BufferFactory.Create(
       FBGTimerNotifier,
       MakeSyncRW_Var(Self, false)
     );

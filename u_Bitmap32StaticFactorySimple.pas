@@ -30,7 +30,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmap32StaticFactorySimple = class(TBaseInterfacedObject, IBitmap32BufferFactory)
+  TBitmap32BufferFactorySimple = class(TBaseInterfacedObject, IBitmap32BufferFactory)
   private
     function Build(
       const ASize: TPoint;
@@ -109,7 +109,7 @@ end;
 
 { TBitmap32StaticFactorySimple }
 
-function TBitmap32StaticFactorySimple.Build(
+function TBitmap32BufferFactorySimple.Build(
   const ASize: TPoint;
   const AData: PColor32Array
 ): IBitmap32Static;
@@ -129,7 +129,7 @@ begin
   end;
 end;
 
-function TBitmap32StaticFactorySimple.BuildEmpty(
+function TBitmap32BufferFactorySimple.BuildEmpty(
   const ASize: TPoint
 ): IBitmap32Static;
 begin
@@ -150,7 +150,7 @@ begin
   end;
 end;
 
-function TBitmap32StaticFactorySimple.BuildEmptyClear(
+function TBitmap32BufferFactorySimple.BuildEmptyClear(
   const ASize: TPoint;
   const AColor: TColor32
 ): IBitmap32Static;

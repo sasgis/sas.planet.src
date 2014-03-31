@@ -33,7 +33,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmap32StaticFactory = class(TBaseInterfacedObject, IBitmap32BufferFactory)
+  TBitmap32BufferFactory = class(TBaseInterfacedObject, IBitmap32BufferFactory)
   private
     FStandartSizePool: IObjectPoolBitmap32Standart;
     FFactorySimple: IBitmap32BufferFactory;
@@ -62,7 +62,7 @@ uses
 
 { TBitmap32StaticFactory }
 
-constructor TBitmap32StaticFactory.Create(
+constructor TBitmap32BufferFactory.Create(
   const ATTLNotifier: INotifierTime;
   const ASync: IReadWriteSync
 );
@@ -75,10 +75,10 @@ begin
       100,
       200
     );
-  FFactorySimple := TBitmap32StaticFactorySimple.Create;
+  FFactorySimple := TBitmap32BufferFactorySimple.Create;
 end;
 
-function TBitmap32StaticFactory.Build(const ASize: TPoint;
+function TBitmap32BufferFactory.Build(const ASize: TPoint;
   const AData: PColor32Array): IBitmap32Static;
 begin
   Assert(ASize.X > 0);
@@ -96,7 +96,7 @@ begin
   end;
 end;
 
-function TBitmap32StaticFactory.BuildEmpty(
+function TBitmap32BufferFactory.BuildEmpty(
   const ASize: TPoint
 ): IBitmap32Static;
 var
@@ -110,7 +110,7 @@ begin
   end;
 end;
 
-function TBitmap32StaticFactory.BuildEmptyClear(
+function TBitmap32BufferFactory.BuildEmptyClear(
   const ASize: TPoint;
   const AColor: TColor32
 ): IBitmap32Static;
