@@ -4116,7 +4116,7 @@ var
   VMarkId: IMarkId;
 begin
   VMark := FSelectedMark;
-  if Supports(VMark, IMarkId, VMarkId) then begin
+  if Assigned(VMark) and Supports(VMark.MainInfo, IMarkId, VMarkId) then begin
     FMarkDBGUI.MarksDb.MarkDb.SetMarkVisibleByID(VMarkId, False);
   end;
 end;
