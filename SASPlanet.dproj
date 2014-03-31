@@ -1069,9 +1069,9 @@
     <DCCReference Include="u_BinaryData.pas" />
     <DCCReference Include="u_BinaryDataByMemStream.pas" />
     <DCCReference Include="u_BinaryDataListStatic.pas" />
+    <DCCReference Include="u_Bitmap32BufferFactory.pas" />
+    <DCCReference Include="u_Bitmap32BufferFactorySimple.pas" />
     <DCCReference Include="u_Bitmap32ByStaticBitmap.pas" />
-    <DCCReference Include="u_Bitmap32StaticFactory.pas" />
-    <DCCReference Include="u_Bitmap32StaticFactorySimple.pas" />
     <DCCReference Include="u_BitmapChangeableFaked.pas" />
     <DCCReference Include="u_BitmapFunc.pas" />
     <DCCReference Include="u_BitmapGeo.pas" />

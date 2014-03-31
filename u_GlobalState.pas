@@ -368,7 +368,7 @@ uses
   u_InternalDomainInfoProviderByLastSearchResults,
   u_InternalDomainInfoProviderByLastContent,
   u_InternalDomainInfoProviderByTileStorageOptions,
-  u_Bitmap32StaticFactory,
+  u_Bitmap32BufferFactory,
   u_VectorItemSubsetBuilder,
   u_GpsSystem,
   u_LastSelectionInfoSaver,
