@@ -29,7 +29,7 @@ uses
   i_InternalPerformanceCounter,
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ImageResamplerFactoryChangeable,
   i_FillingMapLayerConfig,
   u_TiledLayerWithThreadBase;

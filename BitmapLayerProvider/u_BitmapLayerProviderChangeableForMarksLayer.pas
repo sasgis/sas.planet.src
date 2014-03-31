@@ -24,7 +24,7 @@ interface
 
 uses
   i_MarksDrawConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_VectorItemSubsetChangeable,
   i_GeometryProjectedProvider,
   i_ListenerNotifierLinksList,

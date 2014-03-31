@@ -34,7 +34,7 @@ uses
   i_ThreadConfig,
   i_MapTypes,
   i_MapTypeListChangeable,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_InternalPerformanceCounter,
   i_MiniMapLayerConfig,
   i_ImageResamplerFactoryChangeable,

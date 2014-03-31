@@ -65,7 +65,7 @@ uses
   i_Datum,
   i_PathConfig,
   i_NotifierTime,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_VectorDataFactory,
   i_GeometryProjectedFactory,
   i_GeometryLocalFactory,

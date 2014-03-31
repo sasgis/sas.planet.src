@@ -49,7 +49,7 @@ uses
   i_RegionProcessParamsFrame,
   i_ProjectionInfo,
   i_BitmapLayerProvider,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   fr_MapSelect,
   u_CommonFormAndFrameParents;
 

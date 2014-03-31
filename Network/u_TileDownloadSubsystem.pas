@@ -52,7 +52,7 @@ uses
   i_MapAbilitiesConfig,
   i_ImageResamplerFactoryChangeable,
   i_MapVersionInfo,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_InvisibleBrowser,
   i_ProjConverter,
   i_TileStorage,

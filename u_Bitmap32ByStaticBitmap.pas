@@ -25,7 +25,7 @@ interface
 uses
   GR32,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory;
+  i_Bitmap32BufferFactory;
 
 type
   TStaticBitmapBackend = class(TCustomBackend)

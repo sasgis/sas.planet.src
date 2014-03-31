@@ -32,7 +32,7 @@ uses
   i_MapVersionInfo,
   i_MapVersionFactory,
   i_BinaryDataListStatic,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ContentTypeSubst,
   i_TileDownloadRequestBuilderConfig,
   i_TileDownloaderConfig,

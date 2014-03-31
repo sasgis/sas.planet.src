@@ -25,7 +25,7 @@ interface
 uses
   Classes,
   TB2Item,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
   i_ShortCutSingleConfig;

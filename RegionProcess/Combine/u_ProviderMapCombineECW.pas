@@ -37,7 +37,7 @@ uses
   i_MapTypeGUIConfigList,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarkSystem,

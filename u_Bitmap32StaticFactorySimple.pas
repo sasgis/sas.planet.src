@@ -26,7 +26,7 @@ uses
   Types,
   t_Bitmap32,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   u_BaseInterfacedObject;
 
 type

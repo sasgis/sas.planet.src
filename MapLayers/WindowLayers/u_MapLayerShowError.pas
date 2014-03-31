@@ -33,7 +33,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_InternalPerformanceCounter,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_TileError,
   i_SimpleFlag,
   i_MarkerDrawable,

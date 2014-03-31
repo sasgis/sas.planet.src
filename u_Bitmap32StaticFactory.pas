@@ -28,7 +28,7 @@ uses
   t_Bitmap32,
   i_NotifierTime,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   u_ObjectPoolBitmap32Standart,
   u_BaseInterfacedObject;
 

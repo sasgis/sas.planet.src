@@ -31,7 +31,7 @@ uses
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_MarksDrawConfig,
   i_VectorDataItemSimple,
   i_GeometryProjected,

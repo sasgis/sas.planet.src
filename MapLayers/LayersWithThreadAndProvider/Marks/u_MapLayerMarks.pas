@@ -30,7 +30,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_InternalPerformanceCounter,
   i_MarksLayerConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ImageResamplerFactoryChangeable,
   i_MarkerProviderForVectorItem,
   i_VectorItemSubsetChangeable,

@@ -28,7 +28,7 @@ uses
   i_BitmapLayerProvider,
   i_UseTilePrevZoomConfig,
   i_ImageResamplerFactoryChangeable,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_MapVersionRequestConfig,
   i_TileObjCache,
   i_ListenerNotifierLinksList,

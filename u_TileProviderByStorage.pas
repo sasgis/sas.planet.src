@@ -27,7 +27,7 @@ uses
   SysUtils,
   i_NotifierTilePyramidUpdate,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_MapVersionConfig,
   i_BitmapTileSaveLoad,
   i_VectorItemSubset,

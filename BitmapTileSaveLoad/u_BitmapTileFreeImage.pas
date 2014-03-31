@@ -26,7 +26,7 @@ uses
   FreeImage,
   i_BinaryData,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_Bitmap32To8Converter,
   i_BitmapTileSaveLoad,
   i_InternalPerformanceCounter,

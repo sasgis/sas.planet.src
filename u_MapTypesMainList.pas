@@ -36,7 +36,7 @@ uses
   i_ZmpInfoSet,
   i_NotifierTime,
   i_InetConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ImageResamplerFactoryChangeable,
   i_GlobalDownloadConfig,
   i_ContentTypeManager,

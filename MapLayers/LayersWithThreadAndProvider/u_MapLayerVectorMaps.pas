@@ -31,7 +31,7 @@ uses
   i_InternalPerformanceCounter,
   i_ThreadConfig,
   i_VectorItemDrawConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ImageResamplerFactoryChangeable,
   i_MarkerDrawable,
   i_VectorItemSubsetChangeable,

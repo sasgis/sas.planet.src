@@ -25,7 +25,7 @@ interface
 uses
   i_NotifierTime,
   i_MapLayerGPSTrackConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_GPSRecorder,
   i_InternalPerformanceCounter,
   i_SimpleFlag,

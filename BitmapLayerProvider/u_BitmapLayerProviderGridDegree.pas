@@ -30,7 +30,7 @@ uses
   i_NotifierOperation,
   i_LocalCoordConverter,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ValueToStringConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;

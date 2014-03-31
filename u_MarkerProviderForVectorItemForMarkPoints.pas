@@ -28,7 +28,7 @@ uses
   i_VectorDataItemSimple,
   i_MarksDrawConfig,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapMarker,
   i_MarkerProviderForVectorItem,
   u_BaseInterfacedObject;

@@ -31,7 +31,7 @@ uses
   i_LocalCoordConverterChangeable,
   i_LocalCoordConverterFactorySimpe,
   i_UseTilePrevZoomConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ThreadConfig,
   i_MapTypes,
   i_MapTypeSetChangeable,

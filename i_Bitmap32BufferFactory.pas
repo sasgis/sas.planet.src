@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_Bitmap32StaticFactory;
+unit i_Bitmap32BufferFactory;
 
 interface
 

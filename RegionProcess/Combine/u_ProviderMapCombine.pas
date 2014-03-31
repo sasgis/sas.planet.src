@@ -37,7 +37,7 @@ uses
   i_GeometryProjectedProvider,
   i_MapTypeSet,
   i_UseTilePrevZoomConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_LocalCoordConverterFactorySimpe,

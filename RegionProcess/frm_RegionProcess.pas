@@ -50,7 +50,7 @@ uses
   i_GeometryProjectedProvider,
   i_ImageResamplerFactory,
   i_ImageResamplerConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,

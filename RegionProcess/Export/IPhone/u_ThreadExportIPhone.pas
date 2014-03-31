@@ -32,7 +32,7 @@ uses
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
   i_BinaryData,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_CoordConverterFactory,

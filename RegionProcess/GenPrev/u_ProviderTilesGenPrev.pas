@@ -34,7 +34,7 @@ uses
   i_ImageResamplerConfig,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_GlobalViewMainConfig,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,

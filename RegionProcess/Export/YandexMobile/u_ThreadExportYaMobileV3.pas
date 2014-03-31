@@ -28,7 +28,7 @@ uses
   SysUtils,
   Classes,
   i_BinaryData,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_NotifierOperation,
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,

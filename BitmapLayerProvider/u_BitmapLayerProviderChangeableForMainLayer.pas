@@ -28,7 +28,7 @@ uses
   i_BitmapPostProcessing,
   i_BitmapLayerProvider,
   i_UseTilePrevZoomConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_MapTypes,
   i_MapTypeListStatic,
   i_MapTypeListChangeable,

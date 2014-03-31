@@ -27,7 +27,7 @@ uses
   i_NotifierOperation,
   i_CoordConverter,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_LocalCoordConverter,
   i_MapTypes,
   i_MapTypeListStatic,

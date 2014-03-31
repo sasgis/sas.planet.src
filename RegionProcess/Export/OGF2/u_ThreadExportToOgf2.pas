@@ -30,7 +30,7 @@ uses
   i_BitmapTileSaveLoad,
   i_BitmapLayerProvider,
   i_BinaryData,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_RegionProcessProgressInfo,
   i_GeometryLonLat,
   i_CoordConverter,

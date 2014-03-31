@@ -30,7 +30,7 @@ uses
   i_MapTypeGUIConfigList,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_RegionProcessProgressInfoInternalFactory,

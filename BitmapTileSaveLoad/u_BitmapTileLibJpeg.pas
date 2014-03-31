@@ -30,7 +30,7 @@ uses
   i_InternalPerformanceCounter,
   i_BinaryData,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoad,
   u_BaseInterfacedObject;
 

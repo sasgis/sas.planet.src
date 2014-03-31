@@ -33,7 +33,7 @@ uses
   i_ImageResamplerFactory,
   i_TileStorage,
   i_TileError,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_MapVersionRequest,
   u_BaseInterfacedObject;
 

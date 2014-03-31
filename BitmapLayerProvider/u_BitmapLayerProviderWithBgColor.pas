@@ -26,7 +26,7 @@ uses
   t_Bitmap32,
   i_NotifierOperation,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;

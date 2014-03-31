@@ -30,7 +30,7 @@ uses
   i_ArchiveReadWriteFactory,
   i_LanguageManager,
   i_MapVersionFactory,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ContentTypeManager,
   i_FileNameIterator,
   i_ZmpConfig,

@@ -41,7 +41,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_ActiveMapsConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_MapTypeGUIConfigList,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoadFactory,

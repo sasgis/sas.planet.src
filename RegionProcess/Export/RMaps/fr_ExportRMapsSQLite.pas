@@ -38,7 +38,7 @@ uses
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
   i_RegionProcessParamsFrame,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,

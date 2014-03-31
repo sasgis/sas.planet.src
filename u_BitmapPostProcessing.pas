@@ -25,7 +25,7 @@ interface
 uses
   t_Bitmap32,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapPostProcessing,
   u_BaseInterfacedObject;
 

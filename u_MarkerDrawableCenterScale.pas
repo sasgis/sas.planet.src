@@ -24,7 +24,7 @@ interface
 
 uses
   i_BitmapMarker,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   u_MarkerDrawableByBitmapMarker;
 
 type

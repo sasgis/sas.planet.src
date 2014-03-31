@@ -31,7 +31,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_ImageResamplerFactoryChangeable,
   i_ValueToStringConverter,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_MapLayerGridsConfig,
   u_TiledLayerWithThreadBase;
 

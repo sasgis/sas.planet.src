@@ -28,7 +28,7 @@ uses
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   i_LanguageManager,
   i_MapTypeSet,

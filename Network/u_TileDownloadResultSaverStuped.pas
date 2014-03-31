@@ -33,7 +33,7 @@ uses
   i_ContentTypeSubst,
   i_ContentTypeManager,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_GlobalDownloadConfig,
   i_ImageResamplerFactoryChangeable,
   i_TilePostDownloadCropConfig,

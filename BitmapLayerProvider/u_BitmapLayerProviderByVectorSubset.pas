@@ -29,7 +29,7 @@ uses
   t_GeoTypes,
   i_CoordConverter,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_VectorDataItemSimple,
   i_VectorItemSubset,
   i_GeometryLonLat,

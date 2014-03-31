@@ -37,7 +37,7 @@ uses
   i_BitmapPostProcessing,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_MapTypeSet,
   i_MapTypeListBuilder,
   i_ActiveMapsConfig,

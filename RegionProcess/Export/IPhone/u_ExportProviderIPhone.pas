@@ -28,7 +28,7 @@ uses
   i_GeometryLonLat,
   i_MapTypeSet,
   i_ActiveMapsConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
   i_GeometryProjectedFactory,

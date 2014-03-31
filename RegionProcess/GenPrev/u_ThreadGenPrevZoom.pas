@@ -32,7 +32,7 @@ uses
   i_RegionProcessProgressInfo,
   i_CoordConverterFactory,
   i_ContentTypeInfo,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_MapVersionRequest,

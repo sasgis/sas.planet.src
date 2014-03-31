@@ -27,7 +27,7 @@ uses
   Types,
   t_GeoTypes,
   i_Bitmap32Static,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ThreadConfig,
   i_ContentTypeInfo,
   i_ConfigDataProvider,

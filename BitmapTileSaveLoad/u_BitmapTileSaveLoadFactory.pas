@@ -25,7 +25,7 @@ interface
 uses
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_Bitmap32To8Converter,
   i_InternalPerformanceCounter,
   u_BaseInterfacedObject;

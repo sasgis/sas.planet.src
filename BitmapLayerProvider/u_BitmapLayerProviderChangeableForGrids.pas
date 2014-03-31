@@ -24,7 +24,7 @@ interface
 
 uses
   i_MapLayerGridsConfig,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_ValueToStringConverter,
   i_BitmapLayerProvider,
   i_ListenerNotifierLinksList,

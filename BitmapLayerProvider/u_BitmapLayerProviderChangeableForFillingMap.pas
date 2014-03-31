@@ -26,7 +26,7 @@ uses
   i_Listener,
   i_FillingMapLayerConfig,
   i_MapTypes,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapLayerProvider,
   u_BitmapLayerProviderChangeableBase;
 

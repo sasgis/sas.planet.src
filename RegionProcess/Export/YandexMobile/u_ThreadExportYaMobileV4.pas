@@ -29,7 +29,7 @@ uses
   Classes,
   YaMobileCache,
   i_BinaryData,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_GeometryLonLat,
   i_NotifierOperation,
   i_BitmapTileSaveLoad,

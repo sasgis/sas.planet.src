@@ -27,7 +27,7 @@ uses
   GR32,
   t_GeoTypes,
   i_MarkerDrawable,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapMarker,
   u_BaseInterfacedObject;
 

@@ -33,7 +33,7 @@ uses
   i_RegionProcessProgressInfoInternalFactory,
   i_CoordConverterFactory,
   i_LocalCoordConverterFactorySimpe,
-  i_Bitmap32StaticFactory,
+  i_Bitmap32BufferFactory,
   i_BitmapTileSaveLoadFactory,
   u_ExportProviderAbstract,
   fr_ExportRMapsSQLite;
