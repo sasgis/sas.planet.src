@@ -333,6 +333,7 @@
     <DCCReference Include="i_BinaryDataListStatic.pas" />
     <DCCReference Include="i_Bitmap32Static.pas" />
     <DCCReference Include="i_Bitmap32StaticFactory.pas" />
+    <DCCReference Include="i_Bitmap32Surface.pas" />
     <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapMarker.pas" />
     <DCCReference Include="i_BitmapPostProcessing.pas" />
