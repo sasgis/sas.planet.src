@@ -64,6 +64,9 @@ type
 
     function GetTasks: TExportTaskJnxArray;
     property Tasks: TExportTaskJnxArray read GetTasks;
+
+    function GetUseRecolor: Boolean;
+    property UseRecolor: Boolean read GetUseRecolor;
   end;
 
 type
@@ -173,6 +176,7 @@ type
   private
     function GetPath: string;
     function GetAllowExport(const AMapType: IMapType): boolean;
+    function GetUseRecolor: Boolean;
   private
     function GetTasks: TExportTaskJnxArray;
     function GetProductName: string;
@@ -180,7 +184,6 @@ type
     function GetJNXVersion: Integer;
     function GetZOrder: Integer;
     function GetProductID: Integer;
-
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -299,6 +302,11 @@ begin
   if dlgSaveTargetFile.Execute then begin
     edtTargetFile.Text := dlgSaveTargetFile.FileName;
   end;
+end;
+
+function TfrExportToJNX.GetUseRecolor: Boolean;
+begin
+  Result := chkUseRecolor.Checked;
 end;
 
 procedure TfrExportToJNX.MapChange(Sender: TObject);

@@ -34,6 +34,7 @@ uses
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
   i_BitmapTileSaveLoadFactory,
+  i_BitmapPostProcessing,
   i_ArchiveReadWriteFactory,
   i_LocalCoordConverterFactorySimpe,
   i_Bitmap32StaticFactory,
@@ -68,6 +69,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -115,6 +117,7 @@ constructor TfrExport.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileNameGenerator: ITileFileNameGeneratorsList
@@ -252,6 +255,7 @@ begin
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapTileSaveLoadFactory,
+      ABitmapPostProcessing,
       ACoordConverterFactory
     );
   CBFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);

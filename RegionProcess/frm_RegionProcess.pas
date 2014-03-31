@@ -264,6 +264,7 @@ begin
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       ABitmapFactory,
+      ABitmapPostProcessing,
       ABitmapTileSaveLoadFactory,
       AArchiveReadWriteFactory,
       ATileNameGenerator

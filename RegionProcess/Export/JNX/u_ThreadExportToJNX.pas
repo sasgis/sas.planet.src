@@ -28,6 +28,7 @@ uses
   i_GeometryLonLat,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
+  i_BitmapPostProcessing,
   u_ExportToJnxTask,
   u_ThreadRegionProcessAbstract;
 
@@ -43,6 +44,8 @@ type
     FJNXVersion: byte;  // 3..4
     FZorder: integer;   // для 4 версии
     FProductID: integer; // 0,2,3,4,5,6,7,8,9
+    FBitmapPostProcessing: IBitmapPostProcessing;
+
   protected
     procedure ProcessRegion; override;
   public
@@ -55,6 +58,7 @@ type
       const ATasks: TExportTaskJnxArray;
       const AProductName: string;
       const AMapName: string;
+      const ABitmapPostProcessing: IBitmapPostProcessing;
       AJNXVersion: integer;
       AZorder: integer;
       AProductID: integer
@@ -90,6 +94,7 @@ constructor TThreadExportToJnx.Create(
   const ATasks: TExportTaskJnxArray;
   const AProductName: string;
   const AMapName: string;
+  const ABitmapPostProcessing: IBitmapPostProcessing;
   AJNXVersion: integer;
   AZorder: integer;
   AProductID: integer
@@ -109,6 +114,7 @@ begin
   FJNXVersion := AJNXVersion;
   FZorder := AZorder;
   FProductID := AProductID;
+  FBitmapPostProcessing := ABitmapPostProcessing;
 end;
 
 procedure TThreadExportToJnx.ProcessRegion;
@@ -185,8 +191,7 @@ begin
         ProgressFormUpdateOnProgress(VTilesProcessed, VTilesToProcess);
         for i := 0 to Length(FTasks) - 1 do begin
           VSaver := FTasks[i].FSaver;
-          VRecompress := FTasks[i].FRecompress;
-
+          VRecompress := FTasks[i].FRecompress or (FBitmapPostProcessing <> nil);
           VTileStorage := FTasks[i].FTileStorage;
           VVersion := FTasks[i].FMapVersion;
           VZoom := FTasks[i].FZoom;
@@ -202,6 +207,9 @@ begin
               if VRecompress or not SameText(VTileInfo.ContentType.GetContentType, 'image/jpg') then begin
                 if Supports(VTileInfo.ContentType, IContentTypeInfoBitmap, VContentTypeInfoBitmap) then begin
                   VBitmapTile := VContentTypeInfoBitmap.GetLoader.Load(VTileInfo.TileData);
+                  if FBitmapPostProcessing <> nil then begin
+                    VBitmapTile := FBitmapPostProcessing.Process(VBitmapTile);
+                  end;
                   if Assigned(VBitmapTile) then begin
                     VData := VSaver.Save(VBitmapTile);
                   end;

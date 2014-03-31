@@ -630,7 +630,6 @@ object frExportToJNX: TfrExportToJNX
           Height = 17
           Align = alCustom
           Caption = 'Use postprocessing settings'
-          Enabled = False
           TabOrder = 6
         end
         object chkUseMapMarks: TCheckBox

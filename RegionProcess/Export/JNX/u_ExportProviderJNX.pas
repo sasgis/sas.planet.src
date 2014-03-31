@@ -32,6 +32,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_BitmapTileSaveLoadFactory,
+  i_BitmapPostProcessing,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
   fr_ExportToJNX;
@@ -43,6 +44,7 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+    FBitmapPostProcessing: IBitmapPostProcessingChangeable;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -55,6 +57,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+      const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
@@ -72,7 +75,6 @@ uses
   u_ThreadExportToJNX,
   u_ResStrings;
 
-
 { TExportProviderJNX }
 
 constructor TExportProviderJNX.Create(
@@ -84,6 +86,7 @@ constructor TExportProviderJNX.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
+  const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
@@ -98,6 +101,7 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
+  FBitmapPostProcessing := ABitmapPostProcessing;
 end;
 
 function TExportProviderJNX.CreateFrame: TFrame;
@@ -132,6 +136,8 @@ var
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VTasks: TExportTaskJnxArray;
   VThread: TThread;
+  VUseRecolor: Boolean;
+  VBitmapPostProcessing: IBitmapPostProcessing;
 begin
   inherited;
 
@@ -142,8 +148,10 @@ begin
   VZorder := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ZOrder;
   VProductID := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).ProductID;
   VTasks := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).Tasks;
-
+  VUseRecolor := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).UseRecolor;
   VProgressInfo := ProgressFactory.Build(APolygon);
+  VBitmapPostProcessing := nil;
+  if VUseRecolor then VBitmapPostProcessing := FBitmapPostProcessing.GetStatic;
 
   VThread :=
     TThreadExportToJnx.Create(
@@ -155,6 +163,7 @@ begin
       VTasks,
       VProductName,
       VMapName,
+      VBitmapPostProcessing,
       VJNXVersion,
       VZorder,
       VProductID
