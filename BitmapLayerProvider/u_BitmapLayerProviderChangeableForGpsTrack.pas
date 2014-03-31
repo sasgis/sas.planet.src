@@ -37,7 +37,7 @@ type
   TBitmapLayerProviderChangeableForGpsTrack = class(TBitmapLayerProviderChangeableBase)
   private
     FConfig: IMapLayerGPSTrackConfig;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FGPSRecorder: IGpsTrackRecorder;
 
     FGetTrackCounter: IInternalPerformanceCounter;
@@ -53,7 +53,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const ATimerNoifier: INotifierTime;
       const AConfig: IMapLayerGPSTrackConfig;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AGPSRecorder: IGpsTrackRecorder
     );
   end;
@@ -72,7 +72,7 @@ constructor TBitmapLayerProviderChangeableForGpsTrack.Create(
   const APerfList: IInternalPerformanceCounterList;
   const ATimerNoifier: INotifierTime;
   const AConfig: IMapLayerGPSTrackConfig;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AGPSRecorder: IGpsTrackRecorder
 );
 begin

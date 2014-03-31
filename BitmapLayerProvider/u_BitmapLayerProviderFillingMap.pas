@@ -36,7 +36,7 @@ uses
 type
   TBitmapLayerProviderFillingMap = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FStorage: ITileStorage;
     FVersion: IMapVersionRequest;
     FUseRelativeZoom: Boolean;
@@ -62,7 +62,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
       AUseRelativeZoom: Boolean;
@@ -86,7 +86,7 @@ uses
 { TBitmapLayerProviderFillingMap }
 
 constructor TBitmapLayerProviderFillingMap.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AStorage: ITileStorage;
   const AVersion: IMapVersionRequest;
   AUseRelativeZoom: Boolean;

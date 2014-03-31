@@ -53,7 +53,7 @@ type
     FContentTypeSubst: IContentTypeSubst;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     FStorage: ITileStorage;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
 
@@ -83,7 +83,7 @@ type
     constructor Create(
       const ADownloadConfig: IGlobalDownloadConfig;
       const AImageResampler: IImageResamplerFactoryChangeable;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AContentTypeManager: IContentTypeManager;
       const AContentTypeSubst: IContentTypeSubst;
       const ASaveContentType: IContentTypeInfoBasic;
@@ -116,7 +116,7 @@ uses
 constructor TTileDownloadResultSaverStuped.Create(
   const ADownloadConfig: IGlobalDownloadConfig;
   const AImageResampler: IImageResamplerFactoryChangeable;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AContentTypeManager: IContentTypeManager;
   const AContentTypeSubst: IContentTypeSubst;
   const ASaveContentType: IContentTypeInfoBasic;

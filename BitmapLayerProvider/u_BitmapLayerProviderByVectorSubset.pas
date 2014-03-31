@@ -48,7 +48,7 @@ type
     FColorMain: TColor32;
     FColorBG: TColor32;
     FPointMarker: IMarkerDrawable;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FVectorItems: IVectorItemSubset;
     FProjectedCache: IGeometryProjectedProvider;
 
@@ -94,7 +94,7 @@ type
       AColorMain: TColor32;
       AColorBG: TColor32;
       const APointMarker: IMarkerDrawable;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AProjectedCache: IGeometryProjectedProvider;
       const AVectorItems: IVectorItemSubset
     );
@@ -120,7 +120,7 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   AColorMain: TColor32;
   AColorBG: TColor32;
   const APointMarker: IMarkerDrawable;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AProjectedCache: IGeometryProjectedProvider;
   const AVectorItems: IVectorItemSubset
 );

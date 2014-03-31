@@ -30,6 +30,13 @@ uses
   u_ObjectPoolBase;
 
 type
+  IObjectPoolBitmap32Standart = interface
+    ['{31803812-FF36-4275-A4F7-B2E8CD136A30}']
+    function Build: IBitmap32Buffer;
+    function GetSize: TPoint;
+    property Size: TPoint read GetSize;
+  end;
+
   TObjectPoolBitmap32Standart = class(TObjectPoolBase, IObjectPoolBitmap32Standart)
   private
     function Build: IBitmap32Static;

@@ -36,13 +36,13 @@ type
   TBitmapTileFreeImageLoader = class (TBaseInterfacedObject, IBitmapTileLoader)
   private
     FCounter: IInternalPerformanceCounter;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
   private
     function Load(const AData: IBinaryData): IBitmap32Static;
   public
     constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList;
-      const ABitmapFactory: IBitmap32StaticFactory
+      const ABitmapFactory: IBitmap32BufferFactory
     );
   end;
 
@@ -50,7 +50,7 @@ type
   public
     constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList;
-      const ABitmapFactory: IBitmap32StaticFactory
+      const ABitmapFactory: IBitmap32BufferFactory
     );
   end;
 
@@ -58,7 +58,7 @@ type
   public
     constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList;
-      const ABitmapFactory: IBitmap32StaticFactory
+      const ABitmapFactory: IBitmap32BufferFactory
     );
   end;
 
@@ -66,7 +66,7 @@ type
   public
     constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList;
-      const ABitmapFactory: IBitmap32StaticFactory
+      const ABitmapFactory: IBitmap32BufferFactory
     );
   end;
 
@@ -74,7 +74,7 @@ type
   public
     constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList;
-      const ABitmapFactory: IBitmap32StaticFactory
+      const ABitmapFactory: IBitmap32BufferFactory
     );
   end;
 
@@ -145,7 +145,7 @@ const
 
 constructor TBitmapTileFreeImageLoader.Create(
   const APerfCounterList: IInternalPerformanceCounterList;
-  const ABitmapFactory: IBitmap32StaticFactory
+  const ABitmapFactory: IBitmap32BufferFactory
 );
 begin
   inherited Create;
@@ -217,7 +217,7 @@ end;
 
 constructor TBitmapTileFreeImageLoaderBmp.Create(
   const APerfCounterList: IInternalPerformanceCounterList;
-  const ABitmapFactory: IBitmap32StaticFactory
+  const ABitmapFactory: IBitmap32BufferFactory
 );
 begin
   inherited Create(
@@ -230,7 +230,7 @@ end;
 
 constructor TBitmapTileFreeImageLoaderIco.Create(
   const APerfCounterList: IInternalPerformanceCounterList;
-  const ABitmapFactory: IBitmap32StaticFactory
+  const ABitmapFactory: IBitmap32BufferFactory
 );
 begin
   inherited Create(
@@ -243,7 +243,7 @@ end;
 
 constructor TBitmapTileFreeImageLoaderGif.Create(
   const APerfCounterList: IInternalPerformanceCounterList;
-  const ABitmapFactory: IBitmap32StaticFactory
+  const ABitmapFactory: IBitmap32BufferFactory
 );
 begin
   inherited Create(
@@ -256,7 +256,7 @@ end;
 
 constructor TBitmapTileFreeImageLoaderPng.Create(
   const APerfCounterList: IInternalPerformanceCounterList;
-  const ABitmapFactory: IBitmap32StaticFactory
+  const ABitmapFactory: IBitmap32BufferFactory
 );
 begin
   inherited Create(

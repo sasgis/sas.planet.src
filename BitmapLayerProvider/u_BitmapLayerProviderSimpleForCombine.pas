@@ -37,7 +37,7 @@ type
     FRecolorConfig: IBitmapPostProcessing;
     FSourceProvider: IBitmapLayerProvider;
     FMarksImageProvider: IBitmapLayerProvider;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
   private
     function GetBitmapRect(
       AOperationID: Integer;
@@ -46,7 +46,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const ARecolorConfig: IBitmapPostProcessing;
       const ASourceProvider: IBitmapLayerProvider;
       const AMarksImageProvider: IBitmapLayerProvider
@@ -63,7 +63,7 @@ uses
 { TBitmapLayerProviderSimpleForCombine }
 
 constructor TBitmapLayerProviderSimpleForCombine.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const ARecolorConfig: IBitmapPostProcessing;
   const ASourceProvider: IBitmapLayerProvider;
   const AMarksImageProvider: IBitmapLayerProvider

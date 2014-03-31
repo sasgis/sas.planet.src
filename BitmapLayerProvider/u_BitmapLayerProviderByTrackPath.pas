@@ -41,7 +41,7 @@ type
   private
     FLineWidth: Double;
     FTrackColorer: ITrackColorerStatic;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
 
     FRectIsEmpty: Boolean;
     FLonLatRect: TDoubleRect;
@@ -92,7 +92,7 @@ type
       AMaxPointsCount: Integer;
       const ALineWidth: Double;
       const ATrackColorer: ITrackColorerStatic;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AEnum: IEnumGPSTrackPoint
     );
     destructor Destroy; override;
@@ -112,7 +112,7 @@ constructor TBitmapLayerProviderByTrackPath.Create(
   AMaxPointsCount: Integer;
   const ALineWidth: Double;
   const ATrackColorer: ITrackColorerStatic;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AEnum: IEnumGPSTrackPoint
 );
 begin

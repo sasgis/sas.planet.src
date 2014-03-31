@@ -36,7 +36,7 @@ uses
 type
   TMarkerProviderForVectorItemForMarkPoints = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FMarkerDefault: IMarkerDrawableChangeable;
 
     FBitmapWithText: TBitmap32;
@@ -73,7 +73,7 @@ type
     ): IMarkerDrawable;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AMarkerDefault: IMarkerDrawableChangeable
     );
     destructor Destroy; override;
@@ -98,7 +98,7 @@ uses
 { TMarkerProviderForVectorItemForMarkPoints }
 
 constructor TMarkerProviderForVectorItemForMarkPoints.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AMarkerDefault: IMarkerDrawableChangeable
 );
 begin

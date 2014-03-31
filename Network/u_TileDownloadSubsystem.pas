@@ -114,7 +114,7 @@ type
       const ADownloadResultFactory: IDownloadResultFactory;
       const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
       const AImageResampler: IImageResamplerFactoryChangeable;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const ATileDownloaderConfig: ITileDownloaderConfig;
       const AThreadConfig: IThreadConfig;
       const ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;
@@ -172,7 +172,7 @@ constructor TTileDownloadSubsystem.Create(
   const ADownloadResultFactory: IDownloadResultFactory;
   const AZmpTileDownloaderConfig: ITileDownloaderConfigStatic;
   const AImageResampler: IImageResamplerFactoryChangeable;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const ATileDownloaderConfig: ITileDownloaderConfig;
   const AThreadConfig: IThreadConfig;
   const ATileDownloadRequestBuilderConfig: ITileDownloadRequestBuilderConfig;

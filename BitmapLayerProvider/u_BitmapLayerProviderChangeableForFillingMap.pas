@@ -33,7 +33,7 @@ uses
 type
   TBitmapLayerProviderChangeableForFillingMap = class(TBitmapLayerProviderChangeableBase)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FConfig: IFillingMapLayerConfig;
 
     FVersionListener: IListener;
@@ -44,7 +44,7 @@ type
     function CreateStatic: IInterface; override;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AConfig: IFillingMapLayerConfig
     );
     destructor Destroy; override;
@@ -59,7 +59,7 @@ uses
 { TBitmapLayerProviderChangeableForFillingMap }
 
 constructor TBitmapLayerProviderChangeableForFillingMap.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AConfig: IFillingMapLayerConfig
 );
 begin

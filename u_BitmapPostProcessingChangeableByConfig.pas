@@ -32,7 +32,7 @@ uses
 type
   TBitmapPostProcessingChangeableByConfig = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IBitmapPostProcessingChangeable)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FConfig: IBitmapPostProcessingConfig;
     FConfigChangeListener: IListener;
     procedure  OnConfigChange;
@@ -43,7 +43,7 @@ type
   public
     constructor Create(
       const AConfig: IBitmapPostProcessingConfig;
-      const ABitmapFactory: IBitmap32StaticFactory
+      const ABitmapFactory: IBitmap32BufferFactory
     );
     destructor Destroy; override;
   end;
@@ -135,7 +135,7 @@ end;
 
 constructor TBitmapPostProcessingChangeableByConfig.Create(
   const AConfig: IBitmapPostProcessingConfig;
-  const ABitmapFactory: IBitmap32StaticFactory
+  const ABitmapFactory: IBitmap32BufferFactory
 );
 begin
   Assert(AConfig <> nil);

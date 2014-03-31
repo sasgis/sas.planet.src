@@ -41,7 +41,7 @@ type
     FShowText: Boolean;
     FShowLines: Boolean;
     FScale: Integer;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
 
     FCS: IReadWriteSync;
     FBitmap: TBitmap32;
@@ -64,7 +64,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       AColor: TColor32;
       AScale: Integer;
       AShowText: Boolean;
@@ -87,7 +87,7 @@ uses
 { TBitmapLayerProviderGridGenshtab }
 
 constructor TBitmapLayerProviderGridGenshtab.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   AColor: TColor32;
   AScale: Integer;
   AShowText, AShowLines: Boolean

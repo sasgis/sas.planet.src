@@ -35,7 +35,7 @@ uses
 type
   TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FMapTypeMain: IMapType;
     FMapTypeMainVersion: IMapVersionRequest;
     FMapTypeHybr: IMapType;
@@ -50,7 +50,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AMapTypeMain: IMapType;
       const AMapTypeMainVersion: IMapVersionRequest;
       const AMapTypeHybr: IMapType;
@@ -70,7 +70,7 @@ uses
 { TBitmapLayerProviderMapWithLayer }
 
 constructor TBitmapLayerProviderMapWithLayer.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AMapTypeMain: IMapType;
   const AMapTypeMainVersion: IMapVersionRequest;
   const AMapTypeHybr: IMapType;

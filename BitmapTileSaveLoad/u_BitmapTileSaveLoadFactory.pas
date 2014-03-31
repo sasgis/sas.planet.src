@@ -36,7 +36,7 @@ type
     IBitmapTileSaveLoadFactory
   )
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FBitmap32To8Converter: IBitmap32To8Converter;
   private
      // BMP
@@ -78,7 +78,7 @@ type
       const APerfCounterList: IInternalPerformanceCounterList = nil
     ): IBitmapTileSaver;
   public
-    constructor Create(const ABitmapFactory: IBitmap32StaticFactory);
+    constructor Create(const ABitmapFactory: IBitmap32BufferFactory);
   end;
 
 implementation
@@ -103,7 +103,7 @@ end;
 { TBitmapTileSaveLoadFactory }
 
 constructor TBitmapTileSaveLoadFactory.Create(
-  const ABitmapFactory: IBitmap32StaticFactory
+  const ABitmapFactory: IBitmap32BufferFactory
 );
 begin
   inherited Create;

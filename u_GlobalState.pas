@@ -178,7 +178,7 @@ type
     FVectorGeometryLocalFactory: IGeometryLocalFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -259,7 +259,7 @@ type
     property VectorGeometryLonLatFactory: IGeometryLonLatFactory read FVectorGeometryLonLatFactory;
     property VectorGeometryProjectedFactory: IGeometryProjectedFactory read FVectorGeometryProjectedFactory;
     property VectorGeometryLocalFactory: IGeometryLocalFactory read FVectorGeometryLocalFactory;
-    property BitmapFactory: IBitmap32StaticFactory read FBitmapFactory;
+    property BitmapFactory: IBitmap32BufferFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
     property VectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory read FVectorDataItemMainInfoFactory;
     property ProjectedGeometryProvider: IGeometryProjectedProvider read FProjectedGeometryProvider;

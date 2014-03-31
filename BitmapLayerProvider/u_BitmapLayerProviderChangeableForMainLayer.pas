@@ -39,7 +39,7 @@ type
   TBitmapLayerProviderChangeableForMainLayer = class(TBitmapLayerProviderChangeableBase)
   private
     FErrorLogger: ITileErrorLogger;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FPostProcessing: IBitmapPostProcessingChangeable;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FMainMap: IMapTypeChangeable;
@@ -61,7 +61,7 @@ type
       const ALayesList: IMapTypeListChangeable;
       const APostProcessing: IBitmapPostProcessingChangeable;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AErrorLogger: ITileErrorLogger
     );
     destructor Destroy; override;
@@ -80,7 +80,7 @@ constructor TBitmapLayerProviderChangeableForMainLayer.Create(
   const ALayesList: IMapTypeListChangeable;
   const APostProcessing: IBitmapPostProcessingChangeable;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AErrorLogger: ITileErrorLogger
 );
 begin

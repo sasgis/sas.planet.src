@@ -51,7 +51,7 @@ type
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const AContentTypeManager: IContentTypeManager;
       const AVersionFactory: IMapVersionFactory;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const ALanguageManager: ILanguageManager;
       const AFilesIterator: IFileNameIterator
     );
@@ -77,7 +77,7 @@ constructor TZmpInfoSet.Create(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AContentTypeManager: IContentTypeManager;
   const AVersionFactory: IMapVersionFactory;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const ALanguageManager: ILanguageManager;
   const AFilesIterator: IFileNameIterator
 );

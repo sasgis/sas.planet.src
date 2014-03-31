@@ -47,7 +47,7 @@ type
       const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifierTime;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AConfig: IFillingMapLayerConfig
     );
   end;
@@ -74,7 +74,7 @@ constructor TMapLayerFillingMap.Create(
   const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifierTime;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AConfig: IFillingMapLayerConfig
 );
 var

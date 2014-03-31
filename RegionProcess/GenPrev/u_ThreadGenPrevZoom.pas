@@ -53,7 +53,7 @@ type
     FVersion: IMapVersionRequest;
     FResamplerFactory: IImageResamplerFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
 
     FTileInProc: integer;
@@ -66,7 +66,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorItemsFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AZooms: TByteDynArray;
       const APolygLL: IGeometryLonLatMultiPolygon;
       const AContentType: IContentTypeInfoBitmap;
@@ -103,7 +103,7 @@ constructor TThreadGenPrevZoom.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorItemsFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AZooms: TByteDynArray;
   const APolygLL: IGeometryLonLatMultiPolygon;
   const AContentType: IContentTypeInfoBitmap;

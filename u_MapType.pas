@@ -94,7 +94,7 @@ type
     FResamplerLoad: IImageResamplerFactoryChangeable;
     FResamplerGetPrev: IImageResamplerFactoryChangeable;
     FResamplerChangeProjection: IImageResamplerFactoryChangeable;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FGUIConfig: IMapTypeGUIConfig;
     FLayerDrawConfig: ILayerDrawConfig;
     FAbilitiesConfig: IMapAbilitiesConfig;
@@ -213,7 +213,7 @@ type
       const AResamplerGetPrev: IImageResamplerFactoryChangeable;
       const AResamplerChangeProjection: IImageResamplerFactoryChangeable;
       const AResamplerDownload: IImageResamplerFactoryChangeable;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AHashFunction: IHashFunction;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
@@ -291,7 +291,7 @@ constructor TMapType.Create(
   const AResamplerGetPrev: IImageResamplerFactoryChangeable;
   const AResamplerChangeProjection: IImageResamplerFactoryChangeable;
   const AResamplerDownload: IImageResamplerFactoryChangeable;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AHashFunction: IHashFunction;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;

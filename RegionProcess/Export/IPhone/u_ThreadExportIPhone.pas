@@ -52,7 +52,7 @@ type
 
   TThreadExportIPhone = class(TThreadExportAbstract)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FTasks: TExportTaskIPhoneArray;
     FActiveMapIndex: integer;
     FNewFormat: Boolean;
@@ -82,7 +82,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const APath: string;
       const APolygon: IGeometryLonLatMultiPolygon;
       const ATasks: TExportTaskIPhoneArray;
@@ -116,7 +116,7 @@ constructor TThreadExportIPhone.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const APath: string;
   const APolygon: IGeometryLonLatMultiPolygon;
   const ATasks: TExportTaskIPhoneArray;

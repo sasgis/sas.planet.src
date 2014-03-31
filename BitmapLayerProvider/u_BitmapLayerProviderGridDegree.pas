@@ -42,7 +42,7 @@ type
     FShowText: Boolean;
     FShowLines: Boolean;
     FScale: Double;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FValueConverter: IValueToStringConverter;
 
     FCS: IReadWriteSync;
@@ -66,7 +66,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       AColor: TColor32;
       AScale: Double;
       AShowText: Boolean;
@@ -89,7 +89,7 @@ uses
 { TBitmapLayerProviderGridGenshtab }
 
 constructor TBitmapLayerProviderGridDegree.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   AColor: TColor32;
   AScale: Double;
   AShowText, AShowLines: Boolean;

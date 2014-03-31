@@ -45,7 +45,7 @@ type
     FProjectionInfo: IProjectionInfo;
     FVersionConfig: IMapVersionConfig;
     FLoaderFromStorage: IBitmapTileLoader;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FStorage: ITileStorage;
     FIsIgnoreError: Boolean;
     FImageResampler: IImageResamplerFactoryChangeable;
@@ -57,7 +57,7 @@ type
     constructor Create(
       const AIsIgnoreError: Boolean;
       const AImageResampler: IImageResamplerFactoryChangeable;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IBitmapTileLoader;
       const AProjectionInfo: IProjectionInfo;
@@ -101,7 +101,7 @@ uses
 constructor TBitmapTileProviderByStorage.Create(
   const AIsIgnoreError: Boolean;
   const AImageResampler: IImageResamplerFactoryChangeable;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IBitmapTileLoader;
   const AProjectionInfo: IProjectionInfo;

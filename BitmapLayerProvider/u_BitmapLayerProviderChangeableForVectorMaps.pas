@@ -36,7 +36,7 @@ type
   TBitmapLayerProviderChangeableForVectorMaps = class(TBitmapLayerProviderChangeableBase)
   private
     FConfig: IVectorItemDrawConfig;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FPointMarker: IMarkerDrawableChangeable;
     FProjectedProvider: IGeometryProjectedProvider;
     FVectorItems: IVectorItemSubsetChangeable;
@@ -49,7 +49,7 @@ type
     constructor Create(
       const AConfig: IVectorItemDrawConfig;
       const APointMarker: IMarkerDrawableChangeable;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AProjectedProvider: IGeometryProjectedProvider;
       const AVectorItems: IVectorItemSubsetChangeable
     );
@@ -67,7 +67,7 @@ uses
 constructor TBitmapLayerProviderChangeableForVectorMaps.Create(
   const AConfig: IVectorItemDrawConfig;
   const APointMarker: IMarkerDrawableChangeable;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AProjectedProvider: IGeometryProjectedProvider;
   const AVectorItems: IVectorItemSubsetChangeable
 );

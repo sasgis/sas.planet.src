@@ -30,7 +30,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmap32StaticFactorySimple = class(TBaseInterfacedObject, IBitmap32StaticFactory)
+  TBitmap32StaticFactorySimple = class(TBaseInterfacedObject, IBitmap32BufferFactory)
   private
     function Build(
       const ASize: TPoint;

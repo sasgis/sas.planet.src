@@ -34,7 +34,7 @@ uses
 type
   TBitmapLayerProviderWithBGColor = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FSourceProvider: IBitmapLayerProvider;
     FBackGroundColor: TColor32;
   private
@@ -46,7 +46,7 @@ type
   public
     constructor Create(
       ABackGroundColor: TColor32;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const ASourceProvider: IBitmapLayerProvider
     );
   end;
@@ -62,7 +62,7 @@ uses
 
 constructor TBitmapLayerProviderWithBGColor.Create(
   ABackGroundColor: TColor32;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const ASourceProvider: IBitmapLayerProvider
 );
 begin

@@ -41,7 +41,7 @@ type
   private
     FMainMap: IMapType;
     FLayersList: IMapTypeListStatic;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     FUseCache: Boolean;
@@ -66,7 +66,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AMainMap: IMapType;
       const ALayersList: IMapTypeListStatic;
       AUsePrevZoomAtMap: Boolean;
@@ -90,7 +90,7 @@ uses
 { TBitmapLayerProviderForViewMaps }
 
 constructor TBitmapLayerProviderForViewMaps.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AMainMap: IMapType;
   const ALayersList: IMapTypeListStatic;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer, AUseCache: Boolean;

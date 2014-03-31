@@ -33,7 +33,7 @@ uses
 type
   TBitmapLayerProviderComplex = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FProviderFrist: IBitmapLayerProvider;
     FProviderSecond: IBitmapLayerProvider;
   private
@@ -44,7 +44,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AProviderFrist: IBitmapLayerProvider;
       const AProviderSecond: IBitmapLayerProvider
     );
@@ -60,7 +60,7 @@ uses
 { TBitmapLayerProviderComplex }
 
 constructor TBitmapLayerProviderComplex.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AProviderFrist, AProviderSecond: IBitmapLayerProvider
 );
 begin

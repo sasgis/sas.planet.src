@@ -58,7 +58,7 @@ type
       const APostProcessing: IBitmapPostProcessingChangeable;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AThreadConfig: IThreadConfig;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: INotifierTime
     );
@@ -89,7 +89,7 @@ constructor TMiniMapLayer.Create(
   const APostProcessing: IBitmapPostProcessingChangeable;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AThreadConfig: IThreadConfig;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AErrorLogger: ITileErrorLogger;
   const ATimerNoifier: INotifierTime
 );

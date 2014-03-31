@@ -38,7 +38,7 @@ type
   TLibJpegTileLoader = class(TBaseInterfacedObject, IBitmapTileLoader)
   private
     FLoadStreamCounter: IInternalPerformanceCounter;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
 
     function ReadLine(
       Sender: TObject;
@@ -52,7 +52,7 @@ type
   public
     constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList;
-      const ABitmapFactory: IBitmap32StaticFactory
+      const ABitmapFactory: IBitmap32BufferFactory
     );
   end;
 
@@ -104,7 +104,7 @@ const
 
 constructor TLibJpegTileLoader.Create(
   const APerfCounterList: IInternalPerformanceCounterList;
-  const ABitmapFactory: IBitmap32StaticFactory
+  const ABitmapFactory: IBitmap32BufferFactory
 );
 begin
   inherited Create;

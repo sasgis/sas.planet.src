@@ -45,7 +45,7 @@ type
     FResamplerChangeProjection: IImageResamplerFactory;
     FResamplerGetPrev: IImageResamplerFactory;
     FResamplerLoad: IImageResamplerFactory;
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FLoadPrevMaxZoomDelta: Integer;
     FErrorLogger: ITileErrorLogger;
     FVersion: IMapVersionRequest;
@@ -101,7 +101,7 @@ type
       const AResamplerChangeProjection: IImageResamplerFactory;
       const AResamplerGetPrev: IImageResamplerFactory;
       const AResamplerLoad: IImageResamplerFactory;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const ALoadPrevMaxZoomDelta: Integer;
       const AVersion: IMapVersionRequest;
       const ACache: ITileObjCacheBitmap;
@@ -131,7 +131,7 @@ constructor TBitmapLayerProviderByMapType.Create(
   const AResamplerChangeProjection: IImageResamplerFactory;
   const AResamplerGetPrev: IImageResamplerFactory;
   const AResamplerLoad: IImageResamplerFactory;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const ALoadPrevMaxZoomDelta: Integer;
   const AVersion: IMapVersionRequest;
   const ACache: ITileObjCacheBitmap;

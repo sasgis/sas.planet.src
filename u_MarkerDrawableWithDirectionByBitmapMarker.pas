@@ -34,7 +34,7 @@ uses
 type
   TMarkerDrawableWithDirectionByBitmapMarker = class(TBaseInterfacedObject, IMarkerDrawableWithDirection)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FMarker: IBitmapMarkerWithDirection;
     FCachedMarkerCS: IReadWriteSync;
     FCachedMarker: IBitmapMarkerWithDirection;
@@ -56,7 +56,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AMarker: IBitmapMarkerWithDirection
     );
   end;
@@ -83,7 +83,7 @@ const
 { TMarkerDrawableWithDirectionByBitmapMarker }
 
 constructor TMarkerDrawableWithDirectionByBitmapMarker.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AMarker: IBitmapMarkerWithDirection
 );
 begin

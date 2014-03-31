@@ -33,7 +33,7 @@ uses
 type
   TBitmapLayerProviderChangeableForGrids = class(TBitmapLayerProviderChangeableBase)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FConfig: IMapLayerGridsConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
 
@@ -42,7 +42,7 @@ type
     function CreateStatic: IInterface; override;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AConfig: IMapLayerGridsConfig
     );
@@ -61,7 +61,7 @@ uses
 { TBitmapLayerProviderChangeableForGrids }
 
 constructor TBitmapLayerProviderChangeableForGrids.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AConfig: IMapLayerGridsConfig);
 begin

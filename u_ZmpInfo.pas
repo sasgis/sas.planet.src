@@ -69,18 +69,18 @@ type
       const AConfig: IConfigDataProvider;
       const AConfigIni: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       Apnum: Integer
     );
     function CreateDefaultIcon(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       Apnum: Integer
     ): IBitmap32Static;
     procedure LoadIcons(
       const AContentTypeManager: IContentTypeManager;
       const AConfig: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       Apnum: Integer
     );
     procedure LoadUIParams(
@@ -107,7 +107,7 @@ type
       const AGUID: TGUID;
       const ALanguageManager: ILanguageManager;
       const AContentTypeManager: IContentTypeManager;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AConfig: IConfigDataProvider;
       const AConfigIni: IConfigDataProvider;
       const AConfigIniParams: IConfigDataProvider;
@@ -190,7 +190,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const AContentTypeManager: IContentTypeManager;
       const AVersionFactory: IMapVersionFactory;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AFileName: string;
       const AConfig: IConfigDataProvider;
       Apnum: Integer
@@ -277,7 +277,7 @@ constructor TZmpInfoGUI.Create(
   const AGUID: TGUID;
   const ALanguageManager: ILanguageManager;
   const AContentTypeManager: IContentTypeManager;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AConfig: IConfigDataProvider;
   const AConfigIni: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
@@ -301,7 +301,7 @@ begin
 end;
 
 function TZmpInfoGUI.CreateDefaultIcon(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   Apnum: Integer
 ): IBitmap32Static;
 var
@@ -380,7 +380,7 @@ procedure TZmpInfoGUI.LoadConfig(
   const AConfig: IConfigDataProvider;
   const AConfigIni: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   Apnum: Integer
 );
 begin
@@ -390,7 +390,7 @@ begin
 end;
 
 function UpdateBMPTransp(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   AMaskColor: TColor32;
   const ABitmap: IBitmap32Static
 ): IBitmap32Static;
@@ -422,7 +422,7 @@ function GetBitmap(
   const AContentTypeManager: IContentTypeManager;
   const AConfig: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const ADefName: string;
   const AIdent: string
 ): IBitmap32Static;
@@ -459,7 +459,7 @@ procedure TZmpInfoGUI.LoadIcons(
   const AContentTypeManager: IContentTypeManager;
   const AConfig: IConfigDataProvider;
   const AConfigIniParams: IConfigDataProvider;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   Apnum: Integer
 );
 begin
@@ -565,7 +565,7 @@ constructor TZmpInfo.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const AContentTypeManager: IContentTypeManager;
   const AVersionFactory: IMapVersionFactory;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AFileName: string;
   const AConfig: IConfigDataProvider;
   Apnum: Integer

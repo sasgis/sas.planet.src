@@ -29,13 +29,14 @@ uses
   i_NotifierTime,
   i_Bitmap32Static,
   i_Bitmap32StaticFactory,
+  u_ObjectPoolBitmap32Standart,
   u_BaseInterfacedObject;
 
 type
-  TBitmap32StaticFactory = class(TBaseInterfacedObject, IBitmap32StaticFactory)
+  TBitmap32StaticFactory = class(TBaseInterfacedObject, IBitmap32BufferFactory)
   private
     FStandartSizePool: IObjectPoolBitmap32Standart;
-    FFactorySimple: IBitmap32StaticFactory;
+    FFactorySimple: IBitmap32BufferFactory;
   private
     function Build(
       const ASize: TPoint;
@@ -57,8 +58,7 @@ implementation
 
 uses
   GR32_LowLevel,
-  u_Bitmap32StaticFactorySimple,
-  u_ObjectPoolBitmap32Standart;
+  u_Bitmap32StaticFactorySimple;
 
 { TBitmap32StaticFactory }
 

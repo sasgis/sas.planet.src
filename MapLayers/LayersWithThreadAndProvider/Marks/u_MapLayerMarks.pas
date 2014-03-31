@@ -52,7 +52,7 @@ type
       const AProjectedCache: IGeometryProjectedProvider;
       const AMarkerProvider: IMarkerProviderForVectorItem;
       const ATimerNoifier: INotifierTime;
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AMarksSubset: IVectorItemSubsetChangeable;
       const AConfig: IMarksLayerConfig
     );
@@ -79,7 +79,7 @@ constructor TMapLayerMarks.Create(
   const AProjectedCache: IGeometryProjectedProvider;
   const AMarkerProvider: IMarkerProviderForVectorItem;
   const ATimerNoifier: INotifierTime;
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AMarksSubset: IVectorItemSubsetChangeable;
   const AConfig: IMarksLayerConfig
 );

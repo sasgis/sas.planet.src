@@ -40,7 +40,7 @@ type
     FDefShortCut: TShortCut;
     FShortCut: TShortCut;
     function GetBitmap(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       AMenu: TTBCustomItem
     ): IBitmap32Static;
   protected
@@ -56,7 +56,7 @@ type
     procedure ApplyShortCut;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       AMenuItem: TTBCustomItem
     );
   end;
@@ -71,7 +71,7 @@ uses
 { TShortCutSingleConfig }
 
 constructor TShortCutSingleConfig.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   AMenuItem: TTBCustomItem
 );
 begin
@@ -112,7 +112,7 @@ begin
 end;
 
 function TShortCutSingleConfig.GetBitmap(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   AMenu: TTBCustomItem
 ): IBitmap32Static;
 var

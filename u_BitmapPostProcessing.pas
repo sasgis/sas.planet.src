@@ -39,26 +39,26 @@ type
 
   TBitmapPostProcessingByTable = class(TBaseInterfacedObject, IBitmapPostProcessing)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FTable: TComponentTable;
   private
     function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const ATable: TComponentTable
     );
   end;
 
   TBitmapPostProcessingMakeTransparetnByColor = class(TBaseInterfacedObject, IBitmapPostProcessing)
   private
-    FBitmapFactory: IBitmap32StaticFactory;
+    FBitmapFactory: IBitmap32BufferFactory;
     FMaskColor: TColor32;
   private
     function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       const AMaskColor: TColor32
     );
   end;
@@ -79,7 +79,7 @@ end;
 { TBitmapPostProcessingByTable }
 
 constructor TBitmapPostProcessingByTable.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const ATable: TComponentTable
 );
 begin
@@ -122,7 +122,7 @@ end;
 { TBitmapPostProcessingMakeTransparetnByColor }
 
 constructor TBitmapPostProcessingMakeTransparetnByColor.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   const AMaskColor: TColor32
 );
 begin

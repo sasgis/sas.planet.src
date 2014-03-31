@@ -36,12 +36,12 @@ type
     FIgnoredItems: TList;
     FItemsList: IInterfaceList;
     procedure LoadItems(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       Menu: TTBCustomItem
     );
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32StaticFactory;
+      const ABitmapFactory: IBitmap32BufferFactory;
       AMainMenu: TTBCustomItem;
       AIgnoredItems: TList
     );
@@ -64,7 +64,7 @@ uses
 { TShortcutManager }
 
 constructor TShortcutManager.Create(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   AMainMenu: TTBCustomItem;
   AIgnoredItems: TList
 );
@@ -147,7 +147,7 @@ begin
 end;
 
 procedure TShortcutManager.LoadItems(
-  const ABitmapFactory: IBitmap32StaticFactory;
+  const ABitmapFactory: IBitmap32BufferFactory;
   Menu: TTBCustomItem
 );
 var
