@@ -1,4 +1,4 @@
-unit c_Bitmap32;
+unit c_Color32;
 
 interface
 

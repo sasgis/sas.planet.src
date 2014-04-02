@@ -54,7 +54,7 @@ type
 implementation
 
 uses
-  c_Bitmap32,
+  c_Color32,
   u_ConfigProviderHelpers;
   
 { TFullMapMouseCursorLayerConfig }

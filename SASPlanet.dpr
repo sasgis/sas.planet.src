@@ -16,7 +16,7 @@ uses
   XPMan,
   u_ReadableThreadNames,
   t_Bitmap32 in 't_Bitmap32.pas',
-  c_Bitmap32 in 'c_Bitmap32.pas',
+  c_Color32 in 'c_Color32.pas',
   i_BuildInfo in 'i_BuildInfo.pas',
   u_BuildInfo in 'u_BuildInfo.pas',
   i_InterfaceListStatic in 'Basic\i_InterfaceListStatic.pas',
