@@ -94,6 +94,9 @@
     <DCCReference Include="Basic\u_Notifier.pas" />
     <DCCReference Include="Basic\u_NotifierOperation.pas" />
     <DCCReference Include="Basic\u_NotifierTime.pas" />
+    <DCCReference Include="Basic\u_SimpleFlagWithInterlock.pas" />
+    <DCCReference Include="Basic\u_StreamReadOnlyByBinaryData.pas" />
+    <DCCReference Include="Basic\u_StringListStatic.pas" />
     <DCCReference Include="BitmapLayerProvider\i_BitmapLayerProvider.pas" />
     <DCCReference Include="BitmapLayerProvider\i_BitmapLayerProviderChangeable.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderByMapType.pas" />
@@ -1272,17 +1275,14 @@
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_ShortCutModalEditByForm.pas" />
     <DCCReference Include="u_ShortCutSingleConfig.pas" />
-    <DCCReference Include="u_SimpleFlagWithInterlock.pas" />
     <DCCReference Include="u_SortFunc.pas" />
     <DCCReference Include="u_SourceDataUpdateInRectByFillingMap.pas" />
     <DCCReference Include="u_SourceDataUpdateInRectByMapsSet.pas" />
     <DCCReference Include="u_StartUpLogoConfig.pas" />
     <DCCReference Include="u_StaticTreeBuilderBase.pas" />
     <DCCReference Include="u_StaticTreeItem.pas" />
-    <DCCReference Include="u_StreamReadOnlyByBinaryData.pas" />
     <DCCReference Include="u_StringByLanguageWithStaticList.pas" />
     <DCCReference Include="u_StringHistory.pas" />
-    <DCCReference Include="u_StringListStatic.pas" />
     <DCCReference Include="u_StringProviderForMapTileItem.pas" />
     <DCCReference Include="u_SystemTimeProvider.pas" />
     <DCCReference Include="u_TBXSubmenuItemWithIndicator.pas" />
