@@ -73,7 +73,6 @@ type
 implementation
 
 uses
-  GR32,
   t_GeoTypes,
   i_BinaryData,
   i_EnumDoublePoint,
@@ -380,11 +379,15 @@ begin
 end;
 
 function TExportMarks2KML.Color32toKMLColor(Color32: TColor32): string;
+var
+  VColor: TColor32Entry;
 begin
-  result := IntToHex(AlphaComponent(Color32), 2) +
-    IntToHex(BlueComponent(Color32), 2) +
-    IntToHex(GreenComponent(Color32), 2) +
-    IntToHex(RedComponent(Color32), 2);
+  VColor.ARGB := Color32;
+  Result :=
+    IntToHex(VColor.A, 2) +
+    IntToHex(VColor.B, 2) +
+    IntToHex(VColor.G, 2) +
+    IntToHex(VColor.R, 2);
 end;
 
 function TExportMarks2KML.SaveMarkIcon(
