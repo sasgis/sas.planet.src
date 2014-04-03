@@ -783,6 +783,7 @@ uses
   i_PathDetalizeProvider,
   i_StringListChangeable,
   i_MarkerProviderForVectorItem,
+  i_FillingMapLayerConfig,
   i_PopUp,
   i_ViewPortState,
   i_CoordConverterList,
@@ -2924,23 +2925,14 @@ end;
 
 procedure TfrmMain.OnFillingMapChange;
 var
-  VVisible: Boolean;
-  VRelative: Boolean;
-  VZoom: Byte;
+  VConfig: IFillingMapLayerConfigStatic;
 begin
-  FConfig.LayersConfig.FillingMapLayerConfig.LockRead;
-  try
-    VVisible := FConfig.LayersConfig.FillingMapLayerConfig.Visible;
-    VRelative := FConfig.LayersConfig.FillingMapLayerConfig.UseRelativeZoom;
-    VZoom := FConfig.LayersConfig.FillingMapLayerConfig.Zoom;
-  finally
-    FConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
-  end;
-  if VVisible then begin
-    if VRelative then begin
-      TBMapZap.Caption:='+'+inttostr(VZoom);
+  VConfig := FConfig.LayersConfig.FillingMapLayerConfig.GetStatic;
+  if VConfig.Visible then begin
+    if VConfig.UseRelativeZoom then begin
+      TBMapZap.Caption:='+'+inttostr(VConfig.Zoom);
     end else begin
-      TBMapZap.Caption:='z'+inttostr(VZoom + 1);
+      TBMapZap.Caption:='z'+inttostr(VConfig.Zoom + 1);
     end;
   end else begin
     TBMapZap.Caption:='';
