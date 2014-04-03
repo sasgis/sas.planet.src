@@ -102,9 +102,6 @@ type
     procedure SetTNEColor(const AValue: TColor32);
     property TNEColor: TColor32 read GetTNEColor write SetTNEColor;
 
-    function GetSourceMap: IFillingMapMapsConfig;
-    function GetStatic: IFillingMapLayerConfigStatic;
-
     function GetFillMode: TFillMode;
     procedure SetFillMode(const AValue: TFillMode);
     property FillMode: TFillMode read GetFillMode write SetFillMode;
@@ -123,6 +120,11 @@ type
 
     function GetThreadConfig: IThreadConfig;
     property ThreadConfig: IThreadConfig read GetThreadConfig;
+
+    function GetSourceMap: IFillingMapMapsConfig;
+    property SourceMap: IFillingMapMapsConfig read GetSourceMap;
+
+    function GetStatic: IFillingMapLayerConfigStatic;
   end;
 
 implementation
