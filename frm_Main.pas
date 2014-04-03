@@ -402,6 +402,8 @@ type
     tbxsbmProjection: TTBXSubmenuItem;
     tbxSep1: TTBXSeparatorItem;
     tbitmCheckUpdate: TTBXItem;
+    btnHideAll: TTBXItem;
+    HideSeparator: TTBSeparatorItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -558,6 +560,7 @@ type
     procedure TBXMakeRosreestrPolygonClick(Sender: TObject);
     procedure tbpmiShowPrevVersionClick(Sender: TObject);
     procedure tbitmCheckUpdateClick(Sender: TObject);
+    procedure btnHideAllClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -681,7 +684,7 @@ type
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
     procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; AZoom:byte; const AMousePos:TPoint);
     procedure ProcessPosChangeMessage;
-    function GetIgnoredMenuItemsList: TList;
+    function GetIgnoredMenuItemsList: TList;    
     procedure MapLayersVisibleChange;
     procedure OnMainFormMainConfigChange;
     procedure OnStateChange;
@@ -2479,10 +2482,12 @@ end;
 procedure TfrmMain.CreateMapUILayersList;
 var
   VGenerator: TMapMenuGeneratorBasic;
+  VLayersSet: IMapTypeSet;
 begin
+  VLayersSet := FConfig.MainMapsConfig.GetLayersSet;
   VGenerator := TMapMenuGeneratorBasic.Create(
     GState.MapType.GUIConfigList,
-    FConfig.MainMapsConfig.GetLayersSet,
+    VLayersSet,
     nil,
     FConfig.MainMapsConfig.GetActiveLayersSet,
     TBLayerSel,
@@ -2494,6 +2499,8 @@ begin
   finally
     FreeAndNil(VGenerator);
   end;
+  btnHideAll.Visible := VLayersSet.Count > 0;
+  HideSeparator.Visible := VLayersSet.Count > 0;
 end;
 
 procedure TfrmMain.CreateMapUILayerSubMenu;
@@ -5916,6 +5923,22 @@ procedure TfrmMain.AdjustFont(Item: TTBCustomItem;
 begin
  if TTBXItem(Item).Checked then TTBXItem(Item).FontSettings.Bold := tsTrue
                            else TTBXItem(Item).FontSettings.Bold := tsDefault;
+end;
+
+procedure TfrmMain.btnHideAllClick(Sender: TObject);
+var
+  VMapTypeSet: IMapTypeSet;
+  i: Integer;
+begin
+  VMapTypeSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetStatic;
+  FConfig.MainMapsConfig.LockWrite;
+  try
+    for i := 0 to VMapTypeSet.Count - 1 do begin
+      FConfig.MainMapsConfig.UnSelectLayerByGUID(VMapTypeSet.Items[i].GUID);
+    end;
+  finally
+    FConfig.MainMapsConfig.UnlockWrite;
+  end;
 end;
 
 procedure TfrmMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;

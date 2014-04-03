@@ -144,6 +144,15 @@ object frmMain: TfrmMain
         Options = [tboDropdownArrow]
         Caption = ''
         Hint = 'Select overlay layers'
+        object btnHideAll: TTBXItem
+          OnClick = btnHideAllClick
+          Caption = 'Hide All'
+          Hint = ''
+        end
+        object HideSeparator: TTBSeparatorItem
+          Caption = ''
+          Hint = ''
+        end
       end
     end
     object TBMarksToolbar: TTBXToolbar
@@ -325,7 +334,7 @@ object frmMain: TfrmMain
             ShortCut = 32850
             OnClick = TBRECTClick
             Caption = 'Rectangular Selection'
-            Hint =
+            Hint = 
               'Alt - snap to Lat/Lon grid (if enabled)'#13#10'Ctrl - snap to tile bou' +
               'ndaries'#13#10'Shift - snap to GenShtab boundaries (if enabled)'
           end
@@ -1700,7 +1709,7 @@ object frmMain: TfrmMain
   end
   object OpenSessionDialog: TOpenDialog
     DefaultExt = '*.sls'
-    Filter =
+    Filter = 
       'All compatible formats (*.kml,*.plt,*.kmz,*.sls,*.hlg,*.gpx,*.jp' +
       'g)|*.kml;*.plt;*.kmz;*.sls;*.hlg;*.gpx;*.jpg|Google KML files (*' +
       '.kml)|*.kml|OziExplorer Track Point File Version 2.1 (*.plt)|*.p' +
