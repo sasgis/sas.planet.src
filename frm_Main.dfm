@@ -529,6 +529,12 @@ object frmMain: TfrmMain
             Options = [tboDropdownArrow]
             Caption = 'Show for...'
             Hint = ''
+            object tbitmFillingMapAsMain: TTBXItem
+              OnAdjustFont = AdjustFont
+              OnClick = TBfillMapAsMainClick
+              Caption = 'Displayed Main Map'
+              Hint = ''
+            end
           end
           object TBXSeparatorItem11: TTBXSeparatorItem
             Caption = ''

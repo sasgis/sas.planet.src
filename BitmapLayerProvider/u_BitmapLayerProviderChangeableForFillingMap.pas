@@ -94,7 +94,7 @@ begin
   VResult := nil;
   VConfig := FConfig.GetStatic;
   if VConfig.Visible then begin
-    VMap := VConfig.SourceMap;
+    VMap := VConfig.ActualMap;
     if FSourceMapLast <> VMap then begin
       if Assigned(FSourceMapLast) then begin
         FSourceMapLast.VersionRequestConfig.ChangeNotifier.Remove(FVersionListener);

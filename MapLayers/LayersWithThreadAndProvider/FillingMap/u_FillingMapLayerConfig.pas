@@ -144,6 +144,7 @@ begin
   VStatic :=
     TFillingMapLayerConfigStatic.Create(
       FVisible,
+      FSourceMap.GetActiveMap.GetStatic,
       FSourceMap.GetActualMap,
       FUseRelativeZoom,
       FZoom,

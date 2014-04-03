@@ -404,6 +404,7 @@ type
     tbitmCheckUpdate: TTBXItem;
     btnHideAll: TTBXItem;
     HideSeparator: TTBSeparatorItem;
+    tbitmFillingMapAsMain: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -561,6 +562,7 @@ type
     procedure tbpmiShowPrevVersionClick(Sender: TObject);
     procedure tbitmCheckUpdateClick(Sender: TObject);
     procedure btnHideAllClick(Sender: TObject);
+    procedure TBfillMapAsMainClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -706,7 +708,6 @@ type
     procedure SaveWindowConfigToIni(const AProvider: IConfigDataWriteProvider);
     procedure DoSelectSpecialVersion(Sender: TObject);
     procedure TBEditPathMarshClick(Sender: TObject);
-    procedure TBfillMapAsMainClick(Sender: TObject);
     procedure tbiEditSrchAcceptText(Sender: TObject; var NewText: String; var Accept: Boolean);
     procedure TBXSelectSrchClick(Sender: TObject);
     procedure SaveConfig(Sender: TObject);
@@ -2937,6 +2938,8 @@ begin
   end else begin
     TBMapZap.Caption:='';
   end;
+  tbitmFillingMapAsMain.Checked :=
+    not Assigned(VConfig.SelectedMap);
 end;
 
 procedure TfrmMain.OnLineOnMapEditChange;
@@ -3027,18 +3030,7 @@ begin
 end;
 
 procedure TfrmMain.OnMapGUIChange;
-var
-  VMenuItemAsMainMap: TTBXCustomItem;
 begin
-  if TBFillingTypeMap.Count = 0 then begin
-    VMenuItemAsMainMap := TActiveMapTBXItem.Create(TBFillingTypeMap, nil, FConfig.LayersConfig.FillingMapLayerConfig.GetSourceMap.GetActiveMap);
-    VMenuItemAsMainMap.Name := 'MiniMapLayers';
-    VMenuItemAsMainMap.Caption := SAS_STR_MiniMapAsMainMap;
-    VMenuItemAsMainMap.Hint := '';
-    VMenuItemAsMainMap.OnClick := Self.TBfillMapAsMainClick;
-    TBFillingTypeMap.Add(VMenuItemAsMainMap);
-  end;
-
   FMapHotKeyList := GState.MapType.GUIConfigList.HotKeyList;
   CreateMapUIMapsList;
   CreateMapUILayersList;

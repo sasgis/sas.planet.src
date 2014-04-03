@@ -37,8 +37,11 @@ type
     function GetVisible: Boolean;
     property Visible: Boolean read GetVisible;
 
-    function GetSourceMap: IMapType;
-    property SourceMap: IMapType read GetSourceMap;
+    function GetSelectedMap: IMapType;
+    property SelectedMap: IMapType read GetSelectedMap;
+
+    function GetActualMap: IMapType;
+    property ActualMap: IMapType read GetActualMap;
 
     function GetUseRelativeZoom: Boolean;
     property UseRelativeZoom: Boolean read GetUseRelativeZoom;

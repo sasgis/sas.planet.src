@@ -134,7 +134,7 @@ procedure TSourceDataUpdateInRectByFillingMap.OnMapChange;
 var
   VMap: IMapType;
 begin
-  VMap := FConfig.GetStatic.SourceMap;
+  VMap := FConfig.GetStatic.ActualMap;
   FCS.BeginWrite;
   try
     if Assigned(FMapListened) and not (FMapListened = VMap)  then begin

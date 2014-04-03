@@ -34,7 +34,8 @@ type
   TFillingMapLayerConfigStatic = class(TBaseInterfacedObject, IFillingMapLayerConfigStatic)
   private
     FVisible: Boolean;
-    FSourceMap: IMapType;
+    FSelectedMap: IMapType;
+    FActualMap: IMapType;
     FUseRelativeZoom: Boolean;
     FZoom: Byte;
     FNoTileColor: TColor32;
@@ -47,7 +48,8 @@ type
     FColorer: IFillingMapColorer;
   private
     function GetVisible: Boolean;
-    function GetSourceMap: IMapType;
+    function GetSelectedMap: IMapType;
+    function GetActualMap: IMapType;
     function GetUseRelativeZoom: Boolean;
     function GetZoom: Byte;
     function GetNoTileColor: TColor32;
@@ -62,7 +64,8 @@ type
   public
     constructor Create(
       AVisible: Boolean;
-      const ASourceMap: IMapType;
+      const ASelectedMap: IMapType;
+      const AActualMap: IMapType;
       AUseRelativeZoom: Boolean;
       AZoom: Byte;
       ANoTileColor: TColor32;
@@ -84,7 +87,8 @@ uses
 
 constructor TFillingMapLayerConfigStatic.Create(
   AVisible: Boolean;
-  const ASourceMap: IMapType;
+  const ASelectedMap: IMapType;
+  const AActualMap: IMapType;
   AUseRelativeZoom: Boolean;
   AZoom: Byte;
   ANoTileColor: TColor32;
@@ -98,7 +102,8 @@ constructor TFillingMapLayerConfigStatic.Create(
 begin
   inherited Create;
   FVisible := AVisible;
-  FSourceMap := ASourceMap;
+  FSelectedMap := ASelectedMap;
+  FActualMap := AActualMap;
   FUseRelativeZoom := AUseRelativeZoom;
   FZoom := AZoom;
   FNoTileColor := ANoTileColor;
@@ -120,6 +125,11 @@ begin
     );
 end;
 
+function TFillingMapLayerConfigStatic.GetActualMap: IMapType;
+begin
+  Result := FActualMap;
+end;
+
 function TFillingMapLayerConfigStatic.GetColorer: IFillingMapColorer;
 begin
   Result := FColorer;
@@ -130,14 +140,14 @@ begin
   Result := FNoTileColor;
 end;
 
+function TFillingMapLayerConfigStatic.GetSelectedMap: IMapType;
+begin
+  Result := FSelectedMap;
+end;
+
 function TFillingMapLayerConfigStatic.GetShowTNE: Boolean;
 begin
   Result := FShowTNE;
-end;
-
-function TFillingMapLayerConfigStatic.GetSourceMap: IMapType;
-begin
-  Result := FSourceMap;
 end;
 
 function TFillingMapLayerConfigStatic.GetZoom: Byte;
