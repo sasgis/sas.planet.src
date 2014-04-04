@@ -39,20 +39,26 @@ uses
   i_ObjectWithListener,
   i_TileMatrixChangeable,
   i_InternalPerformanceCounter,
-  u_WindowLayerWithPos;
+  u_WindowLayerBasic;
 
 type
-  TTiledLayerWithThreadBase = class(TWindowLayerWithLocationBase)
+  TTiledLayerWithThreadBase = class(TWindowLayerAbstract)
   private
+    FLayer: TPositionedLayer;
     FTileMatrix: ITileMatrixChangeable;
     FView: ILocalCoordConverterChangeable;
 
+    FOnPaintCounter: IInternalPerformanceCounter;
     FOneTilePaintSimpleCounter: IInternalPerformanceCounter;
     FOneTilePaintResizeCounter: IInternalPerformanceCounter;
 
     FTileMatrixChangeFlag: ISimpleFlag;
 
     FLastPaintConverter: ILocalCoordConverter;
+    procedure OnPaintLayer(
+      Sender: TObject;
+      Buffer: TBitmap32
+    );
     procedure PaintLayerFromTileMatrix(
       ABuffer: TBitmap32;
       const ALocalConverter: ILocalCoordConverter;
@@ -62,9 +68,9 @@ type
 
     procedure OnScaleChange;
     procedure OnTileMatrixChange;
+    procedure PaintLayer(ABuffer: TBitmap32);
   protected
-    procedure PaintLayer(ABuffer: TBitmap32); override;
-    function GetNewLayerLocation: TFloatRect; override;
+    procedure StartThreads; override;
   public
     constructor Create(
       const APerfList: IInternalPerformanceCounterList;
@@ -117,13 +123,15 @@ constructor TTiledLayerWithThreadBase.Create(
 );
 begin
   inherited Create(
-    APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier,
-    TPositionedLayer.Create(AParentMap.Layers)
+    AAppClosingNotifier
   );
+  FLayer := TPositionedLayer.Create(AParentMap.Layers);
+  FLayer.Visible := False;
+  FLayer.MouseEvents := False;
   FView := AView;
 
+  FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
   FOneTilePaintSimpleCounter := APerfList.CreateAndAddNewCounter('OneTilePaintSimple');
   FOneTilePaintResizeCounter := APerfList.CreateAndAddNewCounter('OneTilePaintResize');
 
@@ -155,15 +163,26 @@ begin
   );
 end;
 
-function TTiledLayerWithThreadBase.GetNewLayerLocation: TFloatRect;
+procedure TTiledLayerWithThreadBase.OnPaintLayer(Sender: TObject;
+  Buffer: TBitmap32);
 var
-  VLocalConverter: ILocalCoordConverter;
+  VCounterContext: TInternalPerformanceCounterContext;
+  VOldClipRect: TRect;
+  VNewClipRect: TRect;
 begin
-  VLocalConverter := FView.GetStatic;
-  if Visible and (VLocalConverter <> nil) then begin
-    Result := FloatRect(VLocalConverter.GetLocalRect);
-  end else begin
-    Result := FloatRect(0, 0, 0, 0);
+  VCounterContext := FOnPaintCounter.StartOperation;
+  try
+    VOldClipRect := Buffer.ClipRect;
+    if Types.IntersectRect(VNewClipRect, VOldClipRect, MakeRect(FLayer.Location, GR32.rrClosest)) then begin
+      Buffer.ClipRect := VNewClipRect;
+      try
+        PaintLayer(Buffer);
+      finally
+        Buffer.ClipRect := VOldClipRect;
+      end;
+    end;
+  finally
+    FOnPaintCounter.FinishOperation(VCounterContext);
   end;
 end;
 
@@ -188,16 +207,14 @@ var
 begin
   if FTileMatrixChangeFlag.CheckFlagAndReset then begin
     VTileMatrix := FTileMatrix.GetStatic;
-    if Visible <> Assigned(VTileMatrix) then begin
-      Visible := Assigned(VTileMatrix);
+    if FLayer.Visible <> Assigned(VTileMatrix) then begin
+      FLayer.Visible := Assigned(VTileMatrix);
     end;
     VLocalConverter := FView.GetStatic;
     if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
       if not VLocalConverter.GetIsSameConverter(FLastPaintConverter) then begin
-        if Assigned(FLastPaintConverter) then begin
-          Layer.Changed(FLastPaintConverter.GetLocalRect);
-        end;
-        Layer.Changed(VLocalConverter.GetLocalRect);
+        FLayer.Location := FloatRect(VLocalConverter.GetLocalRect);
+        FLayer.Changed(VLocalConverter.GetLocalRect);
       end else begin
         if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.LocalConverter.ProjectionInfo) then begin
           VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
@@ -210,7 +227,7 @@ begin
                     VElement.LocalConverter.GetRectInMapPixel,
                     rrClosest
                   );
-                Layer.Changed(VDstRect);
+                FLayer.Changed(VDstRect);
               end;
             end;
           end;
@@ -359,6 +376,12 @@ begin
       VResampler.Free;
     end;
   end;
+end;
+
+procedure TTiledLayerWithThreadBase.StartThreads;
+begin
+  inherited;
+  FLayer.OnPaint := OnPaintLayer;
 end;
 
 end.
