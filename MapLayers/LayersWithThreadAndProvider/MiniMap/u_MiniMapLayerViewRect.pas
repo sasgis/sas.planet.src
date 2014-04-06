@@ -39,6 +39,7 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_MiniMapLayerConfig,
+  i_ActiveMapsConfig,
   i_MapTypeIconsList,
   i_ViewPortState,
   i_MapTypeGUIConfigList,
@@ -48,7 +49,8 @@ type
   TMiniMapLayerViewRect = class(TWindowLayerWithLocationBase)
   private
     FParentMap: TImage32;
-    FConfig: IMiniMapLayerConfig;
+    FMapsConfig: IActivMapWithLayers;
+    FLocationConfig: IMiniMapLayerLocationConfig;
     FPosition: ILocalCoordConverterChangeable;
     FViewPortState: IViewPortState;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -65,6 +67,7 @@ type
     procedure OnPosChange;
     procedure DrawMainViewRect(
       ABuffer: TBitmap32;
+      const AConfig: IMiniMapLayerLocationConfigStatic;
       const AMiniMapConverter: ILocalCoordConverter;
       const AViewConverter: ILocalCoordConverter
     );
@@ -106,7 +109,8 @@ type
       const AIconsList: IMapTypeIconsList;
       const APosition: ILocalCoordConverterChangeable;
       const ATimerNoifier: INotifierTime;
-      const AConfig: IMiniMapLayerConfig
+      const AMapsConfig: IActivMapWithLayers;
+      const ALocationConfig: IMiniMapLayerLocationConfig
     );
     destructor Destroy; override;
   end;
@@ -118,7 +122,6 @@ uses
   c_ZeroGUID,
   i_CoordConverter,
   i_MapTypes,
-  i_ActiveMapsConfig,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_ListenerTime,
@@ -138,7 +141,8 @@ constructor TMiniMapLayerViewRect.Create(
   const AIconsList: IMapTypeIconsList;
   const APosition: ILocalCoordConverterChangeable;
   const ATimerNoifier: INotifierTime;
-  const AConfig: IMiniMapLayerConfig
+  const AMapsConfig: IActivMapWithLayers;
+  const ALocationConfig: IMiniMapLayerLocationConfig
 );
 begin
   inherited Create(
@@ -147,7 +151,8 @@ begin
     AAppClosingNotifier,
     TPositionedLayer.Create(AParentMap.Layers)
   );
-  FConfig := AConfig;
+  FMapsConfig := AMapsConfig;
+  FLocationConfig := ALocationConfig;
   FParentMap := AParentMap;
   FPosition := APosition;
   FViewPortState := AViewPortState;
@@ -162,7 +167,7 @@ begin
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
-    FConfig.ChangeNotifier
+    FLocationConfig.ChangeNotifier
   );
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnPosChange),
@@ -194,8 +199,8 @@ var
 begin
   VGenerator := TMapMenuGeneratorBasic.Create(
     FGUIConfigList,
-    FConfig.MapsConfig.GetMapsSet,
-    FConfig.MapsConfig.GetActiveMap,
+    FMapsConfig.GetMapsSet,
+    FMapsConfig.GetActiveMap,
     nil,
     AMapssSubMenu,
     Self.OnClickMapItem,
@@ -208,9 +213,9 @@ begin
   end;
   VGenerator := TMapMenuGeneratorBasic.Create(
     FGUIConfigList,
-    FConfig.MapsConfig.GetLayersSet,
+    FMapsConfig.GetLayersSet,
     nil,
-    FConfig.MapsConfig.GetActiveLayersSet,
+    FMapsConfig.GetActiveLayersSet,
     ALayersSubMenu,
     Self.OnClickLayerItem,
     FIconsList
@@ -240,7 +245,7 @@ begin
   FPopup.Items.Add(VSubMenuItem);
   VLayersSubMenu := VSubMenuItem;
 
-  VMenuItemAsMainMap := TActiveMapTBXItem.Create(FPopup, nil, FConfig.MapsConfig.GetActiveMap);
+  VMenuItemAsMainMap := TActiveMapTBXItem.Create(FPopup, nil, FMapsConfig.GetActiveMap);
   VMenuItemAsMainMap.Name := 'MapAsMainLayer';
   VMenuItemAsMainMap.Caption := SAS_STR_MiniMapAsMainMap;
   VMenuItemAsMainMap.Hint := '';
@@ -258,6 +263,7 @@ end;
 
 procedure TMiniMapLayerViewRect.DrawMainViewRect(
   ABuffer: TBitmap32;
+  const AConfig: IMiniMapLayerLocationConfigStatic;
   const AMiniMapConverter: ILocalCoordConverter;
   const AViewConverter: ILocalCoordConverter
 );
@@ -277,13 +283,13 @@ var
   VBorderColor: TColor32;
   VDrawRect: TRect;
 begin
-  VWidth := FConfig.LocationConfig.GetStatic.Width;
+  VWidth := AConfig.Width;
   VSize.X := VWidth;
   VSize.Y := VWidth;
   VViewSize := AViewConverter.GetLocalRectSize;
 
   if (AViewConverter <> nil) and (AMiniMapConverter <> nil) then begin
-    VZoomDelta := FConfig.LocationConfig.GetStatic.ZoomDelta;
+    VZoomDelta := AConfig.ZoomDelta;
     if VZoomDelta > 0 then begin
       VViewMapSourceRect := AViewConverter.GetRectInMapPixelFloat;
       VZoomSource := AViewConverter.GetZoom;
@@ -434,7 +440,7 @@ begin
     VSender := TTBCustomItem(Sender);
     VMapType := IMapType(VSender.Tag);
     if VMapType <> nil then begin
-      FConfig.MapsConfig.InvertLayerSelectionByGUID(VMapType.GUID);
+      FMapsConfig.InvertLayerSelectionByGUID(VMapType.GUID);
     end;
   end;
 end;
@@ -452,7 +458,7 @@ begin
     if VMapType <> nil then begin
       VGUID := VMapType.GUID;
     end;
-    FConfig.MapsConfig.SelectMainByGUID(VGUID);
+    FMapsConfig.SelectMainByGUID(VGUID);
   end;
 end;
 
@@ -467,12 +473,15 @@ begin
 end;
 
 procedure TMiniMapLayerViewRect.OnTimer;
+var
+  VConfig: IMiniMapLayerLocationConfigStatic;
 begin
   if FLayerChangeFlag.CheckFlagAndReset then begin
     ViewUpdateLock;
     try
-      if Visible <> FConfig.LocationConfig.GetStatic.Visible then begin
-        Visible := FConfig.LocationConfig.GetStatic.Visible;
+      VConfig := FLocationConfig.GetStatic;
+      if Visible <> VConfig.Visible then begin
+        Visible := VConfig.Visible;
       end;
       SetNeedUpdateLayerLocation;
       SetNeedFullRepaintLayer;
@@ -495,7 +504,7 @@ begin
   VMiniMapConverter := FPosition.GetStatic;
   VViewConverter := FViewPortState.View.GetStatic;
   if (VMiniMapConverter <> nil) and (VViewConverter <> nil) then begin
-    DrawMainViewRect(ABuffer, VMiniMapConverter, VViewConverter);
+    DrawMainViewRect(ABuffer, FLocationConfig.GetStatic, VMiniMapConverter, VViewConverter);
   end;
 end;
 

@@ -2228,7 +2228,8 @@ begin
       FMapTypeIcons18List,
       VMiniMapConverterChangeable,
       GState.GUISyncronizedTimerNotifier,
-      FConfig.LayersConfig.MiniMapLayerConfig
+      FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig,
+      FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig
     )
   );
   VLayersList.Add(
