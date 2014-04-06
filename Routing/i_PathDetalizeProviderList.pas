@@ -24,11 +24,11 @@ interface
 
 uses
   ActiveX,
-  i_ConfigDataElement,
+  i_Changeable,
   i_PathDetalizeProvider;
 
 type
-  IPathDetalizeProviderListEntity = interface(IConfigDataElement)
+  IPathDetalizeProviderListEntity = interface(IChangeable)
     ['{343F27D6-4DDE-46D8-8F58-4BA220C1733E}']
     function GetGUID: TGUID;
     property GUID: TGUID read GetGUID;
@@ -45,7 +45,7 @@ type
     function GetProvider: IPathDetalizeProvider;
   end;
 
-  IPathDetalizeProviderList = interface(IConfigDataElement)
+  IPathDetalizeProviderList = interface(IChangeable)
     ['{73A94DEE-3216-402E-9A22-90E84A215CEC}']
     function GetGUIDEnum: IEnumGUID;
     function Get(const AGUID: TGUID): IPathDetalizeProviderListEntity;
