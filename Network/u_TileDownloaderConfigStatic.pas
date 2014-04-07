@@ -37,6 +37,7 @@ type
     FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
+    FDetectMIMEType: Boolean;
     FExpectedMIMETypes: AnsiString;
     FDefaultMIMEType: AnsiString;
     FIteratorSubRectSize: TPoint;
@@ -48,6 +49,7 @@ type
     function GetWaitInterval: Cardinal;
     function GetMaxConnectToServerCount: Cardinal;
     function GetIgnoreMIMEType: Boolean;
+    function GetDetectMIMEType: Boolean;
     function GetExpectedMIMETypes: AnsiString;
     function GetDefaultMIMEType: AnsiString;
     function GetIteratorSubRectSize: TPoint;
@@ -55,11 +57,12 @@ type
   public
     constructor Create(
       const AInetConfigStatic: IInetConfigStatic;
-      AEnabled: Boolean;
+      const AEnabled: Boolean;
       const AAllowUseCookie: Boolean;
-      AWaitInterval: Cardinal;
-      AMaxConnectToServerCount: Cardinal;
-      AIgnoreMIMEType: Boolean;
+      const AWaitInterval: Cardinal;
+      const AMaxConnectToServerCount: Cardinal;
+      const AIgnoreMIMEType: Boolean;
+      const ADetectMIMEType: Boolean;
       const AExpectedMIMETypes: AnsiString;
       const ADefaultMIMEType: AnsiString;
       const AIteratorSubRectSize: TPoint;
@@ -73,12 +76,14 @@ implementation
 
 constructor TTileDownloaderConfigStatic.Create(
   const AInetConfigStatic: IInetConfigStatic;
-  AEnabled: Boolean;
+  const AEnabled: Boolean;
   const AAllowUseCookie: Boolean;
-  AWaitInterval: Cardinal;
-  AMaxConnectToServerCount: Cardinal;
-  AIgnoreMIMEType: Boolean;
-  const AExpectedMIMETypes, ADefaultMIMEType: AnsiString;
+  const AWaitInterval: Cardinal;
+  const AMaxConnectToServerCount: Cardinal;
+  const AIgnoreMIMEType: Boolean;
+  const ADetectMIMEType: Boolean;
+  const AExpectedMIMETypes: AnsiString;
+  const ADefaultMIMEType: AnsiString;
   const AIteratorSubRectSize: TPoint;
   const ARestartDownloadOnMemCacheTTL: Boolean
 );
@@ -90,6 +95,7 @@ begin
   FWaitInterval := AWaitInterval;
   FMaxConnectToServerCount := AMaxConnectToServerCount;
   FIgnoreMIMEType := AIgnoreMIMEType;
+  FDetectMIMEType := ADetectMIMEType;
   FExpectedMIMETypes := AExpectedMIMETypes;
   FDefaultMIMEType := ADefaultMIMEType;
   FIteratorSubRectSize := AIteratorSubRectSize;
@@ -124,6 +130,11 @@ end;
 function TTileDownloaderConfigStatic.GetIgnoreMIMEType: Boolean;
 begin
   Result := FIgnoreMIMEType;
+end;
+
+function TTileDownloaderConfigStatic.GetDetectMIMEType: Boolean;
+begin
+  Result := FDetectMIMEType;
 end;
 
 function TTileDownloaderConfigStatic.GetInetConfigStatic: IInetConfigStatic;

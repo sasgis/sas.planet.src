@@ -320,6 +320,7 @@ begin
     FDownloadResultFactory,
     True, // allow cookie
     True, // allow redirect
+    False,// detect content-type
     Self.DownloadAvailableVersionProgressCallBack
   );
 

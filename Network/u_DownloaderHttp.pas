@@ -68,6 +68,7 @@ type
     FOpeningHandle: HINTERNET;
     FAllowUseCookie: Boolean;
     FAllowRedirect: Boolean;
+    FTryDetectContentType: Boolean;
     FOnDownloadProgress: TOnDownloadProgress;
     function InternalMakeResponse(
       const ARequest: IDownloadRequest;
@@ -130,6 +131,7 @@ type
       const AResultFactory: IDownloadResultFactory;
       const AAllowUseCookie: Boolean = False;
       const AAllowRedirect: Boolean = True;
+      const ATryDetectContentType: Boolean = False;
       const AOnDownloadProgress: TOnDownloadProgress = nil
     );
     destructor Destroy; override;
@@ -138,6 +140,7 @@ type
 implementation
 
 uses
+  UrlMon,
   ALString,
   u_ListenerByEvent,
   u_Synchronizer,
@@ -186,6 +189,7 @@ constructor TDownloaderHttp.Create(
   const AResultFactory: IDownloadResultFactory;
   const AAllowUseCookie: Boolean;
   const AAllowRedirect: Boolean;
+  const ATryDetectContentType: Boolean;
   const AOnDownloadProgress: TOnDownloadProgress
 );
 begin
@@ -194,6 +198,7 @@ begin
   FResultFactory := AResultFactory;
   FAllowUseCookie := AAllowUseCookie;
   FAllowRedirect := AAllowRedirect;
+  FTryDetectContentType := ATryDetectContentType;
   FOnDownloadProgress := AOnDownloadProgress;
 
   FOpeningHandle := nil;
@@ -505,11 +510,43 @@ end;
 function TDownloaderHttp.OnAfterResponse(
   const ARequest: IDownloadRequest
 ): IDownloadResult;
+
+  function DetectContentType(const AData: Pointer; const ASize: Int64): AnsiString;
+  const
+    // IE9. Returns image/png and image/jpeg instead of image/x-png and image/pjpeg
+    FMFD_RETURNUPDATEDIMGMIMES = $20;
+  var
+    VResult: HRESULT;
+    VContentType: PWideChar;
+  begin
+    Assert(AData <> nil);
+    Assert(ASize > 0);
+
+    Result := '';
+
+    VResult :=
+      UrlMon.FindMimeFromData(
+        nil,
+        nil,
+        AData,
+        ASize,
+        nil,
+        FMFD_RETURNUPDATEDIMGMIMES,
+        VContentType,
+        0
+      );
+
+    if VResult = S_OK then begin
+      Result := VContentType;
+    end;
+  end;
+
 var
   VResponseBody: IBinaryData;
   VRawHeaderText: AnsiString;
   VStatusCode: Cardinal;
   VContentType: AnsiString;
+  VRealContentType: AnsiString;
 begin
   Result := nil;
   if FResultFactory <> nil then begin
@@ -517,6 +554,15 @@ begin
     VStatusCode := ALStrToIntDef(FHttpResponseHeader.StatusCode, 0);
     if IsOkStatus(VStatusCode) then begin
       VContentType := FHttpResponseHeader.ContentType;
+
+      if FTryDetectContentType then begin
+        VRealContentType := DetectContentType(FHttpResponseBody.Memory, FHttpResponseBody.Size);
+        if (VRealContentType <> '') and (AlLowerCase(VRealContentType) <> AlLowerCase(VContentType)) then begin
+          VRawHeaderText := ALStringReplace(VRawHeaderText, VContentType, VRealContentType, [rfIgnoreCase, rfReplaceAll]);
+          VContentType := VRealContentType;
+        end;
+      end;
+
       VResponseBody :=
         TBinaryData.Create(
           FHttpResponseBody.Size,

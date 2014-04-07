@@ -148,7 +148,8 @@ begin
     TDownloaderHttpWithTTL.Create(
       FGCNotifier,
       FResultFactory,
-      FTileDownloaderConfig.AllowUseCookie
+      FTileDownloaderConfig.AllowUseCookie,
+      FTileDownloaderConfig.DetectMIMEType
     );
   VTileDownloadRequestBuilder :=
     TTileDownloadRequestBuilderLazy.Create(

@@ -40,6 +40,7 @@ type
     FWaitInterval: Cardinal;
     FMaxConnectToServerCount: Cardinal;
     FIgnoreMIMEType: Boolean;
+    FDetectMIMEType: Boolean;
     FExpectedMIMETypes: AnsiString;
     FDefaultMIMEType: AnsiString;
     FIteratorSubRectSize: TPoint;
@@ -66,6 +67,9 @@ type
 
     function GetIgnoreMIMEType: Boolean;
     procedure SetIgnoreMIMEType(AValue: Boolean);
+
+    function GetDetectMIMEType: Boolean;
+    procedure SetDetectMIMEType(const AValue: Boolean);
 
     function GetExpectedMIMETypes: AnsiString;
     procedure SetExpectedMIMETypes(const AValue: AnsiString);
@@ -107,6 +111,7 @@ begin
   FWaitInterval := FDefConfig.WaitInterval;
   FMaxConnectToServerCount := FDefConfig.MaxConnectToServerCount;
   FIgnoreMIMEType := FDefConfig.IgnoreMIMEType;
+  FDetectMIMEType := FDefConfig.DetectMIMEType;
   FDefaultMIMEType := FDefConfig.DefaultMIMEType;
   FExpectedMIMETypes := FDefConfig.ExpectedMIMETypes;
   FIteratorSubRectSize := FDefConfig.IteratorSubRectSize;
@@ -127,6 +132,7 @@ begin
       FWaitInterval,
       FMaxConnectToServerCount,
       FIgnoreMIMEType,
+      FDetectMIMEType,
       FExpectedMIMETypes,
       FDefaultMIMEType,
       FIteratorSubRectSize,
@@ -143,6 +149,7 @@ begin
   if AConfigData <> nil then begin
     FAllowUseCookie := AConfigData.ReadBool('AllowUseCookie', FAllowUseCookie);
     FIgnoreMIMEType := AConfigData.ReadBool('IgnoreContentType', FIgnoreMIMEType);
+    FDetectMIMEType := AConfigData.ReadBool('DetectContentType', FDetectMIMEType);
     FDefaultMIMEType := AConfigData.ReadAnsiString('DefaultContentType', FDefaultMIMEType);
     FExpectedMIMETypes := AConfigData.ReadAnsiString('ContentType', FExpectedMIMETypes);
     FWaitInterval := AConfigData.ReadInteger('Sleep', FWaitInterval);
@@ -225,6 +232,16 @@ begin
   LockRead;
   try
     Result := FIgnoreMIMEType;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TTileDownloaderConfig.GetDetectMIMEType: Boolean;
+begin
+  LockRead;
+  try
+    Result := FDetectMIMEType;
   finally
     UnlockRead;
   end;
@@ -348,6 +365,19 @@ begin
   try
     if FIgnoreMIMEType <> AValue then begin
       FIgnoreMIMEType := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TTileDownloaderConfig.SetDetectMIMEType(const AValue: Boolean);
+begin
+  LockWrite;
+  try
+    if FDetectMIMEType <> AValue then begin
+      FDetectMIMEType := AValue;
       SetChanged;
     end;
   finally

@@ -48,6 +48,9 @@ type
     function GetIgnoreMIMEType: Boolean;
     property IgnoreMIMEType: Boolean read GetIgnoreMIMEType;
 
+    function GetDetectMIMEType: Boolean;
+    property DetectMIMEType: Boolean read GetDetectMIMEType;
+
     function GetExpectedMIMETypes: AnsiString;
     property ExpectedMIMETypes: AnsiString read GetExpectedMIMETypes;
 
@@ -85,6 +88,10 @@ type
     function GetIgnoreMIMEType: Boolean;
     procedure SetIgnoreMIMEType(AValue: Boolean);
     property IgnoreMIMEType: Boolean read GetIgnoreMIMEType write SetIgnoreMIMEType;
+
+    function GetDetectMIMEType: Boolean;
+    procedure SetDetectMIMEType(const AValue: Boolean);
+    property DetectMIMEType: Boolean read GetDetectMIMEType write SetDetectMIMEType;
 
     function GetExpectedMIMETypes: AnsiString;
     procedure SetExpectedMIMETypes(const AValue: AnsiString);
