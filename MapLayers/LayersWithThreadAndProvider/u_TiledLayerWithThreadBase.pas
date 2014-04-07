@@ -68,7 +68,6 @@ type
 
     procedure OnScaleChange;
     procedure OnTileMatrixChange;
-    procedure PaintLayer(ABuffer: TBitmap32);
   protected
     procedure StartThreads; override;
   public
@@ -166,23 +165,29 @@ end;
 procedure TTiledLayerWithThreadBase.OnPaintLayer(Sender: TObject;
   Buffer: TBitmap32);
 var
+  VTileMatrix: ITileMatrix;
+  VLocalConverter: ILocalCoordConverter;
   VCounterContext: TInternalPerformanceCounterContext;
   VOldClipRect: TRect;
   VNewClipRect: TRect;
 begin
-  VCounterContext := FOnPaintCounter.StartOperation;
-  try
-    VOldClipRect := Buffer.ClipRect;
-    if Types.IntersectRect(VNewClipRect, VOldClipRect, MakeRect(FLayer.Location, GR32.rrClosest)) then begin
-      Buffer.ClipRect := VNewClipRect;
-      try
-        PaintLayer(Buffer);
-      finally
-        Buffer.ClipRect := VOldClipRect;
+  VLocalConverter := FView.GetStatic;
+  VTileMatrix := FTileMatrix.GetStatic;
+  if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
+    VCounterContext := FOnPaintCounter.StartOperation;
+    try
+      VOldClipRect := Buffer.ClipRect;
+      if Types.IntersectRect(VNewClipRect, VOldClipRect, VLocalConverter.GetLocalRect) then begin
+        Buffer.ClipRect := VNewClipRect;
+        try
+          PaintLayerFromTileMatrix(Buffer, VLocalConverter, VTileMatrix);
+        finally
+          Buffer.ClipRect := VOldClipRect;
+        end;
       end;
+    finally
+      FOnPaintCounter.FinishOperation(VCounterContext);
     end;
-  finally
-    FOnPaintCounter.FinishOperation(VCounterContext);
   end;
 end;
 
@@ -234,28 +239,6 @@ begin
         end;
       end;
       FLastPaintConverter := VLocalConverter;
-    end;
-  end;
-end;
-
-procedure TTiledLayerWithThreadBase.PaintLayer(ABuffer: TBitmap32);
-var
-  VTileMatrix: ITileMatrix;
-  VLocalConverter: ILocalCoordConverter;
-  VOldClipRect: TRect;
-  VNewClipRect: TRect;
-begin
-  VLocalConverter := FView.GetStatic;
-  VTileMatrix := FTileMatrix.GetStatic;
-  if (VLocalConverter <> nil) and (VTileMatrix <> nil) then begin
-    VOldClipRect := ABuffer.ClipRect;
-    if Types.IntersectRect(VNewClipRect, VOldClipRect, VLocalConverter.GetLocalRect) then begin
-      ABuffer.ClipRect := VNewClipRect;
-      try
-        PaintLayerFromTileMatrix(ABuffer, VLocalConverter, VTileMatrix);
-      finally
-        ABuffer.ClipRect := VOldClipRect;
-      end;
     end;
   end;
 end;
