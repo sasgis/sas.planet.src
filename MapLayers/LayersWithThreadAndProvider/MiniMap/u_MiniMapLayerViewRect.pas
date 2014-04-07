@@ -43,12 +43,13 @@ uses
   i_MapTypeIconsList,
   i_ViewPortState,
   i_MapTypeGUIConfigList,
-  u_WindowLayerWithPos;
+  u_WindowLayerBasic;
 
 type
-  TMiniMapLayerViewRect = class(TWindowLayerWithLocationBase)
+  TMiniMapLayerViewRect = class(TWindowLayerAbstract)
   private
     FParentMap: TImage32;
+    FLayer: TPositionedLayer;
     FMapsConfig: IActivMapWithLayers;
     FLocationConfig: IMiniMapLayerLocationConfig;
     FPosition: ILocalCoordConverterChangeable;
@@ -60,14 +61,20 @@ type
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
     FLayerChangeFlag: ISimpleFlag;
+    FNeedUpdateLayerVisibilityFlag: ISimpleFlag;
+    FNeedUpdateLayerLocationFlag: ISimpleFlag;
+    FOnPaintCounter: IInternalPerformanceCounter;
 
+    procedure OnPaintLayer(
+      Sender: TObject;
+      Buffer: TBitmap32
+    );
     procedure OnTimer;
     procedure OnConfigChange;
     procedure OnViewChange;
     procedure OnPosChange;
     procedure DrawMainViewRect(
       ABuffer: TBitmap32;
-      const AConfig: IMiniMapLayerLocationConfigStatic;
       const AMiniMapConverter: ILocalCoordConverter;
       const AViewConverter: ILocalCoordConverter
     );
@@ -94,9 +101,6 @@ type
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
   protected
-    procedure DoUpdateLayerVisibility; override;
-    function GetNewLayerLocation: TFloatRect; override;
-    procedure PaintLayer(ABuffer: TBitmap32); override;
     procedure StartThreads; override;
   public
     constructor Create(
@@ -146,10 +150,8 @@ constructor TMiniMapLayerViewRect.Create(
 );
 begin
   inherited Create(
-    APerfList,
     AAppStartedNotifier,
-    AAppClosingNotifier,
-    TPositionedLayer.Create(AParentMap.Layers)
+    AAppClosingNotifier
   );
   FMapsConfig := AMapsConfig;
   FLocationConfig := ALocationConfig;
@@ -159,11 +161,17 @@ begin
   FGUIConfigList := AGUIConfigList;
   FIconsList := AIconsList;
 
-  Layer.OnMouseDown := LayerMouseDown;
-  Layer.OnMouseUp := LayerMouseUP;
-  Layer.OnMouseMove := LayerMouseMove;
+  FLayer := TPositionedLayer.Create(AParentMap.Layers);
+  FLayer.Visible := False;
+  FLayer.MouseEvents := False;
+  FLayer.OnMouseDown := LayerMouseDown;
+  FLayer.OnMouseUp := LayerMouseUP;
+  FLayer.OnMouseMove := LayerMouseMove;
 
   FLayerChangeFlag := TSimpleFlagWithInterlock.Create;
+  FNeedUpdateLayerVisibilityFlag := TSimpleFlagWithInterlock.Create;
+  FNeedUpdateLayerLocationFlag := TSimpleFlagWithInterlock.Create;
+  FOnPaintCounter := APerfList.CreateAndAddNewCounter('OnPaint');
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -255,15 +263,8 @@ begin
   BuildMapsListUI(FPopup.Items, VLayersSubMenu);
 end;
 
-procedure TMiniMapLayerViewRect.DoUpdateLayerVisibility;
-begin
-  inherited;
-  Layer.MouseEvents := Visible;
-end;
-
 procedure TMiniMapLayerViewRect.DrawMainViewRect(
   ABuffer: TBitmap32;
-  const AConfig: IMiniMapLayerLocationConfigStatic;
   const AMiniMapConverter: ILocalCoordConverter;
   const AViewConverter: ILocalCoordConverter
 );
@@ -276,77 +277,53 @@ var
   VGeoConvertSource: ICoordConverter;
   VGeoConvertMiniMap: ICoordConverter;
   VZoomDelta: Integer;
-  VSize: TPoint;
-  VViewSize: TPoint;
-  VWidth: Integer;
   VFillColor: TColor32;
   VBorderColor: TColor32;
   VDrawRect: TRect;
 begin
-  VWidth := AConfig.Width;
-  VSize.X := VWidth;
-  VSize.Y := VWidth;
-  VViewSize := AViewConverter.GetLocalRectSize;
+  VViewMapSourceRect := AViewConverter.GetRectInMapPixelFloat;
+  VZoomSource := AViewConverter.GetZoom;
+  VGeoConvertSource := AViewConverter.GetGeoConverter;
+  VGeoConvertSource.CheckPixelRectFloat(VViewMapSourceRect, VZoomSource);
+  VLonLatRect := VGeoConvertSource.PixelRectFloat2LonLatRect(VViewMapSourceRect, VZoomSource);
+  VGeoConvertMiniMap := AMiniMapConverter.GeoConverter;
+  VGeoConvertMiniMap.CheckLonLatRect(VLonLatRect);
+  VBitmapRect := AMiniMapConverter.LonLatRect2LocalRectFloat(VLonLatRect);
 
-  if (AViewConverter <> nil) and (AMiniMapConverter <> nil) then begin
-    VZoomDelta := AConfig.ZoomDelta;
-    if VZoomDelta > 0 then begin
-      VViewMapSourceRect := AViewConverter.GetRectInMapPixelFloat;
-      VZoomSource := AViewConverter.GetZoom;
-      VGeoConvertSource := AViewConverter.GetGeoConverter;
-      VGeoConvertSource.CheckPixelRectFloat(VViewMapSourceRect, VZoomSource);
-      VLonLatRect := VGeoConvertSource.PixelRectFloat2LonLatRect(VViewMapSourceRect, VZoomSource);
-      VGeoConvertMiniMap := AMiniMapConverter.GeoConverter;
-      VGeoConvertMiniMap.CheckLonLatRect(VLonLatRect);
-      VBitmapRect := AMiniMapConverter.LonLatRect2LocalRectFloat(VLonLatRect);
+  VBitmapRect.Left := VBitmapRect.Left + FViewRectMoveDelta.X;
+  VBitmapRect.Top := VBitmapRect.Top + FViewRectMoveDelta.Y;
+  VBitmapRect.Right := VBitmapRect.Right + FViewRectMoveDelta.X;
+  VBitmapRect.Bottom := VBitmapRect.Bottom + FViewRectMoveDelta.Y;
 
-      VBitmapRect.Left := VBitmapRect.Left + FViewRectMoveDelta.X;
-      VBitmapRect.Top := VBitmapRect.Top + FViewRectMoveDelta.Y;
-      VBitmapRect.Right := VBitmapRect.Right + FViewRectMoveDelta.X;
-      VBitmapRect.Bottom := VBitmapRect.Bottom + FViewRectMoveDelta.Y;
-
-      VMiniMapRect := DoubleRect(AMiniMapConverter.GetLocalRect);
-      if IsIntersecProjectedRect(VBitmapRect, VMiniMapRect) then begin
-        if
-          (VMiniMapRect.Left < VBitmapRect.Left) or
-          (VMiniMapRect.Top < VBitmapRect.Top) or
-          (VMiniMapRect.Right > VBitmapRect.Right) or
-          (VMiniMapRect.Bottom > VBitmapRect.Bottom)
-        then begin
-          VFillColor := SetAlpha(clWhite32, (VZoomDelta) * 35);
-          VBorderColor := SetAlpha(clNavy32, (VZoomDelta) * 43);
-          VDrawRect := RectFromDoubleRect(VBitmapRect, rrClosest);
-          ABuffer.FillRectTS(VDrawRect, VFillColor);
-          ABuffer.FrameRectTS(VDrawRect, VBorderColor);
-          ABuffer.FrameRectTS(
-            VDrawRect.Left - 1,
-            VDrawRect.Top + 1,
-            VDrawRect.Right + 1,
-            VDrawRect.Bottom - 1,
-            VBorderColor
-          );
-          ABuffer.FrameRectTS(
-            VDrawRect.Left + 1,
-            VDrawRect.Top - 1,
-            VDrawRect.Right - 1,
-            VDrawRect.Bottom + 1,
-            VBorderColor
-          );
-        end;
-      end;
+  VMiniMapRect := DoubleRect(AMiniMapConverter.GetLocalRect);
+  if IsIntersecProjectedRect(VBitmapRect, VMiniMapRect) then begin
+    if
+      (VMiniMapRect.Left < VBitmapRect.Left) or
+      (VMiniMapRect.Top < VBitmapRect.Top) or
+      (VMiniMapRect.Right > VBitmapRect.Right) or
+      (VMiniMapRect.Bottom > VBitmapRect.Bottom)
+    then begin
+      VZoomDelta := VZoomSource - AMiniMapConverter.Zoom;
+      VFillColor := SetAlpha(clWhite32, (VZoomDelta) * 35);
+      VBorderColor := SetAlpha(clNavy32, (VZoomDelta) * 43);
+      VDrawRect := RectFromDoubleRect(VBitmapRect, rrClosest);
+      ABuffer.FillRectTS(VDrawRect, VFillColor);
+      ABuffer.FrameRectTS(VDrawRect, VBorderColor);
+      ABuffer.FrameRectTS(
+        VDrawRect.Left - 1,
+        VDrawRect.Top + 1,
+        VDrawRect.Right + 1,
+        VDrawRect.Bottom - 1,
+        VBorderColor
+      );
+      ABuffer.FrameRectTS(
+        VDrawRect.Left + 1,
+        VDrawRect.Top - 1,
+        VDrawRect.Right - 1,
+        VDrawRect.Bottom + 1,
+        VBorderColor
+      );
     end;
-  end;
-end;
-
-function TMiniMapLayerViewRect.GetNewLayerLocation: TFloatRect;
-var
-  VLocalConverter: ILocalCoordConverter;
-begin
-  VLocalConverter := FPosition.GetStatic;
-  if Visible and (VLocalConverter <> nil) then begin
-    Result := FloatRect(VLocalConverter.GetLocalRect);
-  end else begin
-    Result := FloatRect(0, 0, 0, 0);
   end;
 end;
 
@@ -366,7 +343,7 @@ begin
       VVisibleCenter := RectCenter(VLocalConverter.GetLocalRect);
       FPosMoved := True;
       FViewRectMoveDelta := DoublePoint(X - VVisibleCenter.X, Y - VVisibleCenter.Y);
-      Layer.Changed;
+      FLayer.Changed;
     end;
   end;
 end;
@@ -398,7 +375,7 @@ begin
       FViewRectMoveDelta.Y := Y - VVisibleCenter.Y;
     end;
 
-    Layer.Changed;
+    FLayer.Changed;
   end;
 end;
 
@@ -412,7 +389,7 @@ var
   VLonLat: TDoublePoint;
 begin
   if FPosMoved then begin
-    if Layer.HitTest(X, Y) then begin
+    if FLayer.HitTest(X, Y) then begin
       VLocalConverter := FPosition.GetStatic;
       VConverter := VLocalConverter.GetGeoConverter;
       VZoom := VLocalConverter.GetZoom;
@@ -425,7 +402,7 @@ begin
       FViewPortState.ChangeLonLat(VLonLat);
     end else begin
       FViewRectMoveDelta := DoublePoint(0, 0);
-      Layer.Changed;
+      FLayer.Changed;
     end;
   end;
   FPosMoved := False;
@@ -464,30 +441,66 @@ end;
 
 procedure TMiniMapLayerViewRect.OnConfigChange;
 begin
-  FLayerChangeFlag.SetFlag;
+  FNeedUpdateLayerVisibilityFlag.SetFlag;
+end;
+
+procedure TMiniMapLayerViewRect.OnPaintLayer(
+  Sender: TObject;
+  Buffer: TBitmap32
+);
+var
+  VCounterContext: TInternalPerformanceCounterContext;
+  VOldClipRect: TRect;
+  VNewClipRect: TRect;
+  VMiniMapConverter: ILocalCoordConverter;
+  VViewConverter: ILocalCoordConverter;
+begin
+  VMiniMapConverter := FPosition.GetStatic;
+  VViewConverter := FViewPortState.View.GetStatic;
+  if (VMiniMapConverter <> nil) and (VViewConverter <> nil) and (VMiniMapConverter.Zoom < VViewConverter.Zoom) then begin
+    VCounterContext := FOnPaintCounter.StartOperation;
+    try
+      VOldClipRect := Buffer.ClipRect;
+      if Types.IntersectRect(VNewClipRect, VOldClipRect, VMiniMapConverter.GetLocalRect) then begin
+        Buffer.ClipRect := VNewClipRect;
+        try
+          DrawMainViewRect(Buffer, VMiniMapConverter, VViewConverter);
+        finally
+          Buffer.ClipRect := VOldClipRect;
+        end;
+      end;
+    finally
+      FOnPaintCounter.FinishOperation(VCounterContext);
+    end;
+  end;
 end;
 
 procedure TMiniMapLayerViewRect.OnPosChange;
 begin
-  FLayerChangeFlag.SetFlag;
+  FNeedUpdateLayerLocationFlag.SetFlag;
 end;
 
 procedure TMiniMapLayerViewRect.OnTimer;
 var
   VConfig: IMiniMapLayerLocationConfigStatic;
+  VMiniMapConverter: ILocalCoordConverter;
 begin
-  if FLayerChangeFlag.CheckFlagAndReset then begin
-    ViewUpdateLock;
-    try
-      VConfig := FLocationConfig.GetStatic;
-      if Visible <> VConfig.Visible then begin
-        Visible := VConfig.Visible;
-      end;
-      SetNeedUpdateLayerLocation;
-      SetNeedFullRepaintLayer;
-    finally
-      ViewUpdateUnlock;
+  if FNeedUpdateLayerVisibilityFlag.CheckFlagAndReset then begin
+    VConfig := FLocationConfig.GetStatic;
+    if FLayer.Visible <> VConfig.Visible then begin
+      FLayer.Visible := VConfig.Visible;
+      FLayer.MouseEvents := VConfig.Visible;
+      FNeedUpdateLayerLocationFlag.SetFlag;
     end;
+  end;
+  if FNeedUpdateLayerLocationFlag.CheckFlagAndReset then begin
+    VMiniMapConverter := FPosition.GetStatic;
+    if Assigned(VMiniMapConverter) then begin
+      FLayer.Location := FloatRect(VMiniMapConverter.GetLocalRect);
+    end;
+  end;
+  if FLayerChangeFlag.CheckFlagAndReset then begin
+    FLayer.Changed;
   end;
 end;
 
@@ -496,21 +509,10 @@ begin
   FLayerChangeFlag.SetFlag;
 end;
 
-procedure TMiniMapLayerViewRect.PaintLayer(ABuffer: TBitmap32);
-var
-  VMiniMapConverter: ILocalCoordConverter;
-  VViewConverter: ILocalCoordConverter;
-begin
-  VMiniMapConverter := FPosition.GetStatic;
-  VViewConverter := FViewPortState.View.GetStatic;
-  if (VMiniMapConverter <> nil) and (VViewConverter <> nil) then begin
-    DrawMainViewRect(ABuffer, FLocationConfig.GetStatic, VMiniMapConverter, VViewConverter);
-  end;
-end;
-
 procedure TMiniMapLayerViewRect.StartThreads;
 begin
   inherited;
+  FLayer.OnPaint := OnPaintLayer;
   OnConfigChange;
 end;
 
