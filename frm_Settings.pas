@@ -38,12 +38,14 @@ uses
   urlmon,
   wininet,
   GR32,
-  u_CommonFormAndFrameParents,
   i_ListenerNotifierLinksList,
   i_ImageResamplerFactory,
   i_MapTypeConfigModalEdit,
   i_LanguageManager,
+  i_MainFormConfig,
+  i_SensorList,
   u_ShortcutManager,
+  u_CommonFormAndFrameParents,
   fr_MapsList,
   fr_GPSConfig,
   fr_ShortCutList;
@@ -258,6 +260,8 @@ type
     frShortCutList: TfrShortCutList;
     frMapsList: TfrMapsList;
     frGPSConfig: TfrGPSConfig;
+    FMainFormConfig: IMainFormConfig;
+    FSensorList: ISensorList;
     FMapTypeEditor: IMapTypeConfigModalEdit;
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
@@ -266,6 +270,8 @@ type
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
+      const AMainFormConfig: IMainFormConfig;
+      const ASensorList: ISensorList;
       const AShortCutManager: TShortcutManager;
       const AMapTypeEditor: IMapTypeConfigModalEdit;
       AOnSave: TNotifyEvent
@@ -323,6 +329,8 @@ end;
 
 constructor TfrmSettings.Create(
   const ALanguageManager: ILanguageManager;
+  const AMainFormConfig: IMainFormConfig;
+  const ASensorList: ISensorList;
   const AShortCutManager: TShortcutManager;
   const AMapTypeEditor: IMapTypeConfigModalEdit;
   AOnSave: TNotifyEvent
@@ -330,6 +338,8 @@ constructor TfrmSettings.Create(
 begin
   inherited Create(ALanguageManager);
   FMapTypeEditor := AMapTypeEditor;
+  FMainFormConfig := AMainFormConfig;
+  FSensorList := ASensorList;
   FOnSave := AOnSave;
   FLinksList := TListenerNotifierLinksList.Create;
   frShortCutList :=
@@ -349,11 +359,11 @@ begin
     TfrGPSConfig.Create(
       ALanguageManager,
       GState.GpsSystem,
-      GState.SensorList,
+      FSensorList,
       GState.GUISyncronizedTimerNotifier,
       GState.SkyMapDraw,
-      GState.MainFormConfig.GPSBehaviour,
-      GState.MainFormConfig.LayersConfig.GPSTrackConfig,
+      FMainFormConfig.GPSBehaviour,
+      FMainFormConfig.LayersConfig.GPSTrackConfig,
       GState.Config.GPSConfig
     );
   PageControl1.ActivePageIndex:=0;
@@ -428,7 +438,7 @@ var
 begin
   VNeedReboot:=false;
 
-  GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
+  FMainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
   GState.Config.DownloadConfig.LockWrite;
   try
@@ -452,7 +462,7 @@ begin
   GState.Config.GlobalAppConfig.IsShowIconInTray := CBMinimizeToTray.Checked;
   GState.Config.MainMemCacheConfig.MaxSize := SETilesOCache.value;
 
-  GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
+  FMainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
  GState.Config.BitmapPostProcessingConfig.LockWrite;
  try
@@ -462,18 +472,18 @@ begin
  finally
    GState.Config.BitmapPostProcessingConfig.UnlockWrite;
  end;
-  GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.LockWrite;
+  FMainFormConfig.LayersConfig.MapLayerGridsConfig.LockWrite;
   try
-    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected),SpinEditBorderAlpha.Value);
-    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText:=CBBorderText.Checked;
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected),SpinEditBorderAlpha.Value);
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText:=CBBorderText.Checked;
 
-    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor := SetAlpha(Color32(GenshtabBoxBorder.Selected),SpinEditGenshtabBorderAlpha.Value);
-    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText:=CBGenshtabBorderText.Checked;
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor := SetAlpha(Color32(GenshtabBoxBorder.Selected),SpinEditGenshtabBorderAlpha.Value);
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText:=CBGenshtabBorderText.Checked;
 
-    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor := SetAlpha(Color32(DegreeBoxBorder.Selected),SpinEditDegreeBorderAlpha.Value);
-    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText:=CBDegreeBorderText.Checked;
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor := SetAlpha(Color32(DegreeBoxBorder.Selected),SpinEditDegreeBorderAlpha.Value);
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText:=CBDegreeBorderText.Checked;
   finally
-    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
 
   GState.CacheConfig.DefCache := GetDefCacheFromIndex(CBCacheType.ItemIndex);
@@ -495,17 +505,17 @@ begin
   GState.Config.TileDownloadResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbDownloadResize.ItemIndex];
   GState.Config.TileMatrixDraftResamplerConfig.ActiveGUID := GState.ImageResamplerFactoryList.GUIDs[cbbResizeTileMatrixDraft.ItemIndex];
 
-  GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
+  FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockWrite;
   try
-    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
-    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize := SESizeStr.Value;
-    GState.MainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count := seGPSMarkerRingsCount.Value;
-    GState.MainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance := seGPSMarkerRingRadius.Value;
+    FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor := SetAlpha(Color32(ColorBoxGPSstr.selected), 150);
+    FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize := SESizeStr.Value;
+    FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count := seGPSMarkerRingsCount.Value;
+    FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance := seGPSMarkerRingRadius.Value;
   finally
-    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockWrite;
+    FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockWrite;
   end;
 
-  GState.MainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
+  FMainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
   VInetConfig :=GState.Config.InetConfig;
   VInetConfig.LockWrite;
   try
@@ -532,13 +542,13 @@ begin
     VInetConfig.UnlockWrite;
   end;
 
-  GState.MainFormConfig.MainConfig.LockWrite;
+  FMainFormConfig.MainConfig.LockWrite;
   try
-    GState.MainFormConfig.MainConfig.ShowMapName := CBShowmapname.Checked;
-    GState.MainFormConfig.MainConfig.MouseScrollInvert := ScrolInvert.Checked;
-    GState.MainFormConfig.MainConfig.ShowHintOnMarks := CBShowHintOnMarks.checked;
+    FMainFormConfig.MainConfig.ShowMapName := CBShowmapname.Checked;
+    FMainFormConfig.MainConfig.MouseScrollInvert := ScrolInvert.Checked;
+    FMainFormConfig.MainConfig.ShowHintOnMarks := CBShowHintOnMarks.checked;
   finally
-    GState.MainFormConfig.MainConfig.UnlockWrite;
+    FMainFormConfig.MainConfig.UnlockWrite;
   end;
 
  GState.CacheConfig.NewCpath.Path:=IncludeTrailingPathDelimiter(NewCpath.Text);
@@ -551,25 +561,25 @@ begin
  GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
  GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
 
-  GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
+  FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
   try
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor :=
+    FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor :=
       SetAlpha(
         Color32(CBWMainColor.Selected),
-        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor)
+        AlphaComponent(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor)
       );
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor :=
+    FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor :=
       SetAlpha(
         Color32(CBWFonColor.Selected),
-        AlphaComponent(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor)
+        AlphaComponent(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor)
       );
   finally
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockWrite;
+    FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockWrite;
   end;
 
  GState.Config.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 
- GState.MainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
+ FMainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
  frShortCutList.ApplyChanges;
  frMapsList.ApplyChanges;
@@ -695,7 +705,7 @@ begin
   end;
   CBoxLocal.ItemIndex := GState.Config.LanguageManager.GetCurrentLanguageIndex;
 
-  MiniMapAlphaEdit.Value:=GState.MainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
+  MiniMapAlphaEdit.Value:=FMainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 
   GState.Config.DownloadConfig.LockRead;
   try
@@ -732,14 +742,14 @@ begin
     VInetConfig.UnlockRead;
   end;
   SETilesOCache.Value := GState.Config.MainMemCacheConfig.MaxSize;
-  GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.LockRead;
+  FMainFormConfig.LayersConfig.FillingMapLayerConfig.LockRead;
   try
-    MapZapColorBox.Selected := WinColor(GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor);
-    MapZapAlphaEdit.Value := AlphaComponent(GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor);
+    MapZapColorBox.Selected := WinColor(FMainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor);
+    MapZapAlphaEdit.Value := AlphaComponent(FMainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor);
   finally
-    GState.MainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
+    FMainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
- CBlock_toolbars.Checked:=GState.MainFormConfig.ToolbarsLock.GetIsLock;
+ CBlock_toolbars.Checked:=FMainFormConfig.ToolbarsLock.GetIsLock;
   GState.Config.BitmapPostProcessingConfig.LockRead;
   try
     CBinvertcolor.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
@@ -755,30 +765,30 @@ begin
   end;
   LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarContrast.Position)+')';
 
-  GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.LockRead;
+  FMainFormConfig.LayersConfig.MapLayerGridsConfig.LockRead;
   try
-    ColorBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
-    SpinEditBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
-    CBBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText;
+    ColorBoxBorder.Selected:=WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
+    SpinEditBorderAlpha.Value:=AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
+    CBBorderText.Checked:=FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText;
 
-    GenshtabBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
-    SpinEditGenshtabBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
-    CBGenshtabBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText;
+    GenshtabBoxBorder.Selected:=WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
+    SpinEditGenshtabBorderAlpha.Value:=AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
+    CBGenshtabBorderText.Checked:=FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText;
 
-    DegreeBoxBorder.Selected:=WinColor(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
-    SpinEditDegreeBorderAlpha.Value:=AlphaComponent(GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
-    CBDegreeBorderText.Checked:=GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText;
+    DegreeBoxBorder.Selected:=WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
+    SpinEditDegreeBorderAlpha.Value:=AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
+    CBDegreeBorderText.Checked:=FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText;
   finally
-    GState.MainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
   end;
 
-  GState.MainFormConfig.MainConfig.LockRead;
+  FMainFormConfig.MainConfig.LockRead;
   try
-    CBShowmapname.Checked := GState.MainFormConfig.MainConfig.ShowMapName;
-    ScrolInvert.Checked := GState.MainFormConfig.MainConfig.MouseScrollInvert;
-    CBShowHintOnMarks.checked := GState.MainFormConfig.MainConfig.ShowHintOnMarks;
+    CBShowmapname.Checked := FMainFormConfig.MainConfig.ShowMapName;
+    ScrolInvert.Checked := FMainFormConfig.MainConfig.MouseScrollInvert;
+    CBShowHintOnMarks.checked := FMainFormConfig.MainConfig.ShowHintOnMarks;
   finally
-    GState.MainFormConfig.MainConfig.UnlockRead;
+    FMainFormConfig.MainConfig.UnlockRead;
   end;
 
   CBCacheType.ItemIndex := GetIndexFromDefCache(GState.CacheConfig.DefCache);
@@ -793,14 +803,14 @@ begin
   edtDBMSCachePath.text:=GState.CacheConfig.DBMSCachePath.Path;
   edtGCCachePath.text:=GState.CacheConfig.GCCachePath.Path;
 
-  GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
+  FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
   try
-    ColorBoxGPSstr.Selected := WinColor(GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor);
-    SESizeStr.Value:=GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize;
-    seGPSMarkerRingsCount.Value := GState.MainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count;
-    seGPSMarkerRingRadius.Value := Trunc(GState.MainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance);
+    ColorBoxGPSstr.Selected := WinColor(FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor);
+    SESizeStr.Value:=FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize;
+    seGPSMarkerRingsCount.Value := FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count;
+    seGPSMarkerRingRadius.Value := Trunc(FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance);
   finally
-    GState.MainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
+    FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.UnlockRead;
   end;
 
   InitResamplersList(GState.ImageResamplerFactoryList, cbbResizeMethod);
@@ -830,15 +840,15 @@ begin
   finally
     GState.Config.ValueToStringConverterConfig.UnlockRead;
   end;
-  GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockRead;
+  FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockRead;
   try
-    CBWMainColor.Selected:=WinColor(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor);
-    CBWFonColor.Selected:=WinColor(GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor);
+    CBWMainColor.Selected:=WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor);
+    CBWFonColor.Selected:=WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor);
   finally
-    GState.MainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockRead;
+    FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockRead;
   end;
 
-  TilesOverScreenEdit.Value := GState.MainFormConfig.DownloadUIConfig.TilesOut;
+  TilesOverScreenEdit.Value := FMainFormConfig.DownloadUIConfig.TilesOut;
   CBMinimizeToTray.Checked := GState.Config.GlobalAppConfig.IsShowIconInTray;
 
  chkPosFromGSMClick(chkPosFromGSM);

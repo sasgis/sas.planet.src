@@ -52,7 +52,6 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_GPSModule,
   i_GeometryProjectedProvider,
-  i_MainFormConfig,
   i_DownloadInfoSimple,
   i_ImageResamplerConfig,
   i_GeoCoderList,
@@ -77,7 +76,6 @@ uses
   i_PathDetalizeProviderList,
   i_GPSRecorder,
   i_SatellitesInViewMapDraw,
-  i_SensorList,
   i_TerrainProviderList,
   i_GeometryLonLatFactory,
   i_InvisibleBrowser,
@@ -139,7 +137,6 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FMainMapsList: TMapTypesMainList;
     FGPSPositionFactory: IGPSPositionFactory;
-    FMainFormConfig: IMainFormConfig;
     FBitmapPostProcessing: IBitmapPostProcessingChangeable;
     FDownloadInfo: IDownloadInfoSimple;
     FGlobalInternetState: IGlobalInternetState;
@@ -163,7 +160,6 @@ type
     FGUISyncronizedTimerNotifierInternal: INotifierTimeInternal;
     FGUISyncronizedTimerNotifier: INotifierTime;
     FGUISyncronizedTimerCounter: IInternalPerformanceCounter;
-    FSensorList: ISensorList;
     FDebugInfoSubSystem: IDebugInfoSubSystem;
     FProtocol: TIeEmbeddedProtocolRegistration;
     FMapVersionFactoryList: IMapVersionFactoryList;
@@ -248,12 +244,10 @@ type
     property SystemTime: ISystemTimeProvider read FSystemTime;
 
     property LastSelectionInfo: ILastSelectionInfo read FLastSelectionInfo;
-    property MainFormConfig: IMainFormConfig read FMainFormConfig;
     property BitmapPostProcessing: IBitmapPostProcessingChangeable read FBitmapPostProcessing;
     property GPSRecorder: IGPSRecorder read FGPSRecorder;
     property GpsTrackRecorder: IGpsTrackRecorder read FGpsTrackRecorder;
     property PathDetalizeList: IPathDetalizeProviderList read FPathDetalizeList;
-    property SensorList: ISensorList read FSensorList;
     property InternalBrowser: IInternalBrowser read FInternalBrowser;
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorGeometryLonLatFactory: IGeometryLonLatFactory read FVectorGeometryLonLatFactory;
@@ -277,7 +271,8 @@ type
     property LastSearchResult: ILastSearchResult read FLastSearchResult;
     property ValueToStringConverter: IValueToStringConverterChangeable read FValueToStringConverter;
     property GeoCoderList: IGeoCoderListStatic read FGeoCoderList;
-
+    property DebugInfoSubSystem: IDebugInfoSubSystem read FDebugInfoSubSystem;
+    property BatteryStatus: IBatteryStatus read FBatteryStatus;
 
     constructor Create;
     destructor Destroy; override;
@@ -342,13 +337,11 @@ uses
   u_GeoCodePlacemark,
   u_LocalCoordConverterFactorySimpe,
   u_TerrainProviderList,
-  u_MainFormConfig,
   u_ProjConverterFactory,
   u_PathConfig,
   u_BatteryStatus,
   u_ZmpInfoSet,
   u_ZmpFileNamesIteratorFactory,
-  u_SensorListStuped,
   u_HtmlToHintTextConverterStuped,
   u_InvisibleBrowserByFormSynchronize,
   u_InternalBrowserByForm,
@@ -793,7 +786,6 @@ begin
   FGPSRecorder := nil;
   FreeAndNil(FMainMapsList);
   FCoordConverterFactory := nil;
-  FMainFormConfig := nil;
   FMarkPictureList := nil;
   FSkyMapDraw := nil;
   FreeAndNil(FProtocol);
@@ -1004,31 +996,11 @@ begin
     FProjConverterFactory,
     VLocalMapsConfig
   );
-  FMainFormConfig :=
-    TMainFormConfig.Create(
-      FMapTypeSetBuilderFactory,
-      FLocalConverterFactory,
-      FMainMapsList.MapsSet,
-      FMainMapsList.LayersSet,
-      FMainMapsList.FirstMainMapGUID,
-      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('ViewState')
-    );
 
-  FSensorList :=
-    TSensorListStuped.Create(
-      FGlobalConfig.LanguageManager,
-      FMainFormConfig.ViewPortState.View,
-      FMainFormConfig.NavToPoint,
-      FSystemTime,
-      FGPSRecorder,
-      FGpsSystem,
-      FBatteryStatus
-    );
   FGPSRecorderInternal.Load;
   FGpsTrackRecorderInternal.Load;
 
   if (not ModuleIsLib) then begin
-    FMainFormConfig.ReadConfig(MainConfigProvider);
     FMarkPictureList.LoadList;
   end;
 end;
@@ -1078,7 +1050,6 @@ begin
 
   FGPSRecorderInternal.Save;
   FGpsTrackRecorderInternal.Save;
-  FMainFormConfig.WriteConfig(MainConfigProvider);
   FCacheConfig.WriteConfig(FMainConfigProvider);
   FGlobalConfig.WriteConfig(MainConfigProvider);
 end;

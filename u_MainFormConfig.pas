@@ -26,8 +26,6 @@ uses
   i_MapTypeSet,
   i_MapTypeSetBuilder,
   i_ActiveMapsConfig,
-  i_LocalCoordConverterFactorySimpe,
-  i_ViewPortState,
   i_NavigationToPoint,
   i_MainFormConfig,
   i_MainFormBehaviourByGPSConfig,
@@ -39,7 +37,6 @@ uses
   i_MapZoomingConfig,
   i_DownloadUIConfig,
   i_WindowPositionConfig,
-  i_InternalPerformanceCounter,
   u_ConfigDataElementComplexBase;
 
 type
@@ -53,7 +50,6 @@ type
     FSearchHistory: IStringHistory;
     FMainGeoCoderConfig: IMainGeoCoderConfig;
     FMainMapsConfig: IMainMapsConfig;
-    FViewPortState: IViewPortState;
     FDownloadUIConfig: IDownloadUIConfig;
     FKeyMovingConfig: IKeyMovingConfig;
     FMapZoomingConfig: IMapZoomingConfig;
@@ -68,7 +64,6 @@ type
     function GetSearchHistory: IStringHistory;
     function GetMainGeoCoderConfig: IMainGeoCoderConfig;
     function GetMainMapsConfig: IMainMapsConfig;
-    function GetViewPortState: IViewPortState;
     function GetDownloadUIConfig: IDownloadUIConfig;
     function GetKeyMovingConfig: IKeyMovingConfig;
     function GetMapZoomingConfig: IMapZoomingConfig;
@@ -77,10 +72,8 @@ type
   public
     constructor Create(
       const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-      const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
       const AMapsSet, ALayersSet: IMapTypeSet;
-      const ADefaultMapGUID: TGUID;
-      const APerfCounterList: IInternalPerformanceCounterList
+      const ADefaultMapGUID: TGUID
     );
   end;
 
@@ -90,7 +83,6 @@ uses
   u_ConfigSaveLoadStrategyBasicProviderSubItem,
   u_ConfigSaveLoadStrategyBasicUseProvider,
   u_MainMapsConfig,
-  u_MapViewPortState,
   u_MainWindowToolbarsLock,
   u_NavigationToPoint,
   u_MainFormLayersConfig,
@@ -108,10 +100,8 @@ uses
 
 constructor TMainFormConfig.Create(
   const AMapTypeSetBuilderFactory: IMapTypeSetBuilderFactory;
-  const ACoordConverterFactory: ILocalCoordConverterFactorySimpe;
   const AMapsSet, ALayersSet: IMapTypeSet;
-  const ADefaultMapGUID: TGUID;
-  const APerfCounterList: IInternalPerformanceCounterList
+  const ADefaultMapGUID: TGUID
 );
 begin
   inherited Create;
@@ -129,8 +119,6 @@ begin
   Add(FSearchHistory, TConfigSaveLoadStrategyBasicProviderSubItem.Create('History'));
   FMainMapsConfig := TMainMapsConfig.Create(AMapTypeSetBuilderFactory, AMapsSet, ALayersSet, ADefaultMapGUID);
   Add(FMainMapsConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Maps'));
-  FViewPortState := TMapViewPortState.Create(ACoordConverterFactory, FMainMapsConfig.GetActiveMap, APerfCounterList);
-  Add(FViewPortState, TConfigSaveLoadStrategyBasicProviderSubItem.Create('Position'));
   FLayersConfig := TMainFormLayersConfig.Create(AMapTypeSetBuilderFactory, FMainMapsConfig);
   Add(FLayersConfig, TConfigSaveLoadStrategyBasicUseProvider.Create);
   FDownloadUIConfig := TDownloadUIConfig.Create;
@@ -208,11 +196,6 @@ end;
 function TMainFormConfig.GetToolbarsLock: IMainWindowToolbarsLock;
 begin
   Result := FToolbarsLock;
-end;
-
-function TMainFormConfig.GetViewPortState: IViewPortState;
-begin
-  Result := FViewPortState;
 end;
 
 end.

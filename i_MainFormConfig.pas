@@ -25,7 +25,6 @@ interface
 uses
   i_ConfigDataElement,
   i_ActiveMapsConfig,
-  i_ViewPortState,
   i_NavigationToPoint,
   i_MainFormBehaviourByGPSConfig,
   i_MainGeoCoderConfig,
@@ -98,9 +97,6 @@ type
 
     function GetMainMapsConfig: IMainMapsConfig;
     property MainMapsConfig: IMainMapsConfig read GetMainMapsConfig;
-
-    function GetViewPortState: IViewPortState;
-    property ViewPortState: IViewPortState read GetViewPortState;
 
     function GetDownloadUIConfig: IDownloadUIConfig;
     property DownloadUIConfig: IDownloadUIConfig read GetDownloadUIConfig;
