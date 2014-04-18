@@ -3624,13 +3624,13 @@ begin
   );
 end;
 
-procedure TfrmMain.WMGetMinMaxInfo(var msg:TWMGetMinMaxInfo);
+procedure TfrmMain.WMGetMinMaxInfo(var Msg: TWMGetMinMaxInfo);
 begin
- inherited;
- with msg.MinMaxInfo^.ptMaxTrackSize do begin
-  X:=GetDeviceCaps(Canvas.handle,HORZRES)+(Width-ClientWidth);
-  Y:=GetDeviceCaps(Canvas.handle,VERTRES)+(Height-ClientHeight);
- end;
+  inherited;
+  with Msg.MinMaxInfo^.ptMaxTrackSize do begin
+    X := Monitor.Width + (Width - ClientWidth);
+    Y := Monitor.Height + (Height - ClientHeight);
+  end;
 end;
 
 Procedure TfrmMain.WMMove(Var Msg: TWMMove);
