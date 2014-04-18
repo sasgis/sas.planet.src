@@ -180,7 +180,7 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
       VItemIdentifier := VItemIdentifier + '_' + VValue;
     end;
     VItemExisting := ItemExists(FBaseStorageName, VItemIdentifier, @VItemFetched);
-
+    StoreImageDate(VItemIdentifier, VDate);
     // add
     AParams.Values['layer'] := VLayer;
     AParams.Values['date'] := VDate;

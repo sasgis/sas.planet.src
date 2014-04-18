@@ -68,6 +68,7 @@ uses
   i_MapTypeConfigModalEdit,
   i_MapTypeHotKeyListStatic,
   i_VectorDataItemSimple,
+  i_MapSvcScanStorage,
   i_MainFormConfig,
   i_ViewPortState,
   i_SensorList,
@@ -631,6 +632,7 @@ type
     FFormRegionProcess: TfrmRegionProcess;
     FRegionProcess: IRegionProcess;
     FfrmGoTo: TfrmGoTo;
+    FMapSvcScanStorage: IMapSvcScanStorage;
     FfrmDGAvailablePic: TfrmDGAvailablePic;
     FfrmSettings: TfrmSettings;
     FfrmMapLayersOptions: TfrmMapLayersOptions;
@@ -780,6 +782,7 @@ uses
   i_MapVersionRequest,
   i_MapVersionListStatic,
   i_InternalDomainOptions,
+  i_MapSvcScanConfig,
   i_TileInfoBasic,
   i_TileStorage,
   i_GPS,
@@ -815,6 +818,7 @@ uses
   u_MapLayerGrids,
   u_MapLayerNavToMark,
   u_MapLayerGPSTrack,
+  u_MapSvcScanStorage,
   u_SelectionLayer,
   u_LayerScaleLineHorizontal,
   u_LayerScaleLineVertical,
@@ -922,7 +926,7 @@ begin
       GState.MapType.FirstMainMapGUID
     );
   FConfig.ReadConfig(GState.MainConfigProvider);
-
+  FMapSvcScanStorage := TMapSvcScanStorage.Create(GState.Config.MapSvcScanConfig);
   FViewPortState :=
     TMapViewPortState.Create(
       GState.LocalConverterFactory,
@@ -3527,6 +3531,7 @@ var
   VNewIndex: Integer;
   VStartingNewIndex: Integer;
   VAllowListOfTileVersions: Boolean;
+  VDateTime: string;
 begin
   // remove all versions
   for I := (tbpmiVersions.Count - 1) downto 0 do begin
@@ -3571,6 +3576,14 @@ begin
         VMenuItem := TTBXItemSelectMapVersion.Create(tbpmiVersions);
         VMenuItem.MapVersion := VVersionInfo;
         VMenuItem.Caption := VVersionInfo.Caption;
+
+        if GState.Config.MapSvcScanConfig.UseStorage then begin // get date from sqlite.scandate
+          VDateTime := FMapSvcScanStorage.GetScanDate(VMenuItem.Caption);
+          if VDateTime <> '' then begin
+            VMenuItem.Caption := VMenuItem.Caption + ' (' + VDateTime + ')';
+          end;
+        end;
+
         VMenuItem.Checked := ((Length(VCurrentVersion) > 0) and (VCurrentVersion = VVersionInfo.StoreString));
         VMenuItem.OnClick := DoSelectSpecialVersion;
         VMenuItem.Tag := Integer(VVersionInfo);
@@ -6118,7 +6131,8 @@ begin
       GState.Config.LanguageManager,
       GState.VectorGeometryLonLatFactory,
       GState.VectorItemSubsetBuilderFactory,
-      GState.Config.InetConfig);
+      GState.Config.InetConfig,
+      FMapSvcScanStorage);
   // link to position
   FfrmDGAvailablePic.ShowInfo(AVisualPoint, FViewPortState.View.GetStatic);
 end;

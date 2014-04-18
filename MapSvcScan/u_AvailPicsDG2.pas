@@ -238,6 +238,7 @@ begin
             end;
 
             VItemExisting := ItemExists(FBaseStorageName, VItemIdentifier, @VItemFetched);
+            StoreImageDate(VItemIdentifier, VDate);
 
             VAddResult := FTileInfoPtr.AddImageProc(
               Self,

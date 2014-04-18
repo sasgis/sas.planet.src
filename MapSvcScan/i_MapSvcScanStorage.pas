@@ -39,6 +39,16 @@ type
       const AIdentifier: WideString;
       const AFetchedDate: TDateTime
     ): Boolean;
+    function GetScanDate(
+      const AVersionId: WideString
+    ): string;
+    function AddImageDate(
+      const AVersionId: WideString;
+      const ADateDime: string;
+      const AX: Double;
+      const AY: Double;
+      const AZoom: Byte
+    ): Boolean;
   end;
 
 implementation

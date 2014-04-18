@@ -84,6 +84,10 @@ type
       const AIdentifier: WideString;
       const AFetchedDate: PDateTime
     ): Boolean;
+    function StoreImageDate(
+      const AItemName: WideString;
+      const ADate: string
+    ): Boolean;
   end;
 
   TAvailPicsByKey = class(TAvailPicsAbstract)
@@ -134,24 +138,19 @@ begin
 end;
 
 function GetDateCaptionFromParams(const ASLParams: TStrings): String;
-var
-  VPrevDate: String;
 begin
-  // get single date at acquisitionDate
-  // or 2 dates from earliestAcquisitionDate to latestAcquisitionDate
-  Result := GetDateForCaption(ASLParams.Values['latestAcquisitionDate']);
-  if (0<Length(Result)) then begin
-    VPrevDate := GetDateForCaption(ASLParams.Values['earliestAcquisitionDate']);
-    if (Result<>VPrevDate) then
-      Result := VPrevDate + ' - ' + Result;
-  end else begin
-    // single date
-    VPrevDate := ASLParams.Values['acquisitionDate'];
-    if (0 = Length(VPrevDate)) then begin
-      VPrevDate := ASLParams.Values['formattedDate'];
-    end;
-    Result := GetDateForCaption(VPrevDate);
+  // single date
+  Result := ASLParams.Values['formattedDate'];
+  if (0 = Length(Result)) then begin
+    Result := ASLParams.Values['acquisitionDate'];
   end;
+  if (0 = Length(Result)) then begin
+    Result := ASLParams.Values['earliestAcquisitionDate'];
+  end;
+  if (0 = Length(Result)) then begin
+    Result := ASLParams.Values['latestAcquisitionDate'];
+  end;
+  Result := GetDateForCaption(Result);
 end;
 
 { TAvailPicsAbstract }
@@ -188,6 +187,17 @@ begin
   // item not found - register by current date
   AFetchedDate^ := Now;
   FMapSvcScanStorage.AddItem(AServiceName, AIdentifier, AFetchedDate^);
+end;
+
+function TAvailPicsAbstract.StoreImageDate(
+      const AItemName: WideString;
+      const ADate: string
+    ): Boolean;
+var
+  VxyPos: TDoublePoint;
+begin
+  VxyPos := FLocalConverter.GeoConverter.LonLat2TilePosFloat(FTileInfoPtr.TileRect.TopLeft, FTileInfoPtr.Zoom);
+  Result := FMapSvcScanStorage.AddImageDate(AItemName, ADate, VxyPos.X, VxyPos.Y, FTileInfoPtr.Zoom);
 end;
 
 procedure TAvailPicsAbstract.SetLocalConverter(const ALocalConverter: ILocalCoordConverter);

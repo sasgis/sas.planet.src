@@ -271,7 +271,8 @@ type
       const ALanguageManager: ILanguageManager;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AInetConfig: IInetConfig
+      const AInetConfig: IInetConfig;
+      const AMapSvcScanStorage: IMapSvcScanStorage
     ); reintroduce;
     destructor Destroy; override;
 
@@ -1615,7 +1616,8 @@ constructor TfrmDGAvailablePic.Create(
   const ALanguageManager: ILanguageManager;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AInetConfig: IInetConfig
+  const AInetConfig: IInetConfig;
+  const AMapSvcScanStorage: IMapSvcScanStorage
 );
 begin
   FMarkDBGUI := AMarkDBGUI;
@@ -1645,7 +1647,7 @@ begin
   FLocalConverter := nil;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FInetConfig := AInetConfig;
-  FMapSvcScanStorage := TMapSvcScanStorage.Create(AMapSvcScanConfig);
+  FMapSvcScanStorage := AMapSvcScanStorage;
   FResultFactory := TDownloadResultFactory.Create;
   PrepareImageChecker;
 end;

@@ -26,6 +26,7 @@ uses
   SysUtils,
   Classes,
   SQLite3Handler,
+  t_GeoTypes,
   i_Listener,
   i_MapSvcScanConfig,
   i_MapSvcScanStorage,
@@ -65,6 +66,17 @@ type
       const AIdentifier: WideString;
       const AFetchedDate: TDateTime
     ): Boolean;
+    function GetScanDate(
+      const AVersionId: WideString
+    ): string;
+    function AddImageDate(
+      const AVersionId: WideString;
+      const ADate: string;
+      const AX: Double;
+      const AY: Double;
+      const AZoom: Byte
+    ): Boolean;
+
   public
     constructor Create(
       const AMapSvcScanConfig: IMapSvcScanConfig
@@ -242,6 +254,64 @@ begin
   end;
 end;
 
+function TMapSvcScanStorage.GetScanDate(
+  const AVersionId: WideString
+): string;
+var
+  VDBSeconds: Integer;
+begin
+  Result := '';
+  if  (AVersionId <> '') or (not Available) then begin
+    try
+      VDBSeconds := 0;
+      FDbHandler.OpenSQLWithTEXTW(
+        'SELECT date FROM scandate WHERE imageid=?',
+        CallbackReadSingleInt,
+        @VDBSeconds,
+        True,
+        TRUE,
+        PWideChar(AVersionId),
+        Length(AVersionId)
+      );
+      if (VDBSeconds <> 0) then begin
+        Result := DateTimeToStr(DBSecondsToDateTime(VDBSeconds));
+      end;
+    except
+    end;
+  end;
+end;
+
+function TMapSvcScanStorage.AddImageDate(
+      const AVersionId: WideString;
+      const ADate: string;
+      const AX: Double;
+      const AY: Double;
+      const AZoom: Byte
+    ): Boolean;
+var
+  VDBSeconds: Integer;
+  VdateTime : TDateTime;
+begin
+  Result := FALSE;
+  if GetScanDate(AVersionId) <> '' then Exit;
+
+  VdateTime := EncodeDate(StrToInt(Copy(ADate,1,4)), StrToInt(Copy(ADate,6,2)), StrToInt((Copy(ADate,9,2))));
+  VDBSeconds := DateTimeToDBSeconds(VdateTime);
+
+  // insert one row
+  try
+    FDbHandler.ExecSQLWithTEXTW(
+      'INSERT OR IGNORE INTO scandate (imageid, date, x, y, z) VALUES (?,' + ALIntToStr(VDBSeconds)+','+ FloatToStr(AX)+','+FloatToStr(AY)+','+ALIntToStr(AZoom)+')',
+      TRUE,
+      PWideChar(AVersionId),
+      Length(AVersionId)
+    );
+    Result := TRUE;
+  except
+    Result := FALSE;
+  end;
+end;
+
 function TMapSvcScanStorage.ItemExists(
   const AServiceName: String;
   const AIdentifier: WideString;
@@ -319,11 +389,19 @@ begin
         FDbHandler.ExecSQL('create table IF NOT EXISTS svcinfo (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, svcname NVARCHAR NOT NULL)');
         FDbHandler.ExecSQL('create unique index IF NOT EXISTS svcinfo_uniq on svcinfo (svcname)');
         FDbHandler.ExecSQL('create table IF NOT EXISTS svcitem (id INTEGER NOT NULL CONSTRAINT svcinfo_fk REFERENCES svcinfo (id) ON DELETE CASCADE, itemname NVARCHAR NOT NULL, itemdate INT NOT NULL, constraint PK_SVCITEM primary key (id, itemname))');
+        FDbHandler.ExecSQL('create table IF NOT EXISTS scandate (imageid NVARCHAR NOT NULL, date int NOT NULL, x INT NOT NULL, y INT NOT NULL, z INT NOT NULL)');
       end;
       // apply config
       FDbHandler.ExecSQL('PRAGMA main.journal_mode=PERSIST'); // DELETE by default // WAL // PERSIST
       FDbHandler.ExecSQL('PRAGMA synchronous=NORMAL'); // FULL by default
       FDbHandler.ExecSQL('PRAGMA foreign_keys=ON'); // OFF by default
+
+      if GetScanDate('*') <> '' then begin
+        FDbHandler.Open(VPath, (SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE));
+        FDbHandler.ExecSQL('create table IF NOT EXISTS scandate (imageid NVARCHAR NOT NULL, date int NOT NULL, x INT NOT NULL, y INT NOT NULL, z INT NOT NULL)');
+      end;
+
+
     except
       FDbHandler.Close;
     end;
