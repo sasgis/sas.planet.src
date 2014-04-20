@@ -117,9 +117,10 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
-  GR32_VectorUtils,
-  GR32_PolygonsEx,
+  GR32_Math,
+  GR32_Polygons,
   vsagps_public_base;
 
 const
@@ -218,13 +219,47 @@ begin
   end;
 end;
 
+procedure CalcCirclePoints(const X, Y, R: TFloat; var AResult: TArrayOfFixedPoint);
+var
+  I: Integer;
+  M: TFloat;
+  C, D: TFloatPoint;
+  Steps: Integer;
+begin
+  Steps := Length(AResult);
+  if Steps < 4 then Exit;
+  M := 2 * System.Pi / Steps;
+
+  // first item
+  AResult[0].X := Fixed(R + X);
+  AResult[0].Y := Fixed(Y);
+
+  // calculate complex offset
+  GR32_Math.SinCos(M, C.Y, C.X);
+  D := C;
+
+  // second item
+  AResult[1].X := Fixed(R * D.X + X);
+  AResult[1].Y := Fixed(R * D.Y + Y);
+
+  // other items
+  for I := 2 to Steps - 1 do
+  begin
+    D := FloatPoint(D.X * C.X - D.Y * C.Y, D.Y * C.X + D.X * C.Y);
+
+    AResult[I].X := Fixed(R * D.X + X);
+    AResult[I].Y := Fixed(R * D.Y + Y);
+  end;
+end;
+
 procedure TSatellitesInViewMapDrawSimple.DrawEmptySkyMap(
   ABitmap: TBitmap32;
   const ACenter: TPoint;
   ARadius: Integer
 );
 var
-  VPoints: TArrayOfFloatPoint;
+  VCenter: TFixedPoint;
+  VPoints: TArrayOfFixedPoint;
   VCirclesCount: Integer;
   VCirlcesDelta: Single;
   VRadius: Single;
@@ -238,15 +273,18 @@ begin
   if VCirclesCount <= 0 then begin
     VCirclesCount := 1;
   end;
+  SetLength(VPoints, 100);
   VCirlcesDelta := ARadius / VCirclesCount;
   for i := 0 to VCirclesCount - 1 do begin
     VRadius := ARadius - VCirlcesDelta * i;
-    VPoints := Ellipse(ACenter.X, ACenter.Y, VRadius, VRadius);
-    PolylineFS(ABitmap, VPoints, FSkyMapGridColor, True);
+    CalcCirclePoints(ACenter.X, ACenter.Y, VRadius, VPoints);
+    PolylineXS(ABitmap, VPoints, FSkyMapGridColor, True);
   end;
-  VPoints := Ellipse(ACenter.X, ACenter.Y, ARadius, ARadius, 16);
+  SetLength(VPoints, 16);
+  CalcCirclePoints(ACenter.X, ACenter.Y, ARadius, VPoints);
+  VCenter := FixedPoint(ACenter);
   for i := 0 to Length(VPoints) - 1 do begin
-    ABitmap.LineFS(ACenter.X, ACenter.Y, VPoints[i].X, VPoints[i].Y, FSkyMapGridColor);
+    ABitmap.LineXS(VCenter.X, VCenter.Y, VPoints[i].X, VPoints[i].Y, FSkyMapGridColor);
   end;
 end;
 
@@ -403,7 +441,7 @@ var
   VColor: TColor32;
   VSatAtRadius: TFloat;
   VSatPos: TFloatPoint;
-  VPoints: TArrayOfFloatPoint;
+  VPoints: TArrayOfFixedPoint;
   VText: string;
   VTextSize: TSize;
   VTextPos: TPoint;
@@ -425,6 +463,7 @@ begin
   if (0=VCountForAllTalkerIDs) then
     Exit;
   }
+  SetLength(VPoints, 20);
 
   // loop (for many constellations)
   VTalkerID := '';
@@ -450,8 +489,8 @@ begin
           VSatAtRadius := ARadius * ((90 - VElevation) / 90);
           VSatPos.x := ACenter.x + VSatAtRadius * cos((VSatSky.azimuth - 90) * (Pi / 180));
           VSatPos.y := ACenter.y + VSatAtRadius * sin((VSatSky.azimuth - 90) * (Pi / 180));
-          VPoints := Ellipse(VSatPos.X, VSatPos.Y, FSkyMapSatRdius, FSkyMapSatRdius, 20);
-          PolygonFS(ABitmap, VPoints, VColor);
+          CalcCirclePoints(VSatPos.X, VSatPos.Y, FSkyMapSatRdius, VPoints);
+          PolygonXS(ABitmap, VPoints, VColor);
 
           if (VSatFixibility.sat_info.svid > 0) then begin
             VText := IntToStr(VSatFixibility.sat_info.svid);
@@ -461,7 +500,7 @@ begin
             ABitmap.RenderText(VTextPos.X, VTextPos.Y, VText, 4, FSkyMapGridColor);
           end;
 
-          PolylineFS(ABitmap, VPoints, FSkyMapGridColor, true);
+          PolylineXS(ABitmap, VPoints, FSkyMapGridColor, true);
         end;
       end;
     end;
