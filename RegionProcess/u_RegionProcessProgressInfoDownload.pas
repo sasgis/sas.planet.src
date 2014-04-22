@@ -375,10 +375,15 @@ procedure TRegionProcessProgressInfoDownload.SaveState(
   const ASLSSection: IConfigDataWriteProvider);
 var
   VElapsedTime: TDateTime;
+  VVersionForCheck: string;
 begin
+  VVersionForCheck := '';
+  if Assigned(FVersionForCheck.BaseVersion) then begin
+    VVersionForCheck := FVersionForCheck.BaseVersion.StoreString;
+  end;
   ASLSSection.WriteString('MapGUID', GUIDToString(FGUID));
   ASLSSection.WriteString('VersionDownload', FVersionForDownload.StoreString);
-  ASLSSection.WriteString('VersionCheck', FVersionForCheck.BaseVersion.StoreString);
+  ASLSSection.WriteString('VersionCheck', VVersionForCheck);
   ASLSSection.WriteBool('VersionCheckPrev', FVersionForCheck.ShowPrevVersion);
   ASLSSection.WriteInteger('Zoom', FZoom + 1);
   ASLSSection.WriteBool('ReplaceExistTiles', FReplaceExistTiles);
