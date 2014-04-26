@@ -179,6 +179,9 @@ begin
         // numeric - goto next
         Inc(VEnd);
       end else begin
+        if VPos = VEnd then begin
+          Break;
+        end;
         // first non-numeric - get Y
         VPoint.Y := StrPointToFloat(System.Copy(ASourceText, VPos, VEnd-VPos));
         VOk := VOk or $02;

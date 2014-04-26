@@ -292,7 +292,7 @@ begin
   // secondary request (only for parcels!)
   if (VMaxCadastreDelimiters=3) and (0<Length(VCadastreNumber)) then begin
     VSecondLinkA :=
-      'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/'+
+      'http://maps.rosreestr.ru/arcgis/rest/services/Cadastre/'+
       'Cadastre/MapServer/exts/GKNServiceExtension/online/parcel/find?'+
       // ['59:39:320001:640'] = %5B%2759%3A39%3A320001%3A640%27%5D
       'cadNums=%5B%27' + ALStringReplace(VCadastreNumber, ':', '%3A', [rfReplaceAll]) + '%27%5D'+
@@ -423,7 +423,7 @@ begin
       'Accept-Encoding: gzip, deflate';
 
   // identify object
-  VLink := 'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/'+
+  VLink := 'http://maps.rosreestr.ru/arcgis/rest/services/Cadastre/'+
            'CadastreSelected/MapServer/identify?f=json'+
            '&geometry='+_geometry(VConverter, ALonLat)+
            '&tolerance=0'+
