@@ -38,6 +38,7 @@ type
       const ALon, ALat: Double;
       const X, Y: Integer
     ): AnsiString;
+    function GetCoordSysStr(const AConverter: ICoordConverter): AnsiString;
   private
     { IMapCalibration }
     function GetName: WideString; safecall;
@@ -58,7 +59,8 @@ implementation
 uses
   Classes,
   SysUtils,
-  t_GeoTypes;
+  t_GeoTypes,
+  c_CoordConverter;
 
 const
   cTabFileExt = '.tab';
@@ -97,6 +99,22 @@ begin
   VLon := ALFormat(cCoordFmtStr, [ALon], FFormatSettings);
   VLat := ALFormat(cCoordFmtStr, [ALat], FFormatSettings);
   Result := ALFormat(cPointFmtStr, [VLon, VLat, X, Y, ANumber], FFormatSettings);
+end;
+
+function TMapCalibrationTab.GetCoordSysStr(const AConverter: ICoordConverter): AnsiString;
+begin
+  case AConverter.ProjectionEPSG of
+    CGoogleProjectionEPSG: Result := '10, 157, 7, 0';
+    CYandexProjectionEPSG: Result := '10, 104, 7, 0';
+    CGELonLatProjectionEPSG: Result := '1, 104, 7, 0';
+  else
+    begin
+      Assert(False, 'Unexpected projection EPSG code: ' + IntToStr(AConverter.ProjectionEPSG));
+      Result := '1, 104, 7, 0';
+      // For more projections see page 403 of UserGuide:
+      // http://reference.mapinfo.com/software/mapinfo_pro/english/10/MapInfoProfessionalUserGuide.pdf
+    end;
+  end;
 end;
 
 procedure TMapCalibrationTab.SaveCalibrationInfo(
@@ -146,7 +164,7 @@ begin
       PointToStr(7, VLL1.X, VLL.Y, VLocalRect.Left, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +  ',' + #13#10 +
       PointToStr(8, VLL2.X, VLL.Y, VLocalRect.Right, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) + ',' + #13#10 +
       PointToStr(9, VLL.X, VLL2.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Bottom) + #13#10 +
-      ' CoordSys Earth Projection 1, 104' + #13#10 +
+      ' CoordSys Earth Projection ' + GetCoordSysStr(AConverter) + #13#10 +
       ' Units "degree"' + #13#10;
 
     VFileStream.WriteBuffer(VText[1], Length(VText));
