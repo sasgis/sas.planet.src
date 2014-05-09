@@ -69,6 +69,12 @@ type
     procedure OnCommitSync;
     function GetStorageHelper: ITileStorageBerkeleyDBHelper;
     function GetStorageFileExtention(const AIsForTneStore: Boolean = False): string;
+    function DeleteTileInternal(
+      const AXY: TPoint;
+      const AZoom: Byte;
+      const AVersionInfo: IMapVersionInfo;
+      const ANeedTileChangeNotify: Boolean
+    ): Boolean;
   protected
     function GetTileFileName(
       const AXY: TPoint;
@@ -858,7 +864,7 @@ begin
       VTileInfo := GetTileInfo(AXY, AZoom, AVersionInfo, gtimWithoutData);
       if Assigned(VTileInfo) and (VTileInfo.IsExists or VTileInfo.IsExistsTNE) then begin
         if AIsOverwrite then begin
-          DeleteTile(AXY, AZoom, AVersionInfo); // del old tile or tne if exists
+          DeleteTileInternal(AXY, AZoom, AVersionInfo, False); // del old tile or tne if exists
         end else begin
           Exit;
         end;
@@ -961,6 +967,16 @@ function TTileStorageBerkeleyDB.DeleteTile(
   const AZoom: Byte;
   const AVersionInfo: IMapVersionInfo
 ): Boolean;
+begin
+  Result := DeleteTileInternal(AXY, AZoom, AVersionInfo, True);
+end;
+
+function TTileStorageBerkeleyDB.DeleteTileInternal(
+  const AXY: TPoint;
+  const AZoom: Byte;
+  const AVersionInfo: IMapVersionInfo;
+  const ANeedTileChangeNotify: Boolean
+): Boolean;
 var
   VPath: string;
   VDoNotifyUpdate: Boolean;
@@ -1026,7 +1042,7 @@ begin
     end;
   end;
 
-  if VDoNotifyUpdate then begin
+  if ANeedTileChangeNotify and VDoNotifyUpdate then begin
     NotifyTileUpdate(AXY, AZoom, AVersionInfo);
     OnCommitSync;
   end;
