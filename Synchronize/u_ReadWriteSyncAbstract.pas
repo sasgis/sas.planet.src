@@ -28,18 +28,19 @@ uses
   i_ReadWriteSyncFactory;
 
 type
-  TReadWriteSyncAbstract = class(TInterfacedObject)
+  TSynchronizerFake = class(TInterfacedObject, IReadWriteSync)
   private
-    FName: AnsiString;
-  public
-    constructor Create(const AName: AnsiString);
+    procedure BeginRead;
+    procedure EndRead;
+    function BeginWrite: Boolean;
+    procedure EndWrite;
   end;
 
   TReadWriteSyncDebugWrapper = class(TInterfacedObject, IReadWriteSync)
   private
     FLock: IReadWriteSync;
     FLockClassName: string;
-    FName: ShortString;
+    FName: string;
   protected
     procedure DoDebugGlobalLocks(const AProcedure, AEvent: string);
   private
@@ -50,7 +51,7 @@ type
   public
     constructor Create(
       const ALock: IReadWriteSync;
-      const ALockClassName: string;
+      const ALockClassName: AnsiString;
       const AName: AnsiString
     );
   end;
@@ -78,14 +79,6 @@ type
       const ADestroyCounter: IInternalPerformanceCounter
     );
     destructor Destroy; override;
-  end;
-
-  TSynchronizerFake = class(TReadWriteSyncAbstract, IReadWriteSync)
-  private
-    procedure BeginRead;
-    procedure EndRead;
-    function BeginWrite: Boolean;
-    procedure EndWrite;
   end;
 
   TSynchronizerFakeFactory = class(TInterfacedObject, IReadWriteSyncFactory)
@@ -154,14 +147,6 @@ implementation
 uses
   Windows;
 
-{ TReadWriteSyncAbstractSimple }
-
-constructor TReadWriteSyncAbstract.Create(const AName: AnsiString);
-begin
-  inherited Create;
-  FName := AName;
-end;
-
 { TSynchronizerFake }
 
 procedure TSynchronizerFake.BeginRead;
@@ -189,22 +174,22 @@ end;
 
 function TSynchronizerFakeFactory.Make(const AName: AnsiString): IReadWriteSync;
 begin
-  Result := TSynchronizerFake.Create(AName);
+  Result := TSynchronizerFake.Create;
 end;
 
 { TReadWriteSyncDebugWrapper }
 
 constructor TReadWriteSyncDebugWrapper.Create(
   const ALock: IReadWriteSync;
-  const ALockClassName: string;
+  const ALockClassName: AnsiString;
   const AName: AnsiString
 );
 begin
   Assert(ALock <> nil);
   inherited Create;
   FLock := ALock;
-  FLockClassName := ALockClassName;
-  FName := AName;
+  FLockClassName := string(ALockClassName);
+  FName := string(AName);
 end;
 
 procedure TReadWriteSyncDebugWrapper.BeginRead;
@@ -230,7 +215,7 @@ var
 begin
   if (not DebugGlobalLocks_Enabled) then
     Exit;
-  VText := FLockClassName + ' at $'+ IntToHex(Integer(Pointer(Self)), 8)+' (from '+ string(FName)+')' + c_SEP + 'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP +  AProcedure + c_SEP + AEvent;
+  VText := FLockClassName + ' at $'+ IntToHex(Integer(Pointer(Self)), 8)+' (from '+ FName+')' + c_SEP + 'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP +  AProcedure + c_SEP + AEvent;
   OutputDebugString(PChar(VText));
 end;
 

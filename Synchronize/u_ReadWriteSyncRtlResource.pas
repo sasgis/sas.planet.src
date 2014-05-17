@@ -25,7 +25,6 @@ interface
 uses
   Windows,
   SysUtils,
-  u_ReadWriteSyncAbstract,
   i_ReadWriteSyncFactory;
 
 type
@@ -77,7 +76,7 @@ type
     );
   end;
 
-  TSynchronizerRtlResource = class(TReadWriteSyncAbstract, IReadWriteSync)
+  TSynchronizerRtlResource = class(TInterfacedObject, IReadWriteSync)
   private
     FDll: ISyncronizerRtlResourceDll;
     FLock: RTL_RWLOCK;
@@ -89,7 +88,6 @@ type
     procedure EndWrite;
   public
     constructor Create(
-      const AName: AnsiString;
       const ADll: ISyncronizerRtlResourceDll
     );
     destructor Destroy; override;
@@ -125,9 +123,14 @@ constructor TSyncronizerRtlResourceDll.Create(
   AAcquireExclusivePtr, AAcquireSharedPtr, AReleasePtr: Pointer
 );
 begin
+  Assert(Assigned(AInitializePtr));
+  Assert(Assigned(AUninitializePtr));
+  Assert(Assigned(AAcquireExclusivePtr));
+  Assert(Assigned(AAcquireSharedPtr));
+  Assert(Assigned(AReleasePtr));
   inherited Create;
   FInitializePtr := AInitializePtr;
-  FUninitializePtr := FUninitializePtr;
+  FUninitializePtr := AUninitializePtr;
   FAcquireExclusivePtr := AAcquireExclusivePtr;
   FAcquireSharedPtr := AAcquireSharedPtr;
   FReleasePtr := AReleasePtr;
@@ -165,12 +168,11 @@ end;
 { TSynchronizerRtlResource }
 
 constructor TSynchronizerRtlResource.Create(
-  const AName: AnsiString;
   const ADll: ISyncronizerRtlResourceDll
 );
 begin
   Assert(ADll <> nil);
-  inherited Create(AName);
+  inherited Create;
   FDll := ADll;
   FDll.Initialize(@FLock);
 end;
@@ -218,11 +220,7 @@ end;
 function TSynchronizerRtlResourceFactory.Make(
   const AName: AnsiString): IReadWriteSync;
 begin
-  Result :=
-    TSynchronizerRtlResource.Create(
-      AName,
-      FDll
-    );
+  Result := TSynchronizerRtlResource.Create(FDll);
 end;
 
 function MakeSynchronizerRtlResourceFactory: IReadWriteSyncFactory;

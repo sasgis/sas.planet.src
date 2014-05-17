@@ -25,11 +25,10 @@ interface
 uses
   Windows,
   SysUtils,
-  u_ReadWriteSyncAbstract,
   i_ReadWriteSyncFactory;
 
 type
-  TSynchronizerCS = class(TReadWriteSyncAbstract, IReadWriteSync)
+  TSynchronizerCS = class(TInterfacedObject, IReadWriteSync)
   private
     FLock: TRTLCriticalSection;
   protected
@@ -39,11 +38,11 @@ type
     function BeginWrite: Boolean;
     procedure EndWrite;
   public
-    constructor Create (const AName: AnsiString);
+    constructor Create;
     destructor Destroy; override;
   end;
 
-  TSynchronizerCSSC = class(TReadWriteSyncAbstract, IReadWriteSync)
+  TSynchronizerCSSC = class(TInterfacedObject, IReadWriteSync)
   private
     FLock: TRTLCriticalSection;
   protected
@@ -53,7 +52,7 @@ type
     function BeginWrite: Boolean;
     procedure EndWrite;
   public
-    constructor Create(const AName: AnsiString; const ASpinCount: Cardinal);
+    constructor Create(const ASpinCount: Cardinal);
     destructor Destroy; override;
   end;
 
@@ -75,9 +74,9 @@ implementation
 
 { TSynchronizerCS }
 
-constructor TSynchronizerCS.Create(const AName: AnsiString);
+constructor TSynchronizerCS.Create;
 begin
-  inherited Create(AName);
+  inherited Create;
   InitializeCriticalSection(FLock);
 end;
 
@@ -111,11 +110,10 @@ end;
 { TSynchronizerCSSC }
 
 constructor TSynchronizerCSSC.Create(
-  const AName: AnsiString;
   const ASpinCount: Cardinal
 );
 begin
-  inherited Create(AName);
+  inherited Create;
   InitializeCriticalSectionAndSpinCount(FLock, ASpinCount);
 end;
 
@@ -150,7 +148,7 @@ end;
 
 function TSynchronizerCSFactory.Make(const AName: AnsiString): IReadWriteSync;
 begin
-  Result := TSynchronizerCS.Create(AName);
+  Result := TSynchronizerCS.Create;
 end;
 
 { TSynchronizerCSSCFactory }
@@ -163,7 +161,7 @@ end;
 
 function TSynchronizerCSSCFactory.Make(const AName: AnsiString): IReadWriteSync;
 begin
-  Result := TSynchronizerCSSC.Create(AName, FSpinCount);
+  Result := TSynchronizerCSSC.Create(FSpinCount);
 end;
 
 end.
