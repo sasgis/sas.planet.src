@@ -22,11 +22,14 @@ type
     procedure FullFill(const AFillColor: TColor32);
 
     procedure FillRect(const ARect: TRect; const AValue: TColor32);
+    procedure FrameRect(const ARect: TRect; const AValue: TColor32);
+    procedure Line(const APoint1, APoint2: TPoint; const AValue: TColor32);
+    procedure SetPixel(const APoint: TPoint; const AValue: TColor32);
+
     procedure DrawBitmapStatic(const ASource: IBitmap32Static);
     procedure DrawBitmapStaticAt(const APosition: TPoint; const ASource: IBitmap32Static);
     procedure DrawBitmapData(const ASize: TPoint; const AData: PColor32Array);
     procedure DrawBitmapDataAt(const APosition: TPoint; const ASize: TPoint; const AData: PColor32Array);
-    // TODO: Add other simple draw methods
 
     function MakeAndClear: IBitmap32Static;
   end;
