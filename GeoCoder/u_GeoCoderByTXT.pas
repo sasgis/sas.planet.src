@@ -40,7 +40,6 @@ type
   TGeoCoderByTXT = class(TGeoCoderLocalBasic)
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
-    FLock: IReadWriteSync;
     procedure SearchInTXTFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -85,7 +84,6 @@ begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\txt')) then
     raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
-  FLock := MakeSyncRW_Std(Self, False);
   FValueToStringConverter := AValueToStringConverter;
 end;
 

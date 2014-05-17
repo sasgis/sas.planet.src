@@ -39,7 +39,6 @@ type
   TGeoCoderByPolishMap = class(TGeoCoderLocalBasic)
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
-    FLock: IReadWriteSync;
     procedure SearchInMapFile(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
@@ -542,8 +541,6 @@ var
 begin
  VFormatSettings.DecimalSeparator := '.';
  VSearch := AnsiString(AnsiUpperCase(ASearch));
- FLock.BeginRead;
- try
   VStream := TFileStream.Create(AFile, fmOpenRead);
    try
     SetLength(VAStr, VStream.Size);
@@ -552,9 +549,6 @@ begin
    finally
    VStream.Free;
    end;
-  finally
-  FLock.EndRead;
- end;
   if I < 10 then exit; // файл слишком маленький
   if ALPosEx('CodePage=65001', VAStr) > 0 then begin
     VStr := AnsiUpperCase(Utf8ToAnsi(VAStr))
@@ -689,7 +683,6 @@ begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\mp')) then
     raise EDirNotExist.Create('not found .\userdata\mp\! skip GeoCoderByPolishMap');
-  FLock := MakeSyncRW_Std(Self, False);
   FValueToStringConverter := AValueToStringConverter;
 end;
 
