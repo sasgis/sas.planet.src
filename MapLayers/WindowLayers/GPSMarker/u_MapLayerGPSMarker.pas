@@ -116,7 +116,7 @@ begin
   FStopedMarkerChangeable := AStopedMarkerChangeable;
 
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
-  FPositionCS := MakeSyncRW_Var(Self, False);
+  FPositionCS := GSync.SyncVariable.Make(Self.ClassName);
 
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 200),

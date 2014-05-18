@@ -64,7 +64,7 @@ constructor TMapTypeSetChangeableSimple.Create(
 begin
   inherited Create;
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   SetStatic(ACurrentSet);
 end;
 

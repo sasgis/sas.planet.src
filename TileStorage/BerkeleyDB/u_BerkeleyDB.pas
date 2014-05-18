@@ -102,7 +102,7 @@ begin
   dbenv := AEnvironment.dbenv;
   FEnvRootPath := AEnvironment.RootPath;
   FFileName := '';
-  FLock := MakeSyncRW_Big(Self, False);
+  FLock := GSync.SyncBig.Make(Self.ClassName);
   FOnDeadLockRetryCount := AOnDeadLockRetryCount;
 end;
 

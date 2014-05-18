@@ -133,7 +133,7 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
 
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
-  FGPSPosCS := MakeSyncRW_Var(Self, False);
+  FGPSPosCS := GSync.SyncVariable.Make(Self.ClassName);
 
   LinksList.Add(
     TListenerTimeCheck.Create(Self.OnTimer, 500),

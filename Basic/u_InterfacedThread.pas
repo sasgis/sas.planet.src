@@ -95,7 +95,7 @@ constructor TInterfacedThread.Create(
 begin
   inherited Create;
   FConfig := AConfig;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FThread := TThread4InterfacedThread.Create(
     FConfig.Priority,

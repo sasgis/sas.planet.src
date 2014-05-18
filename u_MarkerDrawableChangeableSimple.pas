@@ -89,7 +89,7 @@ begin
   FMarkerClass := AMarkerClass;
   FConfig := AConfig;
 
-  FStaticCS := MakeSyncRW_Var(Self, False);
+  FStaticCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigListener);
@@ -140,7 +140,7 @@ begin
   FMarkerClass := AMarkerClass;
   FConfig := AConfig;
 
-  FStaticCS := MakeSyncRW_Var(Self, False);
+  FStaticCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigListener);

@@ -53,7 +53,7 @@ uses
 constructor TNotifierTime.Create;
 begin
   inherited Create;
-  FSync := MakeSyncRW_Big(Self, False);
+  FSync := GSync.SyncVariable.Make(Self.ClassName);
   FListeners := TList.Create;
 end;
 

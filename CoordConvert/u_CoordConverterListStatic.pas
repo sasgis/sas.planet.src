@@ -58,7 +58,7 @@ uses
 constructor TCoordConverterListStatic.Create;
 begin
   inherited;
-  FCS := MakeSyncRW_Std(Self, TRUE);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FList := TStringList.Create;
 end;
 

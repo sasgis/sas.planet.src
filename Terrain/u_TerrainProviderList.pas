@@ -196,7 +196,7 @@ end;
 constructor TTerrainProviderListBase.Create;
 begin
   inherited Create;
-  FCS := MakeSyncRW_Std(Self, TRUE);
+  FCS := GSync.SyncStdRecursive.Make(Self.ClassName);
   FList := TGUIDInterfaceSet.Create(False);
   FAddNotifier := TNotifierBase.Create;
 end;

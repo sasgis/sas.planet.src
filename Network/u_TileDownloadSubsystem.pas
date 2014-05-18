@@ -277,7 +277,7 @@ begin
         AAppClosingNotifier,
         256
       );
-    FTileRequestTaskSync := MakeSyncRW_Var(Self, False);
+    FTileRequestTaskSync := GSync.SyncVariable.Make(Self.ClassName);
   end else begin
     FState :=
       TTileDownloadSubsystemState.Create(

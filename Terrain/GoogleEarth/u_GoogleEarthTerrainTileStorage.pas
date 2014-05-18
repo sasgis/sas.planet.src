@@ -72,7 +72,7 @@ constructor TGoogleEarthTerrainTileStorage.Create(
 );
 begin
   inherited Create;
-  FSync := MakeSyncRW_Var(Self, False);
+  FSync := GSync.SyncVariable.Make(Self.ClassName);
 
   FNotifierInternal := TNotifierBase.Create;
   FNotifier := FNotifierInternal;

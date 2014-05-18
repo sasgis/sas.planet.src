@@ -109,7 +109,7 @@ begin
   inherited Create;
   FLock := ALock;
   if FLock = nil then begin
-    FLock := MakeSyncRW_Big(Self, True);
+    FLock := GSync.SyncBigRecursive.Make(Self.ClassName);
   end;
   FChangedFlag := AChangedFlag;
   if FChangedFlag = nil then begin
@@ -214,7 +214,7 @@ constructor TConfigDataElementWithStaticBase.Create(
 );
 begin
   inherited;
-  FStaticCS := MakeSyncRW_Var(Self);
+  FStaticCS := GSync.SyncVariable.Make(Self.ClassName);
 end;
 
 procedure TConfigDataElementWithStaticBase.DoBeforeChangeNotify;

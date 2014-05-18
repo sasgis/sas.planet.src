@@ -55,7 +55,7 @@ uses
 constructor TTileErrorLogProviedrStuped.Create;
 begin
   inherited Create;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FNotifier := TNotifierBase.Create;
 end;
 

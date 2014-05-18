@@ -65,7 +65,7 @@ begin
   inherited Create;
   FLastSearchResults := ALastSearchResults;
 
-  FResultCS := MakeSyncRW_Var(Self, False);
+  FResultCS := GSync.SyncVariable.Make(Self.ClassName);
   FSearchResultListener := TNotifyNoMmgEventListener.Create(Self.OnSearchResultChange);
   FLastSearchResults.ChangeNotifier.Add(FSearchResultListener);
 end;

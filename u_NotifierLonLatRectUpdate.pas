@@ -68,7 +68,7 @@ uses
 constructor TNotifierLonLatRectUpdate.Create;
 begin
   inherited Create;
-  FSynchronizer := MakeSyncRW_Big(Self, False);
+  FSynchronizer := GSync.SyncBig.Make(Self.ClassName);
 end;
 
 destructor TNotifierLonLatRectUpdate.Destroy;

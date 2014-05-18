@@ -85,8 +85,8 @@ begin
   FHeadIndex := 0;
   FTailIndex := 0;
 
-  FHeadCS := MakeSyncRW_Var(Self, False);
-  FTailCS := MakeSyncRW_Var(Self, False);
+  FHeadCS := GSync.SyncVariable.Make(Self.ClassName);
+  FTailCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FCapasitySemaphore := CreateSemaphore(nil, ACapacity, ACapacity, nil);
   FReadyRequestSemaphore := CreateSemaphore(nil, 0, ACapacity, nil);

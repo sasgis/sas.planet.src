@@ -93,7 +93,7 @@ constructor TSourceDataUpdateInRectByFillingMap.Create(
 begin
   inherited Create;
   FConfig := AConfig;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FMapTypeListener := TNotifyNoMmgEventListener.Create(Self.OnMapChange);
   FConfig.ChangeNotifier.Add(FMapTypeListener);

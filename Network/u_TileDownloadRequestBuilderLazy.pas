@@ -67,7 +67,7 @@ constructor TTileDownloadRequestBuilderLazy.Create(
 );
 begin
   inherited Create;
-  FBuilderCS := MakeSyncRW_Var(Self, False);
+  FBuilderCS := GSync.SyncVariable.Make(Self.ClassName);
   FDownloader := ADownloader;
   FFactory := AFactory;
 end;

@@ -102,7 +102,7 @@ uses
 constructor TMouseState.Create;
 begin
   inherited Create;
-  FCS := MakeSyncRW_Var(Self);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FNtQPC := NtQueryPerformanceCounterPtr;
   FCurentTime := 0;
   FMinTime := 0.001;

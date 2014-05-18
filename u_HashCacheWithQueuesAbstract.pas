@@ -606,7 +606,7 @@ begin
 
   Assert(AMultiUseCount + AFirstUseCount + AFirstOutCount < High(TItemIndex));
   VHashSizeInBit := AHashSizeInBit;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
 
   if VHashSizeInBit < 6 then begin
     VHashSizeInBit := 6;

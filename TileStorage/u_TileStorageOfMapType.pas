@@ -62,8 +62,6 @@ type
     FStorageStateProxy: IStorageStateProxy;
     FAbilitiesNoStorage: ITileStorageTypeAbilities;
 
-    FStorageChangeCS: IReadWriteSync;
-
     FStorageLock: ICounter;
     FStorageNeedUpdate: ISimpleFlag;
 
@@ -199,8 +197,7 @@ begin
   FContentTypeManager := AContentTypeManager;
 
   FAbilitiesNoStorage := TTileStorageTypeAbilitiesNoAccess.Create;
-  FStorageCS := MakeSyncRW_Var(Self, False);
-  FStorageChangeCS := MakeSyncRW_Sym(Self, False);
+  FStorageCS := GSync.SyncVariable.Make(Self.ClassName);
   VState := TStorageStateProxy.Create;
   FStorageState := VState;
   FStorageStateProxy := VState;

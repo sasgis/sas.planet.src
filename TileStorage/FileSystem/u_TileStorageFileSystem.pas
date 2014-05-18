@@ -164,7 +164,7 @@ begin
   FFileNameGenerator := ATileNameGenerator;
 
   FFileExt := FMainContentType.GetDefaultExt;
-  FFsLock := MakeSyncRW_Std(Self, True);
+  FFsLock := GSync.SyncStdRecursive.Make(Self.ClassName);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 end;
 

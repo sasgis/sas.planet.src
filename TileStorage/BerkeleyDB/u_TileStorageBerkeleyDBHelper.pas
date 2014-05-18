@@ -216,7 +216,7 @@ begin
   FOnDeadLockRetryCount := AStorageConfig.OnDeadLockRetryCount;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
 
-  FSyncLock := MakeSyncRW_Std(Self, False);
+  FSyncLock := GSync.SyncStd.Make(Self.ClassName);
 
   FEnvironment := FGlobalBerkeleyDBHelper.AllocateEnvironment(
     FIsReadOnly,

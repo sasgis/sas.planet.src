@@ -103,7 +103,7 @@ begin
   FCoordConverter := ACoordConverter;
   FProjFactory := AProjFactory;
 
-  FCS := MakeSyncRW_Std(Self, False);
+  FCS := GSync.SyncStd.Make(Self.ClassName);
   VState := TTileDownloaderStateInternal.Create;
   FStateInternal := VState;
   FState := VState;

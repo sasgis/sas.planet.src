@@ -64,7 +64,7 @@ begin
   inherited Create;
   FName := AName;
   FFactory := AFactory;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FList := TIDInterfaceList.Create(False, 4000);
 end;
 

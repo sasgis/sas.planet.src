@@ -205,7 +205,7 @@ begin
   FDisconnectByUser := 0;
   FDisconnectByServer := 0;
 
-  FCS := MakeSyncRW_Big(Self, FALSE);
+  FCS := GSync.SyncBig.Make(Self.ClassName);
 
   FHttpClient := TALWinInetHTTPClient.Create;
   FHttpClient.OnStatusChange := Self.DoOnALStatusChange;

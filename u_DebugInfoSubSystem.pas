@@ -59,7 +59,7 @@ uses
 constructor TDebugInfoSubSystem.Create(const AConfig: IInternalDebugConfig);
 begin
   inherited Create;
-  FListCS := MakeSyncRW_Var(Self, False);
+  FListCS := GSync.SyncVariable.Make(Self.ClassName);
   if AConfig.IsShowDebugInfo then begin
     FList := TInterfaceListSimple.Create;
     FList.Capacity := 1000;

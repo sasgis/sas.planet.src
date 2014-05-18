@@ -149,7 +149,7 @@ constructor TMapSvcScanStorage.Create(
 begin
   inherited Create;
   FMapSvcScanConfig := AMapSvcScanConfig;
-  FSync := MakeSyncRW_Std(Self);
+  FSync := GSync.SyncStd.Make(Self.ClassName);
 
   FServices := TStringList.Create;
   FServices.Sorted := TRUE;

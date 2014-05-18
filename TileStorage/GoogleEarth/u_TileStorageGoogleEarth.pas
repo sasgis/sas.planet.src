@@ -184,7 +184,7 @@ begin
   FTileInfoMemCache := ATileInfoMemCache;
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
 
-  FLock := MakeSyncRW_Var(Self, False);
+  FLock := GSync.SyncVariable.Make(Self.ClassName);
   FIsProvidersCreated := False;
 
   FCacheProvider := nil;

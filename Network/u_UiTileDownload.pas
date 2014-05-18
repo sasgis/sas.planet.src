@@ -162,7 +162,7 @@ begin
   FGlobalInternetState := AGlobalInternetState;
   FErrorLogger := AErrorLogger;
 
-  FVisualCoordConverterCS := MakeSyncRW_Var(Self);
+  FVisualCoordConverterCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FDownloadState := FMapType.TileDownloadSubsystem.State;
 
@@ -171,7 +171,7 @@ begin
   FSoftCancelNotifier := nil;
   FHardCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
 
-  FCS := MakeSyncRW_Std(Self, False);
+  FCS := GSync.SyncStd.Make(Self.ClassName);
   FTaskFinishNotifier := TTileRequestTaskFinishNotifier.Create(Self.OnTileDownloadFinish);
 
   FLinksList := TListenerNotifierLinksList.Create;

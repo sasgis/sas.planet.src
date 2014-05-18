@@ -95,7 +95,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
 
-  FThreadArrayCS := MakeSyncRW_Big(Self);
+  FThreadArrayCS := GSync.SyncStd.Make(Self.ClassName);
 
   FDownloaderList := ADownloaderList;
 

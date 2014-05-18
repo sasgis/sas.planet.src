@@ -130,7 +130,7 @@ begin
   FReadAccess := asUnknown;
   FDLLHandle := 0;
   FDLLCacheHandle := nil;
-  FDLLSync := MakeSyncRW_Big(Self);
+  FDLLSync := GSync.SyncBig.Make(Self.ClassName);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FNotifierInternal := TNotifierBase.Create;
   FNotifier := FNotifierInternal;

@@ -63,7 +63,7 @@ constructor TNotifierBase.Create;
 begin
   inherited Create;
   FListeners := TList.Create;
-  FSync := MakeSyncRW_Std(Self, False);
+  FSync := GSync.SyncVariable.Make(Self.ClassName);
 end;
 
 destructor TNotifierBase.Destroy;

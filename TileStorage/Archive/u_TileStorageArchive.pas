@@ -147,7 +147,7 @@ begin
   FCoordConverter := ACoordConverter;
   FTileNameParser := ATileNameParser;
   FTileNameGenerator := ATileNameGenerator;
-  FSync := MakeSyncRW_Big(Self, False);
+  FSync := GSync.SyncBig.Make(Self.ClassName);
 end;
 
 function TTileStorageArchive.GetArchiveWriter: IArchiveWriter;

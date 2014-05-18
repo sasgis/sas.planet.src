@@ -73,7 +73,7 @@ constructor TTerrainProviderByGEMemCache.Create(const ACapacity: Integer);
 begin
   inherited Create;
   FList := TList.Create;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FCapacity := ACapacity;
 end;
 

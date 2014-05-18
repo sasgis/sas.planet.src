@@ -425,7 +425,7 @@ end;
 constructor TConfigDataElementComplexWithStaticBase.Create;
 begin
   inherited;
-  FStaticCS := MakeSyncRW_Var(Self);
+  FStaticCS := GSync.SyncVariable.Make(Self.ClassName);
 end;
 
 procedure TConfigDataElementComplexWithStaticBase.DoBeforeChangeNotify;

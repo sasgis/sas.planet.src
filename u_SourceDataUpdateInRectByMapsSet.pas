@@ -94,7 +94,7 @@ begin
   inherited Create;
   FMapTypeSet := AMapTypeSet;
   FMapTypeSetListener := TNotifyNoMmgEventListener.Create(Self.OnMapSetChange);
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FMapTypeSet.ChangeNotifier.Add(FMapTypeSetListener);
   OnMapSetChange;
 end;

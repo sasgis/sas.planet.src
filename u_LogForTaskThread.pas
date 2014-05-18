@@ -74,7 +74,7 @@ begin
   inherited Create;
   FMinLogLevel := AMinLogLevel;
   FMaxRowsCount := AMaxLinesCount;
-  FLock := MakeSyncRW_Std(Self, False);
+  FLock := GSync.SyncStd.Make(Self.ClassName);
   FList := TWideStringList.Create;
   FList.Capacity := FMaxRowsCount;
   for i := 0 to FMaxRowsCount - 1 do begin

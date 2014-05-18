@@ -371,7 +371,7 @@ begin
     AGeoConverter,
     AStoragePath
   );
-  FDLLSync := MakeSyncRW_Big(Self);
+  FDLLSync := GSync.SyncBig.Make(Self.ClassName);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
   FDLLHandle := 0;
   FDLLCacheHandle := nil;

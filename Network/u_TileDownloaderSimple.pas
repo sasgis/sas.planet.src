@@ -117,7 +117,7 @@ begin
   FLastResponseInfo := ALastResponseInfo;
   Assert(FResultSaver <> nil);
 
-  FCS := MakeSyncRW_Std(Self, FALSE);
+  FCS := GSync.SyncStd.Make(Self.ClassName);
   FCancelEvent := TEvent.Create;
   FCancelListener := TNotifyNoMmgEventListener.Create(Self.OnCancelEvent);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);

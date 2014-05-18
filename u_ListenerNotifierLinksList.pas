@@ -71,7 +71,7 @@ uses
 constructor TListenerNotifierLinksList.Create;
 begin
   inherited Create;
-  FCS := MakeSyncRW_Sym(Self, TRUE);
+  FCS := GSync.SyncSymmetricalRecursive.Make(Self.ClassName);
   FListenerList := TInterfaceListSimple.Create;
   FNotifierList := TInterfaceListSimple.Create;
   FLinksActive := False;

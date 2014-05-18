@@ -1642,7 +1642,7 @@ begin
 
   inherited Create(ALanguageManager);
 
-  FCSAddNode := MakeSync_Tiny(Self, FALSE);
+  FCSAddNode := GSync.SyncVariable.Make(Self.ClassName);
 
   FLocalConverter := nil;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;

@@ -472,7 +472,7 @@ begin
   FBitmapFactory :=
     TBitmap32BufferFactory.Create(
       FBGTimerNotifier,
-      MakeSyncRW_Var(Self, false)
+      GSync.SyncVariable.Make(Self.ClassName)
     );
   FSystemTimeInternal := TSystemTimeProvider.Create;
   FSystemTime := FSystemTimeInternal;
@@ -500,7 +500,7 @@ begin
 
   FDatumFactory := TDatumFactory.Create(FHashFunction);
   FCoordConverterFactory := TCoordConverterFactorySimple.Create(FHashFunction, FDatumFactory);
-  FProjectionFactory := TProjectionInfoFactory.Create(FHashFunction, MakeSyncRW_Var(Self, False));
+  FProjectionFactory := TProjectionInfoFactory.Create(FHashFunction, GSync.SyncVariable.Make(Self.ClassName));
   FCoordConverterList := TCoordConverterListStaticSimple.Create(FCoordConverterFactory);
   FLocalConverterFactory :=
     TLocalCoordConverterFactorySimpe.Create(

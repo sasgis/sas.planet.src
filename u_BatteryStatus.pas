@@ -110,7 +110,7 @@ end;
 constructor TBatteryStatus.Create;
 begin
   inherited Create;
-  FLock := MakeSyncRW_Var(Self, False);
+  FLock := GSync.SyncVariable.Make(Self.ClassName);
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 1000;
   FTimer.OnTimer := Self.OnTimer;

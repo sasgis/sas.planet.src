@@ -225,10 +225,10 @@ begin
   end;
 
   FStorageHelper := nil;
-  FStorageHelperLock := MakeSyncRW_Var(Self, False);
+  FStorageHelperLock := GSync.SyncVariable.Make(Self.ClassName);
 
   FCommitsCountToSync := FStorageConfig.CommitsCountToSync;
-  FSyncCallLock := MakeSyncRW_Std(Self, False);
+  FSyncCallLock := GSync.SyncStd.Make(Self.ClassName);
 end;
 
 destructor TTileStorageBerkeleyDB.Destroy;

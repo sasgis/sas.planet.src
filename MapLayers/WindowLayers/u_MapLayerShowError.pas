@@ -122,7 +122,7 @@ begin
   FBitmapFactory := ABitmapFactory;
   FErrorInfo := nil;
   FNeedUpdateFlag := TSimpleFlagWithInterlock.Create;
-  FErrorInfoCS := MakeSyncRW_Var(Self, False);
+  FErrorInfoCS := GSync.SyncVariable.Make(Self.ClassName);
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnErrorRecive),

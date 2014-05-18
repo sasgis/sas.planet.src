@@ -263,7 +263,7 @@ end;
 constructor TProjConverterFactory.Create;
 begin
   inherited Create;
-  FSync := MakeSyncRW_Std(Self, FALSE);
+  FSync := GSync.SyncStd.Make(Self.ClassName);
   FDllFailed := False;
 end;
 

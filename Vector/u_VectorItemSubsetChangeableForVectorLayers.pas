@@ -192,7 +192,7 @@ begin
   FAppClosingNotifier := AAppClosingNotifier;
 
   FDelicateUpdateFlag := TSimpleFlagWithInterlock.Create;
-  FResultCS := MakeSyncRW_Var(Self, False);
+  FResultCS := GSync.SyncVariable.Make(Self.ClassName);
   FLinksList := TListenerNotifierLinksList.Create;
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);

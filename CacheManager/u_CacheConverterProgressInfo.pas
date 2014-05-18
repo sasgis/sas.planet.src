@@ -64,7 +64,7 @@ uses
 constructor TCacheConverterProgressInfo.Create;
 begin
   inherited Create;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FTilesProcessed := 0;
   FTilesSkipped := 0;
   FTilesSize := 0;

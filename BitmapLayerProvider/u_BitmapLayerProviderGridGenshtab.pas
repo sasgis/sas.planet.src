@@ -100,7 +100,7 @@ begin
   FShowLines := AShowLines;
   FBitmapFactory := ABitmapFactory;
 
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FBitmapChangeFlag := TSimpleFlagWithInterlock.Create;
   FBitmap := TBitmap32.Create;
   FBitmap.SetSize(256, 256);

@@ -110,7 +110,7 @@ begin
   FRequestBuilderFactory := ARequestBuilderFactory;
 
   FChangeNotifier := TNotifierBase.Create;
-  FCS := MakeSyncRW_Var(Self);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FChangeCounter := TCounterInterlock.Create;
 
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);

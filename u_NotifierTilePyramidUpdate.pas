@@ -302,7 +302,7 @@ begin
   FGeoCoder := AGeoCoder;
   FMinValidZoom := FGeoCoder.MinZoom;
   FMaxValidZoom := FGeoCoder.MaxZoom;
-  FSynchronizer := MakeSyncRW_Big(Self, False);
+  FSynchronizer := GSync.SyncBig.Make(Self.ClassName);
   FListeners := TList.Create;
   VCount := FMaxValidZoom - FMinValidZoom + 1;
   SetLength(FListenersByZoom, VCount);

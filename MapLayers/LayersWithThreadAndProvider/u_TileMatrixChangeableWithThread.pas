@@ -143,7 +143,7 @@ begin
   FSourcUpdateNotyfier := ASourcUpdateNotyfier;
 
   FLinksList := TListenerNotifierLinksList.Create;
-  FTileMatrixCS := MakeSyncRW_Var(Self);
+  FTileMatrixCS := GSync.SyncVariable.Make(Self.ClassName);
   FOneTilePrepareCounter := APerfList.CreateAndAddNewCounter('OneTilePrepare');
   FTileMatrixUpdateCounter := APerfList.CreateAndAddNewCounter('TileMatrixUpdate');
   if Assigned(FSourcUpdateNotyfier) then begin

@@ -155,7 +155,7 @@ begin
   FCheckExistTileDate := ACheckExistTileDate;
   FCheckTileDate := ACheckTileDate;
 
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
 
   FLog := ALog;
   FLogProvider := ALogProvider;

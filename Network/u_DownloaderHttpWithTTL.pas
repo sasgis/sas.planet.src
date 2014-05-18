@@ -83,7 +83,7 @@ begin
   FTryDetectContentType := ATryDetectContentType;
   FResultFactory := AResultFactory;
   FGCNotifier := AGCNotifier;
-  FCS := MakeSyncRW_Std(Self, FALSE);
+  FCS := GSync.SyncStd.Make(Self.ClassName);
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, CHttpClientTTL);
   FGCNotifier.Add(FTTLListener);
 end;

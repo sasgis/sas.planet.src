@@ -50,7 +50,7 @@ uses
 constructor TGlobalInternetState.Create;
 begin
   inherited;
-  FCS := MakeSyncRW_Var(Self);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FQueueCount := 0;
 end;
 

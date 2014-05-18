@@ -120,6 +120,7 @@ uses
   u_DistanceCalculatorByVincentyAlgorithm in 'GeoCalc\u_DistanceCalculatorByVincentyAlgorithm.pas',
   i_DistanceCalculator in 'GeoCalc\i_DistanceCalculator.pas',
   i_Synchronizer in 'Synchronize\i_Synchronizer.pas',
+  u_Synchronizer in 'Synchronize\u_Synchronizer.pas',
   i_ReadWriteSyncFactory in 'Synchronize\i_ReadWriteSyncFactory.pas',
   u_ReadWriteSyncAbstract in 'Synchronize\u_ReadWriteSyncAbstract.pas',
   u_ReadWriteSyncCriticalSection in 'Synchronize\u_ReadWriteSyncCriticalSection.pas',

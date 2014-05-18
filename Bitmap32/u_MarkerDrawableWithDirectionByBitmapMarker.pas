@@ -90,7 +90,7 @@ begin
   inherited Create;
   FBitmapFactory := ABitmapFactory;
   FMarker := AMarker;
-  FCachedMarkerCS := MakeSyncRW_Var(Self, False);
+  FCachedMarkerCS := GSync.SyncVariable.Make(Self.ClassName);
 end;
 
 procedure TMarkerDrawableWithDirectionByBitmapMarker.DrawToBitmap(

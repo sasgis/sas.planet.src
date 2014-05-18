@@ -117,7 +117,7 @@ begin
 
   FDownloadResultFactory := TDownloadResultFactory.Create;
 
-  FSync := MakeSyncRW_Std(Self, False);
+  FSync := GSync.SyncStd.Make(Self.ClassName);
 
   Self.SetUpdateChannel(AUpdateChannel);
 

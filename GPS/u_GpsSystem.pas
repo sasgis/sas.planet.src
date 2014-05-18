@@ -172,7 +172,7 @@ begin
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FLinksList := TListenerNotifierLinksList.Create;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FModuleState := msDisconnected;
   FWasError := False;
   FWasTimeOut := False;

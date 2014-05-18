@@ -98,7 +98,7 @@ constructor TInvisibleBrowserByFormSynchronize.Create(
 );
 begin
   inherited Create;
-  FCS := MakeSyncRW_Var(Self, FALSE);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FProxyConfig := AProxyConfig;
   FLanguageManager := ALanguageManager;
 end;

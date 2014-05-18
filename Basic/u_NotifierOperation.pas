@@ -127,7 +127,7 @@ begin
   Assert(ANotifier <> nil);
   inherited Create;
   FNotifier := ANotifier;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FExecutedCount := 0;
 end;
 

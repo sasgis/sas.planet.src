@@ -68,7 +68,7 @@ constructor TfrmInvisibleBrowser.Create(
 begin
   inherited Create(ALanguageManager);
   FProxyConfig := AProxyConfig;
-  FCS := MakeSyncRW_Big(Self, False);
+  FCS := GSync.SyncBig.Make(Self.ClassName);
 end;
 
 procedure TfrmInvisibleBrowser.FormCreate(Sender: TObject);

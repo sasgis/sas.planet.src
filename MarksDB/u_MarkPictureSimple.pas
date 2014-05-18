@@ -90,7 +90,7 @@ begin
   FName := AName;
   FLoader := ALoader;
 
-  FCS := MakeSyncRW_Sym(Self, False);
+  FCS := GSync.SyncSymmetrical.Make(Self.ClassName);
   FInitedFlag := TSimpleFlagWithInterlock.Create;
 end;
 

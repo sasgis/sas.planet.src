@@ -18,62 +18,21 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_TileDownloadRequestBuilder;
+unit u_Synchronizer;
 
 interface
 
 uses
-  SysUtils,
-  i_NotifierOperation,
-  i_TileRequest,
-  i_TileDownloadRequestBuilder,
-  i_LastResponseInfo,
-  i_TileDownloadRequest,
-  i_TileDownloadRequestBuilderConfig,
-  u_BaseInterfacedObject;
+  i_Synchronizer;
 
-type
-  TTileDownloadRequestBuilder = class(TBaseInterfacedObject, ITileDownloadRequestBuilder)
-  private
-    FCS: IReadWriteSync;
-    FConfig: ITileDownloadRequestBuilderConfig;
-  protected
-    property Config: ITileDownloadRequestBuilderConfig read FConfig;
-    procedure Lock;
-    procedure Unlock;
-  protected
-    function BuildRequest(
-      const ASource: ITileRequest;
-      const ALastResponseInfo: ILastResponseInfo;
-      const ACancelNotifier: INotifierOperation;
-      AOperationID: Integer
-    ): ITileDownloadRequest; virtual; abstract;
-  public
-    constructor Create(const AConfig: ITileDownloadRequestBuilderConfig);
-  end;
+var
+  GSync: ISynchronizer;
 
 implementation
 
 uses
-  u_Synchronizer;
+  u_SynchronizerSimple;
 
-{ TTileDownloadRequestBuilder }
-
-constructor TTileDownloadRequestBuilder.Create(const AConfig: ITileDownloadRequestBuilderConfig);
-begin
-  inherited Create;
-  FConfig := AConfig;
-  FCS := GSync.SyncBigRecursive.Make(Self.ClassName);
-end;
-
-procedure TTileDownloadRequestBuilder.Lock;
-begin
-  FCS.BeginWrite;
-end;
-
-procedure TTileDownloadRequestBuilder.Unlock;
-begin
-  FCS.EndWrite;
-end;
-
+initialization
+  GSync := TSynchronizerSimple.Create(nil, False, False, False);
 end.

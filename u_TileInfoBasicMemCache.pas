@@ -122,7 +122,7 @@ constructor TTileInfoBasicMemCache.Create(
 );
 begin
   inherited Create;
-  FCS := MakeSyncRW_Var(Self, False);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FList := TList.Create;
   FCapacity := ACapacity;
   FTTL := ATTL;

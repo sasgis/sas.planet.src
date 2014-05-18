@@ -165,7 +165,7 @@ begin
   end;
   FCacheList := TStringList.Create;
   FCacheList.Capacity := FConfig.MaxSize;
-  FSync := MakeSyncRW_Big(Self, False);
+  FSync := GSync.SyncBig.Make(Self.ClassName);
   FTTLListener := TListenerTTLCheck.Create(Self.OnTTLTrim, 40000);
   FGCNotifier.Add(FTTLListener);
 

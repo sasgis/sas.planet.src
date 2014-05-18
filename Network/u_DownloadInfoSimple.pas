@@ -66,7 +66,7 @@ constructor TDownloadInfoSimple.Create(
 begin
   inherited Create;
   FParentInfo := AParent;
-  FCS := MakeSyncRW_Var(Self);
+  FCS := GSync.SyncVariable.Make(Self.ClassName);
   FTileCount := ATileCount;
   FSize := ASize;
 end;

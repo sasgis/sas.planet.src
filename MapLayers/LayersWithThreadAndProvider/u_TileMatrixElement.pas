@@ -85,7 +85,7 @@ begin
   FTile := ATile;
   FLocalConverter := ALocalConverter;
   FBitmap := ABitmap;
-  FSync := MakeSyncRW_Var(Self);
+  FSync := GSync.SyncVariable.Make(Self.ClassName);
   FReadyID := 0;
   FExpectedID := 1;
   VZoom := FLocalConverter.Zoom;

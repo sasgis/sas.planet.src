@@ -651,7 +651,7 @@ begin
 
   FETS_SERVICE_STORAGE_OPTIONS.Clear;
 
-  FDLLSync := MakeSyncRW_Big(Self);
+  FDLLSync := GSync.SyncBig.Make(Self.ClassName);
 
   FContentTypeManager := AContentTypeManager;
   FMainContentType := AMainContentType;
