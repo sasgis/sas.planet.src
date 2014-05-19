@@ -79,6 +79,7 @@
     <DCCReference Include="Basic\i_StringListChangeable.pas" />
     <DCCReference Include="Basic\i_StringListStatic.pas" />
     <DCCReference Include="Basic\i_Thread.pas" />
+    <DCCReference Include="Basic\i_Timer.pas" />
     <DCCReference Include="Basic\t_Hash.pas" />
     <DCCReference Include="Basic\u_BinaryData.pas" />
     <DCCReference Include="Basic\u_BinaryDataByMemStream.pas" />
@@ -111,6 +112,10 @@
     <DCCReference Include="Basic\u_SimpleFlagWithInterlock.pas" />
     <DCCReference Include="Basic\u_StreamReadOnlyByBinaryData.pas" />
     <DCCReference Include="Basic\u_StringListStatic.pas" />
+    <DCCReference Include="Basic\u_TimerByGetTickCount.pas" />
+    <DCCReference Include="Basic\u_TimerByGetTickCount64.pas" />
+    <DCCReference Include="Basic\u_TimerByNtQueryPerformanceCounter.pas" />
+    <DCCReference Include="Basic\u_TimerByQueryPerformanceCounter.pas" />
     <DCCReference Include="Bitmap32\c_Color32.pas" />
     <DCCReference Include="Bitmap32\i_Bitmap32BufferFactory.pas" />
     <DCCReference Include="Bitmap32\i_Bitmap32Static.pas" />
