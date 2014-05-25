@@ -18,76 +18,51 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BenchmarkResult;
+unit u_BenchmarkItemTimer;
 
 interface
 
 uses
-  i_BenchmarkItem,
-  i_BenchmarkResult;
+  i_Timer,
+  u_BenchmarkItemBase;
 
 type
-  TBenchmarkResult = class(TInterfacedObject, IBenchmarkResult)
+  TBenchmarkItemTimer = class(TBenchmarkItemBase)
   private
-    FBenchmarkItem: IBenchmarkItem;
-    FWarmUpTimePerStep: Double;
-    FCount: Integer;
-    FResults: array of Double;
-  private
-    function GetBenchmarkItem: IBenchmarkItem;
-    function GetWarmUpTimePerStep: Double;
-    function GetRunCount: Integer;
-    function GetRunResultTimePerStep(const AIndex: Integer): Double;
+    FTimer: ITimer;
+  protected
+    function RunOneStep: Integer; override;
   public
     constructor Create(
-      const ABenchmarkItem: IBenchmarkItem;
-      const AWarmUpTimePerStep: Double;
-      const AResults: array of Double
+      const ATimerName: string;
+      const ATimer: ITimer
     );
   end;
 
 implementation
 
-{ TBenchmarkResult }
+const CRepeatCount = 1000;
 
-constructor TBenchmarkResult.Create(
-  const ABenchmarkItem: IBenchmarkItem;
-  const AWarmUpTimePerStep: Double;
-  const AResults: array of Double
+{ TBenchmarkItemTimer }
+
+constructor TBenchmarkItemTimer.Create(
+  const ATimerName: string;
+  const ATimer: ITimer
 );
+begin
+  inherited Create(Assigned(ATimer), 'Timer ' + ATimerName, CRepeatCount);
+  FTimer := ATimer;
+end;
+
+function TBenchmarkItemTimer.RunOneStep: Integer;
 var
   i: Integer;
+  VTime: Int64;
 begin
-  Assert(Assigned(ABenchmarkItem));
-  Assert(High(AResults) > 0);
-  inherited Create;
-  FBenchmarkItem := ABenchmarkItem;
-  FWarmUpTimePerStep := AWarmUpTimePerStep;
-  FCount := Length(AResults);
-  SetLength(FResults, FCount);
-  for i := 0 to FCount - 1 do begin
-    FResults[i] := AResults[i];
+  for i := 0 to CRepeatCount - 1 do begin
+    VTime := FTimer.CurrentTime;
   end;
-end;
-
-function TBenchmarkResult.GetBenchmarkItem: IBenchmarkItem;
-begin
-  Result := FBenchmarkItem;
-end;
-
-function TBenchmarkResult.GetRunCount: Integer;
-begin
-  Result := FCount;
-end;
-
-function TBenchmarkResult.GetRunResultTimePerStep(const AIndex: Integer): Double;
-begin
-  Result := FResults[AIndex];
-end;
-
-function TBenchmarkResult.GetWarmUpTimePerStep: Double;
-begin
-  Result := FWarmUpTimePerStep;
+  Result := VTime;
 end;
 
 end.

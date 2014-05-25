@@ -31,14 +31,14 @@ type
     function GetBenchmarkItem: IBenchmarkItem;
     property BenchmarkItem: IBenchmarkItem read GetBenchmarkItem;
 
-    function GetWarmUpRunRps: Double;
-    property WarmUpRunRps: Double read GetWarmUpRunRps;
+    function GetWarmUpTimePerStep: Double;
+    property WarmUpTimePerStep: Double read GetWarmUpTimePerStep;
 
     function GetRunCount: Integer;
     property RunCount: Integer read GetRunCount;
 
-    function GetRunResultRps(const AIndex: Integer): Double;
-    property RunResultRps[const AIndex: Integer]: Double read GetRunResultRps;
+    function GetRunResultTimePerStep(const AIndex: Integer): Double;
+    property RunResultTimePerStep[const AIndex: Integer]: Double read GetRunResultTimePerStep;
   end;
 
 implementation

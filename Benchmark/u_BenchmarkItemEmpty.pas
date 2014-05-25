@@ -23,17 +23,12 @@ unit u_BenchmarkItemEmpty;
 interface
 
 uses
-  i_BenchmarkItem;
+  u_BenchmarkItemBase;
 
 type
-  TBenchmarkItemEmpty = class(TInterfacedObject, IBenchmarkItem)
-  private
-    function GetName: string;
-    function GetMultiplier: Integer;
-
-    procedure SetUp;
-    function RunOneStep: Integer;
-    procedure TearDown;
+  TBenchmarkItemEmpty = class(TBenchmarkItemBase)
+  protected
+    function RunOneStep: Integer; override;
   public
     constructor Create;
   end;
@@ -44,33 +39,13 @@ implementation
 
 constructor TBenchmarkItemEmpty.Create;
 begin
-  inherited Create;
-end;
-
-function TBenchmarkItemEmpty.GetMultiplier: Integer;
-begin
-  Result := 1;
-end;
-
-function TBenchmarkItemEmpty.GetName: string;
-begin
-  Result := 'Empty test';
+  inherited Create(True, 'Empty test', 1);
 end;
 
 function TBenchmarkItemEmpty.RunOneStep: Integer;
 begin
   // Do nothing
   Result := 0;
-end;
-
-procedure TBenchmarkItemEmpty.SetUp;
-begin
-  // Do nothing
-end;
-
-procedure TBenchmarkItemEmpty.TearDown;
-begin
-  // Do nothing
 end;
 
 end.

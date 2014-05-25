@@ -18,76 +18,75 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BenchmarkResult;
+unit u_BenchmarkItemBase;
 
 interface
 
 uses
-  i_BenchmarkItem,
-  i_BenchmarkResult;
+  i_BenchmarkItem;
 
 type
-  TBenchmarkResult = class(TInterfacedObject, IBenchmarkResult)
+  TBenchmarkItemBase = class(TInterfacedObject, IBenchmarkItem)
   private
-    FBenchmarkItem: IBenchmarkItem;
-    FWarmUpTimePerStep: Double;
-    FCount: Integer;
-    FResults: array of Double;
-  private
-    function GetBenchmarkItem: IBenchmarkItem;
-    function GetWarmUpTimePerStep: Double;
-    function GetRunCount: Integer;
-    function GetRunResultTimePerStep(const AIndex: Integer): Double;
+    FEnabled: Boolean;
+    FName: string;
+    FCountOperationsPerStep: Integer;
+  protected
+    function GetEnabled: Boolean;
+    function GetName: string;
+    function GetCountOperationsPerStep: Integer;
+
+    procedure SetUp; virtual;
+    function RunOneStep: Integer; virtual; abstract;
+    procedure TearDown; virtual;
   public
     constructor Create(
-      const ABenchmarkItem: IBenchmarkItem;
-      const AWarmUpTimePerStep: Double;
-      const AResults: array of Double
+      const AEnabled: Boolean;
+      const AName: string;
+      const ACountOperationsPerStep: Integer
     );
   end;
 
 implementation
 
-{ TBenchmarkResult }
+{ TBenchmarkItemBase }
 
-constructor TBenchmarkResult.Create(
-  const ABenchmarkItem: IBenchmarkItem;
-  const AWarmUpTimePerStep: Double;
-  const AResults: array of Double
+constructor TBenchmarkItemBase.Create(
+  const AEnabled: Boolean;
+  const AName: string;
+  const ACountOperationsPerStep: Integer
 );
-var
-  i: Integer;
 begin
-  Assert(Assigned(ABenchmarkItem));
-  Assert(High(AResults) > 0);
+  Assert(ACountOperationsPerStep > 0);
   inherited Create;
-  FBenchmarkItem := ABenchmarkItem;
-  FWarmUpTimePerStep := AWarmUpTimePerStep;
-  FCount := Length(AResults);
-  SetLength(FResults, FCount);
-  for i := 0 to FCount - 1 do begin
-    FResults[i] := AResults[i];
-  end;
+  FEnabled := AEnabled;
+  FName := AName;
+  FCountOperationsPerStep := ACountOperationsPerStep;
 end;
 
-function TBenchmarkResult.GetBenchmarkItem: IBenchmarkItem;
+function TBenchmarkItemBase.GetEnabled: Boolean;
 begin
-  Result := FBenchmarkItem;
+  Result := FEnabled;
 end;
 
-function TBenchmarkResult.GetRunCount: Integer;
+function TBenchmarkItemBase.GetCountOperationsPerStep: Integer;
 begin
-  Result := FCount;
+  Result := FCountOperationsPerStep;
 end;
 
-function TBenchmarkResult.GetRunResultTimePerStep(const AIndex: Integer): Double;
+function TBenchmarkItemBase.GetName: string;
 begin
-  Result := FResults[AIndex];
+  Result := FName;
 end;
 
-function TBenchmarkResult.GetWarmUpTimePerStep: Double;
+procedure TBenchmarkItemBase.SetUp;
 begin
-  Result := FWarmUpTimePerStep;
+  // Do nothing
+end;
+
+procedure TBenchmarkItemBase.TearDown;
+begin
+  // Do nothing
 end;
 
 end.

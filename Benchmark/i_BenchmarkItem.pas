@@ -25,11 +25,14 @@ interface
 type
   IBenchmarkItem = interface
     ['{91C4C570-6140-4B00-93A1-01FB60FA669F}']
+    function GetEnabled: Boolean;
+    property Enabled: Boolean read GetEnabled;
+
     function GetName: string;
     property Name: string read GetName;
 
-    function GetMultiplier: Integer;
-    property Multiplier: Integer read GetMultiplier;
+    function GetCountOperationsPerStep: Integer;
+    property CountOperationsPerStep: Integer read GetCountOperationsPerStep;
 
     procedure SetUp;
     function RunOneStep: Integer;

@@ -18,76 +18,42 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BenchmarkResult;
+unit u_BenchmarkItemIncSimple;
 
 interface
 
 uses
-  i_BenchmarkItem,
-  i_BenchmarkResult;
+  u_BenchmarkItemBase;
 
 type
-  TBenchmarkResult = class(TInterfacedObject, IBenchmarkResult)
+  TBenchmarkItemIncSimple = class(TBenchmarkItemBase)
   private
-    FBenchmarkItem: IBenchmarkItem;
-    FWarmUpTimePerStep: Double;
-    FCount: Integer;
-    FResults: array of Double;
-  private
-    function GetBenchmarkItem: IBenchmarkItem;
-    function GetWarmUpTimePerStep: Double;
-    function GetRunCount: Integer;
-    function GetRunResultTimePerStep(const AIndex: Integer): Double;
+    FData: Integer;
+  protected
+    function RunOneStep: Integer; override;
   public
-    constructor Create(
-      const ABenchmarkItem: IBenchmarkItem;
-      const AWarmUpTimePerStep: Double;
-      const AResults: array of Double
-    );
+    constructor Create;
   end;
 
 implementation
 
-{ TBenchmarkResult }
+const CRepeatCount = 1000;
 
-constructor TBenchmarkResult.Create(
-  const ABenchmarkItem: IBenchmarkItem;
-  const AWarmUpTimePerStep: Double;
-  const AResults: array of Double
-);
+{ TBenchmarkItemIncSimple }
+
+constructor TBenchmarkItemIncSimple.Create;
+begin
+  inherited Create(True, 'Simple Increment', CRepeatCount);
+end;
+
+function TBenchmarkItemIncSimple.RunOneStep: Integer;
 var
   i: Integer;
 begin
-  Assert(Assigned(ABenchmarkItem));
-  Assert(High(AResults) > 0);
-  inherited Create;
-  FBenchmarkItem := ABenchmarkItem;
-  FWarmUpTimePerStep := AWarmUpTimePerStep;
-  FCount := Length(AResults);
-  SetLength(FResults, FCount);
-  for i := 0 to FCount - 1 do begin
-    FResults[i] := AResults[i];
+  for i := 0 to CRepeatCount - 1 do begin
+    Inc(FData);
   end;
-end;
-
-function TBenchmarkResult.GetBenchmarkItem: IBenchmarkItem;
-begin
-  Result := FBenchmarkItem;
-end;
-
-function TBenchmarkResult.GetRunCount: Integer;
-begin
-  Result := FCount;
-end;
-
-function TBenchmarkResult.GetRunResultTimePerStep(const AIndex: Integer): Double;
-begin
-  Result := FResults[AIndex];
-end;
-
-function TBenchmarkResult.GetWarmUpTimePerStep: Double;
-begin
-  Result := FWarmUpTimePerStep;
+  Result := FData;
 end;
 
 end.

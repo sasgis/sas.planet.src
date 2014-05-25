@@ -123,8 +123,17 @@
     <DCCReference Include="Benchmark\i_BenchmarkResultListSaver.pas" />
     <DCCReference Include="Benchmark\i_BenchmarkSystem.pas" />
     <DCCReference Include="Benchmark\i_BenchmarkTestRunner.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemBase.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemBitmap32BlockTransferFull.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemBitmap32BlockTransferQuarter.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemBitmap32FillRect.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkItemEmpty.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemIncInterlocked.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemIncSimple.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkItemList.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemSyncRead.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemSyncWrite.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemTimer.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkResult.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkResultList.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkSystem.pas" />
