@@ -42,7 +42,7 @@ type
     lblUrl: TLabel;
     lblFolder: TLabel;
     lblSubMenu: TLabel;
-    CheckBox1: TCheckBox;
+    chkBoxSeparator: TCheckBox;
     EditHotKey: THotKey;
     btnOk: TButton;
     btnCancel: TButton;
@@ -183,7 +183,7 @@ begin
     FMapType.GUIConfig.ParentSubMenu.Value:=EditParSubMenu.Text;
     FMapType.GUIConfig.HotKey:=EditHotKey.HotKey;
     FMapType.GUIConfig.Enabled:=CheckEnabled.Checked;
-    FMapType.GUIConfig.Separator:=CheckBox1.Checked;
+    FMapType.GUIConfig.Separator:=chkBoxSeparator.Checked;
   finally
     FMapType.GUIConfig.UnlockWrite;
   end;
@@ -229,7 +229,7 @@ begin
   end;
 
   EditParSubMenu.Text:=FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
-  CheckBox1.Checked:=FMapType.Zmp.GUI.Separator;
+  chkBoxSeparator.Checked:=FMapType.Zmp.GUI.Separator;
   CheckEnabled.Checked:=FMapType.Zmp.GUI.Enabled;
   edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
 end;
@@ -303,7 +303,7 @@ begin
   finally
     FMapType.StorageConfig.UnlockRead;
   end;
-  CheckBox1.Checked:=FMapType.GUIConfig.Separator;
+  chkBoxSeparator.Checked:=FMapType.GUIConfig.Separator;
   CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
   edtVersion.Text := FMapType.VersionRequestConfig.Version.StoreString;
   pnlHeader.Visible := GState.Config.InternalDebugConfig.IsShowDebugInfo;
