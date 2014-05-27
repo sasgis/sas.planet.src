@@ -49,6 +49,9 @@
     <DCCReference Include="u_BenchmarkItemBitmap32BlockTransferFull.pas" />
     <DCCReference Include="u_BenchmarkItemBitmap32BlockTransferQuarter.pas" />
     <DCCReference Include="u_BenchmarkItemBitmap32FillRect.pas" />
+    <DCCReference Include="u_BenchmarkItemBitmap32Line.pas" />
+    <DCCReference Include="u_BenchmarkItemBitmap32LineHorizontal.pas" />
+    <DCCReference Include="u_BenchmarkItemBitmap32LineVertical.pas" />
     <DCCReference Include="u_BenchmarkItemEmpty.pas" />
     <DCCReference Include="u_BenchmarkItemIncInterlocked.pas" />
     <DCCReference Include="u_BenchmarkItemIncSimple.pas" />
@@ -58,6 +61,7 @@
     <DCCReference Include="u_BenchmarkItemTimer.pas" />
     <DCCReference Include="u_BenchmarkResult.pas" />
     <DCCReference Include="u_BenchmarkResultList.pas" />
+    <DCCReference Include="u_BenchmarkResultListSaverToCsv.pas" />
     <DCCReference Include="u_BenchmarkSystem.pas" />
     <DCCReference Include="u_BenchmarkTestRunner.pas" />
   </ItemGroup>

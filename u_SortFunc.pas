@@ -25,6 +25,9 @@ interface
 uses
   i_InterfaceListSimple;
 
+procedure SortDoubleArray(
+  var AArray: array of Double
+);
 procedure SortInterfaceListByDoubleMeasure(
   const AList: IInterfaceListSimple;
   var AMeasure: array of Double
@@ -49,6 +52,53 @@ procedure SortInterfaceListByCompareFunctor(
 );
 
 implementation
+
+procedure SortDoubleArray(
+  var AArray: array of Double
+);
+  procedure QuickSort(
+    var AArray: array of Double;
+    L, R: Integer
+  );
+  var
+    I, J: Integer;
+    P: Double;
+    T: Double;
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := AArray[(L + R) shr 1];
+      repeat
+        while AArray[I] < P do begin
+          Inc(I);
+        end;
+        while AArray[J] > P do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          T := AArray[I];
+
+          AArray[I] := AArray[J];
+          AArray[J] := T;
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(AArray, L, J);
+      end;
+      L := I;
+    until I >= R;
+  end;
+var
+  VCount: Integer;
+begin
+  VCount := Length(AArray);
+  if VCount > 1 then begin
+    QuickSort(AArray, 0, VCount - 1);
+  end;
+end;
 
 procedure SortInterfaceListByDoubleMeasure(
   const AList: IInterfaceListSimple;

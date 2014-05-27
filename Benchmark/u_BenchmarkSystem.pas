@@ -26,6 +26,7 @@ uses
   i_BenchmarkTestRunner,
   i_BenchmarkItemList,
   i_BenchmarkResultList,
+  i_BenchmarkResultListSaver,
   i_BenchmarkSystem;
 
 type
@@ -33,6 +34,7 @@ type
   private
     FUseConsoleOutput: Boolean;
     FTestRunner: IBenchmarkTestRunner;
+    FResultListSaver: IBenchmarkResultListSaver;
     FBaseTestList: IBenchmarkItemList;
     FLastResults: IBenchmarkResultList;
   private
@@ -47,10 +49,12 @@ type
 implementation
 
 uses
+  Classes,
   SysUtils,
   GR32,
   i_InterfaceListSimple,
   i_Timer,
+  i_BinaryData,
   i_ReadWriteSyncFactory,
   i_BenchmarkItem,
   u_InterfaceListSimple,
@@ -71,6 +75,10 @@ uses
   u_BenchmarkItemBitmap32BlockTransferFull,
   u_BenchmarkItemBitmap32BlockTransferQuarter,
   u_BenchmarkItemBitmap32FillRect,
+  u_BenchmarkItemBitmap32LineVertical,
+  u_BenchmarkItemBitmap32LineHorizontal,
+  u_BenchmarkItemBitmap32Line,
+  u_BenchmarkResultListSaverToCsv,
   u_BenchmarkTestRunner;
 
 { TBenchmarkSystem }
@@ -81,6 +89,7 @@ begin
   FUseConsoleOutput := AUseConsoleOutput;
   InitTestRunner;
   InitTestList;
+  FResultListSaver := TBenchmarkResultListSaverToCsv.Create;
 end;
 
 procedure TBenchmarkSystem.InitTestList;
@@ -246,6 +255,34 @@ begin
     );
   VList.Add(VItem);
 
+  VItem :=
+    TBenchmarkItemBitmap32LineVertical.Create(
+      256,
+      True,
+      True,
+      cmMerge
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TBenchmarkItemBitmap32LineHorizontal.Create(
+      256,
+      True,
+      True,
+      cmMerge
+    );
+  VList.Add(VItem);
+
+  VItem :=
+    TBenchmarkItemBitmap32Line.Create(
+      256,
+      True,
+      True,
+      True,
+      cmMerge
+    );
+  VList.Add(VItem);
+
   FBaseTestList := TBenchmarkItemList.Create(VList.MakeStaticAndClear);
 end;
 
@@ -272,8 +309,18 @@ begin
 end;
 
 procedure TBenchmarkSystem.RunTests;
+var
+  VStream: TStream;
+  VResults: IBinaryData;
 begin
   FLastResults := FTestRunner.RunTests(FBaseTestList, 10);
+  VResults := FResultListSaver.Save(FLastResults);
+  VStream := TFileStream.Create('Results.csv', fmCreate);
+  try
+    VStream.WriteBuffer(VResults.Buffer^, VResults.Size);
+  finally
+    VStream.Free;
+  end;
 end;
 
 end.

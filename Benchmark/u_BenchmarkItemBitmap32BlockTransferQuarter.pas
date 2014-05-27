@@ -79,8 +79,8 @@ begin
     cmBlend: VCombineMode := 'Blend';
     cmMerge: VCombineMode := 'Merge';
   end;
-  VName := Format('BlockTransferQuarter DrawMode=%s, CombineMode=%s, MasterAlpha=%d', [VDrawMode, VCombineMode, AMasterAlpha]);
-  inherited Create(True, VName, 1);
+  VName := Format('BlockTransferQuarter DrawMode=%s CombineMode=%s MasterAlpha=%d', [VDrawMode, VCombineMode, AMasterAlpha]);
+  inherited Create(True, VName, ABitmapSize*ABitmapSize);
   FBitmapSize := ABitmapSize;
   FCombineOp := ACombineOp;
   FCombineMode := ACombineMode;

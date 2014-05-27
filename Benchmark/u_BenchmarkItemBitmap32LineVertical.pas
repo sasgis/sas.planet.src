@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BenchmarkItemBitmap32BlockTransferFull;
+unit u_BenchmarkItemBitmap32LineVertical;
 
 interface
 
@@ -27,14 +27,14 @@ uses
   u_BenchmarkItemBase;
 
 type
-  TBenchmarkItemBitmap32BlockTransferFull = class(TBenchmarkItemBase)
+  TBenchmarkItemBitmap32LineVertical = class(TBenchmarkItemBase)
   private
-    FSource: TCustomBitmap32;
     FDest: TCustomBitmap32;
     FBitmapSize: Integer;
-    FCombineOp: TDrawMode;
+    FUseSafe: Boolean;
+    FUseTransparent: Boolean;
     FCombineMode: TCombineMode;
-    FMasterAlpha: Cardinal;
+    FColor: TColor32;
   protected
     procedure SetUp; override;
     function RunOneStep: Integer; override;
@@ -42,95 +42,101 @@ type
   public
     constructor Create(
       const ABitmapSize: Integer;
-      const ACombineOp: TDrawMode;
-      const ACombineMode: TCombineMode;
-      const AMasterAlpha: Cardinal
+      const AUseSafe: Boolean;
+      const AUseTransparent: Boolean;
+      const ACombineMode: TCombineMode
     );
   end;
 
 implementation
 
 uses
-  SysUtils,
-  GR32_Resamplers;
+  SysUtils;
 
-{ TBenchmarkItemBitmap32BlockTransferFull }
+{ TBenchmarkItemBitmap32LineVertical }
 
-constructor TBenchmarkItemBitmap32BlockTransferFull.Create(
+constructor TBenchmarkItemBitmap32LineVertical.Create(
   const ABitmapSize: Integer;
-  const ACombineOp: TDrawMode;
-  const ACombineMode: TCombineMode;
-  const AMasterAlpha: Cardinal
+  const AUseSafe: Boolean;
+  const AUseTransparent: Boolean;
+  const ACombineMode: TCombineMode
 );
 var
   VName: string;
-  VDrawMode: string;
   VCombineMode: string;
+  VSafe: string;
+  VTransparent: string;
 begin
   Assert(ABitmapSize > 0);
-  case ACombineOp of
-    dmOpaque: VDrawMode := 'Opaque';
-    dmBlend: VDrawMode := 'Blend';
-    dmCustom: VDrawMode := 'Custom';
-    dmTransparent: VDrawMode := 'Transparent';
+  if AUseSafe then begin
+    VSafe := 'Safe';
+  end else begin
+    VSafe := 'Unsafe';
   end;
-  case ACombineMode of
-    cmBlend: VCombineMode := 'Blend';
-    cmMerge: VCombineMode := 'Merge';
+  if AUseTransparent then begin
+    case ACombineMode of
+      cmBlend: VCombineMode := 'Blend';
+      cmMerge: VCombineMode := 'Merge';
+    end;
+    VTransparent := 'Transparent '+ VCombineMode;
+  end else begin
+    VTransparent := 'Solid';
   end;
-  VName := Format('BlockTransferFull DrawMode=%s CombineMode=%s MasterAlpha=%d', [VDrawMode, VCombineMode, AMasterAlpha]);
-  inherited Create(True, VName, ABitmapSize*ABitmapSize);
+  VName := Format('LineVert %s %s', [VSafe, VTransparent]);
+  inherited Create(True, VName, ABitmapSize * ABitmapSize);
   FBitmapSize := ABitmapSize;
-  FCombineOp := ACombineOp;
+  FUseSafe := AUseSafe;
+  FUseTransparent := AUseTransparent;
   FCombineMode := ACombineMode;
-  FMasterAlpha := AMasterAlpha;
+  if AUseTransparent then begin
+    FColor := SetAlpha(clGray32, 128);
+  end else begin
+    FColor := clLightGray32;
+  end;
 end;
 
-function TBenchmarkItemBitmap32BlockTransferFull.RunOneStep: Integer;
+function TBenchmarkItemBitmap32LineVertical.RunOneStep: Integer;
+var
+  i: Integer;
 begin
-  GR32_Resamplers.BlockTransfer(
-    FDest,
-    0,
-    0,
-    FDest.ClipRect,
-    FSource.Bits,
-    FSource.Width,
-    FSource.Height,
-    FSource.ClipRect,
-    FCombineOp,
-    FCombineMode,
-    FMasterAlpha,
-    clBlack32
-  );
+  for i := 0 to FBitmapSize - 1 do begin
+    if FUseSafe then begin
+      if FUseTransparent then begin
+        FDest.VertLineTS(i, 0, FBitmapSize - 1, FColor);
+      end else begin
+        FDest.VertLineS(i, 0, FBitmapSize - 1, FColor);
+      end;
+    end else begin
+      if FUseTransparent then begin
+        FDest.VertLineT(i, 0, FBitmapSize - 1, FColor);
+      end else begin
+        FDest.VertLine(i, 0, FBitmapSize - 1, FColor);
+      end;
+    end;
+  end;
   Result := FDest.Bits[0];
 end;
 
-procedure TBenchmarkItemBitmap32BlockTransferFull.SetUp;
+procedure TBenchmarkItemBitmap32LineVertical.SetUp;
 var
   VColor: TColor32;
   i: Integer;
 begin
   inherited;
-  FSource := TCustomBitmap32.Create;
-  FSource.SetSize(FBitmapSize, FBitmapSize);
   VColor := SetAlpha(clGray32, 128);
-  for i := 0 to FBitmapSize*FBitmapSize - 1 do begin
-    FSource.Bits[i] := VColor;
-    Inc(VColor);
-  end;
 
   FDest := TCustomBitmap32.Create;
   FDest.SetSize(FBitmapSize, FBitmapSize);
+  FDest.CombineMode := FCombineMode;
   for i := 0 to FBitmapSize*FBitmapSize - 1 do begin
     FDest.Bits[i] := VColor;
     Inc(VColor);
   end;
 end;
 
-procedure TBenchmarkItemBitmap32BlockTransferFull.TearDown;
+procedure TBenchmarkItemBitmap32LineVertical.TearDown;
 begin
   inherited;
-  FreeAndNil(FSource);
   FreeAndNil(FDest);
 end;
 
