@@ -36,7 +36,7 @@ var
 begin
 
   try
-    GBenchmarkSystem := TBenchmarkSystem.Create(True);
+    GBenchmarkSystem := TBenchmarkSystem.Create(10, 0.05, True);
     GBenchmarkSystem.RunTests;
   except
     on E:Exception do

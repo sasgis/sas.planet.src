@@ -63,13 +63,13 @@ constructor TBenchmarkResultListSaverToCsv.Create;
 begin
   inherited Create;
   FHeader := 'Name';
-  FHeader := FHeader + ',CountOperationsPerStep';
-  FHeader := FHeader + ',RunCount';
+  FHeader := FHeader + ',MedianTimePerStep';
   FHeader := FHeader + ',MinTimePerStep';
   FHeader := FHeader + ',MaxTimePerStep';
-  FHeader := FHeader + ',MedianTimePerStep';
   FHeader := FHeader + ',MeanTimePerStep';
   FHeader := FHeader + ',StdevTimePerStep';
+  FHeader := FHeader + ',CountOperationsPerStep';
+  FHeader := FHeader + ',RunCount';
   FFormat.DecimalSeparator := '.';
 end;
 
@@ -90,13 +90,13 @@ begin
   VResult := AItem.BenchmarkItem.Name;
   if AItem.BenchmarkItem.Enabled then begin
     PrepareStatistic(AItem, VMin, VMax, VMedian, VMean, VStdev);
-    VResult := VResult + ',' + IntToStr(AItem.BenchmarkItem.CountOperationsPerStep);
-    VResult := VResult + ',' + IntToStr(AItem.RunCount);
+    VResult := VResult + ',' + FloatToStr(VMedian * CSecondsToMicroSeconds, FFormat);
     VResult := VResult + ',' + FloatToStr(VMin * CSecondsToMicroSeconds, FFormat);
     VResult := VResult + ',' + FloatToStr(VMax * CSecondsToMicroSeconds, FFormat);
-    VResult := VResult + ',' + FloatToStr(VMedian * CSecondsToMicroSeconds, FFormat);
     VResult := VResult + ',' + FloatToStr(VMean * CSecondsToMicroSeconds, FFormat);
     VResult := VResult + ',' + FloatToStr(VStdev * CSecondsToMicroSeconds, FFormat);
+    VResult := VResult + ',' + IntToStr(AItem.BenchmarkItem.CountOperationsPerStep);
+    VResult := VResult + ',' + IntToStr(AItem.RunCount);
   end else begin
     VResult := VResult + 'Disabled';
   end;

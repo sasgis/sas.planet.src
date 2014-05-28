@@ -33,6 +33,8 @@ type
   TBenchmarkSystem = class(TInterfacedObject, IBenchmarkSystem)
   private
     FUseConsoleOutput: Boolean;
+    FMinRunTime: Double;
+    FRunCount: Integer;
     FTestRunner: IBenchmarkTestRunner;
     FResultListSaver: IBenchmarkResultListSaver;
     FBaseTestList: IBenchmarkItemList;
@@ -43,7 +45,11 @@ type
   private
     procedure RunTests;
   public
-    constructor Create(AUseConsoleOutput: Boolean);
+    constructor Create(
+      ARunCount: Integer;
+      AMinRunTime: Double;
+      AUseConsoleOutput: Boolean
+    );
   end;
 
 implementation
@@ -83,9 +89,17 @@ uses
 
 { TBenchmarkSystem }
 
-constructor TBenchmarkSystem.Create(AUseConsoleOutput: Boolean);
+constructor TBenchmarkSystem.Create(
+  ARunCount: Integer;
+  AMinRunTime: Double;
+  AUseConsoleOutput: Boolean
+);
 begin
+  Assert(ARunCount > 0);
+  Assert(AMinRunTime >= 0.001);
   inherited Create;
+  FMinRunTime := AMinRunTime;
+  FRunCount := ARunCount;
   FUseConsoleOutput := AUseConsoleOutput;
   InitTestRunner;
   InitTestList;
@@ -291,18 +305,20 @@ var
   VTimer: ITimer;
   VMinTime: Double;
 begin
-  VMinTime := 0.05;
-  VTimer := MakeTimerByNtQueryPerformanceCounter;
-  if not Assigned(VTimer) then begin
-    if FUseConsoleOutput then
-      Writeln('NtQueryPerformanceCounter does not work');
-    VTimer := MakeTimerByQueryPerformanceCounter;
-  end;
+  VMinTime := FMinRunTime;
+  VTimer := MakeTimerByQueryPerformanceCounter;
   if not Assigned(VTimer) then begin
     if FUseConsoleOutput then
       Writeln('QueryPerformanceCounter does not work');
+    VTimer := MakeTimerByNtQueryPerformanceCounter;
+  end;
+  if not Assigned(VTimer) then begin
+    if FUseConsoleOutput then
+      Writeln('NtQueryPerformanceCounter does not work');
     VTimer := MakeTimerByGetTickCount;
-    VMinTime := 0.1;
+    if VMinTime < 0.1 then begin
+      VMinTime := 0.1;
+    end;
   end;
 
   FTestRunner := TBenchmarkTestRunner.Create(FUseConsoleOutput, VMinTime, VTimer);
@@ -312,10 +328,12 @@ procedure TBenchmarkSystem.RunTests;
 var
   VStream: TStream;
   VResults: IBinaryData;
+  VFileName: string;
 begin
-  FLastResults := FTestRunner.RunTests(FBaseTestList, 10);
+  VFileName := 'Results_' + FormatDateTime('yyyymmdd_hhnn', Now) + '.csv';
+  FLastResults := FTestRunner.RunTests(FBaseTestList, FRunCount);
   VResults := FResultListSaver.Save(FLastResults);
-  VStream := TFileStream.Create('Results.csv', fmCreate);
+  VStream := TFileStream.Create(VFileName, fmCreate);
   try
     VStream.WriteBuffer(VResults.Buffer^, VResults.Size);
   finally
