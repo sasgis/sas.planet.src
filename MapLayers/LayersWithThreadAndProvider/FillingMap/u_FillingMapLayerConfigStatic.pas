@@ -25,7 +25,6 @@ interface
 uses
   t_Bitmap32,
   t_FillingMapModes,
-  i_FillingMapColorer,
   i_MapTypes,
   i_FillingMapLayerConfig,
   u_BaseInterfacedObject;
@@ -45,7 +44,6 @@ type
     FFilterMode: Boolean;
     FFillFirstDay: TDateTime;
     FFillLastDay: TDateTime;
-    FColorer: IFillingMapColorer;
   private
     function GetVisible: Boolean;
     function GetSelectedMap: IMapType;
@@ -59,8 +57,6 @@ type
     function GetFilterMode: Boolean;
     function GetFillFirstDay: TDateTime;
     function GetFillLastDay: TDateTime;
-
-    function GetColorer: IFillingMapColorer;
   public
     constructor Create(
       AVisible: Boolean;
@@ -79,9 +75,6 @@ type
   end;
 
 implementation
-
-uses
-  u_FillingMapColorerSimple;
 
 { TFillingMapLayerConfigStatic }
 
@@ -113,26 +106,11 @@ begin
   FFilterMode := AFilterMode;
   FFillFirstDay := AFillFirstDay;
   FFillLastDay := AFillLastDay;
-  FColorer :=
-    TFillingMapColorerSimple.Create(
-      FNoTileColor,
-      FShowTNE,
-      FTNEColor,
-      FFillMode,
-      FFilterMode,
-      FFillFirstDay,
-      FFillLastDay
-    );
 end;
 
 function TFillingMapLayerConfigStatic.GetActualMap: IMapType;
 begin
   Result := FActualMap;
-end;
-
-function TFillingMapLayerConfigStatic.GetColorer: IFillingMapColorer;
-begin
-  Result := FColorer;
 end;
 
 function TFillingMapLayerConfigStatic.GetNoTileColor: TColor32;

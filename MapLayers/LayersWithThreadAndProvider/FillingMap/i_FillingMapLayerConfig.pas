@@ -25,7 +25,6 @@ interface
 uses
   t_Bitmap32,
   t_FillingMapModes,
-  i_FillingMapColorer,
   i_MapTypes,
   i_ThreadConfig,
   i_ActiveMapsConfig,
@@ -69,9 +68,6 @@ type
 
     function GetFillLastDay: TDateTime;
     property FillLastDay: TDateTime read GetFillLastDay;
-
-    function GetColorer: IFillingMapColorer;
-    property Colorer: IFillingMapColorer read GetColorer;
   end;
 
   IFillingMapMapsConfig = interface(IMainActiveMap)

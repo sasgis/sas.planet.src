@@ -53,7 +53,10 @@ type
 implementation
 
 uses
+  i_MapVersionRequest,
+  i_FillingMapColorer,
   u_ListenerByEvent,
+  u_FillingMapColorerSimple,
   u_BitmapLayerProviderFillingMap;
 
 { TBitmapLayerProviderChangeableForFillingMap }
@@ -90,6 +93,8 @@ var
   VConfig: IFillingMapLayerConfigStatic;
   VResult: IBitmapLayerProvider;
   VMap: IMapType;
+  VColorer: IFillingMapColorer;
+  VVersionRequest: IMapVersionRequest;
 begin
   VResult := nil;
   VConfig := FConfig.GetStatic;
@@ -104,14 +109,25 @@ begin
         FSourceMapLast.VersionRequestConfig.ChangeNotifier.Add(FVersionListener);
       end;
     end;
+    VVersionRequest := VMap.VersionRequestConfig.GetStatic;
+    VColorer :=
+      TFillingMapColorerSimple.Create(
+        VConfig.NoTileColor,
+        VConfig.ShowTNE,
+        VConfig.TNEColor,
+        VConfig.FillMode,
+        VConfig.FilterMode,
+        VConfig.FillFirstDay,
+        VConfig.FillLastDay
+      );
     VResult :=
       TBitmapLayerProviderFillingMap.Create(
         FBitmapFactory,
         VMap.TileStorage,
-        VMap.VersionRequestConfig.GetStatic,
+        VVersionRequest,
         VConfig.UseRelativeZoom,
         VConfig.Zoom,
-        VConfig.Colorer
+        VColorer
       );
   end;
   Result := VResult;
