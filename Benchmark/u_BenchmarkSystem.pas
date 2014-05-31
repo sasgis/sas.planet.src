@@ -60,6 +60,7 @@ uses
   GR32,
   i_InterfaceListSimple,
   i_Timer,
+  i_HashFunctionImpl,
   i_BinaryData,
   i_ReadWriteSyncFactory,
   i_BenchmarkItem,
@@ -67,6 +68,8 @@ uses
   u_TimerByNtQueryPerformanceCounter,
   u_TimerByQueryPerformanceCounter,
   u_TimerByGetTickCount,
+  u_HashFunctionCityHash,
+  u_HashFunctionCRC64,
   u_ReadWriteSyncAbstract,
   u_ReadWriteSyncSRW,
   u_ReadWriteSyncRtlResource,
@@ -78,6 +81,7 @@ uses
   u_BenchmarkItemSyncRead,
   u_BenchmarkItemSyncWrite,
   u_BenchmarkItemTimer,
+  u_BenchmarkItemHashFunction,
   u_BenchmarkItemBitmap32BlockTransferFull,
   u_BenchmarkItemBitmap32BlockTransferQuarter,
   u_BenchmarkItemBitmap32FillRect,
@@ -113,6 +117,7 @@ var
   VSyncFactory: IReadWriteSyncFactory;
   VSync: IReadWriteSync;
   VTimer: ITimer;
+  VHash: IHashFunctionImpl;
 begin
   VList := TInterfaceListSimple.Create;
 
@@ -186,6 +191,32 @@ begin
 
   VTimer := MakeTimerByGetTickCount;
   VItem := TBenchmarkItemTimer.Create('GetTickCount', VTimer);
+  VList.Add(VItem);
+
+  VHash := THashFunctionCityHash.Create;
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1, VHash);
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 16, VHash);
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1024, VHash);
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 65535, VHash);
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CityHash', 1024*1024, VHash);
+  VList.Add(VItem);
+
+  VHash := THashFunctionCRC64.Create;
+  VItem := TBenchmarkItemHashFunction.Create('CRC64', 16, VHash);
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CRC64', 65535, VHash);
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemHashFunction.Create('CRC64', 1024*1024, VHash);
   VList.Add(VItem);
 
   VItem :=
