@@ -61,7 +61,6 @@ var
   VRepeatCount: Integer;
 begin
   Assert(AInputSize > 0);
-  VRepeatCount := 1000;
   if AInputSize <= 1024 then begin
     VRepeatCount := 1000;
   end else if AInputSize <= 32 * 1024 then begin

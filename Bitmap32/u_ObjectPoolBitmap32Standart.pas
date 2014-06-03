@@ -25,7 +25,6 @@ interface
 uses
   Types,
   i_Bitmap32Static,
-  i_Bitmap32BufferFactory,
   u_ObjectFromPoolAbstract,
   u_ObjectPoolBase;
 

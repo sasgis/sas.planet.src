@@ -60,10 +60,7 @@ resourcestring
 
 implementation
 
-
 uses
-  Windows,
-  Classes,
   SysUtils;
 
 { TGUIDList }

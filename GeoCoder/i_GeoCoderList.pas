@@ -23,7 +23,6 @@ unit i_GeoCoderList;
 interface
 
 uses
-  ActiveX,
   i_GeoCoder,
   i_Changeable;
 

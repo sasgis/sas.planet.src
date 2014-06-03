@@ -3,9 +3,6 @@ unit u_FileNameIteratorFolderWithSubfolders;
 interface
 
 uses
-  Windows,
-  Classes,
-  SysUtils,
   i_FileNameIterator;
 
 type

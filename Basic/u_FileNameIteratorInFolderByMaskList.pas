@@ -3,7 +3,6 @@ unit u_FileNameIteratorInFolderByMaskList;
 interface
 
 uses
-  Windows,
   SysUtils,
   WideStrings,
   i_FileNameIterator;

@@ -4,7 +4,6 @@ interface
 
 uses
   Windows,
-  Classes,
   SysUtils,
   WideStrings,
   i_FileNameIterator;

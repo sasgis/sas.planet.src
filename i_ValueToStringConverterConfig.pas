@@ -3,7 +3,6 @@ unit i_ValueToStringConverterConfig;
 interface
 
 uses
-  t_GeoTypes,
   t_CommonTypes,
   i_ConfigDataElement;
 

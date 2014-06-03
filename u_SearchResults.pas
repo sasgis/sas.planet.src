@@ -69,7 +69,6 @@ implementation
 
 uses
   ActiveX,
-  SysUtils,
   i_VectorDataItemSimple,
   i_GeometryLonLat,
   u_ResStrings;

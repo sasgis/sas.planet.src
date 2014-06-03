@@ -4,14 +4,10 @@ interface
 
 uses
   TestFramework,
-  Types,
   Classes,
   SysUtils,
-  GR32,
   i_InternalPerformanceCounter,
-  u_BaseInterfacedObject,
   i_Bitmap32To8Converter,
-  i_Bitmap32StaticFactory,
   i_BitmapTileSaveLoad,
   i_Bitmap32Static,
   i_BinaryData,
@@ -40,7 +36,7 @@ implementation
 uses
   u_BinaryDataByMemStream,
   u_BitmapTileSaveLoadFactory,
-  u_Bitmap32StaticFactorySimple,
+  u_Bitmap32BufferFactorySimple,
   u_InternalPerformanceCounterFake,
   u_Bitmap32To8ConverterByFreeImage,
   u_Bitmap32To8ConverterByLibImageQuant;
@@ -77,7 +73,7 @@ begin
   FLibPng32bppTileSaver := TLibPngTileSaver.Create(VCounter, cCompression, 32);
 
   FBitmapTileSaveLoadFactory :=
-    TBitmapTileSaveLoadFactory.Create(TBitmap32StaticFactorySimple.Create);
+    TBitmapTileSaveLoadFactory.Create(TBitmap32BufferFactorySimple.Create);
 end;
 
 procedure TestTLibPngTileSaver.TearDown;

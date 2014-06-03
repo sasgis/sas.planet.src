@@ -27,7 +27,6 @@ uses
   i_LocalCoordConverterChangeable,
   i_GPSRecorder,
   i_GPSModule,
-  i_ValueToStringConverter,
   i_BatteryStatus,
   i_SystemTimeProvider,
   i_LanguageManager,

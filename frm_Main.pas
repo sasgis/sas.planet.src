@@ -782,7 +782,6 @@ uses
   i_MapVersionRequest,
   i_MapVersionListStatic,
   i_InternalDomainOptions,
-  i_MapSvcScanConfig,
   i_TileInfoBasic,
   i_TileStorage,
   i_GPS,
@@ -888,7 +887,6 @@ uses
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
-  u_ActiveMapTBXItem,
   frm_LonLatRectEdit;
 
 type

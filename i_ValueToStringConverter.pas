@@ -24,7 +24,6 @@ interface
 
 uses
   t_GeoTypes,
-  t_CommonTypes,
   i_Changeable;
 
 type

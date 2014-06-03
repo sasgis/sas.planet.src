@@ -9,7 +9,6 @@ unit u_GUIDSet_Test;
 interface
 
 uses
-  ActiveX,
   TestFramework,
   i_IGUIDInterfaceSet_Test,
   i_IGUIDObjectSet_Test;

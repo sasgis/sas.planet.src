@@ -70,8 +70,7 @@ uses
   t_GeoTypes,
   i_VectorDataItemSimple,
   u_InterfaceListSimple,
-  u_ResStrings,
-  u_Synchronizer;
+  u_ResStrings;
 
 { TGeoCoderByPolishMap }
 

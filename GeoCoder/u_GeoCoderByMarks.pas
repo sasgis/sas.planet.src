@@ -23,8 +23,6 @@ unit u_GeoCoderByMarks;
 interface
 
 uses
-  Classes,
-  sysutils,
   i_InterfaceListSimple,
   i_MarkDb,
   i_GeoCoder,
@@ -55,10 +53,8 @@ end;
 implementation
 
 uses
-  windows,
   i_VectorItemSubset,
-  u_InterfaceListSimple,
-  u_GeoToStrFunc;
+  u_InterfaceListSimple;
 
 { TGeoCoderByMarks }
 

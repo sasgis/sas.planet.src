@@ -31,7 +31,7 @@ implementation
 
 uses
   Classes,
-  u_Bitmap32StaticFactorySimple,
+  u_Bitmap32BufferFactorySimple,
   u_BinaryDataByMemStream;
 
 const
@@ -52,7 +52,7 @@ const
 procedure TestTBitmapTileSaveLoadFactory.SetUp;
 begin
   FBitmapTileSaveLoadFactory :=
-    TBitmapTileSaveLoadFactory.Create(TBitmap32StaticFactorySimple.Create) as IBitmapTileSaveLoadFactory;
+    TBitmapTileSaveLoadFactory.Create(TBitmap32BufferFactorySimple.Create) as IBitmapTileSaveLoadFactory;
 end;
 
 procedure TestTBitmapTileSaveLoadFactory.TearDown;

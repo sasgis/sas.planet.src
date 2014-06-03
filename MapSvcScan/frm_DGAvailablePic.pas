@@ -295,7 +295,6 @@ uses
   u_InetFunc,
   u_VectorItemTree,
   u_DoublePointsAggregator,
-  u_MapSvcScanStorage,
   u_MultiPoligonParser,
   u_GeoFunc,
   u_GeoToStrFunc;

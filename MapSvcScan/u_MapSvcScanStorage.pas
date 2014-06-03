@@ -26,7 +26,6 @@ uses
   SysUtils,
   Classes,
   SQLite3Handler,
-  t_GeoTypes,
   i_Listener,
   i_MapSvcScanConfig,
   i_MapSvcScanStorage,

@@ -83,7 +83,6 @@ implementation
 
 uses
   Windows,
-  Classes,
   Math,
   SysUtils;
 

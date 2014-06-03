@@ -23,7 +23,6 @@ unit frm_GoTo;
 interface
 
 uses
-  Windows,
   SysUtils,
   Forms,
   Classes,

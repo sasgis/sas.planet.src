@@ -23,12 +23,9 @@ unit u_ValueToStringConverterConfig;
 interface
 
 uses
-  i_Notifier,
-  i_Listener,
   t_CommonTypes,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
-  i_ConfigDataElement,
   i_ValueToStringConverterConfig,
   u_BaseInterfacedObject,
   u_ConfigDataElementBase;
@@ -85,10 +82,6 @@ type
 
 
 implementation
-
-uses
-  u_ListenerByEvent,
-  u_ValueToStringConverter;
 
 { TValueToStringConverterConfig }
 
