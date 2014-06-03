@@ -31,6 +31,7 @@ type
   private
     FHashFunction: IHashFunctionImpl;
     FInputSize: Integer;
+    FRepeatCount: Integer;
     FSourceData: array of Byte;
   protected
     procedure SetUp; override;
@@ -49,8 +50,6 @@ uses
   t_Hash,
   SysUtils;
 
-const CRepeatCount = 1000;
-
 { TBenchmarkItemHashFunction }
 
 constructor TBenchmarkItemHashFunction.Create(
@@ -58,13 +57,24 @@ constructor TBenchmarkItemHashFunction.Create(
   const AInputSize: Integer;
   const AHashFunction: IHashFunctionImpl
 );
+var
+  VRepeatCount: Integer;
 begin
   Assert(AInputSize > 0);
+  VRepeatCount := 1000;
+  if AInputSize <= 1024 then begin
+    VRepeatCount := 1000;
+  end else if AInputSize <= 32 * 1024 then begin
+    VRepeatCount := 100;
+  end else begin
+    VRepeatCount := 1;
+  end;
   inherited Create(
     Assigned(AHashFunction),
     'Hash ' + AHashName + ' x' + IntToStr(AInputSize),
-    CRepeatCount*AInputSize
+    VRepeatCount*AInputSize
   );
+  FRepeatCount := VRepeatCount;
   FInputSize := AInputSize;
   FHashFunction := AHashFunction;
 end;
@@ -75,7 +85,7 @@ var
   VHash: THashValue;
 begin
   VHash := 1;
-  for i := 0 to CRepeatCount - 1 do begin
+  for i := 0 to FRepeatCount - 1 do begin
     VHash := FHashFunction.CalcHashWithSeed(@FSourceData[0], FInputSize, VHash);
   end;
   Result := VHash;

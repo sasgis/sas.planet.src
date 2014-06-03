@@ -99,9 +99,9 @@ function TBenchmarkItemBitmap32FillRect.RunOneStep: Integer;
 begin
   if FUseSafe then begin
     if FUseTransparent then begin
-      FDest.FillRectTS(FDest.ClipRect, FColor);
+      FDest.FillRectTS(0, 0, FBitmapSize, FBitmapSize, FColor);
     end else begin
-      FDest.FillRectS(FDest.ClipRect, FColor);
+      FDest.FillRectS(0, 0, FBitmapSize, FBitmapSize, FColor);
     end;
   end else begin
     if FUseTransparent then begin
