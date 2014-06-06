@@ -91,6 +91,7 @@ uses
   u_BenchmarkItemIncInterlocked in 'Benchmark\u_BenchmarkItemIncInterlocked.pas',
   u_BenchmarkItemTimer in 'Benchmark\u_BenchmarkItemTimer.pas',
   u_BenchmarkItemHashFunction in 'Benchmark\u_BenchmarkItemHashFunction.pas',
+  u_BenchmarkItemCoordConverter in 'Benchmark\u_BenchmarkItemCoordConverter.pas',
   u_BenchmarkItemSyncRead in 'Benchmark\u_BenchmarkItemSyncRead.pas',
   u_BenchmarkItemSyncWrite in 'Benchmark\u_BenchmarkItemSyncWrite.pas',
   u_BenchmarkItemBitmap32BlockTransferQuarter in 'Benchmark\u_BenchmarkItemBitmap32BlockTransferQuarter.pas',

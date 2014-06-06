@@ -58,11 +58,14 @@ uses
   Classes,
   SysUtils,
   GR32,
+  t_GeoTypes,
   i_InterfaceListSimple,
   i_Timer,
   i_HashFunctionImpl,
   i_BinaryData,
   i_ReadWriteSyncFactory,
+  i_Datum,
+  i_CoordConverter,
   i_BenchmarkItem,
   u_InterfaceListSimple,
   u_TimerByNtQueryPerformanceCounter,
@@ -70,6 +73,10 @@ uses
   u_TimerByGetTickCount,
   u_HashFunctionCityHash,
   u_HashFunctionCRC64,
+  u_Datum,
+  u_CoordConverterMercatorOnSphere,
+  u_CoordConverterMercatorOnEllipsoid,
+  u_CoordConverterSimpleLonLat,
   u_ReadWriteSyncAbstract,
   u_ReadWriteSyncSRW,
   u_ReadWriteSyncRtlResource,
@@ -88,6 +95,7 @@ uses
   u_BenchmarkItemBitmap32LineVertical,
   u_BenchmarkItemBitmap32LineHorizontal,
   u_BenchmarkItemBitmap32Line,
+  u_BenchmarkItemCoordConverter,
   u_BenchmarkResultListSaverToCsv,
   u_BenchmarkTestRunner;
 
@@ -118,6 +126,8 @@ var
   VSync: IReadWriteSync;
   VTimer: ITimer;
   VHash: IHashFunctionImpl;
+  VDatum: IDatum;
+  VCoordConverter: ICoordConverter;
 begin
   VList := TInterfaceListSimple.Create;
 
@@ -325,6 +335,86 @@ begin
       True,
       True,
       cmMerge
+    );
+  VList.Add(VItem);
+
+  VDatum :=
+    TDatum.Create(
+      0,
+      0,
+      6378137
+    );
+  VCoordConverter :=
+    TCoordConverterMercatorOnSphere.Create(
+      0,
+      VDatum,
+      0,
+      CELL_UNITS_INVALID
+    );
+  VItem :=
+    TBenchmarkItemCoordConverterForvard.Create(
+      'MercatorOnSphere',
+      VCoordConverter
+    );
+  VList.Add(VItem);
+  VItem :=
+    TBenchmarkItemCoordConverterBackvard.Create(
+      'MercatorOnSphere',
+      VCoordConverter
+    );
+  VList.Add(VItem);
+
+  VDatum :=
+    TDatum.Create(
+      0,
+      0,
+      6378137,
+      6356752
+    );
+  VCoordConverter :=
+    TCoordConverterMercatorOnEllipsoid.Create(
+      0,
+      VDatum,
+      0,
+      CELL_UNITS_INVALID
+    );
+  VItem :=
+    TBenchmarkItemCoordConverterForvard.Create(
+      'MercatorOnEllipsoid',
+      VCoordConverter
+    );
+  VList.Add(VItem);
+  VItem :=
+    TBenchmarkItemCoordConverterBackvard.Create(
+      'MercatorOnEllipsoid',
+      VCoordConverter
+    );
+  VList.Add(VItem);
+
+  VDatum :=
+    TDatum.Create(
+      0,
+      0,
+      6378137,
+      6356752
+    );
+  VCoordConverter :=
+    TCoordConverterSimpleLonLat.Create(
+      0,
+      VDatum,
+      0,
+      CELL_UNITS_INVALID
+    );
+  VItem :=
+    TBenchmarkItemCoordConverterForvard.Create(
+      'SimpleLonLat',
+      VCoordConverter
+    );
+  VList.Add(VItem);
+  VItem :=
+    TBenchmarkItemCoordConverterBackvard.Create(
+      'SimpleLonLat',
+      VCoordConverter
     );
   VList.Add(VItem);
 

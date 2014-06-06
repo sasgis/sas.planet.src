@@ -20,6 +20,7 @@ uses
   u_BenchmarkItemSyncWrite in 'u_BenchmarkItemSyncWrite.pas',
   u_BenchmarkItemTimer in 'u_BenchmarkItemTimer.pas',
   u_BenchmarkItemHashFunction in 'u_BenchmarkItemHashFunction.pas',
+  u_BenchmarkItemCoordConverter in 'u_BenchmarkItemCoordConverter.pas',
   u_BenchmarkItemBitmap32BlockTransferFull in 'u_BenchmarkItemBitmap32BlockTransferFull.pas',
   u_BenchmarkItemBitmap32BlockTransferQuarter in 'u_BenchmarkItemBitmap32BlockTransferQuarter.pas',
   u_BenchmarkItemBitmap32FillRect in 'u_BenchmarkItemBitmap32FillRect.pas',

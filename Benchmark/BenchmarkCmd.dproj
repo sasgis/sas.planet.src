@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{5963fafb-9898-4f00-965a-b1a6c73330e7}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
     <DCC_DependencyCheckOutputName>..\.bin\BenchmarkCmd.exe</DCC_DependencyCheckOutputName>
@@ -19,10 +19,10 @@
     <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>..\.dcu</DCC_HppOutput>
-    <DCC_UnitSearchPath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize</DCC_UnitSearchPath>
-    <DCC_ResourcePath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize</DCC_ResourcePath>
-    <DCC_ObjPath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize</DCC_ObjPath>
-    <DCC_IncludePath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize</DCC_IncludePath>
+    <DCC_UnitSearchPath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize;..\CoordConvert\;..\Geometry\;..\ConfigData\;..\GeoCalc\</DCC_UnitSearchPath>
+    <DCC_ResourcePath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize;..\CoordConvert\;..\Geometry\;..\ConfigData\;..\GeoCalc\</DCC_ResourcePath>
+    <DCC_ObjPath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize;..\CoordConvert\;..\Geometry\;..\ConfigData\;..\GeoCalc\</DCC_ObjPath>
+    <DCC_IncludePath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize;..\CoordConvert\;..\Geometry\;..\ConfigData\;..\GeoCalc\</DCC_IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
@@ -31,10 +31,10 @@
     <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>..\.dcu</DCC_HppOutput>
-    <DCC_UnitSearchPath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize</DCC_UnitSearchPath>
-    <DCC_ResourcePath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize</DCC_ResourcePath>
-    <DCC_ObjPath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize</DCC_ObjPath>
-    <DCC_IncludePath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize</DCC_IncludePath>
+    <DCC_UnitSearchPath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize;..\CoordConvert\;..\Geometry\;..\ConfigData\;..\GeoCalc\</DCC_UnitSearchPath>
+    <DCC_ResourcePath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize;..\CoordConvert\;..\Geometry\;..\ConfigData\;..\GeoCalc\</DCC_ResourcePath>
+    <DCC_ObjPath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize;..\CoordConvert\;..\Geometry\;..\ConfigData\;..\GeoCalc\</DCC_ObjPath>
+    <DCC_IncludePath>..\;..\Basic\;..\Performance;..\Includes;..\Synchronize;..\CoordConvert\;..\Geometry\;..\ConfigData\;..\GeoCalc\</DCC_IncludePath>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -61,6 +61,7 @@
     <DCCReference Include="u_BenchmarkItemBitmap32Line.pas" />
     <DCCReference Include="u_BenchmarkItemBitmap32LineHorizontal.pas" />
     <DCCReference Include="u_BenchmarkItemBitmap32LineVertical.pas" />
+    <DCCReference Include="u_BenchmarkItemCoordConverter.pas" />
     <DCCReference Include="u_BenchmarkItemEmpty.pas" />
     <DCCReference Include="u_BenchmarkItemHashFunction.pas" />
     <DCCReference Include="u_BenchmarkItemIncInterlocked.pas" />
