@@ -152,6 +152,8 @@ uses
   u_DistanceCalculatorByGeodesicLib in 'GeoCalc\u_DistanceCalculatorByGeodesicLib.pas',
   u_DistanceCalculatorByVincentyAlgorithm in 'GeoCalc\u_DistanceCalculatorByVincentyAlgorithm.pas',
   i_DistanceCalculator in 'GeoCalc\i_DistanceCalculator.pas',
+  i_GeoCalc in 'GeoCalc\i_GeoCalc.pas',
+  u_GeoCalc in 'GeoCalc\u_GeoCalc.pas',
   i_Synchronizer in 'Synchronize\i_Synchronizer.pas',
   u_Synchronizer in 'Synchronize\u_Synchronizer.pas',
   i_ReadWriteSyncFactory in 'Synchronize\i_ReadWriteSyncFactory.pas',

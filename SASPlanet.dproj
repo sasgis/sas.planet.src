@@ -356,9 +356,11 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="GeoCalc\i_DistanceCalculator.pas" />
+    <DCCReference Include="GeoCalc\i_GeoCalc.pas" />
     <DCCReference Include="GeoCalc\i_PolygonAreaCalculator.pas" />
     <DCCReference Include="GeoCalc\u_DistanceCalculatorByGeodesicLib.pas" />
     <DCCReference Include="GeoCalc\u_DistanceCalculatorByVincentyAlgorithm.pas" />
+    <DCCReference Include="GeoCalc\u_GeoCalc.pas" />
     <DCCReference Include="GeoCalc\u_PolygonAreaCalculator.pas" />
     <DCCReference Include="GeoCoder\c_GeoCoderGUIDSimple.pas" />
     <DCCReference Include="GeoCoder\i_GeoCoder.pas" />
