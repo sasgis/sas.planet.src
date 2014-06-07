@@ -39,7 +39,7 @@ type
     function GetBounds: ILonLatRect;
     property Bounds: ILonLatRect read GetBounds;
 
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
   end;
 

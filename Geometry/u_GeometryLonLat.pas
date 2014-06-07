@@ -22,7 +22,7 @@ type
     function GetHash: THashValue;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APoint: IGeometryLonLatPoint): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function GetPoint: TDoublePoint;
   public
     constructor Create(
@@ -57,7 +57,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const ALine: IGeometryLonLatLine): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function CalcLength(const ADatum: IDatum): Double;
   public
     constructor Create(
@@ -73,7 +73,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
       const ADatum: IDatum;
@@ -173,7 +173,7 @@ begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, False, @FPoints[0], FCount);
 end;
 
-function TGeometryLonLatLine.GetGoToLonLat: TDoublePoint;
+function TGeometryLonLatLine.GetGoToPoint: TDoublePoint;
 begin
   if GetCount > 0 then begin
     Result := GetPoints[0];
@@ -287,7 +287,7 @@ begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, True, @FPoints[0], FCount);
 end;
 
-function TGeometryLonLatPolygon.GetGoToLonLat: TDoublePoint;
+function TGeometryLonLatPolygon.GetGoToPoint: TDoublePoint;
 begin
   Result := FBounds.CalcRectCenter;
 end;
@@ -372,7 +372,7 @@ begin
   Result := FBounds;
 end;
 
-function TGeometryLonLatPoint.GetGoToLonLat: TDoublePoint;
+function TGeometryLonLatPoint.GetGoToPoint: TDoublePoint;
 begin
   Result := GetPoint;
 end;

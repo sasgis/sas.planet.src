@@ -36,7 +36,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function CalcLength(const ADatum: IDatum): Double;
     function GetItem(AIndex: Integer): IGeometryLonLatLine;
   end;
@@ -46,7 +46,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
       const ADatum: IDatum;
@@ -64,7 +64,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function CalcLength(const ADatum: IDatum): Double;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
@@ -83,7 +83,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function CalcPerimeter(const ADatum: IDatum): Double;
     function CalcArea(
       const ADatum: IDatum;
@@ -154,9 +154,9 @@ begin
   Result := TEnumLonLatPointByPath.Create(Self);
 end;
 
-function TGeometryLonLatMultiLine.GetGoToLonLat: TDoublePoint;
+function TGeometryLonLatMultiLine.GetGoToPoint: TDoublePoint;
 begin
-  Result := GetItem(0).GetGoToLonLat;
+  Result := GetItem(0).GetGoToPoint;
 end;
 
 function TGeometryLonLatMultiLine.GetItem(AIndex: Integer): IGeometryLonLatLine;
@@ -253,7 +253,7 @@ begin
   Result := TEnumLonLatPointByPolygon.Create(Self);
 end;
 
-function TGeometryLonLatMultiPolygon.GetGoToLonLat: TDoublePoint;
+function TGeometryLonLatMultiPolygon.GetGoToPoint: TDoublePoint;
 begin
   Result := FBounds.CalcRectCenter;
 end;
@@ -351,9 +351,9 @@ begin
   Result := FLine.GetEnum;
 end;
 
-function TLonLatPathOneLine.GetGoToLonLat: TDoublePoint;
+function TLonLatPathOneLine.GetGoToPoint: TDoublePoint;
 begin
-  Result := FLine.GetGoToLonLat;
+  Result := FLine.GetGoToPoint;
 end;
 
 function TLonLatPathOneLine.GetHash: THashValue;
@@ -441,9 +441,9 @@ begin
   Result := FLine.GetEnum;
 end;
 
-function TLonLatPolygonOneLine.GetGoToLonLat: TDoublePoint;
+function TLonLatPolygonOneLine.GetGoToPoint: TDoublePoint;
 begin
-  Result := FLine.GetGoToLonLat;
+  Result := FLine.GetGoToPoint;
 end;
 
 function TLonLatPolygonOneLine.GetHash: THashValue;

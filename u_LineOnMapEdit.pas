@@ -125,7 +125,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function CalcLength(const ADatum: IDatum): Double;
@@ -145,7 +145,7 @@ type
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function CalcPerimeter(const ADatum: IDatum): Double;
@@ -808,9 +808,9 @@ begin
   Result := FLine.GetEnum;
 end;
 
-function TLonLatPathWithSelected.GetGoToLonLat: TDoublePoint;
+function TLonLatPathWithSelected.GetGoToPoint: TDoublePoint;
 begin
-  Result := FLine.GetGoToLonLat;
+  Result := FLine.GetGoToPoint;
 end;
 
 function TLonLatPathWithSelected.GetHash: THashValue;
@@ -915,9 +915,9 @@ begin
   Result := FLine.GetEnum;
 end;
 
-function TLonLatPolygonWithSelected.GetGoToLonLat: TDoublePoint;
+function TLonLatPolygonWithSelected.GetGoToPoint: TDoublePoint;
 begin
-  Result := FLine.GetGoToLonLat;
+  Result := FLine.GetGoToPoint;
 end;
 
 function TLonLatPolygonWithSelected.GetHash: THashValue;

@@ -632,7 +632,7 @@ begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
     FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
-    FMapGoto.ShowMarker(VMark.Geometry.GetGoToLonLat);
+    FMapGoto.ShowMarker(VMark.Geometry.GetGoToPoint);
   end;
 end;
 
@@ -645,7 +645,7 @@ begin
   if (btnNavOnMark.Checked) then begin
     VMark := GetSelectedMarkFull;
     if VMark <> nil then begin
-      LL := VMark.Geometry.GetGoToLonLat;
+      LL := VMark.Geometry.GetGoToPoint;
       VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
       FNavToPoint.StartNavToMark(VMarkStringId, LL);
     end else begin
@@ -1058,7 +1058,7 @@ begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
     FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
-    FMapGoto.ShowMarker(VMark.Geometry.GetGoToLonLat);
+    FMapGoto.ShowMarker(VMark.Geometry.GetGoToPoint);
   end;
 end;
 

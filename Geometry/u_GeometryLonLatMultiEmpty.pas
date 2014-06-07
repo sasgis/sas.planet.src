@@ -35,7 +35,7 @@ type
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSamePath(const APath: IGeometryLonLatMultiLine): Boolean;
     function IsSamePolygon(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
-    function GetGoToLonLat: TDoublePoint;
+    function GetGoToPoint: TDoublePoint;
 
     function IGeometryLonLatMultiPolygon.CalcArea = CalcAreaLonLat;
 
@@ -116,7 +116,7 @@ begin
   Result := FEnumLonLat;
 end;
 
-function TGeometryLonLatMultiEmpty.GetGoToLonLat: TDoublePoint;
+function TGeometryLonLatMultiEmpty.GetGoToPoint: TDoublePoint;
 begin
   Result := CEmptyDoublePoint;
 end;

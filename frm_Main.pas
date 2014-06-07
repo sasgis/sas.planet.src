@@ -5940,7 +5940,7 @@ begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
     if (not NMarkNav.Checked) then begin
-      VLonLat := VMark.Geometry.GetGoToLonLat;
+      VLonLat := VMark.Geometry.GetGoToPoint;
       VMarkStringId := FMarkDBGUI.MarksDb.GetStringIdByMark(VMark);
       FConfig.NavToPoint.StartNavToMark(VMarkStringID, VLonLat);
     end else begin
@@ -6961,7 +6961,7 @@ var
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
     VPlacemark := IVectorDataItemSimple(tbxpmnSearchResult.Tag);
-    VStr := GState.ValueToStringConverter.GetStatic.LonLatConvert(VPlacemark.Geometry.GetGoToLonLat);
+    VStr := GState.ValueToStringConverter.GetStatic.LonLatConvert(VPlacemark.Geometry.GetGoToPoint);
     CopyStringToClipboard(Handle, VStr);
   end;
 end;

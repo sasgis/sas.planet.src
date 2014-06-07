@@ -166,7 +166,7 @@ begin
       ShowMessage(SAS_STR_notfound);
     end else begin
       FMapGoto.FitRectToScreen(VItemForGoTo.Geometry.Bounds.Rect);
-      FMapGoto.ShowMarker(VItemForGoTo.Geometry.GetGoToLonLat);
+      FMapGoto.ShowMarker(VItemForGoTo.Geometry.GetGoToPoint);
     end;
   end else begin
     case ASearchResult.GetResultCode of

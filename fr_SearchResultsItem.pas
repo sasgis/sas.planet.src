@@ -124,7 +124,7 @@ begin
       imgIcon.Bitmap.SetSizeFrom(imgIcon);
       imgIcon.Visible := True;
       CopyBitmap32StaticToBitmap32(VAppearanceIcon.Pic.GetMarker, imgIcon.Bitmap);
-      VGotoLonLat := FPlacemark.Geometry.GetGoToLonLat;
+      VGotoLonLat := FPlacemark.Geometry.GetGoToPoint;
       LabelMarkInfo.Caption := '[ '+VValueConverter.LonLatConvert(VGotoLonLat) + ' ]';
     end;
   end;
@@ -160,13 +160,13 @@ end;
 procedure TfrSearchResultsItem.LabelCaptionClick(Sender: TObject);
 begin
   FMapGoto.FitRectToScreen(FPlacemark.Geometry.Bounds.Rect);
-  FMapGoto.ShowMarker(FPlacemark.Geometry.GetGoToLonLat);
+  FMapGoto.ShowMarker(FPlacemark.Geometry.GetGoToPoint);
 end;
 
 procedure TfrSearchResultsItem.LabelDescDblClick(Sender: TObject);
 begin
   FMapGoto.FitRectToScreen(FPlacemark.Geometry.Bounds.Rect);
-  FMapGoto.ShowMarker(FPlacemark.Geometry.GetGoToLonLat);
+  FMapGoto.ShowMarker(FPlacemark.Geometry.GetGoToPoint);
 end;
 
 procedure TfrSearchResultsItem.LabelFullDescImgMouseUp(Sender: TObject;
