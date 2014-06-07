@@ -86,6 +86,7 @@ uses
   gnugettext,
   t_Bitmap32,
   i_RegionProcessParamsFrame,
+  i_ProjectionInfo,
   u_ThreadMapCombineECW,
   fr_MapCombine;
 
@@ -152,6 +153,7 @@ var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;
   VSplitCount: TPoint;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
@@ -160,9 +162,10 @@ var
   VThread: TThread;
   VQuality: Integer;
 begin
-  VProjectedPolygon := PreparePolygon(APolygon);
-  VTargetConverter := PrepareTargetConverter(VProjectedPolygon);
-  VImageProvider := PrepareImageProvider(APolygon, VProjectedPolygon);
+  VProjection := PrepareProjection;
+  VProjectedPolygon := PreparePolygon(VProjection, APolygon);
+  VTargetConverter := PrepareTargetConverter(VProjection, VProjectedPolygon.Bounds);
+  VImageProvider := PrepareImageProvider(APolygon, VProjection, VProjectedPolygon);
   VMapCalibrations := (ParamsFrame as IRegionProcessParamsFrameMapCalibrationList).MapCalibrationList;
   VFileName := PrepareTargetFileName;
   VSplitCount := (ParamsFrame as IRegionProcessParamsFrameMapCombine).SplitCount;

@@ -105,6 +105,7 @@ type
   TPathLayerBase = class(TLineLayerBase)
   private
     FLine: IGeometryLonLatMultiLine;
+    FProjection: IProjectionInfo;
     FProjectedLine: IGeometryProjectedMultiLine;
     FLocalLine: IGeometryLocalMultiLine;
     FPolygon: IDrawablePolygon;
@@ -125,6 +126,7 @@ type
     FFillVisible: Boolean;
 
     FLine: IGeometryLonLatMultiPolygon;
+    FProjection: IProjectionInfo;
     FProjectedLine: IGeometryProjectedMultiPolygon;
     FLocalLine: IGeometryLocalMultiPolygon;
     FPolygonBorder: IDrawablePolygon;
@@ -383,6 +385,7 @@ procedure TPathLayerBase.PaintLayer(
 var
   VLonLatLine: IGeometryLonLatMultiLine;
   VEnum: IEnumLocalPoint;
+  VProjection: IProjectionInfo;
   VProjectedLine: IGeometryProjectedMultiLine;
   VLocalLine: IGeometryLocalMultiLine;
   VLocalRect: TRect;
@@ -402,6 +405,7 @@ begin
   end;
 
   VLonLatLine := FLine;
+  VProjection := FProjection;
   VProjectedLine := FProjectedLine;
   VLocalLine := FLocalLine;
   VDrawablePolygon := FPolygon;
@@ -410,21 +414,29 @@ begin
     VLonLatLine := GetLine(ALocalConverter);
     FLine := VLonLatLine;
     VProjectedLine := nil;
+    VProjection := nil;
   end;
 
   if VLonLatLine = nil then begin
     Exit;
   end;
   if VProjectedLine <> nil then begin
-    if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjectedLine.Projection) then begin
+    if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjection) then begin
       VProjectedLine := nil;
     end;
   end;
 
   if VProjectedLine = nil then begin
     VLocalLine := nil;
-    VProjectedLine := FVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPath(ALocalConverter.ProjectionInfo, VLonLatLine, FPreparedPointsAggreagtor);
+    VProjection := ALocalConverter.ProjectionInfo;
+    VProjectedLine :=
+      FVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
+        VProjection,
+        VLonLatLine,
+        FPreparedPointsAggreagtor
+      );
     FProjectedLine := VProjectedLine;
+    FProjection := VProjection;
   end;
 
   if VProjectedLine = nil then begin
@@ -556,6 +568,7 @@ procedure TPolygonLayerBase.PaintLayer(
 var
   VLonLatLine: IGeometryLonLatMultiPolygon;
   VEnum: IEnumLocalPoint;
+  VProjection: IProjectionInfo;
   VProjectedLine: IGeometryProjectedMultiPolygon;
   VLocalLine: IGeometryLocalMultiPolygon;
   VLocalRect: TRect;
@@ -576,6 +589,7 @@ begin
   end;
 
   VLonLatLine := FLine;
+  VProjection := FProjection;
   VProjectedLine := FProjectedLine;
   VLocalLine := FLocalLine;
   VDrawablePolygonFill := FPolygonFill;
@@ -584,6 +598,7 @@ begin
     VLonLatLine := GetLine(ALocalConverter);
     FLine := VLonLatLine;
     VProjectedLine := nil;
+    VProjection := nil;
   end;
 
   if VLonLatLine = nil then begin
@@ -591,14 +606,22 @@ begin
   end;
 
   if VProjectedLine <> nil then begin
-    if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjectedLine.Projection) then begin
+    if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VProjection) then begin
+      VProjection := nil;
       VProjectedLine := nil;
     end;
   end;
 
   if VProjectedLine = nil then begin
     VLocalLine := nil;
-    VProjectedLine := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(ALocalConverter.ProjectionInfo, VLonLatLine, FPreparedPointsAggreagtor);
+    VProjection := ALocalConverter.ProjectionInfo;
+    VProjectedLine :=
+      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+        VProjection,
+        VLonLatLine,
+        FPreparedPointsAggreagtor
+      );
+    FProjection := VProjection;
     FProjectedLine := VProjectedLine;
   end;
 

@@ -98,6 +98,7 @@ uses
   c_CoordConverter,
   i_GeometryProjected,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_TileIterator,
   i_Bitmap32Static,
   u_TileIteratorByPolygon,
@@ -159,6 +160,7 @@ var
   VTileInfo: ITileInfoWithData;
   VBitmapTile: IBitmap32Static;
   VTileData: IBinaryData;
+  VProjection: IProjectionInfo;
 begin
   inherited;
 
@@ -181,11 +183,17 @@ begin
         CTileSplitQuadrate256x256
       );
     end;
-    VProjectedPolygon := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[I]),
-      PolygLL
-    );
-    VTileIterators[I] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, FZooms[I]);
+    VProjectedPolygon :=
+      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+        VProjection,
+        PolygLL
+      );
+    VTileIterators[I] :=
+      TTileIteratorByPolygon.Create(
+        VProjection,
+        VProjectedPolygon
+      );
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
 

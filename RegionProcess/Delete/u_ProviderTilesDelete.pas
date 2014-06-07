@@ -68,6 +68,7 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_PredicateByTileInfo,
+  i_ProjectionInfo,
   i_GeometryProjected,
   u_ThreadDeleteTiles,
   u_ResStrings;
@@ -118,6 +119,7 @@ procedure TProviderTilesDelete.StartProcess(const APolygon: IGeometryLonLatMulti
 var
   VMapType: IMapType;
   VZoom: byte;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
@@ -129,9 +131,10 @@ begin
     VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
     VPredicate := (ParamsFrame as IRegionProcessParamsFrameProcessPredicate).Predicate;
 
+    VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
+        VProjection,
         APolygon
       );
 
@@ -142,7 +145,7 @@ begin
         VProgressInfo,
         APolygon,
         VProjectedPolygon,
-        VZoom,
+        VProjection,
         VMapType.TileStorage,
         VMapType.VersionRequestConfig.GetStatic,
         VPredicate

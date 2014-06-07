@@ -87,6 +87,7 @@ uses
   GR32,
   i_CoordConverter,
   i_Bitmap32Static,
+  i_ProjectionInfo,
   i_GeometryProjected,
   i_BinaryData,
   i_BitmapTileSaveLoad,
@@ -151,6 +152,7 @@ var
   VTile: TPoint;
   VSubTile: TPoint;
   VGeoConvert: ICoordConverter;
+  VProjection: IProjectionInfo;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VZoomDelta: Integer;
@@ -177,13 +179,13 @@ begin
   SetLength(VTileIterators, Length(FZooms) - 1);
   for i := 1 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
-
+    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom);
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
+        VProjection,
         PolygLL
       );
-    VTileIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);
+    VTileIterator := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
     VTileIterators[i - 1] := VTileIterator;
     if FGenFormFirstZoom then begin
       VZoomDelta := FZooms[0] - VZoom;

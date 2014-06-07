@@ -77,6 +77,7 @@ uses
   SysUtils,
   i_TileIterator,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_GeometryProjected,
   u_TileIteratorByPolygon,
   i_MapVersionListStatic,
@@ -118,6 +119,7 @@ var
   I, J: Integer;
   VZoom: Byte;
   VGeoConvert: ICoordConverter;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTileIterator: ITileIterator;
   VTile: TPoint;
@@ -130,12 +132,21 @@ begin
     for J := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[J];
       VGeoConvert := FTasks[I].FSource.CoordConverter;
+      VProjection :=
+        FProjectionFactory.GetByConverterAndZoom(
+          VGeoConvert,
+          VZoom
+        );
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
+          VProjection,
           PolygLL
         );
-      VTileIterators[I, J] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+      VTileIterators[I, J] :=
+        TTileIteratorByPolygon.Create(
+          VProjection,
+          VProjectedPolygon
+        );
       VTilesToProcess := VTilesToProcess + VTileIterators[I, J].TilesTotal;
     end;
   end;

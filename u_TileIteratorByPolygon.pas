@@ -26,6 +26,7 @@ uses
   Types,
   t_GeoTypes,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_TileIterator,
   i_GeometryProjected,
   u_BaseInterfacedObject;
@@ -52,6 +53,7 @@ type
     function InternalIntersectPolygon(const ARect: TDoubleRect): Boolean;
   public
     constructor Create(
+      const AProjection: IProjectionInfo;
       const AProjected: IGeometryProjectedMultiPolygon
     );
   end;
@@ -64,6 +66,7 @@ uses
 { TTileIteratorByPolygon }
 
 constructor TTileIteratorByPolygon.Create(
+  const AProjection: IProjectionInfo;
   const AProjected: IGeometryProjectedMultiPolygon
 );
 var
@@ -86,7 +89,7 @@ begin
     // общее ограничение и прочие параметры
     with FProjected do begin
       VBounds := Bounds;
-      with Projection do begin
+      with AProjection do begin
         FZoom := Zoom;
         FGeoConverter := GeoConverter;
       end;

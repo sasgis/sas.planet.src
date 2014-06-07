@@ -34,6 +34,7 @@ uses
 type
   TProjectedDrawableElementByPolygonSimpleEdge = class(TBaseInterfacedObject, IProjectedDrawableElement)
   private
+    FProjection: IProjectionInfo;
     FSource: IGeometryProjectedMultiPolygon;
     FColor: TColor32;
     FAntialiasMode: TAntialiasMode;
@@ -45,6 +46,7 @@ type
     );
   public
     constructor Create(
+      const AProjection: IProjectionInfo;
       const ASource: IGeometryProjectedMultiPolygon;
       const AAntialiasMode: TAntialiasMode;
       const AColor: TColor32
@@ -61,6 +63,7 @@ uses
 { TProjectedDrawableElementByPolygonSimpleEdge }
 
 constructor TProjectedDrawableElementByPolygonSimpleEdge.Create(
+  const AProjection: IProjectionInfo;
   const ASource: IGeometryProjectedMultiPolygon;
   const AAntialiasMode: TAntialiasMode;
   const AColor: TColor32
@@ -68,6 +71,7 @@ constructor TProjectedDrawableElementByPolygonSimpleEdge.Create(
 begin
   Assert(ASource <> nil);
   inherited Create;
+  FProjection := AProjection;
   FSource := ASource;
   FAntialiasMode := AAntialiasMode;
   FColor := AColor;
@@ -124,7 +128,7 @@ end;
 
 function TProjectedDrawableElementByPolygonSimpleEdge.GetProjectionInfo: IProjectionInfo;
 begin
-  Result := FSource.Projection;
+  Result := FProjection;
 end;
 
 end.

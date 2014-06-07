@@ -32,6 +32,7 @@ uses
   i_CoordConverterFactory,
   i_CoordConverterList,
   i_BitmapLayerProvider,
+  i_ProjectionInfo,
   i_GeometryProjected,
   i_GeometryLonLat,
   i_GeometryProjectedProvider,
@@ -76,13 +77,19 @@ type
   protected
     function PrepareTargetFileName: string;
     function PrepareTargetConverter(
-      const AProjectedPolygon: IGeometryProjectedMultiPolygon
+      const AProjection: IProjectionInfo;
+      const ARect: TDoubleRect
     ): ILocalCoordConverter;
     function PrepareImageProvider(
       const APolygon: IGeometryLonLatMultiPolygon;
+      const AProjection: IProjectionInfo;
       const AProjectedPolygon: IGeometryProjectedMultiPolygon
     ): IBitmapLayerProvider;
-    function PreparePolygon(const APolygon: IGeometryLonLatMultiPolygon): IGeometryProjectedMultiPolygon;
+    function PrepareProjection: IProjectionInfo;
+    function PreparePolygon(
+      const AProjection: IProjectionInfo;
+      const APolygon: IGeometryLonLatMultiPolygon
+    ): IGeometryProjectedMultiPolygon;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -127,7 +134,6 @@ uses
   i_MarkerProviderForVectorItem,
   i_VectorItemSubset,
   i_RegionProcessParamsFrame,
-  i_ProjectionInfo,
   u_GeoFunc,
   u_MarkerProviderForVectorItemForMarkPoints,
   u_BitmapLayerProviderByMarksSubset,
@@ -227,6 +233,7 @@ end;
 
 function TProviderMapCombineBase.PrepareImageProvider(
   const APolygon: IGeometryLonLatMultiPolygon;
+  const AProjection: IProjectionInfo;
   const AProjectedPolygon: IGeometryProjectedMultiPolygon
 ): IBitmapLayerProvider;
 var
@@ -247,8 +254,8 @@ begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
   VRect := APolygon.Item[0].Bounds;
   VLonLatRect := VRect.Rect;
-  VGeoConverter := AProjectedPolygon.Projection.GeoConverter;
-  VZoom := AProjectedPolygon.Projection.Zoom;
+  VGeoConverter := AProjection.GeoConverter;
+  VZoom := AProjection.Zoom;
   VGeoConverter.CheckLonLatRect(VLonLatRect);
 
   VMarksSubset := nil;
@@ -321,36 +328,39 @@ begin
 end;
 
 function TProviderMapCombineBase.PreparePolygon(
+  const AProjection: IProjectionInfo;
   const APolygon: IGeometryLonLatMultiPolygon
 ): IGeometryProjectedMultiPolygon;
-var
-  VProjection: IProjectionInfo;
 begin
-  VProjection := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
-
   Result :=
     FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      VProjection,
+      AProjection,
       APolygon
     );
 end;
 
+function TProviderMapCombineBase.PrepareProjection: IProjectionInfo;
+begin
+  Result := (ParamsFrame as IRegionProcessParamsFrameTargetProjection).Projection;
+end;
+
 function TProviderMapCombineBase.PrepareTargetConverter(
-  const AProjectedPolygon: IGeometryProjectedMultiPolygon
+  const AProjection: IProjectionInfo;
+  const ARect: TDoubleRect
 ): ILocalCoordConverter;
 var
   VMapRect: TRect;
   VMapSize: TPoint;
 begin
-  VMapRect := RectFromDoubleRect(AProjectedPolygon.Bounds, rrOutside);
+  VMapRect := RectFromDoubleRect(ARect, rrOutside);
   VMapSize.X := VMapRect.Right - VMapRect.Left;
   VMapSize.Y := VMapRect.Bottom - VMapRect.Top;
 
   Result :=
     FLocalConverterFactory.CreateConverterNoScale(
       Rect(0, 0, VMapSize.X, VMapSize.Y),
-      AProjectedPolygon.Projection.Zoom,
-      AProjectedPolygon.Projection.GeoConverter,
+      AProjection.Zoom,
+      AProjection.GeoConverter,
       VMapRect.TopLeft
     );
 end;

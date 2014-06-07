@@ -104,6 +104,7 @@ uses
   i_Bitmap32Static,
   u_GeoToStrFunc,
   u_ResStrings,
+  i_ProjectionInfo,
   i_GeometryProjected,
   i_TileIterator,
   u_GeoFunc,
@@ -211,6 +212,7 @@ var
   VZoom: byte;
   i, j, xi, yi, hxyi, sizeim: integer;
   VGeoConvert: ICoordConverter;
+  VProjection: IProjectionInfo;
   VTile: TPoint;
   VBitmapTile: IBitmap32Static;
   Vbmp32crop: TCustomBitmap32;
@@ -246,12 +248,21 @@ begin
     SetLength(VTileIterators, Length(FZooms));
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
+      VProjection :=
+        FProjectionFactory.GetByConverterAndZoom(
+          VGeoConvert,
+          VZoom
+        );
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
+          VProjection,
           PolygLL
         );
-      VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+      VTileIterators[i] :=
+        TTileIteratorByPolygon.Create(
+          VProjection,
+          VProjectedPolygon
+        );
       VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
     end;
     try

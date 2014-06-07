@@ -103,7 +103,6 @@ begin
     end else begin
       VResultPath :=
         FVectorGeometryProjectedFactory.CreateProjectedPath(
-          VData^.ProjectionInfo,
           nil,
           0
         );
@@ -129,7 +128,6 @@ begin
     end else begin
       VResultPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygon(
-          VData^.ProjectionInfo,
           nil,
           0
         );

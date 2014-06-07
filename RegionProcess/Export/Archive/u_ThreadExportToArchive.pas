@@ -62,6 +62,7 @@ type
 implementation
 
 uses
+  i_ProjectionInfo,
   i_GeometryProjected,
   i_TileIterator,
   i_TileInfoBasic,
@@ -103,6 +104,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VTileInfo: ITileInfoWithData;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
@@ -112,12 +114,21 @@ begin
   SetLength(VTileIterators, Length(FZooms));
   for I := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[I];
+    VProjection :=
+      FProjectionFactory.GetByConverterAndZoom(
+        FTileStorage.CoordConverter,
+        VZoom
+      );
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom),
+        VProjection,
         PolygLL
       );
-    VTileIterators[I] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+    VTileIterators[I] :=
+      TTileIteratorByPolygon.Create(
+        VProjection,
+        VProjectedPolygon
+      );
     VTilesToProcess := VTilesToProcess + VTileIterators[I].TilesTotal;
   end;
   try

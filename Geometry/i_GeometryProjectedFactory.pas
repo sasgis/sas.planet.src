@@ -35,28 +35,23 @@ type
   IGeometryProjectedFactory = interface
     ['{06CC36BA-1833-4AE8-953F-D003B6D81BB7}']
     function CreateProjectedPath(
-      const AProjection: IProjectionInfo;
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygon(
-      const AProjection: IProjectionInfo;
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryProjectedMultiPolygon;
 
     function CreateProjectedPolygonByRect(
-      const AProjection: IProjectionInfo;
       const ARect: TDoubleRect
     ): IGeometryProjectedMultiPolygon;
 
     function CreateProjectedPathByEnum(
-      const AProjection: IProjectionInfo;
       const AEnum: IEnumProjectedPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygonByEnum(
-      const AProjection: IProjectionInfo;
       const AEnum: IEnumProjectedPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;
@@ -109,13 +104,11 @@ type
     ): IGeometryProjectedMultiPolygon;
 
     function CreateProjectedPathByLonLatPathUseConverter(
-      const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatMultiLine;
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygonByLonLatPolygonUseConverter(
-      const AProjection: IProjectionInfo;
       const ASource: IGeometryLonLatMultiPolygon;
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil

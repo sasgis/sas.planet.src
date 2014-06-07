@@ -75,6 +75,7 @@ implementation
 uses
   i_GeometryProjected,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_TileInfoBasic,
   i_TileIterator,
   u_TileIteratorByPolygon,
@@ -199,6 +200,7 @@ var
   i: integer;
   VZoom: Byte;
   VText: UTF8String;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTempIterator: ITileIterator;
   VIterator: ITileIterator;
@@ -209,21 +211,31 @@ begin
   FTilesToProcess := 0;
   if Length(FZooms) > 0 then begin
     VZoom := FZooms[0];
+    VProjection :=
+      FProjectionFactory.GetByConverterAndZoom(
+        FTileStorage.CoordConverter,
+        VZoom
+      );
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom),
+        VProjection,
         PolygLL
       );
-    VIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);
+    VIterator := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
     FTilesToProcess := FTilesToProcess + VIterator.TilesTotal;
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
+      VProjection :=
+        FProjectionFactory.GetByConverterAndZoom(
+          FTileStorage.CoordConverter,
+          VZoom
+        );
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom),
+          VProjection,
           PolygLL
         );
-      VTempIterator := TTileIteratorByPolygon.Create(VProjectedPolygon);
+      VTempIterator := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
       FTilesToProcess := FTilesToProcess + VTempIterator.TilesTotal;
     end;
   end;

@@ -24,15 +24,11 @@ interface
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint,
-  i_ProjectionInfo;
+  i_EnumDoublePoint;
 
 type
   IGeometryProjected = interface
     ['{162D40D7-29D5-44B1-BDB8-7E7616289769}']
-    function GetProjection: IProjectionInfo;
-    property Projection: IProjectionInfo read GetProjection;
-
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
   end;

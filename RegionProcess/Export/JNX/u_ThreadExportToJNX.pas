@@ -76,6 +76,7 @@ uses
   i_TileInfoBasic,
   i_ContentTypeInfo,
   i_CoordConverter,
+  i_ProjectionInfo,
   i_Bitmap32Static,
   i_TileIterator,
   i_BinaryData,
@@ -139,6 +140,7 @@ var
   VTileBounds: TJNXRect;
   VTopLeft: TDoublePoint;
   VBottomRight: TDoublePoint;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
@@ -155,12 +157,13 @@ begin
   for i := 0 to Length(FTasks) - 1 do begin
     VZoom := FTasks[i].FZoom;
     VGeoConvert := FTasks[i].FTileStorage.CoordConverter;
+    VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom);
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
+        VProjection,
         PolygLL
       );
-    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
   end;
 

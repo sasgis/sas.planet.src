@@ -64,6 +64,7 @@ uses
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_MapTypes,
+  i_ProjectionInfo,
   i_GeometryProjected,
   u_ThreadExportToAUX,
   u_ResStrings,
@@ -116,6 +117,7 @@ var
   VPath: string;
   VMapType: IMapType;
   VZoom: byte;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
@@ -125,9 +127,10 @@ begin
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
   VPath := (ParamsFrame as IRegionProcessParamsFrameTargetPath).Path;
 
+  VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
   VProjectedPolygon :=
     FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
+      VProjection,
       APolygon
     );
 
@@ -138,7 +141,7 @@ begin
       VProgressInfo,
       APolygon,
       VProjectedPolygon,
-      VZoom,
+      VProjection,
       VMapType.TileStorage,
       VMapType.VersionRequestConfig.GetStatic.BaseVersion,
       VPath

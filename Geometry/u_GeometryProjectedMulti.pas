@@ -5,7 +5,6 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  i_ProjectionInfo,
   i_InterfaceListStatic,
   i_GeometryProjected,
   u_BaseInterfacedObject;
@@ -14,15 +13,12 @@ type
   TGeometryProjectedMultiBase = class(TBaseInterfacedObject, IGeometryProjected)
   private
     FList: IInterfaceListStatic;
-    FProjection: IProjectionInfo;
     FBounds: TDoubleRect;
   private
     function GetCount: Integer;
-    function GetProjection: IProjectionInfo;
     function GetBounds: TDoubleRect;
   public
     constructor Create(
-      const AProjection: IProjectionInfo;
       const ABounds: TDoubleRect;
       const AList: IInterfaceListStatic
     );
@@ -57,7 +53,6 @@ type
   private
     FLine: IGeometryProjectedLine;
   private
-    function GetProjection: IProjectionInfo;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(
@@ -77,7 +72,6 @@ type
   private
     FLine: IGeometryProjectedPolygon;
   private
-    function GetProjection: IProjectionInfo;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function GetBounds: TDoubleRect;
@@ -98,18 +92,13 @@ type
 
   TProjectedLineSetEmpty = class(TBaseInterfacedObject, IEnumDoublePoint, IEnumProjectedPoint)
   private
-    FProjection: IProjectionInfo;
-  private
-    function GetProjection: IProjectionInfo;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function GetBounds: TDoubleRect;
   private
     function Next(out APoint: TDoublePoint): Boolean;
   public
-    constructor Create(
-      const AProjection: IProjectionInfo
-    );
+    constructor Create;
   end;
 
   TProjectedPathEmpty = class(TProjectedLineSetEmpty, IGeometryProjectedMultiLine)
@@ -145,17 +134,14 @@ uses
 { TProjectedLineSet }
 
 constructor TGeometryProjectedMultiBase.Create(
-  const AProjection: IProjectionInfo;
   const ABounds: TDoubleRect;
   const AList: IInterfaceListStatic
 );
 begin
   Assert(AList <> nil);
-  Assert(AProjection <> nil);
   inherited Create;
   FList := AList;
   FBounds := ABounds;
-  FProjection := AProjection;
 end;
 
 function TGeometryProjectedMultiBase.GetBounds: TDoubleRect;
@@ -166,11 +152,6 @@ end;
 function TGeometryProjectedMultiBase.GetCount: Integer;
 begin
   Result := FList.Count;
-end;
-
-function TGeometryProjectedMultiBase.GetProjection: IProjectionInfo;
-begin
-  Result := FProjection;
 end;
 
 { TProjectedPath }
@@ -351,11 +332,6 @@ begin
   end;
 end;
 
-function TGeometryProjectedMultiLineOneLine.GetProjection: IProjectionInfo;
-begin
-  Result := FLine.Projection;
-end;
-
 function TGeometryProjectedMultiLineOneLine.IsPointOnPath(
   const APoint: TDoublePoint;
   const ADist: Double
@@ -409,11 +385,6 @@ begin
   end;
 end;
 
-function TGeometryProjectedMultiPolygonOneLine.GetProjection: IProjectionInfo;
-begin
-  Result := FLine.Projection;
-end;
-
 function TGeometryProjectedMultiPolygonOneLine.IsPointInPolygon(
   const APoint: TDoublePoint): Boolean;
 begin
@@ -443,10 +414,9 @@ end;
 
 { TProjectedLineSetEmpty }
 
-constructor TProjectedLineSetEmpty.Create(const AProjection: IProjectionInfo);
+constructor TProjectedLineSetEmpty.Create;
 begin
   inherited Create;
-  FProjection := AProjection;
 end;
 
 function TProjectedLineSetEmpty.GetBounds: TDoubleRect;
@@ -462,11 +432,6 @@ end;
 function TProjectedLineSetEmpty.GetEnum: IEnumProjectedPoint;
 begin
   Result := Self;
-end;
-
-function TProjectedLineSetEmpty.GetProjection: IProjectionInfo;
-begin
-  Result := FProjection;
 end;
 
 function TProjectedLineSetEmpty.Next(out APoint: TDoublePoint): Boolean;

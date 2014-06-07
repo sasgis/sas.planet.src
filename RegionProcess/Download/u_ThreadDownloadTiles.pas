@@ -28,6 +28,7 @@ uses
   Classes,
   i_Listener,
   i_LogSimple,
+  i_ProjectionInfo,
   i_MapVersionInfo,
   i_MapVersionRequest,
   i_NotifierOperation,
@@ -47,6 +48,7 @@ type
     FAppClosingNotifier: INotifierOneOperation;
     FMapType: IMapType;
     FZoom: Byte;
+    FProjection: IProjectionInfo;
     FVersionForCheck: IMapVersionRequest;
     FVersionForDownload: IMapVersionInfo;
     FDownloadInfo: IDownloadInfoSimple;
@@ -109,7 +111,7 @@ type
       const AMapType: IMapType;
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
-      AZoom: byte;
+      const AProjection: IProjectionInfo;
       const APolyProjected: IGeometryProjectedMultiPolygon;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
@@ -149,7 +151,7 @@ constructor TThreadDownloadTiles.Create(
   const AMapType: IMapType;
   const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
-  AZoom: byte;
+  const AProjection: IProjectionInfo;
   const APolyProjected: IGeometryProjectedMultiPolygon;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
@@ -187,7 +189,8 @@ begin
   Priority := tpLower;
 
   FReplaceExistTiles := AReplaceExistTiles;
-  FZoom := AZoom;
+  FZoom := AProjection.Zoom;
+  FProjection := AProjection;
   FCheckExistTileSize := ACheckExistTileSize;
   FMapType := AMapType;
   FVersionForCheck := AVersionForCheck;
@@ -292,7 +295,11 @@ begin
 
     VSoftCancelNotifier := TNotifierOneOperationByNotifier.Create(FCancelNotifier, FOperationID);
 
-    VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
+    VTileIterator :=
+      TTileIteratorByPolygon.Create(
+        FProjection,
+        FPolyProjected
+      );
     FProgressInfo.SetTotalToProcess(VTileIterator.TilesTotal);
     if (FLastProcessedPoint.X >= 0) and (FLastProcessedPoint.Y >= 0) then begin
       VCntSkipped := 0;

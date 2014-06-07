@@ -320,7 +320,7 @@ begin
       VMapType,
       VVersionForCheck,
       VVersionForDownload,
-      VZoom,
+      VProjection,
       VProjectedPolygon,
       FDownloadConfig,
       TDownloadInfoSimple.Create(FDownloadInfo, VProcessedTileCount, VProcessedSize),
@@ -342,6 +342,7 @@ var
   VLog: TLogSimpleProvider;
   VLogSimple: ILogSimple;
   VLogProvider: ILogSimpleProvider;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VForm: TfrmProgressDownload;
   VCancelNotifierInternal: INotifierOperationInternal;
@@ -352,9 +353,10 @@ begin
   VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
   VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
 
+  VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
   VProjectedPolygon :=
     FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-      FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
+      VProjection,
       APolygon
     );
   VLog := TLogSimpleProvider.Create(5000, 0);
@@ -402,7 +404,7 @@ begin
         VMapType,
         VMapType.VersionRequestConfig.GetStatic,
         VMapType.VersionRequestConfig.GetStatic.BaseVersion,
-        VZoom,
+        VProjection,
         VProjectedPolygon,
         FDownloadConfig,
         TDownloadInfoSimple.Create(FDownloadInfo),

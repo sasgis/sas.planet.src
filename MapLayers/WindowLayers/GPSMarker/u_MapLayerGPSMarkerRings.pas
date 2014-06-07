@@ -281,7 +281,13 @@ begin
   end;
   if VDrawable = nil then begin
     VCirclesProjected := GetProjectedCirclesByLonLat(VCirclesLonLat, ALocalConverter.ProjectionInfo);
-    VDrawable := TProjectedDrawableElementByPolygonSimpleEdge.Create(VCirclesProjected, amNone, clRed32);
+    VDrawable :=
+      TProjectedDrawableElementByPolygonSimpleEdge.Create(
+        ALocalConverter.ProjectionInfo,
+        VCirclesProjected,
+        amNone,
+        clRed32
+      );
   end;
   if VDrawable = nil then begin
     Exit;

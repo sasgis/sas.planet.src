@@ -26,6 +26,7 @@ uses
   Windows,
   SysUtils,
   i_TileStorage,
+  i_ProjectionInfo,
   i_MapVersionInfo,
   i_NotifierOperation,
   i_RegionProcessProgressInfo,
@@ -38,6 +39,7 @@ type
   private
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
+    FProjection: IProjectionInfo;
     FPolyProjected: IGeometryProjectedMultiPolygon;
     FFileName: string;
     FZoom: Byte;
@@ -49,7 +51,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatMultiPolygon;
       const AProjectedPolygon: IGeometryProjectedMultiPolygon;
-      AZoom: Byte;
+      const AProjection: IProjectionInfo;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
       const AFileName: string
@@ -72,7 +74,7 @@ constructor TThreadExportToAUX.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatMultiPolygon;
   const AProjectedPolygon: IGeometryProjectedMultiPolygon;
-  AZoom: Byte;
+  const AProjection: IProjectionInfo;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;
   const AFileName: string
@@ -84,7 +86,8 @@ begin
     Self.ClassName
   );
   FPolyProjected := AProjectedPolygon;
-  FZoom := AZoom;
+  FProjection := AProjection;
+  FZoom := AProjection.Zoom;
   FTileStorage := ATileStorage;
   FVersion := AVersion;
   FFileName := AFileName;
@@ -107,7 +110,7 @@ var
 begin
   inherited;
   VGeoConvert := FTileStorage.CoordConverter;
-  VTileIterator := TTileIteratorByPolygon.Create(FPolyProjected);
+  VTileIterator := TTileIteratorByPolygon.Create(FProjection, FPolyProjected);
   try
     VTilesToProcess := VTileIterator.TilesTotal;
     ProgressInfo.SetCaption(SAS_STR_ExportTiles);

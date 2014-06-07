@@ -73,6 +73,7 @@ uses
   i_TileIterator,
   i_TileInfoBasic,
   i_BinaryData,
+  i_ProjectionInfo,
   i_GeometryProjected,
   u_TileIteratorByPolygon,
   u_ResStrings;
@@ -120,6 +121,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VSAS4WinCE: TSAS4WinCE;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
@@ -132,12 +134,13 @@ begin
   SetLength(VTileIterators, Length(FZooms));
   for i := 0 to Length(FZooms) - 1 do begin
     VZoom := FZooms[i];
+    VProjection := FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom);
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        FProjectionFactory.GetByConverterAndZoom(FTileStorage.CoordConverter, VZoom),
+        VProjection,
         PolygLL
       );
-    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+    VTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
     VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal;
     ProgressInfo.SetSecondLine(
       SAS_STR_Zoom + ': ' + inttostr(VZoom) + '  ' + SAS_STR_Tiles + ': ' + inttostr(VTilesToProcess)

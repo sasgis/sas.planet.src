@@ -5,7 +5,6 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  i_ProjectionInfo,
   i_GeometryProjected,
   u_BaseInterfacedObject;
 
@@ -15,9 +14,7 @@ type
     FCount: Integer;
     FBounds: TDoubleRect;
     FPoints: array of TDoublePoint;
-    FProjection: IProjectionInfo;
   private
-    function GetProjection: IProjectionInfo;
     function GetBounds: TDoubleRect;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
@@ -25,13 +22,11 @@ type
     constructor Create(
       AClosed: Boolean;
       const ABounds: TDoubleRect;
-      const AProjection: IProjectionInfo;
       const APoints: PDoublePointArray;
       ACount: Integer
     ); overload;
     constructor Create(
       AClosed: Boolean;
-      const AProjection: IProjectionInfo;
       const APoints: PDoublePointArray;
       ACount: Integer
     ); overload;
@@ -47,7 +42,6 @@ type
     function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
   public
     constructor Create(
-      const AProjection: IProjectionInfo;
       const APoints: PDoublePointArray;
       ACount: Integer
     );
@@ -66,7 +60,6 @@ type
     function CalcArea: Double;
   public
     constructor Create(
-      const AProjection: IProjectionInfo;
       const APoints: PDoublePointArray;
       ACount: Integer
     );
@@ -82,7 +75,6 @@ uses
 
 constructor TGeometryProjectedBase.Create(
   AClosed: Boolean;
-  const AProjection: IProjectionInfo;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
@@ -107,20 +99,18 @@ begin
       VBounds.Bottom := APoints[i].Y;
     end;
   end;
-  Create(AClosed, VBounds, AProjection, APoints, ACount);
+  Create(AClosed, VBounds, APoints, ACount);
 end;
 
 constructor TGeometryProjectedBase.Create(
   AClosed: Boolean;
   const ABounds: TDoubleRect;
-  const AProjection: IProjectionInfo;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
   inherited Create;
   FBounds := ABounds;
-  FProjection := AProjection;
   FCount := ACount;
   Assert(FCount > 0, 'Empty line');
   if AClosed and (FCount > 1) and DoublePointsEqual(APoints[0], APoints[ACount - 1]) then begin
@@ -146,20 +136,14 @@ begin
   Result := @FPoints[0];
 end;
 
-function TGeometryProjectedBase.GetProjection: IProjectionInfo;
-begin
-  Result := FProjection;
-end;
-
 { TGeometryProjectedLine }
 
 constructor TGeometryProjectedLine.Create(
-  const AProjection: IProjectionInfo;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
-  inherited Create(False, AProjection, APoints, ACount);
+  inherited Create(False, APoints, ACount);
 end;
 
 function TGeometryProjectedLine.GetEnum: IEnumProjectedPoint;
@@ -316,12 +300,11 @@ begin
 end;
 
 constructor TGeometryProjectedPolygon.Create(
-  const AProjection: IProjectionInfo;
   const APoints: PDoublePointArray;
   ACount: Integer
 );
 begin
-  inherited Create(True, AProjection, APoints, ACount);
+  inherited Create(True, APoints, ACount);
 end;
 
 function TGeometryProjectedPolygon.GetEnum: IEnumProjectedPoint;

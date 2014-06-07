@@ -100,6 +100,7 @@ uses
   c_CoordConverter,
   i_CoordConverter,
   i_Bitmap32Static,
+  i_ProjectionInfo,
   i_GeometryProjected,
   i_TileIterator,
   i_LocalCoordConverter,
@@ -296,6 +297,7 @@ var
   VGeoConvert: ICoordConverter;
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
+  VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
@@ -316,13 +318,14 @@ begin
 
     for i := 0 to Length(FZooms) - 1 do begin
       VZoom := FZooms[i];
+      VProjection := FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom);
       VProjectedPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-          FProjectionFactory.GetByConverterAndZoom(VGeoConvert, VZoom),
+          VProjection,
           PolygLL
         );
 
-      VTileIterators[i] := TTileIteratorByPolygon.Create(VProjectedPolygon);
+      VTileIterators[i] := TTileIteratorByPolygon.Create(VProjection, VProjectedPolygon);
       VTilesToProcess := VTilesToProcess + VTileIterators[i].TilesTotal * Length(FTasks);
     end;
     try
