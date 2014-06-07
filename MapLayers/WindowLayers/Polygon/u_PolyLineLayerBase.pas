@@ -107,6 +107,7 @@ type
     FLine: IGeometryLonLatMultiLine;
     FProjection: IProjectionInfo;
     FProjectedLine: IGeometryProjectedMultiLine;
+    FLocalConverter: ILocalCoordConverter;
     FLocalLine: IGeometryLocalMultiLine;
     FPolygon: IDrawablePolygon;
   protected
@@ -128,6 +129,7 @@ type
     FLine: IGeometryLonLatMultiPolygon;
     FProjection: IProjectionInfo;
     FProjectedLine: IGeometryProjectedMultiPolygon;
+    FLocalConverter: ILocalCoordConverter;
     FLocalLine: IGeometryLocalMultiPolygon;
     FPolygonBorder: IDrawablePolygon;
     FPolygonFill: IDrawablePolygon;
@@ -387,6 +389,7 @@ var
   VEnum: IEnumLocalPoint;
   VProjection: IProjectionInfo;
   VProjectedLine: IGeometryProjectedMultiLine;
+  VLocalConverter: ILocalCoordConverter;
   VLocalLine: IGeometryLocalMultiLine;
   VLocalRect: TRect;
   VRectWithDelta: TDoubleRect;
@@ -407,6 +410,7 @@ begin
   VLonLatLine := FLine;
   VProjection := FProjection;
   VProjectedLine := FProjectedLine;
+  VLocalConverter := FLocalConverter;
   VLocalLine := FLocalLine;
   VDrawablePolygon := FPolygon;
 
@@ -428,6 +432,7 @@ begin
 
   if VProjectedLine = nil then begin
     VLocalLine := nil;
+    VLocalConverter := nil;
     VProjection := ALocalConverter.ProjectionInfo;
     VProjectedLine :=
       FVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
@@ -444,8 +449,9 @@ begin
   end;
 
   if VLocalLine <> nil then begin
-    if not ALocalConverter.GetIsSameConverter(VLocalLine.LocalConverter) then begin
+    if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
       VLocalLine := nil;
+      VLocalConverter := nil;
     end;
   end;
 
@@ -469,7 +475,9 @@ begin
         VEnum
       );
     VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
-    VLocalLine := FVectorGeometryLocalFactory.CreateLocalPathByEnum(ALocalConverter, VEnum, FPreparedPointsAggreagtor);
+    VLocalConverter := ALocalConverter;
+    VLocalLine := FVectorGeometryLocalFactory.CreateLocalPathByEnum(VEnum, FPreparedPointsAggreagtor);
+    FLocalConverter := VLocalConverter;
     FLocalLine := VLocalLine;
   end;
 
@@ -570,6 +578,7 @@ var
   VEnum: IEnumLocalPoint;
   VProjection: IProjectionInfo;
   VProjectedLine: IGeometryProjectedMultiPolygon;
+  VLocalConverter: ILocalCoordConverter;
   VLocalLine: IGeometryLocalMultiPolygon;
   VLocalRect: TRect;
   VRectWithDelta: TDoubleRect;
@@ -591,6 +600,7 @@ begin
   VLonLatLine := FLine;
   VProjection := FProjection;
   VProjectedLine := FProjectedLine;
+  VLocalConverter := FLocalConverter;
   VLocalLine := FLocalLine;
   VDrawablePolygonFill := FPolygonFill;
   VDrawablePolygonBorder := FPolygonBorder;
@@ -614,6 +624,7 @@ begin
 
   if VProjectedLine = nil then begin
     VLocalLine := nil;
+    VLocalConverter := nil;
     VProjection := ALocalConverter.ProjectionInfo;
     VProjectedLine :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
@@ -630,8 +641,9 @@ begin
   end;
 
   if VLocalLine <> nil then begin
-    if not ALocalConverter.GetIsSameConverter(VLocalLine.LocalConverter) then begin
+    if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
       VLocalLine := nil;
+      VLocalConverter := nil;
     end;
   end;
 
@@ -656,7 +668,9 @@ begin
         VEnum
       );
     VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
-    VLocalLine := FVectorGeometryLocalFactory.CreateLocalPolygonByEnum(ALocalConverter, VEnum, FPreparedPointsAggreagtor);
+    VLocalConverter := ALocalConverter;
+    VLocalLine := FVectorGeometryLocalFactory.CreateLocalPolygonByEnum(VEnum, FPreparedPointsAggreagtor);
+    FLocalConverter := VLocalConverter;
     FLocalLine := VLocalLine;
   end;
 

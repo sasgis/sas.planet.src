@@ -4,7 +4,6 @@ interface
 
 uses
   t_GeoTypes,
-  i_LocalCoordConverter,
   i_GeometryLocal,
   i_EnumDoublePoint,
   i_DoublePointsAggregator,
@@ -15,22 +14,18 @@ type
   TGeometryLocalFactory = class(TBaseInterfacedObject, IGeometryLocalFactory)
   private
     function CreateLocalPath(
-      const ALocalConverter: ILocalCoordConverter;
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLocalMultiLine;
     function CreateLocalPolygon(
-      const ALocalConverter: ILocalCoordConverter;
       const APoints: PDoublePointArray;
       ACount: Integer
     ): IGeometryLocalMultiPolygon;
     function CreateLocalPathByEnum(
-      const ALocalConverter: ILocalCoordConverter;
       const AEnum: IEnumLocalPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLocalMultiLine;
     function CreateLocalPolygonByEnum(
-      const ALocalConverter: ILocalCoordConverter;
       const AEnum: IEnumLocalPoint;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryLocalMultiPolygon;
@@ -49,7 +44,6 @@ uses
 { TVectorGeometryLocalFactory }
 
 function TGeometryLocalFactory.CreateLocalPath(
-  const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
   ACount: Integer
 ): IGeometryLocalMultiLine;
@@ -76,7 +70,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TGeometryLocalLine.Create(ALocalConverter, VStart, VLineLen);
+        VLine := TGeometryLocalLine.Create(VStart, VLineLen);
         Inc(VLineCount);
         VLineLen := 0;
       end;
@@ -95,21 +89,20 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TGeometryLocalLine.Create(ALocalConverter, VStart, VLineLen);
+    VLine := TGeometryLocalLine.Create(VStart, VLineLen);
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
-    Result := TGeometryLocalMultiLineEmpty.Create(ALocalConverter);
+    Result := TGeometryLocalMultiLineEmpty.Create;
   end else if VLineCount = 1 then begin
     Result := TGeometryLocalMultiLineOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TGeometryLocalMultiLine.Create(ALocalConverter, VList.MakeStaticAndClear);
+    Result := TGeometryLocalMultiLine.Create(VList.MakeStaticAndClear);
   end;
 end;
 
 function TGeometryLocalFactory.CreateLocalPathByEnum(
-  const ALocalConverter: ILocalCoordConverter;
   const AEnum: IEnumLocalPoint;
   const ATemp: IDoublePointsAggregator
 ): IGeometryLocalMultiLine;
@@ -120,7 +113,6 @@ var
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
 begin
-  Assert(ALocalConverter <> nil);
   VTemp := ATemp;
   if VTemp = nil then begin
     VTemp := TDoublePointsAggregator.Create;
@@ -137,7 +129,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TGeometryLocalLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
+        VLine := TGeometryLocalLine.Create(VTemp.Points, VTemp.Count);
         Inc(VLineCount);
         VTemp.Clear;
       end;
@@ -153,22 +145,21 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TGeometryLocalLine.Create(ALocalConverter, VTemp.Points, VTemp.Count);
+    VLine := TGeometryLocalLine.Create(VTemp.Points, VTemp.Count);
     Inc(VLineCount);
     VTemp.Clear;
   end;
   if VLineCount = 0 then begin
-    Result := TGeometryLocalMultiLineEmpty.Create(ALocalConverter);
+    Result := TGeometryLocalMultiLineEmpty.Create;
   end else if VLineCount = 1 then begin
     Result := TGeometryLocalMultiLineOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TGeometryLocalMultiLine.Create(ALocalConverter, VList.MakeStaticAndClear);
+    Result := TGeometryLocalMultiLine.Create(VList.MakeStaticAndClear);
   end;
 end;
 
 function TGeometryLocalFactory.CreateLocalPolygon(
-  const ALocalConverter: ILocalCoordConverter;
   const APoints: PDoublePointArray;
   ACount: Integer
 ): IGeometryLocalMultiPolygon;
@@ -195,7 +186,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TGeometryLocalPolygon.Create(ALocalConverter, VStart, VLineLen);
+        VLine := TGeometryLocalPolygon.Create(VStart, VLineLen);
         Inc(VLineCount);
         VLineLen := 0;
       end;
@@ -214,21 +205,20 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TGeometryLocalPolygon.Create(ALocalConverter, VStart, VLineLen);
+    VLine := TGeometryLocalPolygon.Create(VStart, VLineLen);
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
-    Result := TGeometryLocalMultiPolygonEmpty.Create(ALocalConverter);
+    Result := TGeometryLocalMultiPolygonEmpty.Create;
   end else if VLineCount = 1 then begin
     Result := TGeometryLocalMultiPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TGeometryLocalMultiPolygon.Create(ALocalConverter, VList.MakeStaticAndClear);
+    Result := TGeometryLocalMultiPolygon.Create(VList.MakeStaticAndClear);
   end;
 end;
 
 function TGeometryLocalFactory.CreateLocalPolygonByEnum(
-  const ALocalConverter: ILocalCoordConverter;
   const AEnum: IEnumLocalPoint;
   const ATemp: IDoublePointsAggregator
 ): IGeometryLocalMultiPolygon;
@@ -255,7 +245,7 @@ begin
           VList.Add(VLine);
           VLine := nil;
         end;
-        VLine := TGeometryLocalPolygon.Create(ALocalConverter, VTemp.Points, VTemp.Count);
+        VLine := TGeometryLocalPolygon.Create(VTemp.Points, VTemp.Count);
         Inc(VLineCount);
         VTemp.Clear;
       end;
@@ -271,17 +261,17 @@ begin
       VList.Add(VLine);
       VLine := nil;
     end;
-    VLine := TGeometryLocalPolygon.Create(ALocalConverter, VTemp.Points, VTemp.Count);
+    VLine := TGeometryLocalPolygon.Create(VTemp.Points, VTemp.Count);
     Inc(VLineCount);
     VTemp.Clear;
   end;
   if VLineCount = 0 then begin
-    Result := TGeometryLocalMultiPolygonEmpty.Create(ALocalConverter);
+    Result := TGeometryLocalMultiPolygonEmpty.Create;
   end else if VLineCount = 1 then begin
     Result := TGeometryLocalMultiPolygonOneLine.Create(VLine);
   end else begin
     VList.Add(VLine);
-    Result := TGeometryLocalMultiPolygon.Create(ALocalConverter, VList.MakeStaticAndClear);
+    Result := TGeometryLocalMultiPolygon.Create(VList.MakeStaticAndClear);
   end;
 end;
 

@@ -5,7 +5,6 @@ interface
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
-  i_LocalCoordConverter,
   i_InterfaceListStatic,
   i_GeometryLocal,
   u_BaseInterfacedObject;
@@ -14,13 +13,10 @@ type
   TGeometryLocalMultiBase = class(TBaseInterfacedObject, IGeometryLocal)
   private
     FList: IInterfaceListStatic;
-    FLocalConverter: ILocalCoordConverter;
   private
     function GetCount: Integer;
-    function GetLocalConverter: ILocalCoordConverter;
   public
     constructor Create(
-      const ALocalConverter: ILocalCoordConverter;
       const AList: IInterfaceListStatic
     );
   end;
@@ -41,7 +37,6 @@ type
   private
     FLine: IGeometryLocalLine;
   private
-    function GetLocalConverter: ILocalCoordConverter;
     function GetCount: Integer;
     function GetEnum: IEnumLocalPoint;
     function GetItem(AIndex: Integer): IGeometryLocalLine;
@@ -55,7 +50,6 @@ type
   private
     FLine: IGeometryLocalPolygon;
   private
-    function GetLocalConverter: ILocalCoordConverter;
     function GetCount: Integer;
     function GetEnum: IEnumLocalPoint;
     function GetItem(AIndex: Integer): IGeometryLocalPolygon;
@@ -67,17 +61,12 @@ type
 
   TGeometryLocalEmpty = class(TBaseInterfacedObject, IGeometryLocal, IEnumDoublePoint, IEnumLocalPoint)
   private
-    FLocalConverter: ILocalCoordConverter;
-  private
-    function GetLocalConverter: ILocalCoordConverter;
     function GetCount: Integer;
     function GetEnum: IEnumLocalPoint;
   private
     function Next(out APoint: TDoublePoint): Boolean;
   public
-    constructor Create(
-      const ALocalConverter: ILocalCoordConverter
-    );
+    constructor Create;
   end;
 
   TGeometryLocalMultiLineEmpty = class(TGeometryLocalEmpty, IGeometryLocalMultiLine)
@@ -100,25 +89,17 @@ uses
 { TLocalLineSet }
 
 constructor TGeometryLocalMultiBase.Create(
-  const ALocalConverter: ILocalCoordConverter;
   const AList: IInterfaceListStatic
 );
 begin
   Assert(AList <> nil);
-  Assert(ALocalConverter <> nil);
   inherited Create;
   FList := AList;
-  FLocalConverter := ALocalConverter;
 end;
 
 function TGeometryLocalMultiBase.GetCount: Integer;
 begin
   Result := FList.Count;
-end;
-
-function TGeometryLocalMultiBase.GetLocalConverter: ILocalCoordConverter;
-begin
-  Result := FLocalConverter;
 end;
 
 { TLocalPath }
@@ -176,11 +157,6 @@ begin
   end;
 end;
 
-function TGeometryLocalMultiLineOneLine.GetLocalConverter: ILocalCoordConverter;
-begin
-  Result := FLine.LocalConverter;
-end;
-
 { TLocalPolygonOneLine }
 
 constructor TGeometryLocalMultiPolygonOneLine.Create(const ALine: IGeometryLocalPolygon);
@@ -209,17 +185,11 @@ begin
   end;
 end;
 
-function TGeometryLocalMultiPolygonOneLine.GetLocalConverter: ILocalCoordConverter;
-begin
-  Result := FLine.LocalConverter;
-end;
-
 { TLocalLineSetEmpty }
 
-constructor TGeometryLocalEmpty.Create(const ALocalConverter: ILocalCoordConverter);
+constructor TGeometryLocalEmpty.Create;
 begin
   inherited Create;
-  FLocalConverter := ALocalConverter;
 end;
 
 function TGeometryLocalEmpty.GetCount: Integer;
@@ -230,11 +200,6 @@ end;
 function TGeometryLocalEmpty.GetEnum: IEnumLocalPoint;
 begin
   Result := Self;
-end;
-
-function TGeometryLocalEmpty.GetLocalConverter: ILocalCoordConverter;
-begin
-  Result := FLocalConverter;
 end;
 
 function TGeometryLocalEmpty.Next(out APoint: TDoublePoint): Boolean;

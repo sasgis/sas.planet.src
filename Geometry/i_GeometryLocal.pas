@@ -24,14 +24,11 @@ interface
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint,
-  i_LocalCoordConverter;
+  i_EnumDoublePoint;
 
 type
   IGeometryLocal = interface
     ['{C9B8B666-3B15-4A97-BA95-172D53916742}']
-    function GetLocalConverter: ILocalCoordConverter;
-    property LocalConverter: ILocalCoordConverter read GetLocalConverter;
   end;
 
   IGeometryLocalLine = interface(IGeometryLocal)
