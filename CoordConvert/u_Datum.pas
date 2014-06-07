@@ -71,6 +71,11 @@ type
       const ADistance: Double
     ): TDoublePoint;
 
+    function CalcMiddlePoint(
+      const AStart: TDoublePoint;
+      const AFinish: TDoublePoint
+    ): TDoublePoint;
+
     function GetLinePoints(
       const AStart: TDoublePoint;
       const AFinish: TDoublePoint;
@@ -225,6 +230,38 @@ begin
     AInitialBearing,
     AFinalBearing
   );
+end;
+
+function TDatum.CalcMiddlePoint(
+  const AStart, AFinish: TDoublePoint
+): TDoublePoint;
+var
+  VDistFull: Double;
+  VDistPart: Double;
+  VInitialBearing: Double;
+  VFinalBearing: Double;
+  VFinish: TDoublePoint;
+begin
+  VDistFull := FDistCalc.ComputeDistance(
+    AStart.Y,
+    AStart.X,
+    AFinish.Y,
+    AFinish.X,
+    VInitialBearing,
+    VFinalBearing
+  );
+
+  VDistPart := VDistFull / 2;
+
+  FDistCalc.ComputeFinishPosition(
+    AStart.Y,
+    AStart.X,
+    VInitialBearing,
+    VDistPart,
+    VFinish.Y,
+    VFinish.X
+  );
+  Result := VFinish;
 end;
 
 function TDatum.GetLinePoints(

@@ -78,6 +78,12 @@ type
       const ADistance: Double
     ): TDoublePoint;
 
+    // Вычисляет координаты середины отрезка между заданными точками
+    function CalcMiddlePoint(
+      const AStart: TDoublePoint;
+      const AFinish: TDoublePoint
+    ): TDoublePoint;
+
     // Генерирует промежуточные точки вдоль геодезической линии
     function GetLinePoints(
       const AStart: TDoublePoint;
