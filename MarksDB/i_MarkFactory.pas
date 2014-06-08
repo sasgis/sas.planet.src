@@ -65,6 +65,13 @@ type
       const ACategory: ICategory
     ): IVectorDataItemSimple;
 
+    function CreateMark(
+      const AGeometry: IGeometryLonLat;
+      const AName: string;
+      const ADesc: string;
+      const ACategory: ICategory;
+      const AAppearance: IAppearance
+    ): IVectorDataItemSimple;
     function CreatePoint(
       const APoint: IGeometryLonLatPoint;
       const AName: string;
@@ -87,6 +94,11 @@ type
       const AAppearance: IAppearance
     ): IVectorDataItemPoly;
 
+    function ModifyGeometry(
+      const ASource: IVectorDataItemSimple;
+      const AGeometry: IGeometryLonLat;
+      const ADesc: string
+    ): IVectorDataItemSimple;
     function SimpleModifyPoint(
       const ASource: IVectorDataItemPoint;
       const ALonLat: IGeometryLonLatPoint
@@ -101,6 +113,12 @@ type
       const ALine: IGeometryLonLatMultiPolygon
     ): IVectorDataItemPoly;
 
+    function PrepareMark(
+      const AItem: IVectorDataItemSimple;
+      const AName: string;
+      const AParams: IImportMarkParams;
+      const ACategory: ICategory
+    ): IVectorDataItemSimple;
     function PreparePoint(
       const AItem: IVectorDataItemPoint;
       const AName: string;

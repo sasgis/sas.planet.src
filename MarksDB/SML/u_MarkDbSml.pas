@@ -722,9 +722,9 @@ var
   VPicName: string;
   VCategoryId: Integer;
   VVisible: Boolean;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
+  VGeometryPoint: IGeometryLonLatPoint;
+  VGeometryLine: IGeometryLonLatMultiLine;
+  VGeometryPoly: IGeometryLonLatMultiPolygon;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
   VAppearanceLine: IAppearanceLine;
@@ -766,7 +766,7 @@ begin
   FCdsMarks.FieldByName('LonR').AsFloat := VRect.Right;
   FCdsMarks.FieldByName('LatB').AsFloat := VRect.Bottom;
 
-  if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
+  if Supports(AMark.Geometry, IGeometryLonLatPoint, VGeometryPoint) then begin
     VTextColor := 0;
     VTextBgColor := 0;
     VFontSize := 0;
@@ -782,14 +782,14 @@ begin
       VPicName := VAppearanceIcon.PicName;
     end;
     FCdsMarks.FieldByName('PicName').AsString := VPicName;
-    BlobFromPoint(VMarkPoint.Point, FCdsMarks.FieldByName('LonLatArr'));
+    BlobFromPoint(VGeometryPoint, FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VTextColor;
     FCdsMarks.FieldByName('Color2').AsInteger := VTextBgColor;
     FCdsMarks.FieldByName('Scale1').AsInteger := VFontSize;
     FCdsMarks.FieldByName('Scale2').AsInteger := VMarkerSize;
-  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine, VGeometryLine) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
-    BlobFromPath(VMarkLine.Line, FCdsMarks.FieldByName('LonLatArr'));
+    BlobFromPath(VGeometryLine, FCdsMarks.FieldByName('LonLatArr'));
     VLineColor := 0;
     VLineWidth := 0;
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
@@ -800,9 +800,9 @@ begin
     FCdsMarks.FieldByName('Color2').AsInteger := 0;
     FCdsMarks.FieldByName('Scale1').AsInteger := VLineWidth;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;
-  end else if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon, VGeometryPoly) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
-    BlobFromPolygon(VMarkPoly.Line, FCdsMarks.FieldByName('LonLatArr'));
+    BlobFromPolygon(VGeometryPoly, FCdsMarks.FieldByName('LonLatArr'));
     VLineColor := 0;
     VLineWidth := 0;
     VFillColor := 0;

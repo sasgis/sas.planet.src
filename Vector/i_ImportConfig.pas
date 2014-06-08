@@ -28,11 +28,14 @@ uses
   i_AppearanceOfVectorItem;
 
 type
-  IImportPointParams = interface
-    ['{2042149A-3C2C-44A7-8939-CB14EDD53078}']
+  IImportMarkParams = interface
+    ['{BE2E1178-D4B5-4686-B970-2186FE4F316D}']
     function GetAppearance: IAppearance;
     property Appearance: IAppearance read GetAppearance;
+  end;
 
+  IImportPointParams = interface(IImportMarkParams)
+    ['{2042149A-3C2C-44A7-8939-CB14EDD53078}']
     function GetCaptionAppearance: IAppearancePointCaption;
     property CaptionAppearance: IAppearancePointCaption read GetCaptionAppearance;
 
@@ -55,11 +58,8 @@ type
     property IsForcePicName: Boolean read GetIsForcePicName;
   end;
 
-  IImportLineParams = interface
+  IImportLineParams = interface(IImportMarkParams)
     ['{99AFF863-CB3E-4774-9994-A3EE9F445A44}']
-    function GetAppearance: IAppearance;
-    property Appearance: IAppearance read GetAppearance;
-
     function GetLineAppearance: IAppearanceLine;
     property LineAppearance: IAppearanceLine read GetLineAppearance;
 
@@ -70,11 +70,8 @@ type
     property IsForceLineWidth: Boolean read GetIsForceLineWidth;
   end;
 
-  IImportPolyParams = interface
+  IImportPolyParams = interface(IImportMarkParams)
     ['{FB94F289-5FE9-48D8-9FC9-9E2A05BD18F7}']
-    function GetAppearance: IAppearance;
-    property Appearance: IAppearance read GetAppearance;
-
     function GetBorderAppearance: IAppearancePolygonBorder;
     property BorderAppearance: IAppearancePolygonBorder read GetBorderAppearance;
 
