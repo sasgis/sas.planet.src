@@ -69,8 +69,8 @@ type
     function GetMarkDb: IMarkDb;
     function GetCategoryDB: IMarkCategoryDB;
 
-    function GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
-    function GetMarkByStringId(const AId: string): IVectorDataItemSimple;
+    function GetStringIdByMark(const AMark: IVectorDataItem): string;
+    function GetMarkByStringId(const AId: string): IVectorDataItem;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     procedure DeleteCategoryWithMarks(const ACategory: IMarkCategory);
@@ -176,7 +176,7 @@ begin
   Result := FCategoryDB;
 end;
 
-function TMarkSystem.GetMarkByStringId(const AId: string): IVectorDataItemSimple;
+function TMarkSystem.GetMarkByStringId(const AId: string): IVectorDataItem;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -213,7 +213,7 @@ begin
   Result := FSystemImpl.State;
 end;
 
-function TMarkSystem.GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
+function TMarkSystem.GetStringIdByMark(const AMark: IVectorDataItem): string;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -250,9 +250,9 @@ procedure TMarkSystem.PrepareFromTreeForImport(
   const AImportConfig: IImportConfig
 );
 var
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   i: Integer;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VName: string;
   VCategory: ICategory;
   VParams: IImportMarkParams;

@@ -39,8 +39,8 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): IVectorDataItemSimple;
-    property Items[AIndex: Integer]: IVectorDataItemSimple read GetItem; default;
+    function GetItem(AIndex: Integer): IVectorDataItem;
+    property Items[AIndex: Integer]: IVectorDataItem read GetItem; default;
 
     function GetHash: THashValue;
     property Hash: THashValue read GetHash;

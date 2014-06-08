@@ -400,7 +400,7 @@ function TBitmapLayerProviderByVectorSubset.GetBitmapRect(
 ): IBitmap32Static;
 var
   i: Integer;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VZoom: Byte;
   VGeoConvert: ICoordConverter;
   VMapPixelRect: TDoubleRect;

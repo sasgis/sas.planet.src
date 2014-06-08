@@ -86,10 +86,10 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
   end;
 
 implementation
@@ -133,10 +133,10 @@ begin
 end;
 
 function TfrmMarkEditPath.EditMark(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VAppearanceLine: IAppearanceLine;
   VCategory: ICategory;

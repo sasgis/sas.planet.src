@@ -140,7 +140,7 @@ var
   VFileStrings: TStringList;
   VDataStream: TStream;
   VPolygon: IGeometryLonLatMultiPolygon;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VList: IVectorItemSubsetBuilder;
   VString: string;
   VPoligonLine: Integer;

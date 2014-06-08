@@ -30,10 +30,10 @@ type
   IVectorItemSubsetBuilder = interface
     ['{2D06DA41-7DEB-4D01-9478-FEE9E9EF19AC}']
     procedure Clear;
-    function Add(const AItem: IVectorDataItemSimple): Integer;
+    function Add(const AItem: IVectorDataItem): Integer;
 
-    function GetItem(AIndex: Integer): IVectorDataItemSimple;
-    property Items[Index: Integer]: IVectorDataItemSimple read GetItem; default;
+    function GetItem(AIndex: Integer): IVectorDataItem;
+    property Items[Index: Integer]: IVectorDataItem read GetItem; default;
 
     function GetCapacity: Integer;
     procedure SetCapacity(ANewCapacity: Integer);

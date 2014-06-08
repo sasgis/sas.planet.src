@@ -87,17 +87,17 @@ begin
 end;
 
 function ItemExist(
-  const AValue: IVectorDataItemSimple;
+  const AValue: IVectorDataItem;
   const AList: IInterfaceListSimple
 ):boolean;
 var
   I, J: Integer;
-  VPlacemark: IVectorDataItemSimple;
+  VPlacemark: IVectorDataItem;
   VStr1, VStr2: string;
 begin
   Result := False;
   for I := 0 to AList.Count - 1 do begin
-    VPlacemark := IVectorDataItemSimple(AList.Items[I]);
+    VPlacemark := IVectorDataItem(AList.Items[I]);
     J:= PosEx(')',VPlacemark.Name);
     VStr1 := copy(VPlacemark.Name, J, Length(VPlacemark.Name) - (J + 1));
     J:= PosEx(')',AValue.Name);
@@ -124,7 +124,7 @@ procedure TGeoCoderByTXT.SearchInTXTFile(
 );
 var
   VFormatSettings: TFormatSettings;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VPoint: TDoublePoint;
   VLatStr, VLonStr: string;
   VSName, VSDesc, VSFullDesc: string;

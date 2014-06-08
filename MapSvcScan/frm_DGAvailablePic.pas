@@ -913,7 +913,7 @@ var
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
   VPolygon: IGeometryLonLatMultiPolygon;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VAllNewMarks: IVectorItemSubsetBuilder;
   VAllLinesToDesc: Boolean;
 begin

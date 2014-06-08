@@ -57,23 +57,23 @@ type
       const AMainInfo: IVectorDataItemMainInfo;
       const AAppearance: IAppearance;
       const APoint: IGeometryLonLatPoint
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function BuildPath(
       const AMainInfo: IVectorDataItemMainInfo;
       const AAppearance: IAppearance;
       const ALine: IGeometryLonLatMultiLine
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function BuildPoly(
       const AMainInfo: IVectorDataItemMainInfo;
       const AAppearance: IAppearance;
       const APoly: IGeometryLonLatMultiPolygon
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
   private
     function BuildItem(
       const AMainInfo: IVectorDataItemMainInfo;
       const AAppearance: IAppearance;
       const AGeometry: IGeometryLonLat
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
   public
     constructor Create(
       const AHashFunction: IHashFunction
@@ -101,7 +101,7 @@ function TVectorDataFactorySimple.BuildItem(
   const AMainInfo: IVectorDataItemMainInfo;
   const AAppearance: IAppearance;
   const AGeometry: IGeometryLonLat
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatMultiLine;
@@ -123,7 +123,7 @@ function TVectorDataFactorySimple.BuildPath(
   const AMainInfo: IVectorDataItemMainInfo;
   const AAppearance: IAppearance;
   const ALine: IGeometryLonLatMultiLine
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VHash: THashValue;
 begin
@@ -147,7 +147,7 @@ function TVectorDataFactorySimple.BuildPoint(
   const AMainInfo: IVectorDataItemMainInfo;
   const AAppearance: IAppearance;
   const APoint: IGeometryLonLatPoint
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VHash: THashValue;
 begin
@@ -170,7 +170,7 @@ function TVectorDataFactorySimple.BuildPoly(
   const AMainInfo: IVectorDataItemMainInfo;
   const AAppearance: IAppearance;
   const APoly: IGeometryLonLatMultiPolygon
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VHash: THashValue;
 begin

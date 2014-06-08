@@ -147,7 +147,7 @@ var
   sname, sdesc, sfulldesc, VtempString: string;
   i, j: integer;
   VPoint: TDoublePoint;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VFormatSettings: TALFormatSettings;
   VValueConverter: IValueToStringConverter;

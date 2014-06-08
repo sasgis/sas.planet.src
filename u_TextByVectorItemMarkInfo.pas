@@ -43,7 +43,7 @@ type
     function GetTextForGeometryMultiLine(const AGeometry: IGeometryLonLatMultiLine): string;
     function GetTextForGeometryMultiPolygon(const AGeometry: IGeometryLonLatMultiPolygon): string;
   private
-    function GetText(const AItem: IVectorDataItemSimple): string;
+    function GetText(const AItem: IVectorDataItem): string;
   public
     constructor Create(
       const AValueToStringConverter: IValueToStringConverterChangeable;
@@ -199,7 +199,7 @@ begin
 end;
 
 function TTextByVectorItemMarkInfo.GetText(
-  const AItem: IVectorDataItemSimple): string;
+  const AItem: IVectorDataItem): string;
 var
   VItemWithCategory: IVectorDataItemWithCategory;
   VCategoryName: string;

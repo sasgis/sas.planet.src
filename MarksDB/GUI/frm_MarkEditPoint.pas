@@ -98,7 +98,7 @@ type
     procedure imgIconMouseDown(Sender: TObject);
   private
     FGeometryFactory: IGeometryLonLatFactory;
-    FSourceMark: IVectorDataItemSimple;
+    FSourceMark: IVectorDataItem;
     FCategoryDB: IMarkCategoryDB;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FPictureList: IMarkPictureList;
@@ -124,10 +124,10 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
   end;
 
 implementation
@@ -196,10 +196,10 @@ begin
 end;
 
 function TfrmMarkEditPoint.EditMark(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VLonLat:TDoublePoint;
   VAppearanceCaption: IAppearancePointCaption;

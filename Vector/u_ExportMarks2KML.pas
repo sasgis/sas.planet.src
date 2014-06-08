@@ -55,7 +55,7 @@ type
       const inNode: iXMLNode
     ): Boolean;
     procedure AddMark(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const inNode: iXMLNode
     );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
@@ -179,7 +179,7 @@ function TExportMarks2KML.AddMarks(
   const inNode: iXMLNode
 ): Boolean;
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VEnumMarks: IEnumUnknown;
   i: integer;
 begin
@@ -227,7 +227,7 @@ begin
 end;
 
 procedure TExportMarks2KML.AddMark(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const inNode: iXMLNode
 );
 var

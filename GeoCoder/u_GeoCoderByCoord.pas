@@ -242,7 +242,7 @@ var
   VBLat1, VBlon1: Boolean;
   VBLat2, VBlon2: Boolean;
   VDLat, VDLon: Double;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VPoint: TDoublePoint;
   VSname, VSDesc, VFullDesc: string;
   VCounter: Integer;
@@ -484,7 +484,7 @@ var
   I, J: Integer;
   VLatStr, VLonStr: string;
   VPoint: TDoublePoint;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VValueConverter: IValueToStringConverter;
 begin
   VValueConverter := FValueToStringConverter.GetStatic;
@@ -717,7 +717,7 @@ function TGeoCoderByCoord.DoSearch(
 var
   V2Search: string;
   I, J: Integer;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VPoint: TDoublePoint;
   VSname, VSDesc, VFullDesc: string;
   VLatStr, VLonStr: string;

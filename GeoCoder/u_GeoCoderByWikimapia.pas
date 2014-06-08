@@ -106,7 +106,7 @@ var
   VStr: AnsiString;
   VName, VDesc: string;
   VPoint: TDoublePoint;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   VRegExpr: TRegExpr;

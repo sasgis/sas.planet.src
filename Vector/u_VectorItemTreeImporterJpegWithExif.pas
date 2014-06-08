@@ -94,7 +94,7 @@ var
   VGPSLongitude: TGPSLongitude;
   VGPSAltitude: TExifFraction;
   VDesc: string;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VValueToStringConverter: IValueToStringConverter;
   VAltitude: string;
   VExAltitude: Extended;

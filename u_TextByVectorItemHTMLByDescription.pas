@@ -30,7 +30,7 @@ uses
 type
   TTextByVectorItemHTMLByDescription = class(TBaseInterfacedObject, ITextByVectorItem)
   private
-    function GetText(const AItem: IVectorDataItemSimple): string;
+    function GetText(const AItem: IVectorDataItem): string;
   end;
 
 implementation
@@ -38,7 +38,7 @@ implementation
 { TTextByVectorItemHTMLByDescription }
 
 function TTextByVectorItemHTMLByDescription.GetText(
-  const AItem: IVectorDataItemSimple): string;
+  const AItem: IVectorDataItem): string;
 begin
   Result :=
     '<html>'#13#10 +

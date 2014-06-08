@@ -75,7 +75,7 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     function GeocodeResultFromVectorItem(
       const ASearch: WideString;
-      const AItem: IVectorDataItemSimple
+      const AItem: IVectorDataItem
     ): IGeoCodeResult;
     function GeocodeResultFromLonLat(
       const ASearch: WideString;
@@ -124,7 +124,7 @@ function TfrmGoTo.GeocodeResultFromLonLat(
   const AMessage: WideString
 ): IGeoCodeResult;
 var
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
   VPlace := FGeoCodePlacemarkFactory.Build(ALonLat, AMessage, '', '', 4);
@@ -135,7 +135,7 @@ end;
 
 function TfrmGoTo.GeocodeResultFromVectorItem(
   const ASearch: WideString;
-  const AItem: IVectorDataItemSimple
+  const AItem: IVectorDataItem
 ): IGeoCodeResult;
 var
   VSubsetBuilder: IVectorItemSubsetBuilder;
@@ -221,7 +221,7 @@ var
   textsrch:String;
   VIndex: Integer;
   VMarkId: IMarkId;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VLonLat: TDoublePoint;
   VGeoCoderItem: IGeoCoderListEntity;
   VLocalConverter: ILocalCoordConverter;

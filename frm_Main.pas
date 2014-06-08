@@ -607,11 +607,11 @@ type
     FMapMovingButton: TMouseButton;
     FMapZoomAnimtion: Boolean;
     FMapMoveAnimtion: Boolean;
-    FSelectedMark: IVectorDataItemSimple;
-    FSelectedWiki: IVectorDataItemSimple;
-    FEditMarkPoint: IVectorDataItemSimple;
-    FEditMarkLine: IVectorDataItemSimple;
-    FEditMarkPoly: IVectorDataItemSimple;
+    FSelectedMark: IVectorDataItem;
+    FSelectedWiki: IVectorDataItem;
+    FEditMarkPoint: IVectorDataItem;
+    FEditMarkLine: IVectorDataItem;
+    FEditMarkPoly: IVectorDataItem;
     FState: IMainFormState;
 
     FWinPosition: IMainWindowPosition;
@@ -723,8 +723,8 @@ type
     function SelectForEdit(
       const AList: IVectorItemSubset;
       const ALocalConverter: ILocalCoordConverter
-    ): IVectorDataItemSimple;
-    function AddToHint(const AHint: string; const AMark: IVectorDataItemSimple): string;
+    ): IVectorDataItem;
+    function AddToHint(const AHint: string; const AMark: IVectorDataItem): string;
     function FindItems(
       const AVisualConverter: ILocalCoordConverter;
       const ALocalPoint: TPoint
@@ -1242,7 +1242,7 @@ var
   VSubsetBuilder: IVectorItemSubsetBuilder;
   VVectorItems: IVectorItemSubset;
   VEnumUnknown: IEnumUnknown;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   i: Integer;
 begin
   VSubsetBuilder := GState.VectorItemSubsetBuilderFactory.Build;
@@ -3869,7 +3869,7 @@ var
   VFileName: string;
   VFileNameLength: Integer;
   VImportConfig: IImportConfig;
-  VLastMark: IVectorDataItemSimple;
+  VLastMark: IVectorDataItem;
   VFiles: TStringList;
 begin
   inherited;
@@ -4150,7 +4150,7 @@ end;
 
 procedure TfrmMain.tbitmHideThisMarkClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VMarkId: IMarkId;
 begin
   VMark := FSelectedMark;
@@ -4175,7 +4175,7 @@ end;
 
 procedure TfrmMain.tbitmFitMarkToScreenClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VLLRect: TDoubleRect;
 begin
   VMark := FSelectedMark;
@@ -4922,7 +4922,7 @@ end;
 
 procedure TfrmMain.NMarkEditClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatMultiLine;
   VPoly: IGeometryLonLatMultiPolygon;
@@ -4953,7 +4953,7 @@ end;
 
 procedure TfrmMain.NMarkExportClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
@@ -4963,7 +4963,7 @@ end;
 
 procedure TfrmMain.NMarkDelClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
@@ -4973,8 +4973,8 @@ end;
 
 procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
-  VSelectedWiki: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
+  VSelectedWiki: IVectorDataItem;
   Vpolygon: IGeometryLonLatMultiPolygon;
 begin
   VMark := FSelectedMark;
@@ -5213,7 +5213,7 @@ var
   VMouseMapPoint: TDoublePoint;
   VClickMapRect: TDoubleRect;
   VIsClickInMap: Boolean;
-  VVectorItem: IVectorDataItemSimple;
+  VVectorItem: IVectorDataItem;
   VVectorItems: IVectorItemSubset;
   VMagnetPoint: TDoublePoint;
 begin
@@ -5297,7 +5297,7 @@ begin
     if((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
       VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
     end;
-    if not Supports(VVectorItem, IVectorDataItemSimple, FSelectedMark) then begin
+    if not Supports(VVectorItem, IVectorDataItem, FSelectedMark) then begin
       FSelectedMark := nil;
     end;
     map.PopupMenu:=MainPopupMenu;
@@ -5324,10 +5324,10 @@ end;
 function TfrmMain.SelectForEdit(
   const AList: IVectorItemSubset;
   const ALocalConverter: ILocalCoordConverter
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VMarksEnum: IEnumUnknown;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   i: integer;
   VPoly: IGeometryLonLatMultiPolygon;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
@@ -5394,7 +5394,7 @@ var
   I: Integer;
   VDescription: string;
   VTitle: string;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VItemTitle: string;
 begin
   FMouseHandler.OnMouseUp(Button, Shift, Point(X, Y));
@@ -5547,18 +5547,18 @@ var
   VZoomCurr: Byte;
   VConverter: ICoordConverter;
   VLonLat: TDoublePoint;
-  VItemFound: IVectorDataItemSimple;
+  VItemFound: IVectorDataItem;
   VItemHint: string;
   VLocalConverter: ILocalCoordConverter;
   VMouseMapPoint: TDoublePoint;
   VMouseMoveDelta: TPoint;
   VLastMouseMove: TPoint;
   VMousePos: TPoint;
-  VVectorItem: IVectorDataItemSimple;
+  VVectorItem: IVectorDataItem;
   VMagnetPoint: TDoublePoint;
   VVectorItems: IVectorItemSubset;
   VEnumUnknown: IEnumUnknown;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   i: integer;
   function _AllowShowHint: Boolean;
   var
@@ -5733,7 +5733,7 @@ begin
   end;
 end;
 
-function TfrmMain.AddToHint(const AHint: string; const AMark: IVectorDataItemSimple): string;
+function TfrmMain.AddToHint(const AHint: string; const AMark: IVectorDataItem): string;
 begin
   if AHint = '' then begin
     Result := AHint + AMark.getHintText;
@@ -5886,7 +5886,7 @@ end;
 
 procedure TfrmMain.tbitmSelectVersionByMarkClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VMapType: IMapType;
   VInternalDomainOptions: IInternalDomainOptions;
   VBase, VDesc, VVersionStr: String;
@@ -5931,7 +5931,7 @@ end;
 procedure TfrmMain.NMarkNavClick(Sender: TObject);
 var
   VLonLat:TDoublePoint;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VMarkStringId: string;
 begin
   VMark := FSelectedMark;
@@ -6206,10 +6206,10 @@ end;
 
 procedure TfrmMain.tbitmPropertiesClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
-  VMarkModifed: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
+  VMarkModifed: IVectorDataItem;
   VVisible: Boolean;
-  VResult: IVectorDataItemSimple;
+  VResult: IVectorDataItem;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
@@ -6263,7 +6263,7 @@ procedure TfrmMain.ProcessOpenFiles(AFiles: TStrings);
 var
   VFileName: string;
   VList: IInterfaceListStatic;
-  VLastMark: IVectorDataItemSimple;
+  VLastMark: IVectorDataItem;
   VPolygon: IGeometryLonLatMultiPolygon;
 begin
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
@@ -6282,7 +6282,7 @@ begin
     end;
     VList := FMarkDBGUI.ImportFilesModal(AFiles);
     if (VList <> nil) and (VList.Count > 0) then begin
-      VLastMark := IVectorDataItemSimple(VList[VList.Count - 1]);
+      VLastMark := IVectorDataItem(VList[VList.Count - 1]);
       if Assigned(VLastMark) then begin
         FMapGoto.FitRectToScreen(VLastMark.Geometry.Bounds.Rect);
       end;
@@ -6683,7 +6683,7 @@ var
   VMenuItem: TTBXItem;
   VGUID: TGUID;
   VGUIDList: IGUIDListStatic;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VMarkStringId: string;
   VInternalDomainOptions: IInternalDomainOptions;
 begin
@@ -6956,10 +6956,10 @@ end;
 procedure TfrmMain.tbitmCopySearchResultCoordinatesClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IVectorDataItemSimple;
+  VPlacemark: IVectorDataItem;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IVectorDataItemSimple(tbxpmnSearchResult.Tag);
+    VPlacemark := IVectorDataItem(tbxpmnSearchResult.Tag);
     VStr := GState.ValueToStringConverter.GetStatic.LonLatConvert(VPlacemark.Geometry.GetGoToPoint);
     CopyStringToClipboard(Handle, VStr);
   end;
@@ -6968,10 +6968,10 @@ end;
 procedure TfrmMain.tbitmCopySearchResultDescriptionClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IVectorDataItemSimple;
+  VPlacemark: IVectorDataItem;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IVectorDataItemSimple(tbxpmnSearchResult.Tag);
+    VPlacemark := IVectorDataItem(tbxpmnSearchResult.Tag);
     VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
@@ -6983,13 +6983,13 @@ end;
 procedure TfrmMain.tbitmCreatePlaceMarkBySearchResultClick(Sender: TObject);
 var
   VStr: WideString;
-  VPlacemark: IVectorDataItemSimple;
-  VMark: IVectorDataItemSimple;
+  VPlacemark: IVectorDataItem;
+  VMark: IVectorDataItem;
   VVisible: Boolean;
-  VResult: IVectorDataItemSimple;
+  VResult: IVectorDataItem;
 begin
   if tbxpmnSearchResult.Tag <> 0 then begin
-    VPlacemark := IVectorDataItemSimple(tbxpmnSearchResult.Tag);
+    VPlacemark := IVectorDataItem(tbxpmnSearchResult.Tag);
     VStr := VPlacemark.GetInfoHTML;
     if VStr = '' then begin
       VStr := VPlacemark.GetDesc;
@@ -7032,7 +7032,7 @@ end;
 
 procedure TfrmMain.tbitmMakeVersionByMarkClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VMapType: IMapType;
   VInternalDomainOptions: IInternalDomainOptions;
   VBase, VDesc, VUrl: String;
@@ -7060,7 +7060,7 @@ end;
 
 procedure TfrmMain.tbitmMarkInfoClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin

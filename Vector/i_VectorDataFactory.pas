@@ -43,7 +43,7 @@ type
       const AMainInfo: IVectorDataItemMainInfo;
       const AAppearance: IAppearance;
       const AGeometry: IGeometryLonLat
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
   end;
 
 implementation

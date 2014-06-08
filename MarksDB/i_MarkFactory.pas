@@ -40,12 +40,12 @@ type
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplate = nil
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function ReplaceCategory(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const ACategory: ICategory
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function CreateMark(
       const AGeometry: IGeometryLonLat;
@@ -53,20 +53,20 @@ type
       const ADesc: string;
       const ACategory: ICategory;
       const AAppearance: IAppearance
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function ModifyGeometry(
-      const ASource: IVectorDataItemSimple;
+      const ASource: IVectorDataItem;
       const AGeometry: IGeometryLonLat;
       const ADesc: string = ''
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function PrepareMark(
-      const AItem: IVectorDataItemSimple;
+      const AItem: IVectorDataItem;
       const AName: string;
       const AParams: IImportMarkParams;
       const ACategory: ICategory
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function GetMarkPictureList: IMarkPictureList;
     property MarkPictureList: IMarkPictureList read GetMarkPictureList;

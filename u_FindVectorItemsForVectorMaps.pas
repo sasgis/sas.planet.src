@@ -104,7 +104,7 @@ var
   VLonLatRect: TDoubleRect;
   VPixelPos: TDoublePoint;
   i: integer;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VProjectdPath: IGeometryProjectedMultiLine;
   VProjectdPolygon: IGeometryProjectedMultiPolygon;
   VGeometry: IGeometryLonLat;

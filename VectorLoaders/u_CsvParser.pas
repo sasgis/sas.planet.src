@@ -316,7 +316,7 @@ procedure _MakeObjectFromArray(
 var
   i: TCSVPointFieldType;
   VPointName, VPointDesc: String;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VPoint: IGeometryLonLatPoint;
   VPath: IGeometryLonLatMultiLine;
   VPoly: IGeometryLonLatMultiPolygon;
@@ -395,7 +395,7 @@ var
   i: TCSVPointFieldType;
   j: Integer;
   VPointName, VPointDesc, VText: String;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VPoint: IGeometryLonLatPoint;
 begin
   // make name

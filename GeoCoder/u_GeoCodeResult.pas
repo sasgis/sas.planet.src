@@ -48,7 +48,7 @@ type
     function IsEmpty: Boolean;
     function IsEqual(const ASubset: IVectorItemSubset): Boolean;
     function GetCount: Integer;
-    function GetItem(AIndex: Integer): IVectorDataItemSimple;
+    function GetItem(AIndex: Integer): IVectorDataItem;
     function GetHash: THashValue;
   public
     constructor Create(
@@ -104,7 +104,7 @@ begin
   end;
 end;
 
-function TGeoCodeResult.GetItem(AIndex: Integer): IVectorDataItemSimple;
+function TGeoCodeResult.GetItem(AIndex: Integer): IVectorDataItem;
 begin
   if Assigned(FList) then begin
     Result := FList.Items[AIndex];

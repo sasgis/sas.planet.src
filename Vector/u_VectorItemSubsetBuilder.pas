@@ -40,9 +40,9 @@ type
     FHash: THashValue;
   private
     procedure Clear;
-    function Add(const AItem: IVectorDataItemSimple): Integer;
+    function Add(const AItem: IVectorDataItem): Integer;
 
-    function GetItem(AIndex: Integer): IVectorDataItemSimple;
+    function GetItem(AIndex: Integer): IVectorDataItem;
     function GetCapacity: Integer;
     procedure SetCapacity(ANewCapacity: Integer);
     function GetCount: Integer;
@@ -87,7 +87,7 @@ begin
 end;
 
 function TVectorItemSubsetBuilder.Add(
-  const AItem: IVectorDataItemSimple): Integer;
+  const AItem: IVectorDataItem): Integer;
 begin
   Result := -1;
   Assert(Assigned(AItem));
@@ -131,9 +131,9 @@ end;
 
 function TVectorItemSubsetBuilder.GetItem(
   AIndex: Integer
-): IVectorDataItemSimple;
+): IVectorDataItem;
 begin
-  Result := IVectorDataItemSimple(FList[AIndex]);
+  Result := IVectorDataItem(FList[AIndex]);
 end;
 
 function TVectorItemSubsetBuilder.MakeStaticAndClear: IVectorItemSubset;
@@ -170,8 +170,8 @@ function CompareVectorItems(const Item1, Item2: IInterface): Integer;
 var
   VHash1, VHash2: THashValue;
 begin
-  VHash1 := IVectorDataItemSimple(Item1).Hash;
-  VHash2 := IVectorDataItemSimple(Item2).Hash;
+  VHash1 := IVectorDataItem(Item1).Hash;
+  VHash2 := IVectorDataItem(Item2).Hash;
   if VHash1 = VHash2 then begin
     Result := 0;
   end else if VHash1 < VHash2 then begin
@@ -185,18 +185,18 @@ procedure TVectorItemSubsetBuilder.RemoveDuplicates;
 var
   i: Integer;
   VPrevIndex: Integer;
-  VItemCurr: IVectorDataItemSimple;
-  VItemPrev: IVectorDataItemSimple;
+  VItemCurr: IVectorDataItem;
+  VItemPrev: IVectorDataItem;
   VHash: THashValue;
 begin
   if Assigned(FList) then begin
     if FList.Count > 1 then begin
       SortInterfaceListByCompareFunction(FList, CompareVectorItems);
       VPrevIndex := 0;
-      VItemPrev := IVectorDataItemSimple(FList.Items[0]);
+      VItemPrev := IVectorDataItem(FList.Items[0]);
       VHash := VItemPrev.Hash;
       for i := 1 to FList.Count - 1 do begin
-        VItemCurr := IVectorDataItemSimple(FList.Items[i]);
+        VItemCurr := IVectorDataItem(FList.Items[i]);
         if not VItemPrev.IsEqual(VItemCurr) then begin
           FHashFunction.UpdateHashByHash(VHash, VItemCurr.Hash);
           VItemPrev := VItemCurr;

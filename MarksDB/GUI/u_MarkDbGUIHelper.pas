@@ -108,13 +108,13 @@ type
     ): IGeometryLonLatMultiPolygon;
     function AddKategory(const Name: string): IMarkCategory;
     procedure ShowMarkInfo(
-      const AMark: IVectorDataItemSimple
+      const AMark: IVectorDataItem
     );
     function EditMarkModal(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function EditCategoryModal(
       const ACategory: IMarkCategory;
       AIsNewMark: Boolean
@@ -124,23 +124,23 @@ type
       const ATemplate: IMarkTemplatePoint = nil
     ): Boolean;
     function SavePointModal(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const ALonLat: TDoublePoint
     ): Boolean;
     function SavePolyModal(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const ALine: IGeometryLonLatMultiPolygon;
       AAsNewMark: Boolean = false
     ): Boolean;
     function SaveLineModal(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const ALine: IGeometryLonLatMultiLine;
       const ADescription: string;
       AAsNewMark: Boolean = false
     ): Boolean;
     function EditModalImportConfig: IImportConfig;
     function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
-    procedure ExportMark(const AMark: IVectorDataItemSimple);
+    procedure ExportMark(const AMark: IVectorDataItem);
     procedure ExportCategory(
       const AMarkCategory: IMarkCategory;
       AIgnoreMarksVisible: Boolean
@@ -315,9 +315,9 @@ function TMarkDbGUIHelper.AddNewPointModal(
   const ATemplate: IMarkTemplatePoint = nil
 ): Boolean;
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VVisible: Boolean;
-  VResult: IVectorDataItemSimple;
+  VResult: IVectorDataItem;
 begin
   Result := False;
   VVisible := True;
@@ -360,7 +360,7 @@ function TMarkDbGUIHelper.DeleteMarkModal(
   handle: THandle
 ): Boolean;
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VMessage: string;
 begin
   Result := False;
@@ -415,10 +415,10 @@ begin
 end;
 
 function TMarkDbGUIHelper.EditMarkModal(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IVectorDataItemSimple;
+): IVectorDataItem;
 begin
   Result := nil;
   if Supports(AMark.Geometry, IGeometryLonLatPoint) then begin
@@ -538,7 +538,7 @@ begin
   end;
 end;
 
-procedure TMarkDbGUIHelper.ExportMark(const AMark: IVectorDataItemSimple);
+procedure TMarkDbGUIHelper.ExportMark(const AMark: IVectorDataItem);
 var
   VFileName: string;
   VMarkTree: IVectorItemTree;
@@ -683,7 +683,7 @@ begin
 end;
 
 procedure TMarkDbGUIHelper.ShowMarkInfo(
-  const AMark: IVectorDataItemSimple
+  const AMark: IVectorDataItem
 );
 begin
   if AMark <> nil then begin
@@ -745,16 +745,16 @@ begin
 end;
 
 function TMarkDbGUIHelper.SaveLineModal(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const ALine: IGeometryLonLatMultiLine;
   const ADescription: string;
   AAsNewMark: Boolean
 ): Boolean;
 var
-  VMark: IVectorDataItemSimple;
-  VSourceMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
+  VSourceMark: IVectorDataItem;
   VVisible: Boolean;
-  VResult: IVectorDataItemSimple;
+  VResult: IVectorDataItem;
 begin
   Result := False;
   VSourceMark := nil;
@@ -783,14 +783,14 @@ begin
 end;
 
 function TMarkDbGUIHelper.SavePointModal(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const ALonLat: TDoublePoint
 ): Boolean;
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VVisible: Boolean;
-  VResult: IVectorDataItemSimple;
-  VSourceMark: IVectorDataItemSimple;
+  VResult: IVectorDataItem;
+  VSourceMark: IVectorDataItem;
 begin
   Result := False;
   if AMark <> nil then begin
@@ -824,15 +824,15 @@ begin
 end;
 
 function TMarkDbGUIHelper.SavePolyModal(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const ALine: IGeometryLonLatMultiPolygon;
   AAsNewMark: Boolean
 ): Boolean;
 var
-  VMark: IVectorDataItemSimple;
-  VSourceMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
+  VSourceMark: IVectorDataItem;
   VVisible: Boolean;
-  VResult: IVectorDataItemSimple;
+  VResult: IVectorDataItem;
 begin
   Result := False;
   VSourceMark := nil;

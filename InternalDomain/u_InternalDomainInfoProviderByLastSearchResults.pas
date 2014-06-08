@@ -37,7 +37,7 @@ type
     FLastSearchResults: ILastSearchResult;
     FTextProviders: TStringList;
     FDefaultProvider: ITextByVectorItem;
-    function GetItemByIndex(const AIndex: Integer): IVectorDataItemSimple;
+    function GetItemByIndex(const AIndex: Integer): IVectorDataItem;
     function BuildBinaryDataByText(const AText: string): IBinaryData;
     function ParseFileName(
       const AFilePath: string;
@@ -99,7 +99,7 @@ end;
 
 function TInternalDomainInfoProviderByLastSearchResults.GetItemByIndex(
   const AIndex: Integer
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VLastResult: IGeoCodeResult;
 begin
@@ -123,7 +123,7 @@ function TInternalDomainInfoProviderByLastSearchResults.LoadBinaryByFilePath(
   const AFilePath: string; out AContentType: string): IBinaryData;
 var
   VSearchResultIndex: Integer;
-  VSearchResult: IVectorDataItemSimple;
+  VSearchResult: IVectorDataItem;
   VProvider: ITextByVectorItem;
   VSuffix: string;
   VProviderIndex: Integer;

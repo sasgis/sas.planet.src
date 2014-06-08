@@ -185,7 +185,7 @@ type
     function GetSelectedCategory: IMarkCategory;
     procedure UpdateMarksList;
     function GetSelectedMarkId: IMarkId;
-    function GetSelectedMarkFull: IVectorDataItemSimple;
+    function GetSelectedMarkFull: IVectorDataItem;
     function GetSelectedMarksIdList: IInterfaceListStatic;
     procedure WMGetMinMaxInfo(var Msg: TWMGetMinMaxInfo); message WM_GETMINMAXINFO;
   protected
@@ -459,7 +459,7 @@ begin
   Result := GetNodeCategory(CategoryTreeView.Selected);
 end;
 
-function TfrmMarksExplorer.GetSelectedMarkFull: IVectorDataItemSimple;
+function TfrmMarksExplorer.GetSelectedMarkFull: IVectorDataItem;
 var
   VMarkId: IMarkId;
 begin
@@ -499,11 +499,11 @@ end;
 procedure TfrmMarksExplorer.btnImportClick(Sender: TObject);
 var
   VList: IInterfaceListStatic;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
 begin
   VList := FMarkDBGUI.ImportModal(Self.Handle);
   if (Vlist <> nil) and (VList.Count > 0) then begin
-    VMark := IVectorDataItemSimple(VList[VList.Count - 1]);
+    VMark := IVectorDataItem(VList[VList.Count - 1]);
     if VMark <> nil then begin
       FMapGoto.FitRectToScreen(VMark.Geometry.Bounds.Rect);
     end;
@@ -550,15 +550,15 @@ procedure TfrmMarksExplorer.btnEditMarkClick(Sender: TObject);
 var
   VMarkIdList: IInterfaceListStatic;
   VMarksList: IInterfaceListSimple;
-  VMark: IVectorDataItemSimple;
-  VMarkNew: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
+  VMarkNew: IVectorDataItem;
   VImportConfig: IImportConfig;
   VParams: IImportMarkParams;
   VCategory: ICategory;
   VMarkId: IMarkId;
   i:integer;
   VVisible: Boolean;
-  VResult: IVectorDataItemSimple;
+  VResult: IVectorDataItem;
   VResultList: IInterfaceListStatic;
 begin
   VMarkIdList:=GetSelectedMarksIdList;
@@ -615,7 +615,7 @@ end;
 
 procedure TfrmMarksExplorer.btnGoToMarkClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
@@ -626,7 +626,7 @@ end;
 
 procedure TfrmMarksExplorer.btnNavOnMarkClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   LL: TDoublePoint;
   VMarkStringId: string;
 begin
@@ -646,7 +646,7 @@ end;
 
 procedure TfrmMarksExplorer.btnOpSelectMarkClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   Vpolygon: IGeometryLonLatMultiPolygon;
 begin
   VMark := GetSelectedMarkFull;
@@ -661,7 +661,7 @@ end;
 
 procedure TfrmMarksExplorer.btnSaveMarkClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
@@ -794,7 +794,7 @@ var
   VMarkIdList: IInterfaceListStatic;
   VMarkIdListNew: IInterfaceListSimple;
   VCategoryNew: ICategory;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   i: Integer;
 begin
   if (Source<>MarksListBox) then
@@ -939,7 +939,7 @@ end;
 
 procedure TfrmMarksExplorer.tbitmMarkInfoClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin
@@ -1041,7 +1041,7 @@ end;
 
 procedure TfrmMarksExplorer.MarksListBoxDblClick(Sender: TObject);
 var
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
 begin
   VMark := GetSelectedMarkFull;
   if VMark <> nil then begin

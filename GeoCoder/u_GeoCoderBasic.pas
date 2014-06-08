@@ -118,7 +118,7 @@ function TGeoCoderBasic.BuildSortedSubset(
 ): IVectorItemSubset;
 var
   i: integer;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   VDistArr: array of Double;
   VSubsetBuilder: IVectorItemSubsetBuilder;
 begin
@@ -127,14 +127,14 @@ begin
     if AList.Count > 1 then begin
       SetLength(VDistArr, AList.Count);
       for i := 0 to AList.GetCount - 1 do begin
-        VMark := IVectorDataItemSimple(AList.Items[i]);
+        VMark := IVectorDataItem(AList.Items[i]);
         VDistArr[i] := ALocalConverter.GetGeoConverter.Datum.CalcDist(ALocalConverter.GetCenterLonLat, VMark.Geometry.Bounds.CalcRectCenter);
       end;
       SortInterfaceListByDoubleMeasure(AList, VDistArr);
     end;
     VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
     for i := 0 to AList.GetCount - 1 do begin
-      VMark := IVectorDataItemSimple(AList.Items[i]);
+      VMark := IVectorDataItem(AList.Items[i]);
       VSubsetBuilder.Add(VMark);
     end;
     Result := VSubsetBuilder.MakeStaticAndClear;

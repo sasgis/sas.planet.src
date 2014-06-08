@@ -38,7 +38,7 @@ type
     function GetMarkByName(
       const AName: string;
       const ACategory: ICategory
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function GetMarkSubsetByCategoryList(
       const ACategoryList: IInterfaceListStatic;
@@ -65,9 +65,9 @@ type
       const ASearchInDescription: Boolean
     ): IVectorItemSubset;
     function UpdateMark(
-      const AOldMark: IVectorDataItemSimple;
-      const ANewMark: IVectorDataItemSimple
-    ): IVectorDataItemSimple;
+      const AOldMark: IVectorDataItem;
+      const ANewMark: IVectorDataItem
+    ): IVectorDataItem;
     function UpdateMarkList(
       const AOldMarkList: IInterfaceListStatic;
       const ANewMarkList: IInterfaceListStatic
@@ -76,16 +76,16 @@ type
     function GetAllMarkIdList: IInterfaceListStatic;
     function GetMarkIdListByCategory(const ACategory: ICategory): IInterfaceListStatic;
 
-    function GetMarkByID(const AMarkId: IMarkId): IVectorDataItemSimple;
+    function GetMarkByID(const AMarkId: IMarkId): IVectorDataItem;
 
     procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
-    procedure SetMarkVisible(const AMark: IVectorDataItemSimple; AVisible: Boolean);
+    procedure SetMarkVisible(const AMark: IVectorDataItem; AVisible: Boolean);
 
     procedure SetMarkVisibleByIDList(const AMarkList: IInterfaceListStatic; AVisible: Boolean);
     procedure ToggleMarkVisibleByIDList(const AMarkList: IInterfaceListStatic);
 
     function GetMarkVisibleByID(const AMark: IMarkId): Boolean;
-    function GetMarkVisible(const AMark: IVectorDataItemSimple): Boolean;
+    function GetMarkVisible(const AMark: IVectorDataItem): Boolean;
     procedure SetAllMarksInCategoryVisible(
       const ACategory: ICategory;
       ANewVisible: Boolean

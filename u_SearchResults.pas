@@ -116,11 +116,11 @@ procedure TSearchResultPresenterOnPanel.ShowSearchResults(
   const ASearchResult: IGeoCodeResult
 );
 var
-  VPlacemark: IVectorDataItemSimple;
+  VPlacemark: IVectorDataItem;
   VEnum: IEnumUnknown;
   i: Cardinal;
   LengthFSearchItems: integer;
-  VItemForGoTo: IVectorDataItemSimple;
+  VItemForGoTo: IVectorDataItem;
   VCnt: Integer;
 begin
   ClearSearchResults;

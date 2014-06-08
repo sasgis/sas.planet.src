@@ -119,7 +119,7 @@ var
   pltstr: TALStringList;
   trackname: string;
   VList: IVectorItemSubsetBuilder;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VPointsAggregator: IDoublePointsAggregator;
   VPath: IGeometryLonLatMultiLine;
 begin

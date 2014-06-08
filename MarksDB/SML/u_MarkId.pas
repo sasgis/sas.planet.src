@@ -66,7 +66,7 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(AValue: Boolean);
     function IsSameId(const AMarkId: IMarkId): Boolean;
-    function IsSameMark(const AMark: IVectorDataItemSimple): Boolean;
+    function IsSameMark(const AMark: IVectorDataItem): Boolean;
     function IsEqual(const AValue: IVectorDataItemMainInfo): Boolean;
   public
     constructor Create(
@@ -244,7 +244,7 @@ begin
   end;
 end;
 
-function TMarkId.IsSameMark(const AMark: IVectorDataItemSimple): Boolean;
+function TMarkId.IsSameMark(const AMark: IVectorDataItem): Boolean;
 var
   VMarkInternal: IMarkSMLInternal;
 begin

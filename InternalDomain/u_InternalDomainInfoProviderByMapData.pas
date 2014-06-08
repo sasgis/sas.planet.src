@@ -109,7 +109,7 @@ var
   VTileInfo: ITileInfoBasic;
   VTileInfoWithData: ITileInfoWithData;
   VVectorTile: IVectorItemSubset;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VText: string;
 begin
   Result := nil;

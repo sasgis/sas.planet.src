@@ -70,7 +70,7 @@ type
     FOpenedSegments: Integer;
   private
     procedure SafeMakeResultList;
-    procedure SafeAddToResult(const AItem: IVectorDataItemSimple);
+    procedure SafeAddToResult(const AItem: IVectorDataItem);
     procedure InternalAddPoint(const APoint: TDoublePoint);
     procedure InternalMakeTrackObject(const AForMultiTrack: Boolean);
     procedure InternalMakePolygonObject(const AForMultiObject, AInner: Boolean);
@@ -302,7 +302,7 @@ var
   VAppearance: IAppearance;
   // item
   VGeometry: IGeometryLonLat;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
 begin
   if (not FInMarkObject) then
     raise EXmlVectorObjectsNotInMark.Create('');
@@ -760,7 +760,7 @@ begin
 end;
 
 procedure TXmlVectorObjects.SafeAddToResult(
-  const AItem: IVectorDataItemSimple
+  const AItem: IVectorDataItem
 );
 begin
   if (AItem <> nil) then begin

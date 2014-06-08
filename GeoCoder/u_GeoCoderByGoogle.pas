@@ -77,7 +77,7 @@ var
   VJsonArray: TSuperArray;
   VResultItem: ISuperObject;
   VPoint: TDoublePoint;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   VStatus, VName, VLon, VLat: string;

@@ -69,19 +69,19 @@ type
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplate = nil
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function CreateNewLine(
       const ALine: IGeometryLonLatMultiLine;
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplate = nil
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function CreateNewPoly(
       const ALine: IGeometryLonLatMultiPolygon;
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplate = nil
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function CreatePoint(
       const APoint: IGeometryLonLatPoint;
@@ -89,53 +89,53 @@ type
       const ADesc: string;
       const ACategory: ICategory;
       const AAppearance: IAppearance
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function CreateLine(
       const ALine: IGeometryLonLatMultiLine;
       const AName: string;
       const ADesc: string;
       const ACategory: ICategory;
       const AAppearance: IAppearance
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function CreatePoly(
       const ALine: IGeometryLonLatMultiPolygon;
       const AName: string;
       const ADesc: string;
       const ACategory: ICategory;
       const AAppearance: IAppearance
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
   private
     function CreateNewMark(
       const AGeometry: IGeometryLonLat;
       const AName: string;
       const ADesc: string;
       const ATemplate: IMarkTemplate = nil
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function CreateMark(
       const AGeometry: IGeometryLonLat;
       const AName: string;
       const ADesc: string;
       const ACategory: ICategory;
       const AAppearance: IAppearance
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function ReplaceCategory(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const ACategory: ICategory
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function ModifyGeometry(
-      const ASource: IVectorDataItemSimple;
+      const ASource: IVectorDataItem;
       const AGeometry: IGeometryLonLat;
       const ADesc: string = ''
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function PrepareMark(
-      const AItem: IVectorDataItemSimple;
+      const AItem: IVectorDataItem;
       const AName: string;
       const AParams: IImportMarkParams;
       const ACategory: ICategory
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
 
     function GetMarkPictureList: IMarkPictureList;
     function GetConfig: IMarkFactoryConfig;
@@ -183,7 +183,7 @@ function TMarkFactory.CreateNewMark(
   const AName: string;
   const ADesc: string;
   const ATemplate: IMarkTemplate = nil
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatMultiLine;
@@ -203,7 +203,7 @@ function TMarkFactory.CreateNewPoint(
   const APoint: IGeometryLonLatPoint;
   const AName, ADesc: string;
   const ATemplate: IMarkTemplate
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VTemplate: IMarkTemplate;
   VName: string;
@@ -235,7 +235,7 @@ function TMarkFactory.CreateNewLine(
   const ALine: IGeometryLonLatMultiLine;
   const AName, ADesc: string;
   const ATemplate: IMarkTemplate
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VTemplate: IMarkTemplate;
   VName: string;
@@ -267,7 +267,7 @@ function TMarkFactory.CreateNewPoly(
   const ALine: IGeometryLonLatMultiPolygon;
   const AName, ADesc: string;
   const ATemplate: IMarkTemplate
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VTemplate: IMarkTemplate;
   VName: string;
@@ -300,7 +300,7 @@ function TMarkFactory.CreateMark(
   const AName, ADesc: string;
   const ACategory: ICategory;
   const AAppearance: IAppearance
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatMultiLine;
@@ -322,7 +322,7 @@ function TMarkFactory.CreatePoint(
   const ADesc: string;
   const ACategory: ICategory;
   const AAppearance: IAppearance
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VHash: THashValue;
   VMainInfo: IVectorDataItemMainInfo;
@@ -360,7 +360,7 @@ function TMarkFactory.CreateLine(
   const ADesc: string;
   const ACategory: ICategory;
   const AAppearance: IAppearance
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VHash: THashValue;
   VMainInfo: IVectorDataItemMainInfo;
@@ -397,7 +397,7 @@ function TMarkFactory.CreatePoly(
   const ADesc: string;
   const ACategory: ICategory;
   const AAppearance: IAppearance
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VHash: THashValue;
   VMainInfo: IVectorDataItemMainInfo;
@@ -429,10 +429,10 @@ begin
 end;
 
 function TMarkFactory.ModifyGeometry(
-  const ASource: IVectorDataItemSimple;
+  const ASource: IVectorDataItem;
   const AGeometry: IGeometryLonLat;
   const ADesc: string
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatMultiLine;
@@ -586,11 +586,11 @@ begin
 end;
 
 function TMarkFactory.PrepareMark(
-  const AItem: IVectorDataItemSimple;
+  const AItem: IVectorDataItem;
   const AName: string;
   const AParams: IImportMarkParams;
   const ACategory: ICategory
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VAppearance: IAppearance;
 begin
@@ -647,9 +647,9 @@ begin
 end;
 
 function TMarkFactory.ReplaceCategory(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const ACategory: ICategory
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatMultiLine;

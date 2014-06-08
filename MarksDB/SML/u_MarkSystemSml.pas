@@ -58,8 +58,8 @@ type
     function GetCategoryDB: IMarkCategoryDBImpl;
     function GetState: IReadWriteStateChangeble;
 
-    function GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
-    function GetMarkByStringId(const AId: string): IVectorDataItemSimple;
+    function GetStringIdByMark(const AMark: IVectorDataItem): string;
+    function GetMarkByStringId(const AId: string): IVectorDataItem;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
   public
     constructor Create(
@@ -147,14 +147,14 @@ begin
   Result := FCategoryDBImpl;
 end;
 
-function TMarkSystemSml.GetMarkByStringId(const AId: string): IVectorDataItemSimple;
+function TMarkSystemSml.GetMarkByStringId(const AId: string): IVectorDataItem;
 var
   VId: Integer;
 begin
   Result := nil;
   if AId <> '' then begin
     if TryStrToInt(AId, VId) then begin
-      if not Supports(FMarkDbInternal.GetById(VId), IVectorDataItemSimple, Result) then begin
+      if not Supports(FMarkDbInternal.GetById(VId), IVectorDataItem, Result) then begin
         Result := nil;
       end;
     end;
@@ -186,7 +186,7 @@ begin
   Result := FState;
 end;
 
-function TMarkSystemSml.GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
+function TMarkSystemSml.GetStringIdByMark(const AMark: IVectorDataItem): string;
 var
   VMark: IMarkSMLInternal;
 begin

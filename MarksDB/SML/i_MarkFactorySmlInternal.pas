@@ -43,8 +43,8 @@ type
       AColor2: TColor32;
       AScale1: Integer;
       AScale2: Integer
-    ): IVectorDataItemSimple;
-    function CreateInternalMark(const AMark: IVectorDataItemSimple): IVectorDataItemSimple;
+    ): IVectorDataItem;
+    function CreateInternalMark(const AMark: IVectorDataItem): IVectorDataItem;
   end;
 
 const

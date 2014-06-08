@@ -45,7 +45,7 @@ type
     function IsEqual(const ASubset: IVectorItemSubset): Boolean;
 
     function GetCount: Integer;
-    function GetItem(AIndex: Integer): IVectorDataItemSimple;
+    function GetItem(AIndex: Integer): IVectorDataItem;
     function GetHash: THashValue;
   public
     constructor Create(
@@ -89,9 +89,9 @@ begin
   Result := FHash;
 end;
 
-function TVectorItemSubset.GetItem(AIndex: Integer): IVectorDataItemSimple;
+function TVectorItemSubset.GetItem(AIndex: Integer): IVectorDataItem;
 begin
-  Result := IVectorDataItemSimple(FList.Items[AIndex]);
+  Result := IVectorDataItem(FList.Items[AIndex]);
 end;
 
 function TVectorItemSubset.GetSubsetByLonLatRect(
@@ -99,11 +99,11 @@ function TVectorItemSubset.GetSubsetByLonLatRect(
 var
   VNewList: IVectorItemSubsetBuilder;
   i: Integer;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
 begin
   VNewList := FVectorItemSubsetBuilderFactory.Build;
     for i := 0 to FList.Count - 1 do begin
-      VItem := IVectorDataItemSimple(FList.Items[i]);
+      VItem := IVectorDataItem(FList.Items[i]);
       if VItem.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
         VNewList.Add(VItem);
       end;
@@ -131,7 +131,7 @@ begin
   end else begin
     Result := True;
     for i := 0 to FList.Count - 1 do begin
-      if not IVectorDataItemSimple(FList.Items[i]).IsEqual(ASubset.Items[i]) then begin
+      if not IVectorDataItem(FList.Items[i]).IsEqual(ASubset.Items[i]) then begin
         Result := False;
         Break;
       end;

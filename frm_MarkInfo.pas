@@ -52,15 +52,15 @@ type
     FValueToStringConverter: IValueToStringConverterChangeable;
     FGeoCalc: IGeoCalc;
     FArea: Double;
-    FMark: IVectorDataItemSimple;
+    FMark: IVectorDataItem;
     procedure OnAreaCalc(const AArea: Double);
-    function GetTextForMark(const AMark: IVectorDataItemSimple): string;
+    function GetTextForMark(const AMark: IVectorDataItem): string;
     function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
     function GetTextForPoint(const APoint: IGeometryLonLatPoint): string;
     function GetTextForPath(const ALine: IGeometryLonLatMultiLine): string;
     function GetTextForPoly(const APoly: IGeometryLonLatMultiPolygon): string;
   public
-    procedure ShowInfoModal(const AMark: IVectorDataItemSimple);
+    procedure ShowInfoModal(const AMark: IVectorDataItem);
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -192,7 +192,7 @@ begin
 end;
 
 function TfrmMarkInfo.GetTextForMark(
-  const AMark: IVectorDataItemSimple
+  const AMark: IVectorDataItem
 ): string;
 var
   VItemWithCategory: IVectorDataItemWithCategory;
@@ -272,7 +272,7 @@ begin
   mmoInfo.Lines.Text := GetTextForMark(FMark);
 end;
 
-procedure TfrmMarkInfo.ShowInfoModal(const AMark: IVectorDataItemSimple);
+procedure TfrmMarkInfo.ShowInfoModal(const AMark: IVectorDataItem);
 var
   VText: string;
 begin

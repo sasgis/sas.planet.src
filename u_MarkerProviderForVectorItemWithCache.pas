@@ -39,7 +39,7 @@ type
   private
     function GetMarker(
       const AConfig: ICaptionDrawConfigStatic;
-      const AItem: IVectorDataItemSimple
+      const AItem: IVectorDataItem
     ): IMarkerDrawable;
   protected
     function CreateByKey(
@@ -59,7 +59,7 @@ type
   PDataRecord = ^TDataRecord;
   TDataRecord = record
     Config: ICaptionDrawConfigStatic;
-    Item: IVectorDataItemSimple;
+    Item: IVectorDataItem;
   end;
 
 { TMarkerProviderForVectorItemWithCache }
@@ -88,7 +88,7 @@ end;
 
 function TMarkerProviderForVectorItemWithCache.GetMarker(
   const AConfig: ICaptionDrawConfigStatic;
-  const AItem: IVectorDataItemSimple
+  const AItem: IVectorDataItem
 ): IMarkerDrawable;
 var
   VHash: THashValue;

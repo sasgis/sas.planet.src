@@ -48,7 +48,7 @@ type
     function GetInfoCaption: string;
   end;
 
-  IVectorDataItemSimple = interface
+  IVectorDataItem = interface
     ['{1242B43D-C878-4AC9-9F29-0A3E258F4670}']
     function GetHash: THashValue;
     property Hash: THashValue read GetHash;
@@ -68,7 +68,7 @@ type
     function GetAppearance: IAppearance;
     property Appearance: IAppearance read GetAppearance;
 
-    function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+    function IsEqual(const AItem: IVectorDataItem): Boolean;
     function GetHintText: string;
     function GetInfoUrl: string;
     function GetInfoHTML: string;

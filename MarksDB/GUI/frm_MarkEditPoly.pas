@@ -99,10 +99,10 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IVectorDataItemSimple;
+      const AMark: IVectorDataItem;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
   end;
 
 implementation
@@ -146,10 +146,10 @@ begin
 end;
 
 function TfrmMarkEditPoly.EditMark(
-  const AMark: IVectorDataItemSimple;
+  const AMark: IVectorDataItem;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;

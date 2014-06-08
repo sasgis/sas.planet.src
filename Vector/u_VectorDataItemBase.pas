@@ -55,7 +55,7 @@ type
     );
   end;
 
-  TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItemSimple)
+  TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItem)
   private
     FHash: THashValue;
     FGeometry: IGeometryLonLat;
@@ -68,7 +68,7 @@ type
     function GetDesc: string;
     function GetGeometry: IGeometryLonLat;
     function GetAppearance: IAppearance;
-    function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
+    function IsEqual(const AItem: IVectorDataItem): Boolean;
     function GetHintText: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;
@@ -153,7 +153,7 @@ begin
 end;
 
 function TVectorDataItemBase.IsEqual(
-  const AItem: IVectorDataItemSimple
+  const AItem: IVectorDataItem
 ): Boolean;
 begin
   if not Assigned(AItem) then begin
@@ -161,7 +161,7 @@ begin
     Exit;
   end;
 
-  if AItem = IVectorDataItemSimple(Self) then begin
+  if AItem = IVectorDataItem(Self) then begin
     Result := True;
     Exit;
   end;

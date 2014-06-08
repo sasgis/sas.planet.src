@@ -36,7 +36,7 @@ type
   private
     function GetMarker(
       const AConfig: ICaptionDrawConfigStatic;
-      const AItem: IVectorDataItemSimple
+      const AItem: IVectorDataItem
     ): IMarkerDrawable;
   public
     constructor Create(const AMarker: IMarkerDrawableChangeable);
@@ -55,7 +55,7 @@ end;
 
 function TMarkerProviderForVectorItemFixedMarker.GetMarker(
   const AConfig: ICaptionDrawConfigStatic;
-  const AItem: IVectorDataItemSimple
+  const AItem: IVectorDataItem
 ): IMarkerDrawable;
 begin
   Result := FMarker.GetStatic;

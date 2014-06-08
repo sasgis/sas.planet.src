@@ -86,7 +86,7 @@ type
       const APointsAggregator: IDoublePointsAggregator;
       const AIdData: Pointer;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function LoadFromStreamInternal(
       AStream: TStream;
       const AIdData: Pointer;
@@ -124,7 +124,7 @@ function TKmlInfoSimpleParser.BuildItem(
   const APointsAggregator: IDoublePointsAggregator;
   const AIdData: Pointer;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VPointCount: Integer;
   VPoint: IGeometryLonLatPoint;
@@ -326,7 +326,7 @@ var
   sStart: Cardinal;
   VName: string;
   VDescription: string;
-  VItem: IVectorDataItemSimple;
+  VItem: IVectorDataItem;
   VPointsAggregator: IDoublePointsAggregator;
 begin
   result := true;

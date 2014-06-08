@@ -96,7 +96,7 @@ type
     ): IVectorItemSubset;
     procedure AddWikiElement(
       const AElments: IVectorItemSubsetBuilder;
-      const AData: IVectorDataItemSimple;
+      const AData: IVectorDataItem;
       const ALocalConverter: ILocalCoordConverter
     );
     procedure AddElementsFromMap(
@@ -570,7 +570,7 @@ end;
 
 procedure TVectorItemSubsetChangeableForVectorLayers.AddWikiElement(
   const AElments: IVectorItemSubsetBuilder;
-  const AData: IVectorDataItemSimple;
+  const AData: IVectorDataItem;
   const ALocalConverter: ILocalCoordConverter
 );
 var

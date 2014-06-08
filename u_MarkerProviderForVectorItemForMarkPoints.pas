@@ -69,7 +69,7 @@ type
   private
     function GetMarker(
       const AConfig: ICaptionDrawConfigStatic;
-      const AItem: IVectorDataItemSimple
+      const AItem: IVectorDataItem
     ): IMarkerDrawable;
   public
     constructor Create(
@@ -200,7 +200,7 @@ end;
 
 function TMarkerProviderForVectorItemForMarkPoints.GetMarker(
   const AConfig: ICaptionDrawConfigStatic;
-  const AItem: IVectorDataItemSimple
+  const AItem: IVectorDataItem
 ): IMarkerDrawable;
 var
   VMarker: IBitmapMarker;

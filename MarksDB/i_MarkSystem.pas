@@ -45,8 +45,8 @@ type
     function GetCategoryDB: IMarkCategoryDB;
     property CategoryDB: IMarkCategoryDB read GetCategoryDB;
 
-    function GetStringIdByMark(const AMark: IVectorDataItemSimple): string;
-    function GetMarkByStringId(const AId: string): IVectorDataItemSimple;
+    function GetStringIdByMark(const AMark: IVectorDataItem): string;
+    function GetMarkByStringId(const AId: string): IVectorDataItem;
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
 
     function ImportItemsTree(

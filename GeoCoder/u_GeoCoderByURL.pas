@@ -45,11 +45,11 @@ type
     function GetPointFromFullLink(
       const Astr: AnsiString;
       const ALocalConverter: ILocalCoordConverter
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
     function GetPointFromShortLink(
       const Astr, AhttpData: AnsiString;
       const ACancelNotifier: INotifierOperation; AOperationID: Integer
-    ):IVectorDataItemSimple;
+    ):IVectorDataItem;
   protected
     function PrepareRequest(
       const ASearch: WideString;
@@ -121,9 +121,9 @@ end;
 function TGeoCoderByURL.GetPointFromShortLink(
   const Astr, AhttpData: AnsiString;
   const ACancelNotifier: INotifierOperation; AOperationID: Integer
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VPoint: TDoublePoint;
   VSLat, VSLon: AnsiString;
   VSName, VSDesc, VSFullDesc: String;
@@ -315,10 +315,10 @@ end;
 function TGeoCoderByURL.GetPointFromFullLink(
   const Astr: AnsiString;
   const ALocalConverter: ILocalCoordConverter
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   I, J: Integer;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VPoint: TDoublePoint;
   VSLat, VSLon: AnsiString;
   VSName, VSDesc, VSFullDesc: String;
@@ -643,7 +643,7 @@ function TGeoCoderByURL.ParseResultToPlacemarksList(
   const ALocalConverter: ILocalCoordConverter
 ): IInterfaceListSimple;
 var
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VStr: AnsiString;
   VUrl: AnsiString;

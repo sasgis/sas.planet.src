@@ -60,7 +60,7 @@ type
     procedure LabelDescDblClick(Sender: TObject);
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
-    FPlacemark: IVectorDataItemSimple;
+    FPlacemark: IVectorDataItem;
     FMapGoto: IMapViewGoto;
     FIntrnalBrowser: IInternalBrowser;
     FPopUp: TPopupMenu;
@@ -69,7 +69,7 @@ type
       AOwner: TComponent;
       AParent:TWinControl;
       APopUp: TPopupMenu;
-      const APlacemark: IVectorDataItemSimple;
+      const APlacemark: IVectorDataItem;
       const AIntrnalBrowser: IInternalBrowser;
       const AMapGoto: IMapViewGoto;
       const AValueConverter: IValueToStringConverterChangeable
@@ -87,7 +87,7 @@ constructor TfrSearchResultsItem.Create(
   AOwner: TComponent;
   AParent:TWinControl;
   APopUp: TPopupMenu;
-  const APlacemark: IVectorDataItemSimple;
+  const APlacemark: IVectorDataItem;
   const AIntrnalBrowser: IInternalBrowser;
   const AMapGoto: IMapViewGoto;
   const AValueConverter: IValueToStringConverterChangeable

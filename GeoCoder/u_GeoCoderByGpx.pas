@@ -85,17 +85,17 @@ begin
 end;
 
 function ItemExist(
-  const AValue: IVectorDataItemSimple;
+  const AValue: IVectorDataItem;
   const AList: IInterfaceListSimple
 ): Boolean;
 var
   I, J: Integer;
-  VPlacemark: IVectorDataItemSimple;
+  VPlacemark: IVectorDataItem;
   VStr1, VStr2: String;
 begin
   Result := false;
   for I := 0 to AList.Count - 1 do begin
-    VPlacemark := IVectorDataItemSimple(AList.Items[I]);
+    VPlacemark := IVectorDataItem(AList.Items[I]);
     J:= posex(')', VPlacemark.Name);
     VStr1 := copy(VPlacemark.Name, J, length(VPlacemark.Name) - (J + 1));
     J:= posex(')', AValue.Name);
@@ -128,7 +128,7 @@ var
   VAddress: String;
   VDesc: String;
   VFullDesc: String;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VFormatSettings: TFormatSettings;
   VXMLDocument: IXMLDocument;
   I, J: Integer;

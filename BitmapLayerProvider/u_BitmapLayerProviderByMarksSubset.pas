@@ -81,7 +81,7 @@ type
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
       const AGeometry: IGeometryLonLatPoint;
-      const APoint: IVectorDataItemSimple
+      const APoint: IVectorDataItem
     ): Boolean;
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
@@ -368,7 +368,7 @@ function TBitmapLayerProviderByMarksSubset.DrawPoint(
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
   const AGeometry: IGeometryLonLatPoint;
-  const APoint: IVectorDataItemSimple
+  const APoint: IVectorDataItem
 ): Boolean;
 var
   VLocalPoint: TDoublePoint;
@@ -398,7 +398,7 @@ function TBitmapLayerProviderByMarksSubset.DrawSubset(
 ): Boolean;
 var
   VEnumMarks: IEnumUnknown;
-  VMark: IVectorDataItemSimple;
+  VMark: IVectorDataItem;
   i: Cardinal;
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatMultiLine;

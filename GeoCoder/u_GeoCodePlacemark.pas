@@ -71,7 +71,7 @@ type
       const ADesc: string;
       const AFullDesc: string;
       const AAccuracy: Integer
-    ): IVectorDataItemSimple;
+    ): IVectorDataItem;
   public
     constructor Create(
       const AGeometryFactory: IGeometryLonLatFactory;
@@ -200,7 +200,7 @@ function TGeoCodePlacemarkFactory.Build(
   const APoint: TDoublePoint;
   const AAddress, ADesc, AFullDesc: string;
   const AAccuracy: Integer
-): IVectorDataItemSimple;
+): IVectorDataItem;
 var
   VHash: THashValue;
   VPoint: IGeometryLonLatPoint;

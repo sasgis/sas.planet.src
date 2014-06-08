@@ -77,7 +77,7 @@ var
   osm_type, osm_id: AnsiString;
   i, j, k: integer;
   VPoint: TDoublePoint;
-  VPlace: IVectorDataItemSimple;
+  VPlace: IVectorDataItem;
   VList: IInterfaceListSimple;
   VFormatSettings: TALFormatSettings;
   VStr: AnsiString;

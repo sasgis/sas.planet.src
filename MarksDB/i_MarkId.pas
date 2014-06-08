@@ -39,7 +39,7 @@ type
     property MarkType: TGUID read GetMarkType;
 
     function IsSameId(const AMarkId: IMarkId): Boolean;
-    function IsSameMark(const AMark: IVectorDataItemSimple): Boolean;
+    function IsSameMark(const AMark: IVectorDataItem): Boolean;
   end;
 
 implementation
