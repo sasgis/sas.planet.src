@@ -292,13 +292,7 @@ begin
   if ANewSize.X <= 0 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
-  if ANewSize.X > 4096 then begin
-    raise Exception.Create('Ошибочный размер отображаемой карты');
-  end;
   if ANewSize.Y <= 0 then begin
-    raise Exception.Create('Ошибочный размер отображаемой карты');
-  end;
-  if ANewSize.Y > 4096 then begin
     raise Exception.Create('Ошибочный размер отображаемой карты');
   end;
   VLocalRectNew := Rect(0, 0, ANewSize.X, ANewSize.Y);
