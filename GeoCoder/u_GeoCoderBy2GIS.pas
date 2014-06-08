@@ -80,7 +80,7 @@ var
   VPoint: TDoublePoint;
   VDesc: string;
   VFullDesc: string;
-  VPlace: IVectorDataItemPoint;
+  VPlace: IVectorDataItemSimple;
   VList: IInterfaceListSimple;
   VFormatSettings: TFormatSettings;
   XMLDocument: IXMLDocument;

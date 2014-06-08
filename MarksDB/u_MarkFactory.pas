@@ -156,8 +156,7 @@ uses
   t_Hash,
   i_AppearanceOfVectorItem,
   u_MarkFullBase,
-  u_VectorDataItemPoint,
-  u_VectorDataItemPolygon;
+  u_VectorDataItemBase;
 
 { TMarkFactory }
 
@@ -347,7 +346,7 @@ begin
   FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
 
   Result :=
-    TVectorDataItemPoint.Create(
+    TVectorDataItemBase.Create(
       VHash,
       AAppearance,
       VMainInfo,
@@ -384,7 +383,7 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
   Result :=
-    TVectorDataItemPath.Create(
+    TVectorDataItemBase.Create(
       VHash,
       AAppearance,
       VMainInfo,
@@ -421,7 +420,7 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
   Result :=
-    TVectorDataItemPoly.Create(
+    TVectorDataItemBase.Create(
       VHash,
       AAppearance,
       VMainInfo,

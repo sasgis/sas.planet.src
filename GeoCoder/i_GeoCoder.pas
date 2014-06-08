@@ -50,7 +50,7 @@ type
       const ADesc: string;
       const AFullDesc: string;
       const AAccuracy: Integer
-    ): IVectorDataItemPoint;
+    ): IVectorDataItemSimple;
   end;
 
   IGeoCoder = interface

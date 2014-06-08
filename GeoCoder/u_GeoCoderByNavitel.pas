@@ -500,7 +500,7 @@ var
   VNavitel_ID, VNavitel_Type, VPlace_Id: AnsiString;
   i, j, Vii, Vjj: integer;
   VPoint: TDoublePoint;
-  VPlace: IVectorDataItemPoint;
+  VPlace: IVectorDataItemSimple;
   VList: IInterfaceListSimple;
   VFormatSettings: TALFormatSettings;
   vCurPos: integer;

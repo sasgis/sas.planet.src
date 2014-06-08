@@ -608,7 +608,7 @@ type
     FMapZoomAnimtion: Boolean;
     FMapMoveAnimtion: Boolean;
     FSelectedMark: IVectorDataItemSimple;
-    FSelectedWiki: IVectorDataItemPoly;
+    FSelectedWiki: IVectorDataItemSimple;
     FEditMarkPoint: IVectorDataItemSimple;
     FEditMarkLine: IVectorDataItemSimple;
     FEditMarkPoly: IVectorDataItemSimple;
@@ -4974,7 +4974,7 @@ end;
 procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IVectorDataItemSimple;
-  VSelectedWiki: IVectorDataItemPoly;
+  VSelectedWiki: IVectorDataItemSimple;
   Vpolygon: IGeometryLonLatMultiPolygon;
 begin
   VMark := FSelectedMark;
@@ -4985,7 +4985,7 @@ begin
     // no mark - try to select wiki
     VSelectedWiki := FSelectedWiki;
     if (VSelectedWiki <> nil) then begin
-      Vpolygon := VSelectedWiki.Line;
+      Vpolygon := FMarkDBGUI.PolygonForOperation(VSelectedWiki.Geometry, FViewPortState.View.GetStatic.ProjectionInfo);
       if Vpolygon <> nil then FRegionProcess.ProcessPolygon(Vpolygon);
     end;
   end;
@@ -5316,10 +5316,7 @@ begin
     // try to select wiki object
     VVectorItems := FWikiLayer.FindItems(VLocalConverter, Point(x, y));
     if((VVectorItems <> nil) and (VVectorItems.Count > 0)) then begin
-      VVectorItem := SelectForEdit(VVectorItems, VLocalConverter);
-    end;
-    if not Supports(VVectorItem, IVectorDataItemPoly, FSelectedWiki) then begin
-      FSelectedWiki := nil;
+      FSelectedWiki := SelectForEdit(VVectorItems, VLocalConverter);
     end;
   end;
 end;

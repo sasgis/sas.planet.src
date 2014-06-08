@@ -457,25 +457,25 @@ begin
 end;
 
 function ItemExist(
-  const AValue: IVectorDataItemPoint;
+  const AValue: IVectorDataItemSimple;
   const AList: IInterfaceListSimple
 ):Boolean;
 var
   I, J: Integer;
-  VPlacemark: IVectorDataItemPoint;
+  VPlacemark: IVectorDataItemSimple;
   VStr1, VStr2: String;
 begin
   Result := false;
   for I := 0 to AList.Count - 1 do begin
-    VPlacemark := IVectorDataItemPoint(AList.Items[I]);
+    VPlacemark := IVectorDataItemSimple(AList.Items[I]);
     J := posex(')', VPlacemark.Name);
     VStr1 := Copy(VPlacemark.Name, J, length(VPlacemark.Name) - (J + 1));
     J := posex(')', AValue.Name);
     VStr2 := Copy(AValue.Name, J, length(AValue.Name) - (J + 1));
     if VStr1 = VStr2 then begin
       if
-        abs(VPlacemark.GetPoint.Point.x - AValue.GetPoint.Point.x) +
-        abs(VPlacemark.GetPoint.Point.Y - AValue.GetPoint.Point.Y) < 0.05
+        abs(VPlacemark.Geometry.GetGoToPoint.X - AValue.Geometry.GetGoToPoint.X) +
+        abs(VPlacemark.Geometry.GetGoToPoint.Y - AValue.Geometry.GetGoToPoint.Y) < 0.05
       then begin
         Result := true;
         Break;
@@ -511,7 +511,7 @@ procedure TGeoCoderByPolishMap.SearchInMapFile(
 );
 var
  VFormatSettings: TFormatSettings;
- VPlace: IVectorDataItemPoint;
+ VPlace: IVectorDataItemSimple;
  VPoint: TDoublePoint;
  Vslat, Vslon: String;
  Vsname, Vsdesc, sfulldesc: String;

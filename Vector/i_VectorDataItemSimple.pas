@@ -81,24 +81,6 @@ type
     property Category: ICategory read GetCategory;
   end;
 
-  IVectorDataItemPoint = interface(IVectorDataItemSimple)
-    ['{C4EF133D-831F-4F8F-BF51-D5B9C89C87D7}']
-    function GetPoint: IGeometryLonLatPoint;
-    property Point: IGeometryLonLatPoint read GetPoint;
-  end;
-
-  IVectorDataItemLine = interface(IVectorDataItemSimple)
-    ['{6EF44536-9F01-4053-AF77-B83F7574773E}']
-    function GetLine: IGeometryLonLatMultiLine;
-    property Line: IGeometryLonLatMultiLine read GetLine;
-  end;
-
-  IVectorDataItemPoly = interface(IVectorDataItemSimple)
-    ['{8693C9BF-C424-4223-AAD2-8DDEAD2344A1}']
-    function GetLine: IGeometryLonLatMultiPolygon;
-    property Line: IGeometryLonLatMultiPolygon read GetLine;
-  end;
-
 implementation
 
 end.

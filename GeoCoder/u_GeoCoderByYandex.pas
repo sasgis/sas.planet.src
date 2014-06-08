@@ -97,7 +97,7 @@ var
   I: Integer;
   VTmpBuf: UTF8String;
   VPoint: TDoublePoint;
-  VPlace: IVectorDataItemPoint;
+  VPlace: IVectorDataItemSimple;
   VList: IInterfaceListSimple;
   VJsonObject: ISuperObject;
   VJsonArray: TSuperArray;

@@ -58,6 +58,7 @@ type
   TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItemSimple)
   private
     FHash: THashValue;
+    FGeometry: IGeometryLonLat;
     FMainInfo: IVectorDataItemMainInfo;
     FAppearance: IAppearance;
   protected
@@ -65,7 +66,7 @@ type
     function GetMainInfo: IVectorDataItemMainInfo;
     function GetName: string;
     function GetDesc: string;
-    function GetGeometry: IGeometryLonLat; virtual; abstract;
+    function GetGeometry: IGeometryLonLat;
     function GetAppearance: IAppearance;
     function IsEqual(const AItem: IVectorDataItemSimple): Boolean;
     function GetHintText: string;
@@ -76,7 +77,8 @@ type
     constructor Create(
       const AHash: THashValue;
       const AAppearance: IAppearance;
-      const AMainInfo: IVectorDataItemMainInfo
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AGeometry: IGeometryLonLat
     );
   end;
 
@@ -87,14 +89,17 @@ implementation
 constructor TVectorDataItemBase.Create(
   const AHash: THashValue;
   const AAppearance: IAppearance;
-  const AMainInfo: IVectorDataItemMainInfo
+  const AMainInfo: IVectorDataItemMainInfo;
+  const AGeometry: IGeometryLonLat
 );
 begin
   Assert(Assigned(AMainInfo));
+  Assert(Assigned(AGeometry));
   inherited Create;
   FAppearance := AAppearance;
   FHash := AHash;
   FMainInfo := AMainInfo;
+  FGeometry := AGeometry;
 end;
 
 function TVectorDataItemBase.GetAppearance: IAppearance;
@@ -105,6 +110,11 @@ end;
 function TVectorDataItemBase.GetDesc: string;
 begin
   Result := FMainInfo.Desc;
+end;
+
+function TVectorDataItemBase.GetGeometry: IGeometryLonLat;
+begin
+  Result := FGeometry;
 end;
 
 function TVectorDataItemBase.GetHash: THashValue;

@@ -87,6 +87,7 @@ implementation
 uses
   SysUtils,
   c_InternalBrowser,
+  i_GeometryLonLat,
   i_MarkCategoryFactoryDbInternal;
 
 { TMarkId }
@@ -185,9 +186,9 @@ end;
 function TMarkId.GetMarkType: TGUID;
 begin
   case FType of
-    midPoint: Result := IVectorDataItemPoint;
-    midLine: Result := IVectorDataItemLine;
-    midPoly: Result := IVectorDataItemPoly;
+    midPoint: Result := IGeometryLonLatPoint;
+    midLine: Result := IGeometryLonLatMultiLine;
+    midPoly: Result := IGeometryLonLatMultiPolygon;
   end;
 end;
 

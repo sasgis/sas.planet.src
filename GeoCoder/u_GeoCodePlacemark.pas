@@ -71,7 +71,7 @@ type
       const ADesc: string;
       const AFullDesc: string;
       const AAccuracy: Integer
-    ): IVectorDataItemPoint;
+    ): IVectorDataItemSimple;
   public
     constructor Create(
       const AGeometryFactory: IGeometryLonLatFactory;
@@ -83,7 +83,7 @@ implementation
 
 uses
   SysUtils,
-  u_VectorDataItemPoint;
+  u_VectorDataItemBase;
 
 { TGeoCodePlacemark }
 
@@ -200,7 +200,7 @@ function TGeoCodePlacemarkFactory.Build(
   const APoint: TDoublePoint;
   const AAddress, ADesc, AFullDesc: string;
   const AAccuracy: Integer
-): IVectorDataItemPoint;
+): IVectorDataItemSimple;
 var
   VHash: THashValue;
   VPoint: IGeometryLonLatPoint;
@@ -223,7 +223,7 @@ begin
   VHash := VPoint.Hash;
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   Result :=
-    TVectorDataItemPoint.Create(
+    TVectorDataItemBase.Create(
       VHash,
       nil,
       VMainInfo,

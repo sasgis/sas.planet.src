@@ -393,8 +393,6 @@ uses
   i_VectorDataItemSimple in 'Vector\i_VectorDataItemSimple.pas',
   i_VectorItemSubset in 'Vector\i_VectorItemSubset.pas',
   u_VectorDataItemBase in 'Vector\u_VectorDataItemBase.pas',
-  u_VectorDataItemPoint in 'Vector\u_VectorDataItemPoint.pas',
-  u_VectorDataItemPolygon in 'Vector\u_VectorDataItemPolygon.pas',
   u_VectorItemSubset in 'Vector\u_VectorItemSubset.pas',
   i_VectorItemSubsetBuilder in 'Vector\i_VectorItemSubsetBuilder.pas',
   u_VectorItemSubsetBuilder in 'Vector\u_VectorItemSubsetBuilder.pas',

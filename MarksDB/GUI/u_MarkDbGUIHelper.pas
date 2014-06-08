@@ -581,11 +581,11 @@ begin
   if VName = '' then begin
     VName := '(NoName)';
   end;
-  if IsEqualGUID(AMarkId.MarkType, IVectorDataItemPoint) then begin
+  if IsEqualGUID(AMarkId.MarkType, IGeometryLonLatPoint) then begin
     VFormat := VPointCaptionFormat;
-  end else if IsEqualGUID(AMarkId.MarkType, IVectorDataItemLine) then begin
+  end else if IsEqualGUID(AMarkId.MarkType, IGeometryLonLatMultiLine) then begin
     VFormat := VPathCaptionFormat;
-  end else if IsEqualGUID(AMarkId.MarkType, IVectorDataItemPoly) then begin
+  end else if IsEqualGUID(AMarkId.MarkType, IGeometryLonLatMultiPolygon) then begin
     VFormat := VPolygonCaptionFormat;
   end else begin
     VFormat := '%0:s';
@@ -849,7 +849,7 @@ begin
     VMark := FMarkSystem.MarkDb.Factory.CreateNewMark(ALine, '', '');
   end;
   if VMark <> nil then begin
-    VMark := FfrmMarkEditPoly.EditMark(VMark, VSourceMark = nil, VVisible) as IVectorDataItemPoly;
+    VMark := FfrmMarkEditPoly.EditMark(VMark, VSourceMark = nil, VVisible);
     if VMark <> nil then begin
       VResult := FMarkSystem.MarkDb.UpdateMark(VSourceMark, VMark);
       if VResult <> nil then begin

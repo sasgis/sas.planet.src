@@ -84,9 +84,7 @@ implementation
 
 uses
   SysUtils,
-  u_VectorDataItemBase,
-  u_VectorDataItemPoint,
-  u_VectorDataItemPolygon;
+  u_VectorDataItemBase;
 
 { TVectorDataFactorySimple }
 
@@ -137,7 +135,7 @@ begin
     FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
   end;
   Result :=
-    TVectorDataItemPath.Create(
+    TVectorDataItemBase.Create(
       VHash,
       AAppearance,
       AMainInfo,
@@ -160,7 +158,7 @@ begin
     FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
   end;
   Result :=
-    TVectorDataItemPoint.Create(
+    TVectorDataItemBase.Create(
       VHash,
       AAppearance,
       AMainInfo,
@@ -183,7 +181,7 @@ begin
     FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
   end;
   Result :=
-    TVectorDataItemPoly.Create(
+    TVectorDataItemBase.Create(
       VHash,
       AAppearance,
       AMainInfo,

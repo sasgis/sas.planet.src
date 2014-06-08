@@ -121,8 +121,7 @@ uses
   i_Appearance,
   u_GeoFunc,
   u_MarkId,
-  u_VectorDataItemPoint,
-  u_VectorDataItemPolygon;
+  u_VectorDataItemBase;
 
 { TMarkFactorySmlDbInternal }
 
@@ -207,7 +206,7 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
 
   Result :=
-    TVectorDataItemPoint.Create(
+    TVectorDataItemBase.Create(
       VHash,
       VAppearance,
       VMainInfo,
@@ -286,7 +285,7 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
   Result :=
-    TVectorDataItemPath.Create(
+    TVectorDataItemBase.Create(
       VHash,
       VAppearance,
       VMainInfo,
@@ -336,7 +335,7 @@ begin
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
   Result :=
-    TVectorDataItemPoly.Create(
+    TVectorDataItemBase.Create(
       VHash,
       VAppearance,
       VMainInfo,

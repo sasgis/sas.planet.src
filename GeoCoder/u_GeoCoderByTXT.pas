@@ -87,25 +87,25 @@ begin
 end;
 
 function ItemExist(
-  const AValue: IVectorDataItemPoint;
+  const AValue: IVectorDataItemSimple;
   const AList: IInterfaceListSimple
 ):boolean;
 var
   I, J: Integer;
-  VPlacemark: IVectorDataItemPoint;
+  VPlacemark: IVectorDataItemSimple;
   VStr1, VStr2: string;
 begin
   Result := False;
   for I := 0 to AList.Count - 1 do begin
-    VPlacemark := IVectorDataItemPoint(AList.Items[I]);
+    VPlacemark := IVectorDataItemSimple(AList.Items[I]);
     J:= PosEx(')',VPlacemark.Name);
     VStr1 := copy(VPlacemark.Name, J, Length(VPlacemark.Name) - (J + 1));
     J:= PosEx(')',AValue.Name);
     VStr2 := copy(AValue.Name, J, Length(AValue.Name) - (J + 1));
     if VStr1=VStr2 then begin
       if
-        abs(VPlacemark.GetPoint.Point.x - AValue.GetPoint.Point.x) +
-        abs(VPlacemark.GetPoint.Point.Y - AValue.GetPoint.Point.Y) < 0.05
+        abs(VPlacemark.Geometry.GetGoToPoint.X - AValue.Geometry.GetGoToPoint.X) +
+        abs(VPlacemark.Geometry.GetGoToPoint.Y - AValue.Geometry.GetGoToPoint.Y) < 0.05
       then begin
         Result := True;
         Break;
@@ -124,7 +124,7 @@ procedure TGeoCoderByTXT.SearchInTXTFile(
 );
 var
   VFormatSettings: TFormatSettings;
-  VPlace: IVectorDataItemPoint;
+  VPlace: IVectorDataItemSimple;
   VPoint: TDoublePoint;
   VLatStr, VLonStr: string;
   VSName, VSDesc, VSFullDesc: string;
