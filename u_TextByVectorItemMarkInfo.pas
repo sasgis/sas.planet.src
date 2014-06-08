@@ -26,7 +26,7 @@ uses
   i_VectorDataItemSimple,
   i_ValueToStringConverter,
   i_GeometryLonLat,
-  i_Datum,
+  i_GeoCalc,
   i_TextByVectorItem,
   u_BaseInterfacedObject;
 
@@ -34,7 +34,7 @@ type
   TTextByVectorItemMarkInfo = class(TBaseInterfacedObject, ITextByVectorItem)
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
-    FDatum: IDatum;
+    FGeoCalc: IGeoCalc;
     function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
 
     function GetTextForGeometryPoint(const AGeometry: IGeometryLonLatPoint): string;
@@ -47,7 +47,7 @@ type
   public
     constructor Create(
       const AValueToStringConverter: IValueToStringConverterChangeable;
-      const ADatum: IDatum
+      const AGeoCalc: IGeoCalc
     );
   end;
 
@@ -62,13 +62,14 @@ uses
 
 constructor TTextByVectorItemMarkInfo.Create(
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const ADatum: IDatum);
+  const AGeoCalc: IGeoCalc
+);
 begin
   Assert(AValueToStringConverter <> nil);
-  Assert(ADatum <> nil);
+  Assert(Assigned(AGeoCalc));
   inherited Create;
   FValueToStringConverter := AValueToStringConverter;
-  FDatum := ADatum;
+  FGeoCalc := AGeoCalc;
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForGeometry(
@@ -107,7 +108,7 @@ var
 begin
   VPartsCount := 1;
   VPointsCount := AGeometry.Count;
-  VLength := AGeometry.CalcLength(FDatum);
+  VLength := FGeoCalc.CalcLineLength(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
@@ -130,7 +131,7 @@ begin
   for i := 0 to VPartsCount - 1 do begin
     Inc(VPointsCount, AGeometry.Item[i].Count);
   end;
-  VLength := AGeometry.CalcLength(FDatum);
+  VLength := FGeoCalc.CalcMultiLineLength(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
@@ -139,7 +140,8 @@ begin
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForGeometryMultiPolygon(
-  const AGeometry: IGeometryLonLatMultiPolygon): string;
+  const AGeometry: IGeometryLonLatMultiPolygon
+): string;
 var
   VLength: Double;
   VArea: Double;
@@ -153,8 +155,8 @@ begin
   for i := 0 to VPartsCount - 1 do begin
     Inc(VPointsCount, AGeometry.Item[i].Count);
   end;
-  VLength := AGeometry.CalcPerimeter(FDatum);
-  VArea := AGeometry.CalcArea(FDatum);
+  VLength := FGeoCalc.CalcMultiPolygonPerimeter(AGeometry);
+  VArea := FGeoCalc.CalcMultiPolygonArea(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;
@@ -186,8 +188,8 @@ var
 begin
   VPartsCount := 1;
   VPointsCount := AGeometry.Count;
-  VLength := AGeometry.CalcPerimeter(FDatum);
-  VArea := AGeometry.CalcArea(FDatum);
+  VLength := FGeoCalc.CalcPolygonPerimeter(AGeometry);
+  VArea := FGeoCalc.CalcPolygonArea(AGeometry);
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + '<br>'#13#10;

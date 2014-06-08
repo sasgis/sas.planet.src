@@ -35,7 +35,7 @@ uses
   EmbeddedWB,
   i_NotifierOperation,
   i_LanguageManager,
-  i_Datum,
+  i_GeoCalc,
   i_ValueToStringConverter,
   i_VectorDataItemSimple,
   u_CommonFormAndFrameParents;
@@ -49,7 +49,7 @@ type
   private
     FCancelNotifier: INotifierOperationInternal;
     FValueToStringConverter: IValueToStringConverterChangeable;
-    FDatum: IDatum;
+    FGeoCalc: IGeoCalc;
     procedure OnAreaCalc(const APoly: IVectorDataItemPoly; const AArea: Double);
     function GetTextForPoint(const AMark: IVectorDataItemPoint): string;
     function GetTextForPath(const AMark: IVectorDataItemLine): string;
@@ -60,7 +60,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverter: IValueToStringConverterChangeable;
-      const ADatum: IDatum
+      const AGeoCalc: IGeoCalc
     ); reintroduce;
   end;
 
@@ -81,7 +81,7 @@ type
   TCalcAreaThread = class(TThread)
   private
     FPoly: IVectorDataItemPoly;
-    FDatum: IDatum;
+    FGeoCalc: IGeoCalc;
     FArea: Double;
     FOnFinish: TOnAreaCalc;
     FOperationID: Cardinal;
@@ -92,7 +92,7 @@ type
   public
     constructor Create(
       const APoly: IVectorDataItemPoly;
-      const ADatum: IDatum;
+      const AGeoCalc: IGeoCalc;
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Cardinal;
       const AOnFinish: TOnAreaCalc
@@ -103,14 +103,14 @@ type
 
 constructor TCalcAreaThread.Create(
   const APoly: IVectorDataItemPoly;
-  const ADatum: IDatum;
+  const AGeoCalc: IGeoCalc;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Cardinal;
   const AOnFinish: TOnAreaCalc
 );
 begin
   FPoly := APoly;
-  FDatum := ADatum;
+  FGeoCalc := AGeoCalc;
   FArea := 0;
   FOperationID := AOperationID;
   FCancelNotifier := ACancelNotifier;
@@ -129,7 +129,7 @@ end;
 procedure TCalcAreaThread.Execute;
 begin
   SetCurrentThreadName(Self.ClassName);
-  FArea := FPoly.Line.CalcArea(FDatum, FCancelNotifier, FOperationID);
+  FArea := FGeoCalc.CalcMultiPolygonArea(FPoly.Line, FCancelNotifier, FOperationID);
   if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
     Terminate;
   end else begin
@@ -142,15 +142,15 @@ end;
 constructor TfrmMarkInfo.Create(
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const ADatum: IDatum
+  const AGeoCalc: IGeoCalc
 );
 begin
   TP_GlobalIgnoreClassProperty(TEmbeddedWB, 'StatusText');
   Assert(AValueToStringConverter <> nil);
-  Assert(ADatum <> nil);
+  Assert(Assigned(AGeoCalc));
   inherited Create(ALanguageManager);
   FValueToStringConverter := AValueToStringConverter;
-  FDatum := ADatum;
+  FGeoCalc := AGeoCalc;
   FCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
 end;
 
@@ -174,7 +174,7 @@ begin
   for i := 0 to VPartsCount - 1 do begin
     Inc(VPointsCount, AMark.Line.Item[i].Count);
   end;
-  VLength := AMark.Line.CalcLength(FDatum);
+  VLength := FGeoCalc.CalcMultiLineLength(AMark.Line);
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   VCategoryName := '';
@@ -224,7 +224,7 @@ begin
   for i := 0 to VPartsCount - 1 do begin
     Inc(VPointsCount, AMark.Line.Item[i].Count);
   end;
-  VLength := AMark.Line.CalcPerimeter(FDatum);
+  VLength := FGeoCalc.CalcMultiPolygonPerimeter(AMark.Line);
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   VCategoryName := '';
@@ -265,7 +265,7 @@ begin
     VText := GetTextForPoly(VMarkPoly);
     TCalcAreaThread.Create(
       VMarkPoly,
-      FDatum,
+      FGeoCalc,
       FCancelNotifier,
       FCancelNotifier.CurrentOperation,
       Self.OnAreaCalc

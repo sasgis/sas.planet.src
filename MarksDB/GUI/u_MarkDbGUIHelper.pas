@@ -34,6 +34,7 @@ uses
   i_GeometryLonLatFactory,
   i_ArchiveReadWriteFactory,
   i_ValueToStringConverter,
+  i_GeoCalc,
   i_GeometryLonLat,
   i_LocalCoordConverterChangeable,
   i_VectorDataItemSimple,
@@ -46,7 +47,6 @@ uses
   i_ImportConfig,
   i_VectorItemTreeExporterList,
   i_VectorItemTreeImporterList,
-  i_CoordConverterFactory,
   i_AppearanceOfMarkFactory,
   i_MarkFactory,
   i_MarkFactoryConfig,
@@ -164,7 +164,7 @@ type
       const AMarkPictureList: IMarkPictureList;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
-      const ADatumFactory: IDatumFactory;
+      const AGeoCalc: IGeoCalc;
       const AExporterList: IVectorItemTreeExporterListChangeable;
       const AImporterList: IVectorItemTreeImporterListChangeable;
       const AViewPortState: ILocalCoordConverterChangeable;
@@ -181,7 +181,6 @@ implementation
 uses
   SysUtils,
   gnugettext,
-  c_CoordConverter,
   i_DoublePointFilter,
   i_VectorItemTree,
   i_InterfaceListSimple,
@@ -203,7 +202,7 @@ constructor TMarkDbGUIHelper.Create(
   const AMarkPictureList: IMarkPictureList;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
-  const ADatumFactory: IDatumFactory;
+  const AGeoCalc: IGeoCalc;
   const AExporterList: IVectorItemTreeExporterListChangeable;
   const AImporterList: IVectorItemTreeImporterListChangeable;
   const AViewPortState: ILocalCoordConverterChangeable;
@@ -267,7 +266,7 @@ begin
     TfrmMarkInfo.Create(
       ALanguageManager,
       AValueToStringConverter,
-      ADatumFactory.GetByCode(CYandexDatumEPSG)
+      AGeoCalc
     );
   FfrmMarksMultiEdit :=
     TfrmMarksMultiEdit.Create(

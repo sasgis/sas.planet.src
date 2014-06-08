@@ -62,6 +62,7 @@ uses
   i_MarkSystem,
   i_ZmpInfoSet,
   i_Datum,
+  i_GeoCalc,
   i_PathConfig,
   i_NotifierTime,
   i_Bitmap32BufferFactory,
@@ -147,6 +148,7 @@ type
     FImporterList: IVectorItemTreeImporterListChangeable;
     FExporterList: IVectorItemTreeExporterListChangeable;
     FGPSDatum: IDatum;
+    FGeoCalc: IGeoCalc;
     FGPSRecorder: IGPSRecorder;
     FGPSRecorderInternal: IGPSRecorderInternal;
     FGpsTrackRecorder: IGpsTrackRecorder;
@@ -213,6 +215,7 @@ type
     property MarksDb: IMarkSystem read FMarkSystem;
     property GpsSystem: IGPSModule read FGpsSystem;
     property GPSDatum: IDatum read FGPSDatum;
+    property GeoCalc: IGeoCalc read FGeoCalc;
 
     // Список генераторов имен файлов с тайлами
     property TileNameGenerator: ITileFileNameGeneratorsList read FTileNameGenerator;
@@ -321,6 +324,7 @@ uses
   u_CoordConverterListStaticSimple,
   u_DownloadInfoSimple,
   u_DatumFactory,
+  u_GeoCalc,
   u_HashFunctionCityHash,
   u_HashFunctionWithCounter,
   u_MapVersionFactoryList,
@@ -537,6 +541,7 @@ begin
   OnMainThreadConfigChange;
 
   FGPSDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
+  FGeoCalc := TGeoCalc.Create(FGPSDatum);
 
   VResamplerFactoryList := TImageResamplerFactoryListStaticSimple.Create;
 

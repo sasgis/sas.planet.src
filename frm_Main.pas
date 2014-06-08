@@ -942,7 +942,7 @@ begin
       GState.MarkPictureList,
       GState.AppearanceOfMarkFactory,
       GState.MarksDb,
-      GState.DatumFactory,
+      GState.GeoCalc,
       GState.ExporterList,
       GState.ImporterList,
       FViewPortState.View,

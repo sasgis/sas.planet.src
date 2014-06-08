@@ -8,8 +8,6 @@ uses
   i_LonLatRect,
   i_EnumDoublePoint,
   i_GeometryLonLat,
-  i_Datum,
-  i_NotifierOperation,
   u_BaseInterfacedObject;
 
 type
@@ -21,23 +19,14 @@ type
     function GetItemLonLatPolygonLine(AIndex: Integer): IGeometryLonLatPolygon;
 
     function GetEnumLonLat: IEnumLonLatPoint;
-    function CalcAreaLonLat(
-      const ADatum: IDatum;
-      const ANotifier: INotifierOperation = nil;
-      const AOperationID: Integer = 0
-    ): Double;
   private
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function GetCount: Integer;
-    function CalcLength(const ADatum: IDatum): Double;
-    function CalcPerimeter(const ADatum: IDatum): Double;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSamePath(const APath: IGeometryLonLatMultiLine): Boolean;
     function IsSamePolygon(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
     function GetGoToPoint: TDoublePoint;
-
-    function IGeometryLonLatMultiPolygon.CalcArea = CalcAreaLonLat;
 
     function IGeometryLonLatMultiLine.IsSame = IsSamePath;
     function IGeometryLonLatMultiPolygon.IsSame = IsSamePolygon;
@@ -80,25 +69,6 @@ begin
   inherited Create;
   VEnum := TEnumDoublePointEmpty.Create;
   FEnumLonLat := VEnum;
-end;
-
-function TGeometryLonLatMultiEmpty.CalcAreaLonLat(
-  const ADatum: IDatum;
-  const ANotifier: INotifierOperation = nil;
-  const AOperationID: Integer = 0
-): Double;
-begin
-  Result := 0;
-end;
-
-function TGeometryLonLatMultiEmpty.CalcLength(const ADatum: IDatum): Double;
-begin
-  Result := 0;
-end;
-
-function TGeometryLonLatMultiEmpty.CalcPerimeter(const ADatum: IDatum): Double;
-begin
-  Result := 0;
 end;
 
 function TGeometryLonLatMultiEmpty.GetBounds: ILonLatRect;

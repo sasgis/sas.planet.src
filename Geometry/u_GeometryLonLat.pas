@@ -7,8 +7,6 @@ uses
   t_Hash,
   i_EnumDoublePoint,
   i_LonLatRect,
-  i_Datum,
-  i_NotifierOperation,
   i_GeometryLonLat,
   u_BaseInterfacedObject;
 
@@ -58,7 +56,6 @@ type
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const ALine: IGeometryLonLatLine): Boolean;
     function GetGoToPoint: TDoublePoint;
-    function CalcLength(const ADatum: IDatum): Double;
   public
     constructor Create(
       const ABounds: ILonLatRect;
@@ -74,12 +71,6 @@ type
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
     function GetGoToPoint: TDoublePoint;
-    function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(
-      const ADatum: IDatum;
-      const ANotifier: INotifierOperation = nil;
-      const AOperationID: Integer = 0
-    ): Double;
   public
     constructor Create(
       const ABounds: ILonLatRect;
@@ -141,22 +132,6 @@ begin
 end;
 
 { TLonLatPathLine }
-
-function TGeometryLonLatLine.CalcLength(const ADatum: IDatum): Double;
-var
-  VEnum: IEnumLonLatPoint;
-  VPrevPoint: TDoublePoint;
-  VCurrPoint: TDoublePoint;
-begin
-  Result := 0;
-  VEnum := GetEnum;
-  if VEnum.Next(VPrevPoint) then begin
-    while VEnum.Next(VCurrPoint) do begin
-      Result := Result + ADatum.CalcDist(VPrevPoint, VCurrPoint);
-      VPrevPoint := VCurrPoint;
-    end;
-  end;
-end;
 
 constructor TGeometryLonLatLine.Create(
   const ABounds: ILonLatRect;
@@ -242,35 +217,6 @@ begin
 end;
 
 { TLonLatPolygonLine }
-
-function TGeometryLonLatPolygon.CalcArea(
-  const ADatum: IDatum;
-  const ANotifier: INotifierOperation = nil;
-  const AOperationID: Integer = 0
-): Double;
-begin
-  if FCount < 3 then begin
-    Result := 0;
-  end else begin
-    Result := ADatum.CalcPolygonArea(@FPoints[0], FCount, ANotifier, AOperationID);
-  end;
-end;
-
-function TGeometryLonLatPolygon.CalcPerimeter(const ADatum: IDatum): Double;
-var
-  VEnum: IEnumLonLatPoint;
-  VPrevPoint: TDoublePoint;
-  VCurrPoint: TDoublePoint;
-begin
-  Result := 0;
-  VEnum := GetEnum;
-  if VEnum.Next(VPrevPoint) then begin
-    while VEnum.Next(VCurrPoint) do begin
-      Result := Result + ADatum.CalcDist(VPrevPoint, VCurrPoint);
-      VPrevPoint := VCurrPoint;
-    end;
-  end;
-end;
 
 constructor TGeometryLonLatPolygon.Create(
   const ABounds: ILonLatRect;

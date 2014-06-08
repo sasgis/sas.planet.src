@@ -25,10 +25,8 @@ interface
 uses
   t_GeoTypes,
   t_Hash,
-  i_NotifierOperation,
   i_EnumDoublePoint,
-  i_LonLatRect,
-  i_Datum;
+  i_LonLatRect;
 
 type
   IGeometryLonLat = interface
@@ -56,7 +54,6 @@ type
     function IsSame(const ALine: IGeometryLonLatLine): Boolean;
 
     function GetEnum: IEnumLonLatPoint;
-    function CalcLength(const ADatum: IDatum): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -70,12 +67,6 @@ type
     function IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
 
     function GetEnum: IEnumLonLatPoint;
-    function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(
-      const ADatum: IDatum;
-      const ANotifier: INotifierOperation = nil;
-      const AOperationID: Integer = 0
-    ): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -90,8 +81,6 @@ type
 
     function GetEnum: IEnumLonLatPoint;
 
-    function CalcLength(const ADatum: IDatum): Double;
-
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -104,13 +93,6 @@ type
     function IsSame(const ALine: IGeometryLonLatMultiPolygon): Boolean;
 
     function GetEnum: IEnumLonLatPoint;
-
-    function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(
-      const ADatum: IDatum;
-      const ANotifier: INotifierOperation = nil;
-      const AOperationID: Integer = 0
-    ): Double;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;

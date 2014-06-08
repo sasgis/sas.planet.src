@@ -94,9 +94,7 @@ implementation
 
 uses
   t_Hash,
-  i_Datum,
   i_LonLatRect,
-  i_NotifierOperation,
   u_GeoFunc,
   u_BaseInterfacedObject;
 
@@ -128,7 +126,6 @@ type
     function GetGoToPoint: TDoublePoint;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
-    function CalcLength(const ADatum: IDatum): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IGeometryLonLatLine;
   public
@@ -148,12 +145,6 @@ type
     function GetGoToPoint: TDoublePoint;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
-    function CalcPerimeter(const ADatum: IDatum): Double;
-    function CalcArea(
-      const ADatum: IDatum;
-      const ANotifier: INotifierOperation = nil;
-      const AOperationID: Integer = 0
-    ): Double;
     function GetCount: Integer;
     function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
   public
@@ -788,11 +779,6 @@ begin
   FLine := ALine;
 end;
 
-function TLonLatPathWithSelected.CalcLength(const ADatum: IDatum): Double;
-begin
-  Result := FLine.CalcLength(ADatum);
-end;
-
 function TLonLatPathWithSelected.GetBounds: ILonLatRect;
 begin
   Result := FLine.Bounds;
@@ -884,20 +870,6 @@ begin
   end;
   inherited Create(VSelectedPoint, VSelectedSegmentIndex, VSelectedPointIndex);
   FLine := ALine;
-end;
-
-function TLonLatPolygonWithSelected.CalcArea(
-  const ADatum: IDatum;
-  const ANotifier: INotifierOperation = nil;
-  const AOperationID: Integer = 0
-): Double;
-begin
-  Result := FLine.CalcArea(ADatum, ANotifier, AOperationID);
-end;
-
-function TLonLatPolygonWithSelected.CalcPerimeter(const ADatum: IDatum): Double;
-begin
-  Result := FLine.CalcPerimeter(ADatum);
 end;
 
 function TLonLatPolygonWithSelected.GetBounds: ILonLatRect;
