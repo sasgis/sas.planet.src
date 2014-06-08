@@ -35,6 +35,7 @@ uses
   EmbeddedWB,
   i_NotifierOperation,
   i_LanguageManager,
+  i_GeometryLonLat,
   i_GeoCalc,
   i_ValueToStringConverter,
   i_VectorDataItemSimple,
@@ -50,10 +51,14 @@ type
     FCancelNotifier: INotifierOperationInternal;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FGeoCalc: IGeoCalc;
-    procedure OnAreaCalc(const APoly: IVectorDataItemPoly; const AArea: Double);
-    function GetTextForPoint(const AMark: IVectorDataItemPoint): string;
-    function GetTextForPath(const AMark: IVectorDataItemLine): string;
-    function GetTextForPoly(const AMark: IVectorDataItemPoly; const AArea: Double = -1): string;
+    FArea: Double;
+    FMark: IVectorDataItemSimple;
+    procedure OnAreaCalc(const AArea: Double);
+    function GetTextForMark(const AMark: IVectorDataItemSimple): string;
+    function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
+    function GetTextForPoint(const APoint: IGeometryLonLatPoint): string;
+    function GetTextForPath(const ALine: IGeometryLonLatMultiLine): string;
+    function GetTextForPoly(const APoly: IGeometryLonLatMultiPolygon): string;
   public
     procedure ShowInfoModal(const AMark: IVectorDataItemSimple);
   public
@@ -67,6 +72,7 @@ type
 implementation
 
 uses
+  Math,
   gnugettext,
   c_InternalBrowser,
   u_Notifier,
@@ -76,11 +82,11 @@ uses
 {$R *.dfm}
 
 type
-  TOnAreaCalc = procedure(const APoly: IVectorDataItemPoly; const AArea: Double) of object;
+  TOnAreaCalc = procedure(const AArea: Double) of object;
 
   TCalcAreaThread = class(TThread)
   private
-    FPoly: IVectorDataItemPoly;
+    FPoly: IGeometryLonLatMultiPolygon;
     FGeoCalc: IGeoCalc;
     FArea: Double;
     FOnFinish: TOnAreaCalc;
@@ -91,7 +97,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      const APoly: IVectorDataItemPoly;
+      const APoly: IGeometryLonLatMultiPolygon;
       const AGeoCalc: IGeoCalc;
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Cardinal;
@@ -102,7 +108,7 @@ type
 { TCalcAreaThread }
 
 constructor TCalcAreaThread.Create(
-  const APoly: IVectorDataItemPoly;
+  const APoly: IGeometryLonLatMultiPolygon;
   const AGeoCalc: IGeoCalc;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Cardinal;
@@ -122,14 +128,14 @@ end;
 procedure TCalcAreaThread.OnFinishSync;
 begin
   if not FCancelNotifier.IsOperationCanceled(FOperationID) then begin
-    FOnFinish(FPoly, FArea);
+    FOnFinish(FArea);
   end;
 end;
 
 procedure TCalcAreaThread.Execute;
 begin
   SetCurrentThreadName(Self.ClassName);
-  FArea := FGeoCalc.CalcMultiPolygonArea(FPoly.Line, FCancelNotifier, FOperationID);
+  FArea := FGeoCalc.CalcMultiPolygonArea(FPoly, FCancelNotifier, FOperationID);
   if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
     Terminate;
   end else begin
@@ -159,23 +165,39 @@ begin
   FCancelNotifier.NextOperation;
 end;
 
-function TfrmMarkInfo.GetTextForPath(const AMark: IVectorDataItemLine): string;
+function TfrmMarkInfo.GetTextForGeometry(
+  const AGeometry: IGeometryLonLat
+): string;
 var
-  VLength: Double;
-  VPartsCount: Integer;
-  VPointsCount: Integer;
-  i: Integer;
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
+begin
+  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    Result := GetTextForPoint(VPoint);
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
+    Result := GetTextForPath(VLine);
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+    Result := GetTextForPoly(VPoly);
+    if IsNan(FArea) then begin
+      TCalcAreaThread.Create(
+        VPoly,
+        FGeoCalc,
+        FCancelNotifier,
+        FCancelNotifier.CurrentOperation,
+        Self.OnAreaCalc
+      );
+    end;
+  end;
+end;
+
+function TfrmMarkInfo.GetTextForMark(
+  const AMark: IVectorDataItemSimple
+): string;
+var
   VItemWithCategory: IVectorDataItemWithCategory;
-  VConverter: IValueToStringConverter;
   VCategoryName: string;
 begin
-  VPartsCount := AMark.Line.Count;
-  VPointsCount := 0;
-  for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, AMark.Line.Item[i].Count);
-  end;
-  VLength := FGeoCalc.CalcMultiLineLength(AMark.Line);
-  VConverter := FValueToStringConverter.GetStatic;
   Result := '';
   VCategoryName := '';
   if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
@@ -185,94 +207,78 @@ begin
   end;
   Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
   Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
+  Result := Result + GetTextForGeometry(AMark.Geometry);
+end;
+
+function TfrmMarkInfo.GetTextForPath(const ALine: IGeometryLonLatMultiLine): string;
+var
+  VLength: Double;
+  VPartsCount: Integer;
+  VPointsCount: Integer;
+  i: Integer;
+  VConverter: IValueToStringConverter;
+begin
+  VPartsCount := ALine.Count;
+  VPointsCount := 0;
+  for i := 0 to VPartsCount - 1 do begin
+    Inc(VPointsCount, ALine.Item[i].Count);
+  end;
+  VLength := FGeoCalc.CalcMultiLineLength(ALine);
+  VConverter := FValueToStringConverter.GetStatic;
+  Result := '';
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
   Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
 end;
 
-function TfrmMarkInfo.GetTextForPoint(const AMark: IVectorDataItemPoint): string;
+function TfrmMarkInfo.GetTextForPoint(const APoint: IGeometryLonLatPoint): string;
 var
   VConverter: IValueToStringConverter;
-  VItemWithCategory: IVectorDataItemWithCategory;
-  VCategoryName: string;
 begin
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
-  VCategoryName := '';
-  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
-    if VItemWithCategory.Category <> nil then begin
-      VCategoryName := VItemWithCategory.Category.Name;
-    end;
-  end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
-  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(AMark.Point.Point)]) + #13#10;
+  Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(APoint.Point)]) + #13#10;
 end;
 
-function TfrmMarkInfo.GetTextForPoly(const AMark: IVectorDataItemPoly; const AArea: Double = -1): string;
+function TfrmMarkInfo.GetTextForPoly(const APoly: IGeometryLonLatMultiPolygon): string;
 var
   VLength: Double;
   VPartsCount: Integer;
   VPointsCount: Integer;
   i: Integer;
-  VItemWithCategory: IVectorDataItemWithCategory;
   VConverter: IValueToStringConverter;
-  VCategoryName: string;
 begin
-  VPartsCount := AMark.Line.Count;
+  VPartsCount := APoly.Count;
   VPointsCount := 0;
   for i := 0 to VPartsCount - 1 do begin
-    Inc(VPointsCount, AMark.Line.Item[i].Count);
+    Inc(VPointsCount, APoly.Item[i].Count);
   end;
-  VLength := FGeoCalc.CalcMultiPolygonPerimeter(AMark.Line);
+  VLength := FGeoCalc.CalcMultiPolygonPerimeter(APoly);
   VConverter := FValueToStringConverter.GetStatic;
   Result := '';
-  VCategoryName := '';
-  if Supports(AMark.MainInfo, IVectorDataItemWithCategory, VItemWithCategory) then begin
-    if VItemWithCategory.Category <> nil then begin
-      VCategoryName := VItemWithCategory.Category.Name;
-    end;
-  end;
-  Result := Result + Format(_('Category: %s'), [VCategoryName]) + #13#10;
-  Result := Result + Format(_('Name: %s'), [AMark.Name]) + #13#10;
   Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
   Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
   Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
-  if AArea <> -1 then begin
-    Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(AArea)]) + #13#10;
+  if not IsNan(FArea) then begin
+    Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(FArea)]) + #13#10;
   end else begin
     Result := Result + Format(_('Area: %s'), [_('calc...')]) + #13#10;
   end;
 end;
 
-procedure TfrmMarkInfo.OnAreaCalc(const APoly: IVectorDataItemPoly; const AArea: Double);
+procedure TfrmMarkInfo.OnAreaCalc(const AArea: Double);
 begin
-  mmoInfo.Lines.Text := GetTextForPoly(APoly, AArea);
+  FArea := AArea;
+  mmoInfo.Lines.Text := GetTextForMark(FMark);
 end;
 
 procedure TfrmMarkInfo.ShowInfoModal(const AMark: IVectorDataItemSimple);
 var
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
   VText: string;
 begin
-  if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
-    VText := GetTextForPoint(VMarkPoint);
-  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
-    VText := GetTextForPath(VMarkLine);
-  end else if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
-    VText := GetTextForPoly(VMarkPoly);
-    TCalcAreaThread.Create(
-      VMarkPoly,
-      FGeoCalc,
-      FCancelNotifier,
-      FCancelNotifier.CurrentOperation,
-      Self.OnAreaCalc
-    );
-  end else begin
-    VText := 'Unknown mark type';
-  end;
+  FArea := NaN;
+  FMark := AMark;
+  VText := GetTextForMark(AMark);
   mmoInfo.Lines.Text := VText;
   if (AMark.GetInfoUrl <> '') and (AMark.Desc <> '') then begin
     embdwbDesc.NavigateWait(AMark.GetInfoUrl + CVectorItemInfoSuffix);
@@ -280,6 +286,7 @@ begin
     embdwbDesc.AssignEmptyDocument;
   end;
   Self.ShowModal;
+  FMark := nil;
 end;
 
 end.

@@ -609,9 +609,9 @@ type
     FMapMoveAnimtion: Boolean;
     FSelectedMark: IVectorDataItemSimple;
     FSelectedWiki: IVectorDataItemPoly;
-    FEditMarkPoint: IVectorDataItemPoint;
-    FEditMarkLine: IVectorDataItemLine;
-    FEditMarkPoly: IVectorDataItemPoly;
+    FEditMarkPoint: IVectorDataItemSimple;
+    FEditMarkLine: IVectorDataItemSimple;
+    FEditMarkPoly: IVectorDataItemSimple;
     FState: IMainFormState;
 
     FWinPosition: IMainWindowPosition;
@@ -4923,29 +4923,29 @@ end;
 procedure TfrmMain.NMarkEditClick(Sender: TObject);
 var
   VMark: IVectorDataItemSimple;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
-    if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-      FEditMarkPoint := VMarkPoint;
+    if Supports(VMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
+      FEditMarkPoint := VMark;
       FState.State := ao_edit_point;
-      FPointOnMapEdit.Point := VMarkPoint.Point.Point;
-    end else if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
-      FEditMarkLine := VMarkLine;
+      FPointOnMapEdit.Point := VPoint.Point;
+    end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+      FEditMarkLine := VMark;
       FState.State := ao_edit_line;
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
-        VPathOnMapEdit.SetPath(VMarkLine.Line);
+        VPathOnMapEdit.SetPath(VLine);
       end;
-    end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-      FEditMarkPoly := VMarkPoly;
+    end else if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+      FEditMarkPoly := VMark;
       FState.State := ao_edit_poly;
       if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
-        VPolygonOnMapEdit.SetPolygon(VMarkPoly.Line);
+        VPolygonOnMapEdit.SetPolygon(VPoly);
       end;
     end;
   end;
@@ -5332,7 +5332,7 @@ var
   VMarksEnum: IEnumUnknown;
   VMark: IVectorDataItemSimple;
   i: integer;
-  VMarkPoly: IVectorDataItemPoly;
+  VPoly: IGeometryLonLatMultiPolygon;
   VProjectedPolygon: IGeometryProjectedMultiPolygon;
   VSize: Double;
   VArea: Double;
@@ -5345,14 +5345,14 @@ begin
   end;
   VMarksEnum := AList.GetEnum;
   while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
-    if Supports(VMark, IVectorDataItemPoint) then begin
+    if Supports(VMark.Geometry, IGeometryLonLatPoint) then begin
       Result := VMark;
       Exit;
     end;
   end;
   VMarksEnum := AList.GetEnum;
   while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
-    if Supports(VMark, IVectorDataItemLine) then begin
+    if Supports(VMark.Geometry, IGeometryLonLatMultiLine) then begin
       Result := VMark;
       Exit;
     end;
@@ -5361,10 +5361,10 @@ begin
   VMarksEnum := AList.GetEnum;
   VVectorGeometryProjectedFactory := GState.VectorGeometryProjectedFactory;
   while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
-    if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
+    if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
       VProjectedPolygon := VVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           ALocalConverter.ProjectionInfo,
-          VMarkPoly.Line,
+          VPoly,
           nil
         );
       VArea := VProjectedPolygon.CalcArea();
@@ -6692,7 +6692,9 @@ var
 begin
   VMark := FSelectedMark;
   NMarkEdit.Visible := VMark <> nil;
-  tbitmFitMarkToScreen.Visible := Supports(VMark, IVectorDataItemLine) or Supports(VMark, IVectorDataItemPoly);
+  tbitmFitMarkToScreen.Visible :=
+    Supports(VMark.Geometry, IGeometryLonLatMultiLine) or
+    Supports(VMark.Geometry, IGeometryLonLatMultiPolygon);
   if VMark <> nil then begin
     tbitmHideThisMark.Visible := not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible;
   end else begin

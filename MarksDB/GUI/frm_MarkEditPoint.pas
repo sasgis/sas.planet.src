@@ -98,7 +98,7 @@ type
     procedure imgIconMouseDown(Sender: TObject);
   private
     FGeometryFactory: IGeometryLonLatFactory;
-    FSourceMark: IVectorDataItemPoint;
+    FSourceMark: IVectorDataItemSimple;
     FCategoryDB: IMarkCategoryDB;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FPictureList: IMarkPictureList;
@@ -124,10 +124,10 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IVectorDataItemPoint;
+      const AMark: IVectorDataItemSimple;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IVectorDataItemPoint;
+    ): IVectorDataItemSimple;
   end;
 
 implementation
@@ -196,10 +196,10 @@ begin
 end;
 
 function TfrmMarkEditPoint.EditMark(
-  const AMark: IVectorDataItemPoint;
+  const AMark: IVectorDataItemSimple;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IVectorDataItemPoint;
+): IVectorDataItemSimple;
 var
   VLonLat:TDoublePoint;
   VAppearanceCaption: IAppearancePointCaption;
@@ -266,13 +266,13 @@ begin
     end else begin
       Caption:=SAS_STR_EditMark;
     end;
-    frLonLatPoint.LonLat := AMark.Point.Point;
+    frLonLatPoint.LonLat := (AMark.Geometry as IGeometryLonLatPoint).Point;
     Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       VLonLat := frLonLatPoint.LonLat;
       VPoint := FGeometryFactory.CreateLonLatPoint(VLonLat);
       Result :=
-        FMarkFactory.CreatePoint(
+        FMarkFactory.CreateMark(
           VPoint,
           edtName.Text,
           frMarkDescription.Description,

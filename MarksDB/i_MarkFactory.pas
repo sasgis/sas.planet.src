@@ -38,27 +38,9 @@ type
     function CreateNewMark(
       const AGeometry: IGeometryLonLat;
       const AName: string;
-      const ADesc: string
+      const ADesc: string;
+      const ATemplate: IMarkTemplate = nil
     ): IVectorDataItemSimple;
-
-    function CreateNewPoint(
-      const APoint: IGeometryLonLatPoint;
-      const AName: string;
-      const ADesc: string;
-      const ATemplate: IMarkTemplatePoint = nil
-    ): IVectorDataItemPoint;
-    function CreateNewLine(
-      const ALine: IGeometryLonLatMultiLine;
-      const AName: string;
-      const ADesc: string;
-      const ATemplate: IMarkTemplateLine = nil
-    ): IVectorDataItemLine;
-    function CreateNewPoly(
-      const ALine: IGeometryLonLatMultiPolygon;
-      const AName: string;
-      const ADesc: string;
-      const ATemplate: IMarkTemplatePoly = nil
-    ): IVectorDataItemPoly;
 
     function ReplaceCategory(
       const AMark: IVectorDataItemSimple;
@@ -72,46 +54,12 @@ type
       const ACategory: ICategory;
       const AAppearance: IAppearance
     ): IVectorDataItemSimple;
-    function CreatePoint(
-      const APoint: IGeometryLonLatPoint;
-      const AName: string;
-      const ADesc: string;
-      const ACategory: ICategory;
-      const AAppearance: IAppearance
-    ): IVectorDataItemPoint;
-    function CreateLine(
-      const ALine: IGeometryLonLatMultiLine;
-      const AName: string;
-      const ADesc: string;
-      const ACategory: ICategory;
-      const AAppearance: IAppearance
-    ): IVectorDataItemLine;
-    function CreatePoly(
-      const ALine: IGeometryLonLatMultiPolygon;
-      const ADesc: string;
-      const AName: string;
-      const ACategory: ICategory;
-      const AAppearance: IAppearance
-    ): IVectorDataItemPoly;
 
     function ModifyGeometry(
       const ASource: IVectorDataItemSimple;
       const AGeometry: IGeometryLonLat;
-      const ADesc: string
+      const ADesc: string = ''
     ): IVectorDataItemSimple;
-    function SimpleModifyPoint(
-      const ASource: IVectorDataItemPoint;
-      const ALonLat: IGeometryLonLatPoint
-    ): IVectorDataItemPoint;
-    function SimpleModifyLine(
-      const ASource: IVectorDataItemLine;
-      const ALine: IGeometryLonLatMultiLine;
-      const ADesc: string
-    ): IVectorDataItemLine;
-    function SimpleModifyPoly(
-      const ASource: IVectorDataItemPoly;
-      const ALine: IGeometryLonLatMultiPolygon
-    ): IVectorDataItemPoly;
 
     function PrepareMark(
       const AItem: IVectorDataItemSimple;
@@ -119,24 +67,6 @@ type
       const AParams: IImportMarkParams;
       const ACategory: ICategory
     ): IVectorDataItemSimple;
-    function PreparePoint(
-      const AItem: IVectorDataItemPoint;
-      const AName: string;
-      const AParams: IImportPointParams;
-      const ACategory: ICategory
-    ): IVectorDataItemPoint;
-    function PrepareLine(
-      const AItem: IVectorDataItemLine;
-      const AName: string;
-      const AParams: IImportLineParams;
-      const ACategory: ICategory
-    ): IVectorDataItemLine;
-    function PreparePoly(
-      const AItem: IVectorDataItemPoly;
-      const AName: string;
-      const AParams: IImportPolyParams;
-      const ACategory: ICategory
-    ): IVectorDataItemPoly;
 
     function GetMarkPictureList: IMarkPictureList;
     property MarkPictureList: IMarkPictureList read GetMarkPictureList;

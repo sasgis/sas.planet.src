@@ -124,16 +124,16 @@ type
       const ATemplate: IMarkTemplatePoint = nil
     ): Boolean;
     function SavePointModal(
-      const AMark: IVectorDataItemPoint;
+      const AMark: IVectorDataItemSimple;
       const ALonLat: TDoublePoint
     ): Boolean;
     function SavePolyModal(
-      const AMark: IVectorDataItemPoly;
+      const AMark: IVectorDataItemSimple;
       const ALine: IGeometryLonLatMultiPolygon;
       AAsNewMark: Boolean = false
     ): Boolean;
     function SaveLineModal(
-      const AMark: IVectorDataItemLine;
+      const AMark: IVectorDataItemSimple;
       const ALine: IGeometryLonLatMultiLine;
       const ADescription: string;
       AAsNewMark: Boolean = false
@@ -315,14 +315,14 @@ function TMarkDbGUIHelper.AddNewPointModal(
   const ATemplate: IMarkTemplatePoint = nil
 ): Boolean;
 var
-  VMark: IVectorDataItemPoint;
+  VMark: IVectorDataItemSimple;
   VVisible: Boolean;
   VResult: IVectorDataItemSimple;
 begin
   Result := False;
   VVisible := True;
   VMark :=
-    FMarkSystem.MarkDb.Factory.CreateNewPoint(
+    FMarkSystem.MarkDb.Factory.CreateNewMark(
       FVectorGeometryLonLatFactory.CreateLonLatPoint(ALonLat),
       '',
       '',
@@ -367,11 +367,11 @@ begin
   if AMarkId <> nil then begin
     VMark := FMarkSystem.MarkDb.GetMarkByID(AMarkId);
     if VMark <> nil then begin
-      if Supports(VMark, IVectorDataItemPoint) then begin
+      if Supports(VMark.Geometry, IGeometryLonLatPoint) then begin
         VMessage := SAS_MSG_DeleteMarkPointAsk;
-      end else if Supports(VMark, IVectorDataItemLine) then begin
+      end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine) then begin
         VMessage := SAS_MSG_DeleteMarkPathAsk;
-      end else if Supports(VMark, IVectorDataItemPoly) then begin
+      end else if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon) then begin
         VMessage := SAS_MSG_DeleteMarkPolyAsk;
       end;
       VMessage := Format(VMessage, [AMarkId.Name]);
@@ -419,18 +419,14 @@ function TMarkDbGUIHelper.EditMarkModal(
   const AIsNewMark: Boolean;
   var AVisible: Boolean
 ): IVectorDataItemSimple;
-var
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
 begin
   Result := nil;
-  if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
-    Result := FfrmMarkEditPoint.EditMark(VMarkPoint, AIsNewMark, AVisible);
-  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
-    Result := FfrmMarkEditPath.EditMark(VMarkLine, AIsNewMark, AVisible);
-  end else if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
-    Result := FfrmMarkEditPoly.EditMark(VMarkPoly, AIsNewMark, AVisible);
+  if Supports(AMark.Geometry, IGeometryLonLatPoint) then begin
+    Result := FfrmMarkEditPoint.EditMark(AMark, AIsNewMark, AVisible);
+  end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine) then begin
+    Result := FfrmMarkEditPath.EditMark(AMark, AIsNewMark, AVisible);
+  end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon) then begin
+    Result := FfrmMarkEditPoly.EditMark(AMark, AIsNewMark, AVisible);
   end;
 end;
 
@@ -749,14 +745,14 @@ begin
 end;
 
 function TMarkDbGUIHelper.SaveLineModal(
-  const AMark: IVectorDataItemLine;
+  const AMark: IVectorDataItemSimple;
   const ALine: IGeometryLonLatMultiLine;
   const ADescription: string;
   AAsNewMark: Boolean
 ): Boolean;
 var
-  VMark: IVectorDataItemLine;
-  VSourceMark: IVectorDataItemLine;
+  VMark: IVectorDataItemSimple;
+  VSourceMark: IVectorDataItemSimple;
   VVisible: Boolean;
   VResult: IVectorDataItemSimple;
 begin
@@ -769,10 +765,10 @@ begin
     end else begin
       VSourceMark := AMark;
     end;
-    VMark := FMarkSystem.MarkDb.Factory.SimpleModifyLine(AMark, ALine, ADescription);
+    VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(AMark, ALine, ADescription);
   end else begin
     VVisible := True;
-    VMark := FMarkSystem.MarkDb.Factory.CreateNewLine(ALine, '', ADescription);
+    VMark := FMarkSystem.MarkDb.Factory.CreateNewMark(ALine, '', ADescription);
   end;
   if VMark <> nil then begin
     VMark := FfrmMarkEditPath.EditMark(VMark, VSourceMark = nil, VVisible);
@@ -787,21 +783,21 @@ begin
 end;
 
 function TMarkDbGUIHelper.SavePointModal(
-  const AMark: IVectorDataItemPoint;
+  const AMark: IVectorDataItemSimple;
   const ALonLat: TDoublePoint
 ): Boolean;
 var
-  VMark: IVectorDataItemPoint;
+  VMark: IVectorDataItemSimple;
   VVisible: Boolean;
   VResult: IVectorDataItemSimple;
-  VSourceMark: IVectorDataItemPoint;
+  VSourceMark: IVectorDataItemSimple;
 begin
   Result := False;
   if AMark <> nil then begin
     VVisible := FMarkSystem.MarkDb.GetMarkVisible(AMark);
     VSourceMark := AMark;
     VMark :=
-      FMarkSystem.MarkDb.Factory.SimpleModifyPoint(
+      FMarkSystem.MarkDb.Factory.ModifyGeometry(
         AMark,
         FVectorGeometryLonLatFactory.CreateLonLatPoint(ALonLat)
       );
@@ -809,7 +805,7 @@ begin
     VVisible := True;
     VSourceMark := nil;
     VMark :=
-      FMarkSystem.MarkDb.Factory.CreateNewPoint(
+      FMarkSystem.MarkDb.Factory.CreateNewMark(
         FVectorGeometryLonLatFactory.CreateLonLatPoint(ALonLat),
         '',
         ''
@@ -828,13 +824,13 @@ begin
 end;
 
 function TMarkDbGUIHelper.SavePolyModal(
-  const AMark: IVectorDataItemPoly;
+  const AMark: IVectorDataItemSimple;
   const ALine: IGeometryLonLatMultiPolygon;
   AAsNewMark: Boolean
 ): Boolean;
 var
-  VMark: IVectorDataItemPoly;
-  VSourceMark: IVectorDataItemPoly;
+  VMark: IVectorDataItemSimple;
+  VSourceMark: IVectorDataItemSimple;
   VVisible: Boolean;
   VResult: IVectorDataItemSimple;
 begin
@@ -847,13 +843,13 @@ begin
     end else begin
       VSourceMark := AMark;
     end;
-    VMark := FMarkSystem.MarkDb.Factory.SimpleModifyPoly(AMark, ALine);
+    VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(AMark, ALine);
   end else begin
     VVisible := True;
-    VMark := FMarkSystem.MarkDb.Factory.CreateNewPoly(ALine, '', '');
+    VMark := FMarkSystem.MarkDb.Factory.CreateNewMark(ALine, '', '');
   end;
   if VMark <> nil then begin
-    VMark := FfrmMarkEditPoly.EditMark(VMark, VSourceMark = nil, VVisible);
+    VMark := FfrmMarkEditPoly.EditMark(VMark, VSourceMark = nil, VVisible) as IVectorDataItemPoly;
     if VMark <> nil then begin
       VResult := FMarkSystem.MarkDb.UpdateMark(VSourceMark, VMark);
       if VResult <> nil then begin

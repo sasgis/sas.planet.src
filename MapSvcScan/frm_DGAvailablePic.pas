@@ -1100,7 +1100,7 @@ begin
         if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
           // make polygon
           VMark :=
-            FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewPoly(
+            FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewMark(
               VPolygon,
               Vname,
               VDesc

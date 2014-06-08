@@ -106,7 +106,7 @@ var
   kml: IVectorItemSubset;
   conerr: boolean;
   VPointsAggregator: IDoublePointsAggregator;
-  VItem: IVectorDataItemLine;
+  VMultiLine: IGeometryLonLatMultiLine;
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
@@ -134,9 +134,9 @@ begin
         kml := FKmlLoader.Load(VResultOk.Data, nil, FVectorDataItemMainInfoFactory);
         if kml <> nil then begin
           if kml.Count > 0 then begin
-            if Supports(kml.GetItem(0), IVectorDataItemLine, VItem) then begin
-              if VItem.Line.Count > 0 then begin
-                VLine := VItem.Line.Item[0];
+            if Supports(kml.GetItem(0).Geometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+              if VMultiLine.Count > 0 then begin
+                VLine := VMultiLine.Item[0];
                 if VLine.Count > 0 then begin
                   VPointsAggregator.AddPoints(VLine.Points, VLine.Count);
                 end;

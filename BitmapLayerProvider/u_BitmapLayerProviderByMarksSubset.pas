@@ -27,7 +27,9 @@ uses
   WinTypes,
   t_GeoTypes,
   i_MarkerProviderForVectorItem,
+  i_GeometryLonLat,
   i_GeometryProjectedProvider,
+  i_Appearance,
   i_LocalCoordConverter,
   i_NotifierOperation,
   i_Bitmap32Static,
@@ -64,19 +66,22 @@ type
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
-      const AMarkLine: IVectorDataItemLine
+      const AAppearance: IAppearance;
+      const ALine: IGeometryLonLatMultiLine
     ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
-      const AMarkPoly: IVectorDataItemPoly
+      const AAppearance: IAppearance;
+      const APoly: IGeometryLonLatMultiPolygon
     ): Boolean;
     function DrawPoint(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
-      const AMarkPoint: IVectorDataItemPoint
+      const AGeometry: IGeometryLonLatPoint;
+      const APoint: IVectorDataItemSimple
     ): Boolean;
     procedure InitBitmap(
       ATargetBmp: TCustomBitmap32;
@@ -146,7 +151,8 @@ function TBitmapLayerProviderByMarksSubset.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
-  const AMarkLine: IVectorDataItemLine
+  const AAppearance: IAppearance;
+  const ALine: IGeometryLonLatMultiLine
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -164,7 +170,7 @@ var
   VAppearanceLine: IAppearanceLine;
 begin
   Result := False;
-  VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, AMarkLine.Line);
+  VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, ALine);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -229,7 +235,7 @@ begin
               InitBitmap(ATargetBmp, ALocalConverter);
               ABitmapInited := True;
             end;
-            if Supports(AMarkLine.Appearance, IAppearanceLine, VAppearanceLine) then begin
+            if Supports(AAppearance, IAppearanceLine, VAppearanceLine) then begin
               with VPolygon.Outline do try
                 with Grow(GR32.Fixed(VAppearanceLine.LineWidth / 2), 0.5) do try
                   FillMode := pfWinding;
@@ -255,7 +261,8 @@ function TBitmapLayerProviderByMarksSubset.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
-  const AMarkPoly: IVectorDataItemPoly
+  const AAppearance: IAppearance;
+  const APoly: IGeometryLonLatMultiPolygon
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -273,7 +280,7 @@ var
   VAppearanceFill: IAppearancePolygonFill;
 begin
   Result := False;
-  VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, AMarkPoly.Line);
+  VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, APoly);
   if VProjected <> nil then begin
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -331,10 +338,10 @@ begin
               InitBitmap(ATargetBmp, ALocalConverter);
               ABitmapInited := True;
             end;
-            if Supports(AMarkPoly.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
+            if Supports(AAppearance, IAppearancePolygonFill, VAppearanceFill) then begin
               VPolygon.DrawFill(ATargetBmp, VAppearanceFill.FillColor);
             end;
-            if Supports(AMarkPoly.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+            if Supports(AAppearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
               with VPolygon.Outline do try
                 with Grow(GR32.Fixed(VAppearanceBorder.LineWidth / 2), 0.5) do try
                   FillMode := pfWinding;
@@ -360,7 +367,8 @@ function TBitmapLayerProviderByMarksSubset.DrawPoint(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
-  const AMarkPoint: IVectorDataItemPoint
+  const AGeometry: IGeometryLonLatPoint;
+  const APoint: IVectorDataItemSimple
 ): Boolean;
 var
   VLocalPoint: TDoublePoint;
@@ -368,9 +376,9 @@ var
   VMarker: IMarkerDrawable;
 begin
   Result := False;
-  VMarker := FMarkerProviderForVectorItem.GetMarker(FCaptionDrawConfigStatic, AMarkPoint);
+  VMarker := FMarkerProviderForVectorItem.GetMarker(FCaptionDrawConfigStatic, APoint);
   if VMarker <> nil then begin
-    VLonLat := AMarkPoint.Point.Point;
+    VLonLat := AGeometry.Point;
     ALocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
     VLocalPoint := ALocalConverter.LonLat2LocalPixelFloat(VLonLat);
     if not ABitmapInited then begin
@@ -392,9 +400,9 @@ var
   VEnumMarks: IEnumUnknown;
   VMark: IVectorDataItemSimple;
   i: Cardinal;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
+  VPoint: IGeometryLonLatPoint;
+  VLine: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatMultiPolygon;
   VBitmapInited: Boolean;
 begin
   Result := False;
@@ -405,16 +413,16 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
-      if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-        if DrawPoint(VBitmapInited, ATargetBmp, ALocalConverter, VMarkPoint) then begin
+      if Supports(VMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
+        if DrawPoint(VBitmapInited, ATargetBmp, ALocalConverter, VPoint, VMark) then begin
           Result := True;
         end;
-      end else if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
-        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMarkLine) then begin
+      end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VLine) then begin
           Result := True;
         end;
-      end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMarkPoly) then begin
+      end else if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VPoly) then begin
           Result := True;
         end;
       end;
@@ -424,8 +432,8 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
-      if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMarkPoly) then begin
+      if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+        if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VPoly) then begin
           Result := True;
         end;
       end;
@@ -435,8 +443,8 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
-      if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
-        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMarkLine) then begin
+      if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+        if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VLine) then begin
           Result := True;
         end;
       end;
@@ -446,8 +454,8 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
-      if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-        if DrawPoint(VBitmapInited, ATargetBmp, ALocalConverter, VMarkPoint) then begin
+      if Supports(VMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
+        if DrawPoint(VBitmapInited, ATargetBmp, ALocalConverter, VPoint, VMark) then begin
           Result := True;
         end;
       end;

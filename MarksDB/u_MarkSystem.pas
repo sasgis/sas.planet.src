@@ -105,6 +105,7 @@ implementation
 uses
   SysUtils,
   i_Category,
+  i_GeometryLonLat,
   i_MarkSystemImpl,
   u_InterfaceListSimple,
   u_VectorItemTree,
@@ -250,13 +251,11 @@ procedure TMarkSystem.PrepareFromTreeForImport(
 );
 var
   VItem: IVectorDataItemSimple;
-  VPoint: IVectorDataItemPoint;
-  VLine: IVectorDataItemLine;
-  VPoly: IVectorDataItemPoly;
   i: Integer;
   VMark: IVectorDataItemSimple;
   VName: string;
   VCategory: ICategory;
+  VParams: IImportMarkParams;
 begin
   VCategory := AImportConfig.RootCategory;
 
@@ -278,31 +277,21 @@ begin
           end;
         end;
       end;
-      if Supports(VItem, IVectorDataItemPoint, VPoint) then begin
-        VMark :=
-          FMarkDb.Factory.PreparePoint(
-            VPoint,
-            VName,
-            AImportConfig.PointParams,
-            VCategory
-          );
-      end else if Supports(VItem, IVectorDataItemLine, VLine) then begin
-        VMark :=
-          FMarkDb.Factory.PrepareLine(
-            VLine,
-            VName,
-            AImportConfig.LineParams,
-            VCategory
-          );
-      end else if Supports(VItem, IVectorDataItemPoly, VPoly) then begin
-        VMark :=
-          FMarkDb.Factory.PreparePoly(
-            VPoly,
-            VName,
-            AImportConfig.PolyParams,
-            VCategory
-          );
+      VParams := nil;
+      if Supports(VItem.Geometry, IGeometryLonLatPoint) then begin
+        VParams := AImportConfig.PointParams;
+      end else if Supports(VItem.Geometry, IGeometryLonLatMultiLine) then begin
+        VParams := AImportConfig.LineParams;
+      end else if Supports(VItem.Geometry, IGeometryLonLatMultiPolygon) then begin
+        VParams := AImportConfig.PolyParams;
       end;
+      VMark :=
+        FMarkDb.Factory.PrepareMark(
+          VItem,
+          VName,
+          VParams,
+          VCategory
+        );
       if VMark <> nil then begin
         AMarkList.Add(VMark);
       end;

@@ -99,10 +99,10 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IVectorDataItemPoly;
+      const AMark: IVectorDataItemSimple;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IVectorDataItemPoly;
+    ): IVectorDataItemSimple;
   end;
 
 implementation
@@ -146,10 +146,10 @@ begin
 end;
 
 function TfrmMarkEditPoly.EditMark(
-  const AMark: IVectorDataItemPoly;
+  const AMark: IVectorDataItemSimple;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IVectorDataItemPoly;
+): IVectorDataItemSimple;
 var
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;
@@ -189,8 +189,8 @@ begin
     Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       Result :=
-        FMarkFactory.CreatePoly(
-          AMark.Line,
+        FMarkFactory.CreateMark(
+          AMark.Geometry,
           edtName.Text,
           frMarkDescription.Description,
           frMarkCategory.GetCategory,

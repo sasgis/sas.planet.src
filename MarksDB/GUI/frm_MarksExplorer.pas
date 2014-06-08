@@ -553,9 +553,7 @@ var
   VMark: IVectorDataItemSimple;
   VMarkNew: IVectorDataItemSimple;
   VImportConfig: IImportConfig;
-  VMarkPoint: IVectorDataItemPoint;
-  VMarkLine: IVectorDataItemLine;
-  VMarkPoly: IVectorDataItemPoly;
+  VParams: IImportMarkParams;
   VCategory: ICategory;
   VMarkId: IMarkId;
   i:integer;
@@ -583,31 +581,21 @@ begin
         for i := 0 to VMarkIdList.Count - 1 do begin
           VMarkId := IMarkId(VMarkIdList[i]);
           VMark:=FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(VMarkId);
-          if Supports(VMark, IVectorDataItemPoint, VMarkPoint) then begin
-            VMarkNew :=
-              FMarkDBGUI.MarksDb.MarkDb.Factory.PreparePoint(
-                VMarkPoint,
-                VMarkPoint.Name,
-                VImportConfig.PointParams,
-                VCategory
-              );
-          end else if Supports(VMark, IVectorDataItemLine, VMarkLine) then begin
-            VMarkNew :=
-              FMarkDBGUI.MarksDb.MarkDb.Factory.PrepareLine(
-                VMarkLine,
-                VMarkLine.Name,
-                VImportConfig.LineParams,
-                VCategory
-              );
-          end else if Supports(VMark, IVectorDataItemPoly, VMarkPoly) then begin
-            VMarkNew :=
-              FMarkDBGUI.MarksDb.MarkDb.Factory.PreparePoly(
-                VMarkPoly,
-                VMarkPoly.Name,
-                VImportConfig.PolyParams,
-                VCategory
-              );
+          VParams := nil;
+          if Supports(VMark.Geometry, IGeometryLonLatPoint) then begin
+            VParams := VImportConfig.PointParams;
+          end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine) then begin
+            VParams := VImportConfig.LineParams;
+          end else if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon) then begin
+            VParams := VImportConfig.PolyParams;
           end;
+          VMarkNew :=
+            FMarkDBGUI.MarksDb.MarkDb.Factory.PrepareMark(
+              VMark,
+              VMark.Name,
+              VParams,
+              VCategory
+            );
           if VMarkNew <> nil then begin
             VMarksList.Add(VMarkNew);
           end else begin

@@ -237,14 +237,12 @@ var
   rootNode: IXMLNode;
   VCoordinates: string;
   VFileName: string;
-  VMarkPoint: IVectorDataItemPoint;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
-  VMarkLine: IVectorDataItemLine;
   VAppearanceLine: IAppearanceLine;
-  VMarkPoly: IVectorDataItemPoly;
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;
+  VLonLatPoint:  IGeometryLonLatPoint;
   VLonLatPolygon: IGeometryLonLatMultiPolygon;
   VLonLatPolygonLine: IGeometryLonLatPolygon;
   VLonLatPath: IGeometryLonLatMultiLine;
@@ -253,7 +251,7 @@ begin
   currNode := inNode.AddChild('Placemark');
   currNode.ChildValues['name'] := XMLTextPrepare(AMark.Name);
   currNode.ChildValues['description'] := XMLTextPrepare(AMark.Desc);
-  if Supports(AMark, IVectorDataItemPoint, VMarkPoint) then begin
+  if Supports(AMark.Geometry, IGeometryLonLatPoint, VLonLatPoint) then begin
     // Placemark
     if not Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
       VAppearanceIcon := nil;
@@ -291,11 +289,11 @@ begin
     end;
     currNode := currNode.AddChild('Point');
     currNode.ChildValues['extrude'] := 1;
-    with VMarkPoint.Point.Point do begin
+    with VLonLatPoint.Point do begin
       VCoordinates := R2StrPoint(X) + ',' + R2StrPoint(Y) + ',0 ';
     end;
     currNode.ChildValues['coordinates'] := VCoordinates;
-  end else if Supports(AMark, IVectorDataItemLine, VMarkLine) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine, VLonLatPath) then begin
     // <Placemark><MultiGeometry><LineString></LineString><LineString>...
     // <Placemark><LineString><coordinates>
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
@@ -306,7 +304,6 @@ begin
         end;
       end;
     end;
-    VLonLatPath := VMarkLine.Line;
     if VLonLatPath.Count>1 then begin
       // MultiGeometry
       rootNode := currNode.AddChild('MultiGeometry');
@@ -328,7 +325,7 @@ begin
       VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
       currNode.ChildValues['coordinates'] := VCoordinates;
     end;
-  end else if Supports(AMark, IVectorDataItemPoly, VMarkPoly) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon, VLonLatPolygon) then begin
     // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
     // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
     if not Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
@@ -353,7 +350,6 @@ begin
         end;
       end;
     end;
-    VLonLatPolygon := VMarkPoly.Line;
     if VLonLatPolygon.Count>1 then begin
       // MultiGeometry
       rootNode := currNode.AddChild('MultiGeometry');

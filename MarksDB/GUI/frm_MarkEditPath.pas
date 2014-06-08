@@ -86,10 +86,10 @@ type
     ); reintroduce;
     destructor Destroy; override;
     function EditMark(
-      const AMark: IVectorDataItemLine;
+      const AMark: IVectorDataItemSimple;
       const AIsNewMark: Boolean;
       var AVisible: Boolean
-    ): IVectorDataItemLine;
+    ): IVectorDataItemSimple;
   end;
 
 implementation
@@ -133,10 +133,10 @@ begin
 end;
 
 function TfrmMarkEditPath.EditMark(
-  const AMark: IVectorDataItemLine;
+  const AMark: IVectorDataItemSimple;
   const AIsNewMark: Boolean;
   var AVisible: Boolean
-): IVectorDataItemLine;
+): IVectorDataItemSimple;
 var
   VAppearanceLine: IAppearanceLine;
   VCategory: ICategory;
@@ -168,8 +168,8 @@ begin
     Self.PopupParent := Application.MainForm;
     if ShowModal=mrOk then begin
       Result :=
-        FMarkFactory.CreateLine(
-          AMark.Line,
+        FMarkFactory.CreateMark(
+          AMark.Geometry,
           edtName.Text,
           frMarkDescription.Description,
           frMarkCategory.GetCategory,
