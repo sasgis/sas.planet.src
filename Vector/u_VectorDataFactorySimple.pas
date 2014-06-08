@@ -53,27 +53,27 @@ type
   TVectorDataFactorySimple = class(TBaseInterfacedObject, IVectorDataFactory)
   private
     FHashFunction: IHashFunction;
+    function BuildPoint(
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AAppearance: IAppearance;
+      const APoint: IGeometryLonLatPoint
+    ): IVectorDataItemSimple;
+    function BuildPath(
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AAppearance: IAppearance;
+      const ALine: IGeometryLonLatMultiLine
+    ): IVectorDataItemSimple;
+    function BuildPoly(
+      const AMainInfo: IVectorDataItemMainInfo;
+      const AAppearance: IAppearance;
+      const APoly: IGeometryLonLatMultiPolygon
+    ): IVectorDataItemSimple;
   private
     function BuildItem(
       const AMainInfo: IVectorDataItemMainInfo;
       const AAppearance: IAppearance;
       const AGeometry: IGeometryLonLat
     ): IVectorDataItemSimple;
-    function BuildPoint(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const APoint: IGeometryLonLatPoint
-    ): IVectorDataItemPoint;
-    function BuildPath(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const ALine: IGeometryLonLatMultiLine
-    ): IVectorDataItemLine;
-    function BuildPoly(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const APoly: IGeometryLonLatMultiPolygon
-    ): IVectorDataItemPoly;
   public
     constructor Create(
       const AHashFunction: IHashFunction
@@ -125,7 +125,7 @@ function TVectorDataFactorySimple.BuildPath(
   const AMainInfo: IVectorDataItemMainInfo;
   const AAppearance: IAppearance;
   const ALine: IGeometryLonLatMultiLine
-): IVectorDataItemLine;
+): IVectorDataItemSimple;
 var
   VHash: THashValue;
 begin
@@ -149,7 +149,7 @@ function TVectorDataFactorySimple.BuildPoint(
   const AMainInfo: IVectorDataItemMainInfo;
   const AAppearance: IAppearance;
   const APoint: IGeometryLonLatPoint
-): IVectorDataItemPoint;
+): IVectorDataItemSimple;
 var
   VHash: THashValue;
 begin
@@ -172,7 +172,7 @@ function TVectorDataFactorySimple.BuildPoly(
   const AMainInfo: IVectorDataItemMainInfo;
   const AAppearance: IAppearance;
   const APoly: IGeometryLonLatMultiPolygon
-): IVectorDataItemPoly;
+): IVectorDataItemSimple;
 var
   VHash: THashValue;
 begin
