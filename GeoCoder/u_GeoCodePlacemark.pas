@@ -223,7 +223,7 @@ begin
   VHash := VPoint.Hash;
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   Result :=
-    TVectorDataItemBase.Create(
+    TVectorDataItem.Create(
       VHash,
       nil,
       VMainInfo,

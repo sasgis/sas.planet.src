@@ -55,7 +55,7 @@ type
     );
   end;
 
-  TVectorDataItemBase = class(TBaseInterfacedObject, IVectorDataItem)
+  TVectorDataItem = class(TBaseInterfacedObject, IVectorDataItem)
   private
     FHash: THashValue;
     FGeometry: IGeometryLonLat;
@@ -86,7 +86,7 @@ implementation
 
 { TVectorDataItemBase }
 
-constructor TVectorDataItemBase.Create(
+constructor TVectorDataItem.Create(
   const AHash: THashValue;
   const AAppearance: IAppearance;
   const AMainInfo: IVectorDataItemMainInfo;
@@ -102,57 +102,57 @@ begin
   FGeometry := AGeometry;
 end;
 
-function TVectorDataItemBase.GetAppearance: IAppearance;
+function TVectorDataItem.GetAppearance: IAppearance;
 begin
   Result := FAppearance;
 end;
 
-function TVectorDataItemBase.GetDesc: string;
+function TVectorDataItem.GetDesc: string;
 begin
   Result := FMainInfo.Desc;
 end;
 
-function TVectorDataItemBase.GetGeometry: IGeometryLonLat;
+function TVectorDataItem.GetGeometry: IGeometryLonLat;
 begin
   Result := FGeometry;
 end;
 
-function TVectorDataItemBase.GetHash: THashValue;
+function TVectorDataItem.GetHash: THashValue;
 begin
   Result := FHash;
 end;
 
-function TVectorDataItemBase.GetHintText: string;
+function TVectorDataItem.GetHintText: string;
 begin
   Result := FMainInfo.GetHintText;
 end;
 
-function TVectorDataItemBase.GetInfoCaption: string;
+function TVectorDataItem.GetInfoCaption: string;
 begin
   Result := FMainInfo.GetInfoCaption;
 end;
 
-function TVectorDataItemBase.GetInfoHTML: string;
+function TVectorDataItem.GetInfoHTML: string;
 begin
   Result := FMainInfo.GetInfoHTML;
 end;
 
-function TVectorDataItemBase.GetInfoUrl: string;
+function TVectorDataItem.GetInfoUrl: string;
 begin
   Result := FMainInfo.GetInfoUrl;
 end;
 
-function TVectorDataItemBase.GetMainInfo: IVectorDataItemMainInfo;
+function TVectorDataItem.GetMainInfo: IVectorDataItemMainInfo;
 begin
   Result := FMainInfo;
 end;
 
-function TVectorDataItemBase.GetName: string;
+function TVectorDataItem.GetName: string;
 begin
   Result := FMainInfo.Name;
 end;
 
-function TVectorDataItemBase.IsEqual(
+function TVectorDataItem.IsEqual(
   const AItem: IVectorDataItem
 ): Boolean;
 begin

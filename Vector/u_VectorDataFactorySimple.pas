@@ -135,7 +135,7 @@ begin
     FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
   end;
   Result :=
-    TVectorDataItemBase.Create(
+    TVectorDataItem.Create(
       VHash,
       AAppearance,
       AMainInfo,
@@ -158,7 +158,7 @@ begin
     FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
   end;
   Result :=
-    TVectorDataItemBase.Create(
+    TVectorDataItem.Create(
       VHash,
       AAppearance,
       AMainInfo,
@@ -181,7 +181,7 @@ begin
     FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
   end;
   Result :=
-    TVectorDataItemBase.Create(
+    TVectorDataItem.Create(
       VHash,
       AAppearance,
       AMainInfo,
