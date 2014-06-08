@@ -194,7 +194,7 @@ begin
   end;
   if VPolygon <> nil then begin
     VItem :=
-      FVectorDataFactory.BuildPoly(
+      FVectorDataFactory.BuildItem(
         AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, '', ''),
         nil,
         VPolygon

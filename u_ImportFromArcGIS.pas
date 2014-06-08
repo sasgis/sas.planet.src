@@ -530,7 +530,7 @@ begin
                 // make result object
                 VAllNewMarks := AVectorItemSubsetBuilderFactory.Build;
               end;
-              VAllNewMarks.Add(AVectorDataFactory.BuildPoly(AVectorDataItemMainInfoFactory.BuildMainInfo(nil, VMarkName, VMarkDesc), nil, VPolygon));
+              VAllNewMarks.Add(AVectorDataFactory.BuildItem(AVectorDataItemMainInfoFactory.BuildMainInfo(nil, VMarkName, VMarkDesc), nil, VPolygon));
             end;
           end;
         end;

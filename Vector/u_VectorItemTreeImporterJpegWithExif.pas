@@ -201,7 +201,7 @@ begin
   if PointIsEmpty(VPoint) then begin
     Exit;
   end;
-  VItem := FVectorDataFactory.BuildPoint(
+  VItem := FVectorDataFactory.BuildItem(
     FVectorDataItemMainInfoFactory.BuildMainInfo(nil, VTitle, VDesc),
     nil,
     FVectorGeometryLonLatFactory.CreateLonLatPoint(VPoint)

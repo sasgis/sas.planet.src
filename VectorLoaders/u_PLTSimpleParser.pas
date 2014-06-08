@@ -135,7 +135,7 @@ begin
         if Assigned(VPath) then begin
           trackname := string(GetWord(pltstr[4], ',', 4));
           VItem :=
-            FVectorDataFactory.BuildPath(
+            FVectorDataFactory.BuildItem(
               AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, trackname, ''),
               nil,
               VPath

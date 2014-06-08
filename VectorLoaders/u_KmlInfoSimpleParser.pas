@@ -138,7 +138,7 @@ begin
       if not PointIsEmpty(APointsAggregator.Points[0]) then begin
         VPoint := FVectorGeometryLonLatFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
         Result :=
-          FVectorDataFactory.BuildPoint(
+          FVectorDataFactory.BuildItem(
             AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
             nil,
             VPoint
@@ -149,7 +149,7 @@ begin
         VPoly := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, VPointCount);
         if Assigned(VPoly) then begin
           Result :=
-            FVectorDataFactory.BuildPoly(
+            FVectorDataFactory.BuildItem(
               AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
               nil,
               VPoly
@@ -159,7 +159,7 @@ begin
         VPath := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(APointsAggregator.Points, VPointCount);
         if Assigned(VPath) then begin
           Result :=
-            FVectorDataFactory.BuildPath(
+            FVectorDataFactory.BuildItem(
               AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
               nil,
               VPath

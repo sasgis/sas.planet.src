@@ -44,21 +44,6 @@ type
       const AAppearance: IAppearance;
       const AGeometry: IGeometryLonLat
     ): IVectorDataItemSimple;
-    function BuildPoint(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const APoint: IGeometryLonLatPoint
-    ): IVectorDataItemPoint;
-    function BuildPath(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const ALine: IGeometryLonLatMultiLine
-    ): IVectorDataItemLine;
-    function BuildPoly(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const APoly: IGeometryLonLatMultiPolygon
-    ): IVectorDataItemPoly;
   end;
 
 implementation

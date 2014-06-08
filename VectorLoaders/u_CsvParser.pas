@@ -344,7 +344,7 @@ begin
     if not PointIsEmpty(APointsAggregator.Points[0]) then begin
       VPoint := AGeometryFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
       VItem :=
-        AVectorDataFactory.BuildPoint(
+        AVectorDataFactory.BuildItem(
           AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, VPointName, VPointDesc),
           nil,
           VPoint
@@ -355,7 +355,7 @@ begin
     if Assigned(VPoly) then begin
       // make
       VItem :=
-        AVectorDataFactory.BuildPoly(
+        AVectorDataFactory.BuildItem(
           AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, VPointName, VPointDesc),
           nil,
           VPoly
@@ -366,7 +366,7 @@ begin
     if Assigned(VPath) then begin
       // make
       VItem :=
-        AVectorDataFactory.BuildPath(
+        AVectorDataFactory.BuildItem(
           AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, VPointName, VPointDesc),
           nil,
           VPath
@@ -438,7 +438,7 @@ begin
   VPoint := AGeometryFactory.CreateLonLatPoint(ACoords);
   // make simple point
   VItem :=
-    AVectorDataFactory.BuildPoint(
+    AVectorDataFactory.BuildItem(
       AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, VPointName, VPointDesc),
       nil,
       VPoint
