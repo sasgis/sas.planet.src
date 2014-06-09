@@ -32,8 +32,6 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TMarkIdType = (midPoint, midLine, midPoly);
-
   TMarkId = class(TBaseInterfacedObject, IMarkId, IMarkSMLInternal, IVectorDataItemMainInfo, IVectorDataItemWithCategory)
   private
     FHash: THashValue;
@@ -57,7 +55,7 @@ type
     function GetInfoHTML: string;
     function GetInfoUrl: string;
     function GetInfoCaption: string;
-    function GetMarkType: TGUID;
+    function GetMarkType: TMarkIdType;
   protected
     function GetId: Integer;
     function GetDbId: integer;
@@ -87,7 +85,6 @@ implementation
 uses
   SysUtils,
   c_InternalBrowser,
-  i_GeometryLonLat,
   i_MarkCategoryFactoryDbInternal;
 
 { TMarkId }
@@ -183,13 +180,9 @@ begin
   end;
 end;
 
-function TMarkId.GetMarkType: TGUID;
+function TMarkId.GetMarkType: TMarkIdType;
 begin
-  case FType of
-    midPoint: Result := IGeometryLonLatPoint;
-    midLine: Result := IGeometryLonLatMultiLine;
-    midPoly: Result := IGeometryLonLatMultiPolygon;
-  end;
+  Result := FType;
 end;
 
 function TMarkId.GetName: string;

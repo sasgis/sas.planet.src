@@ -117,6 +117,7 @@ implementation
 uses
   SysUtils,
   t_Hash,
+  i_MarkId,
   i_MarkDbSmlInternal,
   i_Appearance,
   u_GeoFunc,
@@ -214,7 +215,9 @@ begin
     );
 end;
 
-function TMarkFactorySmlDbInternal.CreateInternalMark(const AMark: IVectorDataItem): IVectorDataItem;
+function TMarkFactorySmlDbInternal.CreateInternalMark(
+  const AMark: IVectorDataItem
+): IVectorDataItem;
 var
   VCategory: ICategory;
   VMarkInternal: IMarkSMLInternal;

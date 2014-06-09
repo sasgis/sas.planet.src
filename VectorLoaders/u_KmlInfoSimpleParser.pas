@@ -127,45 +127,30 @@ function TKmlInfoSimpleParser.BuildItem(
 ): IVectorDataItem;
 var
   VPointCount: Integer;
-  VPoint: IGeometryLonLatPoint;
-  VPath: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VGeometry: IGeometryLonLat;
 begin
   Result := nil;
   VPointCount := APointsAggregator.Count;
   if VPointCount > 0 then begin
+    VGeometry := nil;
     if VPointCount = 1 then begin
       if not PointIsEmpty(APointsAggregator.Points[0]) then begin
-        VPoint := FVectorGeometryLonLatFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
-        Result :=
-          FVectorDataFactory.BuildItem(
-            AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
-            nil,
-            VPoint
-          );
+        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
       end;
     end else begin
       if DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[VPointCount - 1]) then begin
-        VPoly := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, VPointCount);
-        if Assigned(VPoly) then begin
-          Result :=
-            FVectorDataFactory.BuildItem(
-              AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
-              nil,
-              VPoly
-            );
-        end;
+        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, VPointCount);
       end else begin
-        VPath := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(APointsAggregator.Points, VPointCount);
-        if Assigned(VPath) then begin
-          Result :=
-            FVectorDataFactory.BuildItem(
-              AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
-              nil,
-              VPath
-            );
-        end;
+        VGeometry := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(APointsAggregator.Points, VPointCount);
       end;
+    end;
+    if Assigned(VGeometry) then begin
+      Result :=
+        FVectorDataFactory.BuildItem(
+          AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, AName, ADesc),
+          nil,
+          VGeometry
+        );
     end;
   end;
 end;

@@ -64,46 +64,6 @@ type
       const ASource: IAppearance;
       const AParams: IImportPolyParams
     ): IAppearance;
-    function CreateNewPoint(
-      const APoint: IGeometryLonLatPoint;
-      const AName: string;
-      const ADesc: string;
-      const ATemplate: IMarkTemplate = nil
-    ): IVectorDataItem;
-    function CreateNewLine(
-      const ALine: IGeometryLonLatMultiLine;
-      const AName: string;
-      const ADesc: string;
-      const ATemplate: IMarkTemplate = nil
-    ): IVectorDataItem;
-    function CreateNewPoly(
-      const ALine: IGeometryLonLatMultiPolygon;
-      const AName: string;
-      const ADesc: string;
-      const ATemplate: IMarkTemplate = nil
-    ): IVectorDataItem;
-
-    function CreatePoint(
-      const APoint: IGeometryLonLatPoint;
-      const AName: string;
-      const ADesc: string;
-      const ACategory: ICategory;
-      const AAppearance: IAppearance
-    ): IVectorDataItem;
-    function CreateLine(
-      const ALine: IGeometryLonLatMultiLine;
-      const AName: string;
-      const ADesc: string;
-      const ACategory: ICategory;
-      const AAppearance: IAppearance
-    ): IVectorDataItem;
-    function CreatePoly(
-      const ALine: IGeometryLonLatMultiPolygon;
-      const AName: string;
-      const ADesc: string;
-      const ACategory: ICategory;
-      const AAppearance: IAppearance
-    ): IVectorDataItem;
   private
     function CreateNewMark(
       const AGeometry: IGeometryLonLat;
@@ -188,30 +148,24 @@ var
   VPoint: IGeometryLonLatPoint;
   VLine: IGeometryLonLatMultiLine;
   VPoly: IGeometryLonLatMultiPolygon;
+  VTemplate: IMarkTemplate;
+  VName: string;
+  VCategory: ICategory;
 begin
   Result := nil;
-  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
-    Result := CreateNewPoint(VPoint, AName, ADesc, ATemplate);
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
-    Result := CreateNewLine(VLine, AName, ADesc, ATemplate);
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
-    Result := CreateNewPoly(VPoly, AName, ADesc, ATemplate);
-  end;
-end;
-
-function TMarkFactory.CreateNewPoint(
-  const APoint: IGeometryLonLatPoint;
-  const AName, ADesc: string;
-  const ATemplate: IMarkTemplate
-): IVectorDataItem;
-var
-  VTemplate: IMarkTemplate;
-  VName: string;
-  VCategory: ICategory;
-begin
   VTemplate := ATemplate;
   if VTemplate = nil then begin
-    VTemplate := FConfig.PointTemplateConfig.DefaultTemplate;
+    if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+      VTemplate := FConfig.PointTemplateConfig.DefaultTemplate;
+    end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+      VTemplate := FConfig.LineTemplateConfig.DefaultTemplate;
+    end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
+      VTemplate := FConfig.LineTemplateConfig.DefaultTemplate;
+    end else if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
+      VTemplate := FConfig.PolyTemplateConfig.DefaultTemplate;
+    end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+      VTemplate := FConfig.PolyTemplateConfig.DefaultTemplate;
+    end;
   end;
 
   VName := AName;
@@ -222,72 +176,8 @@ begin
   VCategory := VTemplate.Category;
 
   Result :=
-    CreatePoint(
-      APoint,
-      VName,
-      ADesc,
-      VCategory,
-      VTemplate.Appearance
-    );
-end;
-
-function TMarkFactory.CreateNewLine(
-  const ALine: IGeometryLonLatMultiLine;
-  const AName, ADesc: string;
-  const ATemplate: IMarkTemplate
-): IVectorDataItem;
-var
-  VTemplate: IMarkTemplate;
-  VName: string;
-  VCategory: ICategory;
-begin
-  VTemplate := ATemplate;
-  if VTemplate = nil then begin
-    VTemplate := FConfig.LineTemplateConfig.DefaultTemplate;
-  end;
-
-  VName := AName;
-  if VName = '' then begin
-    VName := VTemplate.GetNewName;
-  end;
-
-  VCategory := VTemplate.Category;
-
-  Result :=
-    CreateLine(
-      ALine,
-      VName,
-      ADesc,
-      VCategory,
-      VTemplate.Appearance
-    );
-end;
-
-function TMarkFactory.CreateNewPoly(
-  const ALine: IGeometryLonLatMultiPolygon;
-  const AName, ADesc: string;
-  const ATemplate: IMarkTemplate
-): IVectorDataItem;
-var
-  VTemplate: IMarkTemplate;
-  VName: string;
-  VCategory: ICategory;
-begin
-  VTemplate := ATemplate;
-  if VTemplate = nil then begin
-    VTemplate := FConfig.PolyTemplateConfig.DefaultTemplate;
-  end;
-
-  VName := AName;
-  if VName = '' then begin
-    VName := VTemplate.GetNewName;
-  end;
-
-  VCategory := VTemplate.Category;
-
-  Result :=
-    CreatePoly(
-      ALine,
+    CreateMark(
+      AGeometry,
       VName,
       ADesc,
       VCategory,
@@ -302,32 +192,10 @@ function TMarkFactory.CreateMark(
   const AAppearance: IAppearance
 ): IVectorDataItem;
 var
-  VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
-begin
-  Result := nil;
-  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
-    Result := CreatePoint(VPoint, AName, ADesc, ACategory, AAppearance);
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
-    Result := CreateLine(VLine, AName, ADesc, ACategory, AAppearance);
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
-    Result := CreatePoly(VPoly, AName, ADesc, ACategory, AAppearance);
-  end;
-end;
-
-function TMarkFactory.CreatePoint(
-  const APoint: IGeometryLonLatPoint;
-  const AName: string;
-  const ADesc: string;
-  const ACategory: ICategory;
-  const AAppearance: IAppearance
-): IVectorDataItem;
-var
   VHash: THashValue;
   VMainInfo: IVectorDataItemMainInfo;
 begin
-  Assert(Assigned(APoint));
+  Assert(Assigned(AGeometry));
   Assert(Assigned(AAppearance));
 
   VHash := FHashFunction.CalcHashByString(AName);
@@ -341,7 +209,7 @@ begin
       ADesc
     );
 
-  VHash := APoint.Hash;
+  VHash := AGeometry.Hash;
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
 
@@ -350,81 +218,7 @@ begin
       VHash,
       AAppearance,
       VMainInfo,
-      APoint
-    );
-end;
-
-function TMarkFactory.CreateLine(
-  const ALine: IGeometryLonLatMultiLine;
-  const AName: string;
-  const ADesc: string;
-  const ACategory: ICategory;
-  const AAppearance: IAppearance
-): IVectorDataItem;
-var
-  VHash: THashValue;
-  VMainInfo: IVectorDataItemMainInfo;
-begin
-  Assert(Assigned(ALine));
-  Assert(Assigned(AAppearance));
-
-  VHash := FHashFunction.CalcHashByString(AName);
-  FHashFunction.UpdateHashByString(VHash, ADesc);
-  VMainInfo :=
-    TMarkMainInfo.Create(
-      VHash,
-      FHintConverter,
-      AName,
-      ACategory,
-      ADesc
-    );
-
-  VHash := ALine.Hash;
-  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
-  FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  Result :=
-    TVectorDataItem.Create(
-      VHash,
-      AAppearance,
-      VMainInfo,
-      ALine
-    );
-end;
-
-function TMarkFactory.CreatePoly(
-  const ALine: IGeometryLonLatMultiPolygon;
-  const AName: string;
-  const ADesc: string;
-  const ACategory: ICategory;
-  const AAppearance: IAppearance
-): IVectorDataItem;
-var
-  VHash: THashValue;
-  VMainInfo: IVectorDataItemMainInfo;
-begin
-  Assert(Assigned(ALine));
-  Assert(Assigned(AAppearance));
-
-  VHash := FHashFunction.CalcHashByString(AName);
-  FHashFunction.UpdateHashByString(VHash, ADesc);
-  VMainInfo :=
-    TMarkMainInfo.Create(
-      VHash,
-      FHintConverter,
-      AName,
-      ACategory,
-      ADesc
-    );
-
-  VHash := ALine.Hash;
-  FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
-  FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  Result :=
-    TVectorDataItem.Create(
-      VHash,
-      AAppearance,
-      VMainInfo,
-      ALine
+      AGeometry
     );
 end;
 
@@ -434,9 +228,6 @@ function TMarkFactory.ModifyGeometry(
   const ADesc: string
 ): IVectorDataItem;
 var
-  VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
   VDesc: string;
   VCategory: ICategory;
   VMarkWithCategory: IVectorDataItemWithCategory;
@@ -449,38 +240,14 @@ begin
   if Supports(ASource.MainInfo, IVectorDataItemWithCategory, VMarkWithCategory) then begin
     VCategory := VMarkWithCategory.Category;
   end;
-  Result := nil;
-  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
-    Assert(Supports(ASource.Geometry, IGeometryLonLatPoint));
-    Result :=
-      CreatePoint(
-        VPoint,
-        ASource.Name,
-        VDesc,
-        VCategory,
-        ASource.Appearance
-      );
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
-    Assert(Supports(ASource.Geometry, IGeometryLonLatMultiLine));
-    Result :=
-      CreateLine(
-        VLine,
-        ASource.Name,
-        VDesc,
-        VCategory,
-        ASource.Appearance
-      );
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
-    Assert(Supports(ASource.Geometry, IGeometryLonLatMultiPolygon));
-    Result :=
-      CreatePoly(
-        VPoly,
-        ASource.Name,
-        ASource.Desc,
-        VCategory,
-        ASource.Appearance
-      );
-  end;
+  Result :=
+    CreateMark(
+      AGeometry,
+      ASource.Name,
+      ASource.Desc,
+      VCategory,
+      ASource.Appearance
+    );
 end;
 
 function TMarkFactory.PrepareAppearence(
@@ -650,43 +417,19 @@ function TMarkFactory.ReplaceCategory(
   const AMark: IVectorDataItem;
   const ACategory: ICategory
 ): IVectorDataItem;
-var
-  VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
 begin
   Result := nil;
   if AMark = nil then begin
     Exit;
   end;
-  if Supports(AMark.Geometry, IGeometryLonLatPoint, VPoint) then begin
-    Result :=
-      CreatePoint(
-        VPoint,
-        AMark.Name,
-        AMark.Desc,
-        ACategory,
-        AMark.Appearance
-      );
-  end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
-    Result :=
-      CreateLine(
-        VLine,
-        AMark.Name,
-        AMark.Desc,
-        ACategory,
-        AMark.Appearance
-      );
-  end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
-    Result :=
-      CreatePoly(
-        VPoly,
-        AMark.Name,
-        AMark.Desc,
-        ACategory,
-        AMark.Appearance
-      );
-  end;
+  Result :=
+    CreateMark(
+      AMark.Geometry,
+      AMark.Name,
+      AMark.Desc,
+      ACategory,
+      AMark.Appearance
+    );
 end;
 
 function TMarkFactory.GetConfig: IMarkFactoryConfig;

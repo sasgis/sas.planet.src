@@ -317,9 +317,7 @@ var
   i: TCSVPointFieldType;
   VPointName, VPointDesc: String;
   VItem: IVectorDataItem;
-  VPoint: IGeometryLonLatPoint;
-  VPath: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VGeometry: IGeometryLonLat;
 begin
   if APointsAggregator.Count=0 then
     Exit;
@@ -338,40 +336,25 @@ begin
       _AppendStr(VPointName, ' ', AOldValues^.Items[i]);
     end;
   end;
-
+  VGeometry := nil;
   if APointsAggregator.Count=1 then begin
-    // make
     if not PointIsEmpty(APointsAggregator.Points[0]) then begin
-      VPoint := AGeometryFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
-      VItem :=
-        AVectorDataFactory.BuildItem(
-          AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, VPointName, VPointDesc),
-          nil,
-          VPoint
-        );
+      VGeometry := AGeometryFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
     end;
   end else if (APointsAggregator.Count>2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count-1]) then begin
-    VPoly := AGeometryFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, APointsAggregator.Count);
-    if Assigned(VPoly) then begin
-      // make
-      VItem :=
-        AVectorDataFactory.BuildItem(
-          AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, VPointName, VPointDesc),
-          nil,
-          VPoly
-        );
-    end;
+    VGeometry := AGeometryFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, APointsAggregator.Count);
   end else begin
-    VPath := AGeometryFactory.CreateLonLatMultiLine(APointsAggregator.Points, APointsAggregator.Count);
-    if Assigned(VPath) then begin
-      // make
-      VItem :=
-        AVectorDataFactory.BuildItem(
-          AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, VPointName, VPointDesc),
-          nil,
-          VPath
-        );
-    end;
+    VGeometry := AGeometryFactory.CreateLonLatMultiLine(APointsAggregator.Points, APointsAggregator.Count);
+  end;
+  VItem := nil;
+  if Assigned(VGeometry) then begin
+    // make
+    VItem :=
+      AVectorDataFactory.BuildItem(
+        AVectorDataItemMainInfoFactory.BuildMainInfo(AIdData, VPointName, VPointDesc),
+        nil,
+        VGeometry
+      );
   end;
 
   if (VItem <> nil) then begin

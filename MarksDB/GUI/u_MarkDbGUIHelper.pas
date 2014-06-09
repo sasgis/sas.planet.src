@@ -581,13 +581,11 @@ begin
   if VName = '' then begin
     VName := '(NoName)';
   end;
-  if IsEqualGUID(AMarkId.MarkType, IGeometryLonLatPoint) then begin
-    VFormat := VPointCaptionFormat;
-  end else if IsEqualGUID(AMarkId.MarkType, IGeometryLonLatMultiLine) then begin
-    VFormat := VPathCaptionFormat;
-  end else if IsEqualGUID(AMarkId.MarkType, IGeometryLonLatMultiPolygon) then begin
-    VFormat := VPolygonCaptionFormat;
-  end else begin
+  case AMarkId.MarkType of
+    midPoint: VFormat := VPointCaptionFormat;
+    midLine: VFormat := VPathCaptionFormat;
+    midPoly: VFormat := VPolygonCaptionFormat;
+  else
     VFormat := '%0:s';
   end;
   Result := Format(VFormat, [AMarkId.Name]);

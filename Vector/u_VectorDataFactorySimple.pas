@@ -53,21 +53,6 @@ type
   TVectorDataFactorySimple = class(TBaseInterfacedObject, IVectorDataFactory)
   private
     FHashFunction: IHashFunction;
-    function BuildPoint(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const APoint: IGeometryLonLatPoint
-    ): IVectorDataItem;
-    function BuildPath(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const ALine: IGeometryLonLatMultiLine
-    ): IVectorDataItem;
-    function BuildPoly(
-      const AMainInfo: IVectorDataItemMainInfo;
-      const AAppearance: IAppearance;
-      const APoly: IGeometryLonLatMultiPolygon
-    ): IVectorDataItem;
   private
     function BuildItem(
       const AMainInfo: IVectorDataItemMainInfo;
@@ -103,33 +88,11 @@ function TVectorDataFactorySimple.BuildItem(
   const AGeometry: IGeometryLonLat
 ): IVectorDataItem;
 var
-  VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
-begin
-  Result := nil;
-  if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
-    Result := BuildPoint(AMainInfo, AAppearance, VPoint);
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
-    Result := BuildPath(AMainInfo, AAppearance, VLine);
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
-    Result := BuildPoly(AMainInfo, AAppearance, VPoly);
-  end else begin
-    Assert(False);
-  end;
-end;
-
-function TVectorDataFactorySimple.BuildPath(
-  const AMainInfo: IVectorDataItemMainInfo;
-  const AAppearance: IAppearance;
-  const ALine: IGeometryLonLatMultiLine
-): IVectorDataItem;
-var
   VHash: THashValue;
 begin
-  Assert(Assigned(ALine));
+  Assert(Assigned(AGeometry));
   Assert(Assigned(AMainInfo));
-  VHash := ALine.Hash;
+  VHash := AGeometry.Hash;
   FHashFunction.UpdateHashByHash(VHash, AMainInfo.Hash);
   if Assigned(AAppearance) then begin
     FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
@@ -139,53 +102,7 @@ begin
       VHash,
       AAppearance,
       AMainInfo,
-      ALine
-    );
-end;
-
-function TVectorDataFactorySimple.BuildPoint(
-  const AMainInfo: IVectorDataItemMainInfo;
-  const AAppearance: IAppearance;
-  const APoint: IGeometryLonLatPoint
-): IVectorDataItem;
-var
-  VHash: THashValue;
-begin
-  Assert(Assigned(APoint));
-  VHash := APoint.Hash;
-  FHashFunction.UpdateHashByHash(VHash, AMainInfo.Hash);
-  if Assigned(AAppearance) then begin
-    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  end;
-  Result :=
-    TVectorDataItem.Create(
-      VHash,
-      AAppearance,
-      AMainInfo,
-      APoint
-    );
-end;
-
-function TVectorDataFactorySimple.BuildPoly(
-  const AMainInfo: IVectorDataItemMainInfo;
-  const AAppearance: IAppearance;
-  const APoly: IGeometryLonLatMultiPolygon
-): IVectorDataItem;
-var
-  VHash: THashValue;
-begin
-  Assert(Assigned(APoly));
-  VHash := APoly.Hash;
-  FHashFunction.UpdateHashByHash(VHash, AMainInfo.Hash);
-  if Assigned(AAppearance) then begin
-    FHashFunction.UpdateHashByHash(VHash, AAppearance.Hash);
-  end;
-  Result :=
-    TVectorDataItem.Create(
-      VHash,
-      AAppearance,
-      AMainInfo,
-      APoly
+      AGeometry
     );
 end;
 
