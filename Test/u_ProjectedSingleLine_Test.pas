@@ -47,7 +47,6 @@ begin
 
   FPolygon :=
     TGeometryProjectedPolygon.Create(
-      nil,
       Addr(VPoints[0]),
       Length(VPoints)
     );
@@ -88,7 +87,7 @@ begin
   CheckTrue(FPolygon.IsRectIntersectPolygon(VRect));
 
   VRect := DoubleRect(4, 0, 5, 1);
-  CheckFalse(FPolygon.IsRectIntersectPolygon(VRect));
+  CheckTrue(FPolygon.IsRectIntersectPolygon(VRect));
 
   VRect := DoubleRect(4, 6, 5, 7);
   CheckFalse(FPolygon.IsRectIntersectPolygon(VRect));
@@ -100,7 +99,7 @@ begin
   CheckFalse(FPolygon.IsRectIntersectPolygon(VRect));
 
   VRect := DoubleRect(4, 8, 5, 9);
-  FPolygon.IsRectIntersectPolygon(VRect); // Этот сулчай пока игнорим
+  CheckTrue(FPolygon.IsRectIntersectPolygon(VRect));
 end;
 
 initialization
