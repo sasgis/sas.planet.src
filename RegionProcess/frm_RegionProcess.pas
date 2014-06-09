@@ -535,7 +535,7 @@ end;
 
 procedure TfrmRegionProcess.SpeedButton_mkMarkClick(Sender: TObject);
 begin
-  if (FLastSelectionInfo.Polygon <> nil) then FMarkDBGUI.SavePolyModal(nil, FLastSelectionInfo.Polygon);
+  if (FLastSelectionInfo.Polygon <> nil) then FMarkDBGUI.SaveMarkModal(nil, FLastSelectionInfo.Polygon);
 end;
 
 procedure TfrmRegionProcess.StartSlsFromFile(const AFileName: string);

@@ -46,6 +46,7 @@ uses
   u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_InterfaceListStatic,
+  i_GeometryLonLatFactory,
   i_LocalCoordConverterChangeable,
   i_NavigationToPoint,
   i_UsedMarksConfig,
@@ -161,6 +162,7 @@ type
     FCategoryList: IInterfaceListStatic;
     FMarksList: IInterfaceListStatic;
     FMarkDBGUI: TMarkDbGUIHelper;
+    FGeometryLonLatFactory: IGeometryLonLatFactory;
     FMarksShowConfig: IUsedMarksConfig;
     FWindowConfig: IWindowPositionConfig;
     FViewPortState: ILocalCoordConverterChangeable;
@@ -196,6 +198,7 @@ type
     constructor Create(
       AUseAsIndepentWindow: Boolean;
       const ALanguageManager: ILanguageManager;
+      const AGeometryLonLatFactory: IGeometryLonLatFactory;
       const AViewPortState: ILocalCoordConverterChangeable;
       const ANavToPoint: INavigationToPoint;
       const AWindowConfig: IWindowPositionConfig;
@@ -229,6 +232,7 @@ uses
 constructor TfrmMarksExplorer.Create(
   AUseAsIndepentWindow: Boolean;
   const ALanguageManager: ILanguageManager;
+  const AGeometryLonLatFactory: IGeometryLonLatFactory;
   const AViewPortState: ILocalCoordConverterChangeable;
   const ANavToPoint: INavigationToPoint;
   const AWindowConfig: IWindowPositionConfig;
@@ -241,6 +245,7 @@ begin
   inherited Create(ALanguageManager);
   FUseAsIndepentWindow := AUseAsIndepentWindow;
   FMarkDBGUI := AMarkDBGUI;
+  FGeometryLonLatFactory := AGeometryLonLatFactory;
   FMapGoto := AMapGoto;
   FWindowConfig := AWindowConfig;
   FMarksShowConfig := AMarksShowConfig;
@@ -921,6 +926,7 @@ var
   VPointTemplate: IMarkTemplatePoint;
   VTemplateConfig: IMarkPointTemplateConfig;
   VCategory: ICategory;
+  VPoint: IGeometryLonLatPoint;
 begin
   VLonLat := FViewPortState.GetStatic.GetCenterLonLat;
   VCategory := GetSelectedCategory;
@@ -934,7 +940,8 @@ begin
         VCategory
       );
   end;
-  FMarkDBGUI.AddNewPointModal(VLonLat, VPointTemplate);
+  VPoint := FGeometryLonLatFactory.CreateLonLatPoint(VLonLat);
+  FMarkDBGUI.SaveMarkModal(nil, VPoint, False, '', VPointTemplate);
 end;
 
 procedure TfrmMarksExplorer.tbitmMarkInfoClick(Sender: TObject);

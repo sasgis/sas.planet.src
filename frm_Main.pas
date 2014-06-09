@@ -1474,6 +1474,7 @@ begin
       TfrmMarksExplorer.Create(
         False,
         GState.Config.LanguageManager,
+        GState.VectorGeometryLonLatFactory,
         FViewPortState.View,
         FConfig.NavToPoint,
         FConfig.MarksExplorerWindowConfig,
@@ -3984,6 +3985,7 @@ var
   VConverter: ICoordConverter;
   VZoomCurr: Byte;
   VMouseLonLat: TDoublePoint;
+  VPoint: IGeometryLonLatPoint;
 begin
   VLocalConverter := FViewPortState.View.GetStatic;
   VZoomCurr := VLocalConverter.GetZoom;
@@ -3991,7 +3993,8 @@ begin
   VMouseMapPoint := VLocalConverter.LocalPixel2MapPixelFloat(FMouseState.GetLastDownPos(mbRight));
   VConverter.CheckPixelPosFloatStrict(VMouseMapPoint, VZoomCurr, True);
   VMouseLonLat := VConverter.PixelPosFloat2LonLat(VMouseMapPoint, VZoomCurr);
-  if FMarkDBGUI.AddNewPointModal(VMouseLonLat) then begin
+  VPoint := GState.VectorGeometryLonLatFactory.CreateLonLatPoint(VMouseLonLat);
+  if FMarkDBGUI.SaveMarkModal(nil, VPoint) then begin
     FState.State := ao_movemap;
   end;
 end;
@@ -4835,7 +4838,7 @@ var
 begin
   VAllPoints := GState.GpsTrackRecorder.GetAllPoints;
   if VAllPoints.Count > 0 then begin
-    if FMarkDBGUI.SaveLineModal(nil, VAllPoints, '') then begin
+    if FMarkDBGUI.SaveMarkModal(nil, VAllPoints) then begin
       FState.State := ao_movemap;
     end;
   end else begin
@@ -5380,6 +5383,7 @@ var
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
   VPoly: IGeometryLonLatMultiPolygon;
+  VPoint: IGeometryLonLatPoint;
   VMapMoving: Boolean;
   VMapType: IMapType;
   VValidPoint: Boolean;
@@ -5460,7 +5464,8 @@ begin
     end;
     if (FState.State = ao_edit_point) then begin
       FPointOnMapEdit.Point := VLonLat;
-      if(FMarkDBGUI.SavePointModal(FEditMarkPoint, FPointOnMapEdit.Point)) then begin
+      VPoint := GState.VectorGeometryLonLatFactory.CreateLonLatPoint(FPointOnMapEdit.Point);
+      if FMarkDBGUI.SaveMarkModal(FEditMarkPoint, VPoint) then begin
         FState.State := ao_movemap;
       end;
       movepoint:=false;
@@ -5846,12 +5851,12 @@ begin
   case FState.State of
     ao_edit_poly: begin
       if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
-        VResult := FMarkDBGUI.SavePolyModal(FEditMarkPoly, VPolygonEdit.Polygon);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon);
       end;
     end;
     ao_edit_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        VResult := FMarkDBGUI.SaveLineModal(FEditMarkLine, VPathEdit.Path, FMarshrutComment);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path, False, FMarshrutComment);
       end;
     end;
   end;
@@ -5870,12 +5875,12 @@ begin
   case FState.State of
     ao_edit_poly: begin
       if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
-        VResult := FMarkDBGUI.SavePolyModal(FEditMarkPoly, VPolygonEdit.Polygon, True);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon, True);
       end;
     end;
     ao_edit_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        VResult := FMarkDBGUI.SaveLineModal(FEditMarkLine, VPathEdit.Path, FMarshrutComment, True);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path, True, FMarshrutComment);
       end;
     end;
   end;
@@ -6178,6 +6183,7 @@ procedure TfrmMain.tbitmSaveCurrentPositionClick(Sender: TObject);
 var
   VPosition: IGPSPosition;
   VLonLat: TDoublePoint;
+  VPoint: IGeometryLonLatPoint;
 begin
   VPosition := GState.GPSRecorder.CurrentPosition;
 
@@ -6186,8 +6192,9 @@ begin
   end else begin
     VLonLat := FViewPortState.View.GetStatic.GetCenterLonLat;
   end;
+  VPoint := GState.VectorGeometryLonLatFactory.CreateLonLatPoint(VLonLat);
 
-  if FMarkDBGUI.AddNewPointModal(VLonLat) then begin
+  if FMarkDBGUI.SaveMarkModal(nil, VPoint) then begin
     FState.State := ao_movemap;
   end;
 end;
