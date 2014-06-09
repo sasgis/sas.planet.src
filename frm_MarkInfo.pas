@@ -57,8 +57,10 @@ type
     function GetTextForMark(const AMark: IVectorDataItem): string;
     function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
     function GetTextForPoint(const APoint: IGeometryLonLatPoint): string;
-    function GetTextForPath(const ALine: IGeometryLonLatMultiLine): string;
-    function GetTextForPoly(const APoly: IGeometryLonLatMultiPolygon): string;
+    function GetTextForLine(const ALine: IGeometryLonLatLine): string;
+    function GetTextForMultiLine(const ALine: IGeometryLonLatMultiLine): string;
+    function GetTextForPoly(const APoly: IGeometryLonLatPolygon): string;
+    function GetTextForMultiPoly(const APoly: IGeometryLonLatMultiPolygon): string;
   public
     procedure ShowInfoModal(const AMark: IVectorDataItem);
   public
@@ -86,7 +88,7 @@ type
 
   TCalcAreaThread = class(TThread)
   private
-    FPoly: IGeometryLonLatMultiPolygon;
+    FPoly: IGeometryLonLat;
     FGeoCalc: IGeoCalc;
     FArea: Double;
     FOnFinish: TOnAreaCalc;
@@ -97,7 +99,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      const APoly: IGeometryLonLatMultiPolygon;
+      const APoly: IGeometryLonLat;
       const AGeoCalc: IGeoCalc;
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Cardinal;
@@ -108,7 +110,7 @@ type
 { TCalcAreaThread }
 
 constructor TCalcAreaThread.Create(
-  const APoly: IGeometryLonLatMultiPolygon;
+  const APoly: IGeometryLonLat;
   const AGeoCalc: IGeoCalc;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Cardinal;
@@ -133,9 +135,18 @@ begin
 end;
 
 procedure TCalcAreaThread.Execute;
+var
+  VPoly: IGeometryLonLatPolygon;
+  VMultiPoly: IGeometryLonLatMultiPolygon;
 begin
   SetCurrentThreadName(Self.ClassName);
-  FArea := FGeoCalc.CalcMultiPolygonArea(FPoly, FCancelNotifier, FOperationID);
+  if Supports(FPoly, IGeometryLonLatPolygon, VPoly) then begin
+    FArea := FGeoCalc.CalcPolygonArea(VPoly, FCancelNotifier, FOperationID);
+  end else if Supports(FPoly, IGeometryLonLatMultiPolygon, VMultiPoly) then begin
+    FArea := FGeoCalc.CalcMultiPolygonArea(VMultiPoly, FCancelNotifier, FOperationID);
+  end else begin
+    FArea := -1;
+  end;
   if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
     Terminate;
   end else begin
@@ -170,18 +181,33 @@ function TfrmMarkInfo.GetTextForGeometry(
 ): string;
 var
   VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VLine: IGeometryLonLatLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatPolygon;
+  VMultiPoly: IGeometryLonLatMultiPolygon;
 begin
   if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
     Result := GetTextForPoint(VPoint);
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
-    Result := GetTextForPath(VLine);
-  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+    Result := GetTextForLine(VLine);
+  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
+    Result := GetTextForMultiLine(VMultiLine);
+  end else if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
     Result := GetTextForPoly(VPoly);
     if IsNan(FArea) then begin
       TCalcAreaThread.Create(
         VPoly,
+        FGeoCalc,
+        FCancelNotifier,
+        FCancelNotifier.CurrentOperation,
+        Self.OnAreaCalc
+      );
+    end;
+  end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiPoly) then begin
+    Result := GetTextForMultiPoly(VMultiPoly);
+    if IsNan(FArea) then begin
+      TCalcAreaThread.Create(
+        VMultiPoly,
         FGeoCalc,
         FCancelNotifier,
         FCancelNotifier.CurrentOperation,
@@ -210,7 +236,24 @@ begin
   Result := Result + GetTextForGeometry(AMark.Geometry);
 end;
 
-function TfrmMarkInfo.GetTextForPath(const ALine: IGeometryLonLatMultiLine): string;
+function TfrmMarkInfo.GetTextForLine(const ALine: IGeometryLonLatLine): string;
+var
+  VLength: Double;
+  VPartsCount: Integer;
+  VPointsCount: Integer;
+  VConverter: IValueToStringConverter;
+begin
+  VPartsCount := 1;
+  VPointsCount := ALine.Count;
+  VLength := FGeoCalc.CalcLineLength(ALine);
+  VConverter := FValueToStringConverter.GetStatic;
+  Result := '';
+  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
+  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
+  Result := Result + Format(_('Length: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
+end;
+
+function TfrmMarkInfo.GetTextForMultiLine(const ALine: IGeometryLonLatMultiLine): string;
 var
   VLength: Double;
   VPartsCount: Integer;
@@ -240,7 +283,29 @@ begin
   Result := Result + Format(_('Coordinates: %s'), [VConverter.LonLatConvert(APoint.Point)]) + #13#10;
 end;
 
-function TfrmMarkInfo.GetTextForPoly(const APoly: IGeometryLonLatMultiPolygon): string;
+function TfrmMarkInfo.GetTextForPoly(const APoly: IGeometryLonLatPolygon): string;
+var
+  VLength: Double;
+  VPartsCount: Integer;
+  VPointsCount: Integer;
+  VConverter: IValueToStringConverter;
+begin
+  VPartsCount := 1;
+  VPointsCount := APoly.Count;
+  VLength := FGeoCalc.CalcPolygonPerimeter(APoly);
+  VConverter := FValueToStringConverter.GetStatic;
+  Result := '';
+  Result := Result + Format(_('Parts count: %d'), [VPartsCount]) + #13#10;
+  Result := Result + Format(_('Points count: %d'), [VPointsCount]) + #13#10;
+  Result := Result + Format(_('Perimeter: %s'), [VConverter.DistConvert(VLength)]) + #13#10;
+  if not IsNan(FArea) then begin
+    Result := Result + Format(_('Area: %s'), [VConverter.AreaConvert(FArea)]) + #13#10;
+  end else begin
+    Result := Result + Format(_('Area: %s'), [_('calc...')]) + #13#10;
+  end;
+end;
+
+function TfrmMarkInfo.GetTextForMultiPoly(const APoly: IGeometryLonLatMultiPolygon): string;
 var
   VLength: Double;
   VPartsCount: Integer;

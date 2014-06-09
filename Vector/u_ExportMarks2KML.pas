@@ -293,6 +293,22 @@ begin
       VCoordinates := R2StrPoint(X) + ',' + R2StrPoint(Y) + ',0 ';
     end;
     currNode.ChildValues['coordinates'] := VCoordinates;
+  end else if Supports(AMark.Geometry, IGeometryLonLatLine, VLonLatPathLine) then begin
+    // <Placemark><LineString><coordinates>
+    if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
+      with currNode.AddChild('Style') do begin
+        with AddChild('LineStyle') do begin
+          ChildValues['color'] := Color32toKMLColor(VAppearanceLine.LineColor);
+          ChildValues['width'] := R2StrPoint(VAppearanceLine.LineWidth);
+        end;
+      end;
+    end;
+    // simple object
+    currNode := currNode.AddChild('LineString');
+    currNode.ChildValues['extrude'] := 1;
+    VLonLatPathLine := VLonLatPath.Item[0];
+    VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
+    currNode.ChildValues['coordinates'] := VCoordinates;
   end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine, VLonLatPath) then begin
     // <Placemark><MultiGeometry><LineString></LineString><LineString>...
     // <Placemark><LineString><coordinates>
@@ -325,6 +341,36 @@ begin
       VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
       currNode.ChildValues['coordinates'] := VCoordinates;
     end;
+  end else if Supports(AMark.Geometry, IGeometryLonLatPolygon, VLonLatPolygonLine) then begin
+    // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
+    if not Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+      VAppearanceBorder := nil;
+    end;
+    if not Supports(AMark.Appearance, IAppearancePolygonFill, VAppearanceFill) then begin
+      VAppearanceFill := nil;
+    end;
+    if (VAppearanceBorder <> nil) or (VAppearanceFill <> nil) then begin
+      with currNode.AddChild('Style') do begin
+        if VAppearanceBorder <> nil then begin
+          with AddChild('LineStyle') do begin
+            ChildValues['color'] := Color32toKMLColor(VAppearanceBorder.LineColor);
+            ChildValues['width'] := R2StrPoint(VAppearanceBorder.LineWidth);
+          end;
+        end;
+        if VAppearanceFill <> nil then begin
+          with AddChild('PolyStyle') do begin
+            ChildValues['color'] := Color32toKMLColor(VAppearanceFill.FillColor);
+            ChildValues['fill'] := 1;
+          end;
+        end;
+      end;
+    end;
+    // simple object
+    currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
+    currNode.ChildValues['extrude'] := 1;
+    VLonLatPolygonLine := VLonLatPolygon.Item[0];
+    VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
+    currNode.ChildValues['coordinates'] := VCoordinates;
   end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon, VLonLatPolygon) then begin
     // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
     // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>

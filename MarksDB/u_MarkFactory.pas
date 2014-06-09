@@ -145,9 +145,6 @@ function TMarkFactory.CreateNewMark(
   const ATemplate: IMarkTemplate = nil
 ): IVectorDataItem;
 var
-  VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
   VTemplate: IMarkTemplate;
   VName: string;
   VCategory: ICategory;
@@ -155,15 +152,15 @@ begin
   Result := nil;
   VTemplate := ATemplate;
   if VTemplate = nil then begin
-    if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
+    if Supports(AGeometry, IGeometryLonLatPoint) then begin
       VTemplate := FConfig.PointTemplateConfig.DefaultTemplate;
-    end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+    end else if Supports(AGeometry, IGeometryLonLatLine) then begin
       VTemplate := FConfig.LineTemplateConfig.DefaultTemplate;
-    end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
+    end else if Supports(AGeometry, IGeometryLonLatMultiLine) then begin
       VTemplate := FConfig.LineTemplateConfig.DefaultTemplate;
-    end else if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
+    end else if Supports(AGeometry, IGeometryLonLatPolygon) then begin
       VTemplate := FConfig.PolyTemplateConfig.DefaultTemplate;
-    end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+    end else if Supports(AGeometry, IGeometryLonLatMultiPolygon) then begin
       VTemplate := FConfig.PolyTemplateConfig.DefaultTemplate;
     end;
   end;
