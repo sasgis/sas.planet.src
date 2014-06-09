@@ -395,6 +395,7 @@
     <DCCReference Include="Geometry\i_GeometryProjected.pas" />
     <DCCReference Include="Geometry\i_GeometryProjectedFactory.pas" />
     <DCCReference Include="Geometry\i_GeometryProjectedProvider.pas" />
+    <DCCReference Include="Geometry\i_ProjectedCalc.pas" />
     <DCCReference Include="Geometry\u_DoublePointsAggregator.pas" />
     <DCCReference Include="Geometry\u_EnumDoublePointByLineSet.pas" />
     <DCCReference Include="Geometry\u_EnumDoublePointBySingleLine.pas" />
@@ -419,6 +420,7 @@
     <DCCReference Include="Geometry\u_GeometryProjectedFactory.pas" />
     <DCCReference Include="Geometry\u_GeometryProjectedMulti.pas" />
     <DCCReference Include="Geometry\u_GeometryProjectedProvider.pas" />
+    <DCCReference Include="Geometry\u_ProjectedCalc.pas" />
     <DCCReference Include="GPS\i_GPS.pas" />
     <DCCReference Include="GPS\i_GPSConfig.pas" />
     <DCCReference Include="GPS\i_GPSModule.pas" />

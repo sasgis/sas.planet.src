@@ -415,6 +415,8 @@ uses
   u_VectorItemSubsetChangeableForMarksLayer in 'Vector\u_VectorItemSubsetChangeableForMarksLayer.pas',
   u_VectorItemSubsetChangeableBySearchResult in 'Vector\u_VectorItemSubsetChangeableBySearchResult.pas',
   u_GeoFunc in 'u_GeoFunc.pas',
+  i_ProjectedCalc in 'Geometry\i_ProjectedCalc.pas',
+  u_ProjectedCalc in 'Geometry\u_ProjectedCalc.pas',
   u_GeometryFunc in 'Geometry\u_GeometryFunc.pas',
   i_EnumDoublePoint in 'Geometry\i_EnumDoublePoint.pas',
   i_DoublePointFilter in 'Geometry\i_DoublePointFilter.pas',
