@@ -34,13 +34,13 @@ type
   private
     FDatum: IDatum;
   private
-    function CalcLineLength(const ALine: IGeometryLonLatLine): Double;
+    function CalcLineLength(const ALine: IGeometryLonLatSingleLine): Double;
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
 
-    function CalcPolygonPerimeter(const ALine: IGeometryLonLatPolygon): Double;
+    function CalcPolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
     function CalcPolygonArea(
-      const ALine: IGeometryLonLatPolygon;
+      const ALine: IGeometryLonLatSinglePolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
@@ -70,7 +70,7 @@ begin
   FDatum := ADatum;
 end;
 
-function TGeoCalc.CalcLineLength(const ALine: IGeometryLonLatLine): Double;
+function TGeoCalc.CalcLineLength(const ALine: IGeometryLonLatSingleLine): Double;
 var
   VEnum: IEnumLonLatPoint;
   VPrevPoint: TDoublePoint;
@@ -125,7 +125,7 @@ begin
 end;
 
 function TGeoCalc.CalcPolygonArea(
-  const ALine: IGeometryLonLatPolygon;
+  const ALine: IGeometryLonLatSinglePolygon;
   const ANotifier: INotifierOperation;
   const AOperationID: Integer
 ): Double;
@@ -141,7 +141,7 @@ begin
 end;
 
 function TGeoCalc.CalcPolygonPerimeter(
-  const ALine: IGeometryLonLatPolygon
+  const ALine: IGeometryLonLatSinglePolygon
 ): Double;
 var
   VEnum: IEnumLonLatPoint;

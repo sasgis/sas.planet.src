@@ -23,12 +23,12 @@ type
       const ARect: TDoubleRect;
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): IGeometryLonLatLine;
+    ): IGeometryLonLatSingleLine;
     function CreateLonLatPolygonInternal(
       const ARect: TDoubleRect;
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): IGeometryLonLatPolygon;
+    ): IGeometryLonLatSinglePolygon;
   private
     function CreateLonLatPoint(
       const APoint: TDoublePoint
@@ -36,11 +36,11 @@ type
     function CreateLonLatLine(
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): IGeometryLonLatLine;
+    ): IGeometryLonLatSingleLine;
     function CreateLonLatPolygon(
       const APoints: PDoublePointArray;
       ACount: Integer
-    ): IGeometryLonLatPolygon;
+    ): IGeometryLonLatSinglePolygon;
 
     function MakeGeometryLonLatMultiLineBuilder(): IGeometryLonLatMultiLineBuilder;
     function MakeGeometryLonLatMultiPolygonBuilder(): IGeometryLonLatMultiPolygonBuilder;
@@ -64,7 +64,7 @@ type
 
     function CreateLonLatPolygonLineByRect(
       const ARect: TDoubleRect
-    ): IGeometryLonLatPolygon;
+    ): IGeometryLonLatSinglePolygon;
     function CreateLonLatMultiPolygonByRect(
       const ARect: TDoubleRect
     ): IGeometryLonLatMultiPolygon;
@@ -106,10 +106,10 @@ type
     FEmpty: IGeometryLonLatMultiLine;
     FHash: THashValue;
     FBounds: TDoubleRect;
-    FLine: IGeometryLonLatLine;
+    FLine: IGeometryLonLatSingleLine;
     FList: IInterfaceListSimple;
   private
-    procedure Add(const AElement: IGeometryLonLatLine);
+    procedure Add(const AElement: IGeometryLonLatSingleLine);
 
     function MakeStaticAndClear: IGeometryLonLatMultiLine;
     function MakeStaticCopy: IGeometryLonLatMultiLine;
@@ -133,7 +133,7 @@ begin
 end;
 
 procedure TGeometryLonLatMultiLineBuilder.Add(
-  const AElement: IGeometryLonLatLine
+  const AElement: IGeometryLonLatSingleLine
 );
 begin
   Assert(Assigned(AElement));
@@ -190,10 +190,10 @@ type
     FEmpty: IGeometryLonLatMultiPolygon;
     FHash: THashValue;
     FBounds: TDoubleRect;
-    FLine: IGeometryLonLatPolygon;
+    FLine: IGeometryLonLatSinglePolygon;
     FList: IInterfaceListSimple;
   private
-    procedure Add(const AElement: IGeometryLonLatPolygon);
+    procedure Add(const AElement: IGeometryLonLatSinglePolygon);
 
     function MakeStaticAndClear: IGeometryLonLatMultiPolygon;
     function MakeStaticCopy: IGeometryLonLatMultiPolygon;
@@ -217,7 +217,7 @@ begin
 end;
 
 procedure TGeometryLonLatMultiPolygonBuilder.Add(
-  const AElement: IGeometryLonLatPolygon
+  const AElement: IGeometryLonLatSinglePolygon
 );
 begin
   Assert(Assigned(AElement));
@@ -294,7 +294,7 @@ var
   VDatum : IDatum;
   VAngle: Double;
   VPoint: TDoublePoint;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
   VBounds: TDoubleRect;
 begin
   Assert(not PointIsEmpty(APos));
@@ -326,7 +326,7 @@ end;
 function TGeometryLonLatFactory.CreateLonLatLine(
   const APoints: PDoublePointArray;
   ACount: Integer
-): IGeometryLonLatLine;
+): IGeometryLonLatSingleLine;
 var
   i: Integer;
   VPoint: TDoublePoint;
@@ -366,7 +366,7 @@ begin
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygon(
-  const APoints: PDoublePointArray; ACount: Integer): IGeometryLonLatPolygon;
+  const APoints: PDoublePointArray; ACount: Integer): IGeometryLonLatSinglePolygon;
 var
   i: Integer;
   VPoint: TDoublePoint;
@@ -409,7 +409,7 @@ function TGeometryLonLatFactory.CreateLonLatLineInternal(
   const ARect: TDoubleRect;
   const APoints: PDoublePointArray;
   ACount: Integer
-): IGeometryLonLatLine;
+): IGeometryLonLatSingleLine;
 var
   VHash: THashValue;
   VRect: ILonLatRect;
@@ -420,14 +420,14 @@ begin
     VRect := TLonLatRectByPoint.Create(ARect.TopLeft);
   end;
   VHash := FHashFunction.CalcHashByBuffer(APoints, ACount * SizeOf(TDoublePoint));
-  Result := TGeometryLonLatLine.Create(VRect, VHash, APoints, ACount);
+  Result := TGeometryLonLatSingleLine.Create(VRect, VHash, APoints, ACount);
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygonInternal(
   const ARect: TDoubleRect;
   const APoints: PDoublePointArray;
   ACount: Integer
-): IGeometryLonLatPolygon;
+): IGeometryLonLatSinglePolygon;
 var
   VHash: THashValue;
   VRect: ILonLatRect;
@@ -441,7 +441,7 @@ begin
     VRect := TLonLatRectByPoint.Create(ARect.TopLeft);
   end;
   VHash := FHashFunction.CalcHashByBuffer(APoints, ACount * SizeOf(TDoublePoint));
-  Result := TGeometryLonLatPolygon.Create(VRect, VHash, APoints, ACount);
+  Result := TGeometryLonLatSinglePolygon.Create(VRect, VHash, APoints, ACount);
 end;
 
 function TGeometryLonLatFactory.CreateLonLatMultiLine(
@@ -449,7 +449,7 @@ function TGeometryLonLatFactory.CreateLonLatMultiLine(
   ACount: Integer
 ): IGeometryLonLatMultiLine;
 var
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
   i: Integer;
   VStart: PDoublePointArray;
   VLineLen: Integer;
@@ -503,7 +503,7 @@ function TGeometryLonLatFactory.CreateLonLatMultiLineByEnum(
 ): IGeometryLonLatMultiLine;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
   VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
@@ -611,7 +611,7 @@ function TGeometryLonLatFactory.CreateLonLatMultiPolygon(
   ACount: Integer
 ): IGeometryLonLatMultiPolygon;
 var
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
   i: Integer;
   VStart: PDoublePointArray;
   VLineLen: Integer;
@@ -709,7 +709,7 @@ function TGeometryLonLatFactory.CreateLonLatMultiPolygonByEnum(
 ): IGeometryLonLatMultiPolygon;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
   VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
@@ -806,7 +806,7 @@ function TGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
 ): IGeometryLonLatMultiPolygon;
 var
   i: Integer;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
   VEnum: IEnumLonLatPoint;
   VTemp: IDoublePointsAggregator;
   VPoint: TDoublePoint;
@@ -907,7 +907,7 @@ end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygonLineByRect(
   const ARect: TDoubleRect
-): IGeometryLonLatPolygon;
+): IGeometryLonLatSinglePolygon;
 var
   VPoints: array [0..4] of TDoublePoint;
 begin

@@ -127,7 +127,7 @@ type
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function GetCount: Integer;
-    function GetItem(AIndex: Integer): IGeometryLonLatLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
   public
     constructor Create(
       const ALine: IGeometryLonLatMultiLine;
@@ -146,7 +146,7 @@ type
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function GetCount: Integer;
-    function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
+    function GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
   public
     constructor Create(
       const ALine: IGeometryLonLatMultiPolygon;
@@ -479,7 +479,7 @@ end;
 procedure TPathOnMapEdit.SetPath(const AValue: ILonLatPathWithSelected);
 var
   i: Integer;
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
 begin
   LockWrite;
   try
@@ -542,7 +542,7 @@ end;
 procedure TPathOnMapEdit.SetPath(const AValue: IGeometryLonLatMultiLine);
 var
   i: Integer;
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
 begin
   LockWrite;
   try
@@ -597,7 +597,7 @@ end;
 procedure TPolygonOnMapEdit.SetPolygon(const AValue: ILonLatPolygonWithSelected);
 var
   i: Integer;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
 begin
   LockWrite;
   try
@@ -660,7 +660,7 @@ end;
 procedure TPolygonOnMapEdit.SetPolygon(const AValue: IGeometryLonLatMultiPolygon);
 var
   i: Integer;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
 begin
   LockWrite;
   try
@@ -737,7 +737,7 @@ var
   VSelectedSegmentIndex: Integer;
   VSelectedPointIndex: Integer;
   VSelectedPoint: TDoublePoint;
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
   i: Integer;
   VPointExists: Boolean;
 begin
@@ -804,7 +804,7 @@ begin
   Result := FLine.Hash;
 end;
 
-function TLonLatPathWithSelected.GetItem(AIndex: Integer): IGeometryLonLatLine;
+function TLonLatPathWithSelected.GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
 begin
   Result := FLine.Item[AIndex];
 end;
@@ -830,7 +830,7 @@ var
   VSelectedSegmentIndex: Integer;
   VSelectedPointIndex: Integer;
   VSelectedPoint: TDoublePoint;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
   i: Integer;
   VPointExists: Boolean;
 begin
@@ -898,7 +898,7 @@ begin
 end;
 
 function TLonLatPolygonWithSelected.GetItem(
-  AIndex: Integer): IGeometryLonLatPolygon;
+  AIndex: Integer): IGeometryLonLatSinglePolygon;
 begin
   Result := FLine.Item[AIndex];
 end;

@@ -383,11 +383,11 @@ begin
   Result := nil;
   if Supports(AMark.Geometry, IGeometryLonLatPoint) then begin
     Result := FfrmMarkEditPoint.EditMark(AMark, AIsNewMark, AVisible);
-  end else if Supports(AMark.Geometry, IGeometryLonLatLine) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatSingleLine) then begin
     Result := FfrmMarkEditPath.EditMark(AMark, AIsNewMark, AVisible);
   end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine) then begin
     Result := FfrmMarkEditPath.EditMark(AMark, AIsNewMark, AVisible);
-  end else if Supports(AMark.Geometry, IGeometryLonLatPolygon) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatSinglePolygon) then begin
     Result := FfrmMarkEditPoly.EditMark(AMark, AIsNewMark, AVisible);
   end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon) then begin
     Result := FfrmMarkEditPoly.EditMark(AMark, AIsNewMark, AVisible);

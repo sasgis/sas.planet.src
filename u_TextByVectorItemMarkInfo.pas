@@ -38,8 +38,8 @@ type
     function GetTextForGeometry(const AGeometry: IGeometryLonLat): string;
 
     function GetTextForGeometryPoint(const AGeometry: IGeometryLonLatPoint): string;
-    function GetTextForGeometryLine(const AGeometry: IGeometryLonLatLine): string;
-    function GetTextForGeometryPolygon(const AGeometry: IGeometryLonLatPolygon): string;
+    function GetTextForGeometryLine(const AGeometry: IGeometryLonLatSingleLine): string;
+    function GetTextForGeometryPolygon(const AGeometry: IGeometryLonLatSinglePolygon): string;
     function GetTextForGeometryMultiLine(const AGeometry: IGeometryLonLatMultiLine): string;
     function GetTextForGeometryMultiPolygon(const AGeometry: IGeometryLonLatMultiPolygon): string;
   private
@@ -77,16 +77,16 @@ function TTextByVectorItemMarkInfo.GetTextForGeometry(
 ): string;
 var
   VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatLine;
-  VPoly: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSingleLine;
+  VPoly: IGeometryLonLatSinglePolygon;
   VMultiLine: IGeometryLonLatMultiLine;
   VMultiPoly: IGeometryLonLatMultiPolygon;
 begin
   if Supports(AGeometry, IGeometryLonLatPoint, VPoint) then begin
     Result := GetTextForGeometryPoint(VPoint);
-  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+  end else if Supports(AGeometry, IGeometryLonLatSingleLine, VLine) then begin
     Result := GetTextForGeometryLine(VLine);
-  end else if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
+  end else if Supports(AGeometry, IGeometryLonLatSinglePolygon, VPoly) then begin
     Result := GetTextForGeometryPolygon(VPoly);
   end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
     Result := GetTextForGeometryMultiLine(VMultiLine);
@@ -98,7 +98,7 @@ begin
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForGeometryLine(
-  const AGeometry: IGeometryLonLatLine
+  const AGeometry: IGeometryLonLatSingleLine
 ): string;
 var
   VLength: Double;
@@ -177,7 +177,7 @@ begin
 end;
 
 function TTextByVectorItemMarkInfo.GetTextForGeometryPolygon(
-  const AGeometry: IGeometryLonLatPolygon
+  const AGeometry: IGeometryLonLatSinglePolygon
 ): string;
 var
   VLength: Double;

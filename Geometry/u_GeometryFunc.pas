@@ -54,7 +54,7 @@ begin
 end;
 
 function GetGeometryLonLatLineNearestPoint(
-  const AGeometry: IGeometryLonLatLine;
+  const AGeometry: IGeometryLonLatSingleLine;
   const AProjection: IProjectionInfo;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
@@ -95,7 +95,7 @@ begin
 end;
 
 function GetGeometryLonLatPolygonNearestPoint(
-  const AGeometry: IGeometryLonLatPolygon;
+  const AGeometry: IGeometryLonLatSinglePolygon;
   const AProjection: IProjectionInfo;
   const ACurrMapPixel: TDoublePoint;
   out APoint: TDoublePoint;
@@ -205,8 +205,8 @@ function GetGeometryLonLatNearestPoint(
 ): TDoublePoint;
 var
   VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatLine;
-  VPolygon: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSingleLine;
+  VPolygon: IGeometryLonLatSinglePolygon;
   VMultiLine: IGeometryLonLatMultiLine;
   VMultiPolygon: IGeometryLonLatMultiPolygon;
   VSqDist: Double;
@@ -233,13 +233,13 @@ begin
         Result := VLonLatPoint;
       end;
     end;
-  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+  end else if Supports(AGeometry, IGeometryLonLatSingleLine, VLine) then begin
     if GetGeometryLonLatLineNearestPoint(VLine, AProjection, ACurrMapPixel, VLonLatPoint, VDist) then begin
       if VDist <= VSqDist then begin
         Result := VLonLatPoint;
       end;
     end;
-  end else if Supports(AGeometry, IGeometryLonLatPolygon, VPolygon) then begin
+  end else if Supports(AGeometry, IGeometryLonLatSinglePolygon, VPolygon) then begin
     if GetGeometryLonLatPolygonNearestPoint(VPolygon, AProjection, ACurrMapPixel, VLonLatPoint, VDist) then begin
       if VDist <= VSqDist then begin
         Result := VLonLatPoint;

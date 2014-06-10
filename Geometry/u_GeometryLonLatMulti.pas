@@ -35,7 +35,7 @@ type
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
     function GetGoToPoint: TDoublePoint;
-    function GetItem(AIndex: Integer): IGeometryLonLatLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
   end;
 
   TGeometryLonLatMultiPolygon = class(TGeometryLonLatMultiBase, IGeometryLonLat, IGeometryLonLatMultiPolygon)
@@ -44,12 +44,12 @@ type
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
     function GetGoToPoint: TDoublePoint;
-    function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
+    function GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
   end;
 
   TLonLatPathOneLine = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatMultiLine)
   private
-    FLine: IGeometryLonLatLine;
+    FLine: IGeometryLonLatSingleLine;
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
@@ -58,16 +58,16 @@ type
     function GetGoToPoint: TDoublePoint;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
-    function GetItem(AIndex: Integer): IGeometryLonLatLine;
+    function GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
   public
     constructor Create(
-      const ALine: IGeometryLonLatLine
+      const ALine: IGeometryLonLatSingleLine
     );
   end;
 
   TLonLatPolygonOneLine = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatMultiPolygon)
   private
-    FLine: IGeometryLonLatPolygon;
+    FLine: IGeometryLonLatSinglePolygon;
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
@@ -76,10 +76,10 @@ type
     function GetGoToPoint: TDoublePoint;
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
-    function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
+    function GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
   public
     constructor Create(
-      const ALine: IGeometryLonLatPolygon
+      const ALine: IGeometryLonLatSinglePolygon
     );
   end;
 
@@ -133,9 +133,9 @@ begin
   Result := GetItem(0).GetGoToPoint;
 end;
 
-function TGeometryLonLatMultiLine.GetItem(AIndex: Integer): IGeometryLonLatLine;
+function TGeometryLonLatMultiLine.GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
 begin
-  if not Supports(FList[AIndex], IGeometryLonLatLine, Result) then begin
+  if not Supports(FList[AIndex], IGeometryLonLatSingleLine, Result) then begin
     Result := nil;
   end;
 end;
@@ -143,7 +143,7 @@ end;
 function TGeometryLonLatMultiLine.IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
 var
   i: Integer;
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
 begin
   if APath = IGeometryLonLatMultiLine(Self) then begin
     Result := True;
@@ -208,9 +208,9 @@ begin
   Result := FBounds.CalcRectCenter;
 end;
 
-function TGeometryLonLatMultiPolygon.GetItem(AIndex: Integer): IGeometryLonLatPolygon;
+function TGeometryLonLatMultiPolygon.GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
 begin
-  if not Supports(FList[AIndex], IGeometryLonLatPolygon, Result) then begin
+  if not Supports(FList[AIndex], IGeometryLonLatSinglePolygon, Result) then begin
     Result := nil;
   end;
 end;
@@ -218,7 +218,7 @@ end;
 function TGeometryLonLatMultiPolygon.IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
 var
   i: Integer;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
 begin
   if APolygon = IGeometryLonLatMultiPolygon(Self) then begin
     Result := True;
@@ -275,7 +275,7 @@ end;
 
 { TLonLatPathOneLine }
 
-constructor TLonLatPathOneLine.Create(const ALine: IGeometryLonLatLine);
+constructor TLonLatPathOneLine.Create(const ALine: IGeometryLonLatSingleLine);
 begin
   inherited Create;
   FLine := ALine;
@@ -306,7 +306,7 @@ begin
   Result := FLine.Hash;
 end;
 
-function TLonLatPathOneLine.GetItem(AIndex: Integer): IGeometryLonLatLine;
+function TLonLatPathOneLine.GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
 begin
   if AIndex = 0 then begin
     Result := FLine;
@@ -351,7 +351,7 @@ end;
 
 { TLonLatPolygonOneLine }
 
-constructor TLonLatPolygonOneLine.Create(const ALine: IGeometryLonLatPolygon);
+constructor TLonLatPolygonOneLine.Create(const ALine: IGeometryLonLatSinglePolygon);
 begin
   inherited Create;
   FLine := ALine;
@@ -382,7 +382,7 @@ begin
   Result := FLine.Hash;
 end;
 
-function TLonLatPolygonOneLine.GetItem(AIndex: Integer): IGeometryLonLatPolygon;
+function TLonLatPolygonOneLine.GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
 begin
   if AIndex = 0 then begin
     Result := FLine;

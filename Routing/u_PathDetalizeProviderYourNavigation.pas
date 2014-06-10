@@ -109,7 +109,7 @@ var
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
   VEnum: IEnumLonLatPoint;
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
   VRequest: IDownloadRequest;
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;

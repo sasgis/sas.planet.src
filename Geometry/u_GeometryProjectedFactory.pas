@@ -129,7 +129,7 @@ var
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   i: Integer;
-  VSourceLine: IGeometryLonLatPolygon;
+  VSourceLine: IGeometryLonLatSinglePolygon;
   VEnumLonLat: IEnumLonLatPoint;
   VEnumProjected: IEnumProjectedPoint;
   VBounds: TDoubleRect;
@@ -382,7 +382,7 @@ var
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
   i: Integer;
-  VSourceLine: IGeometryLonLatLine;
+  VSourceLine: IGeometryLonLatSingleLine;
   VEnumLonLat: IEnumLonLatPoint;
   VEnumProjected: IEnumProjectedPoint;
   VBounds: TDoubleRect;

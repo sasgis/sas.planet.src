@@ -15,8 +15,8 @@ type
   private
     FEnumLonLat: IEnumLonLatPoint;
   private
-    function GetItemLonLatPathLine(AIndex: Integer): IGeometryLonLatLine;
-    function GetItemLonLatPolygonLine(AIndex: Integer): IGeometryLonLatPolygon;
+    function GetItemLonLatPathLine(AIndex: Integer): IGeometryLonLatSingleLine;
+    function GetItemLonLatPolygonLine(AIndex: Integer): IGeometryLonLatSinglePolygon;
 
     function GetEnumLonLat: IEnumLonLatPoint;
   private
@@ -96,13 +96,13 @@ begin
   Result := 0;
 end;
 
-function TGeometryLonLatMultiEmpty.GetItemLonLatPathLine(AIndex: Integer): IGeometryLonLatLine;
+function TGeometryLonLatMultiEmpty.GetItemLonLatPathLine(AIndex: Integer): IGeometryLonLatSingleLine;
 begin
   Result := nil;
 end;
 
 function TGeometryLonLatMultiEmpty.GetItemLonLatPolygonLine(
-  AIndex: Integer): IGeometryLonLatPolygon;
+  AIndex: Integer): IGeometryLonLatSinglePolygon;
 begin
   Result := nil;
 end;

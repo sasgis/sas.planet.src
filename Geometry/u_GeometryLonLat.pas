@@ -50,11 +50,11 @@ type
     ); overload;
   end;
 
-  TGeometryLonLatLine = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatLine)
+  TGeometryLonLatSingleLine = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatSingleLine)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const ALine: IGeometryLonLatLine): Boolean;
+    function IsSame(const ALine: IGeometryLonLatSingleLine): Boolean;
     function GetGoToPoint: TDoublePoint;
   public
     constructor Create(
@@ -65,11 +65,11 @@ type
     );
   end;
 
-  TGeometryLonLatPolygon = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatPolygon)
+  TGeometryLonLatSinglePolygon = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatSinglePolygon)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
+    function IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
     function GetGoToPoint: TDoublePoint;
   public
     constructor Create(
@@ -87,7 +87,7 @@ uses
   u_GeoFunc,
   u_EnumDoublePointBySingleLine;
 
-{ TLineBase }
+{ TGeometryLonLatBase }
 
 constructor TGeometryLonLatBase.Create(
   AClosed: Boolean;
@@ -131,9 +131,9 @@ begin
   Result := @FPoints[0];
 end;
 
-{ TLonLatPathLine }
+{ TGeometryLonLatSingleLine }
 
-constructor TGeometryLonLatLine.Create(
+constructor TGeometryLonLatSingleLine.Create(
   const ABounds: ILonLatRect;
   const AHash: THashValue;
   const APoints: PDoublePointArray;
@@ -143,12 +143,12 @@ begin
   inherited Create(False, ABounds, AHash, APoints, ACount);
 end;
 
-function TGeometryLonLatLine.GetEnum: IEnumLonLatPoint;
+function TGeometryLonLatSingleLine.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, False, @FPoints[0], FCount);
 end;
 
-function TGeometryLonLatLine.GetGoToPoint: TDoublePoint;
+function TGeometryLonLatSingleLine.GetGoToPoint: TDoublePoint;
 begin
   if GetCount > 0 then begin
     Result := GetPoints[0];
@@ -157,12 +157,12 @@ begin
   end;
 end;
 
-function TGeometryLonLatLine.IsSame(const ALine: IGeometryLonLatLine): Boolean;
+function TGeometryLonLatSingleLine.IsSame(const ALine: IGeometryLonLatSingleLine): Boolean;
 var
   i: Integer;
   VPoints: PDoublePointArray;
 begin
-  if ALine = IGeometryLonLatLine(Self) then begin
+  if ALine = IGeometryLonLatSingleLine(Self) then begin
     Result := True;
     Exit;
   end;
@@ -193,9 +193,9 @@ begin
   end;
 end;
 
-function TGeometryLonLatLine.IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
+function TGeometryLonLatSingleLine.IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
 var
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
 begin
   if AGeometry = nil then begin
     Result := False;
@@ -211,14 +211,14 @@ begin
   end;
 
   Result := False;
-  if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
+  if Supports(AGeometry, IGeometryLonLatSingleLine, VLine) then begin
     Result := IsSame(VLine);
   end;
 end;
 
-{ TLonLatPolygonLine }
+{ TGeometryLonLatSinglePolygon }
 
-constructor TGeometryLonLatPolygon.Create(
+constructor TGeometryLonLatSinglePolygon.Create(
   const ABounds: ILonLatRect;
   const AHash: THashValue;
   const APoints: PDoublePointArray;
@@ -228,22 +228,22 @@ begin
   inherited Create(True, ABounds, AHash, APoints, ACount);
 end;
 
-function TGeometryLonLatPolygon.GetEnum: IEnumLonLatPoint;
+function TGeometryLonLatSinglePolygon.GetEnum: IEnumLonLatPoint;
 begin
   Result := TEnumDoublePointBySingleLonLatLine.Create(Self, True, @FPoints[0], FCount);
 end;
 
-function TGeometryLonLatPolygon.GetGoToPoint: TDoublePoint;
+function TGeometryLonLatSinglePolygon.GetGoToPoint: TDoublePoint;
 begin
   Result := FBounds.CalcRectCenter;
 end;
 
-function TGeometryLonLatPolygon.IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
+function TGeometryLonLatSinglePolygon.IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
 var
   i: Integer;
   VPoints: PDoublePointArray;
 begin
-  if ALine = IGeometryLonLatPolygon(Self) then begin
+  if ALine = IGeometryLonLatSinglePolygon(Self) then begin
     Result := True;
     Exit;
   end;
@@ -274,11 +274,11 @@ begin
   end;
 end;
 
-function TGeometryLonLatPolygon.IsSameGeometry(
+function TGeometryLonLatSinglePolygon.IsSameGeometry(
   const AGeometry: IGeometryLonLat
 ): Boolean;
 var
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
 begin
   if AGeometry = nil then begin
     Result := False;
@@ -294,7 +294,7 @@ begin
   end;
 
   Result := False;
-  if Supports(AGeometry, IGeometryLonLatPolygon, VLine) then begin
+  if Supports(AGeometry, IGeometryLonLatSinglePolygon, VLine) then begin
     Result := IsSame(VLine);
   end;
 end;

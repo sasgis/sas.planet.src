@@ -589,11 +589,11 @@ begin
           VParams := nil;
           if Supports(VMark.Geometry, IGeometryLonLatPoint) then begin
             VParams := VImportConfig.PointParams;
-          end else if Supports(VMark.Geometry, IGeometryLonLatLine) then begin
+          end else if Supports(VMark.Geometry, IGeometryLonLatSingleLine) then begin
             VParams := VImportConfig.LineParams;
           end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine) then begin
             VParams := VImportConfig.LineParams;
-          end else if Supports(VMark.Geometry, IGeometryLonLatPolygon) then begin
+          end else if Supports(VMark.Geometry, IGeometryLonLatSinglePolygon) then begin
             VParams := VImportConfig.PolyParams;
           end else if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon) then begin
             VParams := VImportConfig.PolyParams;

@@ -307,7 +307,7 @@ var
   VPoint: TExtendedPoint;
   VEnum: IEnumDoublePoint;
   VCurrPoint: TDoublePoint;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
 begin
   VField := TBlobfield(ABlobField);
   VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);

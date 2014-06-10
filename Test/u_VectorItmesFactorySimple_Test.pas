@@ -108,7 +108,7 @@ end;
 procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPathSimple;
 var
   VResult: IGeometryLonLatMultiLine;
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -145,7 +145,7 @@ end;
 procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPathTwoLines;
 var
   VResult: IGeometryLonLatMultiLine;
-  VLine: IGeometryLonLatLine;
+  VLine: IGeometryLonLatSingleLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -219,7 +219,7 @@ end;
 procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPolygonSimple;
 var
   VResult: IGeometryLonLatMultiPolygon;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -260,7 +260,7 @@ end;
 procedure TestTVectorItmesLonLatFactorySimple.CreateLonLatPolygonTwoLines;
 var
   VResult: IGeometryLonLatMultiPolygon;
-  VLine: IGeometryLonLatPolygon;
+  VLine: IGeometryLonLatSinglePolygon;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin

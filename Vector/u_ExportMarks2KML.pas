@@ -244,9 +244,9 @@ var
   VAppearanceFill: IAppearancePolygonFill;
   VLonLatPoint:  IGeometryLonLatPoint;
   VLonLatPolygon: IGeometryLonLatMultiPolygon;
-  VLonLatPolygonLine: IGeometryLonLatPolygon;
+  VLonLatPolygonLine: IGeometryLonLatSinglePolygon;
   VLonLatPath: IGeometryLonLatMultiLine;
-  VLonLatPathLine: IGeometryLonLatLine;
+  VLonLatPathLine: IGeometryLonLatSingleLine;
 begin
   currNode := inNode.AddChild('Placemark');
   currNode.ChildValues['name'] := XMLTextPrepare(AMark.Name);
@@ -293,7 +293,7 @@ begin
       VCoordinates := R2StrPoint(X) + ',' + R2StrPoint(Y) + ',0 ';
     end;
     currNode.ChildValues['coordinates'] := VCoordinates;
-  end else if Supports(AMark.Geometry, IGeometryLonLatLine, VLonLatPathLine) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatSingleLine, VLonLatPathLine) then begin
     // <Placemark><LineString><coordinates>
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
       with currNode.AddChild('Style') do begin
@@ -341,7 +341,7 @@ begin
       VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
       currNode.ChildValues['coordinates'] := VCoordinates;
     end;
-  end else if Supports(AMark.Geometry, IGeometryLonLatPolygon, VLonLatPolygonLine) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatSinglePolygon, VLonLatPolygonLine) then begin
     // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
     if not Supports(AMark.Appearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
       VAppearanceBorder := nil;

@@ -1050,7 +1050,7 @@ var
   VPrevPoint: TDoublePoint;
   VProjectedPoint: TDoublePoint;
   i, j: Integer;
-  VSigleLine: IGeometryLonLatLine;
+  VSigleLine: IGeometryLonLatSingleLine;
   VIndex: Integer;
   VSegmentIndex: Integer;
   VPointIndex: Integer;
@@ -1160,7 +1160,7 @@ var
   VPrevPoint: TDoublePoint;
   VProjectedPoint: TDoublePoint;
   i, j: Integer;
-  VSigleLine: IGeometryLonLatPolygon;
+  VSigleLine: IGeometryLonLatSinglePolygon;
   VIndex: Integer;
   VSegmentIndex: Integer;
   VPointIndex: Integer;

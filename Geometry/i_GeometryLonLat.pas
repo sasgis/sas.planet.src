@@ -50,8 +50,12 @@ type
   end;
 
   IGeometryLonLatLine = interface(IGeometryLonLat)
+    ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
+  end;
+
+  IGeometryLonLatSingleLine = interface(IGeometryLonLatLine)
     ['{F309D486-2E2A-4526-8BB8-A38A47E3C8FF}']
-    function IsSame(const ALine: IGeometryLonLatLine): Boolean;
+    function IsSame(const ALine: IGeometryLonLatSingleLine): Boolean;
 
     function GetEnum: IEnumLonLatPoint;
 
@@ -62,20 +66,7 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IGeometryLonLatPolygon = interface(IGeometryLonLat)
-    ['{C9FF5A32-B90D-43D2-9394-9E54A4F29905}']
-    function IsSame(const ALine: IGeometryLonLatPolygon): Boolean;
-
-    function GetEnum: IEnumLonLatPoint;
-
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function GetPoints: PDoublePointArray;
-    property Points: PDoublePointArray read GetPoints;
-  end;
-
-  IGeometryLonLatMultiLine = interface(IGeometryLonLat)
+  IGeometryLonLatMultiLine = interface(IGeometryLonLatLine)
     ['{5BB3E4AF-5420-4EDB-9DE0-D44FFA38519E}']
     function IsSame(const ALine: IGeometryLonLatMultiLine): Boolean;
 
@@ -84,11 +75,28 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): IGeometryLonLatLine;
-    property Item[AIndex: Integer]: IGeometryLonLatLine read GetItem;
+    function GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
+    property Item[AIndex: Integer]: IGeometryLonLatSingleLine read GetItem;
   end;
 
-  IGeometryLonLatMultiPolygon = interface(IGeometryLonLat)
+  IGeometryLonLatPolygon = interface(IGeometryLonLat)
+    ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
+  end;
+
+  IGeometryLonLatSinglePolygon = interface(IGeometryLonLatPolygon)
+    ['{C9FF5A32-B90D-43D2-9394-9E54A4F29905}']
+    function IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
+
+    function GetEnum: IEnumLonLatPoint;
+
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetPoints: PDoublePointArray;
+    property Points: PDoublePointArray read GetPoints;
+  end;
+
+  IGeometryLonLatMultiPolygon = interface(IGeometryLonLatPolygon)
     ['{E71E059B-8FB3-42AD-97BD-7777AC66C8F2}']
     function IsSame(const ALine: IGeometryLonLatMultiPolygon): Boolean;
 
@@ -97,8 +105,8 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): IGeometryLonLatPolygon;
-    property Item[AIndex: Integer]: IGeometryLonLatPolygon read GetItem;
+    function GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
+    property Item[AIndex: Integer]: IGeometryLonLatSinglePolygon read GetItem;
   end;
 
 implementation
