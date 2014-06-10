@@ -50,7 +50,7 @@ type
     ); overload;
   end;
 
-  TGeometryLonLatSingleLine = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatSingleLine)
+  TGeometryLonLatSingleLine = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatLine, IGeometryLonLatSingleLine)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
@@ -65,7 +65,7 @@ type
     );
   end;
 
-  TGeometryLonLatSinglePolygon = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatSinglePolygon)
+  TGeometryLonLatSinglePolygon = class(TGeometryLonLatBase, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatSinglePolygon)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;

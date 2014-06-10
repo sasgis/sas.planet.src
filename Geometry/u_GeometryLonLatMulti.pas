@@ -29,7 +29,7 @@ type
     );
   end;
 
-  TGeometryLonLatMultiLine = class(TGeometryLonLatMultiBase, IGeometryLonLat, IGeometryLonLatMultiLine)
+  TGeometryLonLatMultiLine = class(TGeometryLonLatMultiBase, IGeometryLonLat, IGeometryLonLatLine, IGeometryLonLatMultiLine)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
@@ -38,7 +38,7 @@ type
     function GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
   end;
 
-  TGeometryLonLatMultiPolygon = class(TGeometryLonLatMultiBase, IGeometryLonLat, IGeometryLonLatMultiPolygon)
+  TGeometryLonLatMultiPolygon = class(TGeometryLonLatMultiBase, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatMultiPolygon)
   private
     function GetEnum: IEnumLonLatPoint;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
@@ -47,7 +47,7 @@ type
     function GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
   end;
 
-  TLonLatPathOneLine = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatMultiLine)
+  TLonLatPathOneLine = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatLine, IGeometryLonLatMultiLine)
   private
     FLine: IGeometryLonLatSingleLine;
   private
@@ -65,7 +65,7 @@ type
     );
   end;
 
-  TLonLatPolygonOneLine = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatMultiPolygon)
+  TLonLatPolygonOneLine = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatMultiPolygon)
   private
     FLine: IGeometryLonLatSinglePolygon;
   private

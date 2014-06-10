@@ -11,7 +11,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TGeometryLonLatMultiEmpty = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatMultiLine, IGeometryLonLatMultiPolygon)
+  TGeometryLonLatMultiEmpty = class(TBaseInterfacedObject, IGeometryLonLat, IGeometryLonLatLine, IGeometryLonLatPolygon, IGeometryLonLatMultiLine, IGeometryLonLatMultiPolygon)
   private
     FEnumLonLat: IEnumLonLatPoint;
   private
