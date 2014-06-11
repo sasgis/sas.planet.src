@@ -6697,10 +6697,11 @@ begin
   VMark := FSelectedMark;
   NMarkEdit.Visible := VMark <> nil;
   tbitmFitMarkToScreen.Visible :=
-    Supports(VMark.Geometry, IGeometryLonLatSingleLine) or
+    Assigned(VMark)and
+    (Supports(VMark.Geometry, IGeometryLonLatSingleLine) or
     Supports(VMark.Geometry, IGeometryLonLatMultiLine) or
     Supports(VMark.Geometry, IGeometryLonLatSinglePolygon) or
-    Supports(VMark.Geometry, IGeometryLonLatMultiPolygon);
+    Supports(VMark.Geometry, IGeometryLonLatMultiPolygon));
   if VMark <> nil then begin
     tbitmHideThisMark.Visible := not FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IgnoreMarksVisible;
   end else begin
