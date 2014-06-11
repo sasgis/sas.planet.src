@@ -29,12 +29,19 @@ uses
 type
   IGeoCalc = interface
     ['{C85EEB06-2EA7-437E-8A34-2C7C53A87543}']
-    function CalcLineLength(const ALine: IGeometryLonLatSingleLine): Double;
+    function CalcSingleLineLength(const ALine: IGeometryLonLatSingleLine): Double;
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
+    function CalcLineLength(const ALine: IGeometryLonLatLine): Double;
 
-    function CalcPolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
+    function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
+    function CalcPolygonPerimeter(const ALine: IGeometryLonLatPolygon): Double;
     function CalcPolygonArea(
+      const ALine: IGeometryLonLatPolygon;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
+    function CalcSinglePolygonArea(
       const ALine: IGeometryLonLatSinglePolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0

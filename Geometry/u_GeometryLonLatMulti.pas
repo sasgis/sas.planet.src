@@ -18,6 +18,7 @@ type
     FHash: THashValue;
     FBounds: ILonLatRect;
   private
+    function IsEmpty: Boolean;
     function GetCount: Integer;
     function GetHash: THashValue;
     function GetBounds: ILonLatRect;
@@ -53,6 +54,7 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
+    function IsEmpty: Boolean;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
     function GetGoToPoint: TDoublePoint;
@@ -71,6 +73,7 @@ type
   private
     function GetCount: Integer;
     function GetEnum: IEnumLonLatPoint;
+    function IsEmpty: Boolean;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
     function GetGoToPoint: TDoublePoint;
@@ -119,6 +122,11 @@ end;
 function TGeometryLonLatMultiBase.GetHash: THashValue;
 begin
   Result := FHash;
+end;
+
+function TGeometryLonLatMultiBase.IsEmpty: Boolean;
+begin
+  Result := False;
 end;
 
 { TLonLatPath }
@@ -315,6 +323,11 @@ begin
   end;
 end;
 
+function TLonLatPathOneLine.IsEmpty: Boolean;
+begin
+  Result := False;
+end;
+
 function TLonLatPathOneLine.IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
 begin
   if APath.Count <> 1 then begin
@@ -389,6 +402,11 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+function TLonLatPolygonOneLine.IsEmpty: Boolean;
+begin
+  Result := False;
 end;
 
 function TLonLatPolygonOneLine.IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;

@@ -154,13 +154,9 @@ begin
   if VTemplate = nil then begin
     if Supports(AGeometry, IGeometryLonLatPoint) then begin
       VTemplate := FConfig.PointTemplateConfig.DefaultTemplate;
-    end else if Supports(AGeometry, IGeometryLonLatSingleLine) then begin
+    end else if Supports(AGeometry, IGeometryLonLatLine) then begin
       VTemplate := FConfig.LineTemplateConfig.DefaultTemplate;
-    end else if Supports(AGeometry, IGeometryLonLatMultiLine) then begin
-      VTemplate := FConfig.LineTemplateConfig.DefaultTemplate;
-    end else if Supports(AGeometry, IGeometryLonLatSinglePolygon) then begin
-      VTemplate := FConfig.PolyTemplateConfig.DefaultTemplate;
-    end else if Supports(AGeometry, IGeometryLonLatMultiPolygon) then begin
+    end else if Supports(AGeometry, IGeometryLonLatPolygon) then begin
       VTemplate := FConfig.PolyTemplateConfig.DefaultTemplate;
     end;
   end;

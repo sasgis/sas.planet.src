@@ -121,6 +121,7 @@ type
     FLine: IGeometryLonLatMultiLine;
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsEmpty: Boolean;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
     function GetGoToPoint: TDoublePoint;
@@ -140,6 +141,7 @@ type
     FLine: IGeometryLonLatMultiPolygon;
   private
     function GetEnum: IEnumLonLatPoint;
+    function IsEmpty: Boolean;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
     function GetGoToPoint: TDoublePoint;
@@ -809,6 +811,11 @@ begin
   Result := FLine.Item[AIndex];
 end;
 
+function TLonLatPathWithSelected.IsEmpty: Boolean;
+begin
+  Result := FLine.IsEmpty;
+end;
+
 function TLonLatPathWithSelected.IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
 begin
   Result := FLine.IsSame(APath);
@@ -901,6 +908,11 @@ function TLonLatPolygonWithSelected.GetItem(
   AIndex: Integer): IGeometryLonLatSinglePolygon;
 begin
   Result := FLine.Item[AIndex];
+end;
+
+function TLonLatPolygonWithSelected.IsEmpty: Boolean;
+begin
+  Result := FLine.IsEmpty;
 end;
 
 function TLonLatPolygonWithSelected.IsSame(

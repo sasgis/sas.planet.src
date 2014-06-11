@@ -280,13 +280,9 @@ begin
       VParams := nil;
       if Supports(VItem.Geometry, IGeometryLonLatPoint) then begin
         VParams := AImportConfig.PointParams;
-      end else if Supports(VItem.Geometry, IGeometryLonLatSingleLine) then begin
+      end else if Supports(VItem.Geometry, IGeometryLonLatLine) then begin
         VParams := AImportConfig.LineParams;
-      end else if Supports(VItem.Geometry, IGeometryLonLatMultiLine) then begin
-        VParams := AImportConfig.LineParams;
-      end else if Supports(VItem.Geometry, IGeometryLonLatSinglePolygon) then begin
-        VParams := AImportConfig.PolyParams;
-      end else if Supports(VItem.Geometry, IGeometryLonLatMultiPolygon) then begin
+      end else if Supports(VItem.Geometry, IGeometryLonLatPolygon) then begin
         VParams := AImportConfig.PolyParams;
       end;
       VMark :=

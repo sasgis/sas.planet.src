@@ -51,6 +51,7 @@ type
 
   IGeometryLonLatLine = interface(IGeometryLonLat)
     ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
+    function IsEmpty: Boolean;
   end;
 
   IGeometryLonLatSingleLine = interface(IGeometryLonLatLine)
@@ -81,6 +82,7 @@ type
 
   IGeometryLonLatPolygon = interface(IGeometryLonLat)
     ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
+    function IsEmpty: Boolean;
   end;
 
   IGeometryLonLatSinglePolygon = interface(IGeometryLonLatPolygon)

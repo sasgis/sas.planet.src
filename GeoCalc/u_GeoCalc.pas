@@ -34,18 +34,27 @@ type
   private
     FDatum: IDatum;
   private
-    function CalcLineLength(const ALine: IGeometryLonLatSingleLine): Double;
+    function CalcSingleLineLength(const ALine: IGeometryLonLatSingleLine): Double;
     function CalcMultiLineLength(const ALine: IGeometryLonLatMultiLine): Double;
 
-    function CalcPolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
+    function CalcSinglePolygonPerimeter(const ALine: IGeometryLonLatSinglePolygon): Double;
     function CalcMultiPolygonPerimeter(const ALine: IGeometryLonLatMultiPolygon): Double;
-    function CalcPolygonArea(
+    function CalcSinglePolygonArea(
       const ALine: IGeometryLonLatSinglePolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
     function CalcMultiPolygonArea(
       const ALine: IGeometryLonLatMultiPolygon;
+      const ANotifier: INotifierOperation = nil;
+      const AOperationID: Integer = 0
+    ): Double;
+  private
+    function CalcLineLength(const ALine: IGeometryLonLatLine): Double;
+
+    function CalcPolygonPerimeter(const ALine: IGeometryLonLatPolygon): Double;
+    function CalcPolygonArea(
+      const ALine: IGeometryLonLatPolygon;
       const ANotifier: INotifierOperation = nil;
       const AOperationID: Integer = 0
     ): Double;
@@ -58,9 +67,11 @@ type
 implementation
 
 uses
+  SysUtils,
+  Math,
   t_GeoTypes,
   i_EnumDoublePoint;
-  
+
 { TGeoCalc }
 
 constructor TGeoCalc.Create(const ADatum: IDatum);
@@ -70,7 +81,7 @@ begin
   FDatum := ADatum;
 end;
 
-function TGeoCalc.CalcLineLength(const ALine: IGeometryLonLatSingleLine): Double;
+function TGeoCalc.CalcSingleLineLength(const ALine: IGeometryLonLatSingleLine): Double;
 var
   VEnum: IEnumLonLatPoint;
   VPrevPoint: TDoublePoint;
@@ -86,6 +97,20 @@ begin
   end;
 end;
 
+function TGeoCalc.CalcLineLength(const ALine: IGeometryLonLatLine): Double;
+var
+  VSingleLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+begin
+  if Supports(ALine, IGeometryLonLatMultiLine, VMultiLine) then begin
+    Result := CalcMultiLineLength(VMultiLine);
+  end else if Supports(ALine, IGeometryLonLatSingleLine, VSingleLine) then begin
+    Result := CalcSingleLineLength(VSingleLine);
+  end else begin
+    Result := NaN;
+  end;
+end;
+
 function TGeoCalc.CalcMultiLineLength(
   const ALine: IGeometryLonLatMultiLine
 ): Double;
@@ -94,7 +119,7 @@ var
 begin
   Result := 0;
   for i := 0 to ALine.Count - 1 do begin
-    Result := Result + CalcLineLength(ALine.Item[i]);
+    Result := Result + CalcSingleLineLength(ALine.Item[i]);
   end;
 end;
 
@@ -108,7 +133,7 @@ var
 begin
   Result := 0;
   for i := 0 to ALine.Count - 1 do begin
-    Result := Result + CalcPolygonArea(ALine.Item[i], ANotifier, AOperationID);
+    Result := Result + CalcSinglePolygonArea(ALine.Item[i], ANotifier, AOperationID);
   end;
 end;
 
@@ -120,11 +145,44 @@ var
 begin
   Result := 0;
   for i := 0 to ALine.Count - 1 do begin
-    Result := Result + CalcPolygonPerimeter(ALine.Item[i]);
+    Result := Result + CalcSinglePolygonPerimeter(ALine.Item[i]);
   end;
 end;
 
 function TGeoCalc.CalcPolygonArea(
+  const ALine: IGeometryLonLatPolygon;
+  const ANotifier: INotifierOperation;
+  const AOperationID: Integer
+): Double;
+var
+  VSingleLine: IGeometryLonLatSinglePolygon;
+  VMultiLine: IGeometryLonLatMultiPolygon;
+begin
+  if Supports(ALine, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+    Result := CalcMultiPolygonArea(VMultiLine);
+  end else if Supports(ALine, IGeometryLonLatSinglePolygon, VSingleLine) then begin
+    Result := CalcSinglePolygonArea(VSingleLine);
+  end else begin
+    Result := NaN;
+  end;
+end;
+
+function TGeoCalc.CalcPolygonPerimeter(
+  const ALine: IGeometryLonLatPolygon): Double;
+var
+  VSingleLine: IGeometryLonLatSinglePolygon;
+  VMultiLine: IGeometryLonLatMultiPolygon;
+begin
+  if Supports(ALine, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+    Result := CalcMultiPolygonPerimeter(VMultiLine);
+  end else if Supports(ALine, IGeometryLonLatSinglePolygon, VSingleLine) then begin
+    Result := CalcSinglePolygonPerimeter(VSingleLine);
+  end else begin
+    Result := NaN;
+  end;
+end;
+
+function TGeoCalc.CalcSinglePolygonArea(
   const ALine: IGeometryLonLatSinglePolygon;
   const ANotifier: INotifierOperation;
   const AOperationID: Integer
@@ -140,7 +198,7 @@ begin
   end;
 end;
 
-function TGeoCalc.CalcPolygonPerimeter(
+function TGeoCalc.CalcSinglePolygonPerimeter(
   const ALine: IGeometryLonLatSinglePolygon
 ): Double;
 var

@@ -88,7 +88,7 @@ type
 
   TCalcAreaThread = class(TThread)
   private
-    FPoly: IGeometryLonLat;
+    FPoly: IGeometryLonLatPolygon;
     FGeoCalc: IGeoCalc;
     FArea: Double;
     FOnFinish: TOnAreaCalc;
@@ -99,7 +99,7 @@ type
     procedure Execute; override;
   public
     constructor Create(
-      const APoly: IGeometryLonLat;
+      const APoly: IGeometryLonLatPolygon;
       const AGeoCalc: IGeoCalc;
       const ACancelNotifier: INotifierOperation;
       const AOperationID: Cardinal;
@@ -110,7 +110,7 @@ type
 { TCalcAreaThread }
 
 constructor TCalcAreaThread.Create(
-  const APoly: IGeometryLonLat;
+  const APoly: IGeometryLonLatPolygon;
   const AGeoCalc: IGeoCalc;
   const ACancelNotifier: INotifierOperation;
   const AOperationID: Cardinal;
@@ -135,18 +135,9 @@ begin
 end;
 
 procedure TCalcAreaThread.Execute;
-var
-  VPoly: IGeometryLonLatSinglePolygon;
-  VMultiPoly: IGeometryLonLatMultiPolygon;
 begin
   SetCurrentThreadName(Self.ClassName);
-  if Supports(FPoly, IGeometryLonLatSinglePolygon, VPoly) then begin
-    FArea := FGeoCalc.CalcPolygonArea(VPoly, FCancelNotifier, FOperationID);
-  end else if Supports(FPoly, IGeometryLonLatMultiPolygon, VMultiPoly) then begin
-    FArea := FGeoCalc.CalcMultiPolygonArea(VMultiPoly, FCancelNotifier, FOperationID);
-  end else begin
-    FArea := -1;
-  end;
+  FArea := FGeoCalc.CalcPolygonArea(FPoly, FCancelNotifier, FOperationID);
   if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
     Terminate;
   end else begin

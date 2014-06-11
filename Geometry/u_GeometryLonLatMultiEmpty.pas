@@ -23,6 +23,7 @@ type
     function GetBounds: ILonLatRect;
     function GetHash: THashValue;
     function GetCount: Integer;
+    function IsEmpty: Boolean;
     function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
     function IsSamePath(const APath: IGeometryLonLatMultiLine): Boolean;
     function IsSamePolygon(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
@@ -105,6 +106,11 @@ function TGeometryLonLatMultiEmpty.GetItemLonLatPolygonLine(
   AIndex: Integer): IGeometryLonLatSinglePolygon;
 begin
   Result := nil;
+end;
+
+function TGeometryLonLatMultiEmpty.IsEmpty: Boolean;
+begin
+  Result := True;
 end;
 
 function TGeometryLonLatMultiEmpty.IsSameGeometry(
