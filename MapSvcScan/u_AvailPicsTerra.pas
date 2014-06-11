@@ -117,6 +117,11 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     VItemExisting: Boolean;
     VItemFetched: TDateTime;
   begin
+    if GetAfter('disabled', AOptionText) <> '' then begin
+      Result := FALSE;
+      Exit
+    end;
+
     // value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
     VValue := AnsiLowerCase(Trim(GetAfter('>', AOptionText)));
 
