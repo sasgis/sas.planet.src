@@ -15,6 +15,7 @@ type
     FList: IInterfaceListStatic;
     FBounds: TDoubleRect;
   private
+    function IsEmpty: Boolean;
     function GetCount: Integer;
     function GetBounds: TDoubleRect;
   public
@@ -53,6 +54,7 @@ type
   private
     FLine: IGeometryProjectedSingleLine;
   private
+    function IsEmpty: Boolean;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(
@@ -72,6 +74,7 @@ type
   private
     FLine: IGeometryProjectedSinglePolygon;
   private
+    function IsEmpty: Boolean;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function GetBounds: TDoubleRect;
@@ -92,6 +95,7 @@ type
 
   TProjectedLineSetEmpty = class(TBaseInterfacedObject, IGeometryProjectedLine, IGeometryProjectedMultiLine, IGeometryProjectedPolygon, IGeometryProjectedMultiPolygon, IEnumDoublePoint, IEnumProjectedPoint)
   private
+    function IsEmpty: Boolean;
     function GetCount: Integer;
     function GetEnum: IEnumProjectedPoint;
     function GetBounds: TDoubleRect;
@@ -148,6 +152,11 @@ end;
 function TGeometryProjectedMultiBase.GetCount: Integer;
 begin
   Result := FList.Count;
+end;
+
+function TGeometryProjectedMultiBase.IsEmpty: Boolean;
+begin
+  Result := False;
 end;
 
 { TProjectedPath }
@@ -328,6 +337,11 @@ begin
   end;
 end;
 
+function TGeometryProjectedMultiLineOneLine.IsEmpty: Boolean;
+begin
+  Result := False;
+end;
+
 function TGeometryProjectedMultiLineOneLine.IsPointOnPath(
   const APoint: TDoublePoint;
   const ADist: Double
@@ -379,6 +393,11 @@ begin
   end else begin
     Result := nil;
   end;
+end;
+
+function TGeometryProjectedMultiPolygonOneLine.IsEmpty: Boolean;
+begin
+  Result := False;
 end;
 
 function TGeometryProjectedMultiPolygonOneLine.IsPointInPolygon(
@@ -464,6 +483,11 @@ end;
 function TProjectedLineSetEmpty.GetItemPolygon(AIndex: Integer): IGeometryProjectedSinglePolygon;
 begin
   Result := nil;
+end;
+
+function TProjectedLineSetEmpty.IsEmpty: Boolean;
+begin
+  Result := True;
 end;
 
 function TProjectedLineSetEmpty.IsPointInPolygon(

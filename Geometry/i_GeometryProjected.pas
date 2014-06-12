@@ -31,6 +31,8 @@ type
     ['{162D40D7-29D5-44B1-BDB8-7E7616289769}']
     function GetBounds: TDoubleRect;
     property Bounds: TDoubleRect read GetBounds;
+
+    function IsEmpty: Boolean;
   end;
 
   IGeometryProjectedLine = interface(IGeometryProjected)

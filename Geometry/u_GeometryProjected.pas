@@ -15,6 +15,7 @@ type
     FBounds: TDoubleRect;
     FPoints: array of TDoublePoint;
   private
+    function IsEmpty: Boolean;
     function GetBounds: TDoubleRect;
     function GetCount: Integer;
     function GetPoints: PDoublePointArray;
@@ -134,6 +135,11 @@ end;
 function TGeometryProjectedBase.GetPoints: PDoublePointArray;
 begin
   Result := @FPoints[0];
+end;
+
+function TGeometryProjectedBase.IsEmpty: Boolean;
+begin
+  Result := False;
 end;
 
 { TGeometryProjectedLine }
