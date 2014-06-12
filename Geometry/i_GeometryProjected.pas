@@ -33,7 +33,11 @@ type
     property Bounds: TDoubleRect read GetBounds;
   end;
 
-  IGeometryProjectedSingleLine = interface(IGeometryProjected)
+  IGeometryProjectedLine = interface(IGeometryProjected)
+    ['{C2726CC7-0661-4116-9D08-B7DBE1D54612}']
+  end;
+
+  IGeometryProjectedSingleLine = interface(IGeometryProjectedLine)
     ['{0D9B7321-DBA0-494F-959C-5026DB27C681}']
     function GetEnum: IEnumProjectedPoint;
 
@@ -50,7 +54,28 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IGeometryProjectedSinglePolygon = interface(IGeometryProjected)
+  IGeometryProjectedMultiLine = interface(IGeometryProjectedLine)
+    ['{781FAF61-C109-4CC9-A861-90CBE807D8E1}']
+    function GetEnum: IEnumProjectedPoint;
+
+    function IsPointOnPath(
+      const APoint: TDoublePoint;
+      const ADist: Double
+    ): Boolean;
+    function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
+
+    function GetCount: Integer;
+    property Count: Integer read GetCount;
+
+    function GetItem(AIndex: Integer): IGeometryProjectedSingleLine;
+    property Item[AIndex: Integer]: IGeometryProjectedSingleLine read GetItem;
+  end;
+
+  IGeometryProjectedPolygon = interface(IGeometryProjected)
+    ['{828A0CAD-B231-46F2-86D8-F10437828179}']
+  end;
+
+  IGeometryProjectedSinglePolygon = interface(IGeometryProjectedPolygon)
     ['{30424113-D148-45EB-A4C8-C0150DB89D22}']
     function GetEnum: IEnumProjectedPoint;
 
@@ -70,24 +95,7 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IGeometryProjectedMultiLine = interface(IGeometryProjected)
-    ['{781FAF61-C109-4CC9-A861-90CBE807D8E1}']
-    function GetEnum: IEnumProjectedPoint;
-
-    function IsPointOnPath(
-      const APoint: TDoublePoint;
-      const ADist: Double
-    ): Boolean;
-    function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
-
-    function GetCount: Integer;
-    property Count: Integer read GetCount;
-
-    function GetItem(AIndex: Integer): IGeometryProjectedSingleLine;
-    property Item[AIndex: Integer]: IGeometryProjectedSingleLine read GetItem;
-  end;
-
-  IGeometryProjectedMultiPolygon = interface(IGeometryProjected)
+  IGeometryProjectedMultiPolygon = interface(IGeometryProjectedPolygon)
     ['{02C310DE-60C3-4175-8811-367D5C5AC0CE}']
     function GetEnum: IEnumProjectedPoint;
 

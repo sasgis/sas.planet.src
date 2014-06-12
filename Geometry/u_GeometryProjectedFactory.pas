@@ -16,6 +16,9 @@ uses
 type
   TGeometryProjectedFactory = class(TBaseInterfacedObject, IGeometryProjectedFactory)
   private
+    FEmptyPath: IGeometryProjectedMultiLine;
+    FEmptyPolygon: IGeometryProjectedMultiPolygon;
+  private
     function CreateProjectedPath(
       const APoints: PDoublePointArray;
       ACount: Integer
@@ -99,6 +102,8 @@ type
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;
+  public
+    constructor Create;
   end;
 
 implementation
@@ -115,6 +120,16 @@ uses
   u_GeometryProjectedMulti;
 
 { TGeometryProjectedFactory }
+
+constructor TGeometryProjectedFactory.Create;
+var
+  VEmpty: TProjectedLineSetEmpty;
+begin
+  inherited Create;
+  VEmpty := TProjectedLineSetEmpty.Create;
+  FEmptyPath := VEmpty;
+  FEmptyPolygon := VEmpty;
+end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygonUseConverter(
   const ASource: IGeometryLonLatMultiPolygon;
@@ -186,7 +201,7 @@ begin
     VTemp.Clear;
   end;
   if VLineCount = 0 then begin
-    Result := TProjectedPolygonEmpty.Create;
+    Result := FEmptyPolygon;
   end else if VLineCount = 1 then begin
     Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
   end else begin
@@ -256,7 +271,7 @@ begin
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
-    Result := TProjectedPathEmpty.Create;
+    Result := FEmptyPath;
   end else if VLineCount = 1 then begin
     Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
   end else begin
@@ -324,7 +339,7 @@ begin
     VTemp.Clear;
   end;
   if VLineCount = 0 then begin
-    Result := TProjectedPathEmpty.Create;
+    Result := FEmptyPath;
   end else if VLineCount = 1 then begin
     Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
   end else begin
@@ -439,7 +454,7 @@ begin
     VTemp.Clear;
   end;
   if VLineCount = 0 then begin
-    Result := TProjectedPathEmpty.Create;
+    Result := FEmptyPath;
   end else if VLineCount = 1 then begin
     Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
   end else begin
@@ -554,7 +569,7 @@ begin
     Inc(VLineCount);
   end;
   if VLineCount = 0 then begin
-    Result := TProjectedPolygonEmpty.Create;
+    Result := FEmptyPolygon;
   end else if VLineCount = 1 then begin
     Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
   end else begin
@@ -622,7 +637,7 @@ begin
     VTemp.Clear;
   end;
   if VLineCount = 0 then begin
-    Result := TProjectedPolygonEmpty.Create;
+    Result := FEmptyPolygon;
   end else if VLineCount = 1 then begin
     Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
   end else begin
