@@ -116,7 +116,7 @@ type
     );
   end;
 
-  TLonLatPathWithSelected = class(TLonLatLineWithSelectedBase, ILonLatPathWithSelected)
+  TLonLatPathWithSelected = class(TLonLatLineWithSelectedBase, IGeometryLonLat, IGeometryLonLatLine, IGeometryLonLatMultiLine, ILonLatPathWithSelected)
   private
     FLine: IGeometryLonLatMultiLine;
   private
@@ -136,7 +136,7 @@ type
     );
   end;
 
-  TLonLatPolygonWithSelected = class(TLonLatLineWithSelectedBase, ILonLatPolygonWithSelected)
+  TLonLatPolygonWithSelected = class(TLonLatLineWithSelectedBase, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatMultiPolygon, ILonLatPolygonWithSelected)
   private
     FLine: IGeometryLonLatMultiPolygon;
   private
