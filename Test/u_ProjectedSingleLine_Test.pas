@@ -11,7 +11,7 @@ uses
 type
   TestTProjectedPolygonLine = class(TTestCase)
   private
-    FPolygon: IGeometryProjectedPolygon;
+    FPolygon: IGeometryProjectedSinglePolygon;
     FCalc: IProjectedCalc;
   protected
     procedure SetUp; override;

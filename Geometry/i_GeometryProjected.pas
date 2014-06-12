@@ -33,7 +33,7 @@ type
     property Bounds: TDoubleRect read GetBounds;
   end;
 
-  IGeometryProjectedLine = interface(IGeometryProjected)
+  IGeometryProjectedSingleLine = interface(IGeometryProjected)
     ['{0D9B7321-DBA0-494F-959C-5026DB27C681}']
     function GetEnum: IEnumProjectedPoint;
 
@@ -50,7 +50,7 @@ type
     property Points: PDoublePointArray read GetPoints;
   end;
 
-  IGeometryProjectedPolygon = interface(IGeometryProjected)
+  IGeometryProjectedSinglePolygon = interface(IGeometryProjected)
     ['{30424113-D148-45EB-A4C8-C0150DB89D22}']
     function GetEnum: IEnumProjectedPoint;
 
@@ -83,8 +83,8 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): IGeometryProjectedLine;
-    property Item[AIndex: Integer]: IGeometryProjectedLine read GetItem;
+    function GetItem(AIndex: Integer): IGeometryProjectedSingleLine;
+    property Item[AIndex: Integer]: IGeometryProjectedSingleLine read GetItem;
   end;
 
   IGeometryProjectedMultiPolygon = interface(IGeometryProjected)
@@ -103,8 +103,8 @@ type
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
-    function GetItem(AIndex: Integer): IGeometryProjectedPolygon;
-    property Item[AIndex: Integer]: IGeometryProjectedPolygon read GetItem;
+    function GetItem(AIndex: Integer): IGeometryProjectedSinglePolygon;
+    property Item[AIndex: Integer]: IGeometryProjectedSinglePolygon read GetItem;
   end;
 
 implementation

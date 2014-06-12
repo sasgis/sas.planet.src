@@ -147,7 +147,7 @@ var
   VPoint: TDoublePoint;
   VLineIndex: Integer;
   VProjected: IGeometryProjectedMultiLine;
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
   VEnum: IEnumLocalPoint;
   VPolygon: TPolygon32;
   VMapRect: TDoubleRect;
@@ -289,7 +289,7 @@ var
   VProjected: IGeometryProjectedMultiPolygon;
   VMapRect: TDoubleRect;
   VLineIndex: Integer;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
 begin
   Result := False;
   VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, APoly);

@@ -27,7 +27,7 @@ type
 
     function CreateProjectedPolygonLineByRect(
       const ARect: TDoubleRect
-    ): IGeometryProjectedPolygon;
+    ): IGeometryProjectedSinglePolygon;
     function CreateProjectedPolygonByRect(
       const ARect: TDoubleRect
     ): IGeometryProjectedMultiPolygon;
@@ -124,7 +124,7 @@ function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygonUseConve
 ): IGeometryProjectedMultiPolygon;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
   VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
@@ -200,7 +200,7 @@ function TGeometryProjectedFactory.CreateProjectedPath(
   ACount: Integer
 ): IGeometryProjectedMultiLine;
 var
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
   i: Integer;
   VStart: PDoublePointArray;
   VLineLen: Integer;
@@ -271,7 +271,7 @@ function TGeometryProjectedFactory.CreateProjectedPathByEnum(
 ): IGeometryProjectedMultiLine;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
   VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
@@ -377,7 +377,7 @@ function TGeometryProjectedFactory.CreateProjectedPathByLonLatPathUseConverter(
 ): IGeometryProjectedMultiLine;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
   VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
@@ -498,7 +498,7 @@ function TGeometryProjectedFactory.CreateProjectedPolygon(
   ACount: Integer
 ): IGeometryProjectedMultiPolygon;
 var
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
   i: Integer;
   VStart: PDoublePointArray;
   VLineLen: Integer;
@@ -569,7 +569,7 @@ function TGeometryProjectedFactory.CreateProjectedPolygonByEnum(
 ): IGeometryProjectedMultiPolygon;
 var
   VPoint: TDoublePoint;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
   VList: IInterfaceListSimple;
   VLineCount: Integer;
   VTemp: IDoublePointsAggregator;
@@ -677,7 +677,7 @@ end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonLineByRect(
   const ARect: TDoubleRect
-): IGeometryProjectedPolygon;
+): IGeometryProjectedSinglePolygon;
 var
   VPoints: array [0..4] of TDoublePoint;
 begin

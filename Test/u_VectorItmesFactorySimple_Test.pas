@@ -344,7 +344,7 @@ end;
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathSimple;
 var
   VResult: IGeometryProjectedMultiLine;
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -381,7 +381,7 @@ end;
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPathTwoLines;
 var
   VResult: IGeometryProjectedMultiLine;
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -455,7 +455,7 @@ end;
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonSimple;
 var
   VResult: IGeometryProjectedMultiPolygon;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin
@@ -496,7 +496,7 @@ end;
 procedure TestTVectorItmesProjectedFactorySimple.CreateProjectedPolygonTwoLines;
 var
   VResult: IGeometryProjectedMultiPolygon;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
   VPoint: TDoublePoint;
   VEnum: IEnumDoublePoint;
 begin

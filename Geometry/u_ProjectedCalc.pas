@@ -32,7 +32,7 @@ type
   TProjectedCalc = class(TBaseInterfacedObject, IProjectedCalc)
   private
     function IsPointOnLine(
-      const ALine: IGeometryProjectedLine;
+      const ALine: IGeometryProjectedSingleLine;
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
@@ -42,7 +42,7 @@ type
       const ADist: Double
     ): Boolean;
     function IsRectIntersectLine(
-      const ALine: IGeometryProjectedLine;
+      const ALine: IGeometryProjectedSingleLine;
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectMultiLine(
@@ -50,13 +50,13 @@ type
       const ARect: TDoubleRect
     ): Boolean;
     function CalcLineLength(
-      const ALine: IGeometryProjectedLine
+      const ALine: IGeometryProjectedSingleLine
     ): Double;
     function CalcMultiLineLength(
       const ALine: IGeometryProjectedMultiLine
     ): Double;
     function IsPointInPolygon(
-      const APoly: IGeometryProjectedPolygon;
+      const APoly: IGeometryProjectedSinglePolygon;
       const APoint: TDoublePoint
     ): Boolean;
     function IsPointInMultiPolygon(
@@ -64,7 +64,7 @@ type
       const APoint: TDoublePoint
     ): Boolean;
     function IsPointOnPolygonBorder(
-      const APoly: IGeometryProjectedPolygon;
+      const APoly: IGeometryProjectedSinglePolygon;
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
@@ -74,7 +74,7 @@ type
       const ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(
-      const APoly: IGeometryProjectedPolygon;
+      const APoly: IGeometryProjectedSinglePolygon;
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectMultiPolygon(
@@ -82,7 +82,7 @@ type
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectPolygonBorder(
-      const APoly: IGeometryProjectedPolygon;
+      const APoly: IGeometryProjectedSinglePolygon;
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectMultiPolygonBorder(
@@ -90,13 +90,13 @@ type
       const ARect: TDoubleRect
     ): Boolean;
     function CalcPolygonArea(
-      const APoly: IGeometryProjectedPolygon
+      const APoly: IGeometryProjectedSinglePolygon
     ): Double;
     function CalcMultiPolygonArea(
       const APoly: IGeometryProjectedMultiPolygon
     ): Double;
     function CalcPolygonPerimeter(
-      const APoly: IGeometryProjectedPolygon
+      const APoly: IGeometryProjectedSinglePolygon
     ): Double;
     function CalcMultiPolygonPerimeter(
       const APoly: IGeometryProjectedMultiPolygon
@@ -119,7 +119,7 @@ begin
 end;
 
 function TProjectedCalc.CalcLineLength(
-  const ALine: IGeometryProjectedLine
+  const ALine: IGeometryProjectedSingleLine
 ): Double;
 var
   VEnum: IEnumProjectedPoint;
@@ -141,7 +141,7 @@ function TProjectedCalc.CalcMultiLineLength(
 ): Double;
 var
   i: Integer;
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
 begin
   Result := 0;
   for i := 0 to ALine.Count - 1 do begin
@@ -155,7 +155,7 @@ function TProjectedCalc.CalcMultiPolygonArea(
 ): Double;
 var
   i: Integer;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
 begin
   Result := 0;
   for i := 0 to APoly.Count - 1 do begin
@@ -169,7 +169,7 @@ function TProjectedCalc.CalcMultiPolygonPerimeter(
 ): Double;
 var
   i: Integer;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
 begin
   Result := 0;
   for i := 0 to APoly.Count - 1 do begin
@@ -179,7 +179,7 @@ begin
 end;
 
 function TProjectedCalc.CalcPolygonArea(
-  const APoly: IGeometryProjectedPolygon
+  const APoly: IGeometryProjectedSinglePolygon
 ): Double;
 var
   VEnum: IEnumProjectedPoint;
@@ -198,7 +198,7 @@ begin
 end;
 
 function TProjectedCalc.CalcPolygonPerimeter(
-  const APoly: IGeometryProjectedPolygon
+  const APoly: IGeometryProjectedSinglePolygon
 ): Double;
 var
   VEnum: IEnumProjectedPoint;
@@ -221,7 +221,7 @@ function TProjectedCalc.IsPointInMultiPolygon(
 ): Boolean;
 var
   i: Integer;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
 begin
   Result := False;
   for i := 0 to APoly.Count - 1 do begin
@@ -234,7 +234,7 @@ begin
 end;
 
 function TProjectedCalc.IsPointInPolygon(
-  const APoly: IGeometryProjectedPolygon;
+  const APoly: IGeometryProjectedSinglePolygon;
   const APoint: TDoublePoint
 ): Boolean;
 var
@@ -257,7 +257,7 @@ begin
 end;
 
 function TProjectedCalc.IsPointOnLine(
-  const ALine: IGeometryProjectedLine;
+  const ALine: IGeometryProjectedSingleLine;
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
@@ -307,7 +307,7 @@ function TProjectedCalc.IsPointOnMultiLine(
 ): Boolean;
 var
   i: Integer;
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
 begin
   Result := False;
   for i := 0 to ALine.Count - 1 do begin
@@ -326,7 +326,7 @@ function TProjectedCalc.IsPointOnMultiPolygonBorder(
 ): Boolean;
 var
   i: Integer;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
 begin
   Result := False;
   for i := 0 to APoly.Count - 1 do begin
@@ -339,7 +339,7 @@ begin
 end;
 
 function TProjectedCalc.IsPointOnPolygonBorder(
-  const APoly: IGeometryProjectedPolygon;
+  const APoly: IGeometryProjectedSinglePolygon;
   const APoint: TDoublePoint;
   const ADist: Double
 ): Boolean;
@@ -383,7 +383,7 @@ begin
 end;
 
 function TProjectedCalc.IsRectIntersectLine(
-  const ALine: IGeometryProjectedLine;
+  const ALine: IGeometryProjectedSingleLine;
   const ARect: TDoubleRect
 ): Boolean;
 var
@@ -476,7 +476,7 @@ function TProjectedCalc.IsRectIntersectMultiLine(
 ): Boolean;
 var
   i: Integer;
-  VLine: IGeometryProjectedLine;
+  VLine: IGeometryProjectedSingleLine;
 begin
   Result := False;
   for i := 0 to ALine.Count - 1 do begin
@@ -494,7 +494,7 @@ function TProjectedCalc.IsRectIntersectMultiPolygon(
 ): Boolean;
 var
   i: Integer;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
 begin
   Result := False;
   for i := 0 to APoly.Count - 1 do begin
@@ -512,7 +512,7 @@ function TProjectedCalc.IsRectIntersectMultiPolygonBorder(
 ): Boolean;
 var
   i: Integer;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
 begin
   Result := False;
   for i := 0 to APoly.Count - 1 do begin
@@ -525,7 +525,7 @@ begin
 end;
 
 function TProjectedCalc.IsRectIntersectPolygon(
-  const APoly: IGeometryProjectedPolygon;
+  const APoly: IGeometryProjectedSinglePolygon;
   const ARect: TDoubleRect
 ): Boolean;
 var
@@ -630,7 +630,7 @@ begin
 end;
 
 function TProjectedCalc.IsRectIntersectPolygonBorder(
-  const APoly: IGeometryProjectedPolygon;
+  const APoly: IGeometryProjectedSinglePolygon;
   const ARect: TDoubleRect
 ): Boolean;
 var

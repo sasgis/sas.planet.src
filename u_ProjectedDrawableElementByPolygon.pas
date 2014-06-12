@@ -85,7 +85,7 @@ var
   VDrawRect: TDoubleRect;
   VPolygon: TPolygon32;
   i: Integer;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
   VPathFixedPoints: TArrayOfFixedPoint;
   VIndex: Integer;
   VEnum: IEnumProjectedPoint;

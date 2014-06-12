@@ -210,7 +210,7 @@ var
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VProjected: IGeometryProjectedMultiPolygon;
-  VLine: IGeometryProjectedPolygon;
+  VLine: IGeometryProjectedSinglePolygon;
   VBounds: TDoubleRect;
   VPixelRect: TRect;
   VTileRect: TRect;

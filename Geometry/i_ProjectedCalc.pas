@@ -30,7 +30,7 @@ type
   IProjectedCalc = interface
     ['{11E107C3-7994-4922-ABA6-9449CCD1FB39}']
     function IsPointOnLine(
-      const ALine: IGeometryProjectedLine;
+      const ALine: IGeometryProjectedSingleLine;
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
@@ -40,7 +40,7 @@ type
       const ADist: Double
     ): Boolean;
     function IsRectIntersectLine(
-      const ALine: IGeometryProjectedLine;
+      const ALine: IGeometryProjectedSingleLine;
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectMultiLine(
@@ -48,13 +48,13 @@ type
       const ARect: TDoubleRect
     ): Boolean;
     function CalcLineLength(
-      const ALine: IGeometryProjectedLine
+      const ALine: IGeometryProjectedSingleLine
     ): Double;
     function CalcMultiLineLength(
       const ALine: IGeometryProjectedMultiLine
     ): Double;
     function IsPointInPolygon(
-      const APoly: IGeometryProjectedPolygon;
+      const APoly: IGeometryProjectedSinglePolygon;
       const APoint: TDoublePoint
     ): Boolean;
     function IsPointInMultiPolygon(
@@ -62,7 +62,7 @@ type
       const APoint: TDoublePoint
     ): Boolean;
     function IsPointOnPolygonBorder(
-      const APoly: IGeometryProjectedPolygon;
+      const APoly: IGeometryProjectedSinglePolygon;
       const APoint: TDoublePoint;
       const ADist: Double
     ): Boolean;
@@ -72,7 +72,7 @@ type
       const ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(
-      const APoly: IGeometryProjectedPolygon;
+      const APoly: IGeometryProjectedSinglePolygon;
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectMultiPolygon(
@@ -80,7 +80,7 @@ type
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectPolygonBorder(
-      const APoly: IGeometryProjectedPolygon;
+      const APoly: IGeometryProjectedSinglePolygon;
       const ARect: TDoubleRect
     ): Boolean;
     function IsRectIntersectMultiPolygonBorder(
@@ -88,13 +88,13 @@ type
       const ARect: TDoubleRect
     ): Boolean;
     function CalcPolygonArea(
-      const APoly: IGeometryProjectedPolygon
+      const APoly: IGeometryProjectedSinglePolygon
     ): Double;
     function CalcMultiPolygonArea(
       const APoly: IGeometryProjectedMultiPolygon
     ): Double;
     function CalcPolygonPerimeter(
-      const APoly: IGeometryProjectedPolygon
+      const APoly: IGeometryProjectedSinglePolygon
     ): Double;
     function CalcMultiPolygonPerimeter(
       const APoly: IGeometryProjectedMultiPolygon
