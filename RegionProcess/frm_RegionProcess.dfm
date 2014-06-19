@@ -131,19 +131,19 @@ object frmRegionProcess: TfrmRegionProcess
         ImageIndex = 17
         OnClick = tbtmSaveClick
         Caption = ''
-        Hint = ''
+        Hint = 'Store selection as Poligon'
       end
       object tbtmZoom: TTBItem
         ImageIndex = 43
         OnClick = tbtmZoomClick
         Caption = ''
-        Hint = ''
+        Hint = 'Fit to Screen'
       end
       object tbtmMark: TTBItem
         ImageIndex = 25
         OnClick = tbtmMarkClick
         Caption = ''
-        Hint = ''
+        Hint = 'Save selection info to file'
       end
     end
   end
