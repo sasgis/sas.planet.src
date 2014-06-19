@@ -26,7 +26,6 @@ uses
   Windows,
   SysUtils,
   Forms,
-  Buttons,
   Classes,
   Controls,
   Dialogs,
@@ -34,6 +33,10 @@ uses
   ExtCtrls,
   inifiles,
   ComCtrls,
+  TB2Item,
+  TB2Dock,
+  TB2Toolbar,
+  TBX,
   i_NotifierTime,
   i_NotifierOperation,
   i_MapViewGoto,
@@ -90,19 +93,20 @@ type
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
     Button3: TButton;
-    SpeedButton1: TSpeedButton;
     SaveSelDialog: TSaveDialog;
     CBCloseWithStart: TCheckBox;
     TabSheet6: TTabSheet;
     pnlBottomButtons: TPanel;
-    SpeedButton_fit: TSpeedButton;
-    SpeedButton_mkMark: TSpeedButton;
+    TBXOperationsToolbar: TTBXToolbar;
+    tbtmMark: TTBItem;
+    tbtmZoom: TTBItem;
+    tbtmSave: TTBItem;
     procedure Button1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure SpeedButton_fitClick(Sender: TObject);
-    procedure SpeedButton_mkMarkClick(Sender: TObject);
+    procedure tbtmSaveClick(Sender: TObject);
+    procedure tbtmZoomClick(Sender: TObject);
+    procedure tbtmMarkClick(Sender: TObject);
   private
     FfrExport: TfrExport;
     FfrCombine: TfrCombine;
@@ -496,7 +500,7 @@ begin
   close;
 end;
 
-procedure TfrmRegionProcess.SpeedButton1Click(Sender: TObject);
+procedure TfrmRegionProcess.tbtmMarkClick(Sender: TObject);
 var
   VIniFile: Tinifile;
   VZoom: Byte;
@@ -523,7 +527,7 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.SpeedButton_fitClick(Sender: TObject);
+procedure TfrmRegionProcess.tbtmZoomClick(Sender: TObject);
 var
   VPolygon: IGeometryLonLatMultiPolygon;
 begin
@@ -533,7 +537,7 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.SpeedButton_mkMarkClick(Sender: TObject);
+procedure TfrmRegionProcess.tbtmSaveClick(Sender: TObject);
 begin
   if (FLastSelectionInfo.Polygon <> nil) then FMarkDBGUI.SaveMarkModal(nil, FLastSelectionInfo.Polygon);
 end;
