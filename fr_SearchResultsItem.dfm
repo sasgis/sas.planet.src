@@ -36,7 +36,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 445
+      Width = 7
       Height = 16
       Cursor = crHandPoint
       Align = alClient
@@ -49,7 +49,36 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnClick = LabelCaptionClick
-      ExplicitWidth = 7
+    end
+    object TBXOperationsToolbar: TTBXToolbar
+      Left = 427
+      Top = 0
+      Width = 23
+      Height = 23
+      ActivateParent = False
+      Align = alRight
+      AutoResize = False
+      BorderStyle = bsNone
+      DockableTo = []
+      DockPos = 0
+      DragHandleStyle = dhNone
+      FloatingMode = fmOnTopOfAllForms
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      Images = frmMain.MenusImageList
+      ParentFont = False
+      TabOrder = 0
+      ExplicitLeft = 428
+      ChevronHint = ''
+      object tbtmHide: TTBItem
+        ImageIndex = 35
+        OnClick = tbtmHideClick
+        Caption = ''
+        Hint = ''
+      end
     end
   end
   object PanelDesc: TPanel
@@ -66,7 +95,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 445
+      Width = 6
       Height = 14
       Align = alTop
       Caption = '_'
@@ -78,7 +107,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnDblClick = LabelDescDblClick
-      ExplicitWidth = 6
     end
   end
   object PanelFullDescImg: TPanel
@@ -96,7 +124,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       Left = 376
       Top = 3
       Width = 72
-      Height = 34
+      Height = 13
       Cursor = crHandPoint
       Align = alRight
       Alignment = taRightJustify
@@ -110,14 +138,13 @@ object frSearchResultsItem: TfrSearchResultsItem
       Layout = tlBottom
       WordWrap = True
       OnMouseUp = LabelFullDescImgMouseUp
-      ExplicitHeight = 13
     end
     object LabelMarkInfo: TLabel
       AlignWithMargins = True
       Left = 43
       Top = 3
-      Width = 327
-      Height = 34
+      Width = 3
+      Height = 14
       Cursor = crHandPoint
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
@@ -129,8 +156,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       WordWrap = True
       OnClick = LabelCaptionClick
       OnDblClick = LabelDescDblClick
-      ExplicitWidth = 3
-      ExplicitHeight = 14
     end
     object imgIcon: TImage32
       Left = 0
@@ -168,7 +193,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       Left = 376
       Top = 3
       Width = 72
-      Height = 14
+      Height = 13
       Cursor = crHandPoint
       Align = alRight
       Alignment = taRightJustify
@@ -181,7 +206,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       Layout = tlBottom
       OnMouseUp = LabelFullDescImgMouseUp
-      ExplicitHeight = 13
     end
   end
   object PanelCategory: TPanel
@@ -198,7 +222,7 @@ object frSearchResultsItem: TfrSearchResultsItem
       AlignWithMargins = True
       Left = 3
       Top = 3
-      Width = 445
+      Width = 3
       Height = 13
       Cursor = crHandPoint
       Align = alClient
@@ -210,7 +234,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       ParentFont = False
       WordWrap = True
       OnClick = LabelCaptionClick
-      ExplicitLeft = 0
     end
   end
 end

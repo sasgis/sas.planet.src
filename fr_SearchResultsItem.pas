@@ -32,6 +32,10 @@ uses
   StdCtrls,
   SysUtils,
   GR32_Image,
+  TB2Item,
+  TBX,
+  TB2Dock,
+  TB2Toolbar,
   i_VectorDataItemSimple,
   i_ValueToStringConverter,
   i_MapViewGoto,
@@ -52,12 +56,15 @@ type
     LabelFullDescShort: TLabel;
     PanelCategory: TPanel;
     LabelCategory: TLabel;
+    TBXOperationsToolbar: TTBXToolbar;
+    tbtmHide: TTBItem;
     procedure FrameContextPopup(Sender: TObject; MousePos: TPoint; var Handled:
         Boolean);
     procedure LabelFullDescImgMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure LabelCaptionClick(Sender: TObject);
     procedure LabelDescDblClick(Sender: TObject);
+    procedure tbtmHideClick(Sender: TObject);
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
     FPlacemark: IVectorDataItem;
@@ -83,6 +90,7 @@ uses
   u_BitmapFunc;
 
 {$R *.dfm}
+
 constructor TfrSearchResultsItem.Create(
   AOwner: TComponent;
   AParent:TWinControl;
@@ -173,6 +181,11 @@ procedure TfrSearchResultsItem.LabelFullDescImgMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   FIntrnalBrowser.ShowMessage(FPlacemark.GetInfoCaption, FPlacemark.GetInfoHTML);
+end;
+
+procedure TfrSearchResultsItem.tbtmHideClick(Sender: TObject);
+begin
+  Hide
 end;
 
 end.
