@@ -32,7 +32,9 @@ type
     function IGeometryLonLatMultiLine.IsSame = IsSamePath;
     function IGeometryLonLatMultiPolygon.IsSame = IsSamePolygon;
 
+    function IGeometryLonLatLine.GetEnum = GetEnumLonLat;
     function IGeometryLonLatMultiLine.GetEnum = GetEnumLonLat;
+    function IGeometryLonLatPolygon.GetEnum = GetEnumLonLat;
     function IGeometryLonLatMultiPolygon.GetEnum = GetEnumLonLat;
 
     function IGeometryLonLatMultiLine.GetItem = GetItemLonLatPathLine;

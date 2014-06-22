@@ -52,13 +52,12 @@ type
   IGeometryLonLatLine = interface(IGeometryLonLat)
     ['{05412527-06DC-43F9-8902-97D7112E1FFD}']
     function IsEmpty: Boolean;
+    function GetEnum: IEnumLonLatPoint;
   end;
 
   IGeometryLonLatSingleLine = interface(IGeometryLonLatLine)
     ['{F309D486-2E2A-4526-8BB8-A38A47E3C8FF}']
     function IsSame(const ALine: IGeometryLonLatSingleLine): Boolean;
-
-    function GetEnum: IEnumLonLatPoint;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -71,8 +70,6 @@ type
     ['{5BB3E4AF-5420-4EDB-9DE0-D44FFA38519E}']
     function IsSame(const ALine: IGeometryLonLatMultiLine): Boolean;
 
-    function GetEnum: IEnumLonLatPoint;
-
     function GetCount: Integer;
     property Count: Integer read GetCount;
 
@@ -83,13 +80,12 @@ type
   IGeometryLonLatPolygon = interface(IGeometryLonLat)
     ['{0D3F41A0-4170-40E1-9A01-939824A6CF34}']
     function IsEmpty: Boolean;
+    function GetEnum: IEnumLonLatPoint;
   end;
 
   IGeometryLonLatSinglePolygon = interface(IGeometryLonLatPolygon)
     ['{C9FF5A32-B90D-43D2-9394-9E54A4F29905}']
     function IsSame(const ALine: IGeometryLonLatSinglePolygon): Boolean;
-
-    function GetEnum: IEnumLonLatPoint;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
@@ -101,8 +97,6 @@ type
   IGeometryLonLatMultiPolygon = interface(IGeometryLonLatPolygon)
     ['{E71E059B-8FB3-42AD-97BD-7777AC66C8F2}']
     function IsSame(const ALine: IGeometryLonLatMultiPolygon): Boolean;
-
-    function GetEnum: IEnumLonLatPoint;
 
     function GetCount: Integer;
     property Count: Integer read GetCount;
