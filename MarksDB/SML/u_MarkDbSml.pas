@@ -49,13 +49,12 @@ type
   private
     FDbId: Integer;
     FStateInternal: IReadWriteStateInternal;
-    FFileName: string;
+    FStream: TStream;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
 
-    FStream: TStream;
     FCdsMarks: TClientDataSet;
     FMarkList: IIDInterfaceList;
     FByCategoryList: IIDInterfaceList;
@@ -65,8 +64,7 @@ type
     procedure WriteCurrentMarkId(const AMark: IMarkId);
     procedure WriteCurrentMark(const AMark: IVectorDataItem);
 
-    function GetMarksBackUpFileName: string;
-    procedure InitEmptyDS(ACdsMarks: TClientDataSet);
+    procedure InitEmptyDS;
     function GetCategoryID(const ACategory: ICategory): Integer;
     function GetFilterTextByCategory(const ACategory: ICategory): string;
     function _UpdateMark(
@@ -84,8 +82,8 @@ type
       AIgnoreVisible: Boolean;
       const AResultList: IVectorItemSubsetBuilder
     );
-    function SaveMarks2File: boolean;
-    procedure LoadMarksFromFile;
+    function Save: boolean;
+    procedure Load;
   private
     function GetById(AId: Integer): IVectorDataItem;
   private
@@ -157,7 +155,7 @@ type
     constructor Create(
       const ADbId: Integer;
       const AStateInternal: IReadWriteStateInternal;
-      const AFileName: string;
+      const ADataStream: TStream;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AFactoryDbInternal: IMarkFactorySmlInternal;
       const ALoadDbCounter: IInternalPerformanceCounter;
@@ -335,7 +333,7 @@ end;
 constructor TMarkDbSml.Create(
   const ADbId: Integer;
   const AStateInternal: IReadWriteStateInternal;
-  const AFileName: string;
+  const ADataStream: TStream;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AFactoryDbInternal: IMarkFactorySmlInternal;
   const ALoadDbCounter: IInternalPerformanceCounter;
@@ -344,7 +342,7 @@ constructor TMarkDbSml.Create(
 begin
   inherited Create;
   FDbId := ADbId;
-  FFileName := AFileName;
+  FStream := ADataStream;
   FStateInternal := AStateInternal;
   FFactoryDbInternal := AFactoryDbInternal;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
@@ -359,14 +357,13 @@ begin
   FCdsMarks := TClientDataSet.Create(nil);
   FCdsMarks.Name := 'CDSmarks';
   FCdsMarks.DisableControls;
-  InitEmptyDS(FCdsMarks);
-  LoadMarksFromFile;
+  Load;
 end;
 
 destructor TMarkDbSml.Destroy;
 begin
   if Assigned(FCdsMarks) then begin
-    SaveMarks2File;
+    Save;
   end;
   FreeAndNil(FStream);
   FreeAndNil(FCdsMarks);
@@ -594,7 +591,7 @@ begin
   finally
     UnlockWrite;
   end;
-  SaveMarks2File;
+  Save;
 end;
 
 function TMarkDbSml.UpdateMarkList(
@@ -651,7 +648,7 @@ begin
     finally
       UnlockWrite;
     end;
-    SaveMarks2File;
+    Save;
     Result := VTemp.MakeStaticAndClear;
   end else begin
     LockWrite;
@@ -662,7 +659,7 @@ begin
     finally
       UnlockWrite;
     end;
-    SaveMarks2File;
+    Save;
   end;
 end;
 
@@ -1148,10 +1145,10 @@ begin
   end;
 end;
 
-procedure TMarkDbSml.InitEmptyDS(ACdsMarks: TClientDataSet);
+procedure TMarkDbSml.InitEmptyDS;
 begin
-  ACdsMarks.Close;
-  ACdsMarks.XMLData :=
+  FCdsMarks.Close;
+  FCdsMarks.XMLData :=
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     '<DATAPACKET Version="2.0">' +
     '   <METADATA>' +
@@ -1176,8 +1173,8 @@ begin
     '   </METADATA>' +
     '   <ROWDATA/>' +
     '</DATAPACKET>';
-  ACdsMarks.IndexFieldNames := 'categoryid;LonR;LonL;LatT;LatB;visible';
-  ACdsMarks.Open;
+  FCdsMarks.IndexFieldNames := 'categoryid;LonR;LonL;LatT;LatB;visible';
+  FCdsMarks.Open;
 end;
 
 function TMarkDbSml.GetFilterTextByCategory(const ACategory: ICategory): string;
@@ -1407,20 +1404,13 @@ begin
   Result := VResultList.MakeStaticAndClear;
 end;
 
-function TMarkDbSml.GetMarksBackUpFileName: string;
-begin
-  Result := ChangeFileExt(FFileName, '.~sml');
-end;
-
-procedure TMarkDbSml.LoadMarksFromFile;
+procedure TMarkDbSml.Load;
 var
-  VFileName: string;
   VMark: IVectorDataItem;
   VIdNew: Integer;
   VCategoryIdNew: Integer;
   VList: IIDInterfaceList;
   VMarkInternal: IMarkSMLInternal;
-  VStream: TStream;
   XML: AnsiString;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
@@ -1430,108 +1420,47 @@ begin
     VCounterContext := 0;
   end;
   try
-    VFileName := FFileName;
     FStateInternal.LockWrite;
     try
       LockWrite;
       try
-        InitEmptyDS(FCdsMarks);
+        InitEmptyDS;
         FMarkList.Clear;
         FByCategoryList.Clear;
         if FStateInternal.ReadAccess <> asDisabled then begin
-          VStream := nil;
-          try
-            if FileExists(VFileName) then begin
-              if FStateInternal.WriteAccess <> asDisabled then begin
-                try
-                  VStream := TFileStream.Create(VFileName, fmOpenReadWrite + fmShareDenyWrite);
-                  FStateInternal.WriteAccess := asEnabled;
-                except
-                  VStream := nil;
-                  FStateInternal.WriteAccess := asDisabled;
-                end;
-              end;
-              if VStream = nil then begin
-                try
-                  VStream := TFileStream.Create(VFileName, fmOpenRead + fmShareDenyNone);
-                  FStateInternal.ReadAccess := asEnabled;
-                except
-                  FStateInternal.ReadAccess := asDisabled;
-                  VStream := nil;
-                end;
-              end;
-              if VStream <> nil then begin
-                try
-                  SetLength(XML, VStream.Size);
-                  VStream.ReadBuffer(XML[1], length(XML));
-                except
-                  FStateInternal.ReadAccess := asDisabled;
-                  VStream.Free;
-                  VStream := nil;
-                end;
-              end;
-
-              if length(XML) > 0 then begin
-                try
-                  FCdsMarks.XMLData := XML;
-                except
-                  InitEmptyDS(FCdsMarks);
-                end;
-              end;
-
-              if FCdsMarks.RecordCount > 0 then begin
-                if FStateInternal.WriteAccess = asEnabled then begin
-                  CopyFile(PChar(VFileName), PChar(GetMarksBackUpFileName), false);
-                end;
-              end;
-
-              FCdsMarks.Filtered := False;
-              FCdsMarks.First;
-              while not FCdsMarks.Eof do begin
-                VMark := ReadCurrentMark;
-                if Assigned(VMark) and Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
-                  VIdNew := VMarkInternal.Id;
-                  VCategoryIdNew := VMarkInternal.CategoryId;
-                  FMarkList.Add(VIdNew, VMark);
-                  VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryIdNew));
-                  if VList = nil then begin
-                    VList := TIDInterfaceList.Create;
-                    FByCategoryList.Add(VCategoryIdNew, VList);
-                  end;
-                  VList.Add(VIdNew, VMark);
-                end;
-                FCdsMarks.Next;
-              end;
-            end else begin
-              if FStateInternal.WriteAccess <> asDisabled then begin
-                try
-                  VStream := TFileStream.Create(VFileName, fmCreate);
-                  VStream.Free;
-                  VStream := nil;
-                except
-                  FStateInternal.WriteAccess := asDisabled;
-                  VStream := nil;
-                end;
-                if FStateInternal.WriteAccess <> asDisabled then begin
-                  try
-                    VStream := TFileStream.Create(VFileName, fmOpenReadWrite + fmShareDenyWrite);
-                    FStateInternal.WriteAccess := asEnabled;
-                  except
-                    VStream := nil;
-                    FStateInternal.WriteAccess := asDisabled;
-                  end;
-                end;
-              end;
+          if FStream <> nil then begin
+            try
+              SetLength(XML, FStream.Size);
+              FStream.ReadBuffer(XML[1], length(XML));
+            except
+              FStateInternal.ReadAccess := asDisabled;
             end;
-            if FStream <> nil then begin
-              FreeAndNil(FStream);
+          end;
+
+          if length(XML) > 0 then begin
+            try
+              FCdsMarks.XMLData := XML;
+            except
+              InitEmptyDS;
             end;
-            if FStateInternal.WriteAccess = asEnabled then begin
-              FStream := VStream;
-              VStream := nil;
+          end;
+
+          FCdsMarks.Filtered := False;
+          FCdsMarks.First;
+          while not FCdsMarks.Eof do begin
+            VMark := ReadCurrentMark;
+            if Assigned(VMark) and Supports(VMark.MainInfo, IMarkSMLInternal, VMarkInternal) then begin
+              VIdNew := VMarkInternal.Id;
+              VCategoryIdNew := VMarkInternal.CategoryId;
+              FMarkList.Add(VIdNew, VMark);
+              VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryIdNew));
+              if VList = nil then begin
+                VList := TIDInterfaceList.Create;
+                FByCategoryList.Add(VCategoryIdNew, VList);
+              end;
+              VList.Add(VIdNew, VMark);
             end;
-          finally
-            VStream.Free;
+            FCdsMarks.Next;
           end;
         end;
       finally
@@ -1547,7 +1476,7 @@ begin
   end;
 end;
 
-function TMarkDbSml.SaveMarks2File: boolean;
+function TMarkDbSml.Save: boolean;
 var
   XML: AnsiString;
   VCounterContext: TInternalPerformanceCounterContext;

@@ -23,6 +23,8 @@ unit u_MarkSystemSml;
 interface
 
 uses
+  Windows,
+  Classes,
   i_HashFunction,
   i_GeometryLonLatFactory,
   i_VectorItemSubsetBuilder,
@@ -38,6 +40,7 @@ uses
   i_MarkCategoryDBImpl,
   i_MarkSystemImpl,
   i_MarkCategoryDBSmlInternal,
+  i_ReadWriteStateInternal,
   i_MarkDbSmlInternal,
   i_MarkFactorySmlInternal,
   u_BaseInterfacedObject;
@@ -53,6 +56,11 @@ type
     FCategoryDBImpl: IMarkCategoryDBImpl;
     FCategoryDBInternal: IMarkCategoryDBSmlInternal;
     FFactoryDbInternal: IMarkFactorySmlInternal;
+    function PrepareStream(
+      const AFileName: string;
+      const AState: IReadWriteStateInternal
+    ): TStream;
+    procedure MakeBackUp(const AFileName: string);
   private
     function GetMarkDb: IMarkDbImpl;
     function GetCategoryDB: IMarkCategoryDBImpl;
@@ -81,6 +89,7 @@ implementation
 
 uses
   SysUtils,
+  t_CommonTypes,
   u_ReadWriteStateInternal,
   u_MarkFactorySmlDbInternal,
   u_MarkDbSml,
@@ -104,17 +113,26 @@ var
   VCategoryDb: TMarkCategoryDBSml;
   VMarkDb: TMarkDbSml;
   VState: TReadWriteStateInternal;
+  VCategoryFileName: string;
+  VCategoryStream: TStream;
+  VMarkFileName: string;
+  VMarkStream: TStream;
 begin
   inherited Create;
   FDbId := Integer(Self);
   VState := TReadWriteStateInternal.Create;
   FState := VState;
+
+  VCategoryFileName := IncludeTrailingPathDelimiter(ABasePath) + 'Categorymarks.sml';
+  VCategoryStream := PrepareStream(VCategoryFileName, VState);
+
   VCategoryDb :=
     TMarkCategoryDBSml.Create(
       FDbId,
       VState,
-      IncludeTrailingPathDelimiter(ABasePath) + 'Categorymarks.sml'
+      VCategoryStream
     );
+
   FCategoryDBImpl := VCategoryDb;
   FCategoryDBInternal := VCategoryDb;
   FFactoryDbInternal :=
@@ -128,18 +146,87 @@ begin
       AHintConverter,
       FCategoryDBInternal
     );
+
+  VMarkFileName := IncludeTrailingPathDelimiter(ABasePath) + 'marks.sml';
+  VMarkStream := PrepareStream(VMarkFileName, VState);
+
   VMarkDb :=
     TMarkDbSml.Create(
       FDbId,
       VState,
-      IncludeTrailingPathDelimiter(ABasePath) + 'marks.sml',
+      VMarkStream,
       AVectorItemSubsetBuilderFactory,
       FFactoryDbInternal,
       ALoadDbCounter,
       ASaveDbCounter
     );
+
+  if FState.GetStatic.WriteAccess = asEnabled then begin
+    if VCategoryStream.Size > 0 then begin
+      MakeBackUp(VCategoryFileName);
+    end;
+    if VMarkStream.Size > 0 then begin
+      MakeBackUp(VMarkFileName);
+    end;
+  end;
+
   FMarkDbImpl := VMarkDb;
   FMarkDbInternal := VMarkDb;
+end;
+
+function TMarkSystemSml.PrepareStream(
+  const AFileName: string;
+  const AState: IReadWriteStateInternal
+): TStream;
+begin
+  Result := nil;
+  AState.LockWrite;
+  try
+    if AState.ReadAccess <> asDisabled then begin
+      if FileExists(AFileName) then begin
+        if AState.WriteAccess <> asDisabled then begin
+          try
+            Result := TFileStream.Create(AFileName, fmOpenReadWrite + fmShareDenyWrite);
+            AState.WriteAccess := asEnabled;
+          except
+            Result := nil;
+            AState.WriteAccess := asDisabled;
+          end;
+        end;
+        if Result = nil then begin
+          try
+            Result := TFileStream.Create(AFileName, fmOpenRead + fmShareDenyNone);
+            AState.ReadAccess := asEnabled;
+          except
+            AState.ReadAccess := asDisabled;
+            Result := nil;
+          end;
+        end;
+      end else begin
+        if AState.WriteAccess <> asDisabled then begin
+          try
+            Result := TFileStream.Create(AFileName, fmCreate);
+            Result.Free;
+            Result := nil;
+          except
+            AState.WriteAccess := asDisabled;
+            Result := nil;
+          end;
+          if AState.WriteAccess <> asDisabled then begin
+            try
+              Result := TFileStream.Create(AFileName, fmOpenReadWrite + fmShareDenyWrite);
+              AState.WriteAccess := asEnabled;
+            except
+              Result := nil;
+              AState.WriteAccess := asDisabled;
+            end;
+          end;
+        end;
+      end;
+    end;
+  finally
+    AState.UnlockWrite;
+  end;
 end;
 
 function TMarkSystemSml.GetCategoryDB: IMarkCategoryDBImpl;
@@ -194,6 +281,14 @@ begin
   if Assigned(AMark) and Supports(AMark.MainInfo, IMarkSMLInternal, VMark) then begin
     Result := IntToStr(VMark.Id);
   end;
+end;
+
+procedure TMarkSystemSml.MakeBackUp(const AFileName: string);
+var
+  VNewFileName: string;
+begin
+  VNewFileName := ChangeFileExt(AFileName, '.~sml');
+  CopyFile(PChar(AFileName), PChar(VNewFileName), false);
 end;
 
 end.
