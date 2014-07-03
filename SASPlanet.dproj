@@ -388,6 +388,7 @@
     <DCCReference Include="Geometry\i_DoublePointFilter.pas" />
     <DCCReference Include="Geometry\i_DoublePointsAggregator.pas" />
     <DCCReference Include="Geometry\i_EnumDoublePoint.pas" />
+    <DCCReference Include="Geometry\i_GeometryFromStream.pas" />
     <DCCReference Include="Geometry\i_GeometryLocal.pas" />
     <DCCReference Include="Geometry\i_GeometryLocalFactory.pas" />
     <DCCReference Include="Geometry\i_GeometryLonLat.pas" />
@@ -395,6 +396,7 @@
     <DCCReference Include="Geometry\i_GeometryProjected.pas" />
     <DCCReference Include="Geometry\i_GeometryProjectedFactory.pas" />
     <DCCReference Include="Geometry\i_GeometryProjectedProvider.pas" />
+    <DCCReference Include="Geometry\i_GeometryToStream.pas" />
     <DCCReference Include="Geometry\i_ProjectedCalc.pas" />
     <DCCReference Include="Geometry\u_DoublePointsAggregator.pas" />
     <DCCReference Include="Geometry\u_EnumDoublePointByLineSet.pas" />
@@ -758,6 +760,8 @@
     <DCCReference Include="MarksDB\SML\i_MarkCategoryFactoryDbInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkDbSmlInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkFactorySmlInternal.pas" />
+    <DCCReference Include="MarksDB\SML\u_GeometryFromStreamSML.pas" />
+    <DCCReference Include="MarksDB\SML\u_GeometryToStreamSML.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkCategoryDBSml.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkCategoryFactorySmlDbInternal.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkCategorySmlDbInternal.pas" />
