@@ -24,11 +24,9 @@ interface
 
 uses
   t_Bitmap32,
-  t_GeoTypes,
   i_HashFunction,
   i_AppearanceOfMarkFactory,
   i_GeometryLonLat,
-  i_GeometryLonLatFactory,
   i_MarkPicture,
   i_Category,
   i_MarkCategoryDBSmlInternal,
@@ -43,7 +41,6 @@ type
   private
     FDbId: Integer;
     FHashFunction: IHashFunction;
-    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMarkFactory: IMarkFactory;
     FCategoryDB: IMarkCategoryDBSmlInternal;
@@ -56,10 +53,9 @@ type
       const AName: string;
       AVisible: Boolean;
       const APicName: string;
-      const APic: IMarkPicture;
       const ACategory: ICategory;
       const ADesc: string;
-      const APoint: IGeometryLonLatPoint;
+      const AGeometry: IGeometryLonLat;
       ATextColor, ATextBgColor: TColor32;
       AFontSize, AMarkerSize: Integer
     ): IVectorDataItem;
@@ -69,7 +65,7 @@ type
       AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: IGeometryLonLatMultiLine;
+      const AGeometry: IGeometryLonLat;
       ALineColor: TColor32;
       ALineWidth: Integer
     ): IVectorDataItem;
@@ -79,7 +75,7 @@ type
       AVisible: Boolean;
       const ACategory: ICategory;
       const ADesc: string;
-      const ALine: IGeometryLonLatMultiPolygon;
+      const AGeometry: IGeometryLonLat;
       ABorderColor, AFillColor: TColor32;
       ALineWidth: Integer
     ): IVectorDataItem;
@@ -91,8 +87,7 @@ type
       const APicName: string;
       ACategoryId: Integer;
       const ADesc: string;
-      const APoints: PDoublePointArray;
-      APointCount: Integer;
+      const AGeometry: IGeometryLonLat;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
@@ -103,7 +98,6 @@ type
     constructor Create(
       const ADbId: Integer;
       const AMarkPictureList: IMarkPictureList;
-      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const AHashFunction: IHashFunction;
@@ -120,7 +114,6 @@ uses
   i_MarkId,
   i_MarkDbSmlInternal,
   i_Appearance,
-  u_GeoFunc,
   u_MarkId,
   u_VectorDataItemBase;
 
@@ -129,7 +122,6 @@ uses
 constructor TMarkFactorySmlDbInternal.Create(
   const ADbId: Integer;
   const AMarkPictureList: IMarkPictureList;
-  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const AHashFunction: IHashFunction;
@@ -139,7 +131,6 @@ constructor TMarkFactorySmlDbInternal.Create(
 begin
   inherited Create;
   FDbId := ADbId;
-  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FMarkFactory := AMarkFactory;
   FHashFunction := AHashFunction;
@@ -153,10 +144,9 @@ function TMarkFactorySmlDbInternal.CreatePoint(
   const AName: string;
   AVisible: Boolean;
   const APicName: string;
-  const APic: IMarkPicture;
   const ACategory: ICategory;
   const ADesc: string;
-  const APoint: IGeometryLonLatPoint;
+  const AGeometry: IGeometryLonLat;
   ATextColor, ATextBgColor: TColor32;
   AFontSize, AMarkerSize: Integer
 ): IVectorDataItem;
@@ -168,15 +158,13 @@ var
   VAppearance: IAppearance;
   VMainInfo: IVectorDataItemMainInfo;
 begin
-  VPic := APic;
-  if VPic = nil then begin
-    VPicName := APicName;
-    VPicIndex := FMarkPictureList.GetIndexByName(APicName);
-    if VPicIndex >= 0 then begin
-      VPic := FMarkPictureList.Get(VPicIndex);
-    end;
-  end else begin
+  VPicName := APicName;
+  VPicIndex := FMarkPictureList.GetIndexByName(APicName);
+  if VPicIndex >= 0 then begin
+    VPic := FMarkPictureList.Get(VPicIndex);
     VPicName := VPic.GetName;
+  end else begin
+    VPic := nil;
   end;
   VAppearance :=
     FAppearanceOfMarkFactory.CreatePointAppearance(
@@ -202,7 +190,7 @@ begin
       AVisible
     );
 
-  VHash := APoint.Hash;
+  VHash := AGeometry.Hash;
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
 
@@ -211,7 +199,7 @@ begin
       VHash,
       VAppearance,
       VMainInfo,
-      APoint
+      AGeometry
     );
 end;
 
@@ -239,6 +227,7 @@ begin
         VCategory := FCategoryDB.GetCategoryByName(VCategory.Name);
         if Assigned(VCategory) then begin
           Result := FMarkFactory.ReplaceCategory(AMark, VCategory);
+          Exit;
         end;
       end;
     end;
@@ -253,7 +242,7 @@ function TMarkFactorySmlDbInternal.CreateLine(
   AVisible: Boolean;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: IGeometryLonLatMultiLine;
+  const AGeometry: IGeometryLonLat;
   ALineColor: TColor32;
   ALineWidth: Integer
 ): IVectorDataItem;
@@ -262,7 +251,7 @@ var
   VAppearance: IAppearance;
   VMainInfo: IVectorDataItemMainInfo;
 begin
-  Assert(Assigned(ALine));
+  Assert(Assigned(AGeometry));
   VAppearance :=
     FAppearanceOfMarkFactory.CreateLineAppearance(
       ALineColor,
@@ -284,7 +273,7 @@ begin
       AVisible
     );
 
-  VHash := ALine.Hash;
+  VHash := AGeometry.Hash;
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
   Result :=
@@ -292,7 +281,7 @@ begin
       VHash,
       VAppearance,
       VMainInfo,
-      ALine
+      AGeometry
     );
 end;
 
@@ -302,7 +291,7 @@ function TMarkFactorySmlDbInternal.CreatePoly(
   AVisible: Boolean;
   const ACategory: ICategory;
   const ADesc: string;
-  const ALine: IGeometryLonLatMultiPolygon;
+  const AGeometry: IGeometryLonLat;
   ABorderColor, AFillColor: TColor32;
   ALineWidth: Integer
 ): IVectorDataItem;
@@ -311,7 +300,7 @@ var
   VAppearance: IAppearance;
   VMainInfo: IVectorDataItemMainInfo;
 begin
-  Assert(Assigned(ALine));
+  Assert(Assigned(AGeometry));
   VAppearance :=
     FAppearanceOfMarkFactory.CreatePolygonAppearance(
       ABorderColor,
@@ -334,7 +323,7 @@ begin
       AVisible
     );
 
-  VHash := ALine.Hash;
+  VHash := AGeometry.Hash;
   FHashFunction.UpdateHashByHash(VHash, VMainInfo.Hash);
   FHashFunction.UpdateHashByHash(VHash, VAppearance.Hash);
   Result :=
@@ -342,7 +331,7 @@ begin
       VHash,
       VAppearance,
       VMainInfo,
-      ALine
+      AGeometry
     );
 end;
 
@@ -353,75 +342,56 @@ function TMarkFactorySmlDbInternal.CreateMark(
   const APicName: string;
   ACategoryId: Integer;
   const ADesc: string;
-  const APoints: PDoublePointArray;
-  APointCount: Integer;
+  const AGeometry: IGeometryLonLat;
   AColor1, AColor2: TColor32;
   AScale1, AScale2: Integer
 ): IVectorDataItem;
 var
-  VPoint: IGeometryLonLatPoint;
-  VPolygon: IGeometryLonLatMultiPolygon;
-  VPath: IGeometryLonLatMultiLine;
   VCategory: ICategory;
 begin
   Result := nil;
-  if APointCount > 0 then begin
-    if VCategory = nil then begin
-      VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
-    end;
-
-    if APointCount = 1 then begin
-      if not PointIsEmpty(APoints[0]) then begin
-        VPoint := FVectorGeometryLonLatFactory.CreateLonLatPoint(APoints[0]);
-        Result :=
-          CreatePoint(
-            AId,
-            AName,
-            AVisible,
-            APicName,
-            nil,
-            VCategory,
-            ADesc,
-            VPoint,
-            AColor1,
-            AColor2,
-            AScale1,
-            AScale2
-          );
-      end;
-    end else begin
-      if DoublePointsEqual(APoints[0], APoints[APointCount - 1]) then begin
-        VPolygon := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(APoints, APointCount - 1);
-        if VPolygon.Count <> 0 then begin
-          Result :=
-            CreatePoly(
-              AId,
-              AName,
-              AVisible,
-              VCategory,
-              ADesc,
-              VPolygon,
-              AColor1,
-              AColor2,
-              AScale1
-            );
-        end;
-      end else begin
-        VPath := FVectorGeometryLonLatFactory.CreateLonLatMultiLine(APoints, APointCount);
-        if VPath.Count <> 0 then begin
-          Result :=
-            CreateLine(
-              AId,
-              AName,
-              AVisible,
-              VCategory,
-              ADesc,
-              VPath,
-              AColor1,
-              AScale1
-            );
-        end;
-      end;
+  if Assigned(AGeometry) then begin
+    VCategory := FCategoryDB.GetCategoryByID(ACategoryId);
+    if Supports(AGeometry, IGeometryLonLatPoint) then begin
+      Result :=
+        CreatePoint(
+          AId,
+          AName,
+          AVisible,
+          APicName,
+          VCategory,
+          ADesc,
+          AGeometry,
+          AColor1,
+          AColor2,
+          AScale1,
+          AScale2
+        );
+    end else if Supports(AGeometry, IGeometryLonLatLine) then begin
+      Result :=
+        CreateLine(
+          AId,
+          AName,
+          AVisible,
+          VCategory,
+          ADesc,
+          AGeometry,
+          AColor1,
+          AScale1
+        );
+    end else if Supports(AGeometry, IGeometryLonLatPolygon) then begin
+      Result :=
+        CreatePoly(
+          AId,
+          AName,
+          AVisible,
+          VCategory,
+          ADesc,
+          AGeometry,
+          AColor1,
+          AColor2,
+          AScale1
+        );
     end;
   end;
 end;

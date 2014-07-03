@@ -24,12 +24,16 @@ interface
 
 uses
   Windows,
+  DB,
   DBClient,
   SysUtils,
   Classes,
   t_GeoTypes,
   i_IDList,
   i_SimpleFlag,
+  i_GeometryLonLat,
+  i_GeometryToStream,
+  i_GeometryFromStream,
   i_VectorItemSubsetBuilder,
   i_InternalPerformanceCounter,
   i_InterfaceListStatic,
@@ -51,6 +55,8 @@ type
     FStateInternal: IReadWriteStateInternal;
     FStream: TStream;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+    FGeometryReader: IGeometryFromStream;
+    FGeometryWriter: IGeometryToStream;
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
@@ -65,6 +71,13 @@ type
     procedure WriteCurrentMark(const AMark: IVectorDataItem);
 
     procedure InitEmptyDS;
+    procedure GeomertryToBlob(
+      const AGeometry: IGeometryLonLat;
+      ABlobField: TField
+    );
+    function GeomertryFromBlob(
+      ABlobField: TField
+    ): IGeometryLonLat;
     function GetCategoryID(const ACategory: ICategory): Integer;
     function GetFilterTextByCategory(const ACategory: ICategory): string;
     function _UpdateMark(
@@ -157,6 +170,8 @@ type
       const AStateInternal: IReadWriteStateInternal;
       const ADataStream: TStream;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AGeometryReader: IGeometryFromStream;
+      const AGeometryWriter: IGeometryToStream;
       const AFactoryDbInternal: IMarkFactorySmlInternal;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter
@@ -168,7 +183,6 @@ implementation
 
 uses
   ActiveX,
-  DB,
   Math,
   StrUtils,
   t_Bitmap32,
@@ -179,171 +193,30 @@ uses
   u_IDInterfaceList,
   u_InterfaceListSimple,
   i_DoublePointsAggregator,
-  i_GeometryLonLat,
   u_DoublePointsAggregator,
   u_SimpleFlagWithInterlock,
   u_GeoFunc;
-
-type
-  TExtendedPoint = record
-    X, Y: Extended;
-  end;
-
-
-procedure Blob2ExtArr(
-  ABlobField: TField;
-  const AAggregator: IDoublePointsAggregator
-);
-const
-  CMaxDegres: Extended = 360;
-  CMinDegres: Extended = -360;
-var
-  VSize: Integer;
-  VPointsCount: Integer;
-  VField: TBlobfield;
-  VStream: TStream;
-  i: Integer;
-  VPoint: TExtendedPoint;
-  VDoublePoint: TDoublePoint;
-begin
-  VField := TBlobfield(ABlobField);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
-  try
-    VSize := VStream.Size;
-    VPointsCount := VSize div SizeOf(TExtendedPoint);
-    for i := 0 to VPointsCount - 1 do begin
-      VStream.ReadBuffer(VPoint, SizeOf(TExtendedPoint));
-      try
-        if IsNan(VPoint.X) or IsNan(VPoint.Y) then begin
-          VDoublePoint := CEmptyDoublePoint;
-        end else if (VPoint.X >= CMaxDegres) or (VPoint.X <= CMinDegres) or (VPoint.Y >= CMaxDegres) or (VPoint.Y <= CMinDegres) then begin
-          VDoublePoint := CEmptyDoublePoint;
-        end else begin
-          VDoublePoint := DoublePoint(VPoint.X, VPoint.Y);
-        end;
-      except
-        VDoublePoint := CEmptyDoublePoint;
-      end;
-      AAggregator.Add(VDoublePoint);
-    end;
-  finally
-    VStream.Free;
-  end;
-end;
-
-procedure BlobFromPoint(
-  const APoint: IGeometryLonLatPoint;
-  ABlobField: TField
-);
-var
-  VField: TBlobfield;
-  VStream: TStream;
-  VPoint: TExtendedPoint;
-begin
-  VField := TBlobfield(ABlobField);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
-  try
-    VPoint.X := APoint.Point.X;
-    VPoint.Y := APoint.Point.Y;
-    VStream.Write(VPoint, SizeOf(VPoint));
-  finally
-    VStream.Free;
-  end;
-end;
-
-procedure BlobFromPath(
-  const APath: IGeometryLonLatMultiLine;
-  ABlobField: TField
-);
-var
-  VField: TBlobfield;
-  VStream: TStream;
-  i: Integer;
-  VPoint: TExtendedPoint;
-  VEnum: IEnumDoublePoint;
-  VFirstPoint: TDoublePoint;
-  VCurrPoint: TDoublePoint;
-  VPrevPoint: TDoublePoint;
-begin
-  VField := TBlobfield(ABlobField);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
-  try
-    VEnum := APath.GetEnum;
-    i := 0;
-    if VEnum.Next(VFirstPoint) then begin
-      VCurrPoint := VFirstPoint;
-      VPrevPoint := VCurrPoint;
-      VPoint.X := VCurrPoint.X;
-      VPoint.Y := VCurrPoint.Y;
-      VStream.Write(VPoint, SizeOf(VPoint));
-      Inc(i);
-      while VEnum.Next(VCurrPoint) do begin
-        VPoint.X := VCurrPoint.X;
-        VPoint.Y := VCurrPoint.Y;
-        VStream.Write(VPoint, SizeOf(VPoint));
-        VPrevPoint := VCurrPoint;
-        Inc(i);
-      end;
-    end;
-    if (i = 1) or ((i > 1) and DoublePointsEqual(VFirstPoint, VPrevPoint)) then begin
-      VPoint.X := CEmptyDoublePoint.X;
-      VPoint.Y := CEmptyDoublePoint.Y;
-      VStream.Write(VPoint, SizeOf(VPoint));
-    end;
-  finally
-    VStream.Free;
-  end;
-end;
-
-procedure BlobFromPolygon(
-  const APolygon: IGeometryLonLatMultiPolygon;
-  ABlobField: TField
-);
-var
-  VField: TBlobfield;
-  VStream: TStream;
-  VPoint: TExtendedPoint;
-  VEnum: IEnumDoublePoint;
-  VCurrPoint: TDoublePoint;
-  VLine: IGeometryLonLatSinglePolygon;
-begin
-  VField := TBlobfield(ABlobField);
-  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
-  try
-    if APolygon.Count > 0 then begin
-      VEnum := APolygon.GetEnum;
-      while VEnum.Next(VCurrPoint) do begin
-        VPoint.X := VCurrPoint.X;
-        VPoint.Y := VCurrPoint.Y;
-        VStream.Write(VPoint, SizeOf(VPoint));
-      end;
-      VLine := APolygon.Item[0];
-      if VLine.Count > 1 then begin
-        VCurrPoint := VLine.Points[0];
-        VPoint.X := VCurrPoint.X;
-        VPoint.Y := VCurrPoint.Y;
-        VStream.Write(VPoint, SizeOf(VPoint));
-      end;
-    end;
-  finally
-    VStream.Free;
-  end;
-end;
 
 constructor TMarkDbSml.Create(
   const ADbId: Integer;
   const AStateInternal: IReadWriteStateInternal;
   const ADataStream: TStream;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AGeometryReader: IGeometryFromStream;
+  const AGeometryWriter: IGeometryToStream;
   const AFactoryDbInternal: IMarkFactorySmlInternal;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter
 );
 begin
+  Assert(Assigned(AGeometryReader));
+  Assert(Assigned(AGeometryWriter));
   inherited Create;
   FDbId := ADbId;
   FStream := ADataStream;
   FStateInternal := AStateInternal;
+  FGeometryReader := AGeometryReader;
+  FGeometryWriter := AGeometryWriter;
   FFactoryDbInternal := AFactoryDbInternal;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
 
@@ -663,25 +536,57 @@ begin
   end;
 end;
 
+function TMarkDbSml.GeomertryFromBlob(ABlobField: TField): IGeometryLonLat;
+var
+  VField: TBlobfield;
+  VStream: TStream;
+begin
+  Assert(ABlobField is TBlobfield);
+  VField := TBlobfield(ABlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmRead);
+  try
+    Result := FGeometryReader.Parse(VStream);
+  finally
+    VStream.Free;
+  end;
+end;
+
+procedure TMarkDbSml.GeomertryToBlob(
+  const AGeometry: IGeometryLonLat;
+  ABlobField: TField
+);
+var
+  VField: TBlobfield;
+  VStream: TStream;
+begin
+  Assert(ABlobField is TBlobfield);
+  VField := TBlobfield(ABlobField);
+  VStream := VField.DataSet.CreateBlobStream(VField, bmWrite);
+  try
+    FGeometryWriter.Save(AGeometry, VStream);
+  finally
+    VStream.Free;
+  end;
+end;
+
 function TMarkDbSml.ReadCurrentMark: IVectorDataItem;
 var
   VPicName: string;
   AId: Integer;
   VName: string;
   VVisible: Boolean;
-  VPoints: IDoublePointsAggregator;
   VCategoryId: Integer;
   VDesc: string;
   VColor1: TColor32;
   VColor2: TColor32;
   VScale1: Integer;
   VScale2: Integer;
+  VGeometry: IGeometryLonLat;
 begin
-  VPoints := TDoublePointsAggregator.Create;
+  VGeometry := GeomertryFromBlob(FCdsMarks.FieldByName('LonLatArr'));
   AId := FCdsMarks.fieldbyname('id').AsInteger;
   VName := FCdsMarks.FieldByName('name').AsString;
   VVisible := FCdsMarks.FieldByName('Visible').AsBoolean;
-  Blob2ExtArr(FCdsMarks.FieldByName('LonLatArr'), VPoints);
   VCategoryId := FCdsMarks.FieldByName('categoryid').AsInteger;
   VDesc := FCdsMarks.FieldByName('descr').AsString;
   VPicName := FCdsMarks.FieldByName('PicName').AsString;
@@ -698,8 +603,7 @@ begin
       VPicName,
       VCategoryId,
       VDesc,
-      VPoints.Points,
-      VPoints.Count,
+      VGeometry,
       VColor1,
       VColor2,
       VScale1,
@@ -719,9 +623,6 @@ var
   VPicName: string;
   VCategoryId: Integer;
   VVisible: Boolean;
-  VGeometryPoint: IGeometryLonLatPoint;
-  VGeometryLine: IGeometryLonLatMultiLine;
-  VGeometryPoly: IGeometryLonLatMultiPolygon;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
   VAppearanceLine: IAppearanceLine;
@@ -763,7 +664,7 @@ begin
   FCdsMarks.FieldByName('LonR').AsFloat := VRect.Right;
   FCdsMarks.FieldByName('LatB').AsFloat := VRect.Bottom;
 
-  if Supports(AMark.Geometry, IGeometryLonLatPoint, VGeometryPoint) then begin
+  if Supports(AMark.Geometry, IGeometryLonLatPoint) then begin
     VTextColor := 0;
     VTextBgColor := 0;
     VFontSize := 0;
@@ -779,14 +680,14 @@ begin
       VPicName := VAppearanceIcon.PicName;
     end;
     FCdsMarks.FieldByName('PicName').AsString := VPicName;
-    BlobFromPoint(VGeometryPoint, FCdsMarks.FieldByName('LonLatArr'));
+    GeomertryToBlob(AMark.Geometry, FCdsMarks.FieldByName('LonLatArr'));
     FCdsMarks.FieldByName('Color1').AsInteger := VTextColor;
     FCdsMarks.FieldByName('Color2').AsInteger := VTextBgColor;
     FCdsMarks.FieldByName('Scale1').AsInteger := VFontSize;
     FCdsMarks.FieldByName('Scale2').AsInteger := VMarkerSize;
-  end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine, VGeometryLine) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatLine) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
-    BlobFromPath(VGeometryLine, FCdsMarks.FieldByName('LonLatArr'));
+    GeomertryToBlob(AMark.Geometry, FCdsMarks.FieldByName('LonLatArr'));
     VLineColor := 0;
     VLineWidth := 0;
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
@@ -797,9 +698,9 @@ begin
     FCdsMarks.FieldByName('Color2').AsInteger := 0;
     FCdsMarks.FieldByName('Scale1').AsInteger := VLineWidth;
     FCdsMarks.FieldByName('Scale2').AsInteger := 0;
-  end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon, VGeometryPoly) then begin
+  end else if Supports(AMark.Geometry, IGeometryLonLatPolygon) then begin
     FCdsMarks.FieldByName('PicName').AsString := '';
-    BlobFromPolygon(VGeometryPoly, FCdsMarks.FieldByName('LonLatArr'));
+    GeomertryToBlob(AMark.Geometry, FCdsMarks.FieldByName('LonLatArr'));
     VLineColor := 0;
     VLineWidth := 0;
     VFillColor := 0;

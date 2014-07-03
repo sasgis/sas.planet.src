@@ -90,8 +90,12 @@ implementation
 uses
   SysUtils,
   t_CommonTypes,
+  i_GeometryToStream,
+  i_GeometryFromStream,
   u_ReadWriteStateInternal,
   u_MarkFactorySmlDbInternal,
+  u_GeometryToStreamSML,
+  u_GeometryFromStreamSML,
   u_MarkDbSml,
   u_MarkCategoryDBSml;
 
@@ -117,6 +121,8 @@ var
   VCategoryStream: TStream;
   VMarkFileName: string;
   VMarkStream: TStream;
+  VGeometryReader: IGeometryFromStream;
+  VGeometryWriter: IGeometryToStream;
 begin
   inherited Create;
   FDbId := Integer(Self);
@@ -139,7 +145,6 @@ begin
     TMarkFactorySmlDbInternal.Create(
       FDbId,
       AMarkPictureList,
-      AVectorGeometryLonLatFactory,
       AAppearanceOfMarkFactory,
       AMarkFactory,
       AHashFunction,
@@ -150,12 +155,16 @@ begin
   VMarkFileName := IncludeTrailingPathDelimiter(ABasePath) + 'marks.sml';
   VMarkStream := PrepareStream(VMarkFileName, VState);
 
+  VGeometryReader := TGeometryFromStreamSML.Create(AVectorGeometryLonLatFactory);
+  VGeometryWriter := TGeometryToStreamSML.Create;
   VMarkDb :=
     TMarkDbSml.Create(
       FDbId,
       VState,
       VMarkStream,
       AVectorItemSubsetBuilderFactory,
+      VGeometryReader,
+      VGeometryWriter,
       FFactoryDbInternal,
       ALoadDbCounter,
       ASaveDbCounter

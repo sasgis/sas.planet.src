@@ -24,7 +24,7 @@ interface
 
 uses
   t_Bitmap32,
-  t_GeoTypes,
+  i_GeometryLonLat,
   i_VectorDataItemSimple;
 
 type
@@ -37,8 +37,7 @@ type
       const APicName: string;
       ACategoryId: Integer;
       const ADesc: string;
-      const APoints: PDoublePointArray;
-      APointCount: Integer;
+      const AGeometry: IGeometryLonLat;
       AColor1: TColor32;
       AColor2: TColor32;
       AScale1: Integer;
