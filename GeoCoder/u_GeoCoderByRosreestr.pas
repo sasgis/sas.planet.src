@@ -317,28 +317,26 @@ begin
       VSearch := ALStringReplace(VSearch, '*', '', [rfReplaceAll]);// убираем * из строки кадастрового номера
       Result :=
         PrepareRequestByURL(
-//          'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/2/query?f=json&where=PARCELID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript23._jsonpCallback'
-          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum=' + URLEncode(AnsiToUtf8(ASearch)) + '&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript24._jsonpCallback'
+          'http://maps.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum=' + URLEncode(AnsiToUtf8(ASearch)) + '&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript24._jsonpCallback'
         );
     end else if i4 = 0 then // Кварталы
     begin
       Result :=
         PrepareRequestByURL(
-//          'http://maps.rosreestr.ru/ArcGIS/rest/services/Cadastre/CadastreInfo/MapServer/6/query?f=json&where=KVARTALID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript40._jsonpCallback'
-          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/12/query?f=json&where=PKK_ID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript21._jsonpCallback'
+          'http://maps.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/2/query?f=json&where=PKK_ID%20like%20''' + URLEncode(AnsiToUtf8(VSearch)) + '%25''&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript21._jsonpCallback'
         );
     end else // участки
     begin
       Result :=
         PrepareRequestByURL(
-          'http://maps.rosreestr.ru/ArcGIS/rest/services/CadastreNew/Cadastre/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum=' + URLEncode(AnsiToUtf8(ASearch)) + '&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript48._jsonpCallback'
+          'http://maps.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum=' + URLEncode(AnsiToUtf8(ASearch)) + '&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript48._jsonpCallback'
         );
     end;
 
   end else begin //name
     Result :=
       PrepareRequestByURL(
-        'http://maps.rosreestr.ru/ArcGIS/rest/services/Address/Locator_Composite/GeocodeServer/findAddressCandidates?SingleLine=' + URLEncode(AnsiToUtf8(ASearch)) + '&f=json&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript21._jsonpCallback'
+        'http://maps.rosreestr.ru/arcgis/rest/services/Address/Locator_Composite/GeocodeServer/findAddressCandidates?SingleLine=' + URLEncode(AnsiToUtf8(ASearch)) + '&f=json&outFields=*&callback=dojo.io.script.jsonp_dojoIoScript21._jsonpCallback'
       );
   end;
 end;
