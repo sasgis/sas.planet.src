@@ -432,7 +432,7 @@ end;
 procedure TXmlVectorObjects.InternalMakePolygonObject(
   const AForMultiObject, AInner: Boolean);
 var
-  VLonLatPolygon: IGeometryLonLatMultiPolygon;
+  VLonLatPolygon: IGeometryLonLat;
 begin
   // dont create polygons for every Polygon in MultiGeometry
   // if allow to create multisegment polygons
@@ -460,7 +460,7 @@ end;
 procedure TXmlVectorObjects.InternalMakeTrackObject(
   const AForMultiTrack: Boolean);
 var
-  VLonLatPath: IGeometryLonLatMultiLine;
+  VLonLatPath: IGeometryLonLat;
 begin
   // dont create tracks for every gx:Track in gx:MultiTrack
   // if allow to create multisegment polylines

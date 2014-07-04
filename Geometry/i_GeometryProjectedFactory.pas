@@ -68,12 +68,12 @@ type
 
     function CreateProjectedPathByLonLatPath(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygonByLonLatPolygon(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatMultiPolygon;
+      const ASource: IGeometryLonLatPolygon;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;
 
@@ -92,13 +92,13 @@ type
 
     function CreateProjectedPathWithClipByLonLatPath(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       const AMapPixelsClipRect: TDoubleRect;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygonWithClipByLonLatPolygon(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatMultiPolygon;
+      const ASource: IGeometryLonLatPolygon;
       const AMapPixelsClipRect: TDoubleRect;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;

@@ -20,11 +20,11 @@ type
   private
     function GetProjectedPath(
       const AProjectionInfo: IProjectionInfo;
-      const ALine: IGeometryLonLatMultiLine
+      const ALine: IGeometryLonLatLine
     ): IGeometryProjectedMultiLine;
     function GetProjectedPolygon(
       const AProjectionInfo: IProjectionInfo;
-      const ALine: IGeometryLonLatMultiPolygon
+      const ALine: IGeometryLonLatPolygon
     ): IGeometryProjectedMultiPolygon;
   protected
     function CreateByKey(
@@ -47,8 +47,8 @@ uses
 type
   PDataRecord = ^TDataRecord;
   TDataRecord = record
-    Path: IGeometryLonLatMultiLine;
-    Polygon: IGeometryLonLatMultiPolygon;
+    Path: IGeometryLonLatLine;
+    Polygon: IGeometryLonLatPolygon;
     ProjectionInfo: IProjectionInfo;
   end;
 
@@ -138,7 +138,7 @@ end;
 
 function TGeometryProjectedProvider.GetProjectedPath(
   const AProjectionInfo: IProjectionInfo;
-  const ALine: IGeometryLonLatMultiLine
+  const ALine: IGeometryLonLatLine
 ): IGeometryProjectedMultiLine;
 var
   VHash: THashValue;
@@ -156,7 +156,7 @@ end;
 
 function TGeometryProjectedProvider.GetProjectedPolygon(
   const AProjectionInfo: IProjectionInfo;
-  const ALine: IGeometryLonLatMultiPolygon
+  const ALine: IGeometryLonLatPolygon
 ): IGeometryProjectedMultiPolygon;
 var
   VHash: THashValue;

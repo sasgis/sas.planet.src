@@ -57,12 +57,12 @@ type
 
     function CreateProjectedPathByLonLatPath(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygonByLonLatPolygon(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatMultiPolygon;
+      const ASource: IGeometryLonLatPolygon;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;
 
@@ -81,13 +81,13 @@ type
 
     function CreateProjectedPathWithClipByLonLatPath(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       const AMapPixelsClipRect: TDoubleRect;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygonWithClipByLonLatPolygon(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryLonLatMultiPolygon;
+      const ASource: IGeometryLonLatPolygon;
       const AMapPixelsClipRect: TDoubleRect;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;
@@ -372,7 +372,7 @@ end;
 
 function TGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
   const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatMultiLine;
+  const ASource: IGeometryLonLatLine;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedMultiLine;
 begin
@@ -494,7 +494,7 @@ end;
 
 function TGeometryProjectedFactory.CreateProjectedPathWithClipByLonLatPath(
   const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatMultiLine;
+  const ASource: IGeometryLonLatLine;
   const AMapPixelsClipRect: TDoubleRect;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedMultiLine;
@@ -671,7 +671,7 @@ end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
   const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatMultiPolygon;
+  const ASource: IGeometryLonLatPolygon;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedMultiPolygon;
 begin
@@ -737,7 +737,7 @@ end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonWithClipByLonLatPolygon(
   const AProjection: IProjectionInfo;
-  const ASource: IGeometryLonLatMultiPolygon;
+  const ASource: IGeometryLonLatPolygon;
   const AMapPixelsClipRect: TDoubleRect;
   const ATemp: IDoublePointsAggregator
 ): IGeometryProjectedMultiPolygon;

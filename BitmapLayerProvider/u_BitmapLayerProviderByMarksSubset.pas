@@ -67,14 +67,14 @@ type
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
       const AAppearance: IAppearance;
-      const ALine: IGeometryLonLatMultiLine
+      const ALine: IGeometryLonLatLine
     ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
       const ALocalConverter: ILocalCoordConverter;
       const AAppearance: IAppearance;
-      const APoly: IGeometryLonLatMultiPolygon
+      const APoly: IGeometryLonLatPolygon
     ): Boolean;
     function DrawPoint(
       var ABitmapInited: Boolean;
@@ -152,7 +152,7 @@ function TBitmapLayerProviderByMarksSubset.DrawPath(
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
   const AAppearance: IAppearance;
-  const ALine: IGeometryLonLatMultiLine
+  const ALine: IGeometryLonLatLine
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -262,7 +262,7 @@ function TBitmapLayerProviderByMarksSubset.DrawPoly(
   ATargetBmp: TCustomBitmap32;
   const ALocalConverter: ILocalCoordConverter;
   const AAppearance: IAppearance;
-  const APoly: IGeometryLonLatMultiPolygon
+  const APoly: IGeometryLonLatPolygon
 ): Boolean;
 var
   VPolygon: TPolygon32;
@@ -401,8 +401,8 @@ var
   VMark: IVectorDataItem;
   i: Cardinal;
   VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VLine: IGeometryLonLatLine;
+  VPoly: IGeometryLonLatPolygon;
   VBitmapInited: Boolean;
 begin
   Result := False;
@@ -417,11 +417,11 @@ begin
         if DrawPoint(VBitmapInited, ATargetBmp, ALocalConverter, VPoint, VMark) then begin
           Result := True;
         end;
-      end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+      end else if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
         if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VLine) then begin
           Result := True;
         end;
-      end else if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+      end else if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
         if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VPoly) then begin
           Result := True;
         end;
@@ -432,7 +432,7 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
-      if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+      if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
         if DrawPoly(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VPoly) then begin
           Result := True;
         end;
@@ -443,7 +443,7 @@ begin
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Break;
       end;
-      if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+      if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
         if DrawPath(VBitmapInited, ATargetBmp, ALocalConverter, VMark.Appearance, VLine) then begin
           Result := True;
         end;
