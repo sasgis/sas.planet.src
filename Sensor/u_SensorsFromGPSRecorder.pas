@@ -102,6 +102,18 @@ type
     function GetCurrentValue: TDateTime; override;
   end;
 
+  TSensorFromGPSRecorderSunRiseTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
+  protected
+    function GetSensorTypeIID: TGUID; override;
+    function GetCurrentValue: TDateTime; override;
+  end;
+
+  TSensorFromGPSRecorderSunSetTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
+  protected
+    function GetSensorTypeIID: TGUID; override;
+    function GetCurrentValue: TDateTime; override;
+  end;
+
   TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime, ISensorResetable)
   private
     FSystemTime: ISystemTimeProvider;
@@ -153,6 +165,9 @@ type
   end;
 
 implementation
+
+uses
+  SunCalc;
 
 { TSensorFromGPSRecorderLastSpeed }
 
@@ -330,6 +345,46 @@ begin
 end;
 
 function TSensorFromGPSRecorderUTCTime.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorTime;
+end;
+
+{ TSensorFromGPSRecorderSunRiseTime }
+
+function TSensorFromGPSRecorderSunRiseTime.GetCurrentValue: TDateTime;
+var
+  VSunTimes: TSunCalcTimes;
+  VPosition: IGPSPosition;
+begin
+  VPosition := GPSRecorder.CurrentPosition;
+  Result := 0;
+  if (VPosition <> nil) and VPosition.PositionOK and VPosition.UTCTimeOK then begin
+    VSunTimes := SunCalc.GetTimes(VPosition.UTCTime, VPosition.LonLat.Y, VPosition.LonLat.X);
+    Result := VSunTimes[sunrise].Value;
+  end;
+end;
+
+function TSensorFromGPSRecorderSunRiseTime.GetSensorTypeIID: TGUID;
+begin
+  Result := ISensorTime;
+end;
+
+{ TSensorFromGPSRecorderSunSetTime }
+
+function TSensorFromGPSRecorderSunSetTime.GetCurrentValue: TDateTime;
+var
+  VSunTimes: TSunCalcTimes;
+  VPosition: IGPSPosition;
+begin
+  VPosition := GPSRecorder.CurrentPosition;
+  Result := 0;
+  if (VPosition <> nil) and VPosition.PositionOK and VPosition.UTCTimeOK then begin
+    VSunTimes := SunCalc.GetTimes(VPosition.UTCTime, VPosition.LonLat.Y, VPosition.LonLat.X);
+    Result := VSunTimes[sunset].Value;
+  end;
+end;
+
+function TSensorFromGPSRecorderSunSetTime.GetSensorTypeIID: TGUID;
 begin
   Result := ISensorTime;
 end;

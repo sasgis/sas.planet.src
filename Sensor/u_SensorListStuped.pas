@@ -393,6 +393,54 @@ begin
     );
   Self.Add(VEntity);
 
+  VSensor := TSensorFromGPSRecorderSunRiseTime.Create(AGPSRecorder);
+  VCaption :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager, @SAS_STR_SensorGPSRecorderSunRiseTimeCaption
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager, @SAS_STR_SensorGPSRecorderSunRiseTimeDescription
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager, @SAS_STR_SensorGPSRecorderSunRiseTimeMenuItemName
+    );
+  VEntity :=
+    TSensorListEntity.Create(
+      CSensorSunRiseTimeGUID,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VSensor,
+      VSensor.SensorTypeIID
+    );
+  Self.Add(VEntity);
+
+  VSensor := TSensorFromGPSRecorderSunSetTime.Create(AGPSRecorder);
+  VCaption :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager, @SAS_STR_SensorGPSRecorderSunSetTimeCaption
+    );
+  VDescription :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager, @SAS_STR_SensorGPSRecorderSunSetTimeDescription
+    );
+  VMenuItemName :=
+    TStringConfigDataElementWithDefByStringRec.Create(
+      ALanguageManager, @SAS_STR_SensorGPSRecorderSunSetTimeMenuItemName
+    );
+  VEntity :=
+    TSensorListEntity.Create(
+      CSensorSunSetTimeGUID,
+      VCaption,
+      VDescription,
+      VMenuItemName,
+      VSensor,
+      VSensor.SensorTypeIID
+    );
+  Self.Add(VEntity);
+
   VSensor := TSensorFromGPSRecorderLocalTime.Create(ASystemTime, AGPSRecorder, AGPSModule);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(

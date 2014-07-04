@@ -254,6 +254,14 @@ ResourceString
   SAS_STR_SensorGPSRecorderUTCTimeDescription = 'Shows UTC time';
   SAS_STR_SensorGPSRecorderUTCTimeMenuItemName = 'UTC time'; // UTC time
 
+  SAS_STR_SensorGPSRecorderSunRiseTimeCaption = 'Sunraise time:';
+  SAS_STR_SensorGPSRecorderSunRiseTimeDescription = 'Shows Sunraise time for current position';
+  SAS_STR_SensorGPSRecorderSunRiseTimeMenuItemName = 'Sunraise time'; // Sunraise time
+
+  SAS_STR_SensorGPSRecorderSunSetTimeCaption = 'Sunset time:';
+  SAS_STR_SensorGPSRecorderSunSetTimeDescription = 'Shows Sunset time for current position';
+  SAS_STR_SensorGPSRecorderSunSetTimeMenuItemName = 'Sunset time'; // Sunset time
+
   SAS_STR_SensorGPSRecorderLocalTimeCaption = 'Local time:';
   SAS_STR_SensorGPSRecorderLocalTimeDescription = 'Shows local time';
   SAS_STR_SensorGPSRecorderLocalTimeMenuItemName = 'Local time'; // Local time
