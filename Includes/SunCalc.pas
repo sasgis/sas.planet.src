@@ -76,8 +76,8 @@ const
     (Angle: 0;     Value: 0; IsRiseInfo: False), // solarNoon
     (Angle: 0;     Value: 0; IsRiseInfo: False), // nadir
 
-    (Angle: -0.83; Value: 0; IsRiseInfo: True ),
-    (Angle: -0.83; Value: 0; IsRiseInfo: False),
+    (Angle: -0.833; Value: 0; IsRiseInfo: True ),
+    (Angle: -0.833; Value: 0; IsRiseInfo: False),
 
     (Angle: -0.3;  Value: 0; IsRiseInfo: True ),
     (Angle: -0.3;  Value: 0; IsRiseInfo: False),
@@ -211,14 +211,17 @@ function getJulianCycle(const d, lw: Double): Double;
 begin
   Result := Round(d - J0 - lw / (2 * PI));
 end;
+
 function getApproxTransit(const Ht, lw: Double; const n: Double): Double;
 begin
   Result := J0 + (Ht + lw) / (2 * PI) + n;
 end;
+
 function getSolarTransitJ(const ds, M, L: Double): Double;
 begin
   Result := J2000 + ds + 0.0053 * sin(M) - 0.0069 * sin(2 * L);
 end;
+
 function getHourAngle(const h, phi, d: Double): Double;
 begin
   Result := ArcCos((sin(h) - sin(phi) * sin(d)) / (cos(phi) * cos(d)));
@@ -229,53 +232,58 @@ end;
 function GetTimes(const ADate: TDateTime; const ALat, ALon: Double): TSunCalcTimes;
 var
   lw, phi, d, ds, M, C, L, dec, Jnoon: Double;
-  n: Double;
-
-  // returns set time for the given sun altitude
-  function getSetJ(const h: Double): Double;
-  var
-    w, a: Double;
-  begin
-    w := getHourAngle(h, phi, dec);
-    a := getApproxTransit(w, lw, n);
-    Result := getSolarTransitJ(a, M, L);
-  end;
-
-var
+  n, h, w, a: Double;
   I: TSunCalcTimesID;
   Jset, Jrise: Double;
+  CW: Word;
 begin
-  lw  := cRad * (-ALon);
-  phi := cRad * ALat;
-  d   := toDays(ADate);
-
-  n  := getJulianCycle(d, lw);
-  ds := getApproxTransit(0, lw, n);
-
-  M := getSolarMeanAnomaly(ds);
-  C := getEquationOfCenter(M);
-  L := getEclipticLongitude(M, C);
-
-  dec := getDeclination(L, 0);
-
-  Jnoon := getSolarTransitJ(ds, M, L);
 
   NewSunCalcTimes(Result);
 
-  Result[solarNoon].Value := fromJulian(Jnoon);
-  Result[nadir].Value     := fromJulian(Jnoon - 0.5);
+  CW := Get8087CW;
+  Set8087CW(CW or $003F); // disable floating point exceptions
+  try
+    lw  := cRad * (-ALon);
+    phi := cRad * ALat;
+    d   := toDays(ADate);
 
-  for I := Low(Result) to High(Result) do begin
-    if (I <> solarNoon) and (I <> nadir) then begin
-      Jset := getSetJ(Result[I].Angle * cRad);      
-      if Result[I].IsRiseInfo then begin
-        Jrise := Jnoon - (Jset - Jnoon);
-        Result[I].Value := fromJulian(Jrise);
-      end else begin
-        Result[I].Value := fromJulian(Jset);
+    n  := getJulianCycle(d, lw);
+    ds := getApproxTransit(0, lw, n);
+
+    M := getSolarMeanAnomaly(ds);
+    C := getEquationOfCenter(M);
+    L := getEclipticLongitude(M, C);
+
+    dec := getDeclination(L, 0);
+
+    Jnoon := getSolarTransitJ(ds, M, L);
+
+    if not IsNan(Jnoon) then begin
+      Result[solarNoon].Value := fromJulian(Jnoon);
+      Result[nadir].Value     := fromJulian(Jnoon - 0.5);
+    end;
+
+    for I := Low(Result) to High(Result) do begin
+      if (I <> solarNoon) and (I <> nadir) then begin
+
+        h := Result[I].Angle * cRad;
+        w := getHourAngle(h, phi, dec);
+        a := getApproxTransit(w, lw, n);
+        Jset := getSolarTransitJ(a, M, L);
+
+        if not IsNan(Jset) then begin
+          if Result[I].IsRiseInfo then begin
+            Jrise := Jnoon - (Jset - Jnoon);
+            Result[I].Value := fromJulian(Jrise);
+          end else begin
+            Result[I].Value := fromJulian(Jset);
+          end;
+        end;
       end;
     end;
-  end;     
+  finally
+    Set8087CW(CW); // restore floating point exceptions state
+  end;
 end;
 
 // moon calculations, based on http://aa.quae.nl/en/reken/hemelpositie.html formulas

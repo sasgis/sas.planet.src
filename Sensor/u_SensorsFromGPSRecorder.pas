@@ -103,15 +103,29 @@ type
   end;
 
   TSensorFromGPSRecorderSunRiseTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
+  private
+    FSystemTime: ISystemTimeProvider;
   protected
     function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: TDateTime; override;
+  public
+    constructor Create(
+      const ASystemTime: ISystemTimeProvider;
+      const AGPSRecorder: IGPSRecorder
+    );
   end;
 
   TSensorFromGPSRecorderSunSetTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime)
+  private
+    FSystemTime: ISystemTimeProvider;
   protected
     function GetSensorTypeIID: TGUID; override;
     function GetCurrentValue: TDateTime; override;
+  public
+    constructor Create(
+      const ASystemTime: ISystemTimeProvider;
+      const AGPSRecorder: IGPSRecorder
+    );
   end;
 
   TSensorFromGPSRecorderLocalTime = class(TSensorDateTimeValueFromGPSRecorder, ISensorTime, ISensorResetable)
@@ -351,6 +365,15 @@ end;
 
 { TSensorFromGPSRecorderSunRiseTime }
 
+constructor TSensorFromGPSRecorderSunRiseTime.Create(
+  const ASystemTime: ISystemTimeProvider;
+  const AGPSRecorder: IGPSRecorder
+);
+begin
+  inherited Create(AGPSRecorder);
+  FSystemTime := ASystemTime;
+end;
+
 function TSensorFromGPSRecorderSunRiseTime.GetCurrentValue: TDateTime;
 var
   VSunTimes: TSunCalcTimes;
@@ -362,6 +385,9 @@ begin
     VSunTimes := SunCalc.GetTimes(VPosition.UTCTime, VPosition.LonLat.Y, VPosition.LonLat.X);
     Result := VSunTimes[sunrise].Value;
   end;
+  if (Result <> 0) then begin
+    Result := FSystemTime.UTCToLocalTime(Result);
+  end;
 end;
 
 function TSensorFromGPSRecorderSunRiseTime.GetSensorTypeIID: TGUID;
@@ -370,6 +396,15 @@ begin
 end;
 
 { TSensorFromGPSRecorderSunSetTime }
+
+constructor TSensorFromGPSRecorderSunSetTime.Create(
+  const ASystemTime: ISystemTimeProvider;
+  const AGPSRecorder: IGPSRecorder
+);
+begin
+  inherited Create(AGPSRecorder);
+  FSystemTime := ASystemTime;
+end;
 
 function TSensorFromGPSRecorderSunSetTime.GetCurrentValue: TDateTime;
 var
@@ -381,6 +416,9 @@ begin
   if (VPosition <> nil) and VPosition.PositionOK and VPosition.UTCTimeOK then begin
     VSunTimes := SunCalc.GetTimes(VPosition.UTCTime, VPosition.LonLat.Y, VPosition.LonLat.X);
     Result := VSunTimes[sunset].Value;
+  end;
+  if (Result <> 0) then begin
+    Result := FSystemTime.UTCToLocalTime(Result);
   end;
 end;
 

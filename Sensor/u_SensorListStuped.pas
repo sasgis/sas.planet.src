@@ -393,7 +393,7 @@ begin
     );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderSunRiseTime.Create(AGPSRecorder);
+  VSensor := TSensorFromGPSRecorderSunRiseTime.Create(ASystemTime, AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager, @SAS_STR_SensorGPSRecorderSunRiseTimeCaption
@@ -417,7 +417,7 @@ begin
     );
   Self.Add(VEntity);
 
-  VSensor := TSensorFromGPSRecorderSunSetTime.Create(AGPSRecorder);
+  VSensor := TSensorFromGPSRecorderSunSetTime.Create(ASystemTime, AGPSRecorder);
   VCaption :=
     TStringConfigDataElementWithDefByStringRec.Create(
       ALanguageManager, @SAS_STR_SensorGPSRecorderSunSetTimeCaption
