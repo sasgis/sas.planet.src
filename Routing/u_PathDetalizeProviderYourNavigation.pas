@@ -47,7 +47,7 @@ type
     function GetPath(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       var AComment: string
     ): IGeometryLonLatMultiLine;
   public
@@ -97,7 +97,7 @@ end;
 function TPathDetalizeProviderYourNavigation.GetPath(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASource: IGeometryLonLatMultiLine;
+  const ASource: IGeometryLonLatLine;
   var AComment: string
 ): IGeometryLonLatMultiLine;
 var

@@ -68,13 +68,13 @@ type
     function DrawPath(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      const ALine: IGeometryLonLatMultiLine;
+      const ALine: IGeometryLonLatLine;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawPoly(
       var ABitmapInited: Boolean;
       ATargetBmp: TCustomBitmap32;
-      const APoly: IGeometryLonLatMultiPolygon;
+      const APoly: IGeometryLonLatPolygon;
       const ALocalConverter: ILocalCoordConverter
     ): Boolean;
     function DrawWikiElement(
@@ -139,7 +139,7 @@ end;
 function TBitmapLayerProviderByVectorSubset.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const ALine: IGeometryLonLatMultiLine;
+  const ALine: IGeometryLonLatLine;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
@@ -157,7 +157,7 @@ var
   VIndex: Integer;
 begin
   Result := False;
-  if ALine.Count > 0 then begin
+  if not ALine.IsEmpty then begin
     VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, ALine);
     if VProjected.Count > 0 then begin
       VMapRect := ALocalConverter.GetRectInMapPixelFloat;
@@ -275,7 +275,7 @@ end;
 function TBitmapLayerProviderByVectorSubset.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
-  const APoly: IGeometryLonLatMultiPolygon;
+  const APoly: IGeometryLonLatPolygon;
   const ALocalConverter: ILocalCoordConverter
 ): Boolean;
 var
@@ -379,14 +379,14 @@ function TBitmapLayerProviderByVectorSubset.DrawWikiElement(
 ): Boolean;
 var
   VItemPoint: IGeometryLonLatPoint;
-  VItemLine: IGeometryLonLatMultiLine;
-  VItemPoly: IGeometryLonLatMultiPolygon;
+  VItemLine: IGeometryLonLatLine;
+  VItemPoly: IGeometryLonLatPolygon;
 begin
   if Supports(AData, IGeometryLonLatPoint, VItemPoint) then begin
     Result := DrawPoint(ABitmapInited, ATargetBmp, VItemPoint, ALocalConverter);
-  end else if Supports(AData, IGeometryLonLatMultiLine, VItemLine) then begin
+  end else if Supports(AData, IGeometryLonLatLine, VItemLine) then begin
     Result := DrawPath(ABitmapInited, ATargetBmp, VItemLine, ALocalConverter);
-  end else if Supports(AData, IGeometryLonLatMultiPolygon, VItemPoly) then begin
+  end else if Supports(AData, IGeometryLonLatPolygon, VItemPoly) then begin
     Result := DrawPoly(ABitmapInited, ATargetBmp, VItemPoly, ALocalConverter);
   end else begin
     Result := False;

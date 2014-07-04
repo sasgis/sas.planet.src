@@ -45,7 +45,7 @@ type
     function GetPath(
       const ACancelNotifier: INotifierOperation;
       AOperationID: Integer;
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       var AComment: string
     ): IGeometryLonLatMultiLine;
   public
@@ -92,7 +92,7 @@ end;
 function TPathDetalizeProviderMailRu.GetPath(
   const ACancelNotifier: INotifierOperation;
   AOperationID: Integer;
-  const ASource: IGeometryLonLatMultiLine;
+  const ASource: IGeometryLonLatLine;
   var AComment: string
 ): IGeometryLonLatMultiLine;
 var
@@ -106,11 +106,12 @@ var
   VRequest: IDownloadRequest;
   VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
+  VMultiLine: IGeometryLonLatMultiLine;
 begin
   Result := nil;
   url := FBaseUrl;
-  if ASource.Count > 0 then begin
-    VEnum := ASource.Item[0].GetEnum;
+  if Supports(ASource, IGeometryLonLatMultiLine, VMultiLine) and (VMultiLine.Count > 1) then begin
+    VEnum := VMultiLine.Item[0].GetEnum;
   end else begin
     VEnum := ASource.GetEnum;
   end;
