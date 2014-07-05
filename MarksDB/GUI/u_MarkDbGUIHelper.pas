@@ -303,12 +303,24 @@ function TMarkDbGUIHelper.DeleteCategoryModal(
   handle: THandle
 ): Boolean;
 var
+  I: Integer;
   VMessage: string;
+  VList: IInterfaceListStatic;
 begin
   Result := False;
   if ACategory <> nil then begin
-    VMessage := Format(SAS_MSG_DeleteMarkCategoryAsk, [ACategory.Name]);
+    VList := FMarkSystem.CategoryDB.GetSubCategoryListForCategory(ACategory);
+    if Assigned(VList) and (VList.Count > 0) then begin
+      VMessage := Format(SAS_MSG_DeleteSubCategoryAsk, [ACategory.Name, VList.Count]);
+    end else begin
+      VMessage := Format(SAS_MSG_DeleteMarkCategoryAsk, [ACategory.Name]);
+    end;
     if MessageBox(handle, PChar(VMessage), PChar(SAS_MSG_coution), 36) = IDYES then begin
+      if Assigned(VList) then begin
+        for I := 0 to VList.Count - 1 do begin
+          FMarkSystem.DeleteCategoryWithMarks(IMarkCategory(VList[I]));
+        end;
+      end;
       FMarkSystem.DeleteCategoryWithMarks(ACategory);
       Result := True;
     end;

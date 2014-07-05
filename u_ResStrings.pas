@@ -28,6 +28,7 @@ ResourceString
   SAS_MSG_coution = 'Attention!';
 
   SAS_MSG_DeleteMarkCategoryAsk = 'Are you sure you want to delete category with name "%0:s"?';
+  SAS_MSG_DeleteSubCategoryAsk = 'Selected category "%0:s" contain %d sub categories. Are you realy want to delete all of them?';
   SAS_MSG_DeleteMarkPointAsk = 'Are you sure you want to delete point with name "%0:s"?';
   SAS_MSG_DeleteMarkPathAsk = 'Are you sure you want to delete path with name "%0:s"?';
   SAS_MSG_DeleteMarkPolyAsk = 'Are you sure you want to delete polygon with name "%0:s"?';
