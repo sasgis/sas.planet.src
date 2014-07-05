@@ -91,6 +91,7 @@ implementation
 
 uses
   DB,
+  StrUtils,
   t_CommonTypes,
   i_EnumID,
   i_InterfaceListSimple,
@@ -161,13 +162,16 @@ function TMarkCategoryDBSml._UpdateCategory(
 var
   VIdOld: Integer;
   VIdNew: Integer;
+  VIdSub: Integer;
   VCategoryInternal: IMarkCategorySMLInternal;
   VCategory: IMarkCategory;
   VOldCategory: IMarkCategory;
   VLocated: Boolean;
+  VName, VNewName, VOldName: string;
 begin
   Result := nil;
   VIdOld := CNotExistCategoryID;
+  VOldName := '';
   if Supports(AOldCategory, IMarkCategorySMLInternal, VCategoryInternal) then begin
     if VCategoryInternal.DbId = FDbId then begin
       VIdOld := VCategoryInternal.Id;
@@ -178,6 +182,7 @@ begin
   if VIdOld >= 0 then begin
     VOldCategory := IMarkCategory(FList.GetByID(VIdOld));
     if VOldCategory <> nil then begin
+      VOldName := VOldCategory.Name + '\';
       if Supports(ANewCategory, IMarkCategory, VCategory) then begin
         if VOldCategory.IsEqual(VCategory) then begin
           Result := VOldCategory;
@@ -192,12 +197,36 @@ begin
       FCdsKategory.Edit;
       WriteCurrentCategory(VCategory);
       FCdsKategory.post;
-      SetChanged;
-      FNeedSaveFlag.SetFlag;
       Result := ReadCurrentCategory(VIdNew);
+      VNewName := Result.Name + '\';
+
       Assert(Result <> nil);
       Assert(VIdNew >= 0);
       Assert(VIdNew = VIdOld);
+
+      Assert(VNewName <> '');
+      Assert(VOldName <> '');
+
+      // update sub categories
+      if (VNewName <> VOldName) then begin
+        FCdsKategory.Filtered := False;
+        FCdsKategory.First;
+        while not (FCdsKategory.Eof) do begin
+          VName := FCdsKategory.FieldByName('name').AsString;
+          if StartsStr(VOldName, VName) then begin
+            FCdsKategory.Edit;
+            FCdsKategory.FieldByName('name').AsString :=
+              StringReplace(VName, VOldName, VNewName, [rfIgnoreCase]);
+            FCdsKategory.Post;
+            VCategory := ReadCurrentCategory(VIdSub);
+            FList.Replace(VIdSub, VCategory);
+          end;
+          FCdsKategory.Next;
+        end;
+      end;
+
+      SetChanged;
+      FNeedSaveFlag.SetFlag;
     end else begin
       FCdsKategory.Delete;
       SetChanged;
