@@ -268,6 +268,13 @@ begin
     VCategoryName := VCategory.Name;
   end;
 
+  if Assigned(ADataItemTree) and (ADataItemTree.Name <> '') then begin
+    VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
+    VMarkCategory := FCategoryDB.Factory.CreateNew(VCategoryName);
+    FCategoryDB.UpdateCategory(nil, VMarkCategory);
+    VCategory := VMarkCategory;
+  end;
+
   if Assigned(ADataItemTree.Items) then begin
     for i := 0 to ADataItemTree.Items.Count - 1 do begin
       VMark := nil;
@@ -286,14 +293,6 @@ begin
           end;
         end;
       end;
-
-      if ADataItemTree.Name <> '' then begin
-        VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
-        VMarkCategory := FCategoryDB.Factory.CreateNew(VCategoryName);
-        FCategoryDB.UpdateCategory(nil, VMarkCategory);
-        VCategory := VMarkCategory;
-      end;
-
       VParams := nil;
       if Supports(VItem.Geometry, IGeometryLonLatPoint) then begin
         VParams := AImportConfig.PointParams;
