@@ -61,7 +61,8 @@ type
     procedure PrepareFromTreeForImport(
       const AMarkList: IInterfaceListSimple;
       const ADataItemTree: IVectorItemTree;
-      const AImportConfig: IImportConfig
+      const AImportConfig: IImportConfig;
+      const AParentCategoryName: string = ''
     );
 
   private
@@ -247,18 +248,25 @@ end;
 procedure TMarkSystem.PrepareFromTreeForImport(
   const AMarkList: IInterfaceListSimple;
   const ADataItemTree: IVectorItemTree;
-  const AImportConfig: IImportConfig
+  const AImportConfig: IImportConfig;
+  const AParentCategoryName: string
 );
 var
   VItem: IVectorDataItem;
   i: Integer;
   VMark: IVectorDataItem;
   VName: string;
+  VCategoryName: string;
   VCategory: ICategory;
   VMarkCategory: IMarkCategory;
   VParams: IImportMarkParams;
 begin
   VCategory := AImportConfig.RootCategory;
+
+  VCategoryName := AParentCategoryName;
+  if VCategoryName = '' then begin
+    VCategoryName := VCategory.Name;
+  end;
 
   if Assigned(ADataItemTree.Items) then begin
     for i := 0 to ADataItemTree.Items.Count - 1 do begin
@@ -280,7 +288,8 @@ begin
       end;
 
       if ADataItemTree.Name <> '' then begin
-        VMarkCategory := FCategoryDB.Factory.CreateNew(VCategory.Name + '\' + ADataItemTree.Name);
+        VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
+        VMarkCategory := FCategoryDB.Factory.CreateNew(VCategoryName);
         FCategoryDB.UpdateCategory(nil, VMarkCategory);
         VCategory := VMarkCategory;
       end;
@@ -309,7 +318,8 @@ begin
     PrepareFromTreeForImport(
       AMarkList,
       ADataItemTree.GetSubTreeItem(i),
-      AImportConfig
+      AImportConfig,
+      VCategoryName
     );
   end;
 end;
