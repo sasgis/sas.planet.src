@@ -829,6 +829,7 @@ uses
   i_VectorItemTreeExporterList in 'Vector\i_VectorItemTreeExporterList.pas',
   u_VectorItemTreeImporterByVectorLoader in 'Vector\u_VectorItemTreeImporterByVectorLoader.pas',
   u_VectorItemTreeImporterJpegWithExif in 'Vector\u_VectorItemTreeImporterJpegWithExif.pas',
+  u_VectorItemTreeImporterSmlMarks in 'Vector\u_VectorItemTreeImporterSmlMarks.pas',
   u_VectorItemTreeExporterKmlKmz in 'Vector\u_VectorItemTreeExporterKmlKmz.pas',
   u_VectorItemTreeExporterList in 'Vector\u_VectorItemTreeExporterList.pas',
   u_VectorItemTreeExporterListSimple in 'Vector\u_VectorItemTreeExporterListSimple.pas',

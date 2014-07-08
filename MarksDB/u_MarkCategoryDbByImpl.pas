@@ -79,7 +79,6 @@ type
     destructor Destroy; override;
   end;
 
-
 implementation
 
 uses
@@ -93,44 +92,6 @@ uses
   u_InterfaceListSimple,
   u_StaticTreeBuilderBase,
   u_ListenerByEvent;
-
-type
-  TStaticTreeByCategoryListBuilder = class(TStaticTreeBuilderBaseBySlash)
-  protected
-    procedure ProcessItems(
-      const ASource: IInterface;
-      AList: TStringList
-    ); override;
-    function GetNameFromItem(
-      const ASource: IInterface;
-      const AItem: IInterface
-    ): string; override;
-  end;
-
-{ TStaticTreeByCategoryListBuilder }
-
-function TStaticTreeByCategoryListBuilder.GetNameFromItem(
-  const ASource: IInterface;
-  const AItem: IInterface
-): string;
-begin
-  Result := (AItem as ICategory).Name;
-end;
-
-procedure TStaticTreeByCategoryListBuilder.ProcessItems(
-  const ASource: IInterface;
-  AList: TStringList
-);
-var
-  VList: IInterfaceListStatic;
-  i: Integer;
-begin
-  inherited;
-  VList := ASource as IInterfaceListStatic;
-  for i := 0 to VList.Count - 1 do begin
-    ProcessItem(ASource, VList.Items[i], AList);
-  end;
-end;
 
 { TMarkCategoryDbByImpl }
 

@@ -33,6 +33,11 @@ uses
   i_VectorItemSubsetBuilder,
   i_ValueToStringConverter,
   i_InternalPerformanceCounter,
+  i_MarkPicture,
+  i_HashFunction,
+  i_AppearanceOfMarkFactory,
+  i_MarkFactory,
+  i_HtmlToHintTextConverter,
   u_BaseInterfacedObject;
 
 type
@@ -53,6 +58,11 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkFactory: IMarkFactory;
+      const AHintConverter: IHtmlToHintTextConverter;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -66,6 +76,7 @@ uses
   u_VectorItemTreeImporterList,
   u_VectorItemTreeImporterByVectorLoader,
   u_VectorItemTreeImporterJpegWithExif,
+  u_VectorItemTreeImporterSmlMarks,
   u_VectorDataLoaderWithCounter,
   u_XmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
@@ -85,6 +96,11 @@ constructor TVectorItemTreeImporterListSimple.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkFactory: IMarkFactory;
+  const AHintConverter: IHtmlToHintTextConverter;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -304,6 +320,27 @@ begin
       'JPEG Image whtg GPS Exif'
     );
   VList.Add(VItem);
+
+  VImporter :=
+    TVectorItemTreeImporterSmlMarks.Create(
+      AMarkPictureList,
+      AHashFunction,
+      AAppearanceOfMarkFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorItemSubsetBuilderFactory,
+      AMarkFactory,
+      APerfCounterList.CreateAndAddNewCounter('ImportSMLLoader'),
+      APerfCounterList.CreateAndAddNewCounter('ImportSMLSaver'),
+      AHintConverter
+    );
+  VItem :=
+    TVectorItemTreeImporterListItem.Create(
+      VImporter,
+      'sml',
+      'Marks database in XML format'
+    );
+  VList.Add(VItem);
+
   FList := TVectorItemTreeImporterListStatic.Create(VList.MakeStaticAndClear);
 end;
 

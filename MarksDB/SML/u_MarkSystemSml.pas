@@ -80,7 +80,8 @@ type
       const AMarkFactory: IMarkFactory;
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
-      const AHintConverter: IHtmlToHintTextConverter
+      const AHintConverter: IHtmlToHintTextConverter;
+      const AReadOnly: Boolean = False
     );
   end;
 
@@ -111,12 +112,14 @@ constructor TMarkSystemSml.Create(
   const AMarkFactory: IMarkFactory;
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
-  const AHintConverter: IHtmlToHintTextConverter
+  const AHintConverter: IHtmlToHintTextConverter;
+  const AReadOnly: Boolean
 );
 var
   VCategoryDb: TMarkCategoryDBSml;
   VMarkDb: TMarkDbSml;
   VState: TReadWriteStateInternal;
+  VStateInternal: IReadWriteStateInternal;
   VCategoryFileName: string;
   VCategoryStream: TStream;
   VMarkFileName: string;
@@ -128,6 +131,11 @@ begin
   FDbId := Integer(Self);
   VState := TReadWriteStateInternal.Create;
   FState := VState;
+  VStateInternal := VState;
+
+  if AReadOnly then begin
+    VStateInternal.WriteAccess := asDisabled;
+  end;
 
   VCategoryFileName := IncludeTrailingPathDelimiter(ABasePath) + 'Categorymarks.sml';
   VCategoryStream := PrepareStream(VCategoryFileName, VState);

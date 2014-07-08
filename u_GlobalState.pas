@@ -593,16 +593,6 @@ begin
       FGlobalConfig.ValueToStringConverterConfig,
       FGlobalConfig.LanguageManager.ChangeNotifier
     );
-  FImporterList :=
-    TVectorItemTreeImporterListSimple.Create(
-      FValueToStringConverter,
-      FVectorDataFactory,
-      FVectorDataItemMainInfoFactory,
-      FVectorGeometryLonLatFactory,
-      FVectorItemSubsetBuilderFactory,
-      FArchiveReadWriteFactory,
-      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')
-    );
 
   FGCThread :=
     TGarbageCollectorThread.Create(
@@ -664,6 +654,23 @@ begin
       FAppStartedNotifier,
       THtmlToHintTextConverterStuped.Create
     );
+
+  FImporterList :=
+    TVectorItemTreeImporterListSimple.Create(
+      FValueToStringConverter,
+      FVectorDataFactory,
+      FVectorDataItemMainInfoFactory,
+      FVectorGeometryLonLatFactory,
+      FVectorItemSubsetBuilderFactory,
+      FArchiveReadWriteFactory,
+      FMarkPictureList,
+      FHashFunction,
+      FAppearanceOfMarkFactory,
+      FMarkFactory,
+      THtmlToHintTextConverterStuped.Create,
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')
+    );
+
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
       FGlobalConfig.InetConfig,

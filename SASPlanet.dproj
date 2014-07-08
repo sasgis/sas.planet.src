@@ -1414,5 +1414,6 @@
     <DCCReference Include="Vector\u_VectorItemTreeImporterJpegWithExif.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeImporterList.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeImporterListSimple.pas" />
+    <DCCReference Include="Vector\u_VectorItemTreeImporterSmlMarks.pas" />
   </ItemGroup>
 </Project>

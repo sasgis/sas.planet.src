@@ -32,6 +32,11 @@ uses
   i_ValueToStringConverter,
   i_InternalPerformanceCounter,
   i_VectorItemTree,
+  i_MarkPicture,
+  i_HashFunction,
+  i_AppearanceOfMarkFactory,
+  i_MarkFactory,
+  i_HtmlToHintTextConverter,
   u_BaseInterfacedObject;
 
 type
@@ -46,6 +51,7 @@ type
     FImportMP: IVectorItemTreeImporter;
     FImportSLS: IVectorItemTreeImporter;
     FImportJPG: IVectorItemTreeImporter;
+    FImportSML: IVectorItemTreeImporter;
   private
     function ProcessImport(
       const AFileName: string
@@ -58,9 +64,16 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AMarkFactory: IMarkFactory;
+      const AHintConverter: IHtmlToHintTextConverter;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
+
+ {!!! Not used yet. Proper importer in u_VectorItemTreeImporterListSimple.pas !!! }
 
 implementation
 
@@ -68,6 +81,7 @@ uses
   SysUtils,
   u_VectorItemTreeImporterByVectorLoader,
   u_VectorItemTreeImporterJpegWithExif,
+  u_VectorItemTreeImporterSmlMarks,
   u_VectorDataLoaderWithCounter,
   u_XmlInfoSimpleParser,
   u_KmzInfoSimpleParser,
@@ -86,6 +100,11 @@ constructor TImportByFileExt.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AMarkFactory: IMarkFactory;
+  const AHintConverter: IHtmlToHintTextConverter;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -229,6 +248,18 @@ begin
       AVectorDataFactory,
       AValueToStringConverter
     );
+  FImportSML :=
+    TVectorItemTreeImporterSmlMarks.Create(
+      AMarkPictureList,
+      AHashFunction,
+      AAppearanceOfMarkFactory,
+      AVectorGeometryLonLatFactory,
+      AVectorItemSubsetBuilderFactory,
+      AMarkFactory,
+      APerfCounterList.CreateAndAddNewCounter('ImportSMLLoader'),
+      APerfCounterList.CreateAndAddNewCounter('ImportSMLSaver'),
+      AHintConverter
+    );
 end;
 
 function TImportByFileExt.ProcessImport(
@@ -257,6 +288,8 @@ begin
     Result := FImportSLS.ProcessImport(AFileName);
   end else if ('.jpg' = VExtLwr) then begin
     Result := FImportJPG.ProcessImport(AFileName);
+  end else if ('.sml' = VExtLwr) then begin
+    Result := FImportSML.ProcessImport(AFileName);
   end;
 end;
 

@@ -255,6 +255,7 @@ var
   VMark: IVectorDataItem;
   VName: string;
   VCategory: ICategory;
+  VMarkCategory: IMarkCategory;
   VParams: IImportMarkParams;
 begin
   VCategory := AImportConfig.RootCategory;
@@ -277,6 +278,13 @@ begin
           end;
         end;
       end;
+
+      if ADataItemTree.Name <> '' then begin
+        VMarkCategory := FCategoryDB.Factory.CreateNew(VCategory.Name + '\' + ADataItemTree.Name);
+        FCategoryDB.UpdateCategory(nil, VMarkCategory);
+        VCategory := VMarkCategory;
+      end;
+
       VParams := nil;
       if Supports(VItem.Geometry, IGeometryLonLatPoint) then begin
         VParams := AImportConfig.PointParams;
