@@ -234,30 +234,6 @@ begin
   VList.Add(VItem);
 
   VLoader :=
-    THlgParser.Create(
-      AVectorItemSubsetBuilderFactory,
-      AVectorDataFactory,
-      AVectorGeometryLonLatFactory
-    );
-  VLoader :=
-    TVectorDataLoaderWithCounter.Create(
-      VLoader,
-      APerfCounterList.CreateAndAddNewCounter('Hlg')
-    );
-  VImporter :=
-    TVectorItemTreeImporterByVectorLoader.Create(
-      AVectorDataItemMainInfoFactory,
-      VLoader
-    );
-  VItem :=
-    TVectorItemTreeImporterListItem.Create(
-      VImporter,
-      'hlg',
-      'Selection polygone'
-    );
-  VList.Add(VItem);
-
-  VLoader :=
     TMpSimpleParser.Create(
       AVectorItemSubsetBuilderFactory,
       AVectorDataFactory,
@@ -277,7 +253,47 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'mp',
-      'Single polygone from mp file'
+      'Single Polygone from MP file'
+    );
+  VList.Add(VItem);
+
+  VImporter :=
+    TVectorItemTreeImporterJpegWithExif.Create(
+      AVectorGeometryLonLatFactory,
+      AVectorDataItemMainInfoFactory,
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AValueToStringConverter
+    );
+  VItem :=
+    TVectorItemTreeImporterListItem.Create(
+      VImporter,
+      'jpg',
+      'JPEG Image with GPS Exif info'
+    );
+  VList.Add(VItem);
+
+  VLoader :=
+    THlgParser.Create(
+      AVectorItemSubsetBuilderFactory,
+      AVectorDataFactory,
+      AVectorGeometryLonLatFactory
+    );
+  VLoader :=
+    TVectorDataLoaderWithCounter.Create(
+      VLoader,
+      APerfCounterList.CreateAndAddNewCounter('Hlg')
+    );
+  VImporter :=
+    TVectorItemTreeImporterByVectorLoader.Create(
+      AVectorDataItemMainInfoFactory,
+      VLoader
+    );
+  VItem :=
+    TVectorItemTreeImporterListItem.Create(
+      VImporter,
+      'hlg',
+      'SAS.Planet Selection Polygone'
     );
   VList.Add(VItem);
 
@@ -301,23 +317,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'sls',
-      'Download session polygone'
-    );
-  VList.Add(VItem);
-
-  VImporter :=
-    TVectorItemTreeImporterJpegWithExif.Create(
-      AVectorGeometryLonLatFactory,
-      AVectorDataItemMainInfoFactory,
-      AVectorItemSubsetBuilderFactory,
-      AVectorDataFactory,
-      AValueToStringConverter
-    );
-  VItem :=
-    TVectorItemTreeImporterListItem.Create(
-      VImporter,
-      'jpg',
-      'JPEG Image whtg GPS Exif'
+      'SAS.Planet Download Session Polygone'
     );
   VList.Add(VItem);
 
@@ -337,7 +337,7 @@ begin
     TVectorItemTreeImporterListItem.Create(
       VImporter,
       'sml',
-      'Marks database in XML format'
+      'SAS.Planet Marks Database in XML format'
     );
   VList.Add(VItem);
 
