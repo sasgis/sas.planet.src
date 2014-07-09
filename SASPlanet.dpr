@@ -835,7 +835,6 @@ uses
   u_VectorItemTreeExporterListSimple in 'Vector\u_VectorItemTreeExporterListSimple.pas',
   u_VectorItemTreeImporterList in 'Vector\u_VectorItemTreeImporterList.pas',
   u_VectorItemTreeImporterListSimple in 'Vector\u_VectorItemTreeImporterListSimple.pas',
-  u_ImportByFileExt in 'Vector\u_ImportByFileExt.pas',
   u_ExportMarks2KML in 'Vector\u_ExportMarks2KML.pas',
   i_UrlByCoordProvider in 'i_UrlByCoordProvider.pas',
   c_PathDetalizeProvidersGUID in 'Routing\c_PathDetalizeProvidersGUID.pas',

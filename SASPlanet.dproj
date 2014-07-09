@@ -1396,7 +1396,6 @@
     <DCCReference Include="Vector\u_AppearanceOfMarkPolygon.pas" />
     <DCCReference Include="Vector\u_Category.pas" />
     <DCCReference Include="Vector\u_ExportMarks2KML.pas" />
-    <DCCReference Include="Vector\u_ImportByFileExt.pas" />
     <DCCReference Include="Vector\u_ImportConfig.pas" />
     <DCCReference Include="Vector\u_VectorDataFactoryForMap.pas" />
     <DCCReference Include="Vector\u_VectorDataFactorySimple.pas" />
