@@ -100,6 +100,25 @@ uses
   u_MarkDbSml,
   u_MarkCategoryDBSml;
 
+function GetDiskFree(const ADrive: Char): Int64;
+var
+  lpFreeBytesAvailableToCaller,
+  lpTotalNumberOfBytes,
+  lpTotalNumberOfFreeBytes : TLargeInteger;
+begin
+  if
+    GetDiskFreeSpaceEx(
+      PChar(ADrive + ':\'),
+      lpFreeBytesAvailableToCaller,
+      lpTotalNumberOfBytes,
+      @lpTotalNumberOfFreeBytes
+    )
+  then
+    Result := lpTotalNumberOfFreeBytes
+  else
+    Result := -1;
+end;
+
 { TMarkSystemSml }
 
 constructor TMarkSystemSml.Create(
@@ -126,6 +145,8 @@ var
   VMarkStream: TStream;
   VGeometryReader: IGeometryFromStream;
   VGeometryWriter: IGeometryToStream;
+  VFreeDiskSpace: Int64;
+  VBackUpRequaredDiskSize: Int64;
 begin
   inherited Create;
   FDbId := Integer(Self);
@@ -139,6 +160,18 @@ begin
 
   VCategoryFileName := IncludeTrailingPathDelimiter(ABasePath) + 'Categorymarks.sml';
   VCategoryStream := PrepareStream(VCategoryFileName, VState);
+
+  VMarkFileName := IncludeTrailingPathDelimiter(ABasePath) + 'marks.sml';
+  VMarkStream := PrepareStream(VMarkFileName, VState);
+
+  if VStateInternal.WriteAccess <> asDisabled then begin
+    // ensure that we have some free space on current drive
+    VBackUpRequaredDiskSize := (VCategoryStream.Size + VMarkStream.Size) * 2;
+    VFreeDiskSpace := GetDiskFree(ExtractFileDrive(ABasePath)[1]);
+    if (VFreeDiskSpace >= 0) and (VBackUpRequaredDiskSize > VFreeDiskSpace) then begin
+      VStateInternal.WriteAccess := asDisabled;
+    end;
+  end;
 
   VCategoryDb :=
     TMarkCategoryDBSml.Create(
@@ -159,9 +192,6 @@ begin
       AHintConverter,
       FCategoryDBInternal
     );
-
-  VMarkFileName := IncludeTrailingPathDelimiter(ABasePath) + 'marks.sml';
-  VMarkStream := PrepareStream(VMarkFileName, VState);
 
   VGeometryReader := TGeometryFromStreamSML.Create(AVectorGeometryLonLatFactory);
   VGeometryWriter := TGeometryToStreamSML.Create;
