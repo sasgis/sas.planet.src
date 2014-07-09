@@ -33,12 +33,9 @@ uses
   i_ReadWriteState,
   i_MarkPicture,
   i_HtmlToHintTextConverter,
-  i_MarkCategory,
   i_MarkFactory,
   i_MarkDbImpl,
-  i_MarkCategoryDBImpl,
   i_MarkSystemImpl,
-  i_StaticTreeItem,
   i_ImportConfig,
   i_MarkCategoryFactory,
   u_BaseInterfacedObject;
@@ -83,13 +80,9 @@ implementation
 
 uses
   SysUtils,
-  t_CommonTypes,  
-  i_VectorItemSubset,
+  t_CommonTypes,
   i_InterfaceListSimple,
-  i_StaticTreeBuilder,
   i_InterfaceListStatic,
-  u_VectorItemTree,
-  u_StaticTreeBuilderBase,
   u_InterfaceListSimple,
   u_Category,
   u_ImportConfig,
