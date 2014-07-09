@@ -27,6 +27,15 @@ uses
   i_ArchiveReadWriteFactory,
   i_VectorItemTreeExporter,
   i_VectorItemTreeExporterList,
+  i_HashFunction,
+  i_GeometryLonLatFactory,
+  i_VectorItemSubsetBuilder,
+  i_InternalPerformanceCounter,
+  i_AppearanceOfMarkFactory,
+  i_MarkPicture,
+  i_HtmlToHintTextConverter,
+  i_MarkFactory,
+  i_MarkCategoryFactory,
   u_BaseInterfacedObject;
 
 type
@@ -40,7 +49,18 @@ type
     function GetAfterChangeNotifier: INotifier;
     function GetStatic: IVectorItemTreeExporterListStatic;
   public
-    constructor Create(const AArchiveReadWriteFactory: IArchiveReadWriteFactory);
+    constructor Create(
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const AMarkPictureList: IMarkPictureList;
+      const AHashFunction: IHashFunction;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+      const AMarkFactory: IMarkFactory;
+      const ACategoryFactory: IMarkCategoryFactory;
+      const AHintConverter: IHtmlToHintTextConverter;
+      const APerfCounterList: IInternalPerformanceCounterList
+    );
   end;
 
 implementation
@@ -50,12 +70,22 @@ uses
   u_Notifier,
   u_InterfaceListSimple,
   u_VectorItemTreeExporterList,
+  u_VectorItemTreeExporterSmlMarks,
   u_VectorItemTreeExporterKmlKmz;
 
 { TVectorItemTreeExporterListSimple }
 
 constructor TVectorItemTreeExporterListSimple.Create(
-  const AArchiveReadWriteFactory: IArchiveReadWriteFactory
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const AMarkPictureList: IMarkPictureList;
+  const AHashFunction: IHashFunction;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
+  const AMarkFactory: IMarkFactory;
+  const ACategoryFactory: IMarkCategoryFactory;
+  const AHintConverter: IHtmlToHintTextConverter;
+  const APerfCounterList: IInternalPerformanceCounterList
 );
 var
   VList: IInterfaceListSimple;
@@ -65,6 +95,7 @@ begin
   inherited Create;
   FNotifierFake := TNotifierFaked.Create;
   VList := TInterfaceListSimple.Create;
+
   VExporter := TVectorItemTreeExporterKmlKmz.Create(AArchiveReadWriteFactory);
   VItem :=
     TVectorItemTreeExporterListItem.Create(
@@ -80,6 +111,27 @@ begin
       'Keyhole Markup Language'
     );
   VList.Add(VItem);
+
+  VExporter := TVectorItemTreeExporterSmlMarks.Create(
+    AMarkPictureList,
+    AHashFunction,
+    AAppearanceOfMarkFactory,
+    AVectorGeometryLonLatFactory,
+    AVectorItemSubsetBuilderFactory,
+    AMarkFactory,
+    ACategoryFactory,
+    APerfCounterList.CreateAndAddNewCounter('ExportSMLLoader'),
+    APerfCounterList.CreateAndAddNewCounter('ExportSMLSaver'),
+    AHintConverter
+  );
+  VItem :=
+    TVectorItemTreeExporterListItem.Create(
+      VExporter,
+      'sml',
+      'SAS.Planet Marker Database in XML format'
+    );
+  VList.Add(VItem);
+
   FList := TVectorItemTreeExporterListStatic.Create(VList.MakeStaticAndClear);
 end;
 

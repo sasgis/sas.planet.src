@@ -1410,6 +1410,7 @@
     <DCCReference Include="Vector\u_VectorItemTreeExporterKmlKmz.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeExporterList.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeExporterListSimple.pas" />
+    <DCCReference Include="Vector\u_VectorItemTreeExporterSmlMarks.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeImporterByVectorLoader.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeImporterJpegWithExif.pas" />
     <DCCReference Include="Vector\u_VectorItemTreeImporterList.pas" />

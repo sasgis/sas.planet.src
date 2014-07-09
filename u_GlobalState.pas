@@ -583,10 +583,6 @@ begin
       FHashFunction,
       FVectorGeometryProjectedFactory
     );
-  FExporterList :=
-    TVectorItemTreeExporterListSimple.Create(
-      FArchiveReadWriteFactory
-    );
 
   FValueToStringConverter :=
     TValueToStringConverterChangeable.Create(
@@ -669,6 +665,20 @@ begin
       FMarkFactory,
       THtmlToHintTextConverterStuped.Create,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')
+    );
+
+  FExporterList :=
+    TVectorItemTreeExporterListSimple.Create(
+      FArchiveReadWriteFactory,
+      FMarkPictureList,
+      FHashFunction,
+      FAppearanceOfMarkFactory,
+      FVectorGeometryLonLatFactory,
+      FVectorItemSubsetBuilderFactory,
+      FMarkFactory,
+      FMarkCategoryFactory,
+      THtmlToHintTextConverterStuped.Create,
+      FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Export')
     );
 
   FGeoCoderList :=

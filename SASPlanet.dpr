@@ -834,6 +834,7 @@ uses
   u_VectorItemTreeExporterKmlKmz in 'Vector\u_VectorItemTreeExporterKmlKmz.pas',
   u_VectorItemTreeExporterList in 'Vector\u_VectorItemTreeExporterList.pas',
   u_VectorItemTreeExporterListSimple in 'Vector\u_VectorItemTreeExporterListSimple.pas',
+  u_VectorItemTreeExporterSmlMarks in 'Vector\u_VectorItemTreeExporterSmlMarks.pas',
   u_VectorItemTreeImporterList in 'Vector\u_VectorItemTreeImporterList.pas',
   u_VectorItemTreeImporterListSimple in 'Vector\u_VectorItemTreeImporterListSimple.pas',
   u_ExportMarks2KML in 'Vector\u_ExportMarks2KML.pas',
