@@ -236,7 +236,6 @@ var
 begin
   Assert(Assigned(ADataItemTree));
   Assert(Assigned(AImportConfig));
-  Assert(AImportConfig.CategoryParams.IsAddAllInRootCategory);
   Result := nil;
   VMarkList := TInterfaceListSimple.Create;
   PrepareFromTreeForImport(VMarkList, ADataItemTree, AImportConfig);
@@ -261,6 +260,8 @@ var
   VMarkCategory: IMarkCategory;
   VParams: IImportMarkParams;
 begin
+  {ToDo: http://sasgis.org/mantis/view.php?id=2143}
+
   VCategory := AImportConfig.RootCategory;
 
   VCategoryName := AParentCategoryName;
@@ -270,8 +271,11 @@ begin
 
   if Assigned(ADataItemTree) and (ADataItemTree.Name <> '') then begin
     VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
-    VMarkCategory := FCategoryDB.Factory.CreateNew(VCategoryName);
-    FCategoryDB.UpdateCategory(nil, VMarkCategory);
+    VMarkCategory := FCategoryDB.GetCategoryByName(VCategoryName);
+    if not Assigned(VMarkCategory) then begin
+      VMarkCategory := FCategoryDB.Factory.CreateNew(VCategoryName);
+      FCategoryDB.UpdateCategory(nil, VMarkCategory);
+    end;
     VCategory := VMarkCategory;
   end;
 
