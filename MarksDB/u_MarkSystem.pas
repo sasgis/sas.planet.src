@@ -57,14 +57,6 @@ type
     FMarkDb: IMarkDb;
     FCategoryDB: IMarkCategoryDB;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-
-    procedure PrepareFromTreeForImport(
-      const AMarkList: IInterfaceListSimple;
-      const ADataItemTree: IVectorItemTree;
-      const AImportConfig: IImportConfig;
-      const AParentCategoryName: string = ''
-    );
-
   private
     function GetState: IReadWriteStateChangeble;
     function GetMarkDb: IMarkDb;
@@ -112,6 +104,7 @@ uses
   u_VectorItemTree,
   u_MarkDbByImpl,
   u_MarkCategoryDbByImpl,
+  u_MarkSystemHelpers,
   u_MarkSystemImplChangeable;
 
 { TMarkSystem }
@@ -232,98 +225,31 @@ function TMarkSystem.ImportItemsTree(
   const AImportConfig: IImportConfig
 ): IInterfaceListStatic;
 var
+  VImpl: IMarkSystemImpl;
   VMarkList: IInterfaceListSimple;
 begin
   Assert(Assigned(ADataItemTree));
   Assert(Assigned(AImportConfig));
+
   Result := nil;
-  VMarkList := TInterfaceListSimple.Create;
-  PrepareFromTreeForImport(VMarkList, ADataItemTree, AImportConfig);
-  if VMarkList.Count > 0 then begin
-    Result := FMarkDb.UpdateMarkList(nil, VMarkList.MakeStaticAndClear);
-  end;
-end;
 
-procedure TMarkSystem.PrepareFromTreeForImport(
-  const AMarkList: IInterfaceListSimple;
-  const ADataItemTree: IVectorItemTree;
-  const AImportConfig: IImportConfig;
-  const AParentCategoryName: string
-);
-var
-  VItem: IVectorDataItem;
-  i: Integer;
-  VMark: IVectorDataItem;
-  VName: string;
-  VCategoryName: string;
-  VCategory: ICategory;
-  VMarkCategory: IMarkCategory;
-  VParams: IImportMarkParams;
-begin
-  {ToDo: http://sasgis.org/mantis/view.php?id=2143}
+  VImpl := FSystemImpl.GetStatic;
+  if VImpl <> nil then begin
+    VMarkList := TInterfaceListSimple.Create;
 
-  VCategory := AImportConfig.RootCategory;
-
-  VCategoryName := AParentCategoryName;
-  if VCategoryName = '' then begin
-    VCategoryName := VCategory.Name;
-  end;
-
-  if Assigned(ADataItemTree) and (ADataItemTree.Name <> '') then begin
-    VCategoryName := VCategoryName + '\' + ADataItemTree.Name;
-    VMarkCategory := FCategoryDB.GetCategoryByName(VCategoryName);
-    if not Assigned(VMarkCategory) then begin
-      VMarkCategory := FCategoryDB.Factory.CreateNew(VCategoryName);
-      VMarkCategory := FCategoryDB.UpdateCategory(nil, VMarkCategory);
-    end;
-    VCategory := VMarkCategory;
-  end;
-
-  if Assigned(ADataItemTree.Items) then begin
-    for i := 0 to ADataItemTree.Items.Count - 1 do begin
-      VMark := nil;
-      VItem := ADataItemTree.Items.Items[i];
-      VName := VItem.Name;
-      if (VName = '') and (ADataItemTree.Name <> '') then begin
-        if ADataItemTree.Items.Count > 1 then begin
-          VName := ADataItemTree.Name + '-' + IntToStr(i + 1);
-        end else begin
-          VName := ADataItemTree.Name;
-        end;
-      end else begin
-        if AImportConfig.CategoryParams.IsIgnoreMarkIfExistsWithSameNameInCategory then begin
-          if FMarkDb.GetMarkByName(VName, VCategory) <> nil then begin
-            Continue;
-          end;
-        end;
-      end;
-      VParams := nil;
-      if Supports(VItem.Geometry, IGeometryLonLatPoint) then begin
-        VParams := AImportConfig.PointParams;
-      end else if Supports(VItem.Geometry, IGeometryLonLatLine) then begin
-        VParams := AImportConfig.LineParams;
-      end else if Supports(VItem.Geometry, IGeometryLonLatPolygon) then begin
-        VParams := AImportConfig.PolyParams;
-      end;
-      VMark :=
-        FMarkDb.Factory.PrepareMark(
-          VItem,
-          VName,
-          VParams,
-          VCategory
-        );
-      if VMark <> nil then begin
-        AMarkList.Add(VMark);
-      end;
-    end;
-  end;
-  for i := 0 to ADataItemTree.SubTreeItemCount - 1 do begin
     PrepareFromTreeForImport(
-      AMarkList,
-      ADataItemTree.GetSubTreeItem(i),
+      VMarkList,
+      ADataItemTree,
       AImportConfig,
-      VCategoryName
+      VImpl.MarkDb,
+      FMarkDb.Factory,
+      VImpl.CategoryDB,
+      FCategoryDB.Factory
     );
+
+    if VMarkList.Count > 0 then begin
+      Result := FMarkDb.UpdateMarkList(nil, VMarkList.MakeStaticAndClear);
+    end;
   end;
 end;
 
@@ -332,34 +258,16 @@ function TMarkSystem.CategoryTreeToMarkTree(
   const AIncludeHiddenMarks: Boolean
 ): IVectorItemTree;
 var
-  VCategory: IMarkCategory;
-  VMarkSubset: IVectorItemSubset;
-  VSubItems: IInterfaceListStatic;
-  i: Integer;
-  VTemp: IInterfaceListSimple;
+  VImpl: IMarkSystemImpl;
 begin
-  Assert(Assigned(ACategoryTree));
   Result := nil;
-  VMarkSubset := nil;
-  if Assigned(ACategoryTree) then begin
-    if Supports(ACategoryTree.Data, IMarkCategory, VCategory) then begin
-      VMarkSubset := FMarkDb.GetMarkSubsetByCategory(VCategory, AIncludeHiddenMarks);
-    end;
-
-    VSubItems := nil;
-    if ACategoryTree.SubItemCount > 0 then begin
-      VTemp := TInterfaceListSimple.Create;
-      for i := 0 to ACategoryTree.SubItemCount - 1 do begin
-        VTemp.Add(CategoryTreeToMarkTree(ACategoryTree.SubItem[i], AIncludeHiddenMarks));
-      end;
-      VSubItems := VTemp.MakeStaticAndClear;
-    end;
-
+  VImpl := FSystemImpl.GetStatic;
+  if VImpl <> nil then begin
     Result :=
-      TVectorItemTree.Create(
-        ACategoryTree.Name,
-        VMarkSubset,
-        VSubItems
+      CategoryTreeToMarkTreeHelper(
+        VImpl.MarkDb,
+        ACategoryTree,
+        AIncludeHiddenMarks
       );
   end;
 end;

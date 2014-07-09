@@ -604,6 +604,7 @@ uses
   i_MarkSystemImplChangeable in 'MarksDB\i_MarkSystemImplChangeable.pas',
   u_MarkSystemImplChangeable in 'MarksDB\u_MarkSystemImplChangeable.pas',
   u_MarkSystem in 'MarksDB\u_MarkSystem.pas',
+  u_MarkSystemHelpers in 'MarksDB\u_MarkSystemHelpers.pas',
   u_ReadWriteStateInternalByOther in 'u_ReadWriteStateInternalByOther.pas',
   i_MarkPicture in 'MarksDB\i_MarkPicture.pas',
   u_MarkPictureSimple in 'MarksDB\u_MarkPictureSimple.pas',

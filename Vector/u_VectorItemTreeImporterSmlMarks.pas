@@ -54,12 +54,6 @@ type
     FSaveDbCounter: IInternalPerformanceCounter;
     FHintConverter: IHtmlToHintTextConverter;
   private
-    function CategoryTreeToMarkTree(
-      const AMarkDB: IMarkDbImpl;
-      const ACategoryTree: IStaticTreeItem;
-      const AIncludeHiddenMarks: Boolean
-    ): IVectorItemTree;
-  private
     { IVectorItemTreeImporter }
     function ProcessImport(
         const AFileName: string
@@ -90,7 +84,8 @@ uses
   u_VectorItemTree,
   u_StaticTreeBuilderBase,
   u_InterfaceListSimple,
-  u_MarkSystemSml;
+  u_MarkSystemSml,
+  u_MarkSystemHelpers;
 
 { TVectorItemTreeImporterSmlMarks }
 
@@ -116,50 +111,6 @@ begin
   FLoadDbCounter := ALoadDbCounter;
   FSaveDbCounter := ASaveDbCounter;
   FHintConverter := AHintConverter;
-end;
-
-function TVectorItemTreeImporterSmlMarks.CategoryTreeToMarkTree(
-  const AMarkDB: IMarkDbImpl;
-  const ACategoryTree: IStaticTreeItem;
-  const AIncludeHiddenMarks: Boolean
-): IVectorItemTree;
-var
-  VCategory: IMarkCategory;
-  VMarkSubset: IVectorItemSubset;
-  VSubItems: IInterfaceListStatic;
-  i: Integer;
-  VTemp: IInterfaceListSimple;
-begin
-  Assert(Assigned(ACategoryTree));
-  Result := nil;
-  VMarkSubset := nil;
-  if Assigned(ACategoryTree) then begin
-    if Supports(ACategoryTree.Data, IMarkCategory, VCategory) then begin
-      VMarkSubset := AMarkDb.GetMarkSubsetByCategory(VCategory, AIncludeHiddenMarks);
-    end;
-
-    VSubItems := nil;
-    if ACategoryTree.SubItemCount > 0 then begin
-      VTemp := TInterfaceListSimple.Create;
-      for i := 0 to ACategoryTree.SubItemCount - 1 do begin
-        VTemp.Add(
-          CategoryTreeToMarkTree(
-            AMarkDB,
-            ACategoryTree.SubItem[i],
-            AIncludeHiddenMarks
-          )
-        );
-      end;
-      VSubItems := VTemp.MakeStaticAndClear;
-    end;
-
-    Result :=
-      TVectorItemTree.Create(
-        ACategoryTree.Name,
-        VMarkSubset,
-        VSubItems
-      );
-  end;
 end;
 
 function TVectorItemTreeImporterSmlMarks.ProcessImport(
@@ -190,7 +141,7 @@ begin
     VCategoiesList := VSml.CategoryDB.GetCategoriesList;
     if Assigned(VCategoiesList) then begin
       VCategoryTreeBuilder := TStaticTreeByCategoryListBuilder.Create('\', '');
-      Result := CategoryTreeToMarkTree(
+      Result := CategoryTreeToMarkTreeHelper(
         VSml.MarkDb,
         VCategoryTreeBuilder.BuildStatic(VCategoiesList),
         True {IncludeHiddenMarks}
