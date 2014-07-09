@@ -274,7 +274,7 @@ begin
     VMarkCategory := FCategoryDB.GetCategoryByName(VCategoryName);
     if not Assigned(VMarkCategory) then begin
       VMarkCategory := FCategoryDB.Factory.CreateNew(VCategoryName);
-      FCategoryDB.UpdateCategory(nil, VMarkCategory);
+      VMarkCategory := FCategoryDB.UpdateCategory(nil, VMarkCategory);
     end;
     VCategory := VMarkCategory;
   end;
