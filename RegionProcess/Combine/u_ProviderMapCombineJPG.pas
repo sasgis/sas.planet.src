@@ -141,7 +141,7 @@ var
   VFileName: string;
   VSplitCount: TPoint;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTargetConverter: ILocalCoordConverter;
   VImageProvider: IBitmapLayerProvider;
   VProgressInfo: IRegionProcessProgressInfoInternal;

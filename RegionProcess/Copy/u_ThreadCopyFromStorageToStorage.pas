@@ -120,7 +120,7 @@ var
   VZoom: Byte;
   VGeoConvert: ICoordConverter;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTileIterator: ITileIterator;
   VTile: TPoint;
 begin

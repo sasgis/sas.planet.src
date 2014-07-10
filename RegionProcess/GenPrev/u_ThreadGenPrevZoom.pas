@@ -162,7 +162,7 @@ var
   VSubTileBounds: TRect;
   VSubTileInTargetBounds: TRect;
   VSubTileIterator: ITileIterator;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VResampler: TCustomResampler;

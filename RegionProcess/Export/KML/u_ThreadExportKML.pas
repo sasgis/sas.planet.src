@@ -201,7 +201,7 @@ var
   VZoom: Byte;
   VText: UTF8String;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTempIterator: ITileIterator;
   VIterator: ITileIterator;
   VTile: TPoint;

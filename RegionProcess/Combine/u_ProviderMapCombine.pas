@@ -83,12 +83,12 @@ type
     function PrepareImageProvider(
       const APolygon: IGeometryLonLatMultiPolygon;
       const AProjection: IProjectionInfo;
-      const AProjectedPolygon: IGeometryProjectedMultiPolygon
+      const AProjectedPolygon: IGeometryProjectedPolygon
     ): IBitmapLayerProvider;
     function PrepareProjection: IProjectionInfo;
     function PreparePolygon(
       const AProjection: IProjectionInfo;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     ): IGeometryProjectedMultiPolygon;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
@@ -234,7 +234,7 @@ end;
 function TProviderMapCombineBase.PrepareImageProvider(
   const APolygon: IGeometryLonLatMultiPolygon;
   const AProjection: IProjectionInfo;
-  const AProjectedPolygon: IGeometryProjectedMultiPolygon
+  const AProjectedPolygon: IGeometryProjectedPolygon
 ): IBitmapLayerProvider;
 var
   VRect: ILonLatRect;
@@ -329,7 +329,7 @@ end;
 
 function TProviderMapCombineBase.PreparePolygon(
   const AProjection: IProjectionInfo;
-  const APolygon: IGeometryLonLatMultiPolygon
+  const APolygon: IGeometryLonLatPolygon
 ): IGeometryProjectedMultiPolygon;
 begin
   Result :=

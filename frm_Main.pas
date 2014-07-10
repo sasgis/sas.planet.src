@@ -5333,7 +5333,7 @@ var
   VMark: IVectorDataItem;
   i: integer;
   VPoly: IGeometryLonLatMultiPolygon;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VSize: Double;
   VArea: Double;
   VVectorGeometryProjectedFactory: IGeometryProjectedFactory;

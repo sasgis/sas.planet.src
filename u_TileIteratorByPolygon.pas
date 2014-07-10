@@ -34,12 +34,12 @@ uses
 type
   TTileIteratorByPolygon = class(TBaseInterfacedObject, ITileIterator)
   private
-    FProjected: IGeometryProjectedMultiPolygon;
     FCurrent: TPoint;
     FTilesRect: TRect;
     FTilesTotal: Int64;
     // устанавливается только если один кусок (для скорости)
     FSingleLine: IGeometryProjectedSinglePolygon;
+    FMultiProjected: IGeometryProjectedMultiPolygon;
     // кэш куска
     FLastUsedLine: IGeometryProjectedSinglePolygon;
     FZoom: Byte;
@@ -54,46 +54,54 @@ type
   public
     constructor Create(
       const AProjection: IProjectionInfo;
-      const AProjected: IGeometryProjectedMultiPolygon
+      const AProjected: IGeometryProjectedPolygon
     );
   end;
 
 implementation
 
 uses
+  SysUtils,
   u_GeoFunc;
 
 { TTileIteratorByPolygon }
 
 constructor TTileIteratorByPolygon.Create(
   const AProjection: IProjectionInfo;
-  const AProjected: IGeometryProjectedMultiPolygon
+  const AProjected: IGeometryProjectedPolygon
 );
 var
   VBounds: TDoubleRect;
   VTile: TPoint;
 begin
   inherited Create;
-  FProjected := AProjected;
-  FLastUsedLine := nil;
-  if FProjected.Count > 0 then begin
-    // в зависимости от числа сегментов...
-    if (FProjected.Count=1) then begin
-      // ...ходим только по одной области
-      FSingleLine := FProjected.Item[0];
-    end else begin
-      // ...будем ходить в цикле
-      FSingleLine := nil;
-    end;
-
-    // общее ограничение и прочие параметры
-    with FProjected do begin
-      VBounds := Bounds;
-      with AProjection do begin
-        FZoom := Zoom;
-        FGeoConverter := GeoConverter;
+  FZoom := AProjection.Zoom;
+  FGeoConverter := AProjection.GeoConverter;
+  if AProjected.IsEmpty then begin
+    FTilesTotal := 0;
+    FTilesRect := Rect(0, 0, 0, 0);
+    Assert(False);
+  end else begin
+    if Supports(AProjected, IGeometryProjectedSinglePolygon, FSingleLine) then begin
+      FMultiProjected := nil;
+    end else if Supports(AProjected, IGeometryProjectedMultiPolygon, FMultiProjected) then begin
+      // в зависимости от числа сегментов...
+      if (FMultiProjected.Count = 1) then begin
+        // ...ходим только по одной области
+        FSingleLine := FMultiProjected.Item[0];
+      end else begin
+        // ...будем ходить в цикле
+        FSingleLine := nil;
       end;
+    end else begin
+      Assert(False);
+      FSingleLine := nil;
+      FMultiProjected := nil;
+      FTilesTotal := 0;
+      FTilesRect := Rect(0, 0, 0, 0);
+      Exit;
     end;
+    VBounds := AProjected.Bounds;
 
     FTilesRect :=
       RectFromDoubleRect(
@@ -144,8 +152,8 @@ begin
   end;
 
   // проверяем всё в цикле
-  for i := 0 to FProjected.Count-1 do begin
-    VLine := FProjected.GetItem(i);
+  for i := 0 to FMultiProjected.Count-1 do begin
+    VLine := FMultiProjected.GetItem(i);
     if (Pointer(VLine)<>Pointer(FLastUsedLine)) then
     if VLine.IsRectIntersectPolygon(ARect) then begin
       // нашлось

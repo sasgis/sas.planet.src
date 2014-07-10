@@ -221,7 +221,7 @@ var
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
   VDatabaseName: string;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileConverter: ILocalCoordConverter;

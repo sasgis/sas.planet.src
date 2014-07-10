@@ -120,7 +120,7 @@ var
   VMapType: IMapType;
   VZoom: byte;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
   VThread: TThread;

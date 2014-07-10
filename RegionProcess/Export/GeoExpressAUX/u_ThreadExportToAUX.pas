@@ -40,7 +40,7 @@ type
     FTileStorage: ITileStorage;
     FVersion: IMapVersionInfo;
     FProjection: IProjectionInfo;
-    FPolyProjected: IGeometryProjectedMultiPolygon;
+    FPolyProjected: IGeometryProjectedPolygon;
     FFileName: string;
     FZoom: Byte;
   protected
@@ -50,7 +50,7 @@ type
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const APolygon: IGeometryLonLatMultiPolygon;
-      const AProjectedPolygon: IGeometryProjectedMultiPolygon;
+      const AProjectedPolygon: IGeometryProjectedPolygon;
       const AProjection: IProjectionInfo;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionInfo;
@@ -73,7 +73,7 @@ uses
 constructor TThreadExportToAUX.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const APolygon: IGeometryLonLatMultiPolygon;
-  const AProjectedPolygon: IGeometryProjectedMultiPolygon;
+  const AProjectedPolygon: IGeometryProjectedPolygon;
   const AProjection: IProjectionInfo;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionInfo;

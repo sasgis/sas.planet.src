@@ -156,7 +156,7 @@ var
   VGeoConvert: ICoordConverter;
   VTileIterators: array of ITileIterator;
   VTileIterator: ITileIterator;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTileInfo: ITileInfoWithData;
   VBitmapTile: IBitmap32Static;
   VTileData: IBinaryData;

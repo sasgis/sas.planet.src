@@ -122,7 +122,7 @@ var
   VTileIterator: ITileIterator;
   VSAS4WinCE: TSAS4WinCE;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VTileInfo: ITileInfoWithData;

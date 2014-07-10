@@ -52,7 +52,7 @@ type
     FVersionForCheck: IMapVersionRequest;
     FVersionForDownload: IMapVersionInfo;
     FDownloadInfo: IDownloadInfoSimple;
-    FPolyProjected: IGeometryProjectedMultiPolygon;
+    FPolyProjected: IGeometryProjectedPolygon;
     FSecondLoadTNE: boolean;
     FReplaceExistTiles: boolean;
     FCheckExistTileSize: boolean;
@@ -112,7 +112,7 @@ type
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
       const AProjection: IProjectionInfo;
-      const APolyProjected: IGeometryProjectedMultiPolygon;
+      const APolyProjected: IGeometryProjectedPolygon;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
       AReplaceExistTiles: Boolean;
@@ -152,7 +152,7 @@ constructor TThreadDownloadTiles.Create(
   const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
   const AProjection: IProjectionInfo;
-  const APolyProjected: IGeometryProjectedMultiPolygon;
+  const APolyProjected: IGeometryProjectedPolygon;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
   AReplaceExistTiles, ACheckExistTileSize, ACheckExistTileDate: Boolean;
@@ -221,7 +221,7 @@ begin
     Terminate;
     Exit;
   end;
-  if FPolyProjected.Count < 1 then begin
+  if FPolyProjected.IsEmpty then begin
     FProgressInfo.Log.WriteText('Empty Polygon', 10);
     Terminate;
     Exit;

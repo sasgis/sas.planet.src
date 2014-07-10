@@ -38,7 +38,7 @@ type
     function GetEnum: IEnumProjectedPoint;
     function IsPointOnPath(
       const APoint: TDoublePoint;
-      ADist: Double
+      const ADist: Double
     ): Boolean;
     function IsRectIntersectPath(const ARect: TDoubleRect): Boolean;
   public
@@ -54,7 +54,7 @@ type
     function IsPointInPolygon(const APoint: TDoublePoint): Boolean;
     function IsPointOnBorder(
       const APoint: TDoublePoint;
-      ADist: Double
+      const ADist: Double
     ): Boolean;
     function IsRectIntersectPolygon(const ARect: TDoubleRect): Boolean;
     function IsRectIntersectBorder(const ARect: TDoubleRect): Boolean;
@@ -159,7 +159,7 @@ end;
 
 function TGeometryProjectedLine.IsPointOnPath(
   const APoint: TDoublePoint;
-  ADist: Double
+  const ADist: Double
 ): Boolean;
 var
   VCurrPoint: TDoublePoint;
@@ -341,7 +341,7 @@ end;
 
 function TGeometryProjectedPolygon.IsPointOnBorder(
   const APoint: TDoublePoint;
-  ADist: Double
+  const ADist: Double
 ): Boolean;
 var
   VCurrPoint: TDoublePoint;

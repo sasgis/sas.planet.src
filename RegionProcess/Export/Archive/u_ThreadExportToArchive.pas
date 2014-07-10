@@ -105,7 +105,7 @@ var
   VTileIterator: ITileIterator;
   VTileInfo: ITileInfoWithData;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
 begin

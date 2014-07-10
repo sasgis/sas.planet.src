@@ -141,7 +141,7 @@ var
   VTopLeft: TDoublePoint;
   VBottomRight: TDoublePoint;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VData: IBinaryData;

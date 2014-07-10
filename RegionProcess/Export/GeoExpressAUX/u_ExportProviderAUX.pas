@@ -118,7 +118,7 @@ var
   VMapType: IMapType;
   VZoom: byte;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VThread: TThread;
 begin

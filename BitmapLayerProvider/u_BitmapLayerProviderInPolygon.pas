@@ -34,7 +34,6 @@ type
   TBitmapLayerProviderInPolygon = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
     FSourceProvider: IBitmapLayerProvider;
-    FPolyProjected: IGeometryProjectedMultiPolygon;
     FLine: IGeometryProjectedSinglePolygon;
   private
     function GetBitmapRect(
@@ -44,27 +43,40 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const APolyProjected: IGeometryProjectedMultiPolygon;
+      const APolyProjected: IGeometryProjectedPolygon;
       const ASourceProvider: IBitmapLayerProvider
     );
   end;
 
 implementation
 
+uses
+  SysUtils;
+
 { TBitmapLayerProviderInPolygon }
 
 constructor TBitmapLayerProviderInPolygon.Create(
-  const APolyProjected: IGeometryProjectedMultiPolygon;
+  const APolyProjected: IGeometryProjectedPolygon;
   const ASourceProvider: IBitmapLayerProvider
 );
+var
+  VMultiPolygon: IGeometryProjectedMultiPolygon;
 begin
+  Assert(ASourceProvider <> nil);
+  Assert(APolyProjected <> nil);
+  Assert(not APolyProjected.IsEmpty);
   inherited Create;
   FSourceProvider := ASourceProvider;
-  FPolyProjected := APolyProjected;
-  Assert(FSourceProvider <> nil);
-  Assert(FPolyProjected <> nil);
-  Assert(FPolyProjected.Count > 0);
-  FLine := FPolyProjected.Item[0];
+  if not Supports(APolyProjected, IGeometryProjectedSinglePolygon, FLine) then begin
+    if Supports(APolyProjected, IGeometryProjectedMultiPolygon, VMultiPolygon) then begin
+      if VMultiPolygon.Count > 0 then begin
+        FLine := VMultiPolygon.Item[0];
+      end;
+    end else begin
+      Assert(False);
+      FLine := nil;
+    end;
+  end;
 end;
 
 function TBitmapLayerProviderInPolygon.GetBitmapRect(

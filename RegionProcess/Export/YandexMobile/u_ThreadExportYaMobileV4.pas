@@ -291,7 +291,7 @@ var
   VTile: TPoint;
   VTileIterators: array of ITileIterator;
   VProjection: IProjectionInfo;
-  VProjectedPolygon: IGeometryProjectedMultiPolygon;
+  VProjectedPolygon: IGeometryProjectedPolygon;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
   VStaticBitmapCrop: IBitmap32Static;
