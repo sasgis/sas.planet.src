@@ -30,6 +30,7 @@ uses
   i_VectorItemTreeImporter,
   i_GeometryLonLatFactory,
   i_VectorItemTree,
+  i_PathConfig,
   u_BaseInterfacedObject;
 
 type
@@ -39,6 +40,7 @@ type
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
+    FMediaDataPath: IPathConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
   private
     function ProcessImport(
@@ -50,6 +52,7 @@ type
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataFactory: IVectorDataFactory;
+      const AMediaDataPath: IPathConfig;
       const AValueToStringConverter: IValueToStringConverterChangeable
     );
   end;
@@ -73,6 +76,7 @@ constructor TVectorItemTreeImporterJpegWithExif.Create(
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataFactory: IVectorDataFactory;
+  const AMediaDataPath: IPathConfig;
   const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
@@ -81,6 +85,7 @@ begin
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FVectorDataFactory := AVectorDataFactory;
+  FMediaDataPath := AMediaDataPath;
   FValueToStringConverter := AValueToStringConverter
 end;
 
@@ -106,6 +111,7 @@ var
   VList: IVectorItemSubsetBuilder;
   VVectorData: IVectorItemSubset;
   VFormattedDateTime : string;
+  VImgName: string;
 begin
   Result := nil;
   if not FileExists(AFileName) then Exit;
@@ -183,7 +189,19 @@ begin
     if VExifData.Author<>'' then
       VDEsc := VDEsc + 'Author: '+ VExifData.Author + '<br>' + #$0D#$0A;
 
-    VDEsc := VDEsc + '<img width=600 src="' + AFileName + '">';
+    if Pos(FMediaDataPath.FullPath, AFileName) > 0 then begin
+      VImgName := StringReplace(
+        AFileName,
+        IncludeTrailingPathDelimiter(FMediaDataPath.FullPath),
+        'sas://MediaData/',
+        [rfIgnoreCase]
+      );
+      VImgName := StringReplace(VImgName, '\', '/', [rfReplaceAll]);
+    end else begin
+      VImgName := AFileName;
+    end;
+
+    VDEsc := VDEsc + '<img width=600 src="' + VImgName + '">';
 
     VTitle := ExtractFileName(AFileName);
     if not VExifData.DateTimeOriginal.MissingOrInvalid then begin

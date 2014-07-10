@@ -664,6 +664,7 @@ begin
       FAppearanceOfMarkFactory,
       FMarkFactory,
       THtmlToHintTextConverterStuped.Create,
+      FGlobalConfig.MediaDataPath,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')
     );
 

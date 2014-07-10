@@ -38,6 +38,7 @@ uses
   i_AppearanceOfMarkFactory,
   i_MarkFactory,
   i_HtmlToHintTextConverter,
+  i_PathConfig,
   u_BaseInterfacedObject;
 
 type
@@ -63,6 +64,7 @@ type
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkFactory: IMarkFactory;
       const AHintConverter: IHtmlToHintTextConverter;
+      const AMediaDataPath: IPathConfig;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -101,6 +103,7 @@ constructor TVectorItemTreeImporterListSimple.Create(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkFactory: IMarkFactory;
   const AHintConverter: IHtmlToHintTextConverter;
+  const AMediaDataPath: IPathConfig;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -263,6 +266,7 @@ begin
       AVectorDataItemMainInfoFactory,
       AVectorItemSubsetBuilderFactory,
       AVectorDataFactory,
+      AMediaDataPath,
       AValueToStringConverter
     );
   VItem :=
