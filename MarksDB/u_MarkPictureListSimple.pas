@@ -66,6 +66,34 @@ uses
   i_ContentTypeInfo,
   u_MarkPictureSimple;
 
+procedure GetFilesList(const APath, AMask: string; var AList: TStringList);
+const
+  cFileMask = '*.*';
+var
+  VRec: TSearchRec;
+  VPath: string;
+begin
+  VPath := IncludeTrailingPathDelimiter(APath);
+  if FindFirst(VPath + cFileMask, faAnyFile - faDirectory, VRec) = 0 then
+  try
+    repeat
+      if AnsiPos(ExtractFileExt(VRec.Name), AMask) > 0 then
+        AList.Add(VPath + VRec.Name);
+    until FindNext(VRec) <> 0;
+  finally
+    FindClose(VRec);
+  end;
+  if FindFirst(VPath + cFileMask, faDirectory, VRec) = 0 then
+  try
+    repeat
+      if ((VRec.Attr and faDirectory) <> 0) and (VRec.Name <> '.') and (VRec.Name <> '..') then
+        GetFilesList(VPath + VRec.Name, AMask, AList); // recursion
+    until FindNext(VRec) <> 0;
+  finally
+    FindClose(VRec);
+  end;
+end;
+
 { TMarkPictureListSimple }
 
 constructor TMarkPictureListSimple.Create(
@@ -101,39 +129,73 @@ begin
 end;
 
 procedure TMarkPictureListSimple.LoadList;
+const
+  cExtList: array [0..2] of string = ('.png', '.jpg', '.jpeg');
+
+  function _GetLoaderByExt(const AExt: string): IBitmapTileLoader;
+  var
+    VContentType: IContentTypeInfoBasic;
+    VContentTypeBitmap: IContentTypeInfoBitmap;
+  begin
+    VContentType := FContentTypeManager.GetInfoByExt(AExt);
+    if VContentType <> nil then begin
+      if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+        Result := VContentTypeBitmap.GetLoader;
+      end;
+    end;
+  end;
+
 var
-  SearchRec: TSearchRec;
+  I, J: Integer;
+  VFilesList: TStringList;
   VLoader: IBitmapTileLoader;
+  VPngLoader, VJpegLoader: IBitmapTileLoader;
   VPicture: IMarkPicture;
   VFullName: string;
-  VContentType: IContentTypeInfoBasic;
-  VContentTypeBitmap: IContentTypeInfoBitmap;
+  VShortName: string;
+  VExtention: string;
   VPath: string;
   VHash: THashValue;
 begin
   inherited;
   Clear;
-  VContentType := FContentTypeManager.GetInfoByExt('.png');
-  if VContentType <> nil then begin
-    if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
-      VLoader := VContentTypeBitmap.GetLoader;
-    end;
-  end;
+
+  VPngLoader := _GetLoaderByExt('.png');
+  VJpegLoader := _GetLoaderByExt('.jpg');
+
   VPath := IncludeTrailingPathDelimiter(FBasePath.FullPath);
-  if FindFirst(VPath + '*.png', faAnyFile, SearchRec) = 0 then begin
-    try
-      repeat
-        if (SearchRec.Attr and faDirectory) <> faDirectory then begin
-          VFullName := VPath + SearchRec.Name;
-          VHash := FHashFunction.CalcHashByString(VFullName);
-          VPicture := TMarkPictureSimple.Create(VHash, VFullName, SearchRec.Name, VLoader);
-          VPicture._AddRef;
-          FList.AddObject(SearchRec.Name, TObject(Pointer(VPicture)));
+  VFilesList := TStringList.Create;
+  try
+    GetFilesList(VPath, '.png;.jpg;.jpeg', VFilesList);
+
+    for I := 0 to VFilesList.Count - 1 do begin
+      VLoader := nil;
+
+      VFullName := VFilesList.Strings[I];
+      VShortName := StringReplace(VFullName, VPath, '', [rfIgnoreCase]);
+      VExtention := ExtractFileExt(VFullName);
+
+      for J := 0 to Length(cExtList) - 1 do begin
+        if SameText(cExtList[J], VExtention) then begin
+          if J = 0 then begin
+            VLoader := VPngLoader;
+          end else begin
+            VLoader := VJpegLoader;
+          end;
         end;
-      until FindNext(SearchRec) <> 0;
-    finally
-      FindClose(SearchRec);
+      end;
+
+      if not Assigned(VLoader) then begin
+        Continue;
+      end;
+
+      VHash := FHashFunction.CalcHashByString(VFullName);
+      VPicture := TMarkPictureSimple.Create(VHash, VFullName, VShortName, VLoader);
+      VPicture._AddRef;
+      FList.AddObject(VShortName, TObject(Pointer(VPicture)));
     end;
+  finally
+    VFilesList.Free;
   end;
 end;
 
