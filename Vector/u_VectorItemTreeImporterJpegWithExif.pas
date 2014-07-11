@@ -34,6 +34,11 @@ uses
   u_BaseInterfacedObject;
 
 type
+  IJpegWithExifImporterConfig = interface
+    ['{13CEF43F-633C-4B96-A4E6-B2FFDD0AD9A2}']
+    function GetSetThumbnailAsIcon(): Boolean;
+  end;
+
   TVectorItemTreeImporterJpegWithExif = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
@@ -44,7 +49,8 @@ type
     FValueToStringConverter: IValueToStringConverterChangeable;
   private
     function ProcessImport(
-      const AFileName: string
+      const AFileName: string;
+      const AImporterConfig: IInterface
     ): IVectorItemTree;
   public
     constructor Create(
@@ -62,6 +68,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  Jpeg,
   CCR.Exif,
   CCR.Exif.IPTC,
   t_GeoTypes,
@@ -92,7 +99,8 @@ begin
 end;
 
 function TVectorItemTreeImporterJpegWithExif.ProcessImport(
-  const AFileName: string
+  const AFileName: string;
+  const AImporterConfig: IInterface
 ): IVectorItemTree;
 const
   br = '<br>' + #$0D#$0A;
@@ -121,6 +129,7 @@ var
   VKeys: TStrings;
   VPoint: TDoublePoint;
   VJpeg: TJPEGImageEx;
+  VThumbnail: TJPEGImage;
   VExifData: TExifData;
   VIPTCData: TIPTCData;
   VGPSLatitude: TGPSLatitude;
@@ -130,12 +139,17 @@ var
   VList: IVectorItemSubsetBuilder;
   VVectorData: IVectorItemSubset;
   VValueToStringConverter: IValueToStringConverter;
+  VConfig: IJpegWithExifImporterConfig;
 begin
   Assert(FileExists(AFileName));
 
   Result := nil;
 
   VValueToStringConverter := FValueToStringConverter.GetStatic;
+
+  if not Supports(AImporterConfig, IJpegWithExifImporterConfig, VConfig) then begin
+    VConfig := nil;
+  end;
 
   VDesc := '';
   VPoint := CEmptyDoublePoint;
@@ -234,6 +248,18 @@ begin
       VImgName := StringReplace(VImgName, '\', '/', [rfReplaceAll]);
     end else begin
       VImgName := AFileName;
+    end;
+
+    if Assigned(VConfig) and VConfig.GetSetThumbnailAsIcon then begin
+      VThumbnail := VExifData.Thumbnail;
+      if not Assigned(VThumbnail) or VThumbnail.Empty then begin
+        VJpeg.CreateThumbnail;
+        VThumbnail := VExifData.Thumbnail;
+      end;
+      if Assigned(VThumbnail) and not VThumbnail.Empty then begin
+        // ToDo: gen name (! max len = 20 !) and save Thumbnail to MarkIcons folder
+        //VThumbnail.SaveToFile(ChangeFileExt(AFileName, '.Thumbnail.jpg'));
+      end;
     end;
 
     if VJpeg.Width < VJpeg.Height then begin

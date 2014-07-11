@@ -584,7 +584,7 @@ begin
         VExt := ExtractFileExt(VFileName);
         VImporter := AImporterList.GetImporterByExt(VExt);
         if Assigned(VImporter) then begin
-          VTree := VImporter.ProcessImport(VFileName);
+          VTree := VImporter.ProcessImport(VFileName, nil);
           if Assigned(VTree) then begin
             if not Assigned(VImportConfig) then
               VImportConfig := EditModalImportConfig;
