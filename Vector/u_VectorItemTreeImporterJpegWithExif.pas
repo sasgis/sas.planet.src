@@ -61,9 +61,11 @@ implementation
 
 uses
   SysUtils,
+  StrUtils,
   CCR.Exif,
   CCR.Exif.IPTC,
   t_GeoTypes,
+  c_InternalBrowser,
   i_VectorItemSubset,
   i_VectorDataItemSimple,
   u_VectorItemTree,
@@ -92,108 +94,141 @@ end;
 function TVectorItemTreeImporterJpegWithExif.ProcessImport(
   const AFileName: string
 ): IVectorItemTree;
+const
+  br = '<br>' + #$0D#$0A;
+
+  function _ListToString(const AList: TStrings; const AComma: string): string;
+  var
+    I: Integer;
+  begin
+    Result := '';
+    if Assigned(AList) and (AList.Count > 0) then begin
+      for I := 0 to AList.Count - 1 do begin
+        if AList.Strings[I] <> '' then begin
+          if Result <> '' then Result := Result + AComma;
+          Result := Result + AList.Strings[I];
+        end;
+      end;
+    end;
+  end;
+
 var
+  VDesc: string;
+  VTmpStr: string;
+  VImgName: string;
+  VAltitude: string;
+  VExAltitude: Extended;
+  VKeys: TStrings;
   VPoint: TDoublePoint;
+  VJpeg: TJPEGImageEx;
   VExifData: TExifData;
+  VIPTCData: TIPTCData;
   VGPSLatitude: TGPSLatitude;
   VGPSLongitude: TGPSLongitude;
   VGPSAltitude: TExifFraction;
-  VDesc: string;
   VItem: IVectorDataItem;
-  VValueToStringConverter: IValueToStringConverter;
-  VAltitude: string;
-  VExAltitude: Extended;
-  VTmpStr: string;
-  i: Integer;
-  VTitle: string;
-  Vkeys: TStrings;
-  VIPTCData: TIPTCData;
   VList: IVectorItemSubsetBuilder;
   VVectorData: IVectorItemSubset;
-  VFormattedDateTime : string;
-  VImgName: string;
+  VValueToStringConverter: IValueToStringConverter;
 begin
+  Assert(FileExists(AFileName));
+
   Result := nil;
-  if not FileExists(AFileName) then Exit;
-  VDEsc := '';
+
   VValueToStringConverter := FValueToStringConverter.GetStatic;
+
+  VDesc := '';
   VPoint := CEmptyDoublePoint;
-  VExifData := TExifData.Create;
+
+  VJpeg := TJPEGImageEx.Create;
   try
-    VExifData.LoadFromGraphic(AFileName);
+    VJpeg.LoadFromFile(AFileName);
+
+    if VJpeg.Empty then Exit;    
+
+    VExifData := VJpeg.ExifData;
+
     if VExifData.Empty then Exit;
 
     VGPSLatitude := VExifData.GPSLatitude;
     if VGPSLatitude.Degrees.MissingOrInvalid then Exit;
     VPoint.Y := VGPSLatitude.Degrees.Quotient;
-    VPoint.Y := VPoint.Y + VGPSLatitude.Minutes.Quotient/60;
-    VPoint.Y := VPoint.Y + VGPSLatitude.Seconds.Quotient/3600;
+    VPoint.Y := VPoint.Y + VGPSLatitude.Minutes.Quotient / 60;
+    VPoint.Y := VPoint.Y + VGPSLatitude.Seconds.Quotient / 3600;
     if VGPSLatitude.Direction = ltSouth then VPoint.Y := -VPoint.Y;
 
     VGPSLongitude := VExifData.GPSLongitude;
     if VGPSLongitude.Degrees.MissingOrInvalid then Exit;
     VPoint.X := VGPSLongitude.Degrees.Quotient;
-    VPoint.X := VPoint.X + VGPSLongitude.Minutes.Quotient/60;
-    VPoint.X := VPoint.X + VGPSLongitude.Seconds.Quotient/3600;
+    VPoint.X := VPoint.X + VGPSLongitude.Minutes.Quotient / 60;
+    VPoint.X := VPoint.X + VGPSLongitude.Seconds.Quotient / 3600;
     if VGPSLongitude.Direction = lnWest then VPoint.X := -VPoint.X;
 
+    if PointIsEmpty(VPoint) then Exit;
+
     VGPSAltitude := VExifData.GPSAltitude;
-    if VGPSAltitude.MissingOrInvalid then VAltitude := '' else
-    begin
+    if VGPSAltitude.MissingOrInvalid or (VGPSAltitude.Quotient = 0) then
+      VAltitude := ''
+    else begin
       VExAltitude := VGPSAltitude.Quotient;
-      if VExifData.GPSAltitudeRef = alBelowSeaLevel then VExAltitude := -VExAltitude ;
+      if VExifData.GPSAltitudeRef = alBelowSeaLevel then
+        VExAltitude := -VExAltitude ;
       VAltitude := FloatToStrF(VExAltitude, ffFixed, 10, 2);
     end;
 
-    VIPTCData := TIPTCData.Create;
-    try
-      VIPTCData.LoadFromGraphic(AFileName);
-      Vkeys := TStringList.Create;
+    VIPTCData := VJpeg.IPTCData;
+    if not VIPTCData.Empty then begin
+      VKeys := TStringList.Create;
       try
-        VIPTCData.GetKeyWords(Vkeys);
-        VTmpStr := '';
-        if Assigned(Vkeys) and (Vkeys.Count > 0) then begin
-          for i := 0 to Vkeys.Count - 1 do begin
-           if Vkeys.Strings[i]<>'' then
-             VTmpStr := VTmpStr + Vkeys.Strings[i] + '; ';
-          end;
-          VDEsc := VDEsc + 'Tags: '+ VTmpStr + '<br>' + #$0D#$0A;
-        end;
-        VTmpStr := VIPTCData.CountryName + ', ' + VIPTCData.ProvinceOrState + ', ' + VIPTCData.City + ', ' +
-          VIPTCData.SubLocation + '<br>' + #$0D#$0A;
-        //Esli sodergit nekoe kolichestvo razumnoi informacii
-        if Length(VTmpStr)>20 then VDEsc := VDEsc + 'Location: '+ VTmpStr + '<br>' + #$0D#$0A;
-        VTmpStr := '';
+        VIPTCData.GetKeyWords(VKeys);
+
+        VTmpStr := _ListToString(VKeys, '; ');
+        if VTmpStr <> '' then
+          VDesc := VDesc + 'Tags: '+ VTmpStr + br;
+
+        VKeys.Clear;
+
+        VKeys.Add(VIPTCData.CountryName);
+        VKeys.Add(VIPTCData.ProvinceOrState);
+        VKeys.Add(VIPTCData.City);
+        VKeys.Add(VIPTCData.SubLocation);
+
+        VTmpStr := _ListToString(VKeys, ', ');
+        if VTmpStr <> '' then
+          VDesc := VDesc + 'Location: '+ VTmpStr + br + br;
       finally
         VKeys.Free;
       end;
-    finally
-      VIPTCData.Free;
     end;
 
-    VDEsc := VDEsc + 'Coordinates: [ '+VValueToStringConverter.LonLatConvert(VPoint)+' ]<br>' + #$0D#$0A;
+    VDesc := VDesc + 'GPS Coordinates: [ '+VValueToStringConverter.LonLatConvert(VPoint)+' ]' + br;
+
     if VAltitude <> '' then
-      VDEsc := VDEsc + 'Elevation: ' + VAltitude + '<br>' + #$0D#$0A;
+      VDesc := VDesc + 'GPS Elevation: ' + VAltitude + br;
+
     if not VExifData.GPSVersion.MissingOrInvalid then
-      VDEsc := VDEsc + 'GPS Version:' + VExifData.GPSVersion.AsString + '<br>' + #$0D#$0A;
+      VDesc := VDesc + 'GPS Version:' + VExifData.GPSVersion.AsString + br;
+
     if VExifData.CameraMake <> '' then
-      VDEsc := VDEsc + 'Camera: '+ VExifData.CameraMake + ' '+VExifData.CameraModel + '<br>' + #$0D#$0A;
+      VDesc := VDesc + 'Camera: '+ VExifData.CameraMake + ' '+VExifData.CameraModel + br;
+
     if not VExifData.DateTimeOriginal.MissingOrInvalid then begin
-      VDEsc := VDEsc + 'Date: '+ VExifData.DateTimeOriginal.AsString + '<br>' + #$0D#$0A;
+      VDesc := VDesc + 'Date: '+ VExifData.DateTimeOriginal.AsString + br;
     end else if not VExifData.DateTime.MissingOrInvalid then begin
-      VDEsc := VDEsc + 'Date: '+ VExifData.DateTime.AsString + '<br>' + #$0D#$0A;
+      VDesc := VDesc + 'Date: '+ VExifData.DateTime.AsString + br;
     end;
 
-    if VExifData.Keywords<>'' then
-      VDEsc := VDEsc + 'Windows Tags: '+ VExifData.Keywords + '<br>' + #$0D#$0A;
-    if VExifData.Author<>'' then
-      VDEsc := VDEsc + 'Author: '+ VExifData.Author + '<br>' + #$0D#$0A;
+    if VExifData.Keywords <> '' then
+      VDesc := VDesc + 'Windows Tags: '+ VExifData.Keywords + br;
 
-    if Pos(FMediaDataPath.FullPath, AFileName) > 0 then begin
+    if VExifData.Author <> '' then
+      VDesc := VDesc + 'Author: '+ VExifData.Author + br;
+
+    if StartsText(FMediaDataPath.FullPath, AFileName) then begin
       VImgName := StringReplace(
         AFileName,
         IncludeTrailingPathDelimiter(FMediaDataPath.FullPath),
-        'sas://MediaData/',
+        CMediaDataInternalURL,
         [rfIgnoreCase]
       );
       VImgName := StringReplace(VImgName, '\', '/', [rfReplaceAll]);
@@ -201,26 +236,19 @@ begin
       VImgName := AFileName;
     end;
 
-    VDEsc := VDEsc + '<img width=600 src="' + VImgName + '">';
-
-    VTitle := ExtractFileName(AFileName);
-    if not VExifData.DateTimeOriginal.MissingOrInvalid then begin
-      DateTimeToString(VFormattedDateTime, 'yyyy.mm.dd-hh:mm:ss', VExifData.DateTimeOriginal.Value);
-      VTitle := VFormattedDateTime;
-    end else if not VExifData.DateTime.MissingOrInvalid then begin
-      DateTimeToString(VFormattedDateTime, 'yyyy.mm.dd-hh:mm:ss', VExifData.DateTime.Value);
-      VTitle := VFormattedDateTime;
+    if VJpeg.Width < VJpeg.Height then begin
+      VTmpStr := 'height';
+    end else begin
+      VTmpStr := 'width';
     end;
 
+    VDesc := VDesc + '<img ' + VTmpStr + '=600 src="' + VImgName + '">';
   finally
-    VExifData.Free;
+    VJpeg.Free;
   end;
 
-  if PointIsEmpty(VPoint) then begin
-    Exit;
-  end;
   VItem := FVectorDataFactory.BuildItem(
-    FVectorDataItemMainInfoFactory.BuildMainInfo(nil, VTitle, VDesc),
+    FVectorDataItemMainInfoFactory.BuildMainInfo(nil, ExtractFileName(AFileName), VDesc),
     nil,
     FVectorGeometryLonLatFactory.CreateLonLatPoint(VPoint)
   );
@@ -229,7 +257,7 @@ begin
     VList := FVectorItemSubsetBuilderFactory.Build;
     VList.Add(VItem);
     VVectorData := VList.MakeStaticAndClear;
-    Result := TVectorItemTree.Create(ExtractFileName(AFileName), VVectorData, nil);
+    Result := TVectorItemTree.Create('', VVectorData, nil);
   end;
 end;
 
