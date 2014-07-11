@@ -210,6 +210,62 @@ begin
   end;
 end;
 
+procedure Line2GR32Polygon(
+  const ALine: IGeometryProjectedLine;
+  const ALocalConverter: ILocalCoordConverter;
+  const APreparedPointsAggreagtor: IDoublePointsAggregator;
+  var AFixedPointArray: TArrayOfFixedPoint;
+  var APolygon: TPolygon32
+);
+var
+  VMapRect: TDoubleRect;
+  VLocalRect: TDoubleRect;
+  VRectWithDelta: TDoubleRect;
+  VLineIndex: Integer;
+  VSingleLine: IGeometryProjectedSingleLine;
+  VMultiLine: IGeometryProjectedMultiLine;
+begin
+  if Assigned(APolygon) then begin
+    APolygon.Clear;
+  end;
+
+  if ALine <> nil then begin
+    if not ALine.IsEmpty then begin
+      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+      if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
+        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+        VRectWithDelta.Left := VLocalRect.Left - 10;
+        VRectWithDelta.Top := VLocalRect.Top - 10;
+        VRectWithDelta.Right := VLocalRect.Right + 10;
+        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+        if Supports(ALine, IGeometryProjectedSingleLine, VSingleLine) then begin
+          SingleLine2GR32Polygon(
+            VSingleLine,
+            ALocalConverter,
+            VRectWithDelta,
+            VMapRect,
+            APreparedPointsAggreagtor,
+            AFixedPointArray,
+            APolygon
+          );
+        end else if Supports(ALine, IGeometryProjectedMultiLine, VMultiLine) then begin
+          for VLineIndex := 0 to VMultiLine.Count - 1 do begin
+            VSingleLine := VMultiLine.Item[VLineIndex];
+            SingleLine2GR32Polygon(
+              VSingleLine,
+              ALocalConverter,
+              VRectWithDelta,
+              VMapRect,
+              APreparedPointsAggreagtor,
+              AFixedPointArray,
+              APolygon
+            );
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
 
 function TBitmapLayerProviderByMarksSubset.DrawPath(
   var ABitmapInited: Boolean;
@@ -220,63 +276,41 @@ function TBitmapLayerProviderByMarksSubset.DrawPath(
 ): Boolean;
 var
   VPolygon: TPolygon32;
-  VRectWithDelta: TDoubleRect;
-  VLocalRect: TDoubleRect;
   VProjected: IGeometryProjectedMultiLine;
-  VMapRect: TDoubleRect;
-  VLineIndex: Integer;
-  VLine: IGeometryProjectedSingleLine;
   VAppearanceLine: IAppearanceLine;
 begin
   Result := False;
+  VPolygon := nil;
   VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, ALine);
-  if VProjected <> nil then begin
-    if VProjected.Count > 0 then begin
-      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      if IsIntersecProjectedRect(VMapRect, VProjected.Bounds) then begin
-        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
-        VRectWithDelta.Left := VLocalRect.Left - 10;
-        VRectWithDelta.Top := VLocalRect.Top - 10;
-        VRectWithDelta.Right := VLocalRect.Right + 10;
-        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        VPolygon := nil;
-        try
-          for VLineIndex := 0 to VProjected.Count - 1 do begin
-            VLine := VProjected.Item[VLineIndex];
-            SingleLine2GR32Polygon(
-              VLine,
-              ALocalConverter,
-              VRectWithDelta,
-              VMapRect,
-              FPreparedPointsAggreagtor,
-              FFixedPointArray,
-              VPolygon
-            );
-          end;
-          if VPolygon <> nil then begin
-            if not ABitmapInited then begin
-              InitBitmap(ATargetBmp, ALocalConverter);
-              ABitmapInited := True;
-            end;
-            if Supports(AAppearance, IAppearanceLine, VAppearanceLine) then begin
-              with VPolygon.Outline do try
-                with Grow(GR32.Fixed(VAppearanceLine.LineWidth / 2), 0.5) do try
-                  FillMode := pfWinding;
-                  DrawFill(ATargetBmp, VAppearanceLine.LineColor);
-                finally
-                  free;
-                end;
-              finally
-                free;
-              end;
-            end;
-            Result := True;
+  Line2GR32Polygon(
+    VProjected,
+    ALocalConverter,
+    FPreparedPointsAggreagtor,
+    FFixedPointArray,
+    VPolygon
+  );
+  try
+    if Assigned(VPolygon) then begin
+      if not ABitmapInited then begin
+        InitBitmap(ATargetBmp, ALocalConverter);
+        ABitmapInited := True;
+      end;
+      if Supports(AAppearance, IAppearanceLine, VAppearanceLine) then begin
+        with VPolygon.Outline do try
+          with Grow(GR32.Fixed(VAppearanceLine.LineWidth / 2), 0.5) do try
+            FillMode := pfWinding;
+            DrawFill(ATargetBmp, VAppearanceLine.LineColor);
+          finally
+            free;
           end;
         finally
-          VPolygon.Free;
+          free;
         end;
       end;
+      Result := True;
     end;
+  finally
+    VPolygon.Free;
   end;
 end;
 
@@ -335,6 +369,63 @@ begin
   end;
 end;
 
+procedure Polygon2GR32Polygon(
+  const ALine: IGeometryProjectedPolygon;
+  const ALocalConverter: ILocalCoordConverter;
+  const APreparedPointsAggreagtor: IDoublePointsAggregator;
+  var AFixedPointArray: TArrayOfFixedPoint;
+  var APolygon: TPolygon32
+);
+var
+  VMapRect: TDoubleRect;
+  VLocalRect: TDoubleRect;
+  VRectWithDelta: TDoubleRect;
+  VProjectedMultiLine: IGeometryProjectedMultiPolygon;
+  VProjectedSingleLine: IGeometryProjectedSinglePolygon;
+  VLineIndex: Integer;
+begin
+  if Assigned(APolygon) then begin
+    APolygon.Clear;
+  end;
+
+  if ALine <> nil then begin
+    if not ALine.IsEmpty then begin
+      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
+      if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
+        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
+        VRectWithDelta.Left := VLocalRect.Left - 10;
+        VRectWithDelta.Top := VLocalRect.Top - 10;
+        VRectWithDelta.Right := VLocalRect.Right + 10;
+        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
+        if Supports(ALine, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
+          SinglePoly2GR32Polygon(
+            VProjectedSingleLine,
+            ALocalConverter,
+            VRectWithDelta,
+            VMapRect,
+            APreparedPointsAggreagtor,
+            AFixedPointArray,
+            APolygon
+          );
+        end else if Supports(ALine, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
+          for VLineIndex := 0 to VProjectedMultiLine.Count - 1 do begin
+            VProjectedSingleLine := VProjectedMultiLine.Item[VLineIndex];
+            SinglePoly2GR32Polygon(
+              VProjectedSingleLine,
+              ALocalConverter,
+              VRectWithDelta,
+              VMapRect,
+              APreparedPointsAggreagtor,
+              AFixedPointArray,
+              APolygon
+            );
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
 function TBitmapLayerProviderByMarksSubset.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
@@ -344,67 +435,45 @@ function TBitmapLayerProviderByMarksSubset.DrawPoly(
 ): Boolean;
 var
   VPolygon: TPolygon32;
-  VRectWithDelta: TDoubleRect;
-  VLocalRect: TDoubleRect;
-  VProjected: IGeometryProjectedMultiPolygon;
-  VMapRect: TDoubleRect;
-  VLineIndex: Integer;
-  VLine: IGeometryProjectedSinglePolygon;
+  VProjected: IGeometryProjectedPolygon;
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;
 begin
   Result := False;
   VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, APoly);
-  if VProjected <> nil then begin
-    if VProjected.Count > 0 then begin
-      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      if IsIntersecProjectedRect(VMapRect, VProjected.Bounds) then begin
-        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
-        VRectWithDelta.Left := VLocalRect.Left - 10;
-        VRectWithDelta.Top := VLocalRect.Top - 10;
-        VRectWithDelta.Right := VLocalRect.Right + 10;
-        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        VPolygon := nil;
-        try
-          for VLineIndex := 0 to VProjected.Count - 1 do begin
-            VLine := VProjected.Item[VLineIndex];
-            SinglePoly2GR32Polygon(
-              VLine,
-              ALocalConverter,
-              VRectWithDelta,
-              VMapRect,
-              FPreparedPointsAggreagtor,
-              FFixedPointArray,
-              VPolygon
-            );
-          end;
-          if VPolygon <> nil then begin
-            if not ABitmapInited then begin
-              InitBitmap(ATargetBmp, ALocalConverter);
-              ABitmapInited := True;
-            end;
-            if Supports(AAppearance, IAppearancePolygonFill, VAppearanceFill) then begin
-              VPolygon.DrawFill(ATargetBmp, VAppearanceFill.FillColor);
-            end;
-            if Supports(AAppearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
-              with VPolygon.Outline do try
-                with Grow(GR32.Fixed(VAppearanceBorder.LineWidth / 2), 0.5) do try
-                  FillMode := pfWinding;
-                  DrawFill(ATargetBmp, VAppearanceBorder.LineColor);
-                finally
-                  free;
-                end;
-              finally
-                free;
-              end;
-            end;
-            Result := True;
+  VPolygon := nil;
+  try
+    Polygon2GR32Polygon(
+      VProjected,
+      ALocalConverter,
+      FPreparedPointsAggreagtor,
+      FFixedPointArray,
+      VPolygon
+    );
+    if VPolygon <> nil then begin
+      if not ABitmapInited then begin
+        InitBitmap(ATargetBmp, ALocalConverter);
+        ABitmapInited := True;
+      end;
+      if Supports(AAppearance, IAppearancePolygonFill, VAppearanceFill) then begin
+        VPolygon.DrawFill(ATargetBmp, VAppearanceFill.FillColor);
+      end;
+      if Supports(AAppearance, IAppearancePolygonBorder, VAppearanceBorder) then begin
+        with VPolygon.Outline do try
+          with Grow(GR32.Fixed(VAppearanceBorder.LineWidth / 2), 0.5) do try
+            FillMode := pfWinding;
+            DrawFill(ATargetBmp, VAppearanceBorder.LineColor);
+          finally
+            free;
           end;
         finally
-          VPolygon.Free;
+          free;
         end;
       end;
+      Result := True;
     end;
+  finally
+    VPolygon.Free;
   end;
 end;
 
