@@ -90,7 +90,7 @@ type
       const ARadius: double
     ): IGeometryLonLatMultiPolygon;
     function CreateLonLatMultiPolygonByLonLatPathAndFilter(
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       const AFilter: ILonLatPointFilter
     ): IGeometryLonLatMultiPolygon;
   end;

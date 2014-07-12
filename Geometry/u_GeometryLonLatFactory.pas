@@ -76,7 +76,7 @@ type
     ): IGeometryLonLatMultiPolygon;
 
     function CreateLonLatMultiPolygonByLonLatPathAndFilter(
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       const AFilter: ILonLatPointFilter
     ): IGeometryLonLatMultiPolygon;
   public
@@ -801,11 +801,10 @@ begin
 end;
 
 function TGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
-  const ASource: IGeometryLonLatMultiLine;
+  const ASource: IGeometryLonLatLine;
   const AFilter: ILonLatPointFilter
 ): IGeometryLonLatMultiPolygon;
 var
-  i: Integer;
   VLine: IGeometryLonLatSinglePolygon;
   VEnum: IEnumLonLatPoint;
   VTemp: IDoublePointsAggregator;
@@ -820,50 +819,48 @@ begin
   VLinesetHash := 0;
   VLineCount := 0;
   VTemp := TDoublePointsAggregator.Create;
-  for i := 0 to ASource.Count - 1 do begin
-    VEnum := AFilter.CreateFilteredEnum(ASource.Item[i].GetEnum);
-    while VEnum.Next(VPoint) do begin
-      if PointIsEmpty(VPoint) then begin
-        if VTemp.Count > 0 then begin
-          if VLineCount > 0 then begin
-            if VLineCount = 1 then begin
-              VList := TInterfaceListSimple.Create;
-              VLinesetHash := VLine.Hash;
-            end else begin
-              FHashFunction.UpdateHashByHash(VLinesetHash, VLine.Hash);
-            end;
-            VList.Add(VLine);
-            VLine := nil;
-          end;
-          VLine := CreateLonLatPolygonInternal(VLineBounds, VTemp.Points, VTemp.Count);
-          if VLineCount > 0 then begin
-            VBounds := UnionLonLatRects(VBounds, VLineBounds);
+  VEnum := AFilter.CreateFilteredEnum(ASource.GetEnum);
+  while VEnum.Next(VPoint) do begin
+    if PointIsEmpty(VPoint) then begin
+      if VTemp.Count > 0 then begin
+        if VLineCount > 0 then begin
+          if VLineCount = 1 then begin
+            VList := TInterfaceListSimple.Create;
+            VLinesetHash := VLine.Hash;
           end else begin
-            VBounds := VLineBounds;
+            FHashFunction.UpdateHashByHash(VLinesetHash, VLine.Hash);
           end;
-          Inc(VLineCount);
-          VTemp.Clear;
+          VList.Add(VLine);
+          VLine := nil;
         end;
-      end else begin
-        if VTemp.Count = 0 then begin
-          VLineBounds.TopLeft := VPoint;
-          VLineBounds.BottomRight := VPoint;
+        VLine := CreateLonLatPolygonInternal(VLineBounds, VTemp.Points, VTemp.Count);
+        if VLineCount > 0 then begin
+          VBounds := UnionLonLatRects(VBounds, VLineBounds);
         end else begin
-          if VLineBounds.Left > VPoint.X then begin
-            VLineBounds.Left := VPoint.X;
-          end;
-          if VLineBounds.Top < VPoint.Y then begin
-            VLineBounds.Top := VPoint.Y;
-          end;
-          if VLineBounds.Right < VPoint.X then begin
-            VLineBounds.Right := VPoint.X;
-          end;
-          if VLineBounds.Bottom > VPoint.Y then begin
-            VLineBounds.Bottom := VPoint.Y;
-          end;
+          VBounds := VLineBounds;
         end;
-        VTemp.Add(VPoint);
+        Inc(VLineCount);
+        VTemp.Clear;
       end;
+    end else begin
+      if VTemp.Count = 0 then begin
+        VLineBounds.TopLeft := VPoint;
+        VLineBounds.BottomRight := VPoint;
+      end else begin
+        if VLineBounds.Left > VPoint.X then begin
+          VLineBounds.Left := VPoint.X;
+        end;
+        if VLineBounds.Top < VPoint.Y then begin
+          VLineBounds.Top := VPoint.Y;
+        end;
+        if VLineBounds.Right < VPoint.X then begin
+          VLineBounds.Right := VPoint.X;
+        end;
+        if VLineBounds.Bottom > VPoint.Y then begin
+          VLineBounds.Bottom := VPoint.Y;
+        end;
+      end;
+      VTemp.Add(VPoint);
     end;
     if VTemp.Count > 0 then begin
       if VLineCount > 0 then begin

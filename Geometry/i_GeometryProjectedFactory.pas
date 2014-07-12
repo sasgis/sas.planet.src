@@ -104,12 +104,12 @@ type
     ): IGeometryProjectedMultiPolygon;
 
     function CreateProjectedPathByLonLatPathUseConverter(
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygonByLonLatPolygonUseConverter(
-      const ASource: IGeometryLonLatMultiPolygon;
+      const ASource: IGeometryLonLatPolygon;
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;

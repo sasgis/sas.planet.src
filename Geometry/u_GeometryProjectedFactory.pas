@@ -93,12 +93,12 @@ type
     ): IGeometryProjectedMultiPolygon;
 
     function CreateProjectedPathByLonLatPathUseConverter(
-      const ASource: IGeometryLonLatMultiLine;
+      const ASource: IGeometryLonLatLine;
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiLine;
     function CreateProjectedPolygonByLonLatPolygonUseConverter(
-      const ASource: IGeometryLonLatMultiPolygon;
+      const ASource: IGeometryLonLatPolygon;
       const AConverter: ILonLatPointConverter;
       const ATemp: IDoublePointsAggregator = nil
     ): IGeometryProjectedMultiPolygon;
@@ -132,82 +132,12 @@ begin
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygonUseConverter(
-  const ASource: IGeometryLonLatMultiPolygon;
+  const ASource: IGeometryLonLatPolygon;
   const AConverter: ILonLatPointConverter;
-  const ATemp: IDoublePointsAggregator =
-  nil
+  const ATemp: IDoublePointsAggregator = nil
 ): IGeometryProjectedMultiPolygon;
-var
-  VPoint: TDoublePoint;
-  VLine: IGeometryProjectedSinglePolygon;
-  VList: IInterfaceListSimple;
-  VLineCount: Integer;
-  VTemp: IDoublePointsAggregator;
-  i: Integer;
-  VSourceLine: IGeometryLonLatSinglePolygon;
-  VEnumLonLat: IEnumLonLatPoint;
-  VEnumProjected: IEnumProjectedPoint;
-  VBounds: TDoubleRect;
 begin
-  VTemp := ATemp;
-  if VTemp = nil then begin
-    VTemp := TDoublePointsAggregator.Create;
-  end;
-  VTemp.Clear;
-  VLineCount := 0;
-  for i := 0 to ASource.Count - 1 do begin
-    VSourceLine := ASource.Item[i];
-    VEnumLonLat := VSourceLine.GetEnum;
-    VEnumProjected := AConverter.CreateFilteredEnum(VEnumLonLat);
-    while VEnumLonLat.Next(VPoint) do begin
-      if PointIsEmpty(VPoint) then begin
-        Break;
-      end;
-      VTemp.Add(VPoint);
-    end;
-    if VTemp.Count > 0 then begin
-      if VLineCount > 0 then begin
-        if VLineCount = 1 then begin
-          VList := TInterfaceListSimple.Create;
-        end;
-        VList.Add(VLine);
-        VLine := nil;
-      end;
-      VLine := TGeometryProjectedPolygon.Create(VTemp.Points, VTemp.Count);
-      if VLineCount > 0 then begin
-        VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-      end else begin
-        VBounds := VLine.Bounds;
-      end;
-      Inc(VLineCount);
-      VTemp.Clear;
-    end;
-  end;
-  if VTemp.Count > 0 then begin
-    if VLineCount > 0 then begin
-      if VLineCount = 1 then begin
-        VList := TInterfaceListSimple.Create;
-      end;
-      VList.Add(VLine);
-      VLine := nil;
-    end;
-    VLine := TGeometryProjectedPolygon.Create(VTemp.Points, VTemp.Count);
-    if VLineCount > 0 then begin
-      VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-    end else begin
-      VBounds := VLine.Bounds;
-    end;
-    Inc(VLineCount);
-    VTemp.Clear;
-  end;
-  if VLineCount = 0 then begin
-    Result := FEmptyPolygon;
-  end else if VLineCount = 1 then begin
-    Result := TGeometryProjectedMultiPolygonOneLine.Create(VLine);
-  end else begin
-    VList.Add(VLine);
-    Result := TGeometryProjectedMultiPolygon.Create(VBounds, VList.MakeStaticAndClear);
-  end;
+  Result := CreateProjectedPolygonByEnum(AConverter.CreateFilteredEnum(ASource.GetEnum), ATemp);
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPath(
@@ -385,82 +315,13 @@ begin
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPathByLonLatPathUseConverter(
-  const ASource: IGeometryLonLatMultiLine;
+  const ASource: IGeometryLonLatLine;
   const AConverter: ILonLatPointConverter;
   const ATemp: IDoublePointsAggregator =
   nil
 ): IGeometryProjectedMultiLine;
-var
-  VPoint: TDoublePoint;
-  VLine: IGeometryProjectedSingleLine;
-  VList: IInterfaceListSimple;
-  VLineCount: Integer;
-  VTemp: IDoublePointsAggregator;
-  i: Integer;
-  VSourceLine: IGeometryLonLatSingleLine;
-  VEnumLonLat: IEnumLonLatPoint;
-  VEnumProjected: IEnumProjectedPoint;
-  VBounds: TDoubleRect;
 begin
-  VTemp := ATemp;
-  if VTemp = nil then begin
-    VTemp := TDoublePointsAggregator.Create;
-  end;
-  VTemp.Clear;
-  VLineCount := 0;
-  for i := 0 to ASource.Count - 1 do begin
-    VSourceLine := ASource.Item[i];
-    VEnumLonLat := VSourceLine.GetEnum;
-    VEnumProjected := AConverter.CreateFilteredEnum(VEnumLonLat);
-    while VEnumLonLat.Next(VPoint) do begin
-      if PointIsEmpty(VPoint) then begin
-        Break;
-      end;
-      VTemp.Add(VPoint);
-    end;
-    if VTemp.Count > 0 then begin
-      if VLineCount > 0 then begin
-        if VLineCount = 1 then begin
-          VList := TInterfaceListSimple.Create;
-        end;
-        VList.Add(VLine);
-        VLine := nil;
-      end;
-      VLine := TGeometryProjectedLine.Create(VTemp.Points, VTemp.Count);
-      if VLineCount > 0 then begin
-        VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-      end else begin
-        VBounds := VLine.Bounds;
-      end;
-      Inc(VLineCount);
-      VTemp.Clear;
-    end;
-  end;
-  if VTemp.Count > 0 then begin
-    if VLineCount > 0 then begin
-      if VLineCount = 1 then begin
-        VList := TInterfaceListSimple.Create;
-      end;
-      VList.Add(VLine);
-      VLine := nil;
-    end;
-    VLine := TGeometryProjectedLine.Create(VTemp.Points, VTemp.Count);
-    if VLineCount > 0 then begin
-      VBounds := UnionProjectedRects(VBounds, VLine.Bounds);
-    end else begin
-      VBounds := VLine.Bounds;
-    end;
-    Inc(VLineCount);
-    VTemp.Clear;
-  end;
-  if VLineCount = 0 then begin
-    Result := FEmptyPath;
-  end else if VLineCount = 1 then begin
-    Result := TGeometryProjectedMultiLineOneLine.Create(VLine);
-  end else begin
-    VList.Add(VLine);
-    Result := TGeometryProjectedMultiLine.Create(VBounds, VList.MakeStaticAndClear);
-  end;
+  Result := CreateProjectedPathByEnum(AConverter.CreateFilteredEnum(ASource.GetEnum), ATemp);
 end;
 
 function TGeometryProjectedFactory.CreateProjectedPathWithClipByLonLatEnum(
