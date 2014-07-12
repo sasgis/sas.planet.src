@@ -46,7 +46,7 @@ type
     FStateInternal: IReadWriteStateInternal;
     FStream: TStream;
 
-    FCdsKategory: TClientDataSet;
+    FCdsCategory: TClientDataSet;
     FList: IIDInterfaceList;
     FFactoryDbInternal: IMarkCategoryFactoryDbInternal;
     FFactory: IMarkCategoryFactory;
@@ -114,19 +114,19 @@ begin
   FList := TIDInterfaceList.Create;
   FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
   FFactoryDbInternal := TMarkCategoryFactorySmlDbInternal.Create(FDbId);
-  FCdsKategory := TClientDataSet.Create(nil);
-  FCdsKategory.Name := 'CDSKategory';
-  FCdsKategory.DisableControls;
+  FCdsCategory := TClientDataSet.Create(nil);
+  FCdsCategory.Name := 'MarkCategoryDB';
+  FCdsCategory.DisableControls;
   Load;
 end;
 
 destructor TMarkCategoryDBSml.Destroy;
 begin
-  if Assigned(FCdsKategory) then begin
+  if Assigned(FCdsCategory) then begin
     Save;
   end;
   FreeAndNil(FStream);
-  FreeAndNil(FCdsKategory);
+  FreeAndNil(FCdsCategory);
   FList := nil;
   FFactory := nil;
   FFactoryDbInternal := nil;
@@ -140,20 +140,20 @@ var
   VAfterScale: Integer;
   VBeforeScale: Integer;
 begin
-  AId := FCdsKategory.fieldbyname('id').AsInteger;
-  VName := FCdsKategory.fieldbyname('name').AsString;
-  VVisible := FCdsKategory.FieldByName('visible').AsBoolean;
-  VAfterScale := FCdsKategory.fieldbyname('AfterScale').AsInteger;
-  VBeforeScale := FCdsKategory.fieldbyname('BeforeScale').AsInteger;
+  AId := FCdsCategory.fieldbyname('id').AsInteger;
+  VName := FCdsCategory.fieldbyname('name').AsString;
+  VVisible := FCdsCategory.FieldByName('visible').AsBoolean;
+  VAfterScale := FCdsCategory.fieldbyname('AfterScale').AsInteger;
+  VBeforeScale := FCdsCategory.fieldbyname('BeforeScale').AsInteger;
   Result := FFactoryDbInternal.CreateCategory(AId, VName, VVisible, VAfterScale, VBeforeScale);
 end;
 
 procedure TMarkCategoryDBSml.WriteCurrentCategory(const ACategory: IMarkCategory);
 begin
-  FCdsKategory.fieldbyname('name').AsString := ACategory.Name;
-  FCdsKategory.FieldByName('visible').AsBoolean := ACategory.Visible;
-  FCdsKategory.fieldbyname('AfterScale').AsInteger := ACategory.AfterScale;
-  FCdsKategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
+  FCdsCategory.fieldbyname('name').AsString := ACategory.Name;
+  FCdsCategory.FieldByName('visible').AsBoolean := ACategory.Visible;
+  FCdsCategory.fieldbyname('AfterScale').AsInteger := ACategory.AfterScale;
+  FCdsCategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
 function TMarkCategoryDBSml._UpdateCategory(
@@ -190,13 +190,13 @@ begin
         end;
       end;
     end;
-    VLocated := FCdsKategory.Locate('id', VIdOld, []);
+    VLocated := FCdsCategory.FindKey([VIdOld]);
   end;
   if VLocated then begin
     if Supports(ANewCategory, IMarkCategory, VCategory) then begin
-      FCdsKategory.Edit;
+      FCdsCategory.Edit;
       WriteCurrentCategory(VCategory);
-      FCdsKategory.post;
+      FCdsCategory.post;
       Result := ReadCurrentCategory(VIdNew);
       VNewName := Result.Name + '\';
 
@@ -209,34 +209,34 @@ begin
 
       // update sub categories
       if (VNewName <> VOldName) then begin
-        FCdsKategory.Filtered := False;
-        FCdsKategory.First;
-        while not (FCdsKategory.Eof) do begin
-          VName := FCdsKategory.FieldByName('name').AsString;
-          if StartsStr(VOldName, VName) then begin
-            FCdsKategory.Edit;
-            FCdsKategory.FieldByName('name').AsString :=
+        FCdsCategory.Filtered := False;
+        FCdsCategory.First;
+        while not (FCdsCategory.Eof) do begin
+          VName := FCdsCategory.FieldByName('name').AsString;
+          if StartsText(VOldName, VName) then begin
+            FCdsCategory.Edit;
+            FCdsCategory.FieldByName('name').AsString :=
               StringReplace(VName, VOldName, VNewName, [rfIgnoreCase]);
-            FCdsKategory.Post;
+            FCdsCategory.Post;
             VCategory := ReadCurrentCategory(VIdSub);
             FList.Replace(VIdSub, VCategory);
           end;
-          FCdsKategory.Next;
+          FCdsCategory.Next;
         end;
       end;
 
       SetChanged;
       FNeedSaveFlag.SetFlag;
     end else begin
-      FCdsKategory.Delete;
+      FCdsCategory.Delete;
       SetChanged;
       FNeedSaveFlag.SetFlag;
     end;
   end else begin
     if Supports(ANewCategory, IMarkCategory, VCategory) then begin
-      FCdsKategory.Insert;
+      FCdsCategory.Insert;
       WriteCurrentCategory(VCategory);
-      FCdsKategory.post;
+      FCdsCategory.post;
       Result := ReadCurrentCategory(VIdNew);
       SetChanged;
       FNeedSaveFlag.SetFlag;
@@ -348,23 +348,31 @@ end;
 
 procedure TMarkCategoryDBSml.InitEmptyDS;
 begin
-  FCdsKategory.Close;
-  FCdsKategory.XMLData :=
+  FCdsCategory.Close;
+  FCdsCategory.XMLData :=
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     '<DATAPACKET Version="2.0">' +
-    '<METADATA>' +
-    '<FIELDS>' +
-    '<FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
-    '<FIELD attrname="name" fieldtype="string" WIDTH="256"/>' +
-    '<FIELD attrname="visible" fieldtype="boolean"/>' +
-    '<FIELD attrname="AfterScale" fieldtype="i2"/>' +
-    '<FIELD attrname="BeforeScale" fieldtype="i2"/>' +
-    '</FIELDS>' +
-    '<PARAMS AUTOINCVALUE="1"/>' +
-    '</METADATA>' +
-    '<ROWDATA></ROWDATA>' +
+    '   <METADATA>' +
+    '     <FIELDS>' +
+    '       <FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
+    '       <FIELD attrname="name" fieldtype="string" WIDTH="256"/>' +
+    '       <FIELD attrname="visible" fieldtype="boolean"/>' +
+    '       <FIELD attrname="AfterScale" fieldtype="i2"/>' +
+    '       <FIELD attrname="BeforeScale" fieldtype="i2"/>' +
+    '     </FIELDS>' +
+    '     <PARAMS AUTOINCVALUE="1"/>' +
+    '   </METADATA>' +
+    '   <ROWDATA></ROWDATA>' +
     '</DATAPACKET>';
-  FCdsKategory.Open;
+
+  with FCdsCategory.IndexDefs.AddIndexDef do begin
+    Name := 'CategoryIDIdx';
+    Fields := 'id';
+    Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+  end;
+  FCdsCategory.IndexName := 'CategoryIDIdx';
+
+  FCdsCategory.Open;
 end;
 
 function TMarkCategoryDBSml.IsCategoryFromThisDb(
@@ -428,18 +436,18 @@ begin
   LockWrite;
   try
     VChanged := False;
-    FCdsKategory.Filtered := false;
-    FCdsKategory.First;
-    while not (FCdsKategory.Eof) do begin
-      if FCdsKategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
-        FCdsKategory.Edit;
-        FCdsKategory.FieldByName('visible').AsBoolean := ANewVisible;
-        FCdsKategory.post;
+    FCdsCategory.Filtered := false;
+    FCdsCategory.First;
+    while not (FCdsCategory.Eof) do begin
+      if FCdsCategory.FieldByName('visible').AsBoolean <> ANewVisible then begin
+        FCdsCategory.Edit;
+        FCdsCategory.FieldByName('visible').AsBoolean := ANewVisible;
+        FCdsCategory.post;
         VCategory := ReadCurrentCategory(VId);
         FList.Replace(VId, VCategory);
         VChanged := True;
       end;
-      FCdsKategory.Next;
+      FCdsCategory.Next;
     end;
     if VChanged then begin
       SetChanged;
@@ -489,26 +497,27 @@ begin
         if FStream <> nil then begin
           try
             SetLength(XML, FStream.Size);
-            FStream.ReadBuffer(XML[1], length(XML));
+            FStream.ReadBuffer(XML[1], Length(XML));
           except
             FStateInternal.ReadAccess := asDisabled;
           end;
         end;
 
-        if length(XML) > 0 then begin
+        if (Length(XML) > 0) and (FStateInternal.ReadAccess <> asDisabled) then begin
           try
-            FCdsKategory.XMLData := XML;
+            FCdsCategory.XMLData := XML;
           except
+            FStateInternal.WriteAccess := asDisabled;
             InitEmptyDS;
           end;
         end;
 
-        FCdsKategory.Filtered := false;
-        FCdsKategory.First;
-        while not (FCdsKategory.Eof) do begin
+        FCdsCategory.Filtered := false;
+        FCdsCategory.First;
+        while not (FCdsCategory.Eof) do begin
           VCategory := ReadCurrentCategory(VId);
           FList.Add(VId, VCategory);
-          FCdsKategory.Next;
+          FCdsCategory.Next;
         end;
       end;
     finally
@@ -532,8 +541,8 @@ begin
           LockRead;
           try
             if FStream <> nil then begin
-              FCdsKategory.MergeChangeLog;
-              XML := FCdsKategory.XMLData;
+              FCdsCategory.MergeChangeLog;
+              XML := FCdsCategory.XMLData;
               FStream.Size := length(XML);
               FStream.Position := 0;
               FStream.WriteBuffer(XML[1], length(XML));
@@ -555,6 +564,5 @@ begin
     end;
   end;
 end;
-
 
 end.
