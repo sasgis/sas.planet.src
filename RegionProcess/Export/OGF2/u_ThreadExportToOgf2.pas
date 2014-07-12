@@ -100,6 +100,7 @@ uses
   u_TileIteratorByRect,
   u_MapCalibrationOzi,
   u_BitmapFunc,
+  u_GeometryFunc,
   u_GeoFunc;
 
 const
@@ -209,7 +210,7 @@ var
   VWriter: TOgf2Writer;
   VTilesToProcess: Int64;
   VTilesProcessed: Int64;
-  VProjected: IGeometryProjectedMultiPolygon;
+  VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
   VBounds: TDoubleRect;
   VPixelRect: TRect;
@@ -236,7 +237,7 @@ begin
       Self.PolygLL
     );
 
-  VLine := VProjected.Item[0];
+  VLine := GetProjectedSinglePolygonByProjectedPolygon(VProjected);
   VBounds := VLine.Bounds;
   VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
   VTileRect := VGeoConvert.PixelRect2TileRect(VPixelRect, VZoom);

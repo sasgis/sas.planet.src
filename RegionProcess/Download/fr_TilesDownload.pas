@@ -149,8 +149,7 @@ var
   Vmt: IMapType;
   VZoom: byte;
   VPolyLL: IGeometryLonLatMultiPolygon;
-  VProjected: IGeometryProjectedMultiPolygon;
-  VLine: IGeometryProjectedSinglePolygon;
+  VProjected: IGeometryProjectedPolygon;
   VBounds: TDoubleRect;
   VPixelRect: TRect;
   VTileRect: TRect;
@@ -166,9 +165,8 @@ begin
           FProjectionFactory.GetByConverterAndZoom(Vmt.GeoConvert, VZoom),
           VPolyLL
         );
-      if VProjected.Count > 0 then begin
-        VLine := VProjected.Item[0];
-        VBounds := VLine.Bounds;
+      if not VProjected.IsEmpty then begin
+        VBounds := VProjected.Bounds;
         VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
         VTileRect := Vmt.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);
         numd := (VTileRect.Right - VTileRect.Left);

@@ -140,6 +140,7 @@ uses
   i_MapVersionRequest,
   i_GeometryProjected,
   u_GeoFunc,
+  u_GeometryFunc,
   u_BitmapLayerProviderMapWithLayer,
   u_ResStrings;
 
@@ -167,7 +168,7 @@ var
   VMapType: IMapType;
   VZoom: byte;
   VPolyLL: IGeometryLonLatMultiPolygon;
-  VProjected: IGeometryProjectedMultiPolygon;
+  VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
   VBounds: TDoubleRect;
   VPixelRect: TRect;
@@ -192,8 +193,8 @@ begin
           FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom),
           VPolyLL
         );
-      if VProjected.Count > 0 then begin
-        VLine := VProjected.Item[0];
+      VLine := GetProjectedSinglePolygonByProjectedPolygon(VProjected);
+      if Assigned(VLine) then begin
         VBounds := VLine.Bounds;
         VPixelRect := RectFromDoubleRect(VBounds, rrOutside);
         VTileRect := VMapType.GeoConvert.PixelRect2TileRect(VPixelRect, VZoom);

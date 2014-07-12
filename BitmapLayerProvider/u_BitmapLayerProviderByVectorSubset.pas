@@ -104,15 +104,10 @@ implementation
 
 uses
   GR32_Polygons,
-  i_EnumDoublePoint,
   i_LonLatRect,
   u_Bitmap32ByStaticBitmap,
   u_DoublePointsAggregator,
-  u_EnumDoublePointClosePoly,
-  u_EnumDoublePointMapPixelToLocalPixel,
-  u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterEqual,
-  u_GeoFunc;
+  u_GeometryFunc;
 
 { TBitmapLayerProviderByVectorSubset }
 
@@ -136,126 +131,6 @@ begin
   FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
 
-procedure SingleLine2GR32Polygon(
-  const ALine: IGeometryProjectedSingleLine;
-  const ALocalConverter: ILocalCoordConverter;
-  const ARectWithDelta: TDoubleRect;
-  const AMapRect: TDoubleRect;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
-  var AFixedPointArray: TArrayOfFixedPoint;
-  var APolygon: TPolygon32
-);
-var
-  VEnum: IEnumLocalPoint;
-  VPoint: TDoublePoint;
-  VPointsProcessedCount: Integer;
-  VIndex: Integer;
-  i: Integer;
-begin
-  if IsIntersecProjectedRect(AMapRect, ALine.Bounds) then begin
-    APreparedPointsAggreagtor.Clear;
-    VEnum :=
-      TEnumDoublePointMapPixelToLocalPixel.Create(
-        ALocalConverter,
-        ALine.GetEnum
-      );
-    VEnum :=
-      TEnumLocalPointClipByRect.Create(
-        False,
-        ARectWithDelta,
-        VEnum
-      );
-    VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
-    while VEnum.Next(VPoint) do begin
-      APreparedPointsAggreagtor.Add(VPoint);
-    end;
-    VPointsProcessedCount := APreparedPointsAggreagtor.Count;
-    if VPointsProcessedCount > 0 then begin
-      if APolygon = nil then begin
-        APolygon := TPolygon32.Create;
-        APolygon.Antialiased := true;
-        APolygon.AntialiasMode := am4times;
-        APolygon.Closed := False;
-      end else begin
-        APolygon.NewLine;
-      end;
-      if Length(AFixedPointArray) < VPointsProcessedCount then begin
-        SetLength(AFixedPointArray, VPointsProcessedCount);
-      end;
-      VIndex := 0;
-      for i := 0 to VPointsProcessedCount - 1 do begin
-        VPoint := APreparedPointsAggreagtor.Points[i];
-        if PointIsEmpty(VPoint) then begin
-          APolygon.AddPoints(AFixedPointArray[0], VIndex);
-          APolygon.NewLine;
-          VIndex := 0;
-        end else begin
-          AFixedPointArray[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
-          Inc(VIndex);
-        end;
-      end;
-      APolygon.AddPoints(AFixedPointArray[0], VIndex);
-    end;
-  end;
-end;
-
-procedure Line2GR32Polygon(
-  const ALine: IGeometryProjectedLine;
-  const ALocalConverter: ILocalCoordConverter;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
-  var AFixedPointArray: TArrayOfFixedPoint;
-  var APolygon: TPolygon32
-);
-var
-  VMapRect: TDoubleRect;
-  VLocalRect: TDoubleRect;
-  VRectWithDelta: TDoubleRect;
-  VLineIndex: Integer;
-  VSingleLine: IGeometryProjectedSingleLine;
-  VMultiLine: IGeometryProjectedMultiLine;
-begin
-  if Assigned(APolygon) then begin
-    APolygon.Clear;
-  end;
-
-  if ALine <> nil then begin
-    if not ALine.IsEmpty then begin
-      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
-        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
-        VRectWithDelta.Left := VLocalRect.Left - 10;
-        VRectWithDelta.Top := VLocalRect.Top - 10;
-        VRectWithDelta.Right := VLocalRect.Right + 10;
-        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        if Supports(ALine, IGeometryProjectedSingleLine, VSingleLine) then begin
-          SingleLine2GR32Polygon(
-            VSingleLine,
-            ALocalConverter,
-            VRectWithDelta,
-            VMapRect,
-            APreparedPointsAggreagtor,
-            AFixedPointArray,
-            APolygon
-          );
-        end else if Supports(ALine, IGeometryProjectedMultiLine, VMultiLine) then begin
-          for VLineIndex := 0 to VMultiLine.Count - 1 do begin
-            VSingleLine := VMultiLine.Item[VLineIndex];
-            SingleLine2GR32Polygon(
-              VSingleLine,
-              ALocalConverter,
-              VRectWithDelta,
-              VMapRect,
-              APreparedPointsAggreagtor,
-              AFixedPointArray,
-              APolygon
-            );
-          end;
-        end;
-      end;
-    end;
-  end;
-end;
-
 function TBitmapLayerProviderByVectorSubset.DrawPath(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
@@ -270,7 +145,7 @@ begin
   if not ALine.IsEmpty then begin
     VPolygon := nil;
     VProjected := FProjectedCache.GetProjectedPath(ALocalConverter.ProjectionInfo, ALine);
-    Line2GR32Polygon(
+    ProjectedLine2GR32Polygon(
       VProjected,
       ALocalConverter,
       FPreparedPointsAggreagtor,
@@ -331,118 +206,6 @@ begin
   end;
 end;
 
-procedure SinglePoly2GR32Polygon(
-  const ALine: IGeometryProjectedSinglePolygon;
-  const ALocalConverter: ILocalCoordConverter;
-  const ARectWithDelta: TDoubleRect;
-  const AMapRect: TDoubleRect;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
-  var AFixedPointArray: TArrayOfFixedPoint;
-  var APolygon: TPolygon32
-);
-var
-  VEnum: IEnumLocalPoint;
-  VPoint: TDoublePoint;
-  VPointsProcessedCount: Integer;
-  i: Integer;
-begin
-  if IsIntersecProjectedRect(AMapRect, ALine.Bounds) then begin
-    APreparedPointsAggreagtor.Clear;
-    VEnum :=
-      TEnumDoublePointMapPixelToLocalPixel.Create(
-        ALocalConverter,
-        ALine.GetEnum
-      );
-    VEnum :=
-      TEnumLocalPointClipByRect.Create(
-        True,
-        ARectWithDelta,
-        VEnum
-      );
-    VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
-    VEnum := TEnumLocalPointClosePoly.Create(VEnum);
-    while VEnum.Next(VPoint) do begin
-      APreparedPointsAggreagtor.Add(VPoint);
-    end;
-    VPointsProcessedCount := APreparedPointsAggreagtor.Count;
-    if VPointsProcessedCount > 0 then begin
-      if APolygon = nil then begin
-        APolygon := TPolygon32.Create;
-        APolygon.Antialiased := true;
-        APolygon.AntialiasMode := am4times;
-        APolygon.Closed := True;
-      end else begin
-        APolygon.NewLine;
-      end;
-      if Length(AFixedPointArray) < VPointsProcessedCount then begin
-        SetLength(AFixedPointArray, VPointsProcessedCount);
-      end;
-      for i := 0 to VPointsProcessedCount - 1 do begin
-        VPoint := APreparedPointsAggreagtor.Points[i];
-        AFixedPointArray[i] := FixedPoint(VPoint.X, VPoint.Y);
-      end;
-      APolygon.AddPoints(AFixedPointArray[0], VPointsProcessedCount);
-    end;
-  end;
-end;
-
-procedure Polygon2GR32Polygon(
-  const ALine: IGeometryProjectedPolygon;
-  const ALocalConverter: ILocalCoordConverter;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
-  var AFixedPointArray: TArrayOfFixedPoint;
-  var APolygon: TPolygon32
-);
-var
-  VMapRect: TDoubleRect;
-  VLocalRect: TDoubleRect;
-  VRectWithDelta: TDoubleRect;
-  VProjectedMultiLine: IGeometryProjectedMultiPolygon;
-  VProjectedSingleLine: IGeometryProjectedSinglePolygon;
-  VLineIndex: Integer;
-begin
-  if Assigned(APolygon) then begin
-    APolygon.Clear;
-  end;
-
-  if ALine <> nil then begin
-    if not ALine.IsEmpty then begin
-      VMapRect := ALocalConverter.GetRectInMapPixelFloat;
-      if IsIntersecProjectedRect(VMapRect, ALine.Bounds) then begin
-        VLocalRect := DoubleRect(ALocalConverter.GetLocalRect);
-        VRectWithDelta.Left := VLocalRect.Left - 10;
-        VRectWithDelta.Top := VLocalRect.Top - 10;
-        VRectWithDelta.Right := VLocalRect.Right + 10;
-        VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-        if Supports(ALine, IGeometryProjectedSinglePolygon, VProjectedSingleLine) then begin
-          SinglePoly2GR32Polygon(
-            VProjectedSingleLine,
-            ALocalConverter,
-            VRectWithDelta,
-            VMapRect,
-            APreparedPointsAggreagtor,
-            AFixedPointArray,
-            APolygon
-          );
-        end else if Supports(ALine, IGeometryProjectedMultiPolygon, VProjectedMultiLine) then begin
-          for VLineIndex := 0 to VProjectedMultiLine.Count - 1 do begin
-            VProjectedSingleLine := VProjectedMultiLine.Item[VLineIndex];
-            SinglePoly2GR32Polygon(
-              VProjectedSingleLine,
-              ALocalConverter,
-              VRectWithDelta,
-              VMapRect,
-              APreparedPointsAggreagtor,
-              AFixedPointArray,
-              APolygon
-            );
-          end;
-        end;
-      end;
-    end;
-  end;
-end;
-
 function TBitmapLayerProviderByVectorSubset.DrawPoly(
   var ABitmapInited: Boolean;
   ATargetBmp: TCustomBitmap32;
@@ -457,7 +220,7 @@ begin
   Result := False;
   VProjected := FProjectedCache.GetProjectedPolygon(ALocalConverter.ProjectionInfo, APoly);
   try
-    Polygon2GR32Polygon(
+    ProjectedPolygon2GR32Polygon(
       VProjected,
       ALocalConverter,
       FPreparedPointsAggreagtor,
