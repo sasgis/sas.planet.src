@@ -26,8 +26,7 @@ uses
   Classes,
   SysUtils,
   Windows,
-  XMLIntf,
-  XMLDoc,
+  ALXmlDoc,
   ActiveX,
   t_Bitmap32,
   i_ArchiveReadWrite,
@@ -40,23 +39,23 @@ uses
 type
   TExportMarks2KML = class
   private
-    FKmlDoc: IXMLDocument;
+    FKmlDoc: TALXMLDocument;
     FFileName: string;
-    FKmlNode: iXMLNode;
-    FKmlDocumentNode: iXMLNode;
+    FKmlNode: TALXMLNode;
+    FKmlDocumentNode: TALXMLNode;
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FZip: IArchiveWriter;
     function AddTree(
-      const AParentNode: IXMLNode;
+      const AParentNode: TALXMLNode;
       const ATree: IVectorItemTree
     ): boolean;
     function AddMarks(
       const AMarksSubset: IVectorItemSubset;
-      const inNode: iXMLNode
+      const inNode: TALXMLNode
     ): Boolean;
     procedure AddMark(
       const AMark: IVectorDataItem;
-      const inNode: iXMLNode
+      const inNode: TALXMLNode
     );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
     function Color32toKMLColor(Color32: TColor32): string;
@@ -108,9 +107,7 @@ begin
   end;
 end;
 
-function GetKMLCoordinates(
-  const APointEnum: IEnumLonLatPoint
-): String;
+function GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): string;
 var
   VPoint: TDoublePoint;
 begin
@@ -119,6 +116,8 @@ begin
     Result := Result + R2StrPoint(VPoint.X) + ',' + R2StrPoint(VPoint.Y) + ',0 ';
   end;
 end;
+
+{ TExportMarks2KML }
 
 constructor TExportMarks2KML.Create(
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory
@@ -130,9 +129,8 @@ end;
 
 procedure TExportMarks2KML.PrepareExportToFile(const AFileName: string);
 begin
-  FKmlDoc := TXMLDocument.Create(nil);
-  FKmlDoc.Options := FKmlDoc.Options + [doNodeAutoIndent];
-  FKmlDoc.Active := true;
+  FKmlDoc.Options := [doNodeAutoIndent, doNodeAutoCreate];
+  FKmlDoc.Active := True;
   FKmlDoc.Version := '1.0';
   FKmlDoc.Encoding := 'UTF-8';
   FKmlNode := FKmlDoc.AddChild('kml');
@@ -166,17 +164,24 @@ begin
   end;
 end;
 
-procedure TExportMarks2KML.ExportTreeToKML(const ATree: IVectorItemTree;
-  const AFileName: string);
+procedure TExportMarks2KML.ExportTreeToKML(
+  const ATree: IVectorItemTree;
+  const AFileName: string
+);
 begin
-  PrepareExportToFile(AFileName);
-  AddTree(FKmlDocumentNode, ATree);
-  SaveToFile;
+  FKmlDoc := TALXMLDocument.Create;
+  try
+    PrepareExportToFile(AFileName);
+    AddTree(FKmlDocumentNode, ATree);
+    SaveToFile;
+  finally
+    FKmlDoc.Free;
+  end;
 end;
 
 function TExportMarks2KML.AddMarks(
   const AMarksSubset: IVectorItemSubset;
-  const inNode: iXMLNode
+  const inNode: TALXMLNode
 ): Boolean;
 var
   VMark: IVectorDataItem;
@@ -194,12 +199,12 @@ begin
 end;
 
 function TExportMarks2KML.AddTree(
-  const AParentNode: IXMLNode;
+  const AParentNode: TALXMLNode;
   const ATree: IVectorItemTree
 ): boolean;
 var
   i: Integer;
-  VNode: IXMLNode;
+  VNode: TALXMLNode;
   VSubTree: IVectorItemTree;
 begin
   Result := False;
@@ -209,11 +214,11 @@ begin
   for i := 0 to ATree.SubTreeItemCount - 1 do begin
     VSubTree := ATree.GetSubTreeItem(i);
     VNode := AParentNode.AddChild('Folder');
-    VNode.ChildValues['name'] := VSubTree.Name;
-    VNode.ChildValues['open'] := 1;
+    VNode.ChildNodes['name'].Text := UTF8Encode(XMLTextPrepare(VSubTree.Name));
+    VNode.ChildNodes['open'].Text := '1';
     with VNode.AddChild('Style').AddChild('ListStyle') do begin
-      ChildValues['listItemType'] := 'check';
-      ChildValues['bgColor'] := '00ffffff';
+      ChildNodes['listItemType'].Text := 'check';
+      ChildNodes['bgColor'].Text := '00ffffff';
     end;
     if not AddTree(VNode, VSubTree) then begin
       AParentNode.ChildNodes.Remove(VNode);
@@ -228,13 +233,13 @@ end;
 
 procedure TExportMarks2KML.AddMark(
   const AMark: IVectorDataItem;
-  const inNode: iXMLNode
+  const inNode: TALXMLNode
 );
 var
   i: integer;
   width: integer;
-  currNode: IXMLNode;
-  rootNode: IXMLNode;
+  currNode: TALXMLNode;
+  rootNode: TALXMLNode;
   VCoordinates: string;
   VFileName: string;
   VAppearanceIcon: IAppearancePointIcon;
@@ -249,8 +254,8 @@ var
   VLonLatPathLine: IGeometryLonLatSingleLine;
 begin
   currNode := inNode.AddChild('Placemark');
-  currNode.ChildValues['name'] := XMLTextPrepare(AMark.Name);
-  currNode.ChildValues['description'] := XMLTextPrepare(AMark.Desc);
+  currNode.ChildNodes['name'].Text := UTF8Encode(XMLTextPrepare(AMark.Name));
+  currNode.ChildNodes['description'].Text := UTF8Encode(XMLTextPrepare(AMark.Desc));
   if Supports(AMark.Geometry, IGeometryLonLatPoint, VLonLatPoint) then begin
     // Placemark
     if not Supports(AMark.Appearance, IAppearancePointIcon, VAppearanceIcon) then begin
@@ -263,8 +268,8 @@ begin
       with currNode.AddChild('Style') do begin
         if VAppearanceCaption <> nil then begin
           with AddChild('LabelStyle') do begin
-            ChildValues['color'] := Color32toKMLColor(VAppearanceCaption.TextColor);
-            ChildValues['scale'] := R2StrPoint(VAppearanceCaption.FontSize / 14);
+            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceCaption.TextColor);
+            ChildNodes['scale'].Text := R2StrPoint(VAppearanceCaption.FontSize / 14);
           end;
         end;
         if VAppearanceIcon <> nil then begin
@@ -272,13 +277,13 @@ begin
             with AddChild('IconStyle') do begin
               VFileName := SaveMarkIcon(VAppearanceIcon);
               width := VAppearanceIcon.Pic.GetMarker.Size.X;
-              ChildValues['scale'] := R2StrPoint(VAppearanceIcon.MarkerSize / width);
+              ChildNodes['scale'].Text := R2StrPoint(VAppearanceIcon.MarkerSize / width);
               with AddChild('Icon') do begin
-                ChildValues['href'] := VFileName;
+                ChildNodes['href'].Text := VFileName;
               end;
               with AddChild('hotSpot') do begin
                 Attributes['x'] := '0.5';
-                Attributes['y'] := 0;
+                Attributes['y'] := '0';
                 Attributes['xunits'] := 'fraction';
                 Attributes['yunits'] := 'fraction';
               end;
@@ -288,35 +293,35 @@ begin
       end;
     end;
     currNode := currNode.AddChild('Point');
-    currNode.ChildValues['extrude'] := 1;
+    currNode.ChildNodes['extrude'].Text := '1';
     with VLonLatPoint.Point do begin
       VCoordinates := R2StrPoint(X) + ',' + R2StrPoint(Y) + ',0 ';
     end;
-    currNode.ChildValues['coordinates'] := VCoordinates;
+    currNode.ChildNodes['coordinates'].Text := VCoordinates;
   end else if Supports(AMark.Geometry, IGeometryLonLatSingleLine, VLonLatPathLine) then begin
     // <Placemark><LineString><coordinates>
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
       with currNode.AddChild('Style') do begin
         with AddChild('LineStyle') do begin
-          ChildValues['color'] := Color32toKMLColor(VAppearanceLine.LineColor);
-          ChildValues['width'] := R2StrPoint(VAppearanceLine.LineWidth);
+          ChildNodes['color'].Text := Color32toKMLColor(VAppearanceLine.LineColor);
+          ChildNodes['width'].Text := R2StrPoint(VAppearanceLine.LineWidth);
         end;
       end;
     end;
     // simple object
     currNode := currNode.AddChild('LineString');
-    currNode.ChildValues['extrude'] := 1;
+    currNode.ChildNodes['extrude'].Text := '1';
     VLonLatPathLine := VLonLatPath.Item[0];
     VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
-    currNode.ChildValues['coordinates'] := VCoordinates;
+    currNode.ChildNodes['coordinates'].Text := VCoordinates;
   end else if Supports(AMark.Geometry, IGeometryLonLatMultiLine, VLonLatPath) then begin
     // <Placemark><MultiGeometry><LineString></LineString><LineString>...
     // <Placemark><LineString><coordinates>
     if Supports(AMark.Appearance, IAppearanceLine, VAppearanceLine) then begin
       with currNode.AddChild('Style') do begin
         with AddChild('LineStyle') do begin
-          ChildValues['color'] := Color32toKMLColor(VAppearanceLine.LineColor);
-          ChildValues['width'] := R2StrPoint(VAppearanceLine.LineWidth);
+          ChildNodes['color'].Text := Color32toKMLColor(VAppearanceLine.LineColor);
+          ChildNodes['width'].Text := R2StrPoint(VAppearanceLine.LineWidth);
         end;
       end;
     end;
@@ -328,18 +333,18 @@ begin
         if (VLonLatPathLine.Count>1) then begin
           // make path
           currNode := rootNode.AddChild('LineString');
-          currNode.ChildValues['extrude'] := 1;
+          currNode.ChildNodes['extrude'].Text := '1';
           VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
-          currNode.ChildValues['coordinates'] := VCoordinates;
+          currNode.ChildNodes['coordinates'].Text := VCoordinates;
         end;
       end;
     end else begin
       // simple object
       currNode := currNode.AddChild('LineString');
-      currNode.ChildValues['extrude'] := 1;
+      currNode.ChildNodes['extrude'].Text := '1';
       VLonLatPathLine := VLonLatPath.Item[0];
       VCoordinates := GetKMLCoordinates(VLonLatPathLine.GetEnum);
-      currNode.ChildValues['coordinates'] := VCoordinates;
+      currNode.ChildNodes['coordinates'].Text := VCoordinates;
     end;
   end else if Supports(AMark.Geometry, IGeometryLonLatSinglePolygon, VLonLatPolygonLine) then begin
     // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
@@ -353,24 +358,24 @@ begin
       with currNode.AddChild('Style') do begin
         if VAppearanceBorder <> nil then begin
           with AddChild('LineStyle') do begin
-            ChildValues['color'] := Color32toKMLColor(VAppearanceBorder.LineColor);
-            ChildValues['width'] := R2StrPoint(VAppearanceBorder.LineWidth);
+            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceBorder.LineColor);
+            ChildNodes['width'].Text := R2StrPoint(VAppearanceBorder.LineWidth);
           end;
         end;
         if VAppearanceFill <> nil then begin
           with AddChild('PolyStyle') do begin
-            ChildValues['color'] := Color32toKMLColor(VAppearanceFill.FillColor);
-            ChildValues['fill'] := 1;
+            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceFill.FillColor);
+            ChildNodes['fill'].Text := '1';
           end;
         end;
       end;
     end;
     // simple object
     currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
-    currNode.ChildValues['extrude'] := 1;
+    currNode.ChildNodes['extrude'].Text := '1';
     VLonLatPolygonLine := VLonLatPolygon.Item[0];
     VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
-    currNode.ChildValues['coordinates'] := VCoordinates;
+    currNode.ChildNodes['coordinates'].Text := VCoordinates;
   end else if Supports(AMark.Geometry, IGeometryLonLatMultiPolygon, VLonLatPolygon) then begin
     // <Placemark><MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>
     // <Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
@@ -384,14 +389,14 @@ begin
       with currNode.AddChild('Style') do begin
         if VAppearanceBorder <> nil then begin
           with AddChild('LineStyle') do begin
-            ChildValues['color'] := Color32toKMLColor(VAppearanceBorder.LineColor);
-            ChildValues['width'] := R2StrPoint(VAppearanceBorder.LineWidth);
+            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceBorder.LineColor);
+            ChildNodes['width'].Text := R2StrPoint(VAppearanceBorder.LineWidth);
           end;
         end;
         if VAppearanceFill <> nil then begin
           with AddChild('PolyStyle') do begin
-            ChildValues['color'] := Color32toKMLColor(VAppearanceFill.FillColor);
-            ChildValues['fill'] := 1;
+            ChildNodes['color'].Text := Color32toKMLColor(VAppearanceFill.FillColor);
+            ChildNodes['fill'].Text := '1';
           end;
         end;
       end;
@@ -404,18 +409,18 @@ begin
         if (VLonLatPolygonLine.Count>2) then begin
           // make contour
           currNode := rootNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
-          currNode.ChildValues['extrude'] := 1;
+          currNode.ChildNodes['extrude'].Text := '1';
           VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
-          currNode.ChildValues['coordinates'] := VCoordinates;
+          currNode.ChildNodes['coordinates'].Text := VCoordinates;
         end;
       end;
     end else begin
       // simple object
       currNode := currNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
-      currNode.ChildValues['extrude'] := 1;
+      currNode.ChildNodes['extrude'].Text := '1';
       VLonLatPolygonLine := VLonLatPolygon.Item[0];
       VCoordinates := GetKMLCoordinates(VLonLatPolygonLine.GetEnum);
-      currNode.ChildValues['coordinates'] := VCoordinates;
+      currNode.ChildNodes['coordinates'].Text := VCoordinates;
     end;
   end;
 end;
