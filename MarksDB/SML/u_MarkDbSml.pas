@@ -228,7 +228,7 @@ begin
   FSaveDbCounter := ASaveDbCounter;
 
   FCdsMarks := TClientDataSet.Create(nil);
-  FCdsMarks.Name := 'CDSmarks';
+  FCdsMarks.Name := 'MarksDB';
   FCdsMarks.DisableControls;
   Load;
 end;
@@ -354,10 +354,12 @@ begin
         Exit;
       end;
     end;
-    FCdsMarks.Filtered := false;
-    if FCdsMarks.Locate('id', VIdOld, []) then begin
+
+    FCdsMarks.Filtered := False;
+    if FCdsMarks.FindKey([VIdOld]) then begin
       VLocated := True;
     end;
+
   end;
   if VLocated then begin
     if VNewMark <> nil then begin
@@ -782,20 +784,24 @@ begin
   if VFilter <> '' then begin
     LockWrite;
     try
-      FCdsMarks.Filtered := false;
+      FCdsMarks.Filtered := False;
       FCdsMarks.Filter := VFilter;
-      FCdsMarks.Filtered := true;
-      FCdsMarks.First;
-      while not (FCdsMarks.Eof) do begin
-        VVisible := FCdsMarks.FieldByName('Visible').AsBoolean;
-        if VVisible <> ANewVisible then begin
-          FCdsMarks.Edit;
-          FCdsMarks.FieldByName('Visible').AsBoolean := ANewVisible;
-          FCdsMarks.Post;
-          SetChanged;
-          FNeedSaveFlag.SetFlag;
+      FCdsMarks.Filtered := True;
+      try
+        FCdsMarks.First;
+        while not (FCdsMarks.Eof) do begin
+          VVisible := FCdsMarks.FieldByName('Visible').AsBoolean;
+          if VVisible <> ANewVisible then begin
+            FCdsMarks.Edit;
+            FCdsMarks.FieldByName('Visible').AsBoolean := ANewVisible;
+            FCdsMarks.Post;
+            SetChanged;
+            FNeedSaveFlag.SetFlag;
+          end;
+          FCdsMarks.Next;
         end;
-        FCdsMarks.Next;
+      finally
+        FCdsMarks.Filtered := False;
       end;
       VCategoryId := GetCategoryID(ACategory);
       VList := IIDInterfaceList(FByCategoryList.GetByID(VCategoryId));
@@ -828,8 +834,8 @@ begin
     if AId <> CNotExistMarkID then begin
       LockWrite;
       try
-        FCdsMarks.Filtered := false;
-        if FCdsMarks.Locate('id', AId, []) then begin
+        FCdsMarks.Filtered := False;
+        if FCdsMarks.FindKey([AId]) then begin
           FCdsMarks.Edit;
           WriteCurrentMarkId(AMark.MainInfo as IMarkId);
           FCdsMarks.Post;
@@ -864,8 +870,8 @@ begin
     if AId <> CNotExistMarkID then begin
       LockWrite;
       try
-        FCdsMarks.Filtered := false;
-        if FCdsMarks.Locate('id', AId, []) then begin
+        FCdsMarks.Filtered := False;
+        if FCdsMarks.FindKey([AId]) then begin
           FCdsMarks.Edit;
           WriteCurrentMarkId(AMark);
           FCdsMarks.Post;
@@ -904,8 +910,8 @@ begin
         if AId <> CNotExistMarkID then begin
           if Supports(IVectorDataItem(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := AVisible;
-            FCdsMarks.Filtered := false;
-            if FCdsMarks.Locate('id', AId, []) then begin
+            FCdsMarks.Filtered := False;
+            if FCdsMarks.FindKey([AId]) then begin
               FCdsMarks.Edit;
               WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
@@ -956,8 +962,8 @@ begin
         if AId <> CNotExistMarkID then begin
           if Supports(IVectorDataItem(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := VVisible;
-            FCdsMarks.Filtered := false;
-            if FCdsMarks.Locate('id', AId, []) then begin
+            FCdsMarks.Filtered := False;
+            if FCdsMarks.FindKey([AId]) then begin
               FCdsMarks.Edit;
               WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
@@ -1058,7 +1064,7 @@ begin
     '                   <FIELD attrname="name" fieldtype="string" WIDTH="255"/>' +
     '                   <FIELD attrname="descr" fieldtype="bin.hex" SUBTYPE="Text"/>' +
     '                   <FIELD attrname="scale1" fieldtype="i4"/>' +
-    '           <FIELD attrname="scale2" fieldtype="i4"/>' +
+    '                   <FIELD attrname="scale2" fieldtype="i4"/>' +
     '                   <FIELD attrname="lonlatarr" fieldtype="bin.hex" SUBTYPE="Binary"/>' +
     '                   <FIELD attrname="lonL" fieldtype="r8"/>' +
     '                   <FIELD attrname="latT" fieldtype="r8"/>' +
@@ -1067,14 +1073,21 @@ begin
     '                   <FIELD attrname="color1" fieldtype="i4"/>' +
     '                   <FIELD attrname="color2" fieldtype="i4"/>' +
     '                   <FIELD attrname="visible" fieldtype="boolean"/>' +
-    '                   <FIELD attrname="picname" fieldtype="string" WIDTH="20"/>' +
+    '                   <FIELD attrname="picname" fieldtype="string" WIDTH="255"/>' +
     '                   <FIELD attrname="categoryid" fieldtype="i4"/>' +
     '           </FIELDS>' +
     '           <PARAMS AUTOINCVALUE="1"/>' +
     '   </METADATA>' +
     '   <ROWDATA/>' +
     '</DATAPACKET>';
-  FCdsMarks.IndexFieldNames := 'categoryid;LonR;LonL;LatT;LatB;visible';
+
+  with FCdsMarks.IndexDefs.AddIndexDef do begin
+    Name := 'MarkIDIdx';
+    Fields := 'id';
+    Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+  end;
+  FCdsMarks.IndexName := 'MarkIDIdx';
+
   FCdsMarks.Open;
 end;
 
@@ -1307,6 +1320,7 @@ end;
 
 procedure TMarkDbSml.Load;
 var
+  I: Integer;
   VMark: IVectorDataItem;
   VIdNew: Integer;
   VCategoryIdNew: Integer;
@@ -1314,6 +1328,7 @@ var
   VMarkInternal: IMarkSMLInternal;
   XML: AnsiString;
   VCounterContext: TInternalPerformanceCounterContext;
+  VPicNameFieldDef: TFieldDef;
 begin
   if FLoadDbCounter <> nil then begin
     VCounterContext := FLoadDbCounter.StartOperation;
@@ -1338,10 +1353,26 @@ begin
             end;
           end;
 
-          if length(XML) > 0 then begin
+          if (Length(XML) > 0) and (FStateInternal.ReadAccess <> asDisabled)  then begin
             try
               FCdsMarks.XMLData := XML;
+              I := FCdsMarks.FieldDefs.IndexOf('picname');
+              if I >= 0 then begin
+                VPicNameFieldDef := FCdsMarks.FieldDefs.Items[I];
+                if VPicNameFieldDef.Size <> 255 then begin
+                  // upgrade "picname" field size
+                  FCdsMarks.XMLData := '';
+                  XML := StringReplace(
+                    XML,
+                    '<FIELD attrname="picname" fieldtype="string" WIDTH="20"',
+                    '<FIELD attrname="picname" fieldtype="string" WIDTH="255"',
+                    [rfIgnoreCase]
+                    );
+                  FCdsMarks.XMLData := XML;
+                end;
+              end;
             except
+              FStateInternal.WriteAccess := asDisabled; // ! to protect backup's rewrite
               InitEmptyDS;
             end;
           end;
