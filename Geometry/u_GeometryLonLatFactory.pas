@@ -144,8 +144,8 @@ begin
   end else begin
     if not Assigned(FList) then begin
       FList := TInterfaceListSimple.Create;
+      FList.Add(FLine);
     end;
-    FList.Add(FLine);
     FList.Add(AElement);
     FHashFunction.UpdateHashByHash(FHash, AElement.Hash);
     FBounds := AElement.Bounds.UnionWithRect(FBounds);
@@ -228,8 +228,8 @@ begin
   end else begin
     if not Assigned(FList) then begin
       FList := TInterfaceListSimple.Create;
+      FList.Add(FLine);
     end;
-    FList.Add(FLine);
     FList.Add(AElement);
     FHashFunction.UpdateHashByHash(FHash, AElement.Hash);
     FBounds := AElement.Bounds.UnionWithRect(FBounds);
