@@ -33,11 +33,11 @@ type
     function GetProjectedPath(
       const AProjectionInfo: IProjectionInfo;
       const ALine: IGeometryLonLatLine
-    ): IGeometryProjectedMultiLine;
+    ): IGeometryProjectedLine;
     function GetProjectedPolygon(
       const AProjectionInfo: IProjectionInfo;
       const ALine: IGeometryLonLatPolygon
-    ): IGeometryProjectedMultiPolygon;
+    ): IGeometryProjectedPolygon;
   end;
 
 implementation

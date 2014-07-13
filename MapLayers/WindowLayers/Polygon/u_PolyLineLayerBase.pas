@@ -106,7 +106,7 @@ type
   private
     FLine: IGeometryLonLatLine;
     FProjection: IProjectionInfo;
-    FProjectedLine: IGeometryProjectedMultiLine;
+    FProjectedLine: IGeometryProjectedLine;
     FLocalConverter: ILocalCoordConverter;
     FLocalLine: IGeometryLocalMultiLine;
     FPolygon: IDrawablePolygon;
@@ -128,7 +128,7 @@ type
 
     FLine: IGeometryLonLatPolygon;
     FProjection: IProjectionInfo;
-    FProjectedLine: IGeometryProjectedMultiPolygon;
+    FProjectedLine: IGeometryProjectedPolygon;
     FLocalConverter: ILocalCoordConverter;
     FLocalLine: IGeometryLocalMultiPolygon;
     FPolygonBorder: IDrawablePolygon;
@@ -389,7 +389,7 @@ var
   VLonLatLine: IGeometryLonLatLine;
   VEnum: IEnumLocalPoint;
   VProjection: IProjectionInfo;
-  VProjectedLine: IGeometryProjectedMultiLine;
+  VProjectedLine: IGeometryProjectedLine;
   VLocalConverter: ILocalCoordConverter;
   VLocalLine: IGeometryLocalMultiLine;
   VLocalRect: TRect;
@@ -578,7 +578,7 @@ var
   VLonLatLine: IGeometryLonLatPolygon;
   VEnum: IEnumLocalPoint;
   VProjection: IProjectionInfo;
-  VProjectedLine: IGeometryProjectedMultiPolygon;
+  VProjectedLine: IGeometryProjectedPolygon;
   VLocalConverter: ILocalCoordConverter;
   VLocalLine: IGeometryLocalMultiPolygon;
   VLocalRect: TRect;

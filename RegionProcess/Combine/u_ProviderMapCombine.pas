@@ -89,7 +89,7 @@ type
     function PreparePolygon(
       const AProjection: IProjectionInfo;
       const APolygon: IGeometryLonLatPolygon
-    ): IGeometryProjectedMultiPolygon;
+    ): IGeometryProjectedPolygon;
     property LocalConverterFactory: ILocalCoordConverterFactorySimpe read FLocalConverterFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -330,7 +330,7 @@ end;
 function TProviderMapCombineBase.PreparePolygon(
   const AProjection: IProjectionInfo;
   const APolygon: IGeometryLonLatPolygon
-): IGeometryProjectedMultiPolygon;
+): IGeometryProjectedPolygon;
 begin
   Result :=
     FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
