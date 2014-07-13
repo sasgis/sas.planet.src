@@ -52,7 +52,6 @@ type
     FMarksSubset: IVectorItemSubset;
     FProjectedCache: IGeometryProjectedProvider;
 
-    FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
 
     function DrawSubset(
@@ -135,8 +134,6 @@ begin
   FMarksSubset := AMarksSubset;
   FProjectedCache := AProjectedCache;
   FMarkerProviderForVectorItem := AMarkerProviderForVectorItem;
-
-  FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
 
 function TBitmapLayerProviderByMarksSubset.DrawPath(
@@ -148,7 +145,7 @@ function TBitmapLayerProviderByMarksSubset.DrawPath(
 ): Boolean;
 var
   VPolygon: TPolygon32;
-  VProjected: IGeometryProjectedMultiLine;
+  VProjected: IGeometryProjectedLine;
   VAppearanceLine: IAppearanceLine;
 begin
   Result := False;
@@ -157,7 +154,7 @@ begin
   ProjectedLine2GR32Polygon(
     VProjected,
     ALocalConverter,
-    FPreparedPointsAggreagtor,
+    am4times,
     FFixedPointArray,
     VPolygon
   );
@@ -206,7 +203,7 @@ begin
     ProjectedPolygon2GR32Polygon(
       VProjected,
       ALocalConverter,
-      FPreparedPointsAggreagtor,
+      am4times,
       FFixedPointArray,
       VPolygon
     );

@@ -35,7 +35,7 @@ type
   TProjectedDrawableElementByPolygonSimpleEdge = class(TBaseInterfacedObject, IProjectedDrawableElement)
   private
     FProjection: IProjectionInfo;
-    FSource: IGeometryProjectedMultiPolygon;
+    FSource: IGeometryProjectedPolygon;
     FColor: TColor32;
     FAntialiasMode: TAntialiasMode;
   private
@@ -47,7 +47,7 @@ type
   public
     constructor Create(
       const AProjection: IProjectionInfo;
-      const ASource: IGeometryProjectedMultiPolygon;
+      const ASource: IGeometryProjectedPolygon;
       const AAntialiasMode: TAntialiasMode;
       const AColor: TColor32
     );
@@ -58,13 +58,14 @@ implementation
 uses
   t_GeoTypes,
   i_EnumDoublePoint,
+  u_GeometryFunc,
   u_GeoFunc;
 
 { TProjectedDrawableElementByPolygonSimpleEdge }
 
 constructor TProjectedDrawableElementByPolygonSimpleEdge.Create(
   const AProjection: IProjectionInfo;
-  const ASource: IGeometryProjectedMultiPolygon;
+  const ASource: IGeometryProjectedPolygon;
   const AAntialiasMode: TAntialiasMode;
   const AColor: TColor32
 );
@@ -93,30 +94,25 @@ var
   VLocalPoint: TDoublePoint;
   VIntersectRect: TDoubleRect;
 begin
-  if FSource.Count > 0 then begin
+
+  if not FSource.IsEmpty then begin
     VDrawRect := ALocalConverter.LocalRect2MapRectFloat(ABitmap.ClipRect);
     if IntersecProjectedRect(VIntersectRect, VDrawRect, FSource.Bounds) then begin
       if DoubleRectsEqual(VIntersectRect, FSource.Bounds) or FSource.IsRectIntersectBorder(VDrawRect) then begin
         VPolygon := TPolygon32.Create;
         try
           VPolygon.Closed := True;
-          VPolygon.Antialiased := FAntialiasMode <> amNone;
-          VPolygon.AntialiasMode := FAntialiasMode;
 
-          for i := 0 to FSource.Count - 1 do begin
-            VLine := FSource.Item[i];
-            SetLength(VPathFixedPoints, VLine.Count + 1);
-            VIndex := 0;
-            VEnum := VLine.GetEnum;
-            while VEnum.Next(VPoint) do begin
-              VLocalPoint := ALocalConverter.MapPixelFloat2LocalPixelFloat(VPoint);
-              VPathFixedPoints[VIndex] := FixedPoint(VLocalPoint.X, VLocalPoint.Y);
-              Inc(VIndex);
-            end;
-            VPolygon.AddPoints(VPathFixedPoints[0], VIndex);
-            VPolygon.NewLine;
+          ProjectedPolygon2GR32Polygon(
+            FSource,
+            ALocalConverter,
+            am4times,
+            VPathFixedPoints,
+            VPolygon
+          );
+          if Assigned(VPolygon) then begin
+            VPolygon.DrawEdge(ABitmap, FColor);
           end;
-          VPolygon.DrawEdge(ABitmap, FColor);
           VPathFixedPoints := nil;
         finally
           VPolygon.Free;

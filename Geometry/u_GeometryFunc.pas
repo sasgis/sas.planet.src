@@ -26,7 +26,7 @@ function GetProjectedSinglePolygonByProjectedPolygon(
 procedure ProjectedLine2GR32Polygon(
   const ALine: IGeometryProjectedLine;
   const ALocalConverter: ILocalCoordConverter;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
+  const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
   var APolygon: TPolygon32
 );
@@ -34,7 +34,7 @@ procedure ProjectedLine2GR32Polygon(
 procedure ProjectedPolygon2GR32Polygon(
   const ALine: IGeometryProjectedPolygon;
   const ALocalConverter: ILocalCoordConverter;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
+  const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
   var APolygon: TPolygon32
 );
@@ -300,14 +300,14 @@ begin
       Result := nil;
     end;
   end;
-end;  
+end;
 
 procedure SingleLine2GR32Polygon(
   const ALine: IGeometryProjectedSingleLine;
   const ALocalConverter: ILocalCoordConverter;
   const ARectWithDelta: TDoubleRect;
   const AMapRect: TDoubleRect;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
+  const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
   var APolygon: TPolygon32
 );
@@ -315,11 +315,8 @@ var
   VEnum: IEnumLocalPoint;
   VPoint: TDoublePoint;
   VPointsProcessedCount: Integer;
-  VIndex: Integer;
-  i: Integer;
 begin
   if IsIntersecProjectedRect(AMapRect, ALine.Bounds) then begin
-    APreparedPointsAggreagtor.Clear;
     VEnum :=
       TEnumDoublePointMapPixelToLocalPixel.Create(
         ALocalConverter,
@@ -332,35 +329,37 @@ begin
         VEnum
       );
     VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
+    VPointsProcessedCount := 0;
     while VEnum.Next(VPoint) do begin
-      APreparedPointsAggreagtor.Add(VPoint);
+      if PointIsEmpty(VPoint) then begin
+        if VPointsProcessedCount > 0 then begin
+          if APolygon = nil then begin
+            APolygon := TPolygon32.Create;
+            APolygon.Antialiased := AAntialiasMode <> amNone;
+            APolygon.AntialiasMode := AAntialiasMode;
+            APolygon.Closed := False;
+          end else begin
+            APolygon.NewLine;
+          end;
+        end;
+      end else begin
+        if VPointsProcessedCount + 1 >= Length(AFixedPointArray) then begin
+          SetLength(AFixedPointArray, (VPointsProcessedCount + 1) * 2);
+        end;
+        AFixedPointArray[VPointsProcessedCount] := FixedPoint(VPoint.X, VPoint.Y);
+        Inc(VPointsProcessedCount);
+      end;
     end;
-    VPointsProcessedCount := APreparedPointsAggreagtor.Count;
     if VPointsProcessedCount > 0 then begin
       if APolygon = nil then begin
         APolygon := TPolygon32.Create;
-        APolygon.Antialiased := true;
-        APolygon.AntialiasMode := am4times;
+        APolygon.Antialiased := AAntialiasMode <> amNone;
+        APolygon.AntialiasMode := AAntialiasMode;
         APolygon.Closed := False;
       end else begin
         APolygon.NewLine;
       end;
-      if Length(AFixedPointArray) < VPointsProcessedCount then begin
-        SetLength(AFixedPointArray, VPointsProcessedCount);
-      end;
-      VIndex := 0;
-      for i := 0 to VPointsProcessedCount - 1 do begin
-        VPoint := APreparedPointsAggreagtor.Points[i];
-        if PointIsEmpty(VPoint) then begin
-          APolygon.AddPoints(AFixedPointArray[0], VIndex);
-          APolygon.NewLine;
-          VIndex := 0;
-        end else begin
-          AFixedPointArray[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
-          Inc(VIndex);
-        end;
-      end;
-      APolygon.AddPoints(AFixedPointArray[0], VIndex);
+      APolygon.AddPoints(AFixedPointArray[0], VPointsProcessedCount);
     end;
   end;
 end;
@@ -368,7 +367,7 @@ end;
 procedure ProjectedLine2GR32Polygon(
   const ALine: IGeometryProjectedLine;
   const ALocalConverter: ILocalCoordConverter;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
+  const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
   var APolygon: TPolygon32
 );
@@ -399,7 +398,7 @@ begin
             ALocalConverter,
             VRectWithDelta,
             VMapRect,
-            APreparedPointsAggreagtor,
+            AAntialiasMode,
             AFixedPointArray,
             APolygon
           );
@@ -411,7 +410,7 @@ begin
               ALocalConverter,
               VRectWithDelta,
               VMapRect,
-              APreparedPointsAggreagtor,
+              AAntialiasMode,
               AFixedPointArray,
               APolygon
             );
@@ -427,7 +426,7 @@ procedure SinglePoly2GR32Polygon(
   const ALocalConverter: ILocalCoordConverter;
   const ARectWithDelta: TDoubleRect;
   const AMapRect: TDoubleRect;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
+  const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
   var APolygon: TPolygon32
 );
@@ -435,10 +434,8 @@ var
   VEnum: IEnumLocalPoint;
   VPoint: TDoublePoint;
   VPointsProcessedCount: Integer;
-  i: Integer;
 begin
   if IsIntersecProjectedRect(AMapRect, ALine.Bounds) then begin
-    APreparedPointsAggreagtor.Clear;
     VEnum :=
       TEnumDoublePointMapPixelToLocalPixel.Create(
         ALocalConverter,
@@ -452,25 +449,37 @@ begin
       );
     VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
     VEnum := TEnumLocalPointClosePoly.Create(VEnum);
+    VPointsProcessedCount := 0;
     while VEnum.Next(VPoint) do begin
-      APreparedPointsAggreagtor.Add(VPoint);
+      if PointIsEmpty(VPoint) then begin
+        if VPointsProcessedCount > 0 then begin
+          if APolygon = nil then begin
+            APolygon := TPolygon32.Create;
+            APolygon.Antialiased := AAntialiasMode <> amNone;
+            APolygon.AntialiasMode := AAntialiasMode;
+            APolygon.Closed := True;
+          end else begin
+            APolygon.NewLine;
+          end;
+          APolygon.AddPoints(AFixedPointArray[0], VPointsProcessedCount);
+        end;
+      end else begin
+        if VPointsProcessedCount + 1 >= Length(AFixedPointArray) then begin
+          SetLength(AFixedPointArray, (VPointsProcessedCount + 1) * 2);
+        end;
+        AFixedPointArray[VPointsProcessedCount] := FixedPoint(VPoint.X, VPoint.Y);
+        Inc(VPointsProcessedCount);
+      end;
     end;
-    VPointsProcessedCount := APreparedPointsAggreagtor.Count;
+
     if VPointsProcessedCount > 0 then begin
       if APolygon = nil then begin
         APolygon := TPolygon32.Create;
-        APolygon.Antialiased := true;
-        APolygon.AntialiasMode := am4times;
+        APolygon.Antialiased := AAntialiasMode <> amNone;
+        APolygon.AntialiasMode := AAntialiasMode;
         APolygon.Closed := True;
       end else begin
         APolygon.NewLine;
-      end;
-      if Length(AFixedPointArray) < VPointsProcessedCount then begin
-        SetLength(AFixedPointArray, VPointsProcessedCount);
-      end;
-      for i := 0 to VPointsProcessedCount - 1 do begin
-        VPoint := APreparedPointsAggreagtor.Points[i];
-        AFixedPointArray[i] := FixedPoint(VPoint.X, VPoint.Y);
       end;
       APolygon.AddPoints(AFixedPointArray[0], VPointsProcessedCount);
     end;
@@ -480,7 +489,7 @@ end;
 procedure ProjectedPolygon2GR32Polygon(
   const ALine: IGeometryProjectedPolygon;
   const ALocalConverter: ILocalCoordConverter;
-  const APreparedPointsAggreagtor: IDoublePointsAggregator;
+  const AAntialiasMode: TAntialiasMode;
   var AFixedPointArray: TArrayOfFixedPoint;
   var APolygon: TPolygon32
 );
@@ -511,7 +520,7 @@ begin
             ALocalConverter,
             VRectWithDelta,
             VMapRect,
-            APreparedPointsAggreagtor,
+            AAntialiasMode,
             AFixedPointArray,
             APolygon
           );
@@ -523,7 +532,7 @@ begin
               ALocalConverter,
               VRectWithDelta,
               VMapRect,
-              APreparedPointsAggreagtor,
+              AAntialiasMode,
               AFixedPointArray,
               APolygon
             );

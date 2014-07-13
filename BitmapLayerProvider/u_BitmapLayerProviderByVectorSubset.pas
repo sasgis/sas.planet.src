@@ -52,7 +52,6 @@ type
     FVectorItems: IVectorItemSubset;
     FProjectedCache: IGeometryProjectedProvider;
 
-    FPreparedPointsAggreagtor: IDoublePointsAggregator;
     FFixedPointArray: TArrayOfFixedPoint;
 
     procedure InitBitmap(
@@ -127,8 +126,6 @@ begin
   FBitmapFactory := ABitmapFactory;
   FProjectedCache := AProjectedCache;
   FVectorItems := AVectorItems;
-
-  FPreparedPointsAggreagtor := TDoublePointsAggregator.Create;
 end;
 
 function TBitmapLayerProviderByVectorSubset.DrawPath(
@@ -148,7 +145,7 @@ begin
     ProjectedLine2GR32Polygon(
       VProjected,
       ALocalConverter,
-      FPreparedPointsAggreagtor,
+      am4times,
       FFixedPointArray,
       VPolygon
     );
@@ -223,7 +220,7 @@ begin
     ProjectedPolygon2GR32Polygon(
       VProjected,
       ALocalConverter,
-      FPreparedPointsAggreagtor,
+      am4times,
       FFixedPointArray,
       VPolygon
     );
