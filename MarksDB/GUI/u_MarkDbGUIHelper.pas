@@ -105,7 +105,7 @@ type
     function PolygonForOperation(
       const AGeometry: IGeometryLonLat;
       const AProjection: IProjectionInfo
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
     function AddKategory(const Name: string): IMarkCategory;
     procedure ShowMarkInfo(
       const AMark: IVectorDataItem
@@ -666,19 +666,19 @@ end;
 function TMarkDbGUIHelper.PolygonForOperation(
   const AGeometry: IGeometryLonLat;
   const AProjection: IProjectionInfo
-  ): IGeometryLonLatMultiPolygon;
+  ): IGeometryLonLatPolygon;
 var
   VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VLine: IGeometryLonLatLine;
+  VPoly: IGeometryLonLatPolygon;
   VDefRadius: String;
   VRadius: double;
   VFilter: ILonLatPointFilter;
 begin
   Result := nil;
-  if Supports(AGeometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+  if Supports(AGeometry, IGeometryLonLatPolygon, VPoly) then begin
     Result := VPoly;
-  end else if Supports(AGeometry, IGeometryLonLatMultiLine, VLine) then begin
+  end else if Supports(AGeometry, IGeometryLonLatLine, VLine) then begin
     VDefRadius := '100';
     if InputQuery('', 'Radius , m', VDefRadius) then begin
       try

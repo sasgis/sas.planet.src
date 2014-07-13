@@ -404,7 +404,7 @@ var
   VMarkName, VMarkDesc: String;
   VPos: Integer;
   VPointsAggregator: IDoublePointsAggregator;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
   VAllNewMarks: IVectorItemSubsetBuilder;
 begin
   Result := nil;
@@ -524,7 +524,7 @@ begin
           if (VPointsAggregator.Count>0) then begin
             // create lonlats
             VPolygon := AVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
-            if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
+            if (VPolygon <> nil) and (not VPolygon.IsEmpty) then begin
               // make polygon
               if (nil=VAllNewMarks) then begin
                 // make result object

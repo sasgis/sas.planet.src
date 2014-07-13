@@ -130,7 +130,7 @@ begin
       );
     Result :=
       FVectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
-        VLine,
+        VLine.Geometry,
         VFilter
       );
   end;
@@ -141,7 +141,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Path;
-    if not FLine.IsEmpty then begin
+    if not FLine.Geometry.IsEmpty then begin
       SetNeedRedraw;
       Show;
     end else begin

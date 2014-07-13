@@ -199,7 +199,7 @@ begin
     VConfig := FConfig.GetStatic;
     FTempBitmap.Font.Size := VConfig.FontSize;
     FTempLastPointBitmap.Font.Size := VConfig.LastPointFontSize;
-    Visible := VConfig.Visible and (FLine <> nil) and (not FLine.IsEmpty);
+    Visible := VConfig.Visible and (FLine <> nil) and (not FLine.Geometry.IsEmpty);
     SetNeedRedraw;
   finally
     ViewUpdateUnlock;
@@ -211,7 +211,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Path;
-    if not FLine.IsEmpty then begin
+    if not FLine.Geometry.IsEmpty then begin
       SetNeedRedraw;
       Visible := FConfig.Visible;
     end else begin
@@ -357,7 +357,7 @@ begin
     VDatum := VConverter.Datum;
     ADistStrings := TStringList.Create;
     AProjectedPoints := TDoublePointsAggregator.Create;
-    VEnum := VLine.GetEnum;
+    VEnum := VLine.Geometry.GetEnum;
     if VEnum.Next(VPrevLonLat) then begin
       VSkipPoint := False;
       VPrevIsEmpty := False;

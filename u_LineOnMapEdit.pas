@@ -64,7 +64,7 @@ type
 
   TPathOnMapEdit = class(TLineOnMapEdit, IPathOnMapEdit)
   private
-    FLine: IGeometryLonLatMultiLine;
+    FLine: IGeometryLonLatLine;
     FLineWithSelected: ILonLatPathWithSelected;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
@@ -78,7 +78,7 @@ type
 
   TPolygonOnMapEdit = class(TLineOnMapEdit, IPolygonOnMapEdit)
   private
-    FLine: IGeometryLonLatMultiPolygon;
+    FLine: IGeometryLonLatPolygon;
     FLineWithSelected: ILonLatPolygonWithSelected;
     procedure _UpdateLineObject; override;
     procedure _UpdateLineWithSelected; override;
@@ -97,6 +97,7 @@ uses
   t_Hash,
   i_LonLatRect,
   u_GeoFunc,
+  u_GeometryFunc,
   u_BaseInterfacedObject;
 
 type
@@ -117,42 +118,26 @@ type
     );
   end;
 
-  TLonLatPathWithSelected = class(TLonLatLineWithSelectedBase, IGeometryLonLat, IGeometryLonLatLine, IGeometryLonLatMultiLine, ILonLatPathWithSelected)
+  TLonLatPathWithSelected = class(TLonLatLineWithSelectedBase, ILonLatPathWithSelected)
   private
-    FLine: IGeometryLonLatMultiLine;
+    FLine: IGeometryLonLatLine;
   private
-    function GetEnum: IEnumLonLatPoint;
-    function IsEmpty: Boolean;
-    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
-    function GetGoToPoint: TDoublePoint;
-    function GetBounds: ILonLatRect;
-    function GetHash: THashValue;
-    function GetCount: Integer;
-    function GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
+    function GetGeometry: IGeometryLonLatLine;
   public
     constructor Create(
-      const ALine: IGeometryLonLatMultiLine;
+      const ALine: IGeometryLonLatLine;
       ASelectedPointIndex: Integer
     );
   end;
 
-  TLonLatPolygonWithSelected = class(TLonLatLineWithSelectedBase, IGeometryLonLat, IGeometryLonLatPolygon, IGeometryLonLatMultiPolygon, ILonLatPolygonWithSelected)
+  TLonLatPolygonWithSelected = class(TLonLatLineWithSelectedBase, ILonLatPolygonWithSelected)
   private
-    FLine: IGeometryLonLatMultiPolygon;
+    FLine: IGeometryLonLatPolygon;
   private
-    function GetEnum: IEnumLonLatPoint;
-    function IsEmpty: Boolean;
-    function IsSameGeometry(const AGeometry: IGeometryLonLat): Boolean;
-    function IsSame(const APolygon: IGeometryLonLatMultiPolygon): Boolean;
-    function GetGoToPoint: TDoublePoint;
-    function GetBounds: ILonLatRect;
-    function GetHash: THashValue;
-    function GetCount: Integer;
-    function GetItem(AIndex: Integer): IGeometryLonLatSinglePolygon;
+    function GetGeometry: IGeometryLonLatPolygon;
   public
     constructor Create(
-      const ALine: IGeometryLonLatMultiPolygon;
+      const ALine: IGeometryLonLatPolygon;
       ASelectedPointIndex: Integer
     );
   end;
@@ -551,8 +536,8 @@ begin
   LockRead;
   try
     Result := False;
-    if FLine.Count > 0 then begin
-      Result := FLine.Item[0].Count > 1;
+    if not FLine.IsEmpty then begin
+      Result := IsValidLonLatLine(FLine);
     end;
   finally
     UnlockRead;
@@ -684,7 +669,7 @@ function TPolygonOnMapEdit.IsEmpty: Boolean;
 begin
   LockRead;
   try
-    Result := FLine.Count = 0;
+    Result := not FLine.IsEmpty;
   finally
     UnlockRead;
   end;
@@ -695,8 +680,8 @@ begin
   LockRead;
   try
     Result := False;
-    if FLine.Count > 0 then begin
-      Result := FLine.Item[0].Count > 2;
+    if not FLine.IsEmpty then begin
+      Result := IsValidLonLatPolygon(FLine);
     end;
   finally
     UnlockRead;
@@ -785,7 +770,7 @@ end;
 { TLonLatPathWithSelected }
 
 constructor TLonLatPathWithSelected.Create(
-  const ALine: IGeometryLonLatMultiLine;
+  const ALine: IGeometryLonLatLine;
   ASelectedPointIndex: Integer
 );
 var
@@ -793,97 +778,74 @@ var
   VSelectedPointIndex: Integer;
   VSelectedPoint: TDoublePoint;
   VLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
   i: Integer;
   VPointExists: Boolean;
 begin
   VSelectedSegmentIndex := 0;
   VSelectedPointIndex := ASelectedPointIndex;
-  VPointExists := False;
-  for i := 0 to ALine.Count - 1 do begin
-    VLine := ALine.Item[i];
+  if Supports(ALine, IGeometryLonLatSingleLine, VLine) then begin
     if VSelectedPointIndex <= VLine.Count then begin
-      VSelectedSegmentIndex := i;
       if VSelectedPointIndex = VLine.Count then begin
         VSelectedPoint := CEmptyDoublePoint;
       end else begin
         VSelectedPoint := VLine.Points[VSelectedPointIndex];
       end;
-      VPointExists := True;
-      Break;
     end else begin
-      Dec(VSelectedPointIndex, VLine.Count);
-      Dec(VSelectedPointIndex);
-    end;
-  end;
-  if not VPointExists then begin
-    VSelectedSegmentIndex := ALine.Count - 1;
-    if VSelectedSegmentIndex >= 0 then begin
-      VLine := ALine.Item[VSelectedSegmentIndex];
       VSelectedPointIndex := VLine.Count - 1;
       if VSelectedPointIndex >= 0 then begin
         VSelectedPoint := VLine.Points[VSelectedPointIndex];
       end else begin
         VSelectedPoint := CEmptyDoublePoint;
       end;
-    end else begin
-      VSelectedPointIndex := -1;
-      VSelectedPoint := CEmptyDoublePoint;
+    end;
+  end else if Supports(ALine, IGeometryLonLatMultiLine, VMultiLine) then begin
+    VPointExists := False;
+    for i := 0 to VMultiLine.Count - 1 do begin
+      VLine := VMultiLine.Item[i];
+      if VSelectedPointIndex <= VLine.Count then begin
+        VSelectedSegmentIndex := i;
+        if VSelectedPointIndex = VLine.Count then begin
+          VSelectedPoint := CEmptyDoublePoint;
+        end else begin
+          VSelectedPoint := VLine.Points[VSelectedPointIndex];
+        end;
+        VPointExists := True;
+        Break;
+      end else begin
+        Dec(VSelectedPointIndex, VLine.Count);
+        Dec(VSelectedPointIndex);
+      end;
+    end;
+    if not VPointExists then begin
+      VSelectedSegmentIndex := VMultiLine.Count - 1;
+      if VSelectedSegmentIndex >= 0 then begin
+        VLine := VMultiLine.Item[VSelectedSegmentIndex];
+        VSelectedPointIndex := VLine.Count - 1;
+        if VSelectedPointIndex >= 0 then begin
+          VSelectedPoint := VLine.Points[VSelectedPointIndex];
+        end else begin
+          VSelectedPoint := CEmptyDoublePoint;
+        end;
+      end else begin
+        VSelectedPointIndex := -1;
+        VSelectedPoint := CEmptyDoublePoint;
+      end;
     end;
   end;
   inherited Create(VSelectedPoint, VSelectedSegmentIndex, VSelectedPointIndex);
   FLine := ALine;
 end;
 
-function TLonLatPathWithSelected.GetBounds: ILonLatRect;
+function TLonLatPathWithSelected.GetGeometry: IGeometryLonLatLine;
 begin
-  Result := FLine.Bounds;
-end;
-
-function TLonLatPathWithSelected.GetCount: Integer;
-begin
-  Result := FLine.Count;
-end;
-
-function TLonLatPathWithSelected.GetEnum: IEnumLonLatPoint;
-begin
-  Result := FLine.GetEnum;
-end;
-
-function TLonLatPathWithSelected.GetGoToPoint: TDoublePoint;
-begin
-  Result := FLine.GetGoToPoint;
-end;
-
-function TLonLatPathWithSelected.GetHash: THashValue;
-begin
-  Result := FLine.Hash;
-end;
-
-function TLonLatPathWithSelected.GetItem(AIndex: Integer): IGeometryLonLatSingleLine;
-begin
-  Result := FLine.Item[AIndex];
-end;
-
-function TLonLatPathWithSelected.IsEmpty: Boolean;
-begin
-  Result := FLine.IsEmpty;
-end;
-
-function TLonLatPathWithSelected.IsSame(const APath: IGeometryLonLatMultiLine): Boolean;
-begin
-  Result := FLine.IsSame(APath);
-end;
-
-function TLonLatPathWithSelected.IsSameGeometry(
-  const AGeometry: IGeometryLonLat): Boolean;
-begin
-  Result := FLine.IsSameGeometry(AGeometry);
+  Result := FLine;
 end;
 
 { TLonLatPolygonWithSelected }
 
 constructor TLonLatPolygonWithSelected.Create(
-  const ALine: IGeometryLonLatMultiPolygon;
+  const ALine: IGeometryLonLatPolygon;
   ASelectedPointIndex: Integer
 );
 var
@@ -891,94 +853,68 @@ var
   VSelectedPointIndex: Integer;
   VSelectedPoint: TDoublePoint;
   VLine: IGeometryLonLatSinglePolygon;
+  VMultiLine: IGeometryLonLatMultiPolygon;
   i: Integer;
   VPointExists: Boolean;
 begin
   VSelectedSegmentIndex := 0;
   VSelectedPointIndex := ASelectedPointIndex;
-  VPointExists := False;
-  for i := 0 to ALine.Count - 1 do begin
-    VLine := ALine.Item[i];
+  if Supports(ALine, IGeometryLonLatSinglePolygon, VLine) then begin
     if VSelectedPointIndex <= VLine.Count then begin
-      VSelectedSegmentIndex := i;
       if VSelectedPointIndex = VLine.Count then begin
         VSelectedPoint := CEmptyDoublePoint;
       end else begin
         VSelectedPoint := VLine.Points[VSelectedPointIndex];
       end;
-      VPointExists := True;
-      Break;
     end else begin
-      Dec(VSelectedPointIndex, VLine.Count);
-      Dec(VSelectedPointIndex);
-    end;
-  end;
-  if not VPointExists then begin
-    VSelectedSegmentIndex := ALine.Count - 1;
-    if VSelectedSegmentIndex >= 0 then begin
-      VLine := ALine.Item[VSelectedSegmentIndex];
       VSelectedPointIndex := VLine.Count - 1;
       if VSelectedPointIndex >= 0 then begin
         VSelectedPoint := VLine.Points[VSelectedPointIndex];
       end else begin
         VSelectedPoint := CEmptyDoublePoint;
       end;
-    end else begin
-      VSelectedPointIndex := -1;
-      VSelectedPoint := CEmptyDoublePoint;
+    end;
+  end else if Supports(ALine, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+    VPointExists := False;
+    for i := 0 to VMultiLine.Count - 1 do begin
+      VLine := VMultiLine.Item[i];
+      if VSelectedPointIndex <= VLine.Count then begin
+        VSelectedSegmentIndex := i;
+        if VSelectedPointIndex = VLine.Count then begin
+          VSelectedPoint := CEmptyDoublePoint;
+        end else begin
+          VSelectedPoint := VLine.Points[VSelectedPointIndex];
+        end;
+        VPointExists := True;
+        Break;
+      end else begin
+        Dec(VSelectedPointIndex, VLine.Count);
+        Dec(VSelectedPointIndex);
+      end;
+    end;
+    if not VPointExists then begin
+      VSelectedSegmentIndex := VMultiLine.Count - 1;
+      if VSelectedSegmentIndex >= 0 then begin
+        VLine := VMultiLine.Item[VSelectedSegmentIndex];
+        VSelectedPointIndex := VLine.Count - 1;
+        if VSelectedPointIndex >= 0 then begin
+          VSelectedPoint := VLine.Points[VSelectedPointIndex];
+        end else begin
+          VSelectedPoint := CEmptyDoublePoint;
+        end;
+      end else begin
+        VSelectedPointIndex := -1;
+        VSelectedPoint := CEmptyDoublePoint;
+      end;
     end;
   end;
   inherited Create(VSelectedPoint, VSelectedSegmentIndex, VSelectedPointIndex);
   FLine := ALine;
 end;
 
-function TLonLatPolygonWithSelected.GetBounds: ILonLatRect;
+function TLonLatPolygonWithSelected.GetGeometry: IGeometryLonLatPolygon;
 begin
-  Result := FLine.Bounds;
-end;
-
-function TLonLatPolygonWithSelected.GetCount: Integer;
-begin
-  Result := FLine.Count;
-end;
-
-function TLonLatPolygonWithSelected.GetEnum: IEnumLonLatPoint;
-begin
-  Result := FLine.GetEnum;
-end;
-
-function TLonLatPolygonWithSelected.GetGoToPoint: TDoublePoint;
-begin
-  Result := FLine.GetGoToPoint;
-end;
-
-function TLonLatPolygonWithSelected.GetHash: THashValue;
-begin
-  Result := FLine.Hash;
-end;
-
-function TLonLatPolygonWithSelected.GetItem(
-  AIndex: Integer): IGeometryLonLatSinglePolygon;
-begin
-  Result := FLine.Item[AIndex];
-end;
-
-function TLonLatPolygonWithSelected.IsEmpty: Boolean;
-begin
-  Result := FLine.IsEmpty;
-end;
-
-function TLonLatPolygonWithSelected.IsSame(
-  const APolygon: IGeometryLonLatMultiPolygon): Boolean;
-begin
-  Result := FLine.IsSame(APolygon);
-end;
-
-function TLonLatPolygonWithSelected.IsSameGeometry(
-  const AGeometry: IGeometryLonLat
-): Boolean;
-begin
-  Result := FLine.IsSameGeometry(AGeometry);
+  Result := FLine;
 end;
 
 end.

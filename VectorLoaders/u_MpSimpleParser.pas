@@ -139,7 +139,7 @@ function TMpSimpleParser.Load(
 var
   VFileStrings: TStringList;
   VDataStream: TStream;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
   VItem: IVectorDataItem;
   VList: IVectorItemSubsetBuilder;
   VString: string;

@@ -776,7 +776,7 @@ function TPathEditLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
 ): IGeometryLonLatLine;
 begin
-  Result := FLine;
+  Result := FLine.Geometry;
 end;
 
 procedure TPathEditLayer.OnLineChange;
@@ -784,7 +784,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Path;
-    if not FLine.IsEmpty then begin
+    if not FLine.Geometry.IsEmpty then begin
       SetNeedRedraw;
       Show;
     end else begin
@@ -832,7 +832,7 @@ function TPolygonEditLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
 ): IGeometryLonLatPolygon;
 begin
-  Result := FLine;
+  Result := FLine.Geometry;
 end;
 
 procedure TPolygonEditLayer.OnLineChange;
@@ -840,7 +840,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Polygon;
-    if not FLine.IsEmpty then begin
+    if not FLine.Geometry.IsEmpty then begin
       SetNeedRedraw;
       Show;
     end else begin
@@ -1026,7 +1026,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Path;
-    if not FLine.IsEmpty then begin
+    if not FLine.Geometry.IsEmpty then begin
       SetNeedRedraw;
       Show;
     end else begin
@@ -1061,14 +1061,14 @@ begin
   AActivePointIndex := -1;
   VLine := FLine;
   if VLine <> nil then begin
-    if not VLine.IsEmpty then begin
+    if not VLine.Geometry.IsEmpty then begin
       AProjectedPoints := TDoublePointsAggregator.Create;
       VConverter := AProjection.GeoConverter;
       VZoom := AProjection.Zoom;
       VSegmentIndex := VLine.GetSelectedSegmentIndex;
       VPointIndex := VLine.GetSelectedPointIndex;
       VIndex := 0;
-      if Supports(VLine, IGeometryLonLatSingleLine, VSigleLine) then begin
+      if Supports(VLine.Geometry, IGeometryLonLatSingleLine, VSigleLine) then begin
         i := 0;
         for j := 0 to VSigleLine.Count - 1 do begin
           VLonLatPoint := VSigleLine.Points[j];
@@ -1093,7 +1093,7 @@ begin
             end;
           end;
         end;
-      end else if Supports(VLine, IGeometryLonLatMultiLine, VMultiLine) then begin
+      end else if Supports(VLine.Geometry, IGeometryLonLatMultiLine, VMultiLine) then begin
         for i := 0 to VMultiLine.Count - 1 do begin
           VSigleLine := VMultiLine.Item[i];
           for j := 0 to VSigleLine.Count - 1 do begin
@@ -1164,7 +1164,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Polygon;
-    if not FLine.IsEmpty then begin
+    if not FLine.Geometry.IsEmpty then begin
       SetNeedRedraw;
       Show;
     end else begin
@@ -1199,14 +1199,14 @@ begin
   AActivePointIndex := -1;
   VLine := FLine;
   if VLine <> nil then begin
-    if not VLine.IsEmpty then begin
+    if not VLine.Geometry.IsEmpty then begin
       AProjectedPoints := TDoublePointsAggregator.Create;
       VConverter := AProjection.GeoConverter;
       VZoom := AProjection.Zoom;
       VSegmentIndex := VLine.GetSelectedSegmentIndex;
       VPointIndex := VLine.GetSelectedPointIndex;
       VIndex := 0;
-      if Supports(VLine, IGeometryLonLatSinglePolygon, VSigleLine) then begin
+      if Supports(VLine.Geometry, IGeometryLonLatSinglePolygon, VSigleLine) then begin
         i := 0;
         for j := 0 to VSigleLine.Count - 1 do begin
           VLonLatPoint := VSigleLine.Points[j];
@@ -1231,7 +1231,7 @@ begin
             end;
           end;
         end;
-      end else if Supports(VLine, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+      end else if Supports(VLine.Geometry, IGeometryLonLatMultiPolygon, VMultiLine) then begin
         for i := 0 to VMultiLine.Count - 1 do begin
           VSigleLine := VMultiLine.Item[i];
           for j := 0 to VSigleLine.Count - 1 do begin

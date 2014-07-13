@@ -28,15 +28,21 @@ uses
   i_Changeable;
 
 type
-  ILonLatPathWithSelected = interface(IGeometryLonLatLine)
-    ['{3ED6ABA4-D618-4A82-A428-EFF74D482161}']
+  ILonLatPathWithSelected = interface
+    ['{E94EE4A3-5B01-4310-B710-252E9FAAD6D7}']
+    function GetGeometry: IGeometryLonLatLine;
+    property Geometry: IGeometryLonLatLine read GetGeometry;
+
     function GetSelectedPoint: TDoublePoint;
     function GetSelectedSegmentIndex: Integer;
     function GetSelectedPointIndex: Integer;
   end;
 
-  ILonLatPolygonWithSelected = interface(IGeometryLonLatPolygon)
-    ['{4F1931DF-57E1-4082-A83F-D23FB74F2F28}']
+  ILonLatPolygonWithSelected = interface
+    ['{586F7096-3641-4B08-8D7E-0C74ECC32096}']
+    function GetGeometry: IGeometryLonLatPolygon;
+    property Geometry: IGeometryLonLatPolygon read GetGeometry;
+
     function GetSelectedPoint: TDoublePoint;
     function GetSelectedSegmentIndex: Integer;
     function GetSelectedPointIndex: Integer;

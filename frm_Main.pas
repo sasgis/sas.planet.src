@@ -2994,12 +2994,12 @@ begin
   if VLineOnMapEdit <> nil then begin
     VSaveAviable := False;
     if Supports(VLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
-      VPath := VPathOnMapEdit.Path;
+      VPath := VPathOnMapEdit.Path.Geometry;
       if not VPath.IsEmpty then begin
         VSaveAviable := IsValidLonLatLine(VPath);
       end;
     end else if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
-      VPoly := VPolygonOnMapEdit.Polygon;
+      VPoly := VPolygonOnMapEdit.Polygon.Geometry;
       if not VPoly.IsEmpty then begin
         VSaveAviable := IsValidLonLatPolygon(VPoly);
       end;
@@ -4169,9 +4169,9 @@ var
   VPolyEdit: IPolygonOnMapEdit;
 begin
   if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-    VLLRect := VPathEdit.Path.Bounds.Rect;
+    VLLRect := VPathEdit.Path.Geometry.Bounds.Rect;
   end else if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolyEdit) then begin
-    VLLRect := VPolyEdit.Polygon.Bounds.Rect;
+    VLLRect := VPolyEdit.Polygon.Geometry.Bounds.Rect;
   end;
   FMapGoto.FitRectToScreen(VLLRect);
 end;
@@ -5851,12 +5851,12 @@ begin
   case FState.State of
     ao_edit_poly: begin
       if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry);
       end;
     end;
     ao_edit_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path, False, FMarshrutComment);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, False, FMarshrutComment);
       end;
     end;
   end;
@@ -5875,12 +5875,12 @@ begin
   case FState.State of
     ao_edit_poly: begin
       if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon, True);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkPoly, VPolygonEdit.Polygon.Geometry, True);
       end;
     end;
     ao_edit_line: begin
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathEdit) then begin
-        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path, True, FMarshrutComment);
+        VResult := FMarkDBGUI.SaveMarkModal(FEditMarkLine, VPathEdit.Path.Geometry, True, FMarshrutComment);
       end;
     end;
   end;
@@ -6065,12 +6065,12 @@ begin
   if VLineOnMapEdit <> nil then begin
     case FState.State of
       ao_select_poly: begin
-        VPoly := (VLineOnMapEdit as IPolygonOnMapEdit).Polygon;
+        VPoly := (VLineOnMapEdit as IPolygonOnMapEdit).Polygon.Geometry;
         FState.State := ao_movemap;
         FRegionProcess.ProcessPolygon(VPoly);
       end;
       ao_select_line: begin
-        VPath := (VLineOnMapEdit as IPathOnMapEdit).Path;
+        VPath := (VLineOnMapEdit as IPathOnMapEdit).Path.Geometry;
         if not VPath.IsEmpty then begin
           VFilter :=
             TLonLatPointFilterLine2Poly.Create(
@@ -6830,7 +6830,7 @@ begin
           VProvider.GetPath(
             VOperationNotifier,
             VOperationNotifier.CurrentOperation,
-            VPathOnMapEdit.Path,
+            VPathOnMapEdit.Path.Geometry,
             FMarshrutComment
           );
         VIsError := (VResult = nil);
