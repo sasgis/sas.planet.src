@@ -64,7 +64,7 @@ type
       const APos: TDoublePoint;
       const ADatum: IDatum;
       const AConfig: IMarkerRingsConfigStatic
-    ): IGeometryLonLatMultiPolygon;
+    ): IGeometryLonLatPolygon;
     function GetProjectedCirclesByLonLat(
       const ASource: IGeometryLonLatPolygon;
       const AProjectionInfo: IProjectionInfo
@@ -153,7 +153,7 @@ function TMapLayerGPSMarkerRings.GetLonLatCirclesByPoint(
   const APos: TDoublePoint;
   const ADatum: IDatum;
   const AConfig: IMarkerRingsConfigStatic
-): IGeometryLonLatMultiPolygon;
+): IGeometryLonLatPolygon;
 var
   VAggreagator: IDoublePointsAggregator;
   i, j: Integer;

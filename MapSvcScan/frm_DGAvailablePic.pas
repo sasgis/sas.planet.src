@@ -912,7 +912,7 @@ var
   VPointsAggregator: IDoublePointsAggregator;
   VPoint: TDoublePoint;
   VValidPoint: Boolean;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
   VMark: IVectorDataItem;
   VAllNewMarks: IVectorItemSubsetBuilder;
   VAllLinesToDesc: Boolean;
@@ -1097,7 +1097,7 @@ begin
       if (VPointsAggregator.Count>0) then begin
         // create lonlats
         VPolygon := FVectorGeometryLonLatFactory.CreateLonLatMultiPolygon(VPointsAggregator.Points, VPointsAggregator.Count);
-        if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
+        if (VPolygon <> nil) and (not VPolygon.IsEmpty) then begin
           // make polygon
           VMark :=
             FMarkDBGUI.MarksDb.MarkDb.Factory.CreateNewMark(

@@ -5332,7 +5332,7 @@ var
   VMarksEnum: IEnumUnknown;
   VMark: IVectorDataItem;
   i: integer;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VPoly: IGeometryLonLatPolygon;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VSize: Double;
   VArea: Double;
@@ -5352,7 +5352,7 @@ begin
   end;
   VMarksEnum := AList.GetEnum;
   while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
-    if Supports(VMark.Geometry, IGeometryLonLatMultiLine) then begin
+    if Supports(VMark.Geometry, IGeometryLonLatLine) then begin
       Result := VMark;
       Exit;
     end;
@@ -5361,7 +5361,7 @@ begin
   VMarksEnum := AList.GetEnum;
   VVectorGeometryProjectedFactory := GState.VectorGeometryProjectedFactory;
   while VMarksEnum.Next(1, VMark, @i) = S_OK do begin
-    if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+    if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
       VProjectedPolygon := VVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           ALocalConverter.ProjectionInfo,
           VPoly,
@@ -5382,7 +5382,7 @@ var
   VZoomCurr: Byte;
   VSelectionRect: TDoubleRect;
   VSelectionFinished: Boolean;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VPoly: IGeometryLonLatPolygon;
   VPoint: IGeometryLonLatPoint;
   VMapMoving: Boolean;
   VMapType: IMapType;
@@ -6320,7 +6320,7 @@ var
   VZoom: Byte;
   VMapRect: TDoubleRect;
   VLonLatRect: TDoubleRect;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
 begin
   TBRectSave.ImageIndex:=20;
   VLocalConverter := FViewPortState.View.GetStatic;
@@ -6811,7 +6811,7 @@ end;
 
 procedure TfrmMain.TBEditPathMarshClick(Sender: TObject);
 var
-  VResult: IGeometryLonLatMultiLine;
+  VResult: IGeometryLonLatLine;
   VEntity: IPathDetalizeProviderListEntity;
   VProvider: IPathDetalizeProvider;
   VIsError: Boolean;
@@ -6840,7 +6840,7 @@ begin
         end;
       end;
       if not VIsError then begin
-        if VResult.Count > 0 then begin
+        if not VResult.IsEmpty then begin
           VPathOnMapEdit.SetPath(VResult);
         end;
       end else begin

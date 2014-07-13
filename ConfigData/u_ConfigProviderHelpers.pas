@@ -63,7 +63,7 @@ function ReadBitmapByFileRef(
 function ReadPolygon(
   const AConfigProvider: IConfigDataProvider;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
-): IGeometryLonLatMultiPolygon;
+): IGeometryLonLatPolygon;
 
 procedure WritePolygon(
   const AConfigProvider: IConfigDataWriteProvider;
@@ -171,7 +171,7 @@ end;
 function ReadPolygon(
   const AConfigProvider: IConfigDataProvider;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory
-): IGeometryLonLatMultiPolygon;
+): IGeometryLonLatPolygon;
   function CheckIsValidPoint(
     const AConfigProvider: IConfigDataProvider;
     const AIdentLon: string;
