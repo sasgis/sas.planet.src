@@ -47,7 +47,7 @@ type
       AOperationID: Integer;
       const ASource: IGeometryLonLatLine;
       var AComment: string
-    ): IGeometryLonLatMultiLine;
+    ): IGeometryLonLatLine;
   public
     constructor Create(
       const AInetConfig: IInetConfig;
@@ -94,7 +94,7 @@ function TPathDetalizeProviderMailRu.GetPath(
   AOperationID: Integer;
   const ASource: IGeometryLonLatLine;
   var AComment: string
-): IGeometryLonLatMultiLine;
+): IGeometryLonLatLine;
 var
   pathstr, timeT1: string;
   url: string;

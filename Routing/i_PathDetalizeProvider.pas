@@ -34,7 +34,7 @@ type
       AOperationID: Integer;
       const ASource: IGeometryLonLatLine;
       var AComment: string
-    ): IGeometryLonLatMultiLine;
+    ): IGeometryLonLatLine;
   end;
 
 implementation

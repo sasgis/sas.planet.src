@@ -56,7 +56,7 @@ type
       AOperationID: Integer;
       const ASource: IGeometryLonLatLine;
       var AComment: string
-    ): IGeometryLonLatMultiLine;
+    ): IGeometryLonLatLine;
   public
     constructor Create(
       const AInetConfig: IInetConfig;
@@ -103,7 +103,7 @@ function TPathDetalizeProviderCloudMade.GetPath(
   AOperationID: Integer;
   const ASource: IGeometryLonLatLine;
   var AComment: string
-): IGeometryLonLatMultiLine;
+): IGeometryLonLatLine;
 var
   url: string;
   conerr: boolean;

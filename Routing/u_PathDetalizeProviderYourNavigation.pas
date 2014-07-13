@@ -49,7 +49,7 @@ type
       AOperationID: Integer;
       const ASource: IGeometryLonLatLine;
       var AComment: string
-    ): IGeometryLonLatMultiLine;
+    ): IGeometryLonLatLine;
   public
     constructor Create(
       const AInetConfig: IInetConfig;
@@ -99,7 +99,7 @@ function TPathDetalizeProviderYourNavigation.GetPath(
   AOperationID: Integer;
   const ASource: IGeometryLonLatLine;
   var AComment: string
-): IGeometryLonLatMultiLine;
+): IGeometryLonLatLine;
 var
   url: string;
   kml: IVectorItemSubset;
