@@ -23,9 +23,9 @@ unit u_ListenerTime;
 interface
 
 uses
+  t_Listener,
   i_SimpleFlag,
   i_ListenerTime,
-  u_ListenerByEvent,
   u_BaseInterfacedObject;
 
 type

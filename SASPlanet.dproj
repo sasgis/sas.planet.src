@@ -81,6 +81,7 @@
     <DCCReference Include="Basic\i_Thread.pas" />
     <DCCReference Include="Basic\i_Timer.pas" />
     <DCCReference Include="Basic\t_Hash.pas" />
+    <DCCReference Include="Basic\t_Listener.pas" />
     <DCCReference Include="Basic\u_BinaryData.pas" />
     <DCCReference Include="Basic\u_BinaryDataByMemStream.pas" />
     <DCCReference Include="Basic\u_BinaryDataListStatic.pas" />
