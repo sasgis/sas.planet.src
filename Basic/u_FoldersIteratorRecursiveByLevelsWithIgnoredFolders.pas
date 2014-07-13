@@ -98,6 +98,7 @@ constructor TFoldersIteratorRecursiveByLevelsWithIgnoredFoldersFactory.Create(
   AIgnoredFoldersMasksList: TWideStrings
 );
 begin
+  inherited Create;
   FMaxFolderDepth := AMaxFolderDepth;
   FIgnoredFoldersMasksList := TWideStringList.Create;
   FIgnoredFoldersMasksList.Assign(AIgnoredFoldersMasksList);

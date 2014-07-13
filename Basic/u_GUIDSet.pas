@@ -119,6 +119,7 @@ end;
 
 constructor TGUIDListEnum.Create(AGUIDList: TGUIDSetBase);
 begin
+  inherited Create;
   FGUIDList := AGUIDList;
   FCurrentIndex := 0;
 end;
@@ -276,12 +277,13 @@ end;
 
 constructor TGUIDSetBase.Create;
 begin
-  FAllowNil := false;
   inherited;
+  FAllowNil := false;
 end;
 
 constructor TGUIDSetBase.Create(AAllowNil: Boolean);
 begin
+  inherited Create;
   FAllowNil := AAllowNil;
 end;
 

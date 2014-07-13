@@ -55,6 +55,7 @@ constructor TFileNameIteratorFolderWithSubfolders.Create(
   const AFilesInFolderIteratorFactory: IFileNameIteratorFactory
 );
 begin
+  inherited Create;
   FFilesInFolderIteratorFactory := AFilesInFolderIteratorFactory;
   FFoldersIterator := AFolderIteratorFactory.CreateIterator(ARootFolderName, AFolderNameFromRoot);
   FCurrentIterator := nil;
@@ -124,6 +125,7 @@ constructor TFileNameIteratorFolderWithSubfoldersFactory.Create(
   const AFolderIteratorFactory, AFilesInFolderIteratorFactory: IFileNameIteratorFactory
 );
 begin
+  inherited Create;
   FFolderIteratorFactory := AFolderIteratorFactory;
   FFilesInFolderIteratorFactory := AFilesInFolderIteratorFactory;
 end;

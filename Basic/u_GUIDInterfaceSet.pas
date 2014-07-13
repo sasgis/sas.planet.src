@@ -118,6 +118,7 @@ end;
 
 constructor TGUIDInterfaceListEnum.Create(AGUIDList: TGUIDInterfaceSet);
 begin
+  inherited Create;
   FGUIDList := AGUIDList;
   FCurrentIndex := 0;
 end;

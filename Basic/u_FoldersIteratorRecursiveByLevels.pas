@@ -56,6 +56,7 @@ constructor TFoldersIteratorRecursiveByLevels.Create(
   AMaxFolderDepth: integer
 );
 begin
+  inherited Create;
   if ARootFolderName <> '' then begin
     FRootFolderName := IncludeTrailingPathDelimiter(ARootFolderName);
   end;
@@ -143,6 +144,7 @@ end;
 constructor TFoldersIteratorRecursiveByLevelsFactory.Create(
   AMaxFolderDepth: integer);
 begin
+  inherited Create;
   FMaxFolderDepth := AMaxFolderDepth;
 end;
 

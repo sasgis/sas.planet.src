@@ -96,6 +96,7 @@ end;
 
 constructor TIDListEnum.Create(AGUIDList: TIDListBase);
 begin
+  inherited Create;
   FIDList := AGUIDList;
   FCurrentIndex := 0;
 end;

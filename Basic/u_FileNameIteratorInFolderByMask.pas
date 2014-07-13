@@ -46,6 +46,7 @@ constructor TFileNameIteratorInFolderByMask.Create(
   const AFilesOnly: Boolean
 );
 begin
+  inherited Create;
   FRootFolderName := ARootFolderName;
   FFolderNameFromRoot := AFolderNameFromRoot;
   if FFolderNameFromRoot <> '' then begin

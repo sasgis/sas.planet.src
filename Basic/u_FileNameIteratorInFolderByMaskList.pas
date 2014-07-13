@@ -59,6 +59,7 @@ constructor TFileNameIteratorInFolderByMaskList.Create(
   AFilesOnly: Boolean
 );
 begin
+  inherited Create;
   FRootFolderName := ARootFolderName;
   FFolderNameFromRoot := AFolderNameFromRoot;
   FFilesOnly := AFilesOnly;
@@ -121,6 +122,7 @@ constructor TFileNameIteratorInFolderByMaskListFactory.Create(
   AFilesOnly: Boolean
 );
 begin
+  inherited Create;
   FFilesOnly := AFilesOnly;
   FFileMasksList := TWideStringList.Create;
   FFileMasksList.Assign(AFileMasksList);
