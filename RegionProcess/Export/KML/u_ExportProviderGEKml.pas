@@ -53,7 +53,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 
@@ -112,7 +112,7 @@ begin
   Result := SAS_STR_ExportGEKmlExportCaption;
 end;
 
-procedure TExportProviderGEKml.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TExportProviderGEKml.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VPath: string;
   VZoomArr: TByteDynArray;

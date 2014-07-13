@@ -79,7 +79,7 @@ type
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList
     );
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 implementation
@@ -146,7 +146,7 @@ begin
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
 end;
 
-procedure TProviderMapCombineKMZ.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TProviderMapCombineKMZ.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VMapCalibrations: IMapCalibrationList;
   VFileName: string;

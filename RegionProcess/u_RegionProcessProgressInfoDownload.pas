@@ -40,7 +40,7 @@ type
   private
     FGUID: TGUID;
     FZoom: Byte;
-    FPolygon: IGeometryLonLatMultiPolygon;
+    FPolygon: IGeometryLonLatPolygon;
     FVersionForCheck: IMapVersionRequest;
     FVersionForDownload: IMapVersionInfo;
 
@@ -101,7 +101,7 @@ type
       const AVersionForCheck: IMapVersionRequest;
       const AVersionForDownload: IMapVersionInfo;
       AZoom: Byte;
-      const APolygon: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       ASecondLoadTNE: boolean;
       AReplaceExistTiles: boolean;
       ACheckExistTileSize: boolean;
@@ -130,7 +130,7 @@ constructor TRegionProcessProgressInfoDownload.Create(
   const AVersionForCheck: IMapVersionRequest;
   const AVersionForDownload: IMapVersionInfo;
   AZoom: Byte;
-  const APolygon: IGeometryLonLatMultiPolygon;
+  const APolygon: IGeometryLonLatPolygon;
   ASecondLoadTNE: boolean;
   AReplaceExistTiles: boolean;
   ACheckExistTileSize: boolean;

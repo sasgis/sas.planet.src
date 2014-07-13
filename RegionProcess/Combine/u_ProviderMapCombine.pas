@@ -81,7 +81,7 @@ type
       const ARect: TDoubleRect
     ): ILocalCoordConverter;
     function PrepareImageProvider(
-      const APolygon: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       const AProjection: IProjectionInfo;
       const AProjectedPolygon: IGeometryProjectedPolygon
     ): IBitmapLayerProvider;
@@ -232,7 +232,7 @@ begin
 end;
 
 function TProviderMapCombineBase.PrepareImageProvider(
-  const APolygon: IGeometryLonLatMultiPolygon;
+  const APolygon: IGeometryLonLatPolygon;
   const AProjection: IProjectionInfo;
   const AProjectedPolygon: IGeometryProjectedPolygon
 ): IBitmapLayerProvider;
@@ -252,7 +252,7 @@ var
   VMarkerProvider: IMarkerProviderForVectorItem;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
-  VRect := APolygon.Item[0].Bounds;
+  VRect := APolygon.Bounds;
   VLonLatRect := VRect.Rect;
   VGeoConverter := AProjection.GeoConverter;
   VZoom := AProjection.Zoom;

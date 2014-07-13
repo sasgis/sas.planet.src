@@ -28,14 +28,14 @@ uses
   i_Changeable;
 
 type
-  ILonLatPathWithSelected = interface(IGeometryLonLatMultiLine)
+  ILonLatPathWithSelected = interface(IGeometryLonLatLine)
     ['{3ED6ABA4-D618-4A82-A428-EFF74D482161}']
     function GetSelectedPoint: TDoublePoint;
     function GetSelectedSegmentIndex: Integer;
     function GetSelectedPointIndex: Integer;
   end;
 
-  ILonLatPolygonWithSelected = interface(IGeometryLonLatMultiPolygon)
+  ILonLatPolygonWithSelected = interface(IGeometryLonLatPolygon)
     ['{4F1931DF-57E1-4082-A83F-D23FB74F2F28}']
     function GetSelectedPoint: TDoublePoint;
     function GetSelectedSegmentIndex: Integer;
@@ -66,7 +66,7 @@ type
     property Path: ILonLatPathWithSelected read GetPath;
 
     procedure SetPath(const AValue: ILonLatPathWithSelected); overload;
-    procedure SetPath(const AValue: IGeometryLonLatMultiLine); overload;
+    procedure SetPath(const AValue: IGeometryLonLatLine); overload;
   end;
 
   IPolygonOnMapEdit = interface(ILineOnMapEdit)
@@ -75,7 +75,7 @@ type
     property Polygon: ILonLatPolygonWithSelected read GetPolygon;
 
     procedure SetPolygon(const AValue: ILonLatPolygonWithSelected); overload;
-    procedure SetPolygon(const AValue: IGeometryLonLatMultiPolygon); overload;
+    procedure SetPolygon(const AValue: IGeometryLonLatPolygon); overload;
   end;
 
 implementation

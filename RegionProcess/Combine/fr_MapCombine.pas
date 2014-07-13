@@ -143,7 +143,7 @@ type
     FGUIConfigList: IMapTypeGUIConfigList;
     FMapCalibrationList: IMapCalibrationList;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-    FPolygLL: IGeometryLonLatMultiPolygon;
+    FPolygLL: IGeometryLonLatPolygon;
     FViewConfig: IGlobalViewMainConfig;
     FUseQuality: Boolean;
     FUseExif: Boolean;
@@ -156,7 +156,7 @@ type
   private
     procedure Init(
       const AZoom: byte;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;
   private
@@ -308,7 +308,7 @@ var
   numd: int64 ;
   Vmt: IMapType;
   VZoom: byte;
-  VPolyLL: IGeometryLonLatMultiPolygon;
+  VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
   VBounds: TDoubleRect;
@@ -491,7 +491,7 @@ end;
 
 procedure TfrMapCombine.Init(
   const AZoom: byte;
-  const APolygon: IGeometryLonLatMultiPolygon
+  const APolygon: IGeometryLonLatPolygon
 );
 var
   i: Integer;

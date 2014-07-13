@@ -64,12 +64,12 @@ type
     procedure Show(
       AParent: TWinControl;
       AZoom: byte;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
     procedure Hide;
     function Validate: Boolean;
     procedure StartProcess(
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     ); virtual; abstract;
   end;
 
@@ -121,7 +121,7 @@ end;
 procedure TExportProviderAbstract.Show(
   AParent: TWinControl;
   AZoom: byte;
-  const APolygon: IGeometryLonLatMultiPolygon
+  const APolygon: IGeometryLonLatPolygon
 );
 var
   VFrame: IRegionProcessParamsFrameBase;

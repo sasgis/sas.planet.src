@@ -41,11 +41,11 @@ type
     FConfig: ILastSelectionLayerConfig;
     FLastSelectionInfo: ILastSelectionInfo;
 
-    FLine: IGeometryLonLatMultiPolygon;
+    FLine: IGeometryLonLatPolygon;
 
     procedure OnChangeSelection;
   protected
-    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatMultiPolygon; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatPolygon; override;
     procedure DoConfigChange; override;
     procedure StartThreads; override;
   public
@@ -113,7 +113,7 @@ end;
 
 function TSelectionLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
-): IGeometryLonLatMultiPolygon;
+): IGeometryLonLatPolygon;
 begin
   if Visible then begin
     Result := FLine;
@@ -128,7 +128,7 @@ begin
   try
     if FConfig.Visible then begin
       FLine := FLastSelectionInfo.Polygon;
-      if (FLine <> nil) and (FLine.Count > 0) then begin
+      if (FLine <> nil) and (not FLine.IsEmpty) then begin
         SetNeedRedraw;
         Show;
       end else begin

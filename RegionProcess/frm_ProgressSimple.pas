@@ -60,7 +60,7 @@ type
     FTimerNoifier: INotifierTime;
     FMapGoto: IMapViewGoto;
     FRegionProcess: IRegionProcess;
-    FPolygon: IGeometryLonLatMultiPolygon;
+    FPolygon: IGeometryLonLatPolygon;
 
     FRarProgress: TRarProgress;
     FAppClosingListener: IListener;
@@ -77,7 +77,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfo;
       const ARegionProcess: IRegionProcess;
       const AMapGoto: IMapViewGoto;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -98,7 +98,7 @@ constructor TfrmProgressSimple.Create(
   const AProgressInfo: IRegionProcessProgressInfo;
   const ARegionProcess: IRegionProcess;
   const AMapGoto: IMapViewGoto;
-  const APolygon: IGeometryLonLatMultiPolygon
+  const APolygon: IGeometryLonLatPolygon
 );
 begin
   Assert(AAppClosingNotifier <> nil);

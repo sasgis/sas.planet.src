@@ -134,7 +134,7 @@ var
   VFileName: string;
   VPath: string;
   VZoom: Byte;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
   VNeedRead: Boolean;
   VNeedWrite: Boolean;
   VIniFile: TMemIniFile;
@@ -165,7 +165,7 @@ begin
         end;
         VProvider := VProvider.GetOrCreateSubItem('HIGHLIGHTING');
         VPolygon := ReadPolygon(VProvider, FVectorGeometryLonLatFactory);
-        if VPolygon.Count > 0 then begin
+        if not VPolygon.IsEmpty then begin
           VZoom := VProvider.Readinteger('Zoom', VZoom);
         end;
       except

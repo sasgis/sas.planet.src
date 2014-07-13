@@ -114,7 +114,7 @@ type
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
-    FPolygonLL: IGeometryLonLatMultiPolygon;
+    FPolygonLL: IGeometryLonLatPolygon;
     FProviderTilesDelte: TExportProviderAbstract;
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
@@ -122,19 +122,19 @@ type
     FMapGoto: IMapViewGoto;
     FMarkDBGUI: TMarkDbGUIHelper;
     FPosition: ILocalCoordConverterChangeable;
-    function LoadRegion(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
-    function DelRegion(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
-    function genbacksatREG(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
-    function scleitRECT(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
-    function savefilesREG(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
-    function ExportREG(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
+    function LoadRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
+    function DelRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
+    function genbacksatREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
+    function scleitRECT(const APolyLL: IGeometryLonLatPolygon): Boolean;
+    function savefilesREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
+    function ExportREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
   private
     procedure ProcessPolygon(
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
     procedure ProcessPolygonWithZoom(
       const AZoom: Byte;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
   public
     constructor Create(
@@ -178,7 +178,7 @@ type
       const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
-    procedure LoadSelFromFile(const AFileName:string; out APolygon: IGeometryLonLatMultiPolygon);
+    procedure LoadSelFromFile(const AFileName:string; out APolygon: IGeometryLonLatPolygon);
     procedure StartSlsFromFile(const AFileName:string);
   end;
 
@@ -368,7 +368,7 @@ end;
 
 procedure TfrmRegionProcess.LoadSelFromFile(
   const AFileName: string;
-  out APolygon: IGeometryLonLatMultiPolygon
+  out APolygon: IGeometryLonLatPolygon
 );
 var
   VIniFile:TMemIniFile;
@@ -387,7 +387,7 @@ begin
     VPolygonSection := VHLGData.GetSubItem('HIGHLIGHTING');
     if VPolygonSection <> nil then begin
       APolygon := ReadPolygon(VPolygonSection, FVectorGeometryLonLatFactory);
-      if (APolygon <> nil) and (APolygon.Count > 0) then begin
+      if (APolygon <> nil) and (not APolygon.IsEmpty) then begin
         VZoom := VPolygonSection.ReadInteger('zoom', 1) - 1;
         Self.ProcessPolygonWithZoom(VZoom, APolygon);
       end;
@@ -397,7 +397,7 @@ begin
   end;
 end;
 
-procedure TfrmRegionProcess.ProcessPolygon(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TfrmRegionProcess.ProcessPolygon(const APolygon: IGeometryLonLatPolygon);
 begin
   FZoom_rect := FPosition.GetStatic.Zoom;
   FPolygonLL := APolygon;
@@ -406,7 +406,7 @@ begin
 end;
 
 procedure TfrmRegionProcess.ProcessPolygonWithZoom(const AZoom: Byte;
-  const APolygon: IGeometryLonLatMultiPolygon);
+  const APolygon: IGeometryLonLatPolygon);
 begin
   FZoom_rect := AZoom;
   FPolygonLL := APolygon;
@@ -414,7 +414,7 @@ begin
   Self.Show;
 end;
 
-function TfrmRegionProcess.DelRegion(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
+function TfrmRegionProcess.DelRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
   Result := FProviderTilesDelte.Validate;
   if Result then begin
@@ -422,7 +422,7 @@ begin
   end;
 end;
 
-function TfrmRegionProcess.ExportREG(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
+function TfrmRegionProcess.ExportREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
   Result := FfrExport.Validate;
   if Result then begin
@@ -430,7 +430,7 @@ begin
   end;
 end;
 
-function TfrmRegionProcess.savefilesREG(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
+function TfrmRegionProcess.savefilesREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
   Result := FProviderTilesCopy.Validate;
   if Result then begin
@@ -438,7 +438,7 @@ begin
   end;
 end;
 
-function TfrmRegionProcess.LoadRegion(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
+function TfrmRegionProcess.LoadRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
   Result := FProviderTilesDownload.Validate;
   if Result then begin
@@ -446,7 +446,7 @@ begin
   end;
 end;
 
-function TfrmRegionProcess.genbacksatREG(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
+function TfrmRegionProcess.genbacksatREG(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
   Result := FProviderTilesGenPrev.Validate;
   if Result then begin
@@ -454,7 +454,7 @@ begin
   end;
 end;
 
-function TfrmRegionProcess.scleitRECT(const APolyLL: IGeometryLonLatMultiPolygon): Boolean;
+function TfrmRegionProcess.scleitRECT(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
   Result := FfrCombine.Validate;
   if Result then begin
@@ -504,7 +504,7 @@ procedure TfrmRegionProcess.tbtmMarkClick(Sender: TObject);
 var
   VIniFile: Tinifile;
   VZoom: Byte;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
   VHLGData: IConfigDataWriteProvider;
   VPolygonSection: IConfigDataWriteProvider;
 begin
@@ -529,7 +529,7 @@ end;
 
 procedure TfrmRegionProcess.tbtmZoomClick(Sender: TObject);
 var
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
 begin
   VPolygon := FLastSelectionInfo.Polygon;
   if (VPolygon <> nil)  then begin

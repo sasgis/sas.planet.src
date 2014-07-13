@@ -68,7 +68,7 @@ type
       const AVectorItemsFactory: IGeometryProjectedFactory;
       const ABitmapFactory: IBitmap32BufferFactory;
       const AZooms: TByteDynArray;
-      const APolygLL: IGeometryLonLatMultiPolygon;
+      const APolygLL: IGeometryLonLatPolygon;
       const AContentType: IContentTypeInfoBitmap;
       const AMapType: IMapType;
       const AVersion: IMapVersionRequest;
@@ -106,7 +106,7 @@ constructor TThreadGenPrevZoom.Create(
   const AVectorItemsFactory: IGeometryProjectedFactory;
   const ABitmapFactory: IBitmap32BufferFactory;
   const AZooms: TByteDynArray;
-  const APolygLL: IGeometryLonLatMultiPolygon;
+  const APolygLL: IGeometryLonLatPolygon;
   const AContentType: IContentTypeInfoBitmap;
   const AMapType: IMapType;
   const AVersion: IMapVersionRequest;

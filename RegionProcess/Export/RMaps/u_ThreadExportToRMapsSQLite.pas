@@ -78,7 +78,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const APolygon: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       const AZoomArr: TByteDynArray;
       const ATileStorage: ITileStorage;
       const AMapVersion: IMapVersionRequest;
@@ -113,7 +113,7 @@ constructor TThreadExportToRMapsSQLite.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const APolygon: IGeometryLonLatMultiPolygon;
+  const APolygon: IGeometryLonLatPolygon;
   const AZoomArr: TByteDynArray;
   const ATileStorage: ITileStorage;
   const AMapVersion: IMapVersionRequest;

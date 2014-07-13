@@ -55,7 +55,7 @@ type
     procedure CBFormatChange(Sender: TObject);
   private
     FZoom: byte;
-    FPolygon: IGeometryLonLatMultiPolygon;
+    FPolygon: IGeometryLonLatPolygon;
   public
     constructor Create(
       const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
@@ -76,11 +76,11 @@ type
     ); reintroduce;
     destructor Destroy; override;
     procedure RefreshTranslation; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon);
     procedure Show(
       AParent: TWinControl;
       AZoom: byte;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;
   end;
@@ -354,7 +354,7 @@ begin
 end;
 
 procedure TfrExport.Show(AParent: TWinControl; AZoom: byte;
-  const APolygon: IGeometryLonLatMultiPolygon);
+  const APolygon: IGeometryLonLatPolygon);
 var
   i:integer;
   VExportProvider: TExportProviderAbstract;
@@ -371,7 +371,7 @@ begin
   CBFormatChange(nil);
 end;
 
-procedure TfrExport.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TfrExport.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VExportProvider: TExportProviderAbstract;
 begin

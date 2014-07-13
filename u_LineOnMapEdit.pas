@@ -73,7 +73,7 @@ type
     function IsReady: Boolean; override;
     function GetPath: ILonLatPathWithSelected;
     procedure SetPath(const AValue: ILonLatPathWithSelected); overload;
-    procedure SetPath(const AValue: IGeometryLonLatMultiLine); overload;
+    procedure SetPath(const AValue: IGeometryLonLatLine); overload;
   end;
 
   TPolygonOnMapEdit = class(TLineOnMapEdit, IPolygonOnMapEdit)
@@ -87,12 +87,13 @@ type
     function IsReady: Boolean; override;
     function GetPolygon: ILonLatPolygonWithSelected;
     procedure SetPolygon(const AValue: ILonLatPolygonWithSelected); overload;
-    procedure SetPolygon(const AValue: IGeometryLonLatMultiPolygon); overload;
+    procedure SetPolygon(const AValue: IGeometryLonLatPolygon); overload;
   end;
 
 implementation
 
 uses
+  SysUtils,
   t_Hash,
   i_LonLatRect,
   u_GeoFunc,
@@ -482,13 +483,14 @@ procedure TPathOnMapEdit.SetPath(const AValue: ILonLatPathWithSelected);
 var
   i: Integer;
   VLine: IGeometryLonLatSingleLine;
+  VMulitLine: IGeometryLonLatMultiLine;
 begin
   LockWrite;
   try
     FSelectedPointIndex := -1;
     FPointsCount := 0;
-    for i := 0 to AValue.Count - 1 do begin
-      VLine := AValue.Item[i];
+    if Supports(AValue, IGeometryLonLatSingleLine, VLine) then begin
+      i := 0;
       _GrowPoints(VLine.Count + 1);
       Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
       if AValue.GetSelectedSegmentIndex = i then begin
@@ -501,6 +503,22 @@ begin
       Inc(FPointsCount, VLine.Count);
       FPoints[FPointsCount] := CEmptyDoublePoint;
       Inc(FPointsCount);
+    end else if Supports(AValue, IGeometryLonLatMultiLine, VMulitLine) then begin
+      for i := 0 to VMulitLine.Count - 1 do begin
+        VLine := VMulitLine.Item[i];
+        _GrowPoints(VLine.Count + 1);
+        Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
+        if AValue.GetSelectedSegmentIndex = i then begin
+          if AValue.GetSelectedPointIndex <= VLine.Count then begin
+            FSelectedPointIndex := FPointsCount + AValue.GetSelectedPointIndex;
+          end else begin
+            FSelectedPointIndex := FPointsCount + VLine.Count - 1;
+          end;
+        end;
+        Inc(FPointsCount, VLine.Count);
+        FPoints[FPointsCount] := CEmptyDoublePoint;
+        Inc(FPointsCount);
+      end;
     end;
     if FPointsCount > 0 then begin
       Dec(FPointsCount);
@@ -522,7 +540,7 @@ function TPathOnMapEdit.IsEmpty: Boolean;
 begin
   LockRead;
   try
-    Result := FLine.Count = 0;
+    Result := FLine.IsEmpty;
   finally
     UnlockRead;
   end;
@@ -541,21 +559,30 @@ begin
   end;
 end;
 
-procedure TPathOnMapEdit.SetPath(const AValue: IGeometryLonLatMultiLine);
+procedure TPathOnMapEdit.SetPath(const AValue: IGeometryLonLatLine);
 var
   i: Integer;
   VLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
 begin
   LockWrite;
   try
     FPointsCount := 0;
-    for i := 0 to AValue.Count - 1 do begin
-      VLine := AValue.Item[i];
+    if Supports(AValue, IGeometryLonLatSingleLine, VLine) then begin
       _GrowPoints(VLine.Count + 1);
       Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
       Inc(FPointsCount, VLine.Count);
       FPoints[FPointsCount] := CEmptyDoublePoint;
       Inc(FPointsCount);
+    end else if Supports(AValue, IGeometryLonLatMultiLine, VMultiLine) then begin
+      for i := 0 to VMultiLine.Count - 1 do begin
+        VLine := VMultiLine.Item[i];
+        _GrowPoints(VLine.Count + 1);
+        Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
+        Inc(FPointsCount, VLine.Count);
+        FPoints[FPointsCount] := CEmptyDoublePoint;
+        Inc(FPointsCount);
+      end;
     end;
     if FPointsCount > 0 then begin
       Dec(FPointsCount);
@@ -600,13 +627,14 @@ procedure TPolygonOnMapEdit.SetPolygon(const AValue: ILonLatPolygonWithSelected)
 var
   i: Integer;
   VLine: IGeometryLonLatSinglePolygon;
+  VMultiLine: IGeometryLonLatMultiPolygon;
 begin
   LockWrite;
   try
     FSelectedPointIndex := -1;
     FPointsCount := 0;
-    for i := 0 to AValue.Count - 1 do begin
-      VLine := AValue.Item[i];
+    if Supports(AValue, IGeometryLonLatSinglePolygon, VLine) then begin
+      i := 0;
       _GrowPoints(VLine.Count + 1);
       Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
       if AValue.GetSelectedSegmentIndex = i then begin
@@ -619,6 +647,22 @@ begin
       Inc(FPointsCount, VLine.Count);
       FPoints[FPointsCount] := CEmptyDoublePoint;
       Inc(FPointsCount);
+    end else if Supports(AValue, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+      for i := 0 to VMultiLine.Count - 1 do begin
+        VLine := VMultiLine.Item[i];
+        _GrowPoints(VLine.Count + 1);
+        Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
+        if AValue.GetSelectedSegmentIndex = i then begin
+          if AValue.GetSelectedPointIndex <= VLine.Count then begin
+            FSelectedPointIndex := FPointsCount + AValue.GetSelectedPointIndex;
+          end else begin
+            FSelectedPointIndex := FPointsCount + VLine.Count - 1;
+          end;
+        end;
+        Inc(FPointsCount, VLine.Count);
+        FPoints[FPointsCount] := CEmptyDoublePoint;
+        Inc(FPointsCount);
+      end;
     end;
     if FPointsCount > 0 then begin
       Dec(FPointsCount);
@@ -659,21 +703,30 @@ begin
   end;
 end;
 
-procedure TPolygonOnMapEdit.SetPolygon(const AValue: IGeometryLonLatMultiPolygon);
+procedure TPolygonOnMapEdit.SetPolygon(const AValue: IGeometryLonLatPolygon);
 var
   i: Integer;
   VLine: IGeometryLonLatSinglePolygon;
+  VMultiLine: IGeometryLonLatMultiPolygon;
 begin
   LockWrite;
   try
     FPointsCount := 0;
-    for i := 0 to AValue.Count - 1 do begin
-      VLine := AValue.Item[i];
+    if Supports(AValue, IGeometryLonLatSinglePolygon, VLine) then begin
       _GrowPoints(VLine.Count + 1);
       Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
       Inc(FPointsCount, VLine.Count);
       FPoints[FPointsCount] := CEmptyDoublePoint;
       Inc(FPointsCount);
+    end else if Supports(AValue, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+      for i := 0 to VMultiLine.Count - 1 do begin
+        VLine := VMultiLine.Item[i];
+        _GrowPoints(VLine.Count + 1);
+        Move(VLine.Points[0], FPoints[FPointsCount], VLine.Count * SizeOf(TDoublePoint));
+        Inc(FPointsCount, VLine.Count);
+        FPoints[FPointsCount] := CEmptyDoublePoint;
+        Inc(FPointsCount);
+      end;
     end;
     if FPointsCount > 0 then begin
       Dec(FPointsCount);

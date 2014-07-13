@@ -54,7 +54,7 @@ type
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
 
   end;
 
@@ -115,7 +115,7 @@ begin
   Result := SAS_STR_OperationDeleteCaption;
 end;
 
-procedure TProviderTilesDelete.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TProviderTilesDelete.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VMapType: IMapType;
   VZoom: byte;

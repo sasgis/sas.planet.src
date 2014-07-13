@@ -67,7 +67,7 @@ function ReadPolygon(
 
 procedure WritePolygon(
   const AConfigProvider: IConfigDataWriteProvider;
-  const APolygon: IGeometryLonLatMultiPolygon
+  const APolygon: IGeometryLonLatPolygon
 );
 
 implementation
@@ -236,7 +236,7 @@ end;
 
 procedure WritePolygon(
   const AConfigProvider: IConfigDataWriteProvider;
-  const APolygon: IGeometryLonLatMultiPolygon
+  const APolygon: IGeometryLonLatPolygon
 );
 var
   VEnum: IEnumDoublePoint;

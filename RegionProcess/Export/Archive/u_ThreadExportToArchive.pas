@@ -52,7 +52,7 @@ type
       const AArchiveWriter: IArchiveWriter;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const APolygon: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       const Azoomarr: TByteDynArray;
       const ATileStorage: ITileStorage;
       const ATileNameGen: ITileFileNameGenerator
@@ -76,7 +76,7 @@ constructor TThreadExportToArchive.Create(
   const AArchiveWriter: IArchiveWriter;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const APolygon: IGeometryLonLatMultiPolygon;
+  const APolygon: IGeometryLonLatPolygon;
   const Azoomarr: TByteDynArray;
   const ATileStorage: ITileStorage;
   const ATileNameGen: ITileFileNameGenerator

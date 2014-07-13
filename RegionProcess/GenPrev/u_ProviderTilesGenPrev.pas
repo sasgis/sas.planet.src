@@ -66,7 +66,7 @@ type
       const AImageResamplerConfig: IImageResamplerConfig
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 
@@ -135,7 +135,7 @@ begin
   Result := SAS_STR_OperationGenPrevCaption;
 end;
 
-procedure TProviderTilesGenPrev.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TProviderTilesGenPrev.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VInZooms: TByteDynArray;
   VMapType: IMapType;

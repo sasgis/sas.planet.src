@@ -62,7 +62,7 @@ type
       const AProgressInfo: IRegionProcessProgressInfoInternal;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const APolygon: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       const ATasks: TCopyTaskArray;
       const AZoomArr: TByteDynArray;
       const AIsProcessTne: Boolean;
@@ -90,7 +90,7 @@ constructor TThreadCopyFromStorageToStorage.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const APolygon: IGeometryLonLatMultiPolygon;
+  const APolygon: IGeometryLonLatPolygon;
   const ATasks: TCopyTaskArray;
   const AZoomArr: TByteDynArray;
   const AIsProcessTne: Boolean;

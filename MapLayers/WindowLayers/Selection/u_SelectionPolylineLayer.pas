@@ -47,7 +47,7 @@ type
     FLine: ILonLatPathWithSelected;
     procedure OnLineChange;
   protected
-    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatMultiPolygon; override;
+    function GetLine(const ALocalConverter: ILocalCoordConverter): IGeometryLonLatPolygon; override;
   protected
     procedure DoConfigChange; override;
   public
@@ -115,7 +115,7 @@ end;
 
 function TSelectionPolylineShadowLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
-): IGeometryLonLatMultiPolygon;
+): IGeometryLonLatPolygon;
 var
   VLine: ILonLatPathWithSelected;
   VFilter: ILonLatPointFilter;
@@ -141,7 +141,7 @@ begin
   ViewUpdateLock;
   try
     FLine := FLineOnMapEdit.Path;
-    if FLine.Count > 0 then begin
+    if not FLine.IsEmpty then begin
       SetNeedRedraw;
       Show;
     end else begin

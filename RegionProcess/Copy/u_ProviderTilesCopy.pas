@@ -74,7 +74,7 @@ type
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 
@@ -149,7 +149,7 @@ begin
   Result := SAS_STR_OperationTilesCopyCaption;
 end;
 
-procedure TProviderTilesCopy.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TProviderTilesCopy.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VPath: string;
   VZoomArr: TByteDynArray;

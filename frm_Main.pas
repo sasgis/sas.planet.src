@@ -2987,21 +2987,21 @@ var
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
   VSaveAviable: Boolean;
-  VPath: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VPath: IGeometryLonLatLine;
+  VPoly: IGeometryLonLatPolygon;
 begin
   VLineOnMapEdit := FLineOnMapEdit;
   if VLineOnMapEdit <> nil then begin
     VSaveAviable := False;
     if Supports(VLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
       VPath := VPathOnMapEdit.Path;
-      if VPath.Count > 0 then begin
-        VSaveAviable := (VPath.Item[0].Count > 1) or (VPath.Count > 1);
+      if not VPath.IsEmpty then begin
+        VSaveAviable := IsValidLonLatLine(VPath);
       end;
     end else if Supports(VLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
       VPoly := VPolygonOnMapEdit.Polygon;
-      if VPoly.Count > 0 then begin
-        VSaveAviable := (VPoly.Item[0].Count > 2) or (VPoly.Count > 1);
+      if not VPoly.IsEmpty then begin
+        VSaveAviable := IsValidLonLatPolygon(VPoly);
       end;
     end;
     TBEditPath.Visible := VSaveAviable;
@@ -4494,11 +4494,11 @@ end;
 procedure TfrmMain.TBPreviousClick(Sender: TObject);
 var
   VZoom: Byte;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
 begin
   VZoom := GState.LastSelectionInfo.Zoom;
   VPolygon := GState.LastSelectionInfo.Polygon;
-  if (VPolygon<> nil) and (VPolygon.Count > 0) then begin
+  if (VPolygon<> nil) and (not VPolygon.IsEmpty) then begin
     FState.State := ao_movemap;
     FRegionProcess.ProcessPolygonWithZoom(VZoom, VPolygon);
   end else begin
@@ -4775,7 +4775,7 @@ end;
 
 procedure TfrmMain.TBCOORDClick(Sender: TObject);
 var
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
   VSelLonLat: TfrmLonLatRectEdit;
   VLonLatRect: TDoubleRect;
 begin
@@ -4788,8 +4788,8 @@ begin
     );
   Try
     VPolygon := GState.LastSelectionInfo.Polygon;
-    if (VPolygon <> nil) and (VPolygon.Count > 0) then begin
-      VLonLatRect := VPolygon.Item[0].Bounds.Rect;
+    if (VPolygon <> nil) and (not VPolygon.IsEmpty) then begin
+      VLonLatRect := VPolygon.Bounds.Rect;
     end else begin
       VLonLatRect.TopLeft := FViewPortState.View.GetStatic.GetCenterLonLat;
       VLonLatRect.BottomRight := VLonLatRect.TopLeft;
@@ -4834,10 +4834,10 @@ end;
 
 procedure TfrmMain.tbitmGPSTrackSaveToMarksClick(Sender: TObject);
 var
-  VAllPoints: IGeometryLonLatMultiLine;
+  VAllPoints: IGeometryLonLatLine;
 begin
   VAllPoints := GState.GpsTrackRecorder.GetAllPoints;
-  if VAllPoints.Count > 0 then begin
+  if not VAllPoints.IsEmpty then begin
     if FMarkDBGUI.SaveMarkModal(nil, VAllPoints) then begin
       FState.State := ao_movemap;
     end;
@@ -4927,8 +4927,8 @@ procedure TfrmMain.NMarkEditClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VPoint: IGeometryLonLatPoint;
-  VLine: IGeometryLonLatMultiLine;
-  VPoly: IGeometryLonLatMultiPolygon;
+  VLine: IGeometryLonLatLine;
+  VPoly: IGeometryLonLatPolygon;
   VPathOnMapEdit: IPathOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
 begin
@@ -4938,13 +4938,13 @@ begin
       FEditMarkPoint := VMark;
       FState.State := ao_edit_point;
       FPointOnMapEdit.Point := VPoint.Point;
-    end else if Supports(VMark.Geometry, IGeometryLonLatMultiLine, VLine) then begin
+    end else if Supports(VMark.Geometry, IGeometryLonLatLine, VLine) then begin
       FEditMarkLine := VMark;
       FState.State := ao_edit_line;
       if Supports(FLineOnMapEdit, IPathOnMapEdit, VPathOnMapEdit) then begin
         VPathOnMapEdit.SetPath(VLine);
       end;
-    end else if Supports(VMark.Geometry, IGeometryLonLatMultiPolygon, VPoly) then begin
+    end else if Supports(VMark.Geometry, IGeometryLonLatPolygon, VPoly) then begin
       FEditMarkPoly := VMark;
       FState.State := ao_edit_poly;
       if Supports(FLineOnMapEdit, IPolygonOnMapEdit, VPolygonOnMapEdit) then begin
@@ -4978,7 +4978,7 @@ procedure TfrmMain.NMarkOperClick(Sender: TObject);
 var
   VMark: IVectorDataItem;
   VSelectedWiki: IVectorDataItem;
-  Vpolygon: IGeometryLonLatMultiPolygon;
+  Vpolygon: IGeometryLonLatPolygon;
 begin
   VMark := FSelectedMark;
   if VMark <> nil then begin
@@ -6056,10 +6056,9 @@ end;
 
 procedure TfrmMain.TBEditPathOkClick(Sender: TObject);
 var
-  VPoly: IGeometryLonLatMultiPolygon;
-  VPath: IGeometryLonLatMultiLine;
+  VPoly: IGeometryLonLatPolygon;
+  VPath: IGeometryLonLatLine;
   VLineOnMapEdit: ILineOnMapEdit;
-  VPathLine: IGeometryLonLatSingleLine;
   VFilter: ILonLatPointFilter;
 begin
   VLineOnMapEdit := FLineOnMapEdit;
@@ -6072,22 +6071,19 @@ begin
       end;
       ao_select_line: begin
         VPath := (VLineOnMapEdit as IPathOnMapEdit).Path;
-        if VPath.Count > 0 then begin
-          VPathLine := VPath.Item[0];
-          if VPathLine.Count > 1 then begin
-            VFilter :=
-              TLonLatPointFilterLine2Poly.Create(
-                FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
-                FViewPortState.View.GetStatic.ProjectionInfo
-              );
-            VPoly :=
-              GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
-                VPath,
-                VFilter
-              );
-            FState.State := ao_movemap;
-            FRegionProcess.ProcessPolygon(VPoly);
-          end;
+        if not VPath.IsEmpty then begin
+          VFilter :=
+            TLonLatPointFilterLine2Poly.Create(
+              FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig.Radius,
+              FViewPortState.View.GetStatic.ProjectionInfo
+            );
+          VPoly :=
+            GState.VectorGeometryLonLatFactory.CreateLonLatMultiPolygonByLonLatPathAndFilter(
+              VPath,
+              VFilter
+            );
+          FState.State := ao_movemap;
+          FRegionProcess.ProcessPolygon(VPoly);
         end;
       end;
     end;
@@ -6271,7 +6267,7 @@ var
   VFileName: string;
   VList: IInterfaceListStatic;
   VLastMark: IVectorDataItem;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
 begin
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
     if AFiles.Count = 1 then begin
@@ -6281,7 +6277,7 @@ begin
         Exit;
       end else if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
         FFormRegionProcess.LoadSelFromFile(VFileName, VPolygon);
-        if Assigned(VPolygon) and (VPolygon.Count > 0) then begin
+        if Assigned(VPolygon) and (not VPolygon.IsEmpty) then begin
           FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
         end;
         Exit;
@@ -7021,7 +7017,7 @@ end;
 
 procedure TfrmMain.tbitmEditLastSelectionClick(Sender: TObject);
 var
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
   VLineOnMapEdit: ILineOnMapEdit;
   VPolygonOnMapEdit: IPolygonOnMapEdit;
 begin
@@ -7029,7 +7025,7 @@ begin
   FState.State := ao_select_poly;
   TBRectSave.ImageIndex := 13;
   if VPolygon <> nil then begin
-    if VPolygon.Count > 0 then begin
+    if not VPolygon.IsEmpty then begin
       VLineOnMapEdit := FLineOnMapEdit;
       if Supports(VLineOnMapEdit, IPolygonOnMapEdit,  VPolygonOnMapEdit) then begin
         VPolygonOnMapEdit.SetPolygon(VPolygon);

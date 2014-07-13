@@ -105,7 +105,7 @@ type
   private
     procedure Init(
       const AZoom: byte;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;
     procedure UpdateSetTargetVersionState;

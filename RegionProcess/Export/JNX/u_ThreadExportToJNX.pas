@@ -54,7 +54,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATargetFile: string;
-      const APolygon: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       const ATasks: TExportTaskJnxArray;
       const AProductName: string;
       const AMapName: string;
@@ -91,7 +91,7 @@ constructor TThreadExportToJnx.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
-  const APolygon: IGeometryLonLatMultiPolygon;
+  const APolygon: IGeometryLonLatPolygon;
   const ATasks: TExportTaskJnxArray;
   const AProductName: string;
   const AMapName: string;

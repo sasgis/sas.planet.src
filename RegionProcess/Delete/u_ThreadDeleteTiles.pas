@@ -53,7 +53,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolyLL: IGeometryLonLatMultiPolygon;
+      const APolyLL: IGeometryLonLatPolygon;
       const AProjectedPolygon: IGeometryProjectedPolygon;
       const AProjection: IProjectionInfo;
       const ATileStorage: ITileStorage;
@@ -72,7 +72,7 @@ uses
 
 constructor TThreadDeleteTiles.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolyLL: IGeometryLonLatMultiPolygon;
+  const APolyLL: IGeometryLonLatPolygon;
   const AProjectedPolygon: IGeometryProjectedPolygon;
   const AProjection: IProjectionInfo;
   const ATileStorage: ITileStorage;

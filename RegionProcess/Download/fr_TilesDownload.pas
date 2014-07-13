@@ -98,7 +98,7 @@ type
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FProjectionFactory: IProjectionInfoFactory;
-    FPolygLL: IGeometryLonLatMultiPolygon;
+    FPolygLL: IGeometryLonLatPolygon;
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
@@ -107,7 +107,7 @@ type
   private
     procedure Init(
       const AZoom: byte;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;
   private
@@ -148,7 +148,7 @@ var
   numd:int64 ;
   Vmt: IMapType;
   VZoom: byte;
-  VPolyLL: IGeometryLonLatMultiPolygon;
+  VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
   VBounds: TDoubleRect;
   VPixelRect: TRect;
@@ -281,7 +281,7 @@ begin
   Result := cbbZoom.ItemIndex;
 end;
 
-procedure TfrTilesDownload.Init(const AZoom: Byte; const APolygon: IGeometryLonLatMultiPolygon);
+procedure TfrTilesDownload.Init(const AZoom: Byte; const APolygon: IGeometryLonLatPolygon);
 var
   i: integer;
 begin

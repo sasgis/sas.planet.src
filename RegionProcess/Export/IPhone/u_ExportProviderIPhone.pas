@@ -67,7 +67,7 @@ type
       ANewFormat: Boolean
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 
@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TExportProviderIPhone.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TExportProviderIPhone.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VPath: string;
   VZoomArr: TByteDynArray;

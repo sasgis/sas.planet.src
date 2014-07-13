@@ -69,7 +69,7 @@ type
       const ADownloadInfo: IDownloadInfoSimple
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
     procedure StartBySLS(const AFileName: string);
   end;
 
@@ -180,7 +180,7 @@ var
   VLastProcessedPoint: TPoint;
   VElapsedTime: TDateTime;
   VMapType: IMapType;
-  VPolygon: IGeometryLonLatMultiPolygon;
+  VPolygon: IGeometryLonLatPolygon;
   VProjection: IProjectionInfo;
   VProjectedPolygon: IGeometryProjectedPolygon;
   VVersionForDownload: IMapVersionInfo;
@@ -268,7 +268,7 @@ begin
     VLastProcessedPoint.Y := VSessionSection.ReadInteger('StartY', -1);
   end;
   VPolygon := ReadPolygon(VSessionSection, FVectorGeometryLonLatFactory);
-  if VPolygon.Count > 0 then begin
+  if not VPolygon.IsEmpty then begin
     VProjection :=
       FProjectionFactory.GetByConverterAndZoom(
         VMapType.GeoConvert,
@@ -335,7 +335,7 @@ begin
   end;
 end;
 
-procedure TProviderTilesDownload.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TProviderTilesDownload.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VMapType: IMapType;
   VZoom: byte;

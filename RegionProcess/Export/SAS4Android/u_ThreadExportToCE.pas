@@ -56,7 +56,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATargetFile: string;
-      const APolygon: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       const Azoomarr: TByteDynArray;
       const ATileStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
@@ -86,7 +86,7 @@ constructor TThreadExportToCE.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
-  const APolygon: IGeometryLonLatMultiPolygon;
+  const APolygon: IGeometryLonLatPolygon;
   const Azoomarr: TByteDynArray;
   const ATileStorage: ITileStorage;
   const AVersion: IMapVersionRequest;

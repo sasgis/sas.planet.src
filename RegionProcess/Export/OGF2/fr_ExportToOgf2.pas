@@ -100,13 +100,13 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
-    FPolygLL: IGeometryLonLatMultiPolygon;
+    FPolygLL: IGeometryLonLatPolygon;
     FfrMapSelect: TfrMapSelect;
     FfrHybSelect: TfrMapSelect;
   private
     procedure Init(
       const AZoom: byte;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;
   private
@@ -167,7 +167,7 @@ var
   VTilesCountTotal: Int64;
   VMapType: IMapType;
   VZoom: byte;
-  VPolyLL: IGeometryLonLatMultiPolygon;
+  VPolyLL: IGeometryLonLatPolygon;
   VProjected: IGeometryProjectedPolygon;
   VLine: IGeometryProjectedSinglePolygon;
   VBounds: TDoubleRect;
@@ -353,7 +353,7 @@ end;
 
 procedure TfrExportToOgf2.Init(
   const AZoom: byte;
-  const APolygon: IGeometryLonLatMultiPolygon
+  const APolygon: IGeometryLonLatPolygon
 );
 var
   I: Integer;

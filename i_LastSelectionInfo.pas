@@ -32,11 +32,11 @@ type
     function GetZoom: Byte;
     property Zoom: Byte read GetZoom;
 
-    function GetPolygon: IGeometryLonLatMultiPolygon;
-    property Polygon: IGeometryLonLatMultiPolygon read GetPolygon;
+    function GetPolygon: IGeometryLonLatPolygon;
+    property Polygon: IGeometryLonLatPolygon read GetPolygon;
 
     procedure SetPolygon(
-      const ALonLatPolygon: IGeometryLonLatMultiPolygon;
+      const ALonLatPolygon: IGeometryLonLatPolygon;
       AZoom: Byte
     );
   end;

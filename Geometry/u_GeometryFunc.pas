@@ -39,6 +39,14 @@ procedure ProjectedPolygon2GR32Polygon(
   var APolygon: TPolygon32
 );
 
+function IsValidLonLatLine(
+  const AGeometry: IGeometryLonLatLine
+): Boolean;
+
+function IsValidLonLatPolygon(
+  const AGeometry: IGeometryLonLatPolygon
+): Boolean;
+
 implementation
 
 uses
@@ -525,5 +533,40 @@ begin
     end;
   end;
 end;
+
+function IsValidLonLatLine(
+  const AGeometry: IGeometryLonLatLine
+): Boolean;
+var
+  VSingleLine: IGeometryLonLatSingleLine;
+  VMultiLine: IGeometryLonLatMultiLine;
+begin
+  Result := False;
+  if not AGeometry.IsEmpty then begin
+    if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
+      Result := VSingleLine.Count > 1;
+    end else if Supports(AGeometry, IGeometryLonLatSingleLine, VMultiLine) then begin
+      Result := (VMultiLine.Count > 1) or ((VMultiLine.Count > 0) and (VMultiLine.Item[0].Count > 1));
+    end;
+  end;
+end;
+
+function IsValidLonLatPolygon(
+  const AGeometry: IGeometryLonLatPolygon
+): Boolean;
+var
+  VSingleLine: IGeometryLonLatSinglePolygon;
+  VMultiLine: IGeometryLonLatMultiPolygon;
+begin
+  Result := False;
+  if not AGeometry.IsEmpty then begin
+    if Supports(AGeometry, IGeometryLonLatSinglePolygon, VSingleLine) then begin
+      Result := VSingleLine.Count > 2;
+    end else if Supports(AGeometry, IGeometryLonLatMultiPolygon, VMultiLine) then begin
+      Result := (VMultiLine.Count > 1) or ((VMultiLine.Count > 0) and (VMultiLine.Item[0].Count > 2));
+    end;
+  end;
+end;
+
 
 end.

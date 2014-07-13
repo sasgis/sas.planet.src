@@ -59,7 +59,7 @@ type
       const ATileNameGenerator: ITileFileNameGeneratorsList
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 implementation
@@ -125,7 +125,7 @@ begin
   Result := SAS_STR_ExportTarPackCaption;
 end;
 
-procedure TExportProviderTar.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TExportProviderTar.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VPath: string;
   Zoomarr: TByteDynArray;

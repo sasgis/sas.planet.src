@@ -61,7 +61,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory
     );
     function GetCaption: string; override;
-    procedure StartProcess(const APolygon: IGeometryLonLatMultiPolygon); override;
+    procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
   end;
 
 implementation
@@ -125,7 +125,7 @@ begin
   Result := SAS_STR_ExportJNXPackCaption;
 end;
 
-procedure TExportProviderJNX.StartProcess(const APolygon: IGeometryLonLatMultiPolygon);
+procedure TExportProviderJNX.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VPath: string;
   VProductName: string;

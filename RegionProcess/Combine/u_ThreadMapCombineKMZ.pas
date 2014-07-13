@@ -56,7 +56,7 @@ type
   public
     constructor Create(
       const AProgressInfo: IRegionProcessProgressInfoInternal;
-      const APolygon: IGeometryLonLatMultiPolygon;
+      const APolygon: IGeometryLonLatPolygon;
       const ATargetConverter: ILocalCoordConverter;
       const AImageProvider: IBitmapLayerProvider;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -82,7 +82,7 @@ uses
 
 constructor TThreadMapCombineKMZ.Create(
   const AProgressInfo: IRegionProcessProgressInfoInternal;
-  const APolygon: IGeometryLonLatMultiPolygon;
+  const APolygon: IGeometryLonLatPolygon;
   const ATargetConverter: ILocalCoordConverter;
   const AImageProvider: IBitmapLayerProvider;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;

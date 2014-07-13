@@ -36,7 +36,7 @@ type
     ['{F5346D9B-766C-4B3B-AC4B-9AC71FF62F05}']
     procedure Init(
       const AZoom: byte;
-      const APolygon: IGeometryLonLatMultiPolygon
+      const APolygon: IGeometryLonLatPolygon
     );
     function Validate: Boolean;
   end;
