@@ -545,7 +545,7 @@ begin
   if not AGeometry.IsEmpty then begin
     if Supports(AGeometry, IGeometryLonLatSingleLine, VSingleLine) then begin
       Result := VSingleLine.Count > 1;
-    end else if Supports(AGeometry, IGeometryLonLatSingleLine, VMultiLine) then begin
+    end else if Supports(AGeometry, IGeometryLonLatMultiLine, VMultiLine) then begin
       Result := (VMultiLine.Count > 1) or ((VMultiLine.Count > 0) and (VMultiLine.Item[0].Count > 1));
     end;
   end;
