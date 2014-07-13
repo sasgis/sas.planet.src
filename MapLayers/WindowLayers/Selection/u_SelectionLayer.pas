@@ -32,7 +32,6 @@ uses
   i_LastSelectionInfo,
   i_GeometryLonLat,
   i_GeometryProjectedFactory,
-  i_GeometryLocalFactory,
   u_PolyLineLayerBase;
 
 type
@@ -56,7 +55,6 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const AConfig: ILastSelectionLayerConfig;
       const ALastSelectionInfo: ILastSelectionInfo
     );
@@ -77,7 +75,6 @@ constructor TSelectionLayer.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const AConfig: ILastSelectionLayerConfig;
   const ALastSelectionInfo: ILastSelectionInfo
 );
@@ -89,7 +86,6 @@ begin
     AParentMap,
     AView,
     AVectorGeometryProjectedFactory,
-    AVectorGeometryLocalFactory,
     AConfig
   );
   FConfig := AConfig;

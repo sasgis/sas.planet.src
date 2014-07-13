@@ -389,8 +389,6 @@
     <DCCReference Include="Geometry\i_DoublePointsAggregator.pas" />
     <DCCReference Include="Geometry\i_EnumDoublePoint.pas" />
     <DCCReference Include="Geometry\i_GeometryFromStream.pas" />
-    <DCCReference Include="Geometry\i_GeometryLocal.pas" />
-    <DCCReference Include="Geometry\i_GeometryLocalFactory.pas" />
     <DCCReference Include="Geometry\i_GeometryLonLat.pas" />
     <DCCReference Include="Geometry\i_GeometryLonLatFactory.pas" />
     <DCCReference Include="Geometry\i_GeometryProjected.pas" />
@@ -411,9 +409,6 @@
     <DCCReference Include="Geometry\u_EnumDoublePointsByArray.pas" />
     <DCCReference Include="Geometry\u_EnumDoublePointWithClip.pas" />
     <DCCReference Include="Geometry\u_GeometryFunc.pas" />
-    <DCCReference Include="Geometry\u_GeometryLocal.pas" />
-    <DCCReference Include="Geometry\u_GeometryLocalFactory.pas" />
-    <DCCReference Include="Geometry\u_GeometryLocalMulti.pas" />
     <DCCReference Include="Geometry\u_GeometryLonLat.pas" />
     <DCCReference Include="Geometry\u_GeometryLonLatFactory.pas" />
     <DCCReference Include="Geometry\u_GeometryLonLatMulti.pas" />

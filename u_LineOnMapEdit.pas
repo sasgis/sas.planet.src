@@ -26,9 +26,8 @@ uses
   t_GeoTypes,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
-  i_EnumDoublePoint,
-  u_ConfigDataElementBase,
-  i_LineOnMapEdit;
+  i_LineOnMapEdit,
+  u_ConfigDataElementBase;
 
 type
   TLineOnMapEdit = class(TConfigDataElementBaseEmptySaveLoad, ILineOnMapEdit)
@@ -94,8 +93,6 @@ implementation
 
 uses
   SysUtils,
-  t_Hash,
-  i_LonLatRect,
   u_GeoFunc,
   u_GeometryFunc,
   u_BaseInterfacedObject;

@@ -9,7 +9,6 @@ uses
   i_GeometryLonLat,
   i_GeometryProjected,
   i_LocalCoordConverter,
-  i_DoublePointsAggregator,
   i_ProjectionInfo;
 
 function GetGeometryLonLatNearestPoint(

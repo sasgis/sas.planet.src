@@ -31,7 +31,6 @@ uses
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_GeometryProjectedFactory,
-  i_GeometryLocalFactory,
   i_LineOnMapEdit,
   i_SelectionPolylineLayerConfig,
   u_PolyLineLayerBase,
@@ -59,7 +58,6 @@ type
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ISelectionPolylineShadowLayerConfig
     );
@@ -82,7 +80,6 @@ constructor TSelectionPolylineShadowLayer.Create(
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ISelectionPolylineShadowLayerConfig
 );
@@ -94,7 +91,6 @@ begin
     AParentMap,
     AView,
     AVectorGeometryProjectedFactory,
-    AVectorGeometryLocalFactory,
     AConfig
   );
   FConfig := AConfig;

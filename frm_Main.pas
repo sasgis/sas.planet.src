@@ -1807,7 +1807,6 @@ begin
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      GState.VectorGeometryLocalFactory,
       FConfig.LayersConfig.LastSelectionLayerConfig,
       GState.LastSelectionInfo
     )
@@ -1820,7 +1819,6 @@ begin
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      GState.VectorGeometryLocalFactory,
       FLineOnMapByOperation[ao_calc_line] as IPathOnMapEdit,
       FConfig.LayersConfig.CalcLineLayerConfig.LineConfig
     )
@@ -1859,7 +1857,6 @@ begin
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      GState.VectorGeometryLocalFactory,
       FLineOnMapByOperation[ao_edit_line] as IPathOnMapEdit,
       FConfig.LayersConfig.MarkPolyLineLayerConfig.LineConfig
     )
@@ -1898,7 +1895,6 @@ begin
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      GState.VectorGeometryLocalFactory,
       FLineOnMapByOperation[ao_edit_poly] as IPolygonOnMapEdit,
       FConfig.LayersConfig.MarkPolygonLayerConfig.LineConfig
     )
@@ -1925,7 +1921,6 @@ begin
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      GState.VectorGeometryLocalFactory,
       FLineOnMapByOperation[ao_select_poly] as IPolygonOnMapEdit,
       FConfig.LayersConfig.SelectionPolygonLayerConfig.LineConfig
     )
@@ -1954,7 +1949,6 @@ begin
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
       GState.VectorGeometryLonLatFactory,
-      GState.VectorGeometryLocalFactory,
       FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.ShadowConfig
     )
@@ -1967,7 +1961,6 @@ begin
       map,
       FViewPortState.View,
       GState.VectorGeometryProjectedFactory,
-      GState.VectorGeometryLocalFactory,
       FLineOnMapByOperation[ao_select_line] as IPathOnMapEdit,
       FConfig.LayersConfig.SelectionPolylineLayerConfig.LineConfig
     )

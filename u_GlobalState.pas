@@ -68,7 +68,6 @@ uses
   i_Bitmap32BufferFactory,
   i_VectorDataFactory,
   i_GeometryProjectedFactory,
-  i_GeometryLocalFactory,
   i_VectorItemSubsetBuilder,
   i_GeoCoder,
   i_MapTypeSetBuilder,
@@ -173,7 +172,6 @@ type
     FAppStartedNotifierInternal: INotifierOneOperationInternal;
     FAppClosingNotifier: INotifierOneOperation;
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
-    FVectorGeometryLocalFactory: IGeometryLocalFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FBitmapFactory: IBitmap32BufferFactory;
@@ -255,7 +253,6 @@ type
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorGeometryLonLatFactory: IGeometryLonLatFactory read FVectorGeometryLonLatFactory;
     property VectorGeometryProjectedFactory: IGeometryProjectedFactory read FVectorGeometryProjectedFactory;
-    property VectorGeometryLocalFactory: IGeometryLocalFactory read FVectorGeometryLocalFactory;
     property BitmapFactory: IBitmap32BufferFactory read FBitmapFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
     property VectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory read FVectorDataItemMainInfoFactory;
@@ -354,7 +351,6 @@ uses
   u_GeometryLonLatFactory,
   u_VectorDataFactorySimple,
   u_GeometryProjectedFactory,
-  u_GeometryLocalFactory,
   u_DownloadResultFactory,
   u_PathDetalizeProviderListSimple,
   u_InternalDomainInfoProviderList,
@@ -494,7 +490,6 @@ begin
   FResourceProvider := FMainConfigProvider.GetSubItem('sas:\Resource');
   FVectorGeometryProjectedFactory := TGeometryProjectedFactory.Create;
   FVectorGeometryLonLatFactory := TGeometryLonLatFactory.Create(FHashFunction);
-  FVectorGeometryLocalFactory := TGeometryLocalFactory.Create;
 
   FGlobalInternetState := TGlobalInternetState.Create;
 

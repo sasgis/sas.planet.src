@@ -37,10 +37,8 @@ uses
   i_MarkerDrawable,
   i_DoublePointsAggregator,
   i_GeometryProjectedFactory,
-  i_GeometryLocalFactory,
   i_GeometryLonLat,
   i_GeometryProjected,
-  i_GeometryLocal,
   i_PolyLineLayerConfig,
   i_PolygonLayerConfig,
   u_MapLayerBasic;
@@ -49,7 +47,6 @@ type
   TLineLayerBase = class(TMapLayerBasicNoBitmap)
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FVectorGeometryLocalFactory: IGeometryLocalFactory;
     FConfig: ILineLayerConfig;
 
     FLineVisible: Boolean;
@@ -72,7 +69,6 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const AConfig: ILineLayerConfig
     );
   end;
@@ -148,7 +144,6 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const AConfig: IPolygonLayerConfig
     );
   end;
@@ -168,7 +163,6 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const ALineOnMapEdit: IPathOnMapEdit;
       const AConfig: ILineLayerConfig
     );
@@ -189,7 +183,6 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AVectorGeometryLocalFactory: IGeometryLocalFactory;
       const ALineOnMapEdit: IPolygonOnMapEdit;
       const AConfig: IPolygonLayerConfig
     );
@@ -291,13 +284,9 @@ uses
   SysUtils,
   i_Listener,
   i_CoordConverter,
-  i_EnumDoublePoint,
   u_DoublePointsAggregator,
   u_ListenerByEvent,
-  u_GeometryFunc,
-  u_EnumDoublePointMapPixelToLocalPixel,
-  u_EnumDoublePointWithClip,
-  u_EnumDoublePointFilterEqual;
+  u_GeometryFunc;
 
 { TLineLayerBase }
 
@@ -308,7 +297,6 @@ constructor TLineLayerBase.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const AConfig: ILineLayerConfig
 );
 begin
@@ -321,7 +309,6 @@ begin
   );
   FConfig := AConfig;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FVectorGeometryLocalFactory := AVectorGeometryLocalFactory;
 
   LinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),
@@ -492,7 +479,6 @@ constructor TPolygonLayerBase.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const AConfig: IPolygonLayerConfig
 );
 begin
@@ -503,7 +489,6 @@ begin
     AParentMap,
     AView,
     AVectorGeometryProjectedFactory,
-    AVectorGeometryLocalFactory,
     AConfig
   );
   FConfig := AConfig;
@@ -653,7 +638,6 @@ constructor TPathEditLayer.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const ALineOnMapEdit: IPathOnMapEdit;
   const AConfig: ILineLayerConfig
 );
@@ -665,7 +649,6 @@ begin
     AParentMap,
     AView,
     AVectorGeometryProjectedFactory,
-    AVectorGeometryLocalFactory,
     AConfig
   );
   FLineOnMapEdit := ALineOnMapEdit;
@@ -712,7 +695,6 @@ constructor TPolygonEditLayer.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AVectorGeometryLocalFactory: IGeometryLocalFactory;
   const ALineOnMapEdit: IPolygonOnMapEdit;
   const AConfig: IPolygonLayerConfig
 );
@@ -724,7 +706,6 @@ begin
     AParentMap,
     AView,
     AVectorGeometryProjectedFactory,
-    AVectorGeometryLocalFactory,
     AConfig
   );
   FLineOnMapEdit := ALineOnMapEdit;

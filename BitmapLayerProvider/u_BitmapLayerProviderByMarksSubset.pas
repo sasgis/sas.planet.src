@@ -38,7 +38,6 @@ uses
   i_VectorDataItemSimple,
   i_GeometryProjected,
   i_VectorItemSubset,
-  i_DoublePointsAggregator,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 
@@ -113,7 +112,6 @@ uses
   i_AppearanceOfVectorItem,
   i_CoordConverter,
   u_Bitmap32ByStaticBitmap,
-  u_DoublePointsAggregator,
   u_GeometryFunc;
 
 { TMapMarksBitmapLayerProviderByMarksSubset }

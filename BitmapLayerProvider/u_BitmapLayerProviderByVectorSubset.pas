@@ -38,7 +38,6 @@ uses
   i_NotifierOperation,
   i_MarkerDrawable,
   i_GeometryProjected,
-  i_DoublePointsAggregator,
   i_BitmapLayerProvider,
   u_BaseInterfacedObject;
 
@@ -105,7 +104,6 @@ uses
   GR32_Polygons,
   i_LonLatRect,
   u_Bitmap32ByStaticBitmap,
-  u_DoublePointsAggregator,
   u_GeometryFunc;
 
 { TBitmapLayerProviderByVectorSubset }

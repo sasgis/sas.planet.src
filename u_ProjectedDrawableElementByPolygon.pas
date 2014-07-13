@@ -57,7 +57,6 @@ implementation
 
 uses
   t_GeoTypes,
-  i_EnumDoublePoint,
   u_GeometryFunc,
   u_GeoFunc;
 
@@ -85,13 +84,7 @@ procedure TProjectedDrawableElementByPolygonSimpleEdge.Draw(
 var
   VDrawRect: TDoubleRect;
   VPolygon: TPolygon32;
-  i: Integer;
-  VLine: IGeometryProjectedSinglePolygon;
   VPathFixedPoints: TArrayOfFixedPoint;
-  VIndex: Integer;
-  VEnum: IEnumProjectedPoint;
-  VPoint: TDoublePoint;
-  VLocalPoint: TDoublePoint;
   VIntersectRect: TDoubleRect;
 begin
 
