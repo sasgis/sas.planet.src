@@ -776,7 +776,10 @@ function TPathEditLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
 ): IGeometryLonLatLine;
 begin
-  Result := FLine.Geometry;
+  Result := nil;
+  if Assigned(FLine) then begin
+    Result := FLine.Geometry;
+  end;
 end;
 
 procedure TPathEditLayer.OnLineChange;
@@ -832,7 +835,10 @@ function TPolygonEditLayer.GetLine(
   const ALocalConverter: ILocalCoordConverter
 ): IGeometryLonLatPolygon;
 begin
-  Result := FLine.Geometry;
+  Result := nil;
+  if Assigned(FLine) then begin
+    Result := FLine.Geometry;
+  end;
 end;
 
 procedure TPolygonEditLayer.OnLineChange;
