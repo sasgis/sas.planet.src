@@ -108,7 +108,6 @@ type
     FProjection: IProjectionInfo;
     FProjectedLine: IGeometryProjectedLine;
     FLocalConverter: ILocalCoordConverter;
-    FLocalLine: IGeometryLocalMultiLine;
     FPolygon: IDrawablePolygon;
   protected
     procedure ChangedSource;
@@ -130,7 +129,6 @@ type
     FProjection: IProjectionInfo;
     FProjectedLine: IGeometryProjectedPolygon;
     FLocalConverter: ILocalCoordConverter;
-    FLocalLine: IGeometryLocalMultiPolygon;
     FPolygonBorder: IDrawablePolygon;
     FPolygonFill: IDrawablePolygon;
   protected
@@ -296,6 +294,7 @@ uses
   i_EnumDoublePoint,
   u_DoublePointsAggregator,
   u_ListenerByEvent,
+  u_GeometryFunc,
   u_EnumDoublePointMapPixelToLocalPixel,
   u_EnumDoublePointWithClip,
   u_EnumDoublePointFilterEqual;
@@ -387,22 +386,14 @@ procedure TPathLayerBase.PaintLayer(
 );
 var
   VLonLatLine: IGeometryLonLatLine;
-  VEnum: IEnumLocalPoint;
   VProjection: IProjectionInfo;
   VProjectedLine: IGeometryProjectedLine;
   VLocalConverter: ILocalCoordConverter;
-  VLocalLine: IGeometryLocalMultiLine;
-  VLocalRect: TRect;
-  VRectWithDelta: TDoubleRect;
   VDrawablePolygon: IDrawablePolygon;
   VPolygon: TPolygon32;
   VPolygonOutline: TPolygon32;
   VPolygonGrow: TPolygon32;
-  i: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
-  VLine: IGeometryLocalLine;
-  VIndex: Integer;
-  VPoint: TDoublePoint;
 begin
   if (AlphaComponent(FLineColor) = 0) or (FLineWidth < 1) then begin
     Exit;
@@ -412,7 +403,6 @@ begin
   VProjection := FProjection;
   VProjectedLine := FProjectedLine;
   VLocalConverter := FLocalConverter;
-  VLocalLine := FLocalLine;
   VDrawablePolygon := FPolygon;
 
   if VLonLatLine = nil then begin
@@ -432,7 +422,7 @@ begin
   end;
 
   if VProjectedLine = nil then begin
-    VLocalLine := nil;
+    VDrawablePolygon := nil;
     VLocalConverter := nil;
     VProjection := ALocalConverter.ProjectionInfo;
     VProjectedLine :=
@@ -449,62 +439,22 @@ begin
     Exit;
   end;
 
-  if VLocalLine <> nil then begin
-    if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
-      VLocalLine := nil;
-      VLocalConverter := nil;
-    end;
-  end;
-
-  if VLocalLine = nil then begin
+  if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
     VDrawablePolygon := nil;
-    VLocalRect := ALocalConverter.GetLocalRect;
-    VRectWithDelta.Left := VLocalRect.Left - 10;
-    VRectWithDelta.Top := VLocalRect.Top - 10;
-    VRectWithDelta.Right := VLocalRect.Right + 10;
-    VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-
-    VEnum :=
-      TEnumDoublePointMapPixelToLocalPixel.Create(
-        ALocalConverter,
-        VProjectedLine.GetEnum
-      );
-    VEnum :=
-      TEnumLocalPointClipByRect.Create(
-        False,
-        VRectWithDelta,
-        VEnum
-      );
-    VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
-    VLocalConverter := ALocalConverter;
-    VLocalLine := FVectorGeometryLocalFactory.CreateLocalPathByEnum(VEnum, FPreparedPointsAggreagtor);
-    FLocalConverter := VLocalConverter;
-    FLocalLine := VLocalLine;
-  end;
-
-  if VLocalLine = nil then begin
-    Exit;
+    VLocalConverter := nil;
   end;
 
   if VDrawablePolygon = nil then begin
-    VPolygon := TPolygon32.Create;
+    VPolygon := nil;
     try
-      VPolygon.Closed := False;
-      VPolygon.Antialiased := True;
-      VPolygon.AntialiasMode := am4times;
-      if VLocalLine.Count > 0 then begin
-        for i := 0 to VLocalLine.Count - 1 do begin
-          VLine := VLocalLine.Item[i];
-          SetLength(VPathFixedPoints, VLine.Count);
-          VIndex := 0;
-          VEnum := VLine.GetEnum;
-          while VEnum.Next(VPoint) do begin
-            VPathFixedPoints[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
-            Inc(VIndex);
-          end;
-          VPolygon.AddPoints(VPathFixedPoints[0], VIndex);
-          VPolygon.NewLine;
-        end;
+      ProjectedLine2GR32Polygon(
+        VProjectedLine,
+        ALocalConverter,
+        am4times,
+        VPathFixedPoints,
+        VPolygon
+      );
+      if Assigned(VPolygon) then begin
         if FLineWidth = 1 then begin
           VDrawablePolygon := TDrawablePolygon32.CreateFromSource(VPolygon);
         end else begin
@@ -525,6 +475,7 @@ begin
       VPolygon.Free;
     end;
     FPolygon := VDrawablePolygon;
+    FLocalConverter := VLocalConverter;
   end;
   if VDrawablePolygon = nil then begin
     Exit;
@@ -576,23 +527,15 @@ procedure TPolygonLayerBase.PaintLayer(
 );
 var
   VLonLatLine: IGeometryLonLatPolygon;
-  VEnum: IEnumLocalPoint;
   VProjection: IProjectionInfo;
   VProjectedLine: IGeometryProjectedPolygon;
   VLocalConverter: ILocalCoordConverter;
-  VLocalLine: IGeometryLocalMultiPolygon;
-  VLocalRect: TRect;
-  VRectWithDelta: TDoubleRect;
   VDrawablePolygonFill: IDrawablePolygon;
   VDrawablePolygonBorder: IDrawablePolygon;
   VPolygon: TPolygon32;
   VPolygonOutline: TPolygon32;
   VPolygonGrow: TPolygon32;
-  i: Integer;
   VPathFixedPoints: TArrayOfFixedPoint;
-  VLine: IGeometryLocalPolygon;
-  VIndex: Integer;
-  VPoint: TDoublePoint;
 begin
   if not FFillVisible and not FLineVisible then begin
     Exit;
@@ -602,7 +545,6 @@ begin
   VProjection := FProjection;
   VProjectedLine := FProjectedLine;
   VLocalConverter := FLocalConverter;
-  VLocalLine := FLocalLine;
   VDrawablePolygonFill := FPolygonFill;
   VDrawablePolygonBorder := FPolygonBorder;
   if VLonLatLine = nil then begin
@@ -624,7 +566,8 @@ begin
   end;
 
   if VProjectedLine = nil then begin
-    VLocalLine := nil;
+    VDrawablePolygonFill := nil;
+    VDrawablePolygonBorder := nil;
     VLocalConverter := nil;
     VProjection := ALocalConverter.ProjectionInfo;
     VProjectedLine :=
@@ -641,63 +584,23 @@ begin
     Exit;
   end;
 
-  if VLocalLine <> nil then begin
-    if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
-      VLocalLine := nil;
-      VLocalConverter := nil;
-    end;
-  end;
-
-  if VLocalLine = nil then begin
+  if not ALocalConverter.GetIsSameConverter(VLocalConverter) then begin
     VDrawablePolygonFill := nil;
     VDrawablePolygonBorder := nil;
-    VLocalRect := ALocalConverter.GetLocalRect;
-    VRectWithDelta.Left := VLocalRect.Left - 10;
-    VRectWithDelta.Top := VLocalRect.Top - 10;
-    VRectWithDelta.Right := VLocalRect.Right + 10;
-    VRectWithDelta.Bottom := VLocalRect.Bottom + 10;
-
-    VEnum :=
-      TEnumDoublePointMapPixelToLocalPixel.Create(
-        ALocalConverter,
-        VProjectedLine.GetEnum
-      );
-    VEnum :=
-      TEnumLocalPointClipByRect.Create(
-        True,
-        VRectWithDelta,
-        VEnum
-      );
-    VEnum := TEnumLocalPointFilterEqual.Create(VEnum);
-    VLocalConverter := ALocalConverter;
-    VLocalLine := FVectorGeometryLocalFactory.CreateLocalPolygonByEnum(VEnum, FPreparedPointsAggreagtor);
-    FLocalConverter := VLocalConverter;
-    FLocalLine := VLocalLine;
-  end;
-
-  if VLocalLine = nil then begin
-    Exit;
+    VLocalConverter := nil;
   end;
 
   if (VDrawablePolygonFill = nil) then begin
-    VPolygon := TPolygon32.Create;
+    VPolygon := nil;
     try
-      VPolygon.Closed := True;
-      VPolygon.Antialiased := True;
-      VPolygon.AntialiasMode := am4times;
-      if VLocalLine.Count > 0 then begin
-        for i := 0 to VLocalLine.Count - 1 do begin
-          VLine := VLocalLine.Item[i];
-          SetLength(VPathFixedPoints, VLine.Count + 1);
-          VIndex := 0;
-          VEnum := VLine.GetEnum;
-          while VEnum.Next(VPoint) do begin
-            VPathFixedPoints[VIndex] := FixedPoint(VPoint.X, VPoint.Y);
-            Inc(VIndex);
-          end;
-          VPolygon.AddPoints(VPathFixedPoints[0], VIndex);
-          VPolygon.NewLine;
-        end;
+      ProjectedPolygon2GR32Polygon(
+        VProjectedLine,
+        ALocalConverter,
+        am4times,
+        VPathFixedPoints,
+        VPolygon
+      );
+      if Assigned(VPolygon) then begin
         VDrawablePolygonFill := TDrawablePolygon32.CreateFromSource(VPolygon);
         VDrawablePolygonBorder := nil;
         if not FSimpleLineDraw then begin
@@ -719,6 +622,7 @@ begin
     end;
     FPolygonFill := VDrawablePolygonFill;
     FPolygonBorder := VDrawablePolygonBorder;
+    FLocalConverter := VLocalConverter;
   end;
   if (VDrawablePolygonFill = nil) then begin
     Exit;
