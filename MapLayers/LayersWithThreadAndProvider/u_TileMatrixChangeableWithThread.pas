@@ -49,6 +49,7 @@ type
     FPosition: ILocalCoordConverterChangeable;
     FLayerProvider: IBitmapLayerProviderChangeable;
     FSourcUpdateNotyfier: IObjectWithListener;
+    FDebugName: string;
 
     FLinksList: IListenerNotifierLinksList;
     FDrawTask: IBackgroundTask;
@@ -92,7 +93,7 @@ type
       const ALayerProvider: IBitmapLayerProviderChangeable;
       const ASourcUpdateNotyfier: IObjectWithListener;
       const AThreadConfig: IThreadConfig;
-      const ADebugThreadName: string = ''
+      const ADebugName: string
     );
     destructor Destroy; override;
   end;
@@ -123,10 +124,10 @@ constructor TTileMatrixChangeableWithThread.Create(
   const ALayerProvider: IBitmapLayerProviderChangeable;
   const ASourcUpdateNotyfier: IObjectWithListener;
   const AThreadConfig: IThreadConfig;
-  const ADebugThreadName: string = ''
+  const ADebugName: string
 );
 var
-  VDebugThreadName: string;
+  VDebugName: string;
 begin
   Assert(Assigned(AAppStartedNotifier));
   Assert(Assigned(AAppClosingNotifier));
@@ -152,9 +153,10 @@ begin
 
   FDelicateRedrawFlag := TSimpleFlagWithInterlock.Create;
 
-  VDebugThreadName := ADebugThreadName;
-  if VDebugThreadName = '' then begin
-    VDebugThreadName := Self.ClassName;
+  FDebugName := ADebugName;
+  VDebugName := ADebugName;
+  if VDebugName = '' then begin
+    VDebugName := Self.ClassName;
   end;
 
   FDrawTask :=
@@ -162,7 +164,7 @@ begin
       AAppClosingNotifier,
       OnPrepareTileMatrix,
       AThreadConfig,
-      VDebugThreadName
+      VDebugName
     );
 
   FLinksList.Add(
