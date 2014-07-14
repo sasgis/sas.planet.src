@@ -34,7 +34,7 @@ type
     // Возвращает хранимый объект
     function Add(
       AID: Integer;
-      AInterface: IInterface
+      const AInterface: IInterface
     ): IInterface;
 
     // Проверка наличия ID в списке
@@ -46,7 +46,7 @@ type
     // Замена существующего объекта новым, если отсутствует, то просто добавится
     procedure Replace(
       AID: Integer;
-      AInterface: IInterface
+      const AInterface: IInterface
     );
 
     // Удаление объекта, если нет с таким GUID, то ничего не будет происходить

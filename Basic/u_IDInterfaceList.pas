@@ -27,7 +27,7 @@ type
     procedure Insert(
       Index: Integer;
       AID: Integer;
-      AObj: IInterface
+      const AObj: IInterface
     );
     procedure Sort(); override;
     function GetItemId(Index: Integer): Integer; override;
@@ -36,7 +36,7 @@ type
     // Возвращает хранимый объект
     function Add(
       AID: Integer;
-      AInterface: IInterface
+      const AInterface: IInterface
     ): IInterface; virtual;
 
     // Получение объекта по ID
@@ -45,7 +45,7 @@ type
     // Замена существующего объекта новым, если отсутствует, то просто добавится
     procedure Replace(
       AID: Integer;
-      AInterface: IInterface
+      const AInterface: IInterface
     ); virtual;
     function GetEnumUnknown: IEnumUnknown;
   end;
@@ -153,7 +153,7 @@ end;
 
 function TIDInterfaceList.Add(
   AID: Integer;
-  AInterface: IInterface
+  const AInterface: IInterface
 ): IInterface;
 var
   VIndex: Integer;
@@ -205,7 +205,7 @@ end;
 
 procedure TIDInterfaceList.Insert(
   Index, AID: Integer;
-  AObj: IInterface
+  const AObj: IInterface
 );
 begin
   if (Index < 0) or (Index > FCount) then begin
@@ -226,7 +226,7 @@ end;
 
 procedure TIDInterfaceList.Replace(
   AID: Integer;
-  AInterface: IInterface
+  const AInterface: IInterface
 );
 var
   VIndex: Integer;
