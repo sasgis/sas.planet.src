@@ -22,7 +22,7 @@ type
       AId: Integer;
       var Index: Integer
     ): Boolean; virtual;
-    function CompareId(const I1, I2: Integer): Integer; virtual;
+    function CompareId(const I1, I2: Integer): Integer;
     procedure Sort(); virtual; abstract;
   protected
     class procedure Error(

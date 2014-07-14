@@ -37,16 +37,16 @@ type
     function Add(
       AID: Integer;
       const AInterface: IInterface
-    ): IInterface; virtual;
+    ): IInterface;
 
     // Получение объекта по ID
-    function GetByID(AID: Integer): IInterface; virtual;
+    function GetByID(AID: Integer): IInterface;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
     procedure Replace(
       AID: Integer;
       const AInterface: IInterface
-    ); virtual;
+    );
     function GetEnumUnknown: IEnumUnknown;
   end;
 

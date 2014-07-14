@@ -44,7 +44,7 @@ type
       const AGUID: TGUID;
       var Index: Integer
     ): Boolean; virtual;
-    function CompareGUIDs(const G1, G2: TGUID): Integer; virtual;
+    function CompareGUIDs(const G1, G2: TGUID): Integer;
     procedure Sort(); virtual; abstract;
   public
     constructor Create; overload;

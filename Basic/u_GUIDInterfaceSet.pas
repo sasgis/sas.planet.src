@@ -64,16 +64,16 @@ type
     function Add(
       const AGUID: TGUID;
       const AInterface: IInterface
-    ): IInterface; virtual;
+    ): IInterface;
 
     // Получение объекта по GUID
-    function GetByGUID(const AGUID: TGUID): IInterface; virtual;
+    function GetByGUID(const AGUID: TGUID): IInterface;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
     procedure Replace(
       const AGUID: TGUID;
       const AInterface: IInterface
-    ); virtual;
+    );
   end;
 
 resourcestring

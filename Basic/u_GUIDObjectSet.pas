@@ -40,16 +40,16 @@ type
     function Add(
       const AGUID: TGUID;
       AObj: TObject
-    ): TObject; virtual;
+    ): TObject;
 
     // Получение объекта по GUID
-    function GetByGUID(const AGUID: TGUID): TObject; virtual;
+    function GetByGUID(const AGUID: TGUID): TObject;
 
     // Замена существующего объекта новым, если отсутствует, то просто добавится
     procedure Replace(
       const AGUID: TGUID;
       AObj: TObject
-    ); virtual;
+    );
 
     // Является ли этот список владельцем объектов
     function GetIsObjectOwner: Boolean;

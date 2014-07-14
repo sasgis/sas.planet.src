@@ -45,12 +45,12 @@ function ReadColor32(
 procedure WriteGUID(
   const AConfigProvider: IConfigDataWriteProvider;
   const AIdent: string;
-  AValue: TGUID
+  const AValue: TGUID
 );
 function ReadGUID(
   const AConfigProvider: IConfigDataProvider;
   const AIdent: string;
-  ADefault: TGUID
+  const ADefault: TGUID
 ): TGUID;
 
 function ReadBitmapByFileRef(
@@ -257,7 +257,7 @@ end;
 procedure WriteGUID(
   const AConfigProvider: IConfigDataWriteProvider;
   const AIdent: string;
-  AValue: TGUID
+  const AValue: TGUID
 );
 begin
   AConfigProvider.WriteString(AIdent, GUIDToString(AValue));
@@ -266,7 +266,7 @@ end;
 function ReadGUID(
   const AConfigProvider: IConfigDataProvider;
   const AIdent: string;
-  ADefault: TGUID
+  const ADefault: TGUID
 ): TGUID;
 var
   VGUIDStr: string;
