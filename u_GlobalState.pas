@@ -102,8 +102,6 @@ uses
   u_MapTypesMainList,
   u_IeEmbeddedProtocolRegistration;
 
-{$I vsagps_defines.inc}
-
 type
   TGlobalState = class
   private
