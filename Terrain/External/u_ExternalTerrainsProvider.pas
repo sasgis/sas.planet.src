@@ -113,8 +113,8 @@ begin
 
   // folder - terrain file(s) storage
   FBaseFolder := AOptions.Values['Folder'];
-  if (0=Length(FBaseFolder)) then begin
-    FBaseFolder := FDefaultPath+'\';
+  if Length(FBaseFolder) = 0 then begin
+    FBaseFolder := IncludeTrailingPathDelimiter(FDefaultPath);
   end;
 
   // get absolute path to starage if it's not
@@ -123,14 +123,16 @@ begin
   end else if StartsText('.\TerrainData', FBaseFolder) then begin
     FBaseFolder := StringReplace(FBaseFolder, '.\TerrainData', FDefaultPath, [rfIgnoreCase]);
   end else if StartsText('.', FBaseFolder) then begin
-    FBaseFolder := GetFullPathName(FDefaultPath, FBaseFolder);
+    FBaseFolder := GetFullPathName(IncludeTrailingPathDelimiter(FDefaultPath), FBaseFolder);
   end else begin
     // it's absolute path
   end;
 
-  if (0=Length(FBaseFolder)) then begin
+  if Length(FBaseFolder) = 0 then begin
     FAvailable := FALSE;
     Exit;
+  end else begin
+    FBaseFolder := IncludeTrailingPathDelimiter(FBaseFolder);
   end;
 
   // samples count in single file (mandatory)
