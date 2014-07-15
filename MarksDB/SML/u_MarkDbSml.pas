@@ -1089,6 +1089,8 @@ begin
   FCdsMarks.IndexName := 'MarkIDIdx';
 
   FCdsMarks.Open;
+
+  FCdsMarks.LogChanges := False; // no rollback/undo used
 end;
 
 function TMarkDbSml.GetFilterTextByCategory(const ACategory: ICategory): string;
@@ -1428,7 +1430,6 @@ begin
             LockRead;
             try
               if FStream <> nil then begin
-                FCdsMarks.MergeChangeLog;
                 XML := FCdsMarks.XMLData;
                 FStream.Size := length(XML);
                 FStream.Position := 0;

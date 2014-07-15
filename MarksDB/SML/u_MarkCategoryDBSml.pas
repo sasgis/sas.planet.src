@@ -373,6 +373,8 @@ begin
   FCdsCategory.IndexName := 'CategoryIDIdx';
 
   FCdsCategory.Open;
+
+  FCdsCategory.LogChanges := False;
 end;
 
 function TMarkCategoryDBSml.IsCategoryFromThisDb(
@@ -541,7 +543,6 @@ begin
           LockRead;
           try
             if FStream <> nil then begin
-              FCdsCategory.MergeChangeLog;
               XML := FCdsCategory.XMLData;
               FStream.Size := length(XML);
               FStream.Position := 0;
