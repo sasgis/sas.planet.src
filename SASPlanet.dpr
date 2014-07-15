@@ -12,6 +12,7 @@ uses
   Forms,
   Windows,
   SysUtils,
+  MidasSpeedFix in 'MarksDB\SML\MidasSpeedFix.pas',
   MidasLib,
   XPMan,
   u_ReadableThreadNames,
