@@ -508,6 +508,8 @@ begin
         if (Length(XML) > 0) and (FStateInternal.ReadAccess <> asDisabled) then begin
           try
             FCdsCategory.XMLData := XML;
+            FCdsCategory.MergeChangeLog;
+            FCdsCategory.LogChanges := False;
           except
             FStateInternal.WriteAccess := asDisabled;
             InitEmptyDS;

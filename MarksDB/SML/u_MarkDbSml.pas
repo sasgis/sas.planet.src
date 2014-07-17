@@ -1090,7 +1090,7 @@ begin
 
   FCdsMarks.Open;
 
-  FCdsMarks.LogChanges := False; // no rollback/undo used
+  FCdsMarks.LogChanges := False;
 end;
 
 function TMarkDbSml.GetFilterTextByCategory(const ACategory: ICategory): string;
@@ -1373,8 +1373,10 @@ begin
                   FCdsMarks.XMLData := XML;
                 end;
               end;
+              FCdsMarks.MergeChangeLog;
+              FCdsMarks.LogChanges := False;
             except
-              FStateInternal.WriteAccess := asDisabled; // ! to protect backup's rewrite
+              FStateInternal.WriteAccess := asDisabled;
               InitEmptyDS;
             end;
           end;
