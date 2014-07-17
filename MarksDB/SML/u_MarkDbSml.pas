@@ -1371,6 +1371,7 @@ begin
                     [rfIgnoreCase]
                     );
                   FCdsMarks.XMLData := XML;
+                  FNeedSaveFlag.SetFlag;
                 end;
               end;
               FCdsMarks.MergeChangeLog;
