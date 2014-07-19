@@ -18,13 +18,14 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_HashCacheWithQueuesAbstract;
+unit u_HashInterfaceCache2Q;
 
 interface
 
 uses
   SysUtils,
   t_Hash,
+  i_HashInterfaceCache,
   u_BaseInterfacedObject;
 
 type
@@ -141,8 +142,11 @@ type
     );
   end;
 
-  THashCacheWithQueuesAbstract = class(TBaseInterfacedObject)
+  TCreateItemFunction = function(const AKey: THashValue; const AData: Pointer): IInterface of object;
+
+  THashInterfaceCache2Q = class(TBaseInterfacedObject, IHashInterfaceCache)
   private
+    FCreateFunction: TCreateItemFunction;
     FCS: IReadWriteSync;
     FItems: TItemsArray;
     FItemsCount: Integer;
@@ -170,19 +174,16 @@ type
     procedure MoveItemFromFirstInToFirstOut;
     procedure FreeItemFromQueueMulti;
   protected
-    function CreateByKey(
-      const AKey: THashValue;
-      AData: Pointer
-    ): IInterface; virtual; abstract;
     function GetIndexByKey(const AKey: THashValue): THashIndex; virtual;
     function GetOrCreateItem(
       const AKey: THashValue;
-      AData: Pointer
+      const AData: Pointer
     ): IInterface;
     procedure DeleteItem(const AKey: THashValue);
     procedure Clear;
   public
     constructor Create(
+      ACreateFunction: TCreateItemFunction;
       AHashSizeInBit: Byte;
       AFirstUseCount: Integer;
       AMultiUseCount: Integer;
@@ -580,9 +581,10 @@ begin
   end;
 end;
 
-{ THashCacheWithQueuesAbstract }
+{ THashInterfaceCache2Q }
 
-constructor THashCacheWithQueuesAbstract.Create(
+constructor THashInterfaceCache2Q.Create(
+  ACreateFunction: TCreateItemFunction;
   AHashSizeInBit: Byte;
   AFirstUseCount: Integer;
   AMultiUseCount: Integer;
@@ -592,7 +594,7 @@ var
   VIndex: TItemIndex;
   VHashSizeInBit: Byte;
 begin
-  inherited Create;
+  Assert(Assigned(ACreateFunction));
   Assert(AHashSizeInBit >= 6);
   Assert(AHashSizeInBit <= 30);
   Assert(AMultiUseCount > 0);
@@ -605,6 +607,8 @@ begin
   Assert(AFirstOutCount < High(TItemIndex));
 
   Assert(AMultiUseCount + AFirstUseCount + AFirstOutCount < High(TItemIndex));
+  inherited Create;
+  FCreateFunction := ACreateFunction;
   VHashSizeInBit := AHashSizeInBit;
   FCS := GSync.SyncVariable.Make(Self.ClassName);
 
@@ -666,7 +670,7 @@ begin
   FHash := THashTable.Create(FHashSize, FItems);
 end;
 
-destructor THashCacheWithQueuesAbstract.Destroy;
+destructor THashInterfaceCache2Q.Destroy;
 begin
   FreeAndNil(FFreeItems);
   FreeAndNil(FQueueMulti);
@@ -678,7 +682,7 @@ begin
   inherited;
 end;
 
-procedure THashCacheWithQueuesAbstract.Clear;
+procedure THashInterfaceCache2Q.Clear;
 var
   VItem: PCacheItem;
   VIndex: TItemIndex;
@@ -705,7 +709,7 @@ begin
   end;
 end;
 
-procedure THashCacheWithQueuesAbstract.DeleteItem(const AKey: THashValue);
+procedure THashInterfaceCache2Q.DeleteItem(const AKey: THashValue);
 var
   VHashIndex: THashIndex;
   VCurrIndex: TItemIndex;
@@ -745,7 +749,7 @@ begin
   end;
 end;
 
-procedure THashCacheWithQueuesAbstract.FreeItemFromQueueMulti;
+procedure THashInterfaceCache2Q.FreeItemFromQueueMulti;
 var
   VItem: PCacheItem;
   VIndex: TItemIndex;
@@ -755,15 +759,15 @@ begin
   FFreeItems.Push(VIndex, VItem);
 end;
 
-function THashCacheWithQueuesAbstract.GetIndexByKey(
+function THashInterfaceCache2Q.GetIndexByKey(
   const AKey: THashValue): THashIndex;
 begin
   Result := AKey and FHashMask;
 end;
 
-function THashCacheWithQueuesAbstract.GetOrCreateItem(
+function THashInterfaceCache2Q.GetOrCreateItem(
   const AKey: THashValue;
-  AData: Pointer
+  const AData: Pointer
 ): IInterface;
 var
   VHashIndex: THashIndex;
@@ -804,7 +808,7 @@ begin
   end;
 
   if Result = nil then begin
-    Result := CreateByKey(AKey, AData);
+    Result := FCreateFunction(AKey, AData);
     FCS.BeginWrite;
     try
       VCurrItem := FHash.GetItem(VHashIndex, AKey, VCurrIndex);
@@ -884,7 +888,7 @@ begin
   end;
 end;
 
-procedure THashCacheWithQueuesAbstract.MoveItemFromFirstInToFirstOut;
+procedure THashInterfaceCache2Q.MoveItemFromFirstInToFirstOut;
 var
   VItem: PCacheItem;
   VIndex: TItemIndex;

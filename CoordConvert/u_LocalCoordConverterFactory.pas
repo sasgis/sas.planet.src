@@ -30,17 +30,19 @@ uses
   i_ProjectionInfo,
   i_LocalCoordConverter,
   i_LocalCoordConverterFactory,
-  u_HashCacheWithQueuesAbstract;
+  i_HashInterfaceCache,
+  u_BaseInterfacedObject;
 
 type
-  TLocalCoordConverterFactory = class(THashCacheWithQueuesAbstract, ILocalCoordConverterFactory)
+  TLocalCoordConverterFactory = class(TBaseInterfacedObject, ILocalCoordConverterFactory)
   private
     FHashFunction: IHashFunction;
-  protected
+    FCache: IHashInterfaceCache;
+  private
     function CreateByKey(
       const AKey: THashValue;
-      AData: Pointer
-    ): IInterface; override;
+      const AData: Pointer
+    ): IInterface;
   private
     function CreateNoScaleIntDelta(
       const ALocalRect: TRect;
@@ -68,6 +70,7 @@ implementation
 
 uses
   u_LocalCoordConverter,
+  u_HashInterfaceCache2Q,
   u_GeoFunc;
 
 type
@@ -91,13 +94,21 @@ constructor TLocalCoordConverterFactory.Create(
   const AHashFunction: IHashFunction
 );
 begin
-  inherited Create(13, 0, 1024, 0); // 2^13 elements in hash-table, LRU 1024 elements
+  inherited Create;
   FHashFunction := AHashFunction;
+  FCache :=
+    THashInterfaceCache2Q.Create(
+      Self.CreateByKey,
+      13,  // 2^13 elements in hash-table
+      0,   // LRU 1024 elements
+      1024,
+      0
+    );
 end;
 
 function TLocalCoordConverterFactory.CreateByKey(
   const AKey: THashValue;
-  AData: Pointer
+  const AData: Pointer
 ): IInterface;
 var
   VData: PDataRecord;
@@ -184,7 +195,7 @@ begin
   VData.Projection := AProjection;
   VData.MapPixelAtLocalZeroDouble := AMapPixelAtLocalZero;
 
-  Result := ILocalCoordConverter(GetOrCreateItem(VHash, @VData));
+  Result := ILocalCoordConverter(FCache.GetOrCreateItem(VHash, @VData));
 end;
 
 function TLocalCoordConverterFactory.CreateNoScaleIntDelta(
@@ -224,7 +235,7 @@ begin
   VData.Projection := AProjection;
   VData.MapPixelAtLocalZeroInteger := AMapPixelAtLocalZero;
 
-  Result := ILocalCoordConverter(GetOrCreateItem(VHash, @VData));
+  Result := ILocalCoordConverter(FCache.GetOrCreateItem(VHash, @VData));
 end;
 
 function TLocalCoordConverterFactory.CreateScaled(
@@ -266,7 +277,7 @@ begin
   VData.MapScale := AMapScale;
   VData.MapPixelAtLocalZeroDouble := AMapPixelAtLocalZero;
 
-  Result := ILocalCoordConverter(GetOrCreateItem(VHash, @VData));
+  Result := ILocalCoordConverter(FCache.GetOrCreateItem(VHash, @VData));
 end;
 
 end.

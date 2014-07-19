@@ -27,26 +27,28 @@ uses
   i_HashFunction,
   i_MapVersionInfo,
   i_MapVersionFactory,
-  u_HashCacheWithQueuesAbstract;
+  i_HashInterfaceCache,
+  u_BaseInterfacedObject;
 
 type
   IMapVersionFactorySimpleInternal = interface
     ['{AF11A02B-BB29-47FE-A2DC-FC72568827C5}']
   end;
 
-  TMapVersionFactorySimpleString = class(THashCacheWithQueuesAbstract, IMapVersionFactory, IMapVersionFactorySimpleInternal)
+  TMapVersionFactorySimpleString = class(TBaseInterfacedObject, IMapVersionFactory, IMapVersionFactorySimpleInternal)
   private
     FHashFunction: IHashFunction;
+    FCache: IHashInterfaceCache;
+  private
+    function CreateByKey(
+      const AKey: THashValue;
+      const AData: Pointer
+    ): IInterface;
   private
     { IMapVersionFactory }
     function CreateByStoreString(const AValue: string): IMapVersionInfo;
     function CreateByMapVersion(const AValue: IMapVersionInfo): IMapVersionInfo;
     function IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
-  protected
-    function CreateByKey(
-      const AKey: THashValue;
-      AData: Pointer
-    ): IInterface; override;
   public
     constructor Create(
       const AHashFunction: IHashFunction
@@ -57,6 +59,7 @@ implementation
 
 uses
   SysUtils,
+  u_HashInterfaceCache2Q,
   u_MapVersionInfo;
 
 { TMapVersionFactorySimpleString }
@@ -65,13 +68,21 @@ constructor TMapVersionFactorySimpleString.Create(
   const AHashFunction: IHashFunction);
 begin
   Assert(Assigned(AHashFunction));
-  inherited Create(10, 256, 512, 256);
+  inherited Create;
   FHashFunction := AHashFunction;
+  FCache :=
+    THashInterfaceCache2Q.Create(
+      Self.CreateByKey,
+      10,  // 2^10 elements in hash-table
+      256,
+      512,
+      256
+    );
 end;
 
 function TMapVersionFactorySimpleString.CreateByKey(
   const AKey: THashValue;
-  AData: Pointer
+  const AData: Pointer
 ): IInterface;
 var
   VResult: IMapVersionInfo;
@@ -98,7 +109,7 @@ var
   VHash: THashValue;
 begin
   VHash := FHashFunction.CalcHashByString(AValue);
-  Result := IMapVersionInfo(GetOrCreateItem(VHash, Pointer(AValue)));
+  Result := IMapVersionInfo(FCache.GetOrCreateItem(VHash, Pointer(AValue)));
 end;
 
 function TMapVersionFactorySimpleString.IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;

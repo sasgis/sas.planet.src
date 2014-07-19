@@ -473,6 +473,7 @@
     <DCCReference Include="i_GlobalViewMainConfig.pas" />
     <DCCReference Include="i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="i_HashFunction.pas" />
+    <DCCReference Include="i_HashInterfaceCache.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
     <DCCReference Include="i_ImageLineProvider.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
@@ -1195,8 +1196,8 @@
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
-    <DCCReference Include="u_HashCacheWithQueuesAbstract.pas" />
     <DCCReference Include="u_HashFunctionWithCounter.pas" />
+    <DCCReference Include="u_HashInterfaceCache2Q.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
     <DCCReference Include="u_IeEmbeddedProtocol.pas" />
     <DCCReference Include="u_IeEmbeddedProtocolFactory.pas" />

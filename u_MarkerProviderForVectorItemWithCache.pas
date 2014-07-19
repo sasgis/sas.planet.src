@@ -29,23 +29,25 @@ uses
   i_MarkerDrawable,
   i_MarksDrawConfig,
   i_MarkerProviderForVectorItem,
-  u_HashCacheWithQueuesAbstract;
+  i_HashInterfaceCache,
+  u_BaseInterfacedObject;
 
 type
-  TMarkerProviderForVectorItemWithCache = class(THashCacheWithQueuesAbstract, IMarkerProviderForVectorItem)
+  TMarkerProviderForVectorItemWithCache = class(TBaseInterfacedObject, IMarkerProviderForVectorItem)
   private
     FHashFunction: IHashFunction;
     FProvider: IMarkerProviderForVectorItem;
+    FCache: IHashInterfaceCache;
   private
     function GetMarker(
       const AConfig: ICaptionDrawConfigStatic;
       const AItem: IVectorDataItem
     ): IMarkerDrawable;
-  protected
+  private
     function CreateByKey(
       const AKey: THashValue;
-      AData: Pointer
-    ): IInterface; override;
+      const AData: Pointer
+    ): IInterface;
   public
     constructor Create(
       const AHashFunction: IHashFunction;
@@ -54,6 +56,9 @@ type
   end;
 
 implementation
+
+uses
+  u_HashInterfaceCache2Q;
 
 type
   PDataRecord = ^TDataRecord;
@@ -70,14 +75,22 @@ constructor TMarkerProviderForVectorItemWithCache.Create(
 );
 begin
   Assert(AProvider <> nil);
-  inherited Create(14, 1000, 4000, 1000); // 2^14 elements in hash-table
+  inherited Create;
   FHashFunction := AHashFunction;
   FProvider := AProvider;
+  FCache :=
+    THashInterfaceCache2Q.Create(
+      Self.CreateByKey,
+      14,  // 2^14 elements in hash-table
+      1000,
+      4000,
+      1000
+    );
 end;
 
 function TMarkerProviderForVectorItemWithCache.CreateByKey(
   const AKey: THashValue;
-  AData: Pointer
+  const AData: Pointer
 ): IInterface;
 var
   VData: PDataRecord;
@@ -101,7 +114,7 @@ begin
   end;
   VData.Config :=  AConfig;
   VData.Item := AItem;
-  Result := IMarkerDrawable(GetOrCreateItem(VHash, @VData));
+  Result := IMarkerDrawable(FCache.GetOrCreateItem(VHash, @VData));
 end;
 
 end.
