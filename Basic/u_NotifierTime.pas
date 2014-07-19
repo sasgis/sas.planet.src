@@ -49,6 +49,7 @@ implementation
 
 constructor TNotifierTime.Create(const ASync: IReadWriteSync);
 begin
+  Assert(Assigned(ASync));
   inherited Create;
   FSync := ASync;
   FListeners := TList.Create;

@@ -83,7 +83,11 @@ constructor TBackgroundTask.Create(
 var
   VOperationNotifier: TNotifierOperation;
 begin
-  inherited Create(AThreadConfig, AThreadDebugName);
+  inherited Create(
+    GSync.SyncVariable.Make(Self.ClassName + 'Thread'),
+    AThreadConfig,
+    AThreadDebugName
+  );
   FOnExecute := AOnExecute;
   FAppClosingNotifier := AAppClosingNotifier;
   Assert(Assigned(FOnExecute));

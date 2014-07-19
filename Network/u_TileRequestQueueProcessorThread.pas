@@ -57,6 +57,7 @@ implementation
 uses
   SysUtils,
   i_TileRequestResult,
+  u_Synchronizer,
   u_ListenerByEvent;
 
 { TTileRequestQueueProcessorThread }
@@ -68,7 +69,11 @@ constructor TTileRequestQueueProcessorThread.Create(
   const ATileDownloaderSync: ITileDownloader
 );
 begin
-  inherited Create(AThreadConfig, Self.ClassName);
+  inherited Create(
+    GSync.SyncVariable.Make(Self.ClassName),
+    AThreadConfig,
+    Self.ClassName
+  );
   FAppClosingNotifier := AAppClosingNotifier;
   FTileRequestQueue := ATileRequestQueue;
   FTileDownloaderSync := ATileDownloaderSync;

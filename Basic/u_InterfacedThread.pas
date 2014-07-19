@@ -51,6 +51,7 @@ type
     procedure Terminate; virtual;
   public
     constructor Create(
+      const ASync: IReadWriteSync;
       const AConfig: IThreadConfig;
       const ADebugName: string = ''
     );
@@ -65,8 +66,7 @@ uses
   ECore,
   {$ENDIF}
   u_ListenerByEvent,
-  u_ReadableThreadNames,
-  u_Synchronizer;
+  u_ReadableThreadNames;
 
 type
   TThread4InterfacedThread = class(TThread)
@@ -89,13 +89,16 @@ type
 { TInterfacedThread }
 
 constructor TInterfacedThread.Create(
+  const ASync: IReadWriteSync;
   const AConfig: IThreadConfig;
   const ADebugName: string = ''
 );
 begin
+  Assert(Assigned(ASync));
+  Assert(Assigned(AConfig));
   inherited Create;
   FConfig := AConfig;
-  FCS := GSync.SyncVariable.Make(Self.ClassName);
+  FCS := ASync;
   FConfigListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FThread := TThread4InterfacedThread.Create(
     FConfig.Priority,

@@ -138,6 +138,7 @@ constructor TNotifierOneOperation.Create(
   const ANotifier: INotifierInternal
 );
 begin
+  Assert(Assigned(ASync));
   Assert(ANotifier <> nil);
   inherited Create;
   FNotifier := ANotifier;
