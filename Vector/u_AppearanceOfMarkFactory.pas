@@ -29,17 +29,19 @@ uses
   i_HashFunction,
   i_Appearance,
   i_AppearanceOfMarkFactory,
-  u_HashCacheWithQueuesAbstract;
+  i_HashInterfaceCache,
+  u_BaseInterfacedObject;
 
 type
-  TAppearanceOfMarkFactory = class(THashCacheWithQueuesAbstract, IAppearanceOfMarkFactory)
+  TAppearanceOfMarkFactory = class(TBaseInterfacedObject, IAppearanceOfMarkFactory)
   private
     FHashFunction: IHashFunction;
-  protected
+    FCache: IHashInterfaceCache;
+  private
     function CreateByKey(
       const AKey: THashValue;
-      AData: Pointer
-    ): IInterface; override;
+      const AData: Pointer
+    ): IInterface;
   private
     function CreatePointAppearance(
       const ATextColor: TColor32;
@@ -67,6 +69,7 @@ type
 implementation
 
 uses
+  u_HashInterfaceCache2Q,
   u_AppearanceOfMarkPoint,
   u_AppearanceOfMarkLine,
   u_AppearanceOfMarkPolygon;
@@ -89,13 +92,21 @@ type
 
 constructor TAppearanceOfMarkFactory.Create(const AHashFunction: IHashFunction);
 begin
-  inherited Create(10, 0, 256, 0); // 2^10 elements in hash-table, LRU 256 elements
+  inherited Create;
   FHashFunction := AHashFunction;
+  FCache :=
+    THashInterfaceCache2Q.Create(
+      Self.CreateByKey,
+      10,  // 2^10 elements in hash-table
+      0,   // LRU 256 elements
+      256,
+      0
+    );
 end;
 
 function TAppearanceOfMarkFactory.CreateByKey(
   const AKey: THashValue;
-  AData: Pointer
+  const AData: Pointer
 ): IInterface;
 var
   VData: PDataRecord;
@@ -158,7 +169,7 @@ begin
   VData.Color1 := ALineColor;
   VData.Size1 := ALineWidth;
 
-  Result := IAppearance(GetOrCreateItem(VHash, @VData));
+  Result := IAppearance(FCache.GetOrCreateItem(VHash, @VData));
 end;
 
 function TAppearanceOfMarkFactory.CreatePointAppearance(
@@ -197,7 +208,7 @@ begin
   VData.Size2 := AMarkerSize;
   VData.Pic := APic;
   VData.PicName := APicName;
-  Result := IAppearance(GetOrCreateItem(VHash, @VData));
+  Result := IAppearance(FCache.GetOrCreateItem(VHash, @VData));
 end;
 
 function TAppearanceOfMarkFactory.CreatePolygonAppearance(
@@ -224,7 +235,7 @@ begin
   VData.Color1 := ALineColor;
   VData.Color2 := AFillColor;
   VData.Size1 := ALineWidth;
-  Result := IAppearance(GetOrCreateItem(VHash, @VData));
+  Result := IAppearance(FCache.GetOrCreateItem(VHash, @VData));
 end;
 
 end.
