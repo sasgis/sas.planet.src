@@ -440,7 +440,7 @@ begin
     AInetConfig.GetStatic
   );
 
-  VCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+  VCancelNotifier := TNotifierOperationFake.Create;
 
   VResult := VDownloader.DoRequest(
     VRequest,

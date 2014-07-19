@@ -6431,7 +6431,7 @@ begin
       VItem := GState.GeoCoderList.Items[VIndex];
       if Assigned(VItem) then begin
         VLocalConverter := FViewPortState.View.GetStatic;
-        VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+        VNotifier := TNotifierOperationFake.Create;
         VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
         FConfig.SearchHistory.AddItem(VText);
         FSearchPresenter.ShowSearchResults(VResult);
@@ -6455,7 +6455,7 @@ begin
     if VItem <> nil then begin
       VLocalConverter := FViewPortState.View.GetStatic;
       VText := Trim(NewText);
-      VNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+      VNotifier := TNotifierOperationFake.Create;
       VResult := VItem.GetGeoCoder.GetLocations(VNotifier, VNotifier.CurrentOperation, VText, VLocalConverter);
       FConfig.SearchHistory.AddItem(VText);
       FSearchPresenter.ShowSearchResults(VResult);
@@ -6818,7 +6818,7 @@ begin
       VProvider := VEntity.GetProvider;
       VIsError := True;
       try
-        VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+        VOperationNotifier := TNotifierOperationFake.Create;
         VResult :=
           VProvider.GetPath(
             VOperationNotifier,

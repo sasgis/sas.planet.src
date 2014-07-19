@@ -415,7 +415,7 @@ begin
    Result := FALSE;
    try
      VRequest := FAvailPicsSrc.GetRequest(FInetConfig);
-     VCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+     VCancelNotifier := TNotifierOperationFake.Create;
      VResult := FDownloaderHttp.DoRequest(
        VRequest,
        VCancelNotifier,

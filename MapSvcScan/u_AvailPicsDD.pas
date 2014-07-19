@@ -323,7 +323,7 @@ begin
                    AInetConfig.GetStatic
                   );
   VDownloader := TDownloaderHttp.Create(FResultFactory);
-  VCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+  VCancelNotifier := TNotifierOperationFake.Create;
   VResult := VDownloader.DoRequest(
               VPostRequest,
               VCancelNotifier,

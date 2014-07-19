@@ -52,7 +52,6 @@ type
     FTileRequestResult: ITileRequestResult;
 
     FCancelNotifier: INotifierOperation;
-    FCancelNotifierInternal: INotifierOperationInternal;
     FFinishEvent: TEvent;
     FTaskFinishNotifier: ITileRequestTaskFinishNotifier;
 
@@ -104,8 +103,6 @@ constructor TTileDownloaderUIOneTile.Create(
   const AGlobalInternetState: IGlobalInternetState;
   const AErrorLogger: ITileErrorLogger
 );
-var
-  VOperationNotifier: TNotifierOperation;
 begin
   inherited Create(False);
   FDownloadInfo := ADownloadInfo;
@@ -119,9 +116,7 @@ begin
   Priority := AThreadConfig.Priority;
   FreeOnTerminate := True;
 
-  VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
-  FCancelNotifierInternal := VOperationNotifier;
-  FCancelNotifier := VOperationNotifier;
+  FCancelNotifier := TNotifierOperationFake.Create;
   FFinishEvent := TEvent.Create;
 
   FTaskFinishNotifier := TTileRequestTaskFinishNotifier.Create(Self.OnTileDownloadFinish);

@@ -47,6 +47,17 @@ type
     constructor Create(const ANotifier: INotifierInternal);
   end;
 
+  TNotifierOperationFake = class(TBaseInterfacedObject, INotifierOperation)
+  private
+    function GetCurrentOperation: Integer;
+    function IsOperationCanceled(AID: Integer): Boolean;
+
+    procedure AddListener(const AListener: IListener);
+    procedure RemoveListener(const AListener: IListener);
+  public
+    constructor Create;
+  end;
+
   TNotifierOneOperation = class(TBaseInterfacedObject, INotifier, INotifierOneOperation, INotifierOneOperationInternal)
   private
     FExecutedCount: Integer;
@@ -213,6 +224,33 @@ end;
 procedure TNotifierOneOperationByNotifier.Remove(const AListener: IListener);
 begin
   FSourceNotifier.RemoveListener(AListener);
+end;
+
+{ TNotifierOperationFake }
+
+constructor TNotifierOperationFake.Create;
+begin
+  inherited Create;
+end;
+
+procedure TNotifierOperationFake.AddListener(const AListener: IListener);
+begin
+  // Do nothing
+end;
+
+function TNotifierOperationFake.GetCurrentOperation: Integer;
+begin
+  Result := 0;
+end;
+
+function TNotifierOperationFake.IsOperationCanceled(AID: Integer): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TNotifierOperationFake.RemoveListener(const AListener: IListener);
+begin
+  // Do nothing
 end;
 
 end.

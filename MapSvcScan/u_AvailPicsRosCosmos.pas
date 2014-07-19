@@ -380,7 +380,7 @@ begin
                   );
 
   VDownloader := TDownloaderHttp.Create(FResultFactory, TRUE);
-  VCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+  VCancelNotifier := TNotifierOperationFake.Create;
   VResult := VDownloader.DoRequest(
               VPostRequest,
               VCancelNotifier,
