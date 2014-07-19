@@ -179,8 +179,6 @@ uses
   i_ArchiveReadWriteFactory in 'ArchiveReadWrite\i_ArchiveReadWriteFactory.pas',
   u_ArchiveReadWriteFactory in 'ArchiveReadWrite\u_ArchiveReadWriteFactory.pas',
   u_ZmpFileNamesIteratorFactory in 'u_ZmpFileNamesIteratorFactory.pas',
-  i_NotifierFactory in 'i_NotifierFactory.pas',
-  u_NotifierFactorySimple in 'u_NotifierFactorySimple.pas',
   u_NotifyWithGUIDEvent in 'u_NotifyWithGUIDEvent.pas',
   i_ListenerNotifierLinksList in 'i_ListenerNotifierLinksList.pas',
   u_ListenerNotifierLinksList in 'u_ListenerNotifierLinksList.pas',

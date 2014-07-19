@@ -540,7 +540,6 @@
     <DCCReference Include="i_MouseHandler.pas" />
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
-    <DCCReference Include="i_NotifierFactory.pas" />
     <DCCReference Include="i_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="i_NotifierRectUpdate.pas" />
     <DCCReference Include="i_NotifierTilePyramidUpdate.pas" />
@@ -1295,7 +1294,6 @@
     <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_MultiPoligonParser.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
-    <DCCReference Include="u_NotifierFactorySimple.pas" />
     <DCCReference Include="u_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="u_NotifierTilePyramidUpdate.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
