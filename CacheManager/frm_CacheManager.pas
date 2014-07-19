@@ -143,6 +143,7 @@ uses
   u_ThreadCacheConverter,
   u_TileStorageTar,
   u_CacheConverterProgressInfo,
+  u_Synchronizer,
   frm_ProgressCacheConvrter;
 
 {$R *.dfm}
@@ -332,7 +333,10 @@ var
 begin
   VProgressInfo := TCacheConverterProgressInfo.Create;
 
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
+  VCancelNotifierInternal :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
+    );
   VOperationID := VCancelNotifierInternal.CurrentOperation;
 
   VCoordConverter := FCoordConverterFactory.GetCoordConverterByCode(CGoogleProjectionEPSG, CTileSplitQuadrate256x256);

@@ -222,6 +222,8 @@ type
 { TGPSPositionUpdatable }
 
 constructor TGPSModuleAbstract.Create(const APositionFactory: IGPSPositionFactory);
+var
+  VSync: IReadWriteSync;
 begin
   inherited Create;
   FGPSPositionFactory := APositionFactory;
@@ -237,15 +239,16 @@ begin
   FSatellitesGL := TGPSSatelliteInfoList.Create(24);
 
   FLastStaticPosition := nil;
-  FConnectErrorNotifier := TNotifierBase.Create;
+  VSync := GSync.SyncVariable.Make(Self.ClassName + 'Notifiers');
+  FConnectErrorNotifier := TNotifierBase.Create(VSync);
 
-  FConnectingNotifier := TNotifierBase.Create;
-  FConnectedNotifier := TNotifierBase.Create;
-  FDisconnectingNotifier := TNotifierBase.Create;
-  FDisconnectedNotifier := TNotifierBase.Create;
+  FConnectingNotifier := TNotifierBase.Create(VSync);
+  FConnectedNotifier := TNotifierBase.Create(VSync);
+  FDisconnectingNotifier := TNotifierBase.Create(VSync);
+  FDisconnectedNotifier := TNotifierBase.Create(VSync);
 
-  FDataReciveNotifier := TNotifierBase.Create;
-  FTimeOutNotifier := TNotifierBase.Create;
+  FDataReciveNotifier := TNotifierBase.Create(VSync);
+  FTimeOutNotifier := TNotifierBase.Create(VSync);
 end;
 
 destructor TGPSModuleAbstract.Destroy;

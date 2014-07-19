@@ -71,7 +71,7 @@ end;
 
 function TNotifierFactorySimple.Make(const AName: string): INotifierInternal;
 begin
-  Result := TNotifierBase.Create;
+  Result := TNotifierBase.Create(FSyncFactory.Make(AName));
 end;
 
 { TNotifierFactoryWrapperWithCounter }

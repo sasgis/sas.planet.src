@@ -74,7 +74,10 @@ begin
   inherited Create;
   FSync := GSync.SyncVariable.Make(Self.ClassName);
 
-  FNotifierInternal := TNotifierBase.Create;
+  FNotifierInternal :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   FNotifier := FNotifierInternal;
 
   FMemCache := TGoogleEarthTerrainMemCache.Create;

@@ -47,7 +47,8 @@ type
 implementation
 
 uses
-  u_Notifier;
+  u_Notifier,
+  u_Synchronizer;
 
 { TTreeByMapActiveMapsSet }
 
@@ -55,7 +56,10 @@ constructor TTreeByMapActiveMapsSet.Create(const AMapsSet: IMapTypeSet);
 begin
   inherited Create;
   FMapsSet := AMapsSet;
-  FChangeNotifier := TNotifierBase.Create;
+  FChangeNotifier :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   FStaticTree := CreateStatic;
 end;
 

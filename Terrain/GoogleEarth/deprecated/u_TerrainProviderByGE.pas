@@ -85,6 +85,7 @@ uses
   u_GeoFunc,
   u_Notifier,
   u_ListenerByEvent,
+  u_Synchronizer,
   u_TileStorageGETerrain;
 
 const
@@ -108,7 +109,10 @@ begin
 
   FAvailable := FStorage.Available and FGoogleEarthLib.Available;
 
-  FStateChangeNotifierInternal := TNotifierBase.Create;
+  FStateChangeNotifierInternal :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   FStateChangeNotifier := FStateChangeNotifierInternal;
 
   FCacheStateChangeListner := TNotifyNoMmgEventListener.Create(Self.OnCacheStateChange);

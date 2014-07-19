@@ -198,7 +198,10 @@ begin
   inherited Create;
   FCS := GSync.SyncStdRecursive.Make(Self.ClassName);
   FList := TGUIDInterfaceSet.Create(False);
-  FAddNotifier := TNotifierBase.Create;
+  FAddNotifier :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
 end;
 
 procedure TTerrainProviderListBase.Add(const AItem: ITerrainProviderListElement);

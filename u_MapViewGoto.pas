@@ -83,6 +83,7 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   u_Notifier,
+  u_Synchronizer,
   u_GeoFunc;
 
 { TMapViewGoto }
@@ -91,7 +92,10 @@ constructor TMapViewGoto.Create(const AViewPortState: IViewPortState);
 begin
   inherited Create;
   FViewPortState := AViewPortState;
-  FChangeNotifier := TNotifierBase.Create;
+  FChangeNotifier :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   FLastGotoPos := TGotoPosStatic.Create(CEmptyDoublePoint, 0, NaN);
 end;
 

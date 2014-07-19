@@ -57,7 +57,8 @@ uses
   i_CoordConverter,
   i_LocalCoordConverter,
   u_ListenerByEvent,
-  u_Notifier;
+  u_Notifier,
+  u_Synchronizer;
 
 { TSensorTextFromNavToPoint }
 
@@ -66,7 +67,10 @@ constructor TSensorTextFromNavToPoint.Create(
   const ANavigationToPoint: INavigationToPoint
 );
 begin
-  FSourceDataUpdateNotifier := TNotifierBase.Create;
+  FSourceDataUpdateNotifier :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   inherited Create(FSourceDataUpdateNotifier);
   FViewPortState := AViewPortState;
   FNavigationToPoint := ANavigationToPoint;

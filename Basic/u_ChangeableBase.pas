@@ -23,6 +23,7 @@ unit u_ChangeableBase;
 interface
 
 uses
+  SysUtils,
   i_Notifier,
   i_Changeable,
   u_BaseInterfacedObject;
@@ -44,7 +45,7 @@ type
 
     procedure DoChangeNotify; virtual;
   public
-    constructor Create;
+    constructor Create(const ANotifierSync: IReadWriteSync);
   end;
 
 implementation
@@ -54,12 +55,12 @@ uses
 
 { TChangeableBase }
 
-constructor TChangeableBase.Create;
+constructor TChangeableBase.Create(const ANotifierSync: IReadWriteSync);
 begin
   inherited Create;
-  FBeforeChangeNotifier := TNotifierBase.Create;
-  FChangeNotifier := TNotifierBase.Create;
-  FAfterChangeNotifier := TNotifierBase.Create;
+  FBeforeChangeNotifier := TNotifierBase.Create(ANotifierSync);
+  FChangeNotifier := TNotifierBase.Create(ANotifierSync);
+  FAfterChangeNotifier := TNotifierBase.Create(ANotifierSync);
 end;
 
 procedure TChangeableBase.DoAfterChangeNotify;

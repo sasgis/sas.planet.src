@@ -200,7 +200,10 @@ begin
   FTileDownloadRequestBuilderConfig := ATileDownloadRequestBuilderConfig;
   FAppClosingNotifier := AAppClosingNotifier;
 
-  VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+  VOperationNotifier :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
+    );
   FDestroyNotifierInternal := VOperationNotifier;
   FDestroyNotifier := VOperationNotifier;
   FDestroyOperationID := FDestroyNotifier.CurrentOperation;

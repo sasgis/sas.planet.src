@@ -91,6 +91,7 @@ uses
   u_Notifier,
   u_InterfaceListSimple,
   u_StaticTreeBuilderBase,
+  u_Synchronizer,
   u_ListenerByEvent;
 
 { TMarkCategoryDbByImpl }
@@ -102,7 +103,10 @@ begin
   inherited Create;
   FMarkSystemImpl := AMarkSystemImpl;
   FMarkCategoryFactory := AMarkCategoryFactory;
-  FChangeNotifierInternal := TNotifierBase.Create;
+  FChangeNotifierInternal :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   FChangeNotifier := FChangeNotifierInternal;
   FImplChangeListener := TNotifyNoMmgEventListener.Create(Self.OnImplChange);
   FDbImplChangeListener := TNotifyNoMmgEventListener.Create(Self.OnDbImplChange);

@@ -67,6 +67,7 @@ uses
   u_GeoFunc,
   u_Notifier,
   u_ListenerByEvent,
+  u_Synchronizer,
   u_GoogleEarthTerrainTileStorage;
 
 { TTerrainProviderByGoogleEarth }
@@ -87,7 +88,10 @@ begin
       CTileSplitQuadrate256x256
     );
 
-  FStateChangeNotifierInternal := TNotifierBase.Create;
+  FStateChangeNotifierInternal :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   FStateChangeNotifier := FStateChangeNotifierInternal;
 
   FCacheStateChangeListner := TNotifyNoMmgEventListener.Create(Self.OnCacheStateChange);

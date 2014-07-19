@@ -56,7 +56,10 @@ constructor TTileErrorLogProviedrStuped.Create;
 begin
   inherited Create;
   FCS := GSync.SyncVariable.Make(Self.ClassName);
-  FNotifier := TNotifierBase.Create;
+  FNotifier :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
 end;
 
 function TTileErrorLogProviedrStuped.GetLastErrorInfo: ITileErrorInfo;

@@ -106,7 +106,7 @@ constructor TConfigDataElementBase.Create(
   const ALock: IReadWriteSync
 );
 begin
-  inherited Create;
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FLock := ALock;
   if FLock = nil then begin
     FLock := GSync.SyncBigRecursive.Make(Self.ClassName);

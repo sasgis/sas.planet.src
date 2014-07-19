@@ -40,7 +40,7 @@ type
   private
     procedure Notify(const AMsg: IInterface);
   public
-    constructor Create;
+    constructor Create(const ASync: IReadWriteSync);
     destructor Destroy; override;
   end;
 
@@ -54,16 +54,14 @@ type
 
 implementation
 
-uses
-  u_Synchronizer;
-
 { TNotifierBase }
 
-constructor TNotifierBase.Create;
+constructor TNotifierBase.Create(const ASync: IReadWriteSync);
 begin
+  Assert(Assigned(ASync));
   inherited Create;
   FListeners := TList.Create;
-  FSync := GSync.SyncVariable.Make(Self.ClassName);
+  FSync := ASync;
 end;
 
 destructor TNotifierBase.Destroy;

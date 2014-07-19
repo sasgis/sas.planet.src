@@ -169,7 +169,10 @@ begin
   FRequestManager := TUiTileRequestManager.Create(FConfig.MapUiRequestCount);
 
   FSoftCancelNotifier := nil;
-  FHardCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
+  FHardCancelNotifierInternal :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
+    );
 
   FCS := GSync.SyncStd.Make(Self.ClassName);
   FTaskFinishNotifier := TTileRequestTaskFinishNotifier.Create(Self.OnTileDownloadFinish);

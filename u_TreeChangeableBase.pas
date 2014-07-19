@@ -73,7 +73,10 @@ begin
   inherited Create;
   FStaticTreeBuilder := AStaticTreeBuilder;
   FConfigChangeNotifier := AConfigChangeNotifier;
-  FChangeNotifier := TNotifierBase.Create;
+  FChangeNotifier :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   FCS := GSync.SyncVariable.Make(Self.ClassName);
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfigChangeNotifier.Add(FConfigChangeListener);

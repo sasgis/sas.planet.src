@@ -123,6 +123,7 @@ implementation
 uses
   i_MarkSystemImpl,
   u_Notifier,
+  u_Synchronizer,
   u_ListenerByEvent;
 
 { TMarkDbByImpl }
@@ -135,7 +136,10 @@ begin
   inherited Create;
   FMarkSystemImpl := AMarkSystemImpl;
   FMarkFactory := AMarkFactory;
-  FChangeNotifierInternal := TNotifierBase.Create;
+  FChangeNotifierInternal :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+    );
   FChangeNotifier := FChangeNotifierInternal;
   FImplChangeListener := TNotifyNoMmgEventListener.Create(Self.OnImplChange);
   FDbImplChangeListener := TNotifyNoMmgEventListener.Create(Self.OnDbImplChange);

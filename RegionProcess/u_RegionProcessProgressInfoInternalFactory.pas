@@ -59,6 +59,7 @@ uses
   u_RegionProcessProgressInfo,
   u_NotifierOperation,
   u_Notifier,
+  u_Synchronizer,
   frm_ProgressSimple;
 
 { TRegionProcessProgressInfoInternalFactory }
@@ -85,7 +86,10 @@ var
   VProgressInfo: TRegionProcessProgressInfo;
   VOperationID: Integer;
 begin
-  VCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
+  VCancelNotifierInternal :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
+    );
   VOperationID := VCancelNotifierInternal.CurrentOperation;
   VProgressInfo := TRegionProcessProgressInfo.Create(VCancelNotifierInternal, VOperationID);
   Result := VProgressInfo;

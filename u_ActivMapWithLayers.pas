@@ -77,6 +77,7 @@ uses
   ActiveX,
   c_ZeroGUID,
   i_StringListStatic,
+  u_Synchronizer,
   u_ActiveMapsSet;
 
 const
@@ -96,11 +97,13 @@ var
   VMapType: IMapType;
   VAllMapsList: IMapTypeSetBuilder;
   VMainMapChangeNotyfier: INotifierWithGUID;
+  VSync: IReadWriteSync;
 begin
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
-  VMainMapChangeNotyfier := TNotifierWithGUID.Create;
-  FLayerSetSelectNotyfier := TNotifierWithGUID.Create;
-  FLayerSetUnselectNotyfier := TNotifierWithGUID.Create;
+  VSync := GSync.SyncVariable.Make(Self.ClassName + 'Notifiers');
+  VMainMapChangeNotyfier := TNotifierWithGUID.Create(VSync);
+  FLayerSetSelectNotyfier := TNotifierWithGUID.Create(VSync);
+  FLayerSetUnselectNotyfier := TNotifierWithGUID.Create(VSync);
   FLayersSet := ALayersSet;
 
   VAllMapsList := FMapTypeSetBuilderFactory.Build(True);

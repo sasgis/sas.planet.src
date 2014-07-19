@@ -406,6 +406,7 @@ var
   VTileGetPrevResampler: IImageResamplerFactoryChangeable;
   VTileReprojectResampler: IImageResamplerFactoryChangeable;
   VTileDownloadResampler: IImageResamplerFactoryChangeable;
+  VSync: IReadWriteSync;
 begin
   inherited Create;
   if ModuleIsLib then begin
@@ -478,9 +479,12 @@ begin
   FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create(FBitmapFactory);
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
 
-  FAppStartedNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);
+  VSync := GSync.SyncVariable.Make(Self.ClassName + 'Notifiers');
+  FAppStartedNotifierInternal :=
+    TNotifierOneOperation.Create(TNotifierBase.Create(VSync));
   FAppStartedNotifier := FAppStartedNotifierInternal;
-  FAppClosingNotifierInternal := TNotifierOneOperation.Create(TNotifierBase.Create);
+  FAppClosingNotifierInternal :=
+    TNotifierOneOperation.Create(TNotifierBase.Create(VSync));
   FAppClosingNotifier := FAppClosingNotifierInternal;
 
   VSleepByClass := FMainConfigProvider.GetSubItem('SleepByClass');

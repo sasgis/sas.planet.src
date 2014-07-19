@@ -62,7 +62,7 @@ constructor TMapTypeSetChangeableSimple.Create(
   const ACurrentSet: IMapTypeSet
 );
 begin
-  inherited Create;
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FMapTypeSetBuilderFactory := AMapTypeSetBuilderFactory;
   FCS := GSync.SyncVariable.Make(Self.ClassName);
   SetStatic(ACurrentSet);

@@ -134,7 +134,7 @@ begin
   Assert(Assigned(APosition));
   Assert(Assigned(ATileMatrixFactory));
   Assert(Assigned(ALayerProvider));
-  inherited Create;
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
 
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;

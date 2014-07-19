@@ -62,7 +62,7 @@ constructor TVectorItemSubsetChangeableBySearchResult.Create(
 );
 begin
   Assert(Assigned(ALastSearchResults));
-  inherited Create;
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FLastSearchResults := ALastSearchResults;
 
   FResultCS := GSync.SyncVariable.Make(Self.ClassName);

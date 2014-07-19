@@ -109,7 +109,7 @@ end;
 
 constructor TBatteryStatus.Create;
 begin
-  inherited Create;
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FLock := GSync.SyncVariable.Make(Self.ClassName);
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 1000;

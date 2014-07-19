@@ -39,11 +39,14 @@ type
 
 implementation
 
+uses
+  u_Synchronizer;
+  
 { TMainFormState }
 
 constructor TMainFormState.Create;
 begin
-  inherited Create;
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FState := ao_movemap;
 end;
 

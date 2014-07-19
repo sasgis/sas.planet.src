@@ -79,6 +79,7 @@ uses
   c_InternalBrowser,
   u_Notifier,
   u_NotifierOperation,
+  u_Synchronizer,
   u_ReadableThreadNames;
 
 {$R *.dfm}
@@ -159,7 +160,10 @@ begin
   inherited Create(ALanguageManager);
   FValueToStringConverter := AValueToStringConverter;
   FGeoCalc := AGeoCalc;
-  FCancelNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+  FCancelNotifier :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
+    );
 end;
 
 procedure TfrmMarkInfo.FormClose(Sender: TObject; var Action: TCloseAction);

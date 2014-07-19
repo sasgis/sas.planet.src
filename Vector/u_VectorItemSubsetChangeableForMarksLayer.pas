@@ -114,7 +114,7 @@ constructor TVectorItemSubsetChangeableForMarksLayer.Create(
 begin
   Assert(Assigned(APosition));
   Assert(Assigned(AMarkSystem));
-  inherited Create();
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FPosition := APosition;
   FMarkDB := AMarkSystem;
   FConfig := AConfig;

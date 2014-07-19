@@ -132,7 +132,7 @@ begin
   FDLLCacheHandle := nil;
   FDLLSync := GSync.SyncBig.Make(Self.ClassName);
   FTileNotExistsTileInfo := TTileInfoBasicNotExists.Create(0, nil);
-  FNotifierInternal := TNotifierBase.Create;
+  FNotifierInternal := TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'));
   FNotifier := FNotifierInternal;
   InternalLib_CleanupProc;
   InternalLib_SetPath(PAnsiChar(FStoragePath));

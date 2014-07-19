@@ -23,6 +23,7 @@ unit u_NotifyWithGUIDEvent;
 interface
 
 uses
+  SysUtils,
   i_Notifier,
   i_Listener,
   u_BaseInterfacedObject;
@@ -72,7 +73,7 @@ type
   private
     procedure NotifyByGUID(const AGUID: TGUID);
   public
-    constructor Create;
+    constructor Create(const ASync: IReadWriteSync);
   end;
 
 implementation
@@ -110,10 +111,10 @@ end;
 
 { TNotifierWithGUID }
 
-constructor TNotifierWithGUID.Create;
+constructor TNotifierWithGUID.Create(const ASync: IReadWriteSync);
 begin
   inherited Create;
-  FNotifier := TNotifierBase.Create;
+  FNotifier := TNotifierBase.Create(ASync);
 end;
 
 procedure TNotifierWithGUID.Add(const AListener: IListener);

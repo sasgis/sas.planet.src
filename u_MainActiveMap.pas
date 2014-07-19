@@ -62,6 +62,7 @@ uses
   SysUtils,
   ActiveX,
   c_ZeroGUID,
+  u_Synchronizer,
   u_ActiveMapConfig;
 
 const
@@ -80,7 +81,10 @@ begin
   FMapsSet := AMapsSet;
   FMainMapChangeNotyfier := AMainMapChangeNotyfier;
   if FMainMapChangeNotyfier = nil then begin
-    FMainMapChangeNotyfier := TNotifierWithGUID.Create;
+    FMainMapChangeNotyfier :=
+      TNotifierWithGUID.Create(
+        GSync.SyncVariable.Make(Self.ClassName + 'Notifier')
+      );
   end;
 
   FActiveMap := TMapTypeChangeableByNotifier.Create(FIsAllowNil, FMainMapChangeNotyfier, FMapsSet);

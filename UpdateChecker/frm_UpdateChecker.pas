@@ -102,6 +102,7 @@ uses
   u_NotifierOperation,
   u_ListenerByEvent,
   u_UpdateDownloader,
+  u_Synchronizer,
   u_ResStrings;
 
 resourcestring
@@ -132,7 +133,10 @@ begin
   inherited Create(ALanguageManager);
   FAppClosingNotifier := AAppClosingNotifier;
 
-  FCancelNotifierInternal := TNotifierOperation.Create(TNotifierBase.Create);
+  FCancelNotifierInternal :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
+    );
 
   FAppClosingListener := TNotifyNoMmgEventListener.Create(Self.OnAppClosing);
   FAppClosingNotifier.Add(FAppClosingListener);

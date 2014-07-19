@@ -69,6 +69,7 @@ implementation
 uses
   u_Notifier,
   u_NotifierOperation,
+  u_Synchronizer,
   u_ListenerByEvent;
 
 { TBackgroundTask }
@@ -88,7 +89,10 @@ begin
   Assert(Assigned(FOnExecute));
   FStopThreadHandle := CreateEvent(nil, TRUE, FALSE, nil);
   FAllowExecuteHandle := CreateEvent(nil, TRUE, FALSE, nil);
-  VOperationNotifier := TNotifierOperation.Create(TNotifierBase.Create);
+  VOperationNotifier :=
+    TNotifierOperation.Create(
+      TNotifierBase.Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifier'))
+    );
   FCancelNotifierInternal := VOperationNotifier;
   FCancelNotifier := VOperationNotifier;
 

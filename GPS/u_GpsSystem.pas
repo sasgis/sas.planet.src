@@ -159,6 +159,8 @@ constructor TGpsSystem.Create(
   const ATimerNoifier: INotifierTime;
   const APerfCounterList: IInternalPerformanceCounterList
 );
+var
+  VSync: IReadWriteSync;
 begin
   inherited Create;
   FAppStartedNotifier := AAppStartedNotifier;
@@ -180,13 +182,14 @@ begin
   FInternalState := isDisconnected;
   FLastDataReceiveTick := 0;
 
-  FConnectingNotifier := TNotifierBase.Create;
-  FConnectedNotifier := TNotifierBase.Create;
-  FDisconnectingNotifier := TNotifierBase.Create;
-  FDisconnectedNotifier := TNotifierBase.Create;
-  FTimeOutNotifier := TNotifierBase.Create;
-  FConnectErrorNotifier := TNotifierBase.Create;
-  FDataReciveNotifier := TNotifierBase.Create;
+  VSync := GSync.SyncVariable.Make(Self.ClassName + 'Notifiers');
+  FConnectingNotifier := TNotifierBase.Create(VSync);
+  FConnectedNotifier := TNotifierBase.Create(VSync);
+  FDisconnectingNotifier := TNotifierBase.Create(VSync);
+  FDisconnectedNotifier := TNotifierBase.Create(VSync);
+  FTimeOutNotifier := TNotifierBase.Create(VSync);
+  FConnectErrorNotifier := TNotifierBase.Create(VSync);
+  FDataReciveNotifier := TNotifierBase.Create(VSync);
 
   FLinksList.Add(
     TNotifyNoMmgEventListener.Create(Self.OnConfigChange),

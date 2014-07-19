@@ -179,7 +179,7 @@ begin
   Assert(Assigned(ALayersSet));
   Assert(Assigned(AErrorLogger));
   Assert(Assigned(AVectorItemSubsetBuilderFactory));
-  inherited Create();
+  inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FPosition := APosition;
   FLayersSet := ALayersSet;
   FErrorLogger := AErrorLogger;

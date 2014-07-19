@@ -48,14 +48,18 @@ implementation
 
 uses
   SysUtils,
-  u_Notifier;
+  u_Notifier,
+  u_Synchronizer;
 
 { TSystemTimeProvider }
 
 constructor TSystemTimeProvider.Create;
 begin
   inherited Create;
-  FSystemTimeChangedNotifier := TNotifierBase.Create;
+  FSystemTimeChangedNotifier :=
+    TNotifierBase.Create(
+      GSync.SyncVariable.Make(Self.ClassName)
+    );
   SystemTimeChanged;
 end;
 
