@@ -71,7 +71,10 @@ type
     procedure Add(const AListener: IListener);
     procedure Remove(const AListener: IListener);
   public
-    constructor Create(const ANotifier: INotifierInternal);
+    constructor Create(
+      const ASync: IReadWriteSync;
+      const ANotifier: INotifierInternal
+    );
   end;
 
   TNotifierOneOperationByNotifier = class(TBaseInterfacedObject, INotifier, INotifierOneOperation)
@@ -91,9 +94,6 @@ type
   end;
 
 implementation
-
-uses
-  u_Synchronizer;
 
 { TNotifierOperation }
 
@@ -133,12 +133,15 @@ end;
 
 { TNotifierOneOperation }
 
-constructor TNotifierOneOperation.Create(const ANotifier: INotifierInternal);
+constructor TNotifierOneOperation.Create(
+  const ASync: IReadWriteSync;
+  const ANotifier: INotifierInternal
+);
 begin
   Assert(ANotifier <> nil);
   inherited Create;
   FNotifier := ANotifier;
-  FCS := GSync.SyncVariable.Make(Self.ClassName);
+  FCS := ASync;
   FExecutedCount := 0;
 end;
 
