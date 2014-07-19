@@ -467,7 +467,10 @@ begin
     TVectorItemSubsetBuilderFactory.Create(
       FHashFunction
     );
-  FBGTimerNotifierInternal := TNotifierTime.Create;
+  FBGTimerNotifierInternal :=
+    TNotifierTime.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'BGTimerNotifier')
+    );
   FBGTimerNotifier := FBGTimerNotifierInternal;
   FBitmapFactory :=
     TBitmap32BufferFactory.Create(
@@ -527,7 +530,10 @@ begin
   FGUISyncronizedTimer.Interval := VSleepByClass.ReadInteger('GUISyncronizedTimer', 16);
   FGUISyncronizedTimer.OnTimer := Self.OnGUISyncronizedTimer;
 
-  FGUISyncronizedTimerNotifierInternal := TNotifierTime.Create;
+  FGUISyncronizedTimerNotifierInternal :=
+    TNotifierTime.Create(
+      GSync.SyncVariable.Make(Self.ClassName + 'GUITimerNotifier')
+    );
   FGUISyncronizedTimerNotifier := FGUISyncronizedTimerNotifierInternal;
   FGUISyncronizedTimerCounter := FDebugInfoSubSystem.RootCounterList.CreateAndAddNewCounter('GUITimer');
 

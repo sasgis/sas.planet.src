@@ -39,21 +39,18 @@ type
     procedure Remove(const AListener: IListenerTime);
     procedure Notify(const ANow: Cardinal);
   public
-    constructor Create;
+    constructor Create(const ASync: IReadWriteSync);
     destructor Destroy; override;
   end;
 
 implementation
 
-uses
-  u_Synchronizer;
-
 { TNotifierTime }
 
-constructor TNotifierTime.Create;
+constructor TNotifierTime.Create(const ASync: IReadWriteSync);
 begin
   inherited Create;
-  FSync := GSync.SyncVariable.Make(Self.ClassName);
+  FSync := ASync;
   FListeners := TList.Create;
 end;
 
