@@ -132,6 +132,10 @@
     <DCCReference Include="Benchmark\u_BenchmarkItemBitmap32LineHorizontal.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkItemBitmap32LineVertical.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkItemCoordConverter.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemDoubleInc.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemDoublePointBaseTest.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemDoublePointIncrement.pas" />
+    <DCCReference Include="Benchmark\u_BenchmarkItemDoublePointIncrementWithEmpty.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkItemEmpty.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkItemHashFunction.pas" />
     <DCCReference Include="Benchmark\u_BenchmarkItemIncInterlocked.pas" />

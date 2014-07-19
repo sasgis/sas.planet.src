@@ -18,98 +18,91 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BenchmarkItemCoordConverter;
+unit u_BenchmarkItemDoublePointIncrement;
 
 interface
 
 uses
-  i_CoordConverter,
+  t_GeoTypes,
   u_BenchmarkItemDoublePointBaseTest;
 
 type
-  TBenchmarkItemCoordConverterForvard = class(TBenchmarkItemDoublePointBaseTest)
-  private
-    FCoordConverter: ICoordConverter;
+  TBenchmarkItemDoublePointIncrement = class(TBenchmarkItemDoublePointBaseTest)
   protected
     function RunOneStep: Integer; override;
   public
-    constructor Create(
-      const ACoordConverterName: string;
-      const ACoordConverter: ICoordConverter
-    );
+    constructor Create;
   end;
 
-  TBenchmarkItemCoordConverterBackvard = class(TBenchmarkItemDoublePointBaseTest)
-  private
-    FCoordConverter: ICoordConverter;
+  TBenchmarkItemDoublePointIncrementInplace = class(TBenchmarkItemDoublePointBaseTest)
   protected
     function RunOneStep: Integer; override;
   public
-    constructor Create(
-      const ACoordConverterName: string;
-      const ACoordConverter: ICoordConverter
-    );
+    constructor Create;
   end;
 
 implementation
 
 uses
-  t_GeoTypes,
   u_GeoFunc;
 
 const CPointsCount = 1000;
 
-{ TBenchmarkItemCoordConverterForvard }
+{ TBenchmarkItemDoublePointIncrement }
 
-constructor TBenchmarkItemCoordConverterForvard.Create(
-  const ACoordConverterName: string;
-  const ACoordConverter: ICoordConverter
-);
+constructor TBenchmarkItemDoublePointIncrement.Create;
 begin
   inherited Create(
-    Assigned(ACoordConverter),
-    'CoordConverter LlToRel ' + ACoordConverterName,
+    True,
+    'DoublePointIncrement',
     CPointsCount,
     DoubleRect(-170, -75, 170, 75)
   );
-  FCoordConverter := ACoordConverter;
 end;
 
-function TBenchmarkItemCoordConverterForvard.RunOneStep: Integer;
+function DoublePointIncrement(const ASrc: TDoublePoint): TDoublePoint; inline;
+begin
+  Result.X := ASrc.X + 1;
+  Result.Y := ASrc.Y + 1;
+end;
+
+function TBenchmarkItemDoublePointIncrement.RunOneStep: Integer;
 var
   i: Integer;
-  VResult: TDoublePoint;
 begin
   Result := 0;
   for i := 0 to FCount - 1 do begin
-    VResult := FCoordConverter.LonLat2Relative(FPoints[i]);
+    FDst[i] := DoublePointIncrement(FPoints[i]);
     Inc(Result);
   end;
 end;
 
-{ TBenchmarkItemCoordConverterBackvard }
+{ TBenchmarkItemDoublePointIncrementInplace }
 
-constructor TBenchmarkItemCoordConverterBackvard.Create(
-  const ACoordConverterName: string;
-  const ACoordConverter: ICoordConverter
-);
+constructor TBenchmarkItemDoublePointIncrementInplace.Create;
 begin
   inherited Create(
-    Assigned(ACoordConverter),
-    'CoordConverter RelToLl ' + ACoordConverterName,
+    True,
+    'DoublePointIncrementInplace',
     CPointsCount,
-    DoubleRect(0, 0, 1, 1)
+    DoubleRect(-170, -75, 170, 75)
   );
-  FCoordConverter := ACoordConverter;
 end;
 
-function TBenchmarkItemCoordConverterBackvard.RunOneStep: Integer;
+procedure DoublePointIncrementInplace(var ASrc: TDoublePoint); inline;
+begin
+  ASrc.X := ASrc.X + 1;
+  ASrc.Y := ASrc.Y + 1;
+end;
+
+function TBenchmarkItemDoublePointIncrementInplace.RunOneStep: Integer;
 var
   i: Integer;
 begin
   Result := 0;
+  Move(FPoints[0], FDst[0], FCount * SizeOf(TDoublePoint));
   for i := 0 to FCount - 1 do begin
-    FDst[i] := FCoordConverter.Relative2LonLat(FPoints[i]);
+    DoublePointIncrementInplace(FDst[i]);
     Inc(Result);
   end;
 end;

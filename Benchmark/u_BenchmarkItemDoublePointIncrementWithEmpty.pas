@@ -18,98 +18,80 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BenchmarkItemCoordConverter;
+unit u_BenchmarkItemDoublePointIncrementWithEmpty;
 
 interface
 
 uses
-  i_CoordConverter,
+  t_GeoTypes,
   u_BenchmarkItemDoublePointBaseTest;
 
 type
-  TBenchmarkItemCoordConverterForvard = class(TBenchmarkItemDoublePointBaseTest)
+  TBenchmarkItemDoublePointIncrementWithEmpty = class(TBenchmarkItemDoublePointBaseTest)
   private
-    FCoordConverter: ICoordConverter;
+    FEmptyStep: Integer;
   protected
+    procedure SetUp; override;
     function RunOneStep: Integer; override;
   public
     constructor Create(
-      const ACoordConverterName: string;
-      const ACoordConverter: ICoordConverter
-    );
-  end;
-
-  TBenchmarkItemCoordConverterBackvard = class(TBenchmarkItemDoublePointBaseTest)
-  private
-    FCoordConverter: ICoordConverter;
-  protected
-    function RunOneStep: Integer; override;
-  public
-    constructor Create(
-      const ACoordConverterName: string;
-      const ACoordConverter: ICoordConverter
+      const AEmptyStep: Integer
     );
   end;
 
 implementation
 
 uses
-  t_GeoTypes,
+  SysUtils,
   u_GeoFunc;
 
 const CPointsCount = 1000;
 
-{ TBenchmarkItemCoordConverterForvard }
+{ TBenchmarkItemDoublePointIncrementWithEmpty }
 
-constructor TBenchmarkItemCoordConverterForvard.Create(
-  const ACoordConverterName: string;
-  const ACoordConverter: ICoordConverter
+function DoublePointIncrement(const ASrc: TDoublePoint): TDoublePoint; inline;
+begin
+  Result.X := ASrc.X + 1;
+  Result.Y := ASrc.Y + 1;
+end;
+
+constructor TBenchmarkItemDoublePointIncrementWithEmpty.Create(
+  const AEmptyStep: Integer
 );
 begin
+  Assert(AEmptyStep > 0);
   inherited Create(
-    Assigned(ACoordConverter),
-    'CoordConverter LlToRel ' + ACoordConverterName,
+    True,
+    Format('DoublePointIncrementWithEmpty step %d', [AEmptyStep]),
     CPointsCount,
     DoubleRect(-170, -75, 170, 75)
   );
-  FCoordConverter := ACoordConverter;
+  FEmptyStep := AEmptyStep;
 end;
 
-function TBenchmarkItemCoordConverterForvard.RunOneStep: Integer;
+procedure TBenchmarkItemDoublePointIncrementWithEmpty.SetUp;
 var
   i: Integer;
-  VResult: TDoublePoint;
 begin
-  Result := 0;
+  inherited;
   for i := 0 to FCount - 1 do begin
-    VResult := FCoordConverter.LonLat2Relative(FPoints[i]);
-    Inc(Result);
+    if Random(FEmptyStep) = 0 then begin
+      FPoints[i] := CEmptyDoublePoint;
+    end;
   end;
 end;
 
-{ TBenchmarkItemCoordConverterBackvard }
-
-constructor TBenchmarkItemCoordConverterBackvard.Create(
-  const ACoordConverterName: string;
-  const ACoordConverter: ICoordConverter
-);
-begin
-  inherited Create(
-    Assigned(ACoordConverter),
-    'CoordConverter RelToLl ' + ACoordConverterName,
-    CPointsCount,
-    DoubleRect(0, 0, 1, 1)
-  );
-  FCoordConverter := ACoordConverter;
-end;
-
-function TBenchmarkItemCoordConverterBackvard.RunOneStep: Integer;
+function TBenchmarkItemDoublePointIncrementWithEmpty.RunOneStep: Integer;
 var
   i: Integer;
 begin
   Result := 0;
   for i := 0 to FCount - 1 do begin
-    FDst[i] := FCoordConverter.Relative2LonLat(FPoints[i]);
+    if not PointIsEmpty(FPoints[i]) then begin
+      FDst[i] := DoublePointIncrement(FPoints[i]);
+    end else begin
+      FDst[i] := CEmptyDoublePoint;
+    end;
     Inc(Result);
   end;
 end;

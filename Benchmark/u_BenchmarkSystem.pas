@@ -84,6 +84,7 @@ uses
   u_BenchmarkItemList,
   u_BenchmarkItemEmpty,
   u_BenchmarkItemIncSimple,
+  u_BenchmarkItemDoubleInc,
   u_BenchmarkItemIncInterlocked,
   u_BenchmarkItemSyncRead,
   u_BenchmarkItemSyncWrite,
@@ -96,6 +97,8 @@ uses
   u_BenchmarkItemBitmap32LineHorizontal,
   u_BenchmarkItemBitmap32Line,
   u_BenchmarkItemCoordConverter,
+  u_BenchmarkItemDoublePointIncrement,
+  u_BenchmarkItemDoublePointIncrementWithEmpty,
   u_BenchmarkResultListSaverToCsv,
   u_BenchmarkTestRunner;
 
@@ -416,6 +419,21 @@ begin
       'SimpleLonLat',
       VCoordConverter
     );
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemDoubleInc.Create;
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemDoublePointIncrement.Create;
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemDoublePointIncrementInplace.Create;
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemDoublePointIncrementWithEmpty.Create(10);
+  VList.Add(VItem);
+
+  VItem := TBenchmarkItemDoublePointIncrementWithEmpty.Create(100);
   VList.Add(VItem);
 
   FBaseTestList := TBenchmarkItemList.Create(VList.MakeStaticAndClear);
