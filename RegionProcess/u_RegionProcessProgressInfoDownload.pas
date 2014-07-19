@@ -378,7 +378,7 @@ var
   VVersionForCheck: string;
 begin
   VVersionForCheck := '';
-  if Assigned(FVersionForCheck.BaseVersion) then begin
+  if Assigned(FVersionForCheck) and Assigned(FVersionForCheck.BaseVersion) then begin
     VVersionForCheck := FVersionForCheck.BaseVersion.StoreString;
   end;
   ASLSSection.WriteString('MapGUID', GUIDToString(FGUID));
