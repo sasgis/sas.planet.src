@@ -60,7 +60,8 @@ implementation
 uses
   SysUtils,
   u_HashInterfaceCache2Q,
-  u_MapVersionInfo;
+  u_MapVersionInfo,
+  u_Synchronizer;
 
 { TMapVersionFactorySimpleString }
 
@@ -72,6 +73,7 @@ begin
   FHashFunction := AHashFunction;
   FCache :=
     THashInterfaceCache2Q.Create(
+      GSync.SyncVariable.Make(Self.ClassName),
       Self.CreateByKey,
       10,  // 2^10 elements in hash-table
       256,

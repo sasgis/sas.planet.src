@@ -71,6 +71,7 @@ implementation
 uses
   u_LocalCoordConverter,
   u_HashInterfaceCache2Q,
+  u_Synchronizer,
   u_GeoFunc;
 
 type
@@ -98,6 +99,7 @@ begin
   FHashFunction := AHashFunction;
   FCache :=
     THashInterfaceCache2Q.Create(
+      GSync.SyncVariable.Make(Self.ClassName),
       Self.CreateByKey,
       13,  // 2^13 elements in hash-table
       0,   // LRU 1024 elements

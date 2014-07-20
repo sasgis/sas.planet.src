@@ -45,7 +45,8 @@ implementation
 uses
   t_GeoTypes,
   i_CoordConverter,
-  u_HashInterfaceCache2Q;
+  u_HashInterfaceCache2Q,
+  u_Synchronizer;
 
 type
   PDataRecord = ^TDataRecord;
@@ -71,6 +72,7 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FCache :=
     THashInterfaceCache2Q.Create(
+      GSync.SyncVariable.Make(Self.ClassName),
       Self.CreateByKey,
       14,  // 2^14 elements in hash-table
       1000,

@@ -183,6 +183,7 @@ type
     procedure Clear;
   public
     constructor Create(
+      const ASync: IReadWriteSync;
       ACreateFunction: TCreateItemFunction;
       AHashSizeInBit: Byte;
       AFirstUseCount: Integer;
@@ -193,9 +194,6 @@ type
   end;
 
 implementation
-
-uses
-  u_Synchronizer;
 
 { TItemsArray }
 
@@ -584,6 +582,7 @@ end;
 { THashInterfaceCache2Q }
 
 constructor THashInterfaceCache2Q.Create(
+  const ASync: IReadWriteSync;
   ACreateFunction: TCreateItemFunction;
   AHashSizeInBit: Byte;
   AFirstUseCount: Integer;
@@ -610,7 +609,7 @@ begin
   inherited Create;
   FCreateFunction := ACreateFunction;
   VHashSizeInBit := AHashSizeInBit;
-  FCS := GSync.SyncVariable.Make(Self.ClassName);
+  FCS := ASync;
 
   if VHashSizeInBit < 6 then begin
     VHashSizeInBit := 6;

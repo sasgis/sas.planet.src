@@ -72,7 +72,8 @@ uses
   u_HashInterfaceCache2Q,
   u_AppearanceOfMarkPoint,
   u_AppearanceOfMarkLine,
-  u_AppearanceOfMarkPolygon;
+  u_AppearanceOfMarkPolygon,
+  u_Synchronizer;
 
 type
   PDataRecord = ^TDataRecord;
@@ -96,6 +97,7 @@ begin
   FHashFunction := AHashFunction;
   FCache :=
     THashInterfaceCache2Q.Create(
+      GSync.SyncVariable.Make(Self.ClassName),
       Self.CreateByKey,
       10,  // 2^10 elements in hash-table
       0,   // LRU 256 elements
