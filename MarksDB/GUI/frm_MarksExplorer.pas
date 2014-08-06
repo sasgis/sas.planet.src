@@ -794,30 +794,66 @@ procedure TfrmMarksExplorer.CategoryTreeViewDragDrop(
   Sender, Source: TObject;
   X, Y: Integer
 );
-var
-  VNode: TTreeNode;
-  VMarkIdList: IInterfaceListStatic;
-  VMarkIdListNew: IInterfaceListSimple;
-  VCategoryNew: ICategory;
-  VMark: IVectorDataItem;
-  i: Integer;
-begin
-  if (Source<>MarksListBox) then
-    Exit;
-  VNode := CategoryTreeView.GetNodeAt(X, Y);
-  if (VNode<>nil) and (VNode<>CategoryTreeView.Selected) then begin
-    // replace category for all selected marks in selected category
-    VMarkIdList := GetSelectedMarksIdList;
-    if (VMarkIdList<>nil) then begin
-      VCategoryNew := GetNodeCategory(VNode);
+
+  function MoveMarks(const ADestNode: TTreeNode; const AMarks: IInterfaceListStatic): Boolean;
+  var
+    I: Integer;
+    VMarkIdListNew: IInterfaceListSimple;
+    VCategoryNew: ICategory;
+    VMark: IVectorDataItem;
+  begin
+    Result := False;
+    if AMarks <> nil then begin
+      VCategoryNew := GetNodeCategory(ADestNode);
       if VCategoryNew <> nil then begin
         VMarkIdListNew := TInterfaceListSimple.Create;
-        for i := 0 to VMarkIdList.Count - 1 do begin
-          VMark := FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(VMarkIdList.Items[i]));
+        for I := 0 to AMarks.Count - 1 do begin
+          VMark := FMarkDBGUI.MarksDb.MarkDb.GetMarkByID(IMarkId(AMarks.Items[I]));
           VMarkIdListNew.Add(FMarkDBGUI.MarksDb.MarkDb.Factory.ReplaceCategory(VMark, VCategoryNew));
         end;
-        FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(VMarkIdList, VMarkIdListNew.MakeStaticAndClear);
+        FMarkDBGUI.MarksDb.MarkDb.UpdateMarkList(AMarks, VMarkIdListNew.MakeStaticAndClear);
+        Result := True;
       end;
+    end;
+  end;
+
+  procedure MoveCategory(const ADestNode, ASourceNode: TTreeNode);
+  var
+    I: Integer;
+    VNewName: string;
+    VDestCategory: ICategory;
+    VOldCategory, VNewCategory: IMarkCategory;
+  begin
+    VDestCategory := GetNodeCategory(ADestNode);
+    VOldCategory := GetNodeCategory(ASourceNode);
+    if (VDestCategory <> nil) and (VOldCategory <> nil) then begin
+      // get new name for category
+      VNewName := VOldCategory.Name;
+      I := LastDelimiter('\', VNewName);
+      VNewName := VDestCategory.Name + '\' + Copy(VNewName, I + 1, MaxInt);
+      // modify category with all subcategories
+      VNewCategory := FMarkDBGUI.MarksDb.CategoryDB.Factory.Modify(
+        VOldCategory,
+        VNewName,
+        VOldCategory.Visible,
+        VOldCategory.AfterScale,
+        VOldCategory.BeforeScale
+      );
+      FMarkDBGUI.MarksDb.CategoryDB.UpdateCategory(VOldCategory, VNewCategory);
+    end;
+  end;
+
+var
+  VNode: TTreeNode;
+begin
+  VNode := CategoryTreeView.GetNodeAt(X, Y);
+  if (VNode <> nil) and (VNode <> CategoryTreeView.Selected) then begin
+    if Source = MarksListBox then begin
+      // replace category for all selected marks in selected category
+      MoveMarks(VNode, GetSelectedMarksIdList);
+    end else if Source = CategoryTreeView then begin
+      // move selected category with all subcategories to new category
+      MoveCategory(VNode, CategoryTreeView.Selected);
     end;
   end;
 end;
@@ -829,12 +865,34 @@ procedure TfrmMarksExplorer.CategoryTreeViewDragOver(
   var Accept: Boolean
 );
 var
+  I: Integer;
   VNode: TTreeNode;
+  VList: IInterfaceListStatic;
+  VOldCategory, VOldSubCategory, VNewCategory: IMarkCategory;
 begin
-  Accept := (Source=MarksListBox);
+  Accept := (Source = MarksListBox) or (Source = CategoryTreeView);
   if Accept then begin
     VNode := CategoryTreeView.GetNodeAt(X, Y);
-    Accept := (VNode<>nil) and (VNode<>CategoryTreeView.Selected);
+    Accept := (VNode <> nil) and (VNode <> CategoryTreeView.Selected);
+
+    // запрещаем перенос категории в свою же дочернюю категорию
+    if Accept and (Source = CategoryTreeView) then begin
+      VOldCategory := GetNodeCategory(CategoryTreeView.Selected);
+      VNewCategory := GetNodeCategory(VNode);
+      Accept := (VOldCategory <> nil) and (VNewCategory <> nil);
+      if Accept then begin
+        VList := FMarkDBGUI.MarksDb.CategoryDB.GetSubCategoryListForCategory(VOldCategory);
+        if VList <> nil then begin 
+          for I := 0 to VList.Count - 1 do begin
+            VOldSubCategory := IMarkCategory(VList[I]);
+            if VNewCategory.IsSame(VOldSubCategory) then begin
+              Accept := False;
+              Break;
+            end;
+          end;
+        end;
+      end;
+    end;
   end;
 end;
 
