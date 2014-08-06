@@ -850,7 +850,9 @@ begin
   if (VNode <> nil) and (VNode <> CategoryTreeView.Selected) then begin
     if Source = MarksListBox then begin
       // replace category for all selected marks in selected category
-      MoveMarks(VNode, GetSelectedMarksIdList);
+      if MoveMarks(VNode, GetSelectedMarksIdList) then begin
+        MarksListBox.ClearSelection;
+      end;
     end else if Source = CategoryTreeView then begin
       // move selected category with all subcategories to new category
       MoveCategory(VNode, CategoryTreeView.Selected);
