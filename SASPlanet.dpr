@@ -494,6 +494,7 @@ uses
   u_MapTypeIconsList in 'u_MapTypeIconsList.pas',
   u_ProxyConfig in 'Network\u_ProxyConfig.pas',
   i_InetConfig in 'Network\i_InetConfig.pas',
+  c_InetConfig in 'Network\c_InetConfig.pas',
   u_InetConfigStatic in 'Network\u_InetConfigStatic.pas',
   u_InetConfig in 'Network\u_InetConfig.pas',
   i_TileDownloaderConfig in 'Network\i_TileDownloaderConfig.pas',

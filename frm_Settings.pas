@@ -239,6 +239,13 @@ type
     edtDBMSCachePath: TEdit;
     btnSetDefDBMSCachePath: TButton;
     btnSetDBMSCachePath: TButton;
+    flwpnl1: TFlowPanel;
+    lbl1: TLabel;
+    seSleepOnResetConnection: TSpinEdit;
+    lbl2: TLabel;
+    edtUserAgent: TEdit;
+    pnl1: TPanel;
+    btnResetUserAgentString: TButton;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -254,6 +261,7 @@ type
     procedure CBoxLocalChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnImageProcessResetClick(Sender: TObject);
+    procedure btnResetUserAgentStringClick(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -286,6 +294,7 @@ implementation
 
 uses
   c_CacheTypeCodes, // for default path
+  c_InetConfig, // for default UserAgent
   t_CommonTypes,
   i_ProxySettings,
   i_InetConfig,
@@ -430,6 +439,20 @@ begin
   ShowModal;
 end;
 
+procedure TfrmSettings.btnResetUserAgentStringClick(Sender: TObject);
+var
+  VInetConfig: IInetConfig;
+begin
+  edtUserAgent.Text := cUserAgent;
+  VInetConfig := GState.Config.InetConfig;
+  VInetConfig.LockWrite;
+  try
+    VInetConfig.UserAgentString := Trim(edtUserAgent.Text);
+  finally
+    VInetConfig.UnlockWrite;
+  end;
+end;
+
 procedure TfrmSettings.btnApplyClick(Sender: TObject);
 var
   VProxyConfig: IProxyConfig;
@@ -516,7 +539,7 @@ begin
   end;
 
   FMainFormConfig.ToolbarsLock.SetLock(CBlock_toolbars.Checked);
-  VInetConfig :=GState.Config.InetConfig;
+  VInetConfig := GState.Config.InetConfig;
   VInetConfig.LockWrite;
   try
     VProxyConfig := VInetConfig.ProxyConfig;
@@ -525,11 +548,15 @@ begin
     end;
     VProxyConfig.SetUseIESettings(chkUseIEProxy.Checked);
     VProxyConfig.SetUseProxy(CBProxyused.Checked);
-    VProxyConfig.SetHost(EditIP.Text);
+    VProxyConfig.SetHost(Trim(EditIP.Text));
     VProxyConfig.SetUseLogin(CBLogin.Checked);
     VProxyConfig.SetLogin(EditLogin.Text);
     VProxyConfig.SetPassword(EditPass.Text);
     VInetConfig.SetTimeOut(SETimeOut.Value);
+    VInetConfig.SleepOnResetConnection := seSleepOnResetConnection.Value;
+    if Trim(edtUserAgent.Text) <> '' then begin
+      VInetConfig.UserAgentString := Trim(edtUserAgent.Text);
+    end;
     if CBDblDwnl.Checked then begin
       if VInetConfig.DownloadTryCount < 2 then begin
         VInetConfig.DownloadTryCount := 2;
@@ -726,10 +753,14 @@ begin
   finally
     GState.Config.GsmConfig.UnlockRead;
   end;
+
+  // Internet Tab
   VInetConfig := GState.Config.InetConfig;
   VInetConfig.LockRead;
   try
     SETimeOut.Value := VInetConfig.GetTimeOut;
+    seSleepOnResetConnection.Value := VInetConfig.SleepOnResetConnection;
+    edtUserAgent.Text := VInetConfig.UserAgentString;
     VProxyConfig := VInetConfig.ProxyConfig;
     chkUseIEProxy.Checked := VProxyConfig.GetUseIESettings;
     CBProxyused.Checked := VProxyConfig.GetUseProxy;
@@ -741,6 +772,7 @@ begin
   finally
     VInetConfig.UnlockRead;
   end;
+
   SETilesOCache.Value := GState.Config.MainMemCacheConfig.MaxSize;
   FMainFormConfig.LayersConfig.FillingMapLayerConfig.LockRead;
   try

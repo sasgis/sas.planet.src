@@ -789,6 +789,7 @@
     <DCCReference Include="MarksDB\u_MarkSystemImplChangeable.pas" />
     <DCCReference Include="MarksDB\u_MarkTemplateConfigBase.pas" />
     <DCCReference Include="MarksDB\u_MarkTemplates.pas" />
+    <DCCReference Include="Network\c_InetConfig.pas" />
     <DCCReference Include="Network\i_AntiBan.pas" />
     <DCCReference Include="Network\i_DownloadChecker.pas" />
     <DCCReference Include="Network\i_Downloader.pas" />

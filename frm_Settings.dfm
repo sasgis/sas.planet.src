@@ -41,7 +41,6 @@ object frmSettings: TfrmSettings
         Align = alTop
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitTop = 247
         object Label30: TLabel
           AlignWithMargins = True
           Left = 3
@@ -757,6 +756,7 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
+        ExplicitTop = 19
         object CBDblDwnl: TCheckBox
           AlignWithMargins = True
           Left = 6
@@ -788,24 +788,28 @@ object frmSettings: TfrmSettings
           TabOrder = 2
         end
         object flwpnlDownloadTimeOut: TFlowPanel
+          AlignWithMargins = True
           Left = 3
-          Top = 180
+          Top = 206
           Width = 632
           Height = 22
+          Margins.Left = 0
+          Margins.Right = 0
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 3
+          ExplicitTop = 180
           object Label32: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 91
+            Width = 153
             Height = 13
-            Caption = 'Server timeout, ms'
+            Caption = 'Network operations timeout, ms'
           end
           object SETimeOut: TSpinEdit
-            Left = 97
+            Left = 159
             Top = 0
             Width = 73
             Height = 22
@@ -818,12 +822,13 @@ object frmSettings: TfrmSettings
         object CBLastSuccess: TCheckBox
           AlignWithMargins = True
           Left = 6
-          Top = 205
+          Top = 183
           Width = 626
           Height = 17
           Align = alTop
           Caption = 'Restore download from last successful tile'
           TabOrder = 4
+          ExplicitTop = 177
         end
         object GroupBox4: TGroupBox
           Left = 3
@@ -945,6 +950,81 @@ object frmSettings: TfrmSettings
               TabOrder = 0
               OnClick = chkUseIEProxyClick
             end
+          end
+        end
+        object flwpnl1: TFlowPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 234
+          Width = 632
+          Height = 22
+          Margins.Left = 0
+          Margins.Right = 0
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
+          TabOrder = 6
+          ExplicitTop = 202
+          object lbl1: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 144
+            Height = 13
+            Caption = 'Sleep on reset connection, ms'
+          end
+          object seSleepOnResetConnection: TSpinEdit
+            Left = 150
+            Top = 0
+            Width = 73
+            Height = 22
+            MaxValue = 0
+            MinValue = 0
+            TabOrder = 0
+            Value = 0
+          end
+        end
+        object pnl1: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 262
+          Width = 629
+          Height = 23
+          Margins.Left = 0
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 7
+          ExplicitTop = 292
+          ExplicitWidth = 626
+          object lbl2: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 59
+            Height = 17
+            Align = alLeft
+            Caption = 'User-Agent:'
+            ExplicitHeight = 13
+          end
+          object edtUserAgent: TEdit
+            Left = 65
+            Top = 0
+            Width = 543
+            Height = 23
+            Align = alClient
+            TabOrder = 0
+            ExplicitLeft = 30
+            ExplicitWidth = 626
+          end
+          object btnResetUserAgentString: TButton
+            Left = 608
+            Top = 0
+            Width = 21
+            Height = 23
+            Align = alRight
+            Caption = '<>'
+            TabOrder = 1
+            OnClick = btnResetUserAgentStringClick
           end
         end
       end
