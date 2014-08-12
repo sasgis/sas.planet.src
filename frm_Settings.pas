@@ -440,17 +440,8 @@ begin
 end;
 
 procedure TfrmSettings.btnResetUserAgentStringClick(Sender: TObject);
-var
-  VInetConfig: IInetConfig;
 begin
   edtUserAgent.Text := cUserAgent;
-  VInetConfig := GState.Config.InetConfig;
-  VInetConfig.LockWrite;
-  try
-    VInetConfig.UserAgentString := Trim(edtUserAgent.Text);
-  finally
-    VInetConfig.UnlockWrite;
-  end;
 end;
 
 procedure TfrmSettings.btnApplyClick(Sender: TObject);
