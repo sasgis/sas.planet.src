@@ -22,6 +22,10 @@ unit u_DownloaderHttp;
 
 interface
 
+{$IFDEF DEBUG}
+  {.$DEFINE VerboseHttpClient}
+{$ENDIF}
+
 uses
   Windows,
   Classes,
@@ -39,6 +43,7 @@ uses
   i_DownloadRequest,
   i_DownloadResultFactory,
   i_DownloadChecker,
+  i_SimpleFlag,
   u_BaseInterfacedObject;
 
 type
@@ -63,9 +68,8 @@ type
     FHttpResponseBody: TMemoryStream;
     FHttpClientLastConfig: THttpClientConfigRec;
     FResultFactory: IDownloadResultFactory;
-    FDisconnectByServer: Byte;
-    FDisconnectByUser: Byte;
-    FOpeningHandle: HINTERNET;
+    FDisconnectByServer: ISimpleFlag;
+    FDisconnectByUser: ISimpleFlag;
     FAllowUseCookie: Boolean;
     FAllowRedirect: Boolean;
     FTryDetectContentType: Boolean;
@@ -98,7 +102,6 @@ type
     procedure DoGetRequest(const ARequest: IDownloadRequest);
     procedure DoHeadRequest(const ARequest: IDownloadHeadRequest);
     procedure DoPostRequest(const ARequest: IDownloadPostRequest);
-    procedure CheckGraceOff(Sender: Tobject);
   private
     { ALHttpClient CallBack's }
     procedure DoOnALStatusChange(
@@ -145,6 +148,7 @@ uses
   u_ListenerByEvent,
   u_Synchronizer,
   u_HttpStatusChecker,
+  u_SimpleFlagWithInterlock,
   u_StreamReadOnlyByBinaryData,
   u_TileRequestBuilderHelpers,
   u_ReadableThreadNames,
@@ -171,19 +175,15 @@ type
     );
   end;
 
-{ TDownloaderHttp }
+{$IFDEF VerboseHttpClient}
+procedure VerboseStatusChange(
+  InternetStatus: DWORD;
+  StatusInformation: Pointer;
+  StatusInformationLength: DWORD
+); forward;
+{$ENDIF}
 
-procedure TDownloaderHttp.CheckGraceOff(Sender: Tobject);
-begin
-  if (0 <> FDisconnectByServer) then begin
-    try
-      //FDisconnectByServer:=0;
-      Disconnect;
-    finally
-      FDisconnectByServer := 0;
-    end;
-  end;
-end;
+{ TDownloaderHttp }
 
 constructor TDownloaderHttp.Create(
   const AResultFactory: IDownloadResultFactory;
@@ -201,9 +201,8 @@ begin
   FTryDetectContentType := ATryDetectContentType;
   FOnDownloadProgress := AOnDownloadProgress;
 
-  FOpeningHandle := nil;
-  FDisconnectByUser := 0;
-  FDisconnectByServer := 0;
+  FDisconnectByUser := TSimpleFlagWithInterlock.Create;
+  FDisconnectByServer := TSimpleFlagWithInterlock.Create;
 
   FCS := GSync.SyncBig.Make(Self.ClassName);
 
@@ -237,6 +236,8 @@ begin
   FreeAndNil(FHttpResponseBody);
   FreeAndNil(FHttpClient);
   FResultFactory := nil;
+  FDisconnectByUser := nil;
+  FDisconnectByServer := nil;
   FCS := nil;
   inherited;
 end;
@@ -266,57 +267,16 @@ procedure TDownloaderHttp.DoOnALStatusChange(
   StatusInformationLength: DWord
 );
 begin
-  if (0 = FDisconnectByUser) then begin
-    // if disconnected - raise flag
-    case InternetStatus of
-      (*
-      INTERNET_STATUS_HANDLE_CREATED: begin // 60
-        FOpeningHandle:=PHINTERNET(StatusInformation)^;
-      end;
-      INTERNET_STATUS_RESOLVING_NAME: begin // 10
-      end;
-      INTERNET_STATUS_NAME_RESOLVED: begin // 11
-      end;
-      INTERNET_STATUS_CONNECTING_TO_SERVER: begin // 20
-        FOpeningHandle:=nil;
-      end;
-      INTERNET_STATUS_CONNECTED_TO_SERVER: begin // 21
-        FOpeningHandle:=nil;
-      end;
-      INTERNET_STATUS_SENDING_REQUEST: begin // 30
-      end;
-      INTERNET_STATUS_REQUEST_SENT: begin // 31
-      end;
-      INTERNET_STATUS_RECEIVING_RESPONSE: begin // 40
-      end;
-      INTERNET_STATUS_RESPONSE_RECEIVED: begin // 41
-      end;
-      INTERNET_STATUS_HANDLE_CLOSING: begin // 70
-        FOpeningHandle:=nil;
-      end;
-      *)
-      INTERNET_STATUS_CLOSING_CONNECTION: begin // 50
-        if (0 = FDisconnectByServer) then begin
-          Inc(FDisconnectByServer);
-        end;
-        (*
-        if (nil<>FOpeningHandle) then begin
-          InternetCloseHandle(FOpeningHandle);
-          FOpeningHandle:=nil;
-        end;
-        *)
-      end;
-      INTERNET_STATUS_CONNECTION_CLOSED: begin // 51
-        if (0 = FDisconnectByServer) then begin
-          Inc(FDisconnectByServer);
-        end;
-        (*
-        if (nil<>FOpeningHandle) then begin
-          InternetCloseHandle(FOpeningHandle);
-          FOpeningHandle:=nil;
-        end;
-        *)
-      end;
+  {$IFDEF VerboseHttpClient}
+  VerboseStatusChange(
+    InternetStatus,
+    StatusInformation,
+    StatusInformationLength
+  );
+  {$ENDIF}
+  case InternetStatus of
+    INTERNET_STATUS_CLOSING_CONNECTION, INTERNET_STATUS_CONNECTION_CLOSED: begin
+      if not FDisconnectByUser.CheckFlag then FDisconnectByServer.SetFlag;
     end;
   end;
 end;
@@ -366,13 +326,23 @@ var
   VPostRequest: IDownloadPostRequest;
   VHeadRequest: IDownloadHeadRequest;
 begin
-  // обычная работа
+  Assert(ARequest <> nil);
+  Assert(ARequest.InetConfig <> nil);
+  Assert(ARequest.InetConfig.ProxyConfigStatic <> nil);
+
   Result := nil;
+
+  // check gracefully off
+  if FDisconnectByServer.CheckFlag then begin
+    try
+      Disconnect;
+    finally
+      FDisconnectByServer.CheckFlagAndReset;
+    end;
+  end;
+
   FCS.BeginWrite;
   try
-    // check gracefully off
-    CheckGraceOff(nil);
-
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
       Result := FResultFactory.BuildCanceled(ARequest);
     end;
@@ -390,6 +360,9 @@ begin
         end;
         if Result = nil then begin
           try
+            {$IFDEF VerboseHttpClient}
+            OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <I> DoRequest: ' + ARequest.Url));
+            {$ENDIF}
             if Supports(ARequest, IDownloadHeadRequest, VHeadRequest) then begin
               DoHeadRequest(VHeadRequest);
             end else if Supports(ARequest, IDownloadPostRequest, VPostRequest) then begin
@@ -406,9 +379,20 @@ begin
                   Result := FResultFactory.BuildLoadErrorByUnknownReason(ARequest, '%s', [e.Message]);
                 end;
               end;
+              {$IFDEF VerboseHttpClient}
+              OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + E.Message));
+              {$ENDIF}
             end;
             on E: EOSError do begin
               Result := OnOSError(ARequest, E.ErrorCode);
+              {$IFDEF VerboseHttpClient}
+              OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + SysErrorMessage(E.ErrorCode)));
+              {$ENDIF}
+            end;
+            on E: Exception do begin
+              {$IFDEF VerboseHttpClient}
+              OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + E.Message));
+              {$ENDIF}
             end;
           end;
         end;
@@ -416,7 +400,6 @@ begin
           Result := OnAfterResponse(ARequest);
         end;
       finally
-        FOpeningHandle := nil;
         ACancelNotifier.RemoveListener(FCancelListener);
       end;
     end;
@@ -443,13 +426,25 @@ end;
 
 procedure TDownloaderHttp.Disconnect;
 begin
-  if Assigned(FHttpClient) then begin
-    Inc(FDisconnectByUser);
-    try
-      FHttpClient.Disconnect;
-    finally
-      Dec(FDisconnectByUser);
+  FCS.BeginWrite;
+  try
+    if Assigned(FHttpClient) then begin
+      {$IFDEF VerboseHttpClient}
+      if FDisconnectByServer.CheckFlag then begin
+        OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <W> Detect disconnection by server.'));
+      end else begin
+        OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <W> Init disconnection by user.'));
+      end;
+      {$ENDIF}
+      FDisconnectByUser.SetFlag;
+      try
+        FHttpClient.Disconnect;
+      finally
+        FDisconnectByUser.CheckFlagAndReset;
+      end;
     end;
+  finally
+    FCS.EndWrite;
   end;
 end;
 
@@ -607,21 +602,26 @@ var
   VOptions: TALWininetHttpClientInternetOptionSet;
 begin
   if (ARawHttpRequestHeader <> '') and
-    (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then begin
+    (FHttpClientLastConfig.HeaderRawText <> ARawHttpRequestHeader) then
+  begin
     FHttpClientLastConfig.HeaderRawText := ARawHttpRequestHeader;
     FHttpClient.RequestHeader.RawHeaderText := FHttpClientLastConfig.HeaderRawText;
   end;
+
   VUserAgent := GetHeaderValue(ARawHttpRequestHeader, 'User-Agent');
   if VUserAgent = '' then begin
     VUserAgent := AInetConfig.UserAgentString;
   end;
+
   if FHttpClientLastConfig.HeaderUserAgent <> VUserAgent then begin
     FHttpClientLastConfig.HeaderUserAgent := VUserAgent;
     FHttpClient.RequestHeader.UserAgent := VUserAgent;
   end;
+
   if FHttpClient.RequestHeader.Accept = '' then begin
     FHttpClient.RequestHeader.Accept := '*/*';
   end;
+
   if FHttpClientLastConfig.HttpTimeOut <> AInetConfig.TimeOut then begin
     FHttpClientLastConfig.HttpTimeOut := AInetConfig.TimeOut;
     FHttpClient.ConnectTimeout := FHttpClientLastConfig.HttpTimeOut;
@@ -657,18 +657,23 @@ begin
       (FHttpClientLastConfig.ProxyUseLogin <> VProxyConfig.UseLogin) or
       (FHttpClientLastConfig.ProxyHost <> VProxyConfig.Host) or
       (FHttpClientLastConfig.ProxyUserName <> VProxyConfig.Login) or
-      (FHttpClientLastConfig.ProxyPassword <> VProxyConfig.Password) then begin
+      (FHttpClientLastConfig.ProxyPassword <> VProxyConfig.Password) then
+    begin
       FHttpClientLastConfig.ProxyUseIESettings := VProxyConfig.UseIESettings;
       FHttpClientLastConfig.ProxyUseCustomSettings := VProxyConfig.UseProxy;
       FHttpClientLastConfig.ProxyUseLogin := VProxyConfig.UseLogin;
       FHttpClientLastConfig.ProxyHost := VProxyConfig.Host;
       FHttpClientLastConfig.ProxyUserName := VProxyConfig.Login;
       FHttpClientLastConfig.ProxyPassword := VProxyConfig.Password;
+
       if FHttpClientLastConfig.ProxyUseIESettings then begin
         FHttpClient.AccessType := wHttpAt_Preconfig;
+        {$IFDEF VerboseHttpClient}
+        OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <P> Set INTERNET_OPEN_TYPE_PRECONFIG'));
+        {$ENDIF}
       end else if FHttpClientLastConfig.ProxyUseCustomSettings then begin
-        FHttpClient.AccessType := wHttpAt_Proxy;
         VProxyHost := FHttpClientLastConfig.ProxyHost;
+        Assert(VProxyHost <> '');
         VPos := ALPos(':', VProxyHost);
         if VPos > 0 then begin
           FHttpClient.ProxyParams.ProxyServer :=
@@ -679,15 +684,31 @@ begin
           FHttpClient.ProxyParams.ProxyServer := VProxyHost;
           FHttpClient.ProxyParams.ProxyPort := 0;
         end;
-
         if FHttpClientLastConfig.ProxyUseLogin then begin
           FHttpClient.ProxyParams.ProxyUserName := FHttpClientLastConfig.ProxyUserName;
           FHttpClient.ProxyParams.ProxyPassword := FHttpClientLastConfig.ProxyPassword;
         end;
+        FHttpClient.AccessType := wHttpAt_Proxy;
+        {$IFDEF VerboseHttpClient}
+        OutputDebugString(
+          PChar(
+            IntToStr(GetCurrentThreadId) + ' <P> Set INTERNET_OPEN_TYPE_PROXY ' +
+            FHttpClient.ProxyParams.ProxyServer + ':' +
+            IntToStr(FHttpClient.ProxyParams.ProxyPort)
+          )
+        );
+        {$ENDIF}
       end else begin
         FHttpClient.AccessType := wHttpAt_Direct;
+        {$IFDEF VerboseHttpClient}
+        OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <P> Set INTERNET_OPEN_TYPE_DIRECT'));
+        {$ENDIF}
       end;
     end;
+  end else begin
+    {$IFDEF VerboseHttpClient}
+    OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> Fail ProxyConfig read.'));
+    {$ENDIF}
   end;
 end;
 
@@ -843,9 +864,153 @@ begin
     VResult := FDownloader.DoRequest(FRequest, FCancelNotifier, FOperationID);
     FOnResultCallBack(VResult, FOperationID);
   except
-    //
+    {$IFDEF VerboseHttpClient}
+    on E: Exception do begin
+      OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <E> ' + E.ClassName + ':' + E.Message));
+    end;
+    {$ENDIF}
   end;
 end;
+
+{$IFDEF VerboseHttpClient}
+procedure VerboseStatusChange(
+  InternetStatus: DWORD;
+  StatusInformation: Pointer;
+  StatusInformationLength: DWORD
+);
+
+const
+  INTERNET_STATUS_DETECTING_PROXY = 80;
+
+  {
+      #define INTERNET_STATUS_RESOLVING_NAME          10
+      #define INTERNET_STATUS_NAME_RESOLVED           11
+      #define INTERNET_STATUS_CONNECTING_TO_SERVER    20
+      #define INTERNET_STATUS_CONNECTED_TO_SERVER     21
+      #define INTERNET_STATUS_SENDING_REQUEST         30
+      #define INTERNET_STATUS_REQUEST_SENT            31
+      #define INTERNET_STATUS_RECEIVING_RESPONSE      40
+      #define INTERNET_STATUS_RESPONSE_RECEIVED       41
+      #define INTERNET_STATUS_CTL_RESPONSE_RECEIVED   42
+      #define INTERNET_STATUS_PREFETCH                43
+      #define INTERNET_STATUS_CLOSING_CONNECTION      50
+      #define INTERNET_STATUS_CONNECTION_CLOSED       51
+      #define INTERNET_STATUS_HANDLE_CREATED          60
+      #define INTERNET_STATUS_HANDLE_CLOSING          70
+      #define INTERNET_STATUS_DETECTING_PROXY         80
+      #define INTERNET_STATUS_REQUEST_COMPLETE        100
+      #define INTERNET_STATUS_REDIRECT                110
+      #define INTERNET_STATUS_INTERMEDIATE_RESPONSE   120
+      #define INTERNET_STATUS_USER_INPUT_REQUIRED     140
+      #define INTERNET_STATUS_STATE_CHANGE            200
+      #define INTERNET_STATUS_COOKIE_SENT             320
+      #define INTERNET_STATUS_COOKIE_RECEIVED         321
+      #define INTERNET_STATUS_PRIVACY_IMPACTED        324
+      #define INTERNET_STATUS_P3P_HEADER              325
+      #define INTERNET_STATUS_P3P_POLICYREF           326
+      #define INTERNET_STATUS_COOKIE_HISTORY          327
+  }
+
+  function StatInfoAsStr: string;
+  begin
+    if StatusInformationLength > 0 then begin
+      SetLength(Result, StatusInformationLength);
+      Move(StatusInformation^, Result[1], StatusInformationLength);
+    end else begin
+      Result := '<EMPTY>';
+    end;
+  end;
+
+var
+  VInfoStr: string;
+begin
+  case InternetStatus of
+
+    INTERNET_STATUS_CLOSING_CONNECTION:
+      VInfoStr := 'INTERNET_STATUS_CLOSING_CONNECTION - Closing the connection to the server.';
+
+    INTERNET_STATUS_CONNECTED_TO_SERVER:
+      VInfoStr := 'INTERNET_STATUS_CONNECTED_TO_SERVER - Successfully connected to the socket address: ' + StatInfoAsStr;
+
+    INTERNET_STATUS_CONNECTING_TO_SERVER:
+      VInfoStr := 'INTERNET_STATUS_CONNECTING_TO_SERVER - Connecting to the socket address: ' + StatInfoAsStr;
+
+    INTERNET_STATUS_CONNECTION_CLOSED:
+      VInfoStr := 'INTERNET_STATUS_CONNECTION_CLOSED - Successfully closed the connection to the server.';
+
+    INTERNET_STATUS_CTL_RESPONSE_RECEIVED:
+      VInfoStr := 'INTERNET_STATUS_CTL_RESPONSE_RECEIVED - Not implemented';
+
+    INTERNET_STATUS_HANDLE_CLOSING:
+      VInfoStr := 'INTERNET_STATUS_HANDLE_CLOSING - This handle value has been terminated: ' + IntToHex(DWORD(StatusInformation^), 8);
+
+    INTERNET_STATUS_HANDLE_CREATED:
+      VInfoStr := 'INTERNET_STATUS_HANDLE_CREATED - InternetConnect has created the new handle: ' + IntToHex(DWORD(StatusInformation^), 8);
+
+    INTERNET_STATUS_INTERMEDIATE_RESPONSE:
+      VInfoStr := 'INTERNET_STATUS_INTERMEDIATE_RESPONSE - Received an intermediate (100 level) status code message from the server';
+
+    INTERNET_STATUS_NAME_RESOLVED:
+      VInfoStr := 'INTERNET_STATUS_NAME_RESOLVED - Successfully found the IP address of the name: ' + StatInfoAsStr;
+
+    INTERNET_STATUS_PREFETCH:
+      VInfoStr := 'INTERNET_STATUS_PREFETCH - Not implemented.';
+
+    INTERNET_STATUS_RECEIVING_RESPONSE:
+      VInfoStr := 'INTERNET_STATUS_RECEIVING_RESPONSE - Waiting for the server to respond to a request.';
+
+    INTERNET_STATUS_REDIRECT:
+      VInfoStr := 'INTERNET_STATUS_REDIRECT - HTTP request is about to automatically redirect the request. The new URL: ' + StatInfoAsStr;
+
+    INTERNET_STATUS_REQUEST_COMPLETE:
+      VInfoStr := 'INTERNET_STATUS_REQUEST_COMPLETE - An asynchronous operation has been completed.';
+
+    INTERNET_STATUS_REQUEST_SENT:
+      VInfoStr := 'INTERNET_STATUS_REQUEST_SENT - Successfully sent the information request to the server: ' + IntToStr(Integer(StatusInformation^)) + ' Byte';
+
+    INTERNET_STATUS_RESOLVING_NAME:
+      VInfoStr := 'INTERNET_STATUS_RESOLVING_NAME - Looking up the IP address of the name: ' + StatInfoAsStr;
+
+    INTERNET_STATUS_RESPONSE_RECEIVED:
+      VInfoStr := 'INTERNET_STATUS_RESPONSE_RECEIVED - Successfully received a response from the server: ' + IntToStr(Integer(StatusInformation^)) + ' Byte';
+
+    INTERNET_STATUS_SENDING_REQUEST:
+      VInfoStr := 'INTERNET_STATUS_SENDING_REQUEST - Sending the information request to the server.';
+
+    INTERNET_STATUS_DETECTING_PROXY:
+      VInfoStr := 'INTERNET_STATUS_DETECTING_PROXY - Proxy has been detected.';
+
+    INTERNET_STATUS_STATE_CHANGE: begin
+      VInfoStr := 'INTERNET_STATUS_STATE_CHANGE - Moved between a secure (HTTPS) and a nonsecure (HTTP) site.';
+
+      case DWORD(StatusInformation^) of
+        INTERNET_STATE_CONNECTED:
+          VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_CONNECTED - Connected state. Mutually exclusive with disconnected state.';
+
+        INTERNET_STATE_DISCONNECTED:
+          VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_DISCONNECTED - Disconnected state. No network connection could be established.';
+
+        INTERNET_STATE_DISCONNECTED_BY_USER:
+          VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_DISCONNECTED_BY_USER - Disconnected by user request.';
+
+        INTERNET_STATE_IDLE:
+          VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_IDLE - No network requests are being made by Windows Internet.';
+
+        INTERNET_STATE_BUSY:
+          VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_BUSY - Network requests are being made by Windows Internet.';
+
+        //INTERNET_STATUS_USER_INPUT_REQUIRED:
+          //VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATUS_USER_INPUT_REQUIRED - The request requires user input to be completed.';
+      else
+        VInfoStr := '<W> Unknown StatusInformation: ' + IntToStr(DWORD(StatusInformation^));
+      end;
+    end;
+  else
+    VInfoStr := '<W> Unknown InternetStatus: ' + IntToStr(InternetStatus);
+  end;
+  OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <WinInet> ' + VInfoStr));
+end;
+{$ENDIF}
 
 end.
 
