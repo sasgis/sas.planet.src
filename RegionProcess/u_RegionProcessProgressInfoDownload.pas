@@ -379,6 +379,7 @@ var
   VVersionForCheckUsePrev: Boolean;
 begin
   VVersionForCheck := '';
+  VVersionForCheckUsePrev := False;
   if Assigned(FVersionForCheck) then begin
     if Assigned(FVersionForCheck.BaseVersion) then begin
       VVersionForCheck := FVersionForCheck.BaseVersion.StoreString;
