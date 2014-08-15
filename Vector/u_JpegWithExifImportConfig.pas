@@ -18,22 +18,66 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_VectorItemTreeImporter;
+unit u_JpegWithExifImportConfig;
 
 interface
 
 uses
-  i_VectorItemTree;
+  i_Category,
+  i_ImportConfig,
+  i_JpegWithExifImportConfig,
+  u_ImportConfig;
 
 type
-  IVectorItemTreeImporter = interface
-    ['{0EF61663-09C0-4C71-A6F0-4E26380296E9}']
-    function ProcessImport(
-      const AFileName: string;
-      var AConfig: IInterface
-    ): IVectorItemTree;
+  TJpegWithExifImportConfig = class(TImportConfig, IJpegWithExifImportConfig)
+  private
+    FUseThumbnailAsIcon: Boolean;
+    FResolutionLimit: Integer;
+  private
+    { IJpegWithExifImportConfig }
+    function GetUseThumbnailAsIcon: Boolean;
+    function GetResolutionLimit: Integer;
+  public
+    constructor Create(
+      const ARootCategory: ICategory;
+      const ACategoryParams: IImportCategoryParams;
+      const APointParams: IImportPointParams;
+      const AUseThumbnailAsIcon: Boolean;
+      const AResolutionLimit: Integer
+    );
   end;
 
 implementation
+
+{ TJpegWithExifImporterConfig }
+
+constructor TJpegWithExifImportConfig.Create(
+  const ARootCategory: ICategory;
+  const ACategoryParams: IImportCategoryParams;
+  const APointParams: IImportPointParams;
+  const AUseThumbnailAsIcon: Boolean;
+  const AResolutionLimit: Integer
+);
+begin
+  inherited Create(
+    ARootCategory,
+    ACategoryParams,
+    APointParams,
+    nil,
+    nil
+  );
+  FUseThumbnailAsIcon := AUseThumbnailAsIcon;
+  FResolutionLimit := AResolutionLimit;
+end;
+
+function TJpegWithExifImportConfig.GetUseThumbnailAsIcon: Boolean;
+begin
+  Result := FUseThumbnailAsIcon;
+end;
+
+function TJpegWithExifImportConfig.GetResolutionLimit: Integer;
+begin
+  Result := FResolutionLimit;
+end;
 
 end.

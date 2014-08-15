@@ -38,7 +38,7 @@ type
   private
     function ProcessImport(
       const AFileName: string;
-      const AImporterConfig: IInterface
+      var AConfig: IInterface
     ): IVectorItemTree;
   public
     constructor Create(
@@ -70,7 +70,7 @@ end;
 
 function TVectorItemTreeImporterByVectorLoader.ProcessImport(
   const AFileName: string;
-  const AImporterConfig: IInterface
+  var AConfig: IInterface
 ): IVectorItemTree;
 var
   VMemStream: TMemoryStream;

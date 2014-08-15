@@ -18,20 +18,21 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_VectorItemTreeImporter;
+unit i_JpegWithExifImportConfig;
 
 interface
 
 uses
-  i_VectorItemTree;
+  i_ImportConfig;
 
 type
-  IVectorItemTreeImporter = interface
-    ['{0EF61663-09C0-4C71-A6F0-4E26380296E9}']
-    function ProcessImport(
-      const AFileName: string;
-      var AConfig: IInterface
-    ): IVectorItemTree;
+  IJpegWithExifImportConfig = interface(IImportConfig)
+    ['{13CEF43F-633C-4B96-A4E6-B2FFDD0AD9A2}']
+    function GetUseThumbnailAsIcon(): Boolean;
+    property UseThumbnailAsIcon: Boolean read GetUseThumbnailAsIcon;
+
+    function GetResolutionLimit(): Integer;
+    property ResolutionLimit: Integer read GetResolutionLimit;
   end;
 
 implementation

@@ -25,8 +25,7 @@ interface
 uses
   Windows,
   Dialogs,
-  Classes,
-  t_GeoTypes,
+  Classes,  
   i_PathConfig,
   i_LanguageManager,
   i_InterfaceListStatic,
@@ -57,6 +56,7 @@ uses
   frm_MarkEditPoly,
   frm_MarkInfo,
   frm_ImportConfigEdit,
+  frm_JpegImportConfigEdit,
   frm_MarksMultiEdit;
 
 type
@@ -73,6 +73,7 @@ type
     FfrmMarkEditPoly: TfrmMarkEditPoly;
     FfrmMarkCategoryEdit: TfrmMarkCategoryEdit;
     FfrmImportConfigEdit: TfrmImportConfigEdit;
+    FfrmJpegImportConfigEdit: TfrmJpegImportConfigEdit;
     FfrmMarksMultiEdit: TfrmMarksMultiEdit;
     FfrmMarkInfo: TfrmMarkInfo;
     FExportDialog: TSaveDialog;
@@ -127,6 +128,7 @@ type
       const ATemplate: IMarkTemplate = nil
     ): Boolean;
     function EditModalImportConfig: IImportConfig;
+    function EditModalJpegImportConfig: IInterface;
     function MarksMultiEditModal(const ACategory: ICategory): IImportConfig;
     procedure ExportMark(const AMark: IVectorDataItem);
     procedure ExportCategory(
@@ -250,6 +252,13 @@ begin
       FMarkSystem.MarkDb.Factory,
       FMarkSystem.CategoryDB
     );
+  FfrmJpegImportConfigEdit :=
+    TfrmJpegImportConfigEdit.Create(
+      ALanguageManager,
+      AAppearanceOfMarkFactory,
+      FMarkSystem.MarkDb.Factory,
+      FMarkSystem.CategoryDB
+    );
   FfrmMarkInfo :=
     TfrmMarkInfo.Create(
       ALanguageManager,
@@ -280,6 +289,7 @@ begin
   FreeAndNil(FfrmMarkEditPoly);
   FreeAndNil(FfrmMarkCategoryEdit);
   FreeAndNil(FfrmImportConfigEdit);
+  FreeAndNil(FfrmJpegImportConfigedit);
   FreeAndNil(FfrmMarksMultiEdit);
   FreeAndNil(FfrmMarkInfo);
   FreeAndNil(FExportDialog);
@@ -405,6 +415,11 @@ end;
 function TMarkDbGUIHelper.EditModalImportConfig: IImportConfig;
 begin
   Result := FfrmImportConfigEdit.GetImportConfig;
+end;
+
+function TMarkDbGUIHelper.EditModalJpegImportConfig: IInterface;
+begin
+  Result := FfrmJpegImportConfigEdit.GetConfig;
 end;
 
 function TMarkDbGUIHelper.GetActiveExporter(
@@ -568,37 +583,89 @@ function TMarkDbGUIHelper.ImportFilesModalInternal(
   AFiles: TStrings;
   const AImporterList: IVectorItemTreeImporterListStatic
 ): IInterfaceListStatic;
+
+type
+  TImportRec = record
+    FExt: string;
+    FConfig: IInterface;
+    FImporter: IVectorItemTreeImporter;
+  end;
+  TImportRecArr = array of TImportRec;
+
+  function _RecIndexByFileExt(AExt: string; var ARecArr: TImportRecArr): Integer;
+  var
+    I: Integer;
+    VConfig: IInterface;
+    VImporter: IVectorItemTreeImporter;
+  begin
+    Result := -1;
+    if SameText(AExt, '.jpeg') then begin
+      AExt := '.jpg';
+    end;
+    for I := 0 to Length(ARecArr) - 1 do begin
+      if SameText(AExt, ARecArr[I].FExt) then begin
+        Result := I;
+        Exit;
+      end;
+    end;
+    VImporter := AImporterList.GetImporterByExt(AExt);
+    if Assigned(VImporter) then begin
+      if SameText(AExt, '.jpg') then begin
+        VConfig := EditModalJpegImportConfig;
+      end else begin
+        VConfig := EditModalImportConfig;
+      end;
+      if Assigned(VConfig) then begin
+        I := Length(ARecArr);
+        SetLength(ARecArr, I + 1);
+        ARecArr[I].FExt := AExt;
+        ARecArr[I].FImporter := VImporter;
+        ARecArr[I].FConfig := VConfig;
+        Result := I;
+      end;
+    end;
+  end;
+
 var
-  VImportConfig: IImportConfig;
-  i: Integer;
+  I, J: Integer;
+  VCount: Integer;
   VFileName: string;
-  VExt: string;
-  VImporter: IVectorItemTreeImporter;
   VTree: IVectorItemTree;
+  VImportConfig: IImportConfig;
+  VRecArr: TImportRecArr;
 begin
   Result := nil;
-  if Assigned(AFiles) and (AFiles.Count>0) then begin
-    for i := 0 to AFiles.Count - 1 do begin
-      VFileName := AFiles[i];
-      if (FileExists(VFileName)) then begin
-        VExt := ExtractFileExt(VFileName);
-        VImporter := AImporterList.GetImporterByExt(VExt);
-        if Assigned(VImporter) then begin
-          VTree := VImporter.ProcessImport(VFileName, nil);
-          if Assigned(VTree) then begin
-            if not Assigned(VImportConfig) then
-              VImportConfig := EditModalImportConfig;
-            if Assigned(VImportConfig) then begin
-              Result := FMarkSystem.ImportItemsTree(VTree, VImportConfig);
-            end else begin
-              Break;
-            end;
+
+  VCount := 0;
+  SetLength(VRecArr, 0);
+
+  if Assigned(AFiles) and (AFiles.Count > 0) then begin
+    for I := 0 to AFiles.Count - 1 do begin
+      VFileName := AFiles[I];
+      if FileExists(VFileName) then begin
+        J := _RecIndexByFileExt(ExtractFileExt(VFileName), VRecArr);
+        if J < 0 then begin
+          Break;
+        end;
+        VTree := VRecArr[J].FImporter.ProcessImport(VFileName, VRecArr[J].FConfig);
+        if Assigned(VTree) then begin
+          if Supports(VRecArr[J].FConfig, IImportConfig, VImportConfig) then begin
+            Result := FMarkSystem.ImportItemsTree(VTree, VImportConfig);
+            Inc(VCount);
+          end else begin
+            Break;
           end;
         end;
       end else begin
         ShowMessageFmt(_('Can''t open file: %s'), [VFileName]);
       end;
     end;
+  end;
+
+  if VCount > 0 then begin
+    ShowMessageFmt(_('Import finished. Total processed: %d files. Successfull imported: %d files.'), [AFiles.Count, VCount]);
+  end else begin
+    ShowMessage(_('Nothing to import!'));
   end;
 end;
 

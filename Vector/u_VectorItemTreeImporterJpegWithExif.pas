@@ -31,35 +31,41 @@ uses
   i_GeometryLonLatFactory,
   i_VectorItemTree,
   i_PathConfig,
+  i_HashFunction,
+  i_ContentTypeManager,
+  i_Appearance,
+  i_AppearanceOfVectorItem,
+  i_AppearanceOfMarkFactory,
   u_BaseInterfacedObject;
 
 type
-  IJpegWithExifImporterConfig = interface
-    ['{13CEF43F-633C-4B96-A4E6-B2FFDD0AD9A2}']
-    function GetSetThumbnailAsIcon(): Boolean;
-  end;
-
   TVectorItemTreeImporterJpegWithExif = class(TBaseInterfacedObject, IVectorItemTreeImporter)
   private
+    FHashFunction: IHashFunction;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorDataFactory: IVectorDataFactory;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
     FMediaDataPath: IPathConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
+    FContentTypeManager: IContentTypeManager;
   private
     function ProcessImport(
       const AFileName: string;
-      const AImporterConfig: IInterface
+      var AConfig: IInterface
     ): IVectorItemTree;
   public
     constructor Create(
+      const AHashFunction: IHashFunction;
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const AVectorDataFactory: IVectorDataFactory;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMediaDataPath: IPathConfig;
-      const AValueToStringConverter: IValueToStringConverterChangeable
+      const AValueToStringConverter: IValueToStringConverterChangeable;
+      const AContentTypeManager: IContentTypeManager
     );
   end;
 
@@ -73,34 +79,51 @@ uses
   CCR.Exif.IPTC,
   t_GeoTypes,
   c_InternalBrowser,
+  i_MarkPicture,
   i_VectorItemSubset,
   i_VectorDataItemSimple,
+  i_ContentTypeInfo,
+  i_BitmapTileSaveLoad,
+  i_ImportConfig,
+  i_JpegWithExifImportConfig,
+  u_JpegWithExifImportConfig,
+  u_MarkPictureSimple,
   u_VectorItemTree,
+  u_ImportConfig,
   u_GeoFunc;
+
+const
+  cThumbnailFolderName = '.thumbnail';
 
 { TVectorItemTreeImporterJpegWithExif }
 
 constructor TVectorItemTreeImporterJpegWithExif.Create(
+  const AHashFunction: IHashFunction;
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const AVectorDataFactory: IVectorDataFactory;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMediaDataPath: IPathConfig;
-  const AValueToStringConverter: IValueToStringConverterChangeable
+  const AValueToStringConverter: IValueToStringConverterChangeable;
+  const AContentTypeManager: IContentTypeManager
 );
 begin
   inherited Create;
+  FHashFunction := AHashFunction;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorDataItemMainInfoFactory := AVectorDataItemMainInfoFactory;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
   FVectorDataFactory := AVectorDataFactory;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
   FMediaDataPath := AMediaDataPath;
-  FValueToStringConverter := AValueToStringConverter
+  FValueToStringConverter := AValueToStringConverter;
+  FContentTypeManager := AContentTypeManager;
 end;
 
 function TVectorItemTreeImporterJpegWithExif.ProcessImport(
   const AFileName: string;
-  const AImporterConfig: IInterface
+  var AConfig: IInterface
 ): IVectorItemTree;
 const
   br = '<br>' + #$0D#$0A;
@@ -120,11 +143,43 @@ const
     end;
   end;
 
+  function _GetInternalFileName(const AFullFileName: string): string;
+  begin
+    if StartsText(FMediaDataPath.FullPath, AFullFileName) then begin
+      Result := StringReplace(
+        AFullFileName,
+        IncludeTrailingPathDelimiter(FMediaDataPath.FullPath),
+        CMediaDataInternalURL,
+        [rfIgnoreCase]
+      );
+      Result := StringReplace(Result, '\', '/', [rfReplaceAll]);
+    end else begin
+      Result := AFullFileName;
+    end;
+  end;
+
+  function _GetLoaderByExt(const AExt: string): IBitmapTileLoader;
+  var
+    VContentType: IContentTypeInfoBasic;
+    VContentTypeBitmap: IContentTypeInfoBitmap;
+  begin
+    VContentType := FContentTypeManager.GetInfoByExt(AExt);
+    if VContentType <> nil then begin
+      if Supports(VContentType, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+        Result := VContentTypeBitmap.GetLoader;
+      end;
+    end;
+  end;
+
 var
   VDesc: string;
   VTmpStr: string;
   VImgName: string;
+  VPicFullName: string;
+  VPicShortName: string;
   VAltitude: string;
+  VThumbnailPath: string;
+  VResLimit: string;
   VExAltitude: Extended;
   VKeys: TStrings;
   VPoint: TDoublePoint;
@@ -139,7 +194,12 @@ var
   VList: IVectorItemSubsetBuilder;
   VVectorData: IVectorItemSubset;
   VValueToStringConverter: IValueToStringConverter;
-  VConfig: IJpegWithExifImporterConfig;
+  VConfig: IJpegWithExifImportConfig;
+  VIcon: IAppearancePointIcon;
+  VCaption: IAppearancePointCaption;
+  VPointParams: IImportPointParams;
+  VAppearance: IAppearance;
+  VMark: IMarkPicture;
 begin
   Assert(FileExists(AFileName));
 
@@ -147,11 +207,12 @@ begin
 
   VValueToStringConverter := FValueToStringConverter.GetStatic;
 
-  if not Supports(AImporterConfig, IJpegWithExifImporterConfig, VConfig) then begin
+  if not Supports(AConfig, IJpegWithExifImportConfig, VConfig) then begin
     VConfig := nil;
   end;
 
   VDesc := '';
+  VResLimit := '600';
   VPoint := CEmptyDoublePoint;
 
   VJpeg := TJPEGImageEx.Create;
@@ -238,27 +299,63 @@ begin
     if VExifData.Author <> '' then
       VDesc := VDesc + 'Author: '+ VExifData.Author + br;
 
-    if StartsText(FMediaDataPath.FullPath, AFileName) then begin
-      VImgName := StringReplace(
-        AFileName,
-        IncludeTrailingPathDelimiter(FMediaDataPath.FullPath),
-        CMediaDataInternalURL,
-        [rfIgnoreCase]
-      );
-      VImgName := StringReplace(VImgName, '\', '/', [rfReplaceAll]);
-    end else begin
-      VImgName := AFileName;
-    end;
+    VImgName := _GetInternalFileName(AFileName);
 
-    if Assigned(VConfig) and VConfig.GetSetThumbnailAsIcon then begin
-      VThumbnail := VExifData.Thumbnail;
-      if not Assigned(VThumbnail) or VThumbnail.Empty then begin
-        VJpeg.CreateThumbnail;
-        VThumbnail := VExifData.Thumbnail;
+    if Assigned(VConfig) and VConfig.UseThumbnailAsIcon then begin
+
+      VResLimit := IntToStr(VConfig.ResolutionLimit);
+
+      VPointParams := VConfig.PointParams;
+
+      if Assigned(VPointParams) then begin
+        VCaption := VPointParams.CaptionAppearance;
+        VIcon := VPointParams.IconAppearance;
       end;
-      if Assigned(VThumbnail) and not VThumbnail.Empty then begin
-        // ToDo: gen name (! max len = 20 !) and save Thumbnail to MarkIcons folder
-        //VThumbnail.SaveToFile(ChangeFileExt(AFileName, '.Thumbnail.jpg'));
+
+      if Assigned(VCaption) and Assigned(VIcon) then begin
+        VThumbnail := VExifData.Thumbnail;
+        if not Assigned(VThumbnail) or VThumbnail.Empty then begin
+          VJpeg.CreateThumbnail;
+          VThumbnail := VExifData.Thumbnail;
+        end;
+        if Assigned(VThumbnail) and not VThumbnail.Empty then begin
+          VThumbnailPath :=
+            IncludeTrailingPathDelimiter(ExtractFilePath(AFileName)) +
+            cThumbnailFolderName + PathDelim;
+
+          if not DirectoryExists(VThumbnailPath) then begin
+            if not ForceDirectories(VThumbnailPath) then begin
+              RaiseLastOSError;
+            end;
+          end;
+
+          VPicFullName := VThumbnailPath + ExtractFileName(AFileName);
+
+          VThumbnail.SaveToFile(VPicFullName);
+
+          VPicShortName := _GetInternalFileName(VPicFullName);
+
+          VMark := TMarkPictureSimple.Create(
+            FHashFunction.CalcHashByString(VPicFullName),
+            VPicFullName,
+            VPicShortName,
+            _GetLoaderByExt(ExtractFileExt(AFileName))
+          );
+
+          VAppearance :=
+            FAppearanceOfMarkFactory.CreatePointAppearance(
+              VCaption.TextColor,
+              VCaption.TextBgColor,
+              VCaption.FontSize,
+              VPicShortName,
+              VMark,
+              VIcon.MarkerSize
+            );
+        end else begin
+          Assert(False, 'Can''t create Thumbnail for image: ' + AFileName);
+        end;
+      end else begin
+        Assert(False, 'Appearance not assigned!');
       end;
     end;
 
@@ -268,14 +365,14 @@ begin
       VTmpStr := 'width';
     end;
 
-    VDesc := VDesc + '<img ' + VTmpStr + '=600 src="' + VImgName + '">';
+    VDesc := VDesc + '<img ' + VTmpStr + '=' + VResLimit + ' src="' + VImgName + '">';
   finally
     VJpeg.Free;
   end;
 
   VItem := FVectorDataFactory.BuildItem(
     FVectorDataItemMainInfoFactory.BuildMainInfo(nil, ExtractFileName(AFileName), VDesc),
-    nil,
+    VAppearance,
     FVectorGeometryLonLatFactory.CreateLonLatPoint(VPoint)
   );
 

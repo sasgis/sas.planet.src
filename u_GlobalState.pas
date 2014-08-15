@@ -634,6 +634,7 @@ begin
     TMarkPictureListSimple.Create(
       FHashFunction,
       FGlobalConfig.MarksIconsPath,
+      FGlobalConfig.MediaDataPath,
       FContentTypeManager
     );
   FMarkCategoryFactory :=
@@ -677,6 +678,7 @@ begin
       FMarkFactory,
       THtmlToHintTextConverterStuped.Create,
       FGlobalConfig.MediaDataPath,
+      FContentTypeManager,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('Import')
     );
 

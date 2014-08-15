@@ -130,7 +130,7 @@ type
     FPointParams: IImportPointParams;
     FLineParams: IImportLineParams;
     FPolyParams: IImportPolyParams;
-  private
+  protected
     function GetRootCategory: ICategory;
     function GetCategoryParams: IImportCategoryParams;
     function GetPointParams: IImportPointParams;

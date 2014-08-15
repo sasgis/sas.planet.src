@@ -825,6 +825,8 @@ uses
   u_MapCalibrationListBasic in 'MapCalibration\u_MapCalibrationListBasic.pas',
   i_ImportConfig in 'Vector\i_ImportConfig.pas',
   u_ImportConfig in 'Vector\u_ImportConfig.pas',
+  i_JpegWithExifImportConfig in 'Vector\i_JpegWithExifImportConfig.pas',
+  u_JpegWithExifImportConfig in 'Vector\u_JpegWithExifImportConfig.pas',
   i_VectorItemTreeImporter in 'Vector\i_VectorItemTreeImporter.pas',
   i_VectorItemTreeImporterList in 'Vector\i_VectorItemTreeImporterList.pas',
   i_VectorItemTreeExporter in 'Vector\i_VectorItemTreeExporter.pas',
@@ -1236,7 +1238,9 @@ uses
   frm_UpdateChecker in 'UpdateChecker\frm_UpdateChecker.pas' {frmUpdateChecker},
   i_UpdateDownloader in 'UpdateChecker\i_UpdateDownloader.pas',
   u_UpdateDownloader in 'UpdateChecker\u_UpdateDownloader.pas',
-  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit};
+  frm_ShortCutEdit in 'frm_ShortCutEdit.pas' {frmShortCutEdit},
+  frm_JpegImportConfigEdit in 'MarksDB\GUI\frm_JpegImportConfigEdit.pas' {frmJpegImportConfigEdit},
+  fr_JpegImportOptions in 'MarksDB\GUI\fr_JpegImportOptions.pas' {frJpegImportOptions: TFrame};
 
 {$R .\Resources\VersionInfo.res}
 {$R .\Resources\MainIcon.res}

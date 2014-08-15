@@ -710,6 +710,9 @@
     <DCCReference Include="MarksDB\GUI\frm_ImportConfigEdit.pas">
       <Form>frmImportConfigEdit</Form>
     </DCCReference>
+    <DCCReference Include="MarksDB\GUI\frm_JpegImportConfigEdit.pas">
+      <Form>frmJpegImportConfigEdit</Form>
+    </DCCReference>
     <DCCReference Include="MarksDB\GUI\frm_MarkCategoryEdit.pas">
       <Form>frmMarkCategoryEdit</Form>
     </DCCReference>
@@ -727,6 +730,9 @@
     </DCCReference>
     <DCCReference Include="MarksDB\GUI\frm_MarksMultiEdit.pas">
       <Form>frmMarksMultiEdit</Form>
+    </DCCReference>
+    <DCCReference Include="MarksDB\GUI\fr_JpegImportOptions.pas">
+      <Form>frJpegImportOptions</Form>
     </DCCReference>
     <DCCReference Include="MarksDB\GUI\fr_MarkCategorySelectOrAdd.pas">
       <Form>frMarkCategorySelectOrAdd</Form>
@@ -1381,6 +1387,7 @@
     <DCCReference Include="Vector\i_AppearanceOfVectorItem.pas" />
     <DCCReference Include="Vector\i_Category.pas" />
     <DCCReference Include="Vector\i_ImportConfig.pas" />
+    <DCCReference Include="Vector\i_JpegWithExifImportConfig.pas" />
     <DCCReference Include="Vector\i_VectorDataFactory.pas" />
     <DCCReference Include="Vector\i_VectorDataItemSimple.pas" />
     <DCCReference Include="Vector\i_VectorDataLoader.pas" />
@@ -1399,6 +1406,7 @@
     <DCCReference Include="Vector\u_Category.pas" />
     <DCCReference Include="Vector\u_ExportMarks2KML.pas" />
     <DCCReference Include="Vector\u_ImportConfig.pas" />
+    <DCCReference Include="Vector\u_JpegWithExifImportConfig.pas" />
     <DCCReference Include="Vector\u_VectorDataFactoryForMap.pas" />
     <DCCReference Include="Vector\u_VectorDataFactorySimple.pas" />
     <DCCReference Include="Vector\u_VectorDataItemBase.pas" />

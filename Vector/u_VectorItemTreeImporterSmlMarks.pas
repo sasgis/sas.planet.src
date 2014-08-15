@@ -57,7 +57,7 @@ type
     { IVectorItemTreeImporter }
     function ProcessImport(
       const AFileName: string;
-      const AImporterConfig: IInterface
+      var AConfig: IInterface
     ): IVectorItemTree;
   public
     constructor Create(
@@ -116,7 +116,7 @@ end;
 
 function TVectorItemTreeImporterSmlMarks.ProcessImport(
   const AFileName: string;
-  const AImporterConfig: IInterface
+  var AConfig: IInterface
 ): IVectorItemTree;
 var
   VSml: IMarkSystemImpl;

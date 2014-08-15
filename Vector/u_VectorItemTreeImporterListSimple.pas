@@ -39,6 +39,7 @@ uses
   i_MarkFactory,
   i_HtmlToHintTextConverter,
   i_PathConfig,
+  i_ContentTypeManager,
   u_BaseInterfacedObject;
 
 type
@@ -65,6 +66,7 @@ type
       const AMarkFactory: IMarkFactory;
       const AHintConverter: IHtmlToHintTextConverter;
       const AMediaDataPath: IPathConfig;
+      const AContentTypeManager: IContentTypeManager;
       const APerfCounterList: IInternalPerformanceCounterList
     );
   end;
@@ -104,6 +106,7 @@ constructor TVectorItemTreeImporterListSimple.Create(
   const AMarkFactory: IMarkFactory;
   const AHintConverter: IHtmlToHintTextConverter;
   const AMediaDataPath: IPathConfig;
+  const AContentTypeManager: IContentTypeManager;
   const APerfCounterList: IInternalPerformanceCounterList
 );
 var
@@ -262,12 +265,15 @@ begin
 
   VImporter :=
     TVectorItemTreeImporterJpegWithExif.Create(
+      AHashFunction,
       AVectorGeometryLonLatFactory,
       AVectorDataItemMainInfoFactory,
       AVectorItemSubsetBuilderFactory,
       AVectorDataFactory,
+      AAppearanceOfMarkFactory,
       AMediaDataPath,
-      AValueToStringConverter
+      AValueToStringConverter,
+      AContentTypeManager
     );
   VItem :=
     TVectorItemTreeImporterListItem.Create(
