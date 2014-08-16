@@ -77,12 +77,19 @@ implementation
 
 uses
   Math,
+  WGS84_SK42,
   t_GeoTypes,
   i_CoordConverter,
   u_SimpleFlagWithInterlock,
   u_GeoFunc,
   u_GeoToStrFunc,
   u_Synchronizer;
+
+function WGS84_To_SK42(const APoint: TDoublePoint): TDoublePoint;
+begin
+  Result.X := SK42_WGS84_Long(APoint.Y, APoint.X, 0);
+  Result.Y := SK42_WGS84_Lat(APoint.Y, APoint.X, 0);
+end;
 
 { TBitmapLayerProviderGridGenshtab }
 
@@ -150,6 +157,7 @@ begin
   if VLoadedLonLatRect.Bottom < -90 then begin
     VLoadedLonLatRect.Bottom := -90;
   end;
+
   VGridRect.Left := Floor(VLoadedLonLatRect.Left / z.X);
   VGridRect.Top := Ceil(VLoadedLonLatRect.Top / z.Y);
   VGridRect.Right := Ceil(VLoadedLonLatRect.Right / z.X);
@@ -195,7 +203,7 @@ procedure TBitmapLayerProviderGridGenshtab.DrawLines(
 );
 var
   VLocalRect: TRect;
-  z: TDoublePoint;
+  VGridStep: TDoublePoint;
   VZoom: Byte;
   VLoadedRect: TDoubleRect;
   VLoadedLonLatRect: TDoubleRect;
@@ -204,11 +212,11 @@ var
   VLocalRectOfCellsLine: TRect;
   VGeoConvert: ICoordConverter;
   VGridRect: TRect;
-  i: Integer;
+  I: Integer;
 begin
   VGeoConvert := ALocalConverter.GetGeoConverter;
   VZoom := ALocalConverter.GetZoom;
-  z := GetGhBordersStepByScale(FScale, VZoom);
+  VGridStep := GetGhBordersStepByScale(FScale, VZoom);
   VLocalRect := ALocalConverter.GetLocalRect;
   VLoadedRect := ALocalConverter.GetRectInMapPixelFloat;
 
@@ -221,58 +229,76 @@ begin
   if VLoadedLonLatRect.Bottom < -90 then begin
     VLoadedLonLatRect.Bottom := -90;
   end;
-  VGridRect.Left := Floor(VLoadedLonLatRect.Left / z.X);
-  VGridRect.Top := Ceil(VLoadedLonLatRect.Top / z.Y);
-  VGridRect.Right := Ceil(VLoadedLonLatRect.Right / z.X);
-  VGridRect.Bottom := Floor(VLoadedLonLatRect.Bottom / z.Y);
 
-  VGridLonLatRect.Left := VGridRect.Left * z.X;
-  VGridLonLatRect.Top := VGridRect.Top * z.Y;
-  VGridLonLatRect.Right := VGridRect.Right * z.X;
-  VGridLonLatRect.Bottom := VGridRect.Bottom * z.Y;
+  VGridRect.Left := Floor(VLoadedLonLatRect.Left / VGridStep.X);
+  VGridRect.Top := Ceil(VLoadedLonLatRect.Top / VGridStep.Y);
+  VGridRect.Right := Ceil(VLoadedLonLatRect.Right / VGridStep.X);
+  VGridRect.Bottom := Floor(VLoadedLonLatRect.Bottom / VGridStep.Y);
 
-  VLonLatRectOfCellsLine.TopLeft := VGridLonLatRect.TopLeft;
-  VLonLatRectOfCellsLine.BottomRight := DoublePoint(VGridLonLatRect.Left + z.X, VGridLonLatRect.Top - z.Y);
+  VGridLonLatRect.Left := VGridRect.Left * VGridStep.X;
+  VGridLonLatRect.Top := VGridRect.Top * VGridStep.Y;
+  VGridLonLatRect.Right := VGridRect.Right * VGridStep.X;
+  VGridLonLatRect.Bottom := VGridRect.Bottom * VGridStep.Y;
+
+  VLonLatRectOfCellsLine.TopLeft := WGS84_To_SK42(VGridLonLatRect.TopLeft);
+  VLonLatRectOfCellsLine.BottomRight := WGS84_To_SK42(
+    DoublePoint(VGridLonLatRect.Left + VGridStep.X, VGridLonLatRect.Top - VGridStep.Y)
+  );
+
   VGeoConvert.CheckLonLatRect(VLonLatRectOfCellsLine);
   VLocalRectOfCellsLine :=
     RectFromDoubleRect(
       ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),
       rrToTopLeft
     );
-  if abs(VLocalRectOfCellsLine.Right - VLocalRectOfCellsLine.Left) < 4 then begin
-    exit;
+  if Abs(VLocalRectOfCellsLine.Right - VLocalRectOfCellsLine.Left) < 4 then begin
+    Exit;
   end;
 
-  for i := VGridRect.Left to VGridRect.Right do begin
-    VLonLatRectOfCellsLine.Left := i * z.X;
+  for I := VGridRect.Left to VGridRect.Right do begin
+    VLonLatRectOfCellsLine.Left := I * VGridStep.X;
     VLonLatRectOfCellsLine.Top := VGridLonLatRect.Top;
     VLonLatRectOfCellsLine.Right := VLonLatRectOfCellsLine.Left;
     VLonLatRectOfCellsLine.Bottom := VGridLonLatRect.Bottom;
+
+    VLonLatRectOfCellsLine.TopLeft := WGS84_To_SK42(VLonLatRectOfCellsLine.TopLeft);
+    VLonLatRectOfCellsLine.BottomRight := WGS84_To_SK42(VLonLatRectOfCellsLine.BottomRight);
+
     VGeoConvert.CheckLonLatRect(VLonLatRectOfCellsLine);
     VLocalRectOfCellsLine :=
       RectFromDoubleRect(
         ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),
         rrToTopLeft
       );
-    VLocalRectOfCellsLine.Top := VLocalRect.Top;
-    VLocalRectOfCellsLine.Bottom := VLocalRect.Bottom;
 
     if (VLocalRectOfCellsLine.Left >= VLocalRect.Left) and
       (VLocalRectOfCellsLine.Left < VLocalRect.Right) then begin
-      FBitmap.VertLineTS(
+
+      if VLocalRectOfCellsLine.Top > VLocalRect.Top then begin
+        VLocalRectOfCellsLine.Top := VLocalRect.Top;
+      end;
+      if VLocalRectOfCellsLine.Bottom < VLocalRect.Bottom then begin
+        VLocalRectOfCellsLine.Bottom := VLocalRect.Bottom
+      end;
+
+      FBitmap.LineTS(
         VLocalRectOfCellsLine.Left,
         VLocalRectOfCellsLine.Top,
+        VLocalRectOfCellsLine.Right,
         VLocalRectOfCellsLine.Bottom,
         FColor
       );
     end;
   end;
 
-  for i := VGridRect.Bottom to VGridRect.Top do begin
+  for I := VGridRect.Bottom to VGridRect.Top do begin
     VLonLatRectOfCellsLine.Left := VGridLonLatRect.Left;
-    VLonLatRectOfCellsLine.Top := i * z.Y;
+    VLonLatRectOfCellsLine.Top := I * VGridStep.Y;
     VLonLatRectOfCellsLine.Right := VGridLonLatRect.Right;
     VLonLatRectOfCellsLine.Bottom := VLonLatRectOfCellsLine.Top;
+
+    VLonLatRectOfCellsLine.TopLeft := WGS84_To_SK42(VLonLatRectOfCellsLine.TopLeft);
+    VLonLatRectOfCellsLine.BottomRight := WGS84_To_SK42(VLonLatRectOfCellsLine.BottomRight);
 
     VGeoConvert.CheckLonLatRect(VLonLatRectOfCellsLine);
     VLocalRectOfCellsLine :=
@@ -280,15 +306,22 @@ begin
         ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCellsLine),
         rrToTopLeft
       );
-    VLocalRectOfCellsLine.Left := VLocalRect.Left;
-    VLocalRectOfCellsLine.Right := VLocalRect.Right;
 
     if (VLocalRectOfCellsLine.Top >= VLocalRect.Top) and
       (VLocalRectOfCellsLine.Bottom < VLocalRect.Bottom) then begin
-      FBitmap.HorzLineTS(
+
+      if VLocalRectOfCellsLine.Left > VLocalRect.Left then begin
+        VLocalRectOfCellsLine.Left := VLocalRect.Left
+      end;
+      if VLocalRectOfCellsLine.Right < VLocalRect.Right then begin
+        VLocalRectOfCellsLine.Right := VLocalRect.Right
+      end;
+
+      FBitmap.LineTS(
         VLocalRectOfCellsLine.Left,
         VLocalRectOfCellsLine.Top,
         VLocalRectOfCellsLine.Right,
+        VLocalRectOfCellsLine.Bottom,
         FColor
       );
     end;
