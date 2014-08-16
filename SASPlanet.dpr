@@ -47,6 +47,8 @@ uses
   i_BinaryData in 'Basic\i_BinaryData.pas',
   u_BinaryData in 'Basic\u_BinaryData.pas',
   u_BinaryDataByMemStream in 'Basic\u_BinaryDataByMemStream.pas',
+  i_BinaryDataStatic in 'Basic\i_BinaryDataStatic.pas',
+  u_BinaryDataStatic in 'Basic\u_BinaryDataStatic.pas',
   i_BinaryDataListStatic in 'Basic\i_BinaryDataListStatic.pas',
   i_BinaryDataListChangeable in 'Basic\i_BinaryDataListChangeable.pas',
   u_BinaryDataListStatic in 'Basic\u_BinaryDataListStatic.pas',

@@ -61,6 +61,7 @@
     <DCCReference Include="Basic\i_BinaryData.pas" />
     <DCCReference Include="Basic\i_BinaryDataListChangeable.pas" />
     <DCCReference Include="Basic\i_BinaryDataListStatic.pas" />
+    <DCCReference Include="Basic\i_BinaryDataStatic.pas" />
     <DCCReference Include="Basic\i_Changeable.pas" />
     <DCCReference Include="Basic\i_EnumID.pas" />
     <DCCReference Include="Basic\i_FileNameIterator.pas" />
@@ -85,6 +86,7 @@
     <DCCReference Include="Basic\u_BinaryData.pas" />
     <DCCReference Include="Basic\u_BinaryDataByMemStream.pas" />
     <DCCReference Include="Basic\u_BinaryDataListStatic.pas" />
+    <DCCReference Include="Basic\u_BinaryDataStatic.pas" />
     <DCCReference Include="Basic\u_ChangeableBase.pas" />
     <DCCReference Include="Basic\u_EnumUnknown.pas" />
     <DCCReference Include="Basic\u_EnumUnknownEmpty.pas" />
