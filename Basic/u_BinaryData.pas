@@ -48,6 +48,22 @@ type
     destructor Destroy; override;
   end;
 
+  TBinaryDataWithMemoryHolder = class(TBaseInterfacedObject, IBinaryData)
+  private
+    FMemoryHolder: IInterface;
+    FBuffer: Pointer;
+    FSize: Integer;
+  private
+    function GetBuffer: Pointer;
+    function GetSize: Integer;
+  public
+    constructor Create(
+      const AMemoryHolder: IInterface;
+      const ASize: Integer;
+      const ABuffer: Pointer
+    );
+  end;
+
 implementation
 
 { TBinaryData }
@@ -103,6 +119,33 @@ begin
 end;
 
 function TBinaryData.GetSize: Integer;
+begin
+  Result := FSize;
+end;
+
+{ TBinaryDataWithMemoryHolder }
+
+constructor TBinaryDataWithMemoryHolder.Create(
+  const AMemoryHolder: IInterface;
+  const ASize: Integer;
+  const ABuffer: Pointer
+);
+begin
+  Assert(Assigned(AMemoryHolder));
+  Assert(ASize > 0);
+  Assert(Assigned(ABuffer));
+  inherited Create;
+  FMemoryHolder := AMemoryHolder;
+  FSize := ASize;
+  FBuffer := ABuffer;
+end;
+
+function TBinaryDataWithMemoryHolder.GetBuffer: Pointer;
+begin
+  Result := FBuffer;
+end;
+
+function TBinaryDataWithMemoryHolder.GetSize: Integer;
 begin
   Result := FSize;
 end;

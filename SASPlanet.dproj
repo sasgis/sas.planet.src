@@ -1094,7 +1094,6 @@
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBPool.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBValue.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBValueZlib.pas" />
-    <DCCReference Include="TileStorage\BerkeleyDB\u_BinaryDataByBerkeleyDBValue.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_EnumTileInfoByBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_GlobalBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileFileNameBerkeleyDB.pas" />

@@ -135,7 +135,6 @@ uses
   u_TileStorageBerkeleyDBConfigStatic in 'TileStorage\BerkeleyDB\u_TileStorageBerkeleyDBConfigStatic.pas',
   u_TileStorageTypeBerkeleyDB in 'TileStorage\BerkeleyDB\u_TileStorageTypeBerkeleyDB.pas',
   u_EnumTileInfoByBerkeleyDB in 'TileStorage\BerkeleyDB\u_EnumTileInfoByBerkeleyDB.pas',
-  u_BinaryDataByBerkeleyDBValue in 'TileStorage\BerkeleyDB\u_BinaryDataByBerkeleyDBValue.pas',
   u_BerkeleyDBFactory in 'TileStorage\BerkeleyDB\u_BerkeleyDBFactory.pas',
   i_BerkeleyDBFactory in 'TileStorage\BerkeleyDB\i_BerkeleyDBFactory.pas',
   i_BerkeleyDBEnv in 'TileStorage\BerkeleyDB\i_BerkeleyDBEnv.pas',

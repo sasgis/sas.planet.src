@@ -181,7 +181,7 @@ uses
   u_BerkeleyDBKey,
   u_BerkeleyDBValue,
   u_MapVersionListStatic,
-  u_BinaryDataByBerkeleyDBValue;
+  u_BinaryData;
 
 function CreateDirIfNotExists(APath: string): Boolean;
 begin
@@ -673,7 +673,7 @@ begin
             try
               VValue := TBerkeleyDBValue.Create(VBinValue);
               if Assigned(VValue) and (VValue.TileSize > 0) and (VValue.TileBody <> nil) then begin
-                ATileBinaryData := TBinaryDataByBerkeleyDBValue.Create(VValue);
+                ATileBinaryData := TBinaryDataWithMemoryHolder.Create(VValue, VValue.TileSize, VValue.TileBody);
                 ATileVersion := VValue.TileVersionInfo;
                 ATileContentType := VValue.TileContentType;
                 ATileDate := VValue.TileDate;
