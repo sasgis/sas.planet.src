@@ -638,6 +638,7 @@
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_MapLayerBitmapMaps.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_MapLayerVectorMaps.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TiledLayerWithThreadBase.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileHashMatrix.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrix.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixChangeableWithThread.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixElement.pas" />

@@ -680,6 +680,7 @@ uses
   u_BitmapLayerProviderChangeableForMapType in 'BitmapLayerProvider\u_BitmapLayerProviderChangeableForMapType.pas',
   u_WindowLayerBasic in 'MapLayers\WindowLayers\u_WindowLayerBasic.pas',
   u_WindowLayerWithPos in 'MapLayers\WindowLayers\u_WindowLayerWithPos.pas',
+  u_TileHashMatrix in 'MapLayers\LayersWithThreadAndProvider\u_TileHashMatrix.pas',
   u_TiledLayerWithThreadBase in 'MapLayers\LayersWithThreadAndProvider\u_TiledLayerWithThreadBase.pas',
   u_MiniMapLayer in 'MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayer.pas',
   u_MiniMapLayerTopBorder in 'MapLayers\LayersWithThreadAndProvider\MiniMap\u_MiniMapLayerTopBorder.pas',

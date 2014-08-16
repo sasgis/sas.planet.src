@@ -39,6 +39,7 @@ uses
   i_ObjectWithListener,
   i_TileMatrixChangeable,
   i_InternalPerformanceCounter,
+  u_TileHashMatrix,
   u_WindowLayerBasic;
 
 type
@@ -48,6 +49,7 @@ type
     FTileMatrix: ITileMatrixChangeable;
     FView: ILocalCoordConverterChangeable;
 
+    FShownIdMatrix: ITileHashMatrix;
     FOnPaintCounter: IInternalPerformanceCounter;
     FOneTilePaintSimpleCounter: IInternalPerformanceCounter;
     FOneTilePaintResizeCounter: IInternalPerformanceCounter;
@@ -92,6 +94,7 @@ implementation
 uses
   GR32_Resamplers,
   t_GeoTypes,
+  t_Hash,
   i_TileIterator,
   i_CoordConverter,
   i_Bitmap32Static,
@@ -134,6 +137,7 @@ begin
   FOneTilePaintSimpleCounter := APerfList.CreateAndAddNewCounter('OneTilePaintSimple');
   FOneTilePaintResizeCounter := APerfList.CreateAndAddNewCounter('OneTilePaintResize');
 
+  FShownIdMatrix := TTileHashMatrix.Create;
   FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
   FTileMatrix :=
     TTileMatrixChangeableWithThread.Create(
@@ -209,6 +213,7 @@ var
   VTileIterator: ITileIterator;
   VTile: TPoint;
   VDstRect: TRect;
+  VShownId: THashValue;
 begin
   if FTileMatrixChangeFlag.CheckFlagAndReset then begin
     VTileMatrix := FTileMatrix.GetStatic;
@@ -220,13 +225,15 @@ begin
       if not VLocalConverter.GetIsSameConverter(FLastPaintConverter) then begin
         FLayer.Location := FloatRect(VLocalConverter.GetLocalRect);
         FLayer.Changed(VLocalConverter.GetLocalRect);
+        FShownIdMatrix.Reset(VTileMatrix.TileRect);
       end else begin
         if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.LocalConverter.ProjectionInfo) then begin
           VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
           while VTileIterator.Next(VTile) do begin
+            VShownId := FShownIdMatrix.GetTileHash(VTile);
             VElement := VTileMatrix.GetElementByTile(VTile);
             if VElement <> nil then begin
-              if VElement.CheckForShow then begin
+              if VElement.ReadyID <> VShownId then begin
                 VDstRect :=
                   VLocalConverter.MapRect2LocalRect(
                     VElement.LocalConverter.GetRectInMapPixel,
@@ -347,6 +354,7 @@ begin
                   FOneTilePaintResizeCounter.FinishOperation(VCounterContext);
                 end;
               end;
+              FShownIdMatrix.SetTileHash(VTile, VElement.ReadyID);
             end else begin
               ABuffer.Changed(VDstRect);
             end;
