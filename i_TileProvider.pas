@@ -6,10 +6,21 @@ uses
   Types,
   i_NotifierTilePyramidUpdate,
   i_ProjectionInfo,
+  i_BinaryData,
   i_VectorItemSubset,
   i_Bitmap32Static;
 
 type
+  IBinaryTileProvider = interface
+    ['{B2D016DA-FE20-489C-BF72-3DC12107D782}']
+    function GetProjectionInfo: IProjectionInfo;
+    property ProjectionInfo: IProjectionInfo read GetProjectionInfo;
+
+    function GetTile(
+      const ATile: TPoint
+    ): IBinaryData;
+  end;
+
   IBitmapTileProvider = interface
     ['{88ACB3F9-FDEE-4451-89A0-EA24133E2DB5}']
     function GetProjectionInfo: IProjectionInfo;
