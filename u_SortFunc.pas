@@ -113,7 +113,6 @@ procedure SortInterfaceListByDoubleMeasure(
     I, J: Integer;
     P: Double;
     TI: Double;
-    TM: IInterface;
   begin
     repeat
       I := L;
@@ -127,13 +126,10 @@ procedure SortInterfaceListByDoubleMeasure(
           Dec(J);
         end;
         if I <= J then begin
+          AList.Exchange(I, J);
           TI := AMeasure[I];
-          TM := AList[I];
-
           AMeasure[I] := AMeasure[J];
-          AList[I] := AList[J];
           AMeasure[J] := TI;
-          AList[J] := TM;
           Inc(I);
           Dec(J);
         end;
@@ -168,7 +164,6 @@ procedure SortInterfaceListByIntegerMeasure(
     I, J: Integer;
     P: Integer;
     TI: Integer;
-    TM: IInterface;
   begin
     repeat
       I := L;
@@ -182,13 +177,10 @@ procedure SortInterfaceListByIntegerMeasure(
           Dec(J);
         end;
         if I <= J then begin
+          AList.Exchange(I, J);
           TI := AMeasure[I];
-          TM := AList[I];
-
           AMeasure[I] := AMeasure[J];
-          AList[I] := AList[J];
           AMeasure[J] := TI;
-          AList[J] := TM;
           Inc(I);
           Dec(J);
         end;
@@ -222,7 +214,6 @@ procedure SortInterfaceListByCompareFunction(
   var
     I, J: Integer;
     P: IInterface;
-    TM: IInterface;
   begin
     repeat
       I := L;
@@ -236,10 +227,7 @@ procedure SortInterfaceListByCompareFunction(
           Dec(J);
         end;
         if I <= J then begin
-          TM := AList[I];
-
-          AList[I] := AList[J];
-          AList[J] := TM;
+          AList.Exchange(I, J);
           Inc(I);
           Dec(J);
         end;
@@ -272,7 +260,6 @@ procedure SortInterfaceListByCompareFunctor(
   var
     I, J: Integer;
     P: IInterface;
-    TM: IInterface;
   begin
     repeat
       I := L;
@@ -286,10 +273,7 @@ procedure SortInterfaceListByCompareFunctor(
           Dec(J);
         end;
         if I <= J then begin
-          TM := AList[I];
-
-          AList[I] := AList[J];
-          AList[J] := TM;
+          AList.Exchange(I, J);
           Inc(I);
           Dec(J);
         end;
