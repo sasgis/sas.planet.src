@@ -63,6 +63,8 @@
     <DCCReference Include="Basic\i_BinaryDataListStatic.pas" />
     <DCCReference Include="Basic\i_BinaryDataStatic.pas" />
     <DCCReference Include="Basic\i_Changeable.pas" />
+    <DCCReference Include="Basic\i_Dictionary.pas" />
+    <DCCReference Include="Basic\i_DictionaryObjects.pas" />
     <DCCReference Include="Basic\i_EnumID.pas" />
     <DCCReference Include="Basic\i_FileNameIterator.pas" />
     <DCCReference Include="Basic\i_GUIDListStatic.pas" />
