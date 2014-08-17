@@ -25,6 +25,13 @@ interface
 uses
   i_InterfaceListSimple;
 
+function IsSortedDoubleArray(
+  const AArray: array of Double
+): Boolean;
+function IsSortedIntegerArray(
+  const AArray: array of Integer
+): Boolean;
+
 procedure SortDoubleArray(
   var AArray: array of Double
 );
@@ -48,6 +55,16 @@ type
   TInterfaceListSortCompareFunction = function (const Item1, Item2: IInterface): Integer;
   TInterfaceListSortCompareFunctor = function (const Item1, Item2: IInterface): Integer of object;
 
+function IsSortedInterfaceListByCompareFunction(
+  const AList: IInterfaceListSimple;
+  ACompareFunc: TInterfaceListSortCompareFunction
+): Boolean;
+
+function IsSortedInterfaceListByCompareFunctor(
+  const AList: IInterfaceListSimple;
+  ACompareFunc: TInterfaceListSortCompareFunctor
+): Boolean;
+
 procedure SortInterfaceListByCompareFunction(
   const AList: IInterfaceListSimple;
   ACompareFunc: TInterfaceListSortCompareFunction
@@ -59,6 +76,36 @@ procedure SortInterfaceListByCompareFunctor(
 );
 
 implementation
+
+function IsSortedDoubleArray(
+  const AArray: array of Double
+): Boolean;
+var
+  i: Integer;
+begin
+  Result := True;
+  for i := 1 to Length(AArray) - 1 do begin
+    if AArray[i - 1] > AArray[i] then begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
+
+function IsSortedIntegerArray(
+  const AArray: array of Integer
+): Boolean;
+var
+  i: Integer;
+begin
+  Result := True;
+  for i := 1 to Length(AArray) - 1 do begin
+    if AArray[i - 1] > AArray[i] then begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
 
 procedure SortDoubleArray(
   var AArray: array of Double
@@ -306,6 +353,42 @@ begin
   Assert(AList.Count = VCount);
   if VCount > 1 then begin
     QuickSort(AList, AMeasure, 0, VCount - 1);
+  end;
+end;
+
+function IsSortedInterfaceListByCompareFunction(
+  const AList: IInterfaceListSimple;
+  ACompareFunc: TInterfaceListSortCompareFunction
+): Boolean;
+var
+  i: Integer;
+begin
+  Assert(Assigned(AList));
+  Assert(Assigned(ACompareFunc));
+  Result := True;
+  for i := 1 to AList.Count - 1 do begin
+    if ACompareFunc(AList[i - 1], AList[i]) > 0 then begin
+      Result := False;
+      Break;
+    end;
+  end;
+end;
+
+function IsSortedInterfaceListByCompareFunctor(
+  const AList: IInterfaceListSimple;
+  ACompareFunc: TInterfaceListSortCompareFunctor
+): Boolean;
+var
+  i: Integer;
+begin
+  Assert(Assigned(AList));
+  Assert(Assigned(ACompareFunc));
+  Result := True;
+  for i := 1 to AList.Count - 1 do begin
+    if ACompareFunc(AList[i - 1], AList[i]) > 0 then begin
+      Result := False;
+      Break;
+    end;
   end;
 end;
 
