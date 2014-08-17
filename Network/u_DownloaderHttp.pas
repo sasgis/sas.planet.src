@@ -332,15 +332,6 @@ begin
 
   Result := nil;
 
-  // check gracefully off
-  if FDisconnectByServer.CheckFlag then begin
-    try
-      Disconnect;
-    finally
-      FDisconnectByServer.CheckFlagAndReset;
-    end;
-  end;
-
   FCS.BeginWrite;
   try
     if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
@@ -360,6 +351,13 @@ begin
         end;
         if Result = nil then begin
           try
+            // check gracefully off
+            if FDisconnectByServer.CheckFlag then
+            try
+              Disconnect;
+            finally
+              FDisconnectByServer.CheckFlagAndReset;
+            end;
             {$IFDEF VerboseHttpClient}
             OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <I> DoRequest: ' + ARequest.Url));
             {$ENDIF}
@@ -426,25 +424,20 @@ end;
 
 procedure TDownloaderHttp.Disconnect;
 begin
-  FCS.BeginWrite;
-  try
-    if Assigned(FHttpClient) then begin
-      {$IFDEF VerboseHttpClient}
-      if FDisconnectByServer.CheckFlag then begin
-        OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <W> Detect disconnection by server.'));
-      end else begin
-        OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <W> Init disconnection by user.'));
-      end;
-      {$ENDIF}
-      FDisconnectByUser.SetFlag;
-      try
-        FHttpClient.Disconnect;
-      finally
-        FDisconnectByUser.CheckFlagAndReset;
-      end;
+  if Assigned(FHttpClient) then begin
+    {$IFDEF VerboseHttpClient}
+    if FDisconnectByServer.CheckFlag then begin
+      OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <W> Detect disconnection by server.'));
+    end else begin
+      OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <W> Init disconnection by user.'));
     end;
-  finally
-    FCS.EndWrite;
+    {$ENDIF}
+    FDisconnectByUser.SetFlag;
+    try
+      FHttpClient.Disconnect;
+    finally
+      FDisconnectByUser.CheckFlagAndReset;
+    end;
   end;
 end;
 
