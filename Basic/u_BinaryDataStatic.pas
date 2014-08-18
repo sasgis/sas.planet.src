@@ -18,47 +18,61 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BinaryData;
+unit u_BinaryDataStatic;
 
 interface
 
 uses
-  i_BinaryData,
+  t_Hash,
+  i_BinaryDataStatic,
   u_BaseInterfacedObject;
 
 type
-  TBinaryData = class(TBaseInterfacedObject, IBinaryData)
+  TBinaryDataStatic = class(TBaseInterfacedObject, IBinaryDataStatic)
   private
+    FHash: THashValue;
     FBuffer: Pointer;
     FSize: Integer;
   private
     function GetBuffer: Pointer;
     function GetSize: Integer;
+    function GetHash: THashValue;
   public
     constructor Create(
+      const AHash: THashValue;
       const ASize: Integer;
       const ABuffer: Pointer
     );
     constructor CreateWithOwn(
+      const AHash: THashValue;
       const ASize: Integer;
       const ABuffer: Pointer
     );
-    constructor CreateByString(const ASource: String);
-    constructor CreateByAnsiString(const ASource: AnsiString);
+    constructor CreateByString(
+      const AHash: THashValue;
+      const ASource: String
+    );
+    constructor CreateByAnsiString(
+      const AHash: THashValue;
+      const ASource: AnsiString
+    );
     destructor Destroy; override;
   end;
 
-  TBinaryDataWithMemoryHolder = class(TBaseInterfacedObject, IBinaryData)
+  TBinaryDataStaticWithMemoryHolder = class(TBaseInterfacedObject, IBinaryDataStatic)
   private
+    FHash: THashValue;
     FMemoryHolder: IInterface;
     FBuffer: Pointer;
     FSize: Integer;
   private
     function GetBuffer: Pointer;
     function GetSize: Integer;
+    function GetHash: THashValue;
   public
     constructor Create(
       const AMemoryHolder: IInterface;
+      const AHash: THashValue;
       const ASize: Integer;
       const ABuffer: Pointer
     );
@@ -66,14 +80,17 @@ type
 
 implementation
 
-{ TBinaryData }
+{ TBinaryDataStatic }
 
-constructor TBinaryData.Create(
+constructor TBinaryDataStatic.Create(
+  const AHash: THashValue;
   const ASize: Integer;
   const ABuffer: Pointer
 );
 begin
+  Assert((ASize = 0) or Assigned(ABuffer));
   inherited Create;
+  FHash := AHash;
   FSize := ASize;
   if FSize > 0 then begin
     GetMem(FBuffer, FSize);
@@ -83,22 +100,31 @@ begin
   end;
 end;
 
-constructor TBinaryData.CreateByAnsiString(const ASource: AnsiString);
+constructor TBinaryDataStatic.CreateByAnsiString(
+  const AHash: THashValue;
+  const ASource: AnsiString
+);
 begin
-  Create(Length(ASource), @ASource[1]);
+  Create(AHash, Length(ASource), @ASource[1]);
 end;
 
-constructor TBinaryData.CreateByString(const ASource: String);
+constructor TBinaryDataStatic.CreateByString(
+  const AHash: THashValue;
+  const ASource: String
+);
 begin
-  Create(Length(ASource) * SizeOf(ASource[1]), @ASource[1]);
+  Create(AHash, Length(ASource) * SizeOf(ASource[1]), @ASource[1]);
 end;
 
-constructor TBinaryData.CreateWithOwn(
+constructor TBinaryDataStatic.CreateWithOwn(
+  const AHash: THashValue;
   const ASize: Integer;
   const ABuffer: Pointer
 );
 begin
+  Assert((ASize = 0) or Assigned(ABuffer));
   inherited Create;
+  FHash := AHash;
   FSize := ASize;
   if FSize > 0 then begin
     FBuffer := ABuffer;
@@ -107,26 +133,32 @@ begin
   end;
 end;
 
-destructor TBinaryData.Destroy;
+destructor TBinaryDataStatic.Destroy;
 begin
   FreeMem(FBuffer);
   inherited;
 end;
 
-function TBinaryData.GetBuffer: Pointer;
+function TBinaryDataStatic.GetBuffer: Pointer;
 begin
   Result := FBuffer;
 end;
 
-function TBinaryData.GetSize: Integer;
+function TBinaryDataStatic.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
+function TBinaryDataStatic.GetSize: Integer;
 begin
   Result := FSize;
 end;
 
-{ TBinaryDataWithMemoryHolder }
+{ TBinaryDataStaticWithMemoryHolder }
 
-constructor TBinaryDataWithMemoryHolder.Create(
+constructor TBinaryDataStaticWithMemoryHolder.Create(
   const AMemoryHolder: IInterface;
+  const AHash: THashValue;
   const ASize: Integer;
   const ABuffer: Pointer
 );
@@ -135,17 +167,23 @@ begin
   Assert(ASize > 0);
   Assert(Assigned(ABuffer));
   inherited Create;
+  FHash := AHash;
   FMemoryHolder := AMemoryHolder;
   FSize := ASize;
   FBuffer := ABuffer;
 end;
 
-function TBinaryDataWithMemoryHolder.GetBuffer: Pointer;
+function TBinaryDataStaticWithMemoryHolder.GetBuffer: Pointer;
 begin
   Result := FBuffer;
 end;
 
-function TBinaryDataWithMemoryHolder.GetSize: Integer;
+function TBinaryDataStaticWithMemoryHolder.GetHash: THashValue;
+begin
+  Result := FHash;
+end;
+
+function TBinaryDataStaticWithMemoryHolder.GetSize: Integer;
 begin
   Result := FSize;
 end;

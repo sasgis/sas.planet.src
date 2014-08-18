@@ -61,7 +61,10 @@
     <DCCReference Include="Basic\i_BinaryData.pas" />
     <DCCReference Include="Basic\i_BinaryDataListChangeable.pas" />
     <DCCReference Include="Basic\i_BinaryDataListStatic.pas" />
+    <DCCReference Include="Basic\i_BinaryDataStatic.pas" />
     <DCCReference Include="Basic\i_Changeable.pas" />
+    <DCCReference Include="Basic\i_Dictionary.pas" />
+    <DCCReference Include="Basic\i_DictionaryObjects.pas" />
     <DCCReference Include="Basic\i_EnumID.pas" />
     <DCCReference Include="Basic\i_FileNameIterator.pas" />
     <DCCReference Include="Basic\i_GUIDListStatic.pas" />
@@ -85,6 +88,7 @@
     <DCCReference Include="Basic\u_BinaryData.pas" />
     <DCCReference Include="Basic\u_BinaryDataByMemStream.pas" />
     <DCCReference Include="Basic\u_BinaryDataListStatic.pas" />
+    <DCCReference Include="Basic\u_BinaryDataStatic.pas" />
     <DCCReference Include="Basic\u_ChangeableBase.pas" />
     <DCCReference Include="Basic\u_EnumUnknown.pas" />
     <DCCReference Include="Basic\u_EnumUnknownEmpty.pas" />
@@ -1094,7 +1098,6 @@
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBPool.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBValue.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_BerkeleyDBValueZlib.pas" />
-    <DCCReference Include="TileStorage\BerkeleyDB\u_BinaryDataByBerkeleyDBValue.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_EnumTileInfoByBerkeleyDB.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_GlobalBerkeleyDBHelper.pas" />
     <DCCReference Include="TileStorage\BerkeleyDB\u_TileFileNameBerkeleyDB.pas" />

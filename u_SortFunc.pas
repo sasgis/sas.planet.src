@@ -28,6 +28,13 @@ uses
 procedure SortDoubleArray(
   var AArray: array of Double
 );
+procedure SortIntegerArray(
+  var AArray: array of Integer
+);
+procedure SortIntegerArrayByIntegerMeasure(
+  var AArray: array of Integer;
+  var AMeasure: array of Integer
+);
 procedure SortInterfaceListByDoubleMeasure(
   const AList: IInterfaceListSimple;
   var AMeasure: array of Double
@@ -100,20 +107,67 @@ begin
   end;
 end;
 
-procedure SortInterfaceListByDoubleMeasure(
-  const AList: IInterfaceListSimple;
-  var AMeasure: array of Double
+procedure SortIntegerArray(
+  var AArray: array of Integer
 );
   procedure QuickSort(
-    const AList: IInterfaceListSimple;
-    var AMeasure: array of Double;
+    var AArray: array of Integer;
     L, R: Integer
   );
   var
     I, J: Integer;
-    P: Double;
-    TI: Double;
-    TM: IInterface;
+    P: Integer;
+    T: Integer;
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := AArray[(L + R) shr 1];
+      repeat
+        while AArray[I] < P do begin
+          Inc(I);
+        end;
+        while AArray[J] > P do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          T := AArray[I];
+
+          AArray[I] := AArray[J];
+          AArray[J] := T;
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(AArray, L, J);
+      end;
+      L := I;
+    until I >= R;
+  end;
+var
+  VCount: Integer;
+begin
+  VCount := Length(AArray);
+  if VCount > 1 then begin
+    QuickSort(AArray, 0, VCount - 1);
+  end;
+end;
+
+procedure SortIntegerArrayByIntegerMeasure(
+  var AArray: array of Integer;
+  var AMeasure: array of Integer
+);
+  procedure QuickSort(
+    var AArray: array of Integer;
+    var AMeasure: array of Integer;
+    L, R: Integer
+  );
+  var
+    I, J: Integer;
+    P: Integer;
+    TI: Integer;
+    TM: Integer;
   begin
     repeat
       I := L;
@@ -127,13 +181,62 @@ procedure SortInterfaceListByDoubleMeasure(
           Dec(J);
         end;
         if I <= J then begin
+          TM := AArray[I];
+          AArray[I] := AArray[J];
+          AArray[J] := TM;
           TI := AMeasure[I];
-          TM := AList[I];
-
           AMeasure[I] := AMeasure[J];
-          AList[I] := AList[J];
           AMeasure[J] := TI;
-          AList[J] := TM;
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then begin
+        QuickSort(AArray, AMeasure, L, J);
+      end;
+      L := I;
+    until I >= R;
+  end;
+var
+  VCount: Integer;
+begin
+  VCount := Length(AMeasure);
+  Assert(Length(AArray) = VCount);
+  if VCount > 1 then begin
+    QuickSort(AArray, AMeasure, 0, VCount - 1);
+  end;
+end;
+
+procedure SortInterfaceListByDoubleMeasure(
+  const AList: IInterfaceListSimple;
+  var AMeasure: array of Double
+);
+  procedure QuickSort(
+    const AList: IInterfaceListSimple;
+    var AMeasure: array of Double;
+    L, R: Integer
+  );
+  var
+    I, J: Integer;
+    P: Double;
+    TI: Double;
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := AMeasure[(L + R) shr 1];
+      repeat
+        while AMeasure[I] < P do begin
+          Inc(I);
+        end;
+        while AMeasure[J] > P do begin
+          Dec(J);
+        end;
+        if I <= J then begin
+          AList.Exchange(I, J);
+          TI := AMeasure[I];
+          AMeasure[I] := AMeasure[J];
+          AMeasure[J] := TI;
           Inc(I);
           Dec(J);
         end;
@@ -168,7 +271,6 @@ procedure SortInterfaceListByIntegerMeasure(
     I, J: Integer;
     P: Integer;
     TI: Integer;
-    TM: IInterface;
   begin
     repeat
       I := L;
@@ -182,13 +284,10 @@ procedure SortInterfaceListByIntegerMeasure(
           Dec(J);
         end;
         if I <= J then begin
+          AList.Exchange(I, J);
           TI := AMeasure[I];
-          TM := AList[I];
-
           AMeasure[I] := AMeasure[J];
-          AList[I] := AList[J];
           AMeasure[J] := TI;
-          AList[J] := TM;
           Inc(I);
           Dec(J);
         end;
@@ -222,7 +321,6 @@ procedure SortInterfaceListByCompareFunction(
   var
     I, J: Integer;
     P: IInterface;
-    TM: IInterface;
   begin
     repeat
       I := L;
@@ -236,10 +334,7 @@ procedure SortInterfaceListByCompareFunction(
           Dec(J);
         end;
         if I <= J then begin
-          TM := AList[I];
-
-          AList[I] := AList[J];
-          AList[J] := TM;
+          AList.Exchange(I, J);
           Inc(I);
           Dec(J);
         end;
@@ -272,7 +367,6 @@ procedure SortInterfaceListByCompareFunctor(
   var
     I, J: Integer;
     P: IInterface;
-    TM: IInterface;
   begin
     repeat
       I := L;
@@ -286,10 +380,7 @@ procedure SortInterfaceListByCompareFunctor(
           Dec(J);
         end;
         if I <= J then begin
-          TM := AList[I];
-
-          AList[I] := AList[J];
-          AList[J] := TM;
+          AList.Exchange(I, J);
           Inc(I);
           Dec(J);
         end;

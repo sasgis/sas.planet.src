@@ -18,52 +18,26 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_BinaryDataByBerkeleyDBValue;
+unit i_BinaryDataStatic;
 
 interface
 
 uses
-  i_BinaryData,
-  i_BerkeleyDBKeyValue,
-  u_BaseInterfacedObject;
+  t_Hash;
 
 type
-  TBinaryDataByBerkeleyDBValue = class(TBaseInterfacedObject, IBinaryData)
-  private
-    FValue: IBerkeleyDBValue;
-  private
+  IBinaryDataStatic = interface
+    ['{9BA9CAF2-2770-488F-80FC-585C544592C2}']
     function GetBuffer: Pointer;
+    property Buffer: Pointer read GetBuffer;
+
     function GetSize: Integer;
-  public
-    constructor Create(const AValue: IBerkeleyDBValue);
-    destructor Destroy; override;
+    property Size: Integer read GetSize;
+
+    function GetHash: THashValue;
+    property Hash: THashValue read GetHash;
   end;
 
 implementation
-
-{ TBinaryDataByBerkeleyDBValue }
-
-constructor TBinaryDataByBerkeleyDBValue.Create(const AValue: IBerkeleyDBValue);
-begin
-  Assert(AValue <> nil);
-  inherited Create;
-  FValue := AValue;
-end;
-
-destructor TBinaryDataByBerkeleyDBValue.Destroy;
-begin
-  FValue := nil;
-  inherited;
-end;
-
-function TBinaryDataByBerkeleyDBValue.GetBuffer: Pointer;
-begin
-  Result := FValue.TileBody;
-end;
-
-function TBinaryDataByBerkeleyDBValue.GetSize: Integer;
-begin
-  Result := FValue.TileSize;
-end;
 
 end.

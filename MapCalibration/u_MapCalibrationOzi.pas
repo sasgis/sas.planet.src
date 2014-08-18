@@ -159,7 +159,7 @@ begin
   end;
 
   VFileName := ChangeFileExt(AFileName, cOziFileExt);
-  VMapName := UTF8Encode(ExtractFileName(AFileName));
+  VMapName := AnsiString(ExtractFileName(AFileName));
 
   VFileStream := TFileStream.Create(VFileName, fmCreate);
   try
