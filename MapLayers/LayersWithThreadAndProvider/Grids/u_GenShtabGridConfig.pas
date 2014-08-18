@@ -56,10 +56,17 @@ type
 implementation
 
 uses
+  WGS84_SK42,
   u_GeoFunc;
 
 const
-  GSHprec = 100000000;
+  GSHprec = 10000000000000000;
+
+function WGS84_To_SK42(const APoint: TDoublePoint): TDoublePoint;
+begin
+  Result.X := SK42_WGS84_Long(APoint.Y, APoint.X, 0);
+  Result.Y := SK42_WGS84_Lat(APoint.Y, APoint.X, 0);
+end;
 
 { TGenShtabGridConfig }
 
@@ -91,7 +98,7 @@ function TGenShtabGridConfig.GetPointStickToGrid(
 var
   VScale: Integer;
   VVisible: Boolean;
-  z: TDoublePoint;
+  VStep: TDoublePoint;
 begin
   LockRead;
   try
@@ -102,17 +109,19 @@ begin
   end;
   Result := ASourceLonLat;
   if VVisible and (VScale > 0) then begin
-    z := GetGhBordersStepByScale(VScale, ALocalConverter.Getzoom);
+    VStep := GetGhBordersStepByScale(VScale, ALocalConverter.Getzoom);
 
-    Result.X := Result.X - (round(Result.X * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
+    Result.X := Result.X - (Round(Result.X * GSHprec) mod Round(VStep.X * GSHprec)) / GSHprec;
     if Result.X < 0 then begin
-      Result.X := Result.X - z.X;
+      Result.X := Result.X - VStep.X;
     end;
 
-    Result.Y := Result.Y - (round(Result.Y * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
+    Result.Y := Result.Y - (Round(Result.Y * GSHprec) mod Round(VStep.Y * GSHprec)) / GSHprec;
     if Result.Y > 0 then begin
-      Result.Y := Result.Y + z.Y;
+      Result.Y := Result.Y + VStep.Y;
     end;
+
+    Result := WGS84_To_SK42(Result);
   end;
 end;
 
@@ -123,7 +132,7 @@ function TGenShtabGridConfig.GetRectStickToGrid(
 var
   VScale: Integer;
   VVisible: Boolean;
-  z: TDoublePoint;
+  VStep: TDoublePoint;
 begin
   LockRead;
   try
@@ -134,27 +143,31 @@ begin
   end;
   Result := ASourceRect;
   if VVisible and (VScale > 0) then begin
-    z := GetGhBordersStepByScale(VScale, ALocalConverter.Getzoom);
+    VStep := GetGhBordersStepByScale(VScale, ALocalConverter.Getzoom);
 
-    Result.Left := Result.Left - (round(Result.Left * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
+    Result.Left := Result.Left - (Round(Result.Left * GSHprec) mod Round(VStep.X * GSHprec)) / GSHprec;
     if Result.Left < 0 then begin
-      Result.Left := Result.Left - z.X;
+      Result.Left := Result.Left - VStep.X;
     end;
 
-    Result.Top := Result.Top - (round(Result.Top * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
+    Result.Top := Result.Top - (Round(Result.Top * GSHprec) mod Round(VStep.Y * GSHprec)) / GSHprec;
     if Result.Top > 0 then begin
-      Result.Top := Result.Top + z.Y;
+      Result.Top := Result.Top + VStep.Y;
     end;
 
-    Result.Right := Result.Right - (round(Result.Right * GSHprec) mod round(z.X * GSHprec)) / GSHprec;
+    Result.Right := Result.Right - (Round(Result.Right * GSHprec) mod Round(VStep.X * GSHprec)) / GSHprec;
     if Result.Right >= 0 then begin
-      Result.Right := Result.Right + z.X;
+      Result.Right := Result.Right + VStep.X;
     end;
 
-    Result.Bottom := Result.Bottom - (round(Result.Bottom * GSHprec) mod round(z.Y * GSHprec)) / GSHprec;
+    Result.Bottom := Result.Bottom - (Round(Result.Bottom * GSHprec) mod Round(VStep.Y * GSHprec)) / GSHprec;
     if Result.Bottom <= 0 then begin
-      Result.Bottom := Result.Bottom - z.Y;
+      Result.Bottom := Result.Bottom - VStep.Y;
     end;
+
+    // !сетка генштаба не пр€моугольна€, поэтому верхн€€ права€ и нижн€€ лева€ точки будут показывать абы-куда
+    Result.TopLeft := WGS84_To_SK42(Result.TopLeft);
+    Result.BottomRight := WGS84_To_SK42(Result.BottomRight);
   end;
 end;
 
