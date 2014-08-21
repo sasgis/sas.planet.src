@@ -30,6 +30,7 @@ uses
   i_MapVersionListStatic,
   i_FileNameIterator,
   i_TileFileNameParser,
+  i_MapVersionRequest,
   i_GlobalBerkeleyDBHelper,
   i_TileStorageBerkeleyDBHelper,
   u_BaseInterfacedObject;
@@ -41,7 +42,7 @@ type
     FIgnoreMultiVersionTiles: Boolean;
     FFilesIterator: IFileNameIterator;
     FTileFileNameParser: ITileFileNameParser;
-    FEmptyVersionInfo: IMapVersionInfo;
+    FVersionRequest: IMapVersionRequest;
     FStorage: ITileStorage;
     FHelper: ITileStorageBerkeleyDBHelper;
     FCurFileTilesArray: TPointArray;
@@ -69,6 +70,7 @@ uses
   Types,
   SysUtils,
   i_BinaryData,
+  u_MapVersionRequest,
   u_GlobalBerkeleyDBHelper;
 
 { TEnumTileInfoByBerkeleyDB }
@@ -90,7 +92,7 @@ begin
   FIgnoreMultiVersionTiles := AIgnoreMultiVersionTiles;
   FFilesIterator := AFilesIterator;
   FTileFileNameParser := ATileFileNameParser;
-  FEmptyVersionInfo := AMapVersionFactory.CreateByStoreString('');
+  FVersionRequest := TMapVersionRequest.Create(AMapVersionFactory.CreateByStoreString(''), True);
   FStorage := AStorage;
   FHelper := AHelper;
   FCurFileIndex := 0;
@@ -135,7 +137,7 @@ begin
             FCurMapVersionList := nil;
           end;
         end else begin
-          VTileInfo := FStorage.GetTileInfo(ATileInfo.FTile, FCurFileZoom, FEmptyVersionInfo, gtimWithData);
+          VTileInfo := FStorage.GetTileInfoEx(ATileInfo.FTile, FCurFileZoom, FVersionRequest, gtimWithData);
           Inc(FCurFileIndex);
         end;
         if Supports(VTileInfo, ITileInfoWithData, VTileInfoWithData) then begin
