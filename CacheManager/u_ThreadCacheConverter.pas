@@ -47,10 +47,10 @@ type
     FProgressInfo: ICacheConverterProgressInfo;
     FCheckSourceVersion: Boolean;
     FReplaceDestVersion: Boolean;
+    FIgnoreMultiVersionTiles: Boolean;
 
-    function OnSourceTileStorageScan(
-      const ATileInfo: TTileInfo
-    ): Boolean;
+    procedure SetLastTileName(const ATileInfo: TTileInfo); inline;
+    function OnSourceTileStorageScan(const ATileInfo: TTileInfo): Boolean;
   protected
     procedure Process; override;
   public
@@ -105,6 +105,19 @@ begin
   FCheckSourceVersion := Assigned(FSourceVersionInfo);
   FReplaceDestVersion := Assigned(FDestVersionInfo);
 
+  if FSourceTileStorage.StorageTypeAbilities.IsVersioned then begin
+    if FCheckSourceVersion then begin
+      // process all versions
+      FIgnoreMultiVersionTiles := False;
+    end else begin
+      // process all versions if dest storage support versioned tiles
+      FIgnoreMultiVersionTiles := not FDestTileStorage.StorageTypeAbilities.IsVersioned;
+    end;
+  end else begin
+    // no versioned tiles in source storage
+    FIgnoreMultiVersionTiles := True;
+  end;
+
   inherited Create(FCancelNotifier, FOperationID, Self.ClassName);
 end;
 
@@ -113,7 +126,7 @@ var
   VEnum: IEnumTileInfo;
   VTileInfo: TTileInfo;
 begin
-  VEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne, not FDestTileStorage.StorageTypeAbilities.IsVersioned);
+  VEnum := FSourceTileStorage.ScanTiles(FSourceIgnoreTne, FIgnoreMultiVersionTiles);
   while VEnum.Next(VTileInfo) do begin
     if FCancelNotifier.IsOperationCanceled(FOperationID) then begin
       Break;
@@ -123,6 +136,9 @@ begin
         if not OnSourceTileStorageScan(VTileInfo) then begin
           Break;
         end;
+      end else begin
+        SetLastTileName(VTileInfo);
+        FProgressInfo.TilesSkipped := FProgressInfo.TilesSkipped + 1;
       end;
     end else if not OnSourceTileStorageScan(VTileInfo) then begin
       Break;
@@ -141,7 +157,6 @@ function TThreadCacheConverter.OnSourceTileStorageScan(
 ): Boolean;
 var
   VTileInfo: ITileInfoBasic;
-  VTileFullPath: string;
   VDestVersionInfo: IMapVersionInfo;
 begin
   Result := False;
@@ -203,16 +218,22 @@ begin
       end;
     end;
 
-    VTileFullPath :=
-      FSourceTileStorage.GetTileFileName(
-        ATileInfo.FTile,
-        ATileInfo.FZoom,
-        ATileInfo.FVersionInfo
-      );
-
-    FProgressInfo.LastTileName :=
-      StringReplace(VTileFullPath, FSourceStorageRootPath, '', [rfIgnoreCase]);
+    SetLastTileName(ATileInfo);
   end;
+end;
+
+procedure TThreadCacheConverter.SetLastTileName(const ATileInfo: TTileInfo);
+var
+  VTileFullPath: string;
+begin
+  VTileFullPath :=
+    FSourceTileStorage.GetTileFileName(
+      ATileInfo.FTile,
+      ATileInfo.FZoom,
+      ATileInfo.FVersionInfo
+    );
+  FProgressInfo.LastTileName :=
+    StringReplace(VTileFullPath, FSourceStorageRootPath, '', [rfIgnoreCase]);
 end;
 
 end.
