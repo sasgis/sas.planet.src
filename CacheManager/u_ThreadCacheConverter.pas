@@ -90,6 +90,10 @@ constructor TThreadCacheConverter.Create(
   const AProgressInfo: ICacheConverterProgressInfo
 );
 begin
+  Assert(Assigned(ACancelNotifier));
+  Assert(Assigned(ASourceStorage));
+  Assert(Assigned(ADestStorage));
+  Assert(Assigned(AProgressInfo));
   FCancelNotifier := ACancelNotifier;
   FOperationID := AOperationID;
   FSourceIgnoreTne := ASourceIgnoreTne;
