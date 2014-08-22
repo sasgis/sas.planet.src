@@ -593,6 +593,7 @@ var
   VIndex: TItemIndex;
   VHashSizeInBit: Byte;
 begin
+  Assert(Assigned(ASync));
   Assert(Assigned(ACreateFunction));
   Assert(AHashSizeInBit >= 6);
   Assert(AHashSizeInBit <= 30);
