@@ -34,8 +34,6 @@ uses
   i_ContentTypeManager,
   i_CoordConverterFactory,
   i_GeometryProjectedFactory,
-  i_TileFileNameGeneratorsList,
-  i_TileFileNameParsersList,
   i_TileStorageTypeList,
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,
@@ -50,8 +48,6 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FTileNameGenerator: ITileFileNameGeneratorsList;
-    FFileNameParsersList: ITileFileNameParsersList;
     FContentTypeManager: IContentTypeManager;
     FTileStorageTypeList: ITileStorageTypeListStatic;
   protected
@@ -69,9 +65,7 @@ type
       const AContentTypeManager: IContentTypeManager;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ATileStorageTypeList: ITileStorageTypeListStatic;
-      const AFileNameParsersList: ITileFileNameParsersList;
-      const ATileNameGenerator: ITileFileNameGeneratorsList
+      const ATileStorageTypeList: ITileStorageTypeListStatic
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
@@ -106,9 +100,7 @@ constructor TProviderTilesCopy.Create(
   const AContentTypeManager: IContentTypeManager;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ATileStorageTypeList: ITileStorageTypeListStatic;
-  const AFileNameParsersList: ITileFileNameParsersList;
-  const ATileNameGenerator: ITileFileNameGeneratorsList
+  const ATileStorageTypeList: ITileStorageTypeListStatic
 );
 begin
   inherited Create(
@@ -125,8 +117,6 @@ begin
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FTileStorageTypeList := ATileStorageTypeList;
-  FFileNameParsersList := AFileNameParsersList;
-  FTileNameGenerator := ATileNameGenerator;
 end;
 
 function TProviderTilesCopy.CreateFrame: TFrame;
