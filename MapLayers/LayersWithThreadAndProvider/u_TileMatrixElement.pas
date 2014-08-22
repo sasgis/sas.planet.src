@@ -40,15 +40,12 @@ type
 
     FReadyID: Integer;
     FExpectedID: Integer;
-    FShownID: Integer;
     FBitmap: IBitmap32Static;
   private
     function GetTile: TPoint;
     function GetLocalConverter: ILocalCoordConverter;
     function GetReadyID: Integer;
     function GetExpectedID: Integer;
-    function GetShownId: Integer;
-    function CheckForShow: Boolean;
     function GetBitmap: IBitmap32Static;
 
     procedure IncExpectedID;
@@ -113,17 +110,6 @@ begin
   end;
 end;
 
-function TTileMatrixElement.CheckForShow: Boolean;
-begin
-  FSync.BeginRead;
-  try
-    Result := FReadyID <> FShownID;
-    FShownID := FReadyID;
-  finally
-    FSync.EndRead;
-  end;
-end;
-
 function TTileMatrixElement.GetLocalConverter: ILocalCoordConverter;
 begin
   Result := FLocalConverter;
@@ -134,16 +120,6 @@ begin
   FSync.BeginRead;
   try
     Result := FReadyID;
-  finally
-    FSync.EndRead;
-  end;
-end;
-
-function TTileMatrixElement.GetShownId: Integer;
-begin
-  FSync.BeginRead;
-  try
-    Result := FShownID;
   finally
     FSync.EndRead;
   end;

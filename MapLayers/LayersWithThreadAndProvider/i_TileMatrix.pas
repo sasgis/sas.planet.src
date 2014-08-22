@@ -42,11 +42,6 @@ type
     function GetExpectedID: Integer;
     property ExpectedID: Integer read GetExpectedID;
 
-    function GetShownId: Integer;
-    property ShownId: Integer read GetShownId;
-
-    function CheckForShow: Boolean;
-
     procedure IncExpectedID;
     procedure UpdateBitmap(
       AID: Integer;
