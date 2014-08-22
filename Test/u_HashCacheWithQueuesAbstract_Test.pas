@@ -98,6 +98,7 @@ type
 implementation
 
 uses
+  SysUtils,
   u_HashInterfaceCache2Q;
 
 { TSimple }
@@ -133,6 +134,7 @@ begin
   FOpId := 0;
   FCache :=
     THashInterfaceCache2Q.Create(
+      TSimpleRWSync.Create,
       Self.CreateByKey,
       6,
       AFirstUseCount,
