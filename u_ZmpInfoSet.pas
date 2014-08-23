@@ -98,7 +98,7 @@ begin
       if FileExists(VFullFileName) then begin
         VZmpMapConfig := TConfigDataProviderByArchive.Create(
           VFullFileName,
-          AArchiveReadWriteFactory.CreateZipReaderByName(VFullFileName)
+          AArchiveReadWriteFactory.Zip.ReaderFactory.BuildByFileName(VFullFileName)
         );
       end else begin
         VZmpMapConfig := TConfigDataProviderByFolder.Create(VFullFileName);

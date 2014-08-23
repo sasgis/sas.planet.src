@@ -152,7 +152,7 @@ begin
   iHeight := VMapPieceSize.y div (nim.Y);
 
   JPGSaver := FBitmapTileSaveLoadFactory.CreateJpegSaver(FQuality);
-  VZip := FArchiveReadWriteFactory.CreateZipWriterByName(AFileName);
+  VZip := FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(AFileName);
   VKmzFileNameOnly := ExtractFileName(AFileName);
   kmlm := TMemoryStream.Create;
   try

@@ -27,31 +27,40 @@ uses
   i_ArchiveReadWrite;
 
 type
+  IArchiveReaderFactory = interface
+    ['{EEC4958E-B843-413D-8BAF-30FCC216C577}']
+    function BuildByFileName(const AFileName: string): IArchiveReader;
+    function BuildByStream(const AStream: TStream): IArchiveReader;
+  end;
+
+  IArchiveWriterFactory = interface
+    ['{F83F0DE4-162C-40C5-AC38-BD131A3D78CB}']
+    function BuildByFileName(const AFileName: string): IArchiveWriter;
+    function BuildByStream(const AStream: TStream): IArchiveWriter;
+  end;
+
+  IArchiveType = interface
+    ['{279A0A59-CF26-4198-980E-385E509F84DF}']
+    function GetReaderFactory: IArchiveReaderFactory;
+    property ReaderFactory: IArchiveReaderFactory read GetReaderFactory;
+
+    function GetWriterFactory: IArchiveWriterFactory;
+    property WriterFactory: IArchiveWriterFactory read GetWriterFactory;
+  end;
+
   IArchiveReadWriteFactory = interface
     ['{53564F3B-8122-4968-A676-F02D4FE3276A}']
-    function CreateZipReaderByName(const AFileName: string): IArchiveReader;
-    function CreateZipReaderByStream(const AStream: TStream): IArchiveReader;
+    function GetZip: IArchiveType;
+    property Zip: IArchiveType read GetZip;
 
-    function CreateZipWriterByName(
-      const AFileName: string;
-      const AAllowOpenExisting: Boolean = FALSE
-    ): IArchiveWriter;
-    function CreateZipWriterByStream(const AStream: TStream): IArchiveWriter;
+    function GetTar: IArchiveType;
+    property Tar: IArchiveType read GetTar;
 
-    function CreateTarReaderByName(const AFileName: string): IArchiveReader;
-    function CreateTarReaderByStream(const AStream: TStream): IArchiveReader;
+    function GetSevenZip: IArchiveType;
+    property SevenZip: IArchiveType read GetSevenZip;
 
-    function CreateTarWriterByName(const AFileName: string): IArchiveWriter;
-    function CreateTarWriterByStream(const AStream: TStream): IArchiveWriter;
-
-    function Create7ZipReaderByName(const AFileName: string): IArchiveReader;
-    function Create7ZipReaderByStream(const AStream: TStream): IArchiveReader;
-
-    function Create7ZipWriterByName(const AFileName: string): IArchiveWriter;
-    function Create7ZipWriterByStream(const AStream: TStream): IArchiveWriter;
-
-    function CreateRarReaderByName(const AFileName: string): IArchiveReader;
-    function CreateRarReaderByStream(const AStream: TStream): IArchiveReader;
+    function GetRar: IArchiveType;
+    property Rar: IArchiveType read GetRar;
   end;
 
 implementation

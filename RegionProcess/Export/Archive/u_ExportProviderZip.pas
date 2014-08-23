@@ -145,7 +145,7 @@ begin
   VThread :=
     TThreadExportToArchive.Create(
       VProgressInfo,
-      FArchiveReadWriteFactory.CreateZipWriterByName(VPath),
+      FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(VPath),
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       APolygon,

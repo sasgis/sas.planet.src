@@ -24,14 +24,52 @@ interface
 
 uses
   Classes,
-  SevenZip,
-  i_BinaryData,
   i_ArchiveReadWrite,
+  i_ArchiveReadWriteFactory,
   u_BaseInterfacedObject;
 
 type
   TArchiveType = (atTar = 0, atZip = 1, atRar = 2, at7Zip = 3);
 
+type
+  TArchiveWriterFactory7Zip = class(TBaseInterfacedObject, IArchiveWriterFactory)
+  private
+    FType: TArchiveType;
+  private
+    function BuildByFileName(const AFileName: string): IArchiveWriter;
+    function BuildByStream(const AStream: TStream): IArchiveWriter;
+  public
+    constructor Create(AType: TArchiveType);
+  end;
+
+type
+  TArchiveReaderFactory7Zip = class(TBaseInterfacedObject, IArchiveReaderFactory)
+  private
+    FType: TArchiveType;
+  private
+    function BuildByFileName(const AFileName: string): IArchiveReader;
+    function BuildByStream(const AStream: TStream): IArchiveReader;
+  public
+    constructor Create(AType: TArchiveType);
+  end;
+
+
+implementation
+
+uses
+  Windows,
+  SysUtils,
+  SevenZip,
+  i_BinaryData,
+  u_BinaryDataByMemStream,
+  u_StreamReadOnlyByBinaryData;
+
+type
+  EArchiveWriteBy7Zip = class (Exception);
+
+{ TArchiveReadBy7Zip }
+
+type
   TArchiveReadBy7Zip = class(TBaseInterfacedObject, IArchiveReader)
   private
     FArch: I7zInArchive;
@@ -58,45 +96,6 @@ type
     ); overload;
     destructor Destroy; override;
   end;
-
-  TArchiveWriteBy7Zip = class(TBaseInterfacedObject, IArchiveWriter)
-  private
-    FArch: I7zOutArchive;
-    FOwnStream: Boolean;
-    FStream: TStream;
-    FFilesCount: Integer;
-  private
-    function CreateArchive(const AArchiveType: TArchiveType): I7zOutArchive;
-    // IArchiveWriter
-    function AddFile(
-      const AFileData: IBinaryData;
-      const AFileNameInArchive: string;
-      const AFileDate: TDateTime
-    ): Integer;
-  public
-    constructor Create(
-      const AFileName: string;
-      const AArchiveType: TArchiveType
-    ); overload;
-    constructor Create(
-      const AStream: TStream;
-      const AArchiveType: TArchiveType
-    ); overload;
-    destructor Destroy; override;
-  end;
-
-implementation
-
-uses
-  Windows,
-  SysUtils,
-  u_BinaryDataByMemStream,
-  u_StreamReadOnlyByBinaryData;
-
-type
-  EArchiveWriteBy7Zip = class (Exception);
-
-{ TArchiveReadBy7Zip }
 
 constructor TArchiveReadBy7Zip.Create(
   const AFileName: string;
@@ -198,6 +197,33 @@ end;
 
 { TArchiveWriteBy7Zip }
 
+type
+  TArchiveWriteBy7Zip = class(TBaseInterfacedObject, IArchiveWriter)
+  private
+    FArch: I7zOutArchive;
+    FOwnStream: Boolean;
+    FStream: TStream;
+    FFilesCount: Integer;
+  private
+    function CreateArchive(const AArchiveType: TArchiveType): I7zOutArchive;
+    // IArchiveWriter
+    function AddFile(
+      const AFileData: IBinaryData;
+      const AFileNameInArchive: string;
+      const AFileDate: TDateTime
+    ): Integer;
+  public
+    constructor Create(
+      const AFileName: string;
+      const AArchiveType: TArchiveType
+    ); overload;
+    constructor Create(
+      const AStream: TStream;
+      const AArchiveType: TArchiveType
+    ); overload;
+    destructor Destroy; override;
+  end;
+
 constructor TArchiveWriteBy7Zip.Create(
   const AFileName: string;
   const AArchiveType: TArchiveType
@@ -280,6 +306,46 @@ begin
   finally
     VStream.Free;
   end;
+end;
+
+{ TArchiveReaderFactory7Zip }
+
+constructor TArchiveReaderFactory7Zip.Create(AType: TArchiveType);
+begin
+  inherited Create;
+  FType := AType;
+end;
+
+function TArchiveReaderFactory7Zip.BuildByFileName(
+  const AFileName: string): IArchiveReader;
+begin
+  Result := TArchiveReadBy7Zip.Create(AFileName, FType);
+end;
+
+function TArchiveReaderFactory7Zip.BuildByStream(
+  const AStream: TStream): IArchiveReader;
+begin
+  Result := TArchiveReadBy7Zip.Create(AStream, FType);
+end;
+
+{ TArchiveWriterFactory7Zip }
+
+constructor TArchiveWriterFactory7Zip.Create(AType: TArchiveType);
+begin
+  inherited Create;
+  FType := AType;
+end;
+
+function TArchiveWriterFactory7Zip.BuildByFileName(
+  const AFileName: string): IArchiveWriter;
+begin
+  Result := TArchiveWriteBy7Zip.Create(AFileName, FType);
+end;
+
+function TArchiveWriterFactory7Zip.BuildByStream(
+  const AStream: TStream): IArchiveWriter;
+begin
+  Result := TArchiveWriteBy7Zip.Create(AStream, FType);
 end;
 
 end.

@@ -24,10 +24,38 @@ interface
 
 uses
   Classes,
+  i_ArchiveReadWrite,
+  i_ArchiveReadWriteFactory,
+  u_BaseInterfacedObject;
+
+type
+  TArchiveReaderFactoryKaZip = class(TBaseInterfacedObject, IArchiveReaderFactory)
+  private
+    function BuildByFileName(const AFileName: string): IArchiveReader;
+    function BuildByStream(const AStream: TStream): IArchiveReader;
+  public
+    constructor Create;
+  end;
+
+type
+  TArchiveWriterFactoryKaZip = class(TBaseInterfacedObject, IArchiveWriterFactory)
+  private
+    function BuildByFileName(const AFileName: string): IArchiveWriter;
+    function BuildByStream(const AStream: TStream): IArchiveWriter;
+  public
+    constructor Create;
+  end;
+
+implementation
+
+uses
+  SysUtils,
   KAZip,
   i_BinaryData,
-  i_ArchiveReadWrite,
-  u_BaseInterfacedObject;
+  u_BinaryDataByMemStream,
+  u_StreamReadOnlyByBinaryData;
+
+{ TArchiveReadByKaZip }
 
 type
   TArchiveReadByKaZip = class(TBaseInterfacedObject, IArchiveReader)
@@ -46,31 +74,6 @@ type
     constructor Create(const AStream: TStream); overload;
     destructor Destroy; override;
   end;
-
-  TArchiveWriteByKaZip = class(TBaseInterfacedObject, IArchiveWriter)
-  private
-    FZip: TKAZip;
-    FIsFromFileName: Boolean;
-  private
-    function AddFile(
-      const AFileData: IBinaryData;
-      const AFileNameInArchive: string;
-      const AFileDate: TDateTime
-    ): Integer;
-  public
-    constructor Create(const AFileName: string; const AAllowOpenExisting: Boolean); overload;
-    constructor Create(const AStream: TStream); overload;
-    destructor Destroy; override;
-  end;
-
-implementation
-
-uses
-  SysUtils,
-  u_BinaryDataByMemStream,
-  u_StreamReadOnlyByBinaryData;
-
-{ TArchiveReadByKaZip }
 
 constructor TArchiveReadByKaZip.Create(const AFileName: string);
 begin
@@ -138,6 +141,23 @@ end;
 
 { TArchiveWriteByKaZip }
 
+type
+  TArchiveWriteByKaZip = class(TBaseInterfacedObject, IArchiveWriter)
+  private
+    FZip: TKAZip;
+    FIsFromFileName: Boolean;
+  private
+    function AddFile(
+      const AFileData: IBinaryData;
+      const AFileNameInArchive: string;
+      const AFileDate: TDateTime
+    ): Integer;
+  public
+    constructor Create(const AFileName: string; const AAllowOpenExisting: Boolean); overload;
+    constructor Create(const AStream: TStream); overload;
+    destructor Destroy; override;
+  end;
+
 constructor TArchiveWriteByKaZip.Create(
   const AFileName: string;
   const AAllowOpenExisting: Boolean
@@ -201,6 +221,44 @@ begin
   finally
     VDataStream.Free;
   end;
+end;
+
+{ TArchiveReaderFactoryKaZip }
+
+constructor TArchiveReaderFactoryKaZip.Create;
+begin
+  inherited Create;
+end;
+
+function TArchiveReaderFactoryKaZip.BuildByFileName(
+  const AFileName: string): IArchiveReader;
+begin
+  Result := TArchiveReadByKaZip.Create(AFileName);
+end;
+
+function TArchiveReaderFactoryKaZip.BuildByStream(
+  const AStream: TStream): IArchiveReader;
+begin
+  Result := TArchiveReadByKaZip.Create(AStream);
+end;
+
+{ TArchiveWriterFactoryKaZip }
+
+constructor TArchiveWriterFactoryKaZip.Create;
+begin
+  inherited Create;
+end;
+
+function TArchiveWriterFactoryKaZip.BuildByFileName(
+  const AFileName: string): IArchiveWriter;
+begin
+  Result := TArchiveWriteByKaZip.Create(AFileName, False);
+end;
+
+function TArchiveWriterFactoryKaZip.BuildByStream(
+  const AStream: TStream): IArchiveWriter;
+begin
+  Result := TArchiveWriteByKaZip.Create(AStream);
 end;
 
 end.

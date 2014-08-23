@@ -35,6 +35,7 @@ uses
   i_MapVersionListStatic,
   i_ContentTypeInfo,
   i_ArchiveReadWrite,
+  i_ArchiveReadWriteFactory,
   i_ContentTypeManager,
   i_TileFileNameParser,
   i_TileFileNameGenerator,
@@ -46,6 +47,7 @@ type
   TTileStorageArchive = class(TBaseInterfacedObject, ITileStorage)
   protected
     FSync: IReadWriteSync;
+    FArchiveFactory: IArchiveWriterFactory;
     FWriter: IArchiveWriter;
     FArchiveFileName: string;
     FContentType: IContentTypeInfoBasic;
@@ -55,8 +57,7 @@ type
     FCoordConverter: ICoordConverter;
     FTileNameParser: ITileFileNameParser;
     FTileNameGenerator: ITileFileNameGenerator;
-  protected
-    function GetArchiveWriter: IArchiveWriter; virtual;
+    function GetArchiveWriter: IArchiveWriter;
   protected
     { ITileStorage }
     function GetStorageTypeAbilities: ITileStorageTypeAbilities;
@@ -115,6 +116,7 @@ type
       const AContentType: IContentTypeInfoBasic;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverter: ICoordConverter;
+      const AArchiveFactory: IArchiveWriterFactory;
       const ATileNameParser: ITileFileNameParser;
       const ATileNameGenerator: ITileFileNameGenerator
     );
@@ -133,6 +135,7 @@ constructor TTileStorageArchive.Create(
   const AContentType: IContentTypeInfoBasic;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverter: ICoordConverter;
+  const AArchiveFactory: IArchiveWriterFactory;
   const ATileNameParser: ITileFileNameParser;
   const ATileNameGenerator: ITileFileNameGenerator
 );
@@ -145,6 +148,7 @@ begin
   FTileNotifier := nil;
   FState := nil;
   FCoordConverter := ACoordConverter;
+  FArchiveFactory := AArchiveFactory;
   FTileNameParser := ATileNameParser;
   FTileNameGenerator := ATileNameGenerator;
   FSync := GSync.SyncBig.Make(Self.ClassName);
@@ -152,7 +156,13 @@ end;
 
 function TTileStorageArchive.GetArchiveWriter: IArchiveWriter;
 begin
-  Result := nil;
+  if Assigned(FWriter) then begin
+    Result := FWriter;
+  end else begin
+    ForceDirectories(ExtractFilePath(FArchiveFileName));
+    FWriter := FArchiveFactory.BuildByFileName(FArchiveFileName);
+    Result := FWriter;
+  end;
 end;
 
 function TTileStorageArchive.GetTileNotifier: INotifierTilePyramidUpdate;

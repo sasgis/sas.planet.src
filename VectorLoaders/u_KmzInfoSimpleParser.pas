@@ -103,7 +103,7 @@ var
   I: Integer;
   VFileName: string;
 begin
-  VZip := FArchiveReadWriteFactory.CreateZipReaderByStream(AStream);
+  VZip := FArchiveReadWriteFactory.Zip.ReaderFactory.BuildByStream(AStream);
   VItemsCount := VZip.GetItemsCount;
   if VItemsCount > 0 then begin
     VData := VZip.GetItemByName('doc.kml');

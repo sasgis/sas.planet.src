@@ -23,7 +23,7 @@ unit i_ArchiveReadWrite;
 interface
 
 uses
- i_BinaryData;
+  i_BinaryData;
 
 type
   IArchiveReader = interface

@@ -69,7 +69,7 @@ var
 begin
   VResultStream := TMemoryStream.Create;
   try
-    VZip := FArchiveReadWriteFactory.CreateZipWriterByStream(VResultStream);
+    VZip := FArchiveReadWriteFactory.Zip.WriterFactory.BuildByStream(VResultStream);
     VZip.AddFile(AData, 'doc.kml', Now);
     Result := TBinaryDataByMemStream.CreateWithOwn(VResultStream);
     VResultStream := nil;

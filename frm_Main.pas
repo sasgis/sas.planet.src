@@ -1016,6 +1016,7 @@ begin
       GState.GlobalBerkeleyDBHelper,
       GState.ContentTypeManager,
       GState.CoordConverterFactory,
+      GState.ArchiveReadWriteFactory,
       GState.TileStorageTypeList,
       GState.TileNameGenerator,
       GState.TileNameParser,

@@ -138,7 +138,7 @@ begin
   FKmlDocumentNode := FKmlNode.AddChild('Document');
   FFileName := AFileName;
   if ExtractFileExt(FFileName) = '.kmz' then begin
-    FZip := FArchiveReadWriteFactory.CreateZipWriterByName(FFileName);
+    FZip := FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(FFileName);
   end else begin
     FZip := nil;
   end;

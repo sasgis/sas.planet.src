@@ -42,6 +42,7 @@ uses
   i_LanguageManager,
   i_NotifierTime,
   i_ContentTypeManager,
+  i_ArchiveReadWriteFactory,
   i_TileFileNameGeneratorsList,
   i_TileFileNameParsersList,
   i_TileStorageTypeList,
@@ -95,6 +96,7 @@ type
     FGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
     FContentTypeManager: IContentTypeManager;
     FCoordConverterFactory: ICoordConverterFactory;
+    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
     FTileStorageTypeList: ITileStorageTypeListStatic;
     FFileNameGeneratorsList: ITileFileNameGeneratorsList;
     FFileNameParsersList: ITileFileNameParsersList;
@@ -117,6 +119,7 @@ type
       const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
       const ATileStorageTypeList: ITileStorageTypeListStatic;
       const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
       const AFileNameParsersList: ITileFileNameParsersList;
@@ -159,6 +162,7 @@ constructor TfrmCacheManager.Create(
   const AGlobalBerkeleyDBHelper: IGlobalBerkeleyDBHelper;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const ATileStorageTypeList: ITileStorageTypeListStatic;
   const AFileNameGeneratorsList: ITileFileNameGeneratorsList;
   const AFileNameParsersList: ITileFileNameParsersList;
@@ -172,6 +176,7 @@ begin
   FGCNotifier := AGCNotifier;
   FMapVersionFactoryList := AMapVersionFactoryList;
   FGlobalBerkeleyDBHelper := AGlobalBerkeleyDBHelper;
+  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
   FFileNameGeneratorsList := AFileNameGeneratorsList;
   FFileNameParsersList := AFileNameParsersList;
   FContentTypeManager := AContentTypeManager;
@@ -223,6 +228,7 @@ begin
             VContentType,
             FContentTypeManager,
             ACoordConverter,
+            FArchiveReadWriteFactory,
             VFileNameParser,
             VFileNameGenerator
           );

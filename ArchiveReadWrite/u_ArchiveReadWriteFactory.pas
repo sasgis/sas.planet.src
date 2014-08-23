@@ -31,30 +31,15 @@ uses
 type
   TArchiveReadWriteFactory = class(TBaseInterfacedObject, IArchiveReadWriteFactory)
   private
-    // Zip reader
-    function CreateZipReaderByName(const AFileName: string): IArchiveReader;
-    function CreateZipReaderByStream(const AStream: TStream): IArchiveReader;
-    // Zip writer
-    function CreateZipWriterByName(
-      const AFileName: string;
-      const AAllowOpenExisting: Boolean
-    ): IArchiveWriter;
-    function CreateZipWriterByStream(const AStream: TStream): IArchiveWriter;
-    // Tar reader
-    function CreateTarReaderByName(const AFileName: string): IArchiveReader;
-    function CreateTarReaderByStream(const AStream: TStream): IArchiveReader;
-    // Tar writer
-    function CreateTarWriterByName(const AFileName: string): IArchiveWriter;
-    function CreateTarWriterByStream(const AStream: TStream): IArchiveWriter;
-    // 7z reader
-    function Create7ZipReaderByName(const AFileName: string): IArchiveReader;
-    function Create7ZipReaderByStream(const AStream: TStream): IArchiveReader;
-    // 7z writer
-    function Create7ZipWriterByName(const AFileName: string): IArchiveWriter;
-    function Create7ZipWriterByStream(const AStream: TStream): IArchiveWriter;
-    // Rar reader
-    function CreateRarReaderByName(const AFileName: string): IArchiveReader;
-    function CreateRarReaderByStream(const AStream: TStream): IArchiveReader;
+    FZip: IArchiveType;
+    FTar: IArchiveType;
+    FSevenZip: IArchiveType;
+    FRar: IArchiveType;
+  private
+    function GetZip: IArchiveType;
+    function GetTar: IArchiveType;
+    function GetSevenZip: IArchiveType;
+    function GetRar: IArchiveType;
   public
     constructor Create;
   end;
@@ -66,110 +51,88 @@ uses
   u_ArchiveReadWrite7Zip,
   u_ArchiveReadWriteKaZip;
 
+{ TArchiveType }
+
+type
+  TArchiveType = class(TBaseInterfacedObject, IArchiveType)
+  private
+    FReaderFactory: IArchiveReaderFactory;
+    FWriterFactory: IArchiveWriterFactory;
+  private
+    function GetReaderFactory: IArchiveReaderFactory;
+    function GetWriterFactory: IArchiveWriterFactory;
+  public
+    constructor Create(
+      const AReaderFactory: IArchiveReaderFactory;
+      const AWriterFactory: IArchiveWriterFactory
+    );
+  end;
+
+constructor TArchiveType.Create(
+  const AReaderFactory: IArchiveReaderFactory;
+  const AWriterFactory: IArchiveWriterFactory
+);
+begin
+  inherited Create;
+  FReaderFactory := AReaderFactory;
+  FWriterFactory := AWriterFactory;
+end;
+
+function TArchiveType.GetReaderFactory: IArchiveReaderFactory;
+begin
+  Result := FReaderFactory;
+end;
+
+function TArchiveType.GetWriterFactory: IArchiveWriterFactory;
+begin
+  Result := FWriterFactory;
+end;
+
 { TArchiveReadWriteFactory }
 
 constructor TArchiveReadWriteFactory.Create;
 begin
   inherited Create;
+  FZip :=
+    TArchiveType.Create(
+      TArchiveReaderFactoryKaZip.Create,
+      TArchiveWriterFactoryKaZip.Create
+    );
+  FTar :=
+    TArchiveType.Create(
+      TArchiveReaderFactory7Zip.Create(atTar),
+      TArchiveWriterFactoryLibTar.Create
+    );
+  FSevenZip :=
+    TArchiveType.Create(
+      TArchiveReaderFactory7Zip.Create(at7Zip),
+      TArchiveWriterFactory7Zip.Create(at7Zip)
+    );
+  FRar :=
+    TArchiveType.Create(
+      TArchiveReaderFactory7Zip.Create(atRar),
+      nil
+    );
 end;
 
-function TArchiveReadWriteFactory.CreateZipReaderByName(
-  const AFileName: string
-): IArchiveReader;
+function TArchiveReadWriteFactory.GetSevenZip: IArchiveType;
 begin
-  Result := TArchiveReadByKaZip.Create(AFileName);
+  Result := FSevenZip;
 end;
 
-function TArchiveReadWriteFactory.CreateZipReaderByStream(
-  const AStream: TStream
-): IArchiveReader;
+function TArchiveReadWriteFactory.GetRar: IArchiveType;
 begin
-  Result := TArchiveReadByKaZip.Create(AStream);
+  Result := FRar;
 end;
 
-function TArchiveReadWriteFactory.CreateZipWriterByName(
-  const AFileName: string;
-  const AAllowOpenExisting: Boolean
-): IArchiveWriter;
+function TArchiveReadWriteFactory.GetTar: IArchiveType;
 begin
-  Result := TArchiveWriteByKaZip.Create(AFileName, AAllowOpenExisting);
+  Result := FTar;
 end;
 
-function TArchiveReadWriteFactory.CreateZipWriterByStream(
-  const AStream: TStream
-): IArchiveWriter;
+function TArchiveReadWriteFactory.GetZip: IArchiveType;
 begin
-  Result := TArchiveWriteByKaZip.Create(AStream);
-end;
-
-function TArchiveReadWriteFactory.CreateTarReaderByName(
-  const AFileName: string
-): IArchiveReader;
-begin
-  Result := TArchiveReadBy7Zip.Create(AFileName, atTar);
-end;
-
-function TArchiveReadWriteFactory.CreateTarReaderByStream(
-  const AStream: TStream
-): IArchiveReader;
-begin
-  Result := TArchiveReadBy7Zip.Create(AStream, atTar);
-end;
-
-function TArchiveReadWriteFactory.CreateTarWriterByName(
-  const AFileName: string
-): IArchiveWriter;
-begin
-  Result := TArchiveWriteByLibTar.Create(AFileName);
-end;
-
-function TArchiveReadWriteFactory.CreateTarWriterByStream(
-  const AStream: TStream
-): IArchiveWriter;
-begin
-  Result := TArchiveWriteByLibTar.Create(AStream);
-end;
-
-function TArchiveReadWriteFactory.Create7ZipReaderByName(
-  const AFileName: string
-): IArchiveReader;
-begin
-  Result := TArchiveReadBy7Zip.Create(AFileName, at7Zip);
-end;
-
-function TArchiveReadWriteFactory.Create7ZipReaderByStream(
-  const AStream: TStream
-): IArchiveReader;
-begin
-  Result := TArchiveReadBy7Zip.Create(AStream, at7Zip);
-end;
-
-function TArchiveReadWriteFactory.Create7ZipWriterByName(
-  const AFileName: string
-): IArchiveWriter;
-begin
-  Result := TArchiveWriteBy7Zip.Create(AFileName, at7Zip);
-end;
-
-function TArchiveReadWriteFactory.Create7ZipWriterByStream(
-  const AStream: TStream
-): IArchiveWriter;
-begin
-  Result := TArchiveWriteBy7Zip.Create(AStream, at7Zip);
-end;
-
-function TArchiveReadWriteFactory.CreateRarReaderByName(
-  const AFileName: string
-): IArchiveReader;
-begin
-  Result := TArchiveReadBy7Zip.Create(AFileName, atRar);
-end;
-
-function TArchiveReadWriteFactory.CreateRarReaderByStream(
-  const AStream: TStream
-): IArchiveReader;
-begin
-  Result := TArchiveReadBy7Zip.Create(AStream, atRar);
+  Result := FZip;
 end;
 
 end.

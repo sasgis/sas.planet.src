@@ -69,7 +69,7 @@ var
 begin
   VMemStream := TStreamReadOnlyByBinaryData.Create(AData);
   try
-    VZip := FArchiveReadWriteFactory.CreateZipReaderByStream(VMemStream);
+    VZip := FArchiveReadWriteFactory.Zip.ReaderFactory.BuildByStream(VMemStream);
     Result := VZip.GetItemByIndex(0, VFileName);
   finally
     VMemStream.Free;

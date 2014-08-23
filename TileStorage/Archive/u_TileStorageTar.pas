@@ -25,18 +25,31 @@ interface
 uses
   Types,
   i_TileInfoBasic,
-  i_ArchiveReadWrite,
+  i_ContentTypeInfo,
+  i_ContentTypeManager,
+  i_CoordConverter,
   i_TileFileNameParser,
+  i_TileFileNameGenerator,
+  i_ArchiveReadWriteFactory,
   u_TileStorageArchive;
 
 type
   TTileStorageTar = class(TTileStorageArchive)
   protected
-    function GetArchiveWriter: IArchiveWriter; override;
     function ScanTiles(
       const AIgnoreTNE: Boolean;
       const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo; override;
+  public
+    constructor Create(
+      const AArchiveFileName: string;
+      const AContentType: IContentTypeInfoBasic;
+      const AContentTypeManager: IContentTypeManager;
+      const ACoordConverter: ICoordConverter;
+      const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+      const ATileNameParser: ITileFileNameParser;
+      const ATileNameGenerator: ITileFileNameGenerator
+    );
   end;
 
 implementation
@@ -45,8 +58,6 @@ uses
   Classes,
   SysUtils,
   LibTar,
-  i_ContentTypeManager,
-  u_ArchiveWriteLibTar,
   u_BinaryDataByMemStream,
   u_BaseInterfacedObject;
 
@@ -147,15 +158,25 @@ end;
 
 { TTileStorageTar }
 
-function TTileStorageTar.GetArchiveWriter: IArchiveWriter;
+constructor TTileStorageTar.Create(
+  const AArchiveFileName: string;
+  const AContentType: IContentTypeInfoBasic;
+  const AContentTypeManager: IContentTypeManager;
+  const ACoordConverter: ICoordConverter;
+  const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
+  const ATileNameParser: ITileFileNameParser;
+  const ATileNameGenerator: ITileFileNameGenerator
+);
 begin
-  if Assigned(FWriter) then begin
-    Result := FWriter;
-  end else begin
-    ForceDirectories(ExtractFilePath(FArchiveFileName));
-    FWriter := TArchiveWriteByLibTar.Create(FArchiveFileName);
-    Result := FWriter;
-  end;
+  inherited Create(
+    AArchiveFileName,
+    AContentType,
+    AContentTypeManager,
+    ACoordConverter,
+    AArchiveReadWriteFactory.Tar.WriterFactory,
+    ATileNameParser,
+    ATileNameGenerator
+  );
 end;
 
 function TTileStorageTar.ScanTiles(

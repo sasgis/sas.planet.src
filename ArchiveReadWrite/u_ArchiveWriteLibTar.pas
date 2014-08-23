@@ -24,10 +24,28 @@ interface
 
 uses
   Classes,
+  i_ArchiveReadWrite,
+  i_ArchiveReadWriteFactory,
+  u_BaseInterfacedObject;
+
+type
+  TArchiveWriterFactoryLibTar = class(TBaseInterfacedObject, IArchiveWriterFactory)
+  private
+    function BuildByFileName(const AFileName: string): IArchiveWriter;
+    function BuildByStream(const AStream: TStream): IArchiveWriter;
+  public
+    constructor Create;
+  end;
+
+implementation
+
+uses
+  SysUtils,
   LibTar,
   i_BinaryData,
-  i_ArchiveReadWrite,
-  u_BaseInterfacedObject;
+  u_StreamReadOnlyByBinaryData;
+
+{ TArchiveWriteByLibTar }
 
 type
   TArchiveWriteByLibTar = class(TBaseInterfacedObject, IArchiveWriter)
@@ -45,14 +63,6 @@ type
     constructor Create(const AStream: TStream); overload;
     destructor Destroy; override;
   end;
-
-implementation
-
-uses
-  SysUtils,
-  u_StreamReadOnlyByBinaryData;
-
-{ TArchiveWriteByLibTar }
 
 constructor TArchiveWriteByLibTar.Create(const AFileName: string);
 begin
@@ -94,6 +104,25 @@ begin
   finally
     VStream.Free;
   end;
+end;
+
+{ TArchiveWriterFactoryLibTar }
+
+constructor TArchiveWriterFactoryLibTar.Create;
+begin
+  inherited Create;
+end;
+
+function TArchiveWriterFactoryLibTar.BuildByFileName(
+  const AFileName: string): IArchiveWriter;
+begin
+  Result := TArchiveWriteByLibTar.Create(AFileName);
+end;
+
+function TArchiveWriterFactoryLibTar.BuildByStream(
+  const AStream: TStream): IArchiveWriter;
+begin
+  Result := TArchiveWriteByLibTar.Create(AStream);
 end;
 
 end.
