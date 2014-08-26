@@ -28,9 +28,9 @@ uses
 type
   IInternalBrowserLastContent = interface(IConfigDataElement)
     ['{42E58C67-DC1F-4077-8E23-C65785AC3C37}']
-    function GetContent: string;
-    procedure SetContent(const AValue: string);
-    property Content: string read GetContent write SetContent;
+    function GetContent: AnsiString;
+    procedure SetContent(const AValue: AnsiString);
+    property Content: AnsiString read GetContent write SetContent;
   end;
 
 implementation
