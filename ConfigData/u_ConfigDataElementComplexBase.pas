@@ -23,6 +23,7 @@ unit u_ConfigDataElementComplexBase;
 interface
 
 uses
+  Classes, // For inline functions in 'TObjectList'
   SysUtils,
   Contnrs,
   i_SimpleFlag,
