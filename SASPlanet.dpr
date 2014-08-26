@@ -12,7 +12,9 @@ uses
   Forms,
   Windows,
   SysUtils,
+  {$IF CompilerVersion < 21.0} // CompilerVersion < Delphi 2010
   MidasSpeedFix in 'MarksDB\SML\MidasSpeedFix.pas',
+  {$IFEND}
   MidasLib,
   XPMan,
   u_ReadableThreadNames,
