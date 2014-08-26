@@ -289,7 +289,7 @@ begin
     VConverter.CheckPixelRectFloat(VMapPixelRect, VZoomDst);
     VTileRectInClipRect := RectFromDoubleRect(VConverter.PixelRectFloat2TileRectFloat(VMapPixelRect, VZoomSrc), rrOutside);
   end;
-  if IntersectRect(VTileRectInClipRect, VTileRectInClipRect, ATileMatrix.TileRect) then begin
+  if Types.IntersectRect(VTileRectInClipRect, VTileRectInClipRect, ATileMatrix.TileRect) then begin
     VResampler := nil;
     try
       VTileIterator := TTileIteratorByRect.Create(VTileRectInClipRect);

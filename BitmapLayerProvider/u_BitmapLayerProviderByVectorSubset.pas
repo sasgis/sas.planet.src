@@ -192,7 +192,7 @@ begin
   VConverter.CheckLonLatPos(VPointLL);
   VLocalPos := ALocalConverter.LonLat2LocalPixelFloat(VPointLL);
   VRect := FPointMarker.GetBoundsForPosition(VLocalPos);
-  if IntersectRect(VRect, ALocalConverter.GetLocalRect, VRect) then begin
+  if Types.IntersectRect(VRect, ALocalConverter.GetLocalRect, VRect) then begin
     if not ABitmapInited then begin
       InitBitmap(ATargetBmp, ALocalConverter);
       ABitmapInited := True;

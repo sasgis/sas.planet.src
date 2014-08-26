@@ -174,7 +174,7 @@ begin
   VCoordConverter := ALocalConverter.GeoConverter;
   VPixelRect := ALocalConverter.GetRectInMapPixel;
   VTile := VCoordConverter.PixelRect2TileRect(VPixelRect, Vzoom).TopLeft;
-  Assert(EqualRect(VPixelRect, VCoordConverter.TilePos2PixelRect(VTile, Vzoom)));
+  Assert(Types.EqualRect(VPixelRect, VCoordConverter.TilePos2PixelRect(VTile, Vzoom)));
 
   try
     Result :=
