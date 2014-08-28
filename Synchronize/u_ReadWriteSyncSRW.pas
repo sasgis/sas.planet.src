@@ -86,7 +86,7 @@ type
   private
     FDll: ISyncronizerSRWDll;
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   public
     constructor Create(
       const ADll: ISyncronizerSRWDll
@@ -201,7 +201,7 @@ begin
 end;
 
 function TSynchronizerSRWFactory.Make(
-  const AName: AnsiString): IReadWriteSync;
+  const AName: string): IReadWriteSync;
 begin
   Result := TSynchronizerSRW.Create(FDll);
 end;

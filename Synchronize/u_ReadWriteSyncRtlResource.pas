@@ -97,7 +97,7 @@ type
   private
     FDll: ISyncronizerRtlResourceDll;
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   public
     constructor Create(
       const ADll: ISyncronizerRtlResourceDll
@@ -218,7 +218,7 @@ begin
 end;
 
 function TSynchronizerRtlResourceFactory.Make(
-  const AName: AnsiString): IReadWriteSync;
+  const AName: string): IReadWriteSync;
 begin
   Result := TSynchronizerRtlResource.Create(FDll);
 end;

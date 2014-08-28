@@ -58,14 +58,14 @@ type
 
   TSynchronizerCSFactory = class(TInterfacedObject, IReadWriteSyncFactory)
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   end;
 
   TSynchronizerCSSCFactory = class(TInterfacedObject, IReadWriteSyncFactory)
   private
     FSpinCount: Cardinal;
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   public
     constructor Create(const ASpinCount: Cardinal);
   end;
@@ -146,7 +146,7 @@ end;
 
 { TSynchronizerCSFactory }
 
-function TSynchronizerCSFactory.Make(const AName: AnsiString): IReadWriteSync;
+function TSynchronizerCSFactory.Make(const AName: string): IReadWriteSync;
 begin
   Result := TSynchronizerCS.Create;
 end;
@@ -159,7 +159,7 @@ begin
   FSpinCount := ASpinCount;
 end;
 
-function TSynchronizerCSSCFactory.Make(const AName: AnsiString): IReadWriteSync;
+function TSynchronizerCSSCFactory.Make(const AName: string): IReadWriteSync;
 begin
   Result := TSynchronizerCSSC.Create(FSpinCount);
 end;

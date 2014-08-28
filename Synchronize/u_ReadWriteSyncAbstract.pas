@@ -51,8 +51,8 @@ type
   public
     constructor Create(
       const ALock: IReadWriteSync;
-      const ALockClassName: AnsiString;
-      const AName: AnsiString
+      const ALockClassName: string;
+      const AName: string
     );
   end;
 
@@ -83,12 +83,12 @@ type
 
   TSynchronizerFakeFactory = class(TInterfacedObject, IReadWriteSyncFactory)
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   end;
 
   TSynchronizerMREWFactory = class(TInterfacedObject, IReadWriteSyncFactory)
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   end;
 
   TSynchronizerFactoryWithDebug = class(TInterfacedObject, IReadWriteSyncFactory)
@@ -96,7 +96,7 @@ type
     FFactory: IReadWriteSyncFactory;
     FLockClassName: string;
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   public
     constructor Create(
       const AFactory: IReadWriteSyncFactory;
@@ -113,7 +113,7 @@ type
     FEndWriteCounter: IInternalPerformanceCounter;
     FDestroyCounter: IInternalPerformanceCounter;
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   public
     constructor Create(
       const AFactory: IReadWriteSyncFactory;
@@ -130,7 +130,7 @@ type
     FFactory: IReadWriteSyncFactory;
     FCounter: IInternalPerformanceCounter;
   private
-    function Make(const AName: AnsiString): IReadWriteSync;
+    function Make(const AName: string): IReadWriteSync;
   public
     constructor Create(
       const AFactory: IReadWriteSyncFactory;
@@ -172,7 +172,7 @@ end;
 
 { TSynchronizerFakeFactory }
 
-function TSynchronizerFakeFactory.Make(const AName: AnsiString): IReadWriteSync;
+function TSynchronizerFakeFactory.Make(const AName: string): IReadWriteSync;
 begin
   Result := TSynchronizerFake.Create;
 end;
@@ -181,15 +181,15 @@ end;
 
 constructor TReadWriteSyncDebugWrapper.Create(
   const ALock: IReadWriteSync;
-  const ALockClassName: AnsiString;
-  const AName: AnsiString
+  const ALockClassName: string;
+  const AName: string
 );
 begin
   Assert(ALock <> nil);
   inherited Create;
   FLock := ALock;
-  FLockClassName := string(ALockClassName);
-  FName := string(AName);
+  FLockClassName := ALockClassName;
+  FName := AName;
 end;
 
 procedure TReadWriteSyncDebugWrapper.BeginRead;
@@ -353,7 +353,7 @@ begin
 end;
 
 function TSynchronizerFactoryWithDebug.Make(
-  const AName: AnsiString
+  const AName: string
 ): IReadWriteSync;
 begin
   Result :=
@@ -386,7 +386,7 @@ begin
 end;
 
 function TSynchronizerFactoryWithCounters.Make(
-  const AName: AnsiString): IReadWriteSync;
+  const AName: string): IReadWriteSync;
 begin
   Result :=
     TReadWriteSyncCounterWrapper.Create(
@@ -414,7 +414,7 @@ begin
 end;
 
 function TSynchronizerFactoryWithMakeCounter.Make(
-  const AName: AnsiString): IReadWriteSync;
+  const AName: string): IReadWriteSync;
 var
   VContext: TInternalPerformanceCounterContext;
 begin
@@ -428,7 +428,7 @@ end;
 
 { TSynchronizerMREWFactory }
 
-function TSynchronizerMREWFactory.Make(const AName: AnsiString): IReadWriteSync;
+function TSynchronizerMREWFactory.Make(const AName: string): IReadWriteSync;
 begin
   Result := TMultiReadExclusiveWriteSynchronizer.Create;
 end;
