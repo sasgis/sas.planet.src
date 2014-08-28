@@ -224,7 +224,7 @@ begin
         FCacheProvider := nil;
         FCacheTmProvider := nil;
 
-        VCachePath := PAnsiChar(FCachePath);
+        VCachePath := PAnsiChar(AnsiString(FCachePath));
         VCacheFactory := libge.CreateGoogleEarthCacheProviderFactory;
 
         if VCacheFactory <> nil then begin
