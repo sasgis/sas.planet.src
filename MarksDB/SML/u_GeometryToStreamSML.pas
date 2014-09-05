@@ -65,13 +65,9 @@ implementation
 uses
   SysUtils,
   t_GeoTypes,
+  t_GeometryPointSML,
   i_EnumDoublePoint,
   u_GeoFunc;
-
-type
-  TExtendedPoint = record
-    X, Y: Extended;
-  end;
 
 { TGeometryToStreamSML }
 
@@ -111,8 +107,9 @@ procedure TGeometryToStreamSML.SavePoint(
   const AStream: TStream
 );
 var
-  VPoint: TExtendedPoint;
+  VPoint: TGeometryPointSML;
 begin
+  Assert(SizeOf(TGeometryPointSML) = 24);
   VPoint.X := AGeometry.Point.X;
   VPoint.Y := AGeometry.Point.Y;
   AStream.Write(VPoint, SizeOf(VPoint));
@@ -124,12 +121,13 @@ procedure TGeometryToStreamSML.SaveSingleLine(
 );
 var
   i: Integer;
-  VPoint: TExtendedPoint;
+  VPoint: TGeometryPointSML;
   VEnum: IEnumLonLatPoint;
   VFirstPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
 begin
+  Assert(SizeOf(TGeometryPointSML) = 24);
   VEnum := AGeometry.GetEnum;
   i := 0;
   if VEnum.Next(VFirstPoint) then begin
@@ -160,12 +158,13 @@ procedure TGeometryToStreamSML.SaveMultiLine(
 );
 var
   i: Integer;
-  VPoint: TExtendedPoint;
+  VPoint: TGeometryPointSML;
   VEnum: IEnumLonLatPoint;
   VFirstPoint: TDoublePoint;
   VCurrPoint: TDoublePoint;
   VPrevPoint: TDoublePoint;
 begin
+  Assert(SizeOf(TGeometryPointSML) = 24);
   VEnum := AGeometry.GetEnum;
   i := 0;
   if VEnum.Next(VFirstPoint) then begin
@@ -195,10 +194,11 @@ procedure TGeometryToStreamSML.SaveSinglePolygon(
   const AStream: TStream
 );
 var
-  VPoint: TExtendedPoint;
+  VPoint: TGeometryPointSML;
   VEnum: IEnumLonLatPoint;
   VCurrPoint: TDoublePoint;
 begin
+  Assert(SizeOf(TGeometryPointSML) = 24);
   VEnum := AGeometry.GetEnum;
   while VEnum.Next(VCurrPoint) do begin
     VPoint.X := VCurrPoint.X;
@@ -212,11 +212,12 @@ procedure TGeometryToStreamSML.SaveMultiPolygon(
   const AStream: TStream
 );
 var
-  VPoint: TExtendedPoint;
+  VPoint: TGeometryPointSML;
   VEnum: IEnumLonLatPoint;
   VCurrPoint: TDoublePoint;
   VLine: IGeometryLonLatSinglePolygon;
 begin
+  Assert(SizeOf(TGeometryPointSML) = 24);
   if AGeometry.Count > 0 then begin
     VEnum := AGeometry.GetEnum;
     while VEnum.Next(VCurrPoint) do begin

@@ -1,3 +1,23 @@
+{******************************************************************************}
+{* SAS.Planet (SAS.Планета)                                                   *}
+{* Copyright (C) 2007-2014, SAS.Planet development team.                      *}
+{* This program is free software: you can redistribute it and/or modify       *}
+{* it under the terms of the GNU General Public License as published by       *}
+{* the Free Software Foundation, either version 3 of the License, or          *}
+{* (at your option) any later version.                                        *}
+{*                                                                            *}
+{* This program is distributed in the hope that it will be useful,            *}
+{* but WITHOUT ANY WARRANTY; without even the implied warranty of             *}
+{* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *}
+{* GNU General Public License for more details.                               *}
+{*                                                                            *}
+{* You should have received a copy of the GNU General Public License          *}
+{* along with this program.  If not, see <http://www.gnu.org/licenses/>.      *}
+{*                                                                            *}
+{* http://sasgis.org                                                          *}
+{* info@sasgis.org                                                            *}
+{******************************************************************************}
+
 unit u_GeometryFromStreamSML;
 
 interface
@@ -28,14 +48,10 @@ implementation
 uses
   Math,
   t_GeoTypes,
+  t_GeometryPointSML,
   i_DoublePointsAggregator,
   u_DoublePointsAggregator,
   u_GeoFunc;
-
-type
-  TExtendedPoint = record
-    X, Y: Extended;
-  end;
 
 procedure Stream2ExtArr(
   const AStream: TStream;
@@ -48,26 +64,27 @@ var
   VSize: Integer;
   VPointsCount: Integer;
   i: Integer;
-  VPoint: TExtendedPoint;
+  VPoint: TGeometryPointSML;
   VDoublePoint: TDoublePoint;
 begin
-    VSize := AStream.Size;
-    VPointsCount := VSize div SizeOf(TExtendedPoint);
-    for i := 0 to VPointsCount - 1 do begin
-      AStream.ReadBuffer(VPoint, SizeOf(TExtendedPoint));
-      try
-        if IsNan(VPoint.X) or IsNan(VPoint.Y) then begin
-          VDoublePoint := CEmptyDoublePoint;
-        end else if (VPoint.X >= CMaxDegres) or (VPoint.X <= CMinDegres) or (VPoint.Y >= CMaxDegres) or (VPoint.Y <= CMinDegres) then begin
-          VDoublePoint := CEmptyDoublePoint;
-        end else begin
-          VDoublePoint := DoublePoint(VPoint.X, VPoint.Y);
-        end;
-      except
+  Assert(SizeOf(TGeometryPointSML) = 24);
+  VSize := AStream.Size;
+  VPointsCount := VSize div SizeOf(TGeometryPointSML);
+  for i := 0 to VPointsCount - 1 do begin
+    AStream.ReadBuffer(VPoint, SizeOf(TGeometryPointSML));
+    try
+      if IsNan(VPoint.X) or IsNan(VPoint.Y) then begin
         VDoublePoint := CEmptyDoublePoint;
+      end else if (VPoint.X >= CMaxDegres) or (VPoint.X <= CMinDegres) or (VPoint.Y >= CMaxDegres) or (VPoint.Y <= CMinDegres) then begin
+        VDoublePoint := CEmptyDoublePoint;
+      end else begin
+        VDoublePoint := DoublePoint(VPoint.X, VPoint.Y);
       end;
-      AAggregator.Add(VDoublePoint);
+    except
+      VDoublePoint := CEmptyDoublePoint;
     end;
+    AAggregator.Add(VDoublePoint);
+  end;
 end;
 
 { TGeometryFromStreamSML }

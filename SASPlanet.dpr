@@ -2,19 +2,9 @@
 program SASPlanet;
 
 uses
-  {$IFDEF RELEASE}
-  FastMM4,
-  FastMove,
-    {$IFNDEF UNICODE}
-    FastCode,
-    {$ENDIF}
-  {$ENDIF}
   Forms,
   Windows,
   SysUtils,
-  {$IF CompilerVersion < 21.0} // CompilerVersion < Delphi 2010
-  MidasSpeedFix in 'MarksDB\SML\MidasSpeedFix.pas',
-  {$IFEND}
   MidasLib,
   XPMan,
   u_ReadableThreadNames,
@@ -639,6 +629,7 @@ uses
   u_MarkId in 'MarksDB\SML\u_MarkId.pas',
   u_MarkFullBase in 'MarksDB\u_MarkFullBase.pas',
   i_MarkFactory in 'MarksDB\i_MarkFactory.pas',
+  t_GeometryPointSML in 'MarksDB\SML\t_GeometryPointSML.pas',
   u_GeometryToStreamSML in 'MarksDB\SML\u_GeometryToStreamSML.pas',
   u_GeometryFromStreamSML in 'MarksDB\SML\u_GeometryFromStreamSML.pas',
   i_MarkFactorySmlInternal in 'MarksDB\SML\i_MarkFactorySmlInternal.pas',
@@ -1283,7 +1274,7 @@ begin
     end;
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-    GState.StartExceptionTracking;
+  GState.StartExceptionTracking;
     try
       Application.Run;
     finally
