@@ -772,6 +772,7 @@
     <DCCReference Include="MarksDB\SML\i_MarkDbSmlInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkFactorySmlInternal.pas" />
     <DCCReference Include="MarksDB\SML\MidasSpeedFix.pas" />
+    <DCCReference Include="MarksDB\SML\t_GeometryPointSML.pas" />
     <DCCReference Include="MarksDB\SML\u_GeometryFromStreamSML.pas" />
     <DCCReference Include="MarksDB\SML\u_GeometryToStreamSML.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkCategoryDBSml.pas" />

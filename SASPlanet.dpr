@@ -2,9 +2,19 @@
 program SASPlanet;
 
 uses
+  {$IFDEF RELEASE}
+  FastMM4,
+  FastMove,
+    {$IFNDEF UNICODE}
+    FastCode,
+    {$ENDIF}
+  {$ENDIF}
   Forms,
   Windows,
   SysUtils,
+  {$IF CompilerVersion < 21.0} // CompilerVersion < Delphi 2010
+  MidasSpeedFix in 'MarksDB\SML\MidasSpeedFix.pas',
+  {$IFEND}
   MidasLib,
   XPMan,
   u_ReadableThreadNames,
@@ -1274,7 +1284,7 @@ begin
     end;
     Application.HelpFile := '';
     Application.CreateForm(TfrmMain, frmMain);
-  GState.StartExceptionTracking;
+    GState.StartExceptionTracking;
     try
       Application.Run;
     finally
