@@ -16,7 +16,8 @@ type
     function GetData: PColor32Array;
     property Data: PColor32Array read GetData;
 
-    function IsEmpty: Boolean;
+    function GetIsInited: Boolean;
+    property IsInited: Boolean read GetIsInited;
 
     procedure Clear;
     procedure FullFill(const AFillColor: TColor32);
@@ -30,16 +31,20 @@ type
     procedure DrawBitmapStaticAt(const APosition: TPoint; const ASource: IBitmap32Static);
     procedure DrawBitmapData(const ASize: TPoint; const AData: PColor32Array);
     procedure DrawBitmapDataAt(const APosition: TPoint; const ASize: TPoint; const AData: PColor32Array);
-
-    function MakeAndClear: IBitmap32Static;
   end;
 
-  IBitmap32SurfaceFactory = interface
+  IBitmap32StaticBuilder = interface(IBitmap32Surface)
+    ['{DD01C179-C0AE-487B-9EE4-809D217559F9}']
+    function MakeStaticAndClear: IBitmap32Static;
+    function MakeStaticCopy: IBitmap32Static;
+  end;
+
+  IBitmap32StaticBuilderFactory = interface
     ['{91C9BDF0-E2CC-4369-BA0B-96C46A70A19C}']
-    function BuildEmpty(const ASize: TPoint; const AFillColor: TColor32): IBitmap32Surface;
-    function BuildFillColor(const ASize: TPoint; const AFillColor: TColor32): IBitmap32Surface;
-    function BuildByData(const ASize: TPoint; const AData: PColor32Array): IBitmap32Surface;
-    function BuildByBitmap32Static(const ASource: IBitmap32Static): IBitmap32Surface;
+    function BuildEmpty(const ASize: TPoint): IBitmap32StaticBuilder;
+    function BuildFillColor(const ASize: TPoint; const AFillColor: TColor32): IBitmap32StaticBuilder;
+    function BuildByData(const ASize: TPoint; const AData: PColor32Array): IBitmap32StaticBuilder;
+    function BuildByBitmap32Static(const ASource: IBitmap32Static): IBitmap32StaticBuilder;
   end;
 
 implementation
