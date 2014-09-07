@@ -53,7 +53,7 @@ procedure StretchTransfer(
   AMasterAlpha: Cardinal = 255;
   AOuterColor: TColor32 = 0
 );
-       
+
 procedure BlockTransferFull(
   ADst: TCustomBitmap32;
   ADstX: Integer;
@@ -63,7 +63,19 @@ procedure BlockTransferFull(
   ACombineMode: TCombineMode = cmMerge;
   AMasterAlpha: Cardinal = 255;
   AOuterColor: TColor32 = 0
-);
+); overload;
+
+procedure BlockTransferFull(
+  ADst: TCustomBitmap32;
+  ADstX: Integer;
+  ADstY: Integer;
+  const ASourceSize: TPoint;
+  const ASourceData: PColor32Array;
+  ACombineOp: TDrawMode;
+  ACombineMode: TCombineMode = cmMerge;
+  AMasterAlpha: Cardinal = 255;
+  AOuterColor: TColor32 = 0
+); overload;
 
 procedure BlockTransfer(
   ADst: TCustomBitmap32;
@@ -173,19 +185,41 @@ procedure BlockTransferFull(
   AMasterAlpha: Cardinal;
   AOuterColor: TColor32
 );
-var
-  VSize: TPoint;
 begin
-  VSize := ASource.Size;
+  BlockTransferFull(
+    ADst,
+    ADstX,
+    ADstY,
+    ASource.Size,
+    ASource.Data,
+    ACombineOp,
+    ACombineMode,
+    AMasterAlpha,
+    AOuterColor
+  );
+end;
+
+procedure BlockTransferFull(
+  ADst: TCustomBitmap32;
+  ADstX: Integer;
+  ADstY: Integer;
+  const ASourceSize: TPoint;
+  const ASourceData: PColor32Array;
+  ACombineOp: TDrawMode;
+  ACombineMode: TCombineMode = cmMerge;
+  AMasterAlpha: Cardinal = 255;
+  AOuterColor: TColor32 = 0
+); overload;
+begin
   GR32_Resamplers.BlockTransfer(
     ADst,
     ADstX,
     ADstY,
     ADst.ClipRect,
-    ASource.Data,
-    VSize.X,
-    VSize.Y,
-    Bounds(0, 0, VSize.X, VSize.Y),
+    ASourceData,
+    ASourceSize.X,
+    ASourceSize.Y,
+    Bounds(0, 0, ASourceSize.X, ASourceSize.Y),
     ACombineOp,
     ACombineMode,
     AMasterAlpha,
