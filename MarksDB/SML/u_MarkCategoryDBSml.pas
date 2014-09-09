@@ -487,7 +487,6 @@ procedure TMarkCategoryDBSml.Load;
 var
   VCategory: IMarkCategory;
   VId: Integer;
-  XML: AnsiString;
 begin
   FStateInternal.LockWrite;
   try
@@ -498,16 +497,7 @@ begin
       if FStateInternal.ReadAccess <> asDisabled then begin
         if FStream <> nil then begin
           try
-            SetLength(XML, FStream.Size);
-            FStream.ReadBuffer(XML[1], Length(XML));
-          except
-            FStateInternal.ReadAccess := asDisabled;
-          end;
-        end;
-
-        if (Length(XML) > 0) and (FStateInternal.ReadAccess <> asDisabled) then begin
-          try
-            FCdsCategory.XMLData := XML;
+            FCdsCategory.LoadFromStream(FStream);
             FCdsCategory.MergeChangeLog;
             FCdsCategory.LogChanges := False;
           except
@@ -533,8 +523,6 @@ begin
 end;
 
 function TMarkCategoryDBSml.Save: boolean;
-var
-  XML: AnsiString;
 begin
   result := true;
   if FNeedSaveFlag.CheckFlagAndReset then begin
@@ -545,10 +533,7 @@ begin
           LockRead;
           try
             if FStream <> nil then begin
-              XML := FCdsCategory.XMLData;
-              FStream.Size := length(XML);
-              FStream.Position := 0;
-              FStream.WriteBuffer(XML[1], length(XML));
+              FCdsCategory.SaveToStream(FStream, dfXML); // ToDo: add config for output format selection
             end else begin
               FNeedSaveFlag.SetFlag;
             end;

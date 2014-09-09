@@ -1321,16 +1321,36 @@ begin
 end;
 
 procedure TMarkDbSml.Load;
+
+  procedure UpgradeXmlSchema;
+  var
+    I: Integer;
+    VPicNameFieldDef: TFieldDef;
+  begin
+    // upgrade "picname" field size
+    I := FCdsMarks.FieldDefs.IndexOf('picname');
+    if I >= 0 then begin
+      VPicNameFieldDef := FCdsMarks.FieldDefs.Items[I];
+      if VPicNameFieldDef.Size <> 255 then begin
+        FCdsMarks.XMLData := 
+          StringReplace(
+            FCdsMarks.XMLData,
+            '<FIELD attrname="picname" fieldtype="string" WIDTH="20"',
+            '<FIELD attrname="picname" fieldtype="string" WIDTH="255"',
+            [rfIgnoreCase]
+          );
+        FNeedSaveFlag.SetFlag;
+      end;
+    end;
+  end;
+
 var
-  I: Integer;
   VMark: IVectorDataItem;
   VIdNew: Integer;
   VCategoryIdNew: Integer;
   VList: IIDInterfaceList;
   VMarkInternal: IMarkSMLInternal;
-  XML: AnsiString;
   VCounterContext: TInternalPerformanceCounterContext;
-  VPicNameFieldDef: TFieldDef;
 begin
   if FLoadDbCounter <> nil then begin
     VCounterContext := FLoadDbCounter.StartOperation;
@@ -1348,32 +1368,8 @@ begin
         if FStateInternal.ReadAccess <> asDisabled then begin
           if FStream <> nil then begin
             try
-              SetLength(XML, FStream.Size);
-              FStream.ReadBuffer(XML[1], length(XML));
-            except
-              FStateInternal.ReadAccess := asDisabled;
-            end;
-          end;
-
-          if (Length(XML) > 0) and (FStateInternal.ReadAccess <> asDisabled)  then begin
-            try
-              FCdsMarks.XMLData := XML;
-              I := FCdsMarks.FieldDefs.IndexOf('picname');
-              if I >= 0 then begin
-                VPicNameFieldDef := FCdsMarks.FieldDefs.Items[I];
-                if VPicNameFieldDef.Size <> 255 then begin
-                  // upgrade "picname" field size
-                  FCdsMarks.XMLData := '';
-                  XML := StringReplace(
-                    XML,
-                    '<FIELD attrname="picname" fieldtype="string" WIDTH="20"',
-                    '<FIELD attrname="picname" fieldtype="string" WIDTH="255"',
-                    [rfIgnoreCase]
-                    );
-                  FCdsMarks.XMLData := XML;
-                  FNeedSaveFlag.SetFlag;
-                end;
-              end;
+              FCdsMarks.LoadFromStream(FStream);
+              UpgradeXmlSchema;
               FCdsMarks.MergeChangeLog;
               FCdsMarks.LogChanges := False;
             except
@@ -1415,7 +1411,6 @@ end;
 
 function TMarkDbSml.Save: boolean;
 var
-  XML: AnsiString;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   result := true;
@@ -1433,10 +1428,7 @@ begin
             LockRead;
             try
               if FStream <> nil then begin
-                XML := FCdsMarks.XMLData;
-                FStream.Size := length(XML);
-                FStream.Position := 0;
-                FStream.WriteBuffer(XML[1], length(XML));
+                FCdsMarks.SaveToStream(FStream, dfXML); // ToDo: add config for output format selection
               end else begin
                 FNeedSaveFlag.SetFlag;
               end;
