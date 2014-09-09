@@ -58,7 +58,7 @@ type
       const inNode: TALXMLNode
     );
     function SaveMarkIcon(const AAppearanceIcon: IAppearancePointIcon): string;
-    function Color32toKMLColor(Color32: TColor32): string;
+    function Color32toKMLColor(Color32: TColor32): AnsiString;
     procedure PrepareExportToFile(const AFileName: string);
     procedure SaveToFile;
   public
@@ -72,6 +72,7 @@ type
 implementation
 
 uses
+  ALString,
   t_GeoTypes,
   i_BinaryData,
   i_EnumDoublePoint,
@@ -80,10 +81,10 @@ uses
   u_GeoToStrFunc,
   u_StreamReadOnlyByBinaryData;
 
-function XMLTextPrepare(const Src: AnsiString): AnsiString;
+function XMLTextPrepare(const Src: string): string;
 var
   i, l: integer;
-  Buf, P: PAnsiChar;
+  Buf, P: PChar;
   ch: Integer;
 begin
   Result := '';
@@ -91,13 +92,13 @@ begin
   if L = 0 then begin
     exit;
   end;
-  GetMem(Buf, L);
+  GetMem(Buf, L * SizeOf(src[1]));
   try
     P := Buf;
     for i := 1 to L do begin
       ch := Ord(src[i]);
       if (ch >= 32) or (ch = $09) or (ch = $0A) or (ch = $0D) then begin
-        P^ := AnsiChar(ch);
+        P^ := Char(ch);
         Inc(P);
       end;
     end;
@@ -107,13 +108,13 @@ begin
   end;
 end;
 
-function GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): string;
+function GetKMLCoordinates(const APointEnum: IEnumLonLatPoint): AnsiString;
 var
   VPoint: TDoublePoint;
 begin
   Result := '';
   while APointEnum.Next(VPoint) do begin
-    Result := Result + R2StrPoint(VPoint.X) + ',' + R2StrPoint(VPoint.Y) + ',0 ';
+    Result := Result + R2AnsiStrPoint(VPoint.X) + ',' + R2AnsiStrPoint(VPoint.Y) + ',0 ';
   end;
 end;
 
@@ -137,7 +138,7 @@ begin
   FKmlNode.Attributes['xmlns'] := 'http://earth.google.com/kml/2.2';
   FKmlDocumentNode := FKmlNode.AddChild('Document');
   FFileName := AFileName;
-  if ExtractFileExt(FFileName) = '.kmz' then begin
+  if SameText(ExtractFileExt(FFileName), '.kmz') then begin
     FZip := FArchiveReadWriteFactory.Zip.WriterFactory.BuildByFileName(FFileName);
   end else begin
     FZip := nil;
@@ -146,6 +147,7 @@ end;
 
 procedure TExportMarks2KML.SaveToFile;
 var
+  VFileStream: TFileStream;
   KMLStream: TMemoryStream;
   VData: IBinaryData;
 begin
@@ -160,7 +162,12 @@ begin
       KMLStream.Free;
     end;
   end else begin
-    FKmlDoc.SaveToFile(FFileName);
+    VFileStream := TFileStream.Create(FFileName, fmCreate);
+    try
+      FKmlDoc.SaveToStream(VFileStream);
+    finally
+      VFileStream.Free;
+    end;
   end;
 end;
 
@@ -240,7 +247,7 @@ var
   width: integer;
   currNode: TALXMLNode;
   rootNode: TALXMLNode;
-  VCoordinates: string;
+  VCoordinates: AnsiString;
   VFileName: string;
   VAppearanceIcon: IAppearancePointIcon;
   VAppearanceCaption: IAppearancePointCaption;
@@ -269,7 +276,7 @@ begin
         if VAppearanceCaption <> nil then begin
           with AddChild('LabelStyle') do begin
             ChildNodes['color'].Text := Color32toKMLColor(VAppearanceCaption.TextColor);
-            ChildNodes['scale'].Text := R2StrPoint(VAppearanceCaption.FontSize / 14);
+            ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceCaption.FontSize / 14);
           end;
         end;
         if VAppearanceIcon <> nil then begin
@@ -277,9 +284,9 @@ begin
             with AddChild('IconStyle') do begin
               VFileName := SaveMarkIcon(VAppearanceIcon);
               width := VAppearanceIcon.Pic.GetMarker.Size.X;
-              ChildNodes['scale'].Text := R2StrPoint(VAppearanceIcon.MarkerSize / width);
+              ChildNodes['scale'].Text := R2AnsiStrPoint(VAppearanceIcon.MarkerSize / width);
               with AddChild('Icon') do begin
-                ChildNodes['href'].Text := VFileName;
+                ChildNodes['href'].Text := UTF8Encode(VFileName);
               end;
               with AddChild('hotSpot') do begin
                 Attributes['x'] := '0.5';
@@ -295,7 +302,7 @@ begin
     currNode := currNode.AddChild('Point');
     currNode.ChildNodes['extrude'].Text := '1';
     with VLonLatPoint.Point do begin
-      VCoordinates := R2StrPoint(X) + ',' + R2StrPoint(Y) + ',0 ';
+      VCoordinates := R2AnsiStrPoint(X) + ',' + R2AnsiStrPoint(Y) + ',0 ';
     end;
     currNode.ChildNodes['coordinates'].Text := VCoordinates;
   end else if Supports(AMark.Geometry, IGeometryLonLatSingleLine, VLonLatPathLine) then begin
@@ -304,7 +311,7 @@ begin
       with currNode.AddChild('Style') do begin
         with AddChild('LineStyle') do begin
           ChildNodes['color'].Text := Color32toKMLColor(VAppearanceLine.LineColor);
-          ChildNodes['width'].Text := R2StrPoint(VAppearanceLine.LineWidth);
+          ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceLine.LineWidth);
         end;
       end;
     end;
@@ -321,7 +328,7 @@ begin
       with currNode.AddChild('Style') do begin
         with AddChild('LineStyle') do begin
           ChildNodes['color'].Text := Color32toKMLColor(VAppearanceLine.LineColor);
-          ChildNodes['width'].Text := R2StrPoint(VAppearanceLine.LineWidth);
+          ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceLine.LineWidth);
         end;
       end;
     end;
@@ -359,7 +366,7 @@ begin
         if VAppearanceBorder <> nil then begin
           with AddChild('LineStyle') do begin
             ChildNodes['color'].Text := Color32toKMLColor(VAppearanceBorder.LineColor);
-            ChildNodes['width'].Text := R2StrPoint(VAppearanceBorder.LineWidth);
+            ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceBorder.LineWidth);
           end;
         end;
         if VAppearanceFill <> nil then begin
@@ -390,7 +397,7 @@ begin
         if VAppearanceBorder <> nil then begin
           with AddChild('LineStyle') do begin
             ChildNodes['color'].Text := Color32toKMLColor(VAppearanceBorder.LineColor);
-            ChildNodes['width'].Text := R2StrPoint(VAppearanceBorder.LineWidth);
+            ChildNodes['width'].Text := R2AnsiStrPoint(VAppearanceBorder.LineWidth);
           end;
         end;
         if VAppearanceFill <> nil then begin
@@ -425,16 +432,16 @@ begin
   end;
 end;
 
-function TExportMarks2KML.Color32toKMLColor(Color32: TColor32): string;
+function TExportMarks2KML.Color32toKMLColor(Color32: TColor32): AnsiString;
 var
   VColor: TColor32Entry;
 begin
   VColor.ARGB := Color32;
   Result :=
-    IntToHex(VColor.A, 2) +
-    IntToHex(VColor.B, 2) +
-    IntToHex(VColor.G, 2) +
-    IntToHex(VColor.R, 2);
+    AlIntToHex(VColor.A, 2) +
+    AlIntToHex(VColor.B, 2) +
+    AlIntToHex(VColor.G, 2) +
+    AlIntToHex(VColor.R, 2);
 end;
 
 function TExportMarks2KML.SaveMarkIcon(
