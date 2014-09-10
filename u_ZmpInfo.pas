@@ -405,9 +405,9 @@ begin
   if ABitmap <> nil then begin
     VSize := ABitmap.Size;
     VBuffer := ABitmapFactory.BufferFactory.BuildEmpty(VSize);
-    if Result <> nil then begin
+    if VBuffer <> nil then begin
       VSourceLine := ABitmap.Data;
-      VTargetLine := Result.Data;
+      VTargetLine := VBuffer.Data;
       for i := 0 to VSize.X * VSize.Y - 1 do begin
         if VSourceLine[i] = AMaskColor then begin
           VTargetLine[i] := 0;
@@ -415,8 +415,8 @@ begin
           VTargetLine[i] := VSourceLine[i];
         end;
       end;
+      Result := ABitmapFactory.BuildWithOwnBuffer(VBuffer);
     end;
-    Result := ABitmapFactory.BuildWithOwnBuffer(VBuffer);
   end;
 end;
 
