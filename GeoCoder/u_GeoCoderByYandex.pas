@@ -74,7 +74,7 @@ function TGeoCoderByYandex.ParseResultToPlacemarksList(
   function _PosToPoint(const APos: string): TDoublePoint; // "27.560573 53.865552"
   var
     I: Integer;
-    VLat, VLon: AnsiString;
+    VLat, VLon: string;
     VFormatSettings: TFormatSettings;
   begin
     I := Pos(' ', APos);

@@ -52,6 +52,7 @@ implementation
 
 uses
   SysUtils,
+  ALString,
   superobject,
   t_GeoTypes,
   i_GeoCoder,
@@ -177,7 +178,7 @@ begin
       'http://maps.googleapis.com/maps/api/geocode/json?address=' +
       URLEncode(AnsiToUtf8(VSearch)) +
       '&sensor=false' +
-      '&language=' + StringReplace(SAS_STR_GoogleSearchLanguage, '&hl=', '', [rfIgnoreCase]) +
+      '&language=' + ALStringReplace(AnsiString(SAS_STR_GoogleSearchLanguage), '&hl=', '', [rfIgnoreCase]) +
       '&bounds=' +
         R2AnsiStrPoint(VLonLatRect.Bottom) + ',' + R2AnsiStrPoint(VLonLatRect.Left) + '|' +
         R2AnsiStrPoint(VLonLatRect.Top) + ',' + R2AnsiStrPoint(VLonLatRect.Right)
