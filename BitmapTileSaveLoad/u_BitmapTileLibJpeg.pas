@@ -38,7 +38,7 @@ type
   TLibJpegTileLoader = class(TBaseInterfacedObject, IBitmapTileLoader)
   private
     FLoadStreamCounter: IInternalPerformanceCounter;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
 
     function ReadLine(
       Sender: TObject;
@@ -52,7 +52,7 @@ type
   public
     constructor Create(
       const APerfCounterList: IInternalPerformanceCounterList;
-      const ABitmapFactory: IBitmap32BufferFactory
+      const ABitmap32StaticFactory: IBitmap32StaticFactory
     );
   end;
 
@@ -104,12 +104,13 @@ const
 
 constructor TLibJpegTileLoader.Create(
   const APerfCounterList: IInternalPerformanceCounterList;
-  const ABitmapFactory: IBitmap32BufferFactory
+  const ABitmap32StaticFactory: IBitmap32StaticFactory
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
   FLoadStreamCounter := APerfCounterList.CreateAndAddNewCounter('LibJPEG/LoadStream');
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
 end;
 
 function TLibJpegTileLoader.Load(const AData: IBinaryData): IBitmap32Static;
@@ -117,6 +118,7 @@ var
   VCounterContext: TInternalPerformanceCounterContext;
   VJpeg: TJpegReader;
   VStream: TStream;
+  VBuffer: IBitmap32Buffer;
 begin
   Result := nil;
   VCounterContext := FLoadStreamCounter.StartOperation;
@@ -127,15 +129,17 @@ begin
       VJpeg := TJpegReader.Create(VStream, cUseBGRAColorSpace, cUseLibJpeg8);
       try
         if VJpeg.ReadHeader() then begin
-          Result :=
-            FBitmapFactory.BuildEmpty(
+          VBuffer :=
+            FBitmap32StaticFactory.BufferFactory.BuildEmpty(
               Point(VJpeg.Width, VJpeg.Height)
             );
-          if Result <> nil then begin
-            VJpeg.AppData := Result.Data;
+          Assert(Assigned(VBuffer));
+          if VBuffer <> nil then begin
+            VJpeg.AppData := VBuffer.Data;
             if not VJpeg.Decompress(Self.ReadLine) then begin
               raise Exception.Create('Jpeg decompress error!');
             end;
+            Result := FBitmap32StaticFactory.BuildWithOwnBuffer(VBuffer);
           end;
         end else begin
           raise Exception.Create('Jpeg open error!');

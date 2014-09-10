@@ -58,7 +58,7 @@ type
       const APostProcessing: IBitmapPostProcessingChangeable;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
       const AThreadConfig: IThreadConfig;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AErrorLogger: ITileErrorLogger;
       const ATimerNoifier: INotifierTime
     );
@@ -89,7 +89,7 @@ constructor TMiniMapLayer.Create(
   const APostProcessing: IBitmapPostProcessingChangeable;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
   const AThreadConfig: IThreadConfig;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AErrorLogger: ITileErrorLogger;
   const ATimerNoifier: INotifierTime
 );
@@ -100,7 +100,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResampler,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AConverterFactory
     );
   VProvider :=
@@ -109,7 +109,7 @@ begin
       ALayesList,
       APostProcessing,
       AConfig.UseTilePrevZoomConfig,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AErrorLogger
     );
   inherited Create(

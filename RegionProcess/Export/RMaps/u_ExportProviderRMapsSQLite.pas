@@ -43,7 +43,7 @@ type
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
@@ -58,7 +58,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
@@ -94,12 +94,13 @@ constructor TExportProviderRMapsSQLite.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(
     AProgressFactory,
     ALanguageManager,
@@ -109,7 +110,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
@@ -123,7 +124,7 @@ begin
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
-      FBitmapFactory,
+      FBitmap32StaticFactory,
       FBitmapTileSaveLoadFactory
     );
 

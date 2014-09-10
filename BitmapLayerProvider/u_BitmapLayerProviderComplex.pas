@@ -33,7 +33,7 @@ uses
 type
   TBitmapLayerProviderComplex = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProviderFrist: IBitmapLayerProvider;
     FProviderSecond: IBitmapLayerProvider;
   private
@@ -44,7 +44,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProviderFrist: IBitmapLayerProvider;
       const AProviderSecond: IBitmapLayerProvider
     );
@@ -60,15 +60,15 @@ uses
 { TBitmapLayerProviderComplex }
 
 constructor TBitmapLayerProviderComplex.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProviderFrist, AProviderSecond: IBitmapLayerProvider
 );
 begin
-  Assert(ABitmapFactory <> nil);
+  Assert(Assigned(ABitmap32StaticFactory));
   Assert(AProviderFrist <> nil);
   Assert(AProviderSecond <> nil);
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProviderFrist := AProviderFrist;
   FProviderSecond := AProviderSecond;
 end;
@@ -91,7 +91,7 @@ begin
     if VResultSecond = nil then begin
       Result := VResultFirst;
     end else begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
         AssignStaticToBitmap32(VBitmap, VResultFirst);
         BlockTransferFull(

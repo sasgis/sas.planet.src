@@ -45,7 +45,7 @@ type
     FProjectionInfo: IProjectionInfo;
     FVersionConfig: IMapVersionConfig;
     FLoaderFromStorage: IBitmapTileLoader;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FStorage: ITileStorage;
     FIsIgnoreError: Boolean;
     FImageResampler: IImageResamplerFactoryChangeable;
@@ -57,7 +57,7 @@ type
     constructor Create(
       const AIsIgnoreError: Boolean;
       const AImageResampler: IImageResamplerFactoryChangeable;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AVersionConfig: IMapVersionConfig;
       const ALoaderFromStorage: IBitmapTileLoader;
       const AProjectionInfo: IProjectionInfo;
@@ -101,24 +101,25 @@ uses
 constructor TBitmapTileProviderByStorage.Create(
   const AIsIgnoreError: Boolean;
   const AImageResampler: IImageResamplerFactoryChangeable;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AVersionConfig: IMapVersionConfig;
   const ALoaderFromStorage: IBitmapTileLoader;
   const AProjectionInfo: IProjectionInfo;
   const AStorage: ITileStorage
 );
 begin
-  Assert(AImageResampler <> nil);
-  Assert(AVersionConfig <> nil);
-  Assert(ALoaderFromStorage <> nil);
-  Assert(AStorage <> nil);
-  Assert(AProjectionInfo <> nil);
+  Assert(Assigned(AImageResampler));
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AVersionConfig));
+  Assert(Assigned(ALoaderFromStorage));
+  Assert(Assigned(AStorage));
+  Assert(Assigned(AProjectionInfo));
   Assert(AStorage.CoordConverter.IsSameConverter(AProjectionInfo.GeoConverter));
   inherited Create;
   FIsIgnoreError := AIsIgnoreError;
   FImageResampler := AImageResampler;
   FStorage := AStorage;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectionInfo := AProjectionInfo;
   FVersionConfig := AVersionConfig;
   FLoaderFromStorage := ALoaderFromStorage;
@@ -156,7 +157,7 @@ begin
         (Result.Size.Y <> VSize.Y) then begin
         VResampler := FImageResampler.GetStatic.CreateResampler;
         try
-          VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+          VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
           try
             VBitmap.SetSize(VSize.X, VSize.Y);
             StretchTransferFull(

@@ -104,7 +104,7 @@ type
       const AInetConfig: IInetConfig;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloaderThreadConfig: IThreadConfig;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AContentTypeManager: IContentTypeManager;
       const ACoordConverterFactory: ICoordConverterFactory;
       const AInvisibleBrowser: IInvisibleBrowser;
@@ -212,7 +212,7 @@ procedure TMapTypesMainList.LoadMaps(
   const AInetConfig: IInetConfig;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloaderThreadConfig: IThreadConfig;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AContentTypeManager: IContentTypeManager;
   const ACoordConverterFactory: ICoordConverterFactory;
   const AInvisibleBrowser: IInvisibleBrowser;
@@ -275,7 +275,7 @@ begin
           FTileGetPrevResampler,
           FTileReprojectResampler,
           FTileDownloadResampler,
-          ABitmapFactory,
+          ABitmap32StaticFactory,
           AHashFunction,
           ADownloadConfig,
           ADownloaderThreadConfig,

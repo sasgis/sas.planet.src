@@ -63,7 +63,7 @@ type
     FUseAlfa: Boolean;
     FViewConfig: IGlobalViewMainConfig;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FCoordConverterList: ICoordConverterList;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
@@ -112,7 +112,7 @@ type
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList;
       const AUseQuality: Boolean;
@@ -159,7 +159,7 @@ constructor TProviderMapCombineBase.Create(
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AMapCalibrationList: IMapCalibrationList;
   const AUseQuality: Boolean;

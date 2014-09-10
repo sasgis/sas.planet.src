@@ -41,7 +41,7 @@ type
   private
     FMainMap: IMapType;
     FLayersList: IMapTypeListStatic;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FUsePrevZoomAtMap: Boolean;
     FUsePrevZoomAtLayer: Boolean;
     FUseCache: Boolean;
@@ -66,7 +66,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AMainMap: IMapType;
       const ALayersList: IMapTypeListStatic;
       AUsePrevZoomAtMap: Boolean;
@@ -90,7 +90,7 @@ uses
 { TBitmapLayerProviderForViewMaps }
 
 constructor TBitmapLayerProviderForViewMaps.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AMainMap: IMapType;
   const ALayersList: IMapTypeListStatic;
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer, AUseCache: Boolean;
@@ -98,8 +98,10 @@ constructor TBitmapLayerProviderForViewMaps.Create(
   const AErrorLogger: ITileErrorLogger
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AMainMap));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FMainMap := AMainMap;
   FLayersList := ALayersList;
   FUsePrevZoomAtMap := AUsePrevZoomAtMap;
@@ -176,7 +178,7 @@ begin
     if Result = nil then begin
       Result := VLayer;
     end else begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
         AssignStaticToBitmap32(VBitmap, Result);
         BlockTransferFull(

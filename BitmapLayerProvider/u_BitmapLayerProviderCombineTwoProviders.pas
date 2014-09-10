@@ -33,7 +33,7 @@ uses
 type
   TBitmapLayerProviderCombineTwoProviders = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProvider1: IBitmapLayerProvider;
     FProvider2: IBitmapLayerProvider;
   private
@@ -44,7 +44,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProvider1: IBitmapLayerProvider;
       const AProvider2: IBitmapLayerProvider
     );
@@ -60,16 +60,16 @@ uses
 { TBitmapLayerProviderMapWithLayer }
 
 constructor TBitmapLayerProviderCombineTwoProviders.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProvider1: IBitmapLayerProvider;
   const AProvider2: IBitmapLayerProvider
 );
 begin
-  Assert(Assigned(ABitmapFactory));
+  Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AProvider1));
   Assert(Assigned(AProvider2));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProvider1 := AProvider1;
   FProvider2 := AProvider2;
 end;
@@ -100,7 +100,7 @@ begin
 
   if Result <> nil then begin
     if VLayer <> nil then begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
         AssignStaticToBitmap32(VBitmap, Result);
         BlockTransferFull(

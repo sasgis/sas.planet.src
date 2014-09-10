@@ -39,26 +39,26 @@ type
 
   TBitmapPostProcessingByTable = class(TBaseInterfacedObject, IBitmapPostProcessing)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FTable: TComponentTable;
   private
     function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ATable: TComponentTable
     );
   end;
 
   TBitmapPostProcessingMakeTransparetnByColor = class(TBaseInterfacedObject, IBitmapPostProcessing)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FMaskColor: TColor32;
   private
     function Process(const ABitmap: IBitmap32Static): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AMaskColor: TColor32
     );
   end;
@@ -67,7 +67,7 @@ implementation
 
 uses
   GR32;
-  
+
 { TBitmapPostProcessingSimple }
 
 function TBitmapPostProcessingSimple.Process(
@@ -79,12 +79,13 @@ end;
 { TBitmapPostProcessingByTable }
 
 constructor TBitmapPostProcessingByTable.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ATable: TComponentTable
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FTable := ATable;
 end;
 
@@ -94,6 +95,7 @@ function TBitmapPostProcessingByTable.Process(
 var
   i: Integer;
   VSize: TPoint;
+  VBuffer: IBitmap32Buffer;
   VSource: PColor32Array;
   VTarget: PColor32Array;
   VColorEntry: TColor32Entry;
@@ -101,8 +103,8 @@ begin
   Result := nil;
   if ABitmap <> nil then begin
     VSize := ABitmap.Size;
-    Result := FBitmapFactory.BuildEmpty(VSize);
-    if Result <> nil then begin
+    VBuffer := FBitmap32StaticFactory.BufferFactory.BuildEmpty(VSize);
+    if VBuffer <> nil then begin
       VSource := ABitmap.Data;
       VTarget := Result.Data;
       for i := 0 to VSize.X * VSize.Y - 1 do begin
@@ -115,6 +117,7 @@ begin
             VColorEntry.A
           );
       end;
+      Result := FBitmap32StaticFactory.BuildWithOwnBuffer(VBuffer);
     end;
   end;
 end;
@@ -122,12 +125,13 @@ end;
 { TBitmapPostProcessingMakeTransparetnByColor }
 
 constructor TBitmapPostProcessingMakeTransparetnByColor.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AMaskColor: TColor32
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FMaskColor := AMaskColor;
 end;
 
@@ -139,13 +143,14 @@ var
   VTargetLine: PColor32Array;
   i: Integer;
   VSize: TPoint;
+  VBuffer: IBitmap32Buffer;
   VIsChanged: Boolean;
 begin
   Result := nil;
   if ABitmap <> nil then begin
     VSize := ABitmap.Size;
-    Result := FBitmapFactory.BuildEmpty(VSize);
-    if Result <> nil then begin
+    VBuffer := FBitmap32StaticFactory.BufferFactory.BuildEmpty(VSize);
+    if VBuffer <> nil then begin
       VIsChanged := False;
       VSourceLine := ABitmap.Data;
       VTargetLine := Result.Data;
@@ -159,6 +164,8 @@ begin
       end;
       if not VIsChanged then begin
         Result := ABitmap;
+      end else begin
+        Result := FBitmap32StaticFactory.BuildWithOwnBuffer(VBuffer);
       end;
     end;
   end;

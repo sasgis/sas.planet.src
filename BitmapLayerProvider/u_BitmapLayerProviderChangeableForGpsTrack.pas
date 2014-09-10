@@ -37,7 +37,7 @@ type
   TBitmapLayerProviderChangeableForGpsTrack = class(TBitmapLayerProviderChangeableBase)
   private
     FConfig: IMapLayerGPSTrackConfig;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FGPSRecorder: IGpsTrackRecorder;
 
     FGetTrackCounter: IInternalPerformanceCounter;
@@ -53,7 +53,7 @@ type
       const APerfList: IInternalPerformanceCounterList;
       const ATimerNoifier: INotifierTime;
       const AConfig: IMapLayerGPSTrackConfig;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AGPSRecorder: IGpsTrackRecorder
     );
   end;
@@ -72,14 +72,19 @@ constructor TBitmapLayerProviderChangeableForGpsTrack.Create(
   const APerfList: IInternalPerformanceCounterList;
   const ATimerNoifier: INotifierTime;
   const AConfig: IMapLayerGPSTrackConfig;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AGPSRecorder: IGpsTrackRecorder
 );
 begin
+  Assert(Assigned(APerfList));
+  Assert(Assigned(ATimerNoifier));
+  Assert(Assigned(AConfig));
+  Assert(Assigned(AGPSRecorder));
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
   FConfig := AConfig;
   FGPSRecorder := AGPSRecorder;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
 
   FGetTrackCounter := APerfList.CreateAndAddNewCounter('GetTrack');
   FGpsPosChangeFlag := TSimpleFlagWithInterlock.Create;
@@ -125,7 +130,7 @@ begin
         VPointsCount,
         VLineWidth,
         VTrackColorer,
-        FBitmapFactory,
+        FBitmap32StaticFactory,
         VEnum
       );
   end;

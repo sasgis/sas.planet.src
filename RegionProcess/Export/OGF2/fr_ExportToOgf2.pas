@@ -94,7 +94,7 @@ type
     procedure cbbTileResChange(Sender: TObject);
   private
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProjectionFactory: IProjectionInfoFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FMainMapsConfig: IMainMapsConfig;
@@ -123,7 +123,7 @@ type
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
@@ -221,7 +221,7 @@ constructor TfrExportToOgf2.Create(
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
@@ -229,11 +229,12 @@ constructor TfrExportToOgf2.Create(
   const AFileExtDefault: string
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(ALanguageManager);
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
@@ -302,7 +303,7 @@ begin
 
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
-      FBitmapFactory,
+      FBitmap32StaticFactory,
       VMap,
       VMapVersion,
       VLayer,

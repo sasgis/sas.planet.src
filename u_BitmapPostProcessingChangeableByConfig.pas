@@ -32,7 +32,7 @@ uses
 type
   TBitmapPostProcessingChangeableByConfig = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IBitmapPostProcessingChangeable)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FConfig: IBitmapPostProcessingConfig;
     FConfigChangeListener: IListener;
     procedure  OnConfigChange;
@@ -43,7 +43,7 @@ type
   public
     constructor Create(
       const AConfig: IBitmapPostProcessingConfig;
-      const ABitmapFactory: IBitmap32BufferFactory
+      const ABitmap32StaticFactory: IBitmap32StaticFactory
     );
     destructor Destroy; override;
   end;
@@ -135,14 +135,14 @@ end;
 
 constructor TBitmapPostProcessingChangeableByConfig.Create(
   const AConfig: IBitmapPostProcessingConfig;
-  const ABitmapFactory: IBitmap32BufferFactory
+  const ABitmap32StaticFactory: IBitmap32StaticFactory
 );
 begin
-  Assert(AConfig <> nil);
-  Assert(ABitmapFactory <> nil);
+  Assert(Assigned(AConfig));
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
   FConfig := AConfig;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FConfigChangeListener := TNotifyNoMmgEventListener.Create(Self.OnConfigChange);
   FConfig.ChangeNotifier.Add(FConfigChangeListener);
 end;
@@ -167,7 +167,11 @@ begin
     if VConfig.GammaN <> 50 then begin
       VTable := CombineTables(GetGammaTable(VConfig.GammaN), VTable);
     end;
-    VStatic := TBitmapPostProcessingByTable.Create(FBitmapFactory, VTable);
+    VStatic :=
+      TBitmapPostProcessingByTable.Create(
+        FBitmap32StaticFactory,
+        VTable
+      );
   end;
   Result := VStatic;
 end;

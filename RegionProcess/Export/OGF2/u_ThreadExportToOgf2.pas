@@ -52,7 +52,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     function GetMapPreview(
       const ABitmapSaver: IBitmapTileSaver;
@@ -75,7 +75,7 @@ type
       const ACoordConverterFactory: ICoordConverterFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ATargetFile: string;
       const APolygon: IGeometryLonLatPolygon;
@@ -113,7 +113,7 @@ constructor TThreadExportToOgf2.Create(
   const ACoordConverterFactory: ICoordConverterFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ATargetFile: string;
   const APolygon: IGeometryLonLatPolygon;
@@ -166,15 +166,17 @@ function TThreadExportToOgf2.GetMapPreview(
   out AMapPreviewHeight: Integer
 ): IBinaryData;
 var
+  VBuffer: IBitmap32Buffer;
   VBitmapStatic: IBitmap32Static;
 begin
   AMapPreviewWidth := 256;
   AMapPreviewHeight := 256;
-  VBitmapStatic :=
-    FBitmapFactory.BuildEmptyClear(
+  VBuffer :=
+    FBitmapFactory.BufferFactory.BuildEmptyClear(
       Point(AMapPreviewWidth, AMapPreviewHeight),
       cBackGroundColor
     );
+  VBitmapStatic := FBitmapFactory.BuildWithOwnBuffer(VBuffer);
   //TODO: generate some preview and make it sizeble
   Result := ABitmapSaver.Save(VBitmapStatic);
 end;
@@ -183,13 +185,15 @@ function TThreadExportToOgf2.GetEmptyTile(
   const ABitmapSaver: IBitmapTileSaver
 ): IBinaryData;
 var
+  VBuffer: IBitmap32Buffer;
   VBitmapStatic: IBitmap32Static;
 begin
-  VBitmapStatic :=
-    FBitmapFactory.BuildEmptyClear(
+  VBuffer :=
+    FBitmapFactory.BufferFactory.BuildEmptyClear(
       Point(FOgf2TileWidth, FOgf2TileHeight),
       cBackGroundColor
     );
+  VBitmapStatic := FBitmapFactory.BuildWithOwnBuffer(VBuffer);
   Result := ABitmapSaver.Save(VBitmapStatic);
 end;
 

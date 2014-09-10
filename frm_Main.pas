@@ -981,7 +981,7 @@ begin
       GState.VectorGeometryLonLatFactory,
       GState.VectorGeometryProjectedFactory,
       GState.ProjectedGeometryProvider,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       GState.BitmapTileSaveLoadFactory,
       GState.ArchiveReadWriteFactory,
       GState.MapCalibrationList,
@@ -1303,7 +1303,7 @@ begin
 
     FShortCutManager :=
       TShortcutManager.Create(
-        GState.BitmapFactory,
+        GState.Bitmap32StaticFactory,
         TBXMainMenu.Items,
         GetIgnoredMenuItemsList
       );
@@ -1609,7 +1609,7 @@ begin
       GState.BitmapPostProcessing,
       FConfig.LayersConfig.MainMapLayerConfig.UseTilePrevZoomConfig,
       FConfig.LayersConfig.MainMapLayerConfig.ThreadConfig,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       FTileErrorLogger,
       GState.GUISyncronizedTimerNotifier
     )
@@ -1625,7 +1625,7 @@ begin
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       GState.ValueToStringConverter,
       FConfig.LayersConfig.MapLayerGridsConfig
     )
@@ -1668,7 +1668,7 @@ begin
       GState.ProjectedGeometryProvider,
       GState.GUISyncronizedTimerNotifier,
       VVectorItems,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       VMarkerChangeable,
       FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
@@ -1685,7 +1685,7 @@ begin
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       FConfig.LayersConfig.FillingMapLayerConfig
     )
   );
@@ -1706,7 +1706,7 @@ begin
   VMarkerProviderForVectorItem :=
     TMarkerProviderForVectorItemWithCache.Create(
       GState.HashFunction,
-      TMarkerProviderForVectorItemForMarkPoints.Create(GState.BitmapFactory, VMarkerChangeable)
+      TMarkerProviderForVectorItemForMarkPoints.Create(GState.Bitmap32StaticFactory, VMarkerChangeable)
     );
   VPerfList := GState.PerfCounterList.CreateAndAddNewSubList('TMapLayerMarks');
   VVectorItems :=
@@ -1740,7 +1740,7 @@ begin
       GState.ProjectedGeometryProvider,
       VMarkerProviderForVectorItem,
       GState.GUISyncronizedTimerNotifier,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       VVectorItems,
       FConfig.LayersConfig.MarksLayerConfig
     )
@@ -1756,7 +1756,7 @@ begin
       VTileMatrixDraftResampler,
       GState.LocalConverterFactory,
       GState.GUISyncronizedTimerNotifier,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       FConfig.LayersConfig.GPSTrackConfig,
       GState.GpsTrackRecorder
     )
@@ -2031,7 +2031,7 @@ begin
       GState.ProjectedGeometryProvider,
       GState.GUISyncronizedTimerNotifier,
       VVectorItems,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       VMarkerChangeable,
       FConfig.LayersConfig.KmlLayerConfig.DrawConfig,
       FConfig.LayersConfig.KmlLayerConfig.ThreadConfig
@@ -2096,7 +2096,7 @@ begin
       map,
       FViewPortState.View,
       FConfig.MainMapsConfig.GetAllMapsSet,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       FTileErrorLogProvider,
       GState.GUISyncronizedTimerNotifier
     )
@@ -2141,7 +2141,7 @@ begin
   );
   VMarkerChangeable :=
     TMarkerDrawableChangeableFaked.Create(
-      TMarkerDrawableCenterScale.Create(GState.BitmapFactory)
+      TMarkerDrawableCenterScale.Create(GState.Bitmap32StaticFactory)
     );
   VLayersList.Add(
     TLayerCenterScale.Create(
@@ -2243,7 +2243,7 @@ begin
       GState.BitmapPostProcessing,
       FConfig.LayersConfig.MiniMapLayerConfig.UseTilePrevZoomConfig,
       FConfig.LayersConfig.MiniMapLayerConfig.ThreadConfig,
-      GState.BitmapFactory,
+      GState.Bitmap32StaticFactory,
       FTileErrorLogger,
       GState.GUISyncronizedTimerNotifier
     )

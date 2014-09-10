@@ -35,7 +35,7 @@ uses
 type
   TBitmapLayerProviderMapWithLayer = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FMapTypeMain: IMapType;
     FMapTypeMainVersion: IMapVersionRequest;
     FMapTypeHybr: IMapType;
@@ -50,7 +50,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AMapTypeMain: IMapType;
       const AMapTypeMainVersion: IMapVersionRequest;
       const AMapTypeHybr: IMapType;
@@ -70,7 +70,7 @@ uses
 { TBitmapLayerProviderMapWithLayer }
 
 constructor TBitmapLayerProviderMapWithLayer.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AMapTypeMain: IMapType;
   const AMapTypeMainVersion: IMapVersionRequest;
   const AMapTypeHybr: IMapType;
@@ -78,8 +78,9 @@ constructor TBitmapLayerProviderMapWithLayer.Create(
   AUsePrevZoomAtMap, AUsePrevZoomAtLayer: Boolean
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FMapTypeMain := AMapTypeMain;
   FMapTypeMainVersion := AMapTypeMainVersion;
   FMapTypeHybr := AMapTypeHybr;
@@ -127,7 +128,7 @@ begin
 
   if Result <> nil then begin
     if VLayer <> nil then begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
         AssignStaticToBitmap32(VBitmap, Result);
         BlockTransferFull(

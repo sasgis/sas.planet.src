@@ -104,7 +104,7 @@ type
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
     FGUIConfigList: IMapTypeGUIConfigList;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
     FfrMapSelect: TfrMapSelect;
     FfrOverlaySelect: TfrMapSelect;
@@ -133,7 +133,7 @@ type
       const AMainMapsConfig: IMainMapsConfig;
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
     ); reintroduce;
     destructor Destroy; override;
@@ -156,17 +156,18 @@ constructor TfrExportRMapsSQLite.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(ALanguageManager);
 
   FMainMapsConfig := AMainMapsConfig;
   FFullMapsSet := AFullMapsSet;
   FGUIConfigList := AGUIConfigList;
 
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
 
   FfrMapSelect :=
@@ -385,7 +386,7 @@ begin
 
   Result :=
     TBitmapLayerProviderMapWithLayer.Create(
-      FBitmapFactory,
+      FBitmap32StaticFactory,
       VMap,
       VMapVersion,
       VLayer,

@@ -36,7 +36,7 @@ type
   TTileMatrixFactory = class(TBaseInterfacedObject, ITileMatrixFactory)
   private
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FImageResampler: IImageResamplerFactoryChangeable;
     function BuildEmpty(
       const ATileRect: TRect;
@@ -72,7 +72,7 @@ type
   public
     constructor Create(
       const AImageResampler: IImageResamplerFactoryChangeable;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
     );
   end;
@@ -93,10 +93,13 @@ uses
 
 constructor TTileMatrixFactory.Create(
   const AImageResampler: IImageResamplerFactoryChangeable;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe
 );
 begin
+  Assert(Assigned(AImageResampler));
+  Assert(Assigned(ABitmapFactory));
+  Assert(Assigned(ALocalConverterFactory));
   inherited Create;
   FImageResampler := AImageResampler;
   FLocalConverterFactory := ALocalConverterFactory;

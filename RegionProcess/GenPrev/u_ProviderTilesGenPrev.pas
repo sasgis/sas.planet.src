@@ -45,7 +45,7 @@ type
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FImageResamplerConfig: IImageResamplerConfig;
     FViewConfig: IGlobalViewMainConfig;
@@ -61,7 +61,7 @@ type
       const AViewConfig: IGlobalViewMainConfig;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const AImageResamplerFactoryList: IImageResamplerFactoryList;
       const AImageResamplerConfig: IImageResamplerConfig
     );
@@ -94,7 +94,7 @@ constructor TProviderTilesGenPrev.Create(
   const AViewConfig: IGlobalViewMainConfig;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const AImageResamplerFactoryList: IImageResamplerFactoryList;
   const AImageResamplerConfig: IImageResamplerConfig
 );

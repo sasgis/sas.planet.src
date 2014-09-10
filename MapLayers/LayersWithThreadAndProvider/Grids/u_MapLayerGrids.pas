@@ -48,7 +48,7 @@ type
       const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifierTime;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AConfig: IMapLayerGridsConfig
     );
@@ -72,7 +72,7 @@ constructor TMapLayerGrids.Create(
   const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifierTime;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AConfig: IMapLayerGridsConfig);
 var
@@ -82,12 +82,12 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResampler,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AConverterFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForGrids.Create(
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AValueToStringConverter,
       AConfig
     );

@@ -1061,6 +1061,8 @@ uses
   i_Bitmap32BufferFactory in 'Bitmap32\i_Bitmap32BufferFactory.pas',
   u_Bitmap32BufferFactory in 'Bitmap32\u_Bitmap32BufferFactory.pas',
   u_Bitmap32BufferFactorySimple in 'Bitmap32\u_Bitmap32BufferFactorySimple.pas',
+  u_Bitmap32Static in 'Bitmap32\u_Bitmap32Static.pas',
+  u_Bitmap32StaticFactory in 'Bitmap32\u_Bitmap32StaticFactory.pas',
   u_Bitmap32ByStaticBitmap in 'Bitmap32\u_Bitmap32ByStaticBitmap.pas',
   u_ObjectPoolBitmap32Standart in 'Bitmap32\u_ObjectPoolBitmap32Standart.pas',
   u_BitmapChangeableFaked in 'Bitmap32\u_BitmapChangeableFaked.pas',

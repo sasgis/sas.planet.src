@@ -39,7 +39,7 @@ type
   TBitmapLayerProviderChangeableForMainLayer = class(TBitmapLayerProviderChangeableBase)
   private
     FErrorLogger: ITileErrorLogger;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FPostProcessing: IBitmapPostProcessingChangeable;
     FUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
     FMainMap: IMapTypeChangeable;
@@ -61,7 +61,7 @@ type
       const ALayesList: IMapTypeListChangeable;
       const APostProcessing: IBitmapPostProcessingChangeable;
       const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AErrorLogger: ITileErrorLogger
     );
     destructor Destroy; override;
@@ -80,15 +80,16 @@ constructor TBitmapLayerProviderChangeableForMainLayer.Create(
   const ALayesList: IMapTypeListChangeable;
   const APostProcessing: IBitmapPostProcessingChangeable;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AErrorLogger: ITileErrorLogger
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FMainMap := AMainMap;
   FLayesList := ALayesList;
   FErrorLogger := AErrorLogger;
-  FBitmapFactory := ABitmapFactory;
   FPostProcessing := APostProcessing;
   FUseTilePrevZoomConfig := AUseTilePrevZoomConfig;
 
@@ -159,7 +160,7 @@ begin
 
   VResult :=
     TBitmapLayerProviderForViewMaps.Create(
-      FBitmapFactory,
+      FBitmap32StaticFactory,
       VMainMap,
       VLayersList,
       VUsePrevConfig.UsePrevZoomAtMap,

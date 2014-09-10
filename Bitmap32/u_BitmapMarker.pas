@@ -24,6 +24,7 @@ interface
 
 uses
   Types,
+  t_Hash,
   t_Bitmap32,
   t_GeoTypes,
   i_Bitmap32Static,
@@ -36,6 +37,7 @@ type
     FBitmap: IBitmap32Static;
     FAnchorPoint: TDoublePoint;
   private
+    function GetHash: THashValue;
     function GetSize: TPoint;
     function GetData: PColor32Array;
     function GetAnchorPoint: TDoublePoint;
@@ -82,6 +84,11 @@ end;
 function TBitmapMarker.GetData: PColor32Array;
 begin
   Result := FBitmap.Data;
+end;
+
+function TBitmapMarker.GetHash: THashValue;
+begin
+  Result := FBitmap.Hash;
 end;
 
 function TBitmapMarker.GetSize: TPoint;

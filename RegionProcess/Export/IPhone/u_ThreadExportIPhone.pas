@@ -52,7 +52,7 @@ type
 
   TThreadExportIPhone = class(TThreadExportAbstract)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FTasks: TExportTaskIPhoneArray;
     FActiveMapIndex: integer;
     FNewFormat: Boolean;
@@ -82,7 +82,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
       const APolygon: IGeometryLonLatPolygon;
       const ATasks: TExportTaskIPhoneArray;
@@ -100,13 +100,13 @@ uses
   GR32,
   ALString,
   c_CoordConverter,
-  i_LocalCoordConverter,
   i_Bitmap32Static,
-  u_GeoToStrFunc,
-  u_ResStrings,
   i_ProjectionInfo,
   i_GeometryProjected,
   i_TileIterator,
+  i_LocalCoordConverter,
+  u_GeoToStrFunc,
+  u_ResStrings,
   u_GeoFunc,
   u_BitmapFunc,
   u_TileIteratorByPolygon;
@@ -117,7 +117,7 @@ constructor TThreadExportIPhone.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
   const APolygon: IGeometryLonLatPolygon;
   const ATasks: TExportTaskIPhoneArray;

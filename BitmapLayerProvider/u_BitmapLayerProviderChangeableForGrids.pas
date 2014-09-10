@@ -33,7 +33,7 @@ uses
 type
   TBitmapLayerProviderChangeableForGrids = class(TBitmapLayerProviderChangeableBase)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FConfig: IMapLayerGridsConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
 
@@ -42,7 +42,7 @@ type
     function CreateStatic: IInterface; override;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AConfig: IMapLayerGridsConfig
     );
@@ -61,12 +61,15 @@ uses
 { TBitmapLayerProviderChangeableForGrids }
 
 constructor TBitmapLayerProviderChangeableForGrids.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AConfig: IMapLayerGridsConfig);
 begin
+  Assert(Assigned(AValueToStringConverter));
+  Assert(Assigned(AConfig));
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FConfig := AConfig;
   FValueToStringConverter := AValueToStringConverter;
 
@@ -116,7 +119,7 @@ begin
   if VVisible then begin
     VResult :=
       TBitmapLayerProviderGridTiles.Create(
-        FBitmapFactory,
+        FBitmap32StaticFactory,
         VColor,
         VUseRelativeZoom,
         VZoom,
@@ -137,7 +140,7 @@ begin
   if VVisible then begin
     VProvider :=
       TBitmapLayerProviderGridGenshtab.Create(
-        FBitmapFactory,
+        FBitmap32StaticFactory,
         VColor,
         VScale,
         VShowText,
@@ -145,7 +148,12 @@ begin
       );
 
     if VResult <> nil then begin
-      VResult := TBitmapLayerProviderComplex.Create(FBitmapFactory, VResult, VProvider);
+      VResult :=
+        TBitmapLayerProviderComplex.Create(
+          FBitmap32StaticFactory,
+          VResult,
+          VProvider
+        );
     end else begin
       VResult := VProvider;
     end;
@@ -163,7 +171,7 @@ begin
   if VVisible then begin
     VProvider :=
       TBitmapLayerProviderGridDegree.Create(
-        FBitmapFactory,
+        FBitmap32StaticFactory,
         VColor,
         VScaleDegree,
         VShowText,
@@ -171,7 +179,12 @@ begin
         FValueToStringConverter.GetStatic
       );
     if VResult <> nil then begin
-      VResult := TBitmapLayerProviderComplex.Create(FBitmapFactory, VResult, VProvider);
+      VResult :=
+        TBitmapLayerProviderComplex.Create(
+          FBitmap32StaticFactory,
+          VResult,
+          VProvider
+        );
     end else begin
       VResult := VProvider;
     end;

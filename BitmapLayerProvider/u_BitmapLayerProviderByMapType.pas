@@ -45,7 +45,7 @@ type
     FResamplerChangeProjection: IImageResamplerFactory;
     FResamplerGetPrev: IImageResamplerFactory;
     FResamplerLoad: IImageResamplerFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FLoadPrevMaxZoomDelta: Integer;
     FErrorLogger: ITileErrorLogger;
     FVersion: IMapVersionRequest;
@@ -101,7 +101,7 @@ type
       const AResamplerChangeProjection: IImageResamplerFactory;
       const AResamplerGetPrev: IImageResamplerFactory;
       const AResamplerLoad: IImageResamplerFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ALoadPrevMaxZoomDelta: Integer;
       const AVersion: IMapVersionRequest;
       const ACache: ITileObjCacheBitmap;
@@ -131,7 +131,7 @@ constructor TBitmapLayerProviderByMapType.Create(
   const AResamplerChangeProjection: IImageResamplerFactory;
   const AResamplerGetPrev: IImageResamplerFactory;
   const AResamplerLoad: IImageResamplerFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ALoadPrevMaxZoomDelta: Integer;
   const AVersion: IMapVersionRequest;
   const ACache: ITileObjCacheBitmap;
@@ -142,7 +142,7 @@ begin
   Assert(Assigned(AResamplerChangeProjection));
   Assert(Assigned(AResamplerGetPrev));
   Assert(Assigned(AResamplerLoad));
-  Assert(Assigned(ABitmapFactory));
+  Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AVersion));
   inherited Create;
   FGuid := AGuid;
@@ -151,7 +151,7 @@ begin
   FResamplerChangeProjection := AResamplerChangeProjection;
   FResamplerGetPrev := AResamplerGetPrev;
   FResamplerLoad := AResamplerLoad;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FLoadPrevMaxZoomDelta := ALoadPrevMaxZoomDelta;
   FVersion := AVersion;
   FCache := ACache;
@@ -252,7 +252,7 @@ begin
       Exit;
     end;
   end;
-  VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+  VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
     VBitmap.Clear(0);
@@ -391,7 +391,7 @@ begin
     if VSpr <> nil then begin
       VResampler := FResamplerChangeProjection.CreateResampler;
       try
-        VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+        VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
         try
           VBitmap.SetSize(VTargetImageSize.X, VTargetImageSize.Y);
           VBitmap.Clear(0);
@@ -444,7 +444,7 @@ begin
         (Result.Size.Y <> VSize.Y) then begin
         VResampler := FResamplerLoad.CreateResampler;
         try
-          VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+          VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
           try
             VBitmap.SetSize(VSize.X, VSize.Y);
             StretchTransferFull(
@@ -526,7 +526,7 @@ begin
         VResampler := FResamplerGetPrev.CreateResampler;
         try
           try
-            VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+            VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
             try
               VBitmap.SetSize(VTileTargetBounds.Right, VTileTargetBounds.Bottom);
               StretchTransfer(

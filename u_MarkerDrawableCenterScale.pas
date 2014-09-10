@@ -31,10 +31,10 @@ type
   TMarkerDrawableCenterScale = class(TMarkerDrawableByBitmapMarker)
   private
     function CreateBitmapMarker(
-      const ABitmapFactory: IBitmap32BufferFactory
+      const ABitmapFactory: IBitmap32StaticFactory
     ): IBitmapMarker;
   public
-    constructor Create(const ABitmapFactory: IBitmap32BufferFactory);
+    constructor Create(const ABitmapFactory: IBitmap32StaticFactory);
   end;
 
 implementation
@@ -50,14 +50,14 @@ uses
 { TMarkerDrawableCenterScale }
 
 constructor TMarkerDrawableCenterScale.Create(
-  const ABitmapFactory: IBitmap32BufferFactory
+  const ABitmapFactory: IBitmap32StaticFactory
 );
 begin
   inherited Create(CreateBitmapMarker(ABitmapFactory));
 end;
 
 function TMarkerDrawableCenterScale.CreateBitmapMarker(
-  const ABitmapFactory: IBitmap32BufferFactory
+  const ABitmapFactory: IBitmap32StaticFactory
 ): IBitmapMarker;
 var
   VBitmap: TBitmap32;

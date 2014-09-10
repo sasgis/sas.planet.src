@@ -46,7 +46,7 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
     function CreateFrame: TFrame; override;
@@ -59,7 +59,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ACoordConverterFactory: ICoordConverterFactory
@@ -92,12 +92,13 @@ constructor TExportProviderYaMobileV3.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(
     AProgressFactory,
     ALanguageManager,
@@ -107,7 +108,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
@@ -171,7 +172,7 @@ begin
     end;
     VTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
-        FBitmapFactory,
+        FBitmap32StaticFactory,
         FFrame.GetSat.GetSelectedMapType,
         VMapVersion,
         FFrame.GetHyb.GetSelectedMapType,
@@ -187,7 +188,7 @@ begin
     VTasks[VTaskIndex].FSaver := FBitmapTileSaveLoadFactory.CreatePngSaver(i8bpp, comprMap);
     VTasks[VTaskIndex].FImageProvider :=
       TBitmapLayerProviderMapWithLayer.Create(
-        FBitmapFactory,
+        FBitmap32StaticFactory,
         FFrame.GetMap.GetSelectedMapType,
         FFrame.GetMap.GetSelectedMapType.VersionRequestConfig.GetStatic,
         nil,
@@ -204,7 +205,7 @@ begin
       FLocalConverterFactory,
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
-      FBitmapFactory,
+      FBitmap32StaticFactory,
       VPath,
       APolygon,
       VTasks,

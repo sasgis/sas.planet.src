@@ -34,7 +34,7 @@ uses
 type
   TMarkerDrawableWithDirectionByBitmapMarker = class(TBaseInterfacedObject, IMarkerDrawableWithDirection)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FMarker: IBitmapMarkerWithDirection;
     FCachedMarkerCS: IReadWriteSync;
     FCachedMarker: IBitmapMarkerWithDirection;
@@ -56,7 +56,7 @@ type
     ): Boolean;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AMarker: IBitmapMarkerWithDirection
     );
   end;
@@ -83,12 +83,14 @@ const
 { TMarkerDrawableWithDirectionByBitmapMarker }
 
 constructor TMarkerDrawableWithDirectionByBitmapMarker.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AMarker: IBitmapMarkerWithDirection
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AMarker));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FMarker := AMarker;
   FCachedMarkerCS := GSync.SyncVariable.Make(Self.ClassName);
 end;
@@ -215,7 +217,7 @@ begin
     VSizeTarget.X := Trunc(VTargetRect.Right - VTargetRect.Left) + 1;
     VSizeTarget.Y := Trunc(VTargetRect.Bottom - VTargetRect.Top) + 1;
     VTransform.Translate(-VTargetRect.Left, -VTargetRect.Top);
-    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
       VBitmap.SetSize(VSizeTarget.X, VSizeTarget.Y);
       VBitmap.Clear(0);

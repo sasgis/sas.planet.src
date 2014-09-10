@@ -47,7 +47,7 @@ type
       const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifierTime;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AConfig: IFillingMapLayerConfig
     );
   end;
@@ -74,7 +74,7 @@ constructor TMapLayerFillingMap.Create(
   const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifierTime;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AConfig: IFillingMapLayerConfig
 );
 var
@@ -85,11 +85,14 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResampler,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AConverterFactory
     );
   VProvider :=
-    TBitmapLayerProviderChangeableForFillingMap.Create(ABitmapFactory, AConfig);
+    TBitmapLayerProviderChangeableForFillingMap.Create(
+      ABitmap32StaticFactory,
+      AConfig
+    );
   VSourceChangeNotifier := TSourceDataUpdateInRectByFillingMap.Create(AConfig);
   inherited Create(
     APerfList,

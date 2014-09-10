@@ -53,7 +53,7 @@ type
       const AProjectedProvider: IGeometryProjectedProvider;
       const ATimerNoifier: INotifierTime;
       const AVectorItems: IVectorItemSubsetChangeable;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const APointMarker: IMarkerDrawableChangeable;
       const ADrawConfig: IVectorItemDrawConfig;
       const AThreadConfig: IThreadConfig
@@ -81,7 +81,7 @@ constructor TMapLayerVectorMaps.Create(
   const AProjectedProvider: IGeometryProjectedProvider;
   const ATimerNoifier: INotifierTime;
   const AVectorItems: IVectorItemSubsetChangeable;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const APointMarker: IMarkerDrawableChangeable;
   const ADrawConfig: IVectorItemDrawConfig;
   const AThreadConfig: IThreadConfig
@@ -93,14 +93,14 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResampler,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AConverterFactory
     );
   VProvider :=
     TBitmapLayerProviderChangeableForVectorMaps.Create(
       ADrawConfig,
       APointMarker,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AProjectedProvider,
       AVectorItems
     );

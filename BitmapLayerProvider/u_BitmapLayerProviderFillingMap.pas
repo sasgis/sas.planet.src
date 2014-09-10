@@ -36,7 +36,7 @@ uses
 type
   TBitmapLayerProviderFillingMap = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FStorage: ITileStorage;
     FVersion: IMapVersionRequest;
     FUseRelativeZoom: Boolean;
@@ -62,7 +62,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AStorage: ITileStorage;
       const AVersion: IMapVersionRequest;
       AUseRelativeZoom: Boolean;
@@ -86,7 +86,7 @@ uses
 { TBitmapLayerProviderFillingMap }
 
 constructor TBitmapLayerProviderFillingMap.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AStorage: ITileStorage;
   const AVersion: IMapVersionRequest;
   AUseRelativeZoom: Boolean;
@@ -94,12 +94,12 @@ constructor TBitmapLayerProviderFillingMap.Create(
   const AColorer: IFillingMapColorer
 );
 begin
-  Assert(Assigned(ABitmapFactory));
+  Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(AStorage));
   Assert(Assigned(AVersion));
   Assert(Assigned(AColorer));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FStorage := AStorage;
   FVersion := AVersion;
   FUseRelativeZoom := AUseRelativeZoom;
@@ -177,7 +177,7 @@ var
   VLocalPixelRectOfTile: TRect;
   VTileColor: TColor32;
 begin
-  VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+  VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VSize := ALocalConverter.GetLocalRectSize;
     VBitmap.SetSize(VSize.X, VSize.Y);

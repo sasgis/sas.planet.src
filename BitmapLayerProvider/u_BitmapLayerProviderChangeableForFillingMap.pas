@@ -33,7 +33,7 @@ uses
 type
   TBitmapLayerProviderChangeableForFillingMap = class(TBitmapLayerProviderChangeableBase)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FConfig: IFillingMapLayerConfig;
 
     FVersionListener: IListener;
@@ -44,7 +44,7 @@ type
     function CreateStatic: IInterface; override;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AConfig: IFillingMapLayerConfig
     );
     destructor Destroy; override;
@@ -62,12 +62,14 @@ uses
 { TBitmapLayerProviderChangeableForFillingMap }
 
 constructor TBitmapLayerProviderChangeableForFillingMap.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AConfig: IFillingMapLayerConfig
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AConfig));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FConfig := AConfig;
 
   FVersionListener := TNotifyNoMmgEventListener.Create(Self.OnMapVersionChange);
@@ -122,7 +124,7 @@ begin
       );
     VResult :=
       TBitmapLayerProviderFillingMap.Create(
-        FBitmapFactory,
+        FBitmap32StaticFactory,
         VMap.TileStorage,
         VVersionRequest,
         VConfig.UseRelativeZoom,

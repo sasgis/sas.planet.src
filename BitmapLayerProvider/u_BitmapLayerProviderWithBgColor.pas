@@ -34,7 +34,7 @@ uses
 type
   TBitmapLayerProviderWithBGColor = class(TBaseInterfacedObject, IBitmapLayerProvider)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FSourceProvider: IBitmapLayerProvider;
     FBackGroundColor: TColor32;
   private
@@ -46,7 +46,7 @@ type
   public
     constructor Create(
       ABackGroundColor: TColor32;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ASourceProvider: IBitmapLayerProvider
     );
   end;
@@ -62,14 +62,16 @@ uses
 
 constructor TBitmapLayerProviderWithBGColor.Create(
   ABackGroundColor: TColor32;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ASourceProvider: IBitmapLayerProvider
 );
 begin
+  Assert(Assigned(ASourceProvider));
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
   FSourceProvider := ASourceProvider;
   FBackGroundColor := ABackGroundColor;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   Assert(FSourceProvider <> nil);
 end;
 
@@ -89,7 +91,7 @@ begin
       ALocalConverter
     );
   if Result <> nil then begin
-    VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+    VTargetBmp := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
       VTileSize := ALocalConverter.GetLocalRectSize;
       VTargetBmp.SetSize(VTileSize.X, VTileSize.Y);

@@ -42,7 +42,7 @@ type
     FZoom: Integer;
     FShowText: Boolean;
     FShowLines: Boolean;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FCS: IReadWriteSync;
     FBitmap: TBitmap32;
     FBitmapChangeFlag: ISimpleFlag;
@@ -66,7 +66,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       AColor: TColor32;
       AUseRelativeZoom: Boolean;
       AZoom: Integer;
@@ -88,7 +88,7 @@ uses
 { TBitmapLayerProviderGridTiles }
 
 constructor TBitmapLayerProviderGridTiles.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   AColor: TColor32;
   AUseRelativeZoom: Boolean;
   AZoom: Integer;

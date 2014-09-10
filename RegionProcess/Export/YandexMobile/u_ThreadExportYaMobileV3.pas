@@ -51,7 +51,7 @@ type
   private
     FTasks: TExportTaskYaMobileV3Array;
     FProjectionFactory: IProjectionInfoFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FIsReplace: boolean;
     FExportPath: string;
@@ -83,7 +83,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const APath: string;
       const APolygon: IGeometryLonLatPolygon;
       const ATasks: TExportTaskYaMobileV3Array;
@@ -117,7 +117,7 @@ constructor TThreadExportYaMobileV3.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const APath: string;
   const APolygon: IGeometryLonLatPolygon;
   const ATasks: TExportTaskYaMobileV3Array;

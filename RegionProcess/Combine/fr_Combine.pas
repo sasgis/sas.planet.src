@@ -81,7 +81,7 @@ type
       const AMarksDrawConfig: IMarksDrawConfig;
       const AMarksDB: IMarkSystem;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
@@ -130,7 +130,7 @@ constructor TfrCombine.Create(
   const AMarksDrawConfig: IMarksDrawConfig;
   const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );

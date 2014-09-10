@@ -30,18 +30,18 @@ uses
 type
   TStaticBitmapBackend = class(TCustomBackend)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBufferFactory: IBitmap32BufferFactory;
     FBitmapStatic: IBitmap32Buffer;
   protected
     procedure InitializeSurface(NewWidth, NewHeight: Integer; ClearBuffer: Boolean); override;
     procedure FinalizeSurface; override;
   public
-    constructor Create(Owner: TCustomBitmap32; const ABitmapFactory: IBitmap32BufferFactory);
+    constructor Create(Owner: TCustomBitmap32; const ABufferFactory: IBitmap32BufferFactory);
   end;
 
   TBitmap32ByStaticBitmap = class(TCustomBitmap32)
   private
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBackEndByStatic: TStaticBitmapBackend;
   protected
     procedure InitializeBackend; override;
@@ -49,7 +49,9 @@ type
   public
     function MakeAndClear: IBitmap32Static;
   public
-    constructor Create(const ABitmapFactory: IBitmap32BufferFactory); reintroduce;
+    constructor Create(
+      const ABitmap32StaticFactory: IBitmap32StaticFactory
+    ); reintroduce;
   end;
 
 implementation
@@ -59,13 +61,14 @@ uses
 
 { TStaticBitmapBackend }
 
-constructor TStaticBitmapBackend.Create(Owner: TCustomBitmap32;
-  const ABitmapFactory: IBitmap32BufferFactory
+constructor TStaticBitmapBackend.Create(
+  Owner: TCustomBitmap32;
+  const ABufferFactory: IBitmap32BufferFactory
 );
 begin
-  Assert(ABitmapFactory <> nil);
+  Assert(ABufferFactory <> nil);
   inherited Create(Owner);
-  FBitmapFactory := ABitmapFactory;
+  FBufferFactory := ABufferFactory;
 end;
 
 procedure TStaticBitmapBackend.FinalizeSurface;
@@ -79,9 +82,9 @@ procedure TStaticBitmapBackend.InitializeSurface(NewWidth, NewHeight: Integer;
   ClearBuffer: Boolean);
 begin
   if ClearBuffer then begin
-    FBitmapStatic := FBitmapFactory.BuildEmptyClear(Types.Point(NewWidth, NewHeight), 0);
+    FBitmapStatic := FBufferFactory.BuildEmptyClear(Types.Point(NewWidth, NewHeight), 0);
   end else begin
-    FBitmapStatic := FBitmapFactory.BuildEmpty(Types.Point(NewWidth, NewHeight));
+    FBitmapStatic := FBufferFactory.BuildEmpty(Types.Point(NewWidth, NewHeight));
   end;
   if FBitmapStatic <> nil then begin
     FBits := FBitmapStatic.Data;
@@ -93,22 +96,22 @@ end;
 { TBitmap32ByStaticBitmap }
 
 constructor TBitmap32ByStaticBitmap.Create(
-  const ABitmapFactory: IBitmap32BufferFactory
+  const ABitmap32StaticFactory: IBitmap32StaticFactory
 );
 begin
-  Assert(ABitmapFactory <> nil);
-  FBitmapFactory := ABitmapFactory;
+  Assert(Assigned(ABitmap32StaticFactory));
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   inherited Create;
 end;
 
 procedure TBitmap32ByStaticBitmap.InitializeBackend;
 begin
-  TStaticBitmapBackend.Create(Self, FBitmapFactory);
+  TStaticBitmapBackend.Create(Self, FBitmap32StaticFactory.BufferFactory);
 end;
 
 function TBitmap32ByStaticBitmap.MakeAndClear: IBitmap32Static;
 begin
-  Result := FBackEndByStatic.FBitmapStatic;
+  Result := FBitmap32StaticFactory.BuildWithOwnBuffer(FBackEndByStatic.FBitmapStatic);
   Delete;
 end;
 

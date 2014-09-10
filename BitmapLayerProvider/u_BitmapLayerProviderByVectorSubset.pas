@@ -47,7 +47,7 @@ type
     FColorMain: TColor32;
     FColorBG: TColor32;
     FPointMarker: IMarkerDrawable;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FVectorItems: IVectorItemSubset;
     FProjectedCache: IGeometryProjectedProvider;
 
@@ -92,7 +92,7 @@ type
       AColorMain: TColor32;
       AColorBG: TColor32;
       const APointMarker: IMarkerDrawable;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectedCache: IGeometryProjectedProvider;
       const AVectorItems: IVectorItemSubset
     );
@@ -112,16 +112,19 @@ constructor TBitmapLayerProviderByVectorSubset.Create(
   AColorMain: TColor32;
   AColorBG: TColor32;
   const APointMarker: IMarkerDrawable;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectedCache: IGeometryProjectedProvider;
   const AVectorItems: IVectorItemSubset
 );
 begin
+  Assert(Assigned(APointMarker));
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AProjectedCache));
   inherited Create;
   FColorMain := AColorMain;
   FColorBG := AColorBG;
   FPointMarker := APointMarker;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectedCache := AProjectedCache;
   FVectorItems := AVectorItems;
 end;
@@ -292,7 +295,7 @@ begin
   VBitmapInited := False;
   Result := nil;
   if (FVectorItems <> nil) and (FVectorItems.Count > 0) then begin
-    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
       VIsEmpty := True;
       for i := 0 to FVectorItems.Count - 1 do begin

@@ -68,7 +68,7 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -116,7 +116,7 @@ constructor TfrExport.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
@@ -138,7 +138,7 @@ begin
       ALocalConverterFactory,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       True
     );
@@ -155,7 +155,7 @@ begin
       ALocalConverterFactory,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       False
     );
@@ -182,7 +182,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory
@@ -198,7 +198,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory
@@ -269,7 +269,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       ALocalConverterFactory,
       ACoordConverterFactory
@@ -298,7 +298,7 @@ begin
       AGUIConfigList,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       ABitmapTileSaveLoadFactory,
       ACoordConverterFactory,
       ALocalConverterFactory

@@ -48,7 +48,7 @@ type
       const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
       const AConverterFactory: ILocalCoordConverterFactorySimpe;
       const ATimerNoifier: INotifierTime;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AConfig: IMapLayerGPSTrackConfig;
       const AGpsTrackRecorder: IGpsTrackRecorder
     );
@@ -74,7 +74,7 @@ constructor TMapLayerGPSTrack.Create(
   const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
   const ATimerNoifier: INotifierTime;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AConfig: IMapLayerGPSTrackConfig;
   const AGpsTrackRecorder: IGpsTrackRecorder
 );
@@ -85,7 +85,7 @@ begin
   VTileMatrixFactory :=
     TTileMatrixFactory.Create(
       ATileMatrixDraftResampler,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AConverterFactory
     );
   VProvider :=
@@ -93,7 +93,7 @@ begin
       APerfList,
       ATimerNoifier,
       AConfig,
-      ABitmapFactory,
+      ABitmap32StaticFactory,
       AGpsTrackRecorder
     );
   inherited Create(

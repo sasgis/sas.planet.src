@@ -42,7 +42,7 @@ type
     FLoadPrevMaxZoomDelta: Integer;
     FTileStorage: ITileStorage;
     FCache: ITileObjCacheBitmap;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FErrorLogger: ITileErrorLogger;
 
     FResamplerChangeProjection: IImageResamplerFactoryChangeable;
@@ -60,7 +60,7 @@ type
       const ALoadPrevMaxZoomDelta: Integer;
       const ATileStorage: ITileStorage;
       const ACache: ITileObjCacheBitmap;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AErrorLogger: ITileErrorLogger;
       const AResamplerChangeProjection: IImageResamplerFactoryChangeable;
       const AResamplerGetPrev: IImageResamplerFactoryChangeable;
@@ -85,7 +85,7 @@ constructor TBitmapLayerProviderChangeableForMapType.Create(
   const ALoadPrevMaxZoomDelta: Integer;
   const ATileStorage: ITileStorage;
   const ACache: ITileObjCacheBitmap;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AErrorLogger: ITileErrorLogger;
   const AResamplerChangeProjection, AResamplerGetPrev, AResamplerLoad: IImageResamplerFactoryChangeable;
   const AVersion: IMapVersionRequestConfig;
@@ -96,7 +96,7 @@ var
 begin
   Assert(Assigned(FTileStorage));
   Assert(Assigned(FCache));
-  Assert(Assigned(FBitmapFactory));
+  Assert(Assigned(ABitmap32StaticFactory));
   Assert(Assigned(FErrorLogger));
   Assert(Assigned(FResamplerChangeProjection));
   Assert(Assigned(FResamplerGetPrev));
@@ -109,7 +109,7 @@ begin
   FLoadPrevMaxZoomDelta := ALoadPrevMaxZoomDelta;
   FTileStorage := ATileStorage;
   FCache := ACache;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FErrorLogger := AErrorLogger;
 
   FResamplerChangeProjection := AResamplerChangeProjection;
@@ -159,7 +159,7 @@ begin
       FResamplerChangeProjection.GetStatic,
       FResamplerGetPrev.GetStatic,
       FResamplerLoad.GetStatic,
-      FBitmapFactory,
+      FBitmap32StaticFactory,
       FLoadPrevMaxZoomDelta,
       FVersion.GetStatic,
       FCache,

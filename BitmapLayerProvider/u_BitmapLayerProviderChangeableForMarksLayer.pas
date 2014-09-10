@@ -36,7 +36,7 @@ type
   TBitmapLayerProviderChangeableForMarksLayer = class(TBitmapLayerProviderChangeableBase)
   private
     FConfig: IMarksDrawConfig;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FProjectedProvider: IGeometryProjectedProvider;
     FMarkerProvider: IMarkerProviderForVectorItem;
     FVectorItems: IVectorItemSubsetChangeable;
@@ -48,7 +48,7 @@ type
   public
     constructor Create(
       const AConfig: IMarksDrawConfig;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectedProvider: IGeometryProjectedProvider;
       const AMarkerProvider: IMarkerProviderForVectorItem;
       const AVectorItems: IVectorItemSubsetChangeable
@@ -66,15 +66,20 @@ uses
 
 constructor TBitmapLayerProviderChangeableForMarksLayer.Create(
   const AConfig: IMarksDrawConfig;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectedProvider: IGeometryProjectedProvider;
   const AMarkerProvider: IMarkerProviderForVectorItem;
   const AVectorItems: IVectorItemSubsetChangeable
 );
 begin
+  Assert(Assigned(AConfig));
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AProjectedProvider));
+  Assert(Assigned(AMarkerProvider));
+  Assert(Assigned(AVectorItems));
   inherited Create;
   FConfig := AConfig;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FProjectedProvider := AProjectedProvider;
   FMarkerProvider := AMarkerProvider;
   FVectorItems := AVectorItems;
@@ -102,7 +107,7 @@ begin
       TBitmapLayerProviderByMarksSubset.Create(
         FConfig.DrawOrderConfig.GetStatic,
         FConfig.CaptionDrawConfig.GetStatic,
-        FBitmapFactory,
+        FBitmap32StaticFactory,
         FProjectedProvider,
         FMarkerProvider,
         VVectorItems

@@ -37,7 +37,7 @@ type
     FRecolorConfig: IBitmapPostProcessing;
     FSourceProvider: IBitmapLayerProvider;
     FMarksImageProvider: IBitmapLayerProvider;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
   private
     function GetBitmapRect(
       AOperationID: Integer;
@@ -46,7 +46,7 @@ type
     ): IBitmap32Static;
   public
     constructor Create(
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ARecolorConfig: IBitmapPostProcessing;
       const ASourceProvider: IBitmapLayerProvider;
       const AMarksImageProvider: IBitmapLayerProvider
@@ -63,14 +63,16 @@ uses
 { TBitmapLayerProviderSimpleForCombine }
 
 constructor TBitmapLayerProviderSimpleForCombine.Create(
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ARecolorConfig: IBitmapPostProcessing;
   const ASourceProvider: IBitmapLayerProvider;
   const AMarksImageProvider: IBitmapLayerProvider
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(ASourceProvider));
   inherited Create;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FSourceProvider := ASourceProvider;
   FMarksImageProvider := AMarksImageProvider;
   FRecolorConfig := ARecolorConfig;
@@ -96,7 +98,7 @@ begin
   end;
   if Result <> nil then begin
     if VLayer <> nil then begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
         AssignStaticToBitmap32(VBitmap, Result);
         BlockTransferFull(

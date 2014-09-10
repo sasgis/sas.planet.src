@@ -44,7 +44,7 @@ type
     FCoordConverterFactory: ICoordConverterFactory;
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FProjectionFactory: IProjectionInfoFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   protected
@@ -58,7 +58,7 @@ type
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ACoordConverterFactory: ICoordConverterFactory
@@ -90,12 +90,13 @@ constructor TExportProviderOgf2.Create(
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ACoordConverterFactory: ICoordConverterFactory
 );
 begin
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create(
     AProgressFactory,
     ALanguageManager,
@@ -105,7 +106,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FCoordConverterFactory := ACoordConverterFactory;
   FLocalConverterFactory := ALocalConverterFactory;
@@ -119,7 +120,7 @@ begin
       FProjectionFactory,
       FVectorGeometryProjectedFactory,
       FBitmapTileSaveLoadFactory,
-      FBitmapFactory,
+      FBitmap32StaticFactory,
       Self.MainMapsConfig,
       Self.FullMapsSet,
       Self.GUIConfigList,
@@ -163,7 +164,7 @@ begin
       FCoordConverterFactory,
       FLocalConverterFactory,
       FProjectionFactory,
-      FBitmapFactory,
+      FBitmap32StaticFactory,
       FVectorGeometryProjectedFactory,
       VTargetFile,
       APolygon,

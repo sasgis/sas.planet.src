@@ -53,7 +53,7 @@ type
     FContentTypeSubst: IContentTypeSubst;
     FTilePostDownloadCropConfig: ITilePostDownloadCropConfigStatic;
     FStorage: ITileStorage;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
 
@@ -83,7 +83,7 @@ type
     constructor Create(
       const ADownloadConfig: IGlobalDownloadConfig;
       const AImageResampler: IImageResamplerFactoryChangeable;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AContentTypeManager: IContentTypeManager;
       const AContentTypeSubst: IContentTypeSubst;
       const ASaveContentType: IContentTypeInfoBasic;
@@ -116,7 +116,7 @@ uses
 constructor TTileDownloadResultSaverStuped.Create(
   const ADownloadConfig: IGlobalDownloadConfig;
   const AImageResampler: IImageResamplerFactoryChangeable;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AContentTypeManager: IContentTypeManager;
   const AContentTypeSubst: IContentTypeSubst;
   const ASaveContentType: IContentTypeInfoBasic;
@@ -126,10 +126,18 @@ constructor TTileDownloadResultSaverStuped.Create(
 var
   VState: TTileDownloaderStateInternal;
 begin
+  Assert(Assigned(ADownloadConfig));
+  Assert(Assigned(AImageResampler));
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AContentTypeManager));
+  Assert(Assigned(AContentTypeSubst));
+  Assert(Assigned(ASaveContentType));
+  Assert(Assigned(ATilePostDownloadCropConfig));
+  Assert(Assigned(AStorage));
   inherited Create;
   FDownloadConfig := ADownloadConfig;
   FImageResampler := AImageResampler;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FContentTypeManager := AContentTypeManager;
   FContentTypeSubst := AContentTypeSubst;
   FTilePostDownloadCropConfig := ATilePostDownloadCropConfig;
@@ -170,7 +178,7 @@ var
   VBitmap: TBitmap32ByStaticBitmap;
   VResampler: TCustomResampler;
 begin
-  VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+  VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
   try
     VBitmap.SetSize(ATileSize.X, ATileSize.Y);
     VResampler := FImageResampler.GetStatic.CreateResampler;

@@ -46,7 +46,7 @@ type
   TTileErrorInfoLayer = class(TMapLayerBasicNoBitmap)
   private
     FLogProvider: ITileErrorLogProviedrStuped;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmapFactory: IBitmap32StaticFactory;
     FMapsSet: IMapTypeSet;
     FNeedUpdateFlag: ISimpleFlag;
 
@@ -75,7 +75,7 @@ type
       AParentMap: TImage32;
       const AView: ILocalCoordConverterChangeable;
       const AMapsSet: IMapTypeSet;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmapFactory: IBitmap32StaticFactory;
       const ALogProvider: ITileErrorLogProviedrStuped;
       const ATimerNoifier: INotifierTime
     );
@@ -105,7 +105,7 @@ constructor TTileErrorInfoLayer.Create(
   AParentMap: TImage32;
   const AView: ILocalCoordConverterChangeable;
   const AMapsSet: IMapTypeSet;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmapFactory: IBitmap32StaticFactory;
   const ALogProvider: ITileErrorLogProviedrStuped;
   const ATimerNoifier: INotifierTime
 );

@@ -41,7 +41,7 @@ type
   private
     FLineWidth: Double;
     FTrackColorer: ITrackColorerStatic;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
 
     FRectIsEmpty: Boolean;
     FLonLatRect: TDoubleRect;
@@ -92,7 +92,7 @@ type
       AMaxPointsCount: Integer;
       const ALineWidth: Double;
       const ATrackColorer: ITrackColorerStatic;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AEnum: IEnumGPSTrackPoint
     );
     destructor Destroy; override;
@@ -112,14 +112,17 @@ constructor TBitmapLayerProviderByTrackPath.Create(
   AMaxPointsCount: Integer;
   const ALineWidth: Double;
   const ATrackColorer: ITrackColorerStatic;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AEnum: IEnumGPSTrackPoint
 );
 begin
+  Assert(Assigned(ATrackColorer));
+  Assert(Assigned(AEnum));
+  Assert(Assigned(ABitmap32StaticFactory));
   inherited Create;
   FLineWidth := ALineWidth;
   FTrackColorer := ATrackColorer;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   Assert(FLineWidth >= 0);
   Assert(FTrackColorer <> nil);
   SetLength(FPointsLonLat, AMaxPointsCount);
@@ -282,7 +285,7 @@ begin
     VConverter.CheckPixelRectFloat(VTargetRect, VZoom);
     VLonLatRect := VConverter.PixelRectFloat2LonLatRect(VTargetRect, VZoom);
     if IsIntersecLonLatRect(FLonLatRect, VLonLatRect) then begin
-      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+      VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
       try
         if not ALocalConverter.ProjectionInfo.GetIsSameProjectionInfo(FPreparedProjection) then begin
           PrepareProjectedPoints(ALocalConverter.ProjectionInfo);

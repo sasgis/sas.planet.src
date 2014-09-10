@@ -172,7 +172,8 @@ type
     FAppClosingNotifierInternal: INotifierOneOperationInternal;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBufferFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FBatteryStatus: IBatteryStatus;
     FTerrainProviderList: ITerrainProviderList;
     FBitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -251,7 +252,8 @@ type
     property DebugInfoWindow: IDebugInfoWindow read FDebugInfoWindow;
     property VectorGeometryLonLatFactory: IGeometryLonLatFactory read FVectorGeometryLonLatFactory;
     property VectorGeometryProjectedFactory: IGeometryProjectedFactory read FVectorGeometryProjectedFactory;
-    property BitmapFactory: IBitmap32BufferFactory read FBitmapFactory;
+    property BufferFactory: IBitmap32BufferFactory read FBufferFactory;
+    property Bitmap32StaticFactory: IBitmap32StaticFactory read FBitmap32StaticFactory;
     property VectorDataFactory: IVectorDataFactory read FVectorDataFactory;
     property VectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory read FVectorDataItemMainInfoFactory;
     property ProjectedGeometryProvider: IGeometryProjectedProvider read FProjectedGeometryProvider;
@@ -359,6 +361,7 @@ uses
   u_InternalDomainInfoProviderByLastSearchResults,
   u_InternalDomainInfoProviderByLastContent,
   u_InternalDomainInfoProviderByTileStorageOptions,
+  u_Bitmap32StaticFactory,
   u_Bitmap32BufferFactory,
   u_VectorItemSubsetBuilder,
   u_GpsSystem,
@@ -472,15 +475,23 @@ begin
       GSync.SyncVariable.Make(Self.ClassName + 'BGTimerNotifier')
     );
   FBGTimerNotifier := FBGTimerNotifierInternal;
-  FBitmapFactory :=
+  FBufferFactory :=
     TBitmap32BufferFactory.Create(
       FBGTimerNotifier,
       GSync.SyncVariable.Make(Self.ClassName)
     );
+  FBitmap32StaticFactory :=
+    TBitmap32StaticFactory.Create(
+      FHashFunction,
+      FBufferFactory
+    );
   FSystemTimeInternal := TSystemTimeProvider.Create;
   FSystemTime := FSystemTimeInternal;
 
-  FBitmapTileSaveLoadFactory := TBitmapTileSaveLoadFactory.Create(FBitmapFactory);
+  FBitmapTileSaveLoadFactory :=
+    TBitmapTileSaveLoadFactory.Create(
+      FBitmap32StaticFactory
+    );
   FArchiveReadWriteFactory := TArchiveReadWriteFactory.Create;
 
   VNotifierSync := GSync.SyncVariable.Make(Self.ClassName + 'Notifiers');
@@ -612,7 +623,7 @@ begin
   FBitmapPostProcessing :=
     TBitmapPostProcessingChangeableByConfig.Create(
       FGlobalConfig.BitmapPostProcessingConfig,
-      FBitmapFactory
+      FBitmap32StaticFactory
     );
   FGpsSystem :=
     TGpsSystem.Create(
@@ -715,7 +726,8 @@ begin
       FArchiveReadWriteFactory,
       FContentTypeManager,
       FMapVersionFactoryList.GetSimpleVersionFactory,
-      FBitmapFactory,
+      FBufferFactory,
+      FBitmap32StaticFactory,
       FGlobalConfig.LanguageManager,
       VFilesIterator
     );
@@ -1026,7 +1038,7 @@ begin
     FGlobalConfig.InetConfig,
     FGlobalConfig.DownloadConfig,
     FGlobalConfig.DownloaderThreadConfig,
-    FBitmapFactory,
+    FBitmap32StaticFactory,
     FContentTypeManager,
     FCoordConverterFactory,
     FInvisibleBrowser,

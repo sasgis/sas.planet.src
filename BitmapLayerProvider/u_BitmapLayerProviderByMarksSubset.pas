@@ -46,7 +46,7 @@ type
   private
     FDrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
     FCaptionDrawConfigStatic: ICaptionDrawConfigStatic;
-    FBitmapFactory: IBitmap32BufferFactory;
+    FBitmap32StaticFactory: IBitmap32StaticFactory;
     FMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
     FMarksSubset: IVectorItemSubset;
     FProjectedCache: IGeometryProjectedProvider;
@@ -95,7 +95,7 @@ type
     constructor Create(
       const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
       const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
-      const ABitmapFactory: IBitmap32BufferFactory;
+      const ABitmap32StaticFactory: IBitmap32StaticFactory;
       const AProjectedCache: IGeometryProjectedProvider;
       const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
       const AMarksSubset: IVectorItemSubset
@@ -119,16 +119,22 @@ uses
 constructor TBitmapLayerProviderByMarksSubset.Create(
   const ADrawOrderConfigStatic: IMarksDrawOrderConfigStatic;
   const ACaptionDrawConfigStatic: ICaptionDrawConfigStatic;
-  const ABitmapFactory: IBitmap32BufferFactory;
+  const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AProjectedCache: IGeometryProjectedProvider;
   const AMarkerProviderForVectorItem: IMarkerProviderForVectorItem;
   const AMarksSubset: IVectorItemSubset
 );
 begin
+  Assert(Assigned(ADrawOrderConfigStatic));
+  Assert(Assigned(ACaptionDrawConfigStatic));
+  Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AProjectedCache));
+  Assert(Assigned(AMarkerProviderForVectorItem));
+  Assert(Assigned(AMarksSubset));
   inherited Create;
   FDrawOrderConfigStatic := ADrawOrderConfigStatic;
   FCaptionDrawConfigStatic := ACaptionDrawConfigStatic;
-  FBitmapFactory := ABitmapFactory;
+  FBitmap32StaticFactory := ABitmap32StaticFactory;
   FMarksSubset := AMarksSubset;
   FProjectedCache := AProjectedCache;
   FMarkerProviderForVectorItem := AMarkerProviderForVectorItem;
@@ -362,7 +368,7 @@ begin
   VMarksSubset := FMarksSubset.GetSubsetByLonLatRect(VLonLatRect);
   Result := nil;
   if Assigned(VMarksSubset) and not VMarksSubset.IsEmpty then begin
-    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmapFactory);
+    VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
       if DrawSubset(AOperationID, ACancelNotifier, VMarksSubset, VBitmap, ALocalConverter) then begin
         Result := VBitmap.MakeAndClear;
