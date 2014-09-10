@@ -725,7 +725,7 @@ begin
     Exit;
 
   // very simple checks
-  if (VUrl[2] in ['t','T']) then begin
+  if (AnsiChar(VUrl[2]) in ['t','T']) then begin
     // fast detect ftp & http(s)
     // skip file, \\ & C:
     Exit;
@@ -733,7 +733,7 @@ begin
     // in case of \\servername\sharename\folder\..
   end else if (VUrl[2]=':') and (VUrl[3]='\') then begin
     // in case of C:\folder\...
-  end else if (VUrl[1] in ['f','F']) then begin
+  end else if (AnsiChar(VUrl[1]) in ['f','F']) then begin
     // check for
     // file:///C:/folder/...
     // file://///servername/sharename/folder/...

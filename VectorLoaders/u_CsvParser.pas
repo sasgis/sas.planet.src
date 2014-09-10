@@ -234,14 +234,14 @@ begin
     end;
     Vpos :=1;
     while Vpos <= length(VText) do begin
-      if (not(VText[Vpos] in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
+      if (not(AnsiChar(VText[Vpos]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
         VText[Vpos] := ' ';
         dec(Vpos);
       end;
       if ((Vpos = 1)and(VText[Vpos] = ' '))or
         ((Vpos = length(VText)) and (VText[Vpos] = ' ')) or
         ((Vpos < length(VText) - 1) and (VText[Vpos] = ' ') and (VText[Vpos + 1] = ' ')) or
-        ((Vpos > 1) and (VText[Vpos] = ' ') and (not(VText[Vpos - 1] in ['0'..'9']))) or
+        ((Vpos > 1) and (VText[Vpos] = ' ') and (not(AnsiChar(VText[Vpos - 1]) in ['0'..'9']))) or
         ((Vpos < length(VText) - 1) and (VText[Vpos]=',') and (VText[Vpos + 1] = ' '))
       then begin
         Delete(VText, Vpos, 1);

@@ -142,7 +142,7 @@ begin
 
   i:=1;
   while i<=length(VText) do begin
-    if (not(VText[i] in ['0'..'9','-','+','.',',',' '])) then begin
+    if (not(AnsiChar(VText[i]) in ['0'..'9','-','+','.',',',' '])) then begin
       VText[i]:=' ';
       dec(i);
     end;
@@ -150,7 +150,7 @@ begin
     if ((i=1)and(VText[i]=' '))or
        ((i=length(VText))and(VText[i]=' '))or
        ((i<length(VText)-1)and(VText[i]=' ')and(VText[i+1]=' '))or
-       ((i>1) and (VText[i]=' ') and (not(VText[i-1] in ['0'..'9'])))or
+       ((i>1) and (VText[i]=' ') and (not(AnsiChar(VText[i-1]) in ['0'..'9'])))or
        ((i<length(VText)-1)and(VText[i]=',')and(VText[i+1]=' ')) then begin
       Delete(VText,i,1);
       dec(i);

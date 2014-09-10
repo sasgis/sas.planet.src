@@ -101,9 +101,9 @@ function TTileFileNameGMV.GetTilePoint(
   out ATileZoom: Byte
 ): Boolean;
 
-  function TSQR2XY(const ATSQRStr: string): TPoint;
+  function TSQR2XY(const ATSQRStr: AnsiString): TPoint;
   const
-    TSQR_CHARSET: set of char = ['t', 's', 'q', 'r', 'T', 'S', 'Q', 'R'];
+    TSQR_CHARSET: set of AnsiChar = ['t', 's', 'q', 'r', 'T', 'S', 'Q', 'R'];
   var
     I: integer;
     EWrongNameText: string;
@@ -130,7 +130,7 @@ function TTileFileNameGMV.GetTilePoint(
 
 var
   VRegExpr: TRegExpr;
-  tsqr: string;
+  tsqr: AnsiString;
 begin
   VRegExpr := TRegExpr.Create;
   try
