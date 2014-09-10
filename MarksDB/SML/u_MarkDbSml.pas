@@ -1428,6 +1428,8 @@ begin
             LockRead;
             try
               if FStream <> nil then begin
+                FStream.Size := 0;
+                FStream.Position := 0;
                 FCdsMarks.SaveToStream(FStream, dfXML); // ToDo: add config for output format selection
               end else begin
                 FNeedSaveFlag.SetFlag;
