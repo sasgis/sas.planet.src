@@ -37,7 +37,7 @@ type
   TTileStorageDLLTerrain = class(TBaseInterfacedObject, ITerrainStorage)
   private
     FReadAccess: TAccesState;
-    FStoragePath: string;
+    FStoragePath: AnsiString;
     FTileNotExistsTileInfo: ITileInfoBasic;
     FDLLSync: IReadWriteSync;
     FDLLHandle: THandle;
@@ -263,8 +263,11 @@ begin
 end;
 
 function TTileStorageDLLTerrain.SetPath(const APath: string): Boolean;
+var
+  VPath: AnsiString;
 begin
-  Result := InternalLib_SetPath(PAnsiChar(IncludeTrailingPathDelimiter(APath)));
+  VPath := IncludeTrailingPathDelimiter(APath);
+  Result := InternalLib_SetPath(PAnsiChar(VPath));
 end;
 
 function TTileStorageDLLTerrain.GetTileInfo(

@@ -327,7 +327,7 @@ function CreateGUID: AnsiString;
   begin
     Result := '';
     for i:=1 to Len do
-      Result := Result + IntToHex(random(256), 2);
+      Result := Result + AnsiString(IntToHex(random(256), 2));
   end;
 begin
   Result :=

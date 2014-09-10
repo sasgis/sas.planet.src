@@ -35,7 +35,7 @@ type
   TGoogleEarthTerrainTileStorage = class(TBaseInterfacedObject, IGoogleEarthTerrainTileStorage)
   private
     FAvailable: Boolean;
-    FCachePath: string;
+    FCachePath: AnsiString;
     FCacheProvider: IGoogleEarthCacheProvider;
     FSync: IReadWriteSync;
     FNotifier: INotifier;

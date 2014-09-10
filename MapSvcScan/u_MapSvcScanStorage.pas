@@ -25,6 +25,7 @@ interface
 uses
   SysUtils,
   Classes,
+  ALString,
   SQLite3Handler,
   i_Listener,
   i_MapSvcScanConfig,
@@ -40,6 +41,7 @@ type
     FDbHandler: TSQLite3DbHandler;
     FInitialized: Boolean;
     FServices: TStringList;
+    FFormatSettings: TAlFormatSettings;
   private
     procedure CallbackReadSingleInt(
       const AHandler: PSQLite3DbHandler;
@@ -86,7 +88,6 @@ type
 implementation
 
 uses
-  ALString,
   ALSqlite3Wrapper,
   u_ListenerByEvent,
   u_Synchronizer;
@@ -153,6 +154,8 @@ begin
   FServices := TStringList.Create;
   FServices.Sorted := TRUE;
   FServices.Duplicates := dupIgnore;
+
+  FFormatSettings.DecimalSeparator := '.';
 
   FInitialized := FALSE;
 
@@ -288,6 +291,7 @@ function TMapSvcScanStorage.AddImageDate(
       const AZoom: Byte
     ): Boolean;
 var
+  VSQLText: AnsiString;
   VDBSeconds: Integer;
   VdateTime : TDateTime;
 begin
@@ -299,8 +303,15 @@ begin
 
   // insert one row
   try
+    VSQLText :=
+      'INSERT OR IGNORE INTO scandate (imageid, date, x, y, z) VALUES (?,' +
+      ALIntToStr(VDBSeconds) + ',' +
+      AlFloatToStr(AX, FFormatSettings) + ',' +
+      AlFloatToStr(AY, FFormatSettings) + ',' +
+      ALIntToStr(AZoom) + ')';
+
     FDbHandler.ExecSQLWithTEXTW(
-      'INSERT OR IGNORE INTO scandate (imageid, date, x, y, z) VALUES (?,' + ALIntToStr(VDBSeconds)+','+ FloatToStr(AX)+','+FloatToStr(AY)+','+ALIntToStr(AZoom)+')',
+      VSQLText,
       TRUE,
       PWideChar(AVersionId),
       Length(AVersionId)
