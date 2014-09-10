@@ -31,7 +31,7 @@ type
   TStaticBitmapBackend = class(TCustomBackend)
   private
     FBitmapFactory: IBitmap32BufferFactory;
-    FBitmapStatic: IBitmap32Static;
+    FBitmapStatic: IBitmap32Buffer;
   protected
     procedure InitializeSurface(NewWidth, NewHeight: Integer; ClearBuffer: Boolean); override;
     procedure FinalizeSurface; override;

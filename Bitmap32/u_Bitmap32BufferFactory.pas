@@ -41,12 +41,12 @@ type
     function Build(
       const ASize: TPoint;
       const AData: PColor32Array
-    ): IBitmap32Static;
-    function BuildEmpty(const ASize: TPoint): IBitmap32Static;
+    ): IBitmap32Buffer;
+    function BuildEmpty(const ASize: TPoint): IBitmap32Buffer;
     function BuildEmptyClear(
       const ASize: TPoint;
       const AColor: TColor32
-    ): IBitmap32Static;
+    ): IBitmap32Buffer;
   public
     constructor Create(
       const ATTLNotifier: INotifierTime;
@@ -79,7 +79,7 @@ begin
 end;
 
 function TBitmap32BufferFactory.Build(const ASize: TPoint;
-  const AData: PColor32Array): IBitmap32Static;
+  const AData: PColor32Array): IBitmap32Buffer;
 begin
   Assert(ASize.X > 0);
   Assert(ASize.Y > 0);
@@ -98,7 +98,7 @@ end;
 
 function TBitmap32BufferFactory.BuildEmpty(
   const ASize: TPoint
-): IBitmap32Static;
+): IBitmap32Buffer;
 var
   VStandartSize: TPoint;
 begin
@@ -113,7 +113,7 @@ end;
 function TBitmap32BufferFactory.BuildEmptyClear(
   const ASize: TPoint;
   const AColor: TColor32
-): IBitmap32Static;
+): IBitmap32Buffer;
 begin
   Result := BuildEmpty(ASize);
   if Result <> nil then begin

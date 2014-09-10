@@ -38,7 +38,7 @@ type
 
   TObjectPoolBitmap32Standart = class(TObjectPoolBase, IObjectPoolBitmap32Standart)
   private
-    function Build: IBitmap32Static;
+    function Build: IBitmap32Buffer;
     function GetSize: TPoint;
   protected
     function BuildNewObject(const AFreeProcedure: IFreeObjectProcedure): TObjectFromPoolAbstract; override;
@@ -54,7 +54,7 @@ const
   CStandartSize = 256;
 
 type
-  TBitmap32StaticStandartSize = class(TObjectFromPoolBase, IBitmap32Static)
+  TBitmap32StaticStandartSize = class(TObjectFromPoolBase, IBitmap32Buffer)
   private
     FBits: array [0..(CStandartSize * CStandartSize - 1)] of TColor32;
   private
@@ -76,12 +76,12 @@ end;
 
 { TObjectPoolBitmap32Standart }
 
-function TObjectPoolBitmap32Standart.Build: IBitmap32Static;
+function TObjectPoolBitmap32Standart.Build: IBitmap32Buffer;
 var
   VObject: TObjectFromPoolAbstract;
 begin
   VObject := PullOrCreateObject;
-  Result := VObject as IBitmap32Static;
+  Result := VObject as IBitmap32Buffer;
 end;
 
 function TObjectPoolBitmap32Standart.BuildNewObject(

@@ -35,12 +35,12 @@ type
     function Build(
       const ASize: TPoint;
       const AData: PColor32Array
-    ): IBitmap32Static;
-    function BuildEmpty(const ASize: TPoint): IBitmap32Static;
+    ): IBitmap32Buffer;
+    function BuildEmpty(const ASize: TPoint): IBitmap32Buffer;
     function BuildEmptyClear(
       const ASize: TPoint;
       const AColor: TColor32
-    ): IBitmap32Static;
+    ): IBitmap32Buffer;
   end;
 
 implementation
@@ -49,7 +49,7 @@ uses
   GR32_LowLevel;
 
 type
-  TBitmap32StaticSimple = class(TBaseInterfacedObject, IBitmap32Static)
+  TBitmap32StaticSimple = class(TBaseInterfacedObject, IBitmap32Buffer)
   private
     FSize: TPoint;
     FBits: PColor32Array;
@@ -112,7 +112,7 @@ end;
 function TBitmap32BufferFactorySimple.Build(
   const ASize: TPoint;
   const AData: PColor32Array
-): IBitmap32Static;
+): IBitmap32Buffer;
 begin
   Assert(ASize.X > 0);
   Assert(ASize.Y > 0);
@@ -131,7 +131,7 @@ end;
 
 function TBitmap32BufferFactorySimple.BuildEmpty(
   const ASize: TPoint
-): IBitmap32Static;
+): IBitmap32Buffer;
 begin
   Assert(ASize.X > 0);
   Assert(ASize.Y > 0);
@@ -153,7 +153,7 @@ end;
 function TBitmap32BufferFactorySimple.BuildEmptyClear(
   const ASize: TPoint;
   const AColor: TColor32
-): IBitmap32Static;
+): IBitmap32Buffer;
 begin
   Result := BuildEmpty(ASize);
   if Result <> nil then begin
