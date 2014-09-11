@@ -2,23 +2,10 @@
 program SASPlanet;
 
 uses
-  {$IFDEF RELEASE}
-  FastMM4,
-  FastMove,
-    {$IFNDEF UNICODE}
-    FastCode,
-    {$ENDIF}
-  {$ENDIF}
-  Forms,
+  SASPlanet.modles in 'SASPlanet.modles.pas',
   Windows,
+  Forms,
   SysUtils,
-  {$IF CompilerVersion < 21.0} // CompilerVersion < Delphi 2010
-  MidasSpeedFix in 'MarksDB\SML\MidasSpeedFix.pas',
-  {$IFEND}
-  {$IF (CompilerVersion < 23) or (CompilerVersion >= 27)}
-  MidasLib, // bug in MidasLib.dcu in XE2..XE5 http://qc.embarcadero.com/wc/qcmain.aspx?d=109476
-  {$IFEND}
-  XPMan,
   u_ReadableThreadNames,
   t_Bitmap32 in 'Bitmap32\t_Bitmap32.pas',
   c_Color32 in 'Bitmap32\c_Color32.pas',
