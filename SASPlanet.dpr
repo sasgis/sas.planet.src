@@ -1247,16 +1247,19 @@ uses
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 
+var
+  app: TApplication;
 begin
   SetCurrentThreadName('ApplicationMainThread');
   if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
     TBaseInterfacedObjectDebug.InitCounters;
   end;
+  app := Application;
   GState := TGlobalState.Create;
   try
-    Application.Initialize;
-    Application.MainFormOnTaskBar := True;
-    Application.Title := SAS_STR_ApplicationTitle;
+    app.Initialize;
+    app.MainFormOnTaskBar := True;
+    app.Title := SAS_STR_ApplicationTitle;
     TfrmStartLogo.ShowLogo(
       GState.Config.LanguageManager,
       GState.BuildInfo,
@@ -1269,15 +1272,15 @@ begin
       GState.LoadConfig;
     except
       on E: Exception do begin
-        Application.ShowException(E);
+        app.ShowException(E);
         Exit;
       end;
     end;
-    Application.HelpFile := '';
-    Application.CreateForm(TfrmMain, frmMain);
+    app.HelpFile := '';
+    app.CreateForm(TfrmMain, frmMain);
     GState.StartExceptionTracking;
     try
-      Application.Run;
+      app.Run;
     finally
       GState.StopExceptionTracking;
     end;
