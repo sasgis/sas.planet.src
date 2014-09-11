@@ -345,7 +345,8 @@ JSON
 end;
 
 function TAvailPicsESRI.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
-var VLink: string;
+var
+  VLink: string;
 begin
  VLink := 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/'+
            '0'+
@@ -362,7 +363,7 @@ begin
            '&returnGeometry=true'+
            '&maxAllowableOffset=&outSR=4326&outFields=*&f=pjson'; // pjson // kmz // html
  Result := TDownloadRequest.Create(
-           VLink,
+           AnsiString(VLink),
            '',
            AInetConfig.GetStatic
            );

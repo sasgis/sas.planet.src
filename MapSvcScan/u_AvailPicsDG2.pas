@@ -292,7 +292,7 @@ begin
             RoundEx(FTileInfoPtr.TileRect.Right, 8);
 
  Result := TDownloadRequest.Create(
-           VLink,
+           AnsiString(VLink),
            '',
            AInetConfig.GetStatic
            );

@@ -215,7 +215,7 @@ begin
             '?zl=' + IntToStr(VZoom) + '&o=xml&key=' + FDefaultKey;
 
  Result := TDownloadRequest.Create(
-           VLink,
+           AnsiString(VLink),
            '',
            AInetConfig.GetStatic
            );

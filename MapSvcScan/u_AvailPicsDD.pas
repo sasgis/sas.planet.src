@@ -281,21 +281,21 @@ begin
 function TAvailPicsDD.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
   VPostData: IBinaryData;
-  VPostdataStr: string;
-  VHttpData: string;
+  VPostdataStr: AnsiString;
+  VHttpData: AnsiString;
   VDownloader: IDownloader; // TDownloaderHttp;
   VPostRequest: IDownloadPostRequest; // POST
-  VHeader: string;
-  VLink: string;
+  VHeader: AnsiString;
+  VLink: AnsiString;
   VStrPostData: AnsiString;
   VResultOk: IDownloadResultOk;
   VResult: IDownloadResult;
 
   VCancelNotifier: INotifierOperation;
   VResultWithRespond: IDownloadResultWithServerRespond;
-  V_user_guest_uid: string;
+  V_user_guest_uid: AnsiString;
 //  V_streaming_uid: string;
-  V_UserTokenUid: string;
+  V_UserTokenUid: AnsiString;
 
 begin
   VLink := 'http://www.datadoors.net/webservices/datadoors26.asmx';
@@ -315,7 +315,7 @@ begin
     '    </ApplicationParameters>'+#$D#$A+
     '  </SOAP-ENV:Body>'+#$D#$A+
     '</SOAP-ENV:Envelope>';
-  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
+  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr); // !! VPostdataStr not init
   VPostRequest := TDownloadPostRequest.Create(
                    Vlink,
                    VHeader,
@@ -346,7 +346,7 @@ begin
     '    </AuthenticateGuest>'+#$D#$A+
     '  </SOAP-ENV:Body>'+#$D#$A+
     '</SOAP-ENV:Envelope>';
-  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
+  VPostData := TBinaryData.CreateByAnsiString(VPostdataStr); // !! VPostdataStr not init
   VHeader :='User-Agent: Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.10.289 Version/12.01'+#$D#$A+
     'Host: www.datadoors.net'+#$D#$A+
     'Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1'+#$D#$A+

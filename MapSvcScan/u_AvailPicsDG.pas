@@ -393,7 +393,7 @@ end;
 
 function TAvailPicsDG.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
-  VLink: string;
+  VLink: AnsiString;
   VEncrypt: String;
 begin
   VEncrypt:= Encode64(EncodeDG('cmd=info&id=' + FStack_Key+
@@ -405,7 +405,7 @@ begin
                                '&iw=' + inttostr(FTileInfoPtr.wi)+
                                '&ih=' + inttostr(FTileInfoPtr.hi)+
                                '&extentset=all'));
-  VLink := 'http://image.globexplorer.com/gexservlets/gex?encrypt=' + VEncrypt;
+  VLink := 'http://image.globexplorer.com/gexservlets/gex?encrypt=' + AnsiString(VEncrypt);
   Result := TDownloadRequest.Create(
               VLink,
               '',

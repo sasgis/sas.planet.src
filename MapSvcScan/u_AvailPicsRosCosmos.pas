@@ -369,7 +369,7 @@ begin
     'Accept-Encoding: identity';
 
   // Формируем строку запроса на залогинивание на сайте
-  VPostdataStr := MakeSignInPostString;
+  VPostdataStr := AnsiString(MakeSignInPostString);
 
   VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
   VPostRequest := TDownloadPostRequest.Create(
@@ -389,7 +389,7 @@ begin
    if not Supports(VResult, IDownloadResultWithServerRespond, VResultWithRespond) then Exit;
 
    // Формируем строку запроса на получение списка снимков
-   VPostDataStr := MakePostString;
+   VPostDataStr := AnsiString(MakePostString);
 
    VPostData := TBinaryData.CreateByAnsiString(VPostdataStr);
 

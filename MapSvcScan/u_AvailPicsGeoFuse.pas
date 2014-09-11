@@ -368,7 +368,7 @@ end;
 function TAvailPicsGeoFuse.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 var
   VLink: String;
-  VHeader: String;
+  VHeader: AnsiString;
 begin
   VHeader :='User-Agent: Mozilla/5.0 (Windows NT 6.0; rv:14.0) Gecko/20100101 Firefox/14.0.1'+#$D#$A+
     'Host: geofuse.geoeye.com'+#$D#$A+
@@ -393,7 +393,7 @@ begin
            '&pageStart=1&pageSize=200&spatialRank=false&sort=true&f=json'; // json // kmz // html
 
  Result := TDownloadRequest.Create(
-           VLink,
+           AnsiString(VLink),
            VHeader,
            AInetConfig.GetStatic
            );

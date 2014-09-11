@@ -371,10 +371,8 @@ function TAvailPicsKS.GetRequest(const AInetConfig: IInetConfig): IDownloadReque
 var
   VPostData: IBinaryData;
   VPostdataStr: AnsiString;
-
-  VLink: String;
-  VHeader: String;
-
+  VLink: AnsiString;
+  VHeader: AnsiString;
 begin
   VHeader :='User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.52 Safari/537.17'+#$D#$A+
     'Host: search.kosmosnimki.ru'+#$D#$A+
@@ -392,7 +390,7 @@ begin
   VLink := 'http://search.kosmosnimki.ru/QuicklooksJson.ashx'; // json
 
   // Формируем строку запроса на получение списка снимков
-  VPostDataStr := MakePostString;
+  VPostDataStr := AnsiString(MakePostString);
 
   VPostData :=
     TBinaryData.CreateByAnsiString(VPostDataStr);

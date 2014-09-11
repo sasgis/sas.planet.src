@@ -39,7 +39,7 @@ type
     FWorkingZoom: Byte;
     FProfile: String;
   private
-    function GetQuadKey: String;
+    function GetQuadKey: AnsiString;
     function ParseExifXml(const AStream: TMemoryStream): Integer;
   public
     procedure AfterConstruction; override;
@@ -423,7 +423,7 @@ begin
   Result := 'image/jpeg';
 end;
 
-function TAvailPicsNMC.GetQuadKey: String;
+function TAvailPicsNMC.GetQuadKey: AnsiString;
 var
   VZoom: Byte;
   VTilePos: Tpoint;
@@ -782,8 +782,8 @@ end;
 function TAvailPicsNMC.GetRequest(const AInetConfig: IInetConfig): IDownloadRequest;
 begin
   Result := TDownloadRequest.Create(
-    'http://stg.lbsp.navteq.com/satellite/6.0/images/?token=' + FDefaultKey+
-    '&profile=' + FProfile+
+    'http://stg.lbsp.navteq.com/satellite/6.0/images/?token=' + AnsiString(FDefaultKey)+
+    '&profile=' + AnsiString(FProfile)+
     '&quadkey=' + GetQuadKey,
     '',
     AInetConfig.GetStatic
