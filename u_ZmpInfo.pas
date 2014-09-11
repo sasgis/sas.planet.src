@@ -881,8 +881,8 @@ var
   VAllowUseCookie: Boolean;
   VIgnoreMIMEType: Boolean;
   VDetectMIMEType: Boolean;
-  VDefaultMIMEType: string;
-  VExpectedMIMETypes: string;
+  VDefaultMIMEType: AnsiString;
+  VExpectedMIMETypes: AnsiString;
   VWaitInterval: Cardinal;
   VMaxConnectToServerCount: Cardinal;
   VIteratorSubRectSize: TPoint;
@@ -893,8 +893,8 @@ begin
   VAllowUseCookie := AConfig.ReadBool('AllowUseCookie', False);
   VIgnoreMIMEType := AConfig.ReadBool('IgnoreContentType', False);
   VDetectMIMEType := AConfig.ReadBool('DetectContentType', False);
-  VDefaultMIMEType := AConfig.ReadString('DefaultContentType', 'image/jpg');
-  VExpectedMIMETypes := AConfig.ReadString('ContentType', 'image/jpg');
+  VDefaultMIMEType := AConfig.ReadAnsiString('DefaultContentType', 'image/jpg');
+  VExpectedMIMETypes := AConfig.ReadAnsiString('ContentType', 'image/jpg');
   VWaitInterval := AConfig.ReadInteger('Sleep', 0);
   VRestartDownloaderOnMemCacheTTL := AConfig.ReadBool('RestartDownloadOnMemCacheTTL', False);
   VMaxConnectToServerCount :=
