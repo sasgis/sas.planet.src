@@ -1350,7 +1350,7 @@ procedure TMarkDbSml.Load;
     I := FCdsMarks.FieldDefs.IndexOf('picname');
     if I >= 0 then begin
       VPicNameFieldDef := FCdsMarks.FieldDefs.Items[I];
-      if VPicNameFieldDef.Size <> 255 then begin
+      if (VPicNameFieldDef.DataType = ftString) and (VPicNameFieldDef.Size <> 255) then begin
         FCdsMarks.XMLData := 
           StringReplace(
             FCdsMarks.XMLData,
