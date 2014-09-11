@@ -60,6 +60,8 @@ type
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
+    FUseUnicodeSchema: Boolean;
+    FStoreInBinaryFormat: Boolean;
 
     FCdsMarks: TClientDataSet;
     FMarkList: IIDInterfaceList;
@@ -174,7 +176,9 @@ type
       const AGeometryWriter: IGeometryToStream;
       const AFactoryDbInternal: IMarkFactorySmlInternal;
       const ALoadDbCounter: IInternalPerformanceCounter;
-      const ASaveDbCounter: IInternalPerformanceCounter
+      const ASaveDbCounter: IInternalPerformanceCounter;
+      const AUseUnicodeSchema: Boolean;
+      const AStoreInBinaryFormat: Boolean
     );
     destructor Destroy; override;
   end;
@@ -206,7 +210,9 @@ constructor TMarkDbSml.Create(
   const AGeometryWriter: IGeometryToStream;
   const AFactoryDbInternal: IMarkFactorySmlInternal;
   const ALoadDbCounter: IInternalPerformanceCounter;
-  const ASaveDbCounter: IInternalPerformanceCounter
+  const ASaveDbCounter: IInternalPerformanceCounter;
+  const AUseUnicodeSchema: Boolean;
+  const AStoreInBinaryFormat: Boolean
 );
 begin
   Assert(Assigned(AGeometryReader));
@@ -226,6 +232,9 @@ begin
 
   FLoadDbCounter := ALoadDbCounter;
   FSaveDbCounter := ASaveDbCounter;
+
+  FUseUnicodeSchema := AUseUnicodeSchema;
+  FStoreInBinaryFormat := AStoreInBinaryFormat;
 
   FCdsMarks := TClientDataSet.Create(nil);
   FCdsMarks.Name := 'MarksDB';
@@ -1053,7 +1062,17 @@ begin
 end;
 
 procedure TMarkDbSml.InitEmptyDS;
+var
+  VStringType: string;
+  VTextSubType: string;
 begin
+  if FUseUnicodeSchema then begin
+    VStringType := 'string.uni';
+    VTextSubType := 'WideText';
+  end else begin
+    VStringType := 'string';
+    VTextSubType := 'Text';
+  end;
   FCdsMarks.Close;
   FCdsMarks.XMLData :=
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
@@ -1061,8 +1080,8 @@ begin
     '   <METADATA>' +
     '           <FIELDS>' +
     '                   <FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
-    '                   <FIELD attrname="name" fieldtype="string" WIDTH="255"/>' +
-    '                   <FIELD attrname="descr" fieldtype="bin.hex" SUBTYPE="Text"/>' +
+    '                   <FIELD attrname="name" fieldtype="' + VStringType + '" WIDTH="255"/>' +
+    '                   <FIELD attrname="descr" fieldtype="bin.hex" SUBTYPE="' + VTextSubType + '"/>' +
     '                   <FIELD attrname="scale1" fieldtype="i4"/>' +
     '                   <FIELD attrname="scale2" fieldtype="i4"/>' +
     '                   <FIELD attrname="lonlatarr" fieldtype="bin.hex" SUBTYPE="Binary"/>' +
@@ -1073,7 +1092,7 @@ begin
     '                   <FIELD attrname="color1" fieldtype="i4"/>' +
     '                   <FIELD attrname="color2" fieldtype="i4"/>' +
     '                   <FIELD attrname="visible" fieldtype="boolean"/>' +
-    '                   <FIELD attrname="picname" fieldtype="string" WIDTH="255"/>' +
+    '                   <FIELD attrname="picname" fieldtype="' + VStringType + '" WIDTH="255"/>' +
     '                   <FIELD attrname="categoryid" fieldtype="i4"/>' +
     '           </FIELDS>' +
     '           <PARAMS AUTOINCVALUE="1"/>' +
@@ -1411,6 +1430,7 @@ end;
 
 function TMarkDbSml.Save: boolean;
 var
+  VFormat: TDataPacketFormat;
   VCounterContext: TInternalPerformanceCounterContext;
 begin
   result := true;
@@ -1430,7 +1450,12 @@ begin
               if FStream <> nil then begin
                 FStream.Size := 0;
                 FStream.Position := 0;
-                FCdsMarks.SaveToStream(FStream, dfXML); // ToDo: add config for output format selection
+                if FStoreInBinaryFormat then begin
+                  VFormat := dfBinary;
+                end else begin
+                  VFormat := dfXML;
+                end;
+                FCdsMarks.SaveToStream(FStream, VFormat);
               end else begin
                 FNeedSaveFlag.SetFlag;
               end;

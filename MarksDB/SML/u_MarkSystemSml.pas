@@ -147,12 +147,17 @@ var
   VGeometryWriter: IGeometryToStream;
   VFreeDiskSpace: Int64;
   VBackUpRequaredDiskSize: Int64;
+  VUseUnicodeSchema: Boolean;
+  VStoreInBinaryFormat: Boolean;
 begin
   inherited Create;
   FDbId := Integer(Self);
   VState := TReadWriteStateInternal.Create;
   FState := VState;
   VStateInternal := VState;
+
+  VUseUnicodeSchema := False; // ToDo
+  VStoreInBinaryFormat := False; // ToDo
 
   if AReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
@@ -177,7 +182,9 @@ begin
     TMarkCategoryDBSml.Create(
       FDbId,
       VState,
-      VCategoryStream
+      VCategoryStream,
+      VUseUnicodeSchema,
+      VStoreInBinaryFormat
     );
 
   FCategoryDBImpl := VCategoryDb;
@@ -205,7 +212,9 @@ begin
       VGeometryWriter,
       FFactoryDbInternal,
       ALoadDbCounter,
-      ASaveDbCounter
+      ASaveDbCounter,
+      VUseUnicodeSchema,
+      VStoreInBinaryFormat
     );
 
   if FState.GetStatic.WriteAccess = asEnabled then begin

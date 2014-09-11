@@ -45,6 +45,8 @@ type
     FDbId: Integer;
     FStateInternal: IReadWriteStateInternal;
     FStream: TStream;
+    FUseUnicodeSchema: Boolean;
+    FStoreInBinaryFormat: Boolean;
 
     FCdsCategory: TClientDataSet;
     FList: IIDInterfaceList;
@@ -82,7 +84,9 @@ type
     constructor Create(
       const ADbId: Integer;
       const AStateInternal: IReadWriteStateInternal;
-      const ADataStream: TStream
+      const ADataStream: TStream;
+      const AUseUnicodeSchema: Boolean;
+      const AStoreInBinaryFormat: Boolean
     );
     destructor Destroy; override;
   end;
@@ -104,12 +108,16 @@ uses
 constructor TMarkCategoryDBSml.Create(
   const ADbId: Integer;
   const AStateInternal: IReadWriteStateInternal;
-  const ADataStream: TStream
+  const ADataStream: TStream;
+  const AUseUnicodeSchema: Boolean;
+  const AStoreInBinaryFormat: Boolean
 );
 begin
   inherited Create;
   FDbId := ADbId;
   FStream := ADataStream;
+  FUseUnicodeSchema := AUseUnicodeSchema;
+  FStoreInBinaryFormat := AStoreInBinaryFormat;
   FStateInternal := AStateInternal;
   FList := TIDInterfaceList.Create;
   FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
@@ -347,7 +355,14 @@ begin
 end;
 
 procedure TMarkCategoryDBSml.InitEmptyDS;
+var
+  VStringType: string;
 begin
+  if FUseUnicodeSchema then begin
+    VStringType := 'string.uni';
+  end else begin
+    VStringType := 'string';
+  end;
   FCdsCategory.Close;
   FCdsCategory.XMLData :=
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
@@ -355,7 +370,7 @@ begin
     '   <METADATA>' +
     '     <FIELDS>' +
     '       <FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
-    '       <FIELD attrname="name" fieldtype="string" WIDTH="256"/>' +
+    '       <FIELD attrname="name" fieldtype="' + VStringType + '" WIDTH="256"/>' +
     '       <FIELD attrname="visible" fieldtype="boolean"/>' +
     '       <FIELD attrname="AfterScale" fieldtype="i2"/>' +
     '       <FIELD attrname="BeforeScale" fieldtype="i2"/>' +
@@ -523,6 +538,8 @@ begin
 end;
 
 function TMarkCategoryDBSml.Save: boolean;
+var
+  VFormat: TDataPacketFormat;
 begin
   result := true;
   if FNeedSaveFlag.CheckFlagAndReset then begin
@@ -535,7 +552,12 @@ begin
             if FStream <> nil then begin
               FStream.Size := 0;
               FStream.Position := 0;
-              FCdsCategory.SaveToStream(FStream, dfXML); // ToDo: add config for output format selection
+              if FStoreInBinaryFormat then begin
+                VFormat := dfBinary;
+              end else begin
+                VFormat := dfXML;
+              end;
+              FCdsCategory.SaveToStream(FStream, VFormat);
             end else begin
               FNeedSaveFlag.SetFlag;
             end;
