@@ -29,17 +29,17 @@ uses
 type
   TInternalBrowserLastContent = class(TConfigDataElementBaseEmptySaveLoad, IInternalBrowserLastContent)
   private
-    FContent: AnsiString;
+    FContent: string;
   private
-    function GetContent: AnsiString;
-    procedure SetContent(const AValue: AnsiString);
+    function GetContent: string;
+    procedure SetContent(const AValue: string);
   end;
 
 implementation
 
 { IInternalBrowserLastContent }
 
-function TInternalBrowserLastContent.GetContent: AnsiString;
+function TInternalBrowserLastContent.GetContent: string;
 begin
   LockRead;
   try
@@ -49,7 +49,7 @@ begin
   end;
 end;
 
-procedure TInternalBrowserLastContent.SetContent(const AValue: AnsiString);
+procedure TInternalBrowserLastContent.SetContent(const AValue: string);
 begin
   LockWrite;
   try
