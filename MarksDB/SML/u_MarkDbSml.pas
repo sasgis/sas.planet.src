@@ -1064,13 +1064,16 @@ end;
 procedure TMarkDbSml.InitEmptyDS;
 var
   VStringType: string;
+  VStringWidth: string;
   VTextSubType: string;
 begin
   if FUseUnicodeSchema then begin
     VStringType := 'string.uni';
+    VStringWidth := '512';
     VTextSubType := 'WideText';
   end else begin
     VStringType := 'string';
+    VStringWidth := '255';
     VTextSubType := 'Text';
   end;
   FCdsMarks.Close;
@@ -1080,7 +1083,7 @@ begin
     '   <METADATA>' +
     '           <FIELDS>' +
     '                   <FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
-    '                   <FIELD attrname="name" fieldtype="' + VStringType + '" WIDTH="255"/>' +
+    '                   <FIELD attrname="name" fieldtype="' + VStringType + '" WIDTH="' + VStringWidth + '"/>' +
     '                   <FIELD attrname="descr" fieldtype="bin.hex" SUBTYPE="' + VTextSubType + '"/>' +
     '                   <FIELD attrname="scale1" fieldtype="i4"/>' +
     '                   <FIELD attrname="scale2" fieldtype="i4"/>' +
@@ -1092,7 +1095,7 @@ begin
     '                   <FIELD attrname="color1" fieldtype="i4"/>' +
     '                   <FIELD attrname="color2" fieldtype="i4"/>' +
     '                   <FIELD attrname="visible" fieldtype="boolean"/>' +
-    '                   <FIELD attrname="picname" fieldtype="' + VStringType + '" WIDTH="255"/>' +
+    '                   <FIELD attrname="picname" fieldtype="' + VStringType + '" WIDTH="' + VStringWidth + '"/>' +
     '                   <FIELD attrname="categoryid" fieldtype="i4"/>' +
     '           </FIELDS>' +
     '           <PARAMS AUTOINCVALUE="1"/>' +

@@ -357,11 +357,14 @@ end;
 procedure TMarkCategoryDBSml.InitEmptyDS;
 var
   VStringType: string;
+  VStringWidth: string;
 begin
   if FUseUnicodeSchema then begin
     VStringType := 'string.uni';
+    VStringWidth := '512';
   end else begin
     VStringType := 'string';
+    VStringWidth := '255';
   end;
   FCdsCategory.Close;
   FCdsCategory.XMLData :=
@@ -370,7 +373,7 @@ begin
     '   <METADATA>' +
     '     <FIELDS>' +
     '       <FIELD attrname="id" fieldtype="i4" readonly="true" SUBTYPE="Autoinc"/>' +
-    '       <FIELD attrname="name" fieldtype="' + VStringType + '" WIDTH="256"/>' +
+    '       <FIELD attrname="name" fieldtype="' + VStringType + '" WIDTH="' + VStringWidth + '"/>' +
     '       <FIELD attrname="visible" fieldtype="boolean"/>' +
     '       <FIELD attrname="AfterScale" fieldtype="i2"/>' +
     '       <FIELD attrname="BeforeScale" fieldtype="i2"/>' +
