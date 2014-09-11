@@ -525,7 +525,7 @@ function TDownloaderHttp.OnAfterResponse(
       );
 
     if VResult = S_OK then begin
-      Result := VContentType;
+      Result := AnsiString(VContentType);
     end;
   end;
 
