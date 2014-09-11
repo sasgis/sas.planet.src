@@ -115,6 +115,7 @@ uses
   t_CommonTypes,
   c_CacheTypeCodes,
   i_TileDownloaderState,
+  u_SafeStrUtil,
   u_GlobalState,
   u_ResStrings;
 
@@ -172,8 +173,8 @@ procedure TfrmMapTypeEdit.btnOkClick(Sender: TObject);
 begin
   FMapType.TileDownloadRequestBuilderConfig.LockWrite;
   try
-    FMapType.TileDownloadRequestBuilderConfig.UrlBase := EditURL.Text;
-    FMapType.TileDownloadRequestBuilderConfig.RequestHeader := mmoHeader.Text;
+    FMapType.TileDownloadRequestBuilderConfig.UrlBase := SafeStringToAnsi(EditURL.Text);
+    FMapType.TileDownloadRequestBuilderConfig.RequestHeader := SafeStringToAnsi(mmoHeader.Text);
   finally
     FMapType.TileDownloadRequestBuilderConfig.UnlockWrite;
   end;

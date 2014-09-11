@@ -299,6 +299,7 @@ uses
   i_ProxySettings,
   i_InetConfig,
   u_ListenerNotifierLinksList,
+  u_SafeStrUtil,
   u_GlobalState,
   u_ResStrings;
 
@@ -539,14 +540,14 @@ begin
     end;
     VProxyConfig.SetUseIESettings(chkUseIEProxy.Checked);
     VProxyConfig.SetUseProxy(CBProxyused.Checked);
-    VProxyConfig.SetHost(Trim(EditIP.Text));
+    VProxyConfig.SetHost(SafeStringToAnsi(Trim(EditIP.Text)));
     VProxyConfig.SetUseLogin(CBLogin.Checked);
     VProxyConfig.SetLogin(EditLogin.Text);
     VProxyConfig.SetPassword(EditPass.Text);
     VInetConfig.SetTimeOut(SETimeOut.Value);
     VInetConfig.SleepOnResetConnection := seSleepOnResetConnection.Value;
     if Trim(edtUserAgent.Text) <> '' then begin
-      VInetConfig.UserAgentString := Trim(edtUserAgent.Text);
+      VInetConfig.UserAgentString := SafeStringToAnsi(Trim(edtUserAgent.Text));
     end;
     if CBDblDwnl.Checked then begin
       if VInetConfig.DownloadTryCount < 2 then begin
