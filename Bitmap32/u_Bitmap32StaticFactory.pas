@@ -64,9 +64,7 @@ begin
   VBuffer := FBitmapFactory.Build(ASize, AData);
   Assert(Assigned(VBuffer));
   if Assigned(VBuffer) then begin
-//    VHash := FHashFunction.CalcHashByBuffer(AData, ASize.X * ASize.Y * SizeOf(TColor32));
-    VHash := 0;
-    Result := TBitmap32Static.Create(VHash, VBuffer);
+    Result := BuildWithOwnBuffer(VBuffer);
   end;
 end;
 
