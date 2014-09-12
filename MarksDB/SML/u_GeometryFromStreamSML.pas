@@ -27,6 +27,7 @@ uses
   i_GeometryLonLat,
   i_GeometryFromStream,
   i_GeometryLonLatFactory,
+  u_GeoFunc,
   u_BaseInterfacedObject;
 
 type
@@ -50,40 +51,69 @@ uses
   t_GeoTypes,
   t_GeometryPointSML,
   i_DoublePointsAggregator,
-  u_DoublePointsAggregator,
-  u_GeoFunc;
+  u_DoublePointsAggregator;
 
-procedure Stream2ExtArr(
-  const AStream: TStream;
-  const AAggregator: IDoublePointsAggregator
-);
 const
   CMaxDegres: Extended = 360;
   CMinDegres: Extended = -360;
+
+procedure PointToArray(
+  const APoint: PGeometryPointSML;
+  const Arr: IDoublePointsAggregator
+); inline;
+var
+  VDoublePoint: TDoublePoint;
+begin
+  try
+    if IsNan(APoint.X) or IsNan(APoint.Y) then begin
+      VDoublePoint := CEmptyDoublePoint;
+    end else if (APoint.X >= CMaxDegres) or (APoint.X <= CMinDegres) or (APoint.Y >= CMaxDegres) or (APoint.Y <= CMinDegres) then begin
+      VDoublePoint := CEmptyDoublePoint;
+    end else begin
+      VDoublePoint := DoublePoint(APoint.X, APoint.Y);
+    end;
+  except
+    VDoublePoint := CEmptyDoublePoint;
+  end;
+  Arr.Add(VDoublePoint);
+end;
+
+function StreamToDoublePointsArray(
+  const AStream: TStream
+): IDoublePointsAggregator; inline;
 var
   VSize: Integer;
   VPointsCount: Integer;
-  i: Integer;
+  I: Integer;
   VPoint: TGeometryPointSML;
-  VDoublePoint: TDoublePoint;
+  VSmlPoint: PGeometryPointSML;
+  VSmlPointRecSize: Integer;
 begin
-  Assert(SizeOf(TGeometryPointSML) = 24);
+  VSmlPointRecSize := SizeOf(TGeometryPointSML);
+
+  Assert(VSmlPointRecSize = 24);
+
   VSize := AStream.Size;
-  VPointsCount := VSize div SizeOf(TGeometryPointSML);
-  for i := 0 to VPointsCount - 1 do begin
-    AStream.ReadBuffer(VPoint, SizeOf(TGeometryPointSML));
-    try
-      if IsNan(VPoint.X) or IsNan(VPoint.Y) then begin
-        VDoublePoint := CEmptyDoublePoint;
-      end else if (VPoint.X >= CMaxDegres) or (VPoint.X <= CMinDegres) or (VPoint.Y >= CMaxDegres) or (VPoint.Y <= CMinDegres) then begin
-        VDoublePoint := CEmptyDoublePoint;
-      end else begin
-        VDoublePoint := DoublePoint(VPoint.X, VPoint.Y);
-      end;
-    except
-      VDoublePoint := CEmptyDoublePoint;
+
+  if AStream is TMemoryStream then begin
+    VSmlPoint := (AStream as TMemoryStream).Memory;
+  end else begin
+    VSmlPoint := nil;
+  end;
+
+  VPointsCount := VSize div VSmlPointRecSize;
+  Result := TDoublePointsAggregator.Create(VPointsCount);
+
+  if VSmlPoint <> nil then begin
+    for I := 0 to VPointsCount - 1 do begin
+      PointToArray(VSmlPoint, Result);
+      Inc(VSmlPoint);
     end;
-    AAggregator.Add(VDoublePoint);
+  end else begin
+    for I := 0 to VPointsCount - 1 do begin
+      AStream.ReadBuffer(VPoint, VSmlPointRecSize);
+      PointToArray(@VPoint, Result);
+    end;
   end;
 end;
 
@@ -102,10 +132,9 @@ function TGeometryFromStreamSML.Parse(const AStream: TStream): IGeometryLonLat;
 var
   VPoints: IDoublePointsAggregator;
 begin
-  VPoints := TDoublePointsAggregator.Create;
-  Stream2ExtArr(AStream, VPoints);
   Result := nil;
-  if VPoints.Count > 0 then begin
+  VPoints := StreamToDoublePointsArray(AStream);
+  if Assigned(VPoints) and (VPoints.Count > 0) then begin
     if VPoints.Count = 1 then begin
       if not PointIsEmpty(VPoints.Points[0]) then begin
         Result := FFactory.CreateLonLatPoint(VPoints.Points[0]);

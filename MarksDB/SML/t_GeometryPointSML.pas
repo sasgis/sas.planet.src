@@ -30,6 +30,7 @@ type
     Y: Extended;
     Reserved: LongWord; // proper record aligment for backward compatibility
   end;
+  PGeometryPointSML = ^TGeometryPointSML;
 
 implementation
 

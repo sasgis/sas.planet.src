@@ -33,7 +33,7 @@ uses
   function PointFromDoublePoint(const APoint: TDoublePoint; ARounding: TPointRounding): TPoint;
   function RectFromDoubleRect(const ARect: TDoubleRect; ARounding: TRectRounding): TRect;
   function DoublePoint(const APoint: TPoint): TDoublePoint; overload;
-  function DoublePoint(const X, Y: Double): TDoublePoint; overload;
+  function DoublePoint(const X, Y: Double): TDoublePoint; overload; inline;
   function DoubleRect(const ARect: TRect): TDoubleRect; overload;
   function DoubleRect(const ATopLeft, ABottomRight: TDoublePoint): TDoubleRect; overload;
   function DoubleRect(const ALeft, ATop, ARight, ABottom: Double): TDoubleRect; overload;
@@ -340,7 +340,7 @@ begin
   Result.Y := APoint.Y;
 end;
 
-function DoublePoint(const X, Y: Double): TDoublePoint; overload;
+function DoublePoint(const X, Y: Double): TDoublePoint; overload; inline;
 begin
   Result.X := X;
   Result.Y := Y;
