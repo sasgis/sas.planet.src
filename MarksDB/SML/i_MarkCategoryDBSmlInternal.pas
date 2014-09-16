@@ -24,11 +24,14 @@ interface
 
 uses
   i_Category,
-  i_MarkCategory;
+  i_MarkCategory,
+  i_NotifierOperation;
 
 type
   IMarkCategoryDBSmlInternal = interface
     ['{44BC212B-F9A2-4304-9E04-D44D16817445}']
+    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+
     function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
     function GetCategoryByID(id: integer): IMarkCategory;
     function GetCategoryByName(const AName: string): IMarkCategory;

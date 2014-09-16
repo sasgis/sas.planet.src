@@ -24,6 +24,7 @@ interface
 
 uses
   i_ReadWriteState,
+  i_NotifierOperation,
   i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarkDbImpl,
@@ -32,6 +33,10 @@ uses
 type
   IMarkSystemImpl = interface
     ['{E974C3C0-499C-4BB0-B82E-34D39AFCBA9F}']
+    function GetInitializationRequired: Boolean;
+    property IsInitializationRequired: Boolean read GetInitializationRequired;
+    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+
     function GetState: IReadWriteStateChangeble;
     property State: IReadWriteStateChangeble read GetState;
 

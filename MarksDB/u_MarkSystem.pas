@@ -89,6 +89,7 @@ type
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APerfCounterList: IInternalPerformanceCounterList;
       const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AHintConverter: IHtmlToHintTextConverter
     );
   end;
@@ -120,6 +121,7 @@ constructor TMarkSystem.Create(
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APerfCounterList: IInternalPerformanceCounterList;
   const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AHintConverter: IHtmlToHintTextConverter
 );
 var
@@ -148,6 +150,7 @@ begin
       VLoadDbCounter,
       VSaveDbCounter,
       AAppStartedNotifier,
+      AAppClosingNotifier,
       AHintConverter
     );
   FMarkDb := TMarkDbByImpl.Create(FSystemImpl, AMarkFactory);

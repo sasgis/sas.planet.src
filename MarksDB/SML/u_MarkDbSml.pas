@@ -39,6 +39,7 @@ uses
   i_InterfaceListStatic,
   i_InterfaceListSimple,
   i_Category,
+  i_NotifierOperation,
   i_VectorDataItemSimple,
   i_MarkId,
   i_VectorItemSubset,
@@ -98,9 +99,10 @@ type
       const AResultList: IVectorItemSubsetBuilder
     );
     function Save: boolean;
-    procedure Load;
   private
+    { IMarkDbSmlInternal }
     function GetById(AId: Integer): IVectorDataItem;
+    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
   private
     function UpdateMark(
       const AOldMark: IVectorDataItem;
@@ -239,7 +241,6 @@ begin
   FCdsMarks := TClientDataSet.Create(nil);
   FCdsMarks.Name := 'MarksDB';
   FCdsMarks.DisableControls;
-  Load;
 end;
 
 destructor TMarkDbSml.Destroy;
@@ -1342,7 +1343,7 @@ begin
   Result := VResultList.MakeStaticAndClear;
 end;
 
-procedure TMarkDbSml.Load;
+procedure TMarkDbSml.Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
 
   procedure UpgradeXmlSchema;
   var

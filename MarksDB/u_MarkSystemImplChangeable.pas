@@ -32,6 +32,7 @@ uses
   i_AppearanceOfMarkFactory,
   i_MarkFactory,
   i_NotifierOperation,
+  i_BackgroundTask,
   i_InternalPerformanceCounter,
   i_HtmlToHintTextConverter,
   i_ReadWriteState,
@@ -54,6 +55,8 @@ type
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
     FAppStartedNotifier: INotifierOneOperation;
+    FAppClosingNotifier: INotifierOneOperation;
+    FBackgroundTask: IBackgroundTask;
 
     FState: IReadWriteStateChangeble;
     FStateInternal: IReadWriteStateInternalByOther;
@@ -63,6 +66,10 @@ type
   private
     procedure OnPathChanged;
     procedure OnAppStarted;
+    procedure OnInitialization(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation
+    );
   protected
     function CreateStatic: IInterface; override;
   private
@@ -80,6 +87,7 @@ type
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AAppStartedNotifier: INotifierOneOperation;
+      const AAppClosingNotifier: INotifierOneOperation;
       const AHintConverter: IHtmlToHintTextConverter
     );
     destructor Destroy; override;
@@ -88,6 +96,9 @@ type
 implementation
 
 uses
+  Classes,
+  u_BackgroundTask,
+  u_ThreadConfig,
   u_ListenerByEvent,
   u_MarkSystemSml;
 
@@ -104,6 +115,7 @@ constructor TMarkSystemImplChangeable.Create(
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
   const AAppStartedNotifier: INotifierOneOperation;
+  const AAppClosingNotifier: INotifierOneOperation;
   const AHintConverter: IHtmlToHintTextConverter
 );
 begin
@@ -120,8 +132,11 @@ begin
   FSaveDbCounter := ASaveDbCounter;
   FHintConverter := AHintConverter;
   FAppStartedNotifier := AAppStartedNotifier;
+  FAppClosingNotifier := AAppClosingNotifier;
   FStateInternal := TReadWriteStateInternalByOther.Create;
   FState := FStateInternal;
+
+  FBackgroundTask := nil;
 
   FPathChangeListener := TNotifyNoMmgEventListener.Create(Self.OnPathChanged);
   FBasePath.ChangeNotifier.Add(FPathChangeListener);
@@ -140,6 +155,10 @@ begin
   if Assigned(FAppStartedNotifier) and Assigned(FAppStartedListener) then begin
     FAppStartedNotifier.Remove(FAppStartedListener);
     FAppStartedNotifier := nil;
+  end;
+  if Assigned(FBackgroundTask) then begin
+    FBackgroundTask.StopExecute;
+    FBackgroundTask := nil;
   end;
   inherited;
 end;
@@ -165,11 +184,41 @@ begin
       );
   end;
   if VStatic <> nil then begin
-    FStateInternal.SetOther(VStatic.State);
+    if VStatic.IsInitializationRequired then begin
+      FBackgroundTask :=
+        TBackgroundTask.Create(
+          FAppClosingNotifier,
+          Self.OnInitialization,
+          TThreadConfig.Create(tpNormal),
+          Self.ClassName
+        );
+      FBackgroundTask.Start;
+      FBackgroundTask.StartExecute;
+    end else begin
+      FStateInternal.SetOther(VStatic.State);
+    end;
   end else begin
     FStateInternal.SetOther(nil);
   end;
   Result := VStatic;
+end;
+
+procedure TMarkSystemImplChangeable.OnInitialization(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation
+);
+var
+  VStatic: IMarkSystemImpl;
+begin
+  try
+    VStatic := Self.GetStatic;
+    VStatic.Initialize(AOperationID, ACancelNotifier);
+    FStateInternal.SetOther(VStatic.State);
+  finally
+    FBackgroundTask.StopExecute;
+    FBackgroundTask.Terminate;
+    FBackgroundTask := nil;
+  end;
 end;
 
 function TMarkSystemImplChangeable.GetState: IReadWriteStateChangeble;

@@ -29,6 +29,7 @@ uses
   DBClient,
   i_IDList,
   i_SimpleFlag,
+  i_NotifierOperation,
   i_InterfaceListStatic,
   i_Category,
   i_MarkCategory,
@@ -62,9 +63,14 @@ type
       const ANewCategory: IInterface
     ): IMarkCategory;
     function Save: boolean;
-    procedure Load;
   private
+    { IMarkCategoryDBSmlInternal }
+    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+    function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
+    function GetCategoryByID(id: integer): IMarkCategory;
     function GetCategoryByName(const AName: string): IMarkCategory;
+  private
+    { IMarkCategoryDBImpl }
     function UpdateCategory(
       const AOldCategory: IMarkCategory;
       const ANewCategory: IMarkCategory
@@ -74,12 +80,8 @@ type
       const ANewCategoryList: IInterfaceListStatic
     ): IInterfaceListStatic;
 
-    function IsCategoryFromThisDb(const ACategory: ICategory): Boolean;
-
     function GetCategoriesList: IInterfaceListStatic;
     procedure SetAllCategoriesVisible(ANewVisible: Boolean);
-  private
-    function GetCategoryByID(id: integer): IMarkCategory;
   public
     constructor Create(
       const ADbId: Integer;
@@ -125,7 +127,6 @@ begin
   FCdsCategory := TClientDataSet.Create(nil);
   FCdsCategory.Name := 'MarkCategoryDB';
   FCdsCategory.DisableControls;
-  Load;
 end;
 
 destructor TMarkCategoryDBSml.Destroy;
@@ -501,7 +502,7 @@ begin
   Result := VTemp.MakeStaticAndClear;
 end;
 
-procedure TMarkCategoryDBSml.Load;
+procedure TMarkCategoryDBSml.Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
 var
   VCategory: IMarkCategory;
   VId: Integer;

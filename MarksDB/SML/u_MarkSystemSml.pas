@@ -33,6 +33,7 @@ uses
   i_ReadWriteState,
   i_VectorDataItemSimple,
   i_MarkPicture,
+  i_NotifierOperation,
   i_HtmlToHintTextConverter,
   i_MarkCategory,
   i_MarkFactory,
@@ -62,6 +63,9 @@ type
     ): TStream;
     procedure MakeBackUp(const AFileName: string);
   private
+    function GetInitializationRequired: Boolean;
+    procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
+
     function GetMarkDb: IMarkDbImpl;
     function GetCategoryDB: IMarkCategoryDBImpl;
     function GetState: IReadWriteStateChangeble;
@@ -345,6 +349,24 @@ var
 begin
   VNewFileName := ChangeFileExt(AFileName, '.~sml');
   CopyFile(PChar(AFileName), PChar(VNewFileName), false);
+end;
+
+function TMarkSystemSml.GetInitializationRequired: Boolean;
+begin
+  Result := True;
+end;
+
+procedure TMarkSystemSml.Initialize(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation
+);
+begin
+  if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    FCategoryDBInternal.Initialize(AOperationID, ACancelNotifier);
+  end;
+  if not ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    FMarkDbInternal.Initialize(AOperationID, ACancelNotifier);
+  end;
 end;
 
 end.

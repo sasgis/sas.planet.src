@@ -672,6 +672,7 @@ begin
       FVectorItemSubsetBuilderFactory,
       FDebugInfoSubSystem.RootCounterList.CreateAndAddNewSubList('MarksSystem'),
       FAppStartedNotifier,
+      FAppClosingNotifier,
       THtmlToHintTextConverterStuped.Create
     );
 
