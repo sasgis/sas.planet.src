@@ -594,6 +594,8 @@ uses
   i_MarkDbImpl in 'MarksDB\i_MarkDbImpl.pas',
   i_MarkCategoryDBImpl in 'MarksDB\i_MarkCategoryDBImpl.pas',
   i_MarkSystemImpl in 'MarksDB\i_MarkSystemImpl.pas',
+  i_MarkSystemImplFactory in 'MarksDB\i_MarkSystemImplFactory.pas',
+  u_MarkSystemImplFactorySML in 'MarksDB\SML\u_MarkSystemImplFactorySML.pas',
   u_MarkDbByImpl in 'MarksDB\u_MarkDbByImpl.pas',
   u_MarkCategoryDbByImpl in 'MarksDB\u_MarkCategoryDbByImpl.pas',
   i_MarkSystemImplChangeable in 'MarksDB\i_MarkSystemImplChangeable.pas',

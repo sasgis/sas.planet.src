@@ -101,8 +101,10 @@ uses
   i_Category,
   i_GeometryLonLat,
   i_MarkSystemImpl,
+  i_MarkSystemImplFactory,
   u_InterfaceListSimple,
   u_VectorItemTree,
+  u_MarkSystemImplFactorySML,
   u_MarkDbByImpl,
   u_MarkCategoryDbByImpl,
   u_MarkSystemHelpers,
@@ -128,6 +130,7 @@ var
   VPerfCounterList: IInternalPerformanceCounterList;
   VLoadDbCounter: IInternalPerformanceCounter;
   VSaveDbCounter: IInternalPerformanceCounter;
+  VImplFactory: IMarkSystemImplFactory;
 begin
   inherited Create;
   FMarkPictureList := AMarkPictureList;
@@ -138,9 +141,9 @@ begin
     VLoadDbCounter := VPerfCounterList.CreateAndAddNewCounter('LoadDb');
     VSaveDbCounter := VPerfCounterList.CreateAndAddNewCounter('SaveDb');
   end;
-  FSystemImpl :=
-    TMarkSystemImplChangeable.Create(
-      ABasePath,
+
+  VImplFactory :=
+    TMarkSystemImplFactorySML.Create(
       AMarkPictureList,
       AHashFunction,
       AAppearanceOfMarkFactory,
@@ -149,9 +152,14 @@ begin
       AMarkFactory,
       VLoadDbCounter,
       VSaveDbCounter,
-      AAppStartedNotifier,
-      AAppClosingNotifier,
       AHintConverter
+    );
+  FSystemImpl :=
+    TMarkSystemImplChangeable.Create(
+      ABasePath,
+      VImplFactory,
+      AAppStartedNotifier,
+      AAppClosingNotifier
     );
   FMarkDb := TMarkDbByImpl.Create(FSystemImpl, AMarkFactory);
   FCategoryDB := TMarkCategoryDbByImpl.Create(FSystemImpl, AMarkCategoryFactory);

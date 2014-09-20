@@ -768,6 +768,7 @@
     <DCCReference Include="MarksDB\i_MarkSystem.pas" />
     <DCCReference Include="MarksDB\i_MarkSystemImpl.pas" />
     <DCCReference Include="MarksDB\i_MarkSystemImplChangeable.pas" />
+    <DCCReference Include="MarksDB\i_MarkSystemImplFactory.pas" />
     <DCCReference Include="MarksDB\i_MarkTemplate.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkCategoryDBSmlInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkCategoryFactoryDbInternal.pas" />
@@ -782,6 +783,7 @@
     <DCCReference Include="MarksDB\SML\u_MarkDbSml.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkFactorySmlDbInternal.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkId.pas" />
+    <DCCReference Include="MarksDB\SML\u_MarkSystemImplFactorySML.pas" />
     <DCCReference Include="MarksDB\SML\u_MarkSystemSml.pas" />
     <DCCReference Include="MarksDB\u_MarkCategory.pas" />
     <DCCReference Include="MarksDB\u_MarkCategoryDbByImpl.pas" />

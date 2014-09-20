@@ -25,17 +25,10 @@ interface
 uses
   i_PathConfig,
   i_Listener,
-  i_MarkPicture,
-  i_HashFunction,
-  i_GeometryLonLatFactory,
-  i_VectorItemSubsetBuilder,
-  i_AppearanceOfMarkFactory,
-  i_MarkFactory,
   i_NotifierOperation,
   i_BackgroundTask,
-  i_InternalPerformanceCounter,
-  i_HtmlToHintTextConverter,
   i_ReadWriteState,
+  i_MarkSystemImplFactory,
   i_MarkSystemImpl,
   i_MarkSystemImplChangeable,
   u_ConfigDataElementBase,
@@ -45,15 +38,7 @@ type
   TMarkSystemImplChangeable = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMarkSystemImplChangeable)
   private
     FBasePath: IPathConfig;
-    FMarkPictureList: IMarkPictureList;
-    FHashFunction: IHashFunction;
-    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-    FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-    FMarkFactory: IMarkFactory;
-    FHintConverter: IHtmlToHintTextConverter;
-    FLoadDbCounter: IInternalPerformanceCounter;
-    FSaveDbCounter: IInternalPerformanceCounter;
+    FBaseFactory: IMarkSystemImplFactory;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
     FBackgroundTask: IBackgroundTask;
@@ -78,17 +63,9 @@ type
   public
     constructor Create(
       const ABasePath: IPathConfig;
-      const AMarkPictureList: IMarkPictureList;
-      const AHashFunction: IHashFunction;
-      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-      const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-      const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AMarkFactory: IMarkFactory;
-      const ALoadDbCounter: IInternalPerformanceCounter;
-      const ASaveDbCounter: IInternalPerformanceCounter;
+      const ABaseFactory: IMarkSystemImplFactory;
       const AAppStartedNotifier: INotifierOneOperation;
-      const AAppClosingNotifier: INotifierOneOperation;
-      const AHintConverter: IHtmlToHintTextConverter
+      const AAppClosingNotifier: INotifierOneOperation
     );
     destructor Destroy; override;
   end;
@@ -99,38 +76,22 @@ uses
   Classes,
   u_BackgroundTask,
   u_ThreadConfig,
-  u_ListenerByEvent,
-  u_MarkSystemSml;
+  u_ListenerByEvent;
 
 { TMarksSystemImplChangeable }
 
 constructor TMarkSystemImplChangeable.Create(
   const ABasePath: IPathConfig;
-  const AMarkPictureList: IMarkPictureList;
-  const AHashFunction: IHashFunction;
-  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
-  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-  const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AMarkFactory: IMarkFactory;
-  const ALoadDbCounter: IInternalPerformanceCounter;
-  const ASaveDbCounter: IInternalPerformanceCounter;
+  const ABaseFactory: IMarkSystemImplFactory;
   const AAppStartedNotifier: INotifierOneOperation;
-  const AAppClosingNotifier: INotifierOneOperation;
-  const AHintConverter: IHtmlToHintTextConverter
+  const AAppClosingNotifier: INotifierOneOperation
 );
 begin
-  Assert(ABasePath <> nil);
+  Assert(Assigned(ABasePath));
+  Assert(Assigned(ABaseFactory));
   inherited Create;
   FBasePath := ABasePath;
-  FMarkPictureList := AMarkPictureList;
-  FHashFunction := AHashFunction;
-  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
-  FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
-  FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FMarkFactory := AMarkFactory;
-  FLoadDbCounter := ALoadDbCounter;
-  FSaveDbCounter := ASaveDbCounter;
-  FHintConverter := AHintConverter;
+  FBaseFactory := ABaseFactory;
   FAppStartedNotifier := AAppStartedNotifier;
   FAppClosingNotifier := AAppClosingNotifier;
   FStateInternal := TReadWriteStateInternalByOther.Create;
@@ -170,17 +131,9 @@ begin
   VStatic := nil;
   if FAppStartedNotifier.IsExecuted then begin
     VStatic :=
-      TMarkSystemSml.Create(
+      FBaseFactory.Build(
         FBasePath.FullPath,
-        FMarkPictureList,
-        FHashFunction,
-        FAppearanceOfMarkFactory,
-        FVectorGeometryLonLatFactory,
-        FVectorItemSubsetBuilderFactory,
-        FMarkFactory,
-        FLoadDbCounter,
-        FSaveDbCounter,
-        FHintConverter
+        False
       );
   end;
   if VStatic <> nil then begin
