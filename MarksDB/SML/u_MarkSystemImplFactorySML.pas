@@ -23,6 +23,7 @@ unit u_MarkSystemImplFactorySML;
 interface
 
 uses
+  i_NotifierOperation,
   i_HashFunction,
   i_GeometryLonLatFactory,
   i_VectorItemSubsetBuilder,
@@ -50,6 +51,8 @@ type
   private
     function GetIsInitializationRequired: Boolean;
     function Build(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ABasePath: string;
       const AReadOnly: Boolean = False
     ): IMarkSystemImpl;
@@ -110,12 +113,16 @@ begin
 end;
 
 function TMarkSystemImplFactorySML.Build(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ABasePath: string;
   const AReadOnly: Boolean
 ): IMarkSystemImpl;
 begin
   Result :=
     TMarkSystemSml.Create(
+      AOperationID,
+      ACancelNotifier,
       ABasePath,
       FMarkPictureList,
       FHashFunction,

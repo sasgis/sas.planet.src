@@ -126,6 +126,8 @@ begin
   Result := nil;
 
   VSml := TMarkSystemSml.Create(
+    0,
+    nil,
     ExtractFilePath(AFileName),
     FMarkPictureList,
     FHashFunction,

@@ -151,6 +151,8 @@ var
   VMarkList: IInterfaceListSimple;
 begin
   VSml := TMarkSystemSml.Create(
+    0,
+    nil,
     ExtractFilePath(AFileName),
     FMarkPictureList,
     FHashFunction,

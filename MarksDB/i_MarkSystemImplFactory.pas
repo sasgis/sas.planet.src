@@ -24,6 +24,7 @@ interface
 
 uses
   i_MarkSystemImpl,
+  i_NotifierOperation,
   i_Changeable;
 
 type
@@ -33,6 +34,8 @@ type
     property IsInitializationRequired: Boolean read GetIsInitializationRequired;
 
     function Build(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ABasePath: string;
       const AReadOnly: Boolean = False
     ): IMarkSystemImpl;

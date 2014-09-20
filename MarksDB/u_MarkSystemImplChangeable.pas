@@ -35,12 +35,14 @@ uses
   u_ReadWriteStateInternalByOther;
 
 type
-  TMarkSystemImplChangeable = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMarkSystemImplChangeable)
+  TMarkSystemImplChangeable = class(TConfigDataElementBaseEmptySaveLoad, IMarkSystemImplChangeable)
   private
     FBasePath: IPathConfig;
     FBaseFactory: IMarkSystemImplFactoryChangeable;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
+
+    FStatic: IMarkSystemImpl;
     FBackgroundTask: IBackgroundTask;
 
     FState: IReadWriteStateChangeble;
@@ -55,8 +57,6 @@ type
       AOperationID: Integer;
       const ACancelNotifier: INotifierOperation
     );
-  protected
-    function CreateStatic: IInterface; override;
   private
     function GetState: IReadWriteStateChangeble;
     function GetStatic: IMarkSystemImpl;
@@ -97,7 +97,13 @@ begin
   FStateInternal := TReadWriteStateInternalByOther.Create;
   FState := FStateInternal;
 
-  FBackgroundTask := nil;
+  FBackgroundTask :=
+    TBackgroundTask.Create(
+      FAppClosingNotifier,
+      Self.OnInitialization,
+      TThreadConfig.Create(tpNormal),
+      Self.ClassName
+    );
 
   FPathChangeListener := TNotifyNoMmgEventListener.Create(Self.OnPathChanged);
   FBasePath.ChangeNotifier.Add(FPathChangeListener);
@@ -110,6 +116,10 @@ end;
 
 destructor TMarkSystemImplChangeable.Destroy;
 begin
+  if Assigned(FBackgroundTask) then begin
+    FBackgroundTask.StopExecute;
+    FBackgroundTask.Terminate;
+  end;
   if Assigned(FBasePath) and Assigned(FPathChangeListener) then begin
     FBasePath.ChangeNotifier.Remove(FPathChangeListener);
     FBasePath := nil;
@@ -122,47 +132,7 @@ begin
     FAppStartedNotifier.Remove(FAppStartedListener);
     FAppStartedNotifier := nil;
   end;
-  if Assigned(FBackgroundTask) then begin
-    FBackgroundTask.StopExecute;
-    FBackgroundTask := nil;
-  end;
   inherited;
-end;
-
-function TMarkSystemImplChangeable.CreateStatic: IInterface;
-var
-  VFactory: IMarkSystemImplFactory;
-  VStatic: IMarkSystemImpl;
-begin
-  VStatic := nil;
-  if FAppStartedNotifier.IsExecuted then begin
-    VFactory := FBaseFactory.GetStatic;
-    if Assigned(VFactory) then begin
-      VStatic :=
-        VFactory.Build(
-          FBasePath.FullPath,
-          False
-        );
-    end;
-  end;
-  if Assigned(VStatic) and Assigned(VFactory) then begin
-    if VFactory.IsInitializationRequired then begin
-      FBackgroundTask :=
-        TBackgroundTask.Create(
-          FAppClosingNotifier,
-          Self.OnInitialization,
-          TThreadConfig.Create(tpNormal),
-          Self.ClassName
-        );
-      FBackgroundTask.Start;
-      FBackgroundTask.StartExecute;
-    end else begin
-      FStateInternal.SetOther(VStatic.State);
-    end;
-  end else begin
-    FStateInternal.SetOther(nil);
-  end;
-  Result := VStatic;
 end;
 
 procedure TMarkSystemImplChangeable.OnInitialization(
@@ -170,16 +140,32 @@ procedure TMarkSystemImplChangeable.OnInitialization(
   const ACancelNotifier: INotifierOperation
 );
 var
+  VFactory: IMarkSystemImplFactory;
   VStatic: IMarkSystemImpl;
 begin
+  if FAppStartedNotifier.IsExecuted then begin
+    VFactory := FBaseFactory.GetStatic;
+    if Assigned(VFactory) then begin
+      VStatic :=
+        VFactory.Build(
+          AOperationID,
+          ACancelNotifier,
+          FBasePath.FullPath,
+          False
+        );
+    end;
+  end;
+  LockWrite;
   try
-    VStatic := Self.GetStatic;
-    VStatic.Initialize(AOperationID, ACancelNotifier);
-    FStateInternal.SetOther(VStatic.State);
+    FStatic := VStatic;
+    if Assigned(VStatic) and Assigned(VFactory) then begin
+      FStateInternal.SetOther(VStatic.State);
+    end else begin
+      FStateInternal.SetOther(nil);
+    end;
+    SetChanged;
   finally
-    FBackgroundTask.StopExecute;
-    FBackgroundTask.Terminate;
-    FBackgroundTask := nil;
+    UnlockWrite;
   end;
 end;
 
@@ -190,29 +176,26 @@ end;
 
 function TMarkSystemImplChangeable.GetStatic: IMarkSystemImpl;
 begin
-  Result := IMarkSystemImpl(GetStaticInternal);
+  LockRead;
+  try
+    Result := FStatic;
+  finally
+    UnlockRead;
+  end;
 end;
 
 procedure TMarkSystemImplChangeable.OnAppStarted;
 begin
   if (FAppStartedNotifier <> nil) and FAppStartedNotifier.IsExecuted then begin
-    LockWrite;
-    try
-      SetChanged;
-    finally
-      UnlockWrite;
-    end;
+    FBackgroundTask.Start;
+    FBackgroundTask.StartExecute;
   end;
 end;
 
 procedure TMarkSystemImplChangeable.OnPathChanged;
 begin
-  LockWrite;
-  try
-    SetChanged;
-  finally
-    UnlockWrite;
-  end;
+  FBackgroundTask.StopExecute;
+  FBackgroundTask.StartExecute;
 end;
 
 end.

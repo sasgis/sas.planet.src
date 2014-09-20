@@ -62,9 +62,8 @@ type
       const AState: IReadWriteStateInternal
     ): TStream;
     procedure MakeBackUp(const AFileName: string);
-  private
     procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
-
+  private
     function GetMarkDb: IMarkDbImpl;
     function GetCategoryDB: IMarkCategoryDBImpl;
     function GetState: IReadWriteStateChangeble;
@@ -74,6 +73,8 @@ type
     function GetMarkCategoryByStringId(const AId: string): IMarkCategory;
   public
     constructor Create(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const ABasePath: string;
       const AMarkPictureList: IMarkPictureList;
       const AHashFunction: IHashFunction;
@@ -125,6 +126,8 @@ end;
 { TMarkSystemSml }
 
 constructor TMarkSystemSml.Create(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const ABasePath: string;
   const AMarkPictureList: IMarkPictureList;
   const AHashFunction: IHashFunction;
@@ -231,6 +234,8 @@ begin
 
   FMarkDbImpl := VMarkDb;
   FMarkDbInternal := VMarkDb;
+
+  Initialize(AOperationID, ACancelNotifier);
 end;
 
 function TMarkSystemSml.PrepareStream(
