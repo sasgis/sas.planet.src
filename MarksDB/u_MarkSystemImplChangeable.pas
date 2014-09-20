@@ -38,7 +38,7 @@ type
   TMarkSystemImplChangeable = class(TConfigDataElementWithStaticBaseEmptySaveLoad, IMarkSystemImplChangeable)
   private
     FBasePath: IPathConfig;
-    FBaseFactory: IMarkSystemImplFactory;
+    FBaseFactory: IMarkSystemImplFactoryChangeable;
     FAppStartedNotifier: INotifierOneOperation;
     FAppClosingNotifier: INotifierOneOperation;
     FBackgroundTask: IBackgroundTask;
@@ -63,7 +63,7 @@ type
   public
     constructor Create(
       const ABasePath: IPathConfig;
-      const ABaseFactory: IMarkSystemImplFactory;
+      const ABaseFactory: IMarkSystemImplFactoryChangeable;
       const AAppStartedNotifier: INotifierOneOperation;
       const AAppClosingNotifier: INotifierOneOperation
     );
@@ -82,7 +82,7 @@ uses
 
 constructor TMarkSystemImplChangeable.Create(
   const ABasePath: IPathConfig;
-  const ABaseFactory: IMarkSystemImplFactory;
+  const ABaseFactory: IMarkSystemImplFactoryChangeable;
   const AAppStartedNotifier: INotifierOneOperation;
   const AAppClosingNotifier: INotifierOneOperation
 );
@@ -101,6 +101,7 @@ begin
 
   FPathChangeListener := TNotifyNoMmgEventListener.Create(Self.OnPathChanged);
   FBasePath.ChangeNotifier.Add(FPathChangeListener);
+  FBaseFactory.ChangeNotifier.Add(FPathChangeListener);
 
   FAppStartedListener := TNotifyNoMmgEventListener.Create(Self.OnAppStarted);
   FAppStartedNotifier.Add(FAppStartedListener);
@@ -112,6 +113,10 @@ begin
   if Assigned(FBasePath) and Assigned(FPathChangeListener) then begin
     FBasePath.ChangeNotifier.Remove(FPathChangeListener);
     FBasePath := nil;
+  end;
+  if Assigned(FBaseFactory) and Assigned(FPathChangeListener) then begin
+    FBaseFactory.ChangeNotifier.Remove(FPathChangeListener);
+    FBaseFactory := nil;
   end;
   if Assigned(FAppStartedNotifier) and Assigned(FAppStartedListener) then begin
     FAppStartedNotifier.Remove(FAppStartedListener);
@@ -126,18 +131,22 @@ end;
 
 function TMarkSystemImplChangeable.CreateStatic: IInterface;
 var
+  VFactory: IMarkSystemImplFactory;
   VStatic: IMarkSystemImpl;
 begin
   VStatic := nil;
   if FAppStartedNotifier.IsExecuted then begin
-    VStatic :=
-      FBaseFactory.Build(
-        FBasePath.FullPath,
-        False
-      );
+    VFactory := FBaseFactory.GetStatic;
+    if Assigned(VFactory) then begin
+      VStatic :=
+        VFactory.Build(
+          FBasePath.FullPath,
+          False
+        );
+    end;
   end;
-  if VStatic <> nil then begin
-    if VStatic.IsInitializationRequired then begin
+  if Assigned(VStatic) and Assigned(VFactory) then begin
+    if VFactory.IsInitializationRequired then begin
       FBackgroundTask :=
         TBackgroundTask.Create(
           FAppClosingNotifier,

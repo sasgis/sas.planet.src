@@ -105,6 +105,7 @@ uses
   u_InterfaceListSimple,
   u_VectorItemTree,
   u_MarkSystemImplFactorySML,
+  u_MarkSystemImplFactoryChangeable,
   u_MarkDbByImpl,
   u_MarkCategoryDbByImpl,
   u_MarkSystemHelpers,
@@ -157,7 +158,7 @@ begin
   FSystemImpl :=
     TMarkSystemImplChangeable.Create(
       ABasePath,
-      VImplFactory,
+      TMarkSystemImplFactoryChangeableFaked.Create(VImplFactory),
       AAppStartedNotifier,
       AAppClosingNotifier
     );

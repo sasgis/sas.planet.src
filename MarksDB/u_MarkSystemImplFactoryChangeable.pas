@@ -18,31 +18,63 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MarkSystemImplFactory;
+unit u_MarkSystemImplFactoryChangeable;
 
 interface
 
 uses
-  i_MarkSystemImpl,
-  i_Changeable;
+  i_Notifier,
+  i_MarkSystemImplFactory,
+  u_BaseInterfacedObject;
 
 type
-  IMarkSystemImplFactory = interface
-    ['{6ADF8D8C-670C-4282-9BC7-A3F9250181C6}']
-    function GetIsInitializationRequired: Boolean;
-    property IsInitializationRequired: Boolean read GetIsInitializationRequired;
-
-    function Build(
-      const ABasePath: string;
-      const AReadOnly: Boolean = False
-    ): IMarkSystemImpl;
-  end;
-
-  IMarkSystemImplFactoryChangeable = interface(IChangeable)
-    ['{F3DEF1AA-B4CE-4453-ABF0-C4EE81DAB17A}']
+  TMarkSystemImplFactoryChangeableFaked = class(TBaseInterfacedObject, IMarkSystemImplFactoryChangeable)
+  private
+    FFactory: IMarkSystemImplFactory;
+    FChangeNotifier: INotifier;
+  private
     function GetStatic: IMarkSystemImplFactory;
+    function GetBeforeChangeNotifier: INotifier;
+    function GetChangeNotifier: INotifier;
+    function GetAfterChangeNotifier: INotifier;
+  public
+    constructor Create(const AFactory: IMarkSystemImplFactory);
   end;
 
 implementation
+
+uses
+  u_Notifier;
+
+{ TMarkSystemImplFactoryChangeableFaked }
+
+constructor TMarkSystemImplFactoryChangeableFaked.Create(
+  const AFactory: IMarkSystemImplFactory
+);
+begin
+  inherited Create;
+  FFactory := AFactory;
+  FChangeNotifier := TNotifierFaked.Create;
+end;
+
+function TMarkSystemImplFactoryChangeableFaked.GetAfterChangeNotifier: INotifier;
+begin
+  Result := FChangeNotifier;
+end;
+
+function TMarkSystemImplFactoryChangeableFaked.GetBeforeChangeNotifier: INotifier;
+begin
+  Result := FChangeNotifier;
+end;
+
+function TMarkSystemImplFactoryChangeableFaked.GetChangeNotifier: INotifier;
+begin
+  Result := FChangeNotifier;
+end;
+
+function TMarkSystemImplFactoryChangeableFaked.GetStatic: IMarkSystemImplFactory;
+begin
+  Result := FFactory;
+end;
 
 end.

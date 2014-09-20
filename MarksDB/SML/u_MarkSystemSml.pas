@@ -63,7 +63,6 @@ type
     ): TStream;
     procedure MakeBackUp(const AFileName: string);
   private
-    function GetInitializationRequired: Boolean;
     procedure Initialize(AOperationID: Integer; const ACancelNotifier: INotifierOperation);
 
     function GetMarkDb: IMarkDbImpl;
@@ -349,11 +348,6 @@ var
 begin
   VNewFileName := ChangeFileExt(AFileName, '.~sml');
   CopyFile(PChar(AFileName), PChar(VNewFileName), false);
-end;
-
-function TMarkSystemSml.GetInitializationRequired: Boolean;
-begin
-  Result := True;
 end;
 
 procedure TMarkSystemSml.Initialize(
