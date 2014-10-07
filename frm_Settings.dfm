@@ -1813,6 +1813,15 @@ object frmSettings: TfrmSettings
                 '')
             end
           end
+          object chkShowLogo: TCheckBox
+            Left = 3
+            Top = 337
+            Width = 314
+            Height = 17
+            Align = alTop
+            Caption = 'Show Logo on startup'
+            TabOrder = 9
+          end
         end
       end
     end

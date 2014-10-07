@@ -246,6 +246,7 @@ type
     edtUserAgent: TEdit;
     pnl1: TPanel;
     btnResetUserAgentString: TButton;
+    ChkShowLogo: TCheckBox;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -476,6 +477,7 @@ begin
  end;
   GState.Config.GlobalAppConfig.IsShowIconInTray := CBMinimizeToTray.Checked;
   GState.Config.MainMemCacheConfig.MaxSize := SETilesOCache.value;
+  GState.Config.StartUpLogoConfig.IsShowLogo := ChkShowLogo.Checked;
 
   FMainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
@@ -874,6 +876,7 @@ begin
 
   TilesOverScreenEdit.Value := FMainFormConfig.DownloadUIConfig.TilesOut;
   CBMinimizeToTray.Checked := GState.Config.GlobalAppConfig.IsShowIconInTray;
+  ChkShowLogo.Checked := GState.Config.StartUpLogoConfig.IsShowLogo;
 
  chkPosFromGSMClick(chkPosFromGSM);
  chkUseIEProxyClick(chkUseIEProxy);
