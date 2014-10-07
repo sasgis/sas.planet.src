@@ -2,7 +2,7 @@ object frmProgressDownload: TfrmProgressDownload
   Left = 226
   Top = 306
   Caption = 'Please wait...'
-  ClientHeight = 233
+  ClientHeight = 239
   ClientWidth = 328
   Color = clBtnFace
   Constraints.MinHeight = 243
@@ -20,7 +20,7 @@ object frmProgressDownload: TfrmProgressDownload
     Left = 3
     Top = 3
     Width = 322
-    Height = 227
+    Height = 233
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
@@ -30,7 +30,7 @@ object frmProgressDownload: TfrmProgressDownload
       Left = 3
       Top = 3
       Width = 316
-      Height = 76
+      Height = 78
       Align = alClient
       ReadOnly = True
       ScrollBars = ssBoth
@@ -38,9 +38,9 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlBottom: TPanel
       Left = 0
-      Top = 201
+      Top = 203
       Width = 322
-      Height = 26
+      Height = 30
       Margins.Top = 0
       Align = alBottom
       AutoSize = True
@@ -48,10 +48,10 @@ object frmProgressDownload: TfrmProgressDownload
       TabOrder = 1
       object btnClose: TButton
         AlignWithMargins = True
-        Left = 244
+        Left = 254
         Top = 3
-        Width = 75
-        Height = 20
+        Width = 65
+        Height = 24
         Align = alRight
         Caption = 'Quit'
         TabOrder = 0
@@ -59,43 +59,64 @@ object frmProgressDownload: TfrmProgressDownload
       end
       object btnPause: TButton
         AlignWithMargins = True
-        Left = 163
+        Left = 173
         Top = 3
         Width = 75
-        Height = 20
+        Height = 24
         Align = alRight
         Caption = 'Pause'
         TabOrder = 1
         OnClick = btnPauseClick
       end
-      object btnSave: TButton
-        AlignWithMargins = True
-        Left = 82
-        Top = 3
-        Width = 75
-        Height = 20
-        Hint = 'Save current session'
-        Align = alRight
-        Caption = 'Save'
-        TabOrder = 2
-        OnClick = btnSaveClick
-      end
       object btnMinimize: TButton
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 75
-        Height = 20
+        Width = 60
+        Height = 24
         Align = alLeft
         Caption = 'Minimize'
-        TabOrder = 3
+        TabOrder = 2
         OnClick = btnMinimizeClick
+      end
+      object TBXOperationsToolbar: TTBXToolbar
+        Left = 67
+        Top = 3
+        Width = 100
+        Height = 24
+        Images = frmMain.MenusImageList
+        ShrinkMode = tbsmWrap
+        TabOrder = 3
+        object tbtmSelect: TTBItem
+          ImageIndex = 44
+          OnClick = tbtmSelectClick
+          Caption = ''
+          Hint = 'Selection Manager'
+        end
+        object tbtmMark: TTBItem
+          ImageIndex = 17
+          OnClick = tbtmMarkClick
+          Caption = ''
+          Hint = 'Store selection as Poligon'
+        end
+        object tbtmZoom: TTBItem
+          ImageIndex = 43
+          OnClick = tbtmZoomClick
+          Caption = ''
+          Hint = 'Fit to Screen'
+        end
+        object tbtmSave: TTBItem
+          ImageIndex = 25
+          OnClick = tbtmSaveClick
+          Caption = ''
+          Hint = 'Save current session'
+        end
       end
     end
     object pnlProgress: TPanel
       AlignWithMargins = True
       Left = 5
-      Top = 167
+      Top = 169
       Width = 312
       Height = 17
       Margins.Left = 5
@@ -106,23 +127,14 @@ object frmProgressDownload: TfrmProgressDownload
       BevelOuter = bvNone
       TabOrder = 2
     end
-    object chkAutoCloseWhenFinish: TCheckBox
-      Left = 0
-      Top = 184
-      Width = 322
-      Height = 17
-      Align = alBottom
-      Caption = 'Close this window once finished'
-      TabOrder = 3
-    end
     object pnlToProcess: TPanel
       Left = 0
-      Top = 82
+      Top = 84
       Width = 322
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 4
+      TabOrder = 3
       object lblToProcess: TLabel
         Left = 0
         Top = 0
@@ -149,12 +161,12 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlProcessed: TPanel
       Left = 0
-      Top = 99
+      Top = 101
       Width = 322
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 5
+      TabOrder = 4
       object lblProcessed: TLabel
         Left = 0
         Top = 0
@@ -181,12 +193,12 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlDownloaded: TPanel
       Left = 0
-      Top = 116
+      Top = 118
       Width = 322
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 6
+      TabOrder = 5
       object lblDownloaded: TLabel
         Left = 0
         Top = 0
@@ -213,12 +225,12 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlSizeToFinish: TPanel
       Left = 0
-      Top = 150
+      Top = 152
       Width = 322
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 7
+      TabOrder = 6
       object lblSizeToFinish: TLabel
         Left = 0
         Top = 0
@@ -245,12 +257,12 @@ object frmProgressDownload: TfrmProgressDownload
     end
     object pnlTimeToFinish: TPanel
       Left = 0
-      Top = 133
+      Top = 135
       Width = 322
       Height = 17
       Align = alBottom
       BevelOuter = bvNone
-      TabOrder = 8
+      TabOrder = 7
       object lblTimeToFinish: TLabel
         Left = 0
         Top = 0
@@ -275,17 +287,26 @@ object frmProgressDownload: TfrmProgressDownload
         Layout = tlCenter
       end
     end
+    object chkAutoCloseWhenFinish: TCheckBox
+      Left = 0
+      Top = 186
+      Width = 322
+      Height = 17
+      Align = alBottom
+      Caption = 'Close this window once finished'
+      TabOrder = 8
+    end
   end
   object SaveSessionDialog: TSaveDialog
     DefaultExt = '*.sls'
     Filter = 'Download session (*.sls)|*.sls'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
-    Left = 280
-    Top = 184
+    Left = 288
+    Top = 152
   end
   object UpdateTimer: TTimer
     OnTimer = UpdateTimerTimer
-    Left = 240
-    Top = 184
+    Left = 256
+    Top = 152
   end
 end

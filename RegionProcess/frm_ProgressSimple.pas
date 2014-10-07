@@ -31,6 +31,11 @@ uses
   StdCtrls,
   ExtCtrls,
   RarProgress,
+  Buttons,
+  TB2Item,
+  TB2Dock,
+  TB2Toolbar,
+  TBX,
   i_NotifierTime,
   i_Listener,
   i_ListenerTime,
@@ -39,20 +44,21 @@ uses
   i_GeometryLonLat,
   i_RegionProcessProgressInfo,
   i_NotifierOperation,
-  u_CommonFormAndFrameParents, Buttons;
+  u_CommonFormAndFrameParents;
 
 type
   TfrmProgressSimple = class(TCommonFormParent)
     MemoInfo: TMemo;
     pnlProgress: TPanel;
-    SpeedButton_fit: TSpeedButton;
-    SpeedButton_selmanager: TSpeedButton;
+    TBXOperationsToolbar: TTBXToolbar;
+    tbtmSelect: TTBItem;
+    tbtmZoom: TTBItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoInfoChange(Sender: TObject);
-    procedure SpeedButton_fitClick(Sender: TObject);
-    procedure SpeedButton_selmanagerClick(Sender: TObject);
+    procedure tbtmSelectClick(Sender: TObject);
+    procedure tbtmZoomClick(Sender: TObject);
   private
     FCancelNotifier: INotifierOperationInternal;
     FProgressInfo: IRegionProcessProgressInfo;
@@ -221,19 +227,20 @@ begin
   end;
 end;
 
-procedure TfrmProgressSimple.SpeedButton_fitClick(Sender: TObject);
+procedure TfrmProgressSimple.tbtmZoomClick(Sender: TObject);
 begin
   if (FMapGoto <> nil) and (FPolygon <> nil) then begin
     FMapGoto.FitRectToScreen(FPolygon.Bounds.Rect);
   end;
 end;
 
-procedure TfrmProgressSimple.SpeedButton_selmanagerClick(Sender: TObject);
+procedure TfrmProgressSimple.tbtmSelectClick(Sender: TObject);
 begin
-  if (FMapGoto <> nil) and (FPolygon <> nil) then begin
+  if (FPolygon <> nil) then begin
     FRegionProcess.ProcessPolygon(FPolygon);
   end;
 end;
+
 
 end.
 

@@ -27,6 +27,8 @@ uses
   Forms,
   i_NotifierOperation,
   i_MapTypeSet,
+  i_MapViewGoto,
+  i_RegionProcess,
   i_GeometryLonLat,
   i_GeometryLonLatFactory,
   i_GeometryProjectedFactory,
@@ -39,6 +41,7 @@ uses
   i_DownloadInfoSimple,
   i_RegionProcessProgressInfoInternalFactory,
   u_ExportProviderAbstract,
+  u_MarkDbGUIHelper,
   fr_TilesDownload;
 
 type
@@ -51,6 +54,10 @@ type
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+    FRegionProcess: IRegionProcess;
+    FMapGoto: IMapViewGoto;
+    FMarkDBGUI: TMarkDbGUIHelper;
+
   protected
     function CreateFrame: TFrame; override;
   public
@@ -66,7 +73,10 @@ type
       const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
       const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
       const ADownloadConfig: IGlobalDownloadConfig;
-      const ADownloadInfo: IDownloadInfoSimple
+      const ADownloadInfo: IDownloadInfoSimple;
+      const ARegionProcess: IRegionProcess;
+      const AMapGoto: IMapViewGoto;
+      const AMarkDBGUI: TMarkDbGUIHelper
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
@@ -116,7 +126,10 @@ constructor TProviderTilesDownload.Create(
   const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const ADownloadConfig: IGlobalDownloadConfig;
-  const ADownloadInfo: IDownloadInfoSimple
+  const ADownloadInfo: IDownloadInfoSimple;
+  const ARegionProcess: IRegionProcess;
+  const AMapGoto: IMapViewGoto;
+  const AMarkDBGUI: TMarkDbGUIHelper
 );
 begin
   inherited Create(
@@ -133,6 +146,9 @@ begin
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FDownloadConfig := ADownloadConfig;
   FDownloadInfo := ADownloadInfo;
+  FRegionProcess := ARegionProcess;
+  FMapGoto := AMapGoto;
+  FMarkDBGUI:=AMarkDBGUI;
 end;
 
 function TProviderTilesDownload.CreateFrame: TFrame;
@@ -310,7 +326,11 @@ begin
     LanguageManager,
     FValueToStringConverter,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    VPolygon,
+    FRegionProcess,
+    FMapGoto,
+    FMarkDBGUI
   );
   Application.ProcessMessages;
   VForm.Show;
@@ -396,7 +416,11 @@ begin
     LanguageManager,
     FValueToStringConverter,
     VCancelNotifierInternal,
-    VProgressInfo
+    VProgressInfo,
+    APolygon,
+    FRegionProcess,
+    FMapGoto,
+    FMarkDBGUI
   );
   Application.ProcessMessages;
   VForm.Show;

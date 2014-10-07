@@ -40,7 +40,6 @@ uses
   i_NotifierTime,
   i_NotifierOperation,
   i_MapViewGoto,
-  u_CommonFormAndFrameParents,
   i_LanguageManager,
   i_LastSelectionInfo,
   i_CoordConverterFactory,
@@ -76,6 +75,7 @@ uses
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
   i_RegionProcessProgressInfoInternalFactory,
+  u_CommonFormAndFrameParents,
   u_ExportProviderAbstract,
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
@@ -323,7 +323,10 @@ begin
       AVectorGeometryLonLatFactory,
       AVectorGeometryProjectedFactory,
       ADownloadConfig,
-      ADownloadInfo
+      ADownloadInfo,
+      Self,
+      FMapGoto,
+      FMarkDBGUI
     );
   FfrCombine :=
     TfrCombine.Create(

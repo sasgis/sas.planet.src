@@ -33,12 +33,22 @@ uses
   Classes,
   DateUtils,
   RarProgress,
-  u_CommonFormAndFrameParents,
+  Buttons,
+  TB2Item,
+  TB2Dock,
+  TB2Toolbar,
+  TBX,
+  i_MapViewGoto,
   i_LogSimpleProvider,
   i_LanguageManager,
   i_NotifierOperation,
   i_ValueToStringConverter,
-  i_RegionProcessProgressInfoDownload;
+  i_RegionProcessProgressInfoDownload,
+  i_GeometryLonLat,
+  i_RegionProcess,
+  u_MarkDbGUIHelper,
+  u_CommonFormAndFrameParents;
+
 
 type
   TfrmProgressDownload = class(TFormWitghLanguageManager)
@@ -57,7 +67,6 @@ type
     SaveSessionDialog: TSaveDialog;
     UpdateTimer: TTimer;
     btnMinimize: TButton;
-    btnSave: TButton;
     btnPause: TButton;
     btnClose: TButton;
     pnlBottom: TPanel;
@@ -68,13 +77,21 @@ type
     pnlDownloaded: TPanel;
     pnlSizeToFinish: TPanel;
     pnlTimeToFinish: TPanel;
+    TBXOperationsToolbar: TTBXToolbar;
+    tbtmSave: TTBItem;
+    tbtmZoom: TTBItem;
+    tbtmMark: TTBItem;
+    tbtmSelect: TTBItem;
     procedure btnCloseClick(Sender: TObject);
     procedure btnMinimizeClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
     procedure UpdateTimerTimer(Sender: TObject);
-    procedure btnSaveClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Panel1Resize(Sender: TObject);
+    procedure tbtmZoomClick(Sender: TObject);
+    procedure tbtmSaveClick(Sender: TObject);
+    procedure tbtmSelectClick(Sender: TObject);
+    procedure tbtmMarkClick(Sender: TObject);
   private
     FValueToStringConverter: IValueToStringConverterChangeable;
     FCancelNotifier: INotifierOperationInternal;
@@ -83,6 +100,10 @@ type
     FStoped: boolean;
     FFinished: Boolean;
     FProgress: TRarProgress;
+    FRegionProcess: IRegionProcess;
+    FMapGoto: IMapViewGoto;    
+    FPolygon: IGeometryLonLatPolygon;
+    FMarkDBGUI: TMarkDbGUIHelper;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
     function GetTimeEnd(
@@ -98,7 +119,11 @@ type
       const ALanguageManager: ILanguageManager;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const ACancelNotifier: INotifierOperationInternal;
-      const AProgressInfo: IRegionProcessProgressInfoDownload
+      const AProgressInfo: IRegionProcessProgressInfoDownload;
+      const APolygon: IGeometryLonLatPolygon;
+      const ARegionProcess: IRegionProcess;
+      const AMapGoto: IMapViewGoto;
+      const AMarkDBGUI : TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -119,7 +144,11 @@ constructor TfrmProgressDownload.Create(
   const ALanguageManager: ILanguageManager;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const ACancelNotifier: INotifierOperationInternal;
-  const AProgressInfo: IRegionProcessProgressInfoDownload
+  const AProgressInfo: IRegionProcessProgressInfoDownload;
+  const APolygon: IGeometryLonLatPolygon;
+  const ARegionProcess: IRegionProcess;
+  const AMapGoto: IMapViewGoto;
+  const AMarkDBGUI :TMarkDbGUIHelper
 );
 begin
   Assert(AValueToStringConverter <> nil);
@@ -130,6 +159,11 @@ begin
   FProgressInfo := AProgressInfo;
   FCancelNotifier := ACancelNotifier;
   FProgress := TRarProgress.Create(Self);
+  FRegionProcess := ARegionProcess;
+  FMapGoto := AMapGoto;  
+  FPolygon := APolygon;
+  FMarkDBGUI := AMarkDBGUI;
+
   with FProgress do begin
     Height := 17;
     Min := 0;
@@ -203,6 +237,20 @@ procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
 begin
   FProgress.Top:=TPanel(Sender).Height-48;
   FProgress.Width:=TPanel(Sender).Width-14;
+end;
+
+procedure TfrmProgressDownload.tbtmSelectClick(Sender: TObject);
+begin
+  if (FPolygon <> nil) then begin
+    FRegionProcess.ProcessPolygon(FPolygon);
+  end;
+end;
+
+procedure TfrmProgressDownload.tbtmZoomClick(Sender: TObject);
+begin
+  if (FMapGoto <> nil) and (FPolygon <> nil) then begin
+    FMapGoto.FitRectToScreen(FPolygon.Bounds.Rect);
+  end;
 end;
 
 procedure TfrmProgressDownload.UpdateProgressForm;
@@ -312,7 +360,13 @@ begin
   UpdateProgressForm
 end;
 
-procedure TfrmProgressDownload.btnSaveClick(Sender: TObject);
+procedure TfrmProgressDownload.tbtmMarkClick(Sender: TObject);
+begin
+  if (FPolygon <> nil) and (FMarkDBGUI <> nil)then
+    FMarkDBGUI.SaveMarkModal(nil, FPolygon);
+end;
+
+procedure TfrmProgressDownload.tbtmSaveClick(Sender: TObject);
 var
   VFileName: string;
   VIniFile: TMemIniFile;
