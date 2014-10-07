@@ -123,7 +123,7 @@ function TAvailPicsTerraserver.ParseResponse(const AResultOk: IDownloadResultOk)
     end;
 
     // value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
-    VValue := AnsiLowerCase(Trim(GetAfter('>', AOptionText)));
+    VValue := GetBetween(AOptionText, '>', '&nbsp;');
 
     // try convert to date (m[m]/d[d]/yyyy)
     if (Length(VValue) in [8..10]) then begin
@@ -230,18 +230,20 @@ begin
     VResponse := TStringList.Create;
     VResponse.LoadFromStream(VStream);
     // search for:
-    // <option value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011</option>
+    // <option value='dg,26410504ede5bddf1bbc7aba966ab61e'  selected='selected'  >9/17/2012&nbsp;-&nbsp;0.5m&nbsp;</option>
     // <option value='dg,f09a1d6be635f037f9b2a079ea57040b'  >7/19/2010</option>
     while (VResponse.Count>0) do begin
       S := Trim(VResponse[0]);
       S := GetBetween(S, '<option', '</option>');
       if Length(S)>0 then begin
-        // got  value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
-        // provider = dg
-        // layer = 4c0512fac553a1d9cf226b003610efad
-        // date = 5/22/2011
-        if _ProcessOption(Trim(S), VSLParams) then
-          Inc(Result);
+        if Pos('<', S) = 0 then begin
+          // got  value='dg,4c0512fac553a1d9cf226b003610efad'  selected='selected'  >5/22/2011
+          // provider = dg
+          // layer = 4c0512fac553a1d9cf226b003610efad
+          // date = 5/22/2011
+          if _ProcessOption(Trim(S), VSLParams) then
+            Inc(Result);
+        end;
       end;
 
       // skip this line
