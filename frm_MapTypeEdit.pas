@@ -86,6 +86,14 @@ type
     lblDownloaderState: TLabel;
     mmoDownloadState: TMemo;
     chkDownloadEnabled: TCheckBox;
+    PageControl1: TPageControl;
+    tsMaps: TTabSheet;
+    tsParams: TTabSheet;
+    tsGetURLScript: TTabSheet;
+    tsInfo: TTabSheet;
+    mmoParams: TMemo;
+    mmoScript: TMemo;
+    mmoInfo: TMemo;
     procedure btnOkClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnByDefaultClick(Sender: TObject);
@@ -280,9 +288,14 @@ begin
   try
     EditURL.Text := FMapType.TileDownloadRequestBuilderConfig.UrlBase;
     mmoHeader.Text := FMapType.TileDownloadRequestBuilderConfig.RequestHeader;
-  finally
+   finally
     FMapType.TileDownloadRequestBuilderConfig.UnlockRead;
   end;
+
+  mmoParams.Text := FMapType.Zmp.DataProvider.ReadString('params.txt','');
+  mmoInfo.Text := FMapType.Zmp.DataProvider.ReadString('info.txt','');
+  mmoScript.Text := FMapType.Zmp.DataProvider.ReadString('GetUrlScript.txt','');
+
 
   SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.Value;
