@@ -236,7 +236,6 @@
     <DCCReference Include="ConfigData\u_ConfigDataProviderWithLocal.pas" />
     <DCCReference Include="ConfigData\u_ConfigDataProviderWithReplacedSubItem.pas" />
     <DCCReference Include="ConfigData\u_ConfigDataProviderWithUseDepreciated.pas" />
-    <DCCReference Include="ConfigData\u_ConfigDataProviderZmpComplex.pas" />
     <DCCReference Include="ConfigData\u_ConfigDataWriteProviderByIniFile.pas" />
     <DCCReference Include="ConfigData\u_ConfigDataWriteProviderByIniFileSection.pas" />
     <DCCReference Include="ConfigData\u_ConfigDataWriteProviderWithGlobal.pas" />

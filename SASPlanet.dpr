@@ -221,7 +221,6 @@ uses
   u_ConfigDataProviderWithReplacedSubItem in 'ConfigData\u_ConfigDataProviderWithReplacedSubItem.pas',
   u_ConfigDataProviderByResources in 'ConfigData\u_ConfigDataProviderByResources.pas',
   u_ConfigDataProviderWithGlobal in 'ConfigData\u_ConfigDataProviderWithGlobal.pas',
-  u_ConfigDataProviderZmpComplex in 'ConfigData\u_ConfigDataProviderZmpComplex.pas',
   u_ConfigDataWriteProviderByIniFileSection in 'ConfigData\u_ConfigDataWriteProviderByIniFileSection.pas',
   u_ConfigDataWriteProviderByIniFile in 'ConfigData\u_ConfigDataWriteProviderByIniFile.pas',
   u_ConfigDataWriteProviderWithGlobal in 'ConfigData\u_ConfigDataWriteProviderWithGlobal.pas',
