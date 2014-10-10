@@ -56,7 +56,6 @@ function TBitmap32StaticFactory.Build(
   const AData: PColor32Array
 ): IBitmap32Static;
 var
-  VHash: THashValue;
   VBuffer: IBitmap32Buffer;
 begin
   Assert(Assigned(AData));
