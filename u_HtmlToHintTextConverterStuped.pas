@@ -178,6 +178,7 @@ begin
     OrigHTML := StringReplace(OrigHTML, '  ', ' ', [rfReplaceAll]);
   end;
   OrigHTML := StringReplace(OrigHTML, '<br>', #13#10, [rfReplaceAll, rfIgnoreCase]);
+  OrigHTML := StringReplace(OrigHTML, '<br />', #13#10, [rfReplaceAll, rfIgnoreCase]);
   OrigHTML := StringReplace(OrigHTML, '</div>', #13#10#13#10, [rfReplaceAll, rfIgnoreCase]);
   while System.Pos('<p', OrigHTML) > 0 do begin
     NoHTML := MidStr(OrigHTML, '<p', '>', True);
