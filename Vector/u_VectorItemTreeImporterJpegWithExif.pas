@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_NotifierOperation,
   i_VectorItemSubsetBuilder,
   i_VectorDataFactory,
   i_ValueToStringConverter,
@@ -52,6 +53,8 @@ type
     FContentTypeManager: IContentTypeManager;
   private
     function ProcessImport(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       var AConfig: IInterface
     ): IVectorItemTree;
@@ -122,6 +125,8 @@ begin
 end;
 
 function TVectorItemTreeImporterJpegWithExif.ProcessImport(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   var AConfig: IInterface
 ): IVectorItemTree;

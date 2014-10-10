@@ -23,6 +23,7 @@ unit u_VectorItemTreeExporterKmlKmz;
 interface
 
 uses
+  i_NotifierOperation,
   i_VectorItemTree,
   i_VectorItemTreeExporter,
   i_ArchiveReadWriteFactory,
@@ -34,6 +35,8 @@ type
     FArchiveReadWriteFactory: IArchiveReadWriteFactory;
   private
     procedure ProcessExport(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const ATree: IVectorItemTree
     );
@@ -57,6 +60,8 @@ begin
 end;
 
 procedure TVectorItemTreeExporterKmlKmz.ProcessExport(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const ATree: IVectorItemTree
 );

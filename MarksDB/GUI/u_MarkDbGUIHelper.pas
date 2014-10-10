@@ -175,11 +175,13 @@ uses
   i_VectorItemTree,
   i_InterfaceListSimple,
   i_StaticTreeItem,
+  i_NotifierOperation,
   i_VectorItemTreeImporter,
   u_ResStrings,
   u_EnumDoublePointLine2Poly,
   u_VectorItemTree,
   u_InterfaceListSimple,
+  u_NotifierOperation,
   u_FileNameFunc,
   u_GeoToStrFunc;
 
@@ -471,6 +473,7 @@ var
   VList: IInterfaceListSimple;
   VExporterList: IVectorItemTreeExporterListStatic;
   VExporterItem: IVectorItemTreeExporterListItem;
+  VNotifier: INotifierOperation;
 begin
   if AMarkCategory <> nil then begin
     VFileName := PrepareFileName(AMarkCategory.Name);
@@ -491,7 +494,8 @@ begin
           VList.AddListStatic(VSubCategoryList);
           VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(VList.MakeStaticAndClear);
           VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
-          VExporterItem.Exporter.ProcessExport(VFileName, VMarkTree);
+          VNotifier := TNotifierOperationFake.Create;
+          VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, VMarkTree);
         end;
       end;
     end;
@@ -508,6 +512,7 @@ var
   VMarkTree: IVectorItemTree;
   VExporterList: IVectorItemTreeExporterListStatic;
   VExporterItem: IVectorItemTreeExporterListItem;
+  VNotifier: INotifierOperation;
 begin
   if (ACategoryList <> nil) and (ACategoryList.Count > 0) then begin
     VExporterList := FExporterList.GetStatic;
@@ -519,7 +524,8 @@ begin
         if Assigned(VExporterItem) then begin
           VCategoryTree := FMarkSystem.CategoryDB.CategoryListToStaticTree(ACategoryList);
           VMarkTree := FMarkSystem.CategoryTreeToMarkTree(VCategoryTree, AIgnoreMarksVisible);
-          VExporterItem.Exporter.ProcessExport(VFileName, VMarkTree);
+          VNotifier := TNotifierOperationFake.Create;
+          VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, VMarkTree);
         end;
       end;
     end;
@@ -533,6 +539,7 @@ var
   VSubsetBuilder: IVectorItemSubsetBuilder;
   VExporterList: IVectorItemTreeExporterListStatic;
   VExporterItem: IVectorItemTreeExporterListItem;
+  VNotifier: INotifierOperation;
 begin
   if AMark <> nil then begin
     VFileName := PrepareFileName(AMark.Name);
@@ -547,7 +554,8 @@ begin
           VSubsetBuilder := FVectorItemSubsetBuilderFactory.Build;
           VSubsetBuilder.Add(AMark);
           VMarkTree := TVectorItemTree.Create('', VSubsetBuilder.MakeStaticAndClear, nil);
-          VExporterItem.Exporter.ProcessExport(VFileName, VMarkTree);
+          VNotifier := TNotifierOperationFake.Create;
+          VExporterItem.Exporter.ProcessExport(VNotifier.CurrentOperation, VNotifier, VFileName, VMarkTree);
         end;
       end;
     end;
@@ -633,6 +641,7 @@ var
   VTree: IVectorItemTree;
   VImportConfig: IImportConfig;
   VRecArr: TImportRecArr;
+  VNotifier: INotifierOperation;
 begin
   Result := nil;
 
@@ -640,6 +649,7 @@ begin
   SetLength(VRecArr, 0);
 
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
+    VNotifier := TNotifierOperationFake.Create;
     for I := 0 to AFiles.Count - 1 do begin
       VFileName := AFiles[I];
       if FileExists(VFileName) then begin
@@ -647,7 +657,7 @@ begin
         if J < 0 then begin
           Break;
         end;
-        VTree := VRecArr[J].FImporter.ProcessImport(VFileName, VRecArr[J].FConfig);
+        VTree := VRecArr[J].FImporter.ProcessImport(VNotifier.CurrentOperation, VNotifier, VFileName, VRecArr[J].FConfig);
         if Assigned(VTree) then begin
           if Supports(VRecArr[J].FConfig, IImportConfig, VImportConfig) then begin
             Result := FMarkSystem.ImportItemsTree(VTree, VImportConfig);

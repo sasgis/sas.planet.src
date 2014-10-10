@@ -23,12 +23,15 @@ unit i_VectorItemTreeImporter;
 interface
 
 uses
+  i_NotifierOperation,
   i_VectorItemTree;
 
 type
   IVectorItemTreeImporter = interface
     ['{0EF61663-09C0-4C71-A6F0-4E26380296E9}']
     function ProcessImport(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       var AConfig: IInterface
     ): IVectorItemTree;

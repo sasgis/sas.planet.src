@@ -24,6 +24,7 @@ interface
 
 uses
   Classes,
+  i_NotifierOperation,
   i_VectorDataLoader,
   i_VectorDataFactory,
   i_VectorItemTreeImporter,
@@ -37,6 +38,8 @@ type
     FLoader: IVectorDataLoader;
   private
     function ProcessImport(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       var AConfig: IInterface
     ): IVectorItemTree;
@@ -69,6 +72,8 @@ begin
 end;
 
 function TVectorItemTreeImporterByVectorLoader.ProcessImport(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   var AConfig: IInterface
 ): IVectorItemTree;

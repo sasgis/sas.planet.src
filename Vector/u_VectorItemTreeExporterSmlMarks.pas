@@ -23,6 +23,7 @@ unit u_VectorItemTreeExporterSmlMarks;
 interface
 
 uses
+  i_NotifierOperation,
   i_VectorItemTree,
   i_VectorItemTreeExporter,
   i_HashFunction,
@@ -58,6 +59,8 @@ type
   private
     { IVectorItemTreeExporter }
     procedure ProcessExport(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       const ATree: IVectorItemTree
     );
@@ -143,6 +146,8 @@ begin
 end;
 
 procedure TVectorItemTreeExporterSmlMarks.ProcessExport(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   const ATree: IVectorItemTree
 );
@@ -151,8 +156,8 @@ var
   VMarkList: IInterfaceListSimple;
 begin
   VSml := TMarkSystemSml.Create(
-    0,
-    nil,
+    AOperationID,
+    ACancelNotifier,
     ExtractFilePath(AFileName),
     FMarkPictureList,
     FHashFunction,

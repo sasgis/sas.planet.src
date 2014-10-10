@@ -23,6 +23,7 @@ unit u_VectorItemTreeImporterSmlMarks;
 interface
 
 uses
+  i_NotifierOperation,
   i_VectorItemTree,
   i_VectorItemTreeImporter,
   i_HashFunction,
@@ -56,6 +57,8 @@ type
   private
     { IVectorItemTreeImporter }
     function ProcessImport(
+      AOperationID: Integer;
+      const ACancelNotifier: INotifierOperation;
       const AFileName: string;
       var AConfig: IInterface
     ): IVectorItemTree;
@@ -115,6 +118,8 @@ begin
 end;
 
 function TVectorItemTreeImporterSmlMarks.ProcessImport(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
   const AFileName: string;
   var AConfig: IInterface
 ): IVectorItemTree;
@@ -126,8 +131,8 @@ begin
   Result := nil;
 
   VSml := TMarkSystemSml.Create(
-    0,
-    nil,
+    AOperationID,
+    ACancelNotifier,
     ExtractFilePath(AFileName),
     FMarkPictureList,
     FHashFunction,
