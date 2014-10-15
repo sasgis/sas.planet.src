@@ -801,6 +801,7 @@
     <DCCReference Include="MarksDB\u_MarkSystem.pas" />
     <DCCReference Include="MarksDB\u_MarkSystemHelpers.pas" />
     <DCCReference Include="MarksDB\u_MarkSystemImplChangeable.pas" />
+    <DCCReference Include="MarksDB\u_MarkSystemImplFactoryChangeable.pas" />
     <DCCReference Include="MarksDB\u_MarkTemplateConfigBase.pas" />
     <DCCReference Include="MarksDB\u_MarkTemplates.pas" />
     <DCCReference Include="Network\c_InetConfig.pas" />
