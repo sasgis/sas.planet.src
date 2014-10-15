@@ -1038,7 +1038,7 @@
     <DCCReference Include="Routing\u_PathDetalizeProviderMailRu.pas" />
     <DCCReference Include="Routing\u_PathDetalizeProviderYourNavigation.pas" />
     <DCCReference Include="Routing\u_TreeByPathDetalizeProviderList.pas" />
-    <DCCReference Include="SASPlanet.modles.pas" />
+    <DCCReference Include="SASPlanet.models.pas" />
     <DCCReference Include="Sensor\c_SensorsGUIDSimple.pas" />
     <DCCReference Include="Sensor\i_Sensor.pas" />
     <DCCReference Include="Sensor\i_SensorList.pas" />
