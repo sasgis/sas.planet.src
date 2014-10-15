@@ -9,12 +9,16 @@ uses
 const
   cEnumMaxSize = 32;
 
+const
+  cRiseErrorDef = {$IFDEF DEBUG} True {$ELSE} False {$ENDIF};
+  cMutexTimeOutDef = 30000; // 30 sec
+
 type
   TAppEnum = class(TInterfacedObject, IAppEnum)
   private
     type
       TAppSharedInfo = packed record
-        Used: array [0..cEnumMaxSize] of Boolean;
+        Used: array [0..cEnumMaxSize-1] of Boolean;
       end;
       PAppSharedInfo = ^TAppSharedInfo;
   private
@@ -33,8 +37,8 @@ type
     function GetCurrentID: Integer;
   public
     constructor Create(
-      const ARiseError: Boolean = {$IFDEF DEBUG} True {$ELSE} False {$ENDIF};
-      const AMutexTimeOut: Cardinal = 30000
+      const ARiseError: Boolean = cRiseErrorDef;
+      const AMutexTimeOut: Cardinal = cMutexTimeOutDef
     );
     destructor Destroy; override;
   end;
@@ -45,8 +49,11 @@ uses
   SysUtils;
 
 const
-  cMutexUniqName = 'sasplanet-appenum-shared-mutex';
-  cMappingUniqName = 'sasplanet-appenum-shared-file';
+  cAppSharedInfoVersion = #1; // change it every time when modify TAppSharedInfo
+
+const
+  cMutexUniqName = 'sasplanet-appenum-shared-mutex' + cAppSharedInfoVersion;
+  cMappingUniqName = 'sasplanet-appenum-shared-file' + cAppSharedInfoVersion;
 
 { TAppEnum }
 
@@ -116,8 +123,8 @@ end;
 
 function TAppEnum.DoCreateMutex(const AName: string): Cardinal;
 var
- SD:TSecurityDescriptor;
- SA:TSecurityAttributes;
+  SD: TSecurityDescriptor;
+  SA: TSecurityAttributes;
 begin
   Result := 0;
 
