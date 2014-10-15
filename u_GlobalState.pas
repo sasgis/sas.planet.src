@@ -96,6 +96,7 @@ uses
   i_LastSearchResult,
   i_ImageResamplerFactory,
   i_BuildInfo,
+  i_AppEnum,
   i_GlobalConfig,
   i_GlobalCacheConfig,
   u_GarbageCollectorThread,
@@ -192,6 +193,7 @@ type
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FLastSearchResult: ILastSearchResult;
     FValueToStringConverter: IValueToStringConverterChangeable;
+    FAppEnum: IAppEnum;
 
     procedure OnMainThreadConfigChange;
     procedure InitProtocol;
@@ -273,6 +275,7 @@ type
     property GeoCoderList: IGeoCoderListStatic read FGeoCoderList;
     property DebugInfoSubSystem: IDebugInfoSubSystem read FDebugInfoSubSystem;
     property BatteryStatus: IBatteryStatus read FBatteryStatus;
+    property AppEnum: IAppEnum read FAppEnum;
 
     constructor Create;
     destructor Destroy; override;
@@ -284,6 +287,8 @@ type
 
     procedure StartExceptionTracking;
     procedure StopExceptionTracking;
+
+    function ApplicationCaption: string;
   end;
 
 var
@@ -384,6 +389,8 @@ uses
   u_LastSearchResult,
   u_ImageResamplerFactoryChangeableByConfig,
   u_BuildInfo,
+  u_AppEnum,
+  u_ResStrings,
   u_VectorItemTreeExporterListSimple,
   u_VectorItemTreeImporterListSimple,
   u_BitmapPostProcessingChangeableByConfig,
@@ -413,6 +420,9 @@ var
   VOneOperationSync: IReadWriteSync;
 begin
   inherited Create;
+
+  FAppEnum := TAppEnum.Create;
+
   if ModuleIsLib then begin
     // run as DLL or PACKAGE
     VProgramPath := GetModuleName(HInstance);
@@ -848,6 +858,7 @@ begin
   FTerrainProviderList := nil;
   FProjConverterFactory := nil;
   FGlobalBerkeleyDBHelper := nil;
+  FAppEnum := nil;
   inherited;
 end;
 
@@ -1113,6 +1124,17 @@ begin
   FGUISyncronizedTimer.Enabled := False;
   FAppClosingNotifierInternal.ExecuteOperation;
   FGCThread.Terminate;
+end;
+
+function TGlobalState.ApplicationCaption: string;
+begin
+  Result := SAS_STR_ApplicationTitle;
+  if Assigned(FBuildInfo) then begin
+    Result := Result + ' ' + FBuildInfo.GetVersionDetaled;
+  end;
+  if Assigned(FAppEnum) and (FAppEnum.CurrentID > 1)  then begin
+    Result := Format('[%d] %s', [FAppEnum.CurrentID, Result]);
+  end;
 end;
 
 end.

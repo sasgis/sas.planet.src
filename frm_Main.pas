@@ -703,7 +703,6 @@ type
     procedure OnFillingMapChange;
     procedure OnShowSearchResults(Sender: TObject);
 
-
     procedure SafeCreateDGAvailablePic(const AVisualPoint: TPoint);
 
     procedure PaintZSlider(zoom:integer);
@@ -734,6 +733,8 @@ type
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
+  public
+    procedure RefreshTranslation; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -1181,8 +1182,8 @@ var
   VProvider: IConfigDataProvider;
   VSensorViewGenerator: ISensorViewListGenerator;
 begin
-  Application.Title := Caption;
-  Caption := Caption + ' ' + GState.BuildInfo.GetVersionDetaled;
+  Caption := GState.ApplicationCaption;
+
   TBXSetTheme('SAStbxTheme');
 
   VProvider := GState.MainConfigProvider.GetSubItem('MainForm');
@@ -7063,6 +7064,12 @@ begin
   if VMark <> nil then begin
     FMarkDBGUI.ShowMarkInfo(VMark);
   end;
+end;
+
+procedure TfrmMain.RefreshTranslation;
+begin
+  inherited;
+  Caption := GState.ApplicationCaption;
 end;
 
 end.

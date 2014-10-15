@@ -461,6 +461,7 @@
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByTileStorageOptions.pas" />
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderList.pas" />
     <DCCReference Include="i_ActiveMapsConfig.pas" />
+    <DCCReference Include="i_AppEnum.pas" />
     <DCCReference Include="i_BasicMemCache.pas" />
     <DCCReference Include="i_BatteryStatus.pas" />
     <DCCReference Include="i_BitmapGeo.pas" />
@@ -1183,6 +1184,7 @@
     <DCCReference Include="u_ActiveMapsSet.pas" />
     <DCCReference Include="u_ActiveMapTBXItem.pas" />
     <DCCReference Include="u_ActivMapWithLayers.pas" />
+    <DCCReference Include="u_AppEnum.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BaseInterfacedObject.pas" />

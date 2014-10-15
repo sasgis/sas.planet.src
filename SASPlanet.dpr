@@ -7,6 +7,8 @@ uses
   Forms,
   SysUtils,
   u_ReadableThreadNames,
+  u_AppEnum in 'u_AppEnum.pas',
+  i_AppEnum in 'i_AppEnum.pas',
   t_Bitmap32 in 'Bitmap32\t_Bitmap32.pas',
   c_Color32 in 'Bitmap32\c_Color32.pas',
   i_BuildInfo in 'i_BuildInfo.pas',
@@ -1250,18 +1252,19 @@ uses
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 
 var
-  app: TApplication;
+  VApp: TApplication;
 begin
   SetCurrentThreadName('ApplicationMainThread');
   if TBaseInterfacedObject = TBaseInterfacedObjectDebug then begin
     TBaseInterfacedObjectDebug.InitCounters;
   end;
-  app := Application;
+  VApp := Application;
   GState := TGlobalState.Create;
   try
-    app.Initialize;
-    app.MainFormOnTaskBar := True;
-    app.Title := SAS_STR_ApplicationTitle;
+    VApp.Initialize;
+    VApp.MainFormOnTaskBar := True;
+    VApp.Title := GState.ApplicationCaption;
+
     TfrmStartLogo.ShowLogo(
       GState.Config.LanguageManager,
       GState.BuildInfo,
@@ -1274,15 +1277,15 @@ begin
       GState.LoadConfig;
     except
       on E: Exception do begin
-        app.ShowException(E);
+        VApp.ShowException(E);
         Exit;
       end;
     end;
-    app.HelpFile := '';
-    app.CreateForm(TfrmMain, frmMain);
+    VApp.HelpFile := '';
+    VApp.CreateForm(TfrmMain, frmMain);
     GState.StartExceptionTracking;
     try
-      app.Run;
+      VApp.Run;
     finally
       GState.StopExceptionTracking;
     end;
