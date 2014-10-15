@@ -2,7 +2,7 @@
 program SASPlanet;
 
 uses
-  SASPlanet.models in 'SASPlanet.models.pas',
+  SASPlanet.modules in 'SASPlanet.modules.pas',
   Windows,
   Forms,
   SysUtils,
