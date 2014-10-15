@@ -709,11 +709,13 @@ function TDownloaderHttp.ProcessFileSystemRequest(
   const ARequest: IDownloadRequest
 ): IDownloadResult;
 var
-  VUrl: String;
+  VUrl: AnsiString;
+  VUrlLen: Integer;
   VStatusCode: Cardinal;
   VContentType, VRawResponseHeader: AnsiString;
   VMemStream: TMemoryStream;
   VResponseBody: IBinaryData;
+  VFileName: string;
 begin
   Result := nil;
   if (nil = FResultFactory) then
@@ -721,11 +723,12 @@ begin
 
   // check filename
   VUrl := ARequest.Url;
-  if (Length(VUrl) < 4) then
+  VUrlLen := Length(VUrl);
+  if (VUrlLen < 4) then
     Exit;
 
   // very simple checks
-  if (AnsiChar(VUrl[2]) in ['t','T']) then begin
+  if (VUrl[2] in ['t','T']) then begin
     // fast detect ftp & http(s)
     // skip file, \\ & C:
     Exit;
@@ -733,33 +736,34 @@ begin
     // in case of \\servername\sharename\folder\..
   end else if (VUrl[2]=':') and (VUrl[3]='\') then begin
     // in case of C:\folder\...
-  end else if (AnsiChar(VUrl[1]) in ['f','F']) then begin
+  end else if (VUrl[1] in ['f','F']) then begin
     // check for
     // file:///C:/folder/...
     // file://///servername/sharename/folder/...
-    if not SameText(System.Copy(VUrl, 1, 8), 'file:///') then
+    if (VUrlLen <= 10) then
+      Exit;
+    if not ALSameText(ALCopyStr(VUrl, 1, 8), 'file:///') then
       Exit;
     // bingo!
-    System.Delete(VUrl, 1, 8);
-    if (Length(VUrl) <= 2) then
-      Exit;
+    VUrl := ALCopyStr(VUrl, 9, VUrlLen);
     // replace slashes
-    VUrl := StringReplace(VUrl, '/', '\', [rfReplaceAll]);
+    VUrl := ALStringReplace(VUrl, '/', '\', [rfReplaceAll]);
   end else begin
     // noway
     Exit;
   end;
+  VFileName := string(VUrl);
 
   // just empty headers
   VRawResponseHeader := '';
 
   // check
-  if FileExists(VUrl) then begin
+  if FileExists(VFileName) then begin
     // found
     VMemStream := TMemoryStream.Create;
     try
       // read file
-      VMemStream.LoadFromFile(VUrl);
+      VMemStream.LoadFromFile(VFileName);
       VResponseBody := TBinaryDataByMemStream.CreateWithOwn(VMemStream);
       VMemStream := nil;
     finally
