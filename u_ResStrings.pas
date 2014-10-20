@@ -37,6 +37,7 @@ ResourceString
 
   SAS_MSG_DeleteTileOneTileAsk = 'Are you sure you want to delete tile with name "%0:s"?';
   SAS_MSG_DeleteTilesInRegionAsk = 'Are you sure you want to delete tiles in selected region?';
+  SAS_MSG_DeleteMarksInRegionAsk = 'Are you sure you want to delete Marks in selected region?';
 
   SAS_MSG_ResetSensorAsk = 'Are you sure you want to reset sensor?';
   SAS_MSG_TileExists = 'Tile %0:s is available in cache.'#13#10 +
@@ -132,6 +133,7 @@ ResourceString
   SAS_STR_AllDelete = 'Deleted total:';
   SAS_STR_AllSaves = 'Total to save:';
   SAS_STR_Files = 'files';
+  SAS_STR_PlaceMarks = 'PlaceMarks';
   SAS_STR_File = 'File';
   SAS_STR_No = 'No';
   SAS_STR_Yes = 'Yes';

@@ -26,10 +26,12 @@ uses
   SysUtils,
   Classes,
   Controls,
+  ComCtrls,
   Forms,
   ExtCtrls,
   StdCtrls,
   Spin,
+  c_MarkFlag,
   t_CommonTypes,
   i_LanguageManager,
   i_MapTypes,
@@ -48,14 +50,13 @@ type
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameOneMap,
       IRegionProcessParamsFrameOneZoom,
+      IRegionProcessParamsFrameMarksState,
       IRegionProcessParamsFrameProcessPredicate
     )
     seDelSize: TSpinEdit;
     chkDelBySize: TCheckBox;
-    pnlTop: TPanel;
     pnlBottom: TPanel;
     pnlCenter: TPanel;
-    lblStat: TLabel;
     flwpnlDelBySize: TFlowPanel;
     lblDelSize: TLabel;
     rgTarget: TRadioGroup;
@@ -65,6 +66,14 @@ type
     cbbZoom: TComboBox;
     pnlFrame: TPanel;
     lblMapCaption: TLabel;
+    PageControl1: TPageControl;
+    tsTiles: TTabSheet;
+    tsMarks: TTabSheet;
+    chkPlacemarks: TCheckBox;
+    chkPaths: TCheckBox;
+    chkPolygons: TCheckBox;
+    chkDelHidden: TCheckBox;
+    PnlTop: TPanel;
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -79,6 +88,9 @@ type
   private
     function GetMapType: IMapType;
     function GetZoom: Byte;
+    function MarksState: Byte;
+    function DeleteHiddenMarks: Boolean;
+    function DeleteMode: TDeleteSrc;
     function CheckIsDeleteable(const AMapType: IMapType): boolean;
   private
     function GetPredicate: IPredicateByTileInfo;
@@ -170,6 +182,29 @@ begin
     cbbZoom.ItemIndex := 0;
   end;
   Result := cbbZoom.ItemIndex;
+end;
+
+function TfrTilesDelete.DeleteMode: TDeleteSrc;
+begin
+  case PageControl1.ActivePageIndex of
+    0: Result := dmTiles;
+    1: Result := dmMarks;
+  else
+    Result := dmNone;
+  end;
+end;
+
+function TfrTilesDelete.MarksState: Byte;
+begin
+  Result := 0;
+  if chkPlacemarks.Checked then  Result := Result or CPlacemarkFlag;
+  if chkPaths.Checked      then  Result := Result or CPathFlag;
+  if chkPolygons.Checked   then  Result := Result or CPolygonFlag;
+end;
+
+function TfrTilesDelete.DeleteHiddenMarks: Boolean;
+begin
+  Result := chkDelHidden.Checked;
 end;
 
 function TfrTilesDelete.CheckIsDeleteable(const AMapType: IMapType): boolean;

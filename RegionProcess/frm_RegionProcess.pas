@@ -279,7 +279,8 @@ begin
       AFullMapsSet,
       AGUIConfigList,
       AProjectionFactory,
-      AVectorGeometryProjectedFactory
+      AVectorGeometryProjectedFactory,
+      AMarkDBGUI.MarksDb
     );
   FProviderTilesGenPrev :=
     TProviderTilesGenPrev.Create(

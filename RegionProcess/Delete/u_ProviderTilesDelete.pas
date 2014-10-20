@@ -26,6 +26,7 @@ uses
   Windows,
   Forms,
   i_LanguageManager,
+  i_MarkSystem,
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -41,6 +42,7 @@ type
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+    FMarkSystem: IMarkSystem;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -51,13 +53,12 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+      const AMarkSystem: IMarkSystem
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
-
   end;
-
 
 implementation
 
@@ -71,6 +72,7 @@ uses
   i_ProjectionInfo,
   i_GeometryProjected,
   u_ThreadDeleteTiles,
+  u_ThreadDeleteMarks,
   u_ResStrings;
 
 { TProviderTilesDelete }
@@ -82,7 +84,8 @@ constructor TProviderTilesDelete.Create(
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
+  const AMarkSystem: IMarkSystem
 );
 begin
   inherited Create(
@@ -94,6 +97,7 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
+  FMarkSystem := AMarkSystem;
 end;
 
 function TProviderTilesDelete.CreateFrame: TFrame;
@@ -108,6 +112,7 @@ begin
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
   Assert(Supports(Result, IRegionProcessParamsFrameProcessPredicate));
+  Assert(Supports(Result, IRegionProcessParamsFrameMarksState));
 end;
 
 function TProviderTilesDelete.GetCaption: string;
@@ -124,23 +129,45 @@ var
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
   VThread: TThread;
+  VMarkState: Byte;
+  VDelHiddenMarks: Boolean;
+  VMode: TDeleteSrc;
 begin
   inherited;
-  if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+  VMode := dmNone; // Cancel
+  VMarkState := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetMarksState;
+
+  case (ParamsFrame as IRegionProcessParamsFrameMarksState).GetDeleteMode of
+  dmTiles: begin
+      if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+       VMode := dmTiles; // Tiles
+      end
+    end;
+  dmMarks: begin
+      if VMarkState <> 0 then begin
+        if (Application.MessageBox(pchar(SAS_MSG_DeleteMarksInRegionAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
+          VMode := dmMarks; // Marks
+        end
+      end;
+    end;
+  end;
+
+  if VMode <> dmNone then begin
     VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
     VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
     VPredicate := (ParamsFrame as IRegionProcessParamsFrameProcessPredicate).Predicate;
-
+    VThread := nil;
     VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
     VProjectedPolygon :=
       FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
         VProjection,
         APolygon
       );
-
     VProgressInfo := ProgressFactory.Build(APolygon);
-
-    VThread :=
+    VDelHiddenMarks := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetDeleteHiddenMarks;
+    case VMode of
+    dmTiles:
+      VThread :=
       TThreadDeleteTiles.Create(
         VProgressInfo,
         APolygon,
@@ -150,6 +177,18 @@ begin
         VMapType.VersionRequestConfig.GetStatic,
         VPredicate
       );
+    dmMarks:
+      VThread :=
+      TThreadDeleteMarks.Create(
+        VProgressInfo,
+        APolygon,
+        VProjectedPolygon,
+        VProjection,
+        FMarkSystem,
+        VMarkState,
+        VDelHiddenMarks
+      );
+    end;
     VThread.Resume;
   end;
 end;

@@ -57,6 +57,7 @@ type
     ): Boolean; overload;
     function IsIntersecWithRect(const ARect: TDoubleRect): Boolean; overload;
     function IsIntersecWithRect(const ARect: ILonLatRect): Boolean; overload;
+    function IsContainRect(const ARect: ILonLatRect): Boolean;
   public
     constructor Create(const ARect: TDoubleRect);
   end;
@@ -202,6 +203,15 @@ end;
 function TLonLatRect.UnionWithRect(const ARect: TDoubleRect): TDoubleRect;
 begin
   Result := UnionLonLatRects(FRect, ARect);
+end;
+
+function TLonLatRect.IsContainRect(const ARect: ILonLatRect): Boolean;
+begin
+  Result :=
+    (FRect.Left <= ARect.Left) and
+    (FRect.Top >= ARect.Top) and
+    (FRect.Right >= ARect.Right) and
+    (FRect.Bottom <= ARect.Bottom);
 end;
 
 end.

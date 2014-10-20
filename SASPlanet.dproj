@@ -770,6 +770,7 @@
     <DCCReference Include="MarksDB\i_MarkSystemImplChangeable.pas" />
     <DCCReference Include="MarksDB\i_MarkSystemImplFactory.pas" />
     <DCCReference Include="MarksDB\i_MarkTemplate.pas" />
+    <DCCReference Include="MarksDB\c_MarkFlag.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkCategoryDBSmlInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkCategoryFactoryDbInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkDbSmlInternal.pas" />
@@ -923,6 +924,7 @@
       <Form>frTilesDelete</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\Delete\u_ProviderTilesDelete.pas" />
+    <DCCReference Include="RegionProcess\Delete\u_ThreadDeleteMarks.pas" />
     <DCCReference Include="RegionProcess\Delete\u_ThreadDeleteTiles.pas" />
     <DCCReference Include="RegionProcess\Download\frm_ProgressDownload.pas">
       <Form>frmProgressDownload</Form>

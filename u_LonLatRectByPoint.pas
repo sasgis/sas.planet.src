@@ -57,6 +57,7 @@ type
     ): Boolean; overload;
     function IsIntersecWithRect(const ARect: TDoubleRect): Boolean; overload;
     function IsIntersecWithRect(const ARect: ILonLatRect): Boolean; overload;
+    function IsContainRect(const ARect: ILonLatRect): Boolean;
   public
     constructor Create(const APoint: TDoublePoint);
   end;
@@ -238,6 +239,11 @@ begin
   if Result.Bottom > FPoint.Y then begin
     Result.Bottom := FPoint.Y;
   end;
+end;
+
+function TLonLatRectByPoint.IsContainRect(const ARect: ILonLatRect): Boolean;
+begin
+  Result := IsEqual(ARect);
 end;
 
 end.

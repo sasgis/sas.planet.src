@@ -32,6 +32,7 @@ uses
   i_MapTypes;
 
 type
+  TDeleteSrc = (dmNone=-1, dmTiles=0, dmMarks=1);
   IRegionProcessParamsFrameBase = interface
     ['{F5346D9B-766C-4B3B-AC4B-9AC71FF62F05}']
     procedure Init(
@@ -45,6 +46,19 @@ type
     ['{240B7587-DDC0-4471-BDF4-AD2EE0040526}']
     function GetMapType: IMapType;
     property MapType: IMapType read GetMapType;
+  end;
+
+  IRegionProcessParamsFrameMarksState = interface(IRegionProcessParamsFrameBase)
+    ['{97F8B47B-44D4-473A-B841-F23FCBFBC4D5}']
+    function MarksState: Byte;
+    property GetMarksState: Byte read MarksState;
+
+    function DeleteHiddenMarks: Boolean;
+    property GetDeleteHiddenMarks: Boolean read DeleteHiddenMarks;
+
+    function DeleteMode: TDeleteSrc;
+    property GetDeleteMode: TDeleteSrc read DeleteMode;
+
   end;
 
   IRegionProcessParamsFrameOneZoom = interface(IRegionProcessParamsFrameBase)
