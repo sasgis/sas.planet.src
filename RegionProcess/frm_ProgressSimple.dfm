@@ -11,6 +11,7 @@ object frmProgressSimple: TfrmProgressSimple
   OldCreateOrder = False
   PopupMode = pmExplicit
   Position = poScreenCenter
+  ShowHint = True
   OnClose = FormClose
   OnCreate = FormCreate
   OnKeyUp = FormKeyUp
