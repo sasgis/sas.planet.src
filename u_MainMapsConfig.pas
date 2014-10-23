@@ -53,7 +53,7 @@ implementation
 uses
   ActiveX,
   i_MapType,
-  u_ActiveMapsSet;
+  u_MapTypeSetChangeable;
 
 { TMainMapsConfig }
 

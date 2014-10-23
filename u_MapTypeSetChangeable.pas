@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ActiveMapsSet;
+unit u_MapTypeSetChangeable;
 
 interface
 

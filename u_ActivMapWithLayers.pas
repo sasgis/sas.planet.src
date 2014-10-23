@@ -78,7 +78,7 @@ uses
   c_ZeroGUID,
   i_StringListStatic,
   u_Synchronizer,
-  u_ActiveMapsSet;
+  u_MapTypeSetChangeable;
 
 const
   CKeyNameLayer = 'Layer';

@@ -1182,7 +1182,6 @@
     <DCCReference Include="UpdateChecker\i_UpdateDownloader.pas" />
     <DCCReference Include="UpdateChecker\u_UpdateDownloader.pas" />
     <DCCReference Include="u_ActiveMapsLicenseList.pas" />
-    <DCCReference Include="u_ActiveMapsSet.pas" />
     <DCCReference Include="u_ActiveMapTBXItem.pas" />
     <DCCReference Include="u_ActivMapWithLayers.pas" />
     <DCCReference Include="u_AppEnum.pas" />
@@ -1274,6 +1273,7 @@
     <DCCReference Include="u_MapTypeListStatic.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeSet.pas" />
+    <DCCReference Include="u_MapTypeSetChangeable.pas" />
     <DCCReference Include="u_MapTypeSetChangeableBySourceSetWithFilter.pas" />
     <DCCReference Include="u_MapTypeSetChangeableSimple.pas" />
     <DCCReference Include="u_MapTypesMainList.pas" />
