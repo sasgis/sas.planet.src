@@ -312,7 +312,7 @@ uses
   i_TextByVectorItem,
   i_ImageResamplerFactoryChangeable,
   u_MapTypeSet,
-  u_MapTypeListStatic,
+  u_MapTypeListBuilderFactory,
   i_InternalDebugConfig,
   u_TextByVectorItemHTMLByDescription,
   u_NotifierTime,

@@ -1269,8 +1269,8 @@
     <DCCReference Include="u_MapTypeGUIConfigStatic.pas" />
     <DCCReference Include="u_MapTypeHotKeyListStatic.pas" />
     <DCCReference Include="u_MapTypeIconsList.pas" />
+    <DCCReference Include="u_MapTypeListBuilderFactory.pas" />
     <DCCReference Include="u_MapTypeListChangeableActiveBitmapLayers.pas" />
-    <DCCReference Include="u_MapTypeListStatic.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="u_MapTypeSet.pas" />
     <DCCReference Include="u_MapTypeSetChangeable.pas" />

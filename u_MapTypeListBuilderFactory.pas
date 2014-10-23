@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_MapTypeListStatic;
+unit u_MapTypeListBuilderFactory;
 
 interface
 

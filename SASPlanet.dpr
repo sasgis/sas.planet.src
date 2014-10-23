@@ -484,7 +484,7 @@ uses
   i_MapVersionConfig in 'i_MapVersionConfig.pas',
   u_MapVersionConfig in 'u_MapVersionConfig.pas',
   u_MapType in 'u_MapType.pas',
-  u_MapTypeListStatic in 'u_MapTypeListStatic.pas',
+  u_MapTypeListBuilderFactory in 'u_MapTypeListBuilderFactory.pas',
   u_MapTypesMainList in 'u_MapTypesMainList.pas',
   i_MapTypeIconsList in 'i_MapTypeIconsList.pas',
   u_MapTypeIconsList in 'u_MapTypeIconsList.pas',
