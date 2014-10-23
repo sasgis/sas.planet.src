@@ -63,7 +63,7 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_MapTypes,
+  i_MapType,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportKML,

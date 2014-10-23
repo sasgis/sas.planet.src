@@ -28,7 +28,7 @@ uses
   i_ThreadConfig,
   i_MiniMapLayerConfig,
   i_ActiveMapsConfig,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_MapTypeSetBuilder,
   i_UseTilePrevZoomConfig,

@@ -76,7 +76,7 @@ uses
   Classes,
   SysUtils,
   GR32,
-  i_MapTypes,
+  i_MapType,
   i_ContentTypeInfo,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,

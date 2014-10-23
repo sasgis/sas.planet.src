@@ -80,7 +80,7 @@ uses
   i_RegionProcessProgressInfo,
   i_TileStorage,
   i_MapVersionRequest,
-  i_MapTypes,
+  i_MapType,
   u_ThreadExportToRMapsSQLite,
   u_ResStrings;
 

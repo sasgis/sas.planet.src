@@ -24,7 +24,7 @@ interface
 
 uses
   t_Hash,
-  i_MapTypes;
+  i_MapType;
 
 type
   IMapTypeListStatic = interface

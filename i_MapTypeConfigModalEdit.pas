@@ -23,7 +23,7 @@ unit i_MapTypeConfigModalEdit;
 interface
 
 uses
-  i_MapTypes;
+  i_MapType;
 
 type
   IMapTypeConfigModalEdit = interface

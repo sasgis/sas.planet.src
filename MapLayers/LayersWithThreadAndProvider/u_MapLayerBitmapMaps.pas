@@ -33,7 +33,7 @@ uses
   i_UseTilePrevZoomConfig,
   i_Bitmap32BufferFactory,
   i_ThreadConfig,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSetChangeable,
   i_MapTypeListChangeable,
   i_InternalPerformanceCounter,

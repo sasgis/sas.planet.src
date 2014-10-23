@@ -23,7 +23,7 @@ unit i_ActiveMapsConfig;
 interface
 
 uses
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
   i_ConfigDataElement;

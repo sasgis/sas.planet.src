@@ -63,7 +63,7 @@ implementation
 
 uses
   i_InterfaceListSimple,
-  i_MapTypes,
+  i_MapType,
   u_ListenerByEvent,
   u_InterfaceListSimple,
   u_SortFunc,

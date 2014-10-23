@@ -61,7 +61,7 @@ uses
   StrUtils,
   c_ZeroGUID,
   c_InternalBrowser,
-  i_MapTypes,
+  i_MapType,
   i_TileStorage,
   i_InternalDomainOptions,
   u_BinaryData;

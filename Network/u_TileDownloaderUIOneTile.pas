@@ -35,7 +35,7 @@ uses
   i_TileRequestResult,
   i_NotifierOperation,
   i_DownloadInfoSimple,
-  i_MapTypes,
+  i_MapType,
   i_GlobalInternetState;
 
 type

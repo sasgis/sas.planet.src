@@ -64,7 +64,7 @@ uses
   SysUtils,
   StrUtils,
   c_ZeroGUID,
-  i_MapTypes,
+  i_MapType,
   i_TileStorage,
   i_TileInfoBasic,
   i_VectorDataItemSimple,

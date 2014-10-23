@@ -125,7 +125,7 @@ uses
   SysUtils,
   c_ZeroGUID,
   i_CoordConverter,
-  i_MapTypes,
+  i_MapType,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_ListenerTime,

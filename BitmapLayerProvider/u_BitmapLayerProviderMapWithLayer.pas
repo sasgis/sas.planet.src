@@ -29,7 +29,7 @@ uses
   i_LocalCoordConverter,
   i_BitmapLayerProvider,
   i_MapVersionRequest,
-  i_MapTypes,
+  i_MapType,
   u_BaseInterfacedObject;
 
 type

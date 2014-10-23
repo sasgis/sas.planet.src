@@ -31,7 +31,7 @@ uses
   SysUtils,
   StdCtrls,
   Windows,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_CoordConverterFactory,
   i_LanguageManager,

@@ -758,7 +758,7 @@ uses
   i_InterfaceListSimple,
   i_InternalPerformanceCounter,
   i_MarkId,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_GeoCoderList,
   i_CoordConverter,

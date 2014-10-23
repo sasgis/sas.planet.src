@@ -92,7 +92,7 @@ uses
   IniFiles,
   i_GeometryProjected,
   i_ConfigDataProvider,
-  i_MapTypes,
+  i_MapType,
   i_ProjectionInfo,
   i_RegionProcessParamsFrame,
   i_LogSimple,

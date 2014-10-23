@@ -44,7 +44,7 @@ uses
   t_Hash,
   c_ZeroGUID,
   i_GUIDSet,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   u_GUIDInterfaceSet;
 

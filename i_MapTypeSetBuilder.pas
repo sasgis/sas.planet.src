@@ -23,7 +23,7 @@ unit i_MapTypeSetBuilder;
 interface
 
 uses
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet;
 
 type

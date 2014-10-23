@@ -32,7 +32,7 @@ uses
   i_LocalCoordConverterFactorySimpe,
   i_UseTilePrevZoomConfig,
   i_ThreadConfig,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeListChangeable,
   i_Bitmap32BufferFactory,
   i_InternalPerformanceCounter,

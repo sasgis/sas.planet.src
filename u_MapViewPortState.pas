@@ -35,7 +35,7 @@ uses
   i_ConfigDataWriteProvider,
   i_InternalPerformanceCounter,
   i_ViewPortState,
-  i_MapTypes,
+  i_MapType,
   i_LocalCoordConverterFactorySimpe,
   u_ConfigDataElementBase;
 

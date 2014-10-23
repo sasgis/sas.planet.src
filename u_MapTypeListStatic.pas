@@ -43,7 +43,7 @@ uses
   t_Hash,
   i_InterfaceListStatic,
   i_InterfaceListSimple,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeListStatic,
   u_InterfaceListSimple;
 

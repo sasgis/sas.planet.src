@@ -29,7 +29,7 @@ uses
   i_Bitmap32Static,
   i_Bitmap32BufferFactory,
   i_LocalCoordConverter,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeListStatic,
   i_BitmapLayerProvider,
   i_BitmapPostProcessing,

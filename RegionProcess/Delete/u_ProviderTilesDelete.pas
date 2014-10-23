@@ -65,7 +65,7 @@ implementation
 uses
   Classes,
   SysUtils,
-  i_MapTypes,
+  i_MapType,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   i_PredicateByTileInfo,

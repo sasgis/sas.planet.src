@@ -37,7 +37,7 @@ uses
   i_GeometryLonLat,
   i_MapVersionRequest,
   i_ImageResamplerFactory,
-  i_MapTypes,
+  i_MapType,
   u_ThreadRegionProcessAbstract;
 
 type

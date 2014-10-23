@@ -35,7 +35,7 @@ uses
   Spin,
   t_Bitmap32,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_CoordConverterFactory,
   i_CoordConverterList,

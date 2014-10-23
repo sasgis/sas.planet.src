@@ -27,7 +27,7 @@ uses
   TB2Item,
   TBX,
   i_MapTypeSet,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSetChangeable,
   i_MapTypeGUIConfigList,
   i_MapTypeIconsList;

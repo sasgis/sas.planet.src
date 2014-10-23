@@ -78,7 +78,7 @@ uses
   i_LonLatRect,
   i_CoordConverter,
   i_NotifierTilePyramidUpdate,
-  i_MapTypes,
+  i_MapType,
   u_InterfaceListSimple,
   u_ListenerByEvent,
   u_TileUpdateListenerToLonLat,

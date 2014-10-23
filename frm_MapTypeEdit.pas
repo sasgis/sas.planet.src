@@ -30,7 +30,7 @@ uses
   ExtCtrls,
   ComCtrls,
   Spin,
-  i_MapTypes,
+  i_MapType,
   i_LanguageManager,
   i_TileStorageTypeList,
   u_CommonFormAndFrameParents;

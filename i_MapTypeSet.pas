@@ -25,7 +25,7 @@ interface
 uses
   ActiveX,
   t_Hash,
-  i_MapTypes;
+  i_MapType;
 
 type
   IMapTypeSet = interface

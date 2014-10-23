@@ -28,7 +28,7 @@ uses
   i_Listener,
   i_LocalCoordConverter,
   i_FillingMapLayerConfig,
-  i_MapTypes,
+  i_MapType,
   u_BaseInterfacedObject;
 
 type

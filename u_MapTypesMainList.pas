@@ -45,7 +45,7 @@ uses
   i_MapVersionFactoryList,
   i_MainMemCacheConfig,
   i_MapTypeGUIConfigList,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_MapTypeSetBuilder,
   i_MapTypeSetChangeable,

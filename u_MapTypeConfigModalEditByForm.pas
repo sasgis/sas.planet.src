@@ -25,7 +25,7 @@ interface
 uses
   Windows,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapType,
   i_TileStorageTypeList,
   i_MapTypeConfigModalEdit,
   u_BaseInterfacedObject,

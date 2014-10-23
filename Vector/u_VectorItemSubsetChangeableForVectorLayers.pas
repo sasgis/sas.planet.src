@@ -35,7 +35,7 @@ uses
   i_ThreadConfig,
   i_BackgroundTask,
   i_MapVersionRequest,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_MapTypeSetChangeable,
   i_SimpleFlag,

@@ -24,7 +24,7 @@ interface
 
 uses
   Classes,
-  i_MapTypes;
+  i_MapType;
 
 type
   IMapTypeHotKeyListStatic = interface

@@ -42,7 +42,7 @@ uses
   i_BitmapLayerProvider,
   i_BitmapTileSaveLoad,
   i_BitmapTileSaveLoadFactory,
-  i_MapTypes,
+  i_MapType,
   fr_MapSelect,
   fr_ZoomsSelect,
   u_CommonFormAndFrameParents;

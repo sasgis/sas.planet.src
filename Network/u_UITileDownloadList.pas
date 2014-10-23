@@ -60,7 +60,7 @@ implementation
 uses
   ActiveX,
   i_InterfaceListSimple,
-  i_MapTypes,
+  i_MapType,
   u_InterfaceListSimple,
   u_UiTileDownload;
 

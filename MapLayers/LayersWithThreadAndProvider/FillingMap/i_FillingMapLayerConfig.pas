@@ -25,7 +25,7 @@ interface
 uses
   t_Bitmap32,
   t_FillingMapModes,
-  i_MapTypes,
+  i_MapType,
   i_ThreadConfig,
   i_ActiveMapsConfig,
   i_ConfigDataElement;

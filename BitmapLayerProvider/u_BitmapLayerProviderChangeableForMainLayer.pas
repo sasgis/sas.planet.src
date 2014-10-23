@@ -29,7 +29,7 @@ uses
   i_BitmapLayerProvider,
   i_UseTilePrevZoomConfig,
   i_Bitmap32BufferFactory,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeListStatic,
   i_MapTypeListChangeable,
   i_ListenerNotifierLinksList,

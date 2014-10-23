@@ -143,7 +143,7 @@ uses
   {$WARN UNIT_PLATFORM ON}
   c_CacheTypeCodes, // for cache types
   i_GUIDListStatic,
-  i_MapTypes;
+  i_MapType;
 
 {$R *.dfm}
 

@@ -34,7 +34,7 @@ uses
   c_MarkFlag,
   t_CommonTypes,
   i_LanguageManager,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,

@@ -27,7 +27,7 @@ uses
   SysUtils,
   i_Notifier,
   i_Listener,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   u_ConfigDataElementBase;
 

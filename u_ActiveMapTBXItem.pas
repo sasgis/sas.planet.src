@@ -28,7 +28,7 @@ uses
   TB2Item,
   TBX,
   i_Listener,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSetChangeable;
 
 type

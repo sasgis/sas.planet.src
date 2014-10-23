@@ -68,7 +68,7 @@ uses
   i_TileInfoBasicMemCache,
   i_GlobalCacheConfig,
   i_TileStorage,
-  i_MapTypes,
+  i_MapType,
   u_BaseInterfacedObject;
 
 type

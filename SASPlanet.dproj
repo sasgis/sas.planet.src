@@ -511,6 +511,7 @@
     <DCCReference Include="i_MainWindowPosition.pas" />
     <DCCReference Include="i_MapAbilitiesConfig.pas" />
     <DCCReference Include="i_MapMovingConfig.pas" />
+    <DCCReference Include="i_MapType.pas" />
     <DCCReference Include="i_MapTypeConfigModalEdit.pas" />
     <DCCReference Include="i_MapTypeGUIConfig.pas" />
     <DCCReference Include="i_MapTypeGUIConfigList.pas" />
@@ -519,7 +520,6 @@
     <DCCReference Include="i_MapTypeListBuilder.pas" />
     <DCCReference Include="i_MapTypeListChangeable.pas" />
     <DCCReference Include="i_MapTypeListStatic.pas" />
-    <DCCReference Include="i_MapTypes.pas" />
     <DCCReference Include="i_MapTypeSet.pas" />
     <DCCReference Include="i_MapTypeSetBuilder.pas" />
     <DCCReference Include="i_MapTypeSetChangeable.pas" />

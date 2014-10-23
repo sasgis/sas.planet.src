@@ -78,7 +78,7 @@ uses
   Types,
   Classes,
   SysUtils,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeListStatic,
   i_TileStorageTypeListItem,
   i_RegionProcessParamsFrame,

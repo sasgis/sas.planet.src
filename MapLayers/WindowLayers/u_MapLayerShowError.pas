@@ -38,7 +38,7 @@ uses
   i_SimpleFlag,
   i_MarkerDrawable,
   i_TileErrorLogProviedrStuped,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   u_MapLayerBasic;
 

@@ -63,7 +63,7 @@ implementation
 uses
   Types,
   SysUtils,
-  i_MapTypes,
+  i_MapType,
   i_RegionProcessParamsFrame,
   i_RegionProcessProgressInfo,
   u_ThreadExportToCE,

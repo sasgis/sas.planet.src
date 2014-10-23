@@ -36,7 +36,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
-  i_MapTypes,
+  i_MapType,
   i_TileFileNameGenerator,
   i_TileFileNameGeneratorsList,
   i_RegionProcessParamsFrame,

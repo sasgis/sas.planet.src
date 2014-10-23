@@ -37,7 +37,7 @@ uses
   i_TileRequestResult,
   i_GeometryProjected,
   i_DownloadInfoSimple,
-  i_MapTypes,
+  i_MapType,
   i_RegionProcessProgressInfoDownload;
 
 type

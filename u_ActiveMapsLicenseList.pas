@@ -37,7 +37,7 @@ implementation
 uses
   ActiveX,
   Classes,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   u_ListenerByEvent,
   u_StringListStatic;

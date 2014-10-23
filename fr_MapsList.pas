@@ -81,7 +81,7 @@ uses
   Menus,
   c_InternalBrowser,
   i_GUIDListStatic,
-  i_MapTypes,
+  i_MapType,
   u_ResStrings;
 
 {$R *.dfm}

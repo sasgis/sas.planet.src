@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit i_MapTypes;
+unit i_MapType;
 
 interface
 

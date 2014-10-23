@@ -38,7 +38,7 @@ uses
   i_InternalPerformanceCounter,
   i_StatBarConfig,
   i_MouseState,
-  i_MapTypes,
+  i_MapType,
   i_ValueToStringConverter,
   i_DownloadInfoSimple,
   i_GlobalInternetState,

@@ -29,7 +29,7 @@ uses
   i_MapCalibration,
   i_ProjectionInfo,
   i_PredicateByTileInfo,
-  i_MapTypes;
+  i_MapType;
 
 type
   TDeleteSrc = (dmNone=-1, dmTiles=0, dmMarks=1);

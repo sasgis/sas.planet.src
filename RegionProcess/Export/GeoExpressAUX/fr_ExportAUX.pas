@@ -35,7 +35,7 @@ uses
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
   i_GeometryLonLat,
-  i_MapTypes,
+  i_MapType,
   i_RegionProcessParamsFrame,
   fr_MapSelect,
   u_CommonFormAndFrameParents;

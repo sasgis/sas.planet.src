@@ -32,7 +32,7 @@ uses
   i_DownloadUIConfig,
   i_DownloadInfoSimple,
   i_BackgroundTask,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSetChangeable,
   i_TileError,
   i_TileRequestTask,

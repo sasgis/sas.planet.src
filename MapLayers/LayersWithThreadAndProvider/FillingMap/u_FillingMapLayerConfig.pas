@@ -28,7 +28,7 @@ uses
   t_Bitmap32,
   t_FillingMapModes,
   i_ThreadConfig,
-  i_MapTypes,
+  i_MapType,
   i_MapTypeSet,
   i_ConfigDataProvider,
   i_ConfigDataWriteProvider,
