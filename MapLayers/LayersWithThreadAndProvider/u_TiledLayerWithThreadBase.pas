@@ -239,6 +239,7 @@ begin
                     VElement.LocalConverter.GetRectInMapPixel,
                     rrClosest
                   );
+                FShownIdMatrix.SetTileHash(VTile, VElement.ReadyID);
                 FLayer.Changed(VDstRect);
               end;
             end;
@@ -354,7 +355,6 @@ begin
                   FOneTilePaintResizeCounter.FinishOperation(VCounterContext);
                 end;
               end;
-              FShownIdMatrix.SetTileHash(VTile, VElement.ReadyID);
             end else begin
               ABuffer.Changed(VDstRect);
             end;
