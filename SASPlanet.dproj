@@ -711,6 +711,7 @@
     <DCCReference Include="MapSvcScan\u_AvailPicsTerra.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanConfig.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanStorage.pas" />
+    <DCCReference Include="MarksDB\c_MarkFlag.pas" />
     <DCCReference Include="MarksDB\GUI\frm_ImportConfigEdit.pas">
       <Form>frmImportConfigEdit</Form>
     </DCCReference>
@@ -767,7 +768,6 @@
     <DCCReference Include="MarksDB\i_MarkSystemImplChangeable.pas" />
     <DCCReference Include="MarksDB\i_MarkSystemImplFactory.pas" />
     <DCCReference Include="MarksDB\i_MarkTemplate.pas" />
-    <DCCReference Include="MarksDB\c_MarkFlag.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkCategoryDBSmlInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkCategoryFactoryDbInternal.pas" />
     <DCCReference Include="MarksDB\SML\i_MarkDbSmlInternal.pas" />
