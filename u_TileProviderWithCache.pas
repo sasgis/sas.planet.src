@@ -28,37 +28,36 @@ uses
   i_Bitmap32Static,
   i_VectorItemSubset,
   i_ProjectionInfo,
-  i_TileProvider,
+  i_BitmapTileProvider,
+  i_VectorTileProvider,
   i_TileObjCache,
   u_BaseInterfacedObject;
 
 type
-  TBitmapTileProviderWithCache = class(TBaseInterfacedObject, IBitmapTileProviderWithNotifier)
+  TBitmapTileProviderWithCache = class(TBaseInterfacedObject, IBitmapTileProvider)
   private
-    FSource: IBitmapTileProviderWithNotifier;
+    FSource: IBitmapTileProvider;
     FCache: ITileObjCacheBitmap;
   private
     function GetProjectionInfo: IProjectionInfo;
     function GetTile(const ATile: TPoint): IBitmap32Static;
-    function GetChangeNotifier: INotifierTilePyramidUpdate;
   public
     constructor Create(
-      const ASource: IBitmapTileProviderWithNotifier;
+      const ASource: IBitmapTileProvider;
       const ACache: ITileObjCacheBitmap
     );
   end;
 
-  TVectorTileProviderWithCache = class(TBaseInterfacedObject, IVectorTileProviderWithNotifier)
+  TVectorTileProviderWithCache = class(TBaseInterfacedObject, IVectorTileProvider)
   private
-    FSource: IVectorTileProviderWithNotifier;
+    FSource: IVectorTileProvider;
     FCache: ITileObjCacheVector;
   private
     function GetProjectionInfo: IProjectionInfo;
     function GetTile(const ATile: TPoint): IVectorItemSubset;
-    function GetChangeNotifier: INotifierTilePyramidUpdate;
   public
     constructor Create(
-      const ASource: IVectorTileProviderWithNotifier;
+      const ASource: IVectorTileProvider;
       const ACache: ITileObjCacheVector
     );
   end;
@@ -68,7 +67,7 @@ implementation
 { TBitmapTileProviderWithCache }
 
 constructor TBitmapTileProviderWithCache.Create(
-  const ASource: IBitmapTileProviderWithNotifier;
+  const ASource: IBitmapTileProvider;
   const ACache: ITileObjCacheBitmap
 );
 begin
@@ -77,11 +76,6 @@ begin
   inherited Create;
   FSource := ASource;
   FCache := ACache;
-end;
-
-function TBitmapTileProviderWithCache.GetChangeNotifier: INotifierTilePyramidUpdate;
-begin
-  Result := FSource.ChangeNotifier;
 end;
 
 function TBitmapTileProviderWithCache.GetProjectionInfo: IProjectionInfo;
@@ -108,7 +102,7 @@ end;
 { TVectorTileProviderWithCache }
 
 constructor TVectorTileProviderWithCache.Create(
-  const ASource: IVectorTileProviderWithNotifier;
+  const ASource: IVectorTileProvider;
   const ACache: ITileObjCacheVector
 );
 begin
@@ -117,11 +111,6 @@ begin
   inherited Create;
   FSource := ASource;
   FCache := ACache;
-end;
-
-function TVectorTileProviderWithCache.GetChangeNotifier: INotifierTilePyramidUpdate;
-begin
-  Result := FSource.ChangeNotifier;
 end;
 
 function TVectorTileProviderWithCache.GetProjectionInfo: IProjectionInfo;

@@ -464,9 +464,11 @@
     <DCCReference Include="i_AppEnum.pas" />
     <DCCReference Include="i_BasicMemCache.pas" />
     <DCCReference Include="i_BatteryStatus.pas" />
+    <DCCReference Include="i_BinaryTileProvider.pas" />
     <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapPostProcessing.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
+    <DCCReference Include="i_BitmapTileProvider.pas" />
     <DCCReference Include="i_BuildInfo.pas" />
     <DCCReference Include="i_DebugInfoSubSystem.pas" />
     <DCCReference Include="i_DebugInfoWindow.pas" />
@@ -584,7 +586,6 @@
     <DCCReference Include="i_TileIterator.pas" />
     <DCCReference Include="i_TileKey.pas" />
     <DCCReference Include="i_TileObjCache.pas" />
-    <DCCReference Include="i_TileProvider.pas" />
     <DCCReference Include="i_TileRect.pas" />
     <DCCReference Include="i_TreeChangeable.pas" />
     <DCCReference Include="i_UrlByCoordProvider.pas" />
@@ -593,6 +594,7 @@
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_ValueToStringConverterConfig.pas" />
     <DCCReference Include="i_VectorItemDrawConfig.pas" />
+    <DCCReference Include="i_VectorTileProvider.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_WindowPositionConfig.pas" />
     <DCCReference Include="i_ZmpConfig.pas" />
@@ -1196,6 +1198,7 @@
     <DCCReference Include="u_BitmapPostProcessing.pas" />
     <DCCReference Include="u_BitmapPostProcessingChangeableByConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
+    <DCCReference Include="u_BitmapTileProviderByStorage.pas" />
     <DCCReference Include="u_BuildInfo.pas" />
     <DCCReference Include="u_ClipboardFunc.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
@@ -1362,7 +1365,6 @@
     <DCCReference Include="u_TileIteratorByRect.pas" />
     <DCCReference Include="u_TileIteratorSpiralByRect.pas" />
     <DCCReference Include="u_TileKey.pas" />
-    <DCCReference Include="u_TileProviderByStorage.pas" />
     <DCCReference Include="u_TileProviderWithCache.pas" />
     <DCCReference Include="u_TileRect.pas" />
     <DCCReference Include="u_TileRectInfo.pas" />
@@ -1378,6 +1380,7 @@
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
     <DCCReference Include="u_VectorItemDrawConfig.pas" />
+    <DCCReference Include="u_VectorTileProviderByStorage.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />
     <DCCReference Include="u_XmlLoaderByVSAGPS.pas" />
     <DCCReference Include="u_ZmpConfig.pas" />
