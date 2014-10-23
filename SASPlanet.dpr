@@ -885,7 +885,7 @@ uses
   u_MapTypeSetChangeableBySourceSetWithFilter in 'u_MapTypeSetChangeableBySourceSetWithFilter.pas',
   u_ActiveMapTBXItem in 'u_ActiveMapTBXItem.pas',
   u_MapTypeMenuItemsGeneratorBasic in 'u_MapTypeMenuItemsGeneratorBasic.pas',
-  u_ActiveMapConfig in 'u_ActiveMapConfig.pas',
+  u_MapTypeChangeableByNotifier in 'u_MapTypeChangeableByNotifier.pas',
   u_ActiveMapsSet in 'u_ActiveMapsSet.pas',
   u_MainActiveMap in 'u_MainActiveMap.pas',
   u_ActivMapWithLayers in 'u_ActivMapWithLayers.pas',

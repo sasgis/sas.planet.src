@@ -63,7 +63,7 @@ uses
   ActiveX,
   c_ZeroGUID,
   u_Synchronizer,
-  u_ActiveMapConfig;
+  u_MapTypeChangeableByNotifier;
 
 const
   CKeyNameMap = 'Map';

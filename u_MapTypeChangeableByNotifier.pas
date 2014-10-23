@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ActiveMapConfig;
+unit u_MapTypeChangeableByNotifier;
 
 interface
 
