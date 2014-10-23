@@ -880,7 +880,7 @@ uses
   u_SensorViewConfigSimple in 'Sensor\u_SensorViewConfigSimple.pas',
   u_SensorViewListGeneratorStuped in 'Sensor\u_SensorViewListGeneratorStuped.pas',
   i_MapType in 'i_MapType.pas',
-  u_MapTypeSet in 'u_MapTypeSet.pas',
+  u_MapTypeSetBuilderFactory in 'u_MapTypeSetBuilderFactory.pas',
   u_MapTypeSetChangeableSimple in 'u_MapTypeSetChangeableSimple.pas',
   u_MapTypeSetChangeableBySourceSetWithFilter in 'u_MapTypeSetChangeableBySourceSetWithFilter.pas',
   u_ActiveMapTBXItem in 'u_ActiveMapTBXItem.pas',

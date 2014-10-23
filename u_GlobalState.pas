@@ -311,7 +311,7 @@ uses
   i_InternalDomainInfoProvider,
   i_TextByVectorItem,
   i_ImageResamplerFactoryChangeable,
-  u_MapTypeSet,
+  u_MapTypeSetBuilderFactory,
   u_MapTypeListBuilderFactory,
   i_InternalDebugConfig,
   u_TextByVectorItemHTMLByDescription,

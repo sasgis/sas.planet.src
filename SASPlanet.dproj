@@ -1272,7 +1272,7 @@
     <DCCReference Include="u_MapTypeListBuilderFactory.pas" />
     <DCCReference Include="u_MapTypeListChangeableActiveBitmapLayers.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
-    <DCCReference Include="u_MapTypeSet.pas" />
+    <DCCReference Include="u_MapTypeSetBuilderFactory.pas" />
     <DCCReference Include="u_MapTypeSetChangeable.pas" />
     <DCCReference Include="u_MapTypeSetChangeableBySourceSetWithFilter.pas" />
     <DCCReference Include="u_MapTypeSetChangeableSimple.pas" />
