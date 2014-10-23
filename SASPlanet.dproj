@@ -465,7 +465,6 @@
     <DCCReference Include="i_BasicMemCache.pas" />
     <DCCReference Include="i_BatteryStatus.pas" />
     <DCCReference Include="i_BinaryTileProvider.pas" />
-    <DCCReference Include="i_BitmapGeo.pas" />
     <DCCReference Include="i_BitmapPostProcessing.pas" />
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileProvider.pas" />
@@ -549,11 +548,9 @@
     <DCCReference Include="i_MouseState.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
     <DCCReference Include="i_NotifierLonLatRectUpdate.pas" />
-    <DCCReference Include="i_NotifierRectUpdate.pas" />
     <DCCReference Include="i_NotifierTilePyramidUpdate.pas" />
     <DCCReference Include="i_ObjectWithListener.pas" />
     <DCCReference Include="i_PathConfig.pas" />
-    <DCCReference Include="i_Point.pas" />
     <DCCReference Include="i_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="i_PointOnMapEdit.pas" />
     <DCCReference Include="i_PopUp.pas" />
@@ -563,13 +560,11 @@
     <DCCReference Include="i_ProjectedDrawableElement.pas" />
     <DCCReference Include="i_ReadWriteState.pas" />
     <DCCReference Include="i_ReadWriteStateInternal.pas" />
-    <DCCReference Include="i_Rect.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
     <DCCReference Include="i_SearchResultPresenter.pas" />
     <DCCReference Include="i_SelectionRect.pas" />
     <DCCReference Include="i_ShortCutModalEdit.pas" />
     <DCCReference Include="i_ShortCutSingleConfig.pas" />
-    <DCCReference Include="i_SimpleFactory.pas" />
     <DCCReference Include="i_StartUpLogoConfig.pas" />
     <DCCReference Include="i_StaticTreeBuilder.pas" />
     <DCCReference Include="i_StaticTreeItem.pas" />
@@ -1194,7 +1189,6 @@
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BatteryStatus.pas" />
     <DCCReference Include="u_BitmapFunc.pas" />
-    <DCCReference Include="u_BitmapGeo.pas" />
     <DCCReference Include="u_BitmapPostProcessing.pas" />
     <DCCReference Include="u_BitmapPostProcessingChangeableByConfig.pas" />
     <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
@@ -1317,7 +1311,6 @@
     <DCCReference Include="u_MouseState.pas" />
     <DCCReference Include="u_MultiPoligonParser.pas" />
     <DCCReference Include="u_NavigationToPoint.pas" />
-    <DCCReference Include="u_NotifierLonLatRectUpdate.pas" />
     <DCCReference Include="u_NotifierTilePyramidUpdate.pas" />
     <DCCReference Include="u_NotifyWithGUIDEvent.pas" />
     <DCCReference Include="u_ObjectFromPoolAbstract.pas" />
