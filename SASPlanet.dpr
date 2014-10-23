@@ -1151,7 +1151,7 @@ uses
   u_ShortCutModalEditByForm in 'u_ShortCutModalEditByForm.pas',
   i_RegionProcessParamsFrame in 'RegionProcess\i_RegionProcessParamsFrame.pas',
   u_ExportProviderAbstract in 'RegionProcess\Export\u_ExportProviderAbstract.pas',
-  u_SearchResults in 'u_SearchResults.pas',
+  u_SearchResultPresenterOnPanel in 'u_SearchResultPresenterOnPanel.pas',
   u_BitmapFunc in 'u_BitmapFunc.pas',
   u_ClipboardFunc in 'u_ClipboardFunc.pas',
   frm_CacheManager in 'CacheManager\frm_CacheManager.pas' {frmCacheManager},

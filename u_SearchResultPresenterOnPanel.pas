@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_SearchResults;
+unit u_SearchResultPresenterOnPanel;
 
 interface
 

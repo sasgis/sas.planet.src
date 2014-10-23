@@ -1335,7 +1335,7 @@
     <DCCReference Include="u_SASMainConfigProvider.pas" />
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
     <DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas" />
-    <DCCReference Include="u_SearchResults.pas" />
+    <DCCReference Include="u_SearchResultPresenterOnPanel.pas" />
     <DCCReference Include="u_SelectionRect.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
     <DCCReference Include="u_ShortCutModalEditByForm.pas" />

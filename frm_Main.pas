@@ -874,7 +874,7 @@ uses
   u_MapViewPortState,
   u_MainFormConfig,
   u_SensorListStuped,
-  u_SearchResults,
+  u_SearchResultPresenterOnPanel,
   u_ListenerNotifierLinksList,
   u_TileDownloaderUIOneTile,
   u_ListenerByEvent,
