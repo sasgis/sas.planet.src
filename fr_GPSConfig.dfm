@@ -2,14 +2,15 @@ object frGPSConfig: TfrGPSConfig
   Left = 0
   Top = 0
   Width = 655
-  Height = 344
+  Height = 470
   Align = alClient
+  Constraints.MinHeight = 470
   TabOrder = 0
   object pnlGPSLeft: TPanel
     Left = 0
     Top = 0
     Width = 405
-    Height = 344
+    Height = 470
     Align = alClient
     BevelOuter = bvNone
     Constraints.MinHeight = 344
@@ -20,76 +21,17 @@ object frGPSConfig: TfrGPSConfig
       Left = 0
       Top = 0
       Width = 402
-      Height = 75
+      Height = 228
       Align = alTop
       AutoSize = True
-      BevelEdges = [beBottom]
-      BevelKind = bkTile
+      BevelEdges = []
       BevelOuter = bvNone
       BorderWidth = 3
+      FlowStyle = fsTopBottomLeftRight
       TabOrder = 0
-      object Label4: TLabel
-        AlignWithMargins = True
-        Left = 6
-        Top = 6
-        Width = 49
-        Height = 13
-        Caption = 'Serial port'
-      end
-      object ComboBoxCOM: TComboBox
-        Left = 58
-        Top = 3
-        Width = 68
-        Height = 21
-        ItemHeight = 13
-        TabOrder = 0
-        Text = 'COM1'
-      end
-      object btnGPSAutodetectCOM: TButton
-        Left = 126
-        Top = 3
-        Width = 21
-        Height = 21
-        Hint = 'Autodetect COM port'
-        Caption = '?'
-        TabOrder = 2
-        OnClick = btnGPSAutodetectCOMClick
-      end
-      object Label65: TLabel
-        AlignWithMargins = True
-        Left = 150
-        Top = 6
-        Width = 73
-        Height = 13
-        Alignment = taRightJustify
-        Caption = 'Bits per second'
-      end
-      object ComboBoxBoudRate: TComboBox
-        Left = 226
-        Top = 3
-        Width = 63
-        Height = 21
-        ItemHeight = 13
-        ItemIndex = 5
-        TabOrder = 1
-        Text = '4800'
-        Items.Strings = (
-          '110'
-          '300'
-          '600'
-          '1200'
-          '2400'
-          '4800'
-          '9600'
-          '14400'
-          '19200'
-          '38400'
-          '57600'
-          '115200')
-      end
       object lbGPSDelimiter1: TLabel
         AlignWithMargins = True
-        Left = 292
+        Left = 6
         Top = 6
         Width = 8
         Height = 13
@@ -97,106 +39,196 @@ object frGPSConfig: TfrGPSConfig
         AutoSize = False
       end
       object btnGPSSwitch: TButton
-        Left = 303
-        Top = 3
-        Width = 94
-        Height = 21
+        Left = 3
+        Top = 20
+        Width = 133
+        Height = 50
         Hint = 'Disable or enable GPS'
         Caption = 'GPS On/Off'
-        TabOrder = 3
+        TabOrder = 0
         OnClick = btnGPSSwitchClick
       end
-      object CB_GPSAutodetectCOMOnConnect: TCheckBox
-        AlignWithMargins = True
-        Left = 6
-        Top = 27
-        Width = 80
-        Height = 17
-        Hint = 'Autodetect COM port on connect'
-        Caption = 'Autodetect:'
-        TabOrder = 4
+      object rgConnectionType: TRadioGroup
+        Left = 3
+        Top = 71
+        Width = 131
+        Height = 105
+        Caption = 'GPS type'
+        ItemIndex = 0
+        Items.Strings = (
+          'COM'
+          'USB Garmin'
+          'Location API'
+          'Fly-on-Track')
+        TabOrder = 1
       end
-      object CB_GPSAutodetectCOMSerial: TCheckBox
+      object pnlComParams: TPanel
         AlignWithMargins = True
-        Left = 92
-        Top = 27
-        Width = 48
-        Height = 17
-        Caption = 'Serial'
-        TabOrder = 5
-      end
-      object CB_GPSAutodetectCOMVirtual: TCheckBox
-        AlignWithMargins = True
-        Left = 146
-        Top = 27
-        Width = 50
-        Height = 17
-        Caption = 'Virtual'
-        TabOrder = 6
-      end
-      object CB_GPSAutodetectCOMBluetooth: TCheckBox
-        AlignWithMargins = True
-        Left = 202
-        Top = 27
-        Width = 67
-        Height = 17
-        Caption = 'Bluetooth'
-        TabOrder = 7
-      end
-      object CB_GPSAutodetectCOMUSBSer: TCheckBox
-        AlignWithMargins = True
-        Left = 275
-        Top = 27
-        Width = 56
-        Height = 17
-        Caption = 'USBSer'
-        TabOrder = 8
-      end
-      object CB_GPSAutodetectCOMOthers: TCheckBox
-        AlignWithMargins = True
-        Left = 6
-        Top = 50
-        Width = 60
-        Height = 17
-        Caption = 'Others'
-        TabOrder = 9
-      end
-      object CB_USBGarmin: TCheckBox
-        AlignWithMargins = True
-        Left = 72
-        Top = 50
-        Width = 82
-        Height = 17
-        Hint = 'Use Garmin via USB (overrides COM settings if checked)'
-        Caption = 'USB Garmin'
-        TabOrder = 10
-      end
-      object CB_LocationAPI: TCheckBox
-        AlignWithMargins = True
-        Left = 160
-        Top = 50
-        Width = 89
-        Height = 17
-        Hint = 'Use Location API (overrides PREV settings if checked)'
-        Caption = 'Location API'
-        TabOrder = 11
-      end
-      object CB_FlyOnTrack: TCheckBox
-        AlignWithMargins = True
-        Left = 255
-        Top = 50
-        Width = 82
-        Height = 17
-        Hint = 'Use Fly-on-Track mode (overrides ALL settings if checked)'
-        Caption = 'Fly-on-Track'
-        TabOrder = 12
+        Left = 139
+        Top = 6
+        Width = 261
+        Height = 216
+        BevelKind = bkTile
+        BevelOuter = bvNone
+        BorderWidth = 2
+        TabOrder = 2
+        object flwpnlComPort: TFlowPanel
+          Left = 2
+          Top = 2
+          Width = 253
+          Height = 21
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
+          TabOrder = 0
+          object Label4: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 49
+            Height = 13
+            Caption = 'Serial port'
+          end
+          object ComboBoxCOM: TComboBox
+            Left = 55
+            Top = 0
+            Width = 68
+            Height = 21
+            ItemHeight = 13
+            TabOrder = 0
+            Text = 'COM1'
+          end
+          object btnGPSAutodetectCOM: TButton
+            Left = 123
+            Top = 0
+            Width = 21
+            Height = 21
+            Hint = 'Autodetect COM port'
+            Caption = '?'
+            TabOrder = 1
+            OnClick = btnGPSAutodetectCOMClick
+          end
+        end
+        object flwpnlComPortSpeed: TFlowPanel
+          Left = 2
+          Top = 23
+          Width = 253
+          Height = 21
+          Align = alTop
+          AutoSize = True
+          BevelOuter = bvNone
+          TabOrder = 1
+          object Label65: TLabel
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 73
+            Height = 13
+            Alignment = taRightJustify
+            Caption = 'Bits per second'
+          end
+          object ComboBoxBoudRate: TComboBox
+            Left = 79
+            Top = 0
+            Width = 63
+            Height = 21
+            ItemHeight = 13
+            ItemIndex = 5
+            TabOrder = 0
+            Text = '4800'
+            Items.Strings = (
+              '110'
+              '300'
+              '600'
+              '1200'
+              '2400'
+              '4800'
+              '9600'
+              '14400'
+              '19200'
+              '38400'
+              '57600'
+              '115200')
+          end
+        end
+        object CB_GPSAutodetectCOMOnConnect: TCheckBox
+          AlignWithMargins = True
+          Left = 5
+          Top = 47
+          Width = 247
+          Height = 17
+          Hint = 'Autodetect COM port on connect'
+          Align = alTop
+          Caption = 'Autodetect on conntect'
+          TabOrder = 2
+        end
+        object grpAutoDetect: TGroupBox
+          AlignWithMargins = True
+          Left = 5
+          Top = 70
+          Width = 247
+          Height = 137
+          Align = alTop
+          Caption = 'Autodetect'
+          TabOrder = 3
+          object CB_GPSAutodetectCOMBluetooth: TCheckBox
+            AlignWithMargins = True
+            Left = 5
+            Top = 18
+            Width = 237
+            Height = 17
+            Align = alTop
+            Caption = 'Bluetooth'
+            TabOrder = 0
+          end
+          object CB_GPSAutodetectCOMOthers: TCheckBox
+            AlignWithMargins = True
+            Left = 5
+            Top = 110
+            Width = 237
+            Height = 17
+            Align = alTop
+            Caption = 'Others'
+            TabOrder = 1
+          end
+          object CB_GPSAutodetectCOMSerial: TCheckBox
+            AlignWithMargins = True
+            Left = 5
+            Top = 64
+            Width = 237
+            Height = 17
+            Align = alTop
+            Caption = 'Serial'
+            TabOrder = 2
+          end
+          object CB_GPSAutodetectCOMUSBSer: TCheckBox
+            AlignWithMargins = True
+            Left = 5
+            Top = 41
+            Width = 237
+            Height = 17
+            Align = alTop
+            Caption = 'USBSer'
+            TabOrder = 3
+          end
+          object CB_GPSAutodetectCOMVirtual: TCheckBox
+            AlignWithMargins = True
+            Left = 5
+            Top = 87
+            Width = 237
+            Height = 17
+            Align = alTop
+            Caption = 'Virtual'
+            TabOrder = 4
+          end
+        end
       end
     end
     object flwpnlGpsParams: TFlowPanel
       Left = 0
-      Top = 75
+      Top = 228
       Width = 402
-      Height = 194
+      Height = 166
       Align = alTop
       BevelEdges = []
       BevelKind = bkTile
@@ -275,7 +307,7 @@ object frGPSConfig: TfrGPSConfig
     end
     object GB_GpsTrackSave: TGroupBox
       Left = 0
-      Top = 269
+      Top = 394
       Width = 402
       Height = 42
       Align = alTop
@@ -311,7 +343,7 @@ object frGPSConfig: TfrGPSConfig
     end
     object pnlGpsSensors: TPanel
       Left = 0
-      Top = 311
+      Top = 436
       Width = 402
       Height = 31
       Align = alTop
@@ -337,7 +369,7 @@ object frGPSConfig: TfrGPSConfig
     Left = 405
     Top = 0
     Width = 250
-    Height = 344
+    Height = 470
     Align = alRight
     BevelOuter = bvNone
     TabOrder = 1
@@ -345,7 +377,7 @@ object frGPSConfig: TfrGPSConfig
       Left = 0
       Top = 0
       Width = 250
-      Height = 344
+      Height = 470
       Align = alClient
       Caption = 'Satellites'
       TabOrder = 0

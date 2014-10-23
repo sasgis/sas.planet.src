@@ -61,7 +61,6 @@ type
     CB_GPSAutodetectCOMBluetooth: TCheckBox;
     CB_GPSAutodetectCOMUSBSer: TCheckBox;
     CB_GPSAutodetectCOMOthers: TCheckBox;
-    CB_USBGarmin: TCheckBox;
     flwpnlGpsParams: TFlowPanel;
     Label6: TLabel;
     SE_ConnectionTimeout: TSpinEdit;
@@ -79,8 +78,11 @@ type
     CBSensorsBarAutoShow: TCheckBox;
     pnlGpsRight: TPanel;
     GroupBox3: TGroupBox;
-    CB_LocationAPI: TCheckBox;
-    CB_FlyOnTrack: TCheckBox;
+    rgConnectionType: TRadioGroup;
+    grpAutoDetect: TGroupBox;
+    flwpnlComPort: TFlowPanel;
+    flwpnlComPortSpeed: TFlowPanel;
+    pnlComParams: TPanel;
     procedure btnGPSAutodetectCOMClick(Sender: TObject);
     procedure btnGPSSwitchClick(Sender: TObject);
   private
@@ -206,6 +208,8 @@ begin
 end;
 
 procedure TfrGPSConfig.ApplyChanges;
+var
+  VGPSType: TGPSOrigin;
 begin
   FGPSTrackConfig.LockWrite;
   try
@@ -219,15 +223,20 @@ begin
 
   FGPSConfig.LockWrite;
   try
-    if CB_FlyOnTrack.Checked then begin
-      FGPSConfig.ModuleConfig.GPSOrigin := gpsoFlyOnTrack;
-    end else if CB_LocationAPI.Checked then begin
-      FGPSConfig.ModuleConfig.GPSOrigin := gpsoLocationAPI;
-    end else if CB_USBGarmin.Checked then begin
-      FGPSConfig.ModuleConfig.GPSOrigin := gpsoGarmin;
-    end else begin
-      FGPSConfig.ModuleConfig.GPSOrigin := gpsoNMEA;
+    case rgConnectionType.ItemIndex of
+      1: begin
+        VGPSType := gpsoGarmin;
+      end;
+      2: begin
+        VGPSType := gpsoLocationAPI;
+      end;
+      3: begin
+        VGPSType := gpsoFlyOnTrack;
+      end;
+    else
+      VGPSType := gpsoNMEA;
     end;
+    FGPSConfig.ModuleConfig.GPSOrigin := VGPSType;
     FGPSConfig.ModuleConfig.ConnectionTimeout := SE_ConnectionTimeout.Value;
     FGPSConfig.ModuleConfig.LowLevelLog := CB_GPSlogNmea.Checked;
     FGPSConfig.ModuleConfig.Delay := SpinEdit1.Value;
@@ -272,9 +281,19 @@ begin
     ComboBoxBoudRate.Text:=inttostr(FGPSConfig.ModuleConfig.BaudRate);
     CB_GPSlogPLT.Checked:=FGPSConfig.WriteLog[ttPLT];
     CB_GPSlogGPX.Checked:=FGPSConfig.WriteLog[ttGPX];
-    CB_USBGarmin.Checked := (gpsoGarmin = FGPSConfig.ModuleConfig.GPSOrigin);
-    CB_LocationAPI.Checked := (gpsoLocationAPI = FGPSConfig.ModuleConfig.GPSOrigin);
-    CB_FlyOnTrack.Checked := (gpsoFlyOnTrack = FGPSConfig.ModuleConfig.GPSOrigin);
+    case FGPSConfig.ModuleConfig.GPSOrigin of
+      gpsoGarmin: begin
+        rgConnectionType.ItemIndex := 1;
+      end;
+      gpsoLocationAPI: begin
+        rgConnectionType.ItemIndex := 2;
+      end;
+      gpsoFlyOnTrack: begin
+        rgConnectionType.ItemIndex := 3;
+      end;
+    else
+      rgConnectionType.ItemIndex := 0;
+    end;
     CB_GPSAutodetectCOMOnConnect.Checked:=FGPSConfig.ModuleConfig.AutodetectCOMOnConnect;
     VFlags:=FGPSConfig.ModuleConfig.AutodetectCOMFlags;
   finally
