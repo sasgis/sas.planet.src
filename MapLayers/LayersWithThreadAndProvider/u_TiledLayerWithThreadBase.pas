@@ -39,7 +39,7 @@ uses
   i_ObjectWithListener,
   i_TileMatrixChangeable,
   i_InternalPerformanceCounter,
-  u_TileHashMatrix,
+  i_HashMatrix,
   u_WindowLayerBasic;
 
 type
@@ -49,7 +49,7 @@ type
     FTileMatrix: ITileMatrixChangeable;
     FView: ILocalCoordConverterChangeable;
 
-    FShownIdMatrix: ITileHashMatrix;
+    FShownIdMatrix: IHashMatrix;
     FOnPaintCounter: IInternalPerformanceCounter;
     FOneTilePaintSimpleCounter: IInternalPerformanceCounter;
     FOneTilePaintResizeCounter: IInternalPerformanceCounter;
@@ -102,6 +102,7 @@ uses
   u_ListenerByEvent,
   u_ListenerTime,
   u_TileIteratorByRect,
+  u_HashMatrix,
   u_GeoFunc,
   u_BitmapFunc,
   u_TileMatrixChangeableWithThread;
@@ -137,7 +138,7 @@ begin
   FOneTilePaintSimpleCounter := APerfList.CreateAndAddNewCounter('OneTilePaintSimple');
   FOneTilePaintResizeCounter := APerfList.CreateAndAddNewCounter('OneTilePaintResize');
 
-  FShownIdMatrix := TTileHashMatrix.Create;
+  FShownIdMatrix := THashMatrix.Create;
   FTileMatrixChangeFlag := TSimpleFlagWithInterlock.Create;
   FTileMatrix :=
     TTileMatrixChangeableWithThread.Create(
@@ -230,7 +231,7 @@ begin
         if VLocalConverter.ProjectionInfo.GetIsSameProjectionInfo(VTileMatrix.LocalConverter.ProjectionInfo) then begin
           VTileIterator := TTileIteratorByRect.Create(VTileMatrix.TileRect);
           while VTileIterator.Next(VTile) do begin
-            VShownId := FShownIdMatrix.GetTileHash(VTile);
+            VShownId := FShownIdMatrix.GetHash(VTile);
             VElement := VTileMatrix.GetElementByTile(VTile);
             if VElement <> nil then begin
               if VElement.ReadyID <> VShownId then begin
@@ -239,7 +240,7 @@ begin
                     VElement.LocalConverter.GetRectInMapPixel,
                     rrClosest
                   );
-                FShownIdMatrix.SetTileHash(VTile, VElement.ReadyID);
+                FShownIdMatrix.SetHash(VTile, VElement.ReadyID);
                 FLayer.Changed(VDstRect);
               end;
             end;
