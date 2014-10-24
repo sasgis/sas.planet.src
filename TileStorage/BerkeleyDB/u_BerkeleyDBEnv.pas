@@ -57,6 +57,7 @@ type
     FDatabasePool: IBerkeleyDBPool;
     FIsFullVerboseMode: Boolean;
     FDatabasePageSize: Cardinal;
+    FIsReadOnly: Boolean;
     function Open: Boolean;
     procedure MakeDefConfigFile(const AEnvHomePath: string);
     procedure RemoveUnUsedLogs;
@@ -144,6 +145,8 @@ begin
   Assert(AStorageConfig <> nil);
 
   inherited Create;
+  FIsReadOnly := AIsReadOnly;
+
   dbenv := nil;
   FTxnList := TList.Create;
 
@@ -155,7 +158,7 @@ begin
   VDatabaseFactory := TBerkeleyDBFactory.Create(
     AStorageConfig.DatabasePageSize,
     AStorageConfig.OnDeadLockRetryCount,
-    AIsReadOnly,
+    FIsReadOnly,
     TBerkeleyDBMetaKey.Create as IBinaryData,
     TBerkeleyDBMetaValue.Create(AStorageEPSG) as IBinaryData
   );
@@ -318,6 +321,9 @@ end;
 
 procedure TBerkeleyDBEnv.RemoveUnUsedLogs;
 begin
+  if FIsReadOnly then begin
+    Exit;
+  end;
   FCS.Acquire;
   try
     if FActive and FLibInitOk and (GetTickCount - FLastRemoveLogTime > 30000) then begin
@@ -333,6 +339,7 @@ procedure TBerkeleyDBEnv.TransactionBegin(out ATxn: PBerkeleyTxn);
 var
   txn: PDB_TXN;
 begin
+  Assert(not FIsReadOnly);
   FCS.Acquire;
   try
     if FActive and FLibInitOk then begin
@@ -352,6 +359,7 @@ procedure TBerkeleyDBEnv.TransactionCommit(var ATxn: PBerkeleyTxn);
 var
   txn: PDB_TXN;
 begin
+  Assert(not FIsReadOnly);
   if ATxn <> nil then begin
     txn := ATxn;
     ATxn := nil;
@@ -371,6 +379,7 @@ procedure TBerkeleyDBEnv.TransactionAbort(var ATxn: PBerkeleyTxn);
 var
   txn: PDB_TXN;
 begin
+  Assert(not FIsReadOnly);
   if ATxn <> nil then begin
     txn := ATxn;
     ATxn := nil;
@@ -388,6 +397,9 @@ end;
 
 procedure TBerkeleyDBEnv.TransactionCheckPoint;
 begin
+  if FIsReadOnly then begin
+    Exit;
+  end;
   FCS.Acquire;
   try
     if FActive and FLibInitOk then begin
