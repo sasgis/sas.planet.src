@@ -31,7 +31,10 @@ implementation
 
 uses
   Classes,
+  u_HashFunctionByImpl,
+  u_HashFunctionCRC64,
   u_Bitmap32BufferFactorySimple,
+  u_Bitmap32StaticFactory,
   u_BinaryDataByMemStream;
 
 const
@@ -52,7 +55,12 @@ const
 procedure TestTBitmapTileSaveLoadFactory.SetUp;
 begin
   FBitmapTileSaveLoadFactory :=
-    TBitmapTileSaveLoadFactory.Create(TBitmap32BufferFactorySimple.Create) as IBitmapTileSaveLoadFactory;
+    TBitmapTileSaveLoadFactory.Create(
+      TBitmap32StaticFactory.Create(
+        THashFunctionByImpl.Create(THashFunctionCRC64.Create),
+        TBitmap32BufferFactorySimple.Create
+      )
+    );
 end;
 
 procedure TestTBitmapTileSaveLoadFactory.TearDown;

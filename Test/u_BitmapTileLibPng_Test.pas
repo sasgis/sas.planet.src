@@ -34,9 +34,12 @@ type
 implementation
 
 uses
+  u_HashFunctionByImpl,
+  u_HashFunctionCRC64,
   u_BinaryDataByMemStream,
   u_BitmapTileSaveLoadFactory,
   u_Bitmap32BufferFactorySimple,
+  u_Bitmap32StaticFactory,
   u_InternalPerformanceCounterFake,
   u_Bitmap32To8ConverterByFreeImage,
   u_Bitmap32To8ConverterByLibImageQuant;
@@ -73,7 +76,12 @@ begin
   FLibPng32bppTileSaver := TLibPngTileSaver.Create(VCounter, cCompression, 32);
 
   FBitmapTileSaveLoadFactory :=
-    TBitmapTileSaveLoadFactory.Create(TBitmap32BufferFactorySimple.Create);
+    TBitmapTileSaveLoadFactory.Create(
+      TBitmap32StaticFactory.Create(
+        THashFunctionByImpl.Create(THashFunctionCRC64.Create),
+        TBitmap32BufferFactorySimple.Create
+      )
+    );
 end;
 
 procedure TestTLibPngTileSaver.TearDown;

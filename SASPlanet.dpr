@@ -185,6 +185,7 @@ uses
   t_CommonTypes in 't_CommonTypes.pas',
   t_FillingMapModes in 't_FillingMapModes.pas',
   i_HashFunction in 'i_HashFunction.pas',
+  u_HashFunctionByImpl in 'u_HashFunctionByImpl.pas',
   u_HashFunctionWithCounter in 'u_HashFunctionWithCounter.pas',
   i_Datum in 'CoordConvert\i_Datum.pas',
   u_Datum in 'CoordConvert\u_Datum.pas',

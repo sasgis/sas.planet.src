@@ -1210,6 +1210,7 @@
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
     <DCCReference Include="u_GSMGeoCodeConfig.pas" />
+    <DCCReference Include="u_HashFunctionByImpl.pas" />
     <DCCReference Include="u_HashFunctionWithCounter.pas" />
     <DCCReference Include="u_HashInterfaceCache2Q.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
