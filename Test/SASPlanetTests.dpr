@@ -22,6 +22,7 @@ uses
   u_EnumDoublePointFilterEqual_Test in 'u_EnumDoublePointFilterEqual_Test.pas',
   u_EnumDoublePointWithClip_Test in 'u_EnumDoublePointWithClip_Test.pas',
   u_EnumDoublePointClosePoly_Test in 'u_EnumDoublePointClosePoly_Test.pas',
+  u_HashMatrix_Test in 'u_HashMatrix_Test.pas',
   u_HashCacheWithQueuesAbstract_Test in 'u_HashCacheWithQueuesAbstract_Test.pas',
   u_PathConfig_Test in 'u_PathConfig_Test.pas',
   u_Datum_Test in 'u_Datum_Test.pas',

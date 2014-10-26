@@ -63,6 +63,7 @@
     <DCCReference Include="u_GUIDSetStatic_Test.pas" />
     <DCCReference Include="u_GUIDSet_Test.pas" />
     <DCCReference Include="u_HashCacheWithQueuesAbstract_Test.pas" />
+    <DCCReference Include="u_HashMatrix_Test.pas" />
     <DCCReference Include="u_PathConfig_Test.pas" />
     <DCCReference Include="u_ProjectedSingleLine_Test.pas" />
     <DCCReference Include="u_SASTestCase.pas" />
