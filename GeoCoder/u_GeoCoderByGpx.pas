@@ -37,6 +37,7 @@ type
   EDirNotExist = class(EGeoCoderERR);
   TGeoCoderByGpx = class(TGeoCoderLocalBasic)
   private
+    FPath: string;
     FValueToStringConverter: IValueToStringConverterChangeable;
     procedure SearchInGpxFile(
       const ACancelNotifier: INotifierOperation;
@@ -55,6 +56,7 @@ type
     ): IInterfaceListSimple; override;
   public
     constructor Create(
+      const APath: string;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable
@@ -73,14 +75,16 @@ uses
 
 { TGeoCoderByGpx }
 constructor TGeoCoderByGpx.Create(
+  const APath: string;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
-  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\gpx')) then
-    raise EDirNotExist.Create('not found .\userdata\gpx\! skip GeoCoderByGpx');
+  FPath := APath;
+  if not DirectoryExists(FPath) then
+    raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByGpx', [FPath]);
   FValueToStringConverter := AValueToStringConverter;
 end;
 
@@ -207,7 +211,6 @@ function TGeoCoderByGpx.DoSearch(
 var
   VList: IInterfaceListSimple;
   Vpath: String;
-  VFolder: String;
   VSearchRec: TSearchRec;
   VMySearch: String;
   VValueConverter: IValueToStringConverter;
@@ -216,13 +219,12 @@ begin
   VValueConverter := FValueToStringConverter.GetStatic;
   while PosEx('  ', VMySearch) > 0 do VMySearch := ReplaceStr(VMySearch, '  ', ' ');
   VList := TInterfaceListSimple.Create;
-  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\gpx\');
-  if FindFirst(VFolder + '*.gpx', faAnyFile, VSearchRec) = 0 then begin
+  if FindFirst(FPath + '*.gpx', faAnyFile, VSearchRec) = 0 then begin
     repeat
       if (VSearchRec.Attr and faDirectory) = faDirectory then begin
         Continue;
       end;
-      Vpath := VFolder + VSearchRec.Name;
+      Vpath := FPath + VSearchRec.Name;
       SearchInGpxFile(ACancelNotifier, AOperationID, Vpath, VMySearch, Vlist, VValueConverter);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;

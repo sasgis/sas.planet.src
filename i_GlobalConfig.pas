@@ -70,6 +70,9 @@ type
     function GetTerrainDataPath: IPathConfig;
     property TerrainDataPath: IPathConfig read GetTerrainDataPath;
 
+    function GetUserDataPath: IPathConfig;
+    property UserDataPath: IPathConfig read GetUserDataPath;
+
     function GetUpdatesPath: IPathConfig;
     property UpdatesPath: IPathConfig read GetUpdatesPath;
 

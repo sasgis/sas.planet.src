@@ -720,6 +720,7 @@ begin
 
   FGeoCoderList :=
     TGeoCoderListSimple.Create(
+      IncludeTrailingPathDelimiter(FGlobalConfig.UserDataPath.FullPath),
       FGlobalConfig.InetConfig,
       BGTimerNotifier,
       FVectorItemSubsetBuilderFactory,

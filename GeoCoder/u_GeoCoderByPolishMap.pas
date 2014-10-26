@@ -38,6 +38,7 @@ type
   EDirNotExist = class(EGeoCoderERR);
   TGeoCoderByPolishMap = class(TGeoCoderLocalBasic)
   private
+    FPath: string;
     FValueToStringConverter: IValueToStringConverterChangeable;
     procedure SearchInMapFile(
       const ACancelNotifier: INotifierOperation;
@@ -56,6 +57,7 @@ type
     ): IInterfaceListSimple; override;
   public
     constructor Create(
+      const APath: string;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable
@@ -674,14 +676,16 @@ begin
 end;
 
 constructor TGeoCoderByPolishMap.Create(
+  const APath: string;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
-  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\mp')) then
-    raise EDirNotExist.Create('not found .\userdata\mp\! skip GeoCoderByPolishMap');
+  FPath := APath;
+  if not DirectoryExists(FPath) then
+    raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByPolishMap', [FPath]);
   FValueToStringConverter := AValueToStringConverter;
 end;
 
@@ -695,7 +699,6 @@ var
   VList: IInterfaceListSimple;
   Vpath: String;
   Vcnt: Integer;
-  VFolder: String;
   VSearchRec: TSearchRec;
   VMySearch: String;
 begin
@@ -703,13 +706,12 @@ begin
   VMySearch := ASearch;
   while PosEx('  ', VMySearch) > 0 do VMySearch := ReplaceStr(VMySearch, '  ', ' ');
   VList := TInterfaceListSimple.Create;
-  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\mp\');
-  if FindFirst(VFolder + '*.mp', faAnyFile, VSearchRec) = 0 then begin
+  if FindFirst(FPath + '*.mp', faAnyFile, VSearchRec) = 0 then begin
     repeat
       if (VSearchRec.Attr and faDirectory) = faDirectory then begin
         continue;
       end;
-      Vpath := VFolder + VSearchRec.Name;
+      Vpath := FPath + VSearchRec.Name;
       SearchInMapFile(ACancelNotifier, AOperationID, Vpath, VMySearch, Vlist, Vcnt);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
        Exit;

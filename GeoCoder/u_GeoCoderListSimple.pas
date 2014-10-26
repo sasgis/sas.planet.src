@@ -36,6 +36,7 @@ type
   TGeoCoderListSimple = class(TGeoCoderListStatic)
   public
     constructor Create(
+      const AUserDataPath: string;
       const AInetConfig: IInetConfig;
       const AGCNotifier: INotifierTime;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -49,6 +50,7 @@ type
 implementation
 
 uses
+  SysUtils,
   c_GeoCoderGUIDSimple,
   i_InterfaceListSimple,                                                                     
   i_GeoCoderList,
@@ -71,6 +73,7 @@ uses
 { TGeoCoderListSimple }
 
 constructor TGeoCoderListSimple.Create(
+  const AUserDataPath: string;
   const AInetConfig: IInetConfig;
   const AGCNotifier: INotifierTime;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
@@ -154,7 +157,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderGpxGUID,
         'Offline search (*.gpx)',
-        TGeoCoderByGpx.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
+        TGeoCoderByGpx.Create(AUserDataPath + 'gpx' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
     VList.Add(VItem);
   Except
@@ -165,7 +168,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderPolishMapGUID,
         'Offline search (*.mp)',
-        TGeoCoderByPolishMap.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
+        TGeoCoderByPolishMap.Create(AUserDataPath + 'mp' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
     VList.Add(VItem);
   Except
@@ -176,7 +179,7 @@ begin
       TGeoCoderListEntity.Create(
         CGeoCoderGeonamesTXTGUID,
         'Offline search (*.txt)',
-        TGeoCoderByTXT.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
+        TGeoCoderByTXT.Create(AUserDataPath + 'txt' + PathDelim, AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
       );
     VList.Add(VItem);
   Except

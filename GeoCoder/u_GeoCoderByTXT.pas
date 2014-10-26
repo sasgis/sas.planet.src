@@ -39,6 +39,7 @@ type
 
   TGeoCoderByTXT = class(TGeoCoderLocalBasic)
   private
+    FPath: string;
     FValueToStringConverter: IValueToStringConverterChangeable;
     procedure SearchInTXTFile(
       const ACancelNotifier: INotifierOperation;
@@ -57,6 +58,7 @@ type
     ): IInterfaceListSimple; override;
   public
     constructor Create(
+      const APath: string;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable
@@ -75,14 +77,16 @@ uses
 { TGeoCoderByTXT }
 
 constructor TGeoCoderByTXT.Create(
+  const APath: string;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable
 );
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
-  if not DirectoryExists(IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\txt')) then
-    raise EDirNotExist.Create('not found .\userdata\txt\! skip GeoCoderByTXT');
+  FPath := APath;
+  if not DirectoryExists(FPath) then
+    raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByTXT', [FPath]);
   FValueToStringConverter := AValueToStringConverter;
 end;
 
@@ -229,7 +233,6 @@ var
   VList: IInterfaceListSimple;
   vpath: string;
   Vcnt: Integer;
-  VFolder: string;
   SearchRec: TSearchRec;
   MySearch: string;
 begin
@@ -237,13 +240,12 @@ begin
   MySearch := ASearch;
   while PosEx('  ',MySearch) > 0 do MySearch := ReplaceStr(MySearch, '  ', ' ');
   VList := TInterfaceListSimple.Create;
-  VFolder := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)) + 'userdata\txt\');
-  if FindFirst(VFolder + '*.txt', faAnyFile, SearchRec) = 0 then begin
+  if FindFirst(FPath + '*.txt', faAnyFile, SearchRec) = 0 then begin
     repeat
       if (SearchRec.Attr and faDirectory) = faDirectory then begin
         Continue;
       end;
-      vpath := VFolder + SearchRec.Name;
+      vpath := FPath + SearchRec.Name;
       SearchInTXTFile(ACancelNotifier, AOperationID, Vpath, MySearch, vlist, Vcnt);
       if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
         Exit;
