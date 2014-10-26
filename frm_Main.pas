@@ -5266,7 +5266,7 @@ begin
                 VVectorItem.Geometry,
                 VLocalConverter.ProjectionInfo,
                 VMouseMapPoint,
-                10
+                FConfig.MainConfig.MagnetDrawSize
               );
           end;
           if not PointIsEmpty(VMagnetPoint) then begin
@@ -5623,7 +5623,7 @@ begin
             VVectorItem.Geometry,
             VLocalConverter.ProjectionInfo,
             VMouseMapPoint,
-            10
+            FConfig.MainConfig.MagnetDrawSize
           );
       end;
       if not PointIsEmpty(VMagnetPoint) then begin

@@ -64,6 +64,10 @@ type
     function GetMagnetDraw: Boolean;
     procedure SetMagnetDraw(AValue: Boolean);
     property MagnetDraw: Boolean read GetMagnetDraw write SetMagnetDraw;
+
+    function GetMagnetDrawSize: Integer;
+    procedure SetMagnetDrawSize(AValue: Integer);
+    property MagnetDrawSize: Integer read GetMagnetDrawSize write SetMagnetDrawSize;
   end;
 
   IMainWindowToolbarsLock = interface(IConfigDataElement)

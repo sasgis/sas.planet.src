@@ -37,6 +37,7 @@ type
     FShowHintOnMarks: Boolean;
     FShowHintOnlyInMapMoveMode: Boolean;
     FMagnetDraw: Boolean;
+    FMagnetDrawSize: Integer;
   protected
     procedure DoReadConfig(const AConfigData: IConfigDataProvider); override;
     procedure DoWriteConfig(const AConfigData: IConfigDataWriteProvider); override;
@@ -58,6 +59,9 @@ type
 
     function GetMagnetDraw: Boolean;
     procedure SetMagnetDraw(AValue: Boolean);
+
+    function GetMagnetDrawSize: Integer;
+    procedure SetMagnetDrawSize(AValue: Integer);
   public
     constructor Create;
   end;
@@ -70,6 +74,7 @@ constructor TMainFormMainConfig.Create;
 begin
   inherited Create;
   FMagnetDraw := True;
+  FMagnetDrawSize := 10;
   FShowMapName := True;
   FMouseScrollInvert := False;
   FMouseScrollInvert := False;
@@ -87,6 +92,7 @@ begin
     FShowHintOnMarks := AConfigData.ReadBool('ShowHintOnMarks', FShowHintOnMarks);
     FShowHintOnlyInMapMoveMode := AConfigData.ReadBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
     FMagnetDraw := AConfigData.ReadBool('MagnetDraw', FMagnetDraw);
+    FMagnetDrawSize := AConfigData.ReadInteger('MagnetDrawSize', FMagnetDrawSize);
 
     SetChanged;
   end;
@@ -103,6 +109,7 @@ begin
   AConfigData.WriteBool('ShowHintOnMarks', FShowHintOnMarks);
   AConfigData.WriteBool('ShowHintOnlyInMapMoveMode', FShowHintOnlyInMapMoveMode);
   AConfigData.WriteBool('MagnetDraw', FMagnetDraw);
+  AConfigData.WriteInteger('MagnetDrawSize', FMagnetDrawSize);
 end;
 
 function TMainFormMainConfig.GetDisableZoomingByMouseScroll: Boolean;
@@ -120,6 +127,16 @@ begin
   LockRead;
   try
     Result := FMagnetDraw;
+  finally
+    UnlockRead;
+  end;
+end;
+
+function TMainFormMainConfig.GetMagnetDrawSize: Integer;
+begin
+  LockRead;
+  try
+    Result := FMagnetDrawSize;
   finally
     UnlockRead;
   end;
@@ -184,6 +201,19 @@ begin
   try
     if FMagnetDraw <> AValue then begin
       FMagnetDraw := AValue;
+      SetChanged;
+    end;
+  finally
+    UnlockWrite;
+  end;
+end;
+
+procedure TMainFormMainConfig.SetMagnetDrawSize(AValue: Integer);
+begin
+  LockWrite;
+  try
+    if FMagnetDrawSize <> AValue then begin
+      FMagnetDrawSize := AValue;
       SetChanged;
     end;
   finally
