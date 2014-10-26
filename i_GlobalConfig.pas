@@ -37,6 +37,7 @@ uses
   i_GlobalViewMainConfig,
   i_MarkFactoryConfig,
   i_MarkCategoryFactoryConfig,
+  i_MarksGUIConfig,
   i_GlobalDownloadConfig,
   i_ThreadConfig,
   i_StartUpLogoConfig,
@@ -138,6 +139,9 @@ type
 
     function GetMarksFactoryConfig: IMarkFactoryConfig;
     property MarksFactoryConfig: IMarkFactoryConfig read GetMarksFactoryConfig;
+
+    function GetMarksGUIConfig: IMarksGUIConfig;
+    property MarksGUIConfig: IMarksGUIConfig read GetMarksGUIConfig;
 
     function GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     property MarksCategoryFactoryConfig: IMarkCategoryFactoryConfig read GetMarksCategoryFactoryConfig;

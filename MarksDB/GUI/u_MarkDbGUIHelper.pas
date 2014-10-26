@@ -47,6 +47,7 @@ uses
   i_VectorItemTreeExporterList,
   i_VectorItemTreeImporterList,
   i_AppearanceOfMarkFactory,
+  i_MarksGUIConfig,
   i_MarkFactory,
   i_MarkFactoryConfig,
   i_MarkPicture,
@@ -64,10 +65,9 @@ type
   private
     FMarkSystem: IMarkSystem;
     FMarkFactoryConfig: IMarkFactoryConfig;
+    FMarksGUIConfig: IMarksGUIConfig;
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
-    FArchiveReadWriteFactory: IArchiveReadWriteFactory;
-    FValueToStringConverterConfig: IValueToStringConverterChangeable;
     FfrmMarkEditPoint: TfrmMarkEditPoint;
     FfrmMarkEditPath: TfrmMarkEditPath;
     FfrmMarkEditPoly: TfrmMarkEditPoly;
@@ -151,6 +151,7 @@ type
       const ALanguageManager: ILanguageManager;
       const AMediaPath: IPathConfig;
       const AMarkFactoryConfig: IMarkFactoryConfig;
+      const AMarksGUIConfig: IMarksGUIConfig;
       const AMarkPictureList: IMarkPictureList;
       const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
       const AMarkSystem: IMarkSystem;
@@ -191,6 +192,7 @@ constructor TMarkDbGUIHelper.Create(
   const ALanguageManager: ILanguageManager;
   const AMediaPath: IPathConfig;
   const AMarkFactoryConfig: IMarkFactoryConfig;
+  const AMarksGUIConfig: IMarksGUIConfig;
   const AMarkPictureList: IMarkPictureList;
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
   const AMarkSystem: IMarkSystem;
@@ -208,9 +210,8 @@ begin
   FMarkSystem := AMarkSystem;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FMarkFactoryConfig := AMarkFactoryConfig;
-  FArchiveReadWriteFactory := AArchiveReadWriteFactory;
+  FMarksGUIConfig := AMarksGUIConfig;
   FVectorItemSubsetBuilderFactory := AVectorItemSubsetBuilderFactory;
-  FValueToStringConverterConfig := AValueToStringConverter;
   FImporterList := AImporterList;
   FExporterList := AExporterList;
 
@@ -570,21 +571,25 @@ var
   VFormat: string;
   VName: string;
 begin
-  VPointCaptionFormat := SAS_STR_ExtendedPointCaption;
-  VPolygonCaptionFormat := SAS_STR_ExtendedPolygonCaption;
-  VPathCaptionFormat := SAS_STR_ExtendedPathCaption;
   VName := AMarkId.Name;
   if VName = '' then begin
     VName := '(NoName)';
   end;
-  case AMarkId.MarkType of
-    midPoint: VFormat := VPointCaptionFormat;
-    midLine: VFormat := VPathCaptionFormat;
-    midPoly: VFormat := VPolygonCaptionFormat;
-  else
-    VFormat := '%0:s';
+  if FMarksGUIConfig.IsAddTypeToCaption then begin
+    VPointCaptionFormat := SAS_STR_ExtendedPointCaption;
+    VPolygonCaptionFormat := SAS_STR_ExtendedPolygonCaption;
+    VPathCaptionFormat := SAS_STR_ExtendedPathCaption;
+    case AMarkId.MarkType of
+      midPoint: VFormat := VPointCaptionFormat;
+      midLine: VFormat := VPathCaptionFormat;
+      midPoly: VFormat := VPolygonCaptionFormat;
+    else
+      VFormat := '%0:s';
+    end;
+    Result := Format(VFormat, [VName]);
+  end else begin
+    Result := VName;
   end;
-  Result := Format(VFormat, [AMarkId.Name]);
 end;
 
 function TMarkDbGUIHelper.ImportFilesModalInternal(
@@ -804,6 +809,7 @@ var
   VSourceMark: IVectorDataItem;
   VVisible: Boolean;
   VResult: IVectorDataItem;
+  VDescription: string;
 begin
   Result := False;
   VSourceMark := nil;
@@ -817,7 +823,13 @@ begin
     VMark := FMarkSystem.MarkDb.Factory.ModifyGeometry(AMark, AGeometry, ADescription);
   end else begin
     VVisible := True;
-    VMark := FMarkSystem.MarkDb.Factory.CreateNewMark(AGeometry, '', ADescription, ATemplate);
+    VDescription := ADescription;
+    if VDescription = '' then begin
+      if FMarksGUIConfig.IsAddTimeToDescription then begin
+        VDescription := DateTimeToStr(Now)
+      end;
+    end;
+    VMark := FMarkSystem.MarkDb.Factory.CreateNewMark(AGeometry, '', VDescription, ATemplate);
   end;
   if VMark <> nil then begin
     VMark := EditMarkModal(VMark, VSourceMark = nil, VVisible);

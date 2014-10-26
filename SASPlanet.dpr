@@ -640,6 +640,8 @@ uses
   i_MarkCategoryFactoryConfig in 'MarksDB\i_MarkCategoryFactoryConfig.pas',
   u_MarkCategoryFactoryConfig in 'MarksDB\u_MarkCategoryFactoryConfig.pas',
   u_MarkSystemSml in 'MarksDB\SML\u_MarkSystemSml.pas',
+  i_MarksGUIConfig in 'MarksDB\GUI\i_MarksGUIConfig.pas',
+  u_MarksGUIConfig in 'MarksDB\GUI\u_MarksGUIConfig.pas',
   u_MarkDbGUIHelper in 'MarksDB\GUI\u_MarkDbGUIHelper.pas',
   i_BinaryTileProvider in 'i_BinaryTileProvider.pas',
   i_BitmapTileProvider in 'i_BitmapTileProvider.pas',

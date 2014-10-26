@@ -34,6 +34,7 @@ uses
   i_ImageResamplerConfig,
   i_MainMemCacheConfig,
   i_MarkFactoryConfig,
+  i_MarksGUIConfig,
   i_MarkCategoryFactoryConfig,
   i_GPSConfig,
   i_GlobalViewMainConfig,
@@ -85,6 +86,7 @@ type
     FGPSConfig: IGpsConfig;
     FMarksFactoryConfig: IMarkFactoryConfig;
     FMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
+    FMarksGUIConfig: IMarksGUIConfig;
     FViewConfig: IGlobalViewMainConfig;
     FDownloadConfig: IGlobalDownloadConfig;
     FDownloaderThreadConfig: IThreadConfig;
@@ -123,6 +125,7 @@ type
     function GetMainMemCacheConfig: IMainMemCacheConfig;
     function GetGPSConfig: IGpsConfig;
     function GetMarksFactoryConfig: IMarkFactoryConfig;
+    function GetMarksGUIConfig: IMarksGUIConfig;
     function GetMarksCategoryFactoryConfig: IMarkCategoryFactoryConfig;
     function GetViewConfig: IGlobalViewMainConfig;
     function GetDownloadConfig: IGlobalDownloadConfig;
@@ -167,6 +170,7 @@ uses
   u_StartUpLogoConfig,
   u_BitmapPostProcessingConfig,
   u_MarkFactoryConfig,
+  u_MarksGUIConfig,
   u_MarkCategoryFactoryConfig,
   u_GlobalAppConfig,
   u_PathConfig;
@@ -298,6 +302,9 @@ begin
 
   FMarksCategoryFactoryConfig := TMarkCategoryFactoryConfig.Create(FLanguageManager);
   Add(FMarksCategoryFactoryConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarkNewCategory'), False, False, False, False);
+
+  FMarksGUIConfig := TMarksGUIConfig.Create;
+  Add(FMarksGUIConfig, TConfigSaveLoadStrategyBasicProviderSubItem.Create('MarksGUI'), False, False, False, False);
 end;
 
 function TGlobalConfig.GetBaseCahcePath: IPathConfig;
@@ -408,6 +415,11 @@ end;
 function TGlobalConfig.GetMarksFactoryConfig: IMarkFactoryConfig;
 begin
   Result := FMarksFactoryConfig;
+end;
+
+function TGlobalConfig.GetMarksGUIConfig: IMarksGUIConfig;
+begin
+  Result := FMarksGUIConfig;
 end;
 
 function TGlobalConfig.GetMarksIconsPath: IPathConfig;

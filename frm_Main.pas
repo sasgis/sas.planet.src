@@ -940,6 +940,7 @@ begin
       GState.Config.LanguageManager,
       GState.Config.MediaDataPath,
       GState.Config.MarksFactoryConfig,
+      GState.Config.MarksGUIConfig,
       GState.MarkPictureList,
       GState.AppearanceOfMarkFactory,
       GState.MarksDb,
