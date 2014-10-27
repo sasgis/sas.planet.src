@@ -92,6 +92,7 @@ uses
   i_PlayerPlugin,
   i_VectorItemSubset,
   i_ImportConfig,
+  i_CmdLineArgProcessor,
   u_ShortcutManager,
   u_MarkDbGUIHelper,
   frm_About,
@@ -649,6 +650,8 @@ type
 
     FMapGoto: IMapViewGoto;
 
+    FArgProcessor: ICmdLineArgProcessor;
+
     procedure InitSearchers;
     procedure InitLayers;
     procedure InitGridsMenus;
@@ -752,6 +755,7 @@ uses
   t_FillingMapModes,
   c_ZeroGUID,
   c_InternalBrowser,
+  c_CmdLineArgProcessor,
   i_Listener,
   i_NotifierOperation,
   i_Bitmap32Static,
@@ -888,6 +892,7 @@ uses
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
+  u_CmdLineArgProcessor,
   frm_LonLatRectEdit;
 
 type
@@ -1224,6 +1229,7 @@ begin
   TBEditPath.Visible := False;
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
   InitLayers;
+  FArgProcessor := TCmdLineArgProcessor.Create(FViewPortState, FConfig);
   ProgramStart := True;
 end;
 
@@ -1234,6 +1240,7 @@ begin
     tbxpmnSearchResult.Tag := 0;
   end;
   FSensorViewList := nil;
+  FArgProcessor := nil;
 end;
 
 function TfrmMain.FindItems(
@@ -3697,163 +3704,23 @@ begin
   end else inherited;
 end;
 
-//Процедура обработки входящего сообщения из другого приложения
-//структура входящего сообщения: [Режим];[Данные1];[Данные2];...
-//                                     режим;  широта ; долгота ; зум
-//режим 1 (переход к координате):         "1;58.594136;49.684498;17"
-//                                     режим;  широта ; долгота
-//режим 2 (навигация на координату):      "2;58.594136;49.684498"
-//
-//режим 3 (режим 1+2: переход по координате+навигация)
-//                                     режим; зум
-//режим 4 (изменение зума):               "4;16"
-//                                 режим; GUID карты/слоя (в примере - GUID yandex-карты)
-//режим 5 (изменение карты/слоя):     "5;{8238C84A-D37E-45E1-A735-FBCFBCD4168C}"
-//                                         режим;флаг видимости меток (0-не видимы;1-видимы)
-//режим 6 (установка режима видимости меток): "6;1"
-//
-//
-// Обратно возвращается результат:
-// 0 - успех
-// 1 - ошибка: не опознан режим
-// 2 - ошибка: для указанного режима передано недостаточно параметров
-// 3 - ошибка: координата должна указываться через точку
-// 4 - ошибка: неправильная координата
-// 5 - ошибка: неопознанный GUID карты/слоя
-// 6 - ошибка: неправильный GUID карты/слоя
-Procedure TfrmMain.WMCOPYDATA(var Msg: TMessage);
+procedure TfrmMain.WMCopyData(var Msg: TMessage);
 var
-  Vpcd: PCopyDataStruct;
+  VResult: Integer;
+  VPCD: PCopyDataStruct;
   VRecievedStr: string;
-  VMode: Integer;
-  Vl1, Vi: Integer;
-  VLonLat: TDoublePoint;
-  VZoom: Byte;
-  VGUID: TGUID;
-  VMap: IMapType;
-  VParam :array[1..5] of string;
-  VGeoConverter: ICoordConverter;
-
 begin
-  //получим строку из сообщения
-  Vpcd := PCopyDataStruct(Msg.LParam);
-  VRecievedStr := String(PChar(Vpcd.lpData));
-  //заполним массив параметров из входящей строки
-  Vi := 0;
-  repeat
-    Vl1 := Pos(';',VRecievedStr);
-    if Vl1 > 0 then begin
-      Vi := Vi + 1;
-      VParam[Vi] := Copy(VRecievedStr, 1, Vl1 - 1);
-      Delete(VRecievedStr, 1, Vl1);
-    end else begin
-      Vi := Vi + 1;
-      VParam[Vi] := VRecievedStr;
+  try
+    VPCD := PCopyDataStruct(Msg.LParam);
+    VRecievedStr := string(PAnsiChar(VPCD.lpData));
+    VResult := FArgProcessor.Process(VRecievedStr);
+  except
+    on E: Exception do begin
+      VResult := -1;
+      MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOK], 0);
     end;
-  until (Vl1 = 0)OR(Vi = 5);
-
-  //определим режим
-  VMode := StrToIntDef(VParam[1], 0);
-  if VMode < 4 then begin
-    if Vi >= 3 then begin
-      //считаем координаты
-      if (TryStrPointToFloat(VParam[2], VLonLat.y)) AND (TryStrPointToFloat(VParam[3], VLonLat.x)) then begin
-        //проверим на допустимость координаты
-        VGeoConverter := FViewPortState.View.GetStatic.GetGeoConverter;
-        if not VGeoConverter.CheckLonLatPos(VLonLat) then begin
-          VMode := 0;
-          Msg.Result := 4; //вернем ошибку - неверная координата
-        end;
-        //считаем зум
-        if Vi > 3 then begin
-          VZoom := StrToIntDef(VParam[4], 0) - 1;
-          if not VGeoConverter.CheckZoom(VZoom) then begin
-            VZoom := 0;
-          end;
-        end Else begin
-          VZoom := 0;
-        end;
-      end else begin
-        VMode := 0;
-        Msg.Result := 3; //вернем ошибку - координата должна указываться через точку
-      end;
-    end else begin
-      Msg.Result := 2; //неверное кол-во переданных параметров для заданного режима
-      VMode := 0;
-    end;
-    if (VMode = 1)or(VMode = 3) then begin
-      //перейдем к координатам
-      if VZoom = 0 then begin
-        FViewPortState.ChangeLonLat(VLonLat);
-      end Else begin
-        FViewPortState.ChangeLonLatAndZoom(VZoom, VLonLat);
-      end;
-    end;
-    if (VMode = 2)or(VMode = 3) then begin
-      //навигация на координаты
-      FConfig.NavToPoint.StartNavLonLat(VLonLat)
-    end;
-  end else if VMode = 4 then begin
-    //измененеи зума
-    if Vi > 1 then begin
-      VZoom := StrToIntDef(VParam[2], 0) - 1;
-      VGeoConverter := FViewPortState.View.GetStatic.GetGeoConverter;
-      if VGeoConverter.CheckZoom(VZoom) then begin
-        FViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
-      end;
-    end else begin
-      Msg.Result := 2; //неверное кол-во переданных параметров для заданного режима
-    end;
-  end else if VMode = 5 then begin
-    if Vi > 1 then begin
-      if VParam[2] <> '' then begin
-        try
-          VGUID := StringToGUID(VParam[2]);
-        except
-          VGUID := CGUID_Zero;
-        end;
-        if not IsEqualGUID(VGUID, CGUID_Zero) then begin
-          VMap := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
-          if VMap <> nil then begin
-            if VMap.Zmp.IsLayer then begin
-              FConfig.MainMapsConfig.LockWrite;
-              try
-                if FConfig.MainMapsConfig.GetActiveLayersSet.GetStatic.GetMapTypeByGUID(VMap.GUID) = nil then begin
-                  FConfig.MainMapsConfig.SelectLayerByGUID(VMap.GUID);
-                end else begin
-                  FConfig.MainMapsConfig.UnSelectLayerByGUID(VMap.GUID);
-                end;
-              finally
-                FConfig.MainMapsConfig.UnlockWrite;
-              end;
-            end else begin
-              FConfig.MainMapsConfig.SelectMainByGUID(VMap.GUID);
-            end;
-          end else begin
-            Msg.Result := 5; //передан неопознанный GUID карты/слоя
-          end;
-        end else begin
-          Msg.Result := 6; //передан неправильный GUID карты/слоя
-        end;
-      end else begin
-        Msg.Result := 6; //передан неправильный GUID карты/слоя
-      end;
-    end else begin
-      Msg.Result := 2; //неверное кол-во переданных параметров для заданного режима
-    end;
-  end else if VMode = 6 then begin
-    if Vi > 1 then begin
-      if VParam[2]='1' then begin
-        FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := True;
-      end else if VParam[2]='0' then begin
-        FConfig.LayersConfig.MarksLayerConfig.MarksShowConfig.IsUseMarks := False;
-      end;
-    end else begin
-      Msg.Result := 2; //неверное кол-во переданных параметров для заданного режима
-    end;
-  end else begin
-    Msg.Result := 1; //режим не определился
   end;
+  Msg.Result := VResult;
   inherited;
 end;
 
@@ -6640,35 +6507,20 @@ end;
 
 procedure TfrmMain.LoadParams;
 var
-  param:string;
-  VGUID: TGUID;
-  VLonLat: TDoublePoint;
-  VZoom: Byte;
+  VResult: Integer;
+  VErrorMsg: string;
 begin
-  if ParamCount > 1 then begin
-    try
-      param := paramstr(1);
-      if param <> '' then begin
-        try
-          VGUID := StringToGUID(param);
-        except
-          VGUID := CGUID_Zero;
-        end;
-        if not IsEqualGUID(VGUID, CGUID_Zero) then begin
-          FConfig.MainMapsConfig.SelectMainByGUID(VGUID);
-        end;
-      end;
-      if  (paramstr(2) <> '') and (paramstr(3) <> '')and(paramstr(4) <> '') then begin
-        VZoom := strtoint(paramstr(2)) - 1;
-        VLonLat.X := str2r(paramstr(3));
-        VLonLat.Y := str2r(paramstr(4));
-        FViewPortState.ChangeLonLatAndZoom(VZoom, VLonLat);
-      end else if paramstr(2) <> '' then begin
-        VZoom := strtoint(paramstr(2)) - 1;
-        FViewPortState.ChangeZoomWithFreezeAtCenter(VZoom);
-      end;
-    except
+  try
+    VResult := FArgProcessor.Process;
+    if VResult <> cCmdLineArgProcessorOk then begin
+      VErrorMsg :=
+        FArgProcessor.GetErrorFromCode(VResult) + #13#10 + #13#10 +
+        FArgProcessor.GetArguments;
+      MessageDlg(VErrorMsg, mtError, [mbOK], 0);
     end;
+  except
+    on E: Exception do
+      MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOK], 0);
   end;
 end;
 
