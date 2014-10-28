@@ -83,7 +83,7 @@ uses
   fr_Export;
 
 type
-  TfrmRegionProcess = class(TFormWitghLanguageManager, IRegionProcess)
+  TfrmRegionProcess = class(TFormWitghLanguageManager, IRegionProcess, IRegionProcessFromFile)
     Button1: TButton;
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;

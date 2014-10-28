@@ -689,7 +689,7 @@ type
     Procedure WMSize(Var Msg: TWMSize); Message WM_SIZE;
     Procedure WMMove(Var Msg: TWMMove); Message WM_MOVE;
     Procedure WMSysCommand(Var Msg: TMessage); Message WM_SYSCOMMAND;
-    Procedure WMCOPYDATA(Var Msg: TMessage); Message WM_COPYDATA;
+    Procedure WMCopyData(Var Msg: TMessage); Message WM_COPYDATA;
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
 
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
@@ -893,6 +893,7 @@ uses
   u_LayerStatBarPopupMenu,
   u_PlayerPlugin,
   u_CmdLineArgProcessor,
+  u_CmdLineArgProcessorHelpers,
   frm_LonLatRectEdit;
 
 type
@@ -1229,7 +1230,18 @@ begin
   TBEditPath.Visible := False;
   TrayIcon.Icon.LoadFromResourceName(Hinstance, 'MAINICON');
   InitLayers;
-  FArgProcessor := TCmdLineArgProcessor.Create(FViewPortState, FConfig);
+
+  FArgProcessor :=
+    TCmdLineArgProcessor.Create(
+      GState.MarksDb,
+      FMapGoto,
+      FViewPortState,
+      FConfig,
+      GState.VectorGeometryLonLatFactory,
+      GState.AppearanceOfMarkFactory,
+      GState.ImporterList
+    );
+
   ProgramStart := True;
 end;
 
@@ -3713,7 +3725,7 @@ begin
   try
     VPCD := PCopyDataStruct(Msg.LParam);
     VRecievedStr := string(PAnsiChar(VPCD.lpData));
-    VResult := FArgProcessor.Process(VRecievedStr);
+    VResult := FArgProcessor.Process(VRecievedStr, FFormRegionProcess);
   except
     on E: Exception do begin
       VResult := -1;
@@ -6125,33 +6137,15 @@ begin
 end;
 
 procedure TfrmMain.ProcessOpenFiles(AFiles: TStrings);
-var
-  VFileName: string;
-  VList: IInterfaceListStatic;
-  VLastMark: IVectorDataItem;
-  VPolygon: IGeometryLonLatPolygon;
 begin
   if Assigned(AFiles) and (AFiles.Count > 0) then begin
-    if AFiles.Count = 1 then begin
-      VFileName := AFiles[0];
-      if LowerCase(ExtractFileExt(VFileName)) = '.sls' then begin
-        FFormRegionProcess.StartSlsFromFile(VFileName);
-        Exit;
-      end else if LowerCase(ExtractFileExt(VFileName)) = '.hlg' then begin
-        FFormRegionProcess.LoadSelFromFile(VFileName, VPolygon);
-        if Assigned(VPolygon) and (not VPolygon.IsEmpty) then begin
-          FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
-        end;
-        Exit;
-      end;
-    end;
-    VList := FMarkDBGUI.ImportFilesModal(AFiles);
-    if (VList <> nil) and (VList.Count > 0) then begin
-      VLastMark := IVectorDataItem(VList[VList.Count - 1]);
-      if Assigned(VLastMark) then begin
-        FMapGoto.FitRectToScreen(VLastMark.Geometry.Bounds.Rect);
-      end;
-    end;
+    u_CmdLineArgProcessorHelpers.ProcessOpenFiles(
+      AFiles,
+      FMapGoto,
+      FFormRegionProcess,
+      True,
+      FMarkDBGUI
+    );
   end;
 end;
 
@@ -6511,7 +6505,7 @@ var
   VErrorMsg: string;
 begin
   try
-    VResult := FArgProcessor.Process;
+    VResult := FArgProcessor.Process(FFormRegionProcess);
     if VResult <> cCmdLineArgProcessorOk then begin
       VErrorMsg :=
         FArgProcessor.GetErrorFromCode(VResult) + #13#10 + #13#10 +

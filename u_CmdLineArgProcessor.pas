@@ -25,26 +25,50 @@ interface
 uses
   Classes,
   ArgumentParser,
+  i_MarkSystem,
+  i_MapViewGoto,
+  i_RegionProcess,
   i_ViewPortState,
   i_MainFormConfig,
+  i_GeometryLonLatFactory,
+  i_AppearanceOfMarkFactory,
+  i_VectorItemTreeImporterList,
   i_CmdLineArgProcessor,
   u_BaseInterfacedObject;
 
 type
   TCmdLineArgProcessor = class(TBaseInterfacedObject, ICmdLineArgProcessor)
   private
+    FMarkSystem: IMarkSystem;
+    FMapGoTo: IMapViewGoto;
     FViewPortState: IViewPortState;
     FMainFormConfig: IMainFormConfig;
-    function ProcessInternal(const AList: TStringList): Integer;
+    FGeometryLonLatFactory: IGeometryLonLatFactory;
+    FAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+    FImporterList: IVectorItemTreeImporterListChangeable;
+    function ProcessInternal(
+      const AList: TStringList;
+      const ARegionProcess: IRegionProcessFromFile
+    ): Integer;
   private
-    function Process: Integer; overload;
-    function Process(const AArgs: string): Integer; overload;
+    function Process(
+      const ARegionProcess: IRegionProcessFromFile = nil
+    ): Integer; overload;
+    function Process(
+      const AArgs: string;
+      const ARegionProcess: IRegionProcessFromFile = nil
+    ): Integer; overload;
     function GetArguments: string;
     function GetErrorFromCode(const ACode: Integer): string;
   public
     constructor Create(
+      const AMarkSystem: IMarkSystem;
+      const AMapGoto: IMapViewGoto;
       const AViewPortState: IViewPortState;
-      const AMainFormConfig: IMainFormConfig
+      const AMainFormConfig: IMainFormConfig;
+      const AGeometryLonLatFactory: IGeometryLonLatFactory;
+      const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+      const AImporterList: IVectorItemTreeImporterListChangeable
     );
   end;
 
@@ -52,97 +76,32 @@ implementation
 
 uses
   SysUtils,
-  RegExpr,
-  c_ZeroGUID,
   c_CmdLineArgProcessor,
   t_GeoTypes,
   i_MapType,
   i_CoordConverter,
-  u_GeoFunc,
-  u_GeoToStrFunc;
-
-function StrToCoord(const AStr: string): TDoublePoint;
-var
-  VRegExpr: TRegExpr;
-begin
-  VRegExpr  := TRegExpr.Create;
-  try
-    VRegExpr.Expression := '\((.+?),(.+?)\)';
-    if VRegExpr.Exec(AStr) then begin
-      Result.X := str2r(VRegExpr.Match[1]);
-      Result.Y := str2r(VRegExpr.Match[2]);
-    end else begin
-      Result := CEmptyDoublePoint;
-    end;
-  finally
-    FreeAndNil(VRegExpr);
-  end;
-end;
-
-function GetCoords(
-  const AStr: string;
-  const AGeoConverter: ICoordConverter;
-  out ALonLat: TDoublePoint;
-  var ECode: Integer
-): Boolean;
-begin
-  ALonLat := StrToCoord(AStr);
-  Result := not PointIsEmpty(ALonLat);
-  if Result then begin
-    Result := AGeoConverter.CheckLonLatPos(ALonLat);
-    if not Result then begin
-      ECode := ECode or cCmdLineArgProcessorLonLatOutOfBounds;
-    end;
-  end else begin
-    ECode := ECode or cCmdLineArgProcessorLonLatParserError;
-  end;
-end;
-
-function GetZoom(
-  const AStr: string;
-  const AGeoConverter: ICoordConverter;
-  var AZoom: Byte;
-  var ECode: Integer
-): Boolean;
-begin
-  AZoom := StrToIntDef(AStr, 0);
-  Result := (AZoom > 0);
-  if Result then begin
-    AZoom := AZoom - 1;
-    Result := AGeoConverter.CheckZoom(AZoom);
-    if not Result then begin
-      ECode := ECode or cCmdLineArgProcessorZoomOutOfBounds;
-    end;
-  end else begin
-    ECode := ECode or cCmdLineArgProcessorZoomParserError;
-  end;
-end;
-
-function GetGUID(
-  const AStr: string;
-  out AGUID: TGUID;
-  var ECode: Integer
-): Boolean;
-begin
-  try
-    AGUID := StringToGUID(AStr);
-    Result := True;
-  except
-    Result := False;
-    ECode := ECode or cCmdLineArgProcessorGUIDParserError;
-  end;
-end;
+  u_CmdLineArgProcessorHelpers;
 
 { TCmdLineArgProcessor }
 
 constructor TCmdLineArgProcessor.Create(
+  const AMarkSystem: IMarkSystem;
+  const AMapGoto: IMapViewGoto;
   const AViewPortState: IViewPortState;
-  const AMainFormConfig: IMainFormConfig
+  const AMainFormConfig: IMainFormConfig;
+  const AGeometryLonLatFactory: IGeometryLonLatFactory;
+  const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory;
+  const AImporterList: IVectorItemTreeImporterListChangeable
 );
 begin
   inherited Create;
+  FMarkSystem := AMarkSystem;
+  FMapGoTo := AMapGoto;
   FViewPortState := AViewPortState;
   FMainFormConfig := AMainFormConfig;
+  FGeometryLonLatFactory := AGeometryLonLatFactory;
+  FAppearanceOfMarkFactory := AAppearanceOfMarkFactory;
+  FImporterList := AImporterList;
 end;
 
 function TCmdLineArgProcessor.GetArguments: string;
@@ -157,19 +116,24 @@ begin
   end;
 end;
 
-function TCmdLineArgProcessor.Process: Integer;
+function TCmdLineArgProcessor.Process(
+  const ARegionProcess: IRegionProcessFromFile
+): Integer;
 var
   VList: TStringList;
 begin
   VList := GetParamStrAsList(False);
   try
-    Result := ProcessInternal(VList);
+    Result := ProcessInternal(VList, ARegionProcess);
   finally
     VList.Free;
   end;
 end;
 
-function TCmdLineArgProcessor.Process(const AArgs: string): Integer;
+function TCmdLineArgProcessor.Process(
+  const AArgs: string;
+  const ARegionProcess: IRegionProcessFromFile
+): Integer;
 var
   VList: TStringList;
 begin
@@ -177,13 +141,16 @@ begin
   try
     VList.CommaText := ' ';
     VList.Text := AArgs;
-    Result := ProcessInternal(VList);
+    Result := ProcessInternal(VList, ARegionProcess);
   finally
     VList.Free;
   end;
 end;
 
-function TCmdLineArgProcessor.ProcessInternal(const AList: TStringList): Integer;
+function TCmdLineArgProcessor.ProcessInternal(
+  const AList: TStringList;
+  const ARegionProcess: IRegionProcessFromFile
+): Integer;
 
 var
   VGUID: TGUID;
@@ -213,6 +180,7 @@ begin
     VParser.AddArgument('--move', saStore);             // --move=({lon},{lat})
     VParser.AddArgument('--navigation', saStore);       // --navigation=({lon},{lat})
     VParser.AddArgument('--show-placemarks', saStore);  // --show-placemarks={0/1}
+    VParser.AddArgument('--insert-placemark', saStore); // --insert-placemark="{name}";({lon},{lat});"{desc}"
 
     VParseResult := VParser.ParseArgs(AList);
     try
@@ -262,6 +230,25 @@ begin
         end else begin
           Result := Result or cCmdLineArgProcessorShowMarksParserError;
         end;
+      end;
+
+      if VParseResult.HasArgument('insert-placemark') then begin
+        VStrValue := VParseResult.GetValue('insert-placemark');
+        ProcessImportPlacemark(VStrValue, FMarkSystem, FGeometryLonLatFactory);
+      end;
+
+      // unnamed arguments -> files: sls/hlg/kml/gpx/sml etc.
+      if VParseResult.Args.Count > 0 then begin
+        ProcessOpenFiles(
+          VParseResult.Args,
+          FMapGoTo,
+          ARegionProcess,
+          False, // import in silent mode
+          nil,
+          FMarkSystem,
+          FImporterList,
+          FAppearanceOfMarkFactory
+        );
       end;
 
     finally

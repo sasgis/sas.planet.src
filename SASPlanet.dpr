@@ -16,6 +16,7 @@ uses
   u_CmdLineArgProcessor in 'u_CmdLineArgProcessor.pas',
   c_CmdLineArgProcessor in 'c_CmdLineArgProcessor.pas',
   i_CmdLineArgProcessor in 'i_CmdLineArgProcessor.pas',
+  u_CmdLineArgProcessorHelpers in 'u_CmdLineArgProcessorHelpers.pas',
   i_InterfaceListStatic in 'Basic\i_InterfaceListStatic.pas',
   u_InterfaceListStatic in 'Basic\u_InterfaceListStatic.pas',
   i_InterfaceListSimple in 'Basic\i_InterfaceListSimple.pas',

@@ -22,11 +22,19 @@ unit i_CmdLineArgProcessor;
 
 interface
 
+uses
+  i_RegionProcess;
+
 type
   ICmdLineArgProcessor = interface
     ['{16DE0BFF-BCA6-48A1-ADA5-DD6877DFDC5D}']
-    function Process: Integer; overload;
-    function Process(const AArgs: string): Integer; overload;
+    function Process(
+      const ARegionProcess: IRegionProcessFromFile = nil
+    ): Integer; overload;
+    function Process(
+      const AArgs: string;
+      const ARegionProcess: IRegionProcessFromFile = nil
+    ): Integer; overload;
     function GetArguments: string;
     function GetErrorFromCode(const ACode: Integer): string;
   end;
