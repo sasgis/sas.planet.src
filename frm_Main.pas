@@ -5642,7 +5642,7 @@ end;
 procedure TfrmMain.tbitmCreateShortcutClick(Sender: TObject);
 var
   VLonLat:TDoublePoint;
-  param:string;
+  VArgStr:string;
   VZoomCurr: Byte;
   VMapType: IMapType;
   VLocalConverter: ILocalCoordConverter;
@@ -5652,8 +5652,11 @@ begin
     VLocalConverter := FViewPortState.View.GetStatic;
     VZoomCurr := VLocalConverter.GetZoom;
     VLonLat := VLocalConverter.GetCenterLonLat;
-    param := ' '+GUIDToString(VMapType.Zmp.GUID) + ' '+IntToStr(VZoomCurr + 1) + ' '+FloatToStr(VLonLat.x) + ' '+FloatToStr(VLonLat.y);
-    CreateLink(ParamStr(0), SaveLink.filename, '', param)
+    VArgStr :=
+      '--map=' + GUIDToString(VMapType.Zmp.GUID) + ' ' +
+      '--zoom=' + IntToStr(VZoomCurr + 1) + ' ' +
+      '--move=(' + R2StrPoint(VLonLat.X) + ',' + R2StrPoint(VLonLat.Y) + ')';
+    CreateLink(ParamStr(0), SaveLink.filename, '', VArgStr)
   end;
 end;
 
