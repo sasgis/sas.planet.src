@@ -21,13 +21,17 @@ object frmSettings: TfrmSettings
     Top = 0
     Width = 652
     Height = 410
-    ActivePage = tsCache
+    ActivePage = tsPaths
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
       BorderWidth = 3
       Caption = 'Maps'
       ImageIndex = 8
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object tsCache: TTabSheet
       Caption = 'Cache'
@@ -747,6 +751,10 @@ object frmSettings: TfrmSettings
       BorderWidth = 3
       Caption = 'Internet'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlDownloadParams: TPanel
         Left = 0
         Top = 0
@@ -756,7 +764,6 @@ object frmSettings: TfrmSettings
         BevelOuter = bvNone
         BorderWidth = 3
         TabOrder = 0
-        ExplicitTop = 19
         object CBDblDwnl: TCheckBox
           AlignWithMargins = True
           Left = 6
@@ -799,7 +806,6 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 3
-          ExplicitTop = 180
           object Label32: TLabel
             AlignWithMargins = True
             Left = 3
@@ -828,7 +834,6 @@ object frmSettings: TfrmSettings
           Align = alTop
           Caption = 'Restore download from last successful tile'
           TabOrder = 4
-          ExplicitTop = 177
         end
         object GroupBox4: TGroupBox
           Left = 3
@@ -852,11 +857,10 @@ object frmSettings: TfrmSettings
               Left = 24
               Top = 3
               Width = 94
-              Height = 17
+              Height = 13
               Align = alLeft
               Caption = 'Use proxy (IP:port)'
               Layout = tlCenter
-              ExplicitHeight = 13
             end
             object CBProxyused: TCheckBox
               AlignWithMargins = True
@@ -964,7 +968,6 @@ object frmSettings: TfrmSettings
           AutoSize = True
           BevelOuter = bvNone
           TabOrder = 6
-          ExplicitTop = 202
           object lbl1: TLabel
             AlignWithMargins = True
             Left = 3
@@ -994,17 +997,14 @@ object frmSettings: TfrmSettings
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 7
-          ExplicitTop = 292
-          ExplicitWidth = 626
           object lbl2: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
             Width = 59
-            Height = 17
+            Height = 13
             Align = alLeft
             Caption = 'User-Agent:'
-            ExplicitHeight = 13
           end
           object edtUserAgent: TEdit
             Left = 65
@@ -1013,8 +1013,7 @@ object frmSettings: TfrmSettings
             Height = 23
             Align = alClient
             TabOrder = 0
-            ExplicitLeft = 30
-            ExplicitWidth = 626
+            ExplicitHeight = 21
           end
           object btnResetUserAgentString: TButton
             Left = 608
@@ -1032,6 +1031,10 @@ object frmSettings: TfrmSettings
     object tsControl: TTabSheet
       Caption = 'Control'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox1: TGroupBox
         Left = 0
         Top = 0
@@ -1064,6 +1067,10 @@ object frmSettings: TfrmSettings
     object tsView: TTabSheet
       Caption = 'View'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grdpnlUI: TGridPanel
         Left = 0
         Top = 0
@@ -1131,7 +1138,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               ItemIndex = 0
               TabOrder = 0
               Text = '12 km 423 m'
@@ -1168,7 +1175,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               ItemIndex = 0
               TabOrder = 0
               Text = 'WS deg.min.sec. (W12'#176'23"43.35'#39')'
@@ -1196,12 +1203,11 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 23
+              Height = 13
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
               Layout = tlCenter
-              ExplicitHeight = 13
             end
             object CBoxLocal: TComboBox
               AlignWithMargins = True
@@ -1211,7 +1217,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               OnChange = CBoxLocalChange
             end
@@ -1315,20 +1321,18 @@ object frmSettings: TfrmSettings
             object LabelGamma: TLabel
               Left = 3
               Top = 23
-              Width = 310
+              Width = 6
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitWidth = 6
             end
             object LabelContrast: TLabel
               Left = 3
               Top = 61
-              Width = 310
+              Width = 6
               Height = 13
               Align = alTop
               Caption = '_'
-              ExplicitWidth = 6
             end
             object TrBarGamma: TTrackBar
               Left = 3
@@ -1383,10 +1387,9 @@ object frmSettings: TfrmSettings
                 Left = 0
                 Top = 0
                 Width = 105
-                Height = 20
+                Height = 13
                 Align = alLeft
                 Caption = 'Image postprocessing'
-                ExplicitHeight = 13
               end
               object btnImageProcessReset: TButton
                 Left = 289
@@ -1429,7 +1432,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               ItemIndex = 0
               TabOrder = 0
               Text = 'Auto'
@@ -1627,7 +1630,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               Items.Strings = (
                 '')
@@ -1663,7 +1666,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               Items.Strings = (
                 '')
@@ -1699,7 +1702,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               Items.Strings = (
                 '')
@@ -1735,7 +1738,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               Items.Strings = (
                 '')
@@ -1771,7 +1774,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               Items.Strings = (
                 '')
@@ -1807,7 +1810,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               Items.Strings = (
                 '')
@@ -1828,6 +1831,10 @@ object frmSettings: TfrmSettings
     object tsGrids: TTabSheet
       Caption = 'Grids'
       ImageIndex = 8
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlTileBorders: TPanel
         Left = 0
         Top = 0
@@ -2069,10 +2076,18 @@ object frmSettings: TfrmSettings
     object tsGPS: TTabSheet
       Caption = 'GPS'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object tsGPSMarker: TTabSheet
       Caption = 'GPS Marker'
       ImageIndex = 9
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object flwpnlGPSMarker: TFlowPanel
         Left = 0
         Top = 0
@@ -2154,6 +2169,10 @@ object frmSettings: TfrmSettings
     object tsWiki: TTabSheet
       Caption = 'Wikimapia'
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grdpnlWiki: TGridPanel
         Left = 0
         Top = 0
@@ -2242,6 +2261,10 @@ object frmSettings: TfrmSettings
     object tsGSM: TTabSheet
       Caption = 'GSM'
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlGSM: TPanel
         Left = 0
         Top = 0
@@ -2285,7 +2308,7 @@ object frmSettings: TfrmSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
             Text = 'COM1'
           end
@@ -2303,7 +2326,7 @@ object frmSettings: TfrmSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             ItemIndex = 5
             TabOrder = 1
             Text = '4800'
@@ -2343,6 +2366,80 @@ object frmSettings: TfrmSettings
             Value = 200
           end
         end
+      end
+    end
+    object tsPaths: TTabSheet
+      Caption = 'Paths'
+      ImageIndex = 10
+      object pnlMapsPath: TPanel
+        Left = 0
+        Top = 140
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 0
+      end
+      object pnlUserDataPath: TPanel
+        Left = 0
+        Top = 112
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 1
+      end
+      object pnlTerrainDataPath: TPanel
+        Left = 0
+        Top = 168
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 2
+      end
+      object pnlTrackPath: TPanel
+        Left = 0
+        Top = 84
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 3
+      end
+      object pnlMarksDbPath: TPanel
+        Left = 0
+        Top = 28
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 4
+      end
+      object pnlMarksIconsPath: TPanel
+        Left = 0
+        Top = 56
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 5
+      end
+      object pnlMediaDataPath: TPanel
+        Left = 0
+        Top = 0
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 6
       end
     end
   end

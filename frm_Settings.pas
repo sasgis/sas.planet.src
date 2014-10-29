@@ -48,6 +48,7 @@ uses
   u_CommonFormAndFrameParents,
   fr_MapsList,
   fr_GPSConfig,
+  fr_PathSelect,
   fr_ShortCutList;
 
 type
@@ -247,6 +248,14 @@ type
     pnl1: TPanel;
     btnResetUserAgentString: TButton;
     ChkShowLogo: TCheckBox;
+    tsPaths: TTabSheet;
+    pnlMapsPath: TPanel;
+    pnlUserDataPath: TPanel;
+    pnlTerrainDataPath: TPanel;
+    pnlTrackPath: TPanel;
+    pnlMarksDbPath: TPanel;
+    pnlMarksIconsPath: TPanel;
+    pnlMediaDataPath: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -272,6 +281,14 @@ type
     FMainFormConfig: IMainFormConfig;
     FSensorList: ISensorList;
     FMapTypeEditor: IMapTypeConfigModalEdit;
+    FfrMapPathSelect: TfrPathSelect;
+    FfrTerrainDataPathSelect: TfrPathSelect;
+    FfrUserDataPathSelect : TfrPathSelect;
+    FfrTrackPathSelect : TfrPathSelect;
+    FfrMarksIconsPathSelect : TfrPathSelect;
+    FfrMarksDbPathSelect : TfrPathSelect;
+    FfrMediaDataPathSelect : TfrPathSelect;
+
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
       ABox: TComboBox
@@ -376,6 +393,48 @@ begin
       FMainFormConfig.GPSBehaviour,
       FMainFormConfig.LayersConfig.GPSTrackConfig,
       GState.Config.GPSConfig
+    );
+  FfrMapPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Path to Maps',
+      GState.Config.MapsPath
+    );
+  FfrTerrainDataPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Path to Terrain data',
+      GState.Config.TerrainDataPath
+    );
+  FfrUserDataPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Path to user data',
+      GState.Config.UserDataPath
+    );
+  FfrTrackPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Path to gps tracks',
+      GState.Config.TrackPath
+    );
+  FfrMarksIconsPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Path to marks icon',
+      GState.Config.MarksIconsPath
+    );
+  FfrMarksDbPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Path to Marks database',
+      GState.Config.MarksDbPath
+    );
+  FfrMediaDataPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Path to MediaData',
+      GState.Config.MediaDataPath
     );
   PageControl1.ActivePageIndex:=0;
 end;
@@ -580,7 +639,16 @@ begin
  GState.CacheConfig.BDBCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
  GState.CacheConfig.BDBVerCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBVerCachePath.Text);
  GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
+
  GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
+
+ GState.Config.MapsPath.Path := FfrMapPathSelect.GetPath;
+ GState.Config.TerrainDataPath.Path := FfrTerrainDataPathSelect.GetPath;
+ GState.Config.UserDataPath.Path := FfrUserDataPathSelect.GetPath;
+ GState.Config.TrackPath.Path := FfrTrackPathSelect.GetPath;
+ GState.Config.MarksIconsPath.Path := FfrMarksIconsPathSelect.GetPath;
+ GState.Config.MarksDbPath.Path := FfrMarksDbPathSelect.GetPath;
+ GState.Config.MediaDataPath.Path := FfrMediaDataPathSelect.GetPath;
 
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
   try
@@ -702,6 +770,13 @@ begin
   FreeAndNil(frShortCutList);
   FreeAndNil(frMapsList);
   FreeAndNil(frGPSConfig);
+  FreeAndNil(FfrMapPathSelect);
+  FreeAndNil(FfrTerrainDataPathSelect);
+  FreeAndNil(FfrTrackPathSelect);
+  FreeAndNil(FfrUserDataPathSelect);
+  FreeAndNil(FfrMarksIconsPathSelect);
+  FreeAndNil(FfrMarksDbPathSelect);
+  FreeAndNil(FfrMediaDataPathSelect);
   inherited;
 end;
 
@@ -717,6 +792,14 @@ begin
   frShortCutList.Parent := GroupBox5;
   frMapsList.Parent := tsMaps;
   frMapsList.Init;
+  FfrMapPathSelect.Show(pnlMapsPath);
+  FfrTerrainDataPathSelect.Show(pnlTerrainDataPath);
+  FfrUserDataPathSelect.Show(pnlUserDataPath);
+  FfrTrackPathSelect.Show(pnlTrackPath);
+  FfrMarksIconsPathSelect.Show(pnlMarksIconsPath);
+  FfrMarksDbPathSelect.Show(pnlMarksDbPath);
+  FfrMediaDataPathSelect.Show(pnlMediaDataPath);
+
   frGPSConfig.Parent := tsGPS;
   frGPSConfig.Init;
 

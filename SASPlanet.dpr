@@ -1200,6 +1200,7 @@ uses
   fr_Combine in 'RegionProcess\Combine\fr_Combine.pas' {frCombine: TFrame},
   fr_MapSelect in 'RegionProcess\fr_MapSelect.pas' {frMapSelect: TFrame},
   fr_ZoomsSelect in 'RegionProcess\fr_ZoomsSelect.pas' {frZoomsSelect: TFrame},
+  fr_PathSelect in 'RegionProcess\fr_PathSelect.pas' {frPathSelect: TFrame},
   u_ProviderMapCombineBMP in 'RegionProcess\Combine\u_ProviderMapCombineBMP.pas',
   u_ProviderMapCombineJP2 in 'RegionProcess\Combine\u_ProviderMapCombineJP2.pas',
   u_ProviderMapCombineECW in 'RegionProcess\Combine\u_ProviderMapCombineECW.pas',

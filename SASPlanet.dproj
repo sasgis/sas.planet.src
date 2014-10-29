@@ -1014,6 +1014,10 @@
       <DesignClass>TFrame</DesignClass>
       <Form>frMapSelect</Form>
     </DCCReference>
+    <DCCReference Include="RegionProcess\fr_PathSelect.pas">
+      <DesignClass>TFrame</DesignClass>
+      <Form>frPathSelect</Form>
+    </DCCReference>
     <DCCReference Include="RegionProcess\fr_ZoomsSelect.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frZoomsSelect</Form>
