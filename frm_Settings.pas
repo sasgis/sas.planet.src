@@ -256,6 +256,7 @@ type
     pnlMarksDbPath: TPanel;
     pnlMarksIconsPath: TPanel;
     pnlMediaDataPath: TPanel;
+    pnlMapSvcScan: TPanel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -288,6 +289,7 @@ type
     FfrMarksIconsPathSelect : TfrPathSelect;
     FfrMarksDbPathSelect : TfrPathSelect;
     FfrMediaDataPathSelect : TfrPathSelect;
+    FfrMapSvcScanPathSelect : TfrPathSelect;
 
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
@@ -436,6 +438,13 @@ begin
       'Path to MediaData',
       GState.Config.MediaDataPath
     );
+  FfrMapSvcScanPathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Path to map scan DB',
+      GState.Config.MapSvcScanConfig.Path
+    );
+
   PageControl1.ActivePageIndex:=0;
 end;
 
@@ -649,6 +658,7 @@ begin
  GState.Config.MarksIconsPath.Path := FfrMarksIconsPathSelect.GetPath;
  GState.Config.MarksDbPath.Path := FfrMarksDbPathSelect.GetPath;
  GState.Config.MediaDataPath.Path := FfrMediaDataPathSelect.GetPath;
+ GState.Config.MapSvcScanConfig.Path.Path := FfrMapSvcScanPathSelect.GetPath;
 
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
   try
@@ -777,6 +787,7 @@ begin
   FreeAndNil(FfrMarksIconsPathSelect);
   FreeAndNil(FfrMarksDbPathSelect);
   FreeAndNil(FfrMediaDataPathSelect);
+  FreeAndNil(FfrMapSvcScanPathSelect);
   inherited;
 end;
 
@@ -799,6 +810,7 @@ begin
   FfrMarksIconsPathSelect.Show(pnlMarksIconsPath);
   FfrMarksDbPathSelect.Show(pnlMarksDbPath);
   FfrMediaDataPathSelect.Show(pnlMediaDataPath);
+  FfrMapSvcScanPathSelect.Show(pnlMapSvcScan);
 
   frGPSConfig.Parent := tsGPS;
   frGPSConfig.Init;
