@@ -87,8 +87,8 @@ uses
   i_VectorItemTree,
   i_VectorItemTreeImporter,
   i_GeometryLonLat,
-  i_Category,
-  i_MarkCategoryFactory,
+  i_MarkCategory,
+  i_MarkCategoryDB,
   i_Appearance,
   i_JpegWithExifImportConfig,
   u_JpegWithExifImportConfig,
@@ -185,9 +185,19 @@ begin
   end;
 end;
 
-function GetTempCategory(const AFactory: IMarkCategoryFactory): ICategory;
+function GetTempCategory(const ACategoryDB: IMarkCategoryDB): IMarkCategory;
+const
+  cTmpCategoryName = 'TEMP';
 begin
-  Result := AFactory.CreateNew('TEMP');
+  Result := ACategoryDB.GetCategoryByName(cTmpCategoryName);
+  if not Assigned(Result) then begin
+    Result := ACategoryDB.Factory.CreateNew(cTmpCategoryName);
+    if Assigned(Result) then begin
+      ACategoryDB.UpdateCategory(nil, Result);
+    end else begin
+      Assert(False);
+    end;
+  end;
 end;
 
 procedure ProcessImportPlacemark(
@@ -237,7 +247,7 @@ begin
             AGeometryLonLatFactory.CreateLonLatPoint(VLonLat),
             VName,
             VDesc,
-            GetTempCategory(AMarkSystem.CategoryDB.Factory),
+            GetTempCategory(AMarkSystem.CategoryDB),
             VPointTemplate.Appearance
           );
 
@@ -286,7 +296,7 @@ begin
 
   Result :=
     TJpegWithExifImportConfig.Create(
-      GetTempCategory(AMarkSystem.CategoryDB.Factory),
+      GetTempCategory(AMarkSystem.CategoryDB),
       TImportCategoryParams.Create(True, False, False, False),
       VPointParams,
       True,
@@ -342,7 +352,7 @@ begin
 
   Result :=
     TImportConfig.Create(
-      GetTempCategory(AMarkSystem.CategoryDB.Factory),
+      GetTempCategory(AMarkSystem.CategoryDB),
       TImportCategoryParams.Create(True, False, False, False),
       VPointParams,
       VLineParams,
