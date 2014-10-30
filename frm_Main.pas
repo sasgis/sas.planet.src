@@ -321,7 +321,6 @@ type
     TBPolylineSelect: TTBXItem;
     TBEditPath: TTBXToolbar;
     TBEditPathDel: TTBXItem;
-    TBEditPathLabel: TTBXItem;
     TBEditMagnetDraw: TTBXItem;
     TBEditSelectPolylineRadiusCap1: TTBXLabelItem;
     TBControlItem4: TTBControlItem;
@@ -409,6 +408,9 @@ type
     btnHideAll: TTBXItem;
     HideSeparator: TTBSeparatorItem;
     tbitmFillingMapAsMain: TTBXItem;
+    TBEditPathLabelVisible: TTBSubmenuItem;
+    TBEditPathLabelLastOnly: TTBXItem;
+    TBEditPathLabelShowAzimuth: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -567,6 +569,8 @@ type
     procedure tbitmCheckUpdateClick(Sender: TObject);
     procedure btnHideAllClick(Sender: TObject);
     procedure TBfillMapAsMainClick(Sender: TObject);
+    procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
+    procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -2874,25 +2878,25 @@ begin
     (VNewState=ao_select_poly)or
     (VNewState=ao_select_line);
 
-  TBEditPathLabel.Visible := (VNewState=ao_calc_line) or (VNewState=ao_edit_line);
-  case VNewState of
-    ao_calc_line: begin
-      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
-      VConfig.LockRead;
-      try
-        TBEditPathLabel.Checked := not VConfig.ShowLastPointOnly;
-      finally
-        VConfig.UnlockRead;
+  TBEditPathLabelVisible.Visible := (VNewState=ao_calc_line) or (VNewState=ao_edit_line);
+  TBEditPathLabelLastOnly.Visible := (VNewState=ao_calc_line) or (VNewState=ao_edit_line);
+  TBEditPathLabelShowAzimuth.Visible := (VNewState=ao_calc_line) or (VNewState=ao_edit_line);
+  if (VNewState=ao_calc_line) or (VNewState=ao_edit_line) then begin
+    case VNewState of
+      ao_calc_line: begin
+        VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
+      end;
+      ao_edit_line: begin
+        VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
       end;
     end;
-    ao_edit_line: begin
-      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
-      VConfig.LockRead;
-      try
-        TBEditPathLabel.Checked := VConfig.Visible;
-      finally
-        VConfig.UnlockRead;
-      end;
+    VConfig.LockRead;
+    try
+      TBEditPathLabelLastOnly.Checked := VConfig.ShowLastPointOnly;
+      TBEditPathLabelVisible.Checked := VConfig.Visible;
+      TBEditPathLabelShowAzimuth.Checked := VConfig.ShowAzimuth;
+    finally
+      VConfig.UnlockRead;
     end;
   end;
 
@@ -5697,24 +5701,58 @@ var
   VConfig: IPointCaptionsLayerConfig;
 begin
   case FState.State of
-    ao_edit_line: begin
-      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
-      VConfig.LockWrite;
-      try
-        VConfig.Visible := (Sender as TTBXItem).Checked;
-      finally
-        VConfig.UnlockWrite;
-      end;
-    end;
     ao_calc_line: begin
       VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
-      VConfig.LockWrite;
-      try
-        VConfig.ShowLastPointOnly := not (Sender as TTBXItem).Checked;
-      finally
-        VConfig.UnlockWrite;
-      end;
     end;
+    ao_edit_line: begin
+      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
+    end;
+  end;
+  VConfig.LockWrite;
+  try
+    VConfig.Visible := (Sender as TTBSubmenuItem).Checked;
+  finally
+    VConfig.UnlockWrite;
+  end;
+end;
+
+procedure TfrmMain.TBEditPathLabelLastOnlyClick(Sender: TObject);
+var
+  VConfig: IPointCaptionsLayerConfig;
+begin
+  case FState.State of
+    ao_calc_line: begin
+      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
+    end;
+    ao_edit_line: begin
+      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
+    end;
+  end;
+  VConfig.LockWrite;
+  try
+    VConfig.ShowLastPointOnly := (Sender as TTBXItem).Checked;
+  finally
+    VConfig.UnlockWrite;
+  end;
+end;
+
+procedure TfrmMain.TBEditPathLabelShowAzimuthClick(Sender: TObject);
+var
+  VConfig: IPointCaptionsLayerConfig;
+begin
+  case FState.State of
+    ao_calc_line: begin
+      VConfig := FConfig.LayersConfig.CalcLineLayerConfig.CaptionConfig;
+    end;
+    ao_edit_line: begin
+      VConfig := FConfig.LayersConfig.MarkPolyLineLayerConfig.CaptionConfig;
+    end;
+  end;
+  VConfig.LockWrite;
+  try
+    VConfig.ShowAzimuth := (Sender as TTBXItem).Checked;
+  finally
+    VConfig.UnlockWrite;
   end;
 end;
 
