@@ -27,7 +27,9 @@ uses
   Controls,
   StdCtrls,
   SysUtils,
+  {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
+  {$WARN UNIT_PLATFORM ON}
   ExtCtrls,                     
   i_LanguageManager,
   i_PathConfig,

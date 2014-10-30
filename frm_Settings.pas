@@ -28,9 +28,6 @@ uses
   Controls,
   Forms,
   StdCtrls,
-  {$WARN UNIT_PLATFORM OFF}
-  FileCtrl,
-  {$WARN UNIT_PLATFORM ON}
   ExtCtrls,
   ComCtrls,
   Dialogs,
@@ -56,7 +53,6 @@ type
     PageControl1: TPageControl;
     tsCache: TTabSheet;
     tsInternet: TTabSheet;
-    Label2: TLabel;
     btnCancel: TButton;
     btnOk: TButton;
     tsControl: TTabSheet;
@@ -64,17 +60,6 @@ type
     ScrolInvert: TCheckBox;
     tsView: TTabSheet;
     btnApply: TButton;
-    Label15: TLabel;
-    OldCPath: TEdit;
-    NewCpath: TEdit;
-    Button4: TButton;
-    Button5: TButton;
-    Button6: TButton;
-    Button7: TButton;
-    Label1: TLabel;
-    ESCPath: TEdit;
-    Button8: TButton;
-    Button9: TButton;
     Label3: TLabel;
     ComboBox1: TComboBox;
     TrBarGamma: TTrackBar;
@@ -119,10 +104,6 @@ type
     CBoxLocal: TComboBox;
     Label8: TLabel;
     ChBoxFirstLat: TCheckBox;
-    Label19: TLabel;
-    GMTilesPath: TEdit;
-    Button13: TButton;
-    Button14: TButton;
     CBSaveTileNotExists: TCheckBox;
     CBBorderText: TCheckBox;
     CBGenshtabBorderText: TCheckBox;
@@ -137,18 +118,6 @@ type
     Label30: TLabel;
     SETilesOCache: TSpinEdit;
     CBShowHintOnMarks: TCheckBox;
-    GECachePath: TEdit;
-    Button10: TButton;
-    Button17: TButton;
-    Label31: TLabel;
-    lblBDBCachePath: TLabel;
-    edtBDBCachePath: TEdit;
-    btnSetDefBDBCachePath: TButton;
-    btnSetBDBCachePath: TButton;
-    lblBDBVerCachePath: TLabel;
-    edtBDBVerCachePath: TEdit;
-    btnSetDefBDBVerCachePath: TButton;
-    btnSetBDBVerCachePath: TButton;
     Label32: TLabel;
     SETimeOut: TSpinEdit;
     tsGSM: TTabSheet;
@@ -163,7 +132,6 @@ type
     SEWaitingAnswer: TSpinEdit;
     pnlBottomButtons: TPanel;
     flwpnlMemCache: TFlowPanel;
-    grdpnlCache: TGridPanel;
     pnlProxyUrl: TPanel;
     lblUseProxy: TLabel;
     lblProxyLogin: TLabel;
@@ -197,10 +165,6 @@ type
     pnlGSM: TPanel;
     flwpnlGSM: TFlowPanel;
     CBMinimizeToTray: TCheckBox;
-    lbGCCachePath: TLabel;
-    edtGCCachePath: TEdit;
-    btnSetDefGCCachePath: TButton;
-    btnSetGCCachePath: TButton;
     pnlImageProcessTop: TPanel;
     btnImageProcessReset: TButton;
     lblImageProcessCaption: TLabel;
@@ -234,12 +198,7 @@ type
     seGPSMarkerRingsCount: TSpinEdit;
     lblGPSMarkerRingRadius: TLabel;
     seGPSMarkerRingRadius: TSpinEdit;
-    Label37: TLabel;
-    CBCacheType: TComboBox;
     lbDBMSCachePath: TLabel;
-    edtDBMSCachePath: TEdit;
-    btnSetDefDBMSCachePath: TButton;
-    btnSetDBMSCachePath: TButton;
     flwpnl1: TFlowPanel;
     lbl1: TLabel;
     seSleepOnResetConnection: TSpinEdit;
@@ -257,10 +216,26 @@ type
     pnlMarksIconsPath: TPanel;
     pnlMediaDataPath: TPanel;
     pnlMapSvcScan: TPanel;
+    pnlNewCpath: TPanel;
+    pnlOldCpath: TPanel;
+    pnlEScPath: TPanel;
+    pnlGMTilesPath: TPanel;
+    pnlGECachePath: TPanel;
+    pnledtBDBCachePath: TPanel;
+    pnledtBDBVerCachePath: TPanel;
+    pnledtGCCachePath: TPanel;
+    pnlDBMSPath: TPanel;
+    pnlBaseCahcePath: TPanel;
+    pnlDefCache: TPanel;
+    CBCacheType: TComboBox;
+    edtDBMSCachePath: TEdit;
+    pnlButtnos: TPanel;
+    BtnDef: TButton;
+    BtnSelectPath: TButton;
+    lbl: TLabel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure TrBarGammaChange(Sender: TObject);
@@ -284,12 +259,21 @@ type
     FMapTypeEditor: IMapTypeConfigModalEdit;
     FfrMapPathSelect: TfrPathSelect;
     FfrTerrainDataPathSelect: TfrPathSelect;
-    FfrUserDataPathSelect : TfrPathSelect;
-    FfrTrackPathSelect : TfrPathSelect;
-    FfrMarksIconsPathSelect : TfrPathSelect;
-    FfrMarksDbPathSelect : TfrPathSelect;
-    FfrMediaDataPathSelect : TfrPathSelect;
-    FfrMapSvcScanPathSelect : TfrPathSelect;
+    FfrUserDataPathSelect: TfrPathSelect;
+    FfrTrackPathSelect: TfrPathSelect;
+    FfrMarksIconsPathSelect: TfrPathSelect;
+    FfrMarksDbPathSelect: TfrPathSelect;
+    FfrMediaDataPathSelect: TfrPathSelect;
+    FfrMapSvcScanPathSelect: TfrPathSelect;
+    FfrBaseCahcePathSelect: TfrPathSelect;
+    FfrNewCpath: TfrPathSelect;
+    FfrOldCpath: TfrPathSelect;
+    FfrEScPath: TfrPathSelect;
+    FfrGMTilesPath: TfrPathSelect;
+    FfrGECachePath: TfrPathSelect;
+    FfrBDBCachePath: TfrPathSelect;
+    FfrBDBVerCachePath: TfrPathSelect;
+    FfrGCCachePath: TfrPathSelect;
 
     procedure InitResamplersList(
       const AList: IImageResamplerFactoryList;
@@ -443,6 +427,60 @@ begin
       ALanguageManager,
       'Path to map scan DB',
       GState.Config.MapSvcScanConfig.Path
+    );
+  FfrBaseCahcePathSelect :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Base Cache path',
+      GState.Config.BaseCahcePath
+    );
+  FfrNewCpath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'Native cache folder:',
+      GState.CacheConfig.NewCPath
+    );
+  FfrOldCpath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'GoogleMV cache folder:',
+      GState.CacheConfig.OldCPath
+    );
+  FfrEScPath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'EarthSlicer cache folder:',
+      GState.CacheConfig.ESCPath
+    );
+  FfrGMTilesPath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'GlobalMapper Tiles (GMT) cache folder:',
+      GState.CacheConfig.GMTilesPath
+    );
+  FfrGECachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'GoogleEarth cache folder:',
+      GState.CacheConfig.GECachePath
+    );
+  FfrBDBCachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'BerkeleyDB cache folder:',
+      GState.CacheConfig.BDBCachePath
+    );
+  FfrBDBVerCachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'BerkeleyDB (Versioned) cache folder:',
+      GState.CacheConfig.BDBVerCachePath
+    );
+  FfrGCCachePath :=
+    TfrPathSelect.Create(
+      ALanguageManager,
+      'GeoCacher root folder:',
+      GState.CacheConfig.GCCachePath
     );
 
   PageControl1.ActivePageIndex:=0;
@@ -640,16 +678,16 @@ begin
     FMainFormConfig.MainConfig.UnlockWrite;
   end;
 
- GState.CacheConfig.NewCpath.Path:=IncludeTrailingPathDelimiter(NewCpath.Text);
- GState.CacheConfig.OldCPath.Path:=IncludeTrailingPathDelimiter(OldCPath.Text);
- GState.CacheConfig.ESCPath.Path:=IncludeTrailingPathDelimiter(ESCPath.Text);
- GState.CacheConfig.GMTilesPath.Path:=IncludeTrailingPathDelimiter(GMTilesPath.Text);
- GState.CacheConfig.GECachePath.Path:=IncludeTrailingPathDelimiter(GECachePath.Text);
- GState.CacheConfig.BDBCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBCachePath.Text);
- GState.CacheConfig.BDBVerCachePath.Path:=IncludeTrailingPathDelimiter(edtBDBVerCachePath.Text);
- GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
+ GState.CacheConfig.NewCpath.Path:=IncludeTrailingPathDelimiter(FfrNewCpath.GetPath);
+ GState.CacheConfig.OldCPath.Path:=IncludeTrailingPathDelimiter(FfrOldCpath.GetPath);
+ GState.CacheConfig.ESCPath.Path:=IncludeTrailingPathDelimiter(FfrESCPath.GetPath);
+ GState.CacheConfig.GMTilesPath.Path:=IncludeTrailingPathDelimiter(FfrGMTilesPath.GetPath);
+ GState.CacheConfig.GECachePath.Path:=IncludeTrailingPathDelimiter(FfrGECachePath.GetPath);
+ GState.CacheConfig.BDBCachePath.Path:=IncludeTrailingPathDelimiter(FfrBDBCachePath.GetPath);
+ GState.CacheConfig.BDBVerCachePath.Path:=IncludeTrailingPathDelimiter(FfrBDBVerCachePath.GetPath);
+ GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(FfrGCCachePath.GetPath);
 
- GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(edtGCCachePath.Text);
+ GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
 
  GState.Config.MapsPath.Path := FfrMapPathSelect.GetPath;
  GState.Config.TerrainDataPath.Path := FfrTerrainDataPathSelect.GetPath;
@@ -659,6 +697,7 @@ begin
  GState.Config.MarksDbPath.Path := FfrMarksDbPathSelect.GetPath;
  GState.Config.MediaDataPath.Path := FfrMediaDataPathSelect.GetPath;
  GState.Config.MapSvcScanConfig.Path.Path := FfrMapSvcScanPathSelect.GetPath;
+ GState.Config.BaseCahcePath.Path := FfrBaseCahcePathSelect.GetPath;
 
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
   try
@@ -693,37 +732,7 @@ end;
 
 procedure TfrmSettings.Button4Click(Sender: TObject);
 begin
- if (Sender as TButton).Tag=1 then OldCPath.Text         := c_File_Cache_Default_GMV + PathDelim;
- if (Sender as TButton).Tag=2 then NewCpath.Text         := c_File_Cache_Default_SAS + PathDelim;
- if (Sender as TButton).Tag=3 then ESCPath.Text          := c_File_Cache_Default_ES + PathDelim;
- if (Sender as TButton).Tag=4 then GMTilesPath.Text      := c_File_Cache_Default_GM + PathDelim;
- if (Sender as TButton).Tag=5 then GECachePath.Text      := c_File_Cache_Default_GE + PathDelim;
- if (Sender as TButton).Tag=6 then edtBDBCachePath.Text  := c_File_Cache_Default_BDB + PathDelim;
- if (Sender as TButton).Tag=61 then edtBDBVerCachePath.Text  := c_File_Cache_Default_BDBv + PathDelim;
  if (Sender as TButton).Tag=7 then edtDBMSCachePath.Text := c_File_Cache_Default_DBMS; // without deliiter(s)
- if (Sender as TButton).Tag=8 then edtGCCachePath.Text   := c_File_Cache_Default_GC + PathDelim;
-end;
-
-procedure TfrmSettings.Button5Click(Sender: TObject);
-var  TempPath: string;
-begin
-  if (Sender as TButton).Tag=7 then begin
-    // DBMS - select source - not implemented yet
-    Exit;
-  end;
-
-  if SelectDirectory('', '', TempPath) then
-  begin
-    if (Sender as TButton).Tag=1 then OldCPath.Text:= IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=2 then NewCpath.Text:=IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=3 then ESCPath.Text:=IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=4 then GMTilesPath.Text:=IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=5 then GECachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=6 then edtBDBCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=61 then edtBDBVerCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
-    if (Sender as TButton).Tag=7 then ;
-    if (Sender as TButton).Tag=8 then edtGCCachePath.Text:=IncludeTrailingPathDelimiter(TempPath);
-  end;
 end;
 
 procedure TfrmSettings.CBLoginClick(Sender: TObject);
@@ -788,6 +797,15 @@ begin
   FreeAndNil(FfrMarksDbPathSelect);
   FreeAndNil(FfrMediaDataPathSelect);
   FreeAndNil(FfrMapSvcScanPathSelect);
+  FreeAndNil(FfrBaseCahcePathSelect);
+  FreeAndNil(FfrNewCpath);
+  FreeAndNil(FfrOldCpath);
+  FreeAndNil(FfrEScPath);
+  FreeAndNil(FfrGMTilesPath);
+  FreeAndNil(FfrGECachePath);
+  FreeAndNil(FfrBDBCachePath);
+  FreeAndNil(FfrBDBVerCachePath);
+  FreeAndNil(FfrGCCachePath);
   inherited;
 end;
 
@@ -811,6 +829,15 @@ begin
   FfrMarksDbPathSelect.Show(pnlMarksDbPath);
   FfrMediaDataPathSelect.Show(pnlMediaDataPath);
   FfrMapSvcScanPathSelect.Show(pnlMapSvcScan);
+  FfrBaseCahcePathSelect.Show(pnlBaseCahcePath);
+  FfrNewCpath.Show(pnlNewCpath);
+  FfrOldCpath.Show(pnlOldCpath);
+  FfrEScPath.Show(pnlEScPath);
+  FfrGMTilesPath.Show(pnlGMTilesPath);
+  FfrGECachePath.Show(pnlGECachePath);
+  FfrBDBCachePath.Show(pnledtBDBCachePath);
+  FfrBDBVerCachePath.Show(pnledtBDBVerCachePath);
+  FfrGCCachePath.Show(pnledtGCCachePath);
 
   frGPSConfig.Parent := tsGPS;
   frGPSConfig.Init;
@@ -913,16 +940,7 @@ begin
   end;
 
   CBCacheType.ItemIndex := GetIndexFromDefCache(GState.CacheConfig.DefCache);
-
-  OldCPath.text:=GState.CacheConfig.OldCPath.Path;
-  NewCpath.text:=GState.CacheConfig.NewCpath.Path;
-  ESCPath.text:=GState.CacheConfig.ESCPath.Path;
-  GMTilesPath.text:=GState.CacheConfig.GMTilesPath.Path;
-  GECachePath.text:=GState.CacheConfig.GECachePath.Path;
-  edtBDBCachePath.text:=GState.CacheConfig.BDBCachePath.Path;
-  edtBDBVerCachePath.text:=GState.CacheConfig.BDBVerCachePath.Path;
-  edtDBMSCachePath.text:=GState.CacheConfig.DBMSCachePath.Path;
-  edtGCCachePath.text:=GState.CacheConfig.GCCachePath.Path;
+  edtDBMSCachePath.text := GState.CacheConfig.DBMSCachePath.Path;
 
   FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
   try

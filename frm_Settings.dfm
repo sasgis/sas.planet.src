@@ -66,628 +66,177 @@ object frmSettings: TfrmSettings
           Value = 0
         end
       end
-      object grdpnlCache: TGridPanel
+      object pnlNewCpath: TPanel
         Left = 0
         Top = 0
         Width = 644
-        Height = 272
+        Height = 28
         Align = alTop
         BevelOuter = bvNone
-        ColumnCollection = <
-          item
-            SizeStyle = ssAbsolute
-            Value = 200.000000000000000000
-          end
-          item
-            Value = 100.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 20.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 20.000000000000000000
-          end>
-        ControlCollection = <
-          item
-            Column = 0
-            Control = Label15
-            Row = 0
-          end
-          item
-            Column = 1
-            Control = NewCpath
-            Row = 0
-          end
-          item
-            Column = 2
-            Control = Button6
-            Row = 0
-          end
-          item
-            Column = 3
-            Control = Button7
-            Row = 0
-          end
-          item
-            Column = 0
-            Control = Label2
-            Row = 1
-          end
-          item
-            Column = 1
-            Control = OldCpath
-            Row = 1
-          end
-          item
-            Column = 2
-            Control = Button4
-            Row = 1
-          end
-          item
-            Column = 3
-            Control = Button5
-            Row = 1
-          end
-          item
-            Column = 0
-            Control = Label1
-            Row = 2
-          end
-          item
-            Column = 1
-            Control = EScPath
-            Row = 2
-          end
-          item
-            Column = 2
-            Control = Button8
-            Row = 2
-          end
-          item
-            Column = 3
-            Control = Button9
-            Row = 2
-          end
-          item
-            Column = 0
-            Control = Label19
-            Row = 3
-          end
-          item
-            Column = 1
-            Control = GMTilesPath
-            Row = 3
-          end
-          item
-            Column = 2
-            Control = Button13
-            Row = 3
-          end
-          item
-            Column = 3
-            Control = Button14
-            Row = 3
-          end
-          item
-            Column = 0
-            Control = Label31
-            Row = 4
-          end
-          item
-            Column = 1
-            Control = GECachePath
-            Row = 4
-          end
-          item
-            Column = 2
-            Control = Button10
-            Row = 4
-          end
-          item
-            Column = 3
-            Control = Button17
-            Row = 4
-          end
-          item
-            Column = 0
-            Control = lblBDBCachePath
-            Row = 5
-          end
-          item
-            Column = 1
-            Control = edtBDBCachePath
-            Row = 5
-          end
-          item
-            Column = 2
-            Control = btnSetDefBDBCachePath
-            Row = 5
-          end
-          item
-            Column = 3
-            Control = btnSetBDBCachePath
-            Row = 5
-          end
-          item
-            Column = 0
-            Control = lblBDBVerCachePath
-            Row = 6
-          end
-          item
-            Column = 1
-            Control = edtBDBVerCachePath
-            Row = 6
-          end
-          item
-            Column = 2
-            Control = btnSetDefBDBVerCachePath
-            Row = 6
-          end
-          item
-            Column = 3
-            Control = btnSetBDBVerCachePath
-            Row = 6
-          end
-          item
-            Column = 0
-            Control = lbGCCachePath
-            Row = 7
-          end
-          item
-            Column = 1
-            Control = edtGCCachePath
-            Row = 7
-          end
-          item
-            Column = 2
-            Control = btnSetDefGCCachePath
-            Row = 7
-          end
-          item
-            Column = 3
-            Control = btnSetGCCachePath
-            Row = 7
-          end
-          item
-            Column = 0
-            Control = Label37
-            Row = 9
-          end
-          item
-            Column = 1
-            Control = CBCacheType
-            Row = 9
-          end
-          item
-            Column = 0
-            Control = lbDBMSCachePath
-            Row = 8
-          end
-          item
-            Column = 1
-            Control = edtDBMSCachePath
-            Row = 8
-          end
-          item
-            Column = 2
-            Control = btnSetDefDBMSCachePath
-            Row = 8
-          end
-          item
-            Column = 3
-            Control = btnSetDBMSCachePath
-            Row = 8
-          end>
-        RowCollection = <
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            SizeStyle = ssAbsolute
-            Value = 27.000000000000000000
-          end
-          item
-            Value = 100.000000000000000000
-          end>
         TabOrder = 1
-        DesignSize = (
-          644
-          272)
-        object Label15: TLabel
+      end
+      object pnlDBMSPath: TPanel
+        Left = 0
+        Top = 224
+        Width = 644
+        Height = 22
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 2
+        object lbDBMSCachePath: TLabel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'Native cache folder:'
+          Width = 54
+          Height = 16
+          Align = alLeft
+          Caption = 'DBMS root:'
           Layout = tlCenter
           ExplicitWidth = 97
           ExplicitHeight = 13
         end
-        object NewCpath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 3
-          Width = 398
-          Height = 21
-          Align = alClient
+        object edtDBMSCachePath: TEdit
+          Left = 200
+          Top = 0
+          Width = 395
+          Height = 22
+          Align = alRight
+          Anchors = [akLeft, akTop, akRight, akBottom]
+          BiDiMode = bdLeftToRight
+          Ctl3D = True
+          ParentBiDiMode = False
+          ParentCtl3D = False
           TabOrder = 0
+          ExplicitHeight = 21
         end
-        object Button6: TButton
-          Tag = 2
-          Left = 604
-          Top = 3
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '<>'
+        object pnlButtnos: TPanel
+          Left = 595
+          Top = 0
+          Width = 49
+          Height = 22
+          Align = alRight
+          BevelEdges = []
+          BevelKind = bkTile
+          BevelOuter = bvNone
           TabOrder = 1
-          OnClick = Button4Click
+          object BtnDef: TButton
+            Tag = 2
+            Left = 2
+            Top = 2
+            Width = 23
+            Height = 19
+            Align = alCustom
+            Caption = '<>'
+            TabOrder = 0
+            OnClick = Button4Click
+          end
+          object BtnSelectPath: TButton
+            Tag = 2
+            Left = 25
+            Top = 2
+            Width = 23
+            Height = 19
+            Align = alCustom
+            Caption = '...'
+            TabOrder = 1
+          end
         end
-        object Button7: TButton
-          Tag = 2
-          Left = 624
-          Top = 3
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '...'
-          TabOrder = 2
-          OnClick = Button5Click
-        end
-        object Label2: TLabel
-          AlignWithMargins = True
+      end
+      object pnlOldCpath: TPanel
+        Left = 0
+        Top = 28
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 3
+      end
+      object pnlEScPath: TPanel
+        Left = 0
+        Top = 56
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 4
+      end
+      object pnlGMTilesPath: TPanel
+        Left = 0
+        Top = 84
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 5
+      end
+      object pnlGECachePath: TPanel
+        Left = 0
+        Top = 112
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 6
+      end
+      object pnledtBDBCachePath: TPanel
+        Left = 0
+        Top = 140
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 7
+      end
+      object pnledtBDBVerCachePath: TPanel
+        Left = 0
+        Top = 168
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 8
+      end
+      object pnledtGCCachePath: TPanel
+        Left = 0
+        Top = 196
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 9
+      end
+      object pnlDefCache: TPanel
+        Left = 0
+        Top = 246
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 10
+        object lbl: TLabel
           Left = 3
-          Top = 30
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'GoogleMV cache folder:'
-          Layout = tlCenter
-          ExplicitWidth = 113
-          ExplicitHeight = 13
-        end
-        object OldCpath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 30
-          Width = 398
-          Height = 21
-          Align = alClient
-          TabOrder = 3
-        end
-        object Button4: TButton
-          Tag = 1
-          Left = 604
-          Top = 30
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '<>'
-          TabOrder = 4
-          OnClick = Button4Click
-        end
-        object Button5: TButton
-          Tag = 1
-          Left = 624
-          Top = 30
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '...'
-          TabOrder = 5
-          OnClick = Button5Click
-        end
-        object Label1: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 57
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'EarthSlicer cache folder:'
-          Layout = tlCenter
-          ExplicitWidth = 117
-          ExplicitHeight = 13
-        end
-        object EScPath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 57
-          Width = 398
-          Height = 21
-          Align = alClient
-          TabOrder = 6
-        end
-        object Button8: TButton
-          Tag = 3
-          Left = 604
-          Top = 57
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '<>'
-          TabOrder = 7
-          OnClick = Button4Click
-        end
-        object Button9: TButton
-          Tag = 3
-          Left = 624
-          Top = 57
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '...'
-          TabOrder = 8
-          OnClick = Button5Click
-        end
-        object Label19: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 84
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'GlobalMapper Tiles (GMT) cache folder:'
-          Layout = tlCenter
-          ExplicitWidth = 187
-          ExplicitHeight = 13
-        end
-        object GMTilesPath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 84
-          Width = 398
-          Height = 21
-          Align = alClient
-          TabOrder = 9
-        end
-        object Button13: TButton
-          Tag = 4
-          Left = 604
-          Top = 84
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '<>'
-          TabOrder = 10
-          OnClick = Button4Click
-        end
-        object Button14: TButton
-          Tag = 4
-          Left = 624
-          Top = 84
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '...'
-          TabOrder = 11
-          OnClick = Button5Click
-        end
-        object Label31: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 111
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'GoogleEarth cache folder:'
-          Layout = tlCenter
-          ExplicitWidth = 125
-          ExplicitHeight = 13
-        end
-        object GECachePath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 111
-          Width = 398
-          Height = 21
-          Align = alClient
-          TabOrder = 12
-        end
-        object Button10: TButton
-          Tag = 5
-          Left = 604
-          Top = 111
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '<>'
-          TabOrder = 13
-          OnClick = Button4Click
-        end
-        object Button17: TButton
-          Tag = 5
-          Left = 624
-          Top = 111
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '...'
-          TabOrder = 14
-          OnClick = Button5Click
-        end
-        object lblBDBCachePath: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 138
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'BerkeleyDB cache folder:'
-          Layout = tlCenter
-          ExplicitWidth = 120
-          ExplicitHeight = 13
-        end
-        object edtBDBCachePath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 138
-          Width = 398
-          Height = 21
-          Align = alClient
-          TabOrder = 25
-        end
-        object btnSetDefBDBCachePath: TButton
-          Tag = 6
-          Left = 604
-          Top = 138
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '<>'
-          TabOrder = 26
-          OnClick = Button4Click
-        end
-        object btnSetBDBCachePath: TButton
-          Tag = 6
-          Left = 624
-          Top = 138
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '...'
-          TabOrder = 27
-          OnClick = Button5Click
-        end
-        object lblBDBVerCachePath: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 165
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'BerkeleyDB (Versioned) cache folder:'
-          Layout = tlCenter
-          ExplicitWidth = 178
-          ExplicitHeight = 13
-        end
-        object edtBDBVerCachePath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 165
-          Width = 398
-          Height = 21
-          Align = alClient
-          TabOrder = 15
-        end
-        object btnSetDefBDBVerCachePath: TButton
-          Tag = 61
-          Left = 604
-          Top = 165
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '<>'
-          TabOrder = 16
-          OnClick = Button4Click
-        end
-        object btnSetBDBVerCachePath: TButton
-          Tag = 61
-          Left = 624
-          Top = 165
-          Width = 20
-          Height = 21
-          Anchors = []
-          Caption = '...'
-          TabOrder = 17
-          OnClick = Button5Click
-        end
-        object lbGCCachePath: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 192
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'GeoCacher root folder:'
-          Layout = tlCenter
-          ExplicitWidth = 111
-          ExplicitHeight = 13
-        end
-        object edtGCCachePath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 192
-          Width = 398
-          Height = 21
-          Align = alClient
-          TabOrder = 18
-        end
-        object btnSetDefGCCachePath: TButton
-          Tag = 8
-          Left = 604
-          Top = 190
-          Width = 20
-          Height = 25
-          Anchors = []
-          Caption = '<>'
-          TabOrder = 19
-          OnClick = Button4Click
-        end
-        object btnSetGCCachePath: TButton
-          Tag = 8
-          Left = 624
-          Top = 190
-          Width = 20
-          Height = 25
-          Anchors = []
-          Caption = '...'
-          TabOrder = 20
-          OnClick = Button5Click
-        end
-        object Label37: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 246
-          Width = 194
-          Height = 23
-          Align = alClient
+          Top = 12
+          Width = 91
+          Height = 13
           Caption = 'Default cache type'
-          Layout = tlCenter
-          ExplicitWidth = 91
-          ExplicitHeight = 13
         end
         object CBCacheType: TComboBox
-          AlignWithMargins = True
-          Left = 203
-          Top = 246
-          Width = 398
+          Left = 200
+          Top = 4
+          Width = 395
           Height = 21
-          Align = alClient
+          Align = alCustom
           Style = csDropDownList
+          Anchors = [akLeft, akTop, akRight]
           ItemHeight = 13
           ItemIndex = 1
           TabOrder = 21
@@ -701,49 +250,6 @@ object frmSettings: TfrmSettings
             'BerkeleyDB (Versioned)'
             'DBMS'
             'RAM')
-        end
-        object lbDBMSCachePath: TLabel
-          AlignWithMargins = True
-          Left = 3
-          Top = 219
-          Width = 194
-          Height = 21
-          Align = alClient
-          Caption = 'DBMS root:'
-          Layout = tlCenter
-          ExplicitWidth = 54
-          ExplicitHeight = 13
-        end
-        object edtDBMSCachePath: TEdit
-          AlignWithMargins = True
-          Left = 203
-          Top = 219
-          Width = 398
-          Height = 21
-          Align = alClient
-          TabOrder = 22
-        end
-        object btnSetDefDBMSCachePath: TButton
-          Tag = 7
-          Left = 604
-          Top = 217
-          Width = 20
-          Height = 25
-          Anchors = []
-          Caption = '<>'
-          TabOrder = 23
-          OnClick = Button4Click
-        end
-        object btnSetDBMSCachePath: TButton
-          Tag = 7
-          Left = 624
-          Top = 217
-          Width = 20
-          Height = 25
-          Anchors = []
-          Caption = '...'
-          TabOrder = 24
-          OnClick = Button5Click
         end
       end
     end
@@ -2433,25 +1939,36 @@ object frmSettings: TfrmSettings
       end
       object pnlMediaDataPath: TPanel
         Left = 0
-        Top = 0
+        Top = 28
         Width = 644
         Height = 28
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 6
+        ExplicitTop = 0
       end
       object pnlMapSvcScan: TPanel
         Left = 0
-        Top = 196
+        Top = 224
         Width = 644
         Height = 28
         Align = alTop
         BevelEdges = []
         BevelOuter = bvNone
         TabOrder = 7
-        ExplicitLeft = -3
-        ExplicitTop = 322
+      end
+      object pnlBaseCahcePath: TPanel
+        Left = 0
+        Top = 0
+        Width = 644
+        Height = 28
+        Align = alTop
+        BevelEdges = []
+        BevelOuter = bvNone
+        TabOrder = 8
+        ExplicitLeft = 3
+        ExplicitTop = -6
       end
     end
   end
