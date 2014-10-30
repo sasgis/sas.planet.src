@@ -231,11 +231,9 @@ type
     edtDBMSCachePath: TEdit;
     pnlButtnos: TPanel;
     BtnDef: TButton;
-    BtnSelectPath: TButton;
     lbl: TLabel;
     procedure btnCancelClick(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure TrBarGammaChange(Sender: TObject);
@@ -248,6 +246,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure btnImageProcessResetClick(Sender: TObject);
     procedure btnResetUserAgentStringClick(Sender: TObject);
+    procedure BtnDefClick(Sender: TObject);
   private
     FOnSave: TNotifyEvent;
     FLinksList: IListenerNotifierLinksList;
@@ -494,6 +493,11 @@ begin
   Close
 end;
 
+procedure TfrmSettings.BtnDefClick(Sender: TObject);
+begin
+  edtDBMSCachePath.Text := c_File_Cache_Default_DBMS; // without deliiter(s)
+end;
+
 procedure TfrmSettings.btnImageProcessResetClick(Sender: TObject);
 begin
   TrBarGamma.Position := 50;
@@ -678,26 +682,26 @@ begin
     FMainFormConfig.MainConfig.UnlockWrite;
   end;
 
- GState.CacheConfig.NewCpath.Path:=IncludeTrailingPathDelimiter(FfrNewCpath.GetPath);
- GState.CacheConfig.OldCPath.Path:=IncludeTrailingPathDelimiter(FfrOldCpath.GetPath);
- GState.CacheConfig.ESCPath.Path:=IncludeTrailingPathDelimiter(FfrESCPath.GetPath);
- GState.CacheConfig.GMTilesPath.Path:=IncludeTrailingPathDelimiter(FfrGMTilesPath.GetPath);
- GState.CacheConfig.GECachePath.Path:=IncludeTrailingPathDelimiter(FfrGECachePath.GetPath);
- GState.CacheConfig.BDBCachePath.Path:=IncludeTrailingPathDelimiter(FfrBDBCachePath.GetPath);
- GState.CacheConfig.BDBVerCachePath.Path:=IncludeTrailingPathDelimiter(FfrBDBVerCachePath.GetPath);
- GState.CacheConfig.GCCachePath.Path:=IncludeTrailingPathDelimiter(FfrGCCachePath.GetPath);
+  FfrNewCpath.ApplyChanges;
+  FfrOldCpath.ApplyChanges;
+  FfrESCPath.ApplyChanges;
+  FfrGMTilesPath.ApplyChanges;
+  FfrGECachePath.ApplyChanges;
+  FfrBDBCachePath.ApplyChanges;
+  FfrBDBVerCachePath.ApplyChanges;
+  FfrGCCachePath.ApplyChanges;
 
- GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
+  GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
 
- GState.Config.MapsPath.Path := FfrMapPathSelect.GetPath;
- GState.Config.TerrainDataPath.Path := FfrTerrainDataPathSelect.GetPath;
- GState.Config.UserDataPath.Path := FfrUserDataPathSelect.GetPath;
- GState.Config.TrackPath.Path := FfrTrackPathSelect.GetPath;
- GState.Config.MarksIconsPath.Path := FfrMarksIconsPathSelect.GetPath;
- GState.Config.MarksDbPath.Path := FfrMarksDbPathSelect.GetPath;
- GState.Config.MediaDataPath.Path := FfrMediaDataPathSelect.GetPath;
- GState.Config.MapSvcScanConfig.Path.Path := FfrMapSvcScanPathSelect.GetPath;
- GState.Config.BaseCahcePath.Path := FfrBaseCahcePathSelect.GetPath;
+  FfrMapPathSelect.ApplyChanges;
+  FfrTerrainDataPathSelect.ApplyChanges;
+  FfrUserDataPathSelect.ApplyChanges;
+  FfrTrackPathSelect.ApplyChanges;
+  FfrMarksIconsPathSelect.ApplyChanges;
+  FfrMarksDbPathSelect.ApplyChanges;
+  FfrMediaDataPathSelect.ApplyChanges;
+  FfrMapSvcScanPathSelect.ApplyChanges;
+  FfrBaseCahcePathSelect.ApplyChanges;
 
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockWrite;
   try
@@ -728,11 +732,6 @@ begin
  if VNeedReboot then begin
    ShowMessage(SAS_MSG_need_reload_application_curln);
  end;
-end;
-
-procedure TfrmSettings.Button4Click(Sender: TObject);
-begin
- if (Sender as TButton).Tag=7 then edtDBMSCachePath.Text := c_File_Cache_Default_DBMS; // without deliiter(s)
 end;
 
 procedure TfrmSettings.CBLoginClick(Sender: TObject);

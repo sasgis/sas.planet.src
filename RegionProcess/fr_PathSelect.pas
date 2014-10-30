@@ -56,7 +56,8 @@ type
       const ACaption: string;
       const APathConfig: IPathConfig
     ); reintroduce;
-    function GetPath: string;
+    procedure CancelChanges;
+    procedure ApplyChanges;
     procedure Show(AParent: TWinControl);
   end;
 
@@ -68,6 +69,10 @@ uses
 
 { TfrPathSelect }
 
+procedure TfrPathSelect.CancelChanges;
+begin
+end;
+
 constructor TfrPathSelect.Create(
   const ALanguageManager: ILanguageManager;
   const ACaption: string;
@@ -77,7 +82,11 @@ begin
   inherited Create(ALanguageManager);
   FCaption := ACaption;
   FPathConfig := APathConfig;
-  EPath.Text := IncludeTrailingPathDelimiter(FPathConfig.path);
+end;
+
+procedure TfrPathSelect.ApplyChanges;
+begin
+  FPathConfig.Path := IncludeTrailingPathDelimiter(EPath.Text);
 end;
 
 procedure TfrPathSelect.BtnDefClick(Sender: TObject);
@@ -95,13 +104,9 @@ begin
   end;
 end;
 
-function TfrPathSelect.GetPath: string;
-begin
-  Result := IncludeTrailingPathDelimiter(EPath.Text);
-end;
-
 procedure TfrPathSelect.Show(AParent: TWinControl);
 begin
+  EPath.Text := IncludeTrailingPathDelimiter(FPathConfig.path);
   Parent := AParent;
   LCaption.Caption := _(FCaption);
 end;
