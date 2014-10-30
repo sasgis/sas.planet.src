@@ -28,6 +28,9 @@ uses
   i_Notifier,
   i_Listener,
   i_BinaryData,
+  i_PredicateByBinaryData,
+  i_BitmapTileSaveLoad,
+  i_DownloadResultFactory,
   i_MapVersionInfo,
   i_ContentTypeInfo,
   i_ContentTypeSubst,
@@ -56,6 +59,8 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FContentType: IContentTypeInfoBasic;
     FContentTypeManager: IContentTypeManager;
+    FEmptyTilePredicate: IPredicateByBinaryData;
+    FResultFactory: IDownloadResultFactory;
 
     FStorageStateListener: IListener;
 
@@ -64,18 +69,27 @@ type
 
     procedure OnStorageStateChange;
 
-    procedure SaveTileDownload(
+    function SaveTileDownload(
+      const ADownloadResult: IDownloadResultOk
+    ): IDownloadResult;
+    procedure CutDownloadedBitmap(
+      const ASaver: IBitmapTileSaver;
       const AXY: TPoint;
       AZoom: byte;
       const AVersionInfo: IMapVersionInfo;
-      const AData: IBinaryData;
-      const AContenType: AnsiString
+      const ABtm: IBitmap32Static
     );
     function CropOnDownload(
       const ABtm: IBitmap32Static;
       const ACropRect: TRect;
       const ATileSize: TPoint
     ): IBitmap32Static;
+    procedure SaveOneTile(
+      const AXY: TPoint;
+      AZoom: byte;
+      const AVersionInfo: IMapVersionInfo;
+      const AData: IBinaryData
+    );
   private
     function GetState: ITileDownloaderStateChangeble;
     function SaveDownloadResult(const AResult: IDownloadResult): ITileRequestResult;
@@ -84,6 +98,8 @@ type
       const ADownloadConfig: IGlobalDownloadConfig;
       const AImageResampler: IImageResamplerFactoryChangeable;
       const ABitmap32StaticFactory: IBitmap32StaticFactory;
+      const AEmptyTilePredicate: IPredicateByBinaryData;
+      const AResultFactory: IDownloadResultFactory;
       const AContentTypeManager: IContentTypeManager;
       const AContentTypeSubst: IContentTypeSubst;
       const ASaveContentType: IContentTypeInfoBasic;
@@ -98,10 +114,10 @@ type
 implementation
 
 uses
+  gnugettext,
   GR32,
   t_CommonTypes,
   i_ContentConverter,
-  i_BitmapTileSaveLoad,
   i_CoordConverter,
   i_TileRequest,
   i_TileDownloadRequest,
@@ -111,12 +127,17 @@ uses
   u_BitmapFunc,
   u_ResStrings;
 
+type
+  ESaveTileEmptyError = class(Exception);
+
 { TTileDownloadResultSaverStuped }
 
 constructor TTileDownloadResultSaverStuped.Create(
   const ADownloadConfig: IGlobalDownloadConfig;
   const AImageResampler: IImageResamplerFactoryChangeable;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
+  const AEmptyTilePredicate: IPredicateByBinaryData;
+  const AResultFactory: IDownloadResultFactory;
   const AContentTypeManager: IContentTypeManager;
   const AContentTypeSubst: IContentTypeSubst;
   const ASaveContentType: IContentTypeInfoBasic;
@@ -129,6 +150,7 @@ begin
   Assert(Assigned(ADownloadConfig));
   Assert(Assigned(AImageResampler));
   Assert(Assigned(ABitmap32StaticFactory));
+  Assert(Assigned(AResultFactory));
   Assert(Assigned(AContentTypeManager));
   Assert(Assigned(AContentTypeSubst));
   Assert(Assigned(ASaveContentType));
@@ -138,6 +160,8 @@ begin
   FDownloadConfig := ADownloadConfig;
   FImageResampler := AImageResampler;
   FBitmap32StaticFactory := ABitmap32StaticFactory;
+  FEmptyTilePredicate := AEmptyTilePredicate;
+  FResultFactory := AResultFactory;
   FContentTypeManager := AContentTypeManager;
   FContentTypeSubst := AContentTypeSubst;
   FTilePostDownloadCropConfig := ATilePostDownloadCropConfig;
@@ -216,21 +240,19 @@ function TTileDownloadResultSaverStuped.SaveDownloadResult(
   const AResult: IDownloadResult
 ): ITileRequestResult;
 var
+  VResult: IDownloadResult;
   VResultOk: IDownloadResultOk;
-  VContentType: AnsiString;
   VTileDownloadRequest: ITileDownloadRequest;
   VTileRequest: ITileRequest;
 begin
   Assert(AResult <> nil);
   Result := nil;
-  if Assigned(AResult) then begin
-    if Supports(AResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
-      VTileRequest := VTileDownloadRequest.Source;
-      if Supports(AResult, IDownloadResultOk, VResultOk) then begin
-        VContentType := VResultOk.ContentType;
-        VContentType := FContentTypeSubst.GetContentType(VContentType);
+  VResult := AResult;
+  if Assigned(VResult) then begin
+    if FStorage.State.GetStatic.AddAccess <> asDisabled then begin
+      if Supports(VResult, IDownloadResultOk, VResultOk) then begin
         try
-          SaveTileDownload(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VResultOk.Data, VContentType);
+          VResult := SaveTileDownload(VResultOk);
           Result := TTileRequestResultOk.Create(AResult);
         except
           on E: Exception do begin
@@ -241,34 +263,148 @@ begin
               );
           end;
         end;
-      end else if Supports(AResult, IDownloadResultDataNotExists) then begin
-        if FDownloadConfig.IsSaveTileNotExists then begin
-          FStorage.SaveTile(
-            VTileRequest.Tile,
-            VTileRequest.Zoom,
-            VTileRequest.VersionInfo,
-            Now,
-            nil,
-            nil,
-            true
-          );
+      end;
+      if not Assigned(Result) then begin
+        if Supports(VResult, IDownloadResultDataNotExists) then begin
+          if Supports(AResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
+            VTileRequest := VTileDownloadRequest.Source;
+            SaveOneTile(
+              VTileRequest.Tile,
+              VTileRequest.Zoom,
+              VTileRequest.VersionInfo,
+              nil
+            );
+          end else begin
+            raise Exception.Create('This was not tile request');
+          end;
+          Result := TTileRequestResultOk.Create(VResult);
         end;
-        Result := TTileRequestResultOk.Create(AResult);
       end;
     end else begin
-      raise Exception.Create('This was not tile request');
+      raise ESaveTileDownloadError.Create('Для этой карты запрещено добавление тайлов.');
     end;
   end;
 end;
 
-procedure TTileDownloadResultSaverStuped.SaveTileDownload(
+procedure TTileDownloadResultSaverStuped.SaveOneTile(
   const AXY: TPoint;
   AZoom: byte;
   const AVersionInfo: IMapVersionInfo;
-  const AData: IBinaryData;
-  const AContenType: AnsiString
+  const AData: IBinaryData
+);
+begin
+  if Assigned(AData) then begin
+    FStorage.SaveTile(
+      AXY,
+      AZoom,
+      AVersionInfo,
+      Now,
+      FContentType,
+      AData,
+      true
+    );
+  end else begin
+    if FDownloadConfig.IsSaveTileNotExists then begin
+      FStorage.SaveTile(
+        AXY,
+        AZoom,
+        AVersionInfo,
+        Now,
+        nil,
+        nil,
+        true
+      );
+    end;
+  end;
+
+end;
+
+procedure TTileDownloadResultSaverStuped.CutDownloadedBitmap(
+  const ASaver: IBitmapTileSaver;
+  const AXY: TPoint;
+  AZoom: byte;
+  const AVersionInfo: IMapVersionInfo;
+  const ABtm: IBitmap32Static
 );
 var
+  VCoordConverter: ICoordConverter;
+  // cut images
+  VCutCount, VCutSize, VCutTile: TPoint;
+  i, j: Integer;
+  VPos: TPoint;
+  VCutBitmapStatic: IBitmap32Static;
+  VData: IBinaryData;
+begin
+  VCoordConverter := FStorage.CoordConverter;
+  // cut into multiple tiles
+  // define parts
+  VCutCount := FTilePostDownloadCropConfig.CutCount;
+  VCutSize := FTilePostDownloadCropConfig.CutSize;
+  VCutTile := FTilePostDownloadCropConfig.CutTile;
+
+  if (0 = VCutSize.X) or (0 = VCutSize.Y) then begin
+    VCutSize := VCoordConverter.GetTileSize(AXY, AZoom);
+  end;
+
+  // define counts
+  if (0 = VCutCount.X) or (0 = VCutCount.Y) then begin
+    // define count by image size
+    if (VCutSize.X > 0) then begin
+      VCutCount.X := ABtm.Size.X div VCutSize.X;
+    end;
+    if (VCutSize.Y > 0) then begin
+      VCutCount.Y := ABtm.Size.Y div VCutSize.Y;
+    end;
+  end;
+
+  if (VCutCount.X > 0) and (VCutCount.Y > 0) then begin
+    // cut in loop
+    for i := 0 to VCutCount.X - 1 do begin
+      for j := 0 to VCutCount.Y - 1 do // dummy loop indeed
+      begin
+        VPos.X := i;
+        VPos.Y := j;
+
+        if not FTilePostDownloadCropConfig.CutSkipItem(VPos, VCutCount) then begin
+          // position of item (>=0 - ordinal, <0 - relative to count)
+          VPos.X := VPos.X + AXY.X - VCutTile.X;
+          if VCutTile.X < 0 then begin
+            VPos.X := VPos.X - VCutCount.X;
+          end;
+          VPos.Y := VPos.Y + AXY.Y - VCutTile.Y;
+          if VCutTile.Y < 0 then begin
+            VPos.Y := VPos.Y - VCutCount.Y;
+          end;
+
+          // crop single part
+          VCutBitmapStatic :=
+            CropOnDownload(
+              ABtm,
+              Rect(VCutSize.X * i, VCutSize.Y * j, VCutSize.X * (i + 1), VCutSize.Y * (j + 1)),
+              VCoordConverter.GetTileSize(VPos, AZoom)
+            );
+
+          // save
+          VData := ASaver.Save(VCutBitmapStatic);
+          if Assigned(FEmptyTilePredicate) then begin
+            if FEmptyTilePredicate.Check(VData) then begin
+              VData := nil;
+            end;
+          end;
+          SaveOneTile(VPos, AZoom, AVersionInfo, VData);
+        end;
+      end;
+    end;
+  end;
+end;
+
+function TTileDownloadResultSaverStuped.SaveTileDownload(
+  const ADownloadResult: IDownloadResultOk
+): IDownloadResult;
+var
+  VContentType: AnsiString;
+  VTileDownloadRequest: ITileDownloadRequest;
+  VTileRequest: ITileRequest;
   VContentTypeInfo: IContentTypeInfoBasic;
   VContentTypeBitmap: IContentTypeInfoBitmap;
   VConverter: IContentConverter;
@@ -276,111 +412,93 @@ var
   VTargetContentTypeBitmap: IContentTypeInfoBitmap;
   VBitmapStatic: IBitmap32Static;
   VData: IBinaryData;
-  // cut images
-  VCutCount, VCutSize, VCutTile: TPoint;
-  i, j: Integer;
-  VPos: TPoint;
-  VCutBitmapStatic: IBitmap32Static;
   VCoordConverter: ICoordConverter;
 begin
-  if FStorage.State.GetStatic.AddAccess <> asDisabled then begin
-    VCoordConverter := FStorage.CoordConverter;
-    if Supports(FContentType, IContentTypeInfoBitmap, VTargetContentTypeBitmap) and
-      (FTilePostDownloadCropConfig.IsCropOnDownload or FTilePostDownloadCropConfig.IsCutOnDownload) then begin
-      VContentTypeInfo := FContentTypeManager.GetInfo(AContenType);
-      if VContentTypeInfo <> nil then begin
-        if Supports(VContentTypeInfo, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
-          VLoader := VContentTypeBitmap.GetLoader;
-          if VLoader <> nil then begin
-            // full downloaded image
-            VBitmapStatic := VLoader.Load(AData);
-            // TODO: crop before cut
-            if FTilePostDownloadCropConfig.IsCutOnDownload then begin
-              // cut into multiple tiles
-              // define parts
-              VCutCount := FTilePostDownloadCropConfig.CutCount;
-              VCutSize := FTilePostDownloadCropConfig.CutSize;
-              VCutTile := FTilePostDownloadCropConfig.CutTile;
-
-              if (0 = VCutSize.X) or (0 = VCutSize.Y) then begin
-                VCutSize := VCoordConverter.GetTileSize(AXY, AZoom);
-              end;
-
-              // define counts
-              if (0 = VCutCount.X) or (0 = VCutCount.Y) then begin
-                // define count by image size
-                if (VCutSize.X > 0) then begin
-                  VCutCount.X := VBitmapStatic.Size.X div VCutSize.X;
-                end;
-                if (VCutSize.Y > 0) then begin
-                  VCutCount.Y := VBitmapStatic.Size.Y div VCutSize.Y;
-                end;
-              end;
-
-              if (VCutCount.X > 0) and (VCutCount.Y > 0) then begin
-                // cut in loop
-                for i := 0 to VCutCount.X - 1 do begin
-                  for j := 0 to VCutCount.Y - 1 do // dummy loop indeed
-                  begin
-                    VPos.X := i;
-                    VPos.Y := j;
-
-                    if not FTilePostDownloadCropConfig.CutSkipItem(VPos, VCutCount) then begin
-                      // position of item (>=0 - ordinal, <0 - relative to count)
-                      VPos.X := VPos.X + AXY.X - VCutTile.X;
-                      if VCutTile.X < 0 then begin
-                        VPos.X := VPos.X - VCutCount.X;
-                      end;
-                      VPos.Y := VPos.Y + AXY.Y - VCutTile.Y;
-                      if VCutTile.Y < 0 then begin
-                        VPos.Y := VPos.Y - VCutCount.Y;
-                      end;
-
-                      // crop single part
-                      VCutBitmapStatic :=
-                        CropOnDownload(
-                          VBitmapStatic,
-                          Rect(VCutSize.X * i, VCutSize.Y * j, VCutSize.X * (i + 1), VCutSize.Y * (j + 1)),
-                          VCoordConverter.GetTileSize(VPos, AZoom)
-                        );
-
-                      // save
-                      VData := VTargetContentTypeBitmap.GetSaver.Save(VCutBitmapStatic);
-                      FStorage.SaveTile(VPos, AZoom, AVersionInfo, Now, FContentType, VData, True);
-                    end;
-                  end;
-                end;
-              end;
-            end else begin
-              // crop single tile
-              VBitmapStatic :=
-                CropOnDownload(
-                  VBitmapStatic,
-                  FTilePostDownloadCropConfig.CropRect,
-                  VCoordConverter.GetTileSize(AXY, AZoom)
-                );
-              VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
-              FStorage.SaveTile(AXY, AZoom, AVersionInfo, Now, FContentType, VData, True);
-            end;
+  Result := ADownloadResult;
+  VContentType := ADownloadResult.ContentType;
+  VContentType := FContentTypeSubst.GetContentType(VContentType);
+  if Supports(ADownloadResult.Request, ITileDownloadRequest, VTileDownloadRequest) then begin
+    VTileRequest := VTileDownloadRequest.Source;
+  end else begin
+    raise Exception.Create('This was not tile request');
+  end;
+  VCoordConverter := FStorage.CoordConverter;
+  if Supports(FContentType, IContentTypeInfoBitmap, VTargetContentTypeBitmap) and
+    (FTilePostDownloadCropConfig.IsCropOnDownload or FTilePostDownloadCropConfig.IsCutOnDownload) then begin
+    VContentTypeInfo := FContentTypeManager.GetInfo(VContentType);
+    if VContentTypeInfo <> nil then begin
+      if Supports(VContentTypeInfo, IContentTypeInfoBitmap, VContentTypeBitmap) then begin
+        VLoader := VContentTypeBitmap.GetLoader;
+        if VLoader <> nil then begin
+          // full downloaded image
+          VBitmapStatic := VLoader.Load(ADownloadResult.Data);
+          // TODO: crop before cut
+          if FTilePostDownloadCropConfig.IsCutOnDownload then begin
+            CutDownloadedBitmap(
+              VTargetContentTypeBitmap.GetSaver,
+              VTileRequest.Tile,
+              VTileRequest.Zoom,
+              VTileRequest.VersionInfo,
+              VBitmapStatic
+            );
           end else begin
-            raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
+            // crop single tile
+            VBitmapStatic :=
+              CropOnDownload(
+                VBitmapStatic,
+                FTilePostDownloadCropConfig.CropRect,
+                VCoordConverter.GetTileSize(VTileRequest.Tile, VTileRequest.Zoom)
+              );
+            VData := VTargetContentTypeBitmap.GetSaver.Save(VBitmapStatic);
+            if Assigned(FEmptyTilePredicate) then begin
+              if FEmptyTilePredicate.Check(VData) then begin
+                VData := nil;
+              end;
+            end;
+            if not Assigned(VData) then begin
+              Result :=
+                FResultFactory.BuildDataNotExists(
+                  ADownloadResult.Request,
+                  gettext_NoOp('Tile is recognized as empty'),
+                  [],
+                  ADownloadResult.StatusCode,
+                  ADownloadResult.RawResponseHeader
+                )
+            end;
+            SaveOneTile(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VData);
           end;
         end else begin
-          raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
+          raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [VContentType]);
         end;
       end else begin
-        raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
+        raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [VContentType]);
       end;
     end else begin
-      VConverter := FContentTypeManager.GetConverter(AContenType, FContentType.GetContentType);
-      if VConverter <> nil then begin
-        FStorage.SaveTile(AXY, AZoom, AVersionInfo, Now, FContentType, VConverter.Convert(AData), True);
-      end else begin
-        raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [AContenType]);
-      end;
+      raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [VContentType]);
     end;
   end else begin
-    raise ESaveTileDownloadError.Create('Для этой карты запрещено добавление тайлов.');
+    VConverter := FContentTypeManager.GetConverter(VContentType, FContentType.GetContentType);
+    if VConverter <> nil then begin
+      VData := VConverter.Convert(ADownloadResult.Data);
+      if Assigned(FEmptyTilePredicate) then begin
+        if FEmptyTilePredicate.Check(VData) then begin
+          VData := nil;
+        end;
+      end;
+      if not Assigned(VData) then begin
+        Result :=
+          FResultFactory.BuildDataNotExists(
+            ADownloadResult.Request,
+            gettext_NoOp('Tile is recognized as empty'),
+            [],
+            ADownloadResult.StatusCode,
+            ADownloadResult.RawResponseHeader
+          )
+      end;
+      SaveOneTile(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VData);
+    end else begin
+      raise ESaveTileDownloadError.CreateResFmt(@SAS_ERR_BadMIMEForDownloadRastr, [VContentType]);
+    end;
   end;
 end;
 

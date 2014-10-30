@@ -247,6 +247,8 @@ begin
         AGlobalDownloadConfig,
         AImageResampler,
         ABitmap32StaticFactory,
+        VEmptyPredicate,
+        ADownloadResultFactory,
         AContentTypeManager,
         AContentTypeSubst,
         ASaveContentType,
