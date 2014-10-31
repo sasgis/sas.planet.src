@@ -93,6 +93,7 @@ uses
   i_VectorItemSubset,
   i_ImportConfig,
   i_CmdLineArgProcessor,
+  u_CmdLineArgProcessorAPI,
   u_ShortcutManager,
   u_MarkDbGUIHelper,
   frm_About,
@@ -695,6 +696,7 @@ type
     Procedure WMSysCommand(Var Msg: TMessage); Message WM_SYSCOMMAND;
     Procedure WMCopyData(Var Msg: TMessage); Message WM_COPYDATA;
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
+    procedure WMUserMessage(var Msg: TMessage); message u_CmdLineArgProcessorAPI.UWM_ARE_YOU_ME;
 
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
     procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; AZoom:byte; const AMousePos:TPoint);
@@ -759,7 +761,6 @@ uses
   t_FillingMapModes,
   c_ZeroGUID,
   c_InternalBrowser,
-  c_CmdLineArgProcessor,
   i_Listener,
   i_NotifierOperation,
   i_Bitmap32Static,
@@ -3724,12 +3725,13 @@ procedure TfrmMain.WMCopyData(var Msg: TMessage);
 var
   VResult: Integer;
   VPCD: PCopyDataStruct;
-  VRecievedStr: string;
+  VRecievedStr: AnsiString;
 begin
   try
     VPCD := PCopyDataStruct(Msg.LParam);
-    VRecievedStr := string(PAnsiChar(VPCD.lpData));
-    VResult := FArgProcessor.Process(VRecievedStr, FFormRegionProcess);
+    VRecievedStr := PAnsiChar(VPCD.lpData);
+    SetLength(VRecievedStr, VPCD.cbData);
+    VResult := FArgProcessor.Process(string(VRecievedStr), FFormRegionProcess);
   except
     on E: Exception do begin
       VResult := -1;
@@ -3737,7 +3739,6 @@ begin
     end;
   end;
   Msg.Result := VResult;
-  inherited;
 end;
 
 procedure TfrmMain.WMDropFiles(var Msg: TWMDropFiles);
@@ -3779,6 +3780,11 @@ procedure TfrmMain.WMTimeChange(var m: TMessage);
 begin
   inherited;
   GState.SystemTimeChanged;
+end;
+
+procedure TfrmMain.WMUserMessage(var Msg: TMessage);
+begin
+  Msg.Result := UWM_ARE_YOU_ME;
 end;
 
 procedure TfrmMain.TBFullSizeClick(Sender:TObject);

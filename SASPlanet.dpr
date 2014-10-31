@@ -14,7 +14,7 @@ uses
   i_BuildInfo in 'i_BuildInfo.pas',
   u_BuildInfo in 'u_BuildInfo.pas',
   u_CmdLineArgProcessor in 'u_CmdLineArgProcessor.pas',
-  c_CmdLineArgProcessor in 'c_CmdLineArgProcessor.pas',
+  u_CmdLineArgProcessorAPI in 'u_CmdLineArgProcessorAPI.pas',
   i_CmdLineArgProcessor in 'i_CmdLineArgProcessor.pas',
   u_CmdLineArgProcessorHelpers in 'u_CmdLineArgProcessorHelpers.pas',
   i_InterfaceListStatic in 'Basic\i_InterfaceListStatic.pas',

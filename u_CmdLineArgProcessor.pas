@@ -76,10 +76,11 @@ implementation
 
 uses
   SysUtils,
-  c_CmdLineArgProcessor,
+  StrUtils,
   t_GeoTypes,
   i_MapType,
   i_CoordConverter,
+  u_CmdLineArgProcessorAPI,
   u_CmdLineArgProcessorHelpers;
 
 { TCmdLineArgProcessor }
@@ -137,10 +138,8 @@ function TCmdLineArgProcessor.Process(
 var
   VList: TStringList;
 begin
-  VList := TStringList.Create;
+  VList := GetArgsAsList(AArgs);
   try
-    VList.CommaText := ' ';
-    VList.Text := AArgs;
     Result := ProcessInternal(VList, ARegionProcess);
   finally
     VList.Free;
@@ -260,58 +259,8 @@ begin
 end;
 
 function TCmdLineArgProcessor.GetErrorFromCode(const ACode: Integer): string;
-const
-  cSep = ' && ';
-var
-  VSep: string;
 begin
-  Result := '';
-  VSep := '';
-
-  if ACode = cCmdLineArgProcessorOk then begin
-    Exit;
-  end;
-
-  if (ACode and cCmdLineArgProcessorLonLatParserError) > 0 then begin
-    Result := Result + VSep + rsCmdLineArgProcessorLonLatParserError;
-    VSep := cSep;
-  end;
-
-  if (ACode and cCmdLineArgProcessorLonLatOutOfBounds) > 0 then begin
-    Result := Result + VSep + rsCmdLineArgProcessorLonLatOutOfBounds;
-    VSep := cSep;
-  end;
-
-  if (ACode and cCmdLineArgProcessorZoomParserError) > 0 then begin
-    Result := Result + VSep + rsCmdLineArgProcessorZoomParserError;
-    VSep := cSep;
-  end;
-
-  if (ACode and cCmdLineArgProcessorZoomOutOfBounds) > 0 then begin
-    Result := Result + VSep + rsCmdLineArgProcessorZoomOutOfBounds;
-    VSep := cSep;
-  end;
-
-  if (ACode and cCmdLineArgProcessorGUIDParserError) > 0 then begin
-    Result := Result + VSep + rsCmdLineArgProcessorGUIDParserError;
-    VSep := cSep;
-  end;
-
-  if (ACode and cCmdLineArgProcessorUnknownGUID) > 0 then begin
-    Result := Result + VSep + rsCmdLineArgProcessorUnknownGUID;
-    VSep := cSep;
-  end;
-
-  if (ACode and cCmdLineArgProcessorShowMarksParserError) > 0 then begin
-    Result := Result + VSep + rsCmdLineArgProcessorShowMarksParserError;
-    VSep := cSep;
-  end;
-
-  if Result = '' then begin
-    Result := Format(rsCmdLineArgProcessorUnknownError, [IntToHex(ACode, 8)]);
-  end;
-
-  Result := Self.ClassName + ': ' + Result;
+  Result := u_CmdLineArgProcessorAPI.GetErrorFromCode(ACode);
 end;
 
 end.

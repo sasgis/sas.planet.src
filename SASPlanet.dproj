@@ -292,7 +292,6 @@
     <DCCReference Include="CoordConvert\u_ProjConverterFactory.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfo.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfoFactory.pas" />
-    <DCCReference Include="c_CmdLineArgProcessor.pas" />
     <DCCReference Include="c_ImageResampler.pas" />
     <DCCReference Include="c_InternalBrowser.pas" />
     <DCCReference Include="frm_About.pas">
@@ -1204,6 +1203,7 @@
     <DCCReference Include="u_BuildInfo.pas" />
     <DCCReference Include="u_ClipboardFunc.pas" />
     <DCCReference Include="u_CmdLineArgProcessor.pas" />
+    <DCCReference Include="u_CmdLineArgProcessorAPI.pas" />
     <DCCReference Include="u_CmdLineArgProcessorHelpers.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_DebugInfoSubSystem.pas" />

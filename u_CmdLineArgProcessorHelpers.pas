@@ -71,13 +71,14 @@ procedure ProcessOpenFiles(
   const AAppearanceOfMarkFactory: IAppearanceOfMarkFactory = nil
 );
 
+function GetArgsAsList(const AArgs: string): TStringList;
+
 implementation
 
 uses
   SysUtils,
   StrUtils,
   RegExpr,
-  c_CmdLineArgProcessor,
   i_NotifierOperation,
   i_ImportConfig,
   i_MarkFactoryConfig,
@@ -95,7 +96,8 @@ uses
   u_GeoFunc,
   u_GeoToStrFunc,
   u_ImportConfig,
-  u_NotifierOperation;
+  u_NotifierOperation,
+  u_CmdLineArgProcessorAPI;
 
 function StrToCoord(const AStr: string): TDoublePoint;
 var
@@ -232,7 +234,7 @@ begin
       if not PointIsEmpty(VLonLat) then begin
         Inc(J);
         I := Length(AStr);
-        if J < I then begin
+        if J <= I then begin
           VDesc := Copy(AStr, J, I-J+1);
           VDesc := GetUnquotedStr(VDesc);
         end else begin
@@ -491,6 +493,105 @@ begin
       if Assigned(VLastMark) then begin
         AMapGoto.FitRectToScreen(VLastMark.Geometry.Bounds.Rect);
       end;
+    end;
+  end;
+end;
+
+// ====================== Copy-Paste from System.pas ===========================
+{$IFNDEF UNICODE}
+function _CharNext(lpsz: PChar): PChar; stdcall;
+  external 'user32.dll' name 'CharNextA';
+{$ELSE}
+function _CharNext(lpsz: PChar): PChar; stdcall;
+  external 'user32.dll' name 'CharNextW';
+{$ENDIF}
+
+function _GetParamStr(P: PChar; var Param: string): PChar;
+var
+  i, Len: Integer;
+  Start, S, Q: PChar;
+begin
+  while True do
+  begin
+    while (P[0] <> #0) and (P[0] <= ' ') do
+      P := _CharNext(P);
+    if (P[0] = '"') and (P[1] = '"') then Inc(P, 2) else Break;
+  end;
+  Len := 0;
+  Start := P;
+  while P[0] > ' ' do
+  begin
+    if P[0] = '"' then
+    begin
+      P := _CharNext(P);
+      while (P[0] <> #0) and (P[0] <> '"') do
+      begin
+        Q := _CharNext(P);
+        Inc(Len, Q - P);
+        P := Q;
+      end;
+      if P[0] <> #0 then
+        P := _CharNext(P);
+    end
+    else
+    begin
+      Q := _CharNext(P);
+      Inc(Len, Q - P);
+      P := Q;
+    end;
+  end;
+
+  SetLength(Param, Len);
+
+  P := Start;
+  S := Pointer(Param);
+  i := 0;
+  while P[0] > ' ' do
+  begin
+    if P[0] = '"' then
+    begin
+      P := _CharNext(P);
+      while (P[0] <> #0) and (P[0] <> '"') do
+      begin
+        Q := _CharNext(P);
+        while P < Q do
+        begin
+          S[i] := P^;
+          Inc(P);
+          Inc(i);
+        end;
+      end;
+      if P[0] <> #0 then P := _CharNext(P);
+    end
+    else
+    begin
+      Q := _CharNext(P);
+      while P < Q do
+      begin
+        S[i] := P^;
+        Inc(P);
+        Inc(i);
+      end;
+    end;
+  end;
+
+  Result := P;
+end;
+// =============================================================================
+
+function GetArgsAsList(const AArgs: string): TStringList;
+var
+  P: PChar;
+  VArg: string;
+begin
+  Result := TStringList.Create;
+  P := PChar(AArgs);
+  while True do begin
+    P := _GetParamStr(P, VArg);
+    if VArg <> '' then begin
+      Result.Add(VArg);
+    end else begin
+      Break;
     end;
   end;
 end;
