@@ -919,11 +919,20 @@
     </DCCReference>
     <DCCReference Include="RegionProcess\Copy\u_ProviderTilesCopy.pas" />
     <DCCReference Include="RegionProcess\Copy\u_ThreadCopyFromStorageToStorage.pas" />
-    <DCCReference Include="RegionProcess\Delete\fr_TilesDelete.pas">
+    <DCCReference Include="RegionProcess\Delete\fr_Delete.pas">
+      <Form>frDelete</Form>
       <DesignClass>TFrame</DesignClass>
-      <Form>frTilesDelete</Form>
     </DCCReference>
-    <DCCReference Include="RegionProcess\Delete\u_ProviderTilesDelete.pas" />
+    <DCCReference Include="RegionProcess\Delete\fr_DeleteMarks.pas">
+      <Form>frDeleteMarks</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Delete\fr_DeleteTiles.pas">
+      <Form>frDeleteTiles</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="RegionProcess\Delete\u_ProviderDeleteMarks.pas" />
+    <DCCReference Include="RegionProcess\Delete\u_ProviderDeleteTiles.pas" />
     <DCCReference Include="RegionProcess\Delete\u_ThreadDeleteMarks.pas" />
     <DCCReference Include="RegionProcess\Delete\u_ThreadDeleteTiles.pas" />
     <DCCReference Include="RegionProcess\Download\frm_ProgressDownload.pas">

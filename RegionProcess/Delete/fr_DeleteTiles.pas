@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit fr_TilesDelete;
+unit fr_DeleteTiles;
 
 interface
 
@@ -26,12 +26,10 @@ uses
   SysUtils,
   Classes,
   Controls,
-  ComCtrls,
   Forms,
   ExtCtrls,
   StdCtrls,
   Spin,
-  c_MarkFlag,
   t_CommonTypes,
   i_LanguageManager,
   i_MapType,
@@ -45,12 +43,11 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TfrTilesDelete = class(
+  TfrDeleteTiles = class(
       TFrame,
       IRegionProcessParamsFrameBase,
       IRegionProcessParamsFrameOneMap,
       IRegionProcessParamsFrameOneZoom,
-      IRegionProcessParamsFrameMarksState,
       IRegionProcessParamsFrameProcessPredicate
     )
     seDelSize: TSpinEdit;
@@ -66,14 +63,6 @@ type
     cbbZoom: TComboBox;
     pnlFrame: TPanel;
     lblMapCaption: TLabel;
-    PageControl1: TPageControl;
-    tsTiles: TTabSheet;
-    tsMarks: TTabSheet;
-    chkPlacemarks: TCheckBox;
-    chkPaths: TCheckBox;
-    chkPolygons: TCheckBox;
-    chkDelHidden: TCheckBox;
-    PnlTop: TPanel;
   private
     FMainMapsConfig: IMainMapsConfig;
     FFullMapsSet: IMapTypeSet;
@@ -88,9 +77,6 @@ type
   private
     function GetMapType: IMapType;
     function GetZoom: Byte;
-    function MarksState: Byte;
-    function DeleteHiddenMarks: Boolean;
-    function DeleteMode: TDeleteSrc;
     function CheckIsDeleteable(const AMapType: IMapType): boolean;
   private
     function GetPredicate: IPredicateByTileInfo;
@@ -113,7 +99,7 @@ uses
 
 { TFrame3 }
 
-constructor TfrTilesDelete.Create(
+constructor TfrDeleteTiles.Create(
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
@@ -138,18 +124,18 @@ begin
     );
 end;
 
-destructor TfrTilesDelete.Destroy;
+destructor TfrDeleteTiles.Destroy;
 begin
   FreeAndNil(FfrMapSelect);
   inherited;
 end;
 
-function TfrTilesDelete.GetMapType: IMapType;
+function TfrDeleteTiles.GetMapType: IMapType;
 begin
   Result := FfrMapSelect.GetSelectedMapType;
 end;
 
-function TfrTilesDelete.GetPredicate: IPredicateByTileInfo;
+function TfrDeleteTiles.GetPredicate: IPredicateByTileInfo;
 begin
   Result := nil;
   if rgTarget.ItemIndex < 0 then begin
@@ -176,7 +162,7 @@ begin
   end;
 end;
 
-function TfrTilesDelete.GetZoom: Byte;
+function TfrDeleteTiles.GetZoom: Byte;
 begin
   if cbbZoom.ItemIndex < 0 then begin
     cbbZoom.ItemIndex := 0;
@@ -184,35 +170,12 @@ begin
   Result := cbbZoom.ItemIndex;
 end;
 
-function TfrTilesDelete.DeleteMode: TDeleteSrc;
-begin
-  case PageControl1.ActivePageIndex of
-    0: Result := dmTiles;
-    1: Result := dmMarks;
-  else
-    Result := dmNone;
-  end;
-end;
-
-function TfrTilesDelete.MarksState: Byte;
-begin
-  Result := 0;
-  if chkPlacemarks.Checked then  Result := Result or CPlacemarkFlag;
-  if chkPaths.Checked      then  Result := Result or CPathFlag;
-  if chkPolygons.Checked   then  Result := Result or CPolygonFlag;
-end;
-
-function TfrTilesDelete.DeleteHiddenMarks: Boolean;
-begin
-  Result := chkDelHidden.Checked;
-end;
-
-function TfrTilesDelete.CheckIsDeleteable(const AMapType: IMapType): boolean;
+function TfrDeleteTiles.CheckIsDeleteable(const AMapType: IMapType): boolean;
 begin
   Result := (AMapType.StorageConfig.AllowDelete) and (AMapType.TileStorage.State.GetStatic.WriteAccess <> asDisabled);
 end;
 
-procedure TfrTilesDelete.Init(
+procedure TfrDeleteTiles.Init(
   const AZoom: byte;
   const APolygon: IGeometryLonLatPolygon
 );
@@ -226,7 +189,8 @@ begin
   cbbZoom.ItemIndex := AZoom;
   FfrMapSelect.Show(pnlFrame);
 end;
-function TfrTilesDelete.Validate: Boolean;
+
+function TfrDeleteTiles.Validate: Boolean;
 begin
   Result := True;
 end;

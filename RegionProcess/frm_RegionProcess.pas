@@ -80,6 +80,7 @@ uses
   u_ProviderTilesDownload,
   u_MarkDbGUIHelper,
   fr_Combine,
+  fr_Delete,
   fr_Export;
 
 type
@@ -109,12 +110,12 @@ type
   private
     FfrExport: TfrExport;
     FfrCombine: TfrCombine;
+    FfrDelete: TfrDelete;
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FLastSelectionInfo: ILastSelectionInfo;
     FZoom_rect:byte;
     FPolygonLL: IGeometryLonLatPolygon;
-    FProviderTilesDelte: TExportProviderAbstract;
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
     FProviderTilesDownload: TProviderTilesDownload;
@@ -190,7 +191,6 @@ uses
   u_ConfigDataWriteProviderByIniFile,
   u_ConfigProviderHelpers,
   u_RegionProcessProgressInfoInternalFactory,
-  u_ProviderTilesDelete,
   u_ProviderTilesGenPrev,
   u_ProviderTilesCopy;
 
@@ -271,13 +271,14 @@ begin
       ATileNameGenerator
     );
 
-  FProviderTilesDelte :=
-    TProviderTilesDelete.Create(
+  FfrDelete :=
+    TfrDelete.Create(
       VProgressFactory,
       ALanguageManager,
       AMainMapsConfig,
       AFullMapsSet,
       AGUIConfigList,
+      APosition,
       AProjectionFactory,
       AVectorGeometryProjectedFactory,
       AMarkDBGUI.MarksDb
@@ -357,7 +358,7 @@ end;
 destructor TfrmRegionProcess.Destroy;
 begin
   FreeAndNil(FfrExport);
-  FreeAndNil(FProviderTilesDelte);
+  FreeAndNil(FfrDelete);
   FreeAndNil(FProviderTilesGenPrev);
   FreeAndNil(FProviderTilesCopy);
   FreeAndNil(FProviderTilesDownload);
@@ -415,9 +416,9 @@ end;
 
 function TfrmRegionProcess.DelRegion(const APolyLL: IGeometryLonLatPolygon): Boolean;
 begin
-  Result := FProviderTilesDelte.Validate;
+  Result := FfrDelete.Validate;
   if Result then begin
-    FProviderTilesDelte.StartProcess(APolyLL);
+    FfrDelete.StartProcess(APolyLL);
   end;
 end;
 
@@ -485,7 +486,7 @@ end;
 procedure TfrmRegionProcess.FormShow(Sender: TObject);
 begin
   FfrExport.Show(TabSheet5, FZoom_rect, FPolygonLL);
-  FProviderTilesDelte.Show(TabSheet4, FZoom_rect, FPolygonLL);
+  FfrDelete.Show(TabSheet4, FZoom_rect, FPolygonLL);
   FProviderTilesGenPrev.Show(TabSheet3, FZoom_rect, FPolygonLL);
   FProviderTilesCopy.Show(TabSheet6, FZoom_rect, FPolygonLL);
   FProviderTilesDownload.Show(TabSheet1, FZoom_rect, FPolygonLL);

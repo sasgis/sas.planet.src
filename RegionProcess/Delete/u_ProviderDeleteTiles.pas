@@ -18,7 +18,7 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit u_ProviderTilesDelete;
+unit u_ProviderDeleteTiles;
 
 interface
 
@@ -26,7 +26,6 @@ uses
   Windows,
   Forms,
   i_LanguageManager,
-  i_MarkSystem,
   i_MapTypeSet,
   i_ActiveMapsConfig,
   i_MapTypeGUIConfigList,
@@ -34,15 +33,13 @@ uses
   i_GeometryProjectedFactory,
   i_GeometryLonLat,
   i_RegionProcessProgressInfoInternalFactory,
-  u_ExportProviderAbstract,
-  fr_TilesDelete;
+  u_ExportProviderAbstract;
 
 type
-  TProviderTilesDelete = class(TExportProviderAbstract)
+  TProviderDeleteTiles = class(TExportProviderAbstract)
   private
     FProjectionFactory: IProjectionInfoFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-    FMarkSystem: IMarkSystem;
   protected
     function CreateFrame: TFrame; override;
   public
@@ -53,8 +50,7 @@ type
       const AFullMapsSet: IMapTypeSet;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AProjectionFactory: IProjectionInfoFactory;
-      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-      const AMarkSystem: IMarkSystem
+      const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
     );
     function GetCaption: string; override;
     procedure StartProcess(const APolygon: IGeometryLonLatPolygon); override;
@@ -72,20 +68,19 @@ uses
   i_ProjectionInfo,
   i_GeometryProjected,
   u_ThreadDeleteTiles,
-  u_ThreadDeleteMarks,
-  u_ResStrings;
+  u_ResStrings,
+  fr_DeleteTiles;
 
 { TProviderTilesDelete }
 
-constructor TProviderTilesDelete.Create(
+constructor TProviderDeleteTiles.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
   const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AProjectionFactory: IProjectionInfoFactory;
-  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
-  const AMarkSystem: IMarkSystem
+  const AVectorGeometryProjectedFactory: IGeometryProjectedFactory
 );
 begin
   inherited Create(
@@ -97,13 +92,12 @@ begin
   );
   FProjectionFactory := AProjectionFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
-  FMarkSystem := AMarkSystem;
 end;
 
-function TProviderTilesDelete.CreateFrame: TFrame;
+function TProviderDeleteTiles.CreateFrame: TFrame;
 begin
   Result :=
-    TfrTilesDelete.Create(
+    TfrDeleteTiles.Create(
       Self.LanguageManager,
       Self.MainMapsConfig,
       Self.FullMapsSet,
@@ -112,15 +106,14 @@ begin
   Assert(Supports(Result, IRegionProcessParamsFrameOneMap));
   Assert(Supports(Result, IRegionProcessParamsFrameOneZoom));
   Assert(Supports(Result, IRegionProcessParamsFrameProcessPredicate));
-  Assert(Supports(Result, IRegionProcessParamsFrameMarksState));
 end;
 
-function TProviderTilesDelete.GetCaption: string;
+function TProviderDeleteTiles.GetCaption: string;
 begin
   Result := SAS_STR_OperationDeleteCaption;
 end;
 
-procedure TProviderTilesDelete.StartProcess(const APolygon: IGeometryLonLatPolygon);
+procedure TProviderDeleteTiles.StartProcess(const APolygon: IGeometryLonLatPolygon);
 var
   VMapType: IMapType;
   VZoom: byte;
@@ -129,68 +122,34 @@ var
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
   VThread: TThread;
-  VMarkState: Byte;
   VDelHiddenMarks: Boolean;
-  VMode: TDeleteSrc;
 begin
   inherited;
-  VMode := dmNone; // Cancel
-  VMarkState := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetMarksState;
-
-  case (ParamsFrame as IRegionProcessParamsFrameMarksState).GetDeleteMode of
-  dmTiles: begin
-      if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
-       VMode := dmTiles; // Tiles
-      end
-    end;
-  dmMarks: begin
-      if VMarkState <> 0 then begin
-        if (Application.MessageBox(pchar(SAS_MSG_DeleteMarksInRegionAsk), pchar(SAS_MSG_coution), 36) = IDYES) then begin
-          VMode := dmMarks; // Marks
-        end
-      end;
-    end;
+  if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
+    Exit;
   end;
 
-  if VMode <> dmNone then begin
-    VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
-    VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
-    VPredicate := (ParamsFrame as IRegionProcessParamsFrameProcessPredicate).Predicate;
-    VThread := nil;
-    VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
-    VProjectedPolygon :=
-      FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
-        VProjection,
-        APolygon
-      );
-    VProgressInfo := ProgressFactory.Build(APolygon);
-    VDelHiddenMarks := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetDeleteHiddenMarks;
-    case VMode of
-    dmTiles:
-      VThread :=
-      TThreadDeleteTiles.Create(
-        VProgressInfo,
-        APolygon,
-        VProjectedPolygon,
-        VProjection,
-        VMapType.TileStorage,
-        VMapType.VersionRequestConfig.GetStatic,
-        VPredicate
-      );
-    dmMarks:
-      VThread :=
-      TThreadDeleteMarks.Create(
-        VProgressInfo,
-        APolygon,
-        VProjectedPolygon,
-        VProjection,
-        FMarkSystem,
-        VMarkState,
-        VDelHiddenMarks
-      );
-    end;
-    VThread.Resume;
-  end;
+  VMapType := (ParamsFrame as IRegionProcessParamsFrameOneMap).MapType;
+  VZoom := (ParamsFrame as IRegionProcessParamsFrameOneZoom).Zoom;
+  VPredicate := (ParamsFrame as IRegionProcessParamsFrameProcessPredicate).Predicate;
+  VProjection := FProjectionFactory.GetByConverterAndZoom(VMapType.GeoConvert, VZoom);
+  VProjectedPolygon :=
+    FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
+      VProjection,
+      APolygon
+    );
+  VProgressInfo := ProgressFactory.Build(APolygon);
+    VThread :=
+    TThreadDeleteTiles.Create(
+      VProgressInfo,
+      APolygon,
+      VProjectedPolygon,
+      VProjection,
+      VMapType.TileStorage,
+      VMapType.VersionRequestConfig.GetStatic,
+      VPredicate
+    );
+  VThread.Resume;
 end;
 
 end.

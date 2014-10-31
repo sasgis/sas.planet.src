@@ -55,10 +55,6 @@ type
 
     function DeleteHiddenMarks: Boolean;
     property GetDeleteHiddenMarks: Boolean read DeleteHiddenMarks;
-
-    function DeleteMode: TDeleteSrc;
-    property GetDeleteMode: TDeleteSrc read DeleteMode;
-
   end;
 
   IRegionProcessParamsFrameOneZoom = interface(IRegionProcessParamsFrameBase)
