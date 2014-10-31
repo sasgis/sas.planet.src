@@ -28,6 +28,7 @@ uses
   i_GeoCoder,
   i_MarkDb,
   i_VectorItemSubsetBuilder,
+  i_CoordConverterFactory,
   i_DownloadResultFactory,
   i_ValueToStringConverter,
   u_GeoCoderListBase;
@@ -43,7 +44,8 @@ type
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AResultFactory: IDownloadResultFactory;
       const AValueToStringConverter: IValueToStringConverterChangeable;
-      const AMarksDb: IMarkDb
+      const AMarksDb: IMarkDb;
+      const ACoordConverterFactory: ICoordConverterFactory
     );
   end;
 
@@ -80,7 +82,8 @@ constructor TGeoCoderListSimple.Create(
   const APlacemarkFactory: IGeoCodePlacemarkFactory;
   const AResultFactory: IDownloadResultFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AMarksDb: IMarkDb
+  const AMarksDb: IMarkDb;
+  const ACoordConverterFactory: ICoordConverterFactory
 );
 var
   VItem: IGeoCoderListEntity;
@@ -189,7 +192,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderCoordGUID,
       'Coordinates',
-      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter)
+      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter,  ACoordConverterFactory)
     );
   VList.Add(VItem);
 

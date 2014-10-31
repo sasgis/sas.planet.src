@@ -727,7 +727,8 @@ begin
       FGeoCodePlacemarkFactory,
       TDownloadResultFactory.Create,
       FValueToStringConverter,
-      FMarkSystem.MarkDb
+      FMarkSystem.MarkDb,
+      FCoordConverterFactory
     );
   VFilesIteratorFactory := TZmpFileNamesIteratorFactory.Create;
   VFilesIterator := VFilesIteratorFactory.CreateIterator(FGlobalConfig.MapsPath.FullPath, '');
