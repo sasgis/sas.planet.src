@@ -650,24 +650,41 @@ begin
       VSize := Types.Point(VRect.Right - VRect.Left, VRect.Bottom - VRect.Top);
       if (Result.Size.X <> VSize.X) or
         (Result.Size.Y <> VSize.Y) then begin
-        VResampler := FResamplerLoad.GetStatic.CreateResampler;
-        try
+        if (Result.Size.X > VSize.X) or
+          (Result.Size.Y > VSize.Y) then begin
+          VResampler := FResamplerLoad.GetStatic.CreateResampler;
+          try
+            VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
+            try
+              VBitmap.SetSize(VSize.X, VSize.Y);
+              StretchTransferFull(
+                VBitmap,
+                VBitmap.BoundsRect,
+                Result,
+                VResampler,
+                dmOpaque
+              );
+              Result := VBitmap.MakeAndClear;
+            finally
+              VBitmap.Free;
+            end;
+          finally
+            VResampler.Free;
+          end;
+        end else begin
           VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
           try
             VBitmap.SetSize(VSize.X, VSize.Y);
-            StretchTransferFull(
+            BlockTransferFull(
               VBitmap,
-              VBitmap.BoundsRect,
+              0, 0,
               Result,
-              VResampler,
               dmOpaque
             );
             Result := VBitmap.MakeAndClear;
           finally
             VBitmap.Free;
           end;
-        finally
-          VResampler.Free;
         end;
       end;
     end;
