@@ -25,6 +25,7 @@ interface
 uses
   Types,
   i_TileInfoBasic,
+  i_PredicateByBinaryData,
   i_PredicateByTileInfo,
   u_BaseInterfacedObject;
 
@@ -38,6 +39,15 @@ type
   TPredicateByTileInfoExistsTile = class(TPredicateByTileInfoAbstract)
   protected
     function Check(const ATileInfo: TTileInfo): Boolean; override;
+  end;
+
+  TPredicateByTileInfoExistsTileCheckData = class(TPredicateByTileInfoAbstract)
+  private
+    FDataCheck: IPredicateByBinaryData;
+  protected
+    function Check(const ATileInfo: TTileInfo): Boolean; override;
+  public
+    constructor Create(ADataCheck: IPredicateByBinaryData);
   end;
 
   TPredicateByTileInfoNotExistsTile = class(TPredicateByTileInfoAbstract)
@@ -220,6 +230,27 @@ begin
     Result := True;
   end else if (ATileInfo.FInfoType = titExists) and (ATileInfo.FLoadDate < FDate) then begin
     Result := True;
+  end else begin
+    Result := False;
+  end;
+end;
+
+{ TPredicateByTileInfoExistsTileCheckData }
+
+constructor TPredicateByTileInfoExistsTileCheckData.Create(
+  ADataCheck: IPredicateByBinaryData
+);
+begin
+  inherited Create;
+  FDataCheck := ADataCheck;
+end;
+
+function TPredicateByTileInfoExistsTileCheckData.Check(
+  const ATileInfo: TTileInfo
+): Boolean;
+begin
+  if ATileInfo.FInfoType = titExists then begin
+    Result := FDataCheck.Check(ATileInfo.FData);
   end else begin
     Result := False;
   end;

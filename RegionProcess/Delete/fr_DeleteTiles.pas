@@ -29,6 +29,7 @@ uses
   Forms,
   ExtCtrls,
   StdCtrls,
+  Dialogs,
   Spin,
   t_CommonTypes,
   i_LanguageManager,
@@ -52,8 +53,6 @@ type
     )
     seDelSize: TSpinEdit;
     chkDelBySize: TCheckBox;
-    pnlBottom: TPanel;
-    pnlCenter: TPanel;
     flwpnlDelBySize: TFlowPanel;
     lblDelSize: TLabel;
     rgTarget: TRadioGroup;
@@ -93,6 +92,10 @@ type
 implementation
 
 uses
+  gnugettext,
+  i_BinaryDataListStatic,
+  i_PredicateByBinaryData,
+  u_PredicateByStaticSampleList,
   u_PredicateByTileInfoBase;
 
 {$R *.dfm}
@@ -136,27 +139,41 @@ begin
 end;
 
 function TfrDeleteTiles.GetPredicate: IPredicateByTileInfo;
+var
+  VMapType: IMapType;
+  VEmptyTileSamples: IBinaryDataListStatic;
+  VDataCheck: IPredicateByBinaryData;
 begin
   Result := nil;
   if rgTarget.ItemIndex < 0 then begin
     rgTarget.ItemIndex := 0;
   end;
-  if rgTarget.ItemIndex = 0 then begin
-    if chkDelBySize.Checked and (seDelSize.Value >= 0) then begin
-      Result := TPredicateByTileInfoEqualSize.Create(False, seDelSize.Value);
-    end else begin
-      Result := TPredicateByTileInfoExistsTile.Create;
+  case rgTarget.ItemIndex of
+    0: begin
+      if chkDelBySize.Checked and (seDelSize.Value >= 0) then begin
+        Result := TPredicateByTileInfoEqualSize.Create(False, seDelSize.Value);
+      end else begin
+        Result := TPredicateByTileInfoExistsTile.Create;
+      end;
     end;
-  end else begin
-    if rgTarget.ItemIndex = 1 then begin
+    1: begin
       Result := TPredicateByTileInfoExistsTNE.Create;
-    end else begin
-      if rgTarget.ItemIndex = 2 then begin
-        if chkDelBySize.Checked and (seDelSize.Value >= 0) then begin
-          Result := TPredicateByTileInfoEqualSize.Create(True, seDelSize.Value);
-        end else begin
-          Result := TPredicateByTileInfoExistsTileOrTNE.Create;
-        end;
+    end;
+    2: begin
+      if chkDelBySize.Checked and (seDelSize.Value >= 0) then begin
+        Result := TPredicateByTileInfoEqualSize.Create(True, seDelSize.Value);
+      end else begin
+        Result := TPredicateByTileInfoExistsTileOrTNE.Create;
+      end;
+    end;
+    3: begin
+      VMapType := GetMapType;
+      VEmptyTileSamples := VMapType.Zmp.EmptyTileSamples;
+      if Assigned(VEmptyTileSamples) and (VEmptyTileSamples.Count > 0) then begin
+        VDataCheck := TPredicateByStaticSampleList.Create(VMapType.Zmp.EmptyTileSamples);
+        Result := TPredicateByTileInfoExistsTileCheckData.Create(VDataCheck);
+      end else begin
+        Result := TPredicateByTileInfoEqualSize.Create(False, 0);
       end;
     end;
   end;
@@ -191,8 +208,20 @@ begin
 end;
 
 function TfrDeleteTiles.Validate: Boolean;
+var
+  VMapType: IMapType;
+  VEmptyTileSamples: IBinaryDataListStatic;
 begin
-  Result := True;
+  if rgTarget.ItemIndex = 3 then begin
+    VMapType := GetMapType;
+    VEmptyTileSamples := VMapType.Zmp.EmptyTileSamples;
+    Result := Assigned(VEmptyTileSamples) and (VEmptyTileSamples.Count > 0);
+    if not Result then begin
+      ShowMessage(_('Empty tile samples do not exist for this map'));
+    end;
+  end else begin
+    Result := True;
+  end;
 end;
 
 end.

@@ -2,81 +2,11 @@ object frDeleteTiles: TfrDeleteTiles
   Left = 0
   Top = 0
   Width = 451
-  Height = 304
+  Height = 234
   Align = alClient
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  object pnlBottom: TPanel
-    Left = 0
-    Top = 43
-    Width = 451
-    Height = 100
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 0
-    object pnlCenter: TPanel
-      Left = 0
-      Top = 0
-      Width = 451
-      Height = 100
-      Align = alClient
-      BevelOuter = bvNone
-      BorderWidth = 3
-      TabOrder = 0
-      object flwpnlDelBySize: TFlowPanel
-        AlignWithMargins = True
-        Left = 6
-        Top = 70
-        Width = 439
-        Height = 24
-        Align = alTop
-        AutoSize = True
-        BevelOuter = bvNone
-        Padding.Top = 2
-        TabOrder = 0
-        object chkDelBySize: TCheckBox
-          Left = 0
-          Top = 2
-          Width = 13
-          Height = 21
-          TabOrder = 0
-        end
-        object lblDelSize: TLabel
-          AlignWithMargins = True
-          Left = 16
-          Top = 5
-          Width = 148
-          Height = 13
-          Caption = 'Delete only tiles of size, bytes:'
-        end
-        object seDelSize: TSpinEdit
-          Left = 167
-          Top = 2
-          Width = 69
-          Height = 22
-          MaxValue = 0
-          MinValue = 0
-          TabOrder = 1
-          Value = 0
-        end
-      end
-      object rgTarget: TRadioGroup
-        Left = 3
-        Top = 3
-        Width = 445
-        Height = 64
-        Align = alTop
-        Caption = 'Delete target'
-        ItemIndex = 0
-        Items.Strings = (
-          'Delete tiles'
-          'Delete tne'
-          'Delete both')
-        TabOrder = 1
-      end
-    end
-  end
   object pnlMapSelect: TPanel
     Left = 0
     Top = 0
@@ -86,7 +16,7 @@ object frDeleteTiles: TfrDeleteTiles
     BevelEdges = [beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
-    TabOrder = 1
+    TabOrder = 0
     DesignSize = (
       451
       41)
@@ -139,6 +69,58 @@ object frDeleteTiles: TfrDeleteTiles
         Align = alTop
         Caption = 'Map:'
       end
+    end
+  end
+  object rgTarget: TRadioGroup
+    Left = 0
+    Top = 43
+    Width = 451
+    Height = 99
+    Align = alTop
+    Caption = 'Delete target'
+    ItemIndex = 0
+    Items.Strings = (
+      'Delete tiles'
+      'Delete tne'
+      'Delete both'
+      'Delete empty tiles')
+    TabOrder = 1
+  end
+  object flwpnlDelBySize: TFlowPanel
+    AlignWithMargins = True
+    Left = 3
+    Top = 145
+    Width = 445
+    Height = 24
+    Align = alTop
+    AutoSize = True
+    BevelOuter = bvNone
+    Padding.Top = 2
+    TabOrder = 2
+    object chkDelBySize: TCheckBox
+      Left = 0
+      Top = 2
+      Width = 13
+      Height = 21
+      TabOrder = 0
+    end
+    object lblDelSize: TLabel
+      AlignWithMargins = True
+      Left = 16
+      Top = 5
+      Width = 148
+      Height = 13
+      Caption = 'Delete only tiles of size, bytes:'
+    end
+    object seDelSize: TSpinEdit
+      Left = 167
+      Top = 2
+      Width = 69
+      Height = 22
+      MaxValue = 0
+      MinValue = 0
+      TabOrder = 1
+      Value = 0
     end
   end
 end
