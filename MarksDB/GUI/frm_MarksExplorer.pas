@@ -114,6 +114,7 @@ type
     Panel1: TPanel;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
+    tbitmAllVisible: TTBXItem;
     procedure BtnAddCategoryClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnDelKatClick(Sender: TObject);
@@ -156,6 +157,7 @@ type
     procedure CategoryTreeViewDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
     procedure CategoryTreeViewDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure tbitmAllVisibleClick(Sender: TObject);
   private
     FUseAsIndepentWindow: Boolean;
     FMapGoto: IMapViewGoto;
@@ -1184,6 +1186,14 @@ begin
   finally
     FMarksShowConfig.UnlockWrite;
   end;
+end;
+
+procedure TfrmMarksExplorer.tbitmAllVisibleClick(Sender: TObject);
+var
+  VMarksList: IInterfaceListStatic;
+begin
+  VMarksList := FMarkDBGUI.MarksDb.MarkDb.GetAllMarkIdList;
+  FMarkDBGUI.MarksDb.MarkDb.SetMarkVisibleByIDList(VMarksList, True);
 end;
 
 procedure TfrmMarksExplorer.tbpmnCategoriesPopup(Sender: TObject);

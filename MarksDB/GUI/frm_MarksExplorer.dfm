@@ -117,6 +117,11 @@ object frmMarksExplorer: TfrmMarksExplorer
               Caption = ''
               Hint = 'Export selected placemark'
             end
+            object tbitmAllVisible: TTBXItem
+              OnClick = tbitmAllVisibleClick
+              Caption = 'All Visible'
+              Hint = 'Set all marks in all categories visible'
+            end
           end
         end
         object pnlMarksBottom: TPanel
@@ -389,7 +394,7 @@ object frmMarksExplorer: TfrmMarksExplorer
     Left = 312
     Top = 144
     Bitmap = {
-      494C01010300900090000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010300900094000D000D00FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000340000000D0000000100200000000000900A
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
