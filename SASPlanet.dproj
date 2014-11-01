@@ -186,7 +186,6 @@
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForMapType.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForMarksLayer.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderChangeableForVectorMaps.pas" />
-    <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderCombineTwoProviders.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderComplex.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderFillingMap.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderForViewMaps.pas" />

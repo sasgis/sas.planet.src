@@ -666,7 +666,6 @@ uses
   u_BitmapLayerProviderByTrackPath in 'BitmapLayerProvider\u_BitmapLayerProviderByTrackPath.pas',
   u_BitmapLayerProviderMapWithLayer in 'BitmapLayerProvider\u_BitmapLayerProviderMapWithLayer.pas',
   u_BitmapLayerProviderByMapType in 'BitmapLayerProvider\u_BitmapLayerProviderByMapType.pas',
-  u_BitmapLayerProviderCombineTwoProviders in 'BitmapLayerProvider\u_BitmapLayerProviderCombineTwoProviders.pas',
   u_BitmapLayerProviderForViewMaps in 'BitmapLayerProvider\u_BitmapLayerProviderForViewMaps.pas',
   u_BitmapLayerProviderFillingMap in 'BitmapLayerProvider\u_BitmapLayerProviderFillingMap.pas',
   u_BitmapLayerProviderGridTiles in 'BitmapLayerProvider\u_BitmapLayerProviderGridTiles.pas',
