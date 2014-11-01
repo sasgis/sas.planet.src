@@ -101,8 +101,9 @@ type
     FFinished: Boolean;
     FProgress: TRarProgress;
     FRegionProcess: IRegionProcess;
-    FMapGoto: IMapViewGoto;    
+    FMapGoto: IMapViewGoto;
     FPolygon: IGeometryLonLatPolygon;
+    FFormCaption: string;
     FMarkDBGUI: TMarkDbGUIHelper;
     procedure UpdateProgressForm;
     procedure UpdateMemoProgressForm;
@@ -121,6 +122,7 @@ type
       const ACancelNotifier: INotifierOperationInternal;
       const AProgressInfo: IRegionProcessProgressInfoDownload;
       const APolygon: IGeometryLonLatPolygon;
+      const AFormCaption: string;
       const ARegionProcess: IRegionProcess;
       const AMapGoto: IMapViewGoto;
       const AMarkDBGUI : TMarkDbGUIHelper
@@ -146,6 +148,7 @@ constructor TfrmProgressDownload.Create(
   const ACancelNotifier: INotifierOperationInternal;
   const AProgressInfo: IRegionProcessProgressInfoDownload;
   const APolygon: IGeometryLonLatPolygon;
+  const AFormCaption: string;
   const ARegionProcess: IRegionProcess;
   const AMapGoto: IMapViewGoto;
   const AMarkDBGUI :TMarkDbGUIHelper
@@ -160,8 +163,9 @@ begin
   FCancelNotifier := ACancelNotifier;
   FProgress := TRarProgress.Create(Self);
   FRegionProcess := ARegionProcess;
-  FMapGoto := AMapGoto;  
+  FMapGoto := AMapGoto;
   FPolygon := APolygon;
+  FFormCaption := AFormCaption;
   FMarkDBGUI := AMarkDBGUI;
 
   with FProgress do begin
@@ -273,7 +277,7 @@ begin
       FFinished := True;
       UpdateTimer.Enabled := false;
       UpdateMemoProgressForm;
-      Self.Caption := SAS_MSG_LoadComplete;
+      Self.Caption := SAS_MSG_LoadComplete + ' ' + FFormCaption;
       lblToProcessValue.Caption := inttostr(VTotal)+' '+SAS_STR_Files+' (z'+inttostr(FProgressInfo.Zoom + 1)+')';
       lblProcessedValue.Caption := inttostr(FProgressInfo.Processed)+' '+SAS_STR_Files;
       lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded)+' ('+ VValueConverter.DataSizeConvert(VDownloadSize)+') '+SAS_STR_Files;
@@ -290,9 +294,9 @@ begin
   end else begin
     UpdateMemoProgressForm;
     if (FStoped) then begin
-      Self.Caption := Format(SAS_STR_Paused, [VComplete]);
+      Self.Caption := Format(SAS_STR_Paused, [VComplete]) + ' ' + FFormCaption;
     end else begin
-      Self.Caption := Format(SAS_STR_DownloadingCaption, [VComplete]);
+      Self.Caption := Format(SAS_STR_DownloadingCaption, [VComplete]) + ' ' + FFormCaption;
       Application.ProcessMessages;
       lblToProcessValue.Caption := inttostr(VTotal)+' '+SAS_STR_Files+' (z'+inttostr(FProgressInfo.Zoom + 1)+')';
       lblProcessedValue.Caption:=inttostr(FProgressInfo.Processed)+' '+SAS_STR_Files;

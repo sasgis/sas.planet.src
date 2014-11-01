@@ -328,6 +328,7 @@ begin
     VCancelNotifierInternal,
     VProgressInfo,
     VPolygon,
+    'x' + IntToStr(VZoom) + ' ' + VMapType.GUIConfig.Name.Value,
     FRegionProcess,
     FMapGoto,
     FMarkDBGUI
@@ -418,6 +419,7 @@ begin
     VCancelNotifierInternal,
     VProgressInfo,
     APolygon,
+    'x' + IntToStr(VZoom) + ' ' + VMapType.GUIConfig.Name.Value,
     FRegionProcess,
     FMapGoto,
     FMarkDBGUI
