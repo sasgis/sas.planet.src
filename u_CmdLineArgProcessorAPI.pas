@@ -26,7 +26,7 @@ uses
   Messages;
 
 const
-  UWM_ARE_YOU_ME = WM_USER + $FF; // 0x04FF;
+  WM_FRIEND_OR_FOE = WM_USER + $FF; // 0x04FF;
 
 const
   cCmdLineArgProcessorOk                      = $00000000;
@@ -37,6 +37,7 @@ const
   cCmdLineArgProcessorGUIDParserError         = $00000010;
   cCmdLineArgProcessorUnknownGUID             = $00000020;
   cCmdLineArgProcessorShowMarksParserError    = $00000040;
+  cCmdLineArgProcessorSASExceptionRaised      = -1;
 
 resourcestring
   rsCmdLineArgProcessorLonLatParserError      = 'LonLatParserError';
@@ -47,6 +48,7 @@ resourcestring
   rsCmdLineArgProcessorUnknownGUID            = 'UnknownGUID';
   rsCmdLineArgProcessorShowMarksParserError   = 'ShowMarksParserError';
   rsCmdLineArgProcessorUnknownError           = 'UnknownError: %s';
+  rsCmdLineArgProcessorSASExceptionRaised     = 'SASExceptionRaised';
 
 function GetHelp(const AppName: string): string;
 function GetErrorFromCode(const ACode: Integer): string;
@@ -65,27 +67,28 @@ begin
     '    ' + AppName + ' [Options] [Arguments]                          ' + CR +
                                                                             CR +
     'Options:                                                           ' + CR +
-    '    -h, --help              Print this message and exit            ' + CR +
-    '    --map=<GUID>            Activate map or switch layer visability' + CR +
-    '    --zoom=<z>              Set Zoom to <z>                        ' + CR +
-    '    --move=(<lon>,<lat>)    Center map with given <lon> and <lat>  ' + CR +
-    '    --show-placemarks=<v>   Set placemarks visability:             ' + CR +
-    '                                <v> = 0 - off                      ' + CR +
-    '                                <v> = 1 - on                       ' + CR +
+    '    -h, --help              Print this help message and exit       ' + CR +
+    '    --map=<GUID>            Activate the map assigned to <GUID>,   ' + CR +
+    '                            or switch ON the layer''s visibility   ' + CR +
+    '    --zoom=<z>              Set Zoom to the level <z>              ' + CR +
+    '    --move=(<lon>,<lat>)    Center the map with <lon>/<lat>        ' + CR +
+    '    --show-placemarks=<v>   Set the placemarks visibility:         ' + CR +
+    '                                <v>=0 - visibility is OFF          ' + CR +
+    '                                <v>=1 - visibility is ON           ' + CR +
                                                                             CR +
-    '    --navigation=(<lon>,<lat>) Start navigation to point with given' + CR +
-    '                               <lon> and <lat>                     ' + CR +
+    '    --navigate=(<lon>,<lat>) Start navigating to the location with ' + CR +
+    '                             given <lon>/<lat>                     ' + CR +
                                                                             CR +
-    '   --insert-placemark="<name>";(<lon>,<lat>);"<desc>"              ' + CR +
-    '                            Inserts placemark to tempary database  ' + CR +
-                                                                            CR +
+    '    --insert-placemark="<name>";(<lon>,<lat>);"<desc>"             ' + CR +
+    '                            Insert the given placemark into the    ' + CR +
+    '                            temporary database                     ' + CR +
     'Arguments:                                                         ' + CR +
-    '    filename                One or more files to import in tempary ' + CR +
+    '    filename                One (or more, space-separated) files   ' + CR +
+    '                            to be imported into the temporary      ' + CR +
     '                            database                               ' + CR +
-                                                                            CR +
     'Examples:                                                          ' + CR +
     '    ' + AppName + ' MyPoints.kml MyTracks.gpx                      ' + CR +
-    '    ' + AppName + ' --navigation=(24.56,-32.11)                    ' + CR +
+    '    ' + AppName + ' --navigate=(24.56,-32.11)                      ' + CR +
     '    ' + AppName + ' --insert-placemark="My Point";(-44,1.2);"Home" ' + CR +
     '    ' + AppName + ' --show-placemarks=1 --zoom=10 --move=(5,-5)    ' + CR +
     '    ' + AppName + ' --map={F6574B06-E632-4D5F-BC75-C8FA658B57DF}   ' + CR;
@@ -94,6 +97,7 @@ end;
 function GetErrorFromCode(const ACode: Integer): string;
 const
   cSep = ' && ';
+  cPrefix = 'CmdLineArgProcessorAPI' + ': ';
 var
   VSep: string;
 begin
@@ -101,6 +105,11 @@ begin
   VSep := '';
 
   if ACode = cCmdLineArgProcessorOk then begin
+    Exit;
+  end;
+
+  if ACode = cCmdLineArgProcessorSASExceptionRaised then begin
+    Result := cPrefix + rsCmdLineArgProcessorSASExceptionRaised;
     Exit;
   end;
 
@@ -143,7 +152,7 @@ begin
     Result := Format(rsCmdLineArgProcessorUnknownError, [IntToHex(ACode, 8)]);
   end;
 
-  Result := 'CmdLineArgProcessorAPI: ' + Result;
+  Result := cPrefix + Result;
 end;
 
 end.

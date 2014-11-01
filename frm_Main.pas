@@ -696,7 +696,7 @@ type
     Procedure WMSysCommand(Var Msg: TMessage); Message WM_SYSCOMMAND;
     Procedure WMCopyData(Var Msg: TMessage); Message WM_COPYDATA;
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
-    procedure WMUserMessage(var Msg: TMessage); message u_CmdLineArgProcessorAPI.UWM_ARE_YOU_ME;
+    procedure WMFriendOrFoeMessage(var Msg: TMessage); message u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
 
     procedure zooming(ANewZoom: byte; const AFreezePos: TPoint);
     procedure MapMoveAnimate(const AMouseMoveSpeed: TDoublePoint; AZoom:byte; const AMousePos:TPoint);
@@ -3734,7 +3734,7 @@ begin
     VResult := FArgProcessor.Process(string(VRecievedStr), FFormRegionProcess);
   except
     on E: Exception do begin
-      VResult := -1;
+      VResult := cCmdLineArgProcessorSASExceptionRaised;
       MessageDlg(E.ClassName + ': ' + E.Message, mtError, [mbOK], 0);
     end;
   end;
@@ -3782,9 +3782,9 @@ begin
   GState.SystemTimeChanged;
 end;
 
-procedure TfrmMain.WMUserMessage(var Msg: TMessage);
+procedure TfrmMain.WMFriendOrFoeMessage(var Msg: TMessage);
 begin
-  Msg.Result := UWM_ARE_YOU_ME;
+  Msg.Result := u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
 end;
 
 procedure TfrmMain.TBFullSizeClick(Sender:TObject);

@@ -24,7 +24,6 @@ interface
 
 uses
   Classes,
-  ArgumentParser,
   i_MarkSystem,
   i_MapViewGoto,
   i_RegionProcess,
@@ -77,6 +76,7 @@ implementation
 uses
   SysUtils,
   StrUtils,
+  ArgumentParser,
   t_GeoTypes,
   i_MapType,
   i_CoordConverter,
@@ -177,7 +177,7 @@ begin
     VParser.AddArgument('--map', saStore);              // --map={GUID}
     VParser.AddArgument('--zoom', saStore);             // --zoom={value}
     VParser.AddArgument('--move', saStore);             // --move=({lon},{lat})
-    VParser.AddArgument('--navigation', saStore);       // --navigation=({lon},{lat})
+    VParser.AddArgument('--navigate', saStore);         // --navigate=({lon},{lat})
     VParser.AddArgument('--show-placemarks', saStore);  // --show-placemarks={0/1}
     VParser.AddArgument('--insert-placemark', saStore); // --insert-placemark="{name}";({lon},{lat});"{desc}"
 
@@ -213,8 +213,8 @@ begin
         end;
       end;
 
-      if VParseResult.HasArgument('navigation') then begin
-        VStrValue := VParseResult.GetValue('navigation');
+      if VParseResult.HasArgument('navigate') then begin
+        VStrValue := VParseResult.GetValue('navigate');
         if GetCoords(VStrValue, _GetCoordConverter, VLonLat, Result) then begin
           FMainFormConfig.NavToPoint.StartNavLonLat(VLonLat);
         end;

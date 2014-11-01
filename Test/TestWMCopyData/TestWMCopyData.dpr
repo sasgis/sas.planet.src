@@ -16,6 +16,9 @@ function EnumWindows(lpEnumFunc: TFNWndEnumProc; lParam: LPARAM): BOOL; stdcall;
 var
   GWindowsCount: Int64 = 0;
 
+const
+  WM_IFF = u_CmdLineArgProcessorAPI.WM_FRIEND_OR_FOE;
+
 function EnumWindowsProc(hWnd: HWND; lParam: LPARAM): BOOL; stdcall;
 var
   VOutVal: DWORD;
@@ -28,7 +31,7 @@ begin
   VRetVal :=
     SendMessageTimeout(
       hWnd,
-      u_CmdLineArgProcessorAPI.UWM_ARE_YOU_ME,
+      WM_IFF,
       0,
       0,
       SMTO_BLOCK or SMTO_ABORTIFHUNG,
@@ -37,7 +40,7 @@ begin
     );
 
   if VRetVal <> 0 then begin
-    if VOutVal = u_CmdLineArgProcessorAPI.UWM_ARE_YOU_ME then begin
+    if VOutVal = WM_IFF then begin
       PHandle(lParam)^ := hWnd;
       Result := False;
       Writeln('OK - Detect SASPlanet window!');
@@ -112,13 +115,11 @@ begin
     end;
 
     if VArgStr <> '' then begin
-      Writeln('Args to sent: ' + VArgStr);
       SendArgs(VArgStr);
     end else begin
       Writeln(u_CmdLineArgProcessorAPI.GetHelp(ExtractFileName(ParamStr(0))));
       Exit;
     end;
-
   except
     on E:Exception do
       Writeln(E.Classname, ': ', E.Message);
