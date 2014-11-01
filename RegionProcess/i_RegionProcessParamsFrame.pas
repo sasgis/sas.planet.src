@@ -32,7 +32,6 @@ uses
   i_MapType;
 
 type
-  TDeleteSrc = (dmNone=-1, dmTiles=0, dmMarks=1);
   IRegionProcessParamsFrameBase = interface
     ['{F5346D9B-766C-4B3B-AC4B-9AC71FF62F05}']
     procedure Init(

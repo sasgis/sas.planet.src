@@ -122,7 +122,6 @@ var
   VProgressInfo: IRegionProcessProgressInfoInternal;
   VPredicate: IPredicateByTileInfo;
   VThread: TThread;
-  VDelHiddenMarks: Boolean;
 begin
   inherited;
   if (Application.MessageBox(pchar(SAS_MSG_DeleteTilesInRegionAsk), pchar(SAS_MSG_coution), 36) <> IDYES) then begin

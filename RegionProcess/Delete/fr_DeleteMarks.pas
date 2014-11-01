@@ -54,7 +54,6 @@ type
   private
     function MarksState: Byte;
     function DeleteHiddenMarks: Boolean;
-    function DeleteMode: TDeleteSrc;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager
@@ -79,11 +78,6 @@ end;
 function TfrDeleteMarks.DeleteHiddenMarks: Boolean;
 begin
   Result := chkDelHidden.Checked;
-end;
-
-function TfrDeleteMarks.DeleteMode: TDeleteSrc;
-begin
-  Result := dmMarks;
 end;
 
 procedure TfrDeleteMarks.Init(
