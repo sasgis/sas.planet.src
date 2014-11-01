@@ -1152,6 +1152,11 @@ object frmMain: TfrmMain
           Caption = 'Placemark Names'
           Hint = ''
         end
+        object tbitmPointProject: TTBXItem
+          OnClick = tbitmPointProjectClick
+          Caption = 'Project Point'
+          Hint = ''
+        end
       end
       object tbsbmGPS: TTBXSubmenuItem
         Caption = 'GPS'

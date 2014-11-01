@@ -104,6 +104,7 @@ uses
   frm_MarksExplorer,
   frm_CacheManager,
   frm_GoTo,
+  frm_PointProjecting,
   frm_UpdateChecker,
   u_CommonFormAndFrameParents;
 
@@ -412,6 +413,7 @@ type
     TBEditPathLabelVisible: TTBSubmenuItem;
     TBEditPathLabelLastOnly: TTBXItem;
     TBEditPathLabelShowAzimuth: TTBXItem;
+    tbitmPointProject: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -572,6 +574,7 @@ type
     procedure TBfillMapAsMainClick(Sender: TObject);
     procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
     procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
+    procedure tbitmPointProjectClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -645,6 +648,7 @@ type
     FfrmCacheManager: TfrmCacheManager;
     FfrmMarksExplorer: TfrmMarksExplorer;
     FfrmAbout: TfrmAbout;
+    FfrmPointProjecting: TfrmPointProjecting;
     FfrmUpdateChecker: TfrmUpdateChecker;
 
     FPathProvidersTree: ITreeChangeable;
@@ -1046,6 +1050,15 @@ begin
       GState.AppClosingNotifier
     );
   FfrmUpdateChecker.PopupParent := Self;
+
+  FfrmPointProjecting :=
+    TfrmPointProjecting.Create(
+      GState.Config.LanguageManager,
+      GState.VectorGeometryLonLatFactory,
+      FMarkDBGUI,
+      FViewPortState.View
+    );
+  FfrmPointProjecting.PopupParent := Self;
 
   FfrmMapLayersOptions := TfrmMapLayersOptions.Create(
     GState.Config.LanguageManager,
@@ -2744,6 +2757,7 @@ begin
   FreeAndNil(FfrmCacheManager);
   FreeAndNil(FfrmMarksExplorer);
   FreeAndNil(FFormRegionProcess);
+  FreeAndNil(FfrmPointProjecting);
   FreeAndNil(FMarkDBGUI);
   FreeAndNil(FfrmUpdateChecker);
   inherited;
@@ -6964,6 +6978,11 @@ procedure TfrmMain.RefreshTranslation;
 begin
   inherited;
   Caption := GState.ApplicationCaption;
+end;
+
+procedure TfrmMain.tbitmPointProjectClick(Sender: TObject);
+begin
+  FfrmPointProjecting.Show;
 end;
 
 end.

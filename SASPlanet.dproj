@@ -737,6 +737,9 @@
     <DCCReference Include="MarksDB\GUI\frm_MarksMultiEdit.pas">
       <Form>frmMarksMultiEdit</Form>
     </DCCReference>
+    <DCCReference Include="MarksDB\GUI\frm_PointProjecting.pas">
+      <Form>frmPointProjecting</Form>
+    </DCCReference>
     <DCCReference Include="MarksDB\GUI\fr_JpegImportOptions.pas">
       <Form>frJpegImportOptions</Form>
     </DCCReference>

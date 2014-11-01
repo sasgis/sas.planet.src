@@ -1238,6 +1238,7 @@ uses
   frm_ProgressSimple in 'RegionProcess\frm_ProgressSimple.pas' {frmProgressSimple},
   frm_StartLogo in 'frm_StartLogo.pas' {frmStartLogo},
   frm_LonLatRectEdit in 'frm_LonLatRectEdit.pas' {frmLonLatRectEdit},
+  frm_PointProjecting in 'MarksDB\GUI\frm_PointProjecting.pas' {frmPointProjecting},
   frm_IntrnalBrowser in 'frm_IntrnalBrowser.pas' {frmIntrnalBrowser},
   frm_MarkEditPath in 'MarksDB\GUI\frm_MarkEditPath.pas' {frmMarkEditPath},
   frm_MarkEditPoly in 'MarksDB\GUI\frm_MarkEditPoly.pas' {frmMarkEditPoly},
