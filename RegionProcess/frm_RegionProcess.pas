@@ -71,6 +71,7 @@ uses
   i_TileFileNameGeneratorsList,
   i_TileStorageTypeList,
   i_LocalCoordConverterChangeable,
+  i_MapLayerGridsConfig,
   i_ValueToStringConverter,
   i_MapTypeGUIConfigList,
   i_GlobalBerkeleyDBHelper,
@@ -172,6 +173,7 @@ type
       const AMapCalibrationList: IMapCalibrationList;
       const ADownloadConfig: IGlobalDownloadConfig;
       const ADownloadInfo: IDownloadInfoSimple;
+      const AGridsConfig: IMapLayerGridsConfig;
       const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapGoto: IMapViewGoto;
       const AMarkDBGUI: TMarkDbGUIHelper
@@ -231,6 +233,7 @@ constructor TfrmRegionProcess.Create(
   const AMapCalibrationList: IMapCalibrationList;
   const ADownloadConfig: IGlobalDownloadConfig;
   const ADownloadInfo: IDownloadInfoSimple;
+  const AGridsConfig: IMapLayerGridsConfig;
   const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapGoto: IMapViewGoto;
   const AMarkDBGUI: TMarkDbGUIHelper
@@ -351,6 +354,8 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
       AMapCalibrationList
     );
 end;

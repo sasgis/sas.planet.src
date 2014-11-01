@@ -2,11 +2,14 @@ object frMapCombine: TfrMapCombine
   Left = 0
   Top = 0
   Width = 535
-  Height = 304
+  Height = 266
   Align = alClient
+  Constraints.MinHeight = 266
+  Constraints.MinWidth = 535
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
+  ExplicitHeight = 304
   object pnlTargetFile: TPanel
     Left = 0
     Top = 0
@@ -54,27 +57,26 @@ object frMapCombine: TfrMapCombine
     Left = 0
     Top = 150
     Width = 535
-    Height = 154
+    Height = 116
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 135
-    ExplicitHeight = 169
+    ExplicitHeight = 154
     object pnlOptions: TPanel
       Left = 0
       Top = 0
       Width = 210
-      Height = 154
+      Height = 116
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
       Constraints.MinHeight = 80
       Constraints.MinWidth = 210
       TabOrder = 0
-      ExplicitHeight = 169
+      ExplicitHeight = 154
       object chkUseMapMarks: TCheckBox
         Left = 3
-        Top = 54
+        Top = 71
         Width = 204
         Height = 17
         Align = alTop
@@ -92,7 +94,7 @@ object frMapCombine: TfrMapCombine
       end
       object flwpnlJpegQuality: TFlowPanel
         Left = 3
-        Top = 71
+        Top = 88
         Width = 204
         Height = 25
         Align = alTop
@@ -145,18 +147,27 @@ object frMapCombine: TfrMapCombine
         Caption = 'Save GeoRef info to Exif'
         TabOrder = 4
       end
+      object chkUseMapGrids: TCheckBox
+        Left = 3
+        Top = 54
+        Width = 204
+        Height = 17
+        Align = alTop
+        Caption = 'Add visible grids'
+        TabOrder = 5
+      end
     end
     object pnlPrTypes: TPanel
       Left = 210
       Top = 0
       Width = 157
-      Height = 154
+      Height = 116
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
       Constraints.MinWidth = 157
       TabOrder = 1
-      ExplicitHeight = 169
+      ExplicitHeight = 154
       object lblPrTypes: TLabel
         Left = 3
         Top = 3
@@ -171,7 +182,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 18
         Width = 151
-        Height = 133
+        Height = 95
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -181,21 +192,21 @@ object frMapCombine: TfrMapCombine
           '.dat'
           '.kml')
         TabOrder = 0
-        ExplicitHeight = 148
+        ExplicitHeight = 133
       end
     end
     object pnlSplit: TPanel
       Left = 367
       Top = 0
       Width = 168
-      Height = 154
+      Height = 116
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
       Constraints.MinHeight = 71
       Constraints.MinWidth = 168
       TabOrder = 2
-      ExplicitHeight = 169
+      ExplicitHeight = 154
       object grpSplit: TGroupBox
         Left = 3
         Top = 3
@@ -261,7 +272,6 @@ object frMapCombine: TfrMapCombine
       Align = alBottom
       Caption = '_'
       Layout = tlCenter
-      ExplicitTop = 92
       ExplicitWidth = 6
     end
     object pnlZoom: TPanel
@@ -275,7 +285,6 @@ object frMapCombine: TfrMapCombine
       BevelKind = bkTile
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitHeight = 81
       object Labelzoom: TLabel
         AlignWithMargins = True
         Left = 3
@@ -301,7 +310,7 @@ object frMapCombine: TfrMapCombine
     object pnlMapFrame: TPanel
       Left = 3
       Top = -2
-      Width = 455
+      Width = 623
       Height = 40
       Align = alCustom
       Alignment = taLeftJustify
@@ -311,7 +320,7 @@ object frMapCombine: TfrMapCombine
       object lblMapCaption: TLabel
         Left = 0
         Top = 0
-        Width = 455
+        Width = 623
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
@@ -323,7 +332,7 @@ object frMapCombine: TfrMapCombine
     object pnlLayerFrame: TPanel
       Left = 3
       Top = 38
-      Width = 455
+      Width = 623
       Height = 40
       Align = alCustom
       Alignment = taLeftJustify
@@ -333,7 +342,7 @@ object frMapCombine: TfrMapCombine
       object lblLayerCaption: TLabel
         Left = 0
         Top = 0
-        Width = 455
+        Width = 623
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
@@ -345,7 +354,7 @@ object frMapCombine: TfrMapCombine
     object pnlProjection: TPanel
       Left = 0
       Top = 80
-      Width = 535
+      Width = 703
       Height = 21
       Align = alCustom
       Anchors = [akLeft, akTop, akRight]
@@ -363,13 +372,12 @@ object frMapCombine: TfrMapCombine
         Align = alLeft
         Caption = 'Projection:'
         Layout = tlCenter
-        ExplicitLeft = 0
         ExplicitHeight = 13
       end
       object cbbProjection: TComboBox
         Left = 63
         Top = 0
-        Width = 469
+        Width = 637
         Height = 21
         Align = alCustom
         Style = csDropDownList

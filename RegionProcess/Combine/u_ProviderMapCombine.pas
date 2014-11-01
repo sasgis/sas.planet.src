@@ -43,6 +43,8 @@ uses
   i_MapTypeGUIConfigList,
   i_LocalCoordConverterFactorySimpe,
   i_BitmapPostProcessing,
+  i_MapLayerGridsConfig,
+  i_ValueToStringConverter,
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarkSystem,
@@ -74,6 +76,8 @@ type
     FLocalConverterFactory: ILocalCoordConverterFactorySimpe;
     FBitmapPostProcessing: IBitmapPostProcessingChangeable;
     FMapCalibrationList: IMapCalibrationList;
+    FGridsConfig: IMapLayerGridsConfig;
+    FValueToStringConverter: IValueToStringConverterChangeable;
   protected
     function PrepareTargetFileName: string;
     function PrepareTargetConverter(
@@ -85,6 +89,7 @@ type
       const AProjection: IProjectionInfo;
       const AProjectedPolygon: IGeometryProjectedPolygon
     ): IBitmapLayerProvider;
+    function PrepareGridsProvider: IBitmapLayerProvider;
     function PrepareProjection: IProjectionInfo;
     function PreparePolygon(
       const AProjection: IProjectionInfo;
@@ -114,6 +119,8 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+      const AGridsConfig: IMapLayerGridsConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList;
       const AUseQuality: Boolean;
       const AUseExif: Boolean;
@@ -129,6 +136,7 @@ uses
   Classes,
   SysUtils,
   gnugettext,
+  t_Bitmap32,
   i_InterfaceListStatic,
   i_LonLatRect,
   i_MarkerProviderForVectorItem,
@@ -138,6 +146,10 @@ uses
   u_MarkerProviderForVectorItemForMarkPoints,
   u_BitmapLayerProviderByMarksSubset,
   u_BitmapLayerProviderSimpleForCombine,
+  u_BitmapLayerProviderComplex,
+  u_BitmapLayerProviderGridGenshtab,
+  u_BitmapLayerProviderGridDegree,
+  u_BitmapLayerProviderGridTiles,
   u_BitmapLayerProviderInPolygon,
   u_BitmapLayerProviderWithBGColor;
 
@@ -161,6 +173,8 @@ constructor TProviderMapCombineBase.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+  const AGridsConfig: IMapLayerGridsConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList;
   const AUseQuality: Boolean;
   const AUseExif: Boolean;
@@ -189,6 +203,8 @@ begin
   FCoordConverterList := ACoordConverterList;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FProjectedGeometryProvider := AProjectedGeometryProvider;
+  FGridsConfig := AGridsConfig;
+  FValueToStringConverter := AValueToStringConverter;
   FUseQuality := AUseQuality;
   FUseExif := AUseExif;
   FUseAlfa := AUseAlfa;
@@ -231,6 +247,107 @@ begin
   Result := _(FFormatName);
 end;
 
+function TProviderMapCombineBase.PrepareGridsProvider: IBitmapLayerProvider;
+var
+  VVisible: Boolean;
+  VColor: TColor32;
+  VUseRelativeZoom: Boolean;
+  VZoom: Integer;
+  VShowText: Boolean;
+  VShowLines: Boolean;
+  VScale: Integer;
+  VScaleDegree: Double;
+  VProvider: IBitmapLayerProvider;
+  VResult: IBitmapLayerProvider;
+begin
+  VResult := nil;
+  FGridsConfig.TileGrid.LockRead;
+  try
+    VVisible := FGridsConfig.TileGrid.Visible;
+    VColor := FGridsConfig.TileGrid.GridColor;
+    VUseRelativeZoom := FGridsConfig.TileGrid.UseRelativeZoom;
+    VZoom := FGridsConfig.TileGrid.Zoom;
+    VShowText := FGridsConfig.TileGrid.ShowText;
+    VShowLines := True;
+  finally
+    FGridsConfig.TileGrid.UnlockRead;
+  end;
+  if VVisible then begin
+    VResult :=
+      TBitmapLayerProviderGridTiles.Create(
+        FBitmapFactory,
+        VColor,
+        VUseRelativeZoom,
+        VZoom,
+        VShowText,
+        VShowLines
+      );
+  end;
+  FGridsConfig.GenShtabGrid.LockRead;
+  try
+    VVisible := FGridsConfig.GenShtabGrid.Visible;
+    VColor := FGridsConfig.GenShtabGrid.GridColor;
+    VScale := FGridsConfig.GenShtabGrid.Scale;
+    VShowText := FGridsConfig.GenShtabGrid.ShowText;
+    VShowLines := True;
+  finally
+    FGridsConfig.GenShtabGrid.UnlockRead;
+  end;
+  if VVisible then begin
+    VProvider :=
+      TBitmapLayerProviderGridGenshtab.Create(
+        FBitmapFactory,
+        VColor,
+        VScale,
+        VShowText,
+        VShowLines
+      );
+
+    if VResult <> nil then begin
+      VResult :=
+        TBitmapLayerProviderComplex.Create(
+          FBitmapFactory,
+          VResult,
+          VProvider
+        );
+    end else begin
+      VResult := VProvider;
+    end;
+  end;
+  FGridsConfig.DegreeGrid.LockRead;
+  try
+    VVisible := FGridsConfig.DegreeGrid.Visible;
+    VColor := FGridsConfig.DegreeGrid.GridColor;
+    VScaleDegree := FGridsConfig.DegreeGrid.Scale;
+    VShowText := FGridsConfig.DegreeGrid.ShowText;
+    VShowLines := True;
+  finally
+    FGridsConfig.DegreeGrid.UnlockRead;
+  end;
+  if VVisible then begin
+    VProvider :=
+      TBitmapLayerProviderGridDegree.Create(
+        FBitmapFactory,
+        VColor,
+        VScaleDegree,
+        VShowText,
+        VShowLines,
+        FValueToStringConverter.GetStatic
+      );
+    if VResult <> nil then begin
+      VResult :=
+        TBitmapLayerProviderComplex.Create(
+          FBitmapFactory,
+          VResult,
+          VProvider
+        );
+    end else begin
+      VResult := VProvider;
+    end;
+  end;
+  Result := VResult;
+end;
+
 function TProviderMapCombineBase.PrepareImageProvider(
   const APolygon: IGeometryLonLatPolygon;
   const AProjection: IProjectionInfo;
@@ -248,8 +365,10 @@ var
   VRecolorConfig: IBitmapPostProcessing;
   VSourceProvider: IBitmapLayerProvider;
   VUseMarks: Boolean;
+  VUseGrids: Boolean;
   VUseRecolor: Boolean;
   VMarkerProvider: IMarkerProviderForVectorItem;
+  VGridsProvider: IBitmapLayerProvider;
 begin
   VSourceProvider := (ParamsFrame as IRegionProcessParamsFrameImageProvider).Provider;
   VRect := APolygon.Bounds;
@@ -314,6 +433,20 @@ begin
       VSourceProvider,
       VMarksImageProvider
     );
+  VUseGrids := (ParamsFrame as IRegionProcessParamsFrameMapCombine).UseGrids;
+  VGridsProvider := nil;
+  if VUseGrids then begin
+    VGridsProvider := PrepareGridsProvider;
+  end;
+  if Assigned(VGridsProvider) then begin
+    Result :=
+      TBitmapLayerProviderComplex.Create(
+        FBitmapFactory,
+        Result,
+        VGridsProvider
+      );
+  end;
+
   Result :=
     TBitmapLayerProviderInPolygon.Create(
       AProjectedPolygon,

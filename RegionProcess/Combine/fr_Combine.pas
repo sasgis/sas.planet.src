@@ -44,6 +44,8 @@ uses
   i_UsedMarksConfig,
   i_MarksDrawConfig,
   i_MarkSystem,
+  i_MapLayerGridsConfig,
+  i_ValueToStringConverter,
   i_MapCalibration,
   i_GeometryProjectedFactory,
   i_GeometryProjectedProvider,
@@ -83,6 +85,8 @@ type
       const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
       const ABitmapFactory: IBitmap32StaticFactory;
       const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+      const AGridsConfig: IMapLayerGridsConfig;
+      const AValueToStringConverter: IValueToStringConverterChangeable;
       const AMapCalibrationList: IMapCalibrationList
     ); reintroduce;
     destructor Destroy; override;
@@ -132,6 +136,8 @@ constructor TfrCombine.Create(
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
+  const AGridsConfig: IMapLayerGridsConfig;
+  const AValueToStringConverter: IValueToStringConverterChangeable;
   const AMapCalibrationList: IMapCalibrationList
 );
 var
@@ -159,6 +165,8 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -182,6 +190,8 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -205,6 +215,8 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -228,6 +240,8 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);
@@ -251,6 +265,8 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
       AMapCalibrationList,
       False // Lossless
     );
@@ -275,6 +291,8 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
       AMapCalibrationList,
       True // Lossless
     );
@@ -301,6 +319,8 @@ begin
       ALocalConverterFactory,
       ABitmapFactory,
       ABitmapPostProcessing,
+      AGridsConfig,
+      AValueToStringConverter,
       AMapCalibrationList
     );
   cbbOutputFormat.Items.AddObject(VExportProvider.GetCaption, VExportProvider);

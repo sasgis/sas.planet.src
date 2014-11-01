@@ -1004,6 +1004,7 @@ begin
       GState.MapCalibrationList,
       GState.Config.DownloadConfig,
       GState.DownloadInfo,
+      FConfig.LayersConfig.MapLayerGridsConfig,
       GState.ValueToStringConverter,
       FMapGoto,
       FMarkDBGUI
