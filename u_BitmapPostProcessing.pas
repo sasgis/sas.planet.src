@@ -106,7 +106,7 @@ begin
     VBuffer := FBitmap32StaticFactory.BufferFactory.BuildEmpty(VSize);
     if VBuffer <> nil then begin
       VSource := ABitmap.Data;
-      VTarget := Result.Data;
+      VTarget := VBuffer.Data;
       for i := 0 to VSize.X * VSize.Y - 1 do begin
         VColorEntry.ARGB := VSource[i];
         VTarget[i] :=
