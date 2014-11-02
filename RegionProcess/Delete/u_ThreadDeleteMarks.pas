@@ -23,7 +23,7 @@ unit u_ThreadDeleteMarks;
 interface
 
 uses
-  
+
   SysUtils,
   Classes,
   c_MarkFlag,
@@ -95,7 +95,7 @@ begin
   Assert(AProjectedPolygon <> nil);
   Assert(AProjection <> nil);
   Assert(AMarkSystem <> nil);
-  
+
   FpolyLL := APolyLL;
   FProjectedPolygon := AProjectedPolygon;
   FProjection := AProjection;
@@ -133,9 +133,9 @@ begin
       VDoAdd := False;
 
       case (VVectorItems.Items[i].MainInfo as IMarkId).MarkType of
-        midPoint: if ( FMarksState and CPlacemarkFlag ) <> 0 then VDoAdd := True;
-        midLine:  if ( FMarksState and CPathFlag ) <> 0 then VDoAdd := True;
-        midPoly:  if ( FMarksState and CPolygonFlag ) <> 0 then VDoAdd := True;
+        midPoint: if (FMarksState and CPlacemarkFlag) <> 0 then VDoAdd := True;
+        midLine:  if (FMarksState and CPathFlag) <> 0 then VDoAdd := True;
+        midPoly:  if (FMarksState and CPolygonFlag) <> 0 then VDoAdd := True;
       else
       end;
 

@@ -76,7 +76,7 @@ type
     procedure CancelOperation;
   public
     constructor Create(
-      AOwner : TComponent;
+      AOwner: TComponent;
       const AAppClosingNotifier: INotifierOneOperation;
       const ATimerNoifier: INotifierTime;
       const ACancelNotifier: INotifierOperationInternal;
@@ -97,7 +97,7 @@ uses
 {$R *.dfm}
 
 constructor TfrmProgressSimple.Create(
-  AOwner : TComponent;
+  AOwner: TComponent;
   const AAppClosingNotifier: INotifierOneOperation;
   const ATimerNoifier: INotifierTime;
   const ACancelNotifier: INotifierOperationInternal;

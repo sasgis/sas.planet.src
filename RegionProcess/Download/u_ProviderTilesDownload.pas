@@ -148,7 +148,7 @@ begin
   FDownloadInfo := ADownloadInfo;
   FRegionProcess := ARegionProcess;
   FMapGoto := AMapGoto;
-  FMarkDBGUI:=AMarkDBGUI;
+  FMarkDBGUI := AMarkDBGUI;
 end;
 
 function TProviderTilesDownload.CreateFrame: TFrame;

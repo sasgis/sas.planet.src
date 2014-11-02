@@ -247,7 +247,7 @@ begin
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;
   FVectorGeometryProjectedFactory := AVectorGeometryProjectedFactory;
   FMapGoto := AMapGoto;
-  FMarkDBGUI:=AMarkDBGUI;
+  FMarkDBGUI := AMarkDBGUI;
   VProgressFactory :=
     TRegionProcessProgressInfoInternalFactory.Create(
       AAppClosingNotifier,
@@ -497,7 +497,7 @@ begin
   FProviderTilesDownload.Show(TabSheet1, FZoom_rect, FPolygonLL);
   FfrCombine.Show(TabSheet2, FZoom_rect, FPolygonLL);
 
-  PageControl1.ActivePageIndex:=0;
+  PageControl1.ActivePageIndex := 0;
 end;
 
 procedure TfrmRegionProcess.Button3Click(Sender: TObject);
@@ -513,7 +513,7 @@ var
   VHLGData: IConfigDataWriteProvider;
   VPolygonSection: IConfigDataWriteProvider;
 begin
-  if (SaveSelDialog.Execute)and(SaveSelDialog.FileName<>'') then begin
+  if (SaveSelDialog.Execute)and(SaveSelDialog.FileName <> '') then begin
     If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
     VZoom := FLastSelectionInfo.Zoom;
     VPolygon := FLastSelectionInfo.Polygon;

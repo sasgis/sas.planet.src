@@ -343,8 +343,8 @@ begin
           SAS_STR_filesnum + ': ' +
           inttostr(VTileRect.Right - VTileRect.Left) + 'x' +
           inttostr(VTileRect.Bottom - VTileRect.Top) +
-          '('+inttostr(numd)+')' +
-          ', '+SAS_STR_Resolution + ' ' +
+          '(' + inttostr(numd) + ')' +
+          ', ' + SAS_STR_Resolution + ' ' +
           inttostr(VPixelRect.Right - VPixelRect.Left) + 'x' +
           inttostr(VPixelRect.Bottom - VPixelRect.Top);
       end;

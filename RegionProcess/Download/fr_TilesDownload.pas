@@ -145,7 +145,7 @@ uses
 
 procedure TfrTilesDownload.cbbZoomChange(Sender: TObject);
 var
-  numd:int64 ;
+  numd:int64;
   Vmt: IMapType;
   VZoom: byte;
   VPolyLL: IGeometryLonLatPolygon;
@@ -172,12 +172,12 @@ begin
         numd := (VTileRect.Right - VTileRect.Left);
         numd := numd * (VTileRect.Bottom - VTileRect.Top);
         lblStat.Caption :=
-          SAS_STR_filesnum+': '+
-          inttostr(VTileRect.Right - VTileRect.Left)+'x'+
-          inttostr(VTileRect.Bottom - VTileRect.Top)+
-          '('+inttostr(numd)+')' +
-          ', '+SAS_STR_Resolution + ' ' +
-          inttostr(VPixelRect.Right - VPixelRect.Left)+'x'+
+          SAS_STR_filesnum + ': ' +
+          inttostr(VTileRect.Right - VTileRect.Left) + 'x' +
+          inttostr(VTileRect.Bottom - VTileRect.Top) +
+          '(' + inttostr(numd) + ')' +
+          ', ' + SAS_STR_Resolution + ' ' +
+          inttostr(VPixelRect.Right - VPixelRect.Left) + 'x' +
           inttostr(VPixelRect.Bottom - VPixelRect.Top);
       end;
     end;
@@ -291,7 +291,7 @@ begin
     cbbZoom.Items.Add(inttostr(i));
   end;
   cbbZoom.ItemIndex := AZoom;
-  dtpReplaceOlderDate.Date:=now;
+  dtpReplaceOlderDate.Date := now;
   cbbZoomChange(nil);
   FfrMapSelect.Show(pnlFrame);
   cbbZoomChange(cbbzoom);

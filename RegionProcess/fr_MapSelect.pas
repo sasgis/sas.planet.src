@@ -74,7 +74,7 @@ type
       const AMainMapsConfig: IMainMapsConfig;
       const AGUIConfigList: IMapTypeGUIConfigList;
       const AFullMapsSet: IMapTypeSet;
-      const AMapSelectFilter : TMapSelectFilter;
+      const AMapSelectFilter: TMapSelectFilter;
       const ANoItemAdd: boolean;
       const AShowDisabled: boolean;
       AMapSelectPredicate: TMapSelectPredicate
@@ -102,7 +102,7 @@ constructor TfrMapSelect.Create(
   const AMainMapsConfig: IMainMapsConfig;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AFullMapsSet: IMapTypeSet;
-  const AMapSelectFilter : TMapSelectFilter;
+  const AMapSelectFilter: TMapSelectFilter;
   const ANoItemAdd: boolean;
   const AShowDisabled: boolean;
   AMapSelectPredicate: TMapSelectPredicate
@@ -217,9 +217,9 @@ begin
   cbbMap.Items.BeginUpdate;
   try
     cbbMap.Items.Clear;
-    if FNoItemAdd then cbbMap.Items.AddObject(SAS_STR_No,nil);
+    if FNoItemAdd then cbbMap.Items.AddObject(SAS_STR_No, nil);
     VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-    for i := 0 to VGUIDList.Count-1 do begin
+    for i := 0 to VGUIDList.Count - 1 do begin
       VGUID := VGUIDList.Items[i];
       VAdd := false;
       VCurMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);

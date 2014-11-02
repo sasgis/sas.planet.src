@@ -320,7 +320,7 @@ end;
 
 procedure TfrExportToJNX.Map2Change(Sender: TObject);
 var
- cnt : integer;
+ cnt: integer;
 begin
   cnt := 0;
   if ChMap1.Checked then inc(cnt);
@@ -329,7 +329,7 @@ end;
 
 procedure TfrExportToJNX.Map3Change(Sender: TObject);
 var
- cnt : integer;
+ cnt: integer;
 begin
   cnt := 0;
   if ChMap1.Checked then inc(cnt);
@@ -339,7 +339,7 @@ end;
 
 procedure TfrExportToJNX.Map4Change(Sender: TObject);
 var
- cnt : integer;
+ cnt: integer;
 begin
   cnt := 0;
   if ChMap1.Checked then inc(cnt);
@@ -350,7 +350,7 @@ end;
 
 procedure TfrExportToJNX.Map5Change(Sender: TObject);
 var
- cnt : integer;
+ cnt: integer;
 begin
   cnt := 0;
   if ChMap1.Checked then inc(cnt);
@@ -533,7 +533,7 @@ end;
 
 procedure TfrExportToJNX.ChMap1Click(Sender: TObject);
 var
- VItemNode, VParentNode : TTreeNode;
+ VItemNode, VParentNode: TTreeNode;
 begin
   FfrMapSelect.SetEnabled(ChMap1.Checked);
   EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
@@ -543,9 +543,9 @@ begin
   ChRecompress1.Enabled := ChMap1.Checked;
 
   if  ChMap1.Checked then begin
-    VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(1));
+    VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(1));
     TreeView1.Items.AddChild(VParentNode, FfrMapSelect.text);
-    TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
+    TreeView1.Items.AddChild(VParentNode, '(c) ' + EProductName.text);
   end else begin
     VItemNode := TreeView1.Items[0];
     TreeView1.Items.delete(VItemNode);
@@ -555,8 +555,8 @@ end;
 
 procedure TfrExportToJNX.ChMap2Click(Sender: TObject);
 var
- VItemNode, VParentNode : TTreeNode;
- cnt : integer;
+ VItemNode, VParentNode: TTreeNode;
+ cnt: integer;
 begin
   cnt := 0;
   FfrMap2Select.SetEnabled(ChMap2.Checked);
@@ -569,16 +569,16 @@ begin
   if ChMap2.Checked then begin
     if (TreeView1.Items.count > cnt * 3) then begin
       VItemNode := TreeView1.Items[cnt * 3];
-      VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(2));
+      VParentNode := TreeView1.Items.insert(VItemNode, 'Level' + inttostr(2));
     end else begin
       if TreeView1.Items.Count=0 then begin
-        VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(2))
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(2))
       end else begin
-        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(2));
+        VParentNode := TreeView1.Items.Add(nil, 'Level' + inttostr(2));
       end;
     end;
     TreeView1.Items.AddChild(VParentNode, FfrMap2Select.text);
-    TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
+    TreeView1.Items.AddChild(VParentNode, '(c) ' + EProductName.text);
   end else begin
     VItemNode := TreeView1.Items[cnt * 3];
     TreeView1.Items.delete(VItemNode);
@@ -589,7 +589,7 @@ end;
 procedure TfrExportToJNX.ChMap3Click(Sender: TObject);
 var
  VItemNode, VParentNode : TTreeNode;
- cnt : integer;
+ cnt: integer;
 begin
   cnt := 0;
   FfrMap3Select.SetEnabled(ChMap3.Checked);
@@ -603,16 +603,16 @@ begin
   if ChMap3.Checked then begin
     if (TreeView1.Items.count >cnt * 3) then begin
       VItemNode := TreeView1.Items[cnt * 3];
-      VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(3));
+      VParentNode := TreeView1.Items.insert(VItemNode, 'Level' + inttostr(3));
     end else begin
       if TreeView1.Items.Count=0 then begin
-        VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(3))
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(3))
       end else begin
-        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(3));
+        VParentNode := TreeView1.Items.Add(nil, 'Level' + inttostr(3));
       end;
     end;
     TreeView1.Items.AddChild(VParentNode, FfrMap3Select.text);
-    TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
+    TreeView1.Items.AddChild(VParentNode, '(c) ' + EProductName.text);
   end else begin
     VItemNode := TreeView1.Items[cnt * 3];
     TreeView1.Items.delete(VItemNode);
@@ -622,8 +622,8 @@ end;
 
 procedure TfrExportToJNX.ChMap4Click(Sender: TObject);
 var
- VItemNode, VParentNode : TTreeNode;
- cnt : integer;
+ VItemNode, VParentNode: TTreeNode;
+ cnt: integer;
 begin
   cnt := 0;
   FfrMap4Select.SetEnabled(ChMap4.Checked);
@@ -638,16 +638,16 @@ begin
   if ChMap4.Checked then begin
     if (TreeView1.Items.count > cnt * 3) then begin
       VItemNode := TreeView1.Items[cnt * 3];
-      VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(4));
+      VParentNode := TreeView1.Items.insert(VItemNode, 'Level' + inttostr(4));
     end else begin
       if TreeView1.Items.Count=0 then begin
-        VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(4))
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(4))
       end else begin
-        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(4));
+        VParentNode := TreeView1.Items.Add(nil, 'Level' + inttostr(4));
       end;
     end;
     TreeView1.Items.AddChild(VParentNode, FfrMap4Select.text);
-    TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
+    TreeView1.Items.AddChild(VParentNode, '(c) ' + EProductName.text);
   end else begin
     VItemNode := TreeView1.Items[cnt * 3];
     TreeView1.Items.delete(VItemNode);
@@ -657,8 +657,8 @@ end;
 
 procedure TfrExportToJNX.ChMap5Click(Sender: TObject);
 var
- VItemNode, VParentNode : TTreeNode;
- cnt : integer;
+ VItemNode, VParentNode: TTreeNode;
+ cnt: integer;
 begin
   cnt := 0;
   FfrMap5Select.SetEnabled(ChMap5.Checked);
@@ -673,16 +673,16 @@ begin
   if ChMap5.Checked then begin
     if (TreeView1.Items.count >cnt * 3) then begin
       VItemNode := TreeView1.Items[(cnt) * 3];
-      VParentNode := TreeView1.Items.insert(VItemNode, 'Level'+inttostr(5));
+      VParentNode := TreeView1.Items.insert(VItemNode, 'Level' + inttostr(5));
     end else begin
       if TreeView1.Items.Count=0 then begin
-        VParentNode := TreeView1.Items.AddFirst(nil, 'Level'+inttostr(5))
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(5))
       end else begin
-        VParentNode := TreeView1.Items.Add(nil, 'Level'+inttostr(5));
+        VParentNode := TreeView1.Items.Add(nil, 'Level' + inttostr(5));
       end;
     end;
     TreeView1.Items.AddChild(VParentNode, FfrMap5Select.text);
-    TreeView1.Items.AddChild(VParentNode, '(c) '+EProductName.text);
+    TreeView1.Items.AddChild(VParentNode, '(c) ' + EProductName.text);
   end else begin
     VItemNode := TreeView1.Items[cnt * 3];
     TreeView1.Items.delete(VItemNode);

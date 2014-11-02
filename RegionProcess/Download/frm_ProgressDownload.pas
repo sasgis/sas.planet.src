@@ -125,7 +125,7 @@ type
       const AFormCaption: string;
       const ARegionProcess: IRegionProcess;
       const AMapGoto: IMapViewGoto;
-      const AMarkDBGUI : TMarkDbGUIHelper
+      const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
   end;
@@ -239,8 +239,8 @@ end;
 
 procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
 begin
-  FProgress.Top:=TPanel(Sender).Height-48;
-  FProgress.Width:=TPanel(Sender).Width-14;
+  FProgress.Top := TPanel(Sender).Height - 48;
+  FProgress.Width := TPanel(Sender).Width - 14;
 end;
 
 procedure TfrmProgressDownload.tbtmSelectClick(Sender: TObject);
@@ -266,7 +266,7 @@ var
 begin
   VTotal := FProgressInfo.TotalToProcess;
   if VTotal > 0 then begin
-    VComplete := inttostr(round(FProgressInfo.Processed/VTotal*100))+'%';
+    VComplete := inttostr(round(FProgressInfo.Processed/VTotal*100)) + '%';
   end else begin
     VComplete := '~%';
   end;
@@ -278,9 +278,9 @@ begin
       UpdateTimer.Enabled := false;
       UpdateMemoProgressForm;
       Self.Caption := SAS_MSG_LoadComplete + ' ' + FFormCaption;
-      lblToProcessValue.Caption := inttostr(VTotal)+' '+SAS_STR_Files+' (z'+inttostr(FProgressInfo.Zoom + 1)+')';
-      lblProcessedValue.Caption := inttostr(FProgressInfo.Processed)+' '+SAS_STR_Files;
-      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded)+' ('+ VValueConverter.DataSizeConvert(VDownloadSize)+') '+SAS_STR_Files;
+      lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files + ' (z' + inttostr(FProgressInfo.Zoom + 1) + ')';
+      lblProcessedValue.Caption := inttostr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
+      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' ('+ VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
       lblSizeToFinishValue.Caption := GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
       FProgress.Max := VTotal;
@@ -298,11 +298,11 @@ begin
     end else begin
       Self.Caption := Format(SAS_STR_DownloadingCaption, [VComplete]) + ' ' + FFormCaption;
       Application.ProcessMessages;
-      lblToProcessValue.Caption := inttostr(VTotal)+' '+SAS_STR_Files+' (z'+inttostr(FProgressInfo.Zoom + 1)+')';
-      lblProcessedValue.Caption:=inttostr(FProgressInfo.Processed)+' '+SAS_STR_Files;
-      lblDownloadedValue.Caption:=inttostr(FProgressInfo.Downloaded)+' ('+VValueConverter.DataSizeConvert(VDownloadSize)+') '+SAS_STR_Files;
+      lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files + ' (z' + inttostr(FProgressInfo.Zoom + 1) + ')';
+      lblProcessedValue.Caption := inttostr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
+      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
-      lblSizeToFinishValue.Caption:=GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
+      lblSizeToFinishValue.Caption := GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
       UpdateMemoProgressForm;
       FProgress.Max := VTotal;
       FProgress.Progress1 := FProgressInfo.Processed;
@@ -333,10 +333,10 @@ var
   VValueConverter: IValueToStringConverter;
 begin
   if loaded=0 then begin
-    result:='~  б';
+    result := '~  б';
   end else begin
     VValueConverter := FValueToStringConverter.GetStatic;
-    Result:= VValueConverter.DataSizeConvert((len/loaded)*(loadAll-obrab));
+    Result := VValueConverter.DataSizeConvert((len/loaded) * (loadAll - obrab));
   end;
 end;
 
@@ -349,13 +349,13 @@ var
   VExpectedTime: TDateTime;
 begin
   if load=0 then begin
-    result:='~';
+    result := '~';
   end else begin
     VExpectedTime := AElapsedTime * (loadAll / load);
     dd := DaysBetween(AElapsedTime, VExpectedTime);
-    Result:='';
-    if dd > 0 then Result := inttostr(dd)+' дней, ';
-    Result := Result+FormatDateTime('hh:nn:ss',VExpectedTime - AElapsedTime);
+    Result := '';
+    if dd > 0 then Result := inttostr(dd) + ' дней, ';
+    Result := Result + FormatDateTime('hh:nn:ss',VExpectedTime - AElapsedTime);
   end;
 end;
 

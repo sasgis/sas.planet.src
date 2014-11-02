@@ -278,7 +278,7 @@ begin
   VActiveMapGUID := FMainMapsConfig.GetActiveMap.GetStatic.GUID;
   chklstMaps.Items.Clear;
   VGUIDList := FGUIConfigList.OrderedMapGUIDList;
-  For i := 0 to VGUIDList.Count-1 do begin
+  For i := 0 to VGUIDList.Count - 1 do begin
     VGUID := VGUIDList.Items[i];
     VMapType := FFullMapsSet.GetMapTypeByGUID(VGUID);
     if (VMapType.GUIConfig.Enabled) then begin
