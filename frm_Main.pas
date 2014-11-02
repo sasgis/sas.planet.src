@@ -713,6 +713,7 @@ type
     procedure OnClickMapItem(Sender: TObject);
     procedure OnClickLayerItem(Sender: TObject);
     procedure OnMainMapChange;
+    procedure OnActivLayersChange;
     procedure OnFillingMapChange;
     procedure OnShowSearchResults(Sender: TObject);
 
@@ -1377,6 +1378,11 @@ begin
       TNotifyNoMmgEventListener.Create(Self.OnMainMapChange),
       FConfig.MainMapsConfig.GetActiveMap.GetChangeNotifier
     );
+    FLinksList.Add(
+      TNotifyNoMmgEventListener.Create(Self.OnActivLayersChange),
+      FConfig.MainMapsConfig.GetActiveLayersSet.ChangeNotifier
+    );
+
 
     VMapLayersVsibleChangeListener := TNotifyNoMmgEventListener.Create(Self.MapLayersVisibleChange);
     FLinksList.Add(
@@ -1546,6 +1552,7 @@ begin
     MapLayersVisibleChange;
     OnFillingMapChange;
     OnMainMapChange;
+    OnActivLayersChange;
     ProcessPosChangeMessage;
     OnSearchhistoryChange;
     OnPathProvidesChange;
@@ -2956,6 +2963,14 @@ begin
   if VNewState <> ao_edit_point then begin
     FEditMarkPoint := nil;
   end;
+end;
+
+procedure TfrmMain.OnActivLayersChange;
+var
+  VLayerSet: IMapTypeSet;
+begin
+  VLayerSet := FConfig.MainMapsConfig.GetActiveLayersSet.GetStatic;
+  TBLayerSel.Checked := Assigned(VLayerSet) and (VLayerSet.Count > 0);
 end;
 
 procedure TfrmMain.OnAfterViewChange;
