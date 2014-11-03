@@ -317,9 +317,6 @@
     <DCCReference Include="frm_MapLayersOptions.pas">
       <Form>frmMapLayersOptions</Form>
     </DCCReference>
-    <DCCReference Include="frm_MapTypeEdit.pas">
-      <Form>frmMapTypeEdit</Form>
-    </DCCReference>
     <DCCReference Include="frm_MarkInfo.pas">
       <Form>frmMarkInfo</Form>
     </DCCReference>
@@ -459,7 +456,6 @@
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByMarksSystem.pas" />
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByTileStorageOptions.pas" />
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderList.pas" />
-    <DCCReference Include="i_ActiveMapsConfig.pas" />
     <DCCReference Include="i_AppEnum.pas" />
     <DCCReference Include="i_BasicMemCache.pas" />
     <DCCReference Include="i_BatteryStatus.pas" />
@@ -511,20 +507,7 @@
     <DCCReference Include="i_MainMapLayerConfig.pas" />
     <DCCReference Include="i_MainMemCacheConfig.pas" />
     <DCCReference Include="i_MainWindowPosition.pas" />
-    <DCCReference Include="i_MapAbilitiesConfig.pas" />
     <DCCReference Include="i_MapMovingConfig.pas" />
-    <DCCReference Include="i_MapType.pas" />
-    <DCCReference Include="i_MapTypeConfigModalEdit.pas" />
-    <DCCReference Include="i_MapTypeGUIConfig.pas" />
-    <DCCReference Include="i_MapTypeGUIConfigList.pas" />
-    <DCCReference Include="i_MapTypeHotKeyListStatic.pas" />
-    <DCCReference Include="i_MapTypeIconsList.pas" />
-    <DCCReference Include="i_MapTypeListBuilder.pas" />
-    <DCCReference Include="i_MapTypeListChangeable.pas" />
-    <DCCReference Include="i_MapTypeListStatic.pas" />
-    <DCCReference Include="i_MapTypeSet.pas" />
-    <DCCReference Include="i_MapTypeSetBuilder.pas" />
-    <DCCReference Include="i_MapTypeSetChangeable.pas" />
     <DCCReference Include="i_MapVersionConfig.pas" />
     <DCCReference Include="i_MapVersionFactory.pas" />
     <DCCReference Include="i_MapVersionFactoryList.pas" />
@@ -593,9 +576,6 @@
     <DCCReference Include="i_VectorTileProvider.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_WindowPositionConfig.pas" />
-    <DCCReference Include="i_ZmpConfig.pas" />
-    <DCCReference Include="i_ZmpInfo.pas" />
-    <DCCReference Include="i_ZmpInfoSet.pas" />
     <DCCReference Include="MapCalibration\i_MapCalibration.pas" />
     <DCCReference Include="MapCalibration\u_MapCalibrationDat.pas" />
     <DCCReference Include="MapCalibration\u_MapCalibrationKml.pas" />
@@ -711,6 +691,51 @@
     <DCCReference Include="MapSvcScan\u_AvailPicsTerra.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanConfig.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanStorage.pas" />
+    <DCCReference Include="MapType\frm_MapTypeEdit.pas">
+      <Form>frmMapTypeEdit</Form>
+    </DCCReference>
+    <DCCReference Include="MapType\i_ActiveMapsConfig.pas" />
+    <DCCReference Include="MapType\i_MapAbilitiesConfig.pas" />
+    <DCCReference Include="MapType\i_MapType.pas" />
+    <DCCReference Include="MapType\i_MapTypeConfigModalEdit.pas" />
+    <DCCReference Include="MapType\i_MapTypeGUIConfig.pas" />
+    <DCCReference Include="MapType\i_MapTypeGUIConfigList.pas" />
+    <DCCReference Include="MapType\i_MapTypeHotKeyListStatic.pas" />
+    <DCCReference Include="MapType\i_MapTypeIconsList.pas" />
+    <DCCReference Include="MapType\i_MapTypeListBuilder.pas" />
+    <DCCReference Include="MapType\i_MapTypeListChangeable.pas" />
+    <DCCReference Include="MapType\i_MapTypeListStatic.pas" />
+    <DCCReference Include="MapType\i_MapTypeSet.pas" />
+    <DCCReference Include="MapType\i_MapTypeSetBuilder.pas" />
+    <DCCReference Include="MapType\i_MapTypeSetChangeable.pas" />
+    <DCCReference Include="MapType\i_ZmpConfig.pas" />
+    <DCCReference Include="MapType\i_ZmpInfo.pas" />
+    <DCCReference Include="MapType\i_ZmpInfoSet.pas" />
+    <DCCReference Include="MapType\u_ActiveMapsLicenseList.pas" />
+    <DCCReference Include="MapType\u_ActiveMapTBXItem.pas" />
+    <DCCReference Include="MapType\u_ActivMapWithLayers.pas" />
+    <DCCReference Include="MapType\u_MainMapsConfig.pas" />
+    <DCCReference Include="MapType\u_MapAbilitiesConfig.pas" />
+    <DCCReference Include="MapType\u_MapAbilitiesConfigStatic.pas" />
+    <DCCReference Include="MapType\u_MapType.pas" />
+    <DCCReference Include="MapType\u_MapTypeChangeableByNotifier.pas" />
+    <DCCReference Include="MapType\u_MapTypeConfigModalEditByForm.pas" />
+    <DCCReference Include="MapType\u_MapTypeGUIConfig.pas" />
+    <DCCReference Include="MapType\u_MapTypeGUIConfigList.pas" />
+    <DCCReference Include="MapType\u_MapTypeGUIConfigStatic.pas" />
+    <DCCReference Include="MapType\u_MapTypeHotKeyListStatic.pas" />
+    <DCCReference Include="MapType\u_MapTypeIconsList.pas" />
+    <DCCReference Include="MapType\u_MapTypeListBuilderFactory.pas" />
+    <DCCReference Include="MapType\u_MapTypeListChangeableActiveBitmapLayers.pas" />
+    <DCCReference Include="MapType\u_MapTypeSetBuilderFactory.pas" />
+    <DCCReference Include="MapType\u_MapTypeSetChangeable.pas" />
+    <DCCReference Include="MapType\u_MapTypeSetChangeableBySourceSetWithFilter.pas" />
+    <DCCReference Include="MapType\u_MapTypeSetChangeableSimple.pas" />
+    <DCCReference Include="MapType\u_MapTypesMainList.pas" />
+    <DCCReference Include="MapType\u_ZmpConfig.pas" />
+    <DCCReference Include="MapType\u_ZmpFileNamesIteratorFactory.pas" />
+    <DCCReference Include="MapType\u_ZmpInfo.pas" />
+    <DCCReference Include="MapType\u_ZmpInfoSet.pas" />
     <DCCReference Include="MarksDB\c_MarkFlag.pas" />
     <DCCReference Include="MarksDB\GUI\frm_ImportConfigEdit.pas">
       <Form>frmImportConfigEdit</Form>
@@ -1196,9 +1221,6 @@
     </DCCReference>
     <DCCReference Include="UpdateChecker\i_UpdateDownloader.pas" />
     <DCCReference Include="UpdateChecker\u_UpdateDownloader.pas" />
-    <DCCReference Include="u_ActiveMapsLicenseList.pas" />
-    <DCCReference Include="u_ActiveMapTBXItem.pas" />
-    <DCCReference Include="u_ActivMapWithLayers.pas" />
     <DCCReference Include="u_AppEnum.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
@@ -1274,29 +1296,11 @@
     <DCCReference Include="u_MainFormState.pas" />
     <DCCReference Include="u_MainGeoCoderConfig.pas" />
     <DCCReference Include="u_MainMapLayerConfig.pas" />
-    <DCCReference Include="u_MainMapsConfig.pas" />
     <DCCReference Include="u_MainMemCacheConfig.pas" />
     <DCCReference Include="u_MainWindowPositionConfig.pas" />
     <DCCReference Include="u_MainWindowToolbarsLock.pas" />
-    <DCCReference Include="u_MapAbilitiesConfig.pas" />
-    <DCCReference Include="u_MapAbilitiesConfigStatic.pas" />
     <DCCReference Include="u_MapMovingConfig.pas" />
-    <DCCReference Include="u_MapType.pas" />
-    <DCCReference Include="u_MapTypeChangeableByNotifier.pas" />
-    <DCCReference Include="u_MapTypeConfigModalEditByForm.pas" />
-    <DCCReference Include="u_MapTypeGUIConfig.pas" />
-    <DCCReference Include="u_MapTypeGUIConfigList.pas" />
-    <DCCReference Include="u_MapTypeGUIConfigStatic.pas" />
-    <DCCReference Include="u_MapTypeHotKeyListStatic.pas" />
-    <DCCReference Include="u_MapTypeIconsList.pas" />
-    <DCCReference Include="u_MapTypeListBuilderFactory.pas" />
-    <DCCReference Include="u_MapTypeListChangeableActiveBitmapLayers.pas" />
     <DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas" />
-    <DCCReference Include="u_MapTypeSetBuilderFactory.pas" />
-    <DCCReference Include="u_MapTypeSetChangeable.pas" />
-    <DCCReference Include="u_MapTypeSetChangeableBySourceSetWithFilter.pas" />
-    <DCCReference Include="u_MapTypeSetChangeableSimple.pas" />
-    <DCCReference Include="u_MapTypesMainList.pas" />
     <DCCReference Include="u_MapVersionConfig.pas" />
     <DCCReference Include="u_MapVersionFactoryChangeable.pas" />
     <DCCReference Include="u_MapVersionFactoryGE.pas" />
@@ -1399,10 +1403,6 @@
     <DCCReference Include="u_VectorTileProviderByStorage.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />
     <DCCReference Include="u_XmlLoaderByVSAGPS.pas" />
-    <DCCReference Include="u_ZmpConfig.pas" />
-    <DCCReference Include="u_ZmpFileNamesIteratorFactory.pas" />
-    <DCCReference Include="u_ZmpInfo.pas" />
-    <DCCReference Include="u_ZmpInfoSet.pas" />
     <DCCReference Include="VectorLoaders\i_XmlVectorObjects.pas" />
     <DCCReference Include="VectorLoaders\u_CsvParser.pas" />
     <DCCReference Include="VectorLoaders\u_HlgParser.pas" />
