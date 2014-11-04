@@ -192,7 +192,7 @@ object frJpegImportOptions: TfrJpegImportOptions
       AlignWithMargins = True
       Left = 106
       Top = 38
-      Width = 46
+      Width = 336
       Height = 13
       Caption = 'Icon size:'
     end
@@ -223,7 +223,7 @@ object frJpegImportOptions: TfrJpegImportOptions
     object chk1: TCheckBox
       Left = 106
       Top = 15
-      Width = 136
+      Width = 336
       Height = 17
       Caption = 'Use thumbnail as Icon'
       Checked = True
