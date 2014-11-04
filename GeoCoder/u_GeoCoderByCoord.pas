@@ -800,6 +800,7 @@ var
   VValueConverter: IValueToStringConverter;
   VList: IInterfaceListSimple;
 begin
+  Result := nil;
   VValueConverter := FValueToStringConverter.GetStatic;
   VList := TInterfaceListSimple.Create;
   if ACancelNotifier.IsOperationCanceled(AOperationID) then Exit;
