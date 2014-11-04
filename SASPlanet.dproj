@@ -207,6 +207,19 @@
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibPng.pas" />
     <DCCReference Include="BitmapTileSaveLoad\u_BitmapTileSaveLoadFactory.pas" />
+    <DCCReference Include="Browser\c_InternalBrowser.pas" />
+    <DCCReference Include="Browser\frm_IntrnalBrowser.pas">
+      <Form>frmIntrnalBrowser</Form>
+    </DCCReference>
+    <DCCReference Include="Browser\frm_InvisibleBrowser.pas">
+      <Form>frmInvisibleBrowser</Form>
+    </DCCReference>
+    <DCCReference Include="Browser\i_InternalBrowser.pas" />
+    <DCCReference Include="Browser\i_InternalBrowserLastContent.pas" />
+    <DCCReference Include="Browser\i_InvisibleBrowser.pas" />
+    <DCCReference Include="Browser\u_InternalBrowserByForm.pas" />
+    <DCCReference Include="Browser\u_InternalBrowserLastContent.pas" />
+    <DCCReference Include="Browser\u_InvisibleBrowserByFormSynchronize.pas" />
     <DCCReference Include="CacheManager\frm_CacheManager.pas">
       <Form>frmCacheManager</Form>
     </DCCReference>
@@ -292,7 +305,6 @@
     <DCCReference Include="CoordConvert\u_ProjectionInfo.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfoFactory.pas" />
     <DCCReference Include="c_ImageResampler.pas" />
-    <DCCReference Include="c_InternalBrowser.pas" />
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
     </DCCReference>
@@ -301,12 +313,6 @@
     </DCCReference>
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
-    </DCCReference>
-    <DCCReference Include="frm_IntrnalBrowser.pas">
-      <Form>frmIntrnalBrowser</Form>
-    </DCCReference>
-    <DCCReference Include="frm_InvisibleBrowser.pas">
-      <Form>frmInvisibleBrowser</Form>
     </DCCReference>
     <DCCReference Include="frm_LonLatRectEdit.pas">
       <Form>frmLonLatRectEdit</Form>
@@ -448,10 +454,7 @@
     <DCCReference Include="i_ImageResamplerFactory.pas" />
     <DCCReference Include="i_ImageResamplerFactoryChangeable.pas" />
     <DCCReference Include="i_InterfaceQueue.pas" />
-    <DCCReference Include="i_InternalBrowser.pas" />
-    <DCCReference Include="i_InternalBrowserLastContent.pas" />
     <DCCReference Include="i_InternalDebugConfig.pas" />
-    <DCCReference Include="i_InvisibleBrowser.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_LanguageManager.pas" />
@@ -1270,10 +1273,7 @@
     <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_ImportFromArcGIS.pas" />
     <DCCReference Include="u_InterfaceQueue.pas" />
-    <DCCReference Include="u_InternalBrowserByForm.pas" />
-    <DCCReference Include="u_InternalBrowserLastContent.pas" />
     <DCCReference Include="u_InternalDebugConfig.pas" />
-    <DCCReference Include="u_InvisibleBrowserByFormSynchronize.pas" />
     <DCCReference Include="u_KeyMovingConfig.pas" />
     <DCCReference Include="u_KeyMovingHandler.pas" />
     <DCCReference Include="u_LanguageListStatic.pas" />
