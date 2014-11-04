@@ -2,7 +2,7 @@ object frmSettings: TfrmSettings
   Left = 293
   Top = 114
   Caption = 'Options'
-  ClientHeight = 441
+  ClientHeight = 546
   ClientWidth = 652
   Color = clBtnFace
   Constraints.MinHeight = 468
@@ -20,8 +20,8 @@ object frmSettings: TfrmSettings
     Left = 0
     Top = 0
     Width = 652
-    Height = 410
-    ActivePage = tsPaths
+    Height = 515
+    ActivePage = tsMaps
     Align = alClient
     TabOrder = 0
     object tsMaps: TTabSheet
@@ -85,7 +85,7 @@ object frmSettings: TfrmSettings
           Left = 3
           Top = 3
           Width = 54
-          Height = 19
+          Height = 13
           Align = alLeft
           Caption = 'DBMS root:'
           Layout = tlCenter
@@ -549,7 +549,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 644
-        Height = 382
+        Height = 487
         Align = alClient
         BevelOuter = bvNone
         ColumnCollection = <
@@ -579,7 +579,7 @@ object frmSettings: TfrmSettings
           Left = 0
           Top = 0
           Width = 322
-          Height = 382
+          Height = 487
           Align = alClient
           BevelOuter = bvNone
           BorderWidth = 3
@@ -919,7 +919,7 @@ object frmSettings: TfrmSettings
           Left = 322
           Top = 0
           Width = 322
-          Height = 382
+          Height = 487
           Align = alClient
           BevelEdges = [beLeft]
           BevelKind = bkTile
@@ -1708,7 +1708,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 644
-        Height = 382
+        Height = 487
         Align = alClient
         BevelOuter = bvNone
         BorderWidth = 3
@@ -1904,7 +1904,7 @@ object frmSettings: TfrmSettings
   end
   object pnlBottomButtons: TPanel
     Left = 0
-    Top = 410
+    Top = 515
     Width = 652
     Height = 31
     Align = alBottom
