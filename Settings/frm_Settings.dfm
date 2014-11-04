@@ -675,7 +675,7 @@ object frmSettings: TfrmSettings
               Left = 6
               Top = 6
               Width = 47
-              Height = 26
+              Height = 13
               Align = alLeft
               Alignment = taRightJustify
               Caption = 'Language'
@@ -689,7 +689,7 @@ object frmSettings: TfrmSettings
               Height = 21
               Align = alClient
               Style = csDropDownList
-              ItemHeight = 13
+              ItemHeight = 0
               TabOrder = 0
               OnChange = CBoxLocalChange
             end
@@ -1539,7 +1539,7 @@ object frmSettings: TfrmSettings
         Left = 0
         Top = 0
         Width = 644
-        Height = 382
+        Height = 487
         Align = alClient
         BevelOuter = bvNone
         FlowStyle = fsTopBottomLeftRight
@@ -1747,7 +1747,7 @@ object frmSettings: TfrmSettings
             Top = 3
             Width = 89
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
             Text = 'COM1'
           end

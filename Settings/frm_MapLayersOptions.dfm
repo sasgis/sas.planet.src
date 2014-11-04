@@ -468,7 +468,7 @@ object frmMapLayersOptions: TfrmMapLayersOptions
         Top = 71
         Width = 310
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 2
         Text = 'cbbElevProviderList'
       end

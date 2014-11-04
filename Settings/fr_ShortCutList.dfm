@@ -33,7 +33,7 @@ object frShortCutList: TfrShortCutList
       Left = 3
       Top = 3
       Width = 22
-      Height = 19
+      Height = 13
       Align = alLeft
       Caption = 'Task'
       Layout = tlCenter
@@ -43,7 +43,7 @@ object frShortCutList: TfrShortCutList
       Left = 414
       Top = 3
       Width = 34
-      Height = 19
+      Height = 13
       Align = alRight
       Caption = 'Hotkey'
       Layout = tlCenter

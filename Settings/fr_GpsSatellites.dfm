@@ -44,7 +44,7 @@ object frGpsSatellites: TfrGpsSatellites
         Left = 31
         Top = 3
         Width = 74
-        Height = 11
+        Height = 13
         Margins.Left = 10
         Margins.Top = 0
         Margins.Right = 0
@@ -88,7 +88,7 @@ object frGpsSatellites: TfrGpsSatellites
         Left = 31
         Top = 3
         Width = 85
-        Height = 11
+        Height = 13
         Margins.Left = 10
         Margins.Top = 0
         Margins.Right = 0
@@ -110,7 +110,7 @@ object frGpsSatellites: TfrGpsSatellites
         Left = 31
         Top = 3
         Width = 104
-        Height = 11
+        Height = 13
         Margins.Left = 10
         Margins.Top = 0
         Margins.Right = 0

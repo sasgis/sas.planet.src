@@ -94,7 +94,7 @@ object frGPSConfig: TfrGPSConfig
             Top = 0
             Width = 68
             Height = 21
-            ItemHeight = 13
+            ItemHeight = 0
             TabOrder = 0
             Text = 'COM1'
           end

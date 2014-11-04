@@ -314,35 +314,14 @@
     <DCCReference Include="frm_Main.pas">
       <Form>frmMain</Form>
     </DCCReference>
-    <DCCReference Include="frm_MapLayersOptions.pas">
-      <Form>frmMapLayersOptions</Form>
-    </DCCReference>
     <DCCReference Include="frm_MarkInfo.pas">
       <Form>frmMarkInfo</Form>
-    </DCCReference>
-    <DCCReference Include="frm_Settings.pas">
-      <Form>frmSettings</Form>
-    </DCCReference>
-    <DCCReference Include="frm_ShortCutEdit.pas">
-      <Form>frmShortCutEdit</Form>
     </DCCReference>
     <DCCReference Include="frm_StartLogo.pas">
       <Form>frmStartLogo</Form>
     </DCCReference>
-    <DCCReference Include="fr_GPSConfig.pas">
-      <Form>frGPSConfig</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="fr_GpsSatellites.pas">
-      <Form>frGpsSatellites</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
     <DCCReference Include="fr_LonLat.pas">
       <Form>frLonLat</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="fr_MapsList.pas">
-      <Form>frMapsList</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="fr_PictureSelectFromList.pas">
@@ -355,10 +334,6 @@
     </DCCReference>
     <DCCReference Include="fr_SelectedPicture.pas">
       <Form>frSelectedPicture</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
-    <DCCReference Include="fr_ShortCutList.pas">
-      <Form>frShortCutList</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="GeoCalc\i_DistanceCalculator.pas" />
@@ -1097,6 +1072,31 @@
     <DCCReference Include="Sensor\u_SensorViewConfigSimple.pas" />
     <DCCReference Include="Sensor\u_SensorViewListGeneratorStuped.pas" />
     <DCCReference Include="Sensor\u_SensorViewTextTBXPanel.pas" />
+    <DCCReference Include="Settings\frm_MapLayersOptions.pas">
+      <Form>frmMapLayersOptions</Form>
+    </DCCReference>
+    <DCCReference Include="Settings\frm_Settings.pas">
+      <Form>frmSettings</Form>
+    </DCCReference>
+    <DCCReference Include="Settings\frm_ShortCutEdit.pas">
+      <Form>frmShortCutEdit</Form>
+    </DCCReference>
+    <DCCReference Include="Settings\fr_GPSConfig.pas">
+      <Form>frGPSConfig</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="Settings\fr_GpsSatellites.pas">
+      <Form>frGpsSatellites</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="Settings\fr_MapsList.pas">
+      <Form>frMapsList</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="Settings\fr_ShortCutList.pas">
+      <Form>frShortCutList</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="Synchronize\i_ReadWriteSyncFactory.pas" />
     <DCCReference Include="Synchronize\i_Synchronizer.pas" />
     <DCCReference Include="Synchronize\u_ReadWriteSyncAbstract.pas" />
