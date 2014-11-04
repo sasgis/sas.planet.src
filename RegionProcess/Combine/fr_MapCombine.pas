@@ -135,6 +135,7 @@ type
     lblLayerCaption: TLabel;
     chkSaveGeoRefInfoToJpegExif: TCheckBox;
     chkUseMapGrids: TCheckBox;
+    pnlMaps: TPanel;
     procedure cbbZoomChange(Sender: TObject);
     procedure btnSelectTargetFileClick(Sender: TObject);
   private

@@ -9,7 +9,6 @@ object frMapCombine: TfrMapCombine
   ParentShowHint = False
   ShowHint = True
   TabOrder = 0
-  ExplicitHeight = 304
   object pnlTargetFile: TPanel
     Left = 0
     Top = 0
@@ -31,7 +30,6 @@ object frMapCombine: TfrMapCombine
       Align = alLeft
       Caption = 'Save to:'
       Layout = tlCenter
-      ExplicitHeight = 13
     end
     object edtTargetFile: TEdit
       Left = 47
@@ -40,7 +38,6 @@ object frMapCombine: TfrMapCombine
       Height = 19
       Align = alClient
       TabOrder = 0
-      ExplicitHeight = 21
     end
     object btnSelectTargetFile: TButton
       Left = 511
@@ -55,25 +52,23 @@ object frMapCombine: TfrMapCombine
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 150
+    Top = 153
     Width = 535
-    Height = 116
+    Height = 113
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitHeight = 154
     object pnlOptions: TPanel
       Left = 0
       Top = 0
       Width = 210
-      Height = 116
+      Height = 113
       Align = alClient
       BevelOuter = bvNone
       BorderWidth = 3
       Constraints.MinHeight = 80
       Constraints.MinWidth = 210
       TabOrder = 0
-      ExplicitHeight = 154
       object chkUseMapMarks: TCheckBox
         Left = 3
         Top = 71
@@ -161,13 +156,12 @@ object frMapCombine: TfrMapCombine
       Left = 210
       Top = 0
       Width = 157
-      Height = 116
+      Height = 113
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
       Constraints.MinWidth = 157
       TabOrder = 1
-      ExplicitHeight = 154
       object lblPrTypes: TLabel
         Left = 3
         Top = 3
@@ -182,7 +176,7 @@ object frMapCombine: TfrMapCombine
         Left = 3
         Top = 18
         Width = 151
-        Height = 95
+        Height = 92
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -192,21 +186,19 @@ object frMapCombine: TfrMapCombine
           '.dat'
           '.kml')
         TabOrder = 0
-        ExplicitHeight = 133
       end
     end
     object pnlSplit: TPanel
       Left = 367
       Top = 0
       Width = 168
-      Height = 116
+      Height = 113
       Align = alRight
       BevelOuter = bvNone
       BorderWidth = 3
       Constraints.MinHeight = 71
       Constraints.MinWidth = 168
       TabOrder = 2
-      ExplicitHeight = 154
       object grpSplit: TGroupBox
         Left = 3
         Top = 3
@@ -257,28 +249,17 @@ object frMapCombine: TfrMapCombine
     Left = 0
     Top = 25
     Width = 535
-    Height = 125
+    Height = 128
     Align = alTop
     BevelEdges = [beBottom]
     BevelKind = bkTile
     BevelOuter = bvNone
     TabOrder = 2
-    object lblStat: TLabel
-      AlignWithMargins = True
-      Left = 3
-      Top = 110
-      Width = 529
-      Height = 13
-      Align = alBottom
-      Caption = '_'
-      Layout = tlCenter
-      ExplicitWidth = 6
-    end
     object pnlZoom: TPanel
       Left = 464
       Top = 0
       Width = 71
-      Height = 107
+      Height = 126
       Align = alRight
       Alignment = taLeftJustify
       BevelEdges = []
@@ -307,83 +288,96 @@ object frMapCombine: TfrMapCombine
         OnChange = cbbZoomChange
       end
     end
-    object pnlMapFrame: TPanel
-      Left = 3
-      Top = -2
-      Width = 623
-      Height = 40
-      Align = alCustom
-      Alignment = taLeftJustify
-      Anchors = [akLeft, akTop, akRight]
+    object pnlMaps: TPanel
+      Left = 0
+      Top = 0
+      Width = 464
+      Height = 126
+      Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      object lblMapCaption: TLabel
-        Left = 0
-        Top = 0
-        Width = 623
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Align = alTop
-        Caption = 'Map:'
-        ExplicitWidth = 24
-      end
-    end
-    object pnlLayerFrame: TPanel
-      Left = 3
-      Top = 38
-      Width = 623
-      Height = 40
-      Align = alCustom
-      Alignment = taLeftJustify
-      Anchors = [akLeft, akTop, akRight]
-      BevelOuter = bvNone
-      TabOrder = 2
-      object lblLayerCaption: TLabel
-        Left = 0
-        Top = 0
-        Width = 623
-        Height = 13
-        Margins.Left = 0
-        Margins.Top = 0
-        Align = alTop
-        Caption = 'Overlay layer:'
-        ExplicitWidth = 69
-      end
-    end
-    object pnlProjection: TPanel
-      Left = 0
-      Top = 80
-      Width = 703
-      Height = 21
-      Align = alCustom
-      Anchors = [akLeft, akTop, akRight]
-      BevelOuter = bvNone
-      TabOrder = 3
-      object lblProjection: TLabel
+      object lblStat: TLabel
         AlignWithMargins = True
         Left = 3
-        Top = 0
-        Width = 52
-        Height = 19
-        Margins.Top = 0
-        Margins.Right = 5
-        Margins.Bottom = 2
-        Align = alLeft
-        Caption = 'Projection:'
+        Top = 113
+        Width = 458
+        Height = 13
+        Align = alBottom
+        Caption = '_'
         Layout = tlCenter
-        ExplicitHeight = 13
       end
-      object cbbProjection: TComboBox
-        Left = 63
+      object pnlMapFrame: TPanel
+        Left = 0
         Top = 0
-        Width = 637
-        Height = 21
-        Align = alCustom
-        Style = csDropDownList
-        Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        Width = 464
+        Height = 40
+        Align = alTop
+        Alignment = taLeftJustify
+        BevelOuter = bvNone
         TabOrder = 0
+        object lblMapCaption: TLabel
+          Left = 0
+          Top = 0
+          Width = 464
+          Height = 13
+          Margins.Left = 0
+          Margins.Top = 0
+          Align = alTop
+          Caption = 'Map:'
+        end
+      end
+      object pnlLayerFrame: TPanel
+        Left = 0
+        Top = 40
+        Width = 464
+        Height = 40
+        Align = alTop
+        Alignment = taLeftJustify
+        BevelOuter = bvNone
+        TabOrder = 1
+        object lblLayerCaption: TLabel
+          Left = 0
+          Top = 0
+          Width = 464
+          Height = 13
+          Margins.Left = 0
+          Margins.Top = 0
+          Align = alTop
+          Caption = 'Overlay layer:'
+        end
+      end
+      object pnlProjection: TPanel
+        Left = 0
+        Top = 80
+        Width = 464
+        Height = 21
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 2
+        object lblProjection: TLabel
+          AlignWithMargins = True
+          Left = 3
+          Top = 0
+          Width = 52
+          Height = 19
+          Margins.Top = 0
+          Margins.Right = 5
+          Margins.Bottom = 2
+          Align = alLeft
+          Caption = 'Projection:'
+          Layout = tlCenter
+        end
+        object cbbProjection: TComboBox
+          Left = 63
+          Top = 0
+          Width = 398
+          Height = 21
+          Align = alCustom
+          Style = csDropDownList
+          Anchors = [akLeft, akTop, akRight]
+          ItemHeight = 13
+          TabOrder = 0
+        end
       end
     end
   end
