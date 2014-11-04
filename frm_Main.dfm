@@ -1153,6 +1153,7 @@ object frmMain: TfrmMain
           Hint = ''
         end
         object tbitmPointProject: TTBXItem
+          Images = PanelsImageList
           OnClick = tbitmPointProjectClick
           Caption = 'Project Point'
           Hint = ''
