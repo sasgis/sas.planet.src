@@ -31,7 +31,6 @@ object frmMarkInfo: TfrmMarkInfo
     Align = alTop
     ReadOnly = True
     TabOrder = 0
-    ExplicitTop = 8
   end
   object embdwbDesc: TEmbeddedWB
     Left = 0
@@ -40,16 +39,16 @@ object frmMarkInfo: TfrmMarkInfo
     Height = 235
     Align = alClient
     TabOrder = 1
-    Silent = False
     DisableCtrlShortcuts = 'N'
     UserInterfaceOptions = [EnablesFormsAutoComplete, EnableThemes]
     About = ' EmbeddedWB http://bsalsa.com/'
+    PrintOptions.Margins.Left = 19.050000000000000000
+    PrintOptions.Margins.Right = 19.050000000000000000
+    PrintOptions.Margins.Top = 19.050000000000000000
+    PrintOptions.Margins.Bottom = 19.050000000000000000
     PrintOptions.HTMLHeader.Strings = (
       '<HTML></HTML>')
     PrintOptions.Orientation = poPortrait
-    ExplicitLeft = 72
-    ExplicitTop = 128
-    ExplicitHeight = 181
     ControlData = {
       4C000000722900004A1800000000000000000000000000000000000000000000
       000000004C000000000000000000000001000000E0D057007335CF11AE690800
