@@ -48,8 +48,8 @@ object frmDebugInfo: TfrmDebugInfo
     object lblFiltering: TLabel
       Left = 378
       Top = 0
-      Width = 93
-      Height = 29
+      Width = 38
+      Height = 13
       Hint = 'Filtering'
       Align = alClient
       Caption = 'Filtering'
@@ -60,8 +60,6 @@ object frmDebugInfo: TfrmDebugInfo
       Font.Style = []
       ParentFont = False
       Layout = tlCenter
-      ExplicitWidth = 38
-      ExplicitHeight = 13
     end
     object btnRefresh: TButton
       AlignWithMargins = True

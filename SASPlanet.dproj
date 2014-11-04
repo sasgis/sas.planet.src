@@ -305,11 +305,18 @@
     <DCCReference Include="CoordConvert\u_ProjectionInfo.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfoFactory.pas" />
     <DCCReference Include="c_ImageResampler.pas" />
+    <DCCReference Include="Debug\frm_DebugInfo.pas">
+      <Form>frmDebugInfo</Form>
+    </DCCReference>
+    <DCCReference Include="Debug\i_DebugInfoSubSystem.pas" />
+    <DCCReference Include="Debug\i_DebugInfoWindow.pas" />
+    <DCCReference Include="Debug\i_InternalDebugConfig.pas" />
+    <DCCReference Include="Debug\u_BaseInterfacedObjectDebug.pas" />
+    <DCCReference Include="Debug\u_DebugInfoSubSystem.pas" />
+    <DCCReference Include="Debug\u_DebugInfoWindow.pas" />
+    <DCCReference Include="Debug\u_InternalDebugConfig.pas" />
     <DCCReference Include="frm_About.pas">
       <Form>frmAbout</Form>
-    </DCCReference>
-    <DCCReference Include="frm_DebugInfo.pas">
-      <Form>frmDebugInfo</Form>
     </DCCReference>
     <DCCReference Include="frm_GoTo.pas">
       <Form>frmGoTo</Form>
@@ -432,8 +439,6 @@
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileProvider.pas" />
     <DCCReference Include="i_CmdLineArgProcessor.pas" />
-    <DCCReference Include="i_DebugInfoSubSystem.pas" />
-    <DCCReference Include="i_DebugInfoWindow.pas" />
     <DCCReference Include="i_ErrorInfo.pas" />
     <DCCReference Include="i_ErrorLogger.pas" />
     <DCCReference Include="i_FindVectorItems.pas" />
@@ -451,7 +456,6 @@
     <DCCReference Include="i_ImageResamplerFactory.pas" />
     <DCCReference Include="i_ImageResamplerFactoryChangeable.pas" />
     <DCCReference Include="i_InterfaceQueue.pas" />
-    <DCCReference Include="i_InternalDebugConfig.pas" />
     <DCCReference Include="i_KeyMovingConfig.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_LastSearchResult.pas" />
@@ -1237,7 +1241,6 @@
     <DCCReference Include="UpdateChecker\u_UpdateDownloader.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
     <DCCReference Include="u_BaseGridConfig.pas" />
-    <DCCReference Include="u_BaseInterfacedObjectDebug.pas" />
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BitmapFunc.pas" />
     <DCCReference Include="u_BitmapPostProcessing.pas" />
@@ -1248,8 +1251,6 @@
     <DCCReference Include="u_CmdLineArgProcessorAPI.pas" />
     <DCCReference Include="u_CmdLineArgProcessorHelpers.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
-    <DCCReference Include="u_DebugInfoSubSystem.pas" />
-    <DCCReference Include="u_DebugInfoWindow.pas" />
     <DCCReference Include="u_ErrorInfoSimple.pas" />
     <DCCReference Include="u_FindVectorItemsForVectorMaps.pas" />
     <DCCReference Include="u_GeoFunc.pas" />
@@ -1275,7 +1276,6 @@
     <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_ImportFromArcGIS.pas" />
     <DCCReference Include="u_InterfaceQueue.pas" />
-    <DCCReference Include="u_InternalDebugConfig.pas" />
     <DCCReference Include="u_KeyMovingConfig.pas" />
     <DCCReference Include="u_KeyMovingHandler.pas" />
     <DCCReference Include="u_LanguageListStatic.pas" />
