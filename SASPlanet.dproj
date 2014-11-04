@@ -655,6 +655,7 @@
     <DCCReference Include="MapSvcScan\u_AvailPicsTerra.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanConfig.pas" />
     <DCCReference Include="MapSvcScan\u_MapSvcScanStorage.pas" />
+    <DCCReference Include="MapSvcScan\u_XmlLoaderByVSAGPS.pas" />
     <DCCReference Include="MapType\frm_MapTypeEdit.pas">
       <Form>frmMapTypeEdit</Form>
     </DCCReference>
@@ -902,6 +903,7 @@
       <DesignClass>TFrame</DesignClass>
       <Form>frMapCombine</Form>
     </DCCReference>
+    <DCCReference Include="RegionProcess\Combine\u_ECWWrite.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombine.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineBMP.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineECW.pas" />
@@ -1241,7 +1243,6 @@
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_DebugInfoSubSystem.pas" />
     <DCCReference Include="u_DebugInfoWindow.pas" />
-    <DCCReference Include="u_ECWWrite.pas" />
     <DCCReference Include="u_ErrorInfoSimple.pas" />
     <DCCReference Include="u_FileNameFunc.pas" />
     <DCCReference Include="u_FindVectorItemsForVectorMaps.pas" />
@@ -1402,7 +1403,6 @@
     <DCCReference Include="u_VectorItemDrawConfig.pas" />
     <DCCReference Include="u_VectorTileProviderByStorage.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />
-    <DCCReference Include="u_XmlLoaderByVSAGPS.pas" />
     <DCCReference Include="VectorLoaders\i_XmlVectorObjects.pas" />
     <DCCReference Include="VectorLoaders\u_CsvParser.pas" />
     <DCCReference Include="VectorLoaders\u_HlgParser.pas" />
