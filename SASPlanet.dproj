@@ -418,6 +418,9 @@
     <DCCReference Include="GPS\u_GpsTrackRecorder.pas" />
     <DCCReference Include="InternalDomain\i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="InternalDomain\i_InternalDomainOptions.pas" />
+    <DCCReference Include="InternalDomain\u_IeEmbeddedProtocol.pas" />
+    <DCCReference Include="InternalDomain\u_IeEmbeddedProtocolFactory.pas" />
+    <DCCReference Include="InternalDomain\u_IeEmbeddedProtocolRegistration.pas" />
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByDataProvider.pas" />
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByLastContent.pas" />
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByLastSearchResults.pas" />
@@ -444,7 +447,6 @@
     <DCCReference Include="i_HashInterfaceCache.pas" />
     <DCCReference Include="i_HashMatrix.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
-    <DCCReference Include="i_ImageLineProvider.pas" />
     <DCCReference Include="i_ImageResamplerConfig.pas" />
     <DCCReference Include="i_ImageResamplerFactory.pas" />
     <DCCReference Include="i_ImageResamplerFactoryChangeable.pas" />
@@ -497,7 +499,6 @@
     <DCCReference Include="i_StringByLanguage.pas" />
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_StringProvider.pas" />
-    <DCCReference Include="i_SystemTimeProvider.pas" />
     <DCCReference Include="i_TextByVectorItem.pas" />
     <DCCReference Include="i_ThreadConfig.pas" />
     <DCCReference Include="i_TileError.pas" />
@@ -931,7 +932,9 @@
       <DesignClass>TFrame</DesignClass>
       <Form>frMapCombine</Form>
     </DCCReference>
+    <DCCReference Include="RegionProcess\Combine\i_ImageLineProvider.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ECWWrite.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_ImageLineProvider.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombine.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineBMP.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombineECW.pas" />
@@ -1140,6 +1143,7 @@
     <DCCReference Include="System\i_BatteryStatus.pas" />
     <DCCReference Include="System\i_BuildInfo.pas" />
     <DCCReference Include="System\i_LanguageManager.pas" />
+    <DCCReference Include="System\i_SystemTimeProvider.pas" />
     <DCCReference Include="System\u_AppEnum.pas" />
     <DCCReference Include="System\u_BaseInterfacedObject.pas" />
     <DCCReference Include="System\u_BatteryStatus.pas" />
@@ -1149,6 +1153,7 @@
     <DCCReference Include="System\u_GarbageCollectorThread.pas" />
     <DCCReference Include="System\u_LanguageManager.pas" />
     <DCCReference Include="System\u_LanguagesEx.pas" />
+    <DCCReference Include="System\u_SystemTimeProvider.pas" />
     <DCCReference Include="Terrain\c_TerrainProvider.pas" />
     <DCCReference Include="Terrain\c_TerrainProviderGUID.pas" />
     <DCCReference Include="Terrain\External\u_ExternalTerrainAPI.pas" />
@@ -1290,10 +1295,6 @@
     <DCCReference Include="u_HashInterfaceCache2Q.pas" />
     <DCCReference Include="u_HashMatrix.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
-    <DCCReference Include="u_IeEmbeddedProtocol.pas" />
-    <DCCReference Include="u_IeEmbeddedProtocolFactory.pas" />
-    <DCCReference Include="u_IeEmbeddedProtocolRegistration.pas" />
-    <DCCReference Include="u_ImageLineProvider.pas" />
     <DCCReference Include="u_ImageResamplerConfig.pas" />
     <DCCReference Include="u_ImageResamplerFactory.pas" />
     <DCCReference Include="u_ImageResamplerFactoryChangeableByConfig.pas" />
@@ -1374,7 +1375,6 @@
     <DCCReference Include="u_StringByLanguageWithStaticList.pas" />
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_StringProviderForMapTileItem.pas" />
-    <DCCReference Include="u_SystemTimeProvider.pas" />
     <DCCReference Include="u_TextByVectorItemHTMLByDescription.pas" />
     <DCCReference Include="u_TextByVectorItemMarkInfo.pas" />
     <DCCReference Include="u_ThreadConfig.pas" />
