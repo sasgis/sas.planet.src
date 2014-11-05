@@ -315,22 +315,6 @@
     <DCCReference Include="Debug\u_DebugInfoSubSystem.pas" />
     <DCCReference Include="Debug\u_DebugInfoWindow.pas" />
     <DCCReference Include="Debug\u_InternalDebugConfig.pas" />
-    <DCCReference Include="frm_About.pas">
-      <Form>frmAbout</Form>
-    </DCCReference>
-    <DCCReference Include="frm_GoTo.pas">
-      <Form>frmGoTo</Form>
-    </DCCReference>
-    <DCCReference Include="frm_LonLatRectEdit.pas">
-      <Form>frmLonLatRectEdit</Form>
-    </DCCReference>
-    <DCCReference Include="frm_StartLogo.pas">
-      <Form>frmStartLogo</Form>
-    </DCCReference>
-    <DCCReference Include="fr_LonLat.pas">
-      <Form>frLonLat</Form>
-      <DesignClass>TFrame</DesignClass>
-    </DCCReference>
     <DCCReference Include="GeoCalc\i_DistanceCalculator.pas" />
     <DCCReference Include="GeoCalc\i_GeoCalc.pas" />
     <DCCReference Include="GeoCalc\i_PolygonAreaCalculator.pas" />
@@ -1091,6 +1075,22 @@
     <DCCReference Include="Routing\u_PathDetalizeProviderYourNavigation.pas" />
     <DCCReference Include="Routing\u_TreeByPathDetalizeProviderList.pas" />
     <DCCReference Include="SASPlanet.modules.pas" />
+    <DCCReference Include="SecondaryForms\frm_About.pas">
+      <Form>frmAbout</Form>
+    </DCCReference>
+    <DCCReference Include="SecondaryForms\frm_GoTo.pas">
+      <Form>frmGoTo</Form>
+    </DCCReference>
+    <DCCReference Include="SecondaryForms\frm_LonLatRectEdit.pas">
+      <Form>frmLonLatRectEdit</Form>
+    </DCCReference>
+    <DCCReference Include="SecondaryForms\frm_StartLogo.pas">
+      <Form>frmStartLogo</Form>
+    </DCCReference>
+    <DCCReference Include="SecondaryForms\fr_LonLat.pas">
+      <Form>frLonLat</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="Sensor\c_SensorsGUIDSimple.pas" />
     <DCCReference Include="Sensor\i_Sensor.pas" />
     <DCCReference Include="Sensor\i_SensorList.pas" />

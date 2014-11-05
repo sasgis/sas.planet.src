@@ -40,7 +40,7 @@ object frmStartLogo: TfrmStartLogo
     object lblWebSite: TLabel
       Left = 8
       Top = 254
-      Width = 91
+      Width = 99
       Height = 16
       Caption = 'http://sasgis.org'
       Font.Charset = DEFAULT_CHARSET

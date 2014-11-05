@@ -19,8 +19,6 @@ object frmAbout: TfrmAbout
     Height = 3
     Align = alBottom
     Shape = bsTopLine
-    ExplicitTop = 123
-    ExplicitWidth = 337
   end
   object lblVersionCatpion: TLabel
     Left = 16
@@ -198,7 +196,6 @@ object frmAbout: TfrmAbout
     Padding.Bottom = 2
     ParentColor = True
     TabOrder = 0
-    ExplicitTop = 212
     object btnClose: TButton
       Left = 198
       Top = 2

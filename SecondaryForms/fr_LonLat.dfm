@@ -1,8 +1,8 @@
 object frLonLat: TfrLonLat
   Left = 0
   Top = 0
-  Width = 450
-  Height = 297
+  Width = 451
+  Height = 304
   VertScrollBar.Visible = False
   Align = alClient
   Constraints.MaxHeight = 304
@@ -14,7 +14,7 @@ object frLonLat: TfrLonLat
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 450
+    Width = 451
     Height = 24
     Align = alTop
     BevelOuter = bvNone
@@ -39,7 +39,7 @@ object frLonLat: TfrLonLat
   object grdpnlLonLat: TGridPanel
     Left = 0
     Top = 24
-    Width = 450
+    Width = 451
     Height = 48
     Align = alTop
     BevelOuter = bvNone
@@ -85,7 +85,7 @@ object frLonLat: TfrLonLat
       Left = 3
       Top = 27
       Width = 51
-      Height = 21
+      Height = 13
       Align = alRight
       Alignment = taRightJustify
       Caption = 'Longitude:'
@@ -122,7 +122,7 @@ object frLonLat: TfrLonLat
       Left = 11
       Top = 3
       Width = 43
-      Height = 21
+      Height = 13
       Align = alRight
       Alignment = taRightJustify
       Caption = 'Latitude:'
@@ -133,7 +133,7 @@ object frLonLat: TfrLonLat
     AlignWithMargins = True
     Left = 0
     Top = 72
-    Width = 450
+    Width = 451
     Height = 48
     Margins.Left = 0
     Margins.Top = 0
@@ -146,7 +146,7 @@ object frLonLat: TfrLonLat
     object grdpnlXY: TGridPanel
       Left = 0
       Top = 0
-      Width = 392
+      Width = 393
       Height = 48
       Align = alClient
       BevelOuter = bvNone
@@ -192,7 +192,7 @@ object frLonLat: TfrLonLat
         Left = 3
         Top = 27
         Width = 10
-        Height = 21
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         Caption = 'Y:'
@@ -229,7 +229,7 @@ object frLonLat: TfrLonLat
         Left = 3
         Top = 3
         Width = 10
-        Height = 21
+        Height = 13
         Align = alRight
         Alignment = taRightJustify
         Caption = 'X:'
@@ -237,7 +237,7 @@ object frLonLat: TfrLonLat
       end
     end
     object grdpnlZoom: TGridPanel
-      Left = 392
+      Left = 393
       Top = 0
       Width = 58
       Height = 48
