@@ -1494,7 +1494,7 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object labZoom: TLabel
-        Left = 24
+        Left = 8
         Top = 221
         Width = 14
         Height = 13
@@ -1514,7 +1514,7 @@ object frmMain: TfrmMain
         Transparent = True
       end
       object ZSlider: TImage32
-        Left = 18
+        Left = 2
         Top = 32
         Width = 25
         Height = 153

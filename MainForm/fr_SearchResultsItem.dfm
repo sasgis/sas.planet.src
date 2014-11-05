@@ -19,9 +19,6 @@ object frSearchResultsItem: TfrSearchResultsItem
     Margins.Bottom = 0
     Align = alTop
     Shape = bsTopLine
-    ExplicitLeft = 53
-    ExplicitTop = 3
-    ExplicitWidth = 69
   end
   object PanelCaption: TPanel
     Left = 0
@@ -71,7 +68,6 @@ object frSearchResultsItem: TfrSearchResultsItem
       Images = frmMain.MenusImageList
       ParentFont = False
       TabOrder = 0
-      ExplicitLeft = 428
       ChevronHint = ''
       object tbtmHide: TTBItem
         ImageIndex = 35
@@ -90,7 +86,6 @@ object frSearchResultsItem: TfrSearchResultsItem
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 22
     object LabelDesc: TLabel
       AlignWithMargins = True
       Left = 3
@@ -118,7 +113,6 @@ object frSearchResultsItem: TfrSearchResultsItem
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 42
     object LabelFullDescImg: TLabel
       AlignWithMargins = True
       Left = 376
@@ -187,7 +181,6 @@ object frSearchResultsItem: TfrSearchResultsItem
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 82
     object LabelFullDescShort: TLabel
       AlignWithMargins = True
       Left = 376
@@ -217,7 +210,6 @@ object frSearchResultsItem: TfrSearchResultsItem
     AutoSize = True
     BevelOuter = bvNone
     TabOrder = 4
-    ExplicitTop = 36
     object LabelCategory: TLabel
       AlignWithMargins = True
       Left = 3
