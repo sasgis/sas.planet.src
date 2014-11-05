@@ -419,8 +419,6 @@
     <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileProvider.pas" />
     <DCCReference Include="i_CmdLineArgProcessor.pas" />
-    <DCCReference Include="i_ErrorInfo.pas" />
-    <DCCReference Include="i_ErrorLogger.pas" />
     <DCCReference Include="i_FindVectorItems.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
     <DCCReference Include="i_GlobalCacheConfig.pas" />
@@ -439,8 +437,6 @@
     <DCCReference Include="i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="i_LayerDrawConfig.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
-    <DCCReference Include="i_LogSimple.pas" />
-    <DCCReference Include="i_LogSimpleProvider.pas" />
     <DCCReference Include="i_LonLatRect.pas" />
     <DCCReference Include="i_MainGeoCoderConfig.pas" />
     <DCCReference Include="i_MainMapLayerConfig.pas" />
@@ -485,8 +481,6 @@
     <DCCReference Include="i_StringProvider.pas" />
     <DCCReference Include="i_TextByVectorItem.pas" />
     <DCCReference Include="i_ThreadConfig.pas" />
-    <DCCReference Include="i_TileError.pas" />
-    <DCCReference Include="i_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="i_TileInfoBasic.pas" />
     <DCCReference Include="i_TileInfoBasicMemCache.pas" />
     <DCCReference Include="i_TileIterator.pas" />
@@ -503,6 +497,16 @@
     <DCCReference Include="i_VectorTileProvider.pas" />
     <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_WindowPositionConfig.pas" />
+    <DCCReference Include="Logger\i_ErrorInfo.pas" />
+    <DCCReference Include="Logger\i_ErrorLogger.pas" />
+    <DCCReference Include="Logger\i_LogSimple.pas" />
+    <DCCReference Include="Logger\i_LogSimpleProvider.pas" />
+    <DCCReference Include="Logger\i_TileError.pas" />
+    <DCCReference Include="Logger\i_TileErrorLogProviedrStuped.pas" />
+    <DCCReference Include="Logger\u_ErrorInfoSimple.pas" />
+    <DCCReference Include="Logger\u_LogForTaskThread.pas" />
+    <DCCReference Include="Logger\u_TileErrorInfo.pas" />
+    <DCCReference Include="Logger\u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="MainForm\frm_Main.pas">
       <Form>frmMain</Form>
     </DCCReference>
@@ -1281,7 +1285,6 @@
     <DCCReference Include="u_CmdLineArgProcessorAPI.pas" />
     <DCCReference Include="u_CmdLineArgProcessorHelpers.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
-    <DCCReference Include="u_ErrorInfoSimple.pas" />
     <DCCReference Include="u_FindVectorItemsForVectorMaps.pas" />
     <DCCReference Include="u_GeoFunc.pas" />
     <DCCReference Include="u_GeoToStrFunc.pas" />
@@ -1305,7 +1308,6 @@
     <DCCReference Include="u_LanguageListStatic.pas" />
     <DCCReference Include="u_LayerDrawConfig.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
-    <DCCReference Include="u_LogForTaskThread.pas" />
     <DCCReference Include="u_LonLatRect.pas" />
     <DCCReference Include="u_LonLatRectByPoint.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
@@ -1378,8 +1380,6 @@
     <DCCReference Include="u_TextByVectorItemHTMLByDescription.pas" />
     <DCCReference Include="u_TextByVectorItemMarkInfo.pas" />
     <DCCReference Include="u_ThreadConfig.pas" />
-    <DCCReference Include="u_TileErrorInfo.pas" />
-    <DCCReference Include="u_TileErrorLogProviedrStuped.pas" />
     <DCCReference Include="u_TileInfoBasic.pas" />
     <DCCReference Include="u_TileInfoBasicMemCache.pas" />
     <DCCReference Include="u_TileIteratorByPolygon.pas" />
