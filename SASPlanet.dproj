@@ -456,13 +456,10 @@
     <DCCReference Include="i_NotifierTilePyramidUpdate.pas" />
     <DCCReference Include="i_ObjectWithListener.pas" />
     <DCCReference Include="i_PathConfig.pas" />
-    <DCCReference Include="i_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="i_ProjectedDrawableElement.pas" />
     <DCCReference Include="i_ReadWriteState.pas" />
     <DCCReference Include="i_ReadWriteStateInternal.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
-    <DCCReference Include="i_SearchResultPresenter.pas" />
-    <DCCReference Include="i_ShortCutModalEdit.pas" />
     <DCCReference Include="i_ShortCutSingleConfig.pas" />
     <DCCReference Include="i_StaticTreeBuilder.pas" />
     <DCCReference Include="i_StaticTreeItem.pas" />
@@ -521,6 +518,7 @@
     <DCCReference Include="MainForm\i_MouseState.pas" />
     <DCCReference Include="MainForm\i_PointOnMapEdit.pas" />
     <DCCReference Include="MainForm\i_PopUp.pas" />
+    <DCCReference Include="MainForm\i_SearchResultPresenter.pas" />
     <DCCReference Include="MainForm\i_SelectionRect.pas" />
     <DCCReference Include="MainForm\u_KeyMovingConfig.pas" />
     <DCCReference Include="MainForm\u_KeyMovingHandler.pas" />
@@ -558,6 +556,7 @@
     <DCCReference Include="MapLayers\i_MainMapLayerConfig.pas" />
     <DCCReference Include="MapLayers\i_MarkPolygonLayerConfig.pas" />
     <DCCReference Include="MapLayers\i_MarkPolyLineLayerConfig.pas" />
+    <DCCReference Include="MapLayers\i_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapColorer.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapLayerConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapColorerSimple.pas" />
@@ -569,6 +568,7 @@
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\GPSTrack\u_MapLayerGPSTrack.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\GPSTrack\u_MapLayerGPSTrackConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\i_MapLayerGridsConfig.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_BaseGridConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_DegreeGridConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_GenShtabGridConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGrids.pas" />
@@ -600,6 +600,8 @@
     <DCCReference Include="MapLayers\u_MainMapLayerConfig.pas" />
     <DCCReference Include="MapLayers\u_MarkPolygonLayerConfig.pas" />
     <DCCReference Include="MapLayers\u_MarkPolyLineLayerConfig.pas" />
+    <DCCReference Include="MapLayers\u_PointCaptionsLayerConfig.pas" />
+    <DCCReference Include="MapLayers\u_PointsSetLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\i_CalcLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayerConfig.pas" />
@@ -1157,6 +1159,8 @@
       <Form>frShortCutList</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="Settings\i_ShortCutModalEdit.pas" />
+    <DCCReference Include="Settings\u_ShortCutModalEditByForm.pas" />
     <DCCReference Include="Synchronize\i_ReadWriteSyncFactory.pas" />
     <DCCReference Include="Synchronize\i_Synchronizer.pas" />
     <DCCReference Include="Synchronize\u_ReadWriteSyncAbstract.pas" />
@@ -1297,7 +1301,6 @@
     <DCCReference Include="UpdateChecker\i_UpdateDownloader.pas" />
     <DCCReference Include="UpdateChecker\u_UpdateDownloader.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
-    <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BitmapFunc.pas" />
     <DCCReference Include="u_BitmapTileProviderByStorage.pas" />
@@ -1357,8 +1360,6 @@
     <DCCReference Include="u_ObjectFromPoolBase.pas" />
     <DCCReference Include="u_ObjectPoolBase.pas" />
     <DCCReference Include="u_PathConfig.pas" />
-    <DCCReference Include="u_PointCaptionsLayerConfig.pas" />
-    <DCCReference Include="u_PointsSetLayerConfig.pas" />
     <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
     <DCCReference Include="u_ReadWriteStateInternal.pas" />
     <DCCReference Include="u_ReadWriteStateInternalByOther.pas" />
@@ -1367,7 +1368,6 @@
     <DCCReference Include="u_SASMainConfigProvider.pas" />
     <DCCReference Include="u_SatellitesInViewMapDrawSimple.pas" />
     <DCCReference Include="u_ShortcutManager.pas" />
-    <DCCReference Include="u_ShortCutModalEditByForm.pas" />
     <DCCReference Include="u_ShortCutSingleConfig.pas" />
     <DCCReference Include="u_SortFunc.pas" />
     <DCCReference Include="u_SourceDataUpdateInRectByFillingMap.pas" />
