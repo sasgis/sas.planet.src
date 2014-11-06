@@ -414,6 +414,9 @@ type
     TBEditPathLabelLastOnly: TTBXItem;
     TBEditPathLabelShowAzimuth: TTBXItem;
     tbitmPointProject: TTBXItem;
+    TBXNextVer: TTBXItem;
+    TBXPrevVer: TTBXItem;
+    TBXSubmnMapVer: TTBXSubmenuItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -546,6 +549,7 @@ type
       var Accept: Boolean);
     procedure nokiamapcreator1Click(Sender: TObject);
     procedure tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
+    procedure NextVersion(AStep : integer);
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
     procedure tbitmCacheManagerClick(Sender: TObject);
@@ -575,6 +579,8 @@ type
     procedure TBEditPathLabelLastOnlyClick(Sender: TObject);
     procedure TBEditPathLabelShowAzimuthClick(Sender: TObject);
     procedure tbitmPointProjectClick(Sender: TObject);
+    procedure TBXNextVerClick(Sender: TObject);
+    procedure TBXPrevVerClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3115,6 +3121,7 @@ begin
   end else begin
     TBSMB.Caption := '';
   end;
+  TBXSubmnMapVer.Visible := VMapType.TileStorage.StorageTypeAbilities.IsVersioned;
 end;
 
 procedure TfrmMain.OnMapGUIChange;
@@ -3557,6 +3564,46 @@ begin
 
   // apply this version or clear (uncheck) version
   VMapType.VersionRequestConfig.ShowPrevVersion := tbpmiShowPrevVersion.Checked;
+end;
+
+procedure TfrmMain.NextVersion(AStep : integer);
+var
+  I: Integer;
+  VMapType: IMapType;
+  VLocalConverter: ILocalCoordConverter;
+  VZoomCurr: Byte;
+  VList: IMapVersionListStatic;
+  VMapTile: Tpoint;
+  VLonLat: TDoublePoint;
+  VIndex: integer;
+begin
+  VMapType := FConfig.MainMapsConfig.GetActiveMap.GetStatic;
+  if VMapType.TileStorage.StorageTypeAbilities.IsVersioned then begin
+    VLocalConverter := FViewPortState.View.GetStatic;
+    VIndex := -1;
+    VZoomCurr := VLocalConverter.GetZoom;
+    VLonLat := VLocalConverter.GetCenterLonLat;
+    if VMapType.GeoConvert.CheckLonLatPos(VLonLat) then begin
+      VMapTile :=
+        PointFromDoublePoint(
+          VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
+          prToTopLeft
+        );
+      VList := VMapType.TileStorage.GetListOfTileVersions(VMapTile, VZoomCurr, nil);
+      if Vlist <> nil  then begin
+        for I := 0 to VList.Count - 1 do begin
+          if VMapType.VersionRequestConfig.Version.IsSame(VList.Item[i]) then begin
+            VIndex := i;
+            Break;
+          end;
+        end;
+        VIndex := VIndex + AStep;
+        if (VIndex >= VList.Count) then VIndex := 0;
+        if (VIndex < 0) then VIndex := VList.Count - 1;
+        VMapType.VersionRequestConfig.Version := VList.item[VIndex];
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.tbpmiVersionsPopup(Sender: TTBCustomItem; FromLink: Boolean);
@@ -6304,6 +6351,16 @@ begin
       FConfig.MainGeoCoderConfig.ActiveGeoCoderGUID := VItem.GetGUID;
     end;
   end;
+end;
+
+procedure TfrmMain.TBXNextVerClick(Sender: TObject);
+begin
+  NextVersion(+1);
+end;
+
+procedure TfrmMain.TBXPrevVerClick(Sender: TObject);
+begin
+  NextVersion(-1);
 end;
 
 procedure TfrmMain.TBXMakeRosreestrPolygonClick(Sender: TObject);

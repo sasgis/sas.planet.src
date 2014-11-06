@@ -1038,6 +1038,20 @@ object frmMain: TfrmMain
           Caption = 'Debug Info'
           Hint = ''
         end
+        object TBXSubmnMapVer: TTBXSubmenuItem
+          Caption = 'Map version'
+          Hint = ''
+          object TBXNextVer: TTBXItem
+            OnClick = TBXNextVerClick
+            Caption = 'Next version'
+            Hint = ''
+          end
+          object TBXPrevVer: TTBXItem
+            OnClick = TBXPrevVerClick
+            Caption = 'Prev version'
+            Hint = ''
+          end
+        end
       end
       object NSources: TTBXSubmenuItem
         Caption = '&Source'
