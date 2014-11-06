@@ -444,15 +444,12 @@
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
     <DCCReference Include="i_MainGeoCoderConfig.pas" />
-    <DCCReference Include="i_MainMapLayerConfig.pas" />
     <DCCReference Include="i_MainMemCacheConfig.pas" />
     <DCCReference Include="i_MarkerFromFileConfig.pas" />
     <DCCReference Include="i_MarkerProviderForVectorItem.pas" />
     <DCCReference Include="i_MarkerRingsConfig.pas" />
     <DCCReference Include="i_MarkerSimpleConfig.pas" />
     <DCCReference Include="i_MarkNameGenerator.pas" />
-    <DCCReference Include="i_MarkPolygonLayerConfig.pas" />
-    <DCCReference Include="i_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="i_MarksDrawConfig.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
     <DCCReference Include="i_NotifierLonLatRectUpdate.pas" />
@@ -558,6 +555,9 @@
     <DCCReference Include="MapCalibration\u_MapCalibrationWorldFiles.pas" />
     <DCCReference Include="MapLayers\i_KmlLayerConfig.pas" />
     <DCCReference Include="MapLayers\i_MainFormLayersConfig.pas" />
+    <DCCReference Include="MapLayers\i_MainMapLayerConfig.pas" />
+    <DCCReference Include="MapLayers\i_MarkPolygonLayerConfig.pas" />
+    <DCCReference Include="MapLayers\i_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapColorer.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapLayerConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapColorerSimple.pas" />
@@ -597,6 +597,9 @@
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_TileMatrixFactory.pas" />
     <DCCReference Include="MapLayers\u_KmlLayerConfig.pas" />
     <DCCReference Include="MapLayers\u_MainFormLayersConfig.pas" />
+    <DCCReference Include="MapLayers\u_MainMapLayerConfig.pas" />
+    <DCCReference Include="MapLayers\u_MarkPolygonLayerConfig.pas" />
+    <DCCReference Include="MapLayers\u_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\i_CalcLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayerConfig.pas" />
@@ -1325,7 +1328,6 @@
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainGeoCoderConfig.pas" />
-    <DCCReference Include="u_MainMapLayerConfig.pas" />
     <DCCReference Include="u_MainMemCacheConfig.pas" />
     <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MarkerDrawableCenterScale.pas" />
@@ -1344,8 +1346,6 @@
     <DCCReference Include="u_MarkerRingsConfigStatic.pas" />
     <DCCReference Include="u_MarkerSimpleConfig.pas" />
     <DCCReference Include="u_MarkerSimpleConfigStatic.pas" />
-    <DCCReference Include="u_MarkPolygonLayerConfig.pas" />
-    <DCCReference Include="u_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="u_MarksDrawConfig.pas" />
     <DCCReference Include="u_MarksDrawConfigStatic.pas" />
     <DCCReference Include="u_MemTileCache.pas" />
