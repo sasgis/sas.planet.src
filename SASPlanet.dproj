@@ -439,7 +439,6 @@
     <DCCReference Include="i_ImageResamplerFactoryChangeable.pas" />
     <DCCReference Include="i_InterfaceQueue.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
-    <DCCReference Include="i_LayerDrawConfig.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
     <DCCReference Include="i_LonLatRect.pas" />
     <DCCReference Include="i_MainGeoCoderConfig.pas" />
@@ -673,6 +672,7 @@
       <Form>frmMapTypeEdit</Form>
     </DCCReference>
     <DCCReference Include="MapType\i_ActiveMapsConfig.pas" />
+    <DCCReference Include="MapType\i_LayerDrawConfig.pas" />
     <DCCReference Include="MapType\i_MapAbilitiesConfig.pas" />
     <DCCReference Include="MapType\i_MapType.pas" />
     <DCCReference Include="MapType\i_MapTypeConfigModalEdit.pas" />
@@ -692,6 +692,7 @@
     <DCCReference Include="MapType\u_ActiveMapsLicenseList.pas" />
     <DCCReference Include="MapType\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="MapType\u_ActivMapWithLayers.pas" />
+    <DCCReference Include="MapType\u_LayerDrawConfig.pas" />
     <DCCReference Include="MapType\u_MainMapsConfig.pas" />
     <DCCReference Include="MapType\u_MapAbilitiesConfig.pas" />
     <DCCReference Include="MapType\u_MapAbilitiesConfigStatic.pas" />
@@ -1317,7 +1318,6 @@
     <DCCReference Include="u_ImportFromArcGIS.pas" />
     <DCCReference Include="u_InterfaceQueue.pas" />
     <DCCReference Include="u_LanguageListStatic.pas" />
-    <DCCReference Include="u_LayerDrawConfig.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
     <DCCReference Include="u_LonLatRect.pas" />
     <DCCReference Include="u_LonLatRectByPoint.pas" />
