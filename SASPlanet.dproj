@@ -439,7 +439,6 @@
     <DCCReference Include="i_ImageResamplerFactoryChangeable.pas" />
     <DCCReference Include="i_InterfaceQueue.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
-    <DCCReference Include="i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="i_LayerDrawConfig.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
     <DCCReference Include="i_LonLatRect.pas" />
@@ -534,7 +533,6 @@
     <DCCReference Include="MainForm\u_LastSearchResult.pas" />
     <DCCReference Include="MainForm\u_LastSelectionInfo.pas" />
     <DCCReference Include="MainForm\u_LastSelectionInfoSaver.pas" />
-    <DCCReference Include="MainForm\u_LastSelectionLayerConfig.pas" />
     <DCCReference Include="MainForm\u_LineOnMapEdit.pas" />
     <DCCReference Include="MainForm\u_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="MainForm\u_MainFormConfig.pas" />
@@ -631,9 +629,11 @@
     <DCCReference Include="MapLayers\WindowLayers\ScaleLine\u_LayerScaleLinePopupMenu.pas" />
     <DCCReference Include="MapLayers\WindowLayers\ScaleLine\u_LayerScaleLineVertical.pas" />
     <DCCReference Include="MapLayers\WindowLayers\ScaleLine\u_ScaleLineConfig.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\Selection\i_LastSelectionLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\i_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\i_SelectionPolylineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\i_SelectionRectLayerConfig.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\Selection\u_LastSelectionLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionLayer.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionPolygonLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionPolylineLayer.pas" />
