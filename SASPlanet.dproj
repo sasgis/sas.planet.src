@@ -467,7 +467,6 @@
     <DCCReference Include="i_SearchResultPresenter.pas" />
     <DCCReference Include="i_ShortCutModalEdit.pas" />
     <DCCReference Include="i_ShortCutSingleConfig.pas" />
-    <DCCReference Include="i_StartUpLogoConfig.pas" />
     <DCCReference Include="i_StaticTreeBuilder.pas" />
     <DCCReference Include="i_StaticTreeItem.pas" />
     <DCCReference Include="i_StringByLanguage.pas" />
@@ -1106,6 +1105,8 @@
       <Form>frLonLat</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
+    <DCCReference Include="SecondaryForms\i_StartUpLogoConfig.pas" />
+    <DCCReference Include="SecondaryForms\u_StartUpLogoConfig.pas" />
     <DCCReference Include="Sensor\c_SensorsGUIDSimple.pas" />
     <DCCReference Include="Sensor\i_Sensor.pas" />
     <DCCReference Include="Sensor\i_SensorList.pas" />
@@ -1371,7 +1372,6 @@
     <DCCReference Include="u_SortFunc.pas" />
     <DCCReference Include="u_SourceDataUpdateInRectByFillingMap.pas" />
     <DCCReference Include="u_SourceDataUpdateInRectByMapsSet.pas" />
-    <DCCReference Include="u_StartUpLogoConfig.pas" />
     <DCCReference Include="u_StaticTreeBuilderBase.pas" />
     <DCCReference Include="u_StaticTreeItem.pas" />
     <DCCReference Include="u_StringByLanguageWithStaticList.pas" />
