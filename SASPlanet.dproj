@@ -400,6 +400,9 @@
     <DCCReference Include="GPS\u_GPSSatellitesInView.pas" />
     <DCCReference Include="GPS\u_GpsSystem.pas" />
     <DCCReference Include="GPS\u_GpsTrackRecorder.pas" />
+    <DCCReference Include="GSM\i_GSMGeoCodeConfig.pas" />
+    <DCCReference Include="GSM\u_GSMGeoCodeConfig.pas" />
+    <DCCReference Include="GSM\u_PosFromGSM.pas" />
     <DCCReference Include="InternalDomain\i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="InternalDomain\i_InternalDomainOptions.pas" />
     <DCCReference Include="InternalDomain\u_IeEmbeddedProtocol.pas" />
@@ -424,7 +427,6 @@
     <DCCReference Include="i_GlobalCacheConfig.pas" />
     <DCCReference Include="i_GlobalConfig.pas" />
     <DCCReference Include="i_GlobalViewMainConfig.pas" />
-    <DCCReference Include="i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="i_HashFunction.pas" />
     <DCCReference Include="i_HashInterfaceCache.pas" />
     <DCCReference Include="i_HashMatrix.pas" />
@@ -1292,7 +1294,6 @@
     <DCCReference Include="u_GlobalConfig.pas" />
     <DCCReference Include="u_GlobalState.pas" />
     <DCCReference Include="u_GlobalViewMainConfig.pas" />
-    <DCCReference Include="u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="u_HashFunctionByImpl.pas" />
     <DCCReference Include="u_HashFunctionWithCounter.pas" />
     <DCCReference Include="u_HashInterfaceCache2Q.pas" />
@@ -1355,7 +1356,6 @@
     <DCCReference Include="u_PathConfig.pas" />
     <DCCReference Include="u_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="u_PointsSetLayerConfig.pas" />
-    <DCCReference Include="u_PosFromGSM.pas" />
     <DCCReference Include="u_PredicateByStaticSampleList.pas" />
     <DCCReference Include="u_PredicateByTileInfoBase.pas" />
     <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
