@@ -196,6 +196,11 @@
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderMapWithLayer.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderSimpleForCombine.pas" />
     <DCCReference Include="BitmapLayerProvider\u_BitmapLayerProviderWithBgColor.pas" />
+    <DCCReference Include="BitmapPostProcessing\i_BitmapPostProcessing.pas" />
+    <DCCReference Include="BitmapPostProcessing\i_BitmapPostProcessingConfig.pas" />
+    <DCCReference Include="BitmapPostProcessing\u_BitmapPostProcessing.pas" />
+    <DCCReference Include="BitmapPostProcessing\u_BitmapPostProcessingChangeableByConfig.pas" />
+    <DCCReference Include="BitmapPostProcessing\u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="BitmapTileSaveLoad\i_Bitmap32To8Converter.pas" />
     <DCCReference Include="BitmapTileSaveLoad\i_Bitmap8Static.pas" />
     <DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoad.pas" />
@@ -418,8 +423,6 @@
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderList.pas" />
     <DCCReference Include="i_BasicMemCache.pas" />
     <DCCReference Include="i_BinaryTileProvider.pas" />
-    <DCCReference Include="i_BitmapPostProcessing.pas" />
-    <DCCReference Include="i_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="i_BitmapTileProvider.pas" />
     <DCCReference Include="i_CmdLineArgProcessor.pas" />
     <DCCReference Include="i_FindVectorItems.pas" />
@@ -1289,9 +1292,6 @@
     <DCCReference Include="u_BaseGridConfig.pas" />
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BitmapFunc.pas" />
-    <DCCReference Include="u_BitmapPostProcessing.pas" />
-    <DCCReference Include="u_BitmapPostProcessingChangeableByConfig.pas" />
-    <DCCReference Include="u_BitmapPostProcessingConfig.pas" />
     <DCCReference Include="u_BitmapTileProviderByStorage.pas" />
     <DCCReference Include="u_CmdLineArgProcessor.pas" />
     <DCCReference Include="u_CmdLineArgProcessorAPI.pas" />
