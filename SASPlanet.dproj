@@ -460,9 +460,6 @@
     <DCCReference Include="i_ObjectWithListener.pas" />
     <DCCReference Include="i_PathConfig.pas" />
     <DCCReference Include="i_PointCaptionsLayerConfig.pas" />
-    <DCCReference Include="i_PredicateByBinaryData.pas" />
-    <DCCReference Include="i_PredicateByTileInfo.pas" />
-    <DCCReference Include="i_PredicateByTileRequest.pas" />
     <DCCReference Include="i_ProjectedDrawableElement.pas" />
     <DCCReference Include="i_ReadWriteState.pas" />
     <DCCReference Include="i_ReadWriteStateInternal.pas" />
@@ -928,6 +925,11 @@
     <DCCReference Include="Performance\u_InternalPerformanceCounterListForDebug.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterListForDebugOneClass.pas" />
     <DCCReference Include="Performance\u_InternalPerformanceCounterStaticData.pas" />
+    <DCCReference Include="Predicate\i_PredicateByBinaryData.pas" />
+    <DCCReference Include="Predicate\i_PredicateByTileInfo.pas" />
+    <DCCReference Include="Predicate\i_PredicateByTileRequest.pas" />
+    <DCCReference Include="Predicate\u_PredicateByStaticSampleList.pas" />
+    <DCCReference Include="Predicate\u_PredicateByTileInfoBase.pas" />
     <DCCReference Include="RegionProcess\Combine\fr_Combine.pas">
       <DesignClass>TFrame</DesignClass>
       <Form>frCombine</Form>
@@ -1357,8 +1359,6 @@
     <DCCReference Include="u_PathConfig.pas" />
     <DCCReference Include="u_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="u_PointsSetLayerConfig.pas" />
-    <DCCReference Include="u_PredicateByStaticSampleList.pas" />
-    <DCCReference Include="u_PredicateByTileInfoBase.pas" />
     <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
     <DCCReference Include="u_ReadWriteStateInternal.pas" />
     <DCCReference Include="u_ReadWriteStateInternalByOther.pas" />
