@@ -360,6 +360,7 @@
     <DCCReference Include="Geometry\i_GeometryProjectedFactory.pas" />
     <DCCReference Include="Geometry\i_GeometryProjectedProvider.pas" />
     <DCCReference Include="Geometry\i_GeometryToStream.pas" />
+    <DCCReference Include="Geometry\i_LonLatRect.pas" />
     <DCCReference Include="Geometry\i_ProjectedCalc.pas" />
     <DCCReference Include="Geometry\u_DoublePointsAggregator.pas" />
     <DCCReference Include="Geometry\u_EnumDoublePointByLineSet.pas" />
@@ -382,6 +383,8 @@
     <DCCReference Include="Geometry\u_GeometryProjectedFactory.pas" />
     <DCCReference Include="Geometry\u_GeometryProjectedMulti.pas" />
     <DCCReference Include="Geometry\u_GeometryProjectedProvider.pas" />
+    <DCCReference Include="Geometry\u_LonLatRect.pas" />
+    <DCCReference Include="Geometry\u_LonLatRectByPoint.pas" />
     <DCCReference Include="Geometry\u_ProjectedCalc.pas" />
     <DCCReference Include="GPS\i_GPS.pas" />
     <DCCReference Include="GPS\i_GPSConfig.pas" />
@@ -440,7 +443,6 @@
     <DCCReference Include="i_InterfaceQueue.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
-    <DCCReference Include="i_LonLatRect.pas" />
     <DCCReference Include="i_MainGeoCoderConfig.pas" />
     <DCCReference Include="i_MainMapLayerConfig.pas" />
     <DCCReference Include="i_MainMemCacheConfig.pas" />
@@ -1319,8 +1321,6 @@
     <DCCReference Include="u_InterfaceQueue.pas" />
     <DCCReference Include="u_LanguageListStatic.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
-    <DCCReference Include="u_LonLatRect.pas" />
-    <DCCReference Include="u_LonLatRectByPoint.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainGeoCoderConfig.pas" />
     <DCCReference Include="u_MainMapLayerConfig.pas" />
