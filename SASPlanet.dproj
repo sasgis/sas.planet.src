@@ -421,7 +421,6 @@
     <DCCReference Include="i_MainMemCacheConfig.pas" />
     <DCCReference Include="i_MarkerFromFileConfig.pas" />
     <DCCReference Include="i_MarkerProviderForVectorItem.pas" />
-    <DCCReference Include="i_MarkerRingsConfig.pas" />
     <DCCReference Include="i_MarkerSimpleConfig.pas" />
     <DCCReference Include="i_MarkNameGenerator.pas" />
     <DCCReference Include="i_MarksDrawConfig.pas" />
@@ -588,9 +587,12 @@
     <DCCReference Include="MapLayers\WindowLayers\GoTo\u_GotoLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_MapLayerGPSMarkerConfig.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_MarkerRingsConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarker.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerRings.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MarkerRingsConfig.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MarkerRingsConfigStatic.pas" />
     <DCCReference Include="MapLayers\WindowLayers\NavToMark\i_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\NavToMark\u_MapLayerNavToMark.pas" />
     <DCCReference Include="MapLayers\WindowLayers\NavToMark\u_MapLayerNavToPointMarkerConfig.pas" />
@@ -1315,8 +1317,6 @@
     <DCCReference Include="u_MarkerProviderForVectorItemFixedMarker.pas" />
     <DCCReference Include="u_MarkerProviderForVectorItemForMarkPoints.pas" />
     <DCCReference Include="u_MarkerProviderForVectorItemWithCache.pas" />
-    <DCCReference Include="u_MarkerRingsConfig.pas" />
-    <DCCReference Include="u_MarkerRingsConfigStatic.pas" />
     <DCCReference Include="u_MarkerSimpleConfig.pas" />
     <DCCReference Include="u_MarkerSimpleConfigStatic.pas" />
     <DCCReference Include="u_MarksDrawConfig.pas" />
