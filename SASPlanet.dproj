@@ -313,7 +313,6 @@
     <DCCReference Include="CoordConvert\u_ProjConverterFactory.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfo.pas" />
     <DCCReference Include="CoordConvert\u_ProjectionInfoFactory.pas" />
-    <DCCReference Include="c_ImageResampler.pas" />
     <DCCReference Include="Debug\frm_DebugInfo.pas">
       <Form>frmDebugInfo</Form>
     </DCCReference>
@@ -415,6 +414,15 @@
     <DCCReference Include="GSM\i_GSMGeoCodeConfig.pas" />
     <DCCReference Include="GSM\u_GSMGeoCodeConfig.pas" />
     <DCCReference Include="GSM\u_PosFromGSM.pas" />
+    <DCCReference Include="ImageResampler\c_ImageResampler.pas" />
+    <DCCReference Include="ImageResampler\i_ImageResamplerConfig.pas" />
+    <DCCReference Include="ImageResampler\i_ImageResamplerFactory.pas" />
+    <DCCReference Include="ImageResampler\i_ImageResamplerFactoryChangeable.pas" />
+    <DCCReference Include="ImageResampler\u_ImageResamplerConfig.pas" />
+    <DCCReference Include="ImageResampler\u_ImageResamplerFactory.pas" />
+    <DCCReference Include="ImageResampler\u_ImageResamplerFactoryChangeableByConfig.pas" />
+    <DCCReference Include="ImageResampler\u_ImageResamplerFactoryListStatic.pas" />
+    <DCCReference Include="ImageResampler\u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="InternalDomain\i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="InternalDomain\i_InternalDomainOptions.pas" />
     <DCCReference Include="InternalDomain\u_IeEmbeddedProtocol.pas" />
@@ -440,9 +448,6 @@
     <DCCReference Include="i_HashInterfaceCache.pas" />
     <DCCReference Include="i_HashMatrix.pas" />
     <DCCReference Include="i_HtmlToHintTextConverter.pas" />
-    <DCCReference Include="i_ImageResamplerConfig.pas" />
-    <DCCReference Include="i_ImageResamplerFactory.pas" />
-    <DCCReference Include="i_ImageResamplerFactoryChangeable.pas" />
     <DCCReference Include="i_InterfaceQueue.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
@@ -1320,11 +1325,6 @@
     <DCCReference Include="u_HashInterfaceCache2Q.pas" />
     <DCCReference Include="u_HashMatrix.pas" />
     <DCCReference Include="u_HtmlToHintTextConverterStuped.pas" />
-    <DCCReference Include="u_ImageResamplerConfig.pas" />
-    <DCCReference Include="u_ImageResamplerFactory.pas" />
-    <DCCReference Include="u_ImageResamplerFactoryChangeableByConfig.pas" />
-    <DCCReference Include="u_ImageResamplerFactoryListStatic.pas" />
-    <DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="u_ImportFromArcGIS.pas" />
     <DCCReference Include="u_InterfaceQueue.pas" />
     <DCCReference Include="u_LanguageListStatic.pas" />
