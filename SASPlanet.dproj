@@ -235,6 +235,10 @@
     <DCCReference Include="CacheManager\u_CacheConverterProgressInfo.pas" />
     <DCCReference Include="CacheManager\u_ThreadCacheConverter.pas" />
     <DCCReference Include="CacheManager\u_ThreadCacheManagerAbstract.pas" />
+    <DCCReference Include="CmdLineArgProcessor\i_CmdLineArgProcessor.pas" />
+    <DCCReference Include="CmdLineArgProcessor\u_CmdLineArgProcessor.pas" />
+    <DCCReference Include="CmdLineArgProcessor\u_CmdLineArgProcessorAPI.pas" />
+    <DCCReference Include="CmdLineArgProcessor\u_CmdLineArgProcessorHelpers.pas" />
     <DCCReference Include="ConfigData\i_ConfigDataElement.pas" />
     <DCCReference Include="ConfigData\i_ConfigDataProvider.pas" />
     <DCCReference Include="ConfigData\i_ConfigDataWriteProvider.pas" />
@@ -427,7 +431,6 @@
     <DCCReference Include="i_BasicMemCache.pas" />
     <DCCReference Include="i_BinaryTileProvider.pas" />
     <DCCReference Include="i_BitmapTileProvider.pas" />
-    <DCCReference Include="i_CmdLineArgProcessor.pas" />
     <DCCReference Include="i_FindVectorItems.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
     <DCCReference Include="i_GlobalCacheConfig.pas" />
@@ -1304,9 +1307,6 @@
     <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BitmapFunc.pas" />
     <DCCReference Include="u_BitmapTileProviderByStorage.pas" />
-    <DCCReference Include="u_CmdLineArgProcessor.pas" />
-    <DCCReference Include="u_CmdLineArgProcessorAPI.pas" />
-    <DCCReference Include="u_CmdLineArgProcessorHelpers.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_FindVectorItemsForVectorMaps.pas" />
     <DCCReference Include="u_GeoFunc.pas" />
