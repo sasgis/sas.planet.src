@@ -33,7 +33,7 @@ uses
   Windows;
 
 type
-  TGetTickCount64  = function: Int64; stdcall;
+  TGetTickCount64 = function: Int64; stdcall;
 
 { TTimerByGetTickCount64 }
 
@@ -85,4 +85,3 @@ begin
 end;
 
 end.
-

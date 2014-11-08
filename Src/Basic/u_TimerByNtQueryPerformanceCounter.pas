@@ -35,10 +35,10 @@ uses
 type
   PLARGE_INTEGER = ^Int64;
 
-  TNtQueryPerformanceCounter = function (
-    PerformanceCounter: PLARGE_INTEGER;
-    PerformanceFrequency: PLARGE_INTEGER
-  ): LongInt; stdcall;
+  TNtQueryPerformanceCounter = function(
+      PerformanceCounter: PLARGE_INTEGER;
+      PerformanceFrequency: PLARGE_INTEGER
+    ): LongInt; stdcall;
 
 { TTimerByNtQueryPerformanceCounter }
 

@@ -208,7 +208,9 @@ end;
 { TNotifierOneOperationByNotifier }
 
 constructor TNotifierOneOperationByNotifier.Create(
-  const ASourceNotifier: INotifierOperation; ASourceID: Integer);
+  const ASourceNotifier: INotifierOperation;
+  ASourceID: Integer
+);
 begin
   inherited Create;
   FSourceNotifier := ASourceNotifier;
@@ -258,13 +260,3 @@ begin
 end;
 
 end.
-
-
-
-
-
-
-
-
-
-

@@ -119,7 +119,7 @@ end;
 
 procedure TCounterInterlock.Reset;
 begin
-  InterlockedExchange(FCount, 0)
+  InterlockedExchange(FCount, 0);
 end;
 
 { TSimpleFlagWithParent }

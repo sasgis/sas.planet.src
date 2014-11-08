@@ -42,12 +42,18 @@ type
     procedure AddList(const AList: IInterfaceList);
     procedure AddListStatic(const AList: IInterfaceListStatic);
     procedure AddListSimple(const AList: IInterfaceListSimple);
-    procedure Insert(AIndex: Integer; const AItem: IInterface);
+    procedure Insert(
+      AIndex: Integer;
+      const AItem: IInterface
+    );
     function Last: IInterface;
     function Remove(const AItem: IInterface): Integer;
 
     function GetItem(AIndex: Integer): IInterface;
-    procedure SetItem(AIndex: Integer; const AItem: IInterface);
+    procedure SetItem(
+      AIndex: Integer;
+      const AItem: IInterface
+    );
 
     function GetCapacity: Integer;
     procedure SetCapacity(ANewCapacity: Integer);
@@ -220,7 +226,10 @@ begin
   end;
 end;
 
-procedure TInterfaceListSimple.Insert(AIndex: Integer; const AItem: IInterface);
+procedure TInterfaceListSimple.Insert(
+  AIndex: Integer;
+  const AItem: IInterface
+);
 begin
   if not Assigned(FList) then begin
     FList := TList.Create;
@@ -256,8 +265,7 @@ end;
 function TInterfaceListSimple.Remove(const AItem: IInterface): Integer;
 begin
   Result := FList.IndexOf(Pointer(AItem));
-  if Result > -1 then
-  begin
+  if Result > -1 then begin
     Delete(Result);
   end;
 end;
@@ -294,7 +302,10 @@ begin
 
 end;
 
-procedure TInterfaceListSimple.SetItem(AIndex: Integer; const AItem: IInterface);
+procedure TInterfaceListSimple.SetItem(
+  AIndex: Integer;
+  const AItem: IInterface
+);
 var
   VItem: Pointer;
 begin

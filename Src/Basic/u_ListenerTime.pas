@@ -127,7 +127,7 @@ begin
   inherited Create;
   FOnTime := AOnTime;
   FCheckInterval := ACheckInterval;
-  if FCheckInterval > 3600000  then begin
+  if FCheckInterval > 3600000 then begin
     FCheckInterval := 3600000;
   end;
 

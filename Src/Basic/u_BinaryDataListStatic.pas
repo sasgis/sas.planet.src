@@ -37,7 +37,10 @@ type
     function GetItem(AIndex: Integer): IBinaryData;
   public
     constructor Create(const AItems: array of IBinaryData);
-    constructor CreateBySource(const ASource: IBinaryDataListStatic; const AItem: IBinaryData);
+    constructor CreateBySource(
+      const ASource: IBinaryDataListStatic;
+      const AItem: IBinaryData
+    );
     constructor CreateByTwoItems(const AItem1, AItem2: IBinaryData);
     destructor Destroy; override;
   end;
@@ -61,7 +64,9 @@ begin
 end;
 
 constructor TBinaryDataListStatic.CreateBySource(
-  const ASource: IBinaryDataListStatic; const AItem: IBinaryData);
+  const ASource: IBinaryDataListStatic;
+  const AItem: IBinaryData
+);
 var
   VCount: Integer;
   i: Integer;

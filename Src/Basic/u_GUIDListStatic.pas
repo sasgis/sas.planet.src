@@ -46,7 +46,10 @@ type
   private
     FList: array of TGUID;
     FCount: Integer;
-    function Find(const AGUID: TGUID; var Index: Integer): Boolean;
+    function Find(
+      const AGUID: TGUID;
+      var Index: Integer
+    ): Boolean;
   private
     function GetItem(AIndex: Integer): TGUID;
     function GetCount: Integer;

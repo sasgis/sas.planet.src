@@ -30,7 +30,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TNotifierBase = class (TBaseInterfacedObject, INotifier, INotifierInternal)
+  TNotifierBase = class(TBaseInterfacedObject, INotifier, INotifierInternal)
   private
     FListeners: TList;
     FSync: IReadWriteSync;
@@ -44,7 +44,7 @@ type
     destructor Destroy; override;
   end;
 
-  TNotifierFaked = class (TBaseInterfacedObject, INotifier, INotifierInternal)
+  TNotifierFaked = class(TBaseInterfacedObject, INotifier, INotifierInternal)
   private
     procedure Add(const AListener: IListener);
     procedure Remove(const AListener: IListener);
@@ -96,8 +96,9 @@ begin
   FSync.BeginRead;
   try
     SetLength(VList, FListeners.Count);
-    for idx := 0 to FListeners.Count - 1 do
+    for idx := 0 to FListeners.Count - 1 do begin
       VList[idx] := IListener(Pointer(FListeners[idx]));
+    end;
   finally
     FSync.EndRead;
   end;
@@ -119,7 +120,7 @@ begin
     if idx >= 0 then begin
       VLastIndex := FListeners.Count - 1;
       if idx < VLastIndex then begin
-        FListeners[idx] :=  FListeners[VLastIndex];
+        FListeners[idx] := FListeners[VLastIndex];
       end;
       FListeners.Delete(VLastIndex);
       AListener._Release;
@@ -147,10 +148,3 @@ begin
 end;
 
 end.
-
-
-
-
-
-
-

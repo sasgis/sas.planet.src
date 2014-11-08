@@ -48,7 +48,10 @@ type
     property Capacity: Integer read FCapacity write SetCapacity;
     property Count: Integer read GetCount write SetCount;
   public
-    constructor Create(AAllowNil: Boolean = False; ACapacity: Integer = 0); overload;
+    constructor Create(
+      AAllowNil: Boolean = False;
+      ACapacity: Integer = 0
+    ); overload;
 
     destructor Destroy; override;
   end;
@@ -163,7 +166,10 @@ begin
   end;
 end;
 
-constructor TIdListBase.Create(AAllowNil: Boolean; ACapacity: Integer);
+constructor TIdListBase.Create(
+  AAllowNil: Boolean;
+  ACapacity: Integer
+);
 begin
   inherited Create;
   FAllowNil := AAllowNil;

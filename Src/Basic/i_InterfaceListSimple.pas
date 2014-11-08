@@ -38,12 +38,18 @@ type
     procedure AddList(const AList: IInterfaceList);
     procedure AddListStatic(const AList: IInterfaceListStatic);
     procedure AddListSimple(const AList: IInterfaceListSimple);
-    procedure Insert(AIndex: Integer; const AItem: IInterface);
+    procedure Insert(
+      AIndex: Integer;
+      const AItem: IInterface
+    );
     function Last: IInterface;
     function Remove(const AItem: IInterface): Integer;
 
     function GetItem(AIndex: Integer): IInterface;
-    procedure SetItem(AIndex: Integer; const AItem: IInterface);
+    procedure SetItem(
+      AIndex: Integer;
+      const AItem: IInterface
+    );
     property Items[Index: Integer]: IInterface read GetItem write SetItem; default;
 
     function GetCapacity: Integer;

@@ -69,8 +69,11 @@ begin
   Result := S_OK;
 end;
 
-function TEnumUnknownTwoItems.Next(celt: Integer; out elt;
-  pceltFetched: PLongint): HResult;
+function TEnumUnknownTwoItems.Next(
+  celt: Integer;
+  out elt;
+  pceltFetched: PLongint
+): HResult;
 begin
   if celt <> 1 then begin
     Result := E_NOTIMPL;

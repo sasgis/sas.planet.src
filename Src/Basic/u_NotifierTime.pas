@@ -110,7 +110,7 @@ begin
     if idx >= 0 then begin
       VLastIndex := FListeners.Count - 1;
       if idx < VLastIndex then begin
-        FListeners[idx] :=  FListeners[VLastIndex];
+        FListeners[idx] := FListeners[VLastIndex];
       end;
       FListeners.Delete(VLastIndex);
       AListener._Release;
@@ -121,4 +121,3 @@ begin
 end;
 
 end.
-
