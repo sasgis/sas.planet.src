@@ -42,8 +42,12 @@ type
     pnlHotKeysHeader: TPanel;
     lblOperation: TLabel;
     lblHotKey: TLabel;
-    procedure lstShortCutListDrawItem(Control: TWinControl; Index: Integer;
-      Rect: TRect; State: TOwnerDrawState);
+    procedure lstShortCutListDrawItem(
+      Control: TWinControl;
+      Index: Integer;
+      Rect: TRect;
+      State: TOwnerDrawState
+    );
     procedure lstShortCutListDblClick(Sender: TObject);
   private
     FShortCutEdit: IShortCutModalEdit;
@@ -133,19 +137,19 @@ end;
 procedure DrawIcon(
   const AIcon: IBitmap32Static;
   ACanvas: TCanvas;
-  const ABounds:TRect
+  const ABounds: TRect
 );
 var
   VBitmap: TBitmap32;
-  wdth:integer;
+  wdth: integer;
   VResampler: TCustomResampler;
 begin
   ACanvas.FillRect(ABounds);
   if AIcon <> nil then begin
-    wdth:=min(ABounds.Right-ABounds.Left,ABounds.Bottom-ABounds.Top);
-    VBitmap:=TBitmap32.Create;
+    wdth := min(ABounds.Right - ABounds.Left, ABounds.Bottom - ABounds.Top);
+    VBitmap := TBitmap32.Create;
     try
-      VBitmap.SetSize(wdth,wdth);
+      VBitmap.SetSize(wdth, wdth);
       VBitmap.Clear(clWhite32);
       VResampler := TLinearResampler.Create;
       try
@@ -167,10 +171,14 @@ begin
   end;
 end;
 
-procedure TfrShortCutList.lstShortCutListDrawItem(Control: TWinControl;
-  Index: Integer; Rect: TRect; State: TOwnerDrawState);
+procedure TfrShortCutList.lstShortCutListDrawItem(
+  Control: TWinControl;
+  Index: Integer;
+  Rect: TRect;
+  State: TOwnerDrawState
+);
 var
-  ShortCut:String;
+  ShortCut: String;
   VTempShortCut: IShortCutSingleConfig;
   VBitmap: IBitmap32Static;
 begin
@@ -179,14 +187,14 @@ begin
   ShortCut := ShortCutToText(VTempShortCut.ShortCut);
   VBitmap := VTempShortCut.IconBitmap;
   if VBitmap <> nil then begin
-    DrawIcon(VBitmap, lstShortCutList.Canvas, Bounds(2,Rect.Top+1,18,18));
+    DrawIcon(VBitmap, lstShortCutList.Canvas, Bounds(2, Rect.Top + 1, 18, 18));
   end;
-  lstShortCutList.Canvas.TextOut(22,Rect.Top+3, lstShortCutList.Items[Index]);
-  lstShortCutList.Canvas.TextOut(Rect.Right-lstShortCutList.Canvas.TextWidth(ShortCut)-9,Rect.Top+3, ShortCut);
+  lstShortCutList.Canvas.TextOut(22, Rect.Top + 3, lstShortCutList.Items[Index]);
+  lstShortCutList.Canvas.TextOut(Rect.Right - lstShortCutList.Canvas.TextWidth(ShortCut) - 9, Rect.Top + 3, ShortCut);
 
   lstShortCutList.Canvas.Pen.Color := clSilver;
-  lstShortCutList.Canvas.MoveTo(0, Rect.Bottom-1);
-  lstShortCutList.Canvas.LineTo(Rect.Right, Rect.Bottom-1);
+  lstShortCutList.Canvas.MoveTo(0, Rect.Bottom - 1);
+  lstShortCutList.Canvas.LineTo(Rect.Right, Rect.Bottom - 1);
 end;
 
 procedure TfrShortCutList.RefreshTranslation;

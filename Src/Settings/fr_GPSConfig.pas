@@ -98,7 +98,10 @@ type
     procedure OnConnecting;
     procedure OnDisconnect;
     function AutodetectCOMFlags: DWORD;
-    procedure AutodetectAntiFreeze(Sender: TObject; AThread: TObject);
+    procedure AutodetectAntiFreeze(
+      Sender: TObject;
+      AThread: TObject
+    );
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -162,7 +165,7 @@ begin
   FGPSTrackConfig := AGPSTrackConfig;
   FGPSBehaviour := AGPSBehaviour;
 
-  FAutodetecting:=FALSE;
+  FAutodetecting := FALSE;
   FConnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, 1000, Self.OnConnecting);
   FDisconnectListener := TNotifyEventListenerSync.Create(AGUISyncronizedTimerNotifier, 1000, Self.OnDisconnect);
 
@@ -233,19 +236,20 @@ begin
       3: begin
         VGPSType := gpsoFlyOnTrack;
       end;
-    else
+    else begin
       VGPSType := gpsoNMEA;
+    end;
     end;
     FGPSConfig.ModuleConfig.GPSOrigin := VGPSType;
     FGPSConfig.ModuleConfig.ConnectionTimeout := SE_ConnectionTimeout.Value;
     FGPSConfig.ModuleConfig.LowLevelLog := CB_GPSlogNmea.Checked;
     FGPSConfig.ModuleConfig.Delay := SpinEdit1.Value;
     FGPSConfig.ModuleConfig.Port := GetCOMPortNumber(ComboBoxCOM.Text);
-    FGPSConfig.ModuleConfig.BaudRate:=StrToint(ComboBoxBoudRate.Text);
-    FGPSConfig.WriteLog[ttPLT]:=CB_GPSlogPLT.Checked;
-    FGPSConfig.WriteLog[ttGPX]:=CB_GPSlogGPX.Checked;
-    FGPSConfig.ModuleConfig.AutodetectCOMOnConnect:=CB_GPSAutodetectCOMOnConnect.Checked;
-    FGPSConfig.ModuleConfig.AutodetectCOMFlags:=Self.AutodetectCOMFlags;
+    FGPSConfig.ModuleConfig.BaudRate := StrToint(ComboBoxBoudRate.Text);
+    FGPSConfig.WriteLog[ttPLT] := CB_GPSlogPLT.Checked;
+    FGPSConfig.WriteLog[ttGPX] := CB_GPSlogGPX.Checked;
+    FGPSConfig.ModuleConfig.AutodetectCOMOnConnect := CB_GPSAutodetectCOMOnConnect.Checked;
+    FGPSConfig.ModuleConfig.AutodetectCOMFlags := Self.AutodetectCOMFlags;
   finally
     FGPSConfig.UnlockWrite;
   end;
@@ -259,7 +263,7 @@ var
 begin
   ComboBoxCOM.Items.Clear;
   for i := 1 to 64 do begin
-    ComboBoxCOM.Items.Add('COM'+inttostr(i));
+    ComboBoxCOM.Items.Add('COM' + inttostr(i));
   end;
 
   FGPSTrackConfig.LockRead;
@@ -274,13 +278,13 @@ begin
   frGpsSatellites.Parent := GroupBox3;
   FGPSConfig.LockRead;
   try
-    SE_ConnectionTimeout.Value:=FGPSConfig.ModuleConfig.ConnectionTimeout;
-    CB_GPSlogNmea.Checked:=FGPSConfig.ModuleConfig.LowLevelLog;
-    SpinEdit1.Value:=FGPSConfig.ModuleConfig.Delay;
-    ComboBoxCOM.Text:= 'COM' + IntToStr(FGPSConfig.ModuleConfig.Port);
-    ComboBoxBoudRate.Text:=inttostr(FGPSConfig.ModuleConfig.BaudRate);
-    CB_GPSlogPLT.Checked:=FGPSConfig.WriteLog[ttPLT];
-    CB_GPSlogGPX.Checked:=FGPSConfig.WriteLog[ttGPX];
+    SE_ConnectionTimeout.Value := FGPSConfig.ModuleConfig.ConnectionTimeout;
+    CB_GPSlogNmea.Checked := FGPSConfig.ModuleConfig.LowLevelLog;
+    SpinEdit1.Value := FGPSConfig.ModuleConfig.Delay;
+    ComboBoxCOM.Text := 'COM' + IntToStr(FGPSConfig.ModuleConfig.Port);
+    ComboBoxBoudRate.Text := inttostr(FGPSConfig.ModuleConfig.BaudRate);
+    CB_GPSlogPLT.Checked := FGPSConfig.WriteLog[ttPLT];
+    CB_GPSlogGPX.Checked := FGPSConfig.WriteLog[ttGPX];
     case FGPSConfig.ModuleConfig.GPSOrigin of
       gpsoGarmin: begin
         rgConnectionType.ItemIndex := 1;
@@ -291,20 +295,21 @@ begin
       gpsoFlyOnTrack: begin
         rgConnectionType.ItemIndex := 3;
       end;
-    else
+    else begin
       rgConnectionType.ItemIndex := 0;
     end;
-    CB_GPSAutodetectCOMOnConnect.Checked:=FGPSConfig.ModuleConfig.AutodetectCOMOnConnect;
-    VFlags:=FGPSConfig.ModuleConfig.AutodetectCOMFlags;
+    end;
+    CB_GPSAutodetectCOMOnConnect.Checked := FGPSConfig.ModuleConfig.AutodetectCOMOnConnect;
+    VFlags := FGPSConfig.ModuleConfig.AutodetectCOMFlags;
   finally
     FGPSConfig.UnlockRead;
   end;
   DecodeCOMDeviceFlags(VFlags, @VOptions);
-  CB_GPSAutodetectCOMSerial.Checked:=VOptions.CheckSerial;
-  CB_GPSAutodetectCOMVirtual.Checked:=VOptions.CheckVirtual;
-  CB_GPSAutodetectCOMBluetooth.Checked:=VOptions.CheckBthModem;
-  CB_GPSAutodetectCOMUSBSer.Checked:=VOptions.CheckUSBSer;
-  CB_GPSAutodetectCOMOthers.Checked:=VOptions.CheckOthers;
+  CB_GPSAutodetectCOMSerial.Checked := VOptions.CheckSerial;
+  CB_GPSAutodetectCOMVirtual.Checked := VOptions.CheckVirtual;
+  CB_GPSAutodetectCOMBluetooth.Checked := VOptions.CheckBthModem;
+  CB_GPSAutodetectCOMUSBSer.Checked := VOptions.CheckUSBSer;
+  CB_GPSAutodetectCOMOthers.Checked := VOptions.CheckOthers;
 end;
 
 procedure TfrGPSConfig.OnConnecting;
@@ -330,11 +335,11 @@ function TfrGPSConfig.AutodetectCOMFlags: DWORD;
 var
   VOptions: TCOMAutodetectOptions;
 begin
-  VOptions.CheckSerial:=CB_GPSAutodetectCOMSerial.Checked;
-  VOptions.CheckVirtual:=CB_GPSAutodetectCOMVirtual.Checked;
-  VOptions.CheckBthModem:=CB_GPSAutodetectCOMBluetooth.Checked;
-  VOptions.CheckUSBSer:=CB_GPSAutodetectCOMUSBSer.Checked;
-  VOptions.CheckOthers:=CB_GPSAutodetectCOMOthers.Checked;
+  VOptions.CheckSerial := CB_GPSAutodetectCOMSerial.Checked;
+  VOptions.CheckVirtual := CB_GPSAutodetectCOMVirtual.Checked;
+  VOptions.CheckBthModem := CB_GPSAutodetectCOMBluetooth.Checked;
+  VOptions.CheckUSBSer := CB_GPSAutodetectCOMUSBSer.Checked;
+  VOptions.CheckOthers := CB_GPSAutodetectCOMOthers.Checked;
   EncodeCOMDeviceFlags(@VOptions, Result);
 end;
 
@@ -347,45 +352,47 @@ var
   VPortNumber: SmallInt;
   VPortIndex: Integer;
 begin
-  if FAutodetecting then
+  if FAutodetecting then begin
     Exit;
-  FAutodetecting:=TRUE;
-  VObj:=nil;
+  end;
+  FAutodetecting := TRUE;
+  VObj := nil;
   try
     // temp. disable controls
-    btnGPSAutodetectCOM.Enabled:=FALSE;
-    ComboBoxCOM.Enabled:=FALSE;
-    btnGPSSwitch.Enabled:=FALSE;
+    btnGPSAutodetectCOM.Enabled := FALSE;
+    ComboBoxCOM.Enabled := FALSE;
+    btnGPSSwitch.Enabled := FALSE;
     // make objects to enum
-    VObj:=TCOMCheckerObject.Create;
+    VObj := TCOMCheckerObject.Create;
     // flags (what to enum)
-    VFlags:=AutodetectCOMFlags;
+    VFlags := AutodetectCOMFlags;
     // set timeouts as for real connection
     VObj.SetFullConnectionTimeout(SE_ConnectionTimeout.Value, TRUE);
     // set antifreeze handlers
-    VObj.OnThreadFinished:=Self.AutodetectAntiFreeze;
-    VObj.OnThreadPending:=Self.AutodetectAntiFreeze;
+    VObj.OnThreadFinished := Self.AutodetectAntiFreeze;
+    VObj.OnThreadPending := Self.AutodetectAntiFreeze;
     // execute
-    VPortNumber:=VObj.EnumExecute(nil, VCancelled, VFlags, FALSE);
-    if (VPortNumber>=0) then begin
+    VPortNumber := VObj.EnumExecute(nil, VCancelled, VFlags, FALSE);
+    if (VPortNumber >= 0) then begin
       // port found
       // add new ports to combobox - not implemented yet
       // set first port
-      VPortName:='COM'+IntToStr(VPortNumber);
-      VPortIndex:=ComboBoxCOM.Items.IndexOf(VPortName);
-      if (VPortIndex<>ComboBoxCOM.ItemIndex) then begin
+      VPortName := 'COM' + IntToStr(VPortNumber);
+      VPortIndex := ComboBoxCOM.Items.IndexOf(VPortName);
+      if (VPortIndex <> ComboBoxCOM.ItemIndex) then begin
         // select new item
-        ComboBoxCOM.ItemIndex:=VPortIndex;
-        if Assigned(ComboBoxCOM.OnChange) then
+        ComboBoxCOM.ItemIndex := VPortIndex;
+        if Assigned(ComboBoxCOM.OnChange) then begin
           ComboBoxCOM.OnChange(ComboBoxCOM);
+        end;
       end;
     end;
   finally
     VObj.Free;
-    btnGPSAutodetectCOM.Enabled:=TRUE;
-    ComboBoxCOM.Enabled:=TRUE;
-    btnGPSSwitch.Enabled:=TRUE;
-    FAutodetecting:=FALSE;
+    btnGPSAutodetectCOM.Enabled := TRUE;
+    ComboBoxCOM.Enabled := TRUE;
+    btnGPSSwitch.Enabled := TRUE;
+    FAutodetecting := FALSE;
   end;
 end;
 

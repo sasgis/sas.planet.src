@@ -51,10 +51,18 @@ type
     procedure Button15Click(Sender: TObject);
     procedure btnMapInfoClick(Sender: TObject);
     procedure MapListDblClick(Sender: TObject);
-    procedure MapListChange(Sender: TObject; Item: TListItem;
-      Change: TItemChange);
-    procedure MapListCustomDrawSubItem(Sender: TCustomListView; Item: TListItem;
-      SubItem: Integer; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure MapListChange(
+      Sender: TObject;
+      Item: TListItem;
+      Change: TItemChange
+    );
+    procedure MapListCustomDrawSubItem(
+      Sender: TCustomListView;
+      Item: TListItem;
+      SubItem: Integer;
+      State: TCustomDrawState;
+      var DefaultDraw: Boolean
+    );
   private
     FMapTypeEditor: IMapTypeConfigModalEdit;
     FFullMapsSet: IMapTypeSet;
@@ -88,7 +96,10 @@ uses
 
 { TfrMapsList }
 
-procedure ExchangeItems(lv: TListView; const i, j: Integer);
+procedure ExchangeItems(
+  lv: TListView;
+  const i, j: Integer
+);
 var
   tempLI: TListItem;
 begin
@@ -99,7 +110,7 @@ begin
       tempLI.Assign(lv.Items.Item[i]);
       lv.Items.Item[i].Assign(lv.Items.Item[j]);
       lv.Items.Item[j].Assign(tempLI);
-      lv.Items.Item[j].Selected:=true;
+      lv.Items.Item[j].Selected := true;
     finally
       tempLI.Free;
     end;
@@ -115,10 +126,10 @@ var
 begin
   FGUIConfigList.LockWrite;
   try
-    For i:=0 to MapList.Items.Count-1 do begin
+    For i := 0 to MapList.Items.Count - 1 do begin
       VMapType := IMapType(MapList.Items.Item[i].data);
       if VMapType <> nil then begin
-        VMapType.GUIConfig.SortIndex := i+1;
+        VMapType.GUIConfig.SortIndex := i + 1;
       end;
     end;
   finally
@@ -147,15 +158,15 @@ end;
 
 procedure TfrMapsList.Button11Click(Sender: TObject);
 begin
-  If (MapList.Selected<>nil)and(MapList.Selected.Index<MapList.Items.Count-1) then begin
-    ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index+1)
+  If (MapList.Selected <> nil) and (MapList.Selected.Index < MapList.Items.Count - 1) then begin
+    ExchangeItems(MapList, MapList.Selected.Index, MapList.Selected.Index + 1);
   end;
 end;
 
 procedure TfrMapsList.Button12Click(Sender: TObject);
 begin
-  If (MapList.Selected<>nil)and(MapList.Selected.Index>0) then begin
-    ExchangeItems(MapList, MapList.Selected.Index,MapList.Selected.Index-1);
+  If (MapList.Selected <> nil) and (MapList.Selected.Index > 0) then begin
+    ExchangeItems(MapList, MapList.Selected.Index, MapList.Selected.Index - 1);
   end;
 end;
 
@@ -192,7 +203,7 @@ begin
   FFullMapsSet := AFullMapsSet;
   FMapTypeEditor := AMapTypeEditor;
   FGUIConfigList := AGUIConfigList;
-  MapList.DoubleBuffered:=true;
+  MapList.DoubleBuffered := true;
 end;
 
 destructor TfrMapsList.Destroy;
@@ -212,26 +223,35 @@ begin
   UpdateList;
 end;
 
-procedure TfrMapsList.MapListChange(Sender: TObject; Item: TListItem;
-  Change: TItemChange);
+procedure TfrMapsList.MapListChange(
+  Sender: TObject;
+  Item: TListItem;
+  Change: TItemChange
+);
 var
   VMapType: IMapType;
 begin
   if Self.Visible then begin
     VMapType := IMapType(Item.Data);
     if VMapType <> nil then begin
-      btnMapInfo.Enabled:=VMapType.GUIConfig.InfoUrl.Value<>'';
+      btnMapInfo.Enabled := VMapType.GUIConfig.InfoUrl.Value <> '';
     end;
   end;
 end;
 
-procedure TfrMapsList.MapListCustomDrawSubItem(Sender: TCustomListView;
-  Item: TListItem; SubItem: Integer; State: TCustomDrawState;
-  var DefaultDraw: Boolean);
+procedure TfrMapsList.MapListCustomDrawSubItem(
+  Sender: TCustomListView;
+  Item: TListItem;
+  SubItem: Integer;
+  State: TCustomDrawState;
+  var DefaultDraw: Boolean
+);
 var
   VMapType: IMapType;
 begin
-  if Item = nil then EXIT;
+  if Item = nil then begin
+    EXIT;
+  end;
   VMapType := IMapType(Item.Data);
   if VMapType <> nil then begin
     if Item.Index mod 2 = 1 then begin
@@ -248,45 +268,52 @@ begin
 end;
 
 procedure TfrMapsList.UpdateList;
-procedure SetSubItem(AItem: TListItem; AIndex: Integer; const AValue: string);
-var
-  i: Integer;
-begin
-  if AIndex < AItem.SubItems.Count then begin
-    AItem.SubItems.Strings[AIndex] := AValue;
-  end else begin
-    for i := AItem.SubItems.Count to AIndex - 1 do begin
-      AItem.SubItems.Add('');
+  procedure SetSubItem(
+    AItem: TListItem;
+    AIndex: Integer;
+  const AValue: string
+  );
+  var
+    i: Integer;
+  begin
+    if AIndex < AItem.SubItems.Count then begin
+      AItem.SubItems.Strings[AIndex] := AValue;
+    end else begin
+      for i := AItem.SubItems.Count to AIndex - 1 do begin
+        AItem.SubItems.Add('');
+      end;
+      AItem.SubItems.Add(AValue);
     end;
-    AItem.SubItems.Add(AValue);
   end;
-end;
 
-procedure UpdateItem(AItem: TListItem; const AMapType: IMapType);
-var
-  VValue: string;
-begin
-  AItem.Caption := AMapType.GUIConfig.Name.Value;
-  AItem.Data := Pointer(AMapType);
-  VValue := AMapType.StorageConfig.NameInCache;
-  SetSubItem(AItem, 0, VValue);
-  if AMapType.Zmp.IsLayer then begin
-    VValue := SAS_STR_Layers+'\'+AMapType.GUIConfig.ParentSubMenu.Value;
-  end else begin
-    VValue := SAS_STR_Maps+'\'+AMapType.GUIConfig.ParentSubMenu.Value;
+  procedure UpdateItem(
+    AItem: TListItem;
+  const AMapType: IMapType
+  );
+  var
+    VValue: string;
+  begin
+    AItem.Caption := AMapType.GUIConfig.Name.Value;
+    AItem.Data := Pointer(AMapType);
+    VValue := AMapType.StorageConfig.NameInCache;
+    SetSubItem(AItem, 0, VValue);
+    if AMapType.Zmp.IsLayer then begin
+      VValue := SAS_STR_Layers + '\' + AMapType.GUIConfig.ParentSubMenu.Value;
+    end else begin
+      VValue := SAS_STR_Maps + '\' + AMapType.GUIConfig.ParentSubMenu.Value;
+    end;
+    SetSubItem(AItem, 1, VValue);
+    VValue := ShortCutToText(AMapType.GUIConfig.HotKey);
+    SetSubItem(AItem, 2, VValue);
+    VValue := AMapType.Zmp.FileName;
+    SetSubItem(AItem, 3, VValue);
+    if AMapType.GUIConfig.Enabled then begin
+      VValue := SAS_STR_Yes;
+    end else begin
+      VValue := SAS_STR_No;
+    end;
+    SetSubItem(AItem, 4, VValue);
   end;
-  SetSubItem(AItem, 1, VValue);
-  VValue := ShortCutToText(AMapType.GUIConfig.HotKey);
-  SetSubItem(AItem, 2, VValue);
-  VValue := AMapType.Zmp.FileName;
-  SetSubItem(AItem, 3, VValue);
-  if AMapType.GUIConfig.Enabled then begin
-    VValue := SAS_STR_Yes;
-  end else begin
-    VValue := SAS_STR_No;
-  end;
-  SetSubItem(AItem, 4, VValue);
-end;
 
 var
   VPrevSelectedIndex: Integer;

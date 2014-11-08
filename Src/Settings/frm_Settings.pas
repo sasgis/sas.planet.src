@@ -243,7 +243,10 @@ type
     procedure CBLoginClick(Sender: TObject);
     procedure chkPosFromGSMClick(Sender: TObject);
     procedure CBoxLocalChange(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormCloseQuery(
+      Sender: TObject;
+      var CanClose: Boolean
+    );
     procedure btnImageProcessResetClick(Sender: TObject);
     procedure btnResetUserAgentStringClick(Sender: TObject);
     procedure BtnDefClick(Sender: TObject);
@@ -311,32 +314,66 @@ uses
 function GetDefCacheFromIndex(const AIndex: Integer): Byte;
 begin
   case AIndex of
-    0: Result := c_File_Cache_Id_GMV;
-    1: Result := c_File_Cache_Id_SAS;
-    2: Result := c_File_Cache_Id_ES;
-    3: Result := c_File_Cache_Id_GM;
-    4: Result := c_File_Cache_Id_BDB;
-    5: Result := c_File_Cache_Id_BDB_Versioned;
-    6: Result := c_File_Cache_Id_DBMS;
-    7: Result := c_File_Cache_Id_RAM;
-  else
+    0: begin
+      Result := c_File_Cache_Id_GMV;
+    end;
+    1: begin
+      Result := c_File_Cache_Id_SAS;
+    end;
+    2: begin
+      Result := c_File_Cache_Id_ES;
+    end;
+    3: begin
+      Result := c_File_Cache_Id_GM;
+    end;
+    4: begin
+      Result := c_File_Cache_Id_BDB;
+    end;
+    5: begin
+      Result := c_File_Cache_Id_BDB_Versioned;
+    end;
+    6: begin
+      Result := c_File_Cache_Id_DBMS;
+    end;
+    7: begin
+      Result := c_File_Cache_Id_RAM;
+    end;
+  else begin
     Result := c_File_Cache_Id_SAS;
+  end;
   end;
 end;
 
 function GetIndexFromDefCache(const ADefCacheId: Byte): Integer;
 begin
   case ADefCacheId of
-    c_File_Cache_Id_GMV:  Result := 0;
-    c_File_Cache_Id_SAS:  Result := 1;
-    c_File_Cache_Id_ES:   Result := 2;
-    c_File_Cache_Id_GM:   Result := 3;
-    c_File_Cache_Id_BDB:  Result := 4;
-    c_File_Cache_Id_BDB_Versioned: Result := 5;
-    c_File_Cache_Id_DBMS: Result := 6;
-    c_File_Cache_Id_RAM:  Result := 7;
-  else
+    c_File_Cache_Id_GMV: begin
+      Result := 0;
+    end;
+    c_File_Cache_Id_SAS: begin
+      Result := 1;
+    end;
+    c_File_Cache_Id_ES: begin
+      Result := 2;
+    end;
+    c_File_Cache_Id_GM: begin
+      Result := 3;
+    end;
+    c_File_Cache_Id_BDB: begin
+      Result := 4;
+    end;
+    c_File_Cache_Id_BDB_Versioned: begin
+      Result := 5;
+    end;
+    c_File_Cache_Id_DBMS: begin
+      Result := 6;
+    end;
+    c_File_Cache_Id_RAM: begin
+      Result := 7;
+    end;
+  else begin
     Result := 1;
+  end;
   end;
 end;
 
@@ -482,7 +519,7 @@ begin
       GState.CacheConfig.GCCachePath
     );
 
-  PageControl1.ActivePageIndex:=0;
+  PageControl1.ActivePageIndex := 0;
 end;
 
 procedure TfrmSettings.btnCancelClick(Sender: TObject);
@@ -490,7 +527,7 @@ begin
   frShortCutList.CancelChanges;
   frMapsList.CancelChanges;
   frGPSConfig.CancelChanges;
-  Close
+  Close;
 end;
 
 procedure TfrmSettings.BtnDefClick(Sender: TObject);
@@ -507,7 +544,7 @@ end;
 
 procedure TfrmSettings.SetProxy;
 var
-  PIInfo : PInternetProxyInfo;
+  PIInfo: PInternetProxyInfo;
   VProxyConfig: IProxyConfig;
   VUseIEProxy: Boolean;
   VUseProxy: Boolean;
@@ -522,7 +559,7 @@ begin
   finally
     VProxyConfig.UnlockRead;
   end;
-  New (PIInfo);
+  New(PIInfo);
   if VUseIEProxy then begin
     PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PRECONFIG;
     PIInfo^.lpszProxy := nil;
@@ -531,10 +568,10 @@ begin
     UrlMkSetSessionOption(INTERNET_OPTION_REFRESH, nil, 0, 0);
   end else begin
     if VUseProxy then begin
-      PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY ;
+      PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_PROXY;
       PIInfo^.lpszProxy := PAnsiChar(VHost);
       PIInfo^.lpszProxyBypass := nil;
-    end else  begin
+    end else begin
       PIInfo^.dwAccessType := INTERNET_OPEN_TYPE_DIRECT;
       PIInfo^.lpszProxy := nil;
       PIInfo^.lpszProxyBypass := nil;
@@ -542,7 +579,7 @@ begin
     UrlMkSetSessionOption(INTERNET_OPTION_PROXY, piinfo, SizeOf(Internet_Proxy_Info), 0);
     UrlMkSetSessionOption(INTERNET_OPTION_SETTINGS_CHANGED, nil, 0, 0);
   end;
-  Dispose (PIInfo) ;
+  Dispose(PIInfo);
 end;
 
 procedure TfrmSettings.ShowGPSSettings;
@@ -562,7 +599,7 @@ var
   VInetConfig: IInetConfig;
   VNeedReboot: boolean;
 begin
-  VNeedReboot:=false;
+  VNeedReboot := false;
 
   FMainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha := MiniMapAlphaEdit.Value;
 
@@ -575,40 +612,40 @@ begin
     GState.Config.DownloadConfig.UnlockWrite;
   end;
 
- GState.Config.ViewConfig.BackGroundColor := ColorBoxBackGround.Selected;
- GState.Config.GsmConfig.LockWrite;
- try
-   GState.Config.GsmConfig.SetUseGSMByCOM(chkPosFromGSM.Checked);
-   GState.Config.GsmConfig.SetBaudRate(strtoint(CBGSMBaundRate.text));
-   GState.Config.GsmConfig.SetPortName(CBGSMComPort.Text);
-   GState.Config.GsmConfig.SetWaitTime(SEWaitingAnswer.Value);
- finally
-   GState.Config.GsmConfig.UnlockWrite;
- end;
+  GState.Config.ViewConfig.BackGroundColor := ColorBoxBackGround.Selected;
+  GState.Config.GsmConfig.LockWrite;
+  try
+    GState.Config.GsmConfig.SetUseGSMByCOM(chkPosFromGSM.Checked);
+    GState.Config.GsmConfig.SetBaudRate(strtoint(CBGSMBaundRate.text));
+    GState.Config.GsmConfig.SetPortName(CBGSMComPort.Text);
+    GState.Config.GsmConfig.SetWaitTime(SEWaitingAnswer.Value);
+  finally
+    GState.Config.GsmConfig.UnlockWrite;
+  end;
   GState.Config.GlobalAppConfig.IsShowIconInTray := CBMinimizeToTray.Checked;
   GState.Config.MainMemCacheConfig.MaxSize := SETilesOCache.value;
   GState.Config.StartUpLogoConfig.IsShowLogo := ChkShowLogo.Checked;
 
   FMainFormConfig.LayersConfig.FillingMapLayerConfig.NoTileColor := SetAlpha(Color32(MapZapColorBox.Selected), MapZapAlphaEdit.Value);
 
- GState.Config.BitmapPostProcessingConfig.LockWrite;
- try
-   GState.Config.BitmapPostProcessingConfig.InvertColor:=CBinvertcolor.Checked;
-   GState.Config.BitmapPostProcessingConfig.GammaN:=TrBarGamma.Position;
-   GState.Config.BitmapPostProcessingConfig.ContrastN:=TrBarContrast.Position;
- finally
-   GState.Config.BitmapPostProcessingConfig.UnlockWrite;
- end;
+  GState.Config.BitmapPostProcessingConfig.LockWrite;
+  try
+    GState.Config.BitmapPostProcessingConfig.InvertColor := CBinvertcolor.Checked;
+    GState.Config.BitmapPostProcessingConfig.GammaN := TrBarGamma.Position;
+    GState.Config.BitmapPostProcessingConfig.ContrastN := TrBarContrast.Position;
+  finally
+    GState.Config.BitmapPostProcessingConfig.UnlockWrite;
+  end;
   FMainFormConfig.LayersConfig.MapLayerGridsConfig.LockWrite;
   try
-    FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected),SpinEditBorderAlpha.Value);
-    FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText:=CBBorderText.Checked;
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor := SetAlpha(Color32(ColorBoxBorder.Selected), SpinEditBorderAlpha.Value);
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText := CBBorderText.Checked;
 
-    FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor := SetAlpha(Color32(GenshtabBoxBorder.Selected),SpinEditGenshtabBorderAlpha.Value);
-    FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText:=CBGenshtabBorderText.Checked;
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor := SetAlpha(Color32(GenshtabBoxBorder.Selected), SpinEditGenshtabBorderAlpha.Value);
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText := CBGenshtabBorderText.Checked;
 
-    FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor := SetAlpha(Color32(DegreeBoxBorder.Selected),SpinEditDegreeBorderAlpha.Value);
-    FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText:=CBDegreeBorderText.Checked;
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor := SetAlpha(Color32(DegreeBoxBorder.Selected), SpinEditDegreeBorderAlpha.Value);
+    FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText := CBDegreeBorderText.Checked;
   finally
     FMainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockWrite;
   end;
@@ -647,8 +684,8 @@ begin
   VInetConfig.LockWrite;
   try
     VProxyConfig := VInetConfig.ProxyConfig;
-    if (chkUseIEProxy.Checked)and(VProxyConfig.GetUseIESettings<>chkUseIEProxy.Checked) then begin
-      VNeedReboot:=true;
+    if (chkUseIEProxy.Checked) and (VProxyConfig.GetUseIESettings <> chkUseIEProxy.Checked) then begin
+      VNeedReboot := true;
     end;
     VProxyConfig.SetUseIESettings(chkUseIEProxy.Checked);
     VProxyConfig.SetUseProxy(CBProxyused.Checked);
@@ -691,7 +728,7 @@ begin
   FfrBDBVerCachePath.ApplyChanges;
   FfrGCCachePath.ApplyChanges;
 
-  GState.CacheConfig.DBMSCachePath.Path:=edtDBMSCachePath.Text; // do not add delimiter(s)
+  GState.CacheConfig.DBMSCachePath.Path := edtDBMSCachePath.Text; // do not add delimiter(s)
 
   FfrMapPathSelect.ApplyChanges;
   FfrTerrainDataPathSelect.ApplyChanges;
@@ -719,19 +756,19 @@ begin
     FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockWrite;
   end;
 
- GState.Config.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
+  GState.Config.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 
- FMainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
+  FMainFormConfig.DownloadUIConfig.TilesOut := TilesOverScreenEdit.Value;
 
- frShortCutList.ApplyChanges;
- frMapsList.ApplyChanges;
- frGPSConfig.ApplyChanges;
+  frShortCutList.ApplyChanges;
+  frMapsList.ApplyChanges;
+  frGPSConfig.ApplyChanges;
   if Assigned(FOnSave) then begin
     FOnSave(nil);
   end;
- if VNeedReboot then begin
-   ShowMessage(SAS_MSG_need_reload_application_curln);
- end;
+  if VNeedReboot then begin
+    ShowMessage(SAS_MSG_need_reload_application_curln);
+  end;
 end;
 
 procedure TfrmSettings.CBLoginClick(Sender: TObject);
@@ -746,7 +783,7 @@ end;
 
 procedure TfrmSettings.CBoxLocalChange(Sender: TObject);
 begin
- GState.Config.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
+  GState.Config.LanguageManager.SetCurrentLanguageIndex(CBoxLocal.ItemIndex);
 end;
 
 procedure TfrmSettings.CBProxyusedClick(Sender: TObject);
@@ -847,18 +884,18 @@ begin
   end;
   CBoxLocal.ItemIndex := GState.Config.LanguageManager.GetCurrentLanguageIndex;
 
-  MiniMapAlphaEdit.Value:=FMainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
+  MiniMapAlphaEdit.Value := FMainFormConfig.LayersConfig.MiniMapLayerConfig.MasterAlpha;
 
   GState.Config.DownloadConfig.LockRead;
   try
-    CBLastSuccess.Checked:=GState.Config.DownloadConfig.IsUseSessionLastSuccess;
-    CkBGoNextTile.Checked:=GState.Config.DownloadConfig.IsGoNextTileIfDownloadError;
-    CBSaveTileNotExists.Checked:=GState.Config.DownloadConfig.IsSaveTileNotExists;
+    CBLastSuccess.Checked := GState.Config.DownloadConfig.IsUseSessionLastSuccess;
+    CkBGoNextTile.Checked := GState.Config.DownloadConfig.IsGoNextTileIfDownloadError;
+    CBSaveTileNotExists.Checked := GState.Config.DownloadConfig.IsSaveTileNotExists;
   finally
     GState.Config.DownloadConfig.UnlockRead;
   end;
 
- ColorBoxBackGround.Selected:=GState.Config.ViewConfig.BackGroundColor;
+  ColorBoxBackGround.Selected := GState.Config.ViewConfig.BackGroundColor;
   GState.Config.GsmConfig.LockRead;
   try
     chkPosFromGSM.Checked := GState.Config.GsmConfig.GetUseGSMByCOM;
@@ -896,35 +933,35 @@ begin
   finally
     FMainFormConfig.LayersConfig.FillingMapLayerConfig.UnlockRead;
   end;
- CBlock_toolbars.Checked:=FMainFormConfig.ToolbarsLock.GetIsLock;
+  CBlock_toolbars.Checked := FMainFormConfig.ToolbarsLock.GetIsLock;
   GState.Config.BitmapPostProcessingConfig.LockRead;
   try
     CBinvertcolor.Checked := GState.Config.BitmapPostProcessingConfig.InvertColor;
-    TrBarGamma.Position:=GState.Config.BitmapPostProcessingConfig.GammaN;
-    TrBarContrast.Position:=GState.Config.BitmapPostProcessingConfig.ContrastN;
+    TrBarGamma.Position := GState.Config.BitmapPostProcessingConfig.GammaN;
+    TrBarContrast.Position := GState.Config.BitmapPostProcessingConfig.ContrastN;
   finally
     GState.Config.BitmapPostProcessingConfig.UnlockRead;
   end;
   if TrBarGamma.Position < 50 then begin
-    LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position*2)/100)+')';
+    LabelGamma.Caption := SAS_STR_Gamma + ' (' + floattostr((TrBarGamma.Position * 2) / 100) + ')';
   end else begin
-    LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
+    LabelGamma.Caption := SAS_STR_Gamma + ' (' + floattostr((TrBarGamma.Position - 40) / 10) + ')';
   end;
-  LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarContrast.Position)+')';
+  LabelContrast.Caption := SAS_STR_Contrast + ' (' + inttostr(TrBarContrast.Position) + ')';
 
   FMainFormConfig.LayersConfig.MapLayerGridsConfig.LockRead;
   try
-    ColorBoxBorder.Selected:=WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
-    SpinEditBorderAlpha.Value:=AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
-    CBBorderText.Checked:=FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText;
+    ColorBoxBorder.Selected := WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
+    SpinEditBorderAlpha.Value := AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.GridColor);
+    CBBorderText.Checked := FMainFormConfig.LayersConfig.MapLayerGridsConfig.TileGrid.ShowText;
 
-    GenshtabBoxBorder.Selected:=WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
-    SpinEditGenshtabBorderAlpha.Value:=AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
-    CBGenshtabBorderText.Checked:=FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText;
+    GenshtabBoxBorder.Selected := WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
+    SpinEditGenshtabBorderAlpha.Value := AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.GridColor);
+    CBGenshtabBorderText.Checked := FMainFormConfig.LayersConfig.MapLayerGridsConfig.GenShtabGrid.ShowText;
 
-    DegreeBoxBorder.Selected:=WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
-    SpinEditDegreeBorderAlpha.Value:=AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
-    CBDegreeBorderText.Checked:=FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText;
+    DegreeBoxBorder.Selected := WinColor(FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
+    SpinEditDegreeBorderAlpha.Value := AlphaComponent(FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.GridColor);
+    CBDegreeBorderText.Checked := FMainFormConfig.LayersConfig.MapLayerGridsConfig.DegreeGrid.ShowText;
   finally
     FMainFormConfig.LayersConfig.MapLayerGridsConfig.UnlockRead;
   end;
@@ -944,7 +981,7 @@ begin
   FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.LockRead;
   try
     ColorBoxGPSstr.Selected := WinColor(FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerColor);
-    SESizeStr.Value:=FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize;
+    SESizeStr.Value := FMainFormConfig.LayersConfig.GPSMarker.MovedMarkerConfig.MarkerSize;
     seGPSMarkerRingsCount.Value := FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.Count;
     seGPSMarkerRingRadius.Value := Trunc(FMainFormConfig.LayersConfig.GPSMarker.MarkerRingsConfig.StepDistance);
   finally
@@ -971,8 +1008,8 @@ begin
 
   GState.Config.ValueToStringConverterConfig.LockRead;
   try
-    ChBoxFirstLat.Checked:=GState.Config.ValueToStringConverterConfig.IsLatitudeFirst;
-    CB_llstrType.ItemIndex:=byte(GState.Config.ValueToStringConverterConfig.DegrShowFormat);
+    ChBoxFirstLat.Checked := GState.Config.ValueToStringConverterConfig.IsLatitudeFirst;
+    CB_llstrType.ItemIndex := byte(GState.Config.ValueToStringConverterConfig.DegrShowFormat);
     ComboBox1.ItemIndex := byte(GState.Config.ValueToStringConverterConfig.DistStrFormat);
     cbbAreaFormat.ItemIndex := byte(GState.Config.ValueToStringConverterConfig.AreaShowFormat);
   finally
@@ -980,8 +1017,8 @@ begin
   end;
   FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.LockRead;
   try
-    CBWMainColor.Selected:=WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor);
-    CBWFonColor.Selected:=WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor);
+    CBWMainColor.Selected := WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.MainColor);
+    CBWFonColor.Selected := WinColor(FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.ShadowColor);
   finally
     FMainFormConfig.LayersConfig.KmlLayerConfig.DrawConfig.UnlockRead;
   end;
@@ -990,32 +1027,39 @@ begin
   CBMinimizeToTray.Checked := GState.Config.GlobalAppConfig.IsShowIconInTray;
   ChkShowLogo.Checked := GState.Config.StartUpLogoConfig.IsShowLogo;
 
- chkPosFromGSMClick(chkPosFromGSM);
- chkUseIEProxyClick(chkUseIEProxy);
+  chkPosFromGSMClick(chkPosFromGSM);
+  chkUseIEProxyClick(chkUseIEProxy);
 end;
 
-procedure TfrmSettings.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+procedure TfrmSettings.FormCloseQuery(
+  Sender: TObject;
+  var CanClose: Boolean
+);
 begin
   CanClose := frGPSConfig.CanClose;
 end;
 
 procedure TfrmSettings.FormCreate(Sender: TObject);
-var i:integer;
+var
+  i: integer;
 begin
-  for i:=1 to 64 do begin
-    CBGSMComPort.Items.Add('COM'+inttostr(i));
+  for i := 1 to 64 do begin
+    CBGSMComPort.Items.Add('COM' + inttostr(i));
   end;
 end;
 
 procedure TfrmSettings.TrBarGammaChange(Sender: TObject);
 begin
- if TrBarGamma.Position<50 then LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position*2)/100)+')'
-                           else LabelGamma.Caption:=SAS_STR_Gamma+' ('+floattostr((TrBarGamma.Position-40)/10)+')';
+  if TrBarGamma.Position < 50 then begin
+    LabelGamma.Caption := SAS_STR_Gamma + ' (' + floattostr((TrBarGamma.Position * 2) / 100) + ')';
+  end else begin
+    LabelGamma.Caption := SAS_STR_Gamma + ' (' + floattostr((TrBarGamma.Position - 40) / 10) + ')';
+  end;
 end;
 
 procedure TfrmSettings.TrBarContrastChange(Sender: TObject);
 begin
- LabelContrast.Caption:=SAS_STR_Contrast+' ('+inttostr(TrBarContrast.Position)+')';
+  LabelContrast.Caption := SAS_STR_Contrast + ' (' + inttostr(TrBarContrast.Position) + ')';
 end;
 
 procedure TfrmSettings.RefreshTranslation;
@@ -1038,6 +1082,3 @@ begin
 end;
 
 end.
-
-
-
