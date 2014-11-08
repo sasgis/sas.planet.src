@@ -35,6 +35,7 @@ uses
 type
   EGeoCoderERR = class(Exception);
   EDirNotExist = class(EGeoCoderERR);
+
   TGeoCoderByGpx = class(TGeoCoderLocalBasic)
   private
     FPath: string;
@@ -83,8 +84,9 @@ constructor TGeoCoderByGpx.Create(
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   FPath := APath;
-  if not DirectoryExists(FPath) then
+  if not DirectoryExists(FPath) then begin
     raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByGpx', [FPath]);
+  end;
   FValueToStringConverter := AValueToStringConverter;
 end;
 
@@ -100,15 +102,13 @@ begin
   Result := false;
   for I := 0 to AList.Count - 1 do begin
     VPlacemark := IVectorDataItem(AList.Items[I]);
-    J:= posex(')', VPlacemark.Name);
+    J := posex(')', VPlacemark.Name);
     VStr1 := copy(VPlacemark.Name, J, length(VPlacemark.Name) - (J + 1));
-    J:= posex(')', AValue.Name);
+    J := posex(')', AValue.Name);
     VStr2 := copy(AValue.Name, J, length(AValue.Name) - (J + 1));
     if VStr1 = VStr2 then begin
-      if
-        abs(VPlacemark.Geometry.GetGoToPoint.X - AValue.Geometry.GetGoToPoint.X) +
-        abs(VPlacemark.Geometry.GetGoToPoint.Y - AValue.Geometry.GetGoToPoint.Y) < 0.05
-      then begin
+      if abs(VPlacemark.Geometry.GetGoToPoint.X - AValue.Geometry.GetGoToPoint.X) +
+      abs(VPlacemark.Geometry.GetGoToPoint.Y - AValue.Geometry.GetGoToPoint.Y) < 0.05 then begin
         Result := true;
         Break;
       end;
@@ -150,33 +150,41 @@ begin
         if VNode.ChildNodes[I].NodeName = 'wpt' then begin
           VPlacemarkNode := VNode.ChildNodes[I];
           for J := 0 to VPlacemarkNode.GetAttributeNodes.getcount - 1 do begin
-            if VPlacemarkNode.GetAttributeNodes.get(J).GetNodeName = 'lon' then
+            if VPlacemarkNode.GetAttributeNodes.get(J).GetNodeName = 'lon' then begin
               VPoint.X := StrToFloat(VPlacemarkNode.GetAttributeNodes.get(J).gettext, VFormatSettings);
-            if VPlacemarkNode.GetAttributeNodes.get(J).GetNodeName = 'lat' then
+            end;
+            if VPlacemarkNode.GetAttributeNodes.get(J).GetNodeName = 'lat' then begin
               VPoint.Y := StrToFloat(VPlacemarkNode.GetAttributeNodes.get(J).gettext, VFormatSettings);
+            end;
           end;
 
           VAddress := VPlacemarkNode.ChildNodes.FindNode('name').Text;
           VDesc := '';
-          if VPlacemarkNode.ChildNodes.FindNode('desc') <> nil then
+          if VPlacemarkNode.ChildNodes.FindNode('desc') <> nil then begin
             VDesc := VPlacemarkNode.ChildNodes.FindNode('desc').Text;
-          if VPlacemarkNode.ChildNodes.FindNode('ele') <> nil then
+          end;
+          if VPlacemarkNode.ChildNodes.FindNode('ele') <> nil then begin
             VDesc := VDesc + #$D#$A + 'Elevation ' + VPlacemarkNode.ChildNodes.FindNode('ele').Text;
+          end;
           VDesc := VDesc + #$D#$A + '[ ' + AValueConverter.LonLatConvert(VPoint) + ' ]';
-          VFullDesc := VAddress + '<br>' + VDesc ;
+          VFullDesc := VAddress + '<br>' + VDesc;
 
-          if VPlacemarkNode.ChildNodes.FindNode('url') <> nil then
+          if VPlacemarkNode.ChildNodes.FindNode('url') <> nil then begin
             VFullDesc := VFullDesc + '<br><a href=' + VPlacemarkNode.ChildNodes.FindNode('url').Text + '>' + VPlacemarkNode.ChildNodes.FindNode('url').Text + '</a>';
+          end;
 
           for J := 0 to VPlacemarkNode.ChildNodes.Count - 1 do begin
             VPlacemarkSubNode := VPlacemarkNode.ChildNodes[J];
-            if VPlacemarkSubNode.NodeName ='groundspeak:cache' then begin
-              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:short_description') <> nil then
+            if VPlacemarkSubNode.NodeName = 'groundspeak:cache' then begin
+              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:short_description') <> nil then begin
                 VFullDesc := VFullDesc + '<br>' + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:short_description').Text;
-              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:difficulty') <> nil then
+              end;
+              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:difficulty') <> nil then begin
                 VFullDesc := VFullDesc + '<br>Difficulty:' + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:difficulty').Text;
-              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:long_description') <> nil then
+              end;
+              if VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:long_description') <> nil then begin
                 VFullDesc := VFullDesc + VPlacemarkSubNode.ChildNodes.FindNode('groundspeak:long_description').Text;
+              end;
             end;
           end;
 
@@ -184,9 +192,9 @@ begin
 
           Vskip := True;
           if Pos(VSearch, AnsiUpperCase(VAddress)) <> 0 then begin
-            Vskip := False
+            Vskip := False;
           end else if Pos(VSearch, AnsiUpperCase(VFullDesc)) <> 0 then begin
-            Vskip := False
+            Vskip := False;
           end;
           if not Vskip then begin
             VPlace := PlacemarkFactory.Build(VPoint, VAddress, VDesc, VFullDesc, 4);
@@ -217,7 +225,9 @@ var
 begin
   VMySearch := ASearch;
   VValueConverter := FValueToStringConverter.GetStatic;
-  while PosEx('  ', VMySearch) > 0 do VMySearch := ReplaceStr(VMySearch, '  ', ' ');
+  while PosEx('  ', VMySearch) > 0 do begin
+    VMySearch := ReplaceStr(VMySearch, '  ', ' ');
+  end;
   VList := TInterfaceListSimple.Create;
   if FindFirst(FPath + '*.gpx', faAnyFile, VSearchRec) = 0 then begin
     repeat
@@ -233,4 +243,5 @@ begin
   end;
   Result := VList;
 end;
+
 end.

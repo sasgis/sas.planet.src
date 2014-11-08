@@ -95,26 +95,24 @@ function GetBetween(
   APtr: integer
 ): integer;
 var
- i, j: integer;
+  i, j: integer;
 begin
   i := ALPosEx(AFrom, ASTR, Aptr);
-  if i>0 then
-   begin
-   j := ALPosEx(ATo, ASTR, i + length(AFrom));
-   if j>i then begin
-     VRes := Copy(AStr, i + Length(AFrom), j - (i + length(AFrom)));
-     Result := j;
-   end else
-   begin
-     VRes := '';
-     Result := Aptr;
-   end
-  end else
-  begin
-   VRes := '';
-   Result := Aptr;
+  if i > 0 then begin
+    j := ALPosEx(ATo, ASTR, i + length(AFrom));
+    if j > i then begin
+      VRes := Copy(AStr, i + Length(AFrom), j - (i + length(AFrom)));
+      Result := j;
+    end else begin
+      VRes := '';
+      Result := Aptr;
+    end;
+  end else begin
+    VRes := '';
+    Result := Aptr;
   end;
 end;
+
 constructor TGeoCoderByRosreestr.Create(
   const AInetSettings: IInetConfig;
   const AGCNotifier: INotifierTime;
@@ -183,9 +181,9 @@ begin
     j := GetBetween(Vstr, '"OBJECT_ADDRESS":"', '"', VTemp, j);
     sdesc := Utf8ToAnsi(VTemp);
 
-    if sdesc='' then begin
+    if sdesc = '' then begin
       j := GetBetween(Vstr, '"OBJECT_PLACE":"', '"', VTemp, j);
-      j := GetBetween(Vstr, '"OBJECT_LOCALITY":"','"', VTemp1, j);
+      j := GetBetween(Vstr, '"OBJECT_LOCALITY":"', '"', VTemp1, j);
       sdesc := Utf8ToAnsi(VTemp + ' ' + VTemp1);
     end;
 
@@ -198,8 +196,8 @@ begin
       raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [slat, slon]);
     end;
     i := (ALPosEx('}}', VStr, j));
-    sdesc := sdesc + #$D#$A + '[ '+ VValueConverter.LonLatConvert(VPoint) + ' ]';
-    sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
+    sdesc := sdesc + #$D#$A + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
+    sfulldesc := ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
     VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;
@@ -230,7 +228,7 @@ begin
     end;
     i := (ALPosEx('}}', VStr, i));
     sdesc := sdesc + #$D#$A + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
-    sfulldesc :=  ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
+    sfulldesc := ReplaceStr(sname + #$D#$A + sdesc, #$D#$A, '<br>');
     VPlace := PlacemarkFactory.Build(VPoint, sname, sdesc, sfulldesc, 4);
     VList.Add(VPlace);
   end;

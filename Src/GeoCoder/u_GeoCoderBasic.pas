@@ -46,7 +46,7 @@ type
     FVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
     FPlacemarkFactory: IGeoCodePlacemarkFactory;
     function BuildSortedSubset(
-      const AList:IInterfaceListSimple;
+      const AList: IInterfaceListSimple;
       const ALocalConverter: ILocalCoordConverter
     ): IVectorItemSubset;
   protected
@@ -113,7 +113,7 @@ begin
 end;
 
 function TGeoCoderBasic.BuildSortedSubset(
-  const AList:IInterfaceListSimple;
+  const AList: IInterfaceListSimple;
   const ALocalConverter: ILocalCoordConverter
 ): IVectorItemSubset;
 var

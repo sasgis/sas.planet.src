@@ -54,7 +54,7 @@ implementation
 uses
   SysUtils,
   c_GeoCoderGUIDSimple,
-  i_InterfaceListSimple,                                                                     
+  i_InterfaceListSimple,
   i_GeoCoderList,
   u_InterfaceListSimple,
   u_GeoCoderListEntity,
@@ -192,7 +192,7 @@ begin
     TGeoCoderListEntity.Create(
       CGeoCoderCoordGUID,
       'Coordinates',
-      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter,  ACoordConverterFactory)
+      TGeoCoderByCoord.Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory, AValueToStringConverter, ACoordConverterFactory)
     );
   VList.Add(VItem);
 

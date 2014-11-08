@@ -85,15 +85,16 @@ constructor TGeoCoderByTXT.Create(
 begin
   inherited Create(AVectorItemSubsetBuilderFactory, APlacemarkFactory);
   FPath := APath;
-  if not DirectoryExists(FPath) then
+  if not DirectoryExists(FPath) then begin
     raise EDirNotExist.CreateFmt('not found %s! skip GeoCoderByTXT', [FPath]);
+  end;
   FValueToStringConverter := AValueToStringConverter;
 end;
 
 function ItemExist(
   const AValue: IVectorDataItem;
   const AList: IInterfaceListSimple
-):boolean;
+): boolean;
 var
   I, J: Integer;
   VPlacemark: IVectorDataItem;
@@ -102,15 +103,13 @@ begin
   Result := False;
   for I := 0 to AList.Count - 1 do begin
     VPlacemark := IVectorDataItem(AList.Items[I]);
-    J:= PosEx(')',VPlacemark.Name);
+    J := PosEx(')', VPlacemark.Name);
     VStr1 := copy(VPlacemark.Name, J, Length(VPlacemark.Name) - (J + 1));
-    J:= PosEx(')',AValue.Name);
+    J := PosEx(')', AValue.Name);
     VStr2 := copy(AValue.Name, J, Length(AValue.Name) - (J + 1));
-    if VStr1=VStr2 then begin
-      if
-        abs(VPlacemark.Geometry.GetGoToPoint.X - AValue.Geometry.GetGoToPoint.X) +
-        abs(VPlacemark.Geometry.GetGoToPoint.Y - AValue.Geometry.GetGoToPoint.Y) < 0.05
-      then begin
+    if VStr1 = VStr2 then begin
+      if abs(VPlacemark.Geometry.GetGoToPoint.X - AValue.Geometry.GetGoToPoint.X) +
+      abs(VPlacemark.Geometry.GetGoToPoint.Y - AValue.Geometry.GetGoToPoint.Y) < 0.05 then begin
         Result := True;
         Break;
       end;
@@ -153,8 +152,8 @@ begin
     VTabArray := TStringList.Create;
     try
       while not EOF(VTextFile) do begin
-       Readln(VTextFile, VAnsi);
-       VLine := Utf8ToAnsi(VAnsi);
+        Readln(VTextFile, VAnsi);
+        VLine := Utf8ToAnsi(VAnsi);
         VLineUpper := AnsiUpperCase(VLine);
         if Pos(VSearch, VLineUpper) > 1 then begin
           if ACnt mod 5 = 0 then begin
@@ -165,7 +164,9 @@ begin
           VTabArray.LineBreak := #09;
           VTabArray.Text := VLine;
 
-          if VTabArray.Count < 19 then break;
+          if VTabArray.Count < 19 then begin
+            break;
+          end;
 
           VSDesc :=
             VTabArray.Strings[17] + #$D#$A +
@@ -204,9 +205,9 @@ begin
               raise EParserError.CreateFmt(SAS_ERR_CoordParseError, [VLatStr, VLonStr]);
             end;
 
-            VSDesc := VSDesc + '[ '+VValueConverter.LonLatConvert(VPoint) + ' ]';
+            VSDesc := VSDesc + '[ ' + VValueConverter.LonLatConvert(VPoint) + ' ]';
             VSDesc := VSDesc + #$D#$A + ExtractFileName(AFile);
-            VSFullDesc :=  ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
+            VSFullDesc := ReplaceStr(VSName + #$D#$A + VSDesc, #$D#$A, '<br>');
 
             VPlace := PlacemarkFactory.Build(VPoint, VSName, VSDesc, VSFullDesc, 4);
             if not ItemExist(VPlace, AList) then begin
@@ -238,7 +239,9 @@ var
 begin
   Vcnt := 1;
   MySearch := ASearch;
-  while PosEx('  ',MySearch) > 0 do MySearch := ReplaceStr(MySearch, '  ', ' ');
+  while PosEx('  ', MySearch) > 0 do begin
+    MySearch := ReplaceStr(MySearch, '  ', ' ');
+  end;
   VList := TInterfaceListSimple.Create;
   if FindFirst(FPath + '*.txt', faAnyFile, SearchRec) = 0 then begin
     repeat
@@ -254,4 +257,5 @@ begin
   end;
   Result := VList;
 end;
+
 end.

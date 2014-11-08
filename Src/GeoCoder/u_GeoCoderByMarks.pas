@@ -48,7 +48,7 @@ type
       const APlacemarkFactory: IGeoCodePlacemarkFactory;
       const AMarksDb: IMarkDb
     );
-end;
+  end;
 
 implementation
 
@@ -80,7 +80,9 @@ var
   VVectorItems: IVectorItemSubset;
 begin
   VList := TInterfaceListSimple.Create;
-  if ACancelNotifier.IsOperationCanceled(AOperationID) then Exit;
+  if ACancelNotifier.IsOperationCanceled(AOperationID) then begin
+    Exit;
+  end;
   VVectorItems := FMarksDb.FindMarks(ASearch, 100, True, True);
 
   if VVectorItems <> nil then begin

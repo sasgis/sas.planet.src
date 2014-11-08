@@ -180,8 +180,8 @@ begin
       '&sensor=false' +
       '&language=' + ALStringReplace(AnsiString(SAS_STR_GoogleSearchLanguage), '&hl=', '', [rfIgnoreCase]) +
       '&bounds=' +
-        R2AnsiStrPoint(VLonLatRect.Bottom) + ',' + R2AnsiStrPoint(VLonLatRect.Left) + '|' +
-        R2AnsiStrPoint(VLonLatRect.Top) + ',' + R2AnsiStrPoint(VLonLatRect.Right)
+      R2AnsiStrPoint(VLonLatRect.Bottom) + ',' + R2AnsiStrPoint(VLonLatRect.Left) + '|' +
+      R2AnsiStrPoint(VLonLatRect.Top) + ',' + R2AnsiStrPoint(VLonLatRect.Right)
     );
 end;
 
