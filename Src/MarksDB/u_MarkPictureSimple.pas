@@ -136,12 +136,12 @@ begin
             VAnchor.Y := VBitmap.Size.Y / 2;
           end;
         else // paDefault
-          begin
-            VAnchor.X := VBitmap.Size.X / 2;
-            VAnchor.Y := VBitmap.Size.Y;
-          end;
+        begin
+          VAnchor.X := VBitmap.Size.X / 2;
+          VAnchor.Y := VBitmap.Size.Y;
         end;
-        
+        end;
+
         FBitmapMarker := TBitmapMarker.Create(VBitmap, VAnchor);
         FInitedFlag.SetFlag;
       end;

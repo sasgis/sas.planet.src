@@ -77,7 +77,10 @@ uses
   i_ContentTypeInfo,
   u_MarkPictureSimple;
 
-procedure GetFilesList(const APath, AMask: string; var AList: TStringList);
+procedure GetFilesList(
+  const APath, AMask: string;
+  var AList: TStringList
+);
 const
   cFileMask = '*.*';
 var
@@ -85,23 +88,27 @@ var
   VPath: string;
 begin
   VPath := IncludeTrailingPathDelimiter(APath);
-  if FindFirst(VPath + cFileMask, faAnyFile - faDirectory, VRec) = 0 then
-  try
-    repeat
-      if AnsiPos(ExtractFileExt(VRec.Name), AMask) > 0 then
-        AList.Add(VPath + VRec.Name);
-    until FindNext(VRec) <> 0;
-  finally
-    FindClose(VRec);
+  if FindFirst(VPath + cFileMask, faAnyFile - faDirectory, VRec) = 0 then begin
+    try
+      repeat
+        if AnsiPos(ExtractFileExt(VRec.Name), AMask) > 0 then begin
+          AList.Add(VPath + VRec.Name);
+        end;
+      until FindNext(VRec) <> 0;
+    finally
+      FindClose(VRec);
+    end;
   end;
-  if FindFirst(VPath + cFileMask, faDirectory, VRec) = 0 then
-  try
-    repeat
-      if ((VRec.Attr and faDirectory) <> 0) and (VRec.Name <> '.') and (VRec.Name <> '..') then
-        GetFilesList(VPath + VRec.Name, AMask, AList); // recursion
-    until FindNext(VRec) <> 0;
-  finally
-    FindClose(VRec);
+  if FindFirst(VPath + cFileMask, faDirectory, VRec) = 0 then begin
+    try
+      repeat
+        if ((VRec.Attr and faDirectory) <> 0) and (VRec.Name <> '.') and (VRec.Name <> '..') then begin
+          GetFilesList(VPath + VRec.Name, AMask, AList);
+        end; // recursion
+      until FindNext(VRec) <> 0;
+    finally
+      FindClose(VRec);
+    end;
   end;
 end;
 
@@ -396,7 +403,7 @@ begin
           VShortName,
           VLoader,
           paCenter // ToDO: Add config for PicAnchor
-        ); 
+        );
         VPicture._AddRef;
         Result := FRuntimeList.AddObject(VShortName, TObject(Pointer(VPicture)));
       except

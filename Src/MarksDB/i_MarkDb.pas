@@ -78,10 +78,19 @@ type
 
     function GetMarkByID(const AMarkId: IMarkId): IVectorDataItem;
 
-    procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
-    procedure SetMarkVisible(const AMark: IVectorDataItem; AVisible: Boolean);
+    procedure SetMarkVisibleByID(
+      const AMark: IMarkId;
+      AVisible: Boolean
+    );
+    procedure SetMarkVisible(
+      const AMark: IVectorDataItem;
+      AVisible: Boolean
+    );
 
-    procedure SetMarkVisibleByIDList(const AMarkList: IInterfaceListStatic; AVisible: Boolean);
+    procedure SetMarkVisibleByIDList(
+      const AMarkList: IInterfaceListStatic;
+      AVisible: Boolean
+    );
     procedure ToggleMarkVisibleByIDList(const AMarkList: IInterfaceListStatic);
 
     function GetMarkVisibleByID(const AMark: IMarkId): Boolean;

@@ -95,10 +95,19 @@ type
 
     function GetMarkByID(const AMarkId: IMarkId): IVectorDataItem;
 
-    procedure SetMarkVisibleByID(const AMark: IMarkId; AVisible: Boolean);
-    procedure SetMarkVisible(const AMark: IVectorDataItem; AVisible: Boolean);
+    procedure SetMarkVisibleByID(
+      const AMark: IMarkId;
+      AVisible: Boolean
+    );
+    procedure SetMarkVisible(
+      const AMark: IVectorDataItem;
+      AVisible: Boolean
+    );
 
-    procedure SetMarkVisibleByIDList(const AMarkList: IInterfaceListStatic; AVisible: Boolean);
+    procedure SetMarkVisibleByIDList(
+      const AMarkList: IInterfaceListStatic;
+      AVisible: Boolean
+    );
     procedure ToggleMarkVisibleByIDList(const AMarkList: IInterfaceListStatic);
 
     function GetMarkVisibleByID(const AMark: IMarkId): Boolean;
@@ -193,8 +202,10 @@ begin
   end;
 end;
 
-function TMarkDbByImpl.GetMarkByName(const AName: string;
-  const ACategory: ICategory): IVectorDataItem;
+function TMarkDbByImpl.GetMarkByName(
+  const AName: string;
+  const ACategory: ICategory
+): IVectorDataItem;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -248,7 +259,8 @@ end;
 
 function TMarkDbByImpl.GetMarkSubsetByCategoryList(
   const ACategoryList: IInterfaceListStatic;
-  const AIncludeHiddenMarks: Boolean): IVectorItemSubset;
+  const AIncludeHiddenMarks: Boolean
+): IVectorItemSubset;
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -333,7 +345,9 @@ begin
 end;
 
 procedure TMarkDbByImpl.SetAllMarksInCategoryVisible(
-  const ACategory: ICategory; ANewVisible: Boolean);
+  const ACategory: ICategory;
+  ANewVisible: Boolean
+);
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -343,7 +357,10 @@ begin
   end;
 end;
 
-procedure TMarkDbByImpl.SetMarkVisible(const AMark: IVectorDataItem; AVisible: Boolean);
+procedure TMarkDbByImpl.SetMarkVisible(
+  const AMark: IVectorDataItem;
+  AVisible: Boolean
+);
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -353,8 +370,10 @@ begin
   end;
 end;
 
-procedure TMarkDbByImpl.SetMarkVisibleByID(const AMark: IMarkId;
-  AVisible: Boolean);
+procedure TMarkDbByImpl.SetMarkVisibleByID(
+  const AMark: IMarkId;
+  AVisible: Boolean
+);
 var
   VImpl: IMarkSystemImpl;
 begin
@@ -364,8 +383,10 @@ begin
   end;
 end;
 
-procedure TMarkDbByImpl.SetMarkVisibleByIDList(const AMarkList: IInterfaceListStatic;
-  AVisible: Boolean);
+procedure TMarkDbByImpl.SetMarkVisibleByIDList(
+  const AMarkList: IInterfaceListStatic;
+  AVisible: Boolean
+);
 var
   VImpl: IMarkSystemImpl;
 begin

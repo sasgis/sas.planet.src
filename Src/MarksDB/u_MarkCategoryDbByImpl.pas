@@ -98,7 +98,8 @@ uses
 
 constructor TMarkCategoryDbByImpl.Create(
   const AMarkSystemImpl: IMarkSystemImplChangeable;
-  const AMarkCategoryFactory: IMarkCategoryFactory);
+  const AMarkCategoryFactory: IMarkCategoryFactory
+);
 begin
   inherited Create;
   FMarkSystemImpl := AMarkSystemImpl;
@@ -217,7 +218,7 @@ begin
       VTmp := TInterfaceListSimple.Create;
       for i := 0 to VList.Count - 1 do begin
         VCategory := IMarkCategory(VList[i]);
-        if  StartsStr(VNameStart, VCategory.Name) then begin
+        if StartsStr(VNameStart, VCategory.Name) then begin
           VTmp.Add(VCategory);
         end;
       end;
