@@ -33,7 +33,7 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TBitmapTileFreeImageLoader = class (TBaseInterfacedObject, IBitmapTileLoader)
+  TBitmapTileFreeImageLoader = class(TBaseInterfacedObject, IBitmapTileLoader)
   private
     FCounter: IInternalPerformanceCounter;
     FBitmap32StaticFactory: IBitmap32StaticFactory;
@@ -78,7 +78,7 @@ type
     );
   end;
 
-  TBitmapTileFreeImageSaver = class (TBaseInterfacedObject, IBitmapTileSaver)
+  TBitmapTileFreeImageSaver = class(TBaseInterfacedObject, IBitmapTileSaver)
   private
     FFormat: FREE_IMAGE_FORMAT;
     FBitPerPixel: Byte;
@@ -135,8 +135,8 @@ uses
   u_BinaryDataByMemStream;
 
 type
-  EBitmapTileFreeImageLoader = class (Exception);
-  EBitmapTileFreeImageSaver = class (Exception);
+  EBitmapTileFreeImageLoader = class(Exception);
+  EBitmapTileFreeImageSaver = class(Exception);
 
 const
   cPngCompressLevelUndef = 255;
@@ -285,18 +285,30 @@ begin
   FCounter := APerfCounterList.CreateAndAddNewCounter('Save');
   case FFormat of
     FIF_PNG:
-      case APngCompress  of
+    begin
+      case APngCompress of
         1..4:
+        begin
           FFlag := PNG_Z_BEST_SPEED;
+        end;
         5..7:
+        begin
           FFlag := PNG_Z_DEFAULT_COMPRESSION;
+        end;
         8, 9:
+        begin
           FFlag := PNG_Z_BEST_COMPRESSION;
+        end;
       else // 0
+      begin
         FFlag := PNG_Z_NO_COMPRESSION;
       end;
+      end;
+    end;
   else // FIF_BMP, FIF_GIF
+  begin
     FFlag := 0;
+  end;
   end;
 end;
 
@@ -347,9 +359,9 @@ begin
           Assert(VPaletteSize = 256);
 
           if not VFreeBitmap.GetFileBkColor(VBkColor) then begin
-            VBkColor.rgbBlue  := 0;
+            VBkColor.rgbBlue := 0;
             VBkColor.rgbGreen := 0;
-            VBkColor.rgbRed   := 0;
+            VBkColor.rgbRed := 0;
             VBkColor.rgbReserved := 0;
           end;
 
@@ -357,9 +369,8 @@ begin
             Move(VBitmap8.Palette[I], VPalette^, 4);
 
             if (VPalette.rgbBlue = VBkColor.rgbBlue) and
-               (VPalette.rgbGreen = VBkColor.rgbGreen) and
-               (VPalette.rgbRed = VBkColor.rgbRed)
-            then begin
+              (VPalette.rgbGreen = VBkColor.rgbGreen) and
+              (VPalette.rgbRed = VBkColor.rgbRed) then begin
               VTransparencyTable[I] := VBkColor.rgbReserved;
             end else begin
               VTransparencyTable[I] := VPalette.rgbReserved;
@@ -368,8 +379,7 @@ begin
             Inc(VPalette);
           end;
 
-          VFreeBitmap.SetTransparencyTable(
-            @VTransparencyTable[0],
+          VFreeBitmap.SetTransparencyTable(@VTransparencyTable[0],
             VBitmap8.PaletteSize
           );
 

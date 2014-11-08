@@ -129,7 +129,7 @@ begin
             FreeMemory(VIndexedColor);
           end;
         end else begin
-           raise EBitmap32To8ConverterByFreeImage.Create(
+          raise EBitmap32To8ConverterByFreeImage.Create(
             'FreeBitmap.Palette ERROR!'
           );
         end;

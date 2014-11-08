@@ -53,7 +53,8 @@ type
     log_flush_callback_user_info: pointer;
   end;
   {$ELSE}
-  liq_attr = record end;
+  liq_attr = record
+  end;
   {$ENDIF}
 
   liq_attr_ptr = ^liq_attr;
@@ -76,7 +77,8 @@ type
     free_rows, free_pixels: boolean;
   end;
   {$ELSE}
-  liq_image = record end;
+  liq_image = record
+  end;
   {$ENDIF}
 
   liq_image_ptr = ^liq_image;
@@ -86,34 +88,64 @@ type
   liq_error = (
     LIQ_OK = 0,
     LIQ_VALUE_OUT_OF_RANGE = 100,
-   LIQ_OUT_OF_MEMORY,
-   LIQ_NOT_READY,
-   LIQ_BITMAP_NOT_AVAILABLE,
-   LIQ_BUFFER_TOO_SMALL,
-   LIQ_INVALID_POINTER
-  );
+    LIQ_OUT_OF_MEMORY,
+    LIQ_NOT_READY,
+    LIQ_BITMAP_NOT_AVAILABLE,
+    LIQ_BUFFER_TOO_SMALL,
+    LIQ_INVALID_POINTER
+    );
 
   liq_color = record
     r, g, b, a: Byte;
- end;
- liq_color_ptr = ^liq_color;
- liq_palette = record
-   count: Cardinal;
-   entries: array [0..255] of liq_color;
- end;
+  end;
+  liq_color_ptr = ^liq_color;
+
+  liq_palette = record
+    count: Cardinal;
+    entries: array [0..255] of liq_color;
+  end;
   liq_palette_ptr = ^liq_palette;
   liq_attr_create_t = function(): liq_attr_ptr; cdecl;
-  liq_attr_create_with_allocator_t = function(alloc: alloc_mem_t; free: free_mem_t): liq_attr_ptr; cdecl;
+  liq_attr_create_with_allocator_t = function(
+      alloc: alloc_mem_t;
+      free: free_mem_t
+    ): liq_attr_ptr; cdecl;
 
-  liq_set_min_opacity_t = function(attr: liq_attr_ptr; min: integer): liq_error; cdecl;
+  liq_set_min_opacity_t = function(
+      attr: liq_attr_ptr;
+      min: integer
+    ): liq_error; cdecl;
 
-  liq_image_create_rgba_t = function(attr: liq_attr_ptr; bitmap: pointer; width, height: Integer; gamma: Double): liq_image_ptr; cdecl;
-  liq_image_get_rgba_row_callback_t = procedure(row_out: liq_color_ptr; row, width: Integer; user_info: pointer); cdecl;
-  liq_image_create_custom_t = function(attr: liq_attr_ptr; row_callback: liq_image_get_rgba_row_callback_t; user_info: pointer; width, height: Integer; gamma: double): liq_image_ptr; cdecl;
+  liq_image_create_rgba_t = function(
+      attr: liq_attr_ptr;
+      bitmap: pointer;
+      width, height: Integer;
+      gamma: Double
+    ): liq_image_ptr; cdecl;
+  liq_image_get_rgba_row_callback_t = procedure(
+      row_out: liq_color_ptr;
+      row, width: Integer;
+      user_info: pointer
+    ); cdecl;
+  liq_image_create_custom_t = function(
+      attr: liq_attr_ptr;
+      row_callback: liq_image_get_rgba_row_callback_t;
+      user_info: pointer;
+      width, height: Integer;
+      gamma: double
+    ): liq_image_ptr; cdecl;
 
-  liq_quantize_image_t = function(options: liq_attr_ptr; input_image: liq_image_ptr): liq_result_ptr; cdecl;
+  liq_quantize_image_t = function(
+      options: liq_attr_ptr;
+      input_image: liq_image_ptr
+    ): liq_result_ptr; cdecl;
 
-  liq_write_remapped_image_t = function(result: liq_result_ptr; input_image: liq_image_ptr; buffer: pointer; buffer_size: size_t): liq_error; cdecl;
+  liq_write_remapped_image_t = function(
+      result: liq_result_ptr;
+      input_image: liq_image_ptr;
+      buffer: pointer;
+      buffer_size: size_t
+    ): liq_error; cdecl;
 
   liq_get_palette_t = function(result: liq_result_ptr): liq_palette_ptr; cdecl;
 
@@ -169,12 +201,24 @@ type
 procedure liq_ret_code_check(const ret: liq_error);
 begin
   case ret of
-    LIQ_VALUE_OUT_OF_RANGE: raise ELibImageQuantError.Create('LIQ_VALUE_OUT_OF_RANGE');
-    LIQ_OUT_OF_MEMORY: raise ELibImageQuantError.Create('LIQ_OUT_OF_MEMORY');
-   LIQ_NOT_READY: raise ELibImageQuantError.Create('LIQ_NOT_READY');
-   LIQ_BITMAP_NOT_AVAILABLE: raise ELibImageQuantError.Create('LIQ_BITMAP_NOT_AVAILABLE');
-   LIQ_BUFFER_TOO_SMALL: raise ELibImageQuantError.Create('LIQ_BUFFER_TOO_SMALL');
-   LIQ_INVALID_POINTER: raise ELibImageQuantError.Create('LIQ_INVALID_POINTER');
+    LIQ_VALUE_OUT_OF_RANGE: begin
+      raise ELibImageQuantError.Create('LIQ_VALUE_OUT_OF_RANGE');
+    end;
+    LIQ_OUT_OF_MEMORY: begin
+      raise ELibImageQuantError.Create('LIQ_OUT_OF_MEMORY');
+    end;
+    LIQ_NOT_READY: begin
+      raise ELibImageQuantError.Create('LIQ_NOT_READY');
+    end;
+    LIQ_BITMAP_NOT_AVAILABLE: begin
+      raise ELibImageQuantError.Create('LIQ_BITMAP_NOT_AVAILABLE');
+    end;
+    LIQ_BUFFER_TOO_SMALL: begin
+      raise ELibImageQuantError.Create('LIQ_BUFFER_TOO_SMALL');
+    end;
+    LIQ_INVALID_POINTER: begin
+      raise ELibImageQuantError.Create('LIQ_INVALID_POINTER');
+    end;
   end;
 end;
 
@@ -250,7 +294,11 @@ begin
 end;
 
 {$IFDEF DO_BGRA_TO_RGBA_CONVERTIONS}
-procedure bgra_to_rgba_callback(row_out: liq_color_ptr; row, width: Integer; user_info: pointer); cdecl;
+procedure bgra_to_rgba_callback(
+  row_out: liq_color_ptr;
+  row, width: Integer;
+  user_info: pointer
+); cdecl;
 var
   I: Integer;
   VData: PColor32Array;
@@ -269,6 +317,7 @@ begin
     Inc(row_out_p);
   end;
 end;
+
 {$ENDIF}
 
 function TBitmap32To8ConverterByLibImageQuant.Convert(
