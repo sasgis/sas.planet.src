@@ -203,8 +203,11 @@ end;
 { TTileErrorInfoByDownloadResultError }
 
 constructor TTileErrorInfoByDownloadResultError.Create(
-  const AMapTypeGUID: TGUID; const AZoom: Byte; const ATile: TPoint;
-  const AResult: IDownloadResultError);
+  const AMapTypeGUID: TGUID;
+  const AZoom: Byte;
+  const ATile: TPoint;
+  const AResult: IDownloadResultError
+);
 begin
   inherited Create(AMapTypeGUID, AZoom, ATile);
   FResult := AResult;
@@ -217,9 +220,12 @@ end;
 
 { TTileErrorInfoByNotNecessary }
 
-constructor TTileErrorInfoByNotNecessary.Create(const AMapTypeGUID: TGUID;
-  const AZoom: Byte; const ATile: TPoint;
-  const AResult: IDownloadResultNotNecessary);
+constructor TTileErrorInfoByNotNecessary.Create(
+  const AMapTypeGUID: TGUID;
+  const AZoom: Byte;
+  const ATile: TPoint;
+  const AResult: IDownloadResultNotNecessary
+);
 begin
   inherited Create(AMapTypeGUID, AZoom, ATile);
   FResult := AResult;
