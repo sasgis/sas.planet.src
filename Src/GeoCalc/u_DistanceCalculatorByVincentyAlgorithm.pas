@@ -49,7 +49,10 @@ type
       out AFinalBearing: Double
     ): Double;
   public
-    constructor Create(const ARadiusA: Double; const ARadiusB: Double);
+    constructor Create(
+      const ARadiusA: Double;
+      const ARadiusB: Double
+    );
   end;
 
 implementation

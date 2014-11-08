@@ -31,29 +31,32 @@ type
   TDistanceCalculatorByGeodesicLib = class(TBaseInterfacedObject, IDistanceCalculator)
   private
     type
-      geod_geodesic = record
-        a: Double;
-        f: Double;
-        f1, e2, ep2, n, b, c2, etol2: Double;
-        A3x: array [0..5] of Double;
-        C3x: array [0..14] of Double;
-        C4x: array [0..20] of Double;
-      end;
-      geod_geodesic_ptr = ^geod_geodesic;
-      geod_init_t = procedure(
-        const g: geod_geodesic_ptr;
-        const a, f: Double
-      ); cdecl;
-      geod_direct_t = procedure(
-        const g: geod_geodesic_ptr;
-        const lat1, lon1, azi1, s12: Double;
-        out lat2, lon2, azi2: Double
-      ); cdecl;
-      geod_inverse_t = procedure(
-        const g: geod_geodesic_ptr;
-        const lat1, lon1, lat2, lon2: Double;
-        out s12, azi1, azi2: Double
-      ); cdecl;
+    geod_geodesic = record
+      a: Double;
+      f: Double;
+      f1, e2, ep2, n, b, c2, etol2: Double;
+      A3x: array [0..5] of Double;
+      C3x: array [0..14] of Double;
+      C4x: array [0..20] of Double;
+    end;
+    geod_geodesic_ptr = ^geod_geodesic;
+    geod_init_t =
+    procedure(
+      const g: geod_geodesic_ptr;
+      const a, f: Double
+    ); cdecl;
+    geod_direct_t =
+    procedure(
+      const g: geod_geodesic_ptr;
+      const lat1, lon1, azi1, s12: Double;
+      out lat2, lon2, azi2: Double
+    ); cdecl;
+    geod_inverse_t =
+    procedure(
+      const g: geod_geodesic_ptr;
+      const lat1, lon1, lat2, lon2: Double;
+      out s12, azi1, azi2: Double
+    ); cdecl;
   private
     geodesic_dll: THandle;
     g: geod_geodesic;
@@ -75,7 +78,10 @@ type
       out AFinalBearing: Double
     ): Double;
   public
-    constructor Create(const ARadiusA: Double; const ARadiusB: Double);
+    constructor Create(
+      const ARadiusA: Double;
+      const ARadiusB: Double
+    );
     destructor Destroy; override;
   end;
 
@@ -111,7 +117,7 @@ begin
         RaiseLastOSError;
       end;
 
-      geod_init(@g, ARadiusA, ((ARadiusA - ARadiusB) / ARadiusA) );
+      geod_init(@g, ARadiusA, ((ARadiusA - ARadiusB) / ARadiusA));
     except
       FreeLibrary(geodesic_dll);
       geodesic_dll := 0;
