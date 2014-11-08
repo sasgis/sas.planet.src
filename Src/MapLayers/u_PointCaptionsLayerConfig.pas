@@ -109,9 +109,12 @@ uses
 
 { TPointCaptionsLayerConfigStatic }
 
-constructor TPointCaptionsLayerConfigStatic.Create(AVisible, AShowAzimuth,
-  AShowLastPointOnly: Boolean; AFontSize, ALastPointFontSize: Integer;
-  ATextColor, ATextBGColor: TColor32);
+constructor TPointCaptionsLayerConfigStatic.Create(
+  AVisible, AShowAzimuth,
+  AShowLastPointOnly: Boolean;
+  AFontSize, ALastPointFontSize: Integer;
+  ATextColor, ATextBGColor: TColor32
+);
 begin
   inherited Create;
   FVisible := AVisible;
