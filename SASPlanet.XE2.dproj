@@ -156,8 +156,8 @@
 			</DelphiCompile>
 			<DCCReference Include="Bitmap32\t_Bitmap32.pas"/>
 			<DCCReference Include="Bitmap32\c_Color32.pas"/>
-			<DCCReference Include="i_BuildInfo.pas"/>
-			<DCCReference Include="u_BuildInfo.pas"/>
+			<DCCReference Include="System\i_BuildInfo.pas"/>
+			<DCCReference Include="System\u_BuildInfo.pas"/>
 			<DCCReference Include="Basic\i_InterfaceListStatic.pas"/>
 			<DCCReference Include="Basic\u_InterfaceListStatic.pas"/>
 			<DCCReference Include="Basic\i_InterfaceListSimple.pas"/>
@@ -312,41 +312,41 @@
 			<DCCReference Include="Synchronize\u_ReadWriteSyncSRW.pas"/>
 			<DCCReference Include="Synchronize\u_SynchronizerBase.pas"/>
 			<DCCReference Include="Synchronize\u_SynchronizerSimple.pas"/>
-			<DCCReference Include="u_BaseInterfacedObject.pas"/>
+			<DCCReference Include="System\u_BaseInterfacedObject.pas"/>
 			<DCCReference Include="ArchiveReadWrite\i_ArchiveReadWrite.pas"/>
 			<DCCReference Include="ArchiveReadWrite\u_ArchiveReadWriteKaZip.pas"/>
 			<DCCReference Include="ArchiveReadWrite\u_ArchiveWriteLibTar.pas"/>
 			<DCCReference Include="ArchiveReadWrite\u_ArchiveReadWrite7Zip.pas"/>
 			<DCCReference Include="ArchiveReadWrite\i_ArchiveReadWriteFactory.pas"/>
 			<DCCReference Include="ArchiveReadWrite\u_ArchiveReadWriteFactory.pas"/>
-			<DCCReference Include="u_ZmpFileNamesIteratorFactory.pas"/>
+			<DCCReference Include="MapType\u_ZmpFileNamesIteratorFactory.pas"/>
 			<DCCReference Include="u_NotifyWithGUIDEvent.pas"/>
 			<DCCReference Include="i_ListenerNotifierLinksList.pas"/>
 			<DCCReference Include="u_ListenerNotifierLinksList.pas"/>
-			<DCCReference Include="c_InternalBrowser.pas"/>
+			<DCCReference Include="Browser\c_InternalBrowser.pas"/>
 			<DCCReference Include="CoordConvert\c_CoordConverter.pas"/>
 			<DCCReference Include="Sensor\c_SensorsGUIDSimple.pas"/>
 			<DCCReference Include="t_GeoTypes.pas"/>
 			<DCCReference Include="t_CommonTypes.pas"/>
-			<DCCReference Include="t_FillingMapModes.pas"/>
+			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\t_FillingMapModes.pas"/>
 			<DCCReference Include="i_HashFunction.pas"/>
 			<DCCReference Include="u_HashFunctionWithCounter.pas"/>
 			<DCCReference Include="CoordConvert\i_Datum.pas"/>
 			<DCCReference Include="CoordConvert\u_Datum.pas"/>
 			<DCCReference Include="CoordConvert\u_DatumFactory.pas"/>
-			<DCCReference Include="i_SystemTimeProvider.pas"/>
-			<DCCReference Include="u_SystemTimeProvider.pas"/>
-			<DCCReference Include="u_TimeZoneInfo.pas"/>
-			<DCCReference Include="i_PredicateByBinaryData.pas"/>
-			<DCCReference Include="u_PredicateByStaticSampleList.pas"/>
-			<DCCReference Include="i_LonLatRect.pas"/>
-			<DCCReference Include="u_LonLatRect.pas"/>
-			<DCCReference Include="u_LonLatRectByPoint.pas"/>
+			<DCCReference Include="System\i_SystemTimeProvider.pas"/>
+			<DCCReference Include="System\u_SystemTimeProvider.pas"/>
+			<DCCReference Include="System\u_TimeZoneInfo.pas"/>
+			<DCCReference Include="Predicate\i_PredicateByBinaryData.pas"/>
+			<DCCReference Include="Predicate\u_PredicateByStaticSampleList.pas"/>
+			<DCCReference Include="Geometry\i_LonLatRect.pas"/>
+			<DCCReference Include="Geometry\u_LonLatRect.pas"/>
+			<DCCReference Include="Geometry\u_LonLatRectByPoint.pas"/>
 			<DCCReference Include="i_StringProvider.pas"/>
 			<DCCReference Include="u_StringProviderForMapTileItem.pas"/>
 			<DCCReference Include="u_ResStrings.pas"/>
 			<DCCReference Include="u_CommonFormAndFrameParents.pas"/>
-			<DCCReference Include="u_TBXSubmenuItemWithIndicator.pas"/>
+			<DCCReference Include="MainForm\u_TBXSubmenuItemWithIndicator.pas"/>
 			<DCCReference Include="i_NotifierTilePyramidUpdate.pas"/>
 			<DCCReference Include="u_NotifierTilePyramidUpdate.pas"/>
 			<DCCReference Include="u_TileUpdateListenerToLonLat.pas"/>
@@ -373,7 +373,7 @@
 			<DCCReference Include="ConfigData\u_ConfigDataWriteProviderByIniFile.pas"/>
 			<DCCReference Include="ConfigData\u_ConfigDataWriteProviderWithGlobal.pas"/>
 			<DCCReference Include="u_SASMainConfigProvider.pas"/>
-			<DCCReference Include="u_SaveLoadTBConfigByConfigProvider.pas"/>
+			<DCCReference Include="MainForm\u_SaveLoadTBConfigByConfigProvider.pas"/>
 			<DCCReference Include="ConfigData\u_ConfigProviderHelpers.pas"/>
 			<DCCReference Include="ConfigData\i_ConfigDataElement.pas"/>
 			<DCCReference Include="ConfigData\u_ConfigDataElementBase.pas"/>
@@ -391,20 +391,20 @@
 			<DCCReference Include="Network\u_TileRequest.pas"/>
 			<DCCReference Include="Network\i_TileRequestTask.pas"/>
 			<DCCReference Include="Network\u_TileRequestTask.pas"/>
-			<DCCReference Include="i_ErrorInfo.pas"/>
-			<DCCReference Include="i_ErrorLogger.pas"/>
-			<DCCReference Include="u_ErrorInfoSimple.pas"/>
-			<DCCReference Include="i_TileError.pas"/>
-			<DCCReference Include="u_TileErrorInfo.pas"/>
-			<DCCReference Include="i_TileErrorLogProviedrStuped.pas"/>
-			<DCCReference Include="u_TileErrorLogProviedrStuped.pas"/>
-			<DCCReference Include="i_PredicateByTileRequest.pas"/>
-			<DCCReference Include="i_PredicateByTileInfo.pas"/>
-			<DCCReference Include="u_PredicateByTileInfoBase.pas"/>
-			<DCCReference Include="i_LogSimple.pas"/>
-			<DCCReference Include="i_LogSimpleProvider.pas"/>
-			<DCCReference Include="i_BatteryStatus.pas"/>
-			<DCCReference Include="u_BatteryStatus.pas"/>
+			<DCCReference Include="Logger\i_ErrorInfo.pas"/>
+			<DCCReference Include="Logger\i_ErrorLogger.pas"/>
+			<DCCReference Include="Logger\u_ErrorInfoSimple.pas"/>
+			<DCCReference Include="Logger\i_TileError.pas"/>
+			<DCCReference Include="Logger\u_TileErrorInfo.pas"/>
+			<DCCReference Include="Logger\i_TileErrorLogProviedrStuped.pas"/>
+			<DCCReference Include="Logger\u_TileErrorLogProviedrStuped.pas"/>
+			<DCCReference Include="Predicate\i_PredicateByTileRequest.pas"/>
+			<DCCReference Include="Predicate\i_PredicateByTileInfo.pas"/>
+			<DCCReference Include="Predicate\u_PredicateByTileInfoBase.pas"/>
+			<DCCReference Include="Logger\i_LogSimple.pas"/>
+			<DCCReference Include="Logger\i_LogSimpleProvider.pas"/>
+			<DCCReference Include="System\i_BatteryStatus.pas"/>
+			<DCCReference Include="System\u_BatteryStatus.pas"/>
 			<DCCReference Include="i_SimpleFactory.pas"/>
 			<DCCReference Include="u_ObjectFromPoolAbstract.pas"/>
 			<DCCReference Include="u_ObjectPoolBase.pas"/>
@@ -449,16 +449,16 @@
 			<DCCReference Include="Network\i_TileDownloadResultSaver.pas"/>
 			<DCCReference Include="Network\u_TileDownloadResultSaverStuped.pas"/>
 			<DCCReference Include="Network\u_DownloadCheckerStuped.pas"/>
-			<DCCReference Include="u_ActiveMapsLicenseList.pas"/>
-			<DCCReference Include="i_MapTypeSet.pas"/>
-			<DCCReference Include="i_MapTypeSetBuilder.pas"/>
-			<DCCReference Include="i_MapTypeSetChangeable.pas"/>
-			<DCCReference Include="i_MapTypeListStatic.pas"/>
-			<DCCReference Include="i_MapTypeListBuilder.pas"/>
-			<DCCReference Include="i_MapTypeListChangeable.pas"/>
-			<DCCReference Include="u_MapTypeListChangeableActiveBitmapLayers.pas"/>
-			<DCCReference Include="i_ImageLineProvider.pas"/>
-			<DCCReference Include="u_ImageLineProvider.pas"/>
+			<DCCReference Include="MapType\u_ActiveMapsLicenseList.pas"/>
+			<DCCReference Include="MapType\i_MapTypeSet.pas"/>
+			<DCCReference Include="MapType\i_MapTypeSetBuilder.pas"/>
+			<DCCReference Include="MapType\i_MapTypeSetChangeable.pas"/>
+			<DCCReference Include="MapType\i_MapTypeListStatic.pas"/>
+			<DCCReference Include="MapType\i_MapTypeListBuilder.pas"/>
+			<DCCReference Include="MapType\i_MapTypeListChangeable.pas"/>
+			<DCCReference Include="MapType\u_MapTypeListChangeableActiveBitmapLayers.pas"/>
+			<DCCReference Include="RegionProcess\Combine\i_ImageLineProvider.pas"/>
+			<DCCReference Include="RegionProcess\Combine\u_ImageLineProvider.pas"/>
 			<DCCReference Include="RegionProcess\i_RegionProcess.pas"/>
 			<DCCReference Include="RegionProcess\i_RegionProcessProgressInfo.pas"/>
 			<DCCReference Include="RegionProcess\u_RegionProcessProgressInfo.pas"/>
@@ -492,7 +492,7 @@
 			<DCCReference Include="Network\u_UITileDownloadList.pas"/>
 			<DCCReference Include="Network\u_UiTileRequestManager.pas"/>
 			<DCCReference Include="Network\u_TileDownloaderUIOneTile.pas"/>
-			<DCCReference Include="u_LogForTaskThread.pas"/>
+			<DCCReference Include="Logger\u_LogForTaskThread.pas"/>
 			<DCCReference Include="Performance\i_InternalPerformanceCounter.pas"/>
 			<DCCReference Include="Performance\u_InternalPerformanceCounterStaticData.pas"/>
 			<DCCReference Include="Performance\u_InternalPerformanceCounter.pas"/>
@@ -501,7 +501,7 @@
 			<DCCReference Include="Performance\i_InternalPerformanceCounterListForDebug.pas"/>
 			<DCCReference Include="Performance\u_InternalPerformanceCounterListForDebugOneClass.pas"/>
 			<DCCReference Include="Performance\u_InternalPerformanceCounterListForDebug.pas"/>
-			<DCCReference Include="u_BaseInterfacedObjectDebug.pas"/>
+			<DCCReference Include="Debug\u_BaseInterfacedObjectDebug.pas"/>
 			<DCCReference Include="Network\i_DownloadRequest.pas"/>
 			<DCCReference Include="Network\u_DownloadRequest.pas"/>
 			<DCCReference Include="Network\i_TileDownloadRequest.pas"/>
@@ -513,15 +513,15 @@
 			<DCCReference Include="Network\u_LastResponseInfo.pas"/>
 			<DCCReference Include="Network\i_TilePostDownloadCropConfig.pas"/>
 			<DCCReference Include="Network\u_TilePostDownloadCropConfigStatic.pas"/>
-			<DCCReference Include="i_MapAbilitiesConfig.pas"/>
-			<DCCReference Include="u_MapAbilitiesConfigStatic.pas"/>
-			<DCCReference Include="u_MapAbilitiesConfig.pas"/>
-			<DCCReference Include="i_ZmpConfig.pas"/>
-			<DCCReference Include="u_ZmpConfig.pas"/>
-			<DCCReference Include="i_ZmpInfo.pas"/>
-			<DCCReference Include="u_ZmpInfo.pas"/>
-			<DCCReference Include="i_ZmpInfoSet.pas"/>
-			<DCCReference Include="u_ZmpInfoSet.pas"/>
+			<DCCReference Include="MapType\i_MapAbilitiesConfig.pas"/>
+			<DCCReference Include="MapType\u_MapAbilitiesConfigStatic.pas"/>
+			<DCCReference Include="MapType\u_MapAbilitiesConfig.pas"/>
+			<DCCReference Include="MapType\i_ZmpConfig.pas"/>
+			<DCCReference Include="MapType\u_ZmpConfig.pas"/>
+			<DCCReference Include="MapType\i_ZmpInfo.pas"/>
+			<DCCReference Include="MapType\u_ZmpInfo.pas"/>
+			<DCCReference Include="MapType\i_ZmpInfoSet.pas"/>
+			<DCCReference Include="MapType\u_ZmpInfoSet.pas"/>
 			<DCCReference Include="CoordConvert\i_ProjectionInfo.pas"/>
 			<DCCReference Include="CoordConvert\u_ProjectionInfo.pas"/>
 			<DCCReference Include="Geometry\i_GeometryProjected.pas"/>
@@ -539,10 +539,10 @@
 			<DCCReference Include="Vector\u_VectorItemSubset.pas"/>
 			<DCCReference Include="Vector\i_VectorItemSubsetBuilder.pas"/>
 			<DCCReference Include="Vector\u_VectorItemSubsetBuilder.pas"/>
-			<DCCReference Include="i_UseTilePrevZoomConfig.pas"/>
-			<DCCReference Include="u_UseTilePrevZoomConfig.pas"/>
-			<DCCReference Include="i_VectorItemDrawConfig.pas"/>
-			<DCCReference Include="u_VectorItemDrawConfig.pas"/>
+			<DCCReference Include="MapLayers\i_UseTilePrevZoomConfig.pas"/>
+			<DCCReference Include="MapLayers\u_UseTilePrevZoomConfig.pas"/>
+			<DCCReference Include="MapLayers\i_VectorItemDrawConfig.pas"/>
+			<DCCReference Include="MapLayers\u_VectorItemDrawConfig.pas"/>
 			<DCCReference Include="MapLayers\i_KmlLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\u_KmlLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\u_MapLayerVectorMaps.pas"/>
@@ -579,12 +579,12 @@
 			<DCCReference Include="u_GlobalConfig.pas"/>
 			<DCCReference Include="Network\u_GlobalInternetState.pas"/>
 			<DCCReference Include="GPS\u_GpsSystem.pas"/>
-			<DCCReference Include="i_TextByVectorItem.pas"/>
-			<DCCReference Include="u_TextByVectorItemHTMLByDescription.pas"/>
-			<DCCReference Include="u_TextByVectorItemMarkInfo.pas"/>
-			<DCCReference Include="i_LastSelectionInfo.pas"/>
-			<DCCReference Include="u_LastSelectionInfo.pas"/>
-			<DCCReference Include="u_LastSelectionInfoSaver.pas"/>
+			<DCCReference Include="InternalDomain\i_TextByVectorItem.pas"/>
+			<DCCReference Include="InternalDomain\u_TextByVectorItemHTMLByDescription.pas"/>
+			<DCCReference Include="InternalDomain\u_TextByVectorItemMarkInfo.pas"/>
+			<DCCReference Include="MainForm\i_LastSelectionInfo.pas"/>
+			<DCCReference Include="MainForm\u_LastSelectionInfo.pas"/>
+			<DCCReference Include="MainForm\u_LastSelectionInfoSaver.pas"/>
 			<DCCReference Include="u_GeoToStrFunc.pas"/>
 			<DCCReference Include="Vector\i_VectorDataLoader.pas"/>
 			<DCCReference Include="VectorLoaders\u_XmlVectorObjects.pas"/>
@@ -599,7 +599,7 @@
 			<DCCReference Include="VectorLoaders\u_CsvParser.pas"/>
 			<DCCReference Include="u_MultiPoligonParser.pas"/>
 			<DCCReference Include="u_ImportFromArcGIS.pas"/>
-			<DCCReference Include="u_ECWWrite.pas"/>
+			<DCCReference Include="RegionProcess\Combine\u_ECWWrite.pas"/>
 			<DCCReference Include="BitmapTileSaveLoad\i_BitmapTileSaveLoad.pas"/>
 			<DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas"/>
 			<DCCReference Include="BitmapTileSaveLoad\u_BitmapTileLibPng.pas"/>
@@ -611,28 +611,28 @@
 			<DCCReference Include="BitmapTileSaveLoad\i_Bitmap8Static.pas"/>
 			<DCCReference Include="BitmapTileSaveLoad\i_Bitmap32To8Converter.pas"/>
 			<DCCReference Include="BitmapTileSaveLoad\u_Bitmap8Static.pas"/>
-			<DCCReference Include="i_MapVersionInfo.pas"/>
-			<DCCReference Include="i_MapVersionFactory.pas"/>
-			<DCCReference Include="i_MapVersionFactoryList.pas"/>
-			<DCCReference Include="u_MapVersionFactoryList.pas"/>
-			<DCCReference Include="u_MapVersionFactoryChangeable.pas"/>
-			<DCCReference Include="i_MapVersionListStatic.pas"/>
-			<DCCReference Include="i_MapVersionRequest.pas"/>
-			<DCCReference Include="u_MapVersionRequest.pas"/>
-			<DCCReference Include="i_MapVersionRequestConfig.pas"/>
-			<DCCReference Include="u_MapVersionRequestConfig.pas"/>
-			<DCCReference Include="u_MapVersionInfo.pas"/>
-			<DCCReference Include="u_MapVersionFactorySimpleString.pas"/>
-			<DCCReference Include="i_MapVersionInfoGE.pas"/>
-			<DCCReference Include="u_MapVersionFactoryGE.pas"/>
-			<DCCReference Include="u_MapVersionListStatic.pas"/>
-			<DCCReference Include="i_MapVersionConfig.pas"/>
-			<DCCReference Include="u_MapVersionConfig.pas"/>
-			<DCCReference Include="u_MapType.pas"/>
+			<DCCReference Include="MapVersion\i_MapVersionInfo.pas"/>
+			<DCCReference Include="MapVersion\i_MapVersionFactory.pas"/>
+			<DCCReference Include="MapVersion\i_MapVersionFactoryList.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionFactoryList.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionFactoryChangeable.pas"/>
+			<DCCReference Include="MapVersion\i_MapVersionListStatic.pas"/>
+			<DCCReference Include="MapVersion\i_MapVersionRequest.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionRequest.pas"/>
+			<DCCReference Include="MapVersion\i_MapVersionRequestConfig.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionRequestConfig.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionInfo.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionFactorySimpleString.pas"/>
+			<DCCReference Include="MapVersion\i_MapVersionInfoGE.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionFactoryGE.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionListStatic.pas"/>
+			<DCCReference Include="MapVersion\i_MapVersionConfig.pas"/>
+			<DCCReference Include="MapVersion\u_MapVersionConfig.pas"/>
+			<DCCReference Include="MapType\u_MapType.pas"/>
 			<DCCReference Include="u_MapTypeListStatic.pas"/>
-			<DCCReference Include="u_MapTypesMainList.pas"/>
-			<DCCReference Include="i_MapTypeIconsList.pas"/>
-			<DCCReference Include="u_MapTypeIconsList.pas"/>
+			<DCCReference Include="MapType\u_MapTypesMainList.pas"/>
+			<DCCReference Include="MainForm\i_MapTypeIconsList.pas"/>
+			<DCCReference Include="MainForm\u_MapTypeIconsList.pas"/>
 			<DCCReference Include="Network\u_ProxyConfig.pas"/>
 			<DCCReference Include="Network\i_InetConfig.pas"/>
 			<DCCReference Include="Network\c_InetConfig.pas"/>
@@ -641,9 +641,9 @@
 			<DCCReference Include="Network\i_TileDownloaderConfig.pas"/>
 			<DCCReference Include="Network\u_TileDownloaderConfigStatic.pas"/>
 			<DCCReference Include="Network\u_TileDownloaderConfig.pas"/>
-			<DCCReference Include="i_GSMGeoCodeConfig.pas"/>
-			<DCCReference Include="u_GSMGeoCodeConfig.pas"/>
-			<DCCReference Include="u_PosFromGSM.pas"/>
+			<DCCReference Include="GSM\i_GSMGeoCodeConfig.pas"/>
+			<DCCReference Include="GSM\u_GSMGeoCodeConfig.pas"/>
+			<DCCReference Include="GSM\u_PosFromGSM.pas"/>
 			<DCCReference Include="Network\i_DownloadInfoSimple.pas"/>
 			<DCCReference Include="Network\u_DownloadInfoSimple.pas"/>
 			<DCCReference Include="CoordConvert\i_LocalCoordConverter.pas"/>
@@ -659,7 +659,7 @@
 			<DCCReference Include="CoordConvert\i_CoordConverterList.pas"/>
 			<DCCReference Include="CoordConvert\u_CoordConverterListStatic.pas"/>
 			<DCCReference Include="CoordConvert\u_CoordConverterListStaticSimple.pas"/>
-			<DCCReference Include="u_BasePascalCompiler.pas"/>
+			<DCCReference Include="Network\u_BasePascalCompiler.pas"/>
 			<DCCReference Include="i_InterfaceQueue.pas"/>
 			<DCCReference Include="u_InterfaceQueue.pas"/>
 			<DCCReference Include="Network\u_TileDownloaderWithQueue.pas"/>
@@ -716,17 +716,17 @@
 			<DCCReference Include="GeoCoder\u_GeoCodePlacemark.pas"/>
 			<DCCReference Include="Network\i_ProxySettings.pas"/>
 			<DCCReference Include="i_FindVectorItems.pas"/>
-			<DCCReference Include="i_MapViewGoto.pas"/>
-			<DCCReference Include="u_MapViewGoto.pas"/>
+			<DCCReference Include="MainForm\i_MapViewGoto.pas"/>
+			<DCCReference Include="MainForm\u_MapViewGoto.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\GoTo\i_GotoLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\GoTo\u_GotoLayerConfig.pas"/>
 			<DCCReference Include="i_StringHistory.pas"/>
 			<DCCReference Include="u_StringHistory.pas"/>
-			<DCCReference Include="i_SearchResultPresenter.pas"/>
+			<DCCReference Include="MainForm\i_SearchResultPresenter.pas"/>
 			<DCCReference Include="i_ThreadConfig.pas"/>
 			<DCCReference Include="u_ThreadConfig.pas"/>
-			<DCCReference Include="i_MainMapLayerConfig.pas"/>
-			<DCCReference Include="u_MainMapLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\i_MainMapLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\u_MainMapLayerConfig.pas"/>
 			<DCCReference Include="i_UsedMarksConfig.pas"/>
 			<DCCReference Include="u_UsedMarksConfig.pas"/>
 			<DCCReference Include="u_UsedMarksConfigStatic.pas"/>
@@ -757,7 +757,7 @@
 			<DCCReference Include="MarksDB\i_MarkSystem.pas"/>
 			<DCCReference Include="MarksDB\SML\u_MarkDbSml.pas"/>
 			<DCCReference Include="MarksDB\u_MarkTemplates.pas"/>
-			<DCCReference Include="i_MarkNameGenerator.pas"/>
+			<DCCReference Include="MarksDB\i_MarkNameGenerator.pas"/>
 			<DCCReference Include="MarksDB\u_MarkNameGenerator.pas"/>
 			<DCCReference Include="MarksDB\i_MarkFactoryConfig.pas"/>
 			<DCCReference Include="MarksDB\u_MarkFactoryConfig.pas"/>
@@ -788,7 +788,7 @@
 			<DCCReference Include="MarksDB\GUI\u_MarkDbGUIHelper.pas"/>
 			<DCCReference Include="i_TileProvider.pas"/>
 			<DCCReference Include="u_TileProviderByStorage.pas"/>
-			<DCCReference Include="u_TileProviderWithCache.pas"/>
+			<DCCReference Include="TileProvider\u_TileProviderWithCache.pas"/>
 			<DCCReference Include="BitmapLayerProvider\i_BitmapLayerProvider.pas"/>
 			<DCCReference Include="BitmapLayerProvider\i_BitmapLayerProviderChangeable.pas"/>
 			<DCCReference Include="i_ObjectWithListener.pas"/>
@@ -958,7 +958,7 @@
 			<DCCReference Include="GeoCoder\u_GeoCoderListEntity.pas"/>
 			<DCCReference Include="GeoCoder\u_GeoCoderListSimple.pas"/>
 			<DCCReference Include="GeoCoder\u_GeoCoderLocalBasic.pas"/>
-			<DCCReference Include="u_GarbageCollectorThread.pas"/>
+			<DCCReference Include="System\u_GarbageCollectorThread.pas"/>
 			<DCCReference Include="MapCalibration\i_MapCalibration.pas"/>
 			<DCCReference Include="MapCalibration\u_MapCalibrationOzi.pas"/>
 			<DCCReference Include="MapCalibration\u_MapCalibrationDat.pas"/>
@@ -1004,8 +1004,8 @@
 			<DCCReference Include="i_TreeChangeable.pas"/>
 			<DCCReference Include="Routing\u_TreeByPathDetalizeProviderList.pas"/>
 			<DCCReference Include="u_TreeChangeableBase.pas"/>
-			<DCCReference Include="i_MenuGeneratorByTree.pas"/>
-			<DCCReference Include="u_MenuGeneratorByStaticTreeSimple.pas"/>
+			<DCCReference Include="MainForm\i_MenuGeneratorByTree.pas"/>
+			<DCCReference Include="MainForm\u_MenuGeneratorByStaticTreeSimple.pas"/>
 			<DCCReference Include="u_TreeByMapActiveMapsSet.pas"/>
 			<DCCReference Include="Sensor\i_Sensor.pas"/>
 			<DCCReference Include="Sensor\i_SensorList.pas"/>
@@ -1022,25 +1022,25 @@
 			<DCCReference Include="Sensor\u_SensorViewListGeneratorStuped.pas"/>
 			<DCCReference Include="i_MapTypes.pas"/>
 			<DCCReference Include="u_MapTypeSet.pas"/>
-			<DCCReference Include="u_MapTypeSetChangeableSimple.pas"/>
-			<DCCReference Include="u_MapTypeSetChangeableBySourceSetWithFilter.pas"/>
-			<DCCReference Include="u_ActiveMapTBXItem.pas"/>
-			<DCCReference Include="u_MapTypeMenuItemsGeneratorBasic.pas"/>
+			<DCCReference Include="MapType\u_MapTypeSetChangeableSimple.pas"/>
+			<DCCReference Include="MapType\u_MapTypeSetChangeableBySourceSetWithFilter.pas"/>
+			<DCCReference Include="MainForm\u_ActiveMapTBXItem.pas"/>
+			<DCCReference Include="MainForm\u_MapTypeMenuItemsGeneratorBasic.pas"/>
 			<DCCReference Include="u_ActiveMapConfig.pas"/>
 			<DCCReference Include="u_ActiveMapsSet.pas"/>
-			<DCCReference Include="u_MainActiveMap.pas"/>
-			<DCCReference Include="u_ActivMapWithLayers.pas"/>
-			<DCCReference Include="u_MainMapsConfig.pas"/>
-			<DCCReference Include="i_ActiveMapsConfig.pas"/>
-			<DCCReference Include="i_ViewPortState.pas"/>
-			<DCCReference Include="u_MapViewPortState.pas"/>
+			<DCCReference Include="MapType\u_MainActiveMap.pas"/>
+			<DCCReference Include="MapType\u_ActivMapWithLayers.pas"/>
+			<DCCReference Include="MapType\u_MainMapsConfig.pas"/>
+			<DCCReference Include="MapType\i_ActiveMapsConfig.pas"/>
+			<DCCReference Include="MainForm\i_ViewPortState.pas"/>
+			<DCCReference Include="MainForm\u_MapViewPortState.pas"/>
 			<DCCReference Include="i_ShortCutSingleConfig.pas"/>
 			<DCCReference Include="u_ShortCutSingleConfig.pas"/>
 			<DCCReference Include="u_ShortcutManager.pas"/>
 			<DCCReference Include="i_LanguageListStatic.pas"/>
 			<DCCReference Include="u_LanguageListStatic.pas"/>
-			<DCCReference Include="i_LanguageManager.pas"/>
-			<DCCReference Include="u_LanguageManager.pas"/>
+			<DCCReference Include="System\i_LanguageManager.pas"/>
+			<DCCReference Include="System\u_LanguageManager.pas"/>
 			<DCCReference Include="ConfigData\i_StringConfigDataElement.pas"/>
 			<DCCReference Include="ConfigData\u_StringConfigDataElementWithDefBase.pas"/>
 			<DCCReference Include="ConfigData\u_StringConfigDataElementWithLanguage.pas"/>
@@ -1048,39 +1048,39 @@
 			<DCCReference Include="ConfigData\u_StringConfigDataElementWithDefByGetText.pas"/>
 			<DCCReference Include="CoordConvert\i_ProjConverter.pas"/>
 			<DCCReference Include="CoordConvert\u_ProjConverterFactory.pas"/>
-			<DCCReference Include="u_LanguagesEx.pas"/>
-			<DCCReference Include="u_LanguageTBXItem.pas"/>
-			<DCCReference Include="c_ImageResampler.pas"/>
-			<DCCReference Include="i_ImageResamplerFactory.pas"/>
-			<DCCReference Include="u_ImageResamplerFactory.pas"/>
-			<DCCReference Include="u_ImageResamplerFactoryListStatic.pas"/>
-			<DCCReference Include="u_ImageResamplerFactoryListStaticSimple.pas"/>
-			<DCCReference Include="i_ImageResamplerFactoryChangeable.pas"/>
-			<DCCReference Include="u_ImageResamplerFactoryChangeableByConfig.pas"/>
-			<DCCReference Include="i_ImageResamplerConfig.pas"/>
-			<DCCReference Include="u_ImageResamplerConfig.pas"/>
+			<DCCReference Include="System\u_LanguagesEx.pas"/>
+			<DCCReference Include="MainForm\u_LanguageTBXItem.pas"/>
+			<DCCReference Include="ImageResampler\c_ImageResampler.pas"/>
+			<DCCReference Include="ImageResampler\i_ImageResamplerFactory.pas"/>
+			<DCCReference Include="ImageResampler\u_ImageResamplerFactory.pas"/>
+			<DCCReference Include="ImageResampler\u_ImageResamplerFactoryListStatic.pas"/>
+			<DCCReference Include="ImageResampler\u_ImageResamplerFactoryListStaticSimple.pas"/>
+			<DCCReference Include="ImageResampler\i_ImageResamplerFactoryChangeable.pas"/>
+			<DCCReference Include="ImageResampler\u_ImageResamplerFactoryChangeableByConfig.pas"/>
+			<DCCReference Include="ImageResampler\i_ImageResamplerConfig.pas"/>
+			<DCCReference Include="ImageResampler\u_ImageResamplerConfig.pas"/>
 			<DCCReference Include="i_MainMemCacheConfig.pas"/>
 			<DCCReference Include="u_MainMemCacheConfig.pas"/>
 			<DCCReference Include="i_BasicMemCache.pas"/>
-			<DCCReference Include="i_MainGeoCoderConfig.pas"/>
-			<DCCReference Include="u_MainGeoCoderConfig.pas"/>
-			<DCCReference Include="i_KeyMovingConfig.pas"/>
-			<DCCReference Include="u_KeyMovingConfig.pas"/>
+			<DCCReference Include="MainForm\i_MainGeoCoderConfig.pas"/>
+			<DCCReference Include="MainForm\u_MainGeoCoderConfig.pas"/>
+			<DCCReference Include="MainForm\i_KeyMovingConfig.pas"/>
+			<DCCReference Include="MainForm\u_KeyMovingConfig.pas"/>
 			<DCCReference Include="i_StringByLanguage.pas"/>
 			<DCCReference Include="u_StringByLanguageWithStaticList.pas"/>
-			<DCCReference Include="i_LayerDrawConfig.pas"/>
-			<DCCReference Include="u_LayerDrawConfig.pas"/>
-			<DCCReference Include="i_MapTypeGUIConfig.pas"/>
-			<DCCReference Include="u_MapTypeGUIConfigStatic.pas"/>
-			<DCCReference Include="u_MapTypeGUIConfig.pas"/>
-			<DCCReference Include="i_MapTypeHotKeyListStatic.pas"/>
-			<DCCReference Include="u_MapTypeHotKeyListStatic.pas"/>
-			<DCCReference Include="i_MapTypeGUIConfigList.pas"/>
-			<DCCReference Include="u_MapTypeGUIConfigList.pas"/>
-			<DCCReference Include="i_MainFormBehaviourByGPSConfig.pas"/>
-			<DCCReference Include="u_MainFormBehaviourByGPSConfig.pas"/>
-			<DCCReference Include="i_MainFormState.pas"/>
-			<DCCReference Include="u_MainFormState.pas"/>
+			<DCCReference Include="MapType\i_LayerDrawConfig.pas"/>
+			<DCCReference Include="MapType\u_LayerDrawConfig.pas"/>
+			<DCCReference Include="MapType\i_MapTypeGUIConfig.pas"/>
+			<DCCReference Include="MapType\u_MapTypeGUIConfigStatic.pas"/>
+			<DCCReference Include="MapType\u_MapTypeGUIConfig.pas"/>
+			<DCCReference Include="MapType\i_MapTypeHotKeyListStatic.pas"/>
+			<DCCReference Include="MapType\u_MapTypeHotKeyListStatic.pas"/>
+			<DCCReference Include="MapType\i_MapTypeGUIConfigList.pas"/>
+			<DCCReference Include="MapType\u_MapTypeGUIConfigList.pas"/>
+			<DCCReference Include="MainForm\i_MainFormBehaviourByGPSConfig.pas"/>
+			<DCCReference Include="MainForm\u_MainFormBehaviourByGPSConfig.pas"/>
+			<DCCReference Include="MainForm\i_MainFormState.pas"/>
+			<DCCReference Include="MainForm\u_MainFormState.pas"/>
 			<DCCReference Include="i_ValueToStringConverterConfig.pas"/>
 			<DCCReference Include="i_ValueToStringConverter.pas"/>
 			<DCCReference Include="u_ValueToStringConverter.pas"/>
@@ -1095,18 +1095,18 @@
 			<DCCReference Include="MapLayers\WindowLayers\CenterScale\u_CenterScaleConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\ScaleLine\i_ScaleLineConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\ScaleLine\u_ScaleLineConfig.pas"/>
-			<DCCReference Include="i_LastSelectionLayerConfig.pas"/>
-			<DCCReference Include="u_LastSelectionLayerConfig.pas"/>
-			<DCCReference Include="i_LastSearchResult.pas"/>
-			<DCCReference Include="u_LastSearchResult.pas"/>
-			<DCCReference Include="u_PointsSetLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\WindowLayers\Selection\i_LastSelectionLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\WindowLayers\Selection\u_LastSelectionLayerConfig.pas"/>
+			<DCCReference Include="MainForm\i_LastSearchResult.pas"/>
+			<DCCReference Include="MainForm\u_LastSearchResult.pas"/>
+			<DCCReference Include="MapLayers\u_PointsSetLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\Polygon\i_PolyLineLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\Polygon\u_PolyLineLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\Polygon\i_PolygonLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\Polygon\u_PolygonLayerConfig.pas"/>
-			<DCCReference Include="i_PointCaptionsLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\i_PointCaptionsLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\CalcLine\i_CalcLineLayerConfig.pas"/>
-			<DCCReference Include="u_PointCaptionsLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\u_PointCaptionsLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\Selection\i_SelectionRectLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionRectLayerConfig.pas"/>
@@ -1114,10 +1114,10 @@
 			<DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionPolygonLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\Selection\i_SelectionPolylineLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\Selection\u_SelectionPolylineLayerConfig.pas"/>
-			<DCCReference Include="i_MarkPolygonLayerConfig.pas"/>
-			<DCCReference Include="u_MarkPolygonLayerConfig.pas"/>
-			<DCCReference Include="i_MarkPolyLineLayerConfig.pas"/>
-			<DCCReference Include="u_MarkPolyLineLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\i_MarkPolygonLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\u_MarkPolygonLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\i_MarkPolyLineLayerConfig.pas"/>
+			<DCCReference Include="MapLayers\u_MarkPolyLineLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapColorer.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapColorerSimple.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapLayerConfig.pas"/>
@@ -1125,28 +1125,28 @@
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapLayerConfig.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapMapsConfig.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\i_MapLayerGridsConfig.pas"/>
-			<DCCReference Include="u_BaseGridConfig.pas"/>
+			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_BaseGridConfig.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_TileGridConfig.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_GenShtabGridConfig.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_DegreeGridConfig.pas"/>
 			<DCCReference Include="MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGridsConfig.pas"/>
-			<DCCReference Include="i_MarkerRingsConfig.pas"/>
-			<DCCReference Include="u_MarkerRingsConfigStatic.pas"/>
-			<DCCReference Include="u_MarkerRingsConfig.pas"/>
+			<DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_MarkerRingsConfig.pas"/>
+			<DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MarkerRingsConfigStatic.pas"/>
+			<DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MarkerRingsConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_MapLayerGPSMarkerConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerConfig.pas"/>
-			<DCCReference Include="i_BitmapPostProcessingConfig.pas"/>
-			<DCCReference Include="u_BitmapPostProcessingConfig.pas"/>
-			<DCCReference Include="i_BitmapPostProcessing.pas"/>
-			<DCCReference Include="u_BitmapPostProcessing.pas"/>
-			<DCCReference Include="u_BitmapPostProcessingChangeableByConfig.pas"/>
-			<DCCReference Include="i_MapZoomingConfig.pas"/>
-			<DCCReference Include="u_MapZoomingConfig.pas"/>
-			<DCCReference Include="i_MapMovingConfig.pas"/>
-			<DCCReference Include="u_MapMovingConfig.pas"/>
-			<DCCReference Include="i_MainFormConfig.pas"/>
-			<DCCReference Include="u_MainFormMainConfig.pas"/>
-			<DCCReference Include="u_MainFormConfig.pas"/>
+			<DCCReference Include="BitmapPostProcessing\i_BitmapPostProcessingConfig.pas"/>
+			<DCCReference Include="BitmapPostProcessing\u_BitmapPostProcessingConfig.pas"/>
+			<DCCReference Include="BitmapPostProcessing\i_BitmapPostProcessing.pas"/>
+			<DCCReference Include="BitmapPostProcessing\u_BitmapPostProcessing.pas"/>
+			<DCCReference Include="BitmapPostProcessing\u_BitmapPostProcessingChangeableByConfig.pas"/>
+			<DCCReference Include="MainForm\i_MapZoomingConfig.pas"/>
+			<DCCReference Include="MainForm\u_MapZoomingConfig.pas"/>
+			<DCCReference Include="MainForm\i_MapMovingConfig.pas"/>
+			<DCCReference Include="MainForm\u_MapMovingConfig.pas"/>
+			<DCCReference Include="MainForm\i_MainFormConfig.pas"/>
+			<DCCReference Include="MainForm\u_MainFormMainConfig.pas"/>
+			<DCCReference Include="MainForm\u_MainFormConfig.pas"/>
 			<DCCReference Include="MapLayers\i_MainFormLayersConfig.pas"/>
 			<DCCReference Include="MapLayers\u_MainFormLayersConfig.pas"/>
 			<DCCReference Include="MapLayers\WindowLayers\NavToMark\i_MapLayerNavToPointMarkerConfig.pas"/>
@@ -1155,29 +1155,29 @@
 			<DCCReference Include="Network\u_DownloadUIConfig.pas"/>
 			<DCCReference Include="i_WindowPositionConfig.pas"/>
 			<DCCReference Include="u_WindowPositionConfig.pas"/>
-			<DCCReference Include="i_MainWindowPosition.pas"/>
-			<DCCReference Include="u_MainWindowPositionConfig.pas"/>
-			<DCCReference Include="u_MainWindowToolbarsLock.pas"/>
-			<DCCReference Include="i_SelectionRect.pas"/>
-			<DCCReference Include="u_SelectionRect.pas"/>
-			<DCCReference Include="i_PointOnMapEdit.pas"/>
-			<DCCReference Include="u_PointOnMapEdit.pas"/>
-			<DCCReference Include="i_LineOnMapEdit.pas"/>
-			<DCCReference Include="u_LineOnMapEdit.pas"/>
-			<DCCReference Include="i_InternalDebugConfig.pas"/>
-			<DCCReference Include="u_InternalDebugConfig.pas"/>
+			<DCCReference Include="MainForm\i_MainWindowPosition.pas"/>
+			<DCCReference Include="MainForm\u_MainWindowPositionConfig.pas"/>
+			<DCCReference Include="MainForm\u_MainWindowToolbarsLock.pas"/>
+			<DCCReference Include="MainForm\i_SelectionRect.pas"/>
+			<DCCReference Include="MainForm\u_SelectionRect.pas"/>
+			<DCCReference Include="MainForm\i_PointOnMapEdit.pas"/>
+			<DCCReference Include="MainForm\u_PointOnMapEdit.pas"/>
+			<DCCReference Include="MainForm\i_LineOnMapEdit.pas"/>
+			<DCCReference Include="MainForm\u_LineOnMapEdit.pas"/>
+			<DCCReference Include="Debug\i_InternalDebugConfig.pas"/>
+			<DCCReference Include="Debug\u_InternalDebugConfig.pas"/>
 			<DCCReference Include="i_GlobalAppConfig.pas"/>
 			<DCCReference Include="u_GlobalAppConfig.pas"/>
-			<DCCReference Include="i_StartUpLogoConfig.pas"/>
-			<DCCReference Include="u_StartUpLogoConfig.pas"/>
+			<DCCReference Include="SecondaryForms\i_StartUpLogoConfig.pas"/>
+			<DCCReference Include="SecondaryForms\u_StartUpLogoConfig.pas"/>
 			<DCCReference Include="Network\i_GlobalDownloadConfig.pas"/>
 			<DCCReference Include="Network\u_GlobalDownloadConfig.pas"/>
 			<DCCReference Include="Network\i_GlobalInternetState.pas"/>
 			<DCCReference Include="i_GlobalViewMainConfig.pas"/>
 			<DCCReference Include="u_GlobalViewMainConfig.pas"/>
-			<DCCReference Include="u_IeEmbeddedProtocolRegistration.pas"/>
-			<DCCReference Include="u_IeEmbeddedProtocolFactory.pas"/>
-			<DCCReference Include="u_IeEmbeddedProtocol.pas"/>
+			<DCCReference Include="InternalDomain\u_IeEmbeddedProtocolRegistration.pas"/>
+			<DCCReference Include="InternalDomain\u_IeEmbeddedProtocolFactory.pas"/>
+			<DCCReference Include="InternalDomain\u_IeEmbeddedProtocol.pas"/>
 			<DCCReference Include="InternalDomain\u_InternalDomainInfoProviderList.pas"/>
 			<DCCReference Include="InternalDomain\i_InternalDomainInfoProvider.pas"/>
 			<DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByMapTypeList.pas"/>
@@ -1200,38 +1200,38 @@
 			<DCCReference Include="Bitmap32\u_BitmapChangeableFaked.pas"/>
 			<DCCReference Include="i_BitmapGeo.pas"/>
 			<DCCReference Include="u_BitmapGeo.pas"/>
-			<DCCReference Include="Bitmap32\i_BitmapMarker.pas"/>
-			<DCCReference Include="Bitmap32\u_BitmapMarker.pas"/>
-			<DCCReference Include="Bitmap32\i_MarkerDrawable.pas"/>
-			<DCCReference Include="u_MarkerDrawableComplex.pas"/>
-			<DCCReference Include="u_MarkerDrawableSimpleAbstract.pas"/>
-			<DCCReference Include="u_MarkerDrawableSimpleArrow.pas"/>
-			<DCCReference Include="u_MarkerDrawableSimpleCross.pas"/>
-			<DCCReference Include="u_MarkerDrawableSimpleSquare.pas"/>
-			<DCCReference Include="u_MarkerDrawableCenterScale.pas"/>
-			<DCCReference Include="Bitmap32\u_MarkerDrawableByBitmapMarker.pas"/>
-			<DCCReference Include="Bitmap32\u_MarkerDrawableByBitmap32Static.pas"/>
-			<DCCReference Include="Bitmap32\u_MarkerDrawableWithDirectionByBitmapMarker.pas"/>
-			<DCCReference Include="Bitmap32\u_MarkerDrawableChangeableFaked.pas"/>
-			<DCCReference Include="u_MarkerDrawableChangeableSimple.pas"/>
-			<DCCReference Include="i_MarkerProviderForVectorItem.pas"/>
-			<DCCReference Include="u_MarkerProviderForVectorItemFixedMarker.pas"/>
-			<DCCReference Include="u_MarkerProviderForVectorItemForMarkPoints.pas"/>
-			<DCCReference Include="u_MarkerProviderForVectorItemWithCache.pas"/>
-			<DCCReference Include="i_MarkerSimpleConfig.pas"/>
-			<DCCReference Include="u_MarkerSimpleConfigStatic.pas"/>
-			<DCCReference Include="u_MarkerSimpleConfig.pas"/>
-			<DCCReference Include="i_MarkerFromFileConfig.pas"/>
-			<DCCReference Include="u_MarkerFromFileConfigStatic.pas"/>
-			<DCCReference Include="u_MarkerFromFileConfig.pas"/>
-			<DCCReference Include="i_ProjectedDrawableElement.pas"/>
-			<DCCReference Include="u_ProjectedDrawableElementByPolygon.pas"/>
-			<DCCReference Include="i_MessageHandler.pas"/>
-			<DCCReference Include="u_KeyMovingHandler.pas"/>
-			<DCCReference Include="i_PopUp.pas"/>
-			<DCCReference Include="i_MouseState.pas"/>
-			<DCCReference Include="i_MouseHandler.pas"/>
-			<DCCReference Include="u_MouseState.pas"/>
+			<DCCReference Include="Marker\i_BitmapMarker.pas"/>
+			<DCCReference Include="Marker\u_BitmapMarker.pas"/>
+			<DCCReference Include="Marker\i_MarkerDrawable.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableComplex.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableSimpleAbstract.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableSimpleArrow.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableSimpleCross.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableSimpleSquare.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableCenterScale.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableByBitmapMarker.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableByBitmap32Static.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableWithDirectionByBitmapMarker.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableChangeableFaked.pas"/>
+			<DCCReference Include="Marker\u_MarkerDrawableChangeableSimple.pas"/>
+			<DCCReference Include="Marker\i_MarkerProviderForVectorItem.pas"/>
+			<DCCReference Include="Marker\u_MarkerProviderForVectorItemFixedMarker.pas"/>
+			<DCCReference Include="Marker\u_MarkerProviderForVectorItemForMarkPoints.pas"/>
+			<DCCReference Include="Marker\u_MarkerProviderForVectorItemWithCache.pas"/>
+			<DCCReference Include="Marker\i_MarkerSimpleConfig.pas"/>
+			<DCCReference Include="Marker\u_MarkerSimpleConfigStatic.pas"/>
+			<DCCReference Include="Marker\u_MarkerSimpleConfig.pas"/>
+			<DCCReference Include="Marker\i_MarkerFromFileConfig.pas"/>
+			<DCCReference Include="Marker\u_MarkerFromFileConfigStatic.pas"/>
+			<DCCReference Include="Marker\u_MarkerFromFileConfig.pas"/>
+			<DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_ProjectedDrawableElement.pas"/>
+			<DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_ProjectedDrawableElementByPolygon.pas"/>
+			<DCCReference Include="MainForm\i_MessageHandler.pas"/>
+			<DCCReference Include="MainForm\u_KeyMovingHandler.pas"/>
+			<DCCReference Include="MainForm\i_PopUp.pas"/>
+			<DCCReference Include="MainForm\i_MouseState.pas"/>
+			<DCCReference Include="MainForm\i_MouseHandler.pas"/>
+			<DCCReference Include="MainForm\u_MouseState.pas"/>
 			<DCCReference Include="GPS\i_GPSRecorder.pas"/>
 			<DCCReference Include="GPS\u_GPSRecorder.pas"/>
 			<DCCReference Include="GPS\u_GpsTrackRecorder.pas"/>
@@ -1248,11 +1248,11 @@
 			<DCCReference Include="u_SatellitesInViewMapDrawSimple.pas"/>
 			<DCCReference Include="Network\u_InetFunc.pas"/>
 			<DCCReference Include="u_SortFunc.pas"/>
-			<DCCReference Include="u_FileNameFunc.pas"/>
-			<DCCReference Include="i_DebugInfoSubSystem.pas"/>
-			<DCCReference Include="u_DebugInfoSubSystem.pas"/>
-			<DCCReference Include="i_DebugInfoWindow.pas"/>
-			<DCCReference Include="u_DebugInfoWindow.pas"/>
+			<DCCReference Include="System\u_FileNameFunc.pas"/>
+			<DCCReference Include="Debug\i_DebugInfoSubSystem.pas"/>
+			<DCCReference Include="Debug\u_DebugInfoSubSystem.pas"/>
+			<DCCReference Include="Debug\i_DebugInfoWindow.pas"/>
+			<DCCReference Include="Debug\u_DebugInfoWindow.pas"/>
 			<DCCReference Include="MapSvcScan\i_MapSvcScanConfig.pas"/>
 			<DCCReference Include="MapSvcScan\u_MapSvcScanConfig.pas"/>
 			<DCCReference Include="MapSvcScan\i_MapSvcScanStorage.pas"/>
@@ -1268,13 +1268,13 @@
 			<DCCReference Include="MapSvcScan\u_AvailPicsGeoFuse.pas"/>
 			<DCCReference Include="MapSvcScan\u_AvailPicsRosCosmos.pas"/>
 			<DCCReference Include="MapSvcScan\u_AvailPicsKosmosnimki.pas"/>
-			<DCCReference Include="i_InternalBrowserLastContent.pas"/>
-			<DCCReference Include="u_InternalBrowserLastContent.pas"/>
-			<DCCReference Include="i_InternalBrowser.pas"/>
-			<DCCReference Include="u_InternalBrowserByForm.pas"/>
-			<DCCReference Include="i_InvisibleBrowser.pas"/>
-			<DCCReference Include="u_XmlLoaderByVSAGPS.pas"/>
-			<DCCReference Include="u_InvisibleBrowserByFormSynchronize.pas"/>
+			<DCCReference Include="Browser\i_InternalBrowserLastContent.pas"/>
+			<DCCReference Include="Browser\u_InternalBrowserLastContent.pas"/>
+			<DCCReference Include="Browser\i_InternalBrowser.pas"/>
+			<DCCReference Include="Browser\u_InternalBrowserByForm.pas"/>
+			<DCCReference Include="Browser\i_InvisibleBrowser.pas"/>
+			<DCCReference Include="MapSvcScan\u_XmlLoaderByVSAGPS.pas"/>
+			<DCCReference Include="Browser\u_InvisibleBrowserByFormSynchronize.pas"/>
 			<DCCReference Include="GPS\i_GPSConfig.pas"/>
 			<DCCReference Include="GPS\u_GPSConfig.pas"/>
 			<DCCReference Include="GPS\u_GPSSatelliteInfo.pas"/>
@@ -1284,15 +1284,15 @@
 			<DCCReference Include="GPS\u_GPSModuleAbstract.pas"/>
 			<DCCReference Include="GPS\u_GPSModuleByVSAGPS.pas"/>
 			<DCCReference Include="GPS\u_GPSModuleFactoryByVSAGPS.pas"/>
-			<DCCReference Include="i_MapTypeConfigModalEdit.pas"/>
-			<DCCReference Include="u_MapTypeConfigModalEditByForm.pas"/>
-			<DCCReference Include="i_ShortCutModalEdit.pas"/>
-			<DCCReference Include="u_ShortCutModalEditByForm.pas"/>
+			<DCCReference Include="MapType\i_MapTypeConfigModalEdit.pas"/>
+			<DCCReference Include="MapType\u_MapTypeConfigModalEditByForm.pas"/>
+			<DCCReference Include="Settings\i_ShortCutModalEdit.pas"/>
+			<DCCReference Include="Settings\u_ShortCutModalEditByForm.pas"/>
 			<DCCReference Include="RegionProcess\i_RegionProcessParamsFrame.pas"/>
 			<DCCReference Include="RegionProcess\Export\u_ExportProviderAbstract.pas"/>
 			<DCCReference Include="u_SearchResults.pas"/>
 			<DCCReference Include="u_BitmapFunc.pas"/>
-			<DCCReference Include="u_ClipboardFunc.pas"/>
+			<DCCReference Include="System\u_ClipboardFunc.pas"/>
 			<DCCReference Include="CacheManager\frm_CacheManager.pas">
 				<Form>frmCacheManager</Form>
 			</DCCReference>
@@ -1405,19 +1405,19 @@
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
 			<DCCReference Include="RegionProcess\Download\u_ProviderTilesDownload.pas"/>
-			<DCCReference Include="fr_ShortCutList.pas">
+			<DCCReference Include="Settings\fr_ShortCutList.pas">
 				<Form>frShortCutList</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="fr_MapsList.pas">
+			<DCCReference Include="Settings\fr_MapsList.pas">
 				<Form>frMapsList</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="fr_GPSConfig.pas">
+			<DCCReference Include="Settings\fr_GPSConfig.pas">
 				<Form>frGPSConfig</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="fr_GpsSatellites.pas">
+			<DCCReference Include="Settings\fr_GpsSatellites.pas">
 				<Form>frGpsSatellites</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
@@ -1433,38 +1433,38 @@
 				<Form>frMarkDescription</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="fr_SelectedPicture.pas">
+			<DCCReference Include="MarksDB\GUI\fr_SelectedPicture.pas">
 				<Form>frSelectedPicture</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="fr_PictureSelectFromList.pas">
+			<DCCReference Include="MarksDB\GUI\fr_PictureSelectFromList.pas">
 				<Form>frPictureSelectFromList</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="fr_LonLat.pas">
+			<DCCReference Include="SecondaryForms\fr_LonLat.pas">
 				<Form>frLonLat</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="fr_SearchResultsItem.pas">
+			<DCCReference Include="MainForm\fr_SearchResultsItem.pas">
 				<Form>frSearchResultsItem</Form>
 				<DesignClass>TFrame</DesignClass>
 			</DCCReference>
-			<DCCReference Include="frm_Main.pas">
+			<DCCReference Include="MainForm\frm_Main.pas">
 				<Form>frmMain</Form>
 			</DCCReference>
-			<DCCReference Include="frm_GoTo.pas">
+			<DCCReference Include="SecondaryForms\frm_GoTo.pas">
 				<Form>frmGoTo</Form>
 			</DCCReference>
-			<DCCReference Include="frm_DebugInfo.pas">
+			<DCCReference Include="Debug\frm_DebugInfo.pas">
 				<Form>frmDebugInfo</Form>
 			</DCCReference>
-			<DCCReference Include="frm_About.pas">
+			<DCCReference Include="SecondaryForms\frm_About.pas">
 				<Form>frmAbout</Form>
 			</DCCReference>
-			<DCCReference Include="frm_Settings.pas">
+			<DCCReference Include="Settings\frm_Settings.pas">
 				<Form>frmSettings</Form>
 			</DCCReference>
-			<DCCReference Include="frm_MapLayersOptions.pas">
+			<DCCReference Include="Settings\frm_MapLayersOptions.pas">
 				<Form>frmMapLayersOptions</Form>
 			</DCCReference>
 			<DCCReference Include="RegionProcess\frm_RegionProcess.pas">
@@ -1473,25 +1473,25 @@
 			<DCCReference Include="RegionProcess\Download\frm_ProgressDownload.pas">
 				<Form>frmProgressDownload</Form>
 			</DCCReference>
-			<DCCReference Include="frm_InvisibleBrowser.pas">
+			<DCCReference Include="Browser\frm_InvisibleBrowser.pas">
 				<Form>frmInvisibleBrowser</Form>
 			</DCCReference>
 			<DCCReference Include="MarksDB\GUI\frm_MarkEditPoint.pas">
 				<Form>frmMarkEditPoint</Form>
 			</DCCReference>
-			<DCCReference Include="frm_MarkInfo.pas">
+			<DCCReference Include="MarksDB\GUI\frm_MarkInfo.pas">
 				<Form>frmMarkInfo</Form>
 			</DCCReference>
 			<DCCReference Include="RegionProcess\frm_ProgressSimple.pas">
 				<Form>frmProgressSimple</Form>
 			</DCCReference>
-			<DCCReference Include="frm_StartLogo.pas">
+			<DCCReference Include="SecondaryForms\frm_StartLogo.pas">
 				<Form>frmStartLogo</Form>
 			</DCCReference>
-			<DCCReference Include="frm_LonLatRectEdit.pas">
+			<DCCReference Include="SecondaryForms\frm_LonLatRectEdit.pas">
 				<Form>frmLonLatRectEdit</Form>
 			</DCCReference>
-			<DCCReference Include="frm_IntrnalBrowser.pas">
+			<DCCReference Include="Browser\frm_IntrnalBrowser.pas">
 				<Form>frmIntrnalBrowser</Form>
 			</DCCReference>
 			<DCCReference Include="MarksDB\GUI\frm_MarkEditPath.pas">
@@ -1500,7 +1500,7 @@
 			<DCCReference Include="MarksDB\GUI\frm_MarkEditPoly.pas">
 				<Form>frmMarkEditPoly</Form>
 			</DCCReference>
-			<DCCReference Include="frm_MapTypeEdit.pas">
+			<DCCReference Include="MapType\frm_MapTypeEdit.pas">
 				<Form>frmMapTypeEdit</Form>
 			</DCCReference>
 			<DCCReference Include="MarksDB\GUI\frm_MarksExplorer.pas">
@@ -1523,7 +1523,7 @@
 			</DCCReference>
 			<DCCReference Include="UpdateChecker\i_UpdateDownloader.pas"/>
 			<DCCReference Include="UpdateChecker\u_UpdateDownloader.pas"/>
-			<DCCReference Include="frm_ShortCutEdit.pas">
+			<DCCReference Include="Settings\frm_ShortCutEdit.pas">
 				<Form>frmShortCutEdit</Form>
 			</DCCReference>
 			<DCCReference Include="MarksDB\GUI\frm_JpegImportConfigEdit.pas">
