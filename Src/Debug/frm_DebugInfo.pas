@@ -106,7 +106,10 @@ type
     procedure PrepareGridHeader;
     function GetGridLinesText(const ATop, ABottom: Integer): String;
   public
-    constructor Create(AOwner: TComponent; const ADebugInfoSubSystem: IDebugInfoSubSystem); reintroduce;
+    constructor Create(
+      AOwner: TComponent;
+      const ADebugInfoSubSystem: IDebugInfoSubSystem
+    ); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -188,18 +191,20 @@ var
   VSL: TStringList;
 begin
   VFileName := '';
-  VText := GetGridLinesText(0, sgrdDebugInfo.RowCount-1);
+  VText := GetGridLinesText(0, sgrdDebugInfo.RowCount - 1);
 
-  with TSaveDialog.Create(Self) do
-  try
-    if Execute(Handle) then
-      VFileName := FileName;
-  finally
-    Free;
+  with TSaveDialog.Create(Self) do begin
+    try
+      if Execute(Handle) then begin
+        VFileName := FileName;
+      end;
+    finally
+      Free;
+    end;
   end;
 
-  if (0<Length(VFileName)) then begin
-    VSL:=TStringList.Create;
+  if (0 < Length(VFileName)) then begin
+    VSL := TStringList.Create;
     try
       VSL.Text := VText;
       VSL.SaveToFile(VFileName);
@@ -235,10 +240,12 @@ end;
 function TfrmDebugInfo.GetGridLinesText(const ATop, ABottom: Integer): String;
 
   procedure _AddLine(const AIndex: Integer);
-  var S: String;
+  var
+    S: String;
   begin
-    if (0<Length(Result)) then
+    if (0 < Length(Result)) then begin
       Result := Result + #13#10;
+    end;
 
     S := sgrdDebugInfo.Rows[AIndex].Text;
     S := StringReplace(S, #13, Chr(VK_TAB), [rfReplaceAll]);
@@ -255,14 +262,16 @@ begin
   Result := '';
 
   for i := ATop to ABottom do begin
-    if (i=sgrdDebugInfo.Row) then
-      VAddCurrent:=FALSE;
+    if (i = sgrdDebugInfo.Row) then begin
+      VAddCurrent := FALSE;
+    end;
 
     _AddLine(i);
   end;
 
-  if VAddCurrent then
+  if VAddCurrent then begin
     _AddLine(sgrdDebugInfo.Row);
+  end;
 end;
 
 function TfrmDebugInfo.GetPopupRow: Integer;
@@ -295,16 +304,17 @@ var
   VText: String;
 begin
   VRow := GetPopupRow;
-  if (VRow>=0) then
-  try
+  if (VRow >= 0) then begin
+    try
     // get Count value
-    VText := sgrdDebugInfo.Cells[1, VRow];
-    if TryStrToInt(VText, VRow) then begin
-      FMenuFiltering_MinimumCount := VRow;
-      FMenuFiltering_EnabledCount := True;
-      UpdateMenuFiltering;
+      VText := sgrdDebugInfo.Cells[1, VRow];
+      if TryStrToInt(VText, VRow) then begin
+        FMenuFiltering_MinimumCount := VRow;
+        FMenuFiltering_EnabledCount := True;
+        UpdateMenuFiltering;
+      end;
+    except
     end;
-  except
   end;
 
   if FMenuFiltering_EnabledCount then begin
@@ -326,25 +336,26 @@ var
   VValue: Double;
 begin
   VRow := GetPopupRow;
-  if (VRow>=0) then
-  try
+  if (VRow >= 0) then begin
+    try
     // get Total value ('nn:ss.zzz')
-    VText := sgrdDebugInfo.Cells[5, VRow];
+      VText := sgrdDebugInfo.Cells[5, VRow];
     // get before ':'
-    VRow := Pos(':', VText);
-    if (VRow > 0) then begin
-      VInt := StrToInt(Copy(VText, 1, VRow-1));
-      Delete(VText, 1, VRow);
-    end else begin
-      VInt := 0;
-    end;
+      VRow := Pos(':', VText);
+      if (VRow > 0) then begin
+        VInt := StrToInt(Copy(VText, 1, VRow - 1));
+        Delete(VText, 1, VRow);
+      end else begin
+        VInt := 0;
+      end;
 
-    if TryStrPointToFloat(VText, VValue) then begin
-      FMenuFiltering_MinimumTotal := (VValue + VInt) / (24*60*60);
-      FMenuFiltering_EnabledTotal := True;
-      UpdateMenuFiltering;
+      if TryStrPointToFloat(VText, VValue) then begin
+        FMenuFiltering_MinimumTotal := (VValue + VInt) / (24 * 60 * 60);
+        FMenuFiltering_EnabledTotal := True;
+        UpdateMenuFiltering;
+      end;
+    except
     end;
-  except
   end;
 
   if FMenuFiltering_EnabledTotal then begin
@@ -448,7 +459,7 @@ begin
         VSortMeasureInteger[i] := -VValueInteger;
       end else if FSortIndex in [2, 5] then begin
         if VValueInteger <> 0 then begin
-          VSortMeasureDouble[i] := - VValueDouble / VValueInteger;
+          VSortMeasureDouble[i] := -VValueDouble / VValueInteger;
         end else begin
           VSortMeasureDouble[i] := 0;
         end;
@@ -537,50 +548,53 @@ begin
     VTimeInMain := VTimeInMain - APrevData.TotalTimeInMain;
   end;
 
-  if not chkHideEmtyRows.Checked or (VCount > 0) then
-  if (not FMenuFiltering_EnabledCount) or (Integer(VCount) >= FMenuFiltering_MinimumCount) then
-  if (not FMenuFiltering_EnabledTotal) or (VTime >= FMenuFiltering_MinimumTotal) then begin
-    if sgrdDebugInfo.RowCount <= ARow then begin
-      sgrdDebugInfo.RowCount := ARow + 1;
-    end;
-    sgrdDebugInfo.Cells[0, ARow] := AName;
-    if VCount > 0 then begin
-      sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
-      VAvgTime := VTime/VCount*24*60*60;
-      sgrdDebugInfo.Cells[2, ARow] := _DoubleToStr(VAvgTime);
-      sgrdDebugInfo.Cells[3, ARow] := _TimeToStr(VTime);
-      if VCountInMain > 0 then begin
-        sgrdDebugInfo.Cells[4, ARow] := IntToStr(VCountInMain);
-        VAvgTime := VTimeInMain/VCountInMain*24*60*60;
-        sgrdDebugInfo.Cells[5, ARow] := _DoubleToStr(VAvgTime);
-        sgrdDebugInfo.Cells[6, ARow] := _TimeToStr(VTimeInMain);
-      end else begin
-        sgrdDebugInfo.Cells[4, ARow] := '';
-        sgrdDebugInfo.Cells[5, ARow] := '';
-        sgrdDebugInfo.Cells[6, ARow] := '';
+  if not chkHideEmtyRows.Checked or (VCount > 0) then begin
+    if (not FMenuFiltering_EnabledCount) or (Integer(VCount) >= FMenuFiltering_MinimumCount) then begin
+      if (not FMenuFiltering_EnabledTotal) or (VTime >= FMenuFiltering_MinimumTotal) then begin
+        if sgrdDebugInfo.RowCount <= ARow then begin
+          sgrdDebugInfo.RowCount := ARow + 1;
+        end;
+        sgrdDebugInfo.Cells[0, ARow] := AName;
+        if VCount > 0 then begin
+          sgrdDebugInfo.Cells[1, ARow] := IntToStr(VCount);
+          VAvgTime := VTime / VCount * 24 * 60 * 60;
+          sgrdDebugInfo.Cells[2, ARow] := _DoubleToStr(VAvgTime);
+          sgrdDebugInfo.Cells[3, ARow] := _TimeToStr(VTime);
+          if VCountInMain > 0 then begin
+            sgrdDebugInfo.Cells[4, ARow] := IntToStr(VCountInMain);
+            VAvgTime := VTimeInMain / VCountInMain * 24 * 60 * 60;
+            sgrdDebugInfo.Cells[5, ARow] := _DoubleToStr(VAvgTime);
+            sgrdDebugInfo.Cells[6, ARow] := _TimeToStr(VTimeInMain);
+          end else begin
+            sgrdDebugInfo.Cells[4, ARow] := '';
+            sgrdDebugInfo.Cells[5, ARow] := '';
+            sgrdDebugInfo.Cells[6, ARow] := '';
+          end;
+          sgrdDebugInfo.Cells[7, ARow] := _DoubleToStr(VMax * 24 * 60 * 60);
+          sgrdDebugInfo.Cells[8, ARow] := _DoubleToStr(VMin * 24 * 60 * 60);
+        end else begin
+          sgrdDebugInfo.Cells[1, ARow] := '';
+          sgrdDebugInfo.Cells[2, ARow] := '';
+          sgrdDebugInfo.Cells[3, ARow] := '';
+          sgrdDebugInfo.Cells[4, ARow] := '';
+          sgrdDebugInfo.Cells[5, ARow] := '';
+          sgrdDebugInfo.Cells[6, ARow] := '';
+          sgrdDebugInfo.Cells[7, ARow] := '';
+          sgrdDebugInfo.Cells[8, ARow] := '';
+        end;
+        Result := True;
       end;
-      sgrdDebugInfo.Cells[7, ARow] := _DoubleToStr(VMax*24*60*60);
-      sgrdDebugInfo.Cells[8, ARow] := _DoubleToStr(VMin*24*60*60);
-    end else begin
-      sgrdDebugInfo.Cells[1, ARow] := '';
-      sgrdDebugInfo.Cells[2, ARow] := '';
-      sgrdDebugInfo.Cells[3, ARow] := '';
-      sgrdDebugInfo.Cells[4, ARow] := '';
-      sgrdDebugInfo.Cells[5, ARow] := '';
-      sgrdDebugInfo.Cells[6, ARow] := '';
-      sgrdDebugInfo.Cells[7, ARow] := '';
-      sgrdDebugInfo.Cells[8, ARow] := '';
     end;
-    Result := True;
   end;
 end;
 
 procedure TfrmDebugInfo.UpdateMenuFiltering;
 begin
-  if FMenuFiltering_EnabledCount or FMenuFiltering_EnabledTotal then
-    lblFiltering.Caption := lblFiltering.Hint
-  else
+  if FMenuFiltering_EnabledCount or FMenuFiltering_EnabledTotal then begin
+    lblFiltering.Caption := lblFiltering.Hint;
+  end else begin
     lblFiltering.Caption := '';
+  end;
 end;
 
 end.
