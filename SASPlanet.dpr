@@ -422,6 +422,8 @@ uses
   u_CsvParser in 'VectorLoaders\u_CsvParser.pas',
   u_MultiPoligonParser in 'u_MultiPoligonParser.pas',
   u_ImportFromArcGIS in 'u_ImportFromArcGIS.pas',
+  t_ECW in 'RegionProcess\Combine\t_ECW.pas',
+  u_CalcWFileParams in 'RegionProcess\Combine\u_CalcWFileParams.pas',
   u_ECWWrite in 'RegionProcess\Combine\u_ECWWrite.pas',
   i_BitmapTileSaveLoad in 'BitmapTileSaveLoad\i_BitmapTileSaveLoad.pas',
   u_BitmapTileLibJpeg in 'BitmapTileSaveLoad\u_BitmapTileLibJpeg.pas',

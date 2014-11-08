@@ -41,8 +41,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const ADatum: IDatum;
-      const AProjEPSG: integer;
-      const ACellSizeUnits: TCellSizeUnits
+      const AProjEPSG: integer
     );
   end;
 
@@ -56,8 +55,7 @@ uses
 constructor TCoordConverterSimpleLonLat.Create(
   const AHash: THashValue;
   const ADatum: IDatum;
-  const AProjEPSG: integer;
-  const ACellSizeUnits: TCellSizeUnits
+  const AProjEPSG: integer
 );
 var
   VRadiusA, VRadiusB: Double;

@@ -18,37 +18,68 @@
 {* info@sasgis.org                                                            *}
 {******************************************************************************}
 
-unit t_GeoTypes;
+unit u_CalcWFileParams;
 
 interface
 
 uses
-  Types;
+  t_GeoTypes,
+  t_ECW,
+  i_CoordConverter;
 
-type
-  TPointRounding = (prClosest, prToTopLeft, prToBottomRight);
-  TRectRounding = (rrClosest, rrOutside, rrInside, rrToTopLeft);
-
-  TDoublePoint = packed record
-    X, Y: Double;
-  end;
-
-  TDoubleRect = packed record
-    case Integer of
-      0: (Left, Top: Double;
-        Right, Bottom: Double);
-      1: (TopLeft, BottomRight: TDoublePoint);
-  end;
-
-
-  PPointArray = ^TPointArray;
-  TPointArray = array [0..0] of TPoint;
-  PArrayOfPoint = ^TArrayOfPoint;
-  TArrayOfPoint = array of TPoint;
-
-  PDoublePointArray = ^TDoublePointArray;
-  TDoublePointArray = array [0..0] of TDoublePoint;
+  function GetUnitsByProjectionEPSG(const AEPSG: Integer): TCellSizeUnits;
+  procedure CalculateWFileParams(
+    const LL1,LL2:TDoublePoint;
+    ImageWidth,ImageHeight:integer;
+    const AConverter: ICoordConverter;
+    var CellIncrementX,CellIncrementY,OriginX,OriginY:Double
+  );
 
 implementation
+
+uses
+  c_CoordConverter;
+
+function GetUnitsByProjectionEPSG(const AEPSG: Integer): TCellSizeUnits;
+begin
+  case AEPSG of
+    CGoogleProjectionEPSG: Result := CELL_UNITS_METERS;
+    53004: Result := CELL_UNITS_METERS;
+    CYandexProjectionEPSG: Result := CELL_UNITS_METERS;
+    CGELonLatProjectionEPSG: Result := CELL_UNITS_DEGREES;
+  else
+    Result := CELL_UNITS_UNKNOWN;
+  end;
+end;
+
+procedure CalculateWFileParams(
+  const LL1, LL2: TDoublePoint;
+  ImageWidth, ImageHeight: integer;
+  const AConverter: ICoordConverter;
+  var CellIncrementX, CellIncrementY, OriginX, OriginY: Double
+);
+var
+  VM1: TDoublePoint;
+  VM2: TDoublePoint;
+begin
+  case GetUnitsByProjectionEPSG(AConverter.ProjectionEPSG) of
+    CELL_UNITS_METERS: begin
+      VM1 := AConverter.LonLat2Metr(LL1);
+      VM2 := AConverter.LonLat2Metr(LL2);
+
+      OriginX := VM1.X;
+      OriginY := VM1.Y;
+
+      CellIncrementX := (VM2.X-VM1.X)/ImageWidth;
+      CellIncrementY := (VM2.Y-VM1.Y)/ImageHeight;
+    end;
+    CELL_UNITS_DEGREES: begin
+      OriginX:=LL1.x;
+      OriginY:=LL1.y;
+      CellIncrementX:=(LL2.x-LL1.x)/ImageWidth;
+      CellIncrementY:=-CellIncrementX;
+    end;
+  end;
+end;
 
 end.

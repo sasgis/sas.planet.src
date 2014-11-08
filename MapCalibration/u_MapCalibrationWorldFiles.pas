@@ -69,6 +69,7 @@ uses
   Classes,
   SysUtils,
   t_GeoTypes,
+  u_CalcWFileParams,
   u_GeoToStrFunc,
   u_GeoFunc;
 

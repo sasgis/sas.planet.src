@@ -41,8 +41,7 @@ type
     constructor Create(
       const AHash: THashValue;
       const ADatum: IDatum;
-      const AProjEPSG: integer;
-      const ACellSizeUnits: TCellSizeUnits
+      const AProjEPSG: integer
     );
   end;
 
@@ -60,14 +59,13 @@ const
 constructor TCoordConverterMercatorOnEllipsoid.Create(
   const AHash: THashValue;
   const ADatum: IDatum;
-  const AProjEPSG: integer;
-  const ACellSizeUnits: TCellSizeUnits
+  const AProjEPSG: integer
 );
 var
   VRadiusA, VRadiusB: Double;
 begin
   Assert(ADatum <> nil);
-  inherited Create(AHash, ADatum, AProjEPSG, ACellSizeUnits);
+  inherited Create(AHash, ADatum, AProjEPSG);
   VRadiusA := ADatum.GetSpheroidRadiusA;
   VRadiusB := ADatum.GetSpheroidRadiusB;
   FExct := sqrt(VRadiusA * VRadiusA - VRadiusB * VRadiusB) / VRadiusA;

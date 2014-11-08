@@ -25,8 +25,7 @@ interface
 uses
   Types,
   Math,
-  t_GeoTypes,
-  i_CoordConverter;
+  t_GeoTypes;
 
   function CalcAngleDelta(const ADerg1, ADegr2: Double): Double;
 
@@ -56,12 +55,6 @@ uses
   function DoublePointsEqual(const p1,p2: TDoublePoint): Boolean;
   function DoubleRectsEqual(const ARect1, ARect2: TDoubleRect): Boolean;
 
-  procedure CalculateWFileParams(
-    const LL1,LL2:TDoublePoint;
-    ImageWidth,ImageHeight:integer;
-    const AConverter: ICoordConverter;
-    var CellIncrementX,CellIncrementY,OriginX,OriginY:Double
-  );
   function GetGhBordersStepByScale(AScale: Integer; AZoom: Byte): TDoublePoint;
   function GetDegBordersStepByScale(const AScale: Double; AZoom: Byte): TDoublePoint;
   function PointIsEmpty(const APoint: TDoublePoint): Boolean;
@@ -159,36 +152,6 @@ begin
     Result := Result - 360.0;
   end else if Result < -180.0 then begin
     Result := Result + 360.0;
-  end;
-end;
-
-procedure CalculateWFileParams(
-  const LL1, LL2: TDoublePoint;
-  ImageWidth, ImageHeight: integer;
-  const AConverter: ICoordConverter;
-  var CellIncrementX, CellIncrementY, OriginX, OriginY: Double
-);
-var
-  VM1: TDoublePoint;
-  VM2: TDoublePoint;
-begin
-  case AConverter.GetCellSizeUnits of
-    CELL_UNITS_METERS: begin
-      VM1 := AConverter.LonLat2Metr(LL1);
-      VM2 := AConverter.LonLat2Metr(LL2);
-
-      OriginX := VM1.X;
-      OriginY := VM1.Y;
-
-      CellIncrementX := (VM2.X-VM1.X)/ImageWidth;
-      CellIncrementY := (VM2.Y-VM1.Y)/ImageHeight;
-    end;
-    CELL_UNITS_DEGREES: begin
-      OriginX:=LL1.x;
-      OriginY:=LL1.y;
-      CellIncrementX:=(LL2.x-LL1.x)/ImageWidth;
-      CellIncrementY:=-CellIncrementX;
-    end;
   end;
 end;
 

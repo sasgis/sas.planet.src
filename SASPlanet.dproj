@@ -943,6 +943,8 @@
       <Form>frMapCombine</Form>
     </DCCReference>
     <DCCReference Include="RegionProcess\Combine\i_ImageLineProvider.pas" />
+    <DCCReference Include="RegionProcess\Combine\t_ECW.pas" />
+    <DCCReference Include="RegionProcess\Combine\u_CalcWFileParams.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ECWWrite.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ImageLineProvider.pas" />
     <DCCReference Include="RegionProcess\Combine\u_ProviderMapCombine.pas" />

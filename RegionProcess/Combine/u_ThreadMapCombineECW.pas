@@ -79,7 +79,9 @@ implementation
 
 uses
   LibECW,
+  t_ECW,
   i_CoordConverter,
+  u_CalcWFileParams,
   u_ImageLineProvider,
   u_ResStrings;
 
@@ -175,7 +177,7 @@ begin
     FLinesCount := VMapPieceSize.Y;
     Datum := 'EPSG:' + IntToStr(VGeoConverter.Datum.EPSG);
     Proj := 'EPSG:' + IntToStr(VGeoConverter.GetProjectionEPSG);
-    Units := VGeoConverter.GetCellSizeUnits;
+    Units := GetUnitsByProjectionEPSG(VGeoConverter.ProjectionEPSG);
     CalculateWFileParams(
       ALocalConverter.GeoConverter.PixelPos2LonLat(VCurrentPieceRect.TopLeft, ALocalConverter.Zoom),
       ALocalConverter.GeoConverter.PixelPos2LonLat(VCurrentPieceRect.BottomRight, ALocalConverter.Zoom),

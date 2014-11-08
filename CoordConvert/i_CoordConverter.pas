@@ -341,8 +341,6 @@ type
     function GetProjectionEPSG: Integer; stdcall;
     property ProjectionEPSG: Integer read GetProjectionEPSG;
 
-    // Возвращает единицы измерения используемые в спроецированной карте
-    function GetCellSizeUnits: TCellSizeUnits; stdcall;
     // Возвращает код типа нарезки на тайлы (на будущее, вдруг реализую произвольный размер тайлов)
     function GetTileSplitCode: Integer; stdcall;
     // Возвращает является ли другой конвертер эквивалентным текущему

@@ -36,7 +36,6 @@ type
     FHash: THashValue;
     FDatum: IDatum;
     FProjEPSG: integer;
-    FCellSizeUnits: TCellSizeUnits;
   protected
     procedure CheckZoomInternal(var AZoom: Byte); virtual; stdcall; abstract;
 
@@ -516,14 +515,12 @@ type
     function Metr2LonLat(const AXY: TDoublePoint): TDoublePoint; stdcall;
   private
     function GetProjectionEPSG: Integer; stdcall;
-    function GetCellSizeUnits: TCellSizeUnits; stdcall;
     function IsSameConverter(const AOtherMapCoordConv: ICoordConverter): Boolean; stdcall;
   public
     constructor Create(
       const AHash: THashValue;
       const ADatum: IDatum;
-      const AProjEPSG: integer;
-      const ACellSizeUnits: TCellSizeUnits
+      const AProjEPSG: integer
     );
   end;
 
@@ -1215,20 +1212,13 @@ end;
 constructor TCoordConverterAbstract.Create(
   const AHash: THashValue;
   const ADatum: IDatum;
-  const AProjEPSG: integer;
-  const ACellSizeUnits: TCellSizeUnits
+  const AProjEPSG: integer
 );
 begin
   inherited Create;
   FHash := AHash;
   FDatum := ADatum;
   FProjEPSG := AProjEPSG;
-  FCellSizeUnits := ACellSizeUnits;
-end;
-
-function TCoordConverterAbstract.GetCellSizeUnits: TCellSizeUnits;
-begin
-  Result := FCellSizeUnits;
 end;
 
 function TCoordConverterAbstract.IsSameConverter(
@@ -1250,8 +1240,6 @@ begin
   end else if AOtherMapCoordConv.GetTileSplitCode <> Self.GetTileSplitCode then begin
     Result := False;
   end else if AOtherMapCoordConv.GetProjectionEPSG <> Self.GetProjectionEPSG then begin
-    Result := False;
-  end else if AOtherMapCoordConv.GetCellSizeUnits <> Self.GetCellSizeUnits then begin
     Result := False;
   end else begin
     Result := True;

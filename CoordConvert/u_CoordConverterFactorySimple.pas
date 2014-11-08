@@ -83,25 +83,25 @@ begin
   VDatum := FDatumFactory.GetByCode(CGoogleDatumEPSG);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CGoogleProjectionEPSG);
-  FGoogle := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, CGoogleProjectionEPSG, CELL_UNITS_METERS);
+  FGoogle := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, CGoogleProjectionEPSG);
 
   VHash := FHashFunction.CalcHashByInteger(1);
   VDatum := FDatumFactory.GetByCode(53004);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, 53004);
-  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, 53004, CELL_UNITS_METERS);
+  FEPSG53004 := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, 53004);
 
   VHash := FHashFunction.CalcHashByInteger(2);
   VDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CYandexProjectionEPSG);
-  FYandex := TCoordConverterMercatorOnEllipsoid.Create(VHash, VDatum, CYandexProjectionEPSG, CELL_UNITS_METERS);
+  FYandex := TCoordConverterMercatorOnEllipsoid.Create(VHash, VDatum, CYandexProjectionEPSG);
 
   VHash := FHashFunction.CalcHashByInteger(3);
   VDatum := FDatumFactory.GetByCode(CYandexDatumEPSG);
   FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
   FHashFunction.UpdateHashByInteger(VHash, CGELonLatProjectionEPSG);
-  FLonLat := TCoordConverterSimpleLonLat.Create(VHash, VDatum, CGELonLatProjectionEPSG, CELL_UNITS_DEGREES);
+  FLonLat := TCoordConverterSimpleLonLat.Create(VHash, VDatum, CGELonLatProjectionEPSG);
 end;
 
 function TCoordConverterFactorySimple.GetCoordConverterByCode(
@@ -202,7 +202,7 @@ begin
           VHash := FHashFunction.CalcHashByInteger(1);
           FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
           FHashFunction.UpdateHashByInteger(VHash, 0);
-          Result := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, 0, CELL_UNITS_UNKNOWN);
+          Result := TCoordConverterMercatorOnSphere.Create(VHash, VDatum, 0);
         end;
       end;
       2: begin
@@ -213,7 +213,7 @@ begin
           VHash := FHashFunction.CalcHashByInteger(2);
           FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
           FHashFunction.UpdateHashByInteger(VHash, 0);
-          Result := TCoordConverterMercatorOnEllipsoid.Create(VHash, VDatum, 0, CELL_UNITS_UNKNOWN);
+          Result := TCoordConverterMercatorOnEllipsoid.Create(VHash, VDatum, 0);
         end;
       end;
       3: begin
@@ -224,7 +224,7 @@ begin
           VHash := FHashFunction.CalcHashByInteger(3);
           FHashFunction.UpdateHashByHash(VHash, VDatum.Hash);
           FHashFunction.UpdateHashByInteger(VHash, 0);
-          Result := TCoordConverterSimpleLonLat.Create(VHash, VDatum, 0, CELL_UNITS_UNKNOWN);
+          Result := TCoordConverterSimpleLonLat.Create(VHash, VDatum, 0);
         end;
       end;
     else begin
