@@ -29,8 +29,14 @@ type
     function GetVersionDetaled: string;
     function GetBuildDate: TDateTime;
     function GetBuildType: string;
-    function GetBuildSrcInfo(out ARev: Integer; out ANode: string): Boolean;
-    function GetBuildReqInfo(out ARev: Integer; out ANode: string): Boolean;
+    function GetBuildSrcInfo(
+      out ARev: Integer;
+      out ANode: string
+    ): Boolean;
+    function GetBuildReqInfo(
+      out ARev: Integer;
+      out ANode: string
+    ): Boolean;
     function GetCompilerInfo: string;
     function GetDescription: string;
   end;

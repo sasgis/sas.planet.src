@@ -78,27 +78,29 @@ var
   st: TSystemTime;
 begin
   GetSystemTime(st);
-  Result := SystemTimeToDateTime(st)
+  Result := SystemTimeToDateTime(st);
 end;
 
 procedure TSystemTimeProvider.SystemTimeChanged;
 var
   st, lt: TSystemTime;
 begin
-  FLocalTimeShift:=0;
+  FLocalTimeShift := 0;
   GetSystemTime(st);
-  if SystemTimeToTzSpecificLocalTime(nil, st, lt) then
-    FLocalTimeShift:=(SystemTimeToDateTime(lt)-SystemTimeToDateTime(st));
+  if SystemTimeToTzSpecificLocalTime(nil, st, lt) then begin
+    FLocalTimeShift := (SystemTimeToDateTime(lt) - SystemTimeToDateTime(st));
+  end;
   FSystemTimeChangedNotifier.Notify(nil);
 end;
 
 function TSystemTimeProvider.UTCToLocalTime(
   const ASysTime: TDateTime): TDateTime;
 begin
-  if (0=ASysTime) then
-    Result:=0
-  else
-    Result:=ASysTime + FLocalTimeShift;
+  if (0 = ASysTime) then begin
+    Result := 0;
+  end else begin
+    Result := ASysTime + FLocalTimeShift;
+  end;
 end;
 
 end.

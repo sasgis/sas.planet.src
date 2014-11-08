@@ -36,10 +36,13 @@ uses
   GR32,
   u_BitmapFunc;
 
-procedure CopyBitmapToClipboard(AHandle: THandle; const ABitmap: IBitmap32Static);
+procedure CopyBitmapToClipboard(
+  AHandle: THandle;
+  const ABitmap: IBitmap32Static
+);
 var
-  btm:TBitmap32;
-  btm1:TBitmap;
+  btm: TBitmap32;
+  btm1: TBitmap;
   hSourcDC, hDestDC, hBM, hbmOld: THandle;
 begin
   btm := TBitmap32.Create;
@@ -53,7 +56,7 @@ begin
       hSourcDC := btm1.Canvas.Handle;
       hDestDC := CreateCompatibleDC(hSourcDC);
       hBM := CreateCompatibleBitmap(hSourcDC, btm1.width, btm1.height);
-      hbmold:= SelectObject(hDestDC, hBM);
+      hbmold := SelectObject(hDestDC, hBM);
       BitBlt(hDestDC, 0, 0, btm1.width, btm1.height, hSourcDC, 0, 0, SRCCopy);
       OpenClipBoard(AHandle);
       EmptyClipBoard;
@@ -71,15 +74,17 @@ begin
   end;
 end;
 
-procedure CopyStringToClipboard(AHandle: THandle; const s: string);
+procedure CopyStringToClipboard(
+  AHandle: THandle;
+  const s: string
+);
 var
   VStr: WideString;
   hg: THandle;
   P: Pointer;
   VLen: Integer;
 begin
-  if OpenClipboard(AHandle) then
-  begin
+  if OpenClipboard(AHandle) then begin
     try
       EmptyClipBoard;
       VStr := s;
@@ -100,7 +105,7 @@ begin
     finally
       CloseClipboard;
     end;
-  end
+  end;
 end;
 
 
