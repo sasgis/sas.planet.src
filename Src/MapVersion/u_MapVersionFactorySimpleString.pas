@@ -116,7 +116,7 @@ end;
 
 function TMapVersionFactorySimpleString.IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
 begin
-  if (nil=AMapVersionFactory) then begin
+  if (nil = AMapVersionFactory) then begin
     Result := False;
   end else begin
     Result := Supports(AMapVersionFactory, IMapVersionFactorySimpleInternal);

@@ -282,9 +282,10 @@ begin
 end;
 
 function TMapVersionFactoryGE.IsSameFactoryClass(const AMapVersionFactory: IMapVersionFactory): Boolean;
-var V: IMapVersionFactoryGEInternal;
+var
+  V: IMapVersionFactoryGEInternal;
 begin
-  if (nil=AMapVersionFactory) then begin
+  if (nil = AMapVersionFactory) then begin
     Result := False;
   end else begin
     Result := Supports(AMapVersionFactory, IMapVersionFactoryGEInternal, V);
