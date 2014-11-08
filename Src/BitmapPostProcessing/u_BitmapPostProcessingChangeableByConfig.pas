@@ -35,7 +35,7 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
     FConfig: IBitmapPostProcessingConfig;
     FConfigChangeListener: IListener;
-    procedure  OnConfigChange;
+    procedure OnConfigChange;
   protected
     function CreateStatic: IInterface; override;
   private
