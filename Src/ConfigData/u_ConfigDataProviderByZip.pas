@@ -265,7 +265,7 @@ begin
   try
     for I := 0 to FArchive.GetItemsCount - 1 do begin
       VFullFileName := FArchive.GetItemNameByIndex(I);
-      if CompareText(ExtractFilePath(ExcludeTrailingPathDelimiter(VFullFileName)), FSubFolder) = 0  then begin
+      if CompareText(ExtractFilePath(ExcludeTrailingPathDelimiter(VFullFileName)), FSubFolder) = 0 then begin
         VFileName := ExtractFileName(VFullFileName);
         VExt := UpperCase(ExtractFileExt(VFileName));
         if (VExt = '.INI') or (VExt = '.TXT') then begin
@@ -299,7 +299,7 @@ begin
   try
     for i := 0 to FArchive.GetItemsCount - 1 do begin
       VFullFileName := FArchive.GetItemNameByIndex(i);
-      if CompareText(ExtractFilePath(ExcludeTrailingPathDelimiter(VFullFileName)), FSubFolder) = 0  then begin
+      if CompareText(ExtractFilePath(ExcludeTrailingPathDelimiter(VFullFileName)), FSubFolder) = 0 then begin
         VFileName := ExtractFileName(VFullFileName);
         VList.Add(VFileName);
       end;

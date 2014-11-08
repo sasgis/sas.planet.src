@@ -186,6 +186,7 @@ function ReadPolygon(
 
     Result := not PointIsEmpty(VPoint) and ((Abs(VPoint.X) < 360) and (Abs(VPoint.Y) < 360));
   end;
+
 var
   i: Integer;
   VPoint: TDoublePoint;
@@ -285,4 +286,3 @@ begin
 end;
 
 end.
-
