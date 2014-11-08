@@ -46,17 +46,34 @@ type
     EmbeddedWB1: TEmbeddedWB;
     imgViewImage: TImgView32;
     procedure FormDestroy(Sender: TObject);
-    procedure EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB;
-      var hwnd: HWND; var szUserName, szPassWord: WideString;
-      var Rezult: HRESULT);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
-      ScanCode: Word; Shift: TShiftState);
+    procedure EmbeddedWB1Authenticate(
+      Sender: TCustomEmbeddedWB;
+      var hwnd: HWND;
+      var szUserName, szPassWord: WideString;
+      var Rezult: HRESULT
+    );
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
+    procedure EmbeddedWB1KeyDown(
+      Sender: TObject;
+      var Key: Word;
+      ScanCode: Word;
+      Shift: TShiftState
+    );
     procedure FormCreate(Sender: TObject);
-    procedure EmbeddedWB1BeforeNavigate2(ASender: TObject;
-      const pDisp: IDispatch; var URL, Flags, TargetFrameName, PostData,
-      Headers: OleVariant; var Cancel: WordBool);
-    procedure EmbeddedWB1TitleChange(ASender: TObject; const Text: WideString);
+    procedure EmbeddedWB1BeforeNavigate2(
+      ASender: TObject;
+      const pDisp: IDispatch;
+      var URL, Flags, TargetFrameName, PostData,
+      Headers: OleVariant;
+      var Cancel: WordBool
+    );
+    procedure EmbeddedWB1TitleChange(
+      ASender: TObject;
+      const Text: WideString
+    );
     procedure FormHide(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -122,7 +139,12 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.EmbeddedWB1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
+procedure TfrmIntrnalBrowser.EmbeddedWB1Authenticate(
+  Sender: TCustomEmbeddedWB;
+  var hwnd: HWND;
+  var szUserName, szPassWord: WideString;
+  var Rezult: HRESULT
+);
 var
   VProxyConfig: IProxyConfigStatic;
   VUseLogin: Boolean;
@@ -135,35 +157,45 @@ begin
   end;
 end;
 
-procedure TfrmIntrnalBrowser.EmbeddedWB1BeforeNavigate2(ASender: TObject;
-  const pDisp: IDispatch; var URL, Flags, TargetFrameName, PostData,
-  Headers: OleVariant; var Cancel: WordBool);
+procedure TfrmIntrnalBrowser.EmbeddedWB1BeforeNavigate2(
+  ASender: TObject;
+  const pDisp: IDispatch;
+  var URL, Flags, TargetFrameName, PostData,
+  Headers: OleVariant;
+  var Cancel: WordBool
+);
 var
   VURL, VExt: WideString;
 begin
-  if Cancel then
+  if Cancel then begin
     Exit;
+  end;
   try
     VURL := URL;
 
     // check file exists and known image type
-    if System.Pos(':',VURL)>0 then
+    if System.Pos(':', VURL) > 0 then begin
       Exit;
+    end;
 
     // check file exists
     if FileExists(VURL) then begin
       VExt := ExtractFileExt(VURL);
-      if FContentTypeManager.GetIsBitmapExt(VExt) then
-      if OpenLocalImage(VURL) then begin
+      if FContentTypeManager.GetIsBitmapExt(VExt) then begin
+        if OpenLocalImage(VURL) then begin
         // image opened
-        Cancel := TRUE;
+          Cancel := TRUE;
+        end;
       end;
     end;
   except
   end;
 end;
 
-procedure TfrmIntrnalBrowser.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmIntrnalBrowser.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   EmbeddedWB1.Stop;
 end;
@@ -184,7 +216,7 @@ end;
 
 procedure TfrmIntrnalBrowser.Navigate(const ACaption, AUrl: string);
 begin
-  EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
+  EmbeddedWB1.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
   ResetImageView(FALSE);
   show;
@@ -198,18 +230,18 @@ var
   VTargetFrameName: OleVariant;
   i: Integer;
 begin
-  EmbeddedWB1.HTMLCode.Text:=SAS_STR_WiteLoad;
+  EmbeddedWB1.HTMLCode.Text := SAS_STR_WiteLoad;
   SetGoodCaption(ACaption);
   ResetImageView(FALSE);
   show;
 
-  VPostData := VarArrayCreate([0, Length(APostData)-1], varByte);
+  VPostData := VarArrayCreate([0, Length(APostData) - 1], varByte);
   for i := 1 to Length(APostData) do begin
-    VPostData[i-1] := Ord(APostData[i]);
+    VPostData[i - 1] := Ord(APostData[i]);
   end;
 
-  VHeaders := 'Referer: '+AReferer+#$D#$A+
-              'Content-Type: application/x-www-form-urlencoded';
+  VHeaders := 'Referer: ' + AReferer + #$D#$A +
+    'Content-Type: application/x-www-form-urlencoded';
 
   VFlags := EmptyParam;
   VTargetFrameName := EmptyParam;
@@ -222,7 +254,7 @@ var
 begin
   VRect := FConfig.BoundsRect;
   if not EqualRect(BoundsRect, VRect) then begin
-    BoundsRect :=VRect;
+    BoundsRect := VRect;
   end;
 end;
 
@@ -245,33 +277,41 @@ begin
 end;
 
 procedure TfrmIntrnalBrowser.SetGoodCaption(const ACaption: String);
-var VCaption: String;
+var
+  VCaption: String;
 begin
   VCaption := ACaption;
   if VCaption <> '' then begin
-    VCaption := StringReplace(ACaption,#13#10,', ',[rfReplaceAll]);
+    VCaption := StringReplace(ACaption, #13#10, ', ', [rfReplaceAll]);
     VCaption := StupedHtmlToTextConverter(VCaption);
   end;
   FCurrentCaption := VCaption;
   Self.Caption := VCaption;
 end;
 
-procedure TfrmIntrnalBrowser.EmbeddedWB1KeyDown(Sender: TObject; var Key: Word;
-  ScanCode: Word; Shift: TShiftState);
+procedure TfrmIntrnalBrowser.EmbeddedWB1KeyDown(
+  Sender: TObject;
+  var Key: Word;
+  ScanCode: Word;
+  Shift: TShiftState
+);
 begin
   case Key of
     VK_ESCAPE: begin
       Close;
     end;
     VK_BACK: begin
-      if imgViewImage.Visible then
+      if imgViewImage.Visible then begin
         ResetImageView(FALSE);
+      end;
     end;
   end;
 end;
 
-procedure TfrmIntrnalBrowser.EmbeddedWB1TitleChange(ASender: TObject; const
-    Text: WideString);
+procedure TfrmIntrnalBrowser.EmbeddedWB1TitleChange(
+  ASender: TObject;
+  const Text: WideString
+);
 begin
   if FCurrentCaption = '' then begin
     Self.Caption := Text;
@@ -307,5 +347,3 @@ begin
 end;
 
 end.
-
-

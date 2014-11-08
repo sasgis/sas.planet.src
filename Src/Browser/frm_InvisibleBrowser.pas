@@ -40,7 +40,12 @@ type
   TfrmInvisibleBrowser = class(TFormWitghLanguageManager)
     WebBrowser1: TEmbeddedWB;
     procedure FormCreate(Sender: TObject);
-    procedure WebBrowser1Authenticate(Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName, szPassWord: WideString; var Rezult: HRESULT);
+    procedure WebBrowser1Authenticate(
+      Sender: TCustomEmbeddedWB;
+      var hwnd: HWND;
+      var szUserName, szPassWord: WideString;
+      var Rezult: HRESULT
+    );
   private
     FCS: IReadWriteSync;
     FProxyConfig: IProxyConfig;
@@ -87,8 +92,12 @@ begin
 end;
 
 procedure TfrmInvisibleBrowser.WebBrowser1Authenticate(
-  Sender: TCustomEmbeddedWB; var hwnd: HWND; var szUserName,
-  szPassWord: WideString; var Rezult: HRESULT);
+  Sender: TCustomEmbeddedWB;
+  var hwnd: HWND;
+  var szUserName,
+  szPassWord: WideString;
+  var Rezult: HRESULT
+);
 var
   VUseLogin: Boolean;
   VProxyConfig: IProxyConfigStatic;
