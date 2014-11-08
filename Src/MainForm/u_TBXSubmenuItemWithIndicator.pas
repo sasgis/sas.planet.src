@@ -57,7 +57,7 @@ var
 begin
   Result := False;
   for I := 0 to AItem.Count - 1 do begin
-    if AItem.Items[I].Count > 0  then begin
+    if AItem.Items[I].Count > 0 then begin
       Result := IsItemChecked(AItem.Items[I]);
       if Result then begin
         Break;

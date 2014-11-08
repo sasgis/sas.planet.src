@@ -235,7 +235,7 @@ begin
   if VValue < 0 then begin
     VValue := 0;
   end else if VValue > 2000 then begin
-    VValue :=  2000;
+    VValue := 2000;
   end;
 
   LockWrite;
@@ -257,7 +257,7 @@ begin
   if VValue < 0 then begin
     VValue := 0;
   end else if VValue > 2000 then begin
-    VValue :=  2000;
+    VValue := 2000;
   end;
 
   LockWrite;
@@ -279,7 +279,7 @@ begin
   if VValue < 0 then begin
     VValue := 0;
   end else if VValue > 2000 then begin
-    VValue :=  2000;
+    VValue := 2000;
   end;
 
   LockWrite;

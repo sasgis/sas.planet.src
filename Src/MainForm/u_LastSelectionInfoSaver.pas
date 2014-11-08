@@ -128,8 +128,10 @@ begin
   FNeedWriteFlag.SetFlag;
 end;
 
-procedure TLastSelectionInfoSaver.ProcessSave(AOperationID: Integer;
-  const ACancelNotifier: INotifierOperation);
+procedure TLastSelectionInfoSaver.ProcessSave(
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation
+);
 var
   VFileName: string;
   VPath: string;
@@ -199,12 +201,12 @@ begin
       VStringList := TStringList.Create;
       try
         VStringList.Add('[HIGHLIGHTING]');
-        VStringList.Add('Zoom='+IntToStr(VZoom));
+        VStringList.Add('Zoom=' + IntToStr(VZoom));
         VEnum := VPolygon.GetEnum;
         i := 1;
         while VEnum.Next(VPoint) do begin
-          VStringList.Add('PointLon_' + IntToStr(i)+ '=' +  FloatToStr(VPoint.X, VFormatSettings));
-          VStringList.Add('PointLat_' + IntToStr(i)+ '=' +  FloatToStr(VPoint.Y, VFormatSettings));
+          VStringList.Add('PointLon_' + IntToStr(i) + '=' + FloatToStr(VPoint.X, VFormatSettings));
+          VStringList.Add('PointLat_' + IntToStr(i) + '=' + FloatToStr(VPoint.Y, VFormatSettings));
           Inc(i);
         end;
         VStringList.SaveToFile(VFileName);

@@ -195,8 +195,10 @@ begin
   end;
 end;
 
-procedure TMapViewPortState.ChangeLonLatAndZoom(const AZoom: Byte;
-  const ALonLat: TDoublePoint);
+procedure TMapViewPortState.ChangeLonLatAndZoom(
+  const AZoom: Byte;
+  const ALonLat: TDoublePoint
+);
 var
   VLocalConverter: ILocalCoordConverter;
   VLocalConverterNew: ILocalCoordConverter;

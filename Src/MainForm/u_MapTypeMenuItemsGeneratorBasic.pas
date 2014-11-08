@@ -162,7 +162,7 @@ begin
             VParent.Add(Vmenu);
           end;
         end;
-        Result :=  Vmenu;
+        Result := Vmenu;
       finally
         FreeAndNil(VNameParts);
       end;

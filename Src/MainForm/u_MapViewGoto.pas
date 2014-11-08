@@ -167,7 +167,9 @@ procedure TMapViewGoto.GotoLonLat(
 begin
   FLastGotoPos := TGotoPosStatic.Create(ALonLat, FViewPortState.GetCurrentZoom, Now);
   FViewPortState.ChangeLonLat(ALonLat);
-  if AShowmarker then FChangeNotifier.Notify(nil);
+  if AShowmarker then begin
+    FChangeNotifier.Notify(nil);
+  end;
 end;
 
 procedure TMapViewGoto.GotoPos(
@@ -178,7 +180,9 @@ procedure TMapViewGoto.GotoPos(
 begin
   FLastGotoPos := TGotoPosStatic.Create(ALonLat, AZoom, Now);
   FViewPortState.ChangeLonLatAndZoom(AZoom, ALonLat);
-  if AShowmarker then FChangeNotifier.Notify(nil);
+  if AShowmarker then begin
+    FChangeNotifier.Notify(nil);
+  end;
 end;
 
 { TGotoPosStatic }

@@ -41,7 +41,7 @@ implementation
 
 uses
   u_Synchronizer;
-  
+
 { TMainFormState }
 
 constructor TMainFormState.Create;

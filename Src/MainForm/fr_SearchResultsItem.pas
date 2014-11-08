@@ -58,10 +58,18 @@ type
     LabelCategory: TLabel;
     TBXOperationsToolbar: TTBXToolbar;
     tbtmHide: TTBItem;
-    procedure FrameContextPopup(Sender: TObject; MousePos: TPoint; var Handled:
-        Boolean);
-    procedure LabelFullDescImgMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+    procedure FrameContextPopup(
+      Sender: TObject;
+      MousePos: TPoint;
+      var Handled:
+      Boolean
+    );
+    procedure LabelFullDescImgMouseUp(
+      Sender: TObject;
+      Button: TMouseButton;
+      Shift: TShiftState;
+      X, Y: Integer
+    );
     procedure LabelCaptionClick(Sender: TObject);
     procedure LabelDescDblClick(Sender: TObject);
     procedure tbtmHideClick(Sender: TObject);
@@ -74,7 +82,7 @@ type
   public
     constructor Create(
       AOwner: TComponent;
-      AParent:TWinControl;
+      AParent: TWinControl;
       APopUp: TPopupMenu;
       const APlacemark: IVectorDataItem;
       const AIntrnalBrowser: IInternalBrowser;
@@ -84,6 +92,7 @@ type
   end;
 
 implementation
+
 uses
   t_GeoTypes,
   i_AppearanceOfVectorItem,
@@ -93,7 +102,7 @@ uses
 
 constructor TfrSearchResultsItem.Create(
   AOwner: TComponent;
-  AParent:TWinControl;
+  AParent: TWinControl;
   APopUp: TPopupMenu;
   const APlacemark: IVectorDataItem;
   const AIntrnalBrowser: IInternalBrowser;
@@ -108,8 +117,8 @@ var
 begin
   inherited Create(AOwner);
   FValueToStringConverter := AValueConverter;
-  Parent:=AParent;
-  FPlacemark:=APlacemark;
+  Parent := AParent;
+  FPlacemark := APlacemark;
   FPopUp := APopUp;
   FIntrnalBrowser := AIntrnalBrowser;
   LabelCaption.Caption := FPlacemark.Name;
@@ -133,7 +142,7 @@ begin
       imgIcon.Visible := True;
       CopyBitmap32StaticToBitmap32(VAppearanceIcon.Pic.GetMarker, imgIcon.Bitmap);
       VGotoLonLat := FPlacemark.Geometry.GetGoToPoint;
-      LabelMarkInfo.Caption := '[ '+VValueConverter.LonLatConvert(VGotoLonLat) + ' ]';
+      LabelMarkInfo.Caption := '[ ' + VValueConverter.LonLatConvert(VGotoLonLat) + ' ]';
     end;
   end;
   PanelFullDescImg.Visible := imgIcon.Visible;
@@ -177,15 +186,19 @@ begin
   FMapGoto.ShowMarker(FPlacemark.Geometry.GetGoToPoint);
 end;
 
-procedure TfrSearchResultsItem.LabelFullDescImgMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfrSearchResultsItem.LabelFullDescImgMouseUp(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   FIntrnalBrowser.ShowMessage(FPlacemark.GetInfoCaption, FPlacemark.GetInfoHTML);
 end;
 
 procedure TfrSearchResultsItem.tbtmHideClick(Sender: TObject);
 begin
-  Hide
+  Hide;
 end;
 
 end.
