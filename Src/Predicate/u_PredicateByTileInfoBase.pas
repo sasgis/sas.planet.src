@@ -32,7 +32,11 @@ uses
 type
   TPredicateByTileInfoAbstract = class(TBaseInterfacedObject, IPredicateByTileInfo)
   protected
-    function Check(const ATileInfo: ITileInfoBasic; AZoom: Byte; const ATile: TPoint): Boolean; overload;
+    function Check(
+      const ATileInfo: ITileInfoBasic;
+      AZoom: Byte;
+      const ATile: TPoint
+    ): Boolean; overload;
     function Check(const ATileInfo: TTileInfo): Boolean; overload; virtual; abstract;
   end;
 
@@ -82,7 +86,10 @@ type
   protected
     function Check(const ATileInfo: TTileInfo): Boolean; override;
   public
-    constructor Create(ADeleteTNE: Boolean; ASize: Cardinal);
+    constructor Create(
+      ADeleteTNE: Boolean;
+      ASize: Cardinal
+    );
   end;
 
   TPredicateByTileInfoNotExistOrBeforDate = class(TPredicateByTileInfoAbstract)
@@ -142,7 +149,10 @@ end;
 
 { TPredicateByTileInfoEqualSize }
 
-constructor TPredicateByTileInfoEqualSize.Create(ADeleteTNE: Boolean; ASize: Cardinal);
+constructor TPredicateByTileInfoEqualSize.Create(
+  ADeleteTNE: Boolean;
+  ASize: Cardinal
+);
 begin
   inherited Create;
   FSize := ASize;
