@@ -386,6 +386,7 @@
     <DCCReference Include="ImageResampler\u_ImageResamplerFactoryListStaticSimple.pas" />
     <DCCReference Include="InternalDomain\i_InternalDomainInfoProvider.pas" />
     <DCCReference Include="InternalDomain\i_InternalDomainOptions.pas" />
+    <DCCReference Include="InternalDomain\i_TextByVectorItem.pas" />
     <DCCReference Include="InternalDomain\u_IeEmbeddedProtocol.pas" />
     <DCCReference Include="InternalDomain\u_IeEmbeddedProtocolFactory.pas" />
     <DCCReference Include="InternalDomain\u_IeEmbeddedProtocolRegistration.pas" />
@@ -397,6 +398,8 @@
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByMarksSystem.pas" />
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderByTileStorageOptions.pas" />
     <DCCReference Include="InternalDomain\u_InternalDomainInfoProviderList.pas" />
+    <DCCReference Include="InternalDomain\u_TextByVectorItemHTMLByDescription.pas" />
+    <DCCReference Include="InternalDomain\u_TextByVectorItemMarkInfo.pas" />
     <DCCReference Include="i_BasicMemCache.pas" />
     <DCCReference Include="i_FindVectorItems.pas" />
     <DCCReference Include="i_GlobalAppConfig.pas" />
@@ -426,7 +429,6 @@
     <DCCReference Include="i_StringByLanguage.pas" />
     <DCCReference Include="i_StringHistory.pas" />
     <DCCReference Include="i_StringProvider.pas" />
-    <DCCReference Include="i_TextByVectorItem.pas" />
     <DCCReference Include="i_ThreadConfig.pas" />
     <DCCReference Include="i_TileInfoBasic.pas" />
     <DCCReference Include="i_TileInfoBasicMemCache.pas" />
@@ -439,7 +441,6 @@
     <DCCReference Include="i_UsedMarksConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_ValueToStringConverterConfig.pas" />
-    <DCCReference Include="i_VectorItemDrawConfig.pas" />
     <DCCReference Include="i_WindowPositionConfig.pas" />
     <DCCReference Include="Logger\i_ErrorInfo.pas" />
     <DCCReference Include="Logger\i_ErrorLogger.pas" />
@@ -522,6 +523,7 @@
     <DCCReference Include="MapLayers\i_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\i_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="MapLayers\i_UseTilePrevZoomConfig.pas" />
+    <DCCReference Include="MapLayers\i_VectorItemDrawConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapColorer.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapLayerConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\t_FillingMapModes.pas" />
@@ -1350,8 +1352,6 @@
     <DCCReference Include="u_StringByLanguageWithStaticList.pas" />
     <DCCReference Include="u_StringHistory.pas" />
     <DCCReference Include="u_StringProviderForMapTileItem.pas" />
-    <DCCReference Include="u_TextByVectorItemHTMLByDescription.pas" />
-    <DCCReference Include="u_TextByVectorItemMarkInfo.pas" />
     <DCCReference Include="u_ThreadConfig.pas" />
     <DCCReference Include="u_TileInfoBasic.pas" />
     <DCCReference Include="u_TileInfoBasicMemCache.pas" />
