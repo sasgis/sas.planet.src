@@ -273,7 +273,7 @@ begin
       end;
     end;
   end;
-  Result :=res;
+  Result := res;
 end;
 
 function TValueToStringConverter.DistConvert(const ADistInMeters: Double): string;

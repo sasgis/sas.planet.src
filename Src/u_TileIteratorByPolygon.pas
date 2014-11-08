@@ -133,7 +133,7 @@ var
   i: Integer;
   VLine: IGeometryProjectedSinglePolygon;
 begin
-  if (FSingleLine<>nil) then begin
+  if (FSingleLine <> nil) then begin
     // один сегмент - только его и проверяем
     Result := FSingleLine.IsRectIntersectPolygon(ARect);
     Exit;
@@ -145,21 +145,23 @@ begin
   // Result := FProjected.IsRectIntersectPolygon(ARect);
 
   // проверяем кэш
-  if (FLastUsedLine<>nil) then begin
+  if (FLastUsedLine <> nil) then begin
     Result := FLastUsedLine.IsRectIntersectPolygon(ARect);
-    if Result then
+    if Result then begin
       Exit;
+    end;
   end;
 
   // проверяем всё в цикле
-  for i := 0 to FMultiProjected.Count-1 do begin
+  for i := 0 to FMultiProjected.Count - 1 do begin
     VLine := FMultiProjected.GetItem(i);
-    if (Pointer(VLine)<>Pointer(FLastUsedLine)) then
-    if VLine.IsRectIntersectPolygon(ARect) then begin
+    if (Pointer(VLine) <> Pointer(FLastUsedLine)) then begin
+      if VLine.IsRectIntersectPolygon(ARect) then begin
       // нашлось
-      Result := TRUE;
-      FLastUsedLine := VLine;
-      Exit;
+        Result := TRUE;
+        FLastUsedLine := VLine;
+        Exit;
+      end;
     end;
   end;
 

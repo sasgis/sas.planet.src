@@ -86,6 +86,7 @@ type
       const ASync: IReadWriteSync
     );
   end;
+
 { TFreeObjectProcedureInternal }
 
 constructor TFreeObjectProcedureInternal.Create(

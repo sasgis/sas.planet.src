@@ -119,7 +119,7 @@ begin
   VMapSet := FMapTypeSet.GetStatic;
   FCS.BeginWrite;
   try
-    if Assigned(FMapsListened) and not FMapsListened.IsEqual(VMapSet)  then begin
+    if Assigned(FMapsListened) and not FMapsListened.IsEqual(VMapSet) then begin
       if Assigned(FListener) and Assigned(FListenLocalConverter) then begin
         _RemoveListeners(FMapsListened);
       end;
@@ -180,7 +180,7 @@ var
   VNotifier: INotifierTilePyramidUpdate;
 begin
   Assert(Assigned(FMapListeners));
-  if Assigned(AMapsListened) and Assigned(FMapListeners)then begin
+  if Assigned(AMapsListened) and Assigned(FMapListeners) then begin
     Assert(AMapsListened.Count = FMapListeners.Count);
     for i := 0 to AMapsListened.Count - 1 do begin
       VMap := AMapsListened.Items[i];
@@ -196,7 +196,9 @@ begin
 end;
 
 procedure TSourceDataUpdateInRectByMapsSet.SetListener(
-  const AListener: IListener; const ALocalConverter: ILocalCoordConverter);
+  const AListener: IListener;
+  const ALocalConverter: ILocalCoordConverter
+);
 begin
   FCS.BeginWrite;
   try

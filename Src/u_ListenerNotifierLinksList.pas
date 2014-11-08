@@ -48,11 +48,11 @@ type
     procedure Add(
       const AListener: IListener;
       const ANotifier: INotifier
-    );overload;
+    ); overload;
     procedure Add(
       const AListener: IListenerTime;
       const ANotifier: INotifierTime
-    );overload;
+    ); overload;
     procedure ActivateLinks;
     procedure DeactivateLinks;
   public
@@ -151,8 +151,10 @@ begin
   end;
 end;
 
-procedure TListenerNotifierLinksList.Add(const AListener: IListenerTime;
-  const ANotifier: INotifierTime);
+procedure TListenerNotifierLinksList.Add(
+  const AListener: IListenerTime;
+  const ANotifier: INotifierTime
+);
 var
   VListenerIndex: Integer;
   VNotifierIndex: Integer;
@@ -228,8 +230,3 @@ begin
 end;
 
 end.
-
-
-
-
-

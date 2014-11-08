@@ -38,7 +38,7 @@ type
     procedure Add(
       const AListener: IListenerTime;
       const ANotifier: INotifierTime
-    );overload;
+    ); overload;
     procedure ActivateLinks;
     procedure DeactivateLinks;
   end;
@@ -46,6 +46,3 @@ type
 implementation
 
 end.
-
-
-

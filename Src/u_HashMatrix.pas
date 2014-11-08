@@ -17,7 +17,10 @@ type
   public
     procedure Reset(const ARect: TRect);
     procedure ChangeRect(const ARect: TRect);
-    procedure SetHash(const APos: TPoint; const AHash: THashValue);
+    procedure SetHash(
+      const APos: TPoint;
+      const AHash: THashValue
+    );
     function GetHash(const APos: TPoint): THashValue;
   public
     constructor Create;
@@ -25,7 +28,10 @@ type
 
 implementation
 
-function IndexByPos(const ARect: TRect; const APos: TPoint): Integer; inline;
+function IndexByPos(
+  const ARect: TRect;
+  const APos: TPoint
+): Integer; inline;
 begin
   Result := APos.X - ARect.Left + (APos.Y - ARect.Top) * (ARect.Right - ARect.Left);
 end;

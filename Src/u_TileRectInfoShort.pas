@@ -51,7 +51,10 @@ type
     function GetZoom: Byte;
     function GetEnum(const ATileIterator: ITileIterator): IEnumTileInfo;
   public
-    class function TileInRectToIndex(const ATile: TPoint; const ARect: TRect): Integer;
+    class function TileInRectToIndex(
+      const ATile: TPoint;
+      const ARect: TRect
+    ): Integer;
   public
     constructor CreateWithOwn(
       const ATileRect: TRect;
@@ -195,7 +198,10 @@ begin
   Result := FZoom;
 end;
 
-class function TTileRectInfoShort.TileInRectToIndex(const ATile: TPoint; const ARect: TRect): Integer;
+class function TTileRectInfoShort.TileInRectToIndex(
+  const ATile: TPoint;
+  const ARect: TRect
+): Integer;
 begin
   if (ATile.X < ARect.Left) or (ATile.X >= ARect.Right) then begin
     Result := -1;

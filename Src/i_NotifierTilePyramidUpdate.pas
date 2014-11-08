@@ -53,9 +53,15 @@ type
   INotifierTilePyramidUpdateInternal = interface
     procedure TileFullUpdateNotify;
     procedure TileUpdateNotify(const ATileKey: ITileKey); overload;
-    procedure TileUpdateNotify(const ATile: TPoint; const AZoom: Byte); overload;
+    procedure TileUpdateNotify(
+      const ATile: TPoint;
+      const AZoom: Byte
+    ); overload;
     procedure TileRectUpdateNotify(const ATileRect: ITileRect); overload;
-    procedure TileRectUpdateNotify(const ATileRect: TRect; const AZoom: Byte); overload;
+    procedure TileRectUpdateNotify(
+      const ATileRect: TRect;
+      const AZoom: Byte
+    ); overload;
   end;
 
 implementation

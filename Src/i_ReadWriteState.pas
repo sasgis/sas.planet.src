@@ -21,6 +21,7 @@
 unit i_ReadWriteState;
 
 interface
+
 uses
   t_CommonTypes,
   i_Changeable;

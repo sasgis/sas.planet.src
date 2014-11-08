@@ -57,19 +57,56 @@ type
     function CalcHashByDoublePoint(const AValue: TDoublePoint): THashValue;
     function CalcHashByRect(const AValue: TRect): THashValue;
     function CalcHashByDoubleRect(const AValue: TDoubleRect): THashValue;
-    function CalcHashByBuffer(ABuffer: Pointer; ASize: Integer): THashValue;
+    function CalcHashByBuffer(
+      ABuffer: Pointer;
+      ASize: Integer
+    ): THashValue;
 
-    procedure UpdateHashByString(var AHash: THashValue; const AValue: string);
-    procedure UpdateHashByAnsiString(var AHash: THashValue; const AValue: AnsiString);
-    procedure UpdateHashByGUID(var AHash: THashValue; const AValue: TGUID);
-    procedure UpdateHashByDouble(var AHash: THashValue; const AValue: Double);
-    procedure UpdateHashByInteger(var AHash: THashValue; const AValue: Integer);
-    procedure UpdateHashByPoint(var AHash: THashValue; const AValue: TPoint);
-    procedure UpdateHashByDoublePoint(var AHash: THashValue; const AValue: TDoublePoint);
-    procedure UpdateHashByRect(var AHash: THashValue; const AValue: TRect);
-    procedure UpdateHashByDoubleRect(var AHash: THashValue; const AValue: TDoubleRect);
-    procedure UpdateHashByBuffer(var AHash: THashValue; ABuffer: Pointer; ASize: Integer);
-    procedure UpdateHashByHash(var AHash: THashValue; AValue: THashValue);
+    procedure UpdateHashByString(
+      var AHash: THashValue;
+      const AValue: string
+    );
+    procedure UpdateHashByAnsiString(
+      var AHash: THashValue;
+      const AValue: AnsiString
+    );
+    procedure UpdateHashByGUID(
+      var AHash: THashValue;
+      const AValue: TGUID
+    );
+    procedure UpdateHashByDouble(
+      var AHash: THashValue;
+      const AValue: Double
+    );
+    procedure UpdateHashByInteger(
+      var AHash: THashValue;
+      const AValue: Integer
+    );
+    procedure UpdateHashByPoint(
+      var AHash: THashValue;
+      const AValue: TPoint
+    );
+    procedure UpdateHashByDoublePoint(
+      var AHash: THashValue;
+      const AValue: TDoublePoint
+    );
+    procedure UpdateHashByRect(
+      var AHash: THashValue;
+      const AValue: TRect
+    );
+    procedure UpdateHashByDoubleRect(
+      var AHash: THashValue;
+      const AValue: TDoubleRect
+    );
+    procedure UpdateHashByBuffer(
+      var AHash: THashValue;
+      ABuffer: Pointer;
+      ASize: Integer
+    );
+    procedure UpdateHashByHash(
+      var AHash: THashValue;
+      AValue: THashValue
+    );
   public
     constructor Create(
       const AFunction: IHashFunctionImpl;

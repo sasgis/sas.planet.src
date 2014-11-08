@@ -182,7 +182,9 @@ begin
   OrigHTML := StringReplace(OrigHTML, '</div>', #13#10#13#10, [rfReplaceAll, rfIgnoreCase]);
   while System.Pos('<p', OrigHTML) > 0 do begin
     NoHTML := MidStr(OrigHTML, '<p', '>', True);
-    if NoHTML = '' then Break;
+    if NoHTML = '' then begin
+      Break;
+    end;
     OrigHTML := StringReplace(OrigHTML, NoHTML, (#13#10#13#10), [rfReplaceAll, rfIgnoreCase]);
   end;
   if System.Pos('<style', OrigHTML) > 0 then begin
@@ -191,7 +193,9 @@ begin
   end;
   while System.Pos('<', OrigHTML) > 0 do begin
     NoHTML := MidStr(OrigHTML, '<', '>', True);
-    if NoHTML = '' then Break;
+    if NoHTML = '' then begin
+      Break;
+    end;
     OrigHTML := StringReplace(OrigHTML, NoHTML, '', [rfReplaceAll, rfIgnoreCase]);
   end;
   OrigHTML := StupedHtmlToTextConverter(OrigHTML);

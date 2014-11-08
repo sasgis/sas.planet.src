@@ -139,14 +139,14 @@ begin
             if Supports(VGeometry, IGeometryLonLatPoint) then begin
               Vtmp.add(VItem);
             end else if Supports(VGeometry, IGeometryLonLatLine, VGeometryLine) then begin
-              VProjectdPath := FProjectedProvider.GetProjectedPath(AVisualConverter.ProjectionInfo,  VGeometryLine);
+              VProjectdPath := FProjectedProvider.GetProjectedPath(AVisualConverter.ProjectionInfo, VGeometryLine);
               if Assigned(VProjectdPath) then begin
                 if VProjectdPath.IsPointOnPath(VPixelPos, 2) then begin
                   Vtmp.add(VItem);
                 end;
               end;
             end else if Supports(VGeometry, IGeometryLonLatPolygon, VGeometryPoly) then begin
-              VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(AVisualConverter.ProjectionInfo,  VGeometryPoly);
+              VProjectdPolygon := FProjectedProvider.GetProjectedPolygon(AVisualConverter.ProjectionInfo, VGeometryPoly);
               if Assigned(VProjectdPolygon) then begin
                 if VProjectdPolygon.IsPointInPolygon(VPixelPos) or
                   VProjectdPolygon.IsPointOnBorder(VPixelPos, 3) then begin

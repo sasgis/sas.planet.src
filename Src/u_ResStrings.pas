@@ -100,17 +100,17 @@ ResourceString
   SAS_ERR_EmptyServerResponse = 'Empty server response';
   SAS_ERR_CoordParseError = 'Error parsing coordinates: Lat=%s Lon=%s';
 
-  SAS_ERR_ETS_NotImplemented  = 'Interface to external tile storage not implemented';
-  SAS_ERR_ETS_CriticalError   = 'Unknown critical error at external tile storage';
-  SAS_ERR_ETS_CannotConnect   = 'Cannot connect to external tile storage';
+  SAS_ERR_ETS_NotImplemented = 'Interface to external tile storage not implemented';
+  SAS_ERR_ETS_CriticalError = 'Unknown critical error at external tile storage';
+  SAS_ERR_ETS_CannotConnect = 'Cannot connect to external tile storage';
   SAS_ERR_ETS_CannotParseTile = 'Cannot parse tile to get its version';
-  SAS_ERR_ETS_FailToSaveTile  = 'Failed to save to external tile storage: error ';
-  SAS_ERR_ETS_NoSpaceAvailable  = 'No space available at external tile storage';
-  SAS_ERR_ETS_ReadOnlyConnect   = 'External tile storage is readonly';
-  SAS_ERR_ETS_DataTruncation    = 'Data truncation occured because of external tile storage misconfiguration';
+  SAS_ERR_ETS_FailToSaveTile = 'Failed to save to external tile storage: error ';
+  SAS_ERR_ETS_NoSpaceAvailable = 'No space available at external tile storage';
+  SAS_ERR_ETS_ReadOnlyConnect = 'External tile storage is readonly';
+  SAS_ERR_ETS_DataTruncation = 'Data truncation occured because of external tile storage misconfiguration';
   SAS_ERR_ETS_CannotCreateTable = 'Table not found and cannot be created (possibly due to insufficient privileges or readonly external tile storage)';
-  SAS_ERR_ETS_UnknownError      = 'Unknown error at external tile storage, see Storage Options for more information';
-  SAS_ERR_ETS_ConnectionIsDead  = 'Connection to external tile storage is dead and cannot be reestablished';
+  SAS_ERR_ETS_UnknownError = 'Unknown error at external tile storage, see Storage Options for more information';
+  SAS_ERR_ETS_ConnectionIsDead = 'Connection to external tile storage is dead and cannot be reestablished';
 
   SAS_ERR_ImageIsTooBig = 'Selected resolution is too big for %s format!'#13#10 +
     'Widht = %d (max = %d)'#13#10 + 'Height = %d (max = %d)'#13#10 +

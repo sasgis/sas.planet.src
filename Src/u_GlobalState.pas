@@ -1085,7 +1085,7 @@ end;
 procedure TGlobalState.OnMainThreadConfigChange;
 const
   Priorities: array [TThreadPriority] of Integer =
-   (THREAD_PRIORITY_IDLE, THREAD_PRIORITY_LOWEST, THREAD_PRIORITY_BELOW_NORMAL,
+    (THREAD_PRIORITY_IDLE, THREAD_PRIORITY_LOWEST, THREAD_PRIORITY_BELOW_NORMAL,
     THREAD_PRIORITY_NORMAL, THREAD_PRIORITY_ABOVE_NORMAL,
     THREAD_PRIORITY_HIGHEST, THREAD_PRIORITY_TIME_CRITICAL);
 begin
@@ -1134,10 +1134,9 @@ begin
   if Assigned(FBuildInfo) then begin
     Result := Result + ' ' + FBuildInfo.GetVersionDetaled;
   end;
-  if Assigned(FAppEnum) and (FAppEnum.CurrentID > 1)  then begin
+  if Assigned(FAppEnum) and (FAppEnum.CurrentID > 1) then begin
     Result := Format('[%d] %s', [FAppEnum.CurrentID, Result]);
   end;
 end;
 
 end.
-

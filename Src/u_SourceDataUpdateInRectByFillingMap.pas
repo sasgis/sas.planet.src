@@ -137,7 +137,7 @@ begin
   VMap := FConfig.GetStatic.ActualMap;
   FCS.BeginWrite;
   try
-    if Assigned(FMapListened) and not (FMapListened = VMap)  then begin
+    if Assigned(FMapListened) and not (FMapListened = VMap) then begin
       if Assigned(FListener) and Assigned(FListenLocalConverter) then begin
         _RemoveListener(FMapListened);
       end;
@@ -195,7 +195,7 @@ var
   VNotifier: INotifierTilePyramidUpdate;
 begin
   Assert(Assigned(FMapListener));
-  if Assigned(AMapListened) and Assigned(FMapListener)then begin
+  if Assigned(AMapListened) and Assigned(FMapListener) then begin
     VNotifier := AMapListened.TileStorage.TileNotifier;
     if VNotifier <> nil then begin
       VNotifier.Remove(FMapListener);
@@ -203,8 +203,10 @@ begin
   end;
 end;
 
-procedure TSourceDataUpdateInRectByFillingMap.SetListener(const AListener: IListener;
-  const ALocalConverter: ILocalCoordConverter);
+procedure TSourceDataUpdateInRectByFillingMap.SetListener(
+  const AListener: IListener;
+  const ALocalConverter: ILocalCoordConverter
+);
 begin
   FCS.BeginWrite;
   try
@@ -232,7 +234,9 @@ begin
 end;
 
 procedure TSourceDataUpdateInRectByFillingMap._SetListener(
-  const AMapListened: IMapType; const ALocalConverter: ILocalCoordConverter);
+  const AMapListened: IMapType;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VZoom: Byte;
   VSourceZoom: Byte;

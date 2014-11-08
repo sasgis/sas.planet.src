@@ -219,7 +219,10 @@ begin
   end;
 end;
 
-procedure CalcCirclePoints(const X, Y, R: TFloat; var AResult: TArrayOfFixedPoint);
+procedure CalcCirclePoints(
+  const X, Y, R: TFloat;
+  var AResult: TArrayOfFixedPoint
+);
 var
   I: Integer;
   M: TFloat;
@@ -227,7 +230,9 @@ var
   Steps: Integer;
 begin
   Steps := Length(AResult);
-  if Steps < 4 then Exit;
+  if Steps < 4 then begin
+    Exit;
+  end;
   M := 2 * System.Pi / Steps;
 
   // first item
@@ -243,8 +248,7 @@ begin
   AResult[1].Y := Fixed(R * D.Y + Y);
 
   // other items
-  for I := 2 to Steps - 1 do
-  begin
+  for I := 2 to Steps - 1 do begin
     D := FloatPoint(D.X * C.X - D.Y * C.Y, D.Y * C.X + D.X * C.Y);
 
     AResult[I].X := Fixed(R * D.X + X);

@@ -31,7 +31,10 @@ type
     function CheckNeedDestroyObject: Boolean; virtual; abstract;
     procedure InternalCleanup; virtual;
   protected
-    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+    function QueryInterface(
+      const IID: TGUID;
+      out Obj
+    ): HResult; stdcall;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
   public
@@ -50,13 +53,16 @@ begin
   // Do nothing by default
 end;
 
-function TObjectFromPoolAbstract.QueryInterface(const IID: TGUID;
-  out Obj): HResult;
+function TObjectFromPoolAbstract.QueryInterface(
+  const IID: TGUID;
+  out Obj
+): HResult;
 begin
-  if GetInterface(IID, Obj) then
-    Result := 0
-  else
+  if GetInterface(IID, Obj) then begin
+    Result := 0;
+  end else begin
     Result := E_NOINTERFACE;
+  end;
 end;
 
 function TObjectFromPoolAbstract._AddRef: Integer;

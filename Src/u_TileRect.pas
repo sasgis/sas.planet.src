@@ -58,14 +58,20 @@ type
     function IsIntersecWithRect(const ARect: TRect): Boolean; overload;
     function IsIntersecWithRect(const ARect: ITileRect): Boolean; overload;
   public
-    constructor Create(const ARect: TRect; const AZoom: Byte);
+    constructor Create(
+      const ARect: TRect;
+      const AZoom: Byte
+    );
   end;
 
 implementation
 
 { TTileRect }
 
-constructor TTileRect.Create(const ARect: TRect; const AZoom: Byte);
+constructor TTileRect.Create(
+  const ARect: TRect;
+  const AZoom: Byte
+);
 begin
   inherited Create;
   FRect := ARect;
@@ -112,8 +118,10 @@ begin
   Result := FZoom;
 end;
 
-function TTileRect.IntersecWithRect(out AResultRect: TRect;
-  const ARect: ITileRect): Boolean;
+function TTileRect.IntersecWithRect(
+  out AResultRect: TRect;
+  const ARect: ITileRect
+): Boolean;
 begin
   if ARect = ITileRect(Self) then begin
     Result := True;
@@ -125,8 +133,10 @@ begin
   end;
 end;
 
-function TTileRect.IntersecWithRect(out AResultRect: TRect;
-  const ARect: TRect): Boolean;
+function TTileRect.IntersecWithRect(
+  out AResultRect: TRect;
+  const ARect: TRect
+): Boolean;
 begin
   Result := IntersectRect(AResultRect, FRect, ARect);
 end;
