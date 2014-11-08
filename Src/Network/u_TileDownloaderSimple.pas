@@ -247,7 +247,7 @@ begin
                 end;
                 if Result = nil then begin
                   if Supports(VDownloadResult, IDownloadResultError, VDownloadResultError) then begin
-                    Result := TTileRequestResultDownloadError.Create(VDownloadResultError)
+                    Result := TTileRequestResultDownloadError.Create(VDownloadResultError);
                   end else begin
                     Result :=
                       TTileRequestResultErrorAfterDownloadRequest.Create(

@@ -338,10 +338,11 @@ end;
 function TDownloadResultError.GetErrorText: string;
 begin
   try
-    if Length(FErrorTextArgs)>0 then
-      Result := Format(gettext(FErrorTextFormat), FErrorTextArgs)
-    else
+    if Length(FErrorTextArgs) > 0 then begin
+      Result := Format(gettext(FErrorTextFormat), FErrorTextArgs);
+    end else begin
       Result := FErrorTextFormat;
+    end;
   except
     Result := FErrorTextFormat;
   end;

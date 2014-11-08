@@ -29,14 +29,14 @@ uses
 
 type
   TRequestAsyncCallBack = procedure(
-    const AResult: IDownloadResult;
-    const AOperationID: Integer
-  ) of object;
+      const AResult: IDownloadResult;
+      const AOperationID: Integer
+    ) of object;
 
   TOnDownloadProgress = procedure(
-    const ARead: Integer;
-    const ATotal: Integer
-  ) of object;
+      const ARead: Integer;
+      const ATotal: Integer
+    ) of object;
 
   IDownloader = interface
     ['{08A98FF9-5EDE-4F6E-9D5B-351FBF4C05BE}']

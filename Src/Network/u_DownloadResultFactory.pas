@@ -196,13 +196,20 @@ var
 begin
   case AStatusCode of
     204:
+    begin
       VMessage := gettext_noop('HTTP %d No Content');
+    end;
     400:
+    begin
       VMessage := gettext_noop('HTTP %d Bad Request');
+    end;
     404:
+    begin
       VMessage := gettext_noop('HTTP %d Not Found');
-    else
-      VMessage := gettext_noop('HTTP %d Unknown Error');
+    end;
+  else begin
+    VMessage := gettext_noop('HTTP %d Unknown Error');
+  end;
   end;
   Result :=
     TDownloadResultDataNotExistsByStatusCode.Create(

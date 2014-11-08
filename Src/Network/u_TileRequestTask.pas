@@ -126,7 +126,7 @@ end;
 { TTileRequestTaskFinishNotifier }
 
 constructor TTileRequestTaskFinishNotifier.Create(
- const ACallBack: TTileRequestTaskFinishNotifierCallBack
+  const ACallBack: TTileRequestTaskFinishNotifierCallBack
 );
 begin
   Assert(Assigned(ACallBack));

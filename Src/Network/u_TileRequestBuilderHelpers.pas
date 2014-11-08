@@ -28,7 +28,7 @@ function MaxExt(const A, B: Extended): Extended;
 function MinInt(const A, B: Integer): Integer;
 function MinExt(const A, B: Extended): Extended;
 function GetUnixTime: Int64;
-function StrLength (const Str: AnsiString): Integer;
+function StrLength(const Str: AnsiString): Integer;
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 function GetBefore(const SubStr, Str: AnsiString): AnsiString;
 function GetBetween(const Str, After, Before: AnsiString): AnsiString;
@@ -89,113 +89,118 @@ end;
 
 function GetAfter(const SubStr, Str: AnsiString): AnsiString;
 begin
-  if pos(substr,str) > 0 then
-    result := copy(str,pos(substr,str)+length(substr),length(str))
-  else
+  if pos(substr, str) > 0 then begin
+    result := copy(str, pos(substr, str) + length(substr), length(str));
+  end else begin
     result := '';
+  end;
 end;
 
 function GetBefore(const SubStr, Str: AnsiString): AnsiString;
 begin
-  if pos(substr,str)>0 then
-    result := copy(str,1,pos(substr,str)-1)
-  else
+  if pos(substr, str) > 0 then begin
+    result := copy(str, 1, pos(substr, str) - 1);
+  end else begin
     result := '';
+  end;
 end;
 
 function GetBetween(const Str, After, Before: AnsiString): AnsiString;
 begin
-  result := GetBefore(Before,GetAfter(After,str));
+  result := GetBefore(Before, GetAfter(After, str));
 end;
 
-function SubStrPos(const Str, SubStr: AnsiString; FromPos: Integer): Integer; assembler;
+function SubStrPos(
+  const Str, SubStr: AnsiString;
+  FromPos: Integer
+): Integer; assembler;
 asm
-      PUSH EDI
-      PUSH ESI
-      PUSH EBX
-      PUSH EAX
-      OR EAX,EAX
-      JE @@2
-      OR EDX,EDX
-      JE @@2
-      DEC ECX
-      JS @@2
+  PUSH EDI
+  PUSH ESI
+  PUSH EBX
+  PUSH EAX
+  OR EAX,EAX
+  JE @@2
+  OR EDX,EDX
+  JE @@2
+  DEC ECX
+  JS @@2
 
-      MOV EBX,[EAX-4]
-      SUB EBX,ECX
-      JLE @@2
-      SUB EBX,[EDX-4]
-      JL @@2
-      INC EBX
+  MOV EBX,[EAX-4]
+  SUB EBX,ECX
+  JLE @@2
+  SUB EBX,[EDX-4]
+  JL @@2
+  INC EBX
 
-      ADD EAX,ECX
-      MOV ECX,EBX
-      MOV EBX,[EDX-4]
-      DEC EBX
-      MOV EDI,EAX
- @@1: MOV ESI,EDX
-      LODSB
-      REPNE SCASB
-      JNE @@2
-      MOV EAX,ECX
-      PUSH EDI
-      MOV ECX,EBX
-      REPE CMPSB
-      POP EDI
-      MOV ECX,EAX
-      JNE @@1
-      LEA EAX,[EDI-1]
-      POP EDX
-      SUB EAX,EDX
-      INC EAX
-      JMP @@3
- @@2: POP EAX
-      XOR EAX,EAX
- @@3: POP EBX
-      POP ESI
-      POP EDI
+  ADD EAX,ECX
+  MOV ECX,EBX
+  MOV EBX,[EDX-4]
+  DEC EBX
+  MOV EDI,EAX
+  @@1: MOV ESI,EDX
+  LODSB
+  REPNE SCASB
+  JNE @@2
+  MOV EAX,ECX
+  PUSH EDI
+  MOV ECX,EBX
+  REPE CMPSB
+  POP EDI
+  MOV ECX,EAX
+  JNE @@1
+  LEA EAX,[EDI-1]
+  POP EDX
+  SUB EAX,EDX
+  INC EAX
+  JMP @@3
+  @@2: POP EAX
+  XOR EAX,EAX
+  @@3: POP EBX
+  POP ESI
+  POP EDI
 end;
 
 function SetHeaderValue(const AHeaders, AName, AValue: AnsiString): AnsiString;
 var
   VRegExpr: TRegExpr;
 begin
-  if AHeaders <> '' then
-  begin
-      VRegExpr  := TRegExpr.Create;
+  if AHeaders <> '' then begin
+    VRegExpr := TRegExpr.Create;
     try
       VRegExpr.Expression := '(?i)' + AName + ':(\s+|)(.*?)(\r\n|$)';
-      if VRegExpr.Exec(AHeaders) then
-        Result := StringReplace(AHeaders, VRegExpr.Match[2], AValue, [rfIgnoreCase])
-      else
+      if VRegExpr.Exec(AHeaders) then begin
+        Result := StringReplace(AHeaders, VRegExpr.Match[2], AValue, [rfIgnoreCase]);
+      end else begin
         Result := AName + ': ' + AValue + #13#10 + AHeaders;
+      end;
     finally
       FreeAndNil(VRegExpr);
     end;
-  end
-  else
+  end else begin
     Result := AName + ': ' + AValue + #13#10;
+  end;
 end;
 
 function GetHeaderValue(const AHeaders, AName: AnsiString): AnsiString;
 var
   VRegExpr: TRegExpr;
 begin
-  if AHeaders <> '' then
-  begin
-      VRegExpr  := TRegExpr.Create;
+  if AHeaders <> '' then begin
+    VRegExpr := TRegExpr.Create;
     try
       VRegExpr.Expression := '(?i)' + AName + ':(\s+|)(.*?)(\r\n|$)';
-      if VRegExpr.Exec(AHeaders) then
-        Result := VRegExpr.Match[2]
-      else
+      if VRegExpr.Exec(AHeaders) then begin
+        Result := VRegExpr.Match[2];
+      end else begin
         Result := '';
+      end;
     finally
       FreeAndNil(VRegExpr);
     end;
-  end
-  else
+  end else begin
     Result := '';
+  end;
 end;
 
 function SaveToLocalFile(const AFullLocalFilename, AData: AnsiString): Integer;
@@ -206,8 +211,9 @@ var
 begin
   try
     VPath := ExtractFilePath(AFullLocalFilename);
-    if (not DirectoryExists(VPath)) then
+    if (not DirectoryExists(VPath)) then begin
       ForceDirectories(VPath);
+    end;
     VStream := TFileStream.Create(AFullLocalFilename, fmCreate);
     try
       VSize := Length(AData);
@@ -224,13 +230,14 @@ begin
 end;
 
 function GetNumberAfter(const ASubStr, AText: AnsiString): AnsiString;
-var VPos: Integer;
+var
+  VPos: Integer;
 begin
   Result := '';
-  VPos:=SYstem.Pos(ASubStr,AText);
-  if (VPos>0) then begin
+  VPos := SYstem.Pos(ASubStr, AText);
+  if (VPos > 0) then begin
     VPos := VPos + Length(ASubStr);
-    while ((VPos<=System.Length(AText)) and (AText[VPos] in ['0','1'..'9'])) do begin
+    while ((VPos <= System.Length(AText)) and (AText[VPos] in ['0', '1'..'9'])) do begin
       Result := Result + AText[VPos];
       Inc(VPos);
     end;
@@ -238,24 +245,30 @@ begin
 end;
 
 function GetDiv3Path(const ASource: AnsiString): AnsiString;
-var i: Integer;
+var
+  i: Integer;
 begin
-  Result:='';
+  Result := '';
 
-  if (0<Length(ASource)) then
-  for i := Length(ASource) downto 1 do begin
-    if (0 = ((Length(ASource)-i) mod 3)) then
-      Result := '\' + Result;
-    Result := ASource[i] + Result;
+  if (0 < Length(ASource)) then begin
+    for i := Length(ASource) downto 1 do begin
+      if (0 = ((Length(ASource) - i) mod 3)) then begin
+        Result := '\' + Result;
+      end;
+      Result := ASource[i] + Result;
+    end;
   end;
 
-  if (Length(Result)>0) then
-    if ('\'=Result[1]) then
-      System.Delete(Result,1,1);
+  if (Length(Result) > 0) then begin
+    if ('\' = Result[1]) then begin
+      System.Delete(Result, 1, 1);
+    end;
+  end;
 
-  i := System.Pos('\',Result);
-  if (i<4) then
+  i := System.Pos('\', Result);
+  if (i < 4) then begin
     System.Delete(Result, 1, i);
+  end;
 end;
 
 function Base64EncodeStr(const Data: AnsiString): AnsiString;

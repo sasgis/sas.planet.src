@@ -463,7 +463,7 @@ begin
                   [],
                   ADownloadResult.StatusCode,
                   ADownloadResult.RawResponseHeader
-                )
+                );
             end;
             SaveOneTile(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VData);
           end;
@@ -493,7 +493,7 @@ begin
             [],
             ADownloadResult.StatusCode,
             ADownloadResult.RawResponseHeader
-          )
+          );
       end;
       SaveOneTile(VTileRequest.Tile, VTileRequest.Zoom, VTileRequest.VersionInfo, VData);
     end else begin

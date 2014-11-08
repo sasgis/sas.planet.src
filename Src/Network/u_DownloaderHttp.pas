@@ -276,7 +276,9 @@ begin
   {$ENDIF}
   case InternetStatus of
     INTERNET_STATUS_CLOSING_CONNECTION, INTERNET_STATUS_CONNECTION_CLOSED: begin
-      if not FDisconnectByUser.CheckFlag then FDisconnectByServer.SetFlag;
+      if not FDisconnectByUser.CheckFlag then begin
+        FDisconnectByServer.SetFlag;
+      end;
     end;
   end;
 end;
@@ -352,11 +354,12 @@ begin
         if Result = nil then begin
           try
             // check gracefully off
-            if FDisconnectByServer.CheckFlag then
-            try
-              Disconnect;
-            finally
-              FDisconnectByServer.CheckFlagAndReset;
+            if FDisconnectByServer.CheckFlag then begin
+              try
+                Disconnect;
+              finally
+                FDisconnectByServer.CheckFlagAndReset;
+              end;
             end;
             {$IFDEF VerboseHttpClient}
             OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <I> DoRequest: ' + ARequest.Url));
@@ -718,32 +721,36 @@ var
   VFileName: string;
 begin
   Result := nil;
-  if (nil = FResultFactory) then
+  if (nil = FResultFactory) then begin
     Exit;
+  end;
 
   // check filename
   VUrl := ARequest.Url;
   VUrlLen := Length(VUrl);
-  if (VUrlLen < 4) then
+  if (VUrlLen < 4) then begin
     Exit;
+  end;
 
   // very simple checks
-  if (VUrl[2] in ['t','T']) then begin
+  if (VUrl[2] in ['t', 'T']) then begin
     // fast detect ftp & http(s)
     // skip file, \\ & C:
     Exit;
-  end else if (VUrl[1]='\') and (VUrl[2]='\') then begin
+  end else if (VUrl[1] = '\') and (VUrl[2] = '\') then begin
     // in case of \\servername\sharename\folder\..
-  end else if (VUrl[2]=':') and (VUrl[3]='\') then begin
+  end else if (VUrl[2] = ':') and (VUrl[3] = '\') then begin
     // in case of C:\folder\...
-  end else if (VUrl[1] in ['f','F']) then begin
+  end else if (VUrl[1] in ['f', 'F']) then begin
     // check for
     // file:///C:/folder/...
     // file://///servername/sharename/folder/...
-    if (VUrlLen <= 10) then
+    if (VUrlLen <= 10) then begin
       Exit;
-    if not ALSameText(ALCopyStr(VUrl, 1, 8), 'file:///') then
+    end;
+    if not ALSameText(ALCopyStr(VUrl, 1, 8), 'file:///') then begin
       Exit;
+    end;
     // bingo!
     VUrl := ALCopyStr(VUrl, 9, VUrlLen);
     // replace slashes
@@ -782,7 +789,7 @@ begin
   end;
 
   // no file
-  if (nil=Result) then begin
+  if (nil = Result) then begin
     Result := FResultFactory.BuildDataNotExistsByStatusCode(
       ARequest,
       VRawResponseHeader,
@@ -924,91 +931,138 @@ begin
   case InternetStatus of
 
     INTERNET_STATUS_CLOSING_CONNECTION:
+    begin
       VInfoStr := 'INTERNET_STATUS_CLOSING_CONNECTION - Closing the connection to the server.';
+    end;
 
     INTERNET_STATUS_CONNECTED_TO_SERVER:
+    begin
       VInfoStr := 'INTERNET_STATUS_CONNECTED_TO_SERVER - Successfully connected to the socket address: ' + StatInfoAsStr;
+    end;
 
     INTERNET_STATUS_CONNECTING_TO_SERVER:
+    begin
       VInfoStr := 'INTERNET_STATUS_CONNECTING_TO_SERVER - Connecting to the socket address: ' + StatInfoAsStr;
+    end;
 
     INTERNET_STATUS_CONNECTION_CLOSED:
+    begin
       VInfoStr := 'INTERNET_STATUS_CONNECTION_CLOSED - Successfully closed the connection to the server.';
+    end;
 
     INTERNET_STATUS_CTL_RESPONSE_RECEIVED:
+    begin
       VInfoStr := 'INTERNET_STATUS_CTL_RESPONSE_RECEIVED - Not implemented';
+    end;
 
     INTERNET_STATUS_HANDLE_CLOSING:
+    begin
       VInfoStr := 'INTERNET_STATUS_HANDLE_CLOSING - This handle value has been terminated: ' + IntToHex(DWORD(StatusInformation^), 8);
+    end;
 
     INTERNET_STATUS_HANDLE_CREATED:
+    begin
       VInfoStr := 'INTERNET_STATUS_HANDLE_CREATED - InternetConnect has created the new handle: ' + IntToHex(DWORD(StatusInformation^), 8);
+    end;
 
     INTERNET_STATUS_INTERMEDIATE_RESPONSE:
+    begin
       VInfoStr := 'INTERNET_STATUS_INTERMEDIATE_RESPONSE - Received an intermediate (100 level) status code message from the server';
+    end;
 
     INTERNET_STATUS_NAME_RESOLVED:
+    begin
       VInfoStr := 'INTERNET_STATUS_NAME_RESOLVED - Successfully found the IP address of the name: ' + StatInfoAsStr;
+    end;
 
     INTERNET_STATUS_PREFETCH:
+    begin
       VInfoStr := 'INTERNET_STATUS_PREFETCH - Not implemented.';
+    end;
 
     INTERNET_STATUS_RECEIVING_RESPONSE:
+    begin
       VInfoStr := 'INTERNET_STATUS_RECEIVING_RESPONSE - Waiting for the server to respond to a request.';
+    end;
 
     INTERNET_STATUS_REDIRECT:
+    begin
       VInfoStr := 'INTERNET_STATUS_REDIRECT - HTTP request is about to automatically redirect the request. The new URL: ' + StatInfoAsStr;
+    end;
 
     INTERNET_STATUS_REQUEST_COMPLETE:
+    begin
       VInfoStr := 'INTERNET_STATUS_REQUEST_COMPLETE - An asynchronous operation has been completed.';
+    end;
 
     INTERNET_STATUS_REQUEST_SENT:
+    begin
       VInfoStr := 'INTERNET_STATUS_REQUEST_SENT - Successfully sent the information request to the server: ' + IntToStr(Integer(StatusInformation^)) + ' Byte';
+    end;
 
     INTERNET_STATUS_RESOLVING_NAME:
+    begin
       VInfoStr := 'INTERNET_STATUS_RESOLVING_NAME - Looking up the IP address of the name: ' + StatInfoAsStr;
+    end;
 
     INTERNET_STATUS_RESPONSE_RECEIVED:
+    begin
       VInfoStr := 'INTERNET_STATUS_RESPONSE_RECEIVED - Successfully received a response from the server: ' + IntToStr(Integer(StatusInformation^)) + ' Byte';
+    end;
 
     INTERNET_STATUS_SENDING_REQUEST:
+    begin
       VInfoStr := 'INTERNET_STATUS_SENDING_REQUEST - Sending the information request to the server.';
+    end;
 
     INTERNET_STATUS_DETECTING_PROXY:
+    begin
       VInfoStr := 'INTERNET_STATUS_DETECTING_PROXY - Proxy has been detected.';
+    end;
 
     INTERNET_STATUS_STATE_CHANGE: begin
       VInfoStr := 'INTERNET_STATUS_STATE_CHANGE - Moved between a secure (HTTPS) and a nonsecure (HTTP) site.';
 
       case DWORD(StatusInformation^) of
         INTERNET_STATE_CONNECTED:
+        begin
           VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_CONNECTED - Connected state. Mutually exclusive with disconnected state.';
+        end;
 
         INTERNET_STATE_DISCONNECTED:
+        begin
           VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_DISCONNECTED - Disconnected state. No network connection could be established.';
+        end;
 
         INTERNET_STATE_DISCONNECTED_BY_USER:
+        begin
           VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_DISCONNECTED_BY_USER - Disconnected by user request.';
+        end;
 
         INTERNET_STATE_IDLE:
+        begin
           VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_IDLE - No network requests are being made by Windows Internet.';
+        end;
 
         INTERNET_STATE_BUSY:
+        begin
           VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATE_BUSY - Network requests are being made by Windows Internet.';
+        end;
 
         //INTERNET_STATUS_USER_INPUT_REQUIRED:
           //VInfoStr := VInfoStr + #13#10 + 'INTERNET_STATUS_USER_INPUT_REQUIRED - The request requires user input to be completed.';
-      else
+      else begin
         VInfoStr := '<W> Unknown StatusInformation: ' + IntToStr(DWORD(StatusInformation^));
       end;
+      end;
     end;
-  else
+  else begin
     VInfoStr := '<W> Unknown InternetStatus: ' + IntToStr(InternetStatus);
+  end;
   end;
   OutputDebugString(PChar(IntToStr(GetCurrentThreadId) + ' <WinInet> ' + VInfoStr));
 end;
+
 {$ENDIF}
 
 end.
-
-

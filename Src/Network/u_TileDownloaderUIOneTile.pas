@@ -200,7 +200,7 @@ procedure TTileDownloaderUIOneTile.OnTileDownloadFinish(
   const AResult: ITileRequestResult
 );
 begin
-  FTileRequestResult := AResult;;
+  FTileRequestResult := AResult;
   if Assigned(FFinishEvent) then begin
     FFinishEvent.SetEvent;
   end;
