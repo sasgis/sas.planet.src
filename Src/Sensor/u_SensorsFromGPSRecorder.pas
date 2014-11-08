@@ -467,8 +467,10 @@ end;
 
 { TSensorFromGPSRecorderDGPS }
 
-constructor TSensorFromGPSRecorderDGPS.Create(const AGPSRecorder: IGPSRecorder;
-  const AGPSModule: IGPSModule);
+constructor TSensorFromGPSRecorderDGPS.Create(
+  const AGPSRecorder: IGPSRecorder;
+  const AGPSModule: IGPSModule
+);
 begin
   inherited Create(AGPSRecorder);
   FGPSModule := AGPSModule;
@@ -499,7 +501,9 @@ end;
 { TSensorFromGPSRecorderGPSUnitInfo }
 
 constructor TSensorFromGPSRecorderGPSUnitInfo.Create(
-  const AGPSRecorder: IGPSRecorder; const AGPSModule: IGPSModule);
+  const AGPSRecorder: IGPSRecorder;
+  const AGPSModule: IGPSModule
+);
 begin
   inherited Create(AGPSRecorder);
   FGPSModule := AGPSModule;
