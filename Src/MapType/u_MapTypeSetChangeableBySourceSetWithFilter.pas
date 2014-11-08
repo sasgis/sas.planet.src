@@ -65,7 +65,7 @@ type
     function IsValidMapType(const AMapType: IMapType): Boolean; override;
   end;
 
-  type
+type
   TMapTypeSetChangeableBySourceSetWithFilterLicenseNotEmpty = class(TMapTypeSetChangeableBySourceSetWithFilter)
   protected
     function IsValidMapType(const AMapType: IMapType): Boolean; override;

@@ -37,7 +37,10 @@ type
     property Capacity: Integer read GetCapacity write SetCapacity;
 
     function GetItem(AIndex: Integer): IMapType;
-    procedure SetItem(AIndex: Integer; const AItem: IMapType);
+    procedure SetItem(
+      AIndex: Integer;
+      const AItem: IMapType
+    );
     property Items[Index: Integer]: IMapType read GetItem write SetItem; default;
 
     procedure Add(const AItem: IMapType);

@@ -48,7 +48,7 @@ uses
   u_InterfaceListSimple;
 
 const
-  CInitialHash : THashValue = $c74bb7e2dee15036;
+  CInitialHash: THashValue = $c74bb7e2dee15036;
 
 { TMapTypeListStatic }
 
@@ -63,7 +63,10 @@ type
     function GetItem(AIndex: Integer): IMapType;
     function IsEqual(const AValue: IMapTypeListStatic): Boolean;
   public
-    constructor Create(const AHash: THashValue; const AItems: IInterfaceListStatic);
+    constructor Create(
+      const AHash: THashValue;
+      const AItems: IInterfaceListStatic
+    );
   end;
 
 constructor TMapTypeListStatic.Create(
@@ -138,7 +141,10 @@ type
     procedure SetCapacity(ANewCapacity: Integer);
 
     function GetItem(AIndex: Integer): IMapType;
-    procedure SetItem(AIndex: Integer; const AItem: IMapType);
+    procedure SetItem(
+      AIndex: Integer;
+      const AItem: IMapType
+    );
 
     procedure Add(const AItem: IMapType);
     procedure Clear;
@@ -223,7 +229,10 @@ begin
   FList.Capacity := ANewCapacity;
 end;
 
-procedure TMapTypeListBuilder.SetItem(AIndex: Integer; const AItem: IMapType);
+procedure TMapTypeListBuilder.SetItem(
+  AIndex: Integer;
+  const AItem: IMapType
+);
 begin
   FList[AIndex] := AItem;
 end;

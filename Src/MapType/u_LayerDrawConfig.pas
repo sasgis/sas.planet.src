@@ -45,6 +45,7 @@ type
       const ADefConfig: IZmpInfo
     );
   end;
+
 implementation
 
 { TLayerDrawConfig }

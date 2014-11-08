@@ -95,7 +95,10 @@ type
     mmoScript: TMemo;
     mmoInfo: TMemo;
     procedure btnOkClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
     procedure btnByDefaultClick(Sender: TObject);
     procedure btnResetUrlClick(Sender: TObject);
     procedure btnResetFolderClick(Sender: TObject);
@@ -141,34 +144,72 @@ end;
 function GetCacheIdFromIndex(const AIndex: Integer): Byte;
 begin
   case AIndex of
-    0: Result := c_File_Cache_Id_DEFAULT;
-    1: Result := c_File_Cache_Id_GMV;
-    2: Result := c_File_Cache_Id_SAS;
-    3: Result := c_File_Cache_Id_ES;
-    4: Result := c_File_Cache_Id_GM;
-    5: Result := c_File_Cache_Id_BDB;
-    6: Result := c_File_Cache_Id_BDB_Versioned;
-    7: Result := c_File_Cache_Id_DBMS;
-    8: Result := c_File_Cache_Id_RAM;
-  else
+    0: begin
+      Result := c_File_Cache_Id_DEFAULT;
+    end;
+    1: begin
+      Result := c_File_Cache_Id_GMV;
+    end;
+    2: begin
+      Result := c_File_Cache_Id_SAS;
+    end;
+    3: begin
+      Result := c_File_Cache_Id_ES;
+    end;
+    4: begin
+      Result := c_File_Cache_Id_GM;
+    end;
+    5: begin
+      Result := c_File_Cache_Id_BDB;
+    end;
+    6: begin
+      Result := c_File_Cache_Id_BDB_Versioned;
+    end;
+    7: begin
+      Result := c_File_Cache_Id_DBMS;
+    end;
+    8: begin
+      Result := c_File_Cache_Id_RAM;
+    end;
+  else begin
     Result := c_File_Cache_Id_DEFAULT;
+  end;
   end;
 end;
 
 function GetIndexFromCacheId(const ACacheId: Byte): Integer;
 begin
   case ACacheId of
-    c_File_Cache_Id_DEFAULT: Result := 0;
-    c_File_Cache_Id_GMV:  Result := 1;
-    c_File_Cache_Id_SAS:  Result := 2;
-    c_File_Cache_Id_ES:   Result := 3;
-    c_File_Cache_Id_GM:   Result := 4;
-    c_File_Cache_Id_BDB:  Result := 5;
-    c_File_Cache_Id_BDB_Versioned: Result := 6;
-    c_File_Cache_Id_DBMS: Result := 7;
-    c_File_Cache_Id_RAM:  Result := 8;
-  else
+    c_File_Cache_Id_DEFAULT: begin
+      Result := 0;
+    end;
+    c_File_Cache_Id_GMV: begin
+      Result := 1;
+    end;
+    c_File_Cache_Id_SAS: begin
+      Result := 2;
+    end;
+    c_File_Cache_Id_ES: begin
+      Result := 3;
+    end;
+    c_File_Cache_Id_GM: begin
+      Result := 4;
+    end;
+    c_File_Cache_Id_BDB: begin
+      Result := 5;
+    end;
+    c_File_Cache_Id_BDB_Versioned: begin
+      Result := 6;
+    end;
+    c_File_Cache_Id_DBMS: begin
+      Result := 7;
+    end;
+    c_File_Cache_Id_RAM: begin
+      Result := 8;
+    end;
+  else begin
     Result := 0;
+  end;
   end;
 end;
 
@@ -189,15 +230,15 @@ begin
 
   FMapType.GUIConfig.LockWrite;
   try
-    FMapType.GUIConfig.ParentSubMenu.Value:=EditParSubMenu.Text;
-    FMapType.GUIConfig.HotKey:=EditHotKey.HotKey;
-    FMapType.GUIConfig.Enabled:=CheckEnabled.Checked;
-    FMapType.GUIConfig.Separator:=chkBoxSeparator.Checked;
+    FMapType.GUIConfig.ParentSubMenu.Value := EditParSubMenu.Text;
+    FMapType.GUIConfig.HotKey := EditHotKey.HotKey;
+    FMapType.GUIConfig.Enabled := CheckEnabled.Checked;
+    FMapType.GUIConfig.Separator := chkBoxSeparator.Checked;
   finally
     FMapType.GUIConfig.UnlockWrite;
   end;
 
-  FMapType.TileDownloaderConfig.WaitInterval:=SESleep.Value;
+  FMapType.TileDownloaderConfig.WaitInterval := SESleep.Value;
   FMapType.StorageConfig.LockWrite;
   try
     FMapType.StorageConfig.NameInCache := EditNameinCache.Text;
@@ -219,9 +260,12 @@ begin
   edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
 end;
 
-procedure TfrmMapTypeEdit.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmMapTypeEdit.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
-  FMapType:=nil;
+  FMapType := nil;
 end;
 
 procedure TfrmMapTypeEdit.btnByDefaultClick(Sender: TObject);
@@ -230,22 +274,22 @@ begin
   mmoHeader.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.RequestHeader;
 
   EditNameinCache.Text := FMapType.Zmp.StorageConfig.NameInCache;
-  SESleep.Value:=FMapType.Zmp.TileDownloaderConfig.WaitInterval;
-  EditHotKey.HotKey:=FMapType.Zmp.GUI.HotKey;
+  SESleep.Value := FMapType.Zmp.TileDownloaderConfig.WaitInterval;
+  EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 
   if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
     CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.Zmp.StorageConfig.CacheTypeCode);
   end;
 
-  EditParSubMenu.Text:=FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
-  chkBoxSeparator.Checked:=FMapType.Zmp.GUI.Separator;
-  CheckEnabled.Checked:=FMapType.Zmp.GUI.Enabled;
+  EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.GetDefaultValue;
+  chkBoxSeparator.Checked := FMapType.Zmp.GUI.Separator;
+  CheckEnabled.Checked := FMapType.Zmp.GUI.Enabled;
   edtVersion.Text := FMapType.Zmp.VersionConfig.StoreString;
 end;
 
 procedure TfrmMapTypeEdit.btnResetUrlClick(Sender: TObject);
 begin
- EditURL.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
+  EditURL.Text := FMapType.Zmp.TileDownloadRequestBuilderConfig.UrlBase;
 end;
 
 procedure TfrmMapTypeEdit.btnResetFolderClick(Sender: TObject);
@@ -260,7 +304,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnResetHotKeyClick(Sender: TObject);
 begin
- EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
+  EditHotKey.HotKey := FMapType.Zmp.GUI.HotKey;
 end;
 
 procedure TfrmMapTypeEdit.btnResetPauseClick(Sender: TObject);
@@ -270,7 +314,7 @@ end;
 
 procedure TfrmMapTypeEdit.btnResetCacheTypeClick(Sender: TObject);
 begin
-  if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
+  if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
     CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.Zmp.StorageConfig.CacheTypeCode);
   end;
 end;
@@ -281,31 +325,31 @@ var
 begin
   FMapType := AMapType;
 
-  Caption:=SAS_STR_EditMap+' '+FMapType.GUIConfig.Name.Value;
+  Caption := SAS_STR_EditMap + ' ' + FMapType.GUIConfig.Name.Value;
   edtZmp.Text := AMapType.Zmp.FileName;
 
   FMapType.TileDownloadRequestBuilderConfig.LockRead;
   try
     EditURL.Text := FMapType.TileDownloadRequestBuilderConfig.UrlBase;
     mmoHeader.Text := FMapType.TileDownloadRequestBuilderConfig.RequestHeader;
-   finally
+  finally
     FMapType.TileDownloadRequestBuilderConfig.UnlockRead;
   end;
 
-  mmoParams.Text := FMapType.Zmp.DataProvider.ReadString('params.txt','');
-  mmoInfo.Text := FMapType.Zmp.DataProvider.ReadString('info.txt','');
-  mmoScript.Text := FMapType.Zmp.DataProvider.ReadString('GetUrlScript.txt','');
+  mmoParams.Text := FMapType.Zmp.DataProvider.ReadString('params.txt', '');
+  mmoInfo.Text := FMapType.Zmp.DataProvider.ReadString('info.txt', '');
+  mmoScript.Text := FMapType.Zmp.DataProvider.ReadString('GetUrlScript.txt', '');
 
 
-  SESleep.Value:=FMapType.TileDownloaderConfig.WaitInterval;
+  SESleep.Value := FMapType.TileDownloaderConfig.WaitInterval;
   EditParSubMenu.Text := FMapType.GUIConfig.ParentSubMenu.Value;
-  EditHotKey.HotKey:=FMapType.GUIConfig.HotKey;
+  EditHotKey.HotKey := FMapType.GUIConfig.HotKey;
 
   FMapType.StorageConfig.LockRead;
   try
     EditNameinCache.Text := FMapType.StorageConfig.NameInCache;
 
-    if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE,c_File_Cache_Id_GC]) then begin
+    if not (FMapType.StorageConfig.CacheTypeCode in [c_File_Cache_Id_GE, c_File_Cache_Id_GC]) then begin
       pnlCacheType.Visible := True;
       pnlCacheType.Enabled := True;
       CBCacheType.ItemIndex := GetIndexFromCacheId(FMapType.StorageConfig.CacheTypeCode);
@@ -317,8 +361,8 @@ begin
   finally
     FMapType.StorageConfig.UnlockRead;
   end;
-  chkBoxSeparator.Checked:=FMapType.GUIConfig.Separator;
-  CheckEnabled.Checked:=FMapType.GUIConfig.Enabled;
+  chkBoxSeparator.Checked := FMapType.GUIConfig.Separator;
+  CheckEnabled.Checked := FMapType.GUIConfig.Enabled;
   edtVersion.Text := FMapType.VersionRequestConfig.Version.StoreString;
   pnlHeader.Visible := GState.Config.InternalDebugConfig.IsShowDebugInfo;
   VDownloadState := FMapType.TileDownloadSubsystem.State.GetStatic;
@@ -332,8 +376,9 @@ begin
   chkDownloadEnabled.Checked := FMapType.Abilities.UseDownload;
 
   // check storage write access
-  if (FMapType.TileStorage.State.GetStatic.WriteAccess = asDisabled) then
+  if (FMapType.TileStorage.State.GetStatic.WriteAccess = asDisabled) then begin
     mmoDownloadState.Lines.Add('No write access to tile storage');
+  end;
 
   Result := ShowModal = mrOk;
 end;

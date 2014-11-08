@@ -89,7 +89,7 @@ var
   VCnt: Cardinal;
   VMapType: IMapType;
 begin
-  if Assigned(FSourceSet) and Assigned(FLayerSetListener)then begin
+  if Assigned(FSourceSet) and Assigned(FLayerSetListener) then begin
     FSourceSet.ChangeNotifier.Remove(FLayerSetListener);
     FLayerSetListener := nil;
     FSourceSet := nil;
@@ -204,5 +204,3 @@ begin
 end;
 
 end.
-
-

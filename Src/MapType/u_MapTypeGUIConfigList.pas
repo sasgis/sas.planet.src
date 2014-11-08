@@ -133,7 +133,7 @@ var
   VList: IInterfaceListSimple;
 begin
   Result := nil;
-  if Assigned(FMapsSet)then begin
+  if Assigned(FMapsSet) then begin
     VCount := FMapsSet.GetCount;
     VList := TInterfaceListSimple.Create;
     VList.Capacity := VCount;

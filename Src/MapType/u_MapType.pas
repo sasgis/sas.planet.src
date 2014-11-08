@@ -271,9 +271,10 @@ begin
     FCacheVector.Clear;
   end;
   // clear internal MemCache
-  if Assigned(FStorage) then
-  if Supports(FStorage, IBasicMemCache, VBasicMemCache) then begin
-    VBasicMemCache.Clear;
+  if Assigned(FStorage) then begin
+    if Supports(FStorage, IBasicMemCache, VBasicMemCache) then begin
+      VBasicMemCache.Clear;
+    end;
   end;
 end;
 

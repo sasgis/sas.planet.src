@@ -49,7 +49,7 @@ uses
   u_GUIDInterfaceSet;
 
 const
-  CInitialHash : THashValue = $49626a97a946096;
+  CInitialHash: THashValue = $49626a97a946096;
 
 { TMapTypeList }
 
@@ -67,7 +67,10 @@ type
     function GetItem(AIndex: Integer): IMapType;
     function GetCount: Integer;
   public
-    constructor Create(const AHash: THashValue; const AList: IGUIDInterfaceSet);
+    constructor Create(
+      const AHash: THashValue;
+      const AList: IGUIDInterfaceSet
+    );
   end;
 
 constructor TMapTypeSet.Create(
@@ -236,7 +239,7 @@ begin
     FList := TGUIDInterfaceSet.Create(FAllowNil);
   end else begin
     VEnum := FList.GetGUIDEnum;
-    while VEnum.Next(1, VGUID, VFetched) = S_OK  do begin
+    while VEnum.Next(1, VGUID, VFetched) = S_OK do begin
       FHashFunction.UpdateHashByGUID(VHash, VGUID);
     end;
   end;
