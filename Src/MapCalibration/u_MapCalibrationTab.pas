@@ -104,16 +104,21 @@ end;
 function TMapCalibrationTab.GetCoordSysStr(const AConverter: ICoordConverter): AnsiString;
 begin
   case AConverter.ProjectionEPSG of
-    CGoogleProjectionEPSG: Result := '10, 157, 7, 0';
-    CYandexProjectionEPSG: Result := '10, 104, 7, 0';
-    CGELonLatProjectionEPSG: Result := '1, 104, 7, 0';
-  else
-    begin
-      Assert(False, 'Unexpected projection EPSG code: ' + IntToStr(AConverter.ProjectionEPSG));
+    CGoogleProjectionEPSG: begin
+      Result := '10, 157, 7, 0';
+    end;
+    CYandexProjectionEPSG: begin
+      Result := '10, 104, 7, 0';
+    end;
+    CGELonLatProjectionEPSG: begin
       Result := '1, 104, 7, 0';
+    end;
+  else begin
+    Assert(False, 'Unexpected projection EPSG code: ' + IntToStr(AConverter.ProjectionEPSG));
+    Result := '1, 104, 7, 0';
       // For more projections see page 403 of UserGuide:
       // http://reference.mapinfo.com/software/mapinfo_pro/english/10/MapInfoProfessionalUserGuide.pdf
-    end;
+  end;
   end;
 end;
 
@@ -161,7 +166,7 @@ begin
       PointToStr(4, VLL2.X, VLL1.Y, VLocalRect.Right, VLocalRect.Top) + ',' + #13#10 +
       PointToStr(5, VLL.X, VLL.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), ((VLocalRect.Bottom - VLocalRect.Top) div 2)) + ',' + #13#10 +
       PointToStr(6, VLL.X, VLL1.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Top) + ',' + #13#10 +
-      PointToStr(7, VLL1.X, VLL.Y, VLocalRect.Left, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) +  ',' + #13#10 +
+      PointToStr(7, VLL1.X, VLL.Y, VLocalRect.Left, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) + ',' + #13#10 +
       PointToStr(8, VLL2.X, VLL.Y, VLocalRect.Right, ((VLocalRect.Bottom - VLocalRect.Top) div 2)) + ',' + #13#10 +
       PointToStr(9, VLL.X, VLL2.Y, ((VLocalRect.Right - VLocalRect.Left) div 2), VLocalRect.Bottom) + #13#10 +
       ' CoordSys Earth Projection ' + GetCoordSysStr(AConverter) + #13#10 +

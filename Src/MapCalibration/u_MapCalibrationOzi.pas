@@ -97,7 +97,7 @@ procedure TMapCalibrationOzi.SaveCalibrationInfo(
 
   function GetMinutes(const ACoord: Double): AnsiString;
   begin
-     Result := ALFormat('%.4f', [Frac(Abs(ACoord)) * 60], FFormatSettings);
+    Result := ALFormat('%.4f', [Frac(Abs(ACoord)) * 60], FFormatSettings);
   end;
 
   function DoubleToAnsiStr(const AValue: Double): AnsiString;
