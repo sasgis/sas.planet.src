@@ -141,7 +141,9 @@ const
     if Assigned(AList) and (AList.Count > 0) then begin
       for I := 0 to AList.Count - 1 do begin
         if AList.Strings[I] <> '' then begin
-          if Result <> '' then Result := Result + AComma;
+          if Result <> '' then begin
+            Result := Result + AComma;
+          end;
           Result := Result + AList.Strings[I];
         end;
       end;
@@ -224,35 +226,50 @@ begin
   try
     VJpeg.LoadFromFile(AFileName);
 
-    if VJpeg.Empty then Exit;    
+    if VJpeg.Empty then begin
+      Exit;
+    end;
 
     VExifData := VJpeg.ExifData;
 
-    if VExifData.Empty then Exit;
+    if VExifData.Empty then begin
+      Exit;
+    end;
 
     VGPSLatitude := VExifData.GPSLatitude;
-    if VGPSLatitude.Degrees.MissingOrInvalid then Exit;
+    if VGPSLatitude.Degrees.MissingOrInvalid then begin
+      Exit;
+    end;
     VPoint.Y := VGPSLatitude.Degrees.Quotient;
     VPoint.Y := VPoint.Y + VGPSLatitude.Minutes.Quotient / 60;
     VPoint.Y := VPoint.Y + VGPSLatitude.Seconds.Quotient / 3600;
-    if VGPSLatitude.Direction = ltSouth then VPoint.Y := -VPoint.Y;
+    if VGPSLatitude.Direction = ltSouth then begin
+      VPoint.Y := -VPoint.Y;
+    end;
 
     VGPSLongitude := VExifData.GPSLongitude;
-    if VGPSLongitude.Degrees.MissingOrInvalid then Exit;
+    if VGPSLongitude.Degrees.MissingOrInvalid then begin
+      Exit;
+    end;
     VPoint.X := VGPSLongitude.Degrees.Quotient;
     VPoint.X := VPoint.X + VGPSLongitude.Minutes.Quotient / 60;
     VPoint.X := VPoint.X + VGPSLongitude.Seconds.Quotient / 3600;
-    if VGPSLongitude.Direction = lnWest then VPoint.X := -VPoint.X;
+    if VGPSLongitude.Direction = lnWest then begin
+      VPoint.X := -VPoint.X;
+    end;
 
-    if PointIsEmpty(VPoint) then Exit;
+    if PointIsEmpty(VPoint) then begin
+      Exit;
+    end;
 
     VGPSAltitude := VExifData.GPSAltitude;
-    if VGPSAltitude.MissingOrInvalid or (VGPSAltitude.Quotient = 0) then
-      VAltitude := ''
-    else begin
+    if VGPSAltitude.MissingOrInvalid or (VGPSAltitude.Quotient = 0) then begin
+      VAltitude := '';
+    end else begin
       VExAltitude := VGPSAltitude.Quotient;
-      if VExifData.GPSAltitudeRef = alBelowSeaLevel then
-        VExAltitude := -VExAltitude ;
+      if VExifData.GPSAltitudeRef = alBelowSeaLevel then begin
+        VExAltitude := -VExAltitude;
+      end;
       VAltitude := FloatToStrF(VExAltitude, ffFixed, 10, 2);
     end;
 
@@ -263,8 +280,9 @@ begin
         VIPTCData.GetKeyWords(VKeys);
 
         VTmpStr := _ListToString(VKeys, '; ');
-        if VTmpStr <> '' then
-          VDesc := VDesc + 'Tags: '+ VTmpStr + br;
+        if VTmpStr <> '' then begin
+          VDesc := VDesc + 'Tags: ' + VTmpStr + br;
+        end;
 
         VKeys.Clear;
 
@@ -274,35 +292,41 @@ begin
         VKeys.Add(VIPTCData.SubLocation);
 
         VTmpStr := _ListToString(VKeys, ', ');
-        if VTmpStr <> '' then
-          VDesc := VDesc + 'Location: '+ VTmpStr + br + br;
+        if VTmpStr <> '' then begin
+          VDesc := VDesc + 'Location: ' + VTmpStr + br + br;
+        end;
       finally
         VKeys.Free;
       end;
     end;
 
-    VDesc := VDesc + 'GPS Coordinates: [ '+VValueToStringConverter.LonLatConvert(VPoint)+' ]' + br;
+    VDesc := VDesc + 'GPS Coordinates: [ ' + VValueToStringConverter.LonLatConvert(VPoint) + ' ]' + br;
 
-    if VAltitude <> '' then
+    if VAltitude <> '' then begin
       VDesc := VDesc + 'GPS Elevation: ' + VAltitude + br;
-
-    if not VExifData.GPSVersion.MissingOrInvalid then
-      VDesc := VDesc + 'GPS Version:' + VExifData.GPSVersion.AsString + br;
-
-    if VExifData.CameraMake <> '' then
-      VDesc := VDesc + 'Camera: '+ VExifData.CameraMake + ' '+VExifData.CameraModel + br;
-
-    if not VExifData.DateTimeOriginal.MissingOrInvalid then begin
-      VDesc := VDesc + 'Date: '+ VExifData.DateTimeOriginal.AsString + br;
-    end else if not VExifData.DateTime.MissingOrInvalid then begin
-      VDesc := VDesc + 'Date: '+ VExifData.DateTime.AsString + br;
     end;
 
-    if VExifData.Keywords <> '' then
-      VDesc := VDesc + 'Windows Tags: '+ VExifData.Keywords + br;
+    if not VExifData.GPSVersion.MissingOrInvalid then begin
+      VDesc := VDesc + 'GPS Version:' + VExifData.GPSVersion.AsString + br;
+    end;
 
-    if VExifData.Author <> '' then
-      VDesc := VDesc + 'Author: '+ VExifData.Author + br;
+    if VExifData.CameraMake <> '' then begin
+      VDesc := VDesc + 'Camera: ' + VExifData.CameraMake + ' ' + VExifData.CameraModel + br;
+    end;
+
+    if not VExifData.DateTimeOriginal.MissingOrInvalid then begin
+      VDesc := VDesc + 'Date: ' + VExifData.DateTimeOriginal.AsString + br;
+    end else if not VExifData.DateTime.MissingOrInvalid then begin
+      VDesc := VDesc + 'Date: ' + VExifData.DateTime.AsString + br;
+    end;
+
+    if VExifData.Keywords <> '' then begin
+      VDesc := VDesc + 'Windows Tags: ' + VExifData.Keywords + br;
+    end;
+
+    if VExifData.Author <> '' then begin
+      VDesc := VDesc + 'Author: ' + VExifData.Author + br;
+    end;
 
     VImgName := _GetInternalFileName(AFileName);
 

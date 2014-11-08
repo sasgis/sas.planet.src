@@ -80,7 +80,7 @@ implementation
 
 uses
   SysUtils,
-  t_CommonTypes,  
+  t_CommonTypes,
   i_VectorItemSubset,
   i_InterfaceListSimple,
   i_StaticTreeBuilder,

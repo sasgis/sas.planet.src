@@ -102,12 +102,12 @@ var
   VItem: IVectorDataItem;
 begin
   VNewList := FVectorItemSubsetBuilderFactory.Build;
-    for i := 0 to FList.Count - 1 do begin
-      VItem := IVectorDataItem(FList.Items[i]);
-      if VItem.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
-        VNewList.Add(VItem);
-      end;
+  for i := 0 to FList.Count - 1 do begin
+    VItem := IVectorDataItem(FList.Items[i]);
+    if VItem.Geometry.Bounds.IsIntersecWithRect(ARect) then begin
+      VNewList.Add(VItem);
     end;
+  end;
   Result := VNewList.MakeStaticAndClear;
 end;
 
@@ -126,7 +126,7 @@ begin
     Result := True;
   end else if FList.Count <> ASubset.Count then begin
     Result := False;
-  end else if (FHash <> 0) and (ASubset.Hash <>0) and (FHash <> ASubset.Hash)  then begin
+  end else if (FHash <> 0) and (ASubset.Hash <> 0) and (FHash <> ASubset.Hash) then begin
     Result := False;
   end else begin
     Result := True;

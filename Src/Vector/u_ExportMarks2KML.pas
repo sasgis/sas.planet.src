@@ -254,7 +254,7 @@ var
   VAppearanceLine: IAppearanceLine;
   VAppearanceBorder: IAppearancePolygonBorder;
   VAppearanceFill: IAppearancePolygonFill;
-  VLonLatPoint:  IGeometryLonLatPoint;
+  VLonLatPoint: IGeometryLonLatPoint;
   VLonLatPolygon: IGeometryLonLatMultiPolygon;
   VLonLatPolygonLine: IGeometryLonLatSinglePolygon;
   VLonLatPath: IGeometryLonLatMultiLine;
@@ -271,7 +271,7 @@ begin
     if not Supports(AMark.Appearance, IAppearancePointCaption, VAppearanceCaption) then begin
       VAppearanceCaption := nil;
     end;
-    if (VAppearanceCaption <> nil) or (VAppearanceIcon <> nil)  then begin
+    if (VAppearanceCaption <> nil) or (VAppearanceIcon <> nil) then begin
       with currNode.AddChild('Style') do begin
         if VAppearanceCaption <> nil then begin
           with AddChild('LabelStyle') do begin
@@ -332,12 +332,12 @@ begin
         end;
       end;
     end;
-    if VLonLatPath.Count>1 then begin
+    if VLonLatPath.Count > 1 then begin
       // MultiGeometry
       rootNode := currNode.AddChild('MultiGeometry');
-      for i := 0 to VLonLatPath.Count-1 do begin
+      for i := 0 to VLonLatPath.Count - 1 do begin
         VLonLatPathLine := VLonLatPath.Item[i];
-        if (VLonLatPathLine.Count>1) then begin
+        if (VLonLatPathLine.Count > 1) then begin
           // make path
           currNode := rootNode.AddChild('LineString');
           currNode.ChildNodes['extrude'].Text := '1';
@@ -408,12 +408,12 @@ begin
         end;
       end;
     end;
-    if VLonLatPolygon.Count>1 then begin
+    if VLonLatPolygon.Count > 1 then begin
       // MultiGeometry
       rootNode := currNode.AddChild('MultiGeometry');
-      for i := 0 to VLonLatPolygon.Count-1 do begin
+      for i := 0 to VLonLatPolygon.Count - 1 do begin
         VLonLatPolygonLine := VLonLatPolygon.Item[i];
-        if (VLonLatPolygonLine.Count>2) then begin
+        if (VLonLatPolygonLine.Count > 2) then begin
           // make contour
           currNode := rootNode.AddChild('Polygon').AddChild('outerBoundaryIs').AddChild('LinearRing');
           currNode.ChildNodes['extrude'].Text := '1';
@@ -463,7 +463,7 @@ begin
         VPicName := AAppearanceIcon.Pic.GetName;
         VTargetPath := 'files' + PathDelim;
         Result := VTargetPath + VPicName;
-        if Assigned(FZip)  then begin
+        if Assigned(FZip) then begin
           FZip.AddFile(VData, Result, Now);
         end else begin
           VTargetPath := ExtractFilePath(FFileName) + VTargetPath;

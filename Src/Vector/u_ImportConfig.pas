@@ -177,7 +177,7 @@ end;
 
 function TImportPointParams.GetAppearance: IAppearance;
 begin
-  Result :=FAppearance;
+  Result := FAppearance;
 end;
 
 function TImportPointParams.GetCaptionAppearance: IAppearancePointCaption;
@@ -233,7 +233,7 @@ end;
 
 function TImportLineParams.GetAppearance: IAppearance;
 begin
-  Result :=FAppearance;
+  Result := FAppearance;
 end;
 
 function TImportLineParams.GetIsForceLineColor: Boolean;
@@ -273,7 +273,7 @@ end;
 
 function TImportPolyParams.GetAppearance: IAppearance;
 begin
-  Result :=FAppearance;
+  Result := FAppearance;
 end;
 
 function TImportPolyParams.GetBorderAppearance: IAppearancePolygonBorder;

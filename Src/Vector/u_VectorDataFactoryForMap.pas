@@ -34,6 +34,7 @@ uses
 
 type
   PIdData = ^TIdData;
+
   TIdData = record
     UrlPrefix: IStringProvider;
     NextIndex: Integer;
