@@ -190,51 +190,51 @@ var
   VDistToPrev: Double;
   VPointPrev: TDoublePoint;
 begin
-    LockWrite;
-    try
-      if FLastPositionOK or APosition.PositionOK then begin
-        VPointPrev := FLastPosition;
+  LockWrite;
+  try
+    if FLastPositionOK or APosition.PositionOK then begin
+      VPointPrev := FLastPosition;
 
         // check new values
-        if APosition.PositionOK then begin
-          FLastPosition := APosition.LonLat;
-          FLastAltitude := APosition.Altitude;
-          FLastHeading := APosition.Heading;
-          FLastSpeed := APosition.Speed_KMH;
+      if APosition.PositionOK then begin
+        FLastPosition := APosition.LonLat;
+        FLastAltitude := APosition.Altitude;
+        FLastHeading := APosition.Heading;
+        FLastSpeed := APosition.Speed_KMH;
 
           // allow calc max and avg speed even if no stats
           // check AllowCalcStats only for permanent (overall) stats
 
           // speed may be unavailable
-          if APosition.SpeedOK then begin
+        if APosition.SpeedOK then begin
             // max speen
-            if (APosition.Speed_KMH > FMaxSpeed) then begin
-              FMaxSpeed := APosition.Speed_KMH;
-            end;
-            // avg speed
-            FAvgSpeedTickCount := FAvgSpeedTickCount + 1;
-            VAlfa := 1 / FAvgSpeedTickCount;
-            VBeta := 1 - VAlfa;
-            FAvgSpeed := VAlfa * APosition.Speed_KMH + VBeta * FAvgSpeed;
+          if (APosition.Speed_KMH > FMaxSpeed) then begin
+            FMaxSpeed := APosition.Speed_KMH;
           end;
+            // avg speed
+          FAvgSpeedTickCount := FAvgSpeedTickCount + 1;
+          VAlfa := 1 / FAvgSpeedTickCount;
+          VBeta := 1 - VAlfa;
+          FAvgSpeed := VAlfa * APosition.Speed_KMH + VBeta * FAvgSpeed;
+        end;
 
           // if prev position available too - calc distance
           // no recalc if AllowCalcStats disabled
-          if FLastPositionOK then begin
-            VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
-            FDist := FDist + VDistToPrev;
-            FOdometer1 := FOdometer1 + VDistToPrev;
-            FOdometer2 := FOdometer2 + VDistToPrev;
-          end;
+        if FLastPositionOK then begin
+          VDistToPrev := FDatum.CalcDist(VPointPrev, FLastPosition);
+          FDist := FDist + VDistToPrev;
+          FOdometer1 := FOdometer1 + VDistToPrev;
+          FOdometer2 := FOdometer2 + VDistToPrev;
         end;
-
-        FLastPositionOK := APosition.PositionOK;
-        SetChanged;
       end;
-      FCurrentPosition := APosition;
-    finally
-      UnlockWrite;
+
+      FLastPositionOK := APosition.PositionOK;
+      SetChanged;
     end;
+    FCurrentPosition := APosition;
+  finally
+    UnlockWrite;
+  end;
 end;
 
 function TGPSRecorder.GetAvgSpeed: Double;

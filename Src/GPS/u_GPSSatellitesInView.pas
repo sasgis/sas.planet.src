@@ -232,12 +232,14 @@ var
 begin
   Result := nil;
 
-  if (nil=ASource) then
+  if (nil = ASource) then begin
     Exit;
+  end;
 
   VItemCount := ASource.Count;
-  if (0=VItemCount) then
+  if (0 = VItemCount) then begin
     Exit;
+  end;
 
   if VItemCount > cNmea_max_sat_count then begin
     VItemCount := cNmea_max_sat_count;

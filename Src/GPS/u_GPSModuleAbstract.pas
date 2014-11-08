@@ -214,7 +214,10 @@ type
     function GetCount: Integer;
     procedure SetCount(const ANewCount: Integer);
     function GetItem(const AIndex: Integer): IGPSSatelliteInfo;
-    procedure SetItem(const AIndex: Integer; const AItem: IGPSSatelliteInfo);
+    procedure SetItem(
+      const AIndex: Integer;
+      const AItem: IGPSSatelliteInfo
+    );
   public
     constructor Create(const ACapacity: Integer);
   end;
@@ -844,10 +847,11 @@ end;
 
 function TGPSSatelliteInfoList.GetItem(const AIndex: Integer): IGPSSatelliteInfo;
 begin
-  if (AIndex >= 0) and (AIndex < FList.Count) then
-    Result := IGPSSatelliteInfo(FList[AIndex])
-  else
+  if (AIndex >= 0) and (AIndex < FList.Count) then begin
+    Result := IGPSSatelliteInfo(FList[AIndex]);
+  end else begin
     Result := nil;
+  end;
 end;
 
 procedure TGPSSatelliteInfoList.SetCount(const ANewCount: Integer);
@@ -860,10 +864,12 @@ procedure TGPSSatelliteInfoList.SetItem(
   const AItem: IGPSSatelliteInfo
 );
 begin
-  if (AIndex < 0) then
+  if (AIndex < 0) then begin
     Exit;
-  if (AIndex >= FList.Count) then
+  end;
+  if (AIndex >= FList.Count) then begin
     SetCount(AIndex + 1);
+  end;
   FList[AIndex] := AItem;
 end;
 

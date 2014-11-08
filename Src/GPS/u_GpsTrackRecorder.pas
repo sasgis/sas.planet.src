@@ -445,7 +445,9 @@ const
 { TGpsTrackRecorder }
 
 constructor TGpsTrackRecorder.Create(
-  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory; const ADataFile: IPathConfig);
+  const AVectorGeometryLonLatFactory: IGeometryLonLatFactory;
+  const ADataFile: IPathConfig
+);
 begin
   inherited Create;
   FVectorGeometryLonLatFactory := AVectorGeometryLonLatFactory;

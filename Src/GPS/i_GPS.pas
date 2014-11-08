@@ -40,7 +40,10 @@ type
     property Count: Integer read GetCount write SetCount;
 
     function GetItem(const AIndex: Integer): IGPSSatelliteInfo;
-    procedure SetItem(const AIndex: Integer; const AItem: IGPSSatelliteInfo);
+    procedure SetItem(
+      const AIndex: Integer;
+      const AItem: IGPSSatelliteInfo
+    );
     property Items[const AIndex: Integer]: IGPSSatelliteInfo read GetItem write SetItem; default;
   end;
 
