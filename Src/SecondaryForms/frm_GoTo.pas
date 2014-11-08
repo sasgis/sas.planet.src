@@ -66,7 +66,7 @@ type
     FMainGeoCoderConfig: IMainGeoCoderConfig;
     FSearchHistory: IStringHistory;
     FGeoCoderList: IGeoCoderListStatic;
-    FGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
+    FGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
     FViewPortState: ILocalCoordConverterChangeable;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FResult: IGeoCodeResult;
@@ -93,7 +93,7 @@ type
     constructor Create(
       const ALanguageManager: ILanguageManager;
       const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-      const AGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
+      const AGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
       const AMarksDb: IMarkDb;
       const AGeoCoderList: IGeoCoderListStatic;
       const AFSearchHistory: IStringHistory;
@@ -181,10 +181,10 @@ var
 begin
   FSearchHistory.LockRead;
   try
-    if (FSearchHistory.Count>0) then begin
+    if (FSearchHistory.Count > 0) then begin
       cbbGeoCode.Items.BeginUpdate;
       try
-        for i := 0 to FSearchHistory.Count-1 do begin
+        for i := 0 to FSearchHistory.Count - 1 do begin
           cbbGeoCode.Items.Add(FSearchHistory.GetItem(i));
         end;
       finally
@@ -218,7 +218,7 @@ end;
 
 procedure TfrmGoTo.btnGoToClick(Sender: TObject);
 var
-  textsrch:String;
+  textsrch: String;
   VIndex: Integer;
   VMarkId: IMarkId;
   VMark: IVectorDataItem;
@@ -250,7 +250,7 @@ begin
       ModalResult := mrOk;
     end;
   end else if pgcSearchType.ActivePage = tsSearch then begin
-    textsrch:= Trim(cbbGeoCode.Text);
+    textsrch := Trim(cbbGeoCode.Text);
     VGeoCoderItem := nil;
     VIndex := cbbSearcherType.ItemIndex;
     if VIndex >= 0 then begin
@@ -287,13 +287,13 @@ begin
     EmptyGeoCoders;
   end;
   cbbAllMarks.Clear;
-  FMarksList:=nil;
+  FMarksList := nil;
   cbbGeoCode.Clear;
 end;
 
 procedure TfrmGoTo.cbbAllMarksDropDown(Sender: TObject);
 begin
-  if cbbAllMarks.Items.Count=0 then begin
+  if cbbAllMarks.Items.Count = 0 then begin
     FMarksList := FMarksDb.GetAllMarkIdList;
     MarksListToStrings(FMarksList, cbbAllMarks.Items);
   end;
@@ -302,7 +302,7 @@ end;
 constructor TfrmGoTo.Create(
   const ALanguageManager: ILanguageManager;
   const AVectorItemSubsetBuilderFactory: IVectorItemSubsetBuilderFactory;
-  const AGeoCodePlacemarkFactory:IGeoCodePlacemarkFactory;
+  const AGeoCodePlacemarkFactory: IGeoCodePlacemarkFactory;
   const AMarksDb: IMarkDb;
   const AGeoCoderList: IGeoCoderListStatic;
   const AFSearchHistory: IStringHistory;
@@ -321,8 +321,8 @@ begin
   FViewPortState := AViewPortState;
   FValueToStringConverter := AValueToStringConverter;
   frLonLatPoint := TfrLonLat.Create(ALanguageManager, FViewPortState, FValueToStringConverter, tssCenter);
-  frLonLatPoint.Width:= tsCoordinates.Width;
-  frLonLatPoint.Height:= tsCoordinates.Height;
+  frLonLatPoint.Width := tsCoordinates.Width;
+  frLonLatPoint.Height := tsCoordinates.Height;
 end;
 
 destructor TfrmGoTo.Destroy;

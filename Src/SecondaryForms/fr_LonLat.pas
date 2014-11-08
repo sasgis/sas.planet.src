@@ -66,7 +66,11 @@ type
     FTileSelectStyle: TTileSelectStyle;
     function GetLonLat: TDoublePoint;
     procedure SetLonLat(const Value: TDoublePoint);
-    function Edit2Digit(const Atext:string; lat:boolean; out res: Double): boolean;
+    function Edit2Digit(
+      const Atext: string;
+      lat: boolean;
+      out res: Double
+    ): boolean;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -93,16 +97,16 @@ procedure TfrLonLat.cbbCoordTypeSelect(Sender: TObject);
 begin
   SetLonLat(FCoordinates);
   case cbbCoordType.ItemIndex of
-   0:   begin
-          pnlXY.Visible := False;
-          grdpnlLonLat.Visible := True;
-          grdpnlLonLat.Realign;
-        end;
-   1,2: begin
-          pnlXY.Visible := True;
-          grdpnlLonLat.Visible := False;
-          grdpnlXY.Realign;
-        end;
+    0: begin
+      pnlXY.Visible := False;
+      grdpnlLonLat.Visible := True;
+      grdpnlLonLat.Realign;
+    end;
+    1, 2: begin
+      pnlXY.Visible := True;
+      grdpnlLonLat.Visible := False;
+      grdpnlXY.Realign;
+    end;
   end;
 end;
 
@@ -116,74 +120,83 @@ begin
   inherited Create(ALanguageManager);
   FViewPortState := AViewPortState;
   FValueToStringConverter := AValueToStringConverter;
-  FTileSelectStyle:=ATileSelectStyle;
+  FTileSelectStyle := ATileSelectStyle;
 end;
 
-function TfrLonLat.Edit2Digit(const Atext: string; lat: boolean; out res: Double): boolean;
-var i,delitel:integer;
-    gms:double;
-    VText:string;
-    minus: boolean;
+function TfrLonLat.Edit2Digit(
+  const Atext: string;
+  lat: boolean;
+  out res: Double
+): boolean;
+var
+  i, delitel: integer;
+  gms: double;
+  VText: string;
+  minus: boolean;
 begin
-  result:=true;
-  res:=0;
-  VText:=UpperCase(Atext);
+  result := true;
+  res := 0;
+  VText := UpperCase(Atext);
 
-  VText:=StringReplace(VText,'S','-',[rfReplaceAll]);
-  VText:=StringReplace(VText,'W','-',[rfReplaceAll]);
-  VText:=StringReplace(VText,'N','+',[rfReplaceAll]);
-  VText:=StringReplace(VText,'E','+',[rfReplaceAll]);
-  VText:=StringReplace(VText,'Þ','-',[rfReplaceAll]);
-  VText:=StringReplace(VText,'Ç','-',[rfReplaceAll]);
-  VText:=StringReplace(VText,'Â','+',[rfReplaceAll]);
-  VText:=StringReplace(VText,'Ñ','+',[rfReplaceAll]);
-  minus:= false;
-  if posEx('-',VText,1)>0 then minus := true;
+  VText := StringReplace(VText, 'S', '-', [rfReplaceAll]);
+  VText := StringReplace(VText, 'W', '-', [rfReplaceAll]);
+  VText := StringReplace(VText, 'N', '+', [rfReplaceAll]);
+  VText := StringReplace(VText, 'E', '+', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Þ', '-', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Ç', '-', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Â', '+', [rfReplaceAll]);
+  VText := StringReplace(VText, 'Ñ', '+', [rfReplaceAll]);
+  minus := false;
+  if posEx('-', VText, 1) > 0 then begin
+    minus := true;
+  end;
 
-  i:=1;
-  while i<=length(VText) do begin
-    if (not(AnsiChar(VText[i]) in ['0'..'9','-','+','.',',',' '])) then begin
-      VText[i]:=' ';
+  i := 1;
+  while i <= length(VText) do begin
+    if (not (AnsiChar(VText[i]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
+      VText[i] := ' ';
       dec(i);
     end;
 
-    if ((i=1)and(VText[i]=' '))or
-       ((i=length(VText))and(VText[i]=' '))or
-       ((i<length(VText)-1)and(VText[i]=' ')and(VText[i+1]=' '))or
-       ((i>1) and (VText[i]=' ') and (not(AnsiChar(VText[i-1]) in ['0'..'9'])))or
-       ((i<length(VText)-1)and(VText[i]=',')and(VText[i+1]=' ')) then begin
-      Delete(VText,i,1);
+    if ((i = 1) and (VText[i] = ' ')) or
+      ((i = length(VText)) and (VText[i] = ' ')) or
+      ((i < length(VText) - 1) and (VText[i] = ' ') and (VText[i + 1] = ' ')) or
+      ((i > 1) and (VText[i] = ' ') and (not (AnsiChar(VText[i - 1]) in ['0'..'9']))) or
+      ((i < length(VText) - 1) and (VText[i] = ',') and (VText[i + 1] = ' ')) then begin
+      Delete(VText, i, 1);
       dec(i);
     end;
     inc(i);
   end;
 
   try
-    res:=0;
-    delitel:=1;
+    res := 0;
+    delitel := 1;
     repeat
-     i:=posEx(' ',VText,1);
-     if i=0 then begin
-       gms:=str2r(VText);
-     end else begin
-       gms:=str2r(copy(VText,1,i-1));
-       Delete(VText,1,i);
-     end;
-     if ((delitel>1)and(abs(gms)>60))or
-        ((delitel=1)and(lat)and(abs(gms)>90))or
-        ((delitel=1)and(not lat)and(abs(gms)>180)) then begin
-       Result:=false;
-     end;
-     if res<0 then begin
-       res:=res-gms/delitel;
-     end else begin
-       res:=res+gms/delitel;
-     end;
-     if minus and (res>0) then res:=-res;
-     delitel:=delitel*60;
-    until (i=0)or(delitel>3600)or(not result);
+      i := posEx(' ', VText, 1);
+      if i = 0 then begin
+        gms := str2r(VText);
+      end else begin
+        gms := str2r(copy(VText, 1, i - 1));
+        Delete(VText, 1, i);
+      end;
+      if ((delitel > 1) and (abs(gms) > 60)) or
+        ((delitel = 1) and (lat) and (abs(gms) > 90)) or
+        ((delitel = 1) and (not lat) and (abs(gms) > 180)) then begin
+        Result := false;
+      end;
+      if res < 0 then begin
+        res := res - gms / delitel;
+      end else begin
+        res := res + gms / delitel;
+      end;
+      if minus and (res > 0) then begin
+        res := -res;
+      end;
+      delitel := delitel * 60;
+    until (i = 0) or (delitel > 3600) or (not result);
   except
-    result:=false;
+    result := false;
   end;
 end;
 
@@ -195,42 +208,42 @@ end;
 procedure TfrLonLat.SetLonLat(const Value: TDoublePoint);
 var
   VValueConverter: IValueToStringConverter;
-  XYPoint:TPoint;
-  CurrZoom:integer;
+  XYPoint: TPoint;
+  CurrZoom: integer;
   VLocalConverter: ILocalCoordConverter;
 begin
   FCoordinates := Value;
   VValueConverter := FValueToStringConverter.GetStatic;
-  VLocalConverter :=  FViewPortState.GetStatic;
+  VLocalConverter := FViewPortState.GetStatic;
   CurrZoom := VLocalConverter.Zoom;
-  cbbZoom.ItemIndex:=CurrZoom;
-  if cbbCoordType.ItemIndex=-1 then begin
-    cbbCoordType.ItemIndex:=0;
+  cbbZoom.ItemIndex := CurrZoom;
+  if cbbCoordType.ItemIndex = -1 then begin
+    cbbCoordType.ItemIndex := 0;
   end;
 
   case cbbCoordType.ItemIndex of
-   0: begin
-        edtLon.Text:=VValueConverter.LonConvert(Value.x, false);
-        edtLat.Text:=VValueConverter.LatConvert(Value.y, false);
-      end;
-   1: begin
-        XYPoint:=
-          PointFromDoublePoint(
-            VLocalConverter.GetGeoConverter.LonLat2PixelPosFloat(Value,CurrZoom),
-            prToTopLeft
-          );
-        edtX.Text:=inttostr(XYPoint.x);
-        edtY.Text:=inttostr(XYPoint.y);
-      end;
-   2: begin
-        XYPoint:=
-          PointFromDoublePoint(
-            VLocalConverter.GetGeoConverter.LonLat2TilePosFloat(Value,CurrZoom),
-            prToTopLeft
-          );
-        edtX.Text:=inttostr(XYPoint.x);
-        edtY.Text:=inttostr(XYPoint.y);
-      end;
+    0: begin
+      edtLon.Text := VValueConverter.LonConvert(Value.x, false);
+      edtLat.Text := VValueConverter.LatConvert(Value.y, false);
+    end;
+    1: begin
+      XYPoint :=
+        PointFromDoublePoint(
+          VLocalConverter.GetGeoConverter.LonLat2PixelPosFloat(Value, CurrZoom),
+          prToTopLeft
+        );
+      edtX.Text := inttostr(XYPoint.x);
+      edtY.Text := inttostr(XYPoint.y);
+    end;
+    2: begin
+      XYPoint :=
+        PointFromDoublePoint(
+          VLocalConverter.GetGeoConverter.LonLat2TilePosFloat(Value, CurrZoom),
+          prToTopLeft
+        );
+      edtX.Text := inttostr(XYPoint.x);
+      edtY.Text := inttostr(XYPoint.y);
+    end;
   end;
 end;
 
@@ -245,54 +258,59 @@ begin
   VLonLat := CEmptyDoublePoint;
   Result := True;
   case cbbCoordType.ItemIndex of
-   0: begin
-        if not(Edit2Digit(edtLat.Text, true, VLonLat.y))or
-           not(Edit2Digit(edtLon.Text, false, VLonLat.x)) then begin
-          ShowMessage(SAS_ERR_CoordinatesInput);
-          Result := False;
-        end;
-        if Result then begin
-          VLocalConverter :=  FViewPortState.GetStatic;
-          VLocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
-        end;
+    0: begin
+      if not (Edit2Digit(edtLat.Text, true, VLonLat.y)) or not (Edit2Digit(edtLon.Text, false, VLonLat.x)) then begin
+        ShowMessage(SAS_ERR_CoordinatesInput);
+        Result := False;
       end;
-   1: begin
-        try
-          XYPoint.X := strtoint(edtX.Text);
-          XYPoint.Y := strtoint(edtY.Text);
-        except
-          ShowMessage(SAS_ERR_CoordinatesInput);
-          Result := False;
-        end;
-        if Result then  begin
-          VLocalConverter :=  FViewPortState.GetStatic;
-          VZoom := cbbZoom.ItemIndex;
-          VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, False);
-          VLonLat := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
-        end;
+      if Result then begin
+        VLocalConverter := FViewPortState.GetStatic;
+        VLocalConverter.GeoConverter.CheckLonLatPos(VLonLat);
       end;
-   2: begin
-        try
-          VTile.X := strtoint(edtX.Text);
-          VTile.Y := strtoint(edtY.Text);
-        except
-          ShowMessage(SAS_ERR_CoordinatesInput);
-          Result := False;
-        end;
-        if Result then begin
-          VLocalConverter :=  FViewPortState.GetStatic;
-          VZoom := cbbZoom.ItemIndex;
+    end;
+    1: begin
+      try
+        XYPoint.X := strtoint(edtX.Text);
+        XYPoint.Y := strtoint(edtY.Text);
+      except
+        ShowMessage(SAS_ERR_CoordinatesInput);
+        Result := False;
+      end;
+      if Result then begin
+        VLocalConverter := FViewPortState.GetStatic;
+        VZoom := cbbZoom.ItemIndex;
+        VLocalConverter.GeoConverter.CheckPixelPosFloat(XYPoint, VZoom, False);
+        VLonLat := VLocalConverter.GetGeoConverter.PixelPosFloat2LonLat(XYPoint, VZoom);
+      end;
+    end;
+    2: begin
+      try
+        VTile.X := strtoint(edtX.Text);
+        VTile.Y := strtoint(edtY.Text);
+      except
+        ShowMessage(SAS_ERR_CoordinatesInput);
+        Result := False;
+      end;
+      if Result then begin
+        VLocalConverter := FViewPortState.GetStatic;
+        VZoom := cbbZoom.ItemIndex;
 
-          case FTileSelectStyle of
-            tssCenter: XYPoint := DoublePoint(VTile.X + 0.5, VTile.Y + 0.5);
-            tssTopLeft: XYPoint := DoublePoint(VTile);
-            tssBottomRight: XYPoint := DoublePoint(VTile.X + 1, VTile.Y + 1);
+        case FTileSelectStyle of
+          tssCenter: begin
+            XYPoint := DoublePoint(VTile.X + 0.5, VTile.Y + 0.5);
           end;
-
-          VLocalConverter.GeoConverter.CheckTilePos(VTile, VZoom, False);
-          VLonLat := VLocalConverter.GeoConverter.TilePosFloat2LonLat(XYPoint, VZoom);
+          tssTopLeft: begin
+            XYPoint := DoublePoint(VTile);
+          end;
+          tssBottomRight: begin
+            XYPoint := DoublePoint(VTile.X + 1, VTile.Y + 1);
+          end;
         end;
+
+        VLocalConverter.GeoConverter.CheckTilePos(VTile, VZoom, False);
+        VLonLat := VLocalConverter.GeoConverter.TilePosFloat2LonLat(XYPoint, VZoom);
       end;
+    end;
   end;
   if Result then begin
     FCoordinates := VLonLat;

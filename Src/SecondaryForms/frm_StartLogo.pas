@@ -44,7 +44,10 @@ type
     imgLogo: TImage32;
     lblVersion: TLabel;
     lblWebSite: TLabel;
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
     procedure tmrLogoTimer(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure imgLogoClick(Sender: TObject);
@@ -124,7 +127,10 @@ begin
   inherited;
 end;
 
-procedure TfrmStartLogo.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmStartLogo.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   Action := caFree;
 end;
@@ -157,7 +163,7 @@ end;
 
 procedure TfrmStartLogo.tmrLogoTimer(Sender: TObject);
 begin
-  tmrLogo.Enabled:=false;
+  tmrLogo.Enabled := false;
   Self.Close;
 end;
 
