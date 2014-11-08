@@ -30,7 +30,7 @@ uses
   u_ConfigDataElementComplexBase;
 
 type
-  TGlobalCacheConfig = class(TConfigDataElementComplexBase,IGlobalCacheConfig)
+  TGlobalCacheConfig = class(TConfigDataElementComplexBase, IGlobalCacheConfig)
   private
     FCacheGlobalPath: IPathConfig;
 
@@ -86,21 +86,21 @@ begin
   FCacheGlobalPath := ACacheGlobalPath;
   FDefCache := c_File_Cache_Id_SAS;
 
-  FOldCPath      := TPathConfig.Create('GMVC',      c_File_Cache_Default_GMV,  FCacheGlobalPath);
+  FOldCPath := TPathConfig.Create('GMVC', c_File_Cache_Default_GMV, FCacheGlobalPath);
   Add(FOldCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
-  FNewCPath      := TPathConfig.Create('SASC',      c_File_Cache_Default_SAS,  FCacheGlobalPath);
+  FNewCPath := TPathConfig.Create('SASC', c_File_Cache_Default_SAS, FCacheGlobalPath);
   Add(FNewCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
-  FESCPath       := TPathConfig.Create('ESC',       c_File_Cache_Default_ES,   FCacheGlobalPath);
+  FESCPath := TPathConfig.Create('ESC', c_File_Cache_Default_ES, FCacheGlobalPath);
   Add(FESCPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
-  FGMTilesPath   := TPathConfig.Create('GMTiles',   c_File_Cache_Default_GM,   FCacheGlobalPath);
+  FGMTilesPath := TPathConfig.Create('GMTiles', c_File_Cache_Default_GM, FCacheGlobalPath);
   Add(FGMTilesPath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
-  FGECachePath   := TPathConfig.Create('GECache',   c_File_Cache_Default_GE,   FCacheGlobalPath);
+  FGECachePath := TPathConfig.Create('GECache', c_File_Cache_Default_GE, FCacheGlobalPath);
   Add(FGECachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
-  FGCCachePath   := TPathConfig.Create('GCCache',   c_File_Cache_Default_GC,   FCacheGlobalPath);
+  FGCCachePath := TPathConfig.Create('GCCache', c_File_Cache_Default_GC, FCacheGlobalPath);
   Add(FGCCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
-  FBDBCachePath  := TPathConfig.Create('BDBCache',  c_File_Cache_Default_BDB,  FCacheGlobalPath);
+  FBDBCachePath := TPathConfig.Create('BDBCache', c_File_Cache_Default_BDB, FCacheGlobalPath);
   Add(FBDBCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
-  FBDBVerCachePath  := TPathConfig.Create('BDBVerCache',  c_File_Cache_Default_BDBv,  FCacheGlobalPath);
+  FBDBVerCachePath := TPathConfig.Create('BDBVerCache', c_File_Cache_Default_BDBv, FCacheGlobalPath);
   Add(FBDBVerCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);
   FDBMSCachePath := TPathConfig.Create('DBMSCache', c_File_Cache_Default_DBMS, FCacheGlobalPath);
   Add(FDBMSCachePath, TConfigSaveLoadStrategyBasicProviderSubItem.Create('PATHtoCACHE'), False, False, False, False);

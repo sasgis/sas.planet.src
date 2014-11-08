@@ -143,7 +143,7 @@ begin
     VIniFile := TMemIniFile.Create(VConfigFileName);
     try
       VConfigData := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
-      VIniFile :=  nil;
+      VIniFile := nil;
     finally
       VIniFile.Free;
     end;

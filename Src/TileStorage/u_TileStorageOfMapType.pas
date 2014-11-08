@@ -148,7 +148,10 @@ type
       const AIgnoreMultiVersionTiles: Boolean
     ): IEnumTileInfo;
   protected
-    function QueryInterface(const IID: TGUID; out Obj): HResult; stdcall;
+    function QueryInterface(
+      const IID: TGUID;
+      out Obj
+    ): HResult; stdcall;
   public
     constructor Create(
       const AGlobalCacheConfig: IGlobalCacheConfig;
@@ -363,11 +366,15 @@ begin
   end;
 end;
 
-function TTileStorageOfMapType.QueryInterface(const IID: TGUID; out Obj): HResult;
+function TTileStorageOfMapType.QueryInterface(
+  const IID: TGUID;
+  out Obj
+): HResult;
 begin
   Result := inherited QueryInterface(IID, Obj);
-  if (E_NOINTERFACE=Result) and Assigned(FStorage) then
+  if (E_NOINTERFACE = Result) and Assigned(FStorage) then begin
     Result := FStorage.QueryInterface(IID, Obj);
+  end;
 end;
 
 procedure TTileStorageOfMapType.UpdateActualPath;
@@ -414,8 +421,11 @@ begin
   end;
 end;
 
-function TTileStorageOfMapType.DeleteTile(const AXY: TPoint; const AZoom: byte;
-  const AVersion: IMapVersionInfo): Boolean;
+function TTileStorageOfMapType.DeleteTile(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersion: IMapVersionInfo
+): Boolean;
 var
   VCounter: IInternalPerformanceCounter;
   VCounterContext: TInternalPerformanceCounterContext;
@@ -470,8 +480,11 @@ begin
   Result := FStorageState;
 end;
 
-function TTileStorageOfMapType.GetTileFileName(const AXY: TPoint;
-  const AZoom: byte; const AVersion: IMapVersionInfo): string;
+function TTileStorageOfMapType.GetTileFileName(
+  const AXY: TPoint;
+  const AZoom: byte;
+  const AVersion: IMapVersionInfo
+): string;
 var
   VStorage: ITileStorage;
 begin
