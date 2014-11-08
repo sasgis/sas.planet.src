@@ -63,7 +63,8 @@ uses
 constructor TBitmapLayerProviderChangeableForGrids.Create(
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AConfig: IMapLayerGridsConfig);
+  const AConfig: IMapLayerGridsConfig
+);
 begin
   Assert(Assigned(AValueToStringConverter));
   Assert(Assigned(AConfig));

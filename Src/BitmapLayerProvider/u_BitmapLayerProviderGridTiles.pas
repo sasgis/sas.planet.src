@@ -116,10 +116,12 @@ begin
   inherited;
 end;
 
-procedure TBitmapLayerProviderGridTiles.DrawCaptions(AOperationID: Integer;
+procedure TBitmapLayerProviderGridTiles.DrawCaptions(
+  AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   AGridZoom: Byte;
-  const ALocalConverter: ILocalCoordConverter);
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VLoadedRect: TDoubleRect;
   VGeoConvert: ICoordConverter;
@@ -176,7 +178,8 @@ end;
 
 procedure TBitmapLayerProviderGridTiles.DrawLines(
   AGridZoom: Byte;
-  const ALocalConverter: ILocalCoordConverter);
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VLocalRect: TRect;
   VMapRect: TDoubleRect;

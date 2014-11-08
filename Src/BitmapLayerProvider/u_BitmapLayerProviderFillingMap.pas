@@ -150,8 +150,10 @@ begin
 end;
 
 function TBitmapLayerProviderFillingMap.GetFillingMapBitmap(
-  AOperationID: Integer; const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter; ASourceZoom: byte;
+  AOperationID: Integer;
+  const ACancelNotifier: INotifierOperation;
+  const ALocalConverter: ILocalCoordConverter;
+  ASourceZoom: byte;
   const AVersion: IMapVersionRequest;
   const AColorer: IFillingMapColorer
 ): IBitmap32Static;

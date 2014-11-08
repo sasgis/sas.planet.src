@@ -117,7 +117,8 @@ begin
   inherited;
 end;
 
-procedure TBitmapLayerProviderGridDegree.DrawCaptions(AOperationID: Integer;
+procedure TBitmapLayerProviderGridDegree.DrawCaptions(
+  AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -183,17 +184,19 @@ begin
       VLocalRectOfCell := ALocalConverter.LonLatRect2LocalRectFloat(VLonLatRectOfCell);
       VLocalCellCenter := RectCenter(VLocalRectOfCell);
 
-      if abs(VLonLatRectOfCell.Top)<=85 then
-        VListName := FValueConverter.LatConvert(VLonLatRectOfCell.Top,true)
-      else VListName := '';
+      if abs(VLonLatRectOfCell.Top) <= 85 then begin
+        VListName := FValueConverter.LatConvert(VLonLatRectOfCell.Top, true);
+      end else begin
+        VListName := '';
+      end;
 
       VTextSize := FBitmap.TextExtent(VListName);
       VOutPoint := Types.Point(Trunc(VLocalCellCenter.X - VTextSize.cx / 2), Trunc(VLocalRectOfCell.Top));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
 // **************************************************
-      VListName := FValueConverter.LonConvert(VLonLatRectOfCell.Left,true);
+      VListName := FValueConverter.LonConvert(VLonLatRectOfCell.Left, true);
       VTextSize := FBitmap.TextExtent(VListName);
-      VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left)+ 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
+      VOutPoint := Types.Point(Trunc(VLocalRectOfCell.Left) + 3, Trunc(VLocalCellCenter.Y - VTextSize.cy / 2));
       FBitmap.RenderText(VOutPoint.X, VOutPoint.Y, VListName, 0, FColor);
     end;
   end;
@@ -304,9 +307,11 @@ begin
   end;
 end;
 
-function TBitmapLayerProviderGridDegree.GetBitmapRect(AOperationID: Integer;
+function TBitmapLayerProviderGridDegree.GetBitmapRect(
+  AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter): IBitmap32Static;
+  const ALocalConverter: ILocalCoordConverter
+): IBitmap32Static;
 begin
   Result := nil;
   FCS.BeginWrite;

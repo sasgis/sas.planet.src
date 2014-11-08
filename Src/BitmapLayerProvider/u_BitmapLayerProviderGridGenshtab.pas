@@ -113,7 +113,8 @@ begin
   inherited;
 end;
 
-procedure TBitmapLayerProviderGridGenshtab.DrawCaptions(AOperationID: Integer;
+procedure TBitmapLayerProviderGridGenshtab.DrawCaptions(
+  AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
   const ALocalConverter: ILocalCoordConverter
 );
@@ -178,7 +179,7 @@ begin
       VGeoConvert.CheckLonLatRect(VLonLatRectOfCell);
 
       VLonLatCenter := RectCenter(VLonLatRectOfCell);
-      VListName := LonLat2GShListName(VLonLatCenter, GetActualGshSCale(FScale,ALocalConverter.getzoom), 100000000);
+      VListName := LonLat2GShListName(VLonLatCenter, GetActualGshSCale(FScale, ALocalConverter.getzoom), 100000000);
 
       VTextSize := FBitmap.TextExtent(VListName);
 
@@ -295,9 +296,11 @@ begin
   end;
 end;
 
-function TBitmapLayerProviderGridGenshtab.GetBitmapRect(AOperationID: Integer;
+function TBitmapLayerProviderGridGenshtab.GetBitmapRect(
+  AOperationID: Integer;
   const ACancelNotifier: INotifierOperation;
-  const ALocalConverter: ILocalCoordConverter): IBitmap32Static;
+  const ALocalConverter: ILocalCoordConverter
+): IBitmap32Static;
 begin
   Result := nil;
   FCS.BeginWrite;

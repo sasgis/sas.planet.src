@@ -139,8 +139,7 @@ begin
   end;
   VLayersList := FLayesList.List;
   if (not Assigned(FLayesListLast) and Assigned(VLayersList)) or
-    (Assigned(FLayesListLast) and FLayesListLast.IsEqual(VLayersList))
-  then begin
+    (Assigned(FLayesListLast) and FLayesListLast.IsEqual(VLayersList)) then begin
     if Assigned(FLayesListLast) then begin
       for i := 0 to FLayesListLast.Count - 1 do begin
         VMap := FLayesListLast.Items[i];
