@@ -133,19 +133,19 @@ var
 begin
   Result := nil;
   if (AFontSize > 0) and (ACaption <> '') then begin
-    FBitmapWithText.MasterAlpha:=AlphaComponent(ATextColor);
+    FBitmapWithText.MasterAlpha := AlphaComponent(ATextColor);
     FBitmapWithText.Font.Size := AFontSize;
     VTextSize := FBitmapWithText.TextExtent(ACaption);
-    VTextSize.cx:=VTextSize.cx+2;
-    VTextSize.cy:=VTextSize.cy+2;
-    FBitmapWithText.SetSize(VTextSize.cx + 2,VTextSize.cy + 2);
+    VTextSize.cx := VTextSize.cx + 2;
+    VTextSize.cy := VTextSize.cy + 2;
+    FBitmapWithText.SetSize(VTextSize.cx + 2, VTextSize.cy + 2);
     if ASolidBgDraw then begin
       FBitmapWithText.Clear(ATextBgColor);
-      FBitmapWithText.RenderText(2, 2, ACaption, 1, SetAlpha(ATextColor,255));
+      FBitmapWithText.RenderText(2, 2, ACaption, 1, SetAlpha(ATextColor, 255));
     end else begin
       FBitmapWithText.Clear(0);
-      FBitmapWithText.RenderText(2, 2, ACaption, 1, SetAlpha(ATextBgColor,255));
-      FBitmapWithText.RenderText(1, 1, ACaption, 1, SetAlpha(ATextColor,255));
+      FBitmapWithText.RenderText(2, 2, ACaption, 1, SetAlpha(ATextBgColor, 255));
+      FBitmapWithText.RenderText(1, 1, ACaption, 1, SetAlpha(ATextColor, 255));
     end;
     VBitmap := TBitmap32ByStaticBitmap.Create(FBitmap32StaticFactory);
     try
@@ -173,7 +173,7 @@ begin
   Result := nil;
   VBitmapStatic := GetCaptionBitmap(ACaption, AFontSize, ATextColor, ATextBgColor, ASolidBgDraw);
   if VBitmapStatic <> nil then begin
-    VAnchorPoint := DoublePoint(- AMarkSize / 2, AMarkSize / 2 + VBitmapStatic.Size.Y / 2);
+    VAnchorPoint := DoublePoint(-AMarkSize / 2, AMarkSize / 2 + VBitmapStatic.Size.Y / 2);
     Result := TMarkerDrawableByBitmap32Static.Create(VBitmapStatic, VAnchorPoint);
   end;
 end;
@@ -248,7 +248,9 @@ begin
 end;
 
 function TMarkerProviderForVectorItemForMarkPoints.ModifyMarkerWithResize(
-  const ASourceMarker: IBitmapMarker; ASize: Integer): IBitmapMarker;
+  const ASourceMarker: IBitmapMarker;
+  ASize: Integer
+): IBitmapMarker;
 var
   VSizeSource: TPoint;
   VSizeTarget: TPoint;

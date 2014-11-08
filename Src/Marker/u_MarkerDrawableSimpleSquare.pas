@@ -46,8 +46,10 @@ uses
 
 { TMarkerDrawableSimpleSquare }
 
-function  TMarkerDrawableSimpleSquare.DrawToBitmap(ABitmap: TCustomBitmap32;
-  const APosition: TDoublePoint): Boolean;
+function TMarkerDrawableSimpleSquare.DrawToBitmap(
+  ABitmap: TCustomBitmap32;
+  const APosition: TDoublePoint
+): Boolean;
 var
   VHalfSize: Double;
   VDoubleRect: TDoubleRect;

@@ -61,8 +61,10 @@ begin
   FMarkerSecond := AMarkerSecond;
 end;
 
-function TMarkerDrawableComplex.DrawToBitmap(ABitmap: TCustomBitmap32;
-  const APosition: TDoublePoint): Boolean;
+function TMarkerDrawableComplex.DrawToBitmap(
+  ABitmap: TCustomBitmap32;
+  const APosition: TDoublePoint
+): Boolean;
 begin
   Result := False;
   if FMarkerFirst.DrawToBitmap(ABitmap, APosition) then begin

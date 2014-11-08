@@ -55,8 +55,11 @@ uses
 
 { TBitmapMarkerProviderByCaptionForMarks }
 
-constructor TBitmapMarkerProviderByCaptionForMarks.Create(AFontSize: Integer;
-  ATextColor, ATextBgColor: TColor32; ASolidBgDraw: Boolean);
+constructor TBitmapMarkerProviderByCaptionForMarks.Create(
+  AFontSize: Integer;
+  ATextColor, ATextBgColor: TColor32;
+  ASolidBgDraw: Boolean
+);
 begin
   inherited Create;
   FFontSize := AFontSize;

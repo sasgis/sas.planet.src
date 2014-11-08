@@ -21,6 +21,7 @@
 unit u_MarkerDrawableWithDirectionByBitmapMarker;
 
 interface
+
 uses
   Types,
   SysUtils,
@@ -193,7 +194,8 @@ end;
 
 function TMarkerDrawableWithDirectionByBitmapMarker.ModifyMarkerWithRotation(
   const ASourceMarker: IBitmapMarkerWithDirection;
-  const AAngle: Double): IBitmapMarkerWithDirection;
+  const AAngle: Double
+): IBitmapMarkerWithDirection;
 var
   VTransform: TAffineTransformation;
   VSizeSource: TPoint;

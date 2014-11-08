@@ -63,6 +63,7 @@ uses
 
 type
   PDataRecord = ^TDataRecord;
+
   TDataRecord = record
     Config: ICaptionDrawConfigStatic;
     Item: IVectorDataItem;
@@ -114,7 +115,7 @@ begin
   if Assigned(AConfig) then begin
     FHashFunction.UpdateHashByHash(VHash, AConfig.Hash);
   end;
-  VData.Config :=  AConfig;
+  VData.Config := AConfig;
   VData.Item := AItem;
   Result := IMarkerDrawable(FCache.GetOrCreateItem(VHash, @VData));
 end;

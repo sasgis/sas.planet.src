@@ -31,7 +31,7 @@ type
   TMarkerDrawableSimpleCross = class(TMarkerDrawableSimpleAbstract)
   protected
     function GetBoundsForPosition(const APosition: TDoublePoint): TRect; override;
-    function  DrawToBitmap(
+    function DrawToBitmap(
       ABitmap: TCustomBitmap32;
       const APosition: TDoublePoint
     ): Boolean; override;
@@ -46,8 +46,10 @@ uses
 
 { TMarkerDrawableSimpleCross }
 
-function TMarkerDrawableSimpleCross.DrawToBitmap(ABitmap: TCustomBitmap32;
-  const APosition: TDoublePoint): Boolean;
+function TMarkerDrawableSimpleCross.DrawToBitmap(
+  ABitmap: TCustomBitmap32;
+  const APosition: TDoublePoint
+): Boolean;
 var
   VCrossHalfWidth: Double;
   VHalfSize: Double;

@@ -47,6 +47,7 @@ type
       const APosition: TDoublePoint
     ): Boolean; virtual; abstract;
   end;
+
   TMarkerDrawableSimpleAbstractClass = class of TMarkerDrawableSimpleAbstract;
 
   TMarkerDrawableWithDirectionSimpleAbstract = class(TMarkerDrawableSimpleBaseAbstract, IMarkerDrawableWithDirection)
@@ -57,6 +58,7 @@ type
       const AAngle: Double
     ): Boolean; virtual; abstract;
   end;
+
   TMarkerDrawableWithDirectionSimpleAbstractClass = class of TMarkerDrawableWithDirectionSimpleAbstract;
 
 
@@ -72,4 +74,3 @@ begin
 end;
 
 end.
-

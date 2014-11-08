@@ -83,7 +83,8 @@ uses
 
 constructor TMarkerDrawableChangeableSimple.Create(
   AMarkerClass: TMarkerDrawableSimpleAbstractClass;
-  const AConfig: IMarkerSimpleConfig);
+  const AConfig: IMarkerSimpleConfig
+);
 begin
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FMarkerClass := AMarkerClass;
@@ -134,7 +135,8 @@ end;
 
 constructor TMarkerDrawableWithDirectionChangeableSimple.Create(
   AMarkerClass: TMarkerDrawableWithDirectionSimpleAbstractClass;
-  const AConfig: IMarkerSimpleConfig);
+  const AConfig: IMarkerSimpleConfig
+);
 begin
   inherited Create(GSync.SyncVariable.Make(Self.ClassName + 'Notifiers'));
   FMarkerClass := AMarkerClass;
@@ -182,4 +184,3 @@ begin
 end;
 
 end.
-
