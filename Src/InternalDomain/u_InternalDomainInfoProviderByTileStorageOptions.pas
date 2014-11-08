@@ -35,7 +35,10 @@ type
 
     function BuildBinaryDataByText(const AText: string): IBinaryData;
 
-    procedure DecorateHtml(const AHtmlTitle: String; var AHtmlText: String);
+    procedure DecorateHtml(
+      const AHtmlTitle: String;
+      var AHtmlText: String
+    );
 
     function ParseFilePath(
       const AFilePath: string;
@@ -88,13 +91,18 @@ begin
   FMaps := AMaps;
 end;
 
-procedure TInternalDomainInfoProviderByTileStorageOptions.DecorateHtml(const AHtmlTitle: String; var AHtmlText: String);
+procedure TInternalDomainInfoProviderByTileStorageOptions.DecorateHtml(
+  const AHtmlTitle: String;
+  var AHtmlText: String
+);
 begin
-  AHtmlText := '<html><head><title>'+AHtmlTitle+'</title></head><body>' + AHtmlText + '</body></html>';
+  AHtmlText := '<html><head><title>' + AHtmlTitle + '</title></head><body>' + AHtmlText + '</body></html>';
 end;
 
 function TInternalDomainInfoProviderByTileStorageOptions.LoadBinaryByFilePath(
-  const AFilePath: string; out AContentType: string): IBinaryData;
+  const AFilePath: string;
+  out AContentType: string
+): IBinaryData;
 var
   VMapGUID: TGUID;
   VFullRequestPrefix: String;
@@ -132,8 +140,8 @@ begin
   VFullRequestPrefix := CTileStorageOptionsInternalURL + VFullRequestPrefix;
   VResponseFlags := [];
 
-  while (Length(VRequest)>0) and (VRequest[1]='/') do begin
-    System.Delete(VRequest,1,1);
+  while (Length(VRequest) > 0) and (VRequest[1] = '/') do begin
+    System.Delete(VRequest, 1, 1);
   end;
 
   if Supports(VTileStorage, IInternalDomainOptions, VInternalDomainOptions) then begin
@@ -174,11 +182,11 @@ begin
   VLastPos := 0;
   VPos := PosEx(CFileNameSeparator, AFilePath, VLastPos + 1);
   if VPos <= 0 then begin
-    VPos := Length(AFilePath)+1;
+    VPos := Length(AFilePath) + 1;
   end;
   VSubStr := '';
   if VPos > VLastPos then begin
-    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1)
+    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1);
   end;
   if VSubStr = '' then begin
     Exit;
@@ -193,7 +201,7 @@ begin
   end;
 
   AFullRequestPrefix := System.Copy(AFilePath, 1, VPos);
-  ARequest := System.Copy(AFilePath, VPos+1, Length(AFilePath));
+  ARequest := System.Copy(AFilePath, VPos + 1, Length(AFilePath));
   Result := True;
 end;
 

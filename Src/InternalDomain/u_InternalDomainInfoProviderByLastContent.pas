@@ -69,7 +69,9 @@ begin
 end;
 
 function TInternalDomainInfoProviderByLastContent.LoadBinaryByFilePath(
-  const AFilePath: string; out AContentType: string): IBinaryData;
+  const AFilePath: string;
+  out AContentType: string
+): IBinaryData;
 begin
   Result := nil;
   AContentType := 'text/html';

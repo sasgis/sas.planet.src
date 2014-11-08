@@ -105,7 +105,9 @@ begin
 end;
 
 function TInternalDomainInfoProviderByMarksSystem.LoadBinaryByFilePath(
-  const AFilePath: string; out AContentType: string): IBinaryData;
+  const AFilePath: string;
+  out AContentType: string
+): IBinaryData;
 var
   VMarkId: string;
   VMark: IVectorDataItem;

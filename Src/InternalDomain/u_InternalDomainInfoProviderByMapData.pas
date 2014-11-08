@@ -98,7 +98,9 @@ begin
 end;
 
 function TInternalDomainInfoProviderByMapData.LoadBinaryByFilePath(
-  const AFilePath: string; out AContentType: string): IBinaryData;
+  const AFilePath: string;
+  out AContentType: string
+): IBinaryData;
 var
   VMapGUID: TGUID;
   VZoom: Byte;
@@ -178,7 +180,7 @@ begin
   end;
   VSubStr := '';
   if VPos > VLastPos then begin
-    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1)
+    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1);
   end;
   if VSubStr = '' then begin
     Exit;
@@ -198,7 +200,7 @@ begin
   end;
   VSubStr := '';
   if VPos > VLastPos then begin
-    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1)
+    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1);
   end;
   if VSubStr = '' then begin
     Exit;
@@ -218,7 +220,7 @@ begin
   end;
   VSubStr := '';
   if VPos > VLastPos then begin
-    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1)
+    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1);
   end;
   if VSubStr = '' then begin
     Exit;
@@ -234,7 +236,7 @@ begin
   end;
   VSubStr := '';
   if VPos > VLastPos then begin
-    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1)
+    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1);
   end;
   if VSubStr = '' then begin
     Exit;
@@ -250,7 +252,7 @@ begin
   end;
   VSubStr := '';
   if VPos > VLastPos then begin
-    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1)
+    VSubStr := MidStr(AFilePath, VLastPos + 1, VPos - VLastPos - 1);
   end;
   if VSubStr = '' then begin
     ASuffix := '';

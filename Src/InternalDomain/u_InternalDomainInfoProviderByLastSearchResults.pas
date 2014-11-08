@@ -120,7 +120,9 @@ begin
 end;
 
 function TInternalDomainInfoProviderByLastSearchResults.LoadBinaryByFilePath(
-  const AFilePath: string; out AContentType: string): IBinaryData;
+  const AFilePath: string;
+  out AContentType: string
+): IBinaryData;
 var
   VSearchResultIndex: Integer;
   VSearchResult: IVectorDataItem;
