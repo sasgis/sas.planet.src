@@ -105,7 +105,7 @@ begin
       FHashFunction.UpdateHashByInteger(VHash, i);
       VProjection := TProjectionInfo.Create(VHash, AGeoConverter, i);
       VZooms.Add(i, VProjection);
-      if i =  AZoom then begin
+      if i = AZoom then begin
         Result := VProjection;
       end;
     end;

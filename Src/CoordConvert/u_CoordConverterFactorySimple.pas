@@ -50,7 +50,7 @@ type
     constructor Create(
       const AHashFunction: IHashFunction;
       const ADatumFactory: IDatumFactory
-   );
+    );
   end;
 
 implementation
@@ -196,7 +196,7 @@ begin
         VDatum := FDatumFactory.GetByRadius(VRadiusA, VRadiusA);
         if VDatum.EPSG = CGoogleDatumEPSG then begin
           Result := FGoogle;
-        end else if VDatum.EPSG = 53004  then begin
+        end else if VDatum.EPSG = 53004 then begin
           Result := FEPSG53004;
         end else begin
           VHash := FHashFunction.CalcHashByInteger(1);

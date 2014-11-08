@@ -76,6 +76,7 @@ uses
 
 type
   PDataRecord = ^TDataRecord;
+
   TDataRecord = record
     Hash: THashValue;
     LocalRect: TRect;

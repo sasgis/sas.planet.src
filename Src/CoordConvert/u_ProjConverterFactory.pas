@@ -135,7 +135,7 @@ begin
   inherited Create;
   // try to load library
   FDLLHandle := LoadLibrary(PChar(ADllFullName));
-  if (FDLLHandle<>0) then begin
+  if (FDLLHandle <> 0) then begin
     try
       F_pj_init_plus := GetProcAddress(FDLLHandle, 'pj_init_plus');
       if Addr(F_pj_init_plus) = nil then begin
@@ -173,8 +173,10 @@ begin
   inherited;
 end;
 
-function TProjDLLHolder.ProjForward(ProjLP: TProjLP;
-  const projPJ: PProjPJ): TProjXY;
+function TProjDLLHolder.ProjForward(
+  ProjLP: TProjLP;
+  const projPJ: PProjPJ
+): TProjXY;
 begin
   Result := F_pj_fwd(ProjLP, projPJ);
 end;
@@ -189,8 +191,10 @@ begin
   Result := F_pj_init_plus(Args);
 end;
 
-function TProjDLLHolder.ProjInverse(ProjXY: TProjXY;
-  const projPJ: PProjPJ): TProjLP;
+function TProjDLLHolder.ProjInverse(
+  ProjXY: TProjXY;
+  const projPJ: PProjPJ
+): TProjLP;
 begin
   Result := F_pj_inv(ProjXY, projPJ);
 end;
@@ -204,7 +208,10 @@ type
     function LonLat2XY(const AProjLP: TDoublePoint): TDoublePoint;
     function XY2LonLat(const AProjXY: TDoublePoint): TDoublePoint;
   public
-    constructor Create(const ADllHolder: IProjDLLHolder; AprojPJ: PProjPJ);
+    constructor Create(
+      const ADllHolder: IProjDLLHolder;
+      AprojPJ: PProjPJ
+    );
     destructor Destroy; override;
   end;
 
@@ -236,7 +243,7 @@ function TProjConverterByDll.LonLat2XY(
   const AProjLP: TDoublePoint): TDoublePoint;
 const
  { Scaling value decimal degree to radiant }
- DEG_TO_RAD   = 0.0174532925199432958;
+  DEG_TO_RAD = 0.0174532925199432958;
 var
   VProjLP: TProjLP;
 begin
@@ -249,7 +256,7 @@ function TProjConverterByDll.XY2LonLat(
   const AProjXY: TDoublePoint): TDoublePoint;
 const
  { Scaling value radiant to decimal degree }
- RAD_TO_DEG   = 57.29577951308232;
+  RAD_TO_DEG = 57.29577951308232;
 var
   VProjLP: TProjLP;
 begin
@@ -273,36 +280,38 @@ var
 begin
   Result := '';
   // known EPSGs
-  if (AEPSG=53004) then begin
+  if (AEPSG = 53004) then begin
     // Sphere Mercator ESRI:53004
     Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs';
-  end else if (AEPSG=3785) then begin
+  end else if (AEPSG = 3785) then begin
     // Popular Visualisation CRS / Mercator
     Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
-  end else if (AEPSG=3395) then begin
+  end else if (AEPSG = 3395) then begin
     // WGS 84 / World Mercator
     Result := '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
-  end else if (AEPSG=4269) then begin
+  end else if (AEPSG = 4269) then begin
     // NAD83
     Result := '+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs';
-  end else if (AEPSG=4326) then begin
+  end else if (AEPSG = 4326) then begin
     // WGS 84
     Result := '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
-  end else if (AEPSG>=2463) and (AEPSG<=2491) then begin
+  end else if (AEPSG >= 2463) and (AEPSG <= 2491) then begin
     // 2463-2491 = Pulkovo 1995 / Gauss-Kruger CM
-    i := 21 + (AEPSG-2463)*6;
-    if (i>180) then
+    i := 21 + (AEPSG - 2463) * 6;
+    if (i > 180) then begin
       i := i - 360;
-    Result := '+proj=tmerc +lat_0=0 +lon_0='+ALIntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
-  end else if (AEPSG>=2492) and (AEPSG<=2522) then begin
+    end;
+    Result := '+proj=tmerc +lat_0=0 +lon_0=' + ALIntToStr(i) + ' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
+  end else if (AEPSG >= 2492) and (AEPSG <= 2522) then begin
     // 2492-2522 = Pulkovo 1942 / Gauss-Kruger CM
-    i := 9 + (AEPSG-2492)*6;
-    if (i>180) then
+    i := 9 + (AEPSG - 2492) * 6;
+    if (i > 180) then begin
       i := i - 360;
-    Result := '+proj=tmerc +lat_0=0 +lon_0='+ALIntToStr(i)+' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
-  end else if (AEPSG>=32601) and (AEPSG<=32660) then begin
+    end;
+    Result := '+proj=tmerc +lat_0=0 +lon_0=' + ALIntToStr(i) + ' +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs';
+  end else if (AEPSG >= 32601) and (AEPSG <= 32660) then begin
     // 32601-32660 = WGS 84 / UTM zone N
-    Result := '+proj=utm +zone='+ALIntToStr(AEPSG-32600)+' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
+    Result := '+proj=utm +zone=' + ALIntToStr(AEPSG - 32600) + ' +ellps=WGS84 +datum=WGS84 +units=m +no_defs';
   end;
 end;
 
@@ -328,7 +337,7 @@ var
 begin
   VArgs := AArgs;
   if ALSameText(ALCopyStr(AArgs, 1, Length(c_EPSG)), c_EPSG) then begin
-    if ALTryStrToInt(ALCopyStr(AArgs, Length(c_EPSG)+1, Length(AArgs)), VEPSG) then begin
+    if ALTryStrToInt(ALCopyStr(AArgs, Length(c_EPSG) + 1, Length(AArgs)), VEPSG) then begin
       VArgs := GetArgsByEpsg(VEPSG);
     end;
   end;
@@ -347,7 +356,7 @@ begin
     FSync.BeginWrite;
     try
       VDll := IProjDLLHolder(FDllHolder);
-      if VDll = nil  then begin
+      if VDll = nil then begin
         if not FDllFailed then begin
           try
             InitDll;
@@ -364,7 +373,7 @@ begin
     finally
       FSync.EndWrite;
     end;
-    if VDll <> nil  then begin
+    if VDll <> nil then begin
       VProj := VDll.ProjInit(PAnsiChar(AArgs));
       if VProj <> nil then begin
         Result := TProjConverterByDll.Create(VDll, VProj);
@@ -375,7 +384,7 @@ end;
 
 procedure TProjConverterFactory.InitDll;
 const
-   proj4_dll='proj480.dll';
+  proj4_dll = 'proj480.dll';
 var
   VDll: IProjDLLHolder;
 begin

@@ -56,21 +56,36 @@ type
     function GetZoom: Byte;
     function GetGeoConverter: ICoordConverter;
 
-    function LocalPixel2MapPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; virtual; abstract;
+    function LocalPixel2MapPixel(
+      const APoint: TPoint;
+      ARounding: TPointRounding
+    ): TPoint; virtual; abstract;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint; virtual; abstract;
     function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint; virtual; abstract;
-    function MapPixel2LocalPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; virtual; abstract;
+    function MapPixel2LocalPixel(
+      const APoint: TPoint;
+      ARounding: TPointRounding
+    ): TPoint; virtual; abstract;
     function MapPixel2LocalPixelFloat(const APoint: TPoint): TDoublePoint; virtual; abstract;
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; virtual; abstract;
 
-    function LocalRect2MapRect(const ARect: TRect; ARounding: TRectRounding): TRect;
+    function LocalRect2MapRect(
+      const ARect: TRect;
+      ARounding: TRectRounding
+    ): TRect;
     function LocalRect2MapRectFloat(const ARect: TRect): TDoubleRect;
     function LocalRectFloat2MapRectFloat(const ARect: TDoubleRect): TDoubleRect;
-    function MapRect2LocalRect(const ARect: TRect; ARounding: TRectRounding): TRect;
+    function MapRect2LocalRect(
+      const ARect: TRect;
+      ARounding: TRectRounding
+    ): TRect;
     function MapRect2LocalRectFloat(const ARect: TRect): TDoubleRect;
     function MapRectFloat2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
 
-    function LonLat2LocalPixel(const APoint: TDoublePoint; ARounding: TPointRounding): TPoint;
+    function LonLat2LocalPixel(
+      const APoint: TDoublePoint;
+      ARounding: TPointRounding
+    ): TPoint;
     function LonLat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint;
     function LonLatRect2LocalRectFloat(const ARect: TDoubleRect): TDoubleRect;
 
@@ -97,10 +112,16 @@ type
   protected
     function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; override;
     function GetScale: Double; override;
-    function LocalPixel2MapPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
+    function LocalPixel2MapPixel(
+      const APoint: TPoint;
+      ARounding: TPointRounding
+    ): TPoint; override;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint; override;
     function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
-    function MapPixel2LocalPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
+    function MapPixel2LocalPixel(
+      const APoint: TPoint;
+      ARounding: TPointRounding
+    ): TPoint; override;
     function MapPixel2LocalPixelFloat(const APoint: TPoint): TDoublePoint; override;
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   public
@@ -122,10 +143,16 @@ type
   protected
     function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; override;
     function GetScale: Double; override;
-    function LocalPixel2MapPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
+    function LocalPixel2MapPixel(
+      const APoint: TPoint;
+      ARounding: TPointRounding
+    ): TPoint; override;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint; override;
     function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
-    function MapPixel2LocalPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
+    function MapPixel2LocalPixel(
+      const APoint: TPoint;
+      ARounding: TPointRounding
+    ): TPoint; override;
     function MapPixel2LocalPixelFloat(const APoint: TPoint): TDoublePoint; override;
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   public
@@ -146,10 +173,16 @@ type
   protected
     function GetIsSameConverter(const AConverter: ILocalCoordConverter): Boolean; override;
     function GetScale: Double; override;
-    function LocalPixel2MapPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
+    function LocalPixel2MapPixel(
+      const APoint: TPoint;
+      ARounding: TPointRounding
+    ): TPoint; override;
     function LocalPixel2MapPixelFloat(const APoint: TPoint): TDoublePoint; override;
     function LocalPixelFloat2MapPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
-    function MapPixel2LocalPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint; override;
+    function MapPixel2LocalPixel(
+      const APoint: TPoint;
+      ARounding: TPointRounding
+    ): TPoint; override;
     function MapPixel2LocalPixelFloat(const APoint: TPoint): TDoublePoint; override;
     function MapPixelFloat2LocalPixelFloat(const APoint: TDoublePoint): TDoublePoint; override;
   public
@@ -238,7 +271,7 @@ begin
     Result := False;
   end else begin
     Result := False;
-    if FProjection.GetIsSameProjectionInfo(AConverter.ProjectionInfo) then  begin
+    if FProjection.GetIsSameProjectionInfo(AConverter.ProjectionInfo) then begin
       if EqualRect(FLocalRect, AConverter.GetLocalRect) then begin
         Result := True;
       end;
@@ -276,7 +309,10 @@ begin
   Result := FZoom;
 end;
 
-function TLocalCoordConverterBase.LocalRect2MapRect(const ARect: TRect; ARounding: TRectRounding): TRect;
+function TLocalCoordConverterBase.LocalRect2MapRect(
+  const ARect: TRect;
+  ARounding: TRectRounding
+): TRect;
 var
   VTopLeftRound: TPointRounding;
   VBottomRightRound: TPointRounding;
@@ -441,7 +477,10 @@ begin
   Result := FMapScale;
 end;
 
-function TLocalCoordConverter.LocalPixel2MapPixel(const APoint: TPoint; ARounding: TPointRounding): TPoint;
+function TLocalCoordConverter.LocalPixel2MapPixel(
+  const APoint: TPoint;
+  ARounding: TPointRounding
+): TPoint;
 var
   VResultPoint: TDoublePoint;
 begin

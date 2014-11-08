@@ -79,8 +79,10 @@ begin
   inherited;
 end;
 
-procedure TCoordConverterListStatic.Add(const AItem: ICoordConverter;
-  const ACaption: string);
+procedure TCoordConverterListStatic.Add(
+  const AItem: ICoordConverter;
+  const ACaption: string
+);
 begin
   FCS.BeginWrite;
   try

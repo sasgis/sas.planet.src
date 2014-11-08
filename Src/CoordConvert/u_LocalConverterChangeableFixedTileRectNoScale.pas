@@ -71,7 +71,8 @@ uses
 constructor TLocalConverterChangeableFixedTileRectNoScale.Create(
   const AChangeCounter: IInternalPerformanceCounter;
   const AConverterFactory: ILocalCoordConverterFactorySimpe;
-  const ASoruce: ILocalCoordConverterChangeable);
+  const ASoruce: ILocalCoordConverterChangeable
+);
 begin
   Assert(AChangeCounter <> nil);
   Assert(AConverterFactory <> nil);
@@ -134,10 +135,8 @@ begin
   VTileRect := VConverter.PixelRect2TileRect(VSourcePixelRect, VZoom);
   VResultMapPixelRect := VConverter.TileRect2PixelRect(VTileRect, VZoom);
 
-  if
-    ACurrentCoordConverter.ProjectionInfo.GetIsSameProjectionInfo(AVisualCoordConverter.ProjectionInfo) and
-    EqualRect(ACurrentCoordConverter.GetRectInMapPixel, VResultMapPixelRect)
-  then begin
+  if ACurrentCoordConverter.ProjectionInfo.GetIsSameProjectionInfo(AVisualCoordConverter.ProjectionInfo) and
+    EqualRect(ACurrentCoordConverter.GetRectInMapPixel, VResultMapPixelRect) then begin
     Result := ACurrentCoordConverter;
   end else begin
     VResultLocalPixelRect :=
@@ -152,7 +151,7 @@ begin
         VZoom,
         VConverter,
         VResultMapPixelRect.TopLeft
-      )
+      );
   end;
 end;
 
