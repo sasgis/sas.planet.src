@@ -30,7 +30,7 @@ type
     ['{6E7E207D-F684-41E4-93C9-EBEE584F4510}']
     function GetDefaultGUID: TGUID;
     property DefaultGUID: TGUID read GetDefaultGUID;
-    
+
     function GetActiveGUID: TGUID;
     procedure SetActiveGUID(const AValue: TGUID);
     property ActiveGUID: TGUID read GetActiveGUID write SetActiveGUID;

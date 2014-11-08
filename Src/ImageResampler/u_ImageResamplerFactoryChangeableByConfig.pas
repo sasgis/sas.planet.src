@@ -37,7 +37,7 @@ type
     FConfig: IImageResamplerConfig;
     FConfigChangeListener: IListener;
     FDefItem: IImageResamplerFactory;
-    procedure  OnConfigChange;
+    procedure OnConfigChange;
   protected
     function CreateStatic: IInterface; override;
   private
@@ -115,7 +115,7 @@ end;
 
 function TImageResamplerFactoryChangeableByConfig.GetStatic: IImageResamplerFactory;
 begin
-  Result := IImageResamplerFactory(GetStaticInternal)
+  Result := IImageResamplerFactory(GetStaticInternal);
 end;
 
 procedure TImageResamplerFactoryChangeableByConfig.OnConfigChange;
