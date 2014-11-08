@@ -411,7 +411,6 @@
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
     <DCCReference Include="i_MainMemCacheConfig.pas" />
-    <DCCReference Include="i_MarkNameGenerator.pas" />
     <DCCReference Include="i_MarksDrawConfig.pas" />
     <DCCReference Include="i_NavigationToPoint.pas" />
     <DCCReference Include="i_NotifierLonLatRectUpdate.pas" />
@@ -443,7 +442,6 @@
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_ValueToStringConverterConfig.pas" />
     <DCCReference Include="i_VectorItemDrawConfig.pas" />
-    <DCCReference Include="i_ViewPortState.pas" />
     <DCCReference Include="i_WindowPositionConfig.pas" />
     <DCCReference Include="Logger\i_ErrorInfo.pas" />
     <DCCReference Include="Logger\i_ErrorLogger.pas" />
@@ -483,6 +481,7 @@
     <DCCReference Include="MainForm\i_PopUp.pas" />
     <DCCReference Include="MainForm\i_SearchResultPresenter.pas" />
     <DCCReference Include="MainForm\i_SelectionRect.pas" />
+    <DCCReference Include="MainForm\i_ViewPortState.pas" />
     <DCCReference Include="MainForm\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="MainForm\u_KeyMovingConfig.pas" />
     <DCCReference Include="MainForm\u_KeyMovingHandler.pas" />
@@ -502,6 +501,7 @@
     <DCCReference Include="MainForm\u_MapTypeIconsList.pas" />
     <DCCReference Include="MainForm\u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="MainForm\u_MapViewGoto.pas" />
+    <DCCReference Include="MainForm\u_MapViewPortState.pas" />
     <DCCReference Include="MainForm\u_MapZoomingConfig.pas" />
     <DCCReference Include="MainForm\u_MenuGeneratorByStaticTreeSimple.pas" />
     <DCCReference Include="MainForm\u_MouseState.pas" />
@@ -793,6 +793,7 @@
     <DCCReference Include="MarksDB\i_MarkFactory.pas" />
     <DCCReference Include="MarksDB\i_MarkFactoryConfig.pas" />
     <DCCReference Include="MarksDB\i_MarkId.pas" />
+    <DCCReference Include="MarksDB\i_MarkNameGenerator.pas" />
     <DCCReference Include="MarksDB\i_MarkPicture.pas" />
     <DCCReference Include="MarksDB\i_MarkSystem.pas" />
     <DCCReference Include="MarksDB\i_MarkSystemImpl.pas" />
@@ -866,6 +867,7 @@
     <DCCReference Include="Network\i_TileRequestResult.pas" />
     <DCCReference Include="Network\i_TileRequestTask.pas" />
     <DCCReference Include="Network\u_AntiBanStuped.pas" />
+    <DCCReference Include="Network\u_BasePascalCompiler.pas" />
     <DCCReference Include="Network\u_DownloadCheckerStuped.pas" />
     <DCCReference Include="Network\u_DownloaderFaked.pas" />
     <DCCReference Include="Network\u_DownloaderHttp.pas" />
@@ -1297,7 +1299,6 @@
     <DCCReference Include="UpdateChecker\i_UpdateDownloader.pas" />
     <DCCReference Include="UpdateChecker\u_UpdateDownloader.pas" />
     <DCCReference Include="u_BackgroundTask.pas" />
-    <DCCReference Include="u_BasePascalCompiler.pas" />
     <DCCReference Include="u_BitmapFunc.pas" />
     <DCCReference Include="u_CommonFormAndFrameParents.pas" />
     <DCCReference Include="u_FindVectorItemsForVectorMaps.pas" />
@@ -1318,7 +1319,6 @@
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainMemCacheConfig.pas" />
-    <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MarksDrawConfig.pas" />
     <DCCReference Include="u_MarksDrawConfigStatic.pas" />
     <DCCReference Include="u_MemTileCache.pas" />
