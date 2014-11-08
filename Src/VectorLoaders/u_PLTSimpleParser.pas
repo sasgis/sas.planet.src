@@ -198,7 +198,7 @@ begin
   VCurrPos := 0;
   VPrevPos := -1;
   N := 0;
-  while (WordNmbr > N)  do begin
+  while (WordNmbr > N) do begin
     VPrevPos := VCurrPos + 1;
     VCurrPos := ALPosEx(Smb, Str, VPrevPos);
     if VCurrPos = 0 then begin

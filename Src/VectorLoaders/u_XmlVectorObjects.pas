@@ -131,14 +131,14 @@ type
     );
   end;
 
-  EXmlVectorObjectsError               = class(Exception);
-  EXmlVectorObjectsMarkInMark          = class(EXmlVectorObjectsError);
-  EXmlVectorObjectsNotInMark           = class(EXmlVectorObjectsError);
-  EXmlVectorObjectsMultiInMulti        = class(EXmlVectorObjectsError);
-  EXmlVectorObjectsNotInMultiTrack     = class(EXmlVectorObjectsError);
-  EXmlVectorObjectsNotInMultiGeometry  = class(EXmlVectorObjectsError);
-  EXmlVectorObjectsUnclosedPolygon     = class(EXmlVectorObjectsError);
-  EXmlVectorObjectsFailedToCloseMark   = class(EXmlVectorObjectsError);
+  EXmlVectorObjectsError = class(Exception);
+  EXmlVectorObjectsMarkInMark = class(EXmlVectorObjectsError);
+  EXmlVectorObjectsNotInMark = class(EXmlVectorObjectsError);
+  EXmlVectorObjectsMultiInMulti = class(EXmlVectorObjectsError);
+  EXmlVectorObjectsNotInMultiTrack = class(EXmlVectorObjectsError);
+  EXmlVectorObjectsNotInMultiGeometry = class(EXmlVectorObjectsError);
+  EXmlVectorObjectsUnclosedPolygon = class(EXmlVectorObjectsError);
+  EXmlVectorObjectsFailedToCloseMark = class(EXmlVectorObjectsError);
 
 implementation
 
@@ -161,7 +161,9 @@ begin
   Result := APrevDelimiterPos + 1;
   while (Result <= Length(ASource)) do begin
     case Ord(ASource[Result]) of
-      9, 10, 13, 32, 160: Exit;
+      9, 10, 13, 32, 160: begin
+        Exit;
+      end;
     end;
     Inc(Result);
   end;
@@ -179,8 +181,9 @@ var
   VPoint: IGeometryLonLatPoint;
 begin
   // check if in multigeometry
-  if FInMultiGeometry and FSkipPointInMultiObject then
+  if FInMultiGeometry and FSkipPointInMultiObject then begin
     Exit;
+  end;
 
   VPoint := FGeometryFactory.CreateLonLatPoint(APoint);
   FList.Add(VPoint);
@@ -196,8 +199,9 @@ var
   VClosed: Boolean;
 begin
   // check
-  if (0 = Length(ACoordinates)) then
+  if (0 = Length(ACoordinates)) then begin
     Exit;
+  end;
 
   // count of existing points
   VOldCount := PrepareArrayOfPoints;
@@ -237,8 +241,9 @@ var
   VClosed: Boolean;
 begin
   // check
-  if (0 = Length(ACoordinates)) then
+  if (0 = Length(ACoordinates)) then begin
     Exit;
+  end;
 
   // count of existing points
   VOldCount := PrepareArrayOfPoints;
@@ -275,8 +280,9 @@ var
   VLonLatPoint: IGeometryLonLatPoint;
 begin
   // check if in multigeometry
-  if FInMultiGeometry and FSkipPointInMultiObject then
+  if FInMultiGeometry and FSkipPointInMultiObject then begin
     Exit;
+  end;
 
   // parse
   if parse_kml_coordinate(ACoordinates, @VData, FFormatPtr^) then begin
@@ -304,8 +310,9 @@ var
   VGeometry: IGeometryLonLat;
   VItem: IVectorDataItem;
 begin
-  if (not FInMarkObject) then
+  if (not FInMarkObject) then begin
     raise EXmlVectorObjectsNotInMark.Create('');
+  end;
   FInMarkObject := False;
 
   // check array
@@ -332,8 +339,9 @@ end;
 
 procedure TXmlVectorObjects.CloseMultiGeometry;
 begin
-  if (not FInMultiGeometry) then
+  if (not FInMultiGeometry) then begin
     raise EXmlVectorObjectsNotInMultiGeometry.Create('');
+  end;
   FInMultiGeometry := False;
   // convert array to some object
   InternalCloseArrayPoints;
@@ -341,8 +349,9 @@ end;
 
 procedure TXmlVectorObjects.CloseMultiTrack;
 begin
-  if (not FInMultiTrack) then
+  if (not FInMultiTrack) then begin
     raise EXmlVectorObjectsNotInMultiTrack.Create('');
+  end;
   FInMultiTrack := False;
   // convert array to polyline object
   InternalMakeTrackObject(True);
@@ -364,9 +373,9 @@ constructor TXmlVectorObjects.Create(
   const AGeometryFactory: IGeometryLonLatFactory
 );
 begin
-  Assert(AVectorItemSubsetBuilderFactory<>nil);
-  Assert(AGeometryFactory<>nil);
-  Assert(ADataFactory<>nil);
+  Assert(AVectorItemSubsetBuilderFactory <> nil);
+  Assert(AGeometryFactory <> nil);
+  Assert(ADataFactory <> nil);
   inherited Create;
   FList := TInterfaceListSimple.Create;
   FAllowMultiParts := AAllowMultiParts;
@@ -408,8 +417,9 @@ end;
 
 procedure TXmlVectorObjects.InternalCloseArrayPoints;
 begin
-  if (0 = FDoublePointsAggregator.Count) then
+  if (0 = FDoublePointsAggregator.Count) then begin
     Exit;
+  end;
   if (FOpenedSegments > 0) then begin
     // have unclosed segments
     InternalMakeTrackObject(True);
@@ -436,12 +446,14 @@ var
 begin
   // dont create polygons for every Polygon in MultiGeometry
   // if allow to create multisegment polygons
-  if FAllowMultiParts and FInMultiGeometry and (not AForMultiObject) then
+  if FAllowMultiParts and FInMultiGeometry and (not AForMultiObject) then begin
     Exit;
+  end;
 
   // convert array to polygon object
-  if (0 = FDoublePointsAggregator.Count) then
+  if (0 = FDoublePointsAggregator.Count) then begin
     Exit;
+  end;
 
   // make polygon object
   VLonLatPolygon := FGeometryFactory.CreateLonLatMultiPolygon(
@@ -464,12 +476,14 @@ var
 begin
   // dont create tracks for every gx:Track in gx:MultiTrack
   // if allow to create multisegment polylines
-  if FAllowMultiParts and FInMultiTrack and (not AForMultiTrack) then
+  if FAllowMultiParts and FInMultiTrack and (not AForMultiTrack) then begin
     Exit;
+  end;
 
   // convert array to object
-  if (0 = FDoublePointsAggregator.Count) then
+  if (0 = FDoublePointsAggregator.Count) then begin
     Exit;
+  end;
 
   // make polyline object
   VLonLatPath := FGeometryFactory.CreateLonLatMultiLine(
@@ -499,22 +513,25 @@ end;
 
 procedure TXmlVectorObjects.OpenMarkObject;
 begin
-  if (FInMarkObject) then
+  if (FInMarkObject) then begin
     raise EXmlVectorObjectsMarkInMark.Create('');
+  end;
   FInMarkObject := True;
 end;
 
 procedure TXmlVectorObjects.OpenMultiGeometry;
 begin
-  if (FInMultiGeometry) then
+  if (FInMultiGeometry) then begin
     raise EXmlVectorObjectsMultiInMulti.Create('');
+  end;
   FInMultiGeometry := True;
 end;
 
 procedure TXmlVectorObjects.OpenMultiTrack;
 begin
-  if (FInMultiTrack) then
+  if (FInMultiTrack) then begin
     raise EXmlVectorObjectsMultiInMulti.Create('');
+  end;
   FInMultiTrack := True;
 end;
 
@@ -575,13 +592,15 @@ begin
         end;
 
         // others
-        for i := Low(i) to High(i) do
-        if (not (i in [kml_name, kml_description])) then
-        if (i in fAvail_strs) then begin
-          VParamName := c_KML_str[i];
-          VParamValue := SafeSetStringP(fParamsStrs[i]);
+        for i := Low(i) to High(i) do begin
+          if (not (i in [kml_name, kml_description])) then begin
+            if (i in fAvail_strs) then begin
+              VParamName := c_KML_str[i];
+              VParamValue := SafeSetStringP(fParamsStrs[i]);
           // add to description
-          _AddToDesc(VParamName, VParamValue);
+              _AddToDesc(VParamName, VParamValue);
+            end;
+          end;
         end;
       end;
       Inc(Result);
@@ -601,22 +620,25 @@ begin
         end;
 
         // others
-          for j := Low(j) to High(j) do
-          if (not (j in [trk_name, trk_desc])) then
-          if (j in fAvail_trk_strs) then begin
-            VParamName := c_GPX_trk_subtag[j];
-            VParamValue := SafeSetStringP(fStrs[j]);
+        for j := Low(j) to High(j) do begin
+          if (not (j in [trk_name, trk_desc])) then begin
+            if (j in fAvail_trk_strs) then begin
+              VParamName := c_GPX_trk_subtag[j];
+              VParamValue := SafeSetStringP(fStrs[j]);
             // add to description
-            _AddToDesc(VParamName, VParamValue);
+              _AddToDesc(VParamName, VParamValue);
+            end;
           end;
+        end;
           // gpxx:TrackExtension
-          for y := Low(y) to High(y) do
+        for y := Low(y) to High(y) do begin
           if (y in fAvail_trk_exts) then begin
             VParamName := c_GPX_trk_ext_subtag[y];
             VParamValue := SafeSetStringP(fExts[y]);
             // add to description
             _AddToDesc(VParamName, VParamValue);
           end;
+        end;
       end;
       Inc(Result);
     end;
@@ -635,51 +657,55 @@ begin
         end;
 
         // others
-          for k := Low(k) to High(k) do
-          if (not (k in [wpt_name, wpt_desc])) then
-          if (k in fAvail_wpt_strs) then begin
-            VParamName := c_GPX_wpt_str_subtag[k];
-            VParamValue := SafeSetStringP(fStrs[k]);
+        for k := Low(k) to High(k) do begin
+          if (not (k in [wpt_name, wpt_desc])) then begin
+            if (k in fAvail_wpt_strs) then begin
+              VParamName := c_GPX_wpt_str_subtag[k];
+              VParamValue := SafeSetStringP(fStrs[k]);
             // add to description
+              _AddToDesc(VParamName, VParamValue);
+            end;
+          end;
+        end;
+
+          // fPos
+        with fPos do begin
+            // time
+          if (wpt_time in fAvail_wpt_params) and UTCDateOK and UTCTimeOK then begin
+            VParamName := 'time';
+            VParamValue := DateTime_To_ISO8601(UTCDate + UTCTime, False);
+              // add to description
             _AddToDesc(VParamName, VParamValue);
           end;
 
-          // fPos
-          with fPos do begin
-            // time
-            if (wpt_time in fAvail_wpt_params) and UTCDateOK and UTCTimeOK then begin
-              VParamName := 'time';
-              VParamValue := DateTime_To_ISO8601(UTCDate + UTCTime, False);
-              // add to description
-              _AddToDesc(VParamName, VParamValue);
-            end;
-
             // ele
-            if (wpt_ele in fAvail_wpt_params) and (not NoData_Float64(Altitude)) then begin
-              VParamName := 'ele';
-              VParamValue := Round_Float64_to_String(Altitude, FFormatPtr^, round_ele);
+          if (wpt_ele in fAvail_wpt_params) and (not NoData_Float64(Altitude)) then begin
+            VParamName := 'ele';
+            VParamValue := Round_Float64_to_String(Altitude, FFormatPtr^, round_ele);
               // add to description
-              _AddToDesc(VParamName, VParamValue);
-            end;
+            _AddToDesc(VParamName, VParamValue);
           end;
+        end;
 
           // gpxx:*
-          for z := Low(z) to High(z) do
+        for z := Low(z) to High(z) do begin
           if (z in fAvail_wpt_exts) then begin
             VParamName := c_GPX_wpt_ext_subtag[z];
             VParamValue := SafeSetStringP(fExts[z]);
             // add to description
             _AddToDesc(VParamName, VParamValue);
           end;
+        end;
       end;
       // extension
       with Pvsagps_GPX_ParserData(AData)^.extensions_data do begin
-        for x := Low(x) to High(x) do
-        if (x in fAvail_strs) then begin
-          VParamName := c_GPX_ext_sasx_subtag[x];
-          VParamValue := SafeSetStringP(sasx_strs[x]);
+        for x := Low(x) to High(x) do begin
+          if (x in fAvail_strs) then begin
+            VParamName := c_GPX_ext_sasx_subtag[x];
+            VParamValue := SafeSetStringP(sasx_strs[x]);
           // add to description
-          _AddToDesc(VParamName, VParamValue);
+            _AddToDesc(VParamName, VParamValue);
+          end;
         end;
       end;
       Inc(Result);
@@ -704,8 +730,9 @@ begin
   //VPosCur := 0;
   // loop through points
   repeat
-    if (VPosPrev >= Length(ACoordinates)) then
+    if (VPosPrev >= Length(ACoordinates)) then begin
       break;
+    end;
 
     // get part
     VPosCur := FindNextDelimiterPos(VPosPrev, ACoordinates);
@@ -721,9 +748,10 @@ begin
         VPoint.X := VData.lon1;
         VPoint.Y := VData.lat0;
         // check closure
-        if AForceClose then
-        if (VFirstPos < 0) then begin
-          VFirstPos := FDoublePointsAggregator.Count;
+        if AForceClose then begin
+          if (VFirstPos < 0) then begin
+            VFirstPos := FDoublePointsAggregator.Count;
+          end;
         end;
         // add to array
         InternalAddPoint(VPoint);
@@ -736,12 +764,15 @@ begin
   until False;
 
   // check closure
-  if AForceClose then
-  if (Result > 0) then
-  if (VFirstPos >= 0) then
-  if (not LastSegmentIsClosed(VFirstPos)) then begin
-    VPoint := FDoublePointsAggregator.Points^[VFirstPos];
-    InternalAddPoint(VPoint);
+  if AForceClose then begin
+    if (Result > 0) then begin
+      if (VFirstPos >= 0) then begin
+        if (not LastSegmentIsClosed(VFirstPos)) then begin
+          VPoint := FDoublePointsAggregator.Points^[VFirstPos];
+          InternalAddPoint(VPoint);
+        end;
+      end;
+    end;
   end;
 end;
 

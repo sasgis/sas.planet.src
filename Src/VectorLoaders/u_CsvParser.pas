@@ -84,12 +84,14 @@ type
   );
 
   TCSVPointFieldIndicesA = array [TCSVPointFieldType] of Integer;
+
   TCSVPointFieldIndices = record
     Items: TCSVPointFieldIndicesA;
   end;
   PCSVPointFieldIndices = ^TCSVPointFieldIndices;
 
   TCSVPointFieldValuesA = array [TCSVPointFieldType] of String;
+
   TCSVPointFieldValues = record
     Items: TCSVPointFieldValuesA;
   end;
@@ -111,15 +113,20 @@ const
   );
 
 procedure _ClearFieldValues(const AValues: PCSVPointFieldValues);
-var i: TCSVPointFieldType;
+var
+  i: TCSVPointFieldType;
 begin
   for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do begin
     AValues^.Items[i] := '';
   end;
 end;
 
-procedure _ObtainFieldIndices(const AList: TStrings; const AIndices: PCSVPointFieldIndices);
-var i: TCSVPointFieldType;
+procedure _ObtainFieldIndices(
+  const AList: TStrings;
+  const AIndices: PCSVPointFieldIndices
+);
+var
+  i: TCSVPointFieldType;
 begin
   for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do begin
     AIndices^.Items[i] := AList.IndexOf(c_CSVPointFieldNames[i]);
@@ -131,13 +138,15 @@ procedure _FillFieldValues(
   const AIndices: PCSVPointFieldIndices;
   const AValues: PCSVPointFieldValues
 );
-var i: TCSVPointFieldType;
+var
+  i: TCSVPointFieldType;
 begin
   // date: yyyy/mm/dd or yyyymmdd
   // time: hh:mm:ss[.msec] or hh:mm:ss or hhmmss
-  for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do
-  if (AIndices^.Items[i] >= 0) then begin
-    AValues^.Items[i] := Trim(AList[AIndices^.Items[i]]);
+  for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do begin
+    if (AIndices^.Items[i] >= 0) then begin
+      AValues^.Items[i] := Trim(AList[AIndices^.Items[i]]);
+    end;
   end;
 end;
 
@@ -145,35 +154,45 @@ function _FieldsHaveChanged(
   const AIndices: PCSVPointFieldIndices;
   const AOldValues, ANewValues: PCSVPointFieldValues
 ): Boolean;
-var i: TCSVPointFieldType;
+var
+  i: TCSVPointFieldType;
 begin
   // do not check fields after 'URL'
-  for i := Low(TCSVPointFieldType) to csvpft_URL {High(TCSVPointFieldType)} do
-  if (AIndices^.Items[i] >= 0) then begin
-    if (not SameText(AOldValues^.Items[i], ANewValues^.Items[i])) then begin
-      Result := TRUE;
-      Exit;
+  for i := Low(TCSVPointFieldType) to csvpft_URL {High(TCSVPointFieldType)} do begin
+    if (AIndices^.Items[i] >= 0) then begin
+      if (not SameText(AOldValues^.Items[i], ANewValues^.Items[i])) then begin
+        Result := TRUE;
+        Exit;
+      end;
     end;
   end;
   Result := FALSE;
 end;
 
 procedure _CopyNewToOld(const AOldValues, ANewValues: PCSVPointFieldValues);
-var i: TCSVPointFieldType;
+var
+  i: TCSVPointFieldType;
 begin
   for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do begin
     AOldValues^.Items[i] := ANewValues^.Items[i];
   end;
 end;
 
-function _HasNonEmptyValue(const AList: TStrings; const AIndex: Integer): Boolean;
+function _HasNonEmptyValue(
+  const AList: TStrings;
+  const AIndex: Integer
+): Boolean;
 begin
-  Result := (AIndex>=0) and (AIndex<AList.Count);
-  if Result then
-    Result := (0<Length(Trim(AList[AIndex])));
+  Result := (AIndex >= 0) and (AIndex < AList.Count);
+  if Result then begin
+    Result := (0 < Length(Trim(AList[AIndex])));
+  end;
 end;
 
-function _TryTextToFloat(const AStr: string; out AValue: Double): Boolean;
+function _TryTextToFloat(
+  const AStr: string;
+  out AValue: Double
+): Boolean;
 var
   llat: boolean;
   Vpos: integer;
@@ -183,21 +202,33 @@ var
   Vminus: boolean;
   VTextTogms: string;
 begin
-  Result := (0<Length(Astr));
+  Result := (0 < Length(Astr));
   if Result then begin
     AValue := 0;
     VText := Trim(AnsiUpperCase(Astr));
     llat := false;
 
-    VText := ReplaceStr(VText, 'LON','');
-    VText := ReplaceStr(VText, 'LN','');
+    VText := ReplaceStr(VText, 'LON', '');
+    VText := ReplaceStr(VText, 'LN', '');
 
-    if PosEx('S', VText, 1) > 0 then llat := true;
-    if PosEx('N', VText, 1) > 0 then llat := true;
-    if PosEx('Þ', VText, 1) > 0 then llat := true;
-    if PosEx('Ñ', VText, 1) > 0 then llat := true;
-    if PosEx('LAT', VText, 1) > 0 then llat := true;
-    if PosEx('LL', VText, 1) > 0 then llat := true;
+    if PosEx('S', VText, 1) > 0 then begin
+      llat := true;
+    end;
+    if PosEx('N', VText, 1) > 0 then begin
+      llat := true;
+    end;
+    if PosEx('Þ', VText, 1) > 0 then begin
+      llat := true;
+    end;
+    if PosEx('Ñ', VText, 1) > 0 then begin
+      llat := true;
+    end;
+    if PosEx('LAT', VText, 1) > 0 then begin
+      llat := true;
+    end;
+    if PosEx('LL', VText, 1) > 0 then begin
+      llat := true;
+    end;
     VText := ReplaceStr(VText, 'LAT', '');
     VText := ReplaceStr(VText, 'LL', '');
     VText := ReplaceStr(VText, 'Ø.', '');
@@ -214,27 +245,34 @@ begin
     VText := ReplaceStr(VText, 'Â', '+');
     VText := ReplaceStr(VText, 'Ñ', '+');
     Vminus := false;
-    if posEx('-', VText, 1)>0 then Vminus := true;
+    if posEx('-', VText, 1) > 0 then begin
+      Vminus := true;
+    end;
 
-    if (VText[length(VText)] = '.') then VText := copy(VText, 1, length(VText)-1);
-    if (VText[length(VText)] = ',') then VText := copy(VText, 1, length(VText)-1);
-    if (VText[length(VText)] = '+') or (VText[length(VText)] = '-') then
-      VText := VText[length(VText)] +copy(VText, 0, length(VText) - 1);
+    if (VText[length(VText)] = '.') then begin
+      VText := copy(VText, 1, length(VText) - 1);
+    end;
+    if (VText[length(VText)] = ',') then begin
+      VText := copy(VText, 1, length(VText) - 1);
+    end;
+    if (VText[length(VText)] = '+') or (VText[length(VText)] = '-') then begin
+      VText := VText[length(VText)] + copy(VText, 0, length(VText) - 1);
+    end;
 
     if PosEx('+-', VText, 1) > 0 then begin // WE123 NS123
       llat := true;
-      VText := ReplaceStr(VText,'+-','+');
+      VText := ReplaceStr(VText, '+-', '+');
     end;
     if PosEx('-+', VText, 1) > 0 then begin // EW123 SN123
       llat := true;
-      VText := ReplaceStr(VText,'-+','-');
+      VText := ReplaceStr(VText, '-+', '-');
     end;
     if PosEx('--', VText, 1) > 0 then begin // -123S
-      VText := ReplaceStr(VText,'--','-');
+      VText := ReplaceStr(VText, '--', '-');
     end;
-    Vpos :=1;
+    Vpos := 1;
     while Vpos <= length(VText) do begin
-      if (not(AnsiChar(VText[Vpos]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
+      if (not (AnsiChar(VText[Vpos]) in ['0'..'9', '-', '+', '.', ',', ' '])) then begin
         VText[Vpos] := ' ';
         dec(Vpos);
       end;
@@ -256,49 +294,65 @@ begin
       if Vpos = 0 then begin
         VTextTogms := VText;
       end else begin
-        VTextTogms := copy(VText, 1, Vpos-1);
+        VTextTogms := copy(VText, 1, Vpos - 1);
         Delete(VText, 1, Vpos);
       end;
-      if not TryStrPointToFloat(VTextTogms, Vgms) then Vgms := 0;
+      if not TryStrPointToFloat(VTextTogms, Vgms) then begin
+        Vgms := 0;
+      end;
 
       if ((Vdelitel>1) and (abs(Vgms) > 60))or
         ((Vdelitel=1) and (llat) and (abs(Vgms)>90))or
         ((Vdelitel=1) and (not llat) and (abs(Vgms)>180))
       then begin
         if (Vdelitel = 60) and (Vgms > 60) then begin //  37 6298475265502
-          Vdelitel := Power(10,length(VText));
+          Vdelitel := Power(10, length(VText));
         end else begin
           Result := false;
         end;
       end;
-      if (Vgms > Vdelitel) and (Vdelitel > 1) then Vgms := 0;
+      if (Vgms > Vdelitel) and (Vdelitel > 1) then begin
+        Vgms := 0;
+      end;
       if Vgms <> 0 then begin
         if AValue < 0 then begin
-          AValue := AValue - Vgms/Vdelitel;
+          AValue := AValue - Vgms / Vdelitel;
         end else begin
-          AValue := AValue + Vgms/Vdelitel;
+          AValue := AValue + Vgms / Vdelitel;
         end;
       end;
-      if (Vminus) and (AValue > 0) then AValue := -AValue;
-      Vdelitel := Vdelitel*60;
+      if (Vminus) and (AValue > 0) then begin
+        AValue := -AValue;
+      end;
+      Vdelitel := Vdelitel * 60;
     until (Vpos = 0) or (Vdelitel > 3600) or (not result);
   end;
 end;
 
-function _ParseCoordinates(const AList: TStrings; const AIndices: TPoint; var ACoords: TDoublePoint): Boolean;
+function _ParseCoordinates(
+  const AList: TStrings;
+  const AIndices: TPoint;
+  var ACoords: TDoublePoint
+): Boolean;
 begin
   // 56.218050N or 041.325721E or 35.972033 or -87.134700
-  Result := (AIndices.X>=0) and (AIndices.Y>=0) and (AIndices.Y<AList.Count) and (AIndices.X<AList.Count);
-  if Result then
+  Result := (AIndices.X >= 0) and (AIndices.Y >= 0) and (AIndices.Y < AList.Count) and (AIndices.X < AList.Count);
+  if Result then begin
     Result := _TryTextToFloat(Trim(AList[AIndices.X]), ACoords.X);
-  if Result then
+  end;
+  if Result then begin
     Result := _TryTextToFloat(Trim(AList[AIndices.Y]), ACoords.Y);
+  end;
 end;
 
-procedure _AppendStr(var ACollector: String; const ADelimiter, ANewItem: String);
+procedure _AppendStr(
+  var ACollector: String;
+  const ADelimiter, ANewItem: String
+);
 begin
-  if (0<Length(ACollector)) then
+  if (0 < Length(ACollector)) then begin
     ACollector := ACollector + ADelimiter;
+  end;
   ACollector := ACollector + ANewItem;
 end;
 
@@ -319,29 +373,32 @@ var
   VItem: IVectorDataItem;
   VGeometry: IGeometryLonLat;
 begin
-  if APointsAggregator.Count=0 then
+  if APointsAggregator.Count = 0 then begin
     Exit;
+  end;
 
   // make name and description - only from AOldValues
   VPointName := '';
   VPointDesc := '';
-  for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do
-  if (AIndices^.Items[i] >= 0) then
-  if (0<Length(AOldValues^.Items[i])) then begin
+  for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do begin
+    if (AIndices^.Items[i] >= 0) then begin
+      if (0 < Length(AOldValues^.Items[i])) then begin
     // always add to descript
-    _AppendStr(VPointDesc, '<br>', AHead[AIndices^.Items[i]] + ': ' + AOldValues^.Items[i]);
+        _AppendStr(VPointDesc, '<br>', AHead[AIndices^.Items[i]] + ': ' + AOldValues^.Items[i]);
     // set to name (always add date and time)
-    if (0=Length(VPointName)) or (i>csvpft_URL) then begin
+        if (0 = Length(VPointName)) or (i > csvpft_URL) then begin
       // assuming no more than one date and one time
-      _AppendStr(VPointName, ' ', AOldValues^.Items[i]);
+          _AppendStr(VPointName, ' ', AOldValues^.Items[i]);
+        end;
+      end;
     end;
   end;
   VGeometry := nil;
-  if APointsAggregator.Count=1 then begin
+  if APointsAggregator.Count = 1 then begin
     if not PointIsEmpty(APointsAggregator.Points[0]) then begin
       VGeometry := AGeometryFactory.CreateLonLatPoint(APointsAggregator.Points[0]);
     end;
-  end else if (APointsAggregator.Count>2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count-1]) then begin
+  end else if (APointsAggregator.Count > 2) and DoublePointsEqual(APointsAggregator.Points[0], APointsAggregator.Points[APointsAggregator.Count - 1]) then begin
     VGeometry := AGeometryFactory.CreateLonLatMultiPolygon(APointsAggregator.Points, APointsAggregator.Count);
   end else begin
     VGeometry := AGeometryFactory.CreateLonLatMultiLine(APointsAggregator.Points, APointsAggregator.Count);
@@ -384,33 +441,36 @@ begin
   // make name
 
   VPointName := '';
-  for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do
-  if (AIndices^.Items[i] >= 0) then begin
-    VPointName := Trim(AList[AIndices^.Items[i]]);
-    if (0<Length(VPointName)) then begin
+  for i := Low(TCSVPointFieldType) to High(TCSVPointFieldType) do begin
+    if (AIndices^.Items[i] >= 0) then begin
+      VPointName := Trim(AList[AIndices^.Items[i]]);
+      if (0 < Length(VPointName)) then begin
       // if DATE only - add TIME
       // if UTC_D only - add UTC_T
-      if (i=csvpft_DATE) then begin
-        if (AIndices^.Items[csvpft_TIME]>=0) then
-          _AppendStr(VPointName, ' ', Trim(AList[AIndices^.Items[csvpft_TIME]]));
-      end else if (i=csvpft_UTC_D) then begin
-        if (AIndices^.Items[csvpft_UTC_T]>=0) then
-          _AppendStr(VPointName, ' ', Trim(AList[AIndices^.Items[csvpft_UTC_T]]));
+        if (i = csvpft_DATE) then begin
+          if (AIndices^.Items[csvpft_TIME] >= 0) then begin
+            _AppendStr(VPointName, ' ', Trim(AList[AIndices^.Items[csvpft_TIME]]));
+          end;
+        end else if (i = csvpft_UTC_D) then begin
+          if (AIndices^.Items[csvpft_UTC_T] >= 0) then begin
+            _AppendStr(VPointName, ' ', Trim(AList[AIndices^.Items[csvpft_UTC_T]]));
+          end;
+        end;
+        break;
       end;
-      break;
     end;
   end;
 
   // add vox to name
-  if (AVoxFieldIndex>=0) then begin
+  if (AVoxFieldIndex >= 0) then begin
     _AppendStr(VPointName, ' ', Trim(AList[AVoxFieldIndex]));
   end;
 
   // make description - use all fields (vox too)
   VPointDesc := '';
-  for j := 0 to AList.Count-1 do begin
+  for j := 0 to AList.Count - 1 do begin
     VText := Trim(AList[j]);
-    if (0<Length(VText)) then begin
+    if (0 < Length(VText)) then begin
       // make 'name: value' pair
       VText := AHead[j] + ': ' + VText;
       // add to description
@@ -447,13 +507,13 @@ begin
   // replace #0 by SPACE
   VLineCounter := 8;
   for i := 1 to Length(S) do begin
-    if S[i]=#0 then begin
+    if S[i] = #0 then begin
       // has #0
-      S[i]:=' ';
+      S[i] := ' ';
       VLineCounter := $FF;
-    end else if S[i] in [#10,#13] then begin
+    end else if S[i] in [#10, #13] then begin
       Dec(VLineCounter);
-      if (0=VLineCounter) then begin
+      if (0 = VLineCounter) then begin
         // there are no #0 in many lines
         break;
       end;
@@ -509,15 +569,16 @@ begin
     _LoadFileBodyFromFile(VFileBody, AData);
 
     // check count of lines (with header!)
-    if VFileBody.Count<=1 then
+    if VFileBody.Count <= 1 then begin
       Exit;
+    end;
 
     // get header and parse into fields
     VHeaders := UpperCase(VFileBody[0]);
-    if (System.Pos(#9, VHeaders)>0) then begin
+    if (System.Pos(#9, VHeaders) > 0) then begin
       // TAB-separated
       VFileHeader.Delimiter := #9;
-    end else if (System.Pos(';', VHeaders)>0) then begin
+    end else if (System.Pos(';', VHeaders) > 0) then begin
       // COMMA-separated with russian locale
       VFileHeader.Delimiter := ';';
     end else begin
@@ -529,33 +590,44 @@ begin
     VFileHeader.DelimitedText := VHeaders;
 
     // check header
-    if VFileHeader.Count<=1 then
+    if VFileHeader.Count <= 1 then begin
       Exit;
+    end;
 
     // get index of header fields for coordinates
     VCoord.X := VFileHeader.IndexOf('LONGITUDE E/W');
-    if VCoord.X<0 then
+    if VCoord.X < 0 then begin
       VCoord.X := VFileHeader.IndexOf('LONGITUDE');
-    if VCoord.X<0 then
+    end;
+    if VCoord.X < 0 then begin
       VCoord.X := VFileHeader.IndexOf('LON');
-    if VCoord.X<0 then
+    end;
+    if VCoord.X < 0 then begin
       VCoord.X := VFileHeader.IndexOf('X_POS');
-    if VCoord.X<0 then
+    end;
+    if VCoord.X < 0 then begin
       VCoord.X := VFileHeader.IndexOf('X');
-    if VCoord.X<0 then
+    end;
+    if VCoord.X < 0 then begin
       Exit;
+    end;
 
     VCoord.Y := VFileHeader.IndexOf('LATITUDE N/S');
-    if VCoord.Y<0 then
+    if VCoord.Y < 0 then begin
       VCoord.Y := VFileHeader.IndexOf('LATITUDE');
-    if VCoord.Y<0 then
+    end;
+    if VCoord.Y < 0 then begin
       VCoord.Y := VFileHeader.IndexOf('LAT');
-    if VCoord.Y<0 then
+    end;
+    if VCoord.Y < 0 then begin
       VCoord.Y := VFileHeader.IndexOf('Y_POS');
-    if VCoord.Y<0 then
+    end;
+    if VCoord.Y < 0 then begin
       VCoord.Y := VFileHeader.IndexOf('Y');
-    if VCoord.Y<0 then
+    end;
+    if VCoord.Y < 0 then begin
       Exit;
+    end;
 
     // get position of special fields and clear values
     _ObtainFieldIndices(VFileHeader, @VPointFieldIndices);
@@ -580,12 +652,12 @@ begin
       // obtain coordinates
       if _ParseCoordinates(VParsedLine, VCoord, VPoint) then begin
         // check special vox field exists
-        if (VIndexVoxField<0) then begin
+        if (VIndexVoxField < 0) then begin
           // common mode: check some important fields were changed
           _FillFieldValues(VParsedLine, @VPointFieldIndices, @VNewValues);
           if _FieldsHaveChanged(@VPointFieldIndices, @VOldValues, @VNewValues) then begin
             // changed - make object from previous points (in array)
-            if (VPointsAggregator.Count>0) then begin
+            if (VPointsAggregator.Count > 0) then begin
               _MakeObjectFromArray(
                 FVectorDataFactory,
                 AIdData,
@@ -630,9 +702,9 @@ begin
     end;
 
     // make object if has points after loop
-    if (VPointsAggregator.Count>0) then begin
+    if (VPointsAggregator.Count > 0) then begin
       // fill values for special mode
-      if (VIndexVoxField>=0) then begin
+      if (VIndexVoxField >= 0) then begin
         _FillFieldValues(VParsedLine, @VPointFieldIndices, @VOldValues);
       end;
       // make

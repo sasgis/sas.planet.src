@@ -121,7 +121,10 @@ begin
   );
 end;
 
-function GetPointForGPX(const AWptData: Tvsagps_GPX_wpt_data; out AWptPoint: TDoublePoint): Boolean;
+function GetPointForGPX(
+  const AWptData: Tvsagps_GPX_wpt_data;
+  out AWptPoint: TDoublePoint
+): Boolean;
 begin
   with AWptData.fPos do begin
     Result := PositionOK;
@@ -408,11 +411,12 @@ begin
         // точка (мульти)трека
         case pPX_State^.tag_disposition of
           xtd_Close: begin
-            with pPX_Result^.kml_data do
-            if (kml_latitude in fAvail_params) and (kml_longitude in fAvail_params) then begin
-              VWptPoint.X := fValues.longitude;
-              VWptPoint.Y := fValues.latitude;
-              AXmlVectorObjects.AddTrackPoint(VWptPoint);
+            with pPX_Result^.kml_data do begin
+              if (kml_latitude in fAvail_params) and (kml_longitude in fAvail_params) then begin
+                VWptPoint.X := fValues.longitude;
+                VWptPoint.Y := fValues.latitude;
+                AXmlVectorObjects.AddTrackPoint(VWptPoint);
+              end;
             end;
           end;
         end;

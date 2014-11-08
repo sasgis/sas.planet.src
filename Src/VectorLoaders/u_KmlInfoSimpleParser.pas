@@ -211,7 +211,8 @@ begin
   end;
 end;
 
-function TKmlInfoSimpleParser.LoadFromStreamInternal(AStream: TStream;
+function TKmlInfoSimpleParser.LoadFromStreamInternal(
+  AStream: TStream;
   const AIdData: Pointer;
   const AVectorDataItemMainInfoFactory: IVectorDataItemMainInfoFactory
 ): IVectorItemSubset;
@@ -248,6 +249,7 @@ function TKmlInfoSimpleParser.LoadFromStreamInternal(AStream: TStream;
       FreeMem(VKmlDoc);
     end;
   end;
+
 var
   VKml: AnsiString;
   VList: IVectorItemSubsetBuilder;
