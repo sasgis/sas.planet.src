@@ -78,8 +78,10 @@ begin
   FFactorySimple := TBitmap32BufferFactorySimple.Create;
 end;
 
-function TBitmap32BufferFactory.Build(const ASize: TPoint;
-  const AData: PColor32Array): IBitmap32Buffer;
+function TBitmap32BufferFactory.Build(
+  const ASize: TPoint;
+  const AData: PColor32Array
+): IBitmap32Buffer;
 begin
   Assert(ASize.X > 0);
   Assert(ASize.Y > 0);

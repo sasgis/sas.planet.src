@@ -33,10 +33,16 @@ type
     FBufferFactory: IBitmap32BufferFactory;
     FBitmapStatic: IBitmap32Buffer;
   protected
-    procedure InitializeSurface(NewWidth, NewHeight: Integer; ClearBuffer: Boolean); override;
+    procedure InitializeSurface(
+      NewWidth, NewHeight: Integer;
+      ClearBuffer: Boolean
+    ); override;
     procedure FinalizeSurface; override;
   public
-    constructor Create(Owner: TCustomBitmap32; const ABufferFactory: IBitmap32BufferFactory);
+    constructor Create(
+      Owner: TCustomBitmap32;
+      const ABufferFactory: IBitmap32BufferFactory
+    );
   end;
 
   TBitmap32ByStaticBitmap = class(TCustomBitmap32)
@@ -78,8 +84,10 @@ begin
   FBits := nil;
 end;
 
-procedure TStaticBitmapBackend.InitializeSurface(NewWidth, NewHeight: Integer;
-  ClearBuffer: Boolean);
+procedure TStaticBitmapBackend.InitializeSurface(
+  NewWidth, NewHeight: Integer;
+  ClearBuffer: Boolean
+);
 begin
   if ClearBuffer then begin
     FBitmapStatic := FBufferFactory.BuildEmptyClear(Types.Point(NewWidth, NewHeight), 0);

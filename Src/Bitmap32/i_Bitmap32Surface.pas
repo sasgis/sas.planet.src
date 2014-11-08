@@ -8,7 +8,7 @@ uses
   i_Bitmap32Static;
 
 type
- IBitmap32Surface = interface
+  IBitmap32Surface = interface
     ['{90C9BDF0-E2CC-4369-BA0B-96C46A70A19C}']
     function GetSize: TPoint;
     property Size: TPoint read GetSize;
@@ -22,15 +22,37 @@ type
     procedure Clear;
     procedure FullFill(const AFillColor: TColor32);
 
-    procedure FillRect(const ARect: TRect; const AValue: TColor32);
-    procedure FrameRect(const ARect: TRect; const AValue: TColor32);
-    procedure Line(const APoint1, APoint2: TPoint; const AValue: TColor32);
-    procedure SetPixel(const APoint: TPoint; const AValue: TColor32);
+    procedure FillRect(
+      const ARect: TRect;
+      const AValue: TColor32
+    );
+    procedure FrameRect(
+      const ARect: TRect;
+      const AValue: TColor32
+    );
+    procedure Line(
+      const APoint1, APoint2: TPoint;
+      const AValue: TColor32
+    );
+    procedure SetPixel(
+      const APoint: TPoint;
+      const AValue: TColor32
+    );
 
     procedure DrawBitmapStatic(const ASource: IBitmap32Static);
-    procedure DrawBitmapStaticAt(const APosition: TPoint; const ASource: IBitmap32Static);
-    procedure DrawBitmapData(const ASize: TPoint; const AData: PColor32Array);
-    procedure DrawBitmapDataAt(const APosition: TPoint; const ASize: TPoint; const AData: PColor32Array);
+    procedure DrawBitmapStaticAt(
+      const APosition: TPoint;
+      const ASource: IBitmap32Static
+    );
+    procedure DrawBitmapData(
+      const ASize: TPoint;
+      const AData: PColor32Array
+    );
+    procedure DrawBitmapDataAt(
+      const APosition: TPoint;
+      const ASize: TPoint;
+      const AData: PColor32Array
+    );
   end;
 
   IBitmap32StaticBuilder = interface(IBitmap32Surface)
@@ -42,8 +64,14 @@ type
   IBitmap32StaticBuilderFactory = interface
     ['{91C9BDF0-E2CC-4369-BA0B-96C46A70A19C}']
     function BuildEmpty(const ASize: TPoint): IBitmap32StaticBuilder;
-    function BuildFillColor(const ASize: TPoint; const AFillColor: TColor32): IBitmap32StaticBuilder;
-    function BuildByData(const ASize: TPoint; const AData: PColor32Array): IBitmap32StaticBuilder;
+    function BuildFillColor(
+      const ASize: TPoint;
+      const AFillColor: TColor32
+    ): IBitmap32StaticBuilder;
+    function BuildByData(
+      const ASize: TPoint;
+      const AData: PColor32Array
+    ): IBitmap32StaticBuilder;
     function BuildByBitmap32Static(const ASource: IBitmap32Static): IBitmap32StaticBuilder;
   end;
 

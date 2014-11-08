@@ -19,7 +19,7 @@ type
 
   PColor32EntryArray = GR32.PColor32EntryArray;
   TColor32EntryArray = GR32.TColor32EntryArray;
-  
+
 implementation
 
 end.

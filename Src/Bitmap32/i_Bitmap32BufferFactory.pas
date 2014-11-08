@@ -45,8 +45,11 @@ type
     ['{44AAF1CE-E8F6-4724-B3E7-9EBBC9BAC1CB}']
     function GetBufferFactory: IBitmap32BufferFactory;
     property BufferFactory: IBitmap32BufferFactory read GetBufferFactory;
-    
-    function Build(const ASize: TPoint; const AData: PColor32Array): IBitmap32Static;
+
+    function Build(
+      const ASize: TPoint;
+      const AData: PColor32Array
+    ): IBitmap32Static;
     function BuildWithOwnBuffer(const ABuffer: IBitmap32Buffer): IBitmap32Static;
   end;
 

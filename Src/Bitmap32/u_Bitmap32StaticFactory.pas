@@ -19,7 +19,10 @@ type
   private
     function GetBufferFactory: IBitmap32BufferFactory;
     function BuildWithOwnBuffer(const ABuffer: IBitmap32Buffer): IBitmap32Static;
-    function Build(const ASize: TPoint; const AData: PColor32Array): IBitmap32Static;
+    function Build(
+      const ASize: TPoint;
+      const AData: PColor32Array
+    ): IBitmap32Static;
   public
     constructor Create(
       const AHashFunction: IHashFunction;

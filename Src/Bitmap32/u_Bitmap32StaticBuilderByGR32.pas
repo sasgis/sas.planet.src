@@ -30,15 +30,37 @@ type
     procedure Clear;
     procedure FullFill(const AFillColor: TColor32);
 
-    procedure FillRect(const ARect: TRect; const AValue: TColor32);
-    procedure FrameRect(const ARect: TRect; const AValue: TColor32);
-    procedure Line(const APoint1, APoint2: TPoint; const AValue: TColor32);
-    procedure SetPixel(const APoint: TPoint; const AValue: TColor32);
+    procedure FillRect(
+      const ARect: TRect;
+      const AValue: TColor32
+    );
+    procedure FrameRect(
+      const ARect: TRect;
+      const AValue: TColor32
+    );
+    procedure Line(
+      const APoint1, APoint2: TPoint;
+      const AValue: TColor32
+    );
+    procedure SetPixel(
+      const APoint: TPoint;
+      const AValue: TColor32
+    );
 
     procedure DrawBitmapStatic(const ASource: IBitmap32Static);
-    procedure DrawBitmapStaticAt(const APosition: TPoint; const ASource: IBitmap32Static);
-    procedure DrawBitmapData(const ASize: TPoint; const AData: PColor32Array);
-    procedure DrawBitmapDataAt(const APosition: TPoint; const ASize: TPoint; const AData: PColor32Array);
+    procedure DrawBitmapStaticAt(
+      const APosition: TPoint;
+      const ASource: IBitmap32Static
+    );
+    procedure DrawBitmapData(
+      const ASize: TPoint;
+      const AData: PColor32Array
+    );
+    procedure DrawBitmapDataAt(
+      const APosition: TPoint;
+      const ASize: TPoint;
+      const AData: PColor32Array
+    );
 
     function MakeStaticAndClear: IBitmap32Static;
     function MakeStaticCopy: IBitmap32Static;
@@ -68,7 +90,6 @@ implementation
 uses
   SysUtils,
   GR32_LowLevel,
-  
   u_BitmapFunc;
 
 type
@@ -76,10 +97,16 @@ type
   private
     FBitmapBuffer: IBitmap32Buffer;
   protected
-    procedure InitializeSurface(NewWidth, NewHeight: Integer; ClearBuffer: Boolean); override;
+    procedure InitializeSurface(
+      NewWidth, NewHeight: Integer;
+      ClearBuffer: Boolean
+    ); override;
     procedure FinalizeSurface; override;
   public
-    constructor Create(Owner: TCustomBitmap32; const ABitmapBuffer: IBitmap32Buffer);
+    constructor Create(
+      Owner: TCustomBitmap32;
+      const ABitmapBuffer: IBitmap32Buffer
+    );
   end;
 
   TBitmap32FixedBitmapBuffer = class(TCustomBitmap32)

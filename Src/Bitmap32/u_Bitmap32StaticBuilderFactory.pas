@@ -17,8 +17,14 @@ type
     FBitmap32StaticFactory: IBitmap32StaticFactory;
   private
     function BuildEmpty(const ASize: TPoint): IBitmap32StaticBuilder;
-    function BuildFillColor(const ASize: TPoint; const AFillColor: TColor32): IBitmap32StaticBuilder;
-    function BuildByData(const ASize: TPoint; const AData: PColor32Array): IBitmap32StaticBuilder;
+    function BuildFillColor(
+      const ASize: TPoint;
+      const AFillColor: TColor32
+    ): IBitmap32StaticBuilder;
+    function BuildByData(
+      const ASize: TPoint;
+      const AData: PColor32Array
+    ): IBitmap32StaticBuilder;
     function BuildByBitmap32Static(const ASource: IBitmap32Static): IBitmap32StaticBuilder;
   public
     constructor Create(

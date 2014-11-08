@@ -77,11 +77,9 @@ begin
   Assert(ASize.Y < 1 shl 16);
   Assert(ASize.X * ASize.Y < 1 shl 28);
 
-  if
-    (ASize.X > 0) and (ASize.Y > 0) and
+  if (ASize.X > 0) and (ASize.Y > 0) and
     (ASize.X < 1 shl 16) and (ASize.Y < 1 shl 16) and
-    (ASize.X * ASize.Y < 1 shl 28)
-  then begin
+    (ASize.X * ASize.Y < 1 shl 28) then begin
     GetMem(FBits, ASize.X * ASize.Y * 4);
     FSize := ASize;
   end;
@@ -139,11 +137,9 @@ begin
   Assert(ASize.Y < 1 shl 16);
   Assert(ASize.X * ASize.Y < 1 shl 28);
 
-  if
-    (ASize.X > 0) and (ASize.Y > 0) and
+  if (ASize.X > 0) and (ASize.Y > 0) and
     (ASize.X < 1 shl 16) and (ASize.Y < 1 shl 16) and
-    (ASize.X * ASize.Y < 1 shl 28)
-  then begin
+    (ASize.X * ASize.Y < 1 shl 28) then begin
     Result := TBitmap32StaticSimple.Create(ASize);
   end else begin
     Result := nil;
