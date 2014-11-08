@@ -417,7 +417,6 @@
     <DCCReference Include="i_NotifierTilePyramidUpdate.pas" />
     <DCCReference Include="i_ObjectWithListener.pas" />
     <DCCReference Include="i_PathConfig.pas" />
-    <DCCReference Include="i_ProjectedDrawableElement.pas" />
     <DCCReference Include="i_ReadWriteState.pas" />
     <DCCReference Include="i_ReadWriteStateInternal.pas" />
     <DCCReference Include="i_SatellitesInViewMapDraw.pas" />
@@ -438,7 +437,6 @@
     <DCCReference Include="i_TreeChangeable.pas" />
     <DCCReference Include="i_UrlByCoordProvider.pas" />
     <DCCReference Include="i_UsedMarksConfig.pas" />
-    <DCCReference Include="i_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="i_ValueToStringConverter.pas" />
     <DCCReference Include="i_ValueToStringConverterConfig.pas" />
     <DCCReference Include="i_VectorItemDrawConfig.pas" />
@@ -523,8 +521,10 @@
     <DCCReference Include="MapLayers\i_MarkPolygonLayerConfig.pas" />
     <DCCReference Include="MapLayers\i_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\i_PointCaptionsLayerConfig.pas" />
+    <DCCReference Include="MapLayers\i_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapColorer.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\i_FillingMapLayerConfig.pas" />
+    <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\t_FillingMapModes.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapColorerSimple.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapLayerConfig.pas" />
     <DCCReference Include="MapLayers\LayersWithThreadAndProvider\FillingMap\u_FillingMapLayerConfigStatic.pas" />
@@ -568,6 +568,8 @@
     <DCCReference Include="MapLayers\u_MarkPolyLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\u_PointCaptionsLayerConfig.pas" />
     <DCCReference Include="MapLayers\u_PointsSetLayerConfig.pas" />
+    <DCCReference Include="MapLayers\u_UseTilePrevZoomConfig.pas" />
+    <DCCReference Include="MapLayers\u_VectorItemDrawConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\i_CalcLineLayerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayer.pas" />
     <DCCReference Include="MapLayers\WindowLayers\CalcLine\u_CalcLineLayerConfig.pas" />
@@ -582,11 +584,13 @@
     <DCCReference Include="MapLayers\WindowLayers\GoTo\u_MapLayerGoto.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_MarkerRingsConfig.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\GPSMarker\i_ProjectedDrawableElement.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarker.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MapLayerGPSMarkerRings.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MarkerRingsConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_MarkerRingsConfigStatic.pas" />
+    <DCCReference Include="MapLayers\WindowLayers\GPSMarker\u_ProjectedDrawableElementByPolygon.pas" />
     <DCCReference Include="MapLayers\WindowLayers\NavToMark\i_MapLayerNavToPointMarkerConfig.pas" />
     <DCCReference Include="MapLayers\WindowLayers\NavToMark\u_MapLayerNavToMark.pas" />
     <DCCReference Include="MapLayers\WindowLayers\NavToMark\u_MapLayerNavToPointMarkerConfig.pas" />
@@ -664,6 +668,7 @@
     <DCCReference Include="MapType\u_ActiveMapsLicenseList.pas" />
     <DCCReference Include="MapType\u_ActivMapWithLayers.pas" />
     <DCCReference Include="MapType\u_LayerDrawConfig.pas" />
+    <DCCReference Include="MapType\u_MainActiveMap.pas" />
     <DCCReference Include="MapType\u_MainMapsConfig.pas" />
     <DCCReference Include="MapType\u_MapAbilitiesConfig.pas" />
     <DCCReference Include="MapType\u_MapAbilitiesConfigStatic.pas" />
@@ -1177,6 +1182,7 @@
     <DCCReference Include="System\u_LanguageManager.pas" />
     <DCCReference Include="System\u_LanguagesEx.pas" />
     <DCCReference Include="System\u_SystemTimeProvider.pas" />
+    <DCCReference Include="System\u_TimeZoneInfo.pas" />
     <DCCReference Include="Terrain\c_TerrainProvider.pas" />
     <DCCReference Include="Terrain\c_TerrainProviderGUID.pas" />
     <DCCReference Include="Terrain\External\u_ExternalTerrainAPI.pas" />
@@ -1291,7 +1297,6 @@
     <DCCReference Include="TileStorage\u_TileStorageTypeListItem.pas" />
     <DCCReference Include="TileStorage\u_TileStorageTypeListSimple.pas" />
     <DCCReference Include="t_CommonTypes.pas" />
-    <DCCReference Include="t_FillingMapModes.pas" />
     <DCCReference Include="t_GeoTypes.pas" />
     <DCCReference Include="UpdateChecker\frm_UpdateChecker.pas">
       <Form>frmUpdateChecker</Form>
@@ -1317,7 +1322,6 @@
     <DCCReference Include="u_InterfaceQueue.pas" />
     <DCCReference Include="u_LanguageListStatic.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
-    <DCCReference Include="u_MainActiveMap.pas" />
     <DCCReference Include="u_MainMemCacheConfig.pas" />
     <DCCReference Include="u_MarksDrawConfig.pas" />
     <DCCReference Include="u_MarksDrawConfigStatic.pas" />
@@ -1330,7 +1334,6 @@
     <DCCReference Include="u_ObjectFromPoolBase.pas" />
     <DCCReference Include="u_ObjectPoolBase.pas" />
     <DCCReference Include="u_PathConfig.pas" />
-    <DCCReference Include="u_ProjectedDrawableElementByPolygon.pas" />
     <DCCReference Include="u_ReadWriteStateInternal.pas" />
     <DCCReference Include="u_ReadWriteStateInternalByOther.pas" />
     <DCCReference Include="u_ReadWriteStateStatic.pas" />
@@ -1360,16 +1363,13 @@
     <DCCReference Include="u_TileRectInfo.pas" />
     <DCCReference Include="u_TileRectInfoShort.pas" />
     <DCCReference Include="u_TileUpdateListenerToLonLat.pas" />
-    <DCCReference Include="u_TimeZoneInfo.pas" />
     <DCCReference Include="u_TreeByMapActiveMapsSet.pas" />
     <DCCReference Include="u_TreeChangeableBase.pas" />
     <DCCReference Include="u_UsedMarksConfig.pas" />
     <DCCReference Include="u_UsedMarksConfigStatic.pas" />
     <DCCReference Include="u_UserInterfaceItemBase.pas" />
-    <DCCReference Include="u_UseTilePrevZoomConfig.pas" />
     <DCCReference Include="u_ValueToStringConverter.pas" />
     <DCCReference Include="u_ValueToStringConverterConfig.pas" />
-    <DCCReference Include="u_VectorItemDrawConfig.pas" />
     <DCCReference Include="u_WindowPositionConfig.pas" />
     <DCCReference Include="VectorLoaders\i_XmlVectorObjects.pas" />
     <DCCReference Include="VectorLoaders\u_CsvParser.pas" />
