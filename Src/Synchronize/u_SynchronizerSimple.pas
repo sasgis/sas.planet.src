@@ -151,7 +151,8 @@ begin
 end;
 
 function TSynchronizerSimple.MakeSyncBigRecursive(
-  const APerfList: IInternalPerformanceCounterList; const AUseDebug,
+  const APerfList: IInternalPerformanceCounterList;
+  const AUseDebug,
   AUseDestroyCounters, AUseBeginEndCounters: Boolean
 ): IReadWriteSyncFactory;
 var

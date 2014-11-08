@@ -29,6 +29,7 @@ uses
 
 type
   PVOID = Pointer;
+
   RTL_SRWLOCK = packed record
     Ptr: PVOID;
   end;
@@ -219,21 +220,19 @@ begin
   Result := nil;
   VDllHandle := GetModuleHandle('ntdll.dll');
   // Resource
-  if (0<>VDllHandle) then begin
-    VInitializePtr := GetProcAddress(VDllHandle,'RtlInitializeSRWLock');
+  if (0 <> VDllHandle) then begin
+    VInitializePtr := GetProcAddress(VDllHandle, 'RtlInitializeSRWLock');
     if VInitializePtr <> nil then begin
       // Vista and newer
-      VAcquireExclusivePtr := GetProcAddress(VDllHandle,'RtlAcquireSRWLockExclusive');
-      VReleaseExclusivePtr := GetProcAddress(VDllHandle,'RtlReleaseSRWLockExclusive');
-      VAcquireSharedPtr := GetProcAddress(VDllHandle,'RtlAcquireSRWLockShared');
-      VReleaseSharedPtr := GetProcAddress(VDllHandle,'RtlReleaseSRWLockShared');
-      if
-        (VInitializePtr <> nil) and
+      VAcquireExclusivePtr := GetProcAddress(VDllHandle, 'RtlAcquireSRWLockExclusive');
+      VReleaseExclusivePtr := GetProcAddress(VDllHandle, 'RtlReleaseSRWLockExclusive');
+      VAcquireSharedPtr := GetProcAddress(VDllHandle, 'RtlAcquireSRWLockShared');
+      VReleaseSharedPtr := GetProcAddress(VDllHandle, 'RtlReleaseSRWLockShared');
+      if (VInitializePtr <> nil) and
         (VAcquireExclusivePtr <> nil) and
         (VReleaseExclusivePtr <> nil) and
         (VAcquireSharedPtr <> nil) and
-        (VReleaseSharedPtr <> nil)
-      then begin
+        (VReleaseSharedPtr <> nil) then begin
         VDll :=
           TSyncronizerSRWDll.Create(
             VInitializePtr,

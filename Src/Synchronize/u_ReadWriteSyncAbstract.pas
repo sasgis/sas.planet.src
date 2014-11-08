@@ -213,9 +213,10 @@ const
 var
   VText: string;
 begin
-  if (not DebugGlobalLocks_Enabled) then
+  if (not DebugGlobalLocks_Enabled) then begin
     Exit;
-  VText := FLockClassName + ' at $'+ IntToHex(Integer(Pointer(Self)), 8)+' (from '+ FName+')' + c_SEP + 'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP +  AProcedure + c_SEP + AEvent;
+  end;
+  VText := FLockClassName + ' at $' + IntToHex(Integer(Pointer(Self)), 8) + ' (from ' + FName + ')' + c_SEP + 'ThreadId=' + IntToStr(GetCurrentThreadId) + c_SEP + AProcedure + c_SEP + AEvent;
   OutputDebugString(PChar(VText));
 end;
 

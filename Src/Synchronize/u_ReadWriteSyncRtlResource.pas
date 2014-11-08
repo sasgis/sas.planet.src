@@ -48,8 +48,14 @@ type
     ['{D0071030-3989-4438-90E6-935DC4E5DC0E}']
     procedure Initialize(rwl: LPRTL_RWLOCK);
     procedure Delete(rwl: LPRTL_RWLOCK);
-    function AcquireExclusive(rwl: LPRTL_RWLOCK; fWait: Byte): Byte;
-    function AcquireShared(rwl: LPRTL_RWLOCK; fWait: Byte): Byte;
+    function AcquireExclusive(
+      rwl: LPRTL_RWLOCK;
+      fWait: Byte
+    ): Byte;
+    function AcquireShared(
+      rwl: LPRTL_RWLOCK;
+      fWait: Byte
+    ): Byte;
     procedure Release(rwl: LPRTL_RWLOCK);
   end;
 
@@ -63,8 +69,14 @@ type
   private
     procedure Initialize(rwl: LPRTL_RWLOCK);
     procedure Delete(rwl: LPRTL_RWLOCK);
-    function AcquireExclusive(rwl: LPRTL_RWLOCK; fWait: Byte): Byte;
-    function AcquireShared(rwl: LPRTL_RWLOCK; fWait: Byte): Byte;
+    function AcquireExclusive(
+      rwl: LPRTL_RWLOCK;
+      fWait: Byte
+    ): Byte;
+    function AcquireShared(
+      rwl: LPRTL_RWLOCK;
+      fWait: Byte
+    ): Byte;
     procedure Release(rwl: LPRTL_RWLOCK);
   public
     constructor Create(
@@ -109,7 +121,10 @@ function MakeSynchronizerRtlResourceFactory: IReadWriteSyncFactory;
 implementation
 
 type
-  TRtlAcquireResourceExclusive = function(rwl: LPRTL_RWLOCK; fWait: Byte): Byte; stdcall;
+  TRtlAcquireResourceExclusive = function(
+      rwl: LPRTL_RWLOCK;
+      fWait: Byte
+    ): Byte; stdcall;
   // RtlAcquireResourceShared is the same
   TRtlInitializeResource = procedure(rwl: LPRTL_RWLOCK); stdcall;
   // RtlDeleteResource is the same
@@ -144,8 +159,10 @@ begin
   Result := TRtlAcquireResourceExclusive(FAcquireExclusivePtr)(rwl, fWait);
 end;
 
-function TSyncronizerRtlResourceDll.AcquireShared(rwl: LPRTL_RWLOCK;
-  fWait: Byte): Byte;
+function TSyncronizerRtlResourceDll.AcquireShared(
+  rwl: LPRTL_RWLOCK;
+  fWait: Byte
+): Byte;
 begin
   Result := TRtlAcquireResourceExclusive(FAcquireSharedPtr)(rwl, fWait);
 end;
@@ -236,20 +253,18 @@ begin
   Result := nil;
   VDllHandle := GetModuleHandle('ntdll.dll');
   // Resource
-  if (0<>VDllHandle) then begin
-    VInitializePtr := GetProcAddress(VDllHandle,'RtlInitializeResource');
+  if (0 <> VDllHandle) then begin
+    VInitializePtr := GetProcAddress(VDllHandle, 'RtlInitializeResource');
     if VInitializePtr <> nil then begin
-      VAcquireExclusivePtr := GetProcAddress(VDllHandle,'RtlAcquireResourceExclusive');
-      VReleasePtr := GetProcAddress(VDllHandle,'RtlReleaseResource');
-      VAcquireSharedPtr := GetProcAddress(VDllHandle,'RtlAcquireResourceShared');
-      VUninitializePtr := GetProcAddress(VDllHandle,'RtlDeleteResource');
-      if
-        (VInitializePtr <> nil) and
+      VAcquireExclusivePtr := GetProcAddress(VDllHandle, 'RtlAcquireResourceExclusive');
+      VReleasePtr := GetProcAddress(VDllHandle, 'RtlReleaseResource');
+      VAcquireSharedPtr := GetProcAddress(VDllHandle, 'RtlAcquireResourceShared');
+      VUninitializePtr := GetProcAddress(VDllHandle, 'RtlDeleteResource');
+      if (VInitializePtr <> nil) and
         (VAcquireExclusivePtr <> nil) and
         (VReleasePtr <> nil) and
         (VAcquireSharedPtr <> nil) and
-        (VUninitializePtr <> nil)
-      then begin
+        (VUninitializePtr <> nil) then begin
         VDll :=
           TSyncronizerRtlResourceDll.Create(
             VInitializePtr,
