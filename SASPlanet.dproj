@@ -410,7 +410,6 @@
     <DCCReference Include="i_InterfaceQueue.pas" />
     <DCCReference Include="i_LanguageListStatic.pas" />
     <DCCReference Include="i_ListenerNotifierLinksList.pas" />
-    <DCCReference Include="i_MainGeoCoderConfig.pas" />
     <DCCReference Include="i_MainMemCacheConfig.pas" />
     <DCCReference Include="i_MarkNameGenerator.pas" />
     <DCCReference Include="i_MarksDrawConfig.pas" />
@@ -470,8 +469,10 @@
     <DCCReference Include="MainForm\i_MainFormBehaviourByGPSConfig.pas" />
     <DCCReference Include="MainForm\i_MainFormConfig.pas" />
     <DCCReference Include="MainForm\i_MainFormState.pas" />
+    <DCCReference Include="MainForm\i_MainGeoCoderConfig.pas" />
     <DCCReference Include="MainForm\i_MainWindowPosition.pas" />
     <DCCReference Include="MainForm\i_MapMovingConfig.pas" />
+    <DCCReference Include="MainForm\i_MapTypeIconsList.pas" />
     <DCCReference Include="MainForm\i_MapViewGoto.pas" />
     <DCCReference Include="MainForm\i_MapZoomingConfig.pas" />
     <DCCReference Include="MainForm\i_MenuGeneratorByTree.pas" />
@@ -482,6 +483,7 @@
     <DCCReference Include="MainForm\i_PopUp.pas" />
     <DCCReference Include="MainForm\i_SearchResultPresenter.pas" />
     <DCCReference Include="MainForm\i_SelectionRect.pas" />
+    <DCCReference Include="MainForm\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="MainForm\u_KeyMovingConfig.pas" />
     <DCCReference Include="MainForm\u_KeyMovingHandler.pas" />
     <DCCReference Include="MainForm\u_LanguageTBXItem.pas" />
@@ -493,9 +495,11 @@
     <DCCReference Include="MainForm\u_MainFormConfig.pas" />
     <DCCReference Include="MainForm\u_MainFormMainConfig.pas" />
     <DCCReference Include="MainForm\u_MainFormState.pas" />
+    <DCCReference Include="MainForm\u_MainGeoCoderConfig.pas" />
     <DCCReference Include="MainForm\u_MainWindowPositionConfig.pas" />
     <DCCReference Include="MainForm\u_MainWindowToolbarsLock.pas" />
     <DCCReference Include="MainForm\u_MapMovingConfig.pas" />
+    <DCCReference Include="MainForm\u_MapTypeIconsList.pas" />
     <DCCReference Include="MainForm\u_MapTypeMenuItemsGeneratorBasic.pas" />
     <DCCReference Include="MainForm\u_MapViewGoto.pas" />
     <DCCReference Include="MainForm\u_MapZoomingConfig.pas" />
@@ -648,7 +652,6 @@
     <DCCReference Include="MapType\i_MapTypeGUIConfig.pas" />
     <DCCReference Include="MapType\i_MapTypeGUIConfigList.pas" />
     <DCCReference Include="MapType\i_MapTypeHotKeyListStatic.pas" />
-    <DCCReference Include="MapType\i_MapTypeIconsList.pas" />
     <DCCReference Include="MapType\i_MapTypeListBuilder.pas" />
     <DCCReference Include="MapType\i_MapTypeListChangeable.pas" />
     <DCCReference Include="MapType\i_MapTypeListStatic.pas" />
@@ -659,7 +662,6 @@
     <DCCReference Include="MapType\i_ZmpInfo.pas" />
     <DCCReference Include="MapType\i_ZmpInfoSet.pas" />
     <DCCReference Include="MapType\u_ActiveMapsLicenseList.pas" />
-    <DCCReference Include="MapType\u_ActiveMapTBXItem.pas" />
     <DCCReference Include="MapType\u_ActivMapWithLayers.pas" />
     <DCCReference Include="MapType\u_LayerDrawConfig.pas" />
     <DCCReference Include="MapType\u_MainMapsConfig.pas" />
@@ -672,7 +674,6 @@
     <DCCReference Include="MapType\u_MapTypeGUIConfigList.pas" />
     <DCCReference Include="MapType\u_MapTypeGUIConfigStatic.pas" />
     <DCCReference Include="MapType\u_MapTypeHotKeyListStatic.pas" />
-    <DCCReference Include="MapType\u_MapTypeIconsList.pas" />
     <DCCReference Include="MapType\u_MapTypeListBuilderFactory.pas" />
     <DCCReference Include="MapType\u_MapTypeListChangeableActiveBitmapLayers.pas" />
     <DCCReference Include="MapType\u_MapTypeSetBuilderFactory.pas" />
@@ -1316,7 +1317,6 @@
     <DCCReference Include="u_LanguageListStatic.pas" />
     <DCCReference Include="u_ListenerNotifierLinksList.pas" />
     <DCCReference Include="u_MainActiveMap.pas" />
-    <DCCReference Include="u_MainGeoCoderConfig.pas" />
     <DCCReference Include="u_MainMemCacheConfig.pas" />
     <DCCReference Include="u_MapViewPortState.pas" />
     <DCCReference Include="u_MarksDrawConfig.pas" />
