@@ -287,11 +287,12 @@ function TGeometryLonLatFactory.CreateLonLatMultiPolygonCircleByPoint(
   const APos: TDoublePoint;
   const ARadius: double
 ): IGeometryLonLatMultiPolygon;
-const CPointCount = 64;
+const
+  CPointCount = 64;
 var
   VAggreagator: IDoublePointsAggregator;
   j: Integer;
-  VDatum : IDatum;
+  VDatum: IDatum;
   VAngle: Double;
   VPoint: TDoublePoint;
   VLine: IGeometryLonLatSinglePolygon;
@@ -301,7 +302,7 @@ begin
   VAggreagator := TDoublePointsAggregator.Create(CPointCount);
   VBounds.TopLeft := APos;
   VBounds.BottomRight := APos;
-  VDatum :=  AProjection.GeoConverter.Datum;
+  VDatum := AProjection.GeoConverter.Datum;
   for j := 0 to CPointCount - 1 do begin
     VAngle := j * 360 / CPointCount;
     VPoint := VDatum.CalcFinishPosition(APos, VAngle, ARadius);
@@ -366,7 +367,9 @@ begin
 end;
 
 function TGeometryLonLatFactory.CreateLonLatPolygon(
-  const APoints: PDoublePointArray; ACount: Integer): IGeometryLonLatSinglePolygon;
+  const APoints: PDoublePointArray;
+  ACount: Integer
+): IGeometryLonLatSinglePolygon;
 var
   i: Integer;
   VPoint: TDoublePoint;

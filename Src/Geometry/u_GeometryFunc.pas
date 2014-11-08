@@ -82,7 +82,7 @@ begin
   if not PointIsEmpty(VLonLatPoint) then begin
     VConverter.CheckLonLatPos(VLonLatPoint);
     VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    VDist :=  Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
+    VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     Result := True;
     APoint := VLonLatPoint;
     ADist := VDist;
@@ -113,15 +113,15 @@ begin
   if VEnum.Next(VLonLatPoint) then begin
     VConverter.CheckLonLatPos(VLonLatPoint);
     VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    VDist :=  Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
+    VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     APoint := VLonLatPoint;
-    ADist :=  VDist;
+    ADist := VDist;
     Result := True;
 
     while VEnum.Next(VLonLatPoint) do begin
       VConverter.CheckLonLatPos(VLonLatPoint);
       VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-      VDist :=  Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
+      VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
       if VDist < ADist then begin
         ADist := VDist;
         APoint := VLonLatPoint;
@@ -154,15 +154,15 @@ begin
   if VEnum.Next(VLonLatPoint) then begin
     VConverter.CheckLonLatPos(VLonLatPoint);
     VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-    VDist :=  Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
+    VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
     APoint := VLonLatPoint;
-    ADist :=  VDist;
+    ADist := VDist;
     Result := True;
 
     while VEnum.Next(VLonLatPoint) do begin
       VConverter.CheckLonLatPos(VLonLatPoint);
       VMapPoint := VConverter.LonLat2PixelPosFloat(VLonLatPoint, VZoom);
-      VDist :=  Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
+      VDist := Sqr(VMapPoint.X - ACurrMapPixel.X) + Sqr(VMapPoint.Y - ACurrMapPixel.Y);
       if VDist < ADist then begin
         ADist := VDist;
         APoint := VLonLatPoint;

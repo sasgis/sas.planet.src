@@ -55,7 +55,7 @@ constructor TEnumDoublePointsByArray.Create(
 );
 begin
   Assert(Assigned(APointsAggregator));
-  inherited Create;                   
+  inherited Create;
   FPointsAggregator := APointsAggregator;
   FPoints := FPointsAggregator.Points;
   FCount := FPointsAggregator.Count;

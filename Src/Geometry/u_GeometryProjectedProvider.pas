@@ -50,6 +50,7 @@ uses
 
 type
   PDataRecord = ^TDataRecord;
+
   TDataRecord = record
     Path: IGeometryLonLatLine;
     Polygon: IGeometryLonLatPolygon;
@@ -104,10 +105,8 @@ begin
         VTestArrLenLonLatRect,
         VData^.ProjectionInfo.Zoom
       );
-    if
-      (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedSize) or
-      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize)
-    then begin
+    if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedSize) or
+      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize) then begin
       VResultPath :=
         FVectorGeometryProjectedFactory.CreateProjectedPathByLonLatPath(
           VData^.ProjectionInfo,
@@ -129,10 +128,8 @@ begin
         VTestArrLenLonLatRect,
         VData^.ProjectionInfo.Zoom
       );
-    if
-      (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedSize) or
-      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize)
-    then begin
+    if (abs(VTestArrLenPixelRect.Left - VTestArrLenPixelRect.Right) > CMinProjectedSize) or
+      (abs(VTestArrLenPixelRect.Top - VTestArrLenPixelRect.Bottom) > CMinProjectedSize) then begin
       VResultPolygon :=
         FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(
           VData^.ProjectionInfo,

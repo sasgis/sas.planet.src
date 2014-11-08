@@ -72,7 +72,7 @@ uses
 
 function TLonLatRectByPoint.CalcRectCenter: TDoublePoint;
 begin
-  Result :=FPoint;
+  Result := FPoint;
 end;
 
 constructor TLonLatRectByPoint.Create(const APoint: TDoublePoint);
@@ -100,8 +100,8 @@ end;
 
 function TLonLatRectByPoint.GetRect: TDoubleRect;
 begin
-  Result.TopLeft :=  FPoint;
-  Result.BottomRight :=  FPoint;
+  Result.TopLeft := FPoint;
+  Result.BottomRight := FPoint;
 end;
 
 function TLonLatRectByPoint.GetRight: Double;
@@ -119,8 +119,10 @@ begin
   Result := FPoint;
 end;
 
-function TLonLatRectByPoint.IntersecWithRect(out AResultRect: TDoubleRect;
-  const ARect: ILonLatRect): Boolean;
+function TLonLatRectByPoint.IntersecWithRect(
+  out AResultRect: TDoubleRect;
+  const ARect: ILonLatRect
+): Boolean;
 begin
   Result := ARect.IsPointInRect(FPoint);
   if Result then begin
@@ -131,8 +133,10 @@ begin
   end;
 end;
 
-function TLonLatRectByPoint.IntersecWithRect(out AResultRect: TDoubleRect;
-  const ARect: TDoubleRect): Boolean;
+function TLonLatRectByPoint.IntersecWithRect(
+  out AResultRect: TDoubleRect;
+  const ARect: TDoubleRect
+): Boolean;
 begin
   Result :=
     (FPoint.X <= ARect.Right) and
@@ -165,9 +169,9 @@ end;
 
 function TLonLatRectByPoint.IsEqual(const ARect: TDoubleRect): Boolean;
 begin
-    Result :=
-      DoublePointsEqual(FPoint, ARect.TopLeft) and
-      DoublePointsEqual(FPoint, ARect.BottomRight);
+  Result :=
+    DoublePointsEqual(FPoint, ARect.TopLeft) and
+    DoublePointsEqual(FPoint, ARect.BottomRight);
 end;
 
 function TLonLatRectByPoint.IsIntersecWithRect(
