@@ -70,7 +70,8 @@ constructor TVectorTileProviderByStorage.Create(
   const AVersionConfig: IMapVersionRequest;
   const ALoaderFromStorage: IVectorDataLoader;
   const AProjectionInfo: IProjectionInfo;
-  const AStorage: ITileStorage);
+  const AStorage: ITileStorage
+);
 begin
   Assert(AVectorDataItemMainInfoFactory <> nil);
   Assert(AVersionConfig <> nil);
