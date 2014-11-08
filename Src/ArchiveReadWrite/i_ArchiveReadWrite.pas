@@ -31,7 +31,10 @@ type
     function GetItemsCount: Integer;
     function GetItemByName(const AItemName: string): IBinaryData;
     function GetItemNameByIndex(const AItemIndex: Integer): string;
-    function GetItemByIndex(const AItemIndex: Integer; out AItemName: string): IBinaryData;
+    function GetItemByIndex(
+      const AItemIndex: Integer;
+      out AItemName: string
+    ): IBinaryData;
   end;
 
   IArchiveWriter = interface

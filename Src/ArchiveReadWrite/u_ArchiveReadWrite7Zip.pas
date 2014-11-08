@@ -65,7 +65,7 @@ uses
   u_StreamReadOnlyByBinaryData;
 
 type
-  EArchiveWriteBy7Zip = class (Exception);
+  EArchiveWriteBy7Zip = class(Exception);
 
 { TArchiveReadBy7Zip }
 
@@ -135,11 +135,19 @@ function TArchiveReadBy7Zip.CreateArchive(
 ): I7zInArchive;
 begin
   case AArchiveType of
-    atTar:  Result := CreateInArchive(CLSID_CFormatTar);
-    atZip:  Result := CreateInArchive(CLSID_CFormatZip);
-    at7Zip: Result := CreateInArchive(CLSID_CFormat7z);
+    atTar: begin
+      Result := CreateInArchive(CLSID_CFormatTar);
+    end;
+    atZip: begin
+      Result := CreateInArchive(CLSID_CFormatZip);
+    end;
+    at7Zip: begin
+      Result := CreateInArchive(CLSID_CFormat7z);
+    end;
   else // atRar
+  begin
     Result := CreateInArchive(CLSID_CFormatRar);
+  end;
   end;
   if Result <> nil then begin
     Result.OpenStream(T7zStream.Create(FStream, soReference));
@@ -264,15 +272,21 @@ function TArchiveWriteBy7Zip.CreateArchive(
 ): I7zOutArchive;
 begin
   case AArchiveType of
-    atTar: Result := CreateOutArchive(CLSID_CFormatTar);
+    atTar: begin
+      Result := CreateOutArchive(CLSID_CFormatTar);
+    end;
     atZip:
-      begin
-        Result := CreateOutArchive(CLSID_CFormatZip);
-        SetCompressionMethod(Result, mzDeflate);
-      end;
-    at7Zip: Result := CreateOutArchive(CLSID_CFormat7z);
+    begin
+      Result := CreateOutArchive(CLSID_CFormatZip);
+      SetCompressionMethod(Result, mzDeflate);
+    end;
+    at7Zip: begin
+      Result := CreateOutArchive(CLSID_CFormat7z);
+    end;
   else // atRar
+  begin
     raise EArchiveWriteBy7Zip.Create('Unsupport open RAR in write mode!');
+  end;
   end;
 end;
 

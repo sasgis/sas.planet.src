@@ -153,7 +153,10 @@ type
       const AFileDate: TDateTime
     ): Integer;
   public
-    constructor Create(const AFileName: string; const AAllowOpenExisting: Boolean); overload;
+    constructor Create(
+      const AFileName: string;
+      const AAllowOpenExisting: Boolean
+    ); overload;
     constructor Create(const AStream: TStream); overload;
     destructor Destroy; override;
   end;
