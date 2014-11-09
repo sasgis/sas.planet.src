@@ -1,4 +1,4 @@
-unit TBXSASTheme;
+unit u_TBXSASTheme;
 
 interface
 
@@ -82,5 +82,4 @@ end;
 
 initialization
   RegisterTBXTheme('SAStbxTheme', TTBXSASTheme);
-
 end.

@@ -511,6 +511,7 @@
     <DCCReference Include="Src\MainForm\u_SaveLoadTBConfigByConfigProvider.pas" />
     <DCCReference Include="Src\MainForm\u_SearchResultPresenterOnPanel.pas" />
     <DCCReference Include="Src\MainForm\u_SelectionRect.pas" />
+    <DCCReference Include="Src\MainForm\u_TBXSASTheme.pas" />
     <DCCReference Include="Src\MainForm\u_TBXSubmenuItemWithIndicator.pas" />
     <DCCReference Include="Src\MapCalibration\i_MapCalibration.pas" />
     <DCCReference Include="Src\MapCalibration\u_MapCalibrationDat.pas" />

@@ -174,6 +174,7 @@ uses
   u_StringProviderForMapTileItem in 'Src\u_StringProviderForMapTileItem.pas',
   u_ResStrings in 'Src\u_ResStrings.pas',
   u_CommonFormAndFrameParents in 'Src\u_CommonFormAndFrameParents.pas',
+  u_TBXSASTheme in 'Src\MainForm\u_TBXSASTheme.pas',
   u_TBXSubmenuItemWithIndicator in 'Src\MainForm\u_TBXSubmenuItemWithIndicator.pas',
   i_NotifierTilePyramidUpdate in 'Src\i_NotifierTilePyramidUpdate.pas',
   u_NotifierTilePyramidUpdate in 'Src\u_NotifierTilePyramidUpdate.pas',
