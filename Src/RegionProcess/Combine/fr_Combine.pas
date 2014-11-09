@@ -373,10 +373,13 @@ begin
   cbbOutputFormat.ItemIndex := VIndex;
 end;
 
-procedure TfrCombine.Show(AParent: TWinControl; AZoom: byte;
-  const APolygon: IGeometryLonLatPolygon);
+procedure TfrCombine.Show(
+  AParent: TWinControl;
+  AZoom: byte;
+  const APolygon: IGeometryLonLatPolygon
+);
 var
-  i:integer;
+  i: integer;
   VExportProvider: TExportProviderAbstract;
 begin
   Parent := AParent;

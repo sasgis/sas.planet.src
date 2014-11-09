@@ -104,7 +104,8 @@ uses
 constructor TProviderMapCombineKMZ.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig; const AFullMapsSet: IMapTypeSet;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -115,40 +116,42 @@ constructor TProviderMapCombineKMZ.Create(
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
   const AArchiveReadWriteFactory: IArchiveReadWriteFactory;
   const AMarksShowConfig: IUsedMarksConfig;
-  const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarkSystem;
+  const AMarksDrawConfig: IMarksDrawConfig;
+  const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
   const AGridsConfig: IMapLayerGridsConfig;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AMapCalibrationList: IMapCalibrationList);
+  const AMapCalibrationList: IMapCalibrationList
+);
 begin
   inherited Create(
-      AProgressFactory,
-      ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AViewConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionFactory,
-      ACoordConverterList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      ALocalConverterFactory,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AGridsConfig,
-      AValueToStringConverter,
-      AMapCalibrationList,
-      True,
-      False,
-      False,
-      'kmz',
-      gettext_NoExtract('KMZ for Garmin (JPEG Overlays)')
+    AProgressFactory,
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList,
+    AViewConfig,
+    AUseTilePrevZoomConfig,
+    AProjectionFactory,
+    ACoordConverterList,
+    AVectorGeometryProjectedFactory,
+    AProjectedGeometryProvider,
+    AMarksShowConfig,
+    AMarksDrawConfig,
+    AMarksDB,
+    ALocalConverterFactory,
+    ABitmapFactory,
+    ABitmapPostProcessing,
+    AGridsConfig,
+    AValueToStringConverter,
+    AMapCalibrationList,
+    True,
+    False,
+    False,
+    'kmz',
+    gettext_NoExtract('KMZ for Garmin (JPEG Overlays)')
   );
   FBitmapTileSaveLoadFactory := ABitmapTileSaveLoadFactory;
   FArchiveReadWriteFactory := AArchiveReadWriteFactory;
@@ -205,4 +208,3 @@ begin
 end;
 
 end.
-

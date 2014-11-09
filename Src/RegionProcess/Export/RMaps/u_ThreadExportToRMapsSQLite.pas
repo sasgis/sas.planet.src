@@ -283,7 +283,7 @@ begin
 
   // настраиваем текст SQL
   if FIsReplace then begin
-    FInsertSQLText := 'REPLACE'
+    FInsertSQLText := 'REPLACE';
   end else begin
     FInsertSQLText := 'IGNORE';
   end;
@@ -334,10 +334,10 @@ begin
   Assert(AData <> nil);
 
   VSQLText := FInsertSQLText +
-              ALIntToStr(ATile.X) + ',' +
-              ALIntToStr(ATile.Y) + ',' +
-              ALIntToStr(17 - AZoom) +
-              ',0,?)';
+    ALIntToStr(ATile.X) + ',' +
+    ALIntToStr(ATile.Y) + ',' +
+    ALIntToStr(17 - AZoom) +
+    ',0,?)';
 
   FSQLite3DB.ExecSQLWithBLOB(
     VSQLText,
@@ -347,5 +347,3 @@ begin
 end;
 
 end.
-
-

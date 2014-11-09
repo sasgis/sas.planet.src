@@ -353,10 +353,13 @@ begin
   CBFormat.ItemIndex := VIndex;
 end;
 
-procedure TfrExport.Show(AParent: TWinControl; AZoom: byte;
-  const APolygon: IGeometryLonLatPolygon);
+procedure TfrExport.Show(
+  AParent: TWinControl;
+  AZoom: byte;
+  const APolygon: IGeometryLonLatPolygon
+);
 var
-  i:integer;
+  i: integer;
   VExportProvider: TExportProviderAbstract;
 begin
   Parent := AParent;

@@ -104,7 +104,10 @@ type
     FImageResamplerFactoryList: IImageResamplerFactoryList;
     FImageResamplerConfig: IImageResamplerConfig;
     FfrMapSelect: TfrMapSelect;
-    procedure InitResamplersList(const AList: IImageResamplerFactoryList; ABox: TComboBox);
+    procedure InitResamplersList(
+      const AList: IImageResamplerFactoryList;
+      ABox: TComboBox
+    );
   private
     procedure Init(
       const AZoom: byte;
@@ -203,7 +206,9 @@ begin
   if chkAllZooms.State <> cbGrayed then begin
     for i := 0 to chklstZooms.Count - 1 do begin
       if chklstZooms.ItemEnabled[i] or chkFromPrevZoom.Checked then begin
-        if chkFromPrevZoom.Checked then chklstZooms.ItemEnabled[i] := true;
+        if chkFromPrevZoom.Checked then begin
+          chklstZooms.ItemEnabled[i] := true;
+        end;
         chklstZooms.Checked[i] := chkAllZooms.Checked;
       end;
     end;
@@ -271,7 +276,7 @@ end;
 
 procedure TfrTilesGenPrev.chkReplaceClick(Sender: TObject);
 begin
- chkUsePrevTiles.Enabled := chkReplace.Checked;
+  chkUsePrevTiles.Enabled := chkReplace.Checked;
 end;
 
 function TfrTilesGenPrev.GetIsCreateAllFromFirstZoom: Boolean;
@@ -324,7 +329,7 @@ begin
   VSourceZoom := cbbFromZoom.ItemIndex + 1;
   Result[0] := VSourceZoom;
   if VSourceZoom > 0 then begin
-    for i := 0 to VSourceZoom  - 1 do begin
+    for i := 0 to VSourceZoom - 1 do begin
       if chklstZooms.ItemEnabled[i] then begin
         if chklstZooms.Checked[i] then begin
           SetLength(Result, VCount + 1);
@@ -339,7 +344,7 @@ end;
 procedure TfrTilesGenPrev.Init(
   const AZoom: byte;
   const APolygon: IGeometryLonLatPolygon
-  );
+);
 var
   i: integer;
 begin
@@ -361,7 +366,7 @@ end;
 procedure TfrTilesGenPrev.InitResamplersList(
   const AList: IImageResamplerFactoryList;
   ABox: TComboBox
-  );
+);
 var
   i: Integer;
 begin

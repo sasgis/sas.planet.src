@@ -30,7 +30,7 @@ uses
   {$WARN UNIT_PLATFORM OFF}
   FileCtrl,
   {$WARN UNIT_PLATFORM ON}
-  ExtCtrls,                     
+  ExtCtrls,
   i_LanguageManager,
   i_PathConfig,
   u_CommonFormAndFrameParents;
@@ -64,6 +64,7 @@ type
 implementation
 
 {$R *.dfm}
+
 uses
   gnugettext;
 

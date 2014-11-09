@@ -172,12 +172,13 @@ begin
 end;
 
 procedure TfrExportToCE.btnSelectTargetFileClick(Sender: TObject);
-var TempString: string;
+var
+  TempString: string;
 begin
   if FfrMapSelect.GetSelectedMapType <> nil then begin
     if SelectDirectory('', '', TempString) then begin
-     TempPath.text := TempString;
-     edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
+      TempPath.text := TempString;
+      edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
     end;
   end;
 end;
@@ -185,15 +186,15 @@ end;
 procedure TfrExportToCE.SetMapName();
 begin
   if CMapName.checked then begin
-     EMapName.enabled := true;
-     if FfrMapSelect.GetSelectedMapType <> nil then begin
-       EMapName.text := FfrMapSelect.GetSelectedMapType.GUIConfig.Name.Value;
-     end else begin
+    EMapName.enabled := true;
+    if FfrMapSelect.GetSelectedMapType <> nil then begin
+      EMapName.text := FfrMapSelect.GetSelectedMapType.GUIConfig.Name.Value;
+    end else begin
       EMapName.text := '';
-     end;
+    end;
   end else begin
-     EMapName.Enabled := false;
-     EMapName.text := '';
+    EMapName.Enabled := false;
+    EMapName.text := '';
   end;
 end;
 
@@ -208,8 +209,10 @@ end;
 procedure TfrExportToCE.MapChange(Sender: TObject);
 begin
   SetMapName();
-  if (TempPath.text = '' ) and (edtTargetFile.Text <> '')then TempPath.text := edtTargetFile.Text;
-  if (TempPath.text <> '' )then begin
+  if (TempPath.text = '') and (edtTargetFile.Text <> '') then begin
+    TempPath.text := edtTargetFile.Text;
+  end;
+  if (TempPath.text <> '') then begin
     if FfrMapSelect.GetSelectedMapType <> nil then begin
       edtTargetFile.Text := IncludeTrailingPathDelimiter(TempPath.text) + FfrMapSelect.GetSelectedMapType.GetShortFolderName;
     end else begin
@@ -220,7 +223,9 @@ end;
 
 procedure TfrExportToCE.CCommentClick(Sender: TObject);
 begin
-  if CComment.checked then EComent.enabled := true else begin
+  if CComment.checked then begin
+    EComent.enabled := true;
+  end else begin
     EComent.Enabled := false;
     EComent.text := '';
   end;
@@ -237,7 +242,7 @@ var
 begin
   Result := EMapName.Text;
   if Result <> '' then begin
-    VMapType :=  GetMapType;
+    VMapType := GetMapType;
     Result := Guidtostring(VMapType.Zmp.GUID) + #13#10 + Result;
   end;
   if EComent.Text <> '' then begin
@@ -287,12 +292,15 @@ end;
 
 procedure TfrExportToCE.Init;
 begin
-  if CComment.checked then EComent.enabled := true else begin
-      EComent.Enabled := false;
-      EComent.text := '';
+  if CComment.checked then begin
+    EComent.enabled := true;
+  end else begin
+    EComent.Enabled := false;
+    EComent.text := '';
   end;
   FfrMapSelect.Show(pnlMap);
   SetMapName();
   FfrZoomsSelect.Show(pnlZoom);
 end;
+
 end.

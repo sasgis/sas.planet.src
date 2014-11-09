@@ -112,6 +112,7 @@ uses
   {$WARN UNIT_PLATFORM ON}
 
 {$R *.dfm}
+
 constructor TfrExportYaMobileV4.Create(
   const ALanguageManager: ILanguageManager;
   const AMainMapsConfig: IMainMapsConfig;
@@ -213,12 +214,15 @@ end;
 
 procedure TfrExportYaMobileV4.Init;
 begin
-  if rgTileSize.ItemIndex = -1 then rgTileSize.ItemIndex := 0;
+  if rgTileSize.ItemIndex = -1 then begin
+    rgTileSize.ItemIndex := 0;
+  end;
   FfrSatSelect.Show(pnlSat);
   FfrMapSelect.Show(pnlMap);
   FfrHybSelect.Show(pnlHyb);
   FfrZoomsSelect.Show(pnlZoom);
 end;
+
 function TfrExportYaMobileV4.Validate: Boolean;
 begin
   Result := FfrZoomsSelect.Validate;

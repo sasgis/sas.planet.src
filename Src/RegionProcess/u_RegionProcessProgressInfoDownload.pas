@@ -87,9 +87,15 @@ type
     procedure Finish;
     procedure SetPaused;
     procedure SetStarted;
-    procedure AddManyProcessedTile(const ALastTile: TPoint; const ACnt: Cardinal);
+    procedure AddManyProcessedTile(
+      const ALastTile: TPoint;
+      const ACnt: Cardinal
+    );
     procedure AddProcessedTile(const ATile: TPoint);
-    procedure AddDownloadedTile(const ATile: TPoint; const ASize: Cardinal);
+    procedure AddDownloadedTile(
+      const ATile: TPoint;
+      const ASize: Cardinal
+    );
     procedure AddNotNecessaryTile(const ATile: TPoint);
     procedure SetTotalToProcess(AValue: Int64);
     function GetLog: ILogSimple;
@@ -190,7 +196,9 @@ begin
 end;
 
 procedure TRegionProcessProgressInfoDownload.AddManyProcessedTile(
-  const ALastTile: TPoint; const ACnt: Cardinal);
+  const ALastTile: TPoint;
+  const ACnt: Cardinal
+);
 begin
   FCS.BeginWrite;
   try
@@ -384,7 +392,7 @@ begin
     if Assigned(FVersionForCheck.BaseVersion) then begin
       VVersionForCheck := FVersionForCheck.BaseVersion.StoreString;
     end;
-    VVersionForCheckUsePrev := FVersionForCheck.ShowPrevVersion
+    VVersionForCheckUsePrev := FVersionForCheck.ShowPrevVersion;
   end;
   ASLSSection.WriteString('MapGUID', GUIDToString(FGUID));
   ASLSSection.WriteString('VersionDownload', FVersionForDownload.StoreString);

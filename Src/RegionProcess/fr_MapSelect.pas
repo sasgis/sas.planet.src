@@ -41,8 +41,9 @@ uses
   u_CommonFormAndFrameParents;
 
 type
-  TMapSelectFilter = (mfAll=0, mfMaps=1, mfLayers=2);
-  TMapSelectPredicate =  function(const AMapType: IMapType): boolean of object;
+  TMapSelectFilter = (mfAll = 0, mfMaps = 1, mfLayers = 2);
+  TMapSelectPredicate = function(const AMapType: IMapType): boolean of object;
+
   TfrMapSelect = class(TFrame)
     cbbMap: TComboBox;
     FilterPopupMenu: TTBXPopupMenu;
@@ -81,7 +82,7 @@ type
     ); reintroduce;
     function GetSelectedMapType: IMapType;
     function Text: TCaption;
-    procedure SetEnabled(Amode: boolean);reintroduce;
+    procedure SetEnabled(Amode: boolean); reintroduce;
     procedure Show(AParent: TWinControl);
     property OnMapChange: TNotifyEvent read FOnMapChange write FOnMapChange;
   end;
@@ -162,7 +163,7 @@ end;
 
 procedure TfrMapSelect.ApplyFilter(Sender: TObject);
 begin
- RefreshList(TBX_Filter);
+  RefreshList(TBX_Filter);
 end;
 
 procedure TfrMapSelect.RefreshList(Sender: TObject);
@@ -217,7 +218,9 @@ begin
   cbbMap.Items.BeginUpdate;
   try
     cbbMap.Items.Clear;
-    if FNoItemAdd then cbbMap.Items.AddObject(SAS_STR_No, nil);
+    if FNoItemAdd then begin
+      cbbMap.Items.AddObject(SAS_STR_No, nil);
+    end;
     VGUIDList := FGUIConfigList.OrderedMapGUIDList;
     for i := 0 to VGUIDList.Count - 1 do begin
       VGUID := VGUIDList.Items[i];
@@ -241,10 +244,10 @@ begin
               if VFilter <> '' then begin //фильтруем
                 VMapName := AnsiUpperCase(VCurMapType.GUIConfig.Name.Value);
                 if posex(VFilter, VMapName) <> 0 then begin
-                  VAdd := True
+                  VAdd := True;
                 end else begin
-                  VAdd := False
-                end
+                  VAdd := False;
+                end;
               end else begin
                 VAdd := true;
               end;
@@ -252,7 +255,7 @@ begin
           end; //case
           if VAdd then begin
             if not FMapSelectPredicate(VCurMapType) then begin
-              VAdd := false
+              VAdd := false;
             end;
           end;
           if VAdd then begin
@@ -286,7 +289,9 @@ begin
   end;
 
   VMapCount := cbbMap.Items.Count;
-  if FNoItemAdd then dec(VMapCount);
+  if FNoItemAdd then begin
+    dec(VMapCount);
+  end;
 
   case VMode of
     1: VHint := Format(_('All (%d)'), [VMapCount]);
@@ -301,13 +306,14 @@ begin
     end;
     5: begin
       if VFilter <> '' then begin
-        VOrigFilter := TBX_AFilter.Text
+        VOrigFilter := TBX_AFilter.Text;
       end else begin
-        VOrigFilter := '*'
+        VOrigFilter := '*';
       end;
       VHint := Format(_('Filter: "%s" (%d)'), [VOrigFilter, VMapCount]);
     end;
   end;
   cbbMap.Hint := VHint;
 end;
+
 end.

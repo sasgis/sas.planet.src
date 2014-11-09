@@ -151,7 +151,9 @@ begin
   VUseRecolor := (ParamsFrame as IRegionProcessParamsFrameExportToJNX).UseRecolor;
   VProgressInfo := ProgressFactory.Build(APolygon);
   VBitmapPostProcessing := nil;
-  if VUseRecolor then VBitmapPostProcessing := FBitmapPostProcessing.GetStatic;
+  if VUseRecolor then begin
+    VBitmapPostProcessing := FBitmapPostProcessing.GetStatic;
+  end;
 
   VThread :=
     TThreadExportToJnx.Create(
@@ -172,5 +174,3 @@ begin
 end;
 
 end.
-
-

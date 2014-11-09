@@ -115,7 +115,7 @@ type
     FVectorGeometryLonLatFactory: IGeometryLonLatFactory;
     FVectorGeometryProjectedFactory: IGeometryProjectedFactory;
     FLastSelectionInfo: ILastSelectionInfo;
-    FZoom_rect:byte;
+    FZoom_rect: byte;
     FPolygonLL: IGeometryLonLatPolygon;
     FProviderTilesGenPrev: TExportProviderAbstract;
     FProviderTilesCopy: TExportProviderAbstract;
@@ -179,8 +179,11 @@ type
       const AMarkDBGUI: TMarkDbGUIHelper
     ); reintroduce;
     destructor Destroy; override;
-    procedure LoadSelFromFile(const AFileName:string; out APolygon: IGeometryLonLatPolygon);
-    procedure StartSlsFromFile(const AFileName:string);
+    procedure LoadSelFromFile(
+      const AFileName: string;
+      out APolygon: IGeometryLonLatPolygon
+    );
+    procedure StartSlsFromFile(const AFileName: string);
   end;
 
 implementation
@@ -376,7 +379,7 @@ procedure TfrmRegionProcess.LoadSelFromFile(
   out APolygon: IGeometryLonLatPolygon
 );
 var
-  VIniFile:TMemIniFile;
+  VIniFile: TMemIniFile;
   VHLGData: IConfigDataProvider;
   VPolygonSection: IConfigDataProvider;
   VZoom: Byte;
@@ -410,8 +413,10 @@ begin
   Self.Show;
 end;
 
-procedure TfrmRegionProcess.ProcessPolygonWithZoom(const AZoom: Byte;
-  const APolygon: IGeometryLonLatPolygon);
+procedure TfrmRegionProcess.ProcessPolygonWithZoom(
+  const AZoom: Byte;
+  const APolygon: IGeometryLonLatPolygon
+);
 begin
   FZoom_rect := AZoom;
   FPolygonLL := APolygon;
@@ -513,8 +518,10 @@ var
   VHLGData: IConfigDataWriteProvider;
   VPolygonSection: IConfigDataWriteProvider;
 begin
-  if (SaveSelDialog.Execute)and(SaveSelDialog.FileName <> '') then begin
-    If FileExists(SaveSelDialog.FileName) then DeleteFile(SaveSelDialog.FileName);
+  if (SaveSelDialog.Execute) and (SaveSelDialog.FileName <> '') then begin
+    If FileExists(SaveSelDialog.FileName) then begin
+      DeleteFile(SaveSelDialog.FileName);
+    end;
     VZoom := FLastSelectionInfo.Zoom;
     VPolygon := FLastSelectionInfo.Polygon;
     if VPolygon <> nil then begin
@@ -537,14 +544,16 @@ var
   VPolygon: IGeometryLonLatPolygon;
 begin
   VPolygon := FLastSelectionInfo.Polygon;
-  if (VPolygon <> nil)  then begin
+  if (VPolygon <> nil) then begin
     FMapGoto.FitRectToScreen(VPolygon.Bounds.Rect);
   end;
 end;
 
 procedure TfrmRegionProcess.tbtmSaveClick(Sender: TObject);
 begin
-  if (FLastSelectionInfo.Polygon <> nil) then FMarkDBGUI.SaveMarkModal(nil, FLastSelectionInfo.Polygon);
+  if (FLastSelectionInfo.Polygon <> nil) then begin
+    FMarkDBGUI.SaveMarkModal(nil, FLastSelectionInfo.Polygon);
+  end;
 end;
 
 procedure TfrmRegionProcess.StartSlsFromFile(const AFileName: string);
@@ -557,5 +566,3 @@ begin
 end;
 
 end.
-
-

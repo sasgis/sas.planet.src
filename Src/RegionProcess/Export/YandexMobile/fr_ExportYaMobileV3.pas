@@ -218,6 +218,7 @@ begin
   FfrHybSelect.Show(pnlHyb);
   FfrZoomsSelect.Show(pnlZoom);
 end;
+
 function TfrExportYaMobileV3.Validate: Boolean;
 begin
   Result := FfrZoomsSelect.Validate;

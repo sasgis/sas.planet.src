@@ -99,7 +99,8 @@ uses
 constructor TProviderMapCombineJP2.Create(
   const AProgressFactory: IRegionProcessProgressInfoInternalFactory;
   const ALanguageManager: ILanguageManager;
-  const AMainMapsConfig: IMainMapsConfig; const AFullMapsSet: IMapTypeSet;
+  const AMainMapsConfig: IMainMapsConfig;
+  const AFullMapsSet: IMapTypeSet;
   const AGUIConfigList: IMapTypeGUIConfigList;
   const AViewConfig: IGlobalViewMainConfig;
   const AUseTilePrevZoomConfig: IUseTilePrevZoomConfig;
@@ -108,7 +109,8 @@ constructor TProviderMapCombineJP2.Create(
   const AVectorGeometryProjectedFactory: IGeometryProjectedFactory;
   const AProjectedGeometryProvider: IGeometryProjectedProvider;
   const AMarksShowConfig: IUsedMarksConfig;
-  const AMarksDrawConfig: IMarksDrawConfig; const AMarksDB: IMarkSystem;
+  const AMarksDrawConfig: IMarksDrawConfig;
+  const AMarksDB: IMarkSystem;
   const ALocalConverterFactory: ILocalCoordConverterFactorySimpe;
   const ABitmapFactory: IBitmap32StaticFactory;
   const ABitmapPostProcessing: IBitmapPostProcessingChangeable;
@@ -128,31 +130,30 @@ begin
   end;
 
   inherited Create(
-      AProgressFactory,
-      ALanguageManager,
-      AMainMapsConfig,
-      AFullMapsSet,
-      AGUIConfigList,
-      AViewConfig,
-      AUseTilePrevZoomConfig,
-      AProjectionFactory,
-      ACoordConverterList,
-      AVectorGeometryProjectedFactory,
-      AProjectedGeometryProvider,
-      AMarksShowConfig,
-      AMarksDrawConfig,
-      AMarksDB,
-      ALocalConverterFactory,
-      ABitmapFactory,
-      ABitmapPostProcessing,
-      AGridsConfig,
-      AValueToStringConverter,
-      AMapCalibrationList,
-      not FLossless, // Show Quality option
-      False,         // Show Exif option
-      False,         // Show Alfa chanel option
-      'jp2',
-      gettext_NoExtract(VCaption)
+    AProgressFactory,
+    ALanguageManager,
+    AMainMapsConfig,
+    AFullMapsSet,
+    AGUIConfigList,
+    AViewConfig,
+    AUseTilePrevZoomConfig,
+    AProjectionFactory,
+    ACoordConverterList,
+    AVectorGeometryProjectedFactory,
+    AProjectedGeometryProvider,
+    AMarksShowConfig,
+    AMarksDrawConfig,
+    AMarksDB,
+    ALocalConverterFactory,
+    ABitmapFactory,
+    ABitmapPostProcessing,
+    AGridsConfig,
+    AValueToStringConverter,
+    AMapCalibrationList, not FLossless, // Show Quality option
+    False,         // Show Exif option
+    False,         // Show Alfa chanel option
+    'jp2',
+    gettext_NoExtract(VCaption)
   );
 end;
 
@@ -203,4 +204,3 @@ begin
 end;
 
 end.
-

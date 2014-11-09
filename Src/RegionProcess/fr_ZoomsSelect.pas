@@ -91,8 +91,9 @@ var
   i: integer;
 begin
   for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.items[i] = inttostr(AitemValue + 1) then
+    if chklstZooms.items[i] = inttostr(AitemValue + 1) then begin
       chklstZooms.ItemEnabled[i] := false;
+    end;
   end;
 end;
 
@@ -103,14 +104,24 @@ begin
   VCountChecked := 0;
   VDisabledCut := 0;
   for i := 0 to chklstZooms.Count - 1 do begin
-    if chklstZooms.Checked[i] then inc(VCountChecked);
-    if not chklstZooms.ItemEnabled[i] then inc(VDisabledCut);
+    if chklstZooms.Checked[i] then begin
+      inc(VCountChecked);
+    end;
+    if not chklstZooms.ItemEnabled[i] then begin
+      inc(VDisabledCut);
+    end;
   end;
   if chkAllZooms.state <> cbGrayed then begin
-    if (VCountChecked > 0) then chkAllZooms.state := cbGrayed;
+    if (VCountChecked > 0) then begin
+      chkAllZooms.state := cbGrayed;
+    end;
   end else begin
-    if VCountChecked + VDisabledCut = chklstZooms.Count then chkAllZooms.State := cbChecked;
-    if VCountChecked = 0 then chkAllZooms.State := cbUnchecked;
+    if VCountChecked + VDisabledCut = chklstZooms.Count then begin
+      chkAllZooms.State := cbChecked;
+    end;
+    if VCountChecked = 0 then begin
+      chkAllZooms.State := cbUnchecked;
+    end;
   end;
 end;
 
@@ -127,21 +138,25 @@ begin
     end else begin
       chklstZooms.Checked[i] := false;
     end;
-    if not chklstZooms.ItemEnabled[i] then inc(VDisabledCut);
+    if not chklstZooms.ItemEnabled[i] then begin
+      inc(VDisabledCut);
+    end;
   end;
 
   if chklstZooms.ItemIndex < chklstZooms.count - 1 then begin //deselect click -> 24
     for i := chklstZooms.ItemIndex + 1 to chklstZooms.count - 1 do begin
       chklstZooms.Checked[i] := false;
-      if not chklstZooms.ItemEnabled[i] then inc(VDisabledCut);
+      if not chklstZooms.ItemEnabled[i] then begin
+        inc(VDisabledCut);
+      end;
     end;
   end;
 
-  if  VCountChecked + VDisabledCut = 0 then begin   // mark chekbox All
-    chkAllZooms.state := cbUnchecked
+  if VCountChecked + VDisabledCut = 0 then begin   // mark chekbox All
+    chkAllZooms.state := cbUnchecked;
   end else begin
     if VCountChecked + VDisabledCut = chklstZooms.Items.Count then begin
-      chkAllZooms.state := cbChecked
+      chkAllZooms.state := cbChecked;
     end else begin
       chkAllZooms.state := cbGrayed;
     end;

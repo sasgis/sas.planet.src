@@ -23,7 +23,6 @@ unit u_ThreadDeleteMarks;
 interface
 
 uses
-
   SysUtils,
   Classes,
   c_MarkFlag,
@@ -37,7 +36,7 @@ uses
   i_InterfaceListStatic,
   u_ThreadRegionProcessAbstract;
 
-  type
+type
   TThreadDeleteMarks = class(TThreadRegionProcessAbstract)
   private
     FpolyLL: IGeometryLonLatPolygon;
@@ -172,7 +171,7 @@ begin
 
     if VTemp.Count > 0 then begin
       VMarksListToDelete := VTemp.MakeStaticAndClear;
-      FMarkSystem.MarkDb.UpdateMarkList(VMarksListToDelete, nil)
+      FMarkSystem.MarkDb.UpdateMarkList(VMarksListToDelete, nil);
     end;
   end;
 end;

@@ -208,6 +208,7 @@ uses
   u_GlobalState;
 
 {$R *.dfm}
+
 constructor TfrExportToJNX.Create(
   const ALanguageManager: ILanguageManager;
   const ABitmapTileSaveLoadFactory: IBitmapTileSaveLoadFactory;
@@ -320,44 +321,64 @@ end;
 
 procedure TfrExportToJNX.Map2Change(Sender: TObject);
 var
- cnt: integer;
+  cnt: integer;
 begin
   cnt := 0;
-  if ChMap1.Checked then inc(cnt);
-  TreeView1.Items[cnt*3 + 1].Text := FfrMap2Select.text;
+  if ChMap1.Checked then begin
+    inc(cnt);
+  end;
+  TreeView1.Items[cnt * 3 + 1].Text := FfrMap2Select.text;
 end;
 
 procedure TfrExportToJNX.Map3Change(Sender: TObject);
 var
- cnt: integer;
+  cnt: integer;
 begin
   cnt := 0;
-  if ChMap1.Checked then inc(cnt);
-  if ChMap2.Checked then inc(cnt);
-  TreeView1.Items[cnt*3 + 1].Text := FfrMap3Select.text;
+  if ChMap1.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap2.Checked then begin
+    inc(cnt);
+  end;
+  TreeView1.Items[cnt * 3 + 1].Text := FfrMap3Select.text;
 end;
 
 procedure TfrExportToJNX.Map4Change(Sender: TObject);
 var
- cnt: integer;
+  cnt: integer;
 begin
   cnt := 0;
-  if ChMap1.Checked then inc(cnt);
-  if ChMap2.Checked then inc(cnt);
-  if ChMap3.Checked then inc(cnt);
-  TreeView1.Items[cnt*3 + 1].Text := FfrMap4Select.text;
+  if ChMap1.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap2.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap3.Checked then begin
+    inc(cnt);
+  end;
+  TreeView1.Items[cnt * 3 + 1].Text := FfrMap4Select.text;
 end;
 
 procedure TfrExportToJNX.Map5Change(Sender: TObject);
 var
- cnt: integer;
+  cnt: integer;
 begin
   cnt := 0;
-  if ChMap1.Checked then inc(cnt);
-  if ChMap2.Checked then inc(cnt);
-  if ChMap3.Checked then inc(cnt);
-  if ChMap4.Checked then inc(cnt);
-  TreeView1.Items[cnt*3 + 1].Text := FfrMap5Select.Text;
+  if ChMap1.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap2.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap3.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap4.Checked then begin
+    inc(cnt);
+  end;
+  TreeView1.Items[cnt * 3 + 1].Text := FfrMap5Select.Text;
 end;
 
 procedure TfrExportToJNX.cbbVersionChange(Sender: TObject);
@@ -373,6 +394,7 @@ end;
 
 type
   TZoomIndexToScaleIndex = array [0..23] of integer;
+
 const
   DefZoomIndexToScaleIndex: TZoomIndexToScaleIndex = (
     0, 0, 0, 0, 2, 3, 5,
@@ -406,24 +428,23 @@ begin
       VGarminZoomList.CommaText := GarminMetricZoomListStr;
 
       VConfigPath := GState.Config.BaseCahcePath.BasePathConfig;
-      if Assigned(VConfigPath) and FileExists(VConfigPath.Path + 'JnxScales.ini') then
-      begin
+      if Assigned(VConfigPath) and FileExists(VConfigPath.Path + 'JnxScales.ini') then begin
         VIniFile := TMeminiFile.Create(VConfigPath.Path + 'JnxScales.ini');
         VJnxScaleConfig := TConfigDataProviderByIniFile.CreateWithOwn(VIniFile);
         VJnxLevelMappingConfig := VJnxScaleConfig.GetSubItem('LevelMapping');
 
-        if Assigned(VJnxScaleConfig) then
-          for i:=0 to 23 do
-          begin
+        if Assigned(VJnxScaleConfig) then begin
+          for i := 0 to 23 do begin
             VStr := VJnxLevelMappingConfig.ReadString('z' + IntToStr(i + 1), '');
             // Если в INIшнике нет соответствующего значения, будет использовано значение из набора по умолчанию.
-            if VStr <> '' then
-            begin
+            if VStr <> '' then begin
               VIndex := VGarminZoomList.IndexOf(VStr);
-              if VIndex <> -1 then
+              if VIndex <> -1 then begin
                 ZoomIndexToScaleIndex[i] := VIndex;
+              end;
             end;
           end;
+        end;
       end;
     finally
       VJnxLevelMappingConfig := Nil;
@@ -460,8 +481,8 @@ begin
 end;
 
 procedure TfrExportToJNX.Init(
-      const AZoom: byte;
-      const APolygon: IGeometryLonLatPolygon
+  const AZoom: byte;
+  const APolygon: IGeometryLonLatPolygon
 );
 var
   i: integer;
@@ -482,8 +503,8 @@ begin
   FfrMap4Select.SetEnabled(ChMap4.Checked);
   FfrMap5Select.SetEnabled(ChMap5.Checked);
 
-  if CbbZoom.Items.count=0 then begin
-    for i:=1 to 24 do begin
+  if CbbZoom.Items.count = 0 then begin
+    for i := 1 to 24 do begin
       CbbZoom.Items.Add(inttostr(i));
     end;
 
@@ -516,7 +537,9 @@ begin
   EMapName.text := FfrMapSelect.Text;
   EProductName.text := 'SAS Planet';
   EProductID.ItemIndex := 0;
-  if cbbVersion.ItemIndex = -1 then cbbVersion.ItemIndex := 0;
+  if cbbVersion.ItemIndex = -1 then begin
+    cbbVersion.ItemIndex := 0;
+  end;
   if cbbVersion.ItemIndex = 1 then begin
     EZorder.visible := true;
     LZOrder.visible := true;
@@ -533,7 +556,7 @@ end;
 
 procedure TfrExportToJNX.ChMap1Click(Sender: TObject);
 var
- VItemNode, VParentNode: TTreeNode;
+  VItemNode, VParentNode: TTreeNode;
 begin
   FfrMapSelect.SetEnabled(ChMap1.Checked);
   EJpgQuality.Enabled := ChMap1.Checked and ChRecompress1.Checked;
@@ -542,7 +565,7 @@ begin
   ChMap2.Enabled := ChMap1.Checked;
   ChRecompress1.Enabled := ChMap1.Checked;
 
-  if  ChMap1.Checked then begin
+  if ChMap1.Checked then begin
     VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(1));
     TreeView1.Items.AddChild(VParentNode, FfrMapSelect.text);
     TreeView1.Items.AddChild(VParentNode, '(c) ' + EProductName.text);
@@ -555,8 +578,8 @@ end;
 
 procedure TfrExportToJNX.ChMap2Click(Sender: TObject);
 var
- VItemNode, VParentNode: TTreeNode;
- cnt: integer;
+  VItemNode, VParentNode: TTreeNode;
+  cnt: integer;
 begin
   cnt := 0;
   FfrMap2Select.SetEnabled(ChMap2.Checked);
@@ -565,14 +588,16 @@ begin
   cbbscale2.Enabled := ChMap2.Checked;
   ChMap3.Enabled := ChMap2.Checked;
   ChRecompress2.Enabled := ChMap2.Checked;
-  if ChMap1.Checked then inc(cnt);
+  if ChMap1.Checked then begin
+    inc(cnt);
+  end;
   if ChMap2.Checked then begin
     if (TreeView1.Items.count > cnt * 3) then begin
       VItemNode := TreeView1.Items[cnt * 3];
       VParentNode := TreeView1.Items.insert(VItemNode, 'Level' + inttostr(2));
     end else begin
-      if TreeView1.Items.Count=0 then begin
-        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(2))
+      if TreeView1.Items.Count = 0 then begin
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(2));
       end else begin
         VParentNode := TreeView1.Items.Add(nil, 'Level' + inttostr(2));
       end;
@@ -588,8 +613,8 @@ end;
 
 procedure TfrExportToJNX.ChMap3Click(Sender: TObject);
 var
- VItemNode, VParentNode : TTreeNode;
- cnt: integer;
+  VItemNode, VParentNode: TTreeNode;
+  cnt: integer;
 begin
   cnt := 0;
   FfrMap3Select.SetEnabled(ChMap3.Checked);
@@ -598,15 +623,19 @@ begin
   cbbscale3.Enabled := ChMap3.Checked;
   ChMap4.Enabled := ChMap3.Checked;
   ChRecompress3.Enabled := ChMap3.Checked;
-  if ChMap1.Checked then inc(cnt);
-  if ChMap2.Checked then inc(cnt);
+  if ChMap1.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap2.Checked then begin
+    inc(cnt);
+  end;
   if ChMap3.Checked then begin
-    if (TreeView1.Items.count >cnt * 3) then begin
+    if (TreeView1.Items.count > cnt * 3) then begin
       VItemNode := TreeView1.Items[cnt * 3];
       VParentNode := TreeView1.Items.insert(VItemNode, 'Level' + inttostr(3));
     end else begin
-      if TreeView1.Items.Count=0 then begin
-        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(3))
+      if TreeView1.Items.Count = 0 then begin
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(3));
       end else begin
         VParentNode := TreeView1.Items.Add(nil, 'Level' + inttostr(3));
       end;
@@ -622,8 +651,8 @@ end;
 
 procedure TfrExportToJNX.ChMap4Click(Sender: TObject);
 var
- VItemNode, VParentNode: TTreeNode;
- cnt: integer;
+  VItemNode, VParentNode: TTreeNode;
+  cnt: integer;
 begin
   cnt := 0;
   FfrMap4Select.SetEnabled(ChMap4.Checked);
@@ -632,16 +661,22 @@ begin
   cbbscale4.Enabled := ChMap4.Checked;
   ChMap5.Enabled := ChMap4.Checked;
   ChRecompress4.Enabled := ChMap4.Checked;
-  if ChMap1.Checked then inc(cnt);
-  if ChMap2.Checked then inc(cnt);
-  if ChMap3.Checked then inc(cnt);
+  if ChMap1.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap2.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap3.Checked then begin
+    inc(cnt);
+  end;
   if ChMap4.Checked then begin
     if (TreeView1.Items.count > cnt * 3) then begin
       VItemNode := TreeView1.Items[cnt * 3];
       VParentNode := TreeView1.Items.insert(VItemNode, 'Level' + inttostr(4));
     end else begin
-      if TreeView1.Items.Count=0 then begin
-        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(4))
+      if TreeView1.Items.Count = 0 then begin
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(4));
       end else begin
         VParentNode := TreeView1.Items.Add(nil, 'Level' + inttostr(4));
       end;
@@ -657,26 +692,35 @@ end;
 
 procedure TfrExportToJNX.ChMap5Click(Sender: TObject);
 var
- VItemNode, VParentNode: TTreeNode;
- cnt: integer;
+  VItemNode, VParentNode: TTreeNode;
+  cnt: integer;
 begin
   cnt := 0;
   FfrMap5Select.SetEnabled(ChMap5.Checked);
-  EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;;
+  EJpgQuality5.Enabled := ChMap5.Checked and ChRecompress5.Checked;
+  ;
   CbbZoom5.Enabled := ChMap5.Checked;
   cbbscale5.Enabled := ChMap5.Checked;
   ChRecompress5.Enabled := ChMap5.Checked;
-  if ChMap1.Checked then inc(cnt);
-  if ChMap2.Checked then inc(cnt);
-  if ChMap3.Checked then inc(cnt);
-  if ChMap4.Checked then inc(cnt);
+  if ChMap1.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap2.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap3.Checked then begin
+    inc(cnt);
+  end;
+  if ChMap4.Checked then begin
+    inc(cnt);
+  end;
   if ChMap5.Checked then begin
-    if (TreeView1.Items.count >cnt * 3) then begin
+    if (TreeView1.Items.count > cnt * 3) then begin
       VItemNode := TreeView1.Items[(cnt) * 3];
       VParentNode := TreeView1.Items.insert(VItemNode, 'Level' + inttostr(5));
     end else begin
-      if TreeView1.Items.Count=0 then begin
-        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(5))
+      if TreeView1.Items.Count = 0 then begin
+        VParentNode := TreeView1.Items.AddFirst(nil, 'Level' + inttostr(5));
       end else begin
         VParentNode := TreeView1.Items.Add(nil, 'Level' + inttostr(5));
       end;
@@ -705,7 +749,7 @@ end;
 
 function TfrExportToJNX.GetJNXVersion: Integer;
 begin
-  if cbbVersion.ItemIndex=0 then begin
+  if cbbVersion.ItemIndex = 0 then begin
     Result := 3;
   end else begin
     Result := 4;
@@ -833,7 +877,7 @@ end;
 
 function TfrExportToJNX.GetZOrder: Integer;
 begin
-  if cbbVersion.ItemIndex=0 then begin
+  if cbbVersion.ItemIndex = 0 then begin
     Result := 0;
   end else begin
     Result := EZorder.Value;
@@ -864,4 +908,5 @@ procedure TfrExportToJNX.ChRecompress5Click(Sender: TObject);
 begin
   EJpgQuality5.Enabled := ChRecompress5.Checked;
 end;
+
 end.

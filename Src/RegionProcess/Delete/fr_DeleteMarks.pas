@@ -91,9 +91,15 @@ end;
 function TfrDeleteMarks.MarksState: Byte;
 begin
   Result := 0;
-  if chkPlacemarks.Checked then  Result := Result or CPlacemarkFlag;
-  if chkPaths.Checked      then  Result := Result or CPathFlag;
-  if chkPolygons.Checked   then  Result := Result or CPolygonFlag;
+  if chkPlacemarks.Checked then begin
+    Result := Result or CPlacemarkFlag;
+  end;
+  if chkPaths.Checked then begin
+    Result := Result or CPathFlag;
+  end;
+  if chkPolygons.Checked then begin
+    Result := Result or CPolygonFlag;
+  end;
 end;
 
 function TfrDeleteMarks.Validate: Boolean;

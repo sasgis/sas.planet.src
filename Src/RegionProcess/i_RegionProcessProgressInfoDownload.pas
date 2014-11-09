@@ -70,9 +70,15 @@ type
     procedure Finish;
     procedure SetPaused;
     procedure SetStarted;
-    procedure AddManyProcessedTile(const ALastTile: TPoint; const ACnt: Cardinal);
+    procedure AddManyProcessedTile(
+      const ALastTile: TPoint;
+      const ACnt: Cardinal
+    );
     procedure AddProcessedTile(const ATile: TPoint);
-    procedure AddDownloadedTile(const ATile: TPoint; const ASize: Cardinal);
+    procedure AddDownloadedTile(
+      const ATile: TPoint;
+      const ASize: Cardinal
+    );
     procedure AddNotNecessaryTile(const ATile: TPoint);
     procedure SetTotalToProcess(AValue: Int64);
 

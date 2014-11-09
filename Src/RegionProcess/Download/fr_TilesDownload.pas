@@ -145,7 +145,7 @@ uses
 
 procedure TfrTilesDownload.cbbZoomChange(Sender: TObject);
 var
-  numd:int64;
+  numd: int64;
   Vmt: IMapType;
   VZoom: byte;
   VPolyLL: IGeometryLonLatPolygon;
@@ -235,12 +235,12 @@ end;
 
 function TfrTilesDownload.GetAllowDownload(const AMapType: IMapType): boolean; // чисто для проверки
 begin
-   Result := (AMapType.StorageConfig.GetAllowAdd) and (AMapType.TileDownloadSubsystem.State.GetStatic.Enabled);
+  Result := (AMapType.StorageConfig.GetAllowAdd) and (AMapType.TileDownloadSubsystem.State.GetStatic.Enabled);
 end;
 
 function TfrTilesDownload.GetIsIgnoreTne: Boolean;
 begin
-  Result := chkTryLoadIfTNE.Checked
+  Result := chkTryLoadIfTNE.Checked;
 end;
 
 function TfrTilesDownload.GetIsReplace: Boolean;
@@ -281,13 +281,16 @@ begin
   Result := cbbZoom.ItemIndex;
 end;
 
-procedure TfrTilesDownload.Init(const AZoom: Byte; const APolygon: IGeometryLonLatPolygon);
+procedure TfrTilesDownload.Init(
+  const AZoom: Byte;
+  const APolygon: IGeometryLonLatPolygon
+);
 var
   i: integer;
 begin
   FPolygLL := APolygon;
   cbbZoom.Items.Clear;
-  for i:=1 to 24 do begin
+  for i := 1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));
   end;
   cbbZoom.ItemIndex := AZoom;

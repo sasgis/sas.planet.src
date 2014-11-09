@@ -54,8 +54,15 @@ type
     tbtmSelect: TTBItem;
     tbtmZoom: TTBItem;
     procedure FormCreate(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
+    procedure FormKeyUp(
+      Sender: TObject;
+      var Key: Word;
+      Shift: TShiftState
+    );
     procedure MemoInfoChange(Sender: TObject);
     procedure tbtmSelectClick(Sender: TObject);
     procedure tbtmZoomClick(Sender: TObject);
@@ -190,18 +197,26 @@ begin
   end;
 end;
 
-procedure TfrmProgressSimple.FormClose(Sender: TObject; var Action:
-    TCloseAction);
+procedure TfrmProgressSimple.FormClose(
+  Sender: TObject;
+  var Action:
+  TCloseAction
+);
 begin
   CancelOperation;
   Action := caFree;
   Application.MainForm.SetFocus;
 end;
 
-procedure TfrmProgressSimple.FormKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TfrmProgressSimple.FormKeyUp(
+  Sender: TObject;
+  var Key: Word;
+  Shift: TShiftState
+);
 begin
-  if Key=VK_ESCAPE then close;
+  if Key = VK_ESCAPE then begin
+    close;
+  end;
 end;
 
 procedure TfrmProgressSimple.MemoInfoChange(Sender: TObject);
@@ -243,6 +258,3 @@ end;
 
 
 end.
-
-
-

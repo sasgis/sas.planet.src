@@ -200,7 +200,7 @@ var
   i: integer;
 begin
   cbbZoom.Items.Clear;
-  for i:= 1 to 24 do begin
+  for i := 1 to 24 do begin
     cbbZoom.Items.Add(inttostr(i));
   end;
   cbbZoom.ItemIndex := AZoom;

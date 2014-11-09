@@ -311,7 +311,7 @@ end;
 
 procedure TfrMapCombine.cbbZoomChange(Sender: TObject);
 var
-  numd: int64 ;
+  numd: int64;
   Vmt: IMapType;
   VZoom: byte;
   VPolyLL: IGeometryLonLatPolygon;
@@ -322,7 +322,9 @@ var
   VTileRect: TRect;
 begin
   Vmt := FfrMapSelect.GetSelectedMapType;
-  if (Vmt = nil) then Vmt := FfrLayerSelect.GetSelectedMapType; //calc for layer if map is not selected
+  if (Vmt = nil) then begin
+    Vmt := FfrLayerSelect.GetSelectedMapType;
+  end; //calc for layer if map is not selected
   if Vmt <> nil then begin
     VZoom := cbbZoom.ItemIndex;
     Vmt.GeoConvert.CheckZoom(VZoom);

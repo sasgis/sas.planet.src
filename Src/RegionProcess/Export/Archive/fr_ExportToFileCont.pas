@@ -165,7 +165,7 @@ end;
 
 function TfrExportToFileCont.GetAllowExport(const AMapType: IMapType): boolean;
 begin
-  Result := True
+  Result := True;
 end;
 
 function TfrExportToFileCont.GetMapType: IMapType;
@@ -203,6 +203,7 @@ begin
   inherited;
   cbbNamesType.ItemIndex := i;
 end;
+
 function TfrExportToFileCont.Validate: Boolean;
 begin
   Result := FfrZoomsSelect.Validate;

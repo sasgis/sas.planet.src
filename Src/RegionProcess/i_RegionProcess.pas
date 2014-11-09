@@ -38,8 +38,11 @@ type
 
   IRegionProcessFromFile = interface(IRegionProcess)
     ['{8A267DB0-B9EC-4547-8F2A-69177F9C7878}']
-    procedure LoadSelFromFile(const AFileName:string; out APolygon: IGeometryLonLatPolygon);
-    procedure StartSlsFromFile(const AFileName:string);
+    procedure LoadSelFromFile(
+      const AFileName: string;
+      out APolygon: IGeometryLonLatPolygon
+    );
+    procedure StartSlsFromFile(const AFileName: string);
   end;
 
 implementation

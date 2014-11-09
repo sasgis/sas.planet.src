@@ -153,8 +153,9 @@ end;
 
 procedure TfrExportGEKml.btnSelectTargetFileClick(Sender: TObject);
 begin
- if dlgSaveKML.Execute then
-  edtTargetFile.Text:=dlgSaveKML.FileName;
+  if dlgSaveKML.Execute then begin
+    edtTargetFile.Text := dlgSaveKML.FileName;
+  end;
 end;
 
 function TfrExportGEKml.GetMapType: IMapType;
@@ -187,6 +188,7 @@ begin
   FfrMapSelect.Show(pnlMap);
   FfrZoomsSelect.Show(pnlZoom);
 end;
+
 function TfrExportGEKml.Validate: Boolean;
 begin
   Result := FfrZoomsSelect.Validate;

@@ -49,7 +49,6 @@ uses
   u_MarkDbGUIHelper,
   u_CommonFormAndFrameParents;
 
-
 type
   TfrmProgressDownload = class(TFormWitghLanguageManager)
     Panel1: TPanel;
@@ -86,7 +85,10 @@ type
     procedure btnMinimizeClick(Sender: TObject);
     procedure btnPauseClick(Sender: TObject);
     procedure UpdateTimerTimer(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormClose(
+      Sender: TObject;
+      var Action: TCloseAction
+    );
     procedure Panel1Resize(Sender: TObject);
     procedure tbtmZoomClick(Sender: TObject);
     procedure tbtmSaveClick(Sender: TObject);
@@ -151,7 +153,7 @@ constructor TfrmProgressDownload.Create(
   const AFormCaption: string;
   const ARegionProcess: IRegionProcess;
   const AMapGoto: IMapViewGoto;
-  const AMarkDBGUI :TMarkDbGUIHelper
+  const AMarkDBGUI: TMarkDbGUIHelper
 );
 begin
   Assert(AValueToStringConverter <> nil);
@@ -221,7 +223,7 @@ end;
 
 procedure TfrmProgressDownload.btnMinimizeClick(Sender: TObject);
 begin
-  Perform(wm_SysCommand, SC_MINIMIZE, 0)
+  Perform(wm_SysCommand, SC_MINIMIZE, 0);
 end;
 
 procedure TfrmProgressDownload.btnPauseClick(Sender: TObject);
@@ -234,7 +236,7 @@ begin
     FProgressInfo.Pause;
     FStoped := true;
     btnPause.Caption := SAS_STR_Continue;
-  end
+  end;
 end;
 
 procedure TfrmProgressDownload.Panel1Resize(Sender: TObject);
@@ -266,7 +268,7 @@ var
 begin
   VTotal := FProgressInfo.TotalToProcess;
   if VTotal > 0 then begin
-    VComplete := inttostr(round(FProgressInfo.Processed/VTotal*100)) + '%';
+    VComplete := inttostr(round(FProgressInfo.Processed / VTotal * 100)) + '%';
   end else begin
     VComplete := '~%';
   end;
@@ -280,7 +282,7 @@ begin
       Self.Caption := SAS_MSG_LoadComplete + ' ' + FFormCaption;
       lblToProcessValue.Caption := inttostr(VTotal) + ' ' + SAS_STR_Files + ' (z' + inttostr(FProgressInfo.Zoom + 1) + ')';
       lblProcessedValue.Caption := inttostr(FProgressInfo.Processed) + ' ' + SAS_STR_Files;
-      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' ('+ VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
+      lblDownloadedValue.Caption := inttostr(FProgressInfo.Downloaded) + ' (' + VValueConverter.DataSizeConvert(VDownloadSize) + ') ' + SAS_STR_Files;
       lblTimeToFinishValue.Caption := GetTimeEnd(VTotal, FProgressInfo.Processed, FProgressInfo.ElapsedTime);
       lblSizeToFinishValue.Caption := GetLenEnd(VTotal, FProgressInfo.Processed, FProgressInfo.Downloaded, VDownloadSize);
       FProgress.Max := VTotal;
@@ -318,10 +320,10 @@ var
 begin
   VAddToMemo := FProgressInfo.LogProvider.GetLastMessages(100, FLastLogID, i);
   if i > 0 then begin
-    if mmoLog.Lines.Count>5000 then begin
+    if mmoLog.Lines.Count > 5000 then begin
       mmoLog.Lines.Clear;
     end;
-   mmoLog.Lines.Add(VAddToMemo);
+    mmoLog.Lines.Add(VAddToMemo);
   end;
 end;
 
@@ -332,11 +334,11 @@ function TfrmProgressDownload.GetLenEnd(
 var
   VValueConverter: IValueToStringConverter;
 begin
-  if loaded=0 then begin
+  if loaded = 0 then begin
     result := '~  б';
   end else begin
     VValueConverter := FValueToStringConverter.GetStatic;
-    Result := VValueConverter.DataSizeConvert((len/loaded) * (loadAll - obrab));
+    Result := VValueConverter.DataSizeConvert((len / loaded) * (loadAll - obrab));
   end;
 end;
 
@@ -345,29 +347,32 @@ function TfrmProgressDownload.GetTimeEnd(
   AElapsedTime: TDateTime
 ): String;
 var
-  dd:integer;
+  dd: integer;
   VExpectedTime: TDateTime;
 begin
-  if load=0 then begin
+  if load = 0 then begin
     result := '~';
   end else begin
     VExpectedTime := AElapsedTime * (loadAll / load);
     dd := DaysBetween(AElapsedTime, VExpectedTime);
     Result := '';
-    if dd > 0 then Result := inttostr(dd) + ' дней, ';
-    Result := Result + FormatDateTime('hh:nn:ss',VExpectedTime - AElapsedTime);
+    if dd > 0 then begin
+      Result := inttostr(dd) + ' дней, ';
+    end;
+    Result := Result + FormatDateTime('hh:nn:ss', VExpectedTime - AElapsedTime);
   end;
 end;
 
 procedure TfrmProgressDownload.UpdateTimerTimer(Sender: TObject);
 begin
-  UpdateProgressForm
+  UpdateProgressForm;
 end;
 
 procedure TfrmProgressDownload.tbtmMarkClick(Sender: TObject);
 begin
-  if (FPolygon <> nil) and (FMarkDBGUI <> nil)then
+  if (FPolygon <> nil) and (FMarkDBGUI <> nil) then begin
     FMarkDBGUI.SaveMarkModal(nil, FPolygon);
+  end;
 end;
 
 procedure TfrmProgressDownload.tbtmSaveClick(Sender: TObject);
@@ -393,7 +398,10 @@ begin
   end;
 end;
 
-procedure TfrmProgressDownload.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmProgressDownload.FormClose(
+  Sender: TObject;
+  var Action: TCloseAction
+);
 begin
   UpdateTimer.Enabled := false;
   FCancelNotifier.NextOperation;

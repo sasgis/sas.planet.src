@@ -123,7 +123,7 @@ begin
   if VMarkState <> 0 then begin
     if (Application.MessageBox(pchar(SAS_MSG_DeleteMarksInRegionAsk), pchar(SAS_MSG_coution), 36) <> IDYES) then begin
       Exit;
-    end
+    end;
   end;
 
   VProjection := FPosition.GetStatic.ProjectionInfo;
@@ -135,18 +135,16 @@ begin
   VProgressInfo := ProgressFactory.Build(APolygon);
   VDelHiddenMarks := (ParamsFrame as IRegionProcessParamsFrameMarksState).GetDeleteHiddenMarks;
   VThread :=
-  TThreadDeleteMarks.Create(
-    VProgressInfo,
-    APolygon,
-    VProjectedPolygon,
-    VProjection,
-    FMarkSystem,
-    VMarkState,
-    VDelHiddenMarks
-  );
+    TThreadDeleteMarks.Create(
+      VProgressInfo,
+      APolygon,
+      VProjectedPolygon,
+      VProjection,
+      FMarkSystem,
+      VMarkState,
+      VDelHiddenMarks
+    );
   VThread.Resume;
 end;
 
 end.
-
-

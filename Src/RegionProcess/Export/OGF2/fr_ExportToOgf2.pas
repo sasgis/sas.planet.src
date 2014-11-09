@@ -322,7 +322,7 @@ begin
       Result := FBitmapTileSaveLoadFactory.CreateBmpSaver;
     end;
     1: begin
-      Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp)
+      Result := FBitmapTileSaveLoadFactory.CreatePngSaver(i24bpp);
     end;
   else begin
       VJpegQuality := seJpgQuality.Value;

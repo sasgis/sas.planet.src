@@ -172,7 +172,7 @@ begin
   // set version options
   VSetTargetVersionEnabled := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionEnabled;
   if VSetTargetVersionEnabled then begin
-    VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue
+    VSetTargetVersionValue := (ParamsFrame as IRegionProcessParamsFrameTilesCopy).SetTargetVersionValue;
   end else begin
     VSetTargetVersionValue := '';
   end;
@@ -223,5 +223,3 @@ begin
 end;
 
 end.
-
-

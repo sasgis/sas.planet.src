@@ -138,7 +138,7 @@ begin
       APolygon
     );
   VProgressInfo := ProgressFactory.Build(APolygon);
-    VThread :=
+  VThread :=
     TThreadDeleteTiles.Create(
       VProgressInfo,
       APolygon,
@@ -152,5 +152,3 @@ begin
 end;
 
 end.
-
-
