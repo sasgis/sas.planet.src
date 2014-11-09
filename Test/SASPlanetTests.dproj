@@ -17,19 +17,19 @@
     <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>
     <DCC_HppOutput>..\.dcu</DCC_HppOutput>
-    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage</DCC_UnitSearchPath>
-    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage</DCC_ResourcePath>
-    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage</DCC_ObjPath>
-    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage</DCC_IncludePath>
+    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_UnitSearchPath>
+    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_ResourcePath>
+    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_ObjPath>
+    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_IncludePath>
     <DCC_AssertionsAtRuntime>False</DCC_AssertionsAtRuntime>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
     <DCC_Define>DEBUG;_CONSOLE_TESTRUNNER</DCC_Define>
-    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\;..\Basic\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\;..\Includes\LibPng;..\Geometry\;..\CoordConvert\;..\ConfigData\;..\Synchronize\;..\Bitmap32\</DCC_UnitSearchPath>
-    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\;..\Basic\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\;..\Includes\LibPng;..\Geometry\;..\CoordConvert\;..\ConfigData\;..\Synchronize\;..\Bitmap32\</DCC_ResourcePath>
-    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\;..\Basic\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\;..\Includes\LibPng;..\Geometry\;..\CoordConvert\;..\ConfigData\;..\Synchronize\;..\Bitmap32\</DCC_ObjPath>
-    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\;..\Basic\;..\Includes\;..\Includes\Fundamentals\;..\BitmapTileSaveLoad\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Performance\;..\GeoCalc\;..\Includes\LibPng;..\Geometry\;..\CoordConvert\;..\ConfigData\;..\Synchronize\;..\Bitmap32\</DCC_IncludePath>
+    <DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_UnitSearchPath>
+    <DCC_ResourcePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_ResourcePath>
+    <DCC_ObjPath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_ObjPath>
+    <DCC_IncludePath>$(BDS)\Source\DUnit\src;..\Includes\;..\Includes\Fundamentals\;..\Includes\LibJpeg;..\Includes\FreeImage;..\Includes\LibPng;..\Src\;..\Src\Basic\;..\Src\Bitmap32\;..\Src\BitmapTileSaveLoad\;..\Src\ConfigData\;..\Src\CoordConvert\;..\Src\Debug\;..\Src\GeoCalc\;..\Src\Geometry\;..\Src\Performance\;..\Src\Synchronize\;..\Src\System\</DCC_IncludePath>
     <DCC_ExeOutput>$(SASBin)</DCC_ExeOutput>
     <DCC_DcuOutput>..\.dcu</DCC_DcuOutput>
     <DCC_ObjOutput>..\.dcu</DCC_ObjOutput>

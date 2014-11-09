@@ -351,8 +351,7 @@ begin
     TCoordConverterMercatorOnSphere.Create(
       0,
       VDatum,
-      0,
-      CELL_UNITS_INVALID
+      0
     );
   VItem :=
     TBenchmarkItemCoordConverterForvard.Create(
@@ -378,8 +377,7 @@ begin
     TCoordConverterMercatorOnEllipsoid.Create(
       0,
       VDatum,
-      0,
-      CELL_UNITS_INVALID
+      0
     );
   VItem :=
     TBenchmarkItemCoordConverterForvard.Create(
@@ -405,8 +403,7 @@ begin
     TCoordConverterSimpleLonLat.Create(
       0,
       VDatum,
-      0,
-      CELL_UNITS_INVALID
+      0
     );
   VItem :=
     TBenchmarkItemCoordConverterForvard.Create(
