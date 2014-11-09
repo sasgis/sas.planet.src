@@ -62,9 +62,12 @@ uses
 { TLayerLicenseList }
 
 constructor TLayerLicenseList.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
-  const ALicenseList: IStringListChangeable);
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation;
+  AParentMap: TImage32;
+  const ALicenseList: IStringListChangeable
+);
 begin
   inherited Create(
     APerfList,

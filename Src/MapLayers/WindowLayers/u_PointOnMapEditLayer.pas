@@ -76,7 +76,8 @@ constructor TPointOnMapEditLayer.Create(
   AParentMap: TImage32;
   const ALocalConverter: ILocalCoordConverterChangeable;
   const AMarker: IMarkerDrawableChangeable;
-  const APointOnMap: IPointOnMapEdit);
+  const APointOnMap: IPointOnMapEdit
+);
 var
   VListener: IListener;
 begin
@@ -157,5 +158,3 @@ begin
 end;
 
 end.
-
-

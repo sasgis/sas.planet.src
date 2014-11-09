@@ -192,56 +192,56 @@ begin
   VTileRectSource := RectFromDoubleRect(VConverter.RelativeRect2TileRectFloat(VRelativeRectTargetTile, VSourceZoom), rrOutside);
   VBitmapStatic := nil;
   VTargetTileCoordConverter := nil;
-    for VX := VTileRectSource.Left to VTileRectSource.Right - 1 do begin
-      VSourceTile.X := VX;
-      for VY := VTileRectSource.Top to VTileRectSource.Bottom - 1 do begin
-        VSourceTile.Y := VY;
-        VSourceElement := ASource.GetElementByTile(VSourceTile);
-        if VSourceElement <> nil then begin
-          VSourceBitmap := VSourceElement.GetBitmap;
-          if VSourceBitmap <> nil then begin
-            if VTargetTileCoordConverter = nil then begin
-              if ABitmap = nil then begin
-                ABitmap := TCustomBitmap32.Create;
-              end;
-              VTargetTileCoordConverter := FLocalConverterFactory.CreateForTile(ATile, AZoom, VConverter);
-              VTargetTileSize := VTargetTileCoordConverter.GetLocalRectSize;
-              ABitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
-              ABitmap.Clear(0);
+  for VX := VTileRectSource.Left to VTileRectSource.Right - 1 do begin
+    VSourceTile.X := VX;
+    for VY := VTileRectSource.Top to VTileRectSource.Bottom - 1 do begin
+      VSourceTile.Y := VY;
+      VSourceElement := ASource.GetElementByTile(VSourceTile);
+      if VSourceElement <> nil then begin
+        VSourceBitmap := VSourceElement.GetBitmap;
+        if VSourceBitmap <> nil then begin
+          if VTargetTileCoordConverter = nil then begin
+            if ABitmap = nil then begin
+              ABitmap := TCustomBitmap32.Create;
             end;
-            PrepareCopyRects(
-              VSourceElement.LocalConverter,
-              VTargetTileCoordConverter,
-              VSrcCopyRect,
-              VDstCopyRect
-            );
-            if AResampler = nil then begin
-              AResampler := FImageResampler.GetStatic.CreateResampler;
-            end;
-            Assert(AResampler <> nil);
-
-            StretchTransfer(
-              ABitmap,
-              VDstCopyRect,
-              VSourceBitmap,
-              VSrcCopyRect,
-              AResampler,
-              dmOpaque
-            );
+            VTargetTileCoordConverter := FLocalConverterFactory.CreateForTile(ATile, AZoom, VConverter);
+            VTargetTileSize := VTargetTileCoordConverter.GetLocalRectSize;
+            ABitmap.SetSize(VTargetTileSize.X, VTargetTileSize.Y);
+            ABitmap.Clear(0);
           end;
+          PrepareCopyRects(
+            VSourceElement.LocalConverter,
+            VTargetTileCoordConverter,
+            VSrcCopyRect,
+            VDstCopyRect
+          );
+          if AResampler = nil then begin
+            AResampler := FImageResampler.GetStatic.CreateResampler;
+          end;
+          Assert(AResampler <> nil);
+
+          StretchTransfer(
+            ABitmap,
+            VDstCopyRect,
+            VSourceBitmap,
+            VSrcCopyRect,
+            AResampler,
+            dmOpaque
+          );
         end;
       end;
     end;
-    if VTargetTileCoordConverter <> nil then begin
-      VBitmapStatic :=
-        FBitmapFactory.Build(
-          VTargetTileCoordConverter.GetLocalRectSize,
-          ABitmap.Bits
-        );
-    end;
-    if VBitmapStatic <> nil then begin
-      Result := TTileMatrixElement.Create(ATile, VTargetTileCoordConverter, VBitmapStatic);
-    end;
+  end;
+  if VTargetTileCoordConverter <> nil then begin
+    VBitmapStatic :=
+      FBitmapFactory.Build(
+        VTargetTileCoordConverter.GetLocalRectSize,
+        ABitmap.Bits
+      );
+  end;
+  if VBitmapStatic <> nil then begin
+    Result := TTileMatrixElement.Create(ATile, VTargetTileCoordConverter, VBitmapStatic);
+  end;
 end;
 
 function TTileMatrixFactory.BuildNewMatrix(

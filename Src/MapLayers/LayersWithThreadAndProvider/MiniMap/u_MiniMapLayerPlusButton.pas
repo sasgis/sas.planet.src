@@ -89,11 +89,14 @@ uses
 { TMiniMapLayerPlusButton }
 
 constructor TMiniMapLayerPlusButton.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation;
+  AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const ABitmap: IBitmapChangeable;
-  const AConfig: IMiniMapLayerConfig);
+  const AConfig: IMiniMapLayerConfig
+);
 begin
   inherited Create(
     APerfList,
@@ -174,16 +177,24 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerPlusButton.MouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayerPlusButton.MouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if Button = mbLeft then begin
     FButtonPressed := True;
   end;
 end;
 
-procedure TMiniMapLayerPlusButton.MouseUP(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayerPlusButton.MouseUP(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if Button = mbLeft then begin
     if FButtonPressed then begin

@@ -45,8 +45,10 @@ implementation
 
 { TMarkerRingsConfigStatic }
 
-constructor TMarkerRingsConfigStatic.Create(ACount: Integer;
-  const AStepDistance: Double);
+constructor TMarkerRingsConfigStatic.Create(
+  ACount: Integer;
+  const AStepDistance: Double
+);
 begin
   inherited Create;
   FCount := ACount;

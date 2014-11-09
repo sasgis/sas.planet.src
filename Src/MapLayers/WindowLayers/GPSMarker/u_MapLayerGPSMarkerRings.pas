@@ -176,7 +176,8 @@ end;
 
 function TMapLayerGPSMarkerRings.GetProjectedCirclesByLonLat(
   const ASource: IGeometryLonLatPolygon;
-  const AProjectionInfo: IProjectionInfo): IGeometryProjectedPolygon;
+  const AProjectionInfo: IProjectionInfo
+): IGeometryProjectedPolygon;
 begin
   Result := FVectorGeometryProjectedFactory.CreateProjectedPolygonByLonLatPolygon(AProjectionInfo, ASource);
 end;
@@ -237,8 +238,10 @@ begin
   end;
 end;
 
-procedure TMapLayerGPSMarkerRings.PaintLayer(ABuffer: TBitmap32;
-  const ALocalConverter: ILocalCoordConverter);
+procedure TMapLayerGPSMarkerRings.PaintLayer(
+  ABuffer: TBitmap32;
+  const ALocalConverter: ILocalCoordConverter
+);
 var
   VLonLat: TDoublePoint;
   VConfig: IMarkerRingsConfigStatic;
@@ -261,7 +264,7 @@ begin
     FGPSPosCS.EndRead;
   end;
   if VDrawable <> nil then begin
-    if not VDrawable.ProjectionInfo.GetIsSameProjectionInfo(ALocalConverter.ProjectionInfo) then  begin
+    if not VDrawable.ProjectionInfo.GetIsSameProjectionInfo(ALocalConverter.ProjectionInfo) then begin
       VDrawable := nil;
     end;
   end;

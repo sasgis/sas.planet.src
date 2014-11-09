@@ -66,10 +66,13 @@ uses
 { TMiniMapLayerTopBorder }
 
 constructor TMiniMapLayerTopBorder.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation;
+  AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
-  const AConfig: IMiniMapLayerConfig);
+  const AConfig: IMiniMapLayerConfig
+);
 begin
   inherited Create(
     APerfList,

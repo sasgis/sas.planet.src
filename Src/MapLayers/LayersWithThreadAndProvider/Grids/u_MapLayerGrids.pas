@@ -65,8 +65,10 @@ uses
 { TMapLayerGrids }
 
 constructor TMapLayerGrids.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation;
+  AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
   const AView: ILocalCoordConverterChangeable;
   const ATileMatrixDraftResampler: IImageResamplerFactoryChangeable;
@@ -74,7 +76,8 @@ constructor TMapLayerGrids.Create(
   const ATimerNoifier: INotifierTime;
   const ABitmap32StaticFactory: IBitmap32StaticFactory;
   const AValueToStringConverter: IValueToStringConverterChangeable;
-  const AConfig: IMapLayerGridsConfig);
+  const AConfig: IMapLayerGridsConfig
+);
 var
   VTileMatrixFactory: ITileMatrixFactory;
   VProvider: IBitmapLayerProviderChangeable;

@@ -119,7 +119,8 @@ end;
 
 function TTileGridConfig.GetPointStickToGrid(
   const ALocalConverter: ILocalCoordConverter;
-  const ASourceLonLat: TDoublePoint): TDoublePoint;
+  const ASourceLonLat: TDoublePoint
+): TDoublePoint;
 var
   VZoom: Byte;
   VZoomCurr: Byte;

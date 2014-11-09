@@ -56,7 +56,7 @@ implementation
 uses
   c_Color32,
   u_ConfigProviderHelpers;
-  
+
 { TFullMapMouseCursorLayerConfig }
 
 constructor TFullMapMouseCursorLayerConfig.Create;

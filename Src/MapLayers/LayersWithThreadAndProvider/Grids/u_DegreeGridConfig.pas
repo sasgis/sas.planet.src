@@ -87,7 +87,8 @@ end;
 
 function TDegreeGridConfig.GetPointStickToGrid(
   const ALocalConverter: ILocalCoordConverter;
-  const ASourceLonLat: TDoublePoint): TDoublePoint;
+  const ASourceLonLat: TDoublePoint
+): TDoublePoint;
 var
   VScale: Double;
   VVisible: Boolean;

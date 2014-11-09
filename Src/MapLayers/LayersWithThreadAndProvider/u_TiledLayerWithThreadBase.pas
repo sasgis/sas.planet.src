@@ -167,8 +167,10 @@ begin
   );
 end;
 
-procedure TTiledLayerWithThreadBase.OnPaintLayer(Sender: TObject;
-  Buffer: TBitmap32);
+procedure TTiledLayerWithThreadBase.OnPaintLayer(
+  Sender: TObject;
+  Buffer: TBitmap32
+);
 var
   VTileMatrix: ITileMatrix;
   VLocalConverter: ILocalCoordConverter;

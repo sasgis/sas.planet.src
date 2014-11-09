@@ -87,7 +87,8 @@ end;
 
 function TGenShtabGridConfig.GetPointStickToGrid(
   const ALocalConverter: ILocalCoordConverter;
-  const ASourceLonLat: TDoublePoint): TDoublePoint;
+  const ASourceLonLat: TDoublePoint
+): TDoublePoint;
 var
   VScale: Integer;
   VVisible: Boolean;

@@ -327,8 +327,12 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerViewRect.LayerMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayerViewRect.LayerMouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
   VVisibleCenter: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
@@ -348,8 +352,11 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerViewRect.LayerMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayerViewRect.LayerMouseMove(
+  Sender: TObject;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
   VVisibleCenter: TDoublePoint;
   VLocalRect: TRect;
@@ -379,8 +386,12 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerViewRect.LayerMouseUP(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayerViewRect.LayerMouseUP(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
   VLocalConverter: ILocalCoordConverter;
   VConverter: ICoordConverter;

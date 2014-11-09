@@ -88,10 +88,13 @@ uses
 { TMiniMapLayerTopBorder }
 
 constructor TMiniMapLayerLeftBorder.Create(
-  const APerfList: IInternalPerformanceCounterList; const AAppStartedNotifier,
-  AAppClosingNotifier: INotifierOneOperation; AParentMap: TImage32;
+  const APerfList: IInternalPerformanceCounterList;
+  const AAppStartedNotifier,
+  AAppClosingNotifier: INotifierOneOperation;
+  AParentMap: TImage32;
   const APosition: ILocalCoordConverterChangeable;
-  const AConfig: IMiniMapLayerConfig);
+  const AConfig: IMiniMapLayerConfig
+);
 begin
   inherited Create(
     APerfList,
@@ -177,8 +180,12 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerLeftBorder.MouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayerLeftBorder.MouseDown(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if Button = mbLeft then begin
     FLeftBorderMoved := true;
@@ -186,8 +193,11 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerLeftBorder.MouseMove(Sender: TObject; Shift: TShiftState;
-  X, Y: Integer);
+procedure TMiniMapLayerLeftBorder.MouseMove(
+  Sender: TObject;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 var
   VNewWidth: Integer;
   VVisibleSize: TPoint;
@@ -208,8 +218,12 @@ begin
   end;
 end;
 
-procedure TMiniMapLayerLeftBorder.MouseUP(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TMiniMapLayerLeftBorder.MouseUP(
+  Sender: TObject;
+  Button: TMouseButton;
+  Shift: TShiftState;
+  X, Y: Integer
+);
 begin
   if FLeftBorderMoved then begin
     FLeftBorderMoved := False;
@@ -246,4 +260,3 @@ begin
 end;
 
 end.
-

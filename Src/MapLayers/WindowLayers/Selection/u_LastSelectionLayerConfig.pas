@@ -46,7 +46,7 @@ implementation
 
 uses
   GR32;
-  
+
 { TLastSelectionLayerConfig }
 
 constructor TLastSelectionLayerConfig.Create;
