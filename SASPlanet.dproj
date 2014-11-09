@@ -932,6 +932,9 @@
     <DCCReference Include="Src\Performance\u_InternalPerformanceCounterListForDebug.pas" />
     <DCCReference Include="Src\Performance\u_InternalPerformanceCounterListForDebugOneClass.pas" />
     <DCCReference Include="Src\Performance\u_InternalPerformanceCounterStaticData.pas" />
+    <DCCReference Include="Src\Player\i_PlayerPlugin.pas" />
+    <DCCReference Include="Src\Player\t_PlayerPlugin.pas" />
+    <DCCReference Include="Src\Player\u_PlayerPlugin.pas" />
     <DCCReference Include="Src\Predicate\i_PredicateByBinaryData.pas" />
     <DCCReference Include="Src\Predicate\i_PredicateByTileInfo.pas" />
     <DCCReference Include="Src\Predicate\i_PredicateByTileRequest.pas" />
