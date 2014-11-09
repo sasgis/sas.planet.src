@@ -717,5 +717,38 @@ begin
   end;
 end;
 
+// Полные ссылки
+// http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10
+// http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map
+// http://maps.navitel.su/?zoom=6&lat=55.8&lon=37.6
+// http://kosmosnimki.ru/?x=44.1053254382903&y=45.6876903573303&z=6&fullscreen=false&mode=satellite
+// http://www.bing.com/maps/default.aspx?v=2&cp=45.5493750107145~41.6883332507903&style=h&lvl=6
+// http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M
+// http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b
+// http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre
+// http://maps.mail.ru/?z=10&ll=37.619948,55.750023
+// http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day
+// http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|
+// http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org
+// http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance
+// http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur
+// http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88
+
+// тайловые ссылки
+// http://a.tile.openstreetmap.org/15/19928/11707.png
+// http://khm0.google.com/kh/v=127&src=app&x=24398&s=&y=10570&z=15&s=Gali
+
+// Короткие
+// http://g.co/maps/7anbg
+// http://maps.yandex.ru/-/CBa6ZCOt
+// http://maps.yandex.ru/-/CFVIfLi-#
+// http://osm.org/go/0oqbju
+// http://binged.it/vqaOQQ
+// http://kosmosnimki.ru/permalink.html?Na1d0e33d
+// http://maps.kosmosnimki.ru/api/index.html?permalink=ZWUJK&SA5JU
+// http://go.2gis.ru/1hox// http://maps.rambler.ru/?6rJJy58
+// http://maps.yandex.ru/?um=m4VoZPqVSEwQ3YdT5Lmley6KrBsHb2oh&l=sat
+// http://harita.yandex.com.tr/-/CFXxAO3m
+
 end.
-// Полные ссылки// http://maps.google.com/?ll=48.718079,44.504639&spn=0.722115,1.234589&t=h&z=10// http://maps.yandex.ru/?ll=44.514541%2C48.708958&spn=0.322723%2C0.181775&z=12&l=map// http://maps.navitel.su/?zoom=6&lat=55.8&lon=37.6// http://kosmosnimki.ru/?x=44.1053254382903&y=45.6876903573303&z=6&fullscreen=false&mode=satellite// http://www.bing.com/maps/default.aspx?v=2&cp=45.5493750107145~41.6883332507903&style=h&lvl=6// http://www.openstreetmap.org/?lat=45.227&lon=39.001&zoom=10&layers=M// http://wikimapia.org#lat=45.0328&lon=38.9769&z=10&l=1&m=b// http://maps.rosreestr.ru/Portal/?l=11&x=4595254.155000001&y=5398402.163800001&mls=map|anno&cls=cadastre// http://maps.mail.ru/?z=10&ll=37.619948,55.750023// http://maps.nokia.com/#|43.5669132|41.2836342|14|0|0|hybrid.day// http://maps.nokia.com/mapcreator/?ns=true#|55.32530472503459|37.811186150077816|18|0|0|// http://mobile.maps.yandex.net/ylocation/?lat=55.870155&lon=37.665367&desc=dima%40dzhus.org// http://maps.2gis.ru/#/?history=project/krasnodar/center/38.993668%2C45.197055/zoom/17/state/index/sort/relevance// http://harita.yandex.com.tr/?ll=29.086777%2C41.000749&spn=0.005043%2C0.003328&z=18&l=sat%2Ctrf&trfm=cur// http://osm.org.ru/#layer=M&zoom=3&lat=61.98&lon=88// тайловые ссылки// http://a.tile.openstreetmap.org/15/19928/11707.png// http://khm0.google.com/kh/v=127&src=app&x=24398&s=&y=10570&z=15&s=Gali// Короткие// http://g.co/maps/7anbg// http://maps.yandex.ru/-/CBa6ZCOt// http://maps.yandex.ru/-/CFVIfLi-#// http://osm.org/go/0oqbju// http://binged.it/vqaOQQ// http://kosmosnimki.ru/permalink.html?Na1d0e33d// http://maps.kosmosnimki.ru/api/index.html?permalink=ZWUJK&SA5JU// http://go.2gis.ru/1hox// http://maps.rambler.ru/?6rJJy58// http://maps.yandex.ru/?um=m4VoZPqVSEwQ3YdT5Lmley6KrBsHb2oh&l=sat// http://harita.yandex.com.tr/-/CFXxAO3m
+
