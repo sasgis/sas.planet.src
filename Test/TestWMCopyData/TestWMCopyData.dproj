@@ -55,6 +55,6 @@
     <DelphiCompile Include="TestWMCopyData.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
-    <DCCReference Include="..\..\u_CmdLineArgProcessorAPI.pas" />
+    <DCCReference Include="..\..\Src\CmdLineArgProcessor\u_CmdLineArgProcessorAPI.pas" />
   </ItemGroup>
 </Project>

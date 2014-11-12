@@ -6,7 +6,7 @@ uses
   Windows,
   Messages,
   SysUtils,
-  u_CmdLineArgProcessorAPI in '..\..\u_CmdLineArgProcessorAPI.pas';
+  u_CmdLineArgProcessorAPI in '..\..\Src\CmdLineArgProcessor\u_CmdLineArgProcessorAPI.pas';
 
 type
   TFNWndEnumProc = function(hWnd: HWND; lParam: LPARAM): BOOL; stdcall;
