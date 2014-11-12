@@ -3626,6 +3626,8 @@ object frmMain: TfrmMain
         Hint = ''
       end
       object DigitalGlobe1: TTBXItem
+        ImageIndex = 11
+        Images = MenusImageList
         OnClick = DigitalGlobe1Click
         Caption = 'Images available'
         Hint = ''
