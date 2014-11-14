@@ -64,6 +64,7 @@ type
       const AOldCategory: IInterface;
       const ANewCategory: IInterface
     ): IMarkCategory;
+    function _LocateByID(const AId: Integer): Boolean; inline;
     function Save: boolean;
   private
     { IMarkCategoryDBSmlInternal }
@@ -170,6 +171,15 @@ begin
   FCdsCategory.fieldbyname('BeforeScale').AsInteger := ACategory.BeforeScale;
 end;
 
+function TMarkCategoryDBSml._LocateByID(const AId: Integer): Boolean;
+begin
+  if FUseDataSetIndex then begin
+    Result := FCdsCategory.FindKey([AId]);
+  end else begin
+    Result := FCdsCategory.Locate('id', AId, []);
+  end;
+end;
+
 function TMarkCategoryDBSml._UpdateCategory(
   const AOldCategory, ANewCategory: IInterface
 ): IMarkCategory;
@@ -204,7 +214,7 @@ begin
         end;
       end;
     end;
-    VLocated := FCdsCategory.FindKey([VIdOld]);
+    VLocated := _LocateByID(VIdOld);
   end;
   if VLocated then begin
     if Supports(ANewCategory, IMarkCategory, VCategory) then begin
