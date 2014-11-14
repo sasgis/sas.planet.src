@@ -1063,7 +1063,11 @@ begin
 end;
 
 procedure TMarkDbSml.InitEmptyDS;
+const
+  cIdxName = 'MarkIDIdx';
 var
+  I: Integer;
+  VIdxExists: Boolean;
   VStringType: string;
   VStringWidth: string;
   VTextSubType: string;
@@ -1104,12 +1108,24 @@ begin
     '   <ROWDATA/>' +
     '</DATAPACKET>';
 
-  with FCdsMarks.IndexDefs.AddIndexDef do begin
-    Name := 'MarkIDIdx';
-    Fields := 'id';
-    Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+  VIdxExists := False;
+
+  for I := 0 to FCdsMarks.IndexDefs.Count - 1 do begin
+    if FCdsMarks.IndexDefs.Items[I].Name = cIdxName then begin
+      VIdxExists := True;
+      Break;
+    end;
   end;
-  FCdsMarks.IndexName := 'MarkIDIdx';
+
+  if not VIdxExists then begin
+    with FCdsMarks.IndexDefs.AddIndexDef do begin
+      Name := cIdxName;
+      Fields := 'id';
+      Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+    end;
+  end;
+
+  FCdsMarks.IndexName := cIdxName;
 
   FCdsMarks.Open;
 

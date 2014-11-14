@@ -356,7 +356,11 @@ begin
 end;
 
 procedure TMarkCategoryDBSml.InitEmptyDS;
+const
+  cIdxName = 'CategoryIDIdx';
 var
+  I: Integer;
+  VIdxExists: Boolean;
   VStringType: string;
   VStringWidth: string;
 begin
@@ -384,12 +388,24 @@ begin
     '   <ROWDATA></ROWDATA>' +
     '</DATAPACKET>';
 
-  with FCdsCategory.IndexDefs.AddIndexDef do begin
-    Name := 'CategoryIDIdx';
-    Fields := 'id';
-    Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+  VIdxExists := False;
+
+  for I := 0 to FCdsCategory.IndexDefs.Count - 1 do begin
+    if FCdsCategory.IndexDefs.Items[I].Name = cIdxName then begin
+      VIdxExists := True;
+      Break;
+    end;
   end;
-  FCdsCategory.IndexName := 'CategoryIDIdx';
+
+  if not VIdxExists then begin
+    with FCdsCategory.IndexDefs.AddIndexDef do begin
+      Name := cIdxName;
+      Fields := 'id';
+      Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+    end;
+  end;
+
+  FCdsCategory.IndexName := cIdxName;
 
   FCdsCategory.Open;
 
