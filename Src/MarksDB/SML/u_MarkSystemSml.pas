@@ -155,6 +155,7 @@ var
   VBackUpRequaredDiskSize: Int64;
   VUseUnicodeSchema: Boolean;
   VStoreInBinaryFormat: Boolean;
+  VUseIndex: Boolean;
 begin
   inherited Create;
   FDbId := Integer(Self);
@@ -164,6 +165,7 @@ begin
 
   VUseUnicodeSchema := False; // ToDo
   VStoreInBinaryFormat := False; // ToDo
+  VUseIndex := not AReadOnly;
 
   if AReadOnly then begin
     VStateInternal.WriteAccess := asDisabled;
@@ -190,7 +192,8 @@ begin
       VState,
       VCategoryStream,
       VUseUnicodeSchema,
-      VStoreInBinaryFormat
+      VStoreInBinaryFormat,
+      VUseIndex
     );
 
   FCategoryDBImpl := VCategoryDb;
@@ -220,7 +223,8 @@ begin
       ALoadDbCounter,
       ASaveDbCounter,
       VUseUnicodeSchema,
-      VStoreInBinaryFormat
+      VStoreInBinaryFormat,
+      VUseIndex
     );
 
   if FState.GetStatic.WriteAccess = asEnabled then begin

@@ -61,8 +61,10 @@ type
     FFactoryDbInternal: IMarkFactorySmlInternal;
     FLoadDbCounter: IInternalPerformanceCounter;
     FSaveDbCounter: IInternalPerformanceCounter;
+
     FUseUnicodeSchema: Boolean;
     FStoreInBinaryFormat: Boolean;
+    FUseDataSetIndex: Boolean;
 
     FCdsMarks: TClientDataSet;
     FMarkList: IIDInterfaceList;
@@ -98,6 +100,7 @@ type
       AIgnoreVisible: Boolean;
       const AResultList: IVectorItemSubsetBuilder
     );
+    function _LocateByID(const AId: Integer): Boolean; inline;
     function Save: boolean;
   private
     { IMarkDbSmlInternal }
@@ -180,7 +183,8 @@ type
       const ALoadDbCounter: IInternalPerformanceCounter;
       const ASaveDbCounter: IInternalPerformanceCounter;
       const AUseUnicodeSchema: Boolean;
-      const AStoreInBinaryFormat: Boolean
+      const AStoreInBinaryFormat: Boolean;
+      const AUseDataSetIndex: Boolean
     );
     destructor Destroy; override;
   end;
@@ -214,7 +218,8 @@ constructor TMarkDbSml.Create(
   const ALoadDbCounter: IInternalPerformanceCounter;
   const ASaveDbCounter: IInternalPerformanceCounter;
   const AUseUnicodeSchema: Boolean;
-  const AStoreInBinaryFormat: Boolean
+  const AStoreInBinaryFormat: Boolean;
+  const AUseDataSetIndex: Boolean
 );
 begin
   Assert(Assigned(AGeometryReader));
@@ -237,6 +242,7 @@ begin
 
   FUseUnicodeSchema := AUseUnicodeSchema;
   FStoreInBinaryFormat := AStoreInBinaryFormat;
+  FUseDataSetIndex := AUseDataSetIndex;
 
   FCdsMarks := TClientDataSet.Create(nil);
   FCdsMarks.Name := 'MarksDB';
@@ -297,6 +303,15 @@ begin
     end;
   finally
     UnlockRead;
+  end;
+end;
+
+function TMarkDbSml._LocateByID(const AId: Integer): Boolean;
+begin
+  if FUseDataSetIndex then begin
+    Result := FCdsMarks.FindKey([AId]);
+  end else begin
+    Result := FCdsMarks.Locate('id', AId, []);
   end;
 end;
 
@@ -366,11 +381,9 @@ begin
     end;
 
     FCdsMarks.Filtered := False;
-    if FCdsMarks.FindKey([VIdOld]) then begin
-      VLocated := True;
-    end;
-
+    VLocated := _LocateByID(VIdOld);
   end;
+
   if VLocated then begin
     if VNewMark <> nil then begin
       FCdsMarks.Edit;
@@ -832,27 +845,27 @@ end;
 procedure TMarkDbSml.SetMarkVisible(const AMark: IVectorDataItem; AVisible: Boolean);
 var
   VMarkVisible: IMarkSMLInternal;
-  AId: Integer;
+  VId: Integer;
   VMarkInternal: IMarkSMLInternal;
 begin
   if AMark <> nil then begin
-    AId := CNotExistMarkID;
+    VId := CNotExistMarkID;
     if Supports(AMark.MainInfo, IMarkSMLInternal, VMarkVisible) then begin
-      AId := VMarkVisible.Id;
+      VId := VMarkVisible.Id;
       VMarkVisible.Visible := AVisible;
     end;
-    if AId <> CNotExistMarkID then begin
+    if VId <> CNotExistMarkID then begin
       LockWrite;
       try
         FCdsMarks.Filtered := False;
-        if FCdsMarks.FindKey([AId]) then begin
+        if _LocateByID(VId) then begin
           FCdsMarks.Edit;
           WriteCurrentMarkId(AMark.MainInfo as IMarkId);
           FCdsMarks.Post;
           SetChanged;
           FNeedSaveFlag.SetFlag;
         end;
-        if Supports(IVectorDataItem(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
+        if Supports(IVectorDataItem(FMarkList.GetByID(VId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
           VMarkInternal.Visible := AVisible;
         end;
       finally
@@ -868,27 +881,27 @@ procedure TMarkDbSml.SetMarkVisibleByID(
 );
 var
   VMarkVisible: IMarkSMLInternal;
-  AId: Integer;
+  VId: Integer;
   VMarkInternal: IMarkSMLInternal;
 begin
   if AMark <> nil then begin
-    AId := CNotExistMarkID;
+    VId := CNotExistMarkID;
     if Supports(AMark, IMarkSMLInternal, VMarkVisible) then begin
-      AId := VMarkVisible.Id;
+      VId := VMarkVisible.Id;
       VMarkVisible.Visible := AVisible;
     end;
-    if AId <> CNotExistMarkID then begin
+    if VId <> CNotExistMarkID then begin
       LockWrite;
       try
         FCdsMarks.Filtered := False;
-        if FCdsMarks.FindKey([AId]) then begin
+        if _LocateByID(VId) then begin
           FCdsMarks.Edit;
           WriteCurrentMarkId(AMark);
           FCdsMarks.Post;
           SetChanged;
           FNeedSaveFlag.SetFlag;
         end;
-        if Supports(IVectorDataItem(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
+        if Supports(IVectorDataItem(FMarkList.GetByID(VId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
           VMarkInternal.Visible := AVisible;
         end;
       finally
@@ -905,23 +918,23 @@ procedure TMarkDbSml.SetMarkVisibleByIDList(
 var
   i: Integer;
   VMarkVisible: IMarkSMLInternal;
-  AId: Integer;
+  VId: Integer;
   VMarkInternal: IMarkSMLInternal;
 begin
   if (AMarkList <> nil) and (AMarkList.Count > 0) then begin
     LockWrite;
     try
       for i := 0 to AMarkList.Count - 1 do begin
-        AId := CNotExistMarkID;
+        VId := CNotExistMarkID;
         if Supports(AMarkList.Items[i], IMarkSMLInternal, VMarkVisible) then begin
-          AId := VMarkVisible.Id;
+          VId := VMarkVisible.Id;
           VMarkVisible.Visible := AVisible;
         end;
-        if AId <> CNotExistMarkID then begin
-          if Supports(IVectorDataItem(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
+        if VId <> CNotExistMarkID then begin
+          if Supports(IVectorDataItem(FMarkList.GetByID(VId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := AVisible;
             FCdsMarks.Filtered := False;
-            if FCdsMarks.FindKey([AId]) then begin
+            if _LocateByID(VId) then begin
               FCdsMarks.Edit;
               WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
@@ -941,7 +954,7 @@ procedure TMarkDbSml.ToggleMarkVisibleByIDList(const AMarkList: IInterfaceListSt
 var
   i: Integer;
   VMarkVisible: IMarkSMLInternal;
-  AId: Integer;
+  VId: Integer;
   VMarkInternal: IMarkSMLInternal;
   VVisible: Boolean;
   VVisibleCount: Integer;
@@ -964,16 +977,16 @@ begin
     LockWrite;
     try
       for i := 0 to AMarkList.Count - 1 do begin
-        AId := CNotExistMarkID;
+        VId := CNotExistMarkID;
         if Supports(AMarkList.Items[i], IMarkSMLInternal, VMarkVisible) then begin
-          AId := VMarkVisible.Id;
+          VId := VMarkVisible.Id;
           VMarkVisible.Visible := VVisible;
         end;
-        if AId <> CNotExistMarkID then begin
-          if Supports(IVectorDataItem(FMarkList.GetByID(AId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
+        if VId <> CNotExistMarkID then begin
+          if Supports(IVectorDataItem(FMarkList.GetByID(VId)).MainInfo, IMarkSMLInternal, VMarkInternal) then begin
             VMarkInternal.Visible := VVisible;
             FCdsMarks.Filtered := False;
-            if FCdsMarks.FindKey([AId]) then begin
+            if _LocateByID(VId) then begin
               FCdsMarks.Edit;
               WriteCurrentMarkId(VMarkInternal as IMarkId);
               FCdsMarks.Post;
@@ -1108,24 +1121,26 @@ begin
     '   <ROWDATA/>' +
     '</DATAPACKET>';
 
-  VIdxExists := False;
+  if FUseDataSetIndex then begin
+    VIdxExists := False;
 
-  for I := 0 to FCdsMarks.IndexDefs.Count - 1 do begin
-    if FCdsMarks.IndexDefs.Items[I].Name = cIdxName then begin
-      VIdxExists := True;
-      Break;
+    for I := 0 to FCdsMarks.IndexDefs.Count - 1 do begin
+      if FCdsMarks.IndexDefs.Items[I].Name = cIdxName then begin
+        VIdxExists := True;
+        Break;
+      end;
     end;
-  end;
 
-  if not VIdxExists then begin
-    with FCdsMarks.IndexDefs.AddIndexDef do begin
-      Name := cIdxName;
-      Fields := 'id';
-      Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+    if not VIdxExists then begin
+      with FCdsMarks.IndexDefs.AddIndexDef do begin
+        Name := cIdxName;
+        Fields := 'id';
+        Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+      end;
     end;
-  end;
 
-  FCdsMarks.IndexName := cIdxName;
+    FCdsMarks.IndexName := cIdxName;
+  end;
 
   FCdsMarks.Open;
 

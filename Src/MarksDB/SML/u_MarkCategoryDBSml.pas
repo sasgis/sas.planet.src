@@ -46,8 +46,10 @@ type
     FDbId: Integer;
     FStateInternal: IReadWriteStateInternal;
     FStream: TStream;
+
     FUseUnicodeSchema: Boolean;
     FStoreInBinaryFormat: Boolean;
+    FUseDataSetIndex: Boolean;
 
     FCdsCategory: TClientDataSet;
     FList: IIDInterfaceList;
@@ -88,7 +90,8 @@ type
       const AStateInternal: IReadWriteStateInternal;
       const ADataStream: TStream;
       const AUseUnicodeSchema: Boolean;
-      const AStoreInBinaryFormat: Boolean
+      const AStoreInBinaryFormat: Boolean;
+      const AUseDataSetIndex: Boolean
     );
     destructor Destroy; override;
   end;
@@ -112,7 +115,8 @@ constructor TMarkCategoryDBSml.Create(
   const AStateInternal: IReadWriteStateInternal;
   const ADataStream: TStream;
   const AUseUnicodeSchema: Boolean;
-  const AStoreInBinaryFormat: Boolean
+  const AStoreInBinaryFormat: Boolean;
+  const AUseDataSetIndex: Boolean
 );
 begin
   inherited Create;
@@ -120,6 +124,7 @@ begin
   FStream := ADataStream;
   FUseUnicodeSchema := AUseUnicodeSchema;
   FStoreInBinaryFormat := AStoreInBinaryFormat;
+  FUseDataSetIndex := AUseDataSetIndex;
   FStateInternal := AStateInternal;
   FList := TIDInterfaceList.Create;
   FNeedSaveFlag := TSimpleFlagWithInterlock.Create;
@@ -388,24 +393,26 @@ begin
     '   <ROWDATA></ROWDATA>' +
     '</DATAPACKET>';
 
-  VIdxExists := False;
+  if FUseDataSetIndex then begin
+    VIdxExists := False;
 
-  for I := 0 to FCdsCategory.IndexDefs.Count - 1 do begin
-    if FCdsCategory.IndexDefs.Items[I].Name = cIdxName then begin
-      VIdxExists := True;
-      Break;
+    for I := 0 to FCdsCategory.IndexDefs.Count - 1 do begin
+      if FCdsCategory.IndexDefs.Items[I].Name = cIdxName then begin
+        VIdxExists := True;
+        Break;
+      end;
     end;
-  end;
 
-  if not VIdxExists then begin
-    with FCdsCategory.IndexDefs.AddIndexDef do begin
-      Name := cIdxName;
-      Fields := 'id';
-      Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+    if not VIdxExists then begin
+      with FCdsCategory.IndexDefs.AddIndexDef do begin
+        Name := cIdxName;
+        Fields := 'id';
+        Options := [ixPrimary, ixUnique, ixCaseInsensitive];
+      end;
     end;
-  end;
 
-  FCdsCategory.IndexName := cIdxName;
+    FCdsCategory.IndexName := cIdxName;
+  end;
 
   FCdsCategory.Open;
 
