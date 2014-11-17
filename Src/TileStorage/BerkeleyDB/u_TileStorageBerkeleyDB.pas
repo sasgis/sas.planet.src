@@ -359,9 +359,11 @@ var
   VTileContentType: WideString;
   VTileDate: TDateTime;
   VTileSize: Integer;
+  VShowPrevVersion: Boolean;
   VList: IMapVersionListStatic;
   VHelper: ITileStorageBerkeleyDBHelper;
 begin
+  VShowPrevVersion := not (Assigned(AVersionInfo) and (AVersionInfo.StoreString <> ''));
   try
     if Assigned(FTileInfoMemCache) then begin
       Result := FTileInfoMemCache.Get(AXY, AZoom, AVersionInfo, AMode, True);
@@ -388,7 +390,7 @@ begin
               AXY,
               AZoom,
               AVersionInfo,
-              False,
+              VShowPrevVersion,
               True, // will get single tile info
               VList,
               VTileVersion,
@@ -412,7 +414,7 @@ begin
               AXY,
               AZoom,
               AVersionInfo,
-              False,
+              VShowPrevVersion,
               VTileBinaryData,
               VTileVersion,
               VTileContentType,
@@ -441,7 +443,7 @@ begin
             AXY,
             AZoom,
             AVersionInfo,
-            False,
+            VShowPrevVersion,
             VTileDate
           );
           if VResult then begin
