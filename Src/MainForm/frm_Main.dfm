@@ -950,6 +950,20 @@ object frmMain: TfrmMain
           Caption = 'Projection'
           Hint = ''
         end
+        object TBXSubmenuMap: TTBXSubmenuItem
+          Caption = 'Maps'
+          Hint = ''
+          object tbxnxtmap: TTBXItem
+            OnClick = tbxnxtmapClick
+            Caption = 'Next map with tile'
+            Hint = ''
+          end
+          object tbxprevmap: TTBXItem
+            OnClick = tbxprevmapClick
+            Caption = 'Prev map with tile'
+            Hint = ''
+          end
+        end
         object TBXSeparatorItem10: TTBXSeparatorItem
           Caption = ''
           Hint = ''

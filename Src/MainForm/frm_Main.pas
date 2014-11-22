@@ -417,6 +417,9 @@ type
     TBXNextVer: TTBXItem;
     TBXPrevVer: TTBXItem;
     TBXSubmnMapVer: TTBXSubmenuItem;
+    TBXSubmenuMap: TTBXSubmenuItem;
+    tbxnxtmap: TTBXItem;
+    tbxprevmap: TTBXItem;
 
     procedure FormActivate(Sender: TObject);
     procedure NzoomInClick(Sender: TObject);
@@ -617,6 +620,7 @@ type
       Sender: TTBCustomItem;
       FromLink: Boolean
     );
+    procedure NextMapWithTile(AStep: integer);
     procedure NextVersion(AStep: integer);
     procedure tbpmiClearVersionClick(Sender: TObject);
     procedure terraserver1Click(Sender: TObject);
@@ -649,6 +653,8 @@ type
     procedure tbitmPointProjectClick(Sender: TObject);
     procedure TBXNextVerClick(Sender: TObject);
     procedure TBXPrevVerClick(Sender: TObject);
+    procedure tbxnxtmapClick(Sender: TObject);
+    procedure tbxprevmapClick(Sender: TObject);
   private
     FLinksList: IListenerNotifierLinksList;
     FConfig: IMainFormConfig;
@@ -3697,6 +3703,60 @@ begin
   VMapType.VersionRequestConfig.ShowPrevVersion := tbpmiShowPrevVersion.Checked;
 end;
 
+procedure TfrmMain.NextMapWithTile(AStep: integer);
+var
+  VMapType: IMapType;
+  VZoomCurr: Byte;
+  VLocalConverter: ILocalCoordConverter;
+  VMapTile: Tpoint;
+  VVersion: IMapVersionRequest;
+  VTileInfo: ITileInfoBasic;
+  VLonLat: TDoublePoint;
+  VGUIDList: IGUIDListStatic;
+  VGUID: TGUID;
+  VActiveMapGUID: TGUID;
+  VNextMapGuid: TGUID;
+  i: Integer;
+  VLoopCnt: Integer;
+begin
+  VActiveMapGUID := FConfig.MainMapsConfig.GetActiveMap.GetStatic.GUID;
+  VLocalConverter := FViewPortState.View.GetStatic;
+  VZoomCurr := VLocalConverter.GetZoom;
+  VLonLat := VLocalConverter.GetCenterLonLat;
+  VGUIDList := GState.MapType.GUIConfigList.OrderedMapGUIDList;
+  VNextMapGuid := VActiveMapGUID;
+  VLoopCnt := 0;
+  for i := 0 to VGUIDList.Count - 1 do
+    if IsEqualGUID(VActiveMapGUID, VGUIDList.Items[i]) then Break;
+
+  while (VLoopCnt < VGUIDList.Count) do begin
+    inc(VLoopCnt);
+    i := i + AStep;
+    if i < 0 then i := VGUIDList.Count - 1;
+    if i > VGUIDList.Count - 1 then i := 0;
+    VGUID := VGUIDList.Items[i];
+    VMapType := GState.MapType.FullMapsSet.GetMapTypeByGUID(VGUID);
+    if VMapType <> nil  then begin
+      if (not VMapType.Zmp.IsLayer) and (VMapType.GUIConfig.Enabled)then begin
+        VMapTile :=
+        PointFromDoublePoint(
+            VMapType.GeoConvert.LonLat2TilePosFloat(VLonLat, VZoomCurr),
+            prToTopLeft
+          );
+        VVersion := VMapType.VersionRequestConfig.GetStatic;
+        VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VZoomCurr, VVersion, gtimAsIs);
+        if VTileInfo.GetIsExists then begin
+          VNextMapGuid := VGUID;
+          break;
+        end;
+      end;
+    end;
+  end;
+  if not IsEqualGUID(VActiveMapGUID, VNextMapGuid) then begin
+    FConfig.MainMapsConfig.SelectMainByGUID(VNextMapGuid);
+  end;
+end;
+
 procedure TfrmMain.NextVersion(AStep: integer);
 var
   I: Integer;
@@ -6592,6 +6652,16 @@ end;
 procedure TfrmMain.TBXNextVerClick(Sender: TObject);
 begin
   NextVersion(+1);
+end;
+
+procedure TfrmMain.tbxnxtmapClick(Sender: TObject);
+begin
+  NextMapWithTile(1);
+end;
+
+procedure TfrmMain.tbxprevmapClick(Sender: TObject);
+begin
+  NextMapWithTile(-1);
 end;
 
 procedure TfrmMain.TBXPrevVerClick(Sender: TObject);
