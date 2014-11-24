@@ -621,6 +621,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Width = 436
         Height = 428
         Align = alClient
+        ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
         WantReturns = False
@@ -636,6 +637,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Width = 436
         Height = 428
         Align = alClient
+        ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
         WantReturns = False
@@ -651,6 +653,7 @@ object frmMapTypeEdit: TfrmMapTypeEdit
         Width = 436
         Height = 428
         Align = alClient
+        ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
         WantReturns = False
