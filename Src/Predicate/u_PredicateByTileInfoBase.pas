@@ -51,7 +51,7 @@ type
   protected
     function Check(const ATileInfo: TTileInfo): Boolean; override;
   public
-    constructor Create(ADataCheck: IPredicateByBinaryData);
+    constructor Create(const ADataCheck: IPredicateByBinaryData);
   end;
 
   TPredicateByTileInfoNotExistsTile = class(TPredicateByTileInfoAbstract)
@@ -248,7 +248,7 @@ end;
 { TPredicateByTileInfoExistsTileCheckData }
 
 constructor TPredicateByTileInfoExistsTileCheckData.Create(
-  ADataCheck: IPredicateByBinaryData
+  const ADataCheck: IPredicateByBinaryData
 );
 begin
   inherited Create;

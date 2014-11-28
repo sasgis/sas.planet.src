@@ -65,7 +65,7 @@ type
       const Alist: IInterfaceListSimple
     );
     Procedure AddItem2List(
-      AValue: IVectorDataItem;
+      const AValue: IVectorDataItem;
       const Alist: IInterfaceListSimple
     );
   protected
@@ -522,7 +522,7 @@ begin
 end;
 
 Procedure TGeoCoderByCoord.AddItem2List(
-  AValue: IVectorDataItem;
+  const AValue: IVectorDataItem;
   const Alist: IInterfaceListSimple
 );
 var
