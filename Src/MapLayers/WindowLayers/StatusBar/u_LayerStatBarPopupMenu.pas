@@ -32,10 +32,12 @@ uses
   i_LanguageManager,
   i_TerrainProviderList,
   i_TerrainConfig,
-  i_StatBarConfig;
+  i_StatBarConfig,
+  i_PopUp,
+  u_BaseInterfacedObject;
 
 type
-  TLayerStatBarPopupMenu = class(TObject)
+  TLayerStatBarPopupMenu = class(TBaseInterfacedObject, IPopUp)
   private
     FParentMap: TImage32;
     FPopup: TTBXPopupMenu;
@@ -51,6 +53,8 @@ type
     procedure OnTerrainItemClick(Sender: TObject);
     procedure OnTerrainCustomizeItemClick(Sender: TObject);
     procedure OnLangChange;
+  private
+    procedure PopUp;
   public
     constructor Create(
       const ALanguageManager: ILanguageManager;
@@ -61,7 +65,6 @@ type
       const AOnOptionsClick: TNotifyEvent
     );
     destructor Destroy; override;
-    procedure PopUp;
   end;
 
 implementation

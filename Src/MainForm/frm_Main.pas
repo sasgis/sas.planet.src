@@ -2358,6 +2358,16 @@ begin
       VLicensList
     )
   );
+
+  VPopupMenu :=
+    TLayerStatBarPopupMenu.Create(
+      GState.Config.LanguageManager,
+      map,
+      FConfig.LayersConfig.StatBar,
+      GState.Config.TerrainConfig,
+      GState.TerrainProviderList,
+      Self.tbitmOnInterfaceOptionsClick
+    );
   VLayersList.Add(
     TLayerStatBar.Create(
       GState.Config.LanguageManager,
@@ -2374,7 +2384,7 @@ begin
       GState.Config.TerrainConfig,
       GState.DownloadInfo,
       GState.GlobalInternetState,
-      Self.tbitmOnInterfaceOptionsClick,
+      VPopupMenu,
       FConfig.MainMapsConfig.GetActiveMap
     )
   );

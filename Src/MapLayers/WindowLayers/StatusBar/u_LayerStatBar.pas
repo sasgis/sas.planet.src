@@ -46,8 +46,8 @@ uses
   i_TerrainInfo,
   i_TerrainConfig,
   i_TerrainProviderList,
+  i_PopUp,
   u_TimeZoneInfo,
-  u_LayerStatBarPopupMenu,
   u_WindowLayerWithPos;
 
 type
@@ -63,7 +63,7 @@ type
     FTerrainConfig: ITerrainConfig;
     FValueToStringConverter: IValueToStringConverterChangeable;
     FView: ILocalCoordConverterChangeable;
-    FPopupMenu: TLayerStatBarPopupMenu;
+    FPopupMenu: IPopUp;
     FLastUpdateTick: DWORD;
     FMinUpdate: Cardinal;
     FBgColor: TColor32;
@@ -100,7 +100,7 @@ type
       const ATerrainConfig: ITerrainConfig;
       const ADownloadInfo: IDownloadInfoSimple;
       const AGlobalInternetState: IGlobalInternetState;
-      const AOnOptionsClick: TNotifyEvent;
+      const APopupMenu: IPopUp;
       const AMainMap: IMapTypeChangeable
     );
     destructor Destroy; override;
@@ -141,10 +141,11 @@ constructor TLayerStatBar.Create(
   const ATerrainConfig: ITerrainConfig;
   const ADownloadInfo: IDownloadInfoSimple;
   const AGlobalInternetState: IGlobalInternetState;
-  const AOnOptionsClick: TNotifyEvent;
+  const APopupMenu: IPopUp;
   const AMainMap: IMapTypeChangeable
 );
 begin
+  Assert(Assigned(APopupMenu));
   inherited Create(
     APerfList,
     AAppStartedNotifier,
@@ -155,6 +156,7 @@ begin
   FTerrainConfig := ATerrainConfig;
   FGlobalInternetState := AGlobalInternetState;
   FValueToStringConverter := AValueToStringConverter;
+  FPopupMenu := APopupMenu;
 
   FTimeZoneInfo := TTimeZoneInfo.Create;
   FConfig.TimeZoneInfoAvailable := FTimeZoneInfo.Available;
@@ -164,15 +166,6 @@ begin
   FDownloadInfo := ADownloadInfo;
   FMouseState := AMouseState;
   FView := AView;
-
-  FPopupMenu := TLayerStatBarPopupMenu.Create(
-    ALanguageManager,
-    AParentMap,
-    AConfig,
-    FTerrainConfig,
-    ATerrainProviderList,
-    AOnOptionsClick
-  );
 
   Layer.OnMouseDown := OnMouseDown;
 
@@ -195,7 +188,6 @@ end;
 destructor TLayerStatBar.Destroy;
 begin
   FreeAndNil(FTimeZoneInfo);
-  FreeAndNil(FPopupMenu);
   inherited;
 end;
 
