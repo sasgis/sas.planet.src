@@ -998,6 +998,7 @@ uses
   u_ImageResamplerFactoryChangeableByConfig,
   u_LayerScaleLinePopupMenu,
   u_LayerStatBarPopupMenu,
+  u_LayerMiniMapPopupMenu,
   u_PlayerPlugin,
   u_CmdLineArgProcessor,
   u_CmdLineArgProcessorHelpers,
@@ -2416,6 +2417,13 @@ begin
       GState.GUISyncronizedTimerNotifier
     )
   );
+  VPopupMenu :=
+    TLayerMiniMapPopupMenu.Create(
+      map,
+      FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig,
+      GState.MapType.GUIConfigList,
+      FMapTypeIcons18List
+    );
   VLayersList.Add(
     TMiniMapLayerViewRect.Create(
       GState.PerfCounterList.CreateAndAddNewSubList('TMiniMapLayerViewRect'),
@@ -2423,11 +2431,9 @@ begin
       GState.AppClosingNotifier,
       map,
       FViewPortState,
-      GState.MapType.GUIConfigList,
-      FMapTypeIcons18List,
       VMiniMapConverterChangeable,
       GState.GUISyncronizedTimerNotifier,
-      FConfig.LayersConfig.MiniMapLayerConfig.MapsConfig,
+      VPopupMenu,
       FConfig.LayersConfig.MiniMapLayerConfig.LocationConfig
     )
   );

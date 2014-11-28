@@ -665,6 +665,7 @@ uses
   u_CenterScale in 'Src\MapLayers\WindowLayers\CenterScale\u_CenterScale.pas',
   u_LayerStatBar in 'Src\MapLayers\WindowLayers\StatusBar\u_LayerStatBar.pas',
   u_LayerStatBarPopupMenu in 'Src\MainForm\u_LayerStatBarPopupMenu.pas',
+  u_LayerMiniMapPopupMenu in 'Src\MainForm\u_LayerMiniMapPopupMenu.pas',
   u_FullMapMouseCursorLayer in 'Src\MapLayers\WindowLayers\FullMapMouseCursor\u_FullMapMouseCursorLayer.pas',
   u_MapLayerBasic in 'Src\MapLayers\WindowLayers\u_MapLayerBasic.pas',
   u_MapLayerGrids in 'Src\MapLayers\LayersWithThreadAndProvider\Grids\u_MapLayerGrids.pas',

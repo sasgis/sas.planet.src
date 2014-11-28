@@ -491,6 +491,7 @@
     <DCCReference Include="Src\MainForm\u_LastSearchResult.pas" />
     <DCCReference Include="Src\MainForm\u_LastSelectionInfo.pas" />
     <DCCReference Include="Src\MainForm\u_LastSelectionInfoSaver.pas" />
+    <DCCReference Include="Src\MainForm\u_LayerMiniMapPopupMenu.pas" />
     <DCCReference Include="Src\MainForm\u_LayerScaleLinePopupMenu.pas" />
     <DCCReference Include="Src\MainForm\u_LayerStatBarPopupMenu.pas" />
     <DCCReference Include="Src\MainForm\u_LineOnMapEdit.pas" />

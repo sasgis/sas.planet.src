@@ -29,8 +29,6 @@ uses
   GR32,
   GR32_Image,
   GR32_Layers,
-  TBX,
-  TB2Item,
   t_GeoTypes,
   i_NotifierTime,
   i_NotifierOperation,
@@ -39,10 +37,8 @@ uses
   i_LocalCoordConverter,
   i_LocalCoordConverterChangeable,
   i_MiniMapLayerConfig,
-  i_ActiveMapsConfig,
-  i_MapTypeIconsList,
   i_ViewPortState,
-  i_MapTypeGUIConfigList,
+  i_PopUp,
   u_WindowLayerBasic;
 
 type
@@ -50,13 +46,10 @@ type
   private
     FParentMap: TImage32;
     FLayer: TPositionedLayer;
-    FMapsConfig: IActivMapWithLayers;
     FLocationConfig: IMiniMapLayerLocationConfig;
     FPosition: ILocalCoordConverterChangeable;
     FViewPortState: IViewPortState;
-    FGUIConfigList: IMapTypeGUIConfigList;
-    FPopup: TTBXPopupMenu;
-    FIconsList: IMapTypeIconsList;
+    FPopupMenu: IPopUp;
 
     FPosMoved: Boolean;
     FViewRectMoveDelta: TDoublePoint;
@@ -96,10 +89,6 @@ type
       Shift: TShiftState;
       X, Y: Integer
     );
-    procedure BuildPopUpMenu;
-    procedure BuildMapsListUI(AMapssSubMenu, ALayersSubMenu: TTBCustomItem);
-    procedure OnClickMapItem(Sender: TObject);
-    procedure OnClickLayerItem(Sender: TObject);
   protected
     procedure StartThreads; override;
   public
@@ -109,30 +98,21 @@ type
       const AAppClosingNotifier: INotifierOneOperation;
       AParentMap: TImage32;
       const AViewPortState: IViewPortState;
-      const AGUIConfigList: IMapTypeGUIConfigList;
-      const AIconsList: IMapTypeIconsList;
       const APosition: ILocalCoordConverterChangeable;
       const ATimerNoifier: INotifierTime;
-      const AMapsConfig: IActivMapWithLayers;
+      const APopupMenu: IPopUp;
       const ALocationConfig: IMiniMapLayerLocationConfig
     );
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses
-  SysUtils,
-  c_ZeroGUID,
   i_CoordConverter,
-  i_MapType,
   u_ListenerByEvent,
   u_SimpleFlagWithInterlock,
   u_ListenerTime,
-  u_MapTypeMenuItemsGeneratorBasic,
-  u_ActiveMapTBXItem,
-  u_GeoFunc,
-  u_ResStrings;
+  u_GeoFunc;
 
 { TMiniMapLayerTopBorder }
 
@@ -141,11 +121,9 @@ constructor TMiniMapLayerViewRect.Create(
   const AAppStartedNotifier, AAppClosingNotifier: INotifierOneOperation;
   AParentMap: TImage32;
   const AViewPortState: IViewPortState;
-  const AGUIConfigList: IMapTypeGUIConfigList;
-  const AIconsList: IMapTypeIconsList;
   const APosition: ILocalCoordConverterChangeable;
   const ATimerNoifier: INotifierTime;
-  const AMapsConfig: IActivMapWithLayers;
+  const APopupMenu: IPopUp;
   const ALocationConfig: IMiniMapLayerLocationConfig
 );
 begin
@@ -153,13 +131,11 @@ begin
     AAppStartedNotifier,
     AAppClosingNotifier
   );
-  FMapsConfig := AMapsConfig;
   FLocationConfig := ALocationConfig;
   FParentMap := AParentMap;
   FPosition := APosition;
   FViewPortState := AViewPortState;
-  FGUIConfigList := AGUIConfigList;
-  FIconsList := AIconsList;
+  FPopupMenu := APopupMenu;
 
   FLayer := TPositionedLayer.Create(AParentMap.Layers);
   FLayer.Visible := False;
@@ -189,78 +165,6 @@ begin
     TListenerTimeCheck.Create(Self.OnTimer, 100),
     ATimerNoifier
   );
-
-  BuildPopUpMenu;
-end;
-
-destructor TMiniMapLayerViewRect.Destroy;
-begin
-  FreeAndNil(FPopup);
-  inherited;
-end;
-
-procedure TMiniMapLayerViewRect.BuildMapsListUI(
-  AMapssSubMenu, ALayersSubMenu: TTBCustomItem
-);
-var
-  VGenerator: TMapMenuGeneratorBasic;
-begin
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FGUIConfigList,
-    FMapsConfig.GetMapsSet,
-    FMapsConfig.GetActiveMap,
-    nil,
-    AMapssSubMenu,
-    Self.OnClickMapItem,
-    FIconsList
-  );
-  try
-    VGenerator.BuildControls;
-  finally
-    VGenerator.Free;
-  end;
-  VGenerator := TMapMenuGeneratorBasic.Create(
-    FGUIConfigList,
-    FMapsConfig.GetLayersSet,
-    nil,
-    FMapsConfig.GetActiveLayersSet,
-    ALayersSubMenu,
-    Self.OnClickLayerItem,
-    FIconsList
-  );
-  try
-    VGenerator.BuildControls;
-  finally
-    VGenerator.Free;
-  end;
-end;
-
-procedure TMiniMapLayerViewRect.BuildPopUpMenu;
-var
-  VSubMenuItem: TTBXSubmenuItem;
-  VLayersSubMenu: TTBXSubmenuItem;
-  VMenuItemAsMainMap: TTBXCustomItem;
-begin
-  FPopup := TTBXPopupMenu.Create(nil);
-  FPopup.Name := 'PopupMiniMap';
-  FPopup.Images := FIconsList.GetImageList;
-
-  VSubMenuItem := TTBXSubmenuItem.Create(FPopup);
-  VSubMenuItem.Name := 'MiniMapLayers';
-  VSubMenuItem.Caption := SAS_STR_Layers;
-  VSubMenuItem.Hint := '';
-  VSubMenuItem.SubMenuImages := FPopup.Images;
-  FPopup.Items.Add(VSubMenuItem);
-  VLayersSubMenu := VSubMenuItem;
-
-  VMenuItemAsMainMap := TActiveMapTBXItem.Create(FPopup, nil, FMapsConfig.GetActiveMap);
-  VMenuItemAsMainMap.Name := 'MapAsMainLayer';
-  VMenuItemAsMainMap.Caption := SAS_STR_MiniMapAsMainMap;
-  VMenuItemAsMainMap.Hint := '';
-  VMenuItemAsMainMap.OnClick := Self.OnClickMapItem;
-  FPopup.Items.Add(VMenuItemAsMainMap);
-
-  BuildMapsListUI(FPopup.Items, VLayersSubMenu);
 end;
 
 procedure TMiniMapLayerViewRect.DrawMainViewRect(
@@ -337,10 +241,9 @@ var
   VVisibleCenter: TDoublePoint;
   VLocalConverter: ILocalCoordConverter;
 begin
-  FParentMap.PopupMenu := nil;
   case Button of
     mbRight: begin
-      FParentMap.PopupMenu := FPopup;
+      FPopupMenu.PopUp;
     end;
     mbLeft: begin
       VLocalConverter := FPosition.GetStatic;
@@ -417,37 +320,6 @@ begin
     end;
   end;
   FPosMoved := False;
-end;
-
-procedure TMiniMapLayerViewRect.OnClickLayerItem(Sender: TObject);
-var
-  VSender: TTBCustomItem;
-  VMapType: IMapType;
-begin
-  if Sender is TTBCustomItem then begin
-    VSender := TTBCustomItem(Sender);
-    VMapType := IMapType(VSender.Tag);
-    if VMapType <> nil then begin
-      FMapsConfig.InvertLayerSelectionByGUID(VMapType.GUID);
-    end;
-  end;
-end;
-
-procedure TMiniMapLayerViewRect.OnClickMapItem(Sender: TObject);
-var
-  VSender: TComponent;
-  VMapType: IMapType;
-  VGUID: TGUID;
-begin
-  if Sender is TComponent then begin
-    VGUID := CGUID_Zero;
-    VSender := TComponent(Sender);
-    VMapType := IMapType(VSender.Tag);
-    if VMapType <> nil then begin
-      VGUID := VMapType.GUID;
-    end;
-    FMapsConfig.SelectMainByGUID(VGUID);
-  end;
 end;
 
 procedure TMiniMapLayerViewRect.OnConfigChange;
