@@ -73,7 +73,6 @@ uses
   u_GeoToStrFunc,
   u_DownloaderHttp,
   u_BinaryData,
-  u_Notifier,
   u_DownloadRequest,
   u_NotifierOperation,
   u_TileRequestBuilderHelpers;

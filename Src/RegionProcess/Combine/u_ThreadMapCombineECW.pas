@@ -36,8 +36,6 @@ uses
   i_MapCalibration,
   i_LocalCoordConverterFactorySimpe,
   u_ECWWrite,
-  u_GeoFunc,
-  t_GeoTypes,
   u_ThreadMapCombineBase;
 
 type

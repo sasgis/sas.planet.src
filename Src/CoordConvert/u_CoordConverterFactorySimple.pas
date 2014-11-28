@@ -58,7 +58,6 @@ implementation
 uses
   SysUtils,
   t_Hash,
-  t_GeoTypes,
   c_CoordConverter,
   u_CoordConverterMercatorOnSphere,
   u_CoordConverterMercatorOnEllipsoid,

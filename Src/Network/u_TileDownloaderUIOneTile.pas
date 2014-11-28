@@ -85,7 +85,6 @@ implementation
 uses
   SysUtils,
   i_DownloadResult,
-  u_Notifier,
   u_NotifierOperation,
   u_TileRequestTask,
   u_ReadableThreadNames,

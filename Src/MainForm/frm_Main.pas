@@ -978,7 +978,6 @@ uses
   u_MapTypeListChangeableActiveBitmapLayers,
   u_MapTypeSetChangeableBySourceSetWithFilter,
   u_ActiveMapsLicenseList,
-  u_Notifier,
   u_NotifierOperation,
   u_MainFormState,
   u_PosFromGSM,

@@ -24,7 +24,6 @@ interface
 
 uses
   i_ReadWriteState,
-  i_NotifierOperation,
   i_VectorDataItemSimple,
   i_MarkCategory,
   i_MarkDbImpl,

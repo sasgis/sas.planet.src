@@ -70,8 +70,7 @@ uses
   SysUtils,
   t_GeoTypes,
   u_CalcWFileParams,
-  u_GeoToStrFunc,
-  u_GeoFunc;
+  u_GeoToStrFunc;
 
 function GetProj(const AConverter: ICoordConverter): UTF8String;
 begin

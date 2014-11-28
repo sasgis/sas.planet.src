@@ -24,7 +24,6 @@ interface
 
 uses
   Types,
-  i_NotifierTilePyramidUpdate,
   i_Bitmap32Static,
   i_VectorItemSubset,
   i_ProjectionInfo,

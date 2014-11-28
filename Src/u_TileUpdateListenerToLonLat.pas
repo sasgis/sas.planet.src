@@ -23,6 +23,7 @@ unit u_TileUpdateListenerToLonLat;
 interface
 
 uses
+  t_Listener,
   i_Listener,
   i_SimpleFlag,
   i_CoordConverter,

@@ -31,9 +31,6 @@ uses
   u_BaseInterfacedObject;
 
 type
-  TNotifyListenerNoMmgEvent = procedure of object;
-  TNotifyListenerEvent = procedure(const AMsg: IInterface) of object;
-
   TNotifyEventListener = class(TBaseInterfacedObject, IListener, IListenerDisconnectable)
   private
     FDisconnectFlag: ISimpleFlag;

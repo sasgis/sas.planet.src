@@ -66,7 +66,6 @@ uses
   u_DownloadResultFactory,
   u_DownloadRequest,
   u_DownloaderHttp,
-  u_Notifier,
   u_NotifierOperation,
   u_DoublePointsAggregator,
   u_MultiPoligonParser,

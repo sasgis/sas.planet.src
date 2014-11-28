@@ -33,7 +33,6 @@ uses
   i_HashFunction,
   i_InterfaceListStatic,
   i_AppearanceOfMarkFactory,
-  i_VectorItemSubset,
   i_VectorItemSubsetBuilder,
   i_VectorItemTree,
   i_StaticTreeItem,
@@ -97,13 +96,9 @@ type
 implementation
 
 uses
-  SysUtils,
-  i_Category,
-  i_GeometryLonLat,
   i_MarkSystemImpl,
   i_MarkSystemImplFactory,
   u_InterfaceListSimple,
-  u_VectorItemTree,
   u_MarkSystemImplFactorySML,
   u_MarkSystemImplFactoryChangeable,
   u_MarkDbByImpl,

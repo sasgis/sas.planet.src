@@ -76,7 +76,6 @@ uses
   i_Downloader,
   i_NotifierOperation,
   u_DownloaderHttp,
-  u_Notifier,
   u_NotifierOperation,
   u_GeoToStrFunc;
 

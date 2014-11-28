@@ -112,7 +112,6 @@ uses
   i_MarkId,
   i_LocalCoordConverter,
   i_NotifierOperation,
-  u_Notifier,
   u_NotifierOperation,
   u_GeoCodeResult;
 

@@ -23,8 +23,6 @@ unit u_ArchiveReadWriteFactory;
 interface
 
 uses
-  Classes,
-  i_ArchiveReadWrite,
   i_ArchiveReadWriteFactory,
   u_BaseInterfacedObject;
 

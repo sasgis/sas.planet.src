@@ -290,7 +290,6 @@ uses
   i_DoublePointsAggregator,
   u_ClipboardFunc,
   u_Synchronizer,
-  u_Notifier,
   u_NotifierOperation,
   u_InetFunc,
   u_VectorItemTree,

@@ -89,10 +89,8 @@ uses
   i_BitmapTileSaveLoad,
   i_ImportConfig,
   i_JpegWithExifImportConfig,
-  u_JpegWithExifImportConfig,
   u_MarkPictureSimple,
   u_VectorItemTree,
-  u_ImportConfig,
   u_GeoFunc;
 
 const

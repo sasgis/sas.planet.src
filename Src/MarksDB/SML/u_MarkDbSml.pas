@@ -193,19 +193,14 @@ implementation
 
 uses
   ActiveX,
-  Math,
   StrUtils,
   t_Bitmap32,
   t_CommonTypes,
-  i_EnumDoublePoint,
   i_AppearanceOfVectorItem,
   i_MarkCategoryFactoryDbInternal,
   u_IDInterfaceList,
   u_InterfaceListSimple,
-  i_DoublePointsAggregator,
-  u_DoublePointsAggregator,
-  u_SimpleFlagWithInterlock,
-  u_GeoFunc;
+  u_SimpleFlagWithInterlock;
 
 constructor TMarkDbSml.Create(
   const ADbId: Integer;

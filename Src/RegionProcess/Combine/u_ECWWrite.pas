@@ -26,7 +26,6 @@ uses
   SysUtils,
   LibECW,
   t_ECW,
-  t_GeoTypes,
   i_NotifierOperation;
 
 type

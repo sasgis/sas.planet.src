@@ -82,10 +82,8 @@ type
 implementation
 
 uses
-  Classes,
   StrUtils,
   SysUtils,
-  i_Category,
   i_MarkSystemImpl,
   i_InterfaceListSimple,
   u_Notifier,
