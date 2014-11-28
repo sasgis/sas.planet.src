@@ -91,6 +91,7 @@ type
     property MapsSet: IMapTypeSet read FMapsSet;
     property LayersSet: IMapTypeSet read FLayersSet;
     property FirstMainMapGUID: TGUID read GetFirstMainMapGUID;
+    property GUIConfigList: IMapTypeGUIConfigList read FGUIConfigList;
 
     procedure LoadMaps(
       const ALanguageManager: ILanguageManager;
@@ -112,9 +113,6 @@ type
       const ALocalMapsConfig: IConfigDataProvider
     );
     procedure SaveMaps(const ALocalMapsConfig: IConfigDataWriteProvider);
-
-    function GetGUIConfigList: IMapTypeGUIConfigList;
-    property GUIConfigList: IMapTypeGUIConfigList read GetGUIConfigList;
   end;
 
 implementation
@@ -171,11 +169,6 @@ begin
       exit;
     end;
   end;
-end;
-
-function TMapTypesMainList.GetGUIConfigList: IMapTypeGUIConfigList;
-begin
-  Result := FGUIConfigList;
 end;
 
 procedure TMapTypesMainList.BuildMapsLists;
