@@ -3745,7 +3745,7 @@ begin
           );
         VVersion := VMapType.VersionRequestConfig.GetStatic;
         VTileInfo := VMapType.TileStorage.GetTileInfoEx(VMapTile, VZoomCurr, VVersion, gtimAsIs);
-        if VTileInfo.GetIsExists then begin
+        if Assigned(VTileInfo) and VTileInfo.GetIsExists then begin
           VNextMapGuid := VGUID;
           break;
         end;
