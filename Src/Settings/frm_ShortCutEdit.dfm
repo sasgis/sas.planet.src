@@ -8,7 +8,7 @@ object frmShortCutEdit: TfrmShortCutEdit
   Color = clBtnFace
   ParentFont = True
   OldCreateOrder = False
-  Position = poDesktopCenter
+  Position = poMainFormCenter
   ShowHint = True
   OnShow = FormShow
   PixelsPerInch = 96
