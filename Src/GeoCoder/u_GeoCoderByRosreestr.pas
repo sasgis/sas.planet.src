@@ -327,7 +327,7 @@ begin
     begin
       Result :=
         PrepareRequestByURL(
-          'http://maps.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum=' + URLEncode(AnsiToUtf8(ASearch)) + '&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript48._jsonpCallback'
+          'http://maps.rosreestr.ru/arcgis/rest/services/Cadastre/CadastreSelected/MapServer/exts/GKNServiceExtension/online/parcel/find?cadNum=' + URLEncode(AnsiToUtf8(ASearch)) + '&onlyAttributes=false&returnGeometry=true&f=json&callback=dojo.io.script.jsonp_dojoIoScript16._jsonpCallback'
         );
     end;
 
